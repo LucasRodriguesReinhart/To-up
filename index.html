@@ -1,0 +1,1249 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BASE - Gestao Pessoal | Lucas Rodrigues</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0B0D10;
+  --surface:#12151A;
+  --surface2:#181C23;
+  --surface3:#1F242D;
+  --border:#242A33;
+  --border-soft:#1B2028;
+  --text:#E7E9EC;
+  --muted:#8B93A1;
+  --faint:#5A6270;
+  --accent:#C8A15E;
+  --accent-soft:rgba(200,161,94,.12);
+  --accent-line:rgba(200,161,94,.35);
+  --green:#5FB78A;
+  --green-soft:rgba(95,183,138,.12);
+  --red:#D96C6C;
+  --red-soft:rgba(217,108,108,.12);
+  --blue:#6E9BD1;
+  --blue-soft:rgba(110,155,209,.12);
+  --font-display:'Fraunces',Georgia,serif;
+  --font-body:'Inter',system-ui,sans-serif;
+  --font-mono:'JetBrains Mono',ui-monospace,monospace;
+  --radius:14px;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--font-body);
+  font-size:14px;
+  line-height:1.55;
+  min-height:100vh;
+}
+::selection{background:var(--accent-soft);color:var(--accent)}
+::-webkit-scrollbar{width:9px;height:9px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:#2A313C;border-radius:6px}
+::-webkit-scrollbar-thumb:hover{background:#39424F}
+
+/* ---------- Layout ---------- */
+.app{display:flex;min-height:100vh}
+.sidebar{
+  width:236px;flex-shrink:0;
+  background:linear-gradient(180deg,#0E1116 0%,#0B0D10 100%);
+  border-right:1px solid var(--border-soft);
+  padding:28px 16px 20px;
+  display:flex;flex-direction:column;gap:4px;
+  position:sticky;top:0;height:100vh;
+}
+.brand{padding:0 12px 22px;border-bottom:1px solid var(--border-soft);margin-bottom:18px}
+.brand h1{
+  font-family:var(--font-display);font-weight:600;font-size:26px;
+  letter-spacing:.02em;color:var(--text);
+}
+.brand h1 span{color:var(--accent)}
+.brand p{font-size:11px;color:var(--faint);letter-spacing:.14em;text-transform:uppercase;margin-top:2px}
+.nav-label{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--faint);padding:14px 12px 6px}
+.nav-item{
+  display:flex;align-items:center;gap:11px;
+  padding:9px 12px;border-radius:10px;cursor:pointer;
+  color:var(--muted);font-weight:500;font-size:13.5px;
+  border:1px solid transparent;
+  transition:background .15s,color .15s;
+  user-select:none;
+}
+.nav-item svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
+.nav-item:hover{background:var(--surface2);color:var(--text)}
+.nav-item.active{background:var(--accent-soft);color:var(--accent);border-color:var(--accent-line)}
+.sidebar-footer{margin-top:auto;padding:14px 12px 0;border-top:1px solid var(--border-soft)}
+.sidebar-footer .clock{font-family:var(--font-mono);font-size:20px;font-weight:500;color:var(--text)}
+.sidebar-footer .date{font-size:11.5px;color:var(--muted);margin-top:1px;text-transform:capitalize}
+
+.main{flex:1;padding:34px 40px 60px;max-width:1180px;margin:0 auto;width:100%}
+.page{display:none;animation:fade .25s ease}
+.page.visible{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+.page-head{margin-bottom:26px}
+.page-head .eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--accent);font-weight:600}
+.page-head h2{font-family:var(--font-display);font-weight:600;font-size:32px;letter-spacing:.01em;margin-top:4px}
+.page-head .sub{color:var(--muted);margin-top:4px;font-size:13.5px}
+
+/* ---------- Cards e grids ---------- */
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:repeat(2,1fr)}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g4{grid-template-columns:repeat(4,1fr)}
+.card{
+  background:var(--surface);border:1px solid var(--border-soft);
+  border-radius:var(--radius);padding:20px 22px;
+}
+.card h3{font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between}
+.kpi .value{font-family:var(--font-mono);font-size:26px;font-weight:600;letter-spacing:-.01em}
+.kpi .label{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);font-weight:600;margin-bottom:8px}
+.kpi .hint{font-size:12px;color:var(--muted);margin-top:6px}
+.accent{color:var(--accent)} .green{color:var(--green)} .red{color:var(--red)} .blue{color:var(--blue)}
+
+/* ---------- Timeline do dia (assinatura) ---------- */
+.timeline{position:relative;padding-left:26px}
+.timeline::before{content:'';position:absolute;left:8px;top:6px;bottom:6px;width:1px;background:var(--border)}
+.tl-item{position:relative;padding:10px 0 10px 8px;display:flex;gap:14px;align-items:baseline}
+.tl-item::before{
+  content:'';position:absolute;left:-22px;top:16px;width:7px;height:7px;border-radius:50%;
+  background:var(--faint);
+}
+.tl-item.done::before{background:var(--green)}
+.tl-item.now::before{
+  background:var(--accent);box-shadow:0 0 0 4px var(--accent-soft);
+  animation:pulse 2s infinite;
+}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 4px var(--accent-soft)}50%{box-shadow:0 0 0 8px rgba(200,161,94,.06)}}
+.tl-time{font-family:var(--font-mono);font-size:12.5px;color:var(--muted);width:46px;flex-shrink:0}
+.tl-item.now .tl-time{color:var(--accent);font-weight:600}
+.tl-title{font-size:13.5px;font-weight:500}
+.tl-item.done .tl-title{color:var(--faint);text-decoration:line-through}
+.tl-item.now .tl-title{color:var(--text)}
+.tl-tag{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);margin-left:auto}
+.now-banner{
+  display:flex;align-items:center;gap:12px;
+  background:linear-gradient(90deg,var(--accent-soft),transparent 70%);
+  border:1px solid var(--accent-line);border-radius:12px;
+  padding:13px 16px;margin-bottom:18px;
+}
+.now-banner .dot{width:8px;height:8px;border-radius:50%;background:var(--accent);animation:pulse 2s infinite;flex-shrink:0}
+.now-banner .nb-label{font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);font-weight:700}
+.now-banner .nb-title{font-weight:600;font-size:14.5px}
+.now-banner .nb-next{margin-left:auto;font-size:12px;color:var(--muted);text-align:right}
+
+/* ---------- Checklists ---------- */
+.check-row{
+  display:flex;align-items:center;gap:12px;padding:10px 12px;
+  border-radius:10px;cursor:pointer;user-select:none;
+  border:1px solid transparent;transition:background .12s;
+}
+.check-row:hover{background:var(--surface2)}
+.check-box{
+  width:19px;height:19px;border-radius:6px;border:1.5px solid var(--faint);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  transition:all .15s;
+}
+.check-box svg{width:11px;height:11px;stroke:#0B0D10;stroke-width:3;fill:none;stroke-linecap:round;stroke-linejoin:round;opacity:0}
+.check-row.checked .check-box{background:var(--accent);border-color:var(--accent)}
+.check-row.checked .check-box svg{opacity:1}
+.check-row.checked .check-text{color:var(--faint);text-decoration:line-through}
+.check-text{font-size:13.5px;font-weight:500}
+.check-sub{font-size:11.5px;color:var(--faint);margin-left:auto}
+
+/* ---------- Progress ---------- */
+.progress{height:6px;background:var(--surface3);border-radius:99px;overflow:hidden;margin-top:10px}
+.progress .fill{height:100%;background:var(--accent);border-radius:99px;transition:width .4s ease}
+.progress .fill.green{background:var(--green)}
+.progress .fill.blue{background:var(--blue)}
+
+/* ---------- Botões e inputs ---------- */
+.btn{
+  background:var(--surface3);color:var(--text);border:1px solid var(--border);
+  border-radius:9px;padding:8px 14px;font-family:var(--font-body);font-size:12.5px;
+  font-weight:600;cursor:pointer;transition:all .15s;
+}
+.btn:hover{background:#28303B;border-color:#333B48}
+.btn.primary{background:var(--accent);color:#14100A;border-color:var(--accent)}
+.btn.primary:hover{background:#D6B173}
+.btn.ghost{background:transparent;border-color:var(--border);color:var(--muted)}
+.btn.ghost:hover{color:var(--text)}
+.btn.danger{background:var(--red-soft);color:var(--red);border-color:transparent}
+.btn.sm{padding:5px 10px;font-size:11.5px}
+.btn.icon-only{padding:6px 8px;line-height:1}
+input,select,textarea{
+  background:var(--surface2);border:1px solid var(--border);border-radius:9px;
+  color:var(--text);font-family:var(--font-body);font-size:13px;
+  padding:8px 11px;outline:none;transition:border-color .15s;width:100%;
+}
+input:focus,select:focus,textarea:focus{border-color:var(--accent-line)}
+input[type=date],input[type=time]{color-scheme:dark}
+label.f-label{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600;display:block;margin-bottom:5px}
+.form-row{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap}
+.form-row>div{flex:1;min-width:110px}
+
+/* ---------- Tabelas ---------- */
+table{width:100%;border-collapse:collapse}
+th{font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--faint);font-weight:600;text-align:left;padding:8px 10px;border-bottom:1px solid var(--border)}
+td{padding:10px;font-size:13px;border-bottom:1px solid var(--border-soft)}
+td.mono{font-family:var(--font-mono);font-size:12.5px}
+tr:hover td{background:var(--surface2)}
+.tag{
+  display:inline-block;padding:2.5px 9px;border-radius:99px;
+  font-size:10.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+  background:var(--surface3);color:var(--muted);
+}
+.tag.gold{background:var(--accent-soft);color:var(--accent)}
+.tag.green{background:var(--green-soft);color:var(--green)}
+.tag.red{background:var(--red-soft);color:var(--red)}
+.tag.blue{background:var(--blue-soft);color:var(--blue)}
+
+/* ---------- Ciclo de treino ---------- */
+.cycle-strip{display:grid;grid-template-columns:repeat(8,1fr);gap:8px;margin-top:6px}
+.cycle-day{
+  border:1px solid var(--border-soft);border-radius:10px;padding:10px 6px;text-align:center;
+  background:var(--surface2);
+}
+.cycle-day .cd-date{font-family:var(--font-mono);font-size:11px;color:var(--faint)}
+.cycle-day .cd-type{font-family:var(--font-display);font-size:19px;font-weight:600;margin:3px 0 1px}
+.cycle-day .cd-name{font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.cycle-day.today{border-color:var(--accent-line);background:var(--accent-soft)}
+.cycle-day.today .cd-type{color:var(--accent)}
+.cycle-day.off .cd-type{color:var(--faint)}
+
+/* ---------- Kanban ---------- */
+.kanban{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.kb-col{background:var(--surface);border:1px solid var(--border-soft);border-radius:var(--radius);padding:14px}
+.kb-col h4{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:12px;display:flex;justify-content:space-between}
+.kb-card{
+  background:var(--surface2);border:1px solid var(--border-soft);border-radius:10px;
+  padding:11px 12px;margin-bottom:9px;font-size:13px;
+}
+.kb-card .kb-meta{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
+.kb-actions{display:flex;gap:5px}
+.kb-move{
+  background:transparent;border:1px solid var(--border);color:var(--muted);
+  border-radius:6px;width:24px;height:22px;cursor:pointer;font-size:12px;line-height:1;
+}
+.kb-move:hover{color:var(--accent);border-color:var(--accent-line)}
+
+/* ---------- ENEM ---------- */
+.countdown{display:flex;gap:14px}
+.cd-block{flex:1;text-align:center;background:var(--surface2);border:1px solid var(--border-soft);border-radius:12px;padding:16px 10px}
+.cd-block .n{font-family:var(--font-mono);font-size:34px;font-weight:600;color:var(--accent)}
+.cd-block .l{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-top:2px}
+.week-plan{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}
+.wp-day{background:var(--surface2);border:1px solid var(--border-soft);border-radius:10px;padding:11px 9px;min-height:96px}
+.wp-day.today{border-color:var(--accent-line);background:var(--accent-soft)}
+.wp-day .wd{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);font-weight:700}
+.wp-day .ws{font-size:12px;font-weight:600;margin-top:5px;line-height:1.35}
+.wp-day .wf{font-size:10.5px;color:var(--muted);margin-top:3px;line-height:1.35}
+
+/* ---------- listas simples ---------- */
+.simple-list{list-style:none}
+.simple-list li{
+  display:flex;align-items:center;gap:10px;padding:9px 4px;
+  border-bottom:1px solid var(--border-soft);font-size:13px;
+}
+.simple-list li:last-child{border-bottom:none}
+.del{
+  margin-left:auto;background:transparent;border:none;color:var(--faint);
+  cursor:pointer;font-size:15px;line-height:1;padding:3px 6px;border-radius:6px;
+}
+.del:hover{color:var(--red);background:var(--red-soft)}
+
+.empty{color:var(--faint);font-size:12.5px;text-align:center;padding:18px 0;font-style:italic}
+.divider{height:1px;background:var(--border-soft);margin:16px 0}
+.mt{margin-top:16px}.mt-sm{margin-top:10px}.mb{margin-bottom:16px}
+.flex{display:flex;gap:10px;align-items:center}
+.space{justify-content:space-between}
+.muted{color:var(--muted)} .small{font-size:12px}
+
+@media(max-width:1024px){
+  .g4{grid-template-columns:repeat(2,1fr)}
+  .g3{grid-template-columns:repeat(2,1fr)}
+  .cycle-strip{grid-template-columns:repeat(4,1fr)}
+  .week-plan{grid-template-columns:repeat(4,1fr)}
+}
+@media(max-width:760px){
+  .app{flex-direction:column}
+  .sidebar{width:100%;height:auto;position:static;flex-direction:row;flex-wrap:wrap;padding:14px;gap:6px}
+  .brand{border:none;padding:0 10px;margin:0;width:100%}
+  .nav-label,.sidebar-footer{display:none}
+  .main{padding:22px 16px 50px}
+  .g2,.g3,.g4{grid-template-columns:1fr}
+  .kanban{grid-template-columns:1fr}
+  .week-plan{grid-template-columns:repeat(2,1fr)}
+  .countdown{flex-wrap:wrap}
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+<aside class="sidebar">
+  <div class="brand">
+    <h1>BASE<span>.</span></h1>
+    <p>Gestao pessoal</p>
+  </div>
+  <div class="nav-label">Painel</div>
+  <div class="nav-item active" data-page="hoje">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>Hoje
+  </div>
+  <div class="nav-item" data-page="rotina">
+    <svg viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>Rotina
+  </div>
+  <div class="nav-label">Objetivos</div>
+  <div class="nav-item" data-page="enem">
+    <svg viewBox="0 0 24 24"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1.7 2.7 3 6 3s6-1.3 6-3v-5"/></svg>ENEM 2026
+  </div>
+  <div class="nav-item" data-page="treino">
+    <svg viewBox="0 0 24 24"><path d="M6.5 6.5v11M17.5 6.5v11M6.5 12h11M3 9v6M21 9v6"/></svg>Treino
+  </div>
+  <div class="nav-item" data-page="dev">
+    <svg viewBox="0 0 24 24"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/></svg>Dev e Estudos
+  </div>
+  <div class="nav-label">Vida pratica</div>
+  <div class="nav-item" data-page="trabalho">
+    <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>Trabalho
+  </div>
+  <div class="nav-item" data-page="financas">
+    <svg viewBox="0 0 24 24"><path d="M12 2v20M17 6H9.5a3 3 0 0 0 0 6h5a3 3 0 0 1 0 6H6"/></svg>Financas
+  </div>
+  <div class="nav-item" data-page="config">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.1-1.2l2-1.6-2-3.4-2.4 1a7 7 0 0 0-2-1.2L14 3h-4l-.5 2.6a7 7 0 0 0-2 1.2l-2.4-1-2 3.4 2 1.6A7 7 0 0 0 5 12c0 .4 0 .8.1 1.2l-2 1.6 2 3.4 2.4-1a7 7 0 0 0 2 1.2L10 21h4l.5-2.6a7 7 0 0 0 2-1.2l2.4 1 2-3.4-2-1.6c.1-.4.1-.8.1-1.2z"/></svg>Ajustes
+  </div>
+  <div class="sidebar-footer">
+    <div class="clock" id="sbClock">00:00</div>
+    <div class="date" id="sbDate"></div>
+  </div>
+</aside>
+
+<main class="main">
+
+<!-- ================= HOJE ================= -->
+<section class="page visible" id="page-hoje">
+  <div class="page-head">
+    <div class="eyebrow" id="hjEyebrow">Painel do dia</div>
+    <h2 id="hjGreeting">Bom dia, Lucas</h2>
+    <div class="sub" id="hjSub"></div>
+  </div>
+
+  <div class="now-banner" id="nowBanner" style="display:none">
+    <div class="dot"></div>
+    <div>
+      <div class="nb-label">Agora</div>
+      <div class="nb-title" id="nbTitle"></div>
+    </div>
+    <div class="nb-next" id="nbNext"></div>
+  </div>
+
+  <div class="grid g4 mb">
+    <div class="card kpi">
+      <div class="label">ENEM - Dia 1</div>
+      <div class="value accent" id="kEnem1">-</div>
+      <div class="hint">dias para 08 de novembro</div>
+    </div>
+    <div class="card kpi">
+      <div class="label">Treino de hoje</div>
+      <div class="value" id="kTreino">-</div>
+      <div class="hint" id="kTreinoHint"></div>
+    </div>
+    <div class="card kpi">
+      <div class="label">Dia concluido</div>
+      <div class="value green" id="kDia">0%</div>
+      <div class="hint" id="kDiaHint">checklist de hoje</div>
+    </div>
+    <div class="card kpi">
+      <div class="label">Saldo do mes</div>
+      <div class="value" id="kSaldo">R$ 0,00</div>
+      <div class="hint" id="kSaldoHint"></div>
+    </div>
+  </div>
+
+  <div class="grid g2">
+    <div class="card">
+      <h3>Linha do dia <span class="small muted" id="tlHint" style="letter-spacing:0;text-transform:none"></span></h3>
+      <div class="timeline" id="hjTimeline"></div>
+    </div>
+    <div>
+      <div class="card mb">
+        <h3>Checklist de hoje <button class="btn sm ghost" onclick="app.resetToday()">Reiniciar</button></h3>
+        <div id="hjChecklist"></div>
+        <div class="progress"><div class="fill" id="hjProgress" style="width:0%"></div></div>
+      </div>
+      <div class="card">
+        <h3>Trabalho - pendencias</h3>
+        <div id="hjWork"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ROTINA ================= -->
+<section class="page" id="page-rotina">
+  <div class="page-head">
+    <div class="eyebrow">Estrutura</div>
+    <h2>Rotina diaria</h2>
+    <div class="sub">Blocos fixos do dia. Edite conforme o periodo - ferias, aulas ou vespera de prova.</div>
+  </div>
+  <div class="grid g2">
+    <div class="card">
+      <h3>Blocos do dia</h3>
+      <div id="rtList"></div>
+      <div class="divider"></div>
+      <div class="form-row">
+        <div style="flex:0 0 92px"><label class="f-label">Inicio</label><input type="time" id="rtTime"></div>
+        <div><label class="f-label">Atividade</label><input type="text" id="rtName" placeholder="Ex: Estudo ENEM - bloco 2"></div>
+        <div style="flex:0 0 120px"><label class="f-label">Categoria</label>
+          <select id="rtTag">
+            <option>Rotina</option><option>Trabalho</option><option>Estudo</option>
+            <option>Treino</option><option>Escola</option><option>Descanso</option>
+          </select>
+        </div>
+        <button class="btn primary" onclick="app.addRoutine()">Adicionar</button>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Contexto atual</h3>
+      <p class="small muted">Escola em recesso ate 27 de julho. Janela ideal para ampliar o volume de estudo ENEM para 3 horas ou mais por dia, mantendo redacao semanal inegociavel.</p>
+      <div class="divider"></div>
+      <h3>Notas rapidas</h3>
+      <ul class="simple-list" id="rtNotes"></ul>
+      <div class="form-row mt-sm">
+        <div><input type="text" id="rtNoteInput" placeholder="Anotar lembrete..." onkeydown="if(event.key==='Enter')app.addNote()"></div>
+        <button class="btn" onclick="app.addNote()">Salvar</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ENEM ================= -->
+<section class="page" id="page-enem">
+  <div class="page-head">
+    <div class="eyebrow">Objetivo principal</div>
+    <h2>ENEM 2026</h2>
+    <div class="sub">Provas em 08 e 15 de novembro. Fase atual calculada automaticamente pela distancia da prova.</div>
+  </div>
+
+  <div class="grid g3 mb">
+    <div class="card"><h3>Contagem regressiva</h3>
+      <div class="countdown">
+        <div class="cd-block"><div class="n" id="enD1">-</div><div class="l">dias - Dia 1</div></div>
+        <div class="cd-block"><div class="n" id="enD2">-</div><div class="l">dias - Dia 2</div></div>
+      </div>
+    </div>
+    <div class="card kpi"><h3>Fase de preparacao</h3>
+      <div class="value accent" id="enPhase" style="font-family:var(--font-display);font-size:22px">-</div>
+      <div class="hint" id="enPhaseHint"></div>
+    </div>
+    <div class="card kpi"><h3>Redacoes no mes</h3>
+      <div class="value" id="enRedCount">0</div>
+      <div class="hint">meta: 4 por mes, uma por semana</div>
+      <button class="btn sm mt-sm" onclick="app.addRedacao()">Registrar redacao</button>
+    </div>
+  </div>
+
+  <div class="card mb">
+    <h3>Plano semanal</h3>
+    <div class="week-plan" id="enWeek"></div>
+  </div>
+
+  <div class="grid g2">
+    <div class="card">
+      <h3>Simulados e notas</h3>
+      <table>
+        <thead><tr><th>Data</th><th>Area</th><th>Resultado</th><th></th></tr></thead>
+        <tbody id="enScores"></tbody>
+      </table>
+      <div class="form-row mt">
+        <div style="flex:0 0 130px"><label class="f-label">Data</label><input type="date" id="enScDate"></div>
+        <div><label class="f-label">Area ou simulado</label><input type="text" id="enScArea" placeholder="Ex: Matematica - simulado 1"></div>
+        <div style="flex:0 0 110px"><label class="f-label">Resultado</label><input type="text" id="enScVal" placeholder="Ex: 32/45"></div>
+        <button class="btn primary" onclick="app.addScore()">Registrar</button>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Pontos fracos mapeados</h3>
+      <p class="small muted mb">Alimente esta lista com o diagnostico dos simulados. Ataque um item por semana.</p>
+      <ul class="simple-list" id="enWeak"></ul>
+      <div class="form-row mt-sm">
+        <div><input type="text" id="enWeakInput" placeholder="Ex: Geometria espacial - volumes" onkeydown="if(event.key==='Enter')app.addWeak()"></div>
+        <button class="btn" onclick="app.addWeak()">Adicionar</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= TREINO ================= -->
+<section class="page" id="page-treino">
+  <div class="page-head">
+    <div class="eyebrow">Fisico</div>
+    <h2>Ciclo de treino</h2>
+    <div class="sub">Divisao A/B/C/D em ciclo 2-on/2-off, foco em hipertrofia, sessoes de aproximadamente 90 minutos.</div>
+  </div>
+
+  <div class="card mb">
+    <h3>Proximos 8 dias
+      <span class="flex" style="gap:8px">
+        <span class="small muted" style="letter-spacing:0;text-transform:none">Ancora do ciclo (dia do treino A):</span>
+        <input type="date" id="twAnchor" style="width:150px" onchange="app.setAnchor(this.value)">
+      </span>
+    </h3>
+    <div class="cycle-strip" id="twStrip"></div>
+  </div>
+
+  <div class="grid g2">
+    <div class="card">
+      <h3>Sessao de hoje</h3>
+      <div id="twToday"></div>
+    </div>
+    <div class="card">
+      <h3>Estrutura da divisao</h3>
+      <table>
+        <thead><tr><th>Treino</th><th>Grupos</th><th>Tecnicas</th></tr></thead>
+        <tbody>
+          <tr><td class="mono accent">A</td><td>Peito + Triceps</td><td class="small muted">Piramide, drop set</td></tr>
+          <tr><td class="mono accent">B</td><td>Costas + Biceps</td><td class="small muted">Rest-pause, biset</td></tr>
+          <tr><td class="mono accent">C</td><td>Pernas + Gluteos</td><td class="small muted">Piramide, drop set</td></tr>
+          <tr><td class="mono accent">D</td><td>Ombros + Abdomen</td><td class="small muted">Superserie, biset</td></tr>
+        </tbody>
+      </table>
+      <p class="small muted mt">Volume alvo: 27 a 31 series por sessao. Nos dias off, priorize sono, mobilidade e alimentacao.</p>
+    </div>
+  </div>
+
+  <div class="card mt">
+    <h3>Historico de sessoes</h3>
+    <table>
+      <thead><tr><th>Data</th><th>Treino</th><th>Observacao</th><th></th></tr></thead>
+      <tbody id="twLog"></tbody>
+    </table>
+    <div class="form-row mt">
+      <div style="flex:0 0 130px"><label class="f-label">Data</label><input type="date" id="twLogDate"></div>
+      <div style="flex:0 0 90px"><label class="f-label">Treino</label>
+        <select id="twLogType"><option>A</option><option>B</option><option>C</option><option>D</option></select>
+      </div>
+      <div><label class="f-label">Observacao</label><input type="text" id="twLogObs" placeholder="Ex: carga nova no supino, 4x10"></div>
+      <button class="btn primary" onclick="app.addWorkoutLog()">Registrar</button>
+    </div>
+  </div>
+</section>
+
+<!-- ================= DEV ================= -->
+<section class="page" id="page-dev">
+  <div class="page-head">
+    <div class="eyebrow">Carreira</div>
+    <h2>Dev e Estudos</h2>
+    <div class="sub">Trilha para back-end: Python pelo Curso em Video, projeto Roblox em Lua e lacunas do CHA.</div>
+  </div>
+
+  <div class="grid g2 mb">
+    <div class="card">
+      <h3>Python - Curso em Video</h3>
+      <div class="flex space">
+        <span class="small muted">Progresso do curso</span>
+        <span class="mono accent" id="pyPct" style="font-family:var(--font-mono);font-weight:600">0%</span>
+      </div>
+      <div class="progress"><div class="fill" id="pyBar" style="width:0%"></div></div>
+      <div class="form-row mt">
+        <div style="flex:0 0 140px"><label class="f-label">Aulas concluidas</label><input type="number" id="pyDone" min="0" onchange="app.setPython()"></div>
+        <div style="flex:0 0 140px"><label class="f-label">Total de aulas</label><input type="number" id="pyTotal" min="1" onchange="app.setPython()"></div>
+      </div>
+      <div class="divider"></div>
+      <h3>Proximos passos da trilha</h3>
+      <div id="devPath"></div>
+    </div>
+    <div class="card">
+      <h3>Projeto Roblox - metas</h3>
+      <div id="rbList"></div>
+      <div class="form-row mt-sm">
+        <div><input type="text" id="rbInput" placeholder="Ex: implementar loja de pets no Clicker" onkeydown="if(event.key==='Enter')app.addRoblox()"></div>
+        <button class="btn" onclick="app.addRoblox()">Adicionar meta</button>
+      </div>
+      <div class="divider"></div>
+      <p class="small muted">Regra de seguranca: nunca instalar plugins de fonte desconhecida no Studio. Revisar scripts de terceiros antes de publicar.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>Registro de estudo</h3>
+    <table>
+      <thead><tr><th>Data</th><th>Tema</th><th>Duracao</th><th></th></tr></thead>
+      <tbody id="devLog"></tbody>
+    </table>
+    <div class="form-row mt">
+      <div style="flex:0 0 130px"><label class="f-label">Data</label><input type="date" id="devLogDate"></div>
+      <div><label class="f-label">Tema estudado</label><input type="text" id="devLogTopic" placeholder="Ex: metodos de string - aula 09"></div>
+      <div style="flex:0 0 100px"><label class="f-label">Minutos</label><input type="number" id="devLogMin" min="5" step="5"></div>
+      <button class="btn primary" onclick="app.addDevLog()">Registrar</button>
+    </div>
+  </div>
+</section>
+
+<!-- ================= TRABALHO ================= -->
+<section class="page" id="page-trabalho">
+  <div class="page-head">
+    <div class="eyebrow">IMPACTA - Cajamar</div>
+    <h2>Trabalho</h2>
+    <div class="sub">Aprendiz administrativo, turno 8h as 14h. Compras, ferramentaria e ferramentas internas.</div>
+  </div>
+
+  <div class="kanban mb">
+    <div class="kb-col"><h4>A fazer <span id="kbC0"></span></h4><div id="kb0"></div></div>
+    <div class="kb-col"><h4>Em andamento <span id="kbC1"></span></h4><div id="kb1"></div></div>
+    <div class="kb-col"><h4>Concluido <span id="kbC2"></span></h4><div id="kb2"></div></div>
+  </div>
+  <div class="card mb">
+    <div class="form-row">
+      <div><label class="f-label">Nova tarefa</label><input type="text" id="kbInput" placeholder="Ex: cotar OC 4521 - rolamentos extrusora" onkeydown="if(event.key==='Enter')app.addTask()"></div>
+      <div style="flex:0 0 150px"><label class="f-label">Contexto</label>
+        <select id="kbTag"><option>OC / Compras</option><option>Ferramentaria</option><option>Dashboard</option><option>Planilha</option><option>E-mail</option><option>Outro</option></select>
+      </div>
+      <button class="btn primary" onclick="app.addTask()">Adicionar</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>OCs em acompanhamento</h3>
+    <table>
+      <thead><tr><th>OC</th><th>Fornecedor / item</th><th>Status</th><th></th></tr></thead>
+      <tbody id="ocList"></tbody>
+    </table>
+    <div class="form-row mt">
+      <div style="flex:0 0 110px"><label class="f-label">Numero</label><input type="text" id="ocNum" placeholder="Ex: 4521"></div>
+      <div><label class="f-label">Fornecedor / item</label><input type="text" id="ocDesc" placeholder="Ex: SKF - rolamentos"></div>
+      <div style="flex:0 0 160px"><label class="f-label">Status</label>
+        <select id="ocStatus"><option>Cotacao</option><option>Aguardando aprovacao</option><option>Aprovada</option><option>Entregue</option></select>
+      </div>
+      <button class="btn primary" onclick="app.addOC()">Adicionar</button>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FINANCAS ================= -->
+<section class="page" id="page-financas">
+  <div class="page-head">
+    <div class="eyebrow">Controle</div>
+    <h2>Financas</h2>
+    <div class="sub">Renda em duas parcelas: adiantamento no dia 15 e saldo no dia 30.</div>
+  </div>
+
+  <div class="grid g4 mb">
+    <div class="card kpi"><div class="label">Entradas no mes</div><div class="value green" id="fiIn">R$ 0,00</div></div>
+    <div class="card kpi"><div class="label">Saidas no mes</div><div class="value red" id="fiOut">R$ 0,00</div></div>
+    <div class="card kpi"><div class="label">Saldo do mes</div><div class="value" id="fiBal">R$ 0,00</div></div>
+    <div class="card kpi"><div class="label">Proximo pagamento</div><div class="value accent" id="fiNextPay">-</div><div class="hint" id="fiNextHint"></div></div>
+  </div>
+
+  <div class="grid g2">
+    <div class="card">
+      <h3>Lancamentos do mes</h3>
+      <table>
+        <thead><tr><th>Data</th><th>Descricao</th><th>Categoria</th><th style="text-align:right">Valor</th><th></th></tr></thead>
+        <tbody id="fiList"></tbody>
+      </table>
+      <div class="form-row mt">
+        <div style="flex:0 0 125px"><label class="f-label">Data</label><input type="date" id="fiDate"></div>
+        <div><label class="f-label">Descricao</label><input type="text" id="fiDesc" placeholder="Ex: recarga bilhete"></div>
+        <div style="flex:0 0 130px"><label class="f-label">Categoria</label>
+          <select id="fiCat">
+            <option>Salario</option><option>Moradia</option><option>Alimentacao</option><option>Transporte</option>
+            <option>Saude</option><option>Comunicacao</option><option>Lazer</option><option>Vestuario</option><option>Outros</option>
+          </select>
+        </div>
+        <div style="flex:0 0 100px"><label class="f-label">Tipo</label>
+          <select id="fiType"><option value="out">Saida</option><option value="in">Entrada</option></select>
+        </div>
+        <div style="flex:0 0 105px"><label class="f-label">Valor</label><input type="number" id="fiVal" min="0" step="0.01" placeholder="0,00"></div>
+        <button class="btn primary" onclick="app.addFin()">Lancar</button>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Gastos por categoria</h3>
+      <div id="fiCats"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= CONFIG ================= -->
+<section class="page" id="page-config">
+  <div class="page-head">
+    <div class="eyebrow">Sistema</div>
+    <h2>Ajustes</h2>
+    <div class="sub">Parametros do app e backup dos dados. Tudo fica salvo no seu navegador.</div>
+  </div>
+  <div class="grid g2">
+    <div class="card">
+      <h3>Parametros</h3>
+      <div class="form-row mb">
+        <div><label class="f-label">Seu nome</label><input type="text" id="cfName" onchange="app.setName(this.value)"></div>
+      </div>
+      <div class="form-row mb">
+        <div><label class="f-label">Ancora do ciclo de treino (dia do treino A)</label><input type="date" id="cfAnchor" onchange="app.setAnchor(this.value)"></div>
+      </div>
+      <div class="form-row">
+        <div><label class="f-label">Meta diaria de estudo ENEM (minutos)</label><input type="number" id="cfStudyGoal" min="30" step="15" onchange="app.setStudyGoal(this.value)"></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3>Backup</h3>
+      <p class="small muted mb">Exporte um arquivo JSON com todos os dados para guardar ou levar a outro dispositivo.</p>
+      <div class="flex">
+        <button class="btn primary" onclick="app.exportData()">Exportar dados</button>
+        <label class="btn" style="cursor:pointer">Importar dados<input type="file" accept=".json" style="display:none" onchange="app.importData(this)"></label>
+      </div>
+      <div class="divider"></div>
+      <button class="btn danger" onclick="app.wipe()">Apagar todos os dados</button>
+    </div>
+  </div>
+</section>
+
+</main>
+</div>
+
+<script>
+(function(){
+'use strict';
+
+/* ---------- Storage com fallback ---------- */
+var memStore = {};
+var store = {
+  get: function(k, d){
+    try{ var v = localStorage.getItem('base_'+k); return v===null ? d : JSON.parse(v); }
+    catch(e){ return (k in memStore) ? memStore[k] : d; }
+  },
+  set: function(k, v){
+    memStore[k] = v;
+    try{ localStorage.setItem('base_'+k, JSON.stringify(v)); }catch(e){}
+  },
+  keys: function(){
+    var ks = [];
+    try{ for(var i=0;i<localStorage.length;i++){ var k=localStorage.key(i); if(k.indexOf('base_')===0) ks.push(k.slice(5)); } }
+    catch(e){ for(var m in memStore) ks.push(m); }
+    return ks;
+  },
+  remove: function(k){ delete memStore[k]; try{ localStorage.removeItem('base_'+k); }catch(e){} }
+};
+
+/* ---------- Utilitarios ---------- */
+function todayKey(d){ d = d || new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function parseDay(s){ var p = s.split('-'); return new Date(+p[0], +p[1]-1, +p[2]); }
+function daysBetween(a, b){ return Math.round((b - a) / 86400000); }
+function brl(v){ return v.toLocaleString('pt-BR', {style:'currency', currency:'BRL'}); }
+function brDate(s){ var p = s.split('-'); return p[2]+'/'+p[1]; }
+function esc(s){ var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
+function el(id){ return document.getElementById(id); }
+var DOW = ['Domingo','Segunda','Terca','Quarta','Quinta','Sexta','Sabado'];
+var DOW_S = ['DOM','SEG','TER','QUA','QUI','SEX','SAB'];
+var MONTHS = ['janeiro','fevereiro','marco','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+
+/* ---------- Estado padrao ---------- */
+var defaults = {
+  name: 'Lucas',
+  anchor: '2026-07-06',
+  studyGoal: 180,
+  routine: [
+    {t:'05:00', n:'Despertar, higiene e cafe', tag:'Rotina'},
+    {t:'06:00', n:'Deslocamento para a IMPACTA', tag:'Rotina'},
+    {t:'08:00', n:'Trabalho - OCs, ferramentaria e dashboards', tag:'Trabalho'},
+    {t:'14:00', n:'Retorno e almoco', tag:'Rotina'},
+    {t:'15:30', n:'Estudo ENEM - bloco principal', tag:'Estudo'},
+    {t:'17:30', n:'Treino conforme ciclo', tag:'Treino'},
+    {t:'19:30', n:'Python ou Roblox - 45 min', tag:'Estudo'},
+    {t:'21:00', n:'Revisao leve e planejamento do dia seguinte', tag:'Rotina'},
+    {t:'22:00', n:'Encerrar o dia - sono', tag:'Descanso'}
+  ],
+  weekPlan: [
+    {s:'Descanso', f:'Recuperacao total ou revisao leve de erros da semana'},
+    {s:'Matematica', f:'Funcoes, geometria, razoes e proporcao, estatistica'},
+    {s:'Redacao + Linguagens', f:'Redacao inegociavel. Interpretacao e gramatica aplicada'},
+    {s:'Ciencias da Natureza', f:'Rotacao: Fisica, Quimica ou Biologia'},
+    {s:'Matematica + Revisao', f:'Questoes cronometradas e refazer erros'},
+    {s:'Humanas', f:'Historia, Geografia, Filosofia e Sociologia'},
+    {s:'Simulado', f:'Bloco cronometrado de questoes de provas anteriores'}
+  ],
+  devPath: [
+    {n:'Concluir modulos de string e listas no Curso em Video', done:false},
+    {n:'Funcoes e modulos em Python', done:false},
+    {n:'Git profissional - branch, commit, pull request', done:false},
+    {n:'SQL basico - SELECT, JOIN, agregacao', done:false},
+    {n:'Fundamentos de REST APIs e autenticacao', done:false}
+  ]
+};
+
+var WORKOUTS = {
+  A: {name:'Peito + Triceps', tec:'Piramide crescente no principal, drop set no finalizador', vol:'28 a 31 series'},
+  B: {name:'Costas + Biceps', tec:'Rest-pause nas remadas, biset nos biceps', vol:'28 a 31 series'},
+  C: {name:'Pernas + Gluteos', tec:'Piramide no agachamento, drop set no leg press', vol:'27 a 30 series'},
+  D: {name:'Ombros + Abdomen', tec:'Superserie lateral + frontal, abdomen em circuito', vol:'27 a 30 series'}
+};
+var CYCLE = ['A','B','off','off','C','D','off','off'];
+
+/* ---------- Helpers de estado ---------- */
+function getRoutine(){ return store.get('routine', defaults.routine); }
+function getAnchor(){ return store.get('anchor', defaults.anchor); }
+function cycleFor(date){
+  var diff = daysBetween(parseDay(getAnchor()), new Date(date.getFullYear(), date.getMonth(), date.getDate()));
+  return CYCLE[((diff % 8) + 8) % 8];
+}
+function dayChecklist(){
+  var key = 'chk_' + todayKey();
+  var saved = store.get(key, null);
+  if(saved) return saved;
+  var w = cycleFor(new Date());
+  var goal = store.get('studyGoal', defaults.studyGoal);
+  var items = [
+    {n:'Acordar as 5h e comecar o dia sem celular', done:false},
+    {n:'Estudo ENEM - ' + goal + ' minutos', done:false},
+    {n: w === 'off' ? 'Dia off - mobilidade, sono e alimentacao' : 'Treino ' + w + ' - ' + WORKOUTS[w].name, done:false},
+    {n:'Python ou Roblox - pelo menos 30 minutos', done:false},
+    {n:'Revisar pendencias do trabalho para amanha', done:false}
+  ];
+  if(new Date().getDay() === 2) items.splice(2, 0, {n:'Redacao da semana - tema completo', done:false});
+  store.set(key, items);
+  return items;
+}
+
+/* ---------- Navegacao ---------- */
+document.querySelectorAll('.nav-item').forEach(function(item){
+  item.addEventListener('click', function(){
+    document.querySelectorAll('.nav-item').forEach(function(i){ i.classList.remove('active'); });
+    document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('visible'); });
+    item.classList.add('active');
+    el('page-' + item.dataset.page).classList.add('visible');
+    renderAll();
+  });
+});
+
+/* ---------- Relogio ---------- */
+function tickClock(){
+  var n = new Date();
+  el('sbClock').textContent = String(n.getHours()).padStart(2,'0') + ':' + String(n.getMinutes()).padStart(2,'0');
+  el('sbDate').textContent = DOW[n.getDay()] + ', ' + n.getDate() + ' de ' + MONTHS[n.getMonth()];
+}
+setInterval(tickClock, 10000); tickClock();
+setInterval(function(){ renderHoje(); }, 60000);
+
+/* ---------- Render: HOJE ---------- */
+function renderHoje(){
+  var n = new Date(), h = n.getHours();
+  el('hjGreeting').textContent = (h < 12 ? 'Bom dia' : h < 18 ? 'Boa tarde' : 'Boa noite') + ', ' + store.get('name', defaults.name);
+  el('hjSub').textContent = DOW[n.getDay()] + ', ' + n.getDate() + ' de ' + MONTHS[n.getMonth()] + ' de ' + n.getFullYear();
+
+  var d1 = daysBetween(new Date(n.getFullYear(), n.getMonth(), n.getDate()), new Date(2026,10,8));
+  el('kEnem1').textContent = d1 >= 0 ? d1 : 'Feito';
+
+  var w = cycleFor(n);
+  el('kTreino').textContent = w === 'off' ? 'OFF' : w;
+  el('kTreinoHint').textContent = w === 'off' ? 'descanso e recuperacao' : WORKOUTS[w].name;
+
+  /* timeline */
+  var routine = getRoutine().slice().sort(function(a,b){ return a.t.localeCompare(b.t); });
+  var nowMin = h * 60 + n.getMinutes();
+  var currentIdx = -1;
+  routine.forEach(function(r, i){
+    var p = r.t.split(':'), m = (+p[0])*60 + (+p[1]);
+    if(m <= nowMin) currentIdx = i;
+  });
+  var tl = '';
+  routine.forEach(function(r, i){
+    var cls = i < currentIdx ? 'done' : i === currentIdx ? 'now' : '';
+    tl += '<div class="tl-item ' + cls + '"><span class="tl-time">' + r.t + '</span><span class="tl-title">' + esc(r.n) + '</span><span class="tl-tag">' + esc(r.tag) + '</span></div>';
+  });
+  el('hjTimeline').innerHTML = tl || '<div class="empty">Sem blocos definidos. Configure na aba Rotina.</div>';
+
+  if(currentIdx >= 0){
+    el('nowBanner').style.display = 'flex';
+    el('nbTitle').textContent = routine[currentIdx].n;
+    var next = routine[currentIdx + 1];
+    el('nbNext').textContent = next ? 'Proximo: ' + next.t + ' - ' + next.n : 'Ultimo bloco do dia';
+  } else {
+    el('nowBanner').style.display = 'none';
+  }
+
+  /* checklist */
+  var items = dayChecklist();
+  var html = '';
+  items.forEach(function(it, i){
+    html += '<div class="check-row ' + (it.done ? 'checked' : '') + '" onclick="app.toggleCheck(' + i + ')">' +
+      '<span class="check-box"><svg viewBox="0 0 24 24"><path d="M4 12l5 5 11-11"/></svg></span>' +
+      '<span class="check-text">' + esc(it.n) + '</span></div>';
+  });
+  el('hjChecklist').innerHTML = html;
+  var done = items.filter(function(i){ return i.done; }).length;
+  var pct = items.length ? Math.round(done / items.length * 100) : 0;
+  el('hjProgress').style.width = pct + '%';
+  el('kDia').textContent = pct + '%';
+  el('kDiaHint').textContent = done + ' de ' + items.length + ' itens concluidos';
+
+  /* trabalho */
+  var tasks = store.get('tasks', []);
+  var pend = tasks.filter(function(t){ return t.col < 2; });
+  el('hjWork').innerHTML = pend.length
+    ? pend.slice(0, 5).map(function(t){
+        return '<div class="flex space" style="padding:7px 2px;border-bottom:1px solid var(--border-soft)"><span class="small">' + esc(t.n) + '</span><span class="tag ' + (t.col === 1 ? 'blue' : '') + '">' + (t.col === 1 ? 'andamento' : 'a fazer') + '</span></div>';
+      }).join('')
+    : '<div class="empty">Nenhuma pendencia. Bom trabalho.</div>';
+
+  /* saldo */
+  var s = monthTotals();
+  el('kSaldo').textContent = brl(s.bal);
+  el('kSaldo').className = 'value ' + (s.bal >= 0 ? 'green' : 'red');
+  el('kSaldoHint').textContent = 'entradas ' + brl(s.inc) + ' - saidas ' + brl(s.out);
+}
+
+/* ---------- Render: ROTINA ---------- */
+function renderRotina(){
+  var routine = getRoutine().slice().sort(function(a,b){ return a.t.localeCompare(b.t); });
+  el('rtList').innerHTML = routine.length ? routine.map(function(r, i){
+    return '<div class="flex space" style="padding:8px 4px;border-bottom:1px solid var(--border-soft)">' +
+      '<span class="mono" style="font-family:var(--font-mono);color:var(--accent);font-size:12.5px;width:48px">' + r.t + '</span>' +
+      '<span style="flex:1;font-size:13px">' + esc(r.n) + '</span>' +
+      '<span class="tag">' + esc(r.tag) + '</span>' +
+      '<button class="del" onclick="app.delRoutine(' + i + ')" title="Remover">&times;</button></div>';
+  }).join('') : '<div class="empty">Nenhum bloco definido.</div>';
+
+  var notes = store.get('notes', []);
+  el('rtNotes').innerHTML = notes.length ? notes.map(function(t, i){
+    return '<li>' + esc(t) + '<button class="del" onclick="app.delNote(' + i + ')">&times;</button></li>';
+  }).join('') : '<div class="empty">Sem lembretes.</div>';
+}
+
+/* ---------- Render: ENEM ---------- */
+function renderEnem(){
+  var n = new Date(), base = new Date(n.getFullYear(), n.getMonth(), n.getDate());
+  var d1 = daysBetween(base, new Date(2026,10,8)), d2 = daysBetween(base, new Date(2026,10,15));
+  el('enD1').textContent = d1 >= 0 ? d1 : '-';
+  el('enD2').textContent = d2 >= 0 ? d2 : '-';
+
+  var phase, hint;
+  if(d1 > 120){ phase = 'Base e diagnostico'; hint = 'Cobrir conteudo e mapear pontos fracos com provas antigas'; }
+  else if(d1 > 60){ phase = 'Aprofundamento'; hint = 'Atacar pontos fracos e subir volume de questoes'; }
+  else if(d1 > 30){ phase = 'Simulados intensivos'; hint = 'Um simulado completo por semana, com correcao detalhada'; }
+  else if(d1 > 7){ phase = 'Revisao final'; hint = 'Revisar resumos, formulas e repertorio de redacao'; }
+  else if(d1 >= 0){ phase = 'Semana de prova'; hint = 'Reduzir carga, dormir bem e revisar apenas o essencial'; }
+  else { phase = 'Concluido'; hint = 'Provas realizadas'; }
+  el('enPhase').textContent = phase;
+  el('enPhaseHint').textContent = hint;
+
+  var mk = todayKey().slice(0,7);
+  var reds = store.get('redacoes', []).filter(function(r){ return r.slice(0,7) === mk; });
+  el('enRedCount').textContent = reds.length;
+
+  var plan = store.get('weekPlan', defaults.weekPlan);
+  var todayDow = n.getDay();
+  el('enWeek').innerHTML = plan.map(function(p, i){
+    return '<div class="wp-day ' + (i === todayDow ? 'today' : '') + '"><div class="wd">' + DOW_S[i] + '</div><div class="ws">' + esc(p.s) + '</div><div class="wf">' + esc(p.f) + '</div></div>';
+  }).join('');
+
+  var scores = store.get('scores', []);
+  el('enScores').innerHTML = scores.length ? scores.map(function(s, i){
+    return '<tr><td class="mono">' + brDate(s.d) + '</td><td>' + esc(s.a) + '</td><td class="mono accent">' + esc(s.v) + '</td><td><button class="del" onclick="app.delScore(' + i + ')">&times;</button></td></tr>';
+  }).join('') : '<tr><td colspan="4" class="empty">Nenhum registro ainda. Comece com um diagnostico de prova anterior.</td></tr>';
+
+  var weak = store.get('weak', []);
+  el('enWeak').innerHTML = weak.length ? weak.map(function(t, i){
+    return '<li>' + esc(t) + '<button class="del" onclick="app.delWeak(' + i + ')">&times;</button></li>';
+  }).join('') : '<div class="empty">Nenhum ponto fraco mapeado.</div>';
+}
+
+/* ---------- Render: TREINO ---------- */
+function renderTreino(){
+  el('twAnchor').value = getAnchor();
+  el('cfAnchor').value = getAnchor();
+  var n = new Date();
+  var strip = '';
+  for(var i = 0; i < 8; i++){
+    var d = new Date(n.getFullYear(), n.getMonth(), n.getDate() + i);
+    var w = cycleFor(d);
+    strip += '<div class="cycle-day ' + (i === 0 ? 'today ' : '') + (w === 'off' ? 'off' : '') + '">' +
+      '<div class="cd-date">' + DOW_S[d.getDay()] + ' ' + String(d.getDate()).padStart(2,'0') + '</div>' +
+      '<div class="cd-type">' + (w === 'off' ? '-' : w) + '</div>' +
+      '<div class="cd-name">' + (w === 'off' ? 'descanso' : WORKOUTS[w].name.split(' + ')[0]) + '</div></div>';
+  }
+  el('twStrip').innerHTML = strip;
+
+  var w = cycleFor(n);
+  if(w === 'off'){
+    el('twToday').innerHTML = '<p class="small muted">Hoje e dia de descanso do ciclo. Prioridades: sono de qualidade, alongamento ou mobilidade leve e boa alimentacao. O musculo cresce na recuperacao.</p>';
+  } else {
+    var info = WORKOUTS[w];
+    el('twToday').innerHTML =
+      '<div class="flex" style="gap:14px;margin-bottom:12px"><span style="font-family:var(--font-display);font-size:40px;font-weight:600;color:var(--accent)">' + w + '</span>' +
+      '<div><div style="font-weight:600;font-size:15px">' + info.name + '</div><div class="small muted">' + info.vol + ' - cerca de 90 minutos</div></div></div>' +
+      '<p class="small muted">Tecnicas do dia: ' + info.tec + '.</p>' +
+      '<button class="btn primary mt" onclick="app.quickLog(\'' + w + '\')">Marcar sessao como feita</button>';
+  }
+
+  var log = store.get('wlog', []);
+  el('twLog').innerHTML = log.length ? log.slice().reverse().map(function(s, ri){
+    var i = log.length - 1 - ri;
+    return '<tr><td class="mono">' + brDate(s.d) + '</td><td><span class="tag gold">' + s.t + '</span></td><td class="small muted">' + esc(s.o || '-') + '</td><td><button class="del" onclick="app.delWorkoutLog(' + i + ')">&times;</button></td></tr>';
+  }).join('') : '<tr><td colspan="4" class="empty">Nenhuma sessao registrada.</td></tr>';
+}
+
+/* ---------- Render: DEV ---------- */
+function renderDev(){
+  var py = store.get('python', {done: 0, total: 115});
+  el('pyDone').value = py.done; el('pyTotal').value = py.total;
+  var pct = py.total ? Math.round(py.done / py.total * 100) : 0;
+  el('pyPct').textContent = pct + '%';
+  el('pyBar').style.width = pct + '%';
+
+  var path = store.get('devPath', defaults.devPath);
+  el('devPath').innerHTML = path.map(function(p, i){
+    return '<div class="check-row ' + (p.done ? 'checked' : '') + '" onclick="app.togglePath(' + i + ')">' +
+      '<span class="check-box"><svg viewBox="0 0 24 24"><path d="M4 12l5 5 11-11"/></svg></span>' +
+      '<span class="check-text">' + esc(p.n) + '</span></div>';
+  }).join('');
+
+  var rb = store.get('roblox', []);
+  el('rbList').innerHTML = rb.length ? rb.map(function(r, i){
+    return '<div class="check-row ' + (r.done ? 'checked' : '') + '" onclick="app.toggleRoblox(' + i + ')">' +
+      '<span class="check-box"><svg viewBox="0 0 24 24"><path d="M4 12l5 5 11-11"/></svg></span>' +
+      '<span class="check-text">' + esc(r.n) + '</span>' +
+      '<button class="del" onclick="event.stopPropagation();app.delRoblox(' + i + ')">&times;</button></div>';
+  }).join('') : '<div class="empty">Nenhuma meta definida para o projeto.</div>';
+
+  var log = store.get('devlog', []);
+  el('devLog').innerHTML = log.length ? log.slice().reverse().map(function(s, ri){
+    var i = log.length - 1 - ri;
+    return '<tr><td class="mono">' + brDate(s.d) + '</td><td>' + esc(s.t) + '</td><td class="mono">' + s.m + ' min</td><td><button class="del" onclick="app.delDevLog(' + i + ')">&times;</button></td></tr>';
+  }).join('') : '<tr><td colspan="4" class="empty">Nenhum estudo registrado.</td></tr>';
+}
+
+/* ---------- Render: TRABALHO ---------- */
+function renderTrabalho(){
+  var tasks = store.get('tasks', []);
+  [0,1,2].forEach(function(col){
+    var list = tasks.map(function(t, i){ t._i = i; return t; }).filter(function(t){ return t.col === col; });
+    el('kbC' + col).textContent = list.length;
+    el('kb' + col).innerHTML = list.length ? list.map(function(t){
+      return '<div class="kb-card">' + esc(t.n) +
+        '<div class="kb-meta"><span class="tag">' + esc(t.tag) + '</span>' +
+        '<span class="kb-actions">' +
+        (col > 0 ? '<button class="kb-move" onclick="app.moveTask(' + t._i + ',-1)" title="Voltar">&lsaquo;</button>' : '') +
+        (col < 2 ? '<button class="kb-move" onclick="app.moveTask(' + t._i + ',1)" title="Avancar">&rsaquo;</button>' : '') +
+        '<button class="kb-move" onclick="app.delTask(' + t._i + ')" title="Remover">&times;</button>' +
+        '</span></div></div>';
+    }).join('') : '<div class="empty">Vazio</div>';
+  });
+
+  var ocs = store.get('ocs', []);
+  var tagFor = {'Cotacao':'','Aguardando aprovacao':'blue','Aprovada':'gold','Entregue':'green'};
+  el('ocList').innerHTML = ocs.length ? ocs.map(function(o, i){
+    return '<tr><td class="mono accent">' + esc(o.n) + '</td><td>' + esc(o.d) + '</td>' +
+      '<td><span class="tag ' + (tagFor[o.s] || '') + '">' + esc(o.s) + '</span></td>' +
+      '<td class="flex" style="gap:4px"><button class="kb-move" onclick="app.nextOC(' + i + ')" title="Avancar status">&rsaquo;</button><button class="del" onclick="app.delOC(' + i + ')">&times;</button></td></tr>';
+  }).join('') : '<tr><td colspan="4" class="empty">Nenhuma OC em acompanhamento.</td></tr>';
+}
+
+/* ---------- Render: FINANCAS ---------- */
+function monthTotals(){
+  var mk = todayKey().slice(0,7);
+  var fin = store.get('fin', []).filter(function(f){ return f.d.slice(0,7) === mk; });
+  var inc = 0, out = 0;
+  fin.forEach(function(f){ if(f.t === 'in') inc += f.v; else out += f.v; });
+  return {inc: inc, out: out, bal: inc - out, list: fin};
+}
+function renderFinancas(){
+  var s = monthTotals();
+  el('fiIn').textContent = brl(s.inc);
+  el('fiOut').textContent = brl(s.out);
+  el('fiBal').textContent = brl(s.bal);
+  el('fiBal').className = 'value ' + (s.bal >= 0 ? 'green' : 'red');
+
+  var n = new Date(), day = n.getDate();
+  var next = day < 15 ? 15 : day < 30 ? 30 : 15;
+  var lbl = day < 15 ? 'adiantamento' : day < 30 ? 'saldo mensal' : 'adiantamento do proximo mes';
+  el('fiNextPay').textContent = 'Dia ' + next;
+  el('fiNextHint').textContent = lbl;
+
+  var fin = store.get('fin', []);
+  var mk = todayKey().slice(0,7);
+  var rows = fin.map(function(f, i){ f._i = i; return f; }).filter(function(f){ return f.d.slice(0,7) === mk; })
+    .sort(function(a,b){ return b.d.localeCompare(a.d); });
+  el('fiList').innerHTML = rows.length ? rows.map(function(f){
+    return '<tr><td class="mono">' + brDate(f.d) + '</td><td>' + esc(f.n) + '</td><td><span class="tag">' + esc(f.c) + '</span></td>' +
+      '<td class="mono" style="text-align:right;color:var(--' + (f.t === 'in' ? 'green' : 'red') + ')">' + (f.t === 'in' ? '+' : '-') + brl(f.v) + '</td>' +
+      '<td><button class="del" onclick="app.delFin(' + f._i + ')">&times;</button></td></tr>';
+  }).join('') : '<tr><td colspan="5" class="empty">Nenhum lancamento neste mes.</td></tr>';
+
+  var cats = {};
+  monthTotals().list.forEach(function(f){ if(f.t === 'out') cats[f.c] = (cats[f.c] || 0) + f.v; });
+  var entries = Object.keys(cats).map(function(k){ return [k, cats[k]]; }).sort(function(a,b){ return b[1]-a[1]; });
+  var max = entries.length ? entries[0][1] : 1;
+  el('fiCats').innerHTML = entries.length ? entries.map(function(e){
+    return '<div style="margin-bottom:12px"><div class="flex space"><span class="small">' + esc(e[0]) + '</span><span class="mono small" style="font-family:var(--font-mono)">' + brl(e[1]) + '</span></div>' +
+      '<div class="progress"><div class="fill" style="width:' + Math.round(e[1]/max*100) + '%"></div></div></div>';
+  }).join('') : '<div class="empty">Sem gastos registrados neste mes.</div>';
+}
+
+/* ---------- Render: CONFIG ---------- */
+function renderConfig(){
+  el('cfName').value = store.get('name', defaults.name);
+  el('cfAnchor').value = getAnchor();
+  el('cfStudyGoal').value = store.get('studyGoal', defaults.studyGoal);
+}
+
+function renderAll(){
+  renderHoje(); renderRotina(); renderEnem(); renderTreino();
+  renderDev(); renderTrabalho(); renderFinancas(); renderConfig();
+}
+
+/* ---------- API publica ---------- */
+window.app = {
+  toggleCheck: function(i){
+    var key = 'chk_' + todayKey(), items = dayChecklist();
+    items[i].done = !items[i].done; store.set(key, items); renderHoje();
+  },
+  resetToday: function(){ store.remove('chk_' + todayKey()); renderHoje(); },
+
+  addRoutine: function(){
+    var t = el('rtTime').value, n = el('rtName').value.trim();
+    if(!t || !n) return;
+    var r = getRoutine(); r.push({t: t, n: n, tag: el('rtTag').value});
+    store.set('routine', r); el('rtName').value = ''; renderRotina(); renderHoje();
+  },
+  delRoutine: function(i){
+    var r = getRoutine().slice().sort(function(a,b){ return a.t.localeCompare(b.t); });
+    r.splice(i, 1); store.set('routine', r); renderRotina(); renderHoje();
+  },
+  addNote: function(){
+    var v = el('rtNoteInput').value.trim(); if(!v) return;
+    var n = store.get('notes', []); n.push(v); store.set('notes', n);
+    el('rtNoteInput').value = ''; renderRotina();
+  },
+  delNote: function(i){ var n = store.get('notes', []); n.splice(i,1); store.set('notes', n); renderRotina(); },
+
+  addRedacao: function(){
+    var r = store.get('redacoes', []); r.push(todayKey()); store.set('redacoes', r); renderEnem();
+  },
+  addScore: function(){
+    var d = el('enScDate').value || todayKey(), a = el('enScArea').value.trim(), v = el('enScVal').value.trim();
+    if(!a || !v) return;
+    var s = store.get('scores', []); s.push({d: d, a: a, v: v}); store.set('scores', s);
+    el('enScArea').value = ''; el('enScVal').value = ''; renderEnem();
+  },
+  delScore: function(i){ var s = store.get('scores', []); s.splice(i,1); store.set('scores', s); renderEnem(); },
+  addWeak: function(){
+    var v = el('enWeakInput').value.trim(); if(!v) return;
+    var w = store.get('weak', []); w.push(v); store.set('weak', w);
+    el('enWeakInput').value = ''; renderEnem();
+  },
+  delWeak: function(i){ var w = store.get('weak', []); w.splice(i,1); store.set('weak', w); renderEnem(); },
+
+  setAnchor: function(v){ if(v){ store.set('anchor', v); renderAll(); } },
+  quickLog: function(t){
+    var l = store.get('wlog', []); l.push({d: todayKey(), t: t, o: 'Sessao concluida'});
+    store.set('wlog', l); renderTreino();
+  },
+  addWorkoutLog: function(){
+    var d = el('twLogDate').value || todayKey();
+    var l = store.get('wlog', []);
+    l.push({d: d, t: el('twLogType').value, o: el('twLogObs').value.trim()});
+    store.set('wlog', l); el('twLogObs').value = ''; renderTreino();
+  },
+  delWorkoutLog: function(i){ var l = store.get('wlog', []); l.splice(i,1); store.set('wlog', l); renderTreino(); },
+
+  setPython: function(){
+    store.set('python', {done: +el('pyDone').value || 0, total: +el('pyTotal').value || 1}); renderDev();
+  },
+  togglePath: function(i){
+    var p = store.get('devPath', defaults.devPath); p[i].done = !p[i].done; store.set('devPath', p); renderDev();
+  },
+  addRoblox: function(){
+    var v = el('rbInput').value.trim(); if(!v) return;
+    var r = store.get('roblox', []); r.push({n: v, done: false}); store.set('roblox', r);
+    el('rbInput').value = ''; renderDev();
+  },
+  toggleRoblox: function(i){ var r = store.get('roblox', []); r[i].done = !r[i].done; store.set('roblox', r); renderDev(); },
+  delRoblox: function(i){ var r = store.get('roblox', []); r.splice(i,1); store.set('roblox', r); renderDev(); },
+  addDevLog: function(){
+    var t = el('devLogTopic').value.trim(); if(!t) return;
+    var l = store.get('devlog', []);
+    l.push({d: el('devLogDate').value || todayKey(), t: t, m: +el('devLogMin').value || 30});
+    store.set('devlog', l); el('devLogTopic').value = ''; renderDev();
+  },
+  delDevLog: function(i){ var l = store.get('devlog', []); l.splice(i,1); store.set('devlog', l); renderDev(); },
+
+  addTask: function(){
+    var v = el('kbInput').value.trim(); if(!v) return;
+    var t = store.get('tasks', []); t.push({n: v, tag: el('kbTag').value, col: 0});
+    store.set('tasks', t); el('kbInput').value = ''; renderTrabalho(); renderHoje();
+  },
+  moveTask: function(i, dir){
+    var t = store.get('tasks', []); t[i].col = Math.max(0, Math.min(2, t[i].col + dir));
+    store.set('tasks', t); renderTrabalho(); renderHoje();
+  },
+  delTask: function(i){ var t = store.get('tasks', []); t.splice(i,1); store.set('tasks', t); renderTrabalho(); renderHoje(); },
+  addOC: function(){
+    var n = el('ocNum').value.trim(), d = el('ocDesc').value.trim(); if(!n || !d) return;
+    var o = store.get('ocs', []); o.push({n: n, d: d, s: el('ocStatus').value});
+    store.set('ocs', o); el('ocNum').value = ''; el('ocDesc').value = ''; renderTrabalho();
+  },
+  nextOC: function(i){
+    var order = ['Cotacao','Aguardando aprovacao','Aprovada','Entregue'];
+    var o = store.get('ocs', []);
+    var idx = order.indexOf(o[i].s);
+    o[i].s = order[Math.min(order.length - 1, idx + 1)];
+    store.set('ocs', o); renderTrabalho();
+  },
+  delOC: function(i){ var o = store.get('ocs', []); o.splice(i,1); store.set('ocs', o); renderTrabalho(); },
+
+  addFin: function(){
+    var n = el('fiDesc').value.trim(), v = parseFloat(el('fiVal').value);
+    if(!n || !v || v <= 0) return;
+    var f = store.get('fin', []);
+    f.push({d: el('fiDate').value || todayKey(), n: n, c: el('fiCat').value, t: el('fiType').value, v: v});
+    store.set('fin', f); el('fiDesc').value = ''; el('fiVal').value = ''; renderFinancas(); renderHoje();
+  },
+  delFin: function(i){ var f = store.get('fin', []); f.splice(i,1); store.set('fin', f); renderFinancas(); renderHoje(); },
+
+  setName: function(v){ if(v.trim()) store.set('name', v.trim()); renderHoje(); },
+  setStudyGoal: function(v){ store.set('studyGoal', +v || 180); },
+
+  exportData: function(){
+    var data = {};
+    store.keys().forEach(function(k){ data[k] = store.get(k, null); });
+    var blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'base_backup_' + todayKey() + '.json';
+    a.click();
+  },
+  importData: function(input){
+    var file = input.files[0]; if(!file) return;
+    var reader = new FileReader();
+    reader.onload = function(){
+      try{
+        var data = JSON.parse(reader.result);
+        Object.keys(data).forEach(function(k){ store.set(k, data[k]); });
+        renderAll();
+        alert('Dados importados com sucesso.');
+      }catch(e){ alert('Arquivo invalido. Selecione um backup exportado pelo BASE.'); }
+    };
+    reader.readAsText(file);
+    input.value = '';
+  },
+  wipe: function(){
+    if(!confirm('Apagar todos os dados do app? Esta acao nao pode ser desfeita.')) return;
+    store.keys().forEach(function(k){ store.remove(k); });
+    renderAll();
+  }
+};
+
+/* datas padrao nos inputs */
+['enScDate','twLogDate','devLogDate','fiDate'].forEach(function(id){ el(id).value = todayKey(); });
+
+renderAll();
+})();
+</script>
+</body>
+</html>
