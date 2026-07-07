@@ -3,7 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0B0D10">
+<meta name="description" content="BASE - painel de gestao pessoal de Lucas Rodrigues">
 <title>BASE - Gestao Pessoal | Lucas Rodrigues</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230B0D10'/%3E%3Ctext x='32' y='45' font-family='Georgia,serif' font-size='38' font-weight='600' fill='%23C8A15E' text-anchor='middle'%3EB%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -47,6 +50,11 @@ body{
 ::-webkit-scrollbar-track{background:transparent}
 ::-webkit-scrollbar-thumb{background:#2A313C;border-radius:6px}
 ::-webkit-scrollbar-thumb:hover{background:#39424F}
+:focus-visible{outline:2px solid var(--accent-line);outline-offset:2px;border-radius:6px}
+@media(prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important}
+  html{scroll-behavior:auto}
+}
 
 /* ---------- Layout ---------- */
 .app{display:flex;min-height:100vh}
@@ -77,6 +85,8 @@ body{
 .nav-item svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;flex-shrink:0}
 .nav-item:hover{background:var(--surface2);color:var(--text)}
 .nav-item.active{background:var(--accent-soft);color:var(--accent);border-color:var(--accent-line)}
+.nav-item .kbd{margin-left:auto;font-family:var(--font-mono);font-size:10px;color:var(--faint);border:1px solid var(--border-soft);border-radius:4px;padding:0 4px;opacity:0;transition:opacity .15s}
+.nav-item:hover .kbd{opacity:1}
 .sidebar-footer{margin-top:auto;padding:14px 12px 0;border-top:1px solid var(--border-soft)}
 .sidebar-footer .clock{font-family:var(--font-mono);font-size:20px;font-weight:500;color:var(--text)}
 .sidebar-footer .date{font-size:11.5px;color:var(--muted);margin-top:1px;text-transform:capitalize}
@@ -100,7 +110,7 @@ body{
   background:var(--surface);border:1px solid var(--border-soft);
   border-radius:var(--radius);padding:20px 22px;
 }
-.card h3{font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between}
+.card h3{font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);font-weight:600;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
 .kpi .value{font-family:var(--font-mono);font-size:26px;font-weight:600;letter-spacing:-.01em}
 .kpi .label{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);font-weight:600;margin-bottom:8px}
 .kpi .hint{font-size:12px;color:var(--muted);margin-top:6px}
@@ -156,26 +166,36 @@ body{
 .check-text{font-size:13.5px;font-weight:500}
 .check-sub{font-size:11.5px;color:var(--faint);margin-left:auto}
 
+/* ---------- Heatmap de consistencia ---------- */
+.hm{display:grid;grid-template-columns:repeat(14,1fr);gap:4px;margin-top:8px}
+.hm-cell{aspect-ratio:1;border-radius:4px;background:var(--surface3)}
+.hm-cell.l1{background:rgba(200,161,94,.22)}
+.hm-cell.l2{background:rgba(200,161,94,.5)}
+.hm-cell.l3{background:var(--accent)}
+.hm-cell.today{outline:1px solid var(--accent-line);outline-offset:1px}
+
 /* ---------- Progress ---------- */
 .progress{height:6px;background:var(--surface3);border-radius:99px;overflow:hidden;margin-top:10px}
 .progress .fill{height:100%;background:var(--accent);border-radius:99px;transition:width .4s ease}
 .progress .fill.green{background:var(--green)}
+.progress .fill.red{background:var(--red)}
 .progress .fill.blue{background:var(--blue)}
 
-/* ---------- Botões e inputs ---------- */
+/* ---------- Botoes e inputs ---------- */
 .btn{
   background:var(--surface3);color:var(--text);border:1px solid var(--border);
   border-radius:9px;padding:8px 14px;font-family:var(--font-body);font-size:12.5px;
   font-weight:600;cursor:pointer;transition:all .15s;
 }
 .btn:hover{background:#28303B;border-color:#333B48}
+.btn:active{transform:translateY(1px)}
 .btn.primary{background:var(--accent);color:#14100A;border-color:var(--accent)}
 .btn.primary:hover{background:#D6B173}
 .btn.ghost{background:transparent;border-color:var(--border);color:var(--muted)}
 .btn.ghost:hover{color:var(--text)}
 .btn.danger{background:var(--red-soft);color:var(--red);border-color:transparent}
 .btn.sm{padding:5px 10px;font-size:11.5px}
-.btn.icon-only{padding:6px 8px;line-height:1}
+.btn.icon-only{padding:5px 9px;line-height:1}
 input,select,textarea{
   background:var(--surface2);border:1px solid var(--border);border-radius:9px;
   color:var(--text);font-family:var(--font-body);font-size:13px;
@@ -218,12 +238,14 @@ tr:hover td{background:var(--surface2)}
 
 /* ---------- Kanban ---------- */
 .kanban{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
-.kb-col{background:var(--surface);border:1px solid var(--border-soft);border-radius:var(--radius);padding:14px}
-.kb-col h4{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:12px;display:flex;justify-content:space-between}
+.kb-col{background:var(--surface);border:1px solid var(--border-soft);border-radius:var(--radius);padding:14px;transition:border-color .15s,background .15s}
+.kb-col.dragover{border-color:var(--accent-line);background:var(--surface2)}
+.kb-col h4{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:700;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;gap:6px}
 .kb-card{
   background:var(--surface2);border:1px solid var(--border-soft);border-radius:10px;
-  padding:11px 12px;margin-bottom:9px;font-size:13px;
+  padding:11px 12px;margin-bottom:9px;font-size:13px;cursor:grab;
 }
+.kb-card.dragging{opacity:.4}
 .kb-card .kb-meta{display:flex;justify-content:space-between;align-items:center;margin-top:8px}
 .kb-actions{display:flex;gap:5px}
 .kb-move{
@@ -244,6 +266,10 @@ tr:hover td{background:var(--surface2)}
 .wp-day .ws{font-size:12px;font-weight:600;margin-top:5px;line-height:1.35}
 .wp-day .wf{font-size:10.5px;color:var(--muted);margin-top:3px;line-height:1.35}
 
+/* ---------- Financas: navegacao de mes ---------- */
+.mo-nav{display:flex;align-items:center;gap:6px;letter-spacing:0;text-transform:none}
+.mo-nav b{font-family:var(--font-mono);font-size:11.5px;color:var(--text);font-weight:600;min-width:112px;text-align:center;text-transform:capitalize}
+
 /* ---------- listas simples ---------- */
 .simple-list{list-style:none}
 .simple-list li{
@@ -256,6 +282,28 @@ tr:hover td{background:var(--surface2)}
   cursor:pointer;font-size:15px;line-height:1;padding:3px 6px;border-radius:6px;
 }
 .del:hover{color:var(--red);background:var(--red-soft)}
+.edit{
+  background:transparent;border:none;color:var(--faint);
+  cursor:pointer;font-size:12px;line-height:1;padding:3px 6px;border-radius:6px;
+}
+.edit:hover{color:var(--accent);background:var(--accent-soft)}
+
+/* ---------- Toast ---------- */
+.toast-wrap{
+  position:fixed;bottom:22px;left:50%;transform:translateX(-50%);z-index:99;
+  display:flex;flex-direction:column;gap:8px;align-items:center;pointer-events:none;
+  width:max-content;max-width:calc(100vw - 32px);
+}
+.toast{
+  background:var(--surface3);border:1px solid var(--border);color:var(--text);
+  border-radius:10px;padding:10px 16px;font-size:13px;
+  display:flex;gap:14px;align-items:center;
+  box-shadow:0 8px 30px rgba(0,0,0,.45);pointer-events:auto;
+  animation:toastIn .2s ease;
+}
+.toast button{background:none;border:none;color:var(--accent);font-weight:700;cursor:pointer;font-size:12.5px;letter-spacing:.04em;font-family:var(--font-body)}
+.toast button:hover{text-decoration:underline}
+@keyframes toastIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 
 .empty{color:var(--faint);font-size:12.5px;text-align:center;padding:18px 0;font-style:italic}
 .divider{height:1px;background:var(--border-soft);margin:16px 0}
@@ -272,14 +320,22 @@ tr:hover td{background:var(--surface2)}
 }
 @media(max-width:760px){
   .app{flex-direction:column}
-  .sidebar{width:100%;height:auto;position:static;flex-direction:row;flex-wrap:wrap;padding:14px;gap:6px}
-  .brand{border:none;padding:0 10px;margin:0;width:100%}
-  .nav-label,.sidebar-footer{display:none}
+  .sidebar{
+    width:100%;height:auto;position:sticky;top:0;z-index:20;
+    flex-direction:row;flex-wrap:nowrap;overflow-x:auto;align-items:center;
+    padding:10px 12px;gap:6px;
+    background:#0E1116;border-right:none;border-bottom:1px solid var(--border-soft);
+  }
+  .brand{border:none;padding:0 8px;margin:0;width:auto;flex-shrink:0}
+  .brand h1{font-size:20px}
+  .brand p,.nav-label,.sidebar-footer,.nav-item .kbd{display:none}
+  .nav-item{flex-shrink:0;padding:8px 11px;font-size:12.5px}
   .main{padding:22px 16px 50px}
   .g2,.g3,.g4{grid-template-columns:1fr}
   .kanban{grid-template-columns:1fr}
   .week-plan{grid-template-columns:repeat(2,1fr)}
   .countdown{flex-wrap:wrap}
+  .hm{grid-template-columns:repeat(14,1fr)}
 }
 </style>
 </head>
@@ -292,31 +348,31 @@ tr:hover td{background:var(--surface2)}
     <p>Gestao pessoal</p>
   </div>
   <div class="nav-label">Painel</div>
-  <div class="nav-item active" data-page="hoje">
-    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>Hoje
+  <div class="nav-item active" data-page="hoje" tabindex="0" role="button">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>Hoje<span class="kbd">1</span>
   </div>
-  <div class="nav-item" data-page="rotina">
-    <svg viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>Rotina
+  <div class="nav-item" data-page="rotina" tabindex="0" role="button">
+    <svg viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg>Rotina<span class="kbd">2</span>
   </div>
   <div class="nav-label">Objetivos</div>
-  <div class="nav-item" data-page="enem">
-    <svg viewBox="0 0 24 24"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1.7 2.7 3 6 3s6-1.3 6-3v-5"/></svg>ENEM 2026
+  <div class="nav-item" data-page="enem" tabindex="0" role="button">
+    <svg viewBox="0 0 24 24"><path d="M22 10L12 5 2 10l10 5 10-5z"/><path d="M6 12v5c0 1.7 2.7 3 6 3s6-1.3 6-3v-5"/></svg>ENEM 2026<span class="kbd">3</span>
   </div>
-  <div class="nav-item" data-page="treino">
-    <svg viewBox="0 0 24 24"><path d="M6.5 6.5v11M17.5 6.5v11M6.5 12h11M3 9v6M21 9v6"/></svg>Treino
+  <div class="nav-item" data-page="treino" tabindex="0" role="button">
+    <svg viewBox="0 0 24 24"><path d="M6.5 6.5v11M17.5 6.5v11M6.5 12h11M3 9v6M21 9v6"/></svg>Treino<span class="kbd">4</span>
   </div>
-  <div class="nav-item" data-page="dev">
-    <svg viewBox="0 0 24 24"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/></svg>Dev e Estudos
+  <div class="nav-item" data-page="dev" tabindex="0" role="button">
+    <svg viewBox="0 0 24 24"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/></svg>Dev e Estudos<span class="kbd">5</span>
   </div>
   <div class="nav-label">Vida pratica</div>
-  <div class="nav-item" data-page="trabalho">
-    <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>Trabalho
+  <div class="nav-item" data-page="trabalho" tabindex="0" role="button">
+    <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>Trabalho<span class="kbd">6</span>
   </div>
-  <div class="nav-item" data-page="financas">
-    <svg viewBox="0 0 24 24"><path d="M12 2v20M17 6H9.5a3 3 0 0 0 0 6h5a3 3 0 0 1 0 6H6"/></svg>Financas
+  <div class="nav-item" data-page="financas" tabindex="0" role="button">
+    <svg viewBox="0 0 24 24"><path d="M12 2v20M17 6H9.5a3 3 0 0 0 0 6h5a3 3 0 0 1 0 6H6"/></svg>Financas<span class="kbd">7</span>
   </div>
-  <div class="nav-item" data-page="config">
-    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.1-1.2l2-1.6-2-3.4-2.4 1a7 7 0 0 0-2-1.2L14 3h-4l-.5 2.6a7 7 0 0 0-2 1.2l-2.4-1-2 3.4 2 1.6A7 7 0 0 0 5 12c0 .4 0 .8.1 1.2l-2 1.6 2 3.4 2.4-1a7 7 0 0 0 2 1.2L10 21h4l.5-2.6a7 7 0 0 0 2-1.2l2.4 1 2-3.4-2-1.6c.1-.4.1-.8.1-1.2z"/></svg>Ajustes
+  <div class="nav-item" data-page="config" tabindex="0" role="button">
+    <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19 12a7 7 0 0 0-.1-1.2l2-1.6-2-3.4-2.4 1a7 7 0 0 0-2-1.2L14 3h-4l-.5 2.6a7 7 0 0 0-2 1.2l-2.4-1-2 3.4 2 1.6A7 7 0 0 0 5 12c0 .4 0 .8.1 1.2l-2 1.6 2 3.4 2.4-1a7 7 0 0 0 2 1.2L10 21h4l.5-2.6a7 7 0 0 0 2-1.2l2.4 1 2-3.4-2-1.6c.1-.4.1-.8.1-1.2z"/></svg>Ajustes<span class="kbd">8</span>
   </div>
   <div class="sidebar-footer">
     <div class="clock" id="sbClock">00:00</div>
@@ -376,6 +432,16 @@ tr:hover td{background:var(--surface2)}
         <h3>Checklist de hoje <button class="btn sm ghost" onclick="app.resetToday()">Reiniciar</button></h3>
         <div id="hjChecklist"></div>
         <div class="progress"><div class="fill" id="hjProgress" style="width:0%"></div></div>
+        <div class="form-row mt-sm">
+          <div><input type="text" id="hjNewItem" placeholder="Adicionar item so de hoje..." onkeydown="if(event.key==='Enter')app.addCheckItem()"></div>
+          <button class="btn" onclick="app.addCheckItem()">Adicionar</button>
+        </div>
+        <div class="divider"></div>
+        <div class="flex space">
+          <span class="small muted">Consistencia - ultimos 28 dias</span>
+          <span class="small muted" id="hjStreak"></span>
+        </div>
+        <div class="hm" id="hjHeat"></div>
       </div>
       <div class="card">
         <h3>Trabalho - pendencias</h3>
@@ -399,14 +465,14 @@ tr:hover td{background:var(--surface2)}
       <div class="divider"></div>
       <div class="form-row">
         <div style="flex:0 0 92px"><label class="f-label">Inicio</label><input type="time" id="rtTime"></div>
-        <div><label class="f-label">Atividade</label><input type="text" id="rtName" placeholder="Ex: Estudo ENEM - bloco 2"></div>
+        <div><label class="f-label">Atividade</label><input type="text" id="rtName" placeholder="Ex: Estudo ENEM - bloco 2" onkeydown="if(event.key==='Enter')app.addRoutine()"></div>
         <div style="flex:0 0 120px"><label class="f-label">Categoria</label>
           <select id="rtTag">
             <option>Rotina</option><option>Trabalho</option><option>Estudo</option>
             <option>Treino</option><option>Escola</option><option>Descanso</option>
           </select>
         </div>
-        <button class="btn primary" onclick="app.addRoutine()">Adicionar</button>
+        <button class="btn primary" id="rtAddBtn" onclick="app.addRoutine()">Adicionar</button>
       </div>
     </div>
     <div class="card">
@@ -445,6 +511,8 @@ tr:hover td{background:var(--surface2)}
     <div class="card kpi"><h3>Redacoes no mes</h3>
       <div class="value" id="enRedCount">0</div>
       <div class="hint">meta: 4 por mes, uma por semana</div>
+      <div class="progress"><div class="fill green" id="enRedBar" style="width:0%"></div></div>
+      <ul class="simple-list mt-sm" id="enRedList" style="font-size:12px"></ul>
       <button class="btn sm mt-sm" onclick="app.addRedacao()">Registrar redacao</button>
     </div>
   </div>
@@ -464,9 +532,10 @@ tr:hover td{background:var(--surface2)}
       <div class="form-row mt">
         <div style="flex:0 0 130px"><label class="f-label">Data</label><input type="date" id="enScDate"></div>
         <div><label class="f-label">Area ou simulado</label><input type="text" id="enScArea" placeholder="Ex: Matematica - simulado 1"></div>
-        <div style="flex:0 0 110px"><label class="f-label">Resultado</label><input type="text" id="enScVal" placeholder="Ex: 32/45"></div>
+        <div style="flex:0 0 110px"><label class="f-label">Resultado</label><input type="text" id="enScVal" placeholder="Ex: 32/45" onkeydown="if(event.key==='Enter')app.addScore()"></div>
         <button class="btn primary" onclick="app.addScore()">Registrar</button>
       </div>
+      <p class="small muted mt-sm">Dica: registre no formato acertos/total (ex: 32/45) para ver o percentual automaticamente.</p>
     </div>
     <div class="card">
       <h3>Pontos fracos mapeados</h3>
@@ -519,7 +588,7 @@ tr:hover td{background:var(--surface2)}
   </div>
 
   <div class="card mt">
-    <h3>Historico de sessoes</h3>
+    <h3>Historico de sessoes <span class="small muted" id="twMonthCount" style="letter-spacing:0;text-transform:none"></span></h3>
     <table>
       <thead><tr><th>Data</th><th>Treino</th><th>Observacao</th><th></th></tr></thead>
       <tbody id="twLog"></tbody>
@@ -529,7 +598,7 @@ tr:hover td{background:var(--surface2)}
       <div style="flex:0 0 90px"><label class="f-label">Treino</label>
         <select id="twLogType"><option>A</option><option>B</option><option>C</option><option>D</option></select>
       </div>
-      <div><label class="f-label">Observacao</label><input type="text" id="twLogObs" placeholder="Ex: carga nova no supino, 4x10"></div>
+      <div><label class="f-label">Observacao</label><input type="text" id="twLogObs" placeholder="Ex: carga nova no supino, 4x10" onkeydown="if(event.key==='Enter')app.addWorkoutLog()"></div>
       <button class="btn primary" onclick="app.addWorkoutLog()">Registrar</button>
     </div>
   </div>
@@ -572,14 +641,14 @@ tr:hover td{background:var(--surface2)}
   </div>
 
   <div class="card">
-    <h3>Registro de estudo</h3>
+    <h3>Registro de estudo <span class="small muted" id="devWeekMin" style="letter-spacing:0;text-transform:none"></span></h3>
     <table>
       <thead><tr><th>Data</th><th>Tema</th><th>Duracao</th><th></th></tr></thead>
       <tbody id="devLog"></tbody>
     </table>
     <div class="form-row mt">
       <div style="flex:0 0 130px"><label class="f-label">Data</label><input type="date" id="devLogDate"></div>
-      <div><label class="f-label">Tema estudado</label><input type="text" id="devLogTopic" placeholder="Ex: metodos de string - aula 09"></div>
+      <div><label class="f-label">Tema estudado</label><input type="text" id="devLogTopic" placeholder="Ex: metodos de string - aula 09" onkeydown="if(event.key==='Enter')app.addDevLog()"></div>
       <div style="flex:0 0 100px"><label class="f-label">Minutos</label><input type="number" id="devLogMin" min="5" step="5"></div>
       <button class="btn primary" onclick="app.addDevLog()">Registrar</button>
     </div>
@@ -591,13 +660,13 @@ tr:hover td{background:var(--surface2)}
   <div class="page-head">
     <div class="eyebrow">IMPACTA - Cajamar</div>
     <h2>Trabalho</h2>
-    <div class="sub">Aprendiz administrativo, turno 8h as 14h. Compras, ferramentaria e ferramentas internas.</div>
+    <div class="sub">Aprendiz administrativo, turno 8h as 14h. Compras, ferramentaria e ferramentas internas. Arraste os cartoes entre as colunas.</div>
   </div>
 
   <div class="kanban mb">
-    <div class="kb-col"><h4>A fazer <span id="kbC0"></span></h4><div id="kb0"></div></div>
-    <div class="kb-col"><h4>Em andamento <span id="kbC1"></span></h4><div id="kb1"></div></div>
-    <div class="kb-col"><h4>Concluido <span id="kbC2"></span></h4><div id="kb2"></div></div>
+    <div class="kb-col" data-col="0"><h4>A fazer <span id="kbC0"></span></h4><div id="kb0"></div></div>
+    <div class="kb-col" data-col="1"><h4>Em andamento <span id="kbC1"></span></h4><div id="kb1"></div></div>
+    <div class="kb-col" data-col="2"><h4>Concluido <span style="display:flex;gap:6px;align-items:center"><span id="kbC2"></span><button class="btn sm ghost" onclick="app.clearDone()" title="Remover tarefas concluidas">Limpar</button></span></h4><div id="kb2"></div></div>
   </div>
   <div class="card mb">
     <div class="form-row">
@@ -617,7 +686,7 @@ tr:hover td{background:var(--surface2)}
     </table>
     <div class="form-row mt">
       <div style="flex:0 0 110px"><label class="f-label">Numero</label><input type="text" id="ocNum" placeholder="Ex: 4521"></div>
-      <div><label class="f-label">Fornecedor / item</label><input type="text" id="ocDesc" placeholder="Ex: SKF - rolamentos"></div>
+      <div><label class="f-label">Fornecedor / item</label><input type="text" id="ocDesc" placeholder="Ex: SKF - rolamentos" onkeydown="if(event.key==='Enter')app.addOC()"></div>
       <div style="flex:0 0 160px"><label class="f-label">Status</label>
         <select id="ocStatus"><option>Cotacao</option><option>Aguardando aprovacao</option><option>Aprovada</option><option>Entregue</option></select>
       </div>
@@ -631,19 +700,25 @@ tr:hover td{background:var(--surface2)}
   <div class="page-head">
     <div class="eyebrow">Controle</div>
     <h2>Financas</h2>
-    <div class="sub">Renda em duas parcelas: adiantamento no dia 15 e saldo no dia 30.</div>
+    <div class="sub">Renda em duas parcelas: adiantamento no dia 15 e saldo no dia 30. Navegue entre os meses para ver o historico.</div>
   </div>
 
   <div class="grid g4 mb">
-    <div class="card kpi"><div class="label">Entradas no mes</div><div class="value green" id="fiIn">R$ 0,00</div></div>
-    <div class="card kpi"><div class="label">Saidas no mes</div><div class="value red" id="fiOut">R$ 0,00</div></div>
-    <div class="card kpi"><div class="label">Saldo do mes</div><div class="value" id="fiBal">R$ 0,00</div></div>
+    <div class="card kpi"><div class="label">Entradas</div><div class="value green" id="fiIn">R$ 0,00</div><div class="hint" id="fiInHint"></div></div>
+    <div class="card kpi"><div class="label">Saidas</div><div class="value red" id="fiOut">R$ 0,00</div><div class="hint" id="fiOutHint"></div></div>
+    <div class="card kpi"><div class="label">Saldo</div><div class="value" id="fiBal">R$ 0,00</div><div class="hint" id="fiBalHint"></div></div>
     <div class="card kpi"><div class="label">Proximo pagamento</div><div class="value accent" id="fiNextPay">-</div><div class="hint" id="fiNextHint"></div></div>
   </div>
 
   <div class="grid g2">
     <div class="card">
-      <h3>Lancamentos do mes</h3>
+      <h3>Lancamentos
+        <span class="mo-nav">
+          <button class="btn sm icon-only" onclick="app.finPrev()" title="Mes anterior">&lsaquo;</button>
+          <b id="fiMonthLbl"></b>
+          <button class="btn sm icon-only" onclick="app.finNext()" title="Proximo mes">&rsaquo;</button>
+        </span>
+      </h3>
       <table>
         <thead><tr><th>Data</th><th>Descricao</th><th>Categoria</th><th style="text-align:right">Valor</th><th></th></tr></thead>
         <tbody id="fiList"></tbody>
@@ -660,13 +735,16 @@ tr:hover td{background:var(--surface2)}
         <div style="flex:0 0 100px"><label class="f-label">Tipo</label>
           <select id="fiType"><option value="out">Saida</option><option value="in">Entrada</option></select>
         </div>
-        <div style="flex:0 0 105px"><label class="f-label">Valor</label><input type="number" id="fiVal" min="0" step="0.01" placeholder="0,00"></div>
+        <div style="flex:0 0 105px"><label class="f-label">Valor</label><input type="text" inputmode="decimal" id="fiVal" placeholder="0,00" onkeydown="if(event.key==='Enter')app.addFin()"></div>
         <button class="btn primary" onclick="app.addFin()">Lancar</button>
       </div>
     </div>
     <div class="card">
       <h3>Gastos por categoria</h3>
       <div id="fiCats"></div>
+      <div class="divider"></div>
+      <h3>Ultimos 6 meses</h3>
+      <div id="fiHist"></div>
     </div>
   </div>
 </section>
@@ -687,13 +765,16 @@ tr:hover td{background:var(--surface2)}
       <div class="form-row mb">
         <div><label class="f-label">Ancora do ciclo de treino (dia do treino A)</label><input type="date" id="cfAnchor" onchange="app.setAnchor(this.value)"></div>
       </div>
-      <div class="form-row">
+      <div class="form-row mb">
         <div><label class="f-label">Meta diaria de estudo ENEM (minutos)</label><input type="number" id="cfStudyGoal" min="30" step="15" onchange="app.setStudyGoal(this.value)"></div>
       </div>
+      <div class="divider"></div>
+      <h3>Atalhos de teclado</h3>
+      <p class="small muted">Com o cursor fora de um campo de texto, pressione <b>1</b> a <b>8</b> para trocar de aba.</p>
     </div>
     <div class="card">
       <h3>Backup</h3>
-      <p class="small muted mb">Exporte um arquivo JSON com todos os dados para guardar ou levar a outro dispositivo.</p>
+      <p class="small muted mb">Exporte um arquivo JSON com todos os dados para guardar ou levar a outro dispositivo. Faca isso periodicamente - os dados vivem apenas neste navegador.</p>
       <div class="flex">
         <button class="btn primary" onclick="app.exportData()">Exportar dados</button>
         <label class="btn" style="cursor:pointer">Importar dados<input type="file" accept=".json" style="display:none" onchange="app.importData(this)"></label>
@@ -706,6 +787,8 @@ tr:hover td{background:var(--surface2)}
 
 </main>
 </div>
+
+<div class="toast-wrap" id="toastWrap"></div>
 
 <script>
 (function(){
@@ -732,16 +815,49 @@ var store = {
 };
 
 /* ---------- Utilitarios ---------- */
-function todayKey(d){ d = d || new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function pad(n){ return String(n).padStart(2,'0'); }
+function todayKey(d){ d = d || new Date(); return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate()); }
 function parseDay(s){ var p = s.split('-'); return new Date(+p[0], +p[1]-1, +p[2]); }
 function daysBetween(a, b){ return Math.round((b - a) / 86400000); }
 function brl(v){ return v.toLocaleString('pt-BR', {style:'currency', currency:'BRL'}); }
 function brDate(s){ var p = s.split('-'); return p[2]+'/'+p[1]; }
 function esc(s){ var d = document.createElement('div'); d.textContent = s; return d.innerHTML; }
 function el(id){ return document.getElementById(id); }
+function monthLabel(mk){ var p = mk.split('-'); return MONTHS[+p[1]-1]+' '+p[0]; }
+function parseMoney(s){
+  s = String(s).trim(); if(!s) return NaN;
+  if(s.indexOf(',') > -1) s = s.replace(/\./g,'').replace(',','.');
+  return parseFloat(s);
+}
 var DOW = ['Domingo','Segunda','Terca','Quarta','Quinta','Sexta','Sabado'];
 var DOW_S = ['DOM','SEG','TER','QUA','QUI','SEX','SAB'];
 var MONTHS = ['janeiro','fevereiro','marco','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+
+/* ---------- Toast com acao (desfazer) ---------- */
+function toast(msg, action){
+  var wrap = el('toastWrap');
+  var t = document.createElement('div');
+  t.className = 'toast';
+  var s = document.createElement('span');
+  s.textContent = msg;
+  t.appendChild(s);
+  if(action){
+    var b = document.createElement('button');
+    b.textContent = action.label;
+    b.onclick = function(){ action.fn(); t.remove(); };
+    t.appendChild(b);
+  }
+  wrap.appendChild(t);
+  setTimeout(function(){ if(t.parentNode) t.remove(); }, action ? 6000 : 2800);
+}
+
+/* Executa uma mutacao em uma chave do store guardando snapshot para desfazer */
+function withUndo(key, msg, mutate, rerender){
+  var before = JSON.parse(JSON.stringify(store.get(key, [])));
+  mutate();
+  rerender();
+  toast(msg, {label:'Desfazer', fn:function(){ store.set(key, before); rerender(); }});
+}
 
 /* ---------- Estado padrao ---------- */
 var defaults = {
@@ -784,9 +900,16 @@ var WORKOUTS = {
   D: {name:'Ombros + Abdomen', tec:'Superserie lateral + frontal, abdomen em circuito', vol:'27 a 30 series'}
 };
 var CYCLE = ['A','B','off','off','C','D','off','off'];
+var PAGES = ['hoje','rotina','enem','treino','dev','trabalho','financas','config'];
 
 /* ---------- Helpers de estado ---------- */
-function getRoutine(){ return store.get('routine', defaults.routine); }
+function getRoutine(){
+  return store.get('routine', defaults.routine).slice().sort(function(a,b){ return a.t.localeCompare(b.t); });
+}
+function saveRoutine(r){
+  r.sort(function(a,b){ return a.t.localeCompare(b.t); });
+  store.set('routine', r);
+}
 function getAnchor(){ return store.get('anchor', defaults.anchor); }
 function cycleFor(date){
   var diff = daysBetween(parseDay(getAnchor()), new Date(date.getFullYear(), date.getMonth(), date.getDate()));
@@ -809,26 +932,78 @@ function dayChecklist(){
   store.set(key, items);
   return items;
 }
+/* Atualiza o texto de um item nao concluido do checklist de hoje (meta/treino mudou) */
+function refreshTodayItem(matchFn, newText){
+  var key = 'chk_' + todayKey();
+  var items = store.get(key, null);
+  if(!items) return;
+  items.forEach(function(it){ if(!it.done && matchFn(it.n)) it.n = newText; });
+  store.set(key, items);
+}
+/* Percentual concluido de um dia (null se nao ha registro) */
+function dayPct(key){
+  var items = store.get('chk_' + key, null);
+  if(!items || !items.length) return null;
+  var done = items.filter(function(i){ return i.done; }).length;
+  return done / items.length;
+}
+/* Sequencia de dias com 80%+ do checklist concluido */
+function computeStreak(){
+  var s = 0, n = new Date();
+  var p = dayPct(todayKey(n));
+  if(p !== null && p >= .8) s++;
+  for(var i = 1; i < 366; i++){
+    var d = new Date(n.getFullYear(), n.getMonth(), n.getDate() - i);
+    var pp = dayPct(todayKey(d));
+    if(pp !== null && pp >= .8) s++; else break;
+  }
+  return s;
+}
+/* Limpa checklists com mais de 90 dias para nao acumular no storage */
+function cleanupOldChecklists(){
+  var now = new Date();
+  store.keys().forEach(function(k){
+    if(k.indexOf('chk_') !== 0) return;
+    try{ if(daysBetween(parseDay(k.slice(4)), now) > 90) store.remove(k); }catch(e){}
+  });
+}
 
 /* ---------- Navegacao ---------- */
+function switchPage(name){
+  if(PAGES.indexOf(name) === -1) name = 'hoje';
+  document.querySelectorAll('.nav-item').forEach(function(i){ i.classList.toggle('active', i.dataset.page === name); });
+  document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('visible'); });
+  el('page-' + name).classList.add('visible');
+  store.set('page', name);
+  renderAll();
+}
 document.querySelectorAll('.nav-item').forEach(function(item){
-  item.addEventListener('click', function(){
-    document.querySelectorAll('.nav-item').forEach(function(i){ i.classList.remove('active'); });
-    document.querySelectorAll('.page').forEach(function(p){ p.classList.remove('visible'); });
-    item.classList.add('active');
-    el('page-' + item.dataset.page).classList.add('visible');
-    renderAll();
+  item.addEventListener('click', function(){ switchPage(item.dataset.page); });
+  item.addEventListener('keydown', function(e){
+    if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); switchPage(item.dataset.page); }
   });
+});
+document.addEventListener('keydown', function(e){
+  if(e.altKey || e.ctrlKey || e.metaKey) return;
+  var t = e.target;
+  if(t && (t.tagName === 'INPUT' || t.tagName === 'SELECT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
+  var k = +e.key;
+  if(k >= 1 && k <= PAGES.length) switchPage(PAGES[k - 1]);
 });
 
 /* ---------- Relogio ---------- */
 function tickClock(){
   var n = new Date();
-  el('sbClock').textContent = String(n.getHours()).padStart(2,'0') + ':' + String(n.getMinutes()).padStart(2,'0');
+  el('sbClock').textContent = pad(n.getHours()) + ':' + pad(n.getMinutes());
   el('sbDate').textContent = DOW[n.getDay()] + ', ' + n.getDate() + ' de ' + MONTHS[n.getMonth()];
 }
 setInterval(tickClock, 10000); tickClock();
 setInterval(function(){ renderHoje(); }, 60000);
+
+/* Sincroniza quando outro guia/janela altera os dados */
+window.addEventListener('storage', function(e){
+  if(e.key && e.key.indexOf('base_') === 0) renderAll();
+});
 
 /* ---------- Render: HOJE ---------- */
 function renderHoje(){
@@ -844,7 +1019,7 @@ function renderHoje(){
   el('kTreinoHint').textContent = w === 'off' ? 'descanso e recuperacao' : WORKOUTS[w].name;
 
   /* timeline */
-  var routine = getRoutine().slice().sort(function(a,b){ return a.t.localeCompare(b.t); });
+  var routine = getRoutine();
   var nowMin = h * 60 + n.getMinutes();
   var currentIdx = -1;
   routine.forEach(function(r, i){
@@ -857,6 +1032,9 @@ function renderHoje(){
     tl += '<div class="tl-item ' + cls + '"><span class="tl-time">' + r.t + '</span><span class="tl-title">' + esc(r.n) + '</span><span class="tl-tag">' + esc(r.tag) + '</span></div>';
   });
   el('hjTimeline').innerHTML = tl || '<div class="empty">Sem blocos definidos. Configure na aba Rotina.</div>';
+  el('tlHint').textContent = routine.length
+    ? (currentIdx >= 0 ? 'bloco ' + (currentIdx + 1) + ' de ' + routine.length : routine.length + ' blocos hoje')
+    : '';
 
   if(currentIdx >= 0){
     el('nowBanner').style.display = 'flex';
@@ -873,14 +1051,30 @@ function renderHoje(){
   items.forEach(function(it, i){
     html += '<div class="check-row ' + (it.done ? 'checked' : '') + '" onclick="app.toggleCheck(' + i + ')">' +
       '<span class="check-box"><svg viewBox="0 0 24 24"><path d="M4 12l5 5 11-11"/></svg></span>' +
-      '<span class="check-text">' + esc(it.n) + '</span></div>';
+      '<span class="check-text">' + esc(it.n) + '</span>' +
+      (it.custom ? '<button class="del" onclick="event.stopPropagation();app.delCheckItem(' + i + ')" title="Remover item">&times;</button>' : '') +
+      '</div>';
   });
   el('hjChecklist').innerHTML = html;
   var done = items.filter(function(i){ return i.done; }).length;
   var pct = items.length ? Math.round(done / items.length * 100) : 0;
   el('hjProgress').style.width = pct + '%';
   el('kDia').textContent = pct + '%';
+  var st = computeStreak();
   el('kDiaHint').textContent = done + ' de ' + items.length + ' itens concluidos';
+  el('hjStreak').textContent = st > 0 ? 'sequencia: ' + st + (st === 1 ? ' dia' : ' dias') : '';
+
+  /* heatmap 28 dias */
+  var cells = '';
+  for(var i = 27; i >= 0; i--){
+    var d = new Date(n.getFullYear(), n.getMonth(), n.getDate() - i);
+    var k = todayKey(d);
+    var p = dayPct(k);
+    var lvl = p === null ? '' : p >= 1 ? 'l3' : p >= .5 ? 'l2' : p > 0 ? 'l1' : '';
+    var pctTxt = p === null ? 'sem registro' : Math.round(p * 100) + '%';
+    cells += '<div class="hm-cell ' + lvl + (i === 0 ? ' today' : '') + '" title="' + brDate(k) + ' - ' + pctTxt + '"></div>';
+  }
+  el('hjHeat').innerHTML = cells;
 
   /* trabalho */
   var tasks = store.get('tasks', []);
@@ -891,7 +1085,7 @@ function renderHoje(){
       }).join('')
     : '<div class="empty">Nenhuma pendencia. Bom trabalho.</div>';
 
-  /* saldo */
+  /* saldo do mes corrente */
   var s = monthTotals();
   el('kSaldo').textContent = brl(s.bal);
   el('kSaldo').className = 'value ' + (s.bal >= 0 ? 'green' : 'red');
@@ -899,23 +1093,32 @@ function renderHoje(){
 }
 
 /* ---------- Render: ROTINA ---------- */
+var editRoutineIdx = null;
 function renderRotina(){
-  var routine = getRoutine().slice().sort(function(a,b){ return a.t.localeCompare(b.t); });
+  var routine = getRoutine();
   el('rtList').innerHTML = routine.length ? routine.map(function(r, i){
     return '<div class="flex space" style="padding:8px 4px;border-bottom:1px solid var(--border-soft)">' +
       '<span class="mono" style="font-family:var(--font-mono);color:var(--accent);font-size:12.5px;width:48px">' + r.t + '</span>' +
       '<span style="flex:1;font-size:13px">' + esc(r.n) + '</span>' +
       '<span class="tag">' + esc(r.tag) + '</span>' +
-      '<button class="del" onclick="app.delRoutine(' + i + ')" title="Remover">&times;</button></div>';
+      '<button class="edit" onclick="app.editRoutine(' + i + ')" title="Editar bloco">&#9998;</button>' +
+      '<button class="del" style="margin-left:0" onclick="app.delRoutine(' + i + ')" title="Remover bloco">&times;</button></div>';
   }).join('') : '<div class="empty">Nenhum bloco definido.</div>';
 
   var notes = store.get('notes', []);
   el('rtNotes').innerHTML = notes.length ? notes.map(function(t, i){
-    return '<li>' + esc(t) + '<button class="del" onclick="app.delNote(' + i + ')">&times;</button></li>';
+    return '<li>' + esc(t) + '<button class="del" onclick="app.delNote(' + i + ')" title="Remover nota">&times;</button></li>';
   }).join('') : '<div class="empty">Sem lembretes.</div>';
 }
 
 /* ---------- Render: ENEM ---------- */
+function scoreTag(v){
+  var m = /^(\d+)\s*\/\s*(\d+)$/.exec(v);
+  if(!m || +m[2] === 0) return '';
+  var p = Math.round(+m[1] / +m[2] * 100);
+  var c = p >= 70 ? 'green' : p >= 50 ? 'gold' : 'red';
+  return ' <span class="tag ' + c + '">' + p + '%</span>';
+}
 function renderEnem(){
   var n = new Date(), base = new Date(n.getFullYear(), n.getMonth(), n.getDate());
   var d1 = daysBetween(base, new Date(2026,10,8)), d2 = daysBetween(base, new Date(2026,10,15));
@@ -933,8 +1136,15 @@ function renderEnem(){
   el('enPhaseHint').textContent = hint;
 
   var mk = todayKey().slice(0,7);
-  var reds = store.get('redacoes', []).filter(function(r){ return r.slice(0,7) === mk; });
+  var all = store.get('redacoes', []);
+  var reds = [];
+  all.forEach(function(r, i){ if(r.slice(0,7) === mk) reds.push({d: r, i: i}); });
   el('enRedCount').textContent = reds.length;
+  el('enRedBar').style.width = Math.min(100, Math.round(reds.length / 4 * 100)) + '%';
+  el('enRedList').innerHTML = reds.slice().reverse().map(function(r){
+    return '<li><span class="mono" style="font-family:var(--font-mono);font-size:11.5px;color:var(--muted)">' + brDate(r.d) + '</span> redacao registrada' +
+      '<button class="del" onclick="app.delRedacao(' + r.i + ')" title="Remover redacao">&times;</button></li>';
+  }).join('');
 
   var plan = store.get('weekPlan', defaults.weekPlan);
   var todayDow = n.getDay();
@@ -944,12 +1154,12 @@ function renderEnem(){
 
   var scores = store.get('scores', []);
   el('enScores').innerHTML = scores.length ? scores.map(function(s, i){
-    return '<tr><td class="mono">' + brDate(s.d) + '</td><td>' + esc(s.a) + '</td><td class="mono accent">' + esc(s.v) + '</td><td><button class="del" onclick="app.delScore(' + i + ')">&times;</button></td></tr>';
+    return '<tr><td class="mono">' + brDate(s.d) + '</td><td>' + esc(s.a) + '</td><td class="mono accent">' + esc(s.v) + scoreTag(s.v) + '</td><td><button class="del" onclick="app.delScore(' + i + ')" title="Remover registro">&times;</button></td></tr>';
   }).join('') : '<tr><td colspan="4" class="empty">Nenhum registro ainda. Comece com um diagnostico de prova anterior.</td></tr>';
 
   var weak = store.get('weak', []);
   el('enWeak').innerHTML = weak.length ? weak.map(function(t, i){
-    return '<li>' + esc(t) + '<button class="del" onclick="app.delWeak(' + i + ')">&times;</button></li>';
+    return '<li>' + esc(t) + '<button class="del" onclick="app.delWeak(' + i + ')" title="Remover item">&times;</button></li>';
   }).join('') : '<div class="empty">Nenhum ponto fraco mapeado.</div>';
 }
 
@@ -963,13 +1173,15 @@ function renderTreino(){
     var d = new Date(n.getFullYear(), n.getMonth(), n.getDate() + i);
     var w = cycleFor(d);
     strip += '<div class="cycle-day ' + (i === 0 ? 'today ' : '') + (w === 'off' ? 'off' : '') + '">' +
-      '<div class="cd-date">' + DOW_S[d.getDay()] + ' ' + String(d.getDate()).padStart(2,'0') + '</div>' +
+      '<div class="cd-date">' + DOW_S[d.getDay()] + ' ' + pad(d.getDate()) + '</div>' +
       '<div class="cd-type">' + (w === 'off' ? '-' : w) + '</div>' +
       '<div class="cd-name">' + (w === 'off' ? 'descanso' : WORKOUTS[w].name.split(' + ')[0]) + '</div></div>';
   }
   el('twStrip').innerHTML = strip;
 
   var w = cycleFor(n);
+  var log = store.get('wlog', []);
+  var doneToday = log.some(function(s){ return s.d === todayKey(); });
   if(w === 'off'){
     el('twToday').innerHTML = '<p class="small muted">Hoje e dia de descanso do ciclo. Prioridades: sono de qualidade, alongamento ou mobilidade leve e boa alimentacao. O musculo cresce na recuperacao.</p>';
   } else {
@@ -978,13 +1190,18 @@ function renderTreino(){
       '<div class="flex" style="gap:14px;margin-bottom:12px"><span style="font-family:var(--font-display);font-size:40px;font-weight:600;color:var(--accent)">' + w + '</span>' +
       '<div><div style="font-weight:600;font-size:15px">' + info.name + '</div><div class="small muted">' + info.vol + ' - cerca de 90 minutos</div></div></div>' +
       '<p class="small muted">Tecnicas do dia: ' + info.tec + '.</p>' +
-      '<button class="btn primary mt" onclick="app.quickLog(\'' + w + '\')">Marcar sessao como feita</button>';
+      (doneToday
+        ? '<p class="mt" style="color:var(--green);font-weight:600;font-size:13px">Sessao de hoje ja registrada. Bom trabalho.</p>'
+        : '<button class="btn primary mt" onclick="app.quickLog(\'' + w + '\')">Marcar sessao como feita</button>');
   }
 
-  var log = store.get('wlog', []);
+  var mk = todayKey().slice(0,7);
+  var monthCount = log.filter(function(s){ return s.d.slice(0,7) === mk; }).length;
+  el('twMonthCount').textContent = monthCount ? monthCount + ' sessoes neste mes' : '';
+
   el('twLog').innerHTML = log.length ? log.slice().reverse().map(function(s, ri){
     var i = log.length - 1 - ri;
-    return '<tr><td class="mono">' + brDate(s.d) + '</td><td><span class="tag gold">' + s.t + '</span></td><td class="small muted">' + esc(s.o || '-') + '</td><td><button class="del" onclick="app.delWorkoutLog(' + i + ')">&times;</button></td></tr>';
+    return '<tr><td class="mono">' + brDate(s.d) + '</td><td><span class="tag gold">' + esc(s.t) + '</span></td><td class="small muted">' + esc(s.o || '-') + '</td><td><button class="del" onclick="app.delWorkoutLog(' + i + ')" title="Remover sessao">&times;</button></td></tr>';
   }).join('') : '<tr><td colspan="4" class="empty">Nenhuma sessao registrada.</td></tr>';
 }
 
@@ -992,7 +1209,7 @@ function renderTreino(){
 function renderDev(){
   var py = store.get('python', {done: 0, total: 115});
   el('pyDone').value = py.done; el('pyTotal').value = py.total;
-  var pct = py.total ? Math.round(py.done / py.total * 100) : 0;
+  var pct = py.total ? Math.min(100, Math.round(py.done / py.total * 100)) : 0;
   el('pyPct').textContent = pct + '%';
   el('pyBar').style.width = pct + '%';
 
@@ -1008,13 +1225,19 @@ function renderDev(){
     return '<div class="check-row ' + (r.done ? 'checked' : '') + '" onclick="app.toggleRoblox(' + i + ')">' +
       '<span class="check-box"><svg viewBox="0 0 24 24"><path d="M4 12l5 5 11-11"/></svg></span>' +
       '<span class="check-text">' + esc(r.n) + '</span>' +
-      '<button class="del" onclick="event.stopPropagation();app.delRoblox(' + i + ')">&times;</button></div>';
+      '<button class="del" onclick="event.stopPropagation();app.delRoblox(' + i + ')" title="Remover meta">&times;</button></div>';
   }).join('') : '<div class="empty">Nenhuma meta definida para o projeto.</div>';
 
   var log = store.get('devlog', []);
+  var weekStart = new Date();
+  weekStart = todayKey(new Date(weekStart.getFullYear(), weekStart.getMonth(), weekStart.getDate() - 6));
+  var wk = 0;
+  log.forEach(function(s){ if(s.d >= weekStart) wk += (+s.m || 0); });
+  el('devWeekMin').textContent = wk ? wk + ' min nos ultimos 7 dias' : '';
+
   el('devLog').innerHTML = log.length ? log.slice().reverse().map(function(s, ri){
     var i = log.length - 1 - ri;
-    return '<tr><td class="mono">' + brDate(s.d) + '</td><td>' + esc(s.t) + '</td><td class="mono">' + s.m + ' min</td><td><button class="del" onclick="app.delDevLog(' + i + ')">&times;</button></td></tr>';
+    return '<tr><td class="mono">' + brDate(s.d) + '</td><td>' + esc(s.t) + '</td><td class="mono">' + s.m + ' min</td><td><button class="del" onclick="app.delDevLog(' + i + ')" title="Remover registro">&times;</button></td></tr>';
   }).join('') : '<tr><td colspan="4" class="empty">Nenhum estudo registrado.</td></tr>';
 }
 
@@ -1025,7 +1248,7 @@ function renderTrabalho(){
     var list = tasks.map(function(t, i){ t._i = i; return t; }).filter(function(t){ return t.col === col; });
     el('kbC' + col).textContent = list.length;
     el('kb' + col).innerHTML = list.length ? list.map(function(t){
-      return '<div class="kb-card">' + esc(t.n) +
+      return '<div class="kb-card" draggable="true" data-i="' + t._i + '">' + esc(t.n) +
         '<div class="kb-meta"><span class="tag">' + esc(t.tag) + '</span>' +
         '<span class="kb-actions">' +
         (col > 0 ? '<button class="kb-move" onclick="app.moveTask(' + t._i + ',-1)" title="Voltar">&lsaquo;</button>' : '') +
@@ -1040,24 +1263,57 @@ function renderTrabalho(){
   el('ocList').innerHTML = ocs.length ? ocs.map(function(o, i){
     return '<tr><td class="mono accent">' + esc(o.n) + '</td><td>' + esc(o.d) + '</td>' +
       '<td><span class="tag ' + (tagFor[o.s] || '') + '">' + esc(o.s) + '</span></td>' +
-      '<td class="flex" style="gap:4px"><button class="kb-move" onclick="app.nextOC(' + i + ')" title="Avancar status">&rsaquo;</button><button class="del" onclick="app.delOC(' + i + ')">&times;</button></td></tr>';
+      '<td class="flex" style="gap:4px"><button class="kb-move" onclick="app.nextOC(' + i + ')" title="Avancar status">&rsaquo;</button><button class="del" onclick="app.delOC(' + i + ')" title="Remover OC">&times;</button></td></tr>';
   }).join('') : '<tr><td colspan="4" class="empty">Nenhuma OC em acompanhamento.</td></tr>';
 }
 
+/* ---------- Kanban: arrastar e soltar ---------- */
+var dragIdx = null;
+document.addEventListener('dragstart', function(e){
+  var c = e.target.closest ? e.target.closest('.kb-card') : null;
+  if(!c) return;
+  dragIdx = +c.dataset.i;
+  c.classList.add('dragging');
+  if(e.dataTransfer) e.dataTransfer.effectAllowed = 'move';
+});
+document.addEventListener('dragend', function(e){
+  var c = e.target.closest ? e.target.closest('.kb-card') : null;
+  if(c) c.classList.remove('dragging');
+});
+document.querySelectorAll('.kb-col').forEach(function(col){
+  col.addEventListener('dragover', function(e){ e.preventDefault(); col.classList.add('dragover'); });
+  col.addEventListener('dragleave', function(){ col.classList.remove('dragover'); });
+  col.addEventListener('drop', function(e){
+    e.preventDefault();
+    col.classList.remove('dragover');
+    if(dragIdx === null) return;
+    var t = store.get('tasks', []);
+    if(t[dragIdx]){ t[dragIdx].col = +col.dataset.col; store.set('tasks', t); renderTrabalho(); renderHoje(); }
+    dragIdx = null;
+  });
+});
+
 /* ---------- Render: FINANCAS ---------- */
-function monthTotals(){
-  var mk = todayKey().slice(0,7);
+var finMonth = todayKey().slice(0,7);
+function monthTotals(mk){
+  mk = mk || todayKey().slice(0,7);
   var fin = store.get('fin', []).filter(function(f){ return f.d.slice(0,7) === mk; });
   var inc = 0, out = 0;
   fin.forEach(function(f){ if(f.t === 'in') inc += f.v; else out += f.v; });
   return {inc: inc, out: out, bal: inc - out, list: fin};
 }
 function renderFinancas(){
-  var s = monthTotals();
+  var isCurrent = finMonth === todayKey().slice(0,7);
+  var s = monthTotals(finMonth);
+  el('fiMonthLbl').textContent = monthLabel(finMonth);
   el('fiIn').textContent = brl(s.inc);
   el('fiOut').textContent = brl(s.out);
   el('fiBal').textContent = brl(s.bal);
   el('fiBal').className = 'value ' + (s.bal >= 0 ? 'green' : 'red');
+  var lblMes = isCurrent ? 'neste mes' : 'em ' + monthLabel(finMonth);
+  el('fiInHint').textContent = lblMes;
+  el('fiOutHint').textContent = lblMes;
+  el('fiBalHint').textContent = lblMes;
 
   var n = new Date(), day = n.getDate();
   var next = day < 15 ? 15 : day < 30 ? 30 : 15;
@@ -1066,23 +1322,40 @@ function renderFinancas(){
   el('fiNextHint').textContent = lbl;
 
   var fin = store.get('fin', []);
-  var mk = todayKey().slice(0,7);
-  var rows = fin.map(function(f, i){ f._i = i; return f; }).filter(function(f){ return f.d.slice(0,7) === mk; })
+  var rows = fin.map(function(f, i){ f._i = i; return f; }).filter(function(f){ return f.d.slice(0,7) === finMonth; })
     .sort(function(a,b){ return b.d.localeCompare(a.d); });
   el('fiList').innerHTML = rows.length ? rows.map(function(f){
     return '<tr><td class="mono">' + brDate(f.d) + '</td><td>' + esc(f.n) + '</td><td><span class="tag">' + esc(f.c) + '</span></td>' +
       '<td class="mono" style="text-align:right;color:var(--' + (f.t === 'in' ? 'green' : 'red') + ')">' + (f.t === 'in' ? '+' : '-') + brl(f.v) + '</td>' +
-      '<td><button class="del" onclick="app.delFin(' + f._i + ')">&times;</button></td></tr>';
+      '<td><button class="del" onclick="app.delFin(' + f._i + ')" title="Remover lancamento">&times;</button></td></tr>';
   }).join('') : '<tr><td colspan="5" class="empty">Nenhum lancamento neste mes.</td></tr>';
 
   var cats = {};
-  monthTotals().list.forEach(function(f){ if(f.t === 'out') cats[f.c] = (cats[f.c] || 0) + f.v; });
+  s.list.forEach(function(f){ if(f.t === 'out') cats[f.c] = (cats[f.c] || 0) + f.v; });
   var entries = Object.keys(cats).map(function(k){ return [k, cats[k]]; }).sort(function(a,b){ return b[1]-a[1]; });
   var max = entries.length ? entries[0][1] : 1;
   el('fiCats').innerHTML = entries.length ? entries.map(function(e){
     return '<div style="margin-bottom:12px"><div class="flex space"><span class="small">' + esc(e[0]) + '</span><span class="mono small" style="font-family:var(--font-mono)">' + brl(e[1]) + '</span></div>' +
       '<div class="progress"><div class="fill" style="width:' + Math.round(e[1]/max*100) + '%"></div></div></div>';
   }).join('') : '<div class="empty">Sem gastos registrados neste mes.</div>';
+
+  /* historico de saldo dos ultimos 6 meses */
+  var hist = [];
+  var maxAbs = 0;
+  for(var i = 5; i >= 0; i--){
+    var d = new Date(n.getFullYear(), n.getMonth() - i, 1);
+    var mk = d.getFullYear() + '-' + pad(d.getMonth() + 1);
+    var t = monthTotals(mk);
+    hist.push({mk: mk, bal: t.bal, any: t.list.length > 0});
+    maxAbs = Math.max(maxAbs, Math.abs(t.bal));
+  }
+  el('fiHist').innerHTML = hist.some(function(hh){ return hh.any; }) ? hist.map(function(hh){
+    var wPct = maxAbs ? Math.max(3, Math.round(Math.abs(hh.bal) / maxAbs * 100)) : 3;
+    return '<div style="margin-bottom:10px"><div class="flex space">' +
+      '<span class="small" style="text-transform:capitalize">' + monthLabel(hh.mk).replace(/ \d+$/,'') + '</span>' +
+      '<span class="mono small" style="font-family:var(--font-mono);color:var(--' + (hh.bal >= 0 ? 'green' : 'red') + ')">' + (hh.any ? brl(hh.bal) : '-') + '</span></div>' +
+      '<div class="progress"><div class="fill ' + (hh.bal >= 0 ? 'green' : 'red') + '" style="width:' + (hh.any ? wPct : 0) + '%"></div></div></div>';
+  }).join('') : '<div class="empty">Sem historico ainda.</div>';
 }
 
 /* ---------- Render: CONFIG ---------- */
@@ -1103,27 +1376,80 @@ window.app = {
     var key = 'chk_' + todayKey(), items = dayChecklist();
     items[i].done = !items[i].done; store.set(key, items); renderHoje();
   },
-  resetToday: function(){ store.remove('chk_' + todayKey()); renderHoje(); },
+  resetToday: function(){
+    withUndo('chk_' + todayKey(), 'Checklist reiniciado', function(){
+      store.remove('chk_' + todayKey());
+    }, renderHoje);
+  },
+  addCheckItem: function(){
+    var v = el('hjNewItem').value.trim(); if(!v) return;
+    var key = 'chk_' + todayKey();
+    var items = dayChecklist();
+    items.push({n: v, done: false, custom: true});
+    store.set(key, items);
+    el('hjNewItem').value = '';
+    renderHoje();
+  },
+  delCheckItem: function(i){
+    withUndo('chk_' + todayKey(), 'Item removido', function(){
+      var items = store.get('chk_' + todayKey(), []);
+      items.splice(i, 1);
+      store.set('chk_' + todayKey(), items);
+    }, renderHoje);
+  },
 
   addRoutine: function(){
     var t = el('rtTime').value, n = el('rtName').value.trim();
     if(!t || !n) return;
-    var r = getRoutine(); r.push({t: t, n: n, tag: el('rtTag').value});
-    store.set('routine', r); el('rtName').value = ''; renderRotina(); renderHoje();
+    var r = getRoutine();
+    var item = {t: t, n: n, tag: el('rtTag').value};
+    if(editRoutineIdx !== null && r[editRoutineIdx]){
+      r[editRoutineIdx] = item;
+      editRoutineIdx = null;
+      el('rtAddBtn').textContent = 'Adicionar';
+      toast('Bloco atualizado');
+    } else {
+      r.push(item);
+    }
+    saveRoutine(r);
+    el('rtName').value = ''; el('rtTime').value = '';
+    renderRotina(); renderHoje();
+  },
+  editRoutine: function(i){
+    var r = getRoutine();
+    if(!r[i]) return;
+    el('rtTime').value = r[i].t;
+    el('rtName').value = r[i].n;
+    el('rtTag').value = r[i].tag;
+    editRoutineIdx = i;
+    el('rtAddBtn').textContent = 'Salvar';
+    el('rtName').focus();
   },
   delRoutine: function(i){
-    var r = getRoutine().slice().sort(function(a,b){ return a.t.localeCompare(b.t); });
-    r.splice(i, 1); store.set('routine', r); renderRotina(); renderHoje();
+    if(editRoutineIdx === i){ editRoutineIdx = null; el('rtAddBtn').textContent = 'Adicionar'; }
+    withUndo('routine', 'Bloco removido', function(){
+      var r = getRoutine(); r.splice(i, 1); saveRoutine(r);
+    }, function(){ renderRotina(); renderHoje(); });
   },
   addNote: function(){
     var v = el('rtNoteInput').value.trim(); if(!v) return;
     var n = store.get('notes', []); n.push(v); store.set('notes', n);
     el('rtNoteInput').value = ''; renderRotina();
   },
-  delNote: function(i){ var n = store.get('notes', []); n.splice(i,1); store.set('notes', n); renderRotina(); },
+  delNote: function(i){
+    withUndo('notes', 'Nota removida', function(){
+      var n = store.get('notes', []); n.splice(i,1); store.set('notes', n);
+    }, renderRotina);
+  },
 
   addRedacao: function(){
-    var r = store.get('redacoes', []); r.push(todayKey()); store.set('redacoes', r); renderEnem();
+    var r = store.get('redacoes', []); r.push(todayKey()); store.set('redacoes', r);
+    renderEnem(); toast('Redacao registrada');
+  },
+  delRedacao: function(i){
+    withUndo('redacoes', 'Redacao removida', function(){
+      var r = store.get('redacoes', []); r.splice(i,1); store.set('redacoes', r);
+    }, renderEnem);
   },
   addScore: function(){
     var d = el('enScDate').value || todayKey(), a = el('enScArea').value.trim(), v = el('enScVal').value.trim();
@@ -1131,18 +1457,36 @@ window.app = {
     var s = store.get('scores', []); s.push({d: d, a: a, v: v}); store.set('scores', s);
     el('enScArea').value = ''; el('enScVal').value = ''; renderEnem();
   },
-  delScore: function(i){ var s = store.get('scores', []); s.splice(i,1); store.set('scores', s); renderEnem(); },
+  delScore: function(i){
+    withUndo('scores', 'Registro removido', function(){
+      var s = store.get('scores', []); s.splice(i,1); store.set('scores', s);
+    }, renderEnem);
+  },
   addWeak: function(){
     var v = el('enWeakInput').value.trim(); if(!v) return;
     var w = store.get('weak', []); w.push(v); store.set('weak', w);
     el('enWeakInput').value = ''; renderEnem();
   },
-  delWeak: function(i){ var w = store.get('weak', []); w.splice(i,1); store.set('weak', w); renderEnem(); },
+  delWeak: function(i){
+    withUndo('weak', 'Item removido', function(){
+      var w = store.get('weak', []); w.splice(i,1); store.set('weak', w);
+    }, renderEnem);
+  },
 
-  setAnchor: function(v){ if(v){ store.set('anchor', v); renderAll(); } },
+  setAnchor: function(v){
+    if(!v) return;
+    store.set('anchor', v);
+    var w = cycleFor(new Date());
+    refreshTodayItem(
+      function(n){ return n.indexOf('Treino ') === 0 || n.indexOf('Dia off') === 0; },
+      w === 'off' ? 'Dia off - mobilidade, sono e alimentacao' : 'Treino ' + w + ' - ' + WORKOUTS[w].name
+    );
+    renderAll();
+    toast('Ancora do ciclo atualizada');
+  },
   quickLog: function(t){
     var l = store.get('wlog', []); l.push({d: todayKey(), t: t, o: 'Sessao concluida'});
-    store.set('wlog', l); renderTreino();
+    store.set('wlog', l); renderTreino(); toast('Treino ' + t + ' registrado');
   },
   addWorkoutLog: function(){
     var d = el('twLogDate').value || todayKey();
@@ -1150,10 +1494,17 @@ window.app = {
     l.push({d: d, t: el('twLogType').value, o: el('twLogObs').value.trim()});
     store.set('wlog', l); el('twLogObs').value = ''; renderTreino();
   },
-  delWorkoutLog: function(i){ var l = store.get('wlog', []); l.splice(i,1); store.set('wlog', l); renderTreino(); },
+  delWorkoutLog: function(i){
+    withUndo('wlog', 'Sessao removida', function(){
+      var l = store.get('wlog', []); l.splice(i,1); store.set('wlog', l);
+    }, renderTreino);
+  },
 
   setPython: function(){
-    store.set('python', {done: +el('pyDone').value || 0, total: +el('pyTotal').value || 1}); renderDev();
+    var done = Math.max(0, +el('pyDone').value || 0);
+    var total = Math.max(1, +el('pyTotal').value || 1);
+    if(done > total) done = total;
+    store.set('python', {done: done, total: total}); renderDev();
   },
   togglePath: function(i){
     var p = store.get('devPath', defaults.devPath); p[i].done = !p[i].done; store.set('devPath', p); renderDev();
@@ -1164,14 +1515,22 @@ window.app = {
     el('rbInput').value = ''; renderDev();
   },
   toggleRoblox: function(i){ var r = store.get('roblox', []); r[i].done = !r[i].done; store.set('roblox', r); renderDev(); },
-  delRoblox: function(i){ var r = store.get('roblox', []); r.splice(i,1); store.set('roblox', r); renderDev(); },
+  delRoblox: function(i){
+    withUndo('roblox', 'Meta removida', function(){
+      var r = store.get('roblox', []); r.splice(i,1); store.set('roblox', r);
+    }, renderDev);
+  },
   addDevLog: function(){
     var t = el('devLogTopic').value.trim(); if(!t) return;
     var l = store.get('devlog', []);
     l.push({d: el('devLogDate').value || todayKey(), t: t, m: +el('devLogMin').value || 30});
     store.set('devlog', l); el('devLogTopic').value = ''; renderDev();
   },
-  delDevLog: function(i){ var l = store.get('devlog', []); l.splice(i,1); store.set('devlog', l); renderDev(); },
+  delDevLog: function(i){
+    withUndo('devlog', 'Registro removido', function(){
+      var l = store.get('devlog', []); l.splice(i,1); store.set('devlog', l);
+    }, renderDev);
+  },
 
   addTask: function(){
     var v = el('kbInput').value.trim(); if(!v) return;
@@ -1182,7 +1541,19 @@ window.app = {
     var t = store.get('tasks', []); t[i].col = Math.max(0, Math.min(2, t[i].col + dir));
     store.set('tasks', t); renderTrabalho(); renderHoje();
   },
-  delTask: function(i){ var t = store.get('tasks', []); t.splice(i,1); store.set('tasks', t); renderTrabalho(); renderHoje(); },
+  delTask: function(i){
+    withUndo('tasks', 'Tarefa removida', function(){
+      var t = store.get('tasks', []); t.splice(i,1); store.set('tasks', t);
+    }, function(){ renderTrabalho(); renderHoje(); });
+  },
+  clearDone: function(){
+    var t = store.get('tasks', []);
+    var done = t.filter(function(c){ return c.col === 2; }).length;
+    if(!done){ toast('Nenhuma tarefa concluida para limpar'); return; }
+    withUndo('tasks', done + (done === 1 ? ' tarefa removida' : ' tarefas removidas'), function(){
+      store.set('tasks', store.get('tasks', []).filter(function(c){ return c.col < 2; }));
+    }, function(){ renderTrabalho(); renderHoje(); });
+  },
   addOC: function(){
     var n = el('ocNum').value.trim(), d = el('ocDesc').value.trim(); if(!n || !d) return;
     var o = store.get('ocs', []); o.push({n: n, d: d, s: el('ocStatus').value});
@@ -1195,54 +1566,95 @@ window.app = {
     o[i].s = order[Math.min(order.length - 1, idx + 1)];
     store.set('ocs', o); renderTrabalho();
   },
-  delOC: function(i){ var o = store.get('ocs', []); o.splice(i,1); store.set('ocs', o); renderTrabalho(); },
+  delOC: function(i){
+    withUndo('ocs', 'OC removida', function(){
+      var o = store.get('ocs', []); o.splice(i,1); store.set('ocs', o);
+    }, renderTrabalho);
+  },
 
   addFin: function(){
-    var n = el('fiDesc').value.trim(), v = parseFloat(el('fiVal').value);
-    if(!n || !v || v <= 0) return;
+    var n = el('fiDesc').value.trim(), v = parseMoney(el('fiVal').value);
+    if(!n){ toast('Preencha a descricao'); return; }
+    if(isNaN(v) || v <= 0){ toast('Valor invalido'); return; }
+    v = Math.round(v * 100) / 100;
     var f = store.get('fin', []);
-    f.push({d: el('fiDate').value || todayKey(), n: n, c: el('fiCat').value, t: el('fiType').value, v: v});
-    store.set('fin', f); el('fiDesc').value = ''; el('fiVal').value = ''; renderFinancas(); renderHoje();
+    var d = el('fiDate').value || todayKey();
+    f.push({d: d, n: n, c: el('fiCat').value, t: el('fiType').value, v: v});
+    store.set('fin', f);
+    el('fiDesc').value = ''; el('fiVal').value = '';
+    finMonth = d.slice(0,7);
+    renderFinancas(); renderHoje();
   },
-  delFin: function(i){ var f = store.get('fin', []); f.splice(i,1); store.set('fin', f); renderFinancas(); renderHoje(); },
+  delFin: function(i){
+    withUndo('fin', 'Lancamento removido', function(){
+      var f = store.get('fin', []); f.splice(i,1); store.set('fin', f);
+    }, function(){ renderFinancas(); renderHoje(); });
+  },
+  finPrev: function(){
+    var p = finMonth.split('-');
+    var d = new Date(+p[0], +p[1] - 2, 1);
+    finMonth = d.getFullYear() + '-' + pad(d.getMonth() + 1);
+    renderFinancas();
+  },
+  finNext: function(){
+    var p = finMonth.split('-');
+    var d = new Date(+p[0], +p[1], 1);
+    finMonth = d.getFullYear() + '-' + pad(d.getMonth() + 1);
+    renderFinancas();
+  },
 
-  setName: function(v){ if(v.trim()) store.set('name', v.trim()); renderHoje(); },
-  setStudyGoal: function(v){ store.set('studyGoal', +v || 180); },
+  setName: function(v){ if(v.trim()){ store.set('name', v.trim()); toast('Nome salvo'); } renderHoje(); },
+  setStudyGoal: function(v){
+    var g = +v || 180;
+    store.set('studyGoal', g);
+    refreshTodayItem(function(n){ return n.indexOf('Estudo ENEM -') === 0; }, 'Estudo ENEM - ' + g + ' minutos');
+    renderHoje();
+    toast('Meta de estudo atualizada');
+  },
 
   exportData: function(){
     var data = {};
     store.keys().forEach(function(k){ data[k] = store.get(k, null); });
-    var blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+    var out = {__meta: {app: 'BASE', version: 2, exported: new Date().toISOString()}, data: data};
+    var blob = new Blob([JSON.stringify(out, null, 2)], {type: 'application/json'});
     var a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
     a.download = 'base_backup_' + todayKey() + '.json';
     a.click();
+    setTimeout(function(){ URL.revokeObjectURL(a.href); }, 5000);
+    toast('Backup exportado');
   },
   importData: function(input){
     var file = input.files[0]; if(!file) return;
     var reader = new FileReader();
     reader.onload = function(){
       try{
-        var data = JSON.parse(reader.result);
+        var parsed = JSON.parse(reader.result);
+        var data = (parsed && parsed.__meta && parsed.data) ? parsed.data : parsed;
+        if(!data || typeof data !== 'object' || Array.isArray(data)) throw new Error('formato');
+        if(!confirm('Importar backup e sobrescrever os dados atuais?')){ input.value = ''; return; }
         Object.keys(data).forEach(function(k){ store.set(k, data[k]); });
+        finMonth = todayKey().slice(0,7);
         renderAll();
-        alert('Dados importados com sucesso.');
-      }catch(e){ alert('Arquivo invalido. Selecione um backup exportado pelo BASE.'); }
+        toast('Dados importados com sucesso');
+      }catch(e){ toast('Arquivo invalido. Selecione um backup exportado pelo BASE.'); }
+      input.value = '';
     };
     reader.readAsText(file);
-    input.value = '';
   },
   wipe: function(){
-    if(!confirm('Apagar todos os dados do app? Esta acao nao pode ser desfeita.')) return;
+    if(!confirm('Apagar todos os dados do app? Esta acao nao pode ser desfeita. Considere exportar um backup antes.')) return;
     store.keys().forEach(function(k){ store.remove(k); });
+    finMonth = todayKey().slice(0,7);
     renderAll();
+    toast('Todos os dados foram apagados');
   }
 };
 
-/* datas padrao nos inputs */
+/* ---------- Inicializacao ---------- */
+cleanupOldChecklists();
 ['enScDate','twLogDate','devLogDate','fiDate'].forEach(function(id){ el(id).value = todayKey(); });
-
-renderAll();
+switchPage(store.get('page', 'hoje'));
 })();
 </script>
 </body>
