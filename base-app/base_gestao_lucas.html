@@ -448,6 +448,18 @@ tr:hover td{background:var(--surface2)}
 .sub-add{display:flex;gap:6px;margin-top:7px}
 .sub-add input{padding:5px 8px;font-size:12px}
 
+/* ---------- Curso diario ---------- */
+.lnk{
+  display:inline-flex;align-items:center;gap:6px;
+  background:var(--surface2);border:1px solid var(--border);border-radius:8px;
+  padding:6px 11px;font-size:12px;font-weight:600;color:var(--text);
+  text-decoration:none;margin:3px 6px 3px 0;transition:all .15s;
+}
+.lnk:hover{border-color:var(--accent-line);color:var(--accent)}
+.crs-title{font-family:var(--font-display);font-size:21px;font-weight:600;margin:8px 0 4px}
+.crs-tip{display:flex;gap:9px;padding:5px 0;font-size:12.5px;color:var(--muted);align-items:baseline}
+.crs-tip::before{content:'·';color:var(--accent);font-weight:700;font-size:16px;line-height:1}
+
 .empty{color:var(--faint);font-size:12.5px;text-align:center;padding:18px 0;font-style:italic}
 .divider{height:1px;background:var(--border-soft);margin:16px 0}
 .mt{margin-top:16px}.mt-sm{margin-top:10px}.mb{margin-bottom:16px}
@@ -774,6 +786,34 @@ tr:hover td{background:var(--surface2)}
   <div class="card mb">
     <h3>Plano semanal</h3>
     <div class="week-plan" id="enWeek"></div>
+  </div>
+
+  <div class="grid g2 mb">
+    <div class="card">
+      <h3>Curso diario
+        <span class="flex" style="gap:6px;letter-spacing:0;text-transform:none">
+          <button class="btn sm icon-only" onclick="app.crsPrev()" title="Dia anterior">&lsaquo;</button>
+          <b id="crsDateLbl" style="font-family:var(--font-mono);font-size:11.5px;min-width:86px;text-align:center;color:var(--text)"></b>
+          <button class="btn sm icon-only" onclick="app.crsNext()" title="Proximo dia">&rsaquo;</button>
+          <button class="btn sm ghost" onclick="app.crsToday()">Hoje</button>
+        </span>
+      </h3>
+      <div id="crsBody"></div>
+      <div class="divider"></div>
+      <div class="small muted mb" style="font-weight:600">Progresso do curso</div>
+      <div id="crsProg"></div>
+    </div>
+    <div class="card">
+      <h3>Gerador de temas de redacao</h3>
+      <div class="label" style="font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);font-weight:600;margin-bottom:8px">Tema sugerido</div>
+      <div id="rdTema" style="font-family:var(--font-display);font-size:19px;font-weight:600;line-height:1.4"></div>
+      <div class="flex mt" style="flex-wrap:wrap">
+        <button class="btn primary sm" onclick="app.sortearTema()">Sortear outro tema</button>
+      </div>
+      <div id="rdLinks" class="mt-sm"></div>
+      <div class="divider"></div>
+      <p class="small muted"><b>Estrutura nota 1000:</b> introducao com repertorio + tese · 2 desenvolvimentos (topico frasal, repertorio, analise) · conclusao com proposta completa: agente, acao, meio, finalidade e detalhamento.</p>
+    </div>
   </div>
 
   <div class="grid g2">
@@ -1516,7 +1556,9 @@ var ACH_DEFS = [
   {id:'tasks50', ico:'✅',        n:'50 tarefas concluidas',  d:'Concluir 50 tarefas no kanban',           test:function(){ return store.get('stat_tasksDone',0) >= 50; }},
   {id:'foco10',  ico:'🎯', n:'10 sessoes de foco',     d:'Completar 10 sessoes no modo foco',       test:function(){ return store.get('flog',[]).length >= 10; }},
   {id:'hab100',  ico:'🌱', n:'100 habitos marcados',   d:'Marcar habitos 100 vezes no total',       test:function(){ return habTotalChecks() >= 100; }},
-  {id:'azul1',   ico:'💰', n:'Mes no azul',            d:'Fechar um mes com saldo positivo',        test:function(){ var m={}; store.get('fin',[]).forEach(function(f){ var k=f.d.slice(0,7); m[k]=(m[k]||0)+(f.t==='in'?f.v:-f.v); }); var cur=todayKey().slice(0,7); for(var k in m) if(k<cur && m[k]>0) return true; return false; }}
+  {id:'azul1',   ico:'💰', n:'Mes no azul',            d:'Fechar um mes com saldo positivo',        test:function(){ var m={}; store.get('fin',[]).forEach(function(f){ var k=f.d.slice(0,7); m[k]=(m[k]||0)+(f.t==='in'?f.v:-f.v); }); var cur=todayKey().slice(0,7); for(var k in m) if(k<cur && m[k]>0) return true; return false; }},
+  {id:'aula10',  ico:'🎓', n:'10 aulas do curso',      d:'Concluir 10 aulas do curso diario ENEM',  test:function(){ return Object.keys(store.get('crs',{})).length >= 10; }},
+  {id:'aula50',  ico:'🏫', n:'50 aulas do curso',      d:'Concluir 50 aulas do curso diario ENEM',  test:function(){ return Object.keys(store.get('crs',{})).length >= 50; }}
 ];
 function checkAchievements(){
   var ach = store.get('ach', {});
@@ -1989,6 +2031,228 @@ function renderEnem(){
   el('enWeak').innerHTML = weak.length ? weak.map(function(t, i){
     return '<li>' + esc(t) + '<button class="del" onclick="app.delWeak(' + i + ')" title="Remover item">&times;</button></li>';
   }).join('') : '<div class="empty">Nenhum ponto fraco mapeado.</div>';
+
+  renderCourse();
+}
+
+/* ---------- Curso diario ENEM ---------- */
+var CURSO = {
+  mat: {name:'Matematica', ch:['Professor Ferretto','Equaciona Matematica'], list:[
+    {id:'m1', n:'Razao, proporcao e regra de tres', t:'Monte a proporcao e faca o produto cruzado|Atencao a grandezas inversas: mais maquinas, menos tempo|Cai em quase toda prova - treine 10 questoes'},
+    {id:'m2', n:'Porcentagem e aumentos sucessivos', t:'Use fator multiplicativo: +20% = x1,2 e -30% = x0,7|Aumentos sucessivos multiplicam fatores, nao somam|Treine desconto sobre desconto'},
+    {id:'m3', n:'Funcao afim', t:'y = ax + b: a e a taxa de variacao, b o valor inicial|Identifique em contas de luz, taxi e planos de celular|Treine achar a lei a partir de dois pontos'},
+    {id:'m4', n:'Funcao quadratica', t:'Vertice = maximo ou minimo do problema|x do vertice = -b/2a: treine lucro maximo e altura|Raizes mostram onde a curva corta o eixo'},
+    {id:'m5', n:'Funcao exponencial e logaritmo', t:'Crescimento em porcentagem constante = exponencial|Log responde: a que expoente devo elevar a base?|Cai com juros, populacao e decaimento'},
+    {id:'m6', n:'Progressoes PA e PG', t:'PA soma a razao, PG multiplica|Termo geral da PA: an = a1 + (n-1)r|Reconheca sequencias escondidas em tabelas'},
+    {id:'m7', n:'Geometria plana: areas', t:'Decore areas de triangulo, trapezio e circulo|Divida figuras compostas em formas simples|Atencao as unidades: cm2 vs m2'},
+    {id:'m8', n:'Prismas e cilindros', t:'Volume = area da base x altura|Cai com caixas, piscinas e latas|1 m3 = 1000 litros - conversao classica'},
+    {id:'m9', n:'Piramides, cones e esferas', t:'Piramide e cone: 1/3 da base x altura|Esfera: V = 4/3 pi r3|Compare volumes ao dobrar o raio'},
+    {id:'m10', n:'Trigonometria no triangulo', t:'Seno = oposto/hipotenusa; cosseno = adjacente|Use com rampas, sombras e alturas|Decore sen, cos e tan de 30, 45 e 60'},
+    {id:'m11', n:'Estatistica: media, mediana e moda', t:'Mediana = valor central ordenado, resiste a extremos|Media ponderada cai todo ano|Compare media vs mediana em distribuicoes'},
+    {id:'m12', n:'Probabilidade', t:'P = casos favoraveis / casos possiveis|Eventos sucessivos: multiplique as probabilidades|"Pelo menos um": use o evento complementar'},
+    {id:'m13', n:'Analise combinatoria', t:'Ordem importa? Arranjo. Nao importa? Combinacao|Principio multiplicativo resolve a maioria|Treine placas, senhas e comissoes'},
+    {id:'m14', n:'Interpretacao de graficos e tabelas', t:'Leia titulo, eixos e legenda antes das alternativas|Cuidado com escalas truncadas|A questao mais frequente da prova'},
+    {id:'m15', n:'Escalas e unidades de medida', t:'Escala 1:100 = 1 cm no mapa vale 100 cm reais|Treine planta baixa e maquete|km/h para m/s: divida por 3,6'},
+    {id:'m16', n:'Matematica financeira', t:'Juros simples crescem linear; compostos, exponencial|Compare a vista vs parcelado|Montante: M = C(1+i)^t'},
+    {id:'m17', n:'Equacoes e sistemas', t:'Traduza o enunciado em equacoes|Elimine uma incognita somando ou substituindo|Confira a resposta no contexto do problema'},
+    {id:'m18', n:'Geometria analitica basica', t:'Distancia entre pontos = Pitagoras|Ponto medio: media das coordenadas|Reta e o mesmo raciocinio da funcao afim'},
+    {id:'m19', n:'Semelhanca e Pitagoras', t:'Semelhantes: razao k nas medidas, k2 nas areas|Pitagoras: a2 = b2 + c2|Sombras e escadas apoiadas sao os modelos classicos'},
+    {id:'m20', n:'Leitura de graficos de funcao', t:'Identifique crescente, decrescente e maximos|Relacione o grafico com a situacao descrita|Treine achar o intervalo onde f(x) > 0'},
+    {id:'m21', n:'Volume, capacidade e vazao', t:'Vazao = volume / tempo|Reservatorios enchendo e esvaziando: monte a equacao|Compare embalagens pelo preco por litro'},
+    {id:'m22', n:'Razao entre areas e volumes', t:'Dobrar o lado: area x4 e volume x8|Use k, k2 e k3|Pegadinha classica do ENEM'},
+    {id:'m23', n:'Conjuntos e logica', t:'Diagrama de Venn resolve uniao e intersecao|Atencao ao "somente A"|Some por partes sem contar duas vezes'},
+    {id:'m24', n:'Revisao de erros de matematica', t:'Refaca as questoes erradas do seu caderno de erros|O erro foi conta, interpretacao ou formula?|Registre os temas fracos na lista de pontos fracos'}
+  ]},
+  lng: {name:'Linguagens', ch:['Professor Noslen','Portugues com Leticia'], list:[
+    {id:'l1', n:'Interpretacao: ideia central', t:'Pergunte: qual a tese do autor?|Elimine alternativas que extrapolam o texto|A resposta esta no texto, nunca na sua opiniao'},
+    {id:'l2', n:'Generos textuais', t:'Identifique a funcao social: informar, convencer, instruir|Cronica, editorial, carta e meme tem marcas proprias|Observe suporte e publico-alvo'},
+    {id:'l3', n:'Funcoes da linguagem', t:'Emotiva = eu; apelativa = voce; referencial = informacao|Metalinguagem: a lingua falando dela mesma|Poetica valoriza a forma da mensagem'},
+    {id:'l4', n:'Figuras de linguagem', t:'Metafora compara sem "como"; comparacao usa|Ironia diz o contrario do que quer dizer|Hiperbole exagera, eufemismo suaviza'},
+    {id:'l5', n:'Variacao linguistica', t:'Nao existe falar errado, existe adequacao|Variacao regional, social, historica e situacional|O ENEM valoriza o respeito as variedades'},
+    {id:'l6', n:'Coesao e coerencia', t:'Conectivos dao a logica: mas, portanto, embora|Pronomes retomam termos: evite ambiguidade|E a base da redacao nota 1000'},
+    {id:'l7', n:'Concordancia verbal e nominal', t:'O verbo concorda com o nucleo do sujeito|Cuidado com sujeito posposto e partitivos|Haver no sentido de existir fica no singular'},
+    {id:'l8', n:'Regencia e crase', t:'Crase = preposicao a + artigo a|Antes de verbo e palavra masculina nao ha crase|Assistir AO filme, obedecer AS regras'},
+    {id:'l9', n:'Semantica e contexto', t:'Sentido literal vs figurado|Ambiguidade e polissemia caem em charges|O contexto define o significado'},
+    {id:'l10', n:'Charges, tirinhas e propaganda', t:'Una texto verbal e imagem para achar a critica|Identifique o recurso de humor|Na propaganda, ache a estrategia de persuasao'},
+    {id:'l11', n:'Modernismo brasileiro', t:'Semana de 22: ruptura e identidade nacional|1a fase irreverente, 2a social, 3a intimista|Mario, Oswald, Drummond e Clarice'},
+    {id:'l12', n:'Romantismo e Realismo', t:'Romantismo idealiza, Realismo critica|Machado de Assis: ironia e analise social|Compare o tratamento do amor e da sociedade'},
+    {id:'l13', n:'Intertextualidade', t:'Parodia subverte, parafrase confirma|Reconheca citacoes entre textos|Muito cobrado com musicas e poemas'},
+    {id:'l14', n:'Artes e cultura popular', t:'Valorizacao da cultura popular e do patrimonio|Relacione a obra ao contexto historico|Vanguardas europeias e arte brasileira'},
+    {id:'l15', n:'Lingua estrangeira: leitura', t:'Leia a pergunta antes do texto|Cognatos ajudam, falsos cognatos enganam|Busque a ideia geral, nao cada palavra'},
+    {id:'l16', n:'Revisao de erros de linguagens', t:'Refaca questoes erradas e releia os textos|Anote os conectivos que confundiram|Atualize sua lista de pontos fracos'}
+  ]},
+  nat: {name:'Ciencias da Natureza', ch:['Fisica com Douglas'], list:[
+    {id:'n1', n:'Cinematica', c:'Fisica com Douglas', t:'Velocidade media = distancia / tempo|Grafico v x t: a area e o deslocamento|km/h e m/s: converta com 3,6'},
+    {id:'n2', n:'Leis de Newton', c:'Fisica com Douglas', t:'F = m.a e peso = m.g|Acao e reacao atuam em corpos diferentes|Treine atrito e normal em planos e elevadores'},
+    {id:'n3', n:'Trabalho e energia', c:'Fisica com Douglas', t:'Energia se conserva: cinetica + potencial|Trabalho = forca x deslocamento|Potencia = energia / tempo'},
+    {id:'n4', n:'Circuitos eletricos', c:'Fisica com Douglas', t:'U = R.i e P = U.i|Serie: mesma corrente; paralelo: mesma tensao|Chuveiro no inverno: menos resistencia, mais potencia'},
+    {id:'n5', n:'Ondas e som', c:'Fisica com Douglas', t:'v = lambda x f|Altura do som = frequencia; volume = intensidade|Efeito Doppler e instrumentos de corda'},
+    {id:'n6', n:'Optica', c:'Fisica com Douglas', t:'Espelhos e lentes: casos de formacao de imagem|Refracao explica o lapis quebrado na agua|Miopia corrige com lente divergente'},
+    {id:'n7', n:'Calorimetria', c:'Fisica com Douglas', t:'Q = m.c.deltaT|Calor latente muda estado sem mudar temperatura|Conducao, conveccao e irradiacao'},
+    {id:'n8', n:'Potencia e consumo eletrico', c:'Fisica com Douglas', t:'kWh = kW x horas de uso|Calcule o custo mensal de um aparelho|Classica do chuveiro e do ar-condicionado'},
+    {id:'n9', n:'Estequiometria', c:'Marcelao da Quimica', t:'Balanceie a equacao antes de calcular|1 mol = massa molar em gramas|Regra de tres entre os coeficientes'},
+    {id:'n10', n:'Ligacoes quimicas', c:'Marcelao da Quimica', t:'Ionica: metal + ametal; covalente: ametais|Ligacao explica fusao e conducao eletrica|Polaridade define solubilidade'},
+    {id:'n11', n:'Funcoes inorganicas', c:'Marcelao da Quimica', t:'Acido libera H+, base libera OH-|pH menor que 7 acido, maior que 7 basico|Neutralizacao: acido + base = sal + agua'},
+    {id:'n12', n:'Quimica organica: funcoes', c:'Marcelao da Quimica', t:'Reconheca alcool, acido, ester e amina|Nomenclatura basica de cadeias|Isomeria cai com medicamentos'},
+    {id:'n13', n:'Reacoes e oxirreducao', c:'Marcelao da Quimica', t:'Conservacao da massa: Lavoisier|Sintese, decomposicao e troca|Oxida quem perde eletrons, reduz quem ganha'},
+    {id:'n14', n:'Solucoes e concentracao', c:'Marcelao da Quimica', t:'C = massa / volume; molaridade = mol / L|Diluicao: C1.V1 = C2.V2|Cai com soro, remedio e agua do mar'},
+    {id:'n15', n:'Eletroquimica', c:'Marcelao da Quimica', t:'Pilha: oxidacao no anodo, reducao no catodo|Eletrolise forca a reacao com energia|Baterias e galvanizacao sao os contextos'},
+    {id:'n16', n:'Quimica ambiental', c:'Marcelao da Quimica', t:'Chuva acida: SOx e NOx|Efeito estufa: CO2 e metano|Camada de ozonio vs CFC'},
+    {id:'n17', n:'Ecologia', c:'Biologia Total', t:'Energia diminui a cada nivel da cadeia|Ciclos do carbono e do nitrogenio|Mutualismo, comensalismo e parasitismo'},
+    {id:'n18', n:'Citologia', c:'Biologia Total', t:'Membrana, mitocondria e ribossomo: funcoes|Osmose cai com salada murcha e soro|Compare celula animal e vegetal'},
+    {id:'n19', n:'Genetica', c:'Biologia Total', t:'Monoibridismo e heredogramas|Dominante nao significa mais comum|Sistema ABO e fator Rh'},
+    {id:'n20', n:'Evolucao', c:'Biologia Total', t:'Selecao natural: o meio seleciona, nao cria|Darwin vs Lamarck|Resistencia de bacterias e o exemplo classico'},
+    {id:'n21', n:'Fisiologia humana', c:'Biologia Total', t:'Digestao, circulacao e respiracao integradas|Insulina e glucagon regulam a glicose|Vacina previne, soro trata'},
+    {id:'n22', n:'Botanica e fotossintese', c:'Biologia Total', t:'CO2 + agua + luz = glicose + O2|Respiracao ocorre dia e noite|Transpiracao e conducao de seiva'},
+    {id:'n23', n:'Microbiologia e doencas', c:'Biologia Total', t:'Virus, bacteria e protozoario: agentes diferentes|Saneamento previne verminoses|Dengue e gripe: transmissao e prevencao'},
+    {id:'n24', n:'Biotecnologia', c:'Biologia Total', t:'Transgenicos e clonagem: como funcionam|DNA recombinante produz insulina|Bioetica entra na discussao'}
+  ]},
+  hum: {name:'Humanas', ch:['Parabolica'], list:[
+    {id:'h1', n:'Brasil Colonia', c:'Debora Aladim', t:'Pacto colonial e escravidao como base|Ciclos: pau-brasil, acucar e ouro|Resistencias: quilombos e revoltas'},
+    {id:'h2', n:'Brasil Imperio', c:'Debora Aladim', t:'Independencia negociada e continuidades|Segundo Reinado: cafe e imigracao|Abolicao gradual: leis e interesses'},
+    {id:'h3', n:'Republica Velha', c:'Debora Aladim', t:'Politica do cafe com leite e coronelismo|Canudos, Revolta da Vacina e da Chibata|Exclusao politica da maioria'},
+    {id:'h4', n:'Era Vargas', c:'Debora Aladim', t:'Trabalhismo e leis trabalhistas|Estado Novo: propaganda e censura|Populismo e industria de base'},
+    {id:'h5', n:'Ditadura militar', c:'Debora Aladim', t:'AI-5, censura e repressao|Milagre economico e divida externa|Redemocratizacao e Diretas Ja'},
+    {id:'h6', n:'Escravidao e pos-abolicao', c:'Debora Aladim', t:'Trafico atlantico e resistencia negra|Abolicao sem inclusao social|Base do racismo estrutural: conecte com a redacao'},
+    {id:'h7', n:'Revolucao Industrial', c:'Debora Aladim', t:'A maquina muda o trabalho e a cidade|Exploracao operaria e sindicatos|Compare com a revolucao tecnologica atual'},
+    {id:'h8', n:'Guerras Mundiais e Guerra Fria', c:'Debora Aladim', t:'Totalitarismos e Holocausto|Mundo bipolar: EUA x URSS|Reflexos na America Latina'},
+    {id:'h9', n:'Urbanizacao brasileira', c:'Parabolica', t:'Exodo rural rapido e desordenado|Segregacao socioespacial e periferias|Moradia, transporte e enchentes'},
+    {id:'h10', n:'Migracoes', c:'Parabolica', t:'Fatores de atracao e repulsao|Migracoes internas e refugiados|Xenofobia conecta com a redacao'},
+    {id:'h11', n:'Agricultura e agronegocio', c:'Parabolica', t:'Agronegocio exportador vs agricultura familiar|Fronteira agricola e desmatamento|Concentracao fundiaria historica'},
+    {id:'h12', n:'Industrializacao brasileira', c:'Parabolica', t:'Industrializacao tardia e dependente|Desconcentracao industrial recente|Guerra fiscal entre estados'},
+    {id:'h13', n:'Questao ambiental e biomas', c:'Parabolica', t:'Amazonia, Cerrado e Caatinga: caracteristicas|Desmatamento, queimadas e clima|Desenvolvimento sustentavel e o conceito-chave'},
+    {id:'h14', n:'Geopolitica e globalizacao', c:'Parabolica', t:'Fluxos de capital, mercadoria e informacao|Blocos economicos e multipolaridade|Desigualdade norte-sul'},
+    {id:'h15', n:'Cartografia', c:'Parabolica', t:'Escala, projecoes e curvas de nivel|Fusos: 15 graus = 1 hora|Leitura de mapas tematicos'},
+    {id:'h16', n:'Fontes de energia', c:'Parabolica', t:'Matriz brasileira: forca das hidreletricas|Renovaveis vs fosseis: impactos|Pre-sal e transicao energetica'},
+    {id:'h17', n:'Filosofia antiga', c:'Parabolica', t:'Socrates: so sei que nada sei|Platao: mundo das ideias; Aristoteles: virtude|Mito da caverna cai muito'},
+    {id:'h18', n:'Contratualistas', c:'Parabolica', t:'Hobbes, Locke e Rousseau: origem do Estado|Estado de natureza e contrato social|Conecte com democracia e cidadania'},
+    {id:'h19', n:'Etica e moral', c:'Parabolica', t:'Kant: dever e imperativo categorico|Utilitarismo: maior bem para o maior numero|Aplique a dilemas atuais'},
+    {id:'h20', n:'Cultura e identidade', c:'Parabolica', t:'Etnocentrismo vs relativismo cultural|Industria cultural: Adorno|Identidade como construcao social'},
+    {id:'h21', n:'Trabalho na sociedade', c:'Parabolica', t:'Marx: alienacao e mais-valia|Taylorismo, fordismo e uberizacao|Precarizacao conecta com a redacao'},
+    {id:'h22', n:'Movimentos sociais e cidadania', c:'Parabolica', t:'Direitos civis, politicos e sociais|Movimentos negros, feministas e ambientais|Democracia participativa'}
+  ]}
+};
+var REDACAO_TEMAS = [
+  'Os desafios do combate a evasao escolar no Brasil',
+  'Caminhos para enfrentar a violencia contra a mulher',
+  'Impactos da inteligencia artificial no mercado de trabalho',
+  'A saude mental dos jovens na era digital',
+  'O combate ao trabalho analogo a escravidao no Brasil',
+  'Inclusao de pessoas com deficiencia no mercado de trabalho',
+  'Desinformacao e fake news como ameaca a democracia',
+  'Seguranca alimentar e combate a fome no Brasil',
+  'Desafios da mobilidade urbana sustentavel',
+  'Preservacao da Amazonia e desenvolvimento economico',
+  'Envelhecimento populacional e seus desafios',
+  'A importancia da educacao financeira nas escolas',
+  'Dependencia de redes sociais entre adolescentes',
+  'O enfrentamento do racismo estrutural no Brasil',
+  'Universalizacao do saneamento basico no Brasil',
+  'Valorizacao dos povos e saberes indigenas',
+  'Evasao no ensino superior brasileiro',
+  'Cyberbullying e violencia no ambiente virtual',
+  'Democratizacao do acesso a cultura no Brasil',
+  'O descarte de lixo eletronico e seus impactos',
+  'Populacao em situacao de rua e o direito a moradia',
+  'Etarismo e exclusao no mercado de trabalho',
+  'A explosao das apostas online entre os jovens',
+  'O endividamento das familias brasileiras',
+  'Consumo consciente e sustentabilidade',
+  'Analfabetismo funcional no Brasil',
+  'Inclusao digital da populacao idosa',
+  'Caminhos para reduzir a violencia no transito',
+  'Uso de agrotoxicos e saude publica no Brasil',
+  'Crise hidrica e gestao dos recursos de agua',
+  'Os riscos da automedicacao no Brasil',
+  'Gravidez na adolescencia como questao social',
+  'Acolhimento de refugiados e combate a xenofobia',
+  'Preservacao do patrimonio historico brasileiro',
+  'Desafios da doacao de orgaos no Brasil',
+  'O combate ao feminicidio no Brasil'
+];
+var CRS_EPOCH = '2026-01-04';
+var crsDate = todayKey();
+var temaOverride = null;
+function yt(q){ return 'https://www.youtube.com/results?search_query=' + encodeURIComponent(q); }
+function gg(q){ return 'https://www.google.com/search?q=' + encodeURIComponent(q); }
+function lnk(href, label){ return '<a class="lnk" href="' + href + '" target="_blank" rel="noopener">' + label + '</a>'; }
+function mod2(a, b){ return ((a % b) + b) % b; }
+function crsTopicFor(dk){
+  var d = parseDay(dk), dow = d.getDay();
+  var week = Math.floor(daysBetween(parseDay(CRS_EPOCH), d) / 7);
+  if(dow === 0) return {kind:'rev'};
+  if(dow === 6) return {kind:'sim'};
+  var area = dow === 2 ? 'lng' : dow === 3 ? 'nat' : dow === 5 ? 'hum' : 'mat';
+  var list = CURSO[area].list;
+  var idx = area === 'mat' ? mod2(week * 2 + (dow === 4 ? 1 : 0), list.length) : mod2(week, list.length);
+  return {kind:'topic', area: area, topic: list[idx]};
+}
+function crsLinksFor(area, topic){
+  var chs = topic.c ? [topic.c] : CURSO[area].ch;
+  var h = '';
+  chs.forEach(function(c){ h += lnk(yt(c + ' ' + topic.n), '🎥 ' + c); });
+  h += lnk(yt(topic.n + ' ENEM aula'), '🎥 Mais aulas');
+  h += lnk(gg('questoes ENEM ' + topic.n + ' resolvidas'), '📝 Questoes');
+  h += lnk(gg('resumo ' + topic.n + ' ENEM'), '📚 Resumo');
+  return h;
+}
+function renderCourse(){
+  var d = parseDay(crsDate);
+  el('crsDateLbl').textContent = DOW_S[d.getDay()] + ' ' + brDate(crsDate);
+  var info = crsTopicFor(crsDate);
+  var crs = store.get('crs', {});
+  var html = '';
+  if(info.kind === 'topic'){
+    var t = info.topic;
+    var done = crs[t.id];
+    html = '<span class="tag gold">' + CURSO[info.area].name + '</span>' +
+      '<div class="crs-title">' + t.n + '</div>' +
+      t.t.split('|').map(function(tp){ return '<div class="crs-tip">' + tp + '</div>'; }).join('') +
+      '<div class="mt-sm">' + crsLinksFor(info.area, t) + '</div>' +
+      (done
+        ? '<p class="mt-sm small" style="color:var(--green);font-weight:600">Aula concluida em ' + brDate(done) + ' <button class="btn sm ghost" onclick="app.crsDone(\'' + t.id + '\')">Desfazer</button></p>'
+        : '<button class="btn primary mt-sm" onclick="app.crsDone(\'' + t.id + '\')">Marcar aula como concluida</button>');
+  } else if(info.kind === 'sim'){
+    html = '<span class="tag blue">Simulado</span>' +
+      '<div class="crs-title">Dia de simulado cronometrado</div>' +
+      '<div class="crs-tip">Separe 45 questoes de uma prova anterior e cronometre 3 minutos por questao</div>' +
+      '<div class="crs-tip">Corrija pelo gabarito e registre o resultado na tabela de simulados</div>' +
+      '<div class="crs-tip">Leve cada erro para a lista de pontos fracos</div>' +
+      '<div class="mt-sm">' +
+      lnk('https://www.gov.br/inep/pt-br/areas-de-atuacao/avaliacao-e-exames-educacionais/enem/provas-e-gabaritos', '📄 Provas e gabaritos oficiais INEP') +
+      lnk(yt('correcao prova ENEM comentada'), '🎥 Correcoes comentadas') +
+      '</div>';
+  } else {
+    var items = '';
+    for(var i = 6; i >= 1; i--){
+      var dd = new Date(d.getFullYear(), d.getMonth(), d.getDate() - i);
+      var ii = crsTopicFor(todayKey(dd));
+      if(ii.kind !== 'topic') continue;
+      items += '<div class="crs-tip">' + (crs[ii.topic.id] ? '✔ ' : '') +
+        '<b style="color:var(--text)">' + CURSO[ii.area].name + ':</b>&nbsp;' + ii.topic.n + '</div>';
+    }
+    html = '<span class="tag green">Revisao</span>' +
+      '<div class="crs-title">Revisao da semana</div>' + items +
+      '<div class="crs-tip">Refaca os exercicios que errou nos temas acima e descanse: domingo e recuperacao</div>';
+  }
+  el('crsBody').innerHTML = html;
+
+  var prog = '';
+  ['mat','lng','nat','hum'].forEach(function(a){
+    var list = CURSO[a].list;
+    var dn = list.filter(function(tp){ return crs[tp.id]; }).length;
+    prog += meterRow(CURSO[a].name, Math.round(dn / list.length * 100), dn + '/' + list.length,
+      a === 'lng' ? 'blue' : a === 'nat' ? 'green' : a === 'hum' ? 'red' : '');
+  });
+  el('crsProg').innerHTML = prog;
+
+  var week = Math.floor(daysBetween(parseDay(CRS_EPOCH), new Date()) / 7);
+  var tema = REDACAO_TEMAS[temaOverride !== null ? temaOverride : mod2(week, REDACAO_TEMAS.length)];
+  el('rdTema').textContent = '"' + tema + '"';
+  el('rdLinks').innerHTML =
+    lnk(gg('repertorio sociocultural ' + tema), '🧠 Repertorios') +
+    lnk(gg('redacao nota 1000 ' + tema), '📄 Modelos nota 1000') +
+    lnk(yt('redacao ENEM ' + tema), '🎥 Videos do tema');
 }
 
 /* ---------- Render: METAS ---------- */
@@ -2681,6 +2945,9 @@ function buildIndex(){
   getHabits().forEach(function(h){ ix.push({p: 'hoje', tag: 'Habito', x: h.n}); });
   store.get('scores', []).forEach(function(s){ ix.push({p: 'enem', tag: 'Simulado', x: s.a + ' ' + s.v}); });
   store.get('weak', []).forEach(function(w){ ix.push({p: 'enem', tag: 'Ponto fraco', x: w}); });
+  ['mat','lng','nat','hum'].forEach(function(a){
+    CURSO[a].list.forEach(function(t){ ix.push({p: 'enem', tag: 'Aula', x: CURSO[a].name + ': ' + t.n}); });
+  });
   store.get('roblox', []).forEach(function(r){ ix.push({p: 'dev', tag: 'Roblox', x: r.n}); });
   store.get('devPath', defaults.devPath).forEach(function(d){ ix.push({p: 'dev', tag: 'Trilha', x: d.n}); });
   store.get('devlog', []).forEach(function(s){ ix.push({p: 'dev', tag: 'Estudo', x: s.t}); });
@@ -3054,6 +3321,34 @@ window.app = {
     withUndo('weak', 'Item removido', function(){
       var w = store.get('weak', []); w.splice(i,1); store.set('weak', w);
     }, renderEnem);
+  },
+
+  /* curso diario */
+  crsPrev: function(){
+    var d = parseDay(crsDate);
+    crsDate = todayKey(new Date(d.getFullYear(), d.getMonth(), d.getDate() - 1));
+    renderCourse();
+  },
+  crsNext: function(){
+    var d = parseDay(crsDate);
+    crsDate = todayKey(new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1));
+    renderCourse();
+  },
+  crsToday: function(){ crsDate = todayKey(); renderCourse(); },
+  crsDone: function(id){
+    var c = store.get('crs', {});
+    if(c[id]){ delete c[id]; toast('Aula desmarcada'); }
+    else { c[id] = todayKey(); toast('Aula concluida! Continue assim.'); }
+    store.set('crs', c);
+    renderCourse();
+    checkAchievements();
+  },
+  sortearTema: function(){
+    var novo = Math.floor(Math.random() * REDACAO_TEMAS.length);
+    if(REDACAO_TEMAS.length > 1 && '"' + REDACAO_TEMAS[novo] + '"' === el('rdTema').textContent)
+      novo = (novo + 1) % REDACAO_TEMAS.length;
+    temaOverride = novo;
+    renderCourse();
   },
 
   /* metas */
