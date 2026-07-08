@@ -1,0 +1,14 @@
+{
+  "name": "TO UP - Assistente pessoal de produtividade",
+  "short_name": "TO UP",
+  "description": "Tarefas, habitos, ENEM, treino, financas e estatisticas em um so lugar.",
+  "start_url": "./base_gestao_lucas.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0B0D10",
+  "theme_color": "#0B0D10",
+  "icons": [
+    {"src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any"}
+  ]
+}

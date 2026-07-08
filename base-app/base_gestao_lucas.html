@@ -7,8 +7,12 @@
 <meta name="description" content="TO UP - assistente pessoal de produtividade de Lucas Rodrigues">
 <title>TO UP - Produtividade Pessoal | Lucas Rodrigues</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230B0D10'/%3E%3Ctext x='32' y='46' font-family='Georgia,serif' font-size='40' font-weight='600' fill='%23C8A15E' text-anchor='middle'%3E%E2%86%91%3C/text%3E%3C/svg%3E">
+<link rel="manifest" href="manifest.json">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js" defer></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js" defer></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js" defer></script>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{
@@ -560,6 +564,7 @@ tr:hover td{background:var(--surface2)}
     <div class="clock" id="sbClock">00:00</div>
     <div class="date" id="sbDate"></div>
     <div class="hint-k"><b>Ctrl+K</b> busca · <b>N</b> captura</div>
+    <div class="hint-k" id="sbCloud"></div>
   </div>
 </aside>
 
@@ -1213,15 +1218,21 @@ tr:hover td{background:var(--surface2)}
       <h3>Atalhos de teclado</h3>
       <p class="small muted"><b>1</b>-<b>0</b> trocam de aba · <b>N</b> ou <b>Ctrl+Espaco</b> captura rapida para o Inbox · <b>/</b> ou <b>Ctrl+K</b> busca universal (<b>+</b>texto cria tarefa, <b>&gt;</b> abre a paleta de comandos) · <b>Ctrl+Shift+P</b> paleta de comandos · <b>Esc</b> fecha janelas.</p>
     </div>
-    <div class="card">
-      <h3>Backup</h3>
-      <p class="small muted mb">Exporte um arquivo JSON com todos os dados para guardar ou levar a outro dispositivo. Faca isso periodicamente - os dados vivem apenas neste navegador.</p>
-      <div class="flex">
-        <button class="btn primary" onclick="app.exportData()">Exportar dados</button>
-        <label class="btn" style="cursor:pointer">Importar dados<input type="file" accept=".json" style="display:none" onchange="app.importData(this)"></label>
+    <div>
+      <div class="card mb">
+        <h3>Conta e nuvem <span id="cfCloudStatus" class="small muted" style="letter-spacing:0;text-transform:none"></span></h3>
+        <div id="cfCloudBody"></div>
       </div>
-      <div class="divider"></div>
-      <button class="btn danger" onclick="app.wipe()">Apagar todos os dados</button>
+      <div class="card">
+        <h3>Backup</h3>
+        <p class="small muted mb">Exporte um arquivo JSON com todos os dados para guardar ou levar a outro dispositivo. Com a nuvem ativa, o backup e uma seguranca extra.</p>
+        <div class="flex">
+          <button class="btn primary" onclick="app.exportData()">Exportar dados</button>
+          <label class="btn" style="cursor:pointer">Importar dados<input type="file" accept=".json" style="display:none" onchange="app.importData(this)"></label>
+        </div>
+        <div class="divider"></div>
+        <button class="btn danger" onclick="app.wipe()">Apagar todos os dados</button>
+      </div>
     </div>
   </div>
 </section>
@@ -1300,6 +1311,11 @@ var store = {
   set: function(k, v){
     memStore[k] = v;
     try{ localStorage.setItem('base_'+k, JSON.stringify(v)); }catch(e){}
+    if(k !== 'lastWrite' && k !== 'fbcfg'){
+      memStore['lastWrite'] = Date.now();
+      try{ localStorage.setItem('base_lastWrite', JSON.stringify(memStore['lastWrite'])); }catch(e){}
+      cloudQueue();
+    }
   },
   keys: function(){
     var ks = [];
@@ -1307,7 +1323,11 @@ var store = {
     catch(e){ for(var m in memStore) ks.push(m); }
     return ks;
   },
-  remove: function(k){ delete memStore[k]; try{ localStorage.removeItem('base_'+k); }catch(e){} }
+  remove: function(k){
+    delete memStore[k];
+    try{ localStorage.removeItem('base_'+k); }catch(e){}
+    if(k !== 'lastWrite' && k !== 'fbcfg') cloudQueue();
+  }
 };
 
 /* ---------- Utilitarios ---------- */
@@ -2846,6 +2866,31 @@ function renderConfig(){
     var on = wcfg[w[0]] !== false;
     return '<button class="btn sm ' + (on ? 'primary' : 'ghost') + '" onclick="app.toggleWidget(\'' + w[0] + '\')">' + w[1] + (on ? '' : ' (oculto)') + '</button>';
   }).join('');
+
+  /* conta e nuvem */
+  var cfg = cloudCfg();
+  var body;
+  if(cloud.user){
+    body = '<p class="small">Conectado como <b>' + esc(cloud.user.email || cloud.user.displayName || 'usuario') + '</b>. Seus dados sincronizam automaticamente entre dispositivos.</p>' +
+      '<div class="flex mt-sm" style="flex-wrap:wrap">' +
+      '<button class="btn" onclick="app.cloudPushNow()">Sincronizar agora</button>' +
+      '<button class="btn ghost" onclick="app.cloudLogout()">Sair da conta</button></div>';
+  } else if(cfg){
+    body = '<p class="small muted mb">Configuracao da nuvem salva. Entre com sua conta Google para sincronizar.</p>' +
+      (location.protocol === 'file:' ? '<p class="small mb" style="color:var(--red)">O login so funciona no site publicado (https), nao abrindo o arquivo local.</p>' : '') +
+      '<div class="flex" style="flex-wrap:wrap">' +
+      '<button class="btn primary" onclick="app.cloudLogin()">Entrar com Google</button>' +
+      '<button class="btn ghost sm" onclick="app.clearFbCfg()">Remover configuracao</button></div>';
+  } else {
+    body = '<p class="small muted mb">Sincronize seus dados entre dispositivos com uma conta Google. Passo a passo:</p>' +
+      '<p class="small muted mb">1. Acesse <b>console.firebase.google.com</b> e crie um projeto (ex: toup)<br>' +
+      '2. Em <b>Authentication → Sign-in method</b>, ative <b>Google</b><br>' +
+      '3. Em <b>Firestore Database</b>, clique em Criar banco de dados (modo producao)<br>' +
+      '4. Em <b>Visao geral → Adicionar app → Web</b>, copie o bloco <b>firebaseConfig</b> e cole abaixo</p>' +
+      '<textarea id="cfFbCfg" placeholder="Cole aqui o bloco firebaseConfig = { apiKey: ... }" style="min-height:96px;font-family:var(--font-mono);font-size:11.5px"></textarea>' +
+      '<button class="btn primary mt-sm" onclick="app.saveFbCfg()">Salvar configuracao</button>';
+  }
+  el('cfCloudBody').innerHTML = body;
 }
 
 function renderAll(){
@@ -3647,6 +3692,44 @@ window.app = {
     toast('Cor de destaque alterada');
   },
 
+  /* conta e nuvem */
+  saveFbCfg: function(){
+    var txt = el('cfFbCfg') ? el('cfFbCfg').value : '';
+    var m = /\{[\s\S]*\}/.exec(txt);
+    if(!m){ toast('Cole o bloco firebaseConfig completo, com as chaves { }'); return; }
+    var cfg;
+    try{ cfg = (new Function('return (' + m[0] + ')'))(); }catch(e){ toast('Configuracao invalida - copie exatamente do console'); return; }
+    if(!cfg || !cfg.apiKey || !cfg.projectId){ toast('Configuracao incompleta: precisa de apiKey e projectId'); return; }
+    store.set('fbcfg', cfg);
+    toast('Configuracao salva. Agora entre com o Google.');
+    cloudInit();
+    renderConfig();
+  },
+  clearFbCfg: function(){
+    if(!confirm('Remover a configuracao da nuvem deste navegador? Seus dados locais e na nuvem nao serao apagados.')) return;
+    store.remove('fbcfg');
+    renderConfig();
+    cloudStatus('off');
+  },
+  cloudLogin: function(){
+    if(typeof firebase === 'undefined'){ toast('Sem conexao com a internet para carregar o login'); return; }
+    if(!cloudCfg()){ toast('Salve a configuracao da nuvem primeiro'); return; }
+    if(!firebase.apps.length) cloudInit();
+    firebase.auth().signInWithPopup(new firebase.auth.GoogleAuthProvider())
+      .catch(function(e){ toast('Falha no login' + (e && e.code ? ': ' + e.code : '')); });
+  },
+  cloudLogout: function(){
+    if(typeof firebase !== 'undefined' && firebase.apps.length){
+      firebase.auth().signOut();
+      toast('Voce saiu da conta. Os dados continuam neste navegador.');
+    }
+  },
+  cloudPushNow: function(){
+    if(!cloud.user){ toast('Entre com o Google primeiro'); return; }
+    cloudPush();
+    toast('Sincronizando...');
+  },
+
   /* backup */
   exportData: function(){
     var data = {};
@@ -3681,7 +3764,7 @@ window.app = {
     reader.readAsText(file);
   },
   wipe: function(){
-    if(!confirm('Apagar todos os dados do app? Esta acao nao pode ser desfeita. Considere exportar um backup antes.')) return;
+    if(!confirm('Apagar todos os dados do app? Se estiver conectado, a nuvem tambem sera esvaziada. Esta acao nao pode ser desfeita - considere exportar um backup antes.')) return;
     store.keys().forEach(function(k){ store.remove(k); });
     finMonth = todayKey().slice(0,7);
     calMonth = todayKey().slice(0,7);
@@ -3690,6 +3773,75 @@ window.app = {
     toast('Todos os dados foram apagados');
   }
 };
+
+/* ---------- Nuvem (Firebase: login Google + banco por usuario) ---------- */
+var FIREBASE_CONFIG = null; /* opcional: cole a config aqui para embutir no app */
+var cloud = {user: null, db: null, timer: null, mute: false, status: 'off', last: 0};
+function cloudCfg(){ return FIREBASE_CONFIG || store.get('fbcfg', null); }
+function cloudStatus(s){
+  cloud.status = s;
+  var txt = {off: '', on: 'Nuvem: sincronizada', saving: 'Nuvem: salvando...', erro: 'Nuvem: erro de conexao'}[s] || '';
+  if(s === 'on' && cloud.last) txt += ' ' + new Date(cloud.last).toTimeString().slice(0, 5);
+  var sb = el('sbCloud'); if(sb) sb.textContent = txt;
+  var cs = el('cfCloudStatus'); if(cs) cs.textContent = {off: 'desativada', on: 'sincronizada', saving: 'salvando...', erro: 'erro de conexao'}[s] || '';
+}
+function snapshotAll(){
+  var data = {};
+  store.keys().forEach(function(k){ if(k !== 'fbcfg' && k !== 'lastWrite') data[k] = store.get(k, null); });
+  return data;
+}
+function cloudQueue(){
+  if(!cloud.user || !cloud.db || cloud.mute) return;
+  clearTimeout(cloud.timer);
+  cloudStatus('saving');
+  cloud.timer = setTimeout(cloudPush, 2500);
+}
+function cloudPush(){
+  if(!cloud.user || !cloud.db) return;
+  var updated = Date.now();
+  cloud.db.collection('users').doc(cloud.user.uid).set({
+    data: snapshotAll(),
+    updated: updated,
+    email: cloud.user.email || ''
+  }).then(function(){
+    cloud.last = updated;
+    store.set('lastWrite', updated);
+    cloudStatus('on');
+  }).catch(function(){ cloudStatus('erro'); });
+}
+function cloudPull(){
+  if(!cloud.user || !cloud.db) return;
+  cloud.db.collection('users').doc(cloud.user.uid).get().then(function(snap){
+    var localUpd = store.get('lastWrite', 0);
+    var doc = snap.exists ? snap.data() : null;
+    if(doc && doc.updated > localUpd){
+      var data = doc.data || {};
+      cloud.mute = true;
+      Object.keys(data).forEach(function(k){ if(k !== 'fbcfg' && k !== 'lastWrite') store.set(k, data[k]); });
+      cloud.mute = false;
+      store.set('lastWrite', doc.updated);
+      cloud.last = doc.updated;
+      applyAccent(store.get('accent', 'gold'));
+      renderAll();
+      toast('Dados da nuvem carregados');
+      cloudStatus('on');
+    } else {
+      cloudPush();
+    }
+  }).catch(function(){ cloudStatus('erro'); });
+}
+function cloudInit(){
+  if(typeof firebase === 'undefined' || !cloudCfg()){ cloudStatus('off'); renderConfig(); return; }
+  try{
+    if(!firebase.apps.length) firebase.initializeApp(cloudCfg());
+    cloud.db = firebase.firestore();
+    firebase.auth().onAuthStateChanged(function(u){
+      cloud.user = u;
+      if(u) cloudPull(); else cloudStatus('off');
+      renderConfig();
+    });
+  }catch(e){ cloudStatus('erro'); }
+}
 
 /* ---------- Inicializacao ---------- */
 cleanupOldChecklists();
@@ -3702,6 +3854,12 @@ cleanupOldChecklists();
 ['enScDate','twLogDate','devLogDate','fiDate','apDate'].forEach(function(id){ el(id).value = todayKey(); });
 applyAccent(store.get('accent', 'gold'));
 switchPage(store.get('page', 'hoje'));
+window.addEventListener('load', cloudInit);
+if('serviceWorker' in navigator && location.protocol === 'https:'){
+  window.addEventListener('load', function(){
+    navigator.serviceWorker.register('sw.js').catch(function(){});
+  });
+}
 })();
 </script>
 </body>
