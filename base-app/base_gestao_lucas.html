@@ -463,6 +463,32 @@ tr:hover td{background:var(--surface2)}
 .crs-title{font-family:var(--font-display);font-size:21px;font-weight:600;margin:8px 0 4px}
 .crs-tip{display:flex;gap:9px;padding:5px 0;font-size:12.5px;color:var(--muted);align-items:baseline}
 .crs-tip::before{content:'·';color:var(--accent);font-weight:700;font-size:16px;line-height:1}
+.mstr{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;border-radius:99px;padding:2px 9px;border:1px solid var(--border)}
+.mstr.m0{color:var(--faint)}
+.mstr.m1{color:var(--blue);border-color:var(--blue-soft);background:var(--blue-soft)}
+.mstr.m2{color:var(--accent);border-color:var(--accent-line);background:var(--accent-soft)}
+.mstr.m3{color:var(--green);border-color:var(--green-soft);background:var(--green-soft)}
+.xp-badge{font-family:var(--font-mono);font-size:12px;color:var(--accent);font-weight:600}
+.rev-chip{display:inline-flex;align-items:center;gap:6px;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:5px 10px;font-size:11.5px;margin:3px 6px 3px 0;cursor:pointer}
+.rev-chip:hover{border-color:var(--accent-line);color:var(--accent)}
+
+/* ---------- Quiz (modo pratica) ---------- */
+.qz-inner{width:min(640px,94vw);text-align:left;align-self:flex-start;margin-top:8vh}
+.qz-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:22px 24px;box-shadow:0 20px 70px rgba(0,0,0,.55)}
+.qz-top{display:flex;justify-content:space-between;align-items:center;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);font-weight:700;margin-bottom:6px}
+.qz-q{font-size:16px;font-weight:500;line-height:1.5;margin:6px 0 16px}
+.qz-opt{display:block;width:100%;text-align:left;background:var(--surface2);border:1px solid var(--border);color:var(--text);border-radius:10px;padding:12px 14px;margin-bottom:9px;font-size:13.5px;cursor:pointer;font-family:var(--font-body);transition:all .12s}
+.qz-opt:hover:not(:disabled){border-color:var(--accent-line)}
+.qz-opt:disabled{cursor:default}
+.qz-opt .lt{font-family:var(--font-mono);color:var(--faint);margin-right:9px;font-weight:600}
+.qz-opt.correct{background:var(--green-soft);border-color:var(--green);color:var(--green)}
+.qz-opt.correct .lt{color:var(--green)}
+.qz-opt.wrong{background:var(--red-soft);border-color:var(--red);color:var(--red)}
+.qz-opt.wrong .lt{color:var(--red)}
+.qz-exp{background:var(--surface2);border-left:3px solid var(--accent);border-radius:8px;padding:11px 14px;font-size:13px;color:var(--muted);margin-top:6px}
+.qz-exp b{color:var(--text)}
+.qz-bar{height:5px;background:var(--surface3);border-radius:99px;overflow:hidden;margin-bottom:14px}
+.qz-bar .f{height:100%;background:var(--accent);transition:width .3s}
 
 .empty{color:var(--faint);font-size:12.5px;text-align:center;padding:18px 0;font-style:italic}
 .divider{height:1px;background:var(--border-soft);margin:16px 0}
@@ -1287,6 +1313,16 @@ tr:hover td{background:var(--surface2)}
   </div>
 </div>
 
+<!-- ================= PRATICA (QUIZ) ================= -->
+<div class="overlay" id="qzOverlay" style="display:none;align-items:flex-start">
+  <div class="qz-inner">
+    <div class="qz-card" id="qzCard"></div>
+    <div class="flex mt" style="justify-content:center">
+      <button class="btn ghost" onclick="app.qzClose()">Fechar (Esc)</button>
+    </div>
+  </div>
+</div>
+
 <!-- ================= CAPTURA RAPIDA ================= -->
 <div class="overlay" id="qcOverlay" style="display:none;align-items:flex-start">
   <div class="ck-panel">
@@ -1578,7 +1614,10 @@ var ACH_DEFS = [
   {id:'hab100',  ico:'🌱', n:'100 habitos marcados',   d:'Marcar habitos 100 vezes no total',       test:function(){ return habTotalChecks() >= 100; }},
   {id:'azul1',   ico:'💰', n:'Mes no azul',            d:'Fechar um mes com saldo positivo',        test:function(){ var m={}; store.get('fin',[]).forEach(function(f){ var k=f.d.slice(0,7); m[k]=(m[k]||0)+(f.t==='in'?f.v:-f.v); }); var cur=todayKey().slice(0,7); for(var k in m) if(k<cur && m[k]>0) return true; return false; }},
   {id:'aula10',  ico:'🎓', n:'10 aulas do curso',      d:'Concluir 10 aulas do curso diario ENEM',  test:function(){ return Object.keys(store.get('crs',{})).length >= 10; }},
-  {id:'aula50',  ico:'🏫', n:'50 aulas do curso',      d:'Concluir 50 aulas do curso diario ENEM',  test:function(){ return Object.keys(store.get('crs',{})).length >= 50; }}
+  {id:'aula50',  ico:'🏫', n:'50 aulas do curso',      d:'Concluir 50 aulas do curso diario ENEM',  test:function(){ return Object.keys(store.get('crs',{})).length >= 50; }},
+  {id:'xp500',   ico:'⚡', n:'500 XP de pratica',      d:'Acumular 500 XP resolvendo questoes',      test:function(){ return store.get('xp',0) >= 500; }},
+  {id:'xp2000',  ico:'🌟', n:'2000 XP de pratica',     d:'Acumular 2000 XP resolvendo questoes',     test:function(){ return store.get('xp',0) >= 2000; }},
+  {id:'master5', ico:'🧠', n:'5 topicos proficientes', d:'Atingir nivel proficiente em 5 topicos',   test:function(){ var c=0; ['mat','lng','nat','hum'].forEach(function(a){ CURSO[a].list.forEach(function(t){ if(masteryLevel(t.id)>=2) c++; }); }); return c>=5; }}
 ];
 function checkAchievements(){
   var ach = store.get('ach', {});
@@ -1633,7 +1672,7 @@ document.addEventListener('keydown', function(e){
   if(e.altKey || e.ctrlKey || e.metaKey) return;
   var t = e.target;
   if(t && (t.tagName === 'INPUT' || t.tagName === 'SELECT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
-  if(el('focusOverlay').style.display !== 'none' || el('ckOverlay').style.display !== 'none' || el('qcOverlay').style.display !== 'none') return;
+  if(el('focusOverlay').style.display !== 'none' || el('ckOverlay').style.display !== 'none' || el('qcOverlay').style.display !== 'none' || el('qzOverlay').style.display !== 'none') return;
   if(e.key === 'n' || e.key === 'N'){ e.preventDefault(); openQuick(); return; }
   if(e.key === '/'){ e.preventDefault(); openSearch(''); return; }
   if(/^[0-9]$/.test(e.key)){
@@ -2190,6 +2229,121 @@ var REDACAO_TEMAS = [
   'Desafios da doacao de orgaos no Brasil',
   'O combate ao feminicidio no Brasil'
 ];
+/* Banco de questoes: id do topico -> [ [pergunta, [opcoes], indiceCorreto, explicacao], ... ] */
+var QBANK = {
+m1:[['Um carro percorre 240 km com 16 litros de gasolina. Mantendo o consumo, quantos litros para 150 km?',['8 litros','10 litros','12 litros','9 litros'],1,'Rendimento: 240/16 = 15 km/L. Logo 150/15 = 10 litros.'],['3 pintores pintam um muro em 8 dias. No mesmo ritmo, quantos dias 4 pintores levam?',['6 dias','5 dias','10 dias','8 dias'],0,'Grandezas inversas: 3x8 = 24; 24/4 = 6 dias.']],
+m2:[['Um produto de R$ 200 sofre aumento de 10% e depois desconto de 10%. O preco final e:',['R$ 200','R$ 198','R$ 202','R$ 196'],1,'1,10 x 0,90 = 0,99; 200 x 0,99 = R$ 198.'],['Quanto e 30% de 250?',['75','70','80','65'],0,'0,30 x 250 = 75.']],
+m3:[['Um taxi cobra R$ 5 fixos mais R$ 2 por km. Quanto custa uma corrida de 10 km?',['R$ 20','R$ 25','R$ 15','R$ 30'],1,'y = 2x + 5; y = 2x10 + 5 = R$ 25.'],['Na funcao f(x) = 3x - 6, para qual valor de x temos f(x) = 0?',['1','2','3','-2'],1,'3x - 6 = 0 → x = 2.']],
+m4:[['A funcao f(x) = -x2 + 4x atinge valor maximo em qual x?',['1','2','4','0'],1,'x do vertice = -b/2a = -4/(2x-1) = 2.'],['Quais sao as raizes de x2 - 5x + 6 = 0?',['2 e 3','1 e 6','-2 e -3','1 e 5'],0,'Soma 5 e produto 6: raizes 2 e 3.']],
+m5:[['Quanto vale log na base 2 de 8?',['2','3','4','8'],1,'2 elevado a 3 = 8, entao o log e 3.'],['Uma cultura de bacterias dobra a cada hora, comecando com 100. Apos 3 horas havera:',['300','600','800','400'],2,'100 x 2^3 = 100 x 8 = 800.']],
+m6:[['Na PA 2, 5, 8, 11, ... qual e o 10 termo?',['26','29','30','32'],1,'an = 2 + (10-1)x3 = 2 + 27 = 29.'],['Qual a razao da PG 3, 6, 12, 24, ...?',['2','3','1/2','4'],0,'Cada termo e o dobro do anterior: razao 2.']],
+m7:[['A area de um triangulo de base 10 e altura 6 e:',['60','30','16','15'],1,'Area = base x altura / 2 = 10 x 6 / 2 = 30.'],['Usando pi = 3,14, a area de um circulo de raio 5 e:',['31,4','78,5','15,7','25'],1,'pi x r2 = 3,14 x 25 = 78,5.']],
+m8:[['Uma caixa mede 2 m x 3 m x 4 m. Seu volume e:',['9 m3','24 m3','12 m3','20 m3'],1,'V = 2 x 3 x 4 = 24 m3.'],['Um reservatorio de 2 m3 comporta quantos litros?',['200','2000','20','20000'],1,'1 m3 = 1000 litros, entao 2 m3 = 2000 litros.']],
+m9:[['O volume de um cone com area da base 12 e altura 5 e:',['60','20','40','30'],1,'V = 1/3 x base x altura = 1/3 x 12 x 5 = 20.'],['Se o raio de uma esfera dobra, o volume fica multiplicado por:',['2','4','8','6'],2,'O volume varia com o cubo do raio: 2^3 = 8.']],
+m10:[['Num triangulo retangulo, o cateto oposto mede 3 e a hipotenusa 6. O seno do angulo e:',['0,5','0,6','1','0,3'],0,'sen = oposto/hipotenusa = 3/6 = 0,5.'],['Quanto vale sen 30 graus?',['0,5','1','0,87','0,7'],0,'sen 30 = 1/2 = 0,5.']],
+m11:[['A media dos numeros 4, 6, 8 e 10 e:',['6','7','8','7,5'],1,'(4+6+8+10)/4 = 28/4 = 7.'],['A mediana de 3, 5, 7, 9, 11 e:',['5','7','9','8'],1,'E o valor central da lista ordenada: 7.']],
+m12:[['Ao lancar um dado comum, a probabilidade de sair um numero par e:',['1/6','1/2','1/3','2/3'],1,'Sao 3 pares (2,4,6) em 6 faces: 3/6 = 1/2.'],['A probabilidade de sair cara duas vezes seguidas numa moeda e:',['1/2','1/4','1/3','1/8'],1,'1/2 x 1/2 = 1/4.']],
+m13:[['Quantas senhas de 2 algarismos distintos podem ser formadas com os digitos de 0 a 9?',['100','90','81','45'],1,'10 opcoes x 9 restantes = 90 (a ordem importa).'],['De quantas formas escolher 2 pessoas entre 4 para uma dupla?',['12','6','8','4'],1,'Combinacao: 4!/(2!x2!) = 6.']],
+m14:[['Num grafico de barras as vendas foram: jan 10, fev 20, mar 15. O total do trimestre e:',['40','45','50','35'],1,'10 + 20 + 15 = 45.'],['Um grafico cujo eixo comeca em 90 em vez de 0 pode:',['mostrar melhor os dados','exagerar visualmente as diferencas','nao alterar nada','reduzir os valores reais'],1,'A escala truncada distorce a percepcao das diferencas.']],
+m15:[['Numa planta em escala 1:100, um comprimento de 3 cm representa quanto no real?',['3 m','30 m','300 m','0,3 m'],0,'3 x 100 = 300 cm = 3 m.'],['Uma velocidade de 72 km/h equivale a quantos m/s?',['20 m/s','25 m/s','72 m/s','10 m/s'],0,'Divida por 3,6: 72/3,6 = 20 m/s.']],
+m16:[['R$ 1000 a juros simples de 2% ao mes, por 3 meses, rendem de juros:',['R$ 20','R$ 60','R$ 600','R$ 30'],1,'J = 1000 x 0,02 x 3 = R$ 60.'],['R$ 1000 a juros compostos de 10% ao ano, por 2 anos, resultam em montante:',['R$ 1200','R$ 1210','R$ 1100','R$ 1220'],1,'1000 x 1,1^2 = 1000 x 1,21 = R$ 1210.']],
+m17:[['Resolvendo 2x + 3 = 11, o valor de x e:',['3','4','5','7'],1,'2x = 8 → x = 4.'],['No sistema x + y = 10 e x - y = 4, o valor de x e:',['6','7','5','8'],1,'Somando as equacoes: 2x = 14 → x = 7.']],
+m18:[['A distancia entre os pontos (0,0) e (3,4) e:',['5','7','4','3'],0,'raiz(3^2 + 4^2) = raiz(25) = 5.'],['O ponto medio entre (2,4) e (6,8) e:',['(4,6)','(3,5)','(8,12)','(2,2)'],0,'Media das coordenadas: ((2+6)/2, (4+8)/2) = (4,6).']],
+m19:[['Num triangulo retangulo de catetos 6 e 8, a hipotenusa mede:',['10','12','14','48'],0,'raiz(36 + 64) = raiz(100) = 10.'],['Duas figuras semelhantes tem razao 3. A razao entre suas areas e:',['3','6','9','27'],2,'A area varia com o quadrado da razao: 3^2 = 9.']],
+m20:[['Uma funcao e crescente quando, ao aumentar x, o valor de f(x):',['aumenta','diminui','fica igual','zera'],0,'Crescente significa que y sobe conforme x sobe.'],['Numa parabola com concavidade para baixo, o vertice e um ponto de:',['minimo','maximo','inflexao','raiz'],1,'Concavidade para baixo indica valor maximo no vertice.']],
+m21:[['Uma torneira despeja 2 litros por minuto. Para encher 30 litros leva:',['10 min','15 min','20 min','60 min'],1,'30 / 2 = 15 minutos.'],['Se 100 litros escoam em 5 minutos, a vazao e:',['20 L/min','50 L/min','500 L/min','5 L/min'],0,'Vazao = volume/tempo = 100/5 = 20 L/min.']],
+m22:[['Se a aresta de um cubo dobra, seu volume fica multiplicado por:',['2','4','8','16'],2,'O volume varia com o cubo da razao: 2^3 = 8.'],['A razao entre os lados de duas figuras semelhantes e 1:2. A razao entre as areas e:',['1:2','1:4','1:8','2:1'],1,'Quadrado da razao linear: 1:4.']],
+m23:[['Numa turma, 20 jogam futebol, 15 jogam volei e 5 jogam os dois. Quantos jogam ao menos um esporte?',['35','30','25','40'],1,'20 + 15 - 5 = 30 (sem contar duas vezes).'],['A negacao de "todos passaram" e:',['ninguem passou','pelo menos um nao passou','todos reprovaram','alguns passaram'],1,'Negar "todos" significa "existe ao menos um que nao".']],
+m24:[['A melhor forma de aprender com um erro de simulado e:',['ignorar e seguir','refazer entendendo o porque do erro','decorar a resposta certa','pular o tema'],1,'Entender a causa do erro evita repeti-lo.'],['Um caderno de erros serve principalmente para:',['colecionar provas','revisar periodicamente os pontos fracos','mostrar ao professor','nada de util'],1,'Ele concentra o que voce erra para revisar depois.']],
+l1:[['A ideia central de um texto e:',['um detalhe secundario','a tese ou mensagem principal defendida','a opiniao do leitor','apenas o titulo'],1,'E o ponto principal que o autor quer transmitir.'],['Ao interpretar um texto, a resposta correta deve estar:',['na sua opiniao pessoal','apoiada no proprio texto','no senso comum','somente no titulo'],1,'A interpretacao se baseia no que o texto diz, nao em opiniao externa.']],
+l2:[['Uma receita culinaria tem como funcao principal:',['emocionar o leitor','instruir e orientar acoes','vender um produto','narrar uma ficcao'],1,'Textos instrucionais orientam passos a seguir.'],['Um editorial de jornal serve para:',['contar uma historia','expor a opiniao do veiculo sobre um tema','ensinar uma receita','anunciar um produto'],1,'O editorial apresenta o posicionamento do jornal.']],
+l3:[['Na frase "Que dia lindo!", predomina a funcao:',['referencial','emotiva','apelativa','metalinguistica'],1,'Expressa a emocao de quem fala (funcao emotiva).'],['Uma propaganda que diz "Compre ja!" usa a funcao:',['poetica','apelativa','emotiva','fatica'],1,'A funcao apelativa busca convencer o interlocutor.']],
+l4:[['A expressao "Seus olhos sao duas estrelas" e um exemplo de:',['comparacao','metafora','ironia','metonimia'],1,'Compara sem usar "como": e metafora.'],['"Chorei rios de lagrimas" e um caso de:',['eufemismo','hiperbole','ironia','antitese'],1,'E um exagero proposital: hiperbole.']],
+l5:[['Sobre a variacao linguistica, o correto e afirmar que:',['existe um unico jeito certo de falar','nenhuma variedade e errada, ha adequacao ao contexto','girias estao sempre erradas','so a norma culta e valida'],1,'O ENEM valoriza a adequacao, nao a ideia de "certo unico".'],['Falar de modo diferente conforme a regiao e uma variacao:',['social','regional','historica','situacional'],1,'A variacao ligada ao lugar e a regional.']],
+l6:[['"Estudei muito, ___ passei." O conectivo mais adequado e:',['porem','portanto','embora','porque'],1,'Indica consequencia: portanto.'],['Pronomes como "ele" e "isso" servem para:',['iniciar textos','retomar termos ja mencionados','criar rimas','indicar tempo'],1,'Sao elementos de coesao que retomam ideias anteriores.']],
+l7:[['"___ muitos alunos na sala." Usando o verbo haver no sentido de existir:',['Haviam','Havia','Houveram','Hao de haver'],1,'Haver como "existir" fica no singular: Havia muitos alunos.'],['A forma correta e:',['Os aluno estudou','Os alunos estudaram','O alunos estudaram','Os alunos estudou'],1,'Concordancia de numero: os alunos estudaram.']],
+l8:[['Em "Vou ___ escola", ha:',['a sem crase','a com crase (a craseado)','nenhuma preposicao','uso de o'],1,'Ir A escola: preposicao + artigo = crase.'],['Antes de verbo, o uso de crase e:',['sempre obrigatorio','proibido','opcional','so no futuro'],1,'Nao ha crase antes de verbo.']],
+l9:[['"Ele e um leao", em sentido figurado, quer dizer que ele e:',['dono de um leao','corajoso e forte','funcionario do zoo','medroso'],1,'Uso conotativo: valente como um leao.'],['Uma palavra com varios sentidos possiveis e chamada:',['sinonima','polissemica','antonima','homografa'],1,'Polissemia e a multiplicidade de sentidos.']],
+l10:[['Numa charge, o humor geralmente vem de:',['erro de impressao','critica social e ironia','falta de texto','das cores usadas'],1,'A charge critica a realidade com humor.'],['Para entender uma tirinha, deve-se relacionar:',['apenas o texto','apenas a imagem','o texto e a imagem juntos','somente o autor'],1,'O sentido nasce da soma de texto e imagem.']],
+l11:[['A Semana de Arte Moderna de 1922 buscou:',['imitar a arte de Portugal','identidade nacional e ruptura com o passado','voltar ao estilo classico','proibir novas artes'],1,'Marcou a busca por uma arte brasileira e moderna.'],['Um autor modernista brasileiro e:',['Machado de Assis','Mario de Andrade','Jose de Alencar','Camoes'],1,'Mario de Andrade foi figura central do Modernismo.']],
+l12:[['O Realismo, ao contrario do Romantismo, tende a:',['idealizar o amor','criticar a sociedade de forma objetiva','fugir da realidade','exaltar herois'],1,'O Realismo analisa a sociedade criticamente.'],['Autor realista conhecido pela ironia e por Dom Casmurro:',['Jose de Alencar','Machado de Assis','Goncalves Dias','Alvares de Azevedo'],1,'Machado de Assis e o grande nome do Realismo brasileiro.']],
+l13:[['Uma parodia faz o que com o texto original?',['copia identico','recria mudando o sentido, com humor ou critica','apenas traduz','apenas resume'],1,'A parodia transforma o original com nova intencao.'],['Citar um poema dentro de outro texto e um caso de:',['plagio sempre','intertextualidade','erro gramatical','pleonasmo'],1,'E o dialogo entre textos: intertextualidade.']],
+l14:[['Valorizar festas, artesanato e musica regional e valorizar a:',['cultura erudita','cultura popular','cultura estrangeira','tecnologia'],1,'Essas manifestacoes fazem parte da cultura popular.'],['Uma obra de arte deve ser compreendida junto com:',['o seu preco','o seu contexto historico e social','a moldura','o museu apenas'],1,'O contexto ajuda a interpretar a obra.']],
+l15:[['Ao ler um texto em ingles na prova, a melhor estrategia e:',['traduzir palavra por palavra','ler a pergunta antes e buscar a ideia geral','decorar todo o vocabulario','ignorar o contexto'],1,'Focar no objetivo da questao e na ideia global.'],['Um falso cognato e uma palavra que:',['e igual nas duas linguas','parece uma coisa mas significa outra','nao existe','e sempre um numero'],1,'Ex.: "push" parece puxar, mas significa empurrar.']],
+l16:[['Para melhorar em interpretacao de texto, o ideal e:',['decorar regras de gramatica','ler textos variados e treinar questoes','so assistir video','pular a materia'],1,'Leitura constante desenvolve a interpretacao.'],['Conectivos bem empregados melhoram principalmente a:',['letra do texto','coesao do texto','pontuacao apenas','margem da folha'],1,'Conectivos costuram as ideias, dando coesao.']],
+n1:[['Um carro percorre 100 km em 2 horas. Sua velocidade media e:',['25 km/h','50 km/h','200 km/h','100 km/h'],1,'v = distancia/tempo = 100/2 = 50 km/h.'],['Num grafico de velocidade por tempo, a area sob a curva representa:',['a aceleracao','o deslocamento','a massa','o tempo total'],1,'A area no grafico v x t da o deslocamento.']],
+n2:[['Uma forca de 10 N aplicada a uma massa de 2 kg produz aceleracao de:',['2 m/s2','5 m/s2','20 m/s2','0,2 m/s2'],1,'a = F/m = 10/2 = 5 m/s2.'],['Segundo a 3 lei de Newton, acao e reacao atuam:',['no mesmo corpo','em corpos diferentes','apenas em repouso','sempre no mesmo sentido'],1,'Sao forcas em corpos distintos, opostas e de igual intensidade.']],
+n3:[['A energia potencial gravitacional depende de:',['apenas a massa','massa, gravidade e altura','apenas a velocidade','a cor do objeto'],1,'Ep = m x g x h.'],['Uma forca de 10 N desloca um corpo 5 m na sua direcao. O trabalho realizado e:',['2 J','50 J','15 J','0,5 J'],1,'T = F x d = 10 x 5 = 50 J.']],
+n4:[['Pela lei de Ohm (U = R x i), com R = 10 ohm e i = 2 A, a tensao e:',['5 V','20 V','12 V','0,2 V'],1,'U = 10 x 2 = 20 V.'],['No inverno, o chuveiro esquenta mais na posicao "inverno" porque tem:',['maior resistencia','menor resistencia e maior potencia','menor potencia','uso de gas'],1,'Menor resistencia eleva a potencia dissipada.']],
+n5:[['Pela relacao v = lambda x f, se lambda = 2 m e f = 3 Hz, a velocidade e:',['1,5 m/s','6 m/s','5 m/s','0,66 m/s'],1,'v = 2 x 3 = 6 m/s.'],['A altura de um som (grave ou agudo) depende da sua:',['amplitude','frequencia','cor','massa'],1,'Maior frequencia = som mais agudo.']],
+n6:[['A miopia e corrigida com lente:',['convergente','divergente','plana','colorida'],1,'A lente divergente ajusta o foco na retina.'],['O lapis parece "quebrado" dentro da agua por causa da:',['reflexao','refracao','difracao','absorcao'],1,'A luz muda de direcao ao mudar de meio: refracao.']],
+n7:[['As tres formas de propagacao de calor sao:',['apenas conducao','conducao, conveccao e irradiacao','apenas evaporacao','fusao e solidificacao'],1,'Calor se propaga por conducao, conveccao e irradiacao.'],['Durante a mudanca de estado fisico, a temperatura:',['sobe sempre','fica constante','desce sempre','dobra'],1,'O calor latente muda o estado sem mudar a temperatura.']],
+n8:[['Um aparelho de 1 kW ligado por 3 horas consome:',['1 kWh','3 kWh','0,3 kWh','30 kWh'],1,'Energia = potencia x tempo = 1 x 3 = 3 kWh.'],['Pela relacao P = U x i, com U = 110 V e i = 5 A, a potencia e:',['22 W','550 W','115 W','5,5 W'],1,'P = 110 x 5 = 550 W.']],
+n9:[['Antes de fazer calculos de uma reacao quimica, deve-se:',['pesar o becker','balancear a equacao','esquentar a mistura','diluir tudo'],1,'O balanceamento garante a conservacao dos atomos.'],['1 mol de qualquer substancia contem aproximadamente:',['1 particula','6,02 x 10^23 particulas','1000 particulas','100 particulas'],1,'E o numero de Avogadro.']],
+n10:[['A ligacao entre um metal e um ametal e geralmente:',['covalente','ionica','metalica','ponte de hidrogenio'],1,'Ha transferencia de eletrons: ligacao ionica.'],['A agua (H2O) apresenta ligacao do tipo:',['ionica','covalente','metalica','nenhuma'],1,'Atomos nao metalicos compartilham eletrons: covalente.']],
+n11:[['Uma substancia que libera H+ em agua e classificada como:',['base','acido','sal','oxido'],1,'Liberar H+ e caracteristica dos acidos.'],['Uma solucao com pH igual a 3 e:',['basica','neutra','acida','sem classificacao'],2,'pH menor que 7 indica meio acido.']],
+n12:[['O grupo OH ligado a um carbono caracteriza a funcao:',['acido','alcool','cetona','amina'],1,'A hidroxila (OH) define os alcoois.'],['Uma cadeia formada apenas por carbono e hidrogenio e um:',['alcool','hidrocarboneto','sal','oxido'],1,'So C e H: hidrocarboneto.']],
+n13:[['Na oxidacao, a especie quimica:',['ganha eletrons','perde eletrons','nao muda','ganha protons'],1,'Oxidar e perder eletrons.'],['A conservacao da massa numa reacao quimica e a lei de:',['Newton','Lavoisier','Ohm','Dalton'],1,'Lavoisier: nada se cria, nada se perde.']],
+n14:[['Pela relacao C = massa/volume, 20 g dissolvidos em 2 L dao concentracao de:',['40 g/L','10 g/L','2 g/L','0,1 g/L'],1,'20/2 = 10 g/L.'],['Diluir uma solucao significa:',['retirar agua','adicionar solvente e baixar a concentracao','aquecer','congelar'],1,'Mais solvente reduz a concentracao.']],
+n15:[['Numa pilha, a oxidacao ocorre no:',['catodo','anodo','fio','sal'],1,'No anodo ocorre a oxidacao (perda de eletrons).'],['A eletrolise usa energia eletrica para:',['gerar corrente espontanea','forcar uma reacao nao espontanea','apenas aquecer agua','nada'],1,'A corrente provoca uma reacao que nao ocorreria sozinha.']],
+n16:[['O gas mais associado ao efeito estufa e o:',['O2','CO2','N2','He'],1,'O gas carbonico (CO2) e o principal.'],['A chuva acida e causada principalmente por:',['CO2 apenas','oxidos de enxofre e nitrogenio','oxigenio','vapor de agua'],1,'SOx e NOx formam acidos na atmosfera.']],
+n17:[['Ao subir na cadeia alimentar, a energia disponivel:',['aumenta','diminui','fica igual','dobra'],1,'Parte da energia se perde a cada nivel trofico.'],['A relacao em que os dois organismos se beneficiam e o:',['parasitismo','mutualismo','predacao','competicao'],1,'No mutualismo ambos ganham.']],
+n18:[['A organela responsavel pela respiracao celular e a:',['ribossomo','mitocondria','nucleo','lisossomo'],1,'A mitocondria produz energia (ATP).'],['Na osmose, a agua se desloca para o meio:',['mais diluido','mais concentrado em soluto','sem agua','mais quente'],1,'A agua vai do menos para o mais concentrado em soluto.']],
+n19:[['Um alelo dominante se manifesta quando esta presente:',['so em dose dupla','em pelo menos uma copia','nunca','apenas no pai'],1,'Basta uma copia para o alelo dominante aparecer.'],['No cruzamento Aa x Aa, a proporcao de individuos recessivos (aa) e:',['50%','25%','75%','100%'],1,'1 em 4 descendentes e aa, ou seja, 25%.']],
+n20:[['Segundo Darwin, diante das variacoes a natureza:',['cria caracteristicas sob demanda','seleciona as mais adaptadas','elimina todas','ignora'],1,'E a selecao natural dos mais aptos.'],['A resistencia de bacterias a antibioticos e exemplo de:',['geracao espontanea','selecao natural','lamarckismo puro','mutacao dirigida'],1,'As resistentes sobrevivem e se reproduzem.']],
+n21:[['O hormonio que reduz a taxa de glicose no sangue e a:',['glucagon','insulina','adrenalina','tiroxina'],1,'A insulina baixa a glicemia.'],['A vacina atua no corpo:',['matando o virus imediatamente','estimulando a producao de anticorpos','como remedio de efeito imediato','sem qualquer efeito'],1,'Ela treina o sistema imune a produzir defesas.']],
+n22:[['Na fotossintese, a planta produz:',['gas carbonico','glicose e oxigenio','apenas agua','sal'],1,'CO2 + agua + luz geram glicose e O2.'],['A planta realiza respiracao celular:',['so de dia','so de noite','de dia e de noite','nunca'],2,'A respiracao ocorre o tempo todo.']],
+n23:[['A dengue e transmitida por:',['agua contaminada','mosquito Aedes aegypti','contato de pele','ar'],1,'O vetor e o mosquito Aedes aegypti.'],['O saneamento basico previne principalmente:',['gripe','verminoses e doencas transmitidas pela agua','fraturas','alergias'],1,'Agua tratada e esgoto evitam doencas de veiculacao hidrica.']],
+n24:[['Um organismo transgenico e aquele que:',['e totalmente natural','recebeu um gene de outra especie','foi apenas clonado','esta morto'],1,'Transgenico tem DNA de outra especie inserido.'],['A insulina usada hoje por diabeticos e produzida por:',['porcos apenas','bacterias geneticamente modificadas','plantas nativas','fungos naturais'],1,'Bacterias recebem o gene humano da insulina.']],
+h1:[['A base economica da colonia portuguesa no Brasil era:',['a industria','a monocultura de exportacao com trabalho escravo','o turismo','os servicos'],1,'Grandes lavouras para exportar, movidas por escravizados.'],['Os quilombos eram:',['fazendas reais','comunidades formadas por escravizados que fugiam','igrejas','portos comerciais'],1,'Espacos de resistencia a escravidao.']],
+h2:[['A independencia do Brasil em 1822 caracterizou-se por:',['revolucao popular radical','continuidade da elite agraria e da escravidao','fim imediato da monarquia','proclamacao da republica'],1,'Houve mudanca politica, mas as estruturas sociais seguiram.'],['A economia do Segundo Reinado girava em torno do:',['acucar','cafe','ouro','borracha'],1,'O cafe foi o motor economico do periodo.']],
+h3:[['A "politica do cafe com leite" envolvia principalmente os estados de:',['RJ e BA','Sao Paulo e Minas Gerais','RS e PR','PE e CE'],1,'SP (cafe) e MG (leite) revezavam no poder.'],['O coronelismo se baseava no:',['voto secreto','voto de cabresto e no poder local dos coroneis','sufragio universal','voto eletronico'],1,'Os coroneis controlavam os votos da regiao.']],
+h4:[['Getulio Vargas ficou conhecido pela criacao das:',['ferrovias','leis trabalhistas, consolidadas na CLT','universidades federais','rodovias'],1,'Vargas estruturou a legislacao trabalhista.'],['O Estado Novo, a partir de 1937, foi um periodo de:',['democracia plena','ditadura com censura e forte propaganda','anarquia','monarquia'],1,'Governo autoritario e centralizado.']],
+h5:[['O AI-5, de 1968, representou:',['abertura politica','endurecimento do regime militar e censura','eleicoes livres','fim do exercito'],1,'Foi o auge da repressao na ditadura.'],['O movimento por eleicoes diretas em 1984 ficou conhecido como:',['Fora Collor','Diretas Ja','Primavera','Marcha das Familias'],1,'Campanha por eleicoes diretas para presidente.']],
+h6:[['A abolicao da escravidao em 1888 foi seguida de:',['ampla reforma agraria','exclusao social dos ex-escravizados','indenizacao aos negros','empregos garantidos'],1,'Os libertos ficaram sem politicas de inclusao.'],['O racismo estrutural no Brasil tem raiz historica na:',['imigracao europeia','escravidao e na ausencia de inclusao pos-abolicao','industrializacao','globalizacao'],1,'A heranca escravista molda desigualdades ate hoje.']],
+h7:[['A Revolucao Industrial teve inicio na:',['Franca','Inglaterra','Alemanha','Estados Unidos'],1,'Comecou na Inglaterra no seculo XVIII.'],['Uma consequencia social da Revolucao Industrial foi:',['o fim do trabalho','a exploracao dos operarios e o crescimento das cidades','a volta ao campo','a igualdade social'],1,'Jornadas longas, baixos salarios e urbanizacao acelerada.']],
+h8:[['A Guerra Fria opos principalmente:',['Brasil e Argentina','Estados Unidos e Uniao Sovietica','Franca e Alemanha','China e Japao'],1,'Foi a disputa entre EUA (capitalismo) e URSS (socialismo).'],['O Holocausto foi promovido pelo regime:',['fascista italiano','nazista alemao','sovietico','norte-americano'],1,'O nazismo perseguiu e exterminou milhoes, sobretudo judeus.']],
+h9:[['A urbanizacao brasileira caracterizou-se por ser:',['lenta e planejada','rapida e desordenada','inexistente','apenas rural'],1,'O crescimento das cidades foi acelerado e sem planejamento.'],['A ocupacao de encostas e areas de risco resulta em:',['mais empregos','enchentes e deslizamentos','turismo','nenhum problema'],1,'Areas improprias geram tragedias urbanas.']],
+h10:[['Fatores de repulsao sao aqueles que levam as pessoas a:',['ficar no lugar','sair de um lugar','voltar para casa','investir mais'],1,'Desemprego e violencia, por exemplo, empurram a migracao.'],['A hostilidade contra imigrantes e chamada de:',['racismo','xenofobia','machismo','classismo'],1,'Xenofobia e a aversao ao estrangeiro.']],
+h11:[['O agronegocio brasileiro e voltado principalmente para:',['o consumo local','a exportacao de commodities','o artesanato','o turismo'],1,'Soja, carne e milho para o mercado externo.'],['A agricultura familiar e importante porque:',['exporta soja','produz boa parte dos alimentos consumidos internamente','faz apenas etanol','so cria gado'],1,'Ela abastece a mesa dos brasileiros.']],
+h12:[['A industrializacao brasileira foi:',['pioneira no mundo','tardia e concentrada no Sudeste','iniciada no Norte','inexistente'],1,'Chegou depois e se concentrou em SP e regiao.'],['A "guerra fiscal" ocorre quando estados:',['fazem guerra armada','disputam empresas oferecendo incentivos fiscais','aumentam impostos juntos','fecham fronteiras'],1,'Reducao de impostos para atrair industrias.']],
+h13:[['O bioma brasileiro com maior biodiversidade e a:',['Pampa','Amazonia','Caatinga','Pantanal'],1,'A Floresta Amazonica abriga imensa variedade de vida.'],['O desenvolvimento sustentavel busca:',['nao usar recurso algum','usar recursos sem comprometer as futuras geracoes','crescer a qualquer custo','parar a economia'],1,'Equilibra crescimento e preservacao.']],
+h14:[['A globalizacao intensificou os fluxos de:',['apenas pessoas','capital, mercadorias e informacao','apenas agua','energia solar'],1,'Conecta economias e culturas pelo mundo.'],['Um bloco economico como o Mercosul busca:',['fazer guerra','integracao comercial entre paises','isolamento','apenas turismo'],1,'Facilita o comercio entre os membros.']],
+h15:[['Numa escala 1:50000, o mapa esta:',['ampliado','reduzido em relacao ao real','em tamanho real','sem escala'],1,'Escalas de mapa representam o real reduzido.'],['A Terra e dividida em fusos horarios de:',['10 graus','15 graus, equivalentes a 1 hora','30 graus','5 graus'],1,'360 graus / 24 horas = 15 graus por hora.']],
+h16:[['A matriz eletrica brasileira depende fortemente de:',['carvao','hidreletricas','energia nuclear','petroleo'],1,'A agua e a principal fonte de eletricidade no pais.'],['Uma fonte de energia renovavel e a:',['carvao','solar','petroleo','gas natural'],1,'O sol e uma fonte limpa e renovavel.']],
+h17:[['A frase "So sei que nada sei" e atribuida a:',['Platao','Socrates','Aristoteles','Kant'],1,'Reflete a humildade socratica diante do saber.'],['O Mito da Caverna foi escrito por:',['Aristoteles','Platao','Descartes','Marx'],1,'Platao usa a alegoria para falar do conhecimento.']],
+h18:[['Para os contratualistas, o Estado surge de:',['uma imposicao divina','um acordo ou contrato entre as pessoas','um sorteio','pura natureza'],1,'A sociedade nasce de um pacto social.'],['Rousseau defendia que o homem nasce bom e:',['permanece mau','e corrompido pela sociedade','e indiferente','age so pela razao'],1,'Para ele, a sociedade corrompe a bondade natural.']],
+h19:[['Para Kant, agir moralmente e agir por:',['prazer','dever','medo','interesse proprio'],1,'A moral kantiana se baseia no dever.'],['O utilitarismo defende buscar:',['o bem de um so','o maior bem para o maior numero de pessoas','nenhum bem','apenas o lucro'],1,'Avalia acoes pelas consequencias para a coletividade.']],
+h20:[['Julgar outra cultura como inferior a partir da propria e:',['relativismo','etnocentrismo','tolerancia','empatia'],1,'Etnocentrismo coloca a propria cultura como medida.'],['Para a Escola de Frankfurt, a industria cultural tende a:',['libertar as pessoas','padronizar gostos e alienar','educar sempre','enriquecer o povo'],1,'Produtos culturais em massa moldam e homogeneizam.']],
+h21:[['Para Marx, a mais-valia e:',['o salario do trabalhador','o valor produzido e nao pago ao trabalhador','o lucro do operario','um imposto'],1,'E a parte do trabalho apropriada pelo capitalista.'],['A "uberizacao" do trabalho representa:',['mais estabilidade','a precarizacao das relacoes de trabalho','emprego formal garantido','aposentadoria antecipada'],1,'Trabalho sob demanda, sem direitos trabalhistas.']],
+h22:[['A soma de direitos civis, politicos e sociais forma a ideia de:',['propriedade','cidadania','monarquia','mercado'],1,'Cidadania plena reune esses tres tipos de direitos.'],['Os movimentos sociais servem para:',['manter tudo como esta','reivindicar direitos e transformacoes sociais','vender produtos','governar o pais'],1,'Sao formas de pressao por mudancas e direitos.']]
+};
+var MASTERY = ['Nao iniciado','Praticado','Proficiente','Dominado'];
+function qStats(){ return store.get('qstats', {}); }
+function masteryLevel(id){
+  var st = qStats()[id];
+  if(!st || !st.seen) return 0;
+  var acc = st.correct / st.seen;
+  if(st.correct >= 10 && acc >= .85) return 3;
+  if(st.correct >= 6 && acc >= .7) return 2;
+  return 1;
+}
+function reviewDue(){
+  var st = qStats(), out = [], tk = todayKey();
+  ['mat','lng','nat','hum'].forEach(function(a){
+    CURSO[a].list.forEach(function(tp){
+      var s = st[tp.id];
+      if(!s || !s.seen || !s.last) return;
+      var gap = daysBetween(parseDay(s.last), parseDay(tk));
+      var acc = s.correct / s.seen;
+      var lvl = masteryLevel(tp.id);
+      var need = (acc < .7 && gap >= 2) || (lvl === 2 && gap >= 7) || (lvl === 3 && gap >= 21);
+      if(need && QBANK[tp.id]) out.push({id: tp.id, area: a, n: tp.n, gap: gap});
+    });
+  });
+  return out.sort(function(a,b){ return b.gap - a.gap; }).slice(0, 6);
+}
+
 var CRS_EPOCH = '2026-01-04';
 var crsDate = todayKey();
 var temaOverride = null;
@@ -2225,13 +2379,19 @@ function renderCourse(){
   if(info.kind === 'topic'){
     var t = info.topic;
     var done = crs[t.id];
-    html = '<span class="tag gold">' + CURSO[info.area].name + '</span>' +
+    var lvl = masteryLevel(t.id);
+    var nq = (QBANK[t.id] || []).length;
+    html = '<div class="flex space" style="gap:8px"><span class="tag gold">' + CURSO[info.area].name + '</span>' +
+      '<span class="mstr m' + lvl + '">' + MASTERY[lvl] + '</span></div>' +
       '<div class="crs-title">' + t.n + '</div>' +
       t.t.split('|').map(function(tp){ return '<div class="crs-tip">' + tp + '</div>'; }).join('') +
       '<div class="mt-sm">' + crsLinksFor(info.area, t) + '</div>' +
+      '<div class="flex mt-sm" style="flex-wrap:wrap">' +
+      (nq ? '<button class="btn primary" onclick="app.practice(\'' + t.id + '\',\'' + info.area + '\')">Praticar (' + nq + ' questoes)</button>' : '') +
       (done
-        ? '<p class="mt-sm small" style="color:var(--green);font-weight:600">Aula concluida em ' + brDate(done) + ' <button class="btn sm ghost" onclick="app.crsDone(\'' + t.id + '\')">Desfazer</button></p>'
-        : '<button class="btn primary mt-sm" onclick="app.crsDone(\'' + t.id + '\')">Marcar aula como concluida</button>');
+        ? '<button class="btn ghost" onclick="app.crsDone(\'' + t.id + '\')">Aula concluida em ' + brDate(done) + ' &times;</button>'
+        : '<button class="btn" onclick="app.crsDone(\'' + t.id + '\')">Marcar aula como vista</button>') +
+      '</div>';
   } else if(info.kind === 'sim'){
     html = '<span class="tag blue">Simulado</span>' +
       '<div class="crs-title">Dia de simulado cronometrado</div>' +
@@ -2257,13 +2417,20 @@ function renderCourse(){
   }
   el('crsBody').innerHTML = html;
 
-  var prog = '';
+  var prog = '<div class="flex space mb"><span class="small muted">Total acumulado</span><span class="xp-badge">' + store.get('xp', 0) + ' XP</span></div>';
   ['mat','lng','nat','hum'].forEach(function(a){
     var list = CURSO[a].list;
-    var dn = list.filter(function(tp){ return crs[tp.id]; }).length;
-    prog += meterRow(CURSO[a].name, Math.round(dn / list.length * 100), dn + '/' + list.length,
+    var dom = list.filter(function(tp){ return masteryLevel(tp.id) >= 2; }).length;
+    prog += meterRow(CURSO[a].name, Math.round(dom / list.length * 100), dom + '/' + list.length + ' dominados',
       a === 'lng' ? 'blue' : a === 'nat' ? 'green' : a === 'hum' ? 'red' : '');
   });
+  var due = reviewDue();
+  if(due.length){
+    prog += '<div class="divider"></div><div class="small muted mb" style="font-weight:600">Pratica recomendada (revisao)</div>' +
+      due.map(function(r){
+        return '<span class="rev-chip" onclick="app.practice(\'' + r.id + '\',\'' + r.area + '\')">&#8635; ' + esc(r.n) + '</span>';
+      }).join('');
+  }
   el('crsProg').innerHTML = prog;
 
   var week = Math.floor(daysBetween(parseDay(CRS_EPOCH), new Date()) / 7);
@@ -3102,8 +3269,10 @@ el('qcInput').addEventListener('keydown', function(e){
   el('qcInput').focus();
 });
 el('qcOverlay').addEventListener('mousedown', function(e){ if(e.target === el('qcOverlay')) closeQuick(); });
+el('qzOverlay').addEventListener('mousedown', function(e){ if(e.target === el('qzOverlay')) qzClose(); });
 
 function closeOverlays(){
+  if(el('qzOverlay').style.display !== 'none'){ qzClose(); return; }
   if(el('qcOverlay').style.display !== 'none'){ closeQuick(); return; }
   if(el('ckOverlay').style.display !== 'none'){ closeSearch(); return; }
   if(el('focusOverlay').style.display !== 'none' && !fsState){ el('focusOverlay').style.display = 'none'; return; }
@@ -3119,6 +3288,90 @@ el('ckOverlay').addEventListener('mousedown', function(e){ if(e.target === el('c
 document.querySelectorAll('[data-fsmode]').forEach(function(b){
   b.addEventListener('click', function(){ startFocus(b.dataset.fsmode); });
 });
+
+/* ---------- Motor de pratica (quiz estilo Khan) ---------- */
+var qz = null;
+function shuffle(arr){
+  arr = arr.slice();
+  for(var i = arr.length - 1; i > 0; i--){ var j = Math.floor(Math.random() * (i + 1)); var t = arr[i]; arr[i] = arr[j]; arr[j] = t; }
+  return arr;
+}
+function qzStart(topicId, area){
+  var bank = QBANK[topicId];
+  if(!bank || !bank.length){ toast('Questoes deste topico em breve. Use os links de estudo.'); return; }
+  var topic = null;
+  CURSO[area].list.forEach(function(t){ if(t.id === topicId) topic = t; });
+  qz = {id: topicId, area: area, name: topic ? topic.n : '', list: shuffle(bank), idx: 0, correct: 0, answered: false, gained: 0};
+  el('qzOverlay').style.display = 'flex';
+  qzRender();
+}
+function qzRender(){
+  if(!qz) return;
+  if(qz.idx >= qz.list.length){ qzFinish(); return; }
+  var q = qz.list[qz.idx];
+  var opts = q[1].map(function(o, i){
+    return '<button class="qz-opt" onclick="app.qzAnswer(' + i + ')" data-i="' + i + '"><span class="lt">' + String.fromCharCode(65 + i) + '</span>' + esc(o) + '</button>';
+  }).join('');
+  el('qzCard').innerHTML =
+    '<div class="qz-top"><span>' + esc(qz.name) + '</span><span>' + (qz.idx + 1) + ' / ' + qz.list.length + '</span></div>' +
+    '<div class="qz-bar"><div class="f" style="width:' + Math.round(qz.idx / qz.list.length * 100) + '%"></div></div>' +
+    '<div class="qz-q">' + esc(q[0]) + '</div>' +
+    '<div id="qzOpts">' + opts + '</div>' +
+    '<div id="qzFoot"></div>';
+  qz.answered = false;
+}
+function qzAnswer(i){
+  if(!qz || qz.answered) return;
+  qz.answered = true;
+  var q = qz.list[qz.idx];
+  var correctIdx = q[2];
+  var btns = el('qzOpts').querySelectorAll('.qz-opt');
+  btns.forEach(function(b){
+    b.disabled = true;
+    var bi = +b.dataset.i;
+    if(bi === correctIdx) b.classList.add('correct');
+    else if(bi === i) b.classList.add('wrong');
+  });
+  var acertou = i === correctIdx;
+  if(acertou){ qz.correct++; qz.gained += 10; }
+  /* estatisticas do topico */
+  var st = store.get('qstats', {});
+  st[qz.id] = st[qz.id] || {seen: 0, correct: 0};
+  st[qz.id].seen++;
+  if(acertou) st[qz.id].correct++;
+  st[qz.id].last = todayKey();
+  store.set('qstats', st);
+  if(acertou) store.set('xp', store.get('xp', 0) + 10);
+  var last = qz.idx === qz.list.length - 1;
+  el('qzFoot').innerHTML =
+    '<div class="qz-exp"><b>' + (acertou ? 'Correto! +10 XP' : 'Resposta certa: ' + String.fromCharCode(65 + correctIdx)) + '.</b> ' + esc(q[3]) + '</div>' +
+    '<button class="btn primary mt-sm" onclick="app.qzNext()">' + (last ? 'Ver resultado' : 'Proxima questao') + '</button>';
+}
+function qzNext(){
+  if(!qz) return;
+  qz.idx++;
+  qzRender();
+}
+function qzFinish(){
+  var total = qz.list.length, acertos = qz.correct, gained = qz.gained, name = qz.name, id = qz.id, area = qz.area;
+  var pct = Math.round(acertos / total * 100);
+  var lvl = masteryLevel(id);
+  qz = null;
+  el('qzCard').innerHTML =
+    '<div class="qz-top"><span>' + esc(name) + '</span><span>Resultado</span></div>' +
+    '<div class="crs-title" style="text-align:center">' + acertos + ' de ' + total + ' (' + pct + '%)</div>' +
+    '<p class="small muted" style="text-align:center;margin:4px 0 14px">+' + gained + ' XP nesta sessao · nivel atual: <b style="color:var(--text)">' + MASTERY[lvl] + '</b></p>' +
+    '<div class="flex" style="justify-content:center;flex-wrap:wrap">' +
+    '<button class="btn primary" onclick="app.practice(\'' + id + '\',\'' + area + '\')">Praticar de novo</button>' +
+    '<button class="btn ghost" onclick="app.qzClose()">Concluir</button></div>';
+  renderEnem();
+  checkAchievements();
+}
+function qzClose(){
+  qz = null;
+  el('qzOverlay').style.display = 'none';
+  renderEnem();
+}
 
 /* ---------- API publica ---------- */
 window.app = {
@@ -3395,6 +3648,10 @@ window.app = {
     temaOverride = novo;
     renderCourse();
   },
+  practice: function(id, area){ qzStart(id, area); },
+  qzAnswer: qzAnswer,
+  qzNext: qzNext,
+  qzClose: qzClose,
 
   /* metas */
   addGoal: function(){
