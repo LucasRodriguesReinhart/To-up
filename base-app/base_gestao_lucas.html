@@ -3775,7 +3775,14 @@ window.app = {
 };
 
 /* ---------- Nuvem (Firebase: login Google + banco por usuario) ---------- */
-var FIREBASE_CONFIG = null; /* opcional: cole a config aqui para embutir no app */
+var FIREBASE_CONFIG = {
+  apiKey: "AIzaSyB5mlRr-hksy6KepwzQXjaa2x1gJMWfHrA",
+  authDomain: "toup-3536e.firebaseapp.com",
+  projectId: "toup-3536e",
+  storageBucket: "toup-3536e.firebasestorage.app",
+  messagingSenderId: "674674048724",
+  appId: "1:674674048724:web:7266d0e3bf760ea5a68541"
+};
 var cloud = {user: null, db: null, timer: null, mute: false, status: 'off', last: 0};
 function cloudCfg(){ return FIREBASE_CONFIG || store.get('fbcfg', null); }
 function cloudStatus(s){
