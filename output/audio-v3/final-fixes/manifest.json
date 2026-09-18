@@ -1,0 +1,66 @@
+{
+  "files": [
+    {
+      "path": "ServerScriptService/Core/PlayerData.lua",
+      "className": "ModuleScript",
+      "basePath": "output\\audio-v3\\src\\ServerScriptService\\Core\\PlayerData.lua",
+      "baseSHA256": "e10ad661be4560811e88b1a11be5c7337659638fa927369770340dc7a0800283",
+      "resultSHA256": "6da2c8e5f12b320a862a7f3ead088def84de2acb91642a75268fff3cd2a7dcc7",
+      "patch": "output\\audio-v3\\final-fixes\\patches\\PlayerData.lua.patch",
+      "result": "output\\audio-v3\\final-fixes\\src\\ServerScriptService\\Core\\PlayerData.lua",
+      "sourceWritten": true
+    },
+    {
+      "path": "ServerScriptService/Core/Recompensas.lua",
+      "className": "ModuleScript",
+      "basePath": "output\\audio-v3\\before\\ServerScriptService\\Core\\Recompensas.lua",
+      "baseSHA256": "248a62a52cb220ae2d4d1771d9ad456504a10f1a7221a5950b2be8e1b15809d0",
+      "resultSHA256": "2af4d5711b6ce91ee5564df0f97b41027b9198400b50cf4ff29a61bf402ae69a",
+      "patch": "output\\audio-v3\\final-fixes\\patches\\Recompensas.lua.patch",
+      "result": "output\\audio-v3\\final-fixes\\src\\ServerScriptService\\Core\\Recompensas.lua",
+      "sourceWritten": true
+    },
+    {
+      "path": "ServerScriptService/Core/Retencao.lua",
+      "className": "ModuleScript",
+      "basePath": "output\\audio-v3\\before\\ServerScriptService\\Core\\Retencao.lua",
+      "baseSHA256": "e78db7086c1d70f34c0acf8bd79cf216fcf6a32a2a5bab38406cea0e11395a7f",
+      "resultSHA256": "048c613e7372205bf5be60f52591f61fc77ff896b36a22af935c034016ed7324",
+      "patch": "output\\audio-v3\\final-fixes\\patches\\Retencao.lua.patch",
+      "result": "output\\audio-v3\\final-fixes\\src\\ServerScriptService\\Core\\Retencao.lua",
+      "sourceWritten": true
+    },
+    {
+      "path": "ServerScriptService/Core/Codigos.lua",
+      "className": "ModuleScript",
+      "basePath": "output\\audio-v3\\before\\ServerScriptService\\Core\\Codigos.lua",
+      "baseSHA256": "83240ed2a90f9ccecf2929e166a5c4f947aa676a6efa3ee2b8cd513076d10466",
+      "resultSHA256": "c2f0209177c5d41ff19851f85db46761f41148c362bceb9c6156cde75b70c1f3",
+      "patch": "output\\audio-v3\\final-fixes\\patches\\Codigos.lua.patch",
+      "result": "output\\audio-v3\\final-fixes\\src\\ServerScriptService\\Core\\Codigos.lua",
+      "sourceWritten": true
+    },
+    {
+      "path": "StarterPlayer/StarterPlayerScripts/ExpeditionClient.lua",
+      "className": "LocalScript",
+      "basePath": "output\\ui-v2\\src\\StarterPlayer\\StarterPlayerScripts\\ExpeditionClient.lua",
+      "baseSHA256": "0230b97fee18c88e5371d65f09e9222257e2e3656781f70f3da1a41360ea77dd",
+      "resultSHA256": "54bb1eda55024a6d869920c12ba87031262f5a5c4c9820593f79aad56ef46b5c",
+      "patch": "output\\audio-v3\\final-fixes\\patches\\ExpeditionClient.lua.patch",
+      "result": "output\\audio-v3\\final-fixes\\src\\StarterPlayer\\StarterPlayerScripts\\ExpeditionClient.lua",
+      "sourceWritten": false
+    },
+    {
+      "path": "StarterPlayer/StarterPlayerScripts/MineracaoVisual.lua",
+      "className": "LocalScript",
+      "basePath": "output\\audio-v3\\src\\StarterPlayer\\StarterPlayerScripts\\MineracaoVisual.lua",
+      "baseSHA256": "2fbe9f4991470cd46b6781ef93a76f30bfdd24ff5b8f73789cb0b670f528671b",
+      "resultSHA256": "c91164f42a9222f3c1d5f9adce4310df80abcc717b440035ecd3b5b3bcb5c617",
+      "patch": "output\\audio-v3\\final-fixes\\patches\\MineracaoVisual.lua.patch",
+      "result": "output\\audio-v3\\final-fixes\\src\\StarterPlayer\\StarterPlayerScripts\\MineracaoVisual.lua",
+      "sourceWritten": false
+    }
+  ],
+  "policy": "Local only; guard SHA256 before install; sourceWritten false means do not overwrite a newer source.",
+  "luauVersion": "0.738"
+}

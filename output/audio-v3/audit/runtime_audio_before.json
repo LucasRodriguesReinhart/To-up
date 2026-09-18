@@ -1,0 +1,350 @@
+{
+  "sounds": [
+    {
+      "path": "Workspace.lucas94292.HumanoidRootPart.Climbing",
+      "loaded": true,
+      "volume": 0.6499999761581421,
+      "id": "rbxasset://sounds/action_footsteps_plastic.mp3",
+      "length": 2.4816326530612245,
+      "loop": true,
+      "playing": false
+    },
+    {
+      "path": "Workspace.lucas94292.HumanoidRootPart.Died",
+      "loaded": true,
+      "volume": 0.6499999761581421,
+      "id": "rbxasset://sounds/uuhhh.mp3",
+      "length": 0.3322902494331066,
+      "loop": false,
+      "playing": false
+    },
+    {
+      "path": "Workspace.lucas94292.HumanoidRootPart.GettingUp",
+      "loaded": true,
+      "volume": 0.6499999761581421,
+      "id": "rbxasset://sounds/action_get_up.mp3",
+      "length": 0.5746938775510204,
+      "loop": false,
+      "playing": false
+    },
+    {
+      "path": "Workspace.lucas94292.HumanoidRootPart.Swimming",
+      "loaded": true,
+      "volume": 0.6499999761581421,
+      "id": "rbxasset://sounds/action_swim.mp3",
+      "length": 4.884897959183673,
+      "loop": true,
+      "playing": false
+    },
+    {
+      "path": "Workspace.lucas94292.HumanoidRootPart.Jumping",
+      "loaded": true,
+      "volume": 0.6499999761581421,
+      "id": "rbxasset://sounds/action_jump.mp3",
+      "length": 0.3395918367346939,
+      "loop": false,
+      "playing": false
+    },
+    {
+      "path": "Workspace.lucas94292.HumanoidRootPart.Landing",
+      "loaded": true,
+      "volume": 0.6499999761581421,
+      "id": "rbxasset://sounds/action_jump_land.mp3",
+      "length": 0.2612244897959184,
+      "loop": false,
+      "playing": false
+    },
+    {
+      "path": "Workspace.lucas94292.HumanoidRootPart.Splash",
+      "loaded": true,
+      "volume": 0.6499999761581421,
+      "id": "rbxasset://sounds/impact_water.mp3",
+      "length": 2.3771428571428572,
+      "loop": false,
+      "playing": false
+    },
+    {
+      "path": "Workspace.lucas94292.HumanoidRootPart.FreeFalling",
+      "loaded": true,
+      "volume": 0,
+      "id": "rbxasset://sounds/action_falling.ogg",
+      "length": 10,
+      "loop": true,
+      "playing": false
+    },
+    {
+      "path": "Workspace.lucas94292.HumanoidRootPart.Running",
+      "loaded": true,
+      "volume": 0.6499999761581421,
+      "id": "rbxasset://sounds/action_footsteps_plastic.mp3",
+      "length": 2.4816326530612245,
+      "loop": true,
+      "playing": false
+    },
+    {
+      "group": "SoundService.MusicaGrupo",
+      "path": "SoundService.OST",
+      "loaded": true,
+      "volume": 0.2800000011920929,
+      "id": "rbxassetid://112898538778548",
+      "length": 96.02612244897959,
+      "loop": true,
+      "playing": false
+    },
+    {
+      "group": "SoundService.AreaMusic",
+      "path": "SoundService.Theme_1",
+      "loaded": true,
+      "volume": 0,
+      "id": "rbxassetid://82061470648013",
+      "length": 233.32,
+      "loop": true,
+      "playing": false
+    },
+    {
+      "group": "SoundService.AreaMusic",
+      "path": "SoundService.Theme_2",
+      "loaded": true,
+      "volume": 0,
+      "id": "rbxassetid://1845421369",
+      "length": 163.13172335600908,
+      "loop": true,
+      "playing": false
+    },
+    {
+      "group": "SoundService.AreaMusic",
+      "path": "SoundService.Theme_3",
+      "loaded": true,
+      "volume": 0,
+      "id": "rbxassetid://9048681794",
+      "length": 205.00897959183675,
+      "loop": true,
+      "playing": false
+    },
+    {
+      "group": "SoundService.AreaMusic",
+      "path": "SoundService.Theme_4",
+      "loaded": true,
+      "volume": 0,
+      "id": "rbxassetid://131334832939011",
+      "length": 194.52,
+      "loop": true,
+      "playing": false
+    },
+    {
+      "group": "SoundService.AreaMusic",
+      "path": "SoundService.Theme_5",
+      "loaded": true,
+      "volume": 0,
+      "id": "rbxassetid://1835322563",
+      "length": 146.24292517006802,
+      "loop": true,
+      "playing": false
+    },
+    {
+      "group": "SoundService.AreaMusic",
+      "path": "SoundService.Theme_6",
+      "loaded": true,
+      "volume": 0,
+      "id": "rbxassetid://1845676363",
+      "length": 63.608163265306125,
+      "loop": true,
+      "playing": false
+    },
+    {
+      "group": "SoundService.AreaMusic",
+      "path": "SoundService.Theme_0",
+      "loaded": true,
+      "volume": 0.23000000417232513,
+      "id": "rbxassetid://112898538778548",
+      "length": 96.02612244897959,
+      "loop": true,
+      "playing": true
+    },
+    {
+      "path": "ReplicatedStorage.Sons.Ovo",
+      "loaded": true,
+      "volume": 0.5,
+      "id": "rbxassetid://9118770617",
+      "length": 2.3786666666666667,
+      "loop": false,
+      "playing": false
+    },
+    {
+      "path": "ReplicatedStorage.Sons.Detrito",
+      "loaded": true,
+      "volume": 0.3499999940395355,
+      "id": "rbxassetid://9118690959",
+      "length": 3.296,
+      "loop": false,
+      "playing": false
+    },
+    {
+      "path": "ReplicatedStorage.Sons.Compra",
+      "loaded": true,
+      "volume": 0.44999998807907104,
+      "id": "rbxassetid://93529351909119",
+      "length": 0.47807256235827666,
+      "loop": false,
+      "playing": false
+    },
+    {
+      "path": "ReplicatedStorage.Sons.Quebra",
+      "loaded": true,
+      "volume": 0.550000011920929,
+      "id": "rbxassetid://9118585250",
+      "length": 3.1804375,
+      "loop": false,
+      "playing": false
+    },
+    {
+      "path": "ReplicatedStorage.Sons.Golpe",
+      "loaded": true,
+      "volume": 0.44999998807907104,
+      "id": "rbxassetid://9116651255",
+      "length": 1.2554791666666667,
+      "loop": false,
+      "playing": false
+    },
+    {
+      "path": "ReplicatedStorage.Sons.GolpeAlt",
+      "loaded": true,
+      "volume": 0.44999998807907104,
+      "id": "rbxassetid://9116652339",
+      "length": 2.6186666666666665,
+      "loop": false,
+      "playing": false
+    },
+    {
+      "path": "ReplicatedStorage.Sons.Premio",
+      "loaded": true,
+      "volume": 0.6000000238418579,
+      "id": "rbxassetid://93529351909119",
+      "length": 0.47807256235827666,
+      "loop": false,
+      "playing": false
+    },
+    {
+      "path": "ReplicatedStorage.Sons.Erro",
+      "loaded": true,
+      "volume": 0.30000001192092896,
+      "id": "rbxassetid://9116652038",
+      "length": 3.2702291666666667,
+      "loop": false,
+      "playing": false
+    },
+    {
+      "path": "ReplicatedStorage.Sons.Moeda",
+      "loaded": true,
+      "volume": 0.5,
+      "id": "rbxassetid://4608067546",
+      "length": 0.2416780045351474,
+      "loop": false,
+      "playing": false
+    },
+    {
+      "path": "ReplicatedStorage.AreaMusicAssets.Space Atmosphere",
+      "loaded": true,
+      "volume": 0.5,
+      "id": "rbxassetid://1845421369",
+      "length": 163.13172335600908,
+      "loop": false,
+      "playing": false
+    },
+    {
+      "path": "ReplicatedStorage.AreaMusicAssets.Pirate King",
+      "loaded": true,
+      "volume": 0.5,
+      "id": "rbxassetid://1835322563",
+      "length": 146.24292517006802,
+      "loop": false,
+      "playing": false
+    },
+    {
+      "path": "ReplicatedStorage.AreaMusicAssets.The Forgotten Crypt",
+      "loaded": true,
+      "volume": 0.5,
+      "id": "rbxassetid://131334832939011",
+      "length": 194.52,
+      "loop": false,
+      "playing": false
+    },
+    {
+      "path": "ReplicatedStorage.AreaMusicAssets.Hidden Lotus Pond",
+      "loaded": true,
+      "volume": 0.5,
+      "id": "rbxassetid://82061470648013",
+      "length": 233.32,
+      "loop": false,
+      "playing": false
+    },
+    {
+      "path": "ReplicatedStorage.AreaMusicAssets.Mysterious Forest",
+      "loaded": true,
+      "volume": 0.5,
+      "id": "rbxassetid://9048681794",
+      "length": 205.00897959183675,
+      "loop": false,
+      "playing": false
+    },
+    {
+      "path": "ReplicatedStorage.AreaMusicAssets.Home Bound",
+      "loaded": true,
+      "volume": 0.5,
+      "id": "rbxassetid://1845676363",
+      "length": 63.608163265306125,
+      "loop": false,
+      "playing": false
+    }
+  ],
+  "groups": [
+    {
+      "volume": 0.3199999928474426,
+      "path": "SoundService.MusicaGrupo"
+    },
+    {
+      "volume": 0.8500000238418579,
+      "path": "SoundService.GrupoSFX"
+    },
+    {
+      "volume": 0.550000011920929,
+      "path": "SoundService.GrupoUI"
+    },
+    {
+      "volume": 0.8999999761581421,
+      "path": "SoundService.GrupoMining"
+    },
+    {
+      "volume": 0.5,
+      "path": "SoundService.GrupoAmbience"
+    },
+    {
+      "volume": 1,
+      "path": "SoundService.GrupoRewards"
+    },
+    {
+      "volume": 1,
+      "path": "SoundService.AreaMusic"
+    },
+    {
+      "volume": 0.8500000238418579,
+      "path": "SoundService.GrupoSFX"
+    },
+    {
+      "volume": 0.550000011920929,
+      "path": "SoundService.GrupoUI"
+    },
+    {
+      "volume": 0.8999999761581421,
+      "path": "SoundService.GrupoMining"
+    },
+    {
+      "volume": 0.5,
+      "path": "SoundService.GrupoAmbience"
+    },
+    {
+      "volume": 1,
+      "path": "SoundService.GrupoRewards"
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "type": "superseded_harness_assumptions",
+  "first": {
+    "status": "failed",
+    "realTransactions": false,
+    "error": "Players.lucas94292.PlayerScripts.AudioFinalSmoke:16: preference endpoint missing\nPlayers.lucas94292.PlayerScripts.AudioFinalSmoke:16\nPlayers.lucas94292.PlayerScripts.AudioFinalSmoke:9\n"
+  },
+  "second": {
+    "status": "failed",
+    "realTransactions": false,
+    "error": "Players.lucas94292.PlayerScripts.AudioFinalSmoke:30: pool/queue\nPlayers.lucas94292.PlayerScripts.AudioFinalSmoke:30\nPlayers.lucas94292.PlayerScripts.AudioFinalSmoke:9\n"
+  },
+  "correction": "Wait for the runtime-created preference endpoint. During startup, assert mixer budgets with concurrent UI audio; test explicit StopEffects cleanup separately. Prior long regression covers automatic cleanup.",
+  "productionFailureClaimed": false
+}

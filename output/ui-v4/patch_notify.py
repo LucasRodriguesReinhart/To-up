@@ -1,0 +1,27 @@
+from pathlib import Path
+p=Path(__file__).parent
+s=(p/'before/ReplicatedStorage/ExpeditionUI/Notify.lua').read_text(encoding='utf-8')
+s=s.replace('local TOAST_H, TOAST_GAP = 54, 8','local TOAST_H, TOAST_GAP = 60, 8')
+s=s.replace('textWidth(t.label.Text, 15) + 72','textWidth(t.label.Text, 18) + 84').replace('textBounds(t.label.Text, 15, w - 64)','textBounds(t.label.Text, 18, w - 64)')
+s=s.replace('T.stroke(f, P.neutral, 1)','T.stroke(f, k.col, 2)\n T.gradient(f,k.col:Lerp(P.ink,.77),P.bg0,90)\n T.texture(f,"halftone",.91,k.col,180)')
+s=s.replace('TOAST_H - 12, 15, P.text, T.LEFT, "body"','TOAST_H - 12, 18, P.text, T.LEFT, "title",1.5')
+s=s.replace('local FEED_H, FEED_GAP = 34, 6','local FEED_H, FEED_GAP = 46, 8')
+s=s.replace('textWidth(e.label.Text, 14) + 56), 330','textWidth(e.label.Text, 18) + 66), 390')
+s=s.replace('6, 3, 28, 28','5, 3, 40, 40')
+s=s.replace('40, 0, 210, FEED_H, 14, opts.textColor or P.text, T.LEFT, "body"','50, 0, 240, FEED_H, 18, opts.textColor or col, T.LEFT, "title",1.5')
+s=s.replace('w - 48, FEED_H','w - 60, FEED_H')
+s=s.replace('T.corner(f, 6)\n\tT.frame(f, "Rarity"','T.corner(f, 6)\n T.stroke(f,col,1.5);T.gradient(f,col:Lerp(P.ink,.80),P.bg0,0)\n\tT.frame(f, "Rarity"')
+s=s.replace('math.min(540, vw - 40)','math.min(680, vw - 40)')
+s=s.replace('local left = icon and 76 or 22','local left = 106')
+s=s.replace('math.max(84, 28 + titleH','math.max(112, 36 + titleH')
+s=s.replace('icon.Position = UDim2.fromOffset(20, (height - 42) / 2)','icon.Position = UDim2.fromOffset(10, (height - 78) / 2)')
+s=s.replace('b.big and 98 or 84','b.big and 126 or 112')
+s=s.replace('T.stroke(root, P.neutral, 1)','T.stroke(root,col,2.5)\n T.gradient(root,col:Lerp(P.ink,.80),P.bg0,90)\n T.texture(root,"halftone",.85,col,180)')
+s=s.replace('local tx = b.icon and 76 or 22','local tx = 106')
+s=s.replace('if b.icon then T.icon(root, b.icon, 20, (h - 42) / 2, 42, 42) end','T.icon(root,b.icon or "summon",10,(h-78)/2,78,78)')
+s=s.replace('b.big and 25 or 23','b.big and 36 or 32').replace('h - 54, 15, P.text2','h - 54, 18, P.text2')
+# Ignore the texture when finding the medallion during resize.
+s=s.replace('local icon = activeBanner:FindFirstChildWhichIsA("ImageLabel")','local icon\n for _,child in ipairs(activeBanner:GetChildren()) do if child:IsA("ImageLabel") and child.Name:sub(1,5)=="Icon_" then icon=child;break end end')
+a=s.index('nextReveal = function()');b=s.index('function N.reveal(opts)',a)
+s=s[:a]+(p/'reveal.lua').read_text(encoding='utf-8')+'\n'+s[b:]
+(p/'src/ReplicatedStorage/ExpeditionUI/Notify.lua').write_text(s,encoding='utf-8')

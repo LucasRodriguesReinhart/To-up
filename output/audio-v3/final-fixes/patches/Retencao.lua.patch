@@ -1,0 +1,50 @@
+--- a/ServerScriptService/Core/Retencao.lua
++++ b/ServerScriptService/Core/Retencao.lua
+@@ -26,6 +26,10 @@
+ 	local area = PlayerData.maiorArea(perfil)
+ 	local tema = Config.Areas[area].tema
+ 	local partes = {}
++	local audioReward = { moedas = 0, boost = false }
++	local function deliveredRarity(rarity)
++		if (Config.RAR_INDICE[rarity] or 0) > (Config.RAR_INDICE[audioReward.raridade] or 0) then audioReward.raridade = rarity end
++	end
+ 	for _, item in ipairs(def.itens) do
+ 		if item.tipo == "moedas" then
+ 			-- limite do GDD: Daily + missoes cabem em RENDA_EXTRA (metade para cada) da renda do mundo.
+@@ -33,26 +37,32 @@
+ 			local eco = Config.Eco
+ 			local teto = (eco.RENDA_EXTRA - 1) / 2 * eco.MINUTOS_NO_MUNDO_MEDIO[area] * eco.MOEDAS_POR_MINUTO_MEDIO[area]
+ 			local q = Recompensas.darMoedas(player, perfil, math.min(Config.moedasDeMinutos(area, item.minutos), teto), "TimedReward", "daily" .. dia)
++			audioReward.moedas += q
+ 			table.insert(partes, Config.formatar(q) .. " moedas")
+ 		elseif item.tipo == "boost" then
+ 			PlayerData.adicionarBoost(perfil, item.boost, item.minutos)
++			audioReward.boost = true
+ 			table.insert(partes, (item.boost == "sorte" and "Sorte " or "Moedas x2 ") .. item.minutos .. " min")
+ 		elseif item.tipo == "hats" then
+ 			local dados = 0
+ 			for _ = 1, item.qtd do
+-				if Recompensas.darHatDaRaridade(player, perfil, tema, item.raridade, "daily") then dados += 1 end
++				local uid, delivered = Recompensas.darHatDaRaridade(player, perfil, tema, item.raridade, "daily")
++				if uid then
++					dados += 1
++					if delivered then deliveredRarity(delivered.raridade) end
++				end
+ 			end
+ 			table.insert(partes, dados .. " hat(s) " .. (Config.Raridades[item.raridade] and Config.Raridades[item.raridade].nome or item.raridade))
+ 		elseif item.tipo == "pet" then
+ 			local _, pdef = Recompensas.darPetDaRaridade(player, perfil, area, item.raridade, "daily")
+-			if pdef then table.insert(partes, pdef.nome) end
++			if pdef then deliveredRarity(pdef.raridade); table.insert(partes, pdef.nome) end
+ 		end
+ 	end
+ 	Telemetria.evento(player, perfil, "DailyClaimed", dia)
+-	PlayerData.sincronizar(player)
++	PlayerData.sincronizar(player, "daily")
+ 	task.spawn(PlayerData.salvar, player)
+ 	ocupado[player] = nil
+-	return { ok = true, msg = "Dia " .. dia .. ": " .. table.concat(partes, " + "), dia = dia }
++	return { ok = true, msg = "Dia " .. dia .. ": " .. table.concat(partes, " + "), dia = dia, audioReward = audioReward }
+ end
+ 
+ -- resumo da colecao por area (para a UI)

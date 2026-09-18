@@ -1,0 +1,52 @@
+[
+  {
+    "path": "ReplicatedStorage.ExpeditionUI.Inventory",
+    "normalizedBytes": 42251,
+    "adler32": 767963688
+  },
+  {
+    "path": "ReplicatedStorage.ExpeditionUI.Menus",
+    "normalizedBytes": 57135,
+    "adler32": 62514916
+  },
+  {
+    "path": "ReplicatedStorage.ExpeditionUI.Notify",
+    "normalizedBytes": 18711,
+    "adler32": 1521013379
+  },
+  {
+    "path": "ReplicatedStorage.ExpeditionUI.Theme",
+    "normalizedBytes": 49653,
+    "adler32": 3997665310
+  },
+  {
+    "path": "ServerScriptService.Core.AreaBuilder",
+    "normalizedBytes": 19691,
+    "adler32": 2136197060
+  },
+  {
+    "path": "StarterPlayer.StarterPlayerScripts.AutoMinerar",
+    "normalizedBytes": 14297,
+    "adler32": 2240784550
+  },
+  {
+    "path": "StarterPlayer.StarterPlayerScripts.ExpeditionClient",
+    "normalizedBytes": 68271,
+    "adler32": 3208056312
+  },
+  {
+    "path": "StarterPlayer.StarterPlayerScripts.IslandTransition",
+    "normalizedBytes": 5487,
+    "adler32": 1471617356
+  },
+  {
+    "path": "StarterPlayer.StarterPlayerScripts.MineracaoVisual",
+    "normalizedBytes": 17780,
+    "adler32": 4073172770
+  },
+  {
+    "path": "StarterPlayer.StarterPlayerScripts.PetsSeguidores",
+    "normalizedBytes": 11053,
+    "adler32": 1123750008
+  }
+]

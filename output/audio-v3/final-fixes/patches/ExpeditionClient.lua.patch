@@ -1,0 +1,35 @@
+--- a/StarterPlayer/StarterPlayerScripts/ExpeditionClient.lua
++++ b/StarterPlayer/StarterPlayerScripts/ExpeditionClient.lua
+@@ -398,7 +398,12 @@
+ 	elseif name == "ResgatarMissao" then
+ 		if not ctx.batchQuestAudio then Som.tocar("quest_complete") end
+ 	elseif name == "ResgatarDaily" or name == "ResgatarCodigo" then
+-		Som.tocar("reward_banner")
++		-- One cue for what the server actually delivered; never infer rarity from the offer.
++		local reward = res.audioReward
++		if type(reward) ~= "table" then Som.tocar("reward_banner") -- compatible with an older server
++		elseif type(reward.raridade) == "string" and Config.Raridades[reward.raridade] then Som.drop(reward.raridade)
++		elseif reward.boost == true then Som.tocar("boost")
++		elseif type(reward.moedas) == "number" and reward.moedas > 0 then Som.tocar("reward_banner") end
+ 	elseif name ~= "RolarGacha" and name ~= "UITravel" and name ~= "ComprarRobux" then
+ 		Som.tocar("ui_confirm")
+ 	end
+@@ -1262,7 +1267,8 @@
+ 		ctx.audioPersistent = data.audioPersistent == true
+ 		if not audioWorker then audioStatus(ctx.audioPersistent and "profile" or "session") end
+ 	end
+-	if previous and previous.boosts and data.boosts then
++	local transactionAudio = data.audioContext == "daily" or data.audioContext == "code"
++	if not transactionAudio and previous and previous.boosts and data.boosts then
+ 		local elapsed = ctx.dataClock - (previousClock or ctx.dataClock)
+ 		for _, key in ipairs({ "sorte", "moedas" }) do
+ 			local before = math.max(0, (previous.boosts[key] or 0) - elapsed)
+@@ -1286,7 +1292,7 @@
+ 			if #completed > 0 then
+ 				-- The existing banner queue waits for reveal/menu closure before the milestone cue.
+ 				Notify.banner({ title = "COLEÇÃO COMPLETA!", subtitle = table.concat(completed, " · ") .. " descobertos no Index",
+-					color = P.gold, sound = "achievement", big = true, duration = 2.8 })
++					color = P.gold, sound = not transactionAudio and "achievement" or false, big = true, duration = 2.8 })
+ 			end
+ 		end
+ 		lastInventorySignature = signature

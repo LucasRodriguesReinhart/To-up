@@ -1,0 +1,72 @@
+[
+  {
+    "path": "ReplicatedStorage/ExpeditionUI/Inventory.lua",
+    "bytes": 50486,
+    "sha256": "b8557ec63c88c6cdd3996026df868725e1e8afd6170666592619070732e826c7",
+    "adler32": 409697080,
+    "changed": true
+  },
+  {
+    "path": "ReplicatedStorage/ExpeditionUI/Menus.lua",
+    "bytes": 54927,
+    "sha256": "92fb4783756f6a07e1206a38b19a5829982c1352c6afdf3b366630984894c28b",
+    "adler32": 1241351720,
+    "changed": true
+  },
+  {
+    "path": "ReplicatedStorage/ExpeditionUI/Notify.lua",
+    "bytes": 22548,
+    "sha256": "9ffcf9480ede46362aa7afb1a79832bed25eac94e3e6e6b7fb3812175dcdb959",
+    "adler32": 2422512057,
+    "changed": true
+  },
+  {
+    "path": "ReplicatedStorage/ExpeditionUI/Theme.lua",
+    "bytes": 53619,
+    "sha256": "250e01869538d4293b71ec7dc3f05c53535ac8239af25d2673506620b22fae8a",
+    "adler32": 2187448155,
+    "changed": true
+  },
+  {
+    "path": "ServerScriptService/Core/AreaBuilder.lua",
+    "bytes": 19691,
+    "sha256": "614dc5cf7bef53e1d6766c629d02e8cb2b7423e6ef5d7bf20579ecba9bc942f3",
+    "adler32": 2136197060,
+    "changed": false
+  },
+  {
+    "path": "StarterPlayer/StarterPlayerScripts/AutoMinerar.lua",
+    "bytes": 14371,
+    "sha256": "843ce5afc9fbde0a4d3abf4fffe629f02d31cffea334737279d8528b5e0705d2",
+    "adler32": 2986460132,
+    "changed": true
+  },
+  {
+    "path": "StarterPlayer/StarterPlayerScripts/ExpeditionClient.lua",
+    "bytes": 68103,
+    "sha256": "d84637290619d1a71031ccb99821805d9535bdba031807fb7feabf5b691d84d4",
+    "adler32": 3680889724,
+    "changed": true
+  },
+  {
+    "path": "StarterPlayer/StarterPlayerScripts/IslandTransition.lua",
+    "bytes": 6981,
+    "sha256": "0e95aaf1e9954a83c88a7762643ec116811f595828b22d5698692fe61892a363",
+    "adler32": 3883859927,
+    "changed": true
+  },
+  {
+    "path": "StarterPlayer/StarterPlayerScripts/MineracaoVisual.lua",
+    "bytes": 17780,
+    "sha256": "94a8a9b7d1fadb70adfd0bfd5858059d3006cb1ad6650b0f3ee5ca4dca2fdc29",
+    "adler32": 4073172770,
+    "changed": false
+  },
+  {
+    "path": "StarterPlayer/StarterPlayerScripts/PetsSeguidores.lua",
+    "bytes": 11053,
+    "sha256": "e2a7c79f73c2feb7e3376cdd4c6d3f763bc17e96b33c29231f43d98ee6f6c73e",
+    "adler32": 1123750008,
+    "changed": false
+  }
+]

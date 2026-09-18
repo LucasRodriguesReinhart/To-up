@@ -1,0 +1,167 @@
+[
+  {
+    "index": 1,
+    "path": "C:\\Users\\lucas\\Documents\\Codex\\2026-09-12\\co\\outputs\\ui-assets\\area1.jpg",
+    "size": [
+      960,
+      540
+    ],
+    "transparent_fraction": 0.0,
+    "partial_alpha_fraction": 0.0,
+    "bytes": 202103
+  },
+  {
+    "index": 2,
+    "path": "C:\\Users\\lucas\\Documents\\Codex\\2026-09-12\\co\\outputs\\ui-assets\\area2.jpg",
+    "size": [
+      960,
+      540
+    ],
+    "transparent_fraction": 0.0,
+    "partial_alpha_fraction": 0.0,
+    "bytes": 195608
+  },
+  {
+    "index": 3,
+    "path": "C:\\Users\\lucas\\Documents\\Codex\\2026-09-12\\co\\outputs\\ui-assets\\area3.jpg",
+    "size": [
+      960,
+      540
+    ],
+    "transparent_fraction": 0.0,
+    "partial_alpha_fraction": 0.0,
+    "bytes": 191427
+  },
+  {
+    "index": 4,
+    "path": "C:\\Users\\lucas\\Documents\\Codex\\2026-09-12\\co\\outputs\\ui-assets\\area4.jpg",
+    "size": [
+      960,
+      540
+    ],
+    "transparent_fraction": 0.0,
+    "partial_alpha_fraction": 0.0,
+    "bytes": 184075
+  },
+  {
+    "index": 5,
+    "path": "C:\\Users\\lucas\\Documents\\Codex\\2026-09-12\\co\\outputs\\ui-assets\\area5.jpg",
+    "size": [
+      960,
+      540
+    ],
+    "transparent_fraction": 0.0,
+    "partial_alpha_fraction": 0.0,
+    "bytes": 208961
+  },
+  {
+    "index": 6,
+    "path": "C:\\Users\\lucas\\Documents\\Codex\\2026-09-12\\co\\outputs\\ui-assets\\area6.jpg",
+    "size": [
+      960,
+      540
+    ],
+    "transparent_fraction": 0.0,
+    "partial_alpha_fraction": 0.0,
+    "bytes": 202003
+  },
+  {
+    "index": 7,
+    "path": "C:\\Users\\lucas\\Documents\\Codex\\2026-09-12\\co\\outputs\\ui-assets\\halftone.png",
+    "size": [
+      32,
+      32
+    ],
+    "transparent_fraction": 0.9062,
+    "partial_alpha_fraction": 0.0938,
+    "bytes": 141
+  },
+  {
+    "index": 8,
+    "path": "C:\\Users\\lucas\\Documents\\Codex\\2026-09-12\\co\\outputs\\ui-assets\\header.png",
+    "size": [
+      640,
+      180
+    ],
+    "transparent_fraction": 0.5451,
+    "partial_alpha_fraction": 0.019,
+    "bytes": 19872
+  },
+  {
+    "index": 9,
+    "path": "C:\\Users\\lucas\\Documents\\Codex\\2026-09-12\\co\\outputs\\ui-assets\\icons.png",
+    "size": [
+      1254,
+      1254
+    ],
+    "transparent_fraction": 0.4867,
+    "partial_alpha_fraction": 0.5103,
+    "bytes": 1657820
+  },
+  {
+    "index": 10,
+    "path": "C:\\Users\\lucas\\Documents\\Codex\\2026-09-12\\co\\outputs\\ui-assets\\lobby.jpg",
+    "size": [
+      1306,
+      623
+    ],
+    "transparent_fraction": 0.0,
+    "partial_alpha_fraction": 0.0,
+    "bytes": 362717
+  },
+  {
+    "index": 11,
+    "path": "C:\\Users\\lucas\\Documents\\Codex\\2026-09-12\\co\\outputs\\ui-assets\\pattern.png",
+    "size": [
+      256,
+      256
+    ],
+    "transparent_fraction": 0.8883,
+    "partial_alpha_fraction": 0.1117,
+    "bytes": 8388
+  },
+  {
+    "index": 12,
+    "path": "C:\\Users\\lucas\\OneDrive\\Desktop\\To up\\output\\hud\\hud-icons-atlas.png",
+    "size": [
+      1774,
+      887
+    ],
+    "transparent_fraction": 0.0,
+    "partial_alpha_fraction": 0.0,
+    "bytes": 1553772
+  },
+  {
+    "index": 13,
+    "path": "C:\\Users\\lucas\\OneDrive\\Desktop\\To up\\output\\ui-v2\\screenshots\\daily.png",
+    "size": [
+      1143,
+      643
+    ],
+    "transparent_fraction": 0.0,
+    "partial_alpha_fraction": 0.0,
+    "bytes": 209334
+  },
+  {
+    "index": 14,
+    "path": "C:\\Users\\lucas\\OneDrive\\Desktop\\To up\\output\\ui-v2\\screenshots\\inventory.png",
+    "size": [
+      1143,
+      643
+    ],
+    "transparent_fraction": 0.0,
+    "partial_alpha_fraction": 0.0,
+    "bytes": 168034
+  },
+  {
+    "index": 15,
+    "path": "C:\\Users\\lucas\\OneDrive\\Desktop\\To up\\output\\ui-v2\\screenshots\\summon.png",
+    "size": [
+      1143,
+      643
+    ],
+    "transparent_fraction": 0.0,
+    "partial_alpha_fraction": 0.0,
+    "bytes": 258185
+  }
+]

@@ -1,0 +1,138 @@
+{
+  "status": "passed",
+  "runner": "Official Luau CLI 0.738",
+  "source": "https://github.com/luau-lang/luau/releases/tag/0.738",
+  "realDataStoreWrites": 0,
+  "realTransactions": 0,
+  "studioAccessed": false,
+  "sourcesCompiled": [
+    {
+      "path": "ServerScriptService/Core/PlayerData.lua",
+      "className": "ModuleScript",
+      "compiled": true,
+      "SHA256": "6da2c8e5f12b320a862a7f3ead088def84de2acb91642a75268fff3cd2a7dcc7"
+    },
+    {
+      "path": "ServerScriptService/Core/Recompensas.lua",
+      "className": "ModuleScript",
+      "compiled": true,
+      "SHA256": "2af4d5711b6ce91ee5564df0f97b41027b9198400b50cf4ff29a61bf402ae69a"
+    },
+    {
+      "path": "ServerScriptService/Core/Retencao.lua",
+      "className": "ModuleScript",
+      "compiled": true,
+      "SHA256": "048c613e7372205bf5be60f52591f61fc77ff896b36a22af935c034016ed7324"
+    },
+    {
+      "path": "ServerScriptService/Core/Codigos.lua",
+      "className": "ModuleScript",
+      "compiled": true,
+      "SHA256": "c2f0209177c5d41ff19851f85db46761f41148c362bceb9c6156cde75b70c1f3"
+    },
+    {
+      "path": "StarterPlayer/StarterPlayerScripts/ExpeditionClient.lua",
+      "className": "LocalScript",
+      "compiled": true,
+      "SHA256": "54bb1eda55024a6d869920c12ba87031262f5a5c4c9820593f79aad56ef46b5c"
+    },
+    {
+      "path": "StarterPlayer/StarterPlayerScripts/MineracaoVisual.lua",
+      "className": "LocalScript",
+      "compiled": true,
+      "SHA256": "c91164f42a9222f3c1d5f9adce4310df80abcc717b440035ecd3b5b3bcb5c617"
+    }
+  ],
+  "transactionCases": [
+    {
+      "name": "daily2",
+      "singleAudioEvent": "drop_raro",
+      "gameplayBeforeAfterEqual": true,
+      "profileStateSHA256": "b3575b4a73f889dd83c17617f0efec96d2f49348f367b2e6579f7072f05185ea"
+    },
+    {
+      "name": "daily5",
+      "singleAudioEvent": "drop_raro",
+      "gameplayBeforeAfterEqual": true,
+      "profileStateSHA256": "6777e2eb7a732961fbd3b7f15934efdbcfabf8f76992b3455d2e55d1ccc23f71"
+    },
+    {
+      "name": "daily7",
+      "singleAudioEvent": "drop_epico",
+      "gameplayBeforeAfterEqual": true,
+      "profileStateSHA256": "d72db24e9b67fbfca7ceb01d682053355f6a6dce91cc8d4c682e2ea849652144"
+    },
+    {
+      "name": "daily3_multi_hat",
+      "singleAudioEvent": "drop_raro",
+      "gameplayBeforeAfterEqual": true,
+      "profileStateSHA256": "64a166936b5151d8cc6db2955a7571d5c0cd23c6538cf4a12d7713a9cb560aa7"
+    },
+    {
+      "name": "daily7_fallback",
+      "singleAudioEvent": "drop_raro",
+      "gameplayBeforeAfterEqual": true,
+      "profileStateSHA256": "f55bdf9c81b3b5b9b2601c61c792631d18847c709bcbed805e486770a6468ed4"
+    },
+    {
+      "name": "daily7_inventory_full",
+      "singleAudioEvent": "none",
+      "gameplayBeforeAfterEqual": true,
+      "profileStateSHA256": "64de6d73324777cbe16752b174c92098b76a2b4686524c0f8b360766459a1bf8"
+    },
+    {
+      "name": "daily2_inventory_full",
+      "singleAudioEvent": "boost",
+      "gameplayBeforeAfterEqual": true,
+      "profileStateSHA256": "a901e6e1c0f503e81ea5ce51a55c3cde0b559b8765a15c21cc46c5d3b6b51c3e"
+    },
+    {
+      "name": "code_coins",
+      "singleAudioEvent": "reward_banner",
+      "gameplayBeforeAfterEqual": true,
+      "profileStateSHA256": "efa0cb03bc26d087acb05ebee5b6602e816f8000537c2d3581f4f68d11ae8174"
+    },
+    {
+      "name": "code_hat",
+      "singleAudioEvent": "drop_raro",
+      "gameplayBeforeAfterEqual": true,
+      "profileStateSHA256": "085db7a5748372d56d6a4fc5dca04ddfd979c8596d3b9614dc23def9d1127ce0"
+    },
+    {
+      "name": "code_pet",
+      "singleAudioEvent": "drop_raro",
+      "gameplayBeforeAfterEqual": true,
+      "profileStateSHA256": "b5a273af5261db8b155bf02eb2d8553c88235f9c62212dc494df3018f0f8c3f0"
+    },
+    {
+      "name": "code_full",
+      "singleAudioEvent": "none",
+      "gameplayBeforeAfterEqual": true,
+      "profileStateSHA256": "2562065db632f1965485168c6c9029bc8c650744c05f4e5f4c42166e036296b0"
+    },
+    {
+      "name": "code_invalid",
+      "singleAudioEvent": "none",
+      "gameplayBeforeAfterEqual": true,
+      "profileStateSHA256": "2562065db632f1965485168c6c9029bc8c650744c05f4e5f4c42166e036296b0"
+    },
+    {
+      "name": "code_duplicate",
+      "singleAudioEvent": "none",
+      "gameplayBeforeAfterEqual": true,
+      "profileStateSHA256": "cfaeb2d02f2c1bfeb082d94120e1e6415a3e0fab3da411e94f86f20cf6974de9"
+    }
+  ],
+  "additionalPassedChecks": [
+    "purchase_boost_and_mined_hat_preserved",
+    "late_patch_no_attribute_rollback_and_whitelist",
+    "snapshot_context_transient_and_purchase_context_clear",
+    "transaction_achievement_sound_false_visual_preserved"
+  ],
+  "fixtureSourceSHA256": "f8a4c2b1b60bc2a405e8eee6feb63e11bc6d6a06d2c8cb16c7a2f3ec5b92f10e",
+  "limitations": [
+    "Mocks use deterministic Random.new selection and immediate task scheduling.",
+    "No live datastore save/reconnect, real network latency, or user profile was exercised.",
+    "Native Luau compile and fixture behavior do not replace auditory review or final Studio integration."
+  ]
+}

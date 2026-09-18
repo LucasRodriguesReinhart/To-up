@@ -1,0 +1,101 @@
+{
+  "qaInventoryHD": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"overflows\":[],\"buttons\":[{\"name\":\"Close\",\"size\":\"63.5911102, 63.5911102\"},{\"name\":\"Tab_pet\",\"size\":\"154.435547, 54.5066643\"},{\"name\":\"Tab_hat\",\"size\":\"154.435547, 54.5066643\"},{\"name\":\"InventoryFilters\",\"size\":\"88.5733261, 49.9644432\"},{\"name\":\"Item_p49\",\"size\":\"116.962219, 130.588882\"},{\"name\":\"Item_p168\",\"size\":\"116.962219, 130.588882\"},{\"name\":\"Item_p318\",\"size\":\"116.962219, 130.588882\"},{\"name\":\"Item_p406\",\"size\":\"116.962219, 130.588882\"},{\"disabled\":false,\"name\":\"EquipBest\",\"size\":\"255.499985, 43.1511078\"},{\"disabled\":false,\"name\":\"UnequipAll\",\"size\":\"255.499985, 43.1511078\"},{\"name\":\"Equipped_p49\",\"size\":\"79.488884, 79.488884\"},{\"name\":\"Equipped_p168\",\"size\":\"79.488884, 79.488884\"},{\"name\":\"Equipped_p318\",\"size\":\"79.488884, 79.488884\"},{\"disabled\":false,\"name\":\"EquipSelected\",\"size\":\"381.546661, 47.6933327\"},{\"disabled\":false,\"name\":\"UpgradeSelected\",\"size\":\"381.546661, 47.6933327\"},{\"name\":\"FavoriteToggle\",\"size\":\"381.546661, 47.6933327\"},{\"name\":\"LockToggle\",\"size\":\"381.546661, 47.6933327\"},{\"name\":\"RenameSelected\",\"size\":\"381.546661, 47.6933327\"}],\"viewports\":[{\"id\":\"muzan\",\"size\":\"924.342163, 567.777771\"}],\"page\":\"Inventory\",\"size\":\"1919, 1022\"}"
+      }
+    ],
+    "isError": false
+  },
+  "qaSummonHD": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"overflows\":[],\"buttons\":[{\"name\":\"Tracker\",\"size\":\"363.377747, 102.199997\"},{\"name\":\"Store\",\"size\":\"88.5733261, 93.1155548\"},{\"name\":\"Inventory\",\"size\":\"88.5733261, 93.1155548\"},{\"name\":\"Items\",\"size\":\"88.5733261, 93.1155548\"},{\"name\":\"Summon\",\"size\":\"88.5733261, 93.1155548\"},{\"name\":\"Areas\",\"size\":\"88.5733261, 93.1155548\"},{\"name\":\"Quests\",\"size\":\"88.5733261, 93.1155548\"},{\"name\":\"Events\",\"size\":\"88.5733261, 93.1155548\"},{\"name\":\"Settings\",\"size\":\"88.5733261, 93.1155548\"},{\"name\":\"Slot1\",\"size\":\"97.6577759, 97.6577759\"},{\"name\":\"Slot2\",\"size\":\"97.6577759, 97.6577759\"},{\"name\":\"Slot3\",\"size\":\"97.6577759, 97.6577759\"},{\"name\":\"SellShortcut\",\"size\":\"95.3866653, 31.7955551\"},{\"name\":\"Close\",\"size\":\"63.5911102, 63.5911102\"},{\"name\":\"Banner_1\",\"size\":\"303.193329, 96.5222168\"},{\"name\":\"Banner_2\",\"size\":\"303.193329, 96.5222168\"},{\"name\":\"Banner_3\",\"size\":\"303.193329, 96.5222168\"},{\"name\":\"Banner_5\",\"size\":\"303.193329, 96.5222168\"},{\"name\":\"Banner_6\",\"size\":\"303.193329, 96.5222168\"},{\"disabled\":false,\"name\":\"Summon1\",\"size\":\"430.375549, 59.0488853\"},{\"disabled\":false,\"name\":\"Summon10\",\"size\":\"430.375549, 59.0488853\"},{\"disabled\":true,\"name\":\"GoBanner\",\"size\":\"303.193329, 49.9644432\"},{\"name\":\"Rates\",\"size\":\"342.937775, 49.9644432\"}],\"viewports\":[{\"id\":\"kakashi,madara,itachi\",\"size\":\"889.139954, 595.031067\"}],\"page\":\"Summon\",\"size\":\"1919, 1022\"}"
+      }
+    ],
+    "isError": false
+  },
+  "qaDailyHD": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"overflows\":[],\"buttons\":[{\"name\":\"Tracker\",\"size\":\"363.377747, 102.199997\"},{\"name\":\"Store\",\"size\":\"88.5733261, 93.1155548\"},{\"name\":\"Inventory\",\"size\":\"88.5733261, 93.1155548\"},{\"name\":\"Items\",\"size\":\"88.5733261, 93.1155548\"},{\"name\":\"Summon\",\"size\":\"88.5733261, 93.1155548\"},{\"name\":\"Areas\",\"size\":\"88.5733261, 93.1155548\"},{\"name\":\"Quests\",\"size\":\"88.5733261, 93.1155548\"},{\"name\":\"Events\",\"size\":\"88.5733261, 93.1155548\"},{\"name\":\"Settings\",\"size\":\"88.5733261, 93.1155548\"},{\"name\":\"Slot1\",\"size\":\"97.6577759, 97.6577759\"},{\"name\":\"Slot2\",\"size\":\"97.6577759, 97.6577759\"},{\"name\":\"Slot3\",\"size\":\"97.6577759, 97.6577759\"},{\"name\":\"SellShortcut\",\"size\":\"95.3866653, 31.7955551\"},{\"name\":\"Close\",\"size\":\"63.5911102, 63.5911102\"},{\"name\":\"Tab_Diario\",\"size\":\"154.435547, 54.5066643\"},{\"name\":\"Tab_Index\",\"size\":\"154.435547, 54.5066643\"},{\"disabled\":true,\"name\":\"DailyClaim\",\"size\":\"174.875549, 49.9644432\"}],\"viewports\":[],\"page\":\"Events\",\"size\":\"1919, 1022\"}"
+      }
+    ],
+    "isError": false
+  },
+  "qaFinalMobileStore": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"overflows\":[],\"buttons\":[{\"name\":\"Close\",\"size\":\"56, 56\"},{\"name\":\"Tab_Picaretas\",\"size\":\"108, 44\"},{\"name\":\"Tab_Mochilas\",\"size\":\"108, 44\"},{\"name\":\"Tab_Passes\",\"size\":\"108, 44\"},{\"disabled\":true,\"name\":\"BuyNext\",\"size\":\"176, 52\"},{\"disabled\":false,\"name\":\"Equip_enferrujada\",\"size\":\"176, 52\"}],\"viewports\":[{\"size\":\"76, 76\"},{\"size\":\"78, 82\"},{\"size\":\"78, 82\"}],\"page\":\"Store\",\"size\":\"400, 718\"}"
+      }
+    ],
+    "isError": false
+  },
+  "qaFinalMobileAreas": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"overflows\":[],\"buttons\":[{\"name\":\"Close\",\"size\":\"56, 56\"},{\"disabled\":false,\"name\":\"Quick_Lobby\",\"size\":\"100, 52\"},{\"disabled\":false,\"name\":\"Quick_Forge\",\"size\":\"100, 52\"},{\"disabled\":false,\"name\":\"Quick_Equipment\",\"size\":\"100, 52\"},{\"disabled\":false,\"name\":\"Travel_1\",\"size\":\"298, 52\"},{\"disabled\":false,\"name\":\"Travel_2\",\"size\":\"298, 52\"}],\"viewports\":[],\"page\":\"Areas\",\"size\":\"400, 718\"}"
+      }
+    ],
+    "isError": false
+  },
+  "qaFinalMobileQuests": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"overflows\":[],\"buttons\":[{\"name\":\"Close\",\"size\":\"56, 56\"},{\"name\":\"QuestArea\",\"size\":\"340, 52\"},{\"disabled\":true,\"name\":\"ClaimAll\",\"size\":\"340, 52\"}],\"viewports\":[],\"page\":\"Quests\",\"size\":\"400, 718\"}"
+      }
+    ],
+    "isError": false
+  },
+  "qaFinalMobileSettings": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"overflows\":[],\"buttons\":[{\"name\":\"Close\",\"size\":\"56, 56\"},{\"disabled\":false,\"name\":\"Decrease\",\"size\":\"52, 52\"},{\"disabled\":false,\"name\":\"Increase\",\"size\":\"52, 52\"},{\"disabled\":false,\"name\":\"Decrease\",\"size\":\"52, 52\"},{\"disabled\":false,\"name\":\"Increase\",\"size\":\"52, 52\"},{\"disabled\":false,\"name\":\"Decrease\",\"size\":\"52, 52\"},{\"disabled\":false,\"name\":\"Increase\",\"size\":\"52, 52\"},{\"disabled\":false,\"name\":\"Decrease\",\"size\":\"52, 52\"},{\"disabled\":false,\"name\":\"Increase\",\"size\":\"52, 52\"}],\"viewports\":[],\"page\":\"Settings\",\"size\":\"400, 718\"}"
+      }
+    ],
+    "isError": false
+  },
+  "qaFinalMobileItems": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"overflows\":[],\"buttons\":[{\"name\":\"Close\",\"size\":\"56, 56\"},{\"name\":\"Tab_pet\",\"size\":\"136, 44\"},{\"name\":\"Tab_hat\",\"size\":\"136, 44\"},{\"name\":\"InventoryFilters\",\"size\":\"78, 52\"},{\"name\":\"Item_h321\",\"size\":\"156, 174\"},{\"name\":\"Item_h326\",\"size\":\"156, 174\"},{\"name\":\"Item_h294\",\"size\":\"156, 174\"},{\"name\":\"Item_h303\",\"size\":\"156, 174\"},{\"name\":\"Item_h302\",\"size\":\"156, 174\"},{\"name\":\"Item_h336\",\"size\":\"156, 174\"},{\"disabled\":false,\"name\":\"EquipBest\",\"size\":\"165, 52\"},{\"disabled\":false,\"name\":\"UnequipAll\",\"size\":\"165, 52\"}],\"viewports\":[],\"page\":\"Inventory\",\"size\":\"400, 718\"}"
+      }
+    ],
+    "isError": false
+  },
+  "qaFinalMobileSummon": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"overflows\":[],\"buttons\":[{\"name\":\"Close\",\"size\":\"56, 56\"},{\"name\":\"Banner_1\",\"size\":\"190, 60\"},{\"name\":\"Banner_2\",\"size\":\"190, 60\"},{\"disabled\":false,\"name\":\"GoBanner\",\"size\":\"302, 44\"},{\"disabled\":true,\"name\":\"Summon1\",\"size\":\"145, 52\"},{\"disabled\":true,\"name\":\"Summon10\",\"size\":\"145, 52\"}],\"viewports\":[{\"id\":\"madara\",\"size\":\"314, 246\"}],\"page\":\"Summon\",\"size\":\"400, 718\"}"
+      }
+    ],
+    "isError": false
+  },
+  "qaFinalMobileEvents": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"overflows\":[],\"buttons\":[{\"name\":\"Close\",\"size\":\"56, 56\"},{\"name\":\"Tab_Diario\",\"size\":\"136, 44\"},{\"name\":\"Tab_Index\",\"size\":\"136, 44\"},{\"disabled\":true,\"name\":\"DailyClaim\",\"size\":\"312, 44\"}],\"viewports\":[],\"page\":\"Events\",\"size\":\"400, 718\"}"
+      }
+    ],
+    "isError": false
+  },
+  "qaFinalTablet": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"overflows\":[],\"buttons\":[{\"name\":\"Close\",\"size\":\"56, 56\"},{\"name\":\"InventoryFilters\",\"size\":\"78, 52\"},{\"name\":\"Item_p49\",\"size\":\"123, 137\"},{\"name\":\"Item_p168\",\"size\":\"123, 137\"},{\"name\":\"Item_p318\",\"size\":\"123, 137\"},{\"name\":\"Item_p406\",\"size\":\"123, 137\"},{\"disabled\":false,\"name\":\"EquipBest\",\"size\":\"132, 52\"},{\"disabled\":false,\"name\":\"UnequipAll\",\"size\":\"132, 52\"},{\"name\":\"Equipped_p49\",\"size\":\"70, 70\"},{\"name\":\"Equipped_p168\",\"size\":\"70, 70\"},{\"name\":\"Equipped_p318\",\"size\":\"70, 70\"},{\"disabled\":false,\"name\":\"EquipSelected\",\"size\":\"250, 52\"},{\"disabled\":false,\"name\":\"UpgradeSelected\",\"size\":\"250, 52\"},{\"name\":\"FavoriteToggle\",\"size\":\"250, 52\"},{\"name\":\"LockToggle\",\"size\":\"250, 52\"},{\"name\":\"RenameSelected\",\"size\":\"250, 52\"},{\"name\":\"Tab_pet\",\"size\":\"136, 48\"},{\"name\":\"Tab_hat\",\"size\":\"136, 48\"}],\"viewports\":[{\"id\":\"muzan\",\"size\":\"420, 461\"}],\"page\":\"Inventory\",\"size\":\"1022, 709\"}"
+      }
+    ],
+    "isError": false
+  }
+}

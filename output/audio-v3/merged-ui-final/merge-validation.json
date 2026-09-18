@@ -1,0 +1,18 @@
+{
+  "patchAppliesToExactBases": true,
+  "basesUnchangedAfterMerge": true,
+  "whitespaceChecksPassed": true,
+  "preserved": [
+    "Menus.action visual options",
+    "Menus.summon rail/hero",
+    "Menus.daily redesign",
+    "Client.renderPopup reflow",
+    "Client.confirm external used guard",
+    "Client.summon external revealPlayed/rarityPlayed",
+    "Client.summon no T.pop on reflow",
+    "Client.drawWindow FullBleedTop",
+    "Client.drawHUD compact fixes"
+  ],
+  "studioOrPlayAccessed": false,
+  "runtimeCompilation": "delegated to root QA"
+}

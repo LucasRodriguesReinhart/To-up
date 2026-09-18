@@ -1,0 +1,27 @@
+--- a/ServerScriptService/Core/PlayerData.lua
++++ b/ServerScriptService/Core/PlayerData.lua
+@@ -293,7 +293,7 @@
+ 	if type(patch) ~= "table" then return { ok = false } end
+ 	-- Bounded whitelist traversal; nested values and unknown fields never enter the save.
+ 	perfil.audio = AudioPreferences.sanitize(patch, perfil.audio)
+-	AudioPreferences.apply(player, perfil.audio)
++	-- Client owns immediate mix attributes; server replication would roll back newer local edits.
+ 	return { ok = true, audio = table.clone(perfil.audio), persistent = PlayerData.audioPersistente(perfil) }
+ end
+ 
+@@ -562,12 +562,14 @@
+ -- ganchos opcionais (Economia preenche multiplicadores antes do snapshot)
+ PlayerData.antesDeSincronizar = nil
+ 
+-function PlayerData.sincronizar(player)
++function PlayerData.sincronizar(player, audioContext)
+ 	local perfil = cache[player]
+ 	if not perfil then return end
+ 	perfil.__player = player
+ 	if PlayerData.antesDeSincronizar then pcall(PlayerData.antesDeSincronizar, player, perfil) end
+ 	local snap = PlayerData.snapshot(perfil)
++	-- Transient delivery metadata: never stored in the profile or the DataStore.
++	if audioContext == "daily" or audioContext == "code" then snap.audioContext = audioContext end
+ 	snap.passes = Passes.todos(player)
+ 	RS.Remotes.AtualizarDados:FireClient(player, snap)
+ 	local ids, nomes = {}, {}

@@ -1,0 +1,20 @@
+{
+  "baseRoot": "output\\ui-v2\\src",
+  "outputRoot": "output\\audio-v3\\merged-ui-final",
+  "files": [
+    {
+      "path": "ReplicatedStorage/ExpeditionUI/Menus.lua",
+      "baseSHA256": "5a2f72174278a40bf0de34f34c428e6f2f2f0fb309e2adabd79fbf0e53eb4b88",
+      "mergedSHA256": "cde4087a2d00ebeddcfa6b77bc9a1f251912bcd98555f744d00a6be9c3706b5c",
+      "baseBytes": 53547,
+      "mergedBytes": 56933
+    },
+    {
+      "path": "StarterPlayer/StarterPlayerScripts/ExpeditionClient.lua",
+      "baseSHA256": "f9ec583fc84a77c545cdd82a20f87387ac378cf51459be64c077e8edc3c31bab",
+      "mergedSHA256": "f235e8ee5056265710eb54fc35ae979ce43f5a8fd7158e04c2f8b627ebabe79d",
+      "baseBytes": 61545,
+      "mergedBytes": 67427
+    }
+  ]
+}

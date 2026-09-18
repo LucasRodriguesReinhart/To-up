@@ -1,0 +1,52 @@
+[
+  {
+    "path": "ReplicatedStorage\\ExpeditionUI\\Inventory.lua",
+    "ok": true,
+    "output": "Compiled 0 KLOC into 46 KB bytecode (read 0.00s, parse 0.00s, compile 0.00s)"
+  },
+  {
+    "path": "ReplicatedStorage\\ExpeditionUI\\Menus.lua",
+    "ok": true,
+    "output": "Compiled 0 KLOC into 66 KB bytecode (read 0.00s, parse 0.00s, compile 0.00s)"
+  },
+  {
+    "path": "ReplicatedStorage\\ExpeditionUI\\Notify.lua",
+    "ok": true,
+    "output": "Compiled 0 KLOC into 21 KB bytecode (read 0.00s, parse 0.00s, compile 0.00s)"
+  },
+  {
+    "path": "ReplicatedStorage\\ExpeditionUI\\Theme.lua",
+    "ok": true,
+    "output": "Compiled 1 KLOC into 61 KB bytecode (read 0.00s, parse 0.00s, compile 0.00s)"
+  },
+  {
+    "path": "ServerScriptService\\Core\\AreaBuilder.lua",
+    "ok": true,
+    "output": "Compiled 0 KLOC into 18 KB bytecode (read 0.00s, parse 0.00s, compile 0.00s)"
+  },
+  {
+    "path": "StarterPlayer\\StarterPlayerScripts\\AutoMinerar.lua",
+    "ok": true,
+    "output": "Compiled 0 KLOC into 13 KB bytecode (read 0.00s, parse 0.00s, compile 0.00s)"
+  },
+  {
+    "path": "StarterPlayer\\StarterPlayerScripts\\ExpeditionClient.lua",
+    "ok": true,
+    "output": "Compiled 1 KLOC into 78 KB bytecode (read 0.00s, parse 0.00s, compile 0.00s)"
+  },
+  {
+    "path": "StarterPlayer\\StarterPlayerScripts\\IslandTransition.lua",
+    "ok": true,
+    "output": "Compiled 0 KLOC into 6 KB bytecode (read 0.00s, parse 0.00s, compile 0.00s)"
+  },
+  {
+    "path": "StarterPlayer\\StarterPlayerScripts\\MineracaoVisual.lua",
+    "ok": true,
+    "output": "Compiled 0 KLOC into 20 KB bytecode (read 0.00s, parse 0.00s, compile 0.00s)"
+  },
+  {
+    "path": "StarterPlayer\\StarterPlayerScripts\\PetsSeguidores.lua",
+    "ok": true,
+    "output": "Compiled 0 KLOC into 10 KB bytecode (read 0.00s, parse 0.00s, compile 0.00s)"
+  }
+]

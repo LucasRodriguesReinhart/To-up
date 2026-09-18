@@ -1,0 +1,449 @@
+--- a/ReplicatedStorage/ExpeditionUI/Menus.lua
++++ b/ReplicatedStorage/ExpeditionUI/Menus.lua
+@@ -3,6 +3,7 @@
+ local Config = require(game.ReplicatedStorage.Config)
+ local Mon = require(game.ReplicatedStorage:WaitForChild("MonetizacaoConfig"))
+ local Players = game:GetService("Players")
++local AudioPreferences = require(game.ReplicatedStorage:WaitForChild("AudioPreferences"))
+ local P, M = T.P, {}
+ local WHITE = Color3.new(1, 1, 1)
+ local GAP = 12
+@@ -577,11 +578,16 @@
+ 	local unlocked = hasArea(ctx, selected)
+ 	action(ctx, p, "ClaimAll", #ready > 0 and ("Resgatar " .. #ready .. " missões") or "Nenhuma pronta", narrow and 0 or w - 220, narrow and 64 or 0, narrow and w or 220, 52, function()
+ 		local received = 0
+-		for _, quest in ipairs(ready) do
+-			local res = ctx.invoke("ResgatarMissao", quest.id)
+-			if res and res.ok then received += quest.premio end
+-		end
+-		if received > 0 then ctx.coinBurst(received) end
++		ctx.batchQuestAudio = true
++		local batchOK, batchError = pcall(function()
++			for _, quest in ipairs(ready) do
++				local res = ctx.invoke("ResgatarMissao", quest.id)
++				if res and res.ok then received += quest.premio end
++			end
++		end)
++		ctx.batchQuestAudio = false
++		if not batchOK then error(batchError) end
++		if received > 0 then T.som("quest_complete"); ctx.coinBurst(received) end
+ 		ctx.refresh()
+ 	end, unlocked and #ready > 0, "Complete os objetivos para liberar as recompensas.", P.accent, "ClaimQuests")
+ 	if not narrow then text(p, "Hint", "Complete objetivos nesta ilha e resgate as moedas de cada missão.", 0, 62, w, 24, 14, P.text2) end
+@@ -630,9 +636,66 @@
+ 	local cw = w - 14
+ 	local twoColumns = cw >= 900
+ 	local colW = twoColumns and (cw - 24) / 2 or cw
+-	local y = T.section(scroll, "Preferências", 0, 0, colW, P.accent)
++	local player = Players.LocalPlayer
++	local y = T.section(scroll, "Mixagem de áudio", 0, 0, colW, P.accent)
++	local volumeDefs = {
++		{ "AudioMasterVolume", "Volume geral", "Controla toda a mixagem" },
++		{ "AudioMusicVolume", "Música", "Trilhas do lobby e das ilhas" },
++		{ "AudioSFXVolume", "Efeitos do jogo", "Mineração, recompensas e mundo" },
++		{ "AudioUIVolume", "Interface", "Cliques, menus e confirmações" },
++		{ "AudioAmbienceVolume", "Ambiente", "Vento, portais e forja" },
++	}
++	for _, def in ipairs(volumeDefs) do
++		local key = def[1]
++		local row = panel(scroll, "Setting_" .. key, 0, y, colW, 120)
++		label(row, "Name", def[2], 16, 10, colW - 112, 24, 17)
++		text(row, "Description", def[3], 16, 35, colW - 32, 21, 13, P.text2)
++		local valueLabel = text(row, "Percentage", "", colW - 88, 10, 72, 24, 17, P.accent, T.RIGHT, "number")
++		local bar = T.progress(row, "Level", 84, 85, colW - 168, 8, 0, P.accent)
++		local function current()
++			local value = AudioPreferences.value(key, player:GetAttribute(key))
++			return value == nil and AudioPreferences.defaults[key] or value
++		end
++		local minus = T.button(row, "Decrease", "−", 16, 59, 52, 52, P.neutral, function()
++			ctx.setAudioPreference(key, current() - .05)
++		end, { size = 24 })
++		local plus = T.button(row, "Increase", "+", colW - 68, 59, 52, 52, P.neutral, function()
++			ctx.setAudioPreference(key, current() + .05)
++		end, { size = 24 })
++		T.hint(minus, "Diminuir " .. string.lower(def[2]) .. " em 5%", "above")
++		T.hint(plus, "Aumentar " .. string.lower(def[2]) .. " em 5%", "above")
++		local function update()
++			local value = current()
++			valueLabel.Text = tostring(math.round(value * 100)) .. "%"
++			T.setProgress(bar, value, P.accent, .12)
++			T.setEnabled(minus, value > 0)
++			T.setEnabled(plus, value < 1)
++		end
++		local changed = player:GetAttributeChangedSignal(key):Connect(update)
++		row.Destroying:Connect(function() changed:Disconnect() end)
++		update()
++		y += 130
++	end
++	T.button(scroll, "ResetAudio", "Restaurar áudio padrão", 0, y, colW, 48, P.neutral, function()
++		for key, value in pairs(AudioPreferences.defaults) do ctx.setAudioPreference(key, value) end
++		ctx.refresh()
++	end, { size = 16, sound = "ui_confirm" })
++	y += 58
++	local status = T.para(scroll, "AudioSaveState", "", 0, y, colW, 48, 13, P.text3, T.LEFT)
++	ctx.audioSettingsStatus = function()
++		if not status.Parent then return end
++		local state = ctx.audioSaveStatus
++		status.Text = state == "pending" and "Áudio aplicado. Atualizando suas preferências..."
++			or state == "profile" and "Áudio será salvo automaticamente com seu progresso."
++			or state == "session" and "Áudio aplicado nesta sessão. O perfil atual não tem salvamento disponível."
++			or state == "error" and "Áudio aplicado localmente. Não foi possível atualizar o perfil; ajuste novamente para tentar."
++			or "Carregando as preferências de áudio do seu perfil..."
++	end
++	ctx.audioSettingsStatus()
++	y += 60
++	y += T.section(scroll, "Ativar ou silenciar", 0, y, colW, P.accent)
+ 	local defs = {
+-		{ "MusicEnabled", "Música das ilhas", "Trilha sonora do ambiente", true },
++		{ "MusicEnabled", "Música das ilhas", "Liga ou desliga a trilha sonora", true },
+ 		{ "SomMineracaoEnabled", "Sons de mineração", "Golpes, quebras e coleta", true },
+ 		{ "SomInterfaceEnabled", "Sons da interface", "Cliques, abas e confirmação", true },
+ 		{ "LobbyVFXEnabled", "Efeitos do ambiente", "Partículas e efeitos do cenário", true },
+@@ -640,13 +703,17 @@
+ 		{ "ExpeditionBlurEnabled", "Desfoque de fundo", "Desfoca o cenário ao abrir menus", true },
+ 		{ "ReducedMotion", "Movimento reduzido", "Reduz escalas, tremores e transições", false },
+ 	}
+-	for _, def in ipairs(defs) do
++	for i, def in ipairs(defs) do
++		if i == 4 then y += T.section(scroll, "Efeitos visuais", 0, y, colW, P.accent) end
+ 		local row = panel(scroll, "Setting_" .. def[1], 0, y, colW, 74)
+ 		label(row, "Name", def[2], 16, 12, colW - 118, 24, 17)
+ 		text(row, "Description", def[3], 16, 40, colW - 118, 20, 14, P.text2)
+-		local value = Players.LocalPlayer:GetAttribute(def[1])
++		local value = player:GetAttribute(def[1])
+ 		local on = value == true or (value == nil and def[4])
+-		T.toggle(row, "Toggle", colW - 84, 19, on, function(state) Players.LocalPlayer:SetAttribute(def[1], state) end)
++		T.toggle(row, "Toggle", colW - 84, 19, on, function(state)
++			if AudioPreferences.defaults[def[1]] ~= nil then ctx.setAudioPreference(def[1], state)
++			else player:SetAttribute(def[1], state) end
++		end)
+ 		y += 84
+ 	end
+ 	local rx, ry = twoColumns and colW + 24 or 0, twoColumns and 0 or y + 16
+@@ -683,8 +750,8 @@
+ 		text(scroll, "Shortcut_" .. i, entry[2], rx + 62, yy, colW - 62, 32, 15, P.text2)
+ 	end
+ 	local endY = math.max(y, keyY + #keys * 42)
+-	text(scroll, "SavedHint", "Preferências aplicadas neste dispositivo durante a sessão.", 0, endY + 10, cw, 24, 13, P.text3)
+-	scroll.CanvasSize = UDim2.fromOffset(0, endY + 48)
++	T.para(scroll, "SavedHint", "Efeitos visuais e movimento são aplicados durante a sessão.", 0, endY + 10, cw, 44, 13, P.text3, T.LEFT)
++	scroll.CanvasSize = UDim2.fromOffset(0, endY + 64)
+ end
+ 
+ local DAILY_ICON = { moedas = "coins", boost = "potion", pet = "units", hats = "items" }
+--- a/StarterPlayer/StarterPlayerScripts/ExpeditionClient.lua
++++ b/StarterPlayer/StarterPlayerScripts/ExpeditionClient.lua
+@@ -14,6 +14,7 @@
+ local Config = require(RS:WaitForChild("Config"))
+ local Mon = require(RS:WaitForChild("MonetizacaoConfig"))
+ local Som = require(RS:WaitForChild("SomJogo"))
++local AudioPreferences = require(RS:WaitForChild("AudioPreferences"))
+ local modules = RS:WaitForChild("ExpeditionUI")
+ local T = require(modules.Theme)
+ local Notify = require(modules.Notify)
+@@ -68,6 +69,72 @@
+ screen:SetAttribute("OpenPage","")
+ screen:SetAttribute("PopupOpen",false)
+ ctx.T, ctx.Notify = T, Notify
++
++-- Apply locally at once; coalesce rapid +/- presses into a small profile patch.
++-- Only the audio whitelist is persisted. Other visual preferences remain session-local.
++local pendingAudio, failedAudio, audioWorker = {}, {}, false
++local audioHydrated = false
++ctx.audioSaveStatus = "loading"
++for key, default in pairs(AudioPreferences.defaults) do
++	if AudioPreferences.value(key, player:GetAttribute(key)) == nil then player:SetAttribute(key, default) end
++end
++local function audioStatus(status)
++	ctx.audioSaveStatus = status
++	if ctx.audioSettingsStatus then ctx.audioSettingsStatus() end
++end
++function ctx.setAudioPreference(key, value)
++	value = AudioPreferences.value(key, value)
++	if value == nil then return end
++	player:SetAttribute(key, value)
++	for failedKey, failedValue in pairs(failedAudio) do
++		if pendingAudio[failedKey] == nil then pendingAudio[failedKey] = failedValue end
++	end
++	failedAudio = {}
++	pendingAudio[key] = value
++	audioStatus("pending")
++	if audioWorker then return end
++	audioWorker = true
++	task.spawn(function()
++		task.wait(.35)
++		while alive and next(pendingAudio) do
++			local patch = pendingAudio
++			pendingAudio = {}
++			local remote = R:FindFirstChild("AtualizarAudioProfile") or R:WaitForChild("AtualizarAudioProfile", 5)
++			local ok, result = false, nil
++			for attempt = 1, 3 do
++				if remote and remote:IsA("RemoteFunction") then
++					ok, result = pcall(function() return remote:InvokeServer(patch) end)
++				end
++				if ok and type(result) == "table" and result.ok then break end
++				if attempt < 3 then task.wait(.6) end
++			end
++			if not alive then break end
++			if ok and type(result) == "table" and result.ok then
++				local confirmed = AudioPreferences.sanitize(result.audio)
++				for key, value in pairs(confirmed) do
++					-- A response for an older press must not roll back newer local input.
++					if pendingAudio[key] == nil then player:SetAttribute(key, value) end
++				end
++				ctx.audioPersistent = result.persistent == true
++				audioStatus(next(pendingAudio) and "pending" or (ctx.audioPersistent and "profile" or "session"))
++			else
++				-- Retain failed fields for the next deliberate edit, without a retry loop.
++				for key, value in pairs(patch) do
++					if pendingAudio[key] == nil then failedAudio[key] = value end
++				end
++				if next(pendingAudio) then
++					for key, value in pairs(failedAudio) do
++						if pendingAudio[key] == nil then pendingAudio[key] = value end
++					end
++					failedAudio = {}
++				end
++				audioStatus("error")
++			end
++			task.wait(.35)
++		end
++		audioWorker = false
++	end)
++end
+ 
+ T.setTooltipLayer(tipLayer, function() return scale.Scale end)
+ -- com uma janela aberta o HUD fica atrás do fundo escuro: nada de dica dele aparecendo por cima
+@@ -231,7 +298,7 @@
+ 		end
+ 		details.CanvasSize = UDim2.fromOffset(0, detailHeight)
+ 		local bw = (w - 12) / 2
+-		T.button(p, "Cancel", opts.cancelText or "Cancelar", 0, h - 52, bw, 52, P.neutral, closePopup)
++		T.button(p, "Cancel", opts.cancelText or "Cancelar", 0, h - 52, bw, 52, P.neutral, closePopup, { sound = "ui_cancel" })
+ 		local ok = T.button(p, "Confirm", opts.confirmText or "Confirmar", bw + 12, h - 52, bw, 52, opts.tone or P.success, function()
+ 			if used then return end
+ 			used = true
+@@ -261,7 +328,7 @@
+ 			T.tween(c, .44, { Position = UDim2.fromOffset(tx - 15, ty - 15), Size = UDim2.fromOffset(30, 30) }, Enum.EasingStyle.Quint, Enum.EasingDirection.In)
+ 			task.delay(.44, function()
+ 				c:Destroy()
+-				if i % 2 == 1 then Som.tocar("coin_tick") end
++				-- Visual particles do not emit extra coins: the confirmed reward owns its audio.
+ 				if wallet.Parent then T.pop(wallet, 1.05, .16) end
+ 			end)
+ 		end)
+@@ -317,17 +384,23 @@
+ 		local a = Config.areaPorId(args[1])
+ 		Notify.banner({ title = "ILHA DESBLOQUEADA!", subtitle = a and a.nome or "", color = P.teal, sound = false, big = true, duration = 2.4 })
+ 	elseif name == "ComprarPicareta" or name == "ComprarMochila" then
+-		Som.tocar("upgrade")
++		Som.tocar(res.upgradeMax and "upgrade_max" or "upgrade")
+ 		local def = name == "ComprarPicareta" and Config.picaretaPorId(args[1]) or Config.mochilaPorId(args[1])
+ 		Notify.banner({ title = "UPGRADE!", subtitle = def and def.nome or "", color = P.gold, sound = false, duration = 2 })
+ 	elseif name == "AlimentarPet" or name == "FundirHat" then
+-		if res.levelUp and res.nivelAntes and res.nivel then Som.tocar("level_up"); ctx.levelUp(res) else Som.tocar("ui_compra") end
++		local maximum = res.upgradeMax or (name == "AlimentarPet" and res.nivel and res.nivel >= Config.PET_NIVEL_MAX)
++		Som.tocar(maximum and "upgrade_max" or (res.levelUp and "level_up" or "forge_success"))
++		if res.levelUp and res.nivelAntes and res.nivel then ctx.levelUp(res) end
+ 	elseif name == "EquiparHat" or name == "EquiparPet" or name == "EquiparPicareta" or name == "EquiparMelhores" or name == "EquiparMelhoresPets" then
+-		Som.tocar("ui_equipar")
+-	elseif name == "ResgatarMissao" or name == "ResgatarDaily" or name == "ResgatarCodigo" then
++		Som.tocar(res.equipped == false and "ui_desequipar" or "ui_equipar")
++	elseif name == "DesequiparTodos" or name == "DesequiparPets" then
++		Som.tocar("ui_desequipar")
++	elseif name == "ResgatarMissao" then
++		if not ctx.batchQuestAudio then Som.tocar("quest_complete") end
++	elseif name == "ResgatarDaily" or name == "ResgatarCodigo" then
+ 		Som.tocar("reward_banner")
+ 	elseif name ~= "RolarGacha" and name ~= "UITravel" and name ~= "ComprarRobux" then
+-		Som.tocar("ui_compra")
++		Som.tocar("ui_confirm")
+ 	end
+ 	if res.msg and name ~= "RolarGacha" then ctx.toast(res.msg, nil, (name:find("Resgatar") or name:find("Comprar")) and "reward" or "success") end
+ 	return res
+@@ -493,7 +566,7 @@
+ 	resetHudScale()
+ 	task.delay(.3, resetHudScale) -- o "soltar" do clique ainda anima o botão por .24s
+ 	screen:SetAttribute("OpenPage", page)
+-	Som.tocar("ui_abrir")
++	Som.tocar(page == "Forge" and "forge_interact" or (wasOpen and "ui_tab" or "ui_abrir"))
+ 	drawWindow(not wasOpen)
+ 	updateBlur()
+ end
+@@ -512,7 +585,6 @@
+ 
+ function ctx.travel(action, id, keepMenu)
+ 	if actionBusy.UITravel then return end
+-	Som.tocar("portal_saida")
+ 	local result = ctx.invoke("UITravel", action, id)
+ 	if result and result.ok then
+ 		if keepMenu then
+@@ -525,8 +597,9 @@
+ end
+ 
+ -- ---------------------------------------------------------------- INVOCAÇÃO
+-local function showResults(results, count)
++local function showResults(results, count, playAudio)
+ 	if #results == 0 then return end
++	playAudio = playAudio ~= false
+ 	local desiredCols = math.min(#results, ctx.portrait and 2 or 5)
+ 	local width = math.max(460, desiredCols * 170 + (desiredCols - 1) * 12 + 54)
+ 	local height = math.ceil(#results / desiredCols) * 244 + 150
+@@ -535,6 +608,7 @@
+ 		local rr = T.rar(r.raridade)
+ 		if not best or rr.ordem > T.rar(best.raridade).ordem then best = r end
+ 	end
++	local revealPlayed, rarityPlayed = false, false
+ 	ctx.popup("Invocação concluída", function(p, w, h, reflow)
+ 		local gap = 12
+ 		local available = w - 14
+@@ -582,9 +656,16 @@
+ 						local nc, nw = T.chip(card, "New", "NOVO!", 0, 8, 24, P.success, { solid = true, size = 13 })
+ 						nc.Position = UDim2.fromOffset(cw - nw - 8, 8)
+ 					end
+-					if not reflow then
+-						T.pop(card, high and 1.18 or 1.08, .3)
+-						Som.drop(result.raridade)
++					if not reflow then T.pop(card, high and 1.18 or 1.08, .3) end
++					if playAudio then
++						-- One rarity signature for the best item, even for x10 summons.
++						if result == best and not rarityPlayed then
++							rarityPlayed = true
++							Som.drop(result.raridade)
++						elseif not revealPlayed and not rarityPlayed then
++							revealPlayed = true
++							Som.tocar("summon_reveal")
++						end
+ 					end
+ 				end)
+ 			end)
+@@ -598,6 +679,7 @@
+ 			local bd = Config.petPorId(best.petId)
+ 			local br = T.rar(best.raridade)
+ 			task.delay(delay + .5, function()
++				if not s.Parent or not popupOpen then return end
+ 				Notify.banner({ title = T.upper(br.nome) .. "!", subtitle = bd and bd.nome or "", color = br.cor, sound = false, big = br.ordem >= 6, duration = 2.2 })
+ 			end)
+ 		end
+@@ -605,7 +687,7 @@
+ end
+ 
+ function ctx.showLastSummon()
+-	if ctx.lastSummonResults then showResults(ctx.lastSummonResults,ctx.lastSummonCount or #ctx.lastSummonResults) end
++	if ctx.lastSummonResults then showResults(ctx.lastSummonResults,ctx.lastSummonCount or #ctx.lastSummonResults,false) end
+ end
+ 
+ function ctx.nearBanner(areaId)
+@@ -633,7 +715,6 @@
+ 	end
+ 	ctx.summonBusy = true
+ 	ctx.cancelSummon = false
+-	Som.tocar("invocar_inicio")
+ 	local results = {}
+ 	ctx.refresh()
+ 	task.spawn(function()
+@@ -647,9 +728,11 @@
+ 				if result and not result.ok and result.msg and result.msg:find("Calma") then task.wait(.35) else break end
+ 			end
+ 			if not result or not result.ok then
++				Som.tocar("ui_erro")
+ 				if result and result.msg and not result.msg:find("Calma") then ctx.toast(result.msg, nil, "error") end
+ 				break
+ 			end
++			if #results == 0 then Som.tocar("invocar_inicio") end
+ 			table.insert(results, result)
+ 			if i < count then task.wait(.66) end
+ 		end
+@@ -658,7 +741,14 @@
+ 		ctx.refresh()
+ 		ctx.lastSummonResults,ctx.lastSummonCount=results,count
+ 		if ctx.page=="Summon" and not ctx.cancelSummon then showResults(results,count)
+-		elseif #results>0 then ctx.toast(tostring(#results).." unidade(s) recebida(s). Veja o último resultado em Invocar.",nil,"reward") end
++		elseif #results>0 then
++			local best = results[1]
++			for _, result in ipairs(results) do
++				if T.rar(result.raridade).ordem > T.rar(best.raridade).ordem then best = result end
++			end
++			Som.drop(best.raridade)
++			ctx.toast(tostring(#results).." unidade(s) recebida(s). Veja o último resultado em Invocar.",nil,"reward")
++		end
+ 	end)
+ end
+ 
+@@ -1148,10 +1238,34 @@
+ 	part.Transparency = unlocked and .9 or .65
+ end
+ 
++local function completeCollection(data, kind, definitions)
++	local known = data.index and data.index[kind]
++	if type(known) ~= "table" or #definitions == 0 then return false end
++	for _, definition in ipairs(definitions) do if not known[definition.id] then return false end end
++	return true
++end
++
+ local function acceptData(data)
+ 	if type(data) ~= "table" or type(data.hatsInv) ~= "table" or type(data.petsInv) ~= "table" then return end
++	local previous, previousClock = ctx.data, ctx.dataClock
+ 	ctx.data = data
+ 	ctx.dataClock = os.clock()
++	if not audioHydrated then
++		audioHydrated = true
++		local preferences = AudioPreferences.sanitize(data.audio)
++		for key, value in pairs(preferences) do
++			if pendingAudio[key] == nil and not audioWorker then player:SetAttribute(key, value) end
++		end
++		ctx.audioPersistent = data.audioPersistent == true
++		if not audioWorker then audioStatus(ctx.audioPersistent and "profile" or "session") end
++	end
++	if previous and previous.boosts and data.boosts then
++		local elapsed = ctx.dataClock - (previousClock or ctx.dataClock)
++		for _, key in ipairs({ "sorte", "moedas" }) do
++			local before = math.max(0, (previous.boosts[key] or 0) - elapsed)
++			if (data.boosts[key] or 0) > before + 5 then Som.tocar("boost"); break end
++		end
++	end
+ 	hydrated = true
+ 	updateHUD()
+ 	local areas = workspace:FindFirstChild("Areas")
+@@ -1159,6 +1273,19 @@
+ 	if areas and ctx.areaSignature~=areaSig then ctx.areaSignature=areaSig;for _,d in ipairs(areas:GetDescendants()) do if d.Name=="Barreira" then barrier(d) end end end
+ 	local signature = inventorySignature(data)
+ 	if signature ~= lastInventorySignature then
++		if previous then
++			local completed = {}
++			for _, collection in ipairs({ { "pets", Config.Pets, "Unidades" }, { "hats", Config.Hats, "Hats" } }) do
++				if completeCollection(data, collection[1], collection[2]) and not completeCollection(previous, collection[1], collection[2]) then
++					table.insert(completed, collection[3])
++				end
++			end
++			if #completed > 0 then
++				-- The existing banner queue waits for reveal/menu closure before the milestone cue.
++				Notify.banner({ title = "COLEÇÃO COMPLETA!", subtitle = table.concat(completed, " · ") .. " descobertos no Index",
++					color = P.gold, sound = "achievement", big = true, duration = 2.8 })
++			end
++		end
+ 		lastInventorySignature = signature
+ 		if ctx.page and not ctx.summonBusy then ctx.refresh() end
+ 	elseif ctx.page == "Forge" or ctx.page == "Quests" or ctx.page == "Events" or ctx.page == "Store" or ctx.page == "Areas" then
+@@ -1202,6 +1329,12 @@
+ 		if hudRefs.bagPanel then T.shake(hudRefs.bagPanel, 7) end
+ 	elseif info.tipo == "bloqueada" then
+ 		ctx.toast(info.texto, nil, "warning")
++	elseif info.tipo == "venda" then
++		if type(info.ganho) == "number" and info.ganho > 0 and info.ganho < math.huge then
++			Som.venda(info.ganho, info.itens)
++			ctx.coinBurst(info.ganho)
++			ctx.toast(info.texto or ("+" .. T.format(info.ganho) .. " moedas"), nil, "reward")
++		end
+ 	elseif info.tipo == "area" then
+ 		local texto = tostring(info.texto or "")
+ 		ctx.toast(texto, nil, (texto:find("moedas") or texto:find("Compra")) and "reward" or "info")
+@@ -1215,7 +1348,7 @@
+ 	if Config.Gachas[id] then ctx.bannerArea = id; if ctx.page ~= "Summon" then ctx.open("Summon") else ctx.refresh() end end
+ end)
+ connect(player:GetAttributeChangedSignal("CurrentAreaId"),function()
+-	Som.tocar("portal_chegada")
++	-- IslandTransition owns arrival audio at the actual transition, not at replication time.
+ 	local id = player:GetAttribute("CurrentAreaId")
+ 	local a = id and Config.areaPorId(id)
+ 	local tema = a and Config.Temas[a.tema]

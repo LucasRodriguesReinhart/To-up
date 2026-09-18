@@ -1,0 +1,116 @@
+[
+  {
+    "path": "ReplicatedStorage\\AudioCatalog.lua",
+    "passed": true,
+    "errors": "Compiled 0 KLOC into 9 KB bytecode (read 0.00s, parse 0.00s, compile 0.00s)",
+    "sha256": "B3943514E40231E0FC36105D103CF8826AB23D9ADFF5A0411B23AB04CECA1AE3"
+  },
+  {
+    "path": "ReplicatedStorage\\AudioPreferences.lua",
+    "passed": true,
+    "errors": "Compiled 0 KLOC into 1 KB bytecode (read 0.00s, parse 0.00s, compile 0.00s)",
+    "sha256": "612AAB16A926EFFC2661B2BB709CC650939FF7062D68F85517C6B7037DCA919A"
+  },
+  {
+    "path": "ReplicatedStorage\\MiningSwing.lua",
+    "passed": true,
+    "errors": "Compiled 0 KLOC into 3 KB bytecode (read 0.00s, parse 0.00s, compile 0.00s)",
+    "sha256": "4A341CFFE15A9B3C6096E1D9A5418C0ECA807B055219F308852F38D7A7273570"
+  },
+  {
+    "path": "ReplicatedStorage\\SomJogo.lua",
+    "passed": true,
+    "errors": "Compiled 0 KLOC into 21 KB bytecode (read 0.00s, parse 0.00s, compile 0.00s)",
+    "sha256": "65FA22D7ECBD6C90AC401B77CF4B566F7CA491A1B8593048B54078D6E3B66B09"
+  },
+  {
+    "path": "ReplicatedStorage\\ExpeditionUI\\Menus.lua",
+    "passed": true,
+    "errors": "Compiled 0 KLOC into 66 KB bytecode (read 0.00s, parse 0.00s, compile 0.00s)",
+    "sha256": "9312E0779DFED1D8CFEBE944B6F4131F0EC0708110DE9A081F9C2AFB5097A3E0"
+  },
+  {
+    "path": "ServerScriptService\\Core\\Codigos.lua",
+    "passed": true,
+    "errors": "Compiled 0 KLOC into 2 KB bytecode (read 0.00s, parse 0.00s, compile 0.00s)",
+    "sha256": "C2F0209177C5D41FF19851F85DB46761F41148C362BCEB9C6156CDE75B70C1F3"
+  },
+  {
+    "path": "ServerScriptService\\Core\\IgnisService.lua",
+    "passed": true,
+    "errors": "Compiled 0 KLOC into 8 KB bytecode (read 0.00s, parse 0.00s, compile 0.00s)",
+    "sha256": "2086AF2D7BD1E052D67510049C7ED222F2D338400D4D52F31C12F671DDD996EE"
+  },
+  {
+    "path": "ServerScriptService\\Core\\Main.lua",
+    "passed": true,
+    "errors": "Compiled 0 KLOC into 18 KB bytecode (read 0.00s, parse 0.00s, compile 0.00s)",
+    "sha256": "6EB02483B7C87AF0067B5EC542C928C82912F96B292A215DD364A0C75BED9178"
+  },
+  {
+    "path": "ServerScriptService\\Core\\Mineracao.lua",
+    "passed": true,
+    "errors": "Compiled 0 KLOC into 14 KB bytecode (read 0.00s, parse 0.00s, compile 0.00s)",
+    "sha256": "460A8585191F33AA1CD55375E24F59AD1EA0FD8ACB39C325468991969E5BA509"
+  },
+  {
+    "path": "ServerScriptService\\Core\\PlayerData.lua",
+    "passed": true,
+    "errors": "Compiled 0 KLOC into 19 KB bytecode (read 0.00s, parse 0.00s, compile 0.00s)",
+    "sha256": "6DA2C8E5F12B320A862A7F3EAD088DEF84DE2ACB91642A75268FFF3CD2A7DCC7"
+  },
+  {
+    "path": "ServerScriptService\\Core\\Recompensas.lua",
+    "passed": true,
+    "errors": "Compiled 0 KLOC into 5 KB bytecode (read 0.00s, parse 0.00s, compile 0.00s)",
+    "sha256": "2AF4D5711B6CE91EE5564DF0F97B41027B9198400B50CF4FF29A61BF402AE69A"
+  },
+  {
+    "path": "ServerScriptService\\Core\\Retencao.lua",
+    "passed": true,
+    "errors": "Compiled 0 KLOC into 3 KB bytecode (read 0.00s, parse 0.00s, compile 0.00s)",
+    "sha256": "048C613E7372205BF5BE60F52591F61FC77FF896B36A22AF935C034016ED7324"
+  },
+  {
+    "path": "StarterPlayer\\StarterPlayerScripts\\AreaAtmosphere.lua",
+    "passed": true,
+    "errors": "Compiled 0 KLOC into 4 KB bytecode (read 0.00s, parse 0.00s, compile 0.00s)",
+    "sha256": "788F17226A1E89BCE86D70579C343B08DA59C3D489C952F88D036C9106DF2093"
+  },
+  {
+    "path": "StarterPlayer\\StarterPlayerScripts\\AudioWorld.lua",
+    "passed": true,
+    "errors": "Compiled 0 KLOC into 3 KB bytecode (read 0.00s, parse 0.00s, compile 0.00s)",
+    "sha256": "223310538E5D28A18F705F47DCA566B555B96BCC95AE70BF894E972C5B2E2975"
+  },
+  {
+    "path": "StarterPlayer\\StarterPlayerScripts\\ExpeditionClient.lua",
+    "passed": true,
+    "errors": "Compiled 1 KLOC into 78 KB bytecode (read 0.00s, parse 0.00s, compile 0.00s)",
+    "sha256": "50F785402FE0552A7DF7B0E8596A60FC97B6AE2B7419EAAC42987322DDBC7125"
+  },
+  {
+    "path": "StarterPlayer\\StarterPlayerScripts\\IslandTransition.lua",
+    "passed": true,
+    "errors": "Compiled 0 KLOC into 6 KB bytecode (read 0.00s, parse 0.00s, compile 0.00s)",
+    "sha256": "DD5D98F55291ED21C2B7098B3661DFEC356897D34D5FB99A49B6A9D1C0E8BC37"
+  },
+  {
+    "path": "StarterPlayer\\StarterPlayerScripts\\LocomocaoBigAxe.lua",
+    "passed": true,
+    "errors": "Compiled 0 KLOC into 17 KB bytecode (read 0.00s, parse 0.00s, compile 0.00s)",
+    "sha256": "F136A9551C427850A962B05E2E79A94E3771558EEC2081C412EB251957A9DC92"
+  },
+  {
+    "path": "StarterPlayer\\StarterPlayerScripts\\MineracaoVisual.lua",
+    "passed": true,
+    "errors": "Compiled 0 KLOC into 20 KB bytecode (read 0.00s, parse 0.00s, compile 0.00s)",
+    "sha256": "219E06C74B33D6BECB651BFB65E1B746E2C9BB5BB2141CEF9BB642FB943E36FD"
+  },
+  {
+    "path": "Workspace\\NPCs\\Ignis\\IgnisForjando.lua",
+    "passed": true,
+    "errors": "Compiled 0 KLOC into 2 KB bytecode (read 0.00s, parse 0.00s, compile 0.00s)",
+    "sha256": "466AA072BC492344958255C115BBE49FAF4E350E0469F775E0F0332A1B99C6FD"
+  }
+]
