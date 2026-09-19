@@ -1,63 +1,69 @@
--- montar_pavilhao.lua - GERADO por script a partir de export/kit_meshes.json + export/placements.json. Nao editar a mao.
--- Pre-requisito: o FBX KIT_FORJA_CELESTE importado UMA vez (Home > Import 3D) como Model "KIT_FORJA_CELESTE" no workspace.
--- Monta o Pavilhao-Modelo do Gate 1 clonando cada malha unica (mantem o instancing) e cria a colisao em Parts invisiveis.
--- Eixos: Blender (x,y,z) -> Roblox (-x, z, y); rotacao em Z do Blender = rotacao em Y do Roblox; a MeshPart fica no
--- CENTRO da caixa envolvente, entao cada colocacao soma o centro local (escalado) depois da rotacao.
-local ORIGEM = Vector3.new(440, 0, 0)   -- fora da planta B2 e livre (conferido no Studio: 0 pecas, 0 terreno); o pavilhao e amostra do kit
--- usa o kit mais novo que existir: o v2 (ouro/pedra/creme/tronco corrigidos) tem prioridade sobre o v1
-local KIT = workspace:FindFirstChild("KIT_FORJA_CELESTE_v2") or workspace:FindFirstChild("KIT_FORJA_CELESTE")
-assert(KIT, "importe o FBX do kit primeiro (Model KIT_FORJA_CELESTE_v2 ou KIT_FORJA_CELESTE no workspace)")
-print("montando a partir de " .. KIT.Name)
+-- montar_pavilhao.lua - GERADO por kit/gerar_montagem.py. NAO editar a mao: corrija o gerador e rode de novo.
+-- Pre-requisito: o FBX do kit importado UMA vez (Home > Import 3D). Monta a amostra do Gate 1 clonando cada malha unica
+-- (mantem o instancing) e cria a colisao em Parts invisiveis. Eixos: Blender (x,y,z) -> Roblox (-x, z, y); rotacao em Z do
+-- Blender = rotacao em Y do Roblox; a MeshPart fica no CENTRO da caixa envolvente, entao soma-se o centro local escalado.
+local ORIGEM = Vector3.new(440, 0, 0)   -- fora da planta B2 e livre (conferido no Studio: 0 pecas, 0 terreno)
+local KIT
+for _, nome in ipairs({ "KIT_FORJA_CELESTE_v3", "KIT_FORJA_CELESTE_v2", "KIT_FORJA_CELESTE" }) do
+	KIT = workspace:FindFirstChild(nome); if KIT then break end
+end
+assert(KIT, "importe o FBX do kit primeiro (Model KIT_FORJA_CELESTE_v3 no workspace)")
 local old = workspace:FindFirstChild("PAVILHAO_MODELO_G1"); if old then old:Destroy() end
 local ROOT = Instance.new("Model"); ROOT.Name = "PAVILHAO_MODELO_G1"; ROOT.Parent = workspace
 local function B(x, y, z) return Vector3.new(-x, z, y) end
 local INFO = {
-	["KIT_agua_frente"] = { c = {0,-7.7006,29.1227}, t = {39.5676,15.5828,13.7946}, atlas = "A_TELHA", tris = 11691 },
-	["KIT_agua_lado"] = { c = {14.7627,0,29.1344}, t = {10.7254,30.5676,13.8063}, atlas = "A_TELHA", tris = 7882 },
-	["KIT_arbusto_a"] = { c = {0.1012,-0.1029,1.0368}, t = {4.4798,3.4026,1.9164}, atlas = "A_VEG", tris = 320 },
-	["KIT_arbusto_b"] = { c = {0.2345,-0.0756,1.0368}, t = {4.5054,3.2747,1.9164}, atlas = "A_VEG", tris = 320 },
-	["KIT_arquitrave"] = { c = {0,0,11.1918}, t = {9,1.68,3.6163}, atlas = "A_MAD1", tris = 3268 },
-	["KIT_bal_poste"] = { c = {0,0,2.4208}, t = {1.32,1.32,4.8416}, atlas = "A_PEDRA", tris = 1276 },
-	["KIT_bal_seg"] = { c = {2.065,0,2.4208}, t = {5.45,1.32,4.8416}, atlas = "A_PEDRA", tris = 2780 },
-	["KIT_bal_tambor"] = { c = {0,-1.3502,1.1876}, t = {0.92,2.7004,2.3752}, atlas = "A_PEDRA", tris = 812 },
-	["KIT_beiral_frente"] = { c = {0,-11.5056,24.1229}, t = {39.6566,7.4194,3.8464}, atlas = "A_MAD2", tris = 3100 },
-	["KIT_beiral_lado"] = { c = {15.8155,0,25.6231}, t = {7.705,30.6369,6.6111}, atlas = "A_MAD2", tris = 2094 },
-	["KIT_besta_0"] = { c = {0,0.1103,0.9161}, t = {0.92,1.7948,1.8323}, atlas = "A_PROPS", tris = 352 },
-	["KIT_besta_1"] = { c = {0,0.0362,0.9647}, t = {0.92,1.9429,1.9293}, atlas = "A_PROPS", tris = 352 },
-	["KIT_besta_2"] = { c = {0,0.1103,0.9161}, t = {0.92,1.7948,1.8323}, atlas = "A_PROPS", tris = 360 },
-	["KIT_chiwen"] = { c = {0.388,0,3.8633}, t = {7.8005,2.4288,7.7267}, atlas = "A_PROPS", tris = 3300 },
-	["KIT_chuishou"] = { c = {0,-0.1415,1.3976}, t = {1.7103,3.583,2.7952}, atlas = "A_PROPS", tris = 836 },
-	["KIT_col_base"] = { c = {0,0,0.75}, t = {3.9,3.9,1.5}, atlas = "A_PEDRA", tris = 856 },
-	["KIT_coluna"] = { c = {0,0,7.25}, t = {2.72,2.72,11.5}, atlas = "A_MAD1", tris = 1648 },
-	["KIT_cumeeira"] = { c = {0,0,36.98}, t = {19.2,2.2,2.42}, atlas = "A_TELHA", tris = 828 },
-	["KIT_dougong_canto"] = { c = {0.6036,-0.6036,2.26}, t = {8.0872,8.0872,4.52}, atlas = "A_DOUG", tris = 2972 },
-	["KIT_dougong_intermediario"] = { c = {0,0,1.93}, t = {4.88,3.8,3.86}, atlas = "A_DOUG", tris = 792 },
-	["KIT_dougong_principal"] = { c = {0,-1.06,2.26}, t = {6.88,5.92,4.52}, atlas = "A_DOUG", tris = 1400 },
-	["KIT_dougong_simples"] = { c = {0,0,1.23}, t = {4.88,2.05,2.46}, atlas = "A_DOUG", tris = 348 },
-	["KIT_escada"] = { c = {0,-5.0272,2.21}, t = {10.74,10.6545,4.42}, atlas = "A_PEDRA", tris = 1416 },
-	["KIT_espigao"] = { c = {14.961,-8.4116,31.2856}, t = {12.5088,17.7285,11.3407}, atlas = "A_TELHA", tris = 1012 },
-	["KIT_espigao_esp"] = { c = {14.961,8.4116,31.2856}, t = {12.5088,17.7285,11.3407}, atlas = "A_TELHA", tris = 1012 },
-	["KIT_forro_alpendre"] = { c = {0,0,-0.02}, t = {9.44,9.44,0.64}, atlas = "A_MAD2", tris = 2712 },
-	["KIT_imortal"] = { c = {0,-0.1273,1.12}, t = {0.92,2.3545,2.24}, atlas = "A_PROPS", tris = 256 },
-	["KIT_jardineira"] = { c = {0,0,0.975}, t = {4.8042,4.8042,1.95}, atlas = "A_PEDRA", tris = 1872 },
-	["KIT_lanterna_palacio"] = { c = {0,0,-3.245}, t = {3.84,3.3255,6.49}, atlas = "A_PROPS", tris = 2244 },
-	["KIT_lanterna_vermelha"] = { c = {0,0,-2.75}, t = {3.2951,3.1338,5.5}, atlas = "A_PROPS", tris = 2124 },
-	["KIT_pinheiro_a"] = { c = {-0.4468,-0.1363,5.1664}, t = {8.899,5.8306,10.7156}, atlas = "A_VEG", tris = 2064 },
-	["KIT_pinheiro_b"] = { c = {0.5166,0.0488,5.1664}, t = {9.8092,5.0251,10.7156}, atlas = "A_VEG", tris = 2064 },
-	["KIT_piso_mod"] = { c = {2.625,2.625,-0.2524}, t = {5.25,5.25,0.4952}, atlas = "A_PEDRA", tris = 768 },
-	["KIT_placa"] = { c = {0,0.93,0}, t = {5.2,2.74,2.5}, atlas = "A_MAD1", tris = 1592 },
-	["KIT_prancha"] = { c = {0,0,13.25}, t = {9,2.52,0.5}, atlas = "A_MAD1", tris = 132 },
-	["KIT_sumeru_canto"] = { c = {0,0,1.99}, t = {2.1,2.1,3.98}, atlas = "A_PEDRA", tris = 916 },
-	["KIT_sumeru_seg"] = { c = {2.415,-0.48,1.99}, t = {5.67,0.96,3.98}, atlas = "A_PEDRA", tris = 504 },
-	["KIT_tabua_dougong"] = { c = {0,0,4}, t = {9,0.4,8}, atlas = "A_MAD2", tris = 108 },
-	["KIT_terca"] = { c = {0,0,0.5}, t = {9,1.1,1}, atlas = "A_MAD2", tris = 132 },
-	["KIT_tufo_a"] = { c = {0.0596,0.1006,0.9109}, t = {1.439,1.3314,1.9104}, atlas = "A_VEG", tris = 416 },
-	["KIT_vao_janela"] = { c = {0,0,5.65}, t = {9,1.82,11.3}, atlas = "A_VAOS", tris = 7148 },
-	["KIT_vao_parede"] = { c = {0,0,5.65}, t = {9,1.92,11.3}, atlas = "A_VAOS", tris = 3472 },
-	["KIT_vao_porta"] = { c = {0,-0.19,5.65}, t = {7.1,1.3,11.3}, atlas = "A_VAOS", tris = 8736 },
-	["KIT_viga_alpendre"] = { c = {0,-4.5,10.95}, t = {1.26,9,1.62}, atlas = "A_MAD1", tris = 372 },
-	["KIT_viga_canto"] = { c = {16.5569,-10.1206,26.2026}, t = {8.3696,12.7871,5.3647}, atlas = "A_MAD2", tris = 288 },
-	["KIT_viga_canto_esp"] = { c = {16.5569,10.1206,26.2026}, t = {8.3696,12.7871,5.3647}, atlas = "A_MAD2", tris = 288 },
+	["KIT_agua_frente"] = { c = {0,-7.7006,29.1227}, t = {39.5676,15.5828,13.7946} },
+	["KIT_agua_lado"] = { c = {14.7627,0,29.1344}, t = {10.7254,30.5676,13.8063} },
+	["KIT_arbusto_a"] = { c = {0.1012,-0.1029,1.0368}, t = {4.4798,3.4026,1.9164} },
+	["KIT_arbusto_b"] = { c = {0.2345,-0.0756,1.0368}, t = {4.5054,3.2747,1.9164} },
+	["KIT_arquitrave"] = { c = {0,0,11.1918}, t = {9,1.68,3.6163} },
+	["KIT_bal_poste"] = { c = {0,0,2.4208}, t = {1.32,1.32,4.8416} },
+	["KIT_bal_seg"] = { c = {2.065,0,2.4208}, t = {5.45,1.32,4.8416} },
+	["KIT_bal_tambor"] = { c = {0,-1.3502,1.1876}, t = {0.92,2.7004,2.3752} },
+	["KIT_beiral_frente"] = { c = {0,-11.5056,24.1229}, t = {39.6566,7.4194,3.8464} },
+	["KIT_beiral_lado"] = { c = {15.8155,0,25.6231}, t = {7.705,30.6369,6.6111} },
+	["KIT_besta_0"] = { c = {0,0.1103,0.9161}, t = {0.92,1.7948,1.8323} },
+	["KIT_besta_1"] = { c = {0,0.0362,0.9647}, t = {0.92,1.9429,1.9293} },
+	["KIT_besta_2"] = { c = {0,0.1103,0.9161}, t = {0.92,1.7948,1.8323} },
+	["KIT_chiwen"] = { c = {0.388,0,3.8633}, t = {7.8005,2.4288,7.7267} },
+	["KIT_chuishou"] = { c = {0,-0.1415,1.3976}, t = {1.7103,3.583,2.7952} },
+	["KIT_col_base"] = { c = {0,0,0.75}, t = {3.9,3.9,1.5} },
+	["KIT_coluna"] = { c = {0,0,7.25}, t = {2.72,2.72,11.5} },
+	["KIT_cumeeira"] = { c = {0,0,36.98}, t = {19.2,2.2,2.42} },
+	["KIT_dougong_canto"] = { c = {0.6036,-0.6036,2.26}, t = {8.0872,8.0872,4.52} },
+	["KIT_dougong_intermediario"] = { c = {0,0,1.93}, t = {4.88,3.8,3.86} },
+	["KIT_dougong_principal"] = { c = {0,-1.06,2.26}, t = {6.88,5.92,4.52} },
+	["KIT_dougong_simples"] = { c = {0,0,1.23}, t = {4.88,2.05,2.46} },
+	["KIT_escada"] = { c = {0,-5.0272,2.21}, t = {10.74,10.6545,4.42} },
+	["KIT_espigao"] = { c = {14.961,-8.4116,31.2856}, t = {12.5088,17.7285,11.3407} },
+	["KIT_espigao_esp"] = { c = {14.961,8.4116,31.2856}, t = {12.5088,17.7285,11.3407} },
+	["KIT_estandarte"] = { c = {0,0,11.0952}, t = {5.0293,2.7716,22.1903} },
+	["KIT_forro_alpendre"] = { c = {0,0,-0.02}, t = {9.44,9.44,0.64} },
+	["KIT_imortal"] = { c = {0,-0.1273,1.12}, t = {0.92,2.3545,2.24} },
+	["KIT_jardineira"] = { c = {0,0,0.975}, t = {4.8042,4.8042,1.95} },
+	["KIT_lanterna_palacio"] = { c = {0,0,-3.245}, t = {3.84,3.3255,6.49} },
+	["KIT_lanterna_vermelha"] = { c = {0,0,-2.75}, t = {3.2951,3.1338,5.5} },
+	["KIT_muro_pilar"] = { c = {0,0,6.7}, t = {2.687,2.687,13.4} },
+	["KIT_muro_seg"] = { c = {0,0,5.195}, t = {9,3.8288,10.39} },
+	["KIT_pinheiro_a"] = { c = {-0.4468,-0.1363,5.1664}, t = {8.899,5.8306,10.7156} },
+	["KIT_pinheiro_b"] = { c = {0.5166,0.0488,5.1664}, t = {9.8092,5.0251,10.7156} },
+	["KIT_piso_mod"] = { c = {2.625,2.625,-0.2524}, t = {5.25,5.25,0.4952} },
+	["KIT_placa"] = { c = {0,0.93,0}, t = {5.2,2.74,2.5} },
+	["KIT_prancha"] = { c = {0,0,13.25}, t = {9,2.52,0.5} },
+	["KIT_sumeru_canto"] = { c = {0,0,1.99}, t = {2.1,2.1,3.98} },
+	["KIT_sumeru_seg"] = { c = {2.415,-0.48,1.99}, t = {5.67,0.96,3.98} },
+	["KIT_suporte_espada"] = { c = {0,0,5.425}, t = {4,4,10.85} },
+	["KIT_tabua_dougong"] = { c = {0,0,4}, t = {9,0.4,8} },
+	["KIT_telhado_portao"] = { c = {0,0,2.5679}, t = {18.0543,11.1444,6.4484} },
+	["KIT_terca"] = { c = {0,0,0.5}, t = {9,1.1,1} },
+	["KIT_tufo_a"] = { c = {0.0596,0.1006,0.9109}, t = {1.439,1.3314,1.9104} },
+	["KIT_vao_janela"] = { c = {0,0,5.65}, t = {9,1.82,11.3} },
+	["KIT_vao_parede"] = { c = {0,0,5.65}, t = {9,1.92,11.3} },
+	["KIT_vao_porta"] = { c = {0,-0.19,5.65}, t = {7.1,1.3,11.3} },
+	["KIT_vaso"] = { c = {0,0,1.71}, t = {3.3506,3.12,3.42} },
+	["KIT_viga_alpendre"] = { c = {0,-4.5,10.95}, t = {1.26,9,1.62} },
+	["KIT_viga_canto"] = { c = {16.5569,-10.1206,26.2026}, t = {8.3696,12.7871,5.3647} },
+	["KIT_viga_canto_esp"] = { c = {16.5569,10.1206,26.2026}, t = {8.3696,12.7871,5.3647} },
 }
 local PLACE = {
 	{"KIT_sumeru_seg", -21,-15.75,0, 0, 1,1,1},
@@ -344,27 +350,48 @@ local PLACE = {
 	{"KIT_tufo_a", -22.7,-12.2,0, 220, 1.05,1.05,1.05},
 	{"KIT_tufo_a", -13.6,-22.8,0, 10, 0.8,0.8,0.8},
 	{"KIT_tufo_a", 13.2,-23.4,0, 140, 0.85,0.85,0.85},
+	{"KIT_muro_seg", 36,-18,0, 90, 1,1,1},
+	{"KIT_muro_seg", 36,-9,0, 90, 1,1,1},
+	{"KIT_muro_seg", 36,9,0, 90, 1,1,1},
+	{"KIT_muro_seg", 36,18,0, 90, 1,1,1},
+	{"KIT_muro_pilar", 36,-22.5,0, 0, 1,1,1},
+	{"KIT_muro_pilar", 36,22.5,0, 0, 1,1,1},
+	{"KIT_col_base", 36,-4.5,0, 0, 1,1,1},
+	{"KIT_coluna", 36,-4.5,0, 0, 1,1,0.72},
+	{"KIT_dougong_simples", 36,-4.5,9.86, 90, 1,1,1},
+	{"KIT_col_base", 36,4.5,0, 0, 1,1,1},
+	{"KIT_coluna", 36,4.5,0, 0, 1,1,0.72},
+	{"KIT_dougong_simples", 36,4.5,9.86, 90, 1,1,1},
+	{"KIT_arquitrave", 36,0,-3.64, 90, 1,1,1},
+	{"KIT_prancha", 36,0,-3.64, 90, 1,1,1},
+	{"KIT_terca", 36,0,12.32, 90, 1.3,1,1},
+	{"KIT_telhado_portao", 36,0,10.74, 90, 1,1,1},
+	{"KIT_estandarte", -16.5,-27.5,0, 0, 1,1,1},
+	{"KIT_suporte_espada", -7.2,-31.5,0, 0, 1,1,1},
+	{"KIT_vaso", -2.9,-1.75,4, 0, 1,1,1},
+	{"KIT_estandarte", 16.5,-27.5,0, 0, 1,1,1},
+	{"KIT_suporte_espada", 7.2,-31.5,0, 0, 1,1,1},
+	{"KIT_vaso", 2.9,-1.75,4, 0, 1,1,1},
 	{"KIT_bal_tambor", 70,-20,0, 0, 1,1,1},
 	{"KIT_dougong_intermediario", 79,-20,0, 0, 1,1,1},
-	{"KIT_dougong_simples", 88,-20,0, 0, 1,1,1},
-	{"KIT_lanterna_vermelha", 97,-20,6, 0, 1,1,1},
+	{"KIT_lanterna_vermelha", 88,-20,6, 0, 1,1,1},
 }
 local tmpl, faltam = {}, {}
--- o FBX saiu com nomes de OBJETO sufixados pelo Blender (KIT_coluna.012): indexa pelo nome sem o sufixo numerico
+-- (1) o FBX sai com nomes de OBJETO sufixados pelo Blender (KIT_coluna.012): indexa pelo nome sem o sufixo numerico
 for _, d in ipairs(KIT:GetDescendants()) do if d:IsA("MeshPart") then tmpl[(d.Name:gsub("%.%d+$", ""))] = d end end
-local PEQUENAS = { KIT_besta_0 = true, KIT_besta_1 = true, KIT_besta_2 = true, KIT_imortal = true, KIT_tufo_a = true, KIT_prancha = true, KIT_terca = true }
+local PEQUENAS = { KIT_besta_0 = true, KIT_besta_1 = true, KIT_besta_2 = true, KIT_imortal = true, KIT_tufo_a = true, KIT_prancha = true, KIT_terca = true, KIT_vaso = true }
 local n = 0
 for _, p in ipairs(PLACE) do
 	local nome, x, y, z, rot, sx, sy, sz = p[1], p[2], p[3], p[4], p[5], p[6], p[7], p[8]
 	local t = tmpl[nome]; local i = INFO[nome]
-	if not t then faltam[nome] = true
+	if not t or not i then faltam[nome] = true
 	else
 		local m = t:Clone(); m.Name = nome; m.Anchored = true
 		m.CanCollide = false; m.CanTouch = false; m.CanQuery = false      -- decoracao: a colisao e feita por Parts simples abaixo
 		m.CastShadow = not PEQUENAS[nome]
 		m.Size = Vector3.new(i.t[1] * sx, i.t[3] * sz, i.t[2] * sy)
 		local cf = CFrame.new(ORIGEM + B(x, y, z)) * CFrame.Angles(0, math.rad(rot), 0)
-		if nome == "KIT_placa" then cf = cf * CFrame.Angles(math.rad(13), 0, 0) end   -- a placa pende para a frente (conferir o sinal na captura)
+		if nome == "KIT_placa" then cf = cf * CFrame.Angles(math.rad(13), 0, 0) end   -- a placa pende para a frente (sinal ainda nao conferido de perto)
 		m.CFrame = cf * CFrame.new(B(i.c[1] * sx, i.c[2] * sy, i.c[3] * sz))
 		m.Parent = ROOT; n += 1
 	end
@@ -375,18 +402,26 @@ local function caixa(nome, x0, x1, y0, y1, z0, z1)
 	local p = Instance.new("Part"); p.Name = nome; p.Anchored = true; p.Transparency = 1; p.CastShadow = false; p.CanQuery = false
 	p.Size = Vector3.new(x1 - x0, z1 - z0, y1 - y0); p.CFrame = CFrame.new(ORIGEM + B((x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2)); p.Parent = COL
 end
--- na FRENTE a caixa para em -15.75 (borda real do piso): se avancar ate a moldura (-16.7) ela engole o 1o degrau e vira
--- um paredao de 1,6 que o Humanoid nao sobe (bug achado na verificacao geometrica de 2026-09-19).
+local function cilindro(nome, x, y, z0, z1, r)
+	local c = Instance.new("Part"); c.Name = nome; c.Shape = Enum.PartType.Cylinder; c.Anchored = true; c.Transparency = 1; c.CastShadow = false; c.CanQuery = false
+	c.Size = Vector3.new(z1 - z0, 2 * r, 2 * r); c.CFrame = CFrame.new(ORIGEM + B(x, y, (z0 + z1) / 2)) * CFrame.Angles(0, 0, math.pi / 2); c.Parent = COL
+end
+-- (2) na FRENTE a caixa do terraco para em -15.75 (borda real do piso): ate -16.7 ela engole o 1o degrau e vira um paredao de 1,6
 caixa("terraco", -21.95, 21.95, -15.75, 16.7, 0, 4)
 for i = 1, 4 do caixa("degrau" .. i, -4, 4, -15.75 - 1.9 * i, -15.75 - 1.9 * (i - 1), 0, 4 - 0.8 * i) end
 for _, sx in ipairs({ -1, 1 }) do caixa("bochecha", math.min(sx * 4, sx * 5.25), math.max(sx * 4, sx * 5.25), -25.3, -15.75, 0, 4.4) end
 caixa("parede_frente", -13.5, 13.5, -0.6, 0.6, 4, 17); caixa("parede_fundo", -13.5, 13.5, 8.4, 9.6, 4, 17)
 caixa("parede_E", 12.9, 14.1, 0, 9, 4, 17); caixa("parede_W", -14.1, -12.9, 0, 9, 4, 17)
-for _, x in ipairs({ -13.5, -4.5, 4.5, 13.5 }) do
-	local c = Instance.new("Part"); c.Name = "coluna"; c.Shape = Enum.PartType.Cylinder; c.Anchored = true; c.Transparency = 1; c.CastShadow = false; c.CanQuery = false
-	c.Size = Vector3.new(13, 2.7, 2.7); c.CFrame = CFrame.new(ORIGEM + B(x, -9, 10.5)) * CFrame.Angles(0, 0, math.pi / 2); c.Parent = COL
-end
+for _, x in ipairs({ -13.5, -4.5, 4.5, 13.5 }) do cilindro("coluna", x, -9, 4, 17, 1.35) end
 caixa("bal_frente_W", -20.6, -4.6, -15.4, -14.5, 4, 7.3); caixa("bal_frente_E", 4.6, 20.6, -15.4, -14.5, 4, 7.3)
 caixa("bal_fundo", -20.6, 20.6, 14.5, 15.4, 4, 7.3); caixa("bal_E", 19.75, 20.65, -15.4, 15.4, 4, 7.3); caixa("bal_W", -20.65, -19.75, -15.4, 15.4, 4, 7.3)
+-- kit 2: muro com portao pequeno, pedestais de espada, bases de estandarte
+caixa("muro_S", 35.2, 36.8, -23.6, -4.5, 0, 10.4); caixa("muro_N", 35.2, 36.8, 4.5, 23.6, 0, 10.4)
+for _, y in ipairs({ -22.5, 22.5 }) do caixa("muro_pilar", 34.7, 37.3, y - 1.3, y + 1.3, 0, 10.6) end
+for _, y in ipairs({ -4.5, 4.5 }) do cilindro("portao_coluna", 36, y, 0, 9.4, 1.35) end
+for _, sx in ipairs({ -1, 1 }) do
+	caixa("pedestal_espada", sx * 7.2 - 2, sx * 7.2 + 2, -33.5, -29.5, 0, 3.5)
+	caixa("base_estandarte", sx * 16.5 - 1.5, sx * 16.5 + 1.5, -29, -26, 0, 1.3)
+end
 local f = {}; for k in pairs(faltam) do table.insert(f, k) end
 return string.format("kit usado: %s | montadas %d de %d pecas | malhas sem template: %s", KIT.Name, n, #PLACE, (#f > 0 and table.concat(f, ", ") or "nenhuma"))

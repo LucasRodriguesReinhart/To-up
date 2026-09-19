@@ -30,6 +30,7 @@ PD = {
     'casca':    ('7A5638', '3E2614', 'A98058', .88, .10, .40, .60, .10, .0, 0),
     'bordo':    ('C4432B', '5E140C', 'F59A5A', .85, .10, .30, .85, .30, .0, 0),
     'tecido':   ('A8261A', '4E0B06', 'E9603F', .82, .06, .30, .80, .10, .0, 0),
+    'aco':      ('B9C2CC', '4A5664', 'F2F6FA', .34, .04, .55, .70, .08, .35, 0),
     'corte':    ('1E1A18', '0A0908', '2A2522', .9, .0, .0, .5, .0, .0, 0),
 }
 
@@ -166,8 +167,15 @@ def bake(atlas, objs, which, size=2048, samples=32, device='GPU'):
             bpy.ops.object.bake(type='NORMAL' if which == 'normal' else 'EMIT', margin=6, use_clear=True, normal_space='TANGENT')
     finally:
         sc.render.engine = eng0; set_pass('color')
+    # protecao: o operador de bake pode devolver FINISHED e nao assar NADA (imagem preta, sem excecao). Medir sempre.
+    #   cor: fracao de pixels nao pretos; normal: fracao com azul alto; rough/emis: aceita preto (emissivo e quase todo preto).
+    n = size * size; px = [0.0] * (n * 4); img.pixels.foreach_get(px)
+    if which == 'color': cheio = sum(1 for i in range(0, n * 4, 4 * 97) if px[i] + px[i + 1] + px[i + 2] > .02) / (n / 97)
+    elif which == 'normal': cheio = sum(1 for i in range(0, n * 4, 4 * 97) if px[i + 2] > .4) / (n / 97)
+    else: cheio = 1.0
+    if cheio < .15: raise RuntimeError('BAKE VAZIO em %s: so %.1f%% da imagem tem conteudo (o operador nao assou)' % (name, cheio * 100))
     path = os.path.join(TEX, name + '.png'); img.filepath_raw = path; img.file_format = 'PNG'; img.save()
-    return '%s %.1fs -> %s' % (name, time.time() - t0, path)
+    return '%s %.1fs cobertura %.0f%% -> %s' % (name, time.time() - t0, cheio * 100, path)
 
 def final_material(atlas, maps=('color', 'normal', 'rough'), emis=False):
     m = bpy.data.materials.get('F_' + atlas) or bpy.data.materials.new('F_' + atlas)

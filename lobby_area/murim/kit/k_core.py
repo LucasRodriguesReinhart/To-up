@@ -10,6 +10,7 @@ PAINTS = {   # tinta -> cor de viewport (sRGB hex). Os shaders pintados ficam em
     'pedra': 'DCCDB0', 'piso': 'B9AD95', 'junta': '8F846E', 'telha': '2E5A4C', 'telhaImp': 'D4A034', 'jade': '3E7D6E',
     'jadeE': '2E5A4C', 'creme': 'F1E3C0', 'ferro': '2B2624', 'chama': 'FFC84A', 'pinho': '3E6B3A', 'folha': '6E9A45',
     'casca': '5A3F2A', 'bordo': 'C4432B', 'tecido': 'A8261A', 'corte': '1E1A18',
+    'aco': 'C9D0D8',
 }
 
 def hex_lin(h):
@@ -41,6 +42,8 @@ def clear_col(name):
     return col(name)
 
 def ctx():
+    # em segundo plano (blender -b) nao ha janelas: o override vazio basta, os operadores usam a view layer ativa
+    if not bpy.context.window_manager.windows: return {}
     win = bpy.context.window_manager.windows[0]; scr = win.screen
     area = next((a for a in scr.areas if a.type == 'VIEW_3D'), scr.areas[0]); region = next(r for r in area.regions if r.type == 'WINDOW')
     return dict(window=win, screen=scr, area=area, region=region)

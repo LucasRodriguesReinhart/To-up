@@ -3,7 +3,7 @@
 import bpy, bmesh, math, json, os
 from mathutils import Vector
 from k_core import *
-import k_pedra, k_madeira, k_dougong, k_telhado, k_props, k_veg
+import k_pedra, k_madeira, k_dougong, k_telhado, k_props, k_veg, k_kit2
 
 TZ = k_pedra.TZ; MOD = k_pedra.MOD; VAO = k_madeira.VAO
 ZP = TZ + k_madeira.H_COL + .5          # topo da prancha = base dos dougong (17.5)
@@ -36,7 +36,7 @@ class Kit:
         PLACE.append(dict(mesh=m.data.name, pos=[round(v, 4) for v in loc], rot=rot, scale=list(scale))); return o
 
 def build():
-    for c in ('BANCADA', 'TELHADO', 'PAV_BANCADA', 'PAV_PEDRA', 'PAV_MADEIRA', 'PAV_DOUGONG', 'PAV_TELHADO', 'PAV_PROPS', 'PAV_VEG', 'PAV_CHAO'): clear_col(c)
+    for c in ('BANCADA', 'BANCADA2', 'TELHADO', 'PAV_BANCADA', 'PAV_KIT2', 'PAV_PEDRA', 'PAV_MADEIRA', 'PAV_DOUGONG', 'PAV_TELHADO', 'PAV_PROPS', 'PAV_VEG', 'PAV_CHAO'): clear_col(c)
     del PLACE[:]
     K = Kit(); R = k_telhado.Roof(**ROOF)
     # ------------------------------------------------ PEDRA
@@ -97,7 +97,7 @@ def build():
     K.put('placa', 'PAV_MADEIRA', (0, -9 - 3.05, ZP + 2.6), 0)
     K.m['placa'].rotation_euler = (math.radians(-13), 0, 0)
     # ------------------------------------------------ DOUGONG
-    K.master('dg', k_dougong.principal, 'PAV_DOUGONG'); K.master('dgc', k_dougong.canto, 'PAV_DOUGONG')
+    K.master('dg', k_dougong.principal, 'PAV_DOUGONG'); K.master('dgc', k_dougong.canto, 'PAV_DOUGONG'); K.master('dg_sim', k_dougong.simples, 'PAV_DOUGONG')
     for x in (-10.5, -7.5, -4.5, -1.5, 1.5, 4.5, 7.5, 10.5):
         K.put('dg', 'PAV_DOUGONG', (x, -9, ZP), 0); K.put('dg', 'PAV_DOUGONG', (x, 9, ZP), 180)
     for y in (-6, -3, 0, 3, 6):
@@ -145,9 +145,31 @@ def build():
         K.put(key, 'PAV_VEG', (x, y, 0), r, (s, s, s))
     for (x, y, r, s) in ((-15.2, -17.4, 0, 1), (-8.2, -17.3, 50, .9), (8.3, -17.2, 100, 1.1), (15.4, -17.5, 170, .95), (22.6, -13.4, 30, 1), (-22.7, -12.2, 220, 1.05), (-13.6, -22.8, 10, .8), (13.2, -23.4, 140, .85)):
         K.put('tufo', 'PAV_VEG', (x, y, 0), r, (s, s, s))
+    # ------------------------------------------------ KIT 2: muro com portao pequeno, estandartes, suportes de espada, vasos
+    for key, fn in (('estand', k_kit2.estandarte), ('sup_esp', k_kit2.suporte_espada), ('vaso', k_kit2.vaso), ('muro', k_kit2.muro_seg),
+                    ('mpilar', k_kit2.muro_pilar), ('tel_portao', k_kit2.telhado_portao)):
+        K.master(key, fn, 'PAV_KIT2')
+    XM = 36.0                                                       # linha do muro, a direita do pavilhao, ao longo de Y
+    for y in (-18, -9, 9, 18): K.put('muro', 'PAV_KIT2', (XM, y, 0), 90)
+    for y in (-22.5, 22.5): K.put('mpilar', 'PAV_KIT2', (XM, y, 0), 0)
+    # portao pequeno = pecas que JA existem + o telhado de duas aguas. Proporcao corrigida na autorrevisao: com a coluna inteira
+    # (13) o portao lia "poste com chapeu"; aqui a coluna entra a 72% da altura e o conjunto desce junto (o kit aceita escala).
+    KZ = .72; topo = k_madeira.H_COL * KZ                          # 9.36
+    dz = topo - k_madeira.H_COL                                     # a arquitrave/prancha tem a cota embutida: desce por offset
+    for y in (-4.5, 4.5):
+        K.put('colbase', 'PAV_KIT2', (XM, y, 0), 0); K.put('coluna', 'PAV_KIT2', (XM, y, 0), 0, (1, 1, KZ))
+        K.put('dg_sim', 'PAV_KIT2', (XM, y, topo + .5), 90)
+    K.put('arq', 'PAV_KIT2', (XM, 0, dz), 90); K.put('prancha', 'PAV_KIT2', (XM, 0, dz), 90)
+    zt = topo + .5 + k_dougong.Z1 + k_dougong.AH + .74               # topo dos sheng do dougong simples
+    K.put('terca', 'PAV_KIT2', (XM, 0, zt), 90, (1.3, 1, 1))
+    K.put('tel_portao', 'PAV_KIT2', (XM, 0, zt + 1.0 - (k_kit2.PORTAO_RISE - .42)), 90)
+    for sx in (-1, 1):
+        K.put('estand', 'PAV_KIT2', (sx * 16.5, -27.5, 0), 0)
+        K.put('sup_esp', 'PAV_KIT2', (sx * 7.2, -31.5, 0), 0)
+        K.put('vaso', 'PAV_PROPS', (sx * 2.9, -1.75, TZ), 0)
     g = Builder('PAV_chao'); g.add(t_box(-60, 60, -60, 50, -.6, 0), 'piso', .5); g.finish('PAV_CHAO')
     # pecas do kit que nao entram no pavilhao ficam na bancada (para o bake nao pega-las enterradas na origem)
-    K.master('dg_int', k_dougong.intermediario, 'PAV_BANCADA'); K.master('dg_sim', k_dougong.simples, 'PAV_BANCADA'); K.master('lantV', k_props.lanterna_vermelha, 'PAV_BANCADA')
+    K.master('dg_int', k_dougong.intermediario, 'PAV_BANCADA'); K.master('lantV', k_props.lanterna_vermelha, 'PAV_BANCADA')
     bench = [k for k, o in K.m.items() if not o.get('usado', False) and not k.endswith('_m')]
     for i, key in enumerate(bench): K.put(key, 'PAV_BANCADA', (70 + 9 * (i % 4), -20 + 9 * (i // 4), 6 if key == 'lantV' else 0), 0)
     tot = 0; rep = []
@@ -166,6 +188,7 @@ ATLAS = {
     'A_TELHA': ['KIT_agua_frente', 'KIT_agua_lado', 'KIT_espigao', 'KIT_cumeeira'],
     'A_PROPS': ['KIT_chiwen', 'KIT_imortal', 'KIT_chuishou', 'KIT_besta_0', 'KIT_besta_1', 'KIT_besta_2', 'KIT_lanterna_palacio', 'KIT_lanterna_vermelha'],
     'A_VEG': ['KIT_pinheiro_a', 'KIT_pinheiro_b', 'KIT_arbusto_a', 'KIT_arbusto_b', 'KIT_tufo_a'],
+    'A_KIT2': ['KIT_estandarte', 'KIT_suporte_espada', 'KIT_vaso', 'KIT_muro_seg', 'KIT_muro_pilar', 'KIT_telhado_portao'],
 }
 ISOLAR = {'KIT_piso_mod': (95, 20, 4.0)}      # pecas genericas: assar longe dos vizinhos para o AO nao marcar um contexto especifico
 
