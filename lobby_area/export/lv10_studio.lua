@@ -1,131 +1,112 @@
--- lv10_studio.lua - pos-import do trecho LV10_SECAO no Studio (rodar via execute_luau, datamodel Edit)
--- 1) alinha pelo marcador _ORIGEM  2) aplica material/cor/colisao por prefixo  3) luzes das lanternas/forja
--- 4) agua de Terrain nos espelhos d'agua  5) spawn sob o medalhao
+-- lv10_studio.lua - pos-import do trecho LV10_SECAO (REVISAO 3) no Studio. Rodar via execute_luau (Edit).
+-- Etapas: 1) alinhar por _ORIGEM  2) materiais/tints por prefixo  3) luzes  4) agua de Terrain em faixas
+-- seguindo a margem curva  5) spawn  6) colisao (RODAR EM LOTES SEPARADOS: uma chamada longa derruba a bridge)
 local M = workspace:FindFirstChild("LV10_SECAO")
 assert(M, "LV10_SECAO nao encontrado no workspace")
 local log = {}
 local function L(s) table.insert(log, s) end
 
--- ---------- 1) alinhamento ----------
+-- 1) alinhamento
 local org = M:FindFirstChild("_ORIGEM", true)
 if org then
 	local off = Vector3.new(0, 120, 0) - org.Position
-	M:PivotTo(M:GetPivot() + off)
-	L(("alinhado: offset %s"):format(tostring(off)))
-	org.Transparency = 1; org.CanCollide = false; org.Anchored = true
+	M:PivotTo(M:GetPivot() + off); org.Transparency = 1; org.CanCollide = false; org.Anchored = true
+	L("alinhado " .. tostring(off))
 end
 
--- ---------- 2) materiais ----------
+-- 2) materiais. tint = multiplicador da textura (separacao de valor: molduras SLT 1.0 > corpo SMD .86 > piso .8)
 local SP, NEON, GLASS, METAL = Enum.Material.SmoothPlastic, Enum.Material.Neon, Enum.Material.Glass, Enum.Material.Metal
 local W = Color3.new(1, 1, 1)
--- COLISAO (licao do teste de caminhada): meshes fundidos por material com componentes separados
--- NAO podem usar Box (a caixa envolve tudo: os troncos dos dois canteiros viraram uma parede invisivel
--- atravessando a escada) nem sempre Precise (a decomposicao pode ligar componentes distantes).
--- Regra: pisos/estruturas = precise; decorativos separados (balaustres, troncos, canteiros) = voxel (Default) ou sem colisao.
 local MAP = {
-	SDK = {mat = SP, tex = true, col = Color3.fromRGB(128, 118, 106), coll = "precise"},   -- legado (v1)
-	SMD = {mat = SP, tex = true, col = Color3.fromRGB(190, 182, 168), coll = "precise"},   -- corpo da torre (pedra clara-media)
-	FLF = {mat = SP, tex = true, col = Color3.fromRGB(222, 216, 202), coll = "none"},      -- piso com folhas (lamina fina sobre o piso)
-	LFP = {mat = SP, col = Color3.fromRGB(242, 216, 150), coll = "none"},                  -- plumas palidas (capim)
-	FOAM = {mat = SP, col = Color3.fromRGB(236, 248, 250), coll = "none"},                 -- espuma
-	SLT = {mat = SP, tex = true, col = Color3.fromRGB(228, 223, 212), coll = "voxel"},
-	ASH = {mat = SP, tex = true, col = Color3.fromRGB(204, 200, 190), coll = "precise"},
-	FLR = {mat = SP, tex = true, col = Color3.fromRGB(212, 205, 190), coll = "precise"},
-	FLL = {mat = SP, tex = true, col = Color3.fromRGB(222, 216, 202), coll = "precise"},
-	GLD = {mat = METAL, tex = true, col = Color3.fromRGB(222, 176, 78), refl = 0.12, coll = "none"},
+	SMD = {mat = SP, tex = true, col = Color3.fromRGB(190, 182, 168), tint = .86, coll = "precise"},   -- corpo (pedra clara-media)
+	SLT = {mat = SP, tex = true, col = Color3.fromRGB(228, 223, 212), tint = 1.0, coll = "voxel"},     -- marfim (molduras, pilastras, balaustres)
+	ASH = {mat = SP, tex = true, col = Color3.fromRGB(212, 206, 194), tint = .84, coll = "precise"},   -- muretas, saias, pilares de ponte
+	FLR = {mat = SP, tex = true, col = Color3.fromRGB(214, 207, 192), tint = .80, coll = "precise"},   -- piso praca/passeios
+	FLL = {mat = SP, tex = true, col = Color3.fromRGB(222, 216, 202), tint = .82, coll = "precise"},   -- piso patamar/terraco/escada
+	FLF = {mat = SP, tex = true, col = Color3.fromRGB(222, 216, 202), tint = .82, coll = "none"},      -- lamina com folhas
+	GLD = {mat = METAL, tex = true, col = Color3.fromRGB(226, 180, 82), tint = .9, refl = 0.06, coll = "none"},
 	LPS = {mat = SP, tex = true, col = Color3.fromRGB(34, 78, 190), coll = "none"},
-	GRS = {mat = SP, tex = true, col = Color3.fromRGB(110, 186, 88), coll = "voxel"},
-	RCK = {mat = SP, tex = true, col = Color3.fromRGB(132, 136, 142), coll = "precise"},
-	SLA = {mat = SP, tex = true, col = Color3.fromRGB(96, 112, 132), coll = "voxel"},
-	MLK = {mat = NEON, col = Color3.fromRGB(255, 236, 200), coll = "none"},   -- vidro leitoso luminoso da lanterna
+	GRS = {mat = SP, tex = true, col = Color3.fromRGB(110, 186, 88), tint = .82, coll = "voxel"},
+	RCK = {mat = SP, tex = true, col = Color3.fromRGB(140, 142, 148), tint = .9, coll = "precise"},
+	SLA = {mat = SP, tex = true, col = Color3.fromRGB(120, 138, 160), coll = "voxel"},
+	MLK = {mat = NEON, col = Color3.fromRGB(255, 236, 200), coll = "none"},
 	EMB = {mat = NEON, col = Color3.fromRGB(255, 128, 40), coll = "none"},
-	FRG = {mat = NEON, col = Color3.fromRGB(255, 208, 110), coll = "none"},
+	FRG = {mat = NEON, col = Color3.fromRGB(246, 196, 110), coll = "none"},
 	CYN = {mat = NEON, col = Color3.fromRGB(120, 225, 255), coll = "none"},
-	GLS = {mat = GLASS, col = Color3.fromRGB(120, 190, 215), transp = 0.3, refl = 0.12, coll = "none"},
-	WTR = {mat = GLASS, col = Color3.fromRGB(52, 170, 210), transp = 0.35, refl = 0.08, coll = "none"},
-	DRK = {mat = SP, col = Color3.fromRGB(28, 26, 30), coll = "none"},
-	LFG = {mat = SP, col = Color3.fromRGB(236, 192, 86), coll = "none"},
-	LFG2 = {mat = SP, col = Color3.fromRGB(222, 168, 60), coll = "none"},
-	LFV = {mat = SP, col = Color3.fromRGB(104, 178, 90), coll = "none"},
-	TRK = {mat = SP, col = Color3.fromRGB(92, 70, 52), coll = "box"},
+	GLS = {mat = GLASS, col = Color3.fromRGB(130, 196, 220), transp = 0.3, refl = 0.12, coll = "none"},
+	WTR = {mat = GLASS, col = Color3.fromRGB(190, 230, 245), transp = 0.45, refl = 0.1, coll = "none"},
+	FOAM = {mat = SP, col = Color3.fromRGB(236, 248, 250), coll = "none"},
+	DRK = {mat = SP, col = Color3.fromRGB(38, 34, 36), coll = "none"},
+	LFG = {mat = SP, tex = true, col = Color3.fromRGB(236, 192, 86), tint = .92, coll = "none"},
+	LFG2 = {mat = SP, tex = true, col = Color3.fromRGB(222, 168, 60), tint = .9, coll = "none"},
+	LFV = {mat = SP, tex = true, col = Color3.fromRGB(104, 178, 90), tint = .7, coll = "none"},
+	LFP = {mat = SP, col = Color3.fromRGB(238, 210, 146), coll = "none"},
+	TRK = {mat = SP, col = Color3.fromRGB(92, 70, 52), coll = "none"},
 	FLW = {mat = SP, col = Color3.fromRGB(246, 176, 206), coll = "none"},
-	WHT = {mat = SP, col = Color3.fromRGB(236, 236, 232), coll = "precise"},
+	WHT = {mat = SP, col = Color3.fromRGB(236, 232, 224), coll = "voxel"},
 }
-local nTex, nSA, nParts = 0, 0, 0
+local n, nsa = 0, 0
 for _, p in ipairs(M:GetDescendants()) do
 	if p:IsA("MeshPart") then
-		nParts += 1
-		p.Anchored = true
-		local pre = p.Name:match("^(%u+%d*)__")
-		local cfg = pre and MAP[pre]
+		n += 1; p.Anchored = true
+		local pre = p.Name:match("^(%u+%d*)__"); local cfg = pre and MAP[pre]
 		if cfg then
-			p.Material = cfg.mat
-			p.Reflectance = cfg.refl or 0
-			p.Transparency = cfg.transp or 0
-			local sa = p:FindFirstChildOfClass("SurfaceAppearance")
-			local hasTex = (p.TextureID ~= nil and p.TextureID ~= "")
-			if sa then nSA += 1 end
-			if hasTex then nTex += 1 end
+			p.Material = cfg.mat; p.Reflectance = cfg.refl or 0; p.Transparency = cfg.transp or 0
+			local sa = p:FindFirstChildOfClass("SurfaceAppearance"); local hasTex = (p.TextureID ~= "")
+			if sa then nsa += 1 end
 			if cfg.tex and (sa or hasTex) then
-				p.Color = W                      -- textura ja carrega a cor
+				local t = cfg.tint or 1
+				if sa then p.Color = W; sa.Color = Color3.new(t, t, t) else p.Color = Color3.new(t, t, t) end
 			else
 				p.Color = cfg.col
-				if not cfg.tex and sa then sa:Destroy() end
-			end
-			if cfg.coll == "precise" then
-				p.CanCollide = true; p.CollisionFidelity = Enum.CollisionFidelity.PreciseConvexDecomposition
-			elseif cfg.coll == "voxel" then
-				p.CanCollide = true; p.CollisionFidelity = Enum.CollisionFidelity.Default
-			elseif cfg.coll == "box" then
-				p.CanCollide = true; p.CollisionFidelity = Enum.CollisionFidelity.Box
-			else
-				p.CanCollide = false
+				if sa and not cfg.tex then sa:Destroy() end
+				if not cfg.tex then p.TextureID = "" end
 			end
 			p.CastShadow = (cfg.mat ~= NEON)
-		else
-			L("sem mapeamento: " .. p.Name)
+			p.CanCollide = false
+			p:SetAttribute("LV10_coll", cfg.coll)
 		end
 	end
 end
-L(("meshparts %d | com TextureID %d | com SurfaceAppearance %d"):format(nParts, nTex, nSA))
+L(("meshparts %d, com SurfaceAppearance %d"):format(n, nsa))
 
--- ---------- 3) luzes ----------
-local lights = M:FindFirstChild("Luzes") or Instance.new("Folder"); lights.Name = "Luzes"; lights.Parent = M
-lights:ClearAllChildren()
+-- 3) luzes
+local lights = M:FindFirstChild("Luzes") or Instance.new("Folder"); lights.Name = "Luzes"; lights.Parent = M; lights:ClearAllChildren()
 local function light(name, pos, color, range, bright)
 	local a = Instance.new("Part"); a.Name = name; a.Anchored = true; a.CanCollide = false; a.CanQuery = false
-	a.Transparency = 1; a.Size = Vector3.new(0.5, 0.5, 0.5); a.Position = pos; a.Parent = lights
+	a.Transparency = 1; a.Size = Vector3.new(.5, .5, .5); a.Position = pos; a.Parent = lights
 	local pl = Instance.new("PointLight"); pl.Color = color; pl.Range = range; pl.Brightness = bright; pl.Shadows = false; pl.Parent = a
 end
 local warm = Color3.fromRGB(255, 236, 200)
 for _, s in ipairs({-1, 1}) do
-	light("Lanterna_escada", Vector3.new(s * 14.2, 19.1, -87.6), warm, 22, 1.1)
-	light("Lanterna_patamar", Vector3.new(s * 23.0, 16.5, -72.0), warm, 22, 1.1)
-	light("Braseiro", Vector3.new(s * 10.6, 15.6, -109.0), Color3.fromRGB(255, 150, 60), 14, 1.4)
-	light("NichoDourado", Vector3.new(s * 15.0, 15.0, -113.0), Color3.fromRGB(255, 215, 130), 12, 0.8)
+	light("Lanterna_escada", Vector3.new(s * 10.7, 14.8, -87.6), warm, 16, .8)
+	light("Lanterna_patamar", Vector3.new(s * 21.0, 14.5, -71.0), warm, 16, .8)
+	light("Sconce", Vector3.new(s * 9.4, 17.6, -110.5), Color3.fromRGB(255, 150, 60), 10, 1.0)
+	light("NichoDourado", Vector3.new(s * 11.0, 13.5, -113.5), Color3.fromRGB(255, 215, 130), 9, .5)
+	light("NichoAla", Vector3.new(s * 27.5, 15, -127.5), Color3.fromRGB(255, 215, 130), 10, .5)
+	light("AlcovaTeto", Vector3.new(s * 3, 24, -115), Color3.fromRGB(255, 228, 190), 14, 1.0)
 end
-light("BocaForja", Vector3.new(0, 13.0, -122.0), Color3.fromRGB(255, 130, 50), 26, 2.0)
-light("VitralForja", Vector3.new(0, 48.0, -111.0), Color3.fromRGB(255, 215, 130), 30, 1.0)
+light("BocaForja", Vector3.new(0, 12.5, -119.0), Color3.fromRGB(255, 130, 50), 18, 1.5)
+light("VitralForja", Vector3.new(0, 48.0, -111.0), Color3.fromRGB(255, 215, 130), 24, .6)
 
--- ---------- 4) agua de Terrain nos espelhos ----------
+-- 4) agua de Terrain em faixas seguindo a margem curva (raio 43.2 em torno de (s*20,-80)); nada fora do muro nem dentro do tambor
 local T = workspace.Terrain
+T:FillBlock(CFrame.new(0, -0.9, -80), Vector3.new(170, 4, 64), Enum.Material.Air)
 for _, s in ipairs({-1, 1}) do
-	T:FillBlock(CFrame.new(s * 48.5, -0.7, -80), Vector3.new(30.4, 2.6, 47.6), Enum.Material.Water)
-end
-T.WaterColor = Color3.fromRGB(40, 160, 205)
-T.WaterTransparency = 0.5
-T.WaterReflectance = 0.35
-T.WaterWaveSize = 0.08
-T.WaterWaveSpeed = 8
-L("agua de terrain preenchida")
-
--- ---------- 5) spawn sob o medalhao ----------
-local msp = workspace:FindFirstChild("Mystical Spawn Point")
-if msp then
-	local sl = msp:FindFirstChildWhichIsA("SpawnLocation", true)
-	if sl then sl.Position = Vector3.new(0, 4.4, -66); sl.Transparency = 1; L("spawn em " .. tostring(sl.Position)) end
-	for _, p in ipairs(msp:GetDescendants()) do
-		if p:IsA("BasePart") and not p:IsA("SpawnLocation") then p.Transparency = 1; p.CanCollide = false end
+	local z = -103.6
+	while z < -56.4 do
+		local zc = math.min(z + 1.2, -56.4 - 1.2)
+		local xmax = 20 + math.sqrt(math.max(0, 43.2 ^ 2 - (zc + 80) ^ 2))
+		if xmax > 34.6 then T:FillBlock(CFrame.new(s * (34.2 + xmax) / 2, -0.9, zc), Vector3.new(xmax - 34.2, 3.0, 2.4), Enum.Material.Water) end
+		z += 2.4
 	end
 end
+T.WaterTransparency = 0.84; T.WaterReflectance = 0.14; T.WaterColor = Color3.fromRGB(64, 186, 202); T.WaterWaveSize = 0.12; T.WaterWaveSpeed = 9
+
+-- 5) spawn sob o medalhao (plataforma baixa em y=5.16)
+local msp = workspace:FindFirstChild("Mystical Spawn Point")
+if msp then local sl = msp:FindFirstChildWhichIsA("SpawnLocation", true); if sl then sl.Position = Vector3.new(0, 4.6, -66); sl.Transparency = 1 end end
+
+-- 6) colisao: aplicar em lotes (ex.: precise A = FLL/FLR/ASH; voxel = SLT/GRS/SLA/WHT; precise B = SMD/RCK)
+--   for _, p in ipairs(M:GetDescendants()) do if p:IsA("MeshPart") and p:GetAttribute("LV10_coll") == "voxel" then p.CollisionFidelity = Enum.CollisionFidelity.Default; p.CanCollide = true end end
 return table.concat(log, "\n")

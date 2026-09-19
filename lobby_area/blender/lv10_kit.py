@@ -257,10 +257,13 @@ def _arc_tube(R, r, a0, a1, kz=1.0, seg=12, sides=8):
         bmesh.ops.scale(bm, vec=(1, 1, kz), verts=bm.verts)
     return bm
 
-def arch_molding(out, pos, w, spring, apex, r=.45, mat='SLT', rot_z=0.0, pointed=True, gold=True, seg=12):
+def arch_molding(out, pos, w, spring, apex, r=.45, mat='SLT', rot_z=0.0, pointed=True, gold=True, seg=12, double=False):
     """moldura em torno do vao (tubo de pedra clara + filete de ouro por dentro + ombreiras).
-    pos.y = plano onde o EIXO do tubo fica (use frente + ~0.6*r para ficar saliente). Frente em +Y."""
+    pos.y = plano onde o EIXO do tubo fica (use frente + ~0.6*r para ficar saliente). Frente em +Y.
+    double=True acrescenta um segundo anel mais fino, recuado, dentro do vao (revelo em dois degraus)."""
     x0, y0, z0 = pos
+    if double:
+        arch_molding(out, (x0, y0 - r * 1.5, z0), w - r * 1.6, spring - r * .2, apex - r * 1.2, r=r * .6, mat=mat, rot_z=rot_z, pointed=pointed, gold=False, seg=seg, double=False)
     def place(bm, dy=0.0):
         _xform(bm, (x0, y0 + dy, z0), (0, 0, rot_z)); return bm
     def mirror_x(bm):
@@ -305,14 +308,19 @@ def pilaster(out, pos, w, d, h, mat='SLT', cap=True, base=True, rot_z=0.0):
     x, y, z = pos
     def P(bm):
         _xform(bm, (0, 0, 0), (0, 0, rot_z)); _xform(bm, (x, y, z)); return bm
+    # base: plinto + toro + escocia (3 degraus reais)
     if base:
-        out.add(mat, P(box((w + .6, d + .5, .9), (0, 0, .45), bevel=.08)))
-        out.add(mat, P(box((w + .3, d + .25, .5), (0, 0, 1.15))))
-    out.add(mat, P(box((w, d, h - 2.6), (0, 0, 1.4 + (h - 2.6) / 2))))
+        out.add(mat, P(box((w + .8, d + .6, .7), (0, 0, .35), bevel=.08)))
+        out.add(mat, P(box((w + .5, d + .4, .35), (0, 0, .7 + .17))))
+        out.add(mat, P(torus(min(w, d) * .5 + .12, .16, (0, 0, 1.15), seg=12, sides=6)))
+    out.add(mat, P(box((w, d, h - 3.2), (0, 0, 1.3 + (h - 3.2) / 2))))
+    # capitel: anel de pescoco + equino (abre) + abaco + friso de ouro fino
     if cap:
-        out.add(mat, P(box((w + .3, d + .25, .5), (0, 0, h - 1.2 + .25))))
-        out.add('GLD', P(box((w + .45, d + .35, .3), (0, 0, h - .7 + .15))))
-        out.add(mat, P(box((w + .7, d + .5, .5), (0, 0, h - .4 + .25), bevel=.08)))
+        out.add('GLD', P(torus(min(w, d) * .5 + .06, .07, (0, 0, h - 1.9), seg=12, sides=5)))
+        out.add(mat, P(lathe([(min(w, d) * .5, 0), (min(w, d) * .5 + .32, .5), (min(w, d) * .5 + .42, .7)], (0, 0, h - 1.85), seg=12)))
+        out.add(mat, P(box((w + .7, d + .5, .42), (0, 0, h - 1.1 + .21))))
+        out.add('GLD', P(box((w + .78, d + .56, .12), (0, 0, h - .68 + .06))))
+        out.add(mat, P(box((w + .95, d + .7, .6), (0, 0, h - .6 + .3), bevel=.1)))
 
 def cornice(out, pos, L, D, mat='SLT', gold=True, dentils=True, rot_z=0.0, h=2.2):
     """cornija em 3 degraus com dentículos e friso de ouro. pos = centro da base, comprimento em X, profundidade D em -Y."""
@@ -320,17 +328,23 @@ def cornice(out, pos, L, D, mat='SLT', gold=True, dentils=True, rot_z=0.0, h=2.2
     def P(bm):
         _xform(bm, (0, 0, 0), (0, 0, rot_z)); _xform(bm, (x, y, z)); return bm
     # faixas empilhadas, cada uma mais saliente (+Y = frente). pos.y = plano da frente da parede.
-    p1, p2, p3 = .25, .85, 1.25
-    out.add(mat, P(box((L, D, h * .30), (0, p1 - D / 2, h * .15))))
+    # arquitrave -> denticulos -> friso -> modilhoes (misulas) -> cimalha
+    p1, p2, p3 = .25, .8, 1.35
+    out.add(mat, P(box((L, D, h * .26), (0, p1 - D / 2, h * .13))))
     if dentils:
-        n = int(L / 1.6)
+        n = int(L / 1.5)
         for i in range(n):
-            xx = -L / 2 + .8 + i * (L / n)
-            out.add(mat, P(box((.7, .6, h * .26), (xx, p1 + .3, h * .30 + h * .13))))
-    out.add(mat, P(box((L + .6, D + .5, h * .22), (0, p2 - D / 2, h * .56 + h * .11), bevel=.06)))
+            xx = -L / 2 + .75 + i * (L / n)
+            out.add(mat, P(box((.6, .55, h * .2), (xx, p1 + .27, h * .26 + h * .1))))
+    out.add(mat, P(box((L + .5, D + .45, h * .18), (0, p2 - D / 2, h * .46 + h * .09), bevel=.05)))
     if gold:
-        out.add('GLD', P(box((L + .7, D + .6, h * .10), (0, p2 + .08 - D / 2, h * .78 + h * .05))))
-    out.add(mat, P(box((L + 1.0, D + .8, h * .22), (0, p3 - D / 2, h * .83 + h * .11), bevel=.08)))
+        out.add('GLD', P(box((L + .56, D + .5, h * .07), (0, p2 + .05 - D / 2, h * .64 + h * .035))))
+    # modilhoes (misulas) sob a cimalha
+    nm = int(L / 2.6)
+    for i in range(nm + 1):
+        xx = -L / 2 + .6 + i * ((L - 1.2) / max(nm, 1))
+        out.add(mat, P(box((.7, .9, h * .18), (xx, p3 - .45, h * .68 + h * .09), bevel=.04)))
+    out.add(mat, P(box((L + 1.1, D + .9, h * .22), (0, p3 - D / 2, h * .86 + h * .11), bevel=.08)))
 
 def quoins(out, pos, h, size=(1.4, 1.4), step=1.6, mat='SLT', proud=.25, rot_z=0.0):
     """cunhais alternados no canto (relevo). pos = base do canto."""
