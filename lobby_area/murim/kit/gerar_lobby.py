@@ -1,0 +1,122 @@
+# gerar_lobby.py - GERA export/montar_lobby.lua a partir de export/kit_meshes.json + lobby_placements.json.
+# Monta o LOBBY inteiro na posicao da planta B2 (origem do lobby = (0,0,0) do Roblox), guarda o lobby antigo,
+# cria a colisao em Parts invisiveis e mantem spawn, Ignis, Santuario, Loja e MailBox funcionando.
+import json, os
+R = os.path.dirname(os.path.abspath(__file__)); E = os.path.join(R, 'export')
+info_raw = json.load(open(os.path.join(E, 'kit_meshes.json')))
+place = json.load(open(os.path.join(R, 'lobby_placements.json')))
+# o Blender sufixa nomes repetidos (KIT_coluna.001) e o importador do Roblox sufixa de novo: a chave util e o nome BASE.
+# Quando as duas versoes existem (a do pavilhao-modelo e a do lobby) elas vem da mesma funcao, entao a medida e a mesma.
+import re
+def base(n): return re.sub(r'\.\d+$', '', n)
+info = {}
+for n, v in info_raw.items():
+    info.setdefault(base(n), v)
+place = [dict(p, mesh=base(p['mesh'])) for p in place]
+L = []; A = L.append
+A('-- montar_lobby.lua - GERADO por kit/gerar_lobby.py. NAO editar a mao: corrija o gerador e rode de novo.')
+A('-- Pre-requisito: LOBBY_FORJA_CELESTE.fbx importado (Home > Import 3D).')
+A('-- Eixos: Blender (x,y,z) -> Roblox (-x, z, y). A MeshPart fica no CENTRO da caixa envolvente: soma-se o centro local escalado.')
+A('local SS = game:GetService("ServerStorage")')
+A('local KIT = workspace:FindFirstChild("LOBBY_FORJA_CELESTE")')
+A('assert(KIT, "importe LOBBY_FORJA_CELESTE.fbx primeiro")')
+A('local function B(x, y, z) return Vector3.new(-x, z, y) end')
+A('-- 1) guarda o que existe hoje (nada e apagado)')
+A('local antigo = workspace:FindFirstChild("MURIM_BLOCKOUT")')
+A('if antigo then')
+A('\tlocal g = SS:FindFirstChild("MURIM_BLOCKOUT_Guardado") or Instance.new("Folder"); g.Name = "MURIM_BLOCKOUT_Guardado"; g.Parent = SS')
+A('\tantigo.Parent = g')
+A('end')
+A('local old = workspace:FindFirstChild("LOBBY_MURIM"); if old then old:Destroy() end')
+A('local ROOT = Instance.new("Model"); ROOT.Name = "LOBBY_MURIM"; ROOT.Parent = workspace')
+A('local GRUPO = {}')
+A('for _, n in ipairs({ "Forja", "Patio", "Portao", "Leste", "Oeste", "Veg", "Props", "Chao" }) do')
+A('\tlocal f = Instance.new("Folder"); f.Name = n; f.Parent = ROOT; GRUPO[n] = f')
+A('end')
+A('local INFO = {')
+for n, v in sorted(info.items()):
+    c, t = v['centro'], v['tamanho']
+    A('\t["%s"] = { c = {%g,%g,%g}, t = {%g,%g,%g} },' % (n, c[0], c[1], c[2], t[0], t[1], t[2]))
+A('}')
+A('local PLACE = {')
+for p in place:
+    x, y, z = p['pos']; s = p['scale']
+    A('\t{"%s", %g,%g,%g, %g, %g,%g,%g},' % (p['mesh'], x, y, z, p['rot'], s[0], s[1], s[2]))
+A('}')
+A('''local function grupo(nome)
+	if nome:find("^TEL_") or nome:find("fornalha") or nome:find("torre") or nome:find("bigorna") or nome:find("fole") or nome:find("calha") or nome:find("laminas") then return GRUPO.Forja end
+	if nome:find("pinheiro") or nome:find("arbusto") or nome:find("tufo") or nome:find("bambu") or nome:find("bordo") or nome:find("rocha") then return GRUPO.Veg end
+	if nome:find("lanterna") or nome:find("estandarte") or nome:find("braseiro") or nome:find("leao") or nome:find("vaso") then return GRUPO.Props end
+	if nome:find("muro") or nome:find("PORTAO") or nome:find("VIA") then return GRUPO.Portao end
+	if nome:find("ponte") or nome:find("LAGO") or nome:find("SANT") then return GRUPO.Leste end
+	if nome:find("poste_treino") or nome:find("boneco") or nome:find("estante") or nome:find("TREINO") then return GRUPO.Oeste end
+	if nome:find("PENHASCO") or nome:find("chao") then return GRUPO.Chao end
+	return GRUPO.Patio
+end
+local PEQ = { KIT_besta_0 = true, KIT_besta_1 = true, KIT_besta_2 = true, KIT_imortal = true, KIT_tufo_a = true, KIT_prancha = true, KIT_terca = true, KIT_vaso = true, KIT_arbusto_a = true, KIT_arbusto_b = true }
+local tmpl, faltam, n = {}, {}, 0
+for _, d in ipairs(KIT:GetDescendants()) do if d:IsA("MeshPart") then tmpl[(d.Name:gsub("%.%d+$", ""))] = d end end
+for _, p in ipairs(PLACE) do
+	local nome, x, y, z, rot, sx, sy, sz = p[1], p[2], p[3], p[4], p[5], p[6], p[7], p[8]
+	local t = tmpl[nome]; local i = INFO[nome]
+	if not t or not i then faltam[nome] = true
+	else
+		local m = t:Clone(); m.Name = nome; m.Anchored = true
+		m.CanCollide = false; m.CanTouch = false; m.CanQuery = false
+		m.CastShadow = not PEQ[nome]
+		m.Size = Vector3.new(i.t[1] * sx, i.t[3] * sz, i.t[2] * sy)
+		local cf = CFrame.new(B(x, y, z)) * CFrame.Angles(0, math.rad(rot), 0)
+		m.CFrame = cf * CFrame.new(B(i.c[1] * sx, i.c[2] * sy, i.c[3] * sz))
+		m.Parent = grupo(nome); n += 1
+	end
+end
+-- 2) COLISAO simples e invisivel (as MeshParts nao colidem)
+local COL = Instance.new("Folder"); COL.Name = "Colisao"; COL.Parent = ROOT
+local function caixa(nome, x0, x1, y0, y1, z0, z1)
+	local p = Instance.new("Part"); p.Name = nome; p.Anchored = true; p.Transparency = 1; p.CastShadow = false; p.CanQuery = false
+	p.Size = Vector3.new(math.abs(x1 - x0), math.abs(z1 - z0), math.abs(y1 - y0))
+	p.CFrame = CFrame.new(B((x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2)); p.Parent = COL; return p
+end
+-- CHAO GERAL: sem isto o jogador cai no vazio assim que sai do patio (achado na verificacao geometrica).
+-- Fica 0.5 abaixo do topo para o piso de pedra do patio/via prevalecer onde existe.
+caixa("chao_geral", -178, 178, -212, 198, -2.5, -0.5)
+caixa("patio", -70, 70, -62, 62, -1, 0)                       -- piso do patio (Blender z=0 -> Roblox Y=0)
+caixa("patio_spawn", -24, 24, -92, -60, -1, 0)                -- faixa entre o patio e o pe da escadaria (onde o spawn cai)
+caixa("via", -16, 16, 60, 140, -1, 0.05)
+caixa("soleira_portao", -46, 46, 140, 178, -1, 0)
+caixa("terraco_forja", -62, 62, -152, -90.1, 0, 9.98)
+for i = 1, 12 do caixa("degrau_forja" .. i, -23, 23, -90 + 1.9 * (i - 1), -90 + 1.9 * i, 0, 9.98 - (9.98 / 12) * (i - 1)) end
+caixa("terraco_santuario", -146, -104, -45, 45, 0, 6.38)
+for i = 1, 8 do caixa("degrau_sant" .. i, -104 + (i - 1) * 1.7, -104 + i * 1.7, -6, 6, 0, 6.38 - (6.38 / 8) * (i - 1)) end
+caixa("terraco_loja", 104, 130, -24, 16, 0, 7.98)
+for i = 1, 10 do caixa("degrau_loja" .. i, 104 - i * 1.7, 104 - (i - 1) * 1.7, -10, 2, 0, 7.98 - (7.98 / 10) * (i - 1)) end
+caixa("pedestal_espada", -12, 12, -12, 12, 0, 6)
+-- ponte-lua: degraus curtos acompanhando o arco
+for i = 0, 15 do
+	local t0, t1 = i / 16, (i + 1) / 16
+	local x0, x1 = -100 + 30 * t0, -100 + 30 * t1
+	local h = 4.6 * math.sin(math.pi * (t0 + t1) / 2) + 1.25
+	caixa("ponte" .. i, x0, x1, -4.5, 4.5, 0, h)
+end
+-- muralhas e muros (bloqueiam)
+caixa("muro_portao_W", -46, -29, 140, 160, 0, 16); caixa("muro_portao_E", 29, 46, 140, 160, 0, 16)
+caixa("muro_portao_C1", -17, -11, 140, 160, 0, 16); caixa("muro_portao_C2", 11, 17, 140, 160, 0, 16)
+for _, sx in ipairs({ -1, 1 }) do caixa("muralha" .. sx, sx * 48, sx * 152, 146, 154, 0, 10.4) end
+-- paredes dos edificios
+caixa("forja_fundo", -36, 36, -148, -144, 9.98, 26); caixa("forja_E", 34, 38, -148, -120, 9.98, 26); caixa("forja_W", -38, -34, -148, -120, 9.98, 26)
+-- a parede da fachada da Forja tem DUAS portas (x +-18 no Blender): a caixa inteira barrava a entrada e deixava o
+-- Ignis inalcancavel (achado no teste de alcance do prompt).
+caixa("forja_parede_W", -36, -22, -124, -120, 9.98, 26)
+caixa("forja_parede_C", -14, 14, -124, -120, 9.98, 26)
+caixa("forja_parede_E", 22, 36, -124, -120, 9.98, 26)
+caixa("sant_fundo", -146, -142, -45, 45, 6.38, 18); caixa("sant_N", -146, -104, 39, 43, 6.38, 18); caixa("sant_S", -146, -104, -43, -39, 6.38, 18)
+caixa("loja_fundo", 126, 130, -24, 16, 7.98, 19); caixa("loja_N", 104, 130, 12, 16, 7.98, 19)
+-- limites do mundo: penhascos
+caixa("penhasco_N", -182, 182, -215, -160, -1, 60); caixa("penhasco_W", -184, -150, -160, 170, -1, 46); caixa("penhasco_E", 150, 184, -160, 170, -1, 46)
+caixa("penhasco_S_W", -184, -60, 168, 202, -1, 36); caixa("penhasco_S_E", 60, 184, 168, 202, -1, 36)
+local f = {}; for k in pairs(faltam) do table.insert(f, k) end
+return string.format("montadas %d de %d pecas | colisao %d partes | malhas sem template: %s", n, #PLACE, #COL:GetChildren(), (#f > 0 and table.concat(f, ", ") or "nenhuma"))''')
+src = '\n'.join(L)
+open(os.path.join(E, 'montar_lobby.lua'), 'w', encoding='utf-8').write(src)
+sem = sorted({p['mesh'] for p in place} - set(info))
+print('montar_lobby.lua: %d bytes | %d malhas | %d colocacoes | sem medida: %s' % (len(src.encode()), len(info), len(place), sem or 'nenhuma'))

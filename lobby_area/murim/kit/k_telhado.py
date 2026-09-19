@@ -7,8 +7,10 @@ from mathutils import Vector, Matrix
 from k_core import *
 
 class Roof:
-    def __init__(s, EX, EY, RS, H, ZE, PER=1.35, LIFT=3.0, SL=9.5, OUT=1.3):
-        s.EX, s.EY, s.RS, s.RF, s.H, s.ZE, s.PER, s.LIFT, s.SL, s.OUT = EX, EY, RS, EY, H, ZE, PER, LIFT, SL, OUT
+    def __init__(s, EX, EY, RS, H, ZE, PER=1.35, LIFT=3.0, SL=9.5, OUT=1.3, LT=2.15):
+        # LT = comprimento da telha-capa. Telhado maior pede telha maior: alem de ser o certo para a leitura a distancia,
+        # e o que mantem a malha abaixo do teto de 20 mil triangulos do importador do Roblox.
+        s.EX, s.EY, s.RS, s.RF, s.H, s.ZE, s.PER, s.LIFT, s.SL, s.OUT, s.LT = EX, EY, RS, EY, H, ZE, PER, LIFT, SL, OUT, LT
     def g(s, t): return .38 * t + .62 * t * t
     def w(s, a, b): return ((1 - smooth01(a / s.SL)) * (1 - smooth01(b / s.SL))) ** 1.35
     def front(s, x, t, dn=0.0):
@@ -59,7 +61,7 @@ def agua(R, which, name, tile='telha'):
     # --- telhas-capa (tongwa): meia-cana afunilada, cada uma apoiada sobre a de baixo
     tb = bmesh.new(); lay = tb.loops.layers.color.new('rnd'); rnd = random.Random(7 if which == 'front' else 8)
     wd = bmesh.new(); wlay = wd.loops.layers.color.new('rnd')
-    kmax = int((half - .35) / R.PER); LT = 2.15; SEG = 6
+    kmax = int((half - .35) / R.PER); LT = getattr(R, 'LT', 2.15); SEG = 6
     row_starts = []
     for k in range(-kmax, kmax + 1):
         c = k * R.PER; tmax = min(1.0, (half - abs(c)) / (R.RS if which == 'front' else R.RF)) - .01

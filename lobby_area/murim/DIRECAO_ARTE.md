@@ -254,3 +254,37 @@ ESTADO: tudo aqui foi validado so no Blender. NADA foi validado no Roblox ainda 
 
 ### 6.12 Ainda sem regra (a definir nos proximos gates)
 - Agua, iluminacao por zona, VFX e som: o briefing manda tratar depois da modelagem e dos materiais aprovados.
+
+## 7. Lobby completo montado (2026-09-19)
+
+O lobby inteiro foi construido com o kit e importado no Roblox: `workspace.LOBBY_MURIM`.
+O blockout anterior foi guardado em `ServerStorage.MURIM_BLOCKOUT_Guardado` (nada apagado).
+
+### 7.1 Numeros medidos
+- 1.470 MeshParts em cena, a partir de 106 malhas distintas (media de 13,9 copias por malha; instancing preservado).
+- 293.587 triangulos no arquivo importado; nenhuma malha acima do teto de 20.000 do importador.
+- 6 atlas de 2048 (cor, normal, rugosidade) com emissivo nas brasas.
+- 77 Parts invisiveis de colisao. Nenhuma MeshPart colide.
+
+### 7.2 Testado em Play
+- Nascimento, subida da escadaria, entrada na Forja, volta ao patio, Via Imperial e Grande Portao: 0 quedas.
+- Ignis: prompt aparece, a interface "Forja de Ignis" abre e fecha pelo botao da propria janela.
+- Portais do Santuario, Loja e MailBox seguem nos lugares originais e funcionando.
+
+### 7.3 Erros encontrados e corrigidos (todos achados por verificacao geometrica, nao a olho)
+- As pecas unicas (piso, escadas, lago, penhascos) nao entravam na lista de exportacao: o lobby aparecia flutuando.
+- 672 lajes de piso viravam 672 MeshParts: agrupadas em 6 faixas.
+- Masters do kit nunca colocados ficavam parados na origem, que e o centro do patio.
+- Telhados espelhados ficavam no centro do patio pelo mesmo motivo.
+- Faltava chao com colisao fora do patio: o jogador cairia no vazio no jardim e no patio de treino.
+- A escadaria descia para dentro do proprio terraco, deixando uma parede de 10 studs no eixo de entrada.
+- A parede da fachada da Forja barrava as duas portas e deixava o Ignis inalcancavel.
+- O spawn ficava colado na escadaria: so se via a face de pedra. Movido de Z -66 para -38.
+
+### 7.4 Pendente (declarado, nao resolvido)
+- A escadaria monumental le como rampa: 12 degraus de 0,83 para 10 studs de altura. Pedem menos degraus e mais altos.
+- Penhascos sao macicos facetados: melhor que caixa lisa, ainda longe de rocha.
+- O gramado e uma cor chapada, sem variacao nem transicao para os caminhos.
+- Agua do lago e do espelho: plano com cor, sem ondulacao, reflexo nem profundidade (secao 18 do briefing).
+- Sem VFX (fumaca da forja, brasas, folhas) e sem som (secoes 21 e 22).
+- A interface do Ignis nao foi testada ate a venda (so abertura e fechamento).

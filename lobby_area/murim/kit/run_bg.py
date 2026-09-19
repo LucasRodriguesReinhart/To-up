@@ -3,6 +3,7 @@
 import bpy, sys, os, json, time, traceback
 KIT = os.path.dirname(os.path.abspath(__file__))
 if KIT not in sys.path: sys.path.insert(0, KIT)
+import bmesh
 import k_core, k_pavilhao, k_materiais, k_render, k_export
 args = sys.argv[sys.argv.index('--') + 1:] if '--' in sys.argv else []
 etapa = args[0] if args else ''
@@ -59,6 +60,115 @@ try:
             k_render.camera((-2, -44, 7), (-12, -28, 8), 30); P(k_render.eevee('g1c_tex_estandarte_espada.png', res=(1300, 800)))
         except Exception:
             P('RENDER FALHOU (o resto ja esta salvo/exportado)'); print(traceback.format_exc())
+    if etapa.startswith('lobby_uv') or etapa.startswith('lobby_bake') or etapa == 'lobby_final':
+        import k_montagem, importlib; importlib.reload(k_montagem)
+        k_materiais.build_paints()
+        ATL = json.load(open(os.path.join(KIT, 'lobby_atlas.json')))
+        for lc in bpy.context.view_layer.layer_collection.children:
+            if lc.name.startswith('LOB_'): lc.exclude = False; lc.collection.hide_render = False; lc.collection.hide_viewport = False
+        for o in bpy.data.objects: o.hide_render = False
+        bpy.context.view_layer.update()
+        def objs_de(atlas):
+            out = []
+            for n in ATL[atlas]:
+                me = bpy.data.meshes.get(n)
+                if not me: continue
+                o = next((x for x in bpy.data.objects if x.data == me), None)
+                if o: out.append(o)
+            return out
+        if etapa.startswith('lobby_uv'):
+            for atlas, nomes in ATL.items():
+                P(k_materiais.unwrap(atlas, [bpy.data.meshes[n] for n in nomes if n in bpy.data.meshes], margin=.003))
+            bpy.ops.wm.save_mainfile(); P('UVs salvos')
+        if etapa.startswith('lobby_bake'):
+            quais = args[1].split(',') if len(args) > 1 else sorted(ATL)
+            passe = args[2] if len(args) > 2 else 'color'
+            size = int(args[3]) if len(args) > 3 else 2048
+            spp = int(args[4]) if len(args) > 4 else 20
+            for atlas in quais:
+                P(k_materiais.bake(atlas, objs_de(atlas), passe, size=size, samples=spp, device='CPU'))
+        if etapa == 'lobby_final':
+            for atlas in sorted(ATL):
+                P(k_materiais.finalize(atlas, objs_de(atlas), emis=True))
+            for o in bpy.data.objects:
+                if o.get('espelho_de'):
+                    src = bpy.data.objects.get(o['espelho_de'])
+                    if not src: continue
+                    bm2 = bmesh.new(); bm2.from_mesh(src.data); bmesh.ops.scale(bm2, vec=(1, -1, 1), verts=bm2.verts)
+                    bmesh.ops.reverse_faces(bm2, faces=bm2.faces); bm2.to_mesh(o.data); bm2.free()
+                    o.data.materials.clear()
+                    for m in src.data.materials: o.data.materials.append(m)
+            bpy.ops.wm.save_mainfile(); P('materiais finais aplicados')
+            place = json.load(open(os.path.join(KIT, 'lobby_placements.json')))
+            path, info = k_export.export_kit(ATL, place, name='LOBBY_FORJA_CELESTE')
+            P('FBX %s %.1f MB | %d malhas | %d tris' % (os.path.basename(path), os.path.getsize(path) / 1e6, len(info), sum(v['tris'] for v in info.values())))
+            cols = [c.name for c in bpy.context.scene.collection.children if c.name.startswith('LOB_')]
+            k_render.only(cols); k_render.sun(46, -32, 3.4)
+            k_render.camera((150, 230, 120), (0, -20, 20), 30); P(k_render.eevee('M3_lobby_tex.png', res=(1600, 900)))
+            k_render.camera((0, 40, 26), (0, -110, 30), 34); P(k_render.eevee('M4_eixo_tex.png', res=(1500, 850)))
+
+    if etapa == 'lobby':                      # monta o LOBBY inteiro, faz UV dos atlas, salva e renderiza a visao geral
+        import k_montagem, importlib; importlib.reload(k_montagem)
+        k_materiais.build_paints()
+        K, rep = k_montagem.build_lobby()
+        P(rep[-1])
+        open(os.path.join(KIT, 'lobby_relatorio.txt'), 'w').write(chr(10).join(rep))
+        json.dump(k_montagem.PLACE, open(os.path.join(KIT, 'lobby_placements.json'), 'w'))
+        bpy.ops.wm.save_as_mainfile(filepath=os.path.join(KIT, 'lobby_forja_celeste.blend'))
+        P('blend do lobby salvo')
+        cols = [c.name for c in bpy.context.scene.collection.children if c.name.startswith('LOB_')]
+        k_render.only(cols); k_render.sun(46, -32, 3.4)
+        gordas = []
+        for c in cols:
+            for o in bpy.data.collections[c].objects:
+                if o.type != 'MESH': continue
+                t = sum(len(pl.vertices) - 2 for pl in o.data.polygons)
+                if t > 19000: gordas.append((o.data.name, t))
+        P('malhas acima de 19 mil tris (teto do Roblox e 20 mil): %s' % (sorted(set(gordas)) or 'nenhuma'))
+        place = k_montagem.PLACE
+        ATL = {'A_LOBBY_%d' % i: [] for i in range(1, 7)}
+        alvo = {}
+        nomes = sorted({p['mesh'] for p in place})
+        # distribui as malhas em 6 atlas por area de UV aproximada (numero de loops), para nenhum atlas ficar denso demais
+        pesos = []
+        for n in nomes:
+            me = bpy.data.meshes.get(n)
+            pesos.append((len(me.loops) if me else 0, n))
+        pesos.sort(reverse=True)
+        carga = {k: 0 for k in ATL}
+        for w, n in pesos:
+            k = min(carga, key=lambda a: carga[a]); ATL[k].append(n); carga[k] += w
+        json.dump(ATL, open(os.path.join(KIT, 'lobby_atlas.json'), 'w'), indent=1)
+        P('atlas do lobby: ' + ', '.join('%s=%d malhas/%d loops' % (k, len(v), carga[k]) for k, v in ATL.items()))
+        k_render.camera((150, 230, 120), (0, -20, 20), 30); P(k_render.workbench('M1_lobby_geral.png', 'MATERIAL', res=(1600, 900)))
+        k_render.camera((0, 40, 26), (0, -110, 30), 34); P(k_render.workbench('M2_eixo.png', 'MATERIAL', res=(1500, 850)))
+
+    if etapa == 'lobby_bancada':              # constroi as pecas novas do lobby numa bancada e renderiza para revisao
+        import k_lobby, importlib; importlib.reload(k_lobby)
+        from k_core import clear_col, col
+        k_materiais.build_paints()
+        clear_col('BANCADA3')
+        x = 0; info = []
+        pecas = [('torre', lambda: k_lobby.torre_fogo(), 16), ('espada', lambda: k_lobby.espada_ancestral(), 12),
+                 ('pedestal', lambda: k_lobby.pedestal_espada(), 26), ('fornalha', lambda: k_lobby.fornalha(), 22),
+                 ('bigorna', lambda: k_lobby.bigorna(), 9), ('fole', lambda: k_lobby.fole(), 16),
+                 ('calha', lambda: k_lobby.calha_tempera(), 12), ('altar', lambda: k_lobby.altar_laminas(), 16),
+                 ('braseiro', lambda: k_lobby.braseiro(), 10), ('leao', lambda: k_lobby.leao(1), 10),
+                 ('leao2', lambda: k_lobby.leao(-1), 14), ('ponte', lambda: k_lobby.ponte_lua(), 36),
+                 ('rocha', lambda: k_lobby.rocha(1), 10), ('bambu', lambda: k_lobby.bambu(1), 10),
+                 ('bordo', lambda: k_lobby.bordo(1), 14), ('poste_t', lambda: k_lobby.poste_treino(), 6),
+                 ('boneco', lambda: k_lobby.boneco_treino(), 8), ('estante', lambda: k_lobby.estante_armas(), 0)]
+        for key, fn, dx in pecas:
+            B = fn(); tr = B.tris(); o = B.finish('BANCADA3', loc=(200 + x, 0, 0)); info.append('%s %d tris' % (o.name, tr)); x += dx
+        P('\n'.join(info))
+        bpy.ops.wm.save_mainfile()
+        k_render.only(['BANCADA3']); k_render.sun(46, -32, 3.4)
+        k_render.camera((232, -62, 26), (232, 2, 10), 30); P(k_render.workbench('L1_forja.png', 'MATERIAL', res=(1500, 760)))
+        k_render.camera((336, -70, 24), (336, 2, 9), 30); P(k_render.workbench('L1_natureza.png', 'MATERIAL', res=(1500, 760)))
+        tot = sum(sum(len(pl.vertices) - 2 for pl in o.data.polygons) for o in bpy.data.collections['BANCADA3'].objects)
+        gordas = [(o.name, sum(len(pl.vertices) - 2 for pl in o.data.polygons)) for o in bpy.data.collections['BANCADA3'].objects]
+        gordas = [g for g in gordas if g[1] > 15000]
+        P('total bancada %d tris | acima de 15 mil: %s' % (tot, gordas or 'nenhuma'))
     P('fim %.1fs' % (time.time() - t0))
 except Exception:
     P('ERRO'); print(traceback.format_exc()); sys.exit(1)

@@ -10,7 +10,7 @@ PAINTS = {   # tinta -> cor de viewport (sRGB hex). Os shaders pintados ficam em
     'pedra': 'DCCDB0', 'piso': 'B9AD95', 'junta': '8F846E', 'telha': '2E5A4C', 'telhaImp': 'D4A034', 'jade': '3E7D6E',
     'jadeE': '2E5A4C', 'creme': 'F1E3C0', 'ferro': '2B2624', 'chama': 'FFC84A', 'pinho': '3E6B3A', 'folha': '6E9A45',
     'casca': '5A3F2A', 'bordo': 'C4432B', 'tecido': 'A8261A', 'corte': '1E1A18',
-    'aco': 'C9D0D8',
+    'aco': 'C9D0D8', 'agua': '3FA0A0', 'palha': 'C9A86A', 'brasa': 'FF7A1A', 'bambu': '7FA85A',
 }
 
 def hex_lin(h):

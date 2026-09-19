@@ -2,6 +2,6 @@
 _prev_*.png
 __pycache__/
 *.log
-# FBX do kit: ~45 MB com as texturas de tex/ embutidas; e regeneravel por run_bg.py kit2_final
+lobby_forja_celeste.blend
 export/*.fbx
 export/*.fbm/
