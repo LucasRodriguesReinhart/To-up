@@ -1,0 +1,646 @@
+{
+ "KIT_agua_frente": {
+  "centro": [
+   0.0,
+   -7.7006,
+   29.1227
+  ],
+  "tamanho": [
+   39.5676,
+   15.5828,
+   13.7946
+  ],
+  "tris": 11691,
+  "atlas": "A_TELHA"
+ },
+ "KIT_agua_lado": {
+  "centro": [
+   14.7627,
+   0.0,
+   29.1344
+  ],
+  "tamanho": [
+   10.7254,
+   30.5676,
+   13.8063
+  ],
+  "tris": 7882,
+  "atlas": "A_TELHA"
+ },
+ "KIT_arbusto_a": {
+  "centro": [
+   0.1012,
+   -0.1029,
+   1.0368
+  ],
+  "tamanho": [
+   4.4798,
+   3.4026,
+   1.9164
+  ],
+  "tris": 320,
+  "atlas": "A_VEG"
+ },
+ "KIT_arbusto_b": {
+  "centro": [
+   0.2345,
+   -0.0756,
+   1.0368
+  ],
+  "tamanho": [
+   4.5054,
+   3.2747,
+   1.9164
+  ],
+  "tris": 320,
+  "atlas": "A_VEG"
+ },
+ "KIT_arquitrave": {
+  "centro": [
+   0.0,
+   0.0,
+   11.1918
+  ],
+  "tamanho": [
+   9.0,
+   1.68,
+   3.6163
+  ],
+  "tris": 3268,
+  "atlas": "A_MAD1"
+ },
+ "KIT_bal_poste": {
+  "centro": [
+   0.0,
+   0.0,
+   2.4208
+  ],
+  "tamanho": [
+   1.32,
+   1.32,
+   4.8416
+  ],
+  "tris": 1276,
+  "atlas": "A_PEDRA"
+ },
+ "KIT_bal_seg": {
+  "centro": [
+   2.065,
+   0.0,
+   2.4208
+  ],
+  "tamanho": [
+   5.45,
+   1.32,
+   4.8416
+  ],
+  "tris": 2780,
+  "atlas": "A_PEDRA"
+ },
+ "KIT_bal_tambor": {
+  "centro": [
+   0.0,
+   -1.3502,
+   1.1876
+  ],
+  "tamanho": [
+   0.92,
+   2.7004,
+   2.3752
+  ],
+  "tris": 812,
+  "atlas": "A_PEDRA"
+ },
+ "KIT_beiral_frente": {
+  "centro": [
+   0.0,
+   -11.5056,
+   24.1229
+  ],
+  "tamanho": [
+   39.6566,
+   7.4194,
+   3.8464
+  ],
+  "tris": 3100,
+  "atlas": "A_MAD2"
+ },
+ "KIT_beiral_lado": {
+  "centro": [
+   15.8155,
+   0.0,
+   25.6231
+  ],
+  "tamanho": [
+   7.705,
+   30.6369,
+   6.6111
+  ],
+  "tris": 2094,
+  "atlas": "A_MAD2"
+ },
+ "KIT_besta_0": {
+  "centro": [
+   0.0,
+   0.1103,
+   0.9161
+  ],
+  "tamanho": [
+   0.92,
+   1.7948,
+   1.8323
+  ],
+  "tris": 352,
+  "atlas": "A_PROPS"
+ },
+ "KIT_besta_1": {
+  "centro": [
+   0.0,
+   0.0362,
+   0.9647
+  ],
+  "tamanho": [
+   0.92,
+   1.9429,
+   1.9293
+  ],
+  "tris": 352,
+  "atlas": "A_PROPS"
+ },
+ "KIT_besta_2": {
+  "centro": [
+   0.0,
+   0.1103,
+   0.9161
+  ],
+  "tamanho": [
+   0.92,
+   1.7948,
+   1.8323
+  ],
+  "tris": 360,
+  "atlas": "A_PROPS"
+ },
+ "KIT_chiwen": {
+  "centro": [
+   0.388,
+   0.0,
+   3.8633
+  ],
+  "tamanho": [
+   7.8005,
+   2.4288,
+   7.7267
+  ],
+  "tris": 3300,
+  "atlas": "A_PROPS"
+ },
+ "KIT_chuishou": {
+  "centro": [
+   0.0,
+   -0.1415,
+   1.3976
+  ],
+  "tamanho": [
+   1.7103,
+   3.583,
+   2.7952
+  ],
+  "tris": 836,
+  "atlas": "A_PROPS"
+ },
+ "KIT_col_base": {
+  "centro": [
+   0.0,
+   0.0,
+   0.75
+  ],
+  "tamanho": [
+   3.9,
+   3.9,
+   1.5
+  ],
+  "tris": 856,
+  "atlas": "A_PEDRA"
+ },
+ "KIT_coluna": {
+  "centro": [
+   0.0,
+   0.0,
+   7.25
+  ],
+  "tamanho": [
+   2.72,
+   2.72,
+   11.5
+  ],
+  "tris": 1648,
+  "atlas": "A_MAD1"
+ },
+ "KIT_cumeeira": {
+  "centro": [
+   0.0,
+   0.0,
+   36.98
+  ],
+  "tamanho": [
+   19.2,
+   2.2,
+   2.42
+  ],
+  "tris": 828,
+  "atlas": "A_TELHA"
+ },
+ "KIT_dougong_canto": {
+  "centro": [
+   0.6036,
+   -0.6036,
+   2.26
+  ],
+  "tamanho": [
+   8.0872,
+   8.0872,
+   4.52
+  ],
+  "tris": 2972,
+  "atlas": "A_DOUG"
+ },
+ "KIT_dougong_intermediario": {
+  "centro": [
+   0.0,
+   0.0,
+   1.93
+  ],
+  "tamanho": [
+   4.88,
+   3.8,
+   3.86
+  ],
+  "tris": 792,
+  "atlas": "A_DOUG"
+ },
+ "KIT_dougong_principal": {
+  "centro": [
+   0.0,
+   -1.06,
+   2.26
+  ],
+  "tamanho": [
+   6.88,
+   5.92,
+   4.52
+  ],
+  "tris": 1400,
+  "atlas": "A_DOUG"
+ },
+ "KIT_dougong_simples": {
+  "centro": [
+   0.0,
+   0.0,
+   1.23
+  ],
+  "tamanho": [
+   4.88,
+   2.05,
+   2.46
+  ],
+  "tris": 348,
+  "atlas": "A_DOUG"
+ },
+ "KIT_escada": {
+  "centro": [
+   0.0,
+   -5.0272,
+   2.21
+  ],
+  "tamanho": [
+   10.74,
+   10.6545,
+   4.42
+  ],
+  "tris": 1416,
+  "atlas": "A_PEDRA"
+ },
+ "KIT_espigao": {
+  "centro": [
+   14.961,
+   -8.4116,
+   31.2856
+  ],
+  "tamanho": [
+   12.5088,
+   17.7285,
+   11.3407
+  ],
+  "tris": 1012,
+  "atlas": "A_TELHA"
+ },
+ "KIT_espigao_esp": {
+  "centro": [
+   14.961,
+   8.4116,
+   31.2856
+  ],
+  "tamanho": [
+   12.5088,
+   17.7285,
+   11.3407
+  ],
+  "tris": 1012,
+  "atlas": "A_TELHA"
+ },
+ "KIT_forro_alpendre": {
+  "centro": [
+   0.0,
+   0.0,
+   -0.02
+  ],
+  "tamanho": [
+   9.44,
+   9.44,
+   0.64
+  ],
+  "tris": 2712,
+  "atlas": "A_MAD2"
+ },
+ "KIT_imortal": {
+  "centro": [
+   0.0,
+   -0.1273,
+   1.12
+  ],
+  "tamanho": [
+   0.92,
+   2.3545,
+   2.24
+  ],
+  "tris": 256,
+  "atlas": "A_PROPS"
+ },
+ "KIT_jardineira": {
+  "centro": [
+   0.0,
+   0.0,
+   0.975
+  ],
+  "tamanho": [
+   4.8042,
+   4.8042,
+   1.95
+  ],
+  "tris": 1872,
+  "atlas": "A_PEDRA"
+ },
+ "KIT_lanterna_palacio": {
+  "centro": [
+   0.0,
+   0.0,
+   -3.245
+  ],
+  "tamanho": [
+   3.84,
+   3.3255,
+   6.49
+  ],
+  "tris": 2244,
+  "atlas": "A_PROPS"
+ },
+ "KIT_lanterna_vermelha": {
+  "centro": [
+   0.0,
+   0.0,
+   -2.75
+  ],
+  "tamanho": [
+   3.2951,
+   3.1338,
+   5.5
+  ],
+  "tris": 2124,
+  "atlas": "A_PROPS"
+ },
+ "KIT_pinheiro_a": {
+  "centro": [
+   -0.4468,
+   -0.1363,
+   5.1664
+  ],
+  "tamanho": [
+   8.899,
+   5.8306,
+   10.7156
+  ],
+  "tris": 2064,
+  "atlas": "A_VEG"
+ },
+ "KIT_pinheiro_b": {
+  "centro": [
+   0.5166,
+   0.0488,
+   5.1664
+  ],
+  "tamanho": [
+   9.8092,
+   5.0251,
+   10.7156
+  ],
+  "tris": 2064,
+  "atlas": "A_VEG"
+ },
+ "KIT_piso_mod": {
+  "centro": [
+   2.625,
+   2.625,
+   -0.2524
+  ],
+  "tamanho": [
+   5.25,
+   5.25,
+   0.4952
+  ],
+  "tris": 768,
+  "atlas": "A_PEDRA"
+ },
+ "KIT_placa": {
+  "centro": [
+   0.0,
+   0.93,
+   0.0
+  ],
+  "tamanho": [
+   5.2,
+   2.74,
+   2.5
+  ],
+  "tris": 1592,
+  "atlas": "A_MAD1"
+ },
+ "KIT_prancha": {
+  "centro": [
+   0.0,
+   0.0,
+   13.25
+  ],
+  "tamanho": [
+   9.0,
+   2.52,
+   0.5
+  ],
+  "tris": 132,
+  "atlas": "A_MAD1"
+ },
+ "KIT_sumeru_canto": {
+  "centro": [
+   0.0,
+   0.0,
+   1.99
+  ],
+  "tamanho": [
+   2.1,
+   2.1,
+   3.98
+  ],
+  "tris": 916,
+  "atlas": "A_PEDRA"
+ },
+ "KIT_sumeru_seg": {
+  "centro": [
+   2.415,
+   -0.48,
+   1.99
+  ],
+  "tamanho": [
+   5.67,
+   0.96,
+   3.98
+  ],
+  "tris": 504,
+  "atlas": "A_PEDRA"
+ },
+ "KIT_tabua_dougong": {
+  "centro": [
+   0.0,
+   0.0,
+   4.0
+  ],
+  "tamanho": [
+   9.0,
+   0.4,
+   8.0
+  ],
+  "tris": 108,
+  "atlas": "A_MAD2"
+ },
+ "KIT_terca": {
+  "centro": [
+   0.0,
+   0.0,
+   0.5
+  ],
+  "tamanho": [
+   9.0,
+   1.1,
+   1.0
+  ],
+  "tris": 132,
+  "atlas": "A_MAD2"
+ },
+ "KIT_tufo_a": {
+  "centro": [
+   0.0596,
+   0.1006,
+   0.9109
+  ],
+  "tamanho": [
+   1.439,
+   1.3314,
+   1.9104
+  ],
+  "tris": 416,
+  "atlas": "A_VEG"
+ },
+ "KIT_vao_janela": {
+  "centro": [
+   0.0,
+   0.0,
+   5.65
+  ],
+  "tamanho": [
+   9.0,
+   1.82,
+   11.3
+  ],
+  "tris": 7148,
+  "atlas": "A_VAOS"
+ },
+ "KIT_vao_parede": {
+  "centro": [
+   0.0,
+   0.0,
+   5.65
+  ],
+  "tamanho": [
+   9.0,
+   1.92,
+   11.3
+  ],
+  "tris": 3472,
+  "atlas": "A_VAOS"
+ },
+ "KIT_vao_porta": {
+  "centro": [
+   0.0,
+   -0.19,
+   5.65
+  ],
+  "tamanho": [
+   7.1,
+   1.3,
+   11.3
+  ],
+  "tris": 8736,
+  "atlas": "A_VAOS"
+ },
+ "KIT_viga_alpendre": {
+  "centro": [
+   0.0,
+   -4.5,
+   10.95
+  ],
+  "tamanho": [
+   1.26,
+   9.0,
+   1.62
+  ],
+  "tris": 372,
+  "atlas": "A_MAD1"
+ },
+ "KIT_viga_canto": {
+  "centro": [
+   16.5569,
+   -10.1206,
+   26.2026
+  ],
+  "tamanho": [
+   8.3696,
+   12.7871,
+   5.3647
+  ],
+  "tris": 288,
+  "atlas": "A_MAD2"
+ },
+ "KIT_viga_canto_esp": {
+  "centro": [
+   16.5569,
+   10.1206,
+   26.2026
+  ],
+  "tamanho": [
+   8.3696,
+   12.7871,
+   5.3647
+  ],
+  "tris": 288,
+  "atlas": "A_MAD2"
+ }
+}

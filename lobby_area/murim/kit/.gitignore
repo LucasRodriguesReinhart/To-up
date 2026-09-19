@@ -1,3 +1,6 @@
 *.blend1
 _prev_*.png
 __pycache__/
+# FBX do kit: 39 MB com as texturas de tex/ embutidas; e regeneravel por k_export.export_kit
+export/*.fbx
+export/*.fbm/
