@@ -348,7 +348,8 @@ local PLACE = {
 	{"KIT_lanterna_vermelha", 97,-20,6, 0, 1,1,1},
 }
 local tmpl, faltam = {}, {}
-for _, d in ipairs(KIT:GetDescendants()) do if d:IsA("MeshPart") then tmpl[d.Name] = d end end
+-- o FBX saiu com nomes de OBJETO sufixados pelo Blender (KIT_coluna.012): indexa pelo nome sem o sufixo numerico
+for _, d in ipairs(KIT:GetDescendants()) do if d:IsA("MeshPart") then tmpl[(d.Name:gsub("%.%d+$", ""))] = d end end
 local PEQUENAS = { KIT_besta_0 = true, KIT_besta_1 = true, KIT_besta_2 = true, KIT_imortal = true, KIT_tufo_a = true, KIT_prancha = true, KIT_terca = true }
 local n = 0
 for _, p in ipairs(PLACE) do
@@ -372,7 +373,9 @@ local function caixa(nome, x0, x1, y0, y1, z0, z1)
 	local p = Instance.new("Part"); p.Name = nome; p.Anchored = true; p.Transparency = 1; p.CastShadow = false; p.CanQuery = false
 	p.Size = Vector3.new(x1 - x0, z1 - z0, y1 - y0); p.CFrame = CFrame.new(ORIGEM + B((x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2)); p.Parent = COL
 end
-caixa("terraco", -21.95, 21.95, -16.7, 16.7, 0, 4)
+-- na FRENTE a caixa para em -15.75 (borda real do piso): se avancar ate a moldura (-16.7) ela engole o 1o degrau e vira
+-- um paredao de 1,6 que o Humanoid nao sobe (bug achado na verificacao geometrica de 2026-09-19).
+caixa("terraco", -21.95, 21.95, -15.75, 16.7, 0, 4)
 for i = 1, 4 do caixa("degrau" .. i, -4, 4, -15.75 - 1.9 * i, -15.75 - 1.9 * (i - 1), 0, 4 - 0.8 * i) end
 for _, sx in ipairs({ -1, 1 }) do caixa("bochecha", math.min(sx * 4, sx * 5.25), math.max(sx * 4, sx * 5.25), -25.3, -15.75, 0, 4.4) end
 caixa("parede_frente", -13.5, 13.5, -0.6, 0.6, 4, 17); caixa("parede_fundo", -13.5, 13.5, 8.4, 9.6, 4, 17)
