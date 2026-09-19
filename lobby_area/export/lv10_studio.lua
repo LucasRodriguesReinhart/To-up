@@ -23,8 +23,12 @@ local W = Color3.new(1, 1, 1)
 -- atravessando a escada) nem sempre Precise (a decomposicao pode ligar componentes distantes).
 -- Regra: pisos/estruturas = precise; decorativos separados (balaustres, troncos, canteiros) = voxel (Default) ou sem colisao.
 local MAP = {
-	SDK = {mat = SP, tex = true, col = Color3.fromRGB(128, 118, 106), coll = "precise"},
-	SLT = {mat = SP, tex = true, col = Color3.fromRGB(188, 190, 196), coll = "voxel"},
+	SDK = {mat = SP, tex = true, col = Color3.fromRGB(128, 118, 106), coll = "precise"},   -- legado (v1)
+	SMD = {mat = SP, tex = true, col = Color3.fromRGB(190, 182, 168), coll = "precise"},   -- corpo da torre (pedra clara-media)
+	FLF = {mat = SP, tex = true, col = Color3.fromRGB(222, 216, 202), coll = "none"},      -- piso com folhas (lamina fina sobre o piso)
+	LFP = {mat = SP, col = Color3.fromRGB(242, 216, 150), coll = "none"},                  -- plumas palidas (capim)
+	FOAM = {mat = SP, col = Color3.fromRGB(236, 248, 250), coll = "none"},                 -- espuma
+	SLT = {mat = SP, tex = true, col = Color3.fromRGB(228, 223, 212), coll = "voxel"},
 	ASH = {mat = SP, tex = true, col = Color3.fromRGB(204, 200, 190), coll = "precise"},
 	FLR = {mat = SP, tex = true, col = Color3.fromRGB(212, 205, 190), coll = "precise"},
 	FLL = {mat = SP, tex = true, col = Color3.fromRGB(222, 216, 202), coll = "precise"},

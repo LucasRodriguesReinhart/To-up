@@ -14,12 +14,14 @@ TEX = r"C:\Users\lucas\OneDrive\Desktop\To up\lobby_area\export\tex"
 
 # nome -> (cor base rgb, textura cor, textura normal, textura roughness, escala UV mundo (1/studs))
 MATS10 = {
-    'SDK': ((128, 118, 106), 't_stone_dark.png', 't_stone_dark_n.png', None, 1/24),   # corpo escuro da torre
-    'SLT': ((188, 190, 196), 't_stone_light.png', 't_stone_light_n.png', None, 1/20), # molduras, pilastras, cornijas
-    'ASH': ((204, 200, 190), 't_ashlar.png', 't_ashlar_n.png', None, 1/16),           # muretas, faces de plataforma
-    'FLR': ((212, 205, 190), 't_floor.png', 't_floor_n.png', None, 1/32),             # piso da praca
-    'FLL': ((222, 216, 202), 't_floor_light.png', 't_floor_light_n.png', None, 1/32), # piso do patamar/terraco
-    'GLD': ((222, 176, 78), 't_gold.png', None, 't_gold_r.png', 1/8),                 # dourado
+    'SDK': ((128, 118, 106), 't_stone_dark.png', 't_stone_dark_n.png', None, 1/24),   # (legado) pedra escura
+    'SMD': ((190, 182, 168), 't_stone_mid.png', 't_stone_mid_n.png', None, 1/22),     # corpo da torre: pedra clara-media quente
+    'SLT': ((228, 223, 212), 't_stone_light.png', 't_stone_light_n.png', None, 1/20), # marfim: molduras, pilastras, cornijas
+    'ASH': ((212, 206, 194), 't_ashlar.png', 't_ashlar_n.png', None, 1/16),           # muretas, faces de plataforma
+    'FLR': ((214, 207, 192), 't_floor.png', 't_floor_n.png', None, 1/28),             # piso da praca (lajotas irregulares)
+    'FLL': ((222, 216, 202), 't_floor_light.png', 't_floor_light_n.png', None, 1/28), # piso do patamar/terraco
+    'FLF': ((222, 216, 202), 't_floor_leaf.png', 't_floor_leaf_n.png', None, 1/28),   # piso com folhas caidas (bordas/canteiros)
+    'GLD': ((226, 180, 82), 't_gold.png', None, 't_gold_r.png', 1/8),                 # dourado quente
     'LPS': ((34, 78, 190), 't_lapis.png', None, None, 1/16),                          # azul embutido
     'GRS': ((110, 186, 88), 't_grass.png', None, None, 1/10),                         # grama de canteiro
     'RCK': ((132, 136, 142), 't_rock.png', 't_rock_n.png', None, 1/24),               # rocha
@@ -30,10 +32,12 @@ MATS10 = {
     'CYN': ((120, 225, 255), None, None, None, None),                                 # ciano luminoso (cristal)
     'GLS': ((120, 190, 215), None, None, None, None),                                 # vidro das cupulas
     'WTR': ((52, 170, 210), None, None, None, None),                                  # agua (fallback; no Studio vira Terrain)
+    'FOAM': ((236, 248, 250), None, None, None, None),                                # espuma (pe de queda d'agua)
     'DRK': ((28, 26, 30), None, None, None, None),                                    # fundo escuro dos vaos
     'LFG': ((236, 192, 86), 't_leaf_gold.png', None, None, 1/5),                     # folhagem dourada (textura de massa foliar)
     'LFG2': ((222, 168, 60), 't_leaf_gold2.png', None, None, 1/5),
     'LFV': ((104, 178, 90), 't_leaf_green.png', None, None, 1/6),                    # folhagem verde
+    'LFP': ((242, 216, 150), None, None, None, None),                                 # plumas palidas (capim-dos-pampas)
     'TRK': ((92, 70, 52), None, None, None, None),                                    # tronco
     'FLW': ((246, 176, 206), None, None, None, None),                                 # flores rosas
     'WHT': ((236, 236, 232), None, None, None, None),                                 # branco liso (petalas, fuste)
@@ -119,49 +123,68 @@ def noisy_ball(r, pos, seed=1, seg=10, amp=.25, scl=(1, 1, 1)):
 
 # ---------------------------------------------------------------- POSTE (ref. imagem do poste)
 def lamp_post(out, pos, scale=1.0):
-    """base dourada + plinto claro, fuste liso branco com aneis de ouro, colar de petalas grandes,
-    lanterna octogonal com barras douradas e vidro leitoso, tampa em disco + coroa + agulha."""
+    """Poste v2 (ref. imagem do poste): plinto redondo + anel de ouro no pe; fuste branco liso com entasis;
+    punho de ouro; taca; 8 petalas grandes viradas para fora + 8 sepalas baixas; lanterna octogonal com
+    base de ouro, barras verticais e bracadeiras em X douradas, vidro leitoso; tampa: anel de ouro,
+    disco branco largo com aro de ouro, tambor de ouro e agulha. Altura total ~13*s (~2,5 avatares)."""
     s = scale
     x, y, z = pos
-    # plinto de pedra clara + anel de ouro
-    out.add('SLT', lathe([(1.0*s, 0), (1.0*s, .35*s), (.78*s, .5*s), (.62*s, .75*s), (.5*s, .9*s)], (x, y, z), seg=14))
-    out.add('GLD', lathe([(.56*s, 0), (.62*s, .1*s), (.62*s, .28*s), (.5*s, .36*s), (.42*s, .38*s)], (x, y, z + .9*s), seg=14))
-    # fuste liso (leve afunilamento)
-    H = 6.4 * s
-    out.add('WHT', lathe([(.40*s, 0), (.38*s, H*.5), (.34*s, H)], (x, y, z + 1.25*s), seg=14))
-    out.add('GLD', torus(.36*s, .09*s, (x, y, z + 1.25*s + H - .1*s), seg=14, sides=6))
-    # taca sob as petalas
-    top = z + 1.25*s + H
-    out.add('WHT', lathe([(.3*s, 0), (.62*s, .45*s), (.78*s, .8*s), (.7*s, 1.0*s)], (x, y, top), seg=14))
-    # petalas grandes (8), inclinadas para fora, com uma fileira menor por dentro
+    # plinto + anel do pe
+    out.add('SLT', lathe([(.95*s, 0), (.95*s, .3*s), (.8*s, .42*s), (.6*s, .5*s)], (x, y, z), seg=16))
+    out.add('GLD', lathe([(.58*s, 0), (.6*s, .12*s), (.56*s, .3*s), (.46*s, .36*s)], (x, y, z + .5*s), seg=16))
+    # fuste com entasis leve
+    H = 6.3 * s
+    z0 = z + .86 * s
+    out.add('WHT', lathe([(.42*s, 0), (.45*s, H*.25), (.41*s, H*.6), (.35*s, H)], (x, y, z0), seg=18))
+    # punho de ouro + taca branca
+    top = z0 + H
+    out.add('GLD', lathe([(.36*s, 0), (.5*s, .12*s), (.5*s, .38*s), (.4*s, .46*s)], (x, y, top - .1*s), seg=16))
+    out.add('WHT', lathe([(.34*s, 0), (.55*s, .35*s), (.72*s, .75*s), (.66*s, .95*s)], (x, y, top + .36*s), seg=16))
+    # petalas grandes: 8, base na taca, ponta virada para fora e um pouco enrolada
     for i in range(8):
         a = i / 8 * TAU
-        bm = ball(.62*s, (0, 0, 0), seg=10, scl=(.55, 1.0, 1.7))
-        _xform(bm, (0, 0, 0), (math.radians(28), 0, 0))
-        _xform(bm, (0, 0, 0), (0, 0, a + math.pi/2))
-        _xform(bm, (x + math.cos(a)*.62*s, y + math.sin(a)*.62*s, top + 1.2*s))
+        bm = ball(.7*s, (0, 0, 0), seg=10, scl=(.5, .95, 1.9))
+        _xform(bm, (0, 0, 0), (math.radians(34), 0, 0))            # tomba para fora (eixo Y local)
+        _xform(bm, (0, 0, .0), (0, 0, a + math.pi/2))
+        _xform(bm, (x + math.cos(a)*.72*s, y + math.sin(a)*.72*s, top + 1.65*s))
         out.add('WHT', bm)
+        # ponta da petala levemente enrolada para fora (discreta)
+        out.add('WHT', ball(.16*s, (x + math.cos(a)*1.28*s, y + math.sin(a)*1.28*s, top + 2.55*s), seg=7, scl=(1.1, 1.1, .7)))
+    # sepalas baixas e mais abertas
     for i in range(8):
         a = (i + .5) / 8 * TAU
-        bm = ball(.42*s, (0, 0, 0), seg=8, scl=(.5, 1.0, 1.5))
-        _xform(bm, (0, 0, 0), (math.radians(12), 0, 0))
+        bm = ball(.42*s, (0, 0, 0), seg=8, scl=(.45, .9, 1.5))
+        _xform(bm, (0, 0, 0), (math.radians(58), 0, 0))
         _xform(bm, (0, 0, 0), (0, 0, a + math.pi/2))
-        _xform(bm, (x + math.cos(a)*.34*s, y + math.sin(a)*.34*s, top + 1.75*s))
+        _xform(bm, (x + math.cos(a)*.8*s, y + math.sin(a)*.8*s, top + 1.0*s))
         out.add('WHT', bm)
     # lanterna octogonal
-    lz = top + 1.9*s
+    lz = top + 2.15 * s
     LH = 1.55 * s
-    out.add('MLK', ngon_prism(reg_poly(.56*s, 8, TAU/16), LH, (x, y, lz)))
+    R8 = .6 * s
+    out.add('GLD', ngon_prism(reg_poly(R8 + .12*s, 8, TAU/16), .16*s, (x, y, lz - .16*s)))      # base
+    out.add('MLK', ngon_prism(reg_poly(R8, 8, TAU/16), LH, (x, y, lz)))                          # vidro
     for i in range(8):
         a = i / 8 * TAU + TAU/16
-        out.add('GLD', box((.1*s, .1*s, LH), (x + math.cos(a)*.58*s, y + math.sin(a)*.58*s, lz + LH/2), (0, 0, a)))
-    out.add('GLD', ngon_prism(reg_poly(.66*s, 8, TAU/16), .12*s, (x, y, lz - .06*s)))
-    out.add('GLD', ngon_prism(reg_poly(.66*s, 8, TAU/16), .12*s, (x, y, lz + LH*.5)))
-    # tampa: disco branco largo com borda de ouro, coroa dourada e agulha
+        out.add('GLD', box((.09*s, .09*s, LH), (x + math.cos(a)*(R8 + .02*s), y + math.sin(a)*(R8 + .02*s), lz + LH/2), (0, 0, a)))
+    # bracadeiras em X em cada face
+    fr = R8 * math.cos(TAU/16) + .03*s
+    fw = 2 * R8 * math.sin(TAU/16)
+    L = math.hypot(fw, LH) * .92
+    for i in range(8):
+        a = i / 8 * TAU
+        for tilt in (math.atan2(fw, LH), -math.atan2(fw, LH)):
+            bm = box((.06*s, .06*s, L), (0, 0, 0))
+            _xform(bm, (0, 0, 0), (tilt, 0, 0))              # inclina no plano da face (normal = X local)
+            _xform(bm, (0, 0, 0), (0, 0, a))
+            _xform(bm, (x + math.cos(a)*fr, y + math.sin(a)*fr, lz + LH/2))
+            out.add('GLD', bm)
+    # tampa
     cz = lz + LH
-    out.add('GLD', ngon_prism(reg_poly(.74*s, 8, TAU/16), .14*s, (x, y, cz)))
-    out.add('WHT', lathe([(.98*s, 0), (1.0*s, .22*s), (.9*s, .34*s), (.7*s, .42*s)], (x, y, cz + .14*s), seg=16))
-    out.add('GLD', lathe([(.6*s, 0), (.62*s, .18*s), (.48*s, .5*s), (.5*s, .62*s), (.26*s, .7*s), (.03*s, 1.6*s)], (x, y, cz + .56*s), seg=12))
+    out.add('GLD', ngon_prism(reg_poly(R8 + .14*s, 8, TAU/16), .14*s, (x, y, cz)))
+    out.add('WHT', lathe([(1.05*s, 0), (1.08*s, .2*s), (.98*s, .34*s), (.8*s, .44*s)], (x, y, cz + .14*s), seg=18))
+    out.add('GLD', torus(1.07*s, .06*s, (x, y, cz + .2*s), seg=18, sides=6))
+    out.add('GLD', lathe([(.55*s, 0), (.58*s, .1*s), (.5*s, .55*s), (.56*s, .66*s), (.3*s, .78*s), (.32*s, .9*s), (.03*s, 2.0*s)], (x, y, cz + .56*s), seg=14))
 
 # ---------------------------------------------------------------- ARCOS COM PROFUNDIDADE
 def _arc_pts(w, spring, apex, n=14, pointed=True):
@@ -370,26 +393,60 @@ def pedestal(out, pos, w=3.6, h=3.2, mat='SLT'):
     out.add(mat, box((w * .95, w * .95, .52), (x, y, z + h - .26), bevel=.06))
 
 # ---------------------------------------------------------------- VEGETACAO ESTILIZADA
-def poplar(out, pos, h=24.0, r=2.4, seed=1, mat='LFG', mat2='LFG2'):
-    """alamo dourado alto e estreito (ref: arvores douradas colunares)"""
+def poplar(out, pos, h=26.0, r=2.0, seed=1, mat='LFG', mat2='LFG2'):
+    """alamo dourado v2: alto, estreito e delicado - tronco com ramos visiveis e MUITAS plumas pequenas
+    alongadas (leitura de ramos + folhas), envelope estreito que afina para uma ponta."""
     x, y, z = pos
     rnd = random.Random(seed)
-    out.add('TRK', lathe([(.5, 0), (.36, h * .35), (.18, h * .8), (.04, h * .97)], (x, y, z), seg=8))
-    # copa colunar: muitas plumas pequenas e alongadas em torno do eixo (silhueta estreita e "penada")
-    n = 16
-    for i in range(n):
-        t = i / (n - 1)
-        zz = z + h * (.14 + .82 * t)
-        env = (0.35 + .95 * math.sin(math.pi * (t * .78 + .12))) * (1 - .45 * t)   # envelope: mais largo no terco inferior
-        rr = r * env * (.55 + rnd.random() * .25)
+    out.add('TRK', lathe([(.42, 0), (.3, h * .3), (.16, h * .7), (.05, h * .96)], (x, y, z), seg=8))
+    # ramos curtos (ficam quase escondidos na copa; dao leitura de estrutura nos vaos)
+    nb = 6
+    for i in range(nb):
+        t = .24 + .55 * i / (nb - 1)
         a = rnd.random() * TAU
-        d = r * env * .55 * rnd.random()
-        ox, oy = math.cos(a) * d, math.sin(a) * d
-        bm = ball(rr, (0, 0, 0), seg=8, scl=(.8, .8, 1.9))
-        _xform(bm, (0, 0, 0), ((rnd.random() - .5) * .5, (rnd.random() - .5) * .5, 0))
-        _xform(bm, (x + ox, y + oy, zz))
-        out.add(mat if i % 3 else mat2, bm)
-    out.add(mat, ball(r * .28, (x, y, z + h * .99), seg=7, scl=(.8, .8, 2.6)))
+        L = h * (.09 + .05 * rnd.random()) * (1 - .3 * t)
+        bm = cyl(.06, L, (0, 0, 0), seg=5)
+        _xform(bm, (0, 0, 0), (math.radians(30 + rnd.random() * 14), 0, 0))
+        _xform(bm, (0, 0, 0), (0, 0, a))
+        _xform(bm, (x, y, z + h * t))
+        out.add('TRK', bm)
+    # plumas: DENSAS, pequenas e alongadas; coluna estreita que afina para a ponta (leitura penada)
+    n = 64
+    for i in range(n):
+        t = .14 + .86 * (i / (n - 1)) ** .95
+        env = math.sin(math.pi * (.06 + .92 * t)) ** .7 * (1 - .5 * t) + .1
+        R = r * env
+        a = rnd.random() * TAU
+        d = R * (.15 + .85 * rnd.random())
+        rr = (.5 + .35 * rnd.random()) * (1 - .3 * t) * (r / 2.0)
+        bm = noisy_ball(rr, (0, 0, 0), seed=seed * 31 + i, seg=7, amp=.16, scl=(.5, .5, 1.8))
+        _xform(bm, (0, 0, 0), (math.radians(8 + 26 * (d / max(R, .01))), 0, 0))    # quanto mais externa, mais deitada
+        _xform(bm, (0, 0, 0), (0, 0, a + math.pi / 2))
+        _xform(bm, (x + math.cos(a) * d, y + math.sin(a) * d, z + h * t))
+        out.add(mat if (i % 3) else mat2, bm)
+    for k in range(3):
+        out.add(mat, noisy_ball(.32 * (r / 2.0), (x + (rnd.random() - .5) * .4, y + (rnd.random() - .5) * .4, z + h * (.97 + .03 * k)), seed=seed + k, seg=7, amp=.1, scl=(.5, .5, 2.6)))
+
+def pampas(out, pos, h=2.8, n=9, seed=1, mat='LFP'):
+    """capim-dos-pampas: plumas finas e palidas em leque (vegetacao baixa da referencia)"""
+    x, y, z = pos
+    rnd = random.Random(seed)
+    for i in range(n):
+        a = rnd.random() * TAU
+        tilt = math.radians(8 + rnd.random() * 26)
+        hh = h * (.7 + rnd.random() * .5)
+        bm = ball(.22, (0, 0, 0), seg=6, scl=(.6, .6, hh / .44))
+        _xform(bm, (0, 0, 0), (tilt, 0, 0)); _xform(bm, (0, 0, 0), (0, 0, a))
+        _xform(bm, (x + math.cos(a) * .25, y + math.sin(a) * .25, z + hh * .55))
+        out.add(mat, bm)
+    out.add('LFV', puff_cloud([(x, y, z + .35, .75), (x + .4, y - .2, z + .3, .55), (x - .35, y + .3, z + .3, .5)], .7, seed=seed, seg=7))
+
+def ground_cover(out, pos, r=2.0, seed=1, mat='LFV'):
+    """tapete baixo de folhagem (montinhos) para pes de canteiro e margens"""
+    x, y, z = pos
+    rnd = random.Random(seed)
+    cs = [(x + (rnd.random() - .5) * r * 2, y + (rnd.random() - .5) * r * 2, z + .25, .45 + rnd.random() * .35) for _ in range(6)]
+    out.add(mat, puff_cloud(cs, .5, seed=seed, seg=7))
 
 def bush(out, pos, r=2.0, seed=1, mat='LFV', flowers='FLW', n_fl=6):
     x, y, z = pos
