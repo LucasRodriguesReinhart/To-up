@@ -185,6 +185,11 @@ def remirror():
 def bake_set(atlases, which, size=2048, samples=24):
     import k_materiais
     out = []
+    # o bake precisa selecionar os objetos: garante que TODAS as colecoes PAV_* estao na view layer (um render anterior
+    # com k_render.only() pode ter excluido a PAV_BANCADA, onde moram as pecas do kit que nao entram no pavilhao)
+    for lc in bpy.context.view_layer.layer_collection.children:
+        if lc.name.startswith('PAV_'): lc.exclude = False; lc.collection.hide_render = False
+    bpy.context.view_layer.update()
     for atlas in atlases:
         objs = [bpy.data.objects[n] for n in ATLAS[atlas]]; moved = {}
         for o in objs:

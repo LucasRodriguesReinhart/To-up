@@ -4,8 +4,10 @@
 -- Eixos: Blender (x,y,z) -> Roblox (-x, z, y); rotacao em Z do Blender = rotacao em Y do Roblox; a MeshPart fica no
 -- CENTRO da caixa envolvente, entao cada colocacao soma o centro local (escalado) depois da rotacao.
 local ORIGEM = Vector3.new(440, 0, 0)   -- fora da planta B2 e livre (conferido no Studio: 0 pecas, 0 terreno); o pavilhao e amostra do kit
-local KIT = workspace:FindFirstChild("KIT_FORJA_CELESTE")
-assert(KIT, "importe o FBX do kit primeiro (Model KIT_FORJA_CELESTE no workspace)")
+-- usa o kit mais novo que existir: o v2 (ouro/pedra/creme/tronco corrigidos) tem prioridade sobre o v1
+local KIT = workspace:FindFirstChild("KIT_FORJA_CELESTE_v2") or workspace:FindFirstChild("KIT_FORJA_CELESTE")
+assert(KIT, "importe o FBX do kit primeiro (Model KIT_FORJA_CELESTE_v2 ou KIT_FORJA_CELESTE no workspace)")
+print("montando a partir de " .. KIT.Name)
 local old = workspace:FindFirstChild("PAVILHAO_MODELO_G1"); if old then old:Destroy() end
 local ROOT = Instance.new("Model"); ROOT.Name = "PAVILHAO_MODELO_G1"; ROOT.Parent = workspace
 local function B(x, y, z) return Vector3.new(-x, z, y) end
@@ -387,4 +389,4 @@ end
 caixa("bal_frente_W", -20.6, -4.6, -15.4, -14.5, 4, 7.3); caixa("bal_frente_E", 4.6, 20.6, -15.4, -14.5, 4, 7.3)
 caixa("bal_fundo", -20.6, 20.6, 14.5, 15.4, 4, 7.3); caixa("bal_E", 19.75, 20.65, -15.4, 15.4, 4, 7.3); caixa("bal_W", -20.65, -19.75, -15.4, 15.4, 4, 7.3)
 local f = {}; for k in pairs(faltam) do table.insert(f, k) end
-return string.format("montadas %d de %d pecas | malhas sem template: %s", n, #PLACE, (#f > 0 and table.concat(f, ", ") or "nenhuma"))
+return string.format("kit usado: %s | montadas %d de %d pecas | malhas sem template: %s", KIT.Name, n, #PLACE, (#f > 0 and table.concat(f, ", ") or "nenhuma"))
