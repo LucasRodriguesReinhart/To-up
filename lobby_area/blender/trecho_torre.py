@@ -326,7 +326,7 @@ def build_portal(col):
         objs.append(sweep(bar_path(small), [(-.06, -.06), (-.06, .06), (.06, .06), (.06, -.06)], col, 'TRAC_folha', MAT['GOLD']))
     # fundo luminoso do portal (painel ao fundo do vao) e piso do vao
     pts = arch_outline(PORTAL_W + .4, PORTAL_SPRING, PORTAL_APEX + .2, TERR - .2)
-    objs.append(prism_xz(pts, yf - 6.2, .3, col, 'PORTAL_fundo_luz', MAT['GLOW']))
+    objs.append(prism_xz(pts, yf - 5.4, .3, col, 'PORTAL_fundo_luz', MAT['GLOW']))   # dentro da profundidade do corte (8 a partir de YF+2)
     bm = bmesh.new(); bmesh.ops.create_cube(bm, size=1); bmesh.ops.scale(bm, vec=(PORTAL_W + .6, 7.2, .4), verts=bm.verts)
     bmesh.ops.translate(bm, vec=(0, yf - 3.4, TERR - .2), verts=bm.verts); objs.append(new_obj('PORTAL_piso', bm, col, MAT['FLOOR']))
     # arcos laterais: filete + moldura dourada (mesmos perfis, escala menor) e fundo luminoso
@@ -366,10 +366,30 @@ def build_sign(col):
         objs.append(sweep(pts, prof, col, 'SIGN_voluta', MAT['GOLD']))
     return objs
 
+def split_by_material(obj, col):
+    """o importador do Roblox funde materiais: separa o objeto em um por material (mantendo nomes por zona)."""
+    me = obj.data
+    names = {0: 'TORRE_corpo_pedra', 1: 'TORRE_corpo_moldura', 2: 'TORRE_corpo_escuro'}
+    out = []
+    for mi, mat in enumerate(me.materials):
+        bm = bmesh.new(); bm.from_mesh(me)
+        kill = [f for f in bm.faces if f.material_index != mi]
+        bmesh.ops.delete(bm, geom=kill, context='FACES')
+        if not bm.faces:
+            bm.free(); continue
+        for f in bm.faces: f.material_index = 0
+        m2 = bpy.data.meshes.new(names.get(mi, obj.name + str(mi))); bm.to_mesh(m2); bm.free()
+        m2.materials.append(mat)
+        for p in m2.polygons: p.use_smooth = False
+        o2 = bpy.data.objects.new(names.get(mi, obj.name + str(mi)), m2); col.objects.link(o2); out.append(o2)
+    bpy.data.objects.remove(obj, do_unlink=True)
+    return out
+
 def build_all():
     col = clear('TORRE'); colp = clear('PORTAL')
     body = build_body(col)
+    parts = split_by_material(body, col)
     build_moldings(col)
     build_portal(colp)
     build_sign(colp)
-    return body
+    return parts
