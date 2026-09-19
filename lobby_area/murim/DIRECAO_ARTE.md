@@ -119,9 +119,24 @@ cumeeira da Forja 46 / Torre do Fogo 66 / espada 33 / penhascos 48-84.
 
 ## 4b. Medido no blockout (Play, 2026-09-19)
 
-- Spawn real: o `IslandTravel` coloca o personagem em (0, 5, -66) olhando +Z (para o Altar e o Portao), NAO para a
-  Forja. A orientacao do `SpawnLocation` e ignorada. Fazer o jogador nascer olhando a Forja exige mudar uma linha do
-  `IslandTravel` (`put`) — decisao do usuario, nao aplicada.
+- Spawn (estado ANTIGO, medido antes da mudanca): o `IslandTravel` colocava o personagem em (0, 5, -66) olhando +Z
+  (Altar e Portao), de costas para a Forja. A orientacao do `SpawnLocation` e ignorada.
+- ORIENTACAO DO SPAWN APLICADA (secao 23 do briefing de producao, 2026-09-19). Linha 18 de
+  `ServerScriptService.Core.IslandTravel`, dentro de `put(player,pos,id)`:
+  de `CFrame.lookAt(pos,pos+Vector3.new(0,0,30))` para `CFrame.lookAt(pos,pos+Vector3.new(0,0,id==0 and -30 or 30))`.
+  A funcao `put` serve a 3 chamadas (nascimento/respawn com id 0, viagem com o id da area, recolocacao de seguranca);
+  por isso a condicao: so o LOBBY (id 0) passa a olhar -Z; nas areas continua +Z, porque as entradas das ilhas ficam
+  desse lado. A posicao nao muda. Backup: `ServerStorage.IslandTravel_BACKUP_antes_orientacao_spawn_20260919`.
+  Para desfazer: copiar o Source do backup de volta.
+  Medido em Play, amostrando desde t=0: entrada inicial e respawn -> (0, 5.1, -66) parado, personagem E camera
+  olhando -Z; viagem real por portal a Area 1 -> personagem +Z como antes; retorno pelo caminho real da interface
+  (`Remotes.UITravel:InvokeServer("area", 0)`) -> (0, 5.1, -66), personagem -Z.
+  LIMITACAO: num teleporte no meio do jogo a CAMERA nao e reorientada (padrao do Roblox; ja era assim). Ao voltar de
+  uma ilha o personagem vira para a Forja, mas a camera fica onde o jogador a deixou. No nascimento ela acompanha
+  porque o personagem e novo. Nao foi forcada: seria mexer na camera do cliente, alem de "so a orientacao".
+  DADO PARA O GATE 2: `UITravel("ignis")` deixa o jogador em (10, 13, -90), a 27 studs do Ignis - fora do alcance
+  do prompt (18). Esse destino e do jogo (`ExpeditionTravel.destination`), calibrado para o lobby antigo.
+  ATENCAO: a mudanca vive na sessao do Studio ate o place ser salvo (Ctrl+S, que depende do usuario).
 - Os 6 portais do Santuario sao viagem rapida ATIVA: pisar no pad teleporta para a area (testado: pad em z -20 levou
   a (0, 9, 1595)). A galeria leste tem que ser lida como lugar de viagem, nao como decoracao.
 - Caminhada por waypoints, 0 quedas: escadaria → Ignis (raiz a 13.3 do `belly`, prompt alcanca 18) → Altar (contornar
