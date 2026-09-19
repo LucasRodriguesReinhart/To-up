@@ -102,6 +102,13 @@ for _, s in ipairs({-1, 1}) do
 	end
 end
 T.WaterTransparency = 0.84; T.WaterReflectance = 0.14; T.WaterColor = Color3.fromRGB(64, 186, 202); T.WaterWaveSize = 0.12; T.WaterWaveSpeed = 9
+-- lajes sob os espelhos: a grade de voxels (4 studs) deixa agua ate y=-4, abaixo do fundo RCK (-2.8); as lajes escondem isso
+local lj = M:FindFirstChild("LajesSubAgua") or Instance.new("Folder"); lj.Name = "LajesSubAgua"; lj.Parent = M; lj:ClearAllChildren()
+for _, s in ipairs({-1, 1}) do
+	local p = Instance.new("Part"); p.Name = "LajeSubAgua"; p.Anchored = true; p.CanCollide = false; p.CastShadow = false
+	p.Material = Enum.Material.Slate; p.Color = Color3.fromRGB(96, 98, 104)
+	p.Size = Vector3.new(34, 2.6, 52); p.Position = Vector3.new(s * 49, -4.1, -80); p.Parent = lj
+end
 
 -- 5) spawn sob o medalhao (plataforma baixa em y=5.16)
 local msp = workspace:FindFirstChild("Mystical Spawn Point")
