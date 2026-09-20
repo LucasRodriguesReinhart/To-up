@@ -1,6 +1,6 @@
-vegetacao barrada por cair em superficie dura: cam_oeste=8, escadaria=20, lago=59, patio=145, portao=17, t_forja=51, t_loja=6, t_sant=28, treino=12, via=27
-pecas unicas registradas (geometria ja no lugar): 33
-masters do kit nao usados neste lobby (tirados da origem): JAR_ameixeira_b, JAR_crisantemo.001, KIT_dougong_canto.004, KIT_dougong_simples.002, KIT_jardineira.002, KIT_suporte_espada.002, KIT_tabua_dougong.013, KIT_telhado_portao.001, KIT_terca.011, KIT_vaso.002
+vegetacao barrada por cair em superficie dura: cam_oeste=8, escadaria=19, lago=58, patio=136, portao=16, t_forja=51, t_loja=6, t_sant=28, treino=12, via=25
+pecas unicas registradas (geometria ja no lugar): 34
+masters do kit nao usados neste lobby (tirados da origem): JAR_ameixeira_b, JAR_crisantemo.001, KIT_dougong_canto.004, KIT_dougong_simples.002, KIT_jardineira.002, KIT_pinheiro_a.001, KIT_suporte_espada.002, KIT_tabua_dougong.013, KIT_telhado_portao.001, KIT_terca.011, KIT_vaso.002
 KIT_sumeru_seg.026            504 tris x 135
 KIT_sumeru_canto.004          916 tris x  12
 KIT_piso_mod.048              768 tris x 464
@@ -23,11 +23,11 @@ KIT_dougong_intermediario.001    792 tris x  28
 KIT_dougong_simples.002       348 tris x   1
 KIT_lanterna_palacio.002     2244 tris x   4
 KIT_lanterna_vermelha.001    2124 tris x   8
-KIT_pinheiro_a.001           2270 tris x   2
-KIT_pinheiro_b.001           2316 tris x  12
-KIT_arbusto_a.003             320 tris x   4
+KIT_pinheiro_a.001           2270 tris x   1
+KIT_pinheiro_b.001           2316 tris x  10
+KIT_arbusto_a.003             320 tris x   5
 KIT_arbusto_b.003             320 tris x   5
-KIT_tufo_a.008                416 tris x  10
+KIT_tufo_a.008                416 tris x  13
 KIT_estandarte.002           3200 tris x  20
 KIT_suporte_espada.002       3198 tris x   1
 KIT_vaso.002                 1276 tris x   1
@@ -51,7 +51,7 @@ LOB_ponte_lua.001           14952 tris x   1
 LOB_rocha_1.001               348 tris x   2
 LOB_rocha_2                   348 tris x   1
 LOB_bambu_1.001              3682 tris x   2
-LOB_bordo_1.001              2184 tris x   7
+LOB_bordo_1.001              2184 tris x   6
 LOB_poste_treino.001          420 tris x   9
 LOB_boneco_treino.001         424 tris x   2
 LOB_estante_armas.001        1572 tris x   1
@@ -65,8 +65,8 @@ JAR_ameixeira.001           10568 tris x   1
 JAR_ameixeira_b             11208 tris x   1
 JAR_canteiro.001             6800 tris x   3
 JAR_canteiro_b               6800 tris x   3
-JAR_grama.001                 168 tris x  16
-JAR_grama_b                   168 tris x  15
+JAR_grama.001                 168 tris x  14
+JAR_grama_b                   168 tris x  20
 VIL_lanterna_pedra.001       1948 tris x  16
 VIL_poco.001                 2000 tris x   1
 VIL_barril.001                548 tris x   3
@@ -134,4 +134,4 @@ KIT_chuishou.004              836 tris x  16
 KIT_besta_0.004               352 tris x  16
 KIT_besta_1.004               352 tris x  16
 KIT_besta_2.004               360 tris x  16
-TOTAL ~2573160 tris em cena | malhas unicas 133 (392057 tris) | colocacoes 1557
+TOTAL ~2566146 tris em cena | malhas unicas 133 (392057 tris) | colocacoes 1560

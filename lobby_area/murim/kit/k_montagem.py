@@ -407,6 +407,50 @@ def build_lobby():
     K.put('janela', C, (109, -19, ZL), 0, (1, 1, .88)); K.put('janela', C, (127, -19, ZL), 0, (1, 1, .88))
     telhado('G', 117, -4, ZL + HCOL * .88 + .5 + k_dougong.Z1 + k_dougong.AH + 1.0, C)
     K.put('placa', C, (118, -21, ZL + 9.5), 0)
+    # ---- INTERIOR DA LOJA. Antes era casca vazia: colunata, parede de fundo, telhado e mais nada.
+    lj = Builder('LOJA_interior', 412)
+    def tab(x0, x1, y0, y1, z0, z1, tinta, r=.5, bev=.06):
+        lj.add(t_box(x0, x1, y0, y1, z0, z1, bev=bev, seg=2), tinta, r)
+    # tapete
+    tab(108, 128.5, -17, 9.5, ZL + .02, ZL + .12, 'tecido', .45, bev=.03)
+    tab(109.2, 127.3, -15.8, 8.3, ZL + .12, ZL + .17, 'vermS', .55, bev=.03)
+    # balcao em L, virado para quem entra pela porta (x=118, y=-19)
+    for (x0, x1, y0, y1) in ((110.5, 125.5, -8.4, -6.0), (123.2, 125.5, -6.0, 2.5)):
+        tab(x0, x1, y0, y1, ZL, ZL + 3.4, 'mad', .42)
+        tab(x0 - .3, x1 + .3, y0 - .3, y1 + .3, ZL + 3.4, ZL + 3.8, 'madM', .55)
+        tab(x0 + .4, x1 - .4, y0 - .34, y0 - .28, ZL + .8, ZL + 3.0, 'ouro', .6, bev=.03)
+    # prateleiras na parede do fundo, com mercadoria
+    import random as _rloja; rr = _rloja.Random(77)   # _r so e importado na secao de vegetacao, depois desta
+    for k in range(3):
+        zz = ZL + 2.0 + k * 2.3
+        tab(108.6, 127.8, 9.0, 10.4, zz, zz + .32, 'mad', .48, bev=.04)
+        for i in range(9):
+            cx = 110 + i * 2.05
+            alt = rr.uniform(.9, 1.7)
+            t = rr.random()
+            tinta = 'jade' if t > .68 else ('bronze' if t > .38 else 'creme')
+            tab(cx - .62, cx + .62, 9.2, 10.2, zz + .32, zz + .32 + alt, tinta, rr.uniform(.2, .9), bev=.05)
+    # prateleiras laterais
+    for (px, lado) in ((108.4, 1), (128.0, -1)):
+        for k in range(2):
+            zz = ZL + 2.4 + k * 2.6
+            tab(px, px + lado * 1.4, -15.5, 7.5, zz, zz + .32, 'mad', .48, bev=.04)
+            for i in range(7):
+                cy = -14 + i * 3.1
+                alt = rr.uniform(.8, 1.5)
+                tab(px + lado * .2, px + lado * 1.2, cy - .6, cy + .6, zz + .32, zz + .32 + alt,
+                    'jade' if i % 3 else 'bronze', rr.uniform(.2, .9), bev=.05)
+    # arcas e fardos no chao
+    for (cx, cy, w, h) in ((112.0, 4.5, 1.9, 1.6), (115.5, 5.2, 1.5, 1.3), (121.5, 5.0, 2.1, 1.8),
+                           (110.5, -12.5, 1.7, 1.4), (126.0, -12.0, 1.6, 1.5)):
+        tab(cx - w, cx + w, cy - w * .72, cy + w * .72, ZL, ZL + h, 'mad', .4)
+        tab(cx - w - .16, cx + w + .16, cy - w * .72 - .16, cy + w * .72 + .16, ZL + h, ZL + h + .3, 'madM', .55)
+        tab(cx - .28, cx + .28, cy - w * .78, cy + w * .78, ZL + h * .35, ZL + h * .55, 'bronze', .6, bev=.03)
+    # lampiao pendurado no meio do salao
+    lj.add(xf(t_lathe([(0, 0), (.1, 0), (.1, 2.6), (0, 2.6)], 8), loc=(118, -4, ZL + 8.0)), 'ferro', .3)
+    lj.add(xf(t_lathe([(0, 0), (1.05, .25), (1.15, 1.25), (.75, 1.9), (0, 2.0)], 12), loc=(118, -4, ZL + 6.0)), 'chama', .8)
+    lj.add(xf(t_lathe([(0, 0), (1.2, .1), (1.2, .3), (0, .4)], 12), loc=(118, -4, ZL + 7.9)), 'ferro', .45)
+    lj.finish(C)
     ar = Builder('TREINO_areia'); ar.add(t_box(72, 100, 20, 56, -.2, .1, bev=.04), 'palha', .35); ar.finish(C)
     for x in (80, 86, 92):
         for y in (30, 36, 42): K.put('poste_t', C, (x, y, 0), 0)
@@ -447,18 +491,28 @@ def build_lobby():
     # O pinheiro novo ja nasce com H=18 e o bordo com H=17 (a versao de blob tinha 9.6 e 10, e por isso
     # precisava de multiplicador). Manter 2.1x aqui fazia a arvore passar de 37 studs e engolir a Loja.
     ESC_PIN, ESC_BOR = 1.0, 1.0
+    # DISTANCIA MINIMA ENTRE ARVORES. O usuario viu "arvore demais num lugar e de menos em outro":
+    # as posicoes eram sorteadas livres e chegavam a encostar. Aqui cada arvore recusa nascer a menos
+    # de 16 studs de outra ja posta - o mesmo criterio que faz um bosque parecer plantado e nao jogado.
+    _arv = []
+    def longe(x, y, d=16.0):
+        for (ax, ay) in _arv:
+            if math.hypot(x - ax, y - ay) < d: return False
+        _arv.append((x, y)); return True
     for (x, y, s) in ((-64, -78, 1.1), (-58, 40, 1.0), (-52, 96, .9), (46, -78, 1.05), (54, 38, 1.0), (62, 92, .95),
                       (104, 40, 1.0), (112, -46, .9), (-108, 62, 1.0), (-96, -60, .95), (30, -170, 1.2), (-30, -168, 1.15)):
-        planta('pinA' if (x + y) % 2 else 'pinB', x, y, 0, s * ESC_PIN)
+        if longe(x, y): planta('pinA' if (x + y) % 2 else 'pinB', x, y, 0, s * ESC_PIN)
     for (x, y, s) in ((-44, -66, 1.0), (40, -66, 1.0), (-40, 66, .9), (44, 70, .95), (-76, 20, 1.0), (76, -30, .9)):
-        planta('bordo', x, y, 0, s * ESC_BOR)
+        if longe(x, y): planta('bordo', x, y, 0, s * ESC_BOR)
     # MARGEM ARBORIZADA do lago. No palacio chines a agua e sempre emoldurada por arvore; aqui ela
     # estava numa campina rasa. As duas fileiras ficam FORA da caixa do lago (x -103..-67), coladas nela.
     for k, yy in enumerate(range(-64, 132, 14)):
         lado = -106 if k % 2 == 0 else -64
-        planta('pinA' if k % 2 else 'pinB', lado + (2 if k % 3 else -2), yy, 0, rnd.uniform(.80, 1.15))
+        if longe(lado + (2 if k % 3 else -2), yy):
+            planta('pinA' if k % 2 else 'pinB', lado + (2 if k % 3 else -2), yy, 0, rnd.uniform(.80, 1.15))
         if k % 2 == 0:
-            planta('bordo', -64 if lado < -100 else -106, yy + 7, 0, rnd.uniform(.75, 1.05))
+            if longe(-64 if lado < -100 else -106, yy + 7):
+                planta('bordo', -64 if lado < -100 else -106, yy + 7, 0, rnd.uniform(.75, 1.05))
     for (x, y) in ((-66, -30), (-66, 30), (68, -40), (68, 44), (-104, -60), (108, 70)): planta('bambu', x, y, 0, 1.0)
     for (x, y, s) in ((-63, -62, 1.0), (58, -62, .9), (-60, 62, .95), (56, 64, 1.05), (-92, 24, 1.0), (88, -20, .9), (-30, -160, 1.1), (34, -158, 1.0)):
         planta('rocha1' if s > .95 else 'rocha2', x, y, 0, s)
