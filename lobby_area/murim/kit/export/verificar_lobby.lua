@@ -96,4 +96,51 @@ L("7) Ignis=%s prompt=%s | LojaMochilas=%s | MailBox=%s | pads=%d",
 	tostring(workspace:FindFirstChild("MailBox") ~= nil),
 	sant and #sant:GetChildren() or 0)
 
+-- 8) o que a auditoria pegou: cada item vira uma medida, nao uma promessa
+local SS = game:GetService("ServerStorage")
+local fbxSolto = workspace:FindFirstChild("LOBBY_FORJA_CELESTE")
+local nFbx = 0
+if fbxSolto then
+	for _, d in ipairs(fbxSolto:GetDescendants()) do if d:IsA("BasePart") then nFbx += 1 end end
+end
+L("8) FBX solto no Workspace: %s | guardado em ServerStorage: %s",
+	fbxSolto and (nFbx .. " PECAS AINDA SOLTAS") or "nao (certo)",
+	tostring(SS:FindFirstChild("LOBBY_FORJA_CELESTE") ~= nil))
+
+local sombras, totalMesh = 0, 0
+for _, d in ipairs(lob:GetDescendants()) do
+	if d:IsA("MeshPart") then totalMesh += 1; if d.CastShadow then sombras += 1 end end
+end
+L("9) lancam sombra: %d de %d (antes da correcao eram 1322 de 1618)", sombras, totalMesh)
+
+local comToque = 0
+local pastaCol = lob:FindFirstChild("Colisao")
+for _, d in ipairs(pastaCol and pastaCol:GetChildren() or {}) do
+	if d:IsA("BasePart") and d.CanTouch then comToque += 1 end
+end
+L("10) caixas de colisao com CanTouch ligado: %d (o certo e 0)", comToque)
+
+local rp2 = RaycastParams.new()
+rp2.FilterType = Enum.RaycastFilterType.Include
+rp2.FilterDescendantsInstances = { lob }
+local r2 = workspace:Raycast(Vector3.new(85, 20, 60), Vector3.new(0, -40, 0), rp2)
+L("11) fundo do lago em Y=%s -> %s de profundidade sob a lamina (0.45)",
+	r2 and string.format("%.2f", r2.Position.Y) or "nada",
+	r2 and string.format("%.2f", 0.45 - r2.Position.Y) or "?")
+
+local noCliente = game:GetService("StarterPlayer").StarterPlayerScripts:FindFirstChild("PortaisAmbiente")
+local noServidor = game:GetService("ServerScriptService"):FindFirstChild("PortaisAmbiente")
+L("12) PortaisAmbiente: cliente=%s servidor=%s (o certo e cliente=sim, servidor=nao)",
+	tostring(noCliente ~= nil), tostring(noServidor ~= nil))
+
+local piorPivo = 0
+for _, mod in ipairs(sant and sant:GetChildren() or {}) do
+	local d = mod:FindFirstChild("Disco")
+	if d then
+		local dist = (mod:GetPivot().Position - d.Position).Magnitude
+		if dist > piorPivo then piorPivo = dist end
+	end
+end
+L("13) maior distancia entre o pivo do Model Portal<n> e o seu Disco: %.1f studs (o certo e ~0)", piorPivo)
+
 return table.concat(out, "\n")
