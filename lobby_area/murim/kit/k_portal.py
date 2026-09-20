@@ -183,8 +183,9 @@ def portal_camada(nivel=0, tema='chakra', name=None):
     return B
 
 def portal_vortice(tema='chakra', name=None):
-    """as tres camadas numa malha so. Elas eram separadas para o Roblox poder tingir cada uma; agora a cor
-    ja vem assada no atlas, entao separar so gastaria 12 malhas e 12 MeshParts a mais."""
+    """As tres camadas do funil MAIS a marca do anime dentro do vao.
+    Ate aqui os seis eram identicos e so a cor mudava - exatamente a "energia brilhante generica" que
+    cada dossie da pesquisa apontou como o erro que nao identifica nada."""
     name = name or ('POR_vortice_' + tema)
     B = Builder(name, 915)
     ii = arco_poly(W_VAO, H_VAO, 24, Z0)
@@ -194,6 +195,104 @@ def portal_vortice(tema='chakra', name=None):
         tinta = ('T_%s_borda' % tema, 'T_%s_meio' % tema, 'T_%s_centro' % tema)[n]
         if n == 2: B.add(_tampa(c[2], y0, y1), tinta, .30)
         else:      B.add(_faixa(c[n + 1], c[n], y0, y1, liso=True), tinta, .30 + .30 * n)
+
+    V = 'T_%s_veio' % tema; G = 'T_%s_borda' % tema; M = 'T_%s_meio' % tema
+    cx, cz = 0.0, Z0 + H_VAO * .52
+    rnd = random.Random(931 + hash(tema) % 40)
+
+    if tema == 'nichirin':
+        # Monte Natagumo: TEIA. Aneis octogonais concentricos com fios radiais - a pesquisa foi direta
+        # ao dizer que o vao nao e espiral nem sopro de luz, e sim a teia da aranha da montanha.
+        for k in range(5):
+            r = .55 + k * .62
+            pts = []
+            for i in range(9):
+                a = math.tau * i / 8
+                pts.append(Vector((cx + math.cos(a) * r, -.44 - k * .05, cz + math.sin(a) * r * 1.32)))
+            B.add(t_tube(pts, [.055] * 9, 4), V, .55 + .08 * k)
+        for i in range(8):
+            a = math.tau * i / 8
+            fio = [Vector((cx + math.cos(a) * .3, -.44, cz + math.sin(a) * .4)),
+                   Vector((cx + math.cos(a) * 3.3, -.62, cz + math.sin(a) * 4.3))]
+            B.add(t_tube(fio, [.05, .04], 4), V, .5 + .3 * (i % 2))
+        for k in range(3):                                            # casulos presos na teia
+            a = rnd.uniform(0, 6.28); d = rnd.uniform(1.4, 2.9)
+            B.add(xf(t_lathe([(0, -.42), (.26, -.2), (.3, 0), (.24, .3), (0, .46)], 8), rot=(90, 0, 0),
+                     loc=(cx + math.cos(a) * d, -.6, cz + math.sin(a) * d * 1.3)), G, .8)
+
+    elif tema == 'serio':
+        # Cidade Z: FURO DE SOCO. Nao e redemoinho: e um buraco cilindrico limpo atravessando a pedra,
+        # com os aneis do tunel afundando. Era o clichê "onda de impacto" que estava aqui.
+        for k in range(6):
+            r = 2.5 - k * .34
+            B.add(xf(t_lathe([(r, 0), (r + .17, 0), (r + .17, .3), (r, .3)], 18), rot=(90, 0, 0),
+                     loc=(cx, .05 + k * .42, cz)), V if k % 2 else M, .4 + .09 * k)
+        for i in range(10):                                           # rachaduras saindo do furo
+            a = math.tau * i / 10 + .25; L = 1.1 + (i % 3) * .9
+            B.add(xf(t_prism([(0, -.09), (L, 0), (0, .09)], 'Y', -.5, -.36, bev=.02),
+                     rot=(0, -math.degrees(a), 0),
+                     loc=(cx + math.cos(a) * 2.6, 0, cz + math.sin(a) * 3.1)), G, .45 + .4 * (i % 2))
+
+    elif tema == 'mare':
+        # Grand Line: a COLUNA DE AGUA que sobe, dentro da pelicula de bolha. O dossie avisou que o vao
+        # nao tem energia nenhuma: tem agua do mar subindo, como na Reverse Mountain.
+        for i in range(7):
+            x = -2.3 + i * .78
+            alt = 8.0 - abs(i - 3) * 1.15
+            col = [Vector((cx + x + math.sin(k * .8) * .22, -.48 - (i % 2) * .08, Z0 + 1.0 + k * alt / 5.0)) for k in range(6)]
+            B.add(t_tube(col, [.30, .26, .22, .2, .16, .1], 5), V if i % 2 else M, .45 + .07 * i)
+        for k in range(9):                                            # respingo e bolha
+            B.add(xf(t_blob(rnd.uniform(.14, .30), (1, .8, 1), 1, lobes=3, lobe_amp=.3, seed=k),
+                     loc=(cx + rnd.uniform(-2.6, 2.6), -.62, Z0 + rnd.uniform(1.5, 9.5))), G, rnd.uniform(.5, .95))
+
+    elif tema == 'chakra':
+        # Vila da Folha: TUNEL DE TORII encolhendo para dentro, mais folhas caindo. A muralha de Konoha
+        # tem torii ao longo do perimetro - e detalhe do canon, nao enfeite japones generico.
+        for k in range(5):
+            e = .78 ** k
+            w = 2.5 * e; h = 4.6 * e; yy = -.3 + k * .52
+            zb = Z0 + 1.0 + (H_VAO * .46) * (1 - e) * .5
+            for sx in (-1, 1):
+                B.add(t_box(sx * w - .13 * e, sx * w + .13 * e, yy - .12, yy + .12, zb, zb + h, bev=.03), G, .5 + .09 * k)
+            B.add(t_box(-w - .5 * e, w + .5 * e, yy - .15, yy + .15, zb + h, zb + h + .26 * e, bev=.04), V, .6 + .07 * k)
+            B.add(t_box(-w - .2 * e, w + .2 * e, yy - .13, yy + .13, zb + h - .55 * e, zb + h - .3 * e, bev=.03), V, .45 + .1 * k)
+        for k in range(10):                                           # folhas caindo, mais densas embaixo
+            t = rnd.random() ** 1.7
+            B.add(xf(t_prism([(0, 0), (.30, .16), (.34, .5), (0, .62), (-.3, .42), (-.26, .12)], 'Y', -.06, .06, bev=.02),
+                     rot=(0, rnd.uniform(-40, 40), rnd.uniform(0, 360)),
+                     loc=(cx + rnd.uniform(-2.6, 2.6), -.55, Z0 + 1.0 + t * 9.5)), M, rnd.uniform(.4, .95))
+
+    elif tema == 'sombra':
+        # Jardim das Sombras: POCA PRETA deitada no piso do vao, com a nevoa rasteira por cima. O dossie
+        # foi taxativo: o clichê e tratar sombra como LUZ. Aqui ela e ausencia, nao brilho.
+        pts = []
+        for i in range(13):
+            a = math.tau * i / 12
+            r = 2.6 * (1 + .16 * math.cos(3 * a))
+            pts.append((math.cos(a) * r, math.sin(a) * r * .52))
+        B.add(xf(t_prism(pts, 'Z', 0, .06), loc=(cx, .1, Z0 + .12)), 'corte', .1)
+        for k in range(5):                                            # maos saindo da poca
+            a = rnd.uniform(.4, 2.7); d = rnd.uniform(.7, 2.0)
+            alt = rnd.uniform(.8, 2.1)
+            B.add(xf(t_box(-.16, .16, -.13, .13, 0, alt, bev=.05),
+                     rot=(rnd.uniform(-14, 14), rnd.uniform(-20, 20), 0),
+                     loc=(cx + math.cos(a) * d, .1 + math.sin(a) * d * .4, Z0 + .1)), G, .3 + .15 * k)
+        for k in range(4):                                            # nevoa rasteira em faixas chatas
+            zz = Z0 + .5 + k * .62
+            B.add(t_box(-2.9 + k * .22, 2.9 - k * .22, -.5, -.42, zz, zz + .16, bev=.04), M, .25 + .12 * k)
+
+    else:
+        # Namekusei: as SETE ESFERAS em arco dentro do vao, e o ceu de tres sois em faixas.
+        for i in range(7):
+            a = math.pi * (.14 + .72 * i / 6.0)
+            r = 2.5
+            B.add(xf(t_lathe([(0, -.34), (.2, -.28), (.34, 0), (.2, .28), (0, .34)], 10), rot=(90, 0, 0),
+                     loc=(cx + math.cos(a) * r, -.52, cz + math.sin(a) * r * 1.25 - .8)), V, .55 + .06 * i)
+        for k in range(3):                                            # faixas do ceu de Namek
+            zz = Z0 + 1.4 + k * 3.0
+            B.add(t_box(-2.9, 2.9, -.46, -.38, zz, zz + .5, bev=.06), M, .3 + .2 * k)
+        B.add(xf(t_lathe([(0, 0), (.75, 0), (.62, .3), (0, .4)], 14), rot=(90, 0, 0),
+                 loc=(cx, -.66, cz + 2.1)), G, .9)                    # sol baixo
     return B
 
 def portal_base(tema='chakra', name=None):
