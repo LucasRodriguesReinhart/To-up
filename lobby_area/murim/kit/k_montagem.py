@@ -93,6 +93,28 @@ def escadaria(K, C, cx, y_topo, z_topo, n, largura, tread=1.9):
         d.add(t_prism([(y_topo + a2, c) for a2, c in poly], 'X', min(x0, x1), max(x0, x1), bev=.12, seg=3), 'pedra', .6)
     d.finish(C)
 
+def escadaria_x(K, C, cy, x_topo, z_topo, n, largura, sentido, tread=1.7):
+    """lance que desce do terraco no eixo X. A Loja e o Santuario tinham degraus de COLISAO gerados no
+    gerar_lobby.py mas NENHUMA malha: o jogador subia no ar. Estas medidas copiam exatamente as caixas
+    de colisao (degrau_loja e degrau_sant), senao a geometria e o que se pisa deixam de casar."""
+    rise = z_topo / n
+    d = Builder('ESCADA_X_%d' % int(x_topo), 46)
+    for i in range(1, n + 1):
+        z = z_topo - rise * (i - 1)
+        if z < .01: break
+        x0 = x_topo + sentido * tread * (i - 1)
+        x1 = x0 + sentido * tread
+        d.add(t_box(min(x0, x1) - .08, max(x0, x1) + .08, cy - largura / 2, cy + largura / 2, 0, z, bev=.09, seg=2), 'pedra')
+    L = tread * n
+    for sy in (-1, 1):                                                   # parapeito inclinado dos dois lados
+        y0 = cy + sy * largura / 2; y1 = y0 + sy * 1.6
+        poly = [(0, 0), (sentido * (L + 1.9), 0), (sentido * (L + 1.9), .75),
+                (sentido * (L + .9), .95), (0, z_topo + .42)]
+        poly = [(x_topo + u, v) for u, v in poly]
+        if sentido < 0: poly = poly[::-1]
+        d.add(t_prism(poly, 'Y', min(y0, y1), max(y0, y1), bev=.12, seg=3), 'pedra', .6)
+    d.finish(C)
+
 def colunata(K, C, xs, y, z, alt=1.0, tipo='dg', parede=None, rot=0):
     """fila de colunas com base, arquitrave, prancha e dougong; `parede` opcional preenche os vaos."""
     for x in xs:
@@ -128,7 +150,7 @@ def build_lobby():
         ('estand', k_kit2.estandarte, 'LOB_PROPS'), ('sup_esp', k_kit2.suporte_espada, 'LOB_PROPS'), ('vaso', k_kit2.vaso, 'LOB_PROPS'),
         ('muro', k_kit2.muro_seg, 'LOB_PORTAO'), ('mpilar', k_kit2.muro_pilar, 'LOB_PORTAO'), ('tel_portao', k_kit2.telhado_portao, 'LOB_PORTAO'),
         ('muroA', lambda: k_kit2.muro_seg(9.0, 13.5), 'LOB_PORTAO'), ('mtorre', k_kit2.muro_torre, 'LOB_PORTAO'),   # NAO usar 'torre': ja e a Torre do Fogo da Forja
-        ('torre', k_lobby.torre_fogo, 'LOB_FORJA'), ('espada', lambda: k_lobby.espada_ancestral(38.0), 'LOB_PATIO'), ('ped_esp', lambda: k_lobby.pedestal_espada(11.0, 6.0), 'LOB_PATIO'),
+        ('torre', k_lobby.torre_fogo, 'LOB_FORJA'), ('espada', lambda: k_lobby.picareta_ancestral(38.0), 'LOB_PATIO'), ('ped_esp', lambda: k_lobby.pedestal_espada(11.0, 6.0), 'LOB_PATIO'),
         ('fornalha', k_lobby.fornalha, 'LOB_FORJA'), ('bigorna', k_lobby.bigorna, 'LOB_FORJA'), ('fole', k_lobby.fole, 'LOB_FORJA'),
         ('calha', k_lobby.calha_tempera, 'LOB_FORJA'), ('laminas', k_lobby.altar_laminas, 'LOB_FORJA'), ('braseiro', k_lobby.braseiro, 'LOB_PROPS'),
         ('leaoA', lambda: k_lobby.leao(1), 'LOB_PROPS'), ('leaoB', lambda: k_lobby.leao(-1), 'LOB_PROPS'),
@@ -338,11 +360,11 @@ def build_lobby():
     mg.finish(C)
     K.put('ponte', C, (-85, 0, .2), 0)
     ZG = terraco(K, C, -146, -104, -45, 45, 2.4, escadas=(('E', 0, 12),))
-    colunata(K, C, [-141, -132, -123, -114], -39, ZG, .82, 'dg_sim', None)
-    colunata(K, C, [-141, -132, -123, -114], 39, ZG, .82, 'dg_sim', None)
-    for y in (-39, 39):
-        for x in (-141, -132, -123, -114): K.put('parede', C, (x, y, ZG), 0 if y < 0 else 180, (1, 1, .82))
-    telhado('G', -125, 0, ZG + HCOL * .82 + .5 + k_dougong.Z1 + k_dougong.AH + 1.0, C)
+    # O TETO DO SANTUARIO SAIU. Ele passava rente ao topo dos portais (folga medida de 0.06 stud),
+    # cortava o medalhao de cada um e, das capturas de Play, o usuario pediu para remover. Sem ele os
+    # seis portais ficam num patio aberto, que e como a referencia mostra o portico dos mundos.
+    # Ficam a escadaria (que antes nao tinha malha nenhuma) e a parede de fundo.
+    escadaria_x(K, C, 0, -104, ZG, 8, 12, +1)
     # 6 PORTAIS: moon gate em volta dos discos de teleporte que o jogo ja tem (Roblox X=124.5, Z -32.5..32.5).
     # Em Blender: x = -124.5 e y = Z_roblox. O portal encara -X do Roblox, o que aqui e rotacao 90 em torno de Z.
     PX = -124.5
@@ -365,6 +387,7 @@ def build_lobby():
     # ================================================================ OESTE: jardim, loja, treino
     C = 'LOB_OESTE'
     ZL = terraco(K, C, 104, 130, -24, 16, 4.0, escadas=(('W', -4, 12),))
+    escadaria_x(K, C, -4, 104, ZL, 10, 12, -1)   # havia degrau de colisao e nenhuma malha: escada invisivel
     colunata(K, C, [109, 118, 127], -19, ZL, .88, 'dg_int', None)
     colunata(K, C, [109, 118, 127], 11, ZL, .88, 'dg_int', None)
     for x in (109, 118, 127): K.put('parede', C, (x, 11, ZL), 180, (1, 1, .88))

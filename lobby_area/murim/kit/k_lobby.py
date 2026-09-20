@@ -40,28 +40,42 @@ def torre_fogo(H=46.0):
     return B
 
 # ---------------------------------------------------------------- ESPADA ANCESTRAL (landmark do patio)
-def espada_ancestral(H=30.0):
-    """jian monumental cravada no pedestal: lamina de secao losango com nervura e inscricoes, guarda em asa, punho
-    enfaixado, pomo e fitas. Origem na base da lamina (topo do pedestal)."""
-    B = Builder('LOB_espada_ancestral', 702)
-    hb = H * .62                                                                  # lamina
-    bl = t_prism([(0, 0), (1.15, .9), (1.15, hb - 1.8), (0, hb), (-1.15, hb - 1.8), (-1.15, .9)], 'Y', -.26, .26, bev=.1, seg=2)
-    B.add(bl, 'aco', .55)
-    B.add(t_box(-.16, .16, -.30, .30, .6, hb - 2.2), 'aco', .85)                  # nervura
-    for k in range(6):                                                            # inscricoes (sulcos de ouro)
-        z = 2.2 + k * (hb - 6) / 6
-        B.add(t_box(-.42, .42, -.31, -.27, z, z + .5, bev=.05), 'ouro', .62)
-    zg = hb                                                                       # guarda em asa
-    B.add(xf(t_prism([(-3.6, .2), (-2.8, -.5), (-1.0, -.7), (0, -.3), (1.0, -.7), (2.8, -.5), (3.6, .2), (2.4, .9), (.8, 1.1), (-.8, 1.1), (-2.4, .9)], 'Y', -.62, .62, bev=.14, seg=3), loc=(0, 0, zg)), 'bronze', .5)
-    B.add(xf(t_lathe([(0, 0), (.62, 0), (.5, .3), (0, .36)], 14), rot=(90, 0, 0), loc=(0, -.66, zg + .3)), 'ouro', .62)
-    B.add(xf(t_lathe([(0, 0), (.54, 0), (.62, 2.0), (.5, 4.0), (0, 4.0)], 14), loc=(0, 0, zg + .9)), 'mad', .45)   # punho
-    for k in range(7):
-        z = zg + 1.15 + k * .52
-        B.add(xf(t_lathe([(.52, 0), (.66, .05), (.66, .26), (.52, .32)], 14), loc=(0, 0, z)), 'ouro', .58 + .04 * (k % 2))
-    B.add(xf(t_lathe([(0, 0), (.6, 0), (1.0, .4), (1.05, 1.0), (.7, 1.6), (0, 1.8)], 16), loc=(0, 0, zg + 4.9)), 'ouro', .55)  # pomo
-    for sx in (-1, 1):                                                            # fitas
-        f = crom([(sx * .6, .2, zg + 5.9), (sx * 2.2, .5, zg + 4.6), (sx * 1.6, -.3, zg + 2.6), (sx * 2.6, .4, zg + .8)], 5)
-        B.add(t_tube(f, lerp_list([.2, .3, .26, .1], len(f)), 6), 'tecido', .5)
+def picareta_ancestral(H=30.0):
+    """PICARETA monumental cravada no pedestal: cabo enfaixado, virola de bronze e cabeca de aco com
+    bico de um lado e lamina do outro. Substitui a espada que estava aqui - o jogo e de mineracao, e o
+    monumento do patio central tem de contar isso. Origem na base do cabo (topo do pedestal)."""
+    B = Builder('LOB_picareta_ancestral', 702)
+    hc = H * .74                                                                  # cabo
+    B.add(t_lathe([(0, 0), (.95, 0), (1.05, 1.4), (.86, hc * .55), (.92, hc - 2.2), (.7, hc)], 16), 'mad', .45)
+    for k in range(9):                                                            # enfaixamento do cabo
+        z = 1.8 + k * (hc - 8.0) / 9
+        B.add(xf(t_lathe([(.88, 0), (1.02, .06), (1.02, .34), (.88, .42)], 14), loc=(0, 0, z)), 'tecido', .42 + .06 * (k % 3))
+    for k in range(4):                                                            # anilhas de bronze
+        z = hc * .30 + k * hc * .14
+        B.add(xf(t_lathe([(.9, 0), (1.14, .05), (1.14, .3), (.9, .36)], 16), loc=(0, 0, z)), 'bronze', .55)
+    zc = hc                                                                       # virola sob a cabeca
+    B.add(xf(t_lathe([(.72, 0), (1.35, .25), (1.42, 1.5), (1.15, 2.1), (.72, 2.3)], 16), loc=(0, 0, zc)), 'bronze', .6)
+    # CABECA: perfil em L achatado, bico afilado de um lado e lamina larga do outro
+    cab = t_prism([(-7.8, .0), (-4.2, 1.15), (-1.3, 1.5), (1.3, 1.5), (4.6, 1.2), (6.4, .35),
+                   (6.4, -.9), (4.6, -1.5), (1.3, -1.9), (-1.3, -1.9), (-4.2, -1.55), (-7.8, -.7)],
+                  'Y', -.72, .72, bev=.16, seg=3)
+    xf(cab, loc=(0, 0, zc + 3.0))
+    B.add(cab, 'aco', .58)
+    # bico: ponta longa e fina para a esquerda
+    bic = t_prism([(0, 1.5), (0, -1.9), (-4.6, -.55), (-4.6, .2)], 'Y', -.5, .5, bev=.1, seg=2)
+    xf(bic, loc=(-7.6, 0, zc + 3.0))
+    B.add(bic, 'aco', .82)
+    # lamina: aba larga para a direita, com gume
+    lam = t_prism([(0, 1.2), (0, -1.5), (3.4, -2.1), (3.4, 1.8)], 'Y', -.62, .62, bev=.12, seg=2)
+    xf(lam, loc=(6.3, 0, zc + 3.0))
+    B.add(lam, 'aco', .74)
+    B.add(xf(t_box(-3.4, 3.4, -.76, -.70, zc + 2.2, zc + 3.9, bev=.05), loc=(0, 0, 0)), 'ouro', .62)   # gravacao
+    for k in range(5):
+        x = -2.6 + k * 1.3
+        B.add(t_box(x - .22, x + .22, -.8, -.74, zc + 2.5, zc + 3.6, bev=.04), 'ouro', .5 + .08 * k)
+    for sx in (-1, 1):                                                            # fitas da seita
+        f = crom([(sx * .8, .2, zc + 1.2), (sx * 2.4, .5, zc - 1.2), (sx * 1.7, -.3, zc - 4.2), (sx * 2.8, .4, zc - 6.6)], 5)
+        B.add(t_tube(f, lerp_list([.2, .32, .26, .1], len(f)), 6), 'tecido', .5)
     return B
 
 def pedestal_espada(R=9.0, H=5.2):
@@ -196,11 +210,15 @@ def leao(lado=1):
     return B
 
 # ---------------------------------------------------------------- PONTE-LUA
-def ponte_lua(L=30.0, W=9.0, F=4.6):
+def ponte_lua(L=36.0, W=9.0, F=4.2):
     """arco alto de pedra com balaustrada, degraus nas rampas e pedra de fecho. Ao longo de X, centrada."""
     B = Builder('LOB_ponte_lua', 730)
     N = 16
-    def z(t): return F * math.sin(math.pi * t)
+    def z(t):
+        # a rampa tem de MORRER no chao: antes o deck somava 1.0 de espessura sobre sin(0)=0 e sobrava
+        # um degrau de 1.2 studs na entrada, dos dois lados. Agora a curva comeca negativa o bastante
+        # para que topo do deck = 0 nas pontas.
+        return F * math.sin(math.pi * t) - 1.0
     for k in range(N):
         t0, t1 = k / N, (k + 1) / N
         x0, x1 = -L / 2 + L * t0, -L / 2 + L * t1

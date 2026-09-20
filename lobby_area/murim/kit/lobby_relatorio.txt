@@ -1,18 +1,18 @@
 vegetacao barrada por cair em superficie dura: cam_oeste=8, escadaria=20, lago=59, patio=145, portao=17, t_forja=51, t_loja=6, t_sant=28, treino=12, via=27
-pecas unicas registradas (geometria ja no lugar): 29
-masters do kit nao usados neste lobby (tirados da origem): JAR_ameixeira_b, JAR_crisantemo.001, KIT_dougong_canto.004, KIT_jardineira.002, KIT_suporte_espada.002, KIT_tabua_dougong.013, KIT_telhado_portao.001, KIT_terca.011, KIT_vaso.002
+pecas unicas registradas (geometria ja no lugar): 31
+masters do kit nao usados neste lobby (tirados da origem): JAR_ameixeira_b, JAR_crisantemo.001, KIT_dougong_canto.004, KIT_dougong_simples.002, KIT_jardineira.002, KIT_suporte_espada.002, KIT_tabua_dougong.013, KIT_telhado_portao.001, KIT_terca.011, KIT_vaso.002
 KIT_sumeru_seg.026            504 tris x 135
 KIT_sumeru_canto.004          916 tris x  12
 KIT_piso_mod.048              768 tris x 464
 KIT_bal_seg.026              2780 tris x 129
-KIT_col_base.014              856 tris x  52
+KIT_col_base.014              856 tris x  44
 KIT_jardineira.002           1872 tris x   1
-KIT_coluna.014               1648 tris x  56
-KIT_arquitrave.014           3268 tris x  42
-KIT_prancha.014               132 tris x  42
+KIT_coluna.014               1648 tris x  48
+KIT_arquitrave.014           3268 tris x  36
+KIT_prancha.014               132 tris x  36
 KIT_vao_janela.002           7148 tris x   2
 KIT_vao_porta.001            8736 tris x   3
-KIT_vao_parede.005           3472 tris x  30
+KIT_vao_parede.005           3472 tris x  22
 KIT_placa.001                1592 tris x   3
 KIT_forro_alpendre.003       2712 tris x   9
 KIT_tabua_dougong.013         108 tris x   1
@@ -20,7 +20,7 @@ KIT_terca.011                 132 tris x   1
 KIT_dougong_principal.026    1400 tris x  52
 KIT_dougong_canto.004        2972 tris x   1
 KIT_dougong_intermediario.001    792 tris x  28
-KIT_dougong_simples.002       348 tris x  14
+KIT_dougong_simples.002       348 tris x   1
 KIT_lanterna_palacio.002     2244 tris x   4
 KIT_lanterna_vermelha.001    2124 tris x   8
 KIT_pinheiro_a.001           2064 tris x   2
@@ -37,7 +37,7 @@ KIT_telhado_portao.001       5520 tris x   1
 KIT_muro_seg.005             4008 tris x  92
 KIT_muro_torre               5240 tris x  14
 LOB_torre_fogo.001           8552 tris x   1
-LOB_espada_ancestral.001     2556 tris x   1
+LOB_picareta_ancestral       3338 tris x   1
 LOB_pedestal_espada.001      4008 tris x   1
 LOB_fornalha.001             9256 tris x   1
 LOB_bigorna.001               744 tris x   1
@@ -47,7 +47,7 @@ LOB_altar_laminas.001        2228 tris x   1
 LOB_braseiro.001             1040 tris x   6
 LOB_leao_esfera.001          2694 tris x   2
 LOB_leao_filhote.001         2634 tris x   2
-LOB_ponte_lua.001           14568 tris x   1
+LOB_ponte_lua.001           14952 tris x   1
 LOB_rocha_1.001               348 tris x   2
 LOB_rocha_2                   348 tris x   1
 LOB_bambu_1.001              3682 tris x   2
@@ -119,19 +119,19 @@ TEL_F2_viga_canto             288 tris x   2
 TEL_F2_cumeeira              1788 tris x   1
 TEL_F2_espigao_esp           1012 tris x   2
 TEL_F2_viga_canto_esp         288 tris x   2
-TEL_G_agua_frente           13063 tris x   6
-TEL_G_beiral_frente          4312 tris x   6
-TEL_G_agua_lado              5493 tris x   6
-TEL_G_beiral_lado            1796 tris x   6
-TEL_G_espigao                1012 tris x   6
-TEL_G_viga_canto              288 tris x   6
-TEL_G_cumeeira               1468 tris x   3
-TEL_G_espigao_esp            1012 tris x   6
-TEL_G_viga_canto_esp          288 tris x   6
-KIT_chiwen.002               3300 tris x  10
-KIT_imortal.004               256 tris x  20
-KIT_chuishou.004              836 tris x  20
-KIT_besta_0.004               352 tris x  20
-KIT_besta_1.004               352 tris x  20
-KIT_besta_2.004               360 tris x  20
-TOTAL ~2654666 tris em cena | malhas unicas 133 (389325 tris) | colocacoes 1624
+TEL_G_agua_frente           13063 tris x   4
+TEL_G_beiral_frente          4312 tris x   4
+TEL_G_agua_lado              5493 tris x   4
+TEL_G_beiral_lado            1796 tris x   4
+TEL_G_espigao                1012 tris x   4
+TEL_G_viga_canto              288 tris x   4
+TEL_G_cumeeira               1468 tris x   2
+TEL_G_espigao_esp            1012 tris x   4
+TEL_G_viga_canto_esp          288 tris x   4
+KIT_chiwen.002               3300 tris x   8
+KIT_imortal.004               256 tris x  16
+KIT_chuishou.004              836 tris x  16
+KIT_besta_0.004               352 tris x  16
+KIT_besta_1.004               352 tris x  16
+KIT_besta_2.004               360 tris x  16
+TOTAL ~2511880 tris em cena | malhas unicas 133 (390491 tris) | colocacoes 1537

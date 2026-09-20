@@ -167,8 +167,10 @@ for _, zy in ipairs({ -32.5, -19.5, -6.5, 6.5, 19.5, 32.5 }) do
 	end
 end
 -- limites do mundo: penhascos
-caixa("penhasco_N", -182, 182, -215, -160, -1, 60); caixa("penhasco_W", -184, -150, -160, 170, -1, 46); caixa("penhasco_E", 150, 184, -160, 170, -1, 46)
-caixa("penhasco_S_W", -184, -46, 168, 202, -1, 36); caixa("penhasco_S_E", 46, 184, 168, 202, -1, 36)
+-- A muralha agora esta em x=+-158 e y=-192..150. A parede invisivel tem de ficar ATRAS dela, senao o
+-- jogador esbarra no vazio antes de chegar ao muro e o recinto parece menor do que e.
+caixa("limite_N", -184, 184, -200, -192, -1, 46); caixa("limite_W", -172, -158, -200, 160, -1, 46); caixa("limite_E", 158, 172, -200, 160, -1, 46)
+caixa("limite_S_W", -172, -46, 150, 164, -1, 36); caixa("limite_S_E", 46, 172, 150, 164, -1, 36)
 -- Os penhascos do sul comecavam em |x|=60 e o chao acabava em y=198: sobrava um corredor de 14 studs
 -- de cada lado da estrada, com piso e parede, terminando no vazio. Agora eles fecham em |x|=46, que e
 -- onde a estrada (Corredores.Lobby_Area1) realmente acaba.
