@@ -399,9 +399,28 @@ def build_lobby():
         K.put('mpilar', C, (sx * 48, 150, 0), 0); K.put('mpilar', C, (sx * 148, 150, 0), 0)
     # ================================================================ LESTE: lago, ponte-lua, Santuario
     C = 'LOB_LESTE'
-    lago = Builder('LAGO_agua'); lago.add(t_box(-100, -70, -70, 130, -1.6, -.35), 'agua', .6); lago.finish(C)
+    # ---------------------------------------------------------------- LAGO DE CONTORNO TRABALHADO
+    # O retangulo de 30 x 200 fazia duas coisas erradas: nao tinha nada da margem organica da
+    # referencia, e invadia a escadaria do Santuario em 11.5 studs - quem descia dos portais descia
+    # dentro da agua. O contorno abaixo recua justamente nesse ponto.
+    # Borda OESTE (encosta no jardim) e borda LESTE (encosta no patio) sao listas de (y, x).
+    # A escadaria do Santuario vem de x=-104 e desce PARA LESTE, morrendo em x=-88.5. Quem tem de
+    # recuar e a borda OESTE do lago (a que encara a escada), nao a leste - na primeira tentativa eu
+    # indentei a borda errada e a sobreposicao continuou igual. A oeste recua ate -84.5 na faixa da
+    # escada, deixando 4 studs de terra firme na frente do ultimo degrau.
+    OESTE = [(-72, -99), (-56, -101.5), (-40, -100), (-28, -95), (-19, -88),
+             (-9, -84.5), (9, -84.5), (19, -88), (28, -95), (40, -100.5),
+             (58, -99), (78, -101), (100, -99.5), (118, -97), (132, -98)]
+    LESTE = [(-72, -71), (-54, -68.5), (-36, -72), (-18, -69), (0, -71.5),
+             (18, -68.5), (34, -71.5), (56, -69), (78, -72), (102, -69.5), (120, -71), (132, -70)]
+    pol = [(x, y) for (y, x) in OESTE] + [(x, y) for (y, x) in reversed(LESTE)]
+    lago = Builder('LAGO_agua')
+    lago.add(t_prism(pol, 'Z', -1.6, -.35), 'agua', .6); lago.finish(C)
     leito2 = Builder('LAGO_leito', 49)
-    leito2.add(t_box(-100.5, -69.5, -70.5, 130.5, -3.2, -1.5), 'junta', .3)
+    # leito em tres aneis: raso na margem, fundo no meio. Da profundidade visual sem custar nada.
+    for k, (enc, z0, z1) in enumerate(((0.0, -3.2, -1.5), (3.2, -2.6, -1.5), (7.0, -2.0, -1.5))):
+        pq = [((x + (1 if x > -85 else -1) * enc), y) for (x, y) in pol]
+        leito2.add(t_prism(pq, 'Z', z0, z1), 'junta', .26 + .16 * k)
     import random as _rl
     rl = _rl.Random(5)
     for k in range(26):                                                             # pedras submersas junto as margens
@@ -409,7 +428,29 @@ def build_lobby():
         leito2.add(t_blob(rl.uniform(.7, 1.6), (1.2, 1.0, .5), 1, lobes=4, lobe_amp=.3, seed=k, flat_bottom=-.3) and xf(t_blob(rl.uniform(.7, 1.6), (1.2, 1.0, .5), 1, lobes=4, lobe_amp=.3, seed=k, flat_bottom=-.3), loc=(x, y, -1.3)), 'pedra', rl.uniform(.35, .7))
     leito2.finish(C)
     mg = Builder('LAGO_margem', 48)
-    for s in ((-101.6, -99.6), (-70.4, -68.4)): mg.add(t_box(s[0], s[1], -71, 131, -1.2, .6, bev=.12, seg=3), 'pedra', .5)
+    # margem em BLOCOS irregulares meio submersos acompanhando o contorno, em vez de duas caixas
+    # retas de 200 studs. E a pedra que quebra a linha da agua; sem ela a agua encosta na grama e
+    # a transicao fica em corte seco.
+    import random as _rmg; _mr = _rmg.Random(515)   # _r so e importado na secao de vegetacao, adiante
+    for lado, borda in (('O', OESTE), ('L', LESTE)):
+        for k in range(len(borda) - 1):
+            (y0, x0), (y1, x1) = borda[k], borda[k + 1]
+            passos = max(2, int(abs(y1 - y0) / 4.5))
+            for i in range(passos):
+                t = i / float(passos)
+                yy = y0 + (y1 - y0) * t
+                xx = x0 + (x1 - x0) * t
+                fora = -1 if lado == 'O' else 1
+                w = _mr.uniform(1.6, 3.4); h = _mr.uniform(2.0, 4.0)
+                zz = _mr.uniform(-1.1, -.55)
+                blo = t_prism([(-w, -h), (w * _mr.uniform(.7, 1.2), -h * .8), (w * .9, h),
+                               (-w * _mr.uniform(.6, 1.1), h * .85)], 'Z', zz, zz + _mr.uniform(1.3, 2.3), bev=.16)
+                xf(blo, rot=(0, 0, _mr.uniform(0, 360)), loc=(xx + fora * _mr.uniform(.2, 1.8), yy, 0))
+                mg.add(blo, 'pedra', _mr.uniform(.34, .68))
+                if _mr.random() > .72:                      # lotus flutuando junto da margem
+                    mg.add(xf(t_lathe([(0, 0), (1.5, .02), (1.35, .16), (0, .2)], 9),
+                              loc=(xx - fora * _mr.uniform(2.5, 6.0), yy + _mr.uniform(-2, 2), -.34)),
+                           'folha_lotus', _mr.uniform(.3, .8))
     for s in ((131, 133), (-73, -71)): mg.add(t_box(-101.6, -68.4, s[0], s[1], -1.2, .6, bev=.12), 'pedra', .55)
     mg.finish(C)
     K.put('ponte', C, (-85, 0, .2), 0)
