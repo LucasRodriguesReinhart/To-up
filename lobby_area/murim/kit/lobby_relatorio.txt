@@ -1,5 +1,6 @@
+vegetacao barrada por cair em superficie dura: cam_oeste=3, escadaria=9, lago=21, patio=68, portao=1, t_forja=15, t_loja=2, t_sant=10, treino=5, via=13
 pecas unicas registradas (geometria ja no lugar): 29
-masters do kit nao usados neste lobby (tirados da origem): KIT_dougong_canto.004, KIT_jardineira.002, KIT_pinheiro_a.001, KIT_suporte_espada.002, KIT_tabua_dougong.013, KIT_telhado_portao.001, KIT_terca.011, KIT_vaso.002
+masters do kit nao usados neste lobby (tirados da origem): JAR_ameixeira_b, JAR_crisantemo.001, KIT_dougong_canto.004, KIT_jardineira.002, KIT_suporte_espada.002, KIT_tabua_dougong.013, KIT_telhado_portao.001, KIT_terca.011, KIT_vaso.002
 KIT_sumeru_seg.026            504 tris x 135
 KIT_sumeru_canto.004          916 tris x  12
 KIT_piso_mod.048              768 tris x 464
@@ -22,18 +23,19 @@ KIT_dougong_intermediario.001    792 tris x  28
 KIT_dougong_simples.002       348 tris x  14
 KIT_lanterna_palacio.002     2244 tris x   4
 KIT_lanterna_vermelha.001    2124 tris x   8
-KIT_pinheiro_a.001           2064 tris x   1
+KIT_pinheiro_a.001           2064 tris x   2
 KIT_pinheiro_b.001           2064 tris x  12
-KIT_arbusto_a.003             320 tris x  13
-KIT_arbusto_b.003             320 tris x  13
-KIT_tufo_a.008                416 tris x  40
+KIT_arbusto_a.003             320 tris x   4
+KIT_arbusto_b.003             320 tris x   5
+KIT_tufo_a.008                416 tris x  10
 KIT_estandarte.002           3200 tris x   8
 KIT_suporte_espada.002       3198 tris x   1
 KIT_vaso.002                 1276 tris x   1
 KIT_muro_seg.004             4008 tris x  20
 KIT_muro_pilar.002           1356 tris x   4
 KIT_telhado_portao.001       5520 tris x   1
-LOB_torre_fogo.001           8552 tris x   1
+KIT_muro_seg.005             4008 tris x  92
+LOB_torre_fogo.001           8552 tris x  15
 LOB_espada_ancestral.001     2556 tris x   1
 LOB_pedestal_espada.001      4008 tris x   1
 LOB_fornalha.001             9256 tris x   1
@@ -44,26 +46,26 @@ LOB_altar_laminas.001        2228 tris x   1
 LOB_braseiro.001             1040 tris x   6
 LOB_leao_esfera.001          2694 tris x   2
 LOB_leao_filhote.001         2634 tris x   2
-LOB_ponte_lua.001            7176 tris x   1
-LOB_rocha_1.001               348 tris x   5
-LOB_rocha_2                   348 tris x   3
-LOB_bambu_1.001              3682 tris x   6
-LOB_bordo_1.001              1076 tris x   6
+LOB_ponte_lua.001           14568 tris x   1
+LOB_rocha_1.001               348 tris x   2
+LOB_rocha_2                   348 tris x   1
+LOB_bambu_1.001              3682 tris x   2
+LOB_bordo_1.001              1076 tris x   7
 LOB_poste_treino.001          420 tris x   9
 LOB_boneco_treino.001         424 tris x   2
 LOB_estante_armas.001        1572 tris x   1
-JAR_peonia.001               8284 tris x   3
-JAR_peonia_b                 8284 tris x   3
-JAR_crisantemo.001           7470 tris x   3
-JAR_crisantemo_b             7470 tris x   3
+JAR_peonia.001               8284 tris x   1
+JAR_peonia_b                 8284 tris x   1
+JAR_crisantemo.001           7470 tris x   1
+JAR_crisantemo_b             7470 tris x   1
 JAR_lotus.001                2346 tris x   3
 JAR_lotus_b                  2346 tris x   2
-JAR_ameixeira.001           10568 tris x   3
-JAR_ameixeira_b             11208 tris x   3
+JAR_ameixeira.001           10568 tris x   1
+JAR_ameixeira_b             11208 tris x   1
 JAR_canteiro.001             6800 tris x   3
 JAR_canteiro_b               6800 tris x   3
-JAR_grama.001                 168 tris x  45
-JAR_grama_b                   168 tris x  45
+JAR_grama.001                 168 tris x  16
+JAR_grama_b                   168 tris x  15
 VIL_lanterna_pedra.001       1948 tris x  10
 VIL_poco.001                 2000 tris x   1
 VIL_barril.001                548 tris x   3
@@ -131,4 +133,4 @@ KIT_chuishou.004              836 tris x  20
 KIT_besta_0.004               352 tris x  20
 KIT_besta_1.004               352 tris x  20
 KIT_besta_2.004               360 tris x  20
-TOTAL ~2362178 tris em cena | malhas unicas 131 (381957 tris) | colocacoes 1644
+TOTAL ~2710306 tris em cena | malhas unicas 132 (393357 tris) | colocacoes 1624

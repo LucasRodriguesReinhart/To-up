@@ -160,6 +160,61 @@ def muro_pilar(H=10.2):
     B.add(xf(t_lathe([(0, 0), (.3, 0), (.42, .25), (.3, .5), (.16, .62), (.22, .85), (.08, 1.3), (0, 1.35)], 12), loc=(0, 0, H + 1.85)), 'ouro', .6)
     return B
 
+def muro_torre(W=13.0, H=19.0):
+    """TORRE DE MURALHA, na mesma linguagem do muro: rodape de pedra em duas fiadas com peitoril, pano
+    vermelho com almofadas em relevo, friso de madeira e telhado de quatro aguas com cumeeira e pinaculo.
+    Vai nos cantos e de espaco em espaco ao longo da muralha - sem ela o muro e so uma fita e acaba no nada."""
+    B = Builder('KIT_muro_torre', 617)
+    h = W / 2
+    # ---- embasamento de pedra, duas fiadas + peitoril (o mesmo desenho do pilar de muro, em escala)
+    B.add(t_box(-h - .1, h + .1, -h - .1, h + .1, 0, 3.4), 'junta', .2)
+    for r, (z0, z1) in enumerate(((0, 1.66), (1.72, 3.4))):
+        d = h + .24
+        if r == 0:
+            B.add(t_box(-d, d, -d, d, z0, z1, bev=.11), 'pedra', .42)
+        else:
+            for sx in (-1, 1): B.add(t_box(*sorted((sx * .04, sx * d)), -d, d, z0, z1, bev=.11), 'pedra', .5)
+    B.add(t_box(-h - .42, h + .42, -h - .42, h + .42, 3.4, 3.92, bev=.12, seg=3), 'pedra', .66)
+    # ---- pano vermelho com moldura em relevo nas quatro faces
+    B.add(t_box(-h, h, -h, h, 3.92, H, bev=.07), 'verm', .5)
+    for a4 in (0, 90, 180, 270):
+        B.add(xf(t_box(-h + 1.1, h - 1.1, -h - .12, -h + .02, 4.6, H - 1.5, bev=.06), rot=(0, 0, a4)), 'vermS', .52)
+        # janela alta, que e o que faz a torre ler como torre e nao como bloco
+        B.add(xf(t_box(-1.5, 1.5, -h - .26, -h + .06, H - 7.4, H - 2.6, bev=.08), rot=(0, 0, a4)), 'mad', .45)
+        B.add(xf(t_box(-1.15, 1.15, -h - .36, -h + .1, H - 7.05, H - 2.95), rot=(0, 0, a4)), 'jadeE', .55)
+        for k in range(3):
+            zz = H - 6.9 + k * 1.35
+            B.add(xf(t_box(-1.15, 1.15, -h - .4, -h + .12, zz, zz + .12), rot=(0, 0, a4)), 'mad', .4)
+        B.add(xf(t_lathe([(0, 0), (.34, 0), (.30, .1), (0, .14)], 10), rot=(90, 0, a4),
+                 loc=(0, 0, 0)), 'ouro', .6) if False else None
+    # ---- friso de madeira e dougong simplificado sob o beiral
+    B.add(t_box(-h - .5, h + .5, -h - .5, h + .5, H, H + .5, bev=.08), 'mad', .48)
+    for a4 in (0, 90, 180, 270):
+        n = max(2, int(W / 3.2))
+        for i in range(n):
+            t = (i + .5) / n
+            cx = -h + W * t
+            B.add(xf(t_box(cx - .42, cx + .42, -h - .9, -h - .1, H + .5, H + 1.15, bev=.06), rot=(0, 0, a4)), 'jadeE', .5 + .2 * (i % 2))
+    B.add(t_box(-h - 1.0, h + 1.0, -h - 1.0, h + 1.0, H + 1.15, H + 1.55, bev=.1, seg=2), 'bordo', .45)
+    # ---- telhado de quatro aguas com canto levantado + cumeeira
+    B.add(xf(t_lathe([(0, 0), (h + 2.3, 0), (h + 2.45, .3), (h * .62, 2.1), (h * .2, 3.3), (0, 3.5)], 4, smooth=False),
+             rot=(0, 0, 45), loc=(0, 0, H + 1.55)), 'telha', .5)
+    per = 1.45
+    rnd = random.Random(88)
+    for a4 in (0, 90, 180, 270):                                                    # telhas-capa nas quatro aguas
+        n = int((W + 3.4) / per)
+        for k in range(n):
+            cx = -(n - 1) * per / 2 + k * per
+            p0 = Vector((cx, -(h + 2.35), H + 1.75)); p1 = Vector((cx * .22, -h * .22, H + 4.85))
+            T = (p1 - p0).normalized(); Bn = Vector((1, 0, 0)); Nn = T.cross(Bn)
+            if Nn.z < 0: Nn = -Nn
+            tb = t_tube([p0, (p0 + p1) / 2 + Nn * .12, p1], [.30, .26, .18], 6, cap=True)
+            xf(tb, rot=(0, 0, a4))
+            B.add(tb, 'telha', rnd.random())
+    B.add(xf(t_lathe([(0, 0), (.9, 0), (.9, .5), (.5, 1.0), (0, 1.1)], 4, smooth=False), rot=(0, 0, 45), loc=(0, 0, H + 4.9)), 'telhaImp', .55)
+    B.add(xf(t_lathe([(0, 0), (.42, 0), (.55, .35), (.38, .7), (.2, .9), (.28, 1.25), (.1, 1.9), (0, 2.0)], 12), loc=(0, 0, H + 5.6)), 'ouro', .62)
+    return B
+
 PORTAO_RISE = 3.0
 
 def telhado_portao(W=14.5, D=10.5, rise=PORTAO_RISE):

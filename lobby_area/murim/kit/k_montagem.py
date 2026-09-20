@@ -48,6 +48,17 @@ def terraco(K, C, x0, x1, y0, y1, z, escadas=()):
         if not vao('W', cy): K.put('sumeru', C, (x0, y0 + (j + 1) * (y1 - y0) / ny, z), 270, (sy, 1, 1))
     for ax in (x0 - .2, x1 + .2):
         for ay in (y0 - .2, y1 + .2): K.put('canto', C, (ax, ay, z), 0)
+    # PODIO: o embasamento sumeru tem 3.98 de altura e era posto em z, entao abaixo de z ficava o VAZIO -
+    # o terraco aparecia flutuando com o chao visivel por baixo (2.4 no Santuario, 4.0 na Loja, 6.0 na
+    # Forja). Aqui vai a alvenaria que faltava, do chao ate o pe do sumeru, com uma faixa de cordao.
+    if z > 0.05:
+        pod = Builder('PODIO_%d_%d' % (round(x0), round(y0)), 61)
+        pod.add(t_box(x0 - .1, x1 + .1, y0 - .1, y1 + .1, -.3, z - .45, bev=.22, seg=2), 'pedra', .38)
+        pod.add(t_box(x0 - .45, x1 + .45, y0 - .45, y1 + .45, z - .45, z + .02, bev=.14, seg=2), 'piso', .55)
+        for k in range(1, max(2, int(z / 1.9))):                       # cordoes horizontais na alvenaria
+            zz = -.3 + k * (z - .15) / max(2, int(z / 1.9))
+            pod.add(t_box(x0 - .28, x1 + .28, y0 - .28, y1 + .28, zz - .09, zz + .09, bev=.05), 'junta', .3 + .1 * k)
+        pod.finish(C)
     H = z + 3.98
     for i in range(nx):
         for j in range(ny): K.put('piso', C, (x0 + i * (x1 - x0) / nx, y0 + j * (y1 - y0) / ny, H), 0, (sx, sy, 1))
@@ -116,6 +127,7 @@ def build_lobby():
         ('tufo', k_veg.tufo, 'LOB_VEG'),
         ('estand', k_kit2.estandarte, 'LOB_PROPS'), ('sup_esp', k_kit2.suporte_espada, 'LOB_PROPS'), ('vaso', k_kit2.vaso, 'LOB_PROPS'),
         ('muro', k_kit2.muro_seg, 'LOB_PORTAO'), ('mpilar', k_kit2.muro_pilar, 'LOB_PORTAO'), ('tel_portao', k_kit2.telhado_portao, 'LOB_PORTAO'),
+        ('muroA', lambda: k_kit2.muro_seg(9.0, 13.5), 'LOB_PORTAO'), ('torre', k_kit2.muro_torre, 'LOB_PORTAO'),
         ('torre', k_lobby.torre_fogo, 'LOB_FORJA'), ('espada', lambda: k_lobby.espada_ancestral(38.0), 'LOB_PATIO'), ('ped_esp', lambda: k_lobby.pedestal_espada(11.0, 6.0), 'LOB_PATIO'),
         ('fornalha', k_lobby.fornalha, 'LOB_FORJA'), ('bigorna', k_lobby.bigorna, 'LOB_FORJA'), ('fole', k_lobby.fole, 'LOB_FORJA'),
         ('calha', k_lobby.calha_tempera, 'LOB_FORJA'), ('laminas', k_lobby.altar_laminas, 'LOB_FORJA'), ('braseiro', k_lobby.braseiro, 'LOB_PROPS'),
@@ -204,6 +216,33 @@ def build_lobby():
     for x in (-27, -9, 9, 27): K.put('parede', C, (x, -152 + 6, Z), 0, (1, 1, 1.25))
     for x in xs: K.put('forro', C, (x, -115, ZC + k_dougong.Z_TOP), 0)
     telhado('F1', 0, -125, ZC + k_dougong.Z_TOP + 1.0, C)
+    # ANDAR DE CLARABOIA. Entre os dois beirais nao havia NADA: olhando para cima dentro da Forja via-se
+    # o ceu pelo vao inteiro. Num salao de beiral duplo esse andar e uma parede com janelas, e e ela que
+    # sustenta o telhado de cima. A base fica em z=32.5, enterrada na agua do telhado inferior (que nesse
+    # anel passa entre 34 e 44, calculado pela curva juzhe do k_telhado), para nao aparecer emenda.
+    cl = Builder('FORJA_claraboia', 71)
+    CX0, CX1, CY0, CY1 = -30.0, 30.0, -142.0, -112.0
+    ZB, ZTopo = 32.5, 49.0
+    for (a0, a1, b0, b1, eixo) in ((CX0, CX1, CY0 - .9, CY0 + .9, 'x'), (CX0, CX1, CY1 - .9, CY1 + .9, 'x'),
+                                   (CX0 - .9, CX0 + .9, CY0, CY1, 'y'), (CX1 - .9, CX1 + .9, CY0, CY1, 'y')):
+        cl.add(t_box(a0, a1, b0, b1, ZB, ZTopo - 3.0, bev=.16, seg=2), 'verm', .48)          # pano de parede
+        cl.add(t_box(a0 - .3, a1 + .3, b0 - .3, b1 + .3, ZTopo - 3.0, ZTopo - 2.1, bev=.12), 'jadeE', .6)  # arquitrave
+        cl.add(t_box(a0 - .45, a1 + .45, b0 - .45, b1 + .45, ZTopo - 2.1, ZTopo, bev=.14, seg=2), 'mad', .4)
+        n = max(2, int(((a1 - a0) if eixo == 'x' else (b1 - b0)) / 6.0))                     # fiada de janelas
+        for i in range(n):
+            t = (i + .5) / n
+            if eixo == 'x':
+                cx = a0 + (a1 - a0) * t
+                cl.add(t_box(cx - 1.9, cx + 1.9, b0 - .22, b1 + .22, ZTopo - 8.6, ZTopo - 3.4, bev=.10), 'madM', .5)
+                cl.add(t_box(cx - 1.5, cx + 1.5, b0 - .34, b1 + .34, ZTopo - 8.2, ZTopo - 3.8), 'jade', .55)
+            else:
+                cy = b0 + (b1 - b0) * t
+                cl.add(t_box(a0 - .22, a1 + .22, cy - 1.9, cy + 1.9, ZTopo - 8.6, ZTopo - 3.4, bev=.10), 'madM', .5)
+                cl.add(t_box(a0 - .34, a1 + .34, cy - 1.5, cy + 1.5, ZTopo - 8.2, ZTopo - 3.8), 'jade', .55)
+    for sx in (CX0, CX1):                                                                     # pilares de canto
+        for sy in (CY0, CY1):
+            cl.add(t_box(sx - 1.3, sx + 1.3, sy - 1.3, sy + 1.3, ZB, ZTopo - 1.9, bev=.14, seg=2), 'verm', .62)
+    cl.finish(C)
     telhado('F2', 0, -127, ZC + k_dougong.Z_TOP + 1.0 + 17.0, C)
     K.put('placa', C, (0, -105.5, ZC + 2.4), 0)
     K.put('torre', C, (0, -143, Z))
@@ -346,13 +385,43 @@ def build_lobby():
     C = 'LOB_VEG'
     import random as _r
     rnd = _r.Random(99)
+    # ---- ONDE NAO SE PLANTA. O espalhamento antigo sorteava x,y e plantava, sem olhar o que havia
+    # embaixo: saiu flor em cima do calcamento, arbusto no meio do patio e cerejeira dentro do set de
+    # treino. Cada caixa aqui e uma superficie dura ou de circulacao, com folga para o raio da planta.
+    DURO = (
+        ('patio',      -72,  72,  -64,   64), ('escadaria', -26,  26,  -94,  -58),
+        ('via',        -19,  19,   56,  144), ('portao',    -49,  49,  136,  182),
+        ('t_forja',    -65,  65, -156,  -86), ('t_sant',   -149, -101, -49,   49),
+        ('t_loja',     101, 133,  -28,   20), ('treino',     69, 103,   16,   60),
+        ('lago',      -103, -67,  -77,  137), ('cam_oeste',  76, 104,  -10,    2),
+    )
+    barradas = {}
+    def livre(x, y):
+        for nome, x0, x1, y0, y1 in DURO:
+            if x0 <= x <= x1 and y0 <= y <= y1:
+                barradas[nome] = barradas.get(nome, 0) + 1
+                return False
+        return True
     def planta(key, x, y, z=0, s=1.0):
+        if not livre(x, y): return False
         K.put(key, C, (x, y, z), rnd.uniform(0, 360), (s, s, s))
+        return True
+    # ESCALA DAS ARVORES. O pinheiro nasce com 9.6 de altura e o bordo com 10; ao lado de um salao de
+    # 60 eles liam como arbusto ("arvore miuda"). Aqui vao a 1.8-2.4x, que e a proporcao que a referencia
+    # de palacio mostra: copa na altura do primeiro beiral, emoldurando o edificio em vez de sumir.
+    ESC_PIN, ESC_BOR = 2.1, 1.85
     for (x, y, s) in ((-64, -78, 1.1), (-58, 40, 1.0), (-52, 96, .9), (46, -78, 1.05), (54, 38, 1.0), (62, 92, .95),
                       (104, 40, 1.0), (112, -46, .9), (-108, 62, 1.0), (-96, -60, .95), (30, -170, 1.2), (-30, -168, 1.15)):
-        planta('pinA' if (x + y) % 2 else 'pinB', x, y, 0, s)
+        planta('pinA' if (x + y) % 2 else 'pinB', x, y, 0, s * ESC_PIN)
     for (x, y, s) in ((-44, -66, 1.0), (40, -66, 1.0), (-40, 66, .9), (44, 70, .95), (-76, 20, 1.0), (76, -30, .9)):
-        planta('bordo', x, y, 0, s)
+        planta('bordo', x, y, 0, s * ESC_BOR)
+    # MARGEM ARBORIZADA do lago. No palacio chines a agua e sempre emoldurada por arvore; aqui ela
+    # estava numa campina rasa. As duas fileiras ficam FORA da caixa do lago (x -103..-67), coladas nela.
+    for k, yy in enumerate(range(-64, 132, 14)):
+        lado = -106 if k % 2 == 0 else -64
+        planta('pinA' if k % 2 else 'pinB', lado + (2 if k % 3 else -2), yy, 0, rnd.uniform(1.5, 2.3))
+        if k % 2 == 0:
+            planta('bordo', -64 if lado < -100 else -106, yy + 7, 0, rnd.uniform(1.3, 1.9))
     for (x, y) in ((-66, -30), (-66, 30), (68, -40), (68, 44), (-104, -60), (108, 70)): planta('bambu', x, y, 0, 1.0)
     for (x, y, s) in ((-63, -62, 1.0), (58, -62, .9), (-60, 62, .95), (56, 64, 1.05), (-92, 24, 1.0), (88, -20, .9), (-30, -160, 1.1), (34, -158, 1.0)):
         planta('rocha1' if s > .95 else 'rocha2', x, y, 0, s)
@@ -363,13 +432,13 @@ def build_lobby():
     # ---- FLORES E GRAMA (o gramado chapado era defeito declarado; agora tem flor, grama alta e canteiro)
     for (x, y, s_, key) in ((-58, -36, 1.0, 'peonia'), (-52, 22, .9, 'peonia2'), (52, -30, 1.05, 'peonia2'), (58, 26, .95, 'peonia'),
                             (-64, 4, 1.0, 'crisa'), (62, -6, .9, 'crisa2'), (-46, 52, 1.0, 'crisa2'), (48, 54, .95, 'crisa'),
-                            (76, -52, 1.0, 'peonia'), (-78, -48, .9, 'crisa'), (92, 62, 1.0, 'peonia2'), (-90, 66, .95, 'crisa2')):
+                            (76, -52, 1.0, 'peonia'), (-124, -48, .9, 'crisa'), (112, 68, 1.0, 'peonia2'), (-128, 66, .95, 'crisa2')):
         planta(key, x, y, 0, s_)
-    for (x, y, s_) in ((-60, -14, 1.0), (60, 12, .95), (-44, 40, 1.05), (46, -44, 1.0), (84, 44, .9), (-86, 30, 1.0)):
-        planta('ameixa' if (x > 0) else 'ameixa2', x, y, 0, s_)
+    for (x, y, s_) in ((-60, -14, 1.0), (60, 12, .95), (-44, 40, 1.05), (46, -44, 1.0), (110, 44, .9), (-120, 30, 1.0)):
+        planta('ameixa' if (x > 0) else 'ameixa2', x, y, 0, s_)   # (84,44) caia dentro do set de treino
     K.put('canteiro', C, (-56, -52, 0), 12); K.put('canteiro2', C, (56, -54, 0), -8)
     K.put('canteiro2', C, (-54, 58, 0), 96); K.put('canteiro', C, (58, 58, 0), 84)
-    K.put('canteiro', C, (86, 20, 0), 90); K.put('canteiro2', C, (-88, -16, 0), 90)
+    K.put('canteiro', C, (112, 26, 0), 90); K.put('canteiro2', C, (-124, -16, 0), 90)   # (86,20) e (-88,-16) caiam no treino e no lago
     for k in range(64):                                                            # grama alta na borda dos caminhos
         ang = rnd.uniform(0, 6.28); d = rnd.uniform(72, 112)
         gx = math.cos(ang) * d; gy = math.sin(ang) * d * 1.3
@@ -408,11 +477,37 @@ def build_lobby():
                 d = passo * .16
                 pe.add(t_box(ax - d, bx + d, ay - d, by + d, -4, h, bev=1.1, seg=1), 'pedra', rr.uniform(.3, .62))
         pe.finish('LOB_CHAO')
-    macico('PENHASCO_N', -180, 180, -212, -162, 26, 34, 62)
-    macico('PENHASCO_W', -182, -152, -162, 168, 26, 28, 48)
-    macico('PENHASCO_E', 152, 182, -162, 168, 26, 28, 48)
-    macico('PENHASCO_S1', -182, -60, 168, 200, 28, 22, 38)
-    macico('PENHASCO_S2', 60, 182, 168, 200, 28, 22, 38)
+    # MURALHA DO RECINTO no lugar dos macicos. As massas facetadas de pedra liam como parede de estudio
+    # e eram o que o usuario chamou de "parede mal estruturada". Palacio chines se fecha com MURO, e o
+    # muro do kit (rodape de pedra, pano vermelho com almofadas, friso e capa de telha) ja existia - so
+    # estava sendo usado num trecho de 30 studs ao lado do portao. Aqui ele da a volta inteira, mais
+    # alto (H 8.6 -> 13.5), com torre nos cantos e de espaco em espaco.
+    MX, MY0, MY1 = 158.0, -192.0, 150.0
+    PASSO = 13.0
+    C = 'LOB_PORTAO'
+    def linha_muro(x0, y0, x1, y1, pular=None):
+        # enfileira segmentos de muro entre dois pontos, pulando um intervalo (o vao do Grande Portao)
+        comp = math.hypot(x1 - x0, y1 - y0)
+        n = max(1, int(round(comp / PASSO)))
+        ang = math.degrees(math.atan2(y1 - y0, x1 - x0))
+        for i in range(n):
+            t = (i + .5) / n
+            cx = x0 + (x1 - x0) * t; cy = y0 + (y1 - y0) * t
+            if pular and pular[0] <= cx <= pular[1] and pular[2] <= cy <= pular[3]: continue
+            K.put('muroA', C, (cx, cy, 0), ang, (comp / n / 9.0, 1, 1))
+    linha_muro(-MX, MY0, MX, MY0)
+    linha_muro(-MX, MY0, -MX, MY1)
+    linha_muro(MX, MY0, MX, MY1)
+    linha_muro(-MX, MY1, MX, MY1, pular=(-50, 50, MY1 - 2, MY1 + 2))
+    for (tx, ty) in ((-MX, MY0), (MX, MY0), (-MX, MY1), (MX, MY1)):
+        K.put('torre', C, (tx, ty, 0), 0)
+    for tx in (-MX + 79, MX - 79):
+        K.put('torre', C, (tx, MY0, 0), 0)
+    for ty in (MY0 + 86, MY0 + 172, MY0 + 258):
+        for tx in (-MX, MX): K.put('torre', C, (tx, ty, 0), 0)
+    for tx in (-54, 54):
+        K.put('torre', C, (tx, MY1, 0), 0)
+    C = 'LOB_VEG'
     # ---- registra as pecas UNICAS (piso, escadas, lago, via, penhascos...): elas sao criadas com Builder().finish()
     # direto, com a geometria ja em coordenadas do lobby, e por isso nao passam por K.put. Sem este passo elas ficam
     # fora de PLACE, fora do atlas e fora do FBX - foi o que fez o lobby aparecer flutuando na 1a montagem.
@@ -432,7 +527,12 @@ def build_lobby():
             if o.type != 'MESH' or o.data.name in ja: continue
             ja.add(o.data.name); soltas += 1
             PLACE.append(dict(mesh=o.data.name, pos=[0, 0, 0], rot=0, scale=[1, 1, 1]))
-    rep = ['pecas unicas registradas (geometria ja no lugar): %d' % soltas,
+    if barradas:
+        soltas_msg = 'vegetacao barrada por cair em superficie dura: ' + ', '.join('%s=%d' % kv for kv in sorted(barradas.items()))
+    else:
+        soltas_msg = 'vegetacao barrada por cair em superficie dura: nenhuma'
+    rep = [soltas_msg,
+           'pecas unicas registradas (geometria ja no lugar): %d' % soltas,
            'masters do kit nao usados neste lobby (tirados da origem): %s' % (', '.join(sorted(nao_usados)) or 'nenhum')]
     tot = 0
     for key, o in K.m.items():
