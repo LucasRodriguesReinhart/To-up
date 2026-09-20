@@ -155,7 +155,11 @@ def portal_moldura(tema='chakra', name=None):
 
     # ---- MEDALHAO no fecho do arco: a marca do anime da area (o que separa os 6 a primeira vista)
     ztop = Z0 + (H_VAO - W_VAO / 2) + (W_VAO / 2) * 1.30      # apice do vao
-    _coroa(B, tema, ztop + 1.45, -ESP / 2 - .55, P, V, G)   # centro no apice EXTERNO do anel: o medalhao coroa, nao tapa o vao
+    # O vertice mais apertado contra a telha nao era o topo do aro: era o ornamento da coroa projetado
+    # para a frente (medido em x=-122.9, z=21.9, contra a cumeeira em 21.95). Escalar sozinho ganhava
+    # 0.09; baixar a coroa 0.30 junto com a escala 0.92 leva a folga para ~0.44. O medalhao encosta um
+    # pouco mais no apice da ogiva, que e como uma pedra-chave se comporta de qualquer jeito.
+    _coroa(B, tema, ztop + 1.15, -ESP / 2 - .55, P, V, G)
     _ornamentos(B, tema, P, V, G)
     return B
 
@@ -216,7 +220,10 @@ def portal_fragmento(seed=1, tema='chakra', name=None):
 def _coroa(B, tema, Z, Y, P, V, G):
     """medalhao no fecho do arco. Construido em volta da PROPRIA origem e so depois levado para (0, Y, Z):
     assim a escala do conjunto e um numero so e ele cabe debaixo do telhado."""
-    S = 1.00                                              # travado pelo teto do Santuario: o aro nao pode passar de 16.5
+    # Escala do medalhao. Com 1.00 o conjunto passou a 0,05 stud da telha do Santuario nos dois pads do
+    # meio - medido subindo um raio de CADA VERTICE das 30 malhas de portal. Passava, mas raspando, e
+    # qualquer mexida no telhado ou na coroa encostava. 0.92 transforma isso em folga de verdade (~0,5).
+    S = 0.92
     def A(bm, tinta, r=.6, dy=0.0, dz=0.0):
         B.add(xf(bm, scale=S, loc=(0, Y + dy, Z + dz)), tinta, r)
 

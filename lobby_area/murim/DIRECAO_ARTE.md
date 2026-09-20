@@ -379,7 +379,14 @@ lobby recem-montado. O que sobreviveu e foi corrigido:
 - *"os dois portais do meio atravessam o telhado"*. Subi um raio de CADA VERTICE das 30 malhas de
   portal: zero vertices acima de telha. Nao atravessam - **mas a folga e de 0,05 stud** nos dois do
   meio (vertice em z=21,9, telha em 21,95). Passa raspando: qualquer mexida no telhado ou na coroa
-  encosta. Se houver outra rodada de bake, baixar a escala da coroa de 1,00 para ~0,92.
+  encosta.
+
+  **Corrigido na fonte, aguardando a proxima rodada de bake:** o vertice apertado nao era o topo do
+  aro, era um ornamento da coroa projetado para a FRENTE, bem embaixo da cumeeira. So diminuir a escala
+  ganhava 0,09; escala 0,92 MAIS baixar a coroa 0,30 (`ztop + 1.45` -> `ztop + 1.15`) leva a folga para
+  ~0,44. O medalhao encosta um pouco mais no apice da ogiva, que e como uma pedra-chave se comporta.
+  Enquanto nao rodar o pipeline inteiro (montagem -> `lobby_uv` -> 18 bakes -> `lobby_final` -> import),
+  o que esta no Studio continua sendo a versao de escala 1,00.
 
 A premissa de 17,3 que usei para dimensionar o portal (calculada pela formula do `k_telhado.Roof`)
 estava ERRADA: a telha real naquele ponto esta em ~21,95. A geometria salvou, nao a conta.
