@@ -176,7 +176,7 @@ def build_lobby():
         ('penha3', lambda: k_lobby.penhasco(3), 'LOB_CHAO'), ('nuvem', k_lobby.banco_nuvem, 'LOB_CHAO'),
         ('pico1', lambda: k_lobby.pico(1), 'LOB_CHAO'), ('pico2', lambda: k_lobby.pico(2), 'LOB_CHAO'),
         ('pico3', lambda: k_lobby.pico(3), 'LOB_CHAO'), ('queda', k_lobby.cascata, 'LOB_CHAO'),   # NAO usar 'torre': ja e a Torre do Fogo da Forja
-        ('torre', k_lobby.torre_fogo, 'LOB_FORJA'), ('espada', lambda: k_lobby.picareta_ancestral(38.0), 'LOB_PATIO'), ('ped_esp', lambda: k_lobby.pedestal_espada(11.0, 6.0), 'LOB_PATIO'),
+        ('torre', k_lobby.torre_fogo, 'LOB_FORJA'), ('espada', lambda: k_lobby.meu_dragao(17.0), 'LOB_PATIO'), ('ped_esp', lambda: k_lobby.pedestal_espada(11.0, 6.0), 'LOB_PATIO'),
         ('fornalha', k_lobby.fornalha, 'LOB_FORJA'), ('bigorna', k_lobby.bigorna, 'LOB_FORJA'), ('fole', k_lobby.fole, 'LOB_FORJA'),
         ('calha', k_lobby.calha_tempera, 'LOB_FORJA'), ('laminas', k_lobby.altar_laminas, 'LOB_FORJA'), ('braseiro', k_lobby.braseiro, 'LOB_PROPS'),
         ('leaoA', lambda: k_lobby.leao(1), 'LOB_PROPS'), ('leaoB', lambda: k_lobby.leao(-1), 'LOB_PROPS'),
@@ -692,11 +692,11 @@ def build_lobby():
     #     o azul da nevoa. Sao cenograficos - silhueta importa, detalhe nao.
     for k in range(14):
         a3 = math.tau * k / 14 + .22
-        d = 430 + (k % 4) * 105
+        d = 650 + (k % 4) * 150
         # enterrado em -78: a base do pico tem de sumir atras do cinturao e do banco de nuvem, senao
         # ele bola no ceu como recorte de papelao. So o topo aparece, que e o que faz horizonte.
         K.put('pico%d' % (1 + k % 3), 'LOB_CHAO', (math.cos(a3) * d, math.sin(a3) * d * 1.05, -78),
-              rb.uniform(0, 360), (1.1 + (k % 4) * 0.42,) * 3)
+              rb.uniform(0, 360), (0.95 + (k % 4) * 0.30,) * 3)
     # quedas d'agua nascendo no labio do primeiro patamar e morrendo no banco de nuvem
     for (qx, qy, qr) in ((-BX - 4, -60, 90), (-BX - 4, 90, 90), (BX + 4, -30, 270),
                          (BX + 4, 110, 270), (-40, BY0 - 4, 180), (60, BY1 + 4, 0)):

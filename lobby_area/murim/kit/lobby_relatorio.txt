@@ -45,7 +45,7 @@ LOB_pico_2                    436 tris x   5
 LOB_pico_3                    436 tris x   4
 LOB_cascata                   696 tris x   6
 LOB_torre_fogo.001           8552 tris x   1
-LOB_picareta_ancestral       3338 tris x   1
+LOB_dragao_perola           14188 tris x   1
 LOB_pedestal_espada.001      4008 tris x   1
 LOB_fornalha.001             9256 tris x   1
 LOB_bigorna.001               744 tris x   1
@@ -142,4 +142,4 @@ KIT_chuishou.004              836 tris x  20
 KIT_besta_0.004               352 tris x  20
 KIT_besta_1.004               352 tris x  20
 KIT_besta_2.004               360 tris x  20
-TOTAL ~2998624 tris em cena | malhas unicas 141 (415817 tris) | colocacoes 2028
+TOTAL ~3009474 tris em cena | malhas unicas 141 (426667 tris) | colocacoes 2028

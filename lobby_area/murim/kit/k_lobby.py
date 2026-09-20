@@ -558,10 +558,12 @@ def pico(seed=1):
     # estreitas boiando no ceu, sem leitura de montanha. Montanha distante e larga e baixa.
     H = 58.0 + seed * 11
     n = 7
-    for nivel in range(5):
-        t = nivel / 4.0
-        z0, z1 = H * t * .90, H * ((t + .28) if nivel < 4 else 1.0)
-        r = 62.0 * (1 - t * .86) + 5
+    PASSOS = (0.0, 0.17, 0.41, 0.63, 0.82)      # passo IRREGULAR: em passo constante o pico lia
+    for nivel in range(5):                       # como bolo de noiva empilhado
+        t = PASSOS[nivel]
+        z1t = PASSOS[nivel + 1] if nivel < 4 else 1.0
+        z0, z1 = H * t, H * z1t
+        r = 62.0 * (1 - t * .88) * rnd.uniform(.82, 1.06) + 4
         pts = []
         for i in range(n):
             a = math.tau * i / n + nivel * .4
@@ -590,3 +592,264 @@ def cascata(seed=1):
         B.add(xf(t_blob(rnd.uniform(2.4, 4.6), (1.4, 1.0, .42), 1, lobes=4, lobe_amp=.3, seed=k),
                  loc=(rnd.uniform(-3, 4), rnd.uniform(-4, 1), -H + rnd.uniform(-2, 3))), 'creme', rnd.uniform(.7, .95))
     return B
+
+
+# constantes do monumento (vinham do escopo de modulo do rascunho vencedor)
+_PC = Vector((0.0, -0.40, 8.80))          # centro da perola = centro da volta
+_RP = 2.35
+_AL = math.radians(55)                    # plano da volta deitado 55 graus: a helice SOBE enquanto gira
+_E1 = Vector((1, 0, 0)); _E2 = Vector((0, math.sin(_AL), math.cos(_AL))); _NN = _E1.cross(_E2)
+_NUCA = Vector((-3.40, -1.20, 14.20))
+_FACE = Vector((0.86, -0.28, -0.42))      # cabeca quase deitada: o observador ve o PERFIL dela
+_CAUDA = [(6.40, 1.60, 9.40), (6.20, 3.00, 7.90), (5.20, 4.40, 6.50), (3.00, 5.30, 5.70),
+          (0.00, 5.45, 5.55), (-2.90, 4.90, 5.95), (-4.40, 3.40, 6.55), (-4.30, 1.30, 6.95)]
+_PESC = [(-2.95, 0.05, 12.35), (-3.45, -0.75, 13.35)]
+PC, RP, AL, E1, E2, NN = _PC, _RP, _AL, _E1, _E2, _NN
+NUCA, FACE, CAUDA, PESC = _NUCA, _FACE, _CAUDA, _PESC
+
+# ---------------------------------------------------------------- MONUMENTO DO PATIO
+# O brief novo pediu, conforme a referencia, "um monumento central de dragao dourado envolvendo uma
+# esfera luminosa". Substitui a picareta que estava aqui (pedida numa rodada anterior); deixei a
+# picareta_ancestral no arquivo caso o usuario queira reaproveita-la em outro ponto do lobby.
+# Saiu de tres abordagens modeladas e RENDERIZADAS em paralelo, com juri; venceu a que constroi a
+# silhueta lateral primeiro e so depois engrossa por partes.
+def _volta(s):
+    """ponto da volta em s=0..1: 300 graus em torno da perola, subindo 3.1 ao longo do eixo (helice, nao anel)."""
+    fi = math.radians(195 + 300 * s)
+    h = -1.50 + 3.10 * s
+    d = 3.95 - .62 * s
+    return PC + E1 * (d * math.cos(fi)) + E2 * (d * math.sin(fi)) + NN * h
+
+
+def _espinha():
+    """CAUDA baixa por tras, com a ponta abanando no ar a direita -> VOLTA de 300 graus em torno da perola
+    (entra pela esquerda embaixo por tras, cruza a frente EMBAIXO, sobe pela direita, passa por cima ATRAS,
+    e sai em cima a esquerda, deixando um VAO aberto onde se ve a perola) -> PESCOCO em S ate a nuca."""
+    key = list(CAUDA); rr = [.15, .26, .40, .54, .66, .76, .84, .88]
+    NA = 20
+    for i in range(NA):
+        s = i / (NA - 1.0)
+        key.append(tuple(_volta(s))); rr.append(.92 + .26 * s)
+    key += PESC + [tuple(NUCA)]
+    rr += [1.12, 1.04, .96]
+    cp = crom(key, 3)
+    return cp, lerp_list(rr, len(cp))
+
+
+def _frame(Fv, roll=0.0):
+    Xl = Vector(Fv).normalized()
+    Yl = Vector((0, 0, 1)).cross(Xl)
+    Yl = Yl.normalized() if Yl.length > 1e-5 else Vector((0, 1, 0))
+    Zl = Xl.cross(Yl).normalized()
+    if roll:
+        R = Matrix.Rotation(math.radians(roll), 3, Xl); Yl = R @ Yl; Zl = R @ Zl
+    return Xl, Yl, Zl
+
+
+# ================================================================== MODO SILHUETA (chapa fina no plano XZ)
+def _fita(B, pts, rad, key, th=0.16, rnd=.5):
+    for i in range(len(pts) - 1):
+        a, b = pts[i], pts[i + 1]
+        d = Vector((b.x - a.x, 0, b.z - a.z))
+        if d.length < 1e-6: continue
+        nv = Vector((-d.z, 0, d.x)).normalized()
+        ra, rb = rad[i], rad[i + 1]
+        poly = [(a.x + nv.x * ra, a.z + nv.z * ra), (b.x + nv.x * rb, b.z + nv.z * rb),
+                (b.x - nv.x * rb, b.z - nv.z * rb), (a.x - nv.x * ra, a.z - nv.z * ra)]
+        try: B.add(t_prism(poly, 'Y', -th, th), key, rnd)
+        except ValueError: pass
+
+
+def silhueta():
+    B = Builder('D3_sil', 780)
+    cp, cr = _espinha()
+    _fita(B, [Vector((p.x, 0, p.z)) for p in cp], cr, 'ouro')
+    per = [(0, -RP)] + [(RP * math.cos(math.radians(a)), RP * math.sin(math.radians(a))) for a in range(-78, 79, 18)] + [(0, RP)]
+    B.add(xf(t_lathe(per, 18), loc=(PC.x, 0, PC.z)), 'chama', .85)
+    Xl, Yl, Zl = _frame(Vector((FACE.x, 0, FACE.z)))
+    M = Matrix(((Xl.x, 0, Zl.x), (Xl.y, 1, Zl.y), (Xl.z, 0, Zl.z)))
+    cab = [(-.50, .95), (.20, 1.30), (.85, 1.20), (1.45, 1.45), (2.05, 1.20), (2.80, 1.00), (3.50, .92),
+           (3.95, 1.05), (4.30, .72), (4.20, .25), (3.60, .02), (2.60, -.18), (1.60, -.30),
+           (3.55, -1.45), (3.65, -1.85), (2.70, -2.05), (1.75, -1.85), (1.10, -1.40), (.40, -1.05), (-.40, -.90)]
+    B.add(xf(t_prism(cab, 'Y', -.18, .18), rot=M, loc=NUCA), 'ouro', .5)
+    def W(p): return NUCA + Xl * p[0] + Vector((0, 1, 0)) * p[1] + Zl * p[2]
+    for s in (-1, 1):
+        _fita(B, [W(q) for q in ((.60, 0, 1.25), (-.05, 0, 1.85), (-.95, 0, 2.10), (-1.75, 0, 2.00), (-2.30, 0, 1.75))], [.30, .23, .17, .11, .05], 'creme')
+        _fita(B, [W(q) for q in ((-.90, 0, 2.05), (-1.40, 0, 2.45), (-1.80, 0, 2.60))], [.13, .09, .035], 'creme')
+        _fita(B, [W(q) for q in ((3.80, 0, .10), (4.80, 0, .45), (5.55, 0, .05), (5.30, 0, -.75), (4.30, 0, -1.40))], [.14, .11, .08, .05, .025], 'creme')
+    return B
+
+
+# ================================================================== MODO VOLUME
+def meu_dragao(H=17.0):
+    S = H / 17.0
+    B = Builder('LOB_dragao_perola', 780)
+
+    def A(bm, key, r=None):
+        return B.add(xf(bm, scale=S) if abs(S - 1) > 1e-6 else bm, key, r)
+
+    def octo(r, rot=22.5):
+        return [(r * math.cos(math.radians(rot + 45 * i)), r * math.sin(math.radians(rot + 45 * i))) for i in range(8)]
+
+    def placa(p, ux, uz, poly, th, key, rnd=.5):
+        """chapa desenhada no plano (ux=ao longo, uz=para fora) e extrudada na espessura th."""
+        uy = uz.cross(ux).normalized()
+        M = Matrix(((ux.x, uy.x, uz.x), (ux.y, uy.y, uz.y), (ux.z, uy.z, uz.z)))
+        return A(xf(t_prism(poly, 'Y', -th, th), rot=M, loc=p), key, rnd)
+
+    # ---------------------------------------------------------- PEDESTAL octogonal em patamares (0 -> 5)
+    A(t_prism(octo(8.60), 'Z', 0.00, 0.62, bev=.14, seg=2), 'pedra', .42)
+    A(t_prism(octo(8.05), 'Z', 0.62, 1.28, bev=.12, seg=2), 'pedra', .52)
+    A(t_prism(octo(7.45), 'Z', 1.28, 1.92, bev=.12, seg=2), 'pedra', .60)
+    A(t_prism(octo(6.85), 'Z', 1.92, 3.86, bev=.10, seg=2), 'verm', .46)
+    ap = 6.85 * math.cos(math.radians(22.5))
+    for i in range(8):
+        a = math.radians(45 * i); cx, cy = ap * math.cos(a), ap * math.sin(a)
+        A(xf(t_box(-2.10, 2.10, -.20, .20, 2.20, 3.58, bev=.07, seg=1), rot=(0, 0, 45 * i + 90), loc=(cx, cy, 0)), 'ouro', .62)
+        A(xf(t_box(-1.78, 1.78, -.14, .14, 2.38, 3.40, bev=.05, seg=1), rot=(0, 0, 45 * i + 90), loc=(cx * 1.005, cy * 1.005, 0)), 'junta', .30)
+        A(xf(t_lathe([(0, 0), (.44, 0), (.36, .10), (.20, .13), (0, .16)], 10), rot=(-90, 0, 45 * i - 90), loc=(cx * 1.04, cy * 1.04, 2.90)), 'ouro', .70)
+    A(t_prism(octo(7.42), 'Z', 3.86, 4.36, bev=.14, seg=2), 'pedra', .64)
+    A(t_prism(octo(7.05), 'Z', 4.36, 5.00, bev=.12, seg=2), 'pedra', .56)
+    A(t_prism(octo(6.30), 'Z', 4.92, 5.10, bev=.06, seg=1), 'bronze', .60)
+    # rochedo: um morro de pedra e cinco volutas de nuvem de ouro (nao batatas soltas)
+    A(xf(t_blob(3.90, (1.20, 1.20, .30), 2, lobes=5, lobe_amp=.20, seed=5, flat_bottom=-.35), loc=(0, -.4, 5.25)), 'pedra', .48)
+    for i, a in enumerate((30, 100, 170, 250, 320)):
+        ar = math.radians(a); r = 4.55
+        A(xf(t_lathe([(0, 0), (1.35, .08), (1.50, .48), (1.05, .86), (.42, 1.02), (0, 1.05)], 10),
+             scale=(1.10, .74, .80), rot=(0, 0, a), loc=(r * math.cos(ar), -.4 + r * math.sin(ar), 5.02)), 'ouro', .55 + .06 * (i % 3))
+
+    # ---------------------------------------------------------- PEROLA (lisa, sem enfeite)
+    per = [(0, -RP)] + [(RP * math.cos(math.radians(a)), RP * math.sin(math.radians(a))) for a in range(-78, 79, 12)] + [(0, RP)]
+    A(xf(t_lathe(per, 22), loc=PC), 'chama', .85)
+
+    # ---------------------------------------------------------- CORPO
+    cp, cr = _espinha()
+    A(t_tube(cp, cr, 14), 'ouro', .50)
+    n = len(cp)
+
+    def nobody(i):
+        i = max(1, min(n - 2, i)); p = cp[i]
+        t = (cp[i + 1] - cp[i - 1]).normalized()
+        o = p - PC
+        o = (o - t * o.dot(t)); o = o.normalized() if o.length > 1e-5 else Vector((0, 0, 1))
+        return p, t, o, cr[i]
+
+    # crista dorsal: labaredas BAIXAS e deitadas para tras (nao espinhos radiais)
+    chama = [(-.62, 0), (.46, 0), (.34, .40), (.02, .62), (-.52, .40), (-.88, .18)]
+    for i in range(4, n - 2, 3):
+        p, t, o, r = nobody(i)
+        k = .62 + .95 * (i / n)
+        placa(p + o * (r * .82), t, o, [(a * k, b * k) for a, b in chama], .09, 'verm' if i % 2 else 'vermS', .45 + .3 * (i % 5) / 5)
+
+    # fiadas de escamas: tres placas largas e rasas na parte de cima, espacadas
+    esc = [(-.30, 0), (.30, 0), (.22, .09), (0, .13), (-.22, .09)]
+    for i in range(5, n - 3, 3):
+        p, t, o, r = nobody(i)
+        sd = t.cross(o).normalized()
+        for lado in (-1, 0, 1):
+            d = (o * math.cos(math.radians(40 * lado)) + sd * math.sin(math.radians(40 * lado))).normalized()
+            placa(p + d * (r * .92), t, d, [(a * r * 1.5, b * r * 1.5) for a, b in esc], .04, 'bronze', .55 + .3 * (i % 4) / 4)
+    # barriga: faixas largas na face de dentro
+    for i in range(4, n - 4, 3):
+        p, t, o, r = nobody(i)
+        placa(p - o * (r * .88), t, -o, [(-.22, 0), (.22, 0), (.17, .09), (-.17, .09)], r * .60, 'bronze', .50)
+
+    p0, t0, o0, r0 = nobody(2)                         # leque de chama na ponta da cauda
+    sd0 = t0.cross(o0).normalized()
+    for k, (ang, sz) in enumerate(((0, 1.35), (36, 1.05), (-36, 1.05), (70, .72), (-70, .72))):
+        d = (o0 * math.cos(math.radians(ang)) + sd0 * math.sin(math.radians(ang))).normalized()
+        a = p0 - t0 * .22; b = p0 + t0 * .22; c = p0 + d * sz - t0 * .60
+        A(bmesh_tri_prism(a, b, c, .12), 'verm', .5 + .08 * k)
+
+    # ---------------------------------------------------------- PATAS (4 curtas, garra de 4 dedos)
+    def pata(punho, dv, uv, sz):
+        dv = Vector(dv).normalized(); uv = Vector(uv).normalized()
+        sd = dv.cross(uv).normalized(); uv = sd.cross(dv).normalized()
+        A(xf(t_blob(sz * .62, (1.25, 1.05, .72), 1), loc=punho - uv * sz * .10), 'ouro', .58)
+        for k, ang in enumerate((-50, -17, 17, 50)):
+            d = (dv * math.cos(math.radians(ang)) + sd * math.sin(math.radians(ang))).normalized()
+            g = crom([tuple(punho + d * sz * .42), tuple(punho + d * sz * .98 - uv * sz * .24), tuple(punho + d * sz * 1.32 - uv * sz * .82)], 3)
+            A(t_tube(g, lerp_list([sz * .23, sz * .14, sz * .03], len(g)), 6), 'creme', .80 + .04 * k)
+
+    def perna(ombro, cotovelo, punho, dv, uv, sz, rombro=.98):
+        ombro = Vector(ombro)
+        A(xf(t_blob(rombro, (1.05, 1.0, .90), 2), loc=ombro), 'ouro', .52)
+        path = crom([tuple(ombro), tuple(Vector(cotovelo)), tuple(Vector(punho))], 5)
+        A(t_tube(path, lerp_list([rombro * .80, rombro * .46, sz * .50], len(path)), 8), 'ouro', .55)
+        A(xf(t_blob(sz * .50, (1.0, .82, .82), 1, lobes=4, lobe_amp=.30, seed=3), loc=Vector(cotovelo)), 'verm', .50)
+        pata(Vector(punho), dv, uv, sz)
+
+    # dianteira direita: AGARRA A PEROLA por cima-frente (e esta garra que conta a historia)
+    perna(_volta(.85) + Vector((.45, -.55, -.35)), (1.90, -.95, 10.95), (1.05, -2.45, 10.05),
+          (-.58, -.46, -.68), (.40, -.72, .57), 1.08)
+    # dianteira esquerda: aberta no ar, a esquerda
+    perna(_volta(.955) + Vector((-.55, -.35, -.40)), (-3.60, -1.10, 10.90), (-4.85, -1.95, 9.45),
+          (-.35, -.62, -.70), (.32, -.36, .88), 1.02)
+    # traseira direita: apoiada no rochedo, na frente
+    perna(_volta(.30) + Vector((.45, -.30, -.30)), (3.40, -3.25, 5.90), (4.55, -2.95, 5.35),
+          (.55, -.62, -.56), (.20, .12, .97), .98, rombro=.90)
+    # traseira esquerda: apoiada no rochedo, na frente
+    perna(_volta(.12) + Vector((-.45, -.30, -.30)), (-3.90, -2.85, 5.85), (-4.90, -2.45, 5.35),
+          (-.62, -.55, -.56), (.18, .15, .97), .92, rombro=.86)
+
+    # ---------------------------------------------------------- CABECA (massas redondas; nada de placa chapada)
+    Xl, Yl, Zl = _frame(FACE)
+    M = Matrix(((Xl.x, Yl.x, Zl.x), (Xl.y, Yl.y, Zl.y), (Xl.z, Yl.z, Zl.z)))
+
+    def Hd(bm, key, r=None): return A(xf(bm, rot=M, loc=NUCA), key, r)
+    def W(p): return NUCA + Xl * p[0] + Yl * p[1] + Zl * p[2]
+
+    Hd(xf(t_blob(1.16, (1.08, 1.02, .96), 2), loc=(.80, 0, .28)), 'ouro', .50)                      # cranio
+    Hd(xf(t_blob(.80, (1.32, .92, .84), 2), loc=(2.05, 0, .10)), 'ouro', .54)                       # focinho: massa grossa junto ao cranio
+    Hd(xf(t_blob(.64, (1.48, .84, .78), 2), loc=(3.40, 0, -.02)), 'ouro', .56)                      # focinho: massa fina adiante (afina = camelo)
+    Hd(xf(t_blob(.44, (.95, 1.10, .98), 1), loc=(4.30, 0, .06)), 'ouro', .62)                       # bulbo do nariz
+    Hd(xf(t_lathe([(0, 0), (.44, .05), (.36, .32), (.16, .44), (0, .48)], 10), loc=(.58, 0, 1.02)), 'ouro', .64)   # bossa da testa (chimu)
+    for s in (-1, 1):
+        Hd(xf(t_blob(.46, (1.10, .78, .58), 1), loc=(1.52, s * .76, .80)), 'ouro', .60)             # arcada da sobrancelha
+        Hd(xf(t_blob(.58, (1.15, .88, .84), 1), loc=(1.62, s * .68, -.30)), 'ouro', .55)            # bochecha
+        Hd(xf(t_blob(.13, (1, 1, .8), 1), loc=(4.36, s * .30, .24)), 'corte', .15)                  # narina
+    Hd(t_prism([(1.50, -.30), (2.80, -.40), (3.90, -.44), (4.38, -.34), (4.30, -.62), (3.40, -.76), (2.30, -.76), (1.50, -.62)],
+               'Y', -.54, .54, bev=.08, seg=2), 'ouro', .58)                                        # labio superior, enfiado sob o focinho
+    jaw = [(0, 0), (1.20, -.06), (2.30, -.16), (2.75, -.44), (1.90, -.74), (.70, -.72), (-.05, -.46)]
+    bmj = t_prism(jaw, 'Y', -.50, .50, bev=.14, seg=2); xf(bmj, rot=(0, 28, 0)); xf(bmj, loc=(1.35, 0, -.55))
+    Hd(bmj, 'ouro', .60)                                                                            # mandibula, boca bem aberta
+    Hd(xf(t_box(-1.05, 1.05, -.42, .42, -.18, .18, bev=.04, seg=1), rot=(0, 18, 0), loc=(2.55, 0, -1.16)), 'corte', .12)
+    Hd(xf(t_prism([(-.66, 0), (.60, -.05), (.34, .22), (-.60, .24)], 'Y', -.26, .26, bev=.05, seg=1), rot=(0, 22, 0), loc=(2.50, 0, -1.28)), 'verm', .40)
+    for s in (-1, 1):
+        for x in (2.15, 2.80, 3.45):
+            Hd(xf(t_lathe([(0, 0), (.11, 0), (.045, .32), (0, .38)], 7), rot=(180, 0, 0), loc=(x, s * .46, -.60)), 'creme', .85)
+        for x in (2.45, 3.20):
+            Hd(xf(t_lathe([(0, 0), (.10, 0), (.04, .30), (0, .36)], 7), rot=(0, 20, 0), loc=(x, s * .40, -1.58)), 'creme', .85)
+    for s in (-1, 1):                                                                               # olhos salientes sob a arcada
+        Hd(xf(t_blob(.36, (1.0, .82, .95), 1), loc=(1.68, s * .84, .40)), 'creme', .88)
+        Hd(xf(t_blob(.175, (1, .9, 1), 1), loc=(1.84, s * .94, .40)), 'corte', .12)
+        Hd(xf(t_prism([(-.22, -.18), (.20, -.24), (.32, .06), (.11, .28), (-.20, .20)], 'Y', -.07, .07, bev=.04, seg=1), loc=(.22, s * 1.02, .52)), 'ouro', .70)
+    for s in (-1, 1):                                                                               # chifres de veado, curtos e jogados para TRAS
+        hp = crom([tuple(W(q)) for q in ((.50, s * .52, 1.16), (-.15, s * .76, 1.58), (-1.05, s * .88, 1.72), (-1.85, s * .84, 1.58), (-2.42, s * .70, 1.28))], 4)
+        A(t_tube(hp, lerp_list([.33, .25, .18, .11, .05], len(hp)), 7), 'bronze', .58)
+        f1 = crom([tuple(W(q)) for q in ((-1.00, s * .86, 1.70), (-1.45, s * 1.16, 2.00), (-1.88, s * 1.28, 2.10))], 4)
+        A(t_tube(f1, lerp_list([.15, .10, .04], len(f1)), 6), 'bronze', .60)
+        f2 = crom([tuple(W(q)) for q in ((-1.78, s * .86, 1.58), (-2.10, s * 1.02, 1.92), (-2.34, s * 1.10, 2.06))], 4)
+        A(t_tube(f2, lerp_list([.11, .08, .03], len(f2)), 6), 'bronze', .62)
+    for s in (-1, 1):                                                                               # bigodes: saem do nariz e voltam para TRAS, ondulando
+        bg = crom([tuple(W(q)) for q in ((4.35, s * .52, .10), (5.25, s * .92, .34), (5.60, s * 1.54, -.10), (4.95, s * 2.10, -.72), (3.70, s * 2.44, -1.28), (2.35, s * 2.50, -1.60))], 5)
+        A(t_tube(bg, lerp_list([.15, .13, .10, .07, .045, .02], len(bg)), 6), 'creme', .80)
+        bb = crom([tuple(W(q)) for q in ((3.10, s * .34, -1.75), (3.25, s * .50, -2.48), (2.70, s * .60, -3.10))], 4)
+        A(t_tube(bb, lerp_list([.16, .10, .035], len(bb)), 6), 'creme', .76)
+    for s in (-1, 1):                                                                               # barba de fogo sob o queixo
+        placa(W((1.05, s * .42, -1.30)), -Xl, Vector(Zl) * -1, [(-.28, 0), (.28, 0), (.20, .50), (-.06, .72), (-.42, .48)], .09, 'verm', .55)
+    # juba: tufos DEITADOS para tras, em volta da nuca e descendo pelo pescoco
+    for k in range(9):
+        a = math.radians(-105 + 210 * k / 8)
+        p = W((.10, 1.05 * math.sin(a), .20 + 1.00 * math.cos(a)))
+        o = (p - W((.10, 0, .20))).normalized()
+        placa(p, -Xl, o, [(-.30, 0), (.30, 0), (.22, .55), (-.05, .82), (-.45, .58), (-.72, .26)], .10,
+              'verm' if k % 2 else 'vermS', .42 + .35 * (k % 4) / 4)
+
+    xs = [v.co.x for v in B.bm.verts]; ys = [v.co.y for v in B.bm.verts]; zs = [v.co.z for v in B.bm.verts]
+    print('BG> bbox x %.2f..%.2f  y %.2f..%.2f  z %.2f..%.2f  raio %.2f' %
+          (min(xs), max(xs), min(ys), max(ys), min(zs), max(zs), max(math.hypot(v.co.x, v.co.y) for v in B.bm.verts)))
+    return B
+
+
+# ================================================================== execucao
