@@ -463,7 +463,35 @@ def build_lobby():
                            (103, 24, 0, 'caixas'), (96, 30, 0, 'telhas_p'), (94, -8, 0, 'banco'), (-64, 30, 90, 'banco'),
                            (64, -22, 270, 'banco'), (-100, 44, 0, 'barril'), (-98, 40, 0, 'cesto')):
         K.put(key, P2, (x, y, 0), r)
-    ch = Builder('LOB_chao'); ch.add(t_box(-180, 180, -215, 200, -3, -.5), 'folha', .35); ch.finish('LOB_CHAO')
+    ch = Builder('LOB_chao'); ch.add(t_box(-180, 180, -215, 200, -3, -.52), 'folha', .35)
+    # MANCHAS DE RELVA. A tinta varia com o valor rnd de cada peca, entao mancha sobre mancha com rnd
+    # diferente ja quebra o verde chapado no proprio bake, sem textura nova. Em grade regular isso vira
+    # xadrez; por isso posicao, tamanho e angulo sao sorteados e as manchas se sobrepoem. O tom so muda
+    # de verdade em 1 de cada 8 (pinho) e a palha seca fica rara, so para sujar a beirada.
+    gr = _r.Random(404)
+    postas = 0
+    for _ in range(620):
+        cx = gr.uniform(-176, 176); cy = gr.uniform(-210, 196)
+        if not livre(cx, cy): continue                            # nao pinta relva em cima de calcamento
+        w = gr.uniform(7.0, 15.0); h = gr.uniform(6.0, 13.0)
+        t = gr.random()
+        tinta = 'pinho' if t > .875 else ('palha' if t > .855 else 'folha')
+        mancha = t_box(-w, w, -h, h, -.62, -.52 + gr.uniform(.015, .055))
+        xf(mancha, rot=(0, 0, gr.uniform(0, 180)), loc=(cx, cy, 0))
+        ch.add(mancha, tinta, gr.uniform(.12, .95))
+        postas += 1
+    ch.finish('LOB_CHAO')
+    # MEIO-FIO: faixa de pedra na divisa do gramado com o patio e com a via. Sem ela a grama encosta
+    # direto no calcamento e a transicao fica em corte seco, que era parte do ar de "jogado".
+    mf = Builder('LOB_meiofio', 405)
+    def fio(x0, x1, y0, y1):
+        mf.add(t_box(x0, x1, y0, y1, -.62, -.30, bev=.06), 'piso', .55)
+        mf.add(t_box(x0 + .18, x1 - .18, y0 + .18, y1 - .18, -.62, -.24, bev=.05), 'junta', .4)
+    for (x0, x1, y0, y1) in ((-71.4, 71.4, -63.4, -62.0), (-71.4, 71.4, 62.0, 63.4),
+                             (-71.4, -70.0, -63.4, 63.4), (70.0, 71.4, -63.4, 63.4),
+                             (-17.4, -16.0, 62.0, 141.4), (16.0, 17.4, 62.0, 141.4)):
+        fio(x0, x1, y0, y1)
+    mf.finish('LOB_CHAO')
     # penhascos: massas facetadas de alturas variadas (a caixa lisa da 1a versao lia como parede de estudio)
     rr = _r.Random(7)
     def macico(nome, x0, x1, y0, y1, passo, hmin, hmax):
