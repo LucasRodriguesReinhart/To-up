@@ -679,23 +679,29 @@ def build_lobby():
     rb = _r.Random(808)
     BX, BY0, BY1 = 178.0, -213.0, 198.0
     def anel(nome, recuo, z, passo, esc):
+        # PASSO MENOR QUE A LARGURA DO MODULO (18): os blocos se SOBREPOEM e formam parede. Antes o
+        # passo era 26-34 contra modulo de 18, o que deixava folga entre eles - dai os "aneis de
+        # volumes claros muito repetidos, com espacos azuis entre eles" que o usuario apontou.
+        # A profundidade tambem varia por bloco, para a face nao ser um plano unico.
         n = 0
+        def por(x, y):
+            nonlocal n
+            fora = 1 if (abs(x) > BX or y < BY0 or y > BY1) else -1
+            dx = rb.uniform(-3.5, 3.5); dy = rb.uniform(-3.5, 3.5)
+            K.put(nome % (1 + n % 3), 'LOB_CHAO',
+                  (x + dx, y + dy, z + rb.uniform(-2.5, 2.5)),
+                  rb.uniform(0, 360), (esc * rb.uniform(.78, 1.34),) * 3)
+            n += 1
         for x in _frange(-BX - recuo, BX + recuo, passo):
-            for y in (BY0 - recuo, BY1 + recuo):
-                K.put(nome % (1 + n % 3), 'LOB_CHAO', (x + rb.uniform(-2, 2), y, z + rb.uniform(-1.5, 1.5)),
-                      rb.choice((0, 90, 180, 270)), (esc * rb.uniform(.85, 1.2),) * 3)
-                n += 1
+            for y in (BY0 - recuo, BY1 + recuo): por(x, y)
         for y in _frange(BY0 - recuo, BY1 + recuo, passo):
-            for x in (-BX - recuo, BX + recuo):
-                K.put(nome % (1 + n % 3), 'LOB_CHAO', (x, y + rb.uniform(-2, 2), z + rb.uniform(-1.5, 1.5)),
-                      rb.choice((0, 90, 180, 270)), (esc * rb.uniform(.85, 1.2),) * 3)
-                n += 1
+            for x in (-BX - recuo, BX + recuo): por(x, y)
         return n
     # o primeiro anel sobe para -1.0: em -5.0 sobrava a faixa marrom da propria placa (topo -0.52)
     # aparecendo entre o muro e a rocha, que era justamente o corte que o cinturao veio esconder.
-    n1 = anel('penha%d', 2.0, -1.0, 24.0, 1.00)
-    n2 = anel('penha%d', 14.0, -19.0, 30.0, 1.15)   # recuo de 12 entre patamares
-    n3 = anel('penha%d', 28.0, -34.0, 34.0, 1.30)
+    n1 = anel('penha%d', 2.0, -1.0, 12.5, 1.00)     # passo 12.5 contra modulo de 18: sobrepoe
+    n2 = anel('penha%d', 13.0, -17.0, 14.0, 1.20)
+    n3 = anel('penha%d', 26.0, -33.0, 16.0, 1.45)
     # (b) banco de nuvem OPACO por baixo: sem ele o olho acha o fim da rocha e volta a ler o corte.
     #     Nao pode ser transparencia - a cor aqui e assada em atlas e nao existe alpha.
     for anel_n, (raio, zc, esc) in enumerate(((236, -46, 1.5), (300, -52, 2.1), (395, -58, 2.9))):

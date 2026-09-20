@@ -512,32 +512,6 @@ def estante_armas(L=8.0):
     return B
 
 
-def penhasco(seed=1):
-    """bloco de penhasco do cinturao da borda. MASTER: e instanciado ~90 vezes pelo montador, porque
-    num Builder unico os 90 blocos estouram o teto de 20 mil tris do importador.
-    Faces largas e facetadas, topo com musgo, e uma fenda vertical para a silhueta nao virar caixa."""
-    B = Builder('LOB_penhasco_%d' % seed, 30 + seed); rnd = random.Random(700 + seed)
-    W, D, H = 18.0, 15.0, 26.0
-    n = 7
-    pts = []
-    for i in range(n):
-        a = math.tau * i / n
-        r = 1.0 + .26 * math.sin(3.1 * a + seed)
-        pts.append((math.cos(a) * W * .5 * r, math.sin(a) * D * .5 * r))
-    B.add(t_prism(pts, 'Z', -H, 0, bev=.55, seg=1), 'pedra', .38 + .1 * (seed % 3))
-    for k in range(3):                                                  # degraus de estratificacao
-        z = -H * (.28 + k * .24)
-        p2 = [(x * (1.0 + .06 * (k + 1)), y * (1.0 + .06 * (k + 1))) for (x, y) in pts]
-        B.add(t_prism(p2, 'Z', z, z + 1.1, bev=.3, seg=1), 'junta', .3 + .14 * k)
-    p3 = [(x * .82, y * .82) for (x, y) in pts]                         # topo com musgo
-    B.add(t_prism(p3, 'Z', -.4, .9, bev=.4, seg=1), 'pinho', .45 + .12 * (seed % 2))
-    for k in range(4):                                                  # lascas soltas no pe
-        a = rnd.uniform(0, 6.28)
-        B.add(xf(t_prism([(0, 0), (2.6, .9), (3.1, 3.0), (.6, 3.6)], 'Z', 0, rnd.uniform(2.0, 4.5), bev=.25),
-                 rot=(0, 0, rnd.uniform(0, 360)),
-                 loc=(math.cos(a) * W * .46, math.sin(a) * D * .46, -H * rnd.uniform(.5, .9))), 'pedra', rnd.uniform(.3, .6))
-    return B
-
 def banco_nuvem(seed=1):
     """nuvem do banco que fecha a base do penhasco. OPACA de proposito: a cor aqui e assada em atlas e
     nao existe alpha, entao nevoa tem de ser MALHA com degrade assado, nunca transparencia."""
@@ -548,32 +522,6 @@ def banco_nuvem(seed=1):
         B.add(xf(t_blob(r, (1.35, 1.0, .34), 2, lobes=5, lobe_amp=.2, seed=k, flat_bottom=-.22 * r),
                  loc=(math.cos(a) * d, math.sin(a) * d, rnd.uniform(-1.6, 1.6))),
               'creme', .72 + .26 * (k % 4) / 4)
-    return B
-
-def pico(seed=1):
-    """pico de fundo, puramente cenografico: silhueta importa, detalhe nao. Tres templates reusados em
-    escalas diferentes; os mais distantes ganham valor mais claro para somir na nevoa."""
-    B = Builder('LOB_pico_%d' % seed, 28); rnd = random.Random(300 + seed)
-    # base MUITO mais larga e pico mais baixo: com raio 22 e altura 86+ eles saiam como lajes bege
-    # estreitas boiando no ceu, sem leitura de montanha. Montanha distante e larga e baixa.
-    H = 58.0 + seed * 11
-    n = 7
-    PASSOS = (0.0, 0.17, 0.41, 0.63, 0.82)      # passo IRREGULAR: em passo constante o pico lia
-    for nivel in range(5):                       # como bolo de noiva empilhado
-        t = PASSOS[nivel]
-        z1t = PASSOS[nivel + 1] if nivel < 4 else 1.0
-        z0, z1 = H * t, H * z1t
-        r = 62.0 * (1 - t * .88) * rnd.uniform(.82, 1.06) + 4
-        pts = []
-        for i in range(n):
-            a = math.tau * i / n + nivel * .4
-            rr = r * (1.0 + .3 * math.sin(2.3 * a + seed * 1.7))
-            pts.append((math.cos(a) * rr, math.sin(a) * rr))
-        B.add(t_prism(pts, 'Z', z0, z1, bev=.9, seg=1), 'pedra', .25 + .17 * nivel)
-    for k in range(3):                                                  # capa clara no alto
-        z = H * (.74 + k * .085)
-        r = 11.0 * (1 - k * .3)
-        B.add(xf(t_lathe([(0, 0), (r, 0), (r * .6, 2.2), (0, 3.0)], 7), loc=(0, 0, z)), 'creme', .8 + .06 * k)
     return B
 
 def cascata(seed=1):
@@ -853,3 +801,210 @@ def meu_dragao(H=17.0):
 
 
 # ================================================================== execucao
+
+# ---------------------------------------------------------------- ROCHA (forma-base refeita)
+# O usuario reprovou a versao anterior com precisao: "volumes bege separados, formados por camadas
+# geometricas empilhadas", "aneis de volumes claros muito repetidos, com espacos azuis entre eles",
+# "nao tente resolver isso somente afastando, afinando ou aumentando os modelos atuais. REVISE A
+# FORMA-BASE". O penhasco antigo era prisma de 7 lados com 3 degraus concentricos e o pico
+# empilhava 5 niveis decrescentes - empilhamento regular, zero verticalidade.
+# Esta versao saiu de tres abordagens modeladas e RENDERIZADAS em paralelo, com juri, e venceu a
+# que constroi a rocha como FEIXE DE COLUNAS VERTICAIS fundidas: os modulos encaixam lado a lado
+# formando parede continua, sem buraco azul e sem leitura de anel.
+def _perf_rocha(rnd, r, n=6, irr=.30, ecc=1.0, a0=None, cx=0.0, cy=0.0):
+    """secao horizontal de uma coluna de rocha: poligono irregular anti-horario."""
+    a0 = rnd.uniform(0, math.tau) if a0 is None else a0
+    pts = []
+    for i in range(n):
+        a = a0 + math.tau * i / n + rnd.uniform(-.20, .20)
+        rr = r * (1 + irr * rnd.uniform(-1, 1))
+        pts.append((cx + math.cos(a) * rr, cy + math.sin(a) * rr * ecc))
+    return pts
+
+def _fuste(poly, niveis, rnd=None, jit=0.0, bev=0.0, seg=1, topo=True, base=True):
+    """COLUNA: a secao `poly` e repetida em cada nivel (z, escala, dx, dy) e os aneis sao costurados.
+    Da conicidade, inclinacao e barriga de graca; `jit` quebra as arestas verticais retas."""
+    bm = bmesh.new(); rings = []
+    for (z, s, dx, dy) in niveis:
+        ring = []
+        for (x, y) in poly:
+            k = 1.0 + (jit * rnd.uniform(-1, 1) if (jit and rnd) else 0.0)
+            ring.append(bm.verts.new((x * s * k + dx, y * s * k + dy, z)))
+        rings.append(ring)
+    n = len(poly)
+    for a, b in zip(rings, rings[1:]):
+        for i in range(n):
+            try: bm.faces.new((a[i], a[(i + 1) % n], b[(i + 1) % n], b[i]))
+            except ValueError: pass
+    for ring, rev, ok in ((rings[0], True, base), (rings[-1], False, topo)):
+        if ok:
+            try: bm.faces.new(ring[::-1] if rev else ring)
+            except ValueError: pass
+    bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+    bevel_sharp(bm, bev, seg)
+    return bm
+
+def _niveis(z0, z1, escalas, dx=0.0, dy=0.0, curva=1.7, zs=None):
+    """niveis entre z0 (base) e z1 (topo) com as escalas dadas; (dx,dy) = recuo da BASE em relacao ao
+    topo (pe encolhido = penhasco em balanco, nunca caixa). zs = reparticao vertical nao uniforme."""
+    m = len(escalas); out = []
+    for i, s in enumerate(escalas):
+        t = i / (m - 1) if zs is None else zs[i]
+        k = (1 - t) ** curva
+        out.append((z0 + (z1 - z0) * t, s, dx * k, dy * k))
+    return out
+
+def penhasco(seed=0):
+    """MODULO DO CINTURAO (passo 17): feixe de colunas verticais fundidas, de larguras MUITO diferentes,
+    com o RITMO sorteado pela seed - nenhum modulo repete o desenho do outro.
+    Encaixe lateral: a coluna da borda esquerda e recuada e a da direita avancada, as duas passam do
+    meio-passo; no encontro uma fica na frente da outra e a junta some. A cortina escura atras fecha a
+    parede inteira, entao nunca aparece ceu entre os dedos. Topo plano em z=0 (o lobby assenta nele);
+    so a franja de mato e dois dentes de rocha do labio passam disso."""
+    B = Builder('LOB_penhasco_%d' % seed, 30 + seed)
+    rnd = random.Random(1700 + seed * 37)
+    P = 17.0                                   # passo do cinturao
+    XB = P * .5 + 1.2                          # borda: invade o vizinho
+
+    # ---- 1. CORTINA: colunas largas e achatadas atras. Parede fechada + fundo escuro entre os dedos.
+    #        Desce MAIS que a maioria da frente, para o pe da frente ter sempre rocha escura atras.
+    x = -XB - 1.2; i = 0
+    while x < XB + 1.2:
+        r = rnd.uniform(5.2, 6.6)
+        pol = _perf_rocha(rnd, r, 7, .15, ecc=.55, cx=x, cy=rnd.uniform(.4, 2.0))
+        B.add(_fuste(pol, _niveis(-24.0 - rnd.uniform(0, 6.0), 0.0, (.58, .80, .93, 1.0), dy=2.0, curva=1.3),
+                     rnd, .035, bev=.35), 'junta', .18 + .13 * (i % 3))
+        x += r * rnd.uniform(1.0, 1.25); i += 1
+
+    # ---- 2. FRENTE: torroes de larguras sorteadas. O CORPO da parede e macico ate uns -20; so dois
+    #        torroes por modulo descem em dedo ate -34. Pe quase sempre quebrado em toco (largo), nunca
+    #        uma franja de pontas iguais.
+    fr = []                                     # (x, y, raio, z do pe, escala do pe)
+    rE = rnd.uniform(4.2, 5.1)
+    fr.append((-XB, -2.5 - rnd.uniform(0, .6), rE, -26.0 - rnd.uniform(0, 4.0), rnd.uniform(.55, .78)))
+    x, r = -XB, rE
+    fundo = []
+    while True:
+        r2 = rnd.uniform(2.6, 6.4)
+        x2 = x + (r + r2) * rnd.uniform(.48, .62)
+        if x2 + r2 * .5 > XB - 1.6: break
+        fr.append([x2, -rnd.uniform(2.6, 5.4), r2, -17.5 - rnd.uniform(0, 5.5), rnd.uniform(.62, 1.0)])
+        fundo.append(len(fr) - 1)
+        x, r = x2, r2
+    rD = rnd.uniform(4.2, 5.1)
+    fr.append((XB, -5.4 - rnd.uniform(0, .8), rD, -27.0 - rnd.uniform(0, 4.0), rnd.uniform(.55, .78)))
+    for k in rnd.sample(fundo, min(2, len(fundo))):          # os dois dedos que descem fundo
+        fr[k][3] = -29.0 - rnd.uniform(0, 5.0); fr[k][4] = rnd.uniform(.20, .38)
+    for i, (x, y, r, zb, pe) in enumerate(fr):
+        pol = _perf_rocha(rnd, r, 6, .26, ecc=.80, cx=x, cy=y)
+        esc = (pe, pe * .35 + .52, .82, .92, .98, 1.0)
+        B.add(_fuste(pol, _niveis(zb, 0.0, esc, dy=-rnd.uniform(1.6, 3.6), curva=1.9,
+                                  zs=(0, .26, .52, .72, .88, 1.0)), rnd, .05, bev=.30),
+              'pedra', .30 + .16 * (i % 4))
+
+    # ---- 3. SULCO: lasca escura ENFIADA na junta de duas colunas - e a sombra que separa um torrao do
+    #        outro; sem ela as colunas viram uma so parede lisa
+    for a, b in zip(fr, fr[1:]):
+        if rnd.random() < .70:
+            xm = (a[0] + a[2] + b[0] - b[2]) * .5
+            ym = max(a[1], b[1]) + rnd.uniform(.8, 1.8)
+            zt = -rnd.uniform(.5, 6.0); h = rnd.uniform(10.0, 20.0)
+            pol = _perf_rocha(rnd, rnd.uniform(.9, 1.5), 4, .22, ecc=.45, cx=xm, cy=ym)
+            B.add(_fuste(pol, _niveis(zt - h, zt, (.25, .70, 1.0), dy=-1.0), rnd, .07, bev=.16),
+                  'casca_escura' if rnd.random() < .4 else 'junta', .25 + rnd.uniform(0, .25))
+
+    # ---- 4. ESPOROES: contrafortes encostados na face, topos em cotas MUITO diferentes = silhueta
+    #        quebrada. Largos e curtos: eles engrossam a parede, nao a transformam em pente.
+    for k in range(4):
+        x = -XB + rnd.uniform(0, 2 * XB)
+        r = rnd.uniform(1.9, 3.6)
+        zt = -rnd.uniform(1.0, 11.0)
+        pol = _perf_rocha(rnd, r, 5, .30, ecc=.72, cx=x, cy=-7.1 - rnd.uniform(0, 1.4))
+        B.add(_fuste(pol, _niveis(zt - rnd.uniform(8.0, 19.0), zt, (.48, .70, .90, 1.0), dy=-1.6, curva=1.5),
+                     rnd, .06, bev=.24), 'pedra' if k % 3 else 'junta', .42 + .14 * (k % 4))
+
+    # ---- 5. FRANJA de mato no labio: pecas sobrepostas de larguras, alturas e quedas diferentes, COM
+    #        falhas (nunca uma fita verde continua), mais dois dentes de rocha que quebram o topo reto
+    x = -XB - .6
+    while x < XB:
+        w = rnd.uniform(1.5, 3.4)
+        if rnd.random() < .18: x += w * 1.4; continue                  # falha: rocha nua no labio
+        pol = _perf_rocha(rnd, w, 6, .38, ecc=.24, cx=x + w * .8, cy=-6.5 - rnd.uniform(0, 1.3))
+        B.add(t_prism(pol, 'Z', -.8 - rnd.uniform(0, 3.4), .06 + rnd.uniform(0, .62), bev=.2, seg=1),
+              'pinho' if rnd.random() < .72 else 'folha', .40 + rnd.uniform(0, .32))
+        x += w * rnd.uniform(1.15, 1.55)
+    for k in range(2):
+        xd = -XB + rnd.uniform(1.5, 2 * XB - 1.5)
+        pol = _perf_rocha(rnd, rnd.uniform(1.0, 1.9), 5, .30, ecc=.5, cx=xd, cy=-7.1 - rnd.uniform(0, .8))
+        B.add(_fuste(pol, _niveis(-4.0, rnd.uniform(.7, 1.4), (.9, 1.0, .74, .40), curva=1.0),
+                     rnd, .06, bev=.2), 'pedra', .55 + .2 * k)
+    for k in range(2):                          # dois tufos fundos, dentro das fendas
+        pol = _perf_rocha(rnd, rnd.uniform(1.0, 1.6), 5, .32, ecc=.55,
+                          cx=-XB + rnd.uniform(1, 2 * XB - 1), cy=-7.0 - rnd.uniform(0, 1.0))
+        z = -rnd.uniform(4.0, 12.0)
+        B.add(t_prism(pol, 'Z', z - .6, z + rnd.uniform(.5, 1.1), bev=.22, seg=1), 'pinho', .45 + .2 * k)
+    return B
+
+def pico(seed=0):
+    """MONTANHA DE FUNDO: mesma linguagem do penhasco - FEIXE de agulhas verticais fundidas, de alturas
+    diferentes, convergindo para um cume FORA do centro. Nao ha degrau concentrico nem cone: o que da a
+    forma e a silhueta serrilhada do feixe. Um pedestal largo e escuro amarra os pes (nada de volumes
+    soltos boiando). Nuvem NAO entra aqui: nuvem e o banco_nuvem, com linguagem propria de blob macio."""
+    B = Builder('LOB_pico_%d' % seed, 28 + seed)
+    rnd = random.Random(910 + seed * 53)
+    H = 62.0 + seed * 23.0
+    R0 = H * .34
+    ad = rnd.uniform(0, math.tau)
+    sx, sy = math.cos(ad) * R0 * .26, math.sin(ad) * R0 * .26      # cume deslocado do centro da base
+
+    # ---- 1. FEIXE: 11 massas verticais GORDAS e fundidas. A altura cai com a distancia ao cume, entao
+    #        a silhueta e um macico serrilhado e assimetrico - nunca um cone nem um bolo de niveis.
+    ags = [(0.0, 0.0)]
+    for anel, (d, n) in enumerate(((.42, 4), (.78, 6))):
+        for j in range(n):
+            a = math.tau * (j + rnd.uniform(-.20, .20)) / n + anel * .8 + ad
+            ags.append((math.cos(a) * R0 * d * rnd.uniform(.86, 1.10),
+                        math.sin(a) * R0 * d * rnd.uniform(.86, 1.10)))
+    for i, (x, y) in enumerate(ags):
+        d = math.hypot(x - sx, y - sy) / R0
+        h = H * max(.20, (1 - .70 * d ** .92)) * rnd.uniform(.82, 1.06)
+        r = R0 * (.54 - .17 * d) * rnd.uniform(.86, 1.12)
+        pol = _perf_rocha(rnd, r, 6, .28, ecc=rnd.uniform(.62, .95), cx=x, cy=y)
+        conv = .26 + .14 * d                                       # topo puxado para o eixo do cume
+        B.add(_fuste(pol, _niveis(-7.0, h, (1.0, .96, .88, .77, .64, .48, .30),
+                                  dx=-(sx - x) * conv, dy=-(sy - y) * conv, curva=1.15),
+                     rnd, .065, bev=.45),
+              'junta' if (i % 4 == 3) else 'pedra', .26 + .13 * (i % 5))
+
+    # ---- 2. CONTRAFORTES: massas baixas encostadas no pe, para o macico nao nascer do chao em parede
+    for k in range(4):
+        a = ad + rnd.uniform(0, math.tau)
+        d = R0 * rnd.uniform(.95, 1.25)
+        x, y = math.cos(a) * d, math.sin(a) * d
+        r = R0 * rnd.uniform(.22, .36)
+        pol = _perf_rocha(rnd, r, 6, .30, ecc=.85, cx=x, cy=y)
+        B.add(_fuste(pol, _niveis(-7.0, H * rnd.uniform(.12, .30), (1.0, .88, .70, .46),
+                                  dx=-math.cos(a) * r * .8, dy=-math.sin(a) * r * .8, curva=1.0),
+                     rnd, .07, bev=.4), 'junta' if k % 2 else 'pedra', .22 + .1 * (k % 3))
+
+    # ---- 3. SULCOS: lascas escuras enfiadas entre as massas - a fenda vertical que da escala e altura
+    for k in range(4):
+        a = ad + math.pi * .3 + k * 1.7
+        d = R0 * rnd.uniform(.40, .80)
+        x, y = sx + math.cos(a) * d, sy + math.sin(a) * d
+        pol = _perf_rocha(rnd, R0 * rnd.uniform(.10, .16), 4, .26, ecc=.34, a0=a + 1.57, cx=x, cy=y)
+        B.add(_fuste(pol, _niveis(-4.0, H * rnd.uniform(.45, .80), (.9, 1.0, .78, .50, .22),
+                                  dx=-math.cos(a) * R0 * .10, dy=-math.sin(a) * R0 * .10, curva=1.0),
+                     rnd, .08, bev=.3), 'junta' if k % 2 else 'casca_escura', .3 + .1 * k)
+
+    # ---- 4. VERDE: so no pe e em prateleiras baixas, rente a rocha (nunca placa boiando no flanco)
+    for k in range(7):
+        a = rnd.uniform(0, math.tau); d = R0 * rnd.uniform(.60, 1.15)
+        t = rnd.uniform(.0, .20)
+        pol = _perf_rocha(rnd, R0 * rnd.uniform(.16, .30), 6, .34, ecc=.8,
+                          cx=math.cos(a) * d + sx * t, cy=math.sin(a) * d + sy * t)
+        z = H * t
+        B.add(t_prism(pol, 'Z', z - 2.6, z + rnd.uniform(.3, 1.2), bev=.3, seg=1),
+              'pinho' if rnd.random() < .7 else 'folha', .40 + .12 * (k % 4))
+    return B
+# =================================================================== COLAR EM k_lobby.py (fim)
