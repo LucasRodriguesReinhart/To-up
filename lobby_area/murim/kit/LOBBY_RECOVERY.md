@@ -45,7 +45,37 @@ Corrigido pelo usuario. Nao repetir estes argumentos como se fossem prova:
 | "UV dentro de [0,1], logo UV esta ok" | Coordenada valida pode apontar para a regiao ERRADA da textura. |
 | "os 6 PNG tem saturacao 0.39-0.50, logo o bake esta correto" | Nao demonstra que a peca problematica recebeu o arquivo certo nem que os UV dela caem na regiao pintada. |
 
-**Estado real: a causa NAO esta identificada.**
+### CAUSA ENCONTRADA (com arquivo e linha)
+
+`k_export.py` linha 13 indexa `lobby_atlas.json` por nome de **OBJETO**:
+
+```python
+for n in names: mesh_atlas[bpy.data.objects[n].data.name] = atlas
+```
+
+Mas `run_bg.py` (`objs_de` / `unwrap`) grava e le o MESMO json por nome de **MALHA**. Para as pecas
+que existem em duas geracoes (as `KIT_*` com sufixo `.001`), os dois espacos de nome nao coincidem e
+a associacao malha->atlas se perde no export.
+
+**Medido:** 168 malhas assadas nos atlas, **26 ausentes do FBX** (`KIT_arbusto_a.001`,
+`KIT_arquitrave.001`, `KIT_bal_seg.001`, `KIT_besta_*`, `KIT_chiwen.001`, `KIT_lanterna_palacio.001`,
+`KIT_muro_seg.001/.002`, entre outras). Comparar `lobby_atlas.json` com `export/kit_meshes.json`.
+
+O que o rastreio DESCARTOU por medida, e nao deve ser reinvestigado:
+- UV: 1 unica camada `UVMap` com `active_render=True` nas 169 malhas; nao ha camada competindo
+- amostragem do PNG nas UV reais: `SANT_galeria` cai em **98.5% de pixel colorido** (sat 0.57);
+  `POR_fragmento_1_ki`, que renderiza CERTO, cai em 91.9% de PRETO — logo cobertura de UV nao explica
+- branco: a fracao de pixel BRANCO e **0.0% em todos os 8 atlas**; o cinza visto no jogo nao pode vir
+  do conteudo do ColorMap
+- FBX: md5 do PNG embutido == md5 do arquivo em `tex/`; render do proprio FBX com emissao=ColorMap
+  mostra `SANT_galeria` em vermelho-laca correto
+
+**Correcao a fazer:** alinhar os dois espacos de nome em `k_export.py:13` (indexar por malha, como o
+`run_bg.py` faz) e reexportar. Depois confirmar que as 26 malhas aparecem no FBX, e so entao
+reimportar. Verificar tambem o achado lateral: 6 malhas espelho (`*_esp`) carregam material de atlas
+diferente do que o json declara (ex.: `TEL_G_espigao_esp` diz `A_LOBBY_4`, usa `F_A_LOBBY_3`).
+
+**Estado real: a causa ESTA identificada; falta corrigir e validar.**
 
 ### Proximo passo executavel
 
