@@ -10,7 +10,7 @@ PAINTS = {   # tinta -> cor de viewport (sRGB hex). Os shaders pintados ficam em
     'pedra': 'DCCDB0', 'piso': 'B9AD95', 'junta': '8F846E', 'telha': '2E5A4C', 'telhaImp': 'D4A034', 'jade': '3E7D6E',
     'jadeE': '2E5A4C', 'creme': 'F1E3C0', 'ferro': '2B2624', 'chama': 'FFC84A', 'pinho': '3E6B3A', 'folha': '6E9A45',
     'casca': '5A3F2A', 'bordo': 'C4432B', 'tecido': 'A8261A', 'corte': '1E1A18',
-    'aco': 'C9D0D8', 'agua': '3FA0A0', 'palha': 'C9A86A', 'brasa': 'FF7A1A', 'bambu': '7FA85A',
+    'aco': 'C9D0D8', 'agua': '3FA0A0', 'palha': 'C9A86A', 'brasa': 'FF7A1A', 'T_chakra_borda': '4179B0', 'T_chakra_meio': '5AAFFF', 'T_chakra_centro': 'C0E1FF', 'T_chakra_veio': '9CCFFF', 'T_chakra_pedra': '23354C', 'T_ki_borda': 'AE8330', 'T_ki_meio': 'FFBE3C', 'T_ki_centro': 'FFE6B5', 'T_ki_veio': 'FFD88A', 'T_ki_pedra': '443825', 'T_nichirin_borda': '419786', 'T_nichirin_meio': '5ADCBE', 'T_nichirin_centro': 'C0F2E6', 'T_nichirin_veio': '9CEAD8', 'T_nichirin_pedra': '233E3F', 'T_sombra_borda': '6841A0', 'T_sombra_meio': '965AE6', 'T_sombra_centro': 'D7C0F6', 'T_sombra_veio': 'C09CF0', 'T_sombra_pedra': '2F2447', 'T_mare_borda': '3489A3', 'T_mare_meio': '46C8EB', 'T_mare_centro': 'B9EAF7', 'T_mare_veio': '90DEF3', 'T_mare_pedra': '1F3A48', 'T_serio_borda': 'AE4E3D', 'T_serio_meio': 'FF6E50', 'T_serio_centro': 'FFC8BC', 'T_serio_veio': 'FFA896', 'T_serio_pedra': '442829', 'pedra_portal': '4A3A5C', 'pedra_portal_esc': '332A45', 'veio_portal': 'E85CAF', 'gema_portal': '5BC8F5', 'vao_borda': 'F06FC0', 'vao_meio': '7FC8F0', 'vao_centro': '3E5BC8', 'flor_rosa': 'E8809C', 'flor_amarela': 'F2C64B', 'flor_branca': 'F6EDE4', 'flor_ouro': 'D9A62E', 'folha_lotus': '4E8C50', 'casca_escura': '3A2A20', 'bambu': '7FA85A',
 }
 
 def hex_lin(h):

@@ -111,6 +111,14 @@ caixa("forja_parede_C", -14, 14, -124, -120, 9.98, 26)
 caixa("forja_parede_E", 22, 36, -124, -120, 9.98, 26)
 caixa("sant_fundo", -146, -142, -45, 45, 6.38, 18); caixa("sant_N", -146, -104, 39, 43, 6.38, 18); caixa("sant_S", -146, -104, -43, -39, 6.38, 18)
 caixa("loja_fundo", 126, 130, -24, 16, 7.98, 19); caixa("loja_N", 104, 130, 12, 16, 7.98, 19)
+-- contrafortes dos seis portais. Sem isto o jogador atravessa a pedra e cai no portal do lado, porque
+-- MeshPart nao colide. O vao fica LIVRE de proposito: e por ele que se chega ao disco de teleporte.
+for _, zy in ipairs({ -32.5, -19.5, -6.5, 6.5, 19.5, 32.5 }) do
+	for _, s in ipairs({ -1, 1 }) do
+		local a, b = zy + s * 4.4, zy + s * 5.7
+		caixa("portal_pilar", -126.5, -122.5, math.min(a, b), math.max(a, b), 6.38, 15.9)
+	end
+end
 -- limites do mundo: penhascos
 caixa("penhasco_N", -182, 182, -215, -160, -1, 60); caixa("penhasco_W", -184, -150, -160, 170, -1, 46); caixa("penhasco_E", 150, 184, -160, 170, -1, 46)
 caixa("penhasco_S_W", -184, -60, 168, 202, -1, 36); caixa("penhasco_S_E", 60, 184, 168, 202, -1, 36)

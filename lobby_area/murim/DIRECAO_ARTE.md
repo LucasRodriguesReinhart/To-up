@@ -288,3 +288,70 @@ O blockout anterior foi guardado em `ServerStorage.MURIM_BLOCKOUT_Guardado` (nad
 - Agua do lago e do espelho: plano com cor, sem ondulacao, reflexo nem profundidade (secao 18 do briefing).
 - Sem VFX (fumaca da forja, brasas, folhas) e sem som (secoes 21 e 22).
 - A interface do Ignis nao foi testada ate a venda (so abertura e fechamento).
+
+---
+
+## 8. Segunda rodada: jardim, vila e os seis portais
+
+Pedido do usuario, em ordem: ambientacao mais agradavel no jardim, mais flores, agua num tom cartoon
+parecido com o de Blox Fruits, detalhes de vila chinesa de verdade, e modelos proprios para os portais.
+Depois, sobre os portais: seguir a referencia em pixel art que ele mandou, NAO precisar ser estetica
+chinesa, ser mais detalhado e magico com VFX (usando o pack que ja esta no mapa) e ter **um portal
+diferente por area, com a cara do anime dela**.
+
+### 8.1 Jardim e vila (`k_jardim.py`)
+Peonia, crisantemo, lotus e ameixeira em flor, canteiros, moitas de grama alta, lanterna de pedra,
+poco, barril, cesto, banco, caixas, pilha de telhas, varal, placa de loja e carroca. As flores sao
+coroas de petalas em camadas (superficie curva + solidify), nao cartoes cruzados: elas precisam ler
+de perto, que e onde o jogador passa.
+
+### 8.2 Portais (`k_portal.py`) - tres medidas travaram o desenho
+Nenhuma delas veio de gosto; todas foram medidas antes de modelar:
+
+| medida | valor | de onde veio |
+|---|---|---|
+| largura minima do vao | 6,4 studs | diametro do `Disco` de teleporte que o jogo ja tem |
+| largura maxima do conjunto | ~11 studs | os seis pads ficam de 13 em 13 (Roblox Z -32,5 a 32,5) |
+| altura maxima | 16,5 studs | o telhado do Santuario passa a 17,3 nos dois pads do meio |
+
+Resultado: 10,8 de largura por 16,4 de altura, silhueta 1,5 - alta como a da referencia.
+
+**Tres erros de leitura corrigidos nesta rodada**, todos vistos em render antes de exportar:
+1. *O portal lia como lapide.* A moldura era a faixa entre dois `arco_poly` de larguras diferentes, o que
+   engrossa o topo e fecha a silhueta num domo macico. Troquei por `offset_poly()`, que desloca o
+   contorno em meia-esquadria: agora e um ANEL concentrico de espessura constante.
+2. *O medalhao lia como um pretzel.* `t_lathe` torneia em torno de Z, entao o aro e o disco de fundo
+   nasciam DEITADOS. Faltava `rot=(90,0,0)` para eles encararem o jogador.
+3. *O centro do vao lia como buraco.* Na tabela de tintas o tom `centro` era o mais ESCURO dos tres.
+   Inverti o gradiente: aro fundo -> meio -> nucleo quase branco, os tres emissivos. So entao o vao
+   parece aceso em vez de vazado.
+
+Tambem: sombreado chapado em vez de liso na pedra (o liso embolava o anel), dovelas cortando o anel,
+contrafortes mais baixos que o arco (com ceu entre o capitel e a ogiva) e arcobotante costurando os dois.
+
+### 8.3 A marca de cada anime
+A cor de cada portal sai do proprio `Config.Temas` do jogo, e a ordem segue os pads medidos no Studio
+(`Disco.AreaId` de cada `Portal<n>`): Roblox Z +32,5 e a area 1, Z -32,5 e a area 6.
+
+| area | tema | medalhao no fecho do arco | ornamento dos contrafortes |
+|---|---|---|---|
+| 1 Vila da Folha | chakra | espiral de chakra + duas kunai cruzadas | pergaminho enrolado |
+| 2 Planeta Namekusei | ki | esfera do dragao de 4 estrelas + raios | chamas de ki subindo |
+| 3 Monte Natagumo | nichirin | lamina nichirin cravada + ondas da respiracao | xadrez do haori |
+| 4 Jardim das Sombras | sombra | olho aceso + lascas | olhos menores no fuste |
+| 5 Grand Line | mare | leme de navio + ondas | corda trancada |
+| 6 Cidade Z | serio | punho + linhas de impacto | rachaduras |
+
+### 8.4 VFX (`export/portais_vfx.lua`)
+Vortice base clonado de `VFX_Guardado_Lobby.Anime.Portal-Enter-01` (5 emissores), tingido com a cor do
+tema e com `Size` multiplicado por 3,2 porque o emissor original foi feito para 1 stud. Mais um sotaque
+por anime (vento/carga, carga/chama, cortes/agua, fumaca/campo, agua/respingo, ar/rachadura) com `Rate`
+a 35%: o pack e de efeito de combate e no cenario fica escandaloso no volume original. Uma `PointLight`
+da cor da area pinta a pedra em volta.
+
+### 8.5 Agua cartoon (`export/agua_cartoon.lua`)
+Medi o terreno antes de decidir: `Terrain:CountCells()` devolveu **0** - o jogo inteiro nao usa terreno.
+Entao a cor global da agua (que no Roblox e uma so para o lugar todo) esta livre e da para usar AGUA DE
+TERRENO de verdade no lago, que e o que Blox Fruits faz: tem onda, refracao e reflexo. Um MeshPart
+pintado nunca passaria de um plano azul parado. O espelho do patio e pequeno demais para o voxel de 4
+studs (serrilharia na borda), entao ele so ganhou transparencia e reflexo para acompanhar o tom.

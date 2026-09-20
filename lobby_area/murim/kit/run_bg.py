@@ -107,6 +107,45 @@ try:
             k_render.camera((150, 230, 120), (0, -20, 20), 30); P(k_render.eevee('M3_lobby_tex.png', res=(1600, 900)))
             k_render.camera((0, 40, 26), (0, -110, 30), 34); P(k_render.eevee('M4_eixo_tex.png', res=(1500, 850)))
 
+    if etapa == 'jardim_bancada':             # constroi as pecas de jardim/vila numa bancada e renderiza para revisao
+        import k_jardim, importlib; importlib.reload(k_jardim)
+        from k_core import clear_col
+        k_materiais.build_paints()
+        clear_col('BANCADA4')
+        x = 0; info = []
+        pecas = [('peonia', lambda: k_jardim.peonia(1), 7), ('crisantemo', lambda: k_jardim.crisantemo(1), 7),
+                 ('lotus', lambda: k_jardim.lotus(1), 8), ('ameixeira', lambda: k_jardim.ameixeira(1), 12),
+                 ('canteiro', lambda: k_jardim.canteiro_flores(1), 11), ('grama', lambda: k_jardim.moita_grama(1), 6),
+                 ('lant_pedra', lambda: k_jardim.lanterna_pedra(), 7), ('poco', lambda: k_jardim.poco(), 11),
+                 ('barril', lambda: k_jardim.barril(), 5), ('cesto', lambda: k_jardim.cesto(), 5),
+                 ('banco', lambda: k_jardim.banco(), 8), ('caixas', lambda: k_jardim.caixas(), 7),
+                 ('telhas', lambda: k_jardim.telhas_pilha(), 5), ('varal', lambda: k_jardim.varal(), 13),
+                 ('placa', lambda: k_jardim.placa_loja(), 8), ('carroca', lambda: k_jardim.carroca(), 0)]
+        for key, fn, dx in pecas:
+            B = fn(); tr = B.tris(); o = B.finish('BANCADA4', loc=(400 + x, 0, 0)); info.append('%s %d tris' % (o.name, tr)); x += dx
+        P(chr(10).join(info))
+        bpy.ops.wm.save_mainfile()
+        k_render.only(['BANCADA4']); k_render.sun(46, -32, 3.4)
+        k_render.camera((432, -44, 16), (432, 2, 4), 30); P(k_render.workbench('J1_flores.png', 'MATERIAL', res=(1500, 700)))
+        k_render.camera((492, -46, 16), (492, 2, 5), 30); P(k_render.workbench('J2_vila.png', 'MATERIAL', res=(1500, 700)))
+
+    if etapa == 'portal_bancada':
+        import k_portal, importlib; importlib.reload(k_portal)
+        from k_core import clear_col
+        k_materiais.build_paints(); clear_col('BANCADA5')
+        TEMAS = ['chakra', 'ki', 'nichirin', 'sombra', 'mare', 'serio']
+        info = []
+        for i, t in enumerate(TEMAS):                                          # um portal por area, lado a lado
+            x = 600 + i * 26
+            for fn in (lambda t=t: k_portal.portal_moldura(t), lambda t=t: k_portal.portal_camada(0, t),
+                       lambda t=t: k_portal.portal_camada(1, t), lambda t=t: k_portal.portal_camada(2, t),
+                       lambda t=t: k_portal.portal_base(t), lambda t=t: k_portal.portal_fragmento(1, t)):
+                B = fn(); tr = B.tris(); o = B.finish('BANCADA5', loc=(x, 0, 0)); info.append('%s %d tris' % (o.name, tr))
+        P(chr(10).join(info)); bpy.ops.wm.save_mainfile()
+        k_render.only(['BANCADA5']); k_render.sun(46, -32, 3.4)
+        k_render.camera((665, -120, 24), (665, 0, 11), 32); P(k_render.workbench('P2_portais_6.png', 'MATERIAL', res=(1900, 780)))
+        k_render.camera((602, -40, 14), (601, 0, 11), 34); P(k_render.workbench('P1_portal.png', 'MATERIAL', res=(1100, 950)))
+
     if etapa == 'lobby':                      # monta o LOBBY inteiro, faz UV dos atlas, salva e renderiza a visao geral
         import k_montagem, importlib; importlib.reload(k_montagem)
         k_materiais.build_paints()

@@ -9,7 +9,7 @@
 import bpy, bmesh, math, json, os
 from mathutils import Vector
 from k_core import *
-import k_pedra, k_madeira, k_dougong, k_telhado, k_props, k_veg, k_kit2, k_lobby
+import k_pedra, k_madeira, k_dougong, k_telhado, k_props, k_veg, k_kit2, k_lobby, k_jardim, k_portal
 from k_pavilhao import Kit, mirror_mesh
 
 MOD = k_pedra.MOD; VAO = k_madeira.VAO; HCOL = k_madeira.H_COL
@@ -94,6 +94,9 @@ def colunata(K, C, xs, y, z, alt=1.0, tipo='dg', parede=None, rot=0):
         if parede: K.put(parede, C, (m, y, z + HCOL * (alt - 1)), rot, (k, 1, alt))
 
 # ---------------------------------------------------------------- LOBBY
+# ordem dos SEIS pads do Santuario, de y = -32.5 ate +32.5 (medido no Studio: Disco.AreaId de cada Portal<n>)
+TEMAS_PORTAL = ('serio', 'mare', 'sombra', 'nichirin', 'ki', 'chakra')
+
 def build_lobby():
     for c in ('LOB_FORJA', 'LOB_PATIO', 'LOB_PORTAO', 'LOB_LESTE', 'LOB_OESTE', 'LOB_VEG', 'LOB_PROPS', 'LOB_CHAO'): clear_col(c)
     del PLACE[:]
@@ -120,6 +123,23 @@ def build_lobby():
         ('ponte', k_lobby.ponte_lua, 'LOB_LESTE'), ('rocha1', lambda: k_lobby.rocha(1, 3.2), 'LOB_VEG'), ('rocha2', lambda: k_lobby.rocha(2, 2.2), 'LOB_VEG'),
         ('bambu', lambda: k_lobby.bambu(1), 'LOB_VEG'), ('bordo', lambda: k_lobby.bordo(1), 'LOB_VEG'),
         ('poste_t', k_lobby.poste_treino, 'LOB_OESTE'), ('boneco', k_lobby.boneco_treino, 'LOB_OESTE'), ('estante', k_lobby.estante_armas, 'LOB_OESTE'),
+        ('peonia', lambda: k_jardim.peonia(1), 'LOB_VEG'), ('peonia2', lambda: k_jardim.peonia(2, 'JAR_peonia_b'), 'LOB_VEG'),
+        ('crisa', lambda: k_jardim.crisantemo(1), 'LOB_VEG'), ('crisa2', lambda: k_jardim.crisantemo(2, 'JAR_crisantemo_b'), 'LOB_VEG'),
+        ('lotus', lambda: k_jardim.lotus(1), 'LOB_VEG'), ('lotus2', lambda: k_jardim.lotus(2, 'JAR_lotus_b'), 'LOB_VEG'),
+        ('ameixa', lambda: k_jardim.ameixeira(1), 'LOB_VEG'), ('ameixa2', lambda: k_jardim.ameixeira(2, 'JAR_ameixeira_b'), 'LOB_VEG'),
+        ('canteiro', lambda: k_jardim.canteiro_flores(1), 'LOB_VEG'), ('canteiro2', lambda: k_jardim.canteiro_flores(2, 'JAR_canteiro_b', 5.0, 3.0), 'LOB_VEG'),
+        ('grama', lambda: k_jardim.moita_grama(1), 'LOB_VEG'), ('grama2', lambda: k_jardim.moita_grama(2, 'JAR_grama_b'), 'LOB_VEG'),
+        ('lant_pedra', k_jardim.lanterna_pedra, 'LOB_PROPS'), ('poco', k_jardim.poco, 'LOB_OESTE'),
+        ('barril', k_jardim.barril, 'LOB_PROPS'), ('cesto', k_jardim.cesto, 'LOB_PROPS'), ('banco', k_jardim.banco, 'LOB_PROPS'),
+        ('caixas', k_jardim.caixas, 'LOB_PROPS'), ('telhas_p', k_jardim.telhas_pilha, 'LOB_PROPS'),
+        ('varal', k_jardim.varal, 'LOB_OESTE'), ('placa_loja', k_jardim.placa_loja, 'LOB_OESTE'), ('carroca', k_jardim.carroca, 'LOB_OESTE'),
+    ) + tuple(                                     # um portal POR AREA, com a marca do anime e a cor do Config.Temas
+        m for t in TEMAS_PORTAL for m in (
+            ('por_mold_' + t, lambda t=t: k_portal.portal_moldura(t), 'LOB_LESTE'),
+            ('por_vort_' + t, lambda t=t: k_portal.portal_vortice(t), 'LOB_LESTE'),
+            ('por_base_' + t, lambda t=t: k_portal.portal_base(t), 'LOB_LESTE'),
+            ('por_frag_' + t, lambda t=t: k_portal.portal_fragmento(1, t), 'LOB_LESTE'),
+        )
     ):
         K.master(key, fn, C)
     # telhados proprios (cada um e uma malha; os hero assets merecem o seu)
@@ -284,11 +304,22 @@ def build_lobby():
     for y in (-39, 39):
         for x in (-141, -132, -123, -114): K.put('parede', C, (x, y, ZG), 0 if y < 0 else 180, (1, 1, .82))
     telhado('G', -125, 0, ZG + HCOL * .82 + .5 + k_dougong.Z1 + k_dougong.AH + 1.0, C)
-    nich = Builder('SANT_nichos', 45)
-    for j, y in enumerate((-32, -20, -6, 7, 19, 32)):                              # moldura dos 6 portais
-        nich.add(t_box(-144, -142, y - 4, y + 4, ZG, ZG + 13, bev=.12), 'verm', .45 + .07 * j)
-        nich.add(t_box(-142.4, -141.6, y - 3.4, y + 3.4, ZG + 1.2, ZG + 10.4, bev=.08), 'ouro', .6)
-        nich.add(t_box(-142.0, -141.4, y - 2.6, y + 2.6, ZG + 1.8, ZG + 9.6), 'jadeE', .5)
+    # 6 PORTAIS: moon gate em volta dos discos de teleporte que o jogo ja tem (Roblox X=124.5, Z -32.5..32.5).
+    # Em Blender: x = -124.5 e y = Z_roblox. O portal encara -X do Roblox, o que aqui e rotacao 90 em torno de Z.
+    PX = -124.5
+    for j, y in enumerate((-32.5, -19.5, -6.5, 6.5, 19.5, 32.5)):
+        t = TEMAS_PORTAL[j]
+        K.put('por_mold_' + t, C, (PX, y, ZG), 90)
+        K.put('por_vort_' + t, C, (PX, y, ZG), 90)
+        K.put('por_base_' + t, C, (PX + 6.5, y, ZG + .02), 0)
+        for f in range(2):                                 # lascas flutuando NA FRENTE do portal: com +-7.4
+            ang = 40 + 150 * f                             # elas invadiam o portal vizinho (os pads sao de 13 em 13)
+            K.put('por_frag_' + t, C, (PX + 3.5, y + (4.2 if f == 0 else -4.2), ZG + 9.6 + 1.8 * f), ang)
+    # parede do fundo atras dos portais
+    nich = Builder('SANT_fundo', 45)
+    nich.add(t_box(-146, -143.4, -45, 45, ZG, ZG + 15, bev=.12), 'verm', .45)
+    for j, y in enumerate((-32.5, -19.5, -6.5, 6.5, 19.5, 32.5)):
+        nich.add(t_box(-143.6, -143.0, y - 5.6, y + 5.6, ZG + .6, ZG + 13.4, bev=.08), 'vermS', .5 + .06 * j)
     nich.finish(C)
     for sx in (-1, 1):
         K.put('lant', 'LOB_PROPS', (-110, sx * 20, ZG + 11), 0)
@@ -329,6 +360,40 @@ def build_lobby():
         planta('arbA' if k % 2 else 'arbB', rnd.uniform(-115, 115), rnd.uniform(-90, 130), 0, rnd.uniform(.7, 1.15))
     for k in range(40):
         planta('tufo', rnd.uniform(-118, 118), rnd.uniform(-95, 135), 0, rnd.uniform(.7, 1.2))
+    # ---- FLORES E GRAMA (o gramado chapado era defeito declarado; agora tem flor, grama alta e canteiro)
+    for (x, y, s_, key) in ((-58, -36, 1.0, 'peonia'), (-52, 22, .9, 'peonia2'), (52, -30, 1.05, 'peonia2'), (58, 26, .95, 'peonia'),
+                            (-64, 4, 1.0, 'crisa'), (62, -6, .9, 'crisa2'), (-46, 52, 1.0, 'crisa2'), (48, 54, .95, 'crisa'),
+                            (76, -52, 1.0, 'peonia'), (-78, -48, .9, 'crisa'), (92, 62, 1.0, 'peonia2'), (-90, 66, .95, 'crisa2')):
+        planta(key, x, y, 0, s_)
+    for (x, y, s_) in ((-60, -14, 1.0), (60, 12, .95), (-44, 40, 1.05), (46, -44, 1.0), (84, 44, .9), (-86, 30, 1.0)):
+        planta('ameixa' if (x > 0) else 'ameixa2', x, y, 0, s_)
+    K.put('canteiro', C, (-56, -52, 0), 12); K.put('canteiro2', C, (56, -54, 0), -8)
+    K.put('canteiro2', C, (-54, 58, 0), 96); K.put('canteiro', C, (58, 58, 0), 84)
+    K.put('canteiro', C, (86, 20, 0), 90); K.put('canteiro2', C, (-88, -16, 0), 90)
+    for k in range(64):                                                            # grama alta na borda dos caminhos
+        ang = rnd.uniform(0, 6.28); d = rnd.uniform(72, 112)
+        gx = math.cos(ang) * d; gy = math.sin(ang) * d * 1.3
+        if abs(gx) > 150 or abs(gy) > 150: continue
+        planta('grama' if k % 2 else 'grama2', gx, gy, 0, rnd.uniform(.7, 1.3))
+    for k in range(26):                                                            # grama junto ao patio
+        gx = rnd.uniform(-70, 70); gy = rnd.choice([rnd.uniform(-68, -62), rnd.uniform(62, 68)])
+        planta('grama2' if k % 2 else 'grama', gx, gy, 0, rnd.uniform(.7, 1.2))
+    for (x, y, s_) in ((-88, -40, 1.0), (-82, 10, .9), (-94, 58, 1.05), (-86, 96, .95), (-80, -20, .85)):
+        K.put('lotus' if s_ > .92 else 'lotus2', C, (x, y, -.3), rnd.uniform(0, 360), (s_, s_, s_))
+    # ---- PROPS DE VILA na rua e no oeste
+    P2 = 'LOB_PROPS'
+    for (x, y, r) in ((-66, -56, 0), (66, -56, 0), (-66, 56, 180), (66, 56, 180), (-66, 0, 90), (66, 0, 270)):
+        K.put('lant_pedra', P2, (x, y, 0), r)
+    for (x, y, r) in ((20, 70, 0), (-20, 88, 0), (21, 110, 0), (-21, 128, 0)):
+        K.put('lant_pedra', P2, (x, y, 0), r)
+    K.put('poco', 'LOB_OESTE', (92, -34, 0), 0)
+    K.put('varal', 'LOB_OESTE', (96, 8, 0), 90)
+    K.put('placa_loja', 'LOB_OESTE', (101, -14, 0), 0)
+    K.put('carroca', 'LOB_OESTE', (88, -22, 0), 28)
+    for (x, y, r, key) in ((100, -30, 0, 'barril'), (98, -27, 0, 'barril'), (102, -24, 0, 'cesto'), (99, 18, 0, 'cesto'),
+                           (103, 24, 0, 'caixas'), (96, 30, 0, 'telhas_p'), (94, -8, 0, 'banco'), (-64, 30, 90, 'banco'),
+                           (64, -22, 270, 'banco'), (-100, 44, 0, 'barril'), (-98, 40, 0, 'cesto')):
+        K.put(key, P2, (x, y, 0), r)
     ch = Builder('LOB_chao'); ch.add(t_box(-180, 180, -215, 200, -3, -.5), 'folha', .35); ch.finish('LOB_CHAO')
     # penhascos: massas facetadas de alturas variadas (a caixa lisa da 1a versao lia como parede de estudio)
     rr = _r.Random(7)
