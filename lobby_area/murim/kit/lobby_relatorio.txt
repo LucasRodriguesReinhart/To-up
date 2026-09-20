@@ -23,8 +23,8 @@ KIT_dougong_intermediario.001    792 tris x  28
 KIT_dougong_simples.002       348 tris x   1
 KIT_lanterna_palacio.002     2244 tris x   4
 KIT_lanterna_vermelha.001    2124 tris x   8
-KIT_pinheiro_a.001           2064 tris x   2
-KIT_pinheiro_b.001           2064 tris x  12
+KIT_pinheiro_a.001           2270 tris x   2
+KIT_pinheiro_b.001           2316 tris x  12
 KIT_arbusto_a.003             320 tris x   4
 KIT_arbusto_b.003             320 tris x   5
 KIT_tufo_a.008                416 tris x  10
@@ -51,7 +51,7 @@ LOB_ponte_lua.001           14952 tris x   1
 LOB_rocha_1.001               348 tris x   2
 LOB_rocha_2                   348 tris x   1
 LOB_bambu_1.001              3682 tris x   2
-LOB_bordo_1.001              1076 tris x   7
+LOB_bordo_1.001              2184 tris x   7
 LOB_poste_treino.001          420 tris x   9
 LOB_boneco_treino.001         424 tris x   2
 LOB_estante_armas.001        1572 tris x   1
@@ -134,4 +134,4 @@ KIT_chuishou.004              836 tris x  16
 KIT_besta_0.004               352 tris x  16
 KIT_besta_1.004               352 tris x  16
 KIT_besta_2.004               360 tris x  16
-TOTAL ~2511880 tris em cena | malhas unicas 133 (390491 tris) | colocacoes 1537
+TOTAL ~2523072 tris em cena | malhas unicas 133 (392057 tris) | colocacoes 1537

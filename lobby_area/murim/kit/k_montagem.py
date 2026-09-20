@@ -268,9 +268,13 @@ def build_lobby():
     telhado('F2', 0, -127, ZC + k_dougong.Z_TOP + 1.0 + 17.0, C)
     K.put('placa', C, (0, -105.5, ZC + 2.4), 0)
     K.put('torre', C, (0, -143, Z))
-    K.put('fornalha', C, (0, -146, Z), 180)
-    K.put('bigorna', C, (-8, -130, Z)); K.put('fole', C, (16, -140, Z), 90)
-    K.put('calha', C, (9, -128, Z), 90); K.put('laminas', C, (-30, -136, Z), 90)
+    # A FORJA VEIO PARA A FRENTE. Ela estava no fundo do salao (y -146 a -128), atras da fachada que fica
+    # em y=-122: o jogador entrava num interior escuro para achar o Ignis. Agora o conjunto ocupa o
+    # alpendre (y -118 a -98), na frente da parede, de cara para a escadaria - e o ponto que o jogador
+    # ve assim que sobe, e a forja passa a ser cenario vivo em vez de movel escondido.
+    K.put('fornalha', C, (0, -116, Z), 180)
+    K.put('bigorna', C, (-11, -104, Z)); K.put('fole', C, (15, -112, Z), 90)
+    K.put('calha', C, (11, -102, Z), 90); K.put('laminas', C, (-26, -110, Z), 90)
     for sx in (-1, 1):
         K.put('braseiro', C, (sx * 16, -100, Z)); K.put('lant', C, (sx * 18, -108, Z + k_madeira.Z_ARQ * 1.25), 0, (.9, .9, .9))
         K.put('estand', C, (sx * 50, -96, Z), 0); K.put('leaoA' if sx > 0 else 'leaoB', C, (sx * 14, -88, 0), 0)
@@ -432,7 +436,9 @@ def build_lobby():
     # ESCALA DAS ARVORES. O pinheiro nasce com 9.6 de altura e o bordo com 10; ao lado de um salao de
     # 60 eles liam como arbusto ("arvore miuda"). Aqui vao a 1.8-2.4x, que e a proporcao que a referencia
     # de palacio mostra: copa na altura do primeiro beiral, emoldurando o edificio em vez de sumir.
-    ESC_PIN, ESC_BOR = 2.1, 1.85
+    # O pinheiro novo ja nasce com H=18 e o bordo com H=17 (a versao de blob tinha 9.6 e 10, e por isso
+    # precisava de multiplicador). Manter 2.1x aqui fazia a arvore passar de 37 studs e engolir a Loja.
+    ESC_PIN, ESC_BOR = 1.0, 1.0
     for (x, y, s) in ((-64, -78, 1.1), (-58, 40, 1.0), (-52, 96, .9), (46, -78, 1.05), (54, 38, 1.0), (62, 92, .95),
                       (104, 40, 1.0), (112, -46, .9), (-108, 62, 1.0), (-96, -60, .95), (30, -170, 1.2), (-30, -168, 1.15)):
         planta('pinA' if (x + y) % 2 else 'pinB', x, y, 0, s * ESC_PIN)
@@ -442,9 +448,9 @@ def build_lobby():
     # estava numa campina rasa. As duas fileiras ficam FORA da caixa do lago (x -103..-67), coladas nela.
     for k, yy in enumerate(range(-64, 132, 14)):
         lado = -106 if k % 2 == 0 else -64
-        planta('pinA' if k % 2 else 'pinB', lado + (2 if k % 3 else -2), yy, 0, rnd.uniform(1.5, 2.3))
+        planta('pinA' if k % 2 else 'pinB', lado + (2 if k % 3 else -2), yy, 0, rnd.uniform(.80, 1.15))
         if k % 2 == 0:
-            planta('bordo', -64 if lado < -100 else -106, yy + 7, 0, rnd.uniform(1.3, 1.9))
+            planta('bordo', -64 if lado < -100 else -106, yy + 7, 0, rnd.uniform(.75, 1.05))
     for (x, y) in ((-66, -30), (-66, 30), (68, -40), (68, 44), (-104, -60), (108, 70)): planta('bambu', x, y, 0, 1.0)
     for (x, y, s) in ((-63, -62, 1.0), (58, -62, .9), (-60, 62, .95), (56, 64, 1.05), (-92, 24, 1.0), (88, -20, .9), (-30, -160, 1.1), (34, -158, 1.0)):
         planta('rocha1' if s > .95 else 'rocha2', x, y, 0, s)

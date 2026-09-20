@@ -6,6 +6,7 @@ import bmesh
 from mathutils import Vector, Matrix
 from k_core import *
 from k_props import crom, lerp_list, bmesh_tri_prism
+from k_veg import _pad_folha
 
 def _octo(r, rot=22.5):
     return [(r * math.cos(math.radians(rot + 45 * i)), r * math.sin(math.radians(rot + 45 * i))) for i in range(8)]
@@ -283,19 +284,40 @@ def bambu(seed=1, n=7):
             B.add(bmesh_tri_prism(p, mid + Vector((math.cos(fa + 1.4) * .34, math.sin(fa + 1.4) * .34, 0)), tip, .06), 'folha', rnd.uniform(.4, .85))
     return B
 
-def bordo(seed=1):
-    """bordo de outono: tronco curto que se abre em 3 pernadas e massas quentes achatadas."""
+def bordo(seed=1, H=17.0):
+    """BORDO de patio: tronco curto que se abre em pernadas e copa larga em camadas de lente.
+    Mesmo motivo da reescrita do pinheiro - a copa de blobs nao tinha aresta para o bevel morder e
+    lia como massa de plastilina."""
     B = Builder('LOB_bordo_%d' % seed, 760 + seed); rnd = random.Random(seed)
-    tr = crom([(0, 0, 0), (.3, .2, 2.4), (-.2, -.3, 4.6), (.2, .1, 6.0)], 4)
-    B.add(t_tube(tr, lerp_list([.95, .75, .55, .4], len(tr)), 8), 'casca', .45)
-    for i in range(3):
-        a = math.radians(120 * i + rnd.uniform(-25, 25))
-        br = crom([(.2, .1, 5.4), (math.cos(a) * 1.8, math.sin(a) * 1.8, 7.0), (math.cos(a) * 3.2, math.sin(a) * 3.2, 8.2)], 4)
-        B.add(t_tube(br, lerp_list([.4, .26, .14], len(br)), 6), 'casca', .5)
-        c = Vector((math.cos(a) * 3.4, math.sin(a) * 3.4, 8.6))
-        B.add(xf(t_blob(3.0, (1.15, 1.15, .62), 2, lobes=6, lobe_amp=.2, seed=seed * 7 + i), loc=c), 'bordo', .4 + .2 * i)
-        B.add(xf(t_blob(2.0, (1.1, 1.1, .6), 2, lobes=5, lobe_amp=.22, seed=seed * 11 + i), loc=c + Vector((rnd.uniform(-.8, .8), rnd.uniform(-.8, .8), 1.3))), 'bordo', .65 + .1 * i)
-    B.add(xf(t_blob(3.4, (1.2, 1.2, .6), 2, lobes=7, lobe_amp=.18, seed=seed), loc=(0, 0, 9.6)), 'bordo', .55)
+    r0 = H / 19.0
+    NU = 0.34 * H
+    pts, raios = [], []
+    for i in range(7):
+        t = i / 6.0
+        pts.append(Vector((math.sin(t * 2.3) * .07 * H, math.cos(t * 1.7) * .05 * H, t * NU * 1.35)))
+        raios.append(r0 * (1.45 if i == 0 else (1.0 - .55 * t)))
+    B.add(t_tube(pts, raios, 8), 'casca', .45)
+    for a in range(4):
+        ang = math.radians(90 * a + 30)
+        raiz = crom([(0, 0, r0 * 1.3), (math.cos(ang) * r0 * 1.3, math.sin(ang) * r0 * 1.3, r0 * .25),
+                     (math.cos(ang) * r0 * 1.9, math.sin(ang) * r0 * 1.9, -.05)], 3)
+        B.add(t_tube(raiz, lerp_list([r0 * .4, r0 * .28, r0 * .1], len(raiz)), 6), 'casca', .38)
+    topo = pts[-1]
+    for i in range(3):                                             # tres pernadas
+        ang = math.radians(120 * i + rnd.uniform(-22, 22))
+        pta = Vector((math.cos(ang) * H * .22, math.sin(ang) * H * .22, H * .72))
+        br = crom([tuple(topo), tuple((topo + pta) / 2 + Vector((0, 0, H * .05))), tuple(pta)], 4)
+        B.add(t_tube(br, lerp_list([r0 * .58, r0 * .36, r0 * .2], len(br)), 6), 'casca', .5)
+        for k in range(2):
+            R = H * (.26 - .06 * k) * rnd.uniform(.9, 1.1)
+            esp = R * rnd.uniform(.22, .28)
+            pad = _pad_folha(R, esp, lobos=7, amp=.26, entalhes=2, seg=16, seed=seed * 17 + i * 3 + k)
+            xf(pad, rot=(rnd.uniform(-7, 7), rnd.uniform(-7, 7), rnd.uniform(0, 360)),
+               loc=(pta.x * (1 + .12 * k), pta.y * (1 + .12 * k), pta.z + H * (.06 + .11 * k)))
+            B.add(pad, 'bordo', .35 + .2 * (i + k) / 4)
+    R = H * .30
+    pad = _pad_folha(R, R * .24, lobos=5, amp=.24, entalhes=2, seg=18, seed=seed)
+    xf(pad, loc=(0, 0, H * .95)); B.add(pad, 'bordo', .58)
     return B
 
 def poste_treino(H=6.0):
