@@ -130,6 +130,22 @@ def colunata(K, C, xs, y, z, alt=1.0, tipo='dg', parede=None, rot=0):
 # ordem dos SEIS pads do Santuario, de y = -32.5 ate +32.5 (medido no Studio: Disco.AreaId de cada Portal<n>)
 TEMAS_PORTAL = ('serio', 'mare', 'sombra', 'nichirin', 'ki', 'chakra')
 
+# CANTEIROS do lobby: os bolsoes onde o verde pode existir. Fica em escopo de modulo porque DUAS
+# secoes precisam dele e elas rodam em ordens diferentes - a vegetacao planta dentro deles, e a secao
+# do chao constroi o meio-fio e decide onde nao calcar.
+CANTEIRO = (
+    (-166, -112, -186, -104), (112, 166, -186, -104),        # quinas da frente
+    (-166, -112, 60, 140), (112, 166, 58, 140),              # quinas do fundo
+    (-60, -24, -196, -160), (24, 60, -196, -160),            # ladeando a via do portao
+    (-166, -114, -60, 30), (116, 166, -96, -58),             # faixas laterais
+    (-58, -22, 74, 138), (22, 58, 74, 138),                  # entre o patio e o portao
+    (-100, -68, 140, 186), (68, 100, 140, 186),              # fundo
+)
+def em_canteiro(x, y):
+    for (x0, x1, y0, y1) in CANTEIRO:
+        if x0 <= x <= x1 and y0 <= y <= y1: return True
+    return False
+
 def build_lobby():
     for c in ('LOB_FORJA', 'LOB_PATIO', 'LOB_PORTAO', 'LOB_LESTE', 'LOB_OESTE', 'LOB_VEG', 'LOB_PROPS', 'LOB_CHAO'): clear_col(c)
     del PLACE[:]
@@ -394,8 +410,47 @@ def build_lobby():
     for j, y in enumerate((-32.5, -19.5, -6.5, 6.5, 19.5, 32.5)):
         nich.add(t_box(-143.6, -143.0, y - 5.6, y + 5.6, ZG + .6, ZG + 13.4, bev=.08), 'vermS', .5 + .06 * j)
     nich.finish(C)
+    # ---------------------------------------------------------------- GALERIA DOS PORTAIS (predio)
+    # Colunata na frente dos portais criando VARANDA coberta de 14.5 studs (x -124.5 ate -110): o
+    # jogador anda POR BAIXO da cobertura, que e a diferenca entre predio e muro decorado.
+    gal = Builder('SANT_galeria', 413)
+    XF, XB = -110.0, -146.0                      # face da colunata e parede de fundo
+    HP = 17.0                                    # altura do pilar, do piso ate a face de baixo do beiral
+    EIXOS = (-39.0, -26.0, -13.0, 0.0, 13.0, 26.0, 39.0)   # LIMITES de vao: nunca na frente de um portal
+    for y in EIXOS:
+        gal.add(xf(t_lathe([(0, 0), (2.6, 0), (2.6, .7), (2.35, .8)], 14), loc=(XF, y, ZG)), 'pedra', .5)
+        gal.add(xf(t_lathe([(0, 0), (2.0, 0), (1.86, HP * .55), (1.72, HP)], 14), loc=(XF, y, ZG + .8)), 'verm', .45)
+        gal.add(xf(t_lathe([(1.74, 0), (2.02, .1), (2.02, .5), (1.74, .6)], 14), loc=(XF, y, ZG + HP - 2.2)), 'ouro', .6)
+    # viga e friso de dougong ligando os eixos (e a faixa que falta entre pilar e telhado)
+    gal.add(t_box(XF - 1.9, XF + 1.9, -41.5, 41.5, ZG + HP, ZG + HP + 1.5, bev=.12, seg=2), 'mad', .42)
+    gal.add(t_box(XF - 2.1, XF + 2.1, -41.5, 41.5, ZG + HP + 1.5, ZG + HP + 4.4, bev=.14, seg=2), 'verm', .5)
+    for k in range(int(83 / 2.6)):
+        yy = -41.0 + k * 2.6
+        gal.add(t_box(XF - 2.8, XF + 2.8, yy - .62, yy + .62, ZG + HP + 1.9, ZG + HP + 3.5, bev=.1), 'jadeE', .4 + .5 * (k % 3) / 3)
+    # nicho em arco por portal, rebaixado na parede do fundo
+    for y in (-32.5, -19.5, -6.5, 6.5, 19.5, 32.5):
+        gal.add(t_box(XB + .4, XB + 2.0, y - 5.8, y + 5.8, ZG + .3, ZG + 15.5, bev=.1), 'vermS', .42)
+        arc = [Vector((XB + 1.2, y + math.cos(math.pi * i / 14) * 5.4, ZG + 15.2 + math.sin(math.pi * i / 14) * 3.1)) for i in range(15)]
+        gal.add(t_tube(arc, [.55] * 15, 6), 'ouro', .58)
+    # PLACA dourada na testeira, como o "世界之门" da referencia
+    gal.add(t_box(XF - 2.6, XF - 2.0, -13.0, 13.0, ZG + HP + 4.8, ZG + HP + 9.0, bev=.14, seg=2), 'ouro', .72)
+    gal.add(t_box(XF - 2.9, XF - 2.5, -12.0, 12.0, ZG + HP + 5.3, ZG + HP + 8.5, bev=.1), 'verm', .3)
+    for k in range(4):
+        yy = -8.4 + k * 5.6
+        gal.add(t_box(XF - 3.1, XF - 2.85, yy - 1.5, yy + 1.5, ZG + HP + 5.9, ZG + HP + 7.9, bev=.08), 'ouro', .5 + .12 * k)
+    # BALAUSTRADA na borda do terraco, dos dois lados da escadaria
+    for sy in (-1, 1):
+        for k in range(8):
+            yy = sy * (13.0 + k * 4.2)
+            if abs(yy) > 44: break
+            gal.add(t_box(-105.6, -104.0, yy - .55, yy + .55, ZG, ZG + 2.3, bev=.09), 'pedra', .55)
+        gal.add(t_box(-105.8, -103.8, sy * 12.4, sy * 44.6, ZG + 2.3, ZG + 2.9, bev=.1, seg=2), 'pedra', .6)
+    gal.finish(C)
+    # telhado do predio, reusando o kit: cobre da parede do fundo ate alem da colunata
+    telhado('G', -128, 0, ZG + HP + 4.4, C)
     for sx in (-1, 1):
-        K.put('lant', 'LOB_PROPS', (-110, sx * 20, ZG + 11), 0)
+        K.put('lant', 'LOB_PROPS', (XF - 1.0, sx * 20, ZG + HP - 3.0), 0)
+        K.put('lant', 'LOB_PROPS', (XF - 1.0, sx * 40, ZG + HP - 3.0), 0)
     # ================================================================ OESTE: jardim, loja, treino
     C = 'LOB_OESTE'
     ZL = terraco(K, C, 104, 130, -24, 16, 4.0, escadas=(('W', -4, 12),))
@@ -491,19 +546,29 @@ def build_lobby():
     # O pinheiro novo ja nasce com H=18 e o bordo com H=17 (a versao de blob tinha 9.6 e 10, e por isso
     # precisava de multiplicador). Manter 2.1x aqui fazia a arvore passar de 37 studs e engolir a Loja.
     ESC_PIN, ESC_BOR = 1.0, 1.0
-    # DISTANCIA MINIMA ENTRE ARVORES. O usuario viu "arvore demais num lugar e de menos em outro":
-    # as posicoes eram sorteadas livres e chegavam a encostar. Aqui cada arvore recusa nascer a menos
-    # de 16 studs de outra ja posta - o mesmo criterio que faz um bosque parecer plantado e nao jogado.
+    # AS ARVORES PASSAM A NASCER DENTRO DOS CANTEIROS. As posicoes antigas eram escritas a mao sobre o
+    # gramado de borda a borda; com o verde confinado a canteiro, quase todas caiam na calcada.
+    # Aqui cada canteiro recebe um MACICO: grupo de 3 a 6 arvores com copas se tocando, em vez de
+    # exemplar solitario - arvore isolada em area aberta le como poste de iluminacao.
     _arv = []
-    def longe(x, y, d=16.0):
+    def longe(x, y, d=13.0):
         for (ax, ay) in _arv:
             if math.hypot(x - ax, y - ay) < d: return False
         _arv.append((x, y)); return True
-    for (x, y, s) in ((-64, -78, 1.1), (-58, 40, 1.0), (-52, 96, .9), (46, -78, 1.05), (54, 38, 1.0), (62, 92, .95),
-                      (104, 40, 1.0), (112, -46, .9), (-108, 62, 1.0), (-96, -60, .95), (30, -170, 1.2), (-30, -168, 1.15)):
-        if longe(x, y): planta('pinA' if (x + y) % 2 else 'pinB', x, y, 0, s * ESC_PIN)
-    for (x, y, s) in ((-44, -66, 1.0), (40, -66, 1.0), (-40, 66, .9), (44, 70, .95), (-76, 20, 1.0), (76, -30, .9)):
-        if longe(x, y): planta('bordo', x, y, 0, s * ESC_BOR)
+    for ci, (x0, x1, y0, y1) in enumerate(CANTEIRO):
+        cx0, cx1 = x0 + 7, x1 - 7
+        cy0, cy1 = y0 + 7, y1 - 7
+        n = 3 + (ci % 3)                                        # quantidade IMPAR ou variada por canteiro
+        for k in range(n + 2):
+            ax = rnd.uniform(cx0, cx1); ay = rnd.uniform(cy0, cy1)
+            if not longe(ax, ay, 11.0): continue
+            if (ci + k) % 3 == 0:
+                planta('bordo', ax, ay, 0, rnd.uniform(.80, 1.10) * ESC_BOR)
+            else:
+                planta('pinA' if (ci + k) % 2 else 'pinB', ax, ay, 0, rnd.uniform(.85, 1.20) * ESC_PIN)
+        for k in range(4):                                      # arbusto ao pe, escondendo a juncao
+            ax = rnd.uniform(cx0 - 4, cx1 + 4); ay = rnd.uniform(cy0 - 4, cy1 + 4)
+            planta('arbA' if k % 2 else 'arbB', ax, ay, 0, rnd.uniform(.9, 1.5))
     # MARGEM ARBORIZADA do lago. No palacio chines a agua e sempre emoldurada por arvore; aqui ela
     # estava numa campina rasa. As duas fileiras ficam FORA da caixa do lago (x -103..-67), coladas nela.
     for k, yy in enumerate(range(-64, 132, 14)):
@@ -580,23 +645,57 @@ def build_lobby():
         tap.add(t_box(-7.5, 7.5, y0, y0 + 2.06, z, z + .14, bev=.04), 'verm', .5 + .03 * (i % 3))
     tap.add(t_box(-7.5, 7.5, -66.8, -62.0, .0, .14, bev=.04), 'verm', .52)
     tap.finish('LOB_PATIO')
-    ch = Builder('LOB_chao'); ch.add(t_box(-180, 180, -215, 200, -3, -.52), 'folha', .35)
-    # MANCHAS DE RELVA. A tinta varia com o valor rnd de cada peca, entao mancha sobre mancha com rnd
-    # diferente ja quebra o verde chapado no proprio bake, sem textura nova. Em grade regular isso vira
-    # xadrez; por isso posicao, tamanho e angulo sao sorteados e as manchas se sobrepoem. O tom so muda
-    # de verdade em 1 de cada 8 (pinho) e a palha seca fica rara, so para sujar a beirada.
+    # a base deixou de ser VERDE: o verde passou para dentro dos canteiros, e o que sobra por baixo
+    # de tudo e terra escura. Era esta caixa unica de 360 x 415 em 'folha' que dominava toda captura.
+    ch = Builder('LOB_chao'); ch.add(t_box(-180, 180, -215, 200, -3, -.52), 'casca_escura', .3)
+    # CALCADA: tudo o que nao e canteiro, nao e agua e nao e superficie ja construida vira pedra.
+    # O topo fica em -0.50, rente ao topo da grama, para nao mexer nas caixas de colisao.
+    cal = Builder('LOB_calcada', 406)
     gr = _r.Random(404)
+    PASSO = 11.0
     postas = 0
-    for _ in range(620):
+    for i in range(int(340 / PASSO)):
+        for j in range(int(392 / PASSO)):
+            cx = -170 + (i + .5) * PASSO
+            cy = -206 + (j + .5) * PASSO
+            if em_canteiro(cx, cy): continue
+            if not livre(cx, cy): continue               # patio, via, terracos, treino, lago: ja tem piso
+            d = PASSO / 2 + .06
+            t = gr.random()
+            tinta = 'junta' if t > .82 else 'piso'
+            cal.add(t_box(cx - d, cx + d, cy - d, cy + d, -.62, -.50), tinta, gr.uniform(.30, .72))
+            postas += 1
+    cal.finish('LOB_CHAO')
+
+    # MEIO-FIO de cada canteiro, com a terra do miolo rebaixada: e a moldura construida que separa
+    # jardim de calcada. Sem ela o verde le como textura de terreno.
+    mf2 = Builder('LOB_canteiro', 409)
+    for (x0, x1, y0, y1) in CANTEIRO:
+        # bisel de 1 segmento e sem a faixa interna de junta: com seg=2 mais a faixa, os 12 canteiros
+        # somavam 22.608 tris e estouravam o teto de 20 mil do importador do Roblox.
+        for (a0, a1, b0, b1) in ((x0, x1, y0, y0 + 1.5), (x0, x1, y1 - 1.5, y1),
+                                 (x0, x0 + 1.5, y0, y1), (x1 - 1.5, x1, y0, y1)):
+            mf2.add(t_box(a0, a1, b0, b1, -.62, -.06, bev=.10, seg=1), 'piso', .58)
+        # a terra tem de ficar ABAIXO da relva: com o topo em -0.30 contra -0.44 da relva, ela
+        # tapava o verde e o canteiro saia marrom no render.
+        mf2.add(t_box(x0 + 1.4, x1 - 1.4, y0 + 1.4, y1 - 1.4, -.62, -.56), 'casca_escura', .35)
+        for k in range(int((x1 - x0) / 15)):                     # pilarete a cada ~15 studs
+            xx = x0 + 7.5 + k * 15
+            for yy in (y0 + .75, y1 - .75):
+                mf2.add(t_box(xx - .85, xx + .85, yy - .95, yy + .95, -.62, .30, bev=.09, seg=1), 'piso', .64)
+    mf2.finish('LOB_CHAO')
+
+    # RELVA so dentro de canteiro, e em mancha irregular. Fora de canteiro nao nasce mais nada.
+    for _ in range(760):
         cx = gr.uniform(-176, 176); cy = gr.uniform(-210, 196)
-        if not livre(cx, cy): continue                            # nao pinta relva em cima de calcamento
-        w = gr.uniform(7.0, 15.0); h = gr.uniform(6.0, 13.0)
+        if not em_canteiro(cx, cy): continue
+        if not livre(cx, cy): continue
+        w = gr.uniform(4.5, 9.0); h = gr.uniform(4.0, 8.0)
         t = gr.random()
-        tinta = 'pinho' if t > .875 else ('palha' if t > .855 else 'folha')
-        mancha = t_box(-w, w, -h, h, -.62, -.52 + gr.uniform(.015, .055))
+        tinta = 'pinho' if t > .80 else ('palha' if t > .74 else 'folha')
+        mancha = t_box(-w, w, -h, h, -.60, -.42 + gr.uniform(.0, .05))
         xf(mancha, rot=(0, 0, gr.uniform(0, 180)), loc=(cx, cy, 0))
-        ch.add(mancha, tinta, gr.uniform(.12, .95))
-        postas += 1
+        ch.add(mancha, tinta, gr.uniform(.18, .82))
     ch.finish('LOB_CHAO')
     # MEIO-FIO: faixa de pedra na divisa do gramado com o patio e com a via. Sem ela a grama encosta
     # direto no calcamento e a transicao fica em corte seco, que era parte do ar de "jogado".
