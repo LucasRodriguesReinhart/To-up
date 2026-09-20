@@ -70,9 +70,21 @@ O que o rastreio DESCARTOU por medida, e nao deve ser reinvestigado:
 - FBX: md5 do PNG embutido == md5 do arquivo em `tex/`; render do proprio FBX com emissao=ColorMap
   mostra `SANT_galeria` em vermelho-laca correto
 
-**Correcao a fazer:** alinhar os dois espacos de nome em `k_export.py:13` (indexar por malha, como o
+**CORRIGIDO** em `k_export.py`: o manifesto passa a ser lido por nome de MALHA (`mesh_atlas[n] = atlas`),
+que e como `run_bg.py` o grava, e o mapeamento das espelhadas passa a usar `.get()` com guarda em vez
+de indexar cego. Entrou tambem uma **guarda de integridade** que ABORTA o export se alguma malha ficar
+sem atlas ou algum nome ficar sem malha - uma montagem que perde peca em silencio e pior que um erro.
+
+Resultado medido: **168 assadas, 168 no FBX, 0 ausentes** (era 26 ausentes). E o FBX caiu de 80.5 MB
+para **37.8 MB**, porque deixou de embutir os atlas antigos das pecas que caiam no fallback. Isso
+tambem deve encurtar o import, que vinha levando ~90 min.
+
+**FALTA VALIDAR NO ROBLOX:** a correcao so pode ser apresentada como causa do cinza quando uma peca
+afetada (`SANT_galeria`) voltar a funcionar apos reimportar. Ainda nao foi reimportado.
+
+~~Correcao a fazer: alinhar os dois espacos de nome em `k_export.py:13` (indexar por malha, como o
 `run_bg.py` faz) e reexportar. Depois confirmar que as 26 malhas aparecem no FBX, e so entao
-reimportar. Verificar tambem o achado lateral: 6 malhas espelho (`*_esp`) carregam material de atlas
+reimportar.~~ Verificar ainda o achado lateral: 6 malhas espelho (`*_esp`) carregam material de atlas
 diferente do que o json declara (ex.: `TEL_G_espigao_esp` diz `A_LOBBY_4`, usa `F_A_LOBBY_3`).
 
 **Estado real: a causa ESTA identificada; falta corrigir e validar.**
@@ -105,11 +117,27 @@ proxima montagem se nao forem portadas:
 
 | correcao | onde esta | onde precisa entrar |
 |---|---|---|
-| terreno de agua reesculpido seguindo o contorno novo do lago (52 faixas) | aplicado na cena por Lua | `agua_cartoon.lua` ainda esculpe retangulo de 30x200 |
+| ~~terreno de agua~~ **RESOLVIDO**: `agua_cartoon.lua` reescrito com o sistema das areas | no gerador | — |
 | sombra/colisao/query desligadas em 520 pecas de cenario distante (penhasco, nuvem, pico, cascata) | aplicado na cena | `gerar_lobby.py`, junto da regra `SEM_SOMBRA` |
 | leoes ampliados 1.65x e movidos para o pe da escadaria | `export/leoes_escadaria.lua`, rodado na cena | posicao e escala em `k_montagem.py` |
 
 A posicao da ponte JA foi portada para `k_montagem.py` (de `y=0` para `y=60`).
+
+## AGUA: sistema reaproveitado das areas Dragon Ball e Mare
+
+Inspecionado no projeto antes de escrever, nao presumido. `workspace.Areas.Area2` (ki/Dragon Ball) e
+`Area5` (mare) **nao usam agua de Terrain**. Usam Part com filho `Texture`:
+
+| | Lago (superficie) | LaminaDagua (queda vertical) |
+|---|---|---|
+| Part | Plastic, Transparency 0.23, Reflectance 0.10 | Plastic, Transparency 0.20, Reflectance 0.00 |
+| Texture | `rbxasset://textures/particles/water_main.dds`, Face=Top, 18x22 studs, Transparency 0.90 | mesma dds, Face=Front, 6x12 studs, Transparency 0.60 |
+
+Mais `MargemExterior` (Part opaca na cor do terreno) e `LimiteSuperior` (Transparency 1).
+
+`export/agua_cartoon.lua` foi reescrito com essa especificacao, aplicada ao contorno poligonal do lago
+do lobby (51 faixas de Lago, largura 13.3 a 32.5 studs, mais 6 LaminaDagua no labio do penhasco).
+Conferido campo a campo contra a Area2: identico. Nada foi alterado em Area2 nem em Area5.
 
 ## Pendencias conhecidas do trecho sudoeste
 

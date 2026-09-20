@@ -195,7 +195,7 @@
   "tris": 8284,
   "atlas": "A_LOBBY_6"
  },
- "KIT_arbusto_a": {
+ "KIT_arbusto_a.001": {
   "centro": [
    0.1012,
    -0.1029,
@@ -209,7 +209,7 @@
   "tris": 320,
   "atlas": "A_LOBBY_5"
  },
- "KIT_arbusto_b": {
+ "KIT_arbusto_b.001": {
   "centro": [
    0.2345,
    -0.0756,
@@ -223,7 +223,7 @@
   "tris": 320,
   "atlas": "A_LOBBY_1"
  },
- "KIT_arquitrave": {
+ "KIT_arquitrave.001": {
   "centro": [
    0.0,
    0.0,
@@ -237,7 +237,7 @@
   "tris": 3268,
   "atlas": "A_LOBBY_4"
  },
- "KIT_bal_seg": {
+ "KIT_bal_seg.001": {
   "centro": [
    2.065,
    0.0,
@@ -251,7 +251,7 @@
   "tris": 2780,
   "atlas": "A_LOBBY_5"
  },
- "KIT_besta_0": {
+ "KIT_besta_0.001": {
   "centro": [
    0.0,
    0.1103,
@@ -265,7 +265,7 @@
   "tris": 352,
   "atlas": "A_LOBBY_3"
  },
- "KIT_besta_1": {
+ "KIT_besta_1.001": {
   "centro": [
    0.0,
    0.0362,
@@ -279,7 +279,7 @@
   "tris": 352,
   "atlas": "A_LOBBY_6"
  },
- "KIT_besta_2": {
+ "KIT_besta_2.001": {
   "centro": [
    0.0,
    0.1103,
@@ -293,7 +293,7 @@
   "tris": 360,
   "atlas": "A_LOBBY_5"
  },
- "KIT_chiwen": {
+ "KIT_chiwen.001": {
   "centro": [
    0.388,
    0.0,
@@ -307,7 +307,7 @@
   "tris": 3300,
   "atlas": "A_LOBBY_1"
  },
- "KIT_chuishou": {
+ "KIT_chuishou.001": {
   "centro": [
    0.0,
    -0.1415,
@@ -321,7 +321,7 @@
   "tris": 836,
   "atlas": "A_LOBBY_5"
  },
- "KIT_col_base": {
+ "KIT_col_base.001": {
   "centro": [
    0.0,
    0.0,
@@ -335,7 +335,7 @@
   "tris": 856,
   "atlas": "A_LOBBY_1"
  },
- "KIT_coluna": {
+ "KIT_coluna.001": {
   "centro": [
    0.0,
    0.0,
@@ -363,7 +363,7 @@
   "tris": 792,
   "atlas": "A_LOBBY_6"
  },
- "KIT_dougong_principal": {
+ "KIT_dougong_principal.001": {
   "centro": [
    0.0,
    -1.06,
@@ -377,21 +377,7 @@
   "tris": 1400,
   "atlas": "A_LOBBY_4"
  },
- "KIT_espigao_esp": {
-  "centro": [
-   14.961,
-   8.4116,
-   31.2856
-  ],
-  "tamanho": [
-   12.5088,
-   17.7285,
-   11.3407
-  ],
-  "tris": 1012,
-  "atlas": null
- },
- "KIT_estandarte": {
+ "KIT_estandarte.001": {
   "centro": [
    0.0,
    0.0,
@@ -405,7 +391,7 @@
   "tris": 3200,
   "atlas": "A_LOBBY_4"
  },
- "KIT_forro_alpendre": {
+ "KIT_forro_alpendre.001": {
   "centro": [
    0.0,
    0.0,
@@ -419,7 +405,7 @@
   "tris": 2712,
   "atlas": "A_LOBBY_1"
  },
- "KIT_imortal": {
+ "KIT_imortal.001": {
   "centro": [
    0.0,
    -0.1273,
@@ -433,7 +419,7 @@
   "tris": 256,
   "atlas": "A_LOBBY_3"
  },
- "KIT_lanterna_palacio": {
+ "KIT_lanterna_palacio.001": {
   "centro": [
    0.0,
    0.0,
@@ -461,7 +447,7 @@
   "tris": 2124,
   "atlas": "A_LOBBY_5"
  },
- "KIT_muro_pilar": {
+ "KIT_muro_pilar.001": {
   "centro": [
    0.0,
    0.0,
@@ -475,7 +461,7 @@
   "tris": 1356,
   "atlas": "A_LOBBY_3"
  },
- "KIT_muro_seg": {
+ "KIT_muro_seg.001": {
   "centro": [
    0.0,
    0.0,
@@ -485,6 +471,20 @@
    9.0,
    3.8288,
    10.39
+  ],
+  "tris": 4008,
+  "atlas": "A_LOBBY_1"
+ },
+ "KIT_muro_seg.002": {
+  "centro": [
+   0.0,
+   0.0,
+   7.645
+  ],
+  "tamanho": [
+   9.0,
+   3.8288,
+   15.29
   ],
   "tris": 4008,
   "atlas": "A_LOBBY_5"
@@ -531,7 +531,7 @@
   "tris": 2316,
   "atlas": "A_LOBBY_6"
  },
- "KIT_piso_mod": {
+ "KIT_piso_mod.001": {
   "centro": [
    2.625,
    2.625,
@@ -559,7 +559,7 @@
   "tris": 1592,
   "atlas": "A_LOBBY_4"
  },
- "KIT_prancha": {
+ "KIT_prancha.001": {
   "centro": [
    0.0,
    0.0,
@@ -573,7 +573,7 @@
   "tris": 132,
   "atlas": "A_LOBBY_4"
  },
- "KIT_sumeru_canto": {
+ "KIT_sumeru_canto.001": {
   "centro": [
    0.0,
    0.0,
@@ -587,7 +587,7 @@
   "tris": 916,
   "atlas": "A_LOBBY_3"
  },
- "KIT_sumeru_seg": {
+ "KIT_sumeru_seg.001": {
   "centro": [
    2.415,
    -0.48,
@@ -601,7 +601,7 @@
   "tris": 504,
   "atlas": "A_LOBBY_2"
  },
- "KIT_tufo_a": {
+ "KIT_tufo_a.001": {
   "centro": [
    0.0596,
    0.1006,
@@ -615,7 +615,7 @@
   "tris": 416,
   "atlas": "A_LOBBY_2"
  },
- "KIT_vao_janela": {
+ "KIT_vao_janela.001": {
   "centro": [
    0.0,
    0.0,
@@ -629,7 +629,7 @@
   "tris": 7148,
   "atlas": "A_LOBBY_2"
  },
- "KIT_vao_parede": {
+ "KIT_vao_parede.001": {
   "centro": [
    0.0,
    0.0,
@@ -656,20 +656,6 @@
   ],
   "tris": 8736,
   "atlas": "A_LOBBY_4"
- },
- "KIT_viga_canto_esp": {
-  "centro": [
-   16.5569,
-   10.1206,
-   26.2026
-  ],
-  "tamanho": [
-   8.3696,
-   12.7871,
-   5.3647
-  ],
-  "tris": 288,
-  "atlas": null
  },
  "LAGO_agua": {
   "centro": [
