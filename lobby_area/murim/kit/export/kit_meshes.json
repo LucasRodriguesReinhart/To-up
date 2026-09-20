@@ -11,6 +11,20 @@
    10.4
   ],
   "tris": 1628,
+  "atlas": "A_LOBBY_5"
+ },
+ "FORJA_claraboia": {
+  "centro": [
+   0.0,
+   -127.0,
+   40.75
+  ],
+  "tamanho": [
+   62.7,
+   32.7,
+   16.5
+  ],
+  "tris": 5328,
   "atlas": "A_LOBBY_4"
  },
  "JAR_ameixeira.001": {
@@ -25,20 +39,6 @@
    7.7744
   ],
   "tris": 10568,
-  "atlas": "A_LOBBY_5"
- },
- "JAR_ameixeira_b": {
-  "centro": [
-   0.6527,
-   -0.5235,
-   3.695
-  ],
-  "tamanho": [
-   9.794,
-   8.4573,
-   7.9312
-  ],
-  "tris": 11208,
   "atlas": "A_LOBBY_6"
  },
  "JAR_canteiro.001": {
@@ -53,7 +53,7 @@
    2.2231
   ],
   "tris": 6800,
-  "atlas": "A_LOBBY_1"
+  "atlas": "A_LOBBY_5"
  },
  "JAR_canteiro_b": {
   "centro": [
@@ -67,20 +67,6 @@
    2.1265
   ],
   "tris": 6800,
-  "atlas": "A_LOBBY_2"
- },
- "JAR_crisantemo.001": {
-  "centro": [
-   0.1,
-   0.1,
-   1.4516
-  ],
-  "tamanho": [
-   2.7763,
-   2.1498,
-   2.9806
-  ],
-  "tris": 7470,
   "atlas": "A_LOBBY_3"
  },
  "JAR_crisantemo_b": {
@@ -109,7 +95,7 @@
    2.5749
   ],
   "tris": 168,
-  "atlas": "A_LOBBY_4"
+  "atlas": "A_LOBBY_1"
  },
  "JAR_grama_b": {
   "centro": [
@@ -165,7 +151,7 @@
    3.581
   ],
   "tris": 8284,
-  "atlas": "A_LOBBY_6"
+  "atlas": "A_LOBBY_2"
  },
  "JAR_peonia_b": {
   "centro": [
@@ -179,7 +165,7 @@
    3.7009
   ],
   "tris": 8284,
-  "atlas": "A_LOBBY_4"
+  "atlas": "A_LOBBY_5"
  },
  "KIT_arbusto_a": {
   "centro": [
@@ -207,7 +193,7 @@
    1.9164
   ],
   "tris": 320,
-  "atlas": "A_LOBBY_4"
+  "atlas": "A_LOBBY_5"
  },
  "KIT_arquitrave": {
   "centro": [
@@ -221,7 +207,7 @@
    3.6163
   ],
   "tris": 3268,
-  "atlas": "A_LOBBY_1"
+  "atlas": "A_LOBBY_2"
  },
  "KIT_bal_seg": {
   "centro": [
@@ -235,7 +221,7 @@
    4.8416
   ],
   "tris": 2780,
-  "atlas": "A_LOBBY_6"
+  "atlas": "A_LOBBY_3"
  },
  "KIT_besta_0": {
   "centro": [
@@ -249,7 +235,7 @@
    1.8323
   ],
   "tris": 352,
-  "atlas": "A_LOBBY_5"
+  "atlas": "A_LOBBY_4"
  },
  "KIT_besta_1": {
   "centro": [
@@ -277,7 +263,7 @@
    1.8323
   ],
   "tris": 360,
-  "atlas": "A_LOBBY_4"
+  "atlas": "A_LOBBY_5"
  },
  "KIT_chiwen": {
   "centro": [
@@ -291,7 +277,7 @@
    7.7267
   ],
   "tris": 3300,
-  "atlas": "A_LOBBY_4"
+  "atlas": "A_LOBBY_6"
  },
  "KIT_chuishou": {
   "centro": [
@@ -305,7 +291,7 @@
    2.7952
   ],
   "tris": 836,
-  "atlas": "A_LOBBY_5"
+  "atlas": "A_LOBBY_4"
  },
  "KIT_col_base": {
   "centro": [
@@ -319,7 +305,7 @@
    1.5
   ],
   "tris": 856,
-  "atlas": "A_LOBBY_1"
+  "atlas": "A_LOBBY_6"
  },
  "KIT_coluna": {
   "centro": [
@@ -333,7 +319,7 @@
    11.5
   ],
   "tris": 1648,
-  "atlas": "A_LOBBY_3"
+  "atlas": "A_LOBBY_6"
  },
  "KIT_dougong_intermediario.001": {
   "centro": [
@@ -347,7 +333,7 @@
    3.86
   ],
   "tris": 792,
-  "atlas": "A_LOBBY_6"
+  "atlas": "A_LOBBY_2"
  },
  "KIT_dougong_principal": {
   "centro": [
@@ -361,7 +347,7 @@
    4.52
   ],
   "tris": 1400,
-  "atlas": "A_LOBBY_5"
+  "atlas": "A_LOBBY_2"
  },
  "KIT_dougong_simples": {
   "centro": [
@@ -403,7 +389,7 @@
    22.1903
   ],
   "tris": 3200,
-  "atlas": "A_LOBBY_6"
+  "atlas": "A_LOBBY_3"
  },
  "KIT_forro_alpendre": {
   "centro": [
@@ -417,7 +403,7 @@
    0.64
   ],
   "tris": 2712,
-  "atlas": "A_LOBBY_4"
+  "atlas": "A_LOBBY_6"
  },
  "KIT_imortal": {
   "centro": [
@@ -431,7 +417,7 @@
    2.24
   ],
   "tris": 256,
-  "atlas": "A_LOBBY_2"
+  "atlas": "A_LOBBY_4"
  },
  "KIT_lanterna_palacio": {
   "centro": [
@@ -445,7 +431,7 @@
    6.49
   ],
   "tris": 2244,
-  "atlas": "A_LOBBY_6"
+  "atlas": "A_LOBBY_5"
  },
  "KIT_lanterna_vermelha.001": {
   "centro": [
@@ -459,7 +445,7 @@
    5.5
   ],
   "tris": 2124,
-  "atlas": "A_LOBBY_5"
+  "atlas": "A_LOBBY_4"
  },
  "KIT_muro_pilar": {
   "centro": [
@@ -473,7 +459,7 @@
    13.4
   ],
   "tris": 1356,
-  "atlas": "A_LOBBY_4"
+  "atlas": "A_LOBBY_3"
  },
  "KIT_muro_seg": {
   "centro": [
@@ -489,6 +475,34 @@
   "tris": 4008,
   "atlas": "A_LOBBY_3"
  },
+ "KIT_muro_torre": {
+  "centro": [
+   0.0,
+   0.0,
+   13.3
+  ],
+  "tamanho": [
+   18.0963,
+   18.0963,
+   26.6
+  ],
+  "tris": 5240,
+  "atlas": "A_LOBBY_2"
+ },
+ "KIT_pinheiro_a.001": {
+  "centro": [
+   -0.4468,
+   -0.1363,
+   5.1664
+  ],
+  "tamanho": [
+   8.899,
+   5.8306,
+   10.7156
+  ],
+  "tris": 2064,
+  "atlas": "A_LOBBY_2"
+ },
  "KIT_pinheiro_b.001": {
   "centro": [
    0.5166,
@@ -501,7 +515,7 @@
    10.7156
   ],
   "tris": 2064,
-  "atlas": "A_LOBBY_5"
+  "atlas": "A_LOBBY_6"
  },
  "KIT_piso_mod": {
   "centro": [
@@ -515,7 +529,7 @@
    0.4952
   ],
   "tris": 768,
-  "atlas": "A_LOBBY_4"
+  "atlas": "A_LOBBY_1"
  },
  "KIT_placa.001": {
   "centro": [
@@ -529,7 +543,7 @@
    2.5
   ],
   "tris": 1592,
-  "atlas": "A_LOBBY_6"
+  "atlas": "A_LOBBY_1"
  },
  "KIT_prancha": {
   "centro": [
@@ -543,7 +557,7 @@
    0.5
   ],
   "tris": 132,
-  "atlas": "A_LOBBY_1"
+  "atlas": "A_LOBBY_2"
  },
  "KIT_sumeru_canto": {
   "centro": [
@@ -557,7 +571,7 @@
    3.98
   ],
   "tris": 916,
-  "atlas": "A_LOBBY_6"
+  "atlas": "A_LOBBY_5"
  },
  "KIT_sumeru_seg": {
   "centro": [
@@ -571,7 +585,7 @@
    3.98
   ],
   "tris": 504,
-  "atlas": "A_LOBBY_6"
+  "atlas": "A_LOBBY_1"
  },
  "KIT_tufo_a": {
   "centro": [
@@ -613,7 +627,7 @@
    11.3
   ],
   "tris": 3472,
-  "atlas": "A_LOBBY_2"
+  "atlas": "A_LOBBY_3"
  },
  "KIT_vao_porta.001": {
   "centro": [
@@ -627,7 +641,7 @@
    11.3
   ],
   "tris": 8736,
-  "atlas": "A_LOBBY_5"
+  "atlas": "A_LOBBY_2"
  },
  "KIT_viga_canto_esp": {
   "centro": [
@@ -655,7 +669,7 @@
    1.25
   ],
   "tris": 12,
-  "atlas": "A_LOBBY_3"
+  "atlas": "A_LOBBY_6"
  },
  "LAGO_leito": {
   "centro": [
@@ -669,7 +683,7 @@
    2.694
   ],
   "tris": 532,
-  "atlas": "A_LOBBY_5"
+  "atlas": "A_LOBBY_1"
  },
  "LAGO_margem": {
   "centro": [
@@ -683,7 +697,7 @@
    1.8
   ],
   "tris": 592,
-  "atlas": "A_LOBBY_6"
+  "atlas": "A_LOBBY_3"
  },
  "LOB_altar_laminas.001": {
   "centro": [
@@ -697,7 +711,7 @@
    5.3758
   ],
   "tris": 2228,
-  "atlas": "A_LOBBY_3"
+  "atlas": "A_LOBBY_6"
  },
  "LOB_bambu_1.001": {
   "centro": [
@@ -711,7 +725,7 @@
    14.3594
   ],
   "tris": 3682,
-  "atlas": "A_LOBBY_3"
+  "atlas": "A_LOBBY_1"
  },
  "LOB_bigorna.001": {
   "centro": [
@@ -725,7 +739,7 @@
    3.57
   ],
   "tris": 744,
-  "atlas": "A_LOBBY_2"
+  "atlas": "A_LOBBY_6"
  },
  "LOB_boneco_treino.001": {
   "centro": [
@@ -753,7 +767,7 @@
    11.8145
   ],
   "tris": 1076,
-  "atlas": "A_LOBBY_1"
+  "atlas": "A_LOBBY_5"
  },
  "LOB_braseiro.001": {
   "centro": [
@@ -767,7 +781,7 @@
    5.4
   ],
   "tris": 1040,
-  "atlas": "A_LOBBY_6"
+  "atlas": "A_LOBBY_1"
  },
  "LOB_calha_tempera.001": {
   "centro": [
@@ -781,7 +795,7 @@
    2.25
   ],
   "tris": 416,
-  "atlas": "A_LOBBY_3"
+  "atlas": "A_LOBBY_6"
  },
  "LOB_chao": {
   "centro": [
@@ -795,7 +809,7 @@
    2.5
   ],
   "tris": 12,
-  "atlas": "A_LOBBY_1"
+  "atlas": "A_LOBBY_6"
  },
  "LOB_espada_ancestral.001": {
   "centro": [
@@ -809,7 +823,7 @@
    30.2411
   ],
   "tris": 2556,
-  "atlas": "A_LOBBY_3"
+  "atlas": "A_LOBBY_1"
  },
  "LOB_estante_armas.001": {
   "centro": [
@@ -823,7 +837,7 @@
    11.2598
   ],
   "tris": 1572,
-  "atlas": "A_LOBBY_1"
+  "atlas": "A_LOBBY_5"
  },
  "LOB_fole.001": {
   "centro": [
@@ -837,7 +851,7 @@
    3.75
   ],
   "tris": 1092,
-  "atlas": "A_LOBBY_2"
+  "atlas": "A_LOBBY_3"
  },
  "LOB_fornalha.001": {
   "centro": [
@@ -851,7 +865,7 @@
    14.2
   ],
   "tris": 9256,
-  "atlas": "A_LOBBY_6"
+  "atlas": "A_LOBBY_3"
  },
  "LOB_leao_esfera.001": {
   "centro": [
@@ -865,7 +879,7 @@
    7.3254
   ],
   "tris": 2694,
-  "atlas": "A_LOBBY_2"
+  "atlas": "A_LOBBY_5"
  },
  "LOB_leao_filhote.001": {
   "centro": [
@@ -879,7 +893,7 @@
    7.3254
   ],
   "tris": 2634,
-  "atlas": "A_LOBBY_5"
+  "atlas": "A_LOBBY_4"
  },
  "LOB_pedestal_espada.001": {
   "centro": [
@@ -893,21 +907,21 @@
    6.35
   ],
   "tris": 4008,
-  "atlas": "A_LOBBY_2"
+  "atlas": "A_LOBBY_5"
  },
  "LOB_ponte_lua.001": {
   "centro": [
    0.0,
    0.0,
-   3.53
+   3.6204
   ],
   "tamanho": [
    30.8,
    30.0,
-   7.06
+   7.2191
   ],
-  "tris": 7176,
-  "atlas": "A_LOBBY_4"
+  "tris": 14568,
+  "atlas": "A_LOBBY_3"
  },
  "LOB_poste_treino.001": {
   "centro": [
@@ -921,7 +935,7 @@
    6.0
   ],
   "tris": 420,
-  "atlas": "A_LOBBY_5"
+  "atlas": "A_LOBBY_3"
  },
  "LOB_rocha_1.001": {
   "centro": [
@@ -935,7 +949,7 @@
    4.3812
   ],
   "tris": 348,
-  "atlas": "A_LOBBY_4"
+  "atlas": "A_LOBBY_2"
  },
  "LOB_rocha_2": {
   "centro": [
@@ -949,7 +963,7 @@
    2.9522
   ],
   "tris": 348,
-  "atlas": "A_LOBBY_6"
+  "atlas": "A_LOBBY_1"
  },
  "LOB_torre_fogo.001": {
   "centro": [
@@ -963,7 +977,7 @@
    48.55
   ],
   "tris": 8552,
-  "atlas": "A_LOBBY_2"
+  "atlas": "A_LOBBY_3"
  },
  "NUC_-146_-45": {
   "centro": [
@@ -977,7 +991,7 @@
    3.53
   ],
   "tris": 12,
-  "atlas": "A_LOBBY_2"
+  "atlas": "A_LOBBY_6"
  },
  "NUC_-62_-152": {
   "centro": [
@@ -991,7 +1005,7 @@
    3.53
   ],
   "tris": 12,
-  "atlas": "A_LOBBY_1"
+  "atlas": "A_LOBBY_6"
  },
  "NUC_104_-24": {
   "centro": [
@@ -1005,7 +1019,7 @@
    3.53
   ],
   "tris": 12,
-  "atlas": "A_LOBBY_2"
+  "atlas": "A_LOBBY_6"
  },
  "OESTE_caminho": {
   "centro": [
@@ -1019,7 +1033,7 @@
    0.2
   ],
   "tris": 216,
-  "atlas": "A_LOBBY_2"
+  "atlas": "A_LOBBY_6"
  },
  "PATIO_agua": {
   "centro": [
@@ -1047,7 +1061,7 @@
    1.9
   ],
   "tris": 1296,
-  "atlas": "A_LOBBY_6"
+  "atlas": "A_LOBBY_1"
  },
  "PATIO_leito": {
   "centro": [
@@ -1061,7 +1075,7 @@
    0.5
   ],
   "tris": 128,
-  "atlas": "A_LOBBY_5"
+  "atlas": "A_LOBBY_2"
  },
  "PATIO_piso_0": {
   "centro": [
@@ -1075,7 +1089,7 @@
    0.62
   ],
   "tris": 12972,
-  "atlas": "A_LOBBY_5"
+  "atlas": "A_LOBBY_6"
  },
  "PATIO_piso_1": {
   "centro": [
@@ -1089,7 +1103,7 @@
    0.62
   ],
   "tris": 11892,
-  "atlas": "A_LOBBY_6"
+  "atlas": "A_LOBBY_5"
  },
  "PATIO_piso_2": {
   "centro": [
@@ -1103,7 +1117,7 @@
    0.62
   ],
   "tris": 7572,
-  "atlas": "A_LOBBY_2"
+  "atlas": "A_LOBBY_5"
  },
  "PATIO_piso_3": {
   "centro": [
@@ -1131,7 +1145,7 @@
    0.62
   ],
   "tris": 12972,
-  "atlas": "A_LOBBY_4"
+  "atlas": "A_LOBBY_5"
  },
  "PATIO_piso_5": {
   "centro": [
@@ -1145,77 +1159,49 @@
    0.62
   ],
   "tris": 7788,
-  "atlas": "A_LOBBY_5"
- },
- "PENHASCO_E": {
-  "centro": [
-   167.0,
-   3.0,
-   21.8017
-  ],
-  "tamanho": [
-   38.32,
-   338.32,
-   51.6035
-  ],
-  "tris": 528,
-  "atlas": "A_LOBBY_3"
- },
- "PENHASCO_N": {
-  "centro": [
-   0.0,
-   -187.0,
-   32.9138
-  ],
-  "tamanho": [
-   368.32,
-   58.32,
-   73.8277
-  ],
-  "tris": 572,
-  "atlas": "A_LOBBY_5"
- },
- "PENHASCO_S1": {
-  "centro": [
-   -121.0,
-   184.0,
-   15.5754
-  ],
-  "tamanho": [
-   130.96,
-   40.96,
-   39.1508
-  ],
-  "tris": 176,
   "atlas": "A_LOBBY_6"
  },
- "PENHASCO_S2": {
+ "PODIO_-146_-45": {
   "centro": [
-   121.0,
-   184.0,
-   15.3063
+   -125.0,
+   0.0,
+   1.06
   ],
   "tamanho": [
-   130.96,
-   40.96,
-   38.6126
+   42.9,
+   90.9,
+   2.72
   ],
-  "tris": 176,
-  "atlas": "A_LOBBY_1"
+  "tris": 324,
+  "atlas": "A_LOBBY_3"
  },
- "PENHASCO_W": {
+ "PODIO_-62_-152": {
   "centro": [
-   -167.0,
-   3.0,
-   19.9438
+   0.0,
+   -121.0,
+   2.86
   ],
   "tamanho": [
-   38.32,
-   338.32,
-   47.8876
+   124.9,
+   62.9,
+   6.32
   ],
-  "tris": 528,
-  "atlas": "A_LOBBY_1"
+  "tris": 432,
+  "atlas": "A_LOBBY_4"
+ },
+ "PODIO_104_-24": {
+  "centro": [
+   117.0,
+   -4.0,
+   1.86
+  ],
+  "tamanho": [
+   26.9,
+   40.9,
+   4.32
+  ],
+  "tris": 324,
+  "atlas": "A_LOBBY_5"
  },
  "PORTAO_muralha": {
   "centro": [
@@ -1229,7 +1215,7 @@
    16.0
   ],
   "tris": 2072,
-  "atlas": "A_LOBBY_4"
+  "atlas": "A_LOBBY_3"
  },
  "PORTAO_parapeito": {
   "centro": [
@@ -1243,7 +1229,7 @@
    4.2
   ],
   "tris": 1836,
-  "atlas": "A_LOBBY_3"
+  "atlas": "A_LOBBY_6"
  },
  "POR_base_chakra.001": {
   "centro": [
@@ -1257,7 +1243,7 @@
    0.66
   ],
   "tris": 1104,
-  "atlas": "A_LOBBY_5"
+  "atlas": "A_LOBBY_2"
  },
  "POR_base_ki.001": {
   "centro": [
@@ -1271,7 +1257,7 @@
    0.66
   ],
   "tris": 1104,
-  "atlas": "A_LOBBY_4"
+  "atlas": "A_LOBBY_6"
  },
  "POR_base_mare.001": {
   "centro": [
@@ -1285,7 +1271,7 @@
    0.66
   ],
   "tris": 1104,
-  "atlas": "A_LOBBY_1"
+  "atlas": "A_LOBBY_4"
  },
  "POR_base_nichirin.001": {
   "centro": [
@@ -1299,7 +1285,7 @@
    0.66
   ],
   "tris": 1104,
-  "atlas": "A_LOBBY_6"
+  "atlas": "A_LOBBY_2"
  },
  "POR_base_serio.001": {
   "centro": [
@@ -1313,7 +1299,7 @@
    0.66
   ],
   "tris": 1104,
-  "atlas": "A_LOBBY_2"
+  "atlas": "A_LOBBY_6"
  },
  "POR_base_sombra.001": {
   "centro": [
@@ -1327,7 +1313,7 @@
    0.66
   ],
   "tris": 1104,
-  "atlas": "A_LOBBY_5"
+  "atlas": "A_LOBBY_4"
  },
  "POR_fragmento_1_chakra.001": {
   "centro": [
@@ -1341,7 +1327,7 @@
    1.2134
   ],
   "tris": 116,
-  "atlas": "A_LOBBY_6"
+  "atlas": "A_LOBBY_2"
  },
  "POR_fragmento_1_ki.001": {
   "centro": [
@@ -1355,7 +1341,7 @@
    1.2134
   ],
   "tris": 116,
-  "atlas": "A_LOBBY_5"
+  "atlas": "A_LOBBY_1"
  },
  "POR_fragmento_1_mare.001": {
   "centro": [
@@ -1369,7 +1355,7 @@
    1.2134
   ],
   "tris": 116,
-  "atlas": "A_LOBBY_2"
+  "atlas": "A_LOBBY_4"
  },
  "POR_fragmento_1_nichirin.001": {
   "centro": [
@@ -1383,7 +1369,7 @@
    1.2134
   ],
   "tris": 116,
-  "atlas": "A_LOBBY_4"
+  "atlas": "A_LOBBY_5"
  },
  "POR_fragmento_1_serio.001": {
   "centro": [
@@ -1411,91 +1397,91 @@
    1.2134
   ],
   "tris": 116,
-  "atlas": "A_LOBBY_5"
+  "atlas": "A_LOBBY_1"
  },
  "POR_moldura_chakra.001": {
   "centro": [
-   0.0,
+   0.2301,
    -0.27,
-   7.9367
+   7.154
   ],
   "tamanho": [
-   12.3,
+   12.7603,
    6.24,
-   17.1134
+   15.5479
   ],
-  "tris": 8352,
-  "atlas": "A_LOBBY_1"
+  "tris": 7392,
+  "atlas": "A_LOBBY_2"
  },
  "POR_moldura_ki.001": {
   "centro": [
    0.0,
-   -0.275,
-   8.7699
-  ],
-  "tamanho": [
-   12.3,
-   6.25,
-   18.7799
-  ],
-  "tris": 11184,
-  "atlas": "A_LOBBY_4"
- },
- "POR_moldura_mare.001": {
-  "centro": [
    0.0,
-   0.0,
-   7.975
+   8.3077
   ],
   "tamanho": [
    12.3,
    5.7,
-   17.19
+   17.8555
   ],
-  "tris": 10844,
+  "tris": 8740,
+  "atlas": "A_LOBBY_1"
+ },
+ "POR_moldura_mare.001": {
+  "centro": [
+   0.0,
+   -0.2398,
+   7.6646
+  ],
+  "tamanho": [
+   12.3,
+   6.1796,
+   16.5692
+  ],
+  "tris": 8076,
   "atlas": "A_LOBBY_3"
  },
  "POR_moldura_nichirin.001": {
   "centro": [
    0.0,
    0.0,
-   8.2701
+   8.021
   ],
   "tamanho": [
    12.3,
    5.7,
-   17.7803
+   17.282
   ],
-  "tris": 10032,
-  "atlas": "A_LOBBY_1"
+  "tris": 9208,
+  "atlas": "A_LOBBY_4"
  },
  "POR_moldura_serio.001": {
   "centro": [
    0.1935,
-   -0.1787,
-   8.5609
+   -0.496,
+   7.4378
   ],
   "tamanho": [
    12.687,
-   6.0575,
-   18.3619
+   6.692,
+   16.1156
   ],
-  "tris": 10016,
-  "atlas": "A_LOBBY_2"
+  "tris": 8008,
+  "atlas": "A_LOBBY_1"
  },
  "POR_moldura_sombra.001": {
   "centro": [
    0.0,
-   -0.01,
-   8.545
+   0.0,
+   7.8698
   ],
   "tamanho": [
    12.3,
-   5.72,
-   18.33
+   5.7,
+   16.9796
   ],
-  "tris": 8728,
-  "atlas": "A_LOBBY_3"
+  "tris": 8460,
+  "atlas": "A_LOBBY_6"
  },
  "POR_vortice_chakra": {
   "centro": [
@@ -1509,7 +1495,7 @@
    12.02
   ],
   "tris": 536,
-  "atlas": "A_LOBBY_1"
+  "atlas": "A_LOBBY_3"
  },
  "POR_vortice_ki": {
   "centro": [
@@ -1523,7 +1509,7 @@
    12.02
   ],
   "tris": 536,
-  "atlas": "A_LOBBY_3"
+  "atlas": "A_LOBBY_4"
  },
  "POR_vortice_mare": {
   "centro": [
@@ -1537,7 +1523,7 @@
    12.02
   ],
   "tris": 536,
-  "atlas": "A_LOBBY_5"
+  "atlas": "A_LOBBY_6"
  },
  "POR_vortice_nichirin": {
   "centro": [
@@ -1565,7 +1551,7 @@
    12.02
   ],
   "tris": 536,
-  "atlas": "A_LOBBY_4"
+  "atlas": "A_LOBBY_5"
  },
  "POR_vortice_sombra": {
   "centro": [
@@ -1579,7 +1565,7 @@
    12.02
   ],
   "tris": 536,
-  "atlas": "A_LOBBY_3"
+  "atlas": "A_LOBBY_1"
  },
  "SANT_fundo": {
   "centro": [
@@ -1593,7 +1579,7 @@
    15.0
   ],
   "tris": 756,
-  "atlas": "A_LOBBY_4"
+  "atlas": "A_LOBBY_5"
  },
  "TEL_F1_agua_frente": {
   "centro": [
@@ -1621,7 +1607,7 @@
    15.7924
   ],
   "tris": 7936,
-  "atlas": "A_LOBBY_3"
+  "atlas": "A_LOBBY_4"
  },
  "TEL_F1_beiral_frente": {
   "centro": [
@@ -1635,7 +1621,7 @@
    4.6133
   ],
   "tris": 6766,
-  "atlas": "A_LOBBY_6"
+  "atlas": "A_LOBBY_2"
  },
  "TEL_F1_beiral_lado": {
   "centro": [
@@ -1649,7 +1635,7 @@
    4.9272
   ],
   "tris": 3556,
-  "atlas": "A_LOBBY_3"
+  "atlas": "A_LOBBY_1"
  },
  "TEL_F1_cumeeira": {
   "centro": [
@@ -1663,7 +1649,7 @@
    2.42
   ],
   "tris": 2268,
-  "atlas": "A_LOBBY_1"
+  "atlas": "A_LOBBY_2"
  },
  "TEL_F1_espigao": {
   "centro": [
@@ -1677,7 +1663,7 @@
    13.8673
   ],
   "tris": 1012,
-  "atlas": "A_LOBBY_4"
+  "atlas": "A_LOBBY_1"
  },
  "TEL_F1_espigao_esp": {
   "centro": [
@@ -1691,7 +1677,7 @@
    13.8673
   ],
   "tris": 1012,
-  "atlas": "A_LOBBY_4"
+  "atlas": "A_LOBBY_1"
  },
  "TEL_F1_viga_canto": {
   "centro": [
@@ -1705,7 +1691,7 @@
    6.643
   ],
   "tris": 288,
-  "atlas": "A_LOBBY_5"
+  "atlas": "A_LOBBY_4"
  },
  "TEL_F1_viga_canto_esp": {
   "centro": [
@@ -1719,7 +1705,7 @@
    6.643
   ],
   "tris": 288,
-  "atlas": "A_LOBBY_5"
+  "atlas": "A_LOBBY_4"
  },
  "TEL_F2_agua_frente": {
   "centro": [
@@ -1747,7 +1733,7 @@
    13.8225
   ],
   "tris": 7182,
-  "atlas": "A_LOBBY_5"
+  "atlas": "A_LOBBY_4"
  },
  "TEL_F2_beiral_frente": {
   "centro": [
@@ -1761,7 +1747,7 @@
    4.1214
   ],
   "tris": 5534,
-  "atlas": "A_LOBBY_5"
+  "atlas": "A_LOBBY_6"
  },
  "TEL_F2_beiral_lado": {
   "centro": [
@@ -1775,7 +1761,7 @@
    5.4076
   ],
   "tris": 2676,
-  "atlas": "A_LOBBY_2"
+  "atlas": "A_LOBBY_5"
  },
  "TEL_F2_cumeeira": {
   "centro": [
@@ -1831,7 +1817,7 @@
    5.7191
   ],
   "tris": 288,
-  "atlas": "A_LOBBY_3"
+  "atlas": "A_LOBBY_2"
  },
  "TEL_F2_viga_canto_esp": {
   "centro": [
@@ -1845,7 +1831,7 @@
    5.7191
   ],
   "tris": 288,
-  "atlas": "A_LOBBY_3"
+  "atlas": "A_LOBBY_2"
  },
  "TEL_G_agua_frente": {
   "centro": [
@@ -1859,7 +1845,7 @@
    10.9064
   ],
   "tris": 13063,
-  "atlas": "A_LOBBY_3"
+  "atlas": "A_LOBBY_4"
  },
  "TEL_G_agua_lado": {
   "centro": [
@@ -1873,7 +1859,7 @@
    10.8665
   ],
   "tris": 5493,
-  "atlas": "A_LOBBY_4"
+  "atlas": "A_LOBBY_1"
  },
  "TEL_G_beiral_frente": {
   "centro": [
@@ -1887,7 +1873,7 @@
    3.6157
   ],
   "tris": 4312,
-  "atlas": "A_LOBBY_1"
+  "atlas": "A_LOBBY_5"
  },
  "TEL_G_beiral_lado": {
   "centro": [
@@ -1901,7 +1887,7 @@
    6.6387
   ],
   "tris": 1796,
-  "atlas": "A_LOBBY_5"
+  "atlas": "A_LOBBY_1"
  },
  "TEL_G_cumeeira": {
   "centro": [
@@ -1915,7 +1901,7 @@
    2.42
   ],
   "tris": 1468,
-  "atlas": "A_LOBBY_2"
+  "atlas": "A_LOBBY_4"
  },
  "TEL_G_espigao": {
   "centro": [
@@ -1929,7 +1915,7 @@
    8.7928
   ],
   "tris": 1012,
-  "atlas": "A_LOBBY_1"
+  "atlas": "A_LOBBY_5"
  },
  "TEL_G_espigao_esp": {
   "centro": [
@@ -1943,7 +1929,7 @@
    8.7928
   ],
   "tris": 1012,
-  "atlas": "A_LOBBY_1"
+  "atlas": "A_LOBBY_5"
  },
  "TEL_G_viga_canto": {
   "centro": [
@@ -1957,7 +1943,7 @@
    4.3125
   ],
   "tris": 288,
-  "atlas": "A_LOBBY_1"
+  "atlas": "A_LOBBY_6"
  },
  "TEL_G_viga_canto_esp": {
   "centro": [
@@ -1971,7 +1957,7 @@
    4.3125
   ],
   "tris": 288,
-  "atlas": "A_LOBBY_1"
+  "atlas": "A_LOBBY_6"
  },
  "TREINO_areia": {
   "centro": [
@@ -1985,7 +1971,7 @@
    0.3
   ],
   "tris": 108,
-  "atlas": "A_LOBBY_4"
+  "atlas": "A_LOBBY_3"
  },
  "VIA_piso": {
   "centro": [
@@ -1999,7 +1985,7 @@
    0.57
   ],
   "tris": 3456,
-  "atlas": "A_LOBBY_5"
+  "atlas": "A_LOBBY_4"
  },
  "VIA_postes": {
   "centro": [
@@ -2013,7 +1999,7 @@
    8.4
   ],
   "tris": 1440,
-  "atlas": "A_LOBBY_2"
+  "atlas": "A_LOBBY_4"
  },
  "VIL_banco.001": {
   "centro": [
@@ -2027,7 +2013,7 @@
    1.7
   ],
   "tris": 540,
-  "atlas": "A_LOBBY_1"
+  "atlas": "A_LOBBY_4"
  },
  "VIL_barril.001": {
   "centro": [
@@ -2041,7 +2027,7 @@
    3.1
   ],
   "tris": 548,
-  "atlas": "A_LOBBY_5"
+  "atlas": "A_LOBBY_4"
  },
  "VIL_caixas.001": {
   "centro": [
@@ -2083,7 +2069,7 @@
    2.1
   ],
   "tris": 548,
-  "atlas": "A_LOBBY_6"
+  "atlas": "A_LOBBY_3"
  },
  "VIL_lanterna_pedra.001": {
   "centro": [
@@ -2097,7 +2083,7 @@
    5.05
   ],
   "tris": 1948,
-  "atlas": "A_LOBBY_6"
+  "atlas": "A_LOBBY_2"
  },
  "VIL_placa_loja.001": {
   "centro": [
@@ -2125,7 +2111,7 @@
    7.45
   ],
   "tris": 2000,
-  "atlas": "A_LOBBY_1"
+  "atlas": "A_LOBBY_3"
  },
  "VIL_telhas.001": {
   "centro": [
@@ -2139,7 +2125,7 @@
    3.08
   ],
   "tris": 288,
-  "atlas": "A_LOBBY_1"
+  "atlas": "A_LOBBY_6"
  },
  "VIL_varal.001": {
   "centro": [

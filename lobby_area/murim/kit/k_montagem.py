@@ -127,7 +127,7 @@ def build_lobby():
         ('tufo', k_veg.tufo, 'LOB_VEG'),
         ('estand', k_kit2.estandarte, 'LOB_PROPS'), ('sup_esp', k_kit2.suporte_espada, 'LOB_PROPS'), ('vaso', k_kit2.vaso, 'LOB_PROPS'),
         ('muro', k_kit2.muro_seg, 'LOB_PORTAO'), ('mpilar', k_kit2.muro_pilar, 'LOB_PORTAO'), ('tel_portao', k_kit2.telhado_portao, 'LOB_PORTAO'),
-        ('muroA', lambda: k_kit2.muro_seg(9.0, 13.5), 'LOB_PORTAO'), ('torre', k_kit2.muro_torre, 'LOB_PORTAO'),
+        ('muroA', lambda: k_kit2.muro_seg(9.0, 13.5), 'LOB_PORTAO'), ('mtorre', k_kit2.muro_torre, 'LOB_PORTAO'),   # NAO usar 'torre': ja e a Torre do Fogo da Forja
         ('torre', k_lobby.torre_fogo, 'LOB_FORJA'), ('espada', lambda: k_lobby.espada_ancestral(38.0), 'LOB_PATIO'), ('ped_esp', lambda: k_lobby.pedestal_espada(11.0, 6.0), 'LOB_PATIO'),
         ('fornalha', k_lobby.fornalha, 'LOB_FORJA'), ('bigorna', k_lobby.bigorna, 'LOB_FORJA'), ('fole', k_lobby.fole, 'LOB_FORJA'),
         ('calha', k_lobby.calha_tempera, 'LOB_FORJA'), ('laminas', k_lobby.altar_laminas, 'LOB_FORJA'), ('braseiro', k_lobby.braseiro, 'LOB_PROPS'),
@@ -500,13 +500,13 @@ def build_lobby():
     linha_muro(MX, MY0, MX, MY1)
     linha_muro(-MX, MY1, MX, MY1, pular=(-50, 50, MY1 - 2, MY1 + 2))
     for (tx, ty) in ((-MX, MY0), (MX, MY0), (-MX, MY1), (MX, MY1)):
-        K.put('torre', C, (tx, ty, 0), 0)
+        K.put('mtorre', C, (tx, ty, 0), 0)
     for tx in (-MX + 79, MX - 79):
-        K.put('torre', C, (tx, MY0, 0), 0)
+        K.put('mtorre', C, (tx, MY0, 0), 0)
     for ty in (MY0 + 86, MY0 + 172, MY0 + 258):
-        for tx in (-MX, MX): K.put('torre', C, (tx, ty, 0), 0)
+        for tx in (-MX, MX): K.put('mtorre', C, (tx, ty, 0), 0)
     for tx in (-54, 54):
-        K.put('torre', C, (tx, MY1, 0), 0)
+        K.put('mtorre', C, (tx, MY1, 0), 0)
     C = 'LOB_VEG'
     # ---- registra as pecas UNICAS (piso, escadas, lago, via, penhascos...): elas sao criadas com Builder().finish()
     # direto, com a geometria ja em coordenadas do lobby, e por isso nao passam por K.put. Sem este passo elas ficam
