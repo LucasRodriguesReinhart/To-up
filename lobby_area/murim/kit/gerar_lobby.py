@@ -8,6 +8,50 @@ place = json.load(open(os.path.join(R, 'lobby_placements.json')))
 # o Blender sufixa nomes repetidos (KIT_coluna.001) e o importador do Roblox sufixa de novo: a chave util e o nome BASE.
 # Quando as duas versoes existem (a do pavilhao-modelo e a do lobby) elas vem da mesma funcao, entao a medida e a mesma.
 import re
+
+def _colisao_das_cotas():
+    """Emite a colisao de terraco e degrau a partir de lobby_cotas.json, que a GEOMETRIA gravou.
+
+    Antes estas alturas eram literais digitados aqui (9.98 / 6.38 / 7.98) e repetidos em
+    k_montagem.py como argumentos de terraco(). Os dois conjuntos de numeros nao tinham ligacao
+    nenhuma: mudar a cota na geometria deixava a colisao para tras, e o jogador ficava flutuando
+    meio metro acima do piso ou afundado nele. Era por isso que eu evitava terracear.
+    Agora a geometria e a fonte unica: aqui so se le o que ela registrou.
+    """
+    import json, os
+    cam = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'lobby_cotas.json')
+    if not os.path.exists(cam):
+        raise SystemExit('lobby_cotas.json nao existe: rode a montagem antes de gerar a colisao')
+    C = json.load(open(cam))
+    L = ['-- COLISAO DERIVADA DAS COTAS DA GEOMETRIA (lobby_cotas.json). Nao edite alturas aqui:',
+         '-- mude o terraco em k_montagem.py e rode a montagem; estas linhas se regeneram.']
+    nomes = {'t_-62_-152': 'forja', 't_-146_-45': 'santuario', 't_104_-24': 'loja'}
+    for t in C['terracos']:
+        n = nomes.get(t['nome'], t['nome'])
+        # o lado do terraco onde a escada desce fica 0.1 recuado, para o degrau encostar sem sobrepor
+        y1 = t['y1'] - 0.1 if n == 'forja' else t['y1']
+        L.append('caixa("terraco_%s", %.2f, %.2f, %.2f, %.2f, 0, %.2f)' % (n, t['x0'], t['x1'], t['y0'], y1, t['z']))
+    esc_nome = {'e_-90': 'forja', 'ex_-104': 'sant', 'ex_104': 'loja'}
+    for e in C['escadas']:
+        n = esc_nome.get(e['nome'], e['nome'])
+        z, k, tr, sd = e['z'], e['n'], e['tread'], e['sentido']
+        for i in range(1, k + 1):
+            alt = z - (z / k) * (i - 1)
+            if e['eixo'] == 'Y':
+                a0, a1 = e['a0'], e['a1']
+                b0 = e['b0'] + tr * (i - 1) * sd
+                b1 = b0 + tr * sd
+                L.append('caixa("degrau_%s%d", %.2f, %.2f, %.2f, %.2f, 0, %.3f)'
+                         % (n, i, a0, a1, min(b0, b1), max(b0, b1), alt))
+            else:
+                b0, b1 = e['b0'], e['b1']
+                a0 = e['a0'] + tr * (i - 1) * sd
+                a1 = a0 + tr * sd
+                L.append('caixa("degrau_%s%d", %.2f, %.2f, %.2f, %.2f, 0, %.3f)'
+                         % (n, i, min(a0, a1), max(a0, a1), b0, b1, alt))
+    return chr(10).join(L)
+
+
 def base(n): return re.sub(r'\.\d+$', '', n)
 info = {}
 for n, v in info_raw.items():
@@ -131,12 +175,7 @@ caixa("patio", -70, 70, -62, 62, -1, 0)                       -- piso do patio (
 caixa("patio_spawn", -24, 24, -92, -60, -1, 0)                -- faixa entre o patio e o pe da escadaria (onde o spawn cai)
 caixa("via", -16, 16, 60, 140, -1, 0.05)
 caixa("soleira_portao", -46, 46, 140, 178, -1, 0)
-caixa("terraco_forja", -62, 62, -152, -90.1, 0, 9.98)
-for i = 1, 12 do caixa("degrau_forja" .. i, -23, 23, -90 + 1.9 * (i - 1), -90 + 1.9 * i, 0, 9.98 - (9.98 / 12) * (i - 1)) end
-caixa("terraco_santuario", -146, -104, -45, 45, 0, 6.38)
-for i = 1, 8 do caixa("degrau_sant" .. i, -104 + (i - 1) * 1.7, -104 + i * 1.7, -6, 6, 0, 6.38 - (6.38 / 8) * (i - 1)) end
-caixa("terraco_loja", 104, 130, -24, 16, 0, 7.98)
-for i = 1, 10 do caixa("degrau_loja" .. i, 104 - i * 1.7, 104 - (i - 1) * 1.7, -10, 2, 0, 7.98 - (7.98 / 10) * (i - 1)) end
+''' + _colisao_das_cotas() + '''
 caixa("pedestal_espada", -12, 12, -12, 12, 0, 6)
 -- ponte-lua: degraus curtos acompanhando o arco
 for i = 0, 15 do

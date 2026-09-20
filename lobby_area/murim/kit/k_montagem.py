@@ -30,6 +30,19 @@ class Montagem(Kit):
         return o
 
 # ---------------------------------------------------------------- helpers de composicao
+# REGISTRO DE COTAS. A geometria anota aqui cada terraco e cada escada que constroi, e o
+# gerar_lobby.py le este registro para emitir a colisao. Antes as mesmas alturas eram digitadas nos
+# dois arquivos como literais independentes (9.98 / 6.38 / 7.98), e qualquer mudanca de cota na
+# geometria deixava a colisao para tras - jogador flutuando ou afundado no terreno.
+COTAS = {'terracos': [], 'escadas': []}
+
+def _reg_terraco(nome, x0, x1, y0, y1, z_topo):
+    COTAS['terracos'].append({'nome': nome, 'x0': x0, 'x1': x1, 'y0': y0, 'y1': y1, 'z': z_topo})
+
+def _reg_escada(nome, eixo, a0, a1, b0, b1, z_topo, n, tread, sentido):
+    COTAS['escadas'].append({'nome': nome, 'eixo': eixo, 'a0': a0, 'a1': a1, 'b0': b0, 'b1': b1,
+                             'z': z_topo, 'n': n, 'tread': tread, 'sentido': sentido})
+
 def terraco(K, C, x0, x1, y0, y1, z, escadas=()):
     """base sumeru + piso modular + balaustrada, com vaos onde houver escada. escadas = ((lado,'S'|'N'|'E'|'W', centro, largura),)"""
     nx = max(1, round((x1 - x0) / MOD)); ny = max(1, round((y1 - y0) / MOD))
@@ -74,12 +87,14 @@ def terraco(K, C, x0, x1, y0, y1, z, escadas=()):
         if not vao('E', cy): K.put('bal', C, (bx1, by0 + j * (by1 - by0) / nby, H), 90, (ky, 1, 1))
         if not vao('W', cy): K.put('bal', C, (bx0, by1 - j * (by1 - by0) / nby, H), 270, (ky, 1, 1))
     nuc = Builder('NUC_%d_%d' % (int(x0), int(y0))); nuc.add(t_box(x0, x1, y0, y1, z, H - .45), 'junta', .3); nuc.finish(C)
+    _reg_terraco('t_%s_%s' % (int(x0), int(y0)), x0, x1, y0, y1, H)
     return H
 
 def escadaria(K, C, cx, y_topo, z_topo, n, largura, tread=1.9):
     """lance que desce do terraco (em y_topo) para o PATIO, em +Y. Descer em -Y punha a escada dentro do proprio
     terraco e deixava uma parede de 10 studs no eixo de entrada."""
     rise = z_topo / n
+    _reg_escada('e_%d' % int(y_topo), 'Y', cx - largura / 2, cx + largura / 2, y_topo, y_topo, z_topo, n, tread, 1)
     d = Builder('ESCADA_%d' % int(y_topo), 46)
     for i in range(1, n + 1):
         z = z_topo - rise * i
@@ -98,6 +113,7 @@ def escadaria_x(K, C, cy, x_topo, z_topo, n, largura, sentido, tread=1.7):
     gerar_lobby.py mas NENHUMA malha: o jogador subia no ar. Estas medidas copiam exatamente as caixas
     de colisao (degrau_loja e degrau_sant), senao a geometria e o que se pisa deixam de casar."""
     rise = z_topo / n
+    _reg_escada('ex_%d' % int(x_topo), 'X', x_topo, x_topo, cy - largura / 2, cy + largura / 2, z_topo, n, tread, sentido)
     d = Builder('ESCADA_X_%d' % int(x_topo), 46)
     for i in range(1, n + 1):
         z = z_topo - rise * (i - 1)
@@ -839,4 +855,7 @@ def build_lobby():
         rep.append('%-26s %6d tris x %3d' % (o.name, tr, n_))
     unicas = [o for o in K.m.values() if hasattr(o, 'data')]
     rep.append('TOTAL ~%d tris em cena | malhas unicas %d (%d tris) | colocacoes %d' % (tot, len(unicas), sum(o.get('tris', 0) for o in unicas), len(PLACE)))
+    import json as _json, os as _os
+    _cam = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), 'lobby_cotas.json')
+    _json.dump(COTAS, open(_cam, 'w'), indent=1)
     return K, rep
