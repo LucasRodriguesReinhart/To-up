@@ -48,6 +48,9 @@ A('''local function grupo(nome)
 	if nome:find("pinheiro") or nome:find("arbusto") or nome:find("tufo") or nome:find("bambu") or nome:find("bordo") or nome:find("rocha") then return GRUPO.Veg end
 	if nome:find("lanterna") or nome:find("estandarte") or nome:find("braseiro") or nome:find("leao") or nome:find("vaso") then return GRUPO.Props end
 	if nome:find("muro") or nome:find("PORTAO") or nome:find("VIA") then return GRUPO.Portao end
+	if nome:find("^POR_") then return GRUPO.Leste end          -- os portais ficam no Santuario
+	if nome:find("^JAR_") then return GRUPO.Veg end            -- flores, grama, lotus
+	if nome:find("^VIL_") then return GRUPO.Props end          -- poco, varal, carroca, cestos
 	if nome:find("ponte") or nome:find("LAGO") or nome:find("SANT") then return GRUPO.Leste end
 	if nome:find("poste_treino") or nome:find("boneco") or nome:find("estante") or nome:find("TREINO") then return GRUPO.Oeste end
 	if nome:find("PENHASCO") or nome:find("chao") then return GRUPO.Chao end
@@ -63,7 +66,8 @@ for _, p in ipairs(PLACE) do
 	else
 		local m = t:Clone(); m.Name = nome; m.Anchored = true
 		m.CanCollide = false; m.CanTouch = false; m.CanQuery = false
-		m.CastShadow = not PEQ[nome]
+		-- sombra custa caro e nao paga em peca pequena: flor, grama e bugiganga de vila entram sem.
+		m.CastShadow = not (PEQ[nome] or nome:find("^JAR_") or nome:find("^VIL_c") or nome:find("^VIL_b") or nome:find("^VIL_t"))
 		m.Size = Vector3.new(i.t[1] * sx, i.t[3] * sz, i.t[2] * sy)
 		local cf = CFrame.new(B(x, y, z)) * CFrame.Angles(0, math.rad(rot), 0)
 		m.CFrame = cf * CFrame.new(B(i.c[1] * sx, i.c[2] * sy, i.c[3] * sz))

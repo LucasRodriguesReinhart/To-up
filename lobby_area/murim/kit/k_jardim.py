@@ -10,7 +10,10 @@ from k_props import crom, lerp_list, bmesh_tri_prism
 # ---------------------------------------------------------------- petalas e flores
 def petala(L=1.0, W=.55, curva=.28, espessura=.05, ponta=.55):
     """petala como superficie curva com espessura: base estreita, meio largo, ponta arredondada."""
-    bm = bmesh.new(); NU, NV = 6, 4; grid = []
+    # a grade acompanha o TAMANHO da petala: uma flor de ameixeira tem raio 0,4 e nunca sera vista de
+    # perto o bastante para justificar a mesma malha de uma peonia de raio 1,15.
+    NU, NV = (6, 4) if L >= .85 else ((4, 3) if L >= .5 else (3, 2))
+    bm = bmesh.new(); grid = []
     for i in range(NU + 1):
         u = i / NU
         meia = W * (.30 + .70 * math.sin(math.pi * min(1.0, u * 1.05)) ** .8)
@@ -91,22 +94,40 @@ def lotus(seed=1, name='JAR_lotus'):
     return B
 
 def ameixeira(seed=1, name='JAR_ameixeira'):
-    """meihua: tronco escuro retorcido e nuvens de flor branca-rosada. Simbolo da seita de espada."""
+    """meihua: tronco escuro retorcido e nuvens de flor branca-rosada. Simbolo da seita de espada.
+    A versao anterior tinha 20 flores soltas de raio 0,3 numa arvore de 5 de altura: de longe ela lia como
+    arvore MORTA com pontinhos. Agora cada ponta de galho carrega nuvens de floracao (massa que le a
+    distancia) e as flores individuais ficam POR CIMA delas, para a leitura de perto continuar valendo."""
     B = Builder(name, 831 + seed); rnd = random.Random(seed)
     tr = crom([(0, 0, 0), (.5, .3, 1.8), (-.4, .1, 3.4), (.3, -.2, 4.6)], 4)
     B.add(t_tube(tr, lerp_list([.75, .55, .40, .30], len(tr)), 7), 'casca_escura', .35)
     galhos = []
-    for i in range(5):
-        a = math.radians(72 * i + rnd.uniform(-22, 22)); d = rnd.uniform(2.6, 4.2)
-        base = Vector((.15, 0, 2.6 + rnd.uniform(-.6, 1.2)))
-        pta = Vector((math.cos(a) * d, math.sin(a) * d, base.z + rnd.uniform(1.2, 2.6)))
+    for i in range(7):
+        a = math.radians(360 / 7 * i + rnd.uniform(-18, 18)); d = rnd.uniform(2.4, 4.2)
+        base = Vector((.15, 0, 2.4 + rnd.uniform(-.5, 1.4)))
+        pta = Vector((math.cos(a) * d, math.sin(a) * d, base.z + rnd.uniform(1.0, 2.6)))
         g = crom([tuple(base), tuple((base + pta) / 2 + Vector((0, 0, .5))), tuple(pta)], 4)
         B.add(t_tube(g, lerp_list([.26, .16, .09], len(g)), 6), 'casca_escura', .45)
         galhos.append(pta)
-    for p in galhos:
-        for k in range(4):
-            o = Vector((rnd.uniform(-1.1, 1.1), rnd.uniform(-1.1, 1.1), rnd.uniform(-.6, .9)))
-            _flor(B, 'flor_branca', 'flor_ouro', p.x + o.x, p.y + o.y, p.z + o.z, rnd.uniform(.26, .40), n=5, camadas=1, tomb=30, rot=rnd.uniform(0, 72), curva=.16)
+        for k in range(1):                                        # raminho, para a copa nao ter buraco
+            b2 = pta + Vector((rnd.uniform(-.5, .5), rnd.uniform(-.5, .5), rnd.uniform(-.4, .3)))
+            p2 = b2 + Vector((rnd.uniform(-1.0, 1.0), rnd.uniform(-1.0, 1.0), rnd.uniform(.3, 1.0)))
+            g2 = crom([tuple(b2), tuple((b2 + p2) / 2), tuple(p2)], 3)
+            B.add(t_tube(g2, lerp_list([.10, .06], len(g2)), 5), 'casca_escura', .55)
+            galhos.append(p2)
+    for j, p in enumerate(galhos):
+        for k in range(2):                                        # nuvem de floracao: a massa que le de longe
+            r = rnd.uniform(.85, 1.35)
+            o = Vector((rnd.uniform(-.7, .7), rnd.uniform(-.7, .7), rnd.uniform(-.3, .7)))
+            nuv = t_blob(r, (1.15, 1.15, .78), 1, lobes=4, lobe_amp=.24, seed=seed * 31 + j * 7 + k)
+            xf(nuv, rot=(0, 0, rnd.uniform(0, 360)), loc=(p.x + o.x, p.y + o.y, p.z + o.z))
+            B.add(nuv, 'flor_rosa' if (j + k) % 3 else 'flor_branca', rnd.uniform(.35, .95))
+            for f in range(1):                                    # flor POR CIMA da nuvem, para a leitura de perto
+                a2 = rnd.uniform(0, 6.28)
+                _flor(B, 'flor_branca' if (j + k) % 3 else 'flor_rosa', 'flor_ouro',
+                      p.x + o.x + math.cos(a2) * r * .62, p.y + o.y + math.sin(a2) * r * .62,
+                      p.z + o.z + rnd.uniform(.22, .50), rnd.uniform(.38, .54),
+                      n=5, camadas=1, tomb=34, rot=rnd.uniform(0, 72), curva=.16)
     return B
 
 def canteiro_flores(seed=1, name='JAR_canteiro', L=7.0, W=3.4):
