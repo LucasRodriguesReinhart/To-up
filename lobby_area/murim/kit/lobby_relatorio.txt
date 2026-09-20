@@ -1,5 +1,5 @@
 vegetacao barrada por cair em superficie dura: cam_oeste=8, escadaria=20, lago=59, patio=145, portao=17, t_forja=51, t_loja=6, t_sant=28, treino=12, via=27
-pecas unicas registradas (geometria ja no lugar): 31
+pecas unicas registradas (geometria ja no lugar): 33
 masters do kit nao usados neste lobby (tirados da origem): JAR_ameixeira_b, JAR_crisantemo.001, KIT_dougong_canto.004, KIT_dougong_simples.002, KIT_jardineira.002, KIT_suporte_espada.002, KIT_tabua_dougong.013, KIT_telhado_portao.001, KIT_terca.011, KIT_vaso.002
 KIT_sumeru_seg.026            504 tris x 135
 KIT_sumeru_canto.004          916 tris x  12
@@ -28,7 +28,7 @@ KIT_pinheiro_b.001           2316 tris x  12
 KIT_arbusto_a.003             320 tris x   4
 KIT_arbusto_b.003             320 tris x   5
 KIT_tufo_a.008                416 tris x  10
-KIT_estandarte.002           3200 tris x   8
+KIT_estandarte.002           3200 tris x  20
 KIT_suporte_espada.002       3198 tris x   1
 KIT_vaso.002                 1276 tris x   1
 KIT_muro_seg.004             4008 tris x  20
@@ -67,7 +67,7 @@ JAR_canteiro.001             6800 tris x   3
 JAR_canteiro_b               6800 tris x   3
 JAR_grama.001                 168 tris x  16
 JAR_grama_b                   168 tris x  15
-VIL_lanterna_pedra.001       1948 tris x  10
+VIL_lanterna_pedra.001       1948 tris x  16
 VIL_poco.001                 2000 tris x   1
 VIL_barril.001                548 tris x   3
 VIL_cesto.001                 548 tris x   3
@@ -134,4 +134,4 @@ KIT_chuishou.004              836 tris x  16
 KIT_besta_0.004               352 tris x  16
 KIT_besta_1.004               352 tris x  16
 KIT_besta_2.004               360 tris x  16
-TOTAL ~2523072 tris em cena | malhas unicas 133 (392057 tris) | colocacoes 1537
+TOTAL ~2573160 tris em cena | malhas unicas 133 (392057 tris) | colocacoes 1557

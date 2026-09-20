@@ -223,7 +223,7 @@ def ponte_lua(L=36.0, W=9.0, F=4.2):
     for k in range(N):
         t0, t1 = k / N, (k + 1) / N
         x0, x1 = -L / 2 + L * t0, -L / 2 + L * t1
-        B.add(t_prism([(x0, z(t0)), (x1, z(t1)), (x1, z(t1) + 1.0), (x0, z(t0) + 1.0)], 'X', -W / 2, W / 2, bev=.06), 'pedra', .45 + .25 * (k % 3) / 3)
+        B.add(t_prism([(x0, z(t0)), (x1, z(t1)), (x1, z(t1) + 1.0), (x0, z(t0) + 1.0)], 'X', -W / 2, W / 2, bev=.06), 'verm', .45 + .25 * (k % 3) / 3)
         d = int(abs(t0 - .5) > .18)                                              # degraus nas rampas
         if d: B.add(t_prism([(x0, z(t0) + 1.0), (x1, z(t0) + 1.0), (x1, z(t0) + 1.25), (x0, z(t0) + 1.25)], 'X', -W / 2, W / 2, bev=.05), 'piso', .5)
     for s in (-1, 1):                                                             # balaustrada
@@ -233,12 +233,12 @@ def ponte_lua(L=36.0, W=9.0, F=4.2):
             t0, t1 = k / 24, (k + 1) / 24
             x0, x1 = -L / 2 + L * t0, -L / 2 + L * t1
             B.add(t_prism([(x0, z(t0) + 1.0), (x1, z(t1) + 1.0), (x1, z(t1) + 1.42), (x0, z(t0) + 1.42)], 'X',
-                          *sorted((s * (W / 2 - .12), s * (W / 2 - .72))), bev=.05), 'pedra', .42 + .2 * (k % 3) / 3)
+                          *sorted((s * (W / 2 - .12), s * (W / 2 - .72))), bev=.05), 'verm', .42 + .2 * (k % 3) / 3)
             if k % 2 == 0:                                                        # almofada em relevo no painel
                 B.add(t_prism([(x0 + .5, z(t0) + 1.14), (x1 - .5, z(t1) + 1.14), (x1 - .5, z(t1) + 1.3), (x0 + .5, z(t0) + 1.3)], 'X',
                               *sorted((s * (W / 2 - .06), s * (W / 2 - .14))), bev=.03), 'junta', .5)
         pts = [Vector((-L / 2 + L * i / 24, s * (W / 2 - .42), z(i / 24) + 1.52)) for i in range(25)]
-        B.add(t_sweep([(-.34, 0), (.34, 0), (.34, .3), (-.34, .3)], pts), 'pedra', .6)
+        B.add(t_sweep([(-.34, 0), (.34, 0), (.34, .3), (-.34, .3)], pts), 'vermS', .6)
         for i in range(0, 25, 3):
             p = pts[i]
             B.add(xf(t_box(-.3, .3, -.3, .3, -1.35, .0, bev=.06), loc=(p.x, p.y, p.z)), 'pedra', .55)

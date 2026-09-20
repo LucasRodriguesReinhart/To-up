@@ -278,6 +278,14 @@ def build_lobby():
     for sx in (-1, 1):
         K.put('braseiro', C, (sx * 16, -100, Z)); K.put('lant', C, (sx * 18, -108, Z + k_madeira.Z_ARQ * 1.25), 0, (.9, .9, .9))
         K.put('estand', C, (sx * 50, -96, Z), 0); K.put('leaoA' if sx > 0 else 'leaoB', C, (sx * 14, -88, 0), 0)
+    # FILEIRAS FORMAIS DE ESTANDARTE ladeando o eixo. E o elemento que mais define o patio na
+    # referencia: duas alas simetricas de mastros altos, nao enfeite solto na beirada.
+    for j in range(6):
+        yy = -52 + j * 21
+        for sx in (-1, 1):
+            K.put('estand', 'LOB_PROPS', (sx * 46, yy, 0), 0)
+            if j % 2 == 0:
+                K.put('lant_pedra', 'LOB_PROPS', (sx * 58, yy + 10, 0), 90 if sx > 0 else 270)
     # ================================================================ ESCADARIA + PATIO + ALTAR
     C = 'LOB_PATIO'
     escadaria(K, C, 0, -90, Z, 12, 46)
@@ -492,6 +500,32 @@ def build_lobby():
                            (103, 24, 0, 'caixas'), (96, 30, 0, 'telhas_p'), (94, -8, 0, 'banco'), (-64, 30, 90, 'banco'),
                            (64, -22, 270, 'banco'), (-100, 44, 0, 'barril'), (-98, 40, 0, 'cesto')):
         K.put(key, P2, (x, y, 0), r)
+    # CALCAMENTO ORNAMENTAL em volta do monumento: aneis concentricos e raios, como o desenho de piso
+    # que a referencia tem irradiando do centro. Antes era laje uniforme de ponta a ponta.
+    orn = Builder('PATIO_ornamento', 407)
+    for k, (r0, r1, tinta) in enumerate(((16.5, 18.5, 'junta'), (21.0, 22.2, 'bronze'),
+                                         (27.0, 29.0, 'junta'), (33.5, 34.4, 'bronze'))):
+        n = 48
+        for i in range(n):
+            a3 = math.tau * i / n; a4 = math.tau * (i + 1) / n
+            orn.add(t_prism([(math.cos(a3) * r0, math.sin(a3) * r0), (math.cos(a4) * r0, math.sin(a4) * r0),
+                             (math.cos(a4) * r1, math.sin(a4) * r1), (math.cos(a3) * r1, math.sin(a3) * r1)],
+                            'Z', .01, .09), tinta, .35 + .12 * k)
+    for i in range(16):                                                  # raios saindo do centro
+        a3 = math.tau * i / 16
+        raio = t_prism([(0, -.55), (14.0, -1.15), (14.0, 1.15), (0, .55)], 'Z', .01, .08)
+        xf(raio, rot=(0, 0, math.degrees(a3)), loc=(math.cos(a3) * 19.5, math.sin(a3) * 19.5, 0))
+        orn.add(raio, 'junta', .4 + .3 * (i % 3) / 3)
+    orn.finish('LOB_PATIO')
+    # PASSADEIRA VERMELHA subindo a escadaria da Forja, como o tapete da referencia
+    tap = Builder('PATIO_passadeira', 408)
+    for i in range(1, 13):
+        z = Z - (Z / 12) * i
+        if z < .01: break
+        y0 = -90 + 1.9 * (i - 1)
+        tap.add(t_box(-7.5, 7.5, y0, y0 + 2.06, z, z + .14, bev=.04), 'verm', .5 + .03 * (i % 3))
+    tap.add(t_box(-7.5, 7.5, -66.8, -62.0, .0, .14, bev=.04), 'verm', .52)
+    tap.finish('LOB_PATIO')
     ch = Builder('LOB_chao'); ch.add(t_box(-180, 180, -215, 200, -3, -.52), 'folha', .35)
     # MANCHAS DE RELVA. A tinta varia com o valor rnd de cada peca, entao mancha sobre mancha com rnd
     # diferente ja quebra o verde chapado no proprio bake, sem textura nova. Em grade regular isso vira
