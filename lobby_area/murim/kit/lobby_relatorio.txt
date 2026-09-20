@@ -36,6 +36,14 @@ KIT_muro_pilar.002           1356 tris x   4
 KIT_telhado_portao.001       5520 tris x   1
 KIT_muro_seg.005             4008 tris x  92
 KIT_muro_torre               5240 tris x  14
+LOB_penhasco_1                772 tris x  60
+LOB_penhasco_2                792 tris x  60
+LOB_penhasco_3                772 tris x  58
+LOB_nuvem                     720 tris x 144
+LOB_pico_1                    432 tris x   5
+LOB_pico_2                    436 tris x   5
+LOB_pico_3                    436 tris x   4
+LOB_cascata                   696 tris x   6
 LOB_torre_fogo.001           8552 tris x   1
 LOB_picareta_ancestral       3338 tris x   1
 LOB_pedestal_espada.001      4008 tris x   1
@@ -134,4 +142,4 @@ KIT_chuishou.004              836 tris x  20
 KIT_besta_0.004               352 tris x  20
 KIT_besta_1.004               352 tris x  20
 KIT_besta_2.004               360 tris x  20
-TOTAL ~2746068 tris em cena | malhas unicas 133 (410761 tris) | colocacoes 1686
+TOTAL ~2998624 tris em cena | malhas unicas 141 (415817 tris) | colocacoes 2028

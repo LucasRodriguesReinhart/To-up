@@ -510,3 +510,83 @@ def estante_armas(L=8.0):
             B.add(xf(t_prism([(0, .3), (.9, .8), (1.0, 1.3), (.2, 1.0)], 'Y', -.05, .05, bev=.03), loc=(x, 0, h + .3)), 'aco', .6)
         else: B.add(xf(t_lathe([(.13, 0), (.26, .1), (.26, .5), (.13, .6)], 8), loc=(x, 0, h + .2)), 'bronze', .5)
     return B
+
+
+def penhasco(seed=1):
+    """bloco de penhasco do cinturao da borda. MASTER: e instanciado ~90 vezes pelo montador, porque
+    num Builder unico os 90 blocos estouram o teto de 20 mil tris do importador.
+    Faces largas e facetadas, topo com musgo, e uma fenda vertical para a silhueta nao virar caixa."""
+    B = Builder('LOB_penhasco_%d' % seed, 30 + seed); rnd = random.Random(700 + seed)
+    W, D, H = 18.0, 15.0, 26.0
+    n = 7
+    pts = []
+    for i in range(n):
+        a = math.tau * i / n
+        r = 1.0 + .26 * math.sin(3.1 * a + seed)
+        pts.append((math.cos(a) * W * .5 * r, math.sin(a) * D * .5 * r))
+    B.add(t_prism(pts, 'Z', -H, 0, bev=.55, seg=1), 'pedra', .38 + .1 * (seed % 3))
+    for k in range(3):                                                  # degraus de estratificacao
+        z = -H * (.28 + k * .24)
+        p2 = [(x * (1.0 + .06 * (k + 1)), y * (1.0 + .06 * (k + 1))) for (x, y) in pts]
+        B.add(t_prism(p2, 'Z', z, z + 1.1, bev=.3, seg=1), 'junta', .3 + .14 * k)
+    p3 = [(x * .82, y * .82) for (x, y) in pts]                         # topo com musgo
+    B.add(t_prism(p3, 'Z', -.4, .9, bev=.4, seg=1), 'pinho', .45 + .12 * (seed % 2))
+    for k in range(4):                                                  # lascas soltas no pe
+        a = rnd.uniform(0, 6.28)
+        B.add(xf(t_prism([(0, 0), (2.6, .9), (3.1, 3.0), (.6, 3.6)], 'Z', 0, rnd.uniform(2.0, 4.5), bev=.25),
+                 rot=(0, 0, rnd.uniform(0, 360)),
+                 loc=(math.cos(a) * W * .46, math.sin(a) * D * .46, -H * rnd.uniform(.5, .9))), 'pedra', rnd.uniform(.3, .6))
+    return B
+
+def banco_nuvem(seed=1):
+    """nuvem do banco que fecha a base do penhasco. OPACA de proposito: a cor aqui e assada em atlas e
+    nao existe alpha, entao nevoa tem de ser MALHA com degrade assado, nunca transparencia."""
+    B = Builder('LOB_nuvem', 29); rnd = random.Random(909)
+    for k in range(9):
+        a = rnd.uniform(0, 6.28); d = rnd.uniform(0, 9)
+        r = rnd.uniform(4.5, 9.5)
+        B.add(xf(t_blob(r, (1.35, 1.0, .34), 2, lobes=5, lobe_amp=.2, seed=k, flat_bottom=-.22 * r),
+                 loc=(math.cos(a) * d, math.sin(a) * d, rnd.uniform(-1.6, 1.6))),
+              'creme', .72 + .26 * (k % 4) / 4)
+    return B
+
+def pico(seed=1):
+    """pico de fundo, puramente cenografico: silhueta importa, detalhe nao. Tres templates reusados em
+    escalas diferentes; os mais distantes ganham valor mais claro para somir na nevoa."""
+    B = Builder('LOB_pico_%d' % seed, 28); rnd = random.Random(300 + seed)
+    # base MUITO mais larga e pico mais baixo: com raio 22 e altura 86+ eles saiam como lajes bege
+    # estreitas boiando no ceu, sem leitura de montanha. Montanha distante e larga e baixa.
+    H = 58.0 + seed * 11
+    n = 7
+    for nivel in range(5):
+        t = nivel / 4.0
+        z0, z1 = H * t * .90, H * ((t + .28) if nivel < 4 else 1.0)
+        r = 62.0 * (1 - t * .86) + 5
+        pts = []
+        for i in range(n):
+            a = math.tau * i / n + nivel * .4
+            rr = r * (1.0 + .3 * math.sin(2.3 * a + seed * 1.7))
+            pts.append((math.cos(a) * rr, math.sin(a) * rr))
+        B.add(t_prism(pts, 'Z', z0, z1, bev=.9, seg=1), 'pedra', .25 + .17 * nivel)
+    for k in range(3):                                                  # capa clara no alto
+        z = H * (.74 + k * .085)
+        r = 11.0 * (1 - k * .3)
+        B.add(xf(t_lathe([(0, 0), (r, 0), (r * .6, 2.2), (0, 3.0)], 7), loc=(0, 0, z)), 'creme', .8 + .06 * k)
+    return B
+
+def cascata(seed=1):
+    """queda d'agua do perimetro: TRES laminas defasadas para dar volume sem alpha, mais a espuma no
+    labio e a bruma embaixo. Nasce no labio do primeiro patamar e morre no banco de nuvem."""
+    B = Builder('LOB_cascata', 27); rnd = random.Random(404)
+    H = 44.0
+    for k in range(3):
+        w = 4.6 - k * 1.1
+        dy = -.35 * k
+        pts = [Vector((0, dy, 0)), Vector((1.2, dy - .8, -H * .3)), Vector((1.0, dy - 1.6, -H * .66)), Vector((1.6, dy - 2.2, -H))]
+        B.add(t_sweep([(-w, 0), (w, 0), (w, .42), (-w, .42)], crom([tuple(p) for p in pts], 7)),
+              'agua', .55 + .18 * k)
+    B.add(xf(t_blob(3.4, (1.5, .9, .5), 2, lobes=5, lobe_amp=.24, seed=3), loc=(0, 0, .5)), 'creme', .85)
+    for k in range(5):                                                  # bruma na base
+        B.add(xf(t_blob(rnd.uniform(2.4, 4.6), (1.4, 1.0, .42), 1, lobes=4, lobe_amp=.3, seed=k),
+                 loc=(rnd.uniform(-3, 4), rnd.uniform(-4, 1), -H + rnd.uniform(-2, 3))), 'creme', rnd.uniform(.7, .95))
+    return B

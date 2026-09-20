@@ -146,6 +146,12 @@ def em_canteiro(x, y):
         if x0 <= x <= x1 and y0 <= y <= y1: return True
     return False
 
+def _frange(a, b, passo):
+    v = a
+    while v <= b + 1e-6:
+        yield v
+        v += passo
+
 def build_lobby():
     for c in ('LOB_FORJA', 'LOB_PATIO', 'LOB_PORTAO', 'LOB_LESTE', 'LOB_OESTE', 'LOB_VEG', 'LOB_PROPS', 'LOB_CHAO'): clear_col(c)
     del PLACE[:]
@@ -165,7 +171,11 @@ def build_lobby():
         ('tufo', k_veg.tufo, 'LOB_VEG'),
         ('estand', k_kit2.estandarte, 'LOB_PROPS'), ('sup_esp', k_kit2.suporte_espada, 'LOB_PROPS'), ('vaso', k_kit2.vaso, 'LOB_PROPS'),
         ('muro', k_kit2.muro_seg, 'LOB_PORTAO'), ('mpilar', k_kit2.muro_pilar, 'LOB_PORTAO'), ('tel_portao', k_kit2.telhado_portao, 'LOB_PORTAO'),
-        ('muroA', lambda: k_kit2.muro_seg(9.0, 13.5), 'LOB_PORTAO'), ('mtorre', k_kit2.muro_torre, 'LOB_PORTAO'),   # NAO usar 'torre': ja e a Torre do Fogo da Forja
+        ('muroA', lambda: k_kit2.muro_seg(9.0, 13.5), 'LOB_PORTAO'), ('mtorre', k_kit2.muro_torre, 'LOB_PORTAO'),
+        ('penha1', lambda: k_lobby.penhasco(1), 'LOB_CHAO'), ('penha2', lambda: k_lobby.penhasco(2), 'LOB_CHAO'),
+        ('penha3', lambda: k_lobby.penhasco(3), 'LOB_CHAO'), ('nuvem', k_lobby.banco_nuvem, 'LOB_CHAO'),
+        ('pico1', lambda: k_lobby.pico(1), 'LOB_CHAO'), ('pico2', lambda: k_lobby.pico(2), 'LOB_CHAO'),
+        ('pico3', lambda: k_lobby.pico(3), 'LOB_CHAO'), ('queda', k_lobby.cascata, 'LOB_CHAO'),   # NAO usar 'torre': ja e a Torre do Fogo da Forja
         ('torre', k_lobby.torre_fogo, 'LOB_FORJA'), ('espada', lambda: k_lobby.picareta_ancestral(38.0), 'LOB_PATIO'), ('ped_esp', lambda: k_lobby.pedestal_espada(11.0, 6.0), 'LOB_PATIO'),
         ('fornalha', k_lobby.fornalha, 'LOB_FORJA'), ('bigorna', k_lobby.bigorna, 'LOB_FORJA'), ('fole', k_lobby.fole, 'LOB_FORJA'),
         ('calha', k_lobby.calha_tempera, 'LOB_FORJA'), ('laminas', k_lobby.altar_laminas, 'LOB_FORJA'), ('braseiro', k_lobby.braseiro, 'LOB_PROPS'),
@@ -647,6 +657,50 @@ def build_lobby():
     tap.finish('LOB_PATIO')
     # a base deixou de ser VERDE: o verde passou para dentro dos canteiros, e o que sobra por baixo
     # de tudo e terra escura. Era esta caixa unica de 360 x 415 em 'folha' que dominava toda captura.
+    # ---------------------------------------------------------------- BORDA DO MUNDO
+    # (a) cinturao de penhasco em tres patamares com RECUO: e o recuo que quebra a silhueta vertical
+    #     e impede que volte a ler como parede de estudio.
+    rb = _r.Random(808)
+    BX, BY0, BY1 = 178.0, -213.0, 198.0
+    def anel(nome, recuo, z, passo, esc):
+        n = 0
+        for x in _frange(-BX - recuo, BX + recuo, passo):
+            for y in (BY0 - recuo, BY1 + recuo):
+                K.put(nome % (1 + n % 3), 'LOB_CHAO', (x + rb.uniform(-2, 2), y, z + rb.uniform(-1.5, 1.5)),
+                      rb.choice((0, 90, 180, 270)), (esc * rb.uniform(.85, 1.2),) * 3)
+                n += 1
+        for y in _frange(BY0 - recuo, BY1 + recuo, passo):
+            for x in (-BX - recuo, BX + recuo):
+                K.put(nome % (1 + n % 3), 'LOB_CHAO', (x, y + rb.uniform(-2, 2), z + rb.uniform(-1.5, 1.5)),
+                      rb.choice((0, 90, 180, 270)), (esc * rb.uniform(.85, 1.2),) * 3)
+                n += 1
+        return n
+    # o primeiro anel sobe para -1.0: em -5.0 sobrava a faixa marrom da propria placa (topo -0.52)
+    # aparecendo entre o muro e a rocha, que era justamente o corte que o cinturao veio esconder.
+    n1 = anel('penha%d', 2.0, -1.0, 24.0, 1.00)
+    n2 = anel('penha%d', 14.0, -19.0, 30.0, 1.15)   # recuo de 12 entre patamares
+    n3 = anel('penha%d', 28.0, -34.0, 34.0, 1.30)
+    # (b) banco de nuvem OPACO por baixo: sem ele o olho acha o fim da rocha e volta a ler o corte.
+    #     Nao pode ser transparencia - a cor aqui e assada em atlas e nao existe alpha.
+    for anel_n, (raio, zc, esc) in enumerate(((236, -46, 1.5), (300, -52, 2.1), (395, -58, 2.9))):
+        for k in range(38 + anel_n * 10):
+            a3 = math.tau * k / (38 + anel_n * 10)
+            r = raio + rb.uniform(-20, 26)
+            K.put('nuvem', 'LOB_CHAO', (math.cos(a3) * r, math.sin(a3) * r * 1.10, zc + rb.uniform(-7, 7)),
+                  rb.uniform(0, 360), (esc * rb.uniform(.85, 1.25),) * 3)
+    # (c) picos de fundo: 3 templates reusados em escalas diferentes, os mais distantes puxados para
+    #     o azul da nevoa. Sao cenograficos - silhueta importa, detalhe nao.
+    for k in range(14):
+        a3 = math.tau * k / 14 + .22
+        d = 430 + (k % 4) * 105
+        # enterrado em -78: a base do pico tem de sumir atras do cinturao e do banco de nuvem, senao
+        # ele bola no ceu como recorte de papelao. So o topo aparece, que e o que faz horizonte.
+        K.put('pico%d' % (1 + k % 3), 'LOB_CHAO', (math.cos(a3) * d, math.sin(a3) * d * 1.05, -78),
+              rb.uniform(0, 360), (1.1 + (k % 4) * 0.42,) * 3)
+    # quedas d'agua nascendo no labio do primeiro patamar e morrendo no banco de nuvem
+    for (qx, qy, qr) in ((-BX - 4, -60, 90), (-BX - 4, 90, 90), (BX + 4, -30, 270),
+                         (BX + 4, 110, 270), (-40, BY0 - 4, 180), (60, BY1 + 4, 0)):
+        K.put('queda', 'LOB_CHAO', (qx, qy, -6.0), qr)
     ch = Builder('LOB_chao'); ch.add(t_box(-180, 180, -215, 200, -3, -.52), 'casca_escura', .3)
     # CALCADA: tudo o que nao e canteiro, nao e agua e nao e superficie ja construida vira pedra.
     # O topo fica em -0.50, rente ao topo da grama, para nao mexer nas caixas de colisao.
