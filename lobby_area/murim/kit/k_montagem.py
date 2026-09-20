@@ -453,7 +453,10 @@ def build_lobby():
                            'folha_lotus', _mr.uniform(.3, .8))
     for s in ((131, 133), (-73, -71)): mg.add(t_box(-101.6, -68.4, s[0], s[1], -1.2, .6, bev=.12), 'pedra', .55)
     mg.finish(C)
-    K.put('ponte', C, (-85, 0, .2), 0)
+    # A ponte-lua estava em y=0, atravessando exatamente onde a escadaria do Santuario desce
+    # (Roblox X 88.5..104 na mesma faixa de Z). Quem descia dos portais batia no arco a ~4.8 de
+    # altura. Achado pelo teste de caminhada no trecho, com raycast a cada stud. Vai para y=60.
+    K.put('ponte', C, (-85, 60, .2), 0)
     ZG = terraco(K, C, -146, -104, -45, 45, 2.4, escadas=(('E', 0, 12),))
     # O TETO DO SANTUARIO SAIU. Ele passava rente ao topo dos portais (folga medida de 0.06 stud),
     # cortava o medalhao de cada um e, das capturas de Play, o usuario pediu para remover. Sem ele os
