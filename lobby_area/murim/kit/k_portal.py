@@ -160,6 +160,9 @@ def portal_moldura(tema='chakra', name=None):
     # 0.09; baixar a coroa 0.30 junto com a escala 0.92 leva a folga para ~0.44. O medalhao encosta um
     # pouco mais no apice da ogiva, que e como uma pedra-chave se comporta de qualquer jeito.
     _coroa(B, tema, ztop + 1.15, -ESP / 2 - .55, P, V, G)
+    # Folga contra a telha do Santuario: 0.06 no pad de -6.5 e 0.75 no de +6.5, ZERO vertices atravessando
+    # (medido subindo um raio de cada vertice das 30 malhas). Baixar a coroa nao ajuda: naquele ponto a
+    # agua do telhado desce junto, entao a folga fica igual e o medalhao so afunda mais no vao.
     _ornamentos(B, tema, P, V, G)
     return B
 
@@ -218,79 +221,112 @@ def portal_fragmento(seed=1, tema='chakra', name=None):
 
 # ---------------------------------------------------------------- a marca de cada anime
 def _coroa(B, tema, Z, Y, P, V, G):
-    """medalhao no fecho do arco. Construido em volta da PROPRIA origem e so depois levado para (0, Y, Z):
-    assim a escala do conjunto e um numero so e ele cabe debaixo do telhado."""
-    # Escala do medalhao. Com 1.00 o conjunto passou a 0,05 stud da telha do Santuario nos dois pads do
-    # meio - medido subindo um raio de CADA VERTICE das 30 malhas de portal. Passava, mas raspando, e
-    # qualquer mexida no telhado ou na coroa encostava. 0.92 transforma isso em folga de verdade (~0,5).
-    S = 0.92
+    """Medalhao no fecho do arco. A COR identifica a area (vem do Config.Temas); a FORMA identifica
+    o anime. Refeito depois de pesquisar anime por anime: a versao anterior era exatamente o clichê
+    que cada dossie apontou como erro comum."""
+    S = 1.08                                              # as marcas novas sao mais finas que o clichê antigo: pedem mais tamanho
     def A(bm, tinta, r=.6, dy=0.0, dz=0.0):
         B.add(xf(bm, scale=S, loc=(0, Y + dy, Z + dz)), tinta, r)
 
-    # o aro e o disco sao torneados em torno de Z: sem o giro de 90 eles ficavam DEITADOS e o medalhao
-    # lia como um pretzel visto de cima em vez de uma medalha encarando o jogador.
-    A(xf(t_lathe([(1.55, 0), (2.05, 0), (2.05, .34), (1.55, .34)], 22), rot=(90, 0, 0)), P, .45, dy=-.10)
-    A(xf(t_lathe([(0, 0), (1.62, 0), (1.62, .22), (0, .22)], 22), rot=(90, 0, 0)), P, .30, dy=.30)
-    for i in range(12):                                                                # cravos no aro
-        a = math.tau * i / 12
-        A(xf(t_box(-.10, .10, -.12, .12, -.10, .10, bev=.03), loc=(math.cos(a) * 1.80, -.30, math.sin(a) * 1.80)), V, .55 + .4 * (i % 2))
-
-    if tema == 'chakra':                                   # Naruto: espiral de chakra + duas kunai cruzadas
-        pts = [Vector((math.cos(t / 33.0 * math.tau * 2.1) * (.28 + 1.20 * t / 33.0), -.34,
-                       math.sin(t / 33.0 * math.tau * 2.1) * (.28 + 1.20 * t / 33.0))) for t in range(34)]
-        A(t_tube(pts, [.26 - .15 * (i / 33.0) for i in range(34)], 7), V, .85)
+    if tema == 'chakra':
+        # Naruto: o hitai-ate. Uma PLACA de metal atravessada por uma faixa de pano que corre para os
+        # dois lados do arco - o portal inteiro usa a bandana. Le pela faixa horizontal, a distancia.
+        # A faixa para nos contrafortes: com 4.6 de cada lado ela dava 12.7 de vao total e os pads ficam
+        # de 13 em 13 - encostaria no portal vizinho. E as duas pontas tem comprimentos diferentes e
+        # caem em bisel, que e como a bandana amarrada realmente fica.
+        for i, sx in enumerate((-1, 1)):
+            comp = (2.9, 3.4)[i]
+            A(xf(t_box(0, comp, -.16, .16, -.46, .46, bev=.06), scale=(sx, 1, 1), loc=(sx * 1.55, 0, 0)), G, .45)
+            pta = t_prism([(0, -.44), (1.15, -.30), (1.15, .30), (0, .44)], 'Y', -.17, .17, bev=.04)
+            xf(pta, rot=(0, (-26, 22)[i], 0), loc=(sx * (1.55 + comp), 0, -.30))
+            A(pta, G, .62)
+        A(xf(t_box(-1.75, 1.75, -.34, .34, -.62, .62, bev=.16, seg=3), loc=(0, -.42, 0)), V, .82)
+        A(xf(t_box(-1.5, 1.5, -.12, .12, -.4, .4, bev=.1), loc=(0, -.74, 0)), P, .35)
+        esp = [Vector((math.cos(i / 26 * math.tau * 1.15) * (.12 + .46 * i / 26), -.92,
+                       math.sin(i / 26 * math.tau * 1.15) * (.12 + .46 * i / 26))) for i in range(27)]
+        A(t_tube(esp, [.13] * 27, 6), P, .3)
+        A(xf(t_prism([(0, 0), (.55, .30), (.10, .62), (-.30, .28)], 'Y', -.98, -.84, bev=.03), loc=(.22, 0, .18)), P, .25)
         for sx in (-1, 1):
-            k = t_prism([(0, 0), (.20, .45), (0, 3.10), (-.20, .45)], 'Y', -.10, .10, bev=.04)
-            xf(k, rot=(0, 30 * sx, 0), loc=(sx * 1.30, .30, -.55))
-            A(k, G, .78)
-            A(xf(t_lathe([(0, 0), (.28, 0), (.24, .45), (0, .50)], 8), rot=(0, 30 * sx, 0),
-                 loc=(sx * 1.95, .30, -1.70)), P, .50)
-    elif tema == 'ki':                                     # Dragon Ball: esfera de 4 estrelas + raios de ki
-        A(xf(t_lathe([(0, -1.25), (.62, -1.08), (1.25, 0), (.62, 1.08), (0, 1.25)], 16), rot=(90, 0, 0)), G, .80, dy=-.55)
-        for (ex, ez) in ((0, .46), (-.46, -.17), (.46, -.17), (0, -.63)):
-            est = [(math.cos(math.tau * i / 10) * (.24 if i % 2 == 0 else .10),
-                    math.sin(math.tau * i / 10) * (.24 if i % 2 == 0 else .10)) for i in range(10)]
-            A(xf(t_prism(est, 'Y', -1.90, -1.72, bev=.02), loc=(ex, 0, ez)), V, .92)
-        for i in range(10):
-            a = math.tau * i / 10 + .3; L = 1.15 + (i % 3) * .45
-            A(xf(t_prism([(0, -.16), (L, 0), (0, .16)], 'Y', -.66, -.46, bev=.03),
-                 rot=(0, -math.degrees(a), 0), loc=(math.cos(a) * 1.75, 0, math.sin(a) * 1.75)), V, .6 + .3 * (i % 2))
-    elif tema == 'nichirin':                               # Demon Slayer: lamina nichirin + ondas da respiracao
-        A(xf(t_prism([(0, 0), (.32, .45), (.32, 3.55), (0, 4.10), (-.32, 3.55), (-.32, .45)], 'Y', -.15, .15, bev=.05),
-             loc=(0, -.62, -1.30)), G, .88)
-        A(xf(t_box(-.95, .95, -.24, .24, -.28, .08, bev=.06), loc=(0, -.62, -1.30)), P, .50)
-        A(xf(t_lathe([(0, 0), (.22, 0), (.20, 1.25), (0, 1.35)], 8), rot=(180, 0, 0), loc=(0, -.62, -1.40)), P, .60)
-        for i in range(7):
-            xx = -2.05 + i * .68
-            onda = [Vector((xx + .34 * math.sin(k * .9), -.50, -2.05 + k * .19)) for k in range(6)]
-            A(t_tube(onda, [.14] * 6, 5), V, .5 + .4 * (i % 2))
-    elif tema == 'sombra':                                 # olho aceso + lascas de sombra
-        A(xf(t_prism([(-1.60, 0), (-.75, .72), (.75, .72), (1.60, 0), (.75, -.72), (-.75, -.72)], 'Y', -.72, -.46, bev=.06)), P, .45)
-        A(xf(t_lathe([(0, 0), (.55, 0), (.44, .26), (0, .32)], 14), rot=(90, 0, 0)), G, .92, dy=-.95)
-        A(xf(t_lathe([(0, 0), (.23, 0), (.18, .18), (0, .22)], 10), rot=(90, 0, 0)), P, .18, dy=-1.15)
-        for i in range(9):
-            a = math.tau * i / 9 + .2; d = 1.75 + (i % 3) * .40
-            A(xf(t_prism([(0, -.45), (.30, 0), (0, .80), (-.30, 0)], 'Y', -.60, -.42, bev=.03),
-                 rot=(0, 0, math.degrees(a)), loc=(math.cos(a) * d, 0, math.sin(a) * d)), V, .4 + .5 * (i % 2))
-    elif tema == 'mare':                                   # One Piece: leme de navio + ondas
-        A(xf(t_lathe([(1.00, 0), (1.38, 0), (1.38, .26), (1.00, .26)], 20), rot=(90, 0, 0)), P, .50, dy=-.70)
-        A(xf(t_lathe([(0, 0), (.44, 0), (.44, .28), (0, .28)], 14), rot=(90, 0, 0)), V, .82, dy=-.70)
+            for sz in (-1, 1):
+                A(xf(t_lathe([(0, 0), (.15, 0), (.12, .09), (0, .11)], 8), rot=(-90, 0, 0), loc=(sx * 1.5, -.78, sz * .42)), P, .5)
+
+    elif tema == 'ki':
+        # Dragon Ball / Namekusei: o selo da Ajisa. Anel continuo e liso (corpo do dragao fechando o
+        # circulo) com glifo namekuseijin rigido no meio, e os dois chifres da casa namekuseijin.
+        A(xf(t_lathe([(1.45, 0), (1.95, 0), (1.95, .34), (1.45, .34)], 26), rot=(90, 0, 0)), V, .8, dy=-.42)
+        A(xf(t_lathe([(1.18, 0), (1.45, 0), (1.45, .2), (1.18, .2)], 22), rot=(90, 0, 0)), P, .35, dy=-.5)
+        A(xf(t_lathe([(0, 0), (1.22, 0), (1.22, .18), (0, .18)], 22), rot=(90, 0, 0)), P, .28, dy=-.2)
+        for i in range(3):
+            w = (.86, .58, .74)[i]
+            A(xf(t_box(-w, w, -.14, .14, -.15, .15, bev=.05), loc=(0, -.74, .52 - i * .52)), V, .6 + .12 * i)
+        A(xf(t_box(-.16, .16, -.14, .14, -.66, .66, bev=.05), loc=(-.62, -.74, 0)), V, .55)
+        for sx in (-1, 1):
+            A(xf(t_prism([(0, 0), (.30, .22), (.12, 1.55), (-.16, .30)], 'Y', -.18, .18, bev=.05),
+                 rot=(0, 26 * sx, 0), loc=(sx * 1.35, -.3, 1.5)), P, .62)
+
+    elif tema == 'nichirin':
+        # Demon Slayer / Natagumo: o brinco hanafuda como placa pendente e a glicinia caindo do arco.
+        # Katana flamejante ficou de fora de proposito: e o clichê que o dossie mandou evitar.
+        A(xf(t_box(-.14, .14, -.16, .16, -.2, 1.5, bev=.04), loc=(0, -.5, .9)), P, .4)
+        A(xf(t_box(-.82, .82, -.30, .30, -1.5, .78, bev=.14, seg=3), loc=(0, -.52, -.2)), V, .88)
+        for k in range(3):
+            A(xf(t_box(-.62, .62, -.12, .12, -.1 + k * .34, .06 + k * .34, bev=.04), loc=(0, -.86, -.58)), P, .3 + .2 * k)
+        A(xf(t_lathe([(0, 0), (.42, 0), (.36, .16), (0, .2)], 14), rot=(-90, 0, 0), loc=(0, -.92, .26)), P, .24)
+        for sx in (-1, 1):
+            for j in range(3):
+                bx = sx * (1.35 + j * .62); alt = 2.4 - j * .5
+                for k in range(6):
+                    t = k / 5.0
+                    r = .40 * (1 - t) + .10
+                    A(xf(t_blob(r, (1.0, .8, .9), 1, lobes=3, lobe_amp=.22, seed=j * 7 + k),
+                         loc=(bx + math.sin(k * 1.1) * .16, -.62, -.35 - t * alt)), V if k % 2 else G, .4 + .5 * (k % 3) / 3)
+
+    elif tema == 'sombra':
+        # Jardim das Sombras: roda de oito raios com cabos projetados e a mao de teatro de sombras.
+        # O dossie foi direto: o clichê e tratar sombra como LUZ (nevoa roxa emissiva com lascas).
+        A(xf(t_lathe([(1.55, 0), (1.92, 0), (1.92, .3), (1.55, .3)], 24), rot=(90, 0, 0)), P, .5, dy=-.4)
         for i in range(8):
-            a = math.tau * i / 8
-            A(xf(t_box(-.14, .14, -.13, .13, .26, 1.95, bev=.04), rot=(0, -math.degrees(a) + 90, 0), loc=(0, -.70, 0)), P, .60)
-            A(xf(t_box(-.18, .18, -.16, .16, 1.35, 2.20, bev=.05), rot=(0, -math.degrees(a) + 90, 0), loc=(0, -.70, 0)), V, .55 + .3 * (i % 2))
-        for i in range(6):
-            xx = -1.90 + i * .76
-            onda = [Vector((xx + .42 * math.sin(k * 1.1), -.50, -2.25 + .26 * math.cos(k * 1.1))) for k in range(6)]
-            A(t_tube(onda, [.16] * 6, 5), G, .5 + .4 * (i % 2))
-    else:                                                  # serio: punho e linhas de impacto
-        A(xf(t_blob(1.00, (1.1, .8, 1.0), 2, lobes=4, lobe_amp=.16), loc=(0, -.92, 0)), G, .80)
+            a8 = math.tau * i / 8
+            # raio e cabo encurtados: com 1.6/2.55 e escala 1.08 os cabos de cima furavam a telha do
+            # Santuario neste pad (medido: 2 vertices acima da telha). Agora o topo da roda fica 0.4 abaixo.
+            A(xf(t_box(-.13, .13, -.14, .14, .0, 1.42, bev=.04), rot=(0, -math.degrees(a8) + 90, 0), loc=(0, -.4, 0)), P, .45)
+            A(xf(t_box(-.10, .10, -.18, .18, 1.66, 2.12, bev=.04), rot=(0, -math.degrees(a8) + 90, 0), loc=(0, -.4, 0)), V, .7 + .2 * (i % 2))
+        A(xf(t_lathe([(0, 0), (.52, 0), (.52, .26), (0, .26)], 16), rot=(90, 0, 0)), V, .9, dy=-.62)
+        A(xf(t_box(-.46, .46, -.12, .12, -.5, .18, bev=.07), loc=(0, -.78, -.3)), G, .8)
         for i in range(4):
-            A(xf(t_box(-.30, .30, -.26, .26, -.38 + i * .25, -.14 + i * .25, bev=.07), loc=(0, -1.42, .18)), V, .5 + .12 * i)
-        for i in range(12):
-            a = math.tau * i / 12; L = 1.35 + (i % 3) * .50
-            A(xf(t_prism([(0, -.13), (L, 0), (0, .13)], 'Y', -.58, -.44, bev=.02),
-                 rot=(0, -math.degrees(a), 0), loc=(math.cos(a) * 1.55, 0, math.sin(a) * 1.55)), V, .45 + .5 * (i % 2))
+            A(xf(t_box(-.09, .09, -.10, .10, 0, .62 - abs(i - 1.5) * .12, bev=.03),
+                 rot=(0, -14 + i * 9, 0), loc=(-.33 + i * .22, -.78, .12)), G, .7 + .07 * i)
+
+    elif tema == 'mare':
+        # One Piece: o Log Pose. Esfera de vidro grossa num aro de bronze rebitado, com tres agulhas
+        # penduradas em alturas diferentes. Caveira e chapeu de palha entregam "pirata generico".
+        A(xf(t_lathe([(1.30, 0), (1.62, 0), (1.62, .5), (1.30, .5)], 22), rot=(90, 0, 0)), P, .45, dy=-.5)
+        for i in range(8):
+            a8 = math.tau * i / 8
+            A(xf(t_lathe([(0, 0), (.14, 0), (.11, .08), (0, .1)], 8), rot=(-90, 0, 0),
+                 loc=(math.cos(a8) * 1.46, -.78, math.sin(a8) * 1.46)), V, .65)
+        A(xf(t_lathe([(0, -1.12), (.58, -.96), (1.12, 0), (.58, .96), (0, 1.12)], 18), rot=(90, 0, 0)), G, .82, dy=-.62)
+        for i, (ax, az, h) in enumerate(((-.42, .30, .72), (.10, -.10, 1.05), (.50, .34, .58))):
+            A(xf(t_box(-.05, .05, -.05, .05, -h, 0, bev=.02), loc=(ax, -1.25, az + .3)), P, .3 + .2 * i)
+            A(xf(t_lathe([(0, 0), (.11, 0), (.08, .12), (0, .15)], 8), rot=(180, 0, 0), loc=(ax, -1.25, az + .3 - h)), V, .85)
+        A(xf(t_box(-.52, .52, -.14, .14, -.12, .12, bev=.05), loc=(0, -.5, 1.62)), P, .55)
+
+    else:
+        # Cidade Z (One Punch Man): o meteoro de 200 m PARTIDO, com o furo de soco limpo atravessando.
+        # "Punho + linhas de velocidade" era o clichê citado no dossie - e era o que estava aqui.
+        for sx in (-1, 1):
+            met = t_blob(1.32, (.92, .95, 1.0), 2, lobes=5, lobe_amp=.17, seed=3 + sx)
+            xf(met, loc=(sx * .95, -.55, 0))
+            A(met, P, .4 if sx < 0 else .52)
+            for k in range(5):
+                a5 = 1.1 + k * 1.25
+                A(xf(t_lathe([(0, 0), (.26, 0), (.22, -.1), (0, -.13)], 9), rot=(-90, 0, 0),
+                     loc=(sx * .95 + math.cos(a5) * .7, -1.45, math.sin(a5) * .72)), P, .22 + .12 * k)
+        A(xf(t_lathe([(.30, 0), (.52, 0), (.52, 1.15), (.30, 1.15)], 16), rot=(90, 0, 0)), V, .88, dy=-1.1)
+        A(xf(t_lathe([(0, 0), (.32, 0), (.32, .9), (0, .9)], 14), rot=(90, 0, 0)), G, .3, dy=-.2)
+        for k in range(4):
+            A(xf(t_prism([(0, -.12), (.85 + .3 * k, 0), (0, .12)], 'Y', -1.2, -1.02, bev=.02),
+                 rot=(0, -70 + k * 46, 0), loc=(0, 0, -.9 + k * .6)), P, .35 + .15 * k)
 
 def _ornamentos(B, tema, P, V, G):
     """detalhe no fuste dos contrafortes, tambem por tema."""

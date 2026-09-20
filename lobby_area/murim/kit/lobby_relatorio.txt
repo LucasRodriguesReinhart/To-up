@@ -76,27 +76,27 @@ VIL_telhas.001                288 tris x   1
 VIL_varal.001                 868 tris x   1
 VIL_placa_loja.001            736 tris x   1
 VIL_carroca.001              1164 tris x   1
-POR_moldura_serio.001       10016 tris x   1
+POR_moldura_serio.001        8008 tris x   1
 POR_vortice_serio             536 tris x   1
 POR_base_serio.001           1104 tris x   1
 POR_fragmento_1_serio.001     116 tris x   2
-POR_moldura_mare.001        10844 tris x   1
+POR_moldura_mare.001         8076 tris x   1
 POR_vortice_mare              536 tris x   1
 POR_base_mare.001            1104 tris x   1
 POR_fragmento_1_mare.001      116 tris x   2
-POR_moldura_sombra.001       8728 tris x   1
+POR_moldura_sombra.001       8460 tris x   1
 POR_vortice_sombra            536 tris x   1
 POR_base_sombra.001          1104 tris x   1
 POR_fragmento_1_sombra.001    116 tris x   2
-POR_moldura_nichirin.001    10032 tris x   1
+POR_moldura_nichirin.001     9208 tris x   1
 POR_vortice_nichirin          536 tris x   1
 POR_base_nichirin.001        1104 tris x   1
 POR_fragmento_1_nichirin.001    116 tris x   2
-POR_moldura_ki.001          11184 tris x   1
+POR_moldura_ki.001           8740 tris x   1
 POR_vortice_ki                536 tris x   1
 POR_base_ki.001              1104 tris x   1
 POR_fragmento_1_ki.001        116 tris x   2
-POR_moldura_chakra.001       8352 tris x   1
+POR_moldura_chakra.001       7392 tris x   1
 POR_vortice_chakra            536 tris x   1
 POR_base_chakra.001          1104 tris x   1
 POR_fragmento_1_chakra.001    116 tris x   2
@@ -133,4 +133,4 @@ KIT_chuishou.004              836 tris x  20
 KIT_besta_0.004               352 tris x  20
 KIT_besta_1.004               352 tris x  20
 KIT_besta_2.004               360 tris x  20
-TOTAL ~2710306 tris em cena | malhas unicas 132 (393357 tris) | colocacoes 1624
+TOTAL ~2701034 tris em cena | malhas unicas 132 (384085 tris) | colocacoes 1624
