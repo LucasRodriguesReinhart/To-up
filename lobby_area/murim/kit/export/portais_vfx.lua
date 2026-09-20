@@ -147,15 +147,21 @@ for _, mod in ipairs(sant:GetChildren()) do
 end
 
 -- ---------- animacao ambiente: sem movimento nenhum a "lasca flutuando" e so uma pedra parada no ar.
--- Um Script so, no ServerScriptService, cuida dos seis portais. Ele e substituido a cada execucao.
-local SSS = game:GetService("ServerScriptService")
-local velho = SSS:FindFirstChild("PortaisAmbiente")
-if velho then velho:Destroy() end
-local amb = Instance.new("Script")
+-- Roda no CLIENTE, de proposito. A primeira versao era um Script em ServerScriptService escrevendo
+-- CFrame de 12 pecas ancoradas e Brightness de 6 luzes a cada Heartbeat: sao 18 propriedades por frame
+-- REPLICADAS para todo mundo, para sempre, so para balancar pedra. No cliente custa zero de banda.
+local SP = game:GetService("StarterPlayer")
+local SPS = SP:WaitForChild("StarterPlayerScripts")
+for _, onde in ipairs({ SPS, game:GetService("ServerScriptService") }) do
+	local velho = onde:FindFirstChild("PortaisAmbiente")
+	if velho then velho:Destroy() end          -- inclusive a versao de servidor, se ainda estiver la
+end
+local amb = Instance.new("LocalScript")
 amb.Name = "PortaisAmbiente"
 amb.Source = [==[
 -- PortaisAmbiente - balanca as lascas dos portais e faz a luz do vortice respirar.
 -- Instalado por lobby_area/murim/kit/export/portais_vfx.lua. Apagar aqui nao quebra mais nada.
+-- E LocalScript de proposito: e decoracao, e no servidor cada frame viraria pacote de replicacao.
 local RunService = game:GetService("RunService")
 local sant = workspace:WaitForChild("Santuario", 30)
 local lob = workspace:WaitForChild("LOBBY_MURIM", 30)
@@ -173,9 +179,16 @@ for _, mod in ipairs(sant:GetChildren()) do
 	local l = b and b:FindFirstChildOfClass("PointLight")
 	if l then table.insert(luzes, { l = l, base = l.Brightness, a = #luzes * 1.1 }) end
 end
+if #lascas == 0 and #luzes == 0 then return end
+
+-- os seis portais cabem num trecho de ~65 studs: longe dali nao ha o que animar
+local FOCO = Vector3.new(124.5, 13, 0)
+local ALCANCE = 140
 
 local t = 0
-RunService.Heartbeat:Connect(function(dt)
+RunService.RenderStepped:Connect(function(dt)
+	local cam = workspace.CurrentCamera
+	if not cam or (cam.CFrame.Position - FOCO).Magnitude > ALCANCE then return end
 	t += dt
 	for _, s in ipairs(lascas) do
 		local sobe = math.sin(t * s.f + s.a) * 0.55
@@ -186,8 +199,8 @@ RunService.Heartbeat:Connect(function(dt)
 	end
 end)
 ]==]
-amb.Parent = SSS
-table.insert(avisos, "PortaisAmbiente instalado em ServerScriptService")
+amb.Parent = SPS
+table.insert(avisos, "PortaisAmbiente instalado em StarterPlayerScripts (cliente)")
 
 return string.format("VFX ligado em %d portais | avisos: %s", feitos,
 	#avisos > 0 and table.concat(avisos, ", ") or "nenhum")

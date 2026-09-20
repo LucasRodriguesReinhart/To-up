@@ -31,6 +31,14 @@ for _, mod in ipairs(sant:GetChildren()) do
 				movidos += 1
 			end
 		end
+		-- WorldPivot NAO acompanha a saida dos filhos: o Model ficava com o pivo do conjunto antigo, e o
+		-- AudioWorld (que acha o som pelo Model Portal<n>) tocava o portal a centenas de studs daqui.
+		-- Fixar o Disco como PrimaryPart amarra o pivo ao lugar certo.
+		local disco = mod:FindFirstChild("Disco")
+		if disco and disco:IsA("BasePart") then
+			mod.PrimaryPart = disco
+			mod.WorldPivot = disco.CFrame
+		end
 	end
 end
 return string.format("guardados %d objetos em ServerStorage.%s | mantidos %d (Disco/VFX)",

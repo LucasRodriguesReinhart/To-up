@@ -355,3 +355,31 @@ Entao a cor global da agua (que no Roblox e uma so para o lugar todo) esta livre
 TERRENO de verdade no lago, que e o que Blox Fruits faz: tem onda, refracao e reflexo. Um MeshPart
 pintado nunca passaria de um plano azul parado. O espelho do patio e pequeno demais para o voxel de 4
 studs (serrilharia na borda), entao ele so ganhou transparencia e reflexo para acompanhar o tom.
+
+### 8.6 Auditoria em 6 frentes (20/09/2026) e o que era verdade
+
+Rodei uma auditoria multiagente (5 frentes, cada achado refutado por 3 ceticos independentes) sobre o
+lobby recem-montado. O que sobreviveu e foi corrigido:
+
+| achado | correcao |
+|---|---|
+| o FBX importado ficava SOLTO no Workspace: 154 pecas nao ancoradas e colidindo, penduradas de Y 58 a 134 sobre o lobby | `KIT.Parent = SS` no fim do `montar_lobby.lua` |
+| buraco no mundo passando o portao: chao ate y=198, penhascos do sul so em \|x\|>=60 | penhascos fecham em \|x\|=46 |
+| fresta de 2 studs na muralha em \|x\|~47 | muralha comeca em 46, nao 48 |
+| 1.322 de 1.618 pecas lancavam sombra; piso e balaustrada eram 35% disso | lista `SEM_SOMBRA` + regra automatica para peca com menos de 1 stud de altura |
+| as 89 caixas de colisao com `CanTouch=true`, inclusive uma de 356x410 | `CanTouch = false` |
+| `chao_geral` selava o lago: agua virava pelicula de meio stud e o leito modelado nunca aparecia | chao recortado em volta do lago + `lago_fundo` 2 studs mais fundo |
+| `PortaisAmbiente` era Script de SERVIDOR replicando 18 propriedades por frame, para sempre | virou LocalScript em StarterPlayerScripts, com RenderStepped e corte a 140 studs |
+| Models `Portal<n>` com WorldPivot velho: o AudioWorld tocava o som do portal longe dali | `PrimaryPart`/`WorldPivot` amarrados ao Disco |
+
+**Dois achados eram FALSOS e so a medicao resolveu:**
+- *"26 malhas ficaram com material legado, 8 atlas antigos servem 1.241 das 1.618 pecas"*. Medi no
+  Blender: as 152 malhas carregam `F_A_LOBBY_*`. As 14 texturas que aparecem no Studio sao upload
+  DUPLICADO do importador (um asset por material do FBX), nao textura velha.
+- *"os dois portais do meio atravessam o telhado"*. Subi um raio de CADA VERTICE das 30 malhas de
+  portal: zero vertices acima de telha. Nao atravessam - **mas a folga e de 0,05 stud** nos dois do
+  meio (vertice em z=21,9, telha em 21,95). Passa raspando: qualquer mexida no telhado ou na coroa
+  encosta. Se houver outra rodada de bake, baixar a escala da coroa de 1,00 para ~0,92.
+
+A premissa de 17,3 que usei para dimensionar o portal (calculada pela formula do `k_telhado.Roof`)
+estava ERRADA: a telha real naquele ponto esta em ~21,95. A geometria salvou, nao a conta.

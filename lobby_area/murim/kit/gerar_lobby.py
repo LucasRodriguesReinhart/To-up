@@ -79,6 +79,10 @@ A('''local function grupo(nome)
 	if nome:find("PENHASCO") or nome:find("chao") then return GRUPO.Chao end
 	return GRUPO.Patio
 end
+local SEM_SOMBRA = { KIT_piso_mod = true, KIT_sumeru_seg = true, KIT_sumeru_canto = true, KIT_bal_seg = true,
+	KIT_col_base = true, LOB_chao = true, VIA_piso = true, OESTE_caminho = true, TREINO_areia = true,
+	PATIO_borda = true, PATIO_leito = true, LAGO_leito = true, LAGO_margem = true, LAGO_agua = true,
+	PATIO_agua = true, SANT_fundo = true }
 local PEQ = { KIT_besta_0 = true, KIT_besta_1 = true, KIT_besta_2 = true, KIT_imortal = true, KIT_tufo_a = true, KIT_prancha = true, KIT_terca = true, KIT_vaso = true, KIT_arbusto_a = true, KIT_arbusto_b = true }
 local tmpl, faltam, n = {}, {}, 0
 for _, d in ipairs(KIT:GetDescendants()) do if d:IsA("MeshPart") then tmpl[(d.Name:gsub("%.%d+$", ""))] = d end end
@@ -89,8 +93,14 @@ for _, p in ipairs(PLACE) do
 	else
 		local m = t:Clone(); m.Name = nome; m.Anchored = true
 		m.CanCollide = false; m.CanTouch = false; m.CanQuery = false
-		-- sombra custa caro e nao paga em peca pequena: flor, grama e bugiganga de vila entram sem.
-		m.CastShadow = not (PEQ[nome] or nome:find("^JAR_") or nome:find("^VIL_c") or nome:find("^VIL_b") or nome:find("^VIL_t"))
+		-- Sombra: a regra antiga isentava so o que ja era barato (flor, grama) e deixava ligadas as
+		-- familias caras. Medido: 1.322 de 1.618 pecas lancavam sombra, e piso + balaustrada sozinhos
+		-- eram 35% disso - superficies planas que so projetam sombra dentro de si mesmas.
+		-- Alem da lista, qualquer peca com menos de 1 stud de altura e ladrilho de chao e sai sozinha.
+		m.CastShadow = not (PEQ[nome] or SEM_SOMBRA[nome]
+			or nome:find("^JAR_") or nome:find("^VIL_") or nome:find("^PATIO_piso")
+			or nome:find("^PENHASCO") or nome:find("^ESCADA")
+			or (i.t[3] * sz < 1.0))
 		m.Size = Vector3.new(i.t[1] * sx, i.t[3] * sz, i.t[2] * sy)
 		local cf = CFrame.new(B(x, y, z)) * CFrame.Angles(0, math.rad(rot), 0)
 		m.CFrame = cf * CFrame.new(B(i.c[1] * sx, i.c[2] * sy, i.c[3] * sz))
@@ -101,12 +111,22 @@ end
 local COL = Instance.new("Folder"); COL.Name = "Colisao"; COL.Parent = ROOT
 local function caixa(nome, x0, x1, y0, y1, z0, z1)
 	local p = Instance.new("Part"); p.Name = nome; p.Anchored = true; p.Transparency = 1; p.CastShadow = false; p.CanQuery = false
+	p.CanTouch = false   -- sem isto o chao_geral (356 x 410) dispara Touched a cada passo de cada jogador
 	p.Size = Vector3.new(math.abs(x1 - x0), math.abs(z1 - z0), math.abs(y1 - y0))
 	p.CFrame = CFrame.new(B((x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2)); p.Parent = COL; return p
 end
 -- CHAO GERAL: sem isto o jogador cai no vazio assim que sai do patio (achado na verificacao geometrica).
 -- Fica 0.5 abaixo do topo para o piso de pedra do patio/via prevalecer onde existe.
-caixa("chao_geral", -178, 178, -212, 198, -2.5, -0.5)
+-- O chao_geral era UMA caixa so cobrindo tudo, inclusive a planta do lago: com o topo em Y=-0.5 e a
+-- lamina em Y=0.45, a agua virava uma pelicula de meio stud e o leito modelado (LAGO_leito, 2.7 de
+-- espessura) nunca aparecia. Agora ele e recortado em volta do lago e o fundo do lago ganha piso
+-- proprio, 2 studs mais fundo: da profundidade de vadear, mostra o leito e ninguem cai do mundo.
+local LX0, LX1, LY0, LY1 = -101.5, -68.5, -71.5, 131.5
+caixa("chao_oeste", -178, LX0, -212, 198, -2.5, -0.5)
+caixa("chao_leste", LX1, 178, -212, 198, -2.5, -0.5)
+caixa("chao_sul", LX0, LX1, -212, LY0, -2.5, -0.5)
+caixa("chao_norte", LX0, LX1, LY1, 198, -2.5, -0.5)
+caixa("lago_fundo", LX0, LX1, LY0, LY1, -4.6, -2.6)
 caixa("patio", -70, 70, -62, 62, -1, 0)                       -- piso do patio (Blender z=0 -> Roblox Y=0)
 caixa("patio_spawn", -24, 24, -92, -60, -1, 0)                -- faixa entre o patio e o pe da escadaria (onde o spawn cai)
 caixa("via", -16, 16, 60, 140, -1, 0.05)
@@ -128,7 +148,7 @@ end
 -- muralhas e muros (bloqueiam)
 caixa("muro_portao_W", -46, -29, 140, 160, 0, 16); caixa("muro_portao_E", 29, 46, 140, 160, 0, 16)
 caixa("muro_portao_C1", -17, -11, 140, 160, 0, 16); caixa("muro_portao_C2", 11, 17, 140, 160, 0, 16)
-for _, sx in ipairs({ -1, 1 }) do caixa("muralha" .. sx, sx * 48, sx * 152, 146, 154, 0, 10.4) end
+for _, sx in ipairs({ -1, 1 }) do caixa("muralha" .. sx, sx * 46, sx * 152, 146, 154, 0, 10.4) end   -- comecava em 48 e deixava fresta de 2 studs
 -- paredes dos edificios
 caixa("forja_fundo", -36, 36, -148, -144, 9.98, 26); caixa("forja_E", 34, 38, -148, -120, 9.98, 26); caixa("forja_W", -38, -34, -148, -120, 9.98, 26)
 -- a parede da fachada da Forja tem DUAS portas (x +-18 no Blender): a caixa inteira barrava a entrada e deixava o
@@ -148,7 +168,14 @@ for _, zy in ipairs({ -32.5, -19.5, -6.5, 6.5, 19.5, 32.5 }) do
 end
 -- limites do mundo: penhascos
 caixa("penhasco_N", -182, 182, -215, -160, -1, 60); caixa("penhasco_W", -184, -150, -160, 170, -1, 46); caixa("penhasco_E", 150, 184, -160, 170, -1, 46)
-caixa("penhasco_S_W", -184, -60, 168, 202, -1, 36); caixa("penhasco_S_E", 60, 184, 168, 202, -1, 36)
+caixa("penhasco_S_W", -184, -46, 168, 202, -1, 36); caixa("penhasco_S_E", 46, 184, 168, 202, -1, 36)
+-- Os penhascos do sul comecavam em |x|=60 e o chao acabava em y=198: sobrava um corredor de 14 studs
+-- de cada lado da estrada, com piso e parede, terminando no vazio. Agora eles fecham em |x|=46, que e
+-- onde a estrada (Corredores.Lobby_Area1) realmente acaba.
+-- O FBX importado servia so de banco de templates e ficava no Workspace com 154 pecas NAO
+-- ancoradas e colidindo, penduradas acima do lobby. Assim que o servidor subisse elas despencavam
+-- sobre o patio e sobre os vaos dos portais. Depois de clonar, ele vai para o ServerStorage.
+KIT.Parent = SS
 local f = {}; for k in pairs(faltam) do table.insert(f, k) end
 return string.format("montadas %d de %d pecas | colisao %d partes | malhas sem template: %s", n, #PLACE, #COL:GetChildren(), (#f > 0 and table.concat(f, ", ") or "nenhuma"))''')
 src = '\n'.join(L)
