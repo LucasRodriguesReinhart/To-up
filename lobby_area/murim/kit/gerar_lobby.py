@@ -13,6 +13,29 @@ info = {}
 for n, v in info_raw.items():
     info.setdefault(base(n), v)
 place = [dict(p, mesh=base(p['mesh'])) for p in place]
+
+# ---- o lago virou AGUA DE TERRENO (lamina em Roblox Y=0.10). O espalhamento de vegetacao do
+# k_montagem nao conhecia a pegada do lago, entao grama, arbusto, bordo, rocha e ate barril
+# nasciam DENTRO da agua. Aqui eles sao tirados por medida, e nao a olho.
+# A caixa e a do corpo d'agua em coordenadas Blender: x -100..-70, y -70..130 (Roblox X = -x, Z = y),
+# com 1.5 de folga para o raio da propria peca.
+LAGO = (-101.5, -68.5, -71.5, 131.5)
+TERRESTRE = ('KIT_tufo', 'KIT_arbusto', 'KIT_pinheiro', 'LOB_bordo', 'LOB_rocha', 'VIL_')
+def na_agua(p):
+    x, y, z = p['pos']
+    if not (LAGO[0] <= x <= LAGO[1] and LAGO[2] <= y <= LAGO[3]): return False
+    if z > 2.0: return False                      # espigao do telhado, bestas, imortal: passam por cima
+    n = p['mesh']
+    if 'lotus' in n: return False                 # lotus E de agua: fica
+    if n.startswith('LOB_ponte'): return False    # a ponte-lua atravessa o lago de proposito
+    return n.startswith('JAR_') or n.startswith(TERRESTRE)
+afogadas = [p for p in place if na_agua(p)]
+place = [p for p in place if not na_agua(p)]
+
+# os lotus ficavam em z=-0.3, que agora esta DEBAIXO da lamina: sobem para a superficie.
+for p in place:
+    if 'lotus' in p['mesh'] and LAGO[0] <= p['pos'][0] <= LAGO[1] and LAGO[2] <= p['pos'][1] <= LAGO[3]:
+        p['pos'] = [p['pos'][0], p['pos'][1], 0.05]
 L = []; A = L.append
 A('-- montar_lobby.lua - GERADO por kit/gerar_lobby.py. NAO editar a mao: corrija o gerador e rode de novo.')
 A('-- Pre-requisito: LOBBY_FORJA_CELESTE.fbx importado (Home > Import 3D).')
@@ -131,4 +154,5 @@ return string.format("montadas %d de %d pecas | colisao %d partes | malhas sem t
 src = '\n'.join(L)
 open(os.path.join(E, 'montar_lobby.lua'), 'w', encoding='utf-8').write(src)
 sem = sorted({p['mesh'] for p in place} - set(info))
+print('tiradas de dentro do lago: %d pecas (%s)' % (len(afogadas), ', '.join(sorted({q['mesh'] for q in afogadas}))))
 print('montar_lobby.lua: %d bytes | %d malhas | %d colocacoes | sem medida: %s' % (len(src.encode()), len(info), len(place), sem or 'nenhuma'))

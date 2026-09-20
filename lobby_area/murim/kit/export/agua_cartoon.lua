@@ -40,9 +40,17 @@ local leito = pecas("LAGO_leito")
 local mn, mx = caixa(espelho)
 if not mn then return "LAGO_agua nao encontrado" end
 
-local _, leitoMx = caixa(leito)
-local fundo = leitoMx and (leitoMx.Y - 3) or (mn.Y - 6)
-local linha = mx.Y                                   -- a lamina d'agua fica onde estava o plano chapado
+-- ALTURA DO CORPO D'AGUA, medido e nao chutado:
+-- o voxel de terreno tem 4 studs. A primeira versao encheu de Y=-3.5 a Y=-0.4, ou seja 3.16 studs:
+-- MENOS QUE UM VOXEL. Com uma camada so e ocupacao fracionaria, a superficie sai quebrada e o lago
+-- virou pocas soltas na grama. Agora o corpo desce ate -8, que enche duas camadas inteiras, e so a
+-- camada de cima fica fracionaria - e dela que sai uma lamina continua.
+local margem = select(2, caixa(pecas("LAGO_margem")))
+local fundo = -8.0
+-- A lamina precisa de folga sobre a malha da grama, que esta em Y~0: com 0.1 de folga a grama
+-- ainda aparecia em ilhas no meio do lago, porque a camada de cima do voxel fica com ocupacao
+-- fracionaria e a superficie ondula. 0.45 fica acima da grama e ainda abaixo do topo da margem (0.60).
+local linha = margem and (margem.Y - 0.15) or mx.Y
 
 -- limpa agua anterior desta mesma regiao (o script pode rodar de novo sem empilhar)
 local reg = Region3.new(Vector3.new(mn.X - 8, fundo - 8, mn.Z - 8), Vector3.new(mx.X + 8, linha + 8, mx.Z + 8)):ExpandToGrid(4)
