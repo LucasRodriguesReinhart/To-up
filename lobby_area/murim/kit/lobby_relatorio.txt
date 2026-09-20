@@ -45,8 +45,8 @@ LOB_fole.001                 1092 tris x   1
 LOB_calha_tempera.001         416 tris x   1
 LOB_altar_laminas.001        2228 tris x   1
 LOB_braseiro.001             1040 tris x   6
-LOB_leao_esfera.001          2694 tris x   2
-LOB_leao_filhote.001         2634 tris x   2
+LOB_leao_esfera.001          7892 tris x   2
+LOB_leao_filhote.001         7728 tris x   2
 LOB_ponte_lua.001           14952 tris x   1
 LOB_rocha_1.001               348 tris x   2
 LOB_rocha_2                   348 tris x   1
@@ -134,4 +134,4 @@ KIT_chuishou.004              836 tris x  16
 KIT_besta_0.004               352 tris x  16
 KIT_besta_1.004               352 tris x  16
 KIT_besta_2.004               360 tris x  16
-TOTAL ~2566146 tris em cena | malhas unicas 133 (392057 tris) | colocacoes 1560
+TOTAL ~2586730 tris em cena | malhas unicas 133 (402349 tris) | colocacoes 1560

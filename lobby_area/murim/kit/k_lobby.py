@@ -180,37 +180,190 @@ def braseiro():
     return B
 
 # ---------------------------------------------------------------- LEAO GUARDIAO
-def leao(lado=1):
-    """shishi sobre pedestal: corpo agachado, juba em cachos, boca aberta, pata sobre esfera (lado 1) ou filhote (-1).
-    Virado para -Y. Altura ~7."""
-    B = Builder('LOB_leao_%s' % ('esfera' if lado > 0 else 'filhote'), 720 + (0 if lado > 0 else 1))
-    B.add(t_box(-2.6, 2.6, -3.4, 3.4, 0, .6, bev=.1, seg=3), 'pedra', .45)
-    B.add(t_box(-2.3, 2.3, -3.1, 3.1, .6, 2.4, bev=.14, seg=3), 'pedra', .55)
-    for a in (0, 90, 180, 270):
-        B.add(xf(t_box(-1.4, 1.4, -3.16, -2.9, 1.0, 2.0, bev=.07), rot=(0, 0, a)), 'pedra', .7)
-    B.add(t_box(-2.5, 2.5, -3.3, 3.3, 2.4, 2.8, bev=.1, seg=3), 'pedra', .6)
-    z0 = 2.8
-    B.add(xf(t_blob(1.5, (.85, 1.35, 1.0), 2), loc=(0, .55, z0 + 1.6)), 'pedra', .5)              # corpo
-    for sx in (-1, 1):                                                                             # patas
-        B.add(xf(t_box(-.45, .45, -1.3, .5, 0, 1.5, bev=.16, seg=3), loc=(sx * .95, -1.5, z0)), 'pedra', .58)
-        B.add(xf(t_blob(.52, (1, 1.15, .8), 1), loc=(sx * .95, -2.5, z0 + .45)), 'pedra', .62)
-        B.add(xf(t_box(-.5, .5, -.5, .6, 0, 1.9, bev=.18, seg=3), loc=(sx * 1.15, 1.5, z0)), 'pedra', .55)
-    B.add(xf(t_blob(1.25, (1.05, .95, 1.0), 2, lobes=7, lobe_amp=.2, seed=3), loc=(0, -1.15, z0 + 3.0)), 'pedra', .52)   # cabeca
-    for i in range(14):                                                                            # juba
-        a = math.radians(360 * i / 14 + 12); r = 1.35
-        B.add(xf(t_blob(.42, (1, 1, .9), 1, seed=i), loc=(r * math.cos(a) * .9, -.55 + .3 * math.sin(a), z0 + 3.0 + r * math.sin(a) * .85)), 'pedra', .45 + .3 * ((i * 3) % 5) / 5)
-    B.add(xf(t_blob(.62, (1.05, .85, .72), 1), loc=(0, -2.15, z0 + 2.7)), 'pedra', .62)            # focinho
-    B.add(xf(t_box(-.44, .44, -.38, .38, -.2, .2, bev=.08), loc=(0, -2.45, z0 + 2.45)), 'corte', .3)
+def leao(lado=1, H=4.2, log=False):
+    """SHISHI sobre pedestal xumizuo. lado=+1 macho (pata na bola), -1 femea (pata no filhote).
+    Terceira versao. As duas minhas falharam: caixa sobre caixa virou pilha de caixas, e perfil
+    extrudado virou laje com as pernas enterradas. Esta saiu de tres abordagens independentes
+    modeladas e RENDERIZADAS em paralelo, com juri; venceu a que monta massas sobrepostas.
+    O que corrige o ursinho e geometrico: cabeca mais larga que alta, olho afundado sob aba de
+    sobrancelha, orelha chata para tras, vao entre as patas e juba em COROA - nao cachos no topo."""
+    """Shishi (leao-guardiao chines) sentado sobre pedestal xumizuo.
+    lado>0 = macho (pata sobre a esfera), lado<0 = femea (pata sobre o filhote). Encara -Y.
+    H = altura do leao sentado (sem pedestal); o pedestal tem 0.85H."""
+    macho = lado > 0
+    B = Builder('LOB_leao_%s' % ('esfera' if lado > 0 else 'filhote'), 770 + (0 if macho else 1))
+    S = H / 4.2
+    Z0 = 3.57                     # topo do pedestal = 0.85H
+    sr = 1 if macho else -1       # lado da pata levantada (quebra o espelho do par)
+
+    def A(bm, key, r=None):
+        return B.add(xf(bm, scale=S) if abs(S - 1) > 1e-6 else bm, key, r)
+
+    def L(bm, key, r=None):
+        return A(xf(bm, loc=(0, 0, Z0)), key, r)
+
+    def LM(bm, sx, key, r=None):
+        return L(mirror_x(bm) if sx < 0 else bm, key, r)
+
+    def marca(t):
+        if log: print('BG>   %-10s %5d' % (t, B.tris()))
+
+    # ------------------------------------------------ PEDESTAL (xumizuo: base, cintura estreita, cimalha, lotus)
+    A(t_box(-1.98, 1.98, -2.10, 2.10, 0, .40, bev=.09, seg=2), 'pedra', .42)
+    A(t_box(-1.80, 1.80, -1.92, 1.92, .40, .72, bev=.07, seg=1), 'pedra', .58)
+    A(t_box(-1.44, 1.44, -1.56, 1.56, .72, 2.40, bev=.10, seg=2), 'pedra', .48)
+    for sy in (-1, 1):            # cartelas nas 4 faces da cintura
+        A(t_box(-1.00, 1.00, sy * 1.56 - .05, sy * 1.56 + .05, 1.02, 2.08, bev=.07, seg=1), 'junta', .28)
     for sx in (-1, 1):
-        B.add(xf(t_blob(.24, (1, .75, 1), 1), loc=(sx * .55, -2.05, z0 + 3.25)), 'pedra', .75)
-        B.add(xf(t_blob(.12, (1, .7, 1), 1), loc=(sx * .62, -2.3, z0 + 3.25)), 'corte', .2)
-    if lado > 0: B.add(xf(t_blob(.85, (1, 1, 1), 2, lobes=8, lobe_amp=.12), loc=(-.95, -2.8, z0 + .85)), 'pedra', .8)
-    else: B.add(xf(t_blob(.62, (.9, 1.1, .9), 1, lobes=5, lobe_amp=.18), loc=(.95, -2.7, z0 + .7)), 'pedra', .78)
-    tail = crom([(0, 1.9, z0 + 1.2), (.7, 2.6, z0 + 2.2), (.4, 2.3, z0 + 3.2), (-.3, 2.7, z0 + 3.6)], 4)
-    B.add(t_tube(tail, lerp_list([.35, .3, .25, .4], len(tail)), 7), 'pedra', .6)
+        A(t_box(sx * 1.44 - .05, sx * 1.44 + .05, -.86, .86, 1.02, 2.08, bev=.07, seg=1), 'junta', .28)
+    A(t_box(-1.72, 1.72, -1.84, 1.84, 2.40, 2.74, bev=.10, seg=2), 'pedra', .62)
+    pet = [(-.26, 0), (.26, 0), (.18, .26), (0, .34), (-.18, .26)]
+    for i in range(4):            # lotus na frente
+        A(xf(t_prism(pet, 'Y', -.12, .12, bev=.04, seg=1), loc=(-1.05 + 2.10 * i / 3, -1.80, 2.74)), 'pedra', .7)
+    for sx in (-1, 1):            # lotus nas laterais
+        for i in range(3):
+            A(xf(t_prism(pet, 'X', -.12, .12, bev=.04, seg=1), loc=(sx * 1.74, -.90 + 1.80 * i / 2, 2.74)), 'pedra', .72)
+    A(t_box(-1.80, 1.80, -1.92, 1.92, 2.94, 3.12, bev=.06, seg=1), 'pedra', .66)
+    A(t_box(-1.94, 1.94, -2.06, 2.06, 3.10, Z0, bev=.12, seg=2), 'pedra', .52)
+    marca('pedestal')
+
+    # ------------------------------------------------ TRONCO (uma massa so, perfil lateral ESTREITO)
+    tronco = [(1.30, .10), (1.46, .80), (1.34, 1.76), (.86, 2.10), (.10, 2.28), (-.52, 2.38),
+              (-.86, 2.16), (-.96, 1.62), (-.80, 1.10), (-.30, .96), (.32, .82), (.86, .58), (1.12, .22)]
+    L(t_prism(tronco, 'X', -.66, .66, bev=.40, seg=2), 'pedra', .45)
+    # flanco: massa torneada que tira a cara de laje das laterais do tronco
+    L(xf(t_lathe([(0, -.70), (.44, -.64), (.70, -.30), (.76, .10), (.62, .48), (.36, .66), (0, .72)], 12),
+         scale=(1.06, 1.10, .92), loc=(0, .16, 1.62)), 'pedra', .48)
+    # peito: BARRIL torneado que EMBRULHA os ombros (prisma chapado virava painel recuado entre caixas)
+    L(xf(t_lathe([(0, -.62), (.42, -.58), (.66, -.34), (.74, .06), (.66, .42), (.40, .62), (0, .68)], 13),
+         scale=(1.52, 1.00, 1.14), loc=(0, -.60, 1.66)), 'pedra', .52)
+    # ancas: coxas TORNEADAS (a placa prismatica virava um disco chapado colado no flanco)
+    anca = [(0, -.86), (.52, -.80), (.84, -.44), (.94, .06), (.80, .52), (.46, .80), (0, .90)]
+    dedo = [(-.18, 0), (-.18, .15), (-.04, .21), (.10, .15), (.10, 0)]
+    for sx in (-1, 1):
+        LM(xf(t_lathe(anca, 12), scale=(.52, .86, 1.0), rot=(-8, 0, 0), loc=(.60, .90, 1.02)), sx, 'pedra', .5)
+        LM(t_prism([(1.04, 0), (.28, 0), (.20, .32), (.62, .44), (1.10, .36)], 'X', .44, 1.02, bev=.10, seg=1), sx, 'pedra', .62)
+        for k in range(3):        # dedos da pata traseira
+            LM(xf(t_prism(dedo, 'X', .50 + .17 * k, .65 + .17 * k, bev=.04, seg=1), loc=(0, .38, .03)), sx, 'pedra', .72)
+    marca('tronco')
+
+    # ------------------------------------------------ PATAS DIANTEIRAS (ombro cheio, canela fina, pata larga)
+    for sx in (-1, 1):
+        levanta = (sx == sr)
+        LM(t_prism([(-1.34, 2.02), (-.52, 1.96), (-.44, 1.04), (-.80, .80), (-1.30, .90)], 'X', .34, 1.04, bev=.30, seg=2), sx, 'pedra', .56)  # ombro
+        if levanta:               # canela para a frente e para baixo, pata sobre a esfera
+            LM(t_prism([(-1.28, 1.16), (-.70, 1.10), (-.86, .80), (-1.48, .86)], 'X', .40, .98, bev=.22, seg=2), sx, 'pedra', .6)
+            LM(t_prism([(-1.98, 1.32), (-1.90, .88), (-1.32, .78), (-1.02, .92), (-1.12, 1.28), (-1.60, 1.44)], 'X', .36, 1.02, bev=.20, seg=2), sx, 'pedra', .66)
+            for k in range(3):
+                LM(xf(t_prism(dedo, 'X', .44 + .18 * k, .60 + .18 * k, bev=.04, seg=1), loc=(0, -1.90, .80)), sx, 'pedra', .74)
+        else:
+            LM(t_prism([(-1.26, 1.10), (-.62, 1.04), (-.64, .34), (-1.24, .32)], 'X', .40, .96, bev=.24, seg=2), sx, 'pedra', .6)
+            LM(t_prism([(-1.74, 0), (-.72, 0), (-.68, .30), (-1.14, .46), (-1.66, .40)], 'X', .32, 1.06, bev=.15, seg=2), sx, 'pedra', .66)
+            for k in range(3):
+                LM(xf(t_prism(dedo, 'X', .38 + .21 * k, .57 + .21 * k, bev=.04, seg=1), loc=(0, -1.60, .02)), sx, 'pedra', .74)
+    marca('patas')
+
+    # ------------------------------------------------ PESCOCO
+    L(t_prism([(-1.02, 1.98), (-.34, 2.10), (-.06, 2.66), (-.46, 3.10), (-1.12, 2.98), (-1.26, 2.44)], 'X', -.64, .64, bev=.22, seg=2), 'pedra', .5)
+
+    # ------------------------------------------------ CABECA: cranio MAIS LARGO que alto (0.45H x 0.33H)
+    HY, HZ = -.86, 2.98
+    cranio = [(-.95, .22), (-.88, .52), (-.58, .66), (-.20, .70), (.20, .70), (.58, .66), (.88, .52), (.95, .22),
+              (.88, -.22), (.60, -.54), (.22, -.70), (-.22, -.70), (-.60, -.54), (-.88, -.22)]
+    L(xf(t_prism(cranio, 'Y', -.62, .44, bev=.26, seg=2), loc=(0, HY, HZ)), 'pedra', .46)
+    marca('cranio')
+    # juba: disco raso atras do cranio + cachos cobrindo a coroa E as laterais
+    juba = [(0, -.44), (.55, -.46), (.90, -.38), (1.05, -.14), (1.09, .16), (.97, .44), (.72, .62), (.38, .72), (0, .76)]
+    L(xf(t_lathe(juba, 16), rot=(-90, 0, 0), scale=(1.06, 1, .92), loc=(0, HY + .24, HZ)), 'pedra', .4)
+    knob = [(0, 0), (.18, .04), (.23, .14), (.13, .25), (0, .28)]
+    for i in range(11):           # coroa interna, do queixo direito ao queixo esquerdo por cima
+        a = -24 + 228 * i / 10 + (0 if macho else 6)
+        ar = math.radians(a); k = .82 + .42 * math.sin(math.radians(min(180, max(0, a))))
+        L(xf(t_lathe(knob, 6), scale=k, rot=(24, 90 - a, 0),
+             loc=(1.00 * math.cos(ar), HY - .18, HZ + .92 * math.sin(ar))), 'pedra', .35 + .4 * ((i * 5) % 7) / 7)
+    for i in range(7):            # coroa externa, mais atras e maior
+        a = -4 + 188 * i / 6 + (0 if macho else 8)
+        ar = math.radians(a); k = .88 + .34 * math.sin(math.radians(min(180, max(0, a))))
+        L(xf(t_lathe(knob, 6), scale=k * 1.18, rot=(-4, 90 - a, 0),
+             loc=(1.12 * math.cos(ar), HY + .30, HZ + 1.02 * math.sin(ar))), 'pedra', .3 + .45 * ((i * 3) % 5) / 5)
+    # cachos espalhados pelo FLANCO da juba (raio colhido do proprio perfil; senao de perfil vira casco liso)
+    for j, (d, th, kt, ks, r) in enumerate(((-.12, 28, 26, 1.00, 1.05), (-.12, -20, 24, .90, 1.05), (.16, 6, -2, 1.05, 1.09),
+                                            (.16, 46, -4, .92, 1.09), (.46, 24, -26, .86, .97), (.46, -14, -28, .80, .97))):
+        for sx in (-1, 1):
+            LM(xf(t_lathe(knob, 6), scale=ks, rot=(kt, 90 - th, 0),
+                  loc=(1.03 * r * math.cos(math.radians(th)), HY + .24 + d, HZ + .89 * r * math.sin(math.radians(th)))),
+               sx, 'pedra', .32 + .4 * ((j * 3) % 5) / 5)
+    for i in range(3):            # rufo: cachos ASSENTADOS na linha do dorso (nada de bolhas soltas)
+        L(xf(t_lathe(knob, 6), scale=.86 - .16 * i, rot=(-74, 0, 0),
+             loc=(.34 * (1 if i % 2 else -1), .08 + .36 * i, 2.30 - .13 * i)), 'pedra', .42 + .16 * i)
+    marca('juba')
+
+    # ------------------------------------------------ CARA: focinho CURTO e LARGO, nariz grande, boca larga
+    FZ = HZ - .24
+    L(xf(t_prism([(-.58, .20), (-.50, .32), (0, .38), (.50, .32), (.58, .20), (.56, -.22), (.32, -.48), (-.32, -.48), (-.56, -.22)], 'Y', -1.80, -1.42, bev=.10, seg=1), loc=(0, 0, FZ)), 'pedra', .58)
+    for sx in (-1, 1):            # coxins do bigode: os dois lobos que fazem o focinho de felino
+        L(xf(t_lathe([(0, 0), (.20, .05), (.28, .15), (.24, .28), (0, .33)], 9), rot=(90, 0, 0), loc=(sx * .27, -1.78, FZ - .16)), 'pedra', .68)
+    L(xf(t_prism([(-.30, 0), (-.26, .18), (0, .24), (.26, .18), (.30, 0), (.20, -.14), (-.20, -.14)], 'Y', -1.98, -1.76, bev=.06, seg=1), loc=(0, 0, FZ + .12)), 'pedra', .66)  # nariz grande e chato
+    for sx in (-1, 1):
+        L(xf(t_box(-.06, .06, -2.01, -1.93, -.06, .05, bev=.02, seg=1), loc=(sx * .15, 0, FZ + .07)), 'corte', .2)
+    if macho:                     # boca aberta: cavidade recuada entre os coxins + presas nos cantos
+        L(xf(t_box(-.42, .42, -1.76, -1.46, -.26, .0, bev=.04, seg=1), loc=(0, 0, FZ - .28)), 'corte', .15)
+        for sx in (-1, 1):
+            L(xf(t_prism([(-.09, 0), (.09, 0), (0, -.26)], 'Y', -1.80, -1.64, bev=.02, seg=1), loc=(sx * .31, 0, FZ - .16)), 'creme', .9)
+        L(xf(t_prism([(-.36, 0), (.36, 0), (.30, -.24), (-.30, -.24)], 'Y', -1.86, -1.62, bev=.06, seg=1), loc=(0, 0, FZ - .52)), 'pedra', .72)    # queixo
+    else:
+        L(xf(t_box(-.34, .34, -1.88, -1.74, -.04, .04, bev=.02, seg=1), loc=(0, 0, FZ - .32)), 'corte', .15)
+        L(xf(t_prism([(-.38, 0), (.38, 0), (.32, -.26), (-.32, -.26)], 'Y', -1.88, -1.60, bev=.06, seg=1), loc=(0, 0, FZ - .40)), 'pedra', .72)
+    cej = crom([Vector((.10, -1.56, HZ + .16)), Vector((.44, -1.66, HZ + .36)), Vector((.82, -1.58, HZ + .18))], 4)
+    for sx in (-1, 1):
+        LM(t_tube(cej, lerp_list([.11, .17, .11], len(cej)), 7), sx, 'pedra', .74)       # sobrancelha saliente (~0.08H)
+        # olho: globo claro esbugalhado + pupila pequena (nunca um buraco preto)
+        L(xf(t_lathe([(.17, 0), (.25, .07), (.32, 0), (.25, -.06), (.17, 0)], 8), rot=(-90, 0, 0), loc=(sx * .48, -1.52, HZ + .0)), 'pedra', .8)
+        L(xf(t_lathe([(0, 0), (.13, .05), (.18, .13), (.13, .20), (0, .22)], 9), rot=(90, 0, 0), loc=(sx * .48, -1.50, HZ + .0)), 'pedra', .9)
+        L(xf(t_lathe([(0, 0), (.085, .01), (.085, .05), (0, .06)], 8), rot=(90, 0, 0), loc=(sx * .48, -1.70, HZ + .0)), 'corte', .1)
+        L(xf(t_prism([(-.12, -.17), (.11, -.18), (.19, .02), (.10, .20), (-.07, .22), (-.17, .07)], 'Y', -.05, .05, bev=.04, seg=1),
+             rot=(0, 0, -40 * sx), scale=(1, 1, .8), loc=(sx * .86, HY - .14, HZ + .20)), 'pedra', .6)   # orelha chata caida para tras, encostada na juba
+    L(xf(t_lathe([(0, 0), (.09, .03), (.11, .10), (.06, .17), (0, .19)], 8), rot=(90, 0, 0), loc=(0, -1.60, HZ + .30)), 'pedra', .8)   # no da testa
+    marca('cara')
+
+    # ------------------------------------------------ COLEIRA COM GUIZO (faixa visivel no peito)
+    colar = crom([Vector((-.92, -1.00, HZ - 1.30)), Vector((0, -1.30, HZ - 1.00)), Vector((.92, -1.00, HZ - 1.30))], 4)
+    L(t_tube(colar, lerp_list([.07, .10, .07], len(colar)), 6), 'ouro', .85)
+    L(xf(t_lathe([(0, 0), (.13, .04), (.16, .15), (.11, .25), (0, .28)], 9), rot=(178, 0, 0), loc=(0, -1.28, HZ - 1.06)), 'ouro', .9)
+
+    # ------------------------------------------------ CAUDA: pluma de chama de pedra encostada na anca
+    cau = crom([Vector((.42, 1.30, .86)), Vector((.98, 1.80, 1.46)), Vector((1.00, 1.72, 2.10)),
+                Vector((.70, 1.38, 2.48)), Vector((.34, 1.02, 2.46))], 4)
+    L(t_tube(cau, lerp_list([.42, .34, .27, .20, .13], len(cau)), 7), 'pedra', .56)
+    fol = [(-.22, 0), (.22, 0), (.14, .40), (0, .54), (-.16, .36)]
+    for k in range(8):            # labaredas deitadas SOBRE a cauda, cada uma seguindo a tangente do caminho
+        i = 2 + k * 2; p, q = cau[i], cau[min(i + 2, len(cau) - 1)]
+        d = (q - p); d = d.normalized() if d.length > 1e-5 else Vector((0, 0, 1))
+        ang = math.degrees(math.atan2(-d.y, d.z)) + (18 if k % 2 else -14)
+        L(xf(t_prism(fol, 'X', -.07, .07, bev=.05, seg=1), rot=(ang, 0, 0), scale=.78 + .05 * k,
+             loc=(p.x + (.16 if k % 2 else -.16), p.y, p.z)), 'pedra', .5 + .06 * k)
+    marca('cauda')
+
+    # ------------------------------------------------ ATRIBUTO SOB A PATA
+    if macho:
+        L(xf(t_lathe([(0, -.54), (.31, -.46), (.50, -.23), (.54, 0), (.50, .23), (.31, .46), (0, .54)], 14), loc=(sr * .66, -1.66, .54)), 'pedra', .8)
+        for k in range(3):        # fitas de brocado na esfera
+            L(xf(t_lathe([(.31, 0), (.38, .05), (.31, .10), (.25, .05), (.31, 0)], 12), rot=(74, 0, 60 * k),
+                 loc=(sr * .66, -1.66, .54)), 'bronze', .9)
+    else:                         # filhote de barriga para cima, brincando sob a pata
+        cx, cy = sr * .64, -1.64
+        L(xf(t_lathe([(0, -.46), (.26, -.40), (.36, -.12), (.33, .18), (0, .30)], 11), rot=(74, 0, 22), loc=(cx, cy + .16, .44)), 'pedra', .82)
+        L(xf(t_lathe([(0, 0), (.24, .06), (.29, .17), (.19, .29), (0, .33)], 10), rot=(-52, 0, 0), loc=(cx - .06, cy - .46, .60)), 'pedra', .86)
+        for i in range(6):        # jubinha
+            a = 360 * i / 6 + 20
+            L(xf(t_lathe([(0, 0), (.10, .02), (.12, .09), (0, .14)], 6), rot=(30, 90 - a, 0),
+                 loc=(cx - .06 + .27 * math.cos(math.radians(a)), cy - .58, .60 + .27 * math.sin(math.radians(a)))), 'pedra', .55)
+        for k in range(2):        # patinhas para cima
+            L(xf(t_prism([(-.09, 0), (.09, 0), (.11, .30), (-.07, .32)], 'X', -.08, .08, bev=.04, seg=1),
+                 loc=(cx + (.20 if k else -.16), cy - .12 - .20 * k, .48)), 'pedra', .7)
+    marca('atributo')
     return B
 
-# ---------------------------------------------------------------- PONTE-LUA
 def ponte_lua(L=36.0, W=9.0, F=4.2):
     """arco alto de pedra com balaustrada, degraus nas rampas e pedra de fecho. Ao longo de X, centrada."""
     B = Builder('LOB_ponte_lua', 730)
