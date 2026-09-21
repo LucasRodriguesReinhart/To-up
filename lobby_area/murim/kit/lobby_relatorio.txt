@@ -1,4 +1,4 @@
-vegetacao barrada por cair em superficie dura: cam_oeste=8, escadaria=15, lago=150, patio=555, portao=79, t_forja=191, t_loja=32, t_sant=62, treino=29, via=51
+vegetacao barrada por cair em superficie dura: cam_oeste=8, escadaria=15, lago=150, patio=535, portao=79, t_forja=192, t_loja=31, t_sant=62, treino=29, via=51
 pecas unicas registradas (geometria ja no lugar): 55
 masters do kit nao usados neste lobby (tirados da origem): JAR_ameixeira_b, JAR_crisantemo.001, KIT_dougong_canto.004, KIT_dougong_simples.002, KIT_jardineira.002, KIT_suporte_espada.002, KIT_tabua_dougong.013, KIT_telhado_portao.001, KIT_terca.011, KIT_vaso.002, LOB_nuvem
 KIT_sumeru_seg.026            504 tris x 135
@@ -77,8 +77,8 @@ JAR_ameixeira.001           10568 tris x   1
 JAR_ameixeira_b             11208 tris x   1
 JAR_canteiro.001             6800 tris x   3
 JAR_canteiro_b               6800 tris x   3
-JAR_grama.001                 168 tris x  11
-JAR_grama_b                   168 tris x  12
+JAR_grama.001                 168 tris x  12
+JAR_grama_b                   168 tris x  11
 VIL_lanterna_pedra.001       1948 tris x  16
 VIL_poco.001                 2000 tris x   1
 VIL_barril.001                548 tris x   3

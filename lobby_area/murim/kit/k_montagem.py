@@ -670,10 +670,30 @@ def build_lobby():
         ('via',        -19,  19,   56,  144), ('portao',    -49,  49,  136,  182),
         ('t_forja',    -65,  65, -156,  -86), ('t_sant',   -149, -101, -49,   49),
         ('t_loja',     101, 133,  -28,   20), ('treino',     69, 103,   16,   60),
-        ('lago',      -103, -67,  -77,  137), ('cam_oeste',  76, 104,  -10,    2),
+        ('cam_oeste',  76, 104,  -10,    2),
     )
     barradas = {}
+    def _borda_lago(lista, y):
+        for k in range(len(lista) - 1):
+            (ya, xa), (yb, xb) = lista[k], lista[k + 1]
+            if ya <= y <= yb:
+                t = (y - ya) / (yb - ya) if yb != ya else 0.0
+                return xa + (xb - xa) * t
+        return lista[-1][1]
+
+    def no_lago(x, y, folga=2.8):
+        """O lago deixou de ser o retangulo -103..-67 quando ganhou contorno trabalhado, mas a zona
+        DURO continuou sendo o retangulo. Resultado medido: na faixa da escadaria do Santuario a agua
+        recua ate x=-84.5 e o retangulo barrava ate -103, ou seja, 18 studs de terra nua sem calcamento
+        bem no pe do ultimo degrau - era a queda de 3,40 studs que ficou em aberto. Aqui a barreira
+        passa a ser o CONTORNO REAL, interpolado entre as duas margens."""
+        if y < OESTE[0][0] or y > OESTE[-1][0]: return False
+        return _borda_lago(OESTE, y) - folga <= x <= _borda_lago(LESTE, y) + folga
+
     def livre(x, y):
+        if no_lago(x, y):
+            barradas['lago'] = barradas.get('lago', 0) + 1
+            return False
         for nome, x0, x1, y0, y1 in DURO:
             if x0 <= x <= x1 and y0 <= y <= y1:
                 barradas[nome] = barradas.get(nome, 0) + 1
@@ -869,6 +889,13 @@ def build_lobby():
             cals[(i + j) % NB].add(t_box(cx - d, cx + d, cy - d, cy + d, -.60, -.50),
                                    'junta' if escura else 'piso', gr.uniform(.42, .60))
             postas += 1
+    # medida do pe da escadaria do Santuario: quantas lajes cairam na faixa que o retangulo velho
+    # do lago barrava (x -101..-84.5 na altura da escada). Se der zero, a correcao nao pegou.
+    _pe = sum(1 for i in range(ni_) for j in range(nj_)
+              if -101 <= -170 + (i + .5) * PASSO <= -84.5 and -12 <= -206 + (j + .5) * PASSO <= 12
+              and livre(-170 + (i + .5) * PASSO, -206 + (j + .5) * PASSO)
+              and not em_canteiro(-170 + (i + .5) * PASSO, -206 + (j + .5) * PASSO))
+    print('calcada: %d lajes | pe da escadaria do Santuario: %d lajes na faixa liberada' % (postas, _pe))
     for b in cals: b.finish('LOB_CHAO')
 
     # MEIO-FIO de cada canteiro, com a terra do miolo rebaixada: e a moldura construida que separa

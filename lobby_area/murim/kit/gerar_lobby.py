@@ -121,6 +121,9 @@ A('''local function grupo(nome)
 	if nome:find("ponte") or nome:find("LAGO") or nome:find("SANT") then return GRUPO.Leste end
 	if nome:find("poste_treino") or nome:find("boneco") or nome:find("estante") or nome:find("TREINO") then return GRUPO.Oeste end
 	if nome:find("PENHASCO") or nome:find("chao") then return GRUPO.Chao end
+	-- pecas novas: cenario de fundo, calcamento e relva moram no grupo do Chao
+	if nome:find("^LOB_serra") or nome:find("^LOB_nevoa") or nome:find("^LOB_calcada")
+		or nome:find("^LOB_junta") or nome:find("^LOB_relva") or nome:find("^KIT_relva") then return GRUPO.Chao end
 	return GRUPO.Patio
 end
 local SEM_SOMBRA = { KIT_piso_mod = true, KIT_sumeru_seg = true, KIT_sumeru_canto = true, KIT_bal_seg = true,
@@ -144,7 +147,21 @@ for _, p in ipairs(PLACE) do
 		m.CastShadow = not (PEQ[nome] or SEM_SOMBRA[nome]
 			or nome:find("^JAR_") or nome:find("^VIL_") or nome:find("^PATIO_piso")
 			or nome:find("^PENHASCO") or nome:find("^ESCADA")
+			-- cenario de fundo, calcamento e relva: sombra propria nao acrescenta nada e sao as
+			-- familias mais numerosas da cena (97 ladrilhos de relva, ~1.400 lajes de calcada)
+			or nome:find("^LOB_serra") or nome:find("^LOB_nevoa") or nome:find("^LOB_calcada")
+			or nome:find("^LOB_junta") or nome:find("^LOB_relva") or nome:find("^KIT_relva")
+			or nome:find("^PATIO_base") or nome:find("^PATIO_marcos")
 			or (i.t[3] * sz < 1.0))
+		-- FIDELIDADE DE MALHA. A relva geometrica e o preco de nao ter alpha: sao ~890 mil triangulos
+		-- nos 97 ladrilhos. Em Automatic o motor troca por versoes mais simples com a distancia, que e
+		-- exatamente o que se quer num detalhe que so importa a poucos studs do jogador. O cenario de
+		-- fundo vai em Performance: ele nunca e visto de perto e a silhueta se mantem.
+		if nome:find("^LOB_serra") or nome:find("^LOB_nevoa") then
+			m.RenderFidelity = Enum.RenderFidelity.Performance
+		elseif nome:find("^KIT_relva") or nome:find("^LOB_relva") then
+			m.RenderFidelity = Enum.RenderFidelity.Automatic
+		end
 		m.Size = Vector3.new(i.t[1] * sx, i.t[3] * sz, i.t[2] * sy)
 		local cf = CFrame.new(B(x, y, z)) * CFrame.Angles(0, math.rad(rot), 0)
 		m.CFrame = cf * CFrame.new(B(i.c[1] * sx, i.c[2] * sy, i.c[3] * sz))
