@@ -353,7 +353,20 @@ def build_lobby():
     C = 'LOB_PATIO'
     escadaria(K, C, 0, -90, Z, 12, 46)
     # ---------------------------------------------------------------- PRACA HEXAGONAL
-    # Ver o cabecalho de hexa.py: o recorte sozinho nao entrega a forma, o desenho do chao e que entrega.
+    # Era um retangulo de 140 x 120 lajeado em grade ortogonal: de cima lia como estacionamento, e as
+    # seis direcoes de circulacao caiam nele sem nenhuma marcacao. RECORTAR o piso em hexagono nao
+    # basta - piso hexagonal sem desenho le so como "praca de contorno irregular". Quem declara a
+    # forma e o desenho: aneis hexagonais concentricos, seis raios do espelho aos vertices, e um marco
+    # de pedra em cada vertice.
+    #
+    # Orientacao (coordenadas do BLENDER; o export espelha X):
+    #   vertice +Y  -> de onde parte a via imperial ate o Grande Portao
+    #   vertice -Y  -> de onde desce a escadaria do Salao da Forja do Ignis
+    #   face   -X   -> fachada da galeria dos seis portais (fachada larga pede aresta reta na frente)
+    #   face   +X   -> fachada da Loja, mesma razao
+    #   4 vertices obliquos -> os jardins
+    # Conferido contra as zonas DURO: t_sant em x -149..-101 e t_loja em +101..+133. Como o export
+    # espelha X, no Roblox isso da PORTAIS A DIREITA e LOJA A ESQUERDA, que foi o pedido.
     HW, HL = 70.0, 74.0
     INC = (HL - 42.0) / HW                            # inclinacao das quatro faces obliquas
     def hexn(x, y):
@@ -379,6 +392,11 @@ def build_lobby():
                 cx_, cy_ = x + 2.4, y + 2.45
                 h_ = hexn(cx_, cy_)
                 if h_ > 1.0 or h_ < .335: continue    # fora da praca, ou dentro do espelho central
+                # a praca cresceu de 120 para 148 studs em Y, e o vertice norte, em (0, 74), passou a
+                # entrar no corredor da via imperial, que comeca em y=60 e tem o topo 0.05 acima do
+                # piso da praca. Duas superficies a 0.05 de distancia brigam pelo pixel de longe.
+                # No trecho dela, a via manda.
+                if abs(cx_) < 17.0 and cy_ > 58.0: continue
                 anel = int(h_ * 7)                    # aneis hexagonais concentricos
                 tinta = 'pedra' if no_raio(cx_, cy_) else ('junta' if anel % 3 == 2 else 'piso')
                 pp.add(t_box(x + .10, x + 4.70, y + .10, y + 4.80, -.5, 0, bev=.05), tinta, .40 + .05 * (anel % 4))

@@ -2,222 +2,117 @@
 
 Arquivo curto de retomada. Serve para a proxima sessao comecar de um estado conhecido, sem repetir
 teste nem perder correcao. Nao e historico do projeto.
+Tudo aqui foi MEDIDO; onde for suposicao, esta escrito que e.
 
 ## Caminhos reais
 
-| o que | onde |
-|---|---|
-| repositorio | `C:\Users\lucas\OneDrive\Desktop\To up` (branch `lobby-v3-tech`) |
-| geradores | `lobby_area/murim/kit/` — `k_montagem.py` (monta), `k_lobby.py` / `k_kit2.py` / `k_veg.py` (pecas), `gerar_lobby.py` (gera o lua de montagem e a colisao) |
-| pipeline | `run_bg.py -- lobby` / `lobby_uv` / `lobby_bake <atlas> <passe> 2048 20` / `lobby_final` |
-| atlas assados | `lobby_area/murim/kit/tex/A_LOBBY_{1..6}_{color,rough,normal}.png` |
-| FBX | `lobby_area/murim/kit/export/LOBBY_FORJA_CELESTE.fbx` |
-| montagem em Lua | `lobby_area/murim/kit/export/montar_lobby.lua` (gerado, nao editar a mao) |
-| cotas compartilhadas | `lobby_area/murim/kit/lobby_cotas.json` (a geometria grava, a colisao le) |
-| place | Roblox Studio, "Anime Mining Simulator", placeId 101959830085647 |
-| backup da cena | `ServerStorage.BACKUP_LOBBY.LOBBY_MURIM_pre_relevo` (2119 partes) |
-| commit de referencia | `80dddf2` |
-
-Uma unica sessao de Studio responde pela cena. Agentes nao abrem instancia (numa rodada anterior 14
-instancias travaram a maquina do usuario).
-
-## BLOQUEIO ABERTO: malhas renderizam cinza
-
-Parte das malhas renderiza cinza/branco no Roblox em vez da cor assada.
-
-- **Afetadas:** `SANT_galeria`, `TEL_G_*` (telhado da galeria), copas de arvore.
-- **Nao afetadas (controle):** `KIT_lanterna_palacio`, `KIT_muro_seg`, `POR_*` (portais).
-- Todas as 2204 MeshParts tem `SurfaceAppearance` com `ColorMap` preenchido e IDs distintos.
-- A peca afetada examinada: `SANT_galeria`, ColorMap `rbxassetid://126054264539349`.
-  A de controle: `KIT_lanterna_palacio`, ColorMap `rbxassetid://133604368309600`.
-- Ambas: `AlphaMode = Overlay`, `NormalMap` e `RoughnessMap` presentes, `Color` da peca
-  `0.639, 0.635, 0.647`, `Material = Plastic`, `TextureID` vazio.
-
-### Hipoteses que eu declarei eliminadas SEM base suficiente
-
-Corrigido pelo usuario. Nao repetir estes argumentos como se fossem prova:
-
-| afirmei | por que nao vale |
-|---|---|
-| "PreloadAsync sem erro, logo carregou" | `PreloadAsync` nao lanca excecao quando um asset falha, e nao suporta `SurfaceAppearance` (usa pacote de textura processado). Nao demonstra carregamento. |
-| "RGB sem alfa deixa o resultado indefinido" | RGB 24 bits E a especificacao de albedo do Roblox. A ausencia de alfa nao e defeito. |
-| "ficou branco ao trocar AlphaMode, logo e UV" | E observacao, nao diagnostico. Overlay e Transparency usam o alfa de formas diferentes; trocar nao identifica qual imagem ou regiao esta sendo amostrada. |
-| "UV dentro de [0,1], logo UV esta ok" | Coordenada valida pode apontar para a regiao ERRADA da textura. |
-| "os 6 PNG tem saturacao 0.39-0.50, logo o bake esta correto" | Nao demonstra que a peca problematica recebeu o arquivo certo nem que os UV dela caem na regiao pintada. |
-
-### CAUSA ENCONTRADA (com arquivo e linha)
-
-`k_export.py` linha 13 indexa `lobby_atlas.json` por nome de **OBJETO**:
-
-```python
-for n in names: mesh_atlas[bpy.data.objects[n].data.name] = atlas
+```
+lobby_area/murim/kit/
+  k_core.py        Builder, t_box/t_prism/t_lathe/t_tube/t_blob/t_sweep, xf, instance, smooth01
+  k_materiais.py   PD (dicionario de tintas), build_paint, unwrap, bake, finalize
+  k_montagem.py    build_lobby(): masters + colocacao de TODO o lobby
+  k_lobby.py       pecas grandes: forja, penhasco, serra/nevoa de fundo, picareta
+  k_relva.py       relva geometrica (manta + ladrilho de tufos + franja + musgo)
+  k_veg.py         pinheiro, arbusto, tufo     k_jardim.py  flores e props de vila
+  k_portal.py      um portal por area (moldura, vortice, marca do anime)
+  run_bg.py        etapas do pipeline em Blender headless
+  gerar_lobby.py   gera export/montar_lobby.lua a partir de lobby_placements.json
+  picareta_aurora.blend   malha do monumento (ver "Picareta")
+  export/          FBX + scripts Lua de montagem no Studio
 ```
 
-Mas `run_bg.py` (`objs_de` / `unwrap`) grava e le o MESMO json por nome de **MALHA**. Para as pecas
-que existem em duas geracoes (as `KIT_*` com sufixo `.001`), os dois espacos de nome nao coincidem e
-a associacao malha->atlas se perde no export.
+Blender: `C:/Program Files/Blender Foundation/Blender 5.2/blender.exe`
 
-**Medido:** 168 malhas assadas nos atlas, **26 ausentes do FBX** (`KIT_arbusto_a.001`,
-`KIT_arquitrave.001`, `KIT_bal_seg.001`, `KIT_besta_*`, `KIT_chiwen.001`, `KIT_lanterna_palacio.001`,
-`KIT_muro_seg.001/.002`, entre outras). Comparar `lobby_atlas.json` com `export/kit_meshes.json`.
+## Pipeline, na ordem
 
-O que o rastreio DESCARTOU por medida, e nao deve ser reinvestigado:
-- UV: 1 unica camada `UVMap` com `active_render=True` nas 169 malhas; nao ha camada competindo
-- amostragem do PNG nas UV reais: `SANT_galeria` cai em **98.5% de pixel colorido** (sat 0.57);
-  `POR_fragmento_1_ki`, que renderiza CERTO, cai em 91.9% de PRETO — logo cobertura de UV nao explica
-- branco: a fracao de pixel BRANCO e **0.0% em todos os 8 atlas**; o cinza visto no jogo nao pode vir
-  do conteudo do ColorMap
-- FBX: md5 do PNG embutido == md5 do arquivo em `tex/`; render do proprio FBX com emissao=ColorMap
-  mostra `SANT_galeria` em vermelho-laca correto
-
-**CORRIGIDO** em `k_export.py`: o manifesto passa a ser lido por nome de MALHA (`mesh_atlas[n] = atlas`),
-que e como `run_bg.py` o grava, e o mapeamento das espelhadas passa a usar `.get()` com guarda em vez
-de indexar cego. Entrou tambem uma **guarda de integridade** que ABORTA o export se alguma malha ficar
-sem atlas ou algum nome ficar sem malha - uma montagem que perde peca em silencio e pior que um erro.
-
-Resultado medido: **168 assadas, 168 no FBX, 0 ausentes** (era 26 ausentes). E o FBX caiu de 80.5 MB
-para **37.8 MB**, porque deixou de embutir os atlas antigos das pecas que caiam no fallback. Isso
-tambem deve encurtar o import, que vinha levando ~90 min.
-
-**VALIDADO NO ROBLOX, E A CORRECAO NAO RESOLVEU O CINZA.** Reimportado: 168 MeshParts, TODAS com
-SurfaceAppearance (incluindo `SANT_galeria`), zero falha no import. E mesmo assim continuam cinza - e
-agora as lanternas, que antes tinham cor, tambem estao. O bug de export era real e esta corrigido,
-mas **nao era a causa do cinza**.
-
-### MENSAGEM DO IMPORTADOR (a pista mais forte, ainda nao explorada)
-
-No painel Output do Studio, durante o import:
-
-```
-Unable to generate 'Workspace.LOBBY_FORJA_CELESTE.ESCADA_-90.001.SurfaceAppearance'
-due to some of the textures becoming unavailable. Change 'Textured' property to retry.
+```bash
+blender -b kit_forja_celeste.blend   --python run_bg.py -- lobby       # ~35 s, monta e renderiza
+blender -b lobby_forja_celeste.blend --python run_bg.py -- lobby_uv    # ~10 s
+blender -b lobby_forja_celeste.blend --python run_bg.py -- lobby_bake A_LOBBY_1,...,A_LOBBY_6 color 2048 20
+blender -b lobby_forja_celeste.blend --python run_bg.py -- lobby_bake ... rough 2048 12
+blender -b lobby_forja_celeste.blend --python run_bg.py -- lobby_bake ... normal 2048 8
+blender -b lobby_forja_celeste.blend --python run_bg.py -- lobby_final # materiais finais + FBX
 ```
 
-E o proprio importador dizendo que nao consegue gerar a SurfaceAppearance porque as texturas ficam
-indisponiveis. Sem SA, a peca cai na cor da Part, que e cinza `0.639, 0.635, 0.647`.
+No Studio: importar `export/LOBBY_FORJA_CELESTE.fbx` pelo 3D Importer e rodar `export/tudo.lua` pelo
+Command Bar (encadeia montar -> portais -> alpha -> agua -> verificar).
+O import falha em ~45% das vezes depois de 45-90 min; re-enfileirar (marcar a linha, Start Import)
+conclui na hora, porque as malhas ja subiram.
 
-### Premissa minha que estava ERRADA
+## Armadilhas que ja custaram tempo
 
-Eu afirmei que cada malha tem ColorMap proprio, com base em dois IDs diferentes. Medido depois:
-`126054264539349` estava em `SANT_galeria` no import anterior e agora esta em `TEL_F1_beiral_lado`;
-`78355501644945` aparece em DUAS malhas. **Os ColorMaps sao compartilhados por ATLAS** (6 atlas -> ~6
-IDs), e o Roblox dedupe por conteudo. Qualquer raciocinio que dependa de "ID proprio por malha" esta
-comprometido.
+1. **`k_export.py` indexava o manifesto por nome de OBJETO; `run_bg.py` grava por nome de MALHA.**
+   26 malhas sumiam do FBX em silencio. Corrigido, com guarda que aborta o export se voltar.
+2. **AlphaMode.** Os atlas sao RGB 24 bits, sem alfa. O importador deixa toda `SurfaceAppearance` em
+   `Overlay`, que usa o alfa para mesclar sobre a cor da Part - sem alfa, sai o cinza da Part.
+   `export/materiais_alpha.lua` troca para `Transparency`. Sem esse passo o lobby fica cinza, e
+   **nao** e problema de UV nem de textura.
+3. **Teto de 20.000 triangulos por malha** no importador. `run_bg lobby` imprime quem passou de 19 mil.
+4. **Master + instancia.** Um Builder com ~90 blocos estoura o teto. Peca repetida vira master + `K.put`.
+5. **Raycast nao e teste de caminhada.** Raycast amostra superficie. Para circulacao, andar.
+6. **Cavity do Workbench.** `k_render.workbench` liga `show_cavity` e `show_shadows`. Em peca de kit
+   isso da definicao; em cenario de 900 studs vira HACHURA fina que parece defeito de malha e nao e.
+   Medido: com `show_cavity=False` a serra sai limpa. Ao julgar cenario distante pelo preview, descontar.
+7. **Peca de kit ampliada nao vira cenario.** `pico()` era o feixe de agulhas do penhasco esticado
+   para 200 studs: cada faceta virou faixa de vinte studs e leu como chapa corrugada. Cenario distante
+   quer POUCAS faces grandes e contraste baixo - a distancia se faz por perda de contraste.
+8. **Superficie desenhada duas vezes.** A 1a versao de `anel_serra` emitia a faixa `linha->dentro` na
+   banda de rocha E na de neve. A medida que achou: 624 vertices coincidentes em 1.248. Contar
+   vertices coincidentes e o teste barato para isso.
+9. **Zonas DURO envelhecem.** A barreira do lago continuou sendo o retangulo de quando o lago era
+   retangular, muito depois de ele virar poligono. Quando uma forma mudar, conferir quem a referencia
+   por literal.
+10. **Cotas.** A geometria grava `lobby_cotas.json` e a colisao em `gerar_lobby.py` le de la. Nao
+    escrever altura a mao nos dois lugares.
+11. A elevacao do terraco do Santuario esta amarrada aos pads de teleporte (Roblox Y=10) e **nao**
+    pode ser renivelada.
 
-### Hipotese aberta, a testar primeiro
+## Feito e verificado nesta rodada
 
-Textura de upload recente no Roblox passa por processamento/moderacao assincrona e renderiza cinza
-ate ser aprovada. Isso explicaria: cinza logo apos cada import, persistindo por tempo indeterminado, e
-o proprio texto "textures becoming unavailable".
+- **Relva geometrica** (`k_relva.py`) no lugar das 760 placas `t_box`. O defeito nao era cor nem
+  quantidade: era silhueta - 9 a 18 studs de aresta reta por 0,18 de altura, e a face dominante vista
+  de cima era um quadrilatero. Tres camadas: manta continua de borda recortada (carrega a cor),
+  ladrilho de tufos instanciado (97 colocacoes, 3 malhas, denso na divisa e ralo no miolo) e franja de
+  borda com musgo cobrindo o encontro com a pedra. A lamina e um prisma de 3 lados que fecha em BICO,
+  com gradiente raiz->ponta na cor de vertice.
+- **Calcada**: modulo de 11 -> 7 studs, junta rebaixada de verdade, laje escura rara. Lia como xadrez.
+- **Praca hexagonal**: aneis concentricos, seis raios ate os vertices, espelho d'agua hexagonal girado
+  30 graus (para cada ponte cruzar uma face) e marco de pedra em cada vertice.
+  Vertice N = via imperial | vertice S = escadaria da Forja | face L = portais | face O = Loja.
+- **Picareta** de 40 studs no lugar do dragao (ver abaixo).
+- **Fundo do mundo**: aneis fechados (`anel_serra`, `anel_nevoa`), malha unica, sem emenda.
+- **Telhado do Salao da Forja**: ouro macico -> verde-jade, como pedia o brief.
+- **Pe da escadaria do Santuario**: 0 -> 6 lajes na faixa que o retangulo velho do lago barrava.
 
-Como testar sem adivinhar:
-1. abrir a Toolbox / Asset Manager e olhar o estado dos assets de textura recem-enviados
-2. abrir `rbxassetid://126054264539349` num ImageLabel numa cena limpa e ver se aparece
-3. esperar e recapturar o MESMO enquadramento, para separar "processando" de "quebrado"
-4. se for moderacao, o caminho e reduzir o numero de uploads (menos atlas maiores) ou reusar assets ja
-   aprovados em vez de subir texturas novas a cada ciclo
+## Picareta - de onde ela vem
 
-**NAO comecar por refazer bake, UV ou material: esses elos ja foram medidos e estao integros.**
+A referencia era a *Dwarven Pickaxe Handpainted* do Sketchfab (imagem 42.png), que **nao e baixavel**
+(HTTP 403, confirmado). O usuario mandou no lugar a foice *Desolate Devil* com a instrucao de adaptar
+aquela foice. A meia-lua **nao foi desenhada**: foi recortada da ilha da lamina do `Desolator.fbx`,
+sem o colo espinhoso, cortada no plano X e espelhada. As duas meias-luas sao 3.872 dos 9.988
+triangulos e trazem o acabamento esculpido original.
 
-~~FALTA VALIDAR NO ROBLOX:~~ a correcao so pode ser apresentada como causa do cinza quando uma peca
-afetada (`SANT_galeria`) voltar a funcionar apos reimportar. Ainda nao foi reimportado.
+O que fez funcionar: a lamina da foice e fina demais para monumento (raiz de 0,53). Cada vertice foi
+empurrado para LONGE da polilinha do gume - o gume nao se move, a curva assinatura da foice fica
+intacta, e a massa cresce so para dentro (raiz 0,53 -> 1,28).
 
-~~Correcao a fazer: alinhar os dois espacos de nome em `k_export.py:13` (indexar por malha, como o
-`run_bg.py` faz) e reexportar. Depois confirmar que as 26 malhas aparecem no FBX, e so entao
-reimportar.~~ Verificar ainda o achado lateral: 6 malhas espelho (`*_esp`) carregam material de atlas
-diferente do que o json declara (ex.: `TEL_G_espigao_esp` diz `A_LOBBY_4`, usa `F_A_LOBBY_3`).
+A malha vive em `picareta_aurora.blend` e **nao** e reconstruida a cada build: o recorte depende de
+indices de ilha e de planos de corte medidos naquele FBX. `k_lobby.minha_picareta()` so anexa a malha
+e a reempacota num Builder, slot por slot, preservando a cor de vertice `rnd`.
 
-**Estado real: a causa ESTA identificada; falta corrigir e validar.**
+Limite honesto: a cor e assada em atlas RGB, sem alfa e sem emissivo. O verde e MATERIA (gemas, veio
+de jade rente ao gume, ranhuras) e nunca o halo luminoso da referencia.
 
-### Proximo passo executavel
+## Aberto
 
-Rastrear de ponta a ponta, comparando peca afetada contra peca de controle em cada elo:
-
-```
-objeto de origem -> conjunto UV -> imagem no material (Blender) -> PNG exportado
-   -> textura dentro do FBX -> asset importado -> SurfaceAppearance da peca no Studio
-```
-
-O teste que decide o elo do bake e local e barato: **amostrar o PNG nas coordenadas UV reais dos
-poligonos da malha afetada** e ver se ali ha pixel pintado ou vazio. Se estiver pintado, o defeito e
-depois do bake; se vazio, e no bake ou no empacotamento de UV.
-
-Testes controlados sugeridos, uma variavel por vez, numa COPIA da peca:
-1. textura de diagnostico chapada e opaca — a cor aparece na peca?
-2. grade colorida e numerada — os marcadores caem nas faces esperadas?
-3. textura verdadeira — as regioes pintadas correspondem as faces esperadas?
-
-Nao remover todos os `SurfaceAppearance`, nao refazer todos os bakes e nao pintar o cenario de forma
-uniforme para esconder o defeito.
-
-## Correcoes que existem SO NA CENA e ainda nao voltaram aos geradores
-
-Registrar como pendente num commit **nao** e incorporar ao gerador. Estas tres serao desfeitas pela
-proxima montagem se nao forem portadas:
-
-| correcao | onde esta | onde precisa entrar |
-|---|---|---|
-| ~~terreno de agua~~ **RESOLVIDO**: `agua_cartoon.lua` reescrito com o sistema das areas | no gerador | — |
-| sombra/colisao/query desligadas em 520 pecas de cenario distante (penhasco, nuvem, pico, cascata) | aplicado na cena | `gerar_lobby.py`, junto da regra `SEM_SOMBRA` |
-| leoes ampliados 1.65x e movidos para o pe da escadaria | `export/leoes_escadaria.lua`, rodado na cena | posicao e escala em `k_montagem.py` |
-
-A posicao da ponte JA foi portada para `k_montagem.py` (de `y=0` para `y=60`).
-
-## AGUA: sistema reaproveitado das areas Dragon Ball e Mare
-
-Inspecionado no projeto antes de escrever, nao presumido. `workspace.Areas.Area2` (ki/Dragon Ball) e
-`Area5` (mare) **nao usam agua de Terrain**. Usam Part com filho `Texture`:
-
-| | Lago (superficie) | LaminaDagua (queda vertical) |
-|---|---|---|
-| Part | Plastic, Transparency 0.23, Reflectance 0.10 | Plastic, Transparency 0.20, Reflectance 0.00 |
-| Texture | `rbxasset://textures/particles/water_main.dds`, Face=Top, 18x22 studs, Transparency 0.90 | mesma dds, Face=Front, 6x12 studs, Transparency 0.60 |
-
-Mais `MargemExterior` (Part opaca na cor do terreno) e `LimiteSuperior` (Transparency 1).
-
-`export/agua_cartoon.lua` foi reescrito com essa especificacao, aplicada ao contorno poligonal do lago
-do lobby (51 faixas de Lago, largura 13.3 a 32.5 studs, mais 6 LaminaDagua no labio do penhasco).
-Conferido campo a campo contra a Area2: identico. Nada foi alterado em Area2 nem em Area5.
-
-## Pendencias conhecidas do trecho sudoeste
-
-O trecho escolhido e o canto sudoeste (Blender x -184..-64, y -58..40). Ele reune borda rochosa,
-muralha e torre, terraco do Santuario com escadaria, canteiro, calcada e margem do lago.
-
-- [x] escadaria descia dentro do lago (11.5 studs de sobreposicao) — corrigido, 17.0 studs de terra
-      firme, verificado por geometria
-- [x] ponte-lua atravessava a escadaria (o raio batia em `ponte6` a 5.65 no lugar do degrau) —
-      corrigida na cena e no gerador
-- [ ] **queda de 3.40 studs** entre o pe da escada e a agua: a lista `DURO` em `k_montagem.py` ainda
-      barra o calcamento no retangulo ANTIGO do lago (`-103..-67, -77..137`), entao a terra que a
-      reentrancia liberou ficou sem piso. Precisa de piso visivel E apoio na mesma altura.
-- [ ] **contorno do lago nao e fonte unica**: `OESTE`/`LESTE` em `k_montagem.py` definem a malha, mas
-      `agua_cartoon.lua` e a lista `DURO` usam o retangulo antigo. Centralizar.
-- [ ] acabamento do trecho: vegetacao com volume, margem integrada, telhado verde-jade no modulo
-      arquitetonico do trecho
-- [ ] rochas: as colunas verticais ainda leem como modulo repetido; trabalhar massas e juncoes
-- [ ] teste de percurso com AVATAR — nunca foi executado
-
-## Sobre os testes ja feitos
-
-Separar o que foi medido do que foi observado:
-
-- **Verificado por calculo (raycast/geometria, no Blender ou por script no Studio):** sobreposicao
-  escada/lago, interferencia ponte/escada, perfil da escada (0.8 por degrau, zero pontos sem chao),
-  queda de 3.40, equivalencia das cotas antes/depois do refactor.
-- **Observado no Studio (captura):** materiais cinza, repeticao das colunas de rocha, placas verdes.
-- **Testado com o personagem em execucao:** NADA. O teste com avatar nao foi executado em nenhuma
-  rodada. Raycast e amostragem de superficie ao longo de um raio, com filtro `Include` restrito a
-  `LOBBY_MURIM` — exclui terreno, agua e grupos de colisao fora desse modelo. Nao demonstra caminhada.
-
-## Regras do projeto que ja custaram tempo
-
-- A chave `'torre'` ja e a Torre do Fogo da Forja. A torre de muralha e `'mtorre'`.
-- Os seis discos de teleporte estao travados em Roblox X=124.5, Z de 13 em 13 (-32.5 a 32.5).
-  Construir em outro modulo quebra o teleporte. A cota do Santuario tambem esta acoplada a eles.
-- `Lighting.Technology` nao pode ser lida nem escrita por script neste contexto (falta capability).
-- O import do FBX costuma falhar perto dos 45% depois de ~45 min; reenfileirar (marcar a linha e
-  Start Import) completa na hora, porque as malhas ja subiram. Nao refazer o bake por causa disso.
-- Comentario no fim de uma linha de tupla come os itens seguintes da mesma linha.
-- `_r` (random) so e importado na secao de vegetacao de `k_montagem.py`; secoes anteriores precisam
-  de import local.
+- **Cinza residual por densidade de texel.** `SANT_galeria` amostra 0,75 texel/poligono contra 23,88
+  de uma peca que sai certa, e 17% de ilhas degeneradas contra 0%. As pecas nessa faixa continuam
+  lavadas mesmo com o AlphaMode corrigido. Caminho: aumentar a area de UV dessas malhas
+  (`SANT_galeria`, `ESCADA_*`, `TEL_G_*`) - nao mexer em tinta.
+- **Teste de caminhada com avatar**: nunca executado.
+- **Dois lagos de lotus simetricos com pontes vermelhas**: o brief pedia no plural; existe um so, a
+  leste. Nao foi feito porque a reorganizacao hexagonal veio antes.
+- **Modelos de arvore prontos da internet**: pedido pelo usuario; as arvores seguem procedurais.
+- **6 malhas espelhadas (`*_esp`)** cujo atlas declarado difere do material aplicado - conferir.
+- **Correcoes feitas so na cena** (posicao/escala dos leoes) precisam ir para os geradores, senao o
+  proximo build as desfaz.
