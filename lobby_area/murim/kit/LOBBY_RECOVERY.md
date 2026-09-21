@@ -79,7 +79,47 @@ Resultado medido: **168 assadas, 168 no FBX, 0 ausentes** (era 26 ausentes). E o
 para **37.8 MB**, porque deixou de embutir os atlas antigos das pecas que caiam no fallback. Isso
 tambem deve encurtar o import, que vinha levando ~90 min.
 
-**FALTA VALIDAR NO ROBLOX:** a correcao so pode ser apresentada como causa do cinza quando uma peca
+**VALIDADO NO ROBLOX, E A CORRECAO NAO RESOLVEU O CINZA.** Reimportado: 168 MeshParts, TODAS com
+SurfaceAppearance (incluindo `SANT_galeria`), zero falha no import. E mesmo assim continuam cinza - e
+agora as lanternas, que antes tinham cor, tambem estao. O bug de export era real e esta corrigido,
+mas **nao era a causa do cinza**.
+
+### MENSAGEM DO IMPORTADOR (a pista mais forte, ainda nao explorada)
+
+No painel Output do Studio, durante o import:
+
+```
+Unable to generate 'Workspace.LOBBY_FORJA_CELESTE.ESCADA_-90.001.SurfaceAppearance'
+due to some of the textures becoming unavailable. Change 'Textured' property to retry.
+```
+
+E o proprio importador dizendo que nao consegue gerar a SurfaceAppearance porque as texturas ficam
+indisponiveis. Sem SA, a peca cai na cor da Part, que e cinza `0.639, 0.635, 0.647`.
+
+### Premissa minha que estava ERRADA
+
+Eu afirmei que cada malha tem ColorMap proprio, com base em dois IDs diferentes. Medido depois:
+`126054264539349` estava em `SANT_galeria` no import anterior e agora esta em `TEL_F1_beiral_lado`;
+`78355501644945` aparece em DUAS malhas. **Os ColorMaps sao compartilhados por ATLAS** (6 atlas -> ~6
+IDs), e o Roblox dedupe por conteudo. Qualquer raciocinio que dependa de "ID proprio por malha" esta
+comprometido.
+
+### Hipotese aberta, a testar primeiro
+
+Textura de upload recente no Roblox passa por processamento/moderacao assincrona e renderiza cinza
+ate ser aprovada. Isso explicaria: cinza logo apos cada import, persistindo por tempo indeterminado, e
+o proprio texto "textures becoming unavailable".
+
+Como testar sem adivinhar:
+1. abrir a Toolbox / Asset Manager e olhar o estado dos assets de textura recem-enviados
+2. abrir `rbxassetid://126054264539349` num ImageLabel numa cena limpa e ver se aparece
+3. esperar e recapturar o MESMO enquadramento, para separar "processando" de "quebrado"
+4. se for moderacao, o caminho e reduzir o numero de uploads (menos atlas maiores) ou reusar assets ja
+   aprovados em vez de subir texturas novas a cada ciclo
+
+**NAO comecar por refazer bake, UV ou material: esses elos ja foram medidos e estao integros.**
+
+~~FALTA VALIDAR NO ROBLOX:~~ a correcao so pode ser apresentada como causa do cinza quando uma peca
 afetada (`SANT_galeria`) voltar a funcionar apos reimportar. Ainda nao foi reimportado.
 
 ~~Correcao a fazer: alinhar os dois espacos de nome em `k_export.py:13` (indexar por malha, como o
