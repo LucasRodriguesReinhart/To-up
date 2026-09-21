@@ -13,7 +13,8 @@ local ETAPAS = {
 	{ "montar_lobby.lua",   "monta o lobby inteiro a partir das malhas importadas" },
 	{ "portais_limpar.lua", "guarda os portais procedurais antigos em ServerStorage" },
 	{ "portais_vfx.lua",    "liga o VFX e a animacao dos seis portais" },
-	{ "agua_cartoon.lua",   "troca o lago por agua de terreno no tom cartoon" },
+	{ "materiais_alpha.lua", "AlphaMode -> Transparency: sem isso os atlas RGB saem cinza" },
+	{ "agua_cartoon.lua",   "agua no sistema das areas Dragon Ball/Mare" },
 	{ "verificar_lobby.lua", "confere tudo por medida" },
 }
 
