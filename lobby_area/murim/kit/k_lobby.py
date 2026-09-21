@@ -521,7 +521,7 @@ def banco_nuvem(seed=1):
         r = rnd.uniform(4.5, 9.5)
         B.add(xf(t_blob(r, (1.35, 1.0, .34), 2, lobes=5, lobe_amp=.2, seed=k, flat_bottom=-.22 * r),
                  loc=(math.cos(a) * d, math.sin(a) * d, rnd.uniform(-1.6, 1.6))),
-              'creme', .72 + .26 * (k % 4) / 4)
+              'nevoa', .70 + .10 * (k % 4) / 4)
     return B
 
 def cascata(seed=1):
@@ -974,7 +974,17 @@ def pico(seed=0):
         B.add(_fuste(pol, _niveis(-7.0, h, (1.0, .96, .88, .77, .64, .48, .30),
                                   dx=-(sx - x) * conv, dy=-(sy - y) * conv, curva=1.15),
                      rnd, .065, bev=.45),
-              'junta' if (i % 4 == 3) else 'pedra', .26 + .13 * (i % 5))
+              'monteS' if (i % 4 == 3) else 'monte', .40 + .05 * (i % 5))
+
+    # ---- 1b. CUME NEVADO: uma calota clara no alto de cada agulha alta. A 700 studs a silhueta
+    #        sozinha nao diz "montanha"; a faixa de neve diz, e nao custa geometria nova de verdade.
+    for (x, y) in ags[:5]:
+        d = math.hypot(x - sx, y - sy) / R0
+        h = H * max(.20, (1 - .70 * d ** .92))
+        if h < H * .60: continue
+        r = R0 * (.54 - .17 * d) * .52
+        B.add(t_prism(_perf_rocha(rnd, r, 6, .26, ecc=.8, cx=x - (sx - x) * .26, cy=y - (sy - y) * .26),
+                      'Z', h * .78, h * .995, bev=.4, seg=1), 'monteN', .5)
 
     # ---- 2. CONTRAFORTES: massas baixas encostadas no pe, para o macico nao nascer do chao em parede
     for k in range(4):
@@ -985,7 +995,7 @@ def pico(seed=0):
         pol = _perf_rocha(rnd, r, 6, .30, ecc=.85, cx=x, cy=y)
         B.add(_fuste(pol, _niveis(-7.0, H * rnd.uniform(.12, .30), (1.0, .88, .70, .46),
                                   dx=-math.cos(a) * r * .8, dy=-math.sin(a) * r * .8, curva=1.0),
-                     rnd, .07, bev=.4), 'junta' if k % 2 else 'pedra', .22 + .1 * (k % 3))
+                     rnd, .07, bev=.4), 'monteS' if k % 2 else 'monte', .42 + .04 * (k % 3))
 
     # ---- 3. SULCOS: lascas escuras enfiadas entre as massas - a fenda vertical que da escala e altura
     for k in range(4):
@@ -995,7 +1005,7 @@ def pico(seed=0):
         pol = _perf_rocha(rnd, R0 * rnd.uniform(.10, .16), 4, .26, ecc=.34, a0=a + 1.57, cx=x, cy=y)
         B.add(_fuste(pol, _niveis(-4.0, H * rnd.uniform(.45, .80), (.9, 1.0, .78, .50, .22),
                                   dx=-math.cos(a) * R0 * .10, dy=-math.sin(a) * R0 * .10, curva=1.0),
-                     rnd, .08, bev=.3), 'junta' if k % 2 else 'casca_escura', .3 + .1 * k)
+                     rnd, .08, bev=.3), 'monteS', .38 + .03 * k)
 
     # ---- 4. VERDE: so no pe e em prateleiras baixas, rente a rocha (nunca placa boiando no flanco)
     for k in range(7):
@@ -1005,6 +1015,180 @@ def pico(seed=0):
                           cx=math.cos(a) * d + sx * t, cy=math.sin(a) * d + sy * t)
         z = H * t
         B.add(t_prism(pol, 'Z', z - 2.6, z + rnd.uniform(.3, 1.2), bev=.3, seg=1),
-              'pinho' if rnd.random() < .7 else 'folha', .40 + .12 * (k % 4))
+              'monteS', .44 + .03 * (k % 4))
     return B
 # =================================================================== COLAR EM k_lobby.py (fim)
+
+
+# =================================================================== SERRA DE FUNDO
+# Terceira tentativa, e as duas anteriores ensinaram o mesmo:
+#
+#  1a) pico() ampliado - feixe de agulhas crespas esticado para 200 studs. Cada faceta virou uma faixa
+#      chapada de vinte studs: leu como CHAPA CORRUGADA. Peca de kit ampliada nao vira cenario.
+#  2a) faixas de serra enfileiradas em anel - a silhueta ficou certa, mas apareceu HACHURA fina por
+#      toda a montanha. Nao era tinta nem ruido de shader (troquei a paleta e desliguei o ruido, e a
+#      hachura continuou): eram os segmentos VIZINHOS se sobrepondo quase no mesmo plano, dois
+#      poligonos disputando o mesmo pixel. Reduzir a quantidade so diminuiu, porque basta UM par.
+#
+# A unica forma de garantir que nao existe superficie coplanar e nao existir emenda: aqui a serra e um
+# ANEL FECHADO, malha unica, colocada uma vez. E o mesmo motivo pelo qual a neve nao e uma capa POR
+# CIMA da rocha e sim a FAIXA DE CIMA da mesma cortina, dividida na cota da neve - as duas bandas
+# encostam pela aresta, nunca se empilham.
+def _serra_perfil(a, seed, cumes):
+    """altura normalizada em funcao do angulo. Tudo em harmonicas INTEIRAS do circulo, para o perfil
+    fechar exatamente em a=0 e a=2pi: uma emenda de altura no fecho e tao visivel quanto uma emenda
+    de geometria."""
+    h = .50
+    for (k, amp, fase) in ((2, .16, .7 * seed), (3, .11, 1.9 * seed), (5, .07, .4 * seed),
+                           (7, .05, 2.6 * seed), (11, .030, 1.2 * seed), (17, .016, .9 * seed)):
+        h += amp * math.sin(k * a + fase)
+    for (ac, amp, larg) in cumes:                       # cume = gaussiana larga no angulo, nunca pico agudo
+        d = abs((a - ac + math.pi) % math.tau - math.pi)
+        h += amp * math.exp(-(d / larg) ** 2)
+    return h
+
+
+def anel_serra(nome, R=470.0, alt=150.0, prof=150.0, gy=1.05, n=150, seed=1, zb=-150.0, neve=.62):
+    """CORTINA circular fechada: sem emenda, logo sem duas superficies disputando o mesmo pixel.
+
+    A versao anterior desta funcao ainda hachurava, e a medicao mostrou por que: 624 vertices
+    coincidentes num total de 1248, ou seja, METADE da malha desenhada em dobro. Eu emitia a faixa
+    linha->dentro tanto na banda de rocha quanto na de neve. A cortina e uma so e cada trecho dela
+    pertence a UMA banda:
+        fora   -> linha    rocha, saia externa do pe ate a cota da neve
+        linha  -> crista   neve  (onde nao ha neve as duas coincidem e o quad e pulado)
+        crista -> dentro   rocha, encosta de tras
+    """
+    B = Builder(nome, 60 + seed)
+    rnd = random.Random(1200 + seed * 37)
+    cumes = [(rnd.uniform(0, math.tau), rnd.uniform(.30, .62), rnd.uniform(.16, .34)) for _ in range(rnd.randint(5, 7))]
+    hs = [_serra_perfil(math.tau * i / n, seed, cumes) for i in range(n)]
+    m = max(hs); mn = min(hs)
+    hs = [alt * (.26 + .74 * (h - mn) / (m - mn + 1e-6)) for h in hs]
+    for i in range(n):                                  # degrau lateral: tira a curva unica lisa
+        if rnd.random() < .18: hs[i] *= rnd.uniform(.82, .94)
+    corte = sorted(hs)[int(n * neve)]                   # cota da neve
+    def raio_fora(i):
+        return R + prof * .5 * (1 + .10 * math.sin(7 * math.tau * i / n))
+    def z_neve(i):
+        return hs[i] if hs[i] <= corte else max(corte, hs[i] - alt * .17)
+    def r_neve(i):
+        return R if hs[i] <= corte else R + prof * .06
+    def mk(bm, i, rr, z):
+        a = math.tau * i / n
+        return bm.verts.new((math.cos(a) * rr, math.sin(a) * rr * gy, z))
+    # --- banda de rocha: saia externa + encosta de tras, numa malha so
+    bmR = bmesh.new()
+    fora = [mk(bmR, i, raio_fora(i), zb) for i in range(n)]
+    linR = [mk(bmR, i, r_neve(i), z_neve(i)) for i in range(n)]
+    criR = [mk(bmR, i, R, hs[i]) for i in range(n)]
+    dent = [mk(bmR, i, R - prof * .34, zb * .55) for i in range(n)]
+    for (a_, b_) in ((fora, linR), (criR, dent)):
+        for i in range(n):
+            j = (i + 1) % n
+            try: bmR.faces.new((a_[i], a_[j], b_[j], b_[i]))
+            except ValueError: pass
+    bmesh.ops.recalc_face_normals(bmR, faces=bmR.faces)
+    # --- banda de neve: SO o trecho entre a cota da neve e a crista, e so onde ha neve
+    bmN = bmesh.new()
+    linN = [mk(bmN, i, r_neve(i), z_neve(i)) for i in range(n)]
+    criN = [mk(bmN, i, R, hs[i]) for i in range(n)]
+    for i in range(n):
+        j = (i + 1) % n
+        if hs[i] <= corte and hs[j] <= corte: continue  # sem neve aqui: o quad seria de area zero
+        try: bmN.faces.new((linN[i], linN[j], criN[j], criN[i]))
+        except ValueError: pass
+    bmesh.ops.recalc_face_normals(bmN, faces=bmN.faces)
+    B.add(bmR, 'monte', .48)
+    if bmN.faces: B.add(bmN, 'monteN', .56)
+    else: bmN.free()
+    return B
+
+
+def anel_nevoa(nome, R=400.0, larg=70.0, alt=34.0, gy=1.06, n=120, seed=1, zb=-120.0):
+    """FAIXA de nevoa, tambem em anel fechado. Os blobs do banco_nuvem, ampliados e enfileirados, liam
+    como fileira de travesseiros - cada um com contorno e sombra propria. Nevoa opaca so funciona se
+    nao tiver contorno para o olho pegar."""
+    B = Builder(nome, 70 + seed)
+    bm = bmesh.new()
+    def h(i):
+        a = math.tau * i / n
+        v = .55 + .22 * math.sin(3 * a + seed) + .13 * math.sin(7 * a + 2 * seed) + .08 * math.sin(13 * a)
+        return max(.16, v)
+    def P(i, rr, z):
+        a = math.tau * i / n
+        return bm.verts.new((math.cos(a) * rr, math.sin(a) * rr * gy, z))
+    fora = [P(i, R + larg * .5, zb) for i in range(n)]
+    topo = [P(i, R, alt * h(i)) for i in range(n)]
+    dentro = [P(i, R - larg * .5, zb) for i in range(n)]
+    for (a_, b_) in ((fora, topo), (topo, dentro)):
+        for i in range(n):
+            j = (i + 1) % n
+            try: bm.faces.new((a_[i], a_[j], b_[j], b_[i]))
+            except ValueError: pass
+    bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+    B.add(bm, 'nevoa', .62)
+    return B
+
+
+# =================================================================== PICARETA "FURIA DA AURORA"
+# MONUMENTO DA PRACA, no lugar do dragao.
+#
+# O pedido foi picareta MAGICA, com a "Dwarven Pickaxe Handpainted" do Sketchfab como referencia
+# (imagem 42.png). O modelo nao era baixavel (HTTP 403 confirmado), e o usuario mandou no lugar a
+# foice "Desolate Devil" com a instrucao de ADAPTAR AQUELA FOICE. E o que esta aqui: a meia-lua nao
+# foi desenhada, foi RECORTADA da malha da foice.
+#
+# O que veio da foice, literalmente: a ilha da lamina do Desolator.fbx, sem o colo espinhoso, cortada
+# no plano X e espelhada - as duas meias-luas sao 3.872 dos 9.988 triangulos e trazem o acabamento
+# esculpido original (recortes, vincos, espinhos do dorso). A lamina da foice era fina demais para
+# monumento (raiz de 0,53), entao cada vertice foi empurrado para LONGE da polilinha do gume: o gume
+# nao se mexe um milimetro, a curva assinatura da foice fica intacta, e a massa cresce so para dentro
+# (raiz de 0,53 para 1,28). Engaste, gema, garras, virolas, cabo e pomo sao do kit.
+#
+# A malha fica em picareta_aurora.blend e nao e reconstruida a cada build: o recorte depende de
+# indices de ilha e de planos de corte medidos naquele FBX, e refazer isso a cada geracao seria
+# fragil a toa. Aqui ela so e anexada e reempacotada num Builder, slot por slot, preservando a cor
+# de vertice ('rnd') que o bake usa.
+#
+# Limite honesto do pipeline: a cor aqui e ASSADA em atlas RGB, sem alfa e sem emissivo, entao o
+# verde e MATERIA (gemas, veio de jade rente ao gume, ranhuras das virolas) e nunca o halo luminoso
+# da referencia. Nao ha como fugir disso sem mudar o pipeline inteiro.
+PIC_BLEND = 'picareta_aurora.blend'
+PIC_MALHA = 'MON_picareta_aurora'
+PIC_ALT = 19.28                                       # altura da malha como esta no arquivo
+
+def minha_picareta(H=19.0):
+    import os
+    B = Builder('LOB_picareta_aurora', 777)
+    cam = os.path.join(os.path.dirname(os.path.abspath(__file__)), PIC_BLEND)
+    nome = PIC_MALHA
+    if nome not in bpy.data.meshes:
+        with bpy.data.libraries.load(cam) as (dados, alvo): alvo.meshes = [nome]
+    me = bpy.data.meshes[nome]
+    esc = H / PIC_ALT
+    # um bmesh por slot de material: o Builder monta os slots a partir das tintas que recebe, entao a
+    # malha precisa voltar separada por tinta. 'P_ouro' -> 'ouro'.
+    fonte = bmesh.new(); fonte.from_mesh(me)
+    lay = fonte.loops.layers.color.get('rnd')
+    for idx, mat in enumerate(me.materials):
+        if mat is None: continue
+        key = mat.name[2:] if mat.name.startswith('P_') else mat.name
+        faces = [f for f in fonte.faces if f.material_index == idx]
+        if not faces: continue
+        bm = bmesh.new()
+        lay2 = bm.loops.layers.color.new('rnd')
+        vmap = {}
+        for f in faces:
+            vs = []
+            for v in f.verts:
+                if v not in vmap: vmap[v] = bm.verts.new(v.co * esc)
+                vs.append(vmap[v])
+            try: nf = bm.faces.new(vs)
+            except ValueError: continue
+            if lay is not None:
+                for lo, lb in zip(f.loops, nf.loops): lb[lay2] = lo[lay]
+        bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+        B.add(bm, key, rnd='keep')
+    fonte.free()
+    return B

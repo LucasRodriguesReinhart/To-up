@@ -10,6 +10,11 @@ import bpy, bmesh, math, json, os
 from mathutils import Vector
 from k_core import *
 import k_pedra, k_madeira, k_dougong, k_telhado, k_props, k_veg, k_kit2, k_lobby, k_jardim, k_portal
+import k_relva, k_materiais
+# as tintas da relva entram em k_materiais.PD AGORA, no import: run_bg chama build_paints() depois
+# de importar k_montagem e antes de build_lobby(), entao registrar aqui e o unico ponto que pega
+# os dois lados. Registrar dentro de build_lobby() seria tarde - os shaders ja estariam prontos.
+k_relva.registrar_relva(k_materiais)
 from k_pavilhao import Kit, mirror_mesh
 
 MOD = k_pedra.MOD; VAO = k_madeira.VAO; HCOL = k_madeira.H_COL
@@ -188,11 +193,22 @@ def build_lobby():
         ('estand', k_kit2.estandarte, 'LOB_PROPS'), ('sup_esp', k_kit2.suporte_espada, 'LOB_PROPS'), ('vaso', k_kit2.vaso, 'LOB_PROPS'),
         ('muro', k_kit2.muro_seg, 'LOB_PORTAO'), ('mpilar', k_kit2.muro_pilar, 'LOB_PORTAO'), ('tel_portao', k_kit2.telhado_portao, 'LOB_PORTAO'),
         ('muroA', lambda: k_kit2.muro_seg(9.0, 13.5), 'LOB_PORTAO'), ('mtorre', k_kit2.muro_torre, 'LOB_PORTAO'),
+        ('relvaA', lambda: k_relva.tile_relva('KIT_relva_a', 101)[0], 'LOB_CHAO'),
+        ('relvaB', lambda: k_relva.tile_relva('KIT_relva_b', 202)[0], 'LOB_CHAO'),
+        # ladrilho RALO para o miolo dos canteiros: a pesquisa de ambiente e explicita em variar a
+        # densidade (4-8 laminas por stud2 junto do caminho, 0.5-1.5 longe). Grama uniforme de borda a
+        # borda le como tapete, e no miolo, que o jogador so ve de longe, ela custa triangulo a toa.
+        ('relvaC', lambda: k_relva.tile_relva('KIT_relva_c', 303, cap=6200, hero_n=1)[0], 'LOB_CHAO'),
         ('penha1', lambda: k_lobby.penhasco(1), 'LOB_CHAO'), ('penha2', lambda: k_lobby.penhasco(2), 'LOB_CHAO'),
         ('penha3', lambda: k_lobby.penhasco(3), 'LOB_CHAO'), ('nuvem', k_lobby.banco_nuvem, 'LOB_CHAO'),
-        ('pico1', lambda: k_lobby.pico(1), 'LOB_CHAO'), ('pico2', lambda: k_lobby.pico(2), 'LOB_CHAO'),
-        ('pico3', lambda: k_lobby.pico(3), 'LOB_CHAO'), ('queda', k_lobby.cascata, 'LOB_CHAO'),   # NAO usar 'torre': ja e a Torre do Fogo da Forja
-        ('torre', k_lobby.torre_fogo, 'LOB_FORJA'), ('espada', lambda: k_lobby.meu_dragao(17.0), 'LOB_PATIO'), ('ped_esp', lambda: k_lobby.pedestal_espada(11.0, 6.0), 'LOB_PATIO'),
+        # aneis FECHADOS, um de cada, colocados uma unica vez: e a unica garantia de que nao ha
+        # duas superficies quase coplanares brigando pelo mesmo pixel (a hachura da versao anterior).
+        ('serraA', lambda: k_lobby.anel_serra('LOB_serra_a', 470, 152, 160, 1.05, 156, 1, -170, .60), 'LOB_CHAO'),
+        ('serraB', lambda: k_lobby.anel_serra('LOB_serra_b', 700, 224, 230, 1.03, 168, 2, -200, .52), 'LOB_CHAO'),
+        ('nevoaA', lambda: k_lobby.anel_nevoa('LOB_nevoa_a', 262, 66, 30, 1.09, 118, 1, -110), 'LOB_CHAO'),
+        ('nevoaB', lambda: k_lobby.anel_nevoa('LOB_nevoa_b', 395, 96, 44, 1.06, 126, 2, -150), 'LOB_CHAO'),
+        ('queda', k_lobby.cascata, 'LOB_CHAO'),   # NAO usar 'torre': ja e a Torre do Fogo da Forja
+        ('torre', k_lobby.torre_fogo, 'LOB_FORJA'), ('espada', lambda: k_lobby.minha_picareta(40.0), 'LOB_PATIO'), ('ped_esp', lambda: k_lobby.pedestal_espada(15.0, 8.4), 'LOB_PATIO'),
         ('fornalha', k_lobby.fornalha, 'LOB_FORJA'), ('bigorna', k_lobby.bigorna, 'LOB_FORJA'), ('fole', k_lobby.fole, 'LOB_FORJA'),
         ('calha', k_lobby.calha_tempera, 'LOB_FORJA'), ('laminas', k_lobby.altar_laminas, 'LOB_FORJA'), ('braseiro', k_lobby.braseiro, 'LOB_PROPS'),
         ('leaoA', lambda: k_lobby.leao(1), 'LOB_PROPS'), ('leaoB', lambda: k_lobby.leao(-1), 'LOB_PROPS'),
@@ -224,7 +240,12 @@ def build_lobby():
     RG = k_telhado.Roof(EX=26.0, EY=13.0, RS=8.0, H=10.0, ZE=0.0, LIFT=2.8, SL=7.0, OUT=1.2, PER=1.6, LT=2.6)           # Portao e Loja
     for nome, R in (('F1', RF), ('F2', RF2), ('G', RG)):
         for which, w in (('front', 'frente'), ('side', 'lado')):
-            K.master('ag_%s_%s' % (nome, w), lambda R=R, which=which, nome=nome, w=w: k_telhado.agua(R, which, 'TEL_%s_agua_%s' % (nome, w), 'telhaImp' if nome.startswith('F') else 'telha'), 'LOB_FORJA')
+            # O BRIEF pediu telhados VERDE-JADE com dourado, e o Salao da Forja era o unico em ouro
+            # macico ('telhaImp'). Vai para 'jade' (3E7D6E), que e mais claro que a 'telha' (2E5A4C)
+            # dos outros telhados: continua sendo o edificio que puxa o olho, mas por ser o verde
+            # mais aceso da cena, e nao por ser de outra familia de cor. O dourado fica nas
+            # cumeeiras, nos dragoes de beiral e nos remates, que e onde a referencia o poe.
+            K.master('ag_%s_%s' % (nome, w), lambda R=R, which=which, nome=nome, w=w: k_telhado.agua(R, which, 'TEL_%s_agua_%s' % (nome, w), 'jade' if nome.startswith('F') else 'telha'), 'LOB_FORJA')
             K.master('be_%s_%s' % (nome, w), lambda R=R, which=which, nome=nome, w=w: k_telhado.beiral(R, which, 'TEL_%s_beiral_%s' % (nome, w)), 'LOB_FORJA')
         Be, anc = k_telhado.espigao(R, 'TEL_%s_espigao' % nome); K.master('esp_%s' % nome, Be, 'LOB_FORJA')
         Bv, tip, td = k_telhado.viga_canto(R, 'TEL_%s_viga_canto' % nome); K.master('vc_%s' % nome, Bv, 'LOB_FORJA')
@@ -331,26 +352,78 @@ def build_lobby():
     # ================================================================ ESCADARIA + PATIO + ALTAR
     C = 'LOB_PATIO'
     escadaria(K, C, 0, -90, Z, 12, 46)
-    for f in range(6):                                                              # piso em 6 faixas (e nao 672 lajes soltas)
+    # ---------------------------------------------------------------- PRACA HEXAGONAL
+    # Ver o cabecalho de hexa.py: o recorte sozinho nao entrega a forma, o desenho do chao e que entrega.
+    HW, HL = 70.0, 74.0
+    INC = (HL - 42.0) / HW                            # inclinacao das quatro faces obliquas
+    def hexn(x, y):
+        """norma hexagonal: 0 no centro, 1 exatamente na borda da praca. E dela que saem os aneis."""
+        return max(abs(x) / HW, (abs(y) + INC * abs(x)) / HL)
+    VERT = [(0, HL), (HW, 42.0), (HW, -42.0), (0, -HL), (-HW, -42.0), (-HW, 42.0)]
+    ANG_V = [math.degrees(math.atan2(vy, vx)) % 360 for (vx, vy) in VERT]
+    def no_raio(x, y):
+        """o ladrilho cai num dos seis raios que ligam o espelho central aos vertices?"""
+        r = math.hypot(x, y)
+        if r < 25: return False
+        a_ = math.degrees(math.atan2(y, x)) % 360
+        larg = math.degrees(math.atan2(3.4, r))       # largura CONSTANTE de 3.4 studs, nao angular:
+        for av in ANG_V:                              # raio de largura angular vira funil e nao le como caminho
+            d_ = abs(a_ - av)
+            if min(d_, 360 - d_) < larg: return True
+        return False
+    for f in range(6):                                # piso em 6 faixas (e nao ~900 lajes soltas)
         pp = Builder('PATIO_piso_%d' % f, 40 + f)
-        for i in range(f * 5, min(28, (f + 1) * 5)):
-            for j in range(24):
-                x = -70 + i * 5; y = -60 + j * 5
-                if abs(x + 2.5) < 24 and abs(y + 2.5) < 24: continue                # buraco do altar/espelho
-                pp.add(t_box(x + .08, x + 4.92, y + .08, y + 4.92, -.5, 0, bev=.05), 'piso')
-        pp.add(t_box(-70, 70, -60, 60, -.62, -.42), 'junta', .25)
+        for i in range(f * 5, min(30, (f + 1) * 5)):
+            for j in range(32):
+                x = -72 + i * 4.8; y = -78 + j * 4.9
+                cx_, cy_ = x + 2.4, y + 2.45
+                h_ = hexn(cx_, cy_)
+                if h_ > 1.0 or h_ < .335: continue    # fora da praca, ou dentro do espelho central
+                anel = int(h_ * 7)                    # aneis hexagonais concentricos
+                tinta = 'pedra' if no_raio(cx_, cy_) else ('junta' if anel % 3 == 2 else 'piso')
+                pp.add(t_box(x + .10, x + 4.70, y + .10, y + 4.80, -.5, 0, bev=.05), tinta, .40 + .05 * (anel % 4))
         pp.finish(C)
-    agua = Builder('PATIO_agua'); agua.add(t_lathe([(0, -1.2), (23, -1.2), (23, -.35), (0, -.35)], 32), 'agua', .6); agua.finish(C)
-    leito = Builder('PATIO_leito'); leito.add(t_lathe([(0, -1.6), (23.4, -1.6), (23.4, -1.1), (0, -1.1)], 32), 'junta', .3); leito.finish(C)
+    base_hex = Builder('PATIO_base', 47)              # manta de junta por baixo, no contorno do hexagono
+    base_hex.add(t_prism([(vx * 1.012, vy * 1.012) for (vx, vy) in VERT], 'Z', -.66, -.42), 'junta', .25)
+    base_hex.finish(C)
+    # ESPELHO D'AGUA hexagonal GIRADO 30 graus em relacao a praca: assim as FACES do espelho ficam
+    # voltadas para os VERTICES da praca, e cada uma das seis pontes cruza uma face de frente. Alinhado,
+    # cada ponte cairia sobre um vertice do espelho, que e o encontro errado.
+    HEX_E = [(23.0 * math.cos(math.radians(60 * k + 30)), 23.0 * math.sin(math.radians(60 * k + 30))) for k in range(6)]
+    agua = Builder('PATIO_agua'); agua.add(t_prism(HEX_E, 'Z', -1.2, -.35), 'agua', .6); agua.finish(C)
+    leito = Builder('PATIO_leito')
+    leito.add(t_prism([(vx * 1.05, vy * 1.05) for (vx, vy) in HEX_E], 'Z', -1.6, -1.1), 'junta', .3); leito.finish(C)
     borda = Builder('PATIO_borda', 41)
-    for k in range(8):
-        a = math.radians(45 * k)
-        borda.add(xf(t_box(-9.6, 9.6, -.8, .8, -.7, .5, bev=.1), rot=(0, 0, 45 * k + 90), loc=(23.6 * math.cos(a), 23.6 * math.sin(a), 0)), 'pedra', .45 + .06 * k)
-    for k in range(4):                                                              # 4 pontes de pedra sobre o espelho
-        a = math.radians(90 * k)
-        borda.add(xf(t_box(-4.5, 4.5, -4.2, 4.2, -1.4, .3, bev=.08), rot=(0, 0, 90 * k), loc=(17 * math.cos(a), 17 * math.sin(a), 0)), 'pedra', .5)
+    for k in range(6):                                                              # murete nas 6 faces do espelho
+        a = math.radians(60 * k + 30)
+        borda.add(xf(t_box(-13.6, 13.6, -.9, .9, -.7, .55, bev=.1), rot=(0, 0, 60 * k + 120),
+                     loc=(24.2 * math.cos(a), 24.2 * math.sin(a), 0)), 'pedra', .45 + .06 * k)
+    for k in range(6):                                                              # 6 pontes, uma por vertice
+        a = math.radians(ANG_V[k])
+        borda.add(xf(t_box(-4.6, 4.6, -5.2, 5.2, -1.4, .3, bev=.08), rot=(0, 0, ANG_V[k]),
+                     loc=(19 * math.cos(a), 19 * math.sin(a), 0)), 'pedra', .5)
+    # MEIO-FIO do hexagono, interrompido nos seis vertices - e por eles que se entra na praca.
+    for k in range(6):
+        (ax_, ay_) = VERT[k]; (bx_, by_) = VERT[(k + 1) % 6]
+        comp = math.hypot(bx_ - ax_, by_ - ay_)
+        ang = math.degrees(math.atan2(by_ - ay_, bx_ - ax_))
+        mx, my = (ax_ + bx_) / 2, (ay_ + by_) / 2
+        borda.add(xf(t_box(-comp / 2 + 8.0, comp / 2 - 8.0, -1.1, 1.1, -.62, .92, bev=.12),
+                     rot=(0, 0, ang), loc=(mx, my, 0)), 'pedra', .52)
+        borda.add(xf(t_box(-comp / 2 + 8.4, comp / 2 - 8.4, -.75, .75, -.62, 1.06, bev=.09),
+                     rot=(0, 0, ang), loc=(mx, my, 0)), 'junta', .34)
     borda.finish(C)
-    K.put('ped_esp', C, (0, 0, 0)); K.put('espada', C, (0, 0, 6.35))
+    marcos = Builder('PATIO_marcos', 45)              # marco em cada vertice: e o que fixa a forma no olho
+    for k, (vx, vy) in enumerate(VERT):
+        f_ = 1 - 5.6 / math.hypot(vx, vy)
+        ox, oy, rr = vx * f_, vy * f_, 2.1
+        marcos.add(t_box(ox - rr, ox + rr, oy - rr, oy + rr, -.6, 4.4, bev=.16, seg=2), 'pedra', .58)
+        marcos.add(t_box(ox - rr * .80, ox + rr * .80, oy - rr * .80, oy + rr * .80, 4.4, 5.3, bev=.14), 'junta', .4)
+        marcos.add(xf(t_lathe([(0, 0), (rr * .66, .14), (rr * .52, 1.0), (0, 1.7)], 8), loc=(ox, oy, 5.3)), 'bronze', .62)
+    marcos.finish(C)
+    # o monumento cresceu de 17 para 40 studs: numa praca de 148 de vao, 17 lia como enfeite de
+    # fonte. 40 poe a meia-lua acima da balaustrada e faz dele o centro que a referencia mostra.
+    K.put('ped_esp', C, (0, 0, 0)); K.put('espada', C, (0, 0, 8.20))
     for k in range(4):
         a = math.radians(90 * k + 45)
         K.put('braseiro', 'LOB_PROPS', (12.5 * math.cos(a), 12.5 * math.sin(a), 6.0))
@@ -593,7 +666,7 @@ def build_lobby():
     # embaixo: saiu flor em cima do calcamento, arbusto no meio do patio e cerejeira dentro do set de
     # treino. Cada caixa aqui e uma superficie dura ou de circulacao, com folga para o raio da planta.
     DURO = (
-        ('patio',      -72,  72,  -64,   64), ('escadaria', -26,  26,  -94,  -58),
+        ('patio',      -73,  73,  -79,   79), ('escadaria', -26,  26,  -94,  -58),
         ('via',        -19,  19,   56,  144), ('portao',    -49,  49,  136,  182),
         ('t_forja',    -65,  65, -156,  -86), ('t_sant',   -149, -101, -49,   49),
         ('t_loja',     101, 133,  -28,   20), ('treino',     69, 103,   16,   60),
@@ -746,23 +819,19 @@ def build_lobby():
     n1 = anel('penha%d', 2.0, -1.0, 12.5, 1.00)     # passo 12.5 contra modulo de 18: sobrepoe
     n2 = anel('penha%d', 13.0, -17.0, 14.0, 1.20)
     n3 = anel('penha%d', 26.0, -33.0, 16.0, 1.45)
-    # (b) banco de nuvem OPACO por baixo: sem ele o olho acha o fim da rocha e volta a ler o corte.
-    #     Nao pode ser transparencia - a cor aqui e assada em atlas e nao existe alpha.
-    for anel_n, (raio, zc, esc) in enumerate(((236, -46, 1.5), (300, -52, 2.1), (395, -58, 2.9))):
-        for k in range(38 + anel_n * 10):
-            a3 = math.tau * k / (38 + anel_n * 10)
-            r = raio + rb.uniform(-20, 26)
-            K.put('nuvem', 'LOB_CHAO', (math.cos(a3) * r, math.sin(a3) * r * 1.10, zc + rb.uniform(-7, 7)),
-                  rb.uniform(0, 360), (esc * rb.uniform(.85, 1.25),) * 3)
-    # (c) picos de fundo: 3 templates reusados em escalas diferentes, os mais distantes puxados para
-    #     o azul da nevoa. Sao cenograficos - silhueta importa, detalhe nao.
-    for k in range(14):
-        a3 = math.tau * k / 14 + .22
-        d = 650 + (k % 4) * 150
-        # enterrado em -78: a base do pico tem de sumir atras do cinturao e do banco de nuvem, senao
-        # ele bola no ceu como recorte de papelao. So o topo aparece, que e o que faz horizonte.
-        K.put('pico%d' % (1 + k % 3), 'LOB_CHAO', (math.cos(a3) * d, math.sin(a3) * d * 1.05, -78),
-              rb.uniform(0, 360), (0.95 + (k % 4) * 0.30,) * 3)
+    # (b) e (c) FUNDO: faixa de nevoa + serra, ambos em FAIXAS e nao em pecas soltas.
+    #     Antes: 130 blobs de nuvem em 4 aneis e 26 picos. Os blobs, ampliados e enfileirados, liam
+    #     como fileira de travesseiros - cada um com contorno e sombra proprios; e os picos, que sao
+    #     feixes de agulha crespa, ampliados para 150-200 studs liam como chapa corrugada. Os dois
+    #     defeitos tem a mesma raiz: peca de kit ampliada nao vira cenario, porque o que o olho usa a
+    #     essa distancia e a silhueta, e silhueta pede POUCAS faces grandes, nao muitas pequenas.
+    # (b) e (c) FUNDO em quatro aneis fechados. A serra de tras e mais alta e mais clara; a nevoa de
+    #     395 corta o pe das duas serras, e a de 262 fecha o pe do penhasco. Colocados uma vez cada:
+    #     sem emenda nao ha como duas faces caírem no mesmo plano.
+    K.put('serraB', 'LOB_CHAO', (0, -8, -66))
+    K.put('serraA', 'LOB_CHAO', (0, -8, -52))
+    K.put('nevoaB', 'LOB_CHAO', (0, -8, -26))
+    K.put('nevoaA', 'LOB_CHAO', (0, -8, -40))
     # quedas d'agua nascendo no labio do primeiro patamar e morrendo no banco de nuvem
     for (qx, qy, qr) in ((-BX - 4, -60, 90), (-BX - 4, 90, 90), (BX + 4, -30, 270),
                          (BX + 4, 110, 270), (-40, BY0 - 4, 180), (60, BY1 + 4, 0)):
@@ -770,22 +839,37 @@ def build_lobby():
     ch = Builder('LOB_chao'); ch.add(t_box(-180, 180, -215, 200, -3, -.52), 'casca_escura', .3)
     # CALCADA: tudo o que nao e canteiro, nao e agua e nao e superficie ja construida vira pedra.
     # O topo fica em -0.50, rente ao topo da grama, para nao mexer nas caixas de colisao.
-    cal = Builder('LOB_calcada', 406)
+    # A laje media era de 11 studs (quase duas vezes a largura de um personagem) e 18% delas saiam em
+    # 'junta', que e quatro tons mais escura que 'piso'. De cima isso nao lia como calcamento: lia como
+    # TABULEIRO DE XADREZ de retangulos grandes, com o mesmo defeito de silhueta das placas de grama.
+    # Agora: modulo de 7 studs (mao humana de escala), JUNTA REBAIXADA de verdade entre as lajes (a
+    # laje recua 0.34 de cada lado e por baixo passa uma manta escura continua), variacao de tom curta,
+    # e laje escura rara e isolada em vez de 18% sorteados.
     gr = _r.Random(404)
-    PASSO = 11.0
+    PASSO = 7.0
+    ni_ = int(340 / PASSO); nj_ = int(392 / PASSO)
+    # manta da junta: contínua por baixo de tudo, e ela que aparece na fresta entre as lajes
+    jt = Builder('LOB_junta', 405)
+    for i in range(0, ni_, 12):
+        jt.add(t_box(-170 + i * PASSO, min(170, -170 + (i + 12) * PASSO), -206, 186, -.66, -.56), 'junta', .34)
+    jt.finish('LOB_CHAO')
+    # as lajes vao em 4 malhas: com modulo de 7 studs sao ~4.500 lajes, e uma malha unica estouraria
+    # o teto de 20 mil tris do importador do Roblox.
+    NB = 4
+    cals = [Builder('LOB_calcada_%d' % b, 406 + b) for b in range(NB)]
     postas = 0
-    for i in range(int(340 / PASSO)):
-        for j in range(int(392 / PASSO)):
+    for i in range(ni_):
+        for j in range(nj_):
             cx = -170 + (i + .5) * PASSO
             cy = -206 + (j + .5) * PASSO
             if em_canteiro(cx, cy): continue
             if not livre(cx, cy): continue               # patio, via, terracos, treino, lago: ja tem piso
-            d = PASSO / 2 + .06
-            t = gr.random()
-            tinta = 'junta' if t > .82 else 'piso'
-            cal.add(t_box(cx - d, cx + d, cy - d, cy + d, -.62, -.50), tinta, gr.uniform(.30, .72))
+            d = PASSO / 2 - .34                          # a fresta: 0.68 stud de junta entre lajes
+            escura = gr.random() > .955                  # laje escura RARA e isolada, nao 18% do piso
+            cals[(i + j) % NB].add(t_box(cx - d, cx + d, cy - d, cy + d, -.60, -.50),
+                                   'junta' if escura else 'piso', gr.uniform(.42, .60))
             postas += 1
-    cal.finish('LOB_CHAO')
+    for b in cals: b.finish('LOB_CHAO')
 
     # MEIO-FIO de cada canteiro, com a terra do miolo rebaixada: e a moldura construida que separa
     # jardim de calcada. Sem ela o verde le como textura de terreno.
@@ -805,17 +889,55 @@ def build_lobby():
                 mf2.add(t_box(xx - .85, xx + .85, yy - .95, yy + .95, -.62, .30, bev=.09, seg=1), 'piso', .64)
     mf2.finish('LOB_CHAO')
 
-    # RELVA so dentro de canteiro, e em mancha irregular. Fora de canteiro nao nasce mais nada.
-    for _ in range(760):
-        cx = gr.uniform(-176, 176); cy = gr.uniform(-210, 196)
-        if not em_canteiro(cx, cy): continue
-        if not livre(cx, cy): continue
-        w = gr.uniform(4.5, 9.0); h = gr.uniform(4.0, 8.0)
-        t = gr.random()
-        tinta = 'pinho' if t > .80 else ('palha' if t > .74 else 'folha')
-        mancha = t_box(-w, w, -h, h, -.60, -.42 + gr.uniform(.0, .05))
-        xf(mancha, rot=(0, 0, gr.uniform(0, 180)), loc=(cx, cy, 0))
-        ch.add(mancha, tinta, gr.uniform(.18, .82))
+    # ---------------------------------------------------------------- RELVA GEOMETRICA
+    # Saiu daqui o laco de 760 caixas t_box. Ver o cabecalho de k_relva.py para o porque.
+    # ZR e o topo da terra do canteiro (a caixa 'casca_escura' do meio-fio, logo acima): a relva nasce
+    # dessa cota, e nao da cota do calcamento, senao ela flutua sobre a terra.
+    ZR = -.56
+    MARG = 1.8                                        # recuo para dentro do meio-fio (que tem 1.5 de largura)
+    n_relva = n_tile = 0
+    for ci, (cx0, cx1, cy0, cy1) in enumerate(CANTEIRO):
+        rx0, rx1 = cx0 + MARG, cx1 - MARG
+        ry0, ry1 = cy0 + MARG, cy1 - MARG
+        # --- manta + franja + musgo: UMA malha por canteiro
+        rb = Builder('LOB_relva_%02d' % ci, 600 + ci)
+        k_relva.manta_relva(rb, rx0, rx1, ry0, ry1, z0=ZR, seed=71 + ci * 13)
+        k_relva.franja_relva(rb, rx0, rx1, ry0, ry1, z0=ZR, seed=3 + ci * 7,
+                             cap=min(150, int((rx1 - rx0 + ry1 - ry0) * 2 / 1.9)))
+        # musgo no PE do meio-fio: na referencia o verde nunca encosta no calcamento com aresta limpa -
+        # sempre ha pedra, musgo ou copa cobrindo o encontro. E o que impede a divisa de voltar a ler
+        # como recorte de placa por mais bem feita que esteja a franja.
+        mus = []
+        _m = _r.Random(900 + ci)
+        for (a0, a1, fx, eh_x) in ((rx0, rx1, ry0, True), (rx0, rx1, ry1, True),
+                                   (ry0, ry1, rx0, False), (ry0, ry1, rx1, False)):
+            t = a0
+            while t < a1:
+                t += _m.uniform(3.5, 8.0)
+                if _m.random() < .45: continue
+                d = _m.uniform(-.7, .9)
+                mus.append((t, fx + d) if eh_x else (fx + d, t))
+        k_relva.musgo_junta(rb, mus, seed=12 + ci)
+        rb.finish('LOB_CHAO')
+        n_relva += 1
+        # --- ladrilhos de tufo, instanciados. 4 rotacoes x 3 variantes para a emenda nao alinhar.
+        LADO = 20.0
+        # CEIL, nao int: com int o espacamento fica MAIOR que o ladrilho (50 studs / 2 = 25 contra um
+        # ladrilho de 20) e abre faixas de 5 studs de manta nua entre um ladrilho e o vizinho. Com ceil
+        # o espacamento fica menor que 20 e os ladrilhos se sobrepoem, que e o que se quer - a emenda
+        # some dentro da grama em vez de virar uma linha.
+        nx = max(1, int(math.ceil((rx1 - rx0) / LADO))); ny = max(1, int(math.ceil((ry1 - ry0) / LADO)))
+        for i in range(nx):
+            for j in range(ny):
+                tx = rx0 + (i + .5) * (rx1 - rx0) / nx
+                ty = ry0 + (j + .5) * (ry1 - ry0) / ny
+                if not livre(tx, ty): continue
+                # denso perto da divisa (onde o jogador anda e olha de perto), ralo no miolo
+                borda = min(tx - rx0, rx1 - tx, ty - ry0, ry1 - ty)
+                qual = 'relvaC' if borda > 13.0 else ('relvaA', 'relvaB')[(i + j) % 2]
+                K.put(qual, 'LOB_CHAO', (tx, ty, ZR), (0, 90, 180, 270)[(i * 3 + j) % 4])
+                n_tile += 1
+    print('relva: %d mantas/franjas + %d ladrilhos instanciados' % (n_relva, n_tile))
     ch.finish('LOB_CHAO')
     # MEIO-FIO: faixa de pedra na divisa do gramado com o patio e com a via. Sem ela a grama encosta
     # direto no calcamento e a transicao fica em corte seco, que era parte do ar de "jogado".

@@ -25,6 +25,13 @@ PD = {
     'creme':    ('CDB98A', '8C7040', 'E2D2A8', .78, .04, .15, .70, .0, .0, 0),
     'ferro':    ('2B2624', '0C0A09', '6A605C', .55, .05, .40, .80, .10, .15, 0),
     'chama':    ('FFC84A', 'E08A22', 'FFF4C8', .60, .03, .15, .35, .04, .0, 1),
+    # CENARIO DISTANTE. var/edge/ao quase zero de proposito: o que faz uma serra parecer longe e a
+    # PERDA DE CONTRASTE, nao o detalhe. Com AO e realce de aresta ligados, um macico de 150 studs
+    # vira um labirinto preto e branco (era o defeito visivel no render M1).
+    'monte':    ('A6B1C3', '8B96AB', 'C4CCDA', .96, .03, .02, .10, .16, .0, 0),
+    'monteS':   ('8D98AD', '778297', 'A6B1C3', .96, .03, .02, .10, .14, .0, 0),
+    'monteN':   ('DAE1EC', 'B9C3D4', 'F2F6FB', .96, .02, .02, .08, .18, .0, 0),
+    'nevoa':    ('D6DCE7', 'BDC5D3', 'EEF2F8', .98, .02, .0, .05, .10, .0, 0),
     'pinho':    ('3E6B3A', '15331F', '9CC85E', .85, .10, .30, .85, .34, .0, 0),
     'folha':    ('6E9A45', '2A5226', 'D2E887', .85, .10, .30, .85, .34, .0, 0),
     'casca':    ('7A5638', '3E2614', 'A98058', .88, .10, .40, .60, .10, .0, 0),
@@ -117,8 +124,15 @@ def build_paint(key):
     att = _n(nt, 'ShaderNodeAttribute'); att.attribute_name = 'rnd'
     sepc = _n(nt, 'ShaderNodeSeparateColor'); L(att.outputs['Color'], sepc.inputs[0])
     vr = math('ADD', math('MULTIPLY', math('SUBTRACT', sepc.outputs[0], .5), var * 2), 1.0)             # variacao por peca
-    nz = _n(nt, 'ShaderNodeTexNoise'); nz.inputs['Scale'].default_value = .22; nz.inputs['Detail'].default_value = 1.5; L(tc.outputs['Object'], nz.inputs['Vector'])
-    nv = math('ADD', math('MULTIPLY', math('SUBTRACT', nz.outputs[0], .5), .12), 1.0)                   # mancha larga de pincel
+    # A mancha de pincel usa coordenada de OBJETO com escala fixa (.22), o que e certo para uma peca de
+    # kit de 2 a 6 studs: da 1 ou 2 manchas largas. Numa peca de cenario de 400 studs da noventa
+    # periodos, ou seja, HACHURA fina - foi o que apareceu na serra de fundo. Tinta de cenario e
+    # declarada por var <= .04, e nela a mancha simplesmente nao entra: cenario distante e chapado.
+    if var > .04:
+        nz = _n(nt, 'ShaderNodeTexNoise'); nz.inputs['Scale'].default_value = .22; nz.inputs['Detail'].default_value = 1.5; L(tc.outputs['Object'], nz.inputs['Vector'])
+        nv = math('ADD', math('MULTIPLY', math('SUBTRACT', nz.outputs[0], .5), .12), 1.0)              # mancha larga de pincel
+    else:
+        nv = math('ADD', 1.0, 0.0)
     nsep = _n(nt, 'ShaderNodeSeparateXYZ'); L(geo.outputs['Normal'], nsep.inputs[0])
     fc = math('ADD', math('MULTIPLY', nsep.outputs['Z'], face), 1.0)                                    # luz pintada vinda de cima
     mval = math('MULTIPLY', math('MULTIPLY', grad, vr), math('MULTIPLY', nv, fc))
