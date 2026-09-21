@@ -88,6 +88,33 @@ try:
             for atlas in quais:
                 P(k_materiais.bake(atlas, objs_de(atlas), passe, size=size, samples=spp, device='CPU'))
         if etapa == 'lobby_final':
+            # CONFERENCIA ANTES DE FINALIZAR: amostra o pixel do atlas sob as UVs de cada malha e
+            # denuncia quem ficou PRETO. Uma malha pode existir, ter UV valida, estar no atlas certo e
+            # ainda assim nao ter sido assada - foi o que aconteceu com a picareta, cujas tintas vieram
+            # de um .blend anexado e colidiram de nome (P_ouro -> P_ouro.001), virando materiais sem no
+            # de bake. Nada no pipeline reclamou; so apareceu no jogo, preta. Esta medida pega isso.
+            pretas = []
+            for atlas, nomes in sorted(ATL.items()):
+                img = bpy.data.images.load(os.path.join(KIT, 'tex', '%s_color.png' % atlas), check_existing=True)
+                W, H = img.size
+                buf = [0.0] * (W * H * 4); img.pixels.foreach_get(buf)
+                for n in nomes:
+                    me = bpy.data.meshes.get(n)
+                    if me is None or me.uv_layers.active is None: continue
+                    us = [d.uv for d in me.uv_layers.active.data]
+                    passo = max(1, len(us) // 1500)
+                    escuros = tot = 0
+                    for q in us[::passo]:
+                        x = min(W - 1, max(0, int(q[0] * W))); y = min(H - 1, max(0, int(q[1] * H)))
+                        i = (y * W + x) * 4
+                        tot += 1
+                        if buf[i] + buf[i + 1] + buf[i + 2] < .01: escuros += 1
+                    if tot and escuros / float(tot) > .95: pretas.append((n, atlas, 100.0 * escuros / tot))
+            if pretas:
+                P('MALHAS PRETAS NO ATLAS (existem, mas nao foram assadas):')
+                for n, a_, pc in pretas: P('   %-26s %s  %.0f%% preto' % (n, a_, pc))
+                raise SystemExit('FINAL ABORTADO: %d malha(s) sem cor assada. Exportar assim manda peca preta para o jogo.' % len(pretas))
+            P('conferencia de cor: nenhuma malha preta nos %d atlas' % len(ATL))
             for atlas in sorted(ATL):
                 P(k_materiais.finalize(atlas, objs_de(atlas), emis=True))
             for o in bpy.data.objects:

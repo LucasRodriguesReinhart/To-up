@@ -1159,7 +1159,7 @@ PIC_MALHA = 'MON_picareta_aurora'
 PIC_ALT = 19.28                                       # altura da malha como esta no arquivo
 
 def minha_picareta(H=19.0):
-    import os
+    import os, re as _re
     B = Builder('LOB_picareta_aurora', 777)
     cam = os.path.join(os.path.dirname(os.path.abspath(__file__)), PIC_BLEND)
     nome = PIC_MALHA
@@ -1173,7 +1173,17 @@ def minha_picareta(H=19.0):
     lay = fonte.loops.layers.color.get('rnd')
     for idx, mat in enumerate(me.materials):
         if mat is None: continue
-        key = mat.name[2:] if mat.name.startswith('P_') else mat.name
+        # SUFIXO DE COLISAO. Ao anexar a malha, o Blender traz junto as tintas dela; como P_ouro,
+        # P_aco etc. ja existem neste arquivo, as anexadas entram como P_ouro.001, P_aco.001...
+        # Derivar a chave do nome cru pedia a tinta 'ouro.001', que nao existe no dicionario - e
+        # paint_mat, em vez de falhar, ACHAVA o material anexado (P_ouro.001) e o devolvia. Esse
+        # material nao tem no de bake, entao o atlas ficava preto exatamente sob esta malha e a
+        # picareta saiu toda preta no jogo. Medido: 100% dos pixels amostrados sob as UVs dela em
+        # A_LOBBY_3_color.png vinham (0,0,0), contra 0% numa peca de controle.
+        key = _re.sub(r'\.\d+$', '', mat.name[2:] if mat.name.startswith('P_') else mat.name)
+        if key not in PAINTS:
+            raise SystemExit('PICARETA: tinta desconhecida %r (material %r). Sem isto ela assa preta.'
+                             % (key, mat.name))
         faces = [f for f in fonte.faces if f.material_index == idx]
         if not faces: continue
         bm = bmesh.new()

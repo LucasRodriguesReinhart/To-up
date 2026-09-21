@@ -37,6 +37,24 @@ def export_kit(atlas_map, place, name='KIT_FORJA_CELESTE'):
                          'Uma montagem que perde peca em silencio e pior que um erro.'
                          % (len(faltando), ', '.join(faltando[:6]), len(sem_malha), ', '.join(sem_malha[:6])))
     for ob in bpy.context.view_layer.objects: ob.select_set(False)
+    # COR DE VERTICE NAO VAI PARA O JOGO.
+    # O canal 'rnd' existe para o BAKE: ele varia o tom peca a peca enquanto o atlas e assado, e
+    # depois disso ja cumpriu a funcao - a variacao esta gravada no PNG. Se ele viajar no FBX, o
+    # Roblox MULTIPLICA a cor da MeshPart por ele, e como o valor medio e ~0.45, tudo chega ao jogo
+    # escurecido pela metade. Foi a causa de "esta tudo cinza/preto": medido no Studio com a peca em
+    # TextureID vazio, sem SurfaceAppearance e Color branco puro, e mesmo assim cinza.
+    # Aqui a camada e zerada em BRANCO nas copias de export (as malhas originais ficam intactas,
+    # porque o proximo bake ainda precisa do 'rnd').
+    zeradas = 0
+    for e in objs:
+        me = e.data
+        for cam in list(me.color_attributes):
+            try:
+                for d in cam.data: d.color = (1.0, 1.0, 1.0, 1.0)
+                zeradas += 1
+            except Exception:
+                pass
+    print('EXPORT: cor de vertice zerada em %d camadas (senao o Roblox escurece tudo pela metade)' % zeradas)
     lc = bpy.context.view_layer.layer_collection.children.get('EXPORT')
     if lc: lc.exclude = False
     for e in objs: e.select_set(True)
