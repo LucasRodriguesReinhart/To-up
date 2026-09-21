@@ -14,10 +14,13 @@ local velho = L:FindFirstChild("ChaoSimples")
 if velho then velho:Destroy() end
 local CH = Instance.new("Folder"); CH.Name = "ChaoSimples"; CH.Parent = L
 
-local PEDRA  = Color3.fromRGB(214, 198, 168)   -- base: um tom ABAIXO da praca, senao a praca some
-local JUNTA  = Color3.fromRGB(176, 158, 130)
-local ARO    = Color3.fromRGB(236, 226, 204)
-local FIO    = Color3.fromRGB(158, 140, 112)
+-- Tons ajustados contra a praca JA TEXTURADA no jogo. A base estava clara demais e o olho lia dois
+-- pisos diferentes colados; na referencia e UM calcamento continuo, e a praca so se distingue pelo
+-- desenho (aneis e raios), nunca por ser de outra pedra.
+local PEDRA  = Color3.fromRGB(188, 174, 150)   -- base, no tom que o atlas da a praca
+local JUNTA  = Color3.fromRGB(162, 148, 126)
+local ARO    = Color3.fromRGB(212, 200, 178)
+local FIO    = Color3.fromRGB(146, 132, 110)
 local GRAMA  = Color3.fromRGB(116, 176, 92)
 local TERRA  = Color3.fromRGB(128, 104, 78)
 local MARGEM = Color3.fromRGB(152, 142, 124)
