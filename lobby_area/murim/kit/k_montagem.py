@@ -193,20 +193,8 @@ def build_lobby():
         ('estand', k_kit2.estandarte, 'LOB_PROPS'), ('sup_esp', k_kit2.suporte_espada, 'LOB_PROPS'), ('vaso', k_kit2.vaso, 'LOB_PROPS'),
         ('muro', k_kit2.muro_seg, 'LOB_PORTAO'), ('mpilar', k_kit2.muro_pilar, 'LOB_PORTAO'), ('tel_portao', k_kit2.telhado_portao, 'LOB_PORTAO'),
         ('muroA', lambda: k_kit2.muro_seg(9.0, 13.5), 'LOB_PORTAO'), ('mtorre', k_kit2.muro_torre, 'LOB_PORTAO'),
-        ('relvaA', lambda: k_relva.tile_relva('KIT_relva_a', 101)[0], 'LOB_CHAO'),
-        ('relvaB', lambda: k_relva.tile_relva('KIT_relva_b', 202)[0], 'LOB_CHAO'),
-        # ladrilho RALO para o miolo dos canteiros: a pesquisa de ambiente e explicita em variar a
-        # densidade (4-8 laminas por stud2 junto do caminho, 0.5-1.5 longe). Grama uniforme de borda a
-        # borda le como tapete, e no miolo, que o jogador so ve de longe, ela custa triangulo a toa.
-        ('relvaC', lambda: k_relva.tile_relva('KIT_relva_c', 303, cap=6200, hero_n=1)[0], 'LOB_CHAO'),
         ('penha1', lambda: k_lobby.penhasco(1), 'LOB_CHAO'), ('penha2', lambda: k_lobby.penhasco(2), 'LOB_CHAO'),
         ('penha3', lambda: k_lobby.penhasco(3), 'LOB_CHAO'), ('nuvem', k_lobby.banco_nuvem, 'LOB_CHAO'),
-        # aneis FECHADOS, um de cada, colocados uma unica vez: e a unica garantia de que nao ha
-        # duas superficies quase coplanares brigando pelo mesmo pixel (a hachura da versao anterior).
-        ('serraA', lambda: k_lobby.anel_serra('LOB_serra_a', 470, 152, 160, 1.05, 156, 1, -170, .60), 'LOB_CHAO'),
-        ('serraB', lambda: k_lobby.anel_serra('LOB_serra_b', 700, 224, 230, 1.03, 168, 2, -200, .52), 'LOB_CHAO'),
-        ('nevoaA', lambda: k_lobby.anel_nevoa('LOB_nevoa_a', 262, 66, 30, 1.09, 118, 1, -110), 'LOB_CHAO'),
-        ('nevoaB', lambda: k_lobby.anel_nevoa('LOB_nevoa_b', 395, 96, 44, 1.06, 126, 2, -150), 'LOB_CHAO'),
         ('queda', k_lobby.cascata, 'LOB_CHAO'),   # NAO usar 'torre': ja e a Torre do Fogo da Forja
         ('torre', k_lobby.torre_fogo, 'LOB_FORJA'), ('espada', lambda: k_lobby.minha_picareta(40.0), 'LOB_PATIO'), ('ped_esp', lambda: k_lobby.pedestal_espada(15.0, 8.4), 'LOB_PATIO'),
         ('fornalha', k_lobby.fornalha, 'LOB_FORJA'), ('bigorna', k_lobby.bigorna, 'LOB_FORJA'), ('fole', k_lobby.fole, 'LOB_FORJA'),
@@ -857,19 +845,10 @@ def build_lobby():
     n1 = anel('penha%d', 2.0, -1.0, 12.5, 1.00)     # passo 12.5 contra modulo de 18: sobrepoe
     n2 = anel('penha%d', 13.0, -17.0, 14.0, 1.20)
     n3 = anel('penha%d', 26.0, -33.0, 16.0, 1.45)
-    # (b) e (c) FUNDO: faixa de nevoa + serra, ambos em FAIXAS e nao em pecas soltas.
-    #     Antes: 130 blobs de nuvem em 4 aneis e 26 picos. Os blobs, ampliados e enfileirados, liam
-    #     como fileira de travesseiros - cada um com contorno e sombra proprios; e os picos, que sao
-    #     feixes de agulha crespa, ampliados para 150-200 studs liam como chapa corrugada. Os dois
-    #     defeitos tem a mesma raiz: peca de kit ampliada nao vira cenario, porque o que o olho usa a
-    #     essa distancia e a silhueta, e silhueta pede POUCAS faces grandes, nao muitas pequenas.
-    # (b) e (c) FUNDO em quatro aneis fechados. A serra de tras e mais alta e mais clara; a nevoa de
-    #     395 corta o pe das duas serras, e a de 262 fecha o pe do penhasco. Colocados uma vez cada:
-    #     sem emenda nao ha como duas faces caírem no mesmo plano.
-    K.put('serraB', 'LOB_CHAO', (0, -8, -66))
-    K.put('serraA', 'LOB_CHAO', (0, -8, -52))
-    K.put('nevoaB', 'LOB_CHAO', (0, -8, -26))
-    K.put('nevoaA', 'LOB_CHAO', (0, -8, -40))
+    # FUNDO DO MUNDO: os aneis de serra e nevoa sairam. Ampliados para centenas de studs eles
+    # liam como fitas brancas no vazio (o usuario mandou a captura). Num simulator o ceu do
+    # Roblox e o cinturao de penhasco ja fecham a borda; cenario distante custava caro e nao
+    # estava ajudando.
     # quedas d'agua nascendo no labio do primeiro patamar e morrendo no banco de nuvem
     for (qx, qy, qr) in ((-BX - 4, -60, 90), (-BX - 4, 90, 90), (BX + 4, -30, 270),
                          (BX + 4, 110, 270), (-40, BY0 - 4, 180), (60, BY1 + 4, 0)):
@@ -877,44 +856,11 @@ def build_lobby():
     ch = Builder('LOB_chao'); ch.add(t_box(-180, 180, -215, 200, -3, -.52), 'casca_escura', .3)
     # CALCADA: tudo o que nao e canteiro, nao e agua e nao e superficie ja construida vira pedra.
     # O topo fica em -0.50, rente ao topo da grama, para nao mexer nas caixas de colisao.
-    # A laje media era de 11 studs (quase duas vezes a largura de um personagem) e 18% delas saiam em
-    # 'junta', que e quatro tons mais escura que 'piso'. De cima isso nao lia como calcamento: lia como
-    # TABULEIRO DE XADREZ de retangulos grandes, com o mesmo defeito de silhueta das placas de grama.
-    # Agora: modulo de 7 studs (mao humana de escala), JUNTA REBAIXADA de verdade entre as lajes (a
-    # laje recua 0.34 de cada lado e por baixo passa uma manta escura continua), variacao de tom curta,
-    # e laje escura rara e isolada em vez de 18% sorteados.
-    gr = _r.Random(404)
-    PASSO = 7.0
-    ni_ = int(340 / PASSO); nj_ = int(392 / PASSO)
-    # manta da junta: contínua por baixo de tudo, e ela que aparece na fresta entre as lajes
-    jt = Builder('LOB_junta', 405)
-    for i in range(0, ni_, 12):
-        jt.add(t_box(-170 + i * PASSO, min(170, -170 + (i + 12) * PASSO), -206, 186, -.66, -.56), 'junta', .34)
-    jt.finish('LOB_CHAO')
-    # as lajes vao em 4 malhas: com modulo de 7 studs sao ~4.500 lajes, e uma malha unica estouraria
-    # o teto de 20 mil tris do importador do Roblox.
-    NB = 4
-    cals = [Builder('LOB_calcada_%d' % b, 406 + b) for b in range(NB)]
+    # CALCAMENTO: nao e mais construido aqui. Eram 985 lajes de malha que, no jogo, liam como
+    # tabuleiro e ainda chegavam escurecidas. O chao passou a ser Part chapada montada no
+    # Roblox (export/chao_simples.lua): uma base, as juntas e o aro do hexagono. Mais claro,
+    # mais barato e alteravel sem reassar nada.
     postas = 0
-    for i in range(ni_):
-        for j in range(nj_):
-            cx = -170 + (i + .5) * PASSO
-            cy = -206 + (j + .5) * PASSO
-            if em_canteiro(cx, cy): continue
-            if not livre(cx, cy): continue               # patio, via, terracos, treino, lago: ja tem piso
-            d = PASSO / 2 - .34                          # a fresta: 0.68 stud de junta entre lajes
-            escura = gr.random() > .955                  # laje escura RARA e isolada, nao 18% do piso
-            cals[(i + j) % NB].add(t_box(cx - d, cx + d, cy - d, cy + d, -.60, -.50),
-                                   'junta' if escura else 'piso', gr.uniform(.42, .60))
-            postas += 1
-    # medida do pe da escadaria do Santuario: quantas lajes cairam na faixa que o retangulo velho
-    # do lago barrava (x -101..-84.5 na altura da escada). Se der zero, a correcao nao pegou.
-    _pe = sum(1 for i in range(ni_) for j in range(nj_)
-              if -101 <= -170 + (i + .5) * PASSO <= -84.5 and -12 <= -206 + (j + .5) * PASSO <= 12
-              and livre(-170 + (i + .5) * PASSO, -206 + (j + .5) * PASSO)
-              and not em_canteiro(-170 + (i + .5) * PASSO, -206 + (j + .5) * PASSO))
-    print('calcada: %d lajes | pe da escadaria do Santuario: %d lajes na faixa liberada' % (postas, _pe))
-    for b in cals: b.finish('LOB_CHAO')
 
     # MEIO-FIO de cada canteiro, com a terra do miolo rebaixada: e a moldura construida que separa
     # jardim de calcada. Sem ela o verde le como textura de terreno.
@@ -934,55 +880,9 @@ def build_lobby():
                 mf2.add(t_box(xx - .85, xx + .85, yy - .95, yy + .95, -.62, .30, bev=.09, seg=1), 'piso', .64)
     mf2.finish('LOB_CHAO')
 
-    # ---------------------------------------------------------------- RELVA GEOMETRICA
-    # Saiu daqui o laco de 760 caixas t_box. Ver o cabecalho de k_relva.py para o porque.
-    # ZR e o topo da terra do canteiro (a caixa 'casca_escura' do meio-fio, logo acima): a relva nasce
-    # dessa cota, e nao da cota do calcamento, senao ela flutua sobre a terra.
-    ZR = -.56
-    MARG = 1.8                                        # recuo para dentro do meio-fio (que tem 1.5 de largura)
-    n_relva = n_tile = 0
-    for ci, (cx0, cx1, cy0, cy1) in enumerate(CANTEIRO):
-        rx0, rx1 = cx0 + MARG, cx1 - MARG
-        ry0, ry1 = cy0 + MARG, cy1 - MARG
-        # --- manta + franja + musgo: UMA malha por canteiro
-        rb = Builder('LOB_relva_%02d' % ci, 600 + ci)
-        k_relva.manta_relva(rb, rx0, rx1, ry0, ry1, z0=ZR, seed=71 + ci * 13)
-        k_relva.franja_relva(rb, rx0, rx1, ry0, ry1, z0=ZR, seed=3 + ci * 7,
-                             cap=min(150, int((rx1 - rx0 + ry1 - ry0) * 2 / 1.9)))
-        # musgo no PE do meio-fio: na referencia o verde nunca encosta no calcamento com aresta limpa -
-        # sempre ha pedra, musgo ou copa cobrindo o encontro. E o que impede a divisa de voltar a ler
-        # como recorte de placa por mais bem feita que esteja a franja.
-        mus = []
-        _m = _r.Random(900 + ci)
-        for (a0, a1, fx, eh_x) in ((rx0, rx1, ry0, True), (rx0, rx1, ry1, True),
-                                   (ry0, ry1, rx0, False), (ry0, ry1, rx1, False)):
-            t = a0
-            while t < a1:
-                t += _m.uniform(3.5, 8.0)
-                if _m.random() < .45: continue
-                d = _m.uniform(-.7, .9)
-                mus.append((t, fx + d) if eh_x else (fx + d, t))
-        k_relva.musgo_junta(rb, mus, seed=12 + ci)
-        rb.finish('LOB_CHAO')
-        n_relva += 1
-        # --- ladrilhos de tufo, instanciados. 4 rotacoes x 3 variantes para a emenda nao alinhar.
-        LADO = 20.0
-        # CEIL, nao int: com int o espacamento fica MAIOR que o ladrilho (50 studs / 2 = 25 contra um
-        # ladrilho de 20) e abre faixas de 5 studs de manta nua entre um ladrilho e o vizinho. Com ceil
-        # o espacamento fica menor que 20 e os ladrilhos se sobrepoem, que e o que se quer - a emenda
-        # some dentro da grama em vez de virar uma linha.
-        nx = max(1, int(math.ceil((rx1 - rx0) / LADO))); ny = max(1, int(math.ceil((ry1 - ry0) / LADO)))
-        for i in range(nx):
-            for j in range(ny):
-                tx = rx0 + (i + .5) * (rx1 - rx0) / nx
-                ty = ry0 + (j + .5) * (ry1 - ry0) / ny
-                if not livre(tx, ty): continue
-                # denso perto da divisa (onde o jogador anda e olha de perto), ralo no miolo
-                borda = min(tx - rx0, rx1 - tx, ty - ry0, ry1 - ty)
-                qual = 'relvaC' if borda > 13.0 else ('relvaA', 'relvaB')[(i + j) % 2]
-                K.put(qual, 'LOB_CHAO', (tx, ty, ZR), (0, 90, 180, 270)[(i * 3 + j) % 4])
-                n_tile += 1
-    print('relva: %d mantas/franjas + %d ladrilhos instanciados' % (n_relva, n_tile))
+    # RELVA: saiu. A versao geometrica (manta + ladrilho de tufos + franja) custava ~890 mil
+    # triangulos e, no jogo, virava um tapete de espinhos escuros - o usuario mandou a foto.
+    # O verde agora e mancha de Part no chao, e o jardim em si fica por conta dele.
     ch.finish('LOB_CHAO')
     # MEIO-FIO: faixa de pedra na divisa do gramado com o patio e com a via. Sem ela a grama encosta
     # direto no calcamento e a transicao fica em corte seco, que era parte do ar de "jogado".

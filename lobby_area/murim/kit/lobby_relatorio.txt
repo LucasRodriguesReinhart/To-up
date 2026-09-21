@@ -1,5 +1,5 @@
-vegetacao barrada por cair em superficie dura: cam_oeste=8, escadaria=15, lago=150, patio=535, portao=79, t_forja=192, t_loja=31, t_sant=62, treino=29, via=51
-pecas unicas registradas (geometria ja no lugar): 55
+vegetacao barrada por cair em superficie dura: escadaria=1, lago=19, patio=81, t_forja=9, t_loja=3, t_sant=17, treino=5, via=6
+pecas unicas registradas (geometria ja no lugar): 38
 masters do kit nao usados neste lobby (tirados da origem): JAR_ameixeira_b, JAR_crisantemo.001, KIT_dougong_canto.004, KIT_dougong_simples.002, KIT_jardineira.002, KIT_suporte_espada.002, KIT_tabua_dougong.013, KIT_telhado_portao.001, KIT_terca.011, KIT_vaso.002, LOB_nuvem
 KIT_sumeru_seg.026            504 tris x 135
 KIT_sumeru_canto.004          916 tris x  12
@@ -36,17 +36,10 @@ KIT_muro_pilar.002           1356 tris x   4
 KIT_telhado_portao.001       5520 tris x   1
 KIT_muro_seg.005             4008 tris x  92
 KIT_muro_torre               5240 tris x  14
-KIT_relva_a                 13830 tris x  45
-KIT_relva_b                 14480 tris x  44
-KIT_relva_c                  5720 tris x   8
 LOB_penhasco_1               2396 tris x 119
 LOB_penhasco_2               2262 tris x 119
 LOB_penhasco_3               2230 tris x 118
 LOB_nuvem                     720 tris x   1
-LOB_serra_a                   766 tris x   1
-LOB_serra_b                   842 tris x   1
-LOB_nevoa_a                   472 tris x   1
-LOB_nevoa_b                   504 tris x   1
 LOB_cascata                   696 tris x   6
 LOB_torre_fogo.001           8552 tris x   1
 LOB_picareta_aurora          9988 tris x   1
@@ -146,4 +139,4 @@ KIT_chuishou.004              836 tris x  20
 KIT_besta_0.004               352 tris x  20
 KIT_besta_1.004               352 tris x  20
 KIT_besta_2.004               360 tris x  20
-TOTAL ~4879190 tris em cena | malhas unicas 145 (462329 tris) | colocacoes 2151
+TOTAL ~3571376 tris em cena | malhas unicas 138 (425715 tris) | colocacoes 2033

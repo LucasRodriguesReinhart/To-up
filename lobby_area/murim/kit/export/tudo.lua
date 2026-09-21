@@ -15,6 +15,7 @@ local ETAPAS = {
 	{ "portais_vfx.lua",    "liga o VFX e a animacao dos seis portais" },
 	{ "materiais_alpha.lua", "AlphaMode -> Transparency: sem isso os atlas RGB saem cinza" },
 	{ "agua_cartoon.lua",   "agua no sistema das areas Dragon Ball/Mare" },
+	{ "chao_simples.lua",   "chao em Part chapada: base, juntas, aro do hexagono, canteiros e margem" },
 	{ "verificar_lobby.lua", "confere tudo por medida" },
 }
 
