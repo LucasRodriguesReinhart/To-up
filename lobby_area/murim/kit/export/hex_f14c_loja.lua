@@ -43,7 +43,7 @@ end
 -- ============ 1) placa da fachada com mochila ============
 -- pendurada no portico real, sobre a porta (pad em local X ~ +18); frente olha a praca
 local placaCF = S * CF(15.6, 1.6, 0) * CFrame.Angles(0, math.rad(-90), 0)
-H.part({Name="PlacaFundo", Size=V3(7.5,4.6,0.5), CFrame=placaCF, Color=rgb(216,204,191)}, FC)
+H.part({Name="PlacaFundo", Size=V3(7.5,4.6,0.5), CFrame=placaCF, Color=rgb(70,50,36), Material=Enum.Material.Wood}, FC)
 H.part({Name="PlacaMoldura", Size=V3(7.9,0.5,0.7), CFrame=placaCF*CF(0,2.3,0), Color=C.teal}, FC)
 H.part({Name="PlacaMoldura", Size=V3(7.9,0.5,0.7), CFrame=placaCF*CF(0,-2.3,0), Color=C.teal}, FC)
 H.part({Name="PlacaMoldura", Size=V3(0.5,4.6,0.7), CFrame=placaCF*CF(-3.7,0,0), Color=C.teal}, FC)
@@ -52,8 +52,8 @@ H.part({Name="PlacaMoldura", Size=V3(0.5,4.6,0.7), CFrame=placaCF*CF(3.7,0,0), C
 for _,sx in ipairs({-3,3}) do
   H.part({Name="PlacaCorrente", Size=V3(0.25,1.6,0.25), CFrame=placaCF*CF(sx,3.1,0), Color=rgb(70,60,50), Material=Enum.Material.Metal}, FC)
 end
--- a mochila-simbolo, GRANDE, aba e bolso para a praca
-mochila(placaCF*CF(0,-0.15,-1.1), 1.4, COURO, COURO_ESCURO)
+-- a mochila-simbolo, GRANDE e DOURADA (contraste com o fundo escuro, como no conceito)
+mochila(placaCF*CF(0,-0.15,-1.2), 1.55, rgb(240,196,90), rgb(205,158,64))
 say("placa pendurada no portico com mochila-simbolo")
 
 -- ============ 2) balcao ============
