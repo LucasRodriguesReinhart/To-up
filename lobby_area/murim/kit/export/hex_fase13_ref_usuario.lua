@@ -75,7 +75,8 @@ local function livre(pos, raio)
   return true
 end
 
--- ============ A) tapetes com borda dourada ============
+-- ============ A) tapetes com borda dourada (recortados nos medalhoes) ============
+local MEDS = {{x=0, z=92, r=12}, {x=0, z=-55, r=10}}
 local nTap = 0
 for _,fx in ipairs(L:GetDescendants()) do
   if fx:IsA("BasePart") and fx.Parent.Name=="Faixas" then
@@ -86,46 +87,108 @@ for _,fx in ipairs(L:GetDescendants()) do
       local topo = fx.Position.Y + fx.Size.Y/2
       local wV = math.clamp(curto*0.5, 5, 9)
       local comp = math.max(sx, sz) - 2
-      local function faixa(nome, w, off, cor, mat)
-        local size = aoLongoX and V3(comp, 0.06, w) or V3(w, 0.06, comp)
-        local ocf = aoLongoX and CF(0, 0, off) or CF(off, 0, 0)
-        H.part({Name=nome, Size=size, CFrame=fx.CFrame*ocf+V3(0, topo-fx.Position.Y+0.04, 0),
-          Color=cor, Material=mat or Enum.Material.Fabric}, F13)
+      -- intervalos livres ao longo do eixo (o medalhao interrompe o caminho)
+      local segs = {{-comp/2, comp/2}}
+      for _,md in ipairs(MEDS) do
+        local lp = fx.CFrame:PointToObjectSpace(V3(md.x, fx.Position.Y, md.z))
+        local ax = aoLongoX and lp.X or lp.Z
+        local lat = aoLongoX and lp.Z or lp.X
+        if math.abs(lat) < curto/2 then
+          local g1, g2 = ax-(md.r+0.8), ax+(md.r+0.8)
+          local novo = {}
+          for _,sv in ipairs(segs) do
+            if g2<=sv[1] or g1>=sv[2] then table.insert(novo,sv) else
+              if g1>sv[1] then table.insert(novo,{sv[1],g1}) end
+              if g2<sv[2] then table.insert(novo,{g2,sv[2]}) end end
+          end
+          segs = novo
+        end
       end
-      faixa("Tapete", wV, 0, VERMELHO_TAPETE)
-      faixa("TapeteBorda", 0.8, (wV/2+0.4), OURO, Enum.Material.SmoothPlastic)
-      faixa("TapeteBorda", 0.8, -(wV/2+0.4), OURO, Enum.Material.SmoothPlastic)
+      for _,sv in ipairs(segs) do
+        local len, mid = sv[2]-sv[1], (sv[1]+sv[2])/2
+        if len >= 4 then
+          local function faixa(nome, w, off, cor, mat, dy)
+            local size = aoLongoX and V3(len, 0.06, w) or V3(w, 0.06, len)
+            local ocf = aoLongoX and CF(mid, 0, off) or CF(off, 0, mid)
+            H.part({Name=nome, Size=size, CFrame=fx.CFrame*ocf+V3(0, topo-fx.Position.Y+0.04+(dy or 0), 0),
+              Color=cor, Material=mat or Enum.Material.Fabric}, F13)
+          end
+          -- niveis de detalhe: campo vermelho > campo interno escuro > borda ouro > losangos
+          faixa("Tapete", wV, 0, VERMELHO_TAPETE)
+          faixa("TapeteInterno", wV*0.62, 0, rgb(150,32,30), Enum.Material.Fabric, 0.035)
+          faixa("TapeteBorda", 0.8, (wV/2+0.4), OURO, Enum.Material.SmoothPlastic)
+          faixa("TapeteBorda", 0.8, -(wV/2+0.4), OURO, Enum.Material.SmoothPlastic)
+          local nLos = math.floor((len-6)/9)
+          for k=0,nLos do
+            local off = mid - ((len-6)/2) + k*9
+            local ocf = aoLongoX and CF(off,0,0) or CF(0,0,off)
+            H.part({Name="TapeteLosango", Size=V3(1.5,0.04,1.5),
+              CFrame=fx.CFrame*ocf*CFrame.Angles(0,math.rad(45),0)+V3(0, topo-fx.Position.Y+0.11, 0),
+              Color=OURO, Material=Enum.Material.Metal}, F13)
+          end
+        end
+      end
       nTap += 1
     end
   end
 end
-say("tapetes com borda dourada:", nTap, "faixas")
+say("tapetes com borda dourada:", nTap, "faixas (recorte nos medalhoes)")
 
 -- ============ B) medalhoes de piso ============
+-- topo real das faixas cinzas (os medalhoes assentam SOBRE elas, nunca por baixo)
+local topoFaixas = 0
+for _,fx in ipairs(L:GetDescendants()) do
+  if fx:IsA("BasePart") and fx.Parent.Name=="Faixas" then
+    topoFaixas = math.max(topoFaixas, fx.Position.Y + fx.Size.Y/2)
+  end
+end
+local OURO_VIVO = rgb(240,196,90)
 local function medalhao(cx, cz, r)
-  local function disco(nome, raio, dy, cor, mat)
-    H.part({Name=nome, Class="Part", Shape=Enum.PartType.Cylinder, Size=V3(0.05+dy, raio*2, raio*2),
-      CFrame=CF(cx, 0.05+dy/2, cz)*CFrame.Angles(0,0,math.rad(90)),
+  local y0 = topoFaixas + 0.02
+  local function disco(nome, raio, camada, cor, mat)
+    H.part({Name=nome, Class="Part", Shape=Enum.PartType.Cylinder, Size=V3(0.06, raio*2, raio*2),
+      CFrame=CF(cx, y0+camada*0.025, cz)*CFrame.Angles(0,0,math.rad(90)),
       Color=cor, Material=mat or Enum.Material.SmoothPlastic}, F13)
   end
-  disco("Med_anel", r, 0.00, VERMELHO_TAPETE)
-  disco("Med_campo", r*0.78, 0.02, rgb(214,196,168))
-  disco("Med_ouro", r*0.32, 0.04, OURO, Enum.Material.Metal)
+  -- niveis: aro ouro > banda vermelha > filete ouro > anel escuro > campo claro > emblema
+  disco("Med_aro",    r*1.05, 0, OURO_VIVO)
+  disco("Med_banda",  r*0.97, 1, VERMELHO_TAPETE)
+  disco("Med_filete", r*0.80, 2, OURO_VIVO)
+  disco("Med_escuro", r*0.76, 3, rgb(66,78,96))
+  disco("Med_campo",  r*0.62, 4, rgb(224,208,182))
+  -- emblema: picareta em T, pecas CONECTADAS, dourado vivo
+  local e = r*0.5
+  local yE = y0 + 5*0.025
+  local function barra(nome, sz, ocf)
+    H.part({Name=nome, Size=sz, CFrame=CF(cx,yE,cz)*ocf, Color=OURO_VIVO, Material=Enum.Material.SmoothPlastic}, F13)
+  end
+  barra("Emb_cabo",   V3(1.35,0.05,e*1.55), CF(0,0,e*0.22))
+  barra("Emb_cabeca", V3(e*1.30,0.05,1.35), CF(0,0,-e*0.48))
+  for _,sg in ipairs({1,-1}) do
+    barra("Emb_ponta", V3(e*0.5,0.05,1.15), CF(sg*e*0.78,0,-e*0.33)*CFrame.Angles(0,math.rad(-sg*38),0))
+  end
+  barra("Emb_no", V3(1.9,0.05,1.9), CF(0,0,-e*0.48)*CFrame.Angles(0,math.rad(45),0))
+  -- 4 losangos sobre o anel escuro
   for k=0,3 do
     local a=math.rad(90*k+45)
-    H.part({Name="Med_raio", Size=V3(r*0.5,0.05,1.1),
-      CFrame=CF(cx,0.10,cz)*CFrame.Angles(0,a,0)*CF(r*0.5,0,0),
-      Color=OURO, Material=Enum.Material.Metal}, F13)
+    H.part({Name="Med_losango", Size=V3(1.3,0.05,1.3),
+      CFrame=CF(cx,yE,cz)*CFrame.Angles(0,a,0)*CF(r*0.69,0,0)*CFrame.Angles(0,math.rad(45),0),
+      Color=OURO_VIVO, Material=Enum.Material.SmoothPlastic}, F13)
   end
 end
 medalhao(0, 92, 12)    -- entre o portao e o monumento
 medalhao(0, -55, 10)   -- adro da forja
--- anel vermelho ao redor do monumento (faixa circular por segmentos)
+-- anel vermelho ao redor do monumento, com filetes dourados por dentro e por fora
 for k=0,23 do
   local a = math.rad(15*k)
-  H.part({Name="Anel_monumento", Size=V3(6.6,0.06,2.6),
-    CFrame=CF(math.cos(a)*26, 0.06, math.sin(a)*26)*CFrame.Angles(0,-a+math.rad(90),0),
-    Color=VERMELHO_TAPETE, Material=Enum.Material.Fabric}, F13)
+  local function seg(nome, raio, w, cor, mat, dy)
+    H.part({Name=nome, Size=V3(raio*math.rad(15)+0.35, 0.05, w),
+      CFrame=CF(math.cos(a)*raio, 0.06+(dy or 0), math.sin(a)*raio)*CFrame.Angles(0,-a+math.rad(90),0),
+      Color=cor, Material=mat or Enum.Material.Fabric}, F13)
+  end
+  seg("Anel_monumento", 26, 2.6, VERMELHO_TAPETE)
+  seg("Anel_ouro", 27.7, 0.4, OURO, Enum.Material.Metal, 0.01)
+  seg("Anel_ouro", 24.3, 0.4, OURO, Enum.Material.Metal, 0.01)
 end
 say("medalhoes: 2 + anel do monumento")
 
@@ -147,9 +210,15 @@ for i,ang in ipairs({0,60,120,180,240,300}) do
     else
       local m = cloneAt("VASO", cfr, 1, F13)
       local cf2,sz2 = m:GetBoundingBox()
-      -- flor rosa no vaso (como nos conceitos)
-      H.part({Name="VasoFlor", Class="Part", Shape=Enum.PartType.Ball, Size=V3(3.4,2.6,3.4),
-        CFrame=CF(pos.X, cf2.Y+sz2.Y/2+0.9, pos.Z), Color=rgb(240,150,180), Material=Enum.Material.Grass}, F13)
+      -- buque em camadas: 3 tons de rosa + base verde (nada de bola unica)
+      local fy = cf2.Y+sz2.Y/2
+      H.part({Name="VasoVerde", Class="Part", Shape=Enum.PartType.Ball, Size=V3(3.2,1.4,3.2),
+        CFrame=CF(pos.X, fy+0.3, pos.Z), Color=rgb(110,157,72), Material=Enum.Material.Grass}, F13)
+      for _,fl in ipairs({{0.6,0.9,0,2.4,rgb(240,150,180)},{-0.8,1.1,0.5,2.0,rgb(248,178,200)},
+                          {0.1,1.4,-0.7,1.7,rgb(230,120,160)},{-0.2,1.7,0.2,1.3,rgb(252,196,214)}}) do
+        H.part({Name="VasoFlor", Class="Part", Shape=Enum.PartType.Ball, Size=V3(fl[4],fl[4]*0.8,fl[4]),
+          CFrame=CF(pos.X+fl[1], fy+fl[2], pos.Z+fl[3]), Color=fl[5], Material=Enum.Material.Grass}, F13)
+      end
       H.collider("hx_f13_vaso", V3(sz2.X+0.3, sz2.Y+2, sz2.Z+0.3), CF(pos.X, (sz2.Y+2)/2, pos.Z))
     end
     nAnel += 1
@@ -176,7 +245,7 @@ for _,p in ipairs(H.LAY.PLANTERS) do
   planta("ARVORE_VERDE", 0.22, V3(p.X, math.max(topo-0.3,0), p.Z))
 end
 -- canteiros da forja: sakura
-for _,p in ipairs(H.LAY.FORGE_BEDS) do planta("SAKURA", 1.15, V3(p.X, 0.6, p.Z)) end
+for _,p in ipairs(H.LAY.FORGE_BEDS) do planta("SAKURA", 1.55, V3(p.X, 0.6, p.Z)) end -- 1.15 lia como moita
 -- entorno dos lagos e faces BL/BR (posicoes da F9)
 local ARV = {
   {f="FL", s=-62, d=21, n="SAKURA", e=1.3}, {f="FL", s=22, d=23, n="SAKURA", e=1.1},
@@ -206,9 +275,9 @@ for _,d in ipairs(L:GetDescendants()) do
   if d:IsA("BasePart") and d.Name:lower():find("brase") and not d:FindFirstChildOfClass("ParticleEmitter") then
     local pe = Instance.new("ParticleEmitter")
     pe.Color = ColorSequence.new(rgb(255,180,70), rgb(255,90,30))
-    pe.Size = NumberSequence.new({NumberSequenceKeypoint.new(0,1.1), NumberSequenceKeypoint.new(1,0.2)})
-    pe.Transparency = NumberSequence.new({NumberSequenceKeypoint.new(0,0.25), NumberSequenceKeypoint.new(1,1)})
-    pe.Rate = 10 pe.Lifetime = NumberRange.new(0.7,1.2)
+    pe.Size = NumberSequence.new({NumberSequenceKeypoint.new(0,1.7), NumberSequenceKeypoint.new(1,0.3)})
+    pe.Transparency = NumberSequence.new({NumberSequenceKeypoint.new(0,0.15), NumberSequenceKeypoint.new(1,1)})
+    pe.Rate = 16 pe.Lifetime = NumberRange.new(0.8,1.4)
     pe.Speed = NumberRange.new(2.5,4) pe.SpreadAngle = Vector2.new(10,10)
     pe.LightEmission = 1 pe.Parent = d
     local pl = Instance.new("PointLight") pl.Range=11 pl.Brightness=1 pl.Color=rgb(255,140,60) pl.Shadows=false pl.Parent=d
