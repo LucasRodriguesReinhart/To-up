@@ -75,19 +75,20 @@ for _,lx in ipairs({LX_F, LX_B}) do
   for _,lz in ipairs({-9.6, 0, 9.6}) do
     H.part({Name="TendaSapata", Size=V3(1.3,0.45,1.3), CFrame=TB(lx, chao+0.22, lz),
       Color=rgb(150,140,126), Material=Enum.Material.Slate}, F26)
-    H.part({Name="TendaPoste", Class="Part", Shape=Enum.PartType.Cylinder, Size=V3(10.0,0.85,0.85),
-      CFrame=TB(lx, chao+5.2, lz)*CFrame.Angles(0,0,math.rad(90)),
+    -- altura de BARRACA (antes o cume ficava ao dobro da altura do vendedor)
+    H.part({Name="TendaPoste", Class="Part", Shape=Enum.PartType.Cylinder, Size=V3(7.3,0.85,0.85),
+      CFrame=TB(lx, chao+3.85, lz)*CFrame.Angles(0,0,math.rad(90)),
       Color=MAD, Material=Enum.Material.Wood, CanCollide=true}, F26)
-    H.part({Name="TendaFerragem", Size=V3(0.95,0.45,0.95), CFrame=TB(lx, chao+10.05, lz),
+    H.part({Name="TendaFerragem", Size=V3(0.95,0.45,0.95), CFrame=TB(lx, chao+7.35, lz),
       Color=OURO, Material=Enum.Material.Metal}, F26)
   end
 end
 -- travessas aparentes
 for _,lx in ipairs({LX_F, LX_B}) do
-  H.part({Name="TendaTravessa", Size=V3(0.5,0.5,20.2), CFrame=TB(lx, chao+9.9, 0), Color=MAD_CLARA, Material=Enum.Material.Wood}, F26)
+  H.part({Name="TendaTravessa", Size=V3(0.5,0.5,20.2), CFrame=TB(lx, chao+7.2, 0), Color=MAD_CLARA, Material=Enum.Material.Wood}, F26)
 end
 for _,lz in ipairs({-9.6, 0, 9.6}) do
-  H.part({Name="TendaTravessa", Size=V3(16.9,0.45,0.45), CFrame=TB(0, chao+9.9, lz), Color=MAD_CLARA, Material=Enum.Material.Wood}, F26)
+  H.part({Name="TendaTravessa", Size=V3(16.9,0.45,0.45), CFrame=TB(0, chao+7.2, lz), Color=MAD_CLARA, Material=Enum.Material.Wood}, F26)
 end
 -- cumeeira: alta o bastante para o tecido APOIAR nas travessas (antes passava por baixo)
 local RIDGE = chao + 13.6
