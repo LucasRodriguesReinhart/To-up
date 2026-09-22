@@ -10,47 +10,53 @@ local idx = HttpService:JSONDecode(HttpService:GetAsync(base.."index_cena.json",
 local parts = HttpService:JSONDecode(HttpService:GetAsync(base.."parts_tudo.json", true))
 print("snapshot: "..#idx.containers.." containers, "..#parts.." pecas")
 
--- 1) containers: garante a arvore de Folders/Models
-local porCaminho = {}
-local function resolve(caminho, classe)
-  if porCaminho[caminho] then return porCaminho[caminho] end
-  local segs = {}
-  for s in caminho:gmatch("[^%.]+") do table.insert(segs, s) end
-  local atual = game
-  for i, s in ipairs(segs) do
-    local filho = (s=="Workspace") and workspace or atual:FindFirstChild(s)
-    if not filho then
-      if MODO=="reconstruir" then
-        filho = Instance.new(i==#segs and classe or "Folder")
-        filho.Name = s
-        filho.Parent = atual
-      else
-        return nil
-      end
-    end
-    atual = filho
+-- 1) containers: resolucao por ORDEM DE DFS (mesma ordem da exportacao).
+-- Resolver por caminho falha com nomes duplicados (FindFirstChild pega sempre o 1o)
+-- e com nomes contendo ponto (split do GetFullName quebra) - defeitos achados no teste.
+local RAIZES = {workspace:FindFirstChild("LOBBY_MURIM"), workspace:FindFirstChild("Santuario"),
+  workspace:FindFirstChild("LojaMochilas"), workspace:FindFirstChild("NPCs")}
+local vivos = {}
+local function coleta(inst)
+  if inst:IsA("Folder") or inst:IsA("Model") then
+    table.insert(vivos, inst)
+    for _, c in ipairs(inst:GetChildren()) do coleta(c) end
   end
-  porCaminho[caminho] = atual
-  return atual
 end
+for _, r in ipairs(RAIZES) do if r then coleta(r) end end
 local conts = {}
-local faltamC = 0
+local faltamC, desalinhados = 0, 0
 for i, c in ipairs(idx.containers) do
-  conts[i] = resolve(c[1], c[2])
-  if not conts[i] then faltamC += 1 end
+  local nomeSnap = c[1]:match("([^%.]+)$") or c[1]
+  local vivo = vivos[i]
+  if vivo and vivo.Name == nomeSnap then
+    conts[i] = vivo
+  else
+    -- estrutura mudou desde o snapshot: tenta achar por nome na vizinhanca da ordem
+    conts[i] = nil
+    local achou = false
+    for k = math.max(1, i-3), math.min(#vivos, i+3) do
+      if vivos[k] and vivos[k].Name == nomeSnap then conts[i] = vivos[k] achou = true break end
+    end
+    if not achou then faltamC += 1 else desalinhados += 1 end
+  end
 end
-print("containers ausentes: "..faltamC)
+print(("containers: %d ausentes, %d desalinhados (estrutura mudou desde o snapshot)"):format(faltamC, desalinhados))
+if faltamC + desalinhados > 10 then
+  print("AVISO: muitos containers fora de ordem - o snapshot e de uma estrutura diferente; confira antes de reconstruir")
+end
 
 -- 2) pecas: verificar/reconstruir
 local function cor(k) return Color3.fromRGB(k[1],k[2],k[3]) end
-local existentes = {}
-for i = 1, #idx.containers do -- NAO usar ipairs: conts pode ter buracos (nil) e ipairs pararia no primeiro
-  local c = conts[i]
-  if c then
-    for _, f in ipairs(c:GetChildren()) do
-      if f:IsA("BasePart") then
-        local chave = i.."|"..f.Name.."|"..math.floor(f.Position.X*10).."|"..math.floor(f.Position.Y*10).."|"..math.floor(f.Position.Z*10)
-        existentes[chave] = f
+-- casamento por NOME + DISTANCIA (tolerancia 0.12): o snapshot arredonda a 2 casas
+-- (erro ate 0.005) e chaves por balde de 0.1 flipavam ~14% das pecas (defeito achado
+-- e provado no teste de restauracao; o metodo por distancia bateu 1:1 com o delta real).
+local porNome = {}
+for _, r in ipairs(RAIZES) do
+  if r then
+    for _, d in ipairs(r:GetDescendants()) do
+      if d:IsA("BasePart") then
+        local t = porNome[d.Name] if not t then t = {} porNome[d.Name] = t end
+        table.insert(t, {d.Position, false})
       end
     end
   end
@@ -58,8 +64,15 @@ end
 local faltam, criadas = 0, 0
 for _, e in ipairs(parts) do
   local cf = CFrame.new(unpack(e.f))
-  local chave = e.p.."|"..e.n.."|"..math.floor(cf.X*10).."|"..math.floor(cf.Y*10).."|"..math.floor(cf.Z*10)
-  if not existentes[chave] then
+  local pos = Vector3.new(cf.X, cf.Y, cf.Z)
+  local achou = false
+  local lista = porNome[e.n]
+  if lista then
+    for _, v in ipairs(lista) do
+      if not v[2] and (v[1]-pos).Magnitude <= 0.12 then v[2] = true achou = true break end
+    end
+  end
+  if not achou then
     faltam += 1
     if MODO=="reconstruir" and conts[e.p] then
       local p
