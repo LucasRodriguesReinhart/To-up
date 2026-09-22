@@ -44,7 +44,8 @@ print("containers ausentes: "..faltamC)
 -- 2) pecas: verificar/reconstruir
 local function cor(k) return Color3.fromRGB(k[1],k[2],k[3]) end
 local existentes = {}
-for i, c in ipairs(conts) do
+for i = 1, #idx.containers do -- NAO usar ipairs: conts pode ter buracos (nil) e ipairs pararia no primeiro
+  local c = conts[i]
   if c then
     for _, f in ipairs(c:GetChildren()) do
       if f:IsA("BasePart") then

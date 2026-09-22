@@ -12,7 +12,10 @@
 --    casca mais translucida, nucleo menor e mais claro.
 -- F) Atico: remove o par de blocos teal das extremidades (apareciam acima do beiral na lateral).
 -- Idempotente: reconstrucoes guardadas por marcador HEX_F18_OK e por nomes.
-local H = loadstring(game:GetService("HttpService"):GetAsync("http://127.0.0.1:8766/hex_comum.lua", true))()
+local fnH, errH = loadstring(game:GetService("HttpService"):GetAsync("http://127.0.0.1:8766/hex_comum.lua", true))
+assert(fnH, errH)
+local H = fnH()
+H.selfTest() -- hexRing/rightTri exigem H.SIGN (achado do painel: sem isso o script morre no meio)
 local L = H.L
 local SS = H.SS
 local V3, CF = Vector3.new, CFrame.new
@@ -41,7 +44,7 @@ if F13 then
   end
 end
 for _,c in ipairs(H.COL:GetChildren()) do
-  if c.Name=="hx_f13_vaso" then c:Destroy() end
+  if c.Name=="hx_f13_vaso" then c.Parent=REM end -- par vaso+collider preservado para restauracao
 end
 say("vasos do anel retirados (recuperaveis):", nVaso)
 
@@ -61,15 +64,18 @@ if LIBU and LIBU:FindFirstChild("VASO") and not LIBU:FindFirstChild("VASO_CORRIG
 end
 
 -- ============ C) faces do pedestal v2 ============
+local MON = L:FindFirstChild("HEX_Monumento")
+assert(MON, "F18: HEX_Monumento ausente")
 local tambor
-for _,d in ipairs(L.HEX_Monumento:GetChildren()) do
+for _,d in ipairs(MON:GetChildren()) do
   if d:IsA("Part") and d.Name=="Mon_tambor" then tambor=d break end
 end
+assert(tambor, "F18: Mon_tambor ausente")
 local apT = tambor.Size.Z/2
 local y0T, y1T = tambor.Position.Y-tambor.Size.Y/2, tambor.Position.Y+tambor.Size.Y/2
 local yFace = (y0T+y1T)/2
 for _,p in ipairs(F16:GetChildren()) do
-  if p.Name=="PainelFundo" or p.Name=="Moldura" or p.Name=="FaceMedalhao" or p.Name=="FaceMedalhaoMiolo" then p:Destroy() end
+  if p.Name=="PainelFundo" or p.Name=="Moldura" or p.Name=="FaceMedalhao" or p.Name=="FaceMedalhaoMiolo" or p.Name=="FaceMedalhaoFundo" then p:Destroy() end
 end
 local lado = 2*apT*math.tan(math.rad(30))
 local wIn = lado - 2.2
@@ -90,12 +96,12 @@ for _,th in ipairs({30,90,150,210,270,330}) do
       CFrame=CFrame.fromMatrix(n*(apT+0.26)+t*(sg*(wIn/2-0.21))+V3(0,yFace,0), t, V3(0,1,0)),
       Color=OURO, Material=Enum.Material.SmoothPlastic}, F16)
   end
-  -- anel maior emoldurando o emblema dourado ORIGINAL (concentrico, nao sobreposto)
-  local posM = n*(apT+0.24) + V3(0, yFace, 0)
+  -- medalhao disco-sobre-disco: miolo vermelho SALIENTE do disco de ouro (achado do painel:
+  -- cilindro Roblox e cheio; com o vermelho embutido o resultado era um disco de ouro macico)
   H.part({Name="FaceMedalhao", Class="Part", Shape=Enum.PartType.Cylinder, Size=V3(0.2, 3.8, 3.8),
-    CFrame=CFrame.fromMatrix(posM, n, V3(0,1,0)), Color=OURO, Material=Enum.Material.SmoothPlastic}, F16)
+    CFrame=CFrame.fromMatrix(n*(apT+0.24)+V3(0,yFace,0), n, V3(0,1,0)), Color=OURO, Material=Enum.Material.SmoothPlastic}, F16)
   H.part({Name="FaceMedalhaoFundo", Class="Part", Shape=Enum.PartType.Cylinder, Size=V3(0.16, 3.3, 3.3),
-    CFrame=CFrame.fromMatrix(posM, n, V3(0,1,0)), Color=VERM_ESC, Material=Enum.Material.SmoothPlastic}, F16)
+    CFrame=CFrame.fromMatrix(n*(apT+0.30)+V3(0,yFace,0), n, V3(0,1,0)), Color=VERM_ESC, Material=Enum.Material.SmoothPlastic}, F16)
 end
 say("faces v2: moldura com hierarquia + anel emoldurando o emblema original")
 
@@ -108,9 +114,10 @@ end
 
 -- ============ E) orbe legivel ============
 local orbe
-for _,d in ipairs(L.HEX_Monumento:GetChildren()) do
+for _,d in ipairs(MON:GetChildren()) do
   if d:IsA("Part") and d.Name=="Mon_orbe" then orbe=d break end
 end
+assert(orbe, "F18: Mon_orbe ausente")
 local rO = orbe.Size.Y/2
 local cO = orbe.Position
 orbe.Transparency = 0.38
@@ -120,7 +127,7 @@ for _,p in ipairs(F16:GetChildren()) do
     p.Size = V3(0.95, rO*1.2, 0.95)
     p.Color = BRONZE p.Material = Enum.Material.SmoothPlastic
   elseif p.Name=="OrbeColar" then
-    p.Size = V3(1.1, rO*2.15, rO*2.15)
+    p.Size = V3(1.5, rO*2.15, rO*2.15) -- mais alto: engole o polo inferior do orbe (achado do painel)
     p.CFrame = CF(cO.X, cO.Y-rO*0.62, cO.Z)*CFrame.Angles(0,0,math.rad(90))
     p.Color = BRONZE p.Material = Enum.Material.SmoothPlastic
   elseif p.Name=="OrbeNucleo" then
@@ -141,7 +148,7 @@ if gal then
   for _,p in ipairs(F17:GetChildren()) do
     if p.Name=="AticoBloco" then
       local lz = gal.CFrame:PointToObjectSpace(p.Position).Z
-      if math.abs(lz) > LEN/2 - 9 then p:Destroy() nB += 1 end
+      if math.abs(lz) > LEN/2 - 9 then p.Parent=REM nB += 1 end -- recuperavel, nao destruido
     end
   end
 end
