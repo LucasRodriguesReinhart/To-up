@@ -296,11 +296,12 @@ if F26 then
 end
 -- superficie: catenaria transversal + leve barriga entre os postes (lz = -9.6, 0, 9.6)
 -- beira pousa EXATAMENTE na travessa (chao+7.2); cume 2.2 acima dela
-local RIDGE, QUEDA, LARG = chao+9.4, 2.2, 9.0
-local COMP = 22.0
+-- LARG/COMP acompanham a tenda ~32% maior
+local RIDGE, QUEDA, LARG = chao+9.7, 2.5, 11.6
+local COMP = 28.0
 local function alturaLona(lx, lz)
   local y = RIDGE - QUEDA*((math.abs(lx)/LARG)^1.7)
-  local fase = (lz + COMP/2) / (COMP/2)      -- 0..2 entre os 3 postes
+  local fase = (lz + COMP/2) / (COMP/2)      -- 0..2 entre os 3 postes (lz = -12.6, 0, 12.6)
   local frac = fase % 1
   local sag = 0.42 * math.sin(math.pi*frac) * (1 - (math.abs(lx)/LARG)*0.45)
   return y - sag

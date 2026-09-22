@@ -69,10 +69,11 @@ end
 local MAD = rgb(82,56,40)
 local MAD_CLARA = rgb(120,84,56)
 local OURO = rgb(226,178,84)
-local LX_F, LX_B = 8.2, -8.2   -- frente (entrada) e fundo
--- postes FINOS com sapata discreta
+-- footprint ~32% maior (a tenda estava pequena demais para a praca)
+local LX_F, LX_B = 10.6, -10.6   -- frente (entrada) e fundo
+local LZ = {-12.6, 0, 12.6}
 for _,lx in ipairs({LX_F, LX_B}) do
-  for _,lz in ipairs({-9.6, 0, 9.6}) do
+  for _,lz in ipairs(LZ) do
     H.part({Name="TendaSapata", Size=V3(1.3,0.45,1.3), CFrame=TB(lx, chao+0.22, lz),
       Color=rgb(150,140,126), Material=Enum.Material.Slate}, F26)
     -- altura de BARRACA (antes o cume ficava ao dobro da altura do vendedor)
@@ -85,10 +86,10 @@ for _,lx in ipairs({LX_F, LX_B}) do
 end
 -- travessas aparentes
 for _,lx in ipairs({LX_F, LX_B}) do
-  H.part({Name="TendaTravessa", Size=V3(0.5,0.5,20.2), CFrame=TB(lx, chao+7.2, 0), Color=MAD_CLARA, Material=Enum.Material.Wood}, F26)
+  H.part({Name="TendaTravessa", Size=V3(0.55,0.55,26.2), CFrame=TB(lx, chao+7.2, 0), Color=MAD_CLARA, Material=Enum.Material.Wood}, F26)
 end
-for _,lz in ipairs({-9.6, 0, 9.6}) do
-  H.part({Name="TendaTravessa", Size=V3(16.9,0.45,0.45), CFrame=TB(0, chao+7.2, lz), Color=MAD_CLARA, Material=Enum.Material.Wood}, F26)
+for _,lz in ipairs(LZ) do
+  H.part({Name="TendaTravessa", Size=V3(21.7,0.5,0.5), CFrame=TB(0, chao+7.2, lz), Color=MAD_CLARA, Material=Enum.Material.Wood}, F26)
 end
 -- cumeeira: alta o bastante para o tecido APOIAR nas travessas (antes passava por baixo)
 local RIDGE = chao + 13.6
