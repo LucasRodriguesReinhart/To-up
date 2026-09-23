@@ -12,8 +12,8 @@
 #                       (z0 <= piso + 0,05). piso = floor: numero, funcao (x, y) -> z, ou None = niveis da planta
 #                       (spawn 0, vale 4, piso da forja 5, ledge 14, terraco 30, ou enterrada abaixo de 0).
 #     MB.gable_roof(..., shingle_bevel=None): chanfro das telhas; None = 0,12 em "hero" e 0 em "near"/"far".
-#   Materiais: os donos so ESCOLHEM o nome; cor/brilho ficam aqui (MATS) e a traducao para o Roblox fica em
-#   fm_mat_rbx.py (RBX_RULES / RBX_CAL). Novos desta rodada: Window_Warm (janela quente, NAO vira Neon; use em
+#   Materiais: os donos so ESCOLHEM o nome; cor/brilho ficam aqui (MATS) e a traducao para o Roblox tambem
+#   (RBX_RULES / RBX_CAL / rbx_rule / rbx_color, secao "traducao para o Roblox"). Novos desta rodada: Window_Warm (janela quente, NAO vira Neon; use em
 #   window_glow), Forge_Glow_Soft, Stone_Heated, Grass_Dry, Water_Deep, Cliff_Rock_Top, P_OPM_DarkGlass,
 #   P_<Naruto|DB|Shadow|DS|OP|OPM>_Glow (cor do braco da espiral). Lantern_Glow agora e ambar (emissao 1,2; no
 #   Roblox Neon 255,146,56); Neon em janela so na forja e na loja. Espirais: textura propria por portal (v4).
@@ -21,7 +21,7 @@
 #   dominante (export_roblox.FOLD_TO) e o export FALHA se um dono passar do orcamento (FM_BUDGET=warn so avisa).
 #   Apelidos (MAT_ALIAS): Flower_Yellow -> Flower_Pink, Flower_Blue -> Flower_White, Leaf_Pine_Light_B -> Leaf_Pine_Light.
 #   FM_MAT_PREVIEW=roblox mostra a cor que o Roblox recebe (rbx_color, sem ruido nem textura); para aplicar num
-#   .blend pronto: blender -b x.blend --python fm_mat_preview.py --python render.py -- <pasta> CAM_...
+#   .blend pronto (sem salvar): FM_MAT_PREVIEW=roblox blender -b x.blend --python fm_lib.py --python render.py -- ...
 import bpy, bmesh, math, random, os, zlib
 import numpy as np
 from mathutils import Vector, Matrix, Euler, noise
@@ -288,6 +288,212 @@ def family_of(name):
     return name
 
 
+# ------------------------------------------------------------------ traducao para o Roblox
+# Enum.Material, cor calibrada, transparencia e sombra por material. Sem efeitos colaterais: usado pelo
+# export_roblox.py, pelo export_vfx.py (via export_roblox) e pelo preview FM_MAT_PREVIEW=roblox (o Blender mostra a
+# cor que o Roblox recebe). Os donos dos modulos so escolhem o NOME do material; cor e traducao ficam aqui.
+# (prefixo, Enum.Material do modo padrao "hibrido" testado no Studio, transparencia, CastShadow)
+# Hibrido (achado do Studio): material rico so onde a superficie e grande e lisa (Grass, Slate, Wood, Ground);
+# SmoothPlastic onde a GEOMETRIA ja desenha o padrao (calcamento, alvenaria, telhas, folhas).
+# Neon SO em lanternas, forja, cristais (nucleo), espirais e brilhos de portal: janela comum = Window_Warm (SmoothPlastic).
+# Glass so em P_OPM_*. Agua/cachoeira/espuma opacas (a transparencia do Roblox mostra o fundo cinza).
+RBX_RULES = [
+    ("Stone_Grout", "SmoothPlastic", 0.0, False),
+    ("Stone_Paving", "SmoothPlastic", 0.0, False),
+    ("Stone_", "SmoothPlastic", 0.0, True),
+    ("Cliff_Rock", "Slate", 0.0, True),
+    ("Far_Haze", "SmoothPlastic", 0.0, False),
+    ("Grass_Tuft", "Grass", 0.0, False),
+    ("Grass", "Grass", 0.0, False),
+    ("Dirt", "Ground", 0.0, False),
+    ("Wood_", "Wood", 0.0, True),
+    ("Bark", "Wood", 0.0, True),
+    ("Rope", "Fabric", 0.0, False),                 # fina: sombra vira ruido
+    ("Emblem_", "SmoothPlastic", 0.0, False),       # placa rente a parede
+    ("Roof", "SmoothPlastic", 0.0, True),
+    ("Plaster", "SmoothPlastic", 0.0, True),
+    ("Leaf_", "SmoothPlastic", 0.0, False),
+    ("Flower_", "SmoothPlastic", 0.0, False),
+    ("Metal_Rust", "CorrodedMetal", 0.0, True),
+    ("Metal_Heated", "Neon", 0.0, False),
+    ("Metal_", "Metal", 0.0, True),
+    ("P_DB_Gold", "Metal", 0.0, True),
+    ("Water_Fall", "SmoothPlastic", 0.0, False),
+    ("Water", "SmoothPlastic", 0.0, False),
+    ("Foam", "SmoothPlastic", 0.0, False),
+    ("P_OPM_Glass", "Glass", 0.2, True),
+    ("P_OPM_DarkGlass", "Glass", 0.0, True),
+    ("P_OPM_Neon", "Neon", 0.0, False),
+    ("Cloth_", "Fabric", 0.0, True),
+    ("Leather", "Fabric", 0.0, True),
+    ("Crystal_Blue_Core", "Neon", 0.0, False),
+    ("Crystal_Purple_Core", "Neon", 0.0, False),
+    ("Crystal_", "SmoothPlastic", 0.0, False),      # casca; as pontas pequenas do topo saem como *_Core (Neon)
+    ("Forge_Emissive", "Neon", 0.0, False),
+    ("Forge_Glow_Soft", "Neon", 0.0, False),
+    ("Lantern_Glow", "Neon", 0.0, False),
+    ("Window_Warm", "SmoothPlastic", 0.0, False),
+    ("Smoke", "SmoothPlastic", 0.3, False),
+]
+# materiais desconhecidos (registrados por outros modulos): palavra-chave -> (Material, transp, sombra)
+RBX_KEYWORDS = [
+    (("swirl", "glow", "emissive", "neon", "lantern", "crystal", "heated", "fire", "flame", "ember", "lava", "spark"),
+     ("Neon", 0.0, False)),
+    (("waterfall", "water", "foam", "spray"), ("SmoothPlastic", 0.0, False)),
+    (("glass", "window"), ("Glass", 0.2, True)),
+    (("rust", "corrod"), ("CorrodedMetal", 0.0, True)),
+    (("metal", "iron", "steel", "gold", "brass", "bronze", "copper", "chain", "blade"), ("Metal", 0.0, True)),
+    (("grass", "moss", "lawn"), ("Grass", 0.0, False)),
+    (("leaf", "foliage", "petal", "bush", "ivy", "vine", "flower"), ("SmoothPlastic", 0.0, False)),
+    (("cliff", "rock", "boulder", "slate"), ("Slate", 0.0, True)),
+    (("wood", "plank", "bark", "beam", "timber", "log", "bamboo"), ("Wood", 0.0, True)),
+    (("dirt", "mud", "soil", "ground", "gravel"), ("Ground", 0.0, False)),
+    (("sand",), ("Sand", 0.0, False)),
+    (("snow",), ("Snow", 0.0, False)),
+    (("ice",), ("Ice", 0.0, True)),
+    (("cloth", "banner", "fabric", "rope", "canvas", "leather", "flag", "sail"), ("Fabric", 0.0, True)),
+]
+# Cor calibrada: (cor exportada antes, cor certa) testada no Studio (A/B em LOBBY_FORJA_PREVIEW.VARIANTE_CORRIGIDA).
+# Aplica-se por RAZAO por canal a toda a familia registrada em VARIANT_OF (variantes B/C e mudancas de paleta seguem
+# junto). None no 1o campo = cor ABSOLUTA. Nao ha fallback por prefixo: um material sem entrada (nem ele nem a base da
+# familia registrada) sai com a propria cor do Blender. Perspectiva aerea explicita: proximo < medio < longe em
+# valor, cada plano mais frio.
+RBX_CAL = {
+    "Cliff_Rock": ((139, 139, 147), (136, 130, 122)),
+    "Cliff_Rock_Dark": ((108, 108, 118), (102, 96, 90)),
+    "Cliff_Rock_Top": (None, (146, 136, 128)),
+    "Cliff_Rock_Mid": (None, (132, 134, 146)),
+    "Cliff_Rock_Mid_Dark": (None, (106, 108, 122)),
+    "Cliff_Rock_Far": (None, (152, 160, 180)),
+    "Cliff_Rock_Far_Dark": (None, (130, 136, 158)),
+    "Far_Haze": (None, (150, 162, 170)),
+    # familias cuja paleta do Blender mudou (pedra/madeira mais quentes, telhado mais escuro): (cor A no Blender
+    # quando foi calibrada, alvo no Roblox); a paleta nova segue pela razao.
+    "Stone_Light": ((150, 141, 129), (156, 148, 136)),
+    "Stone_Dark": ((100, 92, 86), (102, 95, 88)),
+    "Stone_Grout": ((88, 82, 76), (88, 82, 76)),
+    "Stone_Paving": ((158, 145, 131), (158, 146, 132)),
+    "Stone_Heated": (None, (120, 58, 36)),
+    "Grass": ((96, 152, 58), (90, 134, 62)),
+    "Grass_Dark": ((63, 108, 63), (60, 98, 60)),
+    "Grass_Dry": (None, (140, 128, 76)),
+    "Dirt": ((134, 108, 80), (124, 100, 76)),
+    "Wood_Light": ((160, 114, 74), (148, 110, 80)),
+    "Wood_Dark": ((100, 66, 43), (92, 64, 47)),
+    "Wood_Plank": ((136, 95, 61), (126, 92, 66)),
+    "Bark": ((144, 118, 89), (120, 98, 76)),
+    "Rope": (None, (190, 172, 140)),
+    "Roof": ((110, 108, 114), (106, 104, 106)),
+    "Roof_Red": ((179, 89, 75), (168, 86, 74)),
+    "Plaster": ((200, 184, 162), (196, 184, 166)),
+    "Leaf_Pine": ((69, 134, 89), (64, 120, 70)),
+    "Leaf_Pine_Light": ((129, 177, 111), (116, 158, 96)),
+    "Leaf_Palm": ((124, 188, 108), (110, 166, 94)),
+    "Leaf_Sakura": (None, (242, 188, 212)),
+    "Flower_Pink": (None, (232, 128, 168)),
+    "Flower_White": (None, (236, 232, 220)),
+    "Metal_Dark": ((85, 85, 89), (78, 76, 76)),
+    "Metal_Iron": ((124, 124, 129), (116, 114, 112)),
+    "Metal_Brass": ((203, 170, 105), (186, 148, 90)),
+    "Metal_Burnt": (None, (66, 56, 56)),
+    "Metal_Rust": (None, (142, 88, 58)),
+    "P_DB_Gold": ((249, 212, 108), (226, 178, 78)),
+    # emissivos: laranja quente, nunca branco
+    "Forge_Emissive": (None, (250, 150, 70)),
+    "Forge_Glow_Soft": (None, (255, 110, 30)),
+    "Lantern_Glow": (None, (255, 146, 56)),
+    "Window_Warm": (None, (214, 140, 74)),
+    "Metal_Heated": (None, (190, 86, 40)),
+    "Crystal_Blue": (None, (30, 140, 230)),
+    "Crystal_Blue_Core": (None, (70, 200, 255)),
+    "Crystal_Purple": (None, (120, 72, 205)),
+    "Crystal_Purple_Core": (None, (175, 120, 255)),
+    # portais: espiral e brilhos na cor do BRACO
+    "P_Naruto_Swirl": (None, (255, 115, 20)),
+    "P_DB_Swirl": (None, (255, 195, 30)),
+    "P_Shadow_Swirl": (None, (150, 60, 255)),
+    "P_DS_Swirl": (None, (185, 12, 22)),
+    "P_OP_Swirl": (None, (25, 105, 255)),
+    "P_OPM_Swirl": (None, (0, 225, 255)),
+    "P_Naruto_Glow": (None, (255, 115, 20)),
+    "P_DB_Glow": (None, (255, 195, 30)),
+    "P_Gold_Glow": (None, (255, 195, 30)),
+    "P_Shadow_Glow": (None, (150, 60, 255)),
+    "P_DS_Glow": (None, (185, 12, 22)),
+    "P_Red_Glow": (None, (185, 12, 22)),
+    "P_OP_Glow": (None, (25, 105, 255)),
+    "P_OPM_Glow": (None, (0, 225, 255)),
+    "P_OPM_Neon": (None, (0, 225, 255)),
+    "P_Shadow_Stone": (None, (40, 34, 52)),
+    "P_Shadow_Trim": (None, (58, 48, 72)),
+    "P_OPM_Concrete": (None, (124, 126, 130)),
+    "P_OPM_DarkGlass": (None, (22, 34, 62)),
+    "Water": (None, (40, 128, 160)),
+    "Water_Deep": (None, (24, 96, 128)),
+    "Water_Fall": (None, (170, 212, 236)),
+    "Foam": (None, (236, 244, 250)),
+}
+
+
+def rbx_rule(name):
+    """(Enum.Material, transparencia, CastShadow) pelo maior prefixo conhecido; senao por palavra-chave"""
+    name = alias(name)
+    fam = family_of(name)
+    best = None
+    for key in (name, fam):
+        for p, m, t, s in RBX_RULES:
+            if key.startswith(p) and (best is None or len(p) > len(best[0])):
+                best = (p, m, t, s)
+    if best:
+        return best[1], best[2], best[3]
+    if name in SWIRLS or "swirl" in name.lower():
+        return "Neon", 0.0, False
+    n = name.lower()
+    for kws, res in RBX_KEYWORDS:
+        if any(k in n for k in kws):
+            if res[0] == "Glass" and not name.startswith("P_OPM_"):
+                return "SmoothPlastic", 0.0, True     # Glass so em P_OPM_*
+            return res
+    return "SmoothPlastic", 0.0, True
+
+
+def rbx_color(name, mat=None):
+    """cor sRGB 0-255 do Roblox: cor da variante (MATS) x correcao testada da familia registrada (razao por canal)"""
+    name = alias(name)
+    if name in MATS:
+        c = to_srgb(MATS[name][0])
+    elif mat is not None:
+        c = to_srgb(tuple(mat.diffuse_color)[:3])
+    else:
+        c = [163, 162, 165]
+    cal = RBX_CAL.get(name)
+    fam = name
+    if cal is None and name in VARIANT_OF:
+        fam = VARIANT_OF[name]
+        cal = RBX_CAL.get(fam)
+    if not cal:
+        return list(c)
+    old, new = cal
+    if old is None:
+        if name in RBX_CAL:
+            return list(new)
+        old = to_srgb(MATS[fam][0]) if fam in MATS else c
+    return [max(0, min(255, int(round(n * (x / max(o, 1)))))) for x, o, n in zip(c, old, new)]
+
+
+def rbx_material(name):
+    """compatibilidade (export_vfx): (Material estilizado, Material rico, transparencia) - o modo hibrido usa o
+    mesmo Enum nos dois (o montar troca para SmoothPlastic com LISO=true)."""
+    m, t, s = rbx_rule(name)
+    return m, m, t
+
+
+def rbx_base_color(mat):
+    """compatibilidade (export_vfx): cor LINEAR cujo sRGB e a cor calibrada do Roblox"""
+    name = mat.name if hasattr(mat, "name") else str(mat)
+    return S(*rbx_color(name, mat if hasattr(mat, "diffuse_color") else None))
+
+
 # ------------------------------------------------------------------ texturas de detalhe (overlay)
 # prefixo do material -> chave de textura (fm_mat_textures). Tolerante a materiais novos pelo prefixo.
 TEX_RULES = (("Stone_", "stone"), ("P_OPM_Concrete", "stone"), ("Wood_", "wood"), ("Bark", "wood"),
@@ -369,12 +575,11 @@ def _build_material(name, preview=None):
         _swirl_nodes(nt, bs, name, emit)
         return m
     if preview == "roblox":
-        # cor solida calibrada do Roblox (fm_mat_rbx.rbx_color); Neon = emissao da propria cor
-        import fm_mat_rbx
-        c = S(*fm_mat_rbx.rbx_color(name))
+        # cor solida calibrada do Roblox (rbx_color); Neon = emissao da propria cor
+        c = S(*rbx_color(name))
         bs.inputs["Base Color"].default_value = (*c, 1.0)
         m.diffuse_color = (*c, 1.0)
-        rm = fm_mat_rbx.rbx_rule(name)[0]
+        rm = rbx_rule(name)[0]
         if rm == "Neon":
             bs.inputs["Emission Color"].default_value = (*c, 1.0)
             bs.inputs["Emission Strength"].default_value = 1.6
@@ -456,15 +661,14 @@ def apply_preview(mode=None):
             n += 1
         elif PREVIEW == "roblox" and m.users and not m.name.startswith(("RBX_", "Dots Stroke")):
             # material fora de MATS (sem registro): cor do Roblox a partir da cor de viewport
-            import fm_mat_rbx
-            c = S(*fm_mat_rbx.rbx_color(m.name, m))
+            c = S(*rbx_color(m.name, m))
             m.use_nodes = True
             nt = m.node_tree
             nt.nodes.clear()
             out = nt.nodes.new("ShaderNodeOutputMaterial")
             bs = nt.nodes.new("ShaderNodeBsdfPrincipled")
             bs.inputs["Base Color"].default_value = (*c, 1.0)
-            if fm_mat_rbx.rbx_rule(m.name)[0] == "Neon":
+            if rbx_rule(m.name)[0] == "Neon":
                 bs.inputs["Emission Color"].default_value = (*c, 1.0)
                 bs.inputs["Emission Strength"].default_value = 1.6
             nt.links.new(bs.outputs[0], out.inputs[0])
@@ -1087,3 +1291,24 @@ def camera(name, loc, target, lens=24, c="00_REFERENCE"):
     ob.rotation_euler = d.to_track_quat("-Z", "Y").to_euler()
     coll(c).objects.link(ob)
     return ob
+
+
+# ------------------------------------------------------------------ preview de materiais num .blend pronto
+# FM_MAT_PREVIEW=roblox blender -b lobby.blend --python fm_lib.py --python render.py -- <pasta> CAM_...
+#   modos: rico (padrao do build), liso, legado, roblox (cor calibrada que o Roblox recebe, sem ruido/textura).
+#   Refaz os materiais em memoria; nao salva o .blend.
+if __name__ == "__main__":
+    import sys, importlib
+    _here = os.path.dirname(os.path.abspath(__file__))
+    if _here not in sys.path:
+        sys.path.insert(0, _here)
+    import fm_lib as _fl          # o modulo "de verdade" (os outros registram MATS nele)
+    for _m in ("fm_parts", "fm_layout", "fm_terrain", "fm_scene", "fm_forge", "fm_mine", "fm_water", "fm_buildings",
+               "fm_portals", "fm_konoha", "fm_props", "fm_veg", "fm_lights"):
+        if os.path.exists(os.path.join(_here, _m + ".py")):
+            try:
+                importlib.import_module(_m)
+            except Exception as _e:
+                print("fm_lib preview: nao importou", _m, _e)
+    _mode = os.environ.get("FM_MAT_PREVIEW", "roblox")
+    print("FM_MAT_PREVIEW=%s aplicado em %d materiais" % (_mode, _fl.apply_preview(_mode)))

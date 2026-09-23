@@ -16,15 +16,21 @@
 import sys, os, json, math, zlib, glob, re
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
+import numpy as np
 import bpy, bmesh
 from mathutils import Vector, Matrix
 from mathutils.bvhtree import BVHTree
 import fm_lib
 import fm_mat_textures as TX
-import fm_mat_rbx as RBX
-# compatibilidade (export_vfx.py e ferramentas antigas importam estes nomes daqui)
-from fm_mat_rbx import (RBX_RULES, RBX_KEYWORDS, RBX_CAL, rbx_rule, rbx_color, rbx_material, base_color, srgb,
-                        family)
+# traducao dos materiais (Enum.Material, cor calibrada, sombra) mora no fm_lib; estes nomes ficam aqui por
+# compatibilidade (export_vfx.py e ferramentas antigas importam daqui)
+from fm_lib import RBX_RULES, RBX_KEYWORDS, RBX_CAL, rbx_rule, rbx_color, rbx_material
+from fm_lib import rbx_base_color as base_color, to_srgb as srgb, family_of as family
+
+
+def mat_color(mname):
+    """cor do Roblox de um material, usando a cor do proprio material quando ele nao esta registrado em MATS"""
+    return rbx_color(mname, bpy.data.materials.get(mname))
 
 _argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
 OUT = (_argv[0] if _argv and __name__ == "__main__" else None) or os.environ.get("FM_EXPORT_DIR") or \
@@ -60,6 +66,7 @@ BUDGET = {"static_tris": 624000, "static_meshes": 750, "vfx_tris": 16000, "vfx_m
 FOLD_AREA = 60.0             # studs^2 por objeto: abaixo disso o material vai para o vizinho dominante
 FOLD_DIST = 100.0            # distancia maxima de cor (sRGB) para o fold automatico de mesmo Enum.Material
 FOLD_DIST_NEON = 70.0        # Neon so funde com Neon de cor parecida
+CAP_DIST = 90.0              # teto global de materiais: distancia maxima de cor (sRGB) do remapeamento
 FOLD_TO = {                  # destinos explicitos (valem mesmo com Enum/cor diferentes), por preferencia
     "Metal_Valve_Red": ("Metal_Dark", "Metal_Burnt", "Metal_Iron"),
     "Metal_Copper": ("Metal_Dark", "Metal_Burnt", "Metal_Iron"),
@@ -245,7 +252,7 @@ def _fold(obname, by_mat, log, small=()):
     if obname.startswith(NO_FOLD_OBJ) or len(by_mat) < 2:
         return by_mat
     area = {m: _area(fs) for m, fs in by_mat.items()}
-    info = {m: (rbx_rule(m), rbx_color(m)) for m in by_mat}
+    info = {m: (rbx_rule(m), mat_color(m)) for m in by_mat}
 
     def fixed(m):          # nunca sai do lugar
         (rm, tr, sh), _ = info[m]
@@ -483,7 +490,7 @@ def export_material(mname):
         m = bpy.data.materials.get(mname)
         if m is None:
             m = bpy.data.materials.new(mname)
-            c = RBX.lin(rbx_color(mname))
+            c = fm_lib.S(*rbx_color(mname))
             m.diffuse_color = (*c, 1.0)
         return m
     key = swirl or tk
@@ -602,8 +609,34 @@ def collisions(log):
                 del live[j]
                 changed = True
             i += 1
+    # caixa coberta pela UNIAO de outras (nenhuma sozinha a contem): amostra uma grade dentro dela (passo <= 0,75
+    # stud) e descarta se todo ponto cai dentro de alguma outra caixa viva do mesmo tipo -> colisao identica
+    covered = []
+    for b in sorted(live, key=lambda b: (b["h"].x * b["h"].y * b["h"].z, b["name"])):
+        near = [a for a in live if a is not b and not a.get("gone") and
+                (a["kind"] == "Ramp") == (b["kind"] == "Ramp") and
+                not any(a["lo"][k] > b["hi"][k] + 0.05 or b["lo"][k] > a["hi"][k] + 0.05 for k in range(3))]
+        if len(near) < 2:
+            continue
+        axes = [np.linspace(-b["h"][k], b["h"][k], max(2, min(24, int(math.ceil(2 * b["h"][k] / 0.75)) + 1)))
+                for k in range(3)]
+        g = np.stack(np.meshgrid(*axes, indexing="ij"), -1).reshape(-1, 3)
+        R = np.array(b["R"])
+        P = g @ R.T + np.array(b["c"])
+        ok = np.zeros(len(P), dtype=bool)
+        for a in near:
+            Ra = np.array(a["R"])
+            q = (P - np.array(a["c"])) @ Ra
+            ok |= np.all(np.abs(q) <= np.array(a["h"]) + 0.05, axis=1)
+            if ok.all():
+                break
+        if ok.all():
+            b["gone"] = True
+            covered.append(b["name"])
+    live = [b for b in live if not b.get("gone")]
     log["col_dropped"] = dropped
     log["col_merged"] = merged
+    log["col_covered"] = covered
     out = []
     for b in live:
         R = b["R"]
@@ -803,14 +836,23 @@ def variant_remap():
     return remap, small
 
 
-def collect(log):
-    """divide todas as malhas visuais em pedacos (sem gravar nada)"""
+def collect(log, extra=None):
+    """divide todas as malhas visuais em pedacos (sem gravar nada). extra = remapeamento global de materiais
+    (teto de materiais), somado ao das variantes pouco usadas."""
     tmp = bpy.data.collections.new("_EXPORT_TMP")
     bpy.context.scene.collection.children.link(tmp)
     pieces = []
     fold_log = []
     remap, small = variant_remap()
-    log["remap"] = remap
+    log["remap"] = dict(remap)
+    if extra:
+        remap.update(extra)
+        for k in list(remap):          # cadeias (variante -> base -> vizinho) resolvidas num passo
+            t, seen = remap[k], {k}
+            while t in remap and t not in seen:
+                seen.add(t)
+                t = remap[t]
+            remap[k] = t
     for g in GROUPS:
         for o in export_objects(g):
             rm = None if o.name.startswith(NO_FOLD_OBJ) else remap
@@ -841,6 +883,67 @@ def collect(log):
                                "model": atomic_model(o.name)})
     log["fold"] = fold_log
     return tmp, pieces
+
+
+def discard(tmp, pieces):
+    for p in pieces:
+        if "ob" in p:
+            me = p["ob"].data
+            bpy.data.objects.remove(p["ob"], do_unlink=True)
+            bpy.data.meshes.remove(me)
+    bpy.data.collections.remove(tmp)
+
+
+def material_cap(pieces, limit):
+    """teto GLOBAL de materiais (a meta nao e de nenhum dono): se o lobby passar de 'limit', os materiais menos usados
+    vao para o material mais parecido de mesmo Enum.Material (cor sRGB a <= CAP_DIST; Neon so em Neon a <=
+    FOLD_DIST_NEON) que tenha pelo menos o mesmo uso. Nunca: Glass, transparentes, espirais, FOLD_PROTECT e os
+    materiais das fontes do export_vfx (NO_FOLD_OBJ). Retorna {material: destino}."""
+    tris, locked = {}, set()
+    for p in pieces:
+        tris[p["material"]] = tris.get(p["material"], 0) + p["tris"]
+        if p["obj"].startswith(NO_FOLD_OBJ):
+            locked.add(p["material"])
+    if len(tris) <= limit:
+        return {}
+    info = {m: (rbx_rule(m), mat_color(m)) for m in tris}
+
+    def free(m):
+        (rm, tr, sh), _ = info[m]
+        return not (rm == "Glass" or tr > 0 or m in fm_lib.SWIRLS or m in TX.SWIRL_TEX or m.startswith(FOLD_PROTECT))
+    extra = {}
+    n = len(tris)
+    for m in sorted(tris, key=lambda k: (tris[k], k)):
+        if n <= limit:
+            break
+        if m in locked or not free(m):
+            continue
+        (rm, tr, sh), c = info[m]
+        lim = FOLD_DIST_NEON if rm == "Neon" else CAP_DIST
+        cands = [o for o in tris if o != m and o not in extra and free(o) and info[o][0][0] == rm and
+                 tris[o] >= tris[m] and math.dist(info[o][1], c) <= lim]
+        if not cands:
+            continue
+        extra[m] = min(cands, key=lambda o: (math.dist(info[o][1], c), -tris[o], o))
+        n -= 1
+    return extra
+
+
+def cap_shadows(pieces, limit):
+    """teto GLOBAL de MeshParts com sombra: se passar, as de menor prioridade (tamanho / distancia do centro)
+    deixam de projetar sombra. Retorna os nomes cortados."""
+    on = [p for p in pieces if p["shadow"]]
+    if len(on) <= limit:
+        return []
+
+    def prio(p):
+        c = p["center_rbx"]
+        return Vector(p["size_rbx"]).length / (1.0 + math.hypot(c[0], c[2]) / 110.0)
+    on.sort(key=lambda p: (prio(p), p["name"]))
+    cut = on[:len(on) - limit]
+    for p in cut:
+        p["shadow"] = False
+    return [p["name"] for p in cut]
 
 
 def budget_report(pieces, n_mats, n_col, day_lights):
@@ -880,6 +983,13 @@ def main():
     TX.ensure()
     log = {}
     tmp, pieces = collect(log)
+    extra = material_cap(pieces, BUDGET["materials"])
+    if extra:
+        # teto de materiais: refaz a divisao com o remapeamento (as faces remapeadas juntam com as do destino)
+        discard(tmp, pieces)
+        tmp, pieces = collect(log, extra)
+    log["mat_cap"] = extra
+    log["shadow_cut"] = cap_shadows(pieces, BUDGET["shadow_meshes"])
     names = sorted(p["name"] for p in pieces)
     export_id = "%08x" % (zlib.crc32("\n".join(names).encode("utf-8")) & 0xffffffff)
     id6 = export_id[:6]
@@ -930,11 +1040,7 @@ def main():
     if over and BUDGET_MODE != "warn":
         print("EXPORT FALHOU: orcamento estourado (%s). Nada foi gravado. FM_BUDGET=warn grava mesmo assim."
               % ", ".join(over))
-        for p in pieces:
-            me = p["ob"].data
-            bpy.data.objects.remove(p["ob"], do_unlink=True)
-            bpy.data.meshes.remove(me)
-        bpy.data.collections.remove(tmp)
+        discard(tmp, pieces)
         sys.stdout.flush()
         os._exit(3)
     os.makedirs(OUT, exist_ok=True)
@@ -997,10 +1103,15 @@ def main():
     print("FOLD: %d materiais pequenos fundidos no vizinho dominante" % len(log["fold"]))
     for f in log["fold"][:12]:
         print("   %s: %s (%.1f studs2) -> %s" % f)
-    print("COL: %d contidas descartadas, %d unidas a vizinhas; %d com tag CamOccluder" % (
-        len(log["col_dropped"]), len(log["col_merged"]), n_cam))
+    print("TETO DE MATERIAIS (%d): %s" % (BUDGET["materials"], log["mat_cap"] or "nao precisou"))
+    print("TETO DE SOMBRA (%d): %d MeshParts perderam a sombra %s" % (
+        BUDGET["shadow_meshes"], len(log["shadow_cut"]), log["shadow_cut"][:12]))
+    print("COL: %d contidas descartadas, %d cobertas pela uniao de outras, %d unidas a vizinhas; %d com tag "
+          "CamOccluder" % (len(log["col_dropped"]), len(log["col_covered"]), len(log["col_merged"]), n_cam))
     for a, b in log["col_dropped"]:
         print("   descartada %s (dentro de %s)" % (a, b))
+    if log["col_covered"]:
+        print("   cobertas: %s" % ", ".join(log["col_covered"]))
     print("CAMERA: %d cascas visuais ocluem a camera (grupo SoVisual)" % n_occ)
     print("MARCADORES assentados na COL:", log["snapped"])
     print("LUZES: %d exportadas, %d ativas de dia, %d NightOnly (%d rebaixadas pelo cluster %s)" % (
