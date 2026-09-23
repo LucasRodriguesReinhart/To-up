@@ -28,8 +28,52 @@ def side_of(pts, i):
     return t, Vector((-t.y, t.x, 0))
 
 
+def approach(rng):
+    """patio atras do torii Naruto ate a boca do canion: sando de lajes, segundo torii, toro, quadro de avisos,
+    bambuzal e varal de lanternas de papel (profundidade: torii grande -> torii menor -> lanternas -> canion)"""
+    import fm_portal_kit as K
+    x0 = L.KONOHA_PATH[0][0]
+    y_back = L.PORTAL_Y + 5.4       # fundo da plataforma do portal Naruto
+    ap = MB("KONOHA_Torii_Approach", C, rng)
+    K.flag_floor(ap, [(x0 - 4.2, y_back - 0.4), (x0 + 4.2, y_back - 0.4), (x0 + 4.2, 134.0), (x0 - 4.2, 134.0)], T - 0.2,
+                 rng, "Stone_Light", "Stone_Paving", tile=2.8, h=0.42, bevel=0.1, base=False)
+    for s in (-1, 1):
+        for k in range(5):
+            y = y_back + 1.2 + k * 3.1
+            ap.box((0.5, 2.4, 0.3), (x0 + s * 4.55, y, T + 0.05), (0, 0, rng.uniform(-0.05, 0.05)), "Stone_Dark", 0.05)
+    # segundo torii (menor) na boca do canion
+    ty = 123.6
+    for s in (-1, 1):
+        x = x0 + s * 7.9
+        ap.cyl(1.05, 0.9, (x, ty, T + 0.45), (0, 0, 0), "Stone_Dark", 10, bevel=0.1)
+        ap.cyl(0.78, 14.2, (x, ty, T + 7.1), (0, 0, 0), "P_Naruto_Red", 10, r2=0.68, bevel=0.05)
+        ap.cyl(0.9, 0.8, (x, ty, T + 1.3), (0, 0, 0), "Wood_Dark", 10, bevel=0.0)
+        col_box("Konoha", (1.7, 1.7, 14.0), (x, ty, T + 7.0))
+    ap.box((19.0, 0.9, 1.0), (x0, ty, T + 11.4), (0, 0, 0), "P_Naruto_Red", 0.1)
+    kas = [Vector((x0 + x, ty, T + 14.4 + 0.02 * x * x)) for x in range(-11, 12, 2)]
+    ap.sweep(kas, [(-0.9, -0.7), (0.9, -0.7), (1.0, 0.6), (-1.0, 0.6)], "Wood_Dark", True, up=(0, 0, 1))
+    ap.sweep([p + Vector((0, 0, -1.3)) for p in kas[1:-1]], [(-0.7, -0.55), (0.7, -0.55), (0.7, 0.55), (-0.7, 0.55)],
+             "P_Naruto_Red", True, up=(0, 0, 1))
+    ap.box((1.6, 0.9, 2.0), (x0, ty - 0.1, T + 12.9), (0, 0, 0), "Wood_Dark", 0.1)
+    # toro de pedra no patio
+    for s in (-1, 1):
+        x, y = x0 + s * 10.6, y_back + 2.8
+        K.toro(ap, (x, y, T), 0.95, "Stone_Light", "Stone_Dark", name="L_Konoha_Toro_%d" % (s + 1))
+        col_box("Konoha", (2.4, 2.4, 6.2), (x, y, T + 3.1))
+    # fileira de lanternas de papel pendurada no nuki do segundo torii (festival)
+    for dx in (-5.2, -2.6, 0.0, 2.6, 5.2):
+        K.chochin(ap, (x0 + dx, ty - 0.2, T + 10.9), r=0.62, h=1.2, paper="Lantern_Glow", cap="P_Naruto_Red",
+                  hang=0.35 + 0.25 * abs(dx) / 5.2, n=6)
+    light("L_Konoha_Festival", "POINT", (x0, ty - 1.5, T + 9.0), 260, (1.0, 0.6, 0.3), 1.0)
+    # bambuzal na borda oeste
+    K.bamboo(ap, (x0 - 10.8, 136.5, T), rng, n=5, h=(10.0, 15.0))
+    col_box("Konoha", (2.6, 2.6, 8.0), (x0 - 10.8, 136.5, T + 4.0))
+    ap.finish()
+
+
 def build():
     rng = random.Random(808)
+    approach(random.Random(809))
     pts = path_pts()
     g0, g1 = L.KONOHA_GORGE
     mb = MB("KONOHA_Pass_Path", C, rng)
