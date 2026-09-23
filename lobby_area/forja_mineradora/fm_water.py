@@ -1,4 +1,4 @@
-﻿# fm_water - geografia da agua: NASCENTES (contrafortes NO/NE com entalhe em V e bacia de rocha, cachoeira central,
+# fm_water - geografia da agua: NASCENTES (contrafortes NO/NE com entalhe em V e bacia de rocha, cachoeira central,
 #            2 bicas do terraco) -> CANAL do ledge -> VERTEDOURO (parte vai pela CALHA da roda) -> TANQUE -> RIO
 #            (2 corredeiras) -> roda d'agua de peito (aciona o eixo da forja) -> grade, bica e queda no penhasco sul
 import math, random
@@ -526,10 +526,17 @@ def wheel(rng):
 def wheel_house(rng):
     """casa da roda: eixo baixo (roda) -> roda de coroa -> pinhao no eixo alto (foles da forja); cames do eixo baixo
     acionam o martinete da oficina de refino. Porta para o patio sul.
-    Casca pelo kit de arquitetura: oitao sul projetado com guincho coberto (lucam), lucarna na agua oeste, meia-agua
-    leste protegendo a entrada do eixo da roda, telhado de ardosia com cumeeira arqueada e caibros aparentes."""
+    Passe fix2 - cara INDUSTRIAL (nao e casa de morar): terreo de pedra com FAIXA DE UMIDADE escura embaixo,
+    tabuas verticais com mata-juntas em cima, CHAPAS DE MANCAL de ferro aparafusadas onde os eixos atravessam as
+    paredes, ventilador de cumeeira (lanternim), guincho coberto no oitao sul, telheiro leste sobre a entrada do
+    eixo da roda, ardosia com musgo; sem flores nem postigos pintados.
+    O maquinario (eixo, coroa, pinhao, cames, martinete) e o MESMO de antes (o export_vfx separa por ilha).
+    Rng: a casca usa um rng proprio e, no fim, o rng compartilhado avanca exatamente o que a versao anterior
+    consumia (as pontes e as nascentes, construidas depois, nao mudam)."""
     from fm_arch_house import house
     import fm_arch_kit as K
+    st0 = rng.getstate()
+    wr = random.Random(st0[1][0] ^ 0x5A17)
     x0, y0, x1, y1 = L.MILL
     wy = L.WHEEL_C[1]
     az = 11.0
@@ -539,38 +546,58 @@ def wheel_house(rng):
     ds0, ds1 = 6.5, 11.5
     FW = Frame((x0 + x1) / 2, (y0 + y1) / 2, 0.0, 0.0)
     V = dict(
-        t=t, zs=4.0, ze=14.0, rise=6.2, door=(ds0, ds1, 8.0, 2.5), gjet=(1.0, 0.0), course=2.0, post=3.4,
-        wins={0: [(1.5, 4.5, 8.5, 11.5)], 1: [(2.0, 5.0, 8.0, 11.0)], 2: [(4.0, 8.0, 7.0, 10.5)]},
+        t=t, lower="stone", upper="board", zs=5.0, ze=14.0, pitch=40.0, door=(ds0, ds1, 8.0, 2.5), course=1.7,
+        blk=(3.4, 5.6), damp=1.6, stone_bev=0.1,
+        wins={0: [(1.5, 4.5, 8.5, 11.5, "grid")], 1: [(2.0, 5.0, 8.0, 11.0, "two")],
+              2: [(4.0, 8.0, 7.0, 10.5, "grid+lit")], 3: [(3.2, 4.0, 1.9, 4.2, "slit"), (10.4, 11.2, 1.9, 4.2, "slit")]},
         holes_t={1: [(wy - y0 - 1.2, wy - y0 + 1.2, az - 1.2 - F0, az + 1.2 - F0)],
                  3: [(y1 - wy - 1.0, y1 - wy + 1.0, uz - 1.0 - F0, uz + 1.0 - F0)]},
-        roof=dict(m="Roof", m2="Roof_Slate_Blue", sag=0.35, over=(1.2, 1.2), ends=(1.3, 1.1), rafters=2.4),
-        gables={0: dict(style="king", window=(2.0, 1.4, 1.45)), 1: dict(style="cross")},
-        dormers=[dict(side=-1, y=2.6, wd=3.6, inset=1.4, h=2.8)],
+        roof=dict(family="slate", over=(1.3, 1.3), ends=(1.3, 1.1), rafters=2.4, sag=0.4, alt=0.04),
+        gables={0: dict(window=(2.0, 1.4, 1.45)), 1: dict(window=(1.8, 1.8, 2.2, "round"))},
         lean=[dict(edge=1, s0=3.0, s1=13.0, depth=3.4, z_hi=12.4, z_lo=10.6, content=None)],
-        shutters=[(0, 1.5, 4.5, 8.5, 11.5)], flowers=[(0, 1.5, 4.5, 8.5)], paint="Wood_Painted_Red",
-        floor_top=0.35,
+        floor_top=0.35, back=(2,), ties=True,
     )
-    mb = K.AMB("BLD_WheelHouse", "07_BUILDINGS", rng)
+    mb = K.AMB("BLD_WheelHouse", "07_BUILDINGS", wr)
     A = "WheelHouse"
-    house(mb, FW, x1 - x0, y1 - y0, F0, rng, V, area=A, name="WheelHouse")
+    info = house(mb, FW, x1 - x0, y1 - y0, F0, wr, V, area=A, name="WheelHouse")
+    z_r = info["z_r"]
+    # chapas de mancal: placa de ferro aparafusada + cinta, por fora das paredes onde os eixos atravessam
+    for (xp, zp, sgn) in ((x1 + 0.05, az, 1), (x0 - 0.05, uz, -1)):
+        mb.box((0.3, 3.4, 3.4), (xp, wy, zp), (0, 0, 0), "Metal_Iron", 0.06)
+        mb.box((0.5, 4.2, 0.6), (xp + sgn * 0.1, wy, zp + 1.9), (0, 0, 0), "Metal_Dark", 0.0)
+        mb.box((0.5, 4.2, 0.6), (xp + sgn * 0.1, wy, zp - 1.9), (0, 0, 0), "Metal_Dark", 0.0)
+        for dy in (-1.3, 1.3):
+            for dz in (-1.3, 1.3):
+                mb.box((0.35, 0.4, 0.4), (xp + sgn * 0.2, wy + dy, zp + dz), (0, 0, 0), "Metal_Dark", 0.0)
+    # ventilador de cumeeira (lanternim) com venezianas: a casa trabalha, esquenta e respira
+    FV = Frame((x0 + x1) / 2, (y0 + y1) / 2 + 1.5, 0.0, 0.0)
+    K.lbox(mb, FV, (2.6, 4.2, 1.8), 0, 0, z_r + 0.9, "Wood_Dark", 0.0)
+    for k in range(3):
+        for sx in (-1, 1):
+            K.lbox(mb, FV, (0.2, 3.8, 0.35), sx * 1.35, 0, z_r + 0.5 + k * 0.5, "Wood_Plank", 0.0, ry=sx * 0.5)
+    K.gable_roof(mb, FV, 0.0, -2.1, 2.1, z_r + 3.0, wr, sides=((1.3, z_r + 1.8, 0.5), (1.3, z_r + 1.8, 0.5)),
+                 ends=((0.4, 0.0), (0.4, 0.0)), m="Roof", m2="Roof_Moss", sag=0.0, tile=(1.2, 1.8), course=1.0,
+                 th=0.3, lip=0.2, horn_len=0.5, ridge_w=0.6, bevel=0.0, fascia=False)
     # guincho no oitao sul: viga saliente + roldana + corda + caixote, com telhadinho proprio (lucam)
     cxm = (x0 + x1) / 2
-    ygab = y0 - 1.0
+    ygab = y0 - 0.3
     hz = ze + 3.0
-    mb.beam((cxm, ygab + 2.2, hz), (cxm, ygab - 3.5, hz), 0.8, 0.9, "Wood_Dark", 0.08)
+    mb.beam((cxm, ygab + 2.2, hz), (cxm, ygab - 3.5, hz), 0.8, 0.9, "Wood_Dark", 0.0)
     FH = Frame(cxm, ygab, 0.0, 0.0)
-    K.gable_roof(mb, FH, 0.0, -3.4, 0.0, hz + 1.6, rng, sides=((1.2, hz + 0.55, 0.35), (1.2, hz + 0.55, 0.35)),
-                 ends=((0.3, 0.0), (0.0, 0.0)), m="Roof", m2="Roof_Slate_Blue", sag=0.0, tile=(1.2, 1.8), course=1.1,
-                 th=0.34, lip=0.24, horn_len=0.6, ridge_w=0.7, horns=(True, False))
+    K.gable_roof(mb, FH, 0.0, -3.4, 0.0, hz + 1.6, wr, sides=((1.2, hz + 0.55, 0.35), (1.2, hz + 0.55, 0.35)),
+                 ends=((0.3, 0.0), (0.0, 0.0)), m="Roof", m2="Roof_Moss", sag=0.0, tile=(1.2, 1.8), course=1.1,
+                 th=0.34, lip=0.24, horn_len=0.6, ridge_w=0.7, horns=(True, False), bevel=0.0)
     for sx in (-1, 1):
-        K.lbox(mb, FH, (0.35, 0.35, 0.8), sx * 1.15, -3.1, hz + 0.3, "Wood_Dark", 0.03)
+        K.lbox(mb, FH, (0.35, 0.35, 0.8), sx * 1.15, -3.1, hz + 0.3, "Wood_Dark", 0.0)
     mb.cyl(0.55, 0.35, (cxm, ygab - 3.0, hz - 0.8), (0, D(90), 0), "Metal_Dark", 10, bevel=0.0)
-    mb.rod((cxm, ygab - 3.0, hz - 1.3), (cxm, ygab - 3.0, 17.4), 0.09, "Rope", 4)
-    mb.box((0.5, 0.5, 0.35), (cxm, ygab - 3.0, 17.3), (0, 0, 0), "Metal_Dark", 0.03)
-    crate(mb, (cxm, ygab - 3.0, 15.5), 1.6, 0.35, rng)
+    mb.rod((cxm, ygab - 3.0, hz - 1.3), (cxm, ygab - 3.0, 17.4), 0.09, "Wood_Light", 4)
+    mb.box((0.5, 0.5, 0.35), (cxm, ygab - 3.0, 17.3), (0, 0, 0), "Metal_Dark", 0.0)
+    K.lbox(mb, FH, (1.6, 1.6, 1.5), 0.0, -3.0, 15.5 + 0.75, "Wood_Plank", 0.0, rz=0.35)
+    K.lbox(mb, FH, (1.7, 1.7, 0.25), 0.0, -3.0, 15.5 + 1.2, "Wood_Dark", 0.0, rz=0.35)
     from fm_parts import pave_poly
-    pave_poly(mb, [(x0 + t, y0 + t), (x1 - t, y0 + t), (x1 - t, y1 - t), (x0 + t, y1 - t)], F0 + 0.05, rng, tile=2.4,
-              h=0.3, grout=False)
+    pave_poly(mb, [(x0 + t, y0 + t), (x1 - t, y0 + t), (x1 - t, y1 - t), (x0 + t, y1 - t)], F0 + 0.05, wr, tile=2.4,
+              h=0.3, grout=False, bevel=0.0, m="Stone_Dark")
+    # ---------------------------------------------------------------- maquinario (inalterado: export_vfx)
     # eixo baixo (roda) ate a roda de coroa
     mb.rod((x1, wy, az), (x0 + 1.6, wy, az), 0.6, "Wood_Dark", 10)
     gx = x0 + 2.4
@@ -604,11 +631,11 @@ def wheel_house(rng):
     mb.box((1.8, 1.8, 2.0), head + Vector((0, 0, -0.8)), (0, 0, 0), "Metal_Dark", 0.12)
     mb.box((2.4, 2.4, 2.6), (hx, head.y, F0 + 1.3), (0, 0, 0), "Metal_Iron", 0.12)
     mb.box((1.2, 0.7, 0.3), (hx, head.y, F0 + 2.75), (0, 0, 0), "Metal_Heated", 0.05)
-    # bancada de refino (canto NE) + lingotes
-    mb.box2((x1 - 5.0, y1 - 7.0, F0), (x1 - 1.8, y1 - 2.0, F0 + 3.0), "Wood_Plank", 0.1)
+    # ---------------------------------------------------------------- oficina de refino
+    mb.box2((x1 - 5.0, y1 - 7.0, F0), (x1 - 1.8, y1 - 2.0, F0 + 3.0), "Wood_Plank", 0.0)
     for k in range(6):
         mb.box((1.1, 0.6, 0.45), (x1 - 3.4 + (k % 2) * 1.2 - 0.6, y1 - 6.0 + (k // 2) * 1.2, F0 + 3.25), (0, 0, 0),
-               "Metal_Brass", 0.05)
+               "Metal_Iron", 0.0)
     hanging_lantern(mb, ((x0 + x1) / 2 + 1.5, (y0 + y1) / 2, ze - 0.3), name="L_WheelHouse", chain=4.0)
     lantern(mb, (x0 + ds1 + 2.6, y0 - 1.9, F0), D(180), name="L_WheelHouse_Door", h=6.0)
     mb.finish()
@@ -619,7 +646,20 @@ def wheel_house(rng):
     col_box2(A, (gx - 1.0, wy - 3.5, F0), (gx + 2.0, wy + 3.5, uz + 1.5))
     col_box2(A, (x1 - 5.0, y1 - 7.0, F0), (x1 - 1.8, y1 - 2.0, F0 + 3.0))
     marker("DOOR_WheelHouse", (x0 + (ds0 + ds1) / 2, y0, F0), (0, 0, 0), 1.5)
-    marker("VFX_TripHammer", tuple(head), (0, 0, 0), 1.5, props={"anim": "martinete sobe/desce 1x por volta de came"})
+    # cotas do maquinario gravadas no marcador (o export_vfx pode ler daqui em vez de copiar constantes)
+    marker("VFX_TripHammer", tuple(head), (0, 0, 0), 1.5,
+           props={"anim": "martinete sobe/desce 1x por volta de came", "pivot": tuple(piv), "axis": (1.0, 0.0, 0.0),
+                  "cams": 3, "cam_len": 2.0, "cam_x": hx, "low_axle": (x1, wy, az), "high_axle_z": uz,
+                  "gear_x": gx, "crown_r": 2.9, "crown_teeth": 18, "pinion_r": 1.3, "pinion_teeth": 9,
+                  "ratio": 2.0})
+    # o rng compartilhado segue exatamente como na versao anterior (3235 palavras de 32 bits)
+    rng.setstate(st0)
+    for _ in range(WHEELHOUSE_RNG_WORDS):
+        rng.getrandbits(32)
+
+
+WHEELHOUSE_RNG_WORDS = 3235
+
 
 def bridges(rng):
     """ponte principal (y -18) em arco de madeira e ponte dos fundos (y 38) sobre o rio"""

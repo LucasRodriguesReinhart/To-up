@@ -48,16 +48,29 @@ def stairs(mb, area, base, ang, width, n, rise=1.0, tread=1.5, m="Stone_Light", 
                 mb.box((tread + 0.05, 1.2, h), F.p(tread * i + tread / 2, s * (width / 2 + 0.6), h / 2),
                        F.r(), side_m, 0.16, 1)
     if col:
-        top = F.p(tread * n, 0, rise * n)
-        bot = F.p(0, 0, 0)
+        # rampa pelo MEIO de cada piso (z = rise*(i+1) no centro do degrau i): o pe fica entre -rise/2 e +rise/2
+        # do degrau visual (antes a rampa passava pelos bordos de baixo e afundava ate -0.94)
+        bot = F.p(-tread / 2, 0, 0)
+        top = F.p(tread * n - tread / 2, 0, rise * n)
         col_ramp(area, bot, top, width)
+        # meia pisada final plana (a rampa termina no meio do ultimo degrau; sem isto sobrava um vao ate o patamar)
+        q = F.p(tread * n - tread / 4 + 0.15, 0, rise * n - 0.5)
+        col_box(area, (tread / 2 + 0.3, width, 1.0), (q.x, q.y, q.z), F.r())
         if stringers:
+            # banzo: rampa PARALELA a do piso (mesma rotacao e inclinacao), topo H acima dela = guarda-corpo
+            # invisivel. Antes era uma caixa plana na cota do topo da escada, que virava passarela no ar sobre o pe
+            # da escada. As pontas sao recuadas para a face inclinada da caixa nao sair do vao da escada:
+            # embaixo a face cruza o chao em x = 0 (1o degrau) e em cima cruza o patamar em x = tread*n.
+            k = rise / tread
+            H = 4.0
+            T = H + 1.5
+            off = k * (tread * k / 2 + H) / (1 + k * k)
             for s in (-1, 1):
-                a = F.p(0, s * (width / 2 + 0.6), 0)
-                b = F.p(tread * n, s * (width / 2 + 0.6), 0)
-                c = (a + b) / 2
-                col_box(area, (tread * n, 1.2, rise * n + 1.2), (c.x, c.y, base[2] + (rise * n + 1.2) / 2),
-                        F.r())
+                y = s * (width / 2 + 0.6)
+                xa, xb = -off, tread * n - off
+                a = F.p(xa, y, (xa + tread / 2) * k + H)
+                b = F.p(xb, y, (xb + tread / 2) * k + H)
+                col_ramp(area, a, b, 1.2, thick=T)
     return F.p(tread * n, 0, rise * n)
 
 
@@ -811,22 +824,34 @@ def _lrng(*key):
 
 # ------------------------------------------------------------------ parede de alvenaria em blocos
 def masonry_wall(mb, a, b, z0, z1, thick, rng, m="Stone_Light", m2="Stone_Dark", course=1.6, mix=0.2,
-                 openings=(), blk=(1.8, 3.4)):
-    """parede de blocos entre a e b; openings = [(s0, s1, zlo, zhi)] em distancia ao longo de a->b.
+                 openings=(), blk=(1.8, 3.4), core=True, quoins=(True, True), base_dark=True, tones=None,
+                 bevel=0.14, core_m="Stone_Grout"):
+    """parede de blocos entre a e b; openings = [(s0, s1, zlo, zhi[, flecha_do_arco])] ao longo de a->b.
     Blocos com leve giro/inclinacao (assentamento a mao) - sem consumir o rng compartilhado.
-    blk = faixa de comprimento dos blocos (blocos maiores = menos triangulos, leitura mais robusta)."""
+    blk = faixa de comprimento dos blocos (blocos maiores = menos triangulos, leitura mais robusta).
+    core: laje-nucleo continua de rejunte escuro atras dos blocos (espessura thick-0.35, recortada nas aberturas):
+          as juntas deixam de atravessar a parede (antes se via o ceu/interior pelas frestas contra a luz).
+          core_m = material do nucleo (as casas usam Stone_Dark, que ja tem: uma MeshPart a menos por casa).
+    mix: fracao de blocos em m2, limitada a 0.12 (nada de sal-e-pimenta claro/escuro bloco a bloco).
+    base_dark / quoins: fiada de base e cunhais (blocos das pontas a->b) sempre em m2.
+    tones: lista opcional de materiais do MESMO tom (variacao de valor +-6-8%) sorteados bloco a bloco em vez de m."""
     a, b = P3(a), P3(b)
     L = (b - a).length
     d = (b - a).normalized()
     ang = math.atan2(d.y, d.x)
+    mix = min(mix, 0.12)
+    if core and L > 0.3 and z1 - z0 > 0.2 and thick > 0.6:
+        _masonry_core(mb, a, d, ang, L, z0, z1, max(0.25, thick - 0.35), openings, core_m)
     z = z0
     row = 0
     while z < z1 - 0.05:
         h = min(course, z1 - z)
         s = -rng.uniform(0, 1.2) if row % 2 else 0.0
+        mrow = m2 if (base_dark and row == 0 and z1 - z0 > course * 1.5) else None
         while s < L - 0.05:
             w = rng.uniform(*blk)
             sa, sb = max(s, 0.0), min(s + w, L)
+            mq = mrow or (m2 if ((quoins[0] and sa <= 0.01) or (quoins[1] and sb >= L - 0.01)) else None)
             # recorta aberturas
             blocked = False
             for op in openings:
@@ -844,31 +869,60 @@ def masonry_wall(mb, a, b, z0, z1, thick, rng, m="Stone_Light", m2="Stone_Dark",
                 if z + h > zl + 0.01 and z < zh - 0.01 and sb > o0 and sa < o1:
                     # divide o bloco nas bordas da abertura
                     if sa < o0:
-                        _block(mb, a, d, ang, sa, o0, z, h, thick, rng, m, m2, mix)
+                        _block(mb, a, d, ang, sa, o0, z, h, thick, rng, m, m2, mix, mq, tones, bevel)
                     if sb > o1:
-                        _block(mb, a, d, ang, o1, sb, z, h, thick, rng, m, m2, mix)
+                        _block(mb, a, d, ang, o1, sb, z, h, thick, rng, m, m2, mix, mq, tones, bevel)
                     blocked = True
                     break
             if not blocked:
-                _block(mb, a, d, ang, sa, sb, z, h, thick, rng, m, m2, mix)
+                _block(mb, a, d, ang, sa, sb, z, h, thick, rng, m, m2, mix, mq, tones, bevel)
             s += w
         z += h
         row += 1
 
 
-def _block(mb, a, d, ang, sa, sb, z, h, thick, rng, m, m2, mix):
+def _masonry_core(mb, a, d, ang, L, z0, z1, th, openings, m="Stone_Grout"):
+    """nucleo de rejunte: faixas verticais entre as aberturas + peitoril/verga de cada abertura (arco: recorta o
+    retangulo inteiro ate o fecho - a bandeira e as aduelas ficam a vista)"""
+    cuts = [(max(0.0, op[0] + 0.05), min(L, op[1] - 0.05), op[2], op[3]) for op in openings]
+    cuts = [c for c in cuts if c[1] > c[0]]
+    segs = []
+    xb = sorted(set([0.0, L] + [c[k] for c in cuts for k in (0, 1)]))
+    for s0, s1 in zip(xb, xb[1:]):
+        mid = (s0 + s1) / 2
+        zc = z0
+        for (zl, zh) in sorted((c[2], c[3]) for c in cuts if c[0] < mid < c[1]):
+            if zl > zc:
+                segs.append((s0, s1, zc, zl))
+            zc = max(zc, zh)
+        if zc < z1:
+            segs.append((s0, s1, zc, z1))
+    for s0, s1, za, zb in segs:
+        za, zb = max(za, z0), min(zb, z1)
+        if s1 - s0 < 0.1 or zb - za < 0.1:
+            continue
+        c = a + d * ((s0 + s1) / 2)
+        mb.box((s1 - s0, th, zb - za), (c.x, c.y, (za + zb) / 2), (0, 0, ang), m, 0.0)
+
+
+def _block(mb, a, d, ang, sa, sb, z, h, thick, rng, m, m2, mix, mq=None, tones=None, bevel=0.14):
     if sb - sa < 0.15:
         return
     c = a + d * ((sa + sb) / 2)
-    mm = m2 if rng.random() < mix else m
+    r = rng.random()
+    mm = m2 if r < mix else m
     out = rng.uniform(-0.08, 0.12)
     lr = _lrng(c.x, c.y, z)
+    if mq:
+        mm = mq
+    elif tones and mm == m:
+        mm = tones[int(lr.random() * len(tones)) % len(tones)]
     # giro/rolagem pequenos + altura levemente irregular: a parede deixa de parecer grade perfeita
     L_ = sb - sa
     yaw = lr.uniform(-0.018, 0.018) if L_ > 0.8 else 0.0
     roll = lr.uniform(-0.012, 0.012) if L_ > 0.8 else 0.0
     dh = lr.uniform(-0.05, 0.03)
-    mb.box((L_ - 0.1, thick + out, h - 0.1 + dh), (c.x, c.y, z + h / 2 + dh / 2), (roll, 0, ang + yaw), mm, 0.14, 1)
+    mb.box((L_ - 0.1, thick + out, h - 0.1 + dh), (c.x, c.y, z + h / 2 + dh / 2), (roll, 0, ang + yaw), mm, bevel, 1)
 
 
 # ------------------------------------------------------------------ arco de aduelas
@@ -903,29 +957,39 @@ def arch(mb, a_center, ang, width, z_spring, rise, depth, m="Stone_Light", key_m
 
 # ------------------------------------------------------------------ parede enxaimel (madeira + reboco)
 def timber_wall(mb, a, b, z0, z1, thick, rng, openings=(), post=3.6, m_t="Wood_Dark", m_p="Plaster",
-                braces=True, out_side=1, wobble=0.025, inner=None, brace_bevel=0.06, cut_plates=False):
+                braces=True, out_side=1, wobble=0.025, inner=None, brace_bevel=0.06, cut_plates=False,
+                detail="full"):
     """painel de reboco com estrutura de madeira aparente (dos dois lados); openings = [(s0,s1,zlo,zhi)].
     wobble = inclinacao maxima (rad) dos montantes livres; escoras e secoes levemente irregulares (feito a mao).
     inner = lado interno (-1/+1, normal esquerda de a->b): la as pecas saem sem chanfro (economia de triangulos).
+    detail='near' (paredes de fundo, vistas so de perto): sem chanfro nenhum e, do lado de dentro, so frechal,
+    soleira e montantes (sem escoras nem guarnicoes) - ~40% menos triangulos.
     As variacoes usam rng local: nao mudam os sorteios compartilhados de quem chama."""
+    if detail == "near":
+        brace_bevel = 0.0
     a, b = P3(a), P3(b)
     L_ = (b - a).length
     d = (b - a).normalized()
     ang = math.atan2(d.y, d.x)
     nrm = Vector((-d.y, d.x, 0))
     lr = _lrng(a.x, a.y, b.x, b.y, z0)
-    # reboco (recortado nas aberturas)
+    # reboco (recortado nas aberturas): faixas verticais entre todas as bordas de abertura, cada faixa sem os
+    # trechos cobertos por QUALQUER abertura que a cruze (aberturas sobrepostas - portal de pedra + janela acima -
+    # deixavam o reboco tapando a janela)
     cuts = sorted(openings)
     segs = []
-    cur = 0.0
-    for o in cuts:
-        if o[0] > cur:
-            segs.append((cur, o[0], z0, z1))
-        segs.append((o[0], o[1], z0, o[2]))
-        segs.append((o[0], o[1], o[3], z1))
-        cur = o[1]
-    if cur < L_:
-        segs.append((cur, L_, z0, z1))
+    xb = sorted(set([0.0, L_] + [min(max(o[k], 0.0), L_) for o in cuts for k in (0, 1)]))
+    for s0, s1 in zip(xb, xb[1:]):
+        if s1 - s0 < 0.05:
+            continue
+        mid = (s0 + s1) / 2
+        zc = z0
+        for (zl, zh) in sorted((o[2], o[3]) for o in cuts if o[0] < mid < o[1]):
+            if zl > zc:
+                segs.append((s0, s1, zc, min(zl, z1)))
+            zc = max(zc, zh)
+        if zc < z1:
+            segs.append((s0, s1, zc, z1))
     for s0, s1, za, zb in segs:
         if s1 - s0 < 0.05 or zb - za < 0.05:
             continue
@@ -945,9 +1009,11 @@ def timber_wall(mb, a, b, z0, z1, thick, rng, openings=(), post=3.6, m_t="Wood_D
         lean[x] = (lr.uniform(-wobble, wobble) * (z1 - z0) if free else 0.0, lr.uniform(0.44, 0.58))
     br_j = [(lr.uniform(-0.25, 0.25), lr.uniform(-0.25, 0.25), lr.uniform(0.36, 0.46)) for i in range(n)]
     plate_j = (lr.uniform(0.6, 0.72), lr.uniform(0.7, 0.86))
+    near = detail == "near"
     for side in (-1, 1):
         off = nrm * side * fo
-        bf = 0.0 if side == inner else 1.0
+        bf = 0.0 if (side == inner or near) else 1.0
+        lite = near and side == inner
         # soleira e frechal (frechal mais robusto); cut_plates: a soleira nao atravessa vaos que nascem no pe da parede
         spans = [(0.0, L_)]
         if cut_plates:
@@ -958,7 +1024,15 @@ def timber_wall(mb, a, b, z0, z1, thick, rng, openings=(), post=3.6, m_t="Wood_D
         for s0, s1 in spans:
             mb.beam(a + d * s0 + off + Vector((0, 0, z0 + 0.35)), a + d * s1 + off + Vector((0, 0, z0 + 0.35)), 0.5,
                     plate_j[0], m_t, 0.08 * bf)
-        mb.beam(a + off + Vector((0, 0, z1 - 0.38)), b + off + Vector((0, 0, z1 - 0.38)), 0.5, plate_j[1], m_t, 0.08 * bf)
+        # frechal: interrompido nos vaos que passam do topo da parede (portal de pedra que sobe no oitao)
+        tspans = [(0.0, L_)]
+        for o in cuts:
+            if o[3] >= z1 - 0.5:
+                tspans = [(s0, min(s1, o[0])) for (s0, s1) in tspans if min(s1, o[0]) - s0 > 0.2] + \
+                         [(max(s0, o[1]), s1) for (s0, s1) in tspans if s1 - max(s0, o[1]) > 0.2]
+        for s0, s1 in tspans:
+            mb.beam(a + d * s0 + off + Vector((0, 0, z1 - 0.38)), a + d * s1 + off + Vector((0, 0, z1 - 0.38)), 0.5,
+                    plate_j[1], m_t, 0.08 * bf)
         for x in xs:
             p = a + d * min(max(x, 0.3), L_ - 0.3) + off
             if any(o[0] + 0.3 < x < o[1] - 0.3 for o in cuts):
@@ -966,7 +1040,7 @@ def timber_wall(mb, a, b, z0, z1, thick, rng, openings=(), post=3.6, m_t="Wood_D
             lx, pw = lean[x]
             mb.beam(p + Vector((0, 0, z0)) - d * (lx / 2), p + Vector((0, 0, z1)) + d * (lx / 2), pw, tw, m_t,
                     0.08 * bf)
-        if braces:
+        if braces and not lite:
             for i in range(n):
                 x0_, x1_ = L_ * i / n, L_ * (i + 1) / n
                 if any(o[0] - 0.5 < x1_ and o[1] + 0.5 > x0_ for o in cuts):
@@ -980,34 +1054,43 @@ def timber_wall(mb, a, b, z0, z1, thick, rng, openings=(), post=3.6, m_t="Wood_D
                     pa, pb = a + d * x0j + off + Vector((0, 0, z1 - 0.4)), a + d * x1j + off + Vector((0, 0, z0 + 0.4))
                 mb.beam(pa, pb, bw, 0.55, m_t, brace_bevel * bf)
         # vergas/ombreiras das aberturas
-        for o in cuts:
+        for o in (() if lite else cuts):
             for x in (o[0], o[1]):
                 p = a + d * x + off
-                mb.beam(p + Vector((0, 0, o[2])), p + Vector((0, 0, o[3])), 0.55, 0.75, m_t, 0.08 * bf)
+                mb.beam(p + Vector((0, 0, o[2])), p + Vector((0, 0, min(o[3], z1))), 0.55, 0.75, m_t, 0.08 * bf)
             pa = a + d * (o[0] - 0.4) + off
             pb = a + d * (o[1] + 0.4) + off
             for zz in (o[2], o[3]):
                 if cut_plates and zz == o[2] and o[2] <= z0 + 0.8:
                     continue   # vao de porta: sem travessa embaixo
+                if zz > z1 - 0.3:
+                    continue   # vao que passa do topo da parede: sem verga flutuando acima do frechal
                 mb.beam(pa + Vector((0, 0, zz)), pb + Vector((0, 0, zz)), 0.55, 0.75, m_t, 0.08 * bf)
 
 
-def window_glow(mb, a, b, s0, s1, zlo, zhi, thick, m="Lantern_Glow", bars=True, sill=False, sill_m="Wood_Dark",
-                panes=None):
-    """vidraca iluminada dentro de uma abertura (com caixilho em cruz).
-    sill=True: peitoril saliente dos dois lados (profundidade na fachada). panes = n de montantes (None = cruz)."""
+def window_glow(mb, a, b, s0, s1, zlo, zhi, thick, m="Window_Warm", bars=True, sill=False, sill_m="Wood_Dark",
+                panes=None, style="cross", bar_m="Wood_Dark"):
+    """vidraca dentro de uma abertura. m padrao = Window_Warm (vidro quente, brilho moderado); Lantern_Glow so
+    quando o chamador pede (loja/forja passam explicito); Window_Dark = janela apagada (vidro escuro de dia).
+    style: 'cross' (cruz: travessa + montantes), 'two' (2 folhas: so o montante central), 'grid' (travessa + 2
+    montantes), 'slit' (fresta, sem caixilho). panes = n de montantes (sobrepoe o estilo).
+    sill=True: peitoril saliente dos dois lados (profundidade na fachada)."""
+    from fm_lib import MATS
+    MATS.setdefault("Window_Warm", ((0.92, 0.42, 0.12), 0.35, 0.0, 1.8, (1.0, 0.5, 0.16), 0.0))
+    MATS.setdefault("Window_Dark", ((0.035, 0.045, 0.06), 0.18, 0.0, 0.0, None, 0.0))
     a, b = P3(a), P3(b)
     d = (b - a).normalized()
     ang = math.atan2(d.y, d.x)
     c = a + d * ((s0 + s1) / 2)
     mb.box((s1 - s0, thick * 0.3, zhi - zlo), (c.x, c.y, (zlo + zhi) / 2), (0, 0, ang), m, 0.0)
-    if bars:
-        mb.box((s1 - s0, thick * 0.5, 0.25), (c.x, c.y, (zlo + zhi) / 2), (0, 0, ang), "Wood_Dark", 0.0)
-        k = panes or 1
+    if bars and style != "slit":
+        if style in ("cross", "grid") or panes:
+            mb.box((s1 - s0, thick * 0.5, 0.25), (c.x, c.y, (zlo + zhi) / 2), (0, 0, ang), bar_m, 0.0)
+        k = panes or (2 if style == "grid" else 1)
         for i in range(k):
             f = (i + 1) / (k + 1)
             q = a + d * (s0 + (s1 - s0) * f)
-            mb.box((0.25, thick * 0.5, zhi - zlo), (q.x, q.y, (zlo + zhi) / 2), (0, 0, ang), "Wood_Dark", 0.0)
+            mb.box((0.25, thick * 0.5, zhi - zlo), (q.x, q.y, (zlo + zhi) / 2), (0, 0, ang), bar_m, 0.0)
     if sill:
         mb.box((s1 - s0 + 0.9, thick + 0.9, 0.38), (c.x, c.y, zlo - 0.12), (0, 0, ang), sill_m, 0.08)
 
