@@ -178,40 +178,52 @@ def wheel(rng):
 
 def wheel_house(rng):
     """casa da roda: eixo baixo (roda) -> roda de coroa -> pinhao no eixo alto (foles da forja); cames do eixo baixo
-    acionam o martinete da oficina de refino. Porta para o patio leste."""
+    acionam o martinete da oficina de refino. Porta para o patio sul.
+    Casca pelo kit de arquitetura: oitao sul projetado com guincho coberto (lucam), lucarna na agua oeste, meia-agua
+    leste protegendo a entrada do eixo da roda, telhado de ardosia com cumeeira arqueada e caibros aparentes."""
+    from fm_arch_house import house
+    import fm_arch_kit as K
     x0, y0, x1, y1 = L.MILL
     wy = L.WHEEL_C[1]
     az = 11.0
     uz = 15.5
     t = 1.4
-    zs = 8.0
-    ze = 18.0
-    mb = MB("BLD_WheelHouse", "07_BUILDINGS", rng)
-    mb.box2((x0 - 0.6, y0 - 0.6, F0 - 1), (x1 + 0.6, y1 + 0.6, F0 + 0.02), "Stone_Dark", 0.2)
+    ze = F0 + 14.0
     ds0, ds1 = 6.5, 11.5
-    masonry_wall(mb, (x0, y0 + t / 2), (x1, y0 + t / 2), F0, zs, t, rng, openings=[(ds0, ds1, F0, 12.0, 2.5)])
-    arch(mb, (x0 + (ds0 + ds1) / 2, y0 + t / 2, 0), 0.0, 5.0, 9.5, 2.5, t + 0.3, n=7, band=1.0)
-    timber_wall(mb, (x0, y0 + t / 2), (x1, y0 + t / 2), zs, ze, t * 0.8, rng,
-                openings=[(ds0, ds1, zs, 12.0), (1.5, 4.5, 12.5, 15.5)], post=3.0)
-    window_glow(mb, (x0, y0 + t / 2), (x1, y0 + t / 2), 1.5, 4.5, 12.5, 15.5, t * 0.8)
-    # leste: furo do eixo da roda + janela
-    masonry_wall(mb, (x1 - t / 2, y0), (x1 - t / 2, y1), F0, zs, t, rng)
-    timber_wall(mb, (x1 - t / 2, y0), (x1 - t / 2, y1), zs, ze, t * 0.8, rng,
-                openings=[(wy - y0 - 1.2, wy - y0 + 1.2, az - 1.2, az + 1.2), (2.0, 5.0, 12.0, 15.0)], post=3.0)
-    window_glow(mb, (x1 - t / 2, y0), (x1 - t / 2, y1), 2.0, 5.0, 12.0, 15.0, t * 0.8)
-    masonry_wall(mb, (x0, y1 - t / 2), (x1, y1 - t / 2), F0, zs, t, rng)
-    timber_wall(mb, (x0, y1 - t / 2), (x1, y1 - t / 2), zs, ze, t * 0.8, rng, openings=[(4.0, 8.0, 11.0, 14.5)], post=3.0)
-    window_glow(mb, (x0, y1 - t / 2), (x1, y1 - t / 2), 4.0, 8.0, 11.0, 14.5, t * 0.8)
-    # oeste: furo do eixo alto
-    masonry_wall(mb, (x0 + t / 2, y0), (x0 + t / 2, y1), F0, zs, t, rng)
-    timber_wall(mb, (x0 + t / 2, y0), (x0 + t / 2, y1), zs, ze, t * 0.8, rng,
-                openings=[(wy - y0 - 1.0, wy - y0 + 1.0, uz - 1.0, uz + 1.0)], post=3.0)
-    for gy in (y0 + t / 2, y1 - t / 2):
-        mb.gable_wall((x0 + x1) / 2, gy, x1 - x0, ze, 6.0, t * 0.8, "Y", "Plaster")
-    mb.gable_roof((x0 + x1) / 2, (y0 + y1) / 2, x1 - x0, y1 - y0, ze, 6.0, "Roof", thick=0.8, over=1.3, axis="Y")
+    FW = Frame((x0 + x1) / 2, (y0 + y1) / 2, 0.0, 0.0)
+    V = dict(
+        t=t, zs=4.0, ze=14.0, rise=6.2, door=(ds0, ds1, 8.0, 2.5), gjet=(1.0, 0.0), course=2.0, post=3.4,
+        wins={0: [(1.5, 4.5, 8.5, 11.5)], 1: [(2.0, 5.0, 8.0, 11.0)], 2: [(4.0, 8.0, 7.0, 10.5)]},
+        holes_t={1: [(wy - y0 - 1.2, wy - y0 + 1.2, az - 1.2 - F0, az + 1.2 - F0)],
+                 3: [(y1 - wy - 1.0, y1 - wy + 1.0, uz - 1.0 - F0, uz + 1.0 - F0)]},
+        roof=dict(m="Roof", m2="Roof_Slate_Blue", sag=0.35, over=(1.2, 1.2), ends=(1.3, 1.1), rafters=2.4),
+        gables={0: dict(style="king", window=(2.0, 1.4, 1.45)), 1: dict(style="cross")},
+        dormers=[dict(side=-1, y=2.6, wd=3.6, inset=1.4, h=2.8)],
+        lean=[dict(edge=1, s0=3.0, s1=13.0, depth=3.4, z_hi=12.4, z_lo=10.6, content=None)],
+        shutters=[(0, 1.5, 4.5, 8.5, 11.5)], flowers=[(0, 1.5, 4.5, 8.5)], paint="Wood_Painted_Red",
+        floor_top=0.35,
+    )
+    mb = K.AMB("BLD_WheelHouse", "07_BUILDINGS", rng)
+    A = "WheelHouse"
+    house(mb, FW, x1 - x0, y1 - y0, F0, rng, V, area=A, name="WheelHouse")
+    # guincho no oitao sul: viga saliente + roldana + corda + caixote, com telhadinho proprio (lucam)
+    cxm = (x0 + x1) / 2
+    ygab = y0 - 1.0
+    hz = ze + 3.0
+    mb.beam((cxm, ygab + 2.2, hz), (cxm, ygab - 3.5, hz), 0.8, 0.9, "Wood_Dark", 0.08)
+    FH = Frame(cxm, ygab, 0.0, 0.0)
+    K.gable_roof(mb, FH, 0.0, -3.4, 0.0, hz + 1.6, rng, sides=((1.2, hz + 0.55, 0.35), (1.2, hz + 0.55, 0.35)),
+                 ends=((0.3, 0.0), (0.0, 0.0)), m="Roof", m2="Roof_Slate_Blue", sag=0.0, tile=(1.2, 1.8), course=1.1,
+                 th=0.34, lip=0.24, horn_len=0.6, ridge_w=0.7, horns=(True, False))
+    for sx in (-1, 1):
+        K.lbox(mb, FH, (0.35, 0.35, 0.8), sx * 1.15, -3.1, hz + 0.3, "Wood_Dark", 0.03)
+    mb.cyl(0.55, 0.35, (cxm, ygab - 3.0, hz - 0.8), (0, D(90), 0), "Metal_Dark", 10, bevel=0.0)
+    mb.rod((cxm, ygab - 3.0, hz - 1.3), (cxm, ygab - 3.0, 17.4), 0.09, "Rope", 4)
+    mb.box((0.5, 0.5, 0.35), (cxm, ygab - 3.0, 17.3), (0, 0, 0), "Metal_Dark", 0.03)
+    crate(mb, (cxm, ygab - 3.0, 15.5), 1.6, 0.35, rng)
     from fm_parts import pave_poly
-    pave_poly(mb, [(x0 + t, y0 + t), (x1 - t, y0 + t), (x1 - t, y1 - t), (x0 + t, y1 - t)], F0, rng, tile=2.4, h=0.3,
-              grout=False)
+    pave_poly(mb, [(x0 + t, y0 + t), (x1 - t, y0 + t), (x1 - t, y1 - t), (x0 + t, y1 - t)], F0 + 0.05, rng, tile=2.4,
+              h=0.3, grout=False)
     # eixo baixo (roda) ate a roda de coroa
     mb.rod((x1, wy, az), (x0 + 1.6, wy, az), 0.6, "Wood_Dark", 10)
     gx = x0 + 2.4
@@ -251,15 +263,10 @@ def wheel_house(rng):
         mb.box((1.1, 0.6, 0.45), (x1 - 3.4 + (k % 2) * 1.2 - 0.6, y1 - 6.0 + (k // 2) * 1.2, F0 + 3.25), (0, 0, 0),
                "Metal_Brass", 0.05)
     hanging_lantern(mb, ((x0 + x1) / 2 + 1.5, (y0 + y1) / 2, ze - 0.3), name="L_WheelHouse", chain=4.0)
-    lantern(mb, (x0 + ds1 + 1.5, y0 - 1.6, F0), D(180), name="L_WheelHouse_Door", h=6.0)
+    lantern(mb, (x0 + ds1 + 2.6, y0 - 1.9, F0), D(180), name="L_WheelHouse_Door", h=6.0)
     mb.finish()
-    A = "WheelHouse"
-    col_box2(A, (x0, y0, F0), (x0 + ds0, y0 + t, ze))
-    col_box2(A, (x0 + ds1, y0, F0), (x1, y0 + t, ze))
-    col_box2(A, (x0 + ds0, y0, 12.0), (x0 + ds1, y0 + t, ze))
-    col_box2(A, (x1 - t, y0, F0), (x1, y1, ze))
-    col_box2(A, (x0, y1 - t, F0), (x1, y1, ze))
-    col_box2(A, (x0, y0, F0), (x0 + t, y1, ze))
+    # casca (paredes com vao da porta, telhado, piso) criada por house(); aqui so o maquinario
+    col_box2(A, (x0 + ds1 + 1.9, y0 - 2.6, F0), (x0 + ds1 + 3.3, y0 - 1.2, F0 + 7.5))
     col_box2(A, (x0 - 0.5, y0 - 0.5, ze), (x1 + 0.5, y1 + 0.5, ze + 6))
     col_box2(A, (hx - 1.6, wy - 5.5, F0), (hx + 1.6, wy + 6.5, F0 + 3.0))
     col_box2(A, (gx - 1.0, wy - 3.5, F0), (gx + 2.0, wy + 3.5, uz + 1.5))
