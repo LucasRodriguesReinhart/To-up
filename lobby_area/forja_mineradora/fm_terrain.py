@@ -1,9 +1,21 @@
 ﻿# fm_terrain - lajes caminhaveis, niveis, escadas de acesso, penhascos e montanhas
 import math, random
-from mathutils import Vector
+from mathutils import Vector, noise
 from fm_lib import MB, D, col_box, col_box2, col_ramp, coll, sub_coll, marker, arc, bezier
 from fm_parts import (stairs, cliff_band, rock_scatter, pave_poly, fence, stone_parapet, masonry_wall, Frame, peak)
 import fm_layout as L
+import fm_terrain_ridges
+
+
+def crest(base, amp, freq=0.03, seed=0.0, lo=None):
+    """cota de crista irregular (ruido coerente em 2 oitavas + quebras), no lugar do seno regular"""
+    def f(c):
+        p = Vector((c.x * freq + seed, c.y * freq - seed * 0.7, seed * 0.31))
+        n1 = noise.noise(p)
+        n2 = noise.noise(p * 2.9 + Vector((7.1, 3.3, 1.7)))
+        v = base + amp * (2.4 * n1 + 1.1 * n2)
+        return v if lo is None else max(lo, v)
+    return f
 
 
 def _skip_ranges(x0, x1, holes):
@@ -133,26 +145,28 @@ def build_ground():
 def build_cliffs():
     rng = random.Random(202)
     C = "02_TERRAIN"
-    # parede do ledge (y=62, face sul) - colunas na frente da linha, topo ~14
+    # parede do ledge (y=62, face sul) - massas logo atras da linha (face para o vale), topo ~14
     cm = MB("TER_Cliff_MidWall", C, rng)
     holes = [(px - 8.5, px + 8.5) for px in L.PORTAL_X] + [(L.SPILL_X - 5.5, L.SPILL_X + 5.5)]
     for a, b in _skip_ranges(L.WEST_X, L.EAST_X, holes):
         if b - a < 3:
             continue
-        cliff_band(cm, [(a + 2, L.MID_FRONT_Y - 1.5), (b - 2, L.MID_FRONT_Y - 1.5)], L.FLOOR - 1, L.MID - 0.4, rng,
-                   depth=1.4, rmin=2.6, rmax=4.4, step=4.6, grass=False, var=0.8, face_side=1)
+        cliff_band(cm, [(a + 2, L.MID_FRONT_Y - 1.5), (b - 2, L.MID_FRONT_Y - 1.5)], L.FLOOR - 1, L.MID - 0.6, rng,
+                   depth=1.4, rmin=2.6, rmax=4.4, step=4.6, grass=False, var=0.8, face_side=-1)
         col_box2("MidWall", (a, L.MID_FRONT_Y - 4.5, L.FLOOR - 1), (b, L.MID_FRONT_Y, L.MID))
     cm.finish()
 
     # parede superior (y=80, z 14->26): alvenaria atras do canal + berma de rocha no alto
     cu = MB("TER_Cliff_UpperWall", C, rng)
+    cu._mi("Stone_Light")   # slot 0 = pedra clara: os chanfros do bevel herdam o slot 0 (igual ao original)
     holes = [(px - 7.4, px + 7.4) for px in L.PORTAL_X] + [(-3.6, 3.6)]
     for a, b in _skip_ranges(L.WEST_X, L.EAST_X, holes):
         masonry_wall(cu, (a, L.UPPER_FRONT_Y - 0.6), (b, L.UPPER_FRONT_Y - 0.6), 11.5, L.TERR - 0.3, 1.4, rng,
                      "Stone_Light", "Stone_Dark", course=2.0, mix=0.3)
         if b - a > 12:
             cliff_band(cu, [(a + 4, L.UPPER_FRONT_Y + 4), (b - 4, L.UPPER_FRONT_Y + 4)], L.TERR - 3, L.TERR + 2.5,
-                       rng, depth=1.5, rmin=2.4, rmax=4.0, step=5.5, grass=True, var=1.2, face_side=-1, strata=False)
+                       rng, depth=1.5, rmin=2.4, rmax=4.0, step=5.5, grass=True, var=1.2, face_side=-1, strata=False,
+                       back=4.0)
             col_box2("UpperWall", (a, L.UPPER_FRONT_Y, L.TERR - 1), (b, L.UPPER_FRONT_Y + 8, L.TERR + 4))
     # pilastras de pedra com lanterna e trepadeiras (quebram a monotonia do muro de arrimo)
     for a, b in _skip_ranges(L.WEST_X, L.EAST_X, holes):
@@ -188,7 +202,7 @@ def build_cliffs():
     cliff_band(cw, [(fw[0][0] - 1, -63), (fw[10][0] - 1, fw[10][1] + 1)], L.FLOOR - 2, 30, rng, depth=2, rmin=4,
                rmax=7, step=5, face_side=-1)
     cliff_band(cw, [fw[9], fw[8], fw[7], fw[6], (fw[5][0] - 1, fw[5][1] + 2)], L.FLOOR - 2, 34, rng,
-               depth=3, rmin=4.5, rmax=7.5, step=6, face_side=-1, top_fn=lambda c: 30 + 8 * math.sin(c.y * 0.07))
+               depth=3, rmin=4.5, rmax=7.5, step=6, face_side=-1, top_fn=crest(32, 2.6, 0.035, 1.3))
     for a, b in zip(west, west[1:]):
         if (a, b) == (fw[10], fw[9]):
             continue  # face da mina: colisao propria em fm_mine
@@ -201,19 +215,20 @@ def build_cliffs():
 
     ce = MB("TER_Cliff_East", C, rng)
     cliff_band(ce, [(L.EAST_X + 2, -60), (L.EAST_X + 2, 64)], L.FLOOR - 2, 34, rng, depth=3, rmin=4.5, rmax=7.5,
-               step=6, face_side=1, top_fn=lambda c: 32 + 7 * math.sin(c.y * 0.08 + 1))
+               step=6, face_side=1, top_fn=crest(33, 2.6, 0.035, 4.1))
     col_box2("EastCliff", (L.EAST_X, -64, -2), (L.EAST_X + 10, 64, 60))
     ce.finish()
 
     # queda sul (abaixo do vale e do spawn) - rocha pendente para o vazio
+    # (face para o SUL = o vazio; as massas ficam sob a laje e a borda de grama nao fura o piso nem o pavimento)
     cs = MB("TER_Cliff_South", C, rng)
-    cliff_band(cs, [(fw[0][0] - 4, -63.5), (-12, -63.5)], -46, L.FLOOR - 0.5, rng, depth=1.5, rmin=4, rmax=7, step=6,
-               face_side=1, grass=True, var=1.0)
-    cliff_band(cs, [(12, -63.5), (L.EAST_X + 2, -63.5)], -46, L.FLOOR - 0.5, rng, depth=1.5, rmin=4, rmax=7, step=6,
-               face_side=1, grass=True, var=1.0)
+    cliff_band(cs, [(fw[0][0] - 4, -63.5), (-12, -63.5)], -46, L.FLOOR - 1.0, rng, depth=1.5, rmin=4, rmax=7, step=6,
+               face_side=-1, grass=True, var=1.0)
+    cliff_band(cs, [(12, -63.5), (L.EAST_X + 2, -63.5)], -46, L.FLOOR - 1.0, rng, depth=1.5, rmin=4, rmax=7, step=6,
+               face_side=-1, grass=True, var=1.0)
     x0, y0, x1, y1 = L.SPAWN_PAD
     cliff_band(cs, [(-12, -71), (-12, -92), (x0 - 1, -92), (x0 - 1, y0 - 1), (x1 + 1, y0 - 1), (x1 + 1, -92),
-                    (12, -92), (12, -71)], -46, L.SPAWN_Z - 0.6, rng, depth=1.5, rmin=4, rmax=6.5, step=5.5,
+                    (12, -92), (12, -71)], -46, L.SPAWN_Z - 1.3, rng, depth=1.5, rmin=4, rmax=6.5, step=5.5,
                face_side=-1, grass=True, var=0.8)
     for sx in (-1, 1):
         cliff_band(cs, [(sx * 13, -70), (sx * 13, -62)], -2, L.FLOOR - 0.3, rng, depth=1, rmin=2.5, rmax=3.5,
@@ -232,34 +247,53 @@ def build_mountains():
         pts = [(fw[0][0] - 6 - off * 0.3, -68 - off), (fw[10][0] - 8 - off, fw[10][1] - 6 - off * 0.6),
                (fw[9][0] - 8 - off, fw[9][1] - 6 - off * 0.3), (fw[8][0] - 8 - off, fw[8][1] - off * 0.2),
                (fw[7][0] - 8 - off, fw[7][1]), (fw[6][0] - 8 - off, 30), (fw[5][0] - 8 - off, 70)]
-        cliff_band(m, pts, L.FLOOR - 2 + k * 18, top, rng, depth=4, rmin=6, rmax=10, step=8, face_side=-1,
-                   top_fn=lambda c, t=top: t + 6 * math.sin(c.x * 0.05 + c.y * 0.03))
+        cliff_band(m, pts, (20.0, 29.0)[k - 1], top, rng, depth=4, rmin=6, rmax=10, step=8, face_side=-1,
+                   top_fn=crest(top, 2.8, 0.045, 3.7 * k))
     sw = [(fw[0][0] - 4, -70), (-110, -115), (-200, -80), (-200, 80), (fw[5][0] - 10, 72), fw[5], fw[6], fw[7],
           fw[8], fw[9], fw[10]]
     m.prism(sw, 19, 29.2, "Cliff_Rock_Dark")
     m.prism(sw, 29.2, 30.0, "Grass_Dark")
     # saia de penhasco fechando o macico por fora (sul/oeste): o tunel da mina nunca aparece de fora
+    # (min_top: nenhuma fenda/entalhe desce abaixo do topo do macico; back: a camara de cristais fica a ~16 studs
+    #  da linha, entao as massas crescem para FORA e nao invadem a camara)
     cliff_band(m, [(fw[0][0] - 2, -74), (-110, -121), (-206, -84), (-206, 84)], -46, 31, rng, depth=2.5, rmin=6,
-               rmax=9, step=7.5, face_side=1, top_fn=lambda c: 30 + 4 * math.sin(c.x * 0.07))
-    # atras do terraco (y>122): faixas subindo
-    for k, (y, top) in enumerate(((124, 48), (140, 70), (162, 96))):
+               rmax=9, step=7.5, face_side=1, top_fn=crest(33, 1.4, 0.05, 9.2, lo=31.5), min_top=31.0, back=3.2)
+    # atras do terraco (y>128): faixas subindo, face para o sul, com a frente atras do fim do terraco (y=128,
+    # onde comeca a colisao); antes as colunas invadiam ~15 studs do terraco caminhavel sem colisao
+    for k, (y, top) in enumerate(((136, 50), (151, 72), (171, 98))):
         pts = [(-78, y), (-30, y + 3), (20, y - 2), (70, y + 2), (120, y), (L.EAST_X + 25, y - 4)]
-        cliff_band(m, pts, L.TERR - 2 + k * 16, top, rng, depth=4, rmin=6.5, rmax=11, step=8.5, face_side=1,
-                   top_fn=lambda c, t=top: t + 9 * math.sin(c.x * 0.045 + 2))
-        pts = [(L.WEST_X - 40, y + 10), (L.WEST_X - 6, y)]
-        cliff_band(m, pts, L.TERR - 2 + k * 16, top + 6, rng, depth=4, rmin=6.5, rmax=11, step=8.5, face_side=1)
+        cliff_band(m, pts, (28.0, 43.0, 43.0)[k], top, rng, depth=4, rmin=6.5, rmax=11, step=8.5, face_side=-1,
+                   top_fn=crest(top, 3.4, 0.028, 11.0 + 5.3 * k))
+        pts = [(L.WEST_X - 63, y + 9), (L.WEST_X - 40, y + 7), (L.WEST_X - 6, y)]
+        cliff_band(m, pts, (28.0, 43.0, 43.0)[k], top + 6, rng, depth=4, rmin=6.5, rmax=11, step=8.5, face_side=-1,
+                   top_fn=crest(top + 6, 3.0, 0.03, 31.0 + 2.1 * k))
     col_box2("BackMountain", (-78, L.TERR_BACK_Y, 0), (L.EAST_X + 30, L.TERR_BACK_Y + 30, 90))
     col_box2("BackMountain", (L.WEST_X - 40, L.TERR_BACK_Y, 0), (-116, L.TERR_BACK_Y + 30, 90))
+    # macicos no planalto de tras: plano intermediario entre as faixas e a cordilheira (silhueta em camadas);
+    # nenhum flanco entra no corredor de Konoha
+    def konoha_corridor(x, y, a):
+        mg = 0.7 * a
+        return -134 - mg < x < -66 + mg and 112 - mg < y < 305 + mg
+    for (x, y, top, r, kind) in ((-30, 205, 122, 12, "spire"), (92, 198, 136, 15, "horn"),
+                                 (152, 152, 116, 13, "mesa"), (-168, 182, 120, 12, "horn")):
+        peak(m, x, y, r, top - L.TERR, rng, z0=L.TERR, kind=kind, root=0.0, face=(0.0 - x, -40.0 - y),
+             avoid=konoha_corridor)
     # lado leste: rampa de penhascos
     for k, (x, top) in enumerate(((L.EAST_X + 10, 52), (L.EAST_X + 26, 76))):
         cliff_band(m, [(x, -70), (x + 4, 40), (x, 130)], L.FLOOR - 2 + k * 20, top, rng, depth=4, rmin=6.5, rmax=10,
-                   step=8.5, face_side=1, top_fn=lambda c, t=top: t + 8 * math.sin(c.y * 0.05))
+                   step=8.5, face_side=1, top_fn=crest(top, 3.0, 0.04, 21.0 + 4.4 * k))
     for poly, z0, z1 in (([(L.EAST_X + 8, -80), (L.EAST_X + 100, -80), (L.EAST_X + 100, 200), (L.EAST_X + 12, 200),
                           (L.EAST_X + 16, 60)], -40, 40),
-                         ([(-78, 128), (L.EAST_X + 40, 128), (L.EAST_X + 40, 260), (-72, 260)], 0, 44),
-                         ([(L.WEST_X - 60, 128), (-118, 128), (-118, 260), (L.WEST_X - 60, 260)], 0, 44)):
+                         # (frente dos planaltos atras da 1a faixa: sem paredao liso exposto atras dos portais)
+                         ([(-78, 138), (L.EAST_X + 40, 138), (L.EAST_X + 40, 260), (-72, 260)], 0, 44),
+                         # (borda leste recuada para tras da parede oeste do canion de Konoha: quem aparece no
+                         #  Passo da Folha sao as massas do canion, nao a face lisa do planalto)
+                         ([(L.WEST_X - 60, 137), (-128, 137), (-128, 260), (L.WEST_X - 60, 260)], 0, 44)):
         m.prism(poly, z0, z1 - 0.8, "Cliff_Rock_Dark")
         m.prism(poly, z1 - 0.8, z1, "Grass_Dark")
+    # face sul do planalto leste (antes um paredao liso de caixa, bem visivel do alto): massas quebradas
+    cliff_band(m, [(L.EAST_X + 104, -83), (L.EAST_X + 56, -86), (L.EAST_X + 8, -83)], -46, 40, rng, depth=3,
+               rmin=7, rmax=11, step=9, face_side=1, top_fn=crest(41, 2.6, 0.04, 57.0))
     # lateral oeste do terraco
     cliff_band(m, [(L.WEST_X - 1, 64), (L.WEST_X - 2, 124)], L.MID - 2, 52, rng, depth=3, rmin=5, rmax=8, step=6.5,
                face_side=-1)
@@ -269,24 +303,6 @@ def build_mountains():
     col_box2("EastCliff", (L.EAST_X, 62, 0), (L.EAST_X + 12, 124, 70))
     m.finish()
 
-    # picos de fundo (silhueta alta, estratos grandes)
-    p = MB("TER_Mountains_Peaks", C, rng)
-    peaks = [(-160, 200, 150, 34), (-40, 230, 175, 40), (50, 250, 160, 38), (140, 205, 185, 42),
-             (230, 110, 140, 36), (-230, 60, 130, 34), (220, -40, 110, 30), (-210, -90, 105, 30),
-             (100, 330, 210, 55), (-120, 330, 190, 50)]
-    from fm_parts import peak
-    for (x, y, h, r) in peaks:
-        peak(p, x, y, r * 1.5, h, rng, z0=10.0)
-    p.finish()
-
-    # vale distante sob a nevoa (fundo)
-    f = MB("TER_Far_Valley", C, rng)
-    f.box((2400, 2400, 2), (0, 0, -70), (0, 0, 0), "Grass_Dark", 0.0)
-    for i in range(40):
-        a = rng.uniform(0, math.tau)
-        r = rng.uniform(260, 700)
-        x, y = math.cos(a) * r, math.sin(a) * r
-        h = rng.uniform(40, 140)
-        f.cyl(rng.uniform(40, 90), h, (x, y, -70 + h / 2), (0, 0, rng.uniform(0, 6)),
-              rng.choice(("Cliff_Rock", "Cliff_Rock_Dark")), rng.choice((5, 6, 7)), r2=rng.uniform(8, 30), bevel=0.0)
-    f.finish()
+    # silhueta distante: cordilheiras quebradas em 3 planos (fm_terrain_ridges) + vale distante sob a nevoa
+    fm_terrain_ridges.build(C)
+    fm_terrain_ridges.build_far_valley(C)
