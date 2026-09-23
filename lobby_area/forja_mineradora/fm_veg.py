@@ -30,6 +30,13 @@ STATS = {}
 OBSTACLES = ("MINE_Face", "MINE_Entrance", "MINE_Tunnel", "MINE_Timber", "BLD_Bridges")
 
 
+def _grass_norm(mn):
+    """variantes de gramado do terreno (Grass_B, Grass_Dry, variantes tonais) contam como Grass; Grass_Dark e topo"""
+    if mn.startswith("Grass") and not mn.startswith("Grass_Dark") and not mn.startswith("Grass_Tuft"):
+        return "Grass"
+    return mn
+
+
 def surface_bvh(prefixes=("TER_",) + OBSTACLES):
     verts, polys, mats = [], [], []
     for o in bpy.data.objects:
@@ -43,7 +50,7 @@ def surface_bvh(prefixes=("TER_",) + OBSTACLES):
         for p in o.data.polygons:
             polys.append([base + i for i in p.vertices])
             mn = o.data.materials[p.material_index].name if o.data.materials else ""
-            mats.append(mn)
+            mats.append(_grass_norm(mn))
     return BVHTree.FromPolygons(verts, polys), mats
 
 
@@ -411,7 +418,7 @@ def find_caps():
         if o.type != "MESH" or not o.name.startswith("TER_") or o.name in CAP_SKIP:
             continue
         me = o.data
-        mats = [m.name if m else "" for m in me.materials]
+        mats = [_grass_norm(m.name) if m else "" for m in me.materials]
         mw = o.matrix_world
         m3 = mw.to_3x3()
         polys = me.polygons
@@ -984,7 +991,8 @@ def build():
     nC = len(ok_caps)
     for i, c in enumerate(ok_caps):
         q = i / max(1, nC)
-        c["fate"] = "group" if q < 0.27 else ("single" if q < 0.40 else "bush")
+        # integracao: mais bosques nos topos (os concepts tem terracos arborizados), ainda em aglomerados por ruido
+        c["fate"] = "group" if q < 0.42 else ("single" if q < 0.55 else "bush")
         if c["fate"] == "group" and c["area"] < 12.0:
             c["fate"] = "single"
 

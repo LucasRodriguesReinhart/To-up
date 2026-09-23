@@ -56,11 +56,13 @@ VOID_CATCH = {"size": [2048, 4, 2048], "y": -25.0}
 OWNERS = [("FORGE_", "forge"), ("NPC_", "forge"), ("PORTAL_", "portals"), ("KONOHA_", "portals"),
           ("BLD_", "architecture"), ("TER_", "terrain"), ("VEG_", "vegetation"), ("WATER_", "scene_lighting"),
           ("SKY_", "scene_lighting"), ("PROP_", "props"), ("MINE_", "props"), ("RAIL_", "props")]
-BUDGET_OWNER = {"forge": (125000, 150), "portals": (85000, 140), "architecture": (135000, 125),
-                "terrain": (128000, 105), "vegetation": (50000, 80), "scene_lighting": (38000, 48),
+# cotas redistribuidas na integracao da rodada 2 (tetos GLOBAIS inalterados): arquitetura/terreno usam em
+# MeshParts a folga que forja/portais/vegetacao deixaram; colisoes sao Parts invisiveis ancoradas (custo baixo)
+BUDGET_OWNER = {"forge": (125000, 125), "portals": (85000, 120), "architecture": (135000, 170),
+                "terrain": (128000, 118), "vegetation": (50000, 70), "scene_lighting": (38000, 48),
                 "props": (58000, 90)}
 BUDGET = {"static_tris": 624000, "static_meshes": 750, "vfx_tris": 16000, "vfx_meshes": 30, "total_tris": 640000,
-          "total_meshes": 780, "materials": 120, "shadow_meshes": 350, "day_lights": 40, "col": 740}
+          "total_meshes": 780, "materials": 120, "shadow_meshes": 350, "day_lights": 45, "col": 820}
 
 # ------------------------------------------------------------------ fold de materiais pequenos (menos MeshParts)
 FOLD_AREA = 60.0             # studs^2 por objeto: abaixo disso o material vai para o vizinho dominante

@@ -46,7 +46,7 @@ SUN_COLOR = (1.0, 0.78, 0.52)
 SUN_POWER = 5.5
 AMB_COLOR = (0.42, 0.52, 0.78)       # ceu que ilumina as sombras: frio
 AMB_POWER = 0.55
-FOG = dict(start=90.0, depth=480.0, factor=0.7, color=(0.66, 0.78, 0.95), curve=1.5)   # nevoa LINEAR de profundidade
+FOG = dict(start=160.0, depth=900.0, factor=0.45, color=(0.66, 0.78, 0.95), curve=1.5)   # nevoa LINEAR de profundidade
 
 
 def setup_world():

@@ -115,7 +115,9 @@ def build_ground():
            stringers=True)
     # banzos: colisao alta (o topo do banzo nao vira atalho ate a mureta da avenida nem para fora)
     for o in bpy.data.objects:
-        if o.name.startswith("COL_Spawn") and o.name not in before and o.get("col_kind") == "Block":
+        # so banzos (blocos altos); a "meia pisada" plana do topo (fm_parts.stairs, 1.0 de altura) fica como esta
+        if (o.name.startswith("COL_Spawn") and o.name not in before and o.get("col_kind") == "Block"
+                and o.scale.z > 2.0):
             zb = o.location.z - o.scale.z / 2
             o.scale.z = SPAWN_COL_TOP - zb
             o.location.z = zb + o.scale.z / 2

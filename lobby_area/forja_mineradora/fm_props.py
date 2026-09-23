@@ -459,7 +459,6 @@ def build():
     marker("VFX_Chimney_Smoke_Emitter", (L.CHIMNEY[0], L.CHIMNEY[1], L.CHIMNEY_TOP), (0, 0, 0), 4,
            props={"particle": "smoke", "rate": 6})
     marker("VFX_Forge_Sparks", (L.ANVIL[0], L.ANVIL[1], L.FL + 6), (0, 0, 0), 2, props={"particle": "sparks"})
-    marker("VFX_Hearth_Fire", (0, 0.5, L.FL + 3), (0, 0, 0), 2, props={"particle": "fire"})
     for key, px in zip(L.PORTAL_KEYS, L.PORTAL_X):
         marker("VFX_Portal_Swirl_%s" % key, (px, L.PORTAL_Y, L.TERR + 11.2), (0, 0, 0), 3,
                props={"anim": "girar espiral em Y, 30 graus/s"})

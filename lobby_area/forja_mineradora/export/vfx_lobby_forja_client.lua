@@ -27,7 +27,7 @@ if not RunService:IsClient() then return end
 
 local DATA = {}
 DATA.version = "vfx-forja-2"
-DATA.exportId = nil
+DATA.exportId = "9df2fe78"
 -- trilho percorrido pelo carrinho (canonico; o cliente aplica VFX_RootCF)
 DATA.path = {
   Vector3.new(-58.537, 4.3, 32.59), Vector3.new(-58.027, 4.3, 31.729), Vector3.new(-57.613, 4.3, 30.821),
@@ -59,16 +59,16 @@ DATA.path = {
 DATA.cart = {rest = 4.735, weigh = 24.994, far = 68.36, cycle = 48, vOut = 6, vBack = 7.5, acc = 3,
   stopWeigh = 3, stopFar = 4.5, unloadAt = 1.6, reloadAt = 2.2}
 DATA.hammer = {rise0 = 0.125, rise1 = 0.533, fall0 = 0.55, hit = 0.6, bounce = 0.667}
-DATA.ignis = {cycle = 4.4, hits = {{0, 0.7}, {0.75, 0.7}, {1.5, 1.35}}, quenchEvery = 3, pos = Vector3.new(0.5, 8.925, 10)}
+DATA.ignis = {cycle = 4.4, hits = {{0, 0.7}, {0.75, 0.7}, {1.5, 1.35}}, quenchEvery = 3, pos = Vector3.new(0.5, 8.9, 10)}
 -- pas da roda: a pa k esta no angulo k*step - w*t (plano da roda); entra na agua em aIn e sai em aOut
-DATA.wheel = {speed = 0.628, step = 0.393, aIn = -1.146, aOut = -1.996, pos = Vector3.new(62, 11, -20)}
+DATA.wheel = {speed = 0.628, step = 0.393, aIn = -0.006, aOut = -3.136, pos = Vector3.new(62, 11, -20)}
 DATA.portals = {
-  {key = "Naruto", idx = 0, center = Vector3.new(-108, 41.2, -113)},
-  {key = "DragonBall", idx = 1, center = Vector3.new(-76, 41.2, -113)},
-  {key = "ShadowGarden", idx = 2, center = Vector3.new(-44, 41.2, -113)},
-  {key = "DemonSlayer", idx = 3, center = Vector3.new(44, 41.2, -113)},
-  {key = "OnePiece", idx = 4, center = Vector3.new(76, 41.2, -113)},
-  {key = "OnePunchMan", idx = 5, center = Vector3.new(108, 41.2, -113)},
+  {key = "Naruto", idx = 0, center = Vector3.new(-108, 41.2, -113.9)},
+  {key = "DragonBall", idx = 1, center = Vector3.new(-76, 41.2, -113.9)},
+  {key = "ShadowGarden", idx = 2, center = Vector3.new(-44, 41.2, -113.9)},
+  {key = "DemonSlayer", idx = 3, center = Vector3.new(44, 41.2, -113.9)},
+  {key = "OnePiece", idx = 4, center = Vector3.new(76, 41.2, -113.9)},
+  {key = "OnePunchMan", idx = 5, center = Vector3.new(108, 41.2, -113.9)},
 }
 
 local CFG = ReplicatedStorage:WaitForChild("LOBBY_FORJA_VFX", 60)
