@@ -7,7 +7,9 @@
 #   Blender : base_color = mix(cor_variante, tex.rgb, tex.alpha)          (fm_lib.make_materials)
 #   Roblox  : SurfaceAppearance.AlphaMode = Overlay -> mesma formula sobre MeshPart.Color (montar_lobby_forja.lua)
 # As UVs sao projecao planar alinhada a cada primitiva, em studs / TILE (fm_lib.MB), e vao no FBX.
-# Espirais dos portais: PNG opaco por portal, UV planar do disco (export_roblox.py).
+# Espirais dos portais (v4): PNG RGBA 1024 por portal, ALFA 0 fora do circulo, desenho e paleta PROPRIOS por
+# portal (SWIRL_SPEC). A MESMA imagem e usada no Blender (fm_lib: shader da espiral = esta textura em coordenadas
+# do objeto), no FBX (UV do disco, export_roblox.py) e no SurfaceGui do export_vfx.py (T_swirl_<key>_v4.png).
 import os, math, zlib, struct
 import numpy as np
 
@@ -15,6 +17,8 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 TEX_DIR = os.path.join(HERE, "textures")
 N = 512
 VERSION = 3
+SWIRL_VERSION = 4          # nome novo a cada mudanca de desenho: o 3D Importer reimporta do cache se o nome repete
+SWIRL_N = 1024
 
 # chave: (arquivo, studs por repeticao)
 TEXTURES = {
@@ -26,15 +30,28 @@ TEXTURES = {
     "plaster": ("T_plaster_v%d.png" % VERSION, 8.0),
     "dirt":    ("T_dirt_v%d.png" % VERSION, 10.0),
 }
-# espirais: material -> (arquivo, cor dos bracos sRGB, cor do nucleo sRGB)
-SWIRL_TEX = {
-    "P_Naruto_Swirl": ("T_swirl_naruto_v%d.png" % VERSION, (236, 110, 158), (255, 214, 226)),
-    "P_DB_Swirl":     ("T_swirl_db_v%d.png" % VERSION, (236, 184, 70), (255, 246, 200)),
-    "P_Shadow_Swirl": ("T_swirl_shadow_v%d.png" % VERSION, (160, 96, 226), (236, 214, 255)),
-    "P_DS_Swirl":     ("T_swirl_ds_v%d.png" % VERSION, (226, 86, 86), (255, 214, 206)),
-    "P_OP_Swirl":     ("T_swirl_op_v%d.png" % VERSION, (84, 146, 236), (214, 234, 255)),
-    "P_OPM_Swirl":    ("T_swirl_opm_v%d.png" % VERSION, (96, 192, 236), (224, 248, 255)),
+# espirais: material -> desenho do portal (cores sRGB 0-255). Regras comuns: base escura e saturada, bracos finos e
+# brilhantes (<= 25% do periodo, luminancia <= 85%), aro mais claro que tudo, nucleo pequeno, ruido de rastro.
+# twist = voltas por raio (3..7, diferente em cada portal); width = largura do braco em fracao do periodo.
+SWIRL_SPEC = {
+    "P_Naruto_Swirl": dict(key="naruto", portal="Naruto", border=(45, 12, 0), arm=(255, 115, 20),
+                           core=(255, 210, 90), arms=3, twist=3.4, width=0.20, style="leaf", seed=11),
+    "P_DB_Swirl":     dict(key="db", portal="DragonBall", border=(60, 35, 0), arm=(255, 195, 30),
+                           core=(255, 245, 205), arms=4, twist=4.2, width=0.17, style="ki", seed=23),
+    "P_Shadow_Swirl": dict(key="shadow", portal="ShadowGarden", border=(10, 0, 20), arm=(150, 60, 255),
+                           core=(220, 170, 255), arms=5, twist=5.6, width=0.12, style="stars", seed=37),
+    "P_DS_Swirl":     dict(key="ds", portal="DemonSlayer", border=(25, 0, 0), arm=(185, 12, 22),
+                           core=(255, 110, 40), arms=2, twist=3.0, width=0.36, style="fire", seed=41),
+    "P_OP_Swirl":     dict(key="op", portal="OnePiece", border=(0, 15, 45), arm=(25, 105, 255),
+                           core=(150, 215, 255), arms=4, twist=4.8, width=0.21, style="foam", seed=53),
+    "P_OPM_Swirl":    dict(key="opm", portal="OnePunchMan", border=(0, 20, 35), arm=(0, 225, 255),
+                           core=(225, 255, 255), arms=6, twist=6.6, width=0.10, style="cracks", seed=67),
 }
+# compatibilidade (export_roblox / export_vfx): material -> (arquivo, cor dos bracos sRGB, cor do nucleo sRGB)
+SWIRL_TEX = {m: ("T_swirl_%s_v%d.png" % (s["key"], SWIRL_VERSION), s["arm"], s["core"])
+             for m, s in SWIRL_SPEC.items()}
+# portal (fm_layout.PORTAL_KEYS) -> material da espiral
+SWIRL_BY_PORTAL = {s["portal"]: m for m, s in SWIRL_SPEC.items()}
 
 
 # ------------------------------------------------------------------ PNG
@@ -263,26 +280,191 @@ GEN = {"stone": tex_stone, "wood": tex_wood, "roof": tex_roof, "rock": tex_rock,
        "plaster": tex_plaster, "dirt": tex_dirt}
 
 
-def tex_swirl(arm, core):
-    """espiral de energia (mesmo desenho do shader do Blender): bracos, nucleo claro, aro brilhante"""
-    c = (np.arange(N) + 0.5) / N * 2 - 1
+# ------------------------------------------------------------------ espirais dos portais (v4)
+def _grid_noise(rng, gx, gy):
+    """amostrador de value noise periodico (gx x gy celulas) em coordenadas arbitrarias (u em celulas, v em celulas)"""
+    g = rng.random((gy, gx))
+
+    def at(u, v):
+        x0 = np.floor(u)
+        y0 = np.floor(v)
+        fx = u - x0
+        fy = v - y0
+        sx = fx * fx * (3 - 2 * fx)
+        sy = fy * fy * (3 - 2 * fy)
+        x0 = x0.astype(int) % gx
+        y0 = y0.astype(int) % gy
+        x1 = (x0 + 1) % gx
+        y1 = (y0 + 1) % gy
+        top = g[y0, x0] + (g[y0, x1] - g[y0, x0]) * sx
+        bot = g[y1, x0] + (g[y1, x1] - g[y1, x0]) * sx
+        return top + (bot - top) * sy
+    return at
+
+
+def _luma(c):
+    return 0.2126 * c[..., 0] + 0.7152 * c[..., 1] + 0.0722 * c[..., 2]
+
+
+def _cap_luma(c, lim):
+    """escala a cor para a luminancia (Rec.709 sobre sRGB) nao passar de lim"""
+    L = _luma(c)
+    k = np.where(L > lim, lim / np.maximum(L, 1e-6), 1.0)
+    return c * k[..., None]
+
+
+def _mix(a, b, t):
+    t = np.asarray(t)[..., None]
+    return a * (1 - t) + b * t
+
+
+def tex_swirl(spec, n=None):
+    """espiral de energia de UM portal (desenho proprio): base escura e saturada, bracos finos com rastro,
+    detalhe tematico (style), nucleo pequeno e aro mais claro que tudo; alfa 0 fora do circulo."""
+    n = n or SWIRL_N
+    rng = np.random.default_rng(spec.get("seed", 1))
+    c = (np.arange(n) + 0.5) / n * 2 - 1
+    X, Y = np.meshgrid(c, -c)                     # linha 0 = topo (Y = +1), mesma convencao das UVs (v = cima)
+    r = np.sqrt(X * X + Y * Y)
+    th = np.arctan2(Y, X)
+    B = np.array(spec["border"], float) / 255.0
+    A = np.array(spec["arm"], float) / 255.0
+    C = np.array(spec["core"], float) / 255.0
+    na, tw, w = spec["arms"], spec["twist"], spec["width"]
+    style = spec.get("style")
+    # ---- base: borda escura e saturada, interior um pouco aceso pela cor do braco
+    inner = np.clip(1 - r, 0, 1)
+    rgb = B[None, None, :] * (1.0 + 1.0 * inner[..., None]) + A[None, None, :] * (0.08 * inner ** 2)[..., None]
+    # rastro difuso (streaks ao longo da espiral) tambem na base
+    nz_s = _grid_noise(rng, 48 * na, 6)
+    nz_w = _grid_noise(rng, 7, 5)
+    warp = (nz_w(th / (2 * math.pi) * 7, r * 5) - 0.5) * 0.10
+    ph = na * th / (2 * math.pi) + tw * r + warp
+    streak = nz_s(ph * 48, r * 6)
+    rgb = rgb + A[None, None, :] * (0.10 * smoothstep(0.55, 0.95, streak) * smoothstep(0.12, 0.35, r)
+                                    * (1 - smoothstep(0.80, 0.92, r)))[..., None]
+    # ---- bracos: borda de ataque nitida, rastro suave, linha central clara; mais finos perto do centro
+    f = ph % 1.0
+    s = f - 0.5
+    wl = w * (0.55 + 0.55 * np.clip(r, 0, 1))
+    if style == "fire":                            # linguas de fogo: largura ondulante
+        fl = _grid_noise(rng, 2 * na * 3, 9)
+        wl = wl * (0.65 + 0.7 * fl(ph * 6, r * 9))
+    if style == "fire":                            # lingua larga de topo chato
+        lead = np.exp(-(np.maximum(s, 0) / (wl * 0.45)) ** 4)
+        trail = np.exp(-(np.maximum(-s, 0) / (wl * 0.95)) ** 2)
+        line = np.exp(-(s / (wl * 0.28)) ** 2)
+    else:
+        lead = np.exp(-(np.maximum(s, 0) / (wl * 0.30)) ** 2)
+        trail = np.exp(-(np.maximum(-s, 0) / (wl * 0.85)) ** 2)
+        line = np.exp(-(s / (wl * 0.12)) ** 2)
+    arm_i = np.where(s >= 0, lead, trail)
+    env = smoothstep(0.08, 0.24, r) * (1 - smoothstep(0.83, 0.93, r))
+    arm_i = arm_i * env * (0.72 + 0.28 * streak)
+    line = line * env
+    A_hi = _cap_luma(_mix(A[None, None, :], C[None, None, :], 0.35 * np.ones_like(r)), 0.85)
+    A_c = _cap_luma(A[None, None, :] * np.ones_like(rgb), 0.85)
+    rgb = _mix(rgb, A_c, np.clip(arm_i, 0, 1))
+    rgb = _mix(rgb, A_hi, np.clip(line * 0.8, 0, 1))
+    # ---- detalhe tematico
+    if style == "leaf":
+        # espiral de Konoha: um traco unico (Arquimedes) saindo do nucleo, 1,6 volta, afinando
+        phi = (th - 0.6) % (2 * math.pi)
+        best = np.full_like(r, 9.0)
+        for k in range(3):
+            rr = 0.045 * (phi + 2 * math.pi * k)
+            ok = (phi + 2 * math.pi * k) <= 1.6 * 2 * math.pi
+            d = np.where(ok, np.abs(r - rr), 9.0)
+            best = np.minimum(best, d)
+        thick = 0.022 * (1 - np.clip(r / 0.48, 0, 1)) + 0.006
+        m = np.exp(-(best / thick) ** 2) * (1 - smoothstep(0.40, 0.50, r))
+        col = _cap_luma(_mix(A[None, None, :], C[None, None, :], 0.5 * np.ones_like(r)), 0.85)
+        rgb = _mix(rgb, col, np.clip(m, 0, 1))
+    elif style == "ki":
+        # raios de ki: tracos radiais retos, mais fortes perto do aro
+        ray = np.zeros_like(r)
+        for i in range(30):
+            a0 = rng.uniform(-math.pi, math.pi)
+            r0, r1 = rng.uniform(0.28, 0.62), rng.uniform(0.78, 0.93)
+            wid = rng.uniform(0.004, 0.009)
+            da = np.angle(np.exp(1j * (th - a0)))
+            d = np.abs(da) * r
+            m = np.exp(-(d / wid) ** 2) * smoothstep(r0, r0 + 0.12, r) * (1 - smoothstep(r1 - 0.04, r1, r))
+            ray = np.maximum(ray, m * rng.uniform(0.55, 1.0))
+        col = _cap_luma(_mix(A[None, None, :], C[None, None, :], 0.45 * np.ones_like(r)), 0.85)
+        rgb = _mix(rgb, col, np.clip(ray, 0, 1))
+    elif style == "stars":
+        # pontos de estrela: brilhos de 4 pontas espalhados
+        st = np.zeros_like(r)
+        for i in range(70):
+            rr = math.sqrt(rng.uniform(0.03, 0.78))
+            aa = rng.uniform(-math.pi, math.pi)
+            cx, cy = rr * math.cos(aa), rr * math.sin(aa)
+            sz = rng.uniform(0.6, 1.4)
+            dx, dy = np.abs(X - cx), np.abs(Y - cy)
+            m = (np.exp(-(dx / (0.0035 * sz)) ** 2 - (dy / (0.020 * sz)) ** 2) +
+                 np.exp(-(dx / (0.020 * sz)) ** 2 - (dy / (0.0035 * sz)) ** 2) +
+                 np.exp(-((dx * dx + dy * dy) / (0.0065 * sz) ** 2)))
+            st = np.maximum(st, np.clip(m, 0, 1) * rng.uniform(0.5, 1.0))
+        col = _cap_luma(_mix(A[None, None, :], C[None, None, :], 0.75 * np.ones_like(r)), 0.85)
+        rgb = _mix(rgb, col, np.clip(st, 0, 1))
+    elif style == "fire":
+        # nucleo das linguas mais quente (crimson na borda, laranja no meio) + anel negro antes do aro
+        hot = np.clip(line * 1.2 + arm_i * 0.35 - 0.2, 0, 1)
+        rgb = _mix(rgb, _cap_luma(C[None, None, :] * np.ones_like(rgb), 0.85), hot * 0.85)
+        ring = np.exp(-((r - 0.865) / 0.030) ** 2)
+        rgb = rgb * (1 - 0.94 * ring)[..., None]
+    elif style == "foam":
+        # cristas de espuma: tracos claros na borda de ataque de cada braco
+        dash = _grid_noise(rng, 14 * na, 8)
+        edge = np.exp(-((s - wl * 0.28) / (wl * 0.16)) ** 2) * env
+        m = edge * smoothstep(0.42, 0.62, dash(ph * 14, r * 8))
+        col = np.array([185, 225, 250], float)[None, None, :] / 255.0 * np.ones_like(rgb)
+        rgb = _mix(rgb, _cap_luma(col, 0.85), np.clip(m * 1.1, 0, 1))
+    elif style == "cracks":
+        # rachaduras eletricas: raios quebrados do centro para fora (com galhos) + brilho em volta
+        E = np.zeros((n, n))
+        G = np.zeros((n, n))
+        for i in range(7):
+            ang = 2 * math.pi * i / 7 + rng.uniform(-0.3, 0.3)
+            x = n / 2 + math.cos(ang) * n * 0.08
+            y = n / 2 - math.sin(ang) * n * 0.08
+            ln = n * rng.uniform(0.26, 0.36)
+            sd = int(rng.integers(0, 1 << 30))
+            crack(G, np.random.default_rng(sd), x, y, -ang, ln, 0.35, 5.0 * n / 512, 0.16, branch=1.2, n=n)
+            crack(E, np.random.default_rng(sd), x, y, -ang, ln, 1.0, 1.0 * n / 512, 0.16, branch=1.2, n=n)
+        cut = smoothstep(0.10, 0.20, r) * (1 - smoothstep(0.84, 0.91, r))
+        glow_c = _cap_luma(_mix(A[None, None, :], C[None, None, :], 0.2 * np.ones_like(r)), 0.85)
+        rgb = _mix(rgb, glow_c, np.clip(-G, 0, 1) * cut)
+        rgb = _mix(rgb, _cap_luma(C[None, None, :] * np.ones_like(rgb), 0.85), np.clip(-E, 0, 1) * cut)
+    # ---- nucleo pequeno (quente/claro) + halo
+    halo = np.exp(-(r / 0.17) ** 2) * 0.55
+    rgb = _mix(rgb, _cap_luma(_mix(A[None, None, :], C[None, None, :], 0.6 * np.ones_like(r)), 0.9), halo)
+    core = np.exp(-(r / 0.075) ** 2)
+    rgb = _mix(rgb, C[None, None, :] * np.ones_like(rgb), core)
+    # ---- aro: o mais claro de tudo (linha fina + brilho para dentro)
+    RC = np.clip(C * 0.5 + 0.5, 0, 1)
+    rim = np.exp(-((r - 0.955) / 0.024) ** 2)
+    glow = np.exp(-((r - 0.955) / 0.075) ** 2) * 0.40 * (r < 0.955)
+    rgb = _mix(rgb, _mix(A[None, None, :], RC[None, None, :], 0.5 * np.ones_like(r)), np.clip(glow, 0, 1))
+    rgb = _mix(rgb, RC[None, None, :] * np.ones_like(rgb), np.clip(rim * 1.15, 0, 1))
+    rgb = np.where((r > 0.955)[..., None], _mix(rgb, RC[None, None, :] * np.ones_like(rgb), 0.85 * np.ones_like(r)),
+                   rgb)
+    alpha = (1 - smoothstep(0.985, 1.0, r))[..., None]
+    return np.concatenate([np.clip(rgb, 0, 1), alpha], axis=2)
+
+
+def swirl_stats(img):
+    """metricas de QA da espiral: luminancia media, maxima dos bracos e do aro (dentro do circulo)"""
+    n = img.shape[0]
+    c = (np.arange(n) + 0.5) / n * 2 - 1
     X, Y = np.meshgrid(c, -c)
     r = np.sqrt(X * X + Y * Y)
-    a = np.arctan2(Y, X)
-    f = ((a * 3 / (2 * math.pi) + r * 3.2) % 1.0) ** 2.2
-    body = (f * 1.1 + 0.25) * (1 - 0.55 * r)
-    rim = smoothstep(0.80, 0.98, r) * 1.2
-    ctr = smoothstep(0.38, 0.0, r) * 1.3
-    t = np.clip(body + rim + ctr, 0, 2.2) / 2.2
-    arm = np.array(arm) / 255.0
-    core = np.array(core) / 255.0
-    dark = arm * 0.62          # vales claros o bastante para ler "energia" na luz do dia (SmoothPlastic no Roblox)
-    k = smoothstep(0.10, 0.75, t)[..., None]
-    rgb = dark[None, None, :] * (1 - k) + arm[None, None, :] * k
-    hk = smoothstep(0.55, 1.0, t)[..., None]
-    rgb = rgb * (1 - hk) + core[None, None, :] * hk
-    alpha = (1 - smoothstep(0.985, 1.0, r))[..., None]
-    return np.concatenate([rgb, alpha], axis=2)
+    L = _luma(img[..., :3])
+    body = (r > 0.2) & (r < 0.85)
+    rim = (r > 0.94) & (r < 0.97)
+    return dict(mean=float(L[r < 0.98].mean()), body_max=float(L[body].max()), rim=float(L[rim].mean()),
+                body_p95=float(np.percentile(L[body], 95)))
 
 
 def path(key):
@@ -309,7 +491,7 @@ def ensure(force=False, out_dir=None):
     for mat, (fn, arm, core) in sorted(SWIRL_TEX.items()):
         p = os.path.join(TEX_DIR, fn)
         if force or not os.path.exists(p):
-            write_png(p, tex_swirl(arm, core))
+            write_png(p, tex_swirl(SWIRL_SPEC[mat]))
         done[mat] = p
     return done
 
@@ -320,3 +502,7 @@ if __name__ == "__main__":
     r = ensure(force=True, out_dir=out)
     for k, v in r.items():
         print(k, v)
+    for m, spec in SWIRL_SPEC.items():
+        st = swirl_stats(tex_swirl(spec, 256))
+        print("%-16s %-12s bracos=%d twist=%.1f  lum media=%.2f bracos max=%.2f aro=%.2f" % (
+            m, spec["portal"], spec["arms"], spec["twist"], st["mean"], st["body_max"], st["rim"]))

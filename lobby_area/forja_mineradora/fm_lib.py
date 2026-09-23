@@ -1,5 +1,27 @@
 # fm_lib - nucleo do Lobby Vila-Forja (Anime Mining Simulator)
 # 1 BU = 1 stud, Z para cima. Roblox = (x, z, -y) (mesmo mapeamento do export_roblox.py).
+#
+# POLITICA DE DETALHE (MB) - AVISO AOS DONOS DOS MODULOS
+#   Medicao do export: ~29% dos tris (>= 202k) eram faixas de chanfro com menos de 0,2 stud e 52k eram fundos
+#   escondidos (chanfro = 40% da FORGE, 36% de BUILDINGS, 41% de PROPS, 23% de TERRAIN). Por isso:
+#     MB(name, coll, rng=None, detail="hero" | "near" | "far", floor=None)
+#     "hero" (padrao) = como sempre: chanfra todas as arestas vivas pedidas por bevel=.
+#     "near"          = chanfra SO as arestas do TOPO de cada primitiva (as duas pontas em z >= topo - 0,01);
+#                       o resto sai vivo. Use para o que o jogador ve de perto mas nao e peca-heroi.
+#     "far"           = bevel = 0 sempre e NAO cria a face de baixo de uma primitiva fechada que esta apoiada
+#                       (z0 <= piso + 0,05). piso = floor: numero, funcao (x, y) -> z, ou None = niveis da planta
+#                       (spawn 0, vale 4, piso da forja 5, ledge 14, terraco 30, ou enterrada abaixo de 0).
+#     MB.gable_roof(..., shingle_bevel=None): chanfro das telhas; None = 0,12 em "hero" e 0 em "near"/"far".
+#   Materiais: os donos so ESCOLHEM o nome; cor/brilho ficam aqui (MATS) e a traducao para o Roblox fica em
+#   fm_mat_rbx.py (RBX_RULES / RBX_CAL). Novos desta rodada: Window_Warm (janela quente, NAO vira Neon; use em
+#   window_glow), Forge_Glow_Soft, Stone_Heated, Grass_Dry, Water_Deep, Cliff_Rock_Top, P_OPM_DarkGlass,
+#   P_<Naruto|DB|Shadow|DS|OP|OPM>_Glow (cor do braco da espiral). Lantern_Glow agora e ambar (emissao 1,2; no
+#   Roblox Neon 255,146,56); Neon em janela so na forja e na loja. Espirais: textura propria por portal (v4).
+#   Export: variantes pouco usadas voltam para a base, materiais < 60 studs2 por objeto vao para o vizinho
+#   dominante (export_roblox.FOLD_TO) e o export FALHA se um dono passar do orcamento (FM_BUDGET=warn so avisa).
+#   Apelidos (MAT_ALIAS): Flower_Yellow -> Flower_Pink, Flower_Blue -> Flower_White, Leaf_Pine_Light_B -> Leaf_Pine_Light.
+#   FM_MAT_PREVIEW=roblox mostra a cor que o Roblox recebe (rbx_color, sem ruido nem textura); para aplicar num
+#   .blend pronto: blender -b x.blend --python fm_mat_preview.py --python render.py -- <pasta> CAM_...
 import bpy, bmesh, math, random, os, zlib
 import numpy as np
 from mathutils import Vector, Matrix, Euler, noise
@@ -70,10 +92,19 @@ MATS = {
     # pedra: cinza QUENTE (concept), claro x escuro com contraste; rejunte escuro separa as pecas
     "Stone_Light":   (S(150, 141, 129), 0.85, 0.0, 0, None, 0.16),
     "Stone_Dark":    (S(100, 92, 86), 0.85, 0.0, 0, None, 0.16),
-    "Stone_Paving":  (S(158, 145, 131), 0.85, 0.0, 0, None, 0.20),
+    # calcamento ~15% mais escuro e mais quente (a praca era o maior plano claro da tela)
+    "Stone_Paving":  (S(136, 121, 104), 0.85, 0.0, 0, None, 0.20),
     "Stone_Grout":   (S(88, 82, 76), 0.95, 0.0, 0, None, 0.05),
+    # pedra aquecida da forja: brasa escura (so brilho fraco no Blender; no Roblox e pedra, nao Neon)
+    "Stone_Heated":  ((0.16, 0.045, 0.02), 0.8, 0.0, 1.2, (1.0, 0.26, 0.05), 0.08),
     "Cliff_Rock":    ((0.26, 0.26, 0.29), 0.9, 0.0, 0, None, 0.14),
     "Cliff_Rock_Dark": ((0.15, 0.15, 0.18), 0.9, 0.0, 0, None, 0.12),
+    # perspectiva aerea: proximo < medio < longe em valor, cada plano mais frio; topo iluminado quente
+    "Cliff_Rock_Mid":      ((0.36, 0.38, 0.48), 0.92, 0.0, 0, None, 0.10),
+    "Cliff_Rock_Mid_Dark": ((0.24, 0.25, 0.33), 0.92, 0.0, 0, None, 0.08),
+    "Cliff_Rock_Far":      ((0.55, 0.62, 0.78), 0.95, 0.0, 0, None, 0.05),
+    "Cliff_Rock_Far_Dark": ((0.40, 0.45, 0.60), 0.95, 0.0, 0, None, 0.05),
+    "Cliff_Rock_Top":      (S(150, 140, 135), 0.9, 0.0, 0, None, 0.10),
     # madeira: castanho mais rico (menos laranja-palido), escura com contraste
     "Wood_Light":    (S(160, 114, 74), 0.8, 0.0, 0, None, 0.18),
     "Wood_Dark":     (S(100, 66, 43), 0.8, 0.0, 0, None, 0.18),
@@ -86,17 +117,28 @@ MATS = {
     "Metal_Brass":   ((0.60, 0.40, 0.14), 0.35, 0.9, 0, None, 0.06),
     "Metal_Heated":  ((0.40, 0.08, 0.02), 0.5, 0.3, 6, (1.0, 0.35, 0.06), 0.0),
     "Forge_Emissive": ((1.0, 0.45, 0.1), 0.5, 0.0, 14, (1.0, 0.42, 0.08), 0.0),
-    "Lantern_Glow":  ((1.0, 0.75, 0.4), 0.5, 0.0, 9, (1.0, 0.66, 0.30), 0.0),
-    "Crystal_Blue":  ((0.04, 0.28, 1.0), 0.15, 0.0, 1.1, (0.05, 0.30, 1.0), 0.0),
+    # emissivos QUENTES (nao retangulos brancos): com emissao 9 o AgX queimava a lanterna para branco. Teste na
+    # altura do jogador (AgX Punchy, dia e mina): (1, 0.52, 0.16) x 3 ainda le creme; (1, 0.36, 0.05) x 1.2 le ambar
+    "Lantern_Glow":  ((1.0, 0.36, 0.05), 0.5, 0.0, 1.2, (1.0, 0.36, 0.05), 0.0),
+    # janela iluminada comum: calor baixo; no Roblox vira SmoothPlastic (Neon em janela so na forja e na loja)
+    "Window_Warm":   ((0.95, 0.42, 0.10), 0.5, 0.0, 0.8, (0.95, 0.42, 0.10), 0.0),
+    "Forge_Glow_Soft": ((0.80, 0.24, 0.03), 0.5, 0.0, 1.5, (1.0, 0.30, 0.04), 0.0),
+    # azul saturado sem vermelho: linear (0, 0.26, 1) = sRGB (0, 139, 255) ~ (0, 0.55, 1.0) normalizado
+    "Crystal_Blue":  ((0.0, 0.26, 1.0), 0.15, 0.0, 0.9, (0.0, 0.26, 1.0), 0.0),
     "Crystal_Purple": ((0.4, 0.08, 1.0), 0.15, 0.0, 1.1, (0.42, 0.10, 1.0), 0.0),
-    "Water":         ((0.08, 0.40, 0.70), 0.08, 0.0, 0.35, (0.10, 0.45, 0.8), 0.10),
-    "Water_Fall":    ((0.70, 0.88, 1.0), 0.2, 0.0, 1.6, (0.55, 0.8, 1.0), 0.0),
+    # nucleos dos cristais (so no export: as pontas pequenas do topo viram Neon, a casca fica SmoothPlastic)
+    "Crystal_Blue_Core": ((0.25, 0.80, 1.0), 0.15, 0.0, 3.0, (0.25, 0.80, 1.0), 0.0),
+    "Crystal_Purple_Core": ((0.62, 0.35, 1.0), 0.15, 0.0, 3.0, (0.62, 0.35, 1.0), 0.0),
+    "Water":         ((0.02, 0.28, 0.42), 0.08, 0.0, 0.25, (0.03, 0.30, 0.45), 0.10),
+    "Water_Deep":    ((0.01, 0.14, 0.24), 0.06, 0.0, 0.12, (0.02, 0.20, 0.32), 0.06),   # faixa central do rio
+    "Water_Fall":    ((0.70, 0.88, 1.0), 0.2, 0.0, 0.55, (0.55, 0.8, 1.0), 0.0),
     "Foam":          ((0.90, 0.96, 1.0), 0.6, 0.0, 0.6, (0.85, 0.95, 1.0), 0.0),
     "Grass":         (S(96, 152, 58), 0.9, 0.0, 0, None, 0.20),   # menos limao, mais perto do concept
     "Grass_Dark":    ((0.05, 0.15, 0.05), 0.9, 0.0, 0, None, 0.16),
+    "Grass_Dry":     (S(150, 138, 80), 0.9, 0.0, 0, None, 0.18),
     "Dirt":          ((0.24, 0.15, 0.08), 0.95, 0.0, 0, None, 0.16),
     "Roof":          (S(110, 108, 114), 0.75, 0.0, 0, None, 0.14),
-    "Roof_Red":      ((0.45, 0.10, 0.07), 0.7, 0.0, 0, None, 0.12),
+    "Roof_Red":      (S(110, 58, 44), 0.7, 0.0, 0, None, 0.12),     # telha envelhecida marrom-avermelhada
     "Plaster":       ((0.58, 0.48, 0.36), 0.9, 0.0, 0, None, 0.08),
     "Cloth_Red":     ((0.55, 0.08, 0.07), 0.9, 0.0, 0, None, 0.06),
     "Cloth_Navy":    ((0.05, 0.07, 0.14), 0.9, 0.0, 0, None, 0.05),
@@ -106,35 +148,45 @@ MATS = {
     "Leather":       ((0.30, 0.16, 0.08), 0.7, 0.0, 0, None, 0.08),
     "Smoke":         ((0.20, 0.19, 0.19), 1.0, 0.0, 0, None, 0.12),
     "Cloud":         ((0.95, 0.97, 1.0), 0.9, 0.0, 0.35, (0.9, 0.95, 1.0), 0.0),
-    "Leaf_Pine":     ((0.06, 0.24, 0.10), 0.85, 0.0, 0, None, 0.20),
-    "Leaf_Pine_Light": ((0.22, 0.44, 0.16), 0.85, 0.0, 0, None, 0.20),
+    "Leaf_Pine":     ((0.03, 0.20, 0.08), 0.85, 0.0, 0, None, 0.20),
+    "Leaf_Pine_Light": ((0.12, 0.36, 0.10), 0.85, 0.0, 0, None, 0.20),
+    "Flower_Pink":   (S(232, 128, 168), 0.6, 0.0, 0, None, 0.0),
+    "Flower_White":  (S(238, 234, 222), 0.6, 0.0, 0, None, 0.0),
     "Leaf_Sakura":   ((0.95, 0.55, 0.72), 0.8, 0.0, 0.2, (1.0, 0.6, 0.8), 0.12),
     "Leaf_Palm":     ((0.20, 0.50, 0.15), 0.8, 0.0, 0, None, 0.15),
     "Bark":          ((0.28, 0.18, 0.10), 0.9, 0.0, 0, None, 0.12),
     "Skin":          ((0.95, 0.75, 0.55), 0.7, 0.0, 0, None, 0.0),
     "Hair_Red":      ((0.75, 0.12, 0.05), 0.7, 0.0, 0, None, 0.0),
     "Dummy_Grey":    ((0.60, 0.62, 0.66), 0.7, 0.0, 0, None, 0.0),
-    # portais
+    # portais (espirais: a cor aqui e a do BRACO; o desenho vem da textura de fm_mat_textures.SWIRL_SPEC)
     "P_Naruto_Red":  ((0.72, 0.10, 0.06), 0.7, 0.0, 0, None, 0.10),
-    "P_Naruto_Swirl": ((1.0, 0.35, 0.55), 0.3, 0.0, 3.2, (1.0, 0.30, 0.50), 0.0),
+    "P_Naruto_Swirl": (S(255, 115, 20), 0.3, 0.0, 1.5, S(255, 115, 20), 0.0),
     "P_DB_Gold":     ((0.95, 0.66, 0.15), 0.3, 0.85, 0, None, 0.05),
     "P_DB_White":    ((0.90, 0.90, 0.86), 0.5, 0.0, 0, None, 0.05),
     "P_DB_Orange":   ((1.0, 0.45, 0.05), 0.4, 0.0, 1.5, (1.0, 0.5, 0.1), 0.05),
-    "P_DB_Swirl":    ((1.0, 0.85, 0.3), 0.3, 0.0, 3.2, (1.0, 0.82, 0.3), 0.0),
-    "P_Shadow_Stone": ((0.10, 0.08, 0.14), 0.7, 0.0, 0, None, 0.10),
-    "P_Shadow_Swirl": ((0.62, 0.25, 1.0), 0.3, 0.0, 3.2, (0.62, 0.25, 1.0), 0.0),
+    "P_DB_Swirl":    (S(255, 195, 30), 0.3, 0.0, 1.5, S(255, 195, 30), 0.0),
+    "P_Shadow_Stone": ((0.02, 0.018, 0.035), 0.7, 0.0, 0, None, 0.10),
+    "P_Shadow_Trim": ((0.04, 0.03, 0.06), 0.7, 0.0, 0, None, 0.08),
+    "P_Shadow_Swirl": (S(150, 60, 255), 0.3, 0.0, 2.2, S(150, 60, 255), 0.0),
     "P_DS_Black":    ((0.07, 0.05, 0.05), 0.7, 0.0, 0, None, 0.08),
     "P_DS_Red":      ((0.62, 0.06, 0.05), 0.6, 0.0, 0.5, (0.8, 0.05, 0.02), 0.08),
-    "P_DS_Swirl":    ((1.0, 0.25, 0.25), 0.3, 0.0, 3.2, (1.0, 0.22, 0.25), 0.0),
+    "P_DS_Swirl":    (S(185, 12, 22), 0.3, 0.0, 1.8, S(185, 12, 22), 0.0),
     "P_OP_Blue":     ((0.08, 0.20, 0.50), 0.6, 0.0, 0, None, 0.10),
-    "P_OP_Swirl":    ((0.20, 0.50, 1.0), 0.3, 0.0, 3.2, (0.2, 0.5, 1.0), 0.0),
-    "P_OPM_Concrete": ((0.55, 0.57, 0.62), 0.8, 0.0, 0, None, 0.10),
+    "P_OP_Swirl":    (S(25, 105, 255), 0.3, 0.0, 1.7, S(25, 105, 255), 0.0),
+    "P_OPM_Concrete": ((0.20, 0.205, 0.215), 0.8, 0.0, 0, None, 0.10),
     "P_OPM_Glass":   ((0.10, 0.30, 0.60), 0.1, 0.2, 1.2, (0.2, 0.55, 1.0), 0.05),
-    "P_OPM_Neon":    ((0.30, 0.75, 1.0), 0.3, 0.0, 8, (0.30, 0.78, 1.0), 0.0),
-    "P_OPM_Swirl":   ((0.35, 0.80, 1.0), 0.3, 0.0, 3.2, (0.35, 0.8, 1.0), 0.0),
-    "P_Shadow_Glow": ((0.62, 0.25, 1.0), 0.3, 0.0, 4.0, (0.62, 0.25, 1.0), 0.0),
-    "P_Gold_Glow":   ((1.0, 0.8, 0.3), 0.3, 0.0, 4.0, (1.0, 0.8, 0.3), 0.0),
-    "P_Red_Glow":    ((1.0, 0.25, 0.2), 0.3, 0.0, 5.0, (1.0, 0.25, 0.2), 0.0),
+    "P_OPM_DarkGlass": ((0.012, 0.025, 0.07), 0.12, 0.4, 0.2, (0.03, 0.14, 0.42), 0.04),   # marinho escuro
+    "P_OPM_Neon":    (S(0, 225, 255), 0.3, 0.0, 3.5, S(0, 225, 255), 0.0),
+    "P_OPM_Swirl":   (S(0, 225, 255), 0.3, 0.0, 1.5, S(0, 225, 255), 0.0),
+    # brilhos dos portais na COR DO BRACO da espiral (P_<chave>_Glow); Gold/Red/Shadow sao os nomes antigos
+    "P_Naruto_Glow": (S(255, 115, 20), 0.3, 0.0, 4.0, S(255, 115, 20), 0.0),
+    "P_DB_Glow":     (S(255, 195, 30), 0.3, 0.0, 4.0, S(255, 195, 30), 0.0),
+    "P_Shadow_Glow": (S(150, 60, 255), 0.3, 0.0, 4.0, S(150, 60, 255), 0.0),
+    "P_DS_Glow":     (S(185, 12, 22), 0.3, 0.0, 5.0, S(185, 12, 22), 0.0),
+    "P_OP_Glow":     (S(25, 105, 255), 0.3, 0.0, 4.0, S(25, 105, 255), 0.0),
+    "P_OPM_Glow":    (S(0, 225, 255), 0.3, 0.0, 4.0, S(0, 225, 255), 0.0),
+    "P_Gold_Glow":   (S(255, 195, 30), 0.3, 0.0, 4.0, S(255, 195, 30), 0.0),
+    "P_Red_Glow":    (S(185, 12, 22), 0.3, 0.0, 5.0, S(185, 12, 22), 0.0),
     # blockout / colisao / marcadores
     "BLK_Grey":      ((0.5, 0.5, 0.5), 0.9, 0.0, 0, None, 0.0),
     "COL_Debug":     ((1.0, 0.1, 0.9), 0.9, 0.0, 0, None, 0.0),
@@ -142,6 +194,12 @@ MATS = {
 
 SWIRL_R = 7.5
 SWIRLS = {"P_Naruto_Swirl", "P_DB_Swirl", "P_Shadow_Swirl", "P_DS_Swirl", "P_OP_Swirl", "P_OPM_Swirl"}
+# apelidos: o material pedido vira outro (menos materiais no Roblox; mesmo resultado no Blender)
+MAT_ALIAS = {"Flower_Yellow": "Flower_Pink", "Flower_Blue": "Flower_White", "Leaf_Pine_Light_B": "Leaf_Pine_Light"}
+
+
+def alias(name):
+    return MAT_ALIAS.get(name, name)
 
 
 # ------------------------------------------------------------------ variantes tonais (chegam ao Roblox)
@@ -154,8 +212,8 @@ SWIRLS = {"P_Naruto_Swirl", "P_DB_Swirl", "P_Shadow_Swirl", "P_DS_Swirl", "P_OP_
 # Outros modulos podem registrar familias novas com add_variants() (antes de make_materials).
 FAMILIES = {}        # base -> (cap, [(nome, peso), ...]); o 1o item e a propria base
 VARIANT_OF = {}      # nome da variante -> base da familia
-VARIANT_T2 = 8       # >= 8 primitivas da familia no objeto -> ate 2 variantes
-VARIANT_T3 = 40      # >= 40 -> ate 3 variantes
+VARIANT_T2 = 24      # >= 24 primitivas da familia no objeto -> ate 2 variantes (orcamento de MeshParts)
+VARIANT_T3 = 120     # >= 120 -> ate 3 variantes
 
 
 def add_variants(base, variants, cap=3):
@@ -178,26 +236,27 @@ add_variants("Stone_Light", [("Stone_Light", 5), ("Stone_Light_B", 3, (172, 161,
                              ("Stone_Light_C", 2, (122, 115, 108))])
 add_variants("Stone_Dark", [("Stone_Dark", 5), ("Stone_Dark_B", 3, (80, 70, 64)),
                             ("Stone_Dark_C", 2, (122, 113, 104))])
-add_variants("Stone_Paving", [("Stone_Paving", 5), ("Stone_Paving_B", 3, (176, 164, 148)),
-                              ("Stone_Paving_C", 2, (132, 120, 108))])
+add_variants("Stone_Paving", [("Stone_Paving", 5), ("Stone_Paving_B", 3, (152, 136, 116)),
+                              ("Stone_Paving_C", 2, (114, 101, 88))], cap=2)
 add_variants("Wood_Dark", [("Wood_Dark", 5), ("Wood_Dark_B", 3, (118, 76, 45)), ("Wood_Dark_C", 2, (84, 62, 48))])
 add_variants("Wood_Plank", [("Wood_Plank", 5), ("Wood_Plank_B", 3, (154, 108, 66)),
-                            ("Wood_Plank_C", 2, (116, 89, 64))])
+                            ("Wood_Plank_C", 2, (116, 89, 64))], cap=2)
 add_variants("Wood_Light", [("Wood_Light", 5), ("Wood_Light_B", 3, (176, 128, 82)),
-                            ("Wood_Light_C", 2, (142, 106, 78))])
+                            ("Wood_Light_C", 2, (142, 106, 78))], cap=2)
 add_variants("Cliff_Rock", [("Cliff_Rock", 5), ("Cliff_Rock_B", 3, (160, 158, 164)),
                             ("Cliff_Rock_C", 2, (122, 121, 131))], cap=2)
 add_variants("Cliff_Rock_Dark", [("Cliff_Rock_Dark", 5), ("Cliff_Rock_Dark_B", 3, (92, 92, 103)),
                                  ("Cliff_Rock_Dark_C", 2, (122, 120, 126))], cap=2)
 add_variants("Roof", [("Roof", 5), ("Roof_B", 3, (95, 95, 103)), ("Roof_C", 2, (122, 114, 110))], cap=2)
-add_variants("Roof_Red", [("Roof_Red", 5), ("Roof_Red_B", 3, (158, 76, 64)), ("Roof_Red_C", 2, (188, 106, 84))],
+# telha envelhecida: B = tom mais quente, C = musgo
+add_variants("Roof_Red", [("Roof_Red", 5), ("Roof_Red_B", 3, (126, 68, 50)), ("Roof_Red_C", 2, (88, 86, 54))],
              cap=2)
 add_variants("Plaster", [("Plaster", 5), ("Plaster_B", 3, (211, 197, 177)), ("Plaster_C", 2, (189, 171, 147))],
              cap=2)
-add_variants("Grass", [("Grass", 6), ("Grass_B", 4, (86, 140, 56))], cap=2)
+add_variants("Grass", [("Grass", 6), ("Grass_B", 4, (84, 122, 48))], cap=2)     # B = oliva
 add_variants("Dirt", [("Dirt", 6), ("Dirt_B", 4, (118, 95, 72))], cap=2)
-add_variants("Leaf_Pine", [("Leaf_Pine", 6), ("Leaf_Pine_B", 4, (60, 122, 84))], cap=2)
-add_variants("Leaf_Pine_Light", [("Leaf_Pine_Light", 6), ("Leaf_Pine_Light_B", 4, (118, 168, 97))], cap=2)
+add_variants("Leaf_Pine", [("Leaf_Pine", 6), ("Leaf_Pine_B", 4, (46, 104, 64))], cap=2)
+# Leaf_Pine_Light sem a variante menta (Leaf_Pine_Light_B virou apelido de Leaf_Pine_Light)
 add_variants("Bark", [("Bark", 6), ("Bark_B", 4, (122, 97, 73))], cap=2)
 
 # metal por CONTEXTO do objeto: forja = ferro queimado; agua/mina/trilho = oxidado; resto = ferro comum
@@ -235,7 +294,8 @@ TEX_RULES = (("Stone_", "stone"), ("P_OPM_Concrete", "stone"), ("Wood_", "wood")
              ("Roof", "roof"), ("Cliff_Rock", "rock"), ("Grass", "grass"), ("Plaster", "plaster"),
              ("Dirt", "dirt"))
 # FM_MAT_PREVIEW: "rico" (padrao: variante + textura de detalhe = o que o Roblox recebe com RICO=true),
-#                 "liso" (so a cor solida da variante = MeshPart SmoothPlastic), "legado" (shader antigo tint+ruido)
+#                 "liso" (so a cor solida da variante = MeshPart SmoothPlastic), "legado" (shader antigo tint+ruido),
+#                 "roblox" (a COR QUE O ROBLOX RECEBE: rbx_color calibrada, sem ruido nem textura; Neon brilha)
 PREVIEW = os.environ.get("FM_MAT_PREVIEW", "rico").lower()
 
 
@@ -270,7 +330,29 @@ def _tex_image(key):
     return im
 
 
-def _build_material(name):
+def _swirl_nodes(nt, bs, name, emit):
+    """espiral do portal = a PNG do portal (fm_mat_textures.SWIRL_SPEC) em coordenadas GENERATED do disco
+    (bbox do objeto: X = u, Z = v). E exatamente a imagem que vai para o Roblox (FBX e SurfaceGui)."""
+    N = nt.nodes
+    tc = N.new("ShaderNodeTexCoord")
+    sp = N.new("ShaderNodeSeparateXYZ")
+    nt.links.new(tc.outputs["Generated"], sp.inputs[0])
+    cb = N.new("ShaderNodeCombineXYZ")
+    nt.links.new(sp.outputs["X"], cb.inputs["X"])
+    nt.links.new(sp.outputs["Z"], cb.inputs["Y"])
+    im = N.new("ShaderNodeTexImage")
+    im.image = _tex_image(name)
+    im.interpolation = "Linear"
+    im.extension = "EXTEND"
+    nt.links.new(cb.outputs[0], im.inputs["Vector"])
+    nt.links.new(im.outputs["Color"], bs.inputs["Base Color"])
+    nt.links.new(im.outputs["Color"], bs.inputs["Emission Color"])
+    bs.inputs["Emission Strength"].default_value = emit
+    bs.inputs["Roughness"].default_value = 0.6
+
+
+def _build_material(name, preview=None):
+    preview = (preview or PREVIEW).lower()
     col, rough, metal, emit, ecol, var = MATS[name]
     m = bpy.data.materials.get(name) or bpy.data.materials.new(name)
     m.use_nodes = True
@@ -283,8 +365,24 @@ def _build_material(name):
     nt.links.new(bs.outputs[0], out.inputs[0])
     base = (*col, 1.0)
     m.diffuse_color = base
-    tk = tex_key(name) if PREVIEW == "rico" else None
-    if PREVIEW == "legado" and var > 0:
+    if name in SWIRLS:
+        _swirl_nodes(nt, bs, name, emit)
+        return m
+    if preview == "roblox":
+        # cor solida calibrada do Roblox (fm_mat_rbx.rbx_color); Neon = emissao da propria cor
+        import fm_mat_rbx
+        c = S(*fm_mat_rbx.rbx_color(name))
+        bs.inputs["Base Color"].default_value = (*c, 1.0)
+        m.diffuse_color = (*c, 1.0)
+        rm = fm_mat_rbx.rbx_rule(name)[0]
+        if rm == "Neon":
+            bs.inputs["Emission Color"].default_value = (*c, 1.0)
+            bs.inputs["Emission Strength"].default_value = 1.6
+        elif rm == "Metal":
+            bs.inputs["Metallic"].default_value = max(metal, 0.6)
+        return m
+    tk = tex_key(name) if preview == "rico" else None
+    if preview == "legado" and var > 0:
         # tint por face (atributo 'tint') + ruido suave -> variacao pintada (NAO chega ao Roblox)
         at = nt.nodes.new("ShaderNodeAttribute")
         at.attribute_type = "GEOMETRY"
@@ -330,74 +428,52 @@ def _build_material(name):
     if emit > 0:
         bs.inputs["Emission Color"].default_value = (*(ecol or col), 1)
         bs.inputs["Emission Strength"].default_value = emit
-    if name in SWIRLS:
-        # espiral de energia: bracos em espiral + nucleo + aro brilhante (coords do OBJETO, raio SWIRL_R)
-        N = nt.nodes
-        tc = N.new("ShaderNodeTexCoord")
-        mp = N.new("ShaderNodeMapping")
-        mp.inputs["Scale"].default_value = (1 / SWIRL_R, 1 / SWIRL_R, 1 / SWIRL_R)
-        nt.links.new(tc.outputs["Object"], mp.inputs[0])
-        sp = N.new("ShaderNodeSeparateXYZ")
-        nt.links.new(mp.outputs[0], sp.inputs[0])
-        cb = N.new("ShaderNodeCombineXYZ")
-        nt.links.new(sp.outputs["X"], cb.inputs["X"])
-        nt.links.new(sp.outputs["Z"], cb.inputs["Y"])
-        ln = N.new("ShaderNodeVectorMath"); ln.operation = "LENGTH"
-        nt.links.new(cb.outputs[0], ln.inputs[0])
-        r = ln.outputs["Value"]
-        at2 = N.new("ShaderNodeMath"); at2.operation = "ARCTAN2"
-        nt.links.new(sp.outputs["Z"], at2.inputs[0])
-        nt.links.new(sp.outputs["X"], at2.inputs[1])
-
-        def M(op, a, b=None, c=None):
-            n = N.new("ShaderNodeMath"); n.operation = op
-            for i, v in enumerate((a, b, c)):
-                if v is None:
-                    continue
-                if isinstance(v, (int, float)):
-                    n.inputs[i].default_value = v
-                else:
-                    nt.links.new(v, n.inputs[i])
-            return n.outputs[0]
-        tw = M("MULTIPLY", r, 3.2)
-        arm = M("MULTIPLY_ADD", at2.outputs[0], 3 / (2 * math.pi), tw)
-        f = M("FRACT", arm)
-        f2 = M("POWER", f, 2.2)
-        core = M("MULTIPLY_ADD", r, -0.55, 1.0)
-        rim_mr = N.new("ShaderNodeMapRange"); rim_mr.interpolation_type = "SMOOTHSTEP"
-        rim_mr.inputs["From Min"].default_value = 0.78
-        rim_mr.inputs["From Max"].default_value = 1.0
-        nt.links.new(r, rim_mr.inputs["Value"])
-        ctr = N.new("ShaderNodeMapRange"); ctr.interpolation_type = "SMOOTHSTEP"
-        ctr.inputs["From Min"].default_value = 0.35
-        ctr.inputs["From Max"].default_value = 0.0
-        nt.links.new(r, ctr.inputs["Value"])
-        body = M("MULTIPLY", M("MULTIPLY_ADD", f2, 1.1, 0.25), core)
-        tot = M("ADD", M("ADD", body, M("MULTIPLY", rim_mr.outputs[0], 1.4)), M("MULTIPLY", ctr.outputs[0], 1.2))
-        nt.links.new(M("MULTIPLY", tot, emit), bs.inputs["Emission Strength"])
-        mix = N.new("ShaderNodeMix"); mix.data_type = "RGBA"
-        mix.inputs["A"].default_value = (col[0] * 0.25, col[1] * 0.25, col[2] * 0.25, 1)
-        mix.inputs["B"].default_value = (min(1, col[0] * 1.2 + 0.2), min(1, col[1] * 1.2 + 0.2), min(1, col[2] * 1.2 + 0.2), 1)
-        nt.links.new(f2, mix.inputs["Factor"])
-        nt.links.new(mix.outputs["Result"], bs.inputs["Base Color"])
-        nt.links.new(mix.outputs["Result"], bs.inputs["Emission Color"])
-    if name in ("Water", "Water_Fall", "Foam"):
-        bs.inputs["Coat Weight"].default_value = 0.3 if name == "Water" else 0.0
+    if name in ("Water", "Water_Deep", "Water_Fall", "Foam"):
+        bs.inputs["Coat Weight"].default_value = 0.3 if name in ("Water", "Water_Deep") else 0.0
     if name == "Smoke":
         bs.inputs["Alpha"].default_value = 0.9
     return m
 
 
 def make_materials():
-    if PREVIEW == "rico":
-        import fm_mat_textures
-        fm_mat_textures.ensure()
+    import fm_mat_textures
+    fm_mat_textures.ensure()      # detalhe (rico) + espirais (sempre: o disco do portal e a propria textura)
     for name in MATS:
+        if name in MAT_ALIAS:
+            continue
         _build_material(name)
     return
 
 
+def apply_preview(mode=None):
+    """refaz, num .blend ja montado, todos os materiais de MATS no modo pedido (rico/liso/legado/roblox)"""
+    global PREVIEW
+    PREVIEW = (mode or os.environ.get("FM_MAT_PREVIEW", "rico")).lower()
+    n = 0
+    for m in list(bpy.data.materials):
+        if m.name in MATS:
+            _build_material(m.name, PREVIEW)
+            n += 1
+        elif PREVIEW == "roblox" and m.users and not m.name.startswith(("RBX_", "Dots Stroke")):
+            # material fora de MATS (sem registro): cor do Roblox a partir da cor de viewport
+            import fm_mat_rbx
+            c = S(*fm_mat_rbx.rbx_color(m.name, m))
+            m.use_nodes = True
+            nt = m.node_tree
+            nt.nodes.clear()
+            out = nt.nodes.new("ShaderNodeOutputMaterial")
+            bs = nt.nodes.new("ShaderNodeBsdfPrincipled")
+            bs.inputs["Base Color"].default_value = (*c, 1.0)
+            if fm_mat_rbx.rbx_rule(m.name)[0] == "Neon":
+                bs.inputs["Emission Color"].default_value = (*c, 1.0)
+                bs.inputs["Emission Strength"].default_value = 1.6
+            nt.links.new(bs.outputs[0], out.inputs[0])
+            n += 1
+    return n
+
+
 def mat(name):
+    name = alias(name)
     m = bpy.data.materials.get(name)
     if m is None and name in MATS:
         m = _build_material(name)   # material registrado depois do make_materials
@@ -458,10 +534,32 @@ def point_in_poly(x, y, poly):
 
 
 # ------------------------------------------------------------------ construtor de malha
-class MB:
-    """Acumula primitivas num unico bmesh com varios materiais; finish() cria o objeto."""
+DETAILS = ("hero", "near", "far")
+_FLOOR_LEVELS = None
 
-    def __init__(self, name, collection, rng=None):
+
+def floor_levels():
+    """niveis de piso da planta (usados pelo detail='far' quando floor=None)"""
+    global _FLOOR_LEVELS
+    if _FLOOR_LEVELS is None:
+        try:
+            import fm_layout as _L
+            _FLOOR_LEVELS = tuple(sorted({float(_L.SPAWN_Z), float(_L.FLOOR), float(_L.FL), float(_L.MID),
+                                          float(_L.TERR)}))
+        except Exception:
+            _FLOOR_LEVELS = (0.0, 4.0, 5.0, 14.0, 30.0)
+    return _FLOOR_LEVELS
+
+
+class MB:
+    """Acumula primitivas num unico bmesh com varios materiais; finish() cria o objeto.
+    detail: "hero" (chanfro completo), "near" (chanfro so no topo), "far" (sem chanfro, sem fundo apoiado).
+    floor: piso para o "far" (numero, funcao (x, y) -> z, ou None = niveis da planta)."""
+
+    def __init__(self, name, collection, rng=None, detail="hero", floor=None):
+        self.detail = detail if detail in DETAILS else "hero"
+        self.floor = floor
+        self.n_bottoms = 0      # fundos omitidos (detail="far")
         self.name = name
         self.coll = collection if not isinstance(collection, str) else coll(collection)
         self.bm = bmesh.new()
@@ -569,6 +667,36 @@ class MB:
                 co = lp.vert.co
                 lp[uvl].uv = (co.dot(u) * inv + ou, co.dot(v) * inv + ov)
 
+    def _resting(self, zmin, verts):
+        """primitiva apoiada no piso? (z0 <= piso + 0,05)"""
+        fl = self.floor
+        if fl is None:
+            lv = floor_levels()
+            return zmin <= lv[0] + 0.05 or any(l - 1.0 <= zmin <= l + 0.05 for l in lv)
+        if callable(fl):
+            cx = sum(v.co.x for v in verts) / len(verts)
+            cy = sum(v.co.y for v in verts) / len(verts)
+            return zmin <= float(fl(cx, cy)) + 0.05
+        return zmin <= float(fl) + 0.05
+
+    def _drop_bottom(self, faces, verts):
+        """detail='far': apaga a face de baixo (normal -Z no z minimo) de uma primitiva FECHADA e apoiada"""
+        if not faces or not verts:
+            return faces
+        zmin = min(v.co.z for v in verts)
+        if not self._resting(zmin, verts):
+            return faces
+        for f in faces:
+            for e in f.edges:
+                if len(e.link_faces) != 2:
+                    return faces        # primitiva aberta (quad, fita...): nao mexe
+        bottom = [f for f in faces if f.normal.z < -0.999 and all(abs(v.co.z - zmin) < 1e-3 for v in f.verts)]
+        if not bottom:
+            return faces
+        bmesh.ops.delete(self.bm, geom=bottom, context="FACES_ONLY")
+        self.n_bottoms += len(bottom)
+        return {f for f in faces if f.is_valid}
+
     def _post(self, verts, m, tint, bevel, seg, angle=0.5):
         verts = [v for v in verts if v.is_valid]
         faces = {f for v in verts for f in v.link_faces}
@@ -579,10 +707,16 @@ class MB:
             f[self.tint] = t
             f.smooth = False
             f.normal_update()
+        if self.detail == "far":
+            bevel = 0
         if bevel and bevel > 0:
             # (as normais da primitiva ja estao atualizadas: nao recalcula o bmesh inteiro a cada peca)
             edges = {e for v in verts for e in v.link_edges}
             edges = [e for e in edges if len(e.link_faces) == 2 and e.calc_face_angle(0) > angle]
+            if self.detail == "near" and edges:
+                # so as arestas do topo da primitiva (as duas pontas em z >= topo - 0,01)
+                top = max(v.co.z for v in verts)
+                edges = [e for e in edges if e.verts[0].co.z >= top - 0.01 and e.verts[1].co.z >= top - 0.01]
             if edges:
                 res = bmesh.ops.bevel(self.bm, geom=edges, offset=bevel, offset_type="OFFSET",
                                       segments=seg, profile=0.5, affect="EDGES", clamp_overlap=True)
@@ -595,6 +729,8 @@ class MB:
                 faces = {f for f in faces if f.is_valid} | new
                 for f in faces:
                     f.normal_update()
+        if self.detail == "far":
+            faces = self._drop_bottom(faces, verts)
         self._uv(faces, m)
         return faces
 
@@ -748,8 +884,10 @@ class MB:
         self._post(vs, m, tint, 0, 1)
 
     def gable_roof(self, cx, cy, w, d, z_eave, rise, m="Roof", thick=0.8, over=1.5, axis="Y",
-                   tint=None, shingles=True, ridge_m="Wood_Dark"):
-        """telhado de duas aguas; axis = direcao da cumeeira"""
+                   tint=None, shingles=True, ridge_m="Wood_Dark", shingle_bevel=None):
+        """telhado de duas aguas; axis = direcao da cumeeira.
+        shingle_bevel: chanfro de cada fiada de telhas (None = 0,12 em detail 'hero', 0 em 'near'/'far')"""
+        sb = (0.12 if self.detail == "hero" else 0.0) if shingle_bevel is None else shingle_bevel
         # meia-agua como caixa inclinada
         if axis == "Y":
             half = w / 2 + over
@@ -770,7 +908,7 @@ class MB:
                         zb = z_eave + rise - rise * (half / (w / 2)) * (1 - min(f1, 1.0))
                         mid = Vector(((xa + xb) / 2, cy, (za + zb) / 2 + thick / 2))
                         ln = math.hypot(xa - xb, za - zb)
-                        self.box((ln, L, thick * 0.7), mid, (0, s * ang, 0), m, 0.12, 1,
+                        self.box((ln, L, thick * 0.7), mid, (0, s * ang, 0), m, sb, 1,
                                  tint=self.rng.uniform(-1, 1))
                 else:
                     self.box((slope, L, thick), (cxx, cy, czz), (0, s * ang, 0), m, 0.15)
@@ -792,7 +930,7 @@ class MB:
                         zb = z_eave + rise - rise * (half / (d / 2)) * (1 - min(f1, 1.0))
                         mid = Vector((cx, (ya + yb) / 2, (za + zb) / 2 + thick / 2))
                         ln = math.hypot(ya - yb, za - zb)
-                        self.box((L, ln, thick * 0.7), mid, (-s * ang, 0, 0), m, 0.12, 1,
+                        self.box((L, ln, thick * 0.7), mid, (-s * ang, 0, 0), m, sb, 1,
                                  tint=self.rng.uniform(-1, 1))
                 else:
                     cyy = cy + s * half / 2
@@ -833,9 +971,9 @@ class MB:
                 fam = key[1]
                 if fam not in vmap:
                     vmap[fam] = self._variant_names(fam)
-                final.append(vmap[fam][key[2]])
+                final.append(alias(vmap[fam][key[2]]))
             else:
-                final.append(key)
+                final.append(alias(key))
         uniq = []
         remap = []
         for n in final:
