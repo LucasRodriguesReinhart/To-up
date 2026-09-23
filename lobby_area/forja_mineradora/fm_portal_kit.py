@@ -28,10 +28,23 @@ _M("P_DB_Ball",     ((1.0, 0.38, 0.02), 0.25, 0.0, 0.5, (1.0, 0.45, 0.05), 0.0))
 _M("P_Shadow_Trim",  ((0.24, 0.20, 0.32), 0.7, 0.0, 0, None, 0.08))      # friso violeta-acinzentado
 _M("P_Shadow_Cloth", ((0.10, 0.02, 0.20), 0.9, 0.0, 0, None, 0.05))
 _M("P_OPM_Yellow",   ((0.95, 0.62, 0.02), 0.6, 0.0, 0, None, 0.04))
-_M("P_OPM_DarkGlass", ((0.025, 0.05, 0.11), 0.15, 0.4, 0.25, (0.05, 0.18, 0.5), 0.04))   # pele de vidro escura
+_M("P_OPM_DarkGlass", ((0.02, 0.035, 0.08), 0.2, 0.3, 0.06, (0.05, 0.18, 0.5), 0.04))   # pele de vidro escura
 _M("P_OPM_Red",      ((0.75, 0.04, 0.03), 0.5, 0.0, 0, None, 0.04))
 _M("P_OP_Sail",      ((0.86, 0.80, 0.66), 0.9, 0.0, 0, None, 0.04))
 _M("P_OP_Red",       ((0.62, 0.07, 0.05), 0.8, 0.0, 0, None, 0.06))
+# aro de energia de cada portal (Neon no Roblox: nome *_Glow), mais claro que o miolo da espiral
+_M("P_Naruto_Glow",  ((1.0, 0.62, 0.16), 0.4, 0.0, 6.0, (1.0, 0.60, 0.14), 0.0))
+_M("P_DB_Glow",      ((1.0, 0.86, 0.42), 0.4, 0.0, 6.0, (1.0, 0.84, 0.38), 0.0))
+_M("P_DS_Glow",      ((1.0, 0.20, 0.22), 0.4, 0.0, 6.0, (1.0, 0.18, 0.20), 0.0))
+_M("P_OP_Glow",      ((0.42, 0.74, 1.0), 0.4, 0.0, 6.0, (0.38, 0.70, 1.0), 0.0))
+_M("P_OPM_Glow",     ((0.50, 0.90, 1.0), 0.4, 0.0, 6.5, (0.48, 0.88, 1.0), 0.0))
+_M("P_DS_Tile",      ((0.030, 0.030, 0.036), 0.45, 0.1, 0, None, 0.06))  # telha preta (karahafu)
+_M("P_Konoha_Door",  ((0.09, 0.22, 0.12), 0.8, 0.0, 0, None, 0.06))      # folhas pintadas do Grande Portao
+GLOW = {"Naruto": "P_Naruto_Glow", "DragonBall": "P_DB_Glow", "ShadowGarden": "P_Shadow_Glow",
+        "DemonSlayer": "P_DS_Glow", "OnePiece": "P_OP_Glow", "OnePunchMan": "P_OPM_Glow"}
+# cor da luz de cada portal (pad e espiral)
+LIGHT_COL = {"Naruto": (1.0, 0.55, 0.18), "DragonBall": (1.0, 0.78, 0.3), "ShadowGarden": (0.62, 0.25, 1.0),
+             "DemonSlayer": (1.0, 0.22, 0.22), "OnePiece": (0.25, 0.55, 1.0), "OnePunchMan": (0.35, 0.8, 1.0)}
 
 
 # ------------------------------------------------------------------ utilidades de geometria
@@ -206,14 +219,223 @@ def shide(mb, p, s=1.0, m="Emblem_Cream", yaw=0.0):
     plate(mb, pts, p, (math.cos(yaw), math.sin(yaw), 0), (0, 0, 1), 0.08, m)
 
 
-def raceme(mb, top, length, m="P_DS_Wisteria", r0=0.5, rng=None):
-    """cacho pendente (glicinia): bolinhas decrescendo ate a ponta"""
-    top = Vector(top)
-    n = max(3, int(length / 0.6))
+class LeanMB(fm_lib.MB):
+    """MB com orcamento de malhas mais apertado: no maximo `vcap` variantes tonais por familia (no Roblox cada
+    variante vira uma MeshPart). As variantes continuam sorteadas por primitiva; so o numero de tons cai."""
+
+    def __init__(self, name, collection, rng=None, vcap=2):
+        super().__init__(name, collection, rng)
+        self.vcap = vcap
+
+    def _variant_names(self, m):
+        old = fm_lib.VARIANT_T2, fm_lib.VARIANT_T3
+        try:
+            if self.vcap <= 2:
+                fm_lib.VARIANT_T3 = 10 ** 9
+            if self.vcap <= 1:
+                fm_lib.VARIANT_T2 = 10 ** 9
+            return super()._variant_names(m)
+        finally:
+            fm_lib.VARIANT_T2, fm_lib.VARIANT_T3 = old
+
+
+def octa(mb, c, r, h, m, rot=0.0, tint=None, n=4):
+    """bipiramide (floreta barata: 2n tris; n=4 octaedro) com meia-altura h"""
+    c = Vector(c)
+    bm = mb.bm
+    eq = [bm.verts.new(c + V(math.cos(rot + math.tau * i / n) * r, math.sin(rot + math.tau * i / n) * r, 0))
+          for i in range(n)]
+    top = bm.verts.new(c + V(0, 0, h))
+    bot = bm.verts.new(c - V(0, 0, h))
     for i in range(n):
-        f = i / (n - 1)
-        j = Vector(((rng.uniform(-0.12, 0.12) if rng else 0), (rng.uniform(-0.12, 0.12) if rng else 0), 0))
-        mb.ico(r0 * (1 - 0.65 * f), top - Vector((0, 0, length * f)) + j, m, 1, (1, 1, 1.25))
+        j = (i + 1) % n
+        bm.faces.new((eq[i], eq[j], top))
+        bm.faces.new((eq[j], eq[i], bot))
+    mb._post(eq + [top, bot], m, tint, 0, 1)
+
+
+def cluster(mb, top, length, m, r0, rng=None, n=4, step=0.62, lump=0.72, sway=0.12, taper=0.72, head=1.0, tip=0.12,
+            neck=0.5):
+    """peca pendente CONTINUA (cacho de glicinia, trepadeira): tubo afunilado com gomos (aneis largo/estreito
+    alternados, torcidos), preso em cima pelo pescoco. Uma ilha so por cacho: nada solto no ar."""
+    top = Vector(top)
+    k = max(3, int(round(length / step)))
+    ph = rng.uniform(0, math.tau) if rng else 0.0
+    pts, profs = [], []
+    for i in range(k + 1):
+        f = i / k
+        off = V(math.sin(ph + f * 3.1) * sway * f, math.cos(ph + f * 2.3) * sway * f, 0)
+        pts.append(top - V(0, 0, length * f) + off)
+        if i == 0:
+            r = r0 * neck
+        elif i == k:
+            r = max(0.05, r0 * tip)
+        else:
+            r = r0 * head * (1.0 - taper * f ** 1.3) * (1.0 if i % 2 else lump)
+        profs.append(circ(r, n, a0=i * 0.7))
+    loft(mb, pts, profs, m, True, up=(1, 0, 0))
+
+
+def raceme(mb, top, length, m="P_DS_Wisteria", r0=0.5, rng=None):
+    """cacho pendente (glicinia) numa peca so: cheio em cima (gomos largos sobrepostos), afinando ate a ponta
+    arredondada; proporcao ~1:5 (nao le como pingente de gelo)"""
+    cluster(mb, top, length, m, r0, rng, n=4, step=0.55, lump=0.64, sway=0.08, taper=0.7, head=1.5, tip=0.42,
+            neck=0.8)
+
+
+def cup(mb, c, R, y0, y1, m, n=32):
+    """tampa traseira do portal: parede cilindrica curta + fundo, aberta para a frente (fica atras do prato
+    da espiral). O verso do portal passa a ler como costas escuras, nao como a mesma espiral."""
+    c = Vector(c)
+    bm = mb.bm
+    f = [bm.verts.new(c + V(math.cos(math.tau * i / n) * R, y0, math.sin(math.tau * i / n) * R)) for i in range(n)]
+    b = [bm.verts.new(c + V(math.cos(math.tau * i / n) * R, y1, math.sin(math.tau * i / n) * R)) for i in range(n)]
+    for i in range(n):
+        j = (i + 1) % n
+        bm.faces.new((f[i], b[i], b[j], f[j]))
+    bm.faces.new(list(reversed(b)))
+    mb._post(f + b, m, None, 0, 1)
+
+
+def round_hole_panel(mb, cx, cy, z0, z1, hw, cz, r, thick, m, n=14, tint=None):
+    """painel vertical (plano XZ, espessura em Y) com abertura circular: duas metades concavas.
+    Coordenadas: x relativo a cx (-hw..hw), z absoluto (z0..z1), furo de raio r centrado em (0, cz)."""
+    for s in (-1, 1):
+        # s<0: o arco sobe pelo lado esquerdo do furo; s>0: desce pelo lado direito (poligonos anti-horarios)
+        if s < 0:
+            arc = [(math.cos(D(270 - 180 * i / n)) * r, cz + math.sin(D(270 - 180 * i / n)) * r) for i in range(n + 1)]
+            pts = [(-hw, z0), (0.0, z0)] + arc + [(0.0, z1), (-hw, z1)]
+        else:
+            arc = [(math.cos(D(-90 + 180 * i / n)) * r, cz + math.sin(D(-90 + 180 * i / n)) * r) for i in range(n + 1)]
+            pts = [(hw, z0), (hw, z1), (0.0, z1)] + list(reversed(arc)) + [(0.0, z0)]
+        plate(mb, pts, (cx, cy, 0.0), (1, 0, 0), (0, 0, 1), thick, m, tint=tint)
+
+
+def ki_flame(mb, base, up, side, h, w, th, m, bend=0.25, n=6):
+    """chama/aura de ki em volume: loft afunilado (losango) que sobe curvando; espessura th na base"""
+    base, up, side = Vector(base), Vector(up).normalized(), Vector(side).normalized()
+    pts, profs = [], []
+    for i in range(n + 1):
+        t = i / n
+        p = base + up * (h * t) + side * (bend * h * t * t)
+        pts.append(p)
+        ww = w * (1.0 - t) ** 0.8 * (0.75 + 0.5 * math.sin(math.pi * min(1.0, t * 1.4)))
+        tt = th * (1.0 - t) ** 0.9 + 0.05
+        ww = max(ww, 0.06)
+        profs.append([(0.0, ww / 2), (tt / 2, 0.0), (0.0, -ww / 2), (-tt / 2, 0.0)])
+    loft(mb, pts, profs, m, True, up=tuple(side.cross(up)))
+
+
+def palm_small(mb, loc, h, rng, frond=4.2, lean=(0.0, 0.0), n=6, a0=None):
+    """palmeira compacta: tronco em aneis inclinado + folhas arqueadas de comprimento controlado (cabe no lote)"""
+    x, y, z = loc
+    top = V(x + lean[0], y + lean[1], z + h)
+    pts = [V(x, y, z - 0.3)] + [V(x + lean[0] * t * t, y + lean[1] * t * t, z + h * t) for t in (0.33, 0.66, 1.0)]
+    taper_tube(mb, pts, [0.55, 0.48, 0.42, 0.36], "Bark", 6)
+    for k in range(3):
+        p = pts[1] + (pts[3] - pts[1]) * (k / 3)
+        mb.cyl(0.5, 0.25, p, (0, 0, 0), "Bark", 6, bevel=0.0)
+    a0 = rng.uniform(0, math.tau) if a0 is None else a0
+    for k in range(n):
+        b = a0 + k * math.tau / n + rng.uniform(-0.2, 0.2)
+        d = V(math.cos(b), math.sin(b), 0)
+        leaf = [top, top + d * frond * 0.5 + V(0, 0, 0.8), top + d * frond - V(0, 0, 0.9)]
+        mb.sweep(leaf, [(-0.95, 0), (0, 0.22), (0.95, 0), (0, -0.05)], "Leaf_Palm", True)
+    mb.ico(0.6, top, "Bark", 1)
+
+
+def barrel_small(mb, loc, r=1.0, h=2.4, m="Wood_Plank", band="Metal_Dark", n=8):
+    """barril barato (2 troncos de cone + 2 cintas): ~100 tris"""
+    x, y, z = loc
+    mb.cyl(r, h * 0.5, (x, y, z + h * 0.25), (0, 0, 0), m, n, r2=r * 1.12, bevel=0.0)
+    mb.cyl(r * 1.12, h * 0.5, (x, y, z + h * 0.75), (0, 0, 0), m, n, r2=r, bevel=0.0)
+    for zz in (0.22, h - 0.22):
+        mb.cyl(r * 1.05, 0.2, (x, y, z + zz), (0, 0, 0), band, n, bevel=0.0)
+
+
+def sakura_small(mb, loc, h, rng, bark="Wood_Dark", leaf="Leaf_Sakura", pads=4, reach=0.28):
+    """cerejeira compacta: tronco torto + bracos + almofadas rosas lobadas (fm_veg_kit), sem fundo escuro
+    (2 materiais so). reach = alcance dos bracos em fracao de h (controla a largura da copa)."""
+    import fm_veg_kit as VK
+    x, y, z = loc
+    w = rng.uniform(0, math.tau)
+    bend = h * 0.12
+    p0 = V(x, y, z - 0.4)
+    p1 = V(x + math.cos(w) * bend * 0.3, y + math.sin(w) * bend * 0.3, z + h * 0.35)
+    p2 = V(x + math.cos(w) * bend, y + math.sin(w) * bend, z + h * 0.62)
+    VK.ttube(mb, [p0, p1, p2], [h * 0.07, h * 0.05, h * 0.035], bark, n=5, cap1=False)
+    tops = [(p2 + V(0, 0, h * 0.08), h * 0.28)]
+    for i in range(pads - 1):
+        a = w + math.pi + (i - (pads - 2) / 2) * 1.9 + rng.uniform(-0.3, 0.3)
+        base = p1.lerp(p2, rng.uniform(0.4, 0.9))
+        end = base + V(math.cos(a) * h * reach, math.sin(a) * h * reach, h * rng.uniform(0.08, 0.16))
+        VK.ttube(mb, [base, end], [h * 0.03, h * 0.018], bark, n=4, cap1=False)
+        tops.append((end, h * rng.uniform(0.18, 0.22)))
+    for (pc, pr) in tops:
+        VK.tier(mb, (pc.x, pc.y, pc.z - pr * 0.25), pr, pr * 0.9, 6, leaf, rng, lob=0.22, droop=0.3, under=None,
+                bulge=(0.42, 1.5), jit=0.16)
+
+
+def vine(mb, top, length, rng, m="Leaf_Pine_Light", r=0.55, sway=0.5):
+    """trepadeira pendente numa peca so (cai da borda de um patamar): tubo de folhagem com gomos, balancando"""
+    cluster(mb, top, length, m, r, rng, n=5, step=0.9, lump=0.62, sway=sway, taper=0.55)
+
+
+def _box_links(hx, hy, off, link):
+    """pontas dos elos de UMA volta em torno de um pilar retangular (meias-larguras hx, hy), a `off` das faces:
+    elos retos ao longo de cada face e um elo de quina com a ponta na diagonal (a `off` da aresta do pilar, sem
+    cortar a quina). Comeca no meio da face da frente (-Y), sentido anti-horario."""
+    corners = [(hx, -hy, -45.0), (hx, hy, 45.0), (-hx, hy, 135.0), (-hx, -hy, 225.0)]
+    pts = [(0.0, -(hy + off))]
+    faces = [((0.0, -(hy + off)), (hx, -(hy + off))), ((hx + off, -hy), (hx + off, hy)),
+             ((hx, hy + off), (-hx, hy + off)), ((-(hx + off), hy), (-(hx + off), -hy)),
+             ((-hx, -(hy + off)), (0.0, -(hy + off)))]
+    for i, (a, b) in enumerate(faces):
+        L_ = math.hypot(b[0] - a[0], b[1] - a[1])
+        k = max(1, int(math.ceil(L_ / link)))
+        if i > 0:
+            pts.append(a)
+        for j in range(1, k + 1):
+            pts.append((a[0] + (b[0] - a[0]) * j / k, a[1] + (b[1] - a[1]) * j / k))
+        if i < 4:
+            cx, cy, ang = corners[i]
+            pts.append((cx + math.cos(D(ang)) * off, cy + math.sin(D(ang)) * off))
+    return pts
+
+
+def helix_chain(mb, c, hx, hy, z0, z1, pitch, m="Metal_Dark", link=0.8, t=0.2, w=0.5, clamp_m=None, off=0.25):
+    """corrente helicoidal ABRACANDO um pilar retangular (meias-larguras hx, hy): o eixo da corrente segue a face
+    do fuste a `off` (meia-largura + 0.25), inclusive nas quinas, subindo `pitch` por volta; grampo de ferro (caixa
+    0.4, cravado no fuste) a cada volta, na face da frente"""
+    c = Vector(c)
+    ring = _box_links(hx, hy, off, link)
+    seg = [math.hypot(b[0] - a[0], b[1] - a[1]) for a, b in zip(ring, ring[1:])]
+    per = sum(seg)
+    turns = (z1 - z0) / pitch
+    pts = []
+    k = 0
+    while True:
+        acc = 0.0
+        done = False
+        for a, L_ in zip(ring[:-1], seg):
+            s = k + acc / per
+            if s > turns:
+                done = True
+                break
+            pts.append(V(c.x + a[0], c.y + a[1], z0 + pitch * s))
+            acc += L_
+        if done:
+            break
+        k += 1
+    for i, (p0, p1) in enumerate(zip(pts, pts[1:])):
+        e = (p1 - p0).normalized() * 0.08
+        mb.beam(p0 - e, p1 + e, t if i % 2 else w, w if i % 2 else t, m, 0.0)
+    for k in range(int(turns) + 1):
+        zz = z0 + pitch * k
+        if zz > z1:
+            continue
+        # grampo: da face do fuste ate o elo (cravado 0.05 no pilar)
+        mb.box((0.4, off + 0.25, 0.4), (c.x, c.y - hy - (off + 0.25) / 2 + 0.05, zz), (0, 0, 0), clamp_m or m, 0.0)
 
 
 def mossy_rock(mb, loc, size, rng, m="Cliff_Rock", moss="P_Moss", cap=0.55, sub=1):
@@ -258,7 +480,7 @@ def deck(mb, x0, x1, y0, y1, z, rng, m="Wood_Plank", pw=1.35, gap=0.14, h=0.35, 
         a = x0 + rng.uniform(-jog, jog)
         b = x1 + rng.uniform(-jog, jog)
         mb.box((b - a, w - gap, h), ((a + b) / 2, y + w / 2, z - h / 2 + rng.uniform(-0.03, 0.03)),
-               (0, 0, rng.uniform(-0.008, 0.008)), m, 0.05, tint=rng.uniform(-1, 1))
+               (0, 0, rng.uniform(-0.008, 0.008)), m, 0.0, tint=rng.uniform(-1, 1))
         y += w
 
 
@@ -287,12 +509,12 @@ def toro(mb, loc, s=1.0, m="Stone_Light", m2="Stone_Dark", glow="Lantern_Glow", 
         light(name, "POINT", c + V(0, 0, 4.1 * s), 140 * s, (1.0, 0.62, 0.3), 0.3)
 
 
-def chochin(mb, loc, r=1.0, h=1.9, paper="Lantern_Glow", cap="Wood_Dark", band=None, hang=1.2, n=8):
+def chochin(mb, loc, r=1.0, h=1.9, paper="Lantern_Glow", cap="Wood_Dark", band=None, hang=1.2, n=8, rod_m=None):
     """lanterna de papel pendurada (loc = ponto de fixacao em cima)"""
     x, y, z = loc
     top = Vector((x, y, z))
     if hang > 0:
-        mb.rod(top, top - V(0, 0, hang), 0.07, "Metal_Dark", 4)
+        mb.rod(top, top - V(0, 0, hang), 0.07, rod_m or "Metal_Dark", 4)
     c = top - V(0, 0, hang + 0.25 + h / 2)
     mb.cyl(r * 0.78, h * 0.5, c + V(0, 0, h * 0.25), (0, 0, 0), paper, n, r2=r * 0.62, bevel=0.0)
     mb.cyl(r * 0.62, h * 0.5, c - V(0, 0, h * 0.25), (0, 0, 0), paper, n, r2=r * 0.78, bevel=0.0)
