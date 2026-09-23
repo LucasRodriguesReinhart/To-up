@@ -33,8 +33,20 @@ def setup_render(res=(1600, 900), samples=32):
         sc.view_settings.look = "AgX - Punchy"
     except Exception:
         pass
-    sc.view_settings.exposure = 0.15
+    sc.view_settings.exposure = 0.45
     sc.render.film_transparent = False
+
+
+# ------------------------------------------------------------------ luz de fim de tarde (contraste quente x frio)
+# Vetor que APONTA PARA O SOL (Blender, x leste / y norte / z cima): oeste-sudoeste, elevacao ~30 graus.
+# Raspa a fachada da forja (face -Y) pela esquerda de quem chega do spawn. O materials_export usa o MESMO
+# vetor no Lighting do Roblox (Roblox = (x, z, -y) do Blender).
+SUN_DIR = Vector((-0.77, -0.41, 0.50)).normalized()
+SUN_COLOR = (1.0, 0.78, 0.52)
+SUN_POWER = 5.5
+AMB_COLOR = (0.42, 0.52, 0.78)       # ceu que ilumina as sombras: frio
+AMB_POWER = 0.55
+FOG = dict(start=90.0, depth=480.0, factor=0.7, color=(0.66, 0.78, 0.95), curve=1.5)   # nevoa LINEAR de profundidade
 
 
 def setup_world():
@@ -50,21 +62,22 @@ def setup_world():
     sep = nt.nodes.new("ShaderNodeSeparateXYZ")
     nt.links.new(tc.outputs["Generated"], sep.inputs[0])
     ramp = nt.nodes.new("ShaderNodeValToRGB")
-    # Generated do mundo = direcao (-1..1): 0 = horizonte, 1 = zenite. Azul saturado e nao muito claro (AgX lava claros)
+    # Generated do mundo = direcao (-1..1): 0 = horizonte, 1 = zenite. Horizonte claro e frio (casa com a cor da
+    # nevoa: as montanhas distantes somem no ceu, nao num degrau), zenite azul saturado (concept)
     cr = ramp.color_ramp
     cr.elements[0].position = 0.0
-    cr.elements[0].color = (0.30, 0.55, 0.95, 1)
-    cr.elements[1].position = 0.7
-    cr.elements[1].color = (0.03, 0.16, 0.75, 1)
-    e = cr.elements.new(0.18)
-    e.color = (0.16, 0.40, 0.92, 1)
+    cr.elements[0].color = (0.50, 0.68, 0.95, 1)
+    cr.elements[1].position = 0.62
+    cr.elements[1].color = (0.03, 0.15, 0.78, 1)
+    e = cr.elements.new(0.16)
+    e.color = (0.20, 0.44, 0.93, 1)
     nt.links.new(sep.outputs["Z"], ramp.inputs[0])
     nt.links.new(ramp.outputs[0], bg.inputs["Color"])
-    bg.inputs["Strength"].default_value = 1.25
-    # luz ambiente separada do ceu visto pela camera: neutra/quente (sombras nao ficam azuladas)
+    bg.inputs["Strength"].default_value = 1.2
+    # luz ambiente separada do ceu visto pela camera: azul frio e fraca -> sombras frias contra o sol quente
     amb = nt.nodes.new("ShaderNodeBackground")
-    amb.inputs["Color"].default_value = (0.62, 0.66, 0.74, 1)
-    amb.inputs["Strength"].default_value = 0.9
+    amb.inputs["Color"].default_value = (*AMB_COLOR, 1)
+    amb.inputs["Strength"].default_value = AMB_POWER
     lp = nt.nodes.new("ShaderNodeLightPath")
     mx = nt.nodes.new("ShaderNodeMixShader")
     nt.links.new(lp.outputs["Is Camera Ray"], mx.inputs[0])
@@ -74,12 +87,17 @@ def setup_world():
 
 
 def setup_sun():
-    # sol quente, baixo-lateral pela frente-esquerda (luz no rosto da forja vista do spawn)
-    sun = light("SUN_Key", "SUN", (0, 0, 200), 4.8, (1.0, 0.87, 0.68), 0.0,
-                rot=(D(50), D(0), D(-32)))
-    sun.data.angle = D(3.0)
-    fill = light("SUN_Fill_Sky", "SUN", (0, 0, 200), 0.9, (1.0, 0.85, 0.70), 0.0, rot=(D(60), 0, D(150)))
+    # sol de fim de tarde, quente e baixo (elevacao ~30), de oeste-sudoeste: vetor em SUN_DIR
+    q = SUN_DIR.to_track_quat("Z", "Y")          # o SUN ilumina ao longo de -Z local -> +Z local aponta para o sol
+    sun = light("SUN_Key", "SUN", (0, 0, 200), SUN_POWER, SUN_COLOR, 0.0, rot=tuple(q.to_euler()))
+    sun.data.angle = D(2.0)
+    sun["sun_dir_blender"] = tuple(round(c, 3) for c in SUN_DIR)
+    # contraluz de ceu: azul fraco do lado oposto ao sol (separa silhuetas; nada de fill quente que lava a sombra)
+    back = Vector((-SUN_DIR.x, -SUN_DIR.y, 0.9)).normalized()
+    qb = back.to_track_quat("Z", "Y")
+    fill = light("SUN_Fill_Sky", "SUN", (0, 0, 200), 0.35, (0.55, 0.68, 1.0), 0.0, rot=tuple(qb.to_euler()))
     fill.data.use_shadow = False
+    compositor()
 
 
 def cameras():
@@ -122,11 +140,15 @@ def scale_reference():
         mb.box((0.9 * s, 0.9 * s, 2.0 * s), F.p(1.5 * s, 0, 3.0 * s), F.r(), "Dummy_Grey", 0.08)
         mb.box((1.15 * s, 1.15 * s, 1.15 * s), F.p(0, 0, 4.6 * s), F.r(), "Dummy_Grey", 0.25)
         return mb.finish()
-    dummy("SCALE_Dummy_Spawn", 3, L.SPAWN[1] + 6, L.SPAWN_Z)
-    dummy("SCALE_Dummy_Plaza", 6, -14, L.FLOOR + 0.3, D(180))
-    dummy("SCALE_Dummy_Portal", L.PORTAL_X[0] + 4, 100, L.TERR, D(180))
-    dummy("SCALE_Dummy_Mine", -66, -40, L.FLOOR + 0.3, D(45))
-    dummy("SCALE_Dummy_Door", -13, -2, L.FLOOR + 0.3, D(180))
+    ds = [dummy("SCALE_Dummy_Spawn", 3, L.SPAWN[1] + 6, L.SPAWN_Z),
+          dummy("SCALE_Dummy_Plaza", 6, -14, L.FLOOR + 0.3, D(180)),
+          dummy("SCALE_Dummy_Portal", L.PORTAL_X[0] + 4, 100, L.TERR, D(180)),
+          dummy("SCALE_Dummy_Mine", -66, -40, L.FLOOR + 0.3, D(45)),
+          dummy("SCALE_Dummy_Door", -13, -2, L.FLOOR + 0.3, D(180))]
+    # continuam no arquivo (medida no viewport), mas fora das cameras de aprovacao
+    for o in ds:
+        if o is not None:
+            o.hide_render = True
 
 
 def clouds():
@@ -150,15 +172,20 @@ def clouds():
 
 
 def compositor():
-    """nevoa de profundidade (mist) + bloom leve; falha silenciosa se a API mudar"""
+    """nevoa de profundidade LINEAR (passe Mist, so na geometria: o ceu fica fora pela mascara de profundidade) +
+    bloom leve; falha silenciosa se a API mudar"""
     sc = bpy.context.scene
     try:
         vl = sc.view_layers[0]
         vl.use_pass_mist = True
+        vl.use_pass_z = True
         w = sc.world
-        w.mist_settings.start = 60.0
-        w.mist_settings.depth = 900.0
-        w.mist_settings.falloff = "QUADRATIC"
+        w.mist_settings.start = FOG["start"]
+        w.mist_settings.depth = FOG["depth"]
+        w.mist_settings.falloff = "LINEAR"
+        old = bpy.data.node_groups.get("CMP_Lobby")
+        if old is not None:
+            bpy.data.node_groups.remove(old)
         ng = bpy.data.node_groups.new("CMP_Lobby", "CompositorNodeTree")
         ng.interface.new_socket("Image", in_out="OUTPUT", socket_type="NodeSocketColor")
         N = ng.nodes
@@ -166,17 +193,30 @@ def compositor():
         out = N.new("NodeGroupOutput")
         mix = N.new("ShaderNodeMix")
         mix.data_type = "RGBA"
-        mix.inputs["B"].default_value = (0.62, 0.76, 0.95, 1.0)
-        mm = N.new("ShaderNodeMath"); mm.operation = "MULTIPLY"; mm.inputs[1].default_value = 0.55
-        ng.links.new(rl.outputs["Mist"], mm.inputs[0])
-        ng.links.new(mm.outputs[0], mix.inputs["Factor"])
+        mix.inputs["B"].default_value = (*FOG["color"], 1.0)
+        # entrada suave (^curve) sobre o passe LINEAR: o meio-plano (portais a ~260 do CAM_Front) nao lava;
+        # a 300 studs ~20%, nas cordilheiras (>500) chega aos 70%
+        pw = N.new("ShaderNodeMath"); pw.operation = "POWER"; pw.inputs[1].default_value = FOG["curve"]
+        ng.links.new(rl.outputs["Mist"], pw.inputs[0])
+        mm = N.new("ShaderNodeMath"); mm.operation = "MULTIPLY"; mm.inputs[1].default_value = FOG["factor"]
+        ng.links.new(pw.outputs[0], mm.inputs[0])
+        # ceu (profundidade ~infinita) nao recebe nevoa: o degrade do setup_world ja faz o horizonte
+        sky = N.new("ShaderNodeMath"); sky.operation = "LESS_THAN"; sky.inputs[1].default_value = 2500.0
+        ng.links.new(rl.outputs["Depth"], sky.inputs[0])
+        mk = N.new("ShaderNodeMath"); mk.operation = "MULTIPLY"
+        ng.links.new(mm.outputs[0], mk.inputs[0])
+        ng.links.new(sky.outputs[0], mk.inputs[1])
+        ng.links.new(mk.outputs[0], mix.inputs["Factor"])
         ng.links.new(rl.outputs["Image"], mix.inputs["A"])
         gl = N.new("CompositorNodeGlare")
         try:
-            gl.glare_type = "BLOOM"
+            gl.inputs["Type"].default_value = "Bloom"      # Blender 5.x: tipo e entrada MENU (padrao = Streaks)
         except Exception:
-            pass
-        for nm, val in (("Threshold", 1.2), ("Strength", 0.35), ("Size", 0.6)):
+            try:
+                gl.glare_type = "BLOOM"
+            except Exception:
+                pass
+        for nm, val in (("Threshold", 1.2), ("Strength", 0.3), ("Size", 0.6)):
             if nm in gl.inputs:
                 gl.inputs[nm].default_value = val
         ng.links.new(mix.outputs["Result"], gl.inputs["Image"])
