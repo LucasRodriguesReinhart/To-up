@@ -1,0 +1,648 @@
+﻿# fm_lib - nucleo do Lobby Vila-Forja (Anime Mining Simulator)
+# 1 BU = 1 stud, Z para cima. Roblox = (-x, z, y) (mesma convencao de konoha_area).
+import bpy, bmesh, math, random
+from mathutils import Vector, Matrix, Euler, noise
+
+D = math.radians
+COLS = ["00_REFERENCE", "01_BLOCKOUT", "02_TERRAIN", "03_FORGE", "04_MINE",
+        "05_WATER_SYSTEM", "06_PORTALS", "07_BUILDINGS", "08_PROPS", "09_VEGETATION",
+        "10_RAILS", "11_LIGHTING", "12_VFX_HELPERS", "13_COLLISION", "14_EXPORT",
+        "15_GAMEPLAY_MARKERS", "_SCALE_REFERENCE"]
+
+
+# ------------------------------------------------------------------ cena
+def reset_scene():
+    for o in list(bpy.data.objects):
+        bpy.data.objects.remove(o, do_unlink=True)
+    for coll in (bpy.data.meshes, bpy.data.materials, bpy.data.cameras, bpy.data.lights,
+                 bpy.data.curves, bpy.data.node_groups, bpy.data.images):
+        for d in list(coll):
+            try:
+                coll.remove(d)
+            except Exception:
+                pass
+    for c in list(bpy.data.collections):
+        bpy.data.collections.remove(c)
+    for n in COLS:
+        c = bpy.data.collections.new(n)
+        bpy.context.scene.collection.children.link(c)
+
+
+def coll(name):
+    c = bpy.data.collections.get(name)
+    if c is None:
+        c = bpy.data.collections.new(name)
+        bpy.context.scene.collection.children.link(c)
+    return c
+
+
+def sub_coll(parent, name):
+    p = coll(parent)
+    c = bpy.data.collections.get(name)
+    if c is None:
+        c = bpy.data.collections.new(name)
+        p.children.link(c)
+    return c
+
+
+# ------------------------------------------------------------------ materiais
+# nome: (cor, rough, metal, emissao, cor_emissao, variacao)
+MATS = {
+    "Stone_Light":   ((0.30, 0.28, 0.27), 0.85, 0.0, 0, None, 0.16),
+    "Stone_Dark":    ((0.12, 0.115, 0.12), 0.85, 0.0, 0, None, 0.16),
+    "Stone_Paving":  ((0.34, 0.28, 0.23), 0.85, 0.0, 0, None, 0.20),
+    "Stone_Grout":   ((0.16, 0.14, 0.13), 0.95, 0.0, 0, None, 0.05),
+    "Cliff_Rock":    ((0.26, 0.26, 0.29), 0.9, 0.0, 0, None, 0.14),
+    "Cliff_Rock_Dark": ((0.15, 0.15, 0.18), 0.9, 0.0, 0, None, 0.12),
+    "Wood_Light":    ((0.36, 0.18, 0.08), 0.8, 0.0, 0, None, 0.18),
+    "Wood_Dark":     ((0.14, 0.065, 0.03), 0.8, 0.0, 0, None, 0.18),
+    "Wood_Plank":    ((0.26, 0.13, 0.055), 0.8, 0.0, 0, None, 0.22),
+    "Metal_Iron":    ((0.20, 0.20, 0.22), 0.45, 0.8, 0, None, 0.08),
+    "Metal_Dark":    ((0.09, 0.09, 0.10), 0.5, 0.7, 0, None, 0.06),
+    "Metal_Brass":   ((0.60, 0.40, 0.14), 0.35, 0.9, 0, None, 0.06),
+    "Metal_Heated":  ((0.40, 0.08, 0.02), 0.5, 0.3, 6, (1.0, 0.35, 0.06), 0.0),
+    "Forge_Emissive": ((1.0, 0.45, 0.1), 0.5, 0.0, 14, (1.0, 0.42, 0.08), 0.0),
+    "Lantern_Glow":  ((1.0, 0.75, 0.4), 0.5, 0.0, 9, (1.0, 0.66, 0.30), 0.0),
+    "Crystal_Blue":  ((0.04, 0.28, 1.0), 0.15, 0.0, 1.1, (0.05, 0.30, 1.0), 0.0),
+    "Crystal_Purple": ((0.4, 0.08, 1.0), 0.15, 0.0, 1.1, (0.42, 0.10, 1.0), 0.0),
+    "Water":         ((0.08, 0.40, 0.70), 0.08, 0.0, 0.35, (0.10, 0.45, 0.8), 0.10),
+    "Water_Fall":    ((0.70, 0.88, 1.0), 0.2, 0.0, 1.6, (0.55, 0.8, 1.0), 0.0),
+    "Foam":          ((0.90, 0.96, 1.0), 0.6, 0.0, 0.6, (0.85, 0.95, 1.0), 0.0),
+    "Grass":         ((0.13, 0.34, 0.04), 0.9, 0.0, 0, None, 0.20),
+    "Grass_Dark":    ((0.05, 0.15, 0.05), 0.9, 0.0, 0, None, 0.16),
+    "Dirt":          ((0.24, 0.15, 0.08), 0.95, 0.0, 0, None, 0.16),
+    "Roof":          ((0.20, 0.20, 0.24), 0.75, 0.0, 0, None, 0.14),
+    "Roof_Red":      ((0.45, 0.10, 0.07), 0.7, 0.0, 0, None, 0.12),
+    "Plaster":       ((0.58, 0.48, 0.36), 0.9, 0.0, 0, None, 0.08),
+    "Cloth_Red":     ((0.55, 0.08, 0.07), 0.9, 0.0, 0, None, 0.06),
+    "Cloth_Navy":    ((0.05, 0.07, 0.14), 0.9, 0.0, 0, None, 0.05),
+    "Cloth_Canvas":  ((0.75, 0.66, 0.50), 0.9, 0.0, 0, None, 0.06),
+    "Emblem_Cream":  ((0.85, 0.80, 0.68), 0.6, 0.0, 0, None, 0.0),
+    "Rope":          ((0.62, 0.50, 0.32), 0.9, 0.0, 0, None, 0.08),
+    "Leather":       ((0.30, 0.16, 0.08), 0.7, 0.0, 0, None, 0.08),
+    "Smoke":         ((0.20, 0.19, 0.19), 1.0, 0.0, 0, None, 0.12),
+    "Cloud":         ((0.95, 0.97, 1.0), 0.9, 0.0, 0.35, (0.9, 0.95, 1.0), 0.0),
+    "Leaf_Pine":     ((0.06, 0.24, 0.10), 0.85, 0.0, 0, None, 0.20),
+    "Leaf_Pine_Light": ((0.22, 0.44, 0.16), 0.85, 0.0, 0, None, 0.20),
+    "Leaf_Sakura":   ((0.95, 0.55, 0.72), 0.8, 0.0, 0.2, (1.0, 0.6, 0.8), 0.12),
+    "Leaf_Palm":     ((0.20, 0.50, 0.15), 0.8, 0.0, 0, None, 0.15),
+    "Bark":          ((0.28, 0.18, 0.10), 0.9, 0.0, 0, None, 0.12),
+    "Skin":          ((0.95, 0.75, 0.55), 0.7, 0.0, 0, None, 0.0),
+    "Hair_Red":      ((0.75, 0.12, 0.05), 0.7, 0.0, 0, None, 0.0),
+    "Dummy_Grey":    ((0.60, 0.62, 0.66), 0.7, 0.0, 0, None, 0.0),
+    # portais
+    "P_Naruto_Red":  ((0.72, 0.10, 0.06), 0.7, 0.0, 0, None, 0.10),
+    "P_Naruto_Swirl": ((1.0, 0.35, 0.55), 0.3, 0.0, 3.2, (1.0, 0.30, 0.50), 0.0),
+    "P_DB_Gold":     ((0.95, 0.66, 0.15), 0.3, 0.85, 0, None, 0.05),
+    "P_DB_White":    ((0.90, 0.90, 0.86), 0.5, 0.0, 0, None, 0.05),
+    "P_DB_Orange":   ((1.0, 0.45, 0.05), 0.4, 0.0, 1.5, (1.0, 0.5, 0.1), 0.05),
+    "P_DB_Swirl":    ((1.0, 0.85, 0.3), 0.3, 0.0, 3.2, (1.0, 0.82, 0.3), 0.0),
+    "P_Shadow_Stone": ((0.10, 0.08, 0.14), 0.7, 0.0, 0, None, 0.10),
+    "P_Shadow_Swirl": ((0.62, 0.25, 1.0), 0.3, 0.0, 3.2, (0.62, 0.25, 1.0), 0.0),
+    "P_DS_Black":    ((0.07, 0.05, 0.05), 0.7, 0.0, 0, None, 0.08),
+    "P_DS_Red":      ((0.62, 0.06, 0.05), 0.6, 0.0, 0.5, (0.8, 0.05, 0.02), 0.08),
+    "P_DS_Swirl":    ((1.0, 0.25, 0.25), 0.3, 0.0, 3.2, (1.0, 0.22, 0.25), 0.0),
+    "P_OP_Blue":     ((0.08, 0.20, 0.50), 0.6, 0.0, 0, None, 0.10),
+    "P_OP_Swirl":    ((0.20, 0.50, 1.0), 0.3, 0.0, 3.2, (0.2, 0.5, 1.0), 0.0),
+    "P_OPM_Concrete": ((0.55, 0.57, 0.62), 0.8, 0.0, 0, None, 0.10),
+    "P_OPM_Glass":   ((0.10, 0.30, 0.60), 0.1, 0.2, 1.2, (0.2, 0.55, 1.0), 0.05),
+    "P_OPM_Neon":    ((0.30, 0.75, 1.0), 0.3, 0.0, 8, (0.30, 0.78, 1.0), 0.0),
+    "P_OPM_Swirl":   ((0.35, 0.80, 1.0), 0.3, 0.0, 3.2, (0.35, 0.8, 1.0), 0.0),
+    "P_Shadow_Glow": ((0.62, 0.25, 1.0), 0.3, 0.0, 4.0, (0.62, 0.25, 1.0), 0.0),
+    "P_Gold_Glow":   ((1.0, 0.8, 0.3), 0.3, 0.0, 4.0, (1.0, 0.8, 0.3), 0.0),
+    "P_Red_Glow":    ((1.0, 0.25, 0.2), 0.3, 0.0, 5.0, (1.0, 0.25, 0.2), 0.0),
+    # blockout / colisao / marcadores
+    "BLK_Grey":      ((0.5, 0.5, 0.5), 0.9, 0.0, 0, None, 0.0),
+    "COL_Debug":     ((1.0, 0.1, 0.9), 0.9, 0.0, 0, None, 0.0),
+}
+
+SWIRL_R = 7.5
+SWIRLS = {"P_Naruto_Swirl", "P_DB_Swirl", "P_Shadow_Swirl", "P_DS_Swirl", "P_OP_Swirl", "P_OPM_Swirl"}
+
+
+def _srgb(c):
+    return c
+
+
+def make_materials():
+    for name, (col, rough, metal, emit, ecol, var) in MATS.items():
+        m = bpy.data.materials.get(name) or bpy.data.materials.new(name)
+        m.use_nodes = True
+        nt = m.node_tree
+        nt.nodes.clear()
+        out = nt.nodes.new("ShaderNodeOutputMaterial")
+        bs = nt.nodes.new("ShaderNodeBsdfPrincipled")
+        bs.inputs["Roughness"].default_value = rough
+        bs.inputs["Metallic"].default_value = metal
+        nt.links.new(bs.outputs[0], out.inputs[0])
+        base = (*col, 1.0)
+        m.diffuse_color = base
+        if var > 0:
+            # tint por face (atributo 'tint') + ruido suave -> variacao pintada
+            at = nt.nodes.new("ShaderNodeAttribute")
+            at.attribute_type = "GEOMETRY"
+            at.attribute_name = "tint"
+            ma = nt.nodes.new("ShaderNodeMath"); ma.operation = "MULTIPLY_ADD"
+            ma.inputs[1].default_value = var
+            ma.inputs[2].default_value = 1.0
+            nt.links.new(at.outputs["Fac"], ma.inputs[0])
+            tc = nt.nodes.new("ShaderNodeTexCoord")
+            nz = nt.nodes.new("ShaderNodeTexNoise")
+            nz.inputs["Scale"].default_value = 0.35
+            nz.inputs["Detail"].default_value = 2.0
+            nt.links.new(tc.outputs["Object"], nz.inputs["Vector"])
+            mr = nt.nodes.new("ShaderNodeMapRange")
+            mr.inputs["To Min"].default_value = 1.0 - var * 0.8
+            mr.inputs["To Max"].default_value = 1.0 + var * 0.6
+            nt.links.new(nz.outputs["Fac"], mr.inputs["Value"])
+            mm = nt.nodes.new("ShaderNodeMath"); mm.operation = "MULTIPLY"
+            nt.links.new(ma.outputs[0], mm.inputs[0])
+            nt.links.new(mr.outputs[0], mm.inputs[1])
+            hsv = nt.nodes.new("ShaderNodeHueSaturation")
+            hsv.inputs["Color"].default_value = base
+            nt.links.new(mm.outputs[0], hsv.inputs["Value"])
+            nt.links.new(hsv.outputs[0], bs.inputs["Base Color"])
+        else:
+            bs.inputs["Base Color"].default_value = base
+        if emit > 0:
+            bs.inputs["Emission Color"].default_value = (*(ecol or col), 1)
+            bs.inputs["Emission Strength"].default_value = emit
+        if name in SWIRLS:
+            # espiral de energia: bracos em espiral + nucleo + aro brilhante (coords do OBJETO, raio SWIRL_R)
+            N = nt.nodes
+            tc = N.new("ShaderNodeTexCoord")
+            mp = N.new("ShaderNodeMapping")
+            mp.inputs["Scale"].default_value = (1 / SWIRL_R, 1 / SWIRL_R, 1 / SWIRL_R)
+            nt.links.new(tc.outputs["Object"], mp.inputs[0])
+            sp = N.new("ShaderNodeSeparateXYZ")
+            nt.links.new(mp.outputs[0], sp.inputs[0])
+            cb = N.new("ShaderNodeCombineXYZ")
+            nt.links.new(sp.outputs["X"], cb.inputs["X"])
+            nt.links.new(sp.outputs["Z"], cb.inputs["Y"])
+            ln = N.new("ShaderNodeVectorMath"); ln.operation = "LENGTH"
+            nt.links.new(cb.outputs[0], ln.inputs[0])
+            r = ln.outputs["Value"]
+            at2 = N.new("ShaderNodeMath"); at2.operation = "ARCTAN2"
+            nt.links.new(sp.outputs["Z"], at2.inputs[0])
+            nt.links.new(sp.outputs["X"], at2.inputs[1])
+
+            def M(op, a, b=None, c=None):
+                n = N.new("ShaderNodeMath"); n.operation = op
+                for i, v in enumerate((a, b, c)):
+                    if v is None:
+                        continue
+                    if isinstance(v, (int, float)):
+                        n.inputs[i].default_value = v
+                    else:
+                        nt.links.new(v, n.inputs[i])
+                return n.outputs[0]
+            tw = M("MULTIPLY", r, 3.2)
+            arm = M("MULTIPLY_ADD", at2.outputs[0], 3 / (2 * math.pi), tw)
+            f = M("FRACT", arm)
+            f2 = M("POWER", f, 2.2)
+            core = M("MULTIPLY_ADD", r, -0.55, 1.0)
+            rim_mr = N.new("ShaderNodeMapRange"); rim_mr.interpolation_type = "SMOOTHSTEP"
+            rim_mr.inputs["From Min"].default_value = 0.78
+            rim_mr.inputs["From Max"].default_value = 1.0
+            nt.links.new(r, rim_mr.inputs["Value"])
+            ctr = N.new("ShaderNodeMapRange"); ctr.interpolation_type = "SMOOTHSTEP"
+            ctr.inputs["From Min"].default_value = 0.35
+            ctr.inputs["From Max"].default_value = 0.0
+            nt.links.new(r, ctr.inputs["Value"])
+            body = M("MULTIPLY", M("MULTIPLY_ADD", f2, 1.1, 0.25), core)
+            tot = M("ADD", M("ADD", body, M("MULTIPLY", rim_mr.outputs[0], 1.4)), M("MULTIPLY", ctr.outputs[0], 1.2))
+            nt.links.new(M("MULTIPLY", tot, emit), bs.inputs["Emission Strength"])
+            mix = N.new("ShaderNodeMix"); mix.data_type = "RGBA"
+            mix.inputs["A"].default_value = (col[0] * 0.25, col[1] * 0.25, col[2] * 0.25, 1)
+            mix.inputs["B"].default_value = (min(1, col[0] * 1.2 + 0.2), min(1, col[1] * 1.2 + 0.2), min(1, col[2] * 1.2 + 0.2), 1)
+            nt.links.new(f2, mix.inputs["Factor"])
+            nt.links.new(mix.outputs["Result"], bs.inputs["Base Color"])
+            nt.links.new(mix.outputs["Result"], bs.inputs["Emission Color"])
+        if name in ("Water", "Water_Fall", "Foam"):
+            bs.inputs["Coat Weight"].default_value = 0.3 if name == "Water" else 0.0
+        if name == "Smoke":
+            bs.inputs["Alpha"].default_value = 0.9
+    return
+
+
+def mat(name):
+    return bpy.data.materials[name]
+
+
+# ------------------------------------------------------------------ geometria util
+def v3(x, y, z=0):
+    return Vector((x, y, z))
+
+
+def bezier(p0, p1, p2, p3, n):
+    p0, p1, p2, p3 = map(Vector, (p0, p1, p2, p3))
+    out = []
+    for i in range(n + 1):
+        t = i / n
+        u = 1 - t
+        out.append(p0 * u ** 3 + p1 * 3 * u * u * t + p2 * 3 * u * t * t + p3 * t ** 3)
+    return out
+
+
+def arc(cx, cy, r, a0, a1, n, z=0.0):
+    return [Vector((cx + r * math.cos(D(a0 + (a1 - a0) * i / n)),
+                    cy + r * math.sin(D(a0 + (a1 - a0) * i / n)), z)) for i in range(n + 1)]
+
+
+def resample(pts, step):
+    pts = [Vector(p) for p in pts]
+    out = [pts[0].copy()]
+    acc = 0.0
+    for a, b in zip(pts, pts[1:]):
+        seg = (b - a).length
+        d = step - acc
+        while d <= seg:
+            out.append(a + (b - a) * (d / seg))
+            d += step
+        acc = seg - (d - step)
+    if (out[-1] - pts[-1]).length > step * 0.3:
+        out.append(pts[-1].copy())
+    return out
+
+
+def path_len(pts):
+    return sum((Vector(b) - Vector(a)).length for a, b in zip(pts, pts[1:]))
+
+
+def point_in_poly(x, y, poly):
+    ins = False
+    n = len(poly)
+    j = n - 1
+    for i in range(n):
+        xi, yi = poly[i][0], poly[i][1]
+        xj, yj = poly[j][0], poly[j][1]
+        if ((yi > y) != (yj > y)) and (x < (xj - xi) * (y - yi) / (yj - yi + 1e-12) + xi):
+            ins = not ins
+        j = i
+    return ins
+
+
+# ------------------------------------------------------------------ construtor de malha
+class MB:
+    """Acumula primitivas num unico bmesh com varios materiais; finish() cria o objeto."""
+
+    def __init__(self, name, collection, rng=None):
+        self.name = name
+        self.coll = collection if not isinstance(collection, str) else coll(collection)
+        self.bm = bmesh.new()
+        self.tint = self.bm.faces.layers.float.new("tint")
+        self.mats = []
+        self.rng = rng or random.Random(hash(name) & 0xffff)
+
+    def _mi(self, m):
+        if m not in self.mats:
+            self.mats.append(m)
+        return self.mats.index(m)
+
+    def _post(self, verts, m, tint, bevel, seg, angle=0.5):
+        verts = [v for v in verts if v.is_valid]
+        faces = {f for v in verts for f in v.link_faces}
+        mi = self._mi(m)
+        t = self.rng.uniform(-1, 1) if tint is None else tint
+        for f in faces:
+            f.material_index = mi
+            f[self.tint] = t
+            f.smooth = False
+        if bevel and bevel > 0:
+            self.bm.normal_update()
+            edges = {e for v in verts for e in v.link_edges}
+            edges = [e for e in edges if len(e.link_faces) == 2 and e.calc_face_angle(0) > angle]
+            if edges:
+                bmesh.ops.bevel(self.bm, geom=edges, offset=bevel, offset_type="OFFSET",
+                                segments=seg, profile=0.5, affect="EDGES", clamp_overlap=True)
+        return faces
+
+    def box(self, size, loc, rot=(0, 0, 0), m="Stone_Light", bevel=0.12, seg=1, tint=None):
+        sx, sy, sz = size
+        mb = min(sx, sy, sz)
+        bev = min(bevel, mb * 0.3) if bevel else 0
+        M = Matrix.LocRotScale(Vector(loc), Euler(rot), Vector((sx, sy, sz)))
+        r = bmesh.ops.create_cube(self.bm, size=1.0, matrix=M)
+        self._post(r["verts"], m, tint, bev, seg)
+
+    def box2(self, p0, p1, m="Stone_Light", bevel=0.12, seg=1, tint=None):
+        """caixa alinhada por cantos"""
+        p0, p1 = Vector(p0), Vector(p1)
+        c = (p0 + p1) / 2
+        s = Vector((abs(p1.x - p0.x), abs(p1.y - p0.y), abs(p1.z - p0.z)))
+        self.box(s, c, (0, 0, 0), m, bevel, seg, tint)
+
+    def beam(self, a, b, w, h=None, m="Wood_Dark", bevel=0.08, roll=0.0, tint=None):
+        """viga retangular de a ate b (secao w x h)"""
+        a, b = Vector(a), Vector(b)
+        h = h or w
+        d = b - a
+        L = d.length
+        if L < 1e-4:
+            return
+        q = d.to_track_quat("X", "Z")
+        R = q.to_matrix().to_4x4() @ Matrix.Rotation(roll, 4, "X")
+        M = Matrix.Translation((a + b) / 2) @ R @ Matrix.Diagonal((L, w, h, 1))
+        r = bmesh.ops.create_cube(self.bm, size=1.0, matrix=M)
+        self._post(r["verts"], m, tint, min(bevel, min(w, h) * 0.3), 1)
+
+    def cyl(self, r, h, loc, rot=(0, 0, 0), m="Metal_Iron", n=12, r2=None, bevel=0.08,
+            seg=1, caps=True, tint=None, angle=0.5):
+        M = Matrix.LocRotScale(Vector(loc), Euler(rot), Vector((1, 1, 1)))
+        res = bmesh.ops.create_cone(self.bm, cap_ends=caps, cap_tris=False, segments=n,
+                                    radius1=r, radius2=(r if r2 is None else r2), depth=h, matrix=M)
+        self._post(res["verts"], m, tint, bevel, seg, angle=max(angle, (2 * math.pi / n) * 1.05))
+
+    def rod(self, a, b, r, m="Metal_Iron", n=8, bevel=0.0, tint=None, caps=True):
+        a, b = Vector(a), Vector(b)
+        d = b - a
+        L = d.length
+        if L < 1e-4:
+            return
+        q = d.to_track_quat("Z", "Y")
+        M = Matrix.Translation((a + b) / 2) @ q.to_matrix().to_4x4()
+        res = bmesh.ops.create_cone(self.bm, cap_ends=caps, cap_tris=False, segments=n,
+                                    radius1=r, radius2=r, depth=L, matrix=M)
+        self._post(res["verts"], m, tint, bevel, 1, angle=2.0)
+
+    def ico(self, r, loc, m="Leaf_Pine", sub=1, scale=(1, 1, 1), rot=(0, 0, 0), jitter=0.0,
+            tint=None, seed=None):
+        M = Matrix.LocRotScale(Vector(loc), Euler(rot), Vector(scale))
+        res = bmesh.ops.create_icosphere(self.bm, subdivisions=sub, radius=r, matrix=M)
+        vs = res["verts"]
+        if jitter > 0:
+            s = self.rng.random() * 100 if seed is None else seed
+            for v in vs:
+                n = noise.noise_vector(v.co * 0.35 + Vector((s, s * 0.7, s * 1.3)))
+                v.co += n * jitter * r
+        self._post(vs, m, tint, 0, 1)
+
+    def rock(self, loc, size, m="Cliff_Rock", sub=1, rot=(0, 0, 0), jitter=0.28, tint=None, flat_bottom=True):
+        sx, sy, sz = size
+        M = Matrix.LocRotScale(Vector(loc), Euler(rot), Vector((sx, sy, sz)))
+        res = bmesh.ops.create_icosphere(self.bm, subdivisions=sub, radius=0.5, matrix=Matrix.Identity(4))
+        vs = res["verts"]
+        s = self.rng.random() * 100
+        for v in vs:
+            n = noise.noise_vector(v.co * 1.7 + Vector((s, s * 0.3, s * 1.9)))
+            v.co += n * jitter * 0.5
+            if flat_bottom and v.co.z < -0.25:
+                v.co.z = -0.25 + (v.co.z + 0.25) * 0.2
+        for v in vs:
+            v.co = M @ v.co
+        self._post(vs, m, tint, 0, 1)
+
+    def prism(self, pts, z0, z1, m="Stone_Light", bevel=0.0, seg=1, tint=None, top_only=False):
+        """prisma vertical a partir de poligono 2D (sentido anti-horario)"""
+        vb = [self.bm.verts.new((p[0], p[1], z0)) for p in pts]
+        vt = [self.bm.verts.new((p[0], p[1], z1)) for p in pts]
+        n = len(pts)
+        fs = []
+        fs.append(self.bm.faces.new(list(reversed(vb))))
+        fs.append(self.bm.faces.new(vt))
+        for i in range(n):
+            j = (i + 1) % n
+            fs.append(self.bm.faces.new((vb[i], vb[j], vt[j], vt[i])))
+        allv = vb + vt
+        if bevel and bevel > 0:
+            self._post(allv, m, tint, bevel, seg, angle=0.6)
+        else:
+            self._post(allv, m, tint, 0, 1)
+
+    def slab_poly(self, pts, z_top, thick, m, bevel=0.0, tint=None):
+        self.prism(pts, z_top - thick, z_top, m, bevel, 1, tint)
+
+    def sweep(self, pts, profile, m="Metal_Iron", closed_profile=True, tint=None, up=(0, 0, 1),
+              caps=True):
+        """varre um perfil 2D (u lateral, v vertical) ao longo de uma polilinha"""
+        pts = [Vector(p) for p in pts]
+        n = len(pts)
+        if n < 2:
+            return
+        rings = []
+        upv = Vector(up)
+        for i, p in enumerate(pts):
+            if i == 0:
+                t = pts[1] - pts[0]
+            elif i == n - 1:
+                t = pts[-1] - pts[-2]
+            else:
+                t = (pts[i + 1] - pts[i]).normalized() + (pts[i] - pts[i - 1]).normalized()
+            t.normalize()
+            u = upv if abs(t.dot(upv)) < 0.95 else Vector((1, 0, 0))
+            side = t.cross(u).normalized()
+            vv = side.cross(t).normalized()
+            ring = [self.bm.verts.new(p + side * a + vv * b) for a, b in profile]
+            rings.append(ring)
+        k = len(profile)
+        rng = k if closed_profile else k - 1
+        for r0, r1 in zip(rings, rings[1:]):
+            for j in range(rng):
+                j2 = (j + 1) % k
+                try:
+                    self.bm.faces.new((r0[j], r0[j2], r1[j2], r1[j]))
+                except ValueError:
+                    pass
+        if caps and closed_profile:
+            try:
+                self.bm.faces.new(list(reversed(rings[0])))
+                self.bm.faces.new(rings[-1])
+            except ValueError:
+                pass
+        allv = [v for r in rings for v in r]
+        self._post(allv, m, tint, 0, 1)
+
+    def tube(self, pts, r, m="Metal_Iron", n=8, tint=None):
+        prof = [(r * math.cos(2 * math.pi * i / n), r * math.sin(2 * math.pi * i / n)) for i in range(n)]
+        self.sweep(pts, prof, m, True, tint)
+
+    def quad(self, a, b, c, d, m, tint=None):
+        vs = [self.bm.verts.new(Vector(p)) for p in (a, b, c, d)]
+        self.bm.faces.new(vs)
+        self._post(vs, m, tint, 0, 1)
+
+    def tri(self, a, b, c, m, tint=None):
+        vs = [self.bm.verts.new(Vector(p)) for p in (a, b, c)]
+        self.bm.faces.new(vs)
+        self._post(vs, m, tint, 0, 1)
+
+    def gable_roof(self, cx, cy, w, d, z_eave, rise, m="Roof", thick=0.8, over=1.5, axis="Y",
+                   tint=None, shingles=True, ridge_m="Wood_Dark"):
+        """telhado de duas aguas; axis = direcao da cumeeira"""
+        # meia-agua como caixa inclinada
+        if axis == "Y":
+            half = w / 2 + over
+            L = d + over * 2
+            ang = math.atan2(rise, w / 2)
+            slope = math.hypot(half, rise * half / (w / 2))
+            for s in (-1, 1):
+                cxx = cx + s * half / 2
+                czz = z_eave + rise - (rise * (half / (w / 2))) / 2 + thick / 2
+                if shingles:
+                    rows = max(3, int(slope / 1.6))
+                    for i in range(rows):
+                        f0 = i / rows
+                        f1 = (i + 1.25) / rows
+                        xa = cx + s * half * (1 - f0)
+                        xb = cx + s * half * (1 - min(f1, 1.0))
+                        za = z_eave + rise - rise * (half / (w / 2)) * (1 - f0)
+                        zb = z_eave + rise - rise * (half / (w / 2)) * (1 - min(f1, 1.0))
+                        mid = Vector(((xa + xb) / 2, cy, (za + zb) / 2 + thick / 2))
+                        ln = math.hypot(xa - xb, za - zb)
+                        self.box((ln, L, thick * 0.7), mid, (0, s * ang, 0), m, 0.12, 1,
+                                 tint=self.rng.uniform(-1, 1))
+                else:
+                    self.box((slope, L, thick), (cxx, cy, czz), (0, s * ang, 0), m, 0.15)
+            self.box((1.1, L + 0.4, 1.1), (cx, cy, z_eave + rise + thick * 0.6), (0, 0, 0), ridge_m, 0.12)
+        else:
+            half = d / 2 + over
+            L = w + over * 2
+            ang = math.atan2(rise, d / 2)
+            slope = math.hypot(half, rise * half / (d / 2))
+            for s in (-1, 1):
+                if shingles:
+                    rows = max(3, int(slope / 1.6))
+                    for i in range(rows):
+                        f0 = i / rows
+                        f1 = (i + 1.25) / rows
+                        ya = cy + s * half * (1 - f0)
+                        yb = cy + s * half * (1 - min(f1, 1.0))
+                        za = z_eave + rise - rise * (half / (d / 2)) * (1 - f0)
+                        zb = z_eave + rise - rise * (half / (d / 2)) * (1 - min(f1, 1.0))
+                        mid = Vector((cx, (ya + yb) / 2, (za + zb) / 2 + thick / 2))
+                        ln = math.hypot(ya - yb, za - zb)
+                        self.box((L, ln, thick * 0.7), mid, (-s * ang, 0, 0), m, 0.12, 1,
+                                 tint=self.rng.uniform(-1, 1))
+                else:
+                    cyy = cy + s * half / 2
+                    czz = z_eave + rise - (rise * (half / (d / 2))) / 2 + thick / 2
+                    self.box((L, slope, thick), (cx, cyy, czz), (-s * ang, 0, 0), m, 0.15)
+            self.box((L + 0.4, 1.1, 1.1), (cx, cy, z_eave + rise + thick * 0.6), (0, 0, 0), ridge_m, 0.12)
+
+    def gable_wall(self, cx, cy, w, z_base, rise, thick, axis_facing="Y", m="Plaster", tint=None):
+        """triangulo de oitao (parede) - face normal ao eixo dado"""
+        hw = w / 2
+        if axis_facing == "Y":
+            pts = [(-hw, 0), (hw, 0), (0, rise)]
+            vs_f = [self.bm.verts.new((cx + a, cy - thick / 2, z_base + b)) for a, b in pts]
+            vs_b = [self.bm.verts.new((cx + a, cy + thick / 2, z_base + b)) for a, b in pts]
+        else:
+            pts = [(-hw, 0), (hw, 0), (0, rise)]
+            vs_f = [self.bm.verts.new((cx - thick / 2, cy + a, z_base + b)) for a, b in pts]
+            vs_b = [self.bm.verts.new((cx + thick / 2, cy + a, z_base + b)) for a, b in pts]
+        self.bm.faces.new(vs_f)
+        self.bm.faces.new(list(reversed(vs_b)))
+        for i in range(3):
+            j = (i + 1) % 3
+            self.bm.faces.new((vs_f[j], vs_f[i], vs_b[i], vs_b[j]))
+        self._post(vs_f + vs_b, m, tint, 0, 1)
+
+    def finish(self, parent=None, recalc=True):
+        if len(self.bm.verts) == 0:
+            self.bm.free()
+            return None
+        bmesh.ops.dissolve_degenerate(self.bm, dist=1e-4, edges=self.bm.edges[:])
+        if recalc:
+            bmesh.ops.recalc_face_normals(self.bm, faces=self.bm.faces)
+        me = bpy.data.meshes.new(self.name)
+        self.bm.to_mesh(me)
+        self.bm.free()
+        for m in self.mats:
+            me.materials.append(mat(m))
+        ob = bpy.data.objects.new(self.name, me)
+        self.coll.objects.link(ob)
+        if parent is not None:
+            ob.parent = parent
+        return ob
+
+
+# ------------------------------------------------------------------ colisao e marcadores
+_COL_COUNT = {}
+
+
+def col_box(area, size, loc, rot=(0, 0, 0), kind="Block"):
+    """caixa de colisao simplificada (vira Part invisivel no Roblox)"""
+    n = _COL_COUNT.get(area, 0) + 1
+    _COL_COUNT[area] = n
+    name = "COL_%s_%03d" % (area, n)
+    me = bpy.data.meshes.new(name)
+    bm = bmesh.new()
+    bmesh.ops.create_cube(bm, size=1.0)
+    bm.to_mesh(me)
+    bm.free()
+    ob = bpy.data.objects.new(name, me)
+    ob.location = Vector(loc)
+    ob.rotation_euler = Euler(rot)
+    ob.scale = Vector(size)
+    ob["col_kind"] = kind
+    ob.display_type = "WIRE"
+    ob.hide_render = True
+    c = sub_coll("13_COLLISION", "COL_" + area)
+    c.objects.link(ob)
+    return ob
+
+
+def col_box2(area, p0, p1, kind="Block"):
+    p0, p1 = Vector(p0), Vector(p1)
+    return col_box(area, (abs(p1.x - p0.x), abs(p1.y - p0.y), abs(p1.z - p0.z)), (p0 + p1) / 2, (0, 0, 0), kind)
+
+
+def col_ramp(area, a, b, width, thick=1.0):
+    """rampa de colisao de a (base) ate b (topo) - para escadas (Roblox: Part inclinada)"""
+    a, b = Vector(a), Vector(b)
+    d = b - a
+    L = d.length
+    yaw = math.atan2(d.y, d.x)
+    pitch = math.atan2(d.z, math.hypot(d.x, d.y))
+    c = (a + b) / 2
+    # topo da rampa passa pelos bordos dos degraus: baixa o centro em thick/2 na normal
+    nrm = Vector((-math.sin(pitch) * math.cos(yaw), -math.sin(pitch) * math.sin(yaw), math.cos(pitch)))
+    c = c - nrm * thick / 2
+    return col_box(area, (L, width, thick), c, (0, -pitch, yaw), kind="Ramp")
+
+
+def col_beam(area, a, b, w, h):
+    a, b = Vector(a), Vector(b)
+    d = b - a
+    yaw = math.atan2(d.y, d.x)
+    return col_box(area, (d.length, w, h), (a + b) / 2, (0, 0, yaw))
+
+
+def marker(name, loc, rot=(0, 0, 0), size=2.0, kind="PLAIN_AXES", c="15_GAMEPLAY_MARKERS", props=None):
+    ob = bpy.data.objects.new(name, None)
+    ob.empty_display_type = kind
+    ob.empty_display_size = size
+    ob.location = Vector(loc)
+    ob.rotation_euler = Euler(rot)
+    coll(c).objects.link(ob)
+    for k, v in (props or {}).items():
+        ob[k] = v
+    return ob
+
+
+def light(name, kind, loc, energy, color=(1, 0.7, 0.4), radius=0.5, rot=(0, 0, 0), c="11_LIGHTING"):
+    ld = bpy.data.lights.new(name, kind)
+    ld.energy = energy
+    ld.color = color
+    if hasattr(ld, "shadow_soft_size"):
+        ld.shadow_soft_size = radius
+    if kind == "POINT" and energy < 500:
+        ld.use_shadow = False   # lanternas pequenas: sem sombra (custo; no Roblox tambem Shadows=false)
+    ob = bpy.data.objects.new(name, ld)
+    ob.location = Vector(loc)
+    ob.rotation_euler = Euler(rot)
+    coll(c).objects.link(ob)
+    return ob
+
+
+def camera(name, loc, target, lens=24, c="00_REFERENCE"):
+    cd = bpy.data.cameras.new(name)
+    cd.lens = lens
+    cd.clip_end = 3000
+    cd.clip_start = 0.5
+    ob = bpy.data.objects.new(name, cd)
+    ob.location = Vector(loc)
+    d = Vector(target) - Vector(loc)
+    ob.rotation_euler = d.to_track_quat("-Z", "Y").to_euler()
+    coll(c).objects.link(ob)
+    return ob
