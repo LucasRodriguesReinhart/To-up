@@ -67,6 +67,16 @@ class Blockers:
         self.polys.append([(-20, -120), (20, -120), (20, -52), (-20, -52)])  # spawn/avenida
         # visada da praca para a boca da mina (a mina tem que ser lida de longe)
         self.polys.append([(-20, -38), (-20, -52), (-60, -60), (-80, -46), (-66, -28), (-40, -24)])
+        # pegada (bbox xy + 2) de cada construcao: nada nasce dentro de alas, torre, bolsoes da forja ou casas
+        for o in bpy.data.objects:
+            if o.type != "MESH" or not o.name.startswith(("FORGE_", "BLD_", "WATER_Waterwheel", "MINE_Entrance")):
+                continue
+            if o.name.startswith("BLD_Bridges"):
+                continue
+            cs = [o.matrix_world @ Vector(c) for c in o.bound_box]
+            x0, x1 = min(c.x for c in cs) - 2, max(c.x for c in cs) + 2
+            y0, y1 = min(c.y for c in cs) - 2, max(c.y for c in cs) + 2
+            self.polys.append([(x0, y0), (x1, y0), (x1, y1), (x0, y1)])
         self.bboxes = [(min(p[0] for p in q), min(p[1] for p in q), max(p[0] for p in q), max(p[1] for p in q))
                        for q in self.polys]
         # marcadores de gameplay: portas, NPCs, pontos de interacao, portais e saidas de mundo ficam livres

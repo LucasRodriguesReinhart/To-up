@@ -1,4 +1,4 @@
-# fm_buildings - praca + caminhos pavimentados, loja (interior completo), cabanas de mineiros (entraveis),
+﻿# fm_buildings - praca + caminhos pavimentados, loja (interior completo), cabanas de mineiros (entraveis),
 # estacao de carga sobre o trilho, galpao aberto de cristais na margem leste.
 # Passe de acabamento: a casca das construcoes vem de fm_arch_house/fm_arch_kit (telhado em fiadas com cumeeira
 # arqueada, oitoes com enxaimel, balancos, lucarnas, empenas cruzadas, chamines, meias-aguas, fundacao irregular)
@@ -183,7 +183,7 @@ CABINS = {
     # chamine de pedra na lateral sul, lucarna, telheiro de lenha na lateral norte. Ardosia + reboco creme.
     "West_A": dict(
         pos=(-84.0, -4.0, -90), w=14.0, d=12.0,
-        V=dict(zs=3.5, ze=10.5, rise=5.8, door=(4.8, 9.2, 7.5, 0.0), gjet=(0.0, 1.0), plaster="Plaster",
+        V=dict(zs=3.5, ze=10.5, rise=5.8, door=(4.2, 9.8, 7.5, 0.0), gjet=(0.0, 1.0), plaster="Plaster",
                wins={0: [(1.6, 3.8, 3.8, 6.4)], 1: [(3.0, 5.8, 4.0, 6.6)], 2: [(3.0, 6.6, 3.9, 6.6)],
                      3: [(8.6, 10.4, 4.6, 6.4)]},
                roof=dict(m="Roof", m2="Roof_Slate_Blue", sag=0.35, over=(1.3, 1.1), ends=(0.9, 1.3), cx=0.6),
@@ -198,7 +198,7 @@ CABINS = {
     # telhado vermelho ingreme, lucarna, chamine na lateral norte, jirau interno. Reboco ocre.
     "West_B": dict(
         pos=(-94.0, 20.0, -90), w=12.0, d=11.0,
-        V=dict(zs=8.2, ze=13.8, rise=7.2, door=(3.8, 8.2, 6.8, 1.7), jet=(0.0, 0.9, 0.85, 0.0), gjet=(0.0, 0.0),
+        V=dict(zs=8.2, ze=13.8, rise=7.2, door=(3.2, 8.8, 6.8, 1.7), jet=(0.0, 0.9, 0.85, 0.0), gjet=(0.0, 0.0),
                plaster="Plaster_Ochre", course=1.7,
                wins={0: [(9.0, 10.8, 3.2, 5.6)], 1: [(3.2, 5.0, 3.0, 5.6), (4.0, 7.2, 9.4, 12.4)],
                      2: [(2.2, 4.0, 3.0, 5.6), (3.0, 6.0, 9.4, 12.4)], 3: [(6.5, 8.3, 9.6, 12.2)]},
@@ -214,7 +214,7 @@ CABINS = {
     # banco na frente, chamine na lateral leste, floreira. Reboco creme.
     "West_C": dict(
         pos=(-64.0, 26.0, 0), w=12.0, d=10.0,
-        V=dict(zs=3.5, ze=9.6, rise=5.6, door=(3.8, 8.2, 7.2, 0.0), plaster="Plaster",
+        V=dict(zs=3.5, ze=9.6, rise=5.6, door=(3.6, 9.0, 7.2, 0.0), plaster="Plaster",
                wins={0: [(1.4, 3.4, 3.8, 6.2), (9.4, 10.8, 4.2, 6.2)], 1: [(1.2, 3.8, 3.9, 6.5)],
                      2: [(4.0, 7.0, 4.0, 6.5)], 3: [(1.0, 2.8, 4.0, 6.3)]},
                roof=dict(m="Roof_Shingle_Wood", m2="Roof_Shingle_Moss", alt=0.16, sag=0.25, over=(1.5, 1.5),
@@ -231,7 +231,7 @@ CABINS = {
     # Ardosia + reboco ocre.
     "East_A": dict(
         pos=(114.0, -6.0, 90), w=14.0, d=12.0,
-        V=dict(zs=3.5, ze=10.5, rise=5.6, door=(4.8, 9.2, 7.5, 0.0), gjet=(0.0, 0.9), plaster="Plaster_Ochre",
+        V=dict(zs=3.5, ze=10.5, rise=5.6, door=(4.2, 9.8, 7.5, 0.0), gjet=(0.0, 0.9), plaster="Plaster_Ochre",
                wins={0: [(10.4, 12.4, 3.8, 6.4)], 2: [(2.6, 5.4, 3.9, 6.6), (8.6, 11.0, 3.9, 6.6)]},
                bays=[dict(edge=3, s=6.0, wd=4.2, z0=4.2, z1=8.2, out=1.1)],
                roof=dict(m="Roof", m2="Roof_Slate_Blue", sag=0.3, over=(1.2, 0.9), ends=(1.0, 1.3)),
@@ -245,7 +245,7 @@ CABINS = {
     # lenha nos fundos (voltado para o caminho), telhado vermelho, postigos verde-azulados. Reboco creme.
     "East_B": dict(
         pos=(116.0, 18.0, 90), w=12.0, d=11.0,
-        V=dict(zs=3.5, ze=10.3, rise=5.4, door=(3.8, 8.2, 7.4, 0.0), plaster="Plaster",
+        V=dict(zs=3.5, ze=10.3, rise=5.4, door=(3.2, 8.8, 7.4, 0.0), plaster="Plaster",
                wins={0: [(0.9, 2.7, 4.0, 6.4)], 1: [(6.6, 9.0, 4.0, 6.5)], 2: [(6.6, 9.4, 3.9, 6.6)],
                      3: [(4.0, 7.0, 3.9, 6.8)]},
                roof=dict(m="Roof_Red", m2="Roof_Red_Deep", sag=0.3, over=(1.1, 1.1), ends=(0.9, 1.2), cx=0.5),

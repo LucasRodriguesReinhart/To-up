@@ -586,7 +586,13 @@ class MB:
             if edges:
                 res = bmesh.ops.bevel(self.bm, geom=edges, offset=bevel, offset_type="OFFSET",
                                       segments=seg, profile=0.5, affect="EDGES", clamp_overlap=True)
-                faces = {f for f in faces if f.is_valid} | set(res.get("faces", ()))
+                new = set(res.get("faces", ()))
+                # faces do chanfro nascem com material 0: herdam o material/tint da primitiva
+                for f in new:
+                    f.material_index = mi
+                    f[self.tint] = t
+                    f.smooth = False
+                faces = {f for f in faces if f.is_valid} | new
                 for f in faces:
                     f.normal_update()
         self._uv(faces, m)

@@ -10,9 +10,29 @@ import fm_layout as L
 F0 = L.FLOOR
 
 
+def building_boxes(margin=1.5):
+    """pegadas xy das construcoes (lanternas e cargas nunca nascem dentro de alas, torre ou casas)"""
+    import bpy
+    out = []
+    for o in bpy.data.objects:
+        if o.type != "MESH" or not o.name.startswith(("FORGE_", "BLD_", "WATER_Waterwheel", "MINE_Entrance")):
+            continue
+        if o.name.startswith("BLD_Bridges"):
+            continue
+        cs = [o.matrix_world @ Vector(c) for c in o.bound_box]
+        out.append((min(c.x for c in cs) - margin, min(c.y for c in cs) - margin,
+                    max(c.x for c in cs) + margin, max(c.y for c in cs) + margin))
+    return out
+
+
+def inside_any(x, y, boxes):
+    return any(x0 < x < x1 and y0 < y < y1 for (x0, y0, x1, y1) in boxes)
+
+
 def build():
     rng = random.Random(1111)
     import fm_buildings
+    BOXES = building_boxes()
     mb = MB("PROP_Path_Lanterns", "08_PROPS", rng)
     # lanternas ao longo dos caminhos (alternando lados, a cada ~16), braco para o caminho
     k = 0
@@ -34,6 +54,8 @@ def build():
                     continue
             if any(point_in_poly(pos.x, pos.y, fm_buildings.ribbon(pp, ww + 2.0))
                    for (pp, ww) in fm_buildings.PATHS.values()):
+                continue
+            if inside_any(pos.x, pos.y, BOXES):
                 continue
             ang = math.atan2(-s.y * side, -s.x * side)
             lantern(mb, (pos.x, pos.y, F0), ang, name="L_Path_%s_%02d" % (name, i), h=7.0)
@@ -82,6 +104,8 @@ def build():
     clusters = [(-60, -54, 0.6), (-30, 2, 1.2), (50, -30, 2.0), (70, -30, 0.5), (-12, 34, 0.2),
                 (12, 34, 0.8), (106, 28, 1.5), (-100, 32, 0.4), (122, -20, 1.0), (-66, 8, 0.3)]
     for (x, y, a) in clusters:
+        if inside_any(x, y, BOXES):
+            continue
         if any(point_in_poly(x, y, fm_buildings.ribbon(pp, ww + 8.0)) for (pp, ww) in fm_buildings.PATHS.values()):
             continue
         F = Frame(x, y, F0 + 0.3, a)
