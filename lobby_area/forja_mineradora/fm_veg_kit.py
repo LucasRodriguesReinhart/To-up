@@ -17,7 +17,6 @@ from fm_lib import S
 # nome: (cor_linear, rough, metal, emissao, cor_emissao, variacao)
 _M = fm_lib.MATS
 _M.setdefault("Leaf_Shadow", ((0.018, 0.075, 0.050), 0.9, 0.0, 0, None, 0.10))    # fundo das saias e copas
-_M.setdefault("Leaf_Spruce", ((0.030, 0.135, 0.095), 0.85, 0.0, 0, None, 0.16))   # manchas de floresta de fundo
 _M.setdefault("Leaf_Broad", (S(122, 160, 58), 0.85, 0.0, 0, None, 0.16))          # folhosa verde-amarelada
 _M.setdefault("Bark_Dark", (S(86, 60, 46), 0.9, 0.0, 0, None, 0.12))              # tronco escuro
 _M.setdefault("Bark_Dead", ((0.230, 0.195, 0.160), 0.9, 0.0, 0, None, 0.12))
@@ -371,11 +370,11 @@ def pine(mb, loc, h, rng, lod=1, form="fir", clear=None, wind=None, lean_amt=0.0
         # ombro nas camadas grandes (nas 2 de cima ele quase nao aparece: economia de tris)
         shoulder = P["sh"] if ((lod == 0 and k < T - 2) or (lod == 1 and k == 0)) else None
         under = 0.14 if (lod < 2 or k == 0) else None
-        # topo iluminado: so nas 3 camadas de cima e so nas faces voltadas ao sol (<= ~15% da folhagem)
-        lm = (LIT if lit and lod < 2 and k >= T - 3 else None)
+        # topo iluminado: so nas 2 camadas de cima e so nas faces voltadas ao sol (~10-13% da folhagem da arvore)
+        lm = (LIT if lit and lod < 2 and k >= T - 2 else None)
         skirt(mb, (cxy[0], cxy[1], zc), r, th, lobes, leaf, rng, rot=rot0 + k * 0.9 + rng.uniform(-0.3, 0.3),
               droop=droop * (1.0 - 0.25 * u), lob=0.3 if lod < 2 else 0.22, shoulder=shoulder, under=under,
-              lean=lean, lit=lm, lit_k=(0.1 if top else (0.32 if k == T - 2 else 0.5)),
+              lean=lean, lit=lm, lit_k=(0.22 if top else 0.5),
               asym=(0.3 if wind is not None else 0.06), wind=w)
     if lod < 2:
         # broto do topo torto (flecha)
@@ -385,7 +384,22 @@ def pine(mb, loc, h, rng, lod=1, form="fir", clear=None, wind=None, lean_amt=0.0
     return tr * 1.3, r0, (zb - z) - r0 * td * 1.2
 
 
-def umbrella_pine(mb, loc, h, rng, lod=1, clear=None):
+def fir(mb, loc, h, rng, lod=1, wind=None, lean_amt=0.0, clear=None, **kw):
+    """compatibilidade: abeto classico"""
+    return pine(mb, loc, h, rng, lod, "fir", clear=clear, wind=wind, lean_amt=lean_amt)
+
+
+def spruce(mb, loc, h, rng, lod=1, clear=None, **kw):
+    """compatibilidade: espruce alto e estreito"""
+    return pine(mb, loc, h, rng, lod, "spruce", clear=clear)
+
+
+def young_pine(mb, loc, h, rng, lod=1, **kw):
+    """compatibilidade: pinheiro jovem, baixo e largo"""
+    return pine(mb, loc, h, rng, lod, "young")
+
+
+def umbrella_pine(mb, loc, h, rng, lod=1, clear=None, **kw):
     """pinheiro-guarda-chuva (estilo pinheiro japones): tronco torto, bracos e almofadas achatadas de saia caida"""
     x, y, z = loc
     tr = h * 0.055
@@ -450,7 +464,7 @@ def broadleaf(mb, loc, h, rng, lod=0, clear=5.5, leaf="Leaf_Broad"):
     return tr * 1.5, R * 1.25, zc - R * 0.55 - z
 
 
-def sakura_tree(mb, loc, h, rng, lod=0, clear=5.5):
+def sakura_tree(mb, loc, h, rng, lod=0, clear=5.5, **kw):
     """cerejeira: tronco escuro e torto que se abre em 2-3 bracos, com 3-5 tufos rosa lobados (Sakura_Pink).
     Os tufos ficam acima de 'clear' (jogador passa por baixo). retorna (tronco, raio da copa, base da copa)"""
     x, y, z = loc
@@ -483,12 +497,17 @@ def sakura_tree(mb, loc, h, rng, lod=0, clear=5.5):
         ttube(mb, [base, mid, end], [tr * 0.55, tr * 0.38, tr * 0.24], BARK, n=max(3, tn - 2), cap1=False)
         tufts.append((end, rr))
     for i, (c, rr) in enumerate(tufts):
-        # tufo fofo: nuvem facetada irregular + saia recortada por baixo (borda de petalas)
-        blob(mb, (c.x, c.y, c.z + rr * 0.12), rr * 0.92, rr * 0.8, "Sakura_Pink", rng, seg=(7, 6, 5)[lod],
-             under_m="Sakura_Pink", jit=0.2, squash=(1.1, 0.95))
+        # tufo fofo (couve-flor): nuvem facetada redonda + 1-2 bolotas menores coladas embaixo/ao lado, que
+        # quebram a silhueta sem as pontas de papel
+        blob(mb, (c.x, c.y, c.z + rr * 0.2), rr * 0.9, rr * 0.95, "Sakura_Pink", rng, seg=(7, 6, 5)[lod],
+             under_m="Sakura_Pink", jit=0.16, squash=(1.08, 0.96))
         if lod < 2:
-            tier(mb, (c.x, c.y, c.z - rr * 0.12), rr * 1.05, rr * 0.5, 6, "Sakura_Pink", rng, lob=0.34, droop=0.5,
-                 under=None, jit=0.2)
+            a1 = rng.uniform(0, math.tau)
+            for j in range(2 if lod == 0 else 1):
+                a = a1 + j * rng.uniform(2.0, 2.8)
+                sr = rr * rng.uniform(0.46, 0.58)
+                blob(mb, (c.x + math.cos(a) * rr * 0.62, c.y + math.sin(a) * rr * 0.62, c.z - rr * 0.08), sr, sr * 0.9,
+                     "Sakura_Pink", rng, seg=5, under_m="Sakura_Pink", jit=0.18)
     return tr * 1.45, h * 0.42, clear
 
 
@@ -680,11 +699,11 @@ def reeds(mb, loc, s, rng, m="Grass_Tuft", head="Bark_Dark"):
               cap0=True, cap1=True)
 
 
-def grove(mb, c, R, rng, n=None, lod=2, leaf=LEAF, dome_m="Leaf_Spruce"):
+def grove(mb, c, R, rng, n=None, lod=2, leaf=LEAF, dome_m=UNDER):
     """mancha de floresta de fundo: massa de copas fundidas (domo baixo escuro) + pontas de pinheiro de 2
     camadas. Le como bosque denso de longe com poucos triangulos."""
     x, y, z = c
-    dome(mb, (x, y, z - 0.4), R, R * 0.42, dome_m, rng, seg=9 if R > 14 else 8, jit=0.22, bottom=False)
+    dome(mb, (x, y, z - 0.4), R * 0.8, R * 0.4, dome_m, rng, seg=9 if R > 14 else 8, jit=0.2, bottom=False)
     n = n or max(5, int(R * 0.8))
     pts = []
     for i in range(n * 4):

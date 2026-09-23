@@ -3,7 +3,9 @@
 #   folhosas de copa redonda perto das casas e da praca, sakura a oeste. Regras: 4,5 studs do trilho da mina, 1,5 alem
 #   do meio-fio, raio da copa + 2 ate as pegadas das construcoes; arvore a menos de 3 studs de area andavel tem copa
 #   alta (base >= 5,5: o jogador passa por baixo e no Roblox a copa nao some vista de dentro); visadas do spawn e da
-#   praca (loja, Ignis, mina, portais, roda, portas) sempre livres; COL de tronco so perto das rotas do fm_qa.
+#   praca (loja, Ignis, mina, portais, roda, portas) sempre livres; COL de tronco so a <= 8 studs das rotas do
+#   fm_qa ou de area andavel (COL_Veg <= 25). Nada nasce embaixo nem atravessa o portal/tunel/escoramento da
+#   mina ou as pontes; arvore tambem nao atravessa a rocha da face da mina (cristal pode sair dela).
 #   Sub-bosque: talude dos penhascos, canteiros na base das casas, junco no pe das paredes do rio, moitas nas
 #   cercas do rio e manchas de grama com flores separadas por gramado aberto.
 # TAMPAS (topos e patamares de coluna das bordas/montanhas): campo de aglomerados -> ~27% com grupo de 3-6 arvores
@@ -23,7 +25,12 @@ PLACED = []   # (zona, especie, x, y, z, h) de cada arvore - conferencia/QA
 STATS = {}
 
 
-def surface_bvh(prefixes=("TER_",)):
+# estruturas que cobrem o chao (a vegetacao nao nasce embaixo nem atravessa): rocha da face da mina, portal,
+# casca do tunel, escoramento e as pontes do rio
+OBSTACLES = ("MINE_Face", "MINE_Entrance", "MINE_Tunnel", "MINE_Timber", "BLD_Bridges")
+
+
+def surface_bvh(prefixes=("TER_",) + OBSTACLES):
     verts, polys, mats = [], [], []
     for o in bpy.data.objects:
         if o.type != "MESH" or not o.name.startswith(prefixes):
@@ -38,6 +45,18 @@ def surface_bvh(prefixes=("TER_",)):
             mn = o.data.materials[p.material_index].name if o.data.materials else ""
             mats.append(mn)
     return BVHTree.FromPolygons(verts, polys), mats
+
+
+def obstacle_bvh(prefixes=OBSTACLES):
+    verts, polys = [], []
+    for o in bpy.data.objects:
+        if o.type != "MESH" or not o.name.startswith(prefixes):
+            continue
+        base = len(verts)
+        mw = o.matrix_world
+        verts += [mw @ v.co for v in o.data.vertices]
+        polys += [[base + i for i in p.vertices] for p in o.data.polygons]
+    return BVHTree.FromPolygons(verts, polys) if polys else None
 
 
 class Blockers:
@@ -443,6 +462,8 @@ def build():
     STATS.clear()
     rng = random.Random(1010)
     bvh, mats = surface_bvh()
+    obs = obstacle_bvh()                  # arvores: nem a rocha da face da mina
+    obs_s = obstacle_bvh(OBSTACLES[1:])   # vegetacao baixa/cristais: so as construcoes (encostar na rocha pode)
     blk = Blockers()
     R = Rules()
     sight = Sight()
@@ -459,8 +480,30 @@ def build():
             return None
         return hit[0], hit[1], mats[hit[2]]
 
+    def obstructed(x, y, z, r, dzs=(0.6, 1.8), tree=False):
+        """alguma estrutura (portal, tunel, escoramento, ponte; para arvore tambem a rocha da face da mina) a menos
+        de r do ponto (pe da planta)"""
+        b = obs if tree else obs_s
+        if b is None:
+            return False
+        return any(b.find_nearest(Vector((x, y, z + dz)), r)[0] is not None for dz in dzs)
+
+    def tree_obstructed(kind, x, y, z, h):
+        """tronco ou copa atravessando uma estrutura ou a rocha da face da mina"""
+        if obs is None:
+            return False
+        cr = canopy_r(kind, h)
+        return (obstructed(x, y, z, 1.5, (0.8, 2.2), True) or
+                obs.find_nearest(Vector((x, y, z + h * 0.2)), cr)[0] is not None or
+                obs.find_nearest(Vector((x, y, z + h * 0.35)), cr * 0.9)[0] is not None or
+                obs.find_nearest(Vector((x, y, z + h * 0.65)), cr * 0.6)[0] is not None)
+
     def plant(zone, kind, x, y, z, h, lod, clear=None, wind=None, lean=None):
-        """agenda uma arvore; lean = (angulo, graus) inclina a arvore inteira para fora"""
+        """agenda uma arvore; lean = (angulo, graus) inclina a arvore inteira para fora.
+        Retorna False (e nao planta) se o tronco ou a copa atravessam uma estrutura."""
+        if tree_obstructed(kind, x, y, z, h):
+            return False
+
         def fn(mb, r, kind=kind, x=x, y=y, z=z, h=h, lod=lod, clear=clear, wind=wind, lean=lean):
             n0 = len(mb.bm.verts)
             K.tree(kind, mb, (x, y, z - 0.25), h, r, lod, wind=wind, clear=clear)
@@ -471,6 +514,7 @@ def build():
         STATS.setdefault("especies", {})
         k = zone + ":" + kind + (":inclinada" if lean else "")
         STATS["especies"][k] = STATS["especies"].get(k, 0) + 1
+        return True
 
     # ---------------- amostragem da superficie (grade com jitter)
     pool = {"valley": [], "terrace": [], "south": [], "rim": [], "mountain": [], "plateau": []}
@@ -548,17 +592,20 @@ def build():
             return fail(kind, "meio_fio")
         if R.foot_d(x, y) < cr + 2.0:
             return fail(kind, "pegada")
-        if R.stair_d(x, y) < cr + 0.8:
+        if R.stair_d(x, y) < cr + 2.0:
             return fail(kind, "escada")
         cb = clear if clear is not None else 0.6
         if sight.blocks(x, y, z + cb, z + h, cr):
             return fail(kind, "visada")
         if not sp.free(x, y, cr, kmin):
             return fail(kind, "espaco")
+        if tree_obstructed(kind, x, y, z, h):
+            return fail(kind, "estrutura")
         sp.add(x, y, cr)
         plant(tag, kind, x, y, z, h, lod, clear=clear)
-        rd = R.route_d(x, y)
-        if rd <= 8.0 and kind not in ("dead", "snag"):
+        # COL de tronco: so perto de onde se anda (rotas do fm_qa, caminhos, praca, portas)
+        rd = min(R.route_d(x, y), max(0.0, wd))
+        if rd <= 8.0:
             tr = h * (0.05 if kind in ("broad", "sakura", "umbrella") else 0.045)
             col_cands.append((rd, x, y, z, max(1.6, tr * 2.6), clear or 0.0, h))
         return True
@@ -574,12 +621,12 @@ def build():
 
     # (a) sakura moderada no lado oeste (perto do portal Naruto e das cabanas), com petalas caidas no gramado
     n_sak = 0
-    for (ax, ay) in ((-120, 27), (-92, 52), (-121, 50), (-68, 4), (-122, 8), (-108, 32), (-50, 52), (-84, 32),
-                     (-116, -12), (-26, 52), (-72, -4), (-100, -24)):
+    for (ax, ay) in ((-120, 27), (-92, 52), (-121, 50), (-68, 4), (-122, 8), (-108, 32), (-60, 52), (-84, 32),
+                     (-116, -12), (-26, 52), (-72, -4), (-100, -24), (-121, -4), (-113, -18)):
         if n_sak >= 5:
             break
-        for (qx, qy, qz) in near_pts(ax, ay, 9.0)[:24]:
-            if valley_tree(qx, qy, "sakura", rng.uniform(10.0, 12.5), 0, 0.55):
+        for (qx, qy, qz) in near_pts(ax, ay, 12.0)[:30]:
+            if valley_tree(qx, qy, "sakura", rng.uniform(9.5, 11.5), 0, 0.55):
                 n_sak += 1
                 zz = PLACED[-1][4]
 
@@ -593,11 +640,11 @@ def build():
 
     # (b) pinheiros-guarda-chuva (lado oeste, clima Konoha)
     n_umb = 0
-    for (ax, ay) in ((-116, -2), (-60, 52), (-104, 36), (-30, 52), (-119, 42)):
+    for (ax, ay) in ((-116, -2), (-60, 52), (-104, 36), (-30, 52), (-119, 42), (-100, -22), (-24, 50), (-92, 52)):
         if n_umb >= 3:
             break
-        for (qx, qy, qz) in near_pts(ax, ay, 9.0)[:24]:
-            if valley_tree(qx, qy, "umbrella", rng.uniform(12.0, 14.5), 0, 0.6):
+        for (qx, qy, qz) in near_pts(ax, ay, 12.0)[:30]:
+            if valley_tree(qx, qy, "umbrella", rng.uniform(11.0, 13.0), 0, 0.6):
                 n_umb += 1
                 break
 
@@ -607,20 +654,20 @@ def build():
         if not f[4].startswith(("BLD_Cabin", "BLD_Shop", "BLD_WheelHouse", "BLD_Crystal")):
             continue
         cx, cy = (f[0] + f[2]) / 2, (f[1] + f[3]) / 2
-        for k in range(16):
-            a = k * math.tau / 16 + rng.uniform(-0.1, 0.1)
-            dd = max(f[2] - f[0], f[3] - f[1]) * 0.5 + rng.uniform(6.5, 10.0)
+        for k in range(24):
+            a = k * math.tau / 24 + rng.uniform(-0.1, 0.1)
+            dd = max(f[2] - f[0], f[3] - f[1]) * 0.5 + rng.uniform(6.5, 14.0)
             broad_c.append((cx + math.cos(a) * dd, cy + math.sin(a) * dd))
-    for k in range(24):
-        a = k * math.tau / 24
-        broad_c.append((math.cos(a) * rng.uniform(33, 40), -30.0 + math.sin(a) * rng.uniform(33, 40)))
+    for k in range(36):
+        a = k * math.tau / 36
+        broad_c.append((math.cos(a) * rng.uniform(33, 44), -30.0 + math.sin(a) * rng.uniform(33, 44)))
     rng.shuffle(broad_c)
     n_broad = 0
     placed_b = []
     for (px, py) in broad_c:
         if n_broad >= 10:
             break
-        if any(math.hypot(px - qx, py - qy) < 20 for qx, qy in placed_b):
+        if any(math.hypot(px - qx, py - qy) < 17 for qx, qy in placed_b):
             continue
         if valley_tree(px, py, "broad", rng.uniform(9.0, 12.0), 0, 0.6, "valley"):
             n_broad += 1
@@ -692,10 +739,11 @@ def build():
                              "guarda_chuva": n_umb}
     STATS["vale_rejeicoes"] = why
 
-    # COL de tronco: so a <= 8 studs de uma rota do fm_qa (as mais proximas, orcamento)
+    # COL de tronco: so a <= 8 studs de uma rota do fm_qa ou de area andavel (as mais proximas; orcamento de 24,
+    # o COL_Veg inteiro fica <= 25 com o do cristal)
     col_cands.sort()
     n_col = 0
-    for (rd, x, y, z, w, clear, h) in col_cands[:18]:
+    for (rd, x, y, z, w, clear, h) in col_cands[:22]:
         hc = max(5.2, min(clear if clear else h * 0.4, 7.0))
         col_box("Veg", (w, w, hc), (x, y, z + hc / 2))
         n_col += 1
@@ -704,8 +752,8 @@ def build():
     # ---------------- sub-bosque do vale
     n_u = {}
 
-    def low(kind, x, y, z, fn, r):
-        if not sp.free(x, y, r, 0.9):
+    def low(kind, x, y, z, fn, r, k=0.9):
+        if not sp.free(x, y, r, k) or obstructed(x, y, z, r * 0.85):
             return False
         sp.add(x, y, r)
         put(x, y, fn, "valley_low")
@@ -718,11 +766,11 @@ def build():
             break
         if valley_edge_dist(x, y) > 8 or blk.blocked(x, y, z) or R.rail_d(x, y) < 3.5:
             continue
-        if noise.noise(Vector((x * 0.06, y * 0.06, 3.1))) < -0.05 or rng.random() > 0.35:
+        if noise.noise(Vector((x * 0.06, y * 0.06, 3.1))) < -0.1 or rng.random() > 0.6:
             continue
         k = pick(rng, [("fern", 0.34), ("bush", 0.3), ("rockplant", 0.2), ("boulder", 0.16)])
         s = rng.uniform(1.4, 2.3)
-        if R.curb_d(x, y) < s + 0.4 or not near_cliff(x, y, z):
+        if R.walk_d(x, y) < s + 0.4 or not near_cliff(x, y, z):
             continue
         if k == "fern":
             fn = (lambda mb, r, x=x, y=y, z=z, s=s: K.fern(mb, (x, y, z - 0.2), s, r))
@@ -751,7 +799,7 @@ def build():
                 t = rng.uniform(0.15, 0.85)
                 px = a[0] + (b[0] - a[0]) * t + nrm[0] * 1.6
                 py = a[1] + (b[1] - a[1]) * t + nrm[1] * 1.6
-                if min(math.hypot(px - dx, py - dy) for dx, dy in R.doors) < 5.0 or R.curb_d(px, py) < 2.2:
+                if min(math.hypot(px - dx, py - dy) for dx, dy in R.doors) < 5.0 or R.walk_d(px, py) < 2.8:
                     continue
                 g = ground(px, py, 20.0)
                 if not g or g[2] != "Grass" or abs(g[0].z - L.FLOOR) > 0.6:
@@ -794,7 +842,7 @@ def build():
         if blk.blocked(x, y, z) and R.curb_d(x, y) < 1.0:
             continue
         s = rng.uniform(1.2, 1.8)
-        if R.curb_d(x, y) < s + 0.4 or abs(y - L.WHEEL_C[1]) < 12 or R.foot_d(x, y) < 1.0:
+        if R.walk_d(x, y) < s + 0.4 or abs(y - L.WHEEL_C[1]) < 12 or R.foot_d(x, y) < 1.0:
             continue
         if noise.noise(Vector((x * 0.05, y * 0.05, 8.8))) < 0.0:
             continue
@@ -803,15 +851,18 @@ def build():
 
     # bosquetes da mureta sul: moitas e flores em volta das arvores (b)
     for (xa, xb) in SOUTH_GROVES:
-        for i in range(3):
+        got_b = 0
+        for i in range(10):
+            if got_b >= 3:
+                break
             px, py = rng.uniform(xa - 2, xb + 2), rng.uniform(-59.5, -54.0)
             z = valley_site(px, py)
             s = rng.uniform(1.4, 2.0)
-            if z is None or R.curb_d(px, py) < s + 0.4:
+            if z is None or R.walk_d(px, py) < s + 0.4:
                 continue
-            fn = (lambda mb, r, px=px, py=py, z=z, s=s: K.bush(mb, (px, py, z - 0.2), s, r, lod=0)) if i < 2 else \
-                (lambda mb, r, px=px, py=py, z=z, s=s: K.flower_bush(mb, (px, py, z - 0.2), s, r))
-            low("bosquete_sul", px, py, z, fn, s)
+            fn = (lambda mb, r, px=px, py=py, z=z, s=s: K.bush(mb, (px, py, z - 0.2), s, r, lod=0)) if got_b < 2 \
+                else (lambda mb, r, px=px, py=py, z=z, s=s: K.flower_bush(mb, (px, py, z - 0.2), s, r))
+            got_b += bool(low("bosquete_sul", px, py, z, fn, s, 0.45))
 
     # manchas de grama (5-12 tufos) com flores, separadas por gramado aberto
     lawn = [p for p in vpts if R.curb_d(p[0], p[1]) > 1.2 and R.rail_d(p[0], p[1]) > 3.0]
@@ -830,8 +881,11 @@ def build():
                 break
             a, d = rng.uniform(0, math.tau), pr * math.sqrt(rng.random())
             px, py = cx + math.cos(a) * d, cy + math.sin(a) * d
-            if R.curb_d(px, py) < 0.8 or R.walk_d(px, py) < 0.5 or blk.blocked(px, py, cz):
+            if R.curb_d(px, py) < 0.8 or R.walk_d(px, py) < 1.4 or blk.blocked(px, py, cz):
                 continue
+            g = ground(px, py, 20.0)
+            if not g or g[2] != "Grass" or abs(g[0].z - cz) > 0.6 or obstructed(px, py, cz, 0.9, (0.5,)):
+                continue          # tufo em cima de ponte/pedra ou no degrau do barranco
             tufts.append((px, py, rng.random() < 0.22))
         if len(tufts) < 5:
             continue
@@ -850,30 +904,48 @@ def build():
     mx, my = L.MINE_MOUTH
     fd = Vector((0.7071, -0.7071))        # ao longo da face da mina
     fo = Vector((0.7071, 0.7071))         # face -> vale
-    cr_spots = [(mx - fd.x * 10.5 + fo.x * 2.0, my - fd.y * 10.5 + fo.y * 2.0),
-                (mx + fd.x * 10.5 + fo.x * 2.0, my + fd.y * 10.5 + fo.y * 2.0),
-                (-104.0, -4.0), (-86.0, -30.0)]
+    # boca da mina: logo alem do emolduramento de pedra do portal (+-16,5 ao longo da face), colados na rocha
+    cr_spots = []
+    for (k, o) in ((-19.0, 2.2), (18.5, 2.2), (-24.0, 2.0), (23.0, 2.0)):
+        cr_spots.append((mx + fd.x * k + fo.x * o, my + fd.y * k + fo.y * o))
+    cr_spots += [(-86.0, -30.0), (-96.0, -17.0), (-104.0, -4.0)]
     n_cr = 0
+    crej = {}
+
+    def crfail(k):
+        crej[k] = crej.get(k, 0) + 1
     for (cx, cy) in cr_spots:
-        for i in range(24):
-            px, py = cx + rng.uniform(-3, 3), cy + rng.uniform(-3, 3)
+        if n_cr >= 4:
+            break
+        for i in range(30):
+            px, py = cx + rng.uniform(-2.5, 2.5), cy + rng.uniform(-2.5, 2.5)
             g = ground(px, py, 20.0)
+            if px > -60.0 and not (g and near_cliff(px, py, g[0].z, 3.5)):
+                crfail("gramado_aberto")
+                continue                  # a leste de x=-60 so colado na rocha (nada no gramado aberto)
             if not g or g[2] != "Grass" or abs(g[0].z - L.FLOOR) > 0.6:
+                crfail("chao")
                 continue
-            if R.rail_d(px, py) < 3.5 or R.curb_d(px, py) < 2.4 or not near_cliff(px, py, g[0].z, 7.0):
+            if R.rail_d(px, py) < 3.5 or R.walk_d(px, py) < 1.6 or not near_cliff(px, py, g[0].z, 7.0):
+                crfail("trilho_andavel_rocha")
                 continue
-            if math.hypot(px - mx, py - my) < 8.0 or not sp.free(px, py, 2.5, 0.8):
+            if math.hypot(px - mx, py - my) < 8.0 or not sp.free(px, py, 2.2, 0.8):
+                crfail("espaco")
                 continue
             z = g[0].z
+            if obstructed(px, py, z, 2.4, (0.8, 2.4, 4.0)):
+                crfail("estrutura")
+                continue                  # nada de cristal atravessando o portal/escoramento da mina
             sp.add(px, py, 2.5)
             put(px, py, (lambda mb, r, px=px, py=py, z=z: K.crystal_outcrop(mb, (px, py, z), r.uniform(0.9, 1.2), r)),
                 "valley_low")
-            if R.route_d(px, py) <= 8.0:
+            if R.route_d(px, py) <= 8.0 and n_col + STATS.get("col_cristal", 0) < 25:
                 col_box("Veg", (3.2, 3.2, 3.6), (px, py, z + 1.8))
                 STATS["col_cristal"] = STATS.get("col_cristal", 0) + 1
             n_cr += 1
             break
     STATS["cristais_vale"] = n_cr
+    STATS["cristais_rej"] = crej
     STATS["sub_bosque_vale"] = n_u
 
     # =====================================================================================================
@@ -952,8 +1024,9 @@ def build():
                 cr = canopy_r(kind, h)
                 if any(math.hypot(p[0] - q[0], p[1] - q[1]) < max(1.6, 0.34 * (cr + q[2])) for q in got):
                     continue
+                if not plant(zone, kind, p[0], p[1], p[2], h, lod):
+                    continue
                 got.append((p[0], p[1], cr))
-                plant(zone, kind, p[0], p[1], p[2], h, lod)
                 sp.add(p[0], p[1], cr * 0.6)
             if got:
                 ntree_caps += 1
@@ -965,13 +1038,14 @@ def build():
             p = cap_point(c, 0.45, 0.85, 0.4)
             if p:
                 if rng.random() < 0.5:
-                    plant(zone, "snag", p[0], p[1], p[2], rng.uniform(8.0, 13.0), lod)
+                    ok = plant(zone, "snag", p[0], p[1], p[2], rng.uniform(8.0, 13.0), lod)
                 else:
                     kind = pick(rng, [("fir", 0.6), ("spruce", 0.4)])
-                    plant(zone, kind, p[0], p[1], p[2], rng.uniform(9.0, 14.0), lod,
-                          lean=(c["out"] + rng.uniform(-0.4, 0.4), rng.uniform(10.0, 25.0)))
-                ntree_caps += 1
-                cap_tree["single"] += 1
+                    ok = plant(zone, kind, p[0], p[1], p[2], rng.uniform(9.0, 14.0), lod,
+                               lean=(c["out"] + rng.uniform(-0.4, 0.4), rng.uniform(10.0, 25.0)))
+                if ok:
+                    ntree_caps += 1
+                    cap_tree["single"] += 1
         if fate == "bush":
             # so moita/samambaia pendendo pela borda (nas tampas que o jogador enxerga); fundo: nua ou 1 moita
             if not c["near"] and rng.random() > 0.3:
@@ -979,7 +1053,7 @@ def build():
             nb = 1 if (not c["near"] or c["area"] < 25 or rng.random() < 0.55) else 2
             for i in range(nb):
                 p = cap_point(c, 0.8, 1.0, 0.5)
-                if not p:
+                if not p or obstructed(p[0], p[1], p[2], 1.8):
                     continue
                 s = rng.uniform(1.5, 2.4) if c["near"] else rng.uniform(2.2, 3.0)
                 oa = c["out"] + rng.uniform(-0.5, 0.5)
@@ -987,6 +1061,24 @@ def build():
                                  K.edge_bush(mb, (p[0], p[1], p[2] - 0.15), s, oa, r, m=K.LEAF, m2=K.LEAF, lod=lod)),
                     zone)
             cap_tree["bush"] += 1
+    # cristais nas fendas/patamares do macico SW, acima da boca da mina (a montanha "vaza" cristal)
+    mcaps = [c for c in ok_caps if c["fate"] == "bush" and -112 < c["x"] < -58 and -84 < c["y"] < -24
+             and c["z"] < 60]
+    mcaps.sort(key=lambda c: (0 if c["ledge"] else 1, math.hypot(c["x"] - mx, c["y"] - my)))
+    n_crc = 0
+    used = []
+    for c in mcaps:
+        if n_crc >= 2:
+            break
+        if any(math.hypot(c["x"] - u[0], c["y"] - u[1]) < 12 for u in used):
+            continue
+        p = cap_point(c, 0.3, 0.8, 0.5)
+        if not p or obstructed(p[0], p[1], p[2], 2.6, (0.8, 2.4)):
+            continue
+        put(p[0], p[1], (lambda mb, r, p=p: K.crystal_outcrop(mb, (p[0], p[1], p[2]), r.uniform(1.0, 1.35), r)), "rim")
+        used.append((c["x"], c["y"]))
+        n_crc += 1
+    STATS["cristais_fendas"] = n_crc
     STATS["tampas"] = {"n": nC, "com_arvore": ntree_caps, "pct_sem_arvore": round(100.0 * (1 - ntree_caps / max(1, nC)), 1),
                        "destinos": cap_tree, "patamares": sum(1 for c in ok_caps if c["ledge"])}
 
@@ -1039,7 +1131,7 @@ def build():
             (edge if drop_dir else inner).append((px, py, pz, drop_dir))
         # manchas densas: 2-3 por planalto (1 nos pequenos), raio variando 2x
         ng = 3 if area > 9000 else (2 if area > 3500 else 1)
-        centers = poisson_pick([p for p in inner if sector_of(p[0], p[1], 12.0)], rng, 58.0, 1.0)
+        centers = poisson_pick([p for p in inner if sector_of(p[0], p[1], 12.0)], rng, 46.0, 1.0)
         centers.sort(key=lambda p: noise.noise(Vector((p[0] * 0.013, p[1] * 0.013, 5.0))), reverse=True)
         got_g = 0
         for (cx, cy, cz, _) in centers:
@@ -1048,14 +1140,15 @@ def build():
             Rg = rng.uniform(11.0, 22.0)
 
             def inside(Rt, cx=cx, cy=cy, cz=cz):
-                for k in range(10):
-                    gg = ground(cx + math.cos(k * math.tau / 10) * Rt, cy + math.sin(k * math.tau / 10) * Rt)
+                bad = 0
+                for k in range(12):
+                    gg = ground(cx + math.cos(k * math.tau / 12) * Rt, cy + math.sin(k * math.tau / 12) * Rt)
                     if not gg or gg[2] != "Grass_Dark" or abs(gg[0].z - cz) > 3.0:
-                        return False
-                return True
-            while Rg > 7.0 and not inside(Rg * 1.08):
+                        bad += 1
+                return bad <= 1
+            while Rg > 7.0 and not inside(Rg * 0.98):
                 Rg *= 0.82          # a mancha inteira fica em cima do planalto (nada de copa flutuando na borda)
-            if Rg <= 7.0 or sector_of(cx, cy, Rg * 0.7) is None:
+            if Rg <= 7.0 or sector_of(cx, cy, Rg * 0.7) is None or obstructed(cx, cy, cz, Rg * 0.85, (2.0, 6.0), True):
                 continue
             put(cx, cy, (lambda mb, r, cx=cx, cy=cy, cz=cz, Rg=Rg: K.grove(mb, (cx, cy, cz), Rg, r, lod=2,
                                                                           dome_m=K.UNDER)), "plateau")
@@ -1093,6 +1186,9 @@ def build():
         # clareiras: afloramentos de rocha (2-3 por planalto) e um tronco caido
         cl_pts = [p for p in inner if all(math.hypot(p[0] - g[0], p[1] - g[1]) > g[2] + 12 for g in GR)]
         for (px, py, pz, _) in poisson_pick(cl_pts, rng, 40.0, 1.0)[:rng.randint(2, 3)]:
+            if obstructed(px, py, pz, 6.0):
+                continue
+
             def outcrop(mb, r, px=px, py=py, pz=pz):
                 for j in range(r.randint(2, 3)):
                     a, d = r.uniform(0, math.tau), r.uniform(0, 3.5)
