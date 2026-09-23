@@ -337,63 +337,238 @@ def palm(mb, loc, h=12.0, rng=None, lean=0.25):
         mb.sweep(leaf, [(-1.1, 0), (0, 0.25), (1.1, 0), (0, -0.05)], "Leaf_Palm", True)
 
 
-# ------------------------------------------------------------------ penhascos (colunas em estratos)
-def cliff_band(mb, pts, z_base, z_top, rng, depth=2.0, rmin=3.5, rmax=6.5, step=6.0, grass=True,
-               var=3.0, face_side=1, m="Cliff_Rock", m2="Cliff_Rock_Dark", top_fn=None, strata=True):
-    """faixa de penhasco ao longo da polilinha; colunas de rocha empilhadas em estratos.
-    face_side: lado (esquerda=+1) para onde a face aponta, colunas ficam para o outro lado."""
-    pts = [P3(p) for p in pts]
-    ctrs = resample(pts, step)
-    for i, c in enumerate(ctrs):
-        j = min(i + 1, len(ctrs) - 1)
-        k = max(i - 1, 0)
-        t = (ctrs[j] - ctrs[k])
-        if t.length < 1e-6:
+# ------------------------------------------------------------------ penhascos (massas de rocha em estratos)
+def _band_walker(pts):
+    """parametriza a polilinha pelo comprimento: devolve (comprimento, at(s, h) -> (ponto, tangente suavizada))"""
+    segs = []
+    acc = 0.0
+    for a, b in zip(pts, pts[1:]):
+        ln = (b - a).length
+        if ln < 1e-6:
             continue
-        t.normalize()
-        left = Vector((-t.y, t.x, 0))
-        off = -face_side * rng.uniform(0.3, depth)
-        cc = c + left * off
+        segs.append((acc, a, b, ln))
+        acc += ln
+
+    def point(s):
+        if not segs:
+            return pts[0].copy()
+        s = min(max(s, 0.0), acc)
+        for s0, a, b, ln in segs:
+            if s <= s0 + ln + 1e-9:
+                return a + (b - a) * ((s - s0) / ln)
+        return segs[-1][2].copy()
+
+    def at(s, h):
+        p = point(s)
+        t = point(s + h) - point(s - h)
+        t.z = 0.0
+        if t.length < 1e-6:
+            t = Vector((1.0, 0.0, 0.0))
+        return p, t.normalized()
+    return acc, at
+
+
+def _rock_poly(a, b, n, rng, ex=3.0, jit=0.1, a0=None):
+    """contorno de bloco de rocha (superelipse facetada) em coords locais: x ao longo (semi-eixo a), y atravessado (b).
+    expoente > 2 = faces frontais largas e planas (paredoes); a0 ~ 0 com n par deixa uma face chata para a frente."""
+    out = []
+    a0 = rng.uniform(0, math.tau) if a0 is None else a0
+    for i in range(n):
+        th = a0 + (i + rng.uniform(-0.12, 0.12)) * math.tau / n
+        c, s = math.cos(th), math.sin(th)
+        rr = (abs(c) ** ex + abs(s) ** ex) ** (-1.0 / ex)
+        k = rng.uniform(1.0 - jit, 1.0 + jit * 0.6)
+        out.append((c * rr * a * k, s * rr * b * k))
+    return out
+
+
+def _to_world(poly, t, left):
+    """coords locais (ao longo de t, atravessado para 'left') -> deslocamentos 2D de mundo"""
+    return [(t.x * px + left.x * py, t.y * px + left.y * py) for px, py in poly]
+
+
+def cliff_band(mb, pts, z_base, z_top, rng, depth=2.0, rmin=3.5, rmax=6.5, step=6.0, grass=True,
+               var=3.0, face_side=1, m="Cliff_Rock", m2="Cliff_Rock_Dark", top_fn=None, strata=True, min_top=None,
+               back=None):
+    """faixa de penhasco ao longo da polilinha, feita de MASSAS de rocha de larguras variadas:
+    blocos largos (paredoes com face plana), pilares, fendas recuadas (reentrancias escuras); topo irregular
+    (ruido coerente ao longo da faixa + torres e entalhes quando var >= 2.5), estratos com patamares de grama
+    recuados e saliencia no alto (a coluna de cima inclina para a face).
+    face_side: lado (esquerda=+1) para onde a face aponta; as massas ficam para o outro lado e a frente nunca passa
+    de ~0.6*rmax alem da linha (os penhascos nao invadem o piso caminhavel alem da colisao).
+    min_top: cota minima de qualquer topo (faixas que fecham volumes, ex. o macico da mina).
+    back: profundidade maxima (studs) que as massas ocupam atras da linha; com ele as massas vao para a frente
+          da linha em vez de invadir o que esta atras (ex. a camara da mina, a colisao do terraco)."""
+    from mathutils import noise
+    rng = random.Random(rng.random())       # fluxo proprio: o rng do chamador avanca 1 passo so
+    pts = [P3(p) for p in pts]
+    total, at = _band_walker(pts)
+    rough = var >= 2.5
+    seed = rng.uniform(0.0, 500.0)
+    pmax = max(1.2, rmax * 0.6)
+    h_t = max(1.0, step * 0.5)
+    near = rmin < 6.0          # faixas de massas grandes ficam longe do jogador: tampo de grama simplificado
+    # 1) sequencia de massas (tipo, semi-eixos) com espacamento que depende das larguras vizinhas
+    units = []
+    while True:
+        prev = units[-1] if units else None
         r = rng.uniform(rmin, rmax)
-        top = (top_fn(cc) if top_fn else z_top) + rng.uniform(-var, var * 0.4)
-        nsides = rng.choice((5, 6, 6, 7))
-        base_poly = []
-        a0 = rng.uniform(0, math.tau)
-        for s in range(nsides):
-            a = a0 + s * math.tau / nsides + rng.uniform(-0.2, 0.2)
-            rr = r * rng.uniform(0.75, 1.1)
-            base_poly.append((math.cos(a) * rr, math.sin(a) * rr))
-        # coluna facetada esculpida (aneis com jitter por vertice, topo inclinado) + eventual degrau de estrato
-        hgt = top - z_base
-        mm = m if rng.random() > 0.3 else m2
-        if strata and hgt > 16 and rng.random() < 0.55:
-            zsplit = z_base + hgt * rng.uniform(0.45, 0.7)
-            rock_column(mb, cc, base_poly, z_base - 0.2, zsplit, rng, mm, taper=0.94)
-            sc = rng.uniform(0.72, 0.86)
-            off = Vector((rng.uniform(-0.8, 0.8), rng.uniform(-0.8, 0.8), 0))
-            poly2 = [(px * sc, py * sc) for px, py in base_poly]
-            # patamar de grama no degrau
-            if grass:
-                mb.prism([(cc.x + px * 0.97, cc.y + py * 0.97) for px, py in base_poly], zsplit - 0.4, zsplit + 0.35,
-                         "Grass", bevel=0.2)
-            rock_column(mb, cc + off, poly2, zsplit - 0.3, top, rng, m2 if mm == m else m, taper=0.86)
-            cap_poly = [(cc.x + off.x + px * 0.8, cc.y + off.y + py * 0.8) for px, py in poly2]
+        u = rng.random()
+        g = 0.0
+        if prev is None:
+            kind = "pillar"
+        elif prev["kind"] == "block" and u < 0.2 and total > 3.0 * rmax:
+            kind = "fissure"
+        elif u < ((0.42 if rmax < 9.0 else 0.3) if rough else 0.55):
+            kind = "pillar"
         else:
-            rock_column(mb, cc, base_poly, z_base - 0.2, top, rng, mm, taper=0.84)
-            cap_poly = [(cc.x + px * 0.8, cc.y + py * 0.8) for px, py in base_poly]
-        if grass:
-            mb.prism(cap_poly, top - 0.6, top + 0.55, "Grass", bevel=0.25)
+            kind = "block"
+        if kind == "block":
+            a, b = r * rng.uniform(1.05, 1.7 if rough else 1.35), r * rng.uniform(0.82, 1.0)
+        elif kind == "pillar":
+            a, b = r * rng.uniform(0.72, 0.95), r * rng.uniform(0.85, 1.05)
+        else:
+            g = rng.uniform(0.18, 0.4) * r
+            a, b = g * 0.5 + r * 0.3, r * rng.uniform(0.6, 0.8)
+        if prev is None:
+            s = 0.0
+        elif kind == "fissure":
+            s = prev["s"] + prev["a"] * 0.85 + g * 0.5
+        elif prev["kind"] == "fissure":
+            s = prev["s"] + prev["g"] * 0.5 + a * 0.85
+        else:
+            s = prev["s"] + (prev["a"] + a) * rng.uniform(0.56, 0.72)
+        if prev is not None and s >= total - 0.3 * a:
+            # fecha a faixa com um pilar no ponto final (pegada igual a das colunas antigas)
+            if prev["kind"] == "fissure" or total - prev["s"] > prev["a"] * 0.5:
+                a, b = r * rng.uniform(0.72, 0.95), r * rng.uniform(0.85, 1.05)
+                units.append(dict(s=total, kind="pillar", a=a, b=b, r=r, g=0.0))
+            break
+        units.append(dict(s=s, kind=kind, a=a, b=b, r=r, g=g))
+        if total < 1e-6:
+            break
+    # 2) cada massa: posicao atras da linha, altura, estratos, patamares e saliencia
+    tops = []
+    for un in units:
+        c, t = at(un["s"], h_t)
+        left = Vector((-t.y, t.x, 0.0))
+        fdir = left * face_side                       # para onde a face aponta
+        yaw = rng.uniform(-0.12, 0.12)
+        cy, sy = math.cos(yaw), math.sin(yaw)
+        t2 = Vector((t.x * cy - t.y * sy, t.x * sy + t.y * cy, 0.0))
+        l2 = Vector((-t2.y, t2.x, 0.0))
+        kind, a, b, r = un["kind"], un["a"], un["b"], un["r"]
+        off = rng.uniform(0.3, depth)
+        # frente limitada a pmax alem da linha (conta o giro da massa) e desencontrada: sem plano unico
+        off = max(off, b * 1.06 + a * abs(sy) - pmax * rng.uniform(0.5, 1.0))
+        if kind == "fissure":
+            off += b * rng.uniform(0.45, 0.65)        # fenda: recuada atras dos vizinhos
+        if back is not None:
+            off = min(off, back - (b * 1.08 + a * abs(sy)))
+        cc = c - fdir * off
+        base = top_fn(cc) if top_fn else z_top
+        hgt0 = base - z_base
+        if rough:
+            nz = noise.noise(Vector((un["s"] * 0.04 + seed, seed * 0.37, 0.5)))
+            top = base + var * 2.2 * nz + rng.uniform(-var * 0.6, var * 0.3)
+            if kind == "pillar" and hgt0 > 14 and rng.random() < 0.4:
+                top += hgt0 * rng.uniform(0.06, 0.15)       # torre
+            if kind == "fissure":
+                top -= hgt0 * rng.uniform(0.12, 0.25)       # entalhe na crista
+        else:
+            top = base + rng.uniform(-var, var * 0.4)
+            if kind == "fissure":
+                top -= rng.uniform(0.3, 0.8) * max(var, 0.5)
+        if min_top is not None:
+            top = max(top, min_top)
+        top = max(top, z_base + 1.5)
+        tops.append(top)
+        n = (8 if a > 7.0 else 6) if kind == "block" else rng.choice((5, 6, 6, 7))
+        a0 = ((math.pi / 8 if n == 8 else 0.0) + rng.uniform(-0.15, 0.15)) if n in (6, 8) else None
+        ex = (rng.uniform(1.9, 2.6) if rough else rng.uniform(1.7, 2.2)) if kind == "block" else rng.uniform(1.8, 2.6)
+        poly = _rock_poly(a, b, n, rng, ex=ex, jit=0.13, a0=a0)
+        mm = m if rng.random() > 0.3 else m2
+        if kind == "fissure":
+            mm = m2
+        hgt = top - z_base
+        cuts = []
+        if strata and kind != "fissure":
+            if hgt > 42 and rng.random() < 0.55:
+                cuts = [z_base + hgt * rng.uniform(0.3, 0.42), z_base + hgt * rng.uniform(0.58, 0.74)]
+            elif hgt > 16 and rng.random() < 0.6:
+                cuts = [z_base + hgt * rng.uniform(0.45, 0.68)]
+        zs = [z_base - 0.2] + cuts + [top]
+        ctr = cc.copy()
+        sc = 1.0
+        # grama: sempre nos patamares; no topo das faixas "rough" so em parte das massas (nada de um pinheiro
+        # espetado em cada coluna); nas bordas planas (var baixo) o topo e sempre grama
+        top_lid = grass and (not rough or kind == "block" or rng.random() < 0.55)
+        for ti in range(len(zs) - 1):
+            za, zb = zs[ti], zs[ti + 1]
+            last = ti == len(zs) - 2
+            # patamar intermediario: grama em ~60% (o resto e degrau so de rocha: nada de "colar" em toda coluna)
+            lid = "Grass" if (grass and (top_lid if last else rng.random() < 0.6)) else None
+            if ti > 0:
+                # estrato de cima recuado para tras da face e deslocado de lado -> patamar largo e assimetrico
+                sc *= rng.uniform(0.68, 0.84)
+                shift = b * sc * rng.uniform(0.2, 0.42)
+                if back is not None:
+                    shift = min(shift, max(0.0, back - (ctr - c).dot(-fdir) - b * sc * 1.08 - a * sc * abs(sy)))
+                ctr = ctr - fdir * shift + t2 * (a * rng.uniform(-0.25, 0.25))
+                za -= 0.4
+            th = zb - za
+            rings = 1 if th < 5 else (2 if th < 14 else 3)
+            jit = 0.17 if rough else 0.13
+            lean = None
+            if last and rough and rng.random() < 0.5 and th > 6:
+                lv = fdir * min(1.5, 0.15 * b * sc) + t2 * rng.uniform(-0.6, 0.6)
+                lean = (lv.x, lv.y)
+            ztop = zb + (0.5 if (lid and last) else 0.0)
+            mt = mm if ti % 2 == 0 else (m2 if mm == m else m)
+            if last and rough and kind == "block" and a * sc > 8.0 and th > 8.0 and rng.random() < 0.4:
+                # crista partida: o bloco largo termina em dois blocos de alturas diferentes (entalhe)
+                half = [(px * sc * 0.56, py * sc * rng.uniform(0.9, 1.0)) for px, py in poly]
+                drop = th * rng.uniform(0.15, 0.3)
+                dk = rng.randrange(2)
+                for k, sg in enumerate((-1, 1)):
+                    ck = ctr + t2 * (sg * a * sc * 0.46)
+                    zk = ztop - (drop if k == dk else 0.0)
+                    if min_top is not None:
+                        zk = max(zk, min_top)
+                    rock_column(mb, ck, _to_world(half, t2, l2), za, zk, rng, mt if k == 0 else m2,
+                                taper=rng.uniform(0.78, 0.9), rings=rings, jitter=jit, tilt=0.16, lean=lean, top_m=lid,
+                                lip=min(1.0, th * 0.25), chamfer=(0.0 if lid else min(0.45, th * 0.1)), rim=near)
+                continue
+            wp = _to_world([(px * sc, py * sc) for px, py in poly], t2, l2)
+            rock_column(mb, ctr, wp, za, ztop, rng, mt,
+                        taper=(0.93 if not last else rng.uniform(0.78, 0.9)), rings=rings, jitter=jit,
+                        tilt=(0.05 if not last else 0.12), lean=lean, top_m=lid,
+                        lip=min(1.0, th * 0.25), chamfer=(0.0 if lid else min(0.45, th * 0.1)), rim=near)
+    # 3) parede de fundo continua (escondida atras das massas): a faixa nunca tem fresta de ponta a ponta,
+    #    nem quando duas massas vizinhas ficam em profundidades diferentes (fecha a mina, o canion, o vale)
+    if len(units) > 1 and total > 1.0:
+        zt_b = min(tops) - 0.6
+        if zt_b > z_base + 2.0:
+            ob = depth * 0.5 + rmin * 0.45
+            th_b = max(1.0, rmin * 0.7)
+            if back is not None:
+                ob = min(ob, back - th_b * 0.5)
+            bp = [Vector((p.x, p.y, 0.0)) for p in resample(pts, max(8.0, rmax * 2.0))]
+            u0, u1 = face_side * (ob - th_b * 0.5), face_side * (ob + th_b * 0.5)
+            prof = [(u0, z_base - 0.2), (u1, z_base - 0.2), (u1, zt_b), (u0, zt_b)]
+            mb.sweep(bp, prof, m2, True)
     return
 
 
 def rock_scatter(mb, center, radius, n, rng, smin=1.2, smax=3.2, z=0.0, m="Cliff_Rock"):
+    """pedras soltas agrupadas: uma pedra-mae e satelites menores, achatadas e meio enterradas"""
     for i in range(n):
         a = rng.uniform(0, math.tau)
         r = radius * math.sqrt(rng.random())
-        s = rng.uniform(smin, smax)
-        mb.rock((center[0] + math.cos(a) * r, center[1] + math.sin(a) * r, z + s * 0.25),
-                (s * rng.uniform(1.0, 1.5), s * rng.uniform(0.9, 1.3), s * rng.uniform(0.6, 1.0)),
-                m, 1, (0, 0, rng.uniform(0, 6)))
+        s = rng.uniform(smin, smax) * (1.35 if i == 0 else 1.0)
+        mb.rock((center[0] + math.cos(a) * r, center[1] + math.sin(a) * r, z + s * 0.18),
+                (s * rng.uniform(1.0, 1.6), s * rng.uniform(0.8, 1.2), s * rng.uniform(0.5, 0.85)),
+                m if rng.random() > 0.25 else "Cliff_Rock_Dark", 1, (0, 0, rng.uniform(0, 6)))
 
 
 # ------------------------------------------------------------------ pavimento
@@ -622,51 +797,217 @@ def frustum(mb, c0, w0, d0, w1, d1, h, m, top_off=(0.0, 0.0), ang=0.0, tint=None
         mb.bm.faces.new((vb[i], vb[j], vt[j], vt[i]))
     mb._post(vb + vt, m, tint, 0.12, 1)
 
-def rock_column(mb, cc, poly, z0, z1, rng, m, taper=0.85, rings=3, jitter=0.13, tilt=0.12):
-    """prisma de rocha facetado: aneis com jitter radial por vertice (faces irregulares), topo inclinado"""
+def rock_column(mb, cc, poly, z0, z1, rng, m, taper=0.85, rings=3, jitter=0.13, tilt=0.12, lean=None,
+                top_m=None, lip=0.9, chamfer=0.0, taper_from=None, rim=True):
+    """prisma de rocha facetado: aneis com jitter radial por vertice (faces irregulares), topo inclinado.
+    lean: deslocamento (x, y) do topo, aplicado progressivamente (saliencia / massa inclinada).
+    top_m: material de um TAMPO integrado (ex. grama): aba saliente com beiral por baixo + chanfro no topo,
+           sem prisma extra (bem mais barato que um prisma chanfrado por cima).
+    chamfer: chanfro do topo na propria rocha (quando nao ha top_m).
+    taper_from: cota onde o afunilamento comeca (base enterrada bem abaixo: a parte visivel afunila de verdade).
+    rim: tampo com aba vertical (perto do jogador); False = so aba chanfrada (massas vistas de longe, 2n tris a menos).
+    Retorna o centro do topo (Vector)."""
     n = len(poly)
-    h = z1 - z0
+    cap = lip if top_m else (chamfer if chamfer > 0 else 0.0)
+    cap = min(cap, (z1 - z0) * 0.35)
+    zb = z1 - cap
+    h = zb - z0
+    if taper_from is not None and z0 + 1.0 < taper_from < zb - 2.0:
+        hv = zb - taper_from
+        levels = [(z0, 0.0, 0.0)] + [(taper_from + hv * k / rings, k / rings, hv) for k in range(rings + 1)]
+    else:
+        levels = [(z0 + h * k / rings, k / rings, h) for k in range(rings + 1)]
     ring_vs = []
     tx, ty = rng.uniform(-tilt, tilt), rng.uniform(-tilt, tilt)
-    for k in range(rings + 1):
-        f = k / rings
-        zc = z0 + h * f + (rng.uniform(-0.12, 0.12) * h / rings if 0 < k < rings else 0.0)
-        sc = 1.0 + (taper - 1.0) * (f ** 1.3) + (0.06 if k == 1 else 0.0)
+    lx, ly = lean if lean else (0.0, 0.0)
+    last_i = len(levels) - 1
+    for i, (zc, f, hh) in enumerate(levels):
+        if 0 < f < 1:
+            zc += rng.uniform(-0.12, 0.12) * hh / rings
+        sc = 1.0 + (taper - 1.0) * (f ** 1.3) + (0.06 if (rings > 1 and abs(f - 1.0 / rings) < 1e-6) else 0.0)
+        lf = f ** 1.6
         ring = []
         for (px, py) in poly:
-            j = 1.0 + rng.uniform(-jitter, jitter) * (0.4 if k == 0 else 1.0)
-            x = cc.x + px * sc * j
-            y = cc.y + py * sc * j
-            z = zc + ((px * tx + py * ty) if k == rings else 0.0)
+            j = 1.0 + rng.uniform(-jitter, jitter) * (0.4 if i == 0 else 1.0)
+            x = cc.x + px * sc * j + lx * lf
+            y = cc.y + py * sc * j + ly * lf
+            z = zc + ((px * tx + py * ty) if i == last_i else 0.0)
             ring.append(mb.bm.verts.new((x, y, z)))
         ring_vs.append(ring)
+    top = ring_vs[-1]
+    cx = sum(v.co.x for v in top) / n
+    cy = sum(v.co.y for v in top) / n
+    rad = max(0.3, sum(math.hypot(v.co.x - cx, v.co.y - cy) for v in top) / n)
+
+    def ring_from(src, s, dz):
+        return [mb.bm.verts.new((cx + (v.co.x - cx) * s, cy + (v.co.y - cy) * s, v.co.z + dz)) for v in src]
+
+    extra = []
+    cap_faces = []
+    if top_m and cap > 0.05:
+        ov = 1.0 + min(0.12, max(0.05, 0.45 / rad))
+        ch = min(0.3, 0.55 / rad)
+        ra = ring_from(top, ov, 0.0)
+        rc = ring_from(top, ov * (1.0 - ch), cap)
+        if rim:
+            rb = ring_from(top, ov, cap * 0.6)
+            extra = [top, ra, rb, rc]
+        else:
+            extra = [top, ra, rc]
+        last = rc
+    elif cap > 0.05:
+        ch = min(0.35, cap / rad)
+        rc = ring_from(top, 1.0 - ch, cap)
+        extra = [top, rc]
+        last = rc
+    else:
+        last = top
     mb.bm.faces.new(list(reversed(ring_vs[0])))
-    mb.bm.faces.new(ring_vs[-1])
+    cap_faces.append(mb.bm.faces.new(last))
     for r0, r1 in zip(ring_vs, ring_vs[1:]):
         for i in range(n):
             j = (i + 1) % n
             mb.bm.faces.new((r0[i], r0[j], r1[j], r1[i]))
-    allv = [v for r in ring_vs for v in r]
+    for r0, r1 in zip(extra, extra[1:]):
+        for i in range(n):
+            j = (i + 1) % n
+            cap_faces.append(mb.bm.faces.new((r0[i], r0[j], r1[j], r1[i])))
+    allv = [v for r in ring_vs for v in r] + [v for r in extra[1:] for v in r]
     mb._post(allv, m, None, 0, 1)
+    if top_m and extra:
+        mi = mb._mi(top_m)
+        tt = mb.rng.uniform(-1, 1)
+        for f in cap_faces:
+            f.material_index = mi
+            f[mb.tint] = tt
+    return Vector((cx, cy, z1))
 
 
-def peak(mb, x, y, r, h, rng, z0=10.0, m="Cliff_Rock", m2="Cliff_Rock_Dark"):
-    """montanha de fundo: tronco facetado afunilando ate um cume com 2-3 ombros"""
-    k = rng.choice((6, 7, 8))
-    a0 = rng.uniform(0, 6)
-    poly = [(math.cos(a0 + i * math.tau / k) * r * rng.uniform(0.8, 1.15),
-             math.sin(a0 + i * math.tau / k) * r * rng.uniform(0.8, 1.15)) for i in range(k)]
-    cc = Vector((x, y, 0))
-    rock_column(mb, cc, poly, z0, z0 + h * 0.45, rng, m2, taper=0.78, rings=2, jitter=0.1, tilt=0.05)
-    p2 = [(px * 0.74, py * 0.74) for px, py in poly]
-    off = Vector((rng.uniform(-r, r) * 0.12, rng.uniform(-r, r) * 0.12, 0))
-    rock_column(mb, cc + off, p2, z0 + h * 0.43, z0 + h * 0.78, rng, m, taper=0.62, rings=2, jitter=0.12, tilt=0.06)
-    p3 = [(px * 0.44, py * 0.44) for px, py in poly]
-    off2 = off + Vector((rng.uniform(-r, r) * 0.08, rng.uniform(-r, r) * 0.08, 0))
-    rock_column(mb, cc + off2, p3, z0 + h * 0.76, z0 + h, rng, m2, taper=0.18, rings=2, jitter=0.15, tilt=0.0)
-    # ombro com grama (pinheiros entram por raycast)
-    gp = [(cc.x + off.x + px * 0.8, cc.y + off.y + py * 0.8) for px, py in p2]
-    mb.prism(gp, z0 + h * 0.43 - 0.5, z0 + h * 0.45 + 0.4, "Grass_Dark", bevel=0.3)
+def peak(mb, x, y, r, h, rng, z0=10.0, m="Cliff_Rock", m2="Cliff_Rock_Dark", kind=None, face=None,
+         top_m="Grass_Dark", root=None, lids=True, avoid=None):
+    """MACICO de fundo quebrado (nada de cone): aglomerado de 1-4 corpos de rocha de alturas e larguras diferentes,
+    cada um com base facetada (patamar de grama opcional) e coroa partida; o conjunto le como montanha com
+    paredoes, ombros, dentes e reentrancias.
+    kind: 'spire' (dente alto e estreito + flancos baixos), 'horn' (chifre inclinado com topo partido),
+          'wall' (paredao largo de crista serrilhada), 'mesa' (degraus largos com patamares), 'saddle' (sela baixa).
+    z0 = base visual (proporcoes); root = cota real da base (ex. enterrada no vale distante).
+    face = direcao (x, y) para onde o macico olha (padrao: centro do mapa).
+    avoid(x, y, raio) -> True se o flanco nao pode ficar ali (corredores, areas jogaveis)."""
+    rng = random.Random(rng.random())
+    kind = kind or rng.choice(("spire", "horn", "wall", "mesa"))
+    f = Vector((face[0], face[1], 0.0)) if face else Vector((-x, -y, 0.0))
+    f = f.normalized() if f.length > 1e-6 else Vector((0.0, -1.0, 0.0))
+    sd = Vector((-f.y, f.x, 0.0))
+    back = -f
+    zr = z0 if root is None else root
+    lid = top_m if lids else None
+    c0 = Vector((x, y, 0.0))
+    side = rng.choice((-1, 1))
+    U = rng.uniform
+
+    def column(ctr, a, b, za, zb, taper, mat, tilt, n=None, lean=None, with_lid=False, visible_from=None, ex=None,
+               rings=2, chamfer=0.0):
+        nn = n or rng.choice((6, 6, 7))
+        poly = _rock_poly(a, b, nn, rng, ex=ex or U(2.0, 3.0), jit=0.14)
+        rock_column(mb, ctr, _to_world(poly, sd, back), za, zb, rng, mat, taper=taper, rings=rings, jitter=0.12,
+                    tilt=tilt, lean=lean, top_m=(lid if with_lid else None), lip=1.6, taper_from=visible_from,
+                    chamfer=chamfer, rim=False)
+
+    vis = z0 - 4.0 if zr < z0 - 6.0 else None
+
+    def crown(c, a, b, za, zt, kind_c, mat, alt, lid_p=0.3):
+        """coroa partida sobre o ombro: 'block' (topo chato inclinado), 'tooth' (dente chanfrado),
+        'horn' (chifre inclinado), 'twin' (dois blocos com entalhe entre eles)"""
+        ch = min(3.5, 0.14 * a)      # topo chanfrado: coroas robustas de cartoon, nada de agulha
+        if kind_c == "block":
+            column(c, a, b, za, zt, U(0.62, 0.8), alt, U(0.16, 0.28), with_lid=rng.random() < lid_p, chamfer=ch)
+        elif kind_c == "tooth":
+            column(c, a, b, za, zt, U(0.5, 0.64), alt, U(0.24, 0.36), n=rng.choice((5, 6, 7)),
+                   lean=tuple((sd * (side * a * U(0.1, 0.25))).xy), chamfer=ch)
+        elif kind_c == "horn":
+            column(c, a, b, za, zt, U(0.38, 0.5), alt, U(0.3, 0.44), n=rng.choice((6, 7)),
+                   lean=tuple((sd * (side * a * U(0.35, 0.5))).xy), chamfer=ch * 0.7)
+        else:
+            for k, sg in enumerate((-1, 1)):
+                ck = c + sd * (sg * a * U(0.32, 0.4))
+                zk = zt if (k == 0) == (side > 0) else zt - (zt - za) * U(0.25, 0.45)
+                column(ck, a * U(0.56, 0.66), b * U(0.75, 0.95), za, zk, U(0.56, 0.72), alt if k == 0 else mat,
+                       U(0.2, 0.32), n=rng.choice((5, 6, 7)), chamfer=ch * 0.6)
+
+    def mountain(c, hrel, a, crown_k, bw=None, shelf=0.5, lid_p=0.3):
+        """perfil de montanha: base larga (afunila so na parte visivel) -> ombro recuado e deslocado -> coroa"""
+        zt = z0 + h * hrel
+        hm = zt - z0
+        b = a * (bw or U(0.55, 0.8))
+        mat = m2 if rng.random() < 0.55 else m
+        alt = m if mat == m2 else m2
+        z1 = z0 + hm * U(0.34, 0.5)
+        big = a > 32.0
+        t1 = U(0.68, 0.8)
+        column(c, a, b, zr, z1, t1, mat, 0.09, with_lid=rng.random() < shelf, visible_from=vis,
+               n=(rng.choice((8, 9)) if big else rng.choice((6, 7, 7, 8))), rings=(3 if big else 2))
+        # ombro encostado num dos lados do topo da base: um lado le como paredao continuo, o outro como degrau
+        # (nunca mais largo que o topo de baixo: nada de "cogumelo")
+        s2 = t1 * U(0.8, 0.95)
+        sg2 = rng.choice((-1, 1))
+        c2 = c + sd * (sg2 * a * (t1 - s2) * U(0.55, 0.95)) + back * (b * U(0.05, 0.15))
+        z2 = z0 + hm * U(0.64, 0.8)
+        t2 = U(0.66, 0.8)
+        column(c2, a * s2, b * s2, z1 - 1.5, z2, t2, alt, U(0.08, 0.16),
+               with_lid=rng.random() < shelf * 0.7, n=(rng.choice((7, 8)) if big else None))
+        s3 = s2 * t2 * U(0.86, 1.0)
+        c3 = c2 + sd * (-sg2 * a * (s2 * t2 - s3) * U(0.3, 0.9)) + back * (b * s2 * U(0.0, 0.1))
+        crown(c3, a * s3, b * s3, z2 - 1.5, zt, crown_k, mat, alt, lid_p)
+        return z2
+
+    def flank(sg, dist, dback, a):
+        """posicao do flanco; se cair numa zona proibida (avoid) tenta o outro lado, senao desiste"""
+        for s_ in (sg, -sg):
+            c = c0 + sd * (s_ * dist) + back * dback
+            if avoid is None or not avoid(c.x, c.y, a):
+                return c
+        return None
+
+    base = r * U(1.35, 1.7)
+    if kind == "spire":
+        mountain(c0, 1.0, base, rng.choice(("tooth", "twin", "tooth")))
+        a2 = base * U(0.55, 0.7)
+        c = flank(rng.choice((-1, 1)), base * U(1.0, 1.3), base * U(0.0, 0.3), a2)
+        if c is not None:
+            mountain(c, U(0.5, 0.7), a2, rng.choice(("block", "twin")))
+    elif kind == "horn":
+        mountain(c0, 1.0, base, "horn", bw=U(0.6, 0.75))
+        a2 = base * U(0.55, 0.7)
+        c = flank(-side, base * U(1.0, 1.3), base * U(0.05, 0.3), a2)
+        if c is not None:
+            mountain(c, U(0.5, 0.68), a2, rng.choice(("block", "tooth")))
+    elif kind == "wall":
+        # paredao: 3-4 segmentos encostados, cada um com embasamento proprio (alturas e recuos diferentes ->
+        # degraus e reentrancias na face) + bloco de crista em altura propria (crista serrilhada)
+        a, b = r * U(2.2, 2.7), r * U(0.6, 0.75)
+        k = rng.choice((3, 4))
+        hi = rng.randrange(k)
+        for i in range(k):
+            u = -0.62 + 1.24 * (i + U(0.3, 0.7)) / k
+            ci = c0 + sd * (a * u) + back * (b * U(-0.1, 0.3))
+            ai, bi = a / k * U(1.2, 1.45), b * U(0.85, 1.1)
+            z1 = z0 + h * U(0.42, 0.64)
+            mi = m if (i + hi) % 2 else m2
+            column(ci, ai, bi, zr, z1, U(0.78, 0.88), mi, 0.06, n=rng.choice((6, 7, 8)), visible_from=vis,
+                   with_lid=rng.random() < 0.4)
+            zt = z0 + h * (1.0 if i == hi else U(0.72, 0.92))
+            cc = ci + sd * (ai * U(-0.2, 0.2)) + back * (bi * U(0.05, 0.2))
+            crown(cc, ai * U(0.5, 0.7), bi * U(0.55, 0.75), z1 - 2.0, zt,
+                  rng.choice(("block", "tooth", "block", "twin")), mi, m2 if mi == m else m, 0.25)
+    elif kind == "saddle":
+        mountain(c0, 1.0, r * U(1.2, 1.5), rng.choice(("block", "twin")), shelf=0.6, lid_p=0.4)
+    else:  # mesa: degraus largos com patamares de grama, coroa chata e quebrada
+        mountain(c0, 1.0, base * U(1.0, 1.15), rng.choice(("block", "twin")), shelf=0.9, lid_p=0.8)
+        a2 = base * U(0.6, 0.75)
+        c = flank(side, base * U(0.9, 1.2), base * U(0.1, 0.35), a2)
+        if c is not None:
+            mountain(c, U(0.62, 0.82), a2, "block", shelf=0.8, lid_p=0.7)
+    return kind
 
 def plank_floor(mb, F, w, d, z, rng, m="Wood_Plank", pw=1.1, gap=0.08, h=0.3):
     """assoalho de tabuas corridas (local: x em [-w/2,w/2], y em [-d/2,d/2]); tabuas ao longo de x"""
