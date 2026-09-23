@@ -7,7 +7,7 @@ import bpy
 
 argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
 BLOCKOUT = "blockout" in argv
-OUT = os.path.join(HERE, "lobby_forja_mineradora.blend")
+OUT = os.environ.get("FM_OUT") or os.path.join(HERE, "lobby_forja_mineradora.blend")
 
 mods = ["fm_lib", "fm_parts", "fm_layout", "fm_terrain", "fm_scene", "fm_blockout"]
 extra = ["fm_forge", "fm_mine", "fm_water", "fm_buildings", "fm_portals", "fm_konoha", "fm_props", "fm_veg",
