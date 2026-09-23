@@ -1,20 +1,21 @@
 --[[
-vfx_lobby_forja_client.lua   (gerado por export_vfx.py - vfx-forja-1 - nao editar a mao)
+vfx_lobby_forja_client.lua   (gerado por export_vfx.py - vfx-forja-2 - nao editar a mao)
 VFX e MOVIMENTO do Lobby Vila-Forja - ANIMACAO NO CLIENTE
 
 ONDE COLOCAR: LocalScript em StarterPlayer > StarterPlayerScripts.
 Precisa da montagem (vfx_lobby_forja.lua) feita antes: ela deixa ReplicatedStorage.LOBBY_FORJA_VFX e as tags.
 
-O que faz (tudo local, nada replica para o servidor):
-  - gira a roda d'agua, a coroa, os cames e o pinhao (mesmo relogio: workspace:GetServerTimeNow, todos os
-    jogadores veem a mesma fase) e bate o martinete com faiscas no golpe;
-  - gira as espirais dos portais + clone interno mais rapido (vortice), pulso de luz/anel periodico;
+O que faz (tudo local, nada replica para o servidor; relogio = workspace:GetServerTimeNow, todos veem a mesma fase):
+  - gira a roda d'agua + eixo baixo, o eixo alto (pinhao + engrenagem da parede) e a engrenagem menor, bate o
+    martinete (faiscas no golpe), bombeia o fole (rajada de chamas, faiscas na torre e clarao na lareira no pico);
+  - respingos da roda sincronizados com as pas que entram e saem da agua;
+  - espirais dos portais: gira as 2 ImageLabels do SurfaceGui (interna 2,3x) + o disco; pulso de brilho, aro e anel;
   - carrinho de mina ocasional: sai do patio da mina, para na balanca, descarrega no portao da forja e volta;
-  - golpes do Ignis (ritmo interno ou KeyframeMarker "Golpe" no rig marcado com a tag FORJA_Ignis);
-  - pulsos: cristais, metal quente, brasas da forja, nucleo dos portais; flicker sutil das lanternas e do fogo.
+  - golpes do Ignis (ritmo interno ou KeyframeMarker "Golpe" no rig com a tag FORJA_Ignis) e chiado da tempera;
+  - pulsos: cristais, metal quente, brasas, chamas, aros dos portais; flicker das lanternas e do fogo.
 Desempenho: 1 conexao PreRender com BulkMoveTo so para o que esta perto da camera; pulsos a 20 Hz, luzes a 15 Hz,
 liga/desliga de emissores a 2 Hz. Streaming: registra/desregistra por tag (CollectionService), sem WaitForChild
-no workspace. Respeita GuiService.ReducedMotionEnabled.
+no workspace. Respeita GuiService.ReducedMotionEnabled. CFG:SetAttribute("VFX_Pause", true) congela tudo.
 ]]
 
 local RunService = game:GetService("RunService")
@@ -25,7 +26,8 @@ local GuiService = game:GetService("GuiService")
 if not RunService:IsClient() then return end
 
 local DATA = {}
-DATA.version = 'vfx-forja-1'
+DATA.version = "vfx-forja-2"
+DATA.exportId = nil
 -- trilho percorrido pelo carrinho (canonico; o cliente aplica VFX_RootCF)
 DATA.path = {
   Vector3.new(-58.537, 4.3, 32.59), Vector3.new(-58.027, 4.3, 31.729), Vector3.new(-57.613, 4.3, 30.821),
@@ -57,14 +59,16 @@ DATA.path = {
 DATA.cart = {rest = 4.735, weigh = 24.994, far = 68.36, cycle = 48, vOut = 6, vBack = 7.5, acc = 3,
   stopWeigh = 3, stopFar = 4.5, unloadAt = 1.6, reloadAt = 2.2}
 DATA.hammer = {rise0 = 0.125, rise1 = 0.533, fall0 = 0.55, hit = 0.6, bounce = 0.667}
-DATA.ignis = {cycle = 4.4, hits = {{0, 0.7}, {0.75, 0.7}, {1.5, 1.35}}, pos = Vector3.new(0.5, 8.925, 10)}
+DATA.ignis = {cycle = 4.4, hits = {{0, 0.7}, {0.75, 0.7}, {1.5, 1.35}}, quenchEvery = 3, pos = Vector3.new(0.5, 8.925, 10)}
+-- pas da roda: a pa k esta no angulo k*step - w*t (plano da roda); entra na agua em aIn e sai em aOut
+DATA.wheel = {speed = 0.628, step = 0.393, aIn = -1.146, aOut = -1.996, pos = Vector3.new(62, 11, -20)}
 DATA.portals = {
-  {key = 'Naruto', idx = 0, center = Vector3.new(-108, 41.2, -113)},
-  {key = 'DragonBall', idx = 1, center = Vector3.new(-76, 41.2, -113)},
-  {key = 'ShadowGarden', idx = 2, center = Vector3.new(-44, 41.2, -113)},
-  {key = 'DemonSlayer', idx = 3, center = Vector3.new(44, 41.2, -113)},
-  {key = 'OnePiece', idx = 4, center = Vector3.new(76, 41.2, -113)},
-  {key = 'OnePunchMan', idx = 5, center = Vector3.new(108, 41.2, -113)},
+  {key = "Naruto", idx = 0, center = Vector3.new(-108, 41.2, -113)},
+  {key = "DragonBall", idx = 1, center = Vector3.new(-76, 41.2, -113)},
+  {key = "ShadowGarden", idx = 2, center = Vector3.new(-44, 41.2, -113)},
+  {key = "DemonSlayer", idx = 3, center = Vector3.new(44, 41.2, -113)},
+  {key = "OnePiece", idx = 4, center = Vector3.new(76, 41.2, -113)},
+  {key = "OnePunchMan", idx = 5, center = Vector3.new(108, 41.2, -113)},
 }
 
 local CFG = ReplicatedStorage:WaitForChild("LOBBY_FORJA_VFX", 60)
@@ -72,12 +76,20 @@ if not CFG then
   warn("[VFX Forja] ReplicatedStorage.LOBBY_FORJA_VFX nao existe: rode vfx_lobby_forja.lua (montagem) antes")
   return
 end
+if CFG:GetAttribute("VFX_Version") and CFG:GetAttribute("VFX_Version") ~= DATA.version then
+  warn(string.format("[VFX Forja] montagem %s e cliente %s: rode os dois do mesmo export", tostring(CFG:GetAttribute("VFX_Version")), DATA.version))
+end
+local cfgId = CFG:GetAttribute("VFX_ExportId")
+if cfgId and cfgId ~= "" and DATA.exportId and cfgId ~= DATA.exportId then
+  warn(string.format("[VFX Forja] montagem do passe %s e cliente do passe %s: o trilho do carrinho e a fase das pas "
+    .. "podem nao bater (use os dois .lua do mesmo export_all.py)", cfgId, DATA.exportId))
+end
 local rootCF = CFG:GetAttribute("VFX_RootCF")
 if typeof(rootCF) ~= "CFrame" then rootCF = CFrame.new() end
 
 local TAU = math.pi * 2
-local SPIN_DIST, HAMMER_DIST, CART_DIST = 340, 220, 420
-local PULSE_DIST = {crystal = 230, heat = 200, ember = 450, lantern = 200, portalcore = 480}
+local SPIN_DIST, HAMMER_DIST, CART_DIST, SWIRL_DIST, WHEEL_DIST = 340, 220, 420, 520, 260
+local PULSE_DIST = {crystal = 230, heat = 200, ember = 450, lantern = 200, portalrim = 480}
 local LIGHT_DIST = {lantern = 170, fire = 260, crystal = 220, portal = 480, flash = 260}
 local HOT = Color3.fromRGB(255, 196, 120)
 local WHITE = Color3.new(1, 1, 1)
@@ -113,7 +125,7 @@ local function posOf(inst)
   return Vector3.zero
 end
 
--- ---------------------------------------------------------------- eventos (faiscas, claroes)
+-- ---------------------------------------------------------------- eventos (faiscas, claroes, rajadas)
 local bursts, flash = {}, {}
 local function fire(ev, strength)
   strength = strength or 1
@@ -135,34 +147,15 @@ if EV and EV:IsA("BindableEvent") then
   EV.Event:Connect(function(name, strength) if type(name) == "string" then fire(name, tonumber(strength) or 1) end end)
 end
 
--- ---------------------------------------------------------------- rotores (roda, engrenagens, espirais)
+-- ---------------------------------------------------------------- rotores (roda, engrenagens, discos dos portais)
 local spins = {}
 watch("FORJA_Spin", function(p)
   if not p:IsA("BasePart") or not p:IsDescendantOf(workspace) or spins[p] then return end
   local home, pivot, axis = p:GetAttribute("VFX_Home"), p:GetAttribute("VFX_Pivot"), p:GetAttribute("VFX_Axis")
   if typeof(home) ~= "CFrame" or typeof(pivot) ~= "Vector3" or typeof(axis) ~= "Vector3" then return end
-  local e = {part = p, pivot = pivot, pivotCF = CFrame.new(pivot), axis = axis.Unit, rel = CFrame.new(-pivot) * home,
+  spins[p] = {pivot = pivot, pivotCF = CFrame.new(pivot), axis = axis.Unit, rel = CFrame.new(-pivot) * home,
     speed = p:GetAttribute("VFX_Speed") or 0, phase = p:GetAttribute("VFX_Phase") or 0, portal = p:GetAttribute("VFX_Portal")}
-  if p:GetAttribute("VFX_Inner") then
-    local c = p:Clone()
-    for _, t in ipairs(CollectionService:GetTags(c)) do CollectionService:RemoveTag(c, t) end
-    c:ClearAllChildren()
-    local k = p:GetAttribute("VFX_InnerScale") or 0.55
-    c.Size = Vector3.new(p.Size.X * k, p.Size.Y * k, p.Size.Z * 1.45)
-    c.Transparency = math.clamp(p.Transparency + 0.2, 0, 0.9)
-    c.CastShadow = false
-    c.Name = p.Name .. "_Interno"
-    c.CFrame = home
-    c.Parent = localFolder
-    e.inner = c
-    e.innerMul = p:GetAttribute("VFX_InnerSpeed") or 2.3
-  end
-  spins[p] = e
-end, function(p)
-  local e = spins[p]
-  if e and e.inner then e.inner:Destroy() end
-  spins[p] = nil
-end)
+end, function(p) spins[p] = nil end)
 
 -- ---------------------------------------------------------------- martinete
 local H = DATA.hammer
@@ -191,6 +184,33 @@ watch("FORJA_Hammer", function(p)
   hammers[p] = {group = g, pivotCF = CFrame.new(pivot), axis = axis.Unit, rel = CFrame.new(-pivot) * home}
 end, function(p) hammers[p] = nil end)
 
+-- ---------------------------------------------------------------- fole: angulo = rest + lift * (0.5 - 0.5 cos(k w t))
+local pumps, pumpGroups = {}, {}
+watch("FORJA_Pump", function(p)
+  if not p:IsA("BasePart") or not p:IsDescendantOf(workspace) then return end
+  local home, pivot, axis = p:GetAttribute("VFX_Home"), p:GetAttribute("VFX_Pivot"), p:GetAttribute("VFX_Axis")
+  if typeof(home) ~= "CFrame" or typeof(pivot) ~= "Vector3" or typeof(axis) ~= "Vector3" then return end
+  local ev = p:GetAttribute("VFX_Event") or "foles"
+  local g = pumpGroups[ev]
+  if not g then
+    g = {w = (p:GetAttribute("VFX_K") or 2) * (p:GetAttribute("VFX_Speed") or 0.63), rest = p:GetAttribute("VFX_Rest") or 0,
+      lift = p:GetAttribute("VFX_Lift") or 0.14, lastPh = nil, angle = 0, pivot = pivot}
+    pumpGroups[ev] = g
+  end
+  pumps[p] = {group = g, pivotCF = CFrame.new(pivot), axis = axis.Unit, rel = CFrame.new(-pivot) * home}
+end, function(p) pumps[p] = nil end)
+
+-- ---------------------------------------------------------------- espirais dos portais (SurfaceGui)
+local swirls = {}
+watch("FORJA_Swirl", function(h)
+  if not h:IsA("BasePart") or not h:IsDescendantOf(workspace) then return end
+  local sg = h:FindFirstChildOfClass("SurfaceGui")
+  if not sg then return end
+  swirls[h] = {pos = h.Position, sg = sg, ext = sg:FindFirstChild("Externa"), int = sg:FindFirstChild("Interna"),
+    speed = h:GetAttribute("VFX_Speed") or 0.9, mul = h:GetAttribute("VFX_InnerMul") or 2.3,
+    bright = h:GetAttribute("VFX_Bright") or sg.Brightness, portal = h:GetAttribute("VFX_Portal") or ""}
+end, function(h) swirls[h] = nil end)
+
 -- ---------------------------------------------------------------- pulsos de cor e luzes
 local pulses, lights, emitters = {}, {}, {}
 watch("FORJA_Pulse", function(p)
@@ -198,9 +218,8 @@ watch("FORJA_Pulse", function(p)
   local base = p:GetAttribute("VFX_BaseColor")
   if typeof(base) ~= "Color3" then base = p.Color end
   local kind = p:GetAttribute("VFX_Kind") or "crystal"
-  local hi = base:Lerp(WHITE, 0.45)
-  pulses[p] = {kind = kind, event = p:GetAttribute("VFX_Event") or "", base = base, hi = hi, pos = p.Position,
-    seed = seedOf(p.Position), maxd = PULSE_DIST[kind] or 220}
+  pulses[p] = {kind = kind, event = p:GetAttribute("VFX_Event") or "", base = base, hi = base:Lerp(WHITE, 0.45),
+    amp = p:GetAttribute("VFX_Amp") or 1, pos = p.Position, seed = seedOf(p.Position), maxd = PULSE_DIST[kind] or 220}
 end, function(p) pulses[p] = nil end)
 watch("FORJA_Flicker", function(l)
   if not l:IsA("Light") or not l:IsDescendantOf(workspace) then return end
@@ -278,7 +297,6 @@ local function setupCart()
     dust.Parent = c.parts[1]
     c.dust = dust
   end
-  -- linha do tempo do ciclo
   local C = DATA.cart
   local function moveDur(d, v, a)
     if d <= v * v / a then return 2 * math.sqrt(d / a) end
@@ -371,12 +389,15 @@ task.spawn(function()
   end
 end)
 
--- ---------------------------------------------------------------- relogios (portais e Ignis)
+-- ---------------------------------------------------------------- relogios (portais, Ignis, pas da roda)
 local portalW = {}
 for _, p in ipairs(DATA.portals) do portalW[p.key] = {pos = rootCF * p.center, idx = p.idx, last = nil} end
 local PORTAL_PERIOD = 3.6
 local ignisPos = rootCF * DATA.ignis.pos
-local lastIgnis
+local lastIgnis, ignisCycles = nil, 0
+local WH = DATA.wheel
+local wheelPos = rootCF * WH.pos
+local lastIn, lastOut
 
 -- ---------------------------------------------------------------- laco
 local moveParts, moveCFs = {}, {}
@@ -402,11 +423,6 @@ step:Connect(function(dt)
       n += 1
       moveParts[n] = p
       moveCFs[n] = e.pivotCF * CFrame.fromAxisAngle(e.axis, e.phase + angleAt(sp, t)) * e.rel
-      if e.inner then
-        n += 1
-        moveParts[n] = e.inner
-        moveCFs[n] = e.pivotCF * CFrame.fromAxisAngle(e.axis, e.phase + angleAt(sp * e.innerMul, t)) * e.rel
-      end
     end
   end
 
@@ -424,6 +440,25 @@ step:Connect(function(dt)
     g.angle = g.rest + g.lift * hammerLift(u)
   end
   for p, h in pairs(hammers) do
+    if h.group.near then
+      n += 1
+      moveParts[n] = p
+      moveCFs[n] = h.pivotCF * CFrame.fromAxisAngle(h.axis, h.group.angle) * h.rel
+    end
+  end
+
+  -- fole (no pico do curso: rajada nas chamas/brasas, faiscas na torre, clarao na lareira)
+  for ev, g in pairs(pumpGroups) do
+    local ph = angleAt(g.w, t)
+    local near = (g.pivot - cp).Magnitude < HAMMER_DIST
+    if g.lastPh and near and dt < 0.5 then
+      if (g.lastPh < math.pi and ph >= math.pi) then fire(ev, 1) end
+    end
+    g.lastPh = ph
+    g.near = near
+    g.angle = g.rest + g.lift * (0.5 - 0.5 * math.cos(ph))
+  end
+  for p, h in pairs(pumps) do
     if h.group.near then
       n += 1
       moveParts[n] = p
@@ -452,19 +487,45 @@ step:Connect(function(dt)
 
   if n > 0 then workspace:BulkMoveTo(moveParts, moveCFs, Enum.BulkMoveMode.FireCFrameChanged) end
 
-  -- portais: pulso de luz + anel
+  -- espirais: mesmo relogio do disco (Rotation positiva = horario visto de frente = giro negativo em volta da normal)
+  for _, s in pairs(swirls) do
+    if (s.pos - cp).Magnitude < SWIRL_DIST then
+      local sp = s.speed * motion
+      if s.ext then s.ext.Rotation = (-math.deg(angleAt(sp, t))) % 360 end
+      if s.int then s.int.Rotation = (-math.deg(angleAt(sp * s.mul, t))) % 360 end
+      s.sg.Brightness = s.bright * (1 + 0.45 * (flash["portal:" .. s.portal] or 0))
+    end
+  end
+
+  -- pas da roda: a pa k esta em k*step - w*t; entra na agua em aIn e sai em aOut
+  if (wheelPos - cp).Magnitude < WHEEL_DIST then
+    local th = angleAt(WH.speed, t)
+    local nIn = math.floor((th + WH.aIn) / WH.step)
+    local nOut = math.floor((th + WH.aOut) / WH.step)
+    if lastIn and nIn ~= lastIn and dt < 0.5 then fire("roda:entra", 1) end
+    if lastOut and nOut ~= lastOut and dt < 0.5 then fire("roda:sai", 1) end
+    lastIn, lastOut = nIn, nOut
+  else
+    lastIn, lastOut = nil, nil
+  end
+
+  -- portais: pulso de luz + anel + aro + brilho da espiral
   for key, pw in pairs(portalW) do
     local ph = (t + pw.idx * 0.55) % PORTAL_PERIOD
     if pw.last and ph < pw.last and (pw.pos - cp).Magnitude < 480 then fire("portal:" .. key, 1) end
     pw.last = ph
   end
-  -- Ignis: ritmo interno enquanto o rig nao manda "Golpe"
+  -- Ignis: ritmo interno enquanto o rig nao manda "Golpe"; a tempera chia a cada quenchEvery ciclos
   if os.clock() - lastRigStrike > 12 and (ignisPos - cp).Magnitude < 260 then
     local tc = t % DATA.ignis.cycle
     if lastIgnis then
       for _, hit in ipairs(DATA.ignis.hits) do
         local ht = hit[1]
         if (lastIgnis < ht and tc >= ht) or (tc < lastIgnis and (lastIgnis < ht or tc >= ht)) then fire("ignis", hit[2]) end
+      end
+      if tc < lastIgnis then
+        ignisCycles += 1
+        if ignisCycles % DATA.ignis.quenchEvery == 0 then fire("tempera", 1) end
       end
     end
     lastIgnis = tc
@@ -499,13 +560,14 @@ step:Connect(function(dt)
           local br = 0.5 + math.noise(tn * 0.9, e.seed, 0.5)
           c = e.base:Lerp(HOT, math.clamp(0.06 + 0.14 * br + 0.8 * (flash[e.event] or 0), 0, 1))
         elseif e.kind == "ember" then
-          local f = math.clamp(0.9 + 0.22 * math.noise(tn * 1.6, e.seed, 0.3) * flick, 0.7, 1)
+          local f0 = math.clamp(0.9 + 0.22 * math.noise(tn * 1.6, e.seed, 0.3) * flick, 0.7, 1)
+          local f = 1 - e.amp * (1 - f0)
           c = Color3.new(e.base.R * f, e.base.G * f, e.base.B * f)
         elseif e.kind == "lantern" then
           local f = math.clamp(0.96 + 0.1 * math.noise(tn * 5.5, e.seed, 0.7) * flick, 0.85, 1)
           c = Color3.new(e.base.R * f, e.base.G * f, e.base.B * f)
-        elseif e.kind == "portalcore" then
-          c = e.base:Lerp(WHITE, math.clamp(0.15 + 0.15 * math.sin(tn * 2.6 + e.seed) + 0.6 * (flash[e.event] or 0), 0, 1))
+        elseif e.kind == "portalrim" then
+          c = e.base:Lerp(WHITE, math.clamp(0.08 + 0.1 * math.sin(tn * 2.6 + e.seed) + 0.55 * (flash[e.event] or 0), 0, 1))
         end
         if c then p.Color = c end
       end
@@ -524,6 +586,7 @@ step:Connect(function(dt)
           f = 1 + (0.12 * math.noise(tn * 2.1, e.seed, 0.2) + 0.06 * math.noise(tn * 9.3, e.seed, 0.8)) * flick
         elseif e.kind == "fire" then
           f = 1 + (0.3 * math.noise(tn * 3.3, e.seed, 0.4) + 0.16 * math.noise(tn * 11, e.seed, 0.9)) * flick
+          f *= 1 + 0.3 * (flash[e.event] or 0)
         elseif e.kind == "crystal" then
           f = 1 + 0.15 * math.sin(tn * 1.9 + e.seed)
         elseif e.kind == "portal" then

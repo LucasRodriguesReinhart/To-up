@@ -1,32 +1,32 @@
 --[[
-vfx_lobby_forja.lua   (gerado por export_vfx.py - vfx-forja-1 - nao editar a mao: ajuste export_vfx.py e reexporte)
+vfx_lobby_forja.lua   (gerado por export_vfx.py - vfx-forja-2 - nao editar a mao: ajuste export_vfx.py e reexporte)
 VFX e MOVIMENTO do Lobby Vila-Forja - MONTAGEM
 
-ONDE COLOCAR
-  A) Command Bar do Studio (recomendado), UMA vez, depois de:
-       1. importar LOBBY_*.fbx e rodar montar_lobby_forja.lua (colisoes, marcadores, luzes);
-       2. importar export/LOBBY_VFX_MOVING.fbx com o 3D Importer (pode cair em qualquer lugar do workspace: este
-          script acha as pecas pelo nome e as coloca na posicao certa, mesmo com o lobby deslocado ou girado).
-     Depois salve o place: emissores, luzes, tags e atributos ficam gravados. Pode rodar de novo (idempotente).
-  B) Ou como Script (nao LocalScript) em ServerScriptService: monta tudo ao iniciar o servidor.
-     Nao ha nenhum loop por frame no servidor.
-  E SEMPRE: vfx_lobby_forja_client.lua como LocalScript em StarterPlayer > StarterPlayerScripts. Ele gira a roda,
-  as engrenagens e as espirais, bate o martinete, move o carrinho e faz pulsos/flicker - tudo no cliente.
+ORDEM (tudo do MESMO passe do export_all.py: o EXPORT_ID confere e este script ABORTA se nao bater)
+  1. importar LOBBY_*.fbx e rodar montar_lobby_forja.lua (colisoes, marcadores, luzes, cores, EXPORT_ID, RICO);
+  2. importar export/LOBBY_VFX_MOVING_<ID6>.fbx (DATA.fbx, o do MESMO passe) com o 3D Importer (pode cair em
+     qualquer lugar do workspace: este script acha as pecas pelo nome e as coloca na posicao certa, mesmo com o lobby
+     deslocado ou girado);
+  3. rodar ESTE script na Command Bar (ou como Script em ServerScriptService) e salvar o place.
+     Pode rodar de novo (idempotente). Nao ha nenhum loop por frame no servidor.
+  E SEMPRE: vfx_lobby_forja_client.lua como LocalScript em StarterPlayer > StarterPlayerScripts.
 
 O QUE ESTE SCRIPT CRIA
-  <lobby>.VFX              pecas invisiveis com ParticleEmitters e luzes: fogo da lareira, fumaca da chamine,
-                           faiscas das bigornas, respingos da roda, nevoa/espuma/fios das quedas, vortice e
-                           particulas sugadas dos portais, brilhos dos cristais
+  <lobby>.VFX              pecas invisiveis com ParticleEmitters, Beams e o SurfaceGui das espirais: fogo da lareira,
+                           pluma da torre (nucleo escuro, corpo, topo claro, brasas, faiscas), fumaca fina dos
+                           respiros e de 4 chamines da vila, faiscas da bigorna, vapor da tempera, respingos da roda,
+                           cachoeiras (Beam com estrias + nevoa/espuma), ondulacao do rio e do canal, portais
+                           (espiral em SurfaceGui, particulas sugadas, pulso), brilhos dos cristais
   <lobby>.VFX_MOVING       modelos (streaming atomico) com as pecas moveis do LOBBY_VFX_MOVING.fbx
   ReplicatedStorage.LOBBY_FORJA_VFX       config (VFX_RootCF), molde do carrinho (MineCart), BindableEvent Evento
   ServerStorage.LOBBY_FORJA_VFX_ORIGINAIS malhas estaticas trocadas pelas versoes separadas (para desfazer, devolva)
-  Tags (CollectionService): FORJA_Spin, FORJA_Hammer, FORJA_Pulse, FORJA_Flicker, FORJA_Burst, FORJA_Emitter
+  Tags: FORJA_Spin, FORJA_Hammer, FORJA_Pump, FORJA_Swirl, FORJA_Pulse, FORJA_Flicker, FORJA_Burst, FORJA_Emitter
 
 GANCHOS
-  Rig real do Ignis: ponha a tag "FORJA_Ignis" no Model; um KeyframeMarker "Golpe" na animacao do martelo dispara
-  as faiscas (parametro opcional = forca). Sem rig, o cliente usa um ritmo interno (toc-toc-TOC).
+  Rig real do Ignis: tag "FORJA_Ignis" no Model; KeyframeMarker "Golpe" (parametro opcional = forca) dispara as
+  faiscas. Sem rig, o cliente usa um ritmo interno (toc-toc-TOC) e a tempera chia a cada 3 ciclos.
   Qualquer LocalScript: ReplicatedStorage.LOBBY_FORJA_VFX.Evento:Fire("ignis", 1.5)
-  eventos: "ignis", "martinete", "portal:<Nome>", "carga"
+  eventos: "ignis", "tempera", "martinete", "foles", "roda:entra", "roda:sai", "portal:<Nome>", "carga"
 ]]
 
 local CollectionService = game:GetService("CollectionService")
@@ -35,8 +35,16 @@ local ServerStorage = game:GetService("ServerStorage")
 local RunService = game:GetService("RunService")
 
 local ROOT_NAMES = {"LOBBY_FORJA", "LOBBY_FORJA_PREVIEW"} -- o primeiro que existir no workspace
-local RICO = false          -- mesmo valor do montar_lobby_forja.lua (so usado quando nao ha peca original para copiar)
-local RECOLOR_SWIRL = true  -- disco das espirais mais saturado, para os bracos claros lerem (sem textura no Roblox)
+-- texturas de agua que o jogo ja usa (StylizedWater da Vila da Folha / Vale Capsule); troque aqui se quiser outras
+local TEX_AGUA = {
+  linhas = "rbxassetid://123614169905314",     -- rede de linhas claras: ondulacao do rio e do canal
+  cachoeira = "rbxassetid://108982815970120",  -- estrias: quedas
+}
+-- sentido das texturas dos Beams: 1 = corre de Attachment0 (bocal/montante) para Attachment1 (base/jusante), a mesma
+-- convencao das cachoeiras do StylizedWater; se a agua aparecer SUBINDO no Studio, troque para -1
+local SENTIDO_AGUA = 1
+-- espirais: vazio = usa a textura que o montar aplicou no disco PORTAL_<Nome>_Swirl (TextureID ou SurfaceAppearance)
+local SWIRL_IMG = {Naruto = "", DragonBall = "", ShadowGarden = "", DemonSlayer = "", OnePiece = "", OnePunchMan = ""}
 
 if RunService:IsRunning() and not RunService:IsServer() then
   warn("[VFX Forja] vfx_lobby_forja.lua e a MONTAGEM (Command Bar ou Script de servidor), nao um LocalScript")
@@ -44,147 +52,136 @@ if RunService:IsRunning() and not RunService:IsServer() then
 end
 
 local DATA = {}
-DATA.version = 'vfx-forja-1'
+DATA.version = "vfx-forja-2"
+DATA.exportId = nil  -- EXPORT_ID do passe estatico (montar_lobby_forja.lua grava em root:GetAttribute('EXPORT_ID'))
+DATA.fbx = "LOBBY_VFX_MOVING.fbx"  -- FBX de movimento DESTE passe (3D Importer)
 -- referencias para achar a transformacao do lobby (posicao canonica = export_roblox, Roblox = (x, z, -y))
 DATA.refs = {
-  {name = 'VFX_Waterwheel_Rotate', pos = Vector3.new(62, 11, -20), x = Vector3.new(0, -1, 0), y = Vector3.new(0, 0, -1)},
-  {name = 'NPC_Ignis', pos = Vector3.new(0, 5, 5), x = Vector3.new(-1, 0, 0), y = Vector3.new(0, 0, 1)},
-  {name = 'RAIL_Start_Mine', pos = Vector3.new(-89.627, 4.02, 79.77), x = Vector3.new(1, 0, 0), y = Vector3.new(0, 0, -1)},
-  {name = 'PORTAL_Naruto', pos = Vector3.new(-108, 41.2, -112.4), x = Vector3.new(1, 0, 0), y = Vector3.new(0, 0, -1)},
+  {name = "VFX_Waterwheel_Rotate", pos = Vector3.new(62, 11, -20), x = Vector3.new(0, -1, 0), y = Vector3.new(0, 0, -1)},
+  {name = "NPC_Ignis", pos = Vector3.new(0, 5, 5), x = Vector3.new(-1, 0, 0), y = Vector3.new(0, 0, 1)},
+  {name = "RAIL_Start_Mine", pos = Vector3.new(-89.627, 4.02, 79.77), x = Vector3.new(1, 0, 0), y = Vector3.new(0, 0, -1)},
+  {name = "PORTAL_Naruto", pos = Vector3.new(-108, 41.2, -112.4), x = Vector3.new(1, 0, 0), y = Vector3.new(0, 0, -1)},
 }
--- pecas do LOBBY_VFX_MOVING.fbx: {nome, grupo, centro do bbox (canonico)}
+-- pecas do LOBBY_VFX_MOVING.fbx: {nome, grupo, centro do bbox (canonico), tamanho (Roblox)}
 DATA.movers = {
-  {'VFX_RodaDagua__Wood_Dark', 'roda', Vector3.new(62, 11, -19.999)},
-  {'VFX_RodaDagua__Metal_Iron', 'roda', Vector3.new(62, 11, -20)},
-  {'VFX_RodaDagua__Wood_Light', 'roda', Vector3.new(62, 11, -20)},
-  {'VFX_RodaDagua__Metal_Dark', 'roda', Vector3.new(62, 11, -20)},
-  {'VFX_RodaDagua__Wood_Plank', 'roda', Vector3.new(62, 11, -20)},
-  {'VFX_RodaDaguaFixa__Wood_Dark', 'roda_fixa', Vector3.new(51.2, 8.35, -20)},
-  {'VFX_RodaDaguaFixa__Metal_Iron', 'roda_fixa', Vector3.new(51.55, 13.1, -20)},
-  {'VFX_RodaDaguaFixa__Wood_Plank', 'roda_fixa', Vector3.new(62, 2.4, -20)},
-  {'VFX_CasaRodaEixo__Stone_Dark', 'eixo_baixo', Vector3.new(45.775, 11, -20)},
-  {'VFX_CasaRodaEixo__Wood_Light', 'eixo_baixo', Vector3.new(44.4, 11, -20)},
-  {'VFX_CasaRodaEixo__Metal_Dark', 'eixo_baixo', Vector3.new(44.4, 11, -20)},
-  {'VFX_CasaRodaEixo__Wood_Dark', 'eixo_baixo', Vector3.new(44.4, 11, -20)},
-  {'VFX_CasaRodaEixo__Metal_Iron', 'eixo_baixo', Vector3.new(47.5, 11, -20.339)},
-  {'VFX_CasaRodaPinhao__Stone_Dark', 'pinhao', Vector3.new(44.4, 15.5, -20)},
-  {'VFX_CasaRodaPinhao__Metal_Dark', 'pinhao', Vector3.new(44.4, 15.5, -20)},
-  {'VFX_CasaRodaPinhao__Wood_Light', 'pinhao', Vector3.new(44.4, 15.5, -20)},
-  {'VFX_CasaRodaPinhao__Wood_Dark', 'pinhao', Vector3.new(44.4, 15.5, -20)},
-  {'VFX_CasaRodaMartinete__Stone_Dark', 'martinete', Vector3.new(47.5, 7.82, -20.568)},
-  {'VFX_CasaRodaMartinete__Wood_Dark', 'martinete', Vector3.new(47.5, 8.5, -21)},
-  {'VFX_CasaRodaMartinete__Metal_Dark', 'martinete', Vector3.new(47.5, 7.2, -16)},
-  {'VFX_CasaRodaFixa__Stone_Dark', 'casa_fixa', Vector3.new(48.118, 14.015, -19.575)},
-  {'VFX_CasaRodaFixa__Wood_Dark', 'casa_fixa', Vector3.new(48.45, 14.515, -19.75)},
-  {'VFX_CasaRodaFixa__Metal_Dark', 'casa_fixa', Vector3.new(51.239, 12.825, -15.161)},
-  {'VFX_CasaRodaFixa__Metal_Iron', 'casa_fixa', Vector3.new(47.5, 5.3, -16)},
-  {'VFX_Espiral_Naruto__VFXP_Naruto_Braco', 'espiral_Naruto', Vector3.new(-108.001, 41.2, -113)},
-  {'VFX_Espiral_Naruto__VFXP_Naruto_Nucleo', 'nucleo_Naruto', Vector3.new(-108, 41.2, -112.775)},
-  {'VFX_Espiral_DragonBall__VFXP_DragonBall_Braco', 'espiral_DragonBall', Vector3.new(-76.001, 41.2, -113)},
-  {'VFX_Espiral_DragonBall__VFXP_DragonBall_Nucleo', 'nucleo_DragonBall', Vector3.new(-76, 41.2, -112.775)},
-  {'VFX_Espiral_ShadowGarden__VFXP_ShadowGarden_Braco', 'espiral_ShadowGarden', Vector3.new(-44.001, 41.2, -113)},
-  {'VFX_Espiral_ShadowGarden__VFXP_ShadowGarden_Nucleo', 'nucleo_ShadowGarden', Vector3.new(-44, 41.2, -112.775)},
-  {'VFX_Espiral_DemonSlayer__VFXP_DemonSlayer_Braco', 'espiral_DemonSlayer', Vector3.new(43.999, 41.2, -113)},
-  {'VFX_Espiral_DemonSlayer__VFXP_DemonSlayer_Nucleo', 'nucleo_DemonSlayer', Vector3.new(44, 41.2, -112.775)},
-  {'VFX_Espiral_OnePiece__VFXP_OnePiece_Braco', 'espiral_OnePiece', Vector3.new(75.999, 41.2, -113)},
-  {'VFX_Espiral_OnePiece__VFXP_OnePiece_Nucleo', 'nucleo_OnePiece', Vector3.new(76, 41.2, -112.775)},
-  {'VFX_Espiral_OnePunchMan__VFXP_OnePunchMan_Braco', 'espiral_OnePunchMan', Vector3.new(107.999, 41.2, -113)},
-  {'VFX_Espiral_OnePunchMan__VFXP_OnePunchMan_Nucleo', 'nucleo_OnePunchMan', Vector3.new(108, 41.2, -112.775)},
-  {'VFX_Carrinho__Metal_Iron', 'carrinho', Vector3.new(-56.579, 6.05, 28.288)},
-  {'VFX_Carrinho__Metal_Dark', 'carrinho', Vector3.new(-56.579, 5.915, 28.288)},
-  {'VFX_Carrinho__Wood_Plank', 'carrinho', Vector3.new(-56.579, 6.75, 28.288)},
-  {'VFX_CarrinhoCarga__Crystal_Blue', 'carga', Vector3.new(-56.447, 8.52, 28.377)},
-  {'VFX_CarrinhoCarga__Crystal_Purple', 'carga', Vector3.new(-56.553, 7.907, 27.402)},
+  {"VFX_Roda__Metal_Dark", "roda", Vector3.new(54.05, 11, -20), Vector3.new(20.5, 2.8, 2.8)},
+  {"VFX_Roda__Metal_Iron", "roda", Vector3.new(55.775, 11, -20), Vector3.new(17.05, 18.4, 18.399)},
+  {"VFX_Roda__Metal_Rust", "roda", Vector3.new(59.9, 11, -20), Vector3.new(0.4, 18.4, 18.399)},
+  {"VFX_Roda__Wood_Dark_B", "roda", Vector3.new(56.05, 11, -19.999), Vector3.new(24.9, 18.7, 18.697)},
+  {"VFX_Roda__Wood_Light", "roda", Vector3.new(53.988, 11, -20), Vector3.new(19.975, 17.231, 17.231)},
+  {"VFX_Roda__Wood_Plank", "roda", Vector3.new(62, 11, -20), Vector3.new(3.8, 16.15, 16.15)},
+  {"VFX_Fixa__Metal_Burnt", "fixa", Vector3.new(34.25, 15.5, -24.15), Vector3.new(0.4, 2.2, 2.2)},
+  {"VFX_Fixa__Metal_Dark", "fixa", Vector3.new(51.121, 12.977, -14.061), Vector3.new(7.258, 15.493, 13.222)},
+  {"VFX_Fixa__Metal_Iron", "fixa", Vector3.new(45.6, 9.9, -19.625), Vector3.new(23.8, 11.8, 9.65)},
+  {"VFX_Fixa__Metal_Rust", "fixa", Vector3.new(51.55, 13.1, -20), Vector3.new(35.3, 6.4, 3.4)},
+  {"VFX_Fixa__Wood_Dark", "fixa", Vector3.new(49.24, 14.772, -18.061), Vector3.new(18.366, 21.544, 22.538)},
+  {"VFX_Fixa__Wood_Plank", "fixa", Vector3.new(59.4, 2.4, -20), Vector3.new(0.8, 2.4, 24)},
+  {"VFX_Fixa__Wood_Plank_B", "fixa", Vector3.new(64.6, 2.4, -20), Vector3.new(0.8, 2.4, 24)},
+  {"VFX_EixoAlto__Metal_Burnt", "eixo_alto", Vector3.new(35.9, 15.5, -20), Vector3.new(1.12, 6.292, 6.3)},
+  {"VFX_EixoAlto__Metal_Dark", "eixo_alto", Vector3.new(40.25, 15.5, -20), Vector3.new(9.5, 6.53, 6.53)},
+  {"VFX_EixoAlto__Wood_Dark", "eixo_alto", Vector3.new(39.05, 15.5, -19.995), Vector3.new(11.7, 3.716, 3.66)},
+  {"VFX_EixoAlto__Wood_Light", "eixo_alto", Vector3.new(44.4, 15.5, -20), Vector3.new(0.8, 2.6, 2.6)},
+  {"VFX_Martinete__Metal_Dark", "martinete", Vector3.new(47.5, 7.2, -16), Vector3.new(1.8, 2, 1.8)},
+  {"VFX_Martinete__Wood_Dark", "martinete", Vector3.new(47.5, 8.5, -21), Vector3.new(0.9, 1.896, 10.09)},
+  {"VFX_EngrenagemParede__Metal_Burnt", "engrenagem_parede", Vector3.new(35.9, 15.404, -24.099), Vector3.new(1.12, 2.836, 2.982)},
+  {"VFX_EngrenagemParede__Metal_Iron", "engrenagem_parede", Vector3.new(35.9, 15.5, -24.143), Vector3.new(0.8, 3.12, 3.106)},
+  {"VFX_Carrinho__Metal_Dark", "carrinho", Vector3.new(-56.579, 5.915, 28.288), Vector3.new(3.854, 3.07, 4.098)},
+  {"VFX_Carrinho__Metal_Rust", "carrinho", Vector3.new(-56.579, 6.05, 28.288), Vector3.new(4.005, 2.6, 4.005)},
+  {"VFX_CarrinhoCarga__Crystal_Blue", "carga", Vector3.new(-56.447, 8.512, 28.034), Vector3.new(2.99, 2.819, 1.984)},
 }
--- malhas estaticas substituidas quando TODAS as pecas dos grupos existem
+-- malhas estaticas trocadas: objeto + familias de material, da variante (Wood_Dark: pega Wood_Dark_B) quando o
+-- export estatico nao funde materiais nesse objeto, senao GROSSAS (Wood, Metal); materiais que brilham
+-- (DATA.exact) contam pelo nome exato. So troca se TODOS os grupos existirem (tudo ou nada).
 DATA.sources = {
-  {name = 'WATER_Waterwheel', mats = {'Metal_Dark', 'Metal_Iron', 'Wood_Dark', 'Wood_Light', 'Wood_Plank'}, groups = {'roda', 'roda_fixa'}},
-  {name = 'BLD_WheelHouse', mats = {'Metal_Dark', 'Metal_Iron', 'Stone_Dark', 'Wood_Dark', 'Wood_Light'}, groups = {'eixo_baixo', 'pinhao', 'martinete', 'casa_fixa'}},
+  {name = "WATER_Waterwheel", fams = {"Metal_Dark", "Metal_Iron", "Metal_Rust", "Wood_Dark", "Wood_Light", "Wood_Plank"}, groups = {"roda", "fixa", "eixo_alto"}},
+  {name = "BLD_WheelHouse", fams = {"Metal_Dark", "Metal_Iron", "Wood_Dark", "Wood_Light"}, groups = {"roda", "eixo_alto", "martinete", "fixa"}},
+  {name = "FORGE_Wall_Gears", fams = {"Metal_Burnt", "Metal_Dark", "Metal_Iron"}, groups = {"eixo_alto", "engrenagem_parede", "fixa"}},
 }
+DATA.exact = {["Lantern_Glow"] = true, ["Metal_Heated"] = true}
 DATA.groups = {
-  ['roda'] = {kind = 'spin', assembly = 'RodaDagua', pivot = Vector3.new(62, 11, -20), axis = Vector3.new(-1, 0, 0), speed = 0.628},
-  ['roda_fixa'] = {kind = 'fixed', assembly = 'RodaDagua'},
-  ['eixo_baixo'] = {kind = 'spin', assembly = 'CasaDaRoda', pivot = Vector3.new(62, 11, -20), axis = Vector3.new(-1, 0, 0), speed = 0.628},
-  ['pinhao'] = {kind = 'spin', assembly = 'CasaDaRoda', pivot = Vector3.new(44.4, 15.5, -20), axis = Vector3.new(1, 0, 0), speed = 1.257},
-  ['martinete'] = {kind = 'hammer', assembly = 'CasaDaRoda', pivot = Vector3.new(47.5, 9, -25), axis = Vector3.new(-1, 0, 0), speed = 0.628, camPhase = 1.571, cams = 3, rest = 0.03, lift = 0.16, event = 'martinete'},
-  ['casa_fixa'] = {kind = 'fixed', assembly = 'CasaDaRoda'},
-  ['espiral_Naruto'] = {kind = 'spin', assembly = 'Portal_Naruto', pivot = Vector3.new(-108, 41.2, -113), axis = Vector3.new(0, 0, 1), speed = 0.85, portal = 'Naruto', inner = true, innerScale = 0.55, innerSpeed = 2.3, noShadow = true},
-  ['nucleo_Naruto'] = {kind = 'core', assembly = 'Portal_Naruto', portal = 'Naruto', noShadow = true},
-  ['espiral_DragonBall'] = {kind = 'spin', assembly = 'Portal_DragonBall', pivot = Vector3.new(-76, 41.2, -113), axis = Vector3.new(0, 0, 1), speed = 0.85, portal = 'DragonBall', inner = true, innerScale = 0.55, innerSpeed = 2.3, noShadow = true},
-  ['nucleo_DragonBall'] = {kind = 'core', assembly = 'Portal_DragonBall', portal = 'DragonBall', noShadow = true},
-  ['espiral_ShadowGarden'] = {kind = 'spin', assembly = 'Portal_ShadowGarden', pivot = Vector3.new(-44, 41.2, -113), axis = Vector3.new(0, 0, 1), speed = 0.85, portal = 'ShadowGarden', inner = true, innerScale = 0.55, innerSpeed = 2.3, noShadow = true},
-  ['nucleo_ShadowGarden'] = {kind = 'core', assembly = 'Portal_ShadowGarden', portal = 'ShadowGarden', noShadow = true},
-  ['espiral_DemonSlayer'] = {kind = 'spin', assembly = 'Portal_DemonSlayer', pivot = Vector3.new(44, 41.2, -113), axis = Vector3.new(0, 0, 1), speed = 0.85, portal = 'DemonSlayer', inner = true, innerScale = 0.55, innerSpeed = 2.3, noShadow = true},
-  ['nucleo_DemonSlayer'] = {kind = 'core', assembly = 'Portal_DemonSlayer', portal = 'DemonSlayer', noShadow = true},
-  ['espiral_OnePiece'] = {kind = 'spin', assembly = 'Portal_OnePiece', pivot = Vector3.new(76, 41.2, -113), axis = Vector3.new(0, 0, 1), speed = 0.85, portal = 'OnePiece', inner = true, innerScale = 0.55, innerSpeed = 2.3, noShadow = true},
-  ['nucleo_OnePiece'] = {kind = 'core', assembly = 'Portal_OnePiece', portal = 'OnePiece', noShadow = true},
-  ['espiral_OnePunchMan'] = {kind = 'spin', assembly = 'Portal_OnePunchMan', pivot = Vector3.new(108, 41.2, -113), axis = Vector3.new(0, 0, 1), speed = 0.85, portal = 'OnePunchMan', inner = true, innerScale = 0.55, innerSpeed = 2.3, noShadow = true},
-  ['nucleo_OnePunchMan'] = {kind = 'core', assembly = 'Portal_OnePunchMan', portal = 'OnePunchMan', noShadow = true},
-  ['carrinho'] = {kind = 'cart'},
-  ['carga'] = {kind = 'load'},
+  ["roda"] = {kind = "spin", assembly = "RodaDagua", pivot = Vector3.new(62, 11, -20), axis = Vector3.new(-1, 0, 0), speed = 0.628},
+  ["fixa"] = {kind = "fixed", assembly = "Fixas"},
+  ["eixo_alto"] = {kind = "spin", assembly = "CasaDaRoda", pivot = Vector3.new(44.4, 15.5, -20), axis = Vector3.new(1, 0, 0), speed = 1.257},
+  ["martinete"] = {kind = "hammer", assembly = "CasaDaRoda", pivot = Vector3.new(47.5, 9, -25), axis = Vector3.new(-1, 0, 0), speed = 0.628, camPhase = 1.571, cams = 3, rest = 0.03, lift = 0.16, event = "martinete"},
+  ["engrenagem_parede"] = {kind = "spin", assembly = "ForjaEngrenagens", pivot = Vector3.new(35.9, 15.5, -24.148), axis = Vector3.new(-1, 0, 0), speed = 2.513},
+  ["carrinho"] = {kind = "cart"},
+  ["carga"] = {kind = "load"},
 }
+-- cor calibrada do montar (mesma do export_roblox), Material, transparencia, textura de detalhe
 DATA.mats = {
-  ['Crystal_Blue'] = {c = Color3.fromRGB(56, 144, 255), m = Enum.Material.Neon, r = Enum.Material.Neon, t = 0},
-  ['Crystal_Purple'] = {c = Color3.fromRGB(170, 80, 255), m = Enum.Material.Neon, r = Enum.Material.Neon, t = 0},
-  ['Metal_Dark'] = {c = Color3.fromRGB(85, 85, 89), m = Enum.Material.Metal, r = Enum.Material.Metal, t = 0},
-  ['Metal_Iron'] = {c = Color3.fromRGB(124, 124, 129), m = Enum.Material.Metal, r = Enum.Material.Metal, t = 0},
-  ['Stone_Dark'] = {c = Color3.fromRGB(97, 95, 97), m = Enum.Material.SmoothPlastic, r = Enum.Material.Slate, t = 0},
-  ['VFXP_DemonSlayer_Braco'] = {c = Color3.fromRGB(255, 150, 138), m = Enum.Material.Neon, r = Enum.Material.Neon, t = 0},
-  ['VFXP_DemonSlayer_Nucleo'] = {c = Color3.fromRGB(255, 234, 226), m = Enum.Material.Neon, r = Enum.Material.Neon, t = 0},
-  ['VFXP_DragonBall_Braco'] = {c = Color3.fromRGB(255, 232, 150), m = Enum.Material.Neon, r = Enum.Material.Neon, t = 0},
-  ['VFXP_DragonBall_Nucleo'] = {c = Color3.fromRGB(255, 251, 228), m = Enum.Material.Neon, r = Enum.Material.Neon, t = 0},
-  ['VFXP_Naruto_Braco'] = {c = Color3.fromRGB(255, 178, 204), m = Enum.Material.Neon, r = Enum.Material.Neon, t = 0},
-  ['VFXP_Naruto_Nucleo'] = {c = Color3.fromRGB(255, 238, 244), m = Enum.Material.Neon, r = Enum.Material.Neon, t = 0},
-  ['VFXP_OnePiece_Braco'] = {c = Color3.fromRGB(138, 204, 255), m = Enum.Material.Neon, r = Enum.Material.Neon, t = 0},
-  ['VFXP_OnePiece_Nucleo'] = {c = Color3.fromRGB(228, 246, 255), m = Enum.Material.Neon, r = Enum.Material.Neon, t = 0},
-  ['VFXP_OnePunchMan_Braco'] = {c = Color3.fromRGB(176, 242, 255), m = Enum.Material.Neon, r = Enum.Material.Neon, t = 0},
-  ['VFXP_OnePunchMan_Nucleo'] = {c = Color3.fromRGB(236, 252, 255), m = Enum.Material.Neon, r = Enum.Material.Neon, t = 0},
-  ['VFXP_ShadowGarden_Braco'] = {c = Color3.fromRGB(208, 158, 255), m = Enum.Material.Neon, r = Enum.Material.Neon, t = 0},
-  ['VFXP_ShadowGarden_Nucleo'] = {c = Color3.fromRGB(244, 232, 255), m = Enum.Material.Neon, r = Enum.Material.Neon, t = 0},
-  ['Wood_Dark'] = {c = Color3.fromRGB(105, 72, 48), m = Enum.Material.SmoothPlastic, r = Enum.Material.Wood, t = 0},
-  ['Wood_Light'] = {c = Color3.fromRGB(162, 118, 80), m = Enum.Material.SmoothPlastic, r = Enum.Material.Wood, t = 0},
-  ['Wood_Plank'] = {c = Color3.fromRGB(139, 101, 66), m = Enum.Material.SmoothPlastic, r = Enum.Material.WoodPlanks, t = 0},
+  ["Crystal_Blue"] = {c = Color3.fromRGB(70, 130, 210), m = Enum.Material.Neon, t = 0, x = nil},
+  ["Metal_Burnt"] = {c = Color3.fromRGB(66, 56, 56), m = Enum.Material.Metal, t = 0, x = nil},
+  ["Metal_Dark"] = {c = Color3.fromRGB(78, 76, 76), m = Enum.Material.Metal, t = 0, x = nil},
+  ["Metal_Iron"] = {c = Color3.fromRGB(116, 114, 112), m = Enum.Material.Metal, t = 0, x = nil},
+  ["Metal_Rust"] = {c = Color3.fromRGB(142, 88, 58), m = Enum.Material.CorrodedMetal, t = 0, x = nil},
+  ["Wood_Dark"] = {c = Color3.fromRGB(92, 64, 47), m = Enum.Material.Wood, t = 0, x = "wood"},
+  ["Wood_Dark_B"] = {c = Color3.fromRGB(109, 74, 49), m = Enum.Material.Wood, t = 0, x = "wood"},
+  ["Wood_Light"] = {c = Color3.fromRGB(148, 110, 80), m = Enum.Material.Wood, t = 0, x = "wood"},
+  ["Wood_Plank"] = {c = Color3.fromRGB(126, 92, 66), m = Enum.Material.Wood, t = 0, x = "wood"},
+  ["Wood_Plank_B"] = {c = Color3.fromRGB(143, 105, 71), m = Enum.Material.Wood, t = 0, x = "wood"},
 }
+DATA.texRules = {{"Stone_", "stone"}, {"P_OPM_Concrete", "stone"}, {"Wood_", "wood"}, {"Bark", "wood"}, {"Roof", "roof"}, {"Cliff_Rock", "rock"}, {"Grass", "grass"}, {"Plaster", "plaster"}, {"Dirt", "dirt"}}
 DATA.portals = {
-  {key = 'Naruto', idx = 0, center = Vector3.new(-108, 41.2, -113), normal = Vector3.new(0, 0, 1), radius = 7.5, swirl = 'PORTAL_Naruto_Swirl', arms = 'VFX_Espiral_Naruto__VFXP_Naruto_Braco', core = 'VFX_Espiral_Naruto__VFXP_Naruto_Nucleo',
-   disc = Color3.fromRGB(232, 52, 96), arm = Color3.fromRGB(255, 178, 204), core3 = Color3.fromRGB(255, 238, 244)},
-  {key = 'DragonBall', idx = 1, center = Vector3.new(-76, 41.2, -113), normal = Vector3.new(0, 0, 1), radius = 7.5, swirl = 'PORTAL_DragonBall_Swirl', arms = 'VFX_Espiral_DragonBall__VFXP_DragonBall_Braco', core = 'VFX_Espiral_DragonBall__VFXP_DragonBall_Nucleo',
-   disc = Color3.fromRGB(255, 146, 18), arm = Color3.fromRGB(255, 232, 150), core3 = Color3.fromRGB(255, 251, 228)},
-  {key = 'ShadowGarden', idx = 2, center = Vector3.new(-44, 41.2, -113), normal = Vector3.new(0, 0, 1), radius = 7.5, swirl = 'PORTAL_ShadowGarden_Swirl', arms = 'VFX_Espiral_ShadowGarden__VFXP_ShadowGarden_Braco', core = 'VFX_Espiral_ShadowGarden__VFXP_ShadowGarden_Nucleo',
-   disc = Color3.fromRGB(118, 38, 214), arm = Color3.fromRGB(208, 158, 255), core3 = Color3.fromRGB(244, 232, 255)},
-  {key = 'DemonSlayer', idx = 3, center = Vector3.new(44, 41.2, -113), normal = Vector3.new(0, 0, 1), radius = 7.5, swirl = 'PORTAL_DemonSlayer_Swirl', arms = 'VFX_Espiral_DemonSlayer__VFXP_DemonSlayer_Braco', core = 'VFX_Espiral_DemonSlayer__VFXP_DemonSlayer_Nucleo',
-   disc = Color3.fromRGB(206, 28, 40), arm = Color3.fromRGB(255, 150, 138), core3 = Color3.fromRGB(255, 234, 226)},
-  {key = 'OnePiece', idx = 4, center = Vector3.new(76, 41.2, -113), normal = Vector3.new(0, 0, 1), radius = 7.5, swirl = 'PORTAL_OnePiece_Swirl', arms = 'VFX_Espiral_OnePiece__VFXP_OnePiece_Braco', core = 'VFX_Espiral_OnePiece__VFXP_OnePiece_Nucleo',
-   disc = Color3.fromRGB(24, 92, 226), arm = Color3.fromRGB(138, 204, 255), core3 = Color3.fromRGB(228, 246, 255)},
-  {key = 'OnePunchMan', idx = 5, center = Vector3.new(108, 41.2, -113), normal = Vector3.new(0, 0, 1), radius = 7.5, swirl = 'PORTAL_OnePunchMan_Swirl', arms = 'VFX_Espiral_OnePunchMan__VFXP_OnePunchMan_Braco', core = 'VFX_Espiral_OnePunchMan__VFXP_OnePunchMan_Nucleo',
-   disc = Color3.fromRGB(16, 168, 236), arm = Color3.fromRGB(176, 242, 255), core3 = Color3.fromRGB(236, 252, 255)},
+  {key = "Naruto", idx = 0, center = Vector3.new(-108, 41.2, -113), normal = Vector3.new(0, 0, 1), radius = 7.5, thick = 0.3, swirl = "PORTAL_Naruto_Swirl", spin = -0.9,
+   rims = {}, disc = Color3.fromRGB(232, 52, 96), arm = Color3.fromRGB(255, 178, 204), core3 = Color3.fromRGB(255, 238, 244)},
+  {key = "DragonBall", idx = 1, center = Vector3.new(-76, 41.2, -113), normal = Vector3.new(0, 0, 1), radius = 7.5, thick = 0.3, swirl = "PORTAL_DragonBall_Swirl", spin = 1.25,
+   rims = {"PORTAL_DragonBall_Ring__P_DB_Energy_Glow"}, disc = Color3.fromRGB(255, 146, 18), arm = Color3.fromRGB(255, 232, 150), core3 = Color3.fromRGB(255, 251, 228)},
+  {key = "ShadowGarden", idx = 2, center = Vector3.new(-44, 41.2, -113), normal = Vector3.new(0, 0, 1), radius = 7.5, thick = 0.3, swirl = "PORTAL_ShadowGarden_Swirl", spin = -0.55,
+   rims = {}, disc = Color3.fromRGB(118, 38, 214), arm = Color3.fromRGB(208, 158, 255), core3 = Color3.fromRGB(244, 232, 255)},
+  {key = "DemonSlayer", idx = 3, center = Vector3.new(44, 41.2, -113), normal = Vector3.new(0, 0, 1), radius = 7.5, thick = 0.3, swirl = "PORTAL_DemonSlayer_Swirl", spin = 1.05,
+   rims = {"PORTAL_DemonSlayer_Gate__P_DS_Ember_Glow"}, disc = Color3.fromRGB(206, 28, 40), arm = Color3.fromRGB(255, 150, 138), core3 = Color3.fromRGB(255, 234, 226)},
+  {key = "OnePiece", idx = 4, center = Vector3.new(76, 41.2, -113), normal = Vector3.new(0, 0, 1), radius = 7.5, thick = 0.3, swirl = "PORTAL_OnePiece_Swirl", spin = -0.75,
+   rims = {}, disc = Color3.fromRGB(24, 92, 226), arm = Color3.fromRGB(138, 204, 255), core3 = Color3.fromRGB(228, 246, 255)},
+  {key = "OnePunchMan", idx = 5, center = Vector3.new(108, 41.2, -113), normal = Vector3.new(0, 0, 1), radius = 7.5, thick = 0.3, swirl = "PORTAL_OnePunchMan_Swirl", spin = 1.45,
+   rims = {}, disc = Color3.fromRGB(16, 168, 236), arm = Color3.fromRGB(176, 242, 255), core3 = Color3.fromRGB(236, 252, 255)},
 }
+DATA.portalInner = 2.3
 DATA.fx = {
   anvil_hammer = {pos = Vector3.new(47.5, 7, -16)},
   anvil_ignis = {pos = Vector3.new(0.5, 8.925, 10)},
-  chimney = {pos = Vector3.new(0, 96.5, -30), radius = 7.6},
-  hearth = {pos = Vector3.new(-0.212, 7.648, -1.775), size = Vector3.new(9.023, 0.4, 4.361)},
-  hearth_chimney = {pos = Vector3.new(0, 25.4, -1), size = Vector3.new(3.2, 0.4, 2.2)},
+  chimney = {pos = Vector3.new(0, 96.5, -30), radius = 7.5},
+  hearth = {pos = Vector3.new(0, 7.031, -1.5), size = Vector3.new(8, 0.4, 3.08), height = 5.763},
   mine = {pos = Vector3.new(-91.042, 8, 84.012), size = Vector3.new(20, 8, 20)},
-  shed = {pos = Vector3.new(112.005, 7.85, 34.776), size = Vector3.new(12.736, 3.475, 5.245)},
+  quench = {pos = Vector3.new(10.1, 6.5, 0.3), size = Vector3.new(1.484, 0.2, 1.56)},
+  shed = {pos = Vector3.new(112.001, 8.519, 32.935), size = Vector3.new(12.462, 4.829, 8.953)},
   wheel_in = {pos = Vector3.new(62, 3, -23.709)},
   wheel_mist = {pos = Vector3.new(62, 2.8, -11.5)},
   wheel_out = {pos = Vector3.new(62, 3, -16.291)},
 }
+DATA.vents = {
+  {pos = Vector3.new(-31, 30.3, -10.8), size = Vector3.new(1.4, 0.3, 1.4), rate = 1.4},
+  {pos = Vector3.new(22.9, 28.5, -27.6), size = Vector3.new(1.4, 0.3, 1.4), rate = 1.4},
+  {pos = Vector3.new(30.9, 30.2, -11.2), size = Vector3.new(3.4, 3.2, 3.4), rate = 1.2},
+  {pos = Vector3.new(0, 37.605, -11.75), size = Vector3.new(5, 4.19, 9.7), rate = 1},
+}
+DATA.smokes = {
+  {marker = "VFX_Smoke_Shop", pos = Vector3.new(38.5, 26.4, 28.27), rate = 2},
+  {marker = "VFX_Smoke_Cabin_West_C", pos = Vector3.new(-56.97, 21.6, -27.4), rate = 2},
+  {marker = "VFX_Smoke_Cabin_East_A", pos = Vector3.new(110.8, 23.9, 6), rate = 2},
+  {marker = "VFX_Smoke_Cabin_West_A", pos = Vector3.new(-81.4, 22.7, 12.03), rate = 2},
+}
 DATA.wheelWidth = 3.4
 DATA.waterfalls = {
-  {name = 'Center', top = Vector3.new(0, 29.197, -79.705), base = Vector3.new(0, 13.2, -78.075), width = 5.8, out = Vector3.new(0, 0, 1)},
-  {name = 'NE', top = Vector3.new(130, 72.081, -83.095), base = Vector3.new(130, 13.2, -75.675), width = 8, out = Vector3.new(0, 0, 1)},
-  {name = 'NW', top = Vector3.new(-121, 58.05, -82.082), base = Vector3.new(-121, 13.2, -80.075), width = 7, out = Vector3.new(0, 0, 1)},
-  {name = 'South', top = Vector3.new(62, 2.769, 62.411), base = Vector3.new(62, -44, 65.425), width = 7, out = Vector3.new(0, 0, 1)},
-  {name = 'Spill', top = Vector3.new(60, 12.95, -61.56), base = Vector3.new(60, 2.8, -58.975), width = 7, out = Vector3.new(0, 0, 1)},
+  {name = "Center", top = Vector3.new(0, 29.197, -79.705), base = Vector3.new(0, 13.2, -78.075), width = 5.8, out = Vector3.new(0, 0, 1), lip = 1.63, c0 = 3.781, c1 = -4.799, o0 = 0.35, o1 = 0.35},
+  {name = "NE", top = Vector3.new(130, 72.081, -83.095), base = Vector3.new(130, 40, -80.575), width = 9, out = Vector3.new(0, 0, 1), lip = 2.52, c0 = 5.028, c1 = -9.624, o0 = 0.35, o1 = 0.35},
+  {name = "NE_2", top = Vector3.new(130, 40.371, -77.49), base = Vector3.new(130, 13.2, -75.675), width = 8, out = Vector3.new(0, 0, 1), lip = 1.815, c0 = 4.041, c1 = -8.151, o0 = 0.35, o1 = 0.35},
+  {name = "NW", top = Vector3.new(-121, 58.05, -82.082), base = Vector3.new(-121, 13.2, -80.075), width = 7, out = Vector3.new(0, 0, 1), lip = 2.007, c0 = 4.31, c1 = -13.455, o0 = 0.35, o1 = 0.35},
+  {name = "Queda", top = Vector3.new(0, 50.076, -132.092), base = Vector3.new(0, 29.3, -130.575), width = 6, out = Vector3.new(0, 0, 1), lip = 1.517, c0 = 3.124, c1 = -6.233, o0 = 0.35, o1 = 0.35},
+  {name = "South", top = Vector3.new(62, 2.769, 62.411), base = Vector3.new(62, -44, 65.425), width = 7, out = Vector3.new(0, 0, 1), lip = 3.014, c0 = 6.22, c1 = -14.031, o0 = 0.35, o1 = 0.35},
+  {name = "Spill", top = Vector3.new(60, 12.95, -61.56), base = Vector3.new(60, 2.8, -58.975), width = 7, out = Vector3.new(0, 0, 1), lip = 2.585, c0 = 4.619, c1 = -3.045, o0 = 0.35, o1 = 0.35},
+}
+DATA.flows = {
+  {name = "Rio", a = Vector3.new(62, 2.88, -46.7), b = Vector3.new(62, 2.88, 62.5), width = 6.4, speed = 4},
+  {name = "Canal_Oeste", a = Vector3.new(-123.5, 13.28, -76), b = Vector3.new(57, 13.28, -76), width = 6.4, speed = 2.5},
+  {name = "Canal_Leste", a = Vector3.new(133.5, 13.28, -76), b = Vector3.new(63, 13.28, -76), width = 6.4, speed = 2.5},
+  {name = "Vertedouro", a = Vector3.new(60, 12.98, -72.1), b = Vector3.new(60, 12.98, -62.5), width = 6.6, speed = 4},
 }
 DATA.cartRest = CFrame.new(-56.579, 4.3, 28.288) * CFrame.Angles(0, 1.245, 0)
 
 local function log(fmt, ...) print("[VFX Forja] " .. string.format(fmt, ...)) end
 local function warnf(fmt, ...) warn("[VFX Forja] " .. string.format(fmt, ...)) end
 
--- ---------------------------------------------------------------- raiz e transformacao do lobby
+-- ---------------------------------------------------------------- raiz, passe de exportacao e transformacao
 local root
 for _, n in ipairs(ROOT_NAMES) do
   root = workspace:FindFirstChild(n)
@@ -194,6 +191,15 @@ if not root then
   warnf("lobby nao encontrado no workspace (%s)", table.concat(ROOT_NAMES, ", "))
   return
 end
+local rootId = root:GetAttribute("EXPORT_ID")
+if rootId ~= DATA.exportId then
+  warnf("EXPORT_ID nao confere: lobby = %s, VFX = %s. O estatico (LOBBY_*.fbx + montar_lobby_forja.lua) e o VFX "
+    .. "(LOBBY_VFX_MOVING.fbx + este script) tem que sair do MESMO export_all.py. Nada foi alterado.",
+    tostring(rootId), tostring(DATA.exportId))
+  return
+end
+if rootId == nil then log("montar sem EXPORT_ID: conferencia de passe desligada (reexporte com o export_all.py)") end
+local RICO = root:GetAttribute("RICO") == true
 
 local markers = root:FindFirstChild("GAMEPLAY_MARKERS")
 local rootCF, refName
@@ -255,27 +261,121 @@ local function clearTags(inst)
     if string.sub(t, 1, 6) == "FORJA_" then CollectionService:RemoveTag(inst, t) end
   end
 end
+-- nome sem o sufixo que o 3D Importer poe em nomes repetidos ('.001', ' (1)')
+local function norm(n) return (string.gsub(string.gsub(n, "%.%d+$", ""), " %(%d+%)$", "")) end
+-- material do nome "<objeto>__<material>[_k][_gX_Y]" (fatias _k e celulas _gX_Y do export estatico)
 local function matOf(name)
-  return string.match(name, "__(.-)_%d+$") or string.match(name, "__(.+)$")
+  local s = string.match(norm(name), "__(.+)$")
+  if not s then return nil end
+  s = string.gsub(s, "_g%-?%d+_%-?%d+$", "")
+  s = string.gsub(s, "_%d+$", "")
+  s = string.gsub(s, "_g%-?%d+_%-?%d+$", "")
+  return s
+end
+local function objOf(name) return string.match(norm(name), "^(.-)__") end
+local function coarse(m)
+  if not m then return nil end
+  if DATA.exact[m] then return m end
+  return string.match(m, "^([^_]+)") or m
+end
+local function famKey(m) return m and (string.match(m, "^(.-)_[A-Z]$") or m) end
+local function texKey(m)
+  if not m then return nil end
+  for _, r in ipairs(DATA.texRules) do
+    if string.sub(m, 1, #r[1]) == r[1] then return r[2] end
+  end
+  return nil
+end
+local function lerMapa(d)
+  local ok, v = pcall(function() return d.TextureID end)
+  if ok and v and v ~= "" then return v end
+  local sa = d:FindFirstChildOfClass("SurfaceAppearance")
+  if sa then
+    local ok2, v2 = pcall(function() return sa.ColorMap end)
+    if ok2 and v2 and v2 ~= "" then return v2 end
+    local ok3, v3 = pcall(function() return sa.ColorMapContent.Uri end)
+    if ok3 and v3 and v3 ~= "" then return v3 end
+  end
+  return nil
 end
 
 -- ---------------------------------------------------------------- pecas moveis (LOBBY_VFX_MOVING.fbx)
-local wanted = {}
-for _, m in ipairs(DATA.movers) do wanted[m[1]] = {group = m[2], home = m[3]} end
-local found = {}
-local function scan(container)
+local wanted, ours = {}, {}
+for _, m in ipairs(DATA.movers) do
+  wanted[m[1]] = {group = m[2], home = m[3], size = m[4]}
+  ours[objOf(m[1])] = true
+end
+-- so mexe em MeshParts deste exportador (grupos atuais + nomes da versao vfx-forja-1)
+local LEGACY = {"VFX_RodaDagua", "VFX_CasaRoda", "VFX_Espiral_", "VFX_Carrinho"}
+local function isOurs(name)
+  local o = objOf(name)
+  if not o then return false end
+  if ours[o] then return true end
+  for _, pre in ipairs(LEGACY) do
+    if string.sub(o, 1, #pre) == pre then return true end
+  end
+  return false
+end
+local function sorted3(v)
+  local t = {v.X, v.Y, v.Z}
+  table.sort(t)
+  return t
+end
+local function sizeErr(a, b)
+  local s, w = sorted3(a), sorted3(b)
+  return math.abs(s[1] - w[1]) + math.abs(s[2] - w[2]) + math.abs(s[3] - w[3]), 0.06 * (w[1] + w[2] + w[3]) + 0.3
+end
+local found, cands = {}, {}
+-- nome exato E tamanho do bbox (mesmo nome com outro tamanho = peca de outro passe -> vira candidata)
+local function scan(container, parked)
   for _, d in ipairs(container:GetDescendants()) do
-    if d:IsA("MeshPart") and wanted[d.Name] then
-      if found[d.Name] and found[d.Name] ~= d then
-        d.Parent = ORIG -- duplicata (FBX importado duas vezes)
-      else
-        found[d.Name] = d
+    if d:IsA("MeshPart") and string.sub(d.Name, 1, 4) == "VFX_" and isOurs(d.Name) then
+      local w = wanted[d.Name]
+      local e, tol
+      if w then e, tol = sizeErr(d.Size, w.size) end
+      if w and e <= tol then
+        if not found[d.Name] then
+          found[d.Name] = d
+        elseif found[d.Name] ~= d and not parked then
+          d.Parent = ORIG -- duplicata (FBX importado duas vezes)
+        end
+      elseif not parked then
+        table.insert(cands, d)
       end
     end
   end
 end
 scan(workspace)
 scan(CFG)
+scan(ORIG, true) -- pecas guardadas por uma montagem anterior (FBX incompleto na vez passada)
+-- nome exato nao achado: mesmo objeto + mesma familia de material + mesmo tamanho (variante renomeada)
+local nRen = 0
+for _, m in ipairs(DATA.movers) do
+  if not found[m[1]] then
+    local o, f = objOf(m[1]), coarse(matOf(m[1]))
+    local best, be, tol
+    for i, d in ipairs(cands) do
+      if objOf(d.Name) == o and coarse(matOf(d.Name)) == f then
+        local e, t = sizeErr(d.Size, m[4])
+        if not be or e < be then best, be, tol = i, e, t end
+      end
+    end
+    if best and be <= tol then
+      local d = table.remove(cands, best)
+      d.Name = m[1]
+      found[m[1]] = d
+      nRen += 1
+    end
+  end
+end
+local nStale = 0
+for _, d in ipairs(cands) do
+  d.Parent = ORIG -- peca VFX de outro passe (nome/tamanho nao batem): fora da cena
+  nStale += 1
+end
+if nRen > 0 then log("%d pecas moveis casadas por objeto + familia + tamanho (variante renomeada)", nRen) end
+if nStale > 0 then warnf("%d MeshParts VFX_ de outro passe guardadas em ServerStorage (importe %s)", nStale, DATA.fbx) end
+
 local groupCount, groupTotal = {}, {}
 for _, m in ipairs(DATA.movers) do
   groupTotal[m[2]] = (groupTotal[m[2]] or 0) + 1
@@ -283,79 +383,86 @@ for _, m in ipairs(DATA.movers) do
 end
 local function groupOk(g) return groupTotal[g] ~= nil and groupCount[g] == groupTotal[g] end
 
--- aparencia: copia de uma peca original com o mesmo material (fica identica ao que o montar aplicou)
-local looks = {}
-for _, d in ipairs(root:GetDescendants()) do
-  if d:IsA("MeshPart") and not wanted[d.Name] then
-    local m = matOf(d.Name)
-    if m and not looks[m] then looks[m] = d end
-  end
+-- aparencia: copia de uma peca estatica com o mesmo material (cor, Material, textura: identica ao que o montar
+-- aplicou, inclusive no modo RICO); sem peca-modelo, usa DATA.mats + a textura de uma peca da mesma familia
+local looks, looksFam, texParts = {}, {}, {}
+local function addLook(d)
+  if not d:IsA("MeshPart") or wanted[d.Name] or string.sub(d.Name, 1, 4) == "VFX_" then return end
+  local m = matOf(d.Name)
+  if not m then return end
+  looks[m] = looks[m] or d
+  local fk = famKey(m)
+  looksFam[fk] = looksFam[fk] or d
+  local tk = texKey(m)
+  if tk and not texParts[tk] and d:FindFirstChildOfClass("SurfaceAppearance") then texParts[tk] = d end
 end
-for _, d in ipairs(ORIG:GetDescendants()) do
-  if d:IsA("MeshPart") then
-    local m = matOf(d.Name)
-    if m and not looks[m] then looks[m] = d end
-  end
-end
+for _, d in ipairs(root:GetDescendants()) do addLook(d) end
+for _, d in ipairs(ORIG:GetDescendants()) do addLook(d) end
 local function applyLook(p, mat)
   p.Anchored = true
   p.CanCollide = false
   p.CanTouch = false
   p.CanQuery = false
+  for _, c in ipairs(p:GetChildren()) do
+    if c:IsA("SurfaceAppearance") then c:Destroy() end
+  end
   local e = DATA.mats[mat]
-  local src = looks[mat]
-  if src and not string.find(mat, "^VFXP_") then
+  local src = looks[mat] or looksFam[famKey(mat)]
+  if src then
     p.Color = src.Color
     p.Material = src.Material
     p.MaterialVariant = src.MaterialVariant
     p.Transparency = src.Transparency
     p.Reflectance = src.Reflectance
+    p.CastShadow = src.CastShadow
+    local sa = src:FindFirstChildOfClass("SurfaceAppearance")
+    if sa then sa:Clone().Parent = p end
+    p.TextureID = src.TextureID
   elseif e then
     p.Color = e.c
-    p.Material = RICO and e.r or e.m
+    p.Material = e.m
     p.Transparency = e.t
+    local tp = RICO and e.x and texParts[e.x]
+    local sa = tp and tp:FindFirstChildOfClass("SurfaceAppearance")
+    if sa then sa:Clone().Parent = p end
+    p.TextureID = ""
+  else
+    p.TextureID = ""
   end
-  p.TextureID = ""
 end
 
--- fontes completas: esconde as malhas estaticas originais; incompletas: nao anima (evita peca duplicada)
-local sourceOk = {}
-local byName = {}
-for _, d in ipairs(root:GetDescendants()) do
-  if d:IsA("MeshPart") and not wanted[d.Name] then
-    local base = string.match(d.Name, "^(.-)_%d+$")
-    for _, key in ipairs({d.Name, base}) do
-      if key then
-        byName[key] = byName[key] or {}
-        table.insert(byName[key], d)
-      end
-    end
-  end
-end
+-- fontes: esconde as malhas estaticas (objeto + familia) SO se TODAS as pecas de maquina existirem (tudo ou nada:
+-- a malha FIXA e compartilhada; meia troca deixaria peca duplicada ou buraco)
+local machineGroups, machineOk, missing = {}, true, {}
 for _, s in ipairs(DATA.sources) do
-  local ok = true
   for _, g in ipairs(s.groups) do
-    if groupTotal[g] and not groupOk(g) then ok = false end
-  end
-  sourceOk[s.name] = ok
-  if ok then
-    local moved = 0
-    for _, mat in ipairs(s.mats) do
-      for _, d in ipairs(byName[s.name .. "__" .. mat] or {}) do
-        if d.Parent ~= ORIG then
-          d.Parent = ORIG
-          moved += 1
-        end
-      end
+    machineGroups[g] = true
+    if groupTotal[g] and not groupOk(g) then
+      machineOk = false
+      missing[g] = groupTotal[g] - (groupCount[g] or 0)
     end
-    log("%s: %d malhas originais guardadas em ServerStorage (substituidas pelas pecas separadas)", s.name, moved)
-  else
-    warnf("%s: LOBBY_VFX_MOVING.fbx incompleto; a peca fica estatica (importe o FBX e rode de novo)", s.name)
   end
 end
-local groupSource = {}
-for _, s in ipairs(DATA.sources) do
-  for _, g in ipairs(s.groups) do groupSource[g] = s.name end
+if machineOk then
+  for _, s in ipairs(DATA.sources) do
+    local fams = {}
+    for _, f in ipairs(s.fams) do fams[f] = true end
+    local moved = 0
+    for _, d in ipairs(root:GetDescendants()) do
+      local m = d:IsA("MeshPart") and not wanted[d.Name] and objOf(d.Name) == s.name and matOf(d.Name)
+      -- fams: familia GROSSA (Metal) ou da variante (Metal_Dark), conforme o export estatico funde materiais ou nao
+      if m and (fams[coarse(m)] or fams[famKey(m)]) then
+        d.Parent = ORIG
+        moved += 1
+      end
+    end
+    log("%s: %d malhas estaticas guardadas em ServerStorage (familias %s)", s.name, moved, table.concat(s.fams, ", "))
+  end
+else
+  local t = {}
+  for g, n in pairs(missing) do table.insert(t, g .. " (faltam " .. n .. ")") end
+  warnf("%s incompleto: %s. Roda, engrenagens, martinete e fole ficam ESTATICOS "
+    .. "(importe o FBX deste mesmo export e rode de novo)", DATA.fbx, table.concat(t, ", "))
 end
 
 local assemblies = {}
@@ -383,35 +490,25 @@ local function setMotion(p, home, g)
 end
 
 local cartParts = {}
-local portalArms, portalCore = {}, {}
 local nMov = 0
 for name, part in pairs(found) do
   local w = wanted[name]
   local g = DATA.groups[w.group]
-  local mat = matOf(name)
   clearTags(part)
-  applyLook(part, mat)
+  applyLook(part, matOf(name))
   local home = rootCF * CFrame.new(w.home)
   part.CFrame = home
-  part.CastShadow = not (g and g.noShadow)
   if not g then
     part.Parent = MOVF
   elseif g.kind == "cart" or g.kind == "load" then
     table.insert(cartParts, {part, g.kind == "load"})
-  elseif groupSource[w.group] and not sourceOk[groupSource[w.group]] then
-    part.Parent = ORIG -- fonte incompleta: nao mostra meia roda
+  elseif machineGroups[w.group] and not machineOk then
+    part.Parent = ORIG -- maquina incompleta: nao mostra meia roda
   else
-    part.Parent = assembly(g.assembly)
+    part.Parent = assembly(g.assembly or "Pecas")
     nMov += 1
     if g.kind == "spin" then
       setMotion(part, home, g)
-      if g.portal then part:SetAttribute("VFX_Portal", g.portal) end
-      if g.inner then
-        part:SetAttribute("VFX_Inner", true)
-        part:SetAttribute("VFX_InnerScale", g.innerScale)
-        part:SetAttribute("VFX_InnerSpeed", g.innerSpeed)
-        portalArms[g.portal] = part
-      end
       CollectionService:AddTag(part, "FORJA_Spin")
     elseif g.kind == "hammer" then
       setMotion(part, home, g)
@@ -421,8 +518,13 @@ for name, part in pairs(found) do
       part:SetAttribute("VFX_Lift", g.lift)
       part:SetAttribute("VFX_Event", g.event)
       CollectionService:AddTag(part, "FORJA_Hammer")
-    elseif g.kind == "core" then
-      portalCore[g.portal] = part
+    elseif g.kind == "pump" then
+      setMotion(part, home, g)
+      part:SetAttribute("VFX_Rest", g.rest)
+      part:SetAttribute("VFX_Lift", g.lift)
+      part:SetAttribute("VFX_K", g.k)
+      part:SetAttribute("VFX_Event", g.event)
+      CollectionService:AddTag(part, "FORJA_Pump")
     end
   end
 end
@@ -483,7 +585,6 @@ local TEX = {
   smoke = "rbxasset://textures/particles/smoke_main.dds",
   fire = "rbxasset://textures/particles/fire_main.dds",
   star = "rbxasset://textures/particles/sparkles_main.dds",
-  vortex = "rbxasset://textures/particles/forcefield_vortex_main.dds",
 }
 local function RGB(r, g, b) return Color3.fromRGB(r, g, b) end
 local function NS(t)
@@ -500,13 +601,18 @@ local function CS(t)
 end
 local function NR(t) return NumberRange.new(t[1], t[2] or t[1]) end
 
-local function host(name, posC, size, lookC)
+-- peca invisivel; posC canonico (ou cfW = CFrame do mundo); lookC = direcao da face Front (canonica)
+local function host(name, posC, size, lookC, cfW)
   local p = Instance.new("Part")
   p.Name = name
   p.Size = size
-  local cf = CFrame.new(posC)
-  if lookC then cf = CFrame.lookAt(posC, posC + lookC) end
-  p.CFrame = WCF(cf)
+  if cfW then
+    p.CFrame = cfW
+  else
+    local cf = CFrame.new(posC)
+    if lookC then cf = CFrame.lookAt(posC, posC + lookC) end
+    p.CFrame = WCF(cf)
+  end
   p.Anchored = true
   p.CanCollide = false
   p.CanTouch = false
@@ -522,6 +628,13 @@ local function att(parent, name, cf)
   a.Name = name
   a.CFrame = cf or CFrame.new()
   a.Parent = parent
+  return a
+end
+local function attW(parent, name, cfC) -- CFrame canonico -> mundo
+  local a = Instance.new("Attachment")
+  a.Name = name
+  a.Parent = parent
+  a.WorldCFrame = WCF(cfC)
   return a
 end
 local function emitter(parent, name, p)
@@ -561,6 +674,29 @@ local function emitter(parent, name, p)
   end
   return e
 end
+local function beam(parent, name, a0, a1, p)
+  local b = Instance.new("Beam")
+  b.Name = name
+  b.Attachment0 = a0
+  b.Attachment1 = a1
+  b.FaceCamera = false
+  b.Segments = p.segments or 12
+  b.Texture = p.tex
+  b.TextureMode = Enum.TextureMode.Wrap
+  b.TextureLength = p.len or 6
+  b.TextureSpeed = (p.speed or 1) * SENTIDO_AGUA
+  b.Width0 = p.w0
+  b.Width1 = p.w1 or p.w0
+  b.CurveSize0 = p.c0 or 0
+  b.CurveSize1 = p.c1 or 0
+  b.LightEmission = p.emission or 0
+  b.LightInfluence = p.influence or 1
+  b.Color = CS(p.color or RGB(255, 255, 255))
+  b.Transparency = NS(p.transp or 0)
+  b.ZOffset = p.zoff or 0
+  b.Parent = parent
+  return b
+end
 local function flashLight(parent, color, range, peak, event)
   local l = Instance.new("PointLight")
   l.Name = "Clarao"
@@ -577,44 +713,63 @@ local function flashLight(parent, color, range, peak, event)
 end
 local UP = Vector3.new(0, 1, 0)
 local FX = DATA.fx
-local nEm = 0
+local nEm, nBeam = 0, 0
 local function count(n) nEm += n end
 
 -- ---------------------------------------------------------------- FORJA (quente)
 if FX.hearth then
+  -- lamina no leito de brasas; hk = altura das chamas (props do VFX_Hearth_Fire) / 3,5 studs do ajuste original
+  local hk = math.clamp((FX.hearth.height or 3.5) / 3.5, 0.7, 1.8)
+  local sk = 0.6 + 0.4 * hk
   local h = host("Lareira_Fogo", FX.hearth.pos, FX.hearth.size)
+  -- continuo + rajada a cada golpe do fole ("foles")
   emitter(h, "Chamas", {tex = TEX.dot, color = {{0, RGB(255, 246, 196)}, {0.25, RGB(255, 196, 78)}, {0.6, RGB(255, 112, 32)}, {1, RGB(150, 34, 12)}},
-    size = {{0, 1.3}, {0.35, 2.2}, {1, 0.35}}, transp = {{0, 0.45}, {0.18, 0.08}, {0.75, 0.45}, {1, 1}},
-    life = {0.55, 1.05}, rate = 30, speed = {2.5, 5}, spread = 12, accel = Vector3.new(0, 3.5, 0), drag = 0.6,
-    emission = 1, bright = 2, rot = {0, 360}, rotspeed = {-40, 40}, zoff = 0.4, maxd = 320})
+    size = {{0, 1.3 * sk}, {0.35, 2.2 * sk}, {1, 0.35}}, transp = {{0, 0.45}, {0.18, 0.08}, {0.75, 0.45}, {1, 1}},
+    life = {0.55, 1.05}, rate = 30, speed = {2.5 * hk, 5 * hk}, spread = 12, accel = Vector3.new(0, 3.5 * hk, 0), drag = 0.6,
+    emission = 1, bright = 2, rot = {0, 360}, rotspeed = {-40, 40}, zoff = 0.4, maxd = 320, event = "foles", count = 6})
   emitter(h, "Linguas", {tex = TEX.fire, color = {{0, RGB(255, 226, 150)}, {0.5, RGB(255, 132, 40)}, {1, RGB(190, 46, 18)}},
-    size = {{0, 2.2}, {0.5, 3.0}, {1, 0.8}}, transp = {{0, 0.55}, {0.3, 0.2}, {1, 1}},
-    life = {0.4, 0.8}, rate = 10, speed = {3, 6}, spread = 8, emission = 0.9, bright = 1.6, rot = {-25, 25}, maxd = 320})
+    size = {{0, 2.2 * sk}, {0.5, 3.0 * sk}, {1, 0.8}}, transp = {{0, 0.55}, {0.3, 0.2}, {1, 1}},
+    life = {0.4, 0.8}, rate = 10, speed = {3 * hk, 6 * hk}, spread = 8, emission = 0.9, bright = 1.6, rot = {-25, 25}, maxd = 320})
   emitter(h, "Brasas", {tex = TEX.dot, color = RGB(255, 168, 60), size = {{0, 0.3}, {1, 0}}, transp = {{0, 0}, {0.8, 0.2}, {1, 1}},
-    life = {0.9, 1.8}, rate = 5, speed = {2.5, 5}, spread = 25, accel = Vector3.new(0, 2, 1.4), drag = 0.4,
-    emission = 1, bright = 3, maxd = 260})
+    life = {0.9, 1.8}, rate = 5, speed = {2.5 * hk, 5 * hk}, spread = 25, accel = Vector3.new(0, 2, 1.4), drag = 0.4,
+    emission = 1, bright = 3, maxd = 260, event = "foles", count = 6})
   count(3)
 end
+-- pluma da torre: nucleo escuro + corpo cinza que deriva + topo claro e transparente; brasas e faiscas
 if FX.chimney then
   local r = FX.chimney.radius
-  local h = host("Chamine_Fumaca", FX.chimney.pos, Vector3.new(r, 1, r))
-  emitter(h, "Fumaca", {tex = TEX.smoke, color = {{0, RGB(66, 58, 54)}, {0.5, RGB(94, 88, 84)}, {1, RGB(142, 138, 136)}},
-    size = {{0, 5}, {0.25, 10}, {1, 28}}, transp = {{0, 1}, {0.06, 0.3}, {0.55, 0.45}, {1, 1}},
-    life = {9, 13}, rate = 4.5, speed = {7, 10}, spread = 8, accel = Vector3.new(1.4, 0.3, -0.65), drag = 0.25,
-    influence = 1, rot = {0, 360}, rotspeed = {-12, 12}, maxd = 3000})
-  emitter(h, "Fagulhas", {tex = TEX.dot, color = RGB(255, 150, 50), size = {{0, 0.45}, {1, 0}}, transp = {{0, 0}, {1, 1}},
-    life = {1.5, 3}, rate = 3, speed = {9, 14}, spread = 20, accel = Vector3.new(1.5, -2, -0.6), drag = 0.5,
-    emission = 1, bright = 3, maxd = 700})
-  count(2)
+  local h = host("Chamine_Pluma", FX.chimney.pos, Vector3.new(r * 1.3, 1, r * 1.3))
+  emitter(h, "Nucleo", {tex = TEX.smoke, color = {{0, RGB(40, 36, 34)}, {1, RGB(72, 66, 62)}},
+    size = {{0, 6}, {1, 18}}, transp = {{0, 1}, {0.05, 0.12}, {0.6, 0.4}, {1, 1}}, life = {4.5, 6.5}, rate = 3,
+    speed = {8, 11}, spread = 6, accel = Vector3.new(1.2, 0.8, 0), drag = 0.3, influence = 1, rot = {0, 360},
+    rotspeed = {-14, 14}, maxd = 3000})
+  emitter(h, "Corpo", {tex = TEX.smoke, color = {{0, RGB(96, 90, 86)}, {0.5, RGB(128, 122, 118)}, {1, RGB(160, 156, 154)}},
+    size = {{0, 10}, {0.4, 18}, {1, 28}}, transp = {{0, 1}, {0.08, 0.32}, {0.6, 0.5}, {1, 1}}, life = {7, 10}, rate = 3.5,
+    speed = {6, 9}, spread = 10, accel = Vector3.new(2, 1.5, 0), drag = 0.25, influence = 1, rot = {0, 360},
+    rotspeed = {-10, 10}, maxd = 3000})
+  local top = host("Chamine_PlumaTopo", FX.chimney.pos + Vector3.new(0, 7, 0), Vector3.new(r * 1.8, 2, r * 1.8))
+  emitter(top, "Topo", {tex = TEX.smoke, color = {{0, RGB(178, 174, 172)}, {1, RGB(216, 214, 214)}},
+    size = {{0, 14}, {1, 40}}, transp = {{0, 1}, {0.15, 0.62}, {0.7, 0.78}, {1, 1}}, life = {9, 12}, rate = 1.6,
+    speed = {4, 6}, spread = 14, accel = Vector3.new(2.6, 1.0, 0), drag = 0.2, influence = 1, rot = {0, 360},
+    rotspeed = {-8, 8}, maxd = 3000})
+  emitter(h, "Brasas", {tex = TEX.dot, color = {{0, RGB(255, 214, 120)}, {1, RGB(255, 96, 24)}}, size = {{0, 0.55}, {1, 0}},
+    transp = {{0, 0}, {0.8, 0.2}, {1, 1}}, life = {2, 3.5}, rate = 4, speed = {9, 15}, spread = 22,
+    accel = Vector3.new(1.5, -3, 0), drag = 0.5, emission = 1, bright = 3, maxd = 900})
+  emitter(h, "Faiscas", {tex = TEX.dot, color = {{0, RGB(255, 236, 170)}, {1, RGB(255, 120, 30)}}, size = {{0, 0.4}, {1, 0.05}},
+    transp = {{0, 0}, {1, 1}}, life = {0.8, 1.4}, rate = 2, speed = {18, 26}, spread = 18, accel = Vector3.new(0, -12, 0),
+    drag = 0.8, emission = 1, bright = 4, orient = Enum.ParticleOrientation.VelocityParallel, squash = 1.6, maxd = 900,
+    event = "foles", count = 10})
+  count(5)
 end
-if FX.hearth_chimney then
-  local h = host("Lareira_Fumaca", FX.hearth_chimney.pos, FX.hearth_chimney.size)
-  emitter(h, "Fumaca", {tex = TEX.smoke, color = {{0, RGB(120, 114, 110)}, {1, RGB(172, 168, 166)}},
-    size = {{0, 1.6}, {1, 7}}, transp = {{0, 1}, {0.1, 0.55}, {1, 1}}, life = {4, 6}, rate = 1.8, speed = {3, 5},
-    spread = 10, accel = Vector3.new(0.8, 0.3, -0.35), influence = 1, rot = {0, 360}, rotspeed = {-15, 15}, maxd = 500})
+-- fumaca fina nos respiros do telhado da forja
+for i, v in ipairs(DATA.vents) do
+  local h = host("Respiro_" .. i, v.pos, v.size)
+  emitter(h, "Fumaca", {tex = TEX.smoke, color = {{0, RGB(150, 146, 142)}, {1, RGB(180, 178, 176)}},
+    size = {{0, 1.4}, {1, 6}}, transp = {{0, 1}, {0.12, 0.55}, {1, 1}}, life = {4, 6}, rate = v.rate, speed = {2, 3.5},
+    spread = 12, accel = Vector3.new(1.2, 0.6, 0), drag = 0.3, influence = 1, rot = {0, 360}, rotspeed = {-12, 12}, maxd = 600})
   count(1)
 end
-local function anvilFX(name, posC, event, sparks, speedMax, peak)
+local function anvilFX(name, posC, event, sparks, speedMax, peak, loop)
   local h = host(name, posC, Vector3.new(0.6, 0.2, 0.6))
   local a = att(h, "Topo")
   emitter(a, "Faiscas", {tex = TEX.dot, color = {{0, RGB(255, 250, 214)}, {0.4, RGB(255, 192, 82)}, {1, RGB(255, 108, 30)}},
@@ -623,110 +778,202 @@ local function anvilFX(name, posC, event, sparks, speedMax, peak)
     orient = Enum.ParticleOrientation.VelocityParallel, squash = 2, event = event, count = sparks})
   emitter(a, "Brilho", {tex = TEX.dot, color = RGB(255, 204, 128), size = {{0, 2.2}, {1, 5}}, transp = {{0, 0.35}, {1, 1}},
     life = {0.16}, speed = {0}, emission = 1, bright = 3, event = event, count = 1})
+  if loop then
+    -- faiscas miudas em loop: a bigorna nunca fica "morta" entre os golpes
+    emitter(a, "FaiscasLoop", {tex = TEX.dot, color = {{0, RGB(255, 236, 180)}, {1, RGB(255, 120, 36)}},
+      size = {{0, 0.18}, {1, 0.04}}, transp = {{0, 0}, {1, 1}}, life = {0.25, 0.55}, rate = loop, speed = {5, 10},
+      spread = 60, accel = Vector3.new(0, -50, 0), drag = 1.2, emission = 1, bright = 3,
+      orient = Enum.ParticleOrientation.VelocityParallel, squash = 1.5, maxd = 220})
+  end
   flashLight(h, RGB(255, 160, 70), 14, peak, event)
-  count(2)
+  count(loop and 3 or 2)
   return h, a
 end
-anvilFX("Bigorna_Ignis", FX.anvil_ignis.pos, "ignis", 14, 26, 4)
+anvilFX("Bigorna_Ignis", FX.anvil_ignis.pos, "ignis", 14, 26, 4, 2.5)
 local _, ah = anvilFX("Bigorna_Martinete", FX.anvil_hammer.pos, "martinete", 9, 18, 3)
 emitter(ah, "Po", {tex = TEX.smoke, color = RGB(128, 118, 108), size = {{0, 0.8}, {1, 2.6}}, transp = {{0, 0.5}, {1, 1}},
   life = {0.6, 1.1}, speed = {2, 4}, spread = 80, accel = Vector3.new(0, 1, 0), drag = 2, influence = 1,
   event = "martinete", count = 4})
 count(1)
+if FX.quench then
+  local q = host("Tempera_Vapor", FX.quench.pos, FX.quench.size)
+  emitter(q, "Vapor", {tex = TEX.smoke, color = RGB(236, 240, 244), size = {{0, 0.8}, {1, 3.6}},
+    transp = {{0, 1}, {0.15, 0.55}, {1, 1}}, life = {1.6, 2.6}, rate = 1.5, speed = {1.5, 3}, spread = 18,
+    accel = Vector3.new(0.4, 1.4, 0), drag = 0.6, influence = 0.8, rot = {0, 360}, rotspeed = {-30, 30}, maxd = 260})
+  emitter(q, "Chiado", {tex = TEX.smoke, color = RGB(246, 248, 250), size = {{0, 1.2}, {1, 5.5}},
+    transp = {{0, 0.35}, {1, 1}}, life = {1.2, 2.2}, speed = {3, 6}, spread = 25, accel = Vector3.new(0.4, 2.5, 0),
+    drag = 0.8, influence = 0.8, rot = {0, 360}, rotspeed = {-40, 40}, event = "tempera", count = 14})
+  count(2)
+end
 
--- ---------------------------------------------------------------- AGUA (frio): roda e quedas
+-- ---------------------------------------------------------------- AGUA (frio): roda, quedas, correntes
 do
   local ww = DATA.wheelWidth
   local o = host("Roda_Respingo", FX.wheel_out.pos, Vector3.new(ww + 0.4, 0.4, 1.6))
   emitter(o, "Gotas", {tex = TEX.dot, color = RGB(226, 242, 255), size = {{0, 0.45}, {1, 0.2}}, transp = {{0, 0.15}, {1, 1}},
-    life = {0.5, 0.9}, rate = 22, speed = {6, 11}, spread = 30, accel = Vector3.new(0, -40, 3), drag = 0.5,
+    life = {0.5, 0.9}, rate = 10, speed = {6, 11}, spread = 30, accel = Vector3.new(0, -40, 3), drag = 0.5,
     emission = 0.3, influence = 0.6, orient = Enum.ParticleOrientation.VelocityParallel, squash = 0.8, maxd = 300})
+  -- rajada sincronizada com a pa que sai da agua (evento do cliente, pela fase da roda)
+  emitter(o, "Pa", {tex = TEX.dot, color = RGB(236, 248, 255), size = {{0, 0.55}, {1, 0.2}}, transp = {{0, 0.1}, {1, 1}},
+    life = {0.5, 0.9}, speed = {7, 12}, spread = 25, accel = Vector3.new(0, -40, 2), drag = 0.5, emission = 0.3,
+    influence = 0.6, orient = Enum.ParticleOrientation.VelocityParallel, squash = 0.8, event = "roda:sai", count = 9})
   local i = host("Roda_Entrada", FX.wheel_in.pos, Vector3.new(ww + 0.4, 0.4, 1.6))
   emitter(i, "Gotas", {tex = TEX.dot, color = RGB(226, 242, 255), size = {{0, 0.4}, {1, 0.15}}, transp = {{0, 0.2}, {1, 1}},
-    life = {0.35, 0.6}, rate = 10, speed = {3, 6}, spread = 40, accel = Vector3.new(0, -40, 0), drag = 0.5,
+    life = {0.35, 0.6}, rate = 4, speed = {3, 6}, spread = 40, accel = Vector3.new(0, -40, 0), drag = 0.5,
     emission = 0.3, influence = 0.6, maxd = 300})
+  emitter(i, "Pa", {tex = TEX.dot, color = RGB(236, 248, 255), size = {{0, 0.5}, {1, 0.15}}, transp = {{0, 0.1}, {1, 1}},
+    life = {0.35, 0.6}, speed = {4, 8}, spread = 45, accel = Vector3.new(0, -40, 0), drag = 0.5, emission = 0.3,
+    influence = 0.6, event = "roda:entra", count = 6})
   local m = host("Roda_Nevoa", FX.wheel_mist.pos, Vector3.new(ww + 1, 0.5, 4))
   emitter(m, "Espuma", {tex = TEX.smoke, color = RGB(240, 248, 255), size = {{0, 1.5}, {1, 4.5}}, transp = {{0, 0.5}, {1, 1}},
     life = {1.2, 2}, rate = 4, speed = {1, 2.5}, spread = 40, drag = 1, influence = 0.7, rot = {0, 360}, maxd = 300})
-  count(3)
+  count(5)
 end
+-- cachoeiras: 2 Beams com estrias (corpo + brilho) seguindo a queda + nevoa e espuma na base
 for _, wf in ipairs(DATA.waterfalls) do
   local w = wf.width
-  local h = (wf.top - wf.base).Magnitude
-  local b = host("Queda_" .. wf.name .. "_Base", wf.base + Vector3.new(0, 0.3, 0), Vector3.new(w + 1.5, 0.6, 3), wf.out)
+  local out = wf.out
+  local lat = UP:Cross(out).Unit
+  -- curva ajustada no export (fit_beam): corre na frente da cortina de agua do bocal ate a base
+  local top = wf.top + out * (wf.o0 or 0.35)
+  local base = wf.base + out * (wf.o1 or 0.35)
+  local fall = top.Y - base.Y
+  local hb = host("Queda_" .. wf.name, (top + base) / 2, Vector3.new(1, 1, 1))
+  local a0 = attW(hb, "Topo", CFrame.fromMatrix(top, out, lat))
+  local a1 = attW(hb, "Base", CFrame.fromMatrix(base, UP, lat))
+  local c0 = wf.c0 or math.clamp(wf.lip * 1.4, 0.8, 6)
+  local c1 = wf.c1 or -math.clamp(fall * 0.3, 2, 24)
+  beam(hb, "Agua", a0, a1, {tex = TEX_AGUA.cachoeira, len = 6, speed = 1.2, w0 = w, w1 = w * 1.08, c0 = c0, c1 = c1,
+    emission = 0.3, influence = 0.7, color = {{0, RGB(214, 240, 255)}, {1, RGB(176, 222, 246)}},
+    transp = {{0, 0.3}, {0.08, 0.06}, {0.9, 0.1}, {1, 0.45}}, zoff = 0.3, segments = 16})
+  beam(hb, "Brilho", a0, a1, {tex = TEX_AGUA.cachoeira, len = 9, speed = 2, w0 = w * 0.6, w1 = w * 0.7, c0 = c0 * 1.05,
+    c1 = c1 * 0.95, emission = 0.45, influence = 0.4, color = RGB(255, 255, 255), transp = {{0, 0.5}, {1, 0.7}},
+    zoff = 0.5, segments = 16})
+  nBeam += 2
+  local b = host("Queda_" .. wf.name .. "_Base", base + Vector3.new(0, 0.3, 0), Vector3.new(w + 1.5, 0.6, 3), wf.out)
   emitter(b, "Nevoa", {tex = TEX.smoke, color = RGB(236, 245, 255), size = {{0, math.clamp(w * 0.45, 3, 7)}, {1, math.clamp(w * 1.15, 6, 14)}},
     transp = {{0, 0.72}, {0.3, 0.55}, {1, 1}}, life = {2.5, 4}, rate = math.clamp(w * 0.35, 1.5, 4), speed = {1.5, 3.5},
     spread = 45, accel = Vector3.new(0, 0.6, 0), drag = 0.6, influence = 0.8, rot = {0, 360}, rotspeed = {-10, 10}, maxd = 650})
   emitter(b, "Espuma", {tex = TEX.smoke, color = RGB(250, 253, 255), size = {{0, 1.4}, {1, 3.2}}, transp = {{0, 0.25}, {1, 1}},
     life = {0.6, 1.1}, rate = math.clamp(w * 1.4, 5, 12), speed = {4, 8}, spread = 35, accel = Vector3.new(0, -18, 0),
     drag = 0.8, influence = 0.7, rot = {0, 360}, maxd = 450})
-  local t = host("Queda_" .. wf.name .. "_Fios", wf.top + wf.out * 0.7, Vector3.new(w * 0.75, 0.3, 0.5), wf.out)
-  emitter(t, "Fios", {tex = TEX.dot, color = RGB(220, 238, 255), size = {{0, 0.55}, {1, 0.3}}, transp = {{0, 0.4}, {0.8, 0.55}, {1, 1}},
-    life = {math.min(1.6, math.sqrt(2 * h / 40))}, rate = math.clamp(w * 1.2, 4, 10), speed = {3, 6}, spread = 4, spread2 = 10,
-    dir = Enum.NormalId.Bottom, accel = Vector3.new(0, -40, 0) + wf.out * 1.5, emission = 0.4, influence = 0.5,
-    orient = Enum.ParticleOrientation.VelocityParallel, squash = 2.5, maxd = 450})
-  count(3)
+  count(2)
+end
+-- rio (-Y) e canal (para o vertedouro): ondulacao rolando no sentido do fluxo (Beam deitado na agua)
+for _, f in ipairs(DATA.flows) do
+  local dir = (f.b - f.a).Unit
+  local lat = UP:Cross(dir).Unit
+  local h = host("Corrente_" .. f.name, (f.a + f.b) / 2, Vector3.new(1, 1, 1))
+  local a0 = attW(h, "Montante", CFrame.fromMatrix(f.a, dir, lat))
+  local a1 = attW(h, "Jusante", CFrame.fromMatrix(f.b, dir, lat))
+  beam(h, "Ondulacao", a0, a1, {tex = TEX_AGUA.linhas, len = 16, speed = f.speed / 16, w0 = f.width, emission = 0.12,
+    influence = 0.9, color = RGB(236, 248, 255), transp = {{0, 1}, {0.04, 0.6}, {0.96, 0.6}, {1, 1}}, segments = 2,
+    zoff = 0.05})
+  nBeam += 1
 end
 
--- ---------------------------------------------------------------- PORTAIS (acentos)
+-- ---------------------------------------------------------------- PORTAIS: espiral em SurfaceGui + sugadas + aro
+local nSwirl, nSug, nRim = 0, 0, 0
 for _, p in ipairs(DATA.portals) do
-  local key = p.key
-  local R = p.radius
-  local n = p.normal
-  local armPart = portalArms[key]
-  -- disco original: gira junto (se ganhou detalhe no Blender, aparece girando) e fica mais saturado
-  local swirlParts = {}
+  local key, R, n = p.key, p.radius, p.normal
+  local u = UP:Cross(n).Unit
+  local v = n:Cross(u).Unit
+  local discs = {}
   for _, d in ipairs(root:GetDescendants()) do
-    if d:IsA("MeshPart") and string.sub(d.Name, 1, #p.swirl + 2) == p.swirl .. "__" then table.insert(swirlParts, d) end
+    if d:IsA("MeshPart") and string.sub(d.Name, 1, #p.swirl + 2) == p.swirl .. "__" then table.insert(discs, d) end
   end
-  local g = DATA.groups["espiral_" .. key]
-  for _, d in ipairs(swirlParts) do
+  -- disco modelado: gira no mesmo relogio (leitura de tras e de lado; de frente o SurfaceGui cobre)
+  for _, d in ipairs(discs) do
     clearTags(d)
     d:SetAttribute("VFX_Home", d.CFrame)
     d:SetAttribute("VFX_Pivot", W(p.center))
     d:SetAttribute("VFX_Axis", WV(n).Unit)
-    d:SetAttribute("VFX_Speed", g and g.speed or 0.85)
+    d:SetAttribute("VFX_Speed", p.spin)
     d:SetAttribute("VFX_Phase", 0)
     d:SetAttribute("VFX_Portal", key)
     CollectionService:AddTag(d, "FORJA_Spin")
-    if RECOLOR_SWIRL and armPart then d.Color = p.disc end
   end
-  -- base do plano do portal (canonico = espaco local das pecas, que tem a orientacao da raiz)
-  local u = UP:Cross(n).Unit
-  local v = n:Cross(u).Unit
-  -- particulas sugadas: presas no disco que gira (nascem ao longo do aro e correm para o centro)
-  local ringHost = armPart or swirlParts[1]
-  if ringHost then
-    for _, c in ipairs(ringHost:GetChildren()) do
-      if c:IsA("Attachment") and string.sub(c.Name, 1, 7) == "Sugada_" then c:Destroy() end
+  -- espiral: SurfaceGui na face voltada ao jogador, sem luz do sol (brilha de dia); 2 ImageLabels girando
+  local img = SWIRL_IMG[key] or ""
+  if img == "" and discs[1] then img = lerMapa(discs[1]) or "" end
+  if img ~= "" then
+    local h = host("Portal_" .. key .. "_Espiral", p.center + n * (p.thick / 2 + 0.08), Vector3.new(R * 2.04, R * 2.04, 0.05), n)
+    local sg = Instance.new("SurfaceGui")
+    sg.Name = "Espiral"
+    sg.Face = Enum.NormalId.Front
+    sg.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
+    sg.PixelsPerStud = 32
+    sg.LightInfluence = 0
+    sg.Brightness = 2.4
+    sg.MaxDistance = 700
+    sg.ClipsDescendants = false
+    sg.Parent = h
+    local function label(name, scale, transp, z)
+      local l = Instance.new("ImageLabel")
+      l.Name = name
+      l.BackgroundTransparency = 1
+      l.AnchorPoint = Vector2.new(0.5, 0.5)
+      l.Position = UDim2.fromScale(0.5, 0.5)
+      l.Size = UDim2.fromScale(scale, scale)
+      l.Image = img
+      l.ImageTransparency = transp
+      l.ZIndex = z
+      l.Parent = sg
+      return l
     end
-    local f = 0.45
-    for k = 0, 1 do
-      local ang = math.pi * k
-      local lp = u * (math.cos(ang) * R * 0.92) + v * (math.sin(ang) * R * 0.92) + n * f
-      local a = att(ringHost, "Sugada_" .. k, CFrame.lookAt(lp, n * f))
-      emitter(a, "Sugadas", {tex = TEX.star, color = {{0, p.arm}, {1, p.core3}}, size = {{0, 0.15}, {0.2, 0.75}, {1, 0.1}},
-        transp = {{0, 1}, {0.15, 0.1}, {1, 0.35}}, life = {1.15}, rate = 6, speed = {R * 0.92 / 1.15 * 0.95},
-        spread = 6, dir = Enum.NormalId.Front, emission = 1, bright = 2, zoff = 0.3, maxd = 450})
-      count(1)
-    end
+    label("Externa", 1, 0, 1)
+    label("Interna", 0.55, 0.22, 2)
+    h:SetAttribute("VFX_Speed", p.spin)
+    h:SetAttribute("VFX_InnerMul", DATA.portalInner)
+    h:SetAttribute("VFX_Portal", key)
+    h:SetAttribute("VFX_Bright", 2.4)
+    CollectionService:AddTag(h, "FORJA_Swirl")
+    nSwirl += 1
+  else
+    warnf("portal %s: disco sem textura de espiral (rode o montar com a textura ou preencha SWIRL_IMG) - so o disco gira", key)
   end
-  local h = host("Portal_" .. key, p.center, Vector3.new(1, 1, 1))
-  local fa = att(h, "Frente", CFrame.lookAt(n * 0.35, n * 1.35))
-  emitter(fa, "Vortice", {tex = TEX.vortex, color = p.arm, size = {{0, 2 * R * 0.95}, {1, 2 * R * 0.55}},
-    transp = {{0, 1}, {0.25, 0.45}, {0.75, 0.55}, {1, 1}}, life = {2.4, 3}, rate = 1.1, speed = {0.2},
-    dir = Enum.NormalId.Front, orient = Enum.ParticleOrientation.VelocityPerpendicular, emission = 1, bright = 1.5,
-    rot = {0, 360}, rotspeed = {60, 100}, zoff = 0.2, maxd = 450})
+  -- particulas sugadas: presas no disco que gira (nascem no aro e correm para o centro, na cor do portal)
+  local ringHost = discs[1]
+  local ph = host("Portal_" .. key, p.center, Vector3.new(1, 1, 1))
+  if not ringHost then ringHost = ph end
+  for _, c in ipairs(ringHost:GetChildren()) do
+    if c:IsA("Attachment") and string.sub(c.Name, 1, 7) == "Sugada_" then c:Destroy() end
+  end
+  local f = p.thick / 2 + 0.45
+  local wc, wn, wu, wv = W(p.center), WV(n).Unit, WV(u).Unit, WV(v).Unit
+  for k = 0, 2 do
+    local ang = math.pi * 2 * k / 3 + 0.4
+    local pos = wc + (wu * math.cos(ang) + wv * math.sin(ang)) * R * 0.92 + wn * f
+    local a = Instance.new("Attachment")
+    a.Name = "Sugada_" .. k
+    a.Parent = ringHost
+    a.WorldCFrame = CFrame.lookAt(pos, wc + wn * f)
+    emitter(a, "Sugadas", {tex = TEX.star, color = {{0, p.arm}, {1, p.core3}}, size = {{0, 0.15}, {0.2, 0.75}, {1, 0.1}},
+      transp = {{0, 1}, {0.15, 0.1}, {1, 0.35}}, life = {1.15}, rate = 5, speed = {R * 0.92 / 1.15 * 0.95},
+      spread = 6, dir = Enum.NormalId.Front, emission = 1, bright = 2, zoff = 0.3, maxd = 450})
+    count(1)
+    nSug += 1
+  end
+  local fa = att(ph, "Frente", CFrame.lookAt(n * 0.35, n * 1.35)) -- espaco local do host = canonico
   emitter(fa, "Pulso", {tex = TEX.ring, color = p.core3, size = {{0, 3}, {1, 2 * R * 1.2}}, transp = {{0, 0.15}, {1, 1}},
     life = {1.1}, speed = {0.3}, dir = Enum.NormalId.Front, orient = Enum.ParticleOrientation.VelocityPerpendicular,
     emission = 1, bright = 2, event = "portal:" .. key, count = 1})
-  count(2)
-  local core = portalCore[key]
-  if core then
-    core:SetAttribute("VFX_Kind", "portalcore")
-    core:SetAttribute("VFX_Event", "portal:" .. key)
-    core:SetAttribute("VFX_BaseColor", core.Color)
-    CollectionService:AddTag(core, "FORJA_Pulse")
+  count(1)
+  -- aro Neon (geometria do portal): pulsa junto com o portal
+  local rimSet = {}
+  for _, r in ipairs(p.rims) do rimSet[r] = true end
+  for _, d in ipairs(root:GetDescendants()) do
+    if d:IsA("MeshPart") then
+      local base = string.match(d.Name, "^(.-)_%d+$")
+      if rimSet[d.Name] or (base and rimSet[base]) then
+        clearTags(d)
+        d:SetAttribute("VFX_Kind", "portalrim")
+        d:SetAttribute("VFX_Event", "portal:" .. key)
+        d:SetAttribute("VFX_BaseColor", d.Color)
+        CollectionService:AddTag(d, "FORJA_Pulse")
+        nRim += 1
+      end
+    end
   end
 end
 
@@ -741,28 +988,54 @@ end
 if FX.mine then sparkles("Mina_Brilhos", FX.mine, 5) end
 if FX.shed then sparkles("Galpao_Brilhos", FX.shed, 2.5) end
 
+-- ---------------------------------------------------------------- VILA: fumaca fina em poucas chamines
+for _, s in ipairs(DATA.smokes) do
+  local mkp = markers and markers:FindFirstChild(s.marker)
+  local rate = (mkp and tonumber(mkp:GetAttribute("rate"))) or s.rate or 2
+  local nm = "Chamine_" .. string.sub(s.marker, 11)
+  local h
+  if mkp and mkp:IsA("BasePart") then
+    h = host(nm, nil, Vector3.new(0.8, 0.3, 0.8), nil, CFrame.new(mkp.Position))
+  else
+    h = host(nm, s.pos, Vector3.new(0.8, 0.3, 0.8))
+  end
+  emitter(h, "Fumaca", {tex = TEX.smoke, color = {{0, RGB(150, 146, 142)}, {1, RGB(186, 184, 182)}},
+    size = {{0, 1.2}, {1, 5}}, transp = {{0, 1}, {0.12, 0.5}, {1, 1}}, life = {5, 7}, rate = rate, speed = {2, 3.2},
+    spread = 8, accel = Vector3.new(1.2, 0.4, 0), drag = 0.3, influence = 1, rot = {0, 360}, rotspeed = {-12, 12}, maxd = 700})
+  count(1)
+end
+
 -- ---------------------------------------------------------------- tags das pecas estaticas (pulsos e flicker)
 local nPulse, nLight = 0, 0
 for _, d in ipairs(root:GetDescendants()) do
-  if d:IsA("MeshPart") and d.Parent ~= ORIG then
+  if d:IsA("MeshPart") and d.Parent ~= ORIG and not CollectionService:HasTag(d, "FORJA_Spin") then
     local n = d.Name
-    local kind, event
+    local kind, event, amp
     if string.find(n, "__Crystal_", 1, true) then
       kind = "crystal"
     elseif string.find(n, "__Metal_Heated", 1, true) then
       kind = "heat"
       if string.sub(n, 1, 12) == "FORGE_Anvil_" then event = "ignis"
       elseif string.sub(n, 1, 15) == "BLD_WheelHouse_" then event = "martinete" end
-    elseif string.find(n, "__Forge_Emissive", 1, true) and string.sub(n, 1, 6) == "FORGE_" then
+    elseif string.find(n, "__Ember_Glow", 1, true) then
+      kind = "heat"
+      if string.sub(n, 1, 12) == "FORGE_Anvil_" then event = "ignis" end
+    elseif string.find(n, "__Fire_Glow_", 1, true) then
       kind = "ember"
+    elseif string.sub(n, 1, 6) == "FORGE_" and (string.find(n, "__Forge_Glow_Soft", 1, true) or string.find(n, "__Forge_Emissive", 1, true)) then
+      kind, amp = "ember", 0.5
     elseif string.find(n, "__Lantern_Glow", 1, true) then
       kind = "lantern"
+    end
+    if kind and CollectionService:HasTag(d, "FORJA_Pulse") and d:GetAttribute("VFX_Kind") == "portalrim" then
+      kind = nil -- aro de portal ja marcado acima
     end
     if kind then
       if CollectionService:HasTag(d, "FORJA_Pulse") then CollectionService:RemoveTag(d, "FORJA_Pulse") end
       d:SetAttribute("VFX_Kind", kind)
       d:SetAttribute("VFX_Event", event or "")
-      d:SetAttribute("VFX_BaseColor", d.Color)
+      d:SetAttribute("VFX_Amp", amp or 1)
+      d:SetAttribute("VFX_BaseColor", d:GetAttribute("VFX_BaseColor") or d.Color)
       CollectionService:AddTag(d, "FORJA_Pulse")
       nPulse += 1
     end
@@ -771,8 +1044,13 @@ for _, d in ipairs(root:GetDescendants()) do
     local kind, event = "lantern", ""
     if string.sub(n, 1, 9) == "L_Portal_" then
       kind, event = "portal", "portal:" .. string.sub(n, 10)
-    elseif string.sub(n, 1, 8) == "L_Hearth" or string.sub(n, 1, 9) == "L_Furnace" or string.sub(n, 1, 12) == "L_DS_Brazier" then
-      kind = "fire"
+    elseif string.sub(n, 1, 12) == "L_HearthLamp" then
+      kind = "lantern"                                   -- lanternas ao lado da boca: nao sao fogo
+    elseif n == "L_Hearth_Fire" then
+      kind, event = "fire", "foles"                      -- respira com o fole (1,3x no golpe)
+    elseif string.sub(n, 1, 8) == "L_Hearth" or string.sub(n, 1, 9) == "L_Furnace" or n == "L_DS_Oni"
+      or string.sub(n, 1, 12) == "L_DS_Brazier" or string.sub(n, 1, 13) == "L_Tower_Crown" then
+      kind = "fire"                                      -- (rever L_DS_* quando o Demon Slayer for redesenhado)
     elseif n == "L_Mine_Chamber" or n == "L_Mine_Tunnel" or n == "L_Shed_Light" then
       kind = "crystal"
     elseif n == "L_Hall_Fill" or n == "L_Shop_Fill" or n == "L_Konoha_Gate" then
@@ -782,7 +1060,7 @@ for _, d in ipairs(root:GetDescendants()) do
     if kind then
       d:SetAttribute("VFX_Kind", kind)
       d:SetAttribute("VFX_Event", event)
-      d:SetAttribute("VFX_Base", d.Brightness)
+      d:SetAttribute("VFX_Base", d:GetAttribute("VFX_Base") or d.Brightness)
       CollectionService:AddTag(d, "FORJA_Flicker")
       nLight += 1
     end
@@ -790,8 +1068,10 @@ for _, d in ipairs(root:GetDescendants()) do
 end
 
 CFG:SetAttribute("VFX_Version", DATA.version)
+CFG:SetAttribute("VFX_ExportId", DATA.exportId or "")
 CFG:SetAttribute("VFX_RootCF", rootCF)
 CFG:SetAttribute("VFX_Root", root:GetFullName())
 CFG:SetAttribute("VFX_Ready", true)
-log("pronto (%s): referencia %s | %d pecas moveis, %d emissores, %d pulsos, %d luzes com flicker, carrinho %s",
-  DATA.version, refName, nMov, nEm, nPulse, nLight, (#cartParts > 0) and "malha" or "Parts")
+log("pronto (%s): referencia %s | %d pecas moveis%s, %d emissores, %d beams, %d espirais, %d sugadas, %d aros, %d pulsos, %d luzes, carrinho %s",
+  DATA.version, refName, nMov, machineOk and "" or " (maquinas ESTATICAS: FBX incompleto)", nEm, nBeam, nSwirl, nSug,
+  nRim, nPulse, nLight, (#cartParts > 0) and "malha" or "Parts")
