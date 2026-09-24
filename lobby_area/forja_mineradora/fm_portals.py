@@ -790,7 +790,7 @@ def onepiece(rng):
         mb.beam(S + V(-s * 2.8, 0.4, -2.4), S + V(s * 2.8, 0.4, 1.6), 0.7, 0.7, "Emblem_Cream", 0.1)
         for e in (S + V(-s * 2.8, 0.4, -2.4), S + V(s * 2.8, 0.4, 1.6)):
             for o in (-0.4, 0.4):
-                mb.ico(0.5, e + V(o, 0, o * s), "Emblem_Cream", 1)
+                mb.ico(0.5, e + V(o, 0, -o * s), "Emblem_Cream", 1)     # perpendicular ao osso (colado na ponta)
     mb.ico(2.0, S, "Emblem_Cream", 2, (1.0, 0.85, 0.95))
     mb.box((2.2, 1.4, 1.1), S + V(0, -0.2, -1.7), (0, 0, 0), "Emblem_Cream", 0.3)
     for s in (-1, 1):
@@ -855,6 +855,9 @@ def onepiece(rng):
     col_box(A, (1.6, 1.6, 8.0), (X(-9.8), PY + 7.4, T + 4.0))
     PT.stairs_onepiece(mb, px, rng)
     swirl("OnePiece", px, "P_OP_Swirl", mb, "Wood_Dark", rim_y=-0.8)
+    # fundo solido atras do prato (os outros portais-gatilho tem; o Naruto nao, e passagem para Konoha): quem toca o
+    # portal sem ser teleportado (bloqueado, recarga) nao atravessa a tampa de madeira
+    col_box2(A, (px - 7.6, PY + DISH_D + 0.05, T + 2.4), (px + 7.6, PY + DISH_D + 0.45, T + 18.8))
     mb.finish()
 
 

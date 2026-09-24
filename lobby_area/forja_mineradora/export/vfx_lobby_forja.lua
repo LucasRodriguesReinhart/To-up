@@ -53,8 +53,8 @@ end
 
 local DATA = {}
 DATA.version = "vfx-forja-2"
-DATA.exportId = "28656663"  -- EXPORT_ID do passe estatico (montar_lobby_forja.lua grava em root:GetAttribute('EXPORT_ID'))
-DATA.fbx = "LOBBY_VFX_MOVING_286566.fbx"  -- FBX de movimento DESTE passe (3D Importer)
+DATA.exportId = "dd376e76"  -- EXPORT_ID do passe estatico (montar_lobby_forja.lua grava em root:GetAttribute('EXPORT_ID'))
+DATA.fbx = "LOBBY_VFX_MOVING_dd376e.fbx"  -- FBX de movimento DESTE passe (3D Importer)
 -- referencias para achar a transformacao do lobby (posicao canonica = export_roblox, Roblox = (x, z, -y))
 DATA.refs = {
   {name = "VFX_Waterwheel_Rotate", pos = Vector3.new(62, 11, -20), x = Vector3.new(0, -1, 0), y = Vector3.new(0, 0, -1)},

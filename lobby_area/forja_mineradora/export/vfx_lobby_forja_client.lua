@@ -27,7 +27,7 @@ if not RunService:IsClient() then return end
 
 local DATA = {}
 DATA.version = "vfx-forja-2"
-DATA.exportId = "28656663"
+DATA.exportId = "dd376e76"
 -- trilho percorrido pelo carrinho (canonico; o cliente aplica VFX_RootCF)
 DATA.path = {
   Vector3.new(-58.537, 4.3, 32.59), Vector3.new(-58.027, 4.3, 31.729), Vector3.new(-57.613, 4.3, 30.821),

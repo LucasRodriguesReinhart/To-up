@@ -1,16 +1,16 @@
 {
  "mapping": "Roblox = (x_blender, z_blender, -y_blender); 1 BU = 1 stud; malha: origem = centro do bbox",
- "export_id": "28656663",
+ "export_id": "dd376e76",
  "fbx": {
-  "02_TERRAIN": "LOBBY_02_TERRAIN_286566.fbx",
-  "03_FORGE": "LOBBY_03_FORGE_286566.fbx",
-  "04_MINE": "LOBBY_04_MINE_286566.fbx",
-  "05_WATER_SYSTEM": "LOBBY_05_WATER_SYSTEM_286566.fbx",
-  "06_PORTALS": "LOBBY_06_PORTALS_286566.fbx",
-  "07_BUILDINGS": "LOBBY_07_BUILDINGS_286566.fbx",
-  "08_PROPS": "LOBBY_08_PROPS_286566.fbx",
-  "09_VEGETATION": "LOBBY_09_VEGETATION_286566.fbx",
-  "10_RAILS": "LOBBY_10_RAILS_286566.fbx"
+  "02_TERRAIN": "LOBBY_02_TERRAIN_dd376e.fbx",
+  "03_FORGE": "LOBBY_03_FORGE_dd376e.fbx",
+  "04_MINE": "LOBBY_04_MINE_dd376e.fbx",
+  "05_WATER_SYSTEM": "LOBBY_05_WATER_SYSTEM_dd376e.fbx",
+  "06_PORTALS": "LOBBY_06_PORTALS_dd376e.fbx",
+  "07_BUILDINGS": "LOBBY_07_BUILDINGS_dd376e.fbx",
+  "08_PROPS": "LOBBY_08_PROPS_dd376e.fbx",
+  "09_VEGETATION": "LOBBY_09_VEGETATION_dd376e.fbx",
+  "10_RAILS": "LOBBY_10_RAILS_dd376e.fbx"
  },
  "meshes": [
   {
@@ -146,14 +146,14 @@
    "material": "Foam",
    "tris": 240,
    "center_rbx": [
-    -95.861,
-    -4.304,
-    -212.464
+    -96.173,
+    -4.252,
+    -212.356
    ],
    "size_rbx": [
-    50.315,
-    15.293,
-    28.574
+    49.557,
+    14.264,
+    28.547
    ],
    "owner": "portals",
    "shadow": false,
@@ -293,14 +293,14 @@
    "material": "Cliff_Rock_Dark_B",
    "tris": 438,
    "center_rbx": [
-    -68.54,
+    -68.534,
     17.443,
-    46.438
+    46.386
    ],
    "size_rbx": [
-    32.847,
+    32.861,
     29.286,
-    36.309
+    36.413
    ],
    "owner": "props",
    "shadow": true,
@@ -1154,14 +1154,14 @@
    "material": "Far_Haze",
    "tris": 520,
    "center_rbx": [
-    63.659,
-    -55.098,
-    14.268
+    70.003,
+    -54.516,
+    12.579
    ],
    "size_rbx": [
-    1368.225,
-    39.3,
-    1011.131
+    1375.776,
+    40.593,
+    1010.773
    ],
    "owner": "terrain",
    "shadow": false,
@@ -2856,12 +2856,12 @@
    "tris": 144,
    "center_rbx": [
     0.0,
-    39.188,
+    39.19,
     -30.0
    ],
    "size_rbx": [
     23.98,
-    66.025,
+    66.019,
     23.98
    ],
    "owner": "forge",
@@ -2895,16 +2895,16 @@
    "group": "03_FORGE",
    "obj": "FORGE_Chimney_Tower",
    "material": "Fire_Glow_Mid",
-   "tris": 420,
+   "tris": 84,
    "center_rbx": [
     0.0,
-    38.305,
+    56.15,
     -30.0
    ],
    "size_rbx": [
-    28.317,
-    67.91,
-    28.317
+    23.98,
+    22.7,
+    23.98
    ],
    "owner": "forge",
    "shadow": false,
@@ -3034,6 +3034,27 @@
    ],
    "owner": "forge",
    "shadow": true,
+   "flags": "",
+   "model": "FORGE"
+  },
+  {
+   "name": "FORGE_Chimney_Tower__P_Naruto_Glow",
+   "group": "03_FORGE",
+   "obj": "FORGE_Chimney_Tower",
+   "material": "P_Naruto_Glow",
+   "tris": 336,
+   "center_rbx": [
+    0.0,
+    38.305,
+    -30.0
+   ],
+   "size_rbx": [
+    28.317,
+    67.91,
+    28.317
+   ],
+   "owner": "forge",
+   "shadow": false,
    "flags": "",
    "model": "FORGE"
   },
@@ -3227,6 +3248,27 @@
    "model": "FORGE"
   },
   {
+   "name": "FORGE_Hall__Ember_Glow",
+   "group": "03_FORGE",
+   "obj": "FORGE_Hall",
+   "material": "Ember_Glow",
+   "tris": 44,
+   "center_rbx": [
+    9.824,
+    10.712,
+    -15.311
+   ],
+   "size_rbx": [
+    12.852,
+    4.575,
+    5.666
+   ],
+   "owner": "forge",
+   "shadow": false,
+   "flags": "",
+   "model": "FORGE"
+  },
+  {
    "name": "FORGE_Hall__Emblem_Cream",
    "group": "03_FORGE",
    "obj": "FORGE_Hall",
@@ -3252,16 +3294,16 @@
    "group": "03_FORGE",
    "obj": "FORGE_Hall",
    "material": "Forge_Glow_Soft",
-   "tris": 100,
+   "tris": 56,
    "center_rbx": [
     0.0,
-    24.062,
-    -9.891
+    28.85,
+    -8.919
    ],
    "size_rbx": [
     33.0,
-    31.275,
-    16.507
+    21.7,
+    14.563
    ],
    "owner": "forge",
    "shadow": false,
@@ -3756,16 +3798,37 @@
    "group": "03_FORGE",
    "obj": "FORGE_Hearth",
    "material": "Fire_Glow_Mid",
-   "tris": 408,
+   "tris": 248,
    "center_rbx": [
     0.0,
-    10.154,
+    9.807,
     -1.525
    ],
    "size_rbx": [
     10.1,
-    5.307,
+    4.615,
     4.85
+   ],
+   "owner": "forge",
+   "shadow": false,
+   "flags": "",
+   "model": "FORGE"
+  },
+  {
+   "name": "FORGE_Hearth__Fire_Glow_Outer",
+   "group": "03_FORGE",
+   "obj": "FORGE_Hearth",
+   "material": "Fire_Glow_Outer",
+   "tris": 160,
+   "center_rbx": [
+    0.005,
+    10.229,
+    -3.128
+   ],
+   "size_rbx": [
+    9.382,
+    5.157,
+    1.119
    ],
    "owner": "forge",
    "shadow": false,
@@ -3884,12 +3947,12 @@
    "material": "Stone_Forge_Dark",
    "tris": 1904,
    "center_rbx": [
-    -1.499,
+    -1.513,
     14.483,
     3.365
    ],
    "size_rbx": [
-    18.928,
+    18.955,
     18.966,
     14.871
    ],
@@ -4157,14 +4220,14 @@
    "material": "Rope",
    "tris": 120,
    "center_rbx": [
-    -19.69,
-    5.52,
-    -33.715
+    -19.677,
+    5.516,
+    -33.711
    ],
    "size_rbx": [
-    1.395,
-    3.009,
-    2.262
+    1.387,
+    3.019,
+    2.35
    ],
    "owner": "forge",
    "shadow": false,
@@ -4178,14 +4241,14 @@
    "material": "Stone_Coal",
    "tris": 640,
    "center_rbx": [
-    -22.117,
-    5.264,
-    -33.76
+    -22.159,
+    5.277,
+    -33.77
    ],
    "size_rbx": [
-    14.436,
-    1.923,
-    3.198
+    14.539,
+    1.912,
+    3.212
    ],
    "owner": "forge",
    "shadow": true,
@@ -4913,14 +4976,14 @@
    "material": "Cliff_Rock_Dark",
    "tris": 140,
    "center_rbx": [
-    -40.845,
-    4.868,
-    -21.756
+    -40.866,
+    4.82,
+    -21.81
    ],
    "size_rbx": [
-    3.068,
-    1.498,
-    2.539
+    3.098,
+    1.408,
+    2.64
    ],
    "owner": "forge",
    "shadow": false,
@@ -5165,14 +5228,14 @@
    "material": "Cliff_Rock_Dark_B",
    "tris": 924,
    "center_rbx": [
-    -62.049,
-    13.966,
-    36.382
+    -62.051,
+    13.951,
+    36.388
    ],
    "size_rbx": [
-    33.131,
-    19.953,
-    44.312
+    33.135,
+    19.928,
+    44.299
    ],
    "owner": "props",
    "shadow": true,
@@ -5187,12 +5250,12 @@
    "tris": 1520,
    "center_rbx": [
     -61.476,
-    14.583,
+    14.593,
     37.813
    ],
    "size_rbx": [
     30.74,
-    22.555,
+    22.535,
     37.7
    ],
    "owner": "props",
@@ -5208,12 +5271,12 @@
    "tris": 1520,
    "center_rbx": [
     -61.476,
-    15.25,
+    15.264,
     37.813
    ],
    "size_rbx": [
     30.74,
-    22.844,
+    22.815,
     37.7
    ],
    "owner": "props",
@@ -5228,14 +5291,14 @@
    "material": "Dirt",
    "tris": 160,
    "center_rbx": [
-    -77.246,
-    4.622,
-    20.763
+    -77.3,
+    4.764,
+    21.07
    ],
    "size_rbx": [
-    12.056,
-    3.553,
-    10.408
+    11.735,
+    3.838,
+    10.659
    ],
    "owner": "props",
    "shadow": false,
@@ -5396,14 +5459,14 @@
    "material": "Cliff_Rock_Dark",
    "tris": 1060,
    "center_rbx": [
-    -78.395,
-    4.447,
-    56.615
+    -78.388,
+    4.444,
+    56.65
    ],
    "size_rbx": [
-    32.167,
-    0.524,
-    36.487
+    32.129,
+    0.516,
+    36.455
    ],
    "owner": "props",
    "shadow": true,
@@ -5461,12 +5524,12 @@
    "center_rbx": [
     -91.033,
     8.276,
-    75.954
+    76.021
    ],
    "size_rbx": [
     21.411,
     9.334,
-    37.142
+    37.008
    ],
    "owner": "props",
    "shadow": false,
@@ -5606,14 +5669,14 @@
    "material": "Cliff_Rock_Dark",
    "tris": 6356,
    "center_rbx": [
-    -82.039,
+    -82.072,
     12.5,
-    66.715
+    66.71
    ],
    "size_rbx": [
-    50.606,
+    50.54,
     19.0,
-    67.194
+    67.204
    ],
    "owner": "props",
    "shadow": true,
@@ -5649,13 +5712,13 @@
    "tris": 324,
    "center_rbx": [
     62.221,
-    -11.109,
-    17.883
+    -11.086,
+    17.925
    ],
    "size_rbx": [
     13.259,
-    31.782,
-    107.494
+    31.828,
+    107.41
    ],
    "owner": "scene_lighting",
    "shadow": true,
@@ -5669,14 +5732,14 @@
    "material": "Cliff_Rock_B",
    "tris": 260,
    "center_rbx": [
-    62.074,
-    3.178,
-    9.584
+    62.017,
+    3.241,
+    9.67
    ],
    "size_rbx": [
-    12.749,
-    3.964,
-    86.514
+    12.975,
+    4.059,
+    86.31
    ],
    "owner": "scene_lighting",
    "shadow": true,
@@ -5690,14 +5753,14 @@
    "material": "Cliff_Rock_Dark",
    "tris": 160,
    "center_rbx": [
-    61.859,
-    -7.64,
-    33.074
+    61.973,
+    -7.625,
+    33.053
    ],
    "size_rbx": [
-    12.724,
-    25.533,
-    74.696
+    12.709,
+    25.573,
+    74.78
    ],
    "owner": "scene_lighting",
    "shadow": true,
@@ -5712,12 +5775,12 @@
    "tris": 1484,
    "center_rbx": [
     61.838,
-    -5.418,
+    -5.41,
     9.402
    ],
    "size_rbx": [
     7.967,
-    36.576,
+    36.591,
     126.073
    ],
    "owner": "scene_lighting",
@@ -5732,14 +5795,14 @@
    "material": "Grass_Dark",
    "tris": 380,
    "center_rbx": [
-    61.801,
-    7.488,
-    -39.283
+    61.797,
+    7.503,
+    -39.273
    ],
    "size_rbx": [
-    13.545,
-    9.928,
-    43.161
+    13.575,
+    9.918,
+    43.245
    ],
    "owner": "scene_lighting",
    "shadow": false,
@@ -6047,14 +6110,14 @@
    "material": "Cliff_Rock",
    "tris": 498,
    "center_rbx": [
-    7.359,
+    7.382,
     46.726,
-    -105.844
+    -105.932
    ],
    "size_rbx": [
-    263.75,
+    263.704,
     34.653,
-    58.308
+    58.42
    ],
    "owner": "scene_lighting",
    "shadow": true,
@@ -6068,14 +6131,14 @@
    "material": "Cliff_Rock_B",
    "tris": 206,
    "center_rbx": [
-    1.475,
-    42.584,
-    -83.982
+    1.507,
+    42.542,
+    -83.967
    ],
    "size_rbx": [
-    254.737,
-    26.369,
-    14.499
+    254.823,
+    26.283,
+    14.529
    ],
    "owner": "scene_lighting",
    "shadow": true,
@@ -6090,13 +6153,13 @@
    "tris": 326,
    "center_rbx": [
     3.668,
-    35.032,
-    -105.918
+    35.047,
+    -106.001
    ],
    "size_rbx": [
     260.68,
-    40.07,
-    59.171
+    40.041,
+    59.285
    ],
    "owner": "scene_lighting",
    "shadow": true,
@@ -6110,14 +6173,14 @@
    "material": "Foam",
    "tris": 1673,
    "center_rbx": [
-    -60.4,
-    31.518,
-    -102.537
+    -60.416,
+    31.503,
+    -102.565
    ],
    "size_rbx": [
-    130.125,
-    37.346,
-    62.253
+    130.095,
+    37.377,
+    62.345
    ],
    "owner": "scene_lighting",
    "shadow": false,
@@ -6129,16 +6192,16 @@
    "group": "05_WATER_SYSTEM",
    "obj": "WATER_Waterfalls",
    "material": "Foam",
-   "tris": 943,
+   "tris": 942,
    "center_rbx": [
-    63.189,
-    28.874,
-    -92.548
+    63.167,
+    28.87,
+    -92.538
    ],
    "size_rbx": [
-    130.535,
-    52.823,
-    71.948
+    130.49,
+    52.831,
+    72.026
    ],
    "owner": "scene_lighting",
    "shadow": false,
@@ -6150,16 +6213,16 @@
    "group": "05_WATER_SYSTEM",
    "obj": "WATER_Waterfalls",
    "material": "Foam",
-   "tris": 736,
+   "tris": 737,
    "center_rbx": [
-    130.902,
-    34.139,
-    -76.853
+    130.948,
+    34.174,
+    -76.8
    ],
    "size_rbx": [
-    6.717,
-    42.663,
-    10.549
+    6.788,
+    42.592,
+    10.595
    ],
    "owner": "scene_lighting",
    "shadow": false,
@@ -6377,6 +6440,27 @@
    "model": "KONOHA_Great_Gate"
   },
   {
+   "name": "KONOHA_Great_Gate__P_Naruto_Glow",
+   "group": "06_PORTALS",
+   "obj": "KONOHA_Great_Gate",
+   "material": "P_Naruto_Glow",
+   "tris": 112,
+   "center_rbx": [
+    -94.0,
+    49.85,
+    -281.889
+   ],
+   "size_rbx": [
+    15.16,
+    2.0,
+    1.56
+   ],
+   "owner": "portals",
+   "shadow": false,
+   "flags": "",
+   "model": "KONOHA_Great_Gate"
+  },
+  {
    "name": "KONOHA_Great_Gate__P_Naruto_Red",
    "group": "06_PORTALS",
    "obj": "KONOHA_Great_Gate",
@@ -6391,27 +6475,6 @@
     26.8,
     31.05,
     8.368
-   ],
-   "owner": "portals",
-   "shadow": false,
-   "flags": "",
-   "model": "KONOHA_Great_Gate"
-  },
-  {
-   "name": "KONOHA_Great_Gate__P_Naruto_Rim_Glow",
-   "group": "06_PORTALS",
-   "obj": "KONOHA_Great_Gate",
-   "material": "P_Naruto_Rim_Glow",
-   "tris": 112,
-   "center_rbx": [
-    -94.0,
-    49.85,
-    -281.889
-   ],
-   "size_rbx": [
-    15.16,
-    2.0,
-    1.56
    ],
    "owner": "portals",
    "shadow": false,
@@ -6524,6 +6587,27 @@
    "model": "KONOHA_Great_Gate"
   },
   {
+   "name": "KONOHA_Pass_Decor__P_Naruto_Glow",
+   "group": "06_PORTALS",
+   "obj": "KONOHA_Pass_Decor",
+   "material": "P_Naruto_Glow",
+   "tris": 360,
+   "center_rbx": [
+    -101.605,
+    36.552,
+    -191.046
+   ],
+   "size_rbx": [
+    33.357,
+    7.496,
+    140.877
+   ],
+   "owner": "portals",
+   "shadow": false,
+   "flags": "",
+   "model": ""
+  },
+  {
    "name": "KONOHA_Pass_Decor__P_Naruto_Red",
    "group": "06_PORTALS",
    "obj": "KONOHA_Pass_Decor",
@@ -6541,27 +6625,6 @@
    ],
    "owner": "portals",
    "shadow": true,
-   "flags": "",
-   "model": ""
-  },
-  {
-   "name": "KONOHA_Pass_Decor__P_Naruto_Rim_Glow",
-   "group": "06_PORTALS",
-   "obj": "KONOHA_Pass_Decor",
-   "material": "P_Naruto_Rim_Glow",
-   "tris": 360,
-   "center_rbx": [
-    -101.605,
-    36.552,
-    -191.046
-   ],
-   "size_rbx": [
-    33.357,
-    7.496,
-    140.877
-   ],
-   "owner": "portals",
-   "shadow": false,
    "flags": "",
    "model": ""
   },
@@ -6635,14 +6698,14 @@
    "material": "Cliff_Rock",
    "tris": 80,
    "center_rbx": [
-    -97.543,
-    30.93,
-    -210.567
+    -97.523,
+    31.001,
+    -210.511
    ],
    "size_rbx": [
-    26.874,
-    2.505,
-    36.932
+    26.977,
+    2.597,
+    37.097
    ],
    "owner": "portals",
    "shadow": false,
@@ -6889,12 +6952,12 @@
    "center_rbx": [
     44.763,
     8.058,
-    -44.074
+    -44.044
    ],
    "size_rbx": [
     17.894,
     5.083,
-    1.928
+    1.869
    ],
    "owner": "portals",
    "shadow": false,
@@ -6910,54 +6973,12 @@
    "center_rbx": [
     44.44,
     7.25,
-    -44.24
+    -44.0
    ],
    "size_rbx": [
     18.32,
     6.5,
-    3.52
-   ],
-   "owner": "portals",
-   "shadow": false,
-   "flags": "",
-   "model": "PORTAL_DemonSlayer"
-  },
-  {
-   "name": "PORTAL_DemonSlayer_Stairs__Bark_Dark",
-   "group": "06_PORTALS",
-   "obj": "PORTAL_DemonSlayer_Stairs",
-   "material": "Bark_Dark",
-   "tris": 114,
-   "center_rbx": [
-    55.386,
-    34.166,
-    -89.823
-   ],
-   "size_rbx": [
-    1.627,
-    8.937,
-    1.645
-   ],
-   "owner": "portals",
-   "shadow": false,
-   "flags": "",
-   "model": "PORTAL_DemonSlayer"
-  },
-  {
-   "name": "PORTAL_DemonSlayer_Stairs__P_DS_Glicinia",
-   "group": "06_PORTALS",
-   "obj": "PORTAL_DemonSlayer_Stairs",
-   "material": "P_DS_Glicinia",
-   "tris": 666,
-   "center_rbx": [
-    54.562,
-    37.532,
-    -90.275
-   ],
-   "size_rbx": [
-    3.438,
-    4.695,
-    2.939
+    3.041
    ],
    "owner": "portals",
    "shadow": false,
@@ -6969,16 +6990,16 @@
    "group": "06_PORTALS",
    "obj": "PORTAL_DemonSlayer_Stairs",
    "material": "P_DS_Iron",
-   "tris": 296,
+   "tris": 592,
    "center_rbx": [
     44.0,
     32.0,
-    -97.2
+    -93.6
    ],
    "size_rbx": [
     20.8,
     4.6,
-    1.222
+    8.422
    ],
    "owner": "portals",
    "shadow": true,
@@ -6986,23 +7007,23 @@
    "model": "PORTAL_DemonSlayer"
   },
   {
-   "name": "PORTAL_DemonSlayer_Stairs__P_Naruto_Red",
+   "name": "PORTAL_DemonSlayer_Stairs__P_DS_Red",
    "group": "06_PORTALS",
    "obj": "PORTAL_DemonSlayer_Stairs",
-   "material": "P_Naruto_Red",
-   "tris": 120,
+   "material": "P_DS_Red",
+   "tris": 240,
    "center_rbx": [
     44.0,
     33.04,
-    -97.2
+    -93.6
    ],
    "size_rbx": [
     18.667,
     1.052,
-    0.912
+    8.112
    ],
    "owner": "portals",
-   "shadow": false,
+   "shadow": true,
    "flags": "",
    "model": "PORTAL_DemonSlayer"
   },
@@ -7133,10 +7154,10 @@
    "model": "PORTAL_DemonSlayer"
   },
   {
-   "name": "PORTAL_DemonSlayer_Tsuba__P_Naruto_Red",
+   "name": "PORTAL_DemonSlayer_Tsuba__P_DS_Red",
    "group": "06_PORTALS",
    "obj": "PORTAL_DemonSlayer_Tsuba",
-   "material": "P_Naruto_Red",
+   "material": "P_DS_Red",
    "tris": 224,
    "center_rbx": [
     44.0,
@@ -7200,19 +7221,40 @@
    "group": "06_PORTALS",
    "obj": "PORTAL_DemonSlayer_Wisteria",
    "material": "P_DS_GlicMid",
-   "tris": 984,
+   "tris": 408,
    "center_rbx": [
     32.35,
-    45.451,
+    46.44,
     -110.493
    ],
    "size_rbx": [
     4.389,
-    8.698,
+    6.72,
     11.937
    ],
    "owner": "portals",
    "shadow": true,
+   "flags": "",
+   "model": "PORTAL_DemonSlayer"
+  },
+  {
+   "name": "PORTAL_DemonSlayer_Wisteria__P_DS_GlicTip",
+   "group": "06_PORTALS",
+   "obj": "PORTAL_DemonSlayer_Wisteria",
+   "material": "P_DS_GlicTip",
+   "tris": 576,
+   "center_rbx": [
+    31.798,
+    43.488,
+    -109.7
+   ],
+   "size_rbx": [
+    2.507,
+    4.771,
+    9.987
+   ],
+   "owner": "portals",
+   "shadow": false,
    "flags": "",
    "model": "PORTAL_DemonSlayer"
   },
@@ -7267,12 +7309,12 @@
    "center_rbx": [
     -68.2,
     9.4,
-    -44.8
+    -43.3
    ],
    "size_rbx": [
     3.82,
     2.4,
-    0.476
+    0.374
    ],
    "owner": "portals",
    "shadow": false,
@@ -7288,12 +7330,12 @@
    "center_rbx": [
     -75.56,
     7.25,
-    -44.24
+    -44.0
    ],
    "size_rbx": [
     18.32,
     6.5,
-    3.52
+    3.041
    ],
    "owner": "portals",
    "shadow": false,
@@ -7725,19 +7767,40 @@
    "group": "06_PORTALS",
    "obj": "PORTAL_Naruto_Bandana",
    "material": "P_Naruto_Stone",
-   "tris": 1140,
+   "tris": 924,
    "center_rbx": [
-    -106.634,
+    -108.0,
     41.275,
-    -110.897
+    -113.75
    ],
    "size_rbx": [
-    21.504,
+    18.772,
     22.15,
-    10.906
+    5.2
    ],
    "owner": "portals",
    "shadow": true,
+   "flags": "",
+   "model": "PORTAL_Naruto"
+  },
+  {
+   "name": "PORTAL_Naruto_Bandana__Plaster_Ochre_Light",
+   "group": "06_PORTALS",
+   "obj": "PORTAL_Naruto_Bandana",
+   "material": "Plaster_Ochre_Light",
+   "tris": 216,
+   "center_rbx": [
+    -98.427,
+    32.0,
+    -108.596
+   ],
+   "size_rbx": [
+    5.09,
+    3.2,
+    6.303
+   ],
+   "owner": "portals",
+   "shadow": false,
    "flags": "",
    "model": "PORTAL_Naruto"
   },
@@ -7813,12 +7876,12 @@
    "center_rbx": [
     -107.242,
     8.053,
-    -44.034
+    -43.961
    ],
    "size_rbx": [
     17.904,
     5.094,
-    2.009
+    1.863
    ],
    "owner": "portals",
    "shadow": false,
@@ -7834,12 +7897,12 @@
    "center_rbx": [
     -107.56,
     7.25,
-    -44.24
+    -44.0
    ],
    "size_rbx": [
     18.32,
     6.5,
-    3.52
+    3.041
    ],
    "owner": "portals",
    "shadow": false,
@@ -7958,14 +8021,14 @@
    "material": "P_OP_Glow",
    "tris": 298,
    "center_rbx": [
-    76.72,
+    85.47,
     8.069,
-    -44.044
+    -45.223
    ],
    "size_rbx": [
-    17.979,
+    7.16,
     5.061,
-    1.989
+    4.22
    ],
    "owner": "portals",
    "shadow": false,
@@ -7979,14 +8042,14 @@
    "material": "Wood_Dark",
    "tris": 160,
    "center_rbx": [
-    76.44,
+    85.86,
     7.25,
-    -44.24
+    -45.66
    ],
    "size_rbx": [
-    18.32,
+    7.72,
     6.5,
-    3.52
+    4.52
    ],
    "owner": "portals",
    "shadow": false,
@@ -8057,10 +8120,10 @@
    "model": "PORTAL_OnePiece"
   },
   {
-   "name": "PORTAL_OnePiece_Pier__P_Naruto_Red",
+   "name": "PORTAL_OnePiece_Pier__P_DS_Red",
    "group": "06_PORTALS",
    "obj": "PORTAL_OnePiece_Pier",
-   "material": "P_Naruto_Red",
+   "material": "P_DS_Red",
    "tris": 132,
    "center_rbx": [
     86.598,
@@ -8317,12 +8380,12 @@
    "center_rbx": [
     108.756,
     8.063,
-    -44.033
+    -44.032
    ],
    "size_rbx": [
     17.908,
     5.073,
-    2.011
+    2.008
    ],
    "owner": "portals",
    "shadow": false,
@@ -8338,12 +8401,12 @@
    "center_rbx": [
     108.44,
     7.25,
-    -44.24
+    -44.0
    ],
    "size_rbx": [
     18.32,
     6.5,
-    3.52
+    3.041
    ],
    "owner": "portals",
    "shadow": false,
@@ -8477,10 +8540,10 @@
    "model": "PORTAL_OnePunchMan"
   },
   {
-   "name": "PORTAL_OnePunchMan_Wall__P_Naruto_Red",
+   "name": "PORTAL_OnePunchMan_Wall__P_DS_Red",
    "group": "06_PORTALS",
    "obj": "PORTAL_OnePunchMan_Wall",
-   "material": "P_Naruto_Red",
+   "material": "P_DS_Red",
    "tris": 404,
    "center_rbx": [
     108.05,
@@ -8666,20 +8729,20 @@
    "model": "PORTAL_OnePunchMan"
   },
   {
-   "name": "PORTAL_ShadowGarden_Difficulty__P_Shadow_Glow",
+   "name": "PORTAL_ShadowGarden_Difficulty__P_SG_Moon_Glow",
    "group": "06_PORTALS",
    "obj": "PORTAL_ShadowGarden_Difficulty",
-   "material": "P_Shadow_Glow",
+   "material": "P_SG_Moon_Glow",
    "tris": 258,
    "center_rbx": [
     -43.204,
     8.075,
-    -44.073
+    -44.035
    ],
    "size_rbx": [
     17.828,
     5.051,
-    1.93
+    1.854
    ],
    "owner": "portals",
    "shadow": false,
@@ -8695,12 +8758,12 @@
    "center_rbx": [
     -43.56,
     7.25,
-    -44.24
+    -44.0
    ],
    "size_rbx": [
     18.32,
     6.5,
-    3.52
+    3.041
    ],
    "owner": "portals",
    "shadow": false,
@@ -8813,6 +8876,27 @@
    "model": "PORTAL_ShadowGarden"
   },
   {
+   "name": "PORTAL_ShadowGarden_MoonArch__P_SG_Moon_Glow",
+   "group": "06_PORTALS",
+   "obj": "PORTAL_ShadowGarden_MoonArch",
+   "material": "P_SG_Moon_Glow",
+   "tris": 260,
+   "center_rbx": [
+    -44.001,
+    41.2,
+    -112.4
+   ],
+   "size_rbx": [
+    15.499,
+    15.5,
+    0.5
+   ],
+   "owner": "portals",
+   "shadow": false,
+   "flags": "",
+   "model": "PORTAL_ShadowGarden"
+  },
+  {
    "name": "PORTAL_ShadowGarden_MoonArch__P_SG_Obsidian",
    "group": "06_PORTALS",
    "obj": "PORTAL_ShadowGarden_MoonArch",
@@ -8893,27 +8977,6 @@
    ],
    "owner": "portals",
    "shadow": true,
-   "flags": "",
-   "model": "PORTAL_ShadowGarden"
-  },
-  {
-   "name": "PORTAL_ShadowGarden_MoonArch__P_Shadow_Glow",
-   "group": "06_PORTALS",
-   "obj": "PORTAL_ShadowGarden_MoonArch",
-   "material": "P_Shadow_Glow",
-   "tris": 260,
-   "center_rbx": [
-    -44.001,
-    41.2,
-    -112.4
-   ],
-   "size_rbx": [
-    15.499,
-    15.5,
-    0.5
-   ],
-   "owner": "portals",
-   "shadow": false,
    "flags": "",
    "model": "PORTAL_ShadowGarden"
   },
@@ -9111,16 +9174,37 @@
    "group": "06_PORTALS",
    "obj": "PORTAL_Terrace_Wisteria",
    "material": "P_DS_GlicMid",
-   "tris": 918,
+   "tris": 438,
    "center_rbx": [
     19.79,
-    36.88,
+    37.905,
     -103.438
    ],
    "size_rbx": [
     8.476,
-    6.24,
+    4.19,
     23.965
+   ],
+   "owner": "portals",
+   "shadow": true,
+   "flags": "",
+   "model": "PORTAL_Terrace"
+  },
+  {
+   "name": "PORTAL_Terrace_Wisteria__P_DS_GlicTip",
+   "group": "06_PORTALS",
+   "obj": "PORTAL_Terrace_Wisteria",
+   "material": "P_DS_GlicTip",
+   "tris": 480,
+   "center_rbx": [
+    19.753,
+    36.231,
+    -103.181
+   ],
+   "size_rbx": [
+    8.055,
+    4.943,
+    23.011
    ],
    "owner": "portals",
    "shadow": true,
@@ -10682,10 +10766,10 @@
    "model": "BLD_Cabin_West_B"
   },
   {
-   "name": "BLD_Cabin_West_B__P_Naruto_Stone",
+   "name": "BLD_Cabin_West_B__Plaster_Ochre_Light",
    "group": "07_BUILDINGS",
    "obj": "BLD_Cabin_West_B",
-   "material": "P_Naruto_Stone",
+   "material": "Plaster_Ochre_Light",
    "tris": 232,
    "center_rbx": [
     -93.55,
@@ -10699,7 +10783,7 @@
    ],
    "owner": "architecture",
    "shadow": true,
-   "flags": "",
+   "flags": "o",
    "model": "BLD_Cabin_West_B"
   },
   {
@@ -10878,13 +10962,13 @@
    "tris": 140,
    "center_rbx": [
     -92.998,
-    9.286,
-    -19.6
+    9.284,
+    -19.587
    ],
    "size_rbx": [
     5.597,
-    9.453,
-    7.6
+    9.447,
+    7.573
    ],
    "owner": "architecture",
    "shadow": false,
@@ -11571,13 +11655,13 @@
    "tris": 376,
    "center_rbx": [
     111.004,
-    9.249,
-    34.887
+    9.251,
+    34.908
    ],
    "size_rbx": [
     18.692,
-    10.603,
-    12.125
+    10.598,
+    12.167
    ],
    "owner": "architecture",
    "shadow": true,
@@ -13229,14 +13313,14 @@
    "material": "Cliff_Rock_Dark_B",
    "tris": 188,
    "center_rbx": [
-    -10.668,
-    5.836,
-    29.824
+    -10.636,
+    5.844,
+    29.875
    ],
    "size_rbx": [
-    51.792,
-    3.719,
-    53.824
+    51.728,
+    3.702,
+    53.722
    ],
    "owner": "props",
    "shadow": true,
@@ -13376,14 +13460,14 @@
    "material": "Stone_Dark",
    "tris": 140,
    "center_rbx": [
-    -25.423,
-    4.265,
-    55.614
+    -25.419,
+    4.264,
+    55.61
    ],
    "size_rbx": [
-    3.515,
-    0.475,
-    3.662
+    3.534,
+    0.471,
+    3.642
    ],
    "owner": "props",
    "shadow": false,
@@ -13563,16 +13647,58 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Leste_Norte",
    "material": "Bark_Dark",
-   "tris": 136,
+   "tris": 82,
    "center_rbx": [
-    180.572,
-    52.78,
-    -59.825
+    177.95,
+    52.217,
+    -52.46
    ],
    "size_rbx": [
-    78.666,
-    62.362,
-    99.253
+    72.807,
+    61.269,
+    80.314
+   ],
+   "owner": "vegetation",
+   "shadow": true,
+   "flags": "",
+   "model": ""
+  },
+  {
+   "name": "VEG_Leste_Norte__Bark_Dead",
+   "group": "09_VEGETATION",
+   "obj": "VEG_Leste_Norte",
+   "material": "Bark_Dead",
+   "tris": 40,
+   "center_rbx": [
+    201.248,
+    40.327,
+    -106.345
+   ],
+   "size_rbx": [
+    7.835,
+    1.353,
+    6.178
+   ],
+   "owner": "vegetation",
+   "shadow": false,
+   "flags": "",
+   "model": ""
+  },
+  {
+   "name": "VEG_Leste_Norte__Cliff_Rock",
+   "group": "09_VEGETATION",
+   "obj": "VEG_Leste_Norte",
+   "material": "Cliff_Rock",
+   "tris": 92,
+   "center_rbx": [
+    203.939,
+    40.849,
+    -38.527
+   ],
+   "size_rbx": [
+    49.406,
+    3.375,
+    114.088
    ],
    "owner": "vegetation",
    "shadow": true,
@@ -13584,37 +13710,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Leste_Norte",
    "material": "Leaf_Pine",
-   "tris": 1191,
+   "tris": 898,
    "center_rbx": [
-    179.434,
-    57.331,
-    -48.081
+    185.181,
+    56.641,
+    -43.631
    ],
    "size_rbx": [
-    85.403,
-    71.288,
-    134.431
-   ],
-   "owner": "vegetation",
-   "shadow": false,
-   "flags": "",
-   "model": ""
-  },
-  {
-   "name": "VEG_Leste_Norte__Leaf_Pine_Light",
-   "group": "09_VEGETATION",
-   "obj": "VEG_Leste_Norte",
-   "material": "Leaf_Pine_Light",
-   "tris": 89,
-   "center_rbx": [
-    145.948,
-    51.026,
-    -18.554
-   ],
-   "size_rbx": [
-    11.092,
-    42.996,
-    14.229
+    98.102,
+    68.149,
+    126.663
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -13626,16 +13731,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Leste_Norte",
    "material": "Leaf_Shadow",
-   "tris": 472,
+   "tris": 300,
    "center_rbx": [
-    179.434,
-    51.102,
-    -46.882
+    183.593,
+    50.806,
+    -38.249
    ],
    "size_rbx": [
-    85.403,
-    58.83,
-    132.033
+    94.925,
+    56.479,
+    115.898
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -13647,16 +13752,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Leste_Sul",
    "material": "Bark_Dark",
-   "tris": 154,
+   "tris": 176,
    "center_rbx": [
-    185.293,
-    52.533,
-    50.178
+    167.658,
+    51.14,
+    52.755
    ],
    "size_rbx": [
-    92.778,
-    76.795,
-    59.951
+    60.631,
+    73.918,
+    54.722
    ],
    "owner": "vegetation",
    "shadow": true,
@@ -13668,16 +13773,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Leste_Sul",
    "material": "Bark_Dead",
-   "tris": 256,
+   "tris": 144,
    "center_rbx": [
-    147.83,
-    42.35,
-    61.736
+    146.968,
+    45.38,
+    49.451
    ],
    "size_rbx": [
-    17.832,
-    25.549,
-    24.015
+    12.674,
+    31.634,
+    17.433
    ],
    "owner": "vegetation",
    "shadow": true,
@@ -13689,16 +13794,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Leste_Sul",
    "material": "Cliff_Rock",
-   "tris": 150,
+   "tris": 140,
    "center_rbx": [
-    175.799,
-    40.593,
-    49.104
+    170.98,
+    40.538,
+    71.943
    ],
    "size_rbx": [
-    51.927,
-    2.713,
-    55.541
+    40.318,
+    2.643,
+    18.526
    ],
    "owner": "vegetation",
    "shadow": true,
@@ -13710,16 +13815,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Leste_Sul",
    "material": "Leaf_Pine",
-   "tris": 842,
+   "tris": 954,
    "center_rbx": [
-    185.979,
-    59.502,
-    50.753
+    167.725,
+    55.832,
+    53.298
    ],
    "size_rbx": [
-    97.552,
-    90.036,
-    65.43
+    65.285,
+    83.699,
+    59.884
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -13731,16 +13836,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Leste_Sul",
    "material": "Leaf_Pine_Light",
-   "tris": 90,
+   "tris": 102,
    "center_rbx": [
-    144.132,
-    42.563,
-    48.85
+    140.783,
+    37.173,
+    49.883
    ],
    "size_rbx": [
-    13.857,
-    45.402,
-    43.638
+    12.163,
+    35.798,
+    47.16
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -13752,16 +13857,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Leste_Sul",
    "material": "Leaf_Shadow",
-   "tris": 416,
+   "tris": 472,
    "center_rbx": [
-    185.979,
-    50.163,
-    50.753
+    167.854,
+    49.205,
+    53.298
    ],
    "size_rbx": [
-    97.552,
-    71.358,
-    65.43
+    65.028,
+    70.444,
+    59.884
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -13773,58 +13878,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Nordeste",
    "material": "Bark_Dark",
-   "tris": 106,
+   "tris": 96,
    "center_rbx": [
-    171.532,
-    99.049,
-    -171.442
+    170.902,
+    98.816,
+    -176.555
    ],
    "size_rbx": [
-    65.467,
-    137.48,
-    118.858
-   ],
-   "owner": "vegetation",
-   "shadow": false,
-   "flags": "",
-   "model": ""
-  },
-  {
-   "name": "VEG_Nordeste__Bark_Dead",
-   "group": "09_VEGETATION",
-   "obj": "VEG_Nordeste",
-   "material": "Bark_Dead",
-   "tris": 40,
-   "center_rbx": [
-    193.279,
-    40.507,
-    -141.244
-   ],
-   "size_rbx": [
-    7.757,
-    1.741,
-    4.903
-   ],
-   "owner": "vegetation",
-   "shadow": false,
-   "flags": "",
-   "model": ""
-  },
-  {
-   "name": "VEG_Nordeste__Cliff_Rock",
-   "group": "09_VEGETATION",
-   "obj": "VEG_Nordeste",
-   "material": "Cliff_Rock",
-   "tris": 48,
-   "center_rbx": [
-    187.102,
-    40.552,
-    -152.36
-   ],
-   "size_rbx": [
-    10.61,
-    2.563,
-    8.834
+    66.367,
+    136.964,
+    102.355
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -13836,16 +13899,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Nordeste",
    "material": "Leaf_Pine",
-   "tris": 668,
+   "tris": 682,
    "center_rbx": [
-    172.961,
-    105.076,
-    -170.343
+    171.323,
+    109.652,
+    -176.951
    ],
    "size_rbx": [
-    70.968,
-    147.985,
-    128.087
+    72.616,
+    156.749,
+    106.556
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -13857,16 +13920,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Nordeste",
    "material": "Leaf_Shadow",
-   "tris": 272,
+   "tris": 315,
    "center_rbx": [
-    172.961,
-    97.811,
-    -170.343
+    170.319,
+    98.704,
+    -176.951
    ],
    "size_rbx": [
-    70.968,
-    133.454,
-    128.087
+    70.609,
+    134.852,
+    106.556
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -13878,16 +13941,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Noroeste",
    "material": "Bark_Dark",
-   "tris": 142,
+   "tris": 100,
    "center_rbx": [
-    -158.987,
-    70.216,
-    -179.624
+    -162.562,
+    70.003,
+    -179.063
    ],
    "size_rbx": [
-    60.375,
-    82.232,
-    108.83
+    66.62,
+    81.806,
+    110.134
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -13899,16 +13962,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Noroeste",
    "material": "Bark_Dead",
-   "tris": 78,
+   "tris": 40,
    "center_rbx": [
-    -162.163,
-    66.189,
-    -184.977
+    -171.865,
+    44.368,
+    -143.883
    ],
    "size_rbx": [
-    62.61,
-    45.087,
-    9.347
+    5.55,
+    1.443,
+    9.226
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -13920,16 +13983,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Noroeste",
    "material": "Cliff_Rock",
-   "tris": 224,
+   "tris": 252,
    "center_rbx": [
-    -167.612,
-    74.951,
-    -186.625
+    -161.751,
+    74.679,
+    -186.884
    ],
    "size_rbx": [
-    61.892,
-    63.55,
-    94.73
+    53.687,
+    62.981,
+    94.201
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -13941,16 +14004,37 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Noroeste",
    "material": "Leaf_Pine",
-   "tris": 806,
+   "tris": 434,
    "center_rbx": [
-    -158.247,
-    74.887,
-    -179.858
+    -161.774,
+    74.485,
+    -179.585
    ],
    "size_rbx": [
-    66.208,
-    92.075,
-    113.932
+    70.562,
+    91.177,
+    114.598
+   ],
+   "owner": "vegetation",
+   "shadow": false,
+   "flags": "",
+   "model": ""
+  },
+  {
+   "name": "VEG_Noroeste__Leaf_Pine_Light",
+   "group": "09_VEGETATION",
+   "obj": "VEG_Noroeste",
+   "material": "Leaf_Pine_Light",
+   "tris": 56,
+   "center_rbx": [
+    -142.426,
+    54.878,
+    -130.779
+   ],
+   "size_rbx": [
+    27.547,
+    45.927,
+    14.572
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -13962,16 +14046,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Noroeste",
    "material": "Leaf_Shadow",
-   "tris": 300,
+   "tris": 220,
    "center_rbx": [
-    -158.247,
-    67.794,
-    -179.858
+    -161.267,
+    68.162,
+    -179.585
    ],
    "size_rbx": [
-    66.208,
-    77.89,
-    113.932
+    69.547,
+    78.53,
+    114.598
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -13983,16 +14067,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Norte_Leste",
    "material": "Bark_Dark",
-   "tris": 202,
+   "tris": 192,
    "center_rbx": [
-    77.478,
-    65.556,
-    -139.212
+    82.922,
+    74.731,
+    -138.684
    ],
    "size_rbx": [
-    121.012,
-    72.913,
-    84.429
+    110.254,
+    63.162,
+    83.525
    ],
    "owner": "vegetation",
    "shadow": true,
@@ -14004,16 +14088,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Norte_Leste",
    "material": "Cliff_Rock",
-   "tris": 52,
+   "tris": 54,
    "center_rbx": [
-    26.106,
-    44.571,
-    -190.879
+    30.236,
+    44.607,
+    -188.128
    ],
    "size_rbx": [
-    11.572,
-    2.821,
-    9.668
+    10.06,
+    2.669,
+    6.504
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -14025,16 +14109,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Norte_Leste",
    "material": "Leaf_Pine",
-   "tris": 984,
+   "tris": 866,
    "center_rbx": [
-    77.1,
-    69.638,
-    -139.134
+    81.376,
+    81.768,
+    -139.244
    ],
    "size_rbx": [
-    125.832,
-    78.896,
-    91.712
+    117.773,
+    75.012,
+    89.821
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -14046,16 +14130,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Norte_Leste",
    "material": "Leaf_Pine_Light",
-   "tris": 166,
+   "tris": 154,
    "center_rbx": [
-    77.371,
-    59.316,
-    -129.347
+    95.098,
+    66.048,
+    -129.64
    ],
    "size_rbx": [
-    123.104,
-    47.568,
-    66.734
+    86.88,
+    30.881,
+    67.23
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -14067,16 +14151,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Norte_Leste",
    "material": "Leaf_Shadow",
-   "tris": 606,
+   "tris": 536,
    "center_rbx": [
-    77.1,
-    64.757,
-    -139.134
+    81.376,
+    72.788,
+    -139.244
    ],
    "size_rbx": [
-    125.832,
-    69.136,
-    91.712
+    117.773,
+    57.052,
+    89.821
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -14088,16 +14172,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Norte_Oeste",
    "material": "Bark_Dark",
-   "tris": 68,
+   "tris": 80,
    "center_rbx": [
-    -69.117,
-    55.071,
-    -144.509
+    -66.764,
+    54.478,
+    -144.61
    ],
    "size_rbx": [
-    117.966,
-    51.943,
-    29.327
+    121.181,
+    50.756,
+    27.756
    ],
    "owner": "vegetation",
    "shadow": true,
@@ -14109,16 +14193,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Norte_Oeste",
    "material": "Bark_Dead",
-   "tris": 110,
+   "tris": 112,
    "center_rbx": [
-    -64.1,
-    84.607,
-    -171.77
+    -50.632,
+    57.387,
+    -164.547
    ],
    "size_rbx": [
-    22.056,
-    44.663,
-    21.282
+    16.798,
+    27.502,
+    7.998
    ],
    "owner": "vegetation",
    "shadow": true,
@@ -14130,16 +14214,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Norte_Oeste",
    "material": "Cliff_Rock",
-   "tris": 40,
+   "tris": 48,
    "center_rbx": [
-    -40.107,
-    44.642,
-    -169.408
+    -58.088,
+    44.628,
+    -167.047
    ],
    "size_rbx": [
-    14.023,
-    2.732,
-    8.477
+    9.783,
+    2.89,
+    6.696
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -14151,16 +14235,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Norte_Oeste",
    "material": "Leaf_Pine",
-   "tris": 328,
+   "tris": 420,
    "center_rbx": [
-    -69.044,
-    67.491,
-    -149.347
+    -67.338,
+    67.086,
+    -150.818
    ],
    "size_rbx": [
-    123.404,
-    74.968,
-    43.809
+    125.588,
+    76.191,
+    43.649
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -14172,16 +14256,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Norte_Oeste",
    "material": "Leaf_Pine_Light",
-   "tris": 62,
+   "tris": 60,
    "center_rbx": [
-    -69.826,
-    63.276,
-    -144.161
+    -67.665,
+    59.836,
+    -144.32
    ],
    "size_rbx": [
-    120.13,
-    54.743,
-    30.209
+    123.187,
+    55.837,
+    28.648
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -14193,16 +14277,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Norte_Oeste",
    "material": "Leaf_Shadow",
-   "tris": 222,
+   "tris": 238,
    "center_rbx": [
-    -69.044,
-    66.745,
-    -149.347
+    -67.338,
+    66.253,
+    -150.818
    ],
    "size_rbx": [
-    123.404,
-    73.475,
-    43.809
+    125.588,
+    74.526,
+    43.649
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -14214,16 +14298,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Oeste_Norte",
    "material": "Bark_Dark",
-   "tris": 116,
+   "tris": 98,
    "center_rbx": [
-    -175.662,
-    39.449,
-    -41.826
+    -175.162,
+    40.174,
+    -41.467
    ],
    "size_rbx": [
-    80.573,
-    30.139,
-    105.643
+    80.387,
+    31.589,
+    107.55
    ],
    "owner": "vegetation",
    "shadow": true,
@@ -14235,19 +14319,19 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Oeste_Norte",
    "material": "Cliff_Rock",
-   "tris": 114,
+   "tris": 70,
    "center_rbx": [
-    -146.497,
-    30.726,
-    -13.953
+    -186.659,
+    30.604,
+    16.193
    ],
    "size_rbx": [
-    26.274,
-    2.851,
-    68.508
+    10.627,
+    2.591,
+    9.418
    ],
    "owner": "vegetation",
-   "shadow": true,
+   "shadow": false,
    "flags": "",
    "model": ""
   },
@@ -14256,16 +14340,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Oeste_Norte",
    "material": "Leaf_Pine",
-   "tris": 594,
+   "tris": 546,
    "center_rbx": [
-    -176.5,
-    55.756,
-    -40.646
+    -175.441,
+    55.782,
+    -41.289
    ],
    "size_rbx": [
-    87.598,
-    62.124,
-    110.688
+    86.633,
+    62.277,
+    112.374
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -14277,16 +14361,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Oeste_Norte",
    "material": "Leaf_Shadow",
-   "tris": 230,
+   "tris": 216,
    "center_rbx": [
-    -176.5,
-    54.958,
-    -40.646
+    -175.441,
+    54.964,
+    -41.289
    ],
    "size_rbx": [
-    87.598,
-    60.529,
-    110.688
+    86.633,
+    60.64,
+    112.374
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -14298,16 +14382,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Oeste_Sul",
    "material": "Bark_Dark",
-   "tris": 96,
+   "tris": 78,
    "center_rbx": [
-    -151.908,
-    33.09,
-    87.781
+    -149.128,
+    31.763,
+    85.343
    ],
    "size_rbx": [
-    42.11,
-    17.683,
-    67.589
+    37.063,
+    15.412,
+    72.245
    ],
    "owner": "vegetation",
    "shadow": true,
@@ -14321,14 +14405,14 @@
    "material": "Bark_Dead",
    "tris": 72,
    "center_rbx": [
-    -132.778,
-    77.074,
-    39.177
+    -132.054,
+    76.659,
+    38.258
    ],
    "size_rbx": [
-    3.475,
-    11.009,
-    2.859
+    2.665,
+    10.157,
+    2.974
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -14340,19 +14424,19 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Oeste_Sul",
    "material": "Cliff_Rock",
-   "tris": 124,
+   "tris": 70,
    "center_rbx": [
-    -162.382,
-    30.82,
-    56.488
+    -171.007,
+    30.555,
+    67.829
    ],
    "size_rbx": [
-    65.313,
-    3.314,
-    59.457
+    9.779,
+    2.632,
+    8.616
    ],
    "owner": "vegetation",
-   "shadow": true,
+   "shadow": false,
    "flags": "",
    "model": ""
   },
@@ -14361,16 +14445,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Oeste_Sul",
    "material": "Leaf_Pine",
-   "tris": 588,
+   "tris": 414,
    "center_rbx": [
-    -155.331,
-    41.977,
-    73.354
+    -148.582,
+    36.822,
+    85.514
    ],
    "size_rbx": [
-    53.935,
-    34.939,
-    102.415
+    42.03,
+    24.978,
+    78.267
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -14382,16 +14466,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Oeste_Sul",
    "material": "Leaf_Shadow",
-   "tris": 165,
+   "tris": 128,
    "center_rbx": [
-    -153.242,
-    41.399,
-    73.354
+    -148.582,
+    29.957,
+    85.514
    ],
    "size_rbx": [
-    49.757,
-    33.784,
-    102.415
+    42.03,
+    11.248,
+    78.267
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -14403,16 +14487,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Queda_Sul_Oeste",
    "material": "Bark_Dark",
-   "tris": 58,
+   "tris": 62,
    "center_rbx": [
-    -93.005,
-    28.178,
-    102.022
+    -92.902,
+    44.965,
+    96.739
    ],
    "size_rbx": [
-    69.905,
-    62.33,
-    37.582
+    70.188,
+    31.63,
+    48.87
    ],
    "owner": "vegetation",
    "shadow": true,
@@ -14424,16 +14508,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Queda_Sul_Oeste",
    "material": "Leaf_Pine",
-   "tris": 348,
+   "tris": 376,
    "center_rbx": [
-    -89.628,
-    32.848,
-    96.775
+    -93.564,
+    49.347,
+    97.08
    ],
    "size_rbx": [
-    83.507,
-    70.358,
-    54.447
+    74.542,
+    38.273,
+    53.937
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -14445,16 +14529,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Queda_Sul_Oeste",
    "material": "Leaf_Shadow",
-   "tris": 192,
+   "tris": 224,
    "center_rbx": [
-    -89.628,
-    31.905,
-    96.775
+    -93.564,
+    48.261,
+    97.08
    ],
    "size_rbx": [
-    83.507,
-    68.47,
-    54.447
+    74.542,
+    36.101,
+    53.937
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -14466,16 +14550,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Vale_Leste",
    "material": "Bark_Dark",
-   "tris": 1656,
+   "tris": 1626,
    "center_rbx": [
-    76.402,
-    8.958,
-    2.874
+    74.473,
+    9.586,
+    4.62
    ],
    "size_rbx": [
-    120.296,
-    12.466,
-    122.595
+    124.666,
+    13.82,
+    128.756
    ],
    "owner": "vegetation",
    "shadow": true,
@@ -14489,14 +14573,14 @@
    "material": "Bark_Dead",
    "tris": 116,
    "center_rbx": [
-    123.868,
-    8.128,
-    52.102
+    121.265,
+    8.129,
+    58.593
    ],
    "size_rbx": [
-    5.074,
-    9.484,
-    4.378
+    4.971,
+    9.482,
+    4.418
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -14508,16 +14592,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Vale_Leste",
    "material": "Cliff_Rock",
-   "tris": 48,
+   "tris": 22,
    "center_rbx": [
-    133.002,
-    4.492,
-    8.181
+    131.759,
+    4.621,
+    8.235
    ],
    "size_rbx": [
-    4.853,
-    1.022,
-    8.104
+    2.905,
+    0.997,
+    2.032
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -14529,16 +14613,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Vale_Leste",
    "material": "Flower_White",
-   "tris": 790,
+   "tris": 1140,
    "center_rbx": [
-    80.213,
-    5.27,
-    16.002
+    74.824,
+    5.209,
+    2.029
    ],
    "size_rbx": [
-    110.042,
-    0.706,
-    95.646
+    118.103,
+    1.301,
+    124.121
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -14550,16 +14634,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Vale_Leste",
    "material": "Grass_Tuft",
-   "tris": 2780,
+   "tris": 3156,
    "center_rbx": [
-    73.51,
-    4.485,
-    6.068
+    76.403,
+    4.318,
+    2.125
    ],
    "size_rbx": [
-    127.026,
-    3.826,
-    115.623
+    122.155,
+    3.498,
+    123.878
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -14571,16 +14655,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Vale_Leste",
    "material": "Leaf_Broad",
-   "tris": 2180,
+   "tris": 2020,
    "center_rbx": [
-    80.478,
-    10.378,
-    3.115
+    76.516,
+    10.103,
+    3.351
    ],
    "size_rbx": [
-    114.592,
-    13.59,
-    122.942
+    123.792,
+    13.12,
+    122.16
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -14592,16 +14676,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Vale_Leste",
    "material": "Leaf_Pine",
-   "tris": 4196,
+   "tris": 4259,
    "center_rbx": [
-    77.01,
-    11.944,
-    3.117
+    74.281,
+    12.818,
+    5.448
    ],
    "size_rbx": [
-    123.958,
-    17.933,
-    126.474
+    127.306,
+    20.132,
+    133.819
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -14613,16 +14697,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Vale_Leste",
    "material": "Leaf_Pine_Light",
-   "tris": 330,
+   "tris": 379,
    "center_rbx": [
-    76.73,
-    14.076,
-    3.725
+    73.342,
+    14.975,
+    6.204
    ],
    "size_rbx": [
-    119.625,
-    16.028,
-    123.758
+    123.549,
+    18.454,
+    128.69
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -14634,16 +14718,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Vale_Leste",
    "material": "Leaf_Shadow",
-   "tris": 1492,
+   "tris": 1588,
    "center_rbx": [
-    77.01,
-    10.677,
-    3.117
+    74.426,
+    11.671,
+    5.448
    ],
    "size_rbx": [
-    123.958,
-    15.399,
-    126.474
+    127.596,
+    17.84,
+    133.819
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -14655,16 +14739,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Vale_Leste",
    "material": "Sakura_Pink",
-   "tris": 660,
+   "tris": 460,
    "center_rbx": [
-    71.257,
-    5.178,
-    4.576
+    72.638,
+    5.32,
+    16.17
    ],
    "size_rbx": [
-    118.966,
-    1.236,
-    112.333
+    114.145,
+    0.694,
+    95.363
    ],
    "owner": "vegetation",
    "shadow": true,
@@ -14676,16 +14760,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Vale_Oeste",
    "material": "Bark_Dark",
-   "tris": 1252,
+   "tris": 1260,
    "center_rbx": [
-    -67.549,
-    43.967,
-    5.965
+    -64.091,
+    43.447,
+    6.115
    ],
    "size_rbx": [
-    116.798,
-    81.275,
-    132.355
+    126.627,
+    80.245,
+    129.979
    ],
    "owner": "vegetation",
    "shadow": true,
@@ -14697,19 +14781,19 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Vale_Oeste",
    "material": "Bark_Dead",
-   "tris": 112,
+   "tris": 40,
    "center_rbx": [
-    -116.042,
-    47.246,
-    44.389
+    -104.606,
+    30.377,
+    20.171
    ],
    "size_rbx": [
-    25.648,
-    35.192,
-    36.982
+    7.315,
+    1.461,
+    2.246
    ],
    "owner": "vegetation",
-   "shadow": true,
+   "shadow": false,
    "flags": "",
    "model": ""
   },
@@ -14718,16 +14802,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Vale_Oeste",
    "material": "Cliff_Rock",
-   "tris": 204,
+   "tris": 224,
    "center_rbx": [
-    -79.69,
-    17.959,
-    -0.006
+    -88.049,
+    18.054,
+    -0.112
    ],
    "size_rbx": [
-    57.168,
-    28.093,
-    121.457
+    75.006,
+    27.889,
+    116.254
    ],
    "owner": "vegetation",
    "shadow": true,
@@ -14739,16 +14823,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Vale_Oeste",
    "material": "Crystal_Blue",
-   "tris": 126,
+   "tris": 144,
    "center_rbx": [
-    -73.729,
-    5.405,
-    35.75
+    -73.268,
+    5.385,
+    35.687
    ],
    "size_rbx": [
-    42.729,
-    3.294,
-    43.533
+    44.87,
+    3.136,
+    44.379
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -14760,16 +14844,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Vale_Oeste",
    "material": "Flower_White",
-   "tris": 550,
+   "tris": 510,
    "center_rbx": [
-    -64.023,
-    5.33,
-    -21.908
+    -92.99,
+    5.329,
+    -5.461
    ],
    "size_rbx": [
-    68.09,
-    0.738,
-    77.607
+    60.484,
+    0.638,
+    44.576
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -14781,16 +14865,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Vale_Oeste",
    "material": "Grass_Tuft",
-   "tris": 1124,
+   "tris": 1056,
    "center_rbx": [
-    -76.63,
-    5.016,
-    -22.054
+    -72.617,
+    5.055,
+    -20.803
    ],
    "size_rbx": [
-    93.069,
-    2.123,
-    77.284
+    101.814,
+    1.901,
+    74.97
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -14802,16 +14886,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Vale_Oeste",
    "material": "Leaf_Broad",
-   "tris": 542,
+   "tris": 462,
    "center_rbx": [
-    -91.281,
-    17.426,
-    -0.434
+    -79.05,
+    17.399,
+    3.179
    ],
    "size_rbx": [
-    71.29,
-    27.394,
-    118.701
+    57.954,
+    27.656,
+    122.982
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -14823,16 +14907,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Vale_Oeste",
    "material": "Leaf_Pine",
-   "tris": 2846,
+   "tris": 3298,
    "center_rbx": [
-    -66.549,
-    48.596,
-    4.915
+    -63.966,
+    47.454,
+    6.53
    ],
    "size_rbx": [
-    123.868,
-    89.707,
-    136.814
+    131.645,
+    87.697,
+    135.322
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -14844,16 +14928,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Vale_Oeste",
    "material": "Leaf_Pine_Light",
-   "tris": 452,
+   "tris": 490,
    "center_rbx": [
-    -66.762,
-    52.612,
-    6.343
+    -63.668,
+    51.522,
+    6.697
    ],
    "size_rbx": [
-    117.303,
-    83.807,
-    132.374
+    125.392,
+    81.429,
+    130.787
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -14865,16 +14949,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Vale_Oeste",
    "material": "Leaf_Shadow",
-   "tris": 1528,
+   "tris": 1692,
    "center_rbx": [
-    -66.549,
-    47.471,
-    4.915
+    -63.966,
+    46.43,
+    6.53
    ],
    "size_rbx": [
-    123.868,
-    87.235,
-    136.814
+    131.645,
+    85.617,
+    135.322
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -14886,16 +14970,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Vale_Oeste",
    "material": "Sakura_Pink",
-   "tris": 2744,
+   "tris": 2802,
    "center_rbx": [
-    -91.089,
+    -74.672,
     9.731,
-    -21.522
+    -21.42
    ],
    "size_rbx": [
-    73.652,
+    106.486,
     10.75,
-    76.608
+    76.812
    ],
    "owner": "vegetation",
    "shadow": true,
@@ -14909,13 +14993,13 @@
    "material": "Cliff_Rock_Dark_B",
    "tris": 144,
    "center_rbx": [
-    -61.735,
+    -61.755,
     5.843,
     25.745
    ],
    "size_rbx": [
-    11.288,
-    3.704,
+    11.247,
+    3.703,
     29.448
    ],
    "owner": "props",
@@ -14994,12 +15078,12 @@
    "tris": 444,
    "center_rbx": [
     -52.302,
-    4.144,
+    4.147,
     11.179
    ],
    "size_rbx": [
     33.923,
-    0.448,
+    0.455,
     64.577
    ],
    "owner": "props",
@@ -15273,7 +15357,7 @@
    "family": "Bark_Dark",
    "tex": "wood",
    "swirl": null,
-   "meshes": 15
+   "meshes": 14
   },
   "Bark_Dead": {
    "color": [
@@ -15525,7 +15609,7 @@
    "family": "Ember_Glow",
    "tex": null,
    "swirl": null,
-   "meshes": 2
+   "meshes": 3
   },
   "Emblem_Cream": {
    "color": [
@@ -15582,6 +15666,20 @@
    "tex": null,
    "swirl": null,
    "meshes": 2
+  },
+  "Fire_Glow_Outer": {
+   "color": [
+    237,
+    89,
+    33
+   ],
+   "material": "Neon",
+   "transparency": 0.0,
+   "shadow": false,
+   "family": "Fire_Glow_Outer",
+   "tex": null,
+   "swirl": null,
+   "meshes": 1
   },
   "Flower_White": {
    "color": [
@@ -16005,9 +16103,9 @@
   },
   "P_DB_Swirl": {
    "color": [
-    255,
-    195,
-    30
+    30,
+    120,
+    240
    ],
    "material": "Neon",
    "transparency": 0.0,
@@ -16045,6 +16143,20 @@
    "swirl": null,
    "meshes": 2
   },
+  "P_DS_GlicTip": {
+   "color": [
+    214,
+    160,
+    238
+   ],
+   "material": "SmoothPlastic",
+   "transparency": 0.0,
+   "shadow": true,
+   "family": "P_DS_GlicTip",
+   "tex": null,
+   "swirl": null,
+   "meshes": 2
+  },
   "P_DS_Glicinia": {
    "color": [
     146,
@@ -16057,7 +16169,7 @@
    "family": "P_DS_Glicinia",
    "tex": null,
    "swirl": null,
-   "meshes": 3
+   "meshes": 2
   },
   "P_DS_Glow": {
    "color": [
@@ -16115,6 +16227,20 @@
    "swirl": null,
    "meshes": 1
   },
+  "P_DS_Red": {
+   "color": [
+    206,
+    69,
+    63
+   ],
+   "material": "SmoothPlastic",
+   "transparency": 0.0,
+   "shadow": true,
+   "family": "P_DS_Red",
+   "tex": null,
+   "swirl": null,
+   "meshes": 4
+  },
   "P_DS_Swirl": {
    "color": [
     185,
@@ -16143,6 +16269,20 @@
    "swirl": null,
    "meshes": 2
   },
+  "P_Naruto_Glow": {
+   "color": [
+    255,
+    115,
+    20
+   ],
+   "material": "Neon",
+   "transparency": 0.0,
+   "shadow": false,
+   "family": "P_Naruto_Glow",
+   "tex": null,
+   "swirl": null,
+   "meshes": 3
+  },
   "P_Naruto_Lacquer": {
    "color": [
     158,
@@ -16169,7 +16309,7 @@
    "family": "P_Naruto_Red",
    "tex": null,
    "swirl": null,
-   "meshes": 7
+   "meshes": 3
   },
   "P_Naruto_Rim_Glow": {
    "color": [
@@ -16183,7 +16323,7 @@
    "family": "P_Naruto_Rim_Glow",
    "tex": null,
    "swirl": null,
-   "meshes": 5
+   "meshes": 3
   },
   "P_Naruto_Steel": {
    "color": [
@@ -16211,7 +16351,7 @@
    "family": "P_Naruto_Stone",
    "tex": null,
    "swirl": null,
-   "meshes": 3
+   "meshes": 2
   },
   "P_Naruto_Swirl": {
    "color": [
@@ -16463,7 +16603,7 @@
    "family": "P_SG_Moon_Glow",
    "tex": null,
    "swirl": null,
-   "meshes": 1
+   "meshes": 3
   },
   "P_SG_Obsidian": {
    "color": [
@@ -16521,20 +16661,6 @@
    "swirl": null,
    "meshes": 1
   },
-  "P_Shadow_Glow": {
-   "color": [
-    150,
-    60,
-    255
-   ],
-   "material": "Neon",
-   "transparency": 0.0,
-   "shadow": false,
-   "family": "P_Shadow_Glow",
-   "tex": null,
-   "swirl": null,
-   "meshes": 2
-  },
   "P_Shadow_Swirl": {
    "color": [
     150,
@@ -16548,6 +16674,20 @@
    "tex": null,
    "swirl": "P_Shadow_Swirl",
    "meshes": 1
+  },
+  "Plaster_Ochre_Light": {
+   "color": [
+    214,
+    186,
+    142
+   ],
+   "material": "SmoothPlastic",
+   "transparency": 0.0,
+   "shadow": true,
+   "family": "Plaster_Ochre_Light",
+   "tex": "plaster",
+   "swirl": null,
+   "meshes": 2
   },
   "Roof": {
    "color": [
@@ -27107,6 +27247,56 @@
    "name": "COL_Portal_026",
    "kind": "Block",
    "pos": [
+    -76.0,
+    29.95,
+    -110.9
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    22.0,
+    17.4,
+    1.9
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_027",
+   "kind": "Block",
+   "pos": [
+    -76.0,
+    31.1,
+    -113.0
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    18.4,
+    8.4,
+    1.4
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_028",
+   "kind": "Block",
+   "pos": [
     -84.348,
     34.678,
     -113.875
@@ -27129,7 +27319,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_027",
+   "name": "COL_Portal_029",
    "kind": "Block",
    "pos": [
     -80.72,
@@ -27154,7 +27344,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_028",
+   "name": "COL_Portal_030",
    "kind": "Block",
    "pos": [
     -79.671,
@@ -27179,7 +27369,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_029",
+   "name": "COL_Portal_031",
    "kind": "Block",
    "pos": [
     -67.652,
@@ -27204,7 +27394,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_030",
+   "name": "COL_Portal_032",
    "kind": "Block",
    "pos": [
     -71.28,
@@ -27229,7 +27419,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_031",
+   "name": "COL_Portal_033",
    "kind": "Block",
    "pos": [
     -72.329,
@@ -27254,7 +27444,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_032",
+   "name": "COL_Portal_034",
    "kind": "Block",
    "pos": [
     -83.854,
@@ -27279,7 +27469,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_033",
+   "name": "COL_Portal_035",
    "kind": "Block",
    "pos": [
     -85.228,
@@ -27304,7 +27494,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_034",
+   "name": "COL_Portal_036",
    "kind": "Block",
    "pos": [
     -68.146,
@@ -27329,7 +27519,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_035",
+   "name": "COL_Portal_037",
    "kind": "Block",
    "pos": [
     -66.772,
@@ -27354,7 +27544,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_036",
+   "name": "COL_Portal_038",
    "kind": "Block",
    "pos": [
     -85.0,
@@ -27379,7 +27569,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_037",
+   "name": "COL_Portal_039",
    "kind": "Block",
    "pos": [
     -68.0,
@@ -27404,7 +27594,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_038",
+   "name": "COL_Portal_040",
    "kind": "Block",
    "pos": [
     -76.0,
@@ -27429,7 +27619,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_039",
+   "name": "COL_Portal_041",
    "kind": "Block",
    "pos": [
     -76.0,
@@ -27454,7 +27644,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_040",
+   "name": "COL_Portal_042",
    "kind": "Block",
    "pos": [
     -76.0,
@@ -27479,7 +27669,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_041",
+   "name": "COL_Portal_043",
    "kind": "Block",
    "pos": [
     -81.504,
@@ -27504,7 +27694,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_042",
+   "name": "COL_Portal_044",
    "kind": "Block",
    "pos": [
     -81.396,
@@ -27529,7 +27719,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_043",
+   "name": "COL_Portal_045",
    "kind": "Block",
    "pos": [
     -70.496,
@@ -27554,7 +27744,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_044",
+   "name": "COL_Portal_046",
    "kind": "Block",
    "pos": [
     -70.604,
@@ -27579,7 +27769,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_045",
+   "name": "COL_Portal_047",
    "kind": "Block",
    "pos": [
     -44.0,
@@ -27604,7 +27794,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_046",
+   "name": "COL_Portal_048",
    "kind": "Block",
    "pos": [
     -44.0,
@@ -27629,7 +27819,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_047",
+   "name": "COL_Portal_049",
    "kind": "Block",
    "pos": [
     -44.0,
@@ -27654,7 +27844,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_048",
+   "name": "COL_Portal_050",
    "kind": "Block",
    "pos": [
     -44.0,
@@ -27679,7 +27869,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_049",
+   "name": "COL_Portal_051",
    "kind": "Block",
    "pos": [
     -44.0,
@@ -27704,7 +27894,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_050",
+   "name": "COL_Portal_052",
    "kind": "Block",
    "pos": [
     -44.0,
@@ -27729,7 +27919,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_051",
+   "name": "COL_Portal_053",
    "kind": "Block",
    "pos": [
     -55.0,
@@ -27754,7 +27944,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_052",
+   "name": "COL_Portal_054",
    "kind": "Block",
    "pos": [
     -33.0,
@@ -27779,7 +27969,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_053",
+   "name": "COL_Portal_055",
    "kind": "Block",
    "pos": [
     -50.55,
@@ -27804,7 +27994,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_054",
+   "name": "COL_Portal_056",
    "kind": "Block",
    "pos": [
     -52.45,
@@ -27829,7 +28019,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_055",
+   "name": "COL_Portal_057",
    "kind": "Block",
    "pos": [
     -37.45,
@@ -27854,7 +28044,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_056",
+   "name": "COL_Portal_058",
    "kind": "Block",
    "pos": [
     -35.55,
@@ -27879,7 +28069,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_057",
+   "name": "COL_Portal_059",
    "kind": "Block",
    "pos": [
     -44.0,
@@ -27904,7 +28094,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_058",
+   "name": "COL_Portal_060",
    "kind": "Block",
    "pos": [
     -44.0,
@@ -27929,7 +28119,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_059",
+   "name": "COL_Portal_061",
    "kind": "Block",
    "pos": [
     -44.0,
@@ -27954,7 +28144,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_060",
+   "name": "COL_Portal_062",
    "kind": "Block",
    "pos": [
     -56.2,
@@ -27979,7 +28169,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_061",
+   "name": "COL_Portal_063",
    "kind": "Block",
    "pos": [
     -56.2,
@@ -28004,7 +28194,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_062",
+   "name": "COL_Portal_064",
    "kind": "Block",
    "pos": [
     -31.4,
@@ -28029,7 +28219,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_063",
+   "name": "COL_Portal_065",
    "kind": "Block",
    "pos": [
     -32.5,
@@ -28054,7 +28244,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_064",
+   "name": "COL_Portal_066",
    "kind": "Block",
    "pos": [
     44.0,
@@ -28079,7 +28269,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_065",
+   "name": "COL_Portal_067",
    "kind": "Block",
    "pos": [
     44.0,
@@ -28104,7 +28294,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_066",
+   "name": "COL_Portal_068",
    "kind": "Block",
    "pos": [
     44.0,
@@ -28129,7 +28319,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_067",
+   "name": "COL_Portal_069",
    "kind": "Block",
    "pos": [
     38.7,
@@ -28154,7 +28344,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_068",
+   "name": "COL_Portal_070",
    "kind": "Block",
    "pos": [
     49.3,
@@ -28179,7 +28369,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_069",
+   "name": "COL_Portal_071",
    "kind": "Block",
    "pos": [
     31.1,
@@ -28204,7 +28394,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_070",
+   "name": "COL_Portal_072",
    "kind": "Block",
    "pos": [
     44.0,
@@ -28229,7 +28419,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_071",
+   "name": "COL_Portal_073",
    "kind": "Block",
    "pos": [
     36.7,
@@ -28254,7 +28444,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_072",
+   "name": "COL_Portal_074",
    "kind": "Block",
    "pos": [
     33.8,
@@ -28279,7 +28469,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_073",
+   "name": "COL_Portal_075",
    "kind": "Block",
    "pos": [
     32.65,
@@ -28304,7 +28494,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_074",
+   "name": "COL_Portal_076",
    "kind": "Block",
    "pos": [
     31.5,
@@ -28329,7 +28519,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_075",
+   "name": "COL_Portal_077",
    "kind": "Block",
    "pos": [
     35.7,
@@ -28354,7 +28544,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_076",
+   "name": "COL_Portal_078",
    "kind": "Block",
    "pos": [
     34.6,
@@ -28379,7 +28569,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_077",
+   "name": "COL_Portal_079",
    "kind": "Block",
    "pos": [
     35.15,
@@ -28404,7 +28594,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_078",
+   "name": "COL_Portal_080",
    "kind": "Block",
    "pos": [
     51.3,
@@ -28429,7 +28619,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_079",
+   "name": "COL_Portal_081",
    "kind": "Block",
    "pos": [
     54.2,
@@ -28454,7 +28644,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_080",
+   "name": "COL_Portal_082",
    "kind": "Block",
    "pos": [
     55.35,
@@ -28479,7 +28669,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_081",
+   "name": "COL_Portal_083",
    "kind": "Block",
    "pos": [
     56.5,
@@ -28504,7 +28694,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_082",
+   "name": "COL_Portal_084",
    "kind": "Block",
    "pos": [
     52.3,
@@ -28529,7 +28719,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_083",
+   "name": "COL_Portal_085",
    "kind": "Block",
    "pos": [
     53.4,
@@ -28554,7 +28744,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_084",
+   "name": "COL_Portal_086",
    "kind": "Block",
    "pos": [
     52.85,
@@ -28579,7 +28769,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_085",
+   "name": "COL_Portal_087",
    "kind": "Block",
    "pos": [
     44.0,
@@ -28604,7 +28794,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_086",
+   "name": "COL_Portal_088",
    "kind": "Block",
    "pos": [
     44.0,
@@ -28629,7 +28819,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_087",
+   "name": "COL_Portal_089",
    "kind": "Block",
    "pos": [
     44.0,
@@ -28654,7 +28844,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_088",
+   "name": "COL_Portal_090",
    "kind": "Block",
    "pos": [
     76.0,
@@ -28679,7 +28869,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_089",
+   "name": "COL_Portal_091",
    "kind": "Block",
    "pos": [
     64.1,
@@ -28704,7 +28894,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_090",
+   "name": "COL_Portal_092",
    "kind": "Block",
    "pos": [
     87.9,
@@ -28729,56 +28919,6 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_091",
-   "kind": "Block",
-   "pos": [
-    76.0,
-    30.35,
-    -113.0
-   ],
-   "x": [
-    1.0,
-    0.0,
-    0.0
-   ],
-   "y": [
-    0.0,
-    0.0,
-    -1.0
-   ],
-   "size": [
-    12.16,
-    12.16,
-    2.5
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_Portal_092",
-   "kind": "Block",
-   "pos": [
-    76.0,
-    30.35,
-    -113.0
-   ],
-   "x": [
-    1.0,
-    0.0,
-    0.0
-   ],
-   "y": [
-    0.0,
-    0.0,
-    -1.0
-   ],
-   "size": [
-    15.824,
-    6.536,
-    2.5
-   ],
-   "cam": false
-  },
-  {
    "name": "COL_Portal_093",
    "kind": "Block",
    "pos": [
@@ -28797,8 +28937,8 @@
     -1.0
    ],
    "size": [
-    6.536,
-    15.824,
+    12.16,
+    12.16,
     2.5
    ],
    "cam": false
@@ -28808,7 +28948,7 @@
    "kind": "Block",
    "pos": [
     76.0,
-    30.75,
+    30.35,
     -113.0
    ],
    "x": [
@@ -28822,9 +28962,9 @@
     -1.0
    ],
    "size": [
-    9.332,
-    9.332,
-    3.3
+    15.824,
+    6.536,
+    2.5
    ],
    "cam": false
   },
@@ -28833,7 +28973,7 @@
    "kind": "Block",
    "pos": [
     76.0,
-    30.75,
+    30.35,
     -113.0
    ],
    "x": [
@@ -28847,9 +28987,9 @@
     -1.0
    ],
    "size": [
-    12.144,
-    5.016,
-    3.3
+    6.536,
+    15.824,
+    2.5
    ],
    "cam": false
   },
@@ -28872,6 +29012,56 @@
     -1.0
    ],
    "size": [
+    9.332,
+    9.332,
+    3.3
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_097",
+   "kind": "Block",
+   "pos": [
+    76.0,
+    30.75,
+    -113.0
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    12.144,
+    5.016,
+    3.3
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_098",
+   "kind": "Block",
+   "pos": [
+    76.0,
+    30.75,
+    -113.0
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
     5.016,
     12.144,
     3.3
@@ -28879,7 +29069,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_097",
+   "name": "COL_Portal_099",
    "kind": "Block",
    "pos": [
     66.8,
@@ -28904,7 +29094,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_098",
+   "name": "COL_Portal_100",
    "kind": "Block",
    "pos": [
     86.6,
@@ -28929,7 +29119,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_099",
+   "name": "COL_Portal_101",
    "kind": "Block",
    "pos": [
     84.8,
@@ -28954,7 +29144,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_100",
+   "name": "COL_Portal_102",
    "kind": "Block",
    "pos": [
     69.6,
@@ -28979,7 +29169,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_101",
+   "name": "COL_Portal_103",
    "kind": "Block",
    "pos": [
     85.2,
@@ -29004,7 +29194,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_102",
+   "name": "COL_Portal_104",
    "kind": "Block",
    "pos": [
     66.2,
@@ -29029,7 +29219,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_103",
+   "name": "COL_Portal_105",
    "kind": "Block",
    "pos": [
     67.6,
@@ -29054,7 +29244,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_104",
+   "name": "COL_Portal_106",
    "kind": "Block",
    "pos": [
     84.4,
@@ -29079,7 +29269,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_105",
+   "name": "COL_Portal_107",
    "kind": "Block",
    "pos": [
     65.0,
@@ -29104,7 +29294,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_106",
+   "name": "COL_Portal_108",
    "kind": "Block",
    "pos": [
     64.8,
@@ -29129,7 +29319,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_107",
+   "name": "COL_Portal_109",
    "kind": "Block",
    "pos": [
     86.6,
@@ -29154,7 +29344,32 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_108",
+   "name": "COL_Portal_110",
+   "kind": "Block",
+   "pos": [
+    76.0,
+    40.6,
+    -115.05
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    15.2,
+    0.4,
+    16.4
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_111",
    "kind": "Block",
    "pos": [
     108.0,
@@ -29179,7 +29394,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_109",
+   "name": "COL_Portal_112",
    "kind": "Block",
    "pos": [
     108.0,
@@ -29204,7 +29419,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_110",
+   "name": "COL_Portal_113",
    "kind": "Block",
    "pos": [
     108.0,
@@ -29229,7 +29444,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_111",
+   "name": "COL_Portal_114",
    "kind": "Block",
    "pos": [
     99.175,
@@ -29254,7 +29469,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_112",
+   "name": "COL_Portal_115",
    "kind": "Block",
    "pos": [
     116.825,
@@ -29279,7 +29494,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_113",
+   "name": "COL_Portal_116",
    "kind": "Block",
    "pos": [
     108.0,
@@ -29304,7 +29519,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_114",
+   "name": "COL_Portal_117",
    "kind": "Block",
    "pos": [
     108.0,
@@ -29329,7 +29544,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_115",
+   "name": "COL_Portal_118",
    "kind": "Block",
    "pos": [
     102.7,
@@ -29354,7 +29569,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_116",
+   "name": "COL_Portal_119",
    "kind": "Block",
    "pos": [
     113.3,
@@ -29379,7 +29594,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_117",
+   "name": "COL_Portal_120",
    "kind": "Block",
    "pos": [
     108.0,
@@ -29404,7 +29619,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_118",
+   "name": "COL_Portal_121",
    "kind": "Ramp",
    "pos": [
     110.9,
@@ -29429,7 +29644,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_119",
+   "name": "COL_Portal_122",
    "kind": "Block",
    "pos": [
     114.228,
@@ -29454,7 +29669,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_120",
+   "name": "COL_Portal_123",
    "kind": "Block",
    "pos": [
     113.966,
@@ -29479,7 +29694,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_121",
+   "name": "COL_Portal_124",
    "kind": "Block",
    "pos": [
     110.4,
@@ -29504,7 +29719,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_122",
+   "name": "COL_Portal_125",
    "kind": "Ramp",
    "pos": [
     116.1,
@@ -29529,7 +29744,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_123",
+   "name": "COL_Portal_126",
    "kind": "Block",
    "pos": [
     117.82,
@@ -29554,7 +29769,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_124",
+   "name": "COL_Portal_127",
    "kind": "Block",
    "pos": [
     117.309,
@@ -29579,7 +29794,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_125",
+   "name": "COL_Portal_128",
    "kind": "Block",
    "pos": [
     115.205,
@@ -29604,7 +29819,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_126",
+   "name": "COL_Portal_129",
    "kind": "Block",
    "pos": [
     99.0,
@@ -29629,7 +29844,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_127",
+   "name": "COL_Portal_130",
    "kind": "Block",
    "pos": [
     100.3,
@@ -29654,7 +29869,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_128",
+   "name": "COL_Portal_131",
    "kind": "Block",
    "pos": [
     99.2,
@@ -29679,7 +29894,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_129",
+   "name": "COL_Portal_132",
    "kind": "Block",
    "pos": [
     -116.95,
@@ -29704,7 +29919,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_130",
+   "name": "COL_Portal_133",
    "kind": "Block",
    "pos": [
     -99.05,
@@ -29729,7 +29944,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_131",
+   "name": "COL_Portal_134",
    "kind": "Block",
    "pos": [
     -99.55,
@@ -29754,7 +29969,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_132",
+   "name": "COL_Portal_135",
    "kind": "Block",
    "pos": [
     -85.9,
@@ -29779,7 +29994,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_133",
+   "name": "COL_Portal_136",
    "kind": "Block",
    "pos": [
     -66.1,
@@ -29804,7 +30019,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_134",
+   "name": "COL_Portal_137",
    "kind": "Block",
    "pos": [
     -87.3,
@@ -29829,7 +30044,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_135",
+   "name": "COL_Portal_138",
    "kind": "Block",
    "pos": [
     -52.465,
@@ -29854,7 +30069,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_136",
+   "name": "COL_Portal_139",
    "kind": "Block",
    "pos": [
     -35.535,
@@ -29879,7 +30094,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_137",
+   "name": "COL_Portal_140",
    "kind": "Block",
    "pos": [
     33.9,
@@ -29904,7 +30119,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_138",
+   "name": "COL_Portal_141",
    "kind": "Block",
    "pos": [
     54.1,
@@ -29929,12 +30144,12 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_139",
+   "name": "COL_Portal_142",
    "kind": "Block",
    "pos": [
-    55.35,
-    33.5,
-    -89.95
+    33.9,
+    32.3,
+    -90.0
    ],
    "x": [
     1.0,
@@ -29947,14 +30162,39 @@
     -1.0
    ],
    "size": [
-    1.3,
-    1.3,
-    7.0
+    0.9,
+    0.9,
+    4.6
    ],
    "cam": false
   },
   {
-   "name": "COL_Portal_140",
+   "name": "COL_Portal_143",
+   "kind": "Block",
+   "pos": [
+    54.1,
+    32.3,
+    -90.0
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    0.9,
+    0.9,
+    4.6
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_144",
    "kind": "Block",
    "pos": [
     98.95,
@@ -29979,7 +30219,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_141",
+   "name": "COL_Portal_145",
    "kind": "Block",
    "pos": [
     97.7,
@@ -30004,7 +30244,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_142",
+   "name": "COL_Portal_146",
    "kind": "Block",
    "pos": [
     98.95,
@@ -30029,7 +30269,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_143",
+   "name": "COL_Portal_147",
    "kind": "Ramp",
    "pos": [
     118.322,
@@ -30054,7 +30294,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_144",
+   "name": "COL_Portal_148",
    "kind": "Block",
    "pos": [
     -22.4,
@@ -30079,7 +30319,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_145",
+   "name": "COL_Portal_149",
    "kind": "Block",
    "pos": [
     -23.6,
@@ -30104,7 +30344,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_146",
+   "name": "COL_Portal_150",
    "kind": "Block",
    "pos": [
     -20.2,
@@ -30129,7 +30369,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_147",
+   "name": "COL_Portal_151",
    "kind": "Block",
    "pos": [
     -20.2,
@@ -30154,7 +30394,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_148",
+   "name": "COL_Portal_152",
    "kind": "Block",
    "pos": [
     19.8,
@@ -30179,7 +30419,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_149",
+   "name": "COL_Portal_153",
    "kind": "Block",
    "pos": [
     20.8,
@@ -30204,12 +30444,12 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_150",
+   "name": "COL_Portal_154",
    "kind": "Block",
    "pos": [
-    19.547,
-    32.45,
-    -103.803
+    18.4,
+    30.8,
+    -103.0
    ],
    "x": [
     0.819,
@@ -30222,19 +30462,44 @@
     -0.819
    ],
    "size": [
-    7.683,
+    5.283,
+    1.3,
+    1.6
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_155",
+   "kind": "Block",
+   "pos": [
+    21.834,
+    32.45,
+    -105.404
+   ],
+   "x": [
+    0.819,
+    0.0,
+    -0.573
+   ],
+   "y": [
+    -0.573,
+    0.0,
+    -0.819
+   ],
+   "size": [
+    2.0,
     2.0,
     4.9
    ],
    "cam": false
   },
   {
-   "name": "COL_Portal_151",
+   "name": "COL_Portal_156",
    "kind": "Block",
    "pos": [
     -100.2,
     7.0,
-    -45.5
+    -44.0
    ],
    "x": [
     1.0,
@@ -30254,7 +30519,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_152",
+   "name": "COL_Portal_157",
    "kind": "Block",
    "pos": [
     -115.2,
@@ -30279,12 +30544,12 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_153",
+   "name": "COL_Portal_158",
    "kind": "Block",
    "pos": [
     -68.2,
     7.0,
-    -45.5
+    -44.0
    ],
    "x": [
     1.0,
@@ -30304,7 +30569,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_154",
+   "name": "COL_Portal_159",
    "kind": "Block",
    "pos": [
     -83.2,
@@ -30329,12 +30594,12 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_155",
+   "name": "COL_Portal_160",
    "kind": "Block",
    "pos": [
     -36.2,
     7.0,
-    -45.5
+    -44.0
    ],
    "x": [
     1.0,
@@ -30354,7 +30619,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_156",
+   "name": "COL_Portal_161",
    "kind": "Block",
    "pos": [
     -51.2,
@@ -30379,12 +30644,12 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_157",
+   "name": "COL_Portal_162",
    "kind": "Block",
    "pos": [
     51.8,
     7.0,
-    -45.5
+    -44.0
    ],
    "x": [
     1.0,
@@ -30404,7 +30669,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_158",
+   "name": "COL_Portal_163",
    "kind": "Block",
    "pos": [
     36.8,
@@ -30429,12 +30694,12 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_159",
+   "name": "COL_Portal_164",
    "kind": "Block",
    "pos": [
     83.8,
     7.0,
-    -45.5
+    -44.0
    ],
    "x": [
     1.0,
@@ -30454,12 +30719,12 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_160",
+   "name": "COL_Portal_165",
    "kind": "Block",
    "pos": [
-    68.8,
+    88.2,
     5.3,
-    -44.0
+    -46.4
    ],
    "x": [
     0.969,
@@ -30479,12 +30744,12 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_161",
+   "name": "COL_Portal_166",
    "kind": "Block",
    "pos": [
     115.8,
     7.0,
-    -45.5
+    -44.0
    ],
    "x": [
     1.0,
@@ -30504,7 +30769,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_162",
+   "name": "COL_Portal_167",
    "kind": "Block",
    "pos": [
     100.8,
@@ -36082,9 +36347,9 @@
    "name": "COL_Veg_001",
    "kind": "Block",
    "pos": [
-    -122.082,
+    -59.487,
     7.3,
-    -37.856
+    -48.877
    ],
    "x": [
     1.0,
@@ -36107,9 +36372,9 @@
    "name": "COL_Veg_002",
    "kind": "Block",
    "pos": [
-    90.951,
+    -123.844,
     7.3,
-    -48.529
+    -40.129
    ],
    "x": [
     1.0,
@@ -36122,8 +36387,8 @@
     -1.0
    ],
    "size": [
-    1.823,
-    1.823,
+    1.6,
+    1.6,
     6.0
    ],
    "cam": false
@@ -36132,9 +36397,9 @@
    "name": "COL_Veg_003",
    "kind": "Block",
    "pos": [
-    121.857,
+    127.812,
     7.3,
-    -36.137
+    43.575
    ],
    "x": [
     1.0,
@@ -36147,8 +36412,8 @@
     -1.0
    ],
    "size": [
-    1.6,
-    1.6,
+    1.946,
+    1.946,
     6.0
    ],
    "cam": false
@@ -36157,9 +36422,9 @@
    "name": "COL_Veg_004",
    "kind": "Block",
    "pos": [
-    118.307,
-    7.3,
-    50.315
+    124.034,
+    7.551,
+    -38.694
    ],
    "x": [
     1.0,
@@ -36172,8 +36437,8 @@
     -1.0
    ],
    "size": [
-    1.6,
-    1.6,
+    1.965,
+    1.965,
     6.0
    ],
    "cam": false
@@ -36182,9 +36447,9 @@
    "name": "COL_Veg_005",
    "kind": "Block",
    "pos": [
-    -59.563,
+    92.098,
     7.3,
-    -51.696
+    -50.725
    ],
    "x": [
     1.0,
@@ -36197,8 +36462,8 @@
     -1.0
    ],
    "size": [
-    1.6,
-    1.6,
+    2.062,
+    2.062,
     6.0
    ],
    "cam": false
@@ -36207,9 +36472,9 @@
    "name": "COL_Veg_006",
    "kind": "Block",
    "pos": [
-    95.026,
+    95.735,
     6.9,
-    -55.064
+    -56.886
    ],
    "x": [
     1.0,
@@ -36232,134 +36497,9 @@
    "name": "COL_Veg_007",
    "kind": "Block",
    "pos": [
-    129.718,
-    7.474,
-    47.46
-   ],
-   "x": [
-    1.0,
-    0.0,
-    0.0
-   ],
-   "y": [
-    0.0,
-    0.0,
-    -1.0
-   ],
-   "size": [
-    1.857,
-    1.857,
-    6.347
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_Veg_008",
-   "kind": "Block",
-   "pos": [
-    122.962,
-    7.317,
-    -50.32
-   ],
-   "x": [
-    1.0,
-    0.0,
-    0.0
-   ],
-   "y": [
-    0.0,
-    0.0,
-    -1.0
-   ],
-   "size": [
-    1.765,
-    1.765,
-    6.034
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_Veg_009",
-   "kind": "Block",
-   "pos": [
-    124.331,
-    6.9,
-    52.358
-   ],
-   "x": [
-    1.0,
-    0.0,
-    0.0
-   ],
-   "y": [
-    0.0,
-    0.0,
-    -1.0
-   ],
-   "size": [
-    1.6,
-    1.6,
-    5.2
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_Veg_010",
-   "kind": "Block",
-   "pos": [
-    122.432,
-    6.9,
-    -56.641
-   ],
-   "x": [
-    1.0,
-    0.0,
-    0.0
-   ],
-   "y": [
-    0.0,
-    0.0,
-    -1.0
-   ],
-   "size": [
-    1.6,
-    1.6,
-    5.2
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_Veg_011",
-   "kind": "Block",
-   "pos": [
-    90.598,
-    7.185,
-    -53.113
-   ],
-   "x": [
-    1.0,
-    0.0,
-    0.0
-   ],
-   "y": [
-    0.0,
-    0.0,
-    -1.0
-   ],
-   "size": [
-    1.688,
-    1.688,
-    5.771
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_Veg_012",
-   "kind": "Block",
-   "pos": [
-    131.941,
+    129.481,
     7.3,
-    34.081
+    36.073
    ],
    "x": [
     1.0,
@@ -36375,6 +36515,131 @@
     1.6,
     1.6,
     6.0
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Veg_008",
+   "kind": "Block",
+   "pos": [
+    20.859,
+    6.9,
+    -51.564
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    1.6,
+    1.6,
+    5.2
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Veg_009",
+   "kind": "Block",
+   "pos": [
+    125.446,
+    7.3,
+    50.234
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    2.045,
+    2.045,
+    6.0
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Veg_010",
+   "kind": "Block",
+   "pos": [
+    91.571,
+    7.495,
+    46.194
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    1.6,
+    1.6,
+    6.0
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Veg_011",
+   "kind": "Block",
+   "pos": [
+    89.582,
+    7.3,
+    -56.208
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    2.136,
+    2.136,
+    6.0
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Veg_012",
+   "kind": "Block",
+   "pos": [
+    99.751,
+    6.9,
+    52.414
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    1.6,
+    1.6,
+    5.2
    ],
    "cam": false
   },
@@ -39529,9 +39794,9 @@
     -106.0
    ],
    "color": [
-    255,
-    229,
-    149
+    97,
+    179,
+    255
    ],
    "range": 12.6,
    "brightness": 0.71,
@@ -39871,9 +40136,9 @@
     -110.0
    ],
    "color": [
-    255,
-    229,
-    149
+    97,
+    179,
+    255
    ],
    "range": 14.0,
    "brightness": 1.0,
@@ -40665,21 +40930,21 @@
   "lines": [
    "ORCAMENTO por dono (tris / MeshParts; limite entre parenteses)",
    "  architecture      82742 (135000)   166 (170)",
-   "  forge             88136 (120000)   116 (116)",
-   "  portals           86345 (90000)   146 (150)",
+   "  forge             88136 (120000)   119 (120)",
+   "  portals           85981 (90000)   147 (148)",
    "  props             48836 (58000)    87 (90)",
    "  scene_lighting    30070 (38000)    34 (36)",
    "  terrain          100924 (128000)   113 (118)",
-   "  vegetation        37745 (50000)    64 (70)",
+   "  vegetation        37453 (50000)    64 (68)",
    "METAS GLOBAIS",
-   "  tris estaticos                          474798 / 624000 ",
-   "  MeshParts estaticas                        726 / 750    ",
-   "  tris total (+ reserva VFX 16000)        490798 / 640000 ",
-   "  MeshParts total (+ reserva VFX 30)         756 / 780    ",
-   "  materiais                                  130 / 130    ",
+   "  tris estaticos                          474142 / 624000 ",
+   "  MeshParts estaticas                        730 / 750    ",
+   "  tris total (+ reserva VFX 16000)        490142 / 640000 ",
+   "  MeshParts total (+ reserva VFX 30)         760 / 780    ",
+   "  materiais                                  134 / 134    ",
    "  MeshParts com sombra                       323 / 350    ",
    "  luzes ativas de dia                         45 / 45     ",
-   "  COL                                        808 / 820    "
+   "  COL                                        813 / 820    "
   ],
   "over": []
  }

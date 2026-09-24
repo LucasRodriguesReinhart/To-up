@@ -41,6 +41,10 @@ _M("P_DB_Shine", (fm_lib.S(255, 255, 255), 0.25, 0.0, 0.6, fm_lib.S(255, 255, 25
 
 import fm_portal_kit as K
 from fm_portal_kit import V
+# espiral nova e AZUL: a luz do portal/pad (fm_portals.swirl le LIGHT_COL) e a cor de reserva do disco no Roblox (Neon
+# antes da textura carregar, e o que vaza na borda com alpha da PNG) deixam de ser o ambar do portal antigo
+K.LIGHT_COL["DragonBall"] = (0.12, 0.45, 1.0)
+fm_lib.RBX_CAL["P_DB_Swirl"] = (None, (30, 120, 240))
 import fm_layout as L
 import fm_portals as FP
 import fm_mat_textures as TX
@@ -436,6 +440,10 @@ def platform(mb, px):
     col_box2(A, (px - 10.8, 110.4, z1 - 0.5), (px + 10.8, 115.6, z2))
     col_box2(A, (px - 8.6, 108.3, z1 - 0.5), (px + 8.6, 117.7, z2))
     col_box2(A, (px - 5.4, 107.0, z1 - 0.5), (px + 5.4, 119.0, z2))
+    # (integracao) as diagonais dos cantos redondos e a faixa larga do estadio: sem elas o pe afundava 0.9 no piso ao
+    # sair da escada para a capsula ou para o expositor
+    col_box2(A, (px - 11.0, 102.2, T - 1.0), (px + 11.0, 119.6, z1))
+    col_box2(A, (px - 9.2, 108.8, z1 - 0.5), (px + 9.2, 117.2, z2))
     return z1, z2
 
 

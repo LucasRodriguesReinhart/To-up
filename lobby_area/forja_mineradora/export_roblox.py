@@ -1,6 +1,7 @@
 # export_roblox.py - prepara o lobby para o Roblox Studio
 # uso: blender -b lobby_forja_mineradora.blend --python export_roblox.py [-- <pasta_saida>]
 #      (ou FM_EXPORT_DIR=<pasta>; padrao ./export)
+#      FM_ROOT_OFFSET="x, y, z" (studs do Roblox) grava esse deslocamento no montar (padrao 0, 0, 0)
 #      FM_BUDGET=strict (padrao): se algum dono ou meta global passar do orcamento, imprime o relatorio e FALHA sem
 #                                 gravar nada (codigo de saida 3); FM_BUDGET=warn grava assim mesmo e so avisa.
 # saida:
@@ -60,12 +61,13 @@ OWNERS = [("FORGE_", "forge"), ("NPC_", "forge"), ("PORTAL_", "portals"), ("KONO
           ("SKY_", "scene_lighting"), ("PROP_", "props"), ("MINE_", "props"), ("RAIL_", "props")]
 # cotas redistribuidas na integracao da rodada 2 (tetos GLOBAIS inalterados): arquitetura/terreno usam em
 # MeshParts a folga que forja/portais/vegetacao deixaram; colisoes sao Parts invisiveis ancoradas (custo baixo)
-# portais v3 (2026-09-24): 5 portais novos com dressing proprio de escada; a folga vem da forja e da cena (MeshParts)
-BUDGET_OWNER = {"forge": (120000, 116), "portals": (90000, 150), "architecture": (135000, 170),
-                "terrain": (128000, 118), "vegetation": (50000, 70), "scene_lighting": (38000, 36),
+# portais v3 (2026-09-24): 5 portais novos com dressing proprio de escada; a folga vem da forja, da cena e da vegetacao
+# (MeshParts; a forja manteve 3 pecas de fogo que o vfx acha pelo nome - Ember_Glow/Fire_Glow_ no FOLD_PROTECT)
+BUDGET_OWNER = {"forge": (120000, 120), "portals": (90000, 148), "architecture": (135000, 170),
+                "terrain": (128000, 118), "vegetation": (50000, 68), "scene_lighting": (38000, 36),
                 "props": (58000, 90)}
 BUDGET = {"static_tris": 624000, "static_meshes": 750, "vfx_tris": 16000, "vfx_meshes": 30, "total_tris": 640000,
-          "total_meshes": 780, "materials": 130, "shadow_meshes": 350, "day_lights": 45, "col": 820}
+          "total_meshes": 780, "materials": 134, "shadow_meshes": 350, "day_lights": 45, "col": 820}
 
 # ------------------------------------------------------------------ fold de materiais pequenos (menos MeshParts)
 FOLD_AREA = 60.0             # studs^2 por objeto: abaixo disso o material vai para o vizinho dominante
@@ -87,7 +89,9 @@ FOLD_TO = {                  # destinos explicitos (valem mesmo com Enum/cor dif
 }
 GLOBAL_SMALL_TRIS = 400      # material com menos tris que isso no lobby inteiro segue o FOLD_TO mesmo com area grande
 FOLD_PROTECT = ("Flower_", "Emblem_", "Water", "Foam", "Crystal_", "Lantern_", "Window_Warm", "Forge_", "P_DB_Ball",
-                "P_DB_Star")
+                "P_DB_Star",
+                "Ember_Glow", "Fire_Glow_",   # o vfx_lobby_forja.lua acha a lareira/chamine pelos nomes __Ember_Glow/__Fire_Glow_
+                "P_DS_Glic")                  # os 3 tons das glicinias (portal DS, escada e centro do terraco)
 NO_FOLD_OBJ = ("WATER_Waterwheel", "BLD_WheelHouse")     # fontes do export_vfx (trocadas pelas pecas moveis)
 CORE_OF = {"Crystal_Blue": "Crystal_Blue_Core", "Crystal_Purple": "Crystal_Purple_Core"}
 
@@ -934,7 +938,7 @@ def material_cap(pieces, limit):
     for m in sorted(tris, key=lambda k: (tris[k], k)):
         if n <= limit:
             break
-        if m in locked or not free(m):
+        if m in locked or not free(m) or m in extra.values():     # destino de outro nao vira origem (sem cadeia)
             continue
         (rm, tr, sh), c = info[m]
         lim = FOLD_DIST_NEON if rm == "Neon" else CAP_DIST
@@ -1181,7 +1185,8 @@ def write_lua(data):
     A("-- Recomendado no Workspace: StreamingEnabled = true, StreamingTargetRadius = 1024, StreamingMinRadius = 128.")
     A("-- Rodar de novo e seguro (idempotente). Ids de textura encontrados sao impressos: cole em TEX para fixar.")
     A("local EXPORT_ID = %s" % lua_str(data["export_id"]))
-    A("local ROOT_OFFSET = Vector3.new(0, 0, 0)  -- desloca o lobby INTEIRO (malhas alinhadas + colisoes + marcadores + luzes)")
+    A("local ROOT_OFFSET = Vector3.new(%s)  -- desloca o lobby INTEIRO (malhas alinhadas + colisoes + marcadores + luzes)"
+      % os.environ.get("FM_ROOT_OFFSET", "0, 0, 0"))
     A("local ALINHAR = true      -- reposiciona as MeshParts pelos centros exportados (corrige o importador)")
     A("local RICO = false        -- true = texturas de detalhe (SurfaceAppearance Overlay) nas familias pedra/madeira/telha/rocha/grama/reboco/terra")
     A("local LISO = false        -- true = tudo SmoothPlastic (menos Neon/Metal/Glass), sem os materiais ricos do modo hibrido")

@@ -34,7 +34,7 @@ O `export_all.py` roda em modo **estrito**: se algum orçamento estourar, ele n�
 | Trilhos | Mina → balança de vagonetes → portão da forja → tremonha → fornalha. |
 | Água | Nascentes em contrafortes → cachoeiras → canal do ledge → vertedouro e calha da roda → tanque → rio com corredeiras → queda no penhasco sul. |
 | Roda d'água (de peito) | Eixo baixo → coroa e pinhão → eixo alto → foles. O martinete da oficina é acionado por cames. |
-| Portais | 6 portais no terraço, do mais fácil ao mais difícil: Naruto (torii), Dragon Ball, Shadow Garden, Demon Slayer (negro/carbonizado), One Piece e One Punch Man. Cada um é uma peça própria, com plataformas e vestimenta variadas. |
+| Portais (v3) | 6 portais no terraço, do mais fácil ao mais difícil. **Naruto:** anel de arenito entre postes de laca com a bandana da Folha. **Dragon Ball:** Esfera do Dragão gigante com a esfera de 4 estrelas no topo e base Capsule Corp. **Shadow Garden:** arco gótico com a lua crescente. **Demon Slayer:** tsuba gigante com katanas cruzadas e glicínia. **One Piece:** leme com a caveira. **One Punch Man:** muro com o buraco do soco. Cada escada tem dressing na paleta do próprio portal, e cada portal tem espiral com cor própria. |
 | Konoha | Torii → cânion → ponte suspensa → Grande Portão (`WORLD_EXIT_Naruto`) → mirante (`WORLD_ENTRY_Naruto`). |
 | Moldura | Montanhas de skyline quebrado e rosto de guardião esculpido; vegetação em aglomerados com 6 espécies. |
 
@@ -47,6 +47,13 @@ O `export_all.py` roda em modo **estrito**: se algum orçamento estourar, ele n�
 A estação de carga e o galpão são **abertos** de propósito.
 
 ## Pipeline de produção
+**Portais v3** (aprovados em separado em 2026-09-24):
+- Um módulo por portal: `fm_pv3_naruto.py`, `fm_pv3_dragonball.py`, `fm_pv3_shadowgarden.py`, `fm_pv3_demonslayer.py` e `fm_pv3_onepunchman.py`. Cada um tem `build(rng)` e `stairs(mb, px, rng)`, que monta o dressing do lance 2.
+- O One Piece continua em `fm_portals.onepiece`.
+- `fm_pv3.load()` precisa rodar antes do `make_materials` e também no export. O `build.py` e o `export_roblox.py` já fazem isso, porque cada módulo registra ali os próprios materiais, a cor da luz e a textura da espiral.
+- Estúdio de avaliação de um portal isolado sobre o terreno real, com métricas, contrato e rota: `blender -b --factory-startup --python portal_studio.py -- <Key|all> <pasta_absoluta> [--save] [--cams A_Hero,G_Far,H_Stairs,I_Climb]`.
+- `portal_sheet.py` monta a prancha.
+
 Cada área tem módulos próprios:
 - `fm_forge*`, `fm_portal*` / `fm_konoha`, `fm_buildings` / `fm_arch_*`
 - `fm_terrain*`, `fm_veg*`, `fm_props*` / `fm_mine`, `fm_water*`, `fm_scene*`
@@ -62,18 +69,27 @@ O acabamento foi feito em duas rodadas com agentes paralelos, cada um dono dos s
 ## Métricas do export (EXPORT_ID atual no `montar_lobby_forja.lua`)
 | | valor | teto |
 |---|---|---|
-| MeshParts estáticas | 693 | 750 |
-| Triângulos estáticos | 463k | 624k |
+| MeshParts estáticas | 730 | 750 |
+| Triângulos estáticos | 474k | 624k |
 | Peças móveis (`LOBBY_VFX_MOVING`) | 23 malhas / 8,5k tris | 30 / 16k |
-| Materiais | 120 | 120 |
-| MeshParts com sombra | 308 | 350 |
-| Colisões (Parts invisíveis) | 788 | 820 |
+| Materiais | 134 | 134 |
+| MeshParts com sombra | 323 | 350 |
+| Colisões (Parts invisíveis) | 813 | 820 |
 | Marcadores | 62 | – |
-| Luzes | 89 (42 de dia, 47 só à noite) | 45 de dia |
+| Luzes | 86 (45 de dia, 41 só à noite) | 45 de dia |
 
-As cotas por dono foram redistribuídas na integração sem mexer nos tetos globais: arquitetura e terreno usam em MeshParts a folga deixada pela forja, pelos portais e pela vegetação.
+As cotas por dono foram redistribuídas sem mexer nos tetos globais de MeshParts e triângulos. Na rodada 2, arquitetura e terreno ganharam a folga de forja, portais e vegetação. Com os portais v3, os portais ficaram com 148 MeshParts e 90k triângulos.
+
+O teto de materiais subiu de 120 para 134, porque no Roblox cada material é só cor e `Enum.Material`, e o custo real está nas MeshParts, que têm teto próprio. O remapeamento do teto segue três regras:
+- só troca cores de **mesmo matiz**, então lilás não vira prata e laca não vira telha;
+- nunca encadeia trocas;
+- nunca mexe em `Ember_Glow`/`Fire_Glow_`, que o VFX acha pelo nome, nem nos 3 tons das glicínias.
 
 ## Integração no Roblox Studio
+Este export foi gerado com `FM_ROOT_OFFSET="4000, 0, 0"` para não sobrepor o `LOBBY_MURIM`, que está na origem. Para trocar de lugar, basta editar `ROOT_OFFSET` no topo do `montar` e rodar de novo; o script é idempotente.
+
+Só a importação dos FBX exige a interface do Studio. O resto (`montar`, VFX e LocalScript) roda pelo MCP do Studio (`execute_luau`) com um servidor local: `python -m http.server 8771` na pasta `export/`, e depois `loadstring(HttpService:GetAsync(...))()`.
+
 1. Rode `export_all.py` e importe no 3D Importer **todos** os `LOBBY_*_<ID6>.fbx` do mesmo passe para `workspace.LOBBY_FORJA`, com as texturas embutidas. Espere as texturas processarem: as peças ficam brancas por alguns minutos.
 2. Rode `export/montar_lobby_forja.lua` na Command Bar. Ele:
    - confere a importação e **alinha** cada MeshPart;
@@ -92,9 +108,10 @@ Para ligar o jogo:
 - **Konoha:** `WORLD_EXIT_Naruto` / `WORLD_ENTRY_Naruto`, alinhados com a entrada da Área 1.
 
 ## Limitações reais
-- **Prévia no place:** a prévia de validação ficou em `workspace.LOBBY_FORJA_PREVIEW` no place do jogo, a +4000 studs em X, feita com EditableMesh, que não persiste. **Apague essa pasta antes de salvar ou publicar.** O place não foi salvo por nenhum agente.
+- **Prévia no place:** a prévia antiga com EditableMesh (`workspace.LOBBY_FORJA_PREVIEW`) foi apagada em 2026-09-24. O place não foi salvo por nenhum agente.
 - **Não testado no Studio:** os FBX finais não foram importados pelo 3D Importer real, porque ele exige a interface. O `montar` confere e realinha a importação, mas a primeira importação precisa de uma olhada humana.
 - **VFX:** as partículas, os Beams e as animações foram escritos e compilam, mas não foram vistos rodando no Studio. Taxas e cores podem pedir ajuste fino.
+- **One Punch Man:** o disco de trás (`PORTAL_OnePunchMan_SwirlBack`) recebe a textura mas não gira; só aparece por trás do muro.
 - **Engrenagens da forja:** as engrenagens de parede da ala direita foram fundidas na malha da ala e ficam paradas.
 - **Proxies:** o Ignis continua um proxy em blocos e o quadro de líderes está vazio.
 - **Render vs Roblox:** o render do Blender usa AgX + névoa de compositor, e o Roblox usa o próprio Lighting e Atmosphere. O perfil recomendado está no `montar` (`APLICAR_LIGHTING`) e nas notas de validação.

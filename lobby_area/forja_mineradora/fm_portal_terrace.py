@@ -211,13 +211,20 @@ def stairs_opm(mb, px, rng):
 
 
 # ------------------------------------------------------------------ placa de dificuldade + caixote de cristais
+# caixote fora do lugar padrao (px - 7.2): no One Piece o padrao cai dentro da ponte BLD_Bridges (x 64.8..71.2); vai para
+# o lado da placa, fora do caminho do pe das escadas (y 41, rota IGNIS->PORTAL_OnePunchMan)
+CRATE_AT = {"OnePiece": (88.2, 46.4)}
+
+
 def difficulty(key, px, i, rng):
     # semente propria: a placa sai igual mesmo que o dressing das escadas (que consome o rng comum) mude
     rng = random.Random(3100 + i)
     mb = K.LeanMB("PORTAL_%s_Difficulty" % key, "06_PORTALS", rng, vcap=1)
     g = DIFF_GLOW[key]
     F = L.FLOOR
-    x, y = px + 7.8, L.FLIGHT1_Y0 - 1.5
+    # placa 1.5 mais para a praca que o pe da escada: a do Naruto cortava o telhado da lanterna de pedra (PROP_Lanterns_West)
+    # e as outras ficavam coladas nos postes das lanternas de madeira
+    x, y = px + 7.8, L.FLIGHT1_Y0 - 3.0
     mb.box((1.0, 1.0, 6.0), (x, y, F + 3.0), (0, 0, 0), "Wood_Dark", 0.08)
     mb.box((3.6, 0.6, 2.2), (x, y - 0.3, F + 5.4), (0, 0, 0), "Wood_Plank", 0.08)
     # moldura luminosa na cor do portal (e o que o vfx pulsa) + pontos de dificuldade
@@ -225,11 +232,11 @@ def difficulty(key, px, i, rng):
         mb.box((3.8, 0.18, 0.16), (x, y - 0.66, F + 5.4 + dz), (0, 0, 0), g, 0.0)
     for dx in (-1.83, 1.83):
         mb.box((0.16, 0.18, 2.4), (x + dx, y - 0.66, F + 5.4), (0, 0, 0), g, 0.0)
-    for k in range(i + 1):
-        mb.ico(0.28, (x - 1.25 + k * 0.5, y - 0.7, F + 5.4), g, 1)
+    for k in range(i + 1):      # pontos centralizados e separados (Neon no Roblox nao tem sombra: tem que dar para contar)
+        mb.ico(0.22, (x + (k - i / 2.0) * 0.6, y - 0.7, F + 5.4), g, 1)
     col_box(A, (1.2, 1.2, 6.0), (x, y, F + 3.0))
     # caixote aberto de cristais do mundo do portal (storytelling: minerio que chega pela escada)
-    cx, cy = px - 7.2, L.FLIGHT1_Y0 - 3.0
+    cx, cy = CRATE_AT.get(key, (px - 7.2, L.FLIGHT1_Y0 - 3.0))
     ca = 0.25
     dx, dy = math.cos(ca), math.sin(ca)
     mb.box((2.2, 2.2, 1.9), (cx, cy, F + 0.95), (0, 0, ca), "Wood_Plank", 0.0)
@@ -593,8 +600,10 @@ def build(rng):
     ds_stone_wall(mbe, a, b)
     tp = b + u * 1.75
     ds_toro(mbe, tp.x, tp.y, 0.85, ang)
-    ln = (b - a).length + 1.75 + 1.05
-    col_box(A, (ln, 2.0, 4.9), a + u * (ln / 2) + V(0, 0, 2.45), (0, 0, ang))     # mureta + toro numa caixa
+    # colisao em 2 caixas: a mureta e baixa (topo visual T+0.95..1.55) e so o toro sobe ate T+4.8 (uma caixa unica
+    # de 4.9 deixava o jogador em pe no ar sobre a mureta, junto da saida da ponte do centro)
+    col_box(A, ((b - a).length + 0.4, 1.3, 1.6), (a + b) / 2 + V(0, 0, 0.8), (0, 0, ang))
+    col_box(A, (2.0, 2.0, 4.9), (tp.x, tp.y, T + 2.45), (0, 0, ang))
     parts.append(("toro+mureta", tw + _tris(mbe)))
     obe = mbe.finish()
     prev = 0
