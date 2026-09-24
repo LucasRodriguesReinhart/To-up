@@ -53,8 +53,8 @@ end
 
 local DATA = {}
 DATA.version = "vfx-forja-2"
-DATA.exportId = "e4dec731"  -- EXPORT_ID do passe estatico (montar_lobby_forja.lua grava em root:GetAttribute('EXPORT_ID'))
-DATA.fbx = "LOBBY_VFX_MOVING_e4dec7.fbx"  -- FBX de movimento DESTE passe (3D Importer)
+DATA.exportId = "87a2cf9c"  -- EXPORT_ID do passe estatico (montar_lobby_forja.lua grava em root:GetAttribute('EXPORT_ID'))
+DATA.fbx = "LOBBY_VFX_MOVING_87a2cf.fbx"  -- FBX de movimento DESTE passe (3D Importer)
 -- referencias para achar a transformacao do lobby (posicao canonica = export_roblox, Roblox = (x, z, -y))
 DATA.refs = {
   {name = "VFX_Waterwheel_Rotate", pos = Vector3.new(62, 11, -20), x = Vector3.new(0, -1, 0), y = Vector3.new(0, 0, -1)},
@@ -142,7 +142,7 @@ DATA.fx = {
   hearth = {pos = Vector3.new(0, 7.7, -1.4), size = Vector3.new(8.5, 0.4, 3.22), height = 5.3},
   mine = {pos = Vector3.new(-88.123, 8, 79.953), size = Vector3.new(20, 8, 20)},
   quench = {pos = Vector3.new(-5, 6.2, 10), size = Vector3.new(1.4, 0.2, 1.4)},
-  shed = {pos = Vector3.new(109.447, 8.909, 32.911), size = Vector3.new(12.994, 5.542, 8.836)},
+  shed = {pos = Vector3.new(109.403, 9.024, 32.938), size = Vector3.new(13.25, 5.779, 8.931)},
   wheel_in = {pos = Vector3.new(62, 11.15, -29)},
   wheel_mist = {pos = Vector3.new(62, 10.95, -28.8)},
   wheel_out = {pos = Vector3.new(62, 11.15, -11)},
@@ -151,7 +151,7 @@ DATA.vents = {
   {pos = Vector3.new(-31.816, 29.521, -10.062), size = Vector3.new(3.753, 0.3, 3.524), rate = 1.2},
 }
 DATA.smokes = {
-  {marker = "VFX_Smoke_Shop", pos = Vector3.new(39, 18.786, 28.97), rate = 2},
+  {marker = "VFX_Smoke_Shop", pos = Vector3.new(42, 29.314, 25.97), rate = 2},
   {marker = "VFX_Smoke_Cabin_West_A", pos = Vector3.new(-81.6, 20.474, 12.25), rate = 2},
   {marker = "VFX_Smoke_Cabin_East_A", pos = Vector3.new(110.8, 21.103, 14.25), rate = 2},
   {marker = "VFX_Smoke_Cabin_West_C", pos = Vector3.new(-71.25, 19.2, -27.2), rate = 2},

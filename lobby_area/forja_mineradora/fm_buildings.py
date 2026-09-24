@@ -275,21 +275,25 @@ def plaza_and_paths(rng):
 # envelhecida marrom-avermelhada com remendos de musgo (pico em z ~16), empena cruzada sobre a porta com o oitao
 # em balanco. O chamariz desce para o terreo: toldo listrado sobre a vitrine, placa vermelha pendurada, postigos.
 # Linha de visada spawn (0,-104,5.5) -> discos OP/OPM: o telhado fica abaixo dela em toda a planta que ela cruza.
+# loja maior e bem mais alta (2026-09-24, pedido do usuario: "muito baixa, o jogador nao ve nada la dentro" ->
+# "as paredes umas 3x"): 24x24, frechal a 16 do piso (~3 alturas de jogador; era 7.0), porta alta no mesmo ponto da
+# fachada (a rota da praca nao muda), vitrine alta e uma fileira de janelas em cima para a parede nao ficar vazia
 SHOP_V = dict(
-    t=1.5, lower="stone", upper="timber", zs=2.6, ze=7.0, pitch=27.0, door=(3.5, 8.5, 8.0, 2.5), course=1.7, post=3.0,
-    blk=(2.4, 3.8),
-    wins={0: [(11.8, 16.3, 1.4, 5.8, "grid+glow")],
-          1: [(2.4, 5.0, 3.8, 6.0, "two+dark"), (8.2, 9.2, 3.6, 6.2, "slit"), (12.4, 15.6, 3.7, 6.1, "grid+lit")],
-          2: [(7.0, 9.6, 4.0, 6.0, "two")],
-          3: [(3.0, 5.4, 3.8, 6.0, "cross"), (10.4, 11.4, 3.6, 6.2, "slit")]},
+    t=1.5, lower="stone", upper="timber", zs=5.0, ze=16.0, pitch=27.0, door=(6.5, 11.5, 10.5, 2.5), course=1.7,
+    post=3.0, blk=(2.4, 3.8),
+    wins={0: [(14.4, 20.6, 1.6, 10.6, "grid+glow"), (15.6, 19.4, 12.6, 15.0, "two")],
+          1: [(3.0, 6.2, 6.0, 10.2, "two+dark"), (11.0, 12.2, 6.0, 10.6, "slit"), (16.2, 20.2, 6.0, 10.2, "grid+lit"),
+              (4.0, 6.6, 11.8, 14.6, "two"), (15.6, 18.2, 11.8, 14.6, "two")],
+          2: [(10.2, 13.8, 6.4, 10.2, "two"), (4.2, 6.8, 11.8, 14.6, "two"), (17.2, 19.8, 11.8, 14.6, "two")],
+          3: [(4.0, 7.2, 6.0, 10.2, "cross"), (13.6, 14.8, 6.0, 10.6, "slit"), (16.4, 19.0, 11.8, 14.6, "two")]},
     roof=dict(kind="hip", family="tile", over=(1.1, 1.1), ends=(1.1, 1.1), sag=0.3, alt=0.05, course=1.55,
               tile=(1.9, 2.8)),
     door_gable=dict(wd=7.6, h=2.0, rise=2.0, style="cross", over=0.9, lit=True),
     dormers=[dict(side=1, y=4.2, wd=3.4, inset=1.7, h=2.2, lit=False)],
     chimneys=[dict(kind="side", side=-1, y=4.0, name="Shop", top=1.2)],
-    shutters=[(1, 12.4, 15.6, 3.7, 6.1)],
+    shutters=[(1, 16.2, 20.2, 6.0, 10.2)],
     paint="Wood_Teal", floor_top=0.55, win_m="Window_Warm", fan_m="Window_Warm", back=(2, 3),
-    ties=False,     # casa baixa (frechal a 6.45 do piso): sem tirantes cruzando a altura da cabeca/camera
+    ties=False,     # sem tirantes cruzando o salao: a camera do jogador fica livre la dentro
 )
 
 
@@ -305,38 +309,42 @@ def shop(rng):
     info = house(mb, FS, x1 - x0, y1 - y0, F0, rng, SHOP_V, area=A, name="Shop", mbi=mi)
     ze = info["ze"]
     # toldo listrado so sobre a vitrine (acima dela, abaixo da faixa de enxaimel), sanefa recortada, maos-francesas
-    za = F0 + 6.9
-    for i in range(4):
-        yy = y1 - 11.3 - i * 1.3
+    za = F0 + 11.7
+    vit0, vit1 = SHOP_V["wins"][0][0][0], SHOP_V["wins"][0][0][1]
+    nstr = 5
+    stw = (vit1 - vit0 + 0.8) / nstr
+    for i in range(nstr):
+        yy = y1 - (vit0 - 0.4) - stw * (i + 0.5)
         mm = "Cloth_Red" if i % 2 else "Cloth_Canvas"
-        mb.box((3.2, 1.3, 0.26), (x0 - 1.5, yy, za), (0, D(-17), 0), mm, 0.0)
-        mb.box((0.22, 1.3, 0.7), (x0 - 3.05, yy, za - 0.8), (0, 0, 0), "Cloth_Canvas" if i % 2 else "Cloth_Red", 0.0)
-    for yy in (y1 - 10.9, y1 - 16.1):
+        mb.box((3.2, stw, 0.26), (x0 - 1.5, yy, za), (0, D(-17), 0), mm, 0.0)
+        mb.box((0.22, stw, 0.7), (x0 - 3.05, yy, za - 0.8), (0, 0, 0), "Cloth_Canvas" if i % 2 else "Cloth_Red", 0.0)
+    for yy in (y1 - vit0 + 0.5, y1 - vit1 - 0.5):
         mb.beam((x0 - 0.1, yy, za - 1.2), (x0 - 2.9, yy, za - 0.45), 0.28, 0.28, "Wood_Dark", 0.0)
-    mb.beam((x0 - 3.0, y1 - 10.8, za - 0.4), (x0 - 3.0, y1 - 16.2, za - 0.4), 0.28, 0.28, "Wood_Dark", 0.0)
+    mb.beam((x0 - 3.0, y1 - vit0 + 0.6, za - 0.4), (x0 - 3.0, y1 - vit1 - 0.6, za - 0.4), 0.28, 0.28, "Wood_Dark", 0.0)
     # placa pendurada (fundo vermelho, picareta e gema) num braco de ferro ao lado da porta
-    ys = y1 - 1.3
-    mb.beam((x0 - 0.2, ys, F0 + 8.6), (x0 - 4.2, ys, F0 + 8.6), 0.34, 0.34, "Wood_Dark", 0.0)
-    mb.beam((x0 - 0.2, ys, F0 + 6.6), (x0 - 2.4, ys, F0 + 8.5), 0.26, 0.26, "Wood_Dark", 0.0)
+    ys = y1 - 2.2
+    zp = F0 + 5.6           # placa subiu junto com a casa
+    mb.beam((x0 - 0.2, ys, zp + 8.6), (x0 - 4.2, ys, zp + 8.6), 0.34, 0.34, "Wood_Dark", 0.0)
+    mb.beam((x0 - 0.2, ys, zp + 6.6), (x0 - 2.4, ys, zp + 8.5), 0.26, 0.26, "Wood_Dark", 0.0)
     for dy in (-1.1, 1.1):
-        mb.rod((x0 - 3.3, ys + dy, F0 + 8.45), (x0 - 3.3, ys + dy, F0 + 7.85), 0.06, "Metal_Dark", 4)
-    mb.box((0.4, 3.4, 2.6), (x0 - 3.3, ys, F0 + 6.6), (0, 0, D(3)), "Wood_Dark", 0.08)
-    mb.box((0.46, 2.8, 2.0), (x0 - 3.3, ys, F0 + 6.6), (0, 0, D(3)), "Cloth_Red", 0.0)
-    emblem_pickaxe(mb, Vector((x0 - 3.56, ys, F0 + 6.6)), D(-90), s=0.3, m="Cloth_Canvas", normal_off=0.0)
-    crystal_cluster(mb, (x0 - 3.3, ys, F0 + 7.95), 0.3, "Crystal_Blue", rng, 3)
+        mb.rod((x0 - 3.3, ys + dy, zp + 8.45), (x0 - 3.3, ys + dy, zp + 7.85), 0.06, "Metal_Dark", 4)
+    mb.box((0.4, 3.4, 2.6), (x0 - 3.3, ys, zp + 6.6), (0, 0, D(3)), "Wood_Dark", 0.08)
+    mb.box((0.46, 2.8, 2.0), (x0 - 3.3, ys, zp + 6.6), (0, 0, D(3)), "Cloth_Red", 0.0)
+    emblem_pickaxe(mb, Vector((x0 - 3.56, ys, zp + 6.6)), D(-90), s=0.3, m="Cloth_Canvas", normal_off=0.0)
+    crystal_cluster(mb, (x0 - 3.3, ys, zp + 7.95), 0.3, "Crystal_Blue", rng, 3)
     # colisao fina encostada na fachada sul (postigos/floreira na altura da cabeca: o jogador nao atravessa)
-    col_box2(A, (x0, y0 - 1.0, F0), (x1, y0, F0 + 6.8))
+    col_box2(A, (x0, y0 - 1.0, F0), (x1, y0, F0 + 15.0))
     # ---------------------------------------------------------------- interior (BLD_Shop_Interior)
     plank_floor(mi, Frame(cxs, cys, 0, 0.0), x1 - x0 - 2 * t, y1 - y0 - 2 * t, F0 + 0.3, rng, m_alt=("Wood_Dark", "Wood_Dark"))
-    cx = x0 + 10.5
-    mi.box2((cx - 0.8, y0 + 3.0, F0), (cx + 0.8, y1 - 5.5, F0 + 3.2), "Wood_Plank", 0.0)
-    mi.box2((cx - 1.1, y0 + 2.8, F0 + 3.2), (cx + 1.1, y1 - 5.3, F0 + 3.6), "Wood_Dark", 0.05)
-    for yy in (y0 + 4.0, (y0 + y1) / 2 - 1.0, y1 - 7.0):
+    cx = x0 + 13.0
+    mi.box2((cx - 0.8, y0 + 4.0, F0), (cx + 0.8, y1 - 7.0, F0 + 3.2), "Wood_Plank", 0.0)
+    mi.box2((cx - 1.1, y0 + 3.8, F0 + 3.2), (cx + 1.1, y1 - 6.8, F0 + 3.6), "Wood_Dark", 0.05)
+    for yy in (y0 + 5.0, (y0 + y1) / 2 - 1.0, y1 - 8.5):
         mi.box((1.9, 0.35, 2.6), (cx, yy, F0 + 1.6), (0, 0, 0), "Wood_Dark", 0.0)
-    for zz in (F0 + 1.8, F0 + 3.5, F0 + 5.2):
+    for zz in (F0 + 1.8, F0 + 3.6, F0 + 5.4, F0 + 7.2, F0 + 9.0, F0 + 10.8):
         mi.box2((x1 - 2.6, y0 + 2.0, zz), (x1 - 1.6, y1 - 2.0, zz + 0.3), "Wood_Plank", 0.0)
-        for k in range(8):
-            yy = y0 + 3.0 + k * 1.7
+        for k in range(12):
+            yy = y0 + 3.0 + k * 1.6
             if k % 3 == 0:
                 mi.beam((x1 - 2.1, yy, zz + 0.3), (x1 - 2.1, yy + 0.4, zz + 1.5), 0.25, 0.25, "Wood_Plank", 0.0)
                 mi.box((0.4, 1.4, 0.4), (x1 - 2.1, yy + 0.5, zz + 1.45), (0, 0, 0), "Metal_Dark", 0.0)
@@ -348,20 +356,20 @@ def shop(rng):
     # lampiao pendurado do forro do pico (4 aguas: apice no centro), com o fundo a ~7 do piso (acima da cabeca)
     z_att = info["z_r"] - 0.5
     hanging_lantern(mi, ((x0 + x1) / 2, (y0 + y1) / 2, z_att), name="L_Shop_In",
-                    chain=max(0.6, z_att - (F0 + 7.2) - 2.1))
+                    chain=max(0.6, z_att - (F0 + 12.0) - 2.1))
     mi.finish()
-    light("L_Shop_Fill", "POINT", ((x0 + x1) / 2, (y0 + y1) / 2, F0 + 6.0), 700, (1.0, 0.72, 0.45), 3.0)
+    light("L_Shop_Fill", "POINT", ((x0 + x1) / 2, (y0 + y1) / 2, F0 + 11.0), 1400, (1.0, 0.72, 0.45), 3.0)
     lantern(mb, (x0 - 2.0, y0 + 2.0, F0), D(180), name="L_Shop_Door", h=6.0)
     mb.finish()
     # colisao do mobiliario (a casca ja foi criada por house())
-    col_box2(A, (cx - 1.1, y0 + 2.8, F0), (cx + 1.1, y1 - 5.3, F0 + 3.6))
-    col_box2(A, (x1 - 2.6, y0 + 2.0, F0), (x1 - 1.6, y1 - 2.0, F0 + 7.0))
+    col_box2(A, (cx - 1.1, y0 + 3.8, F0), (cx + 1.1, y1 - 6.8, F0 + 3.6))
+    col_box2(A, (x1 - 2.6, y0 + 2.0, F0), (x1 - 1.6, y1 - 2.0, F0 + 12.4))
     for yy in (y0 + 3.5, y1 - 3.5):
         col_box2(A, (x0 + 3.0, yy - 1.2, F0), (x0 + 6.0, yy + 1.2, F0 + 2.8))
     marker("NPC_Shop", (cx + 2.5, (y0 + y1) / 2, F0 + 0.3), (0, 0, D(90)), 2, "ARROWS", props={"npc": "Lojista"})
     marker("INTERACT_Shop", (cx, (y0 + y1) / 2, F0 + 3.6), (0, 0, 0), 1.5, "SPHERE")
     marker("PLAYER_INTERACT_Shop", (cx - 4.0, (y0 + y1) / 2, F0 + 0.3), (0, 0, 0), 2, "CIRCLE")
-    marker("DOOR_Shop", (x0, y1 - 6.0, F0), (0, 0, 0), 1.5)
+    marker("DOOR_Shop", (x0, y1 - (SHOP_V["door"][0] + SHOP_V["door"][1]) / 2, F0), (0, 0, 0), 1.5)
     shop_stall(rng)
 
 

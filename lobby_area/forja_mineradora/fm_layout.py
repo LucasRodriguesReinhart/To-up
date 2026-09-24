@@ -43,7 +43,7 @@ RIVER_X = (58.0, 66.0)                      # canal de fuga (corre para -Y)
 WHEEL_C = (62.0, 20.0)
 WHEEL_R = 9.0
 MILL = (42, 12, 54, 28)                     # casa da roda: engrenagens elevam a forca p/ eixo alto -> ala dos foles
-SHOP = (26, -48, 44, -30)                   # loja (frente para -X / praca)
+SHOP = (26, -51, 50, -27)                   # loja (frente para -X / praca). 24x24 desde 2026-09-24 (era 18x18, apertada)
 BRIDGE_MAIN_Y = -18.0
 BRIDGE_BACK_Y = 41.0
 
