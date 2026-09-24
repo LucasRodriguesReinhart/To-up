@@ -109,7 +109,12 @@ Para ligar o jogo:
 
 ## Limitações reais
 - **Prévia no place:** a prévia antiga com EditableMesh (`workspace.LOBBY_FORJA_PREVIEW`) foi apagada em 2026-09-24. O place não foi salvo por nenhum agente.
-- **Não testado no Studio:** os FBX finais não foram importados pelo 3D Importer real, porque ele exige a interface. O `montar` confere e realinha a importação, mas a primeira importação precisa de uma olhada humana.
+- **No Studio (2026-09-24):** o export `dd376e76` foi importado pelo 3D Importer no place do jogo e montado em `workspace.LOBBY_FORJA`, a +4000 em X.
+  - Resultado: 730/730 malhas e 13 texturas; o `montar` corrigiu o giro de 180° do importador. Foram criadas 813 colisões, 62 marcadores e 86 luzes.
+  - VFX: 20 peças móveis, 110 emissores, 61 beams e as 6 espirais. O LocalScript `VFX_Lobby_Forja_Client` está em StarterPlayerScripts.
+  - Duas malhas voltaram do Roblox com `AssetFetchStatus.Failure`: `KONOHA_Trees__Leaf_Pine_Light` e `FORGE_Hearth__Stone_Forge`. Foram reenviadas num FBX só com elas e trocadas no lugar, com as mesmas propriedades.
+  - Play testado sem erros de script. A Forja **ainda não é o lobby ativo**: o spawn continua no `LOBBY_MURIM`, e o `IslandTravel` devolve ao Murim quem é levado a +4000. Para ativar, é preciso apontar o spawn e o `IslandTravel` para `SPAWN_Lobby` e ligar os gatilhos `PORTAL_*`.
+  - O place **não foi salvo** por nenhum agente.
 - **VFX:** as partículas, os Beams e as animações foram escritos e compilam, mas não foram vistos rodando no Studio. Taxas e cores podem pedir ajuste fino.
 - **One Punch Man:** o disco de trás (`PORTAL_OnePunchMan_SwirlBack`) recebe a textura mas não gira; só aparece por trás do muro.
 - **Engrenagens da forja:** as engrenagens de parede da ala direita foram fundidas na malha da ala e ficam paradas.
