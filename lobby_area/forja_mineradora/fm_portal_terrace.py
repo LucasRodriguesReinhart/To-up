@@ -4,17 +4,26 @@
 #       Naruto: toro de pedra, nobori e sakura      DB: pedestais com as 7 esferas subindo ao lado
 #       Shadow: grade gotica de ferro e velas roxas  DS: pergola de glicinia e lanternas de papel vermelhas
 #       OP: corrimao de corda, tabuas de cais, barris  OPM: guarda-corpo de concreto com faixa neon, outdoor
-#   * PORTAL_<key>_Difficulty: placa de dificuldade (1..6 pontos, moldura na cor do portal) + caixote de cristais
-#     na cor do portal (minerio vindo daquele mundo) ao pe de cada escada
-#   * PORTAL_Terrace_Dressing: so o centro do terraco (x -26..26), entre Shadow e Demon Slayer: ruina gotica,
-#     arvore morta e cristais (lado sombrio) | glicinia, toro escuro e mureta (lado DS). Os vaos de 4 studs entre
+#   * PORTAL_<key>_Difficulty: placa de dificuldade (1..6 pontos, moldura no BRILHO DO PORTAL v3 - DIFF_GLOW, nao o
+#     K.GLOW antigo das espirais) + caixote de gemas brutas (minerio vindo daquele mundo; DIFF_GEM) ao pe de cada escada
+#   * centro do terraco (x -26..26), entre Shadow Garden e Demon Slayer, falando a lingua dos portais v3 (mesmas
+#     paletas e os mesmos helpers de fm_pv3_shadowgarden / fm_pv3_demonslayer):
+#       PORTAL_Terrace_Ruin (x -26..-17): pano de parede gotica ARRUINADO de obsidiana com janela ogival vazada e
+#         remates de prata (eco do Arco da Lua), mureta gotica partida, arvore morta retorcida em P_SG_Deadwood,
+#         roseira seca com rosas violetas (miolo aceso) e lanterna gotica de prata na frente. Nada de cristal.
+#       PORTAL_Terrace_Wisteria (x 16..26): glicinia grande + glicinia menor no estilo do DS (copa em guarda-chuva de
+#         massas lisas lilas e CACHOS EM CAMADAS DE PETALAS EM SINO - cascade_plan/cascade do fm_pv3_demonslayer),
+#         toro e mureta de pedra sagrada (Stone_DS_Rock).
+#     Dois objetos (nao um): o fold de materiais pequenos do export junta cores parecidas de mesmo Enum DENTRO do
+#     objeto - num objeto so, o remate prata do lado sombrio viraria lilas da glicinia. Os vaos de 4 studs entre
 #     portais vizinhos ficam limpos (cada portal e uma peca independente).
 import math
+import random
 from mathutils import Vector
 from fm_lib import MB, D, col_box
-from fm_parts import crystal_cluster, crate, barrel
+from fm_parts import crate, barrel
 import fm_portal_kit as K
-from fm_portal_kit import V, GLOW
+from fm_portal_kit import V
 import fm_layout as L
 
 T = L.TERR
@@ -23,44 +32,19 @@ Y0 = L.FLIGHT2_Y1
 A = "Portal"
 SY0, SY1 = 86.0, 99.4      # faixa ao lado do lance 2 (terraco, fora do poco px +-7.4)
 
-
-def wisteria_tree(mb, loc, h, rng, xmax=None):
-    """glicinia em guarda-chuva; xmax limita a copa e os cachos (folga de 4 studs ate o lote do portal vizinho)"""
-    x, y, z = loc
-    pts = [V(x, y, z), V(x + 0.7, y - 0.3, z + h * 0.3), V(x - 0.4, y + 0.3, z + h * 0.55), V(x + 0.3, y, z + h * 0.7)]
-    K.taper_tube(mb, pts, [h * 0.075, h * 0.058, h * 0.046, h * 0.03], "Bark", 6)
-    for i in range(3):
-        a = rng.uniform(0, math.tau)
-        p = pts[2] + V(math.cos(a) * h * 0.25, math.sin(a) * h * 0.25, h * 0.14)
-        K.taper_tube(mb, [pts[2], p], [h * 0.035, h * 0.018], "Bark", 5)
-    # copa larga e baixa (guarda-chuva) de folhagem, com os cachos lilas pendendo da borda
-    for i in range(5):
-        a = i * math.tau / 5 + rng.uniform(-0.3, 0.3)
-        r = h * rng.uniform(0.14, 0.26)
-        rad = h * rng.uniform(0.19, 0.24)
-        c = V(x + math.cos(a) * r, y + math.sin(a) * r, z + h * rng.uniform(0.78, 0.86))
-        if xmax is not None:
-            c.x = min(c.x, xmax - rad * 1.45)
-        mb.ico(rad, c, "Leaf_Pine_Light", 1, (1.15, 1.15, 0.45), jitter=0.25)
-    for i in range(14):
-        a = i * math.tau / 14 + rng.uniform(-0.15, 0.15)
-        r = h * rng.uniform(0.26, 0.38)
-        top = V(x + math.cos(a) * r, y + math.sin(a) * r, z + h * rng.uniform(0.76, 0.8))
-        if xmax is not None:
-            top.x = min(top.x, xmax - 0.8)
-        K.raceme(mb, top, rng.uniform(2.0, 3.4), "P_DS_Wisteria", 0.5, rng)
-
-
-def dead_tree(mb, loc, h, rng, m="P_Shadow_Stone"):
-    x, y, z = loc
-    pts = [V(x, y, z - 0.3), V(x + 0.5, y + 0.2, z + h * 0.3), V(x - 0.6, y - 0.1, z + h * 0.6), V(x - 0.2, y, z + h * 0.85)]
-    K.taper_tube(mb, pts, [h * 0.08, h * 0.055, h * 0.035, h * 0.012], m, 6)
-    for i, (f, a, l) in enumerate(((0.45, 0.4, 0.42), (0.58, 2.6, 0.36), (0.7, 4.3, 0.3), (0.35, 5.4, 0.28))):
-        b = pts[1] + (pts[2] - pts[1]) * ((f - 0.3) / 0.3) if f < 0.6 else pts[2] + (pts[3] - pts[2]) * ((f - 0.6) / 0.25)
-        e1 = b + V(math.cos(a) * h * l * 0.55, math.sin(a) * h * l * 0.55, h * l * 0.35)
-        e2 = e1 + V(math.cos(a + 0.6) * h * l * 0.45, math.sin(a + 0.6) * h * l * 0.45, h * l * 0.5)
-        K.taper_tube(mb, [b, e1, e2], [h * 0.03, h * 0.016, h * 0.004], m, 5)
-    K.mossy_rock(mb, (x + 0.8, y - 0.6, z), (2.0, 1.6, 1.0), rng, "Cliff_Rock_Dark", moss=None)
+# brilho de cada portal v3 (moldura e pontos da placa de dificuldade). K.GLOW continua sendo o contrato das
+# espirais (aro de energia) e nao muda.
+DIFF_GLOW = {"Naruto": "P_Naruto_Rim_Glow", "DragonBall": "P_DB_Rim_Glow", "ShadowGarden": "P_Shadow_Glow",
+             "DemonSlayer": "P_DS_Glow", "OnePiece": "P_OP_Glow", "OnePunchMan": "P_OPM_Glow"}
+# gemas do caixote: o brilho do portal, exceto o DB - o azul claro do aro (Kamehameha) em gema grossa lia como gelo;
+# la o minerio e o ambar das esferas do dragao (P_DB_Ball_Amber, ja no portal DB)
+DIFF_GEM = dict(DIFF_GLOW, DragonBall="P_DB_Ball_Amber")
+# paletas do centro (as mesmas dos portais v3: nenhum material novo no export)
+OBS, SIL, DW, ROSE, CORE = "P_SG_Obsidian", "P_SG_Silver", "P_SG_Deadwood", "P_SG_Rose", "P_SG_Core_Glow"
+WIS, WIS_MID, WIS_TIP, BARK_DS = "P_DS_Glicinia", "P_DS_GlicMid", "P_DS_GlicTip", "Bark_Dark"
+ROCK_DS = "Stone_DS_Rock"
+XMIN_C = L.PORTAL_X[2] + 14.0 + 4.0 + 0.1     # -25.9: lote do Shadow Garden (px+14) mais a folga de 4
+XMAX_C = L.PORTAL_X[3] - 14.0 - 4.0 - 0.1     # 25.9: lote do Demon Slayer (px-14) menos a folga de 4
 
 
 def capsule(mb, loc, yaw, s=1.0):
@@ -228,8 +212,10 @@ def stairs_opm(mb, px, rng):
 
 # ------------------------------------------------------------------ placa de dificuldade + caixote de cristais
 def difficulty(key, px, i, rng):
+    # semente propria: a placa sai igual mesmo que o dressing das escadas (que consome o rng comum) mude
+    rng = random.Random(3100 + i)
     mb = K.LeanMB("PORTAL_%s_Difficulty" % key, "06_PORTALS", rng, vcap=1)
-    g = GLOW[key]
+    g = DIFF_GLOW[key]
     F = L.FLOOR
     x, y = px + 7.8, L.FLIGHT1_Y0 - 1.5
     mb.box((1.0, 1.0, 6.0), (x, y, F + 3.0), (0, 0, 0), "Wood_Dark", 0.08)
@@ -252,57 +238,369 @@ def difficulty(key, px, i, rng):
             mb.box((0.3, 0.3, 2.0), (cx + dx * sx * 1.1 - dy * sy * 1.1, cy + dy * sx * 1.1 + dx * sy * 1.1, F + 1.0),
                    (0, 0, ca), "Wood_Dark", 0.0)
     mb.box((2.34, 2.34, 0.26), (cx, cy, F + 1.72), (0, 0, ca), "Wood_Dark", 0.0)
-    crystal_cluster(mb, (cx, cy, F + 1.7), 0.6, g, rng, 4)
+    ore_gems(mb, (cx, cy, F + 1.8), 0.85, DIFF_GEM[key], rng, 5)
     col_box(A, (2.5, 2.5, 2.6), (cx, cy, F + 1.3), (0, 0, 0.25))
     mb.finish()
 
 
-# ------------------------------------------------------------------ centro do terraco
-def build(rng):
-    mb = K.LeanMB("PORTAL_Terrace_Dressing", "06_PORTALS", rng, vcap=1)
-    # ---- centro-oeste (x -26 .. -17): ruina gotica (coluna quebrada), arvore morta, rochas escuras, cristais
-    cx, cy = -22.4, 103.6
-    mb.box((2.6, 2.6, 0.8), (cx, cy, T + 0.4), (0, 0, 0.2), "P_Shadow_Trim", 0.1)
-    mb.cyl(0.95, 4.6, (cx, cy, T + 3.0), (0, 0, 0.2), "P_Shadow_Stone", 8, r2=0.85, bevel=0.0)
-    K.plate(mb, [(-0.9, 0), (0.9, 0), (0.9, 0.6), (0.3, 1.4), (-0.2, 0.7), (-0.9, 1.1)], V(cx, cy, T + 5.2),
-            (1, 0, 0), (0, 0, 1), 1.7, "P_Shadow_Stone")
-    mb.box((1.8, 1.0, 1.0), (cx + 2.0, cy - 0.8, T + 0.5), (0.3, 0.2, 0.9), "P_Shadow_Stone", 0.08)
-    col_box(A, (2.6, 2.6, 6.0), (cx, cy, T + 3.0))
-    crystal_cluster(mb, (cx - 1.8, cy + 1.6, T + 0.2), 0.9, "P_Shadow_Glow", rng, 4)
-    dead_tree(mb, (-20.2, 112.0, T), 11.0, rng)
-    col_box(A, (1.8, 1.8, 5.0), (-20.2, 112.0, T + 2.5))
-    for (x, y, s) in ((-18.4, 106.8, 1.8), (-24.6, 110.2, 1.4)):
-        mb.rock((x, y, T + s * 0.25), (s * 1.3, s * 1.1, s * 0.8), "Cliff_Rock_Dark", 1, (0, 0, rng.uniform(0, 6)))
-    # mureta gotica arruinada (topo em degraus quebrados)
-    a, b = V(-25.6, 106.2, T), V(-22.2, 109.2, T)
-    d = (b - a)
-    ang = math.atan2(d.y, d.x)
-    for i, h in enumerate((2.6, 2.0, 1.2, 1.7, 0.8)):
-        c = a + d * ((i + 0.5) / 5)
-        mb.box((d.length / 5 - 0.08, 1.2, h), (c.x, c.y, T + h / 2), (0, 0, ang), "P_Shadow_Stone", 0.1)
-    mb.box((d.length + 0.4, 1.5, 0.5), ((a + b) / 2 + V(0, 0, 0.25)), (0, 0, ang), "P_Shadow_Trim", 0.08)
-    col_box(A, (d.length, 1.4, 2.6), ((a + b) / 2 + V(0, 0, 1.3)), (0, 0, ang))
-    for (x, y, s) in ((-21.6, 94.4, 2.2), (-18.6, 96.4, 1.5)):
-        mb.rock((x, y, T + s * 0.25), (s * 1.3, s * 1.1, s * 0.9), "Cliff_Rock_Dark", 1, (0, 0, rng.uniform(0, 6)))
-    crystal_cluster(mb, (-20.2, 95.2, T + 0.7), 1.2, "P_Shadow_Glow", rng, 6)
-    col_box(A, (4.4, 3.6, 3.4), (-20.2, 95.2, T + 1.7))
+def ore_gems(mb, loc, s, m, rng, n=5):
+    """cacho de gemas BRUTAS (minerio, nao gelo): prismas hexagonais GROSSOS e curtos (altura ~2.5x o raio) com ponta
+    piramidal rombuda, apertados e abrindo em leque a partir do centro do caixote (o crystal_cluster, fino e
+    pontudo, na cor clara do brilho lia como estilhaco de gelo)"""
+    x, y, z = loc
+    for i in range(n):
+        if i == 0:
+            a, off, tilt = 0.0, 0.0, 0.0
+            r, h = 0.42 * s, 1.3 * s
+        else:
+            a = math.tau * (i - 1) / (n - 1) + rng.uniform(-0.3, 0.3)
+            off, tilt = 0.52 * s, rng.uniform(0.35, 0.6)
+            r, h = rng.uniform(0.28, 0.35) * s, rng.uniform(0.7, 1.0) * s
+        base = V(x + math.cos(a) * off, y + math.sin(a) * off, z - 0.15 * s)
+        d = V(math.cos(a) * math.sin(tilt), math.sin(a) * math.sin(tilt), math.cos(tilt))
+        top = base + d * h
+        K.cone(mb, base, top, r, r * 0.9, m, 6)
+        K.cone(mb, top, top + d * r * 0.9, r * 0.9, 0.0, m, 6)
 
-    # ---- centro-leste (x 16 .. 26): glicinia grande + toro escuro + pedras + mureta
-    XMAX = L.PORTAL_X[3] - 14.0 - 4.0 - 0.1      # lote do DS (px-14) menos a folga de 4
-    wisteria_tree(mb, (19.8, 111.6, T), 12.0, rng, xmax=XMAX)
+
+# ------------------------------------------------------------------ centro do terraco: lado Shadow Garden
+def _tris(mb):
+    return sum(len(f.verts) - 2 for f in mb.bm.faces)
+
+
+def sg_ruin_window(mb, SG, cx, cy):
+    """pano de parede gotica ARRUINADO (capela em ruina, eco do Arco da Lua), de frente para a praca: plinto
+    octogonal de obsidiana com filete prata; dado inteiro ate o peitoril com friso prata corrido; acima dele uma
+    JANELA OGIVAL (ogiva equilatera) vazada - o pano esquerdo sobe inteiro ate perto da ponta e termina num topo
+    partido em degraus, o direito quebrou baixo (so o arranque da ogiva); pingadeira prata acompanhando a ogiva na
+    frente; lascas caidas no pe do lado quebrado. Silhueta cheia (le de longe) e vao recortado contra o fundo."""
+    zb = T + 0.4
+    poly = SG.oct_poly(cx - 3.0, cx + 3.0, cy - 1.0, cy + 1.0, 0.5)
+    mb.prism(poly, T - 0.3, zb, OBS, 0.0)
+    SG.loop_band(mb, poly, 0.04, 0.2, zb - 0.08, zb + 0.05, SIL)
+    HW, TH = 2.5, 0.9                     # meia largura e espessura do pano
+    AI_, ZSL, ZS_ = 1.0, 1.5, 3.1         # meio vao da janela, peitoril e nascenca (relativos a zb)
+    RI_ = 2.0 * AI_
+    n = 6
+    li = SG.lancet_half(AI_, RI_, ZS_, RI_, -1, n)
+    ri = SG.lancet_half(AI_, RI_, ZS_, RI_, 1, n)
+    mb.box((2 * HW, TH, ZSL), (cx, cy, zb + ZSL / 2), (0, 0, 0), OBS, 0.0)                  # dado (ate o peitoril)
+    # pano esquerdo (anti-horario no plano XZ): peitoril -> jamba -> ogiva ate perto da ponta -> topo partido
+    lx, lz = li[5]
+    left = [(-HW, ZSL), (-AI_, ZSL)] + li[:6] + [(lx - 0.3, lz + 0.85), (-0.95, 5.5), (-1.45, 6.25), (-1.95, 5.95),
+                                                  (-HW, 6.6)]
+    # pano direito: quebrou baixo - so o arranque da ogiva (ate o 2o passo) e um topo em degraus
+    right = [(AI_, ZSL), (HW, ZSL), (HW, 4.1), (1.85, 4.55), (1.3, 4.05)] + ri[:3][::-1]
+    for pts in (left, right):
+        K.plate(mb, pts, V(cx, cy, zb), (1, 0, 0), (0, 0, 1), TH, OBS)
+    # prata: friso corrido no peitoril (frente) e pingadeira na ogiva (frente), que para antes das quebras
+    mb.box((2 * HW + 0.12, 0.2, 0.2), (cx, cy - TH / 2 - 0.06, zb + ZSL + 0.02), (0, 0, 0), SIL, 0.0)
+    sq = [(-0.11, -0.11), (0.11, -0.11), (0.11, 0.11), (-0.11, 0.11)]
+    for s, k in ((-1, 5), (1, 2)):
+        hp = SG.lancet_half(AI_, RI_, ZS_, RI_ + 0.24, s, n)[:k]
+        mb.sweep([V(cx + u, cy - TH / 2 - 0.06, zb + z) for u, z in [(s * (AI_ + 0.24), ZS_ - 0.5)] + hp], sq, SIL,
+                 True, up=(0, 1, 0))
+    # lascas do lado partido no chao
+    mb.box((1.5, 0.9, 0.8), (cx + HW + 0.2, cy - 1.7, T + 0.34), (0.14, 0.1, 0.6), OBS, 0.0)
+    mb.box((0.9, 0.7, 0.55), (cx + 1.1, cy - 1.95, T + 0.24), (0.0, 0.2, -0.5), OBS, 0.0)
+    col_box(A, (2 * HW + 0.3, TH + 0.4, 6.4), (cx, cy, T + 3.2))
+
+
+def sg_ruin_wall(mb, a, b):
+    """mureta gotica partida (topo em degraus quebrados) de obsidiana sobre soco com filete prata"""
+    d = b - a
+    ang = math.atan2(d.y, d.x)
+    for i, h in enumerate((2.5, 1.6, 2.0, 0.9)):
+        c = a + d * ((i + 0.5) / 4)
+        mb.box((d.length / 4 - 0.08, 1.1, h), (c.x, c.y, T + h / 2), (0, 0, ang), OBS, 0.0)
+    m = (a + b) / 2
+    mb.box((d.length + 0.4, 1.45, 0.45), m + V(0, 0, 0.2), (0, 0, ang), OBS, 0.0)
+    mb.box((d.length + 0.44, 1.49, 0.08), m + V(0, 0, 0.44), (0, 0, ang), SIL, 0.0)
+    col_box(A, (d.length, 1.4, 2.6), m + V(0, 0, 1.3), (0, 0, ang))
+
+
+def sg_dead_tree(mb, SG, x, y, h):
+    """arvore morta retorcida em P_SG_Deadwood (o mesmo tronco torcido da roseira do portal): raizes curtas,
+    tronco em S, 4 galhos em garra (dois com graveto) e ponta seca"""
+    import fm_veg_kit as VK
+    B = V(x, y, T)
+    ctrl = [(0.0, 0.0, -0.4), (0.3, 0.1, h * 0.24), (-0.35, 0.05, h * 0.48), (0.05, -0.1, h * 0.7),
+            (-0.2, -0.05, h * 0.86)]
+    trunk = SG._cr([B + V(*c) for c in ctrl], 2)
+    nt = len(trunk)
+    n0 = len(mb.bm.faces)
+    SG.twisted_trunk(mb, trunk, [h * (0.07 - 0.052 * (i / (nt - 1)) ** 0.9) for i in range(nt)], DW, n=7)
+    for a in (0.6, 3.4):
+        ca, sa = math.cos(a), math.sin(a)
+        VK.ttube(mb, [B + V(ca * 0.25, sa * 0.25, 0.8), B + V(ca * 0.9, sa * 0.9, 0.18),
+                      B + V(ca * 1.35, sa * 1.35, -0.3)], [0.4, 0.24, 0.1], DW, n=5, cap0=True)
+    for f, a, l, twig in ((0.45, 0.5, 0.42, True), (0.6, 2.7, 0.38, False), (0.74, 4.4, 0.32, False),
+                          (0.36, 5.5, 0.3, False)):
+        b = trunk[int(round(f * (nt - 1)))]
+        d0 = V(math.cos(a), math.sin(a), 0)
+        d1 = V(math.cos(a + 0.6), math.sin(a + 0.6), 0)
+        e1 = b + d0 * h * l * 0.55 + V(0, 0, h * l * 0.35)
+        e2 = e1 + d1 * h * l * 0.45 + V(0, 0, h * l * 0.5)
+        pts = SG._cr([b, e1, e2], 2)
+        m = len(pts) - 1
+        VK.ttube(mb, pts, [h * 0.03 * (1 - 0.85 * (i / m)) for i in range(m + 1)], DW, n=4, tip=True, cap0=True,
+                 rot=D(45))
+        if twig:
+            tp = pts[m // 2 + 1]
+            d2 = V(math.cos(a - 0.9), math.sin(a - 0.9), 0)
+            VK.ttube(mb, [tp, tp + d2 * h * 0.07 + V(0, 0, h * 0.06), tp + d2 * h * 0.11 + V(0, 0, h * 0.13)],
+                     [h * 0.012, h * 0.007, 0.0], DW, n=4, tip=True, cap0=True)
+    SG._smooth_from(mb, n0)
+
+
+def sg_rose(mb, c, axis, s=1.0, twist=0.0, ns=12):
+    """rosa LISA em espiral: a mesma fita de petalas do fm_pv3_shadowgarden.rose (voltas de dentro altas e fechadas,
+    de fora baixas e abertas, borda ondulada), com menos passos, e um botao aceso (lavanda) no miolo"""
+    import bmesh
+    c = Vector(c)
+    ax = Vector(axis).normalized()
+    ref = Vector((0, 0, 1)) if abs(ax.z) < 0.9 else Vector((1, 0, 0))
+    e1 = ax.cross(ref).normalized()
+    e2 = ax.cross(e1).normalized()
+    bm = mb.bm
+    turns, th = 1.75, 0.09 * s
+    rows = []
+    for i in range(ns + 1):
+        t = i / ns
+        a = twist + turns * math.tau * t
+        rd = e1 * math.cos(a) + e2 * math.sin(a)
+        rr = s * (0.15 + 0.6 * t)
+        rb, rt = rr * 0.55, rr * (1.0 + 0.25 * t)
+        hb = s * (0.1 - 0.08 * t)
+        ht = s * (0.9 - 0.38 * t + 0.05 * math.cos(3.0 * (a - twist)) * t)
+        ib = c + ax * hb + rd * rb
+        it = c + ax * ht + rd * rt
+        rows.append([bm.verts.new(ib), bm.verts.new(it), bm.verts.new(it + rd * th), bm.verts.new(ib + rd * th)])
+    fs, walls = [], []
+    for r0, r1 in zip(rows, rows[1:]):
+        for j in range(4):
+            f = bm.faces.new((r0[j], r0[(j + 1) % 4], r1[(j + 1) % 4], r1[j]))
+            fs.append(f)
+            if j in (0, 2):
+                walls.append(f)
+    fs.append(bm.faces.new(rows[0]))
+    fs.append(bm.faces.new(list(reversed(rows[-1]))))
+    bmesh.ops.recalc_face_normals(bm, faces=fs)
+    mb._post([v for r in rows for v in r], ROSE, None, 0, 1)
+    for f in walls:
+        if f.is_valid:
+            f.smooth = True
+    K.octa(mb, c + ax * (0.45 * s), 0.12 * s, 0.24 * s, CORE, n=5)
+
+
+def sg_rose_bush(mb, SG, x, y, stems):
+    """roseira seca baixa: toco torcido e hastes de P_SG_Deadwood, uma rosa violeta na ponta de cada haste
+    (olhando para a frente e para cima, como as do portal). stems = [(dx, dy, altura, escala, giro)]"""
+    import fm_veg_kit as VK
+    B = V(x, y, T)
+    for dx, dy, hz, sz, tw in stems:
+        p0, p2 = B + V(dx * 0.15, dy * 0.15, -0.3), B + V(dx, dy, hz)
+        p1 = (p0 + p2) / 2 + V(-dy * 0.3, dx * 0.3, 0.1)
+        VK.ttube(mb, [p0, p1, p2], [0.2, 0.13, 0.09], DW, n=4, cap0=False, rot=D(45))
+        d = (p2 - p1).normalized()
+        sg_rose(mb, p2 - d * 0.1, (d + Vector((0, -0.8, 0.7))).normalized(), sz, tw, ns=9)
+
+
+def sg_lantern(mb, x, y, h=3.7):
+    """lanterna gotica: base octogonal de obsidiana, pe prata, haste, prato prata, vidro aceso (lavanda: o mesmo
+    miolo das rosas e das chamas do portal) com 3 montantes prata, aro prata e telhado agulha de obsidiana"""
+    z = T
+    mb.cyl(0.85, 0.35, (x, y, z + 0.175), (0, 0, D(22.5)), OBS, 8, bevel=0.0)
+    mb.cyl(0.6, 0.45, (x, y, z + 0.575), (0, 0, D(22.5)), SIL, 8, r2=0.3, bevel=0.0)
+    zc = z + h
+    mb.box((0.36, 0.36, zc - 1.6 - z), (x, y, (z + 0.8 + zc - 0.8) / 2), (0, 0, 0), OBS, 0.0)
+    mb.cyl(0.62, 0.16, (x, y, zc - 0.72), (0, 0, 0), SIL, 6, bevel=0.0)
+    mb.cyl(0.4, 1.1, (x, y, zc - 0.09), (0, 0, D(30)), CORE, 6, bevel=0.0)
+    for k in range(3):
+        a = D(90 + 120 * k)
+        mb.box((0.13, 0.13, 1.12), (x + math.cos(a) * 0.4, y + math.sin(a) * 0.4, zc - 0.09), (0, 0, a), SIL, 0.0)
+    mb.cyl(0.64, 0.14, (x, y, zc + 0.53), (0, 0, 0), SIL, 6, bevel=0.0)
+    K.cone(mb, (x, y, zc + 0.6), (x, y, zc + 2.0), 0.72, 0.0, OBS, 6)
+    K.octa(mb, (x, y, zc + 2.14), 0.15, 0.2, SIL)
+    col_box(A, (1.8, 1.8, h + 1.2), (x, y, T + (h + 1.2) / 2))
+
+
+# ------------------------------------------------------------------ centro do terraco: lado Demon Slayer
+# cachos (dx, dy relativos ao tronco, comprimento visivel, raio da 1a camada) - escala 1.0 = glicinia de ~12 studs
+SPOTS_BIG = [(-2.6, -1.8, 2.6, 0.5), (-1.0, -2.8, 3.0, 0.52), (0.9, -2.3, 2.0, 0.48), (2.5, -1.5, 2.6, 0.5),
+             (-3.4, -0.3, 1.8, 0.47), (3.3, 0.7, 2.2, 0.48), (1.8, 2.6, 1.8, 0.48)]
+SPOTS_SMALL = [(-2.4, -1.6, 2.2, 0.5), (-0.4, -2.8, 2.6, 0.52), (2.2, -1.6, 1.9, 0.48)]
+
+
+def ds_wisteria(mb, DSM, x, y, s, rng, spots, xmax=XMAX_C, lite=False):
+    """glicinia no estilo do portal Demon Slayer (s = escala; 1.0 ~ 12 studs): tronco lider retorcido (Bark_Dark) com
+    raiz alargada e um galho lateral escondido na copa; copa em GUARDA-CHUVA (3 massas lisas lilas + coroa baixa) com
+    3 massas menores em lilas medio quebrando o contorno; CACHOS EM CAMADAS DE PETALAS EM SINO (DSM.cascade_plan +
+    DSM.cascade: lilas forte -> medio -> claro, botao rombo na ponta) pendendo da borda e abrindo para fora. Cada
+    cacho e encurtado (ou descartado) ate caber no lote (xmax), nao tocar tronco/galho nem atravessar o vizinho.
+    lite=True (arvore menor): 2 massas + coroa + 2 da borda, malhas mais leves e sem galho lateral."""
+    def P(dx, dy, dz):
+        return Vector((x + dx * s, y + dy * s, T + dz * s))
+    tr = [P(0, 0, -0.3), P(0.45, -0.1, 2.4), P(-0.2, 0.15, 4.8), P(0.35, 0.1, 7.0), P(0.3, 0.2, 9.4)]
+    tr_r = [r * s for r in (0.8, 0.66, 0.56, 0.47, 0.4)]
+    DSM.tube(mb, tr, tr_r, 7 if lite else 8, lambda i, j: BARK_DS, smooth=True, cap0=True)
+    K.cone(mb, P(0.02, 0.0, -0.25), P(0.1, 0.02, 1.0), 0.95 * s, 0.68 * s, BARK_DS, 7 if lite else 8)  # raiz alargada
+    segs = list(zip(tr, tr[1:], tr_r))
+    if not lite:
+        br = [tr[2].lerp(tr[3], 0.5), P(-0.9, -0.6, 7.3), P(-1.4, -1.0, 9.1)]
+        br_r = [0.32 * s, 0.26 * s, 0.2 * s]
+        DSM.tube(mb, br, br_r, 6, lambda i, j: BARK_DS, smooth=True, cap0=False)
+        segs += list(zip(br, br[1:], br_r))
+    masses = [(P(-1.3, -1.0, 9.5), 2.2 * s, 2.0 * s, 1.2 * s), (P(1.7, -0.5, 9.7), 2.0 * s, 2.1 * s, 1.15 * s),
+              (P(0.3, 1.8, 9.6), 2.2 * s, 1.9 * s, 1.2 * s)]
+    crown = (P(0.35, 0.2, 10.6), 1.7 * s, 1.7 * s, 0.95 * s)
+    edge = [(P(-3.2, -0.6, 9.1), 1.05 * s, 1.0 * s, 0.8 * s), (P(-0.4, -2.9, 9.2), 1.0 * s, 1.05 * s, 0.8 * s),
+            (P(3.3, 0.8, 9.2), 0.95 * s, 1.0 * s, 0.78 * s)]
+    if lite:
+        masses, edge = masses[:2], edge[:2]
+    for i, (c, rx, ry, rz) in enumerate(masses):
+        DSM.blob(mb, c, rx, ry, rz, WIS, nu=9 if lite else 10, nv=5 if (i < 2 and not lite) else 4,
+                 rot=rng.uniform(0, 1))
+    c, rx, ry, rz = crown
+    DSM.blob(mb, c, rx, ry, rz, WIS, nu=8 if lite else 10, nv=4, rot=rng.uniform(0, 1))
+    for c, rx, ry, rz in edge:
+        DSM.blob(mb, c, rx, ry, rz, WIS_MID, nu=7 if lite else 8, nv=4, rot=rng.uniform(0, 1))
+    allm = masses + [crown] + edge
+    placed, vis_pts, skip = [], [], []
+    for dx, dy, ln, r0 in spots:
+        sx, sy = x + dx * s + rng.uniform(-0.06, 0.06), y + dy * s + rng.uniform(-0.08, 0.08)
+        r0 *= math.sqrt(s) * rng.uniform(0.97, 1.03)
+        zs = [z for z in (DSM.under(c, rx, ry, rz, sx, sy) for c, rx, ry, rz in allm) if z is not None]
+        if not zs:
+            skip.append((dx, dy, "sem copa"))
+            continue
+        zu = min(zs)
+        ztop = zu + DSM.HIDE
+        out = Vector((dx, dy, 0)).normalized()
+        sway = out * rng.uniform(0.25, 0.45) * s
+        a_ = rng.uniform(0, math.tau)
+        lat = Vector((math.cos(a_), math.sin(a_), 0))
+        ln = ln * s + rng.uniform(-0.2, 0.2)
+
+        def fail(pts_, rad_):
+            for p, r in zip(pts_[1:], rad_[1:]):
+                if p.x + r > xmax:
+                    return "lote"
+                if p.z < zu - 0.3 and any(DSM.seg_dist(p, a, b) < r + rr + 0.08 for a, b, rr in segs):
+                    return "tronco"
+                if p.z > zu - 0.2:
+                    continue
+                if any((p - q).length < r + qr + 0.03 for q, qr in vis_pts):
+                    return "cacho"
+            return ""
+        why, plan = "curto", None
+        while ln >= 1.0:
+            plan = DSM.cascade_plan(r0, ln, Vector((sx, sy, ztop)), sway, lat, ztop - zu)
+            why = fail(plan[0], plan[1])
+            if not why:
+                break
+            ln -= 0.2
+        if why:
+            skip.append((dx, dy, why))
+            continue
+        placed.append(plan)
+        vis_pts += [(q, qr) for q, qr in zip(plan[0], plan[1]) if q.z < zu - 0.2]
+    for pts, rad, n in placed:
+        DSM.cascade(mb, pts, rad, n, rot=rng.uniform(0, math.tau))
+    lo = min(p.z for pts, _r, _n in placed for p in pts) if placed else None
+    print("GLICINIA terraco (%.1f, %.1f) s=%.2f: %d cachos, ponta mais baixa T%+.2f, descartados %s" % (
+        x, y, s, len(placed), (lo - T) if lo is not None else 0.0, skip))
+
+
+def ds_toro(mb, x, y, s=0.8, yaw=0.0):
+    """toro de pedra sagrada (a pedra do portal DS) enxuto, todo em pedra: base, fuste, prato, camara recuada entre
+    3 montantes, chapeu hexagonal e joia (sem brilho: um Neon de 20 tris custaria uma MeshPart so para ele)"""
+    z = T
+    mb.cyl(1.15 * s, 0.5 * s, (x, y, z + 0.25 * s), (0, 0, yaw), ROCK_DS, 6, bevel=0.0)
+    mb.cyl(0.45 * s, 2.3 * s, (x, y, z + 1.65 * s), (0, 0, yaw), ROCK_DS, 8, r2=0.36 * s, bevel=0.0)
+    mb.cyl(0.95 * s, 0.4 * s, (x, y, z + 3.0 * s), (0, 0, yaw), ROCK_DS, 6, r2=1.1 * s, bevel=0.0)
+    mb.cyl(0.5 * s, 1.1 * s, (x, y, z + 3.75 * s), (0, 0, yaw + D(30)), ROCK_DS, 6, bevel=0.0)
+    for k in range(3):
+        a = yaw + D(120 * k + 30)
+        mb.box((0.26 * s, 0.26 * s, 1.1 * s), (x + math.cos(a) * 0.72 * s, y + math.sin(a) * 0.72 * s, z + 3.75 * s),
+               (0, 0, a), ROCK_DS, 0.0)
+    mb.cyl(1.6 * s, 0.7 * s, (x, y, z + 4.65 * s), (0, 0, yaw), ROCK_DS, 6, r2=0.42 * s, bevel=0.0)
+    K.cone(mb, (x, y, z + 5.0 * s), (x, y, z + 5.75 * s), 0.3 * s, 0.0, ROCK_DS, 6)
+    return z + 5.75 * s
+
+
+def ds_stone_wall(mb, a, b):
+    """mureta de pedra sagrada (a pedra do portal DS): duas fiadas de pedra natural de topo plano (prismas de
+    contorno irregular, como os degraus do patio do portal), a de cima recuada e girada de leve"""
+    d = b - a
+    u = d.normalized()
+    v = V(-u.y, u.x, 0)
+    m = (a + b) / 2
+    shape = [(-1.0, -0.7), (-0.6, -1.0), (0.3, -0.95), (0.9, -0.85), (1.0, 0.2), (0.75, 0.95), (-0.2, 1.0),
+             (-0.95, 0.6)]
+
+    def poly(hl, hw, off, rot):
+        ca, sa = math.cos(rot), math.sin(rot)
+        out = []
+        for p, q in shape:
+            p, q = p * ca - q * sa, p * sa + q * ca
+            c = m + u * (p * hl + off) + v * (q * hw)
+            out.append((c.x, c.y))
+        return out
+    mb.prism(poly(d.length / 2 + 0.2, 0.62, 0.0, 0.0), T - 0.2, T + 0.95, ROCK_DS, 0.0)
+    mb.prism(poly(d.length / 2 - 0.3, 0.52, -0.15, 0.03), T + 0.9, T + 1.55, ROCK_DS, 0.1)
+
+
+def build(rng):
+    """centro do terraco (entre Shadow Garden e Demon Slayer). Semente propria: o rng comum chega aqui depois do
+    dressing das escadas, que muda por portal - o centro sai igual de qualquer jeito."""
+    import fm_pv3_shadowgarden as SG
+    import fm_pv3_demonslayer as DSM
+    r = random.Random(4417)
+    # ---- lado Shadow Garden (x -25.9 .. -17): ruina gotica, arvore morta, roseira, lanterna gotica
+    mb = K.LeanMB("PORTAL_Terrace_Ruin", "06_PORTALS", r, vcap=1)
+    parts = []
+    cx, cy = -22.4, 103.6
+    sg_ruin_window(mb, SG, cx, cy)
+    sg_ruin_wall(mb, V(-25.0, 106.5, T), V(-22.2, 109.5, T))
+    parts.append(("ruina", _tris(mb)))
+    sg_dead_tree(mb, SG, -20.2, 112.0, 10.5)
+    col_box(A, (1.8, 1.8, 5.0), (-20.2, 112.0, T + 2.5))
+    parts.append(("arvore", _tris(mb)))
+    sg_rose_bush(mb, SG, cx - 1.85, cy - 2.2, [(-0.55, -0.3, 1.9, 0.95, 0.3), (0.6, -0.25, 1.45, 0.85, 1.4),
+                                               (0.1, 0.35, 2.35, 0.9, 2.3)])
+    parts.append(("roseira", _tris(mb)))
+    sg_lantern(mb, -20.2, 95.2)
+    parts.append(("lanterna", _tris(mb)))
+    tw = parts[-1][1]
+    obw = mb.finish()
+    # ---- lado Demon Slayer (x 16 .. 25.9): glicinias em camadas de petalas, toro de pedra sagrada, mureta
+    mbe = K.LeanMB("PORTAL_Terrace_Wisteria", "06_PORTALS", r, vcap=1)
+    ds_wisteria(mbe, DSM, 19.8, 111.6, 1.0, r, SPOTS_BIG)
     col_box(A, (1.8, 1.8, 7.0), (19.8, 111.6, T + 3.5))
-    K.toro(mb, (22.8, 104.2, T), 0.78, "Stone_Dark", "P_DS_Char", glow="P_DS_Glow", lit=False)
-    col_box(A, (2.0, 2.0, 5.0), (22.8, 104.2, T + 2.5))
-    for (x, y, s) in ((18.2, 107.0, 1.6), (24.4, 110.0, 1.2)):
-        K.mossy_rock(mb, (x, y, T), (s * 1.3, s * 1.1, s * 0.9), rng, "Cliff_Rock_Dark", moss=None)
-    a, b = (16.4, 101.6), (20.4, 104.4)
-    ang = math.atan2(b[1] - a[1], b[0] - a[0])
-    ln = math.hypot(b[0] - a[0], b[1] - a[1])
-    c = V((a[0] + b[0]) / 2, (a[1] + b[1]) / 2, T)
-    mb.box((ln, 1.1, 1.5), c + V(0, 0, 0.75), (0, 0, ang), "Stone_Dark", 0.12)
-    mb.box((ln + 0.3, 1.4, 0.35), c + V(0, 0, 1.65), (0, 0, ang), "P_DS_Char", 0.05)
-    mb.box((ln + 0.02, 1.14, 0.2), c + V(0, 0, 1.2), (0, 0, ang), "P_DS_Blood", 0.0)
-    col_box(A, (ln, 1.2, 2.0), c + V(0, 0, 1.0), (0, 0, ang))
-    wisteria_tree(mb, (20.8, 94.2, T), 8.5, rng, xmax=XMAX)
+    parts.append(("glicinia", tw + _tris(mbe)))
+    ds_wisteria(mbe, DSM, 20.8, 94.2, 0.7, r, SPOTS_SMALL, lite=True)
     col_box(A, (1.6, 1.6, 5.0), (20.8, 94.2, T + 2.5))
-    mb.finish()
+    parts.append(("glicinia2", tw + _tris(mbe)))
+    a, b = V(16.4, 101.6, T), V(20.4, 104.4, T)
+    u = (b - a).normalized()
+    ang = math.atan2(u.y, u.x)
+    ds_stone_wall(mbe, a, b)
+    tp = b + u * 1.75
+    ds_toro(mbe, tp.x, tp.y, 0.85, ang)
+    ln = (b - a).length + 1.75 + 1.05
+    col_box(A, (ln, 2.0, 4.9), a + u * (ln / 2) + V(0, 0, 2.45), (0, 0, ang))     # mureta + toro numa caixa
+    parts.append(("toro+mureta", tw + _tris(mbe)))
+    obe = mbe.finish()
+    prev = 0
+    txt = []
+    for lab, t in parts:
+        txt.append("%s=%d" % (lab, t - prev))
+        prev = t
+    print("TRIS terraco centro: " + " ".join(txt) + " total=%d" % prev)
+    # os vaos de 4 studs ate os lotes do Shadow Garden e do Demon Slayer ficam limpos
+    xw = min(v.co.x for v in obw.data.vertices)
+    xe = max(v.co.x for v in obe.data.vertices)
+    print("LOTE terraco centro: Ruin x >= %.2f (limite %.1f) %s | Wisteria x <= %.2f (limite %.1f) %s" % (
+        xw, XMIN_C, "OK" if xw >= XMIN_C else "INVADE O VAO", xe, XMAX_C, "OK" if xe <= XMAX_C else "INVADE O VAO"))
+
