@@ -435,10 +435,15 @@ SPOTS_SMALL = [(-2.4, -1.6, 2.2, 0.5), (-0.4, -2.8, 2.6, 0.52), (2.2, -1.6, 1.9,
 def ds_wisteria(mb, DSM, x, y, s, rng, spots, xmax=XMAX_C, lite=False):
     """glicinia no estilo do portal Demon Slayer (s = escala; 1.0 ~ 12 studs): tronco lider retorcido (Bark_Dark) com
     raiz alargada e um galho lateral escondido na copa; copa em GUARDA-CHUVA (3 massas lisas lilas + coroa baixa) com
-    3 massas menores em lilas medio quebrando o contorno; CACHOS EM CAMADAS DE PETALAS EM SINO (DSM.cascade_plan +
-    DSM.cascade: lilas forte -> medio -> claro, botao rombo na ponta) pendendo da borda e abrindo para fora. Cada
-    cacho e encurtado (ou descartado) ate caber no lote (xmax), nao tocar tronco/galho nem atravessar o vizinho.
-    lite=True (arvore menor): 2 massas + coroa + 2 da borda, malhas mais leves e sem galho lateral."""
+    4 massas menores em lilas medio quebrando o contorno (como as 4 da borda da glicinia do portal, nu=10; a 4a, de
+    tras, do tamanho da maior de la); CACHOS EM CAMADAS DE PETALAS EM SINO (DSM.cascade_plan + DSM.cascade: lilas
+    forte -> medio -> claro, botao rombo na ponta) pendendo da borda e abrindo para fora. Cada cacho e encurtado (ou
+    descartado) ate caber no lote (xmax), nao tocar tronco/galho nem atravessar o vizinho.
+    lite=True (arvore menor): 2 massas + coroa + 3 da borda, malhas mais leves e sem galho lateral.
+    As massas da borda seguram o lilas medio no export: o fold junta material com menos de FOLD_AREA (60 studs2) no
+    objeto no vizinho dominante. Com P_DS_GlicMid abaixo disso, copa e cachos sairiam num lilas so no Roblox, e a
+    glicinia do portal DS ao lado (GlicMid 64.3 studs2) sai em 2 tons. As 2 arvores somam ~66 studs2 de GlicMid:
+    ao mexer nas massas da borda, conferir no export que so P_DS_GlicTip cai em P_DS_GlicMid."""
     def P(dx, dy, dz):
         return Vector((x + dx * s, y + dy * s, T + dz * s))
     tr = [P(0, 0, -0.3), P(0.45, -0.1, 2.4), P(-0.2, 0.15, 4.8), P(0.35, 0.1, 7.0), P(0.3, 0.2, 9.4)]
@@ -455,16 +460,16 @@ def ds_wisteria(mb, DSM, x, y, s, rng, spots, xmax=XMAX_C, lite=False):
               (P(0.3, 1.8, 9.6), 2.2 * s, 1.9 * s, 1.2 * s)]
     crown = (P(0.35, 0.2, 10.6), 1.7 * s, 1.7 * s, 0.95 * s)
     edge = [(P(-3.2, -0.6, 9.1), 1.05 * s, 1.0 * s, 0.8 * s), (P(-0.4, -2.9, 9.2), 1.0 * s, 1.05 * s, 0.8 * s),
-            (P(3.3, 0.8, 9.2), 0.95 * s, 1.0 * s, 0.78 * s)]
+            (P(3.3, 0.8, 9.2), 0.95 * s, 1.0 * s, 0.78 * s), (P(1.6, 2.6, 9.1), 1.2 * s, 1.25 * s, 0.85 * s)]
     if lite:
-        masses, edge = masses[:2], edge[:2]
+        masses, edge = masses[:2], edge[:3]
     for i, (c, rx, ry, rz) in enumerate(masses):
         DSM.blob(mb, c, rx, ry, rz, WIS, nu=9 if lite else 10, nv=5 if (i < 2 and not lite) else 4,
                  rot=rng.uniform(0, 1))
     c, rx, ry, rz = crown
     DSM.blob(mb, c, rx, ry, rz, WIS, nu=8 if lite else 10, nv=4, rot=rng.uniform(0, 1))
     for c, rx, ry, rz in edge:
-        DSM.blob(mb, c, rx, ry, rz, WIS_MID, nu=7 if lite else 8, nv=4, rot=rng.uniform(0, 1))
+        DSM.blob(mb, c, rx, ry, rz, WIS_MID, nu=7 if lite else 10, nv=4, rot=rng.uniform(0, 1))
     allm = masses + [crown] + edge
     placed, vis_pts, skip = [], [], []
     for dx, dy, ln, r0 in spots:
