@@ -50,7 +50,7 @@ _M("P_SG_Lilac_Glow", (S(184, 155, 250), 1.0, 0.0, 1.9, (0.36, 0.06, 1.0), 0.0))
 _M("P_SG_Core_Glow", (S(230, 218, 255), 1.0, 0.0, 2.6, (0.45, 0.16, 1.0), 0.0))   # lavanda quase branca #E6DAFF
 
 KEY = "ShadowGarden"
-IDX = 2
+IDX = L.PORTAL_KEYS.index(KEY)          # posicao na fileira pela ordem do jogo (area 4)
 C = "06_PORTALS"
 A = "Portal"
 T = L.TERR

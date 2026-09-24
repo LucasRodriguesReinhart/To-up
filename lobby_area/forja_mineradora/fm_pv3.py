@@ -8,5 +8,11 @@ MODS = {"Naruto": "fm_pv3_naruto", "DragonBall": "fm_pv3_dragonball", "ShadowGar
         "DemonSlayer": "fm_pv3_demonslayer", "OnePunchMan": "fm_pv3_onepunchman"}
 
 
+# semente de cada portal (fixa por nome; era 707 + indice na ordem antiga): a troca Shadow Garden <-> Demon Slayer nao
+# muda o visual aprovado
+SEED = {"Naruto": 707, "DragonBall": 708, "ShadowGarden": 709, "DemonSlayer": 710, "OnePiece": 711, "OnePunchMan": 712}
+STAIRS_SEED = {k: v + 101 for k, v in SEED.items()}     # (o estudio usava 808 + indice antigo)
+
+
 def load():
     return {k: importlib.import_module(m) for k, m in MODS.items()}

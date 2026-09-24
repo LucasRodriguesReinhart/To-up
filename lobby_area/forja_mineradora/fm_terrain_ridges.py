@@ -64,8 +64,17 @@ FAR = [
     (170, -574, 162, 96, "wall"),
 ]
 
-# zonas onde a silhueta NAO pode entrar (vale + terraco + planaltos proximos, corredor de Konoha)
-KEEP_OUT = [(-212, -128, 244, 200), (-142, 120, -44, 420)]
+# cadeia de ilhas do jogo (lobby ativo, 2026-09-24): da borda sul do spawn a Vila da Folha (Area 1) e as outras areas
+# seguem para o SUL do Blender (Roblox +z), com ~392 de largura. Nenhuma silhueta nessa faixa: o sul do anel abre e,
+# da praca, o jogador ve a primeira ilha.
+ISLES = (-205, -900, 205, -118)
+# zonas onde a silhueta NAO pode entrar (vale + terraco + planaltos proximos, corredor de Konoha, cadeia de ilhas)
+KEEP_OUT = [(-212, -128, 244, 200), (-142, 120, -44, 420), ISLES]
+
+
+def _in_isles(x, y, r):
+    x0, y0, x1, y1 = ISLES
+    return x0 - r < x < x1 + r and y0 - r < y < y1 + r
 
 
 def _free(x, y, r):
@@ -91,8 +100,11 @@ def build(C="02_TERRAIN"):
     mb = MB("TER_Mountains_Peaks", C, rng)
     ctr = Vector((0.0, 40.0, 0.0))
     guard = None
+    main = [m for m in MAIN if not _in_isles(m[0], m[1], 0.9 * m[3])]
+    far = [m for m in FAR if not _in_isles(m[0], m[1], 0.9 * m[3])]
+    print("SKYLINE: %d/%d macicos e %d/%d longinquos fora da cadeia de ilhas" % (len(main), len(MAIN), len(far), len(FAR)))
     # 1) macicos principais
-    for (x, y, top, r, kind) in MAIN:
+    for (x, y, top, r, kind) in main:
         face = (ctr.x - x, ctr.y - y)
         shelf = None
         if (x, y) == NE_DOMINANT:
@@ -104,7 +116,7 @@ def build(C="02_TERRAIN"):
         if (x, y) == NE_DOMINANT:
             guard = dict(fm_parts._LAST_PEAK, c=(x, y))
     # 2) selas so dentro dos grupos (vaos curtos) e baixas: entre os grupos o vao fica aberto para o longe
-    ring = sorted(MAIN, key=lambda p: math.atan2(p[1] - ctr.y, p[0] - ctr.x))
+    ring = sorted(main, key=lambda p: math.atan2(p[1] - ctr.y, p[0] - ctr.x))
     for i, a in enumerate(ring):
         b = ring[(i + 1) % len(ring)]
         pa, pb = Vector((a[0], a[1], 0)), Vector((b[0], b[1], 0))
@@ -122,7 +134,7 @@ def build(C="02_TERRAIN"):
         peak(mb, p.x, p.y, rr, tp - VIS0, rng, z0=VIS0, kind="saddle", root=ROOT, m="Cliff_Rock_Mid",
              m2="Cliff_Rock_Mid_Dark", face=(ctr.x - p.x, ctr.y - p.y), avoid=_blocked)
     # 3) cordilheira longinqua, cor mais clara e fria, sem patamares de grama (leitura atmosferica)
-    for (x, y, top, r, kind) in FAR:
+    for (x, y, top, r, kind) in far:
         peak(mb, x, y, r, top - VIS0, rng, z0=VIS0, kind=kind, root=ROOT, m="Cliff_Rock_Far",
              m2="Cliff_Rock_Far_Dark", lids=False, face=(ctr.x - x, ctr.y - y), avoid=_blocked)
     ob = mb.finish()

@@ -52,8 +52,10 @@ SKIP_PREFIX = ("COL_", "SCALE_", "BLK_", "SKY_", "VFX_", "NPC_")   # NPC_: o pro
 SKIP_NAMES = {"TER_Far_Valley_Plane"}
 # vale distante: exporta so as silhuetas; o plano (2400 studs, coplanar com o chao) vira a Part FAR_GROUND no Lua
 FAR_VALLEY = "TER_Far_Valley"
-FAR_GROUND = {"size": [2048, 2, 2048], "top_z": -69.0, "material": "Far_Haze"}
-VOID_CATCH = {"size": [2048, 4, 2048], "y": -25.0}
+# lobby ativo na origem do place (2026-09-24): as ilhas seguem em Roblox +z (Blender y < -118). O chao distante e a rede
+# de quedas cobrem so o lobby (Blender y >= -130 / -125); "center" = (x, y) do Blender, "size" = (X, altura, Z) Roblox
+FAR_GROUND = {"size": [2048, 2, 1154], "top_z": -69.0, "material": "Far_Haze", "center": (0.0, 447.0)}
+VOID_CATCH = {"size": [660, 4, 455], "y": -25.0, "center": (0.0, 102.5)}
 
 # ------------------------------------------------------------------ donos e orcamento (brief fix2)
 OWNERS = [("FORGE_", "forge"), ("NPC_", "forge"), ("PORTAL_", "portals"), ("KONOHA_", "portals"),
@@ -62,12 +64,13 @@ OWNERS = [("FORGE_", "forge"), ("NPC_", "forge"), ("PORTAL_", "portals"), ("KONO
 # cotas redistribuidas na integracao da rodada 2 (tetos GLOBAIS inalterados): arquitetura/terreno usam em
 # MeshParts a folga que forja/portais/vegetacao deixaram; colisoes sao Parts invisiveis ancoradas (custo baixo)
 # portais v3 (2026-09-24): 5 portais novos com dressing proprio de escada; a folga vem da forja, da cena e da vegetacao
-# (MeshParts; a forja manteve 3 pecas de fogo que o vfx acha pelo nome - Ember_Glow/Fire_Glow_ no FOLD_PROTECT)
-BUDGET_OWNER = {"forge": (120000, 120), "portals": (90000, 148), "architecture": (135000, 170),
-                "terrain": (128000, 118), "vegetation": (50000, 68), "scene_lighting": (38000, 36),
+# (MeshParts; a forja manteve 3 pecas de fogo que o vfx acha pelo nome - Ember_Glow/Fire_Glow_ no FOLD_PROTECT).
+# Lobby ativo (2026-09-24): o terreno ganhou o portao + ponte para as ilhas; a folga vem da arquitetura, vegetacao e props
+BUDGET_OWNER = {"forge": (120000, 120), "portals": (90000, 148), "architecture": (135000, 167),
+                "terrain": (130000, 124), "vegetation": (50000, 65), "scene_lighting": (38000, 36),
                 "props": (58000, 90)}
 BUDGET = {"static_tris": 624000, "static_meshes": 750, "vfx_tris": 16000, "vfx_meshes": 30, "total_tris": 640000,
-          "total_meshes": 780, "materials": 134, "shadow_meshes": 350, "day_lights": 45, "col": 820}
+          "total_meshes": 780, "materials": 134, "shadow_meshes": 350, "day_lights": 45, "col": 840}
 
 # ------------------------------------------------------------------ fold de materiais pequenos (menos MeshParts)
 FOLD_AREA = 60.0             # studs^2 por objeto: abaixo disso o material vai para o vizinho dominante
@@ -1112,9 +1115,10 @@ def main():
                                "arm": list(arm), "core": list(core)}
     fg = dict(FAR_GROUND)
     fg["color"] = rbx_color(FAR_GROUND["material"])
-    fg["pos"] = to_rbx((0, 0, FAR_GROUND["top_z"] - FAR_GROUND["size"][1] / 2))
+    fg["pos"] = to_rbx((FAR_GROUND["center"][0], FAR_GROUND["center"][1], FAR_GROUND["top_z"] - FAR_GROUND["size"][1] / 2))
     data["far_ground"] = fg
-    data["void_catch"] = {"size": VOID_CATCH["size"], "pos": [0.0, VOID_CATCH["y"], 0.0]}
+    data["void_catch"] = {"size": VOID_CATCH["size"],
+                          "pos": [VOID_CATCH["center"][0], VOID_CATCH["y"], -VOID_CATCH["center"][1]]}
     data["safe_points"] = safe_points(bvh, markers)
     json.dump(data, open(os.path.join(OUT, "lobby_data.json"), "w"), indent=1)
     write_lua(data)

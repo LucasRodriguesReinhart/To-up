@@ -563,11 +563,32 @@ def ds_stone_wall(mb, a, b):
     mb.prism(poly(d.length / 2 - 0.3, 0.52, -0.15, 0.03), T + 0.9, T + 1.55, ROCK_DS, 0.1)
 
 
+def _mirror_x(objs, col_first, col_last):
+    """espelha em x (x -> -x) as malhas do centro e as colisoes criadas junto (COL_Portal_<first..last>)"""
+    import bpy
+    for ob in objs:
+        me = ob.data
+        for v in me.vertices:
+            v.co.x = -v.co.x
+        me.flip_normals()
+        me.update()
+        ob.location.x = -ob.location.x
+    for i in range(col_first, col_last + 1):
+        o = bpy.data.objects.get("COL_%s_%03d" % (A, i))
+        if o is None:
+            continue
+        o.location.x = -o.location.x
+        o.rotation_euler.z = -o.rotation_euler.z
+
+
 def build(rng):
     """centro do terraco (entre Shadow Garden e Demon Slayer). Semente propria: o rng comum chega aqui depois do
-    dressing das escadas, que muda por portal - o centro sai igual de qualquer jeito."""
+    dressing das escadas, que muda por portal - o centro sai igual de qualquer jeito. Modelado com o Shadow Garden a
+    OESTE; com a ordem do jogo (Demon Slayer 3, Shadow Garden 4) o centro inteiro espelha em x no fim."""
     import fm_pv3_shadowgarden as SG
     import fm_pv3_demonslayer as DSM
+    import fm_lib
+    col0 = fm_lib._COL_COUNT.get(A, 0) + 1
     r = random.Random(4417)
     # ---- lado Shadow Garden (x -25.9 .. -17): ruina gotica, arvore morta, roseira, lanterna gotica
     mb = K.LeanMB("PORTAL_Terrace_Ruin", "06_PORTALS", r, vcap=1)
@@ -612,6 +633,13 @@ def build(rng):
         txt.append("%s=%d" % (lab, t - prev))
         prev = t
     print("TRIS terraco centro: " + " ".join(txt) + " total=%d" % prev)
+    if L.PORTAL_X[L.PORTAL_KEYS.index("ShadowGarden")] > 0:
+        _mirror_x([obw, obe], col0, fm_lib._COL_COUNT.get(A, 0))
+        xs = [v.co.x for v in obw.data.vertices] + [v.co.x for v in obe.data.vertices]
+        print("LOTE terraco centro (espelhado: Shadow Garden a leste): x %.2f..%.2f entre %.1f e %.1f %s" % (
+            min(xs), max(xs), -XMAX_C, -XMIN_C,
+            "OK" if all(abs(x) <= XMAX_C for x in xs) else "INVADE O VAO"))
+        return
     # os vaos de 4 studs ate os lotes do Shadow Garden e do Demon Slayer ficam limpos
     xw = min(v.co.x for v in obw.data.vertices)
     xe = max(v.co.x for v in obe.data.vertices)

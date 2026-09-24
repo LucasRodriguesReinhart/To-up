@@ -9,6 +9,13 @@ TERR = 30.0       # terraco dos portais
 # --- spawn e avenida
 SPAWN = (0.0, -104.0, SPAWN_Z)
 SPAWN_PAD = (-22, -118, 22, -92)          # x0,y0,x1,y1
+# saida SUL para as ilhas (lobby ativo no jogo: Roblox z = -y). Portao no parapeito sul do spawn + ponte ate a praca de
+# chegada da Vila da Folha (Area 1, borda em Roblox z 222 com piso em y 6.0). Trecho plano em z0 (sobre a colisao
+# invisivel do corredor Lobby_Area1, topo y 0), escadaria de 6 degraus ate 6.2 e patamar encostando na ilha.
+ISLES_GATE_HW = 12.0                        # meia largura da abertura / da ponte
+ISLES_STAIRS_Y0 = -194.0                    # inicio da escadaria (desce em y = sobe para o sul)
+ISLES_STAIRS_N, ISLES_STAIRS_RISE, ISLES_STAIRS_RUN = 6, 1.0334, 4.0
+ISLES_END_Y = -222.0                        # borda da praca de chegada da Area 1
 AVENUE = (-10, -92, 10, -70)
 FRONT_STAIRS_Y0 = -70.0                     # 4 degraus: z0 -> z4, piso 2
 FLOOR_SOUTH = -62.0
@@ -40,9 +47,12 @@ SHOP = (26, -48, 44, -30)                   # loja (frente para -X / praca)
 BRIDGE_MAIN_Y = -18.0
 BRIDGE_BACK_Y = 41.0
 
-# --- portais: x, e nome (facil -> dificil, esquerda -> direita)
+# --- portais: x, e nome (facil -> dificil, esquerda -> direita) = ordem das areas do jogo (Config.Areas):
+# 1 Vila da Folha, 2 Namekusei, 3 Monte Natagumo (Demon Slayer), 4 Jardim das Sombras (Shadow Garden), 5 Grand Line,
+# 6 Cidade Z. (Ate 2026-09-24 Shadow Garden vinha antes do Demon Slayer; trocados para bater com as areas.)
 PORTAL_X = [-108.0, -76.0, -44.0, 44.0, 76.0, 108.0]
-PORTAL_KEYS = ["Naruto", "DragonBall", "ShadowGarden", "DemonSlayer", "OnePiece", "OnePunchMan"]
+PORTAL_KEYS = ["Naruto", "DragonBall", "DemonSlayer", "ShadowGarden", "OnePiece", "OnePunchMan"]
+PORTAL_AREA = {"Naruto": 1, "DragonBall": 2, "DemonSlayer": 3, "ShadowGarden": 4, "OnePiece": 5, "OnePunchMan": 6}
 PORTAL_Y = 113.0
 FLIGHT1_Y0 = 47.0      # escada 1: y 47 -> 62, z 4 -> 14 (10 x 1.5)
 MID_FRONT_Y = 62.0

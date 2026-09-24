@@ -69,7 +69,8 @@ built = {}
 for k in KEYS:
     t = time.time()
     if k in new_mods:
-        new_mods[k].build(random.Random(707 + L.PORTAL_KEYS.index(k)))
+        import fm_pv3
+        new_mods[k].build(random.Random(fm_pv3.SEED[k]))
         built[k] = MODN[k]
     else:
         getattr(fm_portals, FUNC[k])(random.Random(707))
@@ -80,7 +81,7 @@ for k in KEYS:
     if k in new_mods or not ATUAL:
         smb = K.LeanMB("PORTAL_%s_Stairs" % k, "06_PORTALS", random.Random(707), vcap=1)
         if k in new_mods and hasattr(new_mods[k], "stairs"):
-            new_mods[k].stairs(smb, px, random.Random(808 + L.PORTAL_KEYS.index(k)))
+            new_mods[k].stairs(smb, px, random.Random(fm_pv3.STAIRS_SEED[k]))
             built[k] += " + stairs v3"
         elif k in fm_portals.STAIRS:
             fm_portals.STAIRS[k](smb, px, random.Random(707))

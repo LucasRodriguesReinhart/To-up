@@ -27,7 +27,7 @@ if not RunService:IsClient() then return end
 
 local DATA = {}
 DATA.version = "vfx-forja-2"
-DATA.exportId = "dd376e76"
+DATA.exportId = "e4dec731"
 -- trilho percorrido pelo carrinho (canonico; o cliente aplica VFX_RootCF)
 DATA.path = {
   Vector3.new(-58.537, 4.3, 32.59), Vector3.new(-58.027, 4.3, 31.729), Vector3.new(-57.613, 4.3, 30.821),
@@ -65,8 +65,8 @@ DATA.wheel = {speed = 0.628, step = 0.393, aIn = -0.006, aOut = -3.136, pos = Ve
 DATA.portals = {
   {key = "Naruto", idx = 0, center = Vector3.new(-108, 41.2, -113.9)},
   {key = "DragonBall", idx = 1, center = Vector3.new(-76, 41.2, -113.9)},
-  {key = "ShadowGarden", idx = 2, center = Vector3.new(-44, 41.2, -113.9)},
-  {key = "DemonSlayer", idx = 3, center = Vector3.new(44, 41.2, -113.9)},
+  {key = "DemonSlayer", idx = 2, center = Vector3.new(-44, 41.2, -113.9)},
+  {key = "ShadowGarden", idx = 3, center = Vector3.new(44, 41.2, -113.9)},
   {key = "OnePiece", idx = 4, center = Vector3.new(76, 41.2, -113.9)},
   {key = "OnePunchMan", idx = 5, center = Vector3.new(108, 41.2, -113.9)},
 }

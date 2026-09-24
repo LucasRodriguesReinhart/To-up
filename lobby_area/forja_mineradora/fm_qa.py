@@ -77,6 +77,9 @@ def walk(bvh, pts, z0):
 def routes():
     P = L.PORTAL_X
     r = {}
+    # saida sul para as ilhas: portao -> ponte -> escadaria -> patamar encostado na praca da Area 1
+    r["SPAWN->ILHAS"] = ([(0, -104), (0, -116), (0, -140), (0, -170), (0, -192), (0, -205), (0, -216), (0, -221)],
+                         L.SPAWN_Z)
     r["SPAWN->IGNIS"] = ([(0, -104), (0, -84), (0, -66), (0, -50), (0, -30), L.PLAYER_IGNIS], L.SPAWN_Z)
     mx, my = L.MINE_MOUTH
     dx, dy = math.cos(L.MINE_DIR), math.sin(L.MINE_DIR)

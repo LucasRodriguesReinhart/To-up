@@ -984,7 +984,7 @@ def build():
     mods = fm_pv3.load()
     for i, key in enumerate(L.PORTAL_KEYS):
         if key in mods:
-            mods[key].build(random.Random(707 + i))
+            mods[key].build(random.Random(fm_pv3.SEED[key]))
         else:
             onepiece(random.Random(707))
     rng = random.Random(707)

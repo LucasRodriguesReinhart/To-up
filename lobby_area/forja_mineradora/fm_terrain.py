@@ -126,13 +126,18 @@ def build_ground():
     col_box2("Spawn", (ax0 - 2, ay0 - 0.5, -6), (ax1 + 2, ay1, L.SPAWN_Z))
     # muretas do spawn (sul, leste, oeste) e da avenida - impedem queda no vazio (colisao alta, visual igual)
     pp = MB("TER_Spawn_Parapets", C, rng)
-    parapet(pp, "Spawn", [(x0, y1), (x0, y0), (x1, y0), (x1, y1)], SPAWN_COL_TOP, h=2.4, w=1.8, rng=rng)
+    # parapeito sul com a ABERTURA do portao para as ilhas (fm_terrain_isles: pilares em +-(gw + 1.3))
+    gw = L.ISLES_GATE_HW
+    parapet(pp, "Spawn", [(x0, y1), (x0, y0), (-gw - 2.6, y0)], SPAWN_COL_TOP, h=2.4, w=1.8, rng=rng)
+    parapet(pp, "Spawn", [(gw + 2.6, y0), (x1, y0), (x1, y1)], SPAWN_COL_TOP, h=2.4, w=1.8, rng=rng)
     parapet(pp, "Spawn", [(x0, y1), (ax0 - 1, y1)], SPAWN_COL_TOP, h=2.4, w=1.8, rng=rng)
     parapet(pp, "Spawn", [(ax1 + 1, y1), (x1, y1)], SPAWN_COL_TOP, h=2.4, w=1.8, rng=rng)
     for sx in (-1, 1):
         parapet(pp, "Spawn", [(sx * (ax1 + 1), ay0), (sx * (ax1 + 1), ay1 + 0.5)], SPAWN_COL_TOP, h=2.2, w=1.8,
                 rng=rng)
     pp.finish()
+    import fm_terrain_isles
+    fm_terrain_isles.build(random.Random(2209))
 
     # ---------------- borda sul do vale: mureta de blocos variados + afloramentos (menos a escadaria e o rio)
     W.south_wall(C, rng, [(-52, -11.5), (11.5, L.RIVER_X[0] - 1), (L.RIVER_X[1] + 1, L.EAST_X - 1)], -61.2, L.FLOOR,

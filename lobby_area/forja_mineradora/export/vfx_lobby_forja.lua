@@ -53,8 +53,8 @@ end
 
 local DATA = {}
 DATA.version = "vfx-forja-2"
-DATA.exportId = "dd376e76"  -- EXPORT_ID do passe estatico (montar_lobby_forja.lua grava em root:GetAttribute('EXPORT_ID'))
-DATA.fbx = "LOBBY_VFX_MOVING_dd376e.fbx"  -- FBX de movimento DESTE passe (3D Importer)
+DATA.exportId = "e4dec731"  -- EXPORT_ID do passe estatico (montar_lobby_forja.lua grava em root:GetAttribute('EXPORT_ID'))
+DATA.fbx = "LOBBY_VFX_MOVING_e4dec7.fbx"  -- FBX de movimento DESTE passe (3D Importer)
 -- referencias para achar a transformacao do lobby (posicao canonica = export_roblox, Roblox = (x, z, -y))
 DATA.refs = {
   {name = "VFX_Waterwheel_Rotate", pos = Vector3.new(62, 11, -20), x = Vector3.new(0, -1, 0), y = Vector3.new(0, 0, -1)},
@@ -125,10 +125,10 @@ DATA.portals = {
    rims = {"PORTAL_Naruto_Bandana__P_Naruto_Rim_Glow"}, disc = Color3.fromRGB(255, 110, 16), arm = Color3.fromRGB(255, 196, 96), core3 = Color3.fromRGB(255, 244, 214)},
   {key = "DragonBall", idx = 1, center = Vector3.new(-76, 41.2, -113.9), normal = Vector3.new(0, 0, 1), radius = 7.5, thick = 1.8, swirl = "PORTAL_DragonBall_Swirl", spin = 1.25,
    rims = {"PORTAL_DragonBall_Frame__P_DB_Rim_Glow"}, disc = Color3.fromRGB(30, 120, 240), arm = Color3.fromRGB(150, 214, 255), core3 = Color3.fromRGB(236, 248, 255)},
-  {key = "ShadowGarden", idx = 2, center = Vector3.new(-44, 41.2, -113.9), normal = Vector3.new(0, 0, 1), radius = 7.5, thick = 1.8, swirl = "PORTAL_ShadowGarden_Swirl", spin = -0.55,
-   rims = {"PORTAL_ShadowGarden_MoonArch__P_Shadow_Glow"}, disc = Color3.fromRGB(118, 38, 214), arm = Color3.fromRGB(208, 158, 255), core3 = Color3.fromRGB(244, 232, 255)},
-  {key = "DemonSlayer", idx = 3, center = Vector3.new(44, 41.2, -113.9), normal = Vector3.new(0, 0, 1), radius = 7.5, thick = 1.8, swirl = "PORTAL_DemonSlayer_Swirl", spin = 1.05,
+  {key = "DemonSlayer", idx = 2, center = Vector3.new(-44, 41.2, -113.9), normal = Vector3.new(0, 0, 1), radius = 7.5, thick = 1.8, swirl = "PORTAL_DemonSlayer_Swirl", spin = 1.05,
    rims = {"PORTAL_DemonSlayer_Tsuba__P_DS_Glow"}, disc = Color3.fromRGB(206, 28, 40), arm = Color3.fromRGB(255, 150, 138), core3 = Color3.fromRGB(255, 234, 226)},
+  {key = "ShadowGarden", idx = 3, center = Vector3.new(44, 41.2, -113.9), normal = Vector3.new(0, 0, 1), radius = 7.5, thick = 1.8, swirl = "PORTAL_ShadowGarden_Swirl", spin = -0.55,
+   rims = {"PORTAL_ShadowGarden_MoonArch__P_Shadow_Glow"}, disc = Color3.fromRGB(118, 38, 214), arm = Color3.fromRGB(208, 158, 255), core3 = Color3.fromRGB(244, 232, 255)},
   {key = "OnePiece", idx = 4, center = Vector3.new(76, 41.2, -113.9), normal = Vector3.new(0, 0, 1), radius = 7.5, thick = 1.8, swirl = "PORTAL_OnePiece_Swirl", spin = -0.75,
    rims = {"PORTAL_OnePiece_Pier__P_OP_Glow"}, disc = Color3.fromRGB(24, 92, 226), arm = Color3.fromRGB(138, 204, 255), core3 = Color3.fromRGB(228, 246, 255)},
   {key = "OnePunchMan", idx = 5, center = Vector3.new(108, 41.2, -113.9), normal = Vector3.new(0, 0, 1), radius = 7.5, thick = 1.8, swirl = "PORTAL_OnePunchMan_Swirl", spin = 1.45,
