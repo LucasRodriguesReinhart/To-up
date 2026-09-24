@@ -85,6 +85,37 @@ O teto de materiais subiu de 120 para 134, porque no Roblox cada material é só
 - nunca encadeia trocas;
 - nunca mexe em `Ember_Glow`/`Fire_Glow_`, que o VFX acha pelo nome, nem nos 3 tons das glicínias.
 
+## Lobby ativo no jogo (2026-09-24)
+A Vila-Forja é o lobby do Anime Mining Simulator, montada em `workspace.LOBBY_FORJA` **na origem** (export `e4dec731`, `ROOT_OFFSET` 0).
+
+**Mudanças no place.** Todas foram feitas no Studio e **não estão salvas**: o dono do jogo salva e publica.
+- **Backup:** em `ServerStorage.BeforeForjaAtiva_20260924` ficaram:
+  - o `LOBBY_MURIM` e os enfeites soltos dele;
+  - cópias originais de `Core.IslandTravel`, `Core.Main` e `Core.ExpeditionTravel`;
+  - a bigorna da Forja (`ForjaOcultos`).
+
+  Para voltar ao Murim, basta devolver o modelo e os três scripts.
+- **`IslandTravel`:**
+  - ponto do lobby em `(0, 3.5, 104)`, a plataforma do spawn, olhando a Forja (-Z);
+  - área válida do lobby até z -300 (a passagem de Konoha vai até o Grande Portão, em z -289).
+- **`Main`:** `LOBBY = (0, 3.5, 104)`.
+- **`ExpeditionTravel`:** lobby, loja (`32.5, 7.6, 39`) e Ignis (`0, 7.4, 20`).
+- **Gatilhos dos portais:** `LOBBY_FORJA.Santuario` tem `Portal1..6`, cada um com um `Disco` invisível e `AreaId` = área do jogo, mais `PortalKonoha` no Grande Portão (área 1). O `Main` liga os discos com a checagem de desbloqueio que já existia.
+- **Objetos realocados:**
+  - `NPCs.Ignis`: a bigorna do próprio modelo ficou no lugar da bigorna da Forja;
+  - `npc vendedor` + `LojaMochilas.PadLoja`: na loja da praça;
+  - `MailBox`: na plataforma do spawn;
+  - `Rebirth`: no canto sudoeste da praça, virado para a escadaria;
+  - `Mystical Spawn Point`: no spawn.
+- **Testado em Play**, com `DebugV31 semSalvar`, sem erros de script:
+  - spawn → Ignis a pé (`pertoDoIgnis`);
+  - spawn → ponte → Vila da Folha a pé (`CurrentAreaId` 1, 0 recuperações);
+  - placa LOBBY da ilha → spawn;
+  - portal Naruto → área 1, portal Dragon Ball → área 2;
+  - passagem de Konoha → Grande Portão → área 1;
+  - 748 MeshParts pré-carregadas sem falha.
+- **Não testado:** portal de área **bloqueada** com um perfil novo; o aviso de compra é a rotina original do jogo.
+
 ## Integração no Roblox Studio
 Este export foi gerado com `FM_ROOT_OFFSET="4000, 0, 0"` para não sobrepor o `LOBBY_MURIM`, que está na origem. Para trocar de lugar, basta editar `ROOT_OFFSET` no topo do `montar` e rodar de novo; o script é idempotente.
 
