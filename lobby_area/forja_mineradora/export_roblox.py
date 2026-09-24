@@ -16,6 +16,8 @@
 import sys, os, json, math, zlib, glob, re
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
+import fm_pv3
+fm_pv3.load()       # portais v3: materiais (MATS/RBX_CAL) e textura da espiral de cada portal
 import numpy as np
 import bpy, bmesh
 from mathutils import Vector, Matrix

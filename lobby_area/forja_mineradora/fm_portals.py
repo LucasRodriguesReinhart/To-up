@@ -969,14 +969,33 @@ def opm(rng):
     mb.finish()
 
 
+STAIRS = {"Naruto": PT.stairs_naruto, "DragonBall": PT.stairs_db, "ShadowGarden": PT.stairs_shadow,
+          "DemonSlayer": PT.stairs_demonslayer, "OnePunchMan": PT.stairs_opm}
+
+
 def build():
+    # portais v3 (fm_pv3_<key>.build) com a mesma semente do portal_studio: sai identico ao que o usuario aprovou.
+    # O One Piece segue aqui (onepiece). As funcoes antigas naruto/dragonball/shadow/demonslayer/opm ficam so como
+    # referencia (portal_studio --atual).
+    import fm_pv3
+    mods = fm_pv3.load()
+    for i, key in enumerate(L.PORTAL_KEYS):
+        if key in mods:
+            mods[key].build(random.Random(707 + i))
+        else:
+            onepiece(random.Random(707))
     rng = random.Random(707)
-    naruto(rng)
-    dragonball(rng)
-    shadow(rng)
-    demonslayer(rng)
-    onepiece(rng)
-    opm(rng)
+    # dressing da escada de cada portal v3 (o onepiece monta o seu): objeto proprio PORTAL_<key>_Stairs
+    for key, px in zip(L.PORTAL_KEYS, L.PORTAL_X):
+        mod = mods.get(key)
+        if mod is None:
+            continue
+        mb = K.LeanMB("PORTAL_%s_Stairs" % key, C, rng, vcap=1)
+        if hasattr(mod, "stairs"):
+            mod.stairs(mb, px, rng)
+        else:
+            STAIRS[key](mb, px, rng)
+        mb.finish()
     PT.build(rng)
     # placa de dificuldade (1..6) + caixote de cristais na cor do portal, no pe de cada escada: um objeto por
     # portal (PORTAL_<key>_Difficulty) para culling e para o vfx pulsar a placa

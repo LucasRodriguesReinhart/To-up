@@ -61,12 +61,12 @@ PORTAL_SPIN = {"Naruto": -0.9, "DragonBall": 1.25, "ShadowGarden": -0.55, "Demon
                "OnePiece": -0.75, "OnePunchMan": 1.45}
 PORTAL_INNER = 2.3
 PORTAL_PAL = {  # sRGB: disco, bracos/particulas, nucleo (so para particulas e para o fallback sem textura)
-    "Naruto": ((232, 52, 96), (255, 178, 204), (255, 238, 244)),
-    "DragonBall": ((255, 146, 18), (255, 232, 150), (255, 251, 228)),
+    "Naruto": ((255, 110, 16), (255, 196, 96), (255, 244, 214)),
+    "DragonBall": ((30, 120, 240), (150, 214, 255), (236, 248, 255)),
     "ShadowGarden": ((118, 38, 214), (208, 158, 255), (244, 232, 255)),
     "DemonSlayer": ((206, 28, 40), (255, 150, 138), (255, 234, 226)),
     "OnePiece": ((24, 92, 226), (138, 204, 255), (228, 246, 255)),
-    "OnePunchMan": ((16, 168, 236), (176, 242, 255), (236, 252, 255)),
+    "OnePunchMan": ((232, 175, 0), (255, 236, 120), (255, 250, 225)),
 }
 
 CART_MARGIN = 2.9              # meio carrinho + folga para nao encostar nos carrinhos estacionados

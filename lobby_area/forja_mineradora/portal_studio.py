@@ -42,6 +42,7 @@ for k in KEYS:
         new_mods[k] = importlib.import_module(MODN[k])
 import fm_lib, fm_parts, fm_terrain, fm_scene, fm_water, fm_portals
 import fm_portal_terrace as PT
+import fm_portal_kit as K
 
 t0 = time.time()
 fm_lib.reset_scene()
@@ -73,17 +74,37 @@ for k in KEYS:
     else:
         getattr(fm_portals, FUNC[k])(random.Random(707))
         built[k] = "fm_portals." + FUNC[k] + " (atual)"
+    # dressing da escada (lance 2, faixa y 86..99.4 no terraco): stairs(mb, px, rng) do modulo novo; sem ela, a versao
+    # antiga do fm_portal_terrace (referencia). O onepiece atual ja monta o seu dentro do proprio portal.
+    px = L.PORTAL_X[L.PORTAL_KEYS.index(k)]
+    if k in new_mods or not ATUAL:
+        smb = K.LeanMB("PORTAL_%s_Stairs" % k, "06_PORTALS", random.Random(707), vcap=1)
+        if k in new_mods and hasattr(new_mods[k], "stairs"):
+            new_mods[k].stairs(smb, px, random.Random(808 + L.PORTAL_KEYS.index(k)))
+            built[k] += " + stairs v3"
+        elif k in fm_portals.STAIRS:
+            fm_portals.STAIRS[k](smb, px, random.Random(707))
+            built[k] += " + stairs antigo"
+        smb.finish()
     print("PORTAL", k, built[k], round(time.time() - t, 1), "s")
 
 # ------------------------------------------------------------------ metricas por portal
 for k in KEYS:
-    objs = [o for o in bpy.data.objects if o.type == "MESH" and o.name.startswith("PORTAL_" + k)]
+    allo = [o for o in bpy.data.objects if o.type == "MESH" and o.name.startswith("PORTAL_" + k)]
+    objs = [o for o in allo if not o.name.endswith("_Stairs")]
+    stairs = [o for o in allo if o.name.endswith("_Stairs")]
     tris = sum(sum(len(p.vertices) - 2 for p in o.data.polygons) for o in objs)
     mats = sorted({m.name for o in objs for m in o.data.materials if m})
     px = L.PORTAL_X[L.PORTAL_KEYS.index(k)]
     cols = [o for o in bpy.data.objects if o.name.startswith("COL_Portal") and abs(o.location.x - px) < 16]
+    cst = [o for o in cols if o.location.y < 99.5]
     print("METRICAS %s: objetos=%d tris=%d materiais=%d COL=%d [%s] mats=%s" % (
-        k, len(objs), tris, len(mats), len(cols), built[k], ", ".join(mats)))
+        k, len(objs), tris, len(mats), len(cols) - len(cst), built[k], ", ".join(mats)))
+    if stairs:
+        st = sum(sum(len(p.vertices) - 2 for p in o.data.polygons) for o in stairs)
+        sm = sorted({m.name for o in stairs for m in o.data.materials if m})
+        print("METRICAS_ESCADA %s: tris=%d materiais=%d (fora da paleta do portal: %s) COL=%d mats=%s" % (
+            k, st, len(sm), ", ".join(m for m in sm if m not in mats) or "nenhum", len(cst), ", ".join(sm)))
     sw = bpy.data.objects.get("PORTAL_%s_Swirl" % k)
     mk = bpy.data.objects.get("PORTAL_" + k)
     print("CONTRATO %s: swirl=%s marcador=%s luz=%s" % (k, bool(sw), bool(mk), bool(bpy.data.objects.get("L_Portal_" + k))))
@@ -128,6 +149,8 @@ else:
         ("%s_E_Back" % k, (px + 12, PY + 16, T + 32), (px, PY - 1, SZ - 6), 22),
         ("%s_F_Player" % k, (px + 1.5, Y0 + 1.5, T + 5.5), (px, PY, SZ - 1.5), 20),
         ("%s_G_Far" % k, (px * 0.35, -30, 18), (px, PY, SZ - 3), 70),
+        ("%s_H_Stairs" % k, (px, 60, 27), (px, 95, T + 3), 28),
+        ("%s_I_Climb" % k, (px + 1.5, 84, 22), (px, 110, T + 6), 24),
     ]
 sc = bpy.context.scene
 if FAST:

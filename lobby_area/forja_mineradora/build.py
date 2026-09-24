@@ -16,6 +16,8 @@ for m in mods + extra:
     if os.path.exists(os.path.join(HERE, m + ".py")):
         importlib.import_module(m)
 
+import fm_pv3
+fm_pv3.load()       # portais v3: registram materiais/texturas das espirais antes do make_materials
 import fm_lib, fm_terrain, fm_scene
 t0 = time.time()
 fm_lib.reset_scene()
