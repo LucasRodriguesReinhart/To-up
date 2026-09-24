@@ -13,7 +13,7 @@
 #                            por variante, sombra por malha, streaming (SKYLINE persistente + modelos atomicos),
 #                            camera (cascas que ocluem), colisoes, marcadores, luzes (NightOnly), chao distante,
 #                            rede de seguranca (VOID_CATCH) e, opcional, o Lighting do lobby
-import sys, os, json, math, zlib, glob, re
+import sys, os, json, math, zlib, glob, re, colorsys
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
 import fm_pv3
@@ -60,11 +60,12 @@ OWNERS = [("FORGE_", "forge"), ("NPC_", "forge"), ("PORTAL_", "portals"), ("KONO
           ("SKY_", "scene_lighting"), ("PROP_", "props"), ("MINE_", "props"), ("RAIL_", "props")]
 # cotas redistribuidas na integracao da rodada 2 (tetos GLOBAIS inalterados): arquitetura/terreno usam em
 # MeshParts a folga que forja/portais/vegetacao deixaram; colisoes sao Parts invisiveis ancoradas (custo baixo)
-BUDGET_OWNER = {"forge": (125000, 125), "portals": (85000, 120), "architecture": (135000, 170),
-                "terrain": (128000, 118), "vegetation": (50000, 70), "scene_lighting": (38000, 48),
+# portais v3 (2026-09-24): 5 portais novos com dressing proprio de escada; a folga vem da forja e da cena (MeshParts)
+BUDGET_OWNER = {"forge": (120000, 116), "portals": (90000, 150), "architecture": (135000, 170),
+                "terrain": (128000, 118), "vegetation": (50000, 70), "scene_lighting": (38000, 36),
                 "props": (58000, 90)}
 BUDGET = {"static_tris": 624000, "static_meshes": 750, "vfx_tris": 16000, "vfx_meshes": 30, "total_tris": 640000,
-          "total_meshes": 780, "materials": 120, "shadow_meshes": 350, "day_lights": 45, "col": 820}
+          "total_meshes": 780, "materials": 130, "shadow_meshes": 350, "day_lights": 45, "col": 820}
 
 # ------------------------------------------------------------------ fold de materiais pequenos (menos MeshParts)
 FOLD_AREA = 60.0             # studs^2 por objeto: abaixo disso o material vai para o vizinho dominante
@@ -898,6 +899,19 @@ def discard(tmp, pieces):
     bpy.data.collections.remove(tmp)
 
 
+def same_hue(a, b):
+    """duas cores sRGB (0-255) podem ser trocadas pelo teto de materiais? Cinzas entre si sim; cor saturada so com
+    cor de matiz parecido (<= 25 graus); cinza com cor saturada nao"""
+    ha, sa, _ = colorsys.rgb_to_hsv(*[x / 255.0 for x in a])
+    hb, sb, _ = colorsys.rgb_to_hsv(*[x / 255.0 for x in b])
+    if sa < 0.18 and sb < 0.18:
+        return True
+    if min(sa, sb) < 0.18:
+        return max(sa, sb) < 0.3
+    d = abs(ha - hb)
+    return min(d, 1.0 - d) <= 25.0 / 360.0
+
+
 def material_cap(pieces, limit):
     """teto GLOBAL de materiais (a meta nao e de nenhum dono): se o lobby passar de 'limit', os materiais menos usados
     vao para o material mais parecido de mesmo Enum.Material (cor sRGB a <= CAP_DIST; Neon so em Neon a <=
@@ -925,7 +939,7 @@ def material_cap(pieces, limit):
         (rm, tr, sh), c = info[m]
         lim = FOLD_DIST_NEON if rm == "Neon" else CAP_DIST
         cands = [o for o in tris if o != m and o not in extra and free(o) and info[o][0][0] == rm and
-                 tris[o] >= tris[m] and math.dist(info[o][1], c) <= lim]
+                 tris[o] >= tris[m] and math.dist(info[o][1], c) <= lim and same_hue(info[o][1], c)]
         if not cands:
             continue
         extra[m] = min(cands, key=lambda o: (math.dist(info[o][1], c), -tris[o], o))

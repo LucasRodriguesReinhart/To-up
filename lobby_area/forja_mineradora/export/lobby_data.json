@@ -1,16 +1,16 @@
 {
  "mapping": "Roblox = (x_blender, z_blender, -y_blender); 1 BU = 1 stud; malha: origem = centro do bbox",
- "export_id": "9df2fe78",
+ "export_id": "28656663",
  "fbx": {
-  "02_TERRAIN": "LOBBY_02_TERRAIN_9df2fe.fbx",
-  "03_FORGE": "LOBBY_03_FORGE_9df2fe.fbx",
-  "04_MINE": "LOBBY_04_MINE_9df2fe.fbx",
-  "05_WATER_SYSTEM": "LOBBY_05_WATER_SYSTEM_9df2fe.fbx",
-  "06_PORTALS": "LOBBY_06_PORTALS_9df2fe.fbx",
-  "07_BUILDINGS": "LOBBY_07_BUILDINGS_9df2fe.fbx",
-  "08_PROPS": "LOBBY_08_PROPS_9df2fe.fbx",
-  "09_VEGETATION": "LOBBY_09_VEGETATION_9df2fe.fbx",
-  "10_RAILS": "LOBBY_10_RAILS_9df2fe.fbx"
+  "02_TERRAIN": "LOBBY_02_TERRAIN_286566.fbx",
+  "03_FORGE": "LOBBY_03_FORGE_286566.fbx",
+  "04_MINE": "LOBBY_04_MINE_286566.fbx",
+  "05_WATER_SYSTEM": "LOBBY_05_WATER_SYSTEM_286566.fbx",
+  "06_PORTALS": "LOBBY_06_PORTALS_286566.fbx",
+  "07_BUILDINGS": "LOBBY_07_BUILDINGS_286566.fbx",
+  "08_PROPS": "LOBBY_08_PROPS_286566.fbx",
+  "09_VEGETATION": "LOBBY_09_VEGETATION_286566.fbx",
+  "10_RAILS": "LOBBY_10_RAILS_286566.fbx"
  },
  "meshes": [
   {
@@ -146,14 +146,14 @@
    "material": "Foam",
    "tris": 240,
    "center_rbx": [
-    -96.135,
-    -3.83,
-    -212.355
+    -95.861,
+    -4.304,
+    -212.464
    ],
    "size_rbx": [
-    50.118,
-    14.919,
-    29.038
+    50.315,
+    15.293,
+    28.574
    ],
    "owner": "portals",
    "shadow": false,
@@ -293,14 +293,14 @@
    "material": "Cliff_Rock_Dark_B",
    "tris": 438,
    "center_rbx": [
-    -68.524,
+    -68.54,
     17.443,
-    46.433
+    46.438
    ],
    "size_rbx": [
-    32.88,
+    32.847,
     29.286,
-    36.319
+    36.309
    ],
    "owner": "props",
    "shadow": true,
@@ -1154,14 +1154,14 @@
    "material": "Far_Haze",
    "tris": 520,
    "center_rbx": [
-    68.484,
-    -55.589,
-    16.612
+    63.659,
+    -55.098,
+    14.268
    ],
    "size_rbx": [
-    1370.403,
-    38.461,
-    1008.038
+    1368.225,
+    39.3,
+    1011.131
    ],
    "owner": "terrain",
    "shadow": false,
@@ -2861,7 +2861,7 @@
    ],
    "size_rbx": [
     23.98,
-    66.023,
+    66.025,
     23.98
    ],
    "owner": "forge",
@@ -3884,12 +3884,12 @@
    "material": "Stone_Forge_Dark",
    "tris": 1904,
    "center_rbx": [
-    -1.52,
+    -1.499,
     14.483,
     3.365
    ],
    "size_rbx": [
-    18.97,
+    18.928,
     18.966,
     14.871
    ],
@@ -4157,14 +4157,14 @@
    "material": "Rope",
    "tris": 120,
    "center_rbx": [
-    -19.707,
-    5.507,
-    -33.704
+    -19.69,
+    5.52,
+    -33.715
    ],
    "size_rbx": [
-    1.347,
-    3.036,
-    2.346
+    1.395,
+    3.009,
+    2.262
    ],
    "owner": "forge",
    "shadow": false,
@@ -4178,14 +4178,14 @@
    "material": "Stone_Coal",
    "tris": 640,
    "center_rbx": [
-    -22.145,
-    5.257,
-    -33.765
+    -22.117,
+    5.264,
+    -33.76
    ],
    "size_rbx": [
-    14.468,
-    1.917,
-    3.158
+    14.436,
+    1.923,
+    3.198
    ],
    "owner": "forge",
    "shadow": true,
@@ -4913,14 +4913,14 @@
    "material": "Cliff_Rock_Dark",
    "tris": 140,
    "center_rbx": [
-    -40.852,
-    4.842,
-    -21.767
+    -40.845,
+    4.868,
+    -21.756
    ],
    "size_rbx": [
-    3.053,
-    1.445,
-    2.575
+    3.068,
+    1.498,
+    2.539
    ],
    "owner": "forge",
    "shadow": false,
@@ -5165,14 +5165,14 @@
    "material": "Cliff_Rock_Dark_B",
    "tris": 924,
    "center_rbx": [
-    -62.042,
-    13.98,
-    36.378
+    -62.049,
+    13.966,
+    36.382
    ],
    "size_rbx": [
-    33.118,
-    19.982,
-    44.321
+    33.131,
+    19.953,
+    44.312
    ],
    "owner": "props",
    "shadow": true,
@@ -5187,12 +5187,12 @@
    "tris": 1520,
    "center_rbx": [
     -61.476,
-    14.58,
+    14.583,
     37.813
    ],
    "size_rbx": [
     30.74,
-    22.562,
+    22.555,
     37.7
    ],
    "owner": "props",
@@ -5208,12 +5208,12 @@
    "tris": 1520,
    "center_rbx": [
     -61.476,
-    15.245,
+    15.25,
     37.813
    ],
    "size_rbx": [
     30.74,
-    22.854,
+    22.844,
     37.7
    ],
    "owner": "props",
@@ -5228,14 +5228,14 @@
    "material": "Dirt",
    "tris": 160,
    "center_rbx": [
-    -77.355,
-    4.571,
-    20.881
+    -77.246,
+    4.622,
+    20.763
    ],
    "size_rbx": [
-    12.02,
-    3.402,
-    10.571
+    12.056,
+    3.553,
+    10.408
    ],
    "owner": "props",
    "shadow": false,
@@ -5396,14 +5396,14 @@
    "material": "Cliff_Rock_Dark",
    "tris": 1060,
    "center_rbx": [
-    -78.39,
-    4.453,
-    56.652
+    -78.395,
+    4.447,
+    56.615
    ],
    "size_rbx": [
-    32.108,
-    0.542,
-    36.486
+    32.167,
+    0.524,
+    36.487
    ],
    "owner": "props",
    "shadow": true,
@@ -5461,12 +5461,12 @@
    "center_rbx": [
     -91.033,
     8.276,
-    76.006
+    75.954
    ],
    "size_rbx": [
     21.411,
     9.334,
-    37.038
+    37.142
    ],
    "owner": "props",
    "shadow": false,
@@ -5606,14 +5606,14 @@
    "material": "Cliff_Rock_Dark",
    "tris": 6356,
    "center_rbx": [
-    -82.114,
+    -82.039,
     12.5,
-    66.703
+    66.715
    ],
    "size_rbx": [
-    50.455,
+    50.606,
     19.0,
-    67.218
+    67.194
    ],
    "owner": "props",
    "shadow": true,
@@ -5649,13 +5649,13 @@
    "tris": 324,
    "center_rbx": [
     62.221,
-    -11.078,
-    17.922
+    -11.109,
+    17.883
    ],
    "size_rbx": [
     13.259,
-    31.844,
-    107.416
+    31.782,
+    107.494
    ],
    "owner": "scene_lighting",
    "shadow": true,
@@ -5669,14 +5669,14 @@
    "material": "Cliff_Rock_B",
    "tris": 260,
    "center_rbx": [
-    62.118,
-    3.161,
-    9.64
+    62.074,
+    3.178,
+    9.584
    ],
    "size_rbx": [
-    12.873,
-    3.921,
-    86.473
+    12.749,
+    3.964,
+    86.514
    ],
    "owner": "scene_lighting",
    "shadow": true,
@@ -5690,14 +5690,14 @@
    "material": "Cliff_Rock_Dark",
    "tris": 160,
    "center_rbx": [
-    61.973,
-    -7.608,
-    33.113
+    61.859,
+    -7.64,
+    33.074
    ],
    "size_rbx": [
-    12.617,
-    25.569,
-    74.815
+    12.724,
+    25.533,
+    74.696
    ],
    "owner": "scene_lighting",
    "shadow": true,
@@ -5712,12 +5712,12 @@
    "tris": 1484,
    "center_rbx": [
     61.838,
-    -5.372,
+    -5.418,
     9.402
    ],
    "size_rbx": [
     7.967,
-    36.667,
+    36.576,
     126.073
    ],
    "owner": "scene_lighting",
@@ -5732,14 +5732,14 @@
    "material": "Grass_Dark",
    "tris": 380,
    "center_rbx": [
-    61.822,
-    7.498,
-    -39.31
+    61.801,
+    7.488,
+    -39.283
    ],
    "size_rbx": [
-    13.52,
-    9.984,
-    43.21
+    13.545,
+    9.928,
+    43.161
    ],
    "owner": "scene_lighting",
    "shadow": false,
@@ -6047,14 +6047,14 @@
    "material": "Cliff_Rock",
    "tris": 498,
    "center_rbx": [
-    7.379,
+    7.359,
     46.726,
-    -105.884
+    -105.844
    ],
    "size_rbx": [
-    263.71,
+    263.75,
     34.653,
-    58.315
+    58.308
    ],
    "owner": "scene_lighting",
    "shadow": true,
@@ -6068,14 +6068,14 @@
    "material": "Cliff_Rock_B",
    "tris": 206,
    "center_rbx": [
-    1.507,
-    42.585,
-    -83.97
+    1.475,
+    42.584,
+    -83.982
    ],
    "size_rbx": [
-    254.777,
+    254.737,
     26.369,
-    14.522
+    14.499
    ],
    "owner": "scene_lighting",
    "shadow": true,
@@ -6090,13 +6090,13 @@
    "tris": 326,
    "center_rbx": [
     3.668,
-    35.028,
-    -105.967
+    35.032,
+    -105.918
    ],
    "size_rbx": [
     260.68,
-    40.077,
-    59.227
+    40.07,
+    59.171
    ],
    "owner": "scene_lighting",
    "shadow": true,
@@ -6108,16 +6108,16 @@
    "group": "05_WATER_SYSTEM",
    "obj": "WATER_Waterfalls",
    "material": "Foam",
-   "tris": 1672,
+   "tris": 1673,
    "center_rbx": [
-    -60.431,
-    31.54,
-    -102.573
+    -60.4,
+    31.518,
+    -102.537
    ],
    "size_rbx": [
-    130.122,
-    37.303,
-    62.312
+    130.125,
+    37.346,
+    62.253
    ],
    "owner": "scene_lighting",
    "shadow": false,
@@ -6131,14 +6131,14 @@
    "material": "Foam",
    "tris": 943,
    "center_rbx": [
-    63.167,
-    28.865,
-    -92.533
+    63.189,
+    28.874,
+    -92.548
    ],
    "size_rbx": [
-    130.49,
-    52.842,
-    72.083
+    130.535,
+    52.823,
+    71.948
    ],
    "owner": "scene_lighting",
    "shadow": false,
@@ -6150,16 +6150,16 @@
    "group": "05_WATER_SYSTEM",
    "obj": "WATER_Waterfalls",
    "material": "Foam",
-   "tris": 737,
+   "tris": 736,
    "center_rbx": [
-    130.924,
-    34.184,
-    -76.808
+    130.902,
+    34.139,
+    -76.853
    ],
    "size_rbx": [
-    6.732,
-    42.573,
-    10.593
+    6.717,
+    42.663,
+    10.549
    ],
    "owner": "scene_lighting",
    "shadow": false,
@@ -6356,10 +6356,10 @@
    "model": ""
   },
   {
-   "name": "KONOHA_Great_Gate__Leaf_Pine_Light",
+   "name": "KONOHA_Great_Gate__Leaf_Pine",
    "group": "06_PORTALS",
    "obj": "KONOHA_Great_Gate",
-   "material": "Leaf_Pine_Light",
+   "material": "Leaf_Pine",
    "tris": 88,
    "center_rbx": [
     -94.0,
@@ -6370,27 +6370,6 @@
     25.838,
     22.0,
     3.04
-   ],
-   "owner": "portals",
-   "shadow": false,
-   "flags": "",
-   "model": "KONOHA_Great_Gate"
-  },
-  {
-   "name": "KONOHA_Great_Gate__P_Naruto_Glow",
-   "group": "06_PORTALS",
-   "obj": "KONOHA_Great_Gate",
-   "material": "P_Naruto_Glow",
-   "tris": 112,
-   "center_rbx": [
-    -94.0,
-    49.85,
-    -281.889
-   ],
-   "size_rbx": [
-    15.16,
-    2.0,
-    1.56
    ],
    "owner": "portals",
    "shadow": false,
@@ -6412,6 +6391,27 @@
     26.8,
     31.05,
     8.368
+   ],
+   "owner": "portals",
+   "shadow": false,
+   "flags": "",
+   "model": "KONOHA_Great_Gate"
+  },
+  {
+   "name": "KONOHA_Great_Gate__P_Naruto_Rim_Glow",
+   "group": "06_PORTALS",
+   "obj": "KONOHA_Great_Gate",
+   "material": "P_Naruto_Rim_Glow",
+   "tris": 112,
+   "center_rbx": [
+    -94.0,
+    49.85,
+    -281.889
+   ],
+   "size_rbx": [
+    15.16,
+    2.0,
+    1.56
    ],
    "owner": "portals",
    "shadow": false,
@@ -6524,27 +6524,6 @@
    "model": "KONOHA_Great_Gate"
   },
   {
-   "name": "KONOHA_Pass_Decor__P_Naruto_Glow",
-   "group": "06_PORTALS",
-   "obj": "KONOHA_Pass_Decor",
-   "material": "P_Naruto_Glow",
-   "tris": 360,
-   "center_rbx": [
-    -101.605,
-    36.552,
-    -191.046
-   ],
-   "size_rbx": [
-    33.357,
-    7.496,
-    140.877
-   ],
-   "owner": "portals",
-   "shadow": false,
-   "flags": "",
-   "model": ""
-  },
-  {
    "name": "KONOHA_Pass_Decor__P_Naruto_Red",
    "group": "06_PORTALS",
    "obj": "KONOHA_Pass_Decor",
@@ -6562,6 +6541,27 @@
    ],
    "owner": "portals",
    "shadow": true,
+   "flags": "",
+   "model": ""
+  },
+  {
+   "name": "KONOHA_Pass_Decor__P_Naruto_Rim_Glow",
+   "group": "06_PORTALS",
+   "obj": "KONOHA_Pass_Decor",
+   "material": "P_Naruto_Rim_Glow",
+   "tris": 360,
+   "center_rbx": [
+    -101.605,
+    36.552,
+    -191.046
+   ],
+   "size_rbx": [
+    33.357,
+    7.496,
+    140.877
+   ],
+   "owner": "portals",
+   "shadow": false,
    "flags": "",
    "model": ""
   },
@@ -6635,14 +6635,14 @@
    "material": "Cliff_Rock",
    "tris": 80,
    "center_rbx": [
-    -97.228,
-    30.953,
-    -210.585
+    -97.543,
+    30.93,
+    -210.567
    ],
    "size_rbx": [
-    26.858,
-    2.518,
-    37.058
+    26.874,
+    2.505,
+    36.932
    ],
    "owner": "portals",
    "shadow": false,
@@ -6885,16 +6885,16 @@
    "group": "06_PORTALS",
    "obj": "PORTAL_DemonSlayer_Difficulty",
    "material": "P_DS_Glow",
-   "tris": 288,
+   "tris": 278,
    "center_rbx": [
-    45.077,
-    8.106,
-    -44.171
+    44.763,
+    8.058,
+    -44.074
    ],
    "size_rbx": [
-    17.267,
-    4.988,
-    1.735
+    17.894,
+    5.083,
+    1.928
    ],
    "owner": "portals",
    "shadow": false,
@@ -6923,212 +6923,86 @@
    "model": "PORTAL_DemonSlayer"
   },
   {
-   "name": "PORTAL_DemonSlayer_Gate__Emblem_Cream",
+   "name": "PORTAL_DemonSlayer_Stairs__Bark_Dark",
    "group": "06_PORTALS",
-   "obj": "PORTAL_DemonSlayer_Gate",
-   "material": "Emblem_Cream",
+   "obj": "PORTAL_DemonSlayer_Stairs",
+   "material": "Bark_Dark",
+   "tris": 114,
+   "center_rbx": [
+    55.386,
+    34.166,
+    -89.823
+   ],
+   "size_rbx": [
+    1.627,
+    8.937,
+    1.645
+   ],
+   "owner": "portals",
+   "shadow": false,
+   "flags": "",
+   "model": "PORTAL_DemonSlayer"
+  },
+  {
+   "name": "PORTAL_DemonSlayer_Stairs__P_DS_Glicinia",
+   "group": "06_PORTALS",
+   "obj": "PORTAL_DemonSlayer_Stairs",
+   "material": "P_DS_Glicinia",
+   "tris": 666,
+   "center_rbx": [
+    54.562,
+    37.532,
+    -90.275
+   ],
+   "size_rbx": [
+    3.438,
+    4.695,
+    2.939
+   ],
+   "owner": "portals",
+   "shadow": false,
+   "flags": "",
+   "model": "PORTAL_DemonSlayer"
+  },
+  {
+   "name": "PORTAL_DemonSlayer_Stairs__P_DS_Iron",
+   "group": "06_PORTALS",
+   "obj": "PORTAL_DemonSlayer_Stairs",
+   "material": "P_DS_Iron",
+   "tris": 296,
+   "center_rbx": [
+    44.0,
+    32.0,
+    -97.2
+   ],
+   "size_rbx": [
+    20.8,
+    4.6,
+    1.222
+   ],
+   "owner": "portals",
+   "shadow": true,
+   "flags": "",
+   "model": "PORTAL_DemonSlayer"
+  },
+  {
+   "name": "PORTAL_DemonSlayer_Stairs__P_Naruto_Red",
+   "group": "06_PORTALS",
+   "obj": "PORTAL_DemonSlayer_Stairs",
+   "material": "P_Naruto_Red",
    "tris": 120,
    "center_rbx": [
     44.0,
-    52.054,
-    -110.568
+    33.04,
+    -97.2
    ],
    "size_rbx": [
-    4.678,
-    8.208,
-    3.163
+    18.667,
+    1.052,
+    0.912
    ],
    "owner": "portals",
    "shadow": false,
-   "flags": "",
-   "model": "PORTAL_DemonSlayer"
-  },
-  {
-   "name": "PORTAL_DemonSlayer_Gate__Leaf_Pine_Light",
-   "group": "06_PORTALS",
-   "obj": "PORTAL_DemonSlayer_Gate",
-   "material": "Leaf_Pine_Light",
-   "tris": 480,
-   "center_rbx": [
-    44.014,
-    46.204,
-    -98.565
-   ],
-   "size_rbx": [
-    26.897,
-    15.609,
-    24.219
-   ],
-   "owner": "portals",
-   "shadow": false,
-   "flags": "",
-   "model": "PORTAL_DemonSlayer"
-  },
-  {
-   "name": "PORTAL_DemonSlayer_Gate__Metal_Blade",
-   "group": "06_PORTALS",
-   "obj": "PORTAL_DemonSlayer_Gate",
-   "material": "Metal_Blade",
-   "tris": 112,
-   "center_rbx": [
-    44.355,
-    31.145,
-    -105.915
-   ],
-   "size_rbx": [
-    18.523,
-    6.281,
-    0.651
-   ],
-   "owner": "portals",
-   "shadow": false,
-   "flags": "",
-   "model": "PORTAL_DemonSlayer"
-  },
-  {
-   "name": "PORTAL_DemonSlayer_Gate__P_DS_Blood",
-   "group": "06_PORTALS",
-   "obj": "PORTAL_DemonSlayer_Gate",
-   "material": "P_DS_Blood",
-   "tris": 580,
-   "center_rbx": [
-    44.0,
-    41.825,
-    -108.777
-   ],
-   "size_rbx": [
-    27.686,
-    25.25,
-    17.155
-   ],
-   "owner": "portals",
-   "shadow": true,
-   "flags": "",
-   "model": "PORTAL_DemonSlayer"
-  },
-  {
-   "name": "PORTAL_DemonSlayer_Gate__P_DS_Char",
-   "group": "06_PORTALS",
-   "obj": "PORTAL_DemonSlayer_Gate",
-   "material": "P_DS_Char",
-   "tris": 3002,
-   "center_rbx": [
-    44.0,
-    43.979,
-    -102.15
-   ],
-   "size_rbx": [
-    27.992,
-    28.558,
-    32.1
-   ],
-   "owner": "portals",
-   "shadow": true,
-   "flags": "",
-   "model": "PORTAL_DemonSlayer"
-  },
-  {
-   "name": "PORTAL_DemonSlayer_Gate__P_DS_Glow",
-   "group": "06_PORTALS",
-   "obj": "PORTAL_DemonSlayer_Gate",
-   "material": "P_DS_Glow",
-   "tris": 600,
-   "center_rbx": [
-    44.0,
-    42.862,
-    -102.392
-   ],
-   "size_rbx": [
-    27.848,
-    21.177,
-    20.476
-   ],
-   "owner": "portals",
-   "shadow": false,
-   "flags": "",
-   "model": "PORTAL_DemonSlayer"
-  },
-  {
-   "name": "PORTAL_DemonSlayer_Gate__P_DS_Tile",
-   "group": "06_PORTALS",
-   "obj": "PORTAL_DemonSlayer_Gate",
-   "material": "P_DS_Tile",
-   "tris": 512,
-   "center_rbx": [
-    44.0,
-    54.005,
-    -115.5
-   ],
-   "size_rbx": [
-    28.0,
-    6.409,
-    11.4
-   ],
-   "owner": "portals",
-   "shadow": true,
-   "flags": "",
-   "model": "PORTAL_DemonSlayer"
-  },
-  {
-   "name": "PORTAL_DemonSlayer_Gate__P_DS_Wisteria",
-   "group": "06_PORTALS",
-   "obj": "PORTAL_DemonSlayer_Gate",
-   "material": "P_DS_Wisteria",
-   "tris": 2280,
-   "center_rbx": [
-    44.052,
-    44.761,
-    -98.848
-   ],
-   "size_rbx": [
-    27.628,
-    18.136,
-    23.998
-   ],
-   "owner": "portals",
-   "shadow": true,
-   "flags": "",
-   "model": "PORTAL_DemonSlayer"
-  },
-  {
-   "name": "PORTAL_DemonSlayer_Gate__Stone_Dark",
-   "group": "06_PORTALS",
-   "obj": "PORTAL_DemonSlayer_Gate",
-   "material": "Stone_Dark",
-   "tris": 392,
-   "center_rbx": [
-    43.634,
-    31.193,
-    -108.737
-   ],
-   "size_rbx": [
-    25.069,
-    3.586,
-    16.926
-   ],
-   "owner": "portals",
-   "shadow": true,
-   "flags": "",
-   "model": "PORTAL_DemonSlayer"
-  },
-  {
-   "name": "PORTAL_DemonSlayer_Gate__Stone_Dark_B",
-   "group": "06_PORTALS",
-   "obj": "PORTAL_DemonSlayer_Gate",
-   "material": "Stone_Dark_B",
-   "tris": 220,
-   "center_rbx": [
-    44.3,
-    31.343,
-    -110.2
-   ],
-   "size_rbx": [
-    25.2,
-    3.286,
-    16.601
-   ],
-   "owner": "portals",
-   "shadow": true,
    "flags": "",
    "model": "PORTAL_DemonSlayer"
   },
@@ -7154,20 +7028,251 @@
    "model": "PORTAL_DemonSlayer"
   },
   {
-   "name": "PORTAL_DragonBall_Difficulty__P_DB_Glow",
+   "name": "PORTAL_DemonSlayer_Tsuba__Emblem_Cream",
    "group": "06_PORTALS",
-   "obj": "PORTAL_DragonBall_Difficulty",
-   "material": "P_DB_Glow",
-   "tris": 248,
+   "obj": "PORTAL_DemonSlayer_Tsuba",
+   "material": "Emblem_Cream",
+   "tris": 416,
    "center_rbx": [
-    -74.971,
-    8.12,
-    -44.249
+    44.0,
+    42.844,
+    -113.982
    ],
    "size_rbx": [
-    17.362,
-    4.96,
-    1.578
+    22.715,
+    25.028,
+    10.825
+   ],
+   "owner": "portals",
+   "shadow": false,
+   "flags": "",
+   "model": "PORTAL_DemonSlayer"
+  },
+  {
+   "name": "PORTAL_DemonSlayer_Tsuba__P_DS_Glow",
+   "group": "06_PORTALS",
+   "obj": "PORTAL_DemonSlayer_Tsuba",
+   "material": "P_DS_Glow",
+   "tris": 260,
+   "center_rbx": [
+    43.999,
+    41.2,
+    -112.1
+   ],
+   "size_rbx": [
+    15.499,
+    15.5,
+    0.5
+   ],
+   "owner": "portals",
+   "shadow": false,
+   "flags": "",
+   "model": "PORTAL_DemonSlayer"
+  },
+  {
+   "name": "PORTAL_DemonSlayer_Tsuba__P_DS_Gravel",
+   "group": "06_PORTALS",
+   "obj": "PORTAL_DemonSlayer_Tsuba",
+   "material": "P_DS_Gravel",
+   "tris": 984,
+   "center_rbx": [
+    44.0,
+    31.116,
+    -110.975
+   ],
+   "size_rbx": [
+    26.44,
+    2.833,
+    21.25
+   ],
+   "owner": "portals",
+   "shadow": false,
+   "flags": "",
+   "model": "PORTAL_DemonSlayer"
+  },
+  {
+   "name": "PORTAL_DemonSlayer_Tsuba__P_DS_Iron",
+   "group": "06_PORTALS",
+   "obj": "PORTAL_DemonSlayer_Tsuba",
+   "material": "P_DS_Iron",
+   "tris": 3020,
+   "center_rbx": [
+    44.0,
+    43.333,
+    -110.73
+   ],
+   "size_rbx": [
+    24.53,
+    25.865,
+    14.94
+   ],
+   "owner": "portals",
+   "shadow": true,
+   "flags": "",
+   "model": "PORTAL_DemonSlayer"
+  },
+  {
+   "name": "PORTAL_DemonSlayer_Tsuba__P_DS_Lacquer",
+   "group": "06_PORTALS",
+   "obj": "PORTAL_DemonSlayer_Tsuba",
+   "material": "P_DS_Lacquer",
+   "tris": 556,
+   "center_rbx": [
+    44.0,
+    43.29,
+    -114.768
+   ],
+   "size_rbx": [
+    24.359,
+    25.78,
+    5.216
+   ],
+   "owner": "portals",
+   "shadow": true,
+   "flags": "",
+   "model": "PORTAL_DemonSlayer"
+  },
+  {
+   "name": "PORTAL_DemonSlayer_Tsuba__P_Naruto_Red",
+   "group": "06_PORTALS",
+   "obj": "PORTAL_DemonSlayer_Tsuba",
+   "material": "P_Naruto_Red",
+   "tris": 224,
+   "center_rbx": [
+    44.0,
+    41.168,
+    -110.171
+   ],
+   "size_rbx": [
+    22.12,
+    19.463,
+    13.398
+   ],
+   "owner": "portals",
+   "shadow": true,
+   "flags": "",
+   "model": "PORTAL_DemonSlayer"
+  },
+  {
+   "name": "PORTAL_DemonSlayer_Tsuba__Stone_DS_Rock",
+   "group": "06_PORTALS",
+   "obj": "PORTAL_DemonSlayer_Tsuba",
+   "material": "Stone_DS_Rock",
+   "tris": 1056,
+   "center_rbx": [
+    44.0,
+    31.975,
+    -111.275
+   ],
+   "size_rbx": [
+    27.8,
+    4.65,
+    21.95
+   ],
+   "owner": "portals",
+   "shadow": true,
+   "flags": "",
+   "model": "PORTAL_DemonSlayer"
+  },
+  {
+   "name": "PORTAL_DemonSlayer_Wisteria__Bark_Dark",
+   "group": "06_PORTALS",
+   "obj": "PORTAL_DemonSlayer_Wisteria",
+   "material": "Bark_Dark",
+   "tris": 180,
+   "center_rbx": [
+    31.605,
+    38.614,
+    -109.24
+   ],
+   "size_rbx": [
+    3.069,
+    18.217,
+    3.738
+   ],
+   "owner": "portals",
+   "shadow": false,
+   "flags": "",
+   "model": "PORTAL_DemonSlayer"
+  },
+  {
+   "name": "PORTAL_DemonSlayer_Wisteria__P_DS_GlicMid",
+   "group": "06_PORTALS",
+   "obj": "PORTAL_DemonSlayer_Wisteria",
+   "material": "P_DS_GlicMid",
+   "tris": 984,
+   "center_rbx": [
+    32.35,
+    45.451,
+    -110.493
+   ],
+   "size_rbx": [
+    4.389,
+    8.698,
+    11.937
+   ],
+   "owner": "portals",
+   "shadow": true,
+   "flags": "",
+   "model": "PORTAL_DemonSlayer"
+  },
+  {
+   "name": "PORTAL_DemonSlayer_Wisteria__P_DS_Glicinia",
+   "group": "06_PORTALS",
+   "obj": "PORTAL_DemonSlayer_Wisteria",
+   "material": "P_DS_Glicinia",
+   "tris": 840,
+   "center_rbx": [
+    32.679,
+    46.957,
+    -109.965
+   ],
+   "size_rbx": [
+    5.002,
+    5.986,
+    11.008
+   ],
+   "owner": "portals",
+   "shadow": true,
+   "flags": "",
+   "model": "PORTAL_DemonSlayer"
+  },
+  {
+   "name": "PORTAL_DragonBall_Difficulty__P_DB_Ball_Amber",
+   "group": "06_PORTALS",
+   "obj": "PORTAL_DragonBall_Difficulty",
+   "material": "P_DB_Ball_Amber",
+   "tris": 150,
+   "center_rbx": [
+    -83.172,
+    6.311,
+    -44.005
+   ],
+   "size_rbx": [
+    1.958,
+    1.575,
+    2.156
+   ],
+   "owner": "portals",
+   "shadow": false,
+   "flags": "",
+   "model": "PORTAL_DragonBall"
+  },
+  {
+   "name": "PORTAL_DragonBall_Difficulty__P_DB_Rim_Glow",
+   "group": "06_PORTALS",
+   "obj": "PORTAL_DragonBall_Difficulty",
+   "material": "P_DB_Rim_Glow",
+   "tris": 88,
+   "center_rbx": [
+    -68.2,
+    9.4,
+    -44.8
+   ],
+   "size_rbx": [
+    3.82,
+    2.4,
+    0.476
    ],
    "owner": "portals",
    "shadow": false,
@@ -7196,20 +7301,20 @@
    "model": "PORTAL_DragonBall"
   },
   {
-   "name": "PORTAL_DragonBall_Ring__P_DB_Ball",
+   "name": "PORTAL_DragonBall_Frame__P_DB_Amber",
    "group": "06_PORTALS",
-   "obj": "PORTAL_DragonBall_Ring",
-   "material": "P_DB_Ball",
-   "tris": 620,
+   "obj": "PORTAL_DragonBall_Frame",
+   "material": "P_DB_Amber",
+   "tris": 1842,
    "center_rbx": [
-    -76.0,
-    47.523,
-    -102.776
+    -76.881,
+    40.841,
+    -109.74
    ],
    "size_rbx": [
-    19.322,
-    32.546,
-    33.951
+    21.321,
+    20.277,
+    14.219
    ],
    "owner": "portals",
    "shadow": true,
@@ -7217,104 +7322,41 @@
    "model": "PORTAL_DragonBall"
   },
   {
-   "name": "PORTAL_DragonBall_Ring__P_DB_Blue",
+   "name": "PORTAL_DragonBall_Frame__P_DB_Ball_Amber",
    "group": "06_PORTALS",
-   "obj": "PORTAL_DragonBall_Ring",
+   "obj": "PORTAL_DragonBall_Frame",
+   "material": "P_DB_Ball_Amber",
+   "tris": 988,
+   "center_rbx": [
+    -72.167,
+    44.715,
+    -109.291
+   ],
+   "size_rbx": [
+    14.198,
+    24.77,
+    14.018
+   ],
+   "owner": "portals",
+   "shadow": true,
+   "flags": "",
+   "model": "PORTAL_DragonBall"
+  },
+  {
+   "name": "PORTAL_DragonBall_Frame__P_DB_Blue",
+   "group": "06_PORTALS",
+   "obj": "PORTAL_DragonBall_Frame",
    "material": "P_DB_Blue",
-   "tris": 804,
+   "tris": 632,
    "center_rbx": [
     -76.0,
-    46.631,
-    -103.959
+    33.202,
+    -110.578
    ],
    "size_rbx": [
-    26.2,
-    34.741,
-    36.717
-   ],
-   "owner": "portals",
-   "shadow": true,
-   "flags": "",
-   "model": "PORTAL_DragonBall"
-  },
-  {
-   "name": "PORTAL_DragonBall_Ring__P_DB_Dragon",
-   "group": "06_PORTALS",
-   "obj": "PORTAL_DragonBall_Ring",
-   "material": "P_DB_Dragon",
-   "tris": 1104,
-   "center_rbx": [
-    -81.492,
-    43.633,
-    -111.372
-   ],
-   "size_rbx": [
-    14.532,
-    28.546,
-    13.818
-   ],
-   "owner": "portals",
-   "shadow": true,
-   "flags": "",
-   "model": "PORTAL_DragonBall"
-  },
-  {
-   "name": "PORTAL_DragonBall_Ring__P_DB_Energy_Glow",
-   "group": "06_PORTALS",
-   "obj": "PORTAL_DragonBall_Ring",
-   "material": "P_DB_Energy_Glow",
-   "tris": 928,
-   "center_rbx": [
-    -75.925,
-    36.12,
-    -113.4
-   ],
-   "size_rbx": [
-    22.726,
-    9.141,
-    12.84
-   ],
-   "owner": "portals",
-   "shadow": false,
-   "flags": "",
-   "model": "PORTAL_DragonBall"
-  },
-  {
-   "name": "PORTAL_DragonBall_Ring__P_DB_Glow",
-   "group": "06_PORTALS",
-   "obj": "PORTAL_DragonBall_Ring",
-   "material": "P_DB_Glow",
-   "tris": 260,
-   "center_rbx": [
-    -76.001,
-    41.2,
-    -111.65
-   ],
-   "size_rbx": [
-    15.499,
-    15.5,
-    0.5
-   ],
-   "owner": "portals",
-   "shadow": false,
-   "flags": "",
-   "model": "PORTAL_DragonBall"
-  },
-  {
-   "name": "PORTAL_DragonBall_Ring__P_DB_Gold",
-   "group": "06_PORTALS",
-   "obj": "PORTAL_DragonBall_Ring",
-   "material": "P_DB_Gold",
-   "tris": 842,
-   "center_rbx": [
-    -75.126,
-    42.1,
-    -113.5
-   ],
-   "size_rbx": [
-    22.749,
     22.8,
-    3.5
+    8.905,
+    16.845
    ],
    "owner": "portals",
    "shadow": true,
@@ -7322,20 +7364,20 @@
    "model": "PORTAL_DragonBall"
   },
   {
-   "name": "PORTAL_DragonBall_Ring__P_DB_Orange",
+   "name": "PORTAL_DragonBall_Frame__P_DB_Gold_Bright",
    "group": "06_PORTALS",
-   "obj": "PORTAL_DragonBall_Ring",
-   "material": "P_DB_Orange",
-   "tris": 1364,
+   "obj": "PORTAL_DragonBall_Frame",
+   "material": "P_DB_Gold_Bright",
+   "tris": 1662,
    "center_rbx": [
     -76.0,
-    44.762,
-    -104.39
+    41.21,
+    -109.162
    ],
    "size_rbx": [
-    26.2,
-    30.805,
-    37.58
+    22.2,
+    22.221,
+    13.103
    ],
    "owner": "portals",
    "shadow": true,
@@ -7343,20 +7385,41 @@
    "model": "PORTAL_DragonBall"
   },
   {
-   "name": "PORTAL_DragonBall_Ring__P_DB_Star",
+   "name": "PORTAL_DragonBall_Frame__P_DB_Rim_Glow",
    "group": "06_PORTALS",
-   "obj": "PORTAL_DragonBall_Ring",
-   "material": "P_DB_Star",
-   "tris": 276,
+   "obj": "PORTAL_DragonBall_Frame",
+   "material": "P_DB_Rim_Glow",
+   "tris": 576,
    "center_rbx": [
-    -75.995,
-    44.507,
-    -97.129
+    -76.0,
+    41.2,
+    -112.5
    ],
    "size_rbx": [
-    18.811,
-    25.213,
-    22.878
+    15.566,
+    15.566,
+    1.1
+   ],
+   "owner": "portals",
+   "shadow": false,
+   "flags": "",
+   "model": "PORTAL_DragonBall"
+  },
+  {
+   "name": "PORTAL_DragonBall_Frame__P_DB_Star_Red",
+   "group": "06_PORTALS",
+   "obj": "PORTAL_DragonBall_Frame",
+   "material": "P_DB_Star_Red",
+   "tris": 576,
+   "center_rbx": [
+    -72.73,
+    43.626,
+    -109.538
+   ],
+   "size_rbx": [
+    14.758,
+    23.722,
+    14.571
    ],
    "owner": "portals",
    "shadow": true,
@@ -7364,23 +7427,149 @@
    "model": "PORTAL_DragonBall"
   },
   {
-   "name": "PORTAL_DragonBall_Ring__P_DB_White",
+   "name": "PORTAL_DragonBall_Frame__P_DB_White",
    "group": "06_PORTALS",
-   "obj": "PORTAL_DragonBall_Ring",
+   "obj": "PORTAL_DragonBall_Frame",
    "material": "P_DB_White",
-   "tris": 1880,
+   "tris": 1806,
    "center_rbx": [
     -76.0,
-    45.339,
-    -104.35
+    42.617,
+    -110.9
    ],
    "size_rbx": [
-    25.895,
-    32.432,
-    37.3
+    26.6,
+    27.734,
+    21.2
    ],
    "owner": "portals",
    "shadow": true,
+   "flags": "",
+   "model": "PORTAL_DragonBall"
+  },
+  {
+   "name": "PORTAL_DragonBall_Frame__P_SG_Silver",
+   "group": "06_PORTALS",
+   "obj": "PORTAL_DragonBall_Frame",
+   "material": "P_SG_Silver",
+   "tris": 212,
+   "center_rbx": [
+    -76.0,
+    30.74,
+    -110.9
+   ],
+   "size_rbx": [
+    26.8,
+    0.32,
+    21.4
+   ],
+   "owner": "portals",
+   "shadow": true,
+   "flags": "",
+   "model": "PORTAL_DragonBall"
+  },
+  {
+   "name": "PORTAL_DragonBall_Stairs__P_DB_Ball_Amber",
+   "group": "06_PORTALS",
+   "obj": "PORTAL_DragonBall_Stairs",
+   "material": "P_DB_Ball_Amber",
+   "tris": 396,
+   "center_rbx": [
+    -76.7,
+    34.594,
+    -92.9
+   ],
+   "size_rbx": [
+    23.578,
+    6.833,
+    10.978
+   ],
+   "owner": "portals",
+   "shadow": true,
+   "flags": "",
+   "model": "PORTAL_DragonBall"
+  },
+  {
+   "name": "PORTAL_DragonBall_Stairs__P_DB_Blue",
+   "group": "06_PORTALS",
+   "obj": "PORTAL_DragonBall_Stairs",
+   "material": "P_DB_Blue",
+   "tris": 80,
+   "center_rbx": [
+    -76.8,
+    32.87,
+    -93.0
+   ],
+   "size_rbx": [
+    23.098,
+    4.88,
+    10.498
+   ],
+   "owner": "portals",
+   "shadow": false,
+   "flags": "",
+   "model": "PORTAL_DragonBall"
+  },
+  {
+   "name": "PORTAL_DragonBall_Stairs__P_DB_Gold_Bright",
+   "group": "06_PORTALS",
+   "obj": "PORTAL_DragonBall_Stairs",
+   "material": "P_DB_Gold_Bright",
+   "tris": 120,
+   "center_rbx": [
+    -76.7,
+    33.285,
+    -92.9
+   ],
+   "size_rbx": [
+    23.472,
+    4.95,
+    10.872
+   ],
+   "owner": "portals",
+   "shadow": false,
+   "flags": "",
+   "model": "PORTAL_DragonBall"
+  },
+  {
+   "name": "PORTAL_DragonBall_Stairs__P_DB_Star_Red",
+   "group": "06_PORTALS",
+   "obj": "PORTAL_DragonBall_Stairs",
+   "material": "P_DB_Star_Red",
+   "tris": 540,
+   "center_rbx": [
+    -76.68,
+    34.408,
+    -92.019
+   ],
+   "size_rbx": [
+    21.476,
+    5.895,
+    9.414
+   ],
+   "owner": "portals",
+   "shadow": true,
+   "flags": "",
+   "model": "PORTAL_DragonBall"
+  },
+  {
+   "name": "PORTAL_DragonBall_Stairs__P_DB_White",
+   "group": "06_PORTALS",
+   "obj": "PORTAL_DragonBall_Stairs",
+   "material": "P_DB_White",
+   "tris": 60,
+   "center_rbx": [
+    -76.7,
+    32.39,
+    -92.9
+   ],
+   "size_rbx": [
+    23.57,
+    5.08,
+    10.97
+   ],
+   "owner": "portals",
+   "shadow": false,
    "flags": "",
    "model": "PORTAL_DragonBall"
   },
@@ -7406,20 +7595,230 @@
    "model": "PORTAL_DragonBall"
   },
   {
-   "name": "PORTAL_Naruto_Difficulty__P_Naruto_Glow",
+   "name": "PORTAL_Naruto_Bandana__Leaf_Pine",
    "group": "06_PORTALS",
-   "obj": "PORTAL_Naruto_Difficulty",
-   "material": "P_Naruto_Glow",
-   "tris": 228,
+   "obj": "PORTAL_Naruto_Bandana",
+   "material": "Leaf_Pine",
+   "tris": 390,
    "center_rbx": [
-    -107.212,
-    8.122,
-    -44.258
+    -108.0,
+    30.614,
+    -114.94
    ],
    "size_rbx": [
-    17.844,
-    4.956,
-    1.561
+    27.8,
+    2.572,
+    9.073
+   ],
+   "owner": "portals",
+   "shadow": false,
+   "flags": "",
+   "model": "PORTAL_Naruto"
+  },
+  {
+   "name": "PORTAL_Naruto_Bandana__Metal_Dark",
+   "group": "06_PORTALS",
+   "obj": "PORTAL_Naruto_Bandana",
+   "material": "Metal_Dark",
+   "tris": 1725,
+   "center_rbx": [
+    -108.218,
+    44.857,
+    -110.591
+   ],
+   "size_rbx": [
+    26.877,
+    26.687,
+    9.218
+   ],
+   "owner": "portals",
+   "shadow": true,
+   "flags": "",
+   "model": "PORTAL_Naruto"
+  },
+  {
+   "name": "PORTAL_Naruto_Bandana__P_Naruto_Cloth",
+   "group": "06_PORTALS",
+   "obj": "PORTAL_Naruto_Bandana",
+   "material": "P_Naruto_Cloth",
+   "tris": 2028,
+   "center_rbx": [
+    -107.952,
+    45.317,
+    -110.517
+   ],
+   "size_rbx": [
+    27.663,
+    21.005,
+    9.106
+   ],
+   "owner": "portals",
+   "shadow": true,
+   "flags": "",
+   "model": "PORTAL_Naruto"
+  },
+  {
+   "name": "PORTAL_Naruto_Bandana__P_Naruto_Lacquer",
+   "group": "06_PORTALS",
+   "obj": "PORTAL_Naruto_Bandana",
+   "material": "P_Naruto_Lacquer",
+   "tris": 1168,
+   "center_rbx": [
+    -108.0,
+    43.88,
+    -108.772
+   ],
+   "size_rbx": [
+    25.962,
+    26.84,
+    13.196
+   ],
+   "owner": "portals",
+   "shadow": true,
+   "flags": "",
+   "model": "PORTAL_Naruto"
+  },
+  {
+   "name": "PORTAL_Naruto_Bandana__P_Naruto_Rim_Glow",
+   "group": "06_PORTALS",
+   "obj": "PORTAL_Naruto_Bandana",
+   "material": "P_Naruto_Rim_Glow",
+   "tris": 260,
+   "center_rbx": [
+    -108.001,
+    41.2,
+    -112.05
+   ],
+   "size_rbx": [
+    15.499,
+    15.5,
+    0.5
+   ],
+   "owner": "portals",
+   "shadow": false,
+   "flags": "",
+   "model": "PORTAL_Naruto"
+  },
+  {
+   "name": "PORTAL_Naruto_Bandana__P_Naruto_Steel",
+   "group": "06_PORTALS",
+   "obj": "PORTAL_Naruto_Bandana",
+   "material": "P_Naruto_Steel",
+   "tris": 295,
+   "center_rbx": [
+    -111.929,
+    42.454,
+    -108.214
+   ],
+   "size_rbx": [
+    16.858,
+    26.793,
+    6.913
+   ],
+   "owner": "portals",
+   "shadow": true,
+   "flags": "",
+   "model": "PORTAL_Naruto"
+  },
+  {
+   "name": "PORTAL_Naruto_Bandana__P_Naruto_Stone",
+   "group": "06_PORTALS",
+   "obj": "PORTAL_Naruto_Bandana",
+   "material": "P_Naruto_Stone",
+   "tris": 1140,
+   "center_rbx": [
+    -106.634,
+    41.275,
+    -110.897
+   ],
+   "size_rbx": [
+    21.504,
+    22.15,
+    10.906
+   ],
+   "owner": "portals",
+   "shadow": true,
+   "flags": "",
+   "model": "PORTAL_Naruto"
+  },
+  {
+   "name": "PORTAL_Naruto_Bandana__Stone_Dark_C",
+   "group": "06_PORTALS",
+   "obj": "PORTAL_Naruto_Bandana",
+   "material": "Stone_Dark_C",
+   "tris": 694,
+   "center_rbx": [
+    -108.0,
+    39.25,
+    -111.4
+   ],
+   "size_rbx": [
+    27.2,
+    19.5,
+    22.4
+   ],
+   "owner": "portals",
+   "shadow": true,
+   "flags": "",
+   "model": "PORTAL_Naruto"
+  },
+  {
+   "name": "PORTAL_Naruto_Bandana__Stone_Light",
+   "group": "06_PORTALS",
+   "obj": "PORTAL_Naruto_Bandana",
+   "material": "Stone_Light",
+   "tris": 740,
+   "center_rbx": [
+    -108.0,
+    30.43,
+    -111.4
+   ],
+   "size_rbx": [
+    27.04,
+    0.74,
+    22.24
+   ],
+   "owner": "portals",
+   "shadow": true,
+   "flags": "",
+   "model": "PORTAL_Naruto"
+  },
+  {
+   "name": "PORTAL_Naruto_Bandana__Stone_Light_C",
+   "group": "06_PORTALS",
+   "obj": "PORTAL_Naruto_Bandana",
+   "material": "Stone_Light_C",
+   "tris": 120,
+   "center_rbx": [
+    -112.493,
+    30.441,
+    -111.4
+   ],
+   "size_rbx": [
+    18.055,
+    0.761,
+    22.24
+   ],
+   "owner": "portals",
+   "shadow": false,
+   "flags": "",
+   "model": "PORTAL_Naruto"
+  },
+  {
+   "name": "PORTAL_Naruto_Difficulty__P_Naruto_Rim_Glow",
+   "group": "06_PORTALS",
+   "obj": "PORTAL_Naruto_Difficulty",
+   "material": "P_Naruto_Rim_Glow",
+   "tris": 218,
+   "center_rbx": [
+    -107.242,
+    8.053,
+    -44.034
+   ],
+   "size_rbx": [
+    17.904,
+    5.094,
+    2.009
    ],
    "owner": "portals",
    "shadow": false,
@@ -7448,6 +7847,90 @@
    "model": "PORTAL_Naruto"
   },
   {
+   "name": "PORTAL_Naruto_Stairs__Metal_Dark",
+   "group": "06_PORTALS",
+   "obj": "PORTAL_Naruto_Stairs",
+   "material": "Metal_Dark",
+   "tris": 100,
+   "center_rbx": [
+    -108.0,
+    32.235,
+    -93.55
+   ],
+   "size_rbx": [
+    19.7,
+    4.67,
+    11.6
+   ],
+   "owner": "portals",
+   "shadow": false,
+   "flags": "",
+   "model": "PORTAL_Naruto"
+  },
+  {
+   "name": "PORTAL_Naruto_Stairs__P_Naruto_Cloth",
+   "group": "06_PORTALS",
+   "obj": "PORTAL_Naruto_Stairs",
+   "material": "P_Naruto_Cloth",
+   "tris": 732,
+   "center_rbx": [
+    -107.982,
+    31.077,
+    -93.078
+   ],
+   "size_rbx": [
+    19.269,
+    2.105,
+    11.704
+   ],
+   "owner": "portals",
+   "shadow": true,
+   "flags": "",
+   "model": "PORTAL_Naruto"
+  },
+  {
+   "name": "PORTAL_Naruto_Stairs__P_Naruto_Rim_Glow",
+   "group": "06_PORTALS",
+   "obj": "PORTAL_Naruto_Stairs",
+   "material": "P_Naruto_Rim_Glow",
+   "tris": 24,
+   "center_rbx": [
+    -108.0,
+    33.02,
+    -98.45
+   ],
+   "size_rbx": [
+    18.7,
+    0.84,
+    0.8
+   ],
+   "owner": "portals",
+   "shadow": false,
+   "flags": "",
+   "model": "PORTAL_Naruto"
+  },
+  {
+   "name": "PORTAL_Naruto_Stairs__P_Naruto_Stone",
+   "group": "06_PORTALS",
+   "obj": "PORTAL_Naruto_Stairs",
+   "material": "P_Naruto_Stone",
+   "tris": 324,
+   "center_rbx": [
+    -108.0,
+    31.66,
+    -93.475
+   ],
+   "size_rbx": [
+    19.7,
+    3.56,
+    11.75
+   ],
+   "owner": "portals",
+   "shadow": true,
+   "flags": "",
+   "model": "PORTAL_Naruto"
+  },
+  {
    "name": "PORTAL_Naruto_Swirl__P_Naruto_Swirl",
    "group": "06_PORTALS",
    "obj": "PORTAL_Naruto_Swirl",
@@ -7469,251 +7952,20 @@
    "model": "PORTAL_Naruto"
   },
   {
-   "name": "PORTAL_Naruto_Torii__P_Naruto_Glow",
-   "group": "06_PORTALS",
-   "obj": "PORTAL_Naruto_Torii",
-   "material": "P_Naruto_Glow",
-   "tris": 452,
-   "center_rbx": [
-    -108.0,
-    44.387,
-    -105.571
-   ],
-   "size_rbx": [
-    26.238,
-    25.573,
-    16.495
-   ],
-   "owner": "portals",
-   "shadow": false,
-   "flags": "",
-   "model": "PORTAL_Naruto"
-  },
-  {
-   "name": "PORTAL_Naruto_Torii__P_Naruto_Red",
-   "group": "06_PORTALS",
-   "obj": "PORTAL_Naruto_Torii",
-   "material": "P_Naruto_Red",
-   "tris": 1284,
-   "center_rbx": [
-    -108.075,
-    45.174,
-    -101.38
-   ],
-   "size_rbx": [
-    26.43,
-    26.747,
-    25.739
-   ],
-   "owner": "portals",
-   "shadow": true,
-   "flags": "",
-   "model": "PORTAL_Naruto"
-  },
-  {
-   "name": "PORTAL_Naruto_Torii__P_Naruto_Tile",
-   "group": "06_PORTALS",
-   "obj": "PORTAL_Naruto_Torii",
-   "material": "P_Naruto_Tile",
-   "tris": 1136,
-   "center_rbx": [
-    -107.896,
-    41.975,
-    -106.135
-   ],
-   "size_rbx": [
-    27.629,
-    19.15,
-    35.55
-   ],
-   "owner": "portals",
-   "shadow": true,
-   "flags": "",
-   "model": "PORTAL_Naruto"
-  },
-  {
-   "name": "PORTAL_Naruto_Torii__P_Naruto_Wall",
-   "group": "06_PORTALS",
-   "obj": "PORTAL_Naruto_Torii",
-   "material": "P_Naruto_Wall",
-   "tris": 844,
-   "center_rbx": [
-    -108.166,
-    43.3,
-    -105.764
-   ],
-   "size_rbx": [
-    26.531,
-    24.1,
-    34.471
-   ],
-   "owner": "portals",
-   "shadow": true,
-   "flags": "",
-   "model": "PORTAL_Naruto"
-  },
-  {
-   "name": "PORTAL_Naruto_Torii__Rope",
-   "group": "06_PORTALS",
-   "obj": "PORTAL_Naruto_Torii",
-   "material": "Rope",
-   "tris": 392,
-   "center_rbx": [
-    -107.993,
-    51.873,
-    -111.701
-   ],
-   "size_rbx": [
-    16.739,
-    1.522,
-    1.153
-   ],
-   "owner": "portals",
-   "shadow": false,
-   "flags": "",
-   "model": "PORTAL_Naruto"
-  },
-  {
-   "name": "PORTAL_Naruto_Torii__Stone_Dark",
-   "group": "06_PORTALS",
-   "obj": "PORTAL_Naruto_Torii",
-   "material": "Stone_Dark",
-   "tris": 1030,
-   "center_rbx": [
-    -107.84,
-    38.98,
-    -109.85
-   ],
-   "size_rbx": [
-    26.379,
-    19.56,
-    26.6
-   ],
-   "owner": "portals",
-   "shadow": true,
-   "flags": "",
-   "model": "PORTAL_Naruto"
-  },
-  {
-   "name": "PORTAL_Naruto_Torii__Stone_Dark_B",
-   "group": "06_PORTALS",
-   "obj": "PORTAL_Naruto_Torii",
-   "material": "Stone_Dark_B",
-   "tris": 396,
-   "center_rbx": [
-    -107.402,
-    32.9,
-    -105.75
-   ],
-   "size_rbx": [
-    24.105,
-    6.0,
-    18.4
-   ],
-   "owner": "portals",
-   "shadow": true,
-   "flags": "",
-   "model": "PORTAL_Naruto"
-  },
-  {
-   "name": "PORTAL_Naruto_Torii__Stone_Light",
-   "group": "06_PORTALS",
-   "obj": "PORTAL_Naruto_Torii",
-   "material": "Stone_Light",
-   "tris": 732,
-   "center_rbx": [
-    -108.0,
-    40.075,
-    -108.679
-   ],
-   "size_rbx": [
-    21.6,
-    20.75,
-    16.841
-   ],
-   "owner": "portals",
-   "shadow": true,
-   "flags": "",
-   "model": "PORTAL_Naruto"
-  },
-  {
-   "name": "PORTAL_Naruto_Torii__Stone_Light_C",
-   "group": "06_PORTALS",
-   "obj": "PORTAL_Naruto_Torii",
-   "material": "Stone_Light_C",
-   "tris": 108,
-   "center_rbx": [
-    -112.938,
-    39.599,
-    -108.549
-   ],
-   "size_rbx": [
-    9.858,
-    19.797,
-    10.701
-   ],
-   "owner": "portals",
-   "shadow": false,
-   "flags": "",
-   "model": "PORTAL_Naruto"
-  },
-  {
-   "name": "PORTAL_Naruto_Torii__Wood_Dark",
-   "group": "06_PORTALS",
-   "obj": "PORTAL_Naruto_Torii",
-   "material": "Wood_Dark",
-   "tris": 872,
-   "center_rbx": [
-    -107.938,
-    44.238,
-    -105.838
-   ],
-   "size_rbx": [
-    26.275,
-    29.37,
-    34.875
-   ],
-   "owner": "portals",
-   "shadow": true,
-   "flags": "",
-   "model": "PORTAL_Naruto"
-  },
-  {
-   "name": "PORTAL_Naruto_Torii__Wood_Dark_B",
-   "group": "06_PORTALS",
-   "obj": "PORTAL_Naruto_Torii",
-   "material": "Wood_Dark_B",
-   "tris": 320,
-   "center_rbx": [
-    -108.0,
-    45.726,
-    -103.625
-   ],
-   "size_rbx": [
-    27.369,
-    31.451,
-    21.95
-   ],
-   "owner": "portals",
-   "shadow": true,
-   "flags": "",
-   "model": "PORTAL_Naruto"
-  },
-  {
    "name": "PORTAL_OnePiece_Difficulty__P_OP_Glow",
    "group": "06_PORTALS",
    "obj": "PORTAL_OnePiece_Difficulty",
    "material": "P_OP_Glow",
-   "tris": 308,
+   "tris": 298,
    "center_rbx": [
-    76.75,
-    8.124,
-    -44.291
+    76.72,
+    8.069,
+    -44.044
    ],
    "size_rbx": [
-    17.919,
-    4.952,
-    1.494
+    17.979,
+    5.061,
+    1.989
    ],
    "owner": "portals",
    "shadow": false,
@@ -7769,14 +8021,14 @@
    "material": "Leaf_Pine_Light",
    "tris": 120,
    "center_rbx": [
-    67.0,
+    66.999,
     41.04,
-    -120.791
+    -120.804
    ],
    "size_rbx": [
-    8.207,
+    8.212,
     1.955,
-    8.186
+    8.212
    ],
    "owner": "portals",
    "shadow": false,
@@ -7872,16 +8124,16 @@
    "group": "06_PORTALS",
    "obj": "PORTAL_OnePiece_Pier",
    "material": "Wood_Dark",
-   "tris": 802,
+   "tris": 926,
    "center_rbx": [
-    76.001,
+    76.0,
     41.0,
-    -104.077
+    -104.05
    ],
    "size_rbx": [
-    25.076,
+    25.079,
     24.0,
-    36.713
+    36.722
    ],
    "owner": "portals",
    "shadow": true,
@@ -7895,14 +8147,14 @@
    "material": "Wood_Dark_B",
    "tris": 240,
    "center_rbx": [
-    76.28,
+    76.287,
     39.912,
-    -104.053
+    -104.046
    ],
    "size_rbx": [
-    25.64,
+    25.626,
     21.825,
-    36.741
+    36.705
    ],
    "owner": "portals",
    "shadow": true,
@@ -7935,16 +8187,16 @@
    "group": "06_PORTALS",
    "obj": "PORTAL_OnePiece_Pier",
    "material": "Wood_Plank",
-   "tris": 620,
+   "tris": 496,
    "center_rbx": [
-    75.497,
-    35.644,
-    -105.027
+    75.481,
+    32.049,
+    -105.033
    ],
    "size_rbx": [
-    24.446,
-    11.912,
-    33.114
+    24.479,
+    4.233,
+    33.147
    ],
    "owner": "portals",
    "shadow": true,
@@ -7958,14 +8210,14 @@
    "material": "Wood_Plank_C",
    "tris": 340,
    "center_rbx": [
-    75.326,
-    31.273,
-    -103.534
+    75.268,
+    31.27,
+    -103.531
    ],
    "size_rbx": [
-    24.347,
-    2.655,
-    32.131
+    24.238,
+    2.661,
+    32.137
    ],
    "owner": "portals",
    "shadow": true,
@@ -7994,20 +8246,20 @@
    "model": "PORTAL_OnePiece"
   },
   {
-   "name": "PORTAL_OnePunchMan_City__Metal_Dark",
+   "name": "PORTAL_OnePunchMan_Decal__P_OPM_ConcreteDark",
    "group": "06_PORTALS",
-   "obj": "PORTAL_OnePunchMan_City",
-   "material": "Metal_Dark",
-   "tris": 1202,
+   "obj": "PORTAL_OnePunchMan_Decal",
+   "material": "P_OPM_ConcreteDark",
+   "tris": 418,
    "center_rbx": [
-    108.0,
-    47.74,
-    -109.175
+    107.967,
+    41.469,
+    -113.884
    ],
    "size_rbx": [
-    27.6,
-    34.52,
-    30.35
+    19.086,
+    19.281,
+    3.703
    ],
    "owner": "portals",
    "shadow": true,
@@ -8015,104 +8267,20 @@
    "model": "PORTAL_OnePunchMan"
   },
   {
-   "name": "PORTAL_OnePunchMan_City__P_Naruto_Red",
+   "name": "PORTAL_OnePunchMan_Decal__P_OPM_Glow",
    "group": "06_PORTALS",
-   "obj": "PORTAL_OnePunchMan_City",
-   "material": "P_Naruto_Red",
-   "tris": 320,
-   "center_rbx": [
-    103.305,
-    50.91,
-    -102.124
-   ],
-   "size_rbx": [
-    15.71,
-    18.02,
-    17.147
-   ],
-   "owner": "portals",
-   "shadow": true,
-   "flags": "",
-   "model": "PORTAL_OnePunchMan"
-  },
-  {
-   "name": "PORTAL_OnePunchMan_City__P_OPM_Concrete",
-   "group": "06_PORTALS",
-   "obj": "PORTAL_OnePunchMan_City",
-   "material": "P_OPM_Concrete",
-   "tris": 1248,
-   "center_rbx": [
-    108.0,
-    45.85,
-    -106.287
-   ],
-   "size_rbx": [
-    26.8,
-    32.7,
-    40.725
-   ],
-   "owner": "portals",
-   "shadow": true,
-   "flags": "",
-   "model": "PORTAL_OnePunchMan"
-  },
-  {
-   "name": "PORTAL_OnePunchMan_City__P_OPM_DarkGlass",
-   "group": "06_PORTALS",
-   "obj": "PORTAL_OnePunchMan_City",
-   "material": "P_OPM_DarkGlass",
-   "tris": 364,
-   "center_rbx": [
-    107.3,
-    46.0,
-    -110.175
-   ],
-   "size_rbx": [
-    25.4,
-    32.0,
-    32.65
-   ],
-   "owner": "portals",
-   "shadow": true,
-   "flags": "",
-   "model": "PORTAL_OnePunchMan"
-  },
-  {
-   "name": "PORTAL_OnePunchMan_City__P_OPM_Glass",
-   "group": "06_PORTALS",
-   "obj": "PORTAL_OnePunchMan_City",
-   "material": "P_OPM_Glass",
-   "tris": 204,
-   "center_rbx": [
-    108.135,
-    42.89,
-    -120.359
-   ],
-   "size_rbx": [
-    22.465,
-    23.04,
-    4.318
-   ],
-   "owner": "portals",
-   "shadow": true,
-   "flags": "",
-   "model": "PORTAL_OnePunchMan"
-  },
-  {
-   "name": "PORTAL_OnePunchMan_City__P_OPM_Glow",
-   "group": "06_PORTALS",
-   "obj": "PORTAL_OnePunchMan_City",
+   "obj": "PORTAL_OnePunchMan_Decal",
    "material": "P_OPM_Glow",
-   "tris": 508,
+   "tris": 36,
    "center_rbx": [
     108.0,
-    47.95,
-    -105.228
+    52.82,
+    -113.8
    ],
    "size_rbx": [
-    27.4,
-    34.9,
-    38.455
+    19.2,
+    0.46,
+    3.6
    ],
    "owner": "portals",
    "shadow": false,
@@ -8120,23 +8288,23 @@
    "model": "PORTAL_OnePunchMan"
   },
   {
-   "name": "PORTAL_OnePunchMan_City__P_OPM_Yellow",
+   "name": "PORTAL_OnePunchMan_Decal__P_OPM_Yellow",
    "group": "06_PORTALS",
-   "obj": "PORTAL_OnePunchMan_City",
+   "obj": "PORTAL_OnePunchMan_Decal",
    "material": "P_OPM_Yellow",
-   "tris": 440,
+   "tris": 76,
    "center_rbx": [
     108.0,
-    46.54,
-    -102.512
+    31.15,
+    -113.8
    ],
    "size_rbx": [
-    26.92,
-    32.12,
-    17.675
+    21.28,
+    0.8,
+    4.18
    ],
    "owner": "portals",
-   "shadow": true,
+   "shadow": false,
    "flags": "",
    "model": "PORTAL_OnePunchMan"
   },
@@ -8145,16 +8313,16 @@
    "group": "06_PORTALS",
    "obj": "PORTAL_OnePunchMan_Difficulty",
    "material": "P_OPM_Glow",
-   "tris": 328,
+   "tris": 318,
    "center_rbx": [
-    108.899,
-    8.124,
-    -44.282
+    108.756,
+    8.063,
+    -44.033
    ],
    "size_rbx": [
-    17.622,
-    4.951,
-    1.512
+    17.908,
+    5.073,
+    2.011
    ],
    "owner": "portals",
    "shadow": false,
@@ -8183,6 +8351,90 @@
    "model": "PORTAL_OnePunchMan"
   },
   {
+   "name": "PORTAL_OnePunchMan_Stairs__P_OPM_ConcreteLight",
+   "group": "06_PORTALS",
+   "obj": "PORTAL_OnePunchMan_Stairs",
+   "material": "P_OPM_ConcreteLight",
+   "tris": 259,
+   "center_rbx": [
+    108.386,
+    31.718,
+    -93.174
+   ],
+   "size_rbx": [
+    25.783,
+    3.556,
+    12.348
+   ],
+   "owner": "portals",
+   "shadow": true,
+   "flags": "",
+   "model": "PORTAL_OnePunchMan"
+  },
+  {
+   "name": "PORTAL_OnePunchMan_Stairs__P_OPM_ConcreteMid",
+   "group": "06_PORTALS",
+   "obj": "PORTAL_OnePunchMan_Stairs",
+   "material": "P_OPM_ConcreteMid",
+   "tris": 463,
+   "center_rbx": [
+    108.647,
+    31.658,
+    -93.243
+   ],
+   "size_rbx": [
+    25.762,
+    3.676,
+    12.086
+   ],
+   "owner": "portals",
+   "shadow": true,
+   "flags": "",
+   "model": "PORTAL_OnePunchMan"
+  },
+  {
+   "name": "PORTAL_OnePunchMan_Stairs__P_OPM_RebarSteel",
+   "group": "06_PORTALS",
+   "obj": "PORTAL_OnePunchMan_Stairs",
+   "material": "P_OPM_RebarSteel",
+   "tris": 252,
+   "center_rbx": [
+    117.651,
+    32.135,
+    -94.145
+   ],
+   "size_rbx": [
+    3.171,
+    4.492,
+    9.545
+   ],
+   "owner": "portals",
+   "shadow": false,
+   "flags": "",
+   "model": "PORTAL_OnePunchMan"
+  },
+  {
+   "name": "PORTAL_OnePunchMan_Stairs__P_OPM_Yellow",
+   "group": "06_PORTALS",
+   "obj": "PORTAL_OnePunchMan_Stairs",
+   "material": "P_OPM_Yellow",
+   "tris": 208,
+   "center_rbx": [
+    106.78,
+    31.065,
+    -93.026
+   ],
+   "size_rbx": [
+    21.52,
+    1.99,
+    11.451
+   ],
+   "owner": "portals",
+   "shadow": true,
+   "flags": "",
+   "model": "PORTAL_OnePunchMan"
+  },
+  {
    "name": "PORTAL_OnePunchMan_Swirl__P_OPM_Swirl",
    "group": "06_PORTALS",
    "obj": "PORTAL_OnePunchMan_Swirl",
@@ -8204,20 +8456,230 @@
    "model": "PORTAL_OnePunchMan"
   },
   {
+   "name": "PORTAL_OnePunchMan_SwirlBack__P_OPM_Swirl",
+   "group": "06_PORTALS",
+   "obj": "PORTAL_OnePunchMan_SwirlBack",
+   "material": "P_OPM_Swirl",
+   "tris": 64,
+   "center_rbx": [
+    108.0,
+    41.2,
+    -115.3
+   ],
+   "size_rbx": [
+    15.0,
+    15.0,
+    0.0
+   ],
+   "owner": "portals",
+   "shadow": false,
+   "flags": "",
+   "model": "PORTAL_OnePunchMan"
+  },
+  {
+   "name": "PORTAL_OnePunchMan_Wall__P_Naruto_Red",
+   "group": "06_PORTALS",
+   "obj": "PORTAL_OnePunchMan_Wall",
+   "material": "P_Naruto_Red",
+   "tris": 404,
+   "center_rbx": [
+    108.05,
+    53.476,
+    -111.07
+   ],
+   "size_rbx": [
+    3.419,
+    3.872,
+    1.141
+   ],
+   "owner": "portals",
+   "shadow": false,
+   "flags": "",
+   "model": "PORTAL_OnePunchMan"
+  },
+  {
+   "name": "PORTAL_OnePunchMan_Wall__P_OPM_ConcreteDark",
+   "group": "06_PORTALS",
+   "obj": "PORTAL_OnePunchMan_Wall",
+   "material": "P_OPM_ConcreteDark",
+   "tris": 910,
+   "center_rbx": [
+    108.0,
+    43.025,
+    -111.4
+   ],
+   "size_rbx": [
+    27.5,
+    26.85,
+    22.3
+   ],
+   "owner": "portals",
+   "shadow": true,
+   "flags": "",
+   "model": "PORTAL_OnePunchMan"
+  },
+  {
+   "name": "PORTAL_OnePunchMan_Wall__P_OPM_ConcreteLight",
+   "group": "06_PORTALS",
+   "obj": "PORTAL_OnePunchMan_Wall",
+   "material": "P_OPM_ConcreteLight",
+   "tris": 1969,
+   "center_rbx": [
+    108.0,
+    41.775,
+    -111.4
+   ],
+   "size_rbx": [
+    27.6,
+    24.15,
+    20.8
+   ],
+   "owner": "portals",
+   "shadow": true,
+   "flags": "",
+   "model": "PORTAL_OnePunchMan"
+  },
+  {
+   "name": "PORTAL_OnePunchMan_Wall__P_OPM_ConcreteMid",
+   "group": "06_PORTALS",
+   "obj": "PORTAL_OnePunchMan_Wall",
+   "material": "P_OPM_ConcreteMid",
+   "tris": 717,
+   "center_rbx": [
+    109.34,
+    41.775,
+    -114.516
+   ],
+   "size_rbx": [
+    18.879,
+    22.95,
+    15.031
+   ],
+   "owner": "portals",
+   "shadow": true,
+   "flags": "",
+   "model": "PORTAL_OnePunchMan"
+  },
+  {
+   "name": "PORTAL_OnePunchMan_Wall__P_OPM_Crater",
+   "group": "06_PORTALS",
+   "obj": "PORTAL_OnePunchMan_Wall",
+   "material": "P_OPM_Crater",
+   "tris": 1246,
+   "center_rbx": [
+    107.928,
+    41.339,
+    -113.825
+   ],
+   "size_rbx": [
+    18.564,
+    18.618,
+    3.15
+   ],
+   "owner": "portals",
+   "shadow": true,
+   "flags": "",
+   "model": "PORTAL_OnePunchMan"
+  },
+  {
+   "name": "PORTAL_OnePunchMan_Wall__P_OPM_DarkGlassT",
+   "group": "06_PORTALS",
+   "obj": "PORTAL_OnePunchMan_Wall",
+   "material": "P_OPM_DarkGlassT",
+   "tris": 36,
+   "center_rbx": [
+    108.0,
+    52.6,
+    -113.8
+   ],
+   "size_rbx": [
+    19.2,
+    1.3,
+    3.4
+   ],
+   "owner": "portals",
+   "shadow": false,
+   "flags": "",
+   "model": "PORTAL_OnePunchMan"
+  },
+  {
+   "name": "PORTAL_OnePunchMan_Wall__P_OPM_Glow",
+   "group": "06_PORTALS",
+   "obj": "PORTAL_OnePunchMan_Wall",
+   "material": "P_OPM_Glow",
+   "tris": 1028,
+   "center_rbx": [
+    108.0,
+    41.2,
+    -113.865
+   ],
+   "size_rbx": [
+    16.24,
+    16.24,
+    3.03
+   ],
+   "owner": "portals",
+   "shadow": false,
+   "flags": "",
+   "model": "PORTAL_OnePunchMan"
+  },
+  {
+   "name": "PORTAL_OnePunchMan_Wall__P_OPM_RebarSteel",
+   "group": "06_PORTALS",
+   "obj": "PORTAL_OnePunchMan_Wall",
+   "material": "P_OPM_RebarSteel",
+   "tris": 828,
+   "center_rbx": [
+    108.625,
+    40.5,
+    -115.542
+   ],
+   "size_rbx": [
+    17.798,
+    18.916,
+    10.825
+   ],
+   "owner": "portals",
+   "shadow": true,
+   "flags": "",
+   "model": "PORTAL_OnePunchMan"
+  },
+  {
+   "name": "PORTAL_OnePunchMan_Wall__P_OPM_Yellow",
+   "group": "06_PORTALS",
+   "obj": "PORTAL_OnePunchMan_Wall",
+   "material": "P_OPM_Yellow",
+   "tris": 304,
+   "center_rbx": [
+    108.0,
+    42.925,
+    -111.4
+   ],
+   "size_rbx": [
+    27.6,
+    26.45,
+    22.4
+   ],
+   "owner": "portals",
+   "shadow": true,
+   "flags": "",
+   "model": "PORTAL_OnePunchMan"
+  },
+  {
    "name": "PORTAL_ShadowGarden_Difficulty__P_Shadow_Glow",
    "group": "06_PORTALS",
    "obj": "PORTAL_ShadowGarden_Difficulty",
    "material": "P_Shadow_Glow",
-   "tris": 268,
+   "tris": 258,
    "center_rbx": [
-    -43.078,
-    8.122,
-    -44.322
+    -43.204,
+    8.075,
+    -44.073
    ],
    "size_rbx": [
-    17.576,
-    4.957,
-    1.433
+    17.828,
+    5.051,
+    1.93
    ],
    "owner": "portals",
    "shadow": false,
@@ -8246,41 +8708,20 @@
    "model": "PORTAL_ShadowGarden"
   },
   {
-   "name": "PORTAL_ShadowGarden_Gothic__Metal_Dark",
+   "name": "PORTAL_ShadowGarden_Glow__P_SG_Core_Glow",
    "group": "06_PORTALS",
-   "obj": "PORTAL_ShadowGarden_Gothic",
-   "material": "Metal_Dark",
-   "tris": 2936,
+   "obj": "PORTAL_ShadowGarden_Glow",
+   "material": "P_SG_Core_Glow",
+   "tris": 600,
    "center_rbx": [
-    -44.1,
-    42.9,
-    -100.609
+    -44.301,
+    45.495,
+    -110.144
    ],
    "size_rbx": [
-    27.1,
-    25.801,
-    29.619
-   ],
-   "owner": "portals",
-   "shadow": true,
-   "flags": "",
-   "model": "PORTAL_ShadowGarden"
-  },
-  {
-   "name": "PORTAL_ShadowGarden_Gothic__P_Shadow_Glow",
-   "group": "06_PORTALS",
-   "obj": "PORTAL_ShadowGarden_Gothic",
-   "material": "P_Shadow_Glow",
-   "tris": 1388,
-   "center_rbx": [
-    -44.1,
-    44.248,
-    -106.312
-   ],
-   "size_rbx": [
-    26.951,
-    27.899,
-    35.665
+    26.548,
+    21.506,
+    5.892
    ],
    "owner": "portals",
    "shadow": false,
@@ -8288,20 +8729,62 @@
    "model": "PORTAL_ShadowGarden"
   },
   {
-   "name": "PORTAL_ShadowGarden_Gothic__P_Shadow_Stone",
+   "name": "PORTAL_ShadowGarden_Glow__P_SG_Lilac_Glow",
    "group": "06_PORTALS",
-   "obj": "PORTAL_ShadowGarden_Gothic",
-   "material": "P_Shadow_Stone",
-   "tris": 1786,
+   "obj": "PORTAL_ShadowGarden_Glow",
+   "material": "P_SG_Lilac_Glow",
+   "tris": 344,
    "center_rbx": [
-    -43.399,
-    52.35,
-    -112.232
+    -44.0,
+    45.075,
+    -112.29
    ],
    "size_rbx": [
-    25.602,
-    45.3,
-    23.936
+    18.3,
+    26.631,
+    1.6
+   ],
+   "owner": "portals",
+   "shadow": false,
+   "flags": "",
+   "model": "PORTAL_ShadowGarden"
+  },
+  {
+   "name": "PORTAL_ShadowGarden_Glow__P_SG_Moon_Glow",
+   "group": "06_PORTALS",
+   "obj": "PORTAL_ShadowGarden_Glow",
+   "material": "P_SG_Moon_Glow",
+   "tris": 780,
+   "center_rbx": [
+    -46.165,
+    45.078,
+    -110.171
+   ],
+   "size_rbx": [
+    22.729,
+    26.737,
+    5.859
+   ],
+   "owner": "portals",
+   "shadow": false,
+   "flags": "",
+   "model": "PORTAL_ShadowGarden"
+  },
+  {
+   "name": "PORTAL_ShadowGarden_MoonArch__P_OPM_Crater",
+   "group": "06_PORTALS",
+   "obj": "PORTAL_ShadowGarden_MoonArch",
+   "material": "P_OPM_Crater",
+   "tris": 228,
+   "center_rbx": [
+    -44.0,
+    30.6,
+    -109.9
+   ],
+   "size_rbx": [
+    27.2,
+    1.9,
+    17.4
    ],
    "owner": "portals",
    "shadow": true,
@@ -8309,23 +8792,170 @@
    "model": "PORTAL_ShadowGarden"
   },
   {
-   "name": "PORTAL_ShadowGarden_Gothic__P_Shadow_Trim",
+   "name": "PORTAL_ShadowGarden_MoonArch__P_SG_Deadwood",
    "group": "06_PORTALS",
-   "obj": "PORTAL_ShadowGarden_Gothic",
-   "material": "P_Shadow_Trim",
-   "tris": 1424,
+   "obj": "PORTAL_ShadowGarden_MoonArch",
+   "material": "P_SG_Deadwood",
+   "tris": 762,
    "center_rbx": [
-    -44.15,
-    44.388,
-    -106.931
+    -31.592,
+    34.308,
+    -109.674
    ],
    "size_rbx": [
-    25.9,
-    30.377,
-    36.942
+    2.5,
+    8.559,
+    2.099
+   ],
+   "owner": "portals",
+   "shadow": false,
+   "flags": "",
+   "model": "PORTAL_ShadowGarden"
+  },
+  {
+   "name": "PORTAL_ShadowGarden_MoonArch__P_SG_Obsidian",
+   "group": "06_PORTALS",
+   "obj": "PORTAL_ShadowGarden_MoonArch",
+   "material": "P_SG_Obsidian",
+   "tris": 1768,
+   "center_rbx": [
+    -44.0,
+    45.18,
+    -113.2
+   ],
+   "size_rbx": [
+    25.8,
+    29.46,
+    4.4
    ],
    "owner": "portals",
    "shadow": true,
+   "flags": "",
+   "model": "PORTAL_ShadowGarden"
+  },
+  {
+   "name": "PORTAL_ShadowGarden_MoonArch__P_SG_Rose",
+   "group": "06_PORTALS",
+   "obj": "PORTAL_ShadowGarden_MoonArch",
+   "material": "P_SG_Rose",
+   "tris": 864,
+   "center_rbx": [
+    -31.89,
+    36.908,
+    -108.799
+   ],
+   "size_rbx": [
+    2.994,
+    5.16,
+    2.26
+   ],
+   "owner": "portals",
+   "shadow": false,
+   "flags": "",
+   "model": "PORTAL_ShadowGarden"
+  },
+  {
+   "name": "PORTAL_ShadowGarden_MoonArch__P_SG_Silver",
+   "group": "06_PORTALS",
+   "obj": "PORTAL_ShadowGarden_MoonArch",
+   "material": "P_SG_Silver",
+   "tris": 2332,
+   "center_rbx": [
+    -44.083,
+    45.65,
+    -109.9
+   ],
+   "size_rbx": [
+    27.466,
+    30.58,
+    17.5
+   ],
+   "owner": "portals",
+   "shadow": true,
+   "flags": "",
+   "model": "PORTAL_ShadowGarden"
+  },
+  {
+   "name": "PORTAL_ShadowGarden_MoonArch__P_SG_Violet",
+   "group": "06_PORTALS",
+   "obj": "PORTAL_ShadowGarden_MoonArch",
+   "material": "P_SG_Violet",
+   "tris": 570,
+   "center_rbx": [
+    -44.553,
+    39.83,
+    -111.262
+   ],
+   "size_rbx": [
+    25.866,
+    17.86,
+    7.976
+   ],
+   "owner": "portals",
+   "shadow": true,
+   "flags": "",
+   "model": "PORTAL_ShadowGarden"
+  },
+  {
+   "name": "PORTAL_ShadowGarden_MoonArch__P_Shadow_Glow",
+   "group": "06_PORTALS",
+   "obj": "PORTAL_ShadowGarden_MoonArch",
+   "material": "P_Shadow_Glow",
+   "tris": 260,
+   "center_rbx": [
+    -44.001,
+    41.2,
+    -112.4
+   ],
+   "size_rbx": [
+    15.499,
+    15.5,
+    0.5
+   ],
+   "owner": "portals",
+   "shadow": false,
+   "flags": "",
+   "model": "PORTAL_ShadowGarden"
+  },
+  {
+   "name": "PORTAL_ShadowGarden_Stairs__P_SG_Obsidian",
+   "group": "06_PORTALS",
+   "obj": "PORTAL_ShadowGarden_Stairs",
+   "material": "P_SG_Obsidian",
+   "tris": 504,
+   "center_rbx": [
+    -44.0,
+    31.901,
+    -93.125
+   ],
+   "size_rbx": [
+    17.9,
+    4.002,
+    12.55
+   ],
+   "owner": "portals",
+   "shadow": true,
+   "flags": "",
+   "model": "PORTAL_ShadowGarden"
+  },
+  {
+   "name": "PORTAL_ShadowGarden_Stairs__P_SG_Silver",
+   "group": "06_PORTALS",
+   "obj": "PORTAL_ShadowGarden_Stairs",
+   "material": "P_SG_Silver",
+   "tris": 168,
+   "center_rbx": [
+    -44.0,
+    33.567,
+    -93.14
+   ],
+   "size_rbx": [
+    18.1,
+    1.133,
+    12.72
+   ],
+   "owner": "portals",
+   "shadow": false,
    "flags": "",
    "model": "PORTAL_ShadowGarden"
   },
@@ -8351,41 +8981,20 @@
    "model": "PORTAL_ShadowGarden"
   },
   {
-   "name": "PORTAL_Terrace_Dressing__Cliff_Rock_Dark",
+   "name": "PORTAL_Terrace_Ruin__P_SG_Core_Glow",
    "group": "06_PORTALS",
-   "obj": "PORTAL_Terrace_Dressing",
-   "material": "Cliff_Rock_Dark",
-   "tris": 140,
+   "obj": "PORTAL_Terrace_Ruin",
+   "material": "P_SG_Core_Glow",
+   "tris": 50,
    "center_rbx": [
-    -0.145,
-    30.734,
-    -102.694
+    -22.366,
+    32.813,
+    -98.271
    ],
    "size_rbx": [
-    50.335,
-    1.569,
-    18.889
-   ],
-   "owner": "portals",
-   "shadow": true,
-   "flags": "",
-   "model": "PORTAL_Terrace"
-  },
-  {
-   "name": "PORTAL_Terrace_Dressing__Leaf_Pine_Light",
-   "group": "06_PORTALS",
-   "obj": "PORTAL_Terrace_Dressing",
-   "material": "Leaf_Pine_Light",
-   "tris": 372,
-   "center_rbx": [
-    19.95,
-    35.754,
-    -103.366
-   ],
-   "size_rbx": [
-    10.307,
-    11.509,
-    25.005
+    5.133,
+    2.695,
+    6.834
    ],
    "owner": "portals",
    "shadow": false,
@@ -8393,41 +9002,20 @@
    "model": "PORTAL_Terrace"
   },
   {
-   "name": "PORTAL_Terrace_Dressing__P_DS_Glow",
+   "name": "PORTAL_Terrace_Ruin__P_SG_Deadwood",
    "group": "06_PORTALS",
-   "obj": "PORTAL_Terrace_Dressing",
-   "material": "P_DS_Glow",
-   "tris": 20,
+   "obj": "PORTAL_Terrace_Ruin",
+   "material": "P_SG_Deadwood",
+   "tris": 362,
    "center_rbx": [
-    22.8,
-    33.182,
-    -104.2
+    -20.848,
+    34.844,
+    -107.974
    ],
    "size_rbx": [
-    1.123,
-    0.897,
-    0.973
-   ],
-   "owner": "portals",
-   "shadow": false,
-   "flags": "",
-   "model": "PORTAL_Terrace"
-  },
-  {
-   "name": "PORTAL_Terrace_Dressing__P_DS_Wisteria",
-   "group": "06_PORTALS",
-   "obj": "PORTAL_Terrace_Dressing",
-   "material": "P_DS_Wisteria",
-   "tris": 1200,
-   "center_rbx": [
-    19.688,
-    36.389,
-    -103.443
-   ],
-   "size_rbx": [
-    8.967,
-    6.438,
-    25.219
+    8.034,
+    10.724,
+    14.015
    ],
    "owner": "portals",
    "shadow": true,
@@ -8435,41 +9023,20 @@
    "model": "PORTAL_Terrace"
   },
   {
-   "name": "PORTAL_Terrace_Dressing__P_Shadow_Glow",
+   "name": "PORTAL_Terrace_Ruin__P_SG_Obsidian",
    "group": "06_PORTALS",
-   "obj": "PORTAL_Terrace_Dressing",
-   "material": "P_Shadow_Glow",
-   "tris": 400,
+   "obj": "PORTAL_Terrace_Ruin",
+   "material": "P_SG_Obsidian",
+   "tris": 250,
    "center_rbx": [
-    -22.286,
-    32.803,
-    -99.784
+    -22.22,
+    33.35,
+    -102.278
    ],
    "size_rbx": [
-    6.535,
-    5.404,
-    11.96
-   ],
-   "owner": "portals",
-   "shadow": false,
-   "flags": "",
-   "model": "PORTAL_Terrace"
-  },
-  {
-   "name": "PORTAL_Terrace_Dressing__P_Shadow_Stone",
-   "group": "06_PORTALS",
-   "obj": "PORTAL_Terrace_Dressing",
-   "material": "P_Shadow_Stone",
-   "tris": 780,
-   "center_rbx": [
-    -0.92,
-    35.056,
-    -107.895
-   ],
-   "size_rbx": [
-    50.547,
-    10.953,
-    13.852
+    6.893,
+    7.3,
+    15.726
    ],
    "owner": "portals",
    "shadow": true,
@@ -8477,20 +9044,125 @@
    "model": "PORTAL_Terrace"
   },
   {
-   "name": "PORTAL_Terrace_Dressing__Wood_Plank",
+   "name": "PORTAL_Terrace_Ruin__P_SG_Rose",
    "group": "06_PORTALS",
-   "obj": "PORTAL_Terrace_Dressing",
-   "material": "Wood_Plank",
-   "tris": 184,
+   "obj": "PORTAL_Terrace_Ruin",
+   "material": "P_SG_Rose",
+   "tris": 228,
    "center_rbx": [
-    19.382,
-    34.179,
-    -102.765
+    -24.268,
+    32.135,
+    -101.243
    ],
    "size_rbx": [
-    5.681,
-    8.699,
-    19.238
+    2.398,
+    1.808,
+    1.995
+   ],
+   "owner": "portals",
+   "shadow": false,
+   "flags": "",
+   "model": "PORTAL_Terrace"
+  },
+  {
+   "name": "PORTAL_Terrace_Ruin__P_SG_Silver",
+   "group": "06_PORTALS",
+   "obj": "PORTAL_Terrace_Ruin",
+   "material": "P_SG_Silver",
+   "tris": 264,
+   "center_rbx": [
+    -22.527,
+    33.18,
+    -102.365
+   ],
+   "size_rbx": [
+    6.335,
+    5.72,
+    15.609
+   ],
+   "owner": "portals",
+   "shadow": true,
+   "flags": "",
+   "model": "PORTAL_Terrace"
+  },
+  {
+   "name": "PORTAL_Terrace_Wisteria__Bark_Dark",
+   "group": "06_PORTALS",
+   "obj": "PORTAL_Terrace_Wisteria",
+   "material": "Bark_Dark",
+   "tris": 222,
+   "center_rbx": [
+    19.898,
+    34.493,
+    -103.058
+   ],
+   "size_rbx": [
+    3.356,
+    9.849,
+    18.926
+   ],
+   "owner": "portals",
+   "shadow": true,
+   "flags": "",
+   "model": "PORTAL_Terrace"
+  },
+  {
+   "name": "PORTAL_Terrace_Wisteria__P_DS_GlicMid",
+   "group": "06_PORTALS",
+   "obj": "PORTAL_Terrace_Wisteria",
+   "material": "P_DS_GlicMid",
+   "tris": 918,
+   "center_rbx": [
+    19.79,
+    36.88,
+    -103.438
+   ],
+   "size_rbx": [
+    8.476,
+    6.24,
+    23.965
+   ],
+   "owner": "portals",
+   "shadow": true,
+   "flags": "",
+   "model": "PORTAL_Terrace"
+  },
+  {
+   "name": "PORTAL_Terrace_Wisteria__P_DS_Glicinia",
+   "group": "06_PORTALS",
+   "obj": "PORTAL_Terrace_Wisteria",
+   "material": "P_DS_Glicinia",
+   "tris": 676,
+   "center_rbx": [
+    19.757,
+    38.2,
+    -103.419
+   ],
+   "size_rbx": [
+    7.922,
+    6.7,
+    23.709
+   ],
+   "owner": "portals",
+   "shadow": true,
+   "flags": "",
+   "model": "PORTAL_Terrace"
+  },
+  {
+   "name": "PORTAL_Terrace_Wisteria__Stone_DS_Rock",
+   "group": "06_PORTALS",
+   "obj": "PORTAL_Terrace_Wisteria",
+   "material": "Stone_DS_Rock",
+   "tris": 258,
+   "center_rbx": [
+    19.66,
+    32.344,
+    -103.883
+   ],
+   "size_rbx": [
+    7.057,
+    5.087,
+    5.506
    ],
    "owner": "portals",
    "shadow": false,
@@ -10010,10 +10682,10 @@
    "model": "BLD_Cabin_West_B"
   },
   {
-   "name": "BLD_Cabin_West_B__Plaster",
+   "name": "BLD_Cabin_West_B__P_Naruto_Stone",
    "group": "07_BUILDINGS",
    "obj": "BLD_Cabin_West_B",
-   "material": "Plaster",
+   "material": "P_Naruto_Stone",
    "tris": 232,
    "center_rbx": [
     -93.55,
@@ -10027,7 +10699,7 @@
    ],
    "owner": "architecture",
    "shadow": true,
-   "flags": "o",
+   "flags": "",
    "model": "BLD_Cabin_West_B"
   },
   {
@@ -10206,13 +10878,13 @@
    "tris": 140,
    "center_rbx": [
     -92.998,
-    9.287,
-    -19.625
+    9.286,
+    -19.6
    ],
    "size_rbx": [
     5.597,
     9.453,
-    7.651
+    7.6
    ],
    "owner": "architecture",
    "shadow": false,
@@ -10899,13 +11571,13 @@
    "tris": 376,
    "center_rbx": [
     111.004,
-    9.251,
-    34.901
+    9.249,
+    34.887
    ],
    "size_rbx": [
     18.692,
-    10.598,
-    12.151
+    10.603,
+    12.125
    ],
    "owner": "architecture",
    "shadow": true,
@@ -11228,27 +11900,6 @@
    "model": "BLD_Shop"
   },
   {
-   "name": "BLD_Shop__Plaster",
-   "group": "07_BUILDINGS",
-   "obj": "BLD_Shop",
-   "material": "Plaster",
-   "tris": 360,
-   "center_rbx": [
-    34.775,
-    10.793,
-    39.0
-   ],
-   "size_rbx": [
-    18.45,
-    8.386,
-    18.0
-   ],
-   "owner": "architecture",
-   "shadow": true,
-   "flags": "o",
-   "model": "BLD_Shop"
-  },
-  {
    "name": "BLD_Shop__Roof_Moss",
    "group": "07_BUILDINGS",
    "obj": "BLD_Shop",
@@ -11326,6 +11977,27 @@
     19.528,
     14.161,
     20.353
+   ],
+   "owner": "architecture",
+   "shadow": true,
+   "flags": "o",
+   "model": "BLD_Shop"
+  },
+  {
+   "name": "BLD_Shop__Stone_Light_B",
+   "group": "07_BUILDINGS",
+   "obj": "BLD_Shop",
+   "material": "Stone_Light_B",
+   "tris": 360,
+   "center_rbx": [
+    34.775,
+    10.793,
+    39.0
+   ],
+   "size_rbx": [
+    18.45,
+    8.386,
+    18.0
    ],
    "owner": "architecture",
    "shadow": true,
@@ -12551,20 +13223,20 @@
    "model": ""
   },
   {
-   "name": "PROP_Story_Plaza__Coal_Rock",
+   "name": "PROP_Story_Plaza__Cliff_Rock_Dark_B",
    "group": "08_PROPS",
    "obj": "PROP_Story_Plaza",
-   "material": "Coal_Rock",
+   "material": "Cliff_Rock_Dark_B",
    "tris": 188,
    "center_rbx": [
-    -10.605,
-    5.833,
-    29.831
+    -10.668,
+    5.836,
+    29.824
    ],
    "size_rbx": [
-    51.666,
-    3.724,
-    53.81
+    51.792,
+    3.719,
+    53.824
    ],
    "owner": "props",
    "shadow": true,
@@ -12704,14 +13376,14 @@
    "material": "Stone_Dark",
    "tris": 140,
    "center_rbx": [
-    -25.422,
-    4.266,
-    55.611
+    -25.423,
+    4.265,
+    55.614
    ],
    "size_rbx": [
-    3.48,
-    0.47,
-    3.66
+    3.515,
+    0.475,
+    3.662
    ],
    "owner": "props",
    "shadow": false,
@@ -12761,10 +13433,10 @@
    "model": ""
   },
   {
-   "name": "PROP_Story_West__Coal_Rock",
+   "name": "PROP_Story_West__Cliff_Rock_Dark_B",
    "group": "08_PROPS",
    "obj": "PROP_Story_West",
-   "material": "Coal_Rock",
+   "material": "Cliff_Rock_Dark_B",
    "tris": 24,
    "center_rbx": [
     -60.723,
@@ -12891,40 +13563,19 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Leste_Norte",
    "material": "Bark_Dark",
-   "tris": 88,
+   "tris": 136,
    "center_rbx": [
-    185.156,
-    53.087,
-    -46.733
+    180.572,
+    52.78,
+    -59.825
    ],
    "size_rbx": [
-    87.453,
-    62.937,
-    63.525
+    78.666,
+    62.362,
+    99.253
    ],
    "owner": "vegetation",
    "shadow": true,
-   "flags": "",
-   "model": ""
-  },
-  {
-   "name": "VEG_Leste_Norte__Cliff_Rock",
-   "group": "09_VEGETATION",
-   "obj": "VEG_Leste_Norte",
-   "material": "Cliff_Rock",
-   "tris": 44,
-   "center_rbx": [
-    220.64,
-    40.513,
-    14.158
-   ],
-   "size_rbx": [
-    13.949,
-    2.563,
-    9.733
-   ],
-   "owner": "vegetation",
-   "shadow": false,
    "flags": "",
    "model": ""
   },
@@ -12933,16 +13584,37 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Leste_Norte",
    "material": "Leaf_Pine",
-   "tris": 738,
+   "tris": 1191,
    "center_rbx": [
-    186.336,
-    58.204,
-    -31.349
+    179.434,
+    57.331,
+    -48.081
    ],
    "size_rbx": [
-    100.035,
-    72.214,
-    101.085
+    85.403,
+    71.288,
+    134.431
+   ],
+   "owner": "vegetation",
+   "shadow": false,
+   "flags": "",
+   "model": ""
+  },
+  {
+   "name": "VEG_Leste_Norte__Leaf_Pine_Light",
+   "group": "09_VEGETATION",
+   "obj": "VEG_Leste_Norte",
+   "material": "Leaf_Pine_Light",
+   "tris": 89,
+   "center_rbx": [
+    145.948,
+    51.026,
+    -18.554
+   ],
+   "size_rbx": [
+    11.092,
+    42.996,
+    14.229
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -12954,16 +13626,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Leste_Norte",
    "material": "Leaf_Shadow",
-   "tris": 261,
+   "tris": 472,
    "center_rbx": [
-    185.758,
-    50.968,
-    -31.685
+    179.434,
+    51.102,
+    -46.882
    ],
    "size_rbx": [
-    98.88,
-    57.742,
-    100.412
+    85.403,
+    58.83,
+    132.033
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -12975,16 +13647,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Leste_Sul",
    "material": "Bark_Dark",
-   "tris": 174,
+   "tris": 154,
    "center_rbx": [
-    183.068,
-    51.46,
-    54.269
+    185.293,
+    52.533,
+    50.178
    ],
    "size_rbx": [
-    90.339,
-    74.69,
-    51.856
+    92.778,
+    76.795,
+    59.951
    ],
    "owner": "vegetation",
    "shadow": true,
@@ -12996,16 +13668,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Leste_Sul",
    "material": "Bark_Dead",
-   "tris": 152,
+   "tris": 256,
    "center_rbx": [
-    158.727,
-    38.84,
-    44.935
+    147.83,
+    42.35,
+    61.736
    ],
    "size_rbx": [
-    39.289,
-    8.743,
-    41.28
+    17.832,
+    25.549,
+    24.015
    ],
    "owner": "vegetation",
    "shadow": true,
@@ -13017,16 +13689,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Leste_Sul",
    "material": "Cliff_Rock",
-   "tris": 106,
+   "tris": 150,
    "center_rbx": [
-    187.219,
-    40.614,
-    61.094
+    175.799,
+    40.593,
+    49.104
    ],
    "size_rbx": [
-    77.893,
-    2.886,
-    23.361
+    51.927,
+    2.713,
+    55.541
    ],
    "owner": "vegetation",
    "shadow": true,
@@ -13038,16 +13710,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Leste_Sul",
    "material": "Leaf_Pine",
-   "tris": 1071,
+   "tris": 842,
    "center_rbx": [
-    182.509,
-    56.153,
-    58.091
+    185.979,
+    59.502,
+    50.753
    ],
    "size_rbx": [
-    95.828,
-    85.31,
-    64.39
+    97.552,
+    90.036,
+    65.43
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -13059,16 +13731,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Leste_Sul",
    "material": "Leaf_Pine_Light",
-   "tris": 109,
+   "tris": 90,
    "center_rbx": [
-    143.978,
-    42.175,
-    55.163
+    144.132,
+    42.563,
+    48.85
    ],
    "size_rbx": [
-    15.211,
-    40.655,
-    38.521
+    13.857,
+    45.402,
+    43.638
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -13080,16 +13752,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Leste_Sul",
    "material": "Leaf_Shadow",
-   "tris": 524,
+   "tris": 416,
    "center_rbx": [
-    182.509,
-    49.281,
-    58.091
+    185.979,
+    50.163,
+    50.753
    ],
    "size_rbx": [
-    95.828,
-    71.566,
-    64.39
+    97.552,
+    71.358,
+    65.43
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -13101,16 +13773,58 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Nordeste",
    "material": "Bark_Dark",
-   "tris": 120,
+   "tris": 106,
    "center_rbx": [
-    171.31,
-    99.439,
-    -178.361
+    171.532,
+    99.049,
+    -171.442
    ],
    "size_rbx": [
-    67.281,
-    138.246,
-    103.17
+    65.467,
+    137.48,
+    118.858
+   ],
+   "owner": "vegetation",
+   "shadow": false,
+   "flags": "",
+   "model": ""
+  },
+  {
+   "name": "VEG_Nordeste__Bark_Dead",
+   "group": "09_VEGETATION",
+   "obj": "VEG_Nordeste",
+   "material": "Bark_Dead",
+   "tris": 40,
+   "center_rbx": [
+    193.279,
+    40.507,
+    -141.244
+   ],
+   "size_rbx": [
+    7.757,
+    1.741,
+    4.903
+   ],
+   "owner": "vegetation",
+   "shadow": false,
+   "flags": "",
+   "model": ""
+  },
+  {
+   "name": "VEG_Nordeste__Cliff_Rock",
+   "group": "09_VEGETATION",
+   "obj": "VEG_Nordeste",
+   "material": "Cliff_Rock",
+   "tris": 48,
+   "center_rbx": [
+    187.102,
+    40.552,
+    -152.36
+   ],
+   "size_rbx": [
+    10.61,
+    2.563,
+    8.834
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -13122,16 +13836,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Nordeste",
    "material": "Leaf_Pine",
-   "tris": 708,
+   "tris": 668,
    "center_rbx": [
-    171.835,
-    105.209,
-    -179.42
+    172.961,
+    105.076,
+    -170.343
    ],
    "size_rbx": [
-    71.131,
-    148.714,
-    109.272
+    70.968,
+    147.985,
+    128.087
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -13143,16 +13857,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Nordeste",
    "material": "Leaf_Shadow",
-   "tris": 344,
+   "tris": 272,
    "center_rbx": [
-    171.835,
-    97.683,
-    -179.42
+    172.961,
+    97.811,
+    -170.343
    ],
    "size_rbx": [
-    71.131,
-    133.662,
-    109.272
+    70.968,
+    133.454,
+    128.087
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -13164,16 +13878,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Noroeste",
    "material": "Bark_Dark",
-   "tris": 110,
+   "tris": 142,
    "center_rbx": [
-    -157.465,
-    69.519,
-    -176.298
+    -158.987,
+    70.216,
+    -179.624
    ],
    "size_rbx": [
-    58.771,
-    80.837,
-    115.48
+    60.375,
+    82.232,
+    108.83
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -13185,16 +13899,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Noroeste",
    "material": "Bark_Dead",
-   "tris": 38,
+   "tris": 78,
    "center_rbx": [
-    -191.801,
-    83.074,
+    -162.163,
+    66.189,
     -184.977
    ],
    "size_rbx": [
-    2.122,
-    10.044,
-    1.593
+    62.61,
+    45.087,
+    9.347
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -13206,16 +13920,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Noroeste",
    "material": "Cliff_Rock",
-   "tris": 136,
+   "tris": 224,
    "center_rbx": [
-    -164.805,
-    74.702,
-    -191.034
+    -167.612,
+    74.951,
+    -186.625
    ],
    "size_rbx": [
-    44.868,
-    63.037,
-    93.941
+    61.892,
+    63.55,
+    94.73
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -13227,37 +13941,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Noroeste",
    "material": "Leaf_Pine",
-   "tris": 487,
+   "tris": 806,
    "center_rbx": [
-    -158.076,
-    73.16,
-    -176.687
+    -158.247,
+    74.887,
+    -179.858
    ],
    "size_rbx": [
-    62.621,
-    88.887,
-    121.172
-   ],
-   "owner": "vegetation",
-   "shadow": false,
-   "flags": "",
-   "model": ""
-  },
-  {
-   "name": "VEG_Noroeste__Leaf_Pine_Light",
-   "group": "09_VEGETATION",
-   "obj": "VEG_Noroeste",
-   "material": "Leaf_Pine_Light",
-   "tris": 63,
-   "center_rbx": [
-    -140.373,
-    52.172,
-    -126.64
-   ],
-   "size_rbx": [
-    26.001,
-    40.176,
-    19.101
+    66.208,
+    92.075,
+    113.932
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -13269,16 +13962,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Noroeste",
    "material": "Leaf_Shadow",
-   "tris": 278,
+   "tris": 300,
    "center_rbx": [
-    -158.076,
-    72.184,
-    -176.687
+    -158.247,
+    67.794,
+    -179.858
    ],
    "size_rbx": [
-    62.621,
-    86.935,
-    121.172
+    66.208,
+    77.89,
+    113.932
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -13290,16 +13983,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Norte_Leste",
    "material": "Bark_Dark",
-   "tris": 222,
+   "tris": 202,
    "center_rbx": [
-    71.455,
-    64.906,
-    -139.56
+    77.478,
+    65.556,
+    -139.212
    ],
    "size_rbx": [
-    130.431,
-    71.611,
-    82.696
+    121.012,
+    72.913,
+    84.429
    ],
    "owner": "vegetation",
    "shadow": true,
@@ -13311,16 +14004,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Norte_Leste",
    "material": "Cliff_Rock",
-   "tris": 62,
+   "tris": 52,
    "center_rbx": [
-    10.661,
-    44.746,
-    -180.825
+    26.106,
+    44.571,
+    -190.879
    ],
    "size_rbx": [
-    9.43,
-    3.015,
-    7.805
+    11.572,
+    2.821,
+    9.668
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -13332,16 +14025,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Norte_Leste",
    "material": "Leaf_Pine",
-   "tris": 1117,
+   "tris": 984,
    "center_rbx": [
-    71.809,
-    67.723,
-    -139.706
+    77.1,
+    69.638,
+    -139.134
    ],
    "size_rbx": [
-    133.982,
-    76.416,
-    87.304
+    125.832,
+    78.896,
+    91.712
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -13353,16 +14046,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Norte_Leste",
    "material": "Leaf_Pine_Light",
-   "tris": 189,
+   "tris": 166,
    "center_rbx": [
-    71.358,
-    60.969,
-    -129.987
+    77.371,
+    59.316,
+    -129.347
    ],
    "size_rbx": [
-    130.966,
-    50.405,
-    64.569
+    123.104,
+    47.568,
+    66.734
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -13374,16 +14067,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Norte_Leste",
    "material": "Leaf_Shadow",
-   "tris": 726,
+   "tris": 606,
    "center_rbx": [
-    71.809,
-    63.803,
-    -139.706
+    77.1,
+    64.757,
+    -139.134
    ],
    "size_rbx": [
-    133.982,
-    68.577,
-    87.304
+    125.832,
+    69.136,
+    91.712
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -13395,16 +14088,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Norte_Oeste",
    "material": "Bark_Dark",
-   "tris": 74,
+   "tris": 68,
    "center_rbx": [
-    -70.64,
-    54.713,
-    -143.274
+    -69.117,
+    55.071,
+    -144.509
    ],
    "size_rbx": [
-    116.226,
-    51.226,
-    31.622
+    117.966,
+    51.943,
+    29.327
    ],
    "owner": "vegetation",
    "shadow": true,
@@ -13416,19 +14109,19 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Norte_Oeste",
    "material": "Bark_Dead",
-   "tris": 72,
+   "tris": 110,
    "center_rbx": [
-    -55.674,
-    68.361,
-    -161.64
+    -64.1,
+    84.607,
+    -171.77
    ],
    "size_rbx": [
-    3.752,
-    12.157,
-    3.711
+    22.056,
+    44.663,
+    21.282
    ],
    "owner": "vegetation",
-   "shadow": false,
+   "shadow": true,
    "flags": "",
    "model": ""
   },
@@ -13437,16 +14130,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Norte_Oeste",
    "material": "Cliff_Rock",
-   "tris": 48,
+   "tris": 40,
    "center_rbx": [
-    -56.316,
-    44.44,
-    -168.107
+    -40.107,
+    44.642,
+    -169.408
    ],
    "size_rbx": [
-    7.791,
-    1.914,
-    4.367
+    14.023,
+    2.732,
+    8.477
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -13458,16 +14151,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Norte_Oeste",
    "material": "Leaf_Pine",
-   "tris": 375,
+   "tris": 328,
    "center_rbx": [
-    -71.866,
-    58.659,
-    -143.174
+    -69.044,
+    67.491,
+    -149.347
    ],
    "size_rbx": [
-    123.209,
-    58.121,
-    36.563
+    123.404,
+    74.968,
+    43.809
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -13479,16 +14172,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Norte_Oeste",
    "material": "Leaf_Pine_Light",
-   "tris": 63,
+   "tris": 62,
    "center_rbx": [
-    -71.25,
-    62.153,
-    -142.756
+    -69.826,
+    63.276,
+    -144.161
    ],
    "size_rbx": [
-    118.611,
-    52.916,
-    33.421
+    120.13,
+    54.743,
+    30.209
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -13500,16 +14193,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Norte_Oeste",
    "material": "Leaf_Shadow",
-   "tris": 242,
+   "tris": 222,
    "center_rbx": [
-    -71.866,
-    57.672,
-    -143.174
+    -69.044,
+    66.745,
+    -149.347
    ],
    "size_rbx": [
-    123.209,
-    56.148,
-    36.563
+    123.404,
+    73.475,
+    43.809
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -13521,40 +14214,19 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Oeste_Norte",
    "material": "Bark_Dark",
-   "tris": 92,
+   "tris": 116,
    "center_rbx": [
-    -175.326,
-    39.853,
-    -41.45
+    -175.662,
+    39.449,
+    -41.826
    ],
    "size_rbx": [
-    79.803,
-    30.832,
-    104.752
+    80.573,
+    30.139,
+    105.643
    ],
    "owner": "vegetation",
    "shadow": true,
-   "flags": "",
-   "model": ""
-  },
-  {
-   "name": "VEG_Oeste_Norte__Bark_Dead",
-   "group": "09_VEGETATION",
-   "obj": "VEG_Oeste_Norte",
-   "material": "Bark_Dead",
-   "tris": 40,
-   "center_rbx": [
-    -169.503,
-    30.352,
-    -21.912
-   ],
-   "size_rbx": [
-    6.952,
-    1.407,
-    1.699
-   ],
-   "owner": "vegetation",
-   "shadow": false,
    "flags": "",
    "model": ""
   },
@@ -13563,16 +14235,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Oeste_Norte",
    "material": "Cliff_Rock",
-   "tris": 88,
+   "tris": 114,
    "center_rbx": [
-    -160.785,
-    30.546,
-    -33.073
+    -146.497,
+    30.726,
+    -13.953
    ],
    "size_rbx": [
-    74.538,
-    2.731,
-    39.466
+    26.274,
+    2.851,
+    68.508
    ],
    "owner": "vegetation",
    "shadow": true,
@@ -13584,16 +14256,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Oeste_Norte",
    "material": "Leaf_Pine",
-   "tris": 568,
+   "tris": 594,
    "center_rbx": [
-    -175.204,
-    47.834,
-    -41.057
+    -176.5,
+    55.756,
+    -40.646
    ],
    "size_rbx": [
-    85.194,
-    46.448,
-    107.874
+    87.598,
+    62.124,
+    110.688
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -13605,16 +14277,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Oeste_Norte",
    "material": "Leaf_Shadow",
-   "tris": 218,
+   "tris": 230,
    "center_rbx": [
-    -175.204,
-    47.016,
-    -41.057
+    -176.5,
+    54.958,
+    -40.646
    ],
    "size_rbx": [
-    85.194,
-    44.813,
-    107.874
+    87.598,
+    60.529,
+    110.688
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -13626,19 +14298,40 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Oeste_Sul",
    "material": "Bark_Dark",
-   "tris": 70,
+   "tris": 96,
    "center_rbx": [
-    -149.873,
-    50.802,
-    78.753
+    -151.908,
+    33.09,
+    87.781
    ],
    "size_rbx": [
-    37.815,
-    53.417,
-    85.551
+    42.11,
+    17.683,
+    67.589
    ],
    "owner": "vegetation",
    "shadow": true,
+   "flags": "",
+   "model": ""
+  },
+  {
+   "name": "VEG_Oeste_Sul__Bark_Dead",
+   "group": "09_VEGETATION",
+   "obj": "VEG_Oeste_Sul",
+   "material": "Bark_Dead",
+   "tris": 72,
+   "center_rbx": [
+    -132.778,
+    77.074,
+    39.177
+   ],
+   "size_rbx": [
+    3.475,
+    11.009,
+    2.859
+   ],
+   "owner": "vegetation",
+   "shadow": false,
    "flags": "",
    "model": ""
   },
@@ -13647,19 +14340,19 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Oeste_Sul",
    "material": "Cliff_Rock",
-   "tris": 62,
+   "tris": 124,
    "center_rbx": [
-    -171.292,
-    30.666,
-    61.182
+    -162.382,
+    30.82,
+    56.488
    ],
    "size_rbx": [
-    8.489,
-    2.622,
-    7.464
+    65.313,
+    3.314,
+    59.457
    ],
    "owner": "vegetation",
-   "shadow": false,
+   "shadow": true,
    "flags": "",
    "model": ""
   },
@@ -13668,16 +14361,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Oeste_Sul",
    "material": "Leaf_Pine",
-   "tris": 326,
+   "tris": 588,
    "center_rbx": [
-    -151.107,
-    55.016,
-    73.408
+    -155.331,
+    41.977,
+    73.354
    ],
    "size_rbx": [
-    44.48,
-    60.16,
-    101.616
+    53.935,
+    34.939,
+    102.415
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -13689,16 +14382,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Oeste_Sul",
    "material": "Leaf_Shadow",
-   "tris": 130,
+   "tris": 165,
    "center_rbx": [
-    -151.107,
-    53.496,
-    73.408
+    -153.242,
+    41.399,
+    73.354
    ],
    "size_rbx": [
-    44.48,
-    57.119,
-    101.616
+    49.757,
+    33.784,
+    102.415
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -13710,16 +14403,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Queda_Sul_Oeste",
    "material": "Bark_Dark",
-   "tris": 78,
+   "tris": 58,
    "center_rbx": [
-    -93.011,
-    44.479,
-    96.275
+    -93.005,
+    28.178,
+    102.022
    ],
    "size_rbx": [
-    70.435,
-    30.658,
-    49.348
+    69.905,
+    62.33,
+    37.582
    ],
    "owner": "vegetation",
    "shadow": true,
@@ -13731,16 +14424,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Queda_Sul_Oeste",
    "material": "Leaf_Pine",
-   "tris": 492,
+   "tris": 348,
    "center_rbx": [
-    -89.383,
-    49.034,
-    96.045
+    -89.628,
+    32.848,
+    96.775
    ],
    "size_rbx": [
-    82.531,
-    39.47,
-    55.101
+    83.507,
+    70.358,
+    54.447
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -13752,16 +14445,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Queda_Sul_Oeste",
    "material": "Leaf_Shadow",
-   "tris": 198,
+   "tris": 192,
    "center_rbx": [
-    -89.383,
-    47.242,
-    96.045
+    -89.628,
+    31.905,
+    96.775
    ],
    "size_rbx": [
-    82.531,
-    35.885,
-    55.101
+    83.507,
+    68.47,
+    54.447
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -13773,16 +14466,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Vale_Leste",
    "material": "Bark_Dark",
-   "tris": 1602,
+   "tris": 1656,
    "center_rbx": [
-    76.936,
-    9.533,
-    1.741
+    76.402,
+    8.958,
+    2.874
    ],
    "size_rbx": [
-    120.325,
-    13.593,
-    123.334
+    120.296,
+    12.466,
+    122.595
    ],
    "owner": "vegetation",
    "shadow": true,
@@ -13796,14 +14489,14 @@
    "material": "Bark_Dead",
    "tris": 116,
    "center_rbx": [
-    123.898,
-    8.243,
-    54.914
+    123.868,
+    8.128,
+    52.102
    ],
    "size_rbx": [
-    5.24,
-    9.479,
-    4.059
+    5.074,
+    9.484,
+    4.378
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -13817,14 +14510,14 @@
    "material": "Cliff_Rock",
    "tris": 48,
    "center_rbx": [
-    133.407,
-    4.738,
-    7.237
+    133.002,
+    4.492,
+    8.181
    ],
    "size_rbx": [
-    4.126,
-    1.572,
-    6.026
+    4.853,
+    1.022,
+    8.104
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -13836,16 +14529,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Vale_Leste",
    "material": "Flower_White",
-   "tris": 800,
+   "tris": 790,
    "center_rbx": [
-    79.435,
-    5.25,
-    16.208
+    80.213,
+    5.27,
+    16.002
    ],
    "size_rbx": [
-    103.149,
-    1.435,
-    95.575
+    110.042,
+    0.706,
+    95.646
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -13857,16 +14550,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Vale_Leste",
    "material": "Grass_Tuft",
-   "tris": 2796,
+   "tris": 2780,
    "center_rbx": [
-    80.248,
-    4.329,
-    1.785
+    73.51,
+    4.485,
+    6.068
    ],
    "size_rbx": [
-    113.063,
-    3.516,
-    124.502
+    127.026,
+    3.826,
+    115.623
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -13878,16 +14571,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Vale_Leste",
    "material": "Leaf_Broad",
-   "tris": 2570,
+   "tris": 2180,
    "center_rbx": [
-    81.58,
-    10.354,
-    2.508
+    80.478,
+    10.378,
+    3.115
    ],
    "size_rbx": [
-    114.076,
-    13.664,
-    124.145
+    114.592,
+    13.59,
+    122.942
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -13899,16 +14592,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Vale_Leste",
    "material": "Leaf_Pine",
-   "tris": 3528,
+   "tris": 4196,
    "center_rbx": [
-    76.537,
-    16.934,
-    1.395
+    77.01,
+    11.944,
+    3.117
    ],
    "size_rbx": [
-    125.771,
-    27.888,
-    127.488
+    123.958,
+    17.933,
+    126.474
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -13922,14 +14615,14 @@
    "material": "Leaf_Pine_Light",
    "tris": 330,
    "center_rbx": [
-    76.967,
-    14.505,
-    3.063
+    76.73,
+    14.076,
+    3.725
    ],
    "size_rbx": [
-    120.483,
-    18.846,
-    123.876
+    119.625,
+    16.028,
+    123.758
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -13941,16 +14634,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Vale_Leste",
    "material": "Leaf_Shadow",
-   "tris": 1396,
+   "tris": 1492,
    "center_rbx": [
-    76.537,
-    16.469,
-    1.395
+    77.01,
+    10.677,
+    3.117
    ],
    "size_rbx": [
-    125.771,
-    26.958,
-    127.488
+    123.958,
+    15.399,
+    126.474
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -13962,16 +14655,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Vale_Leste",
    "material": "Sakura_Pink",
-   "tris": 780,
+   "tris": 660,
    "center_rbx": [
-    75.268,
-    5.09,
-    2.814
+    71.257,
+    5.178,
+    4.576
    ],
    "size_rbx": [
-    103.333,
-    1.317,
-    122.696
+    118.966,
+    1.236,
+    112.333
    ],
    "owner": "vegetation",
    "shadow": true,
@@ -13983,16 +14676,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Vale_Oeste",
    "material": "Bark_Dark",
-   "tris": 1250,
+   "tris": 1252,
    "center_rbx": [
-    -65.32,
-    43.301,
-    6.227
+    -67.549,
+    43.967,
+    5.965
    ],
    "size_rbx": [
-    125.35,
-    79.952,
-    130.35
+    116.798,
+    81.275,
+    132.355
    ],
    "owner": "vegetation",
    "shadow": true,
@@ -14006,14 +14699,14 @@
    "material": "Bark_Dead",
    "tris": 112,
    "center_rbx": [
-    -93.328,
-    48.358,
-    46.137
+    -116.042,
+    47.246,
+    44.389
    ],
    "size_rbx": [
-    27.748,
-    37.413,
-    37.244
+    25.648,
+    35.192,
+    36.982
    ],
    "owner": "vegetation",
    "shadow": true,
@@ -14025,16 +14718,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Vale_Oeste",
    "material": "Cliff_Rock",
-   "tris": 350,
+   "tris": 204,
    "center_rbx": [
-    -87.201,
-    18.14,
-    40.624
+    -79.69,
+    17.959,
+    -0.006
    ],
    "size_rbx": [
-    75.679,
-    28.055,
-    61.776
+    57.168,
+    28.093,
+    121.457
    ],
    "owner": "vegetation",
    "shadow": true,
@@ -14046,16 +14739,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Vale_Oeste",
    "material": "Crystal_Blue",
-   "tris": 234,
+   "tris": 126,
    "center_rbx": [
-    -73.198,
-    5.502,
-    36.428
+    -73.729,
+    5.405,
+    35.75
    ],
    "size_rbx": [
-    46.218,
-    3.41,
-    45.86
+    42.729,
+    3.294,
+    43.533
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -14067,16 +14760,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Vale_Oeste",
    "material": "Flower_White",
-   "tris": 570,
+   "tris": 550,
    "center_rbx": [
-    -77.212,
-    5.356,
-    -20.156
+    -64.023,
+    5.33,
+    -21.908
    ],
    "size_rbx": [
-    94.186,
-    0.782,
-    64.574
+    68.09,
+    0.738,
+    77.607
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -14088,16 +14781,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Vale_Oeste",
    "material": "Grass_Tuft",
-   "tris": 1596,
+   "tris": 1124,
    "center_rbx": [
-    -76.455,
-    5.034,
-    0.826
+    -76.63,
+    5.016,
+    -22.054
    ],
    "size_rbx": [
-    95.848,
-    1.85,
-    124.006
+    93.069,
+    2.123,
+    77.284
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -14109,16 +14802,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Vale_Oeste",
    "material": "Leaf_Broad",
-   "tris": 392,
+   "tris": 542,
    "center_rbx": [
-    -69.904,
-    17.399,
-    0.756
+    -91.281,
+    17.426,
+    -0.434
    ],
    "size_rbx": [
-    76.736,
-    27.358,
-    122.046
+    71.29,
+    27.394,
+    118.701
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -14130,16 +14823,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Vale_Oeste",
    "material": "Leaf_Pine",
-   "tris": 3089,
+   "tris": 2846,
    "center_rbx": [
-    -65.88,
-    46.926,
-    6.693
+    -66.549,
+    48.596,
+    4.915
    ],
    "size_rbx": [
-    129.242,
-    86.738,
-    136.332
+    123.868,
+    89.707,
+    136.814
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -14151,16 +14844,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Vale_Oeste",
    "material": "Leaf_Pine_Light",
-   "tris": 471,
+   "tris": 452,
    "center_rbx": [
-    -65.347,
-    50.079,
-    7.346
+    -66.762,
+    52.612,
+    6.343
    ],
    "size_rbx": [
-    125.419,
-    82.126,
-    131.99
+    117.303,
+    83.807,
+    132.374
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -14172,16 +14865,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Vale_Oeste",
    "material": "Leaf_Shadow",
-   "tris": 1586,
+   "tris": 1528,
    "center_rbx": [
-    -65.88,
-    45.989,
-    6.693
+    -66.549,
+    47.471,
+    4.915
    ],
    "size_rbx": [
-    129.242,
-    84.865,
-    136.332
+    123.868,
+    87.235,
+    136.814
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -14193,16 +14886,16 @@
    "group": "09_VEGETATION",
    "obj": "VEG_Vale_Oeste",
    "material": "Sakura_Pink",
-   "tris": 2902,
+   "tris": 2744,
    "center_rbx": [
-    -83.196,
+    -91.089,
     9.731,
-    -1.283
+    -21.522
    ],
    "size_rbx": [
-    89.438,
+    73.652,
     10.75,
-    117.087
+    76.608
    ],
    "owner": "vegetation",
    "shadow": true,
@@ -14210,20 +14903,20 @@
    "model": ""
   },
   {
-   "name": "RAIL_Bed__Coal_Rock",
+   "name": "RAIL_Bed__Cliff_Rock_Dark_B",
    "group": "10_RAILS",
    "obj": "RAIL_Bed",
-   "material": "Coal_Rock",
+   "material": "Cliff_Rock_Dark_B",
    "tris": 144,
    "center_rbx": [
-    -61.756,
-    5.844,
-    25.742
+    -61.735,
+    5.843,
+    25.745
    ],
    "size_rbx": [
-    11.245,
-    3.702,
-    29.442
+    11.288,
+    3.704,
+    29.448
    ],
    "owner": "props",
    "shadow": true,
@@ -14306,7 +14999,7 @@
    ],
    "size_rbx": [
     33.923,
-    0.449,
+    0.448,
     64.577
    ],
    "owner": "props",
@@ -14580,7 +15273,7 @@
    "family": "Bark_Dark",
    "tex": "wood",
    "swirl": null,
-   "meshes": 12
+   "meshes": 15
   },
   "Bark_Dead": {
    "color": [
@@ -14594,7 +15287,7 @@
    "family": "Bark_Dead",
    "tex": "wood",
    "swirl": null,
-   "meshes": 6
+   "meshes": 7
   },
   "Cliff_Rock": {
    "color": [
@@ -14636,7 +15329,7 @@
    "family": "Cliff_Rock_Dark",
    "tex": "rock",
    "swirl": null,
-   "meshes": 13
+   "meshes": 12
   },
   "Cliff_Rock_Dark_B": {
    "color": [
@@ -14650,7 +15343,7 @@
    "family": "Cliff_Rock_Dark",
    "tex": "rock",
    "swirl": null,
-   "meshes": 7
+   "meshes": 10
   },
   "Cliff_Rock_Far": {
    "color": [
@@ -14749,20 +15442,6 @@
    "tex": null,
    "swirl": null,
    "meshes": 10
-  },
-  "Coal_Rock": {
-   "color": [
-    48,
-    48,
-    50
-   ],
-   "material": "Slate",
-   "transparency": 0.0,
-   "shadow": true,
-   "family": "Coal_Rock",
-   "tex": null,
-   "swirl": null,
-   "meshes": 3
   },
   "Crystal_Blue": {
    "color": [
@@ -15084,7 +15763,7 @@
    "family": "Leaf_Pine",
    "tex": null,
    "swirl": null,
-   "meshes": 12
+   "meshes": 14
   },
   "Leaf_Pine_Light": {
    "color": [
@@ -15098,7 +15777,7 @@
    "family": "Leaf_Pine_Light",
    "tex": null,
    "swirl": null,
-   "meshes": 11
+   "meshes": 8
   },
   "Leaf_Shadow": {
    "color": [
@@ -15124,20 +15803,6 @@
    "transparency": 0.0,
    "shadow": true,
    "family": "Leather_Bellows",
-   "tex": null,
-   "swirl": null,
-   "meshes": 1
-  },
-  "Metal_Blade": {
-   "color": [
-    206,
-    212,
-    223
-   ],
-   "material": "Metal",
-   "transparency": 0.0,
-   "shadow": true,
-   "family": "Metal_Blade",
    "tex": null,
    "swirl": null,
    "meshes": 1
@@ -15254,19 +15919,33 @@
    "swirl": null,
    "meshes": 1
   },
-  "P_DB_Ball": {
+  "P_DB_Amber": {
    "color": [
-    255,
-    166,
-    39
+    246,
+    110,
+    12
    ],
    "material": "SmoothPlastic",
    "transparency": 0.0,
    "shadow": true,
-   "family": "P_DB_Ball",
+   "family": "P_DB_Amber",
    "tex": null,
    "swirl": null,
    "meshes": 1
+  },
+  "P_DB_Ball_Amber": {
+   "color": [
+    255,
+    150,
+    12
+   ],
+   "material": "SmoothPlastic",
+   "transparency": 0.0,
+   "shadow": true,
+   "family": "P_DB_Ball_Amber",
+   "tex": null,
+   "swirl": null,
+   "meshes": 3
   },
   "P_DB_Blue": {
    "color": [
@@ -15280,91 +15959,49 @@
    "family": "P_DB_Blue",
    "tex": null,
    "swirl": null,
-   "meshes": 1
-  },
-  "P_DB_Dragon": {
-   "color": [
-    63,
-    162,
-    85
-   ],
-   "material": "SmoothPlastic",
-   "transparency": 0.0,
-   "shadow": true,
-   "family": "P_DB_Dragon",
-   "tex": null,
-   "swirl": null,
-   "meshes": 1
-  },
-  "P_DB_Energy_Glow": {
-   "color": [
-    255,
-    184,
-    56
-   ],
-   "material": "Neon",
-   "transparency": 0.0,
-   "shadow": false,
-   "family": "P_DB_Energy_Glow",
-   "tex": null,
-   "swirl": null,
-   "meshes": 1
-  },
-  "P_DB_Glow": {
-   "color": [
-    255,
-    195,
-    30
-   ],
-   "material": "Neon",
-   "transparency": 0.0,
-   "shadow": false,
-   "family": "P_DB_Glow",
-   "tex": null,
-   "swirl": null,
    "meshes": 2
   },
-  "P_DB_Gold": {
+  "P_DB_Gold_Bright": {
    "color": [
-    226,
-    178,
-    78
+    255,
+    196,
+    60
    ],
    "material": "Metal",
    "transparency": 0.0,
    "shadow": true,
-   "family": "P_DB_Gold",
+   "family": "P_DB_Gold_Bright",
    "tex": null,
    "swirl": null,
-   "meshes": 1
+   "meshes": 2
   },
-  "P_DB_Orange": {
+  "P_DB_Rim_Glow": {
    "color": [
-    255,
-    179,
-    63
+    60,
+    172,
+    255
+   ],
+   "material": "Neon",
+   "transparency": 0.0,
+   "shadow": false,
+   "family": "P_DB_Rim_Glow",
+   "tex": null,
+   "swirl": null,
+   "meshes": 2
+  },
+  "P_DB_Star_Red": {
+   "color": [
+    178,
+    16,
+    12
    ],
    "material": "SmoothPlastic",
    "transparency": 0.0,
    "shadow": true,
-   "family": "P_DB_Orange",
+   "family": "P_DB_Star_Red",
    "tex": null,
    "swirl": null,
-   "meshes": 1
-  },
-  "P_DB_Star": {
-   "color": [
-    237,
-    63,
-    39
-   ],
-   "material": "SmoothPlastic",
-   "transparency": 0.0,
-   "shadow": true,
-   "family": "P_DB_Star",
-   "tex": null,
-   "swirl": null,
-   "meshes": 1
+   "meshes": 2
   },
   "P_DB_Swirl": {
    "color": [
@@ -15392,35 +16029,35 @@
    "family": "P_DB_White",
    "tex": null,
    "swirl": null,
-   "meshes": 1
+   "meshes": 2
   },
-  "P_DS_Blood": {
+  "P_DS_GlicMid": {
    "color": [
-    124,
-    25,
-    29
+    176,
+    112,
+    230
    ],
    "material": "SmoothPlastic",
    "transparency": 0.0,
    "shadow": true,
-   "family": "P_DS_Blood",
+   "family": "P_DS_GlicMid",
    "tex": null,
    "swirl": null,
-   "meshes": 1
+   "meshes": 2
   },
-  "P_DS_Char": {
+  "P_DS_Glicinia": {
    "color": [
-    39,
-    34,
-    33
+    146,
+    84,
+    220
    ],
    "material": "SmoothPlastic",
    "transparency": 0.0,
    "shadow": true,
-   "family": "P_DS_Char",
+   "family": "P_DS_Glicinia",
    "tex": null,
    "swirl": null,
-   "meshes": 1
+   "meshes": 3
   },
   "P_DS_Glow": {
    "color": [
@@ -15434,7 +16071,49 @@
    "family": "P_DS_Glow",
    "tex": null,
    "swirl": null,
-   "meshes": 3
+   "meshes": 2
+  },
+  "P_DS_Gravel": {
+   "color": [
+    186,
+    176,
+    150
+   ],
+   "material": "Ground",
+   "transparency": 0.0,
+   "shadow": false,
+   "family": "P_DS_Gravel",
+   "tex": null,
+   "swirl": null,
+   "meshes": 1
+  },
+  "P_DS_Iron": {
+   "color": [
+    24,
+    23,
+    28
+   ],
+   "material": "Metal",
+   "transparency": 0.0,
+   "shadow": true,
+   "family": "P_DS_Iron",
+   "tex": null,
+   "swirl": null,
+   "meshes": 2
+  },
+  "P_DS_Lacquer": {
+   "color": [
+    112,
+    13,
+    19
+   ],
+   "material": "SmoothPlastic",
+   "transparency": 0.0,
+   "shadow": true,
+   "family": "P_DS_Lacquer",
+   "tex": null,
+   "swirl": null,
+   "meshes": 1
   },
   "P_DS_Swirl": {
    "color": [
@@ -15450,47 +16129,33 @@
    "swirl": "P_DS_Swirl",
    "meshes": 1
   },
-  "P_DS_Tile": {
+  "P_Naruto_Cloth": {
    "color": [
-    48,
-    48,
-    53
+    31,
+    50,
+    105
    ],
-   "material": "SmoothPlastic",
+   "material": "Fabric",
    "transparency": 0.0,
    "shadow": true,
-   "family": "P_DS_Tile",
-   "tex": null,
-   "swirl": null,
-   "meshes": 1
-  },
-  "P_DS_Wisteria": {
-   "color": [
-    181,
-    134,
-    241
-   ],
-   "material": "SmoothPlastic",
-   "transparency": 0.0,
-   "shadow": true,
-   "family": "P_DS_Wisteria",
+   "family": "P_Naruto_Cloth",
    "tex": null,
    "swirl": null,
    "meshes": 2
   },
-  "P_Naruto_Glow": {
+  "P_Naruto_Lacquer": {
    "color": [
-    255,
-    115,
-    20
+    158,
+    39,
+    48
    ],
-   "material": "Neon",
+   "material": "SmoothPlastic",
    "transparency": 0.0,
-   "shadow": false,
-   "family": "P_Naruto_Glow",
+   "shadow": true,
+   "family": "P_Naruto_Lacquer",
    "tex": null,
    "swirl": null,
-   "meshes": 4
+   "meshes": 1
   },
   "P_Naruto_Red": {
    "color": [
@@ -15504,7 +16169,49 @@
    "family": "P_Naruto_Red",
    "tex": null,
    "swirl": null,
-   "meshes": 6
+   "meshes": 7
+  },
+  "P_Naruto_Rim_Glow": {
+   "color": [
+    255,
+    100,
+    12
+   ],
+   "material": "Neon",
+   "transparency": 0.0,
+   "shadow": false,
+   "family": "P_Naruto_Rim_Glow",
+   "tex": null,
+   "swirl": null,
+   "meshes": 5
+  },
+  "P_Naruto_Steel": {
+   "color": [
+    206,
+    212,
+    221
+   ],
+   "material": "Metal",
+   "transparency": 0.0,
+   "shadow": true,
+   "family": "P_Naruto_Steel",
+   "tex": null,
+   "swirl": null,
+   "meshes": 1
+  },
+  "P_Naruto_Stone": {
+   "color": [
+    190,
+    136,
+    86
+   ],
+   "material": "SmoothPlastic",
+   "transparency": 0.0,
+   "shadow": true,
+   "family": "P_Naruto_Stone",
+   "tex": null,
+   "swirl": null,
+   "meshes": 3
   },
   "P_Naruto_Swirl": {
    "color": [
@@ -15532,7 +16239,7 @@
    "family": "P_Naruto_Tile",
    "tex": null,
    "swirl": null,
-   "meshes": 2
+   "meshes": 1
   },
   "P_Naruto_Wall": {
    "color": [
@@ -15546,55 +16253,83 @@
    "family": "P_Naruto_Wall",
    "tex": null,
    "swirl": null,
-   "meshes": 2
+   "meshes": 1
   },
-  "P_OPM_Concrete": {
+  "P_OPM_ConcreteDark": {
    "color": [
-    124,
-    126,
-    130
+    63,
+    64,
+    68
    ],
    "material": "SmoothPlastic",
    "transparency": 0.0,
    "shadow": true,
-   "family": "P_OPM_Concrete",
+   "family": "P_OPM_ConcreteDark",
    "tex": "stone",
    "swirl": null,
-   "meshes": 1
+   "meshes": 2
   },
-  "P_OPM_DarkGlass": {
+  "P_OPM_ConcreteLight": {
    "color": [
-    22,
-    34,
-    62
+    167,
+    171,
+    178
+   ],
+   "material": "SmoothPlastic",
+   "transparency": 0.0,
+   "shadow": true,
+   "family": "P_OPM_ConcreteLight",
+   "tex": "stone",
+   "swirl": null,
+   "meshes": 2
+  },
+  "P_OPM_ConcreteMid": {
+   "color": [
+    103,
+    105,
+    111
+   ],
+   "material": "SmoothPlastic",
+   "transparency": 0.0,
+   "shadow": true,
+   "family": "P_OPM_ConcreteMid",
+   "tex": "stone",
+   "swirl": null,
+   "meshes": 2
+  },
+  "P_OPM_Crater": {
+   "color": [
+    43,
+    44,
+    48
+   ],
+   "material": "SmoothPlastic",
+   "transparency": 0.0,
+   "shadow": true,
+   "family": "P_OPM_Crater",
+   "tex": null,
+   "swirl": null,
+   "meshes": 2
+  },
+  "P_OPM_DarkGlassT": {
+   "color": [
+    48,
+    63,
+    85
    ],
    "material": "Glass",
    "transparency": 0.0,
    "shadow": true,
-   "family": "P_OPM_DarkGlass",
-   "tex": null,
-   "swirl": null,
-   "meshes": 1
-  },
-  "P_OPM_Glass": {
-   "color": [
-    89,
-    149,
-    203
-   ],
-   "material": "Glass",
-   "transparency": 0.2,
-   "shadow": true,
-   "family": "P_OPM_Glass",
+   "family": "P_OPM_DarkGlassT",
    "tex": null,
    "swirl": null,
    "meshes": 1
   },
   "P_OPM_Glow": {
    "color": [
-    0,
-    225,
-    255
+    255,
+    228,
+    80
    ],
    "material": "Neon",
    "transparency": 0.0,
@@ -15602,13 +16337,27 @@
    "family": "P_OPM_Glow",
    "tex": null,
    "swirl": null,
+   "meshes": 3
+  },
+  "P_OPM_RebarSteel": {
+   "color": [
+    118,
+    60,
+    34
+   ],
+   "material": "Metal",
+   "transparency": 0.0,
+   "shadow": true,
+   "family": "P_OPM_RebarSteel",
+   "tex": null,
+   "swirl": null,
    "meshes": 2
   },
   "P_OPM_Swirl": {
    "color": [
-    0,
-    225,
-    255
+    232,
+    175,
+    0
    ],
    "material": "Neon",
    "transparency": 0.0,
@@ -15616,7 +16365,7 @@
    "family": "P_OPM_Swirl",
    "tex": null,
    "swirl": "P_OPM_Swirl",
-   "meshes": 1
+   "meshes": 2
   },
   "P_OPM_Yellow": {
    "color": [
@@ -15630,7 +16379,7 @@
    "family": "P_OPM_Yellow",
    "tex": null,
    "swirl": null,
-   "meshes": 1
+   "meshes": 3
   },
   "P_OP_Glow": {
    "color": [
@@ -15660,6 +16409,118 @@
    "swirl": "P_OP_Swirl",
    "meshes": 1
   },
+  "P_SG_Core_Glow": {
+   "color": [
+    230,
+    218,
+    255
+   ],
+   "material": "Neon",
+   "transparency": 0.0,
+   "shadow": false,
+   "family": "P_SG_Core_Glow",
+   "tex": null,
+   "swirl": null,
+   "meshes": 2
+  },
+  "P_SG_Deadwood": {
+   "color": [
+    74,
+    68,
+    82
+   ],
+   "material": "Wood",
+   "transparency": 0.0,
+   "shadow": true,
+   "family": "P_SG_Deadwood",
+   "tex": null,
+   "swirl": null,
+   "meshes": 2
+  },
+  "P_SG_Lilac_Glow": {
+   "color": [
+    184,
+    155,
+    250
+   ],
+   "material": "Neon",
+   "transparency": 0.0,
+   "shadow": false,
+   "family": "P_SG_Lilac_Glow",
+   "tex": null,
+   "swirl": null,
+   "meshes": 1
+  },
+  "P_SG_Moon_Glow": {
+   "color": [
+    139,
+    92,
+    246
+   ],
+   "material": "Neon",
+   "transparency": 0.0,
+   "shadow": false,
+   "family": "P_SG_Moon_Glow",
+   "tex": null,
+   "swirl": null,
+   "meshes": 1
+  },
+  "P_SG_Obsidian": {
+   "color": [
+    26,
+    22,
+    36
+   ],
+   "material": "SmoothPlastic",
+   "transparency": 0.0,
+   "shadow": true,
+   "family": "P_SG_Obsidian",
+   "tex": null,
+   "swirl": null,
+   "meshes": 3
+  },
+  "P_SG_Rose": {
+   "color": [
+    98,
+    40,
+    170
+   ],
+   "material": "SmoothPlastic",
+   "transparency": 0.0,
+   "shadow": true,
+   "family": "P_SG_Rose",
+   "tex": null,
+   "swirl": null,
+   "meshes": 2
+  },
+  "P_SG_Silver": {
+   "color": [
+    181,
+    184,
+    196
+   ],
+   "material": "SmoothPlastic",
+   "transparency": 0.0,
+   "shadow": true,
+   "family": "P_SG_Silver",
+   "tex": null,
+   "swirl": null,
+   "meshes": 4
+  },
+  "P_SG_Violet": {
+   "color": [
+    22,
+    12,
+    40
+   ],
+   "material": "SmoothPlastic",
+   "transparency": 0.0,
+   "shadow": true,
+   "family": "P_SG_Violet",
+   "tex": null,
+   "swirl": null,
+   "meshes": 1
+  },
   "P_Shadow_Glow": {
    "color": [
     150,
@@ -15670,20 +16531,6 @@
    "transparency": 0.0,
    "shadow": false,
    "family": "P_Shadow_Glow",
-   "tex": null,
-   "swirl": null,
-   "meshes": 3
-  },
-  "P_Shadow_Stone": {
-   "color": [
-    40,
-    34,
-    52
-   ],
-   "material": "SmoothPlastic",
-   "transparency": 0.0,
-   "shadow": true,
-   "family": "P_Shadow_Stone",
    "tex": null,
    "swirl": null,
    "meshes": 2
@@ -15701,34 +16548,6 @@
    "tex": null,
    "swirl": "P_Shadow_Swirl",
    "meshes": 1
-  },
-  "P_Shadow_Trim": {
-   "color": [
-    58,
-    48,
-    72
-   ],
-   "material": "SmoothPlastic",
-   "transparency": 0.0,
-   "shadow": true,
-   "family": "P_Shadow_Trim",
-   "tex": null,
-   "swirl": null,
-   "meshes": 1
-  },
-  "Plaster": {
-   "color": [
-    196,
-    184,
-    166
-   ],
-   "material": "SmoothPlastic",
-   "transparency": 0.0,
-   "shadow": true,
-   "family": "Plaster",
-   "tex": "plaster",
-   "swirl": null,
-   "meshes": 2
   },
   "Roof": {
    "color": [
@@ -15826,7 +16645,7 @@
    "family": "Rope",
    "tex": null,
    "swirl": null,
-   "meshes": 9
+   "meshes": 8
   },
   "Sakura_Pink": {
    "color": [
@@ -15856,6 +16675,20 @@
    "swirl": null,
    "meshes": 1
   },
+  "Stone_DS_Rock": {
+   "color": [
+    92,
+    92,
+    100
+   ],
+   "material": "SmoothPlastic",
+   "transparency": 0.0,
+   "shadow": true,
+   "family": "Stone_DS_Rock",
+   "tex": "stone",
+   "swirl": null,
+   "meshes": 2
+  },
   "Stone_Dark": {
    "color": [
     102,
@@ -15868,7 +16701,7 @@
    "family": "Stone_Dark",
    "tex": "stone",
    "swirl": null,
-   "meshes": 20
+   "meshes": 18
   },
   "Stone_Dark_B": {
    "color": [
@@ -15882,7 +16715,7 @@
    "family": "Stone_Dark",
    "tex": "stone",
    "swirl": null,
-   "meshes": 11
+   "meshes": 9
   },
   "Stone_Dark_C": {
    "color": [
@@ -15896,7 +16729,7 @@
    "family": "Stone_Dark",
    "tex": "stone",
    "swirl": null,
-   "meshes": 5
+   "meshes": 6
   },
   "Stone_Forge": {
    "color": [
@@ -15994,7 +16827,7 @@
    "family": "Stone_Light",
    "tex": "stone",
    "swirl": null,
-   "meshes": 8
+   "meshes": 9
   },
   "Stone_Light_C": {
    "color": [
@@ -16134,7 +16967,7 @@
    "family": "Wood_Dark",
    "tex": "wood",
    "swirl": null,
-   "meshes": 35
+   "meshes": 34
   },
   "Wood_Dark_B": {
    "color": [
@@ -16148,7 +16981,7 @@
    "family": "Wood_Dark",
    "tex": "wood",
    "swirl": null,
-   "meshes": 17
+   "meshes": 16
   },
   "Wood_Dark_C": {
    "color": [
@@ -16204,7 +17037,7 @@
    "family": "Wood_Plank",
    "tex": "wood",
    "swirl": null,
-   "meshes": 25
+   "meshes": 24
   },
   "Wood_Plank_B": {
    "color": [
@@ -16279,63 +17112,63 @@
    "studs_per_tile": 5.0
   },
   "P_DB_Swirl": {
-   "file": "textures/T_swirl_db_v4.png",
+   "file": "textures/T_swirl_db_v6.png",
    "uv": "disco 0..1",
    "portal": "DragonBall",
    "arm": [
-    255,
-    195,
-    30
+    150,
+    235,
+    255
    ],
    "core": [
     255,
-    245,
-    205
+    255,
+    255
    ]
   },
   "P_DS_Swirl": {
-   "file": "textures/T_swirl_ds_v4.png",
+   "file": "textures/T_swirl_ds_v5.png",
    "uv": "disco 0..1",
    "portal": "DemonSlayer",
    "arm": [
-    185,
-    12,
-    22
-   ],
-   "core": [
-    255,
-    110,
-    40
-   ]
-  },
-  "P_Naruto_Swirl": {
-   "file": "textures/T_swirl_naruto_v4.png",
-   "uv": "disco 0..1",
-   "portal": "Naruto",
-   "arm": [
-    255,
-    115,
+    236,
+    26,
     20
    ],
    "core": [
     255,
-    210,
-    90
+    178,
+    110
+   ]
+  },
+  "P_Naruto_Swirl": {
+   "file": "textures/T_swirl_naruto_v5.png",
+   "uv": "disco 0..1",
+   "portal": "Naruto",
+   "arm": [
+    255,
+    150,
+    14
+   ],
+   "core": [
+    255,
+    244,
+    200
    ]
   },
   "P_OPM_Swirl": {
-   "file": "textures/T_swirl_opm_v4.png",
+   "file": "textures/T_swirl_opm_v6.png",
    "uv": "disco 0..1",
    "portal": "OnePunchMan",
    "arm": [
-    0,
-    225,
-    255
+    255,
+    244,
+    120
    ],
    "core": [
-    225,
     255,
-    255
+    252,
+    232
    ]
   },
   "P_OP_Swirl": {
@@ -25650,8 +26483,8 @@
    "kind": "Block",
    "pos": [
     -108.0,
-    29.95,
-    -112.25
+    29.7,
+    -111.4
    ],
    "x": [
     1.0,
@@ -25664,9 +26497,9 @@
     -1.0
    ],
    "size": [
-    24.4,
-    12.3,
-    1.9
+    27.2,
+    22.4,
+    1.4
    ],
    "cam": false
   },
@@ -25675,8 +26508,533 @@
    "kind": "Block",
    "pos": [
     -108.0,
-    30.4,
-    -112.25
+    30.21,
+    -113.75
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    10.746,
+    10.746,
+    2.42
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_003",
+   "kind": "Block",
+   "pos": [
+    -108.0,
+    30.21,
+    -113.75
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    13.984,
+    5.776,
+    2.42
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_004",
+   "kind": "Block",
+   "pos": [
+    -108.0,
+    30.21,
+    -113.75
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    5.776,
+    13.984,
+    2.42
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_005",
+   "kind": "Block",
+   "pos": [
+    -108.0,
+    30.725,
+    -113.75
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    9.191,
+    9.191,
+    3.45
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_006",
+   "kind": "Block",
+   "pos": [
+    -108.0,
+    30.725,
+    -113.75
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    11.96,
+    4.94,
+    3.45
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_007",
+   "kind": "Block",
+   "pos": [
+    -108.0,
+    30.725,
+    -113.75
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    4.94,
+    11.96,
+    3.45
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_008",
+   "kind": "Block",
+   "pos": [
+    -108.0,
+    31.225,
+    -113.75
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    11.2,
+    5.2,
+    4.45
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_009",
+   "kind": "Block",
+   "pos": [
+    -111.582,
+    33.519,
+    -113.75
+   ],
+   "x": [
+    -0.906,
+    0.423,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    4.429,
+    3.5,
+    1.85
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_010",
+   "kind": "Block",
+   "pos": [
+    -114.586,
+    35.867,
+    -113.75
+   ],
+   "x": [
+    -0.629,
+    0.777,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    4.429,
+    3.5,
+    1.85
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_011",
+   "kind": "Block",
+   "pos": [
+    -116.258,
+    39.294,
+    -113.75
+   ],
+   "x": [
+    -0.225,
+    0.974,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    4.429,
+    3.5,
+    1.85
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_012",
+   "kind": "Block",
+   "pos": [
+    -116.258,
+    43.106,
+    -113.75
+   ],
+   "x": [
+    0.225,
+    0.974,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    4.429,
+    3.5,
+    1.85
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_013",
+   "kind": "Block",
+   "pos": [
+    -104.418,
+    33.519,
+    -113.75
+   ],
+   "x": [
+    -0.906,
+    -0.423,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    4.429,
+    3.5,
+    1.85
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_014",
+   "kind": "Block",
+   "pos": [
+    -101.414,
+    35.867,
+    -113.75
+   ],
+   "x": [
+    -0.629,
+    -0.777,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    4.429,
+    3.5,
+    1.85
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_015",
+   "kind": "Block",
+   "pos": [
+    -99.742,
+    39.294,
+    -113.75
+   ],
+   "x": [
+    -0.225,
+    -0.974,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    4.429,
+    3.5,
+    1.85
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_016",
+   "kind": "Block",
+   "pos": [
+    -99.742,
+    43.106,
+    -113.75
+   ],
+   "x": [
+    0.225,
+    -0.974,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    4.429,
+    3.5,
+    1.85
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_017",
+   "kind": "Block",
+   "pos": [
+    -119.8,
+    44.35,
+    -113.75
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    2.8,
+    2.8,
+    27.9
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_018",
+   "kind": "Block",
+   "pos": [
+    -96.2,
+    44.35,
+    -113.75
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    2.8,
+    2.8,
+    27.9
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_019",
+   "kind": "Block",
+   "pos": [
+    -119.638,
+    33.982,
+    -106.153
+   ],
+   "x": [
+    -0.751,
+    -0.0,
+    0.661
+   ],
+   "y": [
+    0.623,
+    0.334,
+    0.708
+   ],
+   "size": [
+    1.8,
+    1.8,
+    9.0
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_020",
+   "kind": "Block",
+   "pos": [
+    -98.6,
+    32.0,
+    -109.65
+   ],
+   "x": [
+    0.99,
+    0.0,
+    -0.139
+   ],
+   "y": [
+    -0.139,
+    0.0,
+    -0.99
+   ],
+   "size": [
+    5.6,
+    3.6,
+    3.2
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_021",
+   "kind": "Block",
+   "pos": [
+    -76.0,
+    29.95,
+    -110.9
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    26.2,
+    12.2,
+    1.9
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_022",
+   "kind": "Block",
+   "pos": [
+    -76.0,
+    29.95,
+    -110.9
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    14.8,
+    21.4,
+    1.9
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_023",
+   "kind": "Block",
+   "pos": [
+    -76.0,
+    31.1,
+    -113.0
    ],
    "x": [
     1.0,
@@ -25690,18 +27048,1018 @@
    ],
    "size": [
     21.6,
-    9.7,
-    2.8
+    5.2,
+    1.4
    ],
    "cam": false
   },
   {
-   "name": "COL_Portal_003",
+   "name": "COL_Portal_024",
    "kind": "Block",
    "pos": [
-    -108.0,
-    31.85,
+    -76.0,
+    31.1,
     -113.0
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    17.2,
+    9.4,
+    1.4
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_025",
+   "kind": "Block",
+   "pos": [
+    -76.0,
+    31.1,
+    -113.0
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    10.8,
+    12.0,
+    1.4
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_026",
+   "kind": "Block",
+   "pos": [
+    -84.348,
+    34.678,
+    -113.875
+   ],
+   "x": [
+    -0.788,
+    -0.616,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    2.588,
+    5.451,
+    5.066
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_027",
+   "kind": "Block",
+   "pos": [
+    -80.72,
+    31.522,
+    -113.837
+   ],
+   "x": [
+    -0.438,
+    -0.899,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    2.934,
+    5.525,
+    5.144
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_028",
+   "kind": "Block",
+   "pos": [
+    -79.671,
+    33.673,
+    -112.875
+   ],
+   "x": [
+    -0.438,
+    -0.899,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    1.85,
+    2.25,
+    4.068
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_029",
+   "kind": "Block",
+   "pos": [
+    -67.652,
+    34.678,
+    -113.875
+   ],
+   "x": [
+    0.788,
+    -0.616,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    2.588,
+    5.451,
+    5.066
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_030",
+   "kind": "Block",
+   "pos": [
+    -71.28,
+    31.522,
+    -113.837
+   ],
+   "x": [
+    0.438,
+    -0.899,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    2.934,
+    5.525,
+    5.144
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_031",
+   "kind": "Block",
+   "pos": [
+    -72.329,
+    33.673,
+    -112.875
+   ],
+   "x": [
+    0.438,
+    -0.899,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    1.85,
+    2.25,
+    4.068
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_032",
+   "kind": "Block",
+   "pos": [
+    -83.854,
+    35.618,
+    -112.975
+   ],
+   "x": [
+    -0.94,
+    -0.342,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    3.58,
+    2.45,
+    9.829
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_033",
+   "kind": "Block",
+   "pos": [
+    -85.228,
+    42.182,
+    -113.0
+   ],
+   "x": [
+    -0.99,
+    0.139,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    3.55,
+    2.3,
+    6.133
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_034",
+   "kind": "Block",
+   "pos": [
+    -68.146,
+    35.618,
+    -112.975
+   ],
+   "x": [
+    0.94,
+    -0.342,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    3.58,
+    2.45,
+    9.829
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_035",
+   "kind": "Block",
+   "pos": [
+    -66.772,
+    42.182,
+    -113.0
+   ],
+   "x": [
+    0.99,
+    0.139,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    3.55,
+    2.3,
+    6.133
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_036",
+   "kind": "Block",
+   "pos": [
+    -85.0,
+    32.0,
+    -103.7
+   ],
+   "x": [
+    -0.966,
+    0.0,
+    -0.259
+   ],
+   "y": [
+    -0.259,
+    0.0,
+    0.966
+   ],
+   "size": [
+    4.9,
+    2.0,
+    2.2
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_037",
+   "kind": "Block",
+   "pos": [
+    -68.0,
+    32.615,
+    -103.8
+   ],
+   "x": [
+    0.966,
+    0.0,
+    0.259
+   ],
+   "y": [
+    0.259,
+    0.0,
+    -0.966
+   ],
+   "size": [
+    6.0,
+    2.0,
+    3.53
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_038",
+   "kind": "Block",
+   "pos": [
+    -76.0,
+    32.625,
+    -112.925
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    13.6,
+    2.35,
+    2.05
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_039",
+   "kind": "Block",
+   "pos": [
+    -76.0,
+    33.95,
+    -115.25
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    16.0,
+    2.7,
+    4.7
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_040",
+   "kind": "Block",
+   "pos": [
+    -76.0,
+    41.2,
+    -114.96
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    7.2,
+    2.52,
+    7.2
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_041",
+   "kind": "Block",
+   "pos": [
+    -81.504,
+    38.283,
+    -114.561
+   ],
+   "x": [
+    0.933,
+    -0.074,
+    -0.353
+   ],
+   "y": [
+    0.0,
+    -0.979,
+    0.205
+   ],
+   "size": [
+    5.253,
+    4.687,
+    1.6
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_042",
+   "kind": "Block",
+   "pos": [
+    -81.396,
+    42.467,
+    -114.805
+   ],
+   "x": [
+    0.935,
+    0.032,
+    -0.353
+   ],
+   "y": [
+    0.0,
+    -0.996,
+    -0.089
+   ],
+   "size": [
+    5.026,
+    5.279,
+    1.6
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_043",
+   "kind": "Block",
+   "pos": [
+    -70.496,
+    38.283,
+    -114.561
+   ],
+   "x": [
+    0.933,
+    0.074,
+    0.353
+   ],
+   "y": [
+    -0.0,
+    -0.979,
+    0.205
+   ],
+   "size": [
+    5.253,
+    4.687,
+    1.6
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_044",
+   "kind": "Block",
+   "pos": [
+    -70.604,
+    42.467,
+    -114.805
+   ],
+   "x": [
+    0.935,
+    -0.032,
+    0.353
+   ],
+   "y": [
+    -0.0,
+    -0.996,
+    -0.089
+   ],
+   "size": [
+    5.026,
+    5.279,
+    1.6
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_045",
+   "kind": "Block",
+   "pos": [
+    -44.0,
+    29.725,
+    -109.95
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    27.2,
+    14.3,
+    1.45
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_046",
+   "kind": "Block",
+   "pos": [
+    -44.0,
+    29.725,
+    -109.9
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    23.36,
+    17.4,
+    1.45
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_047",
+   "kind": "Block",
+   "pos": [
+    -44.0,
+    30.0,
+    -109.7
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    17.2,
+    9.4,
+    2.0
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_048",
+   "kind": "Block",
+   "pos": [
+    -44.0,
+    30.0,
+    -109.1
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    14.32,
+    10.6,
+    2.0
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_049",
+   "kind": "Block",
+   "pos": [
+    -44.0,
+    30.275,
+    -110.4
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    14.0,
+    6.0,
+    2.55
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_050",
+   "kind": "Block",
+   "pos": [
+    -44.0,
+    30.275,
+    -109.9
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    11.6,
+    7.0,
+    2.55
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_051",
+   "kind": "Block",
+   "pos": [
+    -55.0,
+    36.75,
+    -113.25
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    3.8,
+    4.3,
+    13.5
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_052",
+   "kind": "Block",
+   "pos": [
+    -33.0,
+    36.75,
+    -113.25
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    3.8,
+    4.3,
+    13.5
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_053",
+   "kind": "Block",
+   "pos": [
+    -50.55,
+    32.575,
+    -113.25
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    5.1,
+    2.0,
+    4.25
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_054",
+   "kind": "Block",
+   "pos": [
+    -52.45,
+    39.1,
+    -113.25
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    1.3,
+    2.0,
+    8.8
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_055",
+   "kind": "Block",
+   "pos": [
+    -37.45,
+    32.575,
+    -113.25
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    5.1,
+    2.0,
+    4.25
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_056",
+   "kind": "Block",
+   "pos": [
+    -35.55,
+    39.1,
+    -113.25
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    1.3,
+    2.0,
+    8.8
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_057",
+   "kind": "Block",
+   "pos": [
+    -44.0,
+    41.2,
+    -114.25
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    10.7,
+    2.1,
+    10.7
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_058",
+   "kind": "Block",
+   "pos": [
+    -44.0,
+    41.2,
+    -114.25
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    13.9,
+    2.1,
+    5.74
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_059",
+   "kind": "Block",
+   "pos": [
+    -44.0,
+    41.2,
+    -114.25
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    5.74,
+    2.1,
+    13.9
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_060",
+   "kind": "Block",
+   "pos": [
+    -56.2,
+    30.45,
+    -108.4
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    2.1,
+    2.1,
+    1.9
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_061",
+   "kind": "Block",
+   "pos": [
+    -56.2,
+    33.425,
+    -108.4
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    1.0,
+    1.0,
+    4.05
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_062",
+   "kind": "Block",
+   "pos": [
+    -31.4,
+    31.575,
+    -109.7
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    1.6,
+    1.6,
+    4.15
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_063",
+   "kind": "Block",
+   "pos": [
+    -32.5,
+    34.6,
+    -108.65
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    1.8,
+    1.7,
+    1.9
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_064",
+   "kind": "Block",
+   "pos": [
+    44.0,
+    29.725,
+    -103.25
    ],
    "x": [
     1.0,
@@ -25715,1458 +28073,8 @@
    ],
    "size": [
     6.0,
-    5.2,
-    1.9
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_Portal_004",
-   "kind": "Block",
-   "pos": [
-    -108.0,
-    33.3,
-    -113.0
-   ],
-   "x": [
-    1.0,
-    0.0,
-    0.0
-   ],
-   "y": [
-    0.0,
-    0.0,
-    -1.0
-   ],
-   "size": [
-    4.4,
-    2.6,
-    1.0
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_Portal_005",
-   "kind": "Block",
-   "pos": [
-    -116.65,
-    41.1,
-    -113.0
-   ],
-   "x": [
-    1.0,
-    0.0,
-    0.0
-   ],
-   "y": [
-    0.0,
-    0.0,
-    -1.0
-   ],
-   "size": [
-    1.9,
-    1.2,
-    18.6
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_Portal_006",
-   "kind": "Block",
-   "pos": [
-    -99.35,
-    41.1,
-    -113.0
-   ],
-   "x": [
-    1.0,
-    0.0,
-    0.0
-   ],
-   "y": [
-    0.0,
-    0.0,
-    -1.0
-   ],
-   "size": [
-    1.9,
-    1.2,
-    18.6
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_Portal_007",
-   "kind": "Block",
-   "pos": [
-    -121.95,
-    34.3,
-    -113.0
-   ],
-   "x": [
-    1.0,
-    0.0,
-    0.0
-   ],
-   "y": [
-    0.0,
-    0.0,
-    -1.0
-   ],
-   "size": [
-    6.1,
-    1.6,
-    8.6
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_Portal_008",
-   "kind": "Block",
-   "pos": [
-    -95.85,
-    34.3,
-    -113.0
-   ],
-   "x": [
-    1.0,
-    0.0,
-    0.0
-   ],
-   "y": [
-    0.0,
-    0.0,
-    -1.0
-   ],
-   "size": [
-    2.5,
-    1.6,
-    8.6
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_Portal_009",
-   "kind": "Block",
-   "pos": [
-    -95.35,
-    34.3,
-    -118.3
-   ],
-   "x": [
-    1.0,
-    0.0,
-    0.0
-   ],
-   "y": [
-    0.0,
-    0.0,
-    -1.0
-   ],
-   "size": [
-    1.9,
-    10.6,
-    8.6
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_Portal_010",
-   "kind": "Block",
-   "pos": [
-    -117.0,
-    33.3,
-    -103.0
-   ],
-   "x": [
-    1.0,
-    0.0,
-    0.0
-   ],
-   "y": [
-    0.0,
-    0.0,
-    -1.0
-   ],
-   "size": [
-    2.6,
-    2.6,
-    6.6
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_Portal_011",
-   "kind": "Block",
-   "pos": [
-    -99.0,
-    33.3,
-    -103.0
-   ],
-   "x": [
-    1.0,
-    0.0,
-    0.0
-   ],
-   "y": [
-    0.0,
-    0.0,
-    -1.0
-   ],
-   "size": [
-    2.6,
-    2.6,
-    6.6
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_Portal_012",
-   "kind": "Block",
-   "pos": [
-    -120.7,
-    36.5,
-    -109.4
-   ],
-   "x": [
-    1.0,
-    0.0,
-    0.0
-   ],
-   "y": [
-    0.0,
-    0.0,
-    -1.0
-   ],
-   "size": [
-    0.7,
-    0.7,
-    13.0
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_Portal_013",
-   "kind": "Block",
-   "pos": [
-    -95.3,
-    36.5,
-    -109.4
-   ],
-   "x": [
-    1.0,
-    0.0,
-    0.0
-   ],
-   "y": [
-    0.0,
-    0.0,
-    -1.0
-   ],
-   "size": [
-    0.7,
-    0.7,
-    13.0
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_Portal_014",
-   "kind": "Block",
-   "pos": [
-    -117.6,
-    43.3,
-    -113.0
-   ],
-   "x": [
-    1.0,
-    0.0,
-    0.0
-   ],
-   "y": [
-    0.0,
-    0.0,
-    -1.0
-   ],
-   "size": [
-    2.6,
-    2.6,
-    25.0
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_Portal_015",
-   "kind": "Block",
-   "pos": [
-    -98.4,
-    43.3,
-    -113.0
-   ],
-   "x": [
-    1.0,
-    0.0,
-    0.0
-   ],
-   "y": [
-    0.0,
-    0.0,
-    -1.0
-   ],
-   "size": [
-    2.6,
-    2.6,
-    25.0
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_Portal_016",
-   "kind": "Block",
-   "pos": [
-    -116.7,
-    31.6,
-    -97.8
-   ],
-   "x": [
-    1.0,
-    0.0,
-    0.0
-   ],
-   "y": [
-    0.0,
-    0.0,
-    -1.0
-   ],
-   "size": [
-    1.6,
-    1.6,
-    3.2
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_Portal_018",
-   "kind": "Block",
-   "pos": [
-    -116.5,
-    34.5,
-    -92.8
-   ],
-   "x": [
-    1.0,
-    0.0,
-    0.0
-   ],
-   "y": [
-    0.0,
-    0.0,
-    -1.0
-   ],
-   "size": [
-    0.6,
-    0.6,
-    9.0
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_Portal_019",
-   "kind": "Block",
-   "pos": [
-    -99.3,
-    31.6,
-    -97.8
-   ],
-   "x": [
-    1.0,
-    0.0,
-    0.0
-   ],
-   "y": [
-    0.0,
-    0.0,
-    -1.0
-   ],
-   "size": [
-    1.6,
-    1.6,
-    3.2
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_Portal_020",
-   "kind": "Block",
-   "pos": [
-    -99.5,
-    34.5,
-    -88.6
-   ],
-   "x": [
-    1.0,
-    0.0,
-    0.0
-   ],
-   "y": [
-    0.0,
-    0.0,
-    -1.0
-   ],
-   "size": [
-    0.6,
-    0.6,
-    9.0
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_Portal_021",
-   "kind": "Block",
-   "pos": [
-    -99.5,
-    34.5,
-    -92.8
-   ],
-   "x": [
-    1.0,
-    0.0,
-    0.0
-   ],
-   "y": [
-    0.0,
-    0.0,
-    -1.0
-   ],
-   "size": [
-    0.6,
-    0.6,
-    9.0
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_Portal_023",
-   "kind": "Block",
-   "pos": [
-    -97.8,
-    32.0,
-    -95.2
-   ],
-   "x": [
-    1.0,
-    0.0,
-    0.0
-   ],
-   "y": [
-    0.0,
-    0.0,
-    -1.0
-   ],
-   "size": [
-    1.2,
-    1.2,
-    4.0
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_Portal_024",
-   "kind": "Block",
-   "pos": [
-    -76.0,
-    29.8,
-    -111.6
-   ],
-   "x": [
-    1.0,
-    0.0,
-    0.0
-   ],
-   "y": [
-    0.0,
-    0.0,
-    -1.0
-   ],
-   "size": [
-    16.12,
-    16.12,
-    1.6
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_Portal_025",
-   "kind": "Block",
-   "pos": [
-    -76.0,
-    29.8,
-    -111.6
-   ],
-   "x": [
-    1.0,
-    0.0,
-    0.0
-   ],
-   "y": [
-    0.0,
-    0.0,
-    -1.0
-   ],
-   "size": [
-    20.976,
-    8.664,
-    1.6
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_Portal_026",
-   "kind": "Block",
-   "pos": [
-    -76.0,
-    29.8,
-    -111.6
-   ],
-   "x": [
-    1.0,
-    0.0,
-    0.0
-   ],
-   "y": [
-    0.0,
-    0.0,
-    -1.0
-   ],
-   "size": [
-    8.664,
-    20.976,
-    1.6
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_Portal_027",
-   "kind": "Block",
-   "pos": [
-    -76.0,
-    30.2,
-    -113.4
-   ],
-   "x": [
-    1.0,
-    0.0,
-    0.0
-   ],
-   "y": [
-    0.0,
-    0.0,
-    -1.0
-   ],
-   "size": [
-    11.736,
-    11.736,
-    2.4
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_Portal_028",
-   "kind": "Block",
-   "pos": [
-    -76.0,
-    30.2,
-    -113.4
-   ],
-   "x": [
-    1.0,
-    0.0,
-    0.0
-   ],
-   "y": [
-    0.0,
-    0.0,
-    -1.0
-   ],
-   "size": [
-    15.272,
-    6.308,
-    2.4
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_Portal_029",
-   "kind": "Block",
-   "pos": [
-    -76.0,
-    30.2,
-    -113.4
-   ],
-   "x": [
-    1.0,
-    0.0,
-    0.0
-   ],
-   "y": [
-    0.0,
-    0.0,
-    -1.0
-   ],
-   "size": [
-    6.308,
-    15.272,
-    2.4
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_Portal_030",
-   "kind": "Block",
-   "pos": [
-    -76.0,
-    30.6,
-    -113.4
-   ],
-   "x": [
-    1.0,
-    0.0,
-    0.0
-   ],
-   "y": [
-    0.0,
-    0.0,
-    -1.0
-   ],
-   "size": [
-    8.908,
-    8.908,
-    3.2
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_Portal_031",
-   "kind": "Block",
-   "pos": [
-    -76.0,
-    30.6,
-    -113.4
-   ],
-   "x": [
-    1.0,
-    0.0,
-    0.0
-   ],
-   "y": [
-    0.0,
-    0.0,
-    -1.0
-   ],
-   "size": [
-    11.592,
-    4.788,
-    3.2
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_Portal_032",
-   "kind": "Block",
-   "pos": [
-    -76.0,
-    30.6,
-    -113.4
-   ],
-   "x": [
-    1.0,
-    0.0,
-    0.0
-   ],
-   "y": [
-    0.0,
-    0.0,
-    -1.0
-   ],
-   "size": [
-    4.788,
-    11.592,
-    3.2
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_Portal_033",
-   "kind": "Block",
-   "pos": [
-    -86.9,
-    33.75,
-    -113.0
-   ],
-   "x": [
-    1.0,
-    0.0,
-    0.0
-   ],
-   "y": [
-    0.0,
-    0.0,
-    -1.0
-   ],
-   "size": [
-    4.2,
-    4.2,
-    7.5
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_Portal_034",
-   "kind": "Block",
-   "pos": [
-    -65.1,
-    33.75,
-    -113.0
-   ],
-   "x": [
-    1.0,
-    0.0,
-    0.0
-   ],
-   "y": [
-    0.0,
-    0.0,
-    -1.0
-   ],
-   "size": [
-    4.2,
-    4.2,
-    7.5
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_Portal_035",
-   "kind": "Block",
-   "pos": [
-    -65.8,
-    31.2,
-    -104.0
-   ],
-   "x": [
-    0.574,
-    0.0,
-    -0.819
-   ],
-   "y": [
-    -0.819,
-    0.0,
-    -0.574
-   ],
-   "size": [
-    4.4,
-    3.0,
-    2.4
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_Portal_036",
-   "kind": "Block",
-   "pos": [
-    -85.6,
-    40.5,
-    -113.0
-   ],
-   "x": [
-    1.0,
-    0.0,
-    0.0
-   ],
-   "y": [
-    0.0,
-    0.0,
-    -1.0
-   ],
-   "size": [
-    2.6,
-    3.0,
-    17.0
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_Portal_037",
-   "kind": "Block",
-   "pos": [
-    -66.4,
-    40.5,
-    -113.0
-   ],
-   "x": [
-    1.0,
-    0.0,
-    0.0
-   ],
-   "y": [
-    0.0,
-    0.0,
-    -1.0
-   ],
-   "size": [
-    2.6,
-    3.0,
-    17.0
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_Portal_039",
-   "kind": "Block",
-   "pos": [
-    -67.1,
-    31.65,
-    -88.7
-   ],
-   "x": [
-    1.0,
-    0.0,
-    0.0
-   ],
-   "y": [
-    0.0,
-    0.0,
-    -1.0
-   ],
-   "size": [
-    1.8,
-    1.8,
-    3.3
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_Portal_040",
-   "kind": "Block",
-   "pos": [
-    -84.9,
-    31.9,
-    -90.8
-   ],
-   "x": [
-    1.0,
-    0.0,
-    0.0
-   ],
-   "y": [
-    0.0,
-    0.0,
-    -1.0
-   ],
-   "size": [
-    1.8,
-    1.8,
-    3.8
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_Portal_041",
-   "kind": "Block",
-   "pos": [
-    -67.1,
-    32.15,
-    -92.9
-   ],
-   "x": [
-    1.0,
-    0.0,
-    0.0
-   ],
-   "y": [
-    0.0,
-    0.0,
-    -1.0
-   ],
-   "size": [
-    1.8,
-    1.8,
-    4.3
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_Portal_042",
-   "kind": "Block",
-   "pos": [
-    -84.9,
-    32.4,
-    -95.0
-   ],
-   "x": [
-    1.0,
-    0.0,
-    0.0
-   ],
-   "y": [
-    0.0,
-    0.0,
-    -1.0
-   ],
-   "size": [
-    1.8,
-    1.8,
-    4.8
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_Portal_043",
-   "kind": "Block",
-   "pos": [
-    -67.1,
-    32.65,
-    -97.1
-   ],
-   "x": [
-    1.0,
-    0.0,
-    0.0
-   ],
-   "y": [
-    0.0,
-    0.0,
-    -1.0
-   ],
-   "size": [
-    1.8,
-    1.8,
-    5.3
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_Portal_044",
-   "kind": "Block",
-   "pos": [
-    -84.9,
-    32.9,
-    -99.2
-   ],
-   "x": [
-    1.0,
-    0.0,
-    0.0
-   ],
-   "y": [
-    0.0,
-    0.0,
-    -1.0
-   ],
-   "size": [
-    1.8,
-    1.8,
-    5.8
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_Portal_045",
-   "kind": "Block",
-   "pos": [
-    -44.0,
-    29.8,
-    -114.5
-   ],
-   "x": [
-    1.0,
-    0.0,
-    0.0
-   ],
-   "y": [
-    0.0,
-    0.0,
-    -1.0
-   ],
-   "size": [
-    16.185,
-    16.185,
-    1.6
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_Portal_046",
-   "kind": "Block",
-   "pos": [
-    -44.0,
-    29.8,
-    -114.5
-   ],
-   "x": [
-    1.0,
-    0.0,
-    0.0
-   ],
-   "y": [
-    0.0,
-    0.0,
-    -1.0
-   ],
-   "size": [
-    21.061,
-    8.699,
-    1.6
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_Portal_047",
-   "kind": "Block",
-   "pos": [
-    -44.0,
-    29.8,
-    -114.5
-   ],
-   "x": [
-    1.0,
-    0.0,
-    0.0
-   ],
-   "y": [
-    0.0,
-    0.0,
-    -1.0
-   ],
-   "size": [
-    8.699,
-    21.061,
-    1.6
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_Portal_048",
-   "kind": "Block",
-   "pos": [
-    -44.0,
-    30.2,
-    -114.5
-   ],
-   "x": [
-    1.0,
-    0.0,
-    0.0
-   ],
-   "y": [
-    0.0,
-    0.0,
-    -1.0
-   ],
-   "size": [
-    13.716,
-    13.716,
-    2.4
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_Portal_049",
-   "kind": "Block",
-   "pos": [
-    -44.0,
-    30.2,
-    -114.5
-   ],
-   "x": [
-    1.0,
-    0.0,
-    0.0
-   ],
-   "y": [
-    0.0,
-    0.0,
-    -1.0
-   ],
-   "size": [
-    17.848,
-    7.372,
-    2.4
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_Portal_050",
-   "kind": "Block",
-   "pos": [
-    -44.0,
-    30.2,
-    -114.5
-   ],
-   "x": [
-    1.0,
-    0.0,
-    0.0
-   ],
-   "y": [
-    0.0,
-    0.0,
-    -1.0
-   ],
-   "size": [
-    7.372,
-    17.848,
-    2.4
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_Portal_051",
-   "kind": "Block",
-   "pos": [
-    -44.0,
-    30.55,
-    -114.5
-   ],
-   "x": [
-    1.0,
-    0.0,
-    0.0
-   ],
-   "y": [
-    0.0,
-    0.0,
-    -1.0
-   ],
-   "size": [
-    11.384,
-    11.384,
-    3.1
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_Portal_052",
-   "kind": "Block",
-   "pos": [
-    -44.0,
-    30.55,
-    -114.5
-   ],
-   "x": [
-    1.0,
-    0.0,
-    0.0
-   ],
-   "y": [
-    0.0,
-    0.0,
-    -1.0
-   ],
-   "size": [
-    14.814,
-    6.119,
-    3.1
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_Portal_053",
-   "kind": "Block",
-   "pos": [
-    -44.0,
-    30.55,
-    -114.5
-   ],
-   "x": [
-    1.0,
-    0.0,
-    0.0
-   ],
-   "y": [
-    0.0,
-    0.0,
-    -1.0
-   ],
-   "size": [
-    6.119,
-    14.814,
-    3.1
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_Portal_054",
-   "kind": "Block",
-   "pos": [
-    -33.5,
-    34.5,
-    -122.8
-   ],
-   "x": [
-    1.0,
-    0.0,
-    0.0
-   ],
-   "y": [
-    0.0,
-    0.0,
-    -1.0
-   ],
-   "size": [
-    2.6,
-    3.0,
-    9.0
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_Portal_055",
-   "kind": "Block",
-   "pos": [
-    -56.2,
-    31.1,
-    -106.5
-   ],
-   "x": [
-    1.0,
-    0.0,
-    0.0
-   ],
-   "y": [
-    0.0,
-    0.0,
-    -1.0
-   ],
-   "size": [
-    1.8,
-    1.8,
-    2.2
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_Portal_056",
-   "kind": "Block",
-   "pos": [
-    -32.4,
-    33.8,
-    -104.8
-   ],
-   "x": [
-    1.0,
-    0.0,
-    0.0
-   ],
-   "y": [
-    0.0,
-    0.0,
-    -1.0
-   ],
-   "size": [
-    1.4,
-    1.4,
-    7.6
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_Portal_057",
-   "kind": "Block",
-   "pos": [
-    -55.8,
-    32.8,
-    -102.4
-   ],
-   "x": [
-    1.0,
-    0.0,
-    0.0
-   ],
-   "y": [
-    0.0,
-    0.0,
-    -1.0
-   ],
-   "size": [
-    1.4,
-    1.4,
-    5.6
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_Portal_058",
-   "kind": "Block",
-   "pos": [
-    -52.85,
-    32.0,
-    -101.0
-   ],
-   "x": [
-    1.0,
-    0.0,
-    0.0
-   ],
-   "y": [
-    0.0,
-    0.0,
-    -1.0
-   ],
-   "size": [
-    5.6,
-    0.6,
-    4.0
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_Portal_059",
-   "kind": "Block",
-   "pos": [
-    -35.15,
-    32.0,
-    -101.0
-   ],
-   "x": [
-    1.0,
-    0.0,
-    0.0
-   ],
-   "y": [
-    0.0,
-    0.0,
-    -1.0
-   ],
-   "size": [
-    5.6,
-    0.6,
-    4.0
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_Portal_060",
-   "kind": "Block",
-   "pos": [
-    -33.5,
-    52.5,
-    -113.0
-   ],
-   "x": [
-    1.0,
-    0.0,
-    0.0
-   ],
-   "y": [
-    0.0,
-    0.0,
-    -1.0
-   ],
-   "size": [
-    3.6,
-    4.0,
-    45.0
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_Portal_061",
-   "kind": "Block",
-   "pos": [
-    -54.5,
-    44.0,
-    -113.0
-   ],
-   "x": [
-    1.0,
-    0.0,
-    0.0
-   ],
-   "y": [
-    0.0,
-    0.0,
-    -1.0
-   ],
-   "size": [
-    3.6,
-    4.0,
-    28.0
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_Portal_062",
-   "kind": "Block",
-   "pos": [
-    -52.3,
-    31.8,
-    -92.6
-   ],
-   "x": [
-    1.0,
-    0.0,
-    0.0
-   ],
-   "y": [
-    0.0,
-    0.0,
-    -1.0
-   ],
-   "size": [
-    0.6,
-    13.2,
-    3.6
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_Portal_063",
-   "kind": "Block",
-   "pos": [
-    -54.0,
-    32.0,
-    -88.6
-   ],
-   "x": [
-    1.0,
-    0.0,
-    0.0
-   ],
-   "y": [
-    0.0,
-    0.0,
-    -1.0
-   ],
-   "size": [
-    1.2,
-    1.2,
-    4.0
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_Portal_064",
-   "kind": "Block",
-   "pos": [
-    -54.0,
-    32.0,
-    -95.8
-   ],
-   "x": [
-    1.0,
-    0.0,
-    0.0
-   ],
-   "y": [
-    0.0,
-    0.0,
-    -1.0
-   ],
-   "size": [
-    1.2,
-    1.2,
-    4.0
+    5.7,
+    1.45
    ],
    "cam": false
   },
@@ -27174,9 +28082,9 @@
    "name": "COL_Portal_065",
    "kind": "Block",
    "pos": [
-    -35.7,
-    31.8,
-    -92.6
+    44.0,
+    30.0,
+    -106.7
    ],
    "x": [
     1.0,
@@ -27189,9 +28097,9 @@
     -1.0
    ],
    "size": [
-    0.6,
-    13.2,
-    3.6
+    5.2,
+    1.2,
+    2.0
    ],
    "cam": false
   },
@@ -27199,9 +28107,9 @@
    "name": "COL_Portal_066",
    "kind": "Block",
    "pos": [
-    -34.0,
-    32.0,
-    -88.6
+    44.0,
+    30.5,
+    -107.75
    ],
    "x": [
     1.0,
@@ -27214,9 +28122,9 @@
     -1.0
    ],
    "size": [
-    1.2,
-    1.2,
-    4.0
+    4.6,
+    1.1,
+    3.0
    ],
    "cam": false
   },
@@ -27224,9 +28132,9 @@
    "name": "COL_Portal_067",
    "kind": "Block",
    "pos": [
-    -34.0,
-    32.0,
-    -95.8
+    38.7,
+    32.575,
+    -104.0
    ],
    "x": [
     1.0,
@@ -27239,9 +28147,9 @@
     -1.0
    ],
    "size": [
-    1.2,
-    1.2,
-    4.0
+    1.1,
+    1.1,
+    5.15
    ],
    "cam": false
   },
@@ -27249,9 +28157,9 @@
    "name": "COL_Portal_068",
    "kind": "Block",
    "pos": [
-    44.0,
-    29.9,
-    -112.0
+    49.3,
+    32.575,
+    -104.0
    ],
    "x": [
     1.0,
@@ -27264,9 +28172,9 @@
     -1.0
    ],
    "size": [
-    24.0,
-    10.4,
-    1.8
+    1.1,
+    1.1,
+    5.15
    ],
    "cam": false
   },
@@ -27274,9 +28182,9 @@
    "name": "COL_Portal_069",
    "kind": "Block",
    "pos": [
-    44.0,
-    29.9,
-    -105.3
+    31.1,
+    35.5,
+    -109.8
    ],
    "x": [
     1.0,
@@ -27289,9 +28197,9 @@
     -1.0
    ],
    "size": [
-    13.0,
-    3.0,
-    1.8
+    1.7,
+    1.7,
+    11.0
    ],
    "cam": false
   },
@@ -27300,8 +28208,8 @@
    "kind": "Block",
    "pos": [
     44.0,
-    30.3,
-    -112.4
+    31.0,
+    -113.75
    ],
    "x": [
     1.0,
@@ -27314,9 +28222,9 @@
     -1.0
    ],
    "size": [
-    19.2,
-    8.32,
-    2.6
+    10.0,
+    8.3,
+    4.0
    ],
    "cam": false
   },
@@ -27324,9 +28232,9 @@
    "name": "COL_Portal_071",
    "kind": "Block",
    "pos": [
-    44.0,
-    30.3,
-    -107.04
+    36.7,
+    30.8,
+    -113.9
    ],
    "x": [
     1.0,
@@ -27339,9 +28247,9 @@
     -1.0
    ],
    "size": [
-    10.4,
-    2.4,
-    2.6
+    4.6,
+    8.0,
+    3.6
    ],
    "cam": false
   },
@@ -27349,9 +28257,9 @@
    "name": "COL_Portal_072",
    "kind": "Block",
    "pos": [
-    32.8,
-    40.8,
-    -113.0
+    33.8,
+    31.15,
+    -114.05
    ],
    "x": [
     1.0,
@@ -27364,9 +28272,9 @@
     -1.0
    ],
    "size": [
-    2.8,
-    1.8,
-    18.4
+    1.2,
+    7.7,
+    4.3
    ],
    "cam": false
   },
@@ -27374,9 +28282,9 @@
    "name": "COL_Portal_073",
    "kind": "Block",
    "pos": [
-    32.8,
-    40.8,
-    -117.4
+    32.65,
+    31.6,
+    -114.1
    ],
    "x": [
     1.0,
@@ -27389,9 +28297,9 @@
     -1.0
    ],
    "size": [
-    1.6,
-    1.6,
-    18.4
+    1.1,
+    7.0,
+    5.2
    ],
    "cam": false
   },
@@ -27399,8 +28307,33 @@
    "name": "COL_Portal_074",
    "kind": "Block",
    "pos": [
-    55.2,
-    40.8,
+    31.5,
+    30.775,
+    -113.95
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    1.2,
+    10.1,
+    3.55
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_075",
+   "kind": "Block",
+   "pos": [
+    35.7,
+    36.7,
     -113.0
    ],
    "x": [
@@ -27414,34 +28347,9 @@
     -1.0
    ],
    "size": [
-    2.8,
-    1.8,
-    18.4
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_Portal_075",
-   "kind": "Block",
-   "pos": [
-    55.2,
-    40.8,
-    -117.4
-   ],
-   "x": [
-    1.0,
-    0.0,
-    0.0
-   ],
-   "y": [
-    0.0,
-    0.0,
-    -1.0
-   ],
-   "size": [
-    1.6,
-    1.6,
-    18.4
+    2.2,
+    1.9,
+    3.0
    ],
    "cam": false
   },
@@ -27450,8 +28358,8 @@
    "kind": "Block",
    "pos": [
     34.6,
-    32.1,
-    -102.6
+    41.85,
+    -113.0
    ],
    "x": [
     1.0,
@@ -27464,9 +28372,9 @@
     -1.0
    ],
    "size": [
-    1.8,
-    1.8,
-    4.2
+    2.8,
+    1.9,
+    7.3
    ],
    "cam": false
   },
@@ -27474,9 +28382,9 @@
    "name": "COL_Portal_077",
    "kind": "Block",
    "pos": [
-    35.8,
-    33.2,
-    -105.6
+    35.15,
+    34.6,
+    -116.25
    ],
    "x": [
     1.0,
@@ -27489,9 +28397,9 @@
     -1.0
    ],
    "size": [
-    0.9,
-    0.9,
-    6.4
+    3.5,
+    2.1,
+    4.0
    ],
    "cam": false
   },
@@ -27499,9 +28407,9 @@
    "name": "COL_Portal_078",
    "kind": "Block",
    "pos": [
-    53.4,
-    32.1,
-    -102.6
+    51.3,
+    30.8,
+    -113.9
    ],
    "x": [
     1.0,
@@ -27514,9 +28422,9 @@
     -1.0
    ],
    "size": [
-    1.8,
-    1.8,
-    4.2
+    4.6,
+    8.0,
+    3.6
    ],
    "cam": false
   },
@@ -27524,9 +28432,9 @@
    "name": "COL_Portal_079",
    "kind": "Block",
    "pos": [
-    52.2,
-    33.2,
-    -105.6
+    54.2,
+    31.15,
+    -114.05
    ],
    "x": [
     1.0,
@@ -27539,9 +28447,9 @@
     -1.0
    ],
    "size": [
-    0.9,
-    0.9,
-    6.4
+    1.2,
+    7.7,
+    4.3
    ],
    "cam": false
   },
@@ -27549,9 +28457,9 @@
    "name": "COL_Portal_080",
    "kind": "Block",
    "pos": [
-    35.4,
-    34.0,
-    -86.6
+    55.35,
+    31.6,
+    -114.1
    ],
    "x": [
     1.0,
@@ -27564,9 +28472,9 @@
     -1.0
    ],
    "size": [
-    0.8,
-    0.8,
-    8.0
+    1.1,
+    7.0,
+    5.2
    ],
    "cam": false
   },
@@ -27574,9 +28482,9 @@
    "name": "COL_Portal_081",
    "kind": "Block",
    "pos": [
-    35.4,
-    34.0,
-    -98.8
+    56.5,
+    30.775,
+    -113.95
    ],
    "x": [
     1.0,
@@ -27589,9 +28497,9 @@
     -1.0
    ],
    "size": [
-    0.8,
-    0.8,
-    8.0
+    1.2,
+    10.1,
+    3.55
    ],
    "cam": false
   },
@@ -27599,9 +28507,9 @@
    "name": "COL_Portal_082",
    "kind": "Block",
    "pos": [
-    31.8,
-    34.0,
-    -86.6
+    52.3,
+    36.7,
+    -113.0
    ],
    "x": [
     1.0,
@@ -27614,9 +28522,9 @@
     -1.0
    ],
    "size": [
-    0.8,
-    0.8,
-    8.0
+    2.2,
+    1.9,
+    3.0
    ],
    "cam": false
   },
@@ -27624,9 +28532,9 @@
    "name": "COL_Portal_083",
    "kind": "Block",
    "pos": [
-    31.8,
-    34.0,
-    -98.8
+    53.4,
+    41.85,
+    -113.0
    ],
    "x": [
     1.0,
@@ -27639,9 +28547,9 @@
     -1.0
    ],
    "size": [
-    0.8,
-    0.8,
-    8.0
+    2.8,
+    1.9,
+    7.3
    ],
    "cam": false
   },
@@ -27649,9 +28557,9 @@
    "name": "COL_Portal_084",
    "kind": "Block",
    "pos": [
-    52.6,
-    34.0,
-    -86.6
+    52.85,
+    34.6,
+    -116.25
    ],
    "x": [
     1.0,
@@ -27664,9 +28572,9 @@
     -1.0
    ],
    "size": [
-    0.8,
-    0.8,
-    8.0
+    3.5,
+    2.1,
+    4.0
    ],
    "cam": false
   },
@@ -27674,9 +28582,9 @@
    "name": "COL_Portal_085",
    "kind": "Block",
    "pos": [
-    52.6,
-    34.0,
-    -98.8
+    44.0,
+    30.75,
+    -109.05
    ],
    "x": [
     1.0,
@@ -27689,9 +28597,9 @@
     -1.0
    ],
    "size": [
-    0.8,
-    0.8,
-    8.0
+    23.8,
+    1.7,
+    3.5
    ],
    "cam": false
   },
@@ -27699,9 +28607,9 @@
    "name": "COL_Portal_086",
    "kind": "Block",
    "pos": [
-    56.2,
-    34.0,
-    -86.6
+    44.0,
+    30.775,
+    -118.65
    ],
    "x": [
     1.0,
@@ -27714,9 +28622,9 @@
     -1.0
    ],
    "size": [
-    0.8,
-    0.8,
-    8.0
+    23.8,
+    2.1,
+    3.55
    ],
    "cam": false
   },
@@ -27724,9 +28632,9 @@
    "name": "COL_Portal_087",
    "kind": "Block",
    "pos": [
-    56.2,
-    34.0,
-    -98.8
+    44.0,
+    41.0,
+    -115.35
    ],
    "x": [
     1.0,
@@ -27739,9 +28647,9 @@
     -1.0
    ],
    "size": [
-    0.8,
-    0.8,
-    8.0
+    15.2,
+    3.9,
+    16.0
    ],
    "cam": false
   },
@@ -28251,7 +29159,7 @@
    "pos": [
     108.0,
     29.75,
-    -111.0
+    -111.4
    ],
    "x": [
     1.0,
@@ -28264,8 +29172,8 @@
     -1.0
    ],
    "size": [
-    23.6,
-    21.6,
+    27.6,
+    22.4,
     1.5
    ],
    "cam": false
@@ -28275,8 +29183,8 @@
    "kind": "Block",
    "pos": [
     108.0,
-    30.45,
-    -114.0
+    30.725,
+    -109.9
    ],
    "x": [
     1.0,
@@ -28289,9 +29197,9 @@
     -1.0
    ],
    "size": [
-    22.0,
-    10.0,
-    1.9
+    11.6,
+    5.8,
+    1.45
    ],
    "cam": false
   },
@@ -28300,8 +29208,8 @@
    "kind": "Block",
    "pos": [
     108.0,
-    30.9,
-    -114.0
+    31.2,
+    -111.2
    ],
    "x": [
     1.0,
@@ -28314,9 +29222,9 @@
     -1.0
    ],
    "size": [
-    18.0,
-    8.0,
-    2.8
+    10.0,
+    3.2,
+    2.4
    ],
    "cam": false
   },
@@ -28324,9 +29232,9 @@
    "name": "COL_Portal_111",
    "kind": "Block",
    "pos": [
-    97.1,
-    43.0,
-    -113.0
+    99.175,
+    42.075,
+    -113.8
    ],
    "x": [
     1.0,
@@ -28339,9 +29247,9 @@
     -1.0
    ],
    "size": [
-    4.0,
-    4.6,
-    25.0
+    3.65,
+    4.2,
+    24.15
    ],
    "cam": false
   },
@@ -28349,9 +29257,9 @@
    "name": "COL_Portal_112",
    "kind": "Block",
    "pos": [
-    118.9,
-    41.5,
-    -113.0
+    116.825,
+    42.075,
+    -113.8
    ],
    "x": [
     1.0,
@@ -28364,9 +29272,9 @@
     -1.0
    ],
    "size": [
-    3.6,
+    3.65,
     4.2,
-    22.0
+    24.15
    ],
    "cam": false
   },
@@ -28374,9 +29282,9 @@
    "name": "COL_Portal_113",
    "kind": "Block",
    "pos": [
-    98.8,
-    44.5,
-    -121.8
+    108.0,
+    50.575,
+    -113.8
    ],
    "x": [
     1.0,
@@ -28389,9 +29297,9 @@
     -1.0
    ],
    "size": [
-    5.0,
-    4.8,
-    29.0
+    14.0,
+    3.2,
+    7.15
    ],
    "cam": false
   },
@@ -28399,9 +29307,9 @@
    "name": "COL_Portal_114",
    "kind": "Block",
    "pos": [
-    104.6,
-    42.0,
-    -124.2
+    108.0,
+    31.7,
+    -114.1
    ],
    "x": [
     1.0,
@@ -28414,9 +29322,9 @@
     -1.0
    ],
    "size": [
-    4.6,
-    4.6,
-    24.0
+    7.2,
+    2.6,
+    3.4
    ],
    "cam": false
   },
@@ -28424,9 +29332,9 @@
    "name": "COL_Portal_115",
    "kind": "Block",
    "pos": [
-    111.3,
-    46.0,
-    -122.2
+    102.7,
+    32.3,
+    -114.1
    ],
    "x": [
     1.0,
@@ -28439,9 +29347,9 @@
     -1.0
    ],
    "size": [
-    5.8,
-    5.4,
-    32.0
+    3.4,
+    2.6,
+    4.6
    ],
    "cam": false
   },
@@ -28449,9 +29357,9 @@
    "name": "COL_Portal_116",
    "kind": "Block",
    "pos": [
-    117.7,
-    43.5,
-    -120.6
+    113.3,
+    32.3,
+    -114.1
    ],
    "x": [
     1.0,
@@ -28464,9 +29372,9 @@
     -1.0
    ],
    "size": [
-    4.6,
-    4.6,
-    27.0
+    3.4,
+    2.6,
+    4.6
    ],
    "cam": false
   },
@@ -28474,9 +29382,9 @@
    "name": "COL_Portal_117",
    "kind": "Block",
    "pos": [
-    95.4,
-    33.0,
-    -108.0
+    108.0,
+    40.2,
+    -114.95
    ],
    "x": [
     1.0,
@@ -28489,34 +29397,34 @@
     -1.0
    ],
    "size": [
-    1.6,
-    1.6,
-    5.0
+    12.0,
+    0.9,
+    13.6
    ],
    "cam": false
   },
   {
    "name": "COL_Portal_118",
-   "kind": "Block",
+   "kind": "Ramp",
    "pos": [
-    97.1,
-    34.5,
-    -102.2
+    110.9,
+    31.098,
+    -116.874
    ],
    "x": [
+    -0.0,
+    0.588,
+    0.809
+   ],
+   "y": [
     1.0,
     0.0,
     0.0
    ],
-   "y": [
-    0.0,
-    0.0,
-    -1.0
-   ],
    "size": [
-    0.8,
-    0.8,
-    8.0
+    2.08,
+    3.4,
+    0.8
    ],
    "cam": false
   },
@@ -28524,9 +29432,9 @@
    "name": "COL_Portal_119",
    "kind": "Block",
    "pos": [
-    120.6,
-    33.0,
-    -108.0
+    114.228,
+    30.919,
+    -118.859
    ],
    "x": [
     1.0,
@@ -28539,9 +29447,9 @@
     -1.0
    ],
    "size": [
-    1.6,
-    1.6,
-    5.0
+    3.214,
+    3.004,
+    1.839
    ],
    "cam": false
   },
@@ -28549,9 +29457,9 @@
    "name": "COL_Portal_120",
    "kind": "Block",
    "pos": [
-    118.9,
-    34.5,
-    -102.2
+    113.966,
+    32.192,
+    -119.34
    ],
    "x": [
     1.0,
@@ -28564,9 +29472,9 @@
     -1.0
    ],
    "size": [
-    0.8,
-    0.8,
-    8.0
+    1.212,
+    1.948,
+    0.768
    ],
    "cam": false
   },
@@ -28574,9 +29482,9 @@
    "name": "COL_Portal_121",
    "kind": "Block",
    "pos": [
-    99.7,
-    31.0,
-    -92.7
+    110.4,
+    30.712,
+    -120.693
    ],
    "x": [
     1.0,
@@ -28589,34 +29497,34 @@
     -1.0
    ],
    "size": [
-    0.8,
-    13.4,
-    2.0
+    2.478,
+    2.247,
+    1.425
    ],
    "cam": false
   },
   {
    "name": "COL_Portal_122",
-   "kind": "Block",
+   "kind": "Ramp",
    "pos": [
-    116.3,
-    31.0,
-    -92.7
+    116.1,
+    30.981,
+    -111.3
    ],
    "x": [
-    1.0,
+    -0.0,
+    0.719,
+    -0.695
+   ],
+   "y": [
+    -1.0,
     0.0,
     0.0
    ],
-   "y": [
-    0.0,
-    0.0,
-    -1.0
-   ],
    "size": [
-    0.8,
-    13.4,
-    2.0
+    1.56,
+    2.2,
+    0.8
    ],
    "cam": false
   },
@@ -28624,9 +29532,9 @@
    "name": "COL_Portal_123",
    "kind": "Block",
    "pos": [
-    95.9,
-    34.5,
-    -94.6
+    117.82,
+    30.716,
+    -109.131
    ],
    "x": [
     1.0,
@@ -28639,9 +29547,9 @@
     -1.0
    ],
    "size": [
-    1.4,
-    1.4,
-    9.0
+    1.515,
+    1.426,
+    1.433
    ],
    "cam": false
   },
@@ -28649,9 +29557,9 @@
    "name": "COL_Portal_124",
    "kind": "Block",
    "pos": [
-    95.6,
-    30.9,
-    -97.6
+    117.309,
+    31.624,
+    -109.455
    ],
    "x": [
     1.0,
@@ -28664,9 +29572,9 @@
     -1.0
    ],
    "size": [
-    1.2,
-    1.2,
-    1.8
+    0.559,
+    0.477,
+    0.698
    ],
    "cam": false
   },
@@ -28674,8 +29582,483 @@
    "name": "COL_Portal_125",
    "kind": "Block",
    "pos": [
+    115.205,
+    30.515,
+    -107.846
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    0.898,
+    0.966,
+    1.03
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_126",
+   "kind": "Block",
+   "pos": [
+    99.0,
+    31.475,
+    -104.3
+   ],
+   "x": [
+    0.914,
+    0.0,
+    -0.407
+   ],
+   "y": [
+    -0.407,
+    0.0,
+    -0.914
+   ],
+   "size": [
+    4.4,
+    1.2,
+    2.95
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_127",
+   "kind": "Block",
+   "pos": [
+    100.3,
+    31.225,
+    -108.6
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    0.8,
+    0.8,
+    2.45
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_128",
+   "kind": "Block",
+   "pos": [
+    99.2,
+    31.079,
+    -110.0
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    0.68,
+    0.68,
+    2.158
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_129",
+   "kind": "Block",
+   "pos": [
+    -116.95,
+    32.3,
+    -98.45
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    1.8,
+    1.8,
+    4.6
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_130",
+   "kind": "Block",
+   "pos": [
+    -99.05,
+    32.3,
+    -98.45
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    1.8,
+    1.8,
+    4.6
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_131",
+   "kind": "Block",
+   "pos": [
+    -99.55,
+    30.6,
+    -92.45
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    0.9,
+    10.3,
+    1.3
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_132",
+   "kind": "Block",
+   "pos": [
+    -85.9,
+    31.755,
+    -88.6
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    2.5,
+    2.5,
+    3.51
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_133",
+   "kind": "Block",
+   "pos": [
+    -66.1,
+    32.88,
+    -92.9
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    2.5,
+    2.5,
+    5.76
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_134",
+   "kind": "Block",
+   "pos": [
+    -87.3,
+    34.005,
+    -97.2
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    2.5,
+    2.5,
+    8.01
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_135",
+   "kind": "Block",
+   "pos": [
+    -52.465,
+    31.65,
+    -93.125
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    0.97,
+    12.55,
+    3.3
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_136",
+   "kind": "Block",
+   "pos": [
+    -35.535,
+    31.65,
+    -93.125
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    0.97,
+    12.55,
+    3.3
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_137",
+   "kind": "Block",
+   "pos": [
+    33.9,
+    32.3,
+    -97.2
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    0.9,
+    0.9,
+    4.6
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_138",
+   "kind": "Block",
+   "pos": [
+    54.1,
+    32.3,
+    -97.2
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    0.9,
+    0.9,
+    4.6
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_139",
+   "kind": "Block",
+   "pos": [
+    55.35,
+    33.5,
+    -89.95
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    1.3,
+    1.3,
+    7.0
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_140",
+   "kind": "Block",
+   "pos": [
+    98.95,
+    31.225,
+    -88.85
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    2.0,
+    3.8,
+    2.45
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_141",
+   "kind": "Block",
+   "pos": [
+    97.7,
+    30.8,
+    -93.034
+   ],
+   "x": [
+    -0.866,
+    0.0,
+    -0.5
+   ],
+   "y": [
+    -0.5,
+    0.0,
+    0.866
+   ],
+   "size": [
+    3.5,
+    2.5,
+    1.6
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_142",
+   "kind": "Block",
+   "pos": [
+    98.95,
+    31.225,
+    -97.45
+   ],
+   "x": [
+    -0.07,
+    0.0,
+    -0.998
+   ],
+   "y": [
+    -0.998,
+    0.0,
+    0.07
+   ],
+   "size": [
+    3.7,
+    1.8,
+    2.45
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_143",
+   "kind": "Ramp",
+   "pos": [
+    118.322,
+    30.274,
+    -95.635
+   ],
+   "x": [
+    0.028,
+    0.579,
+    -0.815
+   ],
+   "y": [
+    -0.999,
+    0.0,
+    -0.035
+   ],
+   "size": [
+    5.464,
+    3.2,
+    4.68
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_144",
+   "kind": "Block",
+   "pos": [
     -22.4,
-    33.0,
+    33.2,
     -103.6
    ],
    "x": [
@@ -28689,14 +30072,39 @@
     -1.0
    ],
    "size": [
-    2.6,
-    2.6,
-    6.0
+    5.3,
+    1.3,
+    6.4
    ],
    "cam": false
   },
   {
-   "name": "COL_Portal_126",
+   "name": "COL_Portal_145",
+   "kind": "Block",
+   "pos": [
+    -23.6,
+    31.3,
+    -108.0
+   ],
+   "x": [
+    0.682,
+    0.0,
+    -0.731
+   ],
+   "y": [
+    -0.731,
+    0.0,
+    -0.682
+   ],
+   "size": [
+    4.104,
+    1.4,
+    2.6
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_146",
    "kind": "Block",
    "pos": [
     -20.2,
@@ -28721,36 +30129,11 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_127",
-   "kind": "Block",
-   "pos": [
-    -23.9,
-    31.3,
-    -107.7
-   ],
-   "x": [
-    0.75,
-    0.0,
-    -0.662
-   ],
-   "y": [
-    -0.662,
-    0.0,
-    -0.75
-   ],
-   "size": [
-    4.534,
-    1.4,
-    2.6
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_Portal_128",
+   "name": "COL_Portal_147",
    "kind": "Block",
    "pos": [
     -20.2,
-    31.7,
+    32.45,
     -95.2
    ],
    "x": [
@@ -28764,14 +30147,14 @@
     -1.0
    ],
    "size": [
-    4.4,
-    3.6,
-    3.4
+    1.8,
+    1.8,
+    4.9
    ],
    "cam": false
   },
   {
-   "name": "COL_Portal_129",
+   "name": "COL_Portal_148",
    "kind": "Block",
    "pos": [
     19.8,
@@ -28796,57 +30179,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_130",
-   "kind": "Block",
-   "pos": [
-    22.8,
-    32.5,
-    -104.2
-   ],
-   "x": [
-    1.0,
-    0.0,
-    0.0
-   ],
-   "y": [
-    0.0,
-    0.0,
-    -1.0
-   ],
-   "size": [
-    2.0,
-    2.0,
-    5.0
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_Portal_131",
-   "kind": "Block",
-   "pos": [
-    18.4,
-    31.0,
-    -103.0
-   ],
-   "x": [
-    0.819,
-    0.0,
-    -0.573
-   ],
-   "y": [
-    -0.573,
-    0.0,
-    -0.819
-   ],
-   "size": [
-    4.883,
-    1.2,
-    2.0
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_Portal_132",
+   "name": "COL_Portal_149",
    "kind": "Block",
    "pos": [
     20.8,
@@ -28871,7 +30204,32 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_133",
+   "name": "COL_Portal_150",
+   "kind": "Block",
+   "pos": [
+    19.547,
+    32.45,
+    -103.803
+   ],
+   "x": [
+    0.819,
+    0.0,
+    -0.573
+   ],
+   "y": [
+    -0.573,
+    0.0,
+    -0.819
+   ],
+   "size": [
+    7.683,
+    2.0,
+    4.9
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Portal_151",
    "kind": "Block",
    "pos": [
     -100.2,
@@ -28896,7 +30254,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_134",
+   "name": "COL_Portal_152",
    "kind": "Block",
    "pos": [
     -115.2,
@@ -28921,7 +30279,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_135",
+   "name": "COL_Portal_153",
    "kind": "Block",
    "pos": [
     -68.2,
@@ -28946,7 +30304,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_136",
+   "name": "COL_Portal_154",
    "kind": "Block",
    "pos": [
     -83.2,
@@ -28971,7 +30329,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_137",
+   "name": "COL_Portal_155",
    "kind": "Block",
    "pos": [
     -36.2,
@@ -28996,7 +30354,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_138",
+   "name": "COL_Portal_156",
    "kind": "Block",
    "pos": [
     -51.2,
@@ -29021,7 +30379,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_139",
+   "name": "COL_Portal_157",
    "kind": "Block",
    "pos": [
     51.8,
@@ -29046,7 +30404,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_140",
+   "name": "COL_Portal_158",
    "kind": "Block",
    "pos": [
     36.8,
@@ -29071,7 +30429,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_141",
+   "name": "COL_Portal_159",
    "kind": "Block",
    "pos": [
     83.8,
@@ -29096,7 +30454,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_142",
+   "name": "COL_Portal_160",
    "kind": "Block",
    "pos": [
     68.8,
@@ -29121,7 +30479,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_143",
+   "name": "COL_Portal_161",
    "kind": "Block",
    "pos": [
     115.8,
@@ -29146,7 +30504,7 @@
    "cam": false
   },
   {
-   "name": "COL_Portal_144",
+   "name": "COL_Portal_162",
    "kind": "Block",
    "pos": [
     100.8,
@@ -34724,9 +36082,9 @@
    "name": "COL_Veg_001",
    "kind": "Block",
    "pos": [
-    126.864,
+    -122.082,
     7.3,
-    41.802
+    -37.856
    ],
    "x": [
     1.0,
@@ -34739,8 +36097,8 @@
     -1.0
    ],
    "size": [
-    2.042,
-    2.042,
+    1.6,
+    1.6,
     6.0
    ],
    "cam": false
@@ -34749,9 +36107,9 @@
    "name": "COL_Veg_002",
    "kind": "Block",
    "pos": [
-    -123.844,
+    90.951,
     7.3,
-    -40.129
+    -48.529
    ],
    "x": [
     1.0,
@@ -34764,8 +36122,8 @@
     -1.0
    ],
    "size": [
-    1.639,
-    1.639,
+    1.823,
+    1.823,
     6.0
    ],
    "cam": false
@@ -34774,9 +36132,9 @@
    "name": "COL_Veg_003",
    "kind": "Block",
    "pos": [
-    126.229,
+    121.857,
     7.3,
-    45.673
+    -36.137
    ],
    "x": [
     1.0,
@@ -34789,8 +36147,8 @@
     -1.0
    ],
    "size": [
-    1.845,
-    1.845,
+    1.6,
+    1.6,
     6.0
    ],
    "cam": false
@@ -34799,9 +36157,9 @@
    "name": "COL_Veg_004",
    "kind": "Block",
    "pos": [
-    -30.688,
+    118.307,
     7.3,
-    -55.374
+    50.315
    ],
    "x": [
     1.0,
@@ -34814,8 +36172,8 @@
     -1.0
    ],
    "size": [
-    1.899,
-    1.899,
+    1.6,
+    1.6,
     6.0
    ],
    "cam": false
@@ -34824,9 +36182,9 @@
    "name": "COL_Veg_005",
    "kind": "Block",
    "pos": [
-    90.859,
-    7.437,
-    35.821
+    -59.563,
+    7.3,
+    -51.696
    ],
    "x": [
     1.0,
@@ -34849,34 +36207,9 @@
    "name": "COL_Veg_006",
    "kind": "Block",
    "pos": [
-    92.541,
-    7.3,
-    -51.987
-   ],
-   "x": [
-    1.0,
-    0.0,
-    0.0
-   ],
-   "y": [
-    0.0,
-    0.0,
-    -1.0
-   ],
-   "size": [
-    2.099,
-    2.099,
-    6.0
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_Veg_007",
-   "kind": "Block",
-   "pos": [
-    19.068,
+    95.026,
     6.9,
-    -52.561
+    -55.064
    ],
    "x": [
     1.0,
@@ -34896,12 +36229,12 @@
    "cam": false
   },
   {
-   "name": "COL_Veg_008",
+   "name": "COL_Veg_007",
    "kind": "Block",
    "pos": [
-    126.059,
-    7.3,
-    -35.228
+    129.718,
+    7.474,
+    47.46
    ],
    "x": [
     1.0,
@@ -34914,9 +36247,34 @@
     -1.0
    ],
    "size": [
-    2.174,
-    2.174,
-    6.0
+    1.857,
+    1.857,
+    6.347
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Veg_008",
+   "kind": "Block",
+   "pos": [
+    122.962,
+    7.317,
+    -50.32
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    1.765,
+    1.765,
+    6.034
    ],
    "cam": false
   },
@@ -34924,9 +36282,9 @@
    "name": "COL_Veg_009",
    "kind": "Block",
    "pos": [
-    -11.15,
-    6.961,
-    -53.109
+    124.331,
+    6.9,
+    52.358
    ],
    "x": [
     1.0,
@@ -34949,59 +36307,9 @@
    "name": "COL_Veg_010",
    "kind": "Block",
    "pos": [
-    129.697,
-    7.3,
-    48.773
-   ],
-   "x": [
-    1.0,
-    0.0,
-    0.0
-   ],
-   "y": [
-    0.0,
-    0.0,
-    -1.0
-   ],
-   "size": [
-    1.6,
-    1.6,
-    6.0
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_Veg_011",
-   "kind": "Block",
-   "pos": [
-    -59.35,
-    7.3,
-    -53.77
-   ],
-   "x": [
-    1.0,
-    0.0,
-    0.0
-   ],
-   "y": [
-    0.0,
-    0.0,
-    -1.0
-   ],
-   "size": [
-    1.6,
-    1.6,
-    6.0
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_Veg_012",
-   "kind": "Block",
-   "pos": [
-    -4.272,
+    122.432,
     6.9,
-    -53.785
+    -56.641
    ],
    "x": [
     1.0,
@@ -35021,12 +36329,37 @@
    "cam": false
   },
   {
-   "name": "COL_Veg_013",
+   "name": "COL_Veg_011",
    "kind": "Block",
    "pos": [
-    131.977,
+    90.598,
+    7.185,
+    -53.113
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    1.688,
+    1.688,
+    5.771
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Veg_012",
+   "kind": "Block",
+   "pos": [
+    131.941,
     7.3,
-    27.752
+    34.081
    ],
    "x": [
     1.0,
@@ -37696,60 +39029,6 @@
    "night": false
   },
   {
-   "name": "L_DS_Eave_1",
-   "type": "POINT",
-   "pos": [
-    30.7,
-    49.413,
-    -110.7
-   ],
-   "color": [
-    255,
-    149,
-    108
-   ],
-   "range": 7.0,
-   "brightness": 0.38,
-   "shadows": false,
-   "night": true
-  },
-  {
-   "name": "L_DS_Eave_3",
-   "type": "POINT",
-   "pos": [
-    57.3,
-    49.413,
-    -110.7
-   ],
-   "color": [
-    255,
-    149,
-    108
-   ],
-   "range": 7.0,
-   "brightness": 0.38,
-   "shadows": false,
-   "night": true
-  },
-  {
-   "name": "L_DS_Oni",
-   "type": "POINT",
-   "pos": [
-    44.0,
-    53.0,
-    -107.6
-   ],
-   "color": [
-    255,
-    137,
-    63
-   ],
-   "range": 7.7,
-   "brightness": 0.4,
-   "shadows": false,
-   "night": false
-  },
-  {
    "name": "L_Furnace",
    "type": "POINT",
    "pos": [
@@ -38188,6 +39467,42 @@
    "night": false
   },
   {
+   "name": "L_P_DemonSlayer_Lamp_1",
+   "type": "POINT",
+   "pos": [
+    39.95,
+    33.24,
+    -103.1
+   ],
+   "color": [
+    255,
+    137,
+    97
+   ],
+   "range": 4.5,
+   "brightness": 0.31,
+   "shadows": false,
+   "night": false
+  },
+  {
+   "name": "L_P_DemonSlayer_Lamp_2",
+   "type": "POINT",
+   "pos": [
+    48.05,
+    33.24,
+    -103.1
+   ],
+   "color": [
+    255,
+    137,
+    97
+   ],
+   "range": 4.5,
+   "brightness": 0.31,
+   "shadows": false,
+   "night": false
+  },
+  {
    "name": "L_P_DemonSlayer_Pad",
    "type": "POINT",
    "pos": [
@@ -38224,42 +39539,6 @@
    "night": false
   },
   {
-   "name": "L_P_Naruto_Chochin_0",
-   "type": "POINT",
-   "pos": [
-    -120.3,
-    56.123,
-    -111.8
-   ],
-   "color": [
-    255,
-    203,
-    149
-   ],
-   "range": 7.7,
-   "brightness": 0.4,
-   "shadows": false,
-   "night": true
-  },
-  {
-   "name": "L_P_Naruto_Chochin_2",
-   "type": "POINT",
-   "pos": [
-    -95.7,
-    56.123,
-    -111.8
-   ],
-   "color": [
-    255,
-    203,
-    149
-   ],
-   "range": 7.7,
-   "brightness": 0.4,
-   "shadows": false,
-   "night": true
-  },
-  {
    "name": "L_P_Naruto_Pad",
    "type": "POINT",
    "pos": [
@@ -38276,42 +39555,6 @@
    "brightness": 0.71,
    "shadows": false,
    "night": false
-  },
-  {
-   "name": "L_P_Naruto_Toro_0",
-   "type": "POINT",
-   "pos": [
-    -117.0,
-    34.2,
-    -103.0
-   ],
-   "color": [
-    255,
-    206,
-    149
-   ],
-   "range": 7.4,
-   "brightness": 0.39,
-   "shadows": false,
-   "night": true
-  },
-  {
-   "name": "L_P_Naruto_Toro_2",
-   "type": "POINT",
-   "pos": [
-    -99.0,
-    34.2,
-    -103.0
-   ],
-   "color": [
-    255,
-    206,
-    149
-   ],
-   "range": 7.4,
-   "brightness": 0.39,
-   "shadows": false,
-   "night": true
   },
   {
    "name": "L_P_OnePiece_Pad",
@@ -38340,12 +39583,48 @@
     -106.0
    ],
    "color": [
-    160,
-    231,
-    255
+    255,
+    229,
+    144
    ],
    "range": 12.6,
    "brightness": 0.71,
+   "shadows": false,
+   "night": false
+  },
+  {
+   "name": "L_P_ShadowGarden_Candles",
+   "type": "POINT",
+   "pos": [
+    -55.7,
+    40.21,
+    -107.1
+   ],
+   "color": [
+    203,
+    137,
+    255
+   ],
+   "range": 9.5,
+   "brightness": 0.49,
+   "shadows": false,
+   "night": false
+  },
+  {
+   "name": "L_P_ShadowGarden_Moon",
+   "type": "POINT",
+   "pos": [
+    -43.7,
+    52.82,
+    -109.8
+   ],
+   "color": [
+    196,
+    129,
+    255
+   ],
+   "range": 10.7,
+   "brightness": 0.56,
    "shadows": false,
    "night": false
   },
@@ -38646,9 +39925,9 @@
     -110.0
    ],
    "color": [
-    160,
-    231,
-    255
+    255,
+    229,
+    144
    ],
    "range": 14.0,
    "brightness": 1.0,
@@ -39140,7 +40419,7 @@
    "name": "SAFE_Terraco_0",
    "pos": [
     -108.0,
-    30.0,
+    30.4,
     -105.0
    ]
   },
@@ -39164,7 +40443,7 @@
    "name": "SAFE_Terraco_1",
    "pos": [
     -76.0,
-    30.6,
+    30.9,
     -105.0
    ]
   },
@@ -39188,7 +40467,7 @@
    "name": "SAFE_Terraco_2",
    "pos": [
     -44.0,
-    30.6,
+    31.0,
     -105.0
    ]
   },
@@ -39212,7 +40491,7 @@
    "name": "SAFE_Terraco_3",
    "pos": [
     44.0,
-    30.8,
+    30.45,
     -105.0
    ]
   },
@@ -39386,21 +40665,21 @@
   "lines": [
    "ORCAMENTO por dono (tris / MeshParts; limite entre parenteses)",
    "  architecture      82742 (135000)   166 (170)",
-   "  forge             88136 (125000)   116 (125)",
-   "  portals           74691 (85000)   114 (120)",
+   "  forge             88136 (120000)   116 (116)",
+   "  portals           86345 (90000)   146 (150)",
    "  props             48836 (58000)    87 (90)",
-   "  scene_lighting    30070 (38000)    34 (48)",
+   "  scene_lighting    30070 (38000)    34 (36)",
    "  terrain          100924 (128000)   113 (118)",
-   "  vegetation        37621 (50000)    63 (70)",
+   "  vegetation        37745 (50000)    64 (70)",
    "METAS GLOBAIS",
-   "  tris estaticos                          463020 / 624000 ",
-   "  MeshParts estaticas                        693 / 750    ",
-   "  tris total (+ reserva VFX 16000)        479020 / 640000 ",
-   "  MeshParts total (+ reserva VFX 30)         723 / 780    ",
-   "  materiais                                  120 / 120    ",
-   "  MeshParts com sombra                       308 / 350    ",
-   "  luzes ativas de dia                         42 / 45     ",
-   "  COL                                        788 / 820    "
+   "  tris estaticos                          474798 / 624000 ",
+   "  MeshParts estaticas                        726 / 750    ",
+   "  tris total (+ reserva VFX 16000)        490798 / 640000 ",
+   "  MeshParts total (+ reserva VFX 30)         756 / 780    ",
+   "  materiais                                  130 / 130    ",
+   "  MeshParts com sombra                       323 / 350    ",
+   "  luzes ativas de dia                         45 / 45     ",
+   "  COL                                        808 / 820    "
   ],
   "over": []
  }

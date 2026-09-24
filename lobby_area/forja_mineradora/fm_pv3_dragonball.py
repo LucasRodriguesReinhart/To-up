@@ -844,3 +844,97 @@ def _swirl_preview():
     bs.inputs["Emission Strength"].default_value = 1.5
     if "Specular IOR Level" in bs.inputs:
         bs.inputs["Specular IOR Level"].default_value = 0.0
+
+
+# ------------------------------------------------------------------ dressing da escada (lance 2): AS SETE ESFERAS
+# "Cada escada anuncia o seu mundo": o portal ja mostra a esfera de 4 (coroa) e as de 1-2-3 (expositor); a escada
+# COMPLETA AS SETE - as esferas de 5, 6 e 7 estrelas sobem ao lado do lance 2 em pedestais Capsule Corp (fuste
+# branco conico, colar azul e taca de ouro de labio plano - o mesmo par azul + ouro da boca do berco), em zigue-zague
+# (esq., dir., esq.) e cada uma mais alta que a anterior. Mesmo acabamento das esferas do expositor: ambar liso
+# (P_DB_Ball_Amber), estrelas vermelhas coladas que seguem a curvatura (sphere_decal). So o motivo das esferas: nada
+# mais na faixa (receita do One Piece).
+# Duas esferas ficam na esquerda (a unica faixa que a praca enxerga: a direita some atras dos pilares do muro).
+# Alturas: a 5 baixa como o expositor (topo T+3.5), a 6 no meio (T+5.8), a 7 e o unico acento vertical (T+8.0):
+# do ledge (H_Stairs) a 7 aparece INTEIRA acima da 5 e da praca le a subida 5 -> 7.
+# Orcamento: 1196 tris (as 18 estrelas sao 540), 5 materiais da paleta, 3 colisoes.
+ST_R = 1.25                          # raio das esferas (expositor: 1.0; aqui ficam mais longe do pad)
+ST_N, ST_NP = 12, 10                 # lados da esfera (= expositor) e do pedestal
+# (lado, |x - px| do eixo, y, z do labio da taca de ouro acima de T, estrelas). Faixa: 7.8 <= |x - px| <= 13.9
+# (poco < 7.7). A 5 fica rente ao poco (mais para fora some atras do pilar do muro no H_Stairs); a 7 abre para
+# fora: no A_Hero fica com ar ate a capsula deitada atras dela.
+ST_BALLS = ((-1, 9.9, 88.6, 1.26, 5), (1, 9.9, 92.9, 3.51, 6), (-1, 11.3, 97.2, 5.76, 7))
+ST_FACE = (0.48, -0.86, -0.16)       # estrelas olham para a escada e para a praca, um pouco para baixo (x com o lado)
+# taca de ouro (como as tacas de latao do expositor): cone que abre do raio rc ate a borda externa ro, e um LABIO
+# PLANO que volta ate ri. O plano horizontal do labio corta a esfera (lathe de aneis horizontais) num poligono limpo,
+# sem serrilhado; a borda externa fica FORA da esfera e o topo do labio pega luz.
+ST_CUP = (0.86, 0.45, 1.15, 0.62)    # (rc, altura do cone, ro, ri)
+ST_SEAT = 1.0                        # centro da esfera acima do labio: a esfera cruza o labio em r ~0.70 (entre ri e
+#                                      ro) e a estrela mais baixa (a da 7) fica 0.11 acima do labio
+ST_BAND = 0.38                       # colar azul (logo abaixo da taca)
+ST_STRIPE = (2.3, 0.12)              # friso azul no fuste alto (da 7): meio acima da base, meia altura - quebra a
+#                                      leitura de poste da praca (G_Far) com a listra do berco
+ST_COL = 2.5                         # pegada da colisao = diametro da esfera (o pe tem 2.4)
+ST_LAT = (30.0, 55.0, 80.0, 105.0, 130.0, 155.0)   # latitudes da esfera (graus desde o polo de baixo); o que fica
+#                                                    abaixo de 30 esta dentro do colar (sem faces escondidas)
+
+
+def _st_center(hr):
+    """centro da esfera: assentada na taca de ouro (labio em z = T + hr)"""
+    return T + hr + ST_SEAT
+
+
+def _st_layout(k):
+    """posicoes das estrelas no plano tangente (unidades de 'spread'): 5 = pentagono, 6 = pentagono + centro,
+    7 = hexagono + centro"""
+    if k == 5:
+        return [(math.cos(D(90 + 72 * i)), math.sin(D(90 + 72 * i))) for i in range(5)]
+    if k == 6:
+        return [(0.0, 0.0)] + [(math.cos(D(90 + 72 * i)), math.sin(D(90 + 72 * i))) for i in range(5)]
+    return [(0.0, 0.0)] + [(math.cos(D(90 + 60 * i)), math.sin(D(90 + 60 * i))) for i in range(6)]
+
+
+def _st_stars(mb, c, r, k, facing):
+    """as k estrelas (5..7) coladas na esfera, como ball_stars (mesmo decal, mesma orientacao 'ponta para cima')"""
+    size, spread = {5: (0.27, 0.52), 6: (0.25, 0.56), 7: (0.23, 0.55)}[k]
+    n, side, u = _frame_on(Vector(facing).normalized())
+    for a, b in _st_layout(k):
+        d = _on_sphere(Vector((0, 0, 0)), r, n, side, u, a * spread, b * spread, 0.0).normalized()
+        sphere_decal(mb, c, r, d, star2d(size), ST, off=0.04, depth=min(0.12, r * 0.1))
+
+
+def _st_pedestal(mb, x, y, hr):
+    """pedestal Capsule Corp: fuste branco conico (largo no terraco), colar azul e taca de ouro com labio plano
+    (tubos abertos empilhados, anel com anel: o fundo fica no terraco e o labio corta a esfera)"""
+    base = V(x, y, T - 0.15)
+    rc, hc, ro, ri = ST_CUP
+    zt = hr + 0.15                                   # labio da taca (relativo a base)
+    zb = zt - hc - ST_BAND
+    rs = rc - 0.04                                   # raio do fuste no topo
+    lathe(mb, base, (0, 0, 1), [(1.2, 0.0), (rs, zb)], W, ST_NP, caps=False)
+    lathe(mb, base, (0, 0, 1), [(rs, zb), (rc, zt - hc)], B, ST_NP, caps=False)
+    lathe(mb, base, (0, 0, 1), [(rc, zt - hc), (ro, zt), (ri, zt)], G, ST_NP, caps=False)
+    if zb > 4.0:
+        # friso azul so no fuste alto: tubo 0.025 para fora do cone branco
+        zm, hh = ST_STRIPE
+        prof = [(1.2 + (rs - 1.2) * z / zb + 0.025, z) for z in (zm - hh, zm + hh)]
+        lathe(mb, base, (0, 0, 1), prof, B, ST_NP, caps=False)
+
+
+def _st_ball(mb, c, r):
+    """esfera lisa sem a calota de baixo (fica dentro da taca de ouro): 12 lados como a esfera do expositor"""
+    prof = [(r * math.sin(D(t)), -r * math.cos(D(t))) for t in ST_LAT] + [(0.0, r)]
+    lathe(mb, c, (0, 0, 1), prof, BALL, ST_N, caps=False)
+
+
+def stairs(mb, px, rng):
+    """dressing da faixa ao lado do lance 2 (terraco z = T, y 86..99.4, 7.8 <= |x - px| <= 13.9): as esferas de 5,
+    6 e 7 estrelas em pedestais que sobem com a escada"""
+    fx, fy, fz = ST_FACE
+    for s, dx, y, hr, k in ST_BALLS:
+        x = px + s * dx
+        _st_pedestal(mb, x, y, hr)
+        c = V(x, y, _st_center(hr))
+        _st_ball(mb, c, ST_R)
+        _st_stars(mb, c, ST_R, k, (-s * fx, fy, fz))
+        top = c.z + ST_R - T
+        col_box(A, (ST_COL, ST_COL, top), (x, y, T + 0.5 * top))

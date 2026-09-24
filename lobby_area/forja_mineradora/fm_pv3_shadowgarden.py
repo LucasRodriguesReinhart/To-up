@@ -718,3 +718,118 @@ def build(rng):
     zs = [v.co.z for o in (ob, gob) for v in o.data.vertices]
     print("LOTE ShadowGarden: x %.2f..%.2f (px%+.2f..%+.2f) y %.2f..%.2f z %.2f..%.2f" % (
         min(xs), max(xs), min(xs) - px, max(xs) - px, min(ys), max(ys), min(zs) - T, max(zs) - T))
+
+
+# ======================================================================================================================
+# DRESSING DA ESCADA (lance 2) - "BALAUSTRADA DA LUA": objeto PORTAL_ShadowGarden_Stairs (o chamador cria e fecha o MB)
+# Faixa do terraco ao lado do poco: y 86.0..99.4, 7.8 <= |x - px| <= 13.9, apoiado em z = T. Um motivo so, espelhado:
+#   balaustrada gotica BAIXA de obsidiana na borda do poco (so ela, receita One Piece): soco, arcada de arcos ogivais
+#   sobre colunelos (eco da ogiva e dos nichos do portal), corrimao com friso prata; nas duas cabeceiras, um pilar com
+#   COROA BAIXA (colar prata, piramide curta de obsidiana, bola prata = eco dos pinaculos do portal), 0.7 embaixo e
+#   0.85 no alto. Vista da escada (H_Stairs, camera no ledge em (px, 60, T-3)):
+#     - a coroa do alto fica abaixo de T+4.3 (teto ST_CROWN_MAX): nao sobe ate os bracos/velas do candelabro do
+#       portal nem ate a copa da roseira;
+#     - o pilar-guia fica em y 87.2 (e nao 88.2): assim a coroa e o colar dele saem da faixa de tela da vela esquerda do
+#       candelabro do portal em vez de encostar no prato dela.
+#   Nada de candelabro/chama no dressing: a peca de luz desta chegada e a do portal.
+# So materiais da paleta do portal (obsidiana + prata). Nao usa o rng e passa tint fixo (nao consome o rng compartilhado).
+# PLANO (|x - px|, y; z relativo a T):
+#   soco        x 8.0..8.9, y 86.85..99.4, z -0.1..0.4
+#   pilar-guia  (8.45, 87.2) 0.7 x 0.7 ate 3.3 + colar prata ate 3.42 + coroa 0.7 ate ~3.97 (cabeceira de baixo)
+#   pilarete    (8.45, 98.9) 1.0 x 1.0 ate 3.3 + colar prata ate 3.46 + coroa 0.85 ate ~4.13 (cabeceira do alto)
+#   arcada      entre as faces 87.55..98.4: ST_NA arcos (nascenca 1.0, corrimao 3.0, friso prata ate 3.14)
+#   colisao     uma caixa por lado cobrindo a balaustrada inteira (a cabeceira de baixo ainda cai dentro da colisao do
+#               muro alto, UpperWall, y 80..88; nenhuma caixa extra)
+ST_TINT = 0.0
+ST_X = 8.45                     # eixo da balaustrada (face interna do soco em 8.0)
+ST_YP, ST_PW = 87.2, 0.7        # pilar-guia da cabeceira de baixo
+ST_YN, ST_NW = 98.9, 1.0        # pilarete da cabeceira do alto
+ST_ZC, ST_ZS, ST_ZR, ST_ZN = 0.4, 1.0, 3.0, 3.3      # topo do soco, nascenca, corrimao, topo dos pilares
+ST_NA, ST_CW, ST_TH = 4, 0.34, 0.3                  # arcos, colunelo, espessura do painel
+ST_CROWN_MAX = 4.3              # teto das coroas (rel T): abaixo dos bracos do candelabro do portal vistos do ledge
+
+
+def _st_ball(mb, c, r, m, n=6):
+    """bola lisa barata (2 aneis x n + polos, sombreamento suave): remate de prata"""
+    c = Vector(c)
+    bm = mb.bm
+    n0 = len(bm.faces)
+    rings = []
+    for la in (D(-35), D(35)):
+        rr, zz = math.cos(la) * r, math.sin(la) * r
+        rings.append([bm.verts.new(c + V(math.cos(math.tau * k / n) * rr, math.sin(math.tau * k / n) * rr, zz))
+                      for k in range(n)])
+    bot, top = bm.verts.new(c - V(0, 0, r)), bm.verts.new(c + V(0, 0, r))
+    fs = []
+    for k in range(n):
+        j = (k + 1) % n
+        fs.append(bm.faces.new((bot, rings[0][j], rings[0][k])))
+        fs.append(bm.faces.new((rings[0][k], rings[0][j], rings[1][j], rings[1][k])))
+        fs.append(bm.faces.new((rings[1][k], rings[1][j], top)))
+    bmesh.ops.recalc_face_normals(bm, faces=fs)
+    mb._post([v for rg in rings for v in rg] + [bot, top], m, ST_TINT, 0, 1)
+    _smooth_from(mb, n0)
+
+
+def _st_crown(mb, x, y, z, w, k=1.0):
+    """coroa BAIXA do pilar de largura w (eco dos pinaculos do portal, mas atarracada): piramide curta de obsidiana e
+    bola prata, a partir de z (topo do colar prata). k = escala (1.0 no pilarete do alto, ~0.7 no pilar-guia).
+    Devolve o topo (z absoluto)."""
+    hp, rb = 0.52 * k, 0.17 * k
+    mb.cyl((w - 0.08) * 0.7071, hp, (x, y, z + hp / 2), (0, 0, D(45)), OBS, 4, r2=0.08 * k, bevel=0.0, tint=ST_TINT)
+    zb = z + hp + 0.6 * rb          # a bola assenta na ponta (a ponta entra ~0.4 rb nela)
+    _st_ball(mb, (x, y, zb), rb, SIL)
+    return zb + rb
+
+
+def _st_arcade(mb, x, ya, yb, y0, y1):
+    """painel de obsidiana (corrimao) com o intradorso de ST_NA arcos ogivais recortado embaixo, de ya a yb (as pontas
+    ficam dentro dos pilaretes), arcos entre as faces y0..y1 + colunelos entre os arcos + friso prata no topo"""
+    span = (y1 - y0 - (ST_NA - 1) * ST_CW) / ST_NA
+    ai = span / 2
+    ri = 1.5 * ai
+    zs, zr = T + ST_ZS, T + ST_ZR
+    lo, hi = (ya, yb) if ya < yb else (yb, ya)
+    bottom = [(lo, zs)]
+    for k in range(ST_NA):
+        yc = y0 + ai + k * (span + ST_CW)
+        arch = lancet_half(ai, ri, zs, ri, -1, 3) + list(reversed(lancet_half(ai, ri, zs, ri, 1, 3)))[1:]
+        bottom += [(yc + u, z) for u, z in arch]
+        if k < ST_NA - 1:       # colunelo sob a junta entre dois arcos
+            yk = yc + ai + ST_CW / 2
+            mb.box((ST_CW, ST_CW, ST_ZS - ST_ZC + 0.05), (x, yk, T + (ST_ZC + ST_ZS + 0.05) / 2), (0, 0, 0), OBS, 0.0,
+                   tint=ST_TINT)
+    poly = bottom + [(hi, zs), (hi, zr), (lo, zr)]
+    K.plate(mb, poly, V(x, 0.0, 0.0), (0, 1, 0), (0, 0, 1), ST_TH, OBS, 0.0, tint=ST_TINT)
+    mb.box((ST_TH + 0.22, hi - lo, 0.14), (x, (lo + hi) / 2, zr + 0.07), (0, 0, 0), SIL, 0.0, tint=ST_TINT)
+
+
+def stairs(mb, px, rng):
+    """dressing da faixa ao lado do lance 2 (ver o cabecalho acima). `rng` nao e usado (geometria fixa)."""
+    n0 = len(mb.bm.faces)
+    y_lo, y_hi = ST_YP - ST_PW / 2, ST_YN + ST_NW / 2
+    ztop = []
+    for s in (-1, 1):
+        xb = px + s * ST_X
+        # soco continuo (do pilar-guia ao pilarete do alto)
+        mb.box((0.9, y_hi - y_lo, ST_ZC + 0.1), (xb, (y_lo + y_hi) / 2, T + (ST_ZC - 0.1) / 2), (0, 0, 0), OBS, 0.0,
+               tint=ST_TINT)
+        # cabeceira de baixo: pilar-guia + colar prata + coroa 0.7
+        mb.box((ST_PW, ST_PW, ST_ZN), (xb, ST_YP, T + ST_ZN / 2), (0, 0, 0), OBS, 0.0, tint=ST_TINT)
+        mb.box((ST_PW + 0.14, ST_PW + 0.14, 0.12), (xb, ST_YP, T + ST_ZN + 0.06), (0, 0, 0), SIL, 0.0, tint=ST_TINT)
+        ztop.append(_st_crown(mb, xb, ST_YP, T + ST_ZN + 0.12, ST_PW, 0.7))
+        # cabeceira do alto: pilarete + colar prata + coroa baixa (0.85)
+        mb.box((ST_NW, ST_NW, ST_ZN), (xb, ST_YN, T + ST_ZN / 2), (0, 0, 0), OBS, 0.12, tint=ST_TINT)
+        mb.box((ST_NW + 0.2, ST_NW + 0.2, 0.16), (xb, ST_YN, T + ST_ZN + 0.08), (0, 0, 0), SIL, 0.0, tint=ST_TINT)
+        ztop.append(_st_crown(mb, xb, ST_YN, T + ST_ZN + 0.16, ST_NW, 0.85))
+        # arcada + corrimao entre as faces do pilar-guia e do pilarete
+        _st_arcade(mb, xb, ST_YP, ST_YN, ST_YP + ST_PW / 2, ST_YN - ST_NW / 2)
+        # colisao: uma caixa para a balaustrada inteira, pilares inclusive (centro em y < 99.5: conta como escada)
+        col_box2(A, (px + s * 7.98, y_lo, T), (px + s * 8.95, y_hi, T + ST_ZN))
+    assert max(ztop) - T <= ST_CROWN_MAX + 1e-6, "coroa acima do teto (%.2f)" % (max(ztop) - T)
+    vs = mb.bm.verts
+    dx = [abs(v.co.x - px) for v in vs]
+    print("LOTE_ESCADA ShadowGarden: |x-px| %.2f..%.2f y %.2f..%.2f z %.2f..%.2f (rel T) tris=%d coroas=%s" % (
+        min(dx), max(dx), min(v.co.y for v in vs), max(v.co.y for v in vs), min(v.co.z for v in vs) - T,
+        max(v.co.z for v in vs) - T, sum(len(f.verts) - 2 for f in list(mb.bm.faces)[n0:]),
+        ", ".join("%.2f" % (z - T) for z in ztop)))

@@ -775,3 +775,142 @@ def build(rng):
         print("TRIS por parte:", ", ".join("%s=%d" % x for x in log), "total", _tris(mb))
     mb.finish()
     _swirl_preview()
+
+
+# ------------------------------------------------------------------ dressing da escada (lance 2)
+# "A bandana conduz ao portal": no alto da escada um PAR de lanternas de pedra (arenito ocre do anel, janela com o
+# brilho laranja, telhado de ferro) "usa a bandana": colar de pano azul-marinho no fuste com o no e as duas caudas em
+# rabo de andorinha dos postes do portal. Do lado direito a bandana DESCE da lanterna e fica ESTENDIDA sobre um
+# MEIO-FIO baixo de arenito (o parapeito do poco, em 3 blocos com juntas escuras como as aduelas do anel): sai do colar
+# da lanterna torcendo ate deitar no topo do meio-fio, cai em abas pelos dois lados e dobra sobre a ponta de baixo,
+# onde fecha no mesmo no com caudas (um no em cada ponta, como no portal). Sem postes nem corda pendurada.
+# Assimetrico por causa do terreno: do lado esquerdo a rocha da cachoeira e o penhasco encostam no poco ate y ~96.5
+# (so o alto fica livre -> so a lanterna). Tudo baixo (<= T+4.6): nao compete com o portal na praca.
+# Paleta: arenito, pano, ferro, brilho (4 materiais, todos do portal). Geometria deterministica (nao usa o rng: o
+# estudio e o lobby saem iguais e o rng compartilhado do fm_portals.build nao e consumido aqui).
+ST_TORO_DX = 8.95                   # lanternas no alto da escada (|x - px|): sapata 1.8 -> face interna em 8.05
+ST_TORO_Y = 98.45
+ST_TORO_ZC = T + 1.85               # colar de pano no fuste da lanterna
+ST_TORO_RC = 0.52                   # raio do colar (8 lados girado 22.5: face interna plana a 0.48 do eixo)
+ST_CURB_DX = 8.45                   # eixo do meio-fio (|x - px|): face interna em 8.10
+ST_CURB_Y = (87.6, 97.6)            # de baixo ate encostar na sapata da lanterna (face em 97.55)
+ST_CURB_W, ST_CURB_H = 0.7, 1.0     # secao do meio-fio (topo chanfrado 0.14)
+ST_KNOT_ZC = T + 0.74               # no de baixo, na face da ponta do meio-fio
+
+
+def _st_knot(mb, c, rc, zc, s, ang=40.0, tails=(1.15, 0.9)):
+    """no de pano achatado contra um colar (eixo c, raio rc, cota zc) na face frontal-externa e duas caudas em rabo
+    de andorinha caindo para a frente (a receita do knot_tails do portal, em miniatura)"""
+    a = D(ang)
+    n0 = V(s * math.sin(a), -math.cos(a), 0)          # para fora do colar (frente-fora)
+    t0 = V(s * math.cos(a), math.sin(a), 0)           # tangente horizontal
+    kc = V(c[0], c[1], zc) + n0 * (rc + 0.04)
+    res = bmesh.ops.create_uvsphere(mb.bm, u_segments=8, v_segments=5, radius=1.0)
+    for vv in res["verts"]:
+        l = vv.co.copy()
+        vv.co = kc + t0 * (l.x * 0.38) + n0 * (l.y * 0.17) + V(0, 0, l.z * 0.28)
+    for f in mb._post(res["verts"], NAVY, None, 0, 1):
+        f.smooth = True
+    fwd = V(0, -1, 0)
+    for ln, lay, toff, tw in ((tails[0], 0.05, -0.11, 0.22), (tails[1], -0.03, 0.12, -0.2)):
+        top = kc + V(0, 0, -0.1) + n0 * lay + t0 * toff
+
+        def center(f, top=top, ln=ln):
+            return top + V(0, 0, -ln * f) + (fwd * 0.2 + n0 * 0.12) * f + fwd * (0.1 * math.sin(f * math.pi * 1.5))
+
+        def wdir(f, tw=tw):
+            ang_ = tw * f
+            return V(t0.x * math.cos(ang_) - t0.y * math.sin(ang_), t0.x * math.sin(ang_) + t0.y * math.cos(ang_), 0)
+
+        def width(f):
+            return 0.28 + 0.12 * smooth01(f)
+        ribbon(mb, center, wdir, ln, width, 0.07, 0.15, NAVY, n=3, cols=2)
+
+
+def _st_toro(mb, x, y, s):
+    """lanterna de pedra baixa (T+4.6) no arenito do anel: sapata chanfrada, fuste octogonal com o colar de pano e o
+    no, prato, camara com a janela de brilho laranja entre 4 pilaretes, telhado piramidal de ferro com beiral e
+    pinaculo"""
+    mb.box((1.8, 1.8, 0.6), (x, y, T + 0.2), (0, 0, 0), STONE, 0.12)
+    mb.cyl(0.46, 1.8, (x, y, T + 1.4), (0, 0, D(22.5)), STONE, 8, r2=0.38, bevel=0.0)
+    rc = ST_TORO_RC
+    mb.cyl(rc, 0.44, (x, y, ST_TORO_ZC), (0, 0, D(22.5)), NAVY, 8, bevel=0.0)
+    _st_knot(mb, (x, y), rc, ST_TORO_ZC, s)
+    mb.box((1.36, 1.36, 0.3), (x, y, T + 2.45), (0, 0, 0), STONE, 0.0)
+    mb.box((0.8, 0.8, 0.84), (x, y, T + 3.02), (0, 0, 0), RIM, 0.0)
+    for sx in (-1, 1):
+        for sy in (-1, 1):
+            mb.box((0.26, 0.26, 0.84), (x + sx * 0.44, y + sy * 0.44, T + 3.02), (0, 0, 0), STONE, 0.0)
+    mb.box((1.8, 1.8, 0.16), (x, y, T + 3.52), (0, 0, 0), IRON, 0.0)
+    mb.cyl(1.2, 0.62, (x, y, T + 3.91), (0, 0, D(45)), IRON, 4, r2=0.2, bevel=0.0)
+    mb.cyl(0.15, 0.4, (x, y, T + 4.37), (0, 0, 0), IRON, 6, r2=0.07, bevel=0.0)
+    return rc
+
+
+def _st_curb(mb, x, y0, y1, n=3, gap=0.08):
+    """meio-fio de arenito ao longo do poco: n blocos (varredura com o topo chanfrado, 20 tris cada) separados por
+    juntas; um nucleo de ferro recuado aparece nas juntas como linha escura (a mesma leitura das aduelas do anel)"""
+    hw, h, c = ST_CURB_W / 2, ST_CURB_H, 0.14
+    prof = [(-hw, -0.12), (hw, -0.12), (hw, h - c), (hw - c, h), (-hw + c, h), (-hw, h - c)]
+    ln = (y1 - y0 - gap * (n - 1)) / n
+    for i in range(n):
+        ya = y0 + i * (ln + gap)
+        mb.sweep([(x, ya, T), (x, ya + ln, T)], prof, STONE, True)
+    mb.box((ST_CURB_W - 0.24, y1 - y0 - 0.3, h - 0.25), (x, (y0 + y1) / 2, T + (h - 0.25) / 2 - 0.1), (0, 0, 0), IRON,
+           0.0)
+
+
+def _st_cloth_prof(W, h_in, h_out, tw=0.0, k=1.0, t=0.06):
+    """secao do pano (a: normal do caminho, 'para cima'; b: lateral, b > 0 = lado do poco): topo chato sobre o
+    meio-fio e abas que caem h_in / h_out abrindo para fora (aba mais comprida abre mais: barra de pano, nao
+    tampa). tw gira a secao (torce a faixa) e k afina a espessura (a ponta que entra no colar)"""
+    top, tin = 0.05 * k, -0.01 * k
+    wi, wo = W + 0.1 * (h_in - 0.3), W + 0.1 * (h_out - 0.3)
+    pts = [(-h_out, -wo), (top, -W + 0.08), (top, W - 0.08), (-h_in, wi),
+           (-h_in, wi - t), (tin, W - t - 0.06), (tin, -W + t + 0.06), (-h_out, -wo + t)]
+    c, s = math.cos(tw), math.sin(tw)
+    return [(a * c - b * s, a * s + b * c) for a, b in pts]
+
+
+def _st_drape(mb, px):
+    """a bandana do guarda-corpo: UMA peca de pano do colar da lanterna direita ate a ponta de baixo do meio-fio.
+    Sai rente a face interna do colar (em pe, de frente para a escada), desce torcendo ate deitar no topo do
+    meio-fio, corre sobre ele com abas de barra ondulada e dobra sobre a quina da ponta de baixo (o no cobre)."""
+    x = px + ST_CURB_DX
+    xf = px + ST_TORO_DX - ST_TORO_RC * math.cos(D(22.5))       # face interna do colar
+    zt = T + ST_CURB_H
+    y0 = ST_CURB_Y[0]
+    # (y, z, x, torcao, meia-largura, aba do lado do poco, aba de fora, espessura)
+    spec = [(ST_TORO_Y, ST_TORO_ZC, xf + 0.005, 90, 0.18, 0.07, 0.07, 0.25),
+            (98.12, ST_TORO_ZC - 0.06, xf - 0.01, 84, 0.2, 0.07, 0.07, 1.0),
+            (97.75, T + 1.58, x + 0.01, 62, 0.24, 0.08, 0.08, 1.0),
+            (97.3, T + 1.28, x, 34, 0.29, 0.1, 0.1, 1.0),
+            (96.8, zt + 0.08, x, 12, 0.35, 0.15, 0.15, 1.0),
+            (96.2, zt + 0.005, x, 0, 0.41, 0.24, 0.26, 1.0)]
+    # barra ondulada: as abas dos dois lados alternam comprida/curta (fase oposta)
+    for y, hi, ho in ((95.3, 0.36, 0.28), (94.0, 0.24, 0.4), (92.7, 0.4, 0.25), (91.4, 0.26, 0.38),
+                      (90.1, 0.38, 0.24), (88.8, 0.3, 0.34)):
+        spec.append((y, zt, x, 0, 0.43, hi, ho, 1.0))
+    spec += [(y0 + 0.02, zt - 0.01, x, 0, 0.43, 0.14, 0.14, 1.0),
+             (y0, ST_KNOT_ZC - 0.12, x, 0, 0.42, 0.08, 0.08, 1.0)]
+    pts = [V(xx, y, z) for (y, z, xx, _tw, _w, _hi, _ho, _k) in spec]
+    profs = [_st_cloth_prof(w, hi, ho, D(tw), k) for (_y, _z, _x, tw, w, hi, ho, k) in spec]
+    K.loft(mb, pts, profs, NAVY, True, up=(0, 0, 1))
+
+
+def stairs(mb, px, rng):
+    """dressing da faixa ao lado do lance 2 (terraco z=T, y 86..99.4, 7.8 <= |x-px| <= 13.9) no MB recebido
+    (PORTAL_Naruto_Stairs). 3 colisoes: as 2 lanternas e o meio-fio (cobre o pano ate a sapata da lanterna).
+    `rng` nao e usado (geometria deterministica)."""
+    for s in (-1, 1):
+        tx = px + s * ST_TORO_DX
+        _st_toro(mb, tx, ST_TORO_Y, s)
+        col_box(A, (1.8, 1.8, 4.6), (tx, ST_TORO_Y, T + 2.3))
+    # guarda-corpo (direita): meio-fio de arenito com a bandana estendida, amarrada no colar da lanterna e com o no
+    # e as caudas na ponta de baixo
+    x = px + ST_CURB_DX
+    _st_curb(mb, x, ST_CURB_Y[0], ST_CURB_Y[1])
+    _st_drape(mb, px)
+    _st_knot(mb, (x, ST_CURB_Y[0]), 0.0, ST_KNOT_ZC, 1, ang=0.0, tails=(0.58, 0.46))
+    y0, y1 = ST_CURB_Y[0] - 0.3, ST_CURB_Y[1]
+    col_box(A, (0.9, y1 - y0, 1.3), (x, (y0 + y1) / 2, T + 0.6))

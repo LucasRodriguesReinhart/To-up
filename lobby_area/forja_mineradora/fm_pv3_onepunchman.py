@@ -1063,3 +1063,255 @@ def build(rng):
     _swirl_unlit()
     mb.finish()
     dec.finish(recalc=False)
+
+
+# ================================================================== DRESSING DA ESCADA (lance 2): "OBRA INTERDITADA"
+# Faixa ao lado do poco, no terraco (z=T): y 85.5..99.6, 7.8 <= |x-px| <= 13.9 (nada no poco, nada sobre a escada).
+# Continua a leitura do portal descendo a escada (cordao a esquerda, escombros a direita):
+#   ESQUERDA: CORDAO de barreiras new jersey (mesmo perfil e faixa zebrada preta/amarela da barreira do portal) na
+#     borda do poco, fazendo de guarda-corpo: duas em pe (a de cima um pouco torta) e a mais perto do portal TOMBADA
+#     de lado pelo impacto do soco.
+#   DIREITA: MONTE DE ESCOMBROS do soco (a linguagem dos montes do portal): bloco arrancado com outro em cima, laje
+#     partida encostada neles com vergalhoes tortos saindo da quebra, bloco menor ao lado; na frente, placa rachada no
+#     chao com um toco de vergalhao. Maior perto do portal, menor perto da borda.
+# So a paleta do portal (concreto claro/medio/escuro, amarelo, vergalhao); semente propria (o estudio e o build dao a
+# mesma geometria); 4 COL: as 3 barreiras e o monte (com o cone).
+ST_SEED = 4051
+# monte da direita: laje dobrada (pe em x/y, rumo phi, pecas a1/b1 e a2/b2, torcao roll; dz enterra), bloco em cunha
+# por baixo (costas recuadas bin do plano de tras da COL), COL em rampa (largura cw, labio maximo lip sobre o pe, sobra
+# over alem da ponta), cone (cx, cy) e bloco solto (sx, sy)
+ST_MOUND = dict(x=10.2, y=92.15, phi=88.0, w=3.6, th=0.6, a1=46.0, b1=2.7, a2=24.0, b2=3.0, roll=-5.0, dz=-0.12,
+                bin=0.04, ridge=0.5, cw=3.2, lip=0.3, over=0.0, cx=9.0, cy=91.0, sx=12.8, sy=95.3)
+ST_DBG = {}
+ST_PROF =[(-0.85, 0.0), (0.85, 0.0), (0.85, 0.3), (0.5, 0.85), (0.35, 2.5), (-0.35, 2.5), (-0.5, 0.85), (-0.85, 0.3)]
+
+
+def _st_frame(cx, cy, ang, z0, tip=0):
+    """referencial da barreira: ld (comprimento), origem O e eixos U/W do perfil (a, b) no mundo.
+    tip=0: em pe (U horizontal, W = +Z, O = (cx, cy, z0)); tip=+-1: DEITADA de lado, tombada para +-u, apoiada na
+    aresta do fecho convexo (0.85, 0.3)-(0.35, 2.5) do lado da queda; (cx, cy) = essa aresta no chao, no meio"""
+    a = D(ang)
+    ld = Vector((math.cos(a), math.sin(a), 0))
+    u = Vector((-math.sin(a), math.cos(a), 0))
+    zv = Vector((0, 0, 1))
+    if not tip:
+        return ld, u, Vector((cx, cy, z0)), u, zv
+    s = tip
+    p0 = Vector((0.85 * s, 0.3))
+    e = (Vector((0.35 * s, 2.5)) - p0).normalized()
+    n = Vector((e.y, -e.x)) if s > 0 else Vector((-e.y, e.x))   # normal para fora do perfil (lado da queda)
+    U = u * (s * e.x) + zv * (-n.x)
+    W = u * (s * e.y) + zv * (-n.y)
+    O = Vector((cx, cy, z0)) - U * p0.x - W * p0.y
+    return ld, u, O, U, W
+
+
+def _st_jersey(mb, cx, cy, ang, length, z0=T - 0.06, tip=0, faces=(-1, 1)):
+    """barreira new jersey (perfil e faixa zebrada da _jersey do portal) em pe ou tombada; `faces` = lados do perfil
+    que recebem a faixa (a face de baixo da tombada fica virada para o chao e nao leva)"""
+    ld, _u, O, U, W = _st_frame(cx, cy, ang, z0, tip)
+    K.plate(mb, ST_PROF, O, U, W, length, CL, bevel=0.1)
+    za, zb = 1.35, 2.15
+    ua = 0.5 - 0.15 * (za - 0.85) / 1.65
+    ub = 0.5 - 0.15 * (zb - 0.85) / 1.65
+    half = length / 2 - 0.2
+    for s in faces:
+        pa = O + U * (s * ua) + W * za
+        pb = O + U * (s * ub) + W * zb
+        up = (pb - pa).normalized()
+        hn = (pb - pa).length
+        nrm = (U * (s * 1.65) + W * 0.15).normalized()
+        base = pa + nrm * 0.03
+        K.plate(mb, [(-half, 0), (half, 0), (half, hn), (-half, hn)], base, ld, up, 0.06, CG)
+        w, sk, gap = 0.42, 0.5, 0.95
+        xk = -half + 0.1
+        while xk + w + sk < half:
+            K.plate(mb, [(xk, 0.04), (xk + w, 0.04), (xk + w + sk, hn - 0.04), (xk + sk, hn - 0.04)],
+                    base + nrm * 0.05, ld, up, 0.06, YE)
+            xk += gap
+
+
+def _st_slab(mb, x, y, zf, w, ln, th, alpha, phi, pts=None):
+    """laje partida ENCOSTADA com rumo livre: aresta de baixo centrada em (x, y) no chao zf, sobe `alpha` na direcao
+    horizontal phi (graus); face de cima clara, quebras escuras (_slab2). Devolve (o, u, v): plano medio da laje"""
+    p = D(phi)
+    u = Vector((math.sin(p), -math.cos(p), 0))
+    v = Vector((math.cos(p) * math.cos(alpha), math.sin(p) * math.cos(alpha), math.sin(alpha)))
+    pts = pts or [(-w / 2, 0.0), (w / 2, 0.0), (w / 2 + 0.1, ln * 0.62), (w / 2 - 0.55, ln), (0.15, ln - 0.35),
+                  (-w / 2 + 0.45, ln * 0.94), (-w / 2 - 0.1, ln * 0.45)]
+    o = Vector((x, y, zf + th * 0.35))
+    _slab2(mb, pts, o, u, v, th, CL, CM, bevel=0.07)
+    return o, u, v
+
+
+def _st_fold(mb, x, y, zf, w, th, phi, b1, a1, b2, a2, crack, top, gap=0.1, roll=0.0, sides=None):
+    """laje partida e DOBRADA sobre um bloco: a peca de baixo sobe a1 do chao (aresta de baixo centrada em (x, y)) ate
+    a quebra em b1 (linha `crack` [(a, db)] da esquerda para a direita); a de cima continua da quebra deitada a2 ate
+    o contorno quebrado `top` [(a, b)] (da direita para a esquerda), torcida `roll` no proprio eixo (nao assenta
+    reta no bloco). `sides` = ((a, b) direita, (a, b) esquerda): uma quebra em cada lado da peca de baixo (tira o
+    retangulo limpo, como o _lean_slab do portal). Faces de cima claras, quebras escuras.
+    Devolve (o, u, v1, n1, o2, u2, v2, n2): origem/eixos/normal de cima de cada peca"""
+    p = D(phi)
+    u = Vector((math.sin(p), -math.cos(p), 0))
+    dh = Vector((math.cos(p), math.sin(p), 0))
+    Z = Vector((0, 0, 1))
+    v1 = dh * math.cos(a1) + Z * math.sin(a1)
+    v2 = dh * math.cos(a2) + Z * math.sin(a2)
+    o = Vector((x, y, zf + th * 0.35))
+    sr, sl = sides if sides else ([], [])
+    _slab2(mb, [(-w / 2, 0.0), (w / 2, 0.0)] + list(sr) + [(a, b1 + db) for a, db in reversed(crack)] + list(sl),
+           o, u, v1, th, CL, CM)
+    o2 = o + v1 * b1
+    n2 = u.cross(v2).normalized()
+    u2 = u * math.cos(roll) + n2 * math.sin(roll)
+    _slab2(mb, [(a, db + gap) for a, db in crack] + list(top), o2, u2, v2, th, CL, CM)
+    return o, u, v1, u.cross(v1).normalized(), o2, u2, v2, u2.cross(v2).normalized()
+
+
+def _st_bar(mb, pts, r=0.16, ch=0.14):
+    """vergalhao barato (5 lados): polilinha com as dobras chanfradas (dobra seca), ponta cortada"""
+    pts = [Vector(p) for p in pts]
+    out = [pts[0]]
+    for a, b, c in zip(pts, pts[1:], pts[2:]):
+        out += [b + (a - b).normalized() * ch, b + (c - b).normalized() * ch]
+    out.append(pts[-1])
+    _ptube(mb, out, r, RB, n=5)
+
+
+def _st_block(mb, pts):
+    """bloco de concreto arrancado em CUNHA: fecho convexo de pontos dados (mundo), no acabamento do _rock (quebras
+    escuras, topo claro, bevel 0.06). Serve de nucleo do monte: frente sob a laje, costas num plano dado"""
+    bm = mb.bm
+    before = set(bm.faces)
+    vs = [bm.verts.new(p) for p in pts]
+    res = bmesh.ops.convex_hull(bm, input=vs)
+    junk = [g for g in res.get("geom_interior", []) + res.get("geom_unused", []) if isinstance(g, bmesh.types.BMVert)]
+    if junk:
+        bmesh.ops.delete(bm, geom=junk, context="VERTS")
+    mb._post([v for v in vs if v.is_valid], CM, None, 0.06, 1)
+    mi = mb._mi_for(CL)
+    for f in bm.faces:
+        if f in before:
+            continue
+        f.normal_update()
+        if f.normal.z > 0.8:
+            f.material_index = mi
+
+
+def _st_cone(mb, x, y, s=1.0, z0=T):
+    """cone de obra (o _cone do portal, 8 lados) apoiado no terraco"""
+    mb.box((1.3 * s, 1.3 * s, 0.18), (x, y, z0 + 0.09), (0, 0, 0.3), CG, 0.05)
+    K.cone(mb, V(x, y, z0 + 0.15), V(x, y, z0 + 1.95 * s), 0.6 * s, 0.1 * s, YE, 8)
+    mb.cyl(0.43 * s, 0.34 * s, (x, y, z0 + 0.95 * s), (0, 0, 0), CG, 8, r2=0.34 * s, bevel=0.0)
+
+
+def stairs(mb, px, rng):
+    """dressing da faixa ao lado do lance 2 (objeto PORTAL_OnePunchMan_Stairs): cordao de barreiras a esquerda,
+    monte de escombros a direita. Usa semente propria (ST_SEED): o rng recebido nao e consumido."""
+    import random
+    r = random.Random(ST_SEED)
+    Z = Vector((0, 0, 1))
+
+    # ---------------------------------------------------------------- ESQUERDA: cordao na borda do poco: barreira em
+    # pe, a do meio TOMBADA de lado pelo impacto (o cordao fica com um buraco; o perfil da ponta fica para a escada),
+    # a de cima em pe e um pouco torta, emendando com a barreira do portal
+    _st_jersey(mb, px - 8.95, 88.85, 90.0, 3.7)
+    col_box2(A, (px - 10.05, 86.95, T), (px - 8.05, 90.75, T + 2.45))
+    ang2, g2 = 150.0, Vector((px - 9.8, 93.9, 0))
+    _ld, ub, _o, _U, _W = _st_frame(g2.x, g2.y, ang2, T - 0.06, 1)
+    _st_jersey(mb, g2.x, g2.y, ang2, 3.6, tip=1, faces=(-1,))
+    c2 = g2 + ub * 1.0
+    col_box(A, (3.5, 2.5, 1.6), (c2.x, c2.y, T + 0.8), (0, 0, D(ang2)))
+    _st_jersey(mb, px - 9.05, 97.45, 94.0, 3.7)
+    col_box(A, (3.7, 1.8, 2.45), (px - 9.05, 97.45, T + 1.225), (0, 0, D(94.0)))
+
+    # ---------------------------------------------------------------- DIREITA: monte de escombros perto do portal,
+    # desenhado como UMA CUNHA para caber numa COL so (col_ramp): na frente a LAJE PARTIDA dobrada sobre o bloco
+    # arrancado (sobe do chao, quebra na quina do bloco e deita em cima; dobra moderada, para o topo das duas pecas
+    # ficar a menos de ~0.35 de um plano so); o bloco e uma cunha macica que enche o monte por baixo da laje, com as
+    # costas (lado do portal) NO plano da face de tras da rampa de colisao (a caixa da rampa tem a face de tras
+    # perpendicular ao topo: costas a 90-p graus). Vergalhoes tortos expostos na dobra e saindo da quebra de cima;
+    # cone de obra na borda do poco, na frente do pe.
+    M = ST_MOUND
+    zf = T + M["dz"]
+    w, th, b1, b2 = M["w"], M["th"], M["b1"], M["b2"]
+    o, u, v1, n1, o2, u2, v2, n2 = _st_fold(
+        mb, px + M["x"], M["y"], zf, w, th, M["phi"], b1, D(M["a1"]), b2, D(M["a2"]),
+        [(-w / 2 - 0.1, 0.1), (-0.9, -0.15), (0.2, 0.18), (w / 2 + 0.1, -0.05)],
+        [(w / 2 + 0.05, b2 - 0.2), (0.4, b2), (-0.5, b2 - 0.2), (-w / 2, b2 - 0.35)], roll=D(M["roll"]),
+        sides=([(w / 2 + 0.28, b1 * 0.32)], [(-w / 2 + 0.42, b1 * 0.5)]))
+    # COL: plano da rampa = corda do topo (pe da peca de baixo -> ponta da deitada, no eixo) subida metade da flecha da
+    # dobra (erro +-flecha/2 no pe, na dobra e na ponta); a caixa desce ate o chao pela face de tras (= costas do bloco)
+    dh = Vector((math.cos(D(M["phi"])), math.sin(D(M["phi"])), 0))
+    q0 = o + n1 * (th / 2) + dh * 0.12
+    q1 = o + v1 * b1 + n1 * (th / 2)
+    q2 = o2 + v2 * (b2 - 0.15) + n2 * (th / 2)
+    h1, h2 = (q1 - q0).dot(dh), (q2 - q0).dot(dh)
+    sl = (q2.z - q0.z) / h2
+    sag = q1.z - (q0.z + sl * h1)
+    pa = q0 + Z * max(0.05, min(sag / 2, M["lip"]))
+    pb = pa + (dh + Z * sl) * (h2 + M["over"])
+    pit = math.atan(sl)
+    dn = dh * math.cos(pit) + Z * math.sin(pit)          # normal da face de tras da rampa
+    thick = (pb.z - (T - 0.05)) / math.cos(pit)
+    col_ramp(A, pa, pb, M["cw"], thick)
+    # nucleo: bloco em cunha. Frente e topo abaixo das faces de baixo das duas pecas (planos por o -/+ n*th/2), costas
+    # no plano da face de tras da rampa (recuadas `bin`); larguras irregulares por canto
+    base0 = Vector((o.x, o.y, 0))
+    c0 = (base0 - Vector((pb.x, pb.y, 0))).dot(dn)
+    cp, sp = math.cos(pit), math.sin(pit)
+
+    def s_back(z):                                   # s (ao longo de dh a partir do pe) do plano de tras na altura z
+        return -(c0 + (z - pb.z) * sp) / cp - M["bin"]
+
+    def under(P, n, s, t, off):                      # z da face de baixo de uma peca em (s, t), menos off
+        X = base0 + dh * s + u * t
+        return P.z - ((X.x - P.x) * n.x + (X.y - P.y) * n.y) / n.z - off
+
+    P1, P2, P2t = o - n1 * (th / 2), o2 - n2 * (th / 2), o2 + n2 * (th / 2)
+    sc = (o2 - o).dot(dh) - 0.1
+    pts = []
+    for t, tb, sf, dsc, dzt, off in ((-1.3, -1.55, 0.95, 0.0, 0.15, 0.12), (1.2, 1.5, 0.75, -0.3, 0.45, 0.3)):
+        zt = min(under(P1, n1, sc + dsc, t, dzt), under(P2, n2, sc + dsc, t, dzt))
+        pts.append(base0 + dh * (sc + dsc) + u * t + Z * zt)                  # topo, na quina da dobra
+        # crista de tras logo abaixo da crista da rampa (`ridge`): a laje deitada assenta no bloco e a ponta quebrada
+        # dela fica rente as costas dele (o topo do bloco entra por baixo da ponta da laje, sem furar a face de cima)
+        zr = pb.z - M["ridge"] - (off - 0.12)
+        sr = s_back(zr)
+        if t > 0:   # canto de tras de fora LASCADO: um ponto mais baixo no plano de tras e outro recuado no topo
+            pts.append(base0 + dh * s_back(zr - 0.8) + u * (t * 1.1) + Z * (zr - 0.8))
+            pts.append(base0 + dh * (sr - 0.6) + u * (t * 0.85) + Z * min(zr - 0.3, under(P2t, n2, sr - 0.6, t * 0.85, 0.3)))
+        else:
+            pts.append(base0 + dh * sr + u * (t * 1.12) + Z * zr)            # topo, na aresta de tras
+        pts.append(base0 + dh * sf + u * tb + Z * (zf - 0.06))                # pe da frente
+        pts.append(base0 + dh * s_back(zf - 0.06) + u * (tb * 1.02) + Z * (zf - 0.06))   # pe de tras
+    pts.append(base0 + dh * 3.0 + u * -1.66 + Z * (zf + 0.85))               # barriga no lado do poco
+    _st_block(mb, pts)
+    # tocos de vergalhao saindo das quebras do bloco: nas costas (para o portal) e no lado do poco (para a escada)
+    zs = zf + 1.35
+    r0 = base0 + dh * (s_back(zs) - 0.45) + u * 0.45 + Z * zs
+    r1 = r0 + dn * 0.95
+    _st_bar(mb, [r0, r1, r1 + (Z * 0.8 + dn * 0.35 - u * 0.25).normalized() * 0.7])
+    r0 = base0 + dh * 3.3 + u * -1.0 + Z * (zf + 0.75)
+    r1 = r0 - u * 0.95
+    _st_bar(mb, [r0, r1, r1 + (Z * 0.85 - dh * 0.4 - u * 0.2).normalized() * 0.65])
+    ST_DBG.update(pit=math.degrees(pit), sag=sag, pa=pa.copy(), pb=pb.copy(), thick=thick,
+                  yend=pb.y + thick * math.sin(pit), block=[p.copy() for p in pts])
+    _st_cone(mb, px + M["cx"], M["cy"], 0.9, z0=T - 0.08)
+    # vergalhoes expostos na dobra (entram na peca de baixo, arqueiam sobre a quebra, entram na de cima)
+    for a_ in (-0.75, 0.65):
+        _st_bar(mb, [o + u * a_ + v1 * (b1 - 0.5), o + u * a_ + v1 * b1 + (n1 + n2).normalized() * 0.6,
+                     o2 + u2 * (a_ + 0.15) + v2 * 0.6])
+    # e saindo da quebra de cima da peca deitada
+    for a_, be, d2, l2 in ((0.4, b2 - 0.05, Z * 0.9 + v2 * 0.2 + u * 0.2, 0.95),
+                           (-0.5, b2 - 0.4, Z * 0.6 - u * 0.8, 0.6)):
+        m = o2 + u2 * a_ + v2 * (be + 0.55)
+        _st_bar(mb, [o2 + u2 * a_ + v2 * (be - 0.5), m, m + d2.normalized() * l2])
+    _rock(mb, px + M["sx"], M["sy"], T, 1.4, 0.8, D(-30), 0.3, r, k=5, elong=1.1)
+
+    # ---------------------------------------------------------------- DIREITA, frente: placa rachada no chao + toco
+    fo, fu, fv = _st_slab(mb, px + 10.3, 88.0, T - 0.08, 2.6, 2.3, 0.45, D(9), 100.0,
+                          pts=[(-1.3, 0.0), (1.2, 0.0), (1.35, 1.2), (0.55, 2.3), (-1.25, 2.0)])
+    q = fo + fu * 0.4 + fv * 1.5
+    _st_bar(mb, [q - Z * 0.4, q + Z * 0.55 + fv * 0.15, q + Z * 0.8 + fv * 0.15 - fu * 0.6])
+    _rock(mb, px + 12.3, 90.4, T, 1.1, 0.65, D(20), 0.3, r, k=4, elong=1.1)

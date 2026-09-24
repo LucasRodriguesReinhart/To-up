@@ -1259,3 +1259,195 @@ def build(rng):
     _spec(LAC, 0.2, 0.62)
     ob = mb.finish()
     return ob
+
+
+# ------------------------------------------------------------------ ESCADA (dressing do lance 2)
+# "a subida para Fujikasane": o lance 2 chega entre um PAR de chochin vermelhas em postes negros (a lanterna do patio,
+# menor: capuz preto, aneis de ferro, papel vermelho, braco para o lado da escada) e, no pe do lado direito, UMA
+# glicinia jovem (irma menor da arvore do portal) com os cachos em sino do portal: tronco lider longo em S com um galho
+# curto para fora, copa em MONTE arredondado inclinado para a escada e UMA cortina de cachos so do lado da escada
+# (pontas escalonadas, todas no ar acima da linha do muro de arrimo). Composicao assimetrica: a arvore grande do portal
+# fica a esquerda e a jovem a direita, na frente; na praca (G_Far) a direita da escada se le contra o penhasco, livre
+# do aro; subindo (I_Climb) o par de lanternas emoldura o portal. A glicinia e o unico acento vertical (<= T+10); as
+# lanternas ficam em T+4.3. Faixa: y 85.5..99.6 e 7.8 <= |x - px| <= 13.9 no terraco (z = T, base enterrada no maximo
+# ate T-0.4); nada no poco. Materiais: P_DS_Iron, P_DS_Red, Bark_Dark, P_DS_Glicinia, P_DS_GlicTip (so a paleta do
+# portal). COL: postes + tronco.
+ST_XMIN, ST_XMAX = 7.8, 13.9            # |x - px| permitido
+ST_YMIN, ST_YMAX = 85.5, 99.6
+ST_POST = 0.6                           # secao do poste
+ST_TOP = 4.3                            # topo do poste (T+): menor que as lanternas do patio (T+4.95)
+ST_ARM = 1.2                            # braco para o lado da escada (a chochin pende sobre a borda do poco)
+ST_H, ST_RW = 1.3, 0.47                 # chochin: altura / raio da barriga
+ST_N = 10                               # lados da chochin e do capuz
+ST_LAMPS = ((-1, 97.2, 10.1), (1, 97.2, 10.1))    # (lado, y, |x - px| do poste): o par da chegada
+ST_CAS_N = 7                            # lados das camadas de petalas dos cachos da escada (= CAS_N do portal)
+
+
+def _st_chochin(mb, hx, y, zt, H=ST_H, Rw=ST_RW, n=ST_N):
+    """chochin pendurada com o topo em zt: capuz preto, aneis de ferro e 3 faixas de papel vermelho (barriga lisa)"""
+    K.cone(mb, (hx, y, zt - 0.09), (hx, y, zt + 0.13), Rw * 1.3, Rw * 0.5, IRON, n)
+    prof = [(0.0, 0.62, IRON), (0.12, 0.72, RED), (0.42, 0.97, RED), (0.84, 0.97, RED), (1.14, 0.72, IRON),
+            (1.26, 0.62, None)]
+    bm = mb.bm
+    z0 = zt - 0.09
+    ang = [math.tau * (j + 0.5) / n for j in range(n)]
+    rings = [[bm.verts.new((hx + math.cos(t) * Rw * k, y + math.sin(t) * Rw * k, z0 - z * H / 1.26)) for t in ang]
+             for z, k, _m in prof]
+    by = {}
+    for i in range(len(rings) - 1):
+        for j in range(n):
+            j2 = (j + 1) % n
+            by.setdefault(prof[i][2], []).append(
+                bm.faces.new((rings[i][j], rings[i][j2], rings[i + 1][j2], rings[i + 1][j])))
+    by[IRON] += [bm.faces.new(rings[0]), bm.faces.new(rings[-1][::-1])]
+    for m, fs in by.items():
+        post_faces(mb, fs, m, smooth=(m == RED))
+    return z0 - H
+
+
+def _st_lantern(mb, px, side, y, dx):
+    """poste de ferro negro com braco para o lado da escada e chochin pendurada (a lanterna do patio, menor)"""
+    x = px + side * dx
+    zb, top = T - 0.3, T + ST_TOP
+    mb.box((ST_POST, ST_POST, top - zb), (x, y, (zb + top) / 2), (0, 0, 0), IRON, 0.08)
+    hx = x - side * ST_ARM
+    za = top - 0.24
+    mb.beam(Vector((x + side * 0.16, y, za)), Vector((hx - side * 0.3, y, za)), 0.4, 0.36, IRON, 0.0)
+    _st_chochin(mb, hx, y, za - 0.18 - 0.1)          # (o capuz entra 0.03 no braco: sem faces coplanares)
+    col_box(A, (0.9, 0.9, top - T + 0.3), (x, y, T + (top - T + 0.3) / 2))
+
+
+def _st_cascade(mb, pts, radii, n, rot=0.0):
+    """cacho em sino (mesma receita de cascade) em 2 tons: lilas forte no alto, lilas claro na ponta"""
+    for k in range(n):
+        rim, rk = pts[k + 1], radii[k + 1]
+        up = pts[k] - rim
+        a = pts[0] if k == 0 else pts[k] + up * TIER_IN
+        bell(mb, a, rim, rk * TIER_TOP, rk, WIS if k < n - 1 or n == 1 else WIS_TIP, n=ST_CAS_N, rot=rot + 0.45 * k)
+    rim, rl = pts[-1], radii[-1]
+    d = (pts[-1] - pts[-2]).normalized()
+    tipp = rim + d * rl * 0.62
+    bell(mb, rim - d * rl * 0.15, tipp, rl * 0.64, rl * 0.3, WIS_TIP, n=ST_CAS_N, rot=rot)
+    return tipp
+
+
+ST_TIER = 0.7                           # altura das camadas dos cachos da escada (proporcao do portal: 0.85 com r0 ~0.5)
+
+
+def _st_plan(r0, vis, top, sway, lat, hide=HIDE):
+    """mesma receita de cascade_plan (camadas em sino, eixo curvo, zigue-zague), com 2-4 camadas de ST_TIER"""
+    n = max(2, min(4, int(round(vis / ST_TIER))))
+    total = vis + hide
+
+    def at(u, off=0.0):
+        f = (hide + u * vis) / total
+        return top - Vector((0, 0, total * f)) + sway * (f * f) + lat * off
+    pts, rad = [top], [r0 * TIER_R[0] * TIER_TOP]
+    for k in range(n):
+        pts.append(at((k + 1) / n, ZIG * (1 if k % 2 else -1)))
+        rad.append(r0 * (TIER_R[0] + (TIER_R[1] - TIER_R[0]) * k / (n - 1)))
+    return pts, rad, n
+
+
+# copa da glicinia jovem: MONTE arredondado (domo rz/rx ~0.85, nao lente) inclinado para a escada: 2 lobos que sobem
+# do lado da escada (o contorno de cima fica irregular, como a copa do portal) + 1 ombro baixo do lado da escada, de
+# onde pende a cortina. Nada do lado de fora: a copa pende para o lado dos cachos, como a arvore do portal.
+#            dx     y     z(T+) rx    ry    rz   nu nv
+ST_CANOPY = ((11.0, 90.4, 8.5, 1.35, 1.4, 1.15, 12, 5),     # domo (topo T+9.65)
+             (10.0, 90.2, 8.9, 0.9, 1.0, 0.8, 8, 4),        # lobo que sobe do lado da escada (topo T+9.7)
+             (10.6, 89.5, 9.2, 0.75, 0.75, 0.68, 8, 4),     # lobo alto da frente (topo T+9.88)
+             (9.55, 90.7, 8.3, 0.7, 1.1, 0.55, 7, 4))       # ombro baixo do lado da escada (trilho da cortina)
+# cortina: 5 cachos SO do lado da escada, espalhados no quadro das cameras da frente (u = dx - 0.32 (y - 90.3) de
+# 9.2 a 10.6); os de tras sao os longos (aparecem abaixo dos da frente), pontas bem escalonadas, todas no ar
+#              dx     y    ponta(T+) r0
+ST_CURTAIN = ((9.7, 91.2, 5.2, 0.36),       # de tras, na borda: o mais longo
+              (9.25, 90.35, 5.75, 0.35),    # borda da frente
+              (10.2, 90.4, 6.3, 0.32),      # meio (perto do tronco: curto)
+              (10.3, 89.4, 6.85, 0.31),     # frente, junto do lobo alto
+              (9.45, 89.6, 7.4, 0.3))       # frente, sob o lobo que sobe: o mais curto
+
+
+def _st_tip(pts, rad):
+    """ponta do botao que _st_cascade poe no fim do cacho (para acertar a altura pedida)"""
+    d = (pts[-1] - pts[-2]).normalized()
+    return pts[-1] + d * rad[-1] * 0.62
+
+
+def _st_wisteria(mb, px, rng):
+    """glicinia jovem (direita, pe da escada): o unico acento vertical (<= T+10), irma menor da arvore do portal.
+    O muro de arrimo da frente (TER_Cliff_UpperWall, topo T+4) esconde a base; o que se ve por cima dele tem de ler
+    ARVORE INCLINADA COM CORTINA DE UM LADO (como a glicinia do portal), nunca bicho de pernas:
+    - tronco lider longo em S (a vista de ~T+4.5 ate a copa em T+7.35) que sobe inclinado para a escada ate dentro do
+      domo, e um galho curto para fora que entra no domo (forquilha em V, sem perna do lado de fora);
+    - copa em monte arredondado + 2 lobos que sobem do lado da escada + ombro baixo (ST_CANOPY);
+    - 5 cachos so do lado da escada (ST_CURTAIN), 7 lados por camada como no portal, pontas escalonadas de T+5.2 a
+      T+7.4 (no ar, longe da linha do muro)."""
+    def P(x, y, z):
+        return Vector((px + x, y, T + z))
+    # (o 1o anel do tubo inclinado comeca em T-0.2: nenhum vertice abaixo de T-0.4; a raiz em cone cobre a base)
+    tr = [P(11.5, 89.8, -0.2), P(11.15, 89.95, 1.8), P(11.6, 90.1, 3.8), P(11.25, 90.25, 5.8), P(11.0, 90.35, 7.4),
+          P(10.85, 90.4, 8.6)]
+    tr_r = [0.6, 0.52, 0.46, 0.4, 0.34, 0.28]
+    tube(mb, tr, tr_r, 6, lambda i, j: BARK, smooth=True, cap0=True)
+    K.cone(mb, (px + 11.5, 89.8, T - 0.2), (px + 11.45, 89.83, T + 0.8), 0.8, 0.56, BARK, 6)
+    br = [P(11.3, 90.25, 5.6), P(11.75, 90.35, 6.9), P(12.0, 90.4, 8.1)]      # galho curto para fora (entra no domo)
+    br_r = [0.27, 0.21, 0.16]
+    tube(mb, br, br_r, 5, lambda i, j: BARK, smooth=True, cap0=True)
+    masses = [(P(dx, y, z), rx, ry, rz) for dx, y, z, rx, ry, rz, _u, _v in ST_CANOPY]
+    for (c, rx, ry, rz), (_x, _y, _z, _a, _b, _c, nu, nv) in zip(masses, ST_CANOPY):
+        blob(mb, c, rx, ry, rz, WIS, nu=nu, nv=nv, rot=rng.uniform(0, 1))
+    segs = list(zip(tr, tr[1:], tr_r)) + list(zip(br, br[1:], br_r))
+    cen = Vector((px + 11.0, 90.4, 0))
+    vis_log, vis_pts = [], []
+    for dx, y, ztip, r0 in ST_CURTAIN:
+        x = px + dx
+        zs = [under(c, rx, ry, rz, x, y) for c, rx, ry, rz in masses]
+        zs = [z for z in zs if z is not None]
+        if not zs:
+            print("ESCADA DS: cacho sem copa em", dx, y)
+            continue
+        zu = min(zs)
+        out = Vector((x - cen.x, y - cen.y, 0)).normalized()
+        # pende reto (cortina, nao perna aberta): so abre um pouco para fora e para a frente/tras, como no portal
+        sway = Vector((out.x * rng.uniform(0.04, 0.08), rng.choice((-1, 1)) * rng.uniform(0.1, 0.2), 0))
+        a_ = rng.uniform(0, math.tau)
+        lat = Vector((math.cos(a_), math.sin(a_), 0))
+        ln = zu - (T + ztip)                                            # comprimento visivel ate a ponta pedida
+        for _it in range(4):                                            # acerta a ponta do botao na altura pedida
+            pts, rad, n = _st_plan(r0, ln, Vector((x, y, zu + HIDE)), sway, lat)
+            ln += _st_tip(pts, rad).z - (T + ztip)
+        pts, rad, n = _st_plan(r0, ln, Vector((x, y, zu + HIDE)), sway, lat)
+        # conferencias: nada de cacho encostando no tronco/galho nem atravessando o vizinho (trecho fora da copa)
+        for p, r in zip(pts[1:], rad[1:]):
+            if p.z > zu - 0.2:
+                continue
+            for a, b, rr in segs:
+                if seg_dist(p, a, b) < r + rr + 0.05:
+                    print("ESCADA DS: cacho %.2f/%.2f encosta no tronco em T+%.2f" % (dx, y, p.z - T))
+            for q, qr in vis_pts:
+                if (p - q).length < r + qr + 0.03:
+                    print("ESCADA DS: cacho %.2f/%.2f atravessa o vizinho em T+%.2f" % (dx, y, p.z - T))
+        vis_pts += [(q, qr) for q, qr in zip(pts[1:], rad[1:]) if q.z < zu - 0.2]
+        tipp = _st_cascade(mb, pts, rad, n, rot=rng.uniform(0, math.tau))
+        vis_log.append("%.2f/%.2f: copa T+%.2f visivel %.2f %d camadas ponta T+%.2f" % (
+            dx, y, zu - T, zu - tipp.z, n, tipp.z - T))
+    print("ESCADA DS glicinia: %s" % " | ".join(vis_log))
+    col_box(A, (1.3, 1.3, 7.0), (px + 11.35, 89.95, T + 3.5))
+
+
+def _st_check(mb, px):
+    """confere que o dressing ficou todo na faixa (fora do poco, dentro do lote, base enterrada no maximo 0.4 e topo
+    no maximo no acento de T+10)"""
+    bad = [v.co for v in mb.bm.verts if not (ST_XMIN <= abs(v.co.x - px) <= ST_XMAX and ST_YMIN <= v.co.y <= ST_YMAX
+                                             and T - 0.4 <= v.co.z <= T + 10.0)]
+    if bad:
+        print("ESCADA DS: %d vertices fora da faixa (ex.: %s)" % (len(bad), tuple(round(c, 2) for c in bad[0])))
+
+
+def stairs(mb, px, rng):
+    """dressing da faixa ao lado do lance 2 (objeto PORTAL_DemonSlayer_Stairs): par de chochin no alto + glicinia
+    jovem no pe do lado direito"""
+    for side, y, dx in ST_LAMPS:
+        _st_lantern(mb, px, side, y, dx)
+    _st_wisteria(mb, px, rng)
+    _st_check(mb, px)
