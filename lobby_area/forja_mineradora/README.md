@@ -86,7 +86,7 @@ O teto de materiais subiu de 120 para 134, porque no Roblox cada material é só
 - nunca mexe em `Ember_Glow`/`Fire_Glow_`, que o VFX acha pelo nome, nem nos 3 tons das glicínias.
 
 ## Lobby ativo no jogo (2026-09-24)
-A Vila-Forja é o lobby do Anime Mining Simulator, montada em `workspace.LOBBY_FORJA` **na origem** (export `e4dec731`, `ROOT_OFFSET` 0).
+A Vila-Forja é o lobby do Anime Mining Simulator, montada em `workspace.LOBBY_FORJA` **na origem** (export `87a2cf9c`, `ROOT_OFFSET` 0; o `e4dec731` foi o primeiro, trocado só para aumentar a loja).
 
 **Mudanças no place.** Todas foram feitas no Studio e **não estão salvas**: o dono do jogo salva e publica.
 - **Backup:** em `ServerStorage.BeforeForjaAtiva_20260924` ficaram:
@@ -99,11 +99,12 @@ A Vila-Forja é o lobby do Anime Mining Simulator, montada em `workspace.LOBBY_F
   - ponto do lobby em `(0, 3.5, 104)`, a plataforma do spawn, olhando a Forja (-Z);
   - área válida do lobby até z -300 (a passagem de Konoha vai até o Grande Portão, em z -289).
 - **`Main`:** `LOBBY = (0, 3.5, 104)`.
-- **`ExpeditionTravel`:** lobby, loja (`32.5, 7.6, 39`) e Ignis (`0, 7.4, 20`).
+- **`ExpeditionTravel`:** lobby, loja (`35, 7.6, 39`, na frente do balcão) e Ignis (`0, 7.4, 20`).
 - **Gatilhos dos portais:** `LOBBY_FORJA.Santuario` tem `Portal1..6`, cada um com um `Disco` invisível e `AreaId` = área do jogo, mais `PortalKonoha` no Grande Portão (área 1). O `Main` liga os discos com a checagem de desbloqueio que já existia.
 - **Objetos realocados:**
   - `NPCs.Ignis`: a bigorna do próprio modelo ficou no lugar da bigorna da Forja;
-  - `npc vendedor` + `LojaMochilas.PadLoja`: na loja da praça;
+  - `npc vendedor`: atrás do balcão da loja da praça (marcador `NPC_Shop`, olhando a porta);
+  - `LojaMochilas.PadLoja`: no chão em frente ao balcão (`PLAYER_INTERACT_Shop`), só como marca: `CanTouch` desligado;
   - `MailBox`: na plataforma do spawn;
   - `Rebirth`: no canto sudoeste da praça, virado para a escadaria;
   - `Mystical Spawn Point`: no spawn.
@@ -114,6 +115,7 @@ A Vila-Forja é o lobby do Anime Mining Simulator, montada em `workspace.LOBBY_F
   - portal Naruto → área 1, portal Dragon Ball → área 2;
   - passagem de Konoha → Grande Portão → área 1;
   - 748 MeshParts pré-carregadas sem falha.
+- **Loja de mochilas (2026-09-24):** a loja cresceu para 24x24 com paredes de 16 (~3 alturas de jogador), porta, vitrine e janelas altas e estante de 6 prateleiras. Ela abre por um `ProximityPrompt` "Comprar" (`LojaPrompt`) no `HumanoidRootPart` do vendedor, criado pelo `Main`: 12 studs de alcance, com checagem de distância no servidor. Testado em Play: o prompt dispara `AbrirLoja` e a loja abre na aba Mochilas.
 - **Não testado:** portal de área **bloqueada** com um perfil novo; o aviso de compra é a rotina original do jogo.
 
 ## Integração no Roblox Studio
