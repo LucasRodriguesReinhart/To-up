@@ -6,64 +6,8 @@ import il_lib as IL
 from il_lib import MB, D, col_box, col_box2, col_ramp, mk
 import il_layout as L
 import fm_parts as FP
-
-
-def _level(x, y):
-    return L.zone_of(x, y)
-
-
-# ------------------------------------------------------------------ poligonos com entalhe das escadas
-def stair_notch(u_deg, r_in, depth, hw):
-    """pontos do entalhe (sentido horario ao longo do arco r_in) para uma escada radial"""
-    a = math.radians(u_deg)
-    ux, uy = math.cos(a), math.sin(a)
-    vx, vy = -uy, ux
-    rin = math.sqrt(max(r_in * r_in - hw * hw, 1.0))
-    return [(ux * rin + vx * hw, uy * rin + vy * hw), (ux * depth + vx * hw, uy * depth + vy * hw),
-            (ux * depth - vx * hw, uy * depth - vy * hw), (ux * rin - vx * hw, uy * rin - vy * hw)]
-
-
-RADIAL_STAIRS = [("C", 90.0, 12.0), ("NW", 128.0, 9.0), ("NE", 52.0, 9.0), ("SUMMON", 170.0, 12.0)]
-STAIR_TOP_R = 82.5 + 8 * L.TREAD   # 96.1
-
-
-def t1_poly_notched():
-    a0, a1 = L.T1_WALL_A
-    p = IL.wedge_clip(IL.rim(), a0, a1)
-    p = IL.clip(p, 1.0, 0.0, 108.0)
-    # arco r=88 de a1 ate a0 com entalhes nas escadas radiais
-    arc = []
-    stairs = sorted(RADIAL_STAIRS, key=lambda s: -s[1])
-    a_cur = a1
-    for _, ang, w in stairs:
-        hw = w / 2 + 0.6
-        da = math.degrees(math.asin(hw / L.T1_WALL_R))
-        arc += IL.arc_pts(L.T1_WALL_R, a_cur, ang + da, 3.0)
-        arc += stair_notch(ang, L.T1_WALL_R, STAIR_TOP_R + 0.2, hw)
-        a_cur = ang - da
-    arc += IL.arc_pts(L.T1_WALL_R, a_cur, a0, 3.0)
-    out = []
-    for q in p:
-        if abs(q[0]) < 1e-6 and abs(q[1]) < 1e-6:
-            out.extend(arc)
-        else:
-            out.append(q)
-    return IL.ccw(out)
-
-
-def t2_poly_notched():
-    p = IL.t2_poly()
-    ys = L.T2_WALL_Y
-    top = L.T2_STAIR_Y0 + 8 * L.TREAD + 0.2
-    hw = L.T2_STAIR_W / 2 + 0.6
-    out = []
-    n = len(p)
-    for i in range(n):
-        a, b = p[i], p[(i + 1) % n]
-        out.append(a)
-        if abs(a[1] - ys) < 1e-6 and abs(b[1] - ys) < 1e-6 and a[0] < -hw < hw < b[0]:
-            out += [(-hw, ys), (-hw, top), (hw, top), (hw, ys)]
-    return IL.ccw(out)
+from il_col import (_level, stair_notch, RADIAL_STAIRS, STAIR_TOP_R, t1_poly_notched,
+                    t2_poly_notched, guard, arc_guard, ramp_ends)
 
 
 # ------------------------------------------------------------------ terreno
@@ -97,124 +41,8 @@ def terrain():
     IL.prism(cl, IL.cliff_poly(), L.T2 - 2.0, L.CLIFF_TOP, "Cliff_Rock_Tan", "Grass_Konoha")
     cl.finish()
 
-    # colisao do terreno
-    A = "Terrain"
-    for half in IL.base_halves(L.PIT_R - 0.5):
-        IL.col_poly(A, half, L.G - 8.0, L.G, 3.0)
-    IL.col_poly(A, IL.arc_pts(L.PIT_R, 0, 360, 4.0)[:-1], L.PIT - 6.0, L.PIT, 3.0)
-    IL.col_annulus(A, L.RING_R0, L.RING_R1, 0.0, 360.0, L.PIT - 0.5, L.RING, 72)
-    IL.col_annulus(A, L.RING_R1 - 0.5, L.T1_WALL_R, L.T1_WALL_A[0], L.T1_WALL_A[1], L.G - 1.0, L.RING, 36)
-    IL.col_poly(A, t1_poly_notched(), L.G - 1.0, L.T1, 2.0, mode="inter")
-    t1_arc_fill(A)
-    IL.col_poly(A, t2_poly_notched(), L.T1 - 1.0, L.T2, 2.0, mode="inter")
-    top = L.T2_STAIR_Y0 + 8 * L.TREAD
-    col_box2(A, (-L.T2_STAIR_W / 2 - 1.0, top - 0.2, L.T1), (L.T2_STAIR_W / 2 + 1.0, top + 2.4, L.T2))
-    IL.col_poly(A, IL.cliff_poly(), L.T2 - 1.0, L.CLIFF_TOP, 4.0)
-    rim_guard()
-
-
-def t1_arc_fill(A):
-    """colisao precisa do T1 junto ao muro em arco (r 88..101): as faixas em y deixam fresta no topo das escadas"""
-    a0, a1 = L.T1_WALL_A
-    gaps = []
-    for _, ang, w in RADIAL_STAIRS:
-        gaps.append((ang, math.degrees(math.asin((w / 2 + 0.6) / L.T1_WALL_R))))
-    spans = [(a0, a1)]
-    for g, da in gaps:
-        new = []
-        for s0, s1 in spans:
-            if g + da <= s0 or g - da >= s1:
-                new.append((s0, s1))
-                continue
-            if g - da > s0:
-                new.append((s0, g - da))
-            if g + da < s1:
-                new.append((g + da, s1))
-        spans = new
-    for s0, s1 in spans:
-        IL.col_annulus(A, L.T1_WALL_R, STAIR_TOP_R + 0.2, s0, s1, L.G - 1.0, L.T1, max(2, int((s1 - s0) / 3.0)))
-    IL.col_annulus(A, STAIR_TOP_R, STAIR_TOP_R + 5.0, a0, a1, L.G - 1.0, L.T1, int((a1 - a0) / 3.0))
-
-
-def corridor(x, y):
-    """pontos da borda onde a guarda invisivel fica aberta: ponte de chegada e ponte de saida"""
-    if y < -108.0 and abs(x) < L.BRIDGE_W / 2 + 0.5:
-        return True
-    ux, uy = L.exit_dir()
-    sx, sy = L.EXIT_START
-    t = (x - sx) * ux + (y - sy) * uy
-    d = abs(-(x - sx) * uy + (y - sy) * ux)
-    return 0.0 <= t <= L.EXIT_BRIDGE_LEN + 60.0 and d < L.EXIT_W / 2 + 0.5
-
-
-def rim_guard():
-    """parede invisivel na borda da ilha (8 acima do piso local), aberta so onde as pontes encostam"""
-    pts = IL.rim()
-    n = len(pts)
-    for i in range(n):
-        a, b = Vector((*pts[i], 0)), Vector((*pts[(i + 1) % n], 0))
-        d = b - a
-        ns = max(1, int(d.length / 1.0))
-        run = []
-        runs = []
-        for k in range(ns + 1):
-            p = a + d * (k / ns)
-            if corridor(p.x, p.y):
-                if len(run) > 1:
-                    runs.append(run)
-                run = []
-            else:
-                run.append(p)
-        if len(run) > 1:
-            runs.append(run)
-        for rr in runs:
-            p0, p1 = rr[0], rr[-1]
-            mid = (p0 + p1) / 2
-            inward = Vector((-mid.x, -mid.y, 0)).normalized() * 3.0
-            z = _level(mid.x + inward.x, mid.y + inward.y)
-            col_box("Rim", ((p1 - p0).length + 1.0, 1.2, 9.0), (mid.x, mid.y, z + 3.5), (0, 0, math.atan2(d.y, d.x)))
-
-
-# ------------------------------------------------------------------ guarda-corpos (visual + COL)
-def guard(mb, pts, z, kind="parapet", area="Guard"):
-    pts3 = [(p[0], p[1], z) for p in pts]
-    if kind == "fence":
-        FP.fence(mb, area, pts3, h=3.0, post_step=4.0, m="Wood_Dark", rail_m="Wood_Plank")
-    else:
-        FP.stone_parapet(mb, area, pts3, h=2.0, w=1.2, m="Stone_Wall_Light", cap_m="Stone_Wall_Dark")
-
-
-def arc_guard(mb, r, a0, a1, z, kind, gaps=(), step=5.0, area="Guard"):
-    """guarda em arco de a0 a a1 (graus), pulando os vaos [(ang, meia_largura_em_studs)]"""
-    spans = [(a0, a1)]
-    for ang, hw in gaps:
-        da = math.degrees(hw / r)
-        new = []
-        for s0, s1 in spans:
-            g0, g1 = ang - da, ang + da
-            if g1 <= s0 or g0 >= s1:
-                new.append((s0, s1))
-                continue
-            if g0 > s0:
-                new.append((s0, g0))
-            if g1 < s1:
-                new.append((g1, s1))
-        spans = new
-    for s0, s1 in spans:
-        if s1 - s0 < 0.5:
-            continue
-        guard(mb, IL.arc_pts(r, s0, s1, step), z, kind, area)
-
 
 # ------------------------------------------------------------------ fosso, anel, escadas, rampas
-def ramp_ends(side):
-    r = L.PIT_R - L.PIT_RAMP_W / 2 - 0.5
-    a_top, a_bot = L.PIT_RAMP_A
-    if side < 0:
-        a_top, a_bot = 180.0 - a_top, 180.0 - a_bot
-    top = (r * math.cos(math.radians(a_top)), r * math.sin(math.radians(a_top)))
-    bot = (r * math.cos(math.radians(a_bot)), r * math.sin(math.radians(a_bot)))
-    return top, bot, a_top
 
 
 def mining():
@@ -303,11 +131,7 @@ def mining():
     om = MB("MINE_Ore_Placeholders", "03_MINING", rng)
     for kind, i, x, y, r in L.ore_points():
         om.rock((x, y, L.PIT + r * 0.3), (r * 1.2, r * 1.2, r * 0.9), tint[kind], 1, jitter=0.2)
-        mk("ORE_%s_%02d" % (kind, i), (x, y, L.PIT), size=r, kind="SPHERE",
-           props={"rarity": kind, "radius": r})
     om.finish()
-    mk("GP_Zone_Pit", (0, 0, L.PIT), size=L.PIT_R - 4.0, kind="CIRCLE",
-       props={"radius": L.PIT_R - 4.0, "floor": L.PIT, "kind": "mining"})
 
 
 def col_beam_ramp(a, b):
@@ -455,6 +279,26 @@ def village():
     round_building("VIL_WaterTower_Blockout", x, y, r, L.T2, 11.0, "Roof_Blue", tiers=2, door=False)
     x, y, w, d, yaw = L.RAMEN
     square_house("VIL_Ramen_Blockout", x, y, w, d, L.T1, "Roof_Green", door=True, h=9.0)
+    rng = random.Random(77)
+    # estandartes da escadaria central (edificio importante)
+    bn = MB("VIL_Banners_Blockout", "04_VILLAGE", rng)
+    for s in (-1, 1):
+        bn.box((0.6, 0.6, 12.0), (s * 8.5, 99.0, L.T1 + 6.0), (0, 0, 0), "Wood_Dark", 0.05)
+        bn.box((3.6, 0.3, 7.0), (s * 8.5, 98.6, L.T1 + 7.5), (0, 0, 0), "Cloth_Red", 0.0)
+    bn.finish()
+    x, y, r = L.MAIN_HALL
+    mk("NPC_MainHall", (x, y + 4.0, L.T2 + 0.3), (0, 0, math.pi), 2.0, "ARROWS")
+    mk("PLAYER_INTERACT_MainHall", (x, y - 4.0, L.T2 + 0.3), (0, 0, 0), 2.0, "SPHERE")
+    x, y, r = L.BLUE_W
+    mk("NPC_WeaponShop", (x, y + 3.0, L.T2 + 0.3), (0, 0, math.pi), 2.0, "ARROWS")
+    mk("PLAYER_INTERACT_WeaponShop", (x, y - 4.0, L.T2 + 0.3), (0, 0, 0), 2.0, "SPHERE")
+    x, y, w, d, yaw = L.RAMEN
+    mk("NPC_Ramen", (x, y + 2.0, L.T1 + 0.3), (0, 0, math.pi), 2.0, "ARROWS")
+    mk("PLAYER_INTERACT_Ramen", (x, y - d / 2 - 2.5, L.T1 + 0.3), (0, 0, 0), 2.0, "SPHERE")
+
+
+def houses():
+    """casas nao entraveis (T1, T2, plato de cima, vale leste) + moinho de minerio (entravel)"""
     for i, (hx, hy, w, d, yaw, roof) in enumerate(L.HOUSES_T1):
         z = L.zone_of(hx, hy)
         square_house("VIL_House_T1_%d_Blockout" % i, hx, hy, w, d, z, roof, h=10.0)
@@ -465,12 +309,19 @@ def village():
     for i, hx in enumerate((-78.0, -40.0, 0.0, 40.0, 80.0)):
         square_house("VIL_Upper_%d_Blockout" % i, hx, 196.0 + rng.uniform(-3, 3), 12.0, 10.0, L.CLIFF_TOP,
                      ("Roof_Terracotta", "Roof_Green", "Roof_Blue", "Roof_Terracotta", "Roof_Green")[i], h=8.0)
-    # estandartes da escadaria central (edificio importante)
-    bn = MB("VIL_Banners_Blockout", "04_VILLAGE", rng)
-    for s in (-1, 1):
-        bn.box((0.6, 0.6, 12.0), (s * 8.5, 99.0, L.T1 + 6.0), (0, 0, 0), "Wood_Dark", 0.05)
-        bn.box((3.6, 0.3, 7.0), (s * 8.5, 98.6, L.T1 + 7.5), (0, 0, 0), "Cloth_Red", 0.0)
-    bn.finish()
+    for i, (hx, hy, w, d, yaw, roof) in enumerate(L.EAST_HOUSES):
+        square_house("VIL_House_E_%d_Blockout" % i, hx, hy, w, d, L.G, roof)
+    rng = random.Random(72)
+    mm = MB("VIL_Mill_Blockout", "04_VILLAGE", rng)
+    mx, my, mw, md = L.MILL
+    mm.box((mw, md, 10.0), (mx, my, L.G + 5.0), (0, 0, 0), "Plaster_Cream", 0.1)
+    mm.cyl(math.hypot(mw, md) / 2 + 2.0, 5.0, (mx, my, L.G + 12.5), (0, 0, math.pi / 4), "Roof_Terracotta", 4,
+           r2=1.0, bevel=0.0)
+    mm.box((0.6, 6.0, 7.5), (mx - mw / 2 - 0.2, my, L.G + 3.75), (0, 0, 0), "Wood_Dark", 0.05)
+    mm.finish()
+    col_box("Mill", (mw, md, 10.0), (mx, my, L.G + 5.0))
+    mk("NPC_Mill", (mx + 2.0, my, L.G + 0.3), (0, 0, math.pi / 2), 2.0, "ARROWS")
+    mk("PLAYER_INTERACT_Mill", (mx - mw / 2 - 3.0, my, L.G + 0.3), (0, 0, -math.pi / 2), 2.0, "SPHERE")
 
 
 # ------------------------------------------------------------------ summon
@@ -525,8 +376,8 @@ def summon():
        "ARROWS")
 
 
-# ------------------------------------------------------------------ leste: riacho, roda, moinho, ponte em arco, casas
-def east():
+# ------------------------------------------------------------------ agua: riacho, quedas, roda d'agua, ponte em arco
+def water():
     rng = random.Random(71)
     wt = MB("WATER_Blockout", "06_WATER", rng, detail="far")
     pts = L.STREAM
@@ -556,26 +407,18 @@ def east():
     # sudoeste: galeria de drenagem do fosso na face do penhasco
     wt.box((6.0, 1.0, 100.0), (-112.0, -90.0, L.G - 54.0), (0, 0, math.radians(-40)), "Water_Fall", 0.0)
     wt.finish()
-    # roda d'agua e moinho
-    mm = MB("MINE_Mill_Blockout", "03_MINING", rng)
+    # roda d'agua
+    mm = MB("WATER_Wheel_Blockout", "06_WATER", rng)
     wx, wy, wr = L.WHEEL
     mm.cyl(wr, 3.0, (wx, wy, L.G + wr - 3.0), (0, math.pi / 2, 0), "Wood_Plank", 16, bevel=0.0)
-    mx, my, mw, md = L.MILL
-    mm.box((mw, md, 10.0), (mx, my, L.G + 5.0), (0, 0, 0), "Plaster_Cream", 0.1)
-    mm.cyl(math.hypot(mw, md) / 2 + 2.0, 5.0, (mx, my, L.G + 12.5), (0, 0, math.pi / 4), "Roof_Terracotta", 4,
-           r2=1.0, bevel=0.0)
-    mm.box((0.6, 6.0, 7.5), (mx - mw / 2 - 0.2, my, L.G + 3.75), (0, 0, 0), "Wood_Dark", 0.05)
     mm.finish()
-    col_box("Mill", (mw, md, 10.0), (mx, my, L.G + 5.0))
-    col_box("Mill", (3.0, wr * 2, wr * 2), (wx, wy, L.G + wr - 3.0))
+    col_box("Wheel", (3.0, wr * 2, wr * 2), (wx, wy, L.G + wr - 3.0))
     # ponte em arco sobre o riacho
-    fb = MB("PROP_Footbridge_Blockout", "09_PROPS", rng)
+    fb = MB("WATER_Footbridge_Blockout", "06_WATER", rng)
     fx, fy = L.FOOTBRIDGE
     fb.box((L.STREAM_W + 8.0, 4.0, 0.6), (fx, fy, L.G + 1.4), (0, 0, 0), "Wood_Plank", 0.05)
     fb.finish()
     col_box2("Footbridge", (fx - L.STREAM_W / 2 - 4.0, fy - 2.0, L.G + 0.7), (fx + L.STREAM_W / 2 + 4.0, fy + 2.0, L.G + 1.7))
-    for i, (hx, hy, w, d, yaw, roof) in enumerate(L.EAST_HOUSES):
-        square_house("VIL_House_E_%d_Blockout" % i, hx, hy, w, d, L.G, roof)
 
 
 # ------------------------------------------------------------------ saida: ponte, ilhota, portao DB, ancora
@@ -629,88 +472,59 @@ def exit_and_gate():
         gg.box((3.4, 3.4, 1.4), (q.x, q.y, L.EXIT_Z + 9.7), (0, 0, yaw), "Lantern_Glow", 0.05)
         col_box("ExitIslet", (2.6, 2.6, 9.0), (q.x, q.y, L.EXIT_Z + 4.5), (0, 0, yaw))
     gg.finish()
-    # portao Dragon Ball (blockout): pilares vermelhos, telhado dourado, medalhao, barreira laranja
-    gp = Vector((*L.gate_db_pos(), L.EXIT_Z))
-    gt = MB("GATE_DB_Frame_Blockout", "08_PURCHASE_GATES", rng)
-    ow = L.PG_OPEN_W / 2
-    for s in (-1, 1):
-        q = gp + side * s * (ow + 1.6)
-        gt.cyl(1.6, 20.0, (q.x, q.y, L.EXIT_Z + 10.0), (0, 0, 0), "Wood_Lacquer_Red", 12, bevel=0.0)
-        col_box("GateDB", (3.4, 3.4, 20.0), (q.x, q.y, L.EXIT_Z + 10.0))
-        q2 = gp + side * s * (ow + 8.0) - Vector((ux, uy, 0)) * 4.0
-        gt.box((5.0, 5.0, 4.0), (q2.x, q2.y, L.EXIT_Z + 2.0), (0, 0, yaw), "Stone_Wall_Light", 0.15)
-        gt.box((3.0, 3.5, 5.0), (q2.x, q2.y, L.EXIT_Z + 6.5), (0, 0, yaw), "Stone_Wall_Dark", 0.3)
-        gt.ico(1.6, (q2.x, q2.y, L.EXIT_Z + 9.8), "DB_Energy_Glow", 1)
-        col_box("GateDB", (5.0, 5.0, 9.0), (q2.x, q2.y, L.EXIT_Z + 4.5), (0, 0, yaw))
-    gt.box((L.PG_OPEN_W + 12.0, 3.0, 2.4), (gp.x, gp.y, L.EXIT_Z + L.PG_OPEN_H + 1.2), (0, 0, yaw),
-           "Wood_Lacquer_Red", 0.1)
-    gt.box((L.PG_OPEN_W + 18.0, 9.0, 1.4), (gp.x, gp.y, L.EXIT_Z + L.PG_OPEN_H + 3.4), (0, 0, yaw), "Metal_Gold", 0.1)
-    fwd = Vector((ux, uy, 0))
-    med = gp - fwd * 1.8 + Vector((0, 0, L.PG_OPEN_H + 3.0))
-    gt.cyl(3.4, 1.2, med, (math.pi / 2, 0, yaw), "Metal_Gold", 20, bevel=0.0)
-    gt.ico(2.6, med - fwd * 0.6, "DB_Energy_Glow", 2)
-    gt.finish()
-    bar = MB("GATE_DB_Barrier", "08_PURCHASE_GATES", rng)
-    bar.box((L.PG_OPEN_W, 0.4, L.PG_OPEN_H), (gp.x, gp.y, L.EXIT_Z + L.PG_OPEN_H / 2), (0, 0, yaw),
-            "DB_Energy_Glow", 0.0)
-    bar.box((3.0, 1.0, 3.6), (gp.x - fwd.x * 0.5, gp.y - fwd.y * 0.5, L.EXIT_Z + 9.0), (0, 0, yaw),
-            "Metal_Gold", 0.2)
-    bar.finish()
-    lock = col_box("GateDBLock", (L.PG_OPEN_W, 1.2, L.PG_OPEN_H), (gp.x, gp.y, L.EXIT_Z + L.PG_OPEN_H / 2),
-                   (0, 0, yaw), kind="GateLock")
-    lock["gate"] = "DB"
-    # marcadores da saida e do portao
     mk("ISLAND_EXIT_Naruto", (s0.x, s0.y, L.EXIT_Z), (0, 0, yaw), 3.0, "ARROWS",
        props={"width": L.EXIT_W, "deck_z": L.EXIT_Z})
-    mk("GATE_DB", (gp.x, gp.y, L.EXIT_Z), (0, 0, yaw), 4.0, "ARROWS",
-       props={"open_w": L.PG_OPEN_W, "open_h": L.PG_OPEN_H, "area_id": 2})
-    mk("GATE_DB_LOCKED", (gp.x, gp.y, L.EXIT_Z + L.PG_OPEN_H / 2), (0, 0, yaw), 2.0, "CUBE")
-    q = gp - fwd * 7.0
-    mk("GATE_DB_INTERACT", (q.x, q.y, L.EXIT_Z + 0.2), (0, 0, yaw), 2.0, "SPHERE", props={"radius": 10.0})
-    q = gp + fwd * 12.0
-    mk("GATE_DB_EXIT", (q.x, q.y, L.EXIT_Z + 0.2), (0, 0, yaw), 2.0, "ARROWS")
-    q = gp - fwd * 2.0 + Vector((0, 0, L.PG_OPEN_H + 8.0))
-    mk("PURCHASE_UI_ANCHOR_DB", (q.x, q.y, q.z), (0, 0, yaw + math.pi), 2.0, "SINGLE_ARROW",
-       props={"gate": "DB", "faces": "approach"})
     mk("ISLAND_NEXT_ANCHOR", (p_end.x, p_end.y, L.EXIT_Z), (0, 0, yaw), 5.0, "ARROWS",
        props={"width": L.EXIT_W, "clear_h": L.PG_OPEN_H + 4.0, "deck_z": L.EXIT_Z, "heading_deg": L.EXIT_DEG,
               "next_area": 2})
 
 
+def db_gate():
+    """portao Dragon Ball (blockout) sobre o padrao comum il_gate_std"""
+    import il_gate_std as GS
+    rng = random.Random(82)
+    gx, gy = L.gate_db_pos()
+    yaw = math.radians(L.EXIT_DEG) - math.pi / 2
+    F = GS.gate_frame(gx, gy, L.EXIT_Z, yaw)
+    ow = GS.OPEN_W / 2
+    gt = MB("GATE_DB_Frame_Blockout", "08_PURCHASE_GATES", rng)
+    for s in (-1, 1):
+        gt.cyl(1.6, 20.0, F.p(s * (ow + 1.6), 0, 10.0), (0, 0, 0), "Wood_Lacquer_Red", 12, bevel=0.0)
+        col_box("GateDB", (3.4, 3.4, 20.0), F.p(s * (ow + 1.6), 0, 10.0))
+        gt.box((5.0, 5.0, 4.0), F.p(s * (ow + 8.0), -4.0, 2.0), F.r(), "Stone_Wall_Light", 0.15)
+        gt.box((3.0, 3.5, 5.0), F.p(s * (ow + 8.0), -4.0, 6.5), F.r(), "Stone_Wall_Dark", 0.3)
+        gt.ico(1.6, F.p(s * (ow + 8.0), -4.0, 9.8), "DB_Energy_Glow", 1)
+        col_box("GateDB", (5.0, 5.0, 9.0), F.p(s * (ow + 8.0), -4.0, 4.5), F.r())
+    gt.box((GS.OPEN_W + 12.0, 3.0, 2.4), F.p(0, 0, GS.OPEN_H + 1.2), F.r(), "Wood_Lacquer_Red", 0.1)
+    gt.box((GS.OPEN_W + 18.0, 9.0, 1.4), F.p(0, 0, GS.OPEN_H + 3.4), F.r(), "Metal_Gold", 0.1)
+    gt.cyl(3.4, 1.2, F.p(0, -1.8, GS.OPEN_H + 3.0), (math.pi / 2, 0, yaw), "Metal_Gold", 20, bevel=0.0)
+    gt.ico(2.6, F.p(0, -2.4, GS.OPEN_H + 3.0), "DB_Energy_Glow", 2)
+    gt.finish()
+    GS.barrier("DB", F, "DB_Energy_Glow", shape="circle", rng=rng)
+    GS.markers("DB", F, yaw)
+
+
 # ------------------------------------------------------------------ marcadores da entrada e do mundo
-def world_markers():
-    mk("WORLD_FROM_LOBBY", (0.0, L.LOBBY_Y, L.G), (0, 0, 0), 4.0, "ARROWS",
-       props={"width": L.BRIDGE_W, "deck_z": L.G})
-    mk("WORLD_ENTRY_Naruto", (0.0, -100.0, L.G + 0.2), (0, 0, 0), 3.0, "ARROWS")
-    path = [(0.0, -100.0, L.G), (0.0, -86.0, L.RING), (0.0, -64.0, L.RING), (0.0, -44.0, L.PIT),
-            (0.0, -18.0, L.PIT)]
-    for i, p in enumerate(path):
-        mk("PATH_ENTRY_CENTER_%02d" % i, p, (0, 0, 0), 1.5, "SPHERE")
-    mk("PATH_ENTRY_CENTER", path[-2], (0, 0, 0), 3.0, "ARROWS",
-       props={"waypoints": ";".join("%.1f,%.1f,%.1f" % p for p in path)})
-    # NPC / interacao (4 construcoes entraveis)
-    x, y, r = L.MAIN_HALL
-    mk("NPC_MainHall", (x, y + 4.0, L.T2 + 0.3), (0, 0, math.pi), 2.0, "ARROWS")
-    mk("PLAYER_INTERACT_MainHall", (x, y - 4.0, L.T2 + 0.3), (0, 0, 0), 2.0, "SPHERE")
-    x, y, r = L.BLUE_W
-    mk("NPC_WeaponShop", (x, y + 3.0, L.T2 + 0.3), (0, 0, math.pi), 2.0, "ARROWS")
-    mk("PLAYER_INTERACT_WeaponShop", (x, y - 4.0, L.T2 + 0.3), (0, 0, 0), 2.0, "SPHERE")
-    x, y, w, d, yaw = L.RAMEN
-    mk("NPC_Ramen", (x, y + 2.0, L.T1 + 0.3), (0, 0, math.pi), 2.0, "ARROWS")
-    mk("PLAYER_INTERACT_Ramen", (x, y - d / 2 - 2.5, L.T1 + 0.3), (0, 0, 0), 2.0, "SPHERE")
-    mx, my, mw, md = L.MILL
-    mk("NPC_Mill", (mx + 2.0, my, L.G + 0.3), (0, 0, math.pi / 2), 2.0, "ARROWS")
-    mk("PLAYER_INTERACT_Mill", (mx - mw / 2 - 3.0, my, L.G + 0.3), (0, 0, -math.pi / 2), 2.0, "SPHERE")
 
 
-def build():
-    terrain()
-    terrace_guards()
-    stairs_all()
-    mining()
-    entrance()
-    village()
-    summon()
-    east()
-    exit_and_gate()
-    world_markers()
+# zona -> funcoes do blockout que ela substitui (build_ilha / studio.py pulam as zonas que ja tem modulo de detalhe)
+ZONES = {
+    "terrain": ("terrain", "terrace_guards", "stairs_all"),
+    "mining": ("mining",),
+    "entrance": ("entrance",),
+    "village": ("village",),
+    "houses": ("houses",),
+    "summon": ("summon",),
+    "water": ("water",),
+    "exit": ("exit_and_gate",),
+    "gate_db": ("db_gate",),
+}
+
+
+def build(skip=()):
+    g = globals()
+    for zone, fns in ZONES.items():
+        if zone in skip:
+            continue
+        for fn in fns:
+            g[fn]()

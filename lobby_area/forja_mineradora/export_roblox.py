@@ -56,6 +56,17 @@ FAR_VALLEY = "TER_Far_Valley"
 # de quedas cobrem so o lobby (Blender y >= -130 / -125); "center" = (x, y) do Blender, "size" = (X, altura, Z) Roblox
 FAR_GROUND = {"size": [2048, 2, 1154], "top_z": -69.0, "material": "Far_Haze", "center": (0.0, 447.0)}
 VOID_CATCH = {"size": [660, 4, 455], "y": -25.0, "center": (0.0, 102.5)}
+# identidade do export (o lobby usa estes padroes; outra cena - a Ilha 1 - troca antes de chamar main())
+FBX_PREFIX = "LOBBY"                     # <FBX_PREFIX>_<colecao>_<ID6>.fbx
+ROOT_NAME = "LOBBY_FORJA"                # Model no workspace
+DATA_FILE = "lobby_data.json"
+LUA_FILE = "montar_lobby_forja.lua"
+SERVER_SCRIPT = "LOBBY_FORJA_Servidor"
+MARKER_COLL = "15_GAMEPLAY_MARKERS"
+SPAWN_FALLBACK = True                    # cria SPAWN_Lobby se nao houver marcador SPAWN*
+SAFE_CANDIDATES = None                   # funcao -> [(nome, (x, y), z)] (Blender); None = candidatos do lobby
+EXTRA_LUA = ""                           # bloco Lua acrescentado no fim do montar (antes do print final)
+TITLE = "lobby"
 
 # ------------------------------------------------------------------ donos e orcamento (brief fix2)
 OWNERS = [("FORGE_", "forge"), ("NPC_", "forge"), ("PORTAL_", "portals"), ("KONOHA_", "portals"),
@@ -696,11 +707,16 @@ def safe_points(bvh, markers):
     for m in markers:
         if m["name"].startswith(("SPAWN_", "RESPAWN_", "SAFE_")):
             pts.append({"name": m["name"], "pos": m["pos"]})
-    try:
-        import fm_layout as L
-    except Exception:
+    if SAFE_CANDIDATES is not None:
+        cand = list(SAFE_CANDIDATES())
         L = None
-    cand = [("SAFE_Spawn", (0.0, -104.0), 0.0), ("SAFE_Avenida", (0.0, -80.0), 0.0), ("SAFE_Praca", (0.0, -40.0), 4.0),
+    else:
+        try:
+            import fm_layout as L
+        except Exception:
+            L = None
+        cand = []
+    cand += [] if SAFE_CANDIDATES is not None else [("SAFE_Spawn", (0.0, -104.0), 0.0), ("SAFE_Avenida", (0.0, -80.0), 0.0), ("SAFE_Praca", (0.0, -40.0), 4.0),
             ("SAFE_Margem_Leste", (96.0, -18.0), 4.0), ("SAFE_Estrada_Oeste", (-44.0, 0.0), 4.0),
             ("SAFE_Loja", (20.0, -38.0), 4.0), ("SAFE_Konoha_Ponte", (-99.5, 190.0), 30.0)]
     if L:
@@ -1027,7 +1043,7 @@ def main():
     markers = []
     snapped = []
     for o in sorted(bpy.data.objects, key=lambda o: o.name):
-        if o.type == "EMPTY" and any(o.users_collection) and o.users_collection[0].name == "15_GAMEPLAY_MARKERS":
+        if o.type == "EMPTY" and any(o.users_collection) and o.users_collection[0].name == MARKER_COLL:
             R = o.matrix_world.to_3x3().normalized()
             props = {}
             for k, v in o.items():
@@ -1047,7 +1063,7 @@ def main():
             markers.append({"name": o.name, "pos": to_rbx(loc), "x": to_rbx(R.col[0]), "y": to_rbx(R.col[1]),
                             "props": props})
     log["snapped"] = snapped
-    if not any(m["name"].startswith("SPAWN") for m in markers):
+    if SPAWN_FALLBACK and not any(m["name"].startswith("SPAWN") for m in markers):
         try:
             import fm_layout
             sp = fm_layout.SPAWN
@@ -1076,10 +1092,10 @@ def main():
     # FBX por grupo (nome novo por EXPORT_ID; apaga os anteriores do mesmo grupo)
     for g in GROUPS:
         made = [p for p in pieces if p["group"] == g]
-        fn = "LOBBY_%s_%s.fbx" % (g, id6)
-        for old in glob.glob(os.path.join(OUT, "LOBBY_%s*.fbx" % g)):
+        fn = "%s_%s_%s.fbx" % (FBX_PREFIX, g, id6)
+        for old in glob.glob(os.path.join(OUT, "%s_%s*.fbx" % (FBX_PREFIX, g))):
             b = os.path.basename(old)
-            if b != fn and re.match(r"^LOBBY_%s(_[0-9a-f]{6})?\.fbx$" % re.escape(g), b):
+            if b != fn and re.match(r"^%s_%s(_[0-9a-f]{6})?\.fbx$" % (re.escape(FBX_PREFIX), re.escape(g)), b):
                 os.remove(old)
         if not made:
             continue
@@ -1113,14 +1129,16 @@ def main():
     for k, (fn, arm, core) in sorted(TX.SWIRL_TEX.items()):
         data["textures"][k] = {"file": "textures/" + fn, "uv": "disco 0..1", "portal": TX.SWIRL_SPEC[k]["portal"],
                                "arm": list(arm), "core": list(core)}
-    fg = dict(FAR_GROUND)
-    fg["color"] = rbx_color(FAR_GROUND["material"])
-    fg["pos"] = to_rbx((FAR_GROUND["center"][0], FAR_GROUND["center"][1], FAR_GROUND["top_z"] - FAR_GROUND["size"][1] / 2))
-    data["far_ground"] = fg
+    if FAR_GROUND:
+        fg = dict(FAR_GROUND)
+        fg["color"] = rbx_color(FAR_GROUND["material"])
+        fg["pos"] = to_rbx((FAR_GROUND["center"][0], FAR_GROUND["center"][1],
+                            FAR_GROUND["top_z"] - FAR_GROUND["size"][1] / 2))
+        data["far_ground"] = fg
     data["void_catch"] = {"size": VOID_CATCH["size"],
                           "pos": [VOID_CATCH["center"][0], VOID_CATCH["y"], -VOID_CATCH["center"][1]]}
     data["safe_points"] = safe_points(bvh, markers)
-    json.dump(data, open(os.path.join(OUT, "lobby_data.json"), "w"), indent=1)
+    json.dump(data, open(os.path.join(OUT, DATA_FILE), "w"), indent=1)
     write_lua(data)
     # relatorio
     n_cam = sum(1 for c in cols if c["cam"])
@@ -1171,9 +1189,9 @@ def lua_str(s):
 def write_lua(data):
     L = []
     A = L.append
-    A("-- montar_lobby_forja.lua  (gerado por export_roblox.py - nao editar a mao)  EXPORT_ID %s" % data["export_id"])
-    A("-- 1) Importe os FBX LOBBY_*_%s.fbx (3D Importer) para dentro de workspace.LOBBY_FORJA. Deixe o importador" %
-      data["export_id"][:6])
+    A("-- %s  (gerado por export_roblox.py - nao editar a mao)  EXPORT_ID %s" % (LUA_FILE, data["export_id"]))
+    A("-- 1) Importe os FBX %s_*_%s.fbx (3D Importer) para dentro de workspace.%s. Deixe o importador" %
+      (FBX_PREFIX, data["export_id"][:6], ROOT_NAME))
     A("--    subir as TEXTURAS embutidas. ESPERE as texturas processarem (as MeshParts ficam BRANCAS por alguns")
     A("--    minutos) antes de 'corrigir' cor: o branco some sozinho.")
     A("-- 2) Rode este script na Command Bar. Ele:")
@@ -1183,21 +1201,21 @@ def write_lua(data):
     A("--    - aplica cor/Material por VARIANTE, sombra POR MALHA (longe/fundo/interior nao projetam), fidelidade")
     A("--      (Box / Automatic; SKYLINE em Performance), streaming (SKYLINE persistente, modelos atomicos);")
     A("--    - camera: as cascas dos interiores/penhascos ocluem a camera (grupo 'SoVisual', que nao colide com os")
-    A("--      personagens: o Script LOBBY_FORJA_Servidor poe os personagens no grupo 'Personagens');")
+    A("--      personagens: o Script %s poe os personagens no grupo 'Personagens');" % SERVER_SCRIPT)
     A("--    - cria COLISOES invisiveis (tag CamOccluder nas paredes/tetos), MARCADORES, LUZES (NightOnly desligadas),")
     A("--      chao distante, VOID_CATCH (rede de seguranca de quedas) e, opcional, o Lighting do lobby.")
     A("-- Recomendado no Workspace: StreamingEnabled = true, StreamingTargetRadius = 1024, StreamingMinRadius = 128.")
     A("-- Rodar de novo e seguro (idempotente). Ids de textura encontrados sao impressos: cole em TEX para fixar.")
     A("local EXPORT_ID = %s" % lua_str(data["export_id"]))
-    A("local ROOT_OFFSET = Vector3.new(%s)  -- desloca o lobby INTEIRO (malhas alinhadas + colisoes + marcadores + luzes)"
-      % os.environ.get("FM_ROOT_OFFSET", "0, 0, 0"))
+    A("local ROOT_OFFSET = Vector3.new(%s)  -- desloca o %s INTEIRO (malhas alinhadas + colisoes + marcadores + luzes)"
+      % (os.environ.get("FM_ROOT_OFFSET", "0, 0, 0"), TITLE))
     A("local ALINHAR = true      -- reposiciona as MeshParts pelos centros exportados (corrige o importador)")
     A("local RICO = false        -- true = texturas de detalhe (SurfaceAppearance Overlay) nas familias pedra/madeira/telha/rocha/grama/reboco/terra")
     A("local LISO = false        -- true = tudo SmoothPlastic (menos Neon/Metal/Glass), sem os materiais ricos do modo hibrido")
     A("local CAMERA_CASCAS = true  -- true = cascas visuais ocluem a camera (CanCollide/CanQuery no grupo SoVisual)")
     A("local APLICAR_LIGHTING = false  -- true = aplica o Lighting recomendado do lobby (GLOBAL: prefira o perfil em AreaAtmosphere)")
-    A("local root = workspace:FindFirstChild('LOBBY_FORJA') or Instance.new('Model', workspace)")
-    A("root.Name = 'LOBBY_FORJA'")
+    A("local root = workspace:FindFirstChild('%s') or Instance.new('Model', workspace)" % ROOT_NAME)
+    A("root.Name = '%s'" % ROOT_NAME)
     A("root:SetAttribute('EXPORT_ID', EXPORT_ID); root:SetAttribute('RICO', RICO)")
     A("local CS = game:GetService('CollectionService')")
     A("local PS = game:GetService('PhysicsService')")
@@ -1241,7 +1259,7 @@ def write_lua(data):
     # malhas esperadas
     gidx = {g: i + 1 for i, g in enumerate(GROUPS)}
     A("-- FBX: indice -> arquivo")
-    A("local FBX = {%s}" % ", ".join("[%d]=%s" % (gidx[g], lua_str(data["fbx"].get(g, "LOBBY_%s.fbx" % g)))
+    A("local FBX = {%s}" % ", ".join("[%d]=%s" % (gidx[g], lua_str(data["fbx"].get(g, "%s_%s.fbx" % (FBX_PREFIX, g))))
                                      for g in GROUPS))
     A("-- malhas exportadas: nome = {centro X,Y,Z, tamanho X,Y,Z, FBX, sombra, material, flags, modelo}")
     A("--   flags: o = casca que oclui a camera, k = SKYLINE (persistente, RenderFidelity Performance)")
@@ -1310,13 +1328,14 @@ def write_lua(data):
     A("end")
     # chao distante
     fg = data["far_ground"]
-    A("-- chao do vale distante (o plano de 2400 studs do Blender NAO e exportado: era coplanar e dava z-fighting)")
-    A("do local g = root:FindFirstChild('FAR_GROUND') or Instance.new('Part'); g.Name = 'FAR_GROUND'")
-    A("  g.Anchored = true; g.CanCollide = false; g.CanTouch = false; g.CanQuery = false; g.CastShadow = false")
-    A("  g.Size = Vector3.new(%s,%s,%s); g.Position = Vector3.new(%s,%s,%s) + ROOT_OFFSET" % (
-        *fg["size"], *fg["pos"]))
-    A("  g.Color = Color3.fromRGB(%d,%d,%d); g.Material = Enum.Material.SmoothPlastic" % tuple(fg["color"]))
-    A("  local sk = root:FindFirstChild('SKYLINE'); g.Parent = sk or root end")
+    if fg:
+        A("-- chao do vale distante (o plano de 2400 studs do Blender NAO e exportado: era coplanar e dava z-fighting)")
+        A("do local g = root:FindFirstChild('FAR_GROUND') or Instance.new('Part'); g.Name = 'FAR_GROUND'")
+        A("  g.Anchored = true; g.CanCollide = false; g.CanTouch = false; g.CanQuery = false; g.CastShadow = false")
+        A("  g.Size = Vector3.new(%s,%s,%s); g.Position = Vector3.new(%s,%s,%s) + ROOT_OFFSET" % (
+            *fg["size"], *fg["pos"]))
+        A("  g.Color = Color3.fromRGB(%d,%d,%d); g.Material = Enum.Material.SmoothPlastic" % tuple(fg["color"]))
+        A("  local sk = root:FindFirstChild('SKYLINE'); g.Parent = sk or root end")
     # rede de seguranca
     vc = data["void_catch"]
     A("-- rede de seguranca: quem cai do lobby volta ao ponto seguro mais proximo (spawn, RESPAWN_*, pes de escada)")
@@ -1331,11 +1350,14 @@ def write_lua(data):
     A("  for _, s in ipairs(SAFE) do local at = Instance.new('Attachment'); at.Name = s[1]; at.Parent = v")
     A("    at.WorldPosition = Vector3.new(s[2][1], s[2][2], s[2][3]) + ROOT_OFFSET end")
     A("  v.Parent = root end")
-    A(LUA_SERVER)
+    A(LUA_SERVER.replace("LOBBY_FORJA_Servidor", SERVER_SCRIPT).replace("'LOBBY_FORJA'", "'%s'" % ROOT_NAME)
+      .replace("montar_lobby_forja.lua", LUA_FILE))
     A(lua_lighting(data["lighting_lobby"], data["sun_rbx"]))
-    A("print(string.format('LOBBY_FORJA montado (EXPORT_ID %s): %d colisoes, %d marcadores, %d luzes (%d de dia), %d pontos seguros', EXPORT_ID, #COL, #MK, #LT, nDia, #SAFE))")
+    if EXTRA_LUA:
+        A(EXTRA_LUA)
+    A("print(string.format('%s montado (EXPORT_ID %%s): %%d colisoes, %%d marcadores, %%d luzes (%%d de dia), %%d pontos seguros', EXPORT_ID, #COL, #MK, #LT, nDia, #SAFE))" % ROOT_NAME)
     src = "\n".join(L) + "\n"
-    open(os.path.join(OUT, "montar_lobby_forja.lua"), "w", encoding="utf-8", newline="\n").write(src)
+    open(os.path.join(OUT, LUA_FILE), "w", encoding="utf-8", newline="\n").write(src)
 
 
 LUA_CHECK = r"""
