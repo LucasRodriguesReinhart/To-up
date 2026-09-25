@@ -118,15 +118,22 @@ def water_polys():
 
 
 # ------------------------------------------------------------------ guardas
-def _opening(x, y):
-    """pontos da borda da ilha onde a parede invisivel fica aberta: pontes (chegada, saida, satelites)"""
+def _opening(x, y, strict=False):
+    """pontos da borda onde a parede invisivel fica aberta: pontes (chegada, saida, satelites).
+    strict=False (contorno da ilha): o contorno cruza o eixo da ponte de saida na diagonal, entao o corredor comeca
+    12 antes do inicio da ponte. strict=True (bordas da prateleira da saida): so sobre o tabuleiro real (t >= -2,
+    |lat| <= 9); a trilha (31 graus) e a ponte (22 graus) divergem e o corredor largo deixava ~11,5 da borda norte
+    da prateleira sem guarda."""
     if y < L.BRIDGE_Y1 + 2.0 and abs(x) < L.ENTRY_STAIR_W / 2 + 1.0:
         return True
     ux, uy = L.exit_dir()
     sx, sy = L.EXIT_START
     t = (x - sx) * ux + (y - sy) * uy
     d = abs(-(x - sx) * uy + (y - sy) * ux)
-    if -12.0 <= t <= L.EXIT_BRIDGE_LEN and d < L.EXIT_W / 2 + 0.6:
+    if strict:
+        if -2.0 <= t <= L.EXIT_BRIDGE_LEN and d <= L.EXIT_W / 2:
+            return True
+    elif -12.0 <= t <= L.EXIT_BRIDGE_LEN and d < L.EXIT_W / 2 + 0.6:
         return True
     for k, (a0, a1) in L.SAT_BRIDGES.items():
         dd, tt = L.seg_dist(x, y, a0[0], a0[1], a1[0], a1[1])
@@ -242,7 +249,7 @@ def terrace_guards():
             zo = L.zone_of(ox, oy)
             if z - zo <= 2.3:
                 return False                       # encosta em piso igual ou mais alto
-            if _opening(ox, oy):
+            if _opening(ox, oy, strict=True):
                 return False
             return not near_stair_top(x, y, z)
         for run in _runs(pts, keep, step=1.0):
