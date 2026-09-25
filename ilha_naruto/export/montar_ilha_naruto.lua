@@ -1,5 +1,5 @@
--- montar_ilha_naruto.lua  (gerado por export_roblox.py - nao editar a mao)  EXPORT_ID 203d27a5
--- 1) Importe os FBX ILHA1_*_203d27.fbx (3D Importer) para dentro de workspace.ILHA_NARUTO. Deixe o importador
+-- montar_ilha_naruto.lua  (gerado por export_roblox.py - nao editar a mao)  EXPORT_ID 0e14b431
+-- 1) Importe os FBX ILHA1_*_0e14b4.fbx (3D Importer) para dentro de workspace.ILHA_NARUTO. Deixe o importador
 --    subir as TEXTURAS embutidas. ESPERE as texturas processarem (as MeshParts ficam BRANCAS por alguns
 --    minutos) antes de 'corrigir' cor: o branco some sozinho.
 -- 2) Rode este script na Command Bar. Ele:
@@ -14,7 +14,7 @@
 --      chao distante, VOID_CATCH (rede de seguranca de quedas) e, opcional, o Lighting do lobby.
 -- Recomendado no Workspace: StreamingEnabled = true, StreamingTargetRadius = 1024, StreamingMinRadius = 128.
 -- Rodar de novo e seguro (idempotente). Ids de textura encontrados sao impressos: cole em TEX para fixar.
-local EXPORT_ID = '203d27a5'
+local EXPORT_ID = '0e14b431'
 local ROOT_OFFSET = Vector3.new(0, 0, 0)  -- desloca o ilha INTEIRO (malhas alinhadas + colisoes + marcadores + luzes)
 local ALINHAR = true      -- reposiciona as MeshParts pelos centros exportados (corrige o importador)
 local RICO = false        -- true = texturas de detalhe (SurfaceAppearance Overlay) nas familias pedra/madeira/telha/rocha/grama/reboco/terra
@@ -57,6 +57,7 @@ local MAT = {
   ['Bark_Dark'] = {c = Color3.fromRGB(86,60,46), m = Enum.Material.Wood, t = 0.0, s = true, x = 'wood', w = nil},
   ['Cliff_Rock_B'] = {c = Color3.fromRGB(157,148,136), m = Enum.Material.Slate, t = 0.0, s = true, x = 'rock', w = nil},
   ['Cliff_Rock_Dark'] = {c = Color3.fromRGB(102,96,90), m = Enum.Material.Slate, t = 0.0, s = true, x = 'rock', w = nil},
+  ['Cliff_Rock_Dark_B'] = {c = Color3.fromRGB(87,82,79), m = Enum.Material.Slate, t = 0.0, s = true, x = 'rock', w = nil},
   ['Cliff_Rock_Tan'] = {c = Color3.fromRGB(164,134,104), m = Enum.Material.Slate, t = 0.0, s = true, x = 'rock', w = nil},
   ['Cliff_Rock_Tan_B'] = {c = Color3.fromRGB(178,148,116), m = Enum.Material.Slate, t = 0.0, s = true, x = 'rock', w = nil},
   ['Cliff_Rock_Tan_C'] = {c = Color3.fromRGB(142,116,92), m = Enum.Material.Slate, t = 0.0, s = true, x = 'rock', w = nil},
@@ -69,7 +70,6 @@ local MAT = {
   ['Cloth_VilLantern'] = {c = Color3.fromRGB(212,46,34), m = Enum.Material.Fabric, t = 0.0, s = true, x = nil, w = nil},
   ['Cloth_VilNoren'] = {c = Color3.fromRGB(240,232,214), m = Enum.Material.Fabric, t = 0.0, s = true, x = nil, w = nil},
   ['Crystal_Blue'] = {c = Color3.fromRGB(30,140,230), m = Enum.Material.SmoothPlastic, t = 0.0, s = false, x = nil, w = nil},
-  ['Crystal_Blue_Core'] = {c = Color3.fromRGB(70,200,255), m = Enum.Material.Neon, t = 0.0, s = false, x = nil, w = nil},
   ['Crystal_DBGate_Orb'] = {c = Color3.fromRGB(255,140,20), m = Enum.Material.SmoothPlastic, t = 0.0, s = false, x = nil, w = nil},
   ['Crystal_DBGate_Star'] = {c = Color3.fromRGB(206,24,16), m = Enum.Material.SmoothPlastic, t = 0.0, s = false, x = nil, w = nil},
   ['Crystal_SumAmber_Glow'] = {c = Color3.fromRGB(255,160,40), m = Enum.Material.Neon, t = 0.0, s = false, x = nil, w = nil},
@@ -149,7 +149,7 @@ local function matOf(name)
   return best, s
 end
 -- FBX: indice -> arquivo
-local FBX = {[1]='ILHA1_02_TERRAIN_203d27.fbx', [2]='ILHA1_03_MINING_203d27.fbx', [3]='ILHA1_04_VILLAGE_203d27.fbx', [4]='ILHA1_05_SUMMON_203d27.fbx', [5]='ILHA1_06_WATER_203d27.fbx', [6]='ILHA1_07_NEXT_ISLAND_203d27.fbx', [7]='ILHA1_08_PURCHASE_GATES_203d27.fbx', [8]='ILHA1_09_PROPS_203d27.fbx', [9]='ILHA1_10_VEGETATION_203d27.fbx', [10]='ILHA1_12_VFX_HELPERS_203d27.fbx'}
+local FBX = {[1]='ILHA1_02_TERRAIN_0e14b4.fbx', [2]='ILHA1_03_MINING_0e14b4.fbx', [3]='ILHA1_04_VILLAGE_0e14b4.fbx', [4]='ILHA1_05_SUMMON_0e14b4.fbx', [5]='ILHA1_06_WATER_0e14b4.fbx', [6]='ILHA1_07_NEXT_ISLAND_0e14b4.fbx', [7]='ILHA1_08_PURCHASE_GATES_0e14b4.fbx', [8]='ILHA1_09_PROPS_0e14b4.fbx', [9]='ILHA1_10_VEGETATION_0e14b4.fbx', [10]='ILHA1_12_VFX_HELPERS_0e14b4.fbx'}
 -- malhas exportadas: nome = {centro X,Y,Z, tamanho X,Y,Z, FBX, sombra, material, flags, modelo}
 --   flags: o = casca que oclui a camera, k = SKYLINE (persistente, RenderFidelity Performance)
 --   modelo: Model Atomic (streaming sem pecas pela metade)
@@ -166,8 +166,8 @@ local MESH = {
   ['ENT_Bridge__Wood_Dark']={0.0,8.7,262.0,26.45,3.6,68.183,1,true,'Wood_Dark','',''},
   ['ENT_Bridge__Wood_Light']={0.0,8.7,262.0,26.45,3.6,75.8,1,true,'Wood_Light','',''},
   ['SKY_Islets__Bark_Dark']={2.34,23.467,537.618,934.031,107.347,708.259,1,false,'Bark_Dark','k',''},
-  ['SKY_Islets__Cliff_Rock_Tan']={2.78,3.931,537.667,960.863,137.431,731.276,1,false,'Cliff_Rock_Tan','k',''},
-  ['SKY_Islets__Cliff_Rock_Tan_Dark']={6.267,-6.817,537.893,951.058,135.932,726.743,1,false,'Cliff_Rock_Tan_Dark','k',''},
+  ['SKY_Islets__Cliff_Rock_Tan']={3.831,3.381,536.239,956.554,138.128,726.514,1,false,'Cliff_Rock_Tan','k',''},
+  ['SKY_Islets__Cliff_Rock_Tan_Dark']={6.026,-6.18,537.31,955.426,138.632,726.202,1,false,'Cliff_Rock_Tan_Dark','k',''},
   ['SKY_Islets__Grass_Konoha']={3.528,19.9,537.989,963.294,101.0,732.094,1,false,'Grass_Konoha','k',''},
   ['SKY_Islets__Leaf_Broad']={2.337,28.409,537.336,936.878,107.554,712.245,1,false,'Leaf_Broad','k',''},
   ['SKY_Islets__Leaf_Shadow']={2.371,25.947,537.53,936.127,103.052,711.574,1,false,'Leaf_Shadow','k',''},
@@ -253,11 +253,10 @@ local MESH = {
   ['TER_Streets__Stone_Paving_Warm_B_g16_11']={-3.261,19.284,503.802,194.811,6.408,111.796,1,false,'Stone_Paving_Warm_B','',''},
   ['TER_Streets__Stone_Paving_Warm_C']={0.005,19.284,506.673,192.342,6.408,106.055,1,false,'Stone_Paving_Warm_C','',''},
   ['TER_Streets__Stone_TerGrout']={-2.274,19.11,503.78,197.069,6.42,112.04,1,true,'Stone_TerGrout','',''},
-  ['MINE_Core_Formation__Cliff_Rock_Dark']={-0.093,5.176,420.004,18.987,5.895,19.013,2,true,'Cliff_Rock_Dark','',''},
-  ['MINE_Core_Formation__Crystal_Blue']={-0.03,6.501,419.865,14.984,7.176,15.008,2,false,'Crystal_Blue','',''},
-  ['MINE_Core_Formation__Crystal_Blue_Core']={-0.082,7.614,419.797,15.178,6.871,15.241,2,false,'Crystal_Blue_Core','',''},
+  ['MINE_Core_Formation__Cliff_Rock_Dark']={0.182,6.578,418.747,19.911,8.635,14.962,2,true,'Cliff_Rock_Dark','',''},
+  ['MINE_Core_Formation__Cliff_Rock_Dark_B']={-0.319,6.614,419.97,18.72,8.771,20.114,2,true,'Cliff_Rock_Dark_B','',''},
   ['MINE_Core_Formation__Dirt_Pit']={0.207,3.7,419.799,19.454,1.8,19.776,2,false,'Dirt_Pit','',''},
-  ['MINE_Derricks__Cliff_Rock_Dark']={-0.085,5.975,419.868,68.081,6.15,80.246,2,true,'Cliff_Rock_Dark','',''},
+  ['MINE_Derricks__Cliff_Rock_Dark_B']={-0.085,5.975,419.868,68.081,6.15,80.246,2,true,'Cliff_Rock_Dark_B','',''},
   ['MINE_Derricks__Metal_Dark']={0.0,12.293,420.0,68.415,9.265,80.41,2,true,'Metal_Dark','',''},
   ['MINE_Derricks__Rope']={0.0,11.631,420.0,68.287,11.361,80.045,2,false,'Rope','',''},
   ['MINE_Derricks__Stone_Wall_Dark']={0.0,3.35,420.0,73.718,0.8,86.044,2,true,'Stone_Wall_Dark','',''},
@@ -277,10 +276,10 @@ local MESH = {
   ['MINE_Pit_Stairs__Stone_Wall_Dark']={0.15,7.3,420.0,12.7,8.2,120.05,2,true,'Stone_Wall_Dark','',''},
   ['MINE_Pit_Stairs__Stone_Wall_Light']={0.075,7.425,420.0,13.05,8.45,120.4,2,true,'Stone_Wall_Light','',''},
   ['MINE_Pit_Stairs__Stone_Wall_Light_B']={0.0,7.425,420.0,12.9,8.45,120.4,2,true,'Stone_Wall_Light_B','',''},
-  ['MINE_Props__Cliff_Rock_Dark']={-0.552,6.035,412.281,94.758,2.47,92.582,2,true,'Cliff_Rock_Dark','',''},
-  ['MINE_Props__Crystal_Blue']={-0.548,6.499,409.801,92.289,3.45,87.251,2,false,'Crystal_Blue','',''},
+  ['MINE_Props__Cliff_Rock_Dark']={-0.658,6.035,412.281,94.546,2.47,92.582,2,true,'Cliff_Rock_Dark','',''},
+  ['MINE_Props__Crystal_Blue']={31.379,5.869,376.789,28.301,2.166,21.252,2,false,'Crystal_Blue','',''},
   ['MINE_Props__Lantern_Glow']={-7.384,7.9,423.453,95.522,0.92,106.053,2,false,'Lantern_Glow','',''},
-  ['MINE_Props__Metal_Dark']={-3.62,6.334,423.48,104.078,6.293,107.041,2,true,'Metal_Dark','',''},
+  ['MINE_Props__Metal_Dark']={-3.564,6.334,423.48,104.19,6.292,107.041,2,true,'Metal_Dark','',''},
   ['MINE_Props__Wood_Dark_C']={-0.168,6.3,420.0,113.381,6.6,118.49,2,true,'Wood_Dark_C','',''},
   ['MINE_Props__Wood_Plank']={0.359,5.1,419.795,96.578,4.1,108.316,2,true,'Wood_Plank','',''},
   ['MINE_Ring_Toros__Lantern_Glow']={0.0,14.6,420.0,157.309,1.25,157.309,2,false,'Lantern_Glow','',''},
@@ -379,12 +378,10 @@ local MESH = {
   ['VIL_MainHall__Wood_Light']={0.718,25.186,576.235,36.953,3.558,24.73,3,true,'Wood_Light','','VIL_MainHall'},
   ['VIL_MainHall__Wood_Plank']={-0.062,27.811,580.0,38.265,8.819,38.42,3,true,'Wood_Plank','','VIL_MainHall'},
   ['VIL_MainHall__Wood_VilLacquerDark']={-0.0,41.65,580.0,52.3,11.8,52.3,3,true,'Wood_VilLacquerDark','','VIL_MainHall'},
-  ['VIL_Mill__Crystal_Blue']={-101.633,13.142,433.121,8.075,10.505,25.892,3,false,'Crystal_Blue','','VIL_Mill'},
-  ['VIL_Mill__Crystal_Blue_Core']={-101.642,13.98,432.855,8.224,10.093,26.516,3,false,'Crystal_Blue_Core','','VIL_Mill'},
   ['VIL_Mill__Lantern_Glow']={-97.15,17.2,433.7,12.1,1.9,11.4,3,false,'Lantern_Glow','','VIL_Mill'},
   ['VIL_Mill__Metal_Dark']={-99.3,13.963,433.4,16.8,15.526,27.8,3,true,'Metal_Dark','','VIL_Mill'},
   ['VIL_Mill__Roof_Terracotta']={-100.0,21.938,430.075,19.001,19.716,26.851,3,true,'Roof_Terracotta','','VIL_Mill'},
-  ['VIL_Mill__Stone_Wall_Dark']={-100.002,11.463,432.275,14.138,11.725,29.45,3,true,'Stone_Wall_Dark','','VIL_Mill'},
+  ['VIL_Mill__Stone_Wall_Dark']={-100.002,12.313,432.275,14.138,13.426,29.45,3,true,'Stone_Wall_Dark','','VIL_Mill'},
   ['VIL_Mill__Stone_Wall_Light']={-99.54,8.691,432.002,15.079,4.982,18.126,3,true,'Stone_Wall_Light','','VIL_Mill'},
   ['VIL_Mill__Window_Warm']={-101.0,17.3,432.0,12.3,4.5,18.3,3,false,'Window_Warm','','VIL_Mill'},
   ['VIL_Mill__Wood_Dark']={-100.0,19.328,432.0,20.001,26.616,30.9,3,true,'Wood_Dark','','VIL_Mill'},
@@ -456,29 +453,29 @@ local MESH = {
   ['SUM_Tower_Stone__Stone_SumBlock']={134.474,34.93,457.032,38.671,36.06,43.779,4,true,'Stone_SumBlock','','SUM_Tower'},
   ['SUM_Tower_Stone__Summon_Stone']={134.474,34.604,457.032,38.253,37.712,43.361,4,true,'Summon_Stone','','SUM_Tower'},
   ['SUM_Tower_Stone__Summon_Stone_Dark']={134.506,34.15,457.063,40.442,36.9,45.456,4,true,'Summon_Stone_Dark','','SUM_Tower'},
-  ['WATER_BackFalls__Cliff_Rock_Tan_Dark']={-0.211,48.214,611.357,180.061,53.015,19.734,5,true,'Cliff_Rock_Tan_Dark','',''},
-  ['WATER_BackFalls__Foam_g15_11']={-80.25,47.159,606.51,17.577,51.142,15.463,5,false,'Foam','',''},
-  ['WATER_BackFalls__Foam_g16_11']={55.04,47.098,606.136,65.127,51.264,17.35,5,false,'Foam','',''},
+  ['WATER_BackFalls__Cliff_Rock_Tan_Dark']={-0.1,48.229,611.264,179.836,53.017,19.832,5,true,'Cliff_Rock_Tan_Dark','',''},
+  ['WATER_BackFalls__Foam_g15_11']={-80.202,47.101,606.525,17.779,51.26,15.175,5,false,'Foam','',''},
+  ['WATER_BackFalls__Foam_g16_11']={55.04,47.133,606.176,65.127,51.195,17.27,5,false,'Foam','',''},
   ['WATER_BackFalls__Stone_Wall_Light']={0.663,22.497,595.063,176.995,1.794,16.222,5,true,'Stone_Wall_Light','',''},
   ['WATER_BackFalls__Stone_Wall_Light_B']={8.027,22.485,594.926,162.469,1.797,14.708,5,true,'Stone_Wall_Light_B','',''},
   ['WATER_BackFalls__Water']={-0.0,47.12,603.375,177.9,50.16,31.05,5,false,'Water','',''},
   ['WATER_BackFalls__Water_WtrFall']={0.091,45.835,602.818,167.659,47.229,13.118,5,false,'Water_WtrFall','',''},
   ['WATER_BackFalls__Water_WtrSheet']={-0.0,47.495,609.593,175.4,50.289,4.586,5,false,'Water_WtrSheet','',''},
-  ['WATER_Canal_East__Cliff_Rock_Tan_Dark']={-115.358,4.471,422.803,14.297,1.51,137.316,5,true,'Cliff_Rock_Tan_Dark','',''},
-  ['WATER_Canal_East__Foam']={-108.665,8.684,423.239,25.302,8.829,157.321,5,false,'Foam','',''},
+  ['WATER_Canal_East__Cliff_Rock_Tan_Dark']={-115.419,4.457,422.734,14.36,1.466,137.274,5,true,'Cliff_Rock_Tan_Dark','',''},
+  ['WATER_Canal_East__Foam']={-108.581,8.69,423.223,25.145,8.817,157.466,5,false,'Foam','',''},
   ['WATER_Canal_East__Stone_Wall_Light']={-105.092,13.024,509.89,36.457,19.648,184.275,5,true,'Stone_Wall_Light','',''},
   ['WATER_Canal_East__Stone_Wall_Light_B']={-107.255,13.5,513.863,32.214,20.6,173.743,5,true,'Stone_Wall_Light_B','',''},
   ['WATER_Canal_East__Water']={-103.673,13.3,476.597,38.153,18.2,249.094,5,false,'Water','',''},
   ['WATER_Canal_East__Water_WtrFall']={-104.073,13.47,472.663,32.916,18.1,253.022,5,false,'Water_WtrFall','',''},
-  ['WATER_Canal_West__Foam']={140.574,19.391,544.246,4.728,6.346,5.592,5,false,'Foam','',''},
+  ['WATER_Canal_West__Foam']={140.518,19.385,544.248,4.643,6.36,5.568,5,false,'Foam','',''},
   ['WATER_Canal_West__Stone_Wall_Light']={122.838,19.494,543.099,68.979,7.811,113.534,5,true,'Stone_Wall_Light','',''},
   ['WATER_Canal_West__Stone_Wall_Light_B']={128.092,19.484,541.146,60.49,7.831,110.567,5,true,'Stone_Wall_Light_B','',''},
   ['WATER_Canal_West__Water']={122.809,19.2,543.14,70.182,6.4,111.479,5,false,'Water','',''},
   ['WATER_Canal_West__Water_WtrFall']={132.961,19.37,542.686,47.028,6.3,96.847,5,false,'Water_WtrFall','',''},
-  ['WATER_SeaFalls__Foam_g15_11']={-126.45,-44.754,577.283,27.39,133.967,29.547,5,false,'Foam','',''},
-  ['WATER_SeaFalls__Foam_g15_13']={-111.369,-53.801,337.928,28.735,116.763,28.8,5,false,'Foam','',''},
-  ['WATER_SeaFalls__Foam_g16_13']={98.77,-57.033,339.468,24.12,108.126,24.06,5,false,'Foam','',''},
-  ['WATER_SeaFalls__Foam_g17_12']={170.192,-47.865,497.903,28.877,128.291,28.362,5,false,'Foam','',''},
+  ['WATER_SeaFalls__Foam_g15_11']={-126.557,-44.723,577.283,27.176,133.904,29.547,5,false,'Foam','',''},
+  ['WATER_SeaFalls__Foam_g15_13']={-111.37,-53.896,337.928,28.737,116.952,28.8,5,false,'Foam','',''},
+  ['WATER_SeaFalls__Foam_g16_13']={98.583,-56.975,339.468,23.745,108.009,24.06,5,false,'Foam','',''},
+  ['WATER_SeaFalls__Foam_g17_12']={169.9,-47.828,497.903,29.46,128.217,28.362,5,false,'Foam','',''},
   ['WATER_SeaFalls__Stone_Wall_Dark']={88.706,-4.15,348.154,13.777,19.7,15.236,5,true,'Stone_Wall_Dark','',''},
   ['WATER_SeaFalls__Stone_WtrVoid']={90.204,-0.25,346.906,6.261,7.0,7.401,5,false,'Stone_WtrVoid','',''},
   ['WATER_SeaFalls__Water']={19.908,9.25,457.864,283.377,26.299,237.81,5,false,'Water','',''},
@@ -1069,6 +1066,20 @@ local COL = {
   {'COL_Rim_028','Block',{64.0,9.7,325.0},{-0.8,0.0,-0.6},{-0.6,0.0,0.8},{31.0,1.2,9.0},false},
   {'COL_Rim_029','Block',{43.5,9.7,310.75},{-0.851,0.0,-0.525},{-0.525,0.0,0.851},{20.981,1.2,9.0},false},
   {'COL_Rim_030','Block',{29.5,9.7,303.45},{-0.937,0.0,-0.349},{-0.349,0.0,0.937},{12.739,1.2,9.0},false},
+  {'COL_SummonPlaza_001','Block',{120.0,15.85,415.767},{-1.0,0.0,-0.0},{-0.0,0.0,1.0},{3.402,4.0,1.3},false},
+  {'COL_SummonPlaza_002','Block',{120.0,15.85,419.767},{-1.0,0.0,-0.0},{-0.0,0.0,1.0},{29.154,4.0,1.3},false},
+  {'COL_SummonPlaza_003','Block',{120.0,15.85,423.767},{-1.0,0.0,-0.0},{-0.0,0.0,1.0},{39.486,4.0,1.3},false},
+  {'COL_SummonPlaza_004','Block',{120.0,15.85,427.767},{-1.0,0.0,-0.0},{-0.0,0.0,1.0},{46.279,4.0,1.3},false},
+  {'COL_SummonPlaza_005','Block',{120.788,15.85,431.767},{-1.0,0.0,-0.0},{-0.0,0.0,1.0},{49.365,4.0,1.3},false},
+  {'COL_SummonPlaza_006','Block',{121.213,15.85,435.767},{-1.0,0.0,-0.0},{-0.0,0.0,1.0},{51.627,4.0,1.3},false},
+  {'COL_SummonPlaza_007','Block',{121.313,15.85,439.767},{-1.0,0.0,-0.0},{-0.0,0.0,1.0},{53.236,4.0,1.3},false},
+  {'COL_SummonPlaza_008','Block',{120.993,15.85,443.767},{-1.0,0.0,-0.0},{-0.0,0.0,1.0},{54.008,4.0,1.3},false},
+  {'COL_SummonPlaza_009','Block',{120.229,15.85,447.767},{-1.0,0.0,-0.0},{-0.0,0.0,1.0},{53.889,4.0,1.3},false},
+  {'COL_SummonPlaza_010','Block',{120.0,15.85,451.767},{-1.0,0.0,-0.0},{-0.0,0.0,1.0},{51.394,4.0,1.3},false},
+  {'COL_SummonPlaza_011','Block',{120.0,15.85,455.767},{-1.0,0.0,-0.0},{-0.0,0.0,1.0},{46.907,4.0,1.3},false},
+  {'COL_SummonPlaza_012','Block',{120.0,15.85,459.767},{-1.0,0.0,-0.0},{-0.0,0.0,1.0},{40.45,4.0,1.3},false},
+  {'COL_SummonPlaza_013','Block',{120.0,15.85,463.767},{-1.0,0.0,-0.0},{-0.0,0.0,1.0},{30.644,4.0,1.3},false},
+  {'COL_SummonPlaza_014','Block',{120.0,15.85,467.767},{-1.0,0.0,-0.0},{-0.0,0.0,1.0},{10.786,4.0,1.3},false},
   {'COL_SummonRail_001','Block',{93.746,18.45,447.044},{0.189,0.0,0.982},{0.982,0.0,-0.189},{7.174,1.3,4.4},false},
   {'COL_SummonRail_002','Block',{95.507,18.45,452.714},{0.401,0.0,0.916},{0.916,0.0,-0.401},{7.174,1.3,4.4},false},
   {'COL_SummonRail_003','Block',{109.069,18.45,465.987},{0.91,0.0,0.415},{0.415,0.0,-0.91},{11.926,1.3,4.4},false},
@@ -2034,7 +2045,7 @@ local LT = {
   {'L_Lantern_Rua_11','POINT',{96.566,22.8,449.561},{255,196,149},7.7,0.4,false,true},
   {'L_Lantern_Rua_12','POINT',{39.604,28.8,564.553},{255,196,149},7.7,0.4,false,true},
   {'L_Lantern_Rua_13','POINT',{73.314,28.8,562.666},{255,196,149},7.7,0.4,false,true},
-  {'L_Mining_Core_Glow','POINT',{0.0,10.2,420.0},{160,206,255},12.2,0.68,false,false},
+  {'L_Mining_Core_Glow','POINT',{0.0,10.2,420.0},{255,234,196},12.2,0.68,false,false},
   {'L_Mining_Gate_N','POINT',{-5.791,15.65,480.624},{255,206,144},7.7,0.4,false,true},
   {'L_Mining_Gate_S','POINT',{5.791,15.65,359.376},{255,206,144},7.7,0.4,false,true},
   {'L_Summon_Lantern_L','POINT',{117.925,23.223,467.418},{255,206,144},9.7,0.5,false,true},
@@ -2075,7 +2086,7 @@ local SAFE = {
   {'SAFE_Fosso',{0.0,3.2,390.0}},
   {'SAFE_T1',{-0.0,16.2,528.0}},
   {'SAFE_T2',{-0.0,22.2,554.0}},
-  {'SAFE_Summon',{112.0,16.2,440.0}},
+  {'SAFE_Summon',{112.0,16.5,440.0}},
   {'SAFE_Moinho',{-86.0,8.114,432.0}},
   {'SAFE_Vale_Leste',{-126.0,6.2,410.0}},
   {'SAFE_Ilhota',{-168.125,16.2,588.125}},

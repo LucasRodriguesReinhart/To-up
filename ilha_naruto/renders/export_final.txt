@@ -1,26 +1,26 @@
-EXPORT_ILHA: 19 materiais Glow -> Neon
-EXPORT_ILHA: galeria fora (146 objetos), 1377 raizes levadas ao mundo, 12 pecas moveis
+EXPORT_ILHA: 18 materiais Glow -> Neon
+EXPORT_ILHA: galeria fora (146 objetos), 1388 raizes levadas ao mundo, 12 pecas moveis
 ORCAMENTO por dono (tris / MeshParts; limite entre parenteses)
   entrance          24840 (32000)    28 (42)
   exit              13944 (22000)    26 (32)
   gate_db           20800 (26000)    23 (34)
-  mining            23384 (48000)    33 (70)
+  mining            23516 (48000)    32 (70)
   props              3524 (26000)    13 (45)
   summon            23744 (38000)    25 (48)
   terrain           97537 (110000)    88 (130)
   vegetation        18460 (45000)    51 (60)
   vfx                5828 (12000)    23 (28)
-  village           76128 (100000)   128 (150)
+  village           76128 (100000)   126 (150)
   water             18220 (24000)    34 (38)
 METAS GLOBAIS
-  tris estaticos                          326409 / 470000 
-  MeshParts estaticas                        472 / 660    
-  tris total (+ reserva VFX 0)            326409 / 470000 
-  MeshParts total (+ reserva VFX 0)          472 / 660    
+  tris estaticos                          326541 / 470000 
+  MeshParts estaticas                        469 / 660    
+  tris total (+ reserva VFX 0)            326541 / 470000 
+  MeshParts total (+ reserva VFX 0)          469 / 660    
   materiais                                   82 / 110    
-  MeshParts com sombra                       242 / 300    
+  MeshParts com sombra                       243 / 300    
   luzes ativas de dia                         11 / 36     
-  COL                                       1095 / 1150   
+  COL                                       1109 / 1150   
    ENT_Bridge: Wood_Dark_B (52.8 studs2) -> Wood_Light
    ENT_Lions: Stone_Grout (10.9 studs2) -> Stone_Wall_Dark
    EXIT_Islet: Stone_Wall_Light_C (28.0 studs2) -> Stone_Wall_Light_B
@@ -33,7 +33,7 @@ METAS GLOBAIS
    VEG_T2: Leaf_Pine_Light (33.9 studs2) -> Leaf_Broad
 TETO DE MATERIAIS (110): nao precisou
 TETO DE SOMBRA (300): 0 MeshParts perderam a sombra []
-COL: 0 contidas descartadas, 24 cobertas pela uniao de outras, 6 unidas a vizinhas; 131 com tag CamOccluder
-   cobertas: COL_TerrainWall_009, COL_Terrain_368, COL_Terrain_369, COL_Terrain_352, COL_Terrain_353, COL_Terrain_354, COL_Terrain_357, COL_Terrain_359, COL_Terrain_360, COL_Terrain_365, COL_Terrain_366, COL_Terrain_367, COL_Terrain_372, COL_Terrain_373, COL_Terrain_374, COL_Terrain_375, COL_Terrain_376, COL_Terrain_377, COL_Terrain_380, COL_Terrain_381, COL_Terrain_382, COL_Terrain_383, COL_Terrain_361, COL_Terrain_358
+COL: 0 contidas descartadas, 25 cobertas pela uniao de outras, 6 unidas a vizinhas; 131 com tag CamOccluder
+   cobertas: COL_SummonPlaza_015, COL_TerrainWall_009, COL_Terrain_368, COL_Terrain_369, COL_Terrain_352, COL_Terrain_353, COL_Terrain_354, COL_Terrain_357, COL_Terrain_359, COL_Terrain_360, COL_Terrain_365, COL_Terrain_366, COL_Terrain_367, COL_Terrain_372, COL_Terrain_373, COL_Terrain_374, COL_Terrain_375, COL_Terrain_376, COL_Terrain_377, COL_Terrain_380, COL_Terrain_381, COL_Terrain_382, COL_Terrain_383, COL_Terrain_361, COL_Terrain_358
 MARCADORES assentados na COL: []
-EXPORT OK id=203d27a5 malhas=472 tris=326409 materiais=82 col=1095 marcadores=82 luzes=33 (dia 11) sombra=242 -> C:\Users\lucas\OneDrive\Desktop\To up\ilha_naruto\export
+EXPORT OK id=0e14b431 malhas=469 tris=326541 materiais=82 col=1109 marcadores=82 luzes=33 (dia 11) sombra=243 -> C:\Users\lucas\OneDrive\Desktop\To up\ilha_naruto\_studio\dryrun_export

@@ -75,6 +75,6 @@ SONDAS 27/27 OK
 LARGURA rotas com trecho < 3,4 de largura: nenhuma
 MARKERS faltando=0 []
 MARKERS minerio={'COMMON': 28, 'EPIC': 8, 'SUPERLEGENDARY': 2, 'UNCOMMON': 16} sobrepostos=0  ancoras_de_compra=['PURCHASE_UI_ANCHOR_DB', 'PURCHASE_UI_ANCHOR_DemonSlayer', 'PURCHASE_UI_ANCHOR_OnePiece', 'PURCHASE_UI_ANCHOR_OnePunchMan', 'PURCHASE_UI_ANCHOR_ShadowGarden']
-TECH nomes_genericos=0 duplicados=0 sem_material=0 transform_nao_aplicado=0 degeneradas=0 arestas_nao_manifold=18649
-TECH tris=401693 objetos=1523 malhas=1343 materiais=123 colisoes=1190
+TECH nomes_genericos=0 duplicados=0 sem_material=0 transform_nao_aplicado=0 degeneradas=0 arestas_nao_manifold=16375
+TECH tris=391221 objetos=1534 malhas=1354 materiais=118 colisoes=1205
 TECH maiores: [(23104, 'VIL_MainHall'), (20320, 'SKY_Clouds'), (17622, 'TER_Back_Massif'), (16260, 'TER_Retaining_Walls'), (12484, 'VIL_WeaponShop'), (11692, 'GATE_OnePiece_Frame')]

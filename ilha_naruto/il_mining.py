@@ -992,7 +992,7 @@ def props(ore_pts):
     for sg in (-1, 1):
         q = pe + t_end * 0.9 + V((-t_end.y, t_end.x, 0)) * sg * 1.5
         mb.box((0.6, 0.6, 2.2), (q.x, q.y, z + 0.9), (0, 0, ye), "Wood_Dark", 0.0)
-    for ac, load in ((35.6, "crystal"), (40.3, "ore")):
+    for ac, load in ((35.6, "ore"), (40.3, "ore")):
         x, y = _at(R, ac)
         m_cart(mb, (x, y, z + 0.7), D(ac) + math.pi / 2, rng, load)
     m0, m1 = V((*_at(R, 34.0), z)), V((*_at(R, 42.0), z))

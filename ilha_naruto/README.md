@@ -3,8 +3,11 @@
 Ilha 1 definitiva, construída no Blender 5.2 a partir das 11 referências aprovadas (`refs/`). Está pronta para o
 3D Importer do Roblox: FBX por coleção, colisão em Parts, marcadores e um script de montagem.
 
-> **Estado:** tudo gerado e verificado no Blender e nos QAs automáticos. **Nada foi importado nem salvo no place
-> do Roblox.** A importação e o teste de Play ficam para quando você quiser (ver *Limitações*).
+> **Estado:** definitiva + passe final de polimento (arte, funcionalidade e otimização) aplicado, tudo gerado e
+> verificado no Blender e nos QAs automáticos. **O place do Roblox não foi salvo.** Os 10 FBX chegaram a ser
+> importados numa sessão do Studio (sem salvar) para reconhecimento; o passo de rodar o script de montagem e a
+> integração com os sistemas do jogo (invocar, portão) ficam documentados em
+> [`INTEGRACAO_JOGO.md`](INTEGRACAO_JOGO.md) — precisam de você com a mão no teclado (ver *Limitações*).
 
 ## Entregáveis
 
@@ -20,6 +23,8 @@ Ilha 1 definitiva, construída no Blender 5.2 a partir das 11 referências aprov
 | Relatórios do QA e do export | `renders/qa_final.txt`, `renders/export_final.txt` |
 | Scripts | `build_ilha.py`, `export_ilha.py`, `export_ilha_lua.py`, `export_portoes.py`, `il_qa.py`, `run.sh` |
 | Análise e processo | [`ANALISE_REFERENCIAS.md`](ANALISE_REFERENCIAS.md), [`RODADA2.md`](RODADA2.md), [`AGENT_BRIEF.md`](AGENT_BRIEF.md) |
+| Integração com o jogo ao vivo | [`INTEGRACAO_JOGO.md`](INTEGRACAO_JOGO.md) (reconhecimento do Studio, plano de ligação do portão/invocar) |
+| Vídeo de revisão (~35 s, passeio pela ilha) | `renders/final/ilha1_review.mp4` (gerado por `il_review_cam.py`) |
 
 Para reconstruir: `./run.sh build`. Para exportar: `blender -b ilha_naruto.blend --python export_ilha.py` e, por
 portão, `--python export_portoes.py -- <chave>`. Para o QA: `./run.sh qa nav markers tech`.
@@ -41,8 +46,10 @@ do lobby, Roblox = (−x, z, 420 + y).
 - **Entrada (sul):** ponte de 24 alinhada à ponte do lobby, portão com telhado verde, 2 leões guardiões
   (`il_lion.py`, compartilhado com o portão DB), lanternas de poste a cada 16 e estandartes nos pilares.
 - **Mineração (centro):** fosso limpo de r 60 com cerca, 4 torres de extração com polia e balde, rampas de 8 e
-  escadas N/S. Tem um núcleo de cristal baixo (≤ fosso + 8) e 54 pontos de minério: 28 comuns, 16 incomuns, 8 épicos
-  e 2 superlendários.
+  escadas N/S. O centro é um cairn de pedra baixo (≤ fosso + 8, só rocha, sem cristal) — o piso do fosso fica
+  vazio, reservado para o sistema de minério do próprio jogo. Os 54 marcadores `ORE_*` (28 comuns, 16 incomuns,
+  8 épicos, 2 superlendários) existem só como posição/raridade; **não há nenhum modelo de minério na ilha** (regra
+  do passe de polimento: o jogo já tem seus próprios assets/lógica de minério).
 - **Vila (norte):** escadaria central com estandartes. O salão tem o símbolo da Folha, sem rostos de Hokage.
   - Prédios redondos gêmeos de telhado azul, 12 casas baixas (70% terracota, 2 verdes) e 3 construções no platô.
   - **4 interiores funcionais** com NPC e ponto de interação: salão, loja de armas, ramen e moinho (posto de
@@ -104,11 +111,11 @@ mudanças no jogo estão em [`CONEXAO_DRAGONBALL.md`](CONEXAO_DRAGONBALL.md).
 
 | | valor / limite |
 |---|---|
-| MeshParts | 472 / 660 |
-| Triângulos | 326.409 / 470.000 |
+| MeshParts | 469 / 660 |
+| Triângulos | 326.541 / 470.000 |
 | Materiais | 82 / 110 |
-| Colisões (Parts COL) | 1.095 / 1.150 |
-| MeshParts com sombra | 242 / 300 |
+| Colisões (Parts COL) | 1.109 / 1.150 |
+| MeshParts com sombra | 243 / 300 |
 | Luzes ativas de dia | 11 / 36 (33 no total, as externas só à noite) |
 | Peças móveis | 12: estrela e 3 anéis do summon, roda d'água, engrenagem, eixo e pilão do moinho, 4 esferas do DB |
 
@@ -117,10 +124,10 @@ mudanças no jogo estão em [`CONEXAO_DRAGONBALL.md`](CONEXAO_DRAGONBALL.md).
 | Zona | Triângulos (limite) | MeshParts (limite) |
 |---|---|---|
 | terreno | 97,5k (110k) | 88 (130) |
-| vila + casas | 76,1k (100k) | 128 (150) |
+| vila + casas | 76,1k (100k) | 126 (150) |
 | entrada | 24,8k (32k) | 28 (42) |
 | summon | 23,7k (38k) | 25 (48) |
-| mineração | 23,4k (48k) | 33 (70) |
+| mineração | 23,5k (48k) | 32 (70) |
 | portão DB | 20,8k (26k) | 23 (34) |
 | vegetação | 18,5k (45k) | 51 (60) |
 | água | 18,2k (24k) | 34 (38) |
@@ -141,7 +148,7 @@ mudanças no jogo estão em [`CONEXAO_DRAGONBALL.md`](CONEXAO_DRAGONBALL.md).
 (`VIL_House_*`), torre do summon, portão da entrada, portão DB e guarda da âncora. As ilhotas do céu ficam
 persistentes.
 
-## Processo (16 passes)
+## Processo (18 passes)
 
 1. Análise das referências e medidas.
 2. Planta travada (`il_layout.py`).
@@ -159,24 +166,35 @@ persistentes.
 14. Polimento (saliências, energia dos portões).
 15. QA técnico e export final.
 16. Renders finais e revisão 360° (Front/Left/Right/Back/BirdEye + 5 vistas das referências).
+17. Reconhecimento do jogo ao vivo no Roblox Studio (leitura de scripts) e import de teste dos FBX (sem salvar).
+18. Passe final de polimento: nenhum cristal representando minério em lugar nenhum da ilha (núcleo, moinho,
+    carrinhos, blockout), colisão do patamar do summon corrigida (casa com o piso visual), verificação visual dos
+    ajustes de rodadas anteriores (queda NE, gargantas do paredão, leito do riacho, linha de visão para o summon,
+    cadeado dos portões), export e renders finais atualizados.
 
 ## Limitações e pendências
 
-- **Não importado no Roblox.** O place não foi aberto para edição nem salvo. Faltam:
-  - importar os 10 FBX no 3D Importer;
-  - rodar `montar_ilha_naruto.lua` no command bar;
-  - testar em Play.
+- **Não salvo no Roblox.** O place não foi salvo. Os 10 FBX chegaram a ser importados numa sessão aberta do Studio
+  (só para reconhecimento) mas isso não persiste se o Studio fechar sem salvar. Faltam, com você no teclado:
+  - reimportar os 10 FBX no 3D Importer (se precisar) e rodar `montar_ilha_naruto.lua` no command bar;
+  - testar em Play;
+  - o script de ligação com os sistemas do jogo (invocar, portão) — plano detalhado em `INTEGRACAO_JOGO.md`.
   O bloco novo do script (a marcação da guarda da âncora) foi só revisado à mão. A checagem de compilação no
-  Studio foi bloqueada pelo modo automático. O resto do script já tinha compilado no Studio numa rodada anterior.
-- **O jogo precisa mudar** (detalhes em `CONEXAO_DRAGONBALL.md`):
+  Studio foi bloqueada pelo modo automático (exige confirmação explícita para modificar o place ao vivo). O resto
+  do script já tinha compilado no Studio numa rodada anterior.
+- **O jogo já tem os sistemas prontos, só falta religar** (achado no reconhecimento, detalhes em
+  `INTEGRACAO_JOGO.md`): `workspace.Gachas.Gacha_chakra` já é a máquina de invocar da Vila da Folha (tema
+  `"chakra"` em `Config.Areas[1]`) — só precisa reposicionar em `SUMMON_Main`; `Core.Paredes` já é o portão de
+  custo real entre a Área 1 e a Área 2 — o `GATE_DB` deve refletir esse estado, não duplicar a economia;
+  `Core.IslandWorld.build()` só reconhece a ilha antiga (`ServerStorage.KonohaArea`), não `Workspace.ILHA_NARUTO`.
+- **O jogo também precisa mudar** (detalhes em `CONEXAO_DRAGONBALL.md`):
   - o `IslandTravel` decide a área pela faixa de z, mas a saída agora vai para nordeste; precisa decidir por região;
-  - a `Parede2` do `Core.Paredes` perde a função, porque o portão DB a substitui;
+  - `Core.TravessiaCorredores` tem casos especiais escritos à mão para a geometria antiga do Konoha;
   - streaming: recomendo raio mínimo de 512–640 para a ilha inteira carregar a partir do centro.
 - **Guarda da âncora:** é provisória. A Ilha 2 tem que apagar as peças com a tag `GuardaProximaIlha`.
 - **Cores da prévia × Roblox:** a prévia usa Standard com emissão limitada. No Roblox os `*Glow` viram Neon, mais
   fortes, e a água sai como MeshPart translúcida, não Terrain water.
 - **Pequenos pontos conhecidos:**
-  - o piso visual da praça do summon fica 0,3 acima da colisão (o pé afunda 0,3);
   - o ramen ficou alto para a planta, por causa do pé-direito ≥ 12 exigido;
   - a trilha de lanternas da rua de saída tem só 1 lanterna no lado NO (uma lanterna ali cortava a rota natural);
   - os caminhos de lajota terminam em fachadas sem porta, onde há janelas com alpendre.

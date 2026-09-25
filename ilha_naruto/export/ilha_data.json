@@ -1,17 +1,17 @@
 {
  "mapping": "Roblox = (x_blender, z_blender, -y_blender); 1 BU = 1 stud; malha: origem = centro do bbox",
- "export_id": "203d27a5",
+ "export_id": "0e14b431",
  "fbx": {
-  "02_TERRAIN": "ILHA1_02_TERRAIN_203d27.fbx",
-  "03_MINING": "ILHA1_03_MINING_203d27.fbx",
-  "04_VILLAGE": "ILHA1_04_VILLAGE_203d27.fbx",
-  "05_SUMMON": "ILHA1_05_SUMMON_203d27.fbx",
-  "06_WATER": "ILHA1_06_WATER_203d27.fbx",
-  "07_NEXT_ISLAND": "ILHA1_07_NEXT_ISLAND_203d27.fbx",
-  "08_PURCHASE_GATES": "ILHA1_08_PURCHASE_GATES_203d27.fbx",
-  "09_PROPS": "ILHA1_09_PROPS_203d27.fbx",
-  "10_VEGETATION": "ILHA1_10_VEGETATION_203d27.fbx",
-  "12_VFX_HELPERS": "ILHA1_12_VFX_HELPERS_203d27.fbx"
+  "02_TERRAIN": "ILHA1_02_TERRAIN_0e14b4.fbx",
+  "03_MINING": "ILHA1_03_MINING_0e14b4.fbx",
+  "04_VILLAGE": "ILHA1_04_VILLAGE_0e14b4.fbx",
+  "05_SUMMON": "ILHA1_05_SUMMON_0e14b4.fbx",
+  "06_WATER": "ILHA1_06_WATER_0e14b4.fbx",
+  "07_NEXT_ISLAND": "ILHA1_07_NEXT_ISLAND_0e14b4.fbx",
+  "08_PURCHASE_GATES": "ILHA1_08_PURCHASE_GATES_0e14b4.fbx",
+  "09_PROPS": "ILHA1_09_PROPS_0e14b4.fbx",
+  "10_VEGETATION": "ILHA1_10_VEGETATION_0e14b4.fbx",
+  "12_VFX_HELPERS": "ILHA1_12_VFX_HELPERS_0e14b4.fbx"
  },
  "meshes": [
   {
@@ -273,14 +273,14 @@
    "material": "Cliff_Rock_Tan",
    "tris": 360,
    "center_rbx": [
-    2.78,
-    3.931,
-    537.667
+    3.831,
+    3.381,
+    536.239
    ],
    "size_rbx": [
-    960.863,
-    137.431,
-    731.276
+    956.554,
+    138.128,
+    726.514
    ],
    "owner": "terrain",
    "shadow": false,
@@ -294,14 +294,14 @@
    "material": "Cliff_Rock_Tan_Dark",
    "tris": 360,
    "center_rbx": [
-    6.267,
-    -6.817,
-    537.893
+    6.026,
+    -6.18,
+    537.31
    ],
    "size_rbx": [
-    951.058,
-    135.932,
-    726.743
+    955.426,
+    138.632,
+    726.202
    ],
    "owner": "terrain",
    "shadow": false,
@@ -2098,16 +2098,16 @@
    "group": "03_MINING",
    "obj": "MINE_Core_Formation",
    "material": "Cliff_Rock_Dark",
-   "tris": 1196,
+   "tris": 482,
    "center_rbx": [
-    -0.093,
-    5.176,
-    420.004
+    0.182,
+    6.578,
+    418.747
    ],
    "size_rbx": [
-    18.987,
-    5.895,
-    19.013
+    19.911,
+    8.635,
+    14.962
    ],
    "owner": "mining",
    "shadow": true,
@@ -2115,44 +2115,23 @@
    "model": ""
   },
   {
-   "name": "MINE_Core_Formation__Crystal_Blue",
+   "name": "MINE_Core_Formation__Cliff_Rock_Dark_B",
    "group": "03_MINING",
    "obj": "MINE_Core_Formation",
-   "material": "Crystal_Blue",
-   "tris": 384,
+   "material": "Cliff_Rock_Dark_B",
+   "tris": 1428,
    "center_rbx": [
-    -0.03,
-    6.501,
-    419.865
+    -0.319,
+    6.614,
+    419.97
    ],
    "size_rbx": [
-    14.984,
-    7.176,
-    15.008
+    18.72,
+    8.771,
+    20.114
    ],
    "owner": "mining",
-   "shadow": false,
-   "flags": "",
-   "model": ""
-  },
-  {
-   "name": "MINE_Core_Formation__Crystal_Blue_Core",
-   "group": "03_MINING",
-   "obj": "MINE_Core_Formation",
-   "material": "Crystal_Blue_Core",
-   "tris": 144,
-   "center_rbx": [
-    -0.082,
-    7.614,
-    419.797
-   ],
-   "size_rbx": [
-    15.178,
-    6.871,
-    15.241
-   ],
-   "owner": "mining",
-   "shadow": false,
+   "shadow": true,
    "flags": "",
    "model": ""
   },
@@ -2178,10 +2157,10 @@
    "model": ""
   },
   {
-   "name": "MINE_Derricks__Cliff_Rock_Dark",
+   "name": "MINE_Derricks__Cliff_Rock_Dark_B",
    "group": "03_MINING",
    "obj": "MINE_Derricks",
-   "material": "Cliff_Rock_Dark",
+   "material": "Cliff_Rock_Dark_B",
    "tris": 392,
    "center_rbx": [
     -0.085,
@@ -2604,12 +2583,12 @@
    "material": "Cliff_Rock_Dark",
    "tris": 114,
    "center_rbx": [
-    -0.552,
+    -0.658,
     6.035,
     412.281
    ],
    "size_rbx": [
-    94.758,
+    94.546,
     2.47,
     92.582
    ],
@@ -2623,16 +2602,16 @@
    "group": "03_MINING",
    "obj": "MINE_Props",
    "material": "Crystal_Blue",
-   "tris": 144,
+   "tris": 90,
    "center_rbx": [
-    -0.548,
-    6.499,
-    409.801
+    31.379,
+    5.869,
+    376.789
    ],
    "size_rbx": [
-    92.289,
-    3.45,
-    87.251
+    28.301,
+    2.166,
+    21.252
    ],
    "owner": "mining",
    "shadow": false,
@@ -2667,13 +2646,13 @@
    "material": "Metal_Dark",
    "tris": 1256,
    "center_rbx": [
-    -3.62,
+    -3.564,
     6.334,
     423.48
    ],
    "size_rbx": [
-    104.078,
-    6.293,
+    104.19,
+    6.292,
     107.041
    ],
    "owner": "mining",
@@ -4740,48 +4719,6 @@
    "model": "VIL_MainHall"
   },
   {
-   "name": "VIL_Mill__Crystal_Blue",
-   "group": "04_VILLAGE",
-   "obj": "VIL_Mill",
-   "material": "Crystal_Blue",
-   "tris": 680,
-   "center_rbx": [
-    -101.633,
-    13.142,
-    433.121
-   ],
-   "size_rbx": [
-    8.075,
-    10.505,
-    25.892
-   ],
-   "owner": "village",
-   "shadow": false,
-   "flags": "",
-   "model": "VIL_Mill"
-  },
-  {
-   "name": "VIL_Mill__Crystal_Blue_Core",
-   "group": "04_VILLAGE",
-   "obj": "VIL_Mill",
-   "material": "Crystal_Blue_Core",
-   "tris": 620,
-   "center_rbx": [
-    -101.642,
-    13.98,
-    432.855
-   ],
-   "size_rbx": [
-    8.224,
-    10.093,
-    26.516
-   ],
-   "owner": "village",
-   "shadow": false,
-   "flags": "",
-   "model": "VIL_Mill"
-  },
-  {
    "name": "VIL_Mill__Lantern_Glow",
    "group": "04_VILLAGE",
    "obj": "VIL_Mill",
@@ -4849,15 +4786,15 @@
    "group": "04_VILLAGE",
    "obj": "VIL_Mill",
    "material": "Stone_Wall_Dark",
-   "tris": 688,
+   "tris": 1988,
    "center_rbx": [
     -100.002,
-    11.463,
+    12.313,
     432.275
    ],
    "size_rbx": [
     14.138,
-    11.725,
+    13.426,
     29.45
    ],
    "owner": "village",
@@ -6363,14 +6300,14 @@
    "material": "Cliff_Rock_Tan_Dark",
    "tris": 380,
    "center_rbx": [
-    -0.211,
-    48.214,
-    611.357
+    -0.1,
+    48.229,
+    611.264
    ],
    "size_rbx": [
-    180.061,
-    53.015,
-    19.734
+    179.836,
+    53.017,
+    19.832
    ],
    "owner": "water",
    "shadow": true,
@@ -6384,14 +6321,14 @@
    "material": "Foam",
    "tris": 712,
    "center_rbx": [
-    -80.25,
-    47.159,
-    606.51
+    -80.202,
+    47.101,
+    606.525
    ],
    "size_rbx": [
-    17.577,
-    51.142,
-    15.463
+    17.779,
+    51.26,
+    15.175
    ],
    "owner": "water",
    "shadow": false,
@@ -6406,13 +6343,13 @@
    "tris": 1352,
    "center_rbx": [
     55.04,
-    47.098,
-    606.136
+    47.133,
+    606.176
    ],
    "size_rbx": [
     65.127,
-    51.264,
-    17.35
+    51.195,
+    17.27
    ],
    "owner": "water",
    "shadow": false,
@@ -6531,14 +6468,14 @@
    "material": "Cliff_Rock_Tan_Dark",
    "tris": 1000,
    "center_rbx": [
-    -115.358,
-    4.471,
-    422.803
+    -115.419,
+    4.457,
+    422.734
    ],
    "size_rbx": [
-    14.297,
-    1.51,
-    137.316
+    14.36,
+    1.466,
+    137.274
    ],
    "owner": "water",
    "shadow": true,
@@ -6552,14 +6489,14 @@
    "material": "Foam",
    "tris": 636,
    "center_rbx": [
-    -108.665,
-    8.684,
-    423.239
+    -108.581,
+    8.69,
+    423.223
    ],
    "size_rbx": [
-    25.302,
-    8.829,
-    157.321
+    25.145,
+    8.817,
+    157.466
    ],
    "owner": "water",
    "shadow": false,
@@ -6657,14 +6594,14 @@
    "material": "Foam",
    "tris": 192,
    "center_rbx": [
-    140.574,
-    19.391,
-    544.246
+    140.518,
+    19.385,
+    544.248
    ],
    "size_rbx": [
-    4.728,
-    6.346,
-    5.592
+    4.643,
+    6.36,
+    5.568
    ],
    "owner": "water",
    "shadow": false,
@@ -6762,13 +6699,13 @@
    "material": "Foam",
    "tris": 1092,
    "center_rbx": [
-    -126.45,
-    -44.754,
+    -126.557,
+    -44.723,
     577.283
    ],
    "size_rbx": [
-    27.39,
-    133.967,
+    27.176,
+    133.904,
     29.547
    ],
    "owner": "water",
@@ -6783,13 +6720,13 @@
    "material": "Foam",
    "tris": 1104,
    "center_rbx": [
-    -111.369,
-    -53.801,
+    -111.37,
+    -53.896,
     337.928
    ],
    "size_rbx": [
-    28.735,
-    116.763,
+    28.737,
+    116.952,
     28.8
    ],
    "owner": "water",
@@ -6804,13 +6741,13 @@
    "material": "Foam",
    "tris": 1024,
    "center_rbx": [
-    98.77,
-    -57.033,
+    98.583,
+    -56.975,
     339.468
    ],
    "size_rbx": [
-    24.12,
-    108.126,
+    23.745,
+    108.009,
     24.06
    ],
    "owner": "water",
@@ -6825,13 +6762,13 @@
    "material": "Foam",
    "tris": 1096,
    "center_rbx": [
-    170.192,
-    -47.865,
+    169.9,
+    -47.828,
     497.903
    ],
    "size_rbx": [
-    28.877,
-    128.291,
+    29.46,
+    128.217,
     28.362
    ],
    "owner": "water",
@@ -9968,7 +9905,21 @@
    "family": "Cliff_Rock_Dark",
    "tex": "rock",
    "swirl": null,
-   "meshes": 3
+   "meshes": 2
+  },
+  "Cliff_Rock_Dark_B": {
+   "color": [
+    87,
+    82,
+    79
+   ],
+   "material": "Slate",
+   "transparency": 0.0,
+   "shadow": true,
+   "family": "Cliff_Rock_Dark",
+   "tex": "rock",
+   "swirl": null,
+   "meshes": 2
   },
   "Cliff_Rock_Tan": {
    "color": [
@@ -10134,20 +10085,6 @@
    "transparency": 0.0,
    "shadow": false,
    "family": "Crystal_Blue",
-   "tex": null,
-   "swirl": null,
-   "meshes": 4
-  },
-  "Crystal_Blue_Core": {
-   "color": [
-    70,
-    200,
-    255
-   ],
-   "material": "Neon",
-   "transparency": 0.0,
-   "shadow": false,
-   "family": "Crystal_Blue_Core",
    "tex": null,
    "swirl": null,
    "meshes": 2
@@ -17545,6 +17482,356 @@
     12.739,
     1.2,
     9.0
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_SummonPlaza_001",
+   "kind": "Block",
+   "pos": [
+    120.0,
+    15.85,
+    415.767
+   ],
+   "x": [
+    -1.0,
+    0.0,
+    -0.0
+   ],
+   "y": [
+    -0.0,
+    0.0,
+    1.0
+   ],
+   "size": [
+    3.402,
+    4.0,
+    1.3
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_SummonPlaza_002",
+   "kind": "Block",
+   "pos": [
+    120.0,
+    15.85,
+    419.767
+   ],
+   "x": [
+    -1.0,
+    0.0,
+    -0.0
+   ],
+   "y": [
+    -0.0,
+    0.0,
+    1.0
+   ],
+   "size": [
+    29.154,
+    4.0,
+    1.3
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_SummonPlaza_003",
+   "kind": "Block",
+   "pos": [
+    120.0,
+    15.85,
+    423.767
+   ],
+   "x": [
+    -1.0,
+    0.0,
+    -0.0
+   ],
+   "y": [
+    -0.0,
+    0.0,
+    1.0
+   ],
+   "size": [
+    39.486,
+    4.0,
+    1.3
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_SummonPlaza_004",
+   "kind": "Block",
+   "pos": [
+    120.0,
+    15.85,
+    427.767
+   ],
+   "x": [
+    -1.0,
+    0.0,
+    -0.0
+   ],
+   "y": [
+    -0.0,
+    0.0,
+    1.0
+   ],
+   "size": [
+    46.279,
+    4.0,
+    1.3
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_SummonPlaza_005",
+   "kind": "Block",
+   "pos": [
+    120.788,
+    15.85,
+    431.767
+   ],
+   "x": [
+    -1.0,
+    0.0,
+    -0.0
+   ],
+   "y": [
+    -0.0,
+    0.0,
+    1.0
+   ],
+   "size": [
+    49.365,
+    4.0,
+    1.3
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_SummonPlaza_006",
+   "kind": "Block",
+   "pos": [
+    121.213,
+    15.85,
+    435.767
+   ],
+   "x": [
+    -1.0,
+    0.0,
+    -0.0
+   ],
+   "y": [
+    -0.0,
+    0.0,
+    1.0
+   ],
+   "size": [
+    51.627,
+    4.0,
+    1.3
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_SummonPlaza_007",
+   "kind": "Block",
+   "pos": [
+    121.313,
+    15.85,
+    439.767
+   ],
+   "x": [
+    -1.0,
+    0.0,
+    -0.0
+   ],
+   "y": [
+    -0.0,
+    0.0,
+    1.0
+   ],
+   "size": [
+    53.236,
+    4.0,
+    1.3
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_SummonPlaza_008",
+   "kind": "Block",
+   "pos": [
+    120.993,
+    15.85,
+    443.767
+   ],
+   "x": [
+    -1.0,
+    0.0,
+    -0.0
+   ],
+   "y": [
+    -0.0,
+    0.0,
+    1.0
+   ],
+   "size": [
+    54.008,
+    4.0,
+    1.3
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_SummonPlaza_009",
+   "kind": "Block",
+   "pos": [
+    120.229,
+    15.85,
+    447.767
+   ],
+   "x": [
+    -1.0,
+    0.0,
+    -0.0
+   ],
+   "y": [
+    -0.0,
+    0.0,
+    1.0
+   ],
+   "size": [
+    53.889,
+    4.0,
+    1.3
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_SummonPlaza_010",
+   "kind": "Block",
+   "pos": [
+    120.0,
+    15.85,
+    451.767
+   ],
+   "x": [
+    -1.0,
+    0.0,
+    -0.0
+   ],
+   "y": [
+    -0.0,
+    0.0,
+    1.0
+   ],
+   "size": [
+    51.394,
+    4.0,
+    1.3
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_SummonPlaza_011",
+   "kind": "Block",
+   "pos": [
+    120.0,
+    15.85,
+    455.767
+   ],
+   "x": [
+    -1.0,
+    0.0,
+    -0.0
+   ],
+   "y": [
+    -0.0,
+    0.0,
+    1.0
+   ],
+   "size": [
+    46.907,
+    4.0,
+    1.3
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_SummonPlaza_012",
+   "kind": "Block",
+   "pos": [
+    120.0,
+    15.85,
+    459.767
+   ],
+   "x": [
+    -1.0,
+    0.0,
+    -0.0
+   ],
+   "y": [
+    -0.0,
+    0.0,
+    1.0
+   ],
+   "size": [
+    40.45,
+    4.0,
+    1.3
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_SummonPlaza_013",
+   "kind": "Block",
+   "pos": [
+    120.0,
+    15.85,
+    463.767
+   ],
+   "x": [
+    -1.0,
+    0.0,
+    -0.0
+   ],
+   "y": [
+    -0.0,
+    0.0,
+    1.0
+   ],
+   "size": [
+    30.644,
+    4.0,
+    1.3
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_SummonPlaza_014",
+   "kind": "Block",
+   "pos": [
+    120.0,
+    15.85,
+    467.767
+   ],
+   "x": [
+    -1.0,
+    0.0,
+    -0.0
+   ],
+   "y": [
+    -0.0,
+    0.0,
+    1.0
+   ],
+   "size": [
+    10.786,
+    4.0,
+    1.3
    ],
    "cam": false
   },
@@ -40959,9 +41246,9 @@
     420.0
    ],
    "color": [
-    160,
-    206,
-    255
+    255,
+    234,
+    196
    ],
    "range": 12.2,
    "brightness": 0.68,
@@ -41253,7 +41540,7 @@
    "name": "SAFE_Summon",
    "pos": [
     112.0,
-    16.2,
+    16.5,
     440.0
    ]
   },
@@ -41349,23 +41636,23 @@
    "  entrance          24840 (32000)    28 (42)",
    "  exit              13944 (22000)    26 (32)",
    "  gate_db           20800 (26000)    23 (34)",
-   "  mining            23384 (48000)    33 (70)",
+   "  mining            23516 (48000)    32 (70)",
    "  props              3524 (26000)    13 (45)",
    "  summon            23744 (38000)    25 (48)",
    "  terrain           97537 (110000)    88 (130)",
    "  vegetation        18460 (45000)    51 (60)",
    "  vfx                5828 (12000)    23 (28)",
-   "  village           76128 (100000)   128 (150)",
+   "  village           76128 (100000)   126 (150)",
    "  water             18220 (24000)    34 (38)",
    "METAS GLOBAIS",
-   "  tris estaticos                          326409 / 470000 ",
-   "  MeshParts estaticas                        472 / 660    ",
-   "  tris total (+ reserva VFX 0)            326409 / 470000 ",
-   "  MeshParts total (+ reserva VFX 0)          472 / 660    ",
+   "  tris estaticos                          326541 / 470000 ",
+   "  MeshParts estaticas                        469 / 660    ",
+   "  tris total (+ reserva VFX 0)            326541 / 470000 ",
+   "  MeshParts total (+ reserva VFX 0)          469 / 660    ",
    "  materiais                                   82 / 110    ",
-   "  MeshParts com sombra                       242 / 300    ",
+   "  MeshParts com sombra                       243 / 300    ",
    "  luzes ativas de dia                         11 / 36     ",
-   "  COL                                       1095 / 1150   "
+   "  COL                                       1109 / 1150   "
   ],
   "over": []
  }
