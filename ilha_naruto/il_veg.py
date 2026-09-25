@@ -40,7 +40,7 @@ GROUPS = [
     ("Leste", 130.0, 84.0, 6.0, 2, ("broad", "fir"), "M"),
     # terraco do summon: sakuras emoldurando a praca (a abertura NE fica livre)
     ("Summon", -140.0, -4.0, 4.0, 2, ("sakura", "broad"), "M"),
-    ("Summon", -144.0, 46.0, 3.0, 1, ("sakura",), "L"),
+    ("Summon", -112.0, 70.0, 3.0, 1, ("sakura",), "L"),      # (fora da vista de tras da torre)
     ("Summon", -104.0, -12.0, 4.0, 1, ("sakura",), "M"),
     # NO do T1: separa o summon da vila
     ("T1_NO", -118.0, 104.0, 10.0, 4, ("broad", "fir"), "L"),
@@ -61,10 +61,10 @@ GROUPS = [
     ("T2", -80.0, 136.0, 4.0, 1, ("broad",), "M"),
     # plato do paredao: pinheiros-guarda-chuva quebrando a linha do topo
     ("Plato", -96.0, 190.0, 4.0, 2, ("broad", "fir"), "L"),
-    ("Plato", -56.0, 197.0, 4.0, 2, ("broad", "broad"), "M"),
+    ("Plato", -38.0, 211.0, 4.0, 2, ("broad", "broad"), "M"),
     ("Plato", -20.0, 199.0, 3.0, 1, ("broad",), "L"),
     ("Plato", 20.0, 199.0, 4.0, 2, ("broad",), "M"),
-    ("Plato", 56.0, 196.0, 4.0, 2, ("broad", "broad"), "L"),
+    ("Plato", 74.0, 210.0, 4.0, 2, ("broad", "broad"), "L"),
     ("Plato", 96.0, 186.0, 3.0, 2, ("broad", "fir"), "M"),
 ]
 SIZES = {"S": (9.0, 11.0), "M": (12.0, 15.0), "L": (16.0, 21.0)}
@@ -87,7 +87,10 @@ def _seg_d(x, y, pts):
 
 
 # zonas livres pedidas pelos outros modulos (retangulos x0, y0, x1, y1)
-KEEP_FREE = [(89.0, 8.0, 93.0, 16.0), (93.0, -3.0, 107.0, 3.0), (96.0, 22.0, 106.0, 28.0),     # moinho
+KEEP_FREE = [(89.0, 6.0, 93.0, 18.0), (93.0, -3.0, 107.0, 3.0), (96.0, 22.0, 106.0, 28.0),     # moinho (porta 10)
+             (-14.5, 97.0, -8.5, 102.5), (8.5, 97.0, 14.5, 102.5),                                 # estandartes
+             (52.0, 166.0, 66.0, 180.0),                                                          # caixa d'agua BLUE_E
+             (-72.0, 196.0, -43.0, 217.0), (45.0, 184.0, 65.0, 217.0),                           # casas do plato
              (-5.5, 136.5, 5.5, 141.5), (-62.5, 136.5, -53.5, 141.5), (-48.0, 95.0, -28.0, 101.5),  # portas da vila
              (-72.0, -84.0, -44.0, -56.0)]                                                           # campo de treino
 
@@ -101,6 +104,8 @@ def _free_axes(x, y):
     # agua: riacho do vale e canal do T2 (7 do eixo), pocos das quedas do fundo, canal oeste
     if _seg_d(x, y, L.STREAM) < 7.0 or _seg_d(x, y, L.STREAM_T2) < 7.0:
         return False
+    if y < -40.0 and _seg_d(x, y, [(0.0, -160.0), (-133.0, 36.0)]) < 7.0:
+        return False                                  # linha de visao da chegada (0,-160) ate a torre do summon
     if _seg_d(x, y, L.CANAL_MID) < 5.5 or (-42.0 <= x <= -18.0 and 172.0 <= y <= 188.0):
         return False                                  # canal do meio e poco atras do salao
     if x > 108.0 and 137.0 <= y <= 158.0:
@@ -339,6 +344,56 @@ def build():
         else:
             VK.broadleaf(sh, (cx, cy, z), rng.uniform(8.0, 11.0), rng, lod=2, clear=3.0)
         ns += 1
+    # saliencias do penhasco (topos planos de grama dos promontorios e lobulos, G-3 ate G-40): folhosas e arbustos
+    # espacados >= 10, fora das quedas, da ponte de chegada e da ponte de saida (as refs tem copas nas saliencias)
+    try:
+        import il_terrain_rock as TR
+        falls = list(TR.FALLS.values())
+    except Exception:
+        falls = []
+    falls += [(fx, fy) for fx, fy in L.BACK_FALLS]
+    ledges = []
+    for nm in ("TER_Promontories", "TER_Cliffs_Lower"):
+        o = bpy.data.objects.get(nm)
+        if o is None:
+            continue
+        mw = o.matrix_world
+        r3 = mw.to_3x3()
+        for p in o.data.polygons:
+            if p.area < 28.0 or (r3 @ p.normal).normalized().z < 0.97:
+                continue
+            c = mw @ p.center
+            if L.G - 40.0 < c.z < L.G - 3.0:
+                ledges.append((p.area, c))
+    ledges.sort(key=lambda t: -t[0])
+    lp = []
+    nl = 0
+    for area, c in ledges:
+        if abs(c.x) < 36.0 and c.y < -95.0:
+            continue
+        if any(math.hypot(c.x - fx, c.y - fy) < 16.0 for fx, fy in falls):
+            continue
+        if any(math.hypot(c.x - q.x, c.y - q.y) < 10.0 for q in lp):
+            continue
+        ex, ey = L.EXIT_START
+        ux, uy = L.exit_dir()
+        t = (c.x - ex) * ux + (c.y - ey) * uy
+        if -6.0 < t < L.EXIT_BRIDGE_LEN + 60.0 and abs(-(c.x - ex) * uy + (c.y - ey) * ux) < L.EXIT_W / 2 + 10.0:
+            continue
+        z = _ground_z(gb, c.x, c.y)
+        if z is None or abs(z - c.z) > 0.6:
+            continue                                   # coberto por outra peca (nao e o topo livre)
+        if ob is not None and ob.find_nearest(Vector((c.x, c.y, c.z + 5.0)), 4.5)[0] is not None:
+            continue
+        if nl % 4 == 3:
+            VK.bush(sh, (c.x, c.y, c.z), rng.uniform(2.4, 3.2), rng, lod=2)
+        else:
+            VK.broadleaf(sh, (c.x, c.y, c.z), rng.uniform(8.0, 12.0), rng, lod=2, clear=3.0)
+        lp.append(c)
+        nl += 1
+        if nl >= 30:
+            break
+    ns += nl
     sh.finish()
     for mb in mbs.values():
         mb.finish()

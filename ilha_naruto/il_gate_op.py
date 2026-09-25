@@ -14,6 +14,13 @@
 #   raios a 10, 36.7, 63.3, 90, ... graus, de r 8.4 ate o punho em r 15.55 (topo z 25.6, laterais x +-15.3)
 #   bussola r 2.3 em z 21.4 | chapeu de palha no punho de cima (aba r 2.7, topo ~27) | lanternas x +-14.8, z ~8.3..11.6
 #   ancora x -14.7, y -2.4 (pa ate -17.3) | barris x 12.9..16.4 | cabecos (+-13.3, -5.6)
+# RODADA 2 (critica: "papelao; sem soleira/pedestais/emblemas; nao e familia do DB"):
+#   - PROFUNDIDADE: atras de cada estaca, um DUQUE D'ALBA (estaca de apoio r 1,25 em y 6) ligado por 2 travessas e uma
+#     escora inclinada ate o chapeu da estaca, com amarras de corda -> moldura de y -2,3 a 7,3;
+#   - kit de familia: soleira 22 x 10, plintos, 2 pedestais 4x4x4 com CABECO DE AMARRACAO duplo + BARRIL (o guardiao),
+#     2 lanternas de pedra (camara azul-agua) e 4 CHAPEUS DE PALHA flutuantes (VFX_GATE_OnePiece_Hat_*);
+#     os barris e cabecos soltos no chao sairam; a ancora foi para tras, encostada no duque d'alba esquerdo;
+#   - folgas >= 0,1: cintas de ferro r + 0,12, fita do chapeu 0,12 fora da copa, latao do aro fora dos aneis de energia.
 import math, random
 from mathutils import Vector
 import fm_lib
@@ -53,7 +60,7 @@ def _posts(g, mb):
         g.cyl(mb, PR + 0.45, 0.62, (x, 0.0, 10.71), WD, 14, bev=0.16)
         g.cyl(mb, PR + 0.3, 0.26, (x, 0.0, 11.1), WD, 14, r2=PR - 0.2, bev=0.0)
         for z, h in ((0.48, 0.46), (10.1, 0.36)):
-            g.cyl(mb, PR + 0.08, h, (x, 0.0, z), IRON, 14, bev=0.0)
+            g.cyl(mb, PR + 0.12, h, (x, 0.0, z), IRON, 14, bev=0.0)
         for z in (4.75, 7.65):
             g.cyl(mb, PR + 0.14, 0.34, (x, 0.0, z), ROPE, 14, bev=0.0)
         pts = []
@@ -102,7 +109,7 @@ def _compass(g, mb):
         # 4 marcas de latao no aro (N, L, S, O)
         for k in range(4):
             a = math.radians(90 * k)
-            g.cyl(mb, 0.2, 0.3, (math.cos(a) * (COMP_R - 0.2), sg * 1.3, COMP_Z + math.sin(a) * (COMP_R - 0.2)),
+            g.cyl(mb, 0.2, 0.5, (math.cos(a) * (COMP_R - 0.2), sg * 1.3, COMP_Z + math.sin(a) * (COMP_R - 0.2)),
                   BRASS, 6, bev=0.0, axis="y")
 
 
@@ -116,7 +123,7 @@ def _straw_hat(g, mb):
     rot = g.R(0.0, t, 0.0)
     mb.cyl(2.7, 0.34, at(0.1), rot, STRAW, 20, r2=1.6, bevel=0.0)                  # aba
     mb.cyl(1.32, 1.15, at(0.82), rot, STRAW, 16, r2=1.16, bevel=0.0)               # copa
-    mb.cyl(1.35, 0.42, at(0.5), rot, RED, 16, bevel=0.0)                            # fita vermelha
+    mb.cyl(1.42, 0.42, at(0.5), rot, RED, 16, bevel=0.0)                            # fita vermelha
     mb.ico(1.16, at(1.39), STRAW, 2, (1.0, 1.0, 0.42), rot)
 
 
@@ -150,9 +157,13 @@ def _ship_lantern(g, mb, x, z_top):
     g.cone(mb, (x, 0.0, c - 0.65), (x, 0.0, c - 1.05), 0.5, 0.1, BRASS, 8)
 
 
+AX, AY = -14.9, 5.2                # ancora (rodada 2: atras, encostada no duque d'alba esquerdo)
+RPY, RPR = 6.0, 1.25               # duques d'alba (estacas de apoio atras das estacas principais)
+
+
 def _anchor(g, mb):
-    ax, ay = -14.7, -2.4
-    sa = 1.0
+    ax, ay = AX, AY
+    g.box(mb, ax - 2.3, ax + 2.3, ay - 0.95, ay + 0.95, GK.BASE_Z, 0.3, WD, 0.0)               # berco de madeira
     g.box(mb, ax - 0.42, ax + 0.42, ay - 0.42, ay + 0.42, 0.45, 9.3, IRON, 0.12)                # haste
     g.box(mb, ax - 1.75, ax + 1.75, ay - 0.36, ay + 0.36, 8.05, 8.75, IRON, 0.1)               # cepo
     for s in (-1, 1):
@@ -168,41 +179,79 @@ def _anchor(g, mb):
         # pa (fluke) triangular voltada para cima e para fora
         pts2 = [(tip[0] - s * 0.1, tip[1] - 0.25), (tip[0] + s * 0.75, tip[1] + 0.45), (tip[0] + s * 0.05, tip[1] + 1.35)]
         g.plate(mb, pts2, ay, 0.4, IRON)
-    # corrente da argola ate o poste esquerdo
-    g.chain(mb, (ax + 0.5, ay + 0.2, 10.0), (-PX - PR * 0.55, -PR * 0.75, 7.6), sag=1.0, link=0.62, m=IRON, t=0.2,
-            w=0.42)
+    # corrente da argola ate o duque d'alba esquerdo
+    g.chain(mb, (ax + 0.5, ay + 0.2, 10.0), (-PX - RPR * 0.9, RPY - RPR * 0.4, 7.4), sag=0.9, link=0.62, m=IRON,
+            t=0.2, w=0.42)
 
 
-def _barrels(g, mb):
-    K.barrel_small(mb, g.P(14.2, -2.2, 0.0), 1.15, 2.7, WP, IRON, 10)
-    K.barrel_small(mb, g.P(15.35, 0.6, 0.0), 1.02, 2.4, WP, IRON, 10)
-    K.barrel_small(mb, g.P(13.6, 1.6, 0.0), 0.9, 2.0, WP, IRON, 10)
-    for k in range(2):
-        K.ring(mb, g.P(14.2, -2.2, 2.93 + k * 0.4), 0.78 - k * 0.14, tuple(g.ux), tuple(g.uy), 0.46, 0.4, ROPE, n=12)
-
-
-def _bitts(g, mb):
+def _dolphins(g, mb):
+    """duque d'alba atras de cada estaca principal: estaca de apoio, 2 travessas, escora ate o chapeu da estaca e
+    amarras de corda (a moldura ganha profundidade: vista de lado le como um pier)"""
     for s in (-1, 1):
-        x, y = s * 13.3, -5.6
-        g.cyl(mb, 0.72, 2.1, (x, y, 1.05), IRON, 10, bev=0.0)
-        g.cyl(mb, 0.95, 0.32, (x, y, 2.25), IRON, 10, bev=0.0)
-        g.cyl(mb, 0.98, 0.3, (x, y, 0.15), IRON, 10, bev=0.0)
-        g.cyl(mb, 0.78, 0.4, (x, y, 1.55), ROPE, 10, bev=0.0)
-        # cabo do cabeco ate o poste (fora do vao)
-        d = Vector((x - s * PX, y, 0.0)).normalized()
-        a = (s * PX + d.x * PR * 1.02, d.y * PR * 1.02, 2.3)
-        b = (x - d.x * 0.7, y - d.y * 0.7, 1.6)
-        pts = [(a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t - 0.55 * 4 * t * (1 - t))
-               for t in (0.0, 0.2, 0.4, 0.6, 0.8, 1.0)]
+        x = s * PX
+        g.cyl(mb, RPR, 9.0 - GK.BASE_Z, (x, RPY, (9.0 + GK.BASE_Z) / 2), WD, 12, bev=0.0)
+        g.cyl(mb, RPR + 0.2, 0.5, (x, RPY, 9.25), WD, 12, r2=0.45, bev=0.0)
+        for z in (0.7, 8.3):
+            g.cyl(mb, RPR + 0.12, 0.36, (x, RPY, z), IRON, 12, bev=0.0)
+        for z in (3.9, 4.5, 5.1):
+            g.cyl(mb, RPR + 0.16, 0.34, (x, RPY, z), ROPE, 12, bev=0.0)
+        for z in (3.1, 6.6):
+            g.box(mb, x - 0.45, x + 0.45, PR - 0.3, RPY - RPR + 0.3, z, z + 1.0, WD, 0.0)
+            g.box(mb, x - 0.6, x + 0.6, 3.35, 3.85, z - 0.12, z + 1.12, ROPE, 0.0)          # amarra no meio
+        g.beam(mb, (x, RPY - 0.7, 8.4), (x, PR - 0.1, 10.25), 0.8, 0.8, WD, 0.0)            # escora
+
+
+def _barrel(g, mb, x, y, z0, r=1.0, h=2.8):
+    """barril (2 troncos de cone) com 3 cintas de ferro a 0,12 da madeira (sem z-fighting)"""
+    g.cyl(mb, r, h / 2, (x, y, z0 + h / 4), WP, 10, r2=r * 1.12, bev=0.0)
+    g.cyl(mb, r * 1.12, h / 2, (x, y, z0 + 3 * h / 4), WP, 10, r2=r, bev=0.0)
+    for zz in (0.3, h / 2, h - 0.3):
+        rr = r * (1.0 + 0.12 * (1.0 - abs(zz - h / 2) / (h / 2)))
+        g.cyl(mb, rr + 0.12, 0.26, (x, y, z0 + zz), IRON, 10, bev=0.0)
+    g.cyl(mb, r - 0.1, 0.2, (x, y, z0 + h + 0.05), WP, 10, bev=0.0)                     # tampo (0,1 acima)
+
+
+def _guardian(g, mb, s):
+    """guardiao do pedestal: CABECO DE AMARRACAO duplo de ferro com a corda em oito + BARRIL com rolo de corda"""
+    cx, cy = s * GK.PED_C[0], GK.PED_C[1]
+    z0 = GK.PED_TOP
+    bx, by = cx + s * 0.35, cy + 0.85
+    g.box(mb, bx - 1.75, bx + 1.75, by - 0.75, by + 0.75, z0, z0 + 0.35, IRON, 0.0)
+    for dx in (-0.95, 0.95):
+        g.cyl(mb, 0.58, 3.0, (bx + dx, by, z0 + 0.35 + 1.5), IRON, 10, bev=0.0)
+        g.cyl(mb, 0.8, 0.34, (bx + dx, by, z0 + 3.35 + 0.17), IRON, 10, bev=0.0)
+    g.beam(mb, (bx - 0.95, by, z0 + 2.5), (bx + 0.95, by, z0 + 2.5), 0.4, 0.4, IRON, 0.0)
+    # corda em oito em volta dos dois postes (2 voltas em alturas diferentes)
+    for zz in (1.2, 1.75):
+        rr = 0.86
+        pts = [(bx + 0.95 + math.cos(math.radians(a)) * rr, by + math.sin(math.radians(a)) * rr, z0 + zz)
+               for a in range(-90, 91, 30)]
+        pts += [(bx - 0.95 + math.cos(math.radians(a)) * rr, by + math.sin(math.radians(a)) * rr, z0 + zz + 0.15)
+                for a in range(90, 271, 30)]
+        pts.append(pts[0])
         g.tube(mb, pts, [0.2] * len(pts), ROPE, 6)
+    _barrel(g, mb, cx - s * 0.75, cy - 0.95, z0, 0.95, 2.7)
+    K.ring(mb, g.P(cx - s * 0.75, cy - 0.95, z0 + 2.7 + 0.15 + 0.2), 0.52, tuple(g.ux), tuple(g.uy), 0.36, 0.36,
+           ROPE, n=12)
+
+
+def _hat(g):
+    def build(mb, p):
+        from mathutils import Vector as V
+        up = V((0.0, 0.0, 1.0))
+        mb.cyl(1.45, 0.2, p + up * -0.3, (0, 0, 0), STRAW, 16, r2=0.95, bevel=0.0)
+        mb.cyl(0.72, 0.65, p + up * 0.1, (0, 0, 0), STRAW, 12, r2=0.64, bevel=0.0)
+        mb.cyl(0.84, 0.24, p + up * -0.05, (0, 0, 0), RED, 12, bevel=0.0)
+        mb.ico(0.64, p + up * 0.42, STRAW, 1, (1.0, 1.0, 0.42))
+    return build
 
 
 def _collision(g):
     for s in (-1, 1):
         g.col(A, s * 8.05, s * 12.55, -2.25, 2.25, 0.0, 11.2)
-        g.col(A, s * 12.55, s * 14.05, -6.35, -4.85, 0.0, 2.4)
-    g.col(A, -16.9, -12.4, -3.0, -1.8, 0.0, 10.8)
-    g.col(A, 12.5, 16.5, -3.5, 2.7, 0.0, 3.3)
+        g.col(A, s * (PX - RPR - 0.2), s * (PX + RPR + 0.2), RPY - RPR - 0.2, RPY + RPR + 0.2, GK.BASE_Z, 9.5)
+    g.col(A, AX - 2.3, AX + 2.3, AY - 0.95, AY + 0.95, GK.BASE_Z, 10.8)
+    GK.family_collision(g, A, ped_h=3.6)
 
 
 def build_gate(gx, gy, gz, yaw):
@@ -219,10 +268,14 @@ def build_gate(gx, gy, gz, yaw):
         x = math.cos(a) * 15.0
         _ship_lantern(g, mb, x, ZC + math.sin(a) * 15.0 - 0.35)
     _anchor(g, mb)
-    _barrels(g, mb)
-    _bitts(g, mb)
+    _dolphins(g, mb)
+    GK.family_base(g, mb, A, accent=BLUE, glow=AQUA, roof=HELM, finial=BRASS)
+    for s in (-1, 1):
+        _guardian(g, mb, s)
+        GK.inlay(g, mb, s, GK.star(0.0, 0.0, [0.85, 0.28] * 4, 90.0), BRASS)
     GK.tag(mb.finish(), KEY, "frame")
     _needle_vfx(g)
+    GK.emblems(KEY, g, "Hat", _hat(g))
     _collision(g)
     GS.barrier(KEY, F, GLOW, shape="arch", rng=rng)
     GS.markers(KEY, F, yaw)

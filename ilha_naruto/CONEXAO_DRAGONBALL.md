@@ -26,6 +26,7 @@ A âncora em si:
 | cota do piso | 16,2 (topo do tabuleiro, = nível T1 da Ilha 1) |
 | altura livre mínima | 22 studs (vão do portão 18 + 4) |
 | alinhamento | a âncora é o **centro da borda** do piso da cabeceira. O eixo de avanço aponta para FORA da Ilha 1 |
+| guarda provisória | `EXIT_AnchorGuard` (2 correntes entre os pilones, Model atômico) + `COL_ExitAnchorGuard_001` (parede invisível) impedem cair da cabeceira enquanto não há Ilha 2. Saem do export com o atributo `next_island_guard = true` e a tag `GuardaProximaIlha`: **a integração da Ilha 2 apaga essas peças** quando a ponte seguinte encosta |
 
 No Roblox, o marcador `ISLAND_NEXT_ANCHOR` é uma Part invisível em `ILHA_NARUTO.GAMEPLAY_MARKERS` com os atributos:
 - `width`, `deck_z`, `clear_h`, `next_area`;
@@ -40,6 +41,7 @@ A Ilha 2 precisa de um marcador de chegada `WORLD_FROM_PREV`, no centro da borda
 com avanço apontando para DENTRO da Ilha 2. É o equivalente ao `WORLD_FROM_LOBBY` desta ilha.
 
 Regra de encaixe (a mesma para toda a corrente de ilhas):
+0. Apagar a guarda provisória: `for _, d in CS:GetTagged('GuardaProximaIlha') do d:Destroy() end`.
 1. A posição de `WORLD_FROM_PREV` (Ilha 2) coincide com a de `ISLAND_NEXT_ANCHOR` (Ilha 1).
 2. O avanço de `WORLD_FROM_PREV` tem a MESMA direção do avanço de `ISLAND_NEXT_ANCHOR`.
 3. Largura 18 e cota do piso iguais. Se a Ilha 2 tiver outro nível, a própria ponte de chegada dela sobe ou desce
@@ -68,9 +70,13 @@ W2 = T(âncora_mundo) · Rz(rumo_mundo − 90°) · T(−entrada_local)
 
 ## 3. O portão Dragon Ball (bloqueio)
 - Padrão `il_gate_std`, o mesmo das outras ilhas: vão 16 × 18, interação 7 antes do plano da barreira, saída 12
-  depois, âncora do painel de preço 8 acima do vão.
+  depois, âncora do painel de preço `PURCHASE_UI_ANCHOR_DB` DENTRO do vão (z 14, 2,5 à frente da barreira).
+- Moldura "moon gate" (ref 13): painel de pedra no retângulo do vão com furo circular r 8,2; a barreira de energia é
+  circular. Com o portão aberto passa-se pelo círculo (soleira de 0,8; na altura do joelho a passagem tem ~8 nas
+  bordas, 16 no eixo).
 - **LOCKED** (padrão), com três partes marcadas pela tag `PortaoCompra`:
-  - `GATE_DB_Barrier` (energia laranja, Neon) e `GATE_DB_Lock` (cadeado), com atributos `gate`/`gate_part`;
+  - `GATE_DB_Barrier` (energia laranja, Neon, Transparency 0,2) e `GATE_DB_Lock` (cadeado), com atributos
+    `gate`/`gate_part`;
   - `COL_GateDBLock_001`, uma Part invisível que bloqueia a passagem.
 - **UNLOCKED:** `require(game.ReplicatedStorage.PortoesCompra).Estado('DB', true)`.
   - No servidor, vale para todos.
@@ -93,4 +99,4 @@ W2 = T(âncora_mundo) · Rz(rumo_mundo − 90°) · T(−entrada_local)
   lobby, em Roblox (0; 6,2; 222), com a mesma largura (24) e a mesma cota.
 - **Minério:** os pontos `ORE_<RARIDADE>_<nn>` (28/16/8/2) e a zona `GP_Zone_Pit` ficam em `GAMEPLAY_MARKERS`.
   - O `SpawnMinerio` já aceita zonas por marcador (Konoha).
-  - As pedras `MINE_Ore_*` são o visual padrão de cada ponto e podem ser escondidas se o jogo gerar as próprias.
+  - As pedras `MINE_Ore_*` do Blender são só prévia: ficam FORA do export (o jogo gera as rochas nos `ORE_*`).

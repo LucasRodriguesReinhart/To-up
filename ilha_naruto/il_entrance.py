@@ -1,14 +1,22 @@
 # il_entrance - Ilha 1 (Naruto / Vila da Folha): ENTRADA (substitui il_blockout.entrance()).
 #   1. Ponte de chegada (y L.LOBBY_Y -> L.ISLAND_S_Y, piso em L.G): tabuleiro de lajes transversais, meio-fio de pedra,
-#      guarda-corpo de madeira (postes escuros, travessas claras), 4 toro alternados a cada 16 em pilastras, viaduto de
-#      3 arcos de pedra com pilares descendo ao vazio, 2 pilaretes com giboshi dourado em cada ponta.      (02_TERRAIN)
-#   2. Praca do portao + patamar de chegada: lajes irregulares, 4 toro nos cantos.                        (02_TERRAIN)
+#      guarda-corpo de madeira (postes escuros, travessas claras), 8 LANTERNAS DE POSTE (padrao EXIT_Rails) nas
+#      pilastras de y -182/-166/-150/-134 dos 2 lados, viaduto de 3 arcos de pedra; os pilares descem ate z -56
+#      (talude + sapata) e assentam em PILHAS DE ROCHA que sobem do mar (a do pilar 3 funde com o penhasco da ilha);
+#      2 pilaretes com giboshi dourado em cada ponta.                                                  (02_TERRAIN)
+#   2. Patamar de chegada ate a borda alargada (x +-24) + passagem do portao + praca: lajes irregulares sobre
+#      rejunte escuro (o patamar fecha o recorte do terreno), 4 toro nos cantos da praca.                (02_TERRAIN)
 #   3. PORTAO PRINCIPAL (peca-heroi): 4 pilares de laca vermelha em sapatas de pedra, verga + frisos, misulas e
-#      caibros, telhado de quatro aguas em telha verde vidrada em 2 niveis, placa com a folha em espiral (frente e
-#      verso), 2 lanternas de papel penduradas na verga, alas de reboco creme emolduradas de vermelho sobre base de
-#      pedra e telhadinhos proprios, folhas do portao ABERTAS encostadas nas alas (lado da praca).          (04_VILLAGE)
-#   4. 2 estandartes vermelhos com a folha ladeando o portao (no mesmo objeto do portao).                 (04_VILLAGE)
-#   5. 2 leoes de pedra (komainu) nos pedestais de L.LIONS.                                              (04_VILLAGE)
+#      caibros, telhado de quatro aguas em telha verde vidrada em 2 niveis (UM tom: UV constante; peca escura so em
+#      cumeeira, espigoes e testeira), placa com a folha em espiral (frente e verso), 2 lanternas de papel na verga,
+#      alas de reboco creme emolduradas de vermelho sobre base de pedra e telhadinhos proprios, folhas do portao
+#      ABERTAS encostadas nas alas (lado da praca).                                                     (04_VILLAGE)
+#   4. 2 estandartes PENDURADOS nos pilares externos das alas (braco de ferro em G+14, pano 3 x 9), sem mastro:
+#      a torre do summon fica livre vista da ponte (0, -160, 17).                                        (04_VILLAGE)
+#   5. 2 leoes guardioes (il_lion, compartilhado com o portao DB) nos pedestais de L.LIONS, olhando para a ponte,
+#      pata de fora na esfera; mureta baixa leao -> ala.                                                (04_VILLAGE)
+# Regras da rodada 2 (RMB): bevel 0 se a menor dimensao < 1,0, senao <= 5%; nada com todas as dimensoes < 0,35;
+# folga >= 0,1 entre faces de materiais diferentes; frisos/relevos com secao >= 0,3.
 # Nada no eixo x = 0 entre a ponte e a escada do anel (vista do WORLD_ENTRY_Naruto livre).
 import math
 import random
@@ -20,11 +28,13 @@ import fm_lib
 import fm_parts as FP
 import fm_portal_kit as K
 import fm_pv3_naruto as PN          # leaf_symbol: a folha de Konoha (espiral + ponta + talo) do portal do lobby
+import il_lion                      # leao guardiao compartilhado (dono: esta zona)
 
-# ------------------------------------------------------------------ materiais novos da zona (3 de 4)
+# ------------------------------------------------------------------ materiais novos da zona (4 de 4)
 _M = fm_lib.MATS.setdefault
-_M("Stone_EntLion", (S(116, 120, 128), 0.85, 0.0, 0, None, 0.12))       # pedra dos komainu (fria, contrasta c/ pedestal)
-_M("Roof_EntJadeDark", (S(38, 76, 54), 0.55, 0.0, 0, None, 0.08))       # cumeeira/espigao/beiral da telha verde
+_M("Stone_EntLion", (S(112, 116, 126), 0.85, 0.0, 0, None, 0.12))       # corpo dos leoes (cinza frio, mais escuro)
+_M("Stone_EntLionMane", (S(172, 175, 184), 0.85, 0.0, 0, None, 0.12))   # juba/cachos/esfera dos leoes (claro frio)
+_M("Roof_EntJadeDark", (S(38, 76, 54), 0.55, 0.0, 0, None, 0.08))       # cumeeira/espigao/testeira da telha verde
 _M("Cloth_EntRed", (S(182, 34, 32), 0.9, 0.0, 0, None, 0.06))           # pano dos estandartes
 
 G = L.G
@@ -38,7 +48,8 @@ SPAN = (Y1 - (Y0 + PIER_T) - 2 * PIER_T) / 3.0      # vao livre de cada arco (3 
 PIERS = [Y0 + PIER_T / 2 + i * (SPAN + PIER_T) for i in range(3)]
 ARCH_R = SPAN / 2.0
 Z_SPRING = DECK_B - 1.0 - ARCH_R  # nascente dos arcos (fecho 1 abaixo do tabuleiro)
-LANTERNS = [(-1, -182.0), (1, -166.0), (-1, -150.0), (1, -134.0)]   # toro alternados a cada 16 (lado, y)
+PIER_FOOT = -56.0                 # sapata dos pilares (assenta na pilha de rocha que sobe do mar)
+LANTERN_Y = [-182.0, -166.0, -150.0, -134.0]   # lanternas de poste a cada 16 nos 2 lados (8 no total)
 
 GY = L.GATE_Y
 OW = L.GATE_OPEN_W / 2.0          # 10
@@ -46,13 +57,15 @@ OH = L.GATE_OPEN_H                # 18
 GHW = L.GATE_W / 2.0              # 26
 XP = 12.2                         # eixo dos pilares centrais (face interna em x 10.4)
 XQ = GHW - 1.4                    # eixo dos pilares externos (24.6)
-BANNER_X = 31.6                   # estandartes (fora do telhadinho das alas)
-LION_K = 1.15                     # escala do corpo do komainu (pedestal fixo 5 x 5)
+BANNER_Z = G + 14.0               # braco de ferro dos estandartes (pilar externo da ala)
+BANNER_W, BANNER_H = 3.0, 9.0     # pano (largura x altura total com a ponta)
 ZW = G + L.GATE_OPEN_H - 0.2      # topo das paredes das alas (frechal): telhadinho logo abaixo da verga
 
 PAVE, SL, SD = "Stone_Paving_Warm", "Stone_Wall_Light", "Stone_Wall_Dark"
 RED, DARK, GOLD, CREAM = "Wood_Lacquer_Red", "Wood_Dark", "Metal_Gold", "Plaster_Cream"
+IRON = "Metal_Iron"
 TILE, TILED, GLOW, LION = "Roof_Green", "Roof_EntJadeDark", "Lantern_Glow", "Stone_EntLion"
+MANE = "Stone_EntLionMane"
 
 # cameras de revisao 360 (frente, 3/4, tras, 2 lados, altura do jogador)
 CAMS = {
@@ -66,11 +79,74 @@ CAMS = {
 }
 
 
-class NMB(MB):
-    """MB sem variantes tonais: 1 MeshPart por material (portao/leoes tem muitas pecas pequenas repetidas)"""
+# QA (il_qa): sondas de borda do patamar de chegada (entre a ponte e os leoes a guarda invisivel da borda tem que
+# segurar) e das mureta leao -> ala; rota da ponte ate o pe da escada do anel pelo eixo e pela lateral do patamar
+EXTRA_PROBES = [
+    ("ENT_patamar_frente_L", 15.6, -117.2, L.G, 0.0, -1.0),
+    ("ENT_patamar_frente_O", -15.6, -117.2, L.G, 0.0, -1.0),
+    ("ENT_mureta_leao_L", 16.0, -112.5, L.G, 1.0, 0.0),
+    ("ENT_mureta_leao_O", -16.0, -112.5, L.G, -1.0, 0.0),
+]
+EXTRA_ROUTES = {
+    "ponte->patamar_lateral->praca": ([(0.0, -150.0), (0.0, -121.0), (8.0, -117.0), (15.0, -116.0), (15.0, -114.8),
+                                        (9.0, -114.8), (0.0, -106.0), (0.0, -94.0)], L.G),
+}
 
-    def _mi_for(self, m):
-        return self._mi(m)
+
+def rule_bevel(dims, bevel):
+    """regra da rodada 2: bevel 0 se a menor dimensao < 1,0; senao no maximo 5% da menor dimensao"""
+    mn = min(dims)
+    if not bevel or mn < 1.0:
+        return 0.0
+    return min(bevel, 0.05 * mn)
+
+
+class RMB(MB):
+    """MB com as regras da rodada 2 (critica tecnica): microchanfro controlado (rule_bevel) e nada com TODAS as
+    dimensoes < 0,35 (a peca e descartada). flat=False; vcap=1 = sem variantes tonais (1 MeshPart por material)."""
+    skipped = 0
+
+    def __init__(self, name, collection, rng=None, detail="hero", floor=None, vcap=None):
+        MB.__init__(self, name, collection, rng, detail, floor)
+        self.vcap = vcap
+
+    def _family(self, m):
+        if self.vcap == 1:
+            return None
+        return MB._family(self, m)
+
+    def box(self, size, loc, rot=(0, 0, 0), m="Stone_Light", bevel=0.12, seg=1, tint=None):
+        if max(size) < 0.35:
+            RMB.skipped += 1
+            return
+        MB.box(self, size, loc, rot, m, rule_bevel(size, bevel), seg, tint)
+
+    def beam(self, a, b, w, h=None, m="Wood_Dark", bevel=0.08, roll=0.0, tint=None):
+        dims = ((Vector(b) - Vector(a)).length, w, h or w)
+        if max(dims) < 0.35:
+            RMB.skipped += 1
+            return
+        MB.beam(self, a, b, w, h, m, rule_bevel(dims, bevel), roll, tint)
+
+    def cyl(self, r, h, loc, rot=(0, 0, 0), m="Metal_Iron", n=12, r2=None, bevel=0.08, seg=1, caps=True, tint=None,
+            angle=0.5):
+        rmin = r if r2 is None else min(r, r2)
+        if max(2 * max(r, r2 or 0.0), h) < 0.35:
+            RMB.skipped += 1
+            return
+        MB.cyl(self, r, h, loc, rot, m, n, r2, rule_bevel((2 * rmin, h), bevel), seg, caps, tint, angle)
+
+
+def NMB(name, collection, rng=None, detail="hero"):
+    """RMB sem variantes tonais: 1 MeshPart por material (portao/leoes tem muitas pecas pequenas repetidas)"""
+    return RMB(name, collection, rng, detail, vcap=1)
+
+
+def flat_mats(mb, mats, smooth=False):
+    """UV constante (texel neutro da textura de detalhe) em todas as faces desses materiais: o material le como UM
+    tom (a textura de telha pintava um codigo de barras nas fiadas vistas de cima)"""
+    idx = {i for i, m in enumerate(mb.mats) if (m[1] if isinstance(m, tuple) else m) in mats}
+    il_lion.flatten(mb, [f for f in mb.bm.faces if f.material_index in idx], smooth)
 
 
 # ================================================================== PONTE + PRACA (02_TERRAIN)
@@ -144,19 +220,57 @@ def viaduct(mb):
             K.plate(mb, [(y0, z0), (y1, z1), (y1, DECK_B + 0.05), (y0, DECK_B + 0.05)], (0, 0, 0), ux, uz, 2 * XO, SL)
         for s in (-1, 1):
             FP.arch(mb, (s * (XO + 0.05), ym, 0.0), math.pi / 2, SPAN, Z_SPRING, ARCH_R, 0.9, SD, SL, n=11, band=1.4)
-    zb = G - 44.0
     for k, yc in enumerate(PIERS):
-        mb.box((2 * XO, PIER_T, DECK_B - zb), (0, yc, (DECK_B + zb) / 2), (0, 0, 0), SL, 0.2)
+        zf = PIER_FOOT
+        mb.box((2 * XO, PIER_T, DECK_B - (zf + 5.0)), (0, yc, (DECK_B + zf + 5.0) / 2), (0, 0, 0), SL, 0.2)
         # faixa escura na nascente dos arcos + pilastras laterais (ritmo vertical do viaduto)
         mb.box((2 * XO + 0.8, PIER_T + 0.8, 0.8), (0, yc, Z_SPRING - 0.4), (0, 0, 0), SD, 0.12)
         for s in (-1, 1):
-            mb.box((0.6, PIER_T - 1.0, Z_SPRING - 0.8 - zb), (s * (XO + 0.3), yc, (Z_SPRING - 0.8 + zb) / 2),
+            mb.box((0.6, PIER_T - 1.0, Z_SPRING - 0.8 - (zf + 6.0)), (s * (XO + 0.3), yc, (Z_SPRING - 0.8 + zf + 6.0) / 2),
                    (0, 0, 0), SL, 0.1)
-        # base do pilar: tronco de piramide afinando para baixo + ponta de rocha
-        FP.frustum(mb, (0, yc, zb - 20.0), 9.0, 2.6, 2 * XO, PIER_T, 20.0, SL)
-        mb.rock((0, yc, zb - 22.0), (8.0, 3.2, 5.0), SD, 1, flat_bottom=False)
-    # encontro norte (a abobada do 3o arco nasce na alvenaria encostada no penhasco)
+        # pe do pilar: talude (alarga para baixo) + sapata escura assentada na pilha de rocha
+        FP.frustum(mb, (0, yc, zf + 0.6), 2 * XO + 3.0, PIER_T + 3.0, 2 * XO, PIER_T, 5.4, SL)
+        mb.box((2 * XO + 3.8, PIER_T + 3.8, 1.4), (0, yc, zf - 0.1), (0, 0, 0), SD, 0.07)
+    # encontro norte (a abobada do 3o arco nasce na alvenaria encostada no penhasco)    # encontro norte (a abobada do 3o arco nasce na alvenaria encostada no penhasco)
     mb.box2((-XO, Y1 - 0.6, Z_SPRING - 10.0), (XO, Y1 + 5.0, DECK_B), SL, 0.2)
+
+
+# pilhas de rocha sob os pilares (rodada 2): nada de ponta de rocha no ar. Cada pilar desce ate PIER_FOOT e assenta
+# numa pilha de rocha que sobe do mar (z -114, o pe dos penhascos da ilha); a do pilar 3 encosta no penhasco da
+# ilha (y -135 abaixo de z -20) e se funde com ele; a do pilar 1 (junto ao lobby) inclina para a ilha.
+STACKS = [  # (y do pe, inclinacao do topo em y, semi-eixos do topo (x, y), escala do pe)
+    (-190.5, -5.0, (16.8, 6.4), 1.3),
+    (-166.5, -2.3, (16.6, 6.2), 1.3),
+    (-139.0, -3.2, (17.0, 7.0), 1.25),
+]
+
+
+def stacks(mb, rng):
+    zt = PIER_FOOT - 0.75
+    for k, (yb, lean, (ax, ay), sc) in enumerate(STACKS):
+        poly = FP._rock_poly(ax * sc, ay * sc, 10, rng, ex=2.6, jit=0.07, a0=0.15)
+        FP.rock_column(mb, Vector((0.0, yb, 0.0)), poly, -114.0, zt, rng, "Cliff_Rock_Tan", taper=1.0 / sc, rings=4,
+                       jitter=0.09, tilt=0.0, lean=(0.0, lean), chamfer=0.9)
+        # 2 massas laterais mais baixas (quebram a silhueta: a pilha nao e um cone liso)
+        for sx in (-1, 1):
+            q = FP._rock_poly(rng.uniform(4.5, 6.0), rng.uniform(4.0, 5.5), 7, rng, ex=2.3, jit=0.1)
+            FP.rock_column(mb, Vector((sx * ax * 0.95, yb + rng.uniform(-2.0, 2.0), 0.0)), q, -114.0,
+                           zt - rng.uniform(9.0, 22.0), rng, "Cliff_Rock_Tan_Dark" if (k + sx) % 2 else "Cliff_Rock_Tan",
+                           taper=0.62, rings=2, jitter=0.1, tilt=0.06, chamfer=0.6)
+
+
+def post_lantern(mb, x, y, zb):
+    """lanterna de poste de pedra (padrao das lanternas da ponte de saida, EXIT_Rails): fuste, prato, camara acesa
+    com 4 montantes, tampa e chapeu piramidal. zb = topo da pilastra."""
+    mb.box((1.3, 1.3, 2.6), (x, y, zb + 1.3), (0, 0, 0), SL, 0.0)
+    mb.box((1.8, 1.8, 0.36), (x, y, zb + 2.6 + 0.18), (0, 0, 0), SD, 0.0)
+    mb.box((1.0, 1.0, 1.5), (x, y, zb + 2.96 + 0.65), (0, 0, 0), GLOW, 0.0)          # pontas entram 0,1 nas lajes
+    for sx in (-1, 1):
+        for sy in (-1, 1):
+            mb.box((0.36, 0.36, 1.3), (x + sx * 0.52, y + sy * 0.52, zb + 2.96 + 0.65), (0, 0, 0), SL, 0.0)
+    mb.box((1.6, 1.6, 0.3), (x, y, zb + 4.26 + 0.15), (0, 0, 0), SD, 0.0)
+    mb.cyl(1.2, 0.85, (x, y, zb + 4.56 + 0.42), (0, 0, math.pi / 4), SD, 4, r2=0.22, bevel=0.0)
+    mb.cyl(0.2, 0.5, (x, y, zb + 5.41 + 0.25), (0, 0, 0), SD, 6, bevel=0.0)
 
 
 def end_pilaret(mb, s, y):
@@ -171,16 +285,20 @@ def end_pilaret(mb, s, y):
 
 def plaza(mb, rng):
     """patamar de chegada (entre a ponte e o portao, ate os leoes) + passagem do portao + praca ate a escada"""
-    rim = 22.0
-    rim_y = Y1 + (rim - 13.0) / 19.0 * 4.0          # borda da ilha em x = 22 (ISLAND_RIM (13,-118)-(32,-114))
-    p1 = [(-13.0, Y1), (13.0, Y1), (rim, rim_y), (rim, -113.6), (-rim, -113.6), (-rim, rim_y)]
+    # patamar de chegada ate a borda alargada da rodada 2 (ISLAND_RIM passa por (+-24, -118,6)): os pedestais dos
+    # leoes (x 17,4..22,6) ficam inteiros sobre as lajes; na largura da ponte o patamar comeca depois da soleira
+    rim, ry = 24.0, -118.35
+    p1 = [(-rim, -117.2), (-rim + 1.1, ry), (-XO, ry), (-XO, Y1 + 0.65), (XO, Y1 + 0.65), (XO, ry), (rim - 1.1, ry),
+          (rim, -117.2), (rim, -113.6), (-rim, -113.6)]                 # quinas chanfradas (a beira do penhasco recua)
     x0, y0, x1, y1 = L.ENTRY_PLAZA
     ys = y1 + 1.0                                   # encosta no 1o degrau da escada do anel (pe em y -91)
-    p2 = [(-OW - 0.2, -113.6), (OW + 0.2, -113.6), (OW + 0.2, -109.0), (x1, -109.0), (x1, ys), (x0, ys),
-          (x0, -109.0), (-OW - 0.2, -109.0)]
-    for poly in (p1, p2):
-        # rejunte escuro ACIMA da grama do terreno (topo G + 0.04) e lajes com topo em G + 0.16
-        mb.prism(IL.ccw(poly), G - 0.6, G + 0.04, SD, 0.0)
+    # passagem do portao + praca: o corredor |x| < 16 inteiro (o gramado do terreno termina em x = +-16; as sapatas
+    # dos pilares e as bases das alas pousam em cima): sem frestas ate o vazio junto as sapatas
+    p2 = [(x0, -113.6), (x1, -113.6), (x1, ys), (x0, ys)]
+    for poly, zb in ((p1, G - 3.3), (p2, G - 0.6)):
+        # rejunte escuro ACIMA da grama do terreno (topo G + 0.04) e lajes com topo em G + 0.16; o patamar desce
+        # ate o fundo do recorte do terreno (z ~3,3) e fecha a frente do penhasco
+        mb.prism(IL.ccw(poly), zb, G + 0.04, SD, 0.0)
         K.flag_floor(mb, poly, G - 0.2, rng, m=PAVE, tile=3.2, h=0.36, bevel=0.1, gap=0.2, mix=0.0, base=False)
     # soleira escura entre a ponte e o patamar + meio-fio lateral da praca
     mb.box((2 * XO, 0.9, 0.5), (0, Y1 + 0.2, G - 0.14), (0, 0, 0), SD, 0.08)
@@ -196,16 +314,18 @@ def plaza(mb, rng):
 
 
 def bridge(rng):
-    mb = MB("ENT_Bridge", "02_TERRAIN", rng, detail="near")
-    mb.box2((-XO, Y0, DECK_B), (XO, Y1 + 0.4, G - 0.42), SD, 0.0)        # laje-nucleo (rejunte escuro)
+    mb = RMB("ENT_Bridge", "02_TERRAIN", rng, detail="near")
+    # laje-nucleo (rejunte escuro): 0,1 para dentro da face do meio-fio (sem z-fight com a pedra clara)
+    mb.box2((-XO + 0.1, Y0, DECK_B), (XO - 0.1, Y1 + 0.4, G - 0.42), SD, 0.0)
     deck_paving(mb, rng)
     curbs(mb, rng)
     viaduct(mb)
+    stacks(mb, rng)
     for s in (-1, 1):
-        stops = [Y0 + 1.1] + [y for side, y in LANTERNS if side == s] + [Y1 - 1.1]
+        stops = [Y0 + 1.1] + LANTERN_Y + [Y1 - 1.1]
         for y in stops[1:-1]:
             pilaster(mb, s, y, G + 1.3)
-            K.toro(mb, (s * 13.2, y, G + 1.5), s=1.0, m=SL, m2=SD, glow=GLOW, lit=False)
+            post_lantern(mb, s * 13.2, y, G + 1.7)
         for y in (stops[0], stops[-1]):
             end_pilaret(mb, s, y)
         railing(mb, s, stops)
@@ -348,27 +468,65 @@ def plaque(mb, back=False):
         mb.box((0.45, 0.8, 4.9), (dx, yc + sy * 0.1, zc), (0, 0, 0), GOLD, 0.06)
     # folha de Konoha (x do portal e o mesmo da placa: centro em x 0)
     PN.leaf_symbol(mb, (0.0, yc + sy * 0.3, zc), ((-1, 0, 0) if back else (1, 0, 0)), (0, 0, 1), 1.3, GOLD,
-                   w=0.27, h=0.24, res=14)
+                   w=0.27, h=0.3, res=14)
 
 
 def banner(mb, s):
-    """estandarte alto (pano vermelho com disco creme e a folha), pau escuro com remate dourado"""
-    x, y = s * BANNER_X, GY - 1.0
-    mb.box((2.3, 2.3, 1.2), (x, y, G + 0.6), (0, 0, 0), SL, 0.15)
-    mb.box((1.7, 1.7, 0.4), (x, y, G + 1.4), (0, 0, 0), SD, 0.08)
-    mb.cyl(0.38, 26.4, (x, y, G + 1.6 + 13.2), (0, 0, 0), DARK, 8, bevel=0.0)
-    mb.cyl(0.5, 0.5, (x, y, G + 28.1), (0, 0, 0), GOLD, 8, bevel=0.0)
-    mb.ico(0.5, (x, y, G + 28.6), GOLD, 1)
-    K.cone(mb, (x, y, G + 28.9), (x, y, G + 30.2), 0.32, 0.05, GOLD, 6)
-    yc = y - 0.55
-    top = G + 26.2
-    FP.banner(mb, (x, yc, top), 0.0, w=4.6, h=13.6, cloth="Cloth_EntRed", trim=GOLD, emblem=None)
-    zc = top - 5.4
+    """estandarte PENDURADO no pilar externo da ala (sem mastro no chao): abracadeira e braco de ferro saindo da face
+    de fora do pilar em BANNER_Z, mao-francesa por baixo e remate na ponta; trave escura com o pano 3 x 9 (ponta em
+    V), filetes dourados salientes 0,11 e disco creme com a folha nas 2 faces (tudo >= 0,1 de folga)"""
+    xp = s * XQ                                    # eixo do pilar externo
+    xf = s * (XQ + 1.3)                            # face de fora do pilar (2,6)
+    xa = xf + s * 4.3                              # ponta do braco
+    y, z = GY, BANNER_Z
+    mb.box((2.9, 2.9, 0.5), (xp, y, z), (0, 0, 0), IRON, 0.0)               # abracadeira (0,15 saliente)
+    mb.beam((xf - s * 0.1, y, z), (xa, y, z), 0.42, 0.46, IRON, 0.0)        # braco
+    mb.beam((xf - s * 0.1, y, z - 2.7), (xf + s * 2.4, y, z - 0.15), 0.36, 0.36, IRON, 0.0)   # mao-francesa
+    mb.box((2.9, 2.9, 0.5), (xp, y, z - 2.7), (0, 0, 0), IRON, 0.0)         # abracadeira de baixo
+    mb.ico(0.36, (xa + s * 0.25, y, z), IRON, 1)
+    K.cone(mb, (xa + s * 0.25, y, z + 0.3), (xa + s * 0.25, y, z + 0.95), 0.2, 0.04, IRON, 5)
+    # trave de madeira presa ao braco por 2 argolas; pano 3 x 9 (retangulo 7,9 + ponta 1,1)
+    cx = xf + s * 2.2
+    w, h, tip = BANNER_W, BANNER_H - 1.1, 1.1
+    top = z - 0.75
+    mb.beam((cx - 1.9, y, top), (cx + 1.9, y, top), 0.4, 0.4, DARK, 0.0)
+    for dx in (-1.1, 1.1):
+        mb.box((0.36, 0.5, 0.52), (cx + dx, y, z - 0.42), (0, 0, 0), IRON, 0.0)
+    th = 0.18
+    pts = [(-w / 2, 0.0), (w / 2, 0.0), (w / 2, -h), (0.0, -h - tip), (-w / 2, -h)]
+    bm = mb.bm
+    vf = [bm.verts.new((cx + px, y - th / 2, top - 0.2 + pz)) for px, pz in pts]
+    vb = [bm.verts.new((cx + px, y + th / 2, top - 0.2 + pz)) for px, pz in pts]
+    bm.faces.new(list(reversed(vf)))
+    bm.faces.new(vb)
+    for i in range(5):
+        j = (i + 1) % 5
+        bm.faces.new((vf[i], vf[j], vb[j], vb[i]))
+    mb._post(vf + vb, "Cloth_EntRed", None, 0, 1)
+    # filetes dourados (0,4 de espessura: 0,11 saliente de cada face do pano)
+    mb.box((w + 0.1, 0.4, 0.36), (cx, y, top - 0.38), (0, 0, 0), GOLD, 0.0)
+    for sx in (-1, 1):
+        mb.box((0.3, 0.4, h - 0.6), (cx + sx * (w / 2 - 0.1), y, top - 0.2 - h / 2 - 0.2), (0, 0, 0), GOLD, 0.0)
+    # disco creme + folha (relevo 0,3) nas duas faces
+    zc = top - 3.4
     for sy in (-1, 1):
-        mb.cyl(1.75, 0.14, (x, yc + sy * 0.16, zc), (math.pi / 2, 0, 0), "Emblem_Cream", 20, bevel=0.0)
+        mb.cyl(1.2, 0.26, (cx, y + sy * 0.18, zc), (math.pi / 2, 0, 0), "Emblem_Cream", 20, bevel=0.0)
         u = (1, 0, 0) if sy < 0 else (-1, 0, 0)
-        PN.leaf_symbol(mb, (x, yc + sy * 0.23, zc), u, (0, 0, 1), 1.05, "Cloth_EntRed", w=0.3, h=0.16, res=10)
-    col_box("EntGate", (2.3, 2.3, 8.0), (x, y, G + 4.0))
+        PN.leaf_symbol(mb, (cx, y + sy * 0.31, zc), u, (0, 0, 1), 0.74, "Cloth_EntRed", w=0.42, h=0.3, res=10)
+
+
+def chochin(mb, loc, r=1.0, h=1.9, hang=1.2, n=8):
+    """lanterna de papel pendurada (como fm_portal_kit.chochin, com folga >= 0,1 entre o papel, a faixa vermelha e as
+    tampas: no Roblox o papel nao pisca atras da faixa). loc = ponto de fixacao em cima; devolve o centro."""
+    top = Vector(loc)
+    mb.rod(top, top - Vector((0, 0, hang)), 0.09, DARK, 6)
+    c = top - Vector((0, 0, hang + 0.25 + h / 2))
+    mb.cyl(r * 0.78, h * 0.5, c + Vector((0, 0, h * 0.25)), (0, 0, 0), GLOW, n, r2=r * 0.62, bevel=0.0)
+    mb.cyl(r * 0.62, h * 0.5, c - Vector((0, 0, h * 0.25)), (0, 0, 0), GLOW, n, r2=r * 0.78, bevel=0.0)
+    mb.cyl(r * 0.78 + 0.12, h * 0.16, c, (0, 0, 0), RED, n, bevel=0.0)
+    for sgn in (-1, 1):
+        mb.cyl(r * 0.62 + 0.12, 0.3, c + Vector((0, 0, sgn * (h / 2 + 0.1))), (0, 0, 0), DARK, n, bevel=0.0)
+    return c
 
 
 def door_leaf(mb, s):
@@ -439,15 +597,14 @@ def gate(rng):
         door_leaf(mb, s)
         banner(mb, s)
         # ---- lanterna de papel pendurada na verga
-        c = K.chochin(mb, (s * 7.2, GY - 0.7, z_lintel), r=1.45, h=2.9, paper=GLOW, cap=DARK, band=RED, hang=0.8, n=10,
-                      rod_m=DARK)
+        c = chochin(mb, (s * 7.2, GY - 0.7, z_lintel), r=1.45, h=2.9, hang=0.8, n=10)
         light("L_Entrance_GateLantern_%s" % ("W" if s < 0 else "E"), "POINT", tuple(c), 160, (1.0, 0.62, 0.3), 0.4)
     # ---- verga, friso e travessa
     mb.box((28.0, 3.0, 2.2), (0, GY, z_lintel + 1.1), (0, 0, 0), RED, 0.22)
     mb.box((27.6, 2.3, 0.8), (0, GY, z_lintel + 2.6), (0, 0, 0), DARK, 0.06)
     mb.box((29.6, 2.8, 1.0), (0, GY, z_lintel + 3.5), (0, 0, 0), RED, 0.15)
-    for s in (-1, 1):
-        mb.box((0.5, 3.0, 1.1), (s * 14.6, GY, z_lintel + 3.5), (0, 0, 0), GOLD, 0.04)
+    for s in (-1, 1):             # ponteiras de ouro: 0,1 alem da travessa em todas as faces
+        mb.box((0.6, 3.0, 1.2), (s * 14.6, GY, z_lintel + 3.5), (0, 0, 0), GOLD, 0.0)
     # ---- misulas (blocos + bracos) e teras do beiral
     zt = z_lintel + 4.0                            # topo da travessa (G + 22)
     for x in (-XP, -6.1, 0.0, 6.1, XP):
@@ -477,78 +634,36 @@ def gate(rng):
     # ---- placa-brasao (frente e verso)
     plaque(mb, back=False)
     plaque(mb, back=True)
+    # telhados em UM tom: telha e peca escura sem o mosaico da textura de detalhe
+    flat_mats(mb, (TILE, TILED))
     mb.finish()
 
 
 # ================================================================== LEOES (04_VILLAGE)
-def komainu(mb, lx, ly, s):
-    """komainu sentado, robusto e estilizado (juba em cachos, cauda em chama), olhando para quem chega"""
-    # pedestal
-    mb.box((5.0, 5.0, 0.8), (lx, ly, G + 0.4), (0, 0, 0), SL, 0.15)
-    mb.box((4.2, 4.2, 2.8), (lx, ly, G + 2.2), (0, 0, 0), SL, 0.15)
-    mb.box((2.9, 0.4, 1.8), (lx, ly - 2.2, G + 2.2), (0, 0, 0), SD, 0.06)
-    mb.box((4.8, 4.8, 0.5), (lx, ly, G + 3.85), (0, 0, 0), SD, 0.12)
-    z0 = G + 4.1
-    F = FP.Frame(lx, ly, z0, -s * D(14.0))
-    r = F.r()
-    yaw = r[2]
-    k_ = LION_K
-
-    def P(x, y, z):
-        return F.p(x * k_, y * k_, z * k_)
-
-    def ico(rad, p, m, sub, sc=(1, 1, 1), rot=r):
-        mb.ico(rad * k_, P(*p), m, sub, sc, rot)
-
-    def box(size, p, m, bev, rot=r):
-        mb.box(tuple(v * k_ for v in size), P(*p), rot, m, bev * k_)
-
-    def disc(rad, h, p, m=LION, rot=(math.pi / 2, 0, yaw)):
-        mb.cyl(rad * k_, h * k_, P(*p), rot, m, 8, bevel=0.0)
-    box((3.6, 4.2, 0.45), (0, 0.1, 0.22), LION, 0.15)
-    # ancas (massas redondas atras) e patas traseiras dobradas
-    for k in (-1, 1):
-        ico(1.0, (k * 0.98, 0.85, 1.25), LION, 2, (0.95, 1.4, 1.1))
-        ico(1.0, (k * 1.18, -0.25, 0.62), LION, 1, (0.55, 0.8, 0.4))
-    # tronco sentado (inclinado para tras) + peito estufado
-    ico(1.0, (0, 0.35, 2.15), LION, 2, (1.2, 1.3, 1.8), (D(-14), 0, yaw))
-    ico(1.0, (0, -0.55, 2.55), LION, 2, (1.15, 0.95, 1.25))
-    # patas dianteiras (colunas firmes) + patas + perola dourada entre elas
-    for k in (-1, 1):
-        disc(0.5, 2.5, (k * 0.74, -1.02, 1.55), rot=(D(4), 0, yaw))
-        ico(1.0, (k * 0.76, -1.35, 0.62), LION, 1, (0.62, 0.8, 0.42))
-    ico(0.58, (0, -1.95, 1.0), GOLD, 2)
-    # juba: massa atras da cabeca + coroa de cachos redondos em volta do rosto (discos virados para a frente)
-    ico(1.0, (0, -0.4, 4.15), LION, 2, (1.6, 1.15, 1.6))
-    for i in range(10):
-        a = D(-72 + i * 36)
-        disc(0.52, 0.55, (math.cos(a) * 1.5, -1.42, 4.15 + math.sin(a) * 1.45))
-    for k in (-1, 1):
-        disc(0.46, 0.5, (k * 0.95, -1.3, 2.95))
-    # cabeca: rosto, focinho largo, nariz, olhos grandes, sobrancelhas, boca (a/un), orelhas
-    ico(1.0, (0, -1.35, 4.2), LION, 2, (1.12, 0.9, 1.0))
-    box((1.55, 0.95, 0.85), (0, -2.1, 3.8), LION, 0.28)
-    box((0.7, 0.45, 0.42), (0, -2.58, 4.08), SD, 0.1)
-    for k in (-1, 1):
-        ico(0.3, (k * 0.46, -2.1, 4.52), SD, 1)
-        box((0.75, 0.5, 0.36), (k * 0.46, -2.02, 4.88), LION, 0.1, rot=(D(18), 0, yaw))
-        ico(1.0, (k * 1.05, -0.95, 5.0), LION, 1, (0.42, 0.25, 0.34))
-    box((1.05, 0.3, 0.4 if s > 0 else 0.2), (0, -2.5, 3.46), SD, 0.0)     # boca aberta (a) / fechada (un)
-    for k in (-1, 0, 1):
-        disc(0.36, 0.4, (k * 0.55, -1.05, 5.3 - abs(k) * 0.15))
-    # cauda em chama (3 labaredas subindo das costas)
-    for dy, dz, sc in ((1.7, 2.6, 1.0), (1.85, 3.5, 0.8), (1.75, 4.3, 0.6)):
-        ico(1.0, (0, dy, dz), LION, 1, (0.75 * sc, 0.45 * sc, 0.8 * sc), (D(20), 0, yaw))
-    for k in (-1, 1):
-        ico(1.0, (k * 0.55, 1.8, 3.4), LION, 1, (0.4, 0.3, 0.6), (0, D(-25) * k, yaw))
-    col_box("EntLions", (5.0, 5.0, 4.1), (lx, ly, G + 2.05))
-    col_box("EntLions", (3.4 * LION_K, 4.2 * LION_K, 5.6 * LION_K), (lx, ly, z0 + 2.8 * LION_K))
+LION_S = 1.0                      # escala do il_lion (leao ~8 de altura)
+PED_W, PED_D, PED_H = 5.2, 4.4, 4.5   # pedestal (centro 0,2 ao norte de L.LIONS): frente em y -118,0 = beira do
+PED_DY = 0.2                          # topo do penhasco (a borda da planta e -118,6); fundo em -113,6
 
 
 def lions(rng):
+    """2 leoes guardioes (il_lion) nos pedestais de L.LIONS, olhando para a ponte (sul); a pata de FORA pousa na
+    esfera (lado de fora = longe do eixo)"""
     mb = NMB("ENT_Lions", "04_VILLAGE", rng, detail="near")
+    yaw = math.pi                                  # +Y local do leao -> -Y do mundo (a ponte)
     for lx, ly in L.LIONS:
-        komainu(mb, lx, ly, 1 if lx > 0 else -1)
+        py = ly + PED_DY
+        z = il_lion.pedestal(mb, lx, py, G - 0.05, yaw, w=PED_W, d=PED_D, h=PED_H + 0.05, light_m=SL, dark_m=SD)
+        side = -1 if lx > 0 else 1                 # olhando para -Y, a direita do leao e -X
+        il_lion.lion(mb, lx, ly + 0.3, z, yaw, s=LION_S, side=side, ball_mat=MANE, body_m=LION, mane_m=MANE,
+                     dark_m="Stone_Grout")
+        col_box("EntLions", (PED_W, PED_D, PED_H), (lx, py, G + PED_H / 2))
+        col_box("EntLions", (4.4 * LION_S, 4.4 * LION_S, 7.6 * LION_S), (lx, py, G + PED_H + 3.8 * LION_S))
+        # mureta baixa pedestal -> base da ala: fecha a fresta de 2,3 entre o leao e a ala (o patamar leva so ao
+        # portao; os gramados laterais sao acessados pela praca de dentro)
+        ya, yb = py + PED_D / 2 - 0.1, GY - 1.1
+        mb.box((1.4, yb - ya, 2.0), (lx, (ya + yb) / 2, G + 1.0), (0, 0, 0), SL, 0.05)
+        mb.box((1.8, yb - ya + 0.3, 0.36), (lx, (ya + yb) / 2, G + 2.18), (0, 0, 0), SD, 0.0)
+        col_box("EntLions", (1.6, yb - ya, 4.0), (lx, (ya + yb) / 2, G + 2.0))
     mb.finish()
 
 

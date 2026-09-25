@@ -10,13 +10,60 @@ import fm_portal_kit as PK
 
 
 # ------------------------------------------------------------------ construtor com teto de variantes
+MICRO = 0.35          # rodada 2: primitiva com TODAS as dimensoes abaixo disto nao e criada
+
+
+def bev_rule(bevel, dmin):
+    """rodada 2 (critica tecnica): chanfro 0 se a menor dimensao < 1,0; senao no maximo 5% dela"""
+    if not bevel or bevel <= 0 or dmin < 1.0:
+        return 0.0
+    return min(bevel, 0.05 * dmin)
+
+
 class VMB(MB):
     """MB com detalhe (hero/near/far) e teto de variantes tonais por familia (vcap): no Roblox cada variante vira
-    uma MeshPart, entao os predios cheios de primitivas ficam com 1 ou 2 tons por familia."""
+    uma MeshPart, entao os predios cheios de primitivas ficam com 1 ou 2 tons por familia.
+    Rodada 2: TODA primitiva (inclusive as dos kits do lobby chamadas com este MB) passa pela regra de chanfro
+    (bev_rule) e as pecas microscopicas (todas as dimensoes < MICRO) sao descartadas (contadas em n_micro)."""
 
     def __init__(self, name, collection, rng=None, detail="near", vcap=1):
         super().__init__(name, collection, rng, detail=detail)
         self.vcap = vcap
+        self.n_micro = 0
+
+    def box(self, size, loc, rot=(0, 0, 0), m="Stone_Light", bevel=0.12, seg=1, tint=None):
+        if max(size) < MICRO:
+            self.n_micro += 1
+            return
+        super().box(size, loc, rot, m, bev_rule(bevel, min(size)), seg, tint)
+
+    def beam(self, a, b, w, h=None, m="Wood_Dark", bevel=0.08, roll=0.0, tint=None):
+        h = h or w
+        ln = (Vector(b) - Vector(a)).length
+        if max(ln, w, h) < MICRO:
+            self.n_micro += 1
+            return
+        super().beam(a, b, w, h, m, bev_rule(bevel, min(ln, w, h)), roll, tint)
+
+    def cyl(self, r, h, loc, rot=(0, 0, 0), m="Metal_Iron", n=12, r2=None, bevel=0.08, seg=1, caps=True, tint=None,
+            angle=0.5):
+        rr = r if r2 is None else r2
+        if max(2 * max(r, rr), h) < MICRO:
+            self.n_micro += 1
+            return
+        super().cyl(r, h, loc, rot, m, n, r2, bev_rule(bevel, min(2 * min(r, rr), h)), seg, caps, tint, angle)
+
+    def rod(self, a, b, r, m="Metal_Iron", n=8, bevel=0.0, tint=None, caps=True):
+        ln = (Vector(b) - Vector(a)).length
+        if max(ln, 2 * r) < MICRO:
+            self.n_micro += 1
+            return
+        super().rod(a, b, r, m, n, bev_rule(bevel, min(ln, 2 * r)), tint, caps)
+
+    def finish(self, *a, **k):
+        if self.n_micro:
+            print("VILLAGE %s: %d pecas < %.2f descartadas" % (self.name, self.n_micro, MICRO))
+        return super().finish(*a, **k)
 
     def _uv(self, faces, m):
         # telha modelada (nervuras/casca do telhado): um tom "calmo" da textura por primitiva (mesma solucao do
@@ -75,15 +122,18 @@ def arc_spans(gaps, a0=0.0, a1=360.0):
 
 
 # ------------------------------------------------------------------ torno
-def lathe(mb, c, prof, m, n=48, a0=0.0, a1=360.0, tint=None):
+def lathe(mb, c, prof, m, n=48, a0=0.0, a1=360.0, tint=None, mats=None):
     """revolve o perfil FECHADO [(r, z), ...] (z relativo a c) em volta do eixo vertical de c.
-    Arco parcial (a0..a1) ganha tampas nas pontas. Nunca use r = 0 no perfil (use um cone no miolo)."""
+    Arco parcial (a0..a1) ganha tampas nas pontas. Nunca use r = 0 no perfil (use um cone no miolo).
+    mats: material por ARESTA do perfil (aresta j = prof[j] -> prof[j+1]); None = tudo em m. Serve para o forro
+    (face de baixo) de um telhado sair noutro material sem casca extra (mesma malha, mesmos tris)."""
     full = abs(a1 - a0) >= 359.999
     k = len(prof)
     segs = max(2, int(n))
     cnt = segs if full else segs + 1
     bm = mb.bm
     rings = []
+    by_edge = {}
     for i in range(cnt):
         a = math.radians(a0 + (a1 - a0) * i / segs)
         ca, sa = math.cos(a), math.sin(a)
@@ -93,7 +143,8 @@ def lathe(mb, c, prof, m, n=48, a0=0.0, a1=360.0, tint=None):
         for j in range(k):
             j2 = (j + 1) % k
             try:
-                bm.faces.new((r0[j], r0[j2], r1[j2], r1[j]))
+                f = bm.faces.new((r0[j], r0[j2], r1[j2], r1[j]))
+                by_edge.setdefault(j, []).append(f)
             except ValueError:
                 pass
     if not full:
@@ -103,6 +154,15 @@ def lathe(mb, c, prof, m, n=48, a0=0.0, a1=360.0, tint=None):
             except ValueError:
                 pass
     mb._post([v for rr in rings for v in rr], m, tint, 0, 1)
+    if mats:
+        for j, fs in by_edge.items():
+            mj = mats[j] if j < len(mats) else m
+            if mj == m:
+                continue
+            mi = mb._mi_for(mj)
+            for f in fs:
+                f.material_index = mi
+            mb._uv(fs, mj)
 
 
 def ring_wall(mb, c, r0, r1, z0, z1, m, n=72, gaps=()):
@@ -116,11 +176,25 @@ def roof_profile(top, th):
     return list(top) + [(r, z - th) for r, z in reversed(top)]
 
 
+def eave_fascia(top, th):
+    """testeira FINA (rodada 2): 0,6 de altura x 0,3 radial, cobrindo a borda da casca (espessura th <= 0,55) e
+    passando 0,15 acima da telha na borda (sem face quase coplanar com a agua do telhado)"""
+    r, z = top[0]
+    return (r - 0.15, r + 0.15, z - 0.45, z + 0.15)
+
+
 def cone_roof(mb, c, top, th, m, n=64, ribs=0, rib_m=None, rib_w=0.42, rib_h=0.28, fascia=None, fascia_m=None,
-              rafters=0, rafter_m="Wood_Dark", rafter_r=None, courses=(), course_m=None, a_off=0.0):
+              rafters=0, rafter_m="Wood_Dark", rafter_r=None, courses=(), course_m=None, a_off=0.0, soffit=None):
     """telhado conico com beiral: casca (lathe), nervuras radiais (fiadas de telha), testeira no beiral,
-    cachorros (pontas de caibro) sob o beiral e degraus concentricos (fiadas)"""
-    lathe(mb, c, roof_profile(top, th), m, n)
+    cachorros (pontas de caibro) sob o beiral e degraus concentricos (fiadas).
+    soffit: material do forro (face de baixo e borda da casca), na mesma malha."""
+    prof = roof_profile(top, th)
+    k = len(top)
+    mats = None
+    if soffit:
+        # arestas: 0..k-2 agua (m), k-1 ponta interna (m), k..2k-2 forro, 2k-1 borda externa (forro)
+        mats = [m] * k + [soffit] * k
+    lathe(mb, c, prof, m, n, mats=mats)
     rm = rib_m or m
     if ribs:
         for i in range(ribs):
@@ -140,7 +214,7 @@ def cone_roof(mb, c, top, th, m, n=64, ribs=0, rib_m=None, rib_w=0.42, rib_h=0.2
         ra, rb = rafter_r
         for i in range(rafters):
             a = a_off + 360.0 * i / rafters
-            za, zb = _prof_z(top, ra) - th - 0.22, _prof_z(top, rb) - th - 0.22
+            za, zb = _prof_z(top, ra) - th - 0.15, _prof_z(top, rb) - th - 0.15   # encostado no forro
             mb.beam(pol(c, ra, a, za), pol(c, rb, a, zb), 0.36, 0.42, rafter_m, 0.0)
 
 
@@ -176,7 +250,7 @@ def drum_window(mb, c, r, a_deg, w, zlo, zhi, glass="Window_Warm", frame="Wood_D
         for s in (-1, 1):
             tan_box(mb, c, ro, a_deg + s * da, (0.34, 0.34, h + 0.2), zc, frame)
     if grid:
-        tan_box(mb, c, ro, a_deg, (0.2, 0.3, h), zc, frame)
+        tan_box(mb, c, ro, a_deg, (0.2, 0.3, h + 0.24), zc, frame)
         if jambs:
             tan_box(mb, c, ro, a_deg, (w, 0.3, 0.2), zc + h * 0.12, frame)
 
@@ -186,10 +260,10 @@ def oculus(mb, c, r, a_deg, z, rad, glass="Window_Warm", frame="Wood_Lacquer_Red
     a = math.radians(a_deg)
     rot = (math.pi / 2, 0, a + math.pi / 2)
     mb.cyl(rad + 0.35, 0.36, pol(c, r + out * 0.12, a_deg, z), rot, frame, n, bevel=0.0)
-    mb.cyl(rad, 0.3, pol(c, r + out * 0.24, a_deg, z), rot, glass, n, bevel=0.0)
+    mb.cyl(rad, 0.3, pol(c, r + out * 0.3, a_deg, z), rot, glass, n, bevel=0.0)
     if cross:
-        tan_box(mb, c, r + out * 0.36, a_deg, (2 * rad, 0.14, 0.18), z, frame)
-        tan_box(mb, c, r + out * 0.36, a_deg, (0.18, 0.14, 2 * rad), z, frame)
+        tan_box(mb, c, r + out * 0.56, a_deg, (2 * rad, 0.14, 0.18), z, frame)
+        tan_box(mb, c, r + out * 0.56, a_deg, (0.18, 0.14, 2 * rad), z, frame)
 
 
 def col_ring(area, c, r0, r1, z0, z1, spans, seg=20.0):
@@ -310,7 +384,7 @@ def kunai(mb, p, d, n, s=1.0, blade="Metal_VilSteel", grip="Wood_Dark", ring_m="
         if ring_n >= 8:
             PK.ring(mb, p - d * 1.04 * s, 0.2 * s, d, side, 0.09 * s, 0.09 * s, ring_m, n=ring_n)
         else:
-            mb.cyl(0.24 * s, 0.09 * s, p - d * 1.04 * s, rot_to(n), ring_m, 6, bevel=0.0)
+            mb.cyl(0.24 * s, 0.09 * s, p - d * 1.1 * s, rot_to(n), ring_m, 6, bevel=0.0)   # fora do cabo
 
 
 def shuriken(mb, c, n, up=(0, 0, 1), R=0.9, m="Metal_VilSteel", hub="Metal_Dark", spin=0.0):
@@ -327,7 +401,7 @@ def shuriken(mb, c, n, up=(0, 0, 1), R=0.9, m="Metal_VilSteel", hub="Metal_Dark"
         r = R if k % 2 == 0 else R * 0.3
         pts.append((r * math.cos(a), r * math.sin(a)))
     PK.plate(mb, pts, c, u, v, 0.12, m)
-    mb.cyl(R * 0.24, 0.2, c, rot_to(n), hub, 6, bevel=0.0)
+    mb.cyl(R * 0.24, 0.34, c, rot_to(n), hub, 6, bevel=0.0)
 
 
 def katana(mb, g, d, n, L=5.6, w=0.34, blade="Metal_VilSteel", grip="Wood_Dark", guard="Metal_Gold", sheath=None):
@@ -338,7 +412,7 @@ def katana(mb, g, d, n, L=5.6, w=0.34, blade="Metal_VilSteel", grip="Wood_Dark",
     mb.cyl(0.42, 0.14, g + d * (hl + 0.07), rot_to(d), guard, 8, bevel=0.0)
     if sheath:
         mb.beam(g + d * (hl + 0.14), g + d * L, 0.4, 0.3, sheath, 0.0)
-        mb.beam(g + d * (L - 0.25), g + d * (L + 0.05), 0.44, 0.34, guard, 0.0)
+        mb.beam(g + d * (L - 0.3), g + d * (L + 0.12), 0.6, 0.5, guard, 0.0)     # ponteira 0,12 alem da bainha
     else:
         PK.blade(mb, g + d * (hl + 0.14), d, n, L - hl, w, blade, thick=0.1, curve=0.05)
 
@@ -350,7 +424,7 @@ BOOK_MATS = ("Cloth_Red", "Cloth_Royal_Blue", "Cloth_Canvas", "Cloth_Red", "Wood
 def bookcase(mb, F, w, h, d, rng, shelves=4, m="Wood_Dark", back_m="Wood_Plank", scrolls=0.35):
     """estante (origem = fundo-centro-embaixo, frente para +y local) com livros e pergaminhos"""
     t = 0.3
-    mb.box((w, 0.2, h), F.p(0, 0.1, h / 2), F.r(), back_m, 0.0)
+    mb.box((w - 0.1, 0.2, h), F.p(0, 0.1, h / 2), F.r(), back_m, 0.0)     # dentro das laterais (sem face coplanar)
     for s in (-1, 1):
         mb.box((t, d, h), F.p(s * (w / 2 - t / 2), d / 2, h / 2), F.r(), m, 0.06)
     mb.box((w + 0.3, d + 0.2, 0.35), F.p(0, d / 2, h + 0.17), F.r(), m, 0.06)
@@ -386,8 +460,8 @@ def bookcase(mb, F, w, h, d, rng, shelves=4, m="Wood_Dark", back_m="Wood_Plank",
 
 def round_floor(mb, c, R, z, rng, pw=1.3, m="Wood_Plank", alt=("Wood_Light", "Wood_Dark"), h=0.2, p_alt=0.25):
     """assoalho de tabuas corridas dentro de um circulo (tabuas ao longo de x), sobre base escura"""
-    lathe(mb, c, [(0.3, z - 0.24), (R, z - 0.24), (R, z - 0.02), (0.3, z - 0.02)], "Wood_Dark", 24)
-    mb.cyl(0.32, 0.22, W(c, 0, 0, z - 0.13), (0, 0, 0), "Wood_Dark", 8, bevel=0.0)
+    lathe(mb, c, [(0.3, z - 0.3), (R, z - 0.3), (R, z - 0.12), (0.3, z - 0.12)], "Wood_Dark", 24)   # 0,12 sob as tabuas
+    mb.cyl(0.32, 0.3, W(c, 0, 0, z - 0.25), (0, 0, 0), "Wood_Dark", 8, bevel=0.0)
     rows = max(2, int(2 * R / pw))
     step = 2 * R / rows
     for i in range(rows):

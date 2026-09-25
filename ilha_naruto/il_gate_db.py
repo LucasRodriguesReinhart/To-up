@@ -11,8 +11,7 @@
 #     apoiado na viga mestra e invadindo o beiral, como na ref.
 #   - TELHADO: fiadas em UM tom (UV constante: a textura de telha nao pinta mosaico de 3 tons); tom escuro so na
 #     cumeeira, nas empenas e na testeira; ouro nos chifres dos cantos e no pinaculo.
-#   - LEOES novos (juba em lobos arredondados, cabeca grande, pata sobre a esfera). il_lion.py (leao compartilhado
-#     da entrada) NAO existia no fim da rodada 2: quando existir, trocar lion_own() por il_lion.lion() em lion().
+#   - LEOES: il_lion.lion() (leao compartilhado com a entrada) em lion(); lion_own() ficou como alternativa local.
 #   - ESFERAS flutuantes r 1,55 com estrelas de 0,84 de diametro; nada movel < 0,35.
 #   - regras novas: bevel pela regra (il_exit_plan.XMB), secao >= 0,3 em frisos/gregas, folga >= 0,1 entre faces de
 #     materiais diferentes, nada com todas as dimensoes < 0,35.
@@ -565,9 +564,19 @@ def lion_own(mb, F, x, y, stars, s_in, k=1.15):
 
 
 def lion(mb, F, x, y, stars, s_in):
-    """pedestal + leao proprio (ponto unico de troca para o il_lion.lion compartilhado)"""
+    """pedestal + leao COMPARTILHADO (il_lion.lion, dono: zona entrance) com os materiais que o portao ja usa (corpo
+    Stone_Wall_Dark, juba Stone_Wall_Light, olhos/nariz Roof_DBGate_Ridge, boca Wood_Lacquer_Red) e a esfera do dragao
+    sob a pata de fora. Escala 0,82: topo em ~10,6 (a colisao do court). lion_own() ficou como referencia."""
+    import il_lion
     pedestal(mb, F, x, y)
-    lion_own(mb, F, x, y, stars, s_in)
+    base = F.p(x, y, 4.05)
+    yaw = F.a + math.pi + s_in * math.radians(14)
+
+    def ball(mb_, c, r, fwd):
+        dragon_ball(mb_, c, r, stars, fwd + Vector((0, 0, 0.35)), F=None)
+    il_lion.lion(mb, base.x, base.y, base.z, yaw, s=0.82, side=s_in, body_m="Stone_Wall_Dark",
+                 mane_m="Stone_Wall_Light", dark_m="Roof_DBGate_Ridge", mouth_m="Wood_Lacquer_Red", ball=ball,
+                 ball_r=1.52)
 
 
 def stone_lantern(mb, F, x, y, name=None):

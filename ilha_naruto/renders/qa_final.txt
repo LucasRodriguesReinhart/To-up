@@ -1,0 +1,80 @@
+OK   ENTRY->MINING
+OK   ENTRY->SUMMON
+OK   ENTRY->VILLAGE
+OK   MINING->SUMMON
+OK   MINING->EXIT
+OK   VILLAGE->EXIT
+OK   EXIT->GATE_DB
+OK   SHOP->MINING
+OK   SUMMON->EXIT
+OK   RING->RAMEN
+OK   RING->MILL
+OK   PIT->EAST_RAMP->RING
+OK   RING_LOOP
+OK   LOBBY_BRIDGE
+ROTAS 14/14 OK
+OK   HALL:porta->mesa
+OK   LOJA:porta->balcao
+OK   RAMEN:frente->balcao
+OK   MOINHO:porta->balcao
+OK   PONTE_EM_ARCO
+OK   PORTAO_DB_ABERTO->ANCORA
+ROTAS_EXTRA 6/6 OK
+OK   il_terrain:PRACA->GRAMADO_SO->ANEL
+OK   il_terrain:PRACA->GRAMADO_SE->ANEL
+OK   il_terrain:MOINHO->T1_SAIDA
+OK   il_terrain:CAMINHO_CASA_T1_38
+OK   il_terrain:CAMINHO_CASA_T1_-84
+OK   il_terrain:CAMINHO_CASA_T1_84
+OK   il_terrain:CAMINHO_CASA_T1_-112
+OK   il_terrain:CAMINHO_CASA_T2_-126
+OK   il_terrain:CAMINHO_CASA_T2_-98
+OK   il_terrain:CAMINHO_CASA_T2_96
+OK   il_terrain:CAMINHO_CASAS_LESTE
+OK   il_mining:FOSSO_S->N_contorna_nucleo_O
+OK   il_mining:FOSSO_S->N_contorna_nucleo_L
+OK   il_mining:FOSSO_volta_do_nucleo
+OK   il_entrance:ponte->patamar_lateral->praca
+OK   il_houses:MOINHO:porta_borda_sul->interacao
+OK   il_houses:MOINHO:porta_borda_norte->interacao
+OK   il_houses:MOINHO:volta_do_balcao->vendedor
+OK   il_summon:PRACA->PORTAL
+OK   il_summon:T1_NO->SUMMON
+OK   il_water:VALE:margem->roda
+OK   il_exit:rua_45_ate_ponte
+OK   il_exit:trilha_escada_NE
+ROTAS_MODULOS 23/23 OK
+OK   SONDA T2_NE_fenda
+OK   SONDA ANCORA_borda
+OK   SONDA PONTE_SAIDA_lado_N
+OK   SONDA PONTE_SAIDA_lado_S
+OK   SONDA MINE_rampa_L_fora_s10
+OK   SONDA MINE_rampa_L_dentro_s10
+OK   SONDA MINE_rampa_L_fora_s20
+OK   SONDA MINE_rampa_L_dentro_s20
+OK   SONDA MINE_rampa_O_fora_s10
+OK   SONDA MINE_rampa_O_dentro_s10
+OK   SONDA MINE_rampa_O_fora_s20
+OK   SONDA MINE_rampa_O_dentro_s20
+OK   SONDA ENT_patamar_frente_L
+OK   SONDA ENT_patamar_frente_O
+OK   SONDA ENT_mureta_leao_L
+OK   SONDA ENT_mureta_leao_O
+OK   SONDA MOINHO_guarda_corpo_oeste
+OK   SONDA MOINHO_guarda_corpo_leste
+OK   SONDA MOINHO_canto_NO_pilao
+OK   SONDA EXIT_ancora_-8
+OK   SONDA EXIT_ancora_+8
+OK   SONDA EXIT_ilhota_d98_NO
+OK   SONDA EXIT_ilhota_d98_SE
+OK   SONDA EXIT_ilhota_d126_NO
+OK   SONDA EXIT_ilhota_d126_SE
+OK   SONDA EXIT_ilhota_d108_NO
+OK   SONDA EXIT_ilhota_d108_SE
+SONDAS 27/27 OK
+LARGURA rotas com trecho < 3,4 de largura: nenhuma
+MARKERS faltando=0 []
+MARKERS minerio={'COMMON': 28, 'EPIC': 8, 'SUPERLEGENDARY': 2, 'UNCOMMON': 16} sobrepostos=0  ancoras_de_compra=['PURCHASE_UI_ANCHOR_DB', 'PURCHASE_UI_ANCHOR_DemonSlayer', 'PURCHASE_UI_ANCHOR_OnePiece', 'PURCHASE_UI_ANCHOR_OnePunchMan', 'PURCHASE_UI_ANCHOR_ShadowGarden']
+TECH nomes_genericos=0 duplicados=0 sem_material=0 transform_nao_aplicado=0 degeneradas=0 arestas_nao_manifold=18649
+TECH tris=401693 objetos=1523 malhas=1343 materiais=123 colisoes=1190
+TECH maiores: [(23104, 'VIL_MainHall'), (20320, 'SKY_Clouds'), (17622, 'TER_Back_Massif'), (16260, 'TER_Retaining_Walls'), (12484, 'VIL_WeaponShop'), (11692, 'GATE_OnePiece_Frame')]

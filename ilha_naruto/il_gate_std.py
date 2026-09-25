@@ -52,8 +52,8 @@ def gallery_slot(key):
 
 
 # nucleo claro da energia TINGIDO por portao (identidade de cada um; no Roblox vira Neon)
-CORE_TINT = {"DB": (255, 214, 120), "ShadowGarden": (228, 196, 255), "DemonSlayer": (255, 178, 160),
-             "OnePiece": (176, 232, 255), "OnePunchMan": (255, 236, 176)}
+CORE_TINT = {"DB": (255, 214, 120), "ShadowGarden": (206, 160, 255), "DemonSlayer": (255, 150, 120),
+             "OnePiece": (140, 214, 255), "OnePunchMan": (255, 226, 140)}
 
 
 def core_mat(key):
@@ -119,11 +119,11 @@ def barrier(key, F, mat, shape="arch", thick=0.5, lock_mat="Metal_Gold", rng=Non
     zl = h * 0.46
     for s in (-1, 1):
         y = s * (thick / 2 + 0.55)
-        lk.box((3.2, 0.7, 2.7), F.p(0, y, zl), F.r(), lock_mat, 0.25)
+        lk.box((3.2, 0.7, 2.7), F.p(0, y, zl), F.r(), lock_mat, 0.0)
         for sx in (-1, 1):
-            lk.box((0.55, 0.55, 2.0), F.p(sx * 1.05, y, zl + 2.1), F.r(), lock_mat, 0.1)
-        lk.box((2.65, 0.55, 0.55), F.p(0, y, zl + 3.0), F.r(), lock_mat, 0.1)
-        lk.box((0.5, 0.8, 1.0), F.p(0, y, zl - 0.2), F.r(), "Metal_Dark", 0.05)
+            lk.box((0.55, 0.55, 2.0), F.p(sx * 1.05, y, zl + 2.1), F.r(), lock_mat, 0.0)
+        lk.box((2.65, 0.55, 0.55), F.p(0, y, zl + 3.0), F.r(), lock_mat, 0.0)
+        lk.box((0.5, 1.0, 1.0), F.p(0, y, zl - 0.2), F.r(), "Metal_Dark", 0.0)
         lk.box((3.9, 0.3, 3.4), F.p(0, s * (thick / 2 + 0.2), zl), F.r(), cm, 0.0)       # halo do cadeado
     lo = lk.finish()
     lo["gate"] = key
