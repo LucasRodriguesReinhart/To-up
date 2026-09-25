@@ -312,6 +312,9 @@ def plaza_floor():
     disc = IL.arc_pts(PR + 0.25, 0.0, 360.0, 4.0, CX, CY)[:-1]
     disc = IL.clip(disc, -SU.x, -SU.y, -(STAIR_TOP_R + 0.25))
     mb.prism(IL.ccw(disc), Z0 - 0.3, Z0 + ZB, "Summon_Stone_Dark")
+    # colisao do patamar: o mosaico fica 0,30 acima do chao T1 (degrau do santuario); sem isto o jogador afundava
+    # 0,30 no piso, porque a colisao do terreno (il_col.terrain_col) e plana em T1 embaixo da praca inteira.
+    IL.col_poly("SummonPlaza", disc, Z0 - 1.0, Z0 + ZL1, 4.0, mode="inter")
     # faixas do mosaico (r0, r1, material, comprimento da peca): o roxo tambem e faixa (entre os aneis)
     bands = [(12.45, 12.95, "Metal_Gold", 3.0), (13.05, 14.3, "Stone_SumFloor_Pale", 2.6),
              (14.4, 14.9, "Metal_Gold", 3.0), (15.0, 22.5, "Summon_Floor", 3.6),
