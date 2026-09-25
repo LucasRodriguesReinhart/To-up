@@ -25,7 +25,7 @@ ZONE_MODULES = {
     "summon": ["db_summon"],          # torre de invocacao (familia da Ilha 1) + praca DB
     "water": ["db_water"],            # 3 pocos, 2 quedas pela borda, cascata da mesa NW
     "exit": ["db_exit"],              # trilha, arco natural, ponte de saida, ilhota do portao SG, ancora, transicao
-    "dressing": ["db_props", "db_veg", "db_lights"],
+    "dressing": ["db_veg", "db_props", "db_lights"],   # veg antes: os props consultam a vegetacao ja montada
 }
 
 
