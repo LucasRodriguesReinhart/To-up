@@ -3,11 +3,10 @@
 Ilha 1 definitiva, construída no Blender 5.2 a partir das 11 referências aprovadas (`refs/`). Está pronta para o
 3D Importer do Roblox: FBX por coleção, colisão em Parts, marcadores e um script de montagem.
 
-> **Estado:** definitiva + passe final de polimento (arte, funcionalidade e otimização) aplicado, tudo gerado e
-> verificado no Blender e nos QAs automáticos. **O place do Roblox não foi salvo.** Os 10 FBX chegaram a ser
-> importados numa sessão do Studio (sem salvar) para reconhecimento; o passo de rodar o script de montagem e a
-> integração com os sistemas do jogo (invocar, portão) ficam documentados em
-> [`INTEGRACAO_JOGO.md`](INTEGRACAO_JOGO.md) — precisam de você com a mão no teclado (ver *Limitações*).
+> **Estado (2026-09-25):** **integrada ao jogo** no Studio. A ilha é a Área 1 (`Core.NarutoIsland`) e foi testada em Play:
+> lobby → ponte → ilha, mineração com o sistema existente, invocação, portão DB (compra, persistência, reset) e desempenho.
+> Detalhes, testes, rollback e o único pendente (reimportar 5 FBX quando a tela estiver liberada) estão em
+> [`INTEGRACAO_JOGO.md`](INTEGRACAO_JOGO.md). Os scripts do Studio ficam em [`roblox/`](roblox/). **O place não foi salvo pelo agente.**
 
 ## Entregáveis
 
