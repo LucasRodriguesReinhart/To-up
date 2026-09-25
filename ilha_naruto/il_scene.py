@@ -142,6 +142,11 @@ CAMS = {
     "CAM_Village": ((0, 52, L.RING + 10.0), (0, 150, L.T2 + 12.0), 18),
     "CAM_NextBridge": ((78, 78, L.T1 + 10.0), (176, 176, L.T1 + 10.0), 20),
     "CAM_DB_Gate": None,   # calculada (frente do portao)
+    # altura do jogador (olho ~5,2 acima do chao; lente mais aberta, sem visao aerea) - passe de polimento
+    "CAM_PlayerHeight_Entry": ((0, -115, L.G + 5.2), (0, -35, L.G + 2.0), 24),
+    "CAM_PlayerHeight_Mining": ((0, -70, L.RING + 5.2), (0, 5, L.PIT + 2.0), 24),
+    "CAM_PlayerHeight_Summon": ((-92, 18, L.T1 + 5.2), (L.SUMMON_C[0], L.SUMMON_C[1], L.T1 + 12.0), 22),
+    "CAM_PlayerHeight_Gate": None,   # calculada (patamar de interacao do portao DB, olhando a barreira)
     # cameras que imitam cada referencia (comparacao lado a lado)
     "CAM_Ref14": ((0, -272, 182), (0, 38, 0), 26),
     "CAM_Ref15": ((-140, -250, 170), (12, 38, 0), 26),
@@ -161,6 +166,10 @@ def cameras():
     ux, uy = L.exit_dir()
     camera("CAM_DB_Gate", (gp[0] - ux * 36.0 - uy * 9.0, gp[1] - uy * 36.0 + ux * 9.0, L.EXIT_Z + 10.0),
            (gp[0], gp[1], L.EXIT_Z + 18.0), 16)
+    # altura do jogador: bem recuado na ponte antes do portao (40 studs, como a CAM_DB_Gate normal, so mais baixa)
+    # - perto, a barreira de energia Neon estoura o bloom da previa (no Roblox nao acontece, Transparency 0,2)
+    camera("CAM_PlayerHeight_Gate", (gp[0] - ux * 40.0 - uy * 7.0, gp[1] - uy * 40.0 + ux * 7.0, L.EXIT_Z + 5.2),
+           (gp[0], gp[1], L.EXIT_Z + 9.0), 24)
     bpy.context.scene.camera = bpy.data.objects["CAM_Ref14"]
 
 
