@@ -49,6 +49,51 @@ def ore_markers():
               "rim_clear": L.ORE_RIM_CLEAR, "note": "arena oval; o jogo usa os ORE_* + zona retangular com bloqueios"})
 
 
+def spawn_blocks():
+    """bloqueios do SpawnMinerio (circulos, em coordenadas da ilha) para o builder do Roblox: rochas da arena, pod
+    central, faixas dos acessos (escadas/rampa) e um anel junto ao muro da bacia (folga do minerio ate a parede).
+    Marcadores GP_Block_<nn> com atributo radius; o chao GROUND fica fora pela janela de altura da zona."""
+    n = 0
+
+    def blk(x, y, r, kind):
+        nonlocal n
+        n += 1
+        mk("GP_Block_%02d" % n, (x, y, L.ARENA), size=r, kind="CIRCLE", props={"radius": round(r, 2), "kind": kind})
+    for x, y, r, h in L.ARENA_ROCKS:
+        blk(x, y, r + 3.0, "rocha")
+    x, y, r = L.CORE_POD
+    blk(x, y, r + 4.0, "pod")
+    for aa, w, kind in L.ARENA_ACCESS:
+        foot, top, d = L.access_frame(aa)
+        run = math.hypot(top[0] - foot[0], top[1] - foot[1])
+        k = max(2, int(run / 5.0) + 1)
+        for i in range(k + 1):
+            t = i / k
+            blk(foot[0] + (top[0] - foot[0]) * t - d[0] * 0.0, foot[1] + (top[1] - foot[1]) * t, w / 2 + 2.0, "acesso")
+    step = 8.0
+    per = sum(math.hypot(L.arena_r(a + 1) * math.cos(math.radians(a + 1)) - L.arena_r(a) * math.cos(math.radians(a)),
+                         L.arena_r(a + 1) * math.sin(math.radians(a + 1)) - L.arena_r(a) * math.sin(math.radians(a)))
+              for a in range(360))
+    k = int(per / step)
+    for i in range(k):
+        a = 360.0 * i / k
+        rr = L.arena_r(a) + 2.0
+        blk(rr * math.cos(math.radians(a)), rr * math.sin(math.radians(a)), 7.0, "borda")
+    return n
+
+
+def fx_markers():
+    """pontos de efeito do jogo (o builder do Roblox cria nevoa/borrifo neles): base das quedas pela borda e da cascata"""
+    for nm, (fx, fy) in (("FX_Fall_SW", L.FALL_SW), ("FX_Fall_SE", L.FALL_SE)):
+        a = math.atan2(fy - (L.POOL_SW[1] if "SW" in nm else L.POOL_SE[1]), fx - (L.POOL_SW[0] if "SW" in nm else L.POOL_SE[0]))
+        mk(nm + "_Lip", (fx + math.cos(a) * 3.0, fy + math.sin(a) * 3.0, L.GROUND - 2.0), size=3.0, kind="SPHERE",
+           props={"fx": "nevoa_borda"})
+        mk(nm + "_Base", (fx + math.cos(a) * 8.0, fy + math.sin(a) * 8.0, -60.0), size=6.0, kind="SPHERE",
+           props={"fx": "nevoa_base"})
+    px, py, pr = L.POOL_NW
+    mk("FX_Fall_NW_Pool", (px, py, L.HUB - L.WATER_DROP + 0.5), size=4.0, kind="SPHERE", props={"fx": "borrifo"})
+
+
 def shadow_gate():
     """portao APROVADO da galeria (il_gate_sg), sem redesenho, no eixo da ilhota"""
     import il_gate_sg
@@ -60,4 +105,6 @@ def build():
     db_col.terrain_col()
     world_markers()
     ore_markers()
+    spawn_blocks()
+    fx_markers()
     shadow_gate()
