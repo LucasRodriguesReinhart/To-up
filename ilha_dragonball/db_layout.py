@@ -165,7 +165,7 @@ GROUND_PATHS = [
     ([(-52.0, -64.0), (-92.0, -70.0), (-124.0, -78.0)], 6.0),          # promenade -> satelite SW (poco SW no caminho)
     ([(52.0, -62.0), (90.0, -62.0), (116.0, -58.0)], 6.0),             # promenade -> satelite SE
     ([(78.0, -8.0), (104.0, -12.0)], 6.0),                               # promenade -> dojo
-    ([(-78.0, 22.0), (-104.0, 40.0), (-128.0, 54.0)], 6.0),             # promenade -> pod O -> heliponto
+    ([(-78.0, 22.0), (-100.0, 26.0), (-118.0, 44.0), (-128.0, 54.0)], 6.0),   # promenade -> heliponto (contorna o pod O)
     ([(-79.0, -2.0), (-89.4, -2.0)], 12.0),                              # promenade -> escada do summon
 ]
 # satelites: torres em plataformas redondas na borda (a "flor" da vista superior da concept).

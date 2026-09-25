@@ -86,13 +86,15 @@ def fx_markers():
     """pontos de efeito do jogo (o builder do Roblox cria nevoa/borrifo neles): labio e pe das quedas pela borda e o
     ponto onde a cascata NW cai no poco. Os pes/impacto foram medidos pela zona water (a cortina segue a face real do
     penhasco, raycast nas malhas DB_Ter_*); o labio sai da planta."""
-    base = {"FX_Fall_SW": (-92.4, -109.7, -60.0), "FX_Fall_SE": (86.1, -97.8, -60.0)}
+    base = {"FX_Fall_SW": (-96.5, -118.3, -60.0), "FX_Fall_SE": (89.9, -106.4, -60.0)}
+    ledge = {"FX_Fall_SW": (-95.2, -115.4, -4.5), "FX_Fall_SE": (88.9, -103.9, -6.0)}   # degrau onde a queda bate
     for nm, (fx, fy), (px, py, _) in (("FX_Fall_SW", L.FALL_SW, L.POOL_SW), ("FX_Fall_SE", L.FALL_SE, L.POOL_SE)):
         a = math.atan2(fy - py, fx - px)
         mk(nm + "_Lip", (fx + math.cos(a) * 3.0, fy + math.sin(a) * 3.0, L.GROUND - 2.0), size=3.0, kind="SPHERE",
            props={"fx": "nevoa_borda"})
         mk(nm + "_Base", base[nm], size=6.0, kind="SPHERE", props={"fx": "nevoa_base"})
-    mk("FX_Fall_NW_Pool", (-115.7, 104.6, L.HUB - L.WATER_DROP + 0.5), size=4.0, kind="SPHERE", props={"fx": "borrifo"})
+        mk(nm + "_Ledge", ledge[nm], size=4.0, kind="SPHERE", props={"fx": "borrifo"})
+    mk("FX_Fall_NW_Pool", (-113.0, 105.6, L.HUB - L.WATER_DROP + 0.5), size=4.0, kind="SPHERE", props={"fx": "borrifo"})
 
 
 def shadow_gate():

@@ -84,11 +84,19 @@ local function vfx(model, mk)
 			tam = 0.45, fim = 0.2, acc = V(0, 1.4, 0), luz = 0.7, infl = 0.3, transp = 0.35, area = V(10, 1, 10),
 			forma = Enum.ParticleEmitterShape.Box, dist = 180 })
 	end
+	-- quedas: nevoa grande no pe (nevoa_base), veu no labio (nevoa_borda) e borrifo onde a agua bate (borrifo)
+	local FX = {
+		nevoa_base = { cor = C(214, 238, 250), rate = 1.6, vida = 4, vel = 1.2, tam = 9, fim = 1.2, acc = V(0, 0.6, 0),
+			transp = 0.78, area = V(12, 2, 12), forma = Enum.ParticleEmitterShape.Box, dist = 320 },
+		nevoa_borda = { cor = C(226, 244, 252), rate = 1.2, vida = 2.6, vel = 0.8, tam = 4, fim = 1.4, acc = V(0, -1.2, 0),
+			transp = 0.8, area = V(6, 1, 3), forma = Enum.ParticleEmitterShape.Box, dist = 220 },
+		borrifo = { cor = C(236, 248, 255), rate = 2.4, vida = 1.6, vel = 2.2, tam = 2.2, fim = 1.3, acc = V(0, -2, 0),
+			transp = 0.72, area = V(4, 1, 4), forma = Enum.ParticleEmitterShape.Box, dist = 200 },
+	}
 	for _, m in pairs(mk) do
 		if string.match(m.Name, '^FX_Fall') then
-			emissor(pasta, 'Agua_Nevoa_' .. m.Name, m.Position, { cor = C(214, 238, 250), rate = 1.6, vida = 4, vel = 1.2,
-				tam = 9, fim = 1.2, acc = V(0, 0.6, 0), transp = 0.78, area = V(12, 2, 12),
-				forma = Enum.ParticleEmitterShape.Box, dist = 320 })
+			local s = FX[m:GetAttribute('fx') or ''] or FX.nevoa_base
+			emissor(pasta, 'Agua_' .. m.Name, m.Position, s)
 		end
 	end
 	local g = mpos(mk, 'GATE_' .. M.GATE_KEY)
