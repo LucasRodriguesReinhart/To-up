@@ -144,12 +144,12 @@ MESAS = [
     # AGRUPADAS (nao cercam a ilha): cacho NO, fundo (moldura da cupula), cacho NE, acento frontal e mesa leste baixa.
     # PRIMARY: silhueta alta; SECONDARY: moldura; tipo: mesa (topo largo e plano, com verde) | pillar | spire (agulha)
     # cacho noroeste (atras do summon e da vila oeste)
-    (-150.0, 118.0, 18.0, 98.0, "mesa"), (-126.0, 152.0, 12.0, 124.0, "pillar"), (-172.0, 84.0, 9.0, 76.0, "spire"),
+    (-150.0, 118.0, 18.0, 90.0, "mesa"), (-126.0, 152.0, 12.0, 100.0, "pillar"), (-172.0, 84.0, 9.0, 76.0, "spire"),
     (-102.0, 184.0, 10.0, 90.0, "pillar"),
     # fundo: pilares que emolduram a cupula (concept) + mesa larga atras
-    (-58.0, 216.0, 15.0, 136.0, "pillar"), (-14.0, 240.0, 20.0, 84.0, "mesa"), (62.0, 212.0, 13.0, 96.0, "pillar"),
+    (-58.0, 216.0, 15.0, 108.0, "pillar"), (-14.0, 240.0, 20.0, 84.0, "mesa"), (62.0, 212.0, 13.0, 88.0, "pillar"),
     # cacho nordeste (atras da saida e do mirante)
-    (132.0, 136.0, 17.0, 104.0, "mesa"), (154.0, 106.0, 9.0, 86.0, "spire"), (108.0, 180.0, 11.0, 94.0, "pillar"),
+    (132.0, 136.0, 17.0, 96.0, "mesa"), (154.0, 106.0, 9.0, 86.0, "spire"), (108.0, 180.0, 11.0, 86.0, "pillar"),
     # acento frontal esquerdo (ao lado da queda SW, como na concept) e mesa baixa leste (atras do dojo)
     (-118.0, -104.0, 9.0, 62.0, "pillar"), (160.0, -26.0, 12.0, 56.0, "mesa"),
 ]

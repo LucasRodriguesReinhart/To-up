@@ -102,6 +102,11 @@ def shadow_gate():
     import il_gate_sg
     g = L.gate_sg_pos()
     il_gate_sg.build_gate(g[0], g[1], L.EXIT_Z, L.sg_yaw())
+    # as cameras do kit de portoes vem nas coordenadas da Ilha 1 (renderizam mar vazio aqui): fora; o portao desta
+    # ilha tem CAM_DB_ShadowGate / CAM_DB_PlayerHeight_ShadowGate / CAM_DB_Ref_Gate (db_scene)
+    import bpy
+    for o in [o for o in bpy.data.objects if o.type == "CAMERA" and o.name.startswith(("CAM_Gate_", "CAM_Gates_"))]:
+        bpy.data.objects.remove(o, do_unlink=True)
 
 
 def build():
