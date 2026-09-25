@@ -332,12 +332,12 @@ def rocks():
         z0 = min(L.zone_of(x + r * math.cos(t), y + r * math.sin(t)) for t in (0, 1.57, 3.14, 4.71)) - 2.0
         octo("DB_Mesa", x, y, r * 0.92, z0, max(z0 + 16.0, min(top, z0 + 40.0)))
     for x, y, r, h in L.ARENA_ROCKS:
-        octo("DB_ArenaRock", x, y, r * 0.9, L.ARENA - 1.0, L.ARENA + h)
+        octo("DB_ArenaRock", x, y, r * 1.1, L.ARENA - 1.0, L.ARENA + h)     # apotema ~0,91 r: encosta na base visual
     for x, y, r, h in L.PLATEAU_ROCKS:
         z = L.zone_of(x, y)
         octo("DB_PlateauRock", x, y, r * 0.9, z - 1.0, z + h)
     x, y, r = L.CORE_POD
-    octo("DB_ArenaRock", x, y, r * 0.95, L.ARENA - 1.0, L.ARENA + 5.0)
+    octo("DB_ArenaRock", x, y, r * 1.2, L.ARENA - 1.0, L.ARENA + 7.0)     # tambor r 4,5 + cupula ate ~A+6,9
 
 
 # ------------------------------------------------------------------ chao
@@ -404,7 +404,7 @@ def ribbon_col(area, pts, hw, z0, z1, ext0=1.5, ext1=1.5):
         DL.octo_col(area, p[0], p[1], hw * 0.98, z0, z1)
 
 
-def arena_band(area, z0, z1, extra=4.0, step=5.0):
+def arena_band(area, z0, z1, extra=4.0, step=2.5):
     """anel de caixas RADIAIS da borda da arena ate alem do promenade: a borda curva da bacia fica exata (o topo das
     escadas/rampa da arena encosta sem fresta)"""
     k = int(round(360.0 / step))
