@@ -48,7 +48,7 @@ BUDGET = {
     "village": (55000, 80, 6, 160, 6), "houses": (45000, 70, 5, 130, 4), "summon": (35000, 45, 6, 70, 4),
     "water": (22000, 35, 4, 50, 0), "exit": (20000, 30, 4, 70, 2), "gate_db": (24000, 32, 6, 30, 3),
     "gates": (100000, 140, 12, 120, 0),
-    "dressing": (55000, 90, 6, 60, 18),
+    "dressing": (55000, 90, 6, 90, 18),
 }
 BASE_MATS = None
 
@@ -61,7 +61,8 @@ def est_meshparts(ob):
     for p in me.polygons:
         per[p.material_index] = per.get(p.material_index, 0) + len(p.vertices) - 2
     n = sum(max(1, math.ceil(t / 18000.0)) for t in per.values())
-    xs = [ob.matrix_world @ v.co for v in me.vertices[:: max(1, len(me.vertices) // 400)]]
+    step = max(1, len(me.vertices) // 400)
+    xs = [ob.matrix_world @ me.vertices[i].co for i in range(0, len(me.vertices), step)]
     if xs:
         sx = max(v.x for v in xs) - min(v.x for v in xs)
         sy = max(v.y for v in xs) - min(v.y for v in xs)
@@ -91,6 +92,7 @@ def main():
     base_mats = set(fm_lib.MATS.keys())
     il_scene.setup(res=res, samples=samples)
     il_core.build()
+    il_blockout.build(skip={zone})            # resto da ilha ANTES (o modulo pode testar contra a geometria dele)
     before = {o.name for o in bpy.data.objects}
     mods = []
     for m in B.ZONE_MODULES[zone]:
@@ -108,7 +110,6 @@ def main():
         else:
             print("STUDIO AVISO: %s.py nao existe (zona em blockout)" % m)
     made = [o for o in bpy.data.objects if o.name not in before]
-    il_blockout.build(skip={zone})
     il_scene.sea()
     il_scene.islets()
     il_scene.cameras()

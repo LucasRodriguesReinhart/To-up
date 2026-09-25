@@ -67,6 +67,7 @@ SPAWN_FALLBACK = True                    # cria SPAWN_Lobby se nao houver marcad
 SAFE_CANDIDATES = None                   # funcao -> [(nome, (x, y), z)] (Blender); None = candidatos do lobby
 EXTRA_LUA = ""                           # bloco Lua acrescentado no fim do montar (antes do print final)
 TITLE = "lobby"
+NET = True                               # False = sem VOID_CATCH/rede de quedas nem Script de servidor (assets avulsos)
 
 # ------------------------------------------------------------------ donos e orcamento (brief fix2)
 OWNERS = [("FORGE_", "forge"), ("NPC_", "forge"), ("PORTAL_", "portals"), ("KONOHA_", "portals"),
@@ -1343,14 +1344,15 @@ def write_lua(data):
     for s in data["safe_points"]:
         A("  {%s,{%s,%s,%s}}," % (lua_str(s["name"]), *s["pos"]))
     A("}")
-    A("do local v = root:FindFirstChild('VOID_CATCH') or Instance.new('Part'); v.Name = 'VOID_CATCH'")
-    A("  v.Anchored = true; v.CanCollide = false; v.CanTouch = true; v.CanQuery = false; v.Transparency = 1; v.CastShadow = false")
-    A("  v.Size = Vector3.new(%s,%s,%s); v.Position = Vector3.new(%s,%s,%s) + ROOT_OFFSET" % (*vc["size"], *vc["pos"]))
-    A("  v:ClearAllChildren()")
-    A("  for _, s in ipairs(SAFE) do local at = Instance.new('Attachment'); at.Name = s[1]; at.Parent = v")
-    A("    at.WorldPosition = Vector3.new(s[2][1], s[2][2], s[2][3]) + ROOT_OFFSET end")
-    A("  v.Parent = root end")
-    A(LUA_SERVER.replace("LOBBY_FORJA_Servidor", SERVER_SCRIPT).replace("'LOBBY_FORJA'", "'%s'" % ROOT_NAME)
+    if NET:
+        A("do local v = root:FindFirstChild('VOID_CATCH') or Instance.new('Part'); v.Name = 'VOID_CATCH'")
+        A("  v.Anchored = true; v.CanCollide = false; v.CanTouch = true; v.CanQuery = false; v.Transparency = 1; v.CastShadow = false")
+        A("  v.Size = Vector3.new(%s,%s,%s); v.Position = Vector3.new(%s,%s,%s) + ROOT_OFFSET" % (*vc["size"], *vc["pos"]))
+        A("  v:ClearAllChildren()")
+        A("  for _, s in ipairs(SAFE) do local at = Instance.new('Attachment'); at.Name = s[1]; at.Parent = v")
+        A("    at.WorldPosition = Vector3.new(s[2][1], s[2][2], s[2][3]) + ROOT_OFFSET end")
+        A("  v.Parent = root end")
+    A((LUA_SERVER if NET else "") .replace("LOBBY_FORJA_Servidor", SERVER_SCRIPT).replace("'LOBBY_FORJA'", "'%s'" % ROOT_NAME)
       .replace("montar_lobby_forja.lua", LUA_FILE))
     A(lua_lighting(data["lighting_lobby"], data["sun_rbx"]))
     if EXTRA_LUA:

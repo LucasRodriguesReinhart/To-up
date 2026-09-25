@@ -127,7 +127,7 @@ def markers(key, F, yaw, area_id=None):
     mk("PURCHASE_UI_ANCHOR_%s" % key, F.p(0, -2.0, OPEN_H + UI_UP), (0, 0, yaw + math.pi), 2.0, "SINGLE_ARROW",
        props={"gate": key, "faces": "approach", "ui": "BillboardGui preco/requisito"})
     mk("GATE_%s_OpenFX" % key, F.p(0, 0, OPEN_H / 2), (0, 0, yaw), 3.0, "SPHERE",
-       c="12_VFX_HELPERS", props={"gate": key, "state": "unlocked", "fx": "abertura"})
+       props={"gate": key, "state": "unlocked", "fx": "abertura"})     # vai no export como marcador
 
 
 def showcase_platform(key, F, length=44.0, width=34.0, z_top=0.0, m="Stone_Paving_Warm", side_m="Stone_Wall_Dark"):

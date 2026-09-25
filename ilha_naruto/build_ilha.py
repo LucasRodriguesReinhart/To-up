@@ -26,7 +26,7 @@ ZONE_MODULES = {
     "exit": ["il_exit"],              # ponte de saida, ilhota, interface (ancora)
     "gate_db": ["il_gate_db"],        # portao de compra Dragon Ball (na ilhota da saida)
     "gates": ["il_gates"],            # galeria dos 4 outros portoes de compra (fora da ilha)
-    "dressing": ["il_veg", "il_props", "il_lights"],
+    "dressing": ["il_props", "il_veg", "il_lights"],
 }
 
 
@@ -41,18 +41,19 @@ def build(blockout=False, skip_zones=(), studio_zone=None):
     fm_lib.make_materials()
     il_scene.setup(res=(1600, 900), samples=24)
     il_core.build()
-    detailed = []
-    for zone, mods in ZONE_MODULES.items():
+    use = {}
+    for zone in ZONE_MODULES:
         if zone in skip_zones:
             continue
-        use = (zone == studio_zone) if studio_zone else (not blockout and zone_ready(zone))
-        if use:
-            for m in mods:
-                t = time.time()
-                importlib.import_module(m).build()
-                print("%s %.1fs" % (m, time.time() - t))
-            detailed.append(zone)
+        use[zone] = (zone == studio_zone) if studio_zone else (not blockout and zone_ready(zone))
+    detailed = [z for z, u in use.items() if u]
+    # blockout das zonas sem detalhe ANTES dos modulos (o dressing testa contra a geometria de todas as zonas)
     il_blockout.build(skip=set(detailed) | set(skip_zones))
+    for zone in detailed:
+        for m in ZONE_MODULES[zone]:
+            t = time.time()
+            importlib.import_module(m).build()
+            print("%s %.1fs" % (m, time.time() - t))
     il_scene.sea()
     il_scene.islets()
     il_scene.clouds()

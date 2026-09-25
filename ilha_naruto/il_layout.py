@@ -97,9 +97,9 @@ EXIT_DEG = 45.0               # rumo da ponte de saida
 EXIT_W = 18.0                 # largura padrao da interface entre ilhas
 EXIT_Z = T1
 EXIT_BRIDGE_LEN = 96.0        # ate a ilhota do portao
-GATE_ISLET_R = 21.0
+GATE_ISLET_R = 23.0
 GATE_DB_OFF = 12.0            # distancia do inicio da ilhota ate o eixo do portao
-ANCHOR_OFF = 30.0             # distancia do inicio da ilhota ate a ISLAND_NEXT_ANCHOR
+ANCHOR_OFF = 40.0             # distancia do inicio da ilhota ate a ISLAND_NEXT_ANCHOR (borda da plataforma, d=136)
 # portao de compra padrao (familia): vao livre e altura (todos iguais)
 PG_OPEN_W = 16.0
 PG_OPEN_H = 18.0
