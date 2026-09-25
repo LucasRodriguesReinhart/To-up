@@ -18,12 +18,13 @@ C = "09_PROPS"
 STREET_LAMPS = [(-9.0, 112.0), (9.0, 112.0), (-14.0, 134.0), (14.0, 134.0), (-30.0, 140.0), (30.0, 140.0),
                 (-44.0, 118.0), (44.0, 118.0), (-72.0, 100.0), (72.0, 100.0), (86.0, 90.0), (-100.0, 12.0),
                 (-40.0, 146.0), (-74.0, 144.0)]
+STREET_LAMPS[11] = (-98.0, 30.0)     # fora da faixa de chegada da escada do summon (y 8..22)
 LAMP_SPOTS = []            # preenchido no build: (nome, x, y, z_da_lanterna) -> il_lights
 
 
 def street_lamp(mb, x, y, z, yaw, rng):
     """poste de madeira com braco e lanterna de papel vermelha (chochin), estilo Konoha"""
-    mb.box((1.0, 1.0, 0.6), (x, y, z + 0.3), (0, 0, yaw), "Stone_Wall_Dark", 0.08)
+    mb.box((1.0, 1.0, 0.6), (x, y, z + 0.3), (0, 0, yaw), "Wood_Dark", 0.0)   # (pedra pequena sumia no fold)
     mb.box((0.55, 0.55, 8.4), (x, y, z + 4.5), (0, 0, yaw), "Wood_Dark", 0.05)
     ax, ay = math.cos(yaw) * 1.5, math.sin(yaw) * 1.5
     mb.beam((x, y, z + 8.3), (x + ax, y + ay, z + 8.3), 0.35, 0.35, "Wood_Dark", 0.03)
@@ -34,7 +35,14 @@ def street_lamp(mb, x, y, z, yaw, rng):
 
 
 def training_yard(mb, cx, cy, z, rng):
-    """campo de treino: 3 postes de treino (tronco com amarras), alvo redondo, suporte de kunais e banco"""
+    """campo de treino ninja (o icone do Naruto): piso de terra batida 14 x 10 com cerca baixa, 3 postes de treino de
+    tronco com amarras e um suporte de kunais. Sem alvos redondos (liam como enfeite solto)."""
+    mb.box((15.0, 11.0, 0.3), (cx, cy + 1.0, z + 0.12), (0, 0, 0), "Dirt_Pit", 0.0)
+    for (ax, ay), (bx, by) in (((-7.5, -4.5), (7.5, -4.5)), ((-7.5, 6.5), (7.5, 6.5)), ((-7.5, -4.5), (-7.5, 0.0)),
+                               ((7.5, -4.5), (7.5, 0.0)), ((-7.5, 3.0), (-7.5, 6.5)), ((7.5, 3.0), (7.5, 6.5))):
+        mb.beam((cx + ax, cy + ay, z + 1.0), (cx + bx, cy + by, z + 1.0), 0.3, 0.3, "Wood_Plank", 0.0)
+        for (px, py) in ((ax, ay), (bx, by)):
+            mb.box((0.45, 0.45, 1.3), (cx + px, cy + py, z + 0.65), (0, 0, 0), "Wood_Dark", 0.0)
     for k, (dx, dy) in enumerate(((-6.0, 3.0), (0.0, 5.0), (6.0, 3.0))):
         x, y = cx + dx, cy + dy
         mb.cyl(0.75, 5.4, (x, y, z + 2.7), (0, 0, 0), "Wood_Plank", 8, bevel=0.0)
@@ -42,14 +50,6 @@ def training_yard(mb, cx, cy, z, rng):
             mb.cyl(0.82, 0.45, (x, y, z + hz), (0, 0, 0), "Rope", 8, bevel=0.0)
         mb.box((2.6, 0.35, 0.35), (x, y, z + 4.2), (0, 0, rng.uniform(-0.2, 0.2)), "Wood_Dark", 0.03)
         col_box("PropTraining", (1.6, 1.6, 5.4), (x, y, z + 2.7))
-    # alvo de treino (disco com aneis) em cavalete
-    tx, ty = cx, cy - 5.0
-    for sx in (-1, 1):
-        mb.beam((tx + sx * 1.2, ty + 0.8, z), (tx + sx * 0.6, ty, z + 4.6), 0.3, 0.3, "Wood_Dark", 0.02)
-    mb.cyl(2.0, 0.4, (tx, ty - 0.1, z + 4.2), (math.pi / 2, 0, 0), "Cloth_Canvas", 16, bevel=0.0)
-    mb.cyl(1.35, 0.45, (tx, ty - 0.12, z + 4.2), (math.pi / 2, 0, 0), "Cloth_Red", 16, bevel=0.0)
-    mb.cyl(0.6, 0.5, (tx, ty - 0.14, z + 4.2), (math.pi / 2, 0, 0), "Cloth_Canvas", 12, bevel=0.0)
-    col_box("PropTraining", (3.0, 1.4, 6.0), (tx, ty, z + 3.0))
     # suporte de kunais e banco
     rx, ry = cx + 9.5, cy - 2.0
     mb.box((0.4, 3.2, 3.0), (rx, ry, z + 1.5), (0, 0, 0), "Wood_Dark", 0.03)
@@ -57,7 +57,8 @@ def training_yard(mb, cx, cy, z, rng):
         yy = ry - 1.1 + k * 0.75
         mb.beam((rx - 0.5, yy, z + 2.4), (rx + 0.5, yy, z + 1.4), 0.12, 0.3, "Metal_Iron", 0.0)
     col_box("PropTraining", (1.2, 3.4, 3.0), (rx, ry, z + 1.5))
-    PR.bench_log(mb, Vector((cx - 9.5, cy - 3.0, z)), math.pi / 2, 3.6)
+    col_box("PropTraining", (15.0, 0.6, 1.8), (cx, cy - 4.5, z + 0.9))
+    col_box("PropTraining", (15.0, 0.6, 1.8), (cx, cy + 6.5, z + 0.9))
 
 
 def build():

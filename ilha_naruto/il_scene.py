@@ -27,6 +27,13 @@ def setup(res=(1600, 900), samples=32):
     except Exception:
         pass
     vs.exposure = 0.0
+    ng = bpy.data.node_groups.get("CMP_Lobby")
+    if ng:
+        for nd in ng.nodes:
+            if nd.bl_idname == "CompositorNodeGlare":
+                for nm, val in (("Threshold", 0.85), ("Strength", 0.45), ("Size", 0.65)):
+                    if nm in nd.inputs:
+                        nd.inputs[nm].default_value = val
 
 
 ENERGY = ("DB_Energy_Glow", "P_Shadow_Glow", "P_DS_Glow", "P_OP_Glow", "P_Gold_Glow", "P_OPM_Glow", "P_DB_Glow")
@@ -65,27 +72,46 @@ def sea():
 def islets(detail="blockout"):
     """ilhotas flutuantes em volta (fora do alcance do jogador): rocha em cone invertido + gramado + arvores"""
     rng = random.Random(909)
-    spots = [(-330.0, 120.0, 40.0, 26.0), (-300.0, -170.0, -10.0, 20.0), (-420.0, -20.0, 80.0, 16.0),
-             (330.0, -150.0, 20.0, 24.0), (390.0, 60.0, 70.0, 18.0), (250.0, 330.0, 50.0, 22.0),
-             (-210.0, 360.0, 90.0, 16.0), (80.0, -380.0, -30.0, 18.0), (-120.0, -390.0, 60.0, 14.0)]
+    # rodada 2: todas a >= 420 do centro, fora do lobby (y local >= -180 ou |x| >= 360) e fora de uma faixa de 80 ao
+    # longo do eixo da saida (45 graus a partir de (96,96)); rocha empilhada irregular, nao cone de festa
+    spots = [(-430.0, 130.0, 40.0, 24.0), (380.0, -230.0, -10.0, 20.0), (-470.0, -40.0, 60.0, 16.0),
+             (420.0, -120.0, 20.0, 22.0), (460.0, 60.0, 50.0, 18.0), (-300.0, 330.0, 50.0, 22.0),
+             (-120.0, 440.0, 70.0, 16.0), (-390.0, -220.0, -30.0, 18.0), (60.0, 470.0, 30.0, 14.0)]
     mb = MB("SKY_Islets", "02_TERRAIN", rng, detail="far", floor=-999)
+    import fm_veg_kit as VK
     for x, y, z, r in spots:
-        mb.cyl(r, r * 1.6, (x, y, z - r * 0.8), (0, 0, rng.uniform(0, 1)), "Cliff_Rock_Tan", 7, r2=r * 0.15,
-               bevel=0.0)
-        mb.cyl(r * 1.02, 1.2, (x, y, z + 0.1), (0, 0, 0), "Grass_Konoha", 7, bevel=0.0)
-        for k in range(rng.randint(1, 3)):
+        # corpo: 4 rochas empilhadas afinando para baixo (pendente irregular)
+        for k, (f, dz) in enumerate(((1.0, -0.35), (0.78, -0.95), (0.52, -1.5), (0.28, -2.0))):
+            ox, oy = rng.uniform(-0.12, 0.12) * r, rng.uniform(-0.12, 0.12) * r
+            mb.rock((x + ox, y + oy, z + dz * r), (2 * r * f, 2 * r * f * rng.uniform(0.8, 1.0), r * 0.9),
+                    "Cliff_Rock_Tan" if k % 2 == 0 else "Cliff_Rock_Tan_Dark", 1, jitter=0.35, flat_bottom=False)
+        pts = [(x + r * rng.uniform(0.85, 1.05) * math.cos(a), y + r * rng.uniform(0.85, 1.05) * math.sin(a))
+               for a in [2 * math.pi * i / 9 for i in range(9)]]
+        mb.prism(pts, z - 0.6, z + 0.4, "Grass_Konoha")
+        for k in range(rng.randint(2, 4)):
             a = rng.uniform(0, 6.28)
-            rr = rng.uniform(0, r * 0.5)
-            h = rng.uniform(7, 12)
-            tx, ty = x + rr * math.cos(a), y + rr * math.sin(a)
-            mb.cyl(0.8, h * 0.5, (tx, ty, z + h * 0.25), (0, 0, 0), "Bark", 5, bevel=0.0)
-            mb.ico(h * 0.35, (tx, ty, z + h * 0.62), "Leaf_Pine_Light", 1, (1, 1, 0.85))
+            rr = rng.uniform(0, r * 0.55)
+            VK.broadleaf(mb, (x + rr * math.cos(a), y + rr * math.sin(a), z + 0.4), rng.uniform(8, 13), rng, lod=2,
+                         clear=3.0)
     mb.finish()
 
 
 def clouds():
     rng = random.Random(1212)
     mb = MB("SKY_Clouds", "02_TERRAIN", rng, detail="far", floor=-999)
+    # saia de nuvens abracando o pe dos penhascos (as refs 14/15/16/18): r 170-230, z -70..-40, mais densa sob as pontes
+    for i in range(16):
+        a = math.radians(i * 22.5 + rng.uniform(-8, 8))
+        r = rng.uniform(175.0, 225.0)
+        cx, cy = math.cos(a) * r, math.sin(a) * r + 20.0
+        for k in range(rng.randint(4, 6)):
+            rr = rng.uniform(14.0, 26.0)
+            mb.ico(rr, (cx + rng.uniform(-22, 22), cy + rng.uniform(-22, 22), rng.uniform(-70.0, -42.0)), "Cloud", 2,
+                   (1.25, 1.0, 0.55), jitter=0.12)
+    for bx, by in ((0.0, -160.0), (0.0, -190.0), L.exit_point(70.0), L.exit_point(100.0)):
+        for k in range(3):
+            mb.ico(rng.uniform(16.0, 24.0), (bx + rng.uniform(-18, 18), by + rng.uniform(-18, 18), rng.uniform(-58, -38)),
+                   "Cloud", 2, (1.3, 1.0, 0.5), jitter=0.12)
     for i in range(22):
         a = math.radians(rng.uniform(0, 360))
         r = rng.uniform(330, 700)

@@ -60,12 +60,12 @@ GROUPS = [
     ("T2", 80.0, 138.0, 4.0, 1, ("broad",), "M"),
     ("T2", -80.0, 136.0, 4.0, 1, ("broad",), "M"),
     # plato do paredao: pinheiros-guarda-chuva quebrando a linha do topo
-    ("Plato", -96.0, 190.0, 4.0, 2, ("umbrella", "fir"), "L"),
-    ("Plato", -56.0, 197.0, 4.0, 2, ("fir", "umbrella"), "M"),
-    ("Plato", -20.0, 199.0, 3.0, 1, ("umbrella",), "L"),
-    ("Plato", 20.0, 199.0, 4.0, 2, ("umbrella",), "M"),
-    ("Plato", 56.0, 196.0, 4.0, 2, ("fir", "umbrella"), "L"),
-    ("Plato", 96.0, 186.0, 3.0, 2, ("umbrella", "fir"), "M"),
+    ("Plato", -96.0, 190.0, 4.0, 2, ("broad", "fir"), "L"),
+    ("Plato", -56.0, 197.0, 4.0, 2, ("broad", "broad"), "M"),
+    ("Plato", -20.0, 199.0, 3.0, 1, ("broad",), "L"),
+    ("Plato", 20.0, 199.0, 4.0, 2, ("broad",), "M"),
+    ("Plato", 56.0, 196.0, 4.0, 2, ("broad", "broad"), "L"),
+    ("Plato", 96.0, 186.0, 3.0, 2, ("broad", "fir"), "M"),
 ]
 SIZES = {"S": (9.0, 11.0), "M": (12.0, 15.0), "L": (16.0, 21.0)}
 BUSHES = [  # (x, y, n, raio) - pes de escada, cantos de casa, borda do muro do anel ao sul
@@ -140,6 +140,12 @@ def _near_route(x, y, clear=4.0):
     if _ROUTES is None:
         import il_qa
         _ROUTES = [pts for pts, z0 in il_qa.routes().values()]
+        _ROUTES += [pts for pts, z0 in il_qa.interior_routes().values()]
+        try:
+            mr, _ = il_qa.module_routes()
+            _ROUTES += [pts for pts, z0 in mr.values()]
+        except Exception as e:
+            print("VEG aviso: rotas dos modulos indisponiveis (%s)" % e)
     for pts in _ROUTES:
         for (ax, ay), (bx, by) in zip(pts, pts[1:]):
             dx, dy = bx - ax, by - ay
@@ -204,56 +210,85 @@ def build():
             mbs[group] = MB("VEG_%s" % group, C, random.Random(zlib.crc32(group.encode()) & 0xffff), detail="near")
         return mbs[group]
 
+    def plant(group, x, y, kind, size, h=None):
+        """testa e planta 1 arvore; devolve True se plantou"""
+        h = h or rng.uniform(*SIZES[size])
+        if group in ("Entrada", "SO", "SE", "Leste") or group.startswith("Borda"):
+            if kind in ("fir", "young", "spruce") and rng.random() > 0.3:
+                kind = "broad"                     # pinheiro-cone no maximo ~1 em 5 no primeiro plano
+        crown = h * (0.42 if kind in ("broad", "sakura") else 0.34)
+        if not IL_point_in_rim(x, y, 3.0):
+            WHY[group + ":borda"] = WHY.get(group + ":borda", 0) + 1
+            return False
+        if not _free_axes(x, y) or _near_route(x, y, 4.0):
+            WHY[group + ":livre"] = WHY.get(group + ":livre", 0) + 1
+            return False
+        if any(math.hypot(x - px, y - py) < (crown + pr) * 0.6 for px, py, pr in placed):
+            WHY[group + ":espaco"] = WHY.get(group + ":espaco", 0) + 1
+            return False
+        z = _ground_z(gb, x, y)
+        if z is None or z < L.G - 1.0 and group not in ("Plato",):
+            WHY[group + ":chao"] = WHY.get(group + ":chao", 0) + 1
+            return False
+        if ob is not None:
+            hit = ob.find_nearest(Vector((x, y, z + h * 0.62)), crown * 0.8)
+            hit2 = ob.find_nearest(Vector((x, y, z + 2.0)), 2.2)
+            if hit[0] is not None or hit2[0] is not None:
+                WHY[group + ":obst"] = WHY.get(group + ":obst", 0) + 1
+                return False
+        mb = mbfor(group)
+        lod = 0 if group in ("Entrada", "T1_N", "T2", "Summon") or group.startswith("Borda") else 1
+        walkable = group not in ("Plato",)
+        clear = 6.0 if walkable else None
+        if kind == "broad":
+            VK.broadleaf(mb, (x, y, z), h, rng, lod=lod, clear=clear if clear else 4.0)
+        elif kind == "sakura":
+            VK.sakura_tree(mb, (x, y, z), h, rng, lod=lod, clear=clear if clear else 4.0)
+        elif kind == "umbrella":
+            VK.umbrella_pine(mb, (x, y, z), h, rng, lod=lod)
+        else:
+            VK.pine(mb, (x, y, z), h, rng, lod=lod, form=kind if kind in ("fir", "young", "spruce") else "fir",
+                    clear=clear)
+        if walkable:
+            col_box("VegTrunk", (1.6, 1.6, 7.0), (x, y, z + 3.5))
+        placed.append((x, y, crown))
+        return True
+
     for group, gx, gy, gr, n, kinds, size in GROUPS:
         for k in range(n):
             ok = False
             for t in range(30):
                 a = rng.uniform(0, math.tau)
                 d = gr * math.sqrt(rng.random()) if n > 1 else rng.uniform(0, gr * 0.4)
-                x, y = gx + math.cos(a) * d, gy + math.sin(a) * d
-                h = rng.uniform(*SIZES[size])
-                kind = kinds[k % len(kinds)]
-                crown = h * (0.42 if kind in ("broad", "sakura") else 0.34)
-                if not IL_point_in_rim(x, y, 3.0):
-                    WHY[group + ":borda"] = WHY.get(group + ":borda", 0) + 1
-                    continue
-                if not _free_axes(x, y) or _near_route(x, y, 4.0):
-                    WHY[group + ":livre"] = WHY.get(group + ":livre", 0) + 1
-                    continue
-                if any(math.hypot(x - px, y - py) < (crown + pr) * 0.6 for px, py, pr in placed):
-                    WHY[group + ":espaco"] = WHY.get(group + ":espaco", 0) + 1
-                    continue
-                z = _ground_z(gb, x, y)
-                if z is None or z < L.G - 1.0 and group not in ("Plato",):
-                    WHY[group + ":chao"] = WHY.get(group + ":chao", 0) + 1
-                    continue
-                if ob is not None:
-                    hit = ob.find_nearest(Vector((x, y, z + h * 0.62)), crown * 0.8)
-                    hit2 = ob.find_nearest(Vector((x, y, z + 2.0)), 2.2)
-                    if hit[0] is not None or hit2[0] is not None:
-                        WHY[group + ":obst"] = WHY.get(group + ":obst", 0) + 1
-                        continue
-                mb = mbfor(group)
-                lod = 0 if group in ("Entrada", "T1_N", "T2", "Summon") else 1
-                walkable = group not in ("Plato",)
-                clear = 6.0 if walkable else None
-                if kind == "broad":
-                    VK.broadleaf(mb, (x, y, z), h, rng, lod=lod, clear=clear if clear else 4.0)
-                elif kind == "sakura":
-                    VK.sakura_tree(mb, (x, y, z), h, rng, lod=lod, clear=clear if clear else 4.0)
-                elif kind == "umbrella":
-                    VK.umbrella_pine(mb, (x, y, z), h, rng, lod=lod)
-                else:
-                    VK.pine(mb, (x, y, z), h, rng, lod=lod, form=kind if kind in ("fir", "young", "spruce") else "fir",
-                            clear=clear)
-                if walkable:
-                    col_box("VegTrunk", (1.6, 1.6, 7.0), (x, y, z + 3.5))
-                placed.append((x, y, crown))
+                if plant(group, gx + math.cos(a) * d, gy + math.sin(a) * d, kinds[k % len(kinds)], size):
+                    ok = True
+                    break
+            if ok:
                 stats["ok"] += 1
-                ok = True
-                break
-            if not ok:
+            else:
                 stats["fora"] += 1
+    # CINTURAO DE BORDA: 1 folhosa M a cada ~16 studs ao longo do contorno (recuo 5-8), a massa verde que contorna as
+    # bordas nas referencias; pula as pontes, a frente do portao e o paredao (o plato tem grupo proprio)
+    rim = L.ISLAND_RIM
+    nr = 0
+    for i in range(len(rim)):
+        (ax, ay), (bx, by) = rim[i], rim[(i + 1) % len(rim)]
+        seg = math.hypot(bx - ax, by - ay)
+        nx, ny = -(by - ay) / seg, (bx - ax) / seg          # normal para DENTRO (contorno anti-horario)
+        k = int(seg / 16.0)
+        for j in range(k + 1):
+            t = (j + 0.5 + rng.uniform(-0.25, 0.25)) / (k + 1)
+            px, py = ax + (bx - ax) * t, ay + (by - ay) * t
+            if py > L.BACK_CLIFF_Y - 4.0 or (abs(px) < 34.0 and py < -100.0):
+                continue
+            ins = rng.uniform(5.0, 8.5)
+            sector = "Borda_S" if py < -40 else ("Borda_L" if px > 0 else "Borda_O")
+            for tt in range(4):
+                if plant(sector, px + nx * ins + rng.uniform(-1.5, 1.5), py + ny * ins + rng.uniform(-1.5, 1.5),
+                         "broad" if rng.random() > 0.15 else "young", "M"):
+                    nr += 1
+                    break
+    stats["ok"] += nr
     # arbustos
     bm = MB("VEG_Bushes", C, random.Random(SEED + 1), detail="near")
     nb = 0
@@ -295,7 +330,10 @@ def build():
         z = _ground_z(gb, cx, cy)
         if z is None or z > L.G - 3.0:
             continue
-        VK.pine(sh, (cx, cy, z), rng.uniform(9.0, 13.0), rng, lod=2, form="young")
+        if ns % 3 == 2:
+            VK.bush(sh, (cx, cy, z), rng.uniform(2.2, 3.0), rng, lod=2)
+        else:
+            VK.broadleaf(sh, (cx, cy, z), rng.uniform(8.0, 11.0), rng, lod=2, clear=3.0)
         ns += 1
     sh.finish()
     for mb in mbs.values():
