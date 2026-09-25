@@ -73,7 +73,7 @@ BLUE_W = (-58.0, 154.0, 14.0)         # loja de armas ninja (entravel, porta ao 
 BLUE_E = (58.0, 154.0, 14.0)          # prédio redondo sem porta (torre de agua / deposito)
 RAMEN = (-38.0, 107.0, 18.0, 12.0, 0.0)   # x, y, largura, fundo, yaw (frente para o sul = anel)
 HOUSES_T1 = [(38.0, 107.0, 16.0, 12.0, 0.0, "Roof_Green"), (-84.0, 110.0, 16.0, 13.0, 0.0, "Roof_Terracotta"),
-             (84.0, 108.0, 16.0, 13.0, 0.0, "Roof_Terracotta"), (-112.0, 84.0, 14.0, 12.0, 0.0, "Roof_Blue")]
+             (84.0, 108.0, 16.0, 13.0, 0.0, "Roof_Terracotta"), (-112.0, 84.0, 14.0, 12.0, 0.0, "Roof_Terracotta")]
 HOUSES_T2 = [(-98.0, 160.0, 16.0, 14.0, 0.0, "Roof_Terracotta"), (96.5, 149.5, 13.5, 12.0, 0.0, "Roof_Green"),
              (-126.0, 136.0, 13.0, 12.0, 0.0, "Roof_Green")]
 BACK_CLIFF_Y = 186.0      # pe do paredao (T2) -> topo em CLIFF_TOP

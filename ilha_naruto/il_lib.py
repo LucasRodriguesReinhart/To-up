@@ -40,8 +40,8 @@ KMATS = {
     "Plaster_Cream":     (S(232, 212, 172), 0.9, 0.0, 0, None, 0.08),
     "Wood_Lacquer_Red":  (S(168, 42, 32), 0.55, 0.0, 0, None, 0.08),
     "Metal_Gold":        (S(222, 170, 70), 0.3, 0.9, 0, None, 0.05),
-    "Summon_Stone":      (S(92, 94, 122), 0.8, 0.0, 0, None, 0.12),
-    "Summon_Stone_Dark": (S(64, 64, 88), 0.8, 0.0, 0, None, 0.10),
+    "Summon_Stone":      (S(112, 112, 150), 0.8, 0.0, 0, None, 0.12),     # rodada 2: mais clara (lia azul-marinho)
+    "Summon_Stone_Dark": (S(80, 80, 110), 0.8, 0.0, 0, None, 0.10),
     "Summon_Floor":      (S(150, 112, 188), 0.7, 0.0, 0, None, 0.06),
     "Cloth_Royal_Blue":  (S(44, 62, 170), 0.9, 0.0, 0, None, 0.06),
     "Summon_Star_Glow":  (S(255, 186, 60), 0.3, 0.0, 3.0, S(255, 176, 50), 0.0),
