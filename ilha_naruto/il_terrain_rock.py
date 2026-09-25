@@ -501,7 +501,7 @@ def upper_cliffs(rng):
             if not _fits(cc, t, a, b, top - 0.2):
                 top = min(top, L.G - LID_EPS)
             if _bed_hit(cc, t, a, b):
-                top, lid = min(top, L.STREAM_BED - 0.2), False   # (integracao) coluna que invade o leito do riacho
+                top, lid = min(top, L.STREAM_WATER + 0.8), False  # (integracao) coluna no leito: vira margem de pedra nua
             if _hits_box(cc, t, a, b, pod):
                 s += w * 0.85                                    # o embasamento da casa leste e a face ali
                 continue

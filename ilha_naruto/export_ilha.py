@@ -144,7 +144,7 @@ ER.FOLD_PROTECT = ER.FOLD_PROTECT + ("Summon_", "DB_Energy", "Metal_Gold", "Ener
 def atomic(name):
     """Model Atomic por construcao/marco (streaming sem pecas pela metade)"""
     for pre in ("VIL_MainHall", "VIL_WeaponShop", "VIL_WaterTower", "VIL_Ramen", "VIL_Mill", "SUM_Tower", "ENT_Gate",
-                "GATE_DB"):
+                "GATE_DB", "EXIT_AnchorGuard"):
         if name.startswith(pre):
             return pre
     m = re.match(r"^(VIL_House_[A-Za-z0-9]+_\d+)", name)
