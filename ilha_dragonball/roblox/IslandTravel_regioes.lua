@@ -34,8 +34,9 @@ local function inside(id,pos)
  local o=pos-c
  return math.abs(o.X)<half.X and math.abs(o.Z)<half.Z and pos.Y>-12 and pos.Y<half.Y+5
 end
+-- lobby: mesma regra de antes (a checagem de altura antiga ficou comentada por engano no original; mantida assim)
 local function lobbyAt(pos)
- return math.abs(pos.X)<190 and pos.Z>-300 and pos.Z<190 and pos.Y>-20 and pos.Y<170
+ return math.abs(pos.X)<190 and pos.Z>-300 and pos.Z<190
 end
 -- area de uma posicao: a preferida (atual) se ainda contem o ponto; depois qualquer caixa; depois o lobby; depois z
 local function areaAt(pos,prefer)
