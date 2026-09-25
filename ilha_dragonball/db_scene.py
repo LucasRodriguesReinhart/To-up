@@ -139,7 +139,7 @@ def scale_reference(visible=True):
     ux, uy = L.exit_dir()
     spots = [("SCALE_Dummy_Entry", 3.0, -92.0, G), ("SCALE_Dummy_Prom", 4.0, -64.0, G),
              ("SCALE_Dummy_Arena", 8.0, -30.0, A), ("SCALE_Dummy_Summon", -112.0, -4.0, S_ + 0.1),
-             ("SCALE_Dummy_Capsule", 4.0, 128.0, H), ("SCALE_Dummy_CapsuleDoor", 3.0, 133.0, C),
+             ("SCALE_Dummy_Capsule", 16.0, 116.0, H), ("SCALE_Dummy_CapsuleDoor", 3.0, 133.0, C),
              ("SCALE_Dummy_Hub", -40.0, 90.0, H),
              ("SCALE_Dummy_SGGate", gp[0] - ux * 9.0 - uy * 4.0, gp[1] - uy * 9.0 + ux * 4.0, L.EXIT_Z)]
     for n, x, y, z in spots:
