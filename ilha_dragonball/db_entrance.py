@@ -20,6 +20,7 @@ import db_layout as L
 import db_col
 import fm_parts as FP
 import fm_portal_kit as PK
+import db_veg_kit as VG
 from il_village_kit import VMB, lathe
 
 C = "02_TERRAIN"
@@ -65,6 +66,10 @@ CAMS = {
     "CAM_DBEnt_SideE": ((72.0, -110.0, 46.0), (0.0, -128.0, 16.0), 24),
     # tras do portal: o medalhao visto da praca (o "C" tem que ler certo dos dois lados)
     "CAM_DBEnt_GateBack": ((4.0, -76.0, G + 7.0), (0.0, -104.0, G + 17.0), 22),
+    # altura do jogador na praca: o portal com as duas palmeiras das floreiras (a primeira coisa depois do spawn)
+    "CAM_DBEnt_PlayerPalms": ((0.0, -70.0, G + 5.2), (0.0, -104.0, G + 7.5), 20),
+    # perto de uma palmeira da floreira (tronco curvo, pe alargado, coroa de 2 andares)
+    "CAM_DBEnt_PlayerPalm": ((6.0, -84.0, G + 5.2), (17.0, -98.0, G + 6.5), 22),
 }
 
 
@@ -655,13 +660,18 @@ def plaza_props(mb, rng):
               "Plaster_DB_White", n=24)
         lathe(mb, (x, y, G + 0.5), [(2.5, 0.35), (2.62, 0.35), (2.62, 0.75), (2.5, 0.75)], "Roof_DB_Blue", n=24)
         mb.cyl(2.0, 0.3, (x, y, G + 0.5 + 1.0), (0, 0, 0), "Grass_DB", 20, bevel=0.0)
-        FP.palm(mb, (x, y, G + 1.1), rng.uniform(11.5, 13.0), rng, lean=0.16)
+        # palmeira do kit da ilha (tronco curvo afunilado de 5 lados, pe alargado, coroa de 2 andares), a mesma
+        # familia das palmeiras do resto da ilha; inclina para fora do eixo (emoldura o portal, copa longe do pilar)
+        lean_dir = math.atan2(0.3, 1.0) if x > 0 else math.pi - math.atan2(0.3, 1.0)
+        VG.palm(mb, x, y, G + 1.1, rng.uniform(11.5, 13.0), rng, lean=0.16, lean_dir=lean_dir)
         for k in range(3):
             a = rng.uniform(0, 6.28)
             mb.ico(0.75, (x + 1.25 * math.cos(a), y + 1.25 * math.sin(a), G + 1.75), "Leaf_Palm", 1, (1, 1, 0.75),
                    jitter=0.2)
         col_box("DB_EntPlanter", (4.8, 4.8, 1.8), (x, y, G + 0.9))
-        col_box("DB_EntPlanter", (1.3, 1.3, 9.0), (x, y, G + 5.5))
+        # tronco: a caixa acompanha a inclinacao (o tronco curvo sai ~0,5 para fora na altura da cabeca)
+        col_box("DB_EntPlanter", (1.5, 1.5, 9.0), (x + 0.35 * math.cos(lean_dir), y + 0.35 * math.sin(lean_dir),
+                                                   G + 5.5))
     for x, y in FLOWER_PLANTERS:
         lathe(mb, (x, y, G - 0.05), [(1.4, 0.0), (2.0, 0.0), (2.1, 0.8), (1.98, 1.1), (1.4, 1.1)], "Plaster_DB_White",
               n=20)
