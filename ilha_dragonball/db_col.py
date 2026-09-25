@@ -323,6 +323,17 @@ def octo(area, x, y, r, z0, z1):
     ngon_col(area, x, y, 8, r, z0, z1)
 
 
+# (cx, cy, R circunscrito, z0, z1, giro) - medidos contra o visual do db_mining (auditoria por raios do agente da zona)
+ARENA_ROCK_COLS = [(-44.0, 30.0, 5.88, 19.2, 26.25, 0.0), (-45.41, 29.49, 3.6, 26.25, 31.2, 22.5),
+                   (-50.0, -18.0, 4.9, 19.2, 25.0, 0.0), (-48.98, -17.28, 3.0, 25.0, 28.2, 22.5),
+                   (38.0, 38.0, 5.39, 19.2, 26.7, 0.0), (37.47, 36.55, 3.025, 26.7, 33.2, 22.5),
+                   (52.0, -26.0, 5.88, 19.2, 25.42, 0.0), (51.49, -24.59, 3.6, 25.42, 29.2, 22.5),
+                   (-18.0, 44.0, 3.92, 19.2, 24.54, 0.0), (-17.56, 43.24, 2.48, 24.54, 27.2, 22.5),
+                   (22.0, -44.0, 4.41, 19.2, 24.4, 0.0), (20.94, -43.62, 2.7, 24.4, 27.7, 22.5),
+                   (-30.0, -42.0, 3.92, 19.2, 23.8, 0.0), (-29.77, -41.15, 2.48, 23.8, 26.2, 22.5)]
+POD_COLS = [(4.7, 19.2, 23.6), (4.45, 23.6, 25.0), (3.5, 25.0, 26.1), (2.0, 26.1, 27.1)]
+
+
 def rocks():
     for x, y, r, top, kind in L.MESAS:
         # so a parte que pode encostar em quem anda (do nivel mais baixo ao redor ate 14 acima): o resto e visual
@@ -331,13 +342,17 @@ def rocks():
             continue
         z0 = min(L.zone_of(x + r * math.cos(t), y + r * math.sin(t)) for t in (0, 1.57, 3.14, 4.71)) - 2.0
         octo("DB_Mesa", x, y, r * 0.95, z0, max(z0 + 16.0, min(top, z0 + 40.0)))
-    for x, y, r, h in L.ARENA_ROCKS:
-        octo("DB_ArenaRock", x, y, r * 0.98, L.ARENA - 1.0, L.ARENA + h)     # dentro do raio da planta (a base visual vai a ~r)
+    # rochas da arena: 2 andares como o visual do db_mining.mesa_tiers (base larga ate a saliencia + torre mais estreita,
+    # deslocada e girada 22,5 graus); uma coluna cheia ate o topo deixava 2,3-4,0 de parede invisivel em volta da torre
+    for cx, cy, R, z0, z1, rot in ARENA_ROCK_COLS:
+        ngon_col("DB_ArenaRock", cx, cy, 8, R, z0, z1, rot0=rot)
     for x, y, r, h in L.PLATEAU_ROCKS:
         z = L.zone_of(x, y)
         octo("DB_PlateauRock", x, y, r * 0.95, z - 1.0, z + h)
+    # pod central: 4 andares seguindo tambor e cupula (db_mining.POD_COL; colisao alem do pod <= 0,42 em toda altura)
     x, y, r = L.CORE_POD
-    octo("DB_ArenaRock", x, y, r + 0.1, L.ARENA - 1.0, L.ARENA + 7.0)     # tambor r 4,5 + cupula ate ~A+6,9
+    for R, z0, z1 in POD_COLS:
+        ngon_col("DB_ArenaRock", x, y, 8, R, z0, z1)
 
 
 # ------------------------------------------------------------------ chao
