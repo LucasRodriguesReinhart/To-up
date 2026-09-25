@@ -159,7 +159,7 @@ PLATEAU_ROCKS = [(-120.0, -42.0, 7.0, 11.0), (-136.0, 28.0, 6.0, 13.0), (108.0, 
                  (-146.0, -64.0, 5.0, 9.0), (84.0, -116.0, 5.0, 8.0)]
 # canteiros verdes (o chao geral e areia/terra; verde so perto da agua, da entrada e da vila) - (x, y, raio)
 GARDENS = [(-82.0, -88.0, 16.0), (80.0, -84.0, 14.0), (-30.0, -96.0, 9.0), (30.0, -96.0, 9.0), (-104.0, 40.0, 13.0),
-           (100.0, 18.0, 11.0), (-108.0, 96.0, 16.0), (-150.0, 40.0, 10.0), (142.0, -52.0, 8.0)]
+           (100.0, 18.0, 11.0), (-108.0, 102.0, 16.0), (-150.0, 40.0, 10.0), (142.0, -52.0, 8.0)]
 # caminhos pavimentados radiais no chao GROUND (a "flor" da vista superior): (pontos, largura)
 GROUND_PATHS = [
     ([(-52.0, -64.0), (-92.0, -70.0), (-124.0, -78.0)], 6.0),          # promenade -> satelite SW (poco SW no caminho)
@@ -190,7 +190,7 @@ POOL_SW = (-82.0, -88.0, 8.0)            # poco no jardim SW -> canal -> queda p
 FALL_SW = (-94.0, -113.0)
 POOL_SE = (80.0, -84.0, 7.0)
 FALL_SE = (88.0, -102.0)
-POOL_NW = (-108.0, 96.0, 10.0)           # poco na vila (HUB) com cascata que desce da mesa NW
+POOL_NW = (-108.0, 104.0, 10.0)          # poco na vila (HUB, >= 2 da borda do terraco) com cascata que desce da mesa NW
 CASCADE_NW_TOP = (-132.0, 110.0, 70.0)
 WATER_DROP = 0.8                         # lamina d'agua abaixo do piso do terraco onde esta
 
