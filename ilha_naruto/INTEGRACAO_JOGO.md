@@ -140,13 +140,10 @@ Enquanto isso, um disco `ViagemProximaArea` (NextAreaId=2) na ponta leva à entr
 
 Output sem erros nem warnings em todas as sessões.
 
-## Pendente: reimportar 5 FBX (precisa da tela)
-O 3D Importer só funciona pela interface, e o Windows estava com a tela bloqueada. Então a ilha foi montada reaproveitando as malhas já enviadas (203d27):
-- **434 das 470 malhas são idênticas.**
-- **31 malhas ainda estão com a geometria antiga e 5 faltam.** A diferença está na silhueta do paredão, no marco de pedra, em 3 folhagens do platô, na espuma e no moinho.
-- O `MINE_Props__Crystal_Blue` antigo espalhava cristais pelo fosso e **ficou de fora** (em `ServerStorage.ILHA_NARUTO_pendente_reimport`).
-
-Para fechar:
-1. Import Queue: importe os 10 `export/ILHA1_*_1c2e64.fbx` para `workspace.ILHA_NARUTO`.
-2. Rode `export/montar_ilha_naruto.lua`.
-3. Rode [roblox/pos_montagem_integracao.lua](roblox/pos_montagem_integracao.lua). Ele reaplica luzes e ajustes e troca a fonte em ServerStorage, guardando a anterior.
+## Reimportação concluída (2026-09-25, tarde)
+Os 10 `ILHA1_*_1c2e64.fbx` foram reimportados com o 3D Importer. O computer-use continuava bloqueado; a importação foi
+automatizada sem foco (ver `ilha_dragonball/tools/`: clique por PostMessage no Import Queue + mensagens Win32 no
+diálogo). Depois vieram o `montar_ilha_naruto.lua` e o `roblox/pos_montagem_integracao.lua`.
+- Resultado: `ServerStorage.IlhaNaruto` com **470/470** MeshParts do export final, 0 faltando, alinhado (escala 1,000).
+- A versão anterior ficou em `ServerStorage.IlhaNaruto_anterior`.
+- Play conferido: a ilha sobe com 470 MeshParts e 70 minérios, e o Output sai limpo.
