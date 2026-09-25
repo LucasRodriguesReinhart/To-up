@@ -1,5 +1,5 @@
--- montar_ilha_naruto.lua  (gerado por export_roblox.py - nao editar a mao)  EXPORT_ID 0e14b431
--- 1) Importe os FBX ILHA1_*_0e14b4.fbx (3D Importer) para dentro de workspace.ILHA_NARUTO. Deixe o importador
+-- montar_ilha_naruto.lua  (gerado por export_roblox.py - nao editar a mao)  EXPORT_ID 1c2e6437
+-- 1) Importe os FBX ILHA1_*_1c2e64.fbx (3D Importer) para dentro de workspace.ILHA_NARUTO. Deixe o importador
 --    subir as TEXTURAS embutidas. ESPERE as texturas processarem (as MeshParts ficam BRANCAS por alguns
 --    minutos) antes de 'corrigir' cor: o branco some sozinho.
 -- 2) Rode este script na Command Bar. Ele:
@@ -14,7 +14,7 @@
 --      chao distante, VOID_CATCH (rede de seguranca de quedas) e, opcional, o Lighting do lobby.
 -- Recomendado no Workspace: StreamingEnabled = true, StreamingTargetRadius = 1024, StreamingMinRadius = 128.
 -- Rodar de novo e seguro (idempotente). Ids de textura encontrados sao impressos: cole em TEX para fixar.
-local EXPORT_ID = '0e14b431'
+local EXPORT_ID = '1c2e6437'
 local ROOT_OFFSET = Vector3.new(0, 0, 0)  -- desloca o ilha INTEIRO (malhas alinhadas + colisoes + marcadores + luzes)
 local ALINHAR = true      -- reposiciona as MeshParts pelos centros exportados (corrige o importador)
 local RICO = false        -- true = texturas de detalhe (SurfaceAppearance Overlay) nas familias pedra/madeira/telha/rocha/grama/reboco/terra
@@ -149,7 +149,7 @@ local function matOf(name)
   return best, s
 end
 -- FBX: indice -> arquivo
-local FBX = {[1]='ILHA1_02_TERRAIN_0e14b4.fbx', [2]='ILHA1_03_MINING_0e14b4.fbx', [3]='ILHA1_04_VILLAGE_0e14b4.fbx', [4]='ILHA1_05_SUMMON_0e14b4.fbx', [5]='ILHA1_06_WATER_0e14b4.fbx', [6]='ILHA1_07_NEXT_ISLAND_0e14b4.fbx', [7]='ILHA1_08_PURCHASE_GATES_0e14b4.fbx', [8]='ILHA1_09_PROPS_0e14b4.fbx', [9]='ILHA1_10_VEGETATION_0e14b4.fbx', [10]='ILHA1_12_VFX_HELPERS_0e14b4.fbx'}
+local FBX = {[1]='ILHA1_02_TERRAIN_1c2e64.fbx', [2]='ILHA1_03_MINING_1c2e64.fbx', [3]='ILHA1_04_VILLAGE_1c2e64.fbx', [4]='ILHA1_05_SUMMON_1c2e64.fbx', [5]='ILHA1_06_WATER_1c2e64.fbx', [6]='ILHA1_07_NEXT_ISLAND_1c2e64.fbx', [7]='ILHA1_08_PURCHASE_GATES_1c2e64.fbx', [8]='ILHA1_09_PROPS_1c2e64.fbx', [9]='ILHA1_10_VEGETATION_1c2e64.fbx', [10]='ILHA1_12_VFX_HELPERS_1c2e64.fbx'}
 -- malhas exportadas: nome = {centro X,Y,Z, tamanho X,Y,Z, FBX, sombra, material, flags, modelo}
 --   flags: o = casca que oclui a camera, k = SKYLINE (persistente, RenderFidelity Performance)
 --   modelo: Model Atomic (streaming sem pecas pela metade)
@@ -166,24 +166,25 @@ local MESH = {
   ['ENT_Bridge__Wood_Dark']={0.0,8.7,262.0,26.45,3.6,68.183,1,true,'Wood_Dark','',''},
   ['ENT_Bridge__Wood_Light']={0.0,8.7,262.0,26.45,3.6,75.8,1,true,'Wood_Light','',''},
   ['SKY_Islets__Bark_Dark']={2.34,23.467,537.618,934.031,107.347,708.259,1,false,'Bark_Dark','k',''},
-  ['SKY_Islets__Cliff_Rock_Tan']={3.831,3.381,536.239,956.554,138.128,726.514,1,false,'Cliff_Rock_Tan','k',''},
-  ['SKY_Islets__Cliff_Rock_Tan_Dark']={6.026,-6.18,537.31,955.426,138.632,726.202,1,false,'Cliff_Rock_Tan_Dark','k',''},
+  ['SKY_Islets__Cliff_Rock_Tan']={5.017,3.604,536.802,957.963,137.002,728.959,1,false,'Cliff_Rock_Tan','k',''},
+  ['SKY_Islets__Cliff_Rock_Tan_Dark']={5.817,-5.958,538.016,952.627,136.567,724.991,1,false,'Cliff_Rock_Tan_Dark','k',''},
   ['SKY_Islets__Grass_Konoha']={3.528,19.9,537.989,963.294,101.0,732.094,1,false,'Grass_Konoha','k',''},
   ['SKY_Islets__Leaf_Broad']={2.337,28.409,537.336,936.878,107.554,712.245,1,false,'Leaf_Broad','k',''},
   ['SKY_Islets__Leaf_Shadow']={2.371,25.947,537.53,936.127,103.052,711.574,1,false,'Leaf_Shadow','k',''},
-  ['TER_Back_Massif__Cliff_Rock_Tan_g15_11']={-26.915,-17.06,613.988,205.418,193.88,65.267,1,true,'Cliff_Rock_Tan','',''},
-  ['TER_Back_Massif__Cliff_Rock_Tan_g16_11']={79.22,-17.165,592.414,161.728,193.671,102.204,1,true,'Cliff_Rock_Tan','',''},
-  ['TER_Back_Massif__Cliff_Rock_Tan_B_g15_11']={-25.511,-16.004,613.092,213.335,195.993,64.862,1,true,'Cliff_Rock_Tan_B','',''},
-  ['TER_Back_Massif__Cliff_Rock_Tan_B_g16_11']={78.471,-17.06,592.397,159.277,193.88,101.35,1,true,'Cliff_Rock_Tan_B','',''},
-  ['TER_Back_Massif__Cliff_Rock_Tan_C']={16.902,-17.06,593.767,285.883,193.88,102.111,1,true,'Cliff_Rock_Tan_C','',''},
-  ['TER_Back_Massif__Cliff_Rock_Tan_Dark_g15_11']={-60.837,-15.15,609.514,128.121,197.7,59.802,1,true,'Cliff_Rock_Tan_Dark','',''},
-  ['TER_Back_Massif__Cliff_Rock_Tan_Dark_g16_11']={79.43,-15.15,588.852,162.413,197.7,99.824,1,true,'Cliff_Rock_Tan_Dark','',''},
-  ['TER_Back_Massif__Cliff_Rock_Tan_Top_g15_11']={-25.447,23.101,612.917,212.927,124.985,66.716,1,true,'Cliff_Rock_Tan_Top','',''},
-  ['TER_Back_Massif__Cliff_Rock_Tan_Top_g16_11']={79.456,16.662,591.264,161.561,132.437,104.743,1,true,'Cliff_Rock_Tan_Top','',''},
-  ['TER_Back_Massif__Grass_Konoha_g15_11']={-25.269,26.902,613.654,213.275,114.195,66.077,1,false,'Grass_Konoha','',''},
-  ['TER_Back_Massif__Grass_Konoha_g16_11']={78.612,27.371,591.753,160.779,113.259,102.17,1,false,'Grass_Konoha','',''},
-  ['TER_Back_Massif__Grass_Konoha_B_g15_11']={-28.478,28.123,613.538,207.725,111.754,64.595,1,false,'Grass_Konoha_B','',''},
-  ['TER_Back_Massif__Grass_Konoha_B_g16_11']={79.392,28.17,592.817,162.338,111.66,102.59,1,false,'Grass_Konoha_B','',''},
+  ['TER_Back_Massif__Cliff_Rock_Tan_g15_11']={-36.463,-16.839,614.445,181.036,194.323,66.251,1,true,'Cliff_Rock_Tan','',''},
+  ['TER_Back_Massif__Cliff_Rock_Tan_g16_11']={80.155,-16.839,595.789,166.285,194.323,94.65,1,true,'Cliff_Rock_Tan','',''},
+  ['TER_Back_Massif__Cliff_Rock_Tan_B']={16.621,-15.038,593.951,283.924,197.925,106.336,1,true,'Cliff_Rock_Tan_B','',''},
+  ['TER_Back_Massif__Cliff_Rock_Tan_C']={16.388,-10.339,594.151,284.625,207.322,103.515,1,true,'Cliff_Rock_Tan_C','',''},
+  ['TER_Back_Massif__Cliff_Rock_Tan_Dark_g15_11']={-61.2,-15.15,610.095,128.848,197.7,61.22,1,true,'Cliff_Rock_Tan_Dark','',''},
+  ['TER_Back_Massif__Cliff_Rock_Tan_Dark_g16_11']={79.314,-15.15,590.015,162.181,197.7,101.381,1,true,'Cliff_Rock_Tan_Dark','',''},
+  ['TER_Back_Massif__Cliff_Rock_Tan_Top_g15_11']={-29.359,23.639,613.244,194.224,146.424,67.667,1,true,'Cliff_Rock_Tan_Top','',''},
+  ['TER_Back_Massif__Cliff_Rock_Tan_Top_g16_11']={63.747,23.649,616.27,133.812,146.547,53.497,1,true,'Cliff_Rock_Tan_Top','',''},
+  ['TER_Back_Massif__Cliff_Rock_Tan_Top_g17_11']={144.171,14.357,577.295,37.738,122.504,74.791,1,true,'Cliff_Rock_Tan_Top','',''},
+  ['TER_Back_Massif__Grass_Konoha_g15_11']={-29.471,27.4,614.13,194.712,115.19,66.668,1,false,'Grass_Konoha','',''},
+  ['TER_Back_Massif__Grass_Konoha_g16_11']={63.396,28.26,616.469,130.347,111.479,53.866,1,false,'Grass_Konoha','',''},
+  ['TER_Back_Massif__Grass_Konoha_g17_11']={145.225,23.703,573.303,36.43,105.812,65.269,1,false,'Grass_Konoha','',''},
+  ['TER_Back_Massif__Grass_Konoha_B_g15_11']={-38.593,28.182,614.292,170.781,111.636,66.491,1,false,'Grass_Konoha_B','',''},
+  ['TER_Back_Massif__Grass_Konoha_B_g16_11']={79.264,28.123,591.701,162.083,111.754,102.228,1,false,'Grass_Konoha_B','',''},
   ['TER_Cliff_Core__Cliff_Rock_Tan_Dark']={4.005,-59.0,464.699,305.59,110.0,324.198,1,true,'Cliff_Rock_Tan_Dark','',''},
   ['TER_Cliffs_Lower__Cliff_Rock_Tan']={0.955,-58.96,433.646,335.102,110.08,304.268,1,true,'Cliff_Rock_Tan','',''},
   ['TER_Cliffs_Lower__Cliff_Rock_Tan_B']={1.455,-59.242,426.302,338.868,109.517,291.414,1,true,'Cliff_Rock_Tan_B','',''},
@@ -453,29 +454,29 @@ local MESH = {
   ['SUM_Tower_Stone__Stone_SumBlock']={134.474,34.93,457.032,38.671,36.06,43.779,4,true,'Stone_SumBlock','','SUM_Tower'},
   ['SUM_Tower_Stone__Summon_Stone']={134.474,34.604,457.032,38.253,37.712,43.361,4,true,'Summon_Stone','','SUM_Tower'},
   ['SUM_Tower_Stone__Summon_Stone_Dark']={134.506,34.15,457.063,40.442,36.9,45.456,4,true,'Summon_Stone_Dark','','SUM_Tower'},
-  ['WATER_BackFalls__Cliff_Rock_Tan_Dark']={-0.1,48.229,611.264,179.836,53.017,19.832,5,true,'Cliff_Rock_Tan_Dark','',''},
-  ['WATER_BackFalls__Foam_g15_11']={-80.202,47.101,606.525,17.779,51.26,15.175,5,false,'Foam','',''},
-  ['WATER_BackFalls__Foam_g16_11']={55.04,47.133,606.176,65.127,51.195,17.27,5,false,'Foam','',''},
+  ['WATER_BackFalls__Cliff_Rock_Tan_Dark']={-0.213,48.14,611.209,179.92,52.845,19.557,5,true,'Cliff_Rock_Tan_Dark','',''},
+  ['WATER_BackFalls__Foam_g15_11']={-80.127,47.109,606.588,17.781,51.244,15.237,5,false,'Foam','',''},
+  ['WATER_BackFalls__Foam_g16_11']={55.04,47.048,606.23,65.127,51.364,17.465,5,false,'Foam','',''},
   ['WATER_BackFalls__Stone_Wall_Light']={0.663,22.497,595.063,176.995,1.794,16.222,5,true,'Stone_Wall_Light','',''},
   ['WATER_BackFalls__Stone_Wall_Light_B']={8.027,22.485,594.926,162.469,1.797,14.708,5,true,'Stone_Wall_Light_B','',''},
   ['WATER_BackFalls__Water']={-0.0,47.12,603.375,177.9,50.16,31.05,5,false,'Water','',''},
   ['WATER_BackFalls__Water_WtrFall']={0.091,45.835,602.818,167.659,47.229,13.118,5,false,'Water_WtrFall','',''},
   ['WATER_BackFalls__Water_WtrSheet']={-0.0,47.495,609.593,175.4,50.289,4.586,5,false,'Water_WtrSheet','',''},
-  ['WATER_Canal_East__Cliff_Rock_Tan_Dark']={-115.419,4.457,422.734,14.36,1.466,137.274,5,true,'Cliff_Rock_Tan_Dark','',''},
-  ['WATER_Canal_East__Foam']={-108.581,8.69,423.223,25.145,8.817,157.466,5,false,'Foam','',''},
+  ['WATER_Canal_East__Cliff_Rock_Tan_Dark']={-115.337,4.499,422.77,14.253,1.57,137.435,5,true,'Cliff_Rock_Tan_Dark','',''},
+  ['WATER_Canal_East__Foam']={-108.627,8.653,423.186,24.998,8.892,157.429,5,false,'Foam','',''},
   ['WATER_Canal_East__Stone_Wall_Light']={-105.092,13.024,509.89,36.457,19.648,184.275,5,true,'Stone_Wall_Light','',''},
   ['WATER_Canal_East__Stone_Wall_Light_B']={-107.255,13.5,513.863,32.214,20.6,173.743,5,true,'Stone_Wall_Light_B','',''},
   ['WATER_Canal_East__Water']={-103.673,13.3,476.597,38.153,18.2,249.094,5,false,'Water','',''},
   ['WATER_Canal_East__Water_WtrFall']={-104.073,13.47,472.663,32.916,18.1,253.022,5,false,'Water_WtrFall','',''},
-  ['WATER_Canal_West__Foam']={140.518,19.385,544.248,4.643,6.36,5.568,5,false,'Foam','',''},
+  ['WATER_Canal_West__Foam']={140.53,19.392,544.228,4.791,6.345,5.603,5,false,'Foam','',''},
   ['WATER_Canal_West__Stone_Wall_Light']={122.838,19.494,543.099,68.979,7.811,113.534,5,true,'Stone_Wall_Light','',''},
   ['WATER_Canal_West__Stone_Wall_Light_B']={128.092,19.484,541.146,60.49,7.831,110.567,5,true,'Stone_Wall_Light_B','',''},
   ['WATER_Canal_West__Water']={122.809,19.2,543.14,70.182,6.4,111.479,5,false,'Water','',''},
   ['WATER_Canal_West__Water_WtrFall']={132.961,19.37,542.686,47.028,6.3,96.847,5,false,'Water_WtrFall','',''},
-  ['WATER_SeaFalls__Foam_g15_11']={-126.557,-44.723,577.283,27.176,133.904,29.547,5,false,'Foam','',''},
-  ['WATER_SeaFalls__Foam_g15_13']={-111.37,-53.896,337.928,28.737,116.952,28.8,5,false,'Foam','',''},
-  ['WATER_SeaFalls__Foam_g16_13']={98.583,-56.975,339.468,23.745,108.009,24.06,5,false,'Foam','',''},
-  ['WATER_SeaFalls__Foam_g17_12']={169.9,-47.828,497.903,29.46,128.217,28.362,5,false,'Foam','',''},
+  ['WATER_SeaFalls__Foam_g15_11']={-126.46,-44.619,577.283,27.37,133.697,29.547,5,false,'Foam','',''},
+  ['WATER_SeaFalls__Foam_g15_13']={-111.442,-53.792,337.928,28.882,116.746,28.8,5,false,'Foam','',''},
+  ['WATER_SeaFalls__Foam_g16_13']={98.704,-57.073,339.468,23.987,108.206,24.06,5,false,'Foam','',''},
+  ['WATER_SeaFalls__Foam_g17_12']={170.079,-47.878,497.807,29.102,128.317,28.554,5,false,'Foam','',''},
   ['WATER_SeaFalls__Stone_Wall_Dark']={88.706,-4.15,348.154,13.777,19.7,15.236,5,true,'Stone_Wall_Dark','',''},
   ['WATER_SeaFalls__Stone_WtrVoid']={90.204,-0.25,346.906,6.261,7.0,7.401,5,false,'Stone_WtrVoid','',''},
   ['WATER_SeaFalls__Water']={19.908,9.25,457.864,283.377,26.299,237.81,5,false,'Water','',''},
@@ -571,9 +572,9 @@ local MESH = {
   ['VEG_Leste__Leaf_Broad']={-134.791,20.273,458.045,25.01,14.028,103.53,9,false,'Leaf_Broad','',''},
   ['VEG_Leste__Leaf_Pine']={-144.558,19.235,442.267,9.203,13.344,9.439,9,false,'Leaf_Pine','',''},
   ['VEG_Leste__Leaf_Shadow']={-136.311,17.994,457.773,25.698,10.861,102.462,9,false,'Leaf_Shadow','',''},
-  ['VEG_Plato__Bark_Dark']={0.79,57.569,612.533,190.845,72.005,18.793,9,true,'Bark_Dark','',''},
-  ['VEG_Plato__Leaf_Broad']={1.307,64.295,612.683,196.588,70.581,24.511,9,false,'Leaf_Broad','',''},
-  ['VEG_Plato__Leaf_Shadow']={1.1,61.352,612.755,195.208,65.258,22.454,9,false,'Leaf_Shadow','',''},
+  ['VEG_Plato__Bark_Dark']={0.79,51.42,612.533,190.845,59.706,18.793,9,true,'Bark_Dark','',''},
+  ['VEG_Plato__Leaf_Broad']={1.307,58.656,612.683,196.588,59.302,24.511,9,false,'Leaf_Broad','',''},
+  ['VEG_Plato__Leaf_Shadow']={1.1,55.232,612.755,195.208,53.018,22.454,9,false,'Leaf_Shadow','',''},
   ['VEG_SE__Bark_Dark']={-92.73,11.092,361.616,63.902,11.155,55.25,9,true,'Bark_Dark','',''},
   ['VEG_SE__Leaf_Broad']={-92.109,18.924,361.413,69.664,11.209,62.347,9,false,'Leaf_Broad','',''},
   ['VEG_SE__Leaf_Shadow']={-92.475,15.1,361.652,67.644,4.271,59.567,9,false,'Leaf_Shadow','',''},

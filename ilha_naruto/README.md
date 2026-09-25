@@ -14,7 +14,7 @@ Ilha 1 definitiva, construída no Blender 5.2 a partir das 11 referências aprov
 | O quê | Onde |
 |---|---|
 | Cena final | `ilha_naruto.blend` (coleções 00–15, `_SCALE_REFERENCE` incluída) |
-| Renders finais 1920×1080 | `renders/final/CAM_*.jpg` (22 câmeras) |
+| Renders finais 1920×1080 | `renders/final/CAM_*.jpg` (26 câmeras, incl. 4 na altura do jogador) |
 | Prancha de contato | `renders/final/_contact_sheet.jpg` |
 | Referência × render | `renders/final/_compare.jpg` |
 | Export da ilha | `export/ILHA1_*.fbx` (10 FBX), `export/ilha_data.json`, `export/montar_ilha_naruto.lua` |
@@ -111,8 +111,8 @@ mudanças no jogo estão em [`CONEXAO_DRAGONBALL.md`](CONEXAO_DRAGONBALL.md).
 
 | | valor / limite |
 |---|---|
-| MeshParts | 469 / 660 |
-| Triângulos | 326.541 / 470.000 |
+| MeshParts | 470 / 660 |
+| Triângulos | 326.766 / 470.000 |
 | Materiais | 82 / 110 |
 | Colisões (Parts COL) | 1.109 / 1.150 |
 | MeshParts com sombra | 243 / 300 |
@@ -123,7 +123,7 @@ mudanças no jogo estão em [`CONEXAO_DRAGONBALL.md`](CONEXAO_DRAGONBALL.md).
 
 | Zona | Triângulos (limite) | MeshParts (limite) |
 |---|---|---|
-| terreno | 97,5k (110k) | 88 (130) |
+| terreno | 97,8k (110k) | 89 (130) |
 | vila + casas | 76,1k (100k) | 126 (150) |
 | entrada | 24,8k (32k) | 28 (42) |
 | summon | 23,7k (38k) | 25 (48) |
@@ -148,7 +148,64 @@ mudanças no jogo estão em [`CONEXAO_DRAGONBALL.md`](CONEXAO_DRAGONBALL.md).
 (`VIL_House_*`), torre do summon, portão da entrada, portão DB e guarda da âncora. As ilhotas do céu ficam
 persistentes.
 
-## Processo (18 passes)
+## Passe final de polimento (arte + funcionalidade + otimização)
+
+Layout, composição macro, área central, entrada, progressão, construções principais, summon e conexão com a
+próxima ilha continuam exatamente como estavam — **nada foi reconstruído**. O passe tratou do que ainda
+denunciava geometria procedural/repetida e resolveu uma regra crítica e um bug de gameplay.
+
+**Antes → depois** (mesma cena, export re-verificado):
+
+| Métrica | Antes do polimento | Depois | |
+|---|---|---|---|
+| Triângulos | 326.409 | 326.766 | quase neutro (+0,1%) |
+| MeshParts | 472 | 470 | -2 |
+| Colisões (Parts COL) | 1.095 | 1.109 | +14 (colisão nova do patamar do summon) |
+| Materiais | 82 | 82 | igual |
+| Rotas/sondas de navegação | 14+6+23/27 OK | 14+6+23/27 OK | igual (sem regressão) |
+| Escala negativa / normais viradas / malha vazia | não auditado antes | **0 / 0 / 0** | auditoria nova (Blender Python) |
+
+**Lista objetiva de melhorias:**
+
+1. **Regra crítica cumprida — zero minério modelado.** O núcleo central do fosso (antes uma coroa de cristais
+   azuis) virou um cairn de pedra pura; a prévia visual em cada ponto `ORE_*` parou de ser gerada (o fosso fica
+   vazio, reservado); o moinho (o local mais visitado) trocou toda decoração de cristal — bandeja do balcão,
+   prateleira, leito sob o pilão, acentos do telhado, carrinho e caixa aberta — por pedra neutra; o blockout de
+   mineração também foi limpo. Os marcadores `ORE_<raridade>_*` continuam existindo normalmente (só
+   posição/raridade — nenhum modelo 3D). *Problema visto: renders anteriores mostravam cristais coloridos
+   espalhados no fosso, que podiam ser confundidos com o sistema de minério do próprio jogo.*
+2. **Bug de gameplay corrigido — colisão do patamar do summon.** O piso visual (mosaico) ficava 0,30 acima da
+   colisão do terreno; o pé do jogador afundava no chão visível. Confirmado por raycast antes/depois (16,20 →
+   16,50, casando com o topo do mosaico).
+3. **Silhouette pass no paredão do fundo.** De frente e de longe, a fileira de colunas lia como uma cerca de
+   estacas idênticas (mesma largura/altura em sequência). Agora o algoritmo conta sequências de colunas "rente" e
+   força uma alta (massa primária, até 24 acima da base) ou um recuo baixo depois de 2 seguidas, e a faixa de
+   largura ganhou mais contraste — sem sequência comprida de silhueta plana, verificado sem invadir as 3 casas do
+   platô nem as gargantas das quedas.
+4. **4 câmeras de QA na altura do jogador** (`CAM_PlayerHeight_Entry/Mining/Summon/Gate`, olho ~5,2 acima do
+   chão) além das câmeras aéreas/largas que já existiam — a entrada, o fosso, a praça do summon e o portão DB
+   revisados como o jogador realmente vê, não só de cima.
+5. **Auditoria técnica automatizada nova** (escala negativa, malha vazia, normais predominantemente viradas): 0
+   ocorrências nos 3 casos, nas 470 MeshParts da ilha.
+6. **Verificação visual dos ajustes "às cegas"** de rodadas anteriores, todos confirmados OK em renders novos:
+   posição da queda NE, largura das gargantas do paredão, leito do riacho perto da ponte em arco, linha de visão
+   da entrada até a torre do summon, cadeado dos portões (sem z-fighting), roda d'água (em contato com o canal,
+   apoiada em torre de pedra, eixo consistente).
+
+**Itens revisados e já considerados adequados (sem mudança):** hierarquia arquitetônica (salão > lojas/moinho >
+casas > props) e variação das casas secundárias (tamanhos, anexo em beiral, telhados por cor, já feitos na
+rodada 2B); curadoria de vegetação (zonas livres nas portas/summon/mineração/saída, sem scatter uniforme, já
+feita); sistema de água (origem, quedas, espuma, já refeito na rodada 2B); estados LOCKED/UNLOCKED dos 5 portões
+(`PortoesCompra`, já implementado); hierarquia visual do portão DB à distância (nos renders largos ele é um
+detalhe na borda da ilha, não domina a composição). Não foram redesenhados por já estarem bons — "não mude o que
+já está bom".
+
+**Limitação conhecida:** a hierarquia de brilho do portão DB por distância (visível de longe vs. dominante de
+perto) é resolvida pela escala/posição estática hoje; um controle dinâmico de verdade (emissive que aumenta
+conforme o jogador se aproxima) é responsabilidade de um LocalScript no Roblox, fora do que o Blender pode
+preparar — não implementado.
+
+## Processo (19 passes)
 
 1. Análise das referências e medidas.
 2. Planta travada (`il_layout.py`).
@@ -167,10 +224,13 @@ persistentes.
 15. QA técnico e export final.
 16. Renders finais e revisão 360° (Front/Left/Right/Back/BirdEye + 5 vistas das referências).
 17. Reconhecimento do jogo ao vivo no Roblox Studio (leitura de scripts) e import de teste dos FBX (sem salvar).
-18. Passe final de polimento: nenhum cristal representando minério em lugar nenhum da ilha (núcleo, moinho,
-    carrinhos, blockout), colisão do patamar do summon corrigida (casa com o piso visual), verificação visual dos
-    ajustes de rodadas anteriores (queda NE, gargantas do paredão, leito do riacho, linha de visão para o summon,
-    cadeado dos portões), export e renders finais atualizados.
+18. Passe final de polimento (parte 1): nenhum cristal representando minério em lugar nenhum da ilha (núcleo,
+    moinho, carrinhos, blockout), colisão do patamar do summon corrigida (casa com o piso visual), verificação
+    visual dos ajustes de rodadas anteriores (queda NE, gargantas do paredão, leito do riacho, linha de visão
+    para o summon, cadeado dos portões).
+19. Passe final de polimento (parte 2): silhouette pass no paredão do fundo (quebra a leitura de cerca de
+    estacas idênticas), 4 câmeras de QA na altura do jogador, auditoria técnica automatizada (escala negativa,
+    normais viradas, malha vazia), export e renders finais atualizados.
 
 ## Limitações e pendências
 

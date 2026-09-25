@@ -1,17 +1,17 @@
 {
  "mapping": "Roblox = (x_blender, z_blender, -y_blender); 1 BU = 1 stud; malha: origem = centro do bbox",
- "export_id": "0e14b431",
+ "export_id": "1c2e6437",
  "fbx": {
-  "02_TERRAIN": "ILHA1_02_TERRAIN_0e14b4.fbx",
-  "03_MINING": "ILHA1_03_MINING_0e14b4.fbx",
-  "04_VILLAGE": "ILHA1_04_VILLAGE_0e14b4.fbx",
-  "05_SUMMON": "ILHA1_05_SUMMON_0e14b4.fbx",
-  "06_WATER": "ILHA1_06_WATER_0e14b4.fbx",
-  "07_NEXT_ISLAND": "ILHA1_07_NEXT_ISLAND_0e14b4.fbx",
-  "08_PURCHASE_GATES": "ILHA1_08_PURCHASE_GATES_0e14b4.fbx",
-  "09_PROPS": "ILHA1_09_PROPS_0e14b4.fbx",
-  "10_VEGETATION": "ILHA1_10_VEGETATION_0e14b4.fbx",
-  "12_VFX_HELPERS": "ILHA1_12_VFX_HELPERS_0e14b4.fbx"
+  "02_TERRAIN": "ILHA1_02_TERRAIN_1c2e64.fbx",
+  "03_MINING": "ILHA1_03_MINING_1c2e64.fbx",
+  "04_VILLAGE": "ILHA1_04_VILLAGE_1c2e64.fbx",
+  "05_SUMMON": "ILHA1_05_SUMMON_1c2e64.fbx",
+  "06_WATER": "ILHA1_06_WATER_1c2e64.fbx",
+  "07_NEXT_ISLAND": "ILHA1_07_NEXT_ISLAND_1c2e64.fbx",
+  "08_PURCHASE_GATES": "ILHA1_08_PURCHASE_GATES_1c2e64.fbx",
+  "09_PROPS": "ILHA1_09_PROPS_1c2e64.fbx",
+  "10_VEGETATION": "ILHA1_10_VEGETATION_1c2e64.fbx",
+  "12_VFX_HELPERS": "ILHA1_12_VFX_HELPERS_1c2e64.fbx"
  },
  "meshes": [
   {
@@ -273,14 +273,14 @@
    "material": "Cliff_Rock_Tan",
    "tris": 360,
    "center_rbx": [
-    3.831,
-    3.381,
-    536.239
+    5.017,
+    3.604,
+    536.802
    ],
    "size_rbx": [
-    956.554,
-    138.128,
-    726.514
+    957.963,
+    137.002,
+    728.959
    ],
    "owner": "terrain",
    "shadow": false,
@@ -294,14 +294,14 @@
    "material": "Cliff_Rock_Tan_Dark",
    "tris": 360,
    "center_rbx": [
-    6.026,
-    -6.18,
-    537.31
+    5.817,
+    -5.958,
+    538.016
    ],
    "size_rbx": [
-    955.426,
-    138.632,
-    726.202
+    952.627,
+    136.567,
+    724.991
    ],
    "owner": "terrain",
    "shadow": false,
@@ -376,16 +376,16 @@
    "group": "02_TERRAIN",
    "obj": "TER_Back_Massif",
    "material": "Cliff_Rock_Tan",
-   "tris": 898,
+   "tris": 822,
    "center_rbx": [
-    -26.915,
-    -17.06,
-    613.988
+    -36.463,
+    -16.839,
+    614.445
    ],
    "size_rbx": [
-    205.418,
-    193.88,
-    65.267
+    181.036,
+    194.323,
+    66.251
    ],
    "owner": "terrain",
    "shadow": true,
@@ -397,16 +397,16 @@
    "group": "02_TERRAIN",
    "obj": "TER_Back_Massif",
    "material": "Cliff_Rock_Tan",
-   "tris": 862,
+   "tris": 925,
    "center_rbx": [
-    79.22,
-    -17.165,
-    592.414
+    80.155,
+    -16.839,
+    595.789
    ],
    "size_rbx": [
-    161.728,
-    193.671,
-    102.204
+    166.285,
+    194.323,
+    94.65
    ],
    "owner": "terrain",
    "shadow": true,
@@ -414,41 +414,20 @@
    "model": ""
   },
   {
-   "name": "TER_Back_Massif__Cliff_Rock_Tan_B_g15_11",
+   "name": "TER_Back_Massif__Cliff_Rock_Tan_B",
    "group": "02_TERRAIN",
    "obj": "TER_Back_Massif",
    "material": "Cliff_Rock_Tan_B",
-   "tris": 707,
+   "tris": 1534,
    "center_rbx": [
-    -25.511,
-    -16.004,
-    613.092
+    16.621,
+    -15.038,
+    593.951
    ],
    "size_rbx": [
-    213.335,
-    195.993,
-    64.862
-   ],
-   "owner": "terrain",
-   "shadow": true,
-   "flags": "",
-   "model": ""
-  },
-  {
-   "name": "TER_Back_Massif__Cliff_Rock_Tan_B_g16_11",
-   "group": "02_TERRAIN",
-   "obj": "TER_Back_Massif",
-   "material": "Cliff_Rock_Tan_B",
-   "tris": 862,
-   "center_rbx": [
-    78.471,
-    -17.06,
-    592.397
-   ],
-   "size_rbx": [
-    159.277,
-    193.88,
-    101.35
+    283.924,
+    197.925,
+    106.336
    ],
    "owner": "terrain",
    "shadow": true,
@@ -460,16 +439,16 @@
    "group": "02_TERRAIN",
    "obj": "TER_Back_Massif",
    "material": "Cliff_Rock_Tan_C",
-   "tris": 1046,
+   "tris": 1114,
    "center_rbx": [
-    16.902,
-    -17.06,
-    593.767
+    16.388,
+    -10.339,
+    594.151
    ],
    "size_rbx": [
-    285.883,
-    193.88,
-    102.111
+    284.625,
+    207.322,
+    103.515
    ],
    "owner": "terrain",
    "shadow": true,
@@ -481,16 +460,16 @@
    "group": "02_TERRAIN",
    "obj": "TER_Back_Massif",
    "material": "Cliff_Rock_Tan_Dark",
-   "tris": 1312,
+   "tris": 1252,
    "center_rbx": [
-    -60.837,
+    -61.2,
     -15.15,
-    609.514
+    610.095
    ],
    "size_rbx": [
-    128.121,
+    128.848,
     197.7,
-    59.802
+    61.22
    ],
    "owner": "terrain",
    "shadow": true,
@@ -502,16 +481,16 @@
    "group": "02_TERRAIN",
    "obj": "TER_Back_Massif",
    "material": "Cliff_Rock_Tan_Dark",
-   "tris": 1568,
+   "tris": 1746,
    "center_rbx": [
-    79.43,
+    79.314,
     -15.15,
-    588.852
+    590.015
    ],
    "size_rbx": [
-    162.413,
+    162.181,
     197.7,
-    99.824
+    101.381
    ],
    "owner": "terrain",
    "shadow": true,
@@ -523,16 +502,16 @@
    "group": "02_TERRAIN",
    "obj": "TER_Back_Massif",
    "material": "Cliff_Rock_Tan_Top",
-   "tris": 1532,
+   "tris": 1564,
    "center_rbx": [
-    -25.447,
-    23.101,
-    612.917
+    -29.359,
+    23.639,
+    613.244
    ],
    "size_rbx": [
-    212.927,
-    124.985,
-    66.716
+    194.224,
+    146.424,
+    67.667
    ],
    "owner": "terrain",
    "shadow": true,
@@ -544,16 +523,37 @@
    "group": "02_TERRAIN",
    "obj": "TER_Back_Massif",
    "material": "Cliff_Rock_Tan_Top",
-   "tris": 1659,
+   "tris": 1215,
    "center_rbx": [
-    79.456,
-    16.662,
-    591.264
+    63.747,
+    23.649,
+    616.27
    ],
    "size_rbx": [
-    161.561,
-    132.437,
-    104.743
+    133.812,
+    146.547,
+    53.497
+   ],
+   "owner": "terrain",
+   "shadow": true,
+   "flags": "",
+   "model": ""
+  },
+  {
+   "name": "TER_Back_Massif__Cliff_Rock_Tan_Top_g17_11",
+   "group": "02_TERRAIN",
+   "obj": "TER_Back_Massif",
+   "material": "Cliff_Rock_Tan_Top",
+   "tris": 636,
+   "center_rbx": [
+    144.171,
+    14.357,
+    577.295
+   ],
+   "size_rbx": [
+    37.738,
+    122.504,
+    74.791
    ],
    "owner": "terrain",
    "shadow": true,
@@ -565,16 +565,16 @@
    "group": "02_TERRAIN",
    "obj": "TER_Back_Massif",
    "material": "Grass_Konoha",
-   "tris": 2399,
+   "tris": 2080,
    "center_rbx": [
-    -25.269,
-    26.902,
-    613.654
+    -29.471,
+    27.4,
+    614.13
    ],
    "size_rbx": [
-    213.275,
-    114.195,
-    66.077
+    194.712,
+    115.19,
+    66.668
    ],
    "owner": "terrain",
    "shadow": false,
@@ -586,16 +586,37 @@
    "group": "02_TERRAIN",
    "obj": "TER_Back_Massif",
    "material": "Grass_Konoha",
-   "tris": 2223,
+   "tris": 1653,
    "center_rbx": [
-    78.612,
-    27.371,
-    591.753
+    63.396,
+    28.26,
+    616.469
    ],
    "size_rbx": [
-    160.779,
-    113.259,
-    102.17
+    130.347,
+    111.479,
+    53.866
+   ],
+   "owner": "terrain",
+   "shadow": false,
+   "flags": "",
+   "model": ""
+  },
+  {
+   "name": "TER_Back_Massif__Grass_Konoha_g17_11",
+   "group": "02_TERRAIN",
+   "obj": "TER_Back_Massif",
+   "material": "Grass_Konoha",
+   "tris": 745,
+   "center_rbx": [
+    145.225,
+    23.703,
+    573.303
+   ],
+   "size_rbx": [
+    36.43,
+    105.812,
+    65.269
    ],
    "owner": "terrain",
    "shadow": false,
@@ -607,16 +628,16 @@
    "group": "02_TERRAIN",
    "obj": "TER_Back_Massif",
    "material": "Grass_Konoha_B",
-   "tris": 1159,
+   "tris": 1137,
    "center_rbx": [
-    -28.478,
-    28.123,
-    613.538
+    -38.593,
+    28.182,
+    614.292
    ],
    "size_rbx": [
-    207.725,
-    111.754,
-    64.595
+    170.781,
+    111.636,
+    66.491
    ],
    "owner": "terrain",
    "shadow": false,
@@ -628,16 +649,16 @@
    "group": "02_TERRAIN",
    "obj": "TER_Back_Massif",
    "material": "Grass_Konoha_B",
-   "tris": 1395,
+   "tris": 1424,
    "center_rbx": [
-    79.392,
-    28.17,
-    592.817
+    79.264,
+    28.123,
+    591.701
    ],
    "size_rbx": [
-    162.338,
-    111.66,
-    102.59
+    162.083,
+    111.754,
+    102.228
    ],
    "owner": "terrain",
    "shadow": false,
@@ -6300,14 +6321,14 @@
    "material": "Cliff_Rock_Tan_Dark",
    "tris": 380,
    "center_rbx": [
-    -0.1,
-    48.229,
-    611.264
+    -0.213,
+    48.14,
+    611.209
    ],
    "size_rbx": [
-    179.836,
-    53.017,
-    19.832
+    179.92,
+    52.845,
+    19.557
    ],
    "owner": "water",
    "shadow": true,
@@ -6321,14 +6342,14 @@
    "material": "Foam",
    "tris": 712,
    "center_rbx": [
-    -80.202,
-    47.101,
-    606.525
+    -80.127,
+    47.109,
+    606.588
    ],
    "size_rbx": [
-    17.779,
-    51.26,
-    15.175
+    17.781,
+    51.244,
+    15.237
    ],
    "owner": "water",
    "shadow": false,
@@ -6343,13 +6364,13 @@
    "tris": 1352,
    "center_rbx": [
     55.04,
-    47.133,
-    606.176
+    47.048,
+    606.23
    ],
    "size_rbx": [
     65.127,
-    51.195,
-    17.27
+    51.364,
+    17.465
    ],
    "owner": "water",
    "shadow": false,
@@ -6468,14 +6489,14 @@
    "material": "Cliff_Rock_Tan_Dark",
    "tris": 1000,
    "center_rbx": [
-    -115.419,
-    4.457,
-    422.734
+    -115.337,
+    4.499,
+    422.77
    ],
    "size_rbx": [
-    14.36,
-    1.466,
-    137.274
+    14.253,
+    1.57,
+    137.435
    ],
    "owner": "water",
    "shadow": true,
@@ -6489,14 +6510,14 @@
    "material": "Foam",
    "tris": 636,
    "center_rbx": [
-    -108.581,
-    8.69,
-    423.223
+    -108.627,
+    8.653,
+    423.186
    ],
    "size_rbx": [
-    25.145,
-    8.817,
-    157.466
+    24.998,
+    8.892,
+    157.429
    ],
    "owner": "water",
    "shadow": false,
@@ -6594,14 +6615,14 @@
    "material": "Foam",
    "tris": 192,
    "center_rbx": [
-    140.518,
-    19.385,
-    544.248
+    140.53,
+    19.392,
+    544.228
    ],
    "size_rbx": [
-    4.643,
-    6.36,
-    5.568
+    4.791,
+    6.345,
+    5.603
    ],
    "owner": "water",
    "shadow": false,
@@ -6699,13 +6720,13 @@
    "material": "Foam",
    "tris": 1092,
    "center_rbx": [
-    -126.557,
-    -44.723,
+    -126.46,
+    -44.619,
     577.283
    ],
    "size_rbx": [
-    27.176,
-    133.904,
+    27.37,
+    133.697,
     29.547
    ],
    "owner": "water",
@@ -6720,13 +6741,13 @@
    "material": "Foam",
    "tris": 1104,
    "center_rbx": [
-    -111.37,
-    -53.896,
+    -111.442,
+    -53.792,
     337.928
    ],
    "size_rbx": [
-    28.737,
-    116.952,
+    28.882,
+    116.746,
     28.8
    ],
    "owner": "water",
@@ -6741,13 +6762,13 @@
    "material": "Foam",
    "tris": 1024,
    "center_rbx": [
-    98.583,
-    -56.975,
+    98.704,
+    -57.073,
     339.468
    ],
    "size_rbx": [
-    23.745,
-    108.009,
+    23.987,
+    108.206,
     24.06
    ],
    "owner": "water",
@@ -6762,14 +6783,14 @@
    "material": "Foam",
    "tris": 1096,
    "center_rbx": [
-    169.9,
-    -47.828,
-    497.903
+    170.079,
+    -47.878,
+    497.807
    ],
    "size_rbx": [
-    29.46,
-    128.217,
-    28.362
+    29.102,
+    128.317,
+    28.554
    ],
    "owner": "water",
    "shadow": false,
@@ -8779,12 +8800,12 @@
    "tris": 144,
    "center_rbx": [
     0.79,
-    57.569,
+    51.42,
     612.533
    ],
    "size_rbx": [
     190.845,
-    72.005,
+    59.706,
     18.793
    ],
    "owner": "vegetation",
@@ -8800,12 +8821,12 @@
    "tris": 360,
    "center_rbx": [
     1.307,
-    64.295,
+    58.656,
     612.683
    ],
    "size_rbx": [
     196.588,
-    70.581,
+    59.302,
     24.511
    ],
    "owner": "vegetation",
@@ -8821,12 +8842,12 @@
    "tris": 72,
    "center_rbx": [
     1.1,
-    61.352,
+    55.232,
     612.755
    ],
    "size_rbx": [
     195.208,
-    65.258,
+    53.018,
     22.454
    ],
    "owner": "vegetation",
@@ -9947,7 +9968,7 @@
    "family": "Cliff_Rock_Tan",
    "tex": "rock",
    "swirl": null,
-   "meshes": 5
+   "meshes": 4
   },
   "Cliff_Rock_Tan_C": {
    "color": [
@@ -9989,7 +10010,7 @@
    "family": "Cliff_Rock_Tan_Top",
    "tex": "rock",
    "swirl": null,
-   "meshes": 8
+   "meshes": 9
   },
   "Cloth_Canvas": {
    "color": [
@@ -10283,7 +10304,7 @@
    "family": "Grass_Konoha",
    "tex": "grass",
    "swirl": null,
-   "meshes": 7
+   "meshes": 8
   },
   "Grass_Konoha_B": {
    "color": [
@@ -41639,16 +41660,16 @@
    "  mining            23516 (48000)    32 (70)",
    "  props              3524 (26000)    13 (45)",
    "  summon            23744 (38000)    25 (48)",
-   "  terrain           97537 (110000)    88 (130)",
+   "  terrain           97762 (110000)    89 (130)",
    "  vegetation        18460 (45000)    51 (60)",
    "  vfx                5828 (12000)    23 (28)",
    "  village           76128 (100000)   126 (150)",
    "  water             18220 (24000)    34 (38)",
    "METAS GLOBAIS",
-   "  tris estaticos                          326541 / 470000 ",
-   "  MeshParts estaticas                        469 / 660    ",
-   "  tris total (+ reserva VFX 0)            326541 / 470000 ",
-   "  MeshParts total (+ reserva VFX 0)          469 / 660    ",
+   "  tris estaticos                          326766 / 470000 ",
+   "  MeshParts estaticas                        470 / 660    ",
+   "  tris total (+ reserva VFX 0)            326766 / 470000 ",
+   "  MeshParts total (+ reserva VFX 0)          470 / 660    ",
    "  materiais                                   82 / 110    ",
    "  MeshParts com sombra                       243 / 300    ",
    "  luzes ativas de dia                         11 / 36     ",
