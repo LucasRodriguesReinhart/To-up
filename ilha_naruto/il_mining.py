@@ -4,9 +4,11 @@
 # Substitui il_blockout.mining(). Piso do fosso, muro e calcamento do anel sao do TERRENO; aqui fica tudo DENTRO do
 # fosso e na borda dele:
 #   escadas N/S (colisao identica a do blockout), rampas de madeira L/O (il_col.ramp_ends), cerca da borda (r FENCE_R,
-#   mesmos vaos), toros de pedra na borda externa do anel, 4 torres de mineracao (L.DERRICKS), formacao central de
-#   minerio (peca-heroi), minerio visivel em cada ponto de il_layout.ore_points() (1 objeto por raridade) e poucos
-#   props de borda junto ao pe do muro. O centro fica amplo e livre (corredores de il_layout.lane_ends()).
+#   mesmos vaos), toros de pedra na borda externa do anel, 4 torres de mineracao (L.DERRICKS), cairn de pedra
+#   central (peca-heroi, marco NAO mineravel) e poucos props de borda junto ao pe do muro. O jogo tem o proprio
+#   sistema/assets/logica de minerio: aqui so ficam os marcadores ORE_<RARIDADE>_<nn> (il_core.ore_markers), sem
+#   nenhum modelo 3D nem cristal representando minerio na previa. O centro fica amplo e livre (corredores de
+#   il_layout.lane_ends()).
 import math, random, zlib
 from mathutils import Vector
 import il_lib as IL
@@ -695,36 +697,33 @@ def core():
         a = D(a_deg + rng.uniform(-8, 8))
         shard(mb, (2.3 * math.cos(a), 2.3 * math.sin(a), z), rng.uniform(4.2, 5.0), 2.0, DARK, rng, lean(a, 0.1),
               n=5, top=0.45)
-    # coroa de cristais grossos inclinados para fora (os mais altos a L e O; nenhum no eixo N-S)
-    CB, CT = "Crystal_Blue", "Crystal_Blue_Core"
+    # cairn de pedra no lugar da antiga coroa de cristais (regra nova: nada de cristal representando minerio
+    # aqui). Blocos mais altos no miolo e no anel do meio, no mesmo volume/silhueta que os cristais ocupavam.
     for k, a_deg in enumerate((0.0, 42.0, 138.0, 180.0, 222.0, 318.0)):
         a = D(a_deg + rng.uniform(-7, 7))
-        t = rng.uniform(0.36, 0.48)
         d = 2.5
-        bz = z + 1.5
         tip = top - (0.0 if k in (0, 3) else rng.uniform(0.4, 1.1))
-        h = (tip - bz) / math.cos(t)
-        crystal(mb, (d * math.cos(a), d * math.sin(a), bz), h, rng.uniform(1.3, 1.6), lean(a, t), CB, CT, rng, 6,
-                0.2, 1.3)
-    # cristal central: grosso e curto (topo ~ L.PIT + 5,6), levemente para o norte
-    crystal(mb, (0.0, 0.3, z + 1.6), (CORE_SIGHT_Z + 0.3 - z - 1.6) / math.cos(0.12), 1.75, lean(D(90.0), 0.12),
-            CB, CT, rng, 6, 0.22, 1.4)
-    # cristais medios entre as pedras do meio (fora da faixa de visada)
+        h = tip - z
+        shard(mb, (d * math.cos(a), d * math.sin(a), z), h, rng.uniform(1.5, 1.9), DARK if k % 2 else MID, rng,
+              lean(a, rng.uniform(0.1, 0.22)), n=6, top=0.4)
+    # bloco central mais alto (topo ~ L.PIT + 5,6), levemente para o norte
+    shard(mb, (0.0, 0.3, z), CORE_SIGHT_Z + 0.3 - z, 2.0, DARK, rng, lean(D(90.0), 0.1), n=6, top=0.4)
+    # blocos medios entre as pedras do meio (fora da faixa de visada)
     for a_deg in (20.0, 65.0, 115.0, 160.0, 200.0, 245.0, 295.0, 340.0):
         a = D(a_deg + rng.uniform(-6, 6))
         d = rng.uniform(3.6, 4.4)
         x, y = d * math.cos(a), d * math.sin(a)
-        t = rng.uniform(0.45, 0.6)
         h = rng.uniform(3.0, 4.2)
         if abs(x) < CORE_SIGHT_HW + 0.8:
-            h = min(h, (CORE_SIGHT_Z - z - 1.2) / math.cos(t))
-        crystal(mb, (x, y, z + 1.4), h, rng.uniform(0.7, 0.95), lean(a, t), CB, CT, rng, 6, 0.25, 0.8)
-    # cristais pequenos entre as pedras de fora
+            h = min(h, CORE_SIGHT_Z - z)
+        shard(mb, (x, y, z), h, rng.uniform(1.0, 1.3), MID if a_deg in (65.0, 245.0) else DARK, rng,
+              lean(a, rng.uniform(0.12, 0.2)), n=5, top=0.4)
+    # blocos pequenos entre as pedras de fora
     for i in range(9):
         a = math.tau * i / 9 + 0.35 + rng.uniform(-0.15, 0.15)
         d = rng.uniform(6.0, 7.0)
-        crystal(mb, (d * math.cos(a), d * math.sin(a), z + rng.uniform(0.5, 1.2)), rng.uniform(1.6, 2.4),
-                rng.uniform(0.42, 0.55), lean(a, rng.uniform(0.5, 0.7)), CB, CT, rng, 6, 0.36, 0.4)
+        shard(mb, (d * math.cos(a), d * math.sin(a), z + rng.uniform(0.1, 0.4)), rng.uniform(1.6, 2.4),
+              rng.uniform(0.6, 0.8), DARK, rng, lean(a, rng.uniform(0.25, 0.4)), n=5, top=0.45)
     # cascalho escuro na borda do monte
     for i in range(18):
         a = rng.uniform(0, math.tau)
@@ -741,7 +740,7 @@ def core():
     col_box("MiningCore", (16.0, 16.0, 4.6), (0, 0, z + 2.3), (0, 0, math.pi / 4))
     col_box("MiningCore", (10.0, 10.0, top - z), (0, 0, (z + top) / 2), (0, 0, math.pi / 8))
     col_box("MiningCore", (10.0, 10.0, top - z), (0, 0, (z + top) / 2), (0, 0, 3 * math.pi / 8))
-    light("L_Mining_Core_Glow", "POINT", (0, 0, z + 7.0), 600, (0.35, 0.62, 1.0), 2.5)
+    light("L_Mining_Core_Glow", "POINT", (0, 0, z + 7.0), 600, (1.0, 0.82, 0.55), 1.6)   # tocha/lanterna quente (nao mais brilho de cristal)
 
 
 # ------------------------------------------------------------------ 6. minerio por raridade
@@ -1163,7 +1162,8 @@ def build():
     ring_toros()
     derricks()
     core()
-    ores(pts)
+    # REGRA NOVA: nada de cristal/rocha representando minerio na previa (o jogo tem o proprio sistema nos
+    # marcadores ORE_* de il_core.ore_markers). O fosso fica limpo nesses pontos; sem chamar ores(pts).
     props(pts)
     rubble(pts)
     # 2 luzes quentes nos postes-lanterna das escadas N e S (o resto e Lantern_Glow)

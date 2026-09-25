@@ -32,7 +32,7 @@ PIT_STAIR_W = 10.0        # escadas N e S para dentro do fosso
 PIT_STAIR_N = 9           # 9 x 0.778 = 7.0
 PIT_RAMP_W = 8.0          # rampas de madeira L e O (tangentes ao muro); 8 desde a rodada 2 (6 virava fila unica)
 PIT_RAMP_A = (-22.0, 12.0)    # graus: topo e pe da rampa leste (a oeste e o espelho)
-CORE_R = 10.0             # rochedo central (minerio raro)
+CORE_R = 10.0             # cairn de pedra central (marco, NAO representa minerio)
 DERRICKS = [50.0, 130.0, 230.0, 310.0]   # torres de madeira (angulo, r 50)
 DERRICK_R = 50.0
 LANE_HW = 4.0             # corredores livres: pe das escadas/rampas -> rochedo central
