@@ -14,8 +14,14 @@ sc.render.resolution_x, sc.render.resolution_y = res
 sc.eevee.taa_render_samples = 12
 sc.render.image_settings.file_format = "JPEG"
 sc.render.image_settings.quality = 88
+if "--vt" in argv:
+    sc.view_settings.view_transform = argv[argv.index("--vt") + 1]
+    if "--look" in argv:
+        sc.view_settings.look = argv[argv.index("--look") + 1]
+    if "--exp" in argv:
+        sc.view_settings.exposure = float(argv[argv.index("--exp") + 1])
 for spec in argv[1:]:
-    if spec.startswith("--") or ":" not in spec:
+    if spec.startswith("--") or ":" not in spec or spec.count(":") < 2:
         continue
     parts = spec.split(":")
     name = parts[0]

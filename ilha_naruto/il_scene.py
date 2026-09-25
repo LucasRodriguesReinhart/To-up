@@ -18,10 +18,21 @@ def setup(res=(1600, 900), samples=32):
     fm_scene.SUN_POWER = 5.0
     fm_scene.FOG.update(start=480.0, depth=2200.0, factor=0.2)
     fm_scene.setup_sun()
-    bpy.context.scene.view_settings.exposure = 0.55
+    # previa saturada como as referencias (cartoon): Standard em vez do AgX do lobby (AgX dessatura laranja/azul
+    # fortes: a barreira DB saia salmao). So o Blender; a cor do Roblox vem de rbx_color.
+    vs = bpy.context.scene.view_settings
+    vs.view_transform = "Standard"
+    try:
+        vs.look = "None"
+    except Exception:
+        pass
+    vs.exposure = 0.0
 
 
-def tone_emissives(cap=1.35, crystal=0.55):
+ENERGY = ("DB_Energy_Glow", "P_Shadow_Glow", "P_DS_Glow", "P_OP_Glow", "P_Gold_Glow", "P_OPM_Glow", "P_DB_Glow")
+
+
+def tone_emissives(cap=1.35, crystal=0.55, energy=0.75):
     """SO a previa do Blender: sob AgX, emissao 3-5 estoura em creme/branco (estrela, barreiras, cristais). Limita a
     forca da emissao para a cor ler saturada como nas referencias. A cor do Roblox (rbx_color/Neon) nao muda."""
     n = 0
@@ -35,6 +46,8 @@ def tone_emissives(cap=1.35, crystal=0.55):
             if s.is_linked or s.default_value <= 0:
                 continue
             lim = crystal if (m.name.startswith("Crystal_") and "Glow" not in m.name and "Core" not in m.name) else cap
+            if m.name in ENERGY:
+                lim = energy
             if m.name.startswith(("Lantern_Glow", "Window_Warm")):
                 continue
             if s.default_value > lim:

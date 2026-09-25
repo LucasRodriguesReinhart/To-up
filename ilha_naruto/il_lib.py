@@ -251,10 +251,49 @@ def _union(a, b):
     return out
 
 
-def col_poly(area_name, poly, z0, z1, step=2.0, mode="union", minus_r=None):
+def _minus(ivs, cut):
+    out = []
+    for x0, x1 in ivs:
+        segs = [(x0, x1)]
+        for c0, c1 in cut:
+            nxt = []
+            for a, b in segs:
+                if c1 <= a or c0 >= b:
+                    nxt.append((a, b))
+                    continue
+                if c0 > a:
+                    nxt.append((a, c0))
+                if c1 < b:
+                    nxt.append((c1, b))
+            segs = nxt
+        out += segs
+    return out
+
+
+def ribbon_poly(pts, hw):
+    """poligono de uma faixa de meia-largura hw em volta de uma polilinha"""
+    import math as _m
+    left, right = [], []
+    n = len(pts)
+    for i in range(n):
+        x, y = pts[i]
+        if i == 0:
+            dx, dy = pts[1][0] - x, pts[1][1] - y
+        elif i == n - 1:
+            dx, dy = x - pts[i - 1][0], y - pts[i - 1][1]
+        else:
+            dx, dy = pts[i + 1][0] - pts[i - 1][0], pts[i + 1][1] - pts[i - 1][1]
+        ln = _m.hypot(dx, dy) or 1.0
+        nx, ny = -dy / ln, dx / ln
+        left.append((x + nx * hw, y + ny * hw))
+        right.append((x - nx * hw, y - ny * hw))
+    return ccw(left + list(reversed(right)))
+
+
+def col_poly(area_name, poly, z0, z1, step=2.0, mode="union", minus_r=None, minus_polys=()):
     """colisao de um poligono (piso/volume) em faixas de 'step' studs ao longo de y.
     mode='union' cobre a borda por fora (ate ~0,5 stud alem), 'inter' fica por dentro.
-    minus_r: tira um disco central (raio) das faixas."""
+    minus_r: tira um disco central (raio) das faixas. minus_polys: tira poligonos (p.ex. o leito do riacho)."""
     ys = [p[1] for p in poly]
     y = min(ys)
     n = 0
@@ -275,6 +314,12 @@ def col_poly(area_name, poly, z0, z1, step=2.0, mode="union", minus_r=None):
                             cut.append((max(x0, h), x1))
                     iv = cut
             ivs = iv if ivs is None else (_union(ivs, iv) if mode == "union" else _inter(ivs, iv))
+        if minus_polys and ivs:
+            cut = []
+            for mp in minus_polys:
+                for s2 in samples:
+                    cut += x_intervals(mp, s2)
+            ivs = _minus(ivs, _union([], cut))
         for x0, x1 in ivs or []:
             if x1 - x0 > 0.3:
                 col_box2(area_name, (x0, ya, z0), (x1, yb, z1))

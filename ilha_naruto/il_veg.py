@@ -19,19 +19,19 @@ SEED = 3301
 # (grupo, centro x, y, raio, n, especies, escala) - escala: S 7-9, M 10-13, L 14-18
 GROUPS = [
     # emoldurar a entrada (fora das alas do portao)
-    ("Entrada", -38.0, -107.0, 5.0, 2, ("young", "broad"), "M"),
-    ("Entrada", 38.0, -106.0, 5.0, 2, ("young", "broad"), "M"),
-    ("Entrada", -58.0, -103.0, 5.0, 1, ("broad",), "L"),
-    ("Entrada", 60.0, -99.0, 5.0, 1, ("broad",), "L"),
+    ("Entrada", -38.0, -103.5, 4.0, 2, ("young", "broad"), "M"),
+    ("Entrada", 38.0, -103.0, 4.0, 2, ("young", "broad"), "M"),
+    ("Entrada", -56.0, -94.0, 4.0, 1, ("broad",), "L"),
+    ("Entrada", 54.0, -91.0, 4.0, 1, ("broad",), "L"),
     # gramado sudoeste: separa o anel do terraco do summon; primeiro plano das vistas do sul
     ("SO", -100.0, -50.0, 12.0, 5, ("broad", "broad", "fir"), "L"),
-    ("SO", -76.0, -90.0, 9.0, 3, ("broad", "young"), "M"),
-    ("SO", -126.0, -28.0, 8.0, 3, ("broad", "fir"), "M"),
-    ("SO", -44.0, -104.0, 6.0, 2, ("young",), "M"),
+    ("SO", -84.0, -64.0, 6.0, 2, ("broad", "young"), "M"),
+    ("SO", -120.0, -20.0, 6.0, 3, ("broad", "fir"), "M"),
+    ("SO", -40.0, -98.0, 4.0, 2, ("young",), "M"),
     # gramado sudeste
-    ("SE", 58.0, -96.0, 8.0, 3, ("broad", "young"), "M"),
+    ("SE", 60.0, -88.0, 6.0, 3, ("broad", "young"), "M"),
     ("SE", 86.0, -70.0, 8.0, 3, ("broad", "fir"), "L"),
-    ("SE", 124.0, -50.0, 5.0, 2, ("broad",), "M"),
+    ("SE", 122.0, -46.0, 4.0, 2, ("broad",), "M"),
     ("SE", 94.0, -32.0, 5.0, 1, ("broad",), "M"),
     # vale leste (casas e riacho)
     ("Leste", 142.0, -4.0, 6.0, 2, ("broad",), "M"),
@@ -39,8 +39,8 @@ GROUPS = [
     ("Leste", 146.0, 22.0, 4.0, 1, ("fir",), "L"),
     ("Leste", 130.0, 84.0, 6.0, 2, ("broad", "fir"), "M"),
     # terraco do summon: sakuras emoldurando a praca (a abertura NE fica livre)
-    ("Summon", -150.0, 0.0, 5.0, 2, ("sakura", "broad"), "M"),
-    ("Summon", -150.0, 48.0, 5.0, 1, ("sakura",), "L"),
+    ("Summon", -140.0, -4.0, 4.0, 2, ("sakura", "broad"), "M"),
+    ("Summon", -144.0, 46.0, 3.0, 1, ("sakura",), "L"),
     ("Summon", -104.0, -12.0, 4.0, 1, ("sakura",), "M"),
     # NO do T1: separa o summon da vila
     ("T1_NO", -118.0, 104.0, 10.0, 4, ("broad", "fir"), "L"),
@@ -54,19 +54,18 @@ GROUPS = [
     # T2: sakuras ao lado do salao, folhosas atras dos predios
     ("T2", -33.0, 173.0, 3.0, 1, ("sakura",), "M"),
     ("T2", 33.0, 173.0, 3.0, 1, ("sakura",), "M"),
-    ("T2", -82.0, 180.0, 6.0, 2, ("broad", "fir"), "L"),
-    ("T2", 82.0, 178.0, 6.0, 2, ("broad", "fir"), "L"),
-    ("T2", -130.0, 158.0, 7.0, 3, ("fir", "broad"), "L"),
-    ("T2", 108.0, 166.0, 5.0, 1, ("fir",), "M"),
+    ("T2", -60.0, 181.0, 4.0, 2, ("broad", "fir"), "L"),
+    ("T2", 60.0, 181.0, 4.0, 2, ("broad", "fir"), "L"),
+    ("T2", -112.0, 146.0, 4.0, 1, ("fir", "broad"), "L"),
     ("T2", 80.0, 138.0, 4.0, 1, ("broad",), "M"),
     ("T2", -80.0, 136.0, 4.0, 1, ("broad",), "M"),
     # plato do paredao: pinheiros-guarda-chuva quebrando a linha do topo
-    ("Plato", -100.0, 196.0, 8.0, 2, ("umbrella", "fir"), "L"),
-    ("Plato", -58.0, 204.0, 6.0, 2, ("fir", "umbrella"), "M"),
-    ("Plato", -20.0, 205.0, 5.0, 1, ("umbrella",), "L"),
-    ("Plato", 20.0, 205.0, 6.0, 2, ("umbrella",), "M"),
-    ("Plato", 60.0, 202.0, 6.0, 2, ("fir", "umbrella"), "L"),
-    ("Plato", 98.0, 190.0, 6.0, 2, ("umbrella", "fir"), "M"),
+    ("Plato", -96.0, 190.0, 4.0, 2, ("umbrella", "fir"), "L"),
+    ("Plato", -56.0, 197.0, 4.0, 2, ("fir", "umbrella"), "M"),
+    ("Plato", -20.0, 199.0, 3.0, 1, ("umbrella",), "L"),
+    ("Plato", 20.0, 199.0, 4.0, 2, ("umbrella",), "M"),
+    ("Plato", 56.0, 196.0, 4.0, 2, ("fir", "umbrella"), "L"),
+    ("Plato", 96.0, 186.0, 3.0, 2, ("umbrella", "fir"), "M"),
 ]
 SIZES = {"S": (9.0, 11.0), "M": (12.0, 15.0), "L": (16.0, 21.0)}
 BUSHES = [  # (x, y, n, raio) - pes de escada, cantos de casa, borda do muro do anel ao sul
@@ -188,8 +187,12 @@ def _ground_z(gb, x, y):
     return hit[0].z
 
 
+WHY = {}
+
+
 def build():
     rng = random.Random(SEED)
+    WHY.clear()
     ob = _obstacles()
     gb = _ground()
     placed = []          # (x, y, raio_copa)
@@ -211,17 +214,24 @@ def build():
                 h = rng.uniform(*SIZES[size])
                 kind = kinds[k % len(kinds)]
                 crown = h * (0.42 if kind in ("broad", "sakura") else 0.34)
-                if not IL_point_in_rim(x, y, 3.0) or not _free_axes(x, y) or _near_route(x, y, 4.0):
+                if not IL_point_in_rim(x, y, 3.0):
+                    WHY[group + ":borda"] = WHY.get(group + ":borda", 0) + 1
                     continue
-                if any(math.hypot(x - px, y - py) < (crown + pr) * 0.72 for px, py, pr in placed):
+                if not _free_axes(x, y) or _near_route(x, y, 4.0):
+                    WHY[group + ":livre"] = WHY.get(group + ":livre", 0) + 1
+                    continue
+                if any(math.hypot(x - px, y - py) < (crown + pr) * 0.6 for px, py, pr in placed):
+                    WHY[group + ":espaco"] = WHY.get(group + ":espaco", 0) + 1
                     continue
                 z = _ground_z(gb, x, y)
                 if z is None or z < L.G - 1.0 and group not in ("Plato",):
+                    WHY[group + ":chao"] = WHY.get(group + ":chao", 0) + 1
                     continue
                 if ob is not None:
-                    hit = ob.find_nearest(Vector((x, y, z + h * 0.55)), crown * 0.95)
-                    hit2 = ob.find_nearest(Vector((x, y, z + 2.0)), 2.5)
+                    hit = ob.find_nearest(Vector((x, y, z + h * 0.62)), crown * 0.8)
+                    hit2 = ob.find_nearest(Vector((x, y, z + 2.0)), 2.2)
                     if hit[0] is not None or hit2[0] is not None:
+                        WHY[group + ":obst"] = WHY.get(group + ":obst", 0) + 1
                         continue
                 mb = mbfor(group)
                 lod = 0 if group in ("Entrada", "T1_N", "T2", "Summon") else 1
@@ -292,6 +302,7 @@ def build():
         mb.finish()
     print("VEG arvores=%d (recusadas %d) arbustos=%d prateleira=%d grupos=%d" % (
         stats["ok"], stats["fora"], nb, ns, len(mbs)))
+    print("VEG tentativas recusadas por motivo:", dict(sorted(WHY.items(), key=lambda kv: -kv[1])[:24]))
 
 
 def IL_point_in_rim(x, y, inset):

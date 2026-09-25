@@ -109,6 +109,58 @@ def interior_routes():
     return r
 
 
+def module_routes():
+    """rotas e sondas que os proprios modulos registram (EXTRA_ROUTES = {nome: (pts, z0)},
+    EXTRA_PROBES = [(nome, x, y, z_piso, dx, dy)]) para as pecas novas deles (escadas, passagens)"""
+    import importlib, build_ilha
+    rr, pp = {}, []
+    for mods in build_ilha.ZONE_MODULES.values():
+        for m in mods:
+            if not os.path.exists(os.path.join(HERE, m + ".py")):
+                continue
+            try:
+                mod = importlib.import_module(m)
+            except Exception as e:
+                print("QA aviso: nao importou %s (%s)" % (m, e))
+                continue
+            for k, v in getattr(mod, "EXTRA_ROUTES", {}).items():
+                rr["%s:%s" % (m, k)] = v
+            pp += list(getattr(mod, "EXTRA_PROBES", []))
+    return rr, pp
+
+
+# sondas de borda: 1 stud alem de cada borda aberta que NAO pode ser saida (queda livre); cada uma tem que bater numa
+# colisao ate 3 studs na direcao (dx, dy) a 2 studs acima do piso
+PROBES = [
+    ("T2_NE_fenda", 112.0, 126.5, L.T2, 1.0, -1.0),
+    ("ANCORA_borda", None, None, L.EXIT_Z, None, None),      # calculada: ponta da plataforma na ancora
+    ("PONTE_SAIDA_lado_N", None, None, L.EXIT_Z, None, None),
+    ("PONTE_SAIDA_lado_S", None, None, L.EXIT_Z, None, None),
+]
+
+
+def probes(bvh, extra=()):
+    from mathutils import Vector
+    out = []
+    ux, uy = L.exit_dir()
+    for name, x, y, z, dx, dy in list(PROBES) + list(extra):
+        if name == "ANCORA_borda":
+            (x, y), dx, dy = L.exit_point(L.EXIT_BRIDGE_LEN + L.ANCHOR_OFF - 1.0), ux, uy
+        elif name == "PONTE_SAIDA_lado_N":
+            (x, y) = L.exit_point(60.0)
+            dx, dy = -uy, ux
+        elif name == "PONTE_SAIDA_lado_S":
+            (x, y) = L.exit_point(60.0)
+            dx, dy = uy, -ux
+        o = Vector((x, y, z + 2.0))
+        d = Vector((dx, dy, 0.0)).normalized()
+        hit = bvh.ray_cast(o, d, L.EXIT_W / 2 + 3.0 if name.startswith("PONTE") else 3.5)
+        ok = hit[0] is not None
+        out.append((name, ok))
+        print(("OK   " if ok else "FAIL ") + "SONDA " + name + ("" if ok else "  (borda aberta: nada segura o jogador)"))
+    return out
+
+
 def col_bvh(exclude=()):
     from mathutils.bvhtree import BVHTree
     verts, polys = [], []
@@ -145,6 +197,24 @@ def nav():
         ok2 += not f
         print(("OK   " if not f else "FAIL ") + name + ("" if not f else "  " + str(f)))
     print("ROTAS_EXTRA %d/%d OK" % (ok2, len(rr)))
+    mr, mp = module_routes()
+    ok3 = 0
+    for name, (pts, z0) in mr.items():
+        f, zend = fm_qa.walk(bvh, pts, z0)
+        ok3 += not f
+        print(("OK   " if not f else "FAIL ") + name + ("" if not f else "  " + str(f)))
+    if mr:
+        print("ROTAS_MODULOS %d/%d OK" % (ok3, len(mr)))
+    pr = probes(bvh, mp)
+    print("SONDAS %d/%d OK" % (sum(1 for _, k in pr if k), len(pr)))
+    # passe de LARGURA (informativo): as rotas principais com corpo de raio 1,7 (corredor >= ~3,4)
+    old = fm_qa.BODY_R
+    fm_qa.BODY_R = 1.7
+    try:
+        estreitas = [n for n, (pts, z0) in routes().items() if fm_qa.walk(bvh, pts, z0)[0]]
+    finally:
+        fm_qa.BODY_R = old
+    print("LARGURA rotas com trecho < 3,4 de largura: %s" % (estreitas or "nenhuma"))
     return res
 
 

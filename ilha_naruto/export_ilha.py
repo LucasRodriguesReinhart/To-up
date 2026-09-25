@@ -74,6 +74,24 @@ def to_world():
     # (a Part do marcador usa CFrame.fromMatrix(pos, X, Y): o avanco e o UpVector dela; os atributos evitam a duvida)
     for o in bpy.data.objects:
         if o.type == "EMPTY" and o.users_collection and o.users_collection[0].name == ER.MARKER_COLL:
+            if "waypoints" in o.keys():
+                pts = []
+                for t in str(o["waypoints"]).split(";"):
+                    x, y, z = (float(v) for v in t.split(","))
+                    pts.append("%.2f,%.2f,%.2f" % tuple(ER.to_rbx(WORLD @ Vector((x, y, z)))))
+                o["waypoints"] = ";".join(pts)
+            for k in list(o.keys()):
+                v = o[k]
+                if hasattr(v, "__len__") and not isinstance(v, str) and len(v) == 3:
+                    try:
+                        w = [float(c) for c in v]
+                    except (TypeError, ValueError):
+                        continue
+                    if k.endswith(("pivot", "_pos", "center")):
+                        w = ER.to_rbx(WORLD @ Vector(w))
+                    for ax, c in zip("xyz", w):
+                        o["%s_%s" % (k, ax)] = round(c, 3)
+                    del o[k]
             f = (o.matrix_world.to_3x3() @ Vector((0.0, 1.0, 0.0))).normalized()
             o["fwd_x"] = round(f.x, 4)
             o["fwd_z"] = round(-f.y, 4)
@@ -94,14 +112,14 @@ ER.SPAWN_FALLBACK = False
 ER.TITLE = "ilha"
 ER.GROUPS = ["02_TERRAIN", "03_MINING", "04_VILLAGE", "05_SUMMON", "06_WATER", "07_NEXT_ISLAND",
              "08_PURCHASE_GATES", "09_PROPS", "10_VEGETATION", "12_VFX_HELPERS"]
-ER.SKIP_PREFIX = ("COL_", "SCALE_", "BLK_", "NPC_", "SKY_Sea", "SKY_Clouds", "GATEGAL_", "CAM_")
+ER.SKIP_PREFIX = ("COL_", "SCALE_", "BLK_", "NPC_", "SKY_Sea", "SKY_Clouds", "GATEGAL_", "CAM_", "MINE_Ore_")
 ER.SKIP_NAMES = set()
 ER.OWNERS = [("TER_", "terrain"), ("SKY_", "terrain"), ("MINE_", "mining"), ("ENT_", "entrance"),
              ("VIL_", "village"), ("SUM_", "summon"), ("WATER_", "water"), ("EXIT_", "exit"), ("GATE_", "gate_db"),
              ("VFX_", "vfx"), ("VEG_", "vegetation"), ("PROP_", "props")]
 ER.BUDGET_OWNER = {"terrain": (110000, 130), "mining": (48000, 70), "entrance": (32000, 42), "village": (100000, 150),
                    "summon": (38000, 48), "water": (24000, 38), "exit": (22000, 32), "gate_db": (26000, 34),
-                   "vfx": (12000, 24), "vegetation": (40000, 50), "props": (26000, 45)}
+                   "vfx": (12000, 28), "vegetation": (45000, 60), "props": (26000, 45)}
 ER.BUDGET = {"static_tris": 470000, "static_meshes": 660, "vfx_tris": 0, "vfx_meshes": 0, "total_tris": 470000,
              "total_meshes": 660, "materials": 110, "shadow_meshes": 300, "day_lights": 36, "col": 1150}
 cx, cy = to_world_xy(0.0, 0.0)
@@ -112,11 +130,15 @@ ER.SKYLINE_MODEL = ("SKY_Islets",)
 ER.BACKGROUND = ("SKY_Islets",)
 ER.CARVED = ("__nenhum__",)
 ER.NO_FOLD_OBJ = ("VFX_",)
-ER.SHELL_OBJ = ("VIL_MainHall", "VIL_WeaponShop", "VIL_Ramen", "VIL_Mill")
-ER.CAM_COL_AREAS = {}
-ER.NIGHT_ONLY = ("L_Lantern", "L_Toro", "L_Ring", "L_Bridge", "L_Path")
-ER.LIGHT_KEEP = ("L_Summon", "L_Gate", "L_Village_Hall", "L_Mill")
-ER.FOLD_PROTECT = ER.FOLD_PROTECT + ("Summon_", "DB_Energy", "Metal_Gold")
+# camera: as PAREDES de colisao dos interiores ganham a tag CamOccluder (o Popper respeita a tag, como no lobby).
+# Sem cascas visuais: props internos (balcao, estantes) nao podem ocluir a camera nem pesar na fisica do celular.
+ER.SHELL_OBJ = ()
+ER.CAM_COL_AREAS = {"VillageHall": 5.0, "VillageShop": 5.0, "VillageRamen": 5.0, "HousesMill": 5.0}
+# lanternas externas: so a noite (de dia so interiores, nucleo do fosso, summon e barreira)
+ER.NIGHT_ONLY = ("L_Lantern", "L_Toro", "L_Ring", "L_Bridge", "L_Path", "L_Entrance_", "L_Exit_Anchor",
+                 "L_GateDB_Lantern", "L_Mining_Gate", "L_Summon_Lantern")
+ER.LIGHT_KEEP = ("L_Summon_Portal", "L_Summon_Star", "L_GateDB_Barrier", "L_Village_Hall", "L_Houses_Mill")
+ER.FOLD_PROTECT = ER.FOLD_PROTECT + ("Summon_", "DB_Energy", "Metal_Gold", "Energy_Core")
 
 
 def atomic(name):
@@ -144,6 +166,67 @@ def safe_candidates():
 
 ER.SAFE_CANDIDATES = safe_candidates
 
+# sombra: o export_roblox mede a distancia da ORIGEM do lobby (SHADOW_DIST 220); a ilha fica a 420 dali e saia
+# inteira sem sombra. Aqui a distancia e medida do CENTRO DA ILHA.
+_CX, _CY = to_world_xy(0.0, 0.0)
+_PF = ER.piece_flags
+
+
+def _piece_flags(obname, mname, c, sz, tris):
+    return _PF(obname, mname, c - Vector((_CX, _CY, 0.0)), sz, tris)
+
+
+ER.piece_flags = _piece_flags
+
+
+def _cap_shadows(pieces, limit):
+    on = [p for p in pieces if p["shadow"]]
+    if len(on) <= limit:
+        return []
+    rc = ER.to_rbx((_CX, _CY, 0.0))
+
+    def prio(p):
+        c = p["center_rbx"]
+        return Vector(p["size_rbx"]).length / (1.0 + math.hypot(c[0] - rc[0], c[2] - rc[2]) / 110.0)
+    on.sort(key=lambda p: (prio(p), p["name"]))
+    cut = on[:len(on) - limit]
+    for p in cut:
+        p["shadow"] = False
+    return [p["name"] for p in cut]
+
+
+ER.cap_shadows = _cap_shadows
+
+# colisao de bloqueio dos portoes: fora da deduplicacao (uma caixa da moldura "coberta" por ela sumiria e, depois do
+# desbloqueio, abriria um buraco); volta intacta e conferida (1 por portao)
+_COLS = ER.collisions
+
+
+def _collisions(log):
+    locks = [o for o in bpy.data.objects if o.name.startswith("COL_Gate") and "Lock_" in o.name]
+    for o in locks:
+        o.name = "LOCKTMP_" + o.name
+    try:
+        out = _COLS(log)
+    finally:
+        for o in locks:
+            o.name = o.name[len("LOCKTMP_"):]
+    for o in locks:
+        b = ER._col_box(o)
+        R = b["R"]
+        out.append({"name": o.name, "kind": "GateLock", "pos": ER.to_rbx(b["c"]), "x": ER.to_rbx(R.col[0]),
+                    "y": ER.to_rbx(R.col[1]), "size": [round(2 * b["h"].x, 3), round(2 * b["h"].y, 3),
+                                                       round(2 * b["h"].z, 3)], "cam": False})
+    gates = {o["key"] if "key" in o.keys() else o.name[5:] for o in bpy.data.objects
+             if o.type == "EMPTY" and re.match(r"^GATE_[A-Za-z]+$", o.name)}
+    for g in gates:
+        n = sum(1 for c in out if c["name"].startswith("COL_Gate%sLock_" % g))
+        assert n == 1, "portao %s com %d colisoes de bloqueio" % (g, n)
+    return out
+
+
+ER.collisions = _collisions
+
 
 import export_ilha_lua as XL
 
@@ -151,6 +234,8 @@ import export_ilha_lua as XL
 def main():
     print("EXPORT_ILHA: %d materiais Glow -> Neon" % XL.neon_rules())
     n_gal = drop_gallery()
+    for o in [o for o in bpy.data.objects if o.name.startswith("COL_MineOre")]:
+        bpy.data.objects.remove(o, do_unlink=True)
     n_w = to_world()
     vfx = XL.vfx_list(ER)
     ER.EXTRA_LUA = XL.extra_lua(ER, vfx)

@@ -23,7 +23,7 @@ def stair_notch(u_deg, r_in, depth, hw):
             (ux * depth - vx * hw, uy * depth - vy * hw), (ux * rin - vx * hw, uy * rin - vy * hw)]
 
 
-RADIAL_STAIRS = [("C", 90.0, 12.0), ("NW", 128.0, 9.0), ("NE", 52.0, 9.0), ("SUMMON", 170.0, 12.0)]
+RADIAL_STAIRS = [("C", 90.0, 12.0), ("NW", 128.0, 9.0), ("NE", 52.0, 12.0), ("SUMMON", 170.0, 12.0)]
 
 
 STAIR_TOP_R = 82.5 + 8 * L.TREAD   # 96.1
@@ -87,8 +87,8 @@ def t1_arc_fill(A):
                 new.append((g + da, s1))
         spans = new
     for s0, s1 in spans:
-        IL.col_annulus(A, L.T1_WALL_R, STAIR_TOP_R + 0.2, s0, s1, L.G - 1.0, L.T1, max(2, int((s1 - s0) / 3.0)))
-    IL.col_annulus(A, STAIR_TOP_R, STAIR_TOP_R + 5.0, a0, a1, L.G - 1.0, L.T1, int((a1 - a0) / 3.0))
+        IL.col_annulus(A, L.T1_WALL_R, STAIR_TOP_R + 0.2, s0, s1, L.G - 1.0, L.T1, max(2, int((s1 - s0) / 5.0)))
+    IL.col_annulus(A, STAIR_TOP_R, STAIR_TOP_R + 5.0, a0, a1, L.G - 1.0, L.T1, int((a1 - a0) / 5.0))
 
 
 def corridor(x, y):
@@ -170,18 +170,35 @@ def ramp_ends(side):
     return top, bot, a_top
 
 
+def stream_bed_poly():
+    """leito do riacho do vale (da bacia da bica ate alem da borda SE): meia-largura (STREAM_W + 0.6) / 2"""
+    pts = list(L.STREAM)
+    (x0, y0), (x1, y1) = pts[0], pts[1]
+    import math as _m
+    d = _m.hypot(x1 - x0, y1 - y0)
+    pts.insert(0, (x0 - (x1 - x0) / d * 2.5, y0 - (y1 - y0) / d * 2.5))
+    (xa, ya), (xb, yb) = pts[-2], pts[-1]
+    d = _m.hypot(xb - xa, yb - ya)
+    pts.append((xb + (xb - xa) / d * 8.0, yb + (yb - ya) / d * 8.0))
+    return IL.ribbon_poly(pts, (L.STREAM_W + 0.6) / 2)
+
+
 def terrain_col():
-    """colisao do chao da ilha inteira (independe do visual: o terreno detalhado usa a mesma)"""
+    """colisao do chao da ilha inteira (independe do visual: o terreno detalhado usa a mesma).
+    Rodada 2: faixas mais largas (teto de colisoes do export) e o LEITO do riacho do vale fora do chao G: no leito a
+    colisao fica na lamina d'agua (L.STREAM_WATER), 1,6 abaixo - quem pisa no riacho anda dentro dele."""
     A = "Terrain"
+    bed = stream_bed_poly()
     for half in IL.base_halves(L.PIT_R - 0.5):
-        IL.col_poly(A, half, L.G - 8.0, L.G, 3.0)
-    IL.col_poly(A, IL.arc_pts(L.PIT_R, 0, 360, 4.0)[:-1], L.PIT - 6.0, L.PIT, 3.0)
-    IL.col_annulus(A, L.RING_R0, L.RING_R1, 0.0, 360.0, L.PIT - 0.5, L.RING, 72)
-    IL.col_annulus(A, L.RING_R1 - 0.5, L.T1_WALL_R, L.T1_WALL_A[0], L.T1_WALL_A[1], L.G - 1.0, L.RING, 36)
-    IL.col_poly(A, t1_poly_notched(), L.G - 1.0, L.T1, 2.0, mode="inter")
+        IL.col_poly(A, half, L.G - 8.0, L.G, 5.0, mode="inter", minus_polys=(bed,))
+    IL.col_poly("TerrainBed", bed, L.STREAM_WATER - 6.0, L.STREAM_WATER, 4.0, mode="union")
+    IL.col_poly(A, IL.arc_pts(L.PIT_R, 0, 360, 4.0)[:-1], L.PIT - 6.0, L.PIT, 5.0)
+    IL.col_annulus(A, L.RING_R0, L.RING_R1, 0.0, 360.0, L.PIT - 0.5, L.RING, 48)
+    IL.col_annulus(A, L.RING_R1 - 0.5, L.T1_WALL_R, L.T1_WALL_A[0], L.T1_WALL_A[1], L.G - 1.0, L.RING, 24)
+    IL.col_poly(A, t1_poly_notched(), L.G - 1.0, L.T1, 3.0, mode="inter")
     t1_arc_fill(A)
-    IL.col_poly(A, t2_poly_notched(), L.T1 - 1.0, L.T2, 2.0, mode="inter")
+    IL.col_poly(A, t2_poly_notched(), L.T1 - 1.0, L.T2, 3.0, mode="inter")
     top = L.T2_STAIR_Y0 + 8 * L.TREAD
     col_box2(A, (-L.T2_STAIR_W / 2 - 1.0, top - 0.2, L.T1), (L.T2_STAIR_W / 2 + 1.0, top + 2.4, L.T2))
-    IL.col_poly(A, IL.cliff_poly(), L.T2 - 1.0, L.CLIFF_TOP, 4.0)
+    IL.col_poly(A, IL.cliff_poly(), L.T2 - 1.0, L.CLIFF_TOP, 6.0)
     rim_guard()

@@ -30,7 +30,7 @@ RING_WALL_T = 2.0         # muro de arrimo externo do anel (r 82..84) nas faces 
 FENCE_R = 60.9            # cerca da borda do fosso (em cima do anel)
 PIT_STAIR_W = 10.0        # escadas N e S para dentro do fosso
 PIT_STAIR_N = 9           # 9 x 0.778 = 7.0
-PIT_RAMP_W = 6.0          # rampas de madeira L e O (tangentes ao muro)
+PIT_RAMP_W = 8.0          # rampas de madeira L e O (tangentes ao muro); 8 desde a rodada 2 (6 virava fila unica)
 PIT_RAMP_A = (-22.0, 12.0)    # graus: topo e pe da rampa leste (a oeste e o espelho)
 CORE_R = 10.0             # rochedo central (minerio raro)
 DERRICKS = [50.0, 130.0, 230.0, 310.0]   # torres de madeira (angulo, r 50)
@@ -46,7 +46,7 @@ GATE_OPEN_W = 20.0
 GATE_OPEN_H = 18.0
 GATE_W = 52.0
 GATE_D = 8.0
-LIONS = [(-18.0, -115.5), (18.0, -115.5)]
+LIONS = [(-20.0, -116.0), (20.0, -116.0)]   # rodada 2: a frente das alas, nas quinas da praca junto a ponte
 ENTRY_PLAZA = (-16.0, -106.0, 16.0, -92.0)     # x0, y0, x1, y1 (piso G)
 ENTRY_STAIR_Y0 = -92.0    # 5 degraus G -> anel (+4)
 ENTRY_STAIR_N = 5
@@ -58,7 +58,11 @@ T1_WALL_A = (26.0, 200.0)
 T2_WALL_Y = 126.0         # muro T1 -> T2 (reto)
 T2_WALL_X = (-78.0, 78.0)
 VILLAGE_STAIRS = {        # escadas anel -> T1 (angulo em graus sobre o arco T1_WALL_R, largura)
-    "C": (90.0, 12.0), "NW": (128.0, 9.0), "NE": (52.0, 9.0)}
+    "C": (90.0, 12.0), "NW": (128.0, 9.0), "NE": (52.0, 12.0)}   # NE = caminho da progressao (saida): 12
+# escadas laterais gramado (G) -> anel, dos 2 lados do portao (as refs 14/18 tem): radiais, pe em r 92,5, topo r 84
+SIDE_STAIRS = [(247.0, 10.0), (293.0, 10.0)]          # (angulo, largura) - 5 espelhos de 0,8, piso 1,7
+# escada vale leste (G) -> T1, encostada no muro radial de 26 graus pelo lado do vale: liga o moinho a saida
+VALLEY_STAIR = dict(foot=(82.0, 33.0), top=(101.0, 43.0), width=8.0, n=13)
 T2_STAIR_W = 12.0         # escada central T1 -> T2 (y 116..128)
 T2_EXIT_CUT = -14.85      # o T2 so existe onde x - y <= isto (recorte paralelo a ponte de saida, 10,5 do eixo)
 T2_STAIR_Y0 = 116.0
@@ -73,7 +77,8 @@ HOUSES_T1 = [(38.0, 107.0, 16.0, 12.0, 0.0, "Roof_Green"), (-84.0, 110.0, 16.0, 
 HOUSES_T2 = [(-98.0, 160.0, 16.0, 14.0, 0.0, "Roof_Terracotta"), (96.5, 149.5, 13.5, 12.0, 0.0, "Roof_Green"),
              (-126.0, 136.0, 13.0, 12.0, 0.0, "Roof_Green")]
 BACK_CLIFF_Y = 186.0      # pe do paredao (T2) -> topo em CLIFF_TOP
-BACK_FALLS = [(-80.0, 188.0), (80.0, 188.0)]
+BACK_FALLS = [(-80.0, 188.0), (80.0, 188.0), (-30.0, 188.0)]   # a 3a (rodada 2) cai num poco atras do salao
+CANAL_MID = [(-30.0, 177.0), (-44.0, 179.0), (-60.0, 179.5), (-72.0, 178.0)]  # poco da 3a queda -> poco NO (-80)
 
 # ------------------------------------------------------------------ summon (O-NO, nivel T1)
 SUMMON_C = (-120.0, 22.0)
