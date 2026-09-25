@@ -122,11 +122,11 @@ def mining():
         r = rng.uniform(0, 4.0)
         h = rng.uniform(6.0, 13.0)
         cr.cyl(1.4, h, (r * math.cos(a), r * math.sin(a), L.PIT + 4.0 + h / 2),
-               (rng.uniform(-0.3, 0.3), rng.uniform(-0.3, 0.3), 0), "Crystal_Blue", 6, r2=0.2, bevel=0.0)
+               (rng.uniform(-0.3, 0.3), rng.uniform(-0.3, 0.3), 0), "Cliff_Rock_Tan", 6, r2=0.2, bevel=0.0)
     cr.finish()
     col_box("Core", (L.CORE_R * 1.6, L.CORE_R * 1.6, 8.0), (0, 0, L.PIT + 4.0))
     # minerio: marcador + pedra de marcacao colorida por raridade (so blockout)
-    tint = {"COMMON": "Stone_Wall_Dark", "UNCOMMON": "Grass_Konoha", "EPIC": "Crystal_Purple",
+    tint = {"COMMON": "Stone_Wall_Dark", "UNCOMMON": "Grass_Konoha", "EPIC": "Cliff_Rock_Tan_C",
             "SUPERLEGENDARY": "Metal_Gold"}
     om = MB("MINE_Ore_Placeholders", "03_MINING", rng)
     for kind, i, x, y, r in L.ore_points():

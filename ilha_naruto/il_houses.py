@@ -993,7 +993,7 @@ def mill_exterior(mb, rng):
         mb.rock((hx + math.cos(a) * 1.3, hy + math.sin(a) * 1.3, G + 10.7), (1.3, 1.1, 0.8), "Stone_Wall_Dark", 1)
     for k in range(2):
         a = k * math.pi + 1.1
-        FP.crystal_cluster(mb, (hx + math.cos(a) * 0.8, hy + math.sin(a) * 0.8, G + 10.5), 0.55, "Crystal_Blue", rng, 3)
+        FP.crystal_cluster(mb, (hx + math.cos(a) * 0.8, hy + math.sin(a) * 0.8, G + 10.5), 0.55, "Stone_Wall_Dark", rng, 3)
     _chute(mb, V(hx, hy - 0.5, G + 7.7), V(hx, STAMP_Y + 0.45, AX_Z - 2.4))
     col_box2(A, (hx - 2.5, hy - 2.5, G - 0.3), (hx + 2.5, hy + 2.5, G + 10.9))
     ore_cart(mb, (hx + 4.6, hy + 0.6, G), math.pi / 2, rng)
@@ -1029,20 +1029,21 @@ def barrel(mb, loc, r=1.0, h=2.5):
 
 
 def ore_cart(mb, loc, yaw, rng):
-    """carrinho de minerio: cacamba de tabuas com aro de ferro, 4 rodas, cristais"""
+    """carrinho de suprimentos do moinho: cacamba de tabuas com aro de ferro, 4 rodas, carga de pedra (sem
+    minerio/cristal: o jogo tem o proprio sistema/assets de minerio)"""
     x, y, z = loc
     F = FP.Frame(x, y, z, yaw)
     mb.box((3.2, 2.0, 0.4), F.p(0, 0, 1.1), F.r(), "Metal_Dark", 0.0)
     FP.frustum(mb, tuple(F.p(0, 0, 1.3)), 2.6, 1.6, 3.4, 2.3, 1.6, "Wood_Plank", ang=yaw)
     mb.box((3.6, 2.5, 0.3), F.p(0, 0, 2.85), F.r(), "Metal_Dark", 0.0)      # aro 0,1 acima da cacamba
-    mb.box((3.0, 1.9, 0.3), F.p(0, 0, 3.0), F.r(), "Stone_Wall_Dark", 0.0)    # minerio 0,15 acima do aro
+    mb.box((3.0, 1.9, 0.3), F.p(0, 0, 3.0), F.r(), "Stone_Wall_Dark", 0.0)    # carga de pedra 0,15 acima do aro
     for sx in (-1, 1):
         for sy in (-1, 1):
             mb.cyl(0.62, 0.35, F.p(sx * 1.1, sy * 1.2, 0.62), F.r(math.pi / 2, 0, 0), "Metal_Dark", 10, bevel=0.0)
-    FP.crystal_cluster(mb, tuple(F.p(0, 0, 3.05)), 0.7, "Crystal_Blue", rng, 5)
+    FP.crystal_cluster(mb, tuple(F.p(0, 0, 3.05)), 0.7, "Stone_Wall_Dark", rng, 5)
 
 
-def _open_crate(mb, loc, s, yaw, rng, m="Crystal_Blue"):
+def _open_crate(mb, loc, s, yaw, rng, m="Stone_Wall_Dark"):
     x, y, z = loc
     F = FP.Frame(x, y, z, yaw)
     th = 0.3
@@ -1160,7 +1161,7 @@ def mill_interior(mb, rng):
     for yy in (CY0 + 0.1, CY1 - 0.1):          # cabeceiras escuras (fecham as pontas do corpo de tabuas)
         mb.box2((CX0 - 0.05, yy - 0.2, FL), (CX1 + 0.05, yy + 0.2, FL + 3.1), "Wood_Dark", 0.0)
     bz = FL + 3.5
-    # balanca de pratos (ferro) e bandeja de cristais no tampo
+    # balanca de pratos (ferro) e bandeja de amostras de pedra no tampo
     bx = (CX0 + CX1) / 2
     mb.box((1.0, 1.0, 0.3), (bx, CY1 - 1.3, bz + 0.15), (0, 0, 0), "Metal_Dark", 0.0)
     mb.box((0.3, 0.3, 1.7), (bx, CY1 - 1.3, bz + 1.1), (0, 0, 0), "Metal_Dark", 0.0)
@@ -1169,7 +1170,7 @@ def mill_interior(mb, rng):
         mb.cyl(0.6, 0.3, (bx, CY1 - 1.3 + sy * 1.1, bz + 1.0), (0, 0, 0), "Metal_Dark", 8, r2=0.45, bevel=0.0)
         mb.box((0.3, 0.3, 0.7), (bx, CY1 - 1.3 + sy * 1.1, bz + 1.5), (0, 0, 0), "Metal_Dark", 0.0)
     mb.box((1.1, 1.8, 0.6), (bx, CY0 + 1.4, bz + 0.3), (0, 0, 0), "Wood_Dark", 0.0)
-    FP.crystal_cluster(mb, (bx, CY0 + 1.4, bz + 0.6), 0.5, "Crystal_Blue", rng, 3)
+    FP.crystal_cluster(mb, (bx, CY0 + 1.4, bz + 0.6), 0.5, "Stone_Wall_Dark", rng, 3)
     col_box2(A, (CX0 - 0.2, CY0 - 0.2, FL), (CX1 + 0.2, CY1 + 0.2, FL + 3.5))
     # ---- estante baixa atras do vendedor (parede leste, lado sul: abaixo da roda de coroa)
     sx0, sx1, sy0, sy1 = IX1 - 1.0, IX1, IY0 + 0.6, 9.4
@@ -1182,7 +1183,7 @@ def mill_interior(mb, rng):
         for j in range(3):
             yy = sy0 + 1.0 + j * (sy1 - sy0 - 2.0) / 2
             if (i + j) % 2:
-                FP.crystal_cluster(mb, ((sx0 + sx1) / 2, yy, z + 0.15), 0.45, "Crystal_Blue", rng, 2)
+                FP.crystal_cluster(mb, ((sx0 + sx1) / 2, yy, z + 0.15), 0.45, "Stone_Wall_Dark", rng, 2)
             else:
                 mb.cyl(0.42, 0.9, ((sx0 + sx1) / 2, yy, z + 0.6), (0, 0, 0), "Wood_Plank", 8, bevel=0.0)
     col_box2(A, (sx0, sy0 - 0.2, FL), (sx1, sy1 + 0.2, FL + 4.2))
@@ -1198,7 +1199,7 @@ def mill_interior(mb, rng):
         for sg in (-1, 1):
             mb.beam(b, b + hd * sg * 1.0 - ax * 0.3, 0.5, 0.32, "Metal_Dark", 0.0)
     mb.box((3.4, 0.4, 0.4), (96.9, IY0 + 0.2, FL + 5.0), (0, 0, 0), "Wood_Dark", 0.0)
-    # ---- FAIXA NORTE: pilao (almofariz) ao longo do muro norte: base de pedra, caixa de tabuas, leito de minerio
+    # ---- FAIXA NORTE: pilao (almofariz) ao longo do muro norte: base de pedra, caixa de tabuas, leito de pedra
     px0, px1 = STAMPS_X[0] - 1.6, STAMPS_X[-1] + 1.6
     py0, py1 = STAMP_Y - 1.3, IY1
     mb.box2((px0 - 0.2, py0 - 0.2, FL - 0.1), (px1 + 0.2, py1, FL + 1.1), "Stone_Wall_Dark", 0.0)
@@ -1209,7 +1210,7 @@ def mill_interior(mb, rng):
     for x in (px0 + 0.8, (px0 + px1) / 2, px1 - 0.8):
         mb.box2((x - 0.2, py0 - 0.15, FL + 1.1), (x + 0.2, py1, BED_Z - 0.1), "Metal_Dark", 0.0)
     for x in (97.9, 100.1):
-        FP.crystal_cluster(mb, (x, STAMP_Y - 0.1, BED_Z - 0.05), 0.45, "Crystal_Blue", rng, 3)
+        FP.crystal_cluster(mb, (x, STAMP_Y - 0.1, BED_Z - 0.05), 0.45, "Stone_Wall_Dark", rng, 3)
     # estrutura-guia dos socos + bracos que seguram a arvore de cames
     gx0, gx1 = px0 - 0.5, px1 + 0.5
     for x in (gx0, gx1):
