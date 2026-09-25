@@ -13,10 +13,11 @@
 import math, random
 from mathutils import Vector
 import il_lib as IL
-from il_lib import MB, col_box, mk, light
+from il_lib import col_box, mk, light
 import il_layout as L
 import fm_parts as FP
 import il_exit_plan as P
+from il_exit_plan import XMB as MB
 
 C = "07_NEXT_ISLAND"
 Z = P.Z
@@ -61,6 +62,33 @@ Z_SPRING = CROWN - R_VOID           # nascenca dos arcos plenos
 D_GATEWAY = 8.0                     # pilones da entrada: onde o tabuleiro sai do T1 (bordo SE)
 LANTERN_D = [18.0, 30.0] + [(a + b) / 2 for a, b in PIERS] + [P.D_ISL - 0.6]
 PIER_BASE = [-12.0, -6.0, -6.0]     # sapata de cada pilar (P1 desce pela borda da ilha)
+
+def _extra():
+    """rotas e sondas registradas no il_qa (EXTRA_ROUTES / EXTRA_PROBES)"""
+    def ep(d, lat=0.0):
+        w = F.p(lat, d, 0.0)
+        return (round(w.x, 2), round(w.y, 2))
+    a = math.radians(L.VILLAGE_STAIRS["NE"][0])
+    routes = {
+        # a rua de 45 graus inteira ate o tabuleiro (a lanterna da trilha fica fora dela)
+        "rua_45_ate_ponte": ([(73.0, 73.0), (80.0, 80.0), (88.0, 88.0), L.EXIT_START, ep(20.0)], L.T1),
+        # pe da escada NE -> topo -> rua em arco -> rua de 45 graus (entre as lanternas da trilha)
+        "trilha_escada_NE": ([(78.0 * math.cos(a), 78.0 * math.sin(a)), (101.0 * math.cos(a), 101.0 * math.sin(a)),
+                              (99.8 * math.cos(math.radians(46.0)), 99.8 * math.sin(math.radians(46.0))),
+                              (76.0, 76.0), L.EXIT_START], L.RING),
+    }
+    ux, uy = L.exit_dir()
+    probes = []
+    for lat in (-7.5, 7.5):                       # guarda da cabeceira nas quinas do vao
+        x, y = ep(P.D_END - 1.0, lat)
+        probes.append(("EXIT_ancora_%+.0f" % lat, x, y, Z, ux, uy))
+    for d, lat in ((97.8, 13.6), (126.0, 13.6), (P.D_GATE, 20.4)):      # bordas da ilhota e do nicho do portao
+        for s in (-1, 1):
+            x, y = ep(d, s * lat)
+            w = F.p(s, 0, 0) - F.p(0, 0, 0)
+            probes.append(("EXIT_ilhota_d%.0f_%s" % (d, "SE" if s > 0 else "NO"), x, y, Z, w.x, w.y))
+    return routes, probes
+
 
 CAMS = {
     "CAM_Exit_BridgeSide": (tuple(F.p(62, 26, 34)), tuple(F.p(0, 52, 4)), 22),
@@ -124,7 +152,7 @@ def voussoirs(mb, ctr, R, a0, a1, n, rng, m="Stone_Paving_Warm", key_m="Stone_Pa
             key = i == n // 2
             rad = (1.9 if key else (1.45 if i % 2 else 1.15))
             dep = 1.25 if key else 0.95
-            rm = R + rad / 2 - 0.08
+            rm = R + rad / 2 - 0.15              # face de dentro 0,15 abaixo do intradorso (sem z-fight)
             d = dc + rm * math.cos(tm)
             z = zc + rm * math.sin(tm)
             ln = R * abs(t1 - t0) * (1.0 if key else 0.94)
@@ -171,15 +199,16 @@ def pylon(mb, x, d, h, s=1.0, name=None):
     mb.box((b + 0.6, b + 0.6, 0.5), F.p(x, d, Z + h + 0.25), F.r(), "Stone_Wall_Dark", 0.12)
     lz = Z + h + 0.5
     g = 1.9 * s
-    mb.box((g, g, 2.0 * s), F.p(x, d, lz + 1.0 * s), F.r(), "Lantern_Glow", 0.0)
+    hl = 2.0 * s                         # camara acesa: de lz ate lz + hl (as pontas entram 0,1 nas lajes)
+    mb.box((g, g, hl + 0.2), F.p(x, d, lz + hl / 2), F.r(), "Lantern_Glow", 0.0)
     for sx in (-1, 1):
         for sy in (-1, 1):
-            mb.box((0.42 * s, 0.42 * s, 2.1 * s), F.p(x + sx * g / 2, d + sy * g / 2, lz + 1.05 * s), F.r(),
+            mb.box((0.46, 0.46, hl + 0.2), F.p(x + sx * g / 2, d + sy * g / 2, lz + hl / 2), F.r(),
                    "Stone_Wall_Light", 0.0)
-    mb.box((g + 0.8, g + 0.8, 0.35), F.p(x, d, lz + 2.1 * s + 0.17), F.r(), "Stone_Wall_Dark", 0.08)
-    mb.cyl((g + 1.6) * 0.72, 1.3 * s, F.p(x, d, lz + 2.1 * s + 0.35 + 0.65 * s), (0, 0, YAW + math.pi / 4),
+    mb.box((g + 0.8, g + 0.8, 0.35), F.p(x, d, lz + hl + 0.17), F.r(), "Stone_Wall_Dark", 0.08)
+    mb.cyl((g + 1.6) * 0.72, 1.3 * s, F.p(x, d, lz + hl + 0.35 + 0.65 * s), (0, 0, YAW + math.pi / 4),
            "Stone_Wall_Dark", 4, r2=0.3 * s, bevel=0.0)
-    mb.cyl(0.3 * s, 0.6 * s, F.p(x, d, lz + 2.1 * s + 0.35 + 1.6 * s), (0, 0, 0), "Stone_Wall_Dark", 6, bevel=0.0)
+    mb.cyl(0.3 * s, 0.6 * s, F.p(x, d, lz + hl + 0.35 + 1.6 * s), (0, 0, 0), "Stone_Wall_Dark", 6, bevel=0.0)
     return F.p(x, d, lz + 1.0 * s)
 
 
@@ -192,10 +221,14 @@ def rail_lantern(mb, x, d):
     mb.cyl(1.05, 0.75, F.p(x, d, Z + 5.4 + 0.37), (0, 0, YAW + math.pi / 4), "Stone_Wall_Dark", 4, r2=0.2, bevel=0.0)
 
 
+CAP_TOP = Z + 0.3                    # topo da capa escura da borda da plataforma (0,2 acima das lajes)
+
+
 def mureta(mb, pts, area, post_step=6.5):
-    """mureta de pedra (corpo claro + capa escura + pilaretes) sobre a borda da plataforma, com colisao"""
-    zb = Z + 0.15
-    for (ax, ad), (bx, bd) in zip(pts, pts[1:]):
+    """mureta de pedra (corpo claro + capa escura + pilaretes) sobre a borda da plataforma, com colisao.
+    Pilaretes 1,9 (a capa do corpo, 1,6, fica 0,15 para dentro) e sem pilarete repetido nas quinas."""
+    zb = CAP_TOP
+    for si, ((ax, ad), (bx, bd)) in enumerate(zip(pts, pts[1:])):
         a, b = Vector((ax, ad)), Vector((bx, bd))
         ln = (b - a).length
         if ln < 0.3:
@@ -205,10 +238,10 @@ def mureta(mb, pts, area, post_step=6.5):
         mb.box((1.2, ln, 2.0), F.p(c.x, c.y, zb + 1.0), F.r(0, 0, ang), "Stone_Wall_Light", 0.12)
         mb.box((1.6, ln + 0.3, 0.35), F.p(c.x, c.y, zb + 2.0 + 0.17), F.r(0, 0, ang), "Stone_Wall_Dark", 0.08)
         n = max(1, int(round(ln / post_step)))
-        for k in range(n + 1):
+        for k in range(1 if si > 0 else 0, n + 1):
             q = a + (b - a) * (k / n)
-            mb.box((1.7, 1.7, 2.75), F.p(q.x, q.y, zb + 1.37), F.r(0, 0, ang), "Stone_Wall_Light", 0.14)
-            mb.box((2.0, 2.0, 0.3), F.p(q.x, q.y, zb + 2.75 + 0.15), F.r(0, 0, ang), "Stone_Wall_Dark", 0.06)
+            mb.box((1.9, 1.9, 2.75), F.p(q.x, q.y, zb + 1.37), F.r(0, 0, ang), "Stone_Wall_Light", 0.14)
+            mb.box((2.2, 2.2, 0.3), F.p(q.x, q.y, zb + 2.75 + 0.15), F.r(0, 0, ang), "Stone_Wall_Dark", 0.06)
         col_box(area, (1.6, ln + 0.4, 4.0), F.p(c.x, c.y, Z + 2.0), F.r(0, 0, ang))
 
 
@@ -265,12 +298,13 @@ def bridge():
     mb.box((2 * HW + 1.6, 0.9, 0.6), F.p(0, D_ABUT + 0.2, Z_SPRING - 0.3), F.r(), "Stone_Wall_Dark", 0.08)
     # cornija continua (as duas faces) e pilastras do encontro
     for s in (-1, 1):
-        mb.box((0.95, P.D_ISL - A0 + 0.6, 1.0), F.p(s * (HW + 0.03), (A0 + P.D_ISL) / 2, Z - 0.8), F.r(),
-               "Stone_Wall_Dark", 0.1)
+        mb.box((0.95, P.D_ISL - A0 + 0.6, 1.15), F.p(s * (HW + 0.03), (A0 + P.D_ISL) / 2, Z - 0.725), F.r(),
+               "Stone_Wall_Dark", 0.1)          # topo em Z-0,15: 0,15 acima do topo do corpo (Z-0,3)
     # --- calcamento do tabuleiro: fiadas transversais (juntas desencontradas) sobre leito escuro
     d0, d1 = -0.1, P.D_ISL - 0.1        # a rua do T1 (il_terrain) termina em d = -0,16
-    mb.box((2 * 8.2, d1 - D_GATEWAY + 1.0, 0.3), F.p(0, (D_GATEWAY - 1.0 + d1) / 2, Z - 0.2), F.r(),
-           "Stone_Wall_Dark", 0.0)
+    mb.box((2 * 8.2, P.D_ISL - d0, 0.3), F.p(0, (d0 + P.D_ISL) / 2, Z - 0.2), F.r(), "Stone_Wall_Dark", 0.0)
+    mb.box((2 * 8.2, D_GATEWAY - 0.8 - d0, 0.6), F.p(0, (d0 + D_GATEWAY - 0.8) / 2, Z - 0.65), F.r(),
+           "Stone_Wall_Dark", 0.0)      # fundo do recorte do T1 (x 96..108)
     d = d0
     row = 0
     while d < d1 - 0.5:
@@ -300,7 +334,7 @@ def bridge():
 
 def bridge_rails():
     rng = random.Random(8102)
-    mb = MB("EXIT_Rails", C, rng, detail="near")
+    mb = MB("EXIT_Rails", C, rng, detail="near", vcap=1)
     x = P.RAIL_X
     da, db = D_GATEWAY, P.D_ISL - 0.6
     stations = [da] + LANTERN_D
@@ -316,7 +350,7 @@ def bridge_rails():
             n = max(1, int(round((b_ - a_) / 3.2)))
             for k in range(1, n):
                 d = a_ + (b_ - a_) * k / n
-                mb.box((0.55, 0.55, 2.6), F.p(s * x, d, Z + 0.5 + 1.3), F.r(), "Wood_Dark", 0.08)
+                mb.box((0.66, 0.66, 2.6), F.p(s * x, d, Z + 0.5 + 1.3), F.r(), "Wood_Dark", 0.08)
             for zz, th in ((Z + 1.55, 0.34), (Z + 2.95, 0.42)):
                 mb.box((0.36, b_ - a_ + 0.3, th), F.p(s * x, (a_ + b_) / 2, zz), F.r(), "Wood_Plank", 0.06)
         # colisao do guarda-corpo (parede baixa continua)
@@ -345,7 +379,8 @@ def islet():
         x = -P.BAY_HW - 1.0 + off
         while x < P.BAY_HW + 1.0:
             cs = [(x - 1.35, d + 0.15), (x + 1.35, d + 0.15), (x + 1.35, d + 2.85), (x - 1.35, d + 2.85)]
-            if all(P.point_in(out, cx, cy) and P.dist_to_edges(out, cx, cy) > 0.95 for cx, cy in cs):
+            if all(P.point_in(out, cx, cy) and P.dist_to_edges(out, cx, cy) > 0.95 and cy < P.D_END - 1.65
+                   for cx, cy in cs):
                 hh = 0.4 + rng.uniform(-0.04, 0.04)
                 mb.box((2.8, 2.7, hh), F.p(x, d + 1.5, Z - 0.3 + hh / 2), F.r(0, 0, rng.uniform(-0.01, 0.01)),
                        "Stone_Paving_Warm", 0.0)
@@ -368,9 +403,9 @@ def islet():
                 continue
             e = (q - p).normalized()
             nrm = Vector((e.y, -e.x))                      # para fora (contorno anti-horario)
-            c = (p + q) / 2 - nrm * 0.5
+            c = (p + q) / 2 - nrm * 0.4
             ang = math.atan2(e.y, e.x) - math.pi / 2
-            mb.box((1.05, ln + 1.0, 0.5), F.p(c.x, c.y, Z - 0.1), F.r(0, 0, ang), "Stone_Wall_Dark", 0.08)
+            mb.box((0.8, ln + 0.8, 0.6), F.p(c.x, c.y, CAP_TOP - 0.3), F.r(0, 0, ang), "Stone_Wall_Dark", 0.08)
     # --- cabeceira: bastiao de pedra (face limpa em D_END), faixa de apoio da proxima ponte, soleira
     de = P.D_END
     bw = P.PLAT_HW + 0.4
@@ -378,7 +413,7 @@ def islet():
     mb.box((2 * bw + 0.8, 7.8, 0.7), F.p(0, de - 3.5 + 0.4, Z - 5.3 - 0.35), F.r(), "Stone_Wall_Dark", 0.1)
     FP.frustum(mb, F.p(0, de - 3.7 + 0.2, Z - 15.0), 2 * bw + 2.6, 8.4, 2 * bw + 0.4, 7.2, 9.0, "Stone_Wall_Light",
                ang=YAW)
-    mb.box((2 * P.ANCHOR_PYLON_X - 3.0, 1.5, 0.48), F.p(0, de - 0.75, Z - 0.12), F.r(), "Stone_Wall_Dark", 0.06)
+    mb.box((2 * P.ANCHOR_PYLON_X - 3.0, 1.55, 0.6), F.p(0, de - 0.775, CAP_TOP - 0.3), F.r(), "Stone_Wall_Dark", 0.06)
     # aparelho do bastiao: fiadas de blocos salientes nos lados e na face (o miolo de 19,6 da face fica liso:
     # e onde encosta o tabuleiro da proxima ilha)
     for k, z in enumerate((Z - 1.0, Z - 2.25, Z - 3.5, Z - 4.75)):
@@ -404,7 +439,7 @@ def islet():
     col_box("ExitIslet", (2 * P.BAY_HW, b1 - b0, 3.0), F.p(0, (b0 + b1) / 2, Z - 1.5), F.r())
 
     # --- muretas, pilones e lanternas da cabeceira
-    mr = MB("EXIT_Islet_Walls", C, rng, detail="near")
+    mr = MB("EXIT_Islet_Walls", C, rng, detail="near", vcap=1)
     ph = P.PLAT_HW - 0.6
     by0 = P.D_GATE + P.BAY[0][1]
     by1 = P.D_GATE + P.BAY[-1][1]
@@ -475,21 +510,126 @@ def rock():
                        "Cliff_Rock_Tan_Dark" if k % 3 == 1 else "Cliff_Rock_Tan", taper=2.0, rings=2, jitter=0.1,
                        tilt=0.06, top_m=("Grass_Konoha" if zt > Z - 3.0 else None), lip=0.6, rim=False)
     # o bastiao da cabeceira assenta em 3 blocos de rocha (nada de alvenaria pendurada no vazio)
-    for k, lx in enumerate((-10.5, 0.0, 10.5)):
+    for k, (lx, zt) in enumerate(((-10.0, Z - 13.2), (0.0, Z - 13.9), (10.0, Z - 13.5))):
         c = F.p(lx, P.D_END - 3.4, 0.0)
-        poly = FP._to_world(FP._rock_poly(6.2, 4.6, 7, rng, ex=2.4, jit=0.1), UX, UY)
-        FP.rock_column(mb, c, [(x * 0.35, y * 0.35) for x, y in poly], Z - rng.uniform(34.0, 44.0), Z - 13.6, rng,
+        poly = FP._to_world(FP._rock_poly(5.8, 4.4, 7, rng, ex=2.4, jit=0.1), UX, UY)
+        FP.rock_column(mb, c, [(x * 0.35, y * 0.35) for x, y in poly], Z - rng.uniform(34.0, 44.0), zt, rng,
                        "Cliff_Rock_Tan_Dark" if k == 1 else "Cliff_Rock_Tan", taper=1 / 0.35, rings=2, jitter=0.1,
                        tilt=0.0)
-    # raizes de rocha dos pilares
+    pier_roots(mb, rng)
+    mb.finish()
+
+
+# raizes dos pilares (rodada 2): nada de ponta de rocha pendurada no ar. Cada raiz desce ate z ~ -60 INCLINADA para
+# dentro da massa que a sustenta: P1 e P2 entram no penhasco baixo da ilha (o pe fica sob a prateleira), P3 desce
+# para a ilhota e se funde num contraforte que sai do cone da ilhota. (lean = deslocamento do topo sobre o pe)
+ROOTS = [  # (pe: d relativo ao centro do pilar, z do pe, escala do pe, material)
+    (-9.0, -62.0, 0.55, "Cliff_Rock_Tan"),
+    (-11.0, -60.0, 0.55, "Cliff_Rock_Tan"),
+    (10.0, -58.0, 0.55, "Cliff_Rock_Tan"),
+]
+
+
+def pier_roots(mb, rng):
     for i, (p0, p1) in enumerate(PIERS):
         dc = (p0 + p1) / 2
-        z_base = PIER_BASE[i]
-        poly = FP._to_world(FP._rock_poly(HW + 2.0, (p1 - p0) / 2 + 1.9, 8, rng, ex=2.6, jit=0.08, a0=0.2),
-                            UX, UY)
-        FP.rock_column(mb, F.p(0, dc, 0.0), [(x * 0.24, y * 0.24) for x, y in poly],
-                       (-52.0 if i == 0 else rng.uniform(-36.0, -30.0)), z_base + 1.2, rng,
-                       "Cliff_Rock_Tan", taper=1 / 0.24, rings=3, jitter=0.12, tilt=0.0)
+        z_top = PIER_BASE[i] + 1.2
+        off, z_foot, sc, m = ROOTS[i]
+        poly = FP._to_world(FP._rock_poly(HW + 2.4, (p1 - p0) / 2 + 3.8, 8, rng, ex=2.6, jit=0.08, a0=0.2), UX, UY)
+        lean = -UY * off
+        FP.rock_column(mb, F.p(0, dc + off, 0.0), [(x * sc, y * sc) for x, y in poly], z_foot, z_top, rng, m,
+                       taper=1 / sc, rings=4, jitter=0.1, tilt=0.0, lean=(lean.x, lean.y))
+        # bloco de quebra a meia altura (a raiz nao e um cone liso): colado na face de fora
+        zb = z_foot + (z_top - z_foot) * 0.35
+        for s in (-1, 1):
+            q = FP._to_world(FP._rock_poly(3.2, 2.6, 6, rng, ex=2.2, jit=0.12), UX, UY)
+            c = F.p(s * (HW * 0.62), dc + off * 0.62, 0.0)
+            FP.rock_column(mb, c, [(x * 0.6, y * 0.6) for x, y in q], zb - rng.uniform(12.0, 16.0),
+                           zb + rng.uniform(6.0, 10.0), rng, "Cliff_Rock_Tan_Dark" if (i + s) % 2 else m,
+                           taper=1 / 0.6, rings=2, jitter=0.1, tilt=0.05)
+    # contraforte do cone da ilhota ate o pe da raiz de P3 (a ilhota "segura" o ultimo pilar)
+    p0, p1 = PIERS[-1]
+    d_foot = (p0 + p1) / 2 + ROOTS[-1][0]
+    q = FP._to_world(FP._rock_poly(HW * 0.75, 5.5, 8, rng, ex=2.4, jit=0.1, a0=0.1), UX, UY)
+    lean = UY * (d_foot - (P.D_ISL + 10.0))
+    FP.rock_column(mb, F.p(0, P.D_ISL + 10.0, 0.0), [(x * 0.7, y * 0.7) for x, y in q], -72.0, ROOTS[-1][1] + 14.0,
+                   rng, "Cliff_Rock_Tan", taper=1 / 0.7, rings=3, jitter=0.1, tilt=0.0, lean=(lean.x, lean.y))
+
+
+# ------------------------------------------------------------------ guarda removivel da cabeceira (rodada 2)
+GUARD_D = P.D_END + 0.7            # eixo da COL (18,6 x 1,4 x 6): a face de dentro cai na borda d = 136
+
+
+def anchor_guard():
+    """PROVISORIO: enquanto a Ilha 2 nao existe, a borda da cabeceira (d = 136) nao pode ser uma queda livre.
+    COL_ExitAnchorGuard_* (parede invisivel) + EXIT_AnchorGuard (2 correntes entre os pilones). Os dois levam a
+    propriedade next_island_guard=True: a integracao da Ilha 2 APAGA os dois ao encostar a ponte seguinte."""
+    col = col_box("ExitAnchorGuard", (18.6, 1.4, 6.0), F.p(0, GUARD_D, Z + 3.0), F.r())
+    col["next_island_guard"] = True
+    rng = random.Random(8105)
+    mb = MB("EXIT_AnchorGuard", C, rng, detail="near", vcap=1)
+    import fm_portal_kit as K
+    d = P.D_END - 0.1
+    xa = P.ANCHOR_PYLON_X - 1.55                    # face de dentro do pilone (base 2,8 + folga)
+    for zz, sag in ((Z + 3.7, 1.1), (Z + 2.0, 0.6)):
+        K.chain(mb, F.p(-xa, d, zz), F.p(xa, d, zz), sag=sag, link=1.05, m="Metal_Dark", t=0.34, w=0.72)
+        for sx in (-1, 1):          # argola de ouro presa na face do pilone
+            mb.box((0.5, 0.9, 0.9), F.p(sx * (xa + 0.1), d, zz), F.r(), "Metal_Gold", 0.0)
+    ob = mb.finish()
+    ob["next_island_guard"] = True
+    ob["removed_by"] = "integracao da Ilha 2 (ponte seguinte encosta em ISLAND_NEXT_ANCHOR)"
+    return ob
+
+
+# ------------------------------------------------------------------ trilha da progressao (rodada 2)
+TRAIL_LAT = 9.9                    # lanternas ao lado da escada NE (12 de largura + pilaretes do terreno)
+
+
+def trail_spots():
+    """(x, y, z, yaw) das lanternas da trilha: pe e topo da escada NE (52 graus) e o meio da rua de 45 graus
+    (a cada ~24: topo da escada -> r 118 -> pilones da ponte em d = 8). Fora das rotas e da rua em arco."""
+    out = []
+    a = math.radians(L.VILLAGE_STAIRS["NE"][0])
+    ux, uy = math.cos(a), math.sin(a)
+    vx, vy = -uy, ux
+    for r, z in ((85.2, L.RING), (92.6, L.T1)):     # topo: na faixa de grama entre o muro (r 88) e a rua (r 96,3)
+        for s in (-1, 1):
+            out.append((ux * r + vx * s * TRAIL_LAT, uy * r + vy * s * TRAIL_LAT, z, a - math.pi / 2))
+    b = math.radians(L.EXIT_DEG)
+    ux, uy = math.cos(b), math.sin(b)
+    vx, vy = -uy, ux
+    # na rua so do lado SE (o lado NO e por onde o jogador corta o gramado vindo da escada e da vila)
+    r = 118.0
+    out.append((ux * r - vx * 8.8, uy * r - vy * 8.8, L.T1, b - math.pi / 2))
+    return out
+
+
+def trail_lantern(mb, x, y, z, yaw):
+    """lanterna de pedra da trilha com o acento DB: anel e colar de OURO e uma esfera de energia laranja no topo
+    (DB_Energy_Glow), sem texto. ~6,9 de altura; colisao so no poste."""
+    from fm_parts import Frame
+    T = Frame(x, y, z, yaw)
+    mb.box((2.3, 2.3, 0.6), T.p(0, 0, 0.3), T.r(), "Stone_Wall_Dark", 0.0)
+    mb.box((1.75, 1.75, 1.0), T.p(0, 0, 1.1), T.r(), "Stone_Wall_Light", 0.08)
+    mb.box((1.15, 1.15, 2.2), T.p(0, 0, 2.7), T.r(), "Stone_Wall_Light", 0.05)
+    mb.box((1.5, 1.5, 0.4), T.p(0, 0, 3.6), T.r(), "Metal_Gold", 0.0)
+    mb.box((2.1, 2.1, 0.4), T.p(0, 0, 4.0), T.r(), "Stone_Wall_Dark", 0.0)
+    mb.box((1.3, 1.3, 1.6), T.p(0, 0, 4.95), T.r(), "Lantern_Glow", 0.0)
+    for sx in (-1, 1):
+        for sy in (-1, 1):
+            mb.box((0.42, 0.42, 1.6), T.p(sx * 0.66, sy * 0.66, 4.95), T.r(), "Stone_Wall_Light", 0.0)
+    mb.box((2.0, 2.0, 0.35), T.p(0, 0, 5.87), T.r(), "Stone_Wall_Dark", 0.0)
+    mb.cyl(1.75, 0.9, T.p(0, 0, 6.49), (0, 0, yaw + math.pi / 4), "Stone_Wall_Dark", 4, r2=0.42, bevel=0.0)
+    mb.cyl(0.55, 0.36, T.p(0, 0, 7.1), (0, 0, yaw), "Metal_Gold", 8, bevel=0.0)
+    mb.ico(0.62, T.p(0, 0, 7.72), "DB_Energy_Glow", 1)
+    col_box("ExitTrail", (2.3, 2.3, 7.0), T.p(0, 0, 3.5), T.r())
+
+
+def trail():
+    rng = random.Random(8106)
+    mb = MB("EXIT_Trail", C, rng, detail="near", vcap=1)
+    for x, y, z, yaw in trail_spots():
+        trail_lantern(mb, x, y, z, yaw)
     mb.finish()
 
 
@@ -500,7 +640,9 @@ def markers():
     ax, ay = L.anchor_pos()
     mk("ISLAND_NEXT_ANCHOR", (ax, ay, Z), (0, 0, YAW), 5.0, "ARROWS",
        props={"width": L.EXIT_W, "deck_z": Z, "clear_h": L.PG_OPEN_H + 4.0, "heading_deg": L.EXIT_DEG,
-              "next_area": 2})
+              "next_area": 2,
+              "guard": "PROVISORIO: EXIT_AnchorGuard (visual) + COL_ExitAnchorGuard_* (COL), next_island_guard=True",
+              "guard_note": "a integracao da Ilha 2 REMOVE o guarda (visual + COL) quando a ponte seguinte encosta aqui"})
 
 
 def build():
@@ -508,4 +650,9 @@ def build():
     bridge_rails()
     islet()
     rock()
+    anchor_guard()
+    trail()
     markers()
+
+
+EXTRA_ROUTES, EXTRA_PROBES = _extra()

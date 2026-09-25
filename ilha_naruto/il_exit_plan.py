@@ -5,6 +5,54 @@
 import math
 import il_layout as L
 from fm_parts import Frame
+from il_lib import MB
+
+
+# ------------------------------------------------------------------ regras da rodada 2 (critica tecnica)
+def rule_bevel(dims, bevel):
+    """bevel 0 se a menor dimensao < 1,0; senao no maximo 5% da menor dimensao"""
+    mn = min(dims)
+    if not bevel or mn < 1.0:
+        return 0.0
+    return min(bevel, 0.05 * mn)
+
+
+class XMB(MB):
+    """MB com as regras novas: microchanfro controlado (rule_bevel) e nada com TODAS as dimensoes < 0,35.
+    vcap=1: sem variantes tonais (1 MeshPart por material: pecas pequenas repetidas)"""
+    skipped = 0
+
+    def __init__(self, name, collection, rng=None, detail="hero", floor=None, vcap=None):
+        MB.__init__(self, name, collection, rng, detail, floor)
+        self.vcap = vcap
+
+    def _family(self, m):
+        if self.vcap == 1:
+            return None
+        return MB._family(self, m)
+
+    def box(self, size, loc, rot=(0, 0, 0), m="Stone_Light", bevel=0.12, seg=1, tint=None):
+        if max(size) < 0.35:
+            XMB.skipped += 1
+            return
+        MB.box(self, size, loc, rot, m, rule_bevel(size, bevel), seg, tint)
+
+    def beam(self, a, b, w, h=None, m="Wood_Dark", bevel=0.08, roll=0.0, tint=None):
+        from mathutils import Vector
+        ln = (Vector(b) - Vector(a)).length
+        dims = (ln, w, h or w)
+        if max(dims) < 0.35:
+            XMB.skipped += 1
+            return
+        MB.beam(self, a, b, w, h, m, rule_bevel(dims, bevel), roll, tint)
+
+    def cyl(self, r, h, loc, rot=(0, 0, 0), m="Metal_Iron", n=12, r2=None, bevel=0.08, seg=1, caps=True, tint=None,
+            angle=0.5):
+        rmin = r if r2 is None else min(r, r2)
+        if max(2 * max(r, r2 or 0.0), h) < 0.35:
+            XMB.skipped += 1
+            return
+        MB.cyl(self, r, h, loc, rot, m, n, r2, rule_bevel((2 * rmin, h), bevel), seg, caps, tint, angle)
 
 Z = L.EXIT_Z
 HW = L.EXIT_W / 2.0                                  # 9: meia largura do tabuleiro

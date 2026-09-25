@@ -101,6 +101,10 @@ def _free_axes(x, y):
     # agua: riacho do vale e canal do T2 (7 do eixo), pocos das quedas do fundo, canal oeste
     if _seg_d(x, y, L.STREAM) < 7.0 or _seg_d(x, y, L.STREAM_T2) < 7.0:
         return False
+    if _seg_d(x, y, L.CANAL_MID) < 5.5 or (-42.0 <= x <= -18.0 and 172.0 <= y <= 188.0):
+        return False                                  # canal do meio e poco atras do salao
+    if x > 108.0 and 137.0 <= y <= 158.0:
+        return False                                  # vertedouro da queda NE
     for fx, fy in L.BACK_FALLS:
         if math.hypot(x - fx, y - (fy - 10.0)) < 11.0:
             return False

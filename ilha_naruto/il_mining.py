@@ -1,4 +1,6 @@
-# il_mining - PASS 3: fosso de mineracao em arte final (zona "mining", prefixo MINE_, colecao 03_MINING).
+# il_mining - fosso de mineracao em arte final (zona "mining", prefixo MINE_, colecao 03_MINING). Rodada 2: nucleo
+# baixo (monumento), minerio na paleta das refs, torres abertas com polia, regras de chanfro/micro/z-fighting (MMB) -
+# auditoria em il_mining_qa.py; progresso em _studio/mining/PROGRESSO.md.
 # Substitui il_blockout.mining(). Piso do fosso, muro e calcamento do anel sao do TERRENO; aqui fica tudo DENTRO do
 # fosso e na borda dele:
 #   escadas N/S (colisao identica a do blockout), rampas de madeira L/O (il_col.ramp_ends), cerca da borda (r FENCE_R,
@@ -13,7 +15,6 @@ import il_layout as L
 import fm_lib
 import fm_parts as FP
 from fm_parts import Frame
-import fm_props_kit as PK
 from il_col import ramp_ends
 
 COLL = "03_MINING"
@@ -22,36 +23,83 @@ V = Vector
 # ------------------------------------------------------------------ cameras de revisao (360 + altura do jogador)
 CAMS = {
     "CAM_Mining_Player": ((0.0, -70.0, L.RING + 6.8), (0.0, -6.0, L.PIT + 2.0), 22),     # jogador no topo da escada S
-    "CAM_Mining_Core": ((17.0, -23.0, L.PIT + 7.5), (0.0, 0.0, L.PIT + 7.0), 24),
+    "CAM_Mining_Core": ((17.0, -23.0, L.PIT + 7.5), (0.0, 0.0, L.PIT + 4.5), 24),
     "CAM_Mining_Ramp": ((26.0, -30.0, L.PIT + 6.5), (54.0, 2.0, L.PIT + 4.0), 20),
     "CAM_Mining_Top": ((0.0, -38.0, 200.0), (0.0, 0.0, 0.0), 28),
-    "CAM_Mining_S": ((0.0, -112.0, 46.0), (0.0, 0.0, L.PIT), 24),
+    "CAM_Mining_S": ((14.0, -100.0, 50.0), (0.0, 0.0, L.PIT), 24),     # (fora do pinaculo do portao)
     "CAM_Mining_N": ((0.0, 112.0, 46.0), (0.0, 0.0, L.PIT), 24),
     "CAM_Mining_E": ((112.0, 0.0, 46.0), (0.0, 0.0, L.PIT), 24),
     "CAM_Mining_W": ((-112.0, 0.0, 46.0), (0.0, 0.0, L.PIT), 24),
     "CAM_Mining_Floor": ((-12.0, -20.0, L.PIT + 4.6), (-40.0, -34.0, L.PIT + 5.0), 20),
-    "CAM_Mining_CoreN": ((-14.0, 24.0, L.PIT + 6.0), (0.0, 0.0, L.PIT + 6.5), 24),
+    "CAM_Mining_CoreN": ((-14.0, 24.0, L.PIT + 6.0), (0.0, 0.0, L.PIT + 4.5), 24),
     "CAM_Mining_Ores": ((32.0, -9.0, L.PIT + 5.2), (14.0, 11.0, L.PIT + 1.5), 24),
+    # rodada 2: visada do anel sul (escada N + porta do salao por cima do nucleo), torre de perto, rampa L do anel
+    "CAM_Mining_SightS": ((0.0, -70.0, L.RING + 6.8), (0.0, 0.0, L.PIT + 3.8), 22),
+    "CAM_Mining_Derrick": ((8.0, -14.0, L.PIT + 6.8), (32.0, -38.0, L.PIT + 7.8), 22),
+    "CAM_Mining_RampTop": ((60.0, -36.0, L.RING + 6.8), (50.0, -10.0, L.PIT + 4.8), 22),
 }
 
 # ------------------------------------------------------------------ materiais novos (4 de 5)
-# cristal verde-agua (UNCOMMON) e dourado-laranja (SUPERLEGENDARY): casca + ponta brilhante (*_Glow)
+# Rodada 2 (paleta das refs, sem confete): COMMON usa o Crystal_Blue da paleta (sem Core); UNCOMMON azul-ciano
+# (~70,160,255) SEM brilho (casca + ponta clara, ambas SmoothPlastic no Roblox); EPIC = Crystal_Purple + _Core (Neon);
+# SUPERLEGENDARY dourado com ponta *_Glow (Neon). So os raros (EPIC, SUPERLEGENDARY) tem brilho.
 _M = fm_lib.MATS.setdefault
-# (emissao baixa na casca: com AgX a emissao alta lavava a cor para pastel; a ponta e que brilha)
-_M("Crystal_MineTeal", (S(0, 178, 150), 0.15, 0.0, 0.35, S(0, 178, 150), 0.0))
-_M("Crystal_MineTeal_Glow", (S(70, 255, 212), 0.15, 0.0, 1.6, S(60, 255, 205), 0.0))
-_M("Crystal_MineGold", (S(255, 136, 0), 0.2, 0.0, 0.4, S(255, 128, 0), 0.0))
-_M("Crystal_MineGold_Glow", (S(255, 212, 50), 0.2, 0.0, 1.8, S(255, 196, 40), 0.0))
+_M("Crystal_MineCyan", (S(70, 160, 255), 0.15, 0.0, 0.12, S(70, 160, 255), 0.0))
+_M("Crystal_MineCyan_Tip", (S(140, 205, 255), 0.15, 0.0, 0.2, S(140, 205, 255), 0.0))
+_M("Crystal_MineGold", (S(240, 172, 28), 0.2, 0.0, 0.4, S(240, 168, 28), 0.0))
+_M("Crystal_MineGold_Glow", (S(255, 224, 96), 0.2, 0.0, 1.8, S(255, 214, 80), 0.0))
+
+
+MICRO = 0.35          # rodada 2: peca com TODAS as dimensoes abaixo disto nao e criada
+
+
+def bev_rule(bevel, dmin):
+    """rodada 2: chanfro 0 se a menor dimensao < 1,0; senao no maximo 5% dela"""
+    if not bevel or bevel <= 0 or dmin < 1.0:
+        return 0.0
+    return min(bevel, 0.05 * dmin)
 
 
 class MMB(MB):
-    """MB da zona: colecao fixa, detalhe 'near' e teto de variantes tonais por familia (orcamento de MeshParts)"""
+    """MB da zona: colecao fixa, detalhe 'near' e teto de variantes tonais por familia (orcamento de MeshParts).
+    Rodada 2: TODA primitiva (inclusive as dos kits do lobby chamadas com este MB) passa pela regra de chanfro
+    (bev_rule) e as pecas microscopicas (todas as dimensoes < MICRO) sao descartadas."""
 
     def __init__(self, name, rng=None, detail="near", vcap=2, remap=None):
         super().__init__(name, COLL, rng or random.Random(zlib.crc32(name.encode("utf-8")) & 0xffff),
                          detail=detail)
         self.vcap = vcap
         self.remap = remap or {}
+        self.n_micro = 0
+
+    def box(self, size, loc, rot=(0, 0, 0), m="Stone_Light", bevel=0.12, seg=1, tint=None):
+        if max(size) < MICRO:
+            self.n_micro += 1
+            return
+        super().box(size, loc, rot, m, bev_rule(bevel, min(size)), seg, tint)
+
+    def beam(self, a, b, w, h=None, m="Wood_Dark", bevel=0.08, roll=0.0, tint=None):
+        h = h or w
+        ln = (V(b) - V(a)).length
+        if max(ln, w, h) < MICRO:
+            self.n_micro += 1
+            return
+        super().beam(a, b, w, h, m, bev_rule(bevel, min(ln, w, h)), roll, tint)
+
+    def cyl(self, r, h, loc, rot=(0, 0, 0), m="Metal_Iron", n=12, r2=None, bevel=0.08, seg=1, caps=True, tint=None,
+            angle=0.5):
+        rr = r if r2 is None else r2
+        if max(2 * max(r, rr), h) < MICRO:
+            self.n_micro += 1
+            return
+        super().cyl(r, h, loc, rot, m, n, r2, bev_rule(bevel, min(2 * min(r, rr), h)), seg, caps, tint, angle)
+
+    def rod(self, a, b, r, m="Metal_Iron", n=8, bevel=0.0, tint=None, caps=True):
+        ln = (V(b) - V(a)).length
+        if max(ln, 2 * r) < MICRO:
+            self.n_micro += 1
+            return
+        super().rod(a, b, r, m, n, bev_rule(bevel, min(ln, 2 * r)), tint, caps)
 
     def _mi_for(self, m):
         return super()._mi_for(self.remap.get(m, m))
@@ -176,16 +224,17 @@ def pit_stairs(ore_pts):
             z0 = 1.2 + rise
             x1 = tread * (n - 1)
             mb.beam(F.p(-0.1, y, z0 - 0.3), F.p(x1, y, z0 + rise / tread * x1 - 0.3), 1.5, 1.1, "Stone_Wall_Light", 0.1)
-            mb.box((tread + 0.3, 1.5, 0.4), F.p(x1 + tread / 2 + 0.1, y, rise * n + 1.2 + 0.05), F.r(),
-                   "Stone_Wall_Light", 0.1)
+            # (tampa 0,1 mais larga que a capa de cada lado: faces laterais nao coincidem)
+            mb.box((2.0, 1.7, 0.4), F.p(x1 + tread / 2, y, rise * n + 1.2 + 0.05), F.r(), "Stone_Wall_Light", 0.1)
         # pilaretes de pedra no pe (arremate dos banzos), exceto onde um minerio encosta no pe da escada
         for s in (-1, 1):
             y = s * (W / 2 + 0.6)
             q = F.p(0.75, y)
             if any(math.hypot(q.x - ox, q.y - oy) < orr + 0.9 for _, _, ox, oy, orr in ore_pts):
                 continue
-            mb.box((1.5, 1.5, 2.5), F.p(0.75, y, 1.25), F.r(), "Stone_Wall_Dark", 0.14)
-            mb.box((1.8, 1.8, 0.35), F.p(0.75, y, 2.62), F.r(), "Stone_Wall_Light", 0.1)
+            # (1,8 de largura: sai 0,15 de cada lado da capa inclinada de 1,5 - sem face coincidente)
+            mb.box((1.8, 1.8, 2.5), F.p(0.75, y, 1.25), F.r(), "Stone_Wall_Dark", 0.14)
+            mb.box((2.0, 2.0, 0.4), F.p(0.75, y, 2.6), F.r(), "Stone_Wall_Light", 0.1)
     mb.finish()
 
 
@@ -257,25 +306,26 @@ def ramps(ore_pts):
             mb.box((pw - 0.12, ln, 0.3), p - V((0, 0, 0.15 + rng.uniform(0.0, 0.04))), (0, pitch, yaw),
                    "Wood_Plank", 0.0)
             if k % 2 == 1:
-                mb.box((0.28, W - 1.2, 0.16), p + V((0, 0, 0.06)), (0, pitch, yaw), "Wood_Dark", 0.0)
+                # sarrafo antiderrapante (secao >= 0,3 x 0,24: nada microscopico; topo 0,14 acima do tablado)
+                mb.box((0.36, W - 1.6, 0.24), p + V((0, 0, 0.02)), (0, pitch, yaw), "Wood_Dark", 0.0)
             s += pw
             k += 1
-        for v in (-hw + 0.25, hw - 0.25):
+        # longarinas recuadas 0,45 da borda (as pontas das pranchas nao coincidem com a face delas)
+        for v in (-hw + 0.7, hw - 0.7):
             mb.beam(P(-0.1, v, -0.75), P(Lh + 0.1, v, -0.75), 0.5, 0.9, "Wood_Dark", 0.06)
         # ---- patamar do topo (pranchas ate o muro, sem sobrepor o calcamento do anel)
-        s = s0
-        while s < s1 - 0.1:
-            sm = s + 0.5
+        for kk in range(5):
+            sm = -0.5 - kk * 1.0            # pranchas de -4,95 a -0,05 (a 1a prancha da rampa comeca em 0,11)
             vw = v_wall(sm) - 0.08
             a = P(sm, -hw)
             b = P(sm, vw)
             c = (a + b) / 2
             mb.box((0.9, (b - a).length, 0.3), (c.x, c.y, L.RING - 0.15 - rng.uniform(0, 0.03)), (0, 0, yaw),
                    "Wood_Plank", 0.0)
-            s += 1.0
-        for v in (-hw + 0.25,):
-            mb.beam(P(s0, v, -0.7), P(s1, v, -0.7), 0.5, 0.8, "Wood_Dark", 0.06)
-        mb.beam(P(s0 + 0.25, -hw, -0.7), P(s0 + 0.25, v_wall(s0) - 0.1, -0.7), 0.5, 0.8, "Wood_Dark", 0.06)
+        for v in (-hw + 0.45,):
+            la, lb = P(s0 + 0.35, v), P(s1 + 0.2, v)          # horizontal (P() desce depois de s = 0)
+            mb.beam(V((la.x, la.y, L.RING - 0.7)), V((lb.x, lb.y, L.RING - 0.7)), 0.5, 0.8, "Wood_Dark", 0.06)
+        mb.beam(P(s0 + 0.25, -hw, -0.7), P(s0 + 0.25, v_wall(s0) - 0.3, -0.7), 0.5, 0.8, "Wood_Dark", 0.06)
         # ---- caixa do patamar (tabuas verticais do chao do fosso ate o patamar) e saia do trecho alto
         def boards(pa, pb, z_top_a, z_top_b, step=1.05):
             d = pb - pa
@@ -289,7 +339,7 @@ def ramps(ore_pts):
                 hgt = zt - L.PIT
                 if hgt < 0.6:
                     continue
-                mb.box((ln / nb - 0.1, 0.3, hgt + 0.3), (q.x, q.y, L.PIT - 0.3 + (hgt + 0.3) / 2),
+                mb.box((ln / nb - 0.1, 0.3, hgt + 0.4), (q.x, q.y, L.PIT - 0.4 + (hgt + 0.4) / 2),
                        (0, 0, ang), "Wood_Plank", 0.0, tint=rng.uniform(-1, 1))
         z_under = L.RING - 0.95
         pa, pb = P(s0, -hw + 0.1), P(s1, -hw + 0.1)
@@ -300,17 +350,18 @@ def ramps(ore_pts):
         pa, pb = P(s1, -hw + 0.1), P(s_skirt, -hw + 0.1)
         boards(V((pa.x, pa.y, 0)), V((pb.x, pb.y, 0)), P(s1, 0, -0.95).z, P(s_skirt, 0, -0.95).z)
         # esteios de canto + travessa no meio da caixa do patamar (a caixa le como torre de madeira, nao caixote)
-        zc = L.RING - 0.4
+        zc = L.RING - 0.8                  # topo dos esteios longe das fiadas do muro do fosso (9,67 / 9,73)
         for s_c, v_c in ((s0 + 0.1, -hw + 0.1), (s1, -hw + 0.1), (s0 + 0.1, v_wall(s0) - 0.45)):
             q = P(s_c, v_c)
-            mb.box((0.8, 0.8, zc - L.PIT + 0.3), (q.x, q.y, (zc + L.PIT - 0.3) / 2), (0, 0, yaw), "Wood_Dark", 0.06)
+            mb.box((0.8, 0.8, zc - L.PIT + 0.55), (q.x, q.y, (zc + L.PIT - 0.55) / 2), (0, 0, yaw), "Wood_Dark", 0.06)
         zm = (L.PIT + L.RING) / 2 - 0.4
-        for pa, pb in ((P(s0 + 0.1, -hw - 0.1), P(s_skirt, -hw - 0.1)),
-                       (P(s0 - 0.1, -hw + 0.1), P(s0 - 0.1, v_wall(s0) - 0.45))):
+        for pa, pb in ((P(s0 + 0.35, -hw - 0.1), P(s_skirt + 0.25, -hw - 0.1)),
+                       (P(s0 - 0.4, -hw - 0.15), P(s0 - 0.4, v_wall(s0) - 0.45))):
             mb.beam(V((pa.x, pa.y, zm)), V((pb.x, pb.y, zm)), 0.4, 0.5, "Wood_Dark", 0.0)
         for pa, pb in ((P(s0 + 0.1, -hw - 0.1), P(s1, -hw - 0.1)),
-                       (P(s0 - 0.1, -hw + 0.1), P(s0 - 0.1, v_wall(s0) - 0.45))):
-            mb.beam(V((pa.x, pa.y, L.PIT + 0.4)), V((pb.x, pb.y, zm - 0.2)), 0.3, 0.3, "Wood_Dark", 0.0)
+                       (P(s0 - 0.4, -hw + 0.1), P(s0 - 0.4, v_wall(s0) - 0.45))):
+            # (mao-francesa termina abaixo da travessa: sem faces paralelas a < 0,1 onde as duas se cruzam)
+            mb.beam(V((pa.x, pa.y, L.PIT + 0.4)), V((pb.x, pb.y, zm - 0.5)), 0.3, 0.3, "Wood_Dark", 0.0)
         # ---- pilares de apoio (cavaletes) sob a rampa: evitam o minerio encostado
         for s_b in (8.5, 15.0, 21.5, 27.5):
             hz = P(s_b, 0, -1.2).z - L.PIT
@@ -324,9 +375,9 @@ def ramps(ore_pts):
             vs = (-hw + 0.45, hw - 0.45) if ok else (hw - 0.45,)
             for v in vs:
                 q = P(s_b, v)
-                mb.box((0.75, 0.75, hz + 0.3), (q.x, q.y, L.PIT - 0.3 + (hz + 0.3) / 2), (0, 0, yaw), "Wood_Dark",
+                mb.box((0.75, 0.75, hz + 0.55), (q.x, q.y, L.PIT - 0.55 + (hz + 0.55) / 2), (0, 0, yaw), "Wood_Dark",
                        0.05)
-            a2, b2 = P(s_b, -hw + 0.45, -1.3), P(s_b, hw - 0.45, -1.3)
+            a2, b2 = P(s_b, -hw + 0.2, -1.3), P(s_b, hw - 0.2, -1.3)     # pontas a 0,25 das longarinas
             mb.beam(a2, b2, 0.5, 0.55, "Wood_Dark", 0.0)
             if ok and hz > 2.4:
                 mb.beam(P(s_b, -hw + 0.45, -1.3 - hz * 0.7), P(s_b, hw - 0.45, -1.4), 0.35, 0.35, "Wood_Dark", 0.0)
@@ -335,8 +386,8 @@ def ramps(ore_pts):
             posts = list(pts3) + [q for q in fm_lib.resample(pts3, post_step)
                                   if min((q - c).length for c in pts3) > 1.4]
             for p in posts:
-                mb.box((0.5, 0.5, 3.2), p + V((0, 0, 1.6)), (0, 0, yaw), "Wood_Dark", 0.0)
-                mb.box((0.62, 0.62, 0.2), p + V((0, 0, 3.3)), (0, 0, yaw), "Wood_Dark", 0.0)
+                mb.box((0.6, 0.6, 3.2), p + V((0, 0, 1.6)), (0, 0, yaw), "Wood_Dark", 0.0)
+                mb.box((0.8, 0.8, 0.24), p + V((0, 0, 3.3)), (0, 0, yaw), "Wood_Dark", 0.0)
             for a, b in zip(pts3, pts3[1:]):
                 for hz in (1.45, 2.85):
                     mb.beam(a + V((0, 0, hz)), b + V((0, 0, hz)), 0.36, 0.4, "Wood_Plank", 0.0)
@@ -381,11 +432,16 @@ def fence_gaps():
 def box_lantern(mb, c, s=1.0, frame="Metal_Dark", roof="Wood_Dark"):
     """lanterna de caixa (c = centro do vidro): base, vidro emissivo, 4 montantes, telhadinho"""
     c = V(c)
-    mb.box((1.3 * s, 1.3 * s, 0.22), c + V((0, 0, -0.66 * s)), (0, 0, 0), frame, 0.0)
-    mb.box((0.86 * s, 0.86 * s, 1.1 * s), c, (0, 0, 0), "Lantern_Glow", 0.0)
+    mb.box((1.3 * s, 1.3 * s, 0.24), c + V((0, 0, -0.55 * s - 0.12)), (0, 0, 0), frame, 0.0)
+    # vidro: do meio da base (-0,55 s - 0,12) ate 0,45 s; montantes da base (-0,55 s) ao telhado (0,58 s): nenhuma
+    # face horizontal de materiais diferentes a menos de 0,1
+    zg0, zg1 = -0.55 * s - 0.12, 0.45 * s
+    mb.box((0.86 * s, 0.86 * s, zg1 - zg0), c + V((0, 0, (zg0 + zg1) / 2)), (0, 0, 0), "Lantern_Glow", 0.0)
+    zp0, zp1 = -0.55 * s, 0.58 * s
     for sx in (-1, 1):
         for sy in (-1, 1):
-            mb.box((0.22, 0.22, 1.2 * s), c + V((sx * 0.5 * s, sy * 0.5 * s, 0)), (0, 0, 0), frame, 0.0)
+            mb.box((0.24, 0.24, zp1 - zp0), c + V((sx * 0.47 * s, sy * 0.47 * s, (zp0 + zp1) / 2)), (0, 0, 0),
+                   frame, 0.0)
     pyramid(mb, c + V((0, 0, 0.58 * s)), 0.82 * s, 0.6 * s, roof, 0.0, 0.2)
 
 
@@ -484,7 +540,8 @@ def ring_toros():
         mb.box((1.16, 1.16, 1.25), F.p(0, 0, 4.4), sq, "Lantern_Glow", 0.0)
         for sx in (-1, 1):
             for sy in (-1, 1):
-                mb.box((0.34, 0.34, 1.25), F.p(sx * 0.62, sy * 0.62, 4.4), sq, "Stone_Wall_Light", 0.0)
+                # montantes entram nas lajes de cima e de baixo (topo/pe a 0,1 do vidro)
+                mb.box((0.36, 0.36, 1.45), F.p(sx * 0.62, sy * 0.62, 4.4), sq, "Stone_Wall_Light", 0.0)
         mb.box((2.2, 2.2, 0.3), F.p(0, 0, 5.17), sq, "Stone_Wall_Dark", 0.06)
         pyramid(mb, F.p(0, 0, 5.3), 1.1, 0.75, "Stone_Wall_Dark", D(a), 0.22)
         mb.box((0.42, 0.42, 0.45), F.p(0, 0, 6.28), sq, "Stone_Wall_Light", 0.0)
@@ -493,73 +550,83 @@ def ring_toros():
 
 
 # ------------------------------------------------------------------ 4. torres de mineracao
+# Rodada 2 (critica): sem o telhadinho azul. Cavalete ABERTO de madeira (4 pernas afuniladas, travessas e X) com um
+# cavalete de cabeca e uma POLIA (r DERRICK_SHEAVE_R) de frente para o centro do fosso. O cabo (Rope) passa por cima
+# da polia: uma ponta desce pelo meio da torre ate a caçamba de minerio, a outra desce e fica amarrada na travessa.
+DERRICK_B, DERRICK_T, DERRICK_H = 2.6, 1.9, 11.0     # meia-largura na base / no topo, cota do quadro de topo
+DERRICK_SHEAVE_R = 1.2
+
+
 def derrick(mb, F, rng):
-    b, t, ztop = 2.7, 2.15, 12.4
+    b, t, ztop = DERRICK_B, DERRICK_T, DERRICK_H
+    WD, WP, MD, RP = "Wood_Dark", "Wood_Plank", "Metal_Dark", "Rope"
+
+    def half(z):
+        return b + (t - b) * (z / ztop)
 
     def leg(sx, sy, z):
-        s = b + (t - b) * (z / ztop)
+        s = half(z)
         return F.p(sx * s, sy * s, z)
 
     corners = [(-1, -1), (1, -1), (1, 1), (-1, 1)]
     for sx, sy in corners:
-        mb.box((1.5, 1.5, 0.7), F.p(sx * b, sy * b, 0.25), F.r(), "Stone_Wall_Dark", 0.12)
-        mb.beam(leg(sx, sy, 0.4), leg(sx, sy, ztop + 0.35), 0.8, 0.8, "Wood_Dark", 0.06)
+        # sapata de pedra (fundo 0,25 abaixo do piso: longe das manchas planas do terreno)
+        mb.box((1.5, 1.5, 0.8), F.p(sx * b, sy * b, 0.15), F.r(), "Stone_Wall_Dark", 0.0)
+        mb.beam(leg(sx, sy, 0.5), leg(sx, sy, ztop + 0.45), 0.8, 0.8, WD, 0.0)
     for i in range(4):
         p, q = corners[i], corners[(i + 1) % 4]
         nx, ny = (p[0] + q[0]) / 2, (p[1] + q[1]) / 2          # normal do lado (local)
-        o = F.p(nx * 0.4, ny * 0.4) - F.p(0, 0)
-        for z in (4.8, 8.75):
-            mb.beam(leg(*p, z) + o * 0.3, leg(*q, z) + o * 0.3, 0.45, 0.5, "Wood_Dark", 0.0)
-        for z0, z1 in ((1.0, 4.8), (4.8, 8.75)):
-            mb.beam(leg(*p, z0) + o, leg(*q, z1) + o, 0.34, 0.34, "Wood_Dark", 0.0)
-            mb.beam(leg(*q, z0) + o, leg(*p, z1) + o, 0.34, 0.34, "Wood_Dark", 0.0)
-        mb.beam(leg(*p, ztop), leg(*q, ztop), 0.5, 0.55, "Wood_Dark", 0.0)
-    # plataforma a +9 (tabuas) com guarda-corpo em 3 lados (a frente e da lanca)
-    zp = 9.3
-    for sy in (-1, 1):
-        mb.beam(F.p(-3.4, sy * 2.4, zp - 0.55), F.p(3.4, sy * 2.4, zp - 0.55), 0.5, 0.5, "Wood_Dark", 0.0)
-    for i in range(7):
-        x = -3.0 + i * 1.0
-        mb.box((0.9, 7.0, 0.3), F.p(x, 0, zp - 0.15 - rng.uniform(0, 0.04)), F.r(0, 0, rng.uniform(-0.01, 0.01)),
-               "Wood_Plank", 0.0)
-    rail = [F.p(3.3, -3.3, zp), F.p(-3.3, -3.3, zp), F.p(-3.3, 3.3, zp), F.p(3.3, 3.3, zp)]
-    for p in rail + [F.p(0.0, -3.3, zp), F.p(0.0, 3.3, zp), F.p(-3.3, 0.0, zp)]:
-        mb.box((0.4, 0.4, 2.4), p + V((0, 0, 1.2)), F.r(), "Wood_Dark", 0.0)
-    for a, c in zip(rail, rail[1:]):
-        for hz in (1.2, 2.3):
-            mb.beam(a + V((0, 0, hz)), c + V((0, 0, hz)), 0.3, 0.3, "Wood_Plank", 0.0)
-    # guincho no fundo da plataforma
-    mb.cyl(0.62, 2.3, F.p(-1.6, 0, zp + 1.0), F.r(math.pi / 2, 0, 0), "Metal_Dark", 8, bevel=0.0)
-    mb.cyl(0.72, 1.1, F.p(-1.6, 0, zp + 1.0), F.r(math.pi / 2, 0, 0), "Rope", 8, bevel=0.0)
-    for sy in (-1, 1):
-        mb.box((1.4, 0.3, 1.6), F.p(-1.6, sy * 1.3, zp + 0.8), F.r(), "Wood_Dark", 0.0)
-    mb.beam(F.p(-1.6, 1.5, zp + 1.0), F.p(-1.6, 1.9, zp + 1.0), 0.25, 0.25, "Metal_Dark", 0.0)
-    mb.beam(F.p(-1.6, 1.9, zp + 1.0), F.p(-1.0, 1.9, zp + 1.6), 0.25, 0.25, "Metal_Dark", 0.0)
-    # montante central da frente + lanca com roldana
-    mb.beam(F.p(2.2, 0, zp), F.p(2.2, 0, ztop), 0.5, 0.5, "Wood_Dark", 0.0)
-    mb.beam(F.p(1.9, 0, ztop - 0.35), F.p(4.9, 0, ztop - 0.35), 0.5, 0.6, "Wood_Dark", 0.05)
-    mb.beam(F.p(2.3, 0, ztop - 2.2), F.p(3.9, 0, ztop - 0.6), 0.34, 0.34, "Wood_Dark", 0.0)
-    pc = F.p(4.4, 0, ztop - 1.35)
-    mb.cyl(0.8, 0.32, pc, F.r(math.pi / 2, 0, 0), "Metal_Dark", 10, bevel=0.0)
-    mb.cyl(0.25, 0.7, pc, F.r(math.pi / 2, 0, 0), "Metal_Iron", 6, bevel=0.0)
-    for sy in (-1, 1):
-        mb.box((0.5, 0.2, 1.2), F.p(4.4, sy * 0.3, ztop - 0.95), F.r(), "Metal_Dark", 0.0)
-    # telhadinho (4 aguas) com testeira
-    mb.box((7.2, 7.2, 0.35), F.p(0, 0, ztop + 0.55), F.r(), "Wood_Dark", 0.04)
-    pyramid(mb, F.p(0, 0, ztop + 0.72), 3.85, 2.1, "Roof_Blue", F.a, 0.35)
-    mb.box((0.8, 0.8, 0.5), F.p(0, 0, ztop + 3.05), F.r(), "Wood_Dark", 0.0)
-    # corda: roldana -> guincho e roldana -> balde
-    zb = 6.3
-    mb.tube([F.p(4.4 + 0.8, 0, ztop - 1.35), F.p(4.4 + 0.8, 0, zb + 2.0)], 0.12, "Rope", 5)
-    mb.tube([F.p(4.4 - 0.2, 0, ztop - 0.6), F.p(-1.6, 0, zp + 1.7)], 0.12, "Rope", 5)
-    # balde pendurado (fundo acima da cabeca do jogador)
-    bc = F.p(4.4 + 0.8, 0, zb)
-    mb.cyl(0.75, 1.5, bc + V((0, 0, 0.75)), F.r(), "Wood_Plank", 8, r2=0.98, bevel=0.0)
-    for hz, rr in ((0.35, 0.86), (1.25, 1.0)):
-        mb.cyl(rr, 0.2, bc + V((0, 0, hz)), F.r(), "Metal_Dark", 8, bevel=0.0)
-    mb.cyl(0.88, 0.3, bc + V((0, 0, 1.5)), F.r(), "Stone_Wall_Dark", 6, r2=0.45, bevel=0.0)
-    for sy in (-1, 1):
-        mb.beam(F.p(5.2, sy * 0.98, zb + 1.5), F.p(5.2, 0, zb + 2.1), 0.2, 0.2, "Metal_Dark", 0.0)
+        o = F.p(nx * 0.45, ny * 0.45) - F.p(0, 0)
+        for z in (3.8, 7.4):
+            mb.beam(leg(*p, z) + o * 0.5, leg(*q, z) + o * 0.5, 0.45, 0.5, WD, 0.0)
+        for z0, z1 in ((0.9, 3.8), (3.8, 7.4), (7.4, ztop - 0.2)):
+            if i == 1 and z0 == 3.8:
+                continue            # face do centro: painel do meio aberto (a caçamba aparece)
+            mb.beam(leg(*p, z0) + o, leg(*q, z1) + o, 0.34, 0.34, WD, 0.0)
+            mb.beam(leg(*q, z0) + o, leg(*p, z1) + o, 0.34, 0.34, WD, 0.0)
+        mb.beam(leg(*p, ztop), leg(*q, ztop), 0.55, 0.6, WD, 0.0)        # quadro do topo
+    # cavalete de cabeca: 2 barrotes (ao longo de y) sobre o quadro e, em cada um, um A (2 pernas) que termina no
+    # mancal do eixo: de frente, o cubo e os raios da polia ficam a vista
+    zc = ztop + 1.65
+    for sx in (-1, 1):
+        x = sx * 0.95
+        mb.beam(F.p(x, -t - 0.3, ztop + 0.5), F.p(x, t + 0.3, ztop + 0.5), 0.5, 0.45, WD, 0.0)
+        for sy in (-1, 1):
+            mb.beam(F.p(x, sy * (t - 0.15), ztop + 0.6), F.p(x, sy * 0.2, zc - 0.1), 0.42, 0.42, WD, 0.0)
+        mb.box((0.5, 0.8, 0.7), F.p(x, 0.0, zc), F.r(), WD, 0.0)
+        mb.beam(F.p(x, -(t - 0.4), ztop + 1.0), F.p(x, t - 0.4, ztop + 1.0), 0.36, 0.36, WD, 0.0)
+    # polia de frente para o centro: disco de madeira (plano y-z local), 2 raios de ferro, cubo e eixo
+    C = F.p(0.0, 0.0, zc)
+    R = DERRICK_SHEAVE_R
+    mb.cyl(R, 0.3, C, F.r(0, math.pi / 2, 0), WP, 12, bevel=0.0)
+    mb.box((0.52, 2 * R - 0.25, 0.3), C, F.r(), MD, 0.0)
+    mb.box((0.52, 0.3, 2 * R - 0.25), C, F.r(), MD, 0.0)
+    mb.cyl(0.42, 0.9, C, F.r(0, math.pi / 2, 0), MD, 8, bevel=0.0)
+    mb.rod(F.p(-1.45, 0.0, zc), F.p(1.45, 0.0, zc), 0.18, MD, 6)        # pontas 0,25 alem dos mancais
+    # cabo: amarrado na travessa do lado -y, sobe, passa por cima da polia e desce ate a caçamba (+y)
+    rr = 0.14
+    rho = R + rr
+    zb = 4.3                                            # fundo da caçamba (acima da cabeca do jogador)
+    tie = F.p(0.0, -(half(3.8) + 0.1), 3.8 + 0.35)
+    arc = [F.p(0.0, rho * math.cos(a), zc + rho * math.sin(a)) for a in [math.pi * k / 10.0 for k in range(10, -1, -1)]]
+    hook = F.p(0.0, rho, zb + 2.25)
+    mb.tube([tie, F.p(0.0, -rho, 5.2)] + arc + [hook], rr, RP, 6)
+    mb.tube([tie + V((0, 0, 0.05)), tie - V((0, 0, 1.4))], rr, RP, 6)       # ponta solta pendurada
+    # caçamba de madeira com aros, alca e carga de minerio
+    bc = F.p(0.0, rho, zb)
+    mb.cyl(0.8, 1.3, bc + V((0, 0, 0.65)), F.r(), WP, 8, r2=0.95, bevel=0.0)
+    for hz in (0.28, 1.0):
+        rz = 0.8 + 0.15 * hz / 1.3
+        mb.cyl(rz + 0.13, 0.24, bc + V((0, 0, hz)), F.r(), MD, 8, bevel=0.0)
+    mb.cyl(0.84, 0.5, bc + V((0, 0, 1.3)), F.r(), "Cliff_Rock_Dark", 6, r2=0.38, bevel=0.0)
+    for sx in (-1, 1):
+        mb.beam(F.p(sx * 1.0, rho, zb + 1.15), F.p(0.0, rho, zb + 2.3), 0.22, 0.22, MD, 0.0)
+    mb.box((0.4, 0.4, 0.4), F.p(0.0, rho, zb + 2.3), F.r(), MD, 0.0)
+    # monte de minerio escuro no pe, sob a caçamba (dentro da torre)
+    for k in range(3):
+        a = rng.uniform(0, math.tau)
+        shard(mb, F.p(0.6 * math.cos(a), rho - 0.3 + 0.6 * math.sin(a), 0.0), rng.uniform(0.6, 0.9),
+              rng.uniform(0.6, 0.8), "Cliff_Rock_Dark", rng, n=5, top=0.5, sink=0.3, blunt=True)
 
 
 def derricks():
@@ -570,72 +637,111 @@ def derricks():
         cx, cy = L.DERRICK_R * math.cos(a), L.DERRICK_R * math.sin(a)
         F = Frame(cx, cy, L.PIT, a + math.pi)            # +x local = para o centro do fosso
         derrick(mb, F, rng)
-        col_box("MiningDerrick", (7.0, 7.0, 9.3), F.p(0, 0, 4.65), F.r())
+        col_box("MiningDerrick", (2 * DERRICK_B + 1.4, 2 * DERRICK_B + 1.4, DERRICK_H + 0.5),
+                F.p(0, 0, (DERRICK_H + 0.5) / 2), F.r())
     mb.finish()
 
 
-# ------------------------------------------------------------------ 5. formacao central (peca-heroi)
+# ------------------------------------------------------------------ 5. formacao central (peca-heroi, NAO se minera)
+# Rodada 2 (critica): virou monumento. Agora e um monte BAIXO de rochas escuras (topo <= L.PIT + 8) com uma coroa de
+# cristais azuis grossos inclinados para fora. O eixo N-S (|x| < CORE_SIGHT_HW) fica sem pontas altas: do anel sul o
+# jogador ve a escada N e a porta do salao por cima/entre os cristais.
+CORE_TOP = L.PIT + 8.0 - 0.15
+CORE_SIGHT_HW = 2.6
+CORE_SIGHT_Z = L.PIT + 5.4        # teto das pecas dentro da faixa de visada
+
+
+def _sight_cap(x, r, want):
+    """altura maxima (acima de L.PIT) de uma pedra cuja pegada cruza a faixa de visada N-S"""
+    if abs(x) - r < CORE_SIGHT_HW:
+        return min(want, CORE_SIGHT_Z - L.PIT)
+    return want
+
+
 def core():
     rng = random.Random(7101)
-    mb = MMB("MINE_Core_Formation", rng, detail="near", vcap=2)
+    mb = MMB("MINE_Core_Formation", rng, detail="near", vcap=1,
+             remap={"Cliff_Rock_Dark": "Cliff_Rock_Dark_B", "Cliff_Rock": "Cliff_Rock_Dark"})
     z = L.PIT
     R = L.CORE_R
-    # monte baixo de terra sob as pedras (cone suave, sem borda de prato)
+    top = CORE_TOP
+    # monte baixo de terra sob as pedras (cone com ponta: sem tampa plana paralela a nada)
     a0 = rng.uniform(0, 1)
     rings = []
-    for rr, zz in ((R - 0.4, -0.3), (R * 0.72, 0.45), (R * 0.4, 1.0)):
+    for rr, zz in ((R - 0.2, -0.4), (R * 0.7, 0.5)):
         rings.append([V((rr * math.cos(a0 + math.tau * i / 14) * rng.uniform(0.96, 1.04),
                          rr * math.sin(a0 + math.tau * i / 14) * rng.uniform(0.96, 1.04), z + zz)) for i in range(14)])
-    _solid(mb, rings, "Dirt_Pit")
-    # anel externo: pedras medias inclinadas para fora
-    for i in range(11):
-        a = math.tau * i / 11 + rng.uniform(-0.18, 0.18)
-        rr = rng.uniform(1.4, 2.0)
-        d = min(R - rr * 1.2 - 0.3, rng.uniform(6.4, 7.4))
-        h = rng.uniform(2.8, 5.2)
-        m = "Cliff_Rock_Dark" if i % 3 == 0 else "Cliff_Rock"
-        shard(mb, (d * math.cos(a), d * math.sin(a), z), h, rr, m, rng, lean(a, rng.uniform(0.12, 0.28)), n=5)
-    # anel do meio: pedras altas
-    for i in range(7):
-        a = math.tau * i / 7 + 0.35 + rng.uniform(-0.2, 0.2)
-        d = rng.uniform(3.6, 4.8)
-        rr = rng.uniform(1.8, 2.4)
-        h = rng.uniform(5.8, 8.8)
-        m = "Cliff_Rock" if i % 2 else "Cliff_Rock_Dark"
-        shard(mb, (d * math.cos(a), d * math.sin(a), z), h, rr, m, rng, lean(a, rng.uniform(0.06, 0.18)), n=5)
-    # miolo
-    for i in range(3):
-        a = math.tau * i / 3 + 1.0
-        shard(mb, (1.6 * math.cos(a), 1.6 * math.sin(a), z), rng.uniform(5.0, 6.5), 2.2, "Cliff_Rock", rng,
-              lean(a, 0.08), n=5)
-    # cristal-mestre + secundarios inclinados + pequenos entre as pedras
-    crystal(mb, (0.2, -0.3, z + 2.4), 13.3, 2.45, (0.03, -0.02, 1.0), "Crystal_Blue", "Crystal_Blue_Core", rng, 6,
-            0.3, 1.2)
-    for i in range(5):
-        a = math.tau * i / 5 + 0.6 + rng.uniform(-0.15, 0.15)
-        d = rng.uniform(1.6, 2.4)
-        crystal(mb, (d * math.cos(a), d * math.sin(a), z + 2.6), rng.uniform(7.0, 9.6) if i % 2 == 0 else
-                rng.uniform(5.6, 7.0), rng.uniform(1.15, 1.45), lean(a, rng.uniform(0.28, 0.42)), "Crystal_Blue",
-                "Crystal_Blue_Core", rng, 6, 0.3, 1.0)
-    for i in range(7):
-        a = math.tau * i / 7 + 0.1 + rng.uniform(-0.2, 0.2)
-        d = rng.uniform(4.6, 6.4)
-        crystal(mb, (d * math.cos(a), d * math.sin(a), z + rng.uniform(0.6, 1.8)), rng.uniform(2.4, 4.0),
-                rng.uniform(0.5, 0.72), lean(a, rng.uniform(0.35, 0.6)), "Crystal_Blue", "Crystal_Blue_Core", rng,
-                6, 0.35, 0.5)
-    # cascalho na borda
-    for i in range(16):
+    _solid(mb, rings, "Dirt_Pit", V((0.0, 0.0, z + 1.4)))
+    DARK, MID = "Cliff_Rock_Dark", "Cliff_Rock"
+    # anel externo: pedras largas e baixas inclinadas para fora (3 escuras : 1 cinza)
+    for i in range(13):
+        a = math.tau * i / 13 + rng.uniform(-0.14, 0.14)
+        rr = rng.uniform(1.5, 2.0)
+        d = min(R - rr * 1.15 - 0.2, rng.uniform(6.6, 7.4))
+        x, y = d * math.cos(a), d * math.sin(a)
+        h = _sight_cap(x, rr, rng.uniform(2.0, 3.4))
+        shard(mb, (x, y, z), h, rr, MID if i % 4 == 1 else DARK, rng, lean(a, rng.uniform(0.15, 0.3)), n=5, top=0.45)
+    # anel do meio: pedras mais altas (topo 6,6..8,4), mais baixas na faixa de visada
+    for i in range(9):
+        a = math.tau * i / 9 + 0.2 + rng.uniform(-0.15, 0.15)
+        d = rng.uniform(4.4, 5.3)
+        rr = rng.uniform(1.8, 2.3)
+        x, y = d * math.cos(a), d * math.sin(a)
+        h = _sight_cap(x, rr * 0.6, rng.uniform(3.4, 5.0))
+        shard(mb, (x, y, z), h, rr, MID if i % 3 == 2 else DARK, rng, lean(a, rng.uniform(0.1, 0.22)), n=5,
+              top=0.42)
+    # miolo: 4 blocos escuros sob a coroa (a leste e a oeste, fora da faixa de visada)
+    for a_deg in (15.0, 165.0, 200.0, 340.0):
+        a = D(a_deg + rng.uniform(-8, 8))
+        shard(mb, (2.3 * math.cos(a), 2.3 * math.sin(a), z), rng.uniform(4.2, 5.0), 2.0, DARK, rng, lean(a, 0.1),
+              n=5, top=0.45)
+    # coroa de cristais grossos inclinados para fora (os mais altos a L e O; nenhum no eixo N-S)
+    CB, CT = "Crystal_Blue", "Crystal_Blue_Core"
+    for k, a_deg in enumerate((0.0, 42.0, 138.0, 180.0, 222.0, 318.0)):
+        a = D(a_deg + rng.uniform(-7, 7))
+        t = rng.uniform(0.36, 0.48)
+        d = 2.5
+        bz = z + 1.5
+        tip = top - (0.0 if k in (0, 3) else rng.uniform(0.4, 1.1))
+        h = (tip - bz) / math.cos(t)
+        crystal(mb, (d * math.cos(a), d * math.sin(a), bz), h, rng.uniform(1.3, 1.6), lean(a, t), CB, CT, rng, 6,
+                0.2, 1.3)
+    # cristal central: grosso e curto (topo ~ L.PIT + 5,6), levemente para o norte
+    crystal(mb, (0.0, 0.3, z + 1.6), (CORE_SIGHT_Z + 0.3 - z - 1.6) / math.cos(0.12), 1.75, lean(D(90.0), 0.12),
+            CB, CT, rng, 6, 0.22, 1.4)
+    # cristais medios entre as pedras do meio (fora da faixa de visada)
+    for a_deg in (20.0, 65.0, 115.0, 160.0, 200.0, 245.0, 295.0, 340.0):
+        a = D(a_deg + rng.uniform(-6, 6))
+        d = rng.uniform(3.6, 4.4)
+        x, y = d * math.cos(a), d * math.sin(a)
+        t = rng.uniform(0.45, 0.6)
+        h = rng.uniform(3.0, 4.2)
+        if abs(x) < CORE_SIGHT_HW + 0.8:
+            h = min(h, (CORE_SIGHT_Z - z - 1.2) / math.cos(t))
+        crystal(mb, (x, y, z + 1.4), h, rng.uniform(0.7, 0.95), lean(a, t), CB, CT, rng, 6, 0.25, 0.8)
+    # cristais pequenos entre as pedras de fora
+    for i in range(9):
+        a = math.tau * i / 9 + 0.35 + rng.uniform(-0.15, 0.15)
+        d = rng.uniform(6.0, 7.0)
+        crystal(mb, (d * math.cos(a), d * math.sin(a), z + rng.uniform(0.5, 1.2)), rng.uniform(1.6, 2.4),
+                rng.uniform(0.42, 0.55), lean(a, rng.uniform(0.5, 0.7)), CB, CT, rng, 6, 0.36, 0.4)
+    # cascalho escuro na borda do monte
+    for i in range(18):
         a = rng.uniform(0, math.tau)
-        d = rng.uniform(8.3, 9.5)
+        d = rng.uniform(8.6, 9.6)
         rr = rng.uniform(0.45, 0.8)
-        shard(mb, (d * math.cos(a), d * math.sin(a), z), rr * 1.1, rr, "Cliff_Rock", rng, n=5, top=0.5,
+        shard(mb, (d * math.cos(a), d * math.sin(a), z), rr * 1.1, rr, DARK if i % 3 else MID, rng, n=5, top=0.5,
               sink=0.3, blunt=True)
-    mb.finish()
-    # colisao simples: octogono baixo (2 caixas) + nucleo alto
-    col_box("MiningCore", (15.0, 15.0, 7.0), (0, 0, z + 3.5))
-    col_box("MiningCore", (15.0, 15.0, 7.0), (0, 0, z + 3.5), (0, 0, math.pi / 4))
-    col_box("MiningCore", (7.0, 7.0, 16.0), (0, 0, z + 8.0), (0, 0, math.pi / 8))
-    light("L_Mining_Core_Glow", "POINT", (0, 0, z + 10.0), 2200, (0.35, 0.62, 1.0), 2.5)
+    ob = mb.finish()
+    zmax = max(v.co.z for v in ob.data.vertices)
+    print("MINE nucleo: topo z=%.2f (limite %.2f) %s" % (zmax, L.PIT + 8.0, "OK" if zmax <= L.PIT + 8.0 else
+                                                         "ESTOUROU"))
+    # colisao: octogono largo e baixo (2 caixas) + octogono estreito ate o topo (2 caixas)
+    col_box("MiningCore", (16.0, 16.0, 4.6), (0, 0, z + 2.3))
+    col_box("MiningCore", (16.0, 16.0, 4.6), (0, 0, z + 2.3), (0, 0, math.pi / 4))
+    col_box("MiningCore", (10.0, 10.0, top - z), (0, 0, (z + top) / 2), (0, 0, math.pi / 8))
+    col_box("MiningCore", (10.0, 10.0, top - z), (0, 0, (z + top) / 2), (0, 0, 3 * math.pi / 8))
+    light("L_Mining_Core_Glow", "POINT", (0, 0, z + 7.0), 600, (0.35, 0.62, 1.0), 2.5)
 
 
 # ------------------------------------------------------------------ 6. minerio por raridade
@@ -647,26 +753,31 @@ def on_stairs(x, y, r):
 
 
 def _ore_common(mb, x, y, r, rng):
+    """COMMON (rodada 2): rocha cinza baixa e larga (60% do tamanho da rodada 1), afundada no chao, com 1-2 pontas
+    azuis pequenas SEM Core (nao brilha): quase parte do piso; a raridade se le pelo tamanho e pela cor"""
     z = L.PIT
-    shard(mb, (x, y, z), rng.uniform(2.0, 2.4), 1.55, "Cliff_Rock", rng, n=6, top=0.52, blunt=True)
+    k = 0.6
+    shard(mb, (x, y, z), rng.uniform(2.0, 2.4) * k, 1.55 * k * 1.15, "Cliff_Rock", rng, n=6, top=0.55, blunt=True,
+          sink=0.45, squash=0.85)
     b = rng.uniform(0, math.tau)
-    shard(mb, (x + 1.35 * math.cos(b), y + 1.35 * math.sin(b), z), 1.2, 0.85, "Cliff_Rock", rng, n=5, top=0.5,
-          blunt=True)
-    for k in range(3):
-        a = b + math.pi + (k - 1) * 1.1 + rng.uniform(-0.3, 0.3)
-        d = rng.uniform(0.35, 0.8)
-        crystal(mb, (x + d * math.cos(a), y + d * math.sin(a), z + rng.uniform(1.2, 1.6)), rng.uniform(0.9, 1.45),
-                rng.uniform(0.24, 0.32), lean(a, rng.uniform(0.25, 0.55)), "Crystal_Blue", "Crystal_Blue_Core", rng,
-                5, 0.42, 0.3)
-    for k in range(3):
+    shard(mb, (x + 1.35 * k * math.cos(b), y + 1.35 * k * math.sin(b), z), 1.2 * k, 0.85 * k * 1.1, "Cliff_Rock", rng,
+          n=5, top=0.5, blunt=True, sink=0.4)
+    for j in range(1 + (rng.random() < 0.5)):
+        a = b + math.pi + (j - 0.5) * 1.3 + rng.uniform(-0.3, 0.3)
+        d = rng.uniform(0.2, 0.45)
+        crystal(mb, (x + d * math.cos(a), y + d * math.sin(a), z + rng.uniform(0.75, 0.95)), rng.uniform(0.6, 0.85),
+                rng.uniform(0.2, 0.24), lean(a, rng.uniform(0.3, 0.5)), "Crystal_Blue", "Crystal_Blue", rng, 5, 0.42,
+                0.3)
+    for j in range(2):
         a = rng.uniform(0, math.tau)
-        d = rng.uniform(1.7, 2.1)
-        shard(mb, (x + d * math.cos(a), y + d * math.sin(a), z), 0.45, 0.36, "Cliff_Rock", rng, n=5, top=0.5,
-              sink=0.2, blunt=True)
-    return 3.0, 2.5
+        d = rng.uniform(1.25, 1.5)
+        shard(mb, (x + d * math.cos(a), y + d * math.sin(a), z), 0.4, 0.34, "Cliff_Rock", rng, n=5, top=0.5,
+              sink=0.3, blunt=True)
+    return 1.8, 1.5
 
 
 def _ore_uncommon(mb, x, y, r, rng):
+    """UNCOMMON (rodada 2): rocha cinza com cristais azul-ciano (~70,160,255), sem brilho (ponta clara, nao Neon)"""
     z = L.PIT
     shard(mb, (x, y, z), rng.uniform(2.3, 2.7), 1.8, "Cliff_Rock", rng, n=6, top=0.5, blunt=True)
     b = rng.uniform(0, math.tau)
@@ -677,13 +788,13 @@ def _ore_uncommon(mb, x, y, r, rng):
         d = 0.0 if k == 1 else rng.uniform(0.5, 0.9)
         crystal(mb, (x + d * math.cos(a), y + d * math.sin(a), z + rng.uniform(1.3, 1.8)),
                 rng.uniform(2.2, 2.8) if k == 1 else rng.uniform(1.4, 2.1), rng.uniform(0.38, 0.48),
-                lean(a, 0.1 if k == 1 else rng.uniform(0.3, 0.55)), "Crystal_MineTeal", "Crystal_MineTeal_Glow",
+                lean(a, 0.1 if k == 1 else rng.uniform(0.3, 0.55)), "Crystal_MineCyan", "Crystal_MineCyan_Tip",
                 rng, 6, 0.36, 0.4)
     for k in range(3):
         a = rng.uniform(0, math.tau)
         d = rng.uniform(2.0, 2.45)
         shard(mb, (x + d * math.cos(a), y + d * math.sin(a), z), 0.5, 0.4, "Cliff_Rock", rng, n=5, top=0.5,
-              sink=0.2, blunt=True)
+              sink=0.3, blunt=True)
     return 3.4, 2.8
 
 
@@ -706,7 +817,7 @@ def _ore_epic(mb, x, y, r, rng):
         a = rng.uniform(0, math.tau)
         d = rng.uniform(2.4, 2.9)
         shard(mb, (x + d * math.cos(a), y + d * math.sin(a), z), 0.55, 0.42, "Cliff_Rock_Dark", rng, n=5, top=0.5,
-              sink=0.2, blunt=True)
+              sink=0.3, blunt=True)
     return 3.8, 3.0
 
 
@@ -730,7 +841,7 @@ def _ore_super(mb, x, y, r, rng):
         a = b + k * math.tau / 5 + 0.4
         d = rng.uniform(3.0, 3.4)
         crystal(mb, (x + d * math.cos(a), y + d * math.sin(a), z), rng.uniform(0.9, 1.4), rng.uniform(0.28, 0.36),
-                lean(a, 0.55), "Crystal_MineGold", "Crystal_MineGold_Glow", rng, 5, 0.4, 0.2)
+                lean(a, 0.55), "Crystal_MineGold", "Crystal_MineGold_Glow", rng, 5, 0.4, 0.3)
     return 5.0, 3.2
 
 
@@ -742,14 +853,14 @@ def ores(pts):
     skipped = []
     for kind, _ in L.ORE_KINDS:
         mbs[kind] = MMB("MINE_Ore_%s" % kind, random.Random(zlib.crc32(kind.encode()) & 0xffff), detail="near",
-                        vcap=1)
+                        vcap=1, remap={"Cliff_Rock": "Cliff_Rock_C", "Cliff_Rock_Dark": "Cliff_Rock_Dark_B"})
     for kind, i, x, y, r in pts:
         if on_stairs(x, y, r):
             skipped.append("ORE_%s_%02d" % (kind, i))
             continue
         rng = random.Random(zlib.crc32(("%s_%d" % (kind, i)).encode()) & 0xffffff)
-        w, hgt = ORE_BUILD[kind](mbs[kind], x, y, r, rng)
-        col_box("MineOre", (w, w, hgt), (x, y, L.PIT + hgt / 2), (0, 0, math.atan2(y, x)))
+        ORE_BUILD[kind](mbs[kind], x, y, r, rng)
+        # (rodada 2: sem COL_MineOre - o jogo gera as rochas mineraveis nos marcadores ORE_*; isto e so previa)
     for mb in mbs.values():
         mb.finish()
     if skipped:
@@ -763,28 +874,128 @@ def _at(r, a_deg):
     return r * math.cos(a), r * math.sin(a)
 
 
+# pecas proprias (rodada 2): os kits do lobby (PK.crate/keg/cart/tool_rack) tem cintas e aros a 0,03-0,05 do corpo
+# (z-fighting no Roblox) e laminas de 0,1. Aqui: cintas/aros >= 0,12 salientes, secoes >= 0,2, fundos enterrados.
+def m_crate(mb, loc, s, yaw, lid=True, fill=None):
+    """caixote (loc = centro do fundo). lid=False: caixa aberta com enchimento de pedra 0,15 abaixo da borda"""
+    x, y, z = loc
+    F = Frame(x, y, z, yaw)
+    WP, WD = "Wood_Plank", "Wood_Dark"
+    if lid:
+        mb.box((s, s, s), F.p(0, 0, s / 2), F.r(), WP, 0.0)
+        for dz in (0.35, s - 0.35):
+            mb.box((s + 0.24, s + 0.24, 0.3), F.p(0, 0, dz), F.r(), WD, 0.0)
+        return F
+    th = 0.3
+    mb.box((s, s, s - 0.45), F.p(0, 0, (s - 0.45) / 2), F.r(), WP, 0.0)          # miolo ate o enchimento
+    for sx in (-1, 1):
+        mb.box((th, s, 0.45), F.p(sx * (s - th) / 2, 0, s - 0.225), F.r(), WP, 0.0)
+        mb.box((s - 2 * th, th, 0.45), F.p(0, sx * (s - th) / 2, s - 0.225), F.r(), WP, 0.0)
+    mb.box((s - 2 * th, s - 2 * th, 0.3), F.p(0, 0, s - 0.3), F.r(), fill or "Cliff_Rock_Dark", 0.0)
+    mb.box((s + 0.24, s + 0.24, 0.3), F.p(0, 0, 0.35), F.r(), WD, 0.0)
+    mb.box((s + 0.24, s + 0.24, 0.3), F.p(0, 0, s - 1.0), F.r(), WD, 0.0)
+    return F
+
+
+def m_keg(mb, loc, r, h):
+    """barril (loc = centro do fundo, ja enterrado pelo chamador) com 2 aros 0,12 salientes"""
+    x, y, z = loc
+    mb.cyl(r, h * 0.5, (x, y, z + h * 0.25), (0, 0, 0), "Wood_Plank", 8, r2=r * 1.12, bevel=0.0)
+    mb.cyl(r * 1.12, h * 0.5, (x, y, z + h * 0.75), (0, 0, 0), "Wood_Plank", 8, r2=r, bevel=0.0)
+    for zz in (0.35, h - 0.35):
+        f = zz / (h * 0.5) if zz < h * 0.5 else (h - zz) / (h * 0.5)
+        mb.cyl(r * (1 + 0.12 * f) + 0.12, 0.26, (x, y, z + zz), (0, 0, 0), "Metal_Dark", 8, bevel=0.0)
+
+
+def m_rails(mb, pts, gauge=2.6, step=1.7):
+    """trilho curto: dormentes enterrados (topo 0,4) + 2 barras em vigas (0,4..0,7)"""
+    fine = fm_lib.resample(pts, step)
+    for i, p in enumerate(fine):
+        j, k = min(i + 1, len(fine) - 1), max(i - 1, 0)
+        t = fine[j] - fine[k]
+        mb.box((0.8, gauge + 1.4, 0.6), (p.x, p.y, L.PIT + 0.1), (0, 0, math.atan2(t.y, t.x)), "Wood_Dark", 0.0)
+    for sg in (-1, 1):
+        off = []
+        for i, p in enumerate(pts):
+            j, k = min(i + 1, len(pts) - 1), max(i - 1, 0)
+            t = (pts[j] - pts[k]).normalized()
+            off.append(p + V((-t.y, t.x, 0)) * sg * gauge / 2)
+        for a, b in zip(off, off[1:]):
+            mb.beam(V((a.x, a.y, L.PIT + 0.55)), V((b.x, b.y, L.PIT + 0.55)), 0.32, 0.3, "Metal_Dark", 0.0)
+
+
+def m_cart(mb, loc, yaw, rng, load="ore"):
+    """vagonete de mina: rodas no trilho (loc.z = topo do trilho), chassi, cacamba de tabua com aro e carga"""
+    x, y, z = loc
+    F = Frame(x, y, z, yaw)                     # x local = ao longo do trilho
+    MD, WP = "Metal_Dark", "Wood_Plank"
+    for sx in (-1, 1):
+        for sy in (-1, 1):
+            mb.cyl(0.55, 0.3, F.p(sx * 1.0, sy * 1.3, 0.55), F.r(math.pi / 2, 0, 0), MD, 8, bevel=0.0)
+        mb.rod(F.p(sx * 1.0, -1.5, 0.55), F.p(sx * 1.0, 1.5, 0.55), 0.15, MD, 6)
+    mb.box((3.0, 1.8, 0.4), F.p(0, 0, 0.95), F.r(), MD, 0.0)
+    zt = 2.75
+    mb.cyl(1.75, zt - 1.15, F.p(0, 0, (1.15 + zt) / 2), F.r(0, 0, math.pi / 4), WP, 4, r2=2.1, bevel=0.0)
+    hs = 2.1 / math.sqrt(2.0)
+    sq = [(-1, -1), (1, -1), (1, 1), (-1, 1)]
+    for i in range(4):
+        a, b = sq[i], sq[(i + 1) % 4]
+        mb.beam(F.p(a[0] * (hs + 0.15), a[1] * (hs + 0.15), zt), F.p(b[0] * (hs + 0.15), b[1] * (hs + 0.15), zt),
+                0.3, 0.34, MD, 0.0)
+    mb.cyl(2.1, 0.6, F.p(0, 0, zt + 0.02 + 0.3), F.r(0, 0, math.pi / 4), "Cliff_Rock_Dark", 4, r2=0.9, bevel=0.0)
+    if load == "crystal":
+        for k in range(3):
+            a = rng.uniform(0, math.tau)
+            crystal(mb, F.p(0.5 * math.cos(a), 0.5 * math.sin(a), zt + 0.4), rng.uniform(0.9, 1.3), 0.3,
+                    lean(a, 0.35), "Crystal_Blue", "Crystal_Blue", rng, 5, 0.4, 0.3)
+
+
+def m_tools(mb, F, rng, kinds=("pick", "shovel", "pick", "pick", "shovel")):
+    """cavalete de ferramentas (F: +y local = frente): 2 montantes, 2 travessas, picaretas e pas (secoes >= 0,2)"""
+    w = 1.2 * len(kinds) + 0.8
+    WD, WP, MD = "Wood_Dark", "Wood_Plank", "Metal_Dark"
+    for sx in (-1, 1):
+        mb.box((0.5, 0.5, 3.8), F.p(sx * w / 2, 0, 1.85), F.r(), WD, 0.0)
+    for zz in (0.9, 3.0):
+        mb.box((w + 0.4, 0.36, 0.36), F.p(0, 0.2, zz), F.r(), WD, 0.0)
+    for i, k in enumerate(kinds):
+        xx = -w / 2 + 0.8 + i * ((w - 1.6) / max(1, len(kinds) - 1))
+        a = F.p(xx + rng.uniform(-0.1, 0.1), 1.0, 0.0)
+        b = F.p(xx, 0.62, 3.4)
+        ax = (b - a).normalized()
+        if k == "pick":
+            mb.beam(a, b + ax * 0.2, 0.24, 0.24, WP, 0.0)
+            hd = F.p(1, 0) - F.p(0, 0)
+            for sg in (-1, 1):
+                mb.beam(b, b + hd * sg * 1.0 - ax * 0.3, 0.3, 0.3, MD, 0.0)
+        else:
+            mb.beam(a + ax * 1.0, b, 0.22, 0.22, WP, 0.0)
+            mb.beam(a, a + ax * 1.05, 0.9, 0.22, MD, 0.0)
+            side = F.p(1, 0) - F.p(0, 0)
+            mb.beam(b - side * 0.35, b + side * 0.35, 0.22, 0.22, WP, 0.0)
+
+
 def props(ore_pts):
     rng = random.Random(8101)
     mb = MMB("MINE_Props", rng, detail="near", vcap=1,
-             remap={"Wood_Light": "Wood_Plank", "Metal_Iron": "Metal_Dark", "Crystal_Purple": "Crystal_Blue",
-                    "Crystal_Purple_Core": "Crystal_Blue_Core"})
+             remap={"Wood_Light": "Wood_Plank", "Metal_Iron": "Metal_Dark"})
     z = L.PIT
+    zb = z - 0.15                          # fundo das pecas apoiadas no piso (enterrado 0,15)
     # vagonetes em trilho curto perto do pe da rampa leste (vao livre entre o minerio e a torre NE)
     R = 56.4
     a0, a1 = 32.8, 44.2
     pts = [V((*_at(R, a0 + (a1 - a0) * k / 8), z)) for k in range(9)]
-    PK.rail_stub(mb, pts, z=z, rng=rng)
+    m_rails(mb, pts)
     t_end = (pts[-1] - pts[-2]).normalized()
-    PK.bumper(mb, pts[-1] + V((0, 0, 0.3)), t_end)
+    ye = math.atan2(t_end.y, t_end.x)
+    pe = pts[-1] + t_end * 0.5
+    mb.box((1.1, 4.2, 1.3), (pe.x, pe.y, z + 1.2), (0, 0, ye), "Wood_Dark", 0.05)          # para-choque
+    for sg in (-1, 1):
+        q = pe + t_end * 0.9 + V((-t_end.y, t_end.x, 0)) * sg * 1.5
+        mb.box((0.6, 0.6, 2.2), (q.x, q.y, z + 0.9), (0, 0, ye), "Wood_Dark", 0.0)
     for ac, load in ((35.6, "crystal"), (40.3, "ore")):
         x, y = _at(R, ac)
-        yaw = D(ac) + math.pi / 2
-        PK.cart(mb, (x, y, z + 0.3), yaw, rng, load="crystal" if load == "crystal" else None, m_body="Wood_Plank")
-        if load == "ore":
-            mb.cyl(1.9, 0.5, (x, y, z + 0.3 + 3.05), (0, 0, yaw + math.pi / 4), "Cliff_Rock_Dark", 4, r2=0.9,
-                   bevel=0.0)
-            crystal(mb, (x + 0.3, y, z + 3.4), 0.9, 0.3, lean(rng.uniform(0, 6), 0.3), "Crystal_Purple",
-                    "Crystal_Purple_Core", rng, 5, 0.4, 0.3)
+        m_cart(mb, (x, y, z + 0.7), D(ac) + math.pi / 2, rng, load)
     m0, m1 = V((*_at(R, 34.0), z)), V((*_at(R, 42.0), z))
     c = (m0 + m1) / 2
     col_box("MiningProps", ((m1 - m0).length + 3.2, 2.6, 3.6), (c.x, c.y, z + 1.8),
@@ -793,48 +1004,54 @@ def props(ore_pts):
     x, y = _at(56.0, 112.0)
     yaw = D(112.0) + math.pi / 2
     F = Frame(x, y, z, yaw)
-    PK.crate(mb, tuple(F.p(-1.3, 0.0)), 2.3, yaw + 0.08)
-    PK.crate(mb, tuple(F.p(1.2, 0.2)), 2.1, yaw - 0.12)
-    PK.crate(mb, tuple(F.p(-0.9, 0.1, 2.3)), 1.8, yaw + 0.3)
-    PK.keg(mb, tuple(F.p(2.9, 0.9)), 0.8, 1.9)
-    col_box("MiningProps", (7.0, 3.2, 3.0), tuple(F.p(0.6, 0.3, 1.5)), F.r())
+    q = F.p(-1.3, 0.0)
+    m_crate(mb, (q.x, q.y, zb), 2.3, yaw + 0.08)
+    q = F.p(1.2, 0.2)
+    m_crate(mb, (q.x, q.y, zb), 2.1, yaw - 0.12)
+    q = F.p(-0.9, 0.1)
+    m_crate(mb, (q.x, q.y, zb + 2.3), 1.8, yaw + 0.3)
+    q = F.p(3.5, 0.9)
+    m_keg(mb, (q.x, q.y, zb), 0.8, 2.05)
+    col_box("MiningProps", (7.6, 3.2, 3.0), tuple(F.p(0.9, 0.3, 1.5)), F.r())
     # suporte de ferramentas (146 graus), encostado no muro, de frente para o centro
     x, y = _at(57.2, 146.0)
     F = Frame(x, y, z, D(146.0) + math.pi / 2)
-    PK.tool_rack(mb, F, rng, kinds=("pick", "shovel", "pick", "pick", "shovel"))
+    m_tools(mb, F, rng)
     col_box("MiningProps", (7.2, 1.8, 3.8), tuple(F.p(0, 0.3, 1.9)), F.r())
-    # mesa de triagem (215 graus)
+    # mesa de triagem (215 graus): pes, tampo, travessa, bandeja de ferro com pedras e 2 cristais azuis
     x, y = _at(55.6, 215.0)
     F = Frame(x, y, z, D(215.0) + math.pi / 2)
     for sx in (-1, 1):
         for sy in (-1, 1):
-            mb.box((0.4, 0.4, 2.6), F.p(sx * 1.9, sy * 0.95, 1.3), F.r(), "Wood_Dark", 0.0)
-    mb.box((4.6, 2.5, 0.32), F.p(0, 0, 2.72), F.r(), "Wood_Plank", 0.04)
+            mb.box((0.4, 0.4, 2.75), F.p(sx * 1.9, sy * 0.95, 1.225), F.r(), "Wood_Dark", 0.0)
+    mb.box((4.6, 2.5, 0.32), F.p(0, 0, 2.72), F.r(), "Wood_Plank", 0.0)
     mb.box((4.0, 0.3, 0.3), F.p(0, 0, 0.7), F.r(), "Wood_Dark", 0.0)
-    mb.box((2.0, 1.7, 0.2), F.p(-1.0, 0.0, 3.08), F.r(0.14, 0, 0), "Metal_Dark", 0.0)
-    for k in range(4):
+    mb.box((2.0, 1.7, 0.24), F.p(-1.0, 0.0, 3.1), F.r(0.14, 0, 0), "Metal_Dark", 0.0)
+    for k in range(3):
         a = rng.uniform(0, math.tau)
-        shard(mb, F.p(-1.0 + 0.5 * math.cos(a), 0.4 * math.sin(a), 3.15), 0.35, 0.3, "Cliff_Rock_Dark", rng, n=5,
-              top=0.5, sink=0.1, blunt=True)
-    for k, m, mt in ((0, "Crystal_Blue", "Crystal_Blue_Core"), (1, "Crystal_Purple", "Crystal_Purple_Core"),
-                     (2, "Crystal_Blue", "Crystal_Blue_Core")):
-        crystal(mb, F.p(0.9 + k * 0.45, -0.3 + (k % 2) * 0.6, 2.88), 0.8, 0.22, lean(rng.uniform(0, 6), 0.25), m, mt,
-                rng, 5, 0.4, 0.1)
-    PK.keg(mb, tuple(F.p(3.1, 0.9)), 0.62, 1.2)
+        shard(mb, F.p(-1.0 + 0.45 * math.cos(a), 0.35 * math.sin(a), 3.2), 0.45, 0.36, "Cliff_Rock_Dark", rng, n=5,
+              top=0.5, sink=0.15, blunt=True)
+    for k in range(2):
+        crystal(mb, F.p(0.9 + k * 0.6, -0.3 + k * 0.6, 2.88), 0.9, 0.24, lean(rng.uniform(0, 6), 0.25),
+                "Crystal_Blue", "Crystal_Blue", rng, 5, 0.4, 0.1)
+    q = F.p(3.1, 0.9)
+    m_keg(mb, (q.x, q.y, zb), 0.62, 1.35)
     col_box("MiningProps", (5.4, 3.0, 3.2), tuple(F.p(0.3, 0.1, 1.6)), F.r())
-    # caixas abertas com cristais (250 graus)
+    # caixas (250 graus): uma fechada, uma aberta com pedra e cristais azuis, uma empilhada
     x, y = _at(56.0, 250.0)
     yaw = D(250.0) + math.pi / 2
     F = Frame(x, y, z, yaw)
-    PK.crate(mb, tuple(F.p(-1.2, 0.2)), 2.2, yaw - 0.1)
-    PK.crate(mb, tuple(F.p(1.3, 0.0)), 2.2, yaw + 0.15, lid=False)
-    q = F.p(1.3, 0.0, 1.55)
-    mb.box((1.9, 1.9, 0.3), q, (0, 0, yaw + 0.15), "Cliff_Rock_Dark", 0.0)
+    q = F.p(-1.2, 0.2)
+    m_crate(mb, (q.x, q.y, zb), 2.2, yaw - 0.1)
+    q = F.p(1.3, 0.0)
+    m_crate(mb, (q.x, q.y, zb), 2.2, yaw + 0.15, lid=False)
+    top = V((q.x, q.y, zb + 2.2 - 0.15))
     for k in range(3):
         a = rng.uniform(0, math.tau)
-        crystal(mb, q + V((0.45 * math.cos(a), 0.45 * math.sin(a), 0.1)), rng.uniform(0.9, 1.4), 0.3,
-                lean(a, 0.3), "Crystal_Blue", "Crystal_Blue_Core", rng, 5, 0.4, 0.2)
-    PK.crate(mb, tuple(F.p(-1.0, 0.1, 2.2)), 1.7, yaw + 0.35)
+        crystal(mb, top + V((0.4 * math.cos(a), 0.4 * math.sin(a), 0.0)), rng.uniform(0.9, 1.4), 0.3,
+                lean(a, 0.3), "Crystal_Blue", "Crystal_Blue", rng, 5, 0.4, 0.25)
+    q = F.p(-1.0, 0.1)
+    m_crate(mb, (q.x, q.y, zb + 2.2), 1.7, yaw + 0.35)
     col_box("MiningProps", (5.6, 3.0, 3.0), tuple(F.p(0.0, 0.1, 1.5)), F.r())
     shoring(mb, ore_pts, rng)
     mb.finish()
@@ -881,35 +1098,35 @@ def shoring(mb, ore_pts, rng):
         for sx in (-1, 1):
             mb.box((0.62, 0.62, 6.1), F.p(sx * 2.3, 0, 3.0), F.r(), "Wood_Dark", 0.05)
         mb.box((5.8, 0.72, 0.6), F.p(0, 0.02, 6.1), F.r(), "Wood_Dark", 0.05)
-        mb.box((5.2, 0.6, 0.4), F.p(0, 0, 0.2), F.r(), "Wood_Dark", 0.0)
+        mb.box((5.2, 0.6, 0.4), F.p(0, 0, 0.15), F.r(), "Wood_Dark", 0.0)
         for sx in (-1, 1):
             mb.beam(F.p(-sx * 2.0, 0.18, 0.5), F.p(sx * 2.0, 0.18, 5.75), 0.34, 0.34, "Wood_Dark", 0.0)
         if k % 2 == 0:
             top = F.p(0, 0.75, 6.1)
-            mb.box((0.3, 1.1, 0.3), F.p(0, 0.45, 5.95), F.r(), "Metal_Dark", 0.0)
+            mb.box((0.36, 1.1, 0.36), F.p(0, 0.45, 6.1), F.r(), "Metal_Dark", 0.0)
             mb.rod(top, top - V((0, 0, 0.5)), 0.1, "Metal_Dark", 4)
             box_lantern(mb, top - V((0, 0, 1.3)), 0.8)
     return picked
 
 
 def pebble(mb, x, y, s, rng, m="Cliff_Rock"):
-    """seixo baixo de 2 aneis (16 tris)"""
+    """seixo baixo de 2 aneis + ponta (sem tampa plana: nada paralelo as manchas planas do piso do terreno)"""
     a0 = rng.uniform(0, math.tau)
     rings = []
-    for rr, zz in ((s, -0.12), (s * 0.55, s * 0.62)):
+    for rr, zz in ((s, -0.28), (s * 0.62, s * 0.5)):
         rings.append([V((x + rr * rng.uniform(0.85, 1.15) * math.cos(a0 + math.tau * i / 5),
                          y + rr * rng.uniform(0.85, 1.15) * math.sin(a0 + math.tau * i / 5), L.PIT + zz))
                       for i in range(5)])
-    _solid(mb, rings, m)
+    _solid(mb, rings, m, V((x + rng.uniform(-0.1, 0.1) * s, y + rng.uniform(-0.1, 0.1) * s, L.PIT + s * 0.85)))
 
 
 def rubble(ore_pts):
-    """cascalho solto no piso do fosso (a textura das referencias) + lascas de cristal; sem colisao"""
+    """cascalho solto no piso do fosso (a textura das referencias); sem colisao. Rodada 2: sem as lascas de cristal
+    soltas (confete) - o azul fica nos minerios e no nucleo"""
     rng = random.Random(9901)
     mb = MMB("MINE_Pit_Rubble", rng, detail="near", vcap=1)
     z = L.PIT
     n = 0
-    shards = 0
     for _ in range(3000):
         if n >= 84:
             break
@@ -925,7 +1142,7 @@ def rubble(ore_pts):
             continue
         if rr > 51.0 and any(a0 - 3.0 <= aa <= a1 + 3.0 for a0, a1 in PROP_ARCS):
             continue
-        if any(math.hypot(x - L.DERRICK_R * math.cos(D(d)), y - L.DERRICK_R * math.sin(D(d))) < 4.6
+        if any(math.hypot(x - L.DERRICK_R * math.cos(D(d)), y - L.DERRICK_R * math.sin(D(d))) < 5.4
                for d in L.DERRICKS):
             continue
         k = 1 + (rng.random() < 0.45) + (rng.random() < 0.2)
@@ -933,10 +1150,6 @@ def rubble(ore_pts):
             ox, oy = (rng.uniform(-0.9, 0.9), rng.uniform(-0.9, 0.9)) if j else (0.0, 0.0)
             s = rng.uniform(0.24, 0.5)
             pebble(mb, x + ox, y + oy, s, rng)
-        if shards < 16 and rng.random() < 0.3:
-            crystal(mb, (x + 0.5, y - 0.3, z), rng.uniform(0.5, 0.8), 0.22, lean(a, rng.uniform(0.3, 0.7)),
-                    "Crystal_Blue", "Crystal_Blue_Core", rng, 5, 0.45, 0.1)
-            shards += 1
         n += 1
     mb.finish()
 
@@ -957,3 +1170,29 @@ def build():
     for tag, ang in (("S", 270.0), ("N", 90.0)):
         a, p = min(gate_posts, key=lambda g: abs(((g[0] - ang + 180.0) % 360.0) - 180.0))
         light("L_Mining_Gate_%s" % tag, "POINT", p + V((0, 0, 5.45)), 160, (1.0, 0.62, 0.28), 0.4)
+
+
+# ------------------------------------------------------------------ QA: rotas e sondas da zona (il_qa.module_routes)
+def _qa_extra():
+    rr = {}
+    # escada S -> escada N contornando o nucleo pelo oeste e pelo leste (o nucleo e monumento: nao pode fechar o fosso)
+    for tag, sg in (("O", -1.0), ("L", 1.0)):
+        rr["FOSSO_S->N_contorna_nucleo_" + tag] = ([(0.0, -44.0), (0.0, -24.0), (sg * 9.0, -13.0), (sg * 13.0, -4.0),
+                                                    (sg * 13.0, 4.0), (sg * 9.0, 13.0), (0.0, 24.0), (0.0, 44.0)],
+                                                   L.PIT)
+    # volta completa em r 12,5 em volta do nucleo (colisao do nucleo termina em r 8,7 no vertice)
+    rr["FOSSO_volta_do_nucleo"] = ([(12.5 * math.cos(D(a)), 12.5 * math.sin(D(a))) for a in range(0, 361, 20)],
+                                   L.PIT)
+    pr = []
+    for side, tag in ((1, "L"), (-1, "O")):
+        g = _ramp_geo(side)
+        P, hw = g["P"], L.PIT_RAMP_W / 2
+        for s_mid in (10.0, 20.0):
+            for v, sgn, lab in ((hw - 0.9, 1.0, "fora"), (-hw + 0.9, -1.0, "dentro")):
+                q = P(s_mid, v)
+                pr.append(("MINE_rampa_%s_%s_s%d" % (tag, lab, int(s_mid)), q.x, q.y, q.z, g["out"].x * sgn,
+                           g["out"].y * sgn))
+    return rr, pr
+
+
+EXTRA_ROUTES, EXTRA_PROBES = _qa_extra()
