@@ -1049,10 +1049,11 @@ def back_massif(rng):
         inner.append((a.x, a.y))
         outer.append((b.x, b.y))
     IL.prism(mb, inner + outer[::-1], L.SEA - 4.0, MASSIF_CORE_Z, DARK)
-    # ---- frente do patamar A (do chao do T2/T1 ate 64; colunas frontais +6..18; alas em degraus nas pontas)
+    # ---- frente do patamar A (do chao do T2/T1 ate 64; colunas frontais +6..24; alas em degraus nas pontas)
     u = 0.0
+    flush_run = 0                                       # sequencia de colunas "rente" (silhueta plana)
     while u < total - 0.5:
-        w = _width(rng, (5.5, 9.0), (10.0, 15.0), 0.4)
+        w = _width(rng, (4.5, 8.0), (11.0, 17.0), 0.42)
         if total - u - w < 4.0:
             w = total - u
         F, T, N, back, dA, dC, hA = M.prof(u + w * 0.5)
@@ -1061,14 +1062,22 @@ def back_massif(rng):
             u += 1.5
             continue
         q = rng.random()
-        crag_hi = 7.0 if _near_site(x, 5.0) else 18.0
+        crag_hi = 7.0 if _near_site(x, 5.0) else 24.0
+        force_break = flush_run >= 2 and hA >= H_A - 0.1
+        if force_break and rng.random() < 0.6:
+            q = 0.0                                      # forca massa primaria (coluna alta) depois de 2 rentes
+        elif force_break:
+            q = 0.4                                       # ou massa secundaria (recuo baixo)
         if q < 0.34 and hA >= H_A - 0.1:
             top, lid = hA + rng.uniform(6.0, crag_hi), rng.random() < 0.6
-            w = max(w, rng.uniform(7.0, 9.5))                    # coluna frontal alta: bloco, nao agulha
+            w = max(w, rng.uniform(7.0, 10.5))                    # coluna frontal alta: bloco, nao agulha
+            flush_run = 0
         elif q < 0.5:
             top, lid = hA - rng.uniform(1.5, 4.0), True
+            flush_run = 0
         else:
             top, lid = hA - LID_EPS, True
+            flush_run += 1
         zf = ground(F.x - N.x * 2.5, F.y - N.y * 2.5) - 1.0
         m = DARK if rng.random() < 0.1 else tone()
         dep = min(dA + 1.5, 10.0)
