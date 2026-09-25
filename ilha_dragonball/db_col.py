@@ -420,6 +420,17 @@ def arena_band(area, z0, z1, extra=4.0, step=5.0):
                                                   (z0 + z1) / 2), (0, 0, math.radians(am)))
 
 
+def ngon_col(area, cx, cy, n, R, z0, z1, rot0=0.0):
+    """poligono regular CHEIO (vertices em rot0 + k*360/n, raio R): n/2 faixas pelo centro, cada uma com o
+    comprimento do diametro interno (2*apotema) e a largura de um lado, giradas pela normal de cada par de faces.
+    A uniao e exatamente o n-gono (sem fresta nas pontas como as faixas 'inter', sem sobra como as 'union')."""
+    a = R * math.cos(math.pi / n)
+    w = 2.0 * a * math.tan(math.pi / n) + 0.05
+    for k in range(n // 2):
+        ang = math.radians(rot0) + math.pi / n + k * 2.0 * math.pi / n
+        col_box(area, (2.0 * a, w, z1 - z0), (cx, cy, (z0 + z1) / 2), (0, 0, ang))
+
+
 def summon_col_poly():
     cx, cy = L.SUMMON_C
     return [(cx + L.SUMMON_R * math.cos(math.radians(a)), cy + L.SUMMON_R * math.sin(math.radians(a)))
@@ -448,9 +459,8 @@ def floors():
         strips("DB_WaterBed", p, L.GROUND, L.HUB - 1.6, 4.0, mode="union")
     strips(A, DL.cap_poly(), L.HUB - 1.0, L.CAP, 4.0, mode="inter")
     edge_fill(A, DL.cap_poly(), L.HUB - 1.0, L.CAP)
-    sp = summon_col_poly()
-    strips(A, sp, L.GROUND - 1.0, L.SUM, 4.0, mode="inter")
-    edge_fill(A, sp, L.GROUND - 1.0, L.SUM)
+    # plato do summon: 24-gono cheio (as faixas 'inter' + edge_fill deixavam frestas de 0,2-0,5 perto dos polos)
+    ngon_col(A, L.SUMMON_C[0], L.SUMMON_C[1], 24, L.SUMMON_R, L.GROUND - 1.0, L.SUM)
     # prateleira da saida e ligacao com a vila: fitas exatas
     ribbon_col(A, L.EXIT_PATH, L.EXIT_PATH_HW, L.GROUND - 1.0, L.EXIT_Z, ext0=0.4, ext1=2.5)
     ribbon_col(A, L.HUB_EXIT_LINK, L.HUB_EXIT_LINK_HW, L.GROUND - 1.0, L.EXIT_Z, ext0=4.0, ext1=4.0)

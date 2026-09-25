@@ -100,7 +100,7 @@ CAMS = {
     # altura do jogador (olho ~5,2 acima do chao)
     "CAM_DB_PlayerHeight_Entry": ((0, -110, G + 5.2), (0, -30, G + 2.0), 24),
     "CAM_DB_PlayerHeight_Mining": ((0, -63, G + 5.2), (0, 6, A + 2.0), 24),
-    "CAM_DB_PlayerHeight_Summon": ((-93, -8, G + 5.2), (L.SUMMON_TOWER[0], L.SUMMON_TOWER[1], S_ + 14.0), 22),
+    "CAM_DB_PlayerHeight_Summon": ((-84, -8, G + 5.2), (L.SUMMON_TOWER[0], L.SUMMON_TOWER[1], S_ + 14.0), 22),
     "CAM_DB_PlayerHeight_ShadowGate": None,   # calculada (na ponte, 40 antes do portao)
     # cameras que imitam a concept aprovada (comparacao lado a lado)
     "CAM_DB_Ref_Main": ((0, -300, 235), (0, 30, 0), 26),
