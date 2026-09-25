@@ -318,9 +318,9 @@ def bridges():
 
 # ------------------------------------------------------------------ rochedos: colunas octogonais
 def octo(area, x, y, r, z0, z1):
-    s = r * 1.66                      # lado do quadrado ~ circulo inscrito
-    for a in (0.0, math.pi / 4):
-        col_box(area, (s, s, z1 - z0), (x, y, (z0 + z1) / 2), (0, 0, a))
+    """octogono EXATO inscrito no circulo de raio r (ver ngon_col). Antes eram 2 quadrados girados 45 graus: a
+    UNIAO deles e uma estrela de 8 pontas que passava ate 17% alem do raio (colisao invisivel fora da rocha)."""
+    ngon_col(area, x, y, 8, r, z0, z1)
 
 
 def rocks():
@@ -330,14 +330,14 @@ def rocks():
                 math.hypot(x - px, y - py) for px, py in L.ISLAND_RIM) > r + 1.0:
             continue
         z0 = min(L.zone_of(x + r * math.cos(t), y + r * math.sin(t)) for t in (0, 1.57, 3.14, 4.71)) - 2.0
-        octo("DB_Mesa", x, y, r * 0.92, z0, max(z0 + 16.0, min(top, z0 + 40.0)))
+        octo("DB_Mesa", x, y, r * 0.95, z0, max(z0 + 16.0, min(top, z0 + 40.0)))
     for x, y, r, h in L.ARENA_ROCKS:
-        octo("DB_ArenaRock", x, y, r * 1.1, L.ARENA - 1.0, L.ARENA + h)     # apotema ~0,91 r: encosta na base visual
+        octo("DB_ArenaRock", x, y, r * 0.98, L.ARENA - 1.0, L.ARENA + h)     # dentro do raio da planta (a base visual vai a ~r)
     for x, y, r, h in L.PLATEAU_ROCKS:
         z = L.zone_of(x, y)
-        octo("DB_PlateauRock", x, y, r * 0.9, z - 1.0, z + h)
+        octo("DB_PlateauRock", x, y, r * 0.95, z - 1.0, z + h)
     x, y, r = L.CORE_POD
-    octo("DB_ArenaRock", x, y, r * 1.2, L.ARENA - 1.0, L.ARENA + 7.0)     # tambor r 4,5 + cupula ate ~A+6,9
+    octo("DB_ArenaRock", x, y, r + 0.1, L.ARENA - 1.0, L.ARENA + 7.0)     # tambor r 4,5 + cupula ate ~A+6,9
 
 
 # ------------------------------------------------------------------ chao

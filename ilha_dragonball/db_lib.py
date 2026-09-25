@@ -249,7 +249,10 @@ def blob_poly(x, y, r, n=12, rng=None, amp=0.18, rot=0.0):
 
 
 def octo_col(area, x, y, r, z0, z1):
-    """coluna de colisao octogonal (2 caixas quadradas a 0 e 45 graus)"""
-    s = r * 1.66
-    for a in (0.0, math.pi / 4):
-        col_box(area, (s, s, z1 - z0), (x, y, (z0 + z1) / 2), (0, 0, a))
+    """coluna de colisao: octogono EXATO inscrito no circulo de raio r (4 faixas pelo centro, cada uma com o
+    comprimento do diametro interno e a largura de um lado; a uniao e o octogono). Antes eram 2 quadrados girados
+    45 graus, cuja uniao e uma estrela de 8 pontas que passava ate 17% alem do raio."""
+    a = r * math.cos(math.pi / 8)
+    w = 2.0 * a * math.tan(math.pi / 8) + 0.05
+    for k in range(4):
+        col_box(area, (2.0 * a, w, z1 - z0), (x, y, (z0 + z1) / 2), (0, 0, math.pi / 8 + k * math.pi / 4))
