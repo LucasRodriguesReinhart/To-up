@@ -60,6 +60,7 @@ T2_WALL_X = (-78.0, 78.0)
 VILLAGE_STAIRS = {        # escadas anel -> T1 (angulo em graus sobre o arco T1_WALL_R, largura)
     "C": (90.0, 12.0), "NW": (128.0, 9.0), "NE": (52.0, 9.0)}
 T2_STAIR_W = 12.0         # escada central T1 -> T2 (y 116..128)
+T2_EXIT_CUT = -14.85      # o T2 so existe onde x - y <= isto (recorte paralelo a ponte de saida, 10,5 do eixo)
 T2_STAIR_Y0 = 116.0
 
 # ------------------------------------------------------------------ vila
@@ -69,7 +70,7 @@ BLUE_E = (58.0, 154.0, 14.0)          # prédio redondo sem porta (torre de agua
 RAMEN = (-38.0, 107.0, 18.0, 12.0, 0.0)   # x, y, largura, fundo, yaw (frente para o sul = anel)
 HOUSES_T1 = [(38.0, 107.0, 16.0, 12.0, 0.0, "Roof_Green"), (-84.0, 110.0, 16.0, 13.0, 0.0, "Roof_Terracotta"),
              (84.0, 108.0, 16.0, 13.0, 0.0, "Roof_Terracotta"), (-112.0, 84.0, 14.0, 12.0, 0.0, "Roof_Blue")]
-HOUSES_T2 = [(-98.0, 160.0, 16.0, 14.0, 0.0, "Roof_Terracotta"), (98.0, 150.0, 15.0, 13.0, 0.0, "Roof_Green"),
+HOUSES_T2 = [(-98.0, 160.0, 16.0, 14.0, 0.0, "Roof_Terracotta"), (96.5, 149.5, 13.5, 12.0, 0.0, "Roof_Green"),
              (-126.0, 136.0, 13.0, 12.0, 0.0, "Roof_Green")]
 BACK_CLIFF_Y = 186.0      # pe do paredao (T2) -> topo em CLIFF_TOP
 BACK_FALLS = [(-80.0, 188.0), (80.0, 188.0)]
@@ -82,8 +83,16 @@ SUMMON_FACE_DEG = -35.0       # frente da torre (ESE -> para o anel e a entrada)
 SUMMON_STAIR = (-83.0, 16.0, 190.0, 12.0)   # pe (x, y) no anel, rumo (graus), largura: anel -> T1
 
 # ------------------------------------------------------------------ leste (riacho, roda, moinho)
-STREAM = [(88.0, 178.0), (104.0, 168.0), (112.0, 140.0), (114.0, 100.0), (116.0, 60.0), (118.0, 20.0),
-          (117.0, -20.0), (113.0, -42.0), (106.0, -60.0), (102.0, -76.0)]
+# Agua (revisao da integracao): a cascata T2 -> vale em y 126 caia DENTRO da faixa da ponte de saida. Agora:
+#   sistema NE: queda do paredao (80,188) -> poco no T2 -> canal STREAM_T2 -> queda pela borda NE (NE_FALL), ao lado
+#               da ponte (vista da travessia), sem cruzar a faixa dela;
+#   sistema do vale: aqueduto subterraneo -> BICA no muro x=108 (SPOUT, ao sul da ponte) -> STREAM (vale) -> roda
+#               d'agua -> ponte em arco -> queda pela borda SE.
+STREAM_T2 = [(86.5, 177.4), (104.6, 168.2), (112.4, 152.0), (116.6, 143.0)]
+NE_FALL = (119.2, 141.2)           # borda NE (contorno entre (122,124) e (116,160)); a queda comeca aqui
+SPOUT = (108.0, 80.0, T1 - 3.2)    # bica (x da face do muro, y, cota da boca); cai numa bacia no nivel G
+STREAM = [(110.5, 80.0), (113.5, 70.0), (116.0, 60.0), (118.0, 20.0), (117.0, -20.0), (113.0, -42.0),
+          (106.0, -60.0), (102.0, -76.0)]
 STREAM_W = 9.0
 WHEEL = (118.0, 12.0, 11.0)   # x, y, raio (eixo L-O: a roda gira no plano YZ)
 MILL = (100.0, 12.0, 14.0, 18.0)   # moinho de minerio / posto do minerador (x, y, largura X, fundo Y) no nivel G
@@ -130,11 +139,11 @@ def anchor_pos():
 
 
 # ------------------------------------------------------------------ contorno da ilha (topo do penhasco, anti-horario)
-ISLAND_RIM = [(-13.0, -118.0), (13.0, -118.0), (32.0, -114.0), (56.0, -101.0), (76.0, -88.0), (96.0, -80.0),
+ISLAND_RIM = [(-24.0, -118.6), (24.0, -118.6), (35.0, -114.5), (56.0, -101.0), (76.0, -88.0), (96.0, -80.0),
               (112.0, -64.0), (130.0, -44.0), (144.0, -12.0), (150.0, 26.0), (146.0, 64.0), (132.0, 98.0),
               (122.0, 124.0), (116.0, 160.0), (100.0, 190.0), (64.0, 204.0), (0.0, 208.0), (-64.0, 204.0),
               (-104.0, 190.0), (-134.0, 160.0), (-150.0, 120.0), (-158.0, 76.0), (-158.0, 30.0),
-              (-148.0, -6.0), (-126.0, -36.0), (-96.0, -62.0), (-76.0, -86.0), (-52.0, -104.0), (-28.0, -115.0)]
+              (-148.0, -6.0), (-126.0, -36.0), (-96.0, -62.0), (-76.0, -86.0), (-52.0, -104.0), (-35.0, -114.5)]
 # prateleira de penhasco mais baixa em volta (lobulos da borda, so visual)
 SHELF_Z = G - 9.0
 
@@ -183,7 +192,7 @@ def zone_of(x, y):
         return RING               # faixa do anel ao pe do muro T1
     if y >= BACK_CLIFF_Y:
         return CLIFF_TOP
-    if y >= T2_WALL_Y and x <= 118.0:
+    if y >= T2_WALL_Y and x <= 118.0 and (x - y) <= T2_EXIT_CUT:
         return T2
     if x >= 108.0:
         return G                  # vale do riacho
@@ -201,6 +210,8 @@ def _blocked(x, y, clear):
     if r < CORE_R + 3.0 + clear or r > PIT_R - 4.0 - clear:
         return True
     # corredores livres do rochedo central ate o pe de cada acesso: escadas N/S e pe das rampas L/O
+    if abs(x) < PIT_STAIR_W / 2 + 1.2 + clear and abs(y) > PIT_R - PIT_STAIR_N * 1.6 - 1.0 - clear:
+        return True               # escadas N/S do fosso
     for fx, fy in lane_ends():
         ln = math.hypot(fx, fy)
         t = max(0.0, min(1.0, (x * fx + y * fy) / (ln * ln)))

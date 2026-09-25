@@ -149,6 +149,7 @@ import export_ilha_lua as XL
 
 
 def main():
+    print("EXPORT_ILHA: %d materiais Glow -> Neon" % XL.neon_rules())
     n_gal = drop_gallery()
     n_w = to_world()
     vfx = XL.vfx_list(ER)

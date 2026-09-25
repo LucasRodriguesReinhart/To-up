@@ -160,6 +160,7 @@ def t1_poly():
 def t2_poly():
     p = clip(rim(), 0.0, -1.0, -L.T2_WALL_Y)       # y >= T2_WALL_Y
     p = clip(p, 1.0, 0.0, 118.0)
+    p = clip(p, 1.0, -1.0, L.T2_EXIT_CUT)          # fora da faixa da ponte de saida
     return ccw(p)
 
 

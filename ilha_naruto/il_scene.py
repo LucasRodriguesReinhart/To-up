@@ -16,9 +16,31 @@ def setup(res=(1600, 900), samples=32):
     fm_scene.setup_world()
     fm_scene.SUN_DIR = SUN_DIR
     fm_scene.SUN_POWER = 5.0
-    fm_scene.FOG.update(start=260.0, depth=1400.0, factor=0.35)
+    fm_scene.FOG.update(start=480.0, depth=2200.0, factor=0.2)
     fm_scene.setup_sun()
     bpy.context.scene.view_settings.exposure = 0.55
+
+
+def tone_emissives(cap=1.35, crystal=0.55):
+    """SO a previa do Blender: sob AgX, emissao 3-5 estoura em creme/branco (estrela, barreiras, cristais). Limita a
+    forca da emissao para a cor ler saturada como nas referencias. A cor do Roblox (rbx_color/Neon) nao muda."""
+    n = 0
+    for m in bpy.data.materials:
+        if not m.use_nodes:
+            continue
+        for nd in m.node_tree.nodes:
+            if nd.type != "BSDF_PRINCIPLED":
+                continue
+            s = nd.inputs["Emission Strength"]
+            if s.is_linked or s.default_value <= 0:
+                continue
+            lim = crystal if (m.name.startswith("Crystal_") and "Glow" not in m.name and "Core" not in m.name) else cap
+            if m.name.startswith(("Lantern_Glow", "Window_Warm")):
+                continue
+            if s.default_value > lim:
+                s.default_value = lim
+                n += 1
+    print("SCENE emissivos limitados: %d materiais" % n)
 
 
 def sea():
@@ -85,7 +107,7 @@ CAMS = {
     "CAM_Ref14": ((0, -272, 182), (0, 38, 0), 26),
     "CAM_Ref15": ((-140, -250, 170), (12, 38, 0), 26),
     "CAM_Ref16": ((-212, -214, 112), (34, 34, 6), 24),
-    "CAM_Ref17": ((0, 372, 205), (0, -22, 0), 26),
+    "CAM_Ref17": ((0, 330, 300), (0, -30, 0), 26),
     "CAM_Ref18": ((0, -190, 345), (0, 46, 0), 24),
 }
 
@@ -98,8 +120,8 @@ def cameras():
         camera(n, loc, tgt, lens)
     gp = L.gate_db_pos()
     ux, uy = L.exit_dir()
-    camera("CAM_DB_Gate", (gp[0] - ux * 32.0 - uy * 8.0, gp[1] - uy * 32.0 + ux * 8.0, L.EXIT_Z + 9.0),
-           (gp[0], gp[1], L.EXIT_Z + 11.0), 20)
+    camera("CAM_DB_Gate", (gp[0] - ux * 36.0 - uy * 9.0, gp[1] - uy * 36.0 + ux * 9.0, L.EXIT_Z + 10.0),
+           (gp[0], gp[1], L.EXIT_Z + 18.0), 16)
     bpy.context.scene.camera = bpy.data.objects["CAM_Ref14"]
 
 

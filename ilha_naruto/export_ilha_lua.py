@@ -6,6 +6,18 @@ import bpy
 from mathutils import Vector
 
 
+def neon_rules():
+    """todo material com 'Glow' no nome vira Neon (o prefixo Crystal_ do lobby ganharia do 'glow' e sairia SmoothPlastic)"""
+    import fm_lib
+    have = {r[0] for r in fm_lib.RBX_RULES}
+    n = 0
+    for m in bpy.data.materials:
+        if "Glow" in m.name and m.name not in have:
+            fm_lib.RBX_RULES.insert(0, (m.name, "Neon", 0.0, False))
+            n += 1
+    return n
+
+
 def vfx_list(ER):
     out = []
     for o in bpy.data.objects:
@@ -16,7 +28,8 @@ def vfx_list(ER):
                 piv = tuple(sum(bb, Vector()) / 8.0)
             ax = o.get("axis", (0.0, 0.0, 1.0))
             out.append({"name": o.name, "pivot": ER.to_rbx(piv), "axis": ER.to_rbx(ax),
-                        "rpm": float(o.get("rpm", 0.0)), "bob": float(o.get("bob", 0.0))})
+                        "rpm": float(o.get("rpm", 0.0)), "bob": float(o.get("bob", 0.0)),
+                        "rate": float(o.get("rate", 0.0))})
     return out
 
 
@@ -29,8 +42,8 @@ def extra_lua(ER, vfx, root_pivot=False):
     A("-- ===== pecas moveis (VFX_*) =====")
     A("local VFX = {")
     for v in vfx:
-        A("  [%s] = {p = Vector3.new(%.3f,%.3f,%.3f), a = Vector3.new(%.4f,%.4f,%.4f), rpm = %.3f, bob = %.3f}," % (
-            ER.lua_str(v["name"]), *v["pivot"], *v["axis"], v["rpm"], v["bob"]))
+        A("  [%s] = {p = Vector3.new(%.3f,%.3f,%.3f), a = Vector3.new(%.4f,%.4f,%.4f), rpm = %.3f, bob = %.3f, rate = %.3f}," % (
+            ER.lua_str(v["name"]), *v["pivot"], *v["axis"], v["rpm"], v["bob"], v["rate"]))
     A("}")
     A("local nV = 0")
     A("for _, d in ipairs(root:GetDescendants()) do")
@@ -38,7 +51,7 @@ def extra_lua(ER, vfx, root_pivot=False):
     A("    local v = o and VFX[o]")
     A("    if v then local rel = root:GetPivot():ToObjectSpace(CFrame.new(v.p + ROOT_OFFSET))")
     A("      d:SetAttribute('pivot_rel', rel.Position); d:SetAttribute('axis_rel', v.a); d:SetAttribute('rpm', v.rpm)")
-    A("      d:SetAttribute('bob', v.bob); d:SetAttribute('cf0_rel', root:GetPivot():ToObjectSpace(d.CFrame))")
+    A("      d:SetAttribute('bob', v.bob); d:SetAttribute('rate', v.rate); d:SetAttribute('cf0_rel', root:GetPivot():ToObjectSpace(d.CFrame))")
     A("      d:SetAttribute('movel_de', root.Name); CS:AddTag(d, 'IlhaMovel'); nV += 1 end end")
     A("end")
     A("do local SPS = game:GetService('StarterPlayer'):FindFirstChildOfClass('StarterPlayerScripts')")
@@ -55,7 +68,14 @@ def extra_lua(ER, vfx, root_pivot=False):
     A("    local cf0, p, a = d:GetAttribute('cf0_rel'), d:GetAttribute('pivot_rel'), d:GetAttribute('axis_rel')")
     A("    if dono and cf0 and p and a and a.Magnitude > 0 then")
     A("      local ang = t * (d:GetAttribute('rpm') or 0) * math.pi / 30")
-    A("      local bob = math.sin(t * 1.6 + p.X * 0.1) * (d:GetAttribute('bob') or 0)")
+    A("      local amp, rate = d:GetAttribute('bob') or 0, d:GetAttribute('rate') or 0
+      local bob
+      if rate > 0 then  -- pilao: sobe devagar (70% do ciclo) e cai rapido (30%)
+        local f = (t * rate) % 1
+        bob = amp * ((f < 0.7) and (f / 0.7) or (1 - (f - 0.7) / 0.3))
+      else
+        bob = math.sin(t * 1.6 + p.X * 0.1) * amp
+      end")
     A("      local r = CFrame.fromAxisAngle(a.Unit, ang)")
     A("      d.CFrame = dono:GetPivot() * (CFrame.new(p + Vector3.new(0, bob, 0)) * r * CFrame.new(-p) * cf0)")
     A("    end")

@@ -29,6 +29,7 @@ PAT = re.compile(r"^(GATE_%s(_|$)|VFX_GATE_%s_|COL_Gate%s|PURCHASE_UI_ANCHOR_%s$
 
 
 def main():
+    print("PORTAO: %d materiais Glow -> Neon" % XL.neon_rules())
     root = bpy.data.objects.get("GATE_%s" % KEY)
     if root is None:
         print("PORTAO: marcador GATE_%s nao existe neste .blend" % KEY)

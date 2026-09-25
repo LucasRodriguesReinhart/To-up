@@ -130,10 +130,11 @@ def markers(key, F, yaw, area_id=None):
        props={"gate": key, "state": "unlocked", "fx": "abertura"})     # vai no export como marcador
 
 
-def showcase_platform(key, F, length=44.0, width=34.0, z_top=0.0, m="Stone_Paving_Warm", side_m="Stone_Wall_Dark"):
-    """plataforma neutra da galeria (so para modelar/renderizar os portoes fora da ilha); nao vai para a ilha"""
+def showcase_platform(key, F, length=46.0, width=38.0, z_top=0.0, m="Stone_Paving_Warm", side_m="Stone_Wall_Dark"):
+    """plataforma neutra da galeria (so para modelar/renderizar os portoes fora da ilha); nao vai para a ilha.
+    Topo do tabuleiro EXATAMENTE no nivel do portao (gz); a base tem 38 x 46 (os portoes tem ~34 de base)."""
     mb = MB("GATEGAL_%s_Platform" % key, "08_PURCHASE_GATES", None, detail="near")
-    mb.box((width, length, 3.0), F.p(0, 0, z_top - 1.5), F.r(), side_m, 0.2)
-    mb.box((DECK_W, length + 0.2, 0.4), F.p(0, 0, z_top + 0.2), F.r(), m, 0.05)
+    mb.box((width, length, 3.0), F.p(0, 0, z_top - 1.9), F.r(), side_m, 0.2)
+    mb.box((DECK_W, length + 0.2, 0.4), F.p(0, 0, z_top - 0.2), F.r(), m, 0.05)
     mb.finish()
-    col_box("GateGal%s" % key, (width, length, 3.0), F.p(0, 0, z_top - 1.3), F.r())
+    col_box("GateGal%s" % key, (width, length, 3.0), F.p(0, 0, z_top - 1.5), F.r())

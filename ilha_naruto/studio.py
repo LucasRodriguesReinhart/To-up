@@ -110,6 +110,7 @@ def main():
         else:
             print("STUDIO AVISO: %s.py nao existe (zona em blockout)" % m)
     made = [o for o in bpy.data.objects if o.name not in before]
+    il_scene.tone_emissives()
     il_scene.sea()
     il_scene.islets()
     il_scene.cameras()

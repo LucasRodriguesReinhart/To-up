@@ -21,23 +21,30 @@ GROUPS = [
     # emoldurar a entrada (fora das alas do portao)
     ("Entrada", -38.0, -107.0, 5.0, 2, ("young", "broad"), "M"),
     ("Entrada", 38.0, -106.0, 5.0, 2, ("young", "broad"), "M"),
-    # gramado sudoeste: separa o anel do terraco do summon e da o primeiro plano das vistas do sul
-    ("SO", -98.0, -52.0, 12.0, 4, ("broad", "broad", "fir"), "L"),
-    ("SO", -70.0, -88.0, 9.0, 3, ("broad", "young"), "M"),
-    ("SO", -118.0, -22.0, 8.0, 2, ("broad",), "M"),
+    ("Entrada", -58.0, -103.0, 5.0, 1, ("broad",), "L"),
+    ("Entrada", 60.0, -99.0, 5.0, 1, ("broad",), "L"),
+    # gramado sudoeste: separa o anel do terraco do summon; primeiro plano das vistas do sul
+    ("SO", -100.0, -50.0, 12.0, 5, ("broad", "broad", "fir"), "L"),
+    ("SO", -76.0, -90.0, 9.0, 3, ("broad", "young"), "M"),
+    ("SO", -126.0, -28.0, 8.0, 3, ("broad", "fir"), "M"),
+    ("SO", -44.0, -104.0, 6.0, 2, ("young",), "M"),
     # gramado sudeste
-    ("SE", 60.0, -95.0, 8.0, 3, ("broad", "young"), "M"),
-    ("SE", 88.0, -66.0, 8.0, 3, ("broad", "fir"), "L"),
+    ("SE", 58.0, -96.0, 8.0, 3, ("broad", "young"), "M"),
+    ("SE", 86.0, -70.0, 8.0, 3, ("broad", "fir"), "L"),
+    ("SE", 124.0, -50.0, 5.0, 2, ("broad",), "M"),
+    ("SE", 94.0, -32.0, 5.0, 1, ("broad",), "M"),
     # vale leste (casas e riacho)
-    ("Leste", 142.0, -2.0, 6.0, 2, ("broad",), "M"),
-    ("Leste", 136.0, 62.0, 7.0, 3, ("fir", "broad"), "L"),
-    ("Leste", 96.0, -34.0, 5.0, 1, ("broad",), "M"),
-    # terraco do summon: sakuras emoldurando a praca
-    ("Summon", -98.0, 50.0, 4.0, 1, ("sakura",), "M"),
+    ("Leste", 142.0, -4.0, 6.0, 2, ("broad",), "M"),
+    ("Leste", 138.0, 58.0, 7.0, 3, ("fir", "broad"), "L"),
+    ("Leste", 146.0, 22.0, 4.0, 1, ("fir",), "L"),
+    ("Leste", 130.0, 84.0, 6.0, 2, ("broad", "fir"), "M"),
+    # terraco do summon: sakuras emoldurando a praca (a abertura NE fica livre)
     ("Summon", -150.0, 0.0, 5.0, 2, ("sakura", "broad"), "M"),
-    ("Summon", -150.0, 50.0, 5.0, 1, ("sakura",), "L"),
+    ("Summon", -150.0, 48.0, 5.0, 1, ("sakura",), "L"),
+    ("Summon", -104.0, -12.0, 4.0, 1, ("sakura",), "M"),
     # NO do T1: separa o summon da vila
-    ("T1_NO", -118.0, 104.0, 10.0, 3, ("broad", "fir"), "L"),
+    ("T1_NO", -118.0, 104.0, 10.0, 4, ("broad", "fir"), "L"),
+    ("T1_NO", -146.0, 100.0, 5.0, 2, ("broad", "fir"), "L"),
     ("T1_NO", -86.0, 88.0, 5.0, 1, ("broad",), "S"),
     # T1 norte: moldura do topo da escadaria central (baixas: nao tapam o salao)
     ("T1_N", -22.0, 104.0, 2.0, 1, ("broad",), "S"),
@@ -49,22 +56,17 @@ GROUPS = [
     ("T2", 33.0, 173.0, 3.0, 1, ("sakura",), "M"),
     ("T2", -82.0, 180.0, 6.0, 2, ("broad", "fir"), "L"),
     ("T2", 82.0, 178.0, 6.0, 2, ("broad", "fir"), "L"),
-    ("T2", -128.0, 158.0, 7.0, 2, ("fir", "broad"), "L"),
+    ("T2", -130.0, 158.0, 7.0, 3, ("fir", "broad"), "L"),
     ("T2", 108.0, 166.0, 5.0, 1, ("fir",), "M"),
+    ("T2", 80.0, 138.0, 4.0, 1, ("broad",), "M"),
+    ("T2", -80.0, 136.0, 4.0, 1, ("broad",), "M"),
     # plato do paredao: pinheiros-guarda-chuva quebrando a linha do topo
     ("Plato", -100.0, 196.0, 8.0, 2, ("umbrella", "fir"), "L"),
     ("Plato", -58.0, 204.0, 6.0, 2, ("fir", "umbrella"), "M"),
+    ("Plato", -20.0, 205.0, 5.0, 1, ("umbrella",), "L"),
     ("Plato", 20.0, 205.0, 6.0, 2, ("umbrella",), "M"),
     ("Plato", 60.0, 202.0, 6.0, 2, ("fir", "umbrella"), "L"),
     ("Plato", 98.0, 190.0, 6.0, 2, ("umbrella", "fir"), "M"),
-    # bordas (transicao para o penhasco)
-    ("SO", -134.0, -34.0, 6.0, 2, ("broad", "fir"), "M"),
-    ("SE", 124.0, -50.0, 5.0, 2, ("broad",), "M"),
-    ("Leste", 146.0, 22.0, 4.0, 1, ("fir",), "L"),
-    ("T2", 80.0, 138.0, 4.0, 1, ("broad",), "M"),
-    ("T1_NO", -146.0, 100.0, 5.0, 2, ("broad", "fir"), "L"),
-    ("Entrada", -58.0, -104.0, 5.0, 1, ("broad",), "L"),
-    ("Entrada", 60.0, -100.0, 5.0, 1, ("broad",), "L"),
 ]
 SIZES = {"S": (9.0, 11.0), "M": (12.0, 15.0), "L": (16.0, 21.0)}
 BUSHES = [  # (x, y, n, raio) - pes de escada, cantos de casa, borda do muro do anel ao sul
@@ -75,9 +77,45 @@ BUSHES = [  # (x, y, n, raio) - pes de escada, cantos de casa, borda do muro do 
 FLOWERS = [(-22.0, -100.0), (22.0, -100.0), (-106.0, 6.0), (-134.0, 40.0), (-24.0, 136.0), (24.0, 136.0)]
 
 
+def _seg_d(x, y, pts):
+    best = 1e9
+    for (ax, ay), (bx, by) in zip(pts, pts[1:]):
+        dx, dy = bx - ax, by - ay
+        dd = dx * dx + dy * dy
+        t = 0.0 if dd < 1e-9 else max(0.0, min(1.0, ((x - ax) * dx + (y - ay) * dy) / dd))
+        best = min(best, math.hypot(x - ax - dx * t, y - ay - dy * t))
+    return best
+
+
+# zonas livres pedidas pelos outros modulos (retangulos x0, y0, x1, y1)
+KEEP_FREE = [(89.0, 8.0, 93.0, 16.0), (93.0, -3.0, 107.0, 3.0), (96.0, 22.0, 106.0, 28.0),     # moinho
+             (-5.5, 136.5, 5.5, 141.5), (-62.5, 136.5, -53.5, 141.5), (-48.0, 95.0, -28.0, 101.5),  # portas da vila
+             (-72.0, -84.0, -44.0, -56.0)]                                                           # campo de treino
+
+
 def _free_axes(x, y):
     """eixos de visao e circulacao que ficam livres (espaco negativo)"""
     r = math.hypot(x, y)
+    for x0, y0, x1, y1 in KEEP_FREE:
+        if x0 - 1.0 <= x <= x1 + 1.0 and y0 - 1.0 <= y <= y1 + 1.0:
+            return False
+    # agua: riacho do vale e canal do T2 (7 do eixo), pocos das quedas do fundo, canal oeste
+    if _seg_d(x, y, L.STREAM) < 7.0 or _seg_d(x, y, L.STREAM_T2) < 7.0:
+        return False
+    for fx, fy in L.BACK_FALLS:
+        if math.hypot(x - fx, y - (fy - 10.0)) < 11.0:
+            return False
+    try:
+        import il_water as W
+        if _seg_d(x, y, W.WEST_T2) < 5.0 or _seg_d(x, y, W.WEST_T1) < 5.0:
+            return False
+    except Exception:
+        pass
+    # abertura NE da praca do summon (30..54 graus a partir do centro, ate r 44)
+    scx, scy = L.SUMMON_C
+    ang = math.degrees(math.atan2(y - scy, x - scx)) % 360.0
+    if 26.0 <= ang <= 58.0 and math.hypot(x - scx, y - scy) < 44.0:
+        return False
     if r < L.T1_WALL_R + 1.0:                      # fosso, anel e faixa do anel
         return False
     if abs(x) < 16.0 and -200.0 < y < 140.0:        # eixo entrada -> fosso -> salao
@@ -91,9 +129,6 @@ def _free_axes(x, y):
     cx, cy = L.SUMMON_C
     if math.hypot(x - cx, y - cy) < L.SUMMON_R + 2.0:          # praca do summon
         return False
-    for sx, sy in [(p[0], p[1]) for p in L.STREAM]:               # riacho
-        if math.hypot(x - sx, y - sy) < L.STREAM_W:
-            return False
     return True
 
 
@@ -240,7 +275,7 @@ def build():
     sh = MB("VEG_Shelf", C, random.Random(SEED + 3), detail="far")
     ns = 0
     pts = L.SHELF_RIM
-    for i in range(0, len(pts), 3):
+    for i in range(0, len(pts), 2):
         x, y = pts[i]
         cx, cy = x * 0.94, y * 0.94
         if abs(cx) < 30 and cy < -100:             # sob a ponte de chegada

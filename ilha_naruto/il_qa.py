@@ -80,6 +80,50 @@ def routes():
     return r
 
 
+def _mk_xy(name, default):
+    o = bpy.data.objects.get(name)
+    return (o.location.x, o.location.y) if o else default
+
+
+def interior_routes():
+    """porta -> ponto de interacao dos 4 predios entraveis, ponte em arco e travessia do portao DESBLOQUEADO"""
+    r = {}
+    r["HALL:porta->mesa"] = ([(0.0, 134.0), (0.0, 146.0), (0.0, 156.5),
+                              _mk_xy("PLAYER_INTERACT_MainHall", (0.0, 162.6))], L.T2)
+    sx, sy, sr = L.BLUE_W
+    r["LOJA:porta->balcao"] = ([(sx, sy - sr - 3.0), (sx, sy - sr + 5.0),
+                                _mk_xy("PLAYER_INTERACT_WeaponShop", (sx, sy - 0.6))], L.T2)
+    rx, ry, rw, rd, _ = L.RAMEN
+    r["RAMEN:frente->balcao"] = ([(rx, ry - rd / 2 - 5.0), (rx, ry - rd / 2 - 1.5),
+                                  _mk_xy("PLAYER_INTERACT_Ramen", (rx, ry - 2.9))], L.T1)
+    mx, my, mw, md = L.MILL
+    r["MOINHO:porta->balcao"] = ([(mx - mw / 2 - 3.0, my), (mx - mw / 2 + 1.5, my),
+                                  _mk_xy("PLAYER_INTERACT_Mill", (mx - 2.0, my))], L.G)
+    fx, fy = L.FOOTBRIDGE
+    r["PONTE_EM_ARCO"] = ([(fx - 15.0, fy + 2.5), (fx - 6.0, fy + 1.0), (fx + 6.0, fy - 1.0), (fx + 11.0, fy - 2.0)],
+                          L.G)
+    gp = L.gate_db_pos()
+    ux, uy = L.exit_dir()
+    r["PORTAO_DB_ABERTO->ANCORA"] = ([(gp[0] - ux * 7.0, gp[1] - uy * 7.0), gp, (gp[0] + ux * 12.0, gp[1] + uy * 12.0),
+                                      L.exit_point(L.EXIT_BRIDGE_LEN + L.ANCHOR_OFF - 1.0)], L.EXIT_Z)
+    return r
+
+
+def col_bvh(exclude=()):
+    from mathutils.bvhtree import BVHTree
+    verts, polys = [], []
+    fm_qa.OWNER.clear()
+    for o in bpy.data.objects:
+        if o.type != "MESH" or not o.name.startswith("COL_") or o.name.startswith(exclude):
+            continue
+        mw = o.matrix_world
+        base = len(verts)
+        verts += [mw @ v.co for v in o.data.vertices]
+        polys += [[base + i for i in p.vertices] for p in o.data.polygons]
+        fm_qa.OWNER.extend([o.name] * len(o.data.polygons))
+    return BVHTree.FromPolygons(verts, polys), len(polys)
+
+
 def nav():
     bvh, n = fm_qa.col_bvh()
     print("COL faces:", n)
@@ -91,6 +135,16 @@ def nav():
         ok += not f
         print(("OK   " if not f else "FAIL ") + name + ("" if not f else "  " + str(f)))
     print("ROTAS %d/%d OK" % (ok, len(res)))
+    # rotas internas / travessias (o portao aberto: sem a colisao de bloqueio COL_Gate*Lock)
+    bvh2, _ = col_bvh(exclude=("COL_GateDBLock",))
+    ok2 = 0
+    rr = interior_routes()
+    for name, (pts, z0) in rr.items():
+        use = bvh2 if "ABERTO" in name else bvh
+        f, zend = fm_qa.walk(use, pts, z0)
+        ok2 += not f
+        print(("OK   " if not f else "FAIL ") + name + ("" if not f else "  " + str(f)))
+    print("ROTAS_EXTRA %d/%d OK" % (ok2, len(rr)))
     return res
 
 

@@ -54,6 +54,7 @@ def build(blockout=False, skip_zones=(), studio_zone=None):
             t = time.time()
             importlib.import_module(m).build()
             print("%s %.1fs" % (m, time.time() - t))
+    il_scene.tone_emissives()
     il_scene.sea()
     il_scene.islets()
     il_scene.clouds()
