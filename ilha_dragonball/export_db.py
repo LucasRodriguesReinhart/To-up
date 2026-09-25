@@ -10,7 +10,7 @@
 #      - pecas moveis VFX_* -> tag IlhaMovel e o MESMO LocalScript da Ilha 1 (ILHA_NARUTO_Movel; generico por tag e dono:
 #        um so script anima as duas ilhas, nada gira dobrado);
 #      - portao Shadow Garden: tag PortaoCompra (mesmo ModuleScript ReplicatedStorage.PortoesCompra da Ilha 1);
-#      - guarda provisoria da ancora (DB_Exit_AnchorGuard + COL_DBAnchorGuard_*): tag GuardaProximaIlha.
+#      - guarda provisoria da ancora (DB_Exit_AnchorGuard + COL_DBAnchorGuard_* + COL_DB_ExitAnchorPylon_*): tag GuardaProximaIlha.
 import sys, os, math, re, json
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
@@ -202,8 +202,9 @@ import export_ilha_lua as XL
 
 def extra_lua(vfx):
     s = XL.extra_lua(ER, vfx)
-    s = s.replace("'^EXIT_AnchorGuard'", "'^DB_Exit_AnchorGuard'").replace("'^COL_ExitAnchorGuard_'",
-                                                                           "'^COL_DBAnchorGuard_'")
+    s = s.replace("'^EXIT_AnchorGuard'", "'^DB_Exit_AnchorGuard'").replace(
+        "string.match(d.Name, '^COL_ExitAnchorGuard_')",
+        "string.match(d.Name, '^COL_DBAnchorGuard_') or string.match(d.Name, '^COL_DB_ExitAnchorPylon_')")
     s = s.replace("integracao da Ilha 2 (ponte seguinte encosta em ISLAND_NEXT_ANCHOR)",
                   "integracao da Ilha 3 (ponte seguinte encosta em ISLAND_NEXT_ANCHOR_ShadowGarden)")
     return s

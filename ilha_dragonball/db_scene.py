@@ -108,7 +108,7 @@ CAMS = {
     "CAM_DB_Ref_Front": ((0, -330, 130), (0, 40, 40), 24),
     "CAM_DB_Ref_Side": ((-360, -150, 150), (0, 30, 20), 24),
     "CAM_DB_Ref_Summon": ((-96, -26, S_ + 8.0), (L.SUMMON_TOWER[0], L.SUMMON_TOWER[1], S_ + 22.0), 20),
-    "CAM_DB_Ref_Village": ((-30, 80, H + 7.0), (-86, 128, H + 8.0), 20),
+    "CAM_DB_Ref_Village": ((-66, 106, H + 6.0), (-88, 126, H + 5.0), 20),
     "CAM_DB_Ref_Capsule": ((0, 112, H + 5.0), (0, 174, C + 16.0), 20),
     "CAM_DB_Ref_Environment": ((-78, 70, H + 10.0), (-132, 110, 50.0), 20),
     "CAM_DB_Ref_Gate": None,       # calculada (portao SG de frente, como o painel da concept)

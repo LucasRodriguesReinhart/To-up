@@ -34,7 +34,7 @@ def world_markers():
     mk("ISLAND_NEXT_ANCHOR_ShadowGarden", (ap[0], ap[1], L.EXIT_Z), (0, 0, yaw), 4.0, "ARROWS",
        props={"width": L.DECK_W, "deck_z": L.EXIT_Z, "clear_h": 22.0, "heading_deg": L.EXIT_DEG, "next_area": 4,
               "next_key": "ShadowGarden",
-              "guard": "PROVISORIO: DB_Exit_AnchorGuard (visual) + COL_DBAnchorGuard_* (COL), next_island_guard=True",
+              "guard": "PROVISORIO: DB_Exit_AnchorGuard (visual) + COL_DBAnchorGuard_* e COL_DB_ExitAnchorPylon_* (COL), next_island_guard=True",
               "guard_note": "a integracao da Ilha 3 REMOVE o guarda quando a ponte seguinte encosta aqui"})
 
 
@@ -83,15 +83,16 @@ def spawn_blocks():
 
 
 def fx_markers():
-    """pontos de efeito do jogo (o builder do Roblox cria nevoa/borrifo neles): base das quedas pela borda e da cascata"""
-    for nm, (fx, fy) in (("FX_Fall_SW", L.FALL_SW), ("FX_Fall_SE", L.FALL_SE)):
-        a = math.atan2(fy - (L.POOL_SW[1] if "SW" in nm else L.POOL_SE[1]), fx - (L.POOL_SW[0] if "SW" in nm else L.POOL_SE[0]))
+    """pontos de efeito do jogo (o builder do Roblox cria nevoa/borrifo neles): labio e pe das quedas pela borda e o
+    ponto onde a cascata NW cai no poco. Os pes/impacto foram medidos pela zona water (a cortina segue a face real do
+    penhasco, raycast nas malhas DB_Ter_*); o labio sai da planta."""
+    base = {"FX_Fall_SW": (-92.4, -109.7, -60.0), "FX_Fall_SE": (86.1, -97.8, -60.0)}
+    for nm, (fx, fy), (px, py, _) in (("FX_Fall_SW", L.FALL_SW, L.POOL_SW), ("FX_Fall_SE", L.FALL_SE, L.POOL_SE)):
+        a = math.atan2(fy - py, fx - px)
         mk(nm + "_Lip", (fx + math.cos(a) * 3.0, fy + math.sin(a) * 3.0, L.GROUND - 2.0), size=3.0, kind="SPHERE",
            props={"fx": "nevoa_borda"})
-        mk(nm + "_Base", (fx + math.cos(a) * 8.0, fy + math.sin(a) * 8.0, -60.0), size=6.0, kind="SPHERE",
-           props={"fx": "nevoa_base"})
-    px, py, pr = L.POOL_NW
-    mk("FX_Fall_NW_Pool", (px, py, L.HUB - L.WATER_DROP + 0.5), size=4.0, kind="SPHERE", props={"fx": "borrifo"})
+        mk(nm + "_Base", base[nm], size=6.0, kind="SPHERE", props={"fx": "nevoa_base"})
+    mk("FX_Fall_NW_Pool", (-115.7, 104.6, L.HUB - L.WATER_DROP + 0.5), size=4.0, kind="SPHERE", props={"fx": "borrifo"})
 
 
 def shadow_gate():
