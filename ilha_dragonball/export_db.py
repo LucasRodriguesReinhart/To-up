@@ -96,7 +96,7 @@ ER.OWNERS = [("DB_Ter_", "terrain"), ("DB_Sky_", "terrain"), ("DB_Mine_", "minin
              ("DB_Veg_", "vegetation"), ("DB_Prop_", "props")]
 ER.BUDGET_OWNER = {"terrain": (110000, 135), "mining": (38000, 50), "entrance": (38000, 50), "capsule": (65000, 88),
                    "village": (60000, 92), "towers": (38000, 60), "summon": (44000, 56), "water": (22000, 34),
-                   "exit": (28000, 40), "gate_sg": (26000, 36), "vfx": (14000, 30), "vegetation": (40000, 60),
+                   "exit": (28000, 40), "gate_sg": (26000, 36), "vfx": (14000, 40), "vegetation": (40000, 60),
                    "props": (26000, 45)}
 # pecas moveis (radar, aneis, orbe, esfera do summon...) contam a parte; colisoes sao Parts invisiveis ancoradas
 # (baratas), o teto de 1800 cobre o piso fatiado da arena/ilha + as zonas + o vestir
