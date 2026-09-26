@@ -2,13 +2,17 @@
 # Caminho do jogador: ponte da Ilha 1 (Naruto) -> PONTE DE CHEGADA (y -186..-130, tabuleiro DECK 16,2) -> ESCADARIA
 # (10 x 0,8, y -130..-112) entre dois muros de arenito com bastioes e lanternas -> PORTAL CAPSULE (y -104, vao
 # 18 x 16) -> PRACA DE ENTRADA (GROUND 24,2) -> promenade da arena (y ~ -74).
-# Transicao GRADUAL de mundo (missao secao 10), ao longo da ponte (t = 0 na Ilha 1, 1 no pe da escada):
-#   - calcamento: Stone_Paving_Warm (Konoha) -> Stone_Paving_DB, com uma faixa central de arenito que nasce no meio;
-#   - corpo/aduelas/aparelho dos timpanos: pedra cinza-bege da Ilha 1 -> blocos de arenito DB;
-#   - guarda-corpo: meio-fio cinza + cerca de madeira escura -> meio-fio de arenito + travessas laranja;
-#   - lanternas: caixa de pedra (Konoha) -> hibrida -> lampiao Capsule (globo laranja, discos brancos, cupula azul);
-#   - raizes dos pilares: rocha bege (Konoha) -> arenito laranja em estratos; rochas quentes nos bastioes;
-#   - no alto: arquitetura Capsule (portal azul-marinho/branco com medalhao, floreiras brancas, piso com anel azul).
+# Transicao de mundo em FAIXAS DELIBERADAS nos pilares (nada de sorteio peca a peca, que lia como mosaico quebrado):
+#   junta (y -186, cabeceira da Ilha 1): os 2 pilones Naruto sao a 1a estacao; meio-fio e cerca nascem DENTRO deles;
+#     o pilar P0 encosta no bastiao Naruto com a face -Y reta em y -186 (nada entra na cabeceira);
+#   trecho K  (junta .. P1 = y -171,5): tudo Konoha (calcamento quente em fiadas, corpo cinza, aduelas quentes);
+#   faixa P1: fiada transversal de arenito no tabuleiro (o 1o sinal DB, alinhada com as lanternas Konoha de P1);
+#   trecho H  (P1 .. P2 = y -158,5): mesmas fiadas, agora no calcamento claro DB; guarda-corpo ainda Konoha;
+#   faixa P2: o corpo/cornija viram blocos de arenito DB na face do pilar P2; meio-fio/cerca DB e lanterna hibrida
+#     no eixo do pilar; o tabuleiro passa para lajes largas com a faixa central de arenito (sobe a escadaria);
+#   trecho D  (P2 .. pe da escada): tudo DB; faixa P3 no tabuleiro + lampioes Capsule em P3 e no pe da escada;
+#   raizes: bege Konoha sob P0/P1, arenito em estratos sob P2/P3 (a troca e no mesmo pilar do corpo).
+#   No alto: arquitetura Capsule (portal azul-marinho/branco com medalhao, floreiras brancas, piso com anel azul).
 # Colisao: o andavel (ponte, escada, praca, guardas da ponte e da escada) e do db_col. Aqui so os volumes proprios:
 #   pilares do portal, mureta dos muros da escadaria (lado do plato), bastioes, floreiras, bancos, troncos, postes.
 import math, random
@@ -37,7 +41,16 @@ PIERS = [(-186.0, -183.0, -6.0), (-173.0, -170.0, -10.0), (-160.0, -157.0, -10.0
 R_ARCH = 5.0
 ZS = CROWN - R_ARCH             # nascenca dos arcos (8,2)
 Y_ABUT = -134.0                 # encontro: face do plato (borda da ilha)
-STATIONS = [-184.4, -171.5, -158.5, -145.5, -131.5]      # postes com lanterna (~13 de passo)
+# estacoes com lanterna no eixo de cada pilar (P1..P3) e no pe da escada. A 1a estacao da ponte sao os pilones da
+# cabeceira da Ilha 1 (x +-10,9, y -187,85, base 3,5 ate y -186,1; fuste 2,8 ate y -186,45): nada de poste DB colado
+STATIONS = [-171.5, -158.5, -145.5, -131.5]
+L1, L2, L3 = STATIONS[0], STATIONS[1], STATIONS[2]     # linhas das faixas de transicao (eixo dos pilares)
+Y_BODY_DB = PIERS[2][0]         # -160: face -Y do pilar P2 = troca do corpo/cornija/raizes para arenito DB
+NAR_PYLON_BASE_Y = Y0 - 0.1     # -186,1: face da base (3,5) do pilone Naruto
+NAR_PYLON_BODY_Y = Y0 - 0.45    # -186,45: face do fuste (2,8) do pilone Naruto
+BAND = 1.2                      # fiada transversal de arenito no tabuleiro (centrada na linha da estacao)
+POST_PROUD = 0.05               # postes das estacoes saltam 0,05 da face interna do meio-fio (nada de z-fighting)
+JOINT_RECESS = 0.03             # cunhais do P0 recuados da face reta y -186 (nao dividem o plano com o pilar)
 GATE_Y = L.GATE_Y
 GATE_PX = L.GATE_OPEN_W / 2 + 2.9   # 11,9: centro dos pilares do portal (plinto r 2,9 -> vao livre 18)
 NOTCH_X = L.ENTRY_STAIR_W / 2 + 1.3  # 11,3: face interna dos muros da escadaria
@@ -70,25 +83,20 @@ CAMS = {
     "CAM_DBEnt_PlayerPalms": ((0.0, -70.0, G + 5.2), (0.0, -104.0, G + 7.5), 20),
     # perto de uma palmeira da floreira (tronco curvo, pe alargado, coroa de 2 andares)
     "CAM_DBEnt_PlayerPalm": ((6.0, -84.0, G + 5.2), (17.0, -98.0, G + 6.5), 22),
+    # JUNTA com a Ilha 1 (y = PREV_Y = -186): a cabeceira Naruto so aparece na revisao (anexada do ilha_naruto.blend)
+    # altura do jogador saindo da cabeceira da Ilha 1 (olho 5,2) e olhando a ponte de chegada
+    "CAM_DBEnt_JointPlayer": ((1.5, -199.0, Z + 5.2), (0.0, -150.0, Z + 3.5), 22),
+    # altura do jogador na ponte olhando de volta para a Ilha 1
+    "CAM_DBEnt_JointBack": ((-2.0, -170.0, Z + 5.2), (0.0, -200.0, Z + 3.0), 22),
+    # lados da junta (corpo, cornija, pilar, raizes contra o bastiao da Ilha 1)
+    "CAM_DBEnt_JointSideE": ((46.0, -198.0, Z + 8.0), (0.0, -184.0, Z - 4.0), 24),
+    "CAM_DBEnt_JointSideW": ((-46.0, -172.0, Z + 8.0), (0.0, -188.0, Z - 4.0), 24),
+    # por cima: tabuleiro, meio-fio, pilones e lanternas dos dois lados da linha da junta
+    "CAM_DBEnt_JointTop": ((16.0, -206.0, Z + 24.0), (0.0, -181.0, Z), 24),
 }
 
 
 # ------------------------------------------------------------------ util
-def tpos(y):
-    """0 na ponta da Ilha 1, 1 no pe da escadaria"""
-    return max(0.0, min(1.0, (y - Y0) / (Y1 - Y0)))
-
-
-def smooth(a, b, x):
-    t = max(0.0, min(1.0, (x - a) / (b - a)))
-    return t * t * (3.0 - 2.0 * t)
-
-
-def p_db(y):
-    """probabilidade de uma peca da ponte ja ser DB (arenito/calcamento claro) na posicao y"""
-    return smooth(0.22, 0.82, tpos(y))
-
-
 def arch_pts(a, b, n=14):
     yc, R = (a + b) / 2, (b - a) / 2
     return [(yc + R * math.cos(math.pi * (1 - i / n)), ZS + R * math.sin(math.pi * (1 - i / n))) for i in range(n + 1)]
@@ -136,8 +144,15 @@ def rect_circle(x0, y0, x1, y1, cx, cy, r):
 
 
 # ------------------------------------------------------------------ 1. ponte de chegada: corpo, arcos, pilares
+def batter_block(mb, y_flat, dy_top, dy_bot, hx_top, hx_bot, z0, z1, m):
+    """bloco com talude em 3 lados e a face -Y RETA em y_flat (pilar que encosta num bastiao sem entrar nele)"""
+    top = [(-hx_top, y_flat), (hx_top, y_flat), (hx_top, y_flat + dy_top), (-hx_top, y_flat + dy_top)]
+    bot = [(-hx_bot, y_flat), (hx_bot, y_flat), (hx_bot, y_flat + dy_bot), (-hx_bot, y_flat + dy_bot)]
+    loft_band(mb, top, z1, bot, z0, m)
+
+
 def bridge_body(mb, rng):
-    # pilares (topo = nascenca) e corpo sobre eles
+    # pilares (topo = nascenca) e corpo sobre eles. Material POR PILAR: P0/P1 Konoha, P2/P3 arenito DB
     for i, (y0, y1, zb) in enumerate(PIERS):
         db = i >= 2
         body_m = "Stone_DB_Block" if db else "Stone_Wall_Light"
@@ -146,28 +161,38 @@ def bridge_body(mb, rng):
         ln = y1 - y0
         yc = (y0 + y1) / 2
         h = (ZS - 0.6) - (zb + 0.8)
-        FP.frustum(mb, (0.0, yc, zb + 0.8), 2 * (HWB + 1.1), ln + 1.4, 2 * (HWB + 0.35), ln + 0.3, h, body_m)
-        mb.box((2 * HWB + 1.6, ln + 0.9, 0.6), (0.0, yc, ZS - 0.3), (0, 0, 0), band_m, 0.08)      # imposta
-        mb.box((2 * HWB + 3.0, ln + 2.4, 1.0), (0.0, yc, zb + 0.5), (0, 0, 0), band_m, 0.1)       # sapata
-        # cunhais alternados nas quinas da face do pilar (o tom da ponta seguinte ja aparece aqui)
+        joint = i == 0              # P0 encosta no bastiao da cabeceira Naruto: face -Y reta em y0 = -186
+        if joint:
+            batter_block(mb, y0, ln + 0.15, ln + 0.7, HWB + 0.35, HWB + 1.1, zb + 0.8, ZS - 0.6, body_m)
+            mb.box2((-(HWB + 0.8), y0, ZS - 0.6), (HWB + 0.8, y1 + 0.45, ZS), band_m, 0.08)          # imposta
+            mb.box2((-(HWB + 1.5), y0 + JOINT_RECESS, zb), (HWB + 1.5, y1 + 1.2, zb + 1.0), band_m, 0.1)   # sapata
+        else:
+            FP.frustum(mb, (0.0, yc, zb + 0.8), 2 * (HWB + 1.1), ln + 1.4, 2 * (HWB + 0.35), ln + 0.3, h, body_m)
+            mb.box((2 * HWB + 1.6, ln + 0.9, 0.6), (0.0, yc, ZS - 0.3), (0, 0, 0), band_m, 0.08)      # imposta
+            mb.box((2 * HWB + 3.0, ln + 2.4, 1.0), (0.0, yc, zb + 0.5), (0, 0, 0), band_m, 0.1)       # sapata
+        # cunhais alternados (comprido/curto) nas quinas da face do pilar - um material por pilar, sem sorteio
         k = 0
         z = zb + 1.4
         while z < ZS - 1.4:
             tt = (z - (zb + 0.8)) / h
             face = HWB + 0.35 + 0.75 * (1.0 - tt)
             half = (ln + 0.3 + 1.1 * (1.0 - tt)) / 2
+            if joint:
+                ya_, yb_ = y0, y0 + ln + 0.15 + 0.55 * (1.0 - tt)
+            else:
+                ya_, yb_ = yc - half, yc + half
             for s in (-1, 1):
                 for e in (-1, 1):
                     w = 1.5 if (k + (e > 0)) % 2 == 0 else 0.9
                     if db:
-                        qm = SAND if w > 1.0 else "Stone_Paving_DB_B"
+                        qm = SAND if w > 1.0 else "Stone_DB_Block_B"
                     else:
-                        qm = SAND if (i == 1 and w > 1.0 and rng.random() < 0.35) else "Stone_Paving_Warm"
-                    mb.box((0.35, w, 1.0), (s * (face + 0.06), yc + e * (half - w / 2 + 0.06), z + 0.5), (0, 0, 0),
-                           qm, 0.0)
+                        qm = "Stone_Paving_Warm"
+                    yq = (ya_ + w / 2 + (JOINT_RECESS if joint else -0.06)) if e < 0 else (yb_ - w / 2 + 0.06)
+                    mb.box((0.35, w, 1.0), (s * (face + 0.06), yq, z + 0.5), (0, 0, 0), qm, 0.0)
             z += 1.7
             k += 1
-    # arcos plenos: corpo com o intradorso por baixo
+    # arcos plenos: corpo com o intradorso por baixo (arcos 0-1 Konoha, 2-3 arenito)
     for i, (a, b) in enumerate(SPANS):
         pts = arch_pts(a, b, 16)
         loft_y(mb, [p[0] for p in pts], [p[1] for p in pts], HWB, Z_TOP,
@@ -175,10 +200,9 @@ def bridge_body(mb, rng):
     # encontro no plato (desce para dentro do penhasco da ilha, sob o pe da escada)
     mb.box2((-HWB, Y_ABUT, -12.0), (HWB, Y1 + 0.4, Z_TOP), "Stone_DB_Block", 0.0)
     mb.box((2 * HWB + 1.6, 0.9, 0.6), (0.0, Y_ABUT + 0.2, ZS - 0.3), (0, 0, 0), SAND, 0.08)
-    # cornija continua nas duas faces, por trecho (cinza escuro -> arenito)
-    cuts = [Y0] + [(a + b) / 2 for a, b in SPANS] + [Y1]
-    for ya, yb in zip(cuts, cuts[1:]):
-        m = SAND if p_db((ya + yb) / 2) > 0.5 else "Stone_Wall_Dark"
+    # cornija continua nas duas faces: cinza escuro ate a face do pilar P2, arenito dali ate o plato (a mesma linha
+    # vertical da troca do corpo; nasce reta na junta, sem entrar na cabeceira)
+    for ya, yb, m in ((Y0, Y_BODY_DB, "Stone_Wall_Dark"), (Y_BODY_DB, Y1, SAND)):
         for s in (-1, 1):
             mb.box((0.95, yb - ya, 1.15), (s * (HWB + 0.05), (ya + yb) / 2, Z - 0.725), (0, 0, 0), m, 0.1)
     voussoirs(mb, rng)
@@ -186,7 +210,8 @@ def bridge_body(mb, rng):
 
 
 def voussoirs(mb, rng):
-    """aduelas nas duas faces (extradorso em degraus, chave saliente); o arenito toma conta arco a arco"""
+    """aduelas nas duas faces (extradorso em degraus, chave saliente). Um material por ARCO (anel inteiro, chave
+    inclusive): arcos 0-1 quentes Konoha (corpo cinza), arcos 2-3 arenito (corpo de blocos DB) - a troca e no P2"""
     n = 11
     for si, (a, b) in enumerate(SPANS):
         yc = (a + b) / 2
@@ -203,19 +228,13 @@ def voussoirs(mb, rng):
                 z = ZS + rm * math.sin(tm)
                 ln = R_ARCH * abs(t1 - t0) * (1.0 if key else 0.94)
                 x = s * (HWB - dep / 2 + (0.32 if key else 0.16))
-                if si == 0:
-                    m = "Stone_Paving_Warm"
-                elif si == 1:
-                    m = "Stone_DB_Block" if i % 2 else "Stone_Paving_Warm"
-                elif si == 2:
-                    m = SAND if key else "Stone_DB_Block"
-                else:
-                    m = SAND
+                m = "Stone_Paving_Warm" if si < 2 else SAND
                 mb.box((dep, ln, rad), (x, y, z), (tm - math.pi / 2, 0, 0), m, 0.0)
 
 
 def spandrel_ashlar(mb, rng):
-    """blocos salientes em fiadas nos timpanos; o tom sorteado pela posicao (cinza-bege -> arenito)"""
+    """blocos salientes em fiadas nos timpanos; UM tom por arco (o do corpo do arco): Konoha nos arcos 0-1, bloco de
+    arenito mais escuro nos arcos 2-3 (so a posicao dos blocos e sorteada, nunca o material)"""
     z_hi = Z - 1.55
 
     def intr(pts, y):
@@ -223,8 +242,9 @@ def spandrel_ashlar(mb, rng):
             if ya <= y <= yb:
                 return za + (zb - za) * (y - ya) / max(yb - ya, 1e-6)
         return 99.0
-    for (a, b) in SPANS:
+    for si, (a, b) in enumerate(SPANS):
         pts = arch_pts(a, b, 30)
+        m = "Stone_DB_Block_B" if si >= 2 else "Stone_Paving_Warm"
         for s in (-1, 1):
             z = z_hi - 0.55
             while z > ZS + 0.6:
@@ -233,11 +253,6 @@ def spandrel_ashlar(mb, rng):
                     ln = rng.uniform(1.6, 3.2)
                     ok = all(intr(pts, yy) + 1.9 < z - 0.55 for yy in (y, y + ln / 2, y + ln)) and y + ln < b
                     if ok and rng.random() < 0.55:
-                        pdb = p_db(y + ln / 2)
-                        if rng.random() < pdb:
-                            m = SAND if rng.random() < 0.4 else "Stone_DB_Block"
-                        else:
-                            m = "Stone_Paving_Warm" if rng.random() < 0.35 else "Stone_Wall_Light"
                         mb.box((0.28, ln - 0.15, 1.05), (s * (HWB + 0.02), y + ln / 2, z), (0, 0, 0), m, 0.0)
                     y += ln + rng.uniform(0.2, 1.6)
                 z -= 1.25
@@ -295,7 +310,9 @@ def bridge_roots():
     DBR = ["Cliff_Rock_DB", "Cliff_Rock_DB_Dark"]
     for i, (y0, y1, zb) in enumerate(PIERS):
         yc = (y0 + y1) / 2
-        mats = [["Cliff_Rock_Tan", "Cliff_Rock_Tan_Dark"], ["Cliff_Rock_Tan", "Cliff_Rock_DB_Dark"], DBR, DBR][i]
+        # a troca de rocha e no MESMO pilar da troca do corpo (P2): bege Konoha sob P0/P1, arenito sob P2/P3
+        KON = ["Cliff_Rock_Tan", "Cliff_Rock_Tan_Dark"]
+        mats = [KON, KON, DBR, DBR][i]
         ry = (y1 - y0) / 2 + 1.5
         if i == 0:
             yc += 0.9
@@ -318,63 +335,84 @@ def bridge_roots():
     mb.finish()
 
 
+def rows_fit(rng, y0, y1, choices):
+    """fiadas transversais que fecham EXATAMENTE o trecho [y0, y1] (sem sobra nem fresta nas faixas)"""
+    deps, tot = [], 0.0
+    while tot < (y1 - y0) - 0.5 * min(choices):
+        d = rng.choice(choices)
+        deps.append(d)
+        tot += d
+    k = (y1 - y0) / tot
+    return [d * k for d in deps]
+
+
 def bridge_deck():
-    """calcamento do tabuleiro: fiadas transversais; Konoha -> DB com faixa central de arenito no fim"""
+    """calcamento do tabuleiro em TRECHOS separados por faixas transversais de arenito no eixo dos pilares P1..P3
+    (as mesmas linhas das lanternas): K fiadas Konoha quentes | P1 | H as mesmas fiadas no calcamento claro DB | P2 |
+    D lajes largas com faixa central de arenito (continua na escadaria) | P3 | D. Um material por trecho."""
     rng = random.Random(3103)
     mb = MB("DB_Ent_Deck", C, rng, detail="near")
     x_in = HWD - 0.05
     mb.box((2 * x_in, Y1 - Y0, 0.3), (0.0, (Y0 + Y1) / 2, Z - 0.2), (0, 0, 0), "Stone_Paving_Warm_C", 0.0)
-    y = Y0 + 0.05
+    hb = BAND / 2
+    zones = [(Y0, L1 - hb, "K"), (L1 + hb, L2 - hb, "H"), (L2 + hb, L3 - hb, "D"), (L3 + hb, Y1, "D")]
+
+    def slab(xa, xb, ya, yb, m):
+        hh = 0.4 + rng.uniform(-0.035, 0.035)
+        mb.box((xb - xa - 0.2, yb - ya - 0.2, hh), ((xa + xb) / 2, (ya + yb) / 2, Z - 0.3 + hh / 2),
+               (0, 0, rng.uniform(-0.006, 0.006)), m, 0.0)
     row = 0
-    while y < Y1 - 0.4:
-        t = tpos(y)
-        db_pat = t > 0.46
-        dep = rng.choice((1.7, 1.9, 2.1)) if not db_pat else rng.choice((2.3, 2.5))
-        dep = min(dep, Y1 - y)
-        if not db_pat:
-            cuts = [-x_in] + ([-4.4, 0.0, 4.4] if row % 2 == 0 else [-2.2, 2.2]) + [x_in]
-            cuts = [cuts[0]] + [c + rng.uniform(-0.45, 0.45) for c in cuts[1:-1]] + [cuts[-1]]
-        else:
-            cuts = [-x_in, -6.0 + rng.uniform(-0.3, 0.3), -3.0, 0.0, 3.0, 6.0 + rng.uniform(-0.3, 0.3), x_in]
-            if row % 2:
-                cuts = [-x_in, -6.0 + rng.uniform(-0.3, 0.3), -3.0, 3.0, 6.0 + rng.uniform(-0.3, 0.3), x_in]
-        prun = smooth(0.46, 0.66, t)
-        for xa, xb in zip(cuts, cuts[1:]):
-            if xb - xa < 1.0:
-                continue
-            xm = (xa + xb) / 2
-            if db_pat and abs(xm) < 3.0:
-                m = SAND if rng.random() < prun * 0.8 else "Stone_Paving_DB_B"
+    for za, zb, kind in zones:
+        y = za
+        for dep in rows_fit(rng, za, zb, (1.7, 1.9, 2.1) if kind != "D" else (2.3, 2.5)):
+            if kind != "D":
+                cuts = [-x_in] + ([-4.4, 0.0, 4.4] if row % 2 == 0 else [-2.2, 2.2]) + [x_in]
+                cuts = [cuts[0]] + [c + rng.uniform(-0.45, 0.45) for c in cuts[1:-1]] + [cuts[-1]]
             else:
-                m = "Stone_Paving_DB" if rng.random() < p_db(y) else "Stone_Paving_Warm"
-            hh = 0.4 + rng.uniform(-0.035, 0.035)
-            mb.box((xb - xa - 0.2, dep - 0.2, hh), (xm, y + dep / 2, Z - 0.3 + hh / 2),
-                   (0, 0, rng.uniform(-0.006, 0.006)), m, 0.0)
-        y += dep
-        row += 1
+                cuts = [-x_in, -6.0 + rng.uniform(-0.3, 0.3), -3.0, 0.0, 3.0, 6.0 + rng.uniform(-0.3, 0.3), x_in]
+                if row % 2:
+                    cuts = [-x_in, -6.0 + rng.uniform(-0.3, 0.3), -3.0, 3.0, 6.0 + rng.uniform(-0.3, 0.3), x_in]
+            for xa, xb in zip(cuts, cuts[1:]):
+                if xb - xa < 1.0:
+                    continue
+                if kind == "K":
+                    m = "Stone_Paving_Warm"
+                elif kind == "H":
+                    m = "Stone_Paving_DB"
+                else:
+                    m = SAND if abs((xa + xb) / 2) < 3.0 else "Stone_Paving_DB"
+                slab(xa, xb, y, y + dep, m)
+            y += dep
+            row += 1
+    # faixas de arenito no eixo dos pilares: 4 pecas iguais, juntas retas (desenho, nao sorteio)
+    for yl in (L1, L2, L3):
+        cuts = [-x_in, -4.475, 0.0, 4.475, x_in]
+        for xa, xb in zip(cuts, cuts[1:]):
+            mb.box((xb - xa - 0.2, BAND - 0.2, 0.42), ((xa + xb) / 2, yl, Z - 0.3 + 0.21), (0, 0, 0), SAND, 0.0)
     mb.finish()
 
 
 def bridge_rails(mb, rng):
-    """guarda-corpo nas linhas das guardas do db_col: meio-fio + cerca + postes com lanterna a cada ~13"""
+    """guarda-corpo nas linhas das guardas do db_col (face interna x = +-9): meio-fio + cerca + postes com lanterna
+    no eixo dos pilares. Na junta o meio-fio entra 0,15 na base do pilone Naruto e as travessas 0,15 no fuste dele
+    (sem fresta, sem poste DB colado). Konoha ate o eixo de P2 (lanterna hibrida), DB dali ate o pe da escada."""
     stations = STATIONS
     bays = list(zip([Y0] + stations, stations + [Y1]))
     for s in (-1, 1):
         x = s * RAIL_X
-        for ya, yb in bays:
-            if yb - ya < 0.2:
-                continue
+        for ya, yb, db in ((NAR_PYLON_BASE_Y - 0.15, L2, False), (L2, Y1, True)):
             ym = (ya + yb) / 2
-            db = p_db(ym) > 0.5
             mb.box((1.2, yb - ya, 0.8), (x, ym, Z_TOP + 0.4), (0, 0, 0), "Stone_DB_Block" if db else "Stone_Wall_Light",
                    0.1)
-            mb.box((1.3, yb - ya, 0.18), (x, ym, Z_TOP + 0.89), (0, 0, 0), SAND if db else "Stone_Wall_Dark", 0.0)
-        # cerca entre os postes
+            mb.box((1.3, yb - ya, 0.18), (x + s * 0.05, ym, Z_TOP + 0.89), (0, 0, 0),
+                   SAND if db else "Stone_Wall_Dark", 0.0)
+        # cerca entre os postes (a 1a vai do fuste do pilone Naruto ate o poste de P1)
         for ya, yb in bays:
-            a_, b_ = ya + 0.85, yb - 0.85
+            a_ = NAR_PYLON_BODY_Y if ya == Y0 else ya + 0.85
+            b_ = yb - 0.85
             if b_ - a_ < 2.0:
                 continue
-            db = p_db((ya + yb) / 2) > 0.5
+            db = ya >= L2 - 0.01
             n = max(1, int(round((b_ - a_) / 3.2)))
             for k in range(1, n):
                 yy = a_ + (b_ - a_) * k / n
@@ -382,15 +420,17 @@ def bridge_rails(mb, rng):
             for zz, th in ((Z + 1.6, 0.34), (Z + 2.95, 0.42)):
                 mb.box((0.38, b_ - a_ + 0.3, th), (x, (a_ + b_) / 2, zz), (0, 0, 0), RAILW if db else "Wood_Plank",
                        0.0)
-        # estacoes: Konoha (2) -> hibrida (1) -> Capsule (2)
+        # estacoes: Konoha (P1) -> hibrida (P2) -> Capsule (P3, pe da escada); face interna do poste em x = +-8,95
+        # (0,05 a frente da face interna do meio-fio/capa em x = +-9: o poste encobre o meio-fio, sem faces coplanares)
+        xin = HWD - POST_PROUD
         for i, yy in enumerate(stations):
-            xs = s * (RAIL_X + 0.05)
-            if i <= 1:
-                konoha_lantern(mb, xs, yy, Z_TOP, ph=3.9)
-            elif i == 2:
-                konoha_lantern(mb, xs, yy, Z_TOP, ped="Stone_DB_Block", cap=SAND, ph=3.9)
+            if i == 0:
+                konoha_lantern(mb, s * (xin + 0.7), yy, Z_TOP, ph=3.9)
+            elif i == 1:
+                konoha_lantern(mb, s * (xin + 0.7), yy, Z_TOP, ped="Stone_DB_Block", cap=SAND, ph=3.9)
             else:
                 sc = 1.15 if i == len(stations) - 1 else 1.0
+                xs = s * (xin + 0.725 * sc)
                 mb.box((1.45 * sc, 1.45 * sc, 3.6), (xs, yy, Z_TOP + 1.8), (0, 0, 0), "Stone_DB_Block", 0.12)
                 mb.box((1.8 * sc, 1.8 * sc, 0.34), (xs, yy, Z_TOP + 3.6 + 0.17), (0, 0, 0), SAND, 0.06)
                 db_lamp(mb, xs, yy, Z_TOP + 3.94, sc)
@@ -398,14 +438,20 @@ def bridge_rails(mb, rng):
 
 # ------------------------------------------------------------------ 2. escadaria + muros do recorte + bastioes
 def stair_and_walls(mb, rng):
+    stair = None
     for nm, base, ang, w, n, rise, tread, g in db_col.stair_list():
         if nm != "Entry":
             continue
+        stair = (base, n, rise, tread, w)
         DL.vis_stairs(mb, base, ang, w, n, rise, tread, "Stone_Paving_DB", "Stone_DB_Block")
+        # patamar do ultimo degrau rente a borda de arenito da praca (topo G+0,12): sem o degrauzinho de 0,12 no topo
+        y_top0 = base[1] + tread * (n - 1) - 0.075
+        y_top1 = L.ENTRY_PLAZA[1]
+        mb.box((w, y_top1 - y_top0, 0.12), (0.0, (y_top0 + y_top1) / 2, G + 0.06), (0, 0, 0), "Stone_Paving_DB", 0.0)
         # faixa central de arenito continua subindo (a mesma da ponte)
         for i in range(n):
             yy = base[1] + tread * i + tread / 2
-            zt = base[2] + rise * (i + 1)
+            zt = base[2] + rise * (i + 1) + (0.12 if i == n - 1 else 0.0)
             mb.box((6.0, tread - 0.3, 0.14), (0.0, yy - 0.05, zt - 0.04), (0, 0, 0), SAND, 0.0)
     x0, x1, by0, by1 = BAST
     wy0, wy1 = by1 - 0.2, L.ENTRY_STAIR_Y1 - 0.3          # muro: do bastiao ate o topo da escada
@@ -415,13 +461,25 @@ def stair_and_walls(mb, rng):
         FP.masonry_wall(mb, (xc, wy0), (xc, wy1), Z - 2.4, G - 0.4, 1.6, rng, m="Stone_DB_Block", m2=SAND,
                         course=1.6, mix=0.1, blk=(2.4, 4.0), core=True, quoins=(False, True), core_m="Stone_DB_Block",
                         bevel=0.0)
+        # fresta de 0,1 entre o banzo da escada (face externa x = +-11,2) e a face do muro (+-11,3): enchimento por
+        # degrau de x 11,15 (dentro do banzo) a 11,5 (dentro do nucleo do muro), topo 0,06 abaixo do topo do banzo
+        # (le como junta); acima do muro a capa (face interna 11,2) ja fecha rente ao banzo
+        if stair:
+            sb, sn, sr, st, sw = stair
+            fx0, fx1 = s * (sw / 2 + 1.15), s * (sw / 2 + 1.5)
+            for i in range(sn):
+                ya = sb[1] + st * i + 0.01
+                yb = min(sb[1] + st * (i + 1) + 0.04, wy1 - 0.02)
+                zt_ = min(sb[2] + sr * (i + 1) + 1.2 - 0.06, G - 0.45)
+                mb.box2((min(fx0, fx1), ya, Z - 0.4), (max(fx0, fx1), yb, zt_), "Stone_DB_Block", 0.0)
         # capa + mureta do lado do plato + pedestais com lampiao
         mb.box((2.6, wy1 - wy0 + 0.4, 0.5), (s * (NOTCH_X + 1.2), (wy0 + wy1) / 2, G - 0.15), (0, 0, 0),
                "Stone_Paving_DB", 0.1)
         mb.box((1.0, wy1 - wy0, 1.3), (s * (NOTCH_X + 0.6), (wy0 + wy1) / 2, G + 0.1 + 0.65), (0, 0, 0),
                "Stone_DB_Block", 0.0)
-        mb.box((1.3, wy1 - wy0 + 0.2, 0.3), (s * (NOTCH_X + 0.6), (wy0 + wy1) / 2, G + 1.4 + 0.15), (0, 0, 0), SAND,
-               0.0)
+        # capa da mureta: morre 0,05 dentro do pedestal do topo (y -112,25; a face +Y do pedestal fica sozinha)
+        mb.box((1.3, wy1 - wy0 + 0.15, 0.3), (s * (NOTCH_X + 0.6), (wy0 + wy1) / 2 - 0.025, G + 1.4 + 0.15), (0, 0, 0),
+               SAND, 0.0)
         for py in (-123.0, L.ENTRY_STAIR_Y1 - 1.3):
             px = s * (NOTCH_X + 0.9)
             mb.box((2.2, 2.2, 2.4), (px, py, G + 0.1 + 1.2), (0, 0, 0), "Stone_DB_Block", 0.1)
@@ -432,15 +490,21 @@ def stair_and_walls(mb, rng):
         xa, xb = min(bx0, bx1), max(bx0, bx1)
         zb, zt = 1.0, G - 0.6
         mb.box2((xa + 0.3, by0 + 0.4, zb), (xb - 0.3, by1, zt), "Stone_DB_Block", 0.0)          # nucleo
+        # parede de fechamento entre o corpo da ponte (x 10,4) e o bastiao (x 11,3): a ponte entra no recorte sem
+        # fresta de 0,9 ate o penhasco (topo 0,15 abaixo da cornija, frente rente a face do bastiao)
+        fa, fb = s * (HWB - 0.05), s * (x0 + 0.1)
+        mb.box2((min(fa, fb), by0, zb), (max(fa, fb), Y1 + 0.4, Z - 0.3), "Stone_DB_Block", 0.0)
         # faces em blocos: frente (sul, para a ponte) e face interna (para a escada)
         FP.masonry_wall(mb, (xa, by0 + 0.5), (xb, by0 + 0.5), zb, zt, 1.0, rng, m="Stone_DB_Block", m2=SAND,
                         course=1.6, mix=0.08, blk=(1.8, 3.2), core=False, quoins=(True, True), bevel=0.0)
         xi = s * (x0 + 0.5)
         FP.masonry_wall(mb, (xi, by0 + 0.5), (xi, by1), zb, zt, 1.0, rng, m="Stone_DB_Block", m2=SAND,
                         course=1.6, mix=0.08, blk=(1.8, 3.2), core=False, quoins=(True, False), bevel=0.0)
-        # cintas de arenito (na cota do tabuleiro e do plato) + coroamento + lampiao grande
-        bi, bo = s * (x0 - 0.1), s * (x1 + 0.45)
-        for zz, th in ((Z - 0.6, 0.9), (zt, 0.7)):
+        # cintas de arenito (na cota do tabuleiro e do plato) + coroamento + lampiao grande; a cinta do plato sobe
+        # 0,02 acima da capa do muro (G+0,12 contra G+0,10) e 0,02 a frente da face interna dela (x 11,18 contra 11,2):
+        # cinta e capa nao dividem plano nenhum em y -132,4..-132
+        bo = s * (x1 + 0.45)
+        for zz, th, bi in ((Z - 0.6, 0.9, s * (x0 - 0.1)), (zt, 0.72, s * (x0 - 0.12))):
             mb.box2((min(bi, bo), by0 - 0.5, zz), (max(bi, bo), by1, zz + th), SAND, 0.1)
         zc = zt + 0.7
         mb.box((xb - xa - 0.6, by1 - by0 - 0.6, 2.0), ((xa + xb) / 2, (by0 + by1) / 2, zc + 1.0), (0, 0, 0),
@@ -572,8 +636,9 @@ def plaza():
     mb = MB("DB_Ent_Plaza", C, rng, detail="near")
     plaza_props(mb, random.Random(3402))
     x0, y0, x1, y1 = L.ENTRY_PLAZA
-    # leito (aparece nas juntas) e faixa de borda de arenito em volta
-    poly = DL.ccw(plaza_poly())
+    # leito (aparece nas juntas) e faixa de borda de arenito em volta; o leito recua 0,02 no sul (topo da escada) e
+    # nas laterais para a face da borda de arenito ficar sozinha (sem z-fighting na linha y -112 / x +-22)
+    poly = DL.ccw(plaza_poly(0.0, 0.02, 0.02))
     mb.prism(poly, G - 0.3, G + 0.05, "Stone_DB_Block")
     inner = DL.ccw(plaza_poly(1.3, 1.3, 1.3))
     # borda: sul (topo da escada), laterais, norte (encontro com o promenade)
