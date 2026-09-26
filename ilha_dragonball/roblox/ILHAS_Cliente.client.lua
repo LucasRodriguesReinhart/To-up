@@ -2,6 +2,7 @@
 -- VFX por distancia e pulsos lentos. Substitui o ILHA_NARUTO_Cliente (mesma logica, generalizada para varias ilhas).
 -- Nada aqui decide progresso: o estado vem do snapshot do servidor (PlayerData -> AtualizarDados / PedirDados,
 -- campo areas). A compra continua sendo Progresso.comprarArea (prompt do Core.Main na peca NextAreaId).
+-- Portao liberado NAO teleporta: o prompt fica desligado para quem ja comprou (atravessa a pe).
 local RS = game:GetService('ReplicatedStorage')
 local CS = game:GetService('CollectionService')
 local RunService = game:GetService('RunService')
@@ -26,7 +27,8 @@ local function aplicarUI(d)
 	if not k then return end
 	local ok = liberado[k] == true
 	if placas[d] then d.Enabled = not ok end
-	if prompts[d] then d.ActionText = ok and 'Viajar' or 'Desbloquear' end
+	-- sem teleporte no portao: liberado, o prompt some e a travessia e a pe (a viagem continua no menu Viajar)
+	if prompts[d] then d.ActionText = 'Desbloquear'; d.Enabled = not ok end
 end
 
 local function registrarUI(d)

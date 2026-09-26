@@ -147,7 +147,7 @@ local function invocacao(area, mk)
 	return V(pad.Position.X, piso + HRP, pad.Position.Z)
 end
 
--- portao Shadow Garden: interacao (NextAreaId) + placa de preco + ponto de viagem na ancora
+-- portao Shadow Garden: interacao (NextAreaId, so para COMPRAR: liberado, o cliente desliga o prompt) + placa de preco
 local function portao(model, mk, Config)
 	local key = M.GATE_KEY
 	local prox = Config.areaPorId(M.GATE_AREA)
@@ -169,14 +169,7 @@ local function portao(model, mk, Config)
 	txt('Nome', 0, 30, string.upper(prox.nome), C(206, 160, 255))
 	txt('Custo', 32, 28, 'Custo: ' .. Config.formatar(prox.custo) .. ' moedas', C(255, 255, 255), Enum.Font.GothamBold)
 	txt('Dica', 62, 20, 'Interaja no portao para desbloquear', C(225, 225, 235), Enum.Font.GothamMedium)
-	local f = fwd(mk, 'ISLAND_NEXT_ANCHOR_' .. key)
-	local pv = anc.Position - f * 5
-	local disco = Instance.new('Part'); disco.Name = 'ViagemProximaArea'; disco.Shape = Enum.PartType.Cylinder
-	disco.Size = V(0.2, 9, 9); disco.CFrame = CFrame.new(pv.X, anc.Position.Y + 0.1, pv.Z) * CFrame.Angles(0, 0, math.rad(90))
-	disco.Anchored = true; disco.CanCollide = false; disco.CanQuery = false; disco.CanTouch = false; disco.CastShadow = false
-	disco.Material = Enum.Material.Neon; disco.Color = C(170, 110, 255); disco.Transparency = 0.72
-	disco:SetAttribute('NextAreaId', prox.id)
-	disco.Parent = pasta
+	-- sem disco de viagem na ancora: a travessia e a pe (a Ilha 3 vai encostar aqui; ate la a viagem e pelo menu)
 end
 
 -- caixa da ilha no mundo (regiao do IslandTravel): todas as pecas menos o fundo (ilhotas de skyline)

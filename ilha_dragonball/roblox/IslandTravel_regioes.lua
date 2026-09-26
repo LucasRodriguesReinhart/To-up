@@ -4,6 +4,7 @@
 -- atual tem preferencia enquanto o jogador continuar dentro da caixa dela (histerese nas regioes que se tocam, p.ex. a
 -- cabeceira da Ilha 1 e a ponte da Ilha 2). Fora de toda caixa: faixas de z como antes (mundo em linha reta).
 -- SafeMaxY (atributo opcional): altura maxima para salvar posicao segura (ilhas altas, como a Ilha 2).
+-- Persistentes: a area atual + as vizinhas (regioes encostadas) ficam carregadas para o jogador (ver persist).
 local Players=game:GetService('Players')
 local RunService=game:GetService('RunService')
 local Config=require(game.ReplicatedStorage.Config)
@@ -47,6 +48,33 @@ local function areaAt(pos,prefer)
  return 0
 end
 Travel.areaAt=areaAt
+-- VIZINHAS: a area atual e as que encostam nela (mesma regra do IslandVisibility do cliente) ficam PERSISTENTES para o
+-- jogador (carregadas inteiras): a ilha ao lado nunca some nem vira vazio na travessia a pe.
+local GAP=60
+local LOBBY_C,LOBBY_H=Vector3.new(0,0,-55),Vector3.new(190,0,245)
+local function region(id)
+ if id==0 then return LOBBY_C,LOBBY_H end
+ local c,h=box(id) return c,h
+end
+local function touches(a,b)
+ local ca,ha=region(a) local cb,hb=region(b)
+ if not ca or not cb then return false end
+ return math.abs(ca.X-cb.X)<=ha.X+hb.X+GAP and math.abs(ca.Z-cb.Z)<=ha.Z+hb.Z+GAP
+end
+local persisted={}
+local function persist(player,id)
+ local want={}
+ for _,a in Config.Areas do if a.id==id or touches(a.id,id) then want[a.id]=true end end
+ local have=persisted[player] or {}
+ for aid in have do if not want[aid] then local m=workspace.Areas:FindFirstChild('Area'..aid) if m then pcall(function() m:RemovePersistentPlayer(player) end) end end end
+ for aid in want do if not have[aid] then local m=workspace.Areas:FindFirstChild('Area'..aid) if m then pcall(function() m:AddPersistentPlayer(player) end) end end end
+ persisted[player]=want
+end
+local function unpersist(player)
+ for aid in persisted[player] or {} do local m=workspace.Areas:FindFirstChild('Area'..aid) if m then pcall(function() m:RemovePersistentPlayer(player) end) end end
+ persisted[player]=nil
+end
+Travel.vizinhas=function(id) local t={} for _,a in Config.Areas do if a.id~=id and touches(a.id,id) then table.insert(t,a.id) end end return t end
 local function put(player,pos,id)
  local char=player.Character local root=char and char:FindFirstChild('HumanoidRootPart')
  if not root then return false end
@@ -69,13 +97,12 @@ function Travel.teleport(player,pos)
  if not root then return false end
  loading[player]=true
  local previous=states[player] and states[player].id or 0
- local model=id>0 and workspace.Areas:FindFirstChild('Area'..id)
- if model then model:AddPersistentPlayer(player) end
+ persist(player,id)
  player:SetAttribute('AreaTransition',id)
  local wasAnchored=root.Anchored root.Anchored=true
  if workspace.StreamingEnabled then pcall(function() player:RequestStreamAroundAsync(pos,3) end) end
  if player.Character~=char or not root.Parent then
-  if model then model:RemovePersistentPlayer(player) end
+  persist(player,previous)
   if root.Parent then root.Anchored=wasAnchored end
   loading[player]=nil player:SetAttribute('AreaTransition',nil) return false
  end
@@ -83,9 +110,6 @@ function Travel.teleport(player,pos)
  states[player]={id=id,safe=pos,grace=os.clock()+.8}
  player:SetAttribute('CurrentAreaId',id)
  root.Anchored=wasAnchored
- if previous>0 and previous~=id then
-  local old=workspace.Areas:FindFirstChild('Area'..previous) if old then old:RemovePersistentPlayer(player) end
- end
  loading[player]=nil player:SetAttribute('AreaTransition',nil)
  return true
 end
@@ -93,8 +117,7 @@ function Travel.start()
  if started then return end started=true
  local function playerAdded(player)
   local function spawned(char)
-   local prior=states[player] and states[player].id
-   if prior and prior>0 then local model=workspace.Areas:FindFirstChild('Area'..prior) if model then model:RemovePersistentPlayer(player) end end
+   persist(player,0)
    states[player]={id=0,safe=lobby,grace=os.clock()+3}
    player:SetAttribute('CurrentAreaId',0)
    local root=char:WaitForChild('HumanoidRootPart',10)
@@ -105,7 +128,7 @@ function Travel.start()
  end
  Players.PlayerAdded:Connect(playerAdded) for _,player in Players:GetPlayers() do playerAdded(player) end
  Players.PlayerRemoving:Connect(function(player)
-  local state=states[player] if state and state.id>0 then local m=workspace.Areas:FindFirstChild('Area'..state.id) if m then m:RemovePersistentPlayer(player) end end
+  unpersist(player)
   states[player]=nil loading[player]=nil
  end)
  local elapsed=0
@@ -118,11 +141,9 @@ function Travel.start()
    -- MUNDO CONTINUO: andar tambem muda de area (regioes das ilhas; lobby; fora disso faixas de z)
    local zona=areaAt(pos,state.id)
    if zona~=state.id and not loading[player] then
-    local antigo=state.id
     state.id=zona
     player:SetAttribute('CurrentAreaId',zona)
-    if antigo>0 then local m=workspace.Areas:FindFirstChild('Area'..antigo) if m then pcall(function() m:RemovePersistentPlayer(player) end) end end
-    if zona>0 then local m=workspace.Areas:FindFirstChild('Area'..zona) if m then pcall(function() m:AddPersistentPlayer(player) end) end end
+    persist(player,zona)
    end
    if state.id==0 then
     valid=lobbyAt(pos)
