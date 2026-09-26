@@ -17,6 +17,13 @@
 #                              painel de ferramentas, armario, turbina em cavalete, tambores, luz interna; torreta na
 #                              cumeeira com radar giratorio (VFX).
 #   4 pods (L.PODS)            capsulas pequenas SEM porta, 4 formas: domo, capsula em pe, domo duplo, farol.
+#   quiosques + barracas       (rodada final, critica da concept: o terraco lia vazio) 5 quiosques Capsule NAO
+#                              entraveis das mesmas 4 familias, menores e enxutos, e 2 barracas ABERTAS de toldo laranja
+#                              (balcao, caixotes, 1 lanterna pendurada + lanterna de poste) nas bolsas de areia entre o
+#                              mercado, a casa A, a casa B e as torres - DB_Hub_PodsNorth (junto com os postes Capsule e
+#                              a moto; 1 MeshPart por material) com colisao propria (area DB_HubPodN).
+# Pecas nao entraveis (pods, quiosques, casa A, torreta da oficina) usam cascas ABERTAS (so a face de fora): a face de
+# dentro e as tampas escondidas nao eram vistas e custavam os tris que pagam os quiosques novos.
 #   dojo (120,-14) GROUND      pavilhao marcial aberto: plataforma de madeira 1,6 acima do chao (2 degraus de 0,8 com
 #                              colisao), 8 colunas vermelhas, telhado duplo laranja (clerestorio), 3 bonecos de treino
 #                              (poste com bracos), gongo, biombo com janela lua, expositor de armas, estandartes.
@@ -54,6 +61,7 @@ DOJO_D = G + 1.6                    # topo do assoalho do dojo (2 degraus de 0,8
 WHITE, NAVY, BLUE, GLASS = "Plaster_DB_White", "Plaster_DB_Navy", "Roof_DB_Blue", "Glass_DB_Blue"
 STEEL, DARK, CYAN = "Metal_DB_Steel", "Metal_DB_Dark", "DB_Cyan_Glow"
 ORANGE, RED, WDARK, GOLD, LAMP = "Roof_DB_Orange", "Wood_Lacquer_Red", "Wood_Dark", "Metal_Gold", "Lantern_Glow"
+WDARK_B = "Wood_Dark_B"             # 2o tom das tabuas (material explicito: nao e sorteado pela familia do objeto)
 BLOCK, PAVE, CREAM = "Stone_DB_Block", "Stone_Paving_DB", "Plaster_Cream"
 DECK, YELLOW, CONC = "Wood_DBHubDeck", "Plaster_DBHubYellow", "Stone_DBHubConcrete"
 CLOTH, CANVAS = "Cloth_Red", "Cloth_Canvas"
@@ -79,7 +87,7 @@ MK_F = Frame(MK[0], MK[1], H, 0.0)
 CAMS = {
     "CAM_DBHub_Overview": ((30.0, 34.0, H + 64.0), (-12.0, 112.0, H + 2.0), 24),
     "CAM_DBHub_PlayerHeight_Street": ((-18.0, 90.0, H + 5.2), (-84.0, 118.0, H + 6.0), 22),
-    # proposta para o CAM_DB_Ref_Village do db_scene (o atual, em (-66, 106), fica DENTRO do anexo da casa A)
+    # vista do mercado desde a casa A (o CAM_DB_Ref_Village antigo ficava dentro do anexo; o db_scene usa (-100, 104))
     "CAM_DBHub_RefVillage_Proposta": ((-50.0, 113.0, H + 6.0), (-86.0, 126.0, H + 5.0), 20),
     "CAM_DBHub_HouseA_SE": ((-36.0, 80.0, H + 8.0), (-58.0, 100.0, H + 9.0), 22),
     "CAM_DBHub_HouseA_W": ((-92.0, 94.0, H + 15.0), (-58.0, 100.0, H + 8.0), 22),
@@ -112,6 +120,15 @@ CAMS = {
     "CAM_DBHub_PodSE": ((42.0, -72.0, G + 9.0), (60.0, -90.0, G + 4.5), 22),
     "CAM_DBHub_PodW": ((-82.0, 56.0, G + 8.0), (-100.0, 40.0, G + 3.0), 22),
     "CAM_DBHub_PodE": ((88.0, 30.0, G + 8.0), (104.0, 14.0, G + 3.5), 22),
+    # quiosques e barracas de toldo nas bolsas do terraco (rodada final) + paineis de tabuas das barracas do mercado
+    "CAM_DBHub_Top": ((0.0, 132.0, H + 240.0), (0.0, 133.0, H), 24),
+    "CAM_DBHub_Kiosks_W": ((-34.0, 103.0, H + 5.2), (-58.0, 121.0, H + 4.0), 22),
+    "CAM_DBHub_Stall_W": ((-8.0, 108.0, H + 5.2), (-24.0, 116.0, H + 3.8), 22),
+    "CAM_DBHub_Kiosks_N": ((-80.0, 148.0, H + 6.0), (-93.0, 170.0, H + 4.0), 22),
+    "CAM_DBHub_Kiosks_E": ((86.0, 104.0, H + 5.2), (106.0, 120.0, H + 4.0), 22),
+    "CAM_DBHub_Kiosks_E2": ((118.0, 98.0, H + 8.0), (102.0, 120.0, H + 3.0), 22),
+    "CAM_DBHub_Market_StallBackE": ((-69.0, 108.0, H + 5.2), (-77.5, 117.5, H + 3.5), 22),
+    "CAM_DBHub_Market_StallBackW": ((-104.0, 108.0, H + 5.2), (-95.0, 117.5, H + 3.5), 22),
 }
 
 # ------------------------------------------------------------------ rotas e sondas extras (db_qa)
@@ -134,16 +151,15 @@ EXTRA_PROBES = [
 def capsule_lamp(mb, x, y, z, h=5.0):
     """poste Capsule da vila: soco de arenito, fuste branco com anel azul, lampiao (globo ambar entre discos
     brancos, cupula azul) - a mesma familia do db_entrance"""
-    mb.cyl(0.95, 0.5, (x, y, z + 0.25), (0, 0, 0), BLOCK, 10, bevel=0.0)
-    mb.cyl(0.4, h, (x, y, z + 0.5 + h / 2), (0, 0, 0), WHITE, 10, bevel=0.0)
-    mb.cyl(0.55, 0.4, (x, y, z + 0.5 + h * 0.4), (0, 0, 0), BLUE, 10, bevel=0.0)
+    mb.cyl(0.95, 0.5, (x, y, z + 0.25), (0, 0, 0), BLOCK, 8, bevel=0.0)
+    mb.cyl(0.4, h, (x, y, z + 0.5 + h / 2), (0, 0, 0), WHITE, 8, bevel=0.0)
+    mb.cyl(0.55, 0.4, (x, y, z + 0.5 + h * 0.4), (0, 0, 0), BLUE, 8, bevel=0.0)
     t = z + 0.5 + h
-    mb.cyl(0.4, 0.6, (x, y, t + 0.3), (0, 0, 0), NAVY, 10, bevel=0.0)
+    mb.cyl(0.4, 0.6, (x, y, t + 0.3), (0, 0, 0), NAVY, 8, bevel=0.0)
     mb.cyl(0.9, 0.28, (x, y, t + 0.74), (0, 0, 0), WHITE, 10, bevel=0.0)
     mb.cyl(0.62, 1.3, (x, y, t + 0.88 + 0.65), (0, 0, 0), LAMP, 10, bevel=0.0)
     mb.cyl(0.94, 0.28, (x, y, t + 2.18 + 0.14), (0, 0, 0), WHITE, 10, bevel=0.0)
-    prof, sm = K.shell_prof(0.7, 0.62, t + 2.46, 0.0, 70.0, 3, 0.25, k_hidden=2)
-    K.lathe(mb, (x, y), prof, BLUE, 10, smooth=sm)
+    VG.dome_open(mb, (x, y), 0.7, 0.62, t + 2.46, 0.0, 70.0, 3, BLUE, 10)
     mb.cyl(0.28, 0.35, (x, y, t + 2.46 + 0.62), (0, 0, 0), BLUE, 6, bevel=0.0)
     col_box("DB_HubLamp", (1.9, 1.9, h + 3.4), (x, y, z + (h + 3.4) / 2))
 
@@ -165,12 +181,12 @@ def hover_bike(mb, x, y, z, yaw):
     col_box("DB_HubBike", (4.3, 1.8, 2.4), F.p(-0.1, 0.0, 1.2), F.r())
 
 
-def dish(mb, c, facing, r=1.3, m=WHITE, rim_m=NAVY):
+def dish(mb, c, facing, r=1.3, m=WHITE, rim_m=NAVY, n=14):
     """prato de antena (cone raso) virado para 'facing', com haste da antena receptora"""
     f = Vector(facing).normalized()
     c = Vector(c)
-    K.cyl_axis(mb, r, 0.45, c, f, m, 14, r2=r * 0.35)
-    K.cyl_axis(mb, r + 0.12, 0.2, c + f * 0.22, f, rim_m, 14)
+    K.cyl_axis(mb, r, 0.45, c, f, m, n, r2=r * 0.35)
+    K.cyl_axis(mb, r + 0.12, 0.2, c + f * 0.22, f, rim_m, n)
     mb.rod(c, c + f * 1.3, 0.1, STEEL, 4)
     K.sphere(mb, c + f * 1.35, 0.2, rim_m, sub=0)
 
@@ -192,14 +208,14 @@ def house_a():
     prof = [(7.6, z - 0.3), (9.9, z - 0.3), (9.9, z + 0.45), (9.55, z + 0.45), (9.55, z + 0.95), (9.08, z + 0.95),
             (R, z + 1.3), (R, z + 7.3), (R + 0.32, z + 7.3), (R + 0.32, z + 8.6), (R, z + 8.6), (R, z + 8.95),
             (7.6, z + 8.95)]
-    mats = [BLOCK, BLOCK, BLOCK, NAVY, NAVY, WHITE, WHITE, BLUE, BLUE, BLUE, WHITE, WHITE, WHITE]
-    K.lathe(mb, c, prof, WHITE, 40, smooth=[6, 8], mats=mats)
+    mats = [BLOCK, BLOCK, NAVY, NAVY, WHITE, WHITE, BLUE, BLUE, BLUE, WHITE, WHITE, WHITE]
+    VG.lathe_open(mb, c, prof[1:] + prof[:1], WHITE, 40, smooth=[5, 7], mats=mats)     # (o fundo enterrado sai)
     annex_th = 135.0
     # escotilhas no tambor + costuras de painel azul-marinho entre elas
     for th in (-157.5, -112.5, -67.5, -22.5, 22.5, 67.5):
         t = math.radians(th)
         VG.porthole(mb, (cx + R * math.cos(t), cy + R * math.sin(t), z + 4.5), (math.cos(t), math.sin(t), 0), 1.25,
-                    0.6)
+                    0.6, n=PORT_N)
     for k in range(16):
         th = 11.25 + 22.5 * k
         if abs((th - annex_th + 180.0) % 360.0 - 180.0) < 32.0:
@@ -230,18 +246,17 @@ def house_a():
     for k in range(24):
         t = math.radians(7.5 + 15.0 * k)
         mb.box((0.36, 0.4, 2.15), (cx + 8.5 * math.cos(t), cy + 8.5 * math.sin(t), z + 10.575), (0, 0, t), NAVY, 0.0)
-    K.lathe(mb, c, [(7.9, z + 11.65), (9.95, z + 11.65), (9.95, z + 12.0), (9.6, z + 12.28), (7.9, z + 12.28)],
-            WHITE, 40, mats=[NAVY, NAVY, WHITE, WHITE, WHITE])
+    VG.lathe_open(mb, c, [(7.9, z + 11.65), (9.95, z + 11.65), (9.95, z + 12.0), (9.6, z + 12.28), (7.9, z + 12.28)],
+                  WHITE, 40, mats=[NAVY, NAVY, WHITE, WHITE])
     # cupula branca com faixa azul, capa azul, 3 escotilhas-mansarda e antena
+    # (casa NAO entravel: cupula e capa sao cascas abertas, so a face de fora - a de dentro nunca aparece)
     E = K.Ell(cx, cy, z + 12.2, 9.4, 6.9)
-    pr, sm = K.shell_prof(9.4, 6.9, z + 12.2, 0.0, 76.0, 8, 0.5, k_hidden=3)
-    K.lathe(mb, c, pr, WHITE, 40, smooth=sm)
+    VG.dome_open(mb, c, 9.4, 6.9, z + 12.2, 0.0, 62.0, 7, WHITE, 40)
     K.rib_parallel(mb, E, 30.0, 0.0, 360.0, 40, 1.2, 0.2, 0.3, BLUE)
-    pr, sm = K.shell_prof(9.56, 7.06, z + 12.2, 60.0, 86.0, 4, 0.45, k_hidden=2)
-    K.lathe(mb, c, pr, BLUE, 40, smooth=sm)
+    VG.dome_open(mb, c, 9.56, 7.06, z + 12.2, 60.0, 86.0, 4, BLUE, 40, lip=(9.4, 6.9))
     K.rib_parallel(mb, K.Ell(cx, cy, z + 12.2, 9.56, 7.06), 60.5, 0.0, 360.0, 40, 0.5, 0.12, 0.3, WHITE)
     for th in (-100.0, -55.0, -10.0):
-        VG.porthole(mb, E.pt(th, 20.0), E.nrm(th, 20.0), 0.95, 0.5)
+        VG.porthole(mb, E.pt(th, 20.0), E.nrm(th, 20.0), 0.95, 0.5, n=PORT_N)
     ztop = z + 12.2 + 7.06 * math.sin(math.radians(86.0))
     mb.cyl(1.25, 0.8, (cx, cy, ztop + 0.25), (0, 0, 0), WHITE, 16, bevel=0.0)
     mast(mb, cx, cy, ztop + 0.6, ztop + 5.4)
@@ -250,19 +265,17 @@ def house_a():
     ad = 8.7
     ax, ay = cx + ad * math.cos(math.radians(annex_th)), cy + ad * math.sin(math.radians(annex_th))
     ar = 3.6
-    prof = [(2.4, z - 0.3), (3.95, z - 0.3), (3.95, z + 0.45), (ar, z + 0.45), (ar, z + 9.6), (ar + 0.26, z + 9.6),
-            (ar + 0.26, z + 10.6), (ar, z + 10.6), (ar, z + 11.2), (2.4, z + 11.2)]
-    K.lathe(mb, (ax, ay), prof, WHITE, 32, smooth=[3], mats=[BLOCK, BLOCK, BLOCK, WHITE, BLUE, BLUE, BLUE, WHITE,
-                                                             WHITE, WHITE])
+    prof = [(3.95, z - 0.3), (3.95, z + 0.45), (ar, z + 0.45), (ar, z + 9.6), (ar + 0.26, z + 9.6),
+            (ar + 0.26, z + 10.6), (ar, z + 10.6), (ar, z + 11.25)]
+    VG.lathe_open(mb, (ax, ay), prof, WHITE, 32, smooth=[2], mats=[BLOCK, BLOCK, WHITE, BLUE, BLUE, BLUE, WHITE])
     for th in (95.0, 175.0):
         t = math.radians(th)
         VG.porthole(mb, (ax + ar * math.cos(t), ay + ar * math.sin(t), z + 7.4), (math.cos(t), math.sin(t), 0), 0.85,
-                    0.5)
+                    0.5, n=PORT_N)
     t = math.radians(135.0)
     mb.box((0.5, 1.2, 5.6), (ax + (ar + 0.05) * math.cos(t), ay + (ar + 0.05) * math.sin(t), z + 4.2), (0, 0, t),
            NAVY, 0.0)
-    pr, sm = K.shell_prof(3.8, 2.9, z + 11.2, 0.0, 78.0, 6, 0.35)
-    K.lathe(mb, (ax, ay), pr, BLUE, 32, smooth=sm)
+    VG.dome_open(mb, (ax, ay), 3.8, 2.9, z + 11.2, 0.0, 78.0, 6, BLUE, 32)
     zt = z + 11.2 + 2.9 * math.sin(math.radians(78.0))
     mb.cyl(0.95, 0.6, (ax, ay, zt + 0.2), (0, 0, 0), WHITE, 12, bevel=0.0)
     mb.rod((ax, ay, zt + 0.4), (ax, ay, zt + 2.6), 0.18, STEEL, 6)
@@ -285,19 +298,19 @@ def house_b():
     C = Vector((cx, cy, zc))
     # casco: nariz de vidro (janelao que olha a praca) e cauda azul-marinho com bocal ciano
     NS, TS = 40.0, 52.0
-    VG.pill(mb, C, u, Rp, hl, WHITE, n=28, k_cap=6, nose=(GLASS, NS), tail=(NAVY, TS))
+    VG.pill(mb, C, u, Rp, hl, WHITE, n=24, k_cap=6, nose=(GLASS, NS), tail=(NAVY, TS))
     for ph in (NS, TS):
         sg = -1 if ph == NS else 1
         rr = Rp * math.cos(math.radians(ph))
-        K.cyl_axis(mb, rr + 0.16, 0.45, C + u * (sg * (hl + Rp * math.sin(math.radians(ph)))), u, NAVY, 28)
+        K.cyl_axis(mb, rr + 0.16, 0.45, C + u * (sg * (hl + Rp * math.sin(math.radians(ph)))), u, NAVY, 24)
     K.cyl_axis(mb, 1.05, 0.5, C + u * (hl + Rp * math.sin(math.radians(72.0)) + 0.1), u, CYAN, 16)
     for s in (-hl + 0.7, hl - 0.7):
-        K.cyl_axis(mb, Rp + 0.14, 0.95, C + u * s, u, BLUE, 28)
-    K.cyl_axis(mb, Rp + 0.08, 0.35, C + u * 0.0, u, NAVY, 28)
+        K.cyl_axis(mb, Rp + 0.14, 0.95, C + u * s, u, BLUE, 24)
+    K.cyl_axis(mb, Rp + 0.08, 0.35, C + u * 0.0, u, NAVY, 24)
     for s in (-2.5, 2.5):
         for sg in (-1, 1):
             n_ = v * sg
-            VG.porthole(mb, C + u * s + n_ * Rp, n_, 1.05, 0.5)
+            VG.porthole(mb, C + u * s + n_ * Rp, n_, 1.05, 0.5, n=PORT_N)
     # espinha azul no dorso + mastro com prato
     yaw = math.atan2(u.y, u.x)
     mb.box((8.6, 1.1, 0.9), C + Vector((0, 0, Rp + 0.2)), (0, 0, yaw), BLUE, 0.0)
@@ -321,7 +334,7 @@ def house_b():
             mb.beam(knee, foot, 0.62, 0.62, NAVY, 0.0)
             K.sphere(mb, knee, 0.5, STEEL, sub=1)
             mb.beam(hip + Vector((0, 0, -0.4)), (knee + foot) / 2, 0.3, 0.3, STEEL, 0.0)
-            mb.cyl(1.0, 0.4, (foot.x, foot.y, z + 0.2), (0, 0, 0), DARK, 12, bevel=0.0)
+            mb.cyl(1.0, 0.4, (foot.x, foot.y, z + 0.2), (0, 0, 0), STEEL, 12, bevel=0.0)
     mb.finish()
     # colisao: corpo (cilindro + pernas) e as duas pontas mais estreitas
     col_box("DB_HubHouseB", (12.8, 10.4, zc + Rp + 0.8 - (z - 0.5)), (cx, cy, (z - 0.5 + zc + Rp + 0.8) / 2),
@@ -361,7 +374,20 @@ def _stall(mb, x, y, yaw, rng, goods="food"):
     # painel de fundo ate a viga
     for sx in (-1, 1):
         mb.box((1.9, 0.12, 0.5), F.p(sx * 1.6, 1.92, 5.7), F.r(), CLOTH, 0.0)
-    mb.box((5.5, 0.3, 5.6), F.p(0, -1.75, 3.0), F.r(), WDARK, 0.0)
+    # painel de fundo em TABUAS verticais (0,9 com junta de 0,08, dois tons) sobre um fundo recuado, entre os postes
+    # de canto, com travessa laqueada no topo e rodape; faixa de pano vermelho com bandeirolas no terco de cima (lado
+    # de fora). Antes era 1 caixa: na textura de 5 studs virava uma tabua gigante (placa escura chapada)
+    mb.box((5.0, 0.12, 5.4), F.p(0, -1.62, 3.0), F.r(), WDARK, 0.0)
+    nbd, bw, gap = 5, 0.9, 0.08
+    bx0 = -(nbd * bw + (nbd - 1) * gap) / 2.0 + bw / 2.0
+    for i in range(nbd):
+        mb.box((bw, 0.22, 5.3), F.p(bx0 + i * (bw + gap), -1.8, 2.95), F.r(), WDARK if i % 2 else WDARK_B, 0.0)
+    mb.box((5.6, 0.44, 0.4), F.p(0, -1.78, 5.75), F.r(), RED, 0.0)
+    mb.box((5.6, 0.44, 0.35), F.p(0, -1.78, 0.4), F.r(), RED, 0.0)
+    mb.box((5.0, 0.1, 1.05), F.p(0, -1.97, 4.95), F.r(), CLOTH, 0.0)
+    mb.box((5.0, 0.14, 0.16), F.p(0, -1.99, 4.42), F.r(), GOLD, 0.0)
+    for gx in (-1.7, 0.0, 1.7):
+        mb.box((0.9, 0.1, 0.45), F.p(gx, -1.97, 4.12), F.r(), CLOTH, 0.0)
     for zz in (2.2, 4.4):
         mb.box((5.5, 0.4, 0.22), F.p(0, -1.6, zz), F.r(), RED, 0.0)
     mb.box((5.5, 0.9, 2.4), F.p(0, 1.2, 1.2), F.r(), WDARK, 0.0)
@@ -407,7 +433,7 @@ def _stall(mb, x, y, yaw, rng, goods="food"):
             mb.box((1.3, 0.12, hh), F.p(gx, -1.3, 5.45 - hh / 2), F.r(), mm, 0.0)
             mb.box((1.34, 0.16, 0.2), F.p(gx, -1.3, 5.45 - hh + 0.1), F.r(), GOLD, 0.0)
     VG.hip_roof(mb, F.p(0, 0).x, F.p(0, 0).y, yaw, 4.0, 3.0, H + STALL_EAVE, STALL_RISE, lift=0.75, flare=0.55, ns=6,
-                nu=4, rib_step=1.7, th=0.4, horns=False)
+                nu=4, rib_step=1.7, th=0.4, horns=False, fascia_n=6, hip_n=3)
     # lanterna no meio, atras do balcao (y local -0,4): corpo H + 5,7..4,7, borla ate H + 3,85, tudo na planta da
     # colisao; aparece pelo vao da sanefa para quem esta no balcao
     ztop = VG.roof_z(4.0, 3.0, STALL_EAVE, STALL_RISE, 0.0, -0.4) - 0.4
@@ -433,8 +459,8 @@ def market():
         for py in PY:
             mb.box((1.7, 1.7, 0.55), F.p(px, py, 0.275), F.r(), BLOCK, 0.0)
             mb.cyl(0.56, 7.9, F.p(px, py, 0.55 + 3.95), (0, 0, 0), RED, 12, bevel=0.0)
-            mb.cyl(0.64, 0.26, F.p(px, py, 1.0), (0, 0, 0), GOLD, 12, bevel=0.0)
-            mb.cyl(0.64, 0.26, F.p(px, py, 7.1), (0, 0, 0), GOLD, 12, bevel=0.0)
+            mb.cyl(0.64, 0.26, F.p(px, py, 1.0), (0, 0, 0), GOLD, 10, bevel=0.0)
+            mb.cyl(0.64, 0.26, F.p(px, py, 7.1), (0, 0, 0), GOLD, 10, bevel=0.0)
             mb.box((1.5, 1.5, 0.5), F.p(px, py, 8.7), F.r(), GOLD, 0.0)
             col_box("DB_HubMarket", (1.7, 1.7, 9.0), F.p(px, py, 4.5), F.r())
     # arquitrave (vigas laqueadas + filete dourado) e frechal sob o telhado
@@ -453,7 +479,7 @@ def market():
             xx = x_a + (x_b - x_a) * k / 10
             mb.box((0.26, 0.3, 0.95), F.p(xx, -5.6, 6.8), F.r(), WDARK if k % 2 else RED, 0.0)
     # telhado chines (beiral curvo, cantos levantados)
-    VG.hip_roof(mb, x0, y0 + 0.9, 0.0, 13.0, 9.3, H + 8.9, 4.6, lift=1.6, flare=1.2, ns=10, nu=6)
+    VG.hip_roof(mb, x0, y0 + 0.9, 0.0, 13.0, 9.3, H + 8.9, 4.6, lift=1.6, flare=1.2, ns=8, nu=5)
     # parede de fundo: rodape laqueado + biombo de papel com grade
     mb.box((20.4, 0.45, 1.3), F.p(0, 7.4, 0.65), F.r(), RED, 0.0)
     mb.box((20.2, 0.3, 5.4), F.p(0, 7.45, 1.3 + 2.7), F.r(), CREAM, 0.0)
@@ -592,7 +618,7 @@ def workshop():
     # escotilhas das laterais (atravessam a parede: vidro por dentro)
     for xx in (-3.5, 1.5, 6.8):
         for sg in (-1, 1):
-            VG.porthole(mb, F.p(xx, sg * RO, 5.4), (0, sg, 0), 1.2, RO - RI + 0.02)
+            VG.porthole(mb, F.p(xx, sg * RO, 5.4), (0, sg, 0), 1.2, RO - RI + 0.02, n=PORT_N)
     # porta de enrolar recolhida atras da verga + soleira
     K.cyl_axis(mb, 0.75, 10.8, F.p(WS_XW[1] + 0.55, 0.0, 11.7), (0, 1, 0), STEEL, 12)
     mb.box((1.2, 10.0, 0.08), F.p(WS_XW[0] - 0.2, 0.0, 0.03), F.r(), YELLOW, 0.0)
@@ -699,16 +725,15 @@ def workshop():
     tx, ty, tr = WS_TOWER
     zb = H + WH + math.sqrt(RO * RO - (tr + 0.2) ** 2) - 0.08       # a abobada sob a borda do soco
     zr = H + WH + RO + 0.2
-    prof = [(0.8, zb), (tr + 0.2, zb), (tr + 0.2, zr + 0.3), (tr, zr + 0.3), (tr, zr + 1.5), (tr + 0.14, zr + 1.5),
-            (tr + 0.14, zr + 1.95), (tr, zr + 1.95), (tr, zr + 2.2), (0.8, zr + 2.2)]
-    K.lathe(mb, (tx, ty), prof, WHITE, 20, smooth=[3], mats=[NAVY, NAVY, NAVY, WHITE, BLUE, BLUE, BLUE, WHITE,
-                                                             WHITE, WHITE])
+    # (casca aberta: o fundo fica entre as duas cascas da abobada e a tampa sob a cupula)
+    prof = [(tr + 0.2, zb), (tr + 0.2, zr + 0.3), (tr, zr + 0.3), (tr, zr + 1.5), (tr + 0.14, zr + 1.5),
+            (tr + 0.14, zr + 1.95), (tr, zr + 1.95), (tr, zr + 2.25)]
+    VG.lathe_open(mb, (tx, ty), prof, WHITE, 20, smooth=[2], mats=[NAVY, NAVY, WHITE, BLUE, BLUE, BLUE, WHITE])
     for th in (0.0, 180.0):
         t = math.radians(th)
         VG.porthole(mb, (tx + tr * math.cos(t), ty + tr * math.sin(t), zr + 0.9), (math.cos(t), math.sin(t), 0),
                     0.42, 0.4, n=10)
-    pr, sm = K.shell_prof(tr + 0.05, 1.15, zr + 2.2, 0.0, 76.0, 5, 0.25)
-    K.lathe(mb, (tx, ty), pr, BLUE, 20, smooth=sm)
+    VG.dome_open(mb, (tx, ty), tr + 0.05, 1.15, zr + 2.2, 0.0, 76.0, 5, BLUE, 20)
     zt = zr + 2.2 + 1.15 * math.sin(math.radians(76.0))
     mb.cyl(0.6, 0.4, (tx, ty, zt + 0.1), (0, 0, 0), WHITE, 10, bevel=0.0)
     z_mast = zt + 2.0
@@ -741,122 +766,191 @@ def workshop():
 
 
 # ------------------------------------------------------------------ pods (4 formas, sem porta)
-def pod_dome(mb, x, y, r):
-    z = G
-    prof = [(r - 2.0, z - 0.3), (r - 0.2, z - 0.3), (r - 0.2, z + 0.35), (r - 0.55, z + 0.35), (r - 0.55, z + 0.7),
-            (r - 0.9, z + 0.7), (r - 0.9, z + 2.5), (r - 0.65, z + 2.5), (r - 0.65, z + 3.3), (r - 0.9, z + 3.3),
-            (r - 0.9, z + 3.6), (r - 2.0, z + 3.6)]
-    K.lathe(mb, (x, y), prof, WHITE, 24, smooth=[5],
-            mats=[BLOCK, BLOCK, BLOCK, NAVY, NAVY, WHITE, BLUE, BLUE, BLUE, WHITE, WHITE, WHITE])
+# Pods NAO sao entraveis e nao tem vao nenhum (as escotilhas tem o aro macico atras do vidro): tambores e cupulas sao
+# cascas ABERTAS (VG.lathe_open / VG.dome_open, so a face de fora) - a face de dentro, o fundo enterrado e a tampa
+# escondida sob a cupula nunca aparecem e custavam ~40% dos tris. Parametros comuns:
+#   z     piso (None = G, os 4 pods do chao; H nos quiosques da vila)
+#   n     segmentos do torno; s escala (quiosques menores da vila)
+#   lean  versao enxuta dos quiosques da vila: faixas como material (sem cinta saliente), 3 escotilhas, menos
+#         montantes/balaustres, prato menor
+#   area  area de colisao (DB_HubPod no chao, DB_HubPodN na vila)
+PORT_N = 10
+
+
+def pod_dome(mb, x, y, r, z=None, n=24, lean=False, area="DB_HubPod", face=-90.0):
+    """domo Capsule: soco, tambor branco com faixa azul, cupula branca com capa azul, escotilhas, caixa tecnica
+    azul-marinho (lado 'face'), mastro com orbe e prato"""
+    z = G if z is None else z
+    pn = PORT_N
+    rw = r - 0.9
+    if lean:
+        prof = [(r - 0.2, z - 0.3), (r - 0.2, z + 0.4), (rw, z + 0.4), (rw, z + 2.5), (rw + 0.25, z + 2.5),
+                (rw + 0.25, z + 3.3), (rw, z + 3.3), (rw, z + 3.65)]
+        VG.lathe_open(mb, (x, y), prof, WHITE, n, mats=[BLOCK, BLOCK, WHITE, BLUE, BLUE, BLUE, WHITE], smooth=[2])
+    else:
+        prof = [(r - 0.2, z - 0.3), (r - 0.2, z + 0.35), (r - 0.55, z + 0.35), (r - 0.55, z + 0.7), (rw, z + 0.7),
+                (rw, z + 2.5), (r - 0.65, z + 2.5), (r - 0.65, z + 3.3), (rw, z + 3.3), (rw, z + 3.65)]
+        VG.lathe_open(mb, (x, y), prof, WHITE, n, mats=[BLOCK, BLOCK, NAVY, NAVY, WHITE, BLUE, BLUE, BLUE, WHITE],
+                      smooth=[4])
     rd = r - 0.8
-    E = K.Ell(x, y, z + 3.6, rd, rd * 0.78)
-    pr, sm = K.shell_prof(rd, rd * 0.78, z + 3.6, 0.0, 74.0, 6, 0.4, k_hidden=3)
-    K.lathe(mb, (x, y), pr, WHITE, 24, smooth=sm)
-    K.rib_parallel(mb, E, 40.0, 0.0, 360.0, 24, 0.8, 0.15, 0.25, BLUE)
-    pr, sm = K.shell_prof(rd + 0.15, rd * 0.78 + 0.15, z + 3.6, 58.0, 86.0, 4, 0.35)
-    K.lathe(mb, (x, y), pr, BLUE, 24, smooth=sm)
-    for th in (-135.0, -45.0, 45.0, 135.0):
+    bd = rd * 0.78
+    E = K.Ell(x, y, z + 3.6, rd, bd)
+    if lean:
+        VG.dome_open(mb, (x, y), rd, bd, z + 3.6, 0.0, 60.0, 5, WHITE, n, mats=[WHITE, WHITE, WHITE, BLUE, WHITE])
+    else:
+        VG.dome_open(mb, (x, y), rd, bd, z + 3.6, 0.0, 60.0, 5, WHITE, n)
+        K.rib_parallel(mb, E, 40.0, 0.0, 360.0, n, 0.8, 0.15, 0.25, BLUE)
+    VG.dome_open(mb, (x, y), rd + 0.15, bd + 0.15, z + 3.6, 58.0, 88.0, 4, BLUE, n, lip=(rd, bd))
+    angs = (face + 60.0, face + 180.0, face - 60.0) if lean else (-135.0, -45.0, 45.0, 135.0)
+    for th in angs:
         t = math.radians(th)
-        VG.porthole(mb, (x + (r - 0.9) * math.cos(t), y + (r - 0.9) * math.sin(t), z + 1.65),
-                    (math.cos(t), math.sin(t), 0), 0.7, 0.5, n=12)
-    t = math.radians(-90.0)
-    mb.box((1.4, 1.0, 1.3), (x + (r - 0.6) * math.cos(t), y + (r - 0.6) * math.sin(t), z + 1.4), (0, 0, t), NAVY, 0.0)
-    zt = z + 3.6 + (rd * 0.78 + 0.15) * math.sin(math.radians(86.0))
-    mast(mb, x, y, zt - 0.1, zt + 3.4, 0.36)
-    nd = E.nrm(-150.0, 48.0)
-    dish(mb, E.pt(-150.0, 48.0) + nd * 0.45, nd + Vector((0.0, 0.0, 0.5)), 0.9)
-    octo_col("DB_HubPod", x, y, r + 0.2, z - 0.5, z + 8.0)
+        VG.porthole(mb, (x + rw * math.cos(t), y + rw * math.sin(t), z + 1.65), (math.cos(t), math.sin(t), 0),
+                    0.7 if not lean else 0.62, 0.5, n=pn)
+    t = math.radians(face)
+    if lean:
+        # unidade tecnica ALTA e larga com 2 ventoinhas (no quiosque pequeno o bloco baixo lia como portinhola)
+        u = Vector((math.cos(t), math.sin(t), 0.0))
+        v = Vector((-u.y, u.x, 0.0))
+        c = Vector((x, y, z + 1.9)) + u * (rw + 0.25)
+        mb.box((1.1, 1.6, 0.8), c, (0, 0, t), NAVY, 0.0)
+        for sv in (-0.4, 0.4):
+            K.cyl_axis(mb, 0.28, 0.12, c + u * 0.58 + v * sv, u, STEEL, 8)
+    else:
+        mb.box((1.4, 1.0, 1.3), (x + (r - 0.6) * math.cos(t), y + (r - 0.6) * math.sin(t), z + 1.4), (0, 0, t), NAVY,
+               0.0)
+    zt = z + 3.6 + (bd + 0.15) * math.sin(math.radians(88.0))
+    mast(mb, x, y, zt - 0.1, zt + (2.6 if lean else 3.4), 0.36)
+    nd = E.nrm(face - 60.0, 48.0)
+    dish(mb, E.pt(face - 60.0, 48.0) + nd * 0.45, nd + Vector((0.0, 0.0, 0.5)), 0.9 if not lean else 0.8,
+         n=10 if lean else 14)
+    octo_col(area, x, y, r + 0.2, z - 0.5, z + 8.0)
 
 
-def pod_standing(mb, x, y, r):
-    z = G
+def pod_standing(mb, x, y, r, z=None, n=24, s=1.0, lean=False, area="DB_HubPod", foot_m=STEEL):
+    """capsula em pe sobre 3 pernas: bojo branco, anel de vidro com montantes, cupula azul com faixa branca, mastro"""
+    z = G if z is None else z
+
+    def Z(v):
+        return z + v * s
     for k in range(3):
         t = math.radians(90.0 + 120.0 * k)
         d = Vector((math.cos(t), math.sin(t), 0.0))
-        a = Vector((x, y, z + 2.6)) + d * 2.7
-        b = Vector((x, y, z + 0.35)) + d * 4.1
-        mb.beam(a, b, 0.62, 0.62, NAVY, 0.0)
-        mb.cyl(0.8, 0.35, (b.x, b.y, z + 0.175), (0, 0, 0), DARK, 10, bevel=0.0)
-    prof = [(0.9, z + 1.1), (2.0, z + 1.2), (2.9, z + 1.7), (3.35, z + 2.5), (3.4, z + 3.0), (3.4, z + 4.75),
-            (3.58, z + 4.75), (3.58, z + 5.0), (3.4, z + 5.0), (3.4, z + 6.3), (3.58, z + 6.3), (3.58, z + 6.55),
-            (3.4, z + 6.55), (3.4, z + 7.3), (0.9, z + 7.3)]
-    mats = [WHITE, WHITE, WHITE, WHITE, WHITE, NAVY, NAVY, NAVY, GLASS, NAVY, NAVY, NAVY, WHITE, WHITE, WHITE]
-    K.lathe(mb, (x, y), prof, WHITE, 24, smooth=[1, 2, 3, 4, 12], mats=mats)
-    for k in range(8):
-        t = math.radians(22.5 + 45.0 * k)
-        mb.box((0.3, 0.38, 1.3), (x + 3.45 * math.cos(t), y + 3.45 * math.sin(t), z + 5.65), (0, 0, t), NAVY, 0.0)
-    E = K.Ell(x, y, z + 7.3, 3.45, 2.6)
-    pr, sm = K.shell_prof(3.45, 2.6, z + 7.3, 0.0, 80.0, 6, 0.4, k_hidden=3)
-    K.lathe(mb, (x, y), pr, BLUE, 24, smooth=sm)
-    K.rib_parallel(mb, E, 8.0, 0.0, 360.0, 24, 0.6, 0.15, 0.25, WHITE)
-    zt = z + 7.3 + 2.6 * math.sin(math.radians(80.0))
-    mb.cyl(0.8, 0.4, (x, y, zt + 0.1), (0, 0, 0), WHITE, 12, bevel=0.0)
-    mast(mb, x, y, zt + 0.3, zt + 3.0, 0.34)
-    mb.cyl(2.0, 0.35, (x, y, z + 0.175), (0, 0, 0), BLOCK, 16, bevel=0.0)
-    octo_col("DB_HubPod", x, y, r, z - 0.5, z + 10.5)
+        a = Vector((x, y, Z(2.6))) + d * (2.7 * s)
+        b = Vector((x, y, z + 0.35)) + d * (4.1 * s)
+        mb.beam(a, b, 0.62 * s, 0.62 * s, NAVY, 0.0)
+        mb.cyl(0.8 * s, 0.35, (b.x, b.y, z + 0.175), (0, 0, 0), foot_m, 8 if lean else 10, bevel=0.0)
+    if lean:
+        pts = [(0.25, 1.05), (2.4, 1.3), (3.3, 2.2), (3.4, 3.0), (3.4, 4.75), (3.56, 4.85), (3.56, 6.45), (3.4, 6.55),
+               (3.4, 7.35)]
+        mats = [WHITE, WHITE, WHITE, WHITE, NAVY, GLASS, NAVY, WHITE]
+        sm = [0, 1, 2, 3, 7]
+    else:
+        pts = [(0.25, 1.05), (2.0, 1.2), (2.9, 1.7), (3.35, 2.5), (3.4, 3.0), (3.4, 4.75), (3.58, 4.75), (3.58, 5.0),
+               (3.4, 5.0), (3.4, 6.3), (3.58, 6.3), (3.58, 6.55), (3.4, 6.55), (3.4, 7.35)]
+        mats = [WHITE, WHITE, WHITE, WHITE, WHITE, NAVY, NAVY, NAVY, GLASS, NAVY, NAVY, NAVY, WHITE]
+        sm = [0, 1, 2, 3, 4, 12]
+    VG.lathe_open(mb, (x, y), [(rr * s, Z(zz)) for rr, zz in pts], WHITE, n, mats=mats, smooth=sm)
+    nm_, rm_ = (6, 3.62) if lean else (8, 3.45)
+    for k in range(nm_):
+        t = math.radians(180.0 / nm_ + 360.0 / nm_ * k)
+        mb.box((0.3 * s, 0.38 * s, (1.6 if lean else 1.3) * s), (x + rm_ * s * math.cos(t), y + rm_ * s * math.sin(t),
+                                                               Z(5.65)), (0, 0, t), NAVY, 0.0)
+    E = K.Ell(x, y, Z(7.3), 3.45 * s, 2.6 * s)
+    if lean:
+        VG.dome_open(mb, (x, y), 3.45 * s, 2.6 * s, Z(7.3), 0.0, 80.0, 5, BLUE, n, mats=[WHITE, BLUE, BLUE, BLUE, BLUE])
+    else:
+        VG.dome_open(mb, (x, y), 3.45 * s, 2.6 * s, Z(7.3), 0.0, 80.0, 6, BLUE, n)
+        K.rib_parallel(mb, E, 8.0, 0.0, 360.0, n, 0.6, 0.15, 0.25, WHITE)
+    zt = Z(7.3) + 2.6 * s * math.sin(math.radians(80.0))
+    mb.cyl(0.8 * s + 0.05, 0.4, (x, y, zt + 0.1), (0, 0, 0), WHITE, 10 if lean else 12, bevel=0.0)
+    mast(mb, x, y, zt + 0.3, zt + 3.0 * s, 0.34 * s)
+    mb.cyl(2.0 * s, 0.35, (x, y, z + 0.175), (0, 0, 0), BLOCK, 12 if lean else 16, bevel=0.0)
+    octo_col(area, x, y, r, z - 0.5, z + 10.5 * s)
 
 
-def pod_twin(mb, x, y, r):
-    z = G
-    mx, my, mr = x - 0.9, y + 0.6, 3.5
-    sx, sy, sr = x + 2.6, y - 1.9, 2.0
-    prof = [(mr - 1.6, z - 0.3), (mr + 0.3, z - 0.3), (mr + 0.3, z + 0.35), (mr, z + 0.35), (mr, z + 1.9),
-            (mr + 0.22, z + 1.9), (mr + 0.22, z + 2.5), (mr, z + 2.5), (mr, z + 2.7), (mr - 1.6, z + 2.7)]
-    K.lathe(mb, (mx, my), prof, WHITE, 24, smooth=[3],
-            mats=[BLOCK, BLOCK, BLOCK, WHITE, BLUE, BLUE, BLUE, WHITE, WHITE, WHITE])
-    E = K.Ell(mx, my, z + 2.7, mr + 0.1, 2.9)
-    pr, sm = K.shell_prof(mr + 0.1, 2.9, z + 2.7, 0.0, 78.0, 6, 0.35, k_hidden=3)
-    K.lathe(mb, (mx, my), pr, BLUE, 24, smooth=sm)
-    K.rib_parallel(mb, E, 45.0, 0.0, 360.0, 24, 0.6, 0.14, 0.25, WHITE)
+def pod_twin(mb, x, y, r, z=None, n=24, s=1.0, lean=False, area="DB_HubPod", yaw=0.0):
+    """domo duplo: tambor + cupula azul grande e um domo branco pequeno ao lado, mastro com prato entre os dois"""
+    z = G if z is None else z
+    F = Frame(x, y, z, yaw)
+    yd = math.degrees(yaw)
+    pn = PORT_N
+
+    def Z(v):
+        return z + v * s
+    mc, sc = F.p(-0.9 * s, 0.6 * s), F.p(2.6 * s, -1.9 * s)
+    mx, my, mr = mc.x, mc.y, 3.5 * s
+    sx, sy, sr = sc.x, sc.y, 2.0 * s
+    prof = [(mr + 0.3, z - 0.3), (mr + 0.3, z + 0.35), (mr, z + 0.35), (mr, Z(1.9)), (mr + 0.22, Z(1.9)),
+            (mr + 0.22, Z(2.5)), (mr, Z(2.5)), (mr, Z(2.75))]
+    VG.lathe_open(mb, (mx, my), prof, WHITE, n, mats=[BLOCK, BLOCK, WHITE, BLUE, BLUE, BLUE, WHITE], smooth=[2])
+    E = K.Ell(mx, my, Z(2.7), mr + 0.1, 2.9 * s)
+    if lean:
+        VG.dome_open(mb, (mx, my), mr + 0.1, 2.9 * s, Z(2.7), 0.0, 78.0, 6, BLUE, n,
+                     mats=[BLUE, BLUE, BLUE, WHITE, BLUE, BLUE])
+    else:
+        VG.dome_open(mb, (mx, my), mr + 0.1, 2.9 * s, Z(2.7), 0.0, 78.0, 6, BLUE, n)
+        K.rib_parallel(mb, E, 45.0, 0.0, 360.0, n, 0.6, 0.14, 0.25, WHITE)
     for th in (60.0, 150.0, 240.0):
-        t = math.radians(th)
-        VG.porthole(mb, (mx + mr * math.cos(t), my + mr * math.sin(t), z + 1.2), (math.cos(t), math.sin(t), 0), 0.62,
-                    0.5, n=12)
-    zt = z + 2.7 + 2.9 * math.sin(math.radians(78.0))
-    mb.cyl(0.75, 0.4, (mx, my, zt + 0.1), (0, 0, 0), WHITE, 12, bevel=0.0)
-    mb.cyl(sr + 0.3, 0.45, (sx, sy, z + 0.225), (0, 0, 0), BLOCK, 20, bevel=0.0)
-    K.lathe(mb, (sx, sy), [(sr - 1.0, z + 0.4), (sr, z + 0.4), (sr, z + 0.9), (sr - 1.0, z + 0.9)], NAVY, 20)
-    pr, sm = K.shell_prof(sr, sr * 0.95, z + 0.9, 0.0, 78.0, 6, 0.3)
-    K.lathe(mb, (sx, sy), pr, WHITE, 20, smooth=sm)
-    E2 = K.Ell(sx, sy, z + 0.9, sr, sr * 0.95)
-    VG.porthole(mb, E2.pt(-60.0, 32.0), E2.nrm(-60.0, 32.0), 0.5, 0.4, n=10)
+        t = math.radians(th + yd)
+        VG.porthole(mb, (mx + mr * math.cos(t), my + mr * math.sin(t), Z(1.2)), (math.cos(t), math.sin(t), 0),
+                    0.62 * s, 0.5, n=pn)
+    zt = Z(2.7) + 2.9 * s * math.sin(math.radians(78.0))
+    mb.cyl(0.21 * (mr + 0.1) + 0.08, 0.4, (mx, my, zt + 0.1), (0, 0, 0), WHITE, 10 if lean else 12, bevel=0.0)
+    ns_ = 14 if lean else 20
+    mb.cyl(sr + 0.3, 0.45, (sx, sy, z + 0.225), (0, 0, 0), BLOCK, ns_, bevel=0.0)
+    zs = z + 0.4 + 0.5 * s
+    VG.lathe_open(mb, (sx, sy), [(sr, z + 0.4), (sr, zs + 0.05)], NAVY, ns_)
+    E2 = K.Ell(sx, sy, zs, sr, sr * 0.95)
+    VG.dome_open(mb, (sx, sy), sr, sr * 0.95, zs, 0.0, 88.0, 5 if lean else 6, WHITE, ns_)
+    VG.porthole(mb, E2.pt(yd - 60.0, 32.0), E2.nrm(yd - 60.0, 32.0), 0.5 * s, 0.4, n=pn)
     # mastro com prato entre os dois domos
-    qx, qy = (mx + sx) / 2 + 0.6, (my + sy) / 2 + 1.4
-    mb.rod((qx, qy, z + 2.6), (qx, qy, z + 7.0), 0.18, STEEL, 6)
-    dish(mb, (qx, qy, z + 6.6), (0.3, -0.7, 0.65), 1.2)
-    octo_col("DB_HubPod", x, y, r + 0.6, z - 0.5, z + 7.2)
+    q = F.p(1.45 * s, 0.75 * s)
+    mb.rod((q.x, q.y, Z(2.6)), (q.x, q.y, Z(7.0)), 0.18, STEEL, 6)
+    ca, sa = math.cos(yaw), math.sin(yaw)
+    dish(mb, (q.x, q.y, Z(6.6)), (0.3 * ca + 0.7 * sa, 0.3 * sa - 0.7 * ca, 0.65), 1.2 * s, n=10 if lean else 14)
+    octo_col(area, x, y, r + 0.6, z - 0.5, z + 7.2 * s)
 
 
-def pod_beacon(mb, x, y, r):
-    z = G
-    rd = 3.9
-    prof = [(2.6, z - 0.3), (rd + 0.4, z - 0.3), (rd + 0.4, z + 0.35), (rd, z + 0.35), (rd, z + 2.2),
-            (rd + 0.25, z + 2.2), (rd + 0.25, z + 2.9), (rd, z + 2.9), (rd, z + 3.1), (2.6, z + 3.1)]
-    K.lathe(mb, (x, y), prof, WHITE, 24, smooth=[3],
-            mats=[BLOCK, BLOCK, BLOCK, WHITE, BLUE, BLUE, BLUE, WHITE, WHITE, WHITE])
-    K.lathe(mb, (x, y), [(2.3, z + 3.1), (4.2, z + 3.1), (4.2, z + 3.4), (2.3, z + 3.4)], WHITE, 24)
-    for th in (-90.0, 30.0, 150.0):
-        t = math.radians(th)
-        VG.porthole(mb, (x + rd * math.cos(t), y + rd * math.sin(t), z + 1.3), (math.cos(t), math.sin(t), 0), 0.68,
-                    0.5, n=12)
-    for k in range(12):
-        t = math.radians(15.0 + 30.0 * k)
-        mb.box((0.3, 0.3, 1.0), (x + 4.0 * math.cos(t), y + 4.0 * math.sin(t), z + 3.9), (0, 0, t), NAVY, 0.0)
-    K.lathe(mb, (x, y), [(3.82, z + 4.35), (4.16, z + 4.35), (4.16, z + 4.6), (3.82, z + 4.6)], BLUE, 24)
-    K.lathe(mb, (x, y), [(2.0, z + 3.4), (2.4, z + 3.4), (2.4, z + 5.0), (2.0, z + 5.0)], GLASS, 24)
-    for k in range(8):
-        t = math.radians(22.5 + 45.0 * k)
-        mb.box((0.3, 0.36, 1.6), (x + 2.45 * math.cos(t), y + 2.45 * math.sin(t), z + 4.2), (0, 0, t), NAVY, 0.0)
-    K.lathe(mb, (x, y), [(1.8, z + 5.0), (2.75, z + 5.0), (2.75, z + 5.3), (1.8, z + 5.3)], WHITE, 24)
-    pr, sm = K.shell_prof(2.7, 2.0, z + 5.3, 0.0, 76.0, 6, 0.3)
-    K.lathe(mb, (x, y), pr, BLUE, 24, smooth=sm)
-    zt = z + 5.3 + 2.0 * math.sin(math.radians(76.0))
-    mb.cyl(0.7, 0.4, (x, y, zt + 0.1), (0, 0, 0), WHITE, 12, bevel=0.0)
-    mast(mb, x, y, zt + 0.3, zt + 3.6, 0.5)
-    octo_col("DB_HubPod", x, y, r + 0.1, z - 0.5, z + 7.6)
+def pod_beacon(mb, x, y, r, z=None, n=24, s=1.0, lean=False, area="DB_HubPod", face=-90.0):
+    """farol Capsule: tambor com faixa azul, deque com balaustrada, lanterna de vidro com montantes, capuz azul"""
+    z = G if z is None else z
+    pn = PORT_N
+
+    def Z(v):
+        return z + v * s
+
+    def R(v):
+        return v * s
+    rd = R(3.9)
+    prof = [(rd + R(0.4), z - 0.3), (rd + R(0.4), z + 0.35), (rd, z + 0.35), (rd, Z(2.2)), (rd + R(0.25), Z(2.2)),
+            (rd + R(0.25), Z(2.9)), (rd, Z(2.9)), (rd, Z(3.1))]
+    VG.lathe_open(mb, (x, y), prof, WHITE, n, mats=[BLOCK, BLOCK, WHITE, BLUE, BLUE, BLUE, WHITE], smooth=[2])
+    VG.lathe_open(mb, (x, y), [(rd, Z(3.1)), (R(4.2), Z(3.1)), (R(4.2), Z(3.4)), (R(2.4), Z(3.4))], WHITE, n)
+    for k in range(3):
+        t = math.radians(face + 120.0 * k)
+        VG.porthole(mb, (x + rd * math.cos(t), y + rd * math.sin(t), Z(1.3)), (math.cos(t), math.sin(t), 0),
+                    0.68 * s, 0.5, n=pn)
+    nb = 8 if lean else 12
+    for k in range(nb):
+        t = math.radians(180.0 / nb + 360.0 / nb * k)
+        mb.box((0.3, 0.3, 1.0 * s), (x + R(4.0) * math.cos(t), y + R(4.0) * math.sin(t), Z(3.9)), (0, 0, t), NAVY, 0.0)
+    K.lathe(mb, (x, y), [(R(3.82), Z(4.35)), (R(4.16), Z(4.35)), (R(4.16), Z(4.6)), (R(3.82), Z(4.6))], BLUE, n)
+    VG.lathe_open(mb, (x, y), [(R(2.4), Z(3.4)), (R(2.4), Z(5.0))], GLASS, n)
+    nm_ = 6 if lean else 8
+    for k in range(nm_):
+        t = math.radians(180.0 / nm_ + 360.0 / nm_ * k)
+        mb.box((0.3, 0.36, 1.6 * s), (x + R(2.45) * math.cos(t), y + R(2.45) * math.sin(t), Z(4.2)), (0, 0, t), NAVY,
+               0.0)
+    VG.lathe_open(mb, (x, y), [(R(2.4), Z(5.0)), (R(2.75), Z(5.0)), (R(2.75), Z(5.3)), (R(2.65), Z(5.3))], WHITE, n)
+    VG.dome_open(mb, (x, y), R(2.7), R(2.0), Z(5.3), 0.0, 76.0, 5 if lean else 6, BLUE, n)
+    zt = Z(5.3) + R(2.0) * math.sin(math.radians(76.0))
+    mb.cyl(R(0.7) + 0.06, 0.4, (x, y, zt + 0.1), (0, 0, 0), WHITE, 10 if lean else 12, bevel=0.0)
+    mast(mb, x, y, zt + 0.3, zt + R(3.6), 0.5 * s)
+    octo_col(area, x, y, r + 0.1, z - 0.5, z + 7.6 * s)
 
 
 def pods():
+    """os 4 pods do chao, em volta do promenade (L.PODS)"""
     (p1, p2, p3, p4) = L.PODS
     mbs = K.CMB("DB_Hub_PodsSouth", COLL, rng=random.Random(5106))
     pod_dome(mbs, *p1)
@@ -900,10 +994,10 @@ def dojo():
     ZE1 = D + 8.1
     for px in PXS:
         for py in PYS:
-            mb.cyl(0.95, 0.45, (px, py, D + 0.225), (0, 0, 0), BLOCK, 12, bevel=0.0)
+            mb.cyl(0.95, 0.45, (px, py, D + 0.225), (0, 0, 0), BLOCK, 10, bevel=0.0)
             mb.cyl(0.6, 7.2, (px, py, D + 0.45 + 3.6), (0, 0, 0), RED, 12, bevel=0.0)
             for zz in (0.75, 6.4):
-                mb.cyl(0.68, 0.3, (px, py, D + zz), (0, 0, 0), GOLD, 12, bevel=0.0)
+                mb.cyl(0.68, 0.3, (px, py, D + zz), (0, 0, 0), GOLD, 10, bevel=0.0)
             mb.box((1.6, 1.6, 0.45), (px, py, D + 7.65 + 0.225 - 0.225), (0, 0, 0), WDARK, 0.0)
             col_box("DB_HubDojo", (1.4, 1.4, 7.8), (px, py, D + 3.9))
     # arquitrave, friso vazado nos lados longos, frechal
@@ -922,7 +1016,7 @@ def dojo():
         mb.beam((px, PYS[0] - 0.4, D + 6.5), (px, PYS[1] + 0.4, D + 6.5), 0.55, 0.22, GOLD, 0.0)
         mb.beam((px, PYS[0] - 0.9, D + 8.0), (px, PYS[1] + 0.9, D + 8.0), 0.62, 0.55, RED, 0.0)
     # telhado duplo: agua de baixo + clerestorio + agua de cima
-    VG.hip_roof(mb, cx, cy, 0.0, 14.0, 10.4, ZE1, 3.8, lift=1.7, flare=1.3, ns=10, nu=6)
+    VG.hip_roof(mb, cx, cy, 0.0, 14.0, 10.4, ZE1, 3.8, lift=1.7, flare=1.3, ns=8, nu=5)
     hxc, hyc = 7.6, 4.4
     zc0, zc1 = D + 9.2, D + 12.9
     # clerestorio: parede de madeira escura com janelas de trelica (papel creme atras das ripas laqueadas);
@@ -952,7 +1046,7 @@ def dojo():
                 0.0)
         mb.beam((cx + sg * hxc, cy - hyc - 0.4, zc1 - 0.2), (cx + sg * hxc, cy + hyc + 0.4, zc1 - 0.2), 0.6, 0.6, RED,
                 0.0)
-    VG.hip_roof(mb, cx, cy, 0.0, 9.8, 6.6, D + 12.5, 4.2, lift=1.5, flare=1.1, ns=8, nu=6, rib_step=1.7)
+    VG.hip_roof(mb, cx, cy, 0.0, 9.8, 6.6, D + 12.5, 4.2, lift=1.5, flare=1.1, ns=7, nu=5, rib_step=1.7)
     # bonecos de treino (lado norte, de frente para o tatame); a colisao cobre o tronco E os bracos/perna, que
     # avancam 2,2 para o tatame (quem chega no boneco para nos bracos, nao os atravessa)
     for dx in (-6.0, 0.0, 6.0):
@@ -1012,16 +1106,126 @@ def dojo():
     mb.finish()
 
 
+# ------------------------------------------------------------------ vila: quiosques Capsule + barracas de toldo
+# Enchem as bolsas de areia do terraco HUB (critica da concept: a vila tech lia vazia perto da concept, que tem um cacho
+# de domos brancos/azuis, barracas com toldo e lanternas). Quiosques NAO entraveis (sem porta nenhuma, so escotilhas,
+# antenas e pratos) das 4 familias dos pods, menores e enxutos; 2 barracas ABERTAS de toldo laranja. As posicoes sairam
+# de um mapa de ocupacao por raios da ilha montada (visual + colisao) e ficam fora dos lotes, das ruas/calcadas do
+# db_terrain, da faixa de rua y 76-88, das arvores/canteiros do db_veg, dos props e das rotas do db_qa (folga >= raio +
+# 2,6). Tudo num objeto so (1 MeshPart por material), junto com os postes Capsule e a moto flutuante.
+HUB_KIOSKS = [
+    ("dome", -67.0, 116.0, 3.6, dict(face=-45.0)),            # entre a casa A e a barraca leste do mercado
+    ("twin", -45.0, 123.0, 4.0, dict(s=0.8, yaw=0.5)),        # atras da casa A, a oeste da escadaria do Capsule
+    ("standing", -82.0, 172.0, 4.0, dict(s=0.8)),             # norte do mercado, pe do terraco do Capsule
+    ("dome", -102.5, 168.5, 3.8, dict(face=90.0)),            # ao norte da torre de comunicacao
+    ("beacon", 111.0, 113.0, 3.7, dict(s=0.85, face=180.0)),  # entre a casa B e o mirante
+]
+HUB_STALLS = [(-23.5, 115.0, -math.pi / 2, "food"),        # oeste da escadaria do Capsule, balcao para a praca
+              (100.0, 123.0, math.pi / 2, "capsule")]       # entre a casa B e o mirante, balcao para a rua do mirante
+KIOSK_N = 16                        # segmentos do torno dos quiosques (raio 3-4)
+AW_HX, AW_HY = 2.8, 1.8             # meia-planta da barraca de toldo (colisao 6,0 x 4,0)
+AW_ZB, AW_ZF = 6.95, 6.25           # toldo: cota no fundo (y -AW_HY - 0,1) e na frente (y AW_HY + 0,7)
+
+
+def _aw_z(y):
+    """cota do plano do toldo no y local"""
+    yb, yf = -AW_HY - 0.1, AW_HY + 0.7
+    return AW_ZB + (y - yb) * (AW_ZF - AW_ZB) / (yf - yb)
+
+
+def awning_stall(mb, x, y, yaw, goods="food", area="DB_HubPodN"):
+    """barraca ABERTA de toldo: 4 postes laqueados em sapatas de pedra, toldo listrado laranja/branco caindo para a
+    frente (+y local) com sanefa recortada (ponto mais baixo H + 5,68: fora da colisao, acima da cabeca), balcao
+    escuro com frente laqueada, filete dourado e tampo branco, mercadoria, caixotes (madeira + caixa Capsule) e 1
+    lanterna de papel pendurada numa travessa DENTRO da planta da colisao"""
+    F = Frame(x, y, H, yaw)
+    hx, hy = AW_HX, AW_HY
+    yb, yf = -hy - 0.1, hy + 0.7
+    px, py = hx - 0.2, hy - 0.25
+    for sx in (-1, 1):
+        for sy in (-1, 1):
+            h = _aw_z(sy * py) - 0.08
+            mb.box((0.36, 0.36, h), F.p(sx * px, sy * py, h / 2), F.r(), RED, 0.0)
+            mb.box((0.7, 0.7, 0.3), F.p(sx * px, sy * py, 0.15), F.r(), BLOCK, 0.0)
+        mb.beam(F.p(sx * px, -py - 0.2, _aw_z(-py) - 0.25), F.p(sx * px, py + 0.2, _aw_z(py) - 0.25), 0.3, 0.3, RED,
+                0.0)
+    for yy in (-py, py):
+        mb.beam(F.p(-px - 0.2, yy, _aw_z(yy) - 0.25), F.p(px + 0.2, yy, _aw_z(yy) - 0.25), 0.3, 0.3, RED, 0.0)
+    ly = -0.3                                          # travessa da lanterna
+    mb.beam(F.p(-px, ly, _aw_z(ly) - 0.22), F.p(px, ly, _aw_z(ly) - 0.22), 0.26, 0.26, WDARK, 0.0)
+    mb.beam(F.p(-px, -py, 1.2), F.p(px, -py, 1.2), 0.26, 0.26, RED, 0.0)      # guarda baixa no fundo (aberto)
+    # toldo listrado (6 faixas) + sanefa recortada na frente
+    ln = math.hypot(yf - yb, AW_ZF - AW_ZB)
+    pitch = math.atan2(AW_ZF - AW_ZB, yf - yb)
+    zc = (AW_ZB + AW_ZF) / 2.0
+    for i in range(6):
+        mb.box((1.0, ln, 0.14), F.p(-2.5 + i, (yb + yf) / 2.0, zc), F.r(pitch, 0, 0),
+               ORANGE if i % 2 == 0 else WHITE, 0.0)
+    for i in range(6):
+        mb.box((0.86, 0.1, 0.5), F.p(-2.5 + i, yf - 0.03, AW_ZF - 0.32), F.r(), ORANGE if i % 2 == 0 else WHITE, 0.0)
+    # balcao
+    mb.box((5.0, 1.0, 2.4), F.p(0, hy - 0.65, 1.2), F.r(), WDARK, 0.0)
+    mb.box((4.6, 0.12, 1.5), F.p(0, hy - 0.1, 1.25), F.r(), RED, 0.0)
+    mb.box((4.8, 0.14, 0.14), F.p(0, hy - 0.1, 2.15), F.r(), GOLD, 0.0)
+    mb.box((5.3, 1.3, 0.2), F.p(0, hy - 0.65, 2.5), F.r(), WHITE, 0.0)
+    zt = 2.6
+    if goods == "food":
+        # 2 cestos de bambu no vapor empilhados com tampa + gamela de laranjas + pote
+        p = F.p(-1.6, hy - 0.65, zt)
+        for k in range(2):
+            mb.cyl(0.46, 0.3, (p.x, p.y, p.z + 0.15 + 0.32 * k), (0, 0, 0), WDARK, 10, bevel=0.0)
+        mb.cyl(0.47, 0.34, (p.x, p.y, p.z + 0.64 + 0.17), (0, 0, 0), WDARK, 10, r2=0.14, bevel=0.0)
+        p = F.p(0.3, hy - 0.65, zt)
+        K.lathe(mb, (p.x, p.y), [(0.3, p.z), (0.62, p.z + 0.14), (0.68, p.z + 0.36), (0.56, p.z + 0.36),
+                                 (0.3, p.z + 0.16)], WDARK, 10)
+        for j in range(3):
+            a = j * 2.0 * math.pi / 3 + 0.4
+            K.sphere(mb, (p.x + 0.24 * math.cos(a), p.y + 0.24 * math.sin(a), p.z + 0.5), 0.25, ORANGE, sub=1)
+        K.sphere(mb, (p.x, p.y, p.z + 0.76), 0.25, ORANGE, sub=1)
+        q = F.p(1.8, hy - 0.7, 0.0)
+        VG.jar(mb, q.x, q.y, H + zt, 0.55, BLUE)
+    else:
+        # capsulas de brinde deitadas numa bandeja (meio branco, meio colorido) + caixa Capsule pequena
+        mb.box((2.6, 0.9, 0.12), F.p(-0.9, hy - 0.65, zt + 0.06), F.r(), NAVY, 0.0)
+        ax = F.p(0.0, 1.0) - F.p(0.0, 0.0)
+        for k in range(4):
+            c = F.p(-1.95 + 0.7 * k, hy - 0.65, zt + 0.36)
+            K.cyl_axis(mb, 0.24, 0.42, c - ax * 0.2, ax, WHITE, 8)
+            K.cyl_axis(mb, 0.24, 0.42, c + ax * 0.2, ax, (BLUE, RED, BLUE, RED)[k], 8)
+        mb.box((1.0, 0.8, 0.8), F.p(1.6, hy - 0.65, zt + 0.4), F.r(0, 0, 0.15), WHITE, 0.0)
+        mb.box((1.04, 0.84, 0.24), F.p(1.6, hy - 0.65, zt + 0.4), F.r(0, 0, 0.15), BLUE, 0.0)
+    # caixotes atras do balcao (madeira empilhada | caixa Capsule branca com cinta azul)
+    mb.box((1.2, 1.1, 1.1), F.p(-1.85, -1.0, 0.55), F.r(0, 0, 0.1), WDARK, 0.0)
+    mb.box((0.95, 0.9, 0.85), F.p(-1.8, -1.0, 1.1 + 0.425), F.r(0, 0, -0.2), WDARK, 0.0)
+    mb.box((1.1, 1.0, 1.0), F.p(1.9, -1.05, 0.5), F.r(0, 0, -0.1), WHITE, 0.0)
+    mb.box((1.14, 1.04, 0.28), F.p(1.9, -1.05, 0.62), F.r(0, 0, -0.1), BLUE, 0.0)
+    # lanterna de papel na travessa (corpo ~H + 5,3, borla ate ~H + 4,0: dentro da planta da colisao)
+    top = _aw_z(ly) - 0.35
+    VG.red_lantern(mb, F.p(0.0, ly, top), r=0.55, h=0.9, hang=0.4)
+    col_box(area, (2 * hx + 0.2, 2 * hy + 0.2, 7.0), F.p(0, 0, 3.5), F.r())
+    # lanterna marcial de poste na quina da frente (a mesma do mercado, menor), com a sua caixa de colisao
+    q = F.p(hx + 1.2, hy + 0.2)
+    VG.post_lantern(mb, q.x, q.y, H, yaw, h=3.4, s=0.85)
+    col_box(area, (1.4, 1.4, 6.2), (q.x, q.y, H + 3.1), F.r())
+
+
+def pods_north(mb):
+    """quiosques Capsule e barracas de toldo nas bolsas do terraco da vila"""
+    fns = {"dome": pod_dome, "twin": pod_twin, "standing": pod_standing, "beacon": pod_beacon}
+    for kind, x, y, r, kw in HUB_KIOSKS:
+        fns[kind](mb, x, y, r, z=H, n=KIOSK_N, lean=True, area="DB_HubPodN", **kw)
+    for x, y, yaw, goods in HUB_STALLS:
+        awning_stall(mb, x, y, yaw, goods)
+
+
 # ------------------------------------------------------------------ mobiliario da vila (postes Capsule nos lotes)
-def street_lamps():
-    mb = K.CMB("DB_Hub_Lamps", COLL, rng=random.Random(5109))
+def street_lamps(mb):
     for x, y in ((WS[0] - 13.4, WS[1] + 5.8), (-47.5, 91.0), (53.0, 91.5)):
         capsule_lamp(mb, x, y, H)
     # moto flutuante Capsule estacionada atras da barraca leste do mercado, dentro do lote (o acento tech do
     # mercado marcial), de frente para a rua
     bp = MK_F.p(12.1, -11.6)
     hover_bike(mb, bp.x, bp.y, H, math.radians(-100.0))
-    mb.finish()
 
 
 def build_lights():
@@ -1037,5 +1241,8 @@ def build():
     workshop()
     pods()
     dojo()
-    street_lamps()
+    mbn = K.CMB("DB_Hub_PodsNorth", COLL, rng=random.Random(5109))
+    pods_north(mbn)
+    street_lamps(mbn)
+    mbn.finish()
     build_lights()

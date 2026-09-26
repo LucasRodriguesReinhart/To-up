@@ -86,8 +86,9 @@ def fx_markers():
     """pontos de efeito do jogo (o builder do Roblox cria nevoa/borrifo neles): labio e pe das quedas pela borda e o
     ponto onde a cascata NW cai no poco. Os pes/impacto foram medidos pela zona water (a cortina segue a face real do
     penhasco, raycast nas malhas DB_Ter_*); o labio sai da planta."""
-    base = {"FX_Fall_SW": (-96.5, -118.3, -60.0), "FX_Fall_SE": (89.9, -106.4, -60.0)}
-    ledge = {"FX_Fall_SW": (-95.2, -115.4, -4.5), "FX_Fall_SE": (88.9, -103.9, -6.0)}   # degrau onde a queda bate
+    base = {"FX_Fall_SW": (-99.7, -121.1, -60.0), "FX_Fall_SE": (93.1, -109.5, -60.0)}
+    ledge = {"FX_Fall_SW": (-96.0, -117.2, -4.7), "FX_Fall_SE": (89.7, -105.8, -6.2)}   # degrau onde a queda bate
+    # (as 2 fontes nas laterais, FX_Fall_SpringW/E_*, sao criadas pelo db_water)
     for nm, (fx, fy), (px, py, _) in (("FX_Fall_SW", L.FALL_SW, L.POOL_SW), ("FX_Fall_SE", L.FALL_SE, L.POOL_SE)):
         a = math.atan2(fy - py, fx - px)
         mk(nm + "_Lip", (fx + math.cos(a) * 3.0, fy + math.sin(a) * 3.0, L.GROUND - 2.0), size=3.0, kind="SPHERE",

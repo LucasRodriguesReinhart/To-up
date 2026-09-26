@@ -1,16 +1,22 @@
 # db_water - AGUA da Ilha 2 (Dragon Ball): agua MODERADA (poucas quedas, canais coerentes).
 #   POCO SW e POCO SE (chao GROUND): lamina em GROUND-0,8 (leito de colisao do db_col em GROUND-1,6), borda de
 #       cantaria irregular (falhas com pedra baixa) + massas de rocha na boca do canal, canal de 4,8 (a mesma faixa do
-#       db_col.water_polys) ate o LABIO na borda da ilha (o terreno deixa o entalhe) -> QUEDA LARGA que sai do labio e
-#       cai LIVRE (o avanco nunca diminui: so cresce onde a rocha avanca, raios BVH nas malhas DB_Ter_* da cena), abre
-#       de 5,4 no labio para ~11 a 14 studs abaixo e ~19 no pe; bate numa LAJE saliente (DB_Water_, sem colisao, fora
-#       de alcance) uns 30 abaixo do labio (degrau com espuma, como na concept) e termina numa SAIA de espuma/nevoa
-#       no pe (-60): o export nao leva as nuvens, entao o pe nunca fica cortado no ar.
+#       db_col.water_polys) ate o LABIO na borda da ilha (o terreno deixa o entalhe de ~6) -> VERTEDOURO de pedra fora
+#       da borda (visual) que abre a agua para 9 -> QUEDA LARGA EM 2 DEGRAUS que cai LIVRE (o avanco nunca diminui: so
+#       cresce onde a rocha avanca, raios BVH nas malhas DB_Ter_* da cena): o 1o abre de 9 para ~17 e pousa numa LAJE
+#       saliente de frente reta (DB_Water_, sem colisao, fora de alcance) uns 28 abaixo do labio, com faixa de espuma;
+#       o 2o sai da frente da laje, deslocado de lado, e abre de 18 para 26 ate uma SAIA de espuma/nevoa no pe (-60):
+#       o export nao leva as nuvens, entao o pe nunca fica cortado no ar.
+#   NASCENTES W (sob o summon) e E (borda leste, ao norte da mesa atras do dojo): fenda na face do penhasco abaixo da
+#       guarda da borda (cota ~18) com fundo escuro, sobrancelha, ombreiras e soleira; a agua cai livre (6 -> 22) ate a
+#       saia de espuma no pe. So visual, sem poco; marcadores FX_Fall_Spring*_Base/_Lip para a nevoa do jogo.
 #   POCO NW (terraco da vila, HUB-0,8) com CASCATA da mesa NW em 3 degraus que mudam de rumo (zigue-zague):
 #       bica do terreno (L.CASCADE_NW_TOP, 70) -> rocha A (coluna no bolsao entre a mesa e o muro do terraco, fora da
 #       guarda, com um bloco de topo em balanco sobre o guarda-corpo, topo 47,5) -> rocha B (dentro do terraco,
-#       entre a borda e o poco, topo PLANO 36,4) -> poco. Cada cortina: estreita no labio, larga no pe, crista em
-#       tufos de espuma de tamanhos diferentes, corpo azul (Water_DB) com fios claros (Water_Fall) e riscos (Foam).
+#       entre a borda e o poco, topo PLANO 36,4) -> poco. O 2o degrau sai de A como lamina aberta em parabola e pousa
+#       bem dentro do topo de B (faixa de espuma no pouso); o 3o e uma cortina aberta de flecha pequena (sem sino).
+#       Cada cortina: crista em tufos de espuma de tamanhos diferentes, corpo azul (Water_DB) com fios claros
+#       (Water_Fall) e riscos (Foam).
 # COLISAO: so das rochas desta zona, AJUSTADA ao visual: a secao de cada rocha e medida por raios (72 angulos x 6
 #   cotas) e as caixas sao encaixadas DENTRO dela (nada de parede invisivel); o topo da caixa sai do topo medido da
 #   rocha (-0,05). O leito dos pocos e do db_col. Pedras sem colisao so fora de alcance (atras da guarda de 4,6 da
@@ -61,6 +67,9 @@ CAMS = {
     "CAM_DBWater_NW_South": ((-102.0, 86.0, HB + 5.2), (-122.0, 108.0, 36.0), 22),
     "CAM_DBWater_NW_Top": ((-70.0, 80.0, 74.0), (-124.0, 108.0, 46.0), 22),
     "CAM_DBWater_NW_Back": ((-136.0, 80.0, G + 5.2), (-124.0, 108.0, 42.0), 20),
+    "CAM_DBWater_SpringW_Out": ((-252.0, -40.0, 34.0), (-176.0, -9.0, 2.0), 24),
+    "CAM_DBWater_SpringE_Out": ((232.0, 44.0, 34.0), (152.0, 2.0, 2.0), 24),
+    "CAM_DBWater_Front_Pair": ((0.0, -340.0, 22.0), (0.0, -110.0, -6.0), 24),
 }
 # rota da margem norte do poco NW (a rocha B e as pedras da borda nao fecham a passagem entre a barraca oeste do
 # mercado e o pe da mesa)
@@ -226,7 +235,7 @@ class Curtain:
     'clear'; saliencia > 1,6 = degrau (espuma na quebra). land=True: para no primeiro topo de rocha que encontra."""
 
     def __init__(self, F, c, o, z_bot, wprof, lip=1.4, clear=1.0, dz=1.0, drift=0.0, land=False, name="",
-                 max_jump=8.0, face_stop=-1e9):
+                 max_jump=8.0, face_stop=-1e9, throw=3.0):
         self.c = Vector(c)
         self.o = Vector((o[0], o[1], 0.0)).normalized()
         self.s = Vector((-self.o.y, self.o.x, 0.0))
@@ -244,7 +253,7 @@ class Curtain:
             zp = z
             z = max(z_bot, z - dz)
             drop = self.z_top - z
-            free = lip * math.sqrt(min(drop, 3.0) / 3.0) + drift * max(0.0, drop - 3.0)
+            free = lip * math.sqrt(min(drop, throw) / throw) + drift * max(0.0, drop - throw)
             cur = max(adv, free)
             w = self.width(z)
             fs = []
@@ -488,6 +497,21 @@ def foot_skirt(mb, rng, cur, n=13):
         q = ft + cur.s * (u * W) + cur.o * rng.uniform(0.3, 1.6)
         mb.ico(r, (q.x, q.y, cur.z_bot + rng.uniform(3.0, 5.5)), FOAM, 1, (1.25, 1.0, 1.05),
                (0, 0, rng.uniform(0, 3)), jitter=0.22)
+
+
+def land_band(mb, rng, cur, p, w):
+    """faixa de espuma onde uma cortina pousa num topo de rocha: lingua larga e baixa atravessada + tufos de tamanhos
+    diferentes que passam das bordas da lamina (a lamina 'quebra' no pouso em vez de dobrar como cano)"""
+    s, o = cur.s, cur.o
+    pts = [p - o * 0.9 + Vector((0, 0, 0.2)), p + Vector((0, 0, 0.35)), p + o * 1.5 + Vector((0, 0, 0.22))]
+    WK.ribbon(mb, pts, [w * 0.78, w * 1.02, w * 0.8], FOAM, s, thick=0.3, bulge=0.4)
+    n = 4 + int(w / 2.0)
+    for k in range(n):
+        u = -0.58 + 1.16 * (k + 0.5) / n + rng.uniform(-0.05, 0.05)
+        r = max(0.45, w * (rng.uniform(0.09, 0.13) if rng.random() < 0.4 else rng.uniform(0.05, 0.08)))
+        q = p + s * (u * w) + o * rng.uniform(-0.6, 1.0)
+        mb.ico(r, (q.x, q.y, p.z + r * rng.uniform(0.25, 0.55)), FOAM, 1, (1.4, 1.2, rng.uniform(0.75, 1.0)),
+               (0, 0, rng.uniform(0, 3)), jitter=0.24)
 
 
 def foam_patch(mb, rng, c, r, z, n=6, s=0.9, disc=True):
@@ -824,16 +848,55 @@ def rock_mass(mb, rng, c, a, b, zb, zt, rot, floor, out, name=""):
     mb.rock((q[0], q[1], floor - 0.08), (1.2, 0.9, 0.55), ROCK, 1, (0, 0, rng.uniform(0, 3)), jitter=0.22)
 
 
+def slab_poly(rng, hl, hf, rot):
+    """contorno de laje com a FRENTE RETA (x = +hl, +-0,9 hf): a crista do 2o degrau corre ao longo dela; os lados
+    abrem um pouco atras da frente e o fundo (entra na rocha) e mais estreito. Coords relativas ao centro, girado"""
+    loc = [(hl, -0.9 * hf), (hl + 0.15, -0.3 * hf), (hl + 0.1, 0.35 * hf), (hl - 0.1, 0.9 * hf),
+           (hl - 1.8, 1.04 * hf), (0.1 * hl, 0.97 * hf), (-hl, 0.72 * hf), (-hl, -0.72 * hf),
+           (0.1 * hl, -0.97 * hf), (hl - 1.6, -1.04 * hf)]
+    ca, sa = math.cos(rot), math.sin(rot)
+    out = []
+    for x, y in loc:
+        x += rng.uniform(-0.12, 0.12)
+        y *= rng.uniform(0.97, 1.02)
+        out.append((x * ca - y * sa, x * sa + y * ca))
+    return out
+
+
+def spillway(mb, rng, lip, o, s, ang):
+    """VERTEDOURO: bica de pedra que sai do entalhe do terreno (6 de largura no labio) e ABRE para fora da borda ate
+    ~9,6 na frente (APRON): a agua sai larga do penhasco. Visual, sem colisao: fica toda fora da borda da ilha (a
+    guarda invisivel da borda ja barra o canal). Topo inclinado para fora (ZW_G-0,3 no labio -> ZW_G-0,8 na frente)"""
+    ac = APRON * 0.5 - 0.2
+    c = lip + o * ac
+    hl = APRON * 0.5 + 0.2
+    loc = [(hl, -0.5 * W_CREST - 0.3), (hl + 0.1, 0.0), (hl, 0.5 * W_CREST + 0.3), (-hl, 3.3), (-hl, -3.3)]
+    ca, sa = math.cos(ang), math.sin(ang)
+    poly = [(x * ca - y * sa, x * sa + y * ca) for x, y in loc]
+    column(mb, rng, (c.x, c.y), poly, ZW_G - 2.6, ZW_G - 0.55, m=BLOCK, taper=0.97, band=0.0, rings=1,
+           slope=(-o.x * 0.2, -o.y * 0.2), jitter=0.02, bottom=True, chamfer=0.12)
+    # labio de rocha escura por baixo da bica (a bica nao fica um tampo solto no ar)
+    c2 = lip + o * (ac - 0.4)
+    column(mb, rng, (c2.x, c2.y), rpoly(rng, hl * 0.8, 0.5 * W_CREST - 0.4, ang, n=7, ex=2.2, jit=0.1), ZW_G - 6.5,
+           ZW_G - 2.4, m=DARK, taper=1.5, band=0.0, rings=1, lean=(o.x * 0.5, o.y * 0.5), jitter=0.08, bottom=True,
+           chamfer=0.0)
+    # lamina sobre a bica: 6 no labio -> W_CREST na frente, ~0,25 acima do topo inclinado; comeca 0,5 antes do labio
+    # POR CIMA da lamina do canal (>= 0,1 acima dela: sem briga de profundidade no Roblox)
+    pts = [lip - o * 0.5 + Vector((0, 0, ZW_G + 0.1)), lip + o * (APRON * 0.45) + Vector((0, 0, ZW_G - 0.26)),
+           lip + o * (APRON - 0.05) + Vector((0, 0, ZW_G - 0.52))]
+    WK.ribbon(mb, pts, [6.0, 0.5 * (6.0 + W_CREST), W_CREST], WATER, s, thick=0.3, bulge=0.08, fwd=(0, 0, 1))
+
+
 def ledge(mb, rng, lip, o, s, z_top, a_back, a_front, hw):
-    """laje saliente sob o labio (a queda bate nela: degrau com espuma). Visual, sem colisao: fica ~30 abaixo do
-    labio, fora de qualquer alcance. Tampo largo + corpo pendurado que afina para baixo, encaixado na rocha molhada
-    do entalhe"""
+    """laje saliente sob o labio (a queda bate nela: degrau com espuma; da frente reta dela sai o 2o degrau, mais
+    largo). Visual, sem colisao: fica ~30 abaixo do labio, fora de qualquer alcance. Tampo largo de frente reta + corpo
+    pendurado que afina para baixo, encaixado na rocha molhada do entalhe"""
     ang = math.atan2(o.y, o.x)
     hl = (a_front - a_back) / 2.0
     ac = (a_front + a_back) / 2.0
     c = lip + o * ac
-    column(mb, rng, (c.x, c.y), rpoly(rng, hl, hw, ang, n=9, ex=2.3, jit=0.08), z_top - 3.4, z_top, m=ROCK,
-           taper=0.94, band=0.9, slope=(-o.x * 0.05, -o.y * 0.05), jitter=0.06, bottom=True, chamfer=0.4)
+    column(mb, rng, (c.x, c.y), slab_poly(rng, hl, hw, ang), z_top - 3.4, z_top, m=ROCK,
+           taper=0.94, band=0.9, slope=(-o.x * 0.05, -o.y * 0.05), jitter=0.04, bottom=True, chamfer=0.4)
     c2 = lip + o * (ac - 2.2)
     column(mb, rng, (c2.x, c2.y), rpoly(rng, hl * 0.42, hw * 0.5, ang + 0.2, n=7, ex=2.2, jit=0.1), z_top - 14.0,
            z_top - 3.0, m=DARK, taper=1.75, band=0.0, lean=(o.x * 1.6, o.y * 1.6), jitter=0.08, bottom=True,
@@ -846,10 +909,17 @@ def ledge(mb, rng, lip, o, s, z_top, a_back, a_front, hw):
 
 
 # ------------------------------------------------------------------ pocos do chao + quedas pela borda
-LEDGE = {"SW": (-4.5, 4.6, 9.4), "SE": (-6.0, 4.2, 9.0)}     # (topo da laje, avanco da frente, meia-largura)
+# laje do degrau: (topo, avanco da frente a partir do labio, meia-largura, desvio lateral do 2o degrau: para FORA da
+# entrada, a queda de baixo nao fica empilhada na mesma linha da de cima)
+LEDGE = {"SW": (-4.5, 7.4, 12.4, -1.6), "SE": (-6.0, 7.0, 12.0, 1.6)}
+APRON = 2.3                      # avanco da frente do vertedouro (bica de pedra) a partir do labio
+W_CREST = 9.0                    # largura da crista no vertedouro (6 no entalhe do terreno -> 9 fora da borda)
+W_UP = (W_CREST, 14.5, 8.0, 17.0)        # 1o degrau: crista -> abre rapido -> largura no pouso na laje
+W_LOW = (18.0, 21.5, 12.0, 26.0)         # 2o degrau: da frente da laje ate o pe (-60)
+K_WIDE = ARC_K * 0.55            # flecha menor nas cortinas largas (de frente: lamina aberta, nao sino)
 
 
-def ground_site(tag, pool, fall, seed):
+def ground_site(tag, pool, fall, seed, spring=None):
     px, py, pr = pool
     fx, fy = fall
     d = math.hypot(fx - px, fy - py)
@@ -887,12 +957,14 @@ def ground_site(tag, pool, fall, seed):
         a = P + o * (t_mouth - 0.3) + s * (sd * (CH_HW + 0.45))
         b = P + o * (t_lip - 3.2) + s * (sd * (CH_HW + 0.45))
         coping_run(mb, rng, [(a.x, a.y), (b.x, b.y)], G + COPE, skip=skip, gap=0.06, stones=0.25)
-    # labio: soleira de pedra sob a lamina + rochas-bochecha dos dois lados, TODAS dentro da faixa da guarda da borda
+    # labio: soleira de pedra sob a lamina + vertedouro (abre o jato para fora da borda) + rochas-bochecha dos dois
+    # lados, TODAS dentro da faixa da guarda da borda
     lip = P + o * t_lip
-    mb.box((1.6, 2 * (CH_HW + 0.6), 1.6), (lip.x - o.x * 0.55, lip.y - o.y * 0.55, ZW_G - 0.15 - 0.8),
+    mb.box((1.6, 2 * (CH_HW + 0.6), 1.6), (lip.x - o.x * 0.8, lip.y - o.y * 0.8, ZW_G - 0.3 - 0.8),
            (0, 0, ang), BLOCK, 0.1)
+    spillway(mb, rng, lip, o, s, ang)
     for sd in (-1, 1):
-        q = lip - o * rng.uniform(0.5, 0.9) + s * (sd * (CH_HW + 2.2))
+        q = lip - o * rng.uniform(0.7, 1.1) + s * (sd * (CH_HW + 3.0))
         for _ in range(20):
             if rim_depth(q.x, q.y) >= 0.6:
                 break
@@ -917,27 +989,136 @@ def ground_site(tag, pool, fall, seed):
                     print("WATER AVISO %s %s passa da guarda da borda: %.2f" % (tag, nm_, dep))
     # correnteza: fitas finas deitadas no canal (a agua acelera para o labio)
     streaks(mb, rng, P + o * t_mouth, P + o * (t_lip - 1.0), ZW_G, 4, (-1.2, 0.9, -0.3, 1.4))
-    # laje saliente sob o labio (o degrau da queda)
-    zl, af, hw = LEDGE[tag]
+    # laje saliente sob o labio (o degrau da queda: o 1o degrau pousa nela, o 2o sai da frente reta dela)
+    zl, af, hw, lat2 = LEDGE[tag]
     ledge(mb, rng, lip, o, s, zl, -6.5, af, hw)
-    # queda: sai do labio e cai livre (raios no terreno + nas pecas desta zona)
+    # raios no terreno + nas pecas desta zona (bica, laje, bochechas)
     F = Face(lip.x, lip.y, 60.0)
     F.add_bmesh(mb.bm)
-    crest = Vector((lip.x, lip.y, ZW_G))
-    cur = Curtain(F, crest, (ux, uy), Z_END, (2 * CH_HW + 0.6, 11.0, 14.0, 19.0), lip=1.6, clear=1.0,
-                  drift=0.015, name=tag)
-    cur.build(mb, rng)
-    foot_skirt(mb, rng, cur)
-    ft = cur.foot()
+    # 1o degrau: sai do vertedouro (9 de largura), cai livre e abre ate ~17, pousa na laje
+    crest = lip + o * APRON + Vector((0, 0, ZW_G - 0.5))
+    cur = Curtain(F, crest, (ux, uy), zl - 1.5, W_UP, lip=1.5, clear=1.0, drift=0.015, land=True, name=tag)
+    cur.build(mb, rng, nb=6, k=K_WIDE)
+    if cur.landed is not None:
+        land, a_land = cur.landed
+    else:
+        land, a_land = cur.foot(), cur.keys[-1][1]
+    # 2o degrau: frente reta da laje, deslocado de lado, mais largo (18 -> 26 no pe)
+    q = lip + o * (af - 0.45) + s * lat2
+    zf = F.down(q.x, q.y, zl + 4.0, 10.0)
+    zf = zf if zf is not None and abs(zf - zl) < 1.5 else zl - 0.2
+    c2 = lip + o * (af - 0.3) + s * lat2 + Vector((0, 0, zf + 0.22))
+    film(mb, F, [land, c2 - o * 0.35], W_LOW[0] + 0.5, 0.22)
+    cur2 = Curtain(F, c2, (ux, uy), Z_END, W_LOW, lip=1.2, clear=1.0, drift=0.02, name=tag + "b")
+    cur2.crest_back = 0.3
+    cur2.build(mb, rng, nb=6, k=K_WIDE)
+    # faixa de espuma do degrau: rola do pouso ate a frente da laje e desce pela crista do 2o degrau
+    cur.break_foam(mb, rng, land.z, a_land - 0.3, (af - 0.3) - APRON + 0.2, cur.b)
+    foot_skirt(mb, rng, cur2)
+    ft = cur2.foot()
     FEET["FX_Fall_%s_Base" % tag] = (round(ft.x, 1), round(ft.y, 1), round(ft.z, 1))
+    FEET["FX_Fall_%s_Ledge" % tag] = (round(land.x, 1), round(land.y, 1), round(land.z, 1))
     if DEBUG:
-        print("WATER %s lip t=%.2f (%.1f, %.1f) polys=%d breaks=%s" % (tag, t_lip, lip.x, lip.y, F.npolys,
-                                                                     [(round(z, 1), round(a0, 1), round(a1, 1))
-                                                                      for z, a0, a1 in cur.breaks]))
-        print("WATER %s perfil:" % tag, [(round(z, 1), round(a, 2)) for z, a in cur.keys], "pe=(%.1f, %.1f, %.1f)" % (
-            ft.x, ft.y, ft.z), "larg: labio %.1f z10 %.1f pe %.1f" % (cur.width(ZW_G), cur.width(10.0),
-                                                                     cur.width(cur.z_bot)))
+        print("WATER %s lip t=%.2f (%.1f, %.1f) polys=%d breaks=%s/%s pouso=%s" % (
+            tag, t_lip, lip.x, lip.y, F.npolys, [(round(z, 1), round(a0, 1), round(a1, 1)) for z, a0, a1 in cur.breaks],
+            [(round(z, 1), round(a0, 1), round(a1, 1)) for z, a0, a1 in cur2.breaks],
+            None if cur.landed is None else tuple(round(v, 1) for v in land)))
+        for cu in (cur, cur2):
+            print("WATER %s perfil:" % cu.name, [(round(z, 1), round(a, 2)) for z, a in cu.keys],
+                  "larg: crista %.1f pe %.1f" % (cu.width(cu.z_top), cu.width(cu.z_bot)))
+        print("WATER %s pe=(%.1f, %.1f, %.1f)" % (tag, ft.x, ft.y, ft.z))
+    if spring is not None:
+        # a nascente do mesmo lado da ilha vai no mesmo objeto (mesmos materiais: nenhuma MeshPart a mais)
+        spring_site(mb, spring, *SPRINGS[spring])
     return mb.finish()
+
+
+# ------------------------------------------------------------------ nascentes na face do penhasco (so visual)
+# agua que brota de uma fenda na face do penhasco, abaixo da guarda da borda (cota Z_SPRING), e cai no vazio ate o pe
+# (-60) com saia de espuma/nevoa: sem poco, sem colisao, fora de qualquer alcance. W: sob o summon; E: na borda leste
+# (ao norte da mesa baixa atras do dojo, que tamparia a queda vista do lado leste). (perto de (x, y), semente)
+SPRINGS = {"W": ((-176.0, -10.0), 931), "E": ((151.7, 2.1), 947)}
+Z_SPRING = G - 6.2
+W_SPRING = (6.0, 13.0, 9.0, 22.0)
+
+
+def rim_frame(x, y):
+    """ponto da borda da ilha mais perto de (x, y) e a normal para FORA (media do trecho de ~8 studs em volta)"""
+    rim = L.ISLAND_RIM
+    n = len(rim)
+    best = None
+    for i in range(n):
+        a, b = rim[i], rim[(i + 1) % n]
+        d, t = L.seg_dist(x, y, a[0], a[1], b[0], b[1])
+        if best is None or d < best[0]:
+            best = (d, i, t)
+    _, i, t = best
+    a, b = rim[i], rim[(i + 1) % n]
+    p = Vector((a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, 0.0))
+    a, b = rim[(i - 1) % n], rim[(i + 2) % n]
+    dx, dy = b[0] - a[0], b[1] - a[1]
+    ln = math.hypot(dx, dy)
+    return p, Vector((dy / ln, -dx / ln, 0.0))
+
+
+def spring_site(mb, tag, near, seed):
+    """fenda na face do penhasco: fundo escuro recuado, sobrancelha em balanco, duas ombreiras de alturas diferentes e
+    soleira de rocha com ponta pendurada; a agua sai do fundo escuro, corre pela soleira e cai livre (a cortina segue
+    a face real por raios, como as quedas dos pocos)"""
+    rng = random.Random(seed)
+    P0, o = rim_frame(*near)
+    s = Vector((-o.y, o.x, 0.0))
+    ang = math.atan2(o.y, o.x)
+    zm = Z_SPRING
+    F = Face(P0.x, P0.y, 45.0)
+    fs = [F.out(P0, o, s, lat, z) for lat in (-3.0, -1.5, 0.0, 1.5, 3.0) for z in (zm - 1.0, zm + 1.0, zm + 3.0)]
+    fs = [f for f in fs if f is not None and -8.0 < f < 12.0]
+    face = max(fs) if fs else 1.0
+
+    def A(a, lat, z=0.0):
+        return P0 + o * a + s * lat + Vector((0.0, 0.0, z))
+    # fundo escuro da fenda (a agua sai de dentro dele)
+    q = A(face - 0.9, 0.0)
+    column(mb, rng, (q.x, q.y), rpoly(rng, 1.6, 3.5, ang, n=8, ex=2.4, jit=0.06), zm - 0.8, zm + 3.0, m=DARK,
+           taper=1.0, band=0.0, rings=1, jitter=0.03, chamfer=0.0)
+    # sobrancelha em balanco sobre a fenda
+    q = A(face + 0.5, rng.uniform(-0.3, 0.3))
+    column(mb, rng, (q.x, q.y), rpoly(rng, 2.0, 5.3, ang + rng.uniform(-0.1, 0.1), n=8, ex=2.3, jit=0.1), zm + 2.8,
+           zm + 5.3, m=ROCK, taper=1.08, band=0.0, rings=1, lean=(o.x * 0.5, o.y * 0.5), jitter=0.06, bottom=True,
+           chamfer=0.3)
+    # ombreiras (alturas e larguras diferentes)
+    for sd in (-1, 1):
+        q = A(face + 0.1, sd * rng.uniform(4.2, 4.7))
+        column(mb, rng, (q.x, q.y), rpoly(rng, 1.9, 1.4, ang + sd * 0.25, n=7, ex=2.2, jit=0.12),
+               zm - rng.uniform(5.0, 8.5), zm + rng.uniform(2.8, 4.6), m=ROCK, taper=0.8, band=0.0, rings=2,
+               lean=(o.x * 0.4, o.y * 0.4), jitter=0.08, bottom=True, chamfer=0.25)
+    # soleira (bica natural de rocha sob a agua) + ponta pendurada por baixo
+    q = A(face + 0.6, 0.0)
+    column(mb, rng, (q.x, q.y), rpoly(rng, 1.9, 3.3, ang, n=8, ex=2.4, jit=0.06), zm - 1.8, zm, m=ROCK, taper=0.96,
+           band=0.0, rings=1, slope=(-o.x * 0.1, -o.y * 0.1), jitter=0.03, bottom=True, chamfer=0.25)
+    q = A(face + 0.2, rng.uniform(-0.6, 0.6))
+    column(mb, rng, (q.x, q.y), rpoly(rng, 1.3, 1.9, ang, n=6, ex=2.2, jit=0.1), zm - 7.5, zm - 1.6, m=DARK,
+           taper=1.7, band=0.0, rings=1, lean=(o.x * 0.6, o.y * 0.6), jitter=0.08, bottom=True, chamfer=0.0)
+    # agua: sai do fundo escuro, corre pela soleira e cai (os raios enxergam a fenda + o penhasco)
+    F.add_bmesh(mb.bm)
+    lipx = face + 2.35
+    WK.ribbon(mb, [A(face - 0.6, 0.0, zm + 0.25), A(face + 1.0, 0.0, zm + 0.1), A(lipx - 0.05, 0.0, zm - 0.02)],
+              [3.6, 4.6, W_SPRING[0]], WATER, s, thick=0.3, bulge=0.1, fwd=(0, 0, 1))
+    crest = A(lipx, 0.0, zm + 0.02)
+    cur = Curtain(F, crest, (o.x, o.y), Z_END, W_SPRING, lip=1.3, clear=1.0, drift=0.02, name="SP" + tag)
+    cur.crest_back = 0.3
+    cur.build(mb, rng, nb=5, k=ARC_K * 0.7)
+    foot_skirt(mb, rng, cur, n=10)
+    ft = cur.foot()
+    # nevoa do jogo: pe (nevoa_base) e boca (nevoa_borda), o mesmo esquema das quedas dos pocos
+    DL.mk("FX_Fall_Spring%s_Base" % tag, (ft.x, ft.y, ft.z), size=6.0, kind="SPHERE", props={"fx": "nevoa_base"})
+    DL.mk("FX_Fall_Spring%s_Lip" % tag, (crest.x + o.x, crest.y + o.y, zm - 1.5), size=3.0, kind="SPHERE",
+          props={"fx": "nevoa_borda"})
+    FEET["FX_Fall_Spring%s_Base" % tag] = (round(ft.x, 1), round(ft.y, 1), round(ft.z, 1))
+    if DEBUG:
+        print("WATER nascente %s borda=(%.1f, %.1f) normal=(%.2f, %.2f) face=%.2f perfil:" % (
+            tag, P0.x, P0.y, o.x, o.y, face), [(round(z, 1), round(a, 2)) for z, a in cur.keys],
+            "quebras", [(round(z, 1), round(a0, 1), round(a1, 1)) for z, a0, a1 in cur.breaks])
 
 
 # ------------------------------------------------------------------ poco NW + cascata da mesa
@@ -945,6 +1126,7 @@ NW_ZA = 47.5                   # topo da rocha A (1o degrau: 70 -> 47,5)
 NW_ZB = 36.4                   # topo PLANO da rocha B: acima do pulo (7,2) desde o piso do terraco
 EDGE_CLEAR = 0.8               # A fica >= 0,8 para fora da linha da borda; B >= 1,4 para dentro (guarda-corpo,
 B_CLEAR = 1.4                  # coroamento e guarda invisivel ocupam +-0,6 e o coroamento vai ate -1,25)
+NW2_IN = 1.2                   # o 2o degrau pousa mais para dentro do topo de B (alem do minimo de 1,4 da face de tras)
 
 
 def edge_frame():
@@ -1148,12 +1330,16 @@ def nw_site(seed=707):
     org = W2(0.0, v2)
     fb_back = F.ray(Vector((org.x, org.y, zB - 0.5)), o2, 30.0)
     need_adv = ((fb_back if fb_back is not None else a_lip + 2.0) - a_lip) + 1.4
-    cur2 = Curtain(F, c2, (o2.x, o2.y), zB - 3.0, (4.8, 7.4, 5.0, 8.6), lip=max(1.0, need_adv), clear=0.9,
-                   land=True, name="NW2")
+    # lamina ABERTA (larga no labio, abre rapido, flecha pequena) que pousa bem dentro do topo de B (nao abraca o
+    # ombro de B): faixa de espuma rolando no pouso
+    # o jato abre em PARABOLA ao longo de ~3/4 da queda (nada de gancho: sai reto e so depois dobra para baixo)
+    cur2 = Curtain(F, c2, (o2.x, o2.y), zB - 3.0, (5.5, 7.5, 3.0, 8.0), lip=max(1.6, need_adv + NW2_IN), clear=0.9,
+                   land=True, name="NW2", throw=max(3.0, 0.75 * (c2.z - zB)))
     cur2.crest_back = 0.3
-    cur2.build(mb, rng)
+    cur2.build(mb, rng, k=ARC_K * 0.4)
     land2 = cur2.landed[0] if cur2.landed else cur2.foot()
-    foam_patch(mb, rng, land2, 2.8, land2.z, n=6, s=0.8)
+    a_land2 = cur2.landed[1] if cur2.landed else cur2.keys[-1][1]
+    land_band(mb, rng, cur2, land2, cur2.width(land2.z))
     # 3o degrau: da frente de B -> poco (rumo dB, deslocado de lado: zigue-zague)
     sB = Vector((-dB.y, dB.x, 0.0))
     lat3 = -1.8
@@ -1163,9 +1349,11 @@ def nw_site(seed=707):
     zB_top = F.down(q.x, q.y, zB + 6.0, 12.0) or zB
     c3 = cB + dB * b_lip + sB * lat3 + Vector((0, 0, zB_top + 0.22))
     film(mb, F, [land2, c3 - dB * 0.4], 6.4, 0.22)
-    cur3 = Curtain(F, c3, (dB.x, dB.y), ZW_H, (5.0, 8.4, 4.0, 10.2), lip=1.2, clear=0.9, land=False, name="NW3")
+    # cortina aberta que abre pouco (sem sino): flecha pequena e largura quase constante
+    cur3 = Curtain(F, c3, (dB.x, dB.y), ZW_H, (5.4, 7.4, 3.0, 8.6), lip=1.2, clear=0.9, land=False, name="NW3",
+                   throw=4.0)
     cur3.crest_back = 0.3
-    cur3.build(mb, rng)
+    cur3.build(mb, rng, k=ARC_K * 0.35)
     ft = cur3.foot()
     foam_patch(mb, rng, Vector((ft.x + dB.x * 0.6, ft.y + dB.y * 0.6, 0.0)), 4.2, ZW_H, n=8, s=1.1)
     FEET["FX_Fall_NW_Pool"] = (round(ft.x + dB.x * 0.6, 1), round(ft.y + dB.y * 0.6, 1), round(ZW_H + 0.5, 1))
@@ -1203,8 +1391,8 @@ def film(mb, F, pts, w, th):
 def build():
     STATS.clear()
     FEET.clear()
-    ground_site("SW", L.POOL_SW, L.FALL_SW, 811)
-    ground_site("SE", L.POOL_SE, L.FALL_SE, 823)
+    ground_site("SW", L.POOL_SW, L.FALL_SW, 811, spring="W")
+    ground_site("SE", L.POOL_SE, L.FALL_SE, 823, spring="E")
     nw_site(707)
     if DEBUG:
         for st in STATS:

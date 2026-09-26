@@ -5,6 +5,8 @@
 #   porthole      escotilha redonda que atravessa a parede (aro + vidro dos dois lados)
 #   pill          capsula deitada (cilindro com pontas em cupula) ao longo de um eixo horizontal
 #   ellipsoid     icosfera escalada (casco do veiculo, bolha de vidro)
+#   dome_open     casca eliptica ABERTA (so a face de fora) para cupulas de pecas nao entraveis; lathe_open idem
+#                 para tambores (a face de dentro e as tampas escondidas nao sao criadas)
 #   vault_shell   casca de hangar (paredes + abobada) extrudada ao longo de x, com material por faixa
 #   end_wall      parede de empena de hangar com vao em arco (tiras verticais)
 #   post_lantern  lanterna marcial de caixa num poste laqueado (mercado/dojo)
@@ -58,10 +60,13 @@ def _paint(mb, faces, m):
 # ------------------------------------------------------------------ telhado chines de 4 aguas
 def hip_roof(mb, cx, cy, yaw, hx, hy, z_eave, rise, m=ORANGE, under_m=WDARK, edge_m=RED, th=0.5, lift=1.5,
              flare=1.0, p=1.6, ns=8, nu=5, rib_step=1.9, rib_m=None, ridge_m=None, orn_m=GOLD, ribs=True,
-             fascia=True, horns=True, orn=None):
+             fascia=True, horns=True, orn=None, fascia_n=8, hip_n=4, hidden=False):
     """telhado de 4 aguas (hx >= hy = meia-planta do BEIRAL no referencial local girado de yaw; cumeeira ao longo
-    do x local em z_eave + rise). Cada agua e uma casca fechada (topo liso, forro, testeira); as aguas triangulares
-    fecham num vertice unico. Devolve a funcao altura do topo no centro (z_top)."""
+    do x local em z_eave + rise). Cada agua e uma casca (topo liso, forro, testeira); as aguas triangulares
+    fecham num vertice unico. Devolve a funcao altura do topo no centro (z_top).
+    hidden=False: as faces laterais das aguas (nos espigoes e na cumeeira, onde duas aguas se encostam com os mesmos
+    vertices, sob as vigas) nao sao criadas - nunca aparecem. fascia_n/hip_n: segmentos da testeira e dos espigoes
+    (telhado pequeno de barraca usa menos)."""
     F = Frame(cx, cy, 0.0, yaw)
     bm = mb.bm
     rx = max(hx - hy, 0.0)
@@ -108,12 +113,13 @@ def hip_roof(mb, cx, cy, yaw, hx, hy, z_eave, rise, m=ORANGE, under_m=WDARK, edg
                 bots.append(_face(bm, [B[i][j], B[i][j + 1], B[i + 1][j + 1], B[i + 1][j]]))
         for i in range(ns):
             edges.append(_face(bm, [T[i][0], B[i][0], B[i + 1][0], T[i + 1][0]]))
-        for j in range(nu):
-            sides.append(_face(bm, [T[0][j], T[0][j + 1], B[0][j + 1], B[0][j]]))
-            sides.append(_face(bm, [T[ns][j], B[ns][j], B[ns][j + 1], T[ns][j + 1]]))
-        if not tri:
-            for i in range(ns):
-                sides.append(_face(bm, [T[i][nu], T[i + 1][nu], B[i + 1][nu], B[i][nu]]))
+        if hidden:
+            for j in range(nu):
+                sides.append(_face(bm, [T[0][j], T[0][j + 1], B[0][j + 1], B[0][j]]))
+                sides.append(_face(bm, [T[ns][j], B[ns][j], B[ns][j + 1], T[ns][j + 1]]))
+            if not tri:
+                for i in range(ns):
+                    sides.append(_face(bm, [T[i][nu], T[i + 1][nu], B[i + 1][nu], B[i][nu]]))
         allv = []
         seen = set()
         for row in T + B:
@@ -141,11 +147,11 @@ def hip_roof(mb, cx, cy, yaw, hx, hy, z_eave, rise, m=ORANGE, under_m=WDARK, edg
                 mb.sweep(pts, prof, rib_m, True)
         # testeira laqueada ao longo do beiral
         if fascia:
-            pts = [P(E0, E1, Ra, Rb, i / 8.0, 0.0) for i in range(9)]
+            pts = [P(E0, E1, Ra, Rb, i / float(fascia_n), 0.0) for i in range(fascia_n + 1)]
             mb.sweep(pts, [(-0.16, -th - 0.28), (0.16, -th - 0.28), (0.16, 0.06), (-0.16, 0.06)], edge_m, True)
     # espigoes (4 cantos) com a ponta levantada e remate dourado
     for k, (E0, E1, Ra, Rb) in enumerate(pats):
-        pts = [P(E0, E1, Ra, Rb, 0.0, t / 4.0) + Vector((0, 0, 0.28 * o)) for t in range(5)]
+        pts = [P(E0, E1, Ra, Rb, 0.0, t / float(hip_n)) + Vector((0, 0, 0.28 * o)) for t in range(hip_n + 1)]
         for a, b in zip(pts, pts[1:]):
             mb.beam(a, b, 0.6 * o, 0.5 * o, ridge_m, 0.0)
         d = Vector((E0.x, E0.y, 0.0)).normalized()
@@ -240,6 +246,27 @@ def ellipsoid(mb, c, radii, yaw, m, sub=2, smooth=True, pitch=0.0):
 def band_ring(mb, c, r0, r1, z0, z1, m, n=40, a0=0.0, a1=360.0):
     """anel retangular (lathe fechado) - faixa, soco, beiral"""
     return K.lathe(mb, c, [(r0, z0), (r1, z0), (r1, z1), (r0, z1)], m, n, a0, a1)
+
+
+def dome_open(mb, c, a, b, zc, ph0, ph1, k, m, n, mats=None, lip=None):
+    """casca eliptica ABERTA (so a face de fora, de ph0 a ph1) para pecas NAO entraveis: a face de dentro e as bordas
+    da casca grossa (shell_prof) nunca aparecem e custavam metade dos tris. lip=(a0, b0): comeca com um degrau que
+    sai da superficie (a0, b0) na latitude ph0 (capa saliente sobre outra cupula). mats: material por aresta da
+    elipse (o degrau usa o da 1a)."""
+    prof = K.ell_pts(a, b, zc, ph0, ph1, k)
+    sm = list(range(k))
+    if lip:
+        t = math.radians(ph0)
+        prof = [(lip[0] * math.cos(t), zc + lip[1] * math.sin(t))] + prof
+        sm = [j + 1 for j in sm]
+        if mats:
+            mats = [mats[0]] + list(mats)
+    return K.lathe(mb, c, prof, m, n, smooth=sm, mats=mats, closed=False)
+
+
+def lathe_open(mb, c, prof, m, n, mats=None, smooth=()):
+    """superficie de revolucao ABERTA (so a face de fora do perfil, de baixo para cima)"""
+    return K.lathe(mb, c, prof, m, n, smooth=smooth, mats=mats, closed=False)
 
 
 # ------------------------------------------------------------------ hangar (oficina)
