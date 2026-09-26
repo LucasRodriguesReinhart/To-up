@@ -1,18 +1,18 @@
 {
  "mapping": "Roblox = (x_blender, z_blender, -y_blender); 1 BU = 1 stud; malha: origem = centro do bbox",
- "export_id": "1d00de62",
+ "export_id": "94f9d473",
  "fbx": {
-  "02_TERRAIN": "ILHA2_02_TERRAIN_1d00de.fbx",
-  "03_MINING_ZONE": "ILHA2_03_MINING_ZONE_1d00de.fbx",
-  "04_CAPSULE_LANDMARK": "ILHA2_04_CAPSULE_LANDMARK_1d00de.fbx",
-  "05_TECH_VILLAGE": "ILHA2_05_TECH_VILLAGE_1d00de.fbx",
-  "06_SUMMON": "ILHA2_06_SUMMON_1d00de.fbx",
-  "07_WATER": "ILHA2_07_WATER_1d00de.fbx",
-  "08_NEXT_ISLAND": "ILHA2_08_NEXT_ISLAND_1d00de.fbx",
-  "08_PURCHASE_GATES": "ILHA2_08_PURCHASE_GATES_1d00de.fbx",
-  "09_PROPS": "ILHA2_09_PROPS_1d00de.fbx",
-  "10_VEGETATION": "ILHA2_10_VEGETATION_1d00de.fbx",
-  "12_VFX_HELPERS": "ILHA2_12_VFX_HELPERS_1d00de.fbx"
+  "02_TERRAIN": "ILHA2_02_TERRAIN_94f9d4.fbx",
+  "03_MINING_ZONE": "ILHA2_03_MINING_ZONE_94f9d4.fbx",
+  "04_CAPSULE_LANDMARK": "ILHA2_04_CAPSULE_LANDMARK_94f9d4.fbx",
+  "05_TECH_VILLAGE": "ILHA2_05_TECH_VILLAGE_94f9d4.fbx",
+  "06_SUMMON": "ILHA2_06_SUMMON_94f9d4.fbx",
+  "07_WATER": "ILHA2_07_WATER_94f9d4.fbx",
+  "08_NEXT_ISLAND": "ILHA2_08_NEXT_ISLAND_94f9d4.fbx",
+  "08_PURCHASE_GATES": "ILHA2_08_PURCHASE_GATES_94f9d4.fbx",
+  "09_PROPS": "ILHA2_09_PROPS_94f9d4.fbx",
+  "10_VEGETATION": "ILHA2_10_VEGETATION_94f9d4.fbx",
+  "12_VFX_HELPERS": "ILHA2_12_VFX_HELPERS_94f9d4.fbx"
  },
  "meshes": [
   {
@@ -20,16 +20,16 @@
    "group": "02_TERRAIN",
    "obj": "DB_Ent_Bridge",
    "material": "Lantern_Glow",
-   "tris": 512,
+   "tris": 488,
    "center_rbx": [
-    -219.266,
+    -223.827,
     25.117,
-    639.266
+    643.827
    ],
    "size_rbx": [
-    67.067,
+    57.945,
     10.024,
-    67.067
+    57.945
    ],
    "owner": "entrance",
    "shadow": false,
@@ -43,14 +43,14 @@
    "material": "Plaster_DB_Navy",
    "tris": 360,
    "center_rbx": [
-    -233.091,
+    -233.082,
     23.778,
-    653.091
+    653.082
    ],
    "size_rbx": [
-    38.93,
+    38.948,
     7.975,
-    38.93
+    38.948
    ],
    "owner": "entrance",
    "shadow": true,
@@ -64,14 +64,14 @@
    "material": "Plaster_DB_White",
    "tris": 1040,
    "center_rbx": [
-    -233.091,
+    -233.082,
     25.512,
-    653.091
+    653.082
    ],
    "size_rbx": [
-    40.048,
+    40.065,
     10.044,
-    40.048
+    40.065
    ],
    "owner": "entrance",
    "shadow": true,
@@ -85,14 +85,14 @@
    "material": "Roof_DB_Blue",
    "tris": 600,
    "center_rbx": [
-    -233.091,
+    -233.082,
     26.898,
-    653.091
+    653.082
    ],
    "size_rbx": [
-    39.494,
+    39.512,
     8.996,
-    39.494
+    39.512
    ],
    "owner": "entrance",
    "shadow": true,
@@ -104,16 +104,16 @@
    "group": "02_TERRAIN",
    "obj": "DB_Ent_Bridge",
    "material": "Stone_DBEntSand",
-   "tris": 3004,
+   "tris": 3124,
    "center_rbx": [
-    -223.391,
+    -227.664,
     8.53,
-    643.577
+    647.664
    ],
    "size_rbx": [
-    61.296,
+    52.75,
     37.06,
-    60.924
+    52.75
    ],
    "owner": "entrance",
    "shadow": true,
@@ -125,16 +125,37 @@
    "group": "02_TERRAIN",
    "obj": "DB_Ent_Bridge",
    "material": "Stone_DB_Block",
-   "tris": 3056,
+   "tris": 2912,
    "center_rbx": [
-    -224.528,
+    -227.841,
     7.35,
-    644.528
+    647.841
    ],
    "size_rbx": [
-    58.456,
+    51.831,
     38.7,
-    58.456
+    51.831
+   ],
+   "owner": "entrance",
+   "shadow": true,
+   "flags": "",
+   "model": ""
+  },
+  {
+   "name": "DB_Ent_Bridge__Stone_DB_Block_B",
+   "group": "02_TERRAIN",
+   "obj": "DB_Ent_Bridge",
+   "material": "Stone_DB_Block_B",
+   "tris": 432,
+   "center_rbx": [
+    -216.253,
+    -0.45,
+    636.253
+   ],
+   "size_rbx": [
+    28.821,
+    16.3,
+    28.821
    ],
    "owner": "entrance",
    "shadow": true,
@@ -146,16 +167,16 @@
    "group": "02_TERRAIN",
    "obj": "DB_Ent_Bridge",
    "material": "Stone_Paving_DB_B",
-   "tris": 672,
+   "tris": 252,
    "center_rbx": [
-    -228.011,
-    9.073,
-    648.011
+    -234.028,
+    21.472,
+    654.028
    ],
    "size_rbx": [
-    52.338,
-    35.345,
-    52.338
+    40.305,
+    10.545,
+    40.305
    ],
    "owner": "entrance",
    "shadow": false,
@@ -167,16 +188,16 @@
    "group": "02_TERRAIN",
    "obj": "DB_Ent_Bridge",
    "material": "Stone_Paving_Warm",
-   "tris": 1176,
+   "tris": 1344,
    "center_rbx": [
-    -201.063,
+    -201.333,
     3.175,
-    621.063
+    621.333
    ],
    "size_rbx": [
-    35.376,
+    34.835,
     23.55,
-    35.375
+    34.835
    ],
    "owner": "entrance",
    "shadow": false,
@@ -188,16 +209,16 @@
    "group": "02_TERRAIN",
    "obj": "DB_Ent_Bridge",
    "material": "Stone_Wall_Dark",
-   "tris": 352,
+   "tris": 184,
    "center_rbx": [
-    -203.419,
+    -201.335,
     6.21,
-    623.419
+    621.335
    ],
    "size_rbx": [
-    41.03,
+    35.122,
     32.42,
-    41.03
+    35.122
    ],
    "owner": "entrance",
    "shadow": true,
@@ -209,16 +230,16 @@
    "group": "02_TERRAIN",
    "obj": "DB_Ent_Bridge",
    "material": "Stone_Wall_Light",
-   "tris": 480,
+   "tris": 384,
    "center_rbx": [
-    -201.183,
+    -201.43,
     5.275,
-    621.183
+    621.43
    ],
    "size_rbx": [
-    35.285,
+    34.79,
     28.95,
-    35.285
+    34.79
    ],
    "owner": "entrance",
    "shadow": true,
@@ -253,14 +274,14 @@
    "material": "Wood_Dark",
    "tris": 288,
    "center_rbx": [
-    -211.904,
+    -211.135,
     18.0,
-    631.904
+    631.135
    ],
    "size_rbx": [
-    46.503,
+    48.041,
     2.5,
-    46.503
+    48.041
    ],
    "owner": "entrance",
    "shadow": true,
@@ -274,14 +295,14 @@
    "material": "Wood_Plank",
    "tris": 96,
    "center_rbx": [
-    -202.455,
+    -201.43,
     18.495,
-    622.455
+    621.43
    ],
    "size_rbx": [
-    31.169,
+    33.22,
     1.73,
-    31.169
+    33.22
    ],
    "owner": "entrance",
    "shadow": true,
@@ -293,16 +314,16 @@
    "group": "02_TERRAIN",
    "obj": "DB_Ent_Deck",
    "material": "Stone_DBEntSand",
-   "tris": 180,
+   "tris": 336,
    "center_rbx": [
-    -222.059,
+    -214.779,
     16.117,
-    642.06
+    634.775
    ],
    "size_rbx": [
-    23.37,
+    37.941,
     0.434,
-    23.367
+    37.932
    ],
    "owner": "entrance",
    "shadow": true,
@@ -314,16 +335,16 @@
    "group": "02_TERRAIN",
    "obj": "DB_Ent_Deck",
    "material": "Stone_Paving_DB",
-   "tris": 216,
+   "tris": 372,
    "center_rbx": [
-    -222.872,
+    -216.388,
     16.114,
-    639.568
+    637.109
    ],
    "size_rbx": [
-    30.156,
-    0.428,
-    35.426
+    39.469,
+    0.429,
+    38.029
    ],
    "owner": "entrance",
    "shadow": false,
@@ -335,16 +356,16 @@
    "group": "02_TERRAIN",
    "obj": "DB_Ent_Deck",
    "material": "Stone_Paving_DB_B",
-   "tris": 300,
+   "tris": 408,
    "center_rbx": [
-    -220.91,
+    -218.025,
     16.117,
-    643.349
+    637.305
    ],
    "size_rbx": [
-    32.739,
-    0.434,
-    29.202
+    39.854,
+    0.433,
+    41.294
    ],
    "owner": "entrance",
    "shadow": false,
@@ -356,15 +377,15 @@
    "group": "02_TERRAIN",
    "obj": "DB_Ent_Deck",
    "material": "Stone_Paving_Warm",
-   "tris": 768,
+   "tris": 312,
    "center_rbx": [
     -211.966,
-    16.092,
+    16.091,
     631.966
    ],
    "size_rbx": [
     52.255,
-    0.484,
+    0.483,
     52.255
    ],
    "owner": "entrance",
@@ -547,14 +568,14 @@
    "material": "Leaf_Palm",
    "tris": 536,
    "center_rbx": [
-    -257.683,
-    32.268,
-    677.942
+    -257.686,
+    32.288,
+    677.917
    ],
    "size_rbx": [
-    44.668,
-    14.783,
-    44.683
+    44.673,
+    14.744,
+    44.632
    ],
    "owner": "entrance",
    "shadow": false,
@@ -631,14 +652,14 @@
    "material": "Stone_DB_Block_B",
    "tris": 144,
    "center_rbx": [
-    -258.741,
+    -258.747,
     24.1,
-    678.907
+    678.912
    ],
    "size_rbx": [
-    59.609,
+    59.564,
     0.4,
-    59.94
+    59.894
    ],
    "owner": "entrance",
    "shadow": true,
@@ -713,16 +734,16 @@
    "group": "02_TERRAIN",
    "obj": "DB_Ent_Roots",
    "material": "Cliff_Rock_DB_Dark",
-   "tris": 352,
+   "tris": 288,
    "center_rbx": [
-    -221.607,
-    -11.664,
-    641.763
+    -226.268,
+    -10.036,
+    646.479
    ],
    "size_rbx": [
-    52.904,
-    53.324,
-    50.694
+    43.581,
+    50.068,
+    41.261
    ],
    "owner": "entrance",
    "shadow": true,
@@ -776,16 +797,16 @@
    "group": "02_TERRAIN",
    "obj": "DB_Ent_Roots",
    "material": "Cliff_Rock_Tan_Dark",
-   "tris": 64,
+   "tris": 128,
    "center_rbx": [
-    -193.677,
-    -25.306,
-    614.077
+    -197.878,
+    -25.792,
+    618.733
    ],
    "size_rbx": [
-    13.124,
-    24.096,
-    13.074
+    21.527,
+    25.067,
+    22.384
    ],
    "owner": "entrance",
    "shadow": true,
@@ -820,14 +841,14 @@
    "material": "Cliff_Rock_DB_C",
    "tris": 360,
    "center_rbx": [
-    -383.762,
-    39.786,
-    810.697
+    -382.516,
+    39.631,
+    811.269
    ],
    "size_rbx": [
-    793.271,
-    103.106,
-    789.156
+    792.286,
+    103.851,
+    788.33
    ],
    "owner": "terrain",
    "shadow": false,
@@ -841,14 +862,14 @@
    "material": "Cliff_Rock_DB_Dark",
    "tris": 360,
    "center_rbx": [
-    -382.176,
-    30.333,
-    810.587
+    -381.238,
+    31.236,
+    810.156
    ],
    "size_rbx": [
-    790.356,
-    104.174,
-    787.431
+    796.151,
+    103.845,
+    787.471
    ],
    "owner": "terrain",
    "shadow": false,
@@ -1284,12 +1305,12 @@
    "center_rbx": [
     -346.121,
     26.446,
-    776.801
+    776.712
    ],
    "size_rbx": [
     312.764,
     6.092,
-    335.014
+    334.835
    ],
    "owner": "terrain",
    "shadow": true,
@@ -3256,14 +3277,14 @@
    "material": "Grass_DB",
    "tris": 80,
    "center_rbx": [
-    -344.709,
-    25.82,
-    739.512
+    -344.716,
+    25.839,
+    739.475
    ],
    "size_rbx": [
-    71.986,
-    3.14,
-    110.83
+    71.971,
+    3.171,
+    110.773
    ],
    "owner": "mining",
    "shadow": false,
@@ -3277,14 +3298,14 @@
    "material": "Leaf_Palm",
    "tris": 80,
    "center_rbx": [
-    -345.199,
-    25.86,
-    739.61
+    -345.215,
+    25.865,
+    739.57
    ],
    "size_rbx": [
-    72.192,
-    3.207,
-    110.557
+    72.23,
+    3.293,
+    110.586
    ],
    "owner": "mining",
    "shadow": false,
@@ -7582,14 +7603,14 @@
    "material": "Cliff_Rock_DB",
    "tris": 922,
    "center_rbx": [
-    -226.968,
+    -226.916,
     27.306,
-    836.865
+    836.937
    ],
    "size_rbx": [
-    61.118,
+    61.221,
     7.812,
-    69.261
+    69.22
    ],
    "owner": "summon",
    "shadow": true,
@@ -7603,14 +7624,14 @@
    "material": "Cliff_Rock_DB_B",
    "tris": 421,
    "center_rbx": [
-    -228.16,
+    -228.181,
     26.544,
-    835.285
+    835.274
    ],
    "size_rbx": [
-    61.535,
+    61.577,
     6.288,
-    62.148
+    62.171
    ],
    "owner": "summon",
    "shadow": true,
@@ -7624,14 +7645,14 @@
    "material": "Cliff_Rock_DB_Dark",
    "tris": 269,
    "center_rbx": [
-    -230.302,
+    -230.356,
     25.778,
-    834.633
+    834.59
    ],
    "size_rbx": [
-    71.726,
+    71.619,
     4.756,
-    72.498
+    72.412
    ],
    "owner": "summon",
    "shadow": true,
@@ -8065,14 +8086,14 @@
    "material": "Cliff_Rock_DB",
    "tris": 242,
    "center_rbx": [
-    -314.856,
+    -314.919,
     35.875,
-    902.375
+    902.372
    ],
    "size_rbx": [
-    27.673,
+    27.799,
     19.35,
-    36.109
+    36.116
    ],
    "owner": "water",
    "shadow": true,
@@ -8086,14 +8107,14 @@
    "material": "Cliff_Rock_DB_Dark",
    "tris": 73,
    "center_rbx": [
-    -316.644,
+    -316.65,
     27.401,
-    904.038
+    904.032
    ],
    "size_rbx": [
-    28.482,
+    28.494,
     9.401,
-    31.134
+    31.147
    ],
    "owner": "water",
    "shadow": true,
@@ -8128,14 +8149,14 @@
    "material": "Foam",
    "tris": 1528,
    "center_rbx": [
-    -314.842,
-    48.548,
-    904.577
+    -314.823,
+    48.618,
+    904.512
    ],
    "size_rbx": [
-    18.536,
-    43.897,
-    24.116
+    18.575,
+    43.789,
+    23.988
    ],
    "owner": "water",
    "shadow": false,
@@ -8234,12 +8255,12 @@
    "tris": 184,
    "center_rbx": [
     -370.485,
-    2.228,
+    2.221,
     621.981
    ],
    "size_rbx": [
     130.946,
-    44.457,
+    44.441,
     36.107
    ],
    "owner": "water",
@@ -8275,14 +8296,14 @@
    "material": "Foam",
    "tris": 2540,
    "center_rbx": [
-    -372.458,
-    -21.212,
-    615.315
+    -372.837,
+    -21.173,
+    615.511
    ],
    "size_rbx": [
-    155.983,
-    89.876,
-    50.917
+    156.355,
+    89.789,
+    50.664
    ],
    "owner": "water",
    "shadow": false,
@@ -8380,13 +8401,13 @@
    "material": "Cliff_Rock_DB_Dark",
    "tris": 184,
    "center_rbx": [
-    -187.435,
-    2.986,
+    -187.444,
+    2.999,
     792.741
    ],
    "size_rbx": [
-    34.031,
-    42.971,
+    34.049,
+    42.999,
     140.803
    ],
    "owner": "water",
@@ -8422,14 +8443,14 @@
    "material": "Foam",
    "tris": 684,
    "center_rbx": [
-    -188.361,
-    -23.874,
-    863.268
+    -188.486,
+    -23.837,
+    863.057
    ],
    "size_rbx": [
-    21.769,
-    85.002,
-    27.765
+    21.596,
+    84.981,
+    27.75
    ],
    "owner": "water",
    "shadow": false,
@@ -8443,14 +8464,14 @@
    "material": "Foam",
    "tris": 1888,
    "center_rbx": [
-    -174.443,
-    -21.204,
-    728.4
+    -174.14,
+    -21.229,
+    728.344
    ],
    "size_rbx": [
-    34.023,
-    89.928,
-    36.648
+    34.63,
+    89.845,
+    36.451
    ],
    "owner": "water",
    "shadow": false,
@@ -8653,12 +8674,12 @@
    "material": "Cliff_Rock_DB",
    "tris": 889,
    "center_rbx": [
-    -453.146,
+    -453.185,
     44.874,
     701.088
    ],
    "size_rbx": [
-    57.73,
+    57.809,
     43.348,
     55.379
    ],
@@ -8674,12 +8695,12 @@
    "material": "Cliff_Rock_DB_Dark",
    "tris": 511,
    "center_rbx": [
-    -455.233,
+    -455.287,
     40.686,
     701.172
    ],
    "size_rbx": [
-    56.986,
+    57.092,
     37.972,
     51.056
    ],
@@ -8735,16 +8756,16 @@
    "group": "08_NEXT_ISLAND",
    "obj": "DB_Exit_Bridge",
    "material": "Cliff_Rock_DB_C",
-   "tris": 136,
+   "tris": 212,
    "center_rbx": [
-    -499.184,
-    -4.8,
-    684.116
+    -503.175,
+    -6.287,
+    681.871
    ],
    "size_rbx": [
-    16.854,
-    54.6,
-    19.54
+    26.584,
+    57.575,
+    24.772
    ],
    "owner": "exit",
    "shadow": true,
@@ -8756,19 +8777,40 @@
    "group": "08_NEXT_ISLAND",
    "obj": "DB_Exit_Bridge",
    "material": "Cliff_Rock_DB_Dusk",
-   "tris": 136,
+   "tris": 234,
    "center_rbx": [
-    -516.083,
-    -7.3,
-    677.484
+    -521.453,
+    -9.8,
+    675.668
    ],
    "size_rbx": [
-    15.945,
-    59.6,
-    20.296
+    26.047,
+    64.6,
+    25.507
    ],
    "owner": "exit",
    "shadow": true,
+   "flags": "",
+   "model": ""
+  },
+  {
+   "name": "DB_Exit_Bridge__Lantern_Glow",
+   "group": "08_NEXT_ISLAND",
+   "obj": "DB_Exit_Bridge",
+   "material": "Lantern_Glow",
+   "tris": 48,
+   "center_rbx": [
+    -491.119,
+    31.167,
+    688.15
+   ],
+   "size_rbx": [
+    22.851,
+    1.835,
+    24.838
+   ],
+   "owner": "exit",
+   "shadow": false,
    "flags": "",
    "model": ""
   },
@@ -8777,16 +8819,16 @@
    "group": "08_NEXT_ISLAND",
    "obj": "DB_Exit_Bridge",
    "material": "P_Shadow_Glow",
-   "tris": 48,
+   "tris": 72,
    "center_rbx": [
-    -512.538,
-    31.43,
-    679.008
+    -526.713,
+    31.181,
+    673.018
    ],
    "size_rbx": [
-    65.239,
-    0.95,
-    42.671
+    36.89,
+    1.749,
+    30.691
    ],
    "owner": "exit",
    "shadow": false,
@@ -8798,16 +8840,37 @@
    "group": "08_NEXT_ISLAND",
    "obj": "DB_Exit_Bridge",
    "material": "P_Shadow_Stone",
-   "tris": 620,
+   "tris": 1189,
    "center_rbx": [
-    -512.761,
-    5.727,
-    678.785
+    -526.713,
+    3.803,
+    673.018
    ],
    "size_rbx": [
-    66.34,
-    54.255,
-    43.771
+    39.119,
+    58.405,
+    32.92
+   ],
+   "owner": "exit",
+   "shadow": true,
+   "flags": "",
+   "model": ""
+  },
+  {
+   "name": "DB_Exit_Bridge__Roof_DB_Orange",
+   "group": "08_NEXT_ISLAND",
+   "obj": "DB_Exit_Bridge",
+   "material": "Roof_DB_Orange",
+   "tris": 48,
+   "center_rbx": [
+    -491.084,
+    32.131,
+    688.184
+   ],
+   "size_rbx": [
+    23.837,
+    1.602,
+    25.824
    ],
    "owner": "exit",
    "shadow": true,
@@ -8819,16 +8882,16 @@
    "group": "08_NEXT_ISLAND",
    "obj": "DB_Exit_Bridge",
    "material": "Stone_DB_Block",
-   "tris": 900,
+   "tris": 994,
    "center_rbx": [
-    -504.478,
-    19.6,
-    683.191
+    -498.779,
+    18.005,
+    684.99
    ],
    "size_rbx": [
-    55.603,
-    22.2,
-    34.731
+    35.471,
+    23.01,
+    30.148
    ],
    "owner": "exit",
    "shadow": true,
@@ -8840,16 +8903,16 @@
    "group": "08_NEXT_ISLAND",
    "obj": "DB_Exit_Bridge",
    "material": "Stone_DB_Block_B",
-   "tris": 788,
+   "tris": 1386,
    "center_rbx": [
-    -509.347,
-    6.65,
-    680.239
+    -497.855,
+    4.575,
+    685.424
    ],
    "size_rbx": [
-    70.331,
-    48.1,
-    44.796
+    38.212,
+    51.95,
+    32.178
    ],
    "owner": "exit",
    "shadow": true,
@@ -8861,16 +8924,16 @@
    "group": "08_NEXT_ISLAND",
    "obj": "DB_Exit_Bridge",
    "material": "Stone_DB_Dusk",
-   "tris": 2708,
+   "tris": 1773,
    "center_rbx": [
-    -513.287,
-    18.75,
-    677.649
+    -526.713,
+    17.525,
+    673.018
    ],
    "size_rbx": [
-    64.896,
-    24.5,
-    41.106
+    38.568,
+    26.05,
+    32.37
    ],
    "owner": "exit",
    "shadow": true,
@@ -8882,37 +8945,16 @@
    "group": "08_NEXT_ISLAND",
    "obj": "DB_Exit_Bridge",
    "material": "Stone_Paving_DB",
-   "tris": 452,
+   "tris": 820,
    "center_rbx": [
-    -501.042,
-    29.34,
-    685.578
+    -497.609,
+    30.132,
+    685.572
    ],
    "size_rbx": [
-    49.001,
-    3.32,
-    33.668
-   ],
-   "owner": "exit",
-   "shadow": false,
-   "flags": "",
-   "model": ""
-  },
-  {
-   "name": "DB_Exit_Bridge__Stone_Paving_DB_B",
-   "group": "08_NEXT_ISLAND",
-   "obj": "DB_Exit_Bridge",
-   "material": "Stone_Paving_DB_B",
-   "tris": 280,
-   "center_rbx": [
-    -502.178,
-    29.487,
-    684.659
-   ],
-   "size_rbx": [
-    42.674,
-    3.027,
-    29.903
+    37.798,
+    4.265,
+    31.96
    ],
    "owner": "exit",
    "shadow": false,
@@ -8926,14 +8968,14 @@
    "material": "Cliff_Rock_DB_Dusk",
    "tris": 825,
    "center_rbx": [
-    -558.815,
+    -558.461,
     3.325,
-    660.046
+    660.128
    ],
    "size_rbx": [
-    47.963,
+    47.018,
     46.25,
-    47.934
+    49.841
    ],
    "owner": "exit",
    "shadow": false,
@@ -8947,14 +8989,14 @@
    "material": "P_Shadow_Glow",
    "tris": 48,
    "center_rbx": [
-    -567.504,
-    30.963,
-    656.996
+    -569.353,
+    30.686,
+    655.81
    ],
    "size_rbx": [
-    22.337,
-    0.855,
-    39.473
+    20.207,
+    0.76,
+    37.462
    ],
    "owner": "exit",
    "shadow": false,
@@ -8966,16 +9008,16 @@
    "group": "08_NEXT_ISLAND",
    "obj": "DB_Exit_Islet",
    "material": "P_Shadow_Stone",
-   "tris": 1478,
+   "tris": 1314,
    "center_rbx": [
-    -559.984,
-    9.633,
-    660.01
+    -559.985,
+    9.433,
+    659.623
    ],
    "size_rbx": [
-    48.657,
-    45.266,
-    46.754
+    48.656,
+    44.866,
+    45.96
    ],
    "owner": "exit",
    "shadow": false,
@@ -8987,16 +9029,16 @@
    "group": "08_NEXT_ISLAND",
    "obj": "DB_Exit_Islet",
    "material": "Stone_DB_Dusk",
-   "tris": 4451,
+   "tris": 3167,
    "center_rbx": [
-    -559.594,
-    -0.76,
-    660.19
+    -558.932,
+    -0.875,
+    660.399
    ],
    "size_rbx": [
-    49.521,
-    62.08,
-    48.403
+    50.844,
+    61.85,
+    50.382
    ],
    "owner": "exit",
    "shadow": false,
@@ -9008,16 +9050,16 @@
    "group": "08_NEXT_ISLAND",
    "obj": "DB_Exit_Trail",
    "material": "Lantern_Glow",
-   "tris": 96,
+   "tris": 120,
    "center_rbx": [
-    -425.41,
+    -435.86,
     31.12,
-    703.508
+    701.557
    ],
    "size_rbx": [
-    48.851,
+    69.751,
     1.74,
-    26.74
+    30.641
    ],
    "owner": "exit",
    "shadow": false,
@@ -9071,16 +9113,16 @@
    "group": "08_NEXT_ISLAND",
    "obj": "DB_Exit_Trail",
    "material": "Roof_DB_Orange",
-   "tris": 96,
+   "tris": 120,
    "center_rbx": [
-    -425.399,
+    -435.849,
     32.069,
-    703.498
+    701.547
    ],
    "size_rbx": [
-    49.72,
+    70.62,
     1.478,
-    27.567
+    31.469
    ],
    "owner": "exit",
    "shadow": true,
@@ -9092,16 +9134,16 @@
    "group": "08_NEXT_ISLAND",
    "obj": "DB_Exit_Trail",
    "material": "Stone_DB_Block",
-   "tris": 1364,
+   "tris": 1720,
    "center_rbx": [
-    -439.755,
+    -440.816,
     26.555,
-    708.772
+    708.75
    ],
    "size_rbx": [
-    91.846,
+    93.969,
     5.91,
-    53.796
+    53.839
    ],
    "owner": "exit",
    "shadow": true,
@@ -9113,40 +9155,19 @@
    "group": "08_NEXT_ISLAND",
    "obj": "DB_Exit_Trail",
    "material": "Stone_DB_Block_B",
-   "tris": 3192,
+   "tris": 3116,
    "center_rbx": [
-    -440.878,
-    27.25,
-    708.818
+    -455.22,
+    27.935,
+    702.631
    ],
    "size_rbx": [
-    93.892,
-    7.1,
-    53.702
+    122.576,
+    8.47,
+    66.077
    ],
    "owner": "exit",
    "shadow": true,
-   "flags": "",
-   "model": ""
-  },
-  {
-   "name": "DB_Exit_Trail__Stone_DB_Dusk",
-   "group": "08_NEXT_ISLAND",
-   "obj": "DB_Exit_Trail",
-   "material": "Stone_DB_Dusk",
-   "tris": 100,
-   "center_rbx": [
-    -477.924,
-    27.277,
-    691.818
-   ],
-   "size_rbx": [
-    19.744,
-    4.466,
-    18.564
-   ],
-   "owner": "exit",
-   "shadow": false,
    "flags": "",
    "model": ""
   },
@@ -9155,37 +9176,16 @@
    "group": "08_NEXT_ISLAND",
    "obj": "DB_Exit_Trail",
    "material": "Stone_Paving_DB",
-   "tris": 2044,
+   "tris": 3036,
    "center_rbx": [
-    -439.783,
+    -455.106,
     28.185,
-    708.618
+    702.631
    ],
    "size_rbx": [
-    92.062,
+    122.709,
     7.97,
-    53.626
-   ],
-   "owner": "exit",
-   "shadow": false,
-   "flags": "",
-   "model": ""
-  },
-  {
-   "name": "DB_Exit_Trail__Stone_Paving_DB_B",
-   "group": "08_NEXT_ISLAND",
-   "obj": "DB_Exit_Trail",
-   "material": "Stone_Paving_DB_B",
-   "tris": 996,
-   "center_rbx": [
-    -440.914,
-    28.185,
-    710.485
-   ],
-   "size_rbx": [
-    93.846,
-    7.97,
-    50.19
+    65.857
    ],
    "owner": "exit",
    "shadow": false,
@@ -9766,14 +9766,14 @@
    "material": "Metal_DB_Dark",
    "tris": 544,
    "center_rbx": [
-    -374.491,
+    -376.267,
     27.899,
-    630.554
+    630.549
    ],
    "size_rbx": [
-    16.409,
+    12.857,
     7.443,
-    12.969
+    12.959
    ],
    "owner": "props",
    "shadow": true,
@@ -9787,14 +9787,14 @@
    "material": "Metal_DB_Steel",
    "tris": 168,
    "center_rbx": [
-    -374.492,
+    -376.268,
     28.212,
-    631.241
+    631.236
    ],
    "size_rbx": [
-    16.049,
+    12.497,
     5.977,
-    11.233
+    11.223
    ],
    "owner": "props",
    "shadow": false,
@@ -9808,12 +9808,12 @@
    "material": "Plaster_DB_Navy",
    "tris": 160,
    "center_rbx": [
-    -381.188,
+    -382.964,
     27.1,
     635.421
    ],
    "size_rbx": [
-    22.373,
+    18.82,
     5.8,
     11.842
    ],
@@ -9829,12 +9829,12 @@
    "material": "Roof_DB_Orange",
    "tris": 148,
    "center_rbx": [
-    -415.07,
+    -416.846,
     29.775,
     673.696
    ],
    "size_rbx": [
-    90.215,
+    86.663,
     11.15,
     91.478
    ],
@@ -9850,12 +9850,12 @@
    "material": "Wood_Dark",
    "tris": 516,
    "center_rbx": [
-    -412.971,
+    -414.747,
     29.448,
     672.391
    ],
    "size_rbx": [
-    93.991,
+    90.439,
     10.495,
     93.688
    ],
@@ -9871,12 +9871,12 @@
    "material": "Wood_Lacquer_Red",
    "tris": 156,
    "center_rbx": [
-    -412.919,
+    -414.695,
     28.74,
     672.371
    ],
    "size_rbx": [
-    93.125,
+    89.572,
     8.72,
     92.8
    ],
@@ -10039,14 +10039,14 @@
    "material": "Cliff_Rock_DB",
    "tris": 800,
    "center_rbx": [
-    -304.187,
-    24.463,
-    742.724
+    -305.251,
+    24.466,
+    743.99
    ],
    "size_rbx": [
-    245.768,
-    0.611,
-    222.119
+    247.889,
+    0.616,
+    219.511
    ],
    "owner": "props",
    "shadow": true,
@@ -10205,16 +10205,16 @@
    "group": "10_VEGETATION",
    "obj": "DB_Veg_Beds",
    "material": "Grass_DB",
-   "tris": 1582,
+   "tris": 1554,
    "center_rbx": [
-    -342.769,
-    26.544,
-    774.899
+    -341.983,
+    26.478,
+    774.735
    ],
    "size_rbx": [
-    331.834,
-    4.303,
-    313.954
+    331.885,
+    4.436,
+    314.282
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -10228,14 +10228,14 @@
    "material": "Grass_DB_B",
    "tris": 1764,
    "center_rbx": [
-    -342.909,
+    -342.238,
     26.32,
-    775.139
+    774.979
    ],
    "size_rbx": [
-    333.179,
+    333.786,
     4.459,
-    315.75
+    316.069
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -10604,14 +10604,14 @@
    "group": "10_VEGETATION",
    "obj": "DB_Veg_Rocks",
    "material": "Cliff_Rock_DB",
-   "tris": 473,
+   "tris": 502,
    "center_rbx": [
-    -310.339,
+    -311.765,
     25.522,
     752.271
    ],
    "size_rbx": [
-    242.924,
+    245.775,
     3.843,
     259.612
    ],
@@ -10625,14 +10625,14 @@
    "group": "10_VEGETATION",
    "obj": "DB_Veg_Rocks",
    "material": "Cliff_Rock_DB_Top",
-   "tris": 622,
+   "tris": 612,
    "center_rbx": [
-    -310.431,
+    -311.157,
     26.121,
     735.548
    ],
    "size_rbx": [
-    242.397,
+    243.848,
     2.857,
     225.45
    ],
@@ -10669,12 +10669,12 @@
    "material": "Flower_White",
    "tris": 600,
    "center_rbx": [
-    -326.863,
+    -328.984,
     27.216,
     769.307
    ],
    "size_rbx": [
-    299.239,
+    303.481,
     4.553,
     316.037
    ],
@@ -10688,16 +10688,16 @@
    "group": "10_VEGETATION",
    "obj": "DB_Veg_Shrubs",
    "material": "Grass_DB_B",
-   "tris": 471,
+   "tris": 522,
    "center_rbx": [
-    -339.996,
-    26.622,
-    755.288
+    -343.641,
+    26.736,
+    770.434
    ],
    "size_rbx": [
-    326.21,
-    5.218,
-    265.663
+    328.698,
+    5.444,
+    296.515
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -10709,7 +10709,7 @@
    "group": "10_VEGETATION",
    "obj": "DB_Veg_Shrubs",
    "material": "Leaf_DBVegBloom",
-   "tris": 760,
+   "tris": 790,
    "center_rbx": [
     -335.155,
     30.687,
@@ -10730,16 +10730,16 @@
    "group": "10_VEGETATION",
    "obj": "DB_Veg_Shrubs",
    "material": "Leaf_DBVegDeep",
-   "tris": 2913,
+   "tris": 2847,
    "center_rbx": [
-    -341.599,
-    30.208,
-    774.808
+    -330.613,
+    30.211,
+    776.239
    ],
    "size_rbx": [
-    332.638,
-    12.15,
-    310.854
+    310.664,
+    12.144,
+    307.993
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -10751,15 +10751,15 @@
    "group": "10_VEGETATION",
    "obj": "DB_Veg_Shrubs",
    "material": "Leaf_DBVegLime",
-   "tris": 1527,
+   "tris": 1495,
    "center_rbx": [
-    -341.736,
-    30.195,
+    -340.966,
+    30.185,
     772.175
    ],
    "size_rbx": [
-    330.175,
-    12.079,
+    331.21,
+    12.099,
     321.656
    ],
    "owner": "vegetation",
@@ -10772,16 +10772,16 @@
    "group": "10_VEGETATION",
    "obj": "DB_Veg_Shrubs",
    "material": "Leaf_Palm",
-   "tris": 1959,
+   "tris": 710,
    "center_rbx": [
-    -382.382,
-    30.118,
-    744.956
+    -438.059,
+    26.721,
+    694.732
    ],
    "size_rbx": [
-    253.53,
-    12.175,
-    265.166
+    102.772,
+    5.371,
+    138.685
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -10793,16 +10793,16 @@
    "group": "10_VEGETATION",
    "obj": "DB_Veg_Shrubs",
    "material": "Leaf_Palm",
-   "tris": 846,
+   "tris": 1357,
    "center_rbx": [
-    -319.992,
-    26.825,
-    841.84
+    -381.902,
+    30.123,
+    837.596
    ],
    "size_rbx": [
-    128.638,
-    5.569,
-    108.412
+    252.458,
+    12.165,
+    116.899
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -10814,14 +10814,14 @@
    "group": "10_VEGETATION",
    "obj": "DB_Veg_Shrubs",
    "material": "Leaf_Palm",
-   "tris": 1525,
+   "tris": 1556,
    "center_rbx": [
-    -281.14,
+    -279.365,
     26.808,
     784.845
    ],
    "size_rbx": [
-    203.916,
+    207.466,
     5.572,
     291.157
    ],
@@ -10835,16 +10835,16 @@
    "group": "10_VEGETATION",
    "obj": "DB_Veg_Shrubs",
    "material": "Leaf_Palm",
-   "tris": 813,
+   "tris": 1234,
    "center_rbx": [
-    -218.966,
-    24.98,
-    700.522
+    -282.675,
+    25.036,
+    690.315
    ],
    "size_rbx": [
-    75.055,
-    1.913,
-    134.924
+    202.473,
+    2.025,
+    155.884
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -10852,20 +10852,62 @@
    "model": ""
   },
   {
-   "name": "DB_Veg_Shrubs__Leaf_Pine_Light",
+   "name": "DB_Veg_Shrubs__Leaf_Pine_Light_g12_10",
    "group": "10_VEGETATION",
    "obj": "DB_Veg_Shrubs",
    "material": "Leaf_Pine_Light",
-   "tris": 3527,
+   "tris": 961,
    "center_rbx": [
-    -341.124,
-    30.211,
-    772.164
+    -373.974,
+    26.815,
+    687.777
    ],
    "size_rbx": [
-    331.688,
-    12.142,
-    321.974
+    234.538,
+    5.33,
+    153.201
+   ],
+   "owner": "vegetation",
+   "shadow": false,
+   "flags": "",
+   "model": ""
+  },
+  {
+   "name": "DB_Veg_Shrubs__Leaf_Pine_Light_g13_9",
+   "group": "10_VEGETATION",
+   "obj": "DB_Veg_Shrubs",
+   "material": "Leaf_Pine_Light",
+   "tris": 2123,
+   "center_rbx": [
+    -342.287,
+    30.215,
+    784.268
+   ],
+   "size_rbx": [
+    334.014,
+    12.136,
+    297.768
+   ],
+   "owner": "vegetation",
+   "shadow": false,
+   "flags": "",
+   "model": ""
+  },
+  {
+   "name": "DB_Veg_Shrubs__Leaf_Pine_Light_g14_9",
+   "group": "10_VEGETATION",
+   "obj": "DB_Veg_Shrubs",
+   "material": "Leaf_Pine_Light",
+   "tris": 635,
+   "center_rbx": [
+    -210.059,
+    25.195,
+    827.757
+   ],
+   "size_rbx": [
+    69.395,
+    2.122,
+    120.226
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -12006,7 +12048,7 @@
    "family": "Lantern_Glow",
    "tex": null,
    "swirl": null,
-   "meshes": 17
+   "meshes": 18
   },
   "Leaf_DBVegBloom": {
    "color": [
@@ -12076,7 +12118,7 @@
    "family": "Leaf_Pine_Light",
    "tex": null,
    "swirl": null,
-   "meshes": 3
+   "meshes": 5
   },
   "Metal_Brass": {
    "color": [
@@ -12342,7 +12384,7 @@
    "family": "Roof_DB_Orange",
    "tex": "roof",
    "swirl": null,
-   "meshes": 7
+   "meshes": 8
   },
   "Sand_DB": {
    "color": [
@@ -12496,7 +12538,7 @@
    "family": "Stone_DB_Block",
    "tex": "stone",
    "swirl": null,
-   "meshes": 18
+   "meshes": 19
   },
   "Stone_DB_Dusk": {
    "color": [
@@ -12510,7 +12552,7 @@
    "family": "Stone_DB_Dusk",
    "tex": "stone",
    "swirl": null,
-   "meshes": 4
+   "meshes": 3
   },
   "Stone_GateSG_Obsidian": {
    "color": [
@@ -12566,7 +12608,7 @@
    "family": "Stone_Paving_DB",
    "tex": "stone",
    "swirl": null,
-   "meshes": 12
+   "meshes": 10
   },
   "Stone_Paving_Warm": {
    "color": [
@@ -20823,6 +20865,106 @@
    "cam": false
   },
   {
+   "name": "COL_DB_ExitGuard_006",
+   "kind": "Block",
+   "pos": [
+    -555.753,
+    29.55,
+    680.955
+   ],
+   "x": [
+    0.997,
+    0.0,
+    -0.072
+   ],
+   "y": [
+    -0.072,
+    0.0,
+    -0.997
+   ],
+   "size": [
+    2.497,
+    1.0,
+    3.7
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_DB_ExitGuard_007",
+   "kind": "Block",
+   "pos": [
+    -548.731,
+    29.55,
+    678.767
+   ],
+   "x": [
+    -0.888,
+    0.0,
+    0.46
+   ],
+   "y": [
+    0.46,
+    0.0,
+    0.888
+   ],
+   "size": [
+    2.299,
+    1.0,
+    3.7
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_DB_ExitGuard_008",
+   "kind": "Block",
+   "pos": [
+    -537.933,
+    29.55,
+    652.961
+   ],
+   "x": [
+    -0.296,
+    0.0,
+    -0.955
+   ],
+   "y": [
+    -0.955,
+    0.0,
+    0.296
+   ],
+   "size": [
+    2.0,
+    1.0,
+    3.7
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_DB_ExitGuard_009",
+   "kind": "Block",
+   "pos": [
+    -541.29,
+    29.55,
+    646.473
+   ],
+   "x": [
+    0.638,
+    0.0,
+    0.77
+   ],
+   "y": [
+    0.77,
+    0.0,
+    -0.638
+   ],
+   "size": [
+    2.894,
+    1.0,
+    3.7
+   ],
+   "cam": false
+  },
+  {
    "name": "COL_DB_ExitTree_001",
    "kind": "Block",
    "pos": [
@@ -27801,9 +27943,9 @@
    "name": "COL_DB_PropDojo_003",
    "kind": "Block",
    "pos": [
-    -366.682,
+    -370.235,
     27.75,
-    633.814
+    633.804
    ],
    "x": [
     -0.707,
@@ -27826,9 +27968,9 @@
    "name": "COL_DB_PropDojo_004",
    "kind": "Block",
    "pos": [
-    -369.511,
+    -373.063,
     27.75,
-    636.643
+    636.633
    ],
    "x": [
     -0.707,
@@ -27851,9 +27993,9 @@
    "name": "COL_DB_PropDojo_005",
    "kind": "Block",
    "pos": [
-    -369.228,
+    -372.78,
     27.9,
-    632.259
+    632.249
    ],
    "x": [
     -0.707,
@@ -27876,9 +28018,9 @@
    "name": "COL_DB_PropDojo_006",
    "kind": "Block",
    "pos": [
-    -370.713,
+    -374.265,
     28.6,
-    633.743
+    633.734
    ],
    "x": [
     -0.707,
@@ -55042,7 +55184,7 @@
    "type": "POINT",
    "pos": [
     -544.685,
-    31.73,
+    31.88,
     675.818
    ],
    "color": [
@@ -55060,7 +55202,7 @@
    "type": "POINT",
    "pos": [
     -537.183,
-    31.73,
+    31.88,
     658.145
    ],
    "color": [
@@ -55638,27 +55780,27 @@
   "lines": [
    "ORCAMENTO por dono (tris / MeshParts; limite entre parenteses)",
    "  capsule           53326 (65000)    54 (88)",
-   "  entrance          28272 (38000)    37 (50)",
-   "  exit              24135 (28000)    31 (40)",
+   "  entrance          28104 (38000)    38 (50)",
+   "  exit              23619 (28000)    30 (40)",
    "  gate_sg            8640 (26000)    15 (36)",
    "  mining            33998 (38000)    38 (50)",
    "  props             19364 (26000)    31 (45)",
    "  summon            31289 (44000)    33 (56)",
    "  terrain           98548 (110000)    95 (135)",
    "  towers            33262 (38000)    49 (60)",
-   "  vegetation        36904 (40000)    34 (60)",
+   "  vegetation        36784 (40000)    36 (60)",
    "  vfx                8256 (14000)    34 (40)",
    "  village           54596 (60000)    77 (92)",
    "  water             16226 (22000)    23 (34)",
    "METAS GLOBAIS",
-   "  tris estaticos                          446816 / 480000 ",
-   "  MeshParts estaticas                        551 / 680    ",
-   "  tris total (+ reserva VFX 14000)        460816 / 494000 ",
-   "  MeshParts total (+ reserva VFX 40)         591 / 720    ",
+   "  tris estaticos                          446012 / 480000 ",
+   "  MeshParts estaticas                        553 / 680    ",
+   "  tris total (+ reserva VFX 14000)        460012 / 494000 ",
+   "  MeshParts total (+ reserva VFX 40)         593 / 720    ",
    "  materiais                                   83 / 115    ",
-   "  MeshParts com sombra                       289 / 300    ",
+   "  MeshParts com sombra                       291 / 300    ",
    "  luzes ativas de dia                         33 / 40     ",
-   "  COL                                       1517 / 1800   "
+   "  COL                                       1521 / 1800   "
   ],
   "over": []
  }

@@ -41,14 +41,14 @@ Renders finais e prancha concept × render: [renders/final/](renders/final/) (`_
 - **Revisão visual:**
   - [db_review_cam.py](db_review_cam.py) faz caminhadas em 3ª pessoa sobre as rotas, com câmera tipo Roblox;
   - [db_sheet.py](db_sheet.py) monta as pranchas concept × render.
-- **Export** ([export_db.py](export_db.py), modo estrito): `1d00de62`.
+- **Export** ([export_db.py](export_db.py), modo estrito): `94f9d473` (26/09, pontes refeitas; o primeiro foi `1d00de62`).
 
 | Item | Quantidade |
 |---|---|
 | FBX | 11 |
-| MeshParts | 551 |
-| Triângulos | 446.816 (limite 480 mil) |
-| Colisões | 1.517 |
+| MeshParts | 553 |
+| Triângulos | 446.012 (limite 480 mil) |
+| Colisões | 1.521 |
 | Marcadores | 169 |
 | Luzes de dia | 33 |
 
@@ -101,6 +101,27 @@ export/ILHA2_*_1d00de.fbx  --3D Importer-->  workspace.ILHA_DRAGONBALL
   - compra sem a área 3: **"Compre Monte Natagumo antes"** (ver pendências);
   - compra com a área 3: abre na hora (barreira some, colisão desliga, prompt "Viajar").
 - **Output limpo** em todas as sessões: nenhum erro nem aviso da ilha.
+
+## Ajustes de 26/09 (pedidos depois do teste do usuário)
+- **Ilhas sempre visíveis.** O `IslandVisibility` (cliente, [roblox/IslandVisibility.client.lua](roblox/IslandVisibility.client.lua)) agora trabalha por **vizinhança**: fica visível a área atual e toda área cuja região encosta na dela. O lobby conta como região.
+  - O `IslandTravel` deixa a atual e as vizinhas **persistentes** para o jogador (`AddPersistentPlayer`). Assim a ilha ao lado nunca some nem vira vazio na travessia a pé.
+  - Só as ilhas longe e sem ligação física (hoje, as áreas 3 a 6 antigas) continuam escondidas, para não pesar.
+  - Testado: na Ilha 1 e na Ilha 2 as duas ficam 100% visíveis (787 + 975 MeshParts). Voltando da Ilha 2 para a Ilha 1, a Ilha 1 continua visível.
+  - Backup do script antigo: `BeforeIlhaDragonBall_20260925.StarterPlayerScripts__IslandVisibility`.
+- **Portão sem teleporte.** O prompt do portão só aparece para quem ainda não comprou ("Desbloquear" abre a compra). Liberado, o prompt some e a travessia é a pé; a viagem fica no menu Viajar. Vale para o portão DB da Ilha 1 e para o Shadow Garden da Ilha 2. Também saiu o disco de viagem da ponta da Ilha 2.
+- **Ligações das pontes refeitas.**
+  - Saída: metade arenito e metade pedra escura, com uma soleira de pedra e fio violeta exatamente no pilar do meio. Parapeito com um perfil só, e juntas rentes com a trilha e com a ilhota do portão.
+  - Chegada: junta com a ponta da Ilha 1 rente (mesmo nível, parapeitos encostando, sem lanterna dobrada, sem cintilação).
+  - Reimportados 5 FBX (terreno, saída, vegetação, props, água). Desvio máximo contra o export: 0,09 stud.
+  - Play: 7/7 rotas, incluindo a volta da Ilha 2 para a Ilha 1, sem nenhuma recuperação. Output limpo.
+
+## Reimportação parcial (lição de 26/09)
+O `montar` tira algumas malhas dos grupos `ILHA2_*` e as põe em modelos atômicos na raiz (`SKYLINE`, `DB_Ent_Gate`, `DB_Exit_AnchorGuard`, …). Ao trocar só alguns FBX:
+1. Clone a fonte boa (`ServerStorage.IlhaDragonBall`) para `workspace.ILHA_DRAGONBALL`.
+2. Apague, **pelo nome** (ilha2_data.json antigo e novo), toda MeshPart dos grupos trocados, onde quer que esteja, e os grupos vazios. Renomeie o sufixo dos grupos mantidos para o id novo.
+3. Importe só os FBX trocados. Alinhe **por grupo**: o importador gira 180° cada arquivo.
+4. Rode o montar com `ALINHAR = false`. O alinhamento global dele erra com grupos misturados: estimou escala 1,638.
+5. Compare os dois `ilha2_data.json`. Um FBX que parecia igual pode ter mudado (aqui props e água mudaram por causa da vegetação).
 
 ## Pendências / decisões suas
 1. **Ordem das áreas × portão Shadow Garden.**
