@@ -52,6 +52,7 @@ EXTRA_PROBES = []
 LOT_PAD = 0.5                   # lote = quadrado de meio-lado r + 0,5 (livre para a vila)
 LOT_TOP = L.HUB - 0.04          # laje do lote RENTE ao terraco: a casa redonda da vila assenta o piso dela por cima e
                                 # os cantos do quadrado que sobram nao viram buraco (o jogador pisa na cota da colisao)
+LOT_EXT = 1.2                   # base da laje estendida por baixo do terraco em volta do lote
 HUB_PAVE_RECTS = [(-15.0, 72.0, 15.0, 133.0)]
 HUB_PAVE_DISCS = [(0.0, 112.0, 19.0)]
 HUB_STREETS = [
@@ -134,8 +135,11 @@ def terms(X, Y):
         hubx = np.minimum(hubx, TF.sd_poly(X, Y, q))
     out["hubx"] = hubx
     out["cap"] = TF.sd_poly(X, Y, DL.cap_poly())
-    out["exit"] = np.minimum(TF.sd_ribbon(X, Y, L.EXIT_PATH, L.EXIT_PATH_HW),
-                             TF.sd_ribbon(X, Y, L.HUB_EXIT_LINK, L.HUB_EXIT_LINK_HW))
+    ex = None
+    for q in DL.exit_shelf_polys():                  # os MESMOS poligonos (pontas retas) do leito do db_exit
+        d = TF.sd_poly(X, Y, q)
+        ex = d if ex is None else np.minimum(ex, d)
+    out["exit"] = ex
     wg, wh = None, None
     for k, p in db_col.water_polys():
         d = TF.sd_poly(X, Y, p)
@@ -177,12 +181,13 @@ def terms(X, Y):
 
 
 def ground_region(F):
-    """regiao do chao GROUND + (profundidade, material) da saia de cada termo que a recorta"""
-    tl = [(F["rim"], 1.4, DIRT),                       # borda: as tampas das costelas cobrem
-          (-F["prom"], 0.8, DIRT),                     # promenade (mineracao): sarjeta
-          (-F["plaza"], 0.4, DIRT),                    # praca da entrada
+    """regiao do chao GROUND + (profundidade, material) da saia de cada termo que a recorta. O chao corre POR BAIXO
+    dos vizinhos (promenade, praca, vila) em vez de parar antes deles: nada de vala aberta ate a massa de baixo"""
+    tl = [(F["rim"], 1.4, DIRT),                       # borda: as costelas do penhasco cobrem
+          (-(F["prom"] + 1.1), 0.0, DIRT),             # promenade (mineracao): o chao entra 0,6 sob a faixa de borda
+          (-(F["plaza"] + 0.6), 0.0, DIRT),            # praca da entrada: entra 0,6 sob o leito dela
           (-F["notch"], G - (L.DECK - 1.0), ROCK),     # recorte da escadaria da chegada (desce ate a ponte)
-          (-(F["hubx"] + 1.2), 0.0, DIRT),             # terraco da vila
+          (-(F["hubx"] + 1.2), 0.0, DIRT),             # terraco da vila (entra 1,2 sob o muro de arrimo)
           (-F["wg"], 0.6, BLOCK)]                      # pocos e canais
     st = np.stack([t[0] for t in tl])
     return st.max(0), st.argmax(0), [t[1] for t in tl], [t[2] for t in tl]
@@ -203,32 +208,36 @@ def _skirt_fn(R, dom, depth, mats, extra=0.0, own=None):
 
 
 # ------------------------------------------------------------------ chao do plato
+def bed(mb, F, xs, ys, z, f):
+    """leito liso de seguranca (areia) sob o piso de um nivel: qualquer junta que sobre mostra areia 0,12 abaixo, nunca
+    a massa de baixo. Faces coplanares fundidas (dissolve) = quase nenhum triangulo."""
+    TF.flat_bed(mb, xs, ys, z, f, SAND)
+
+
 def ground(rng):
     F = fields()
     xs, ys = F["xs"], F["ys"]
     R, dom, depth, mats = ground_region(F)
     P = F["paths"]
     Gd = F["gard_g"]
-    ring = TF.band(Gd, 0.0, 1.7)
+    ring = TF.band(Gd, -1.0, 1.7)                    # aro de terra dos canteiros (entra 1,0 sob a grama)
     dpatch = 0.34 - F["dn"]
     fade = np.clip((-R - 1.0) / 6.0, 0.0, 1.0) * np.clip((P - 0.6) / 2.5, 0.0, 1.0)
-    Z = G + 0.12 * F["nz"] * fade
-    grass = np.maximum.reduce([R, Gd, -P])
-    Fl = np.maximum(R, np.minimum(-Gd, P))
-    dd = np.minimum(P, ring)
-    dirt = np.maximum(Fl, dd)
-    sand = np.maximum.reduce([Fl, -dd, -dpatch])
-    sand_b = np.maximum.reduce([Fl, -dd, dpatch])
+    Z = G + np.clip(0.12 * F["nz"], -0.05, 0.17) * fade     # relevo leve; nunca desce ate o leito (G - 0,12)
     mb = MB("DB_Ter_Ground", C, rng, detail="near", floor=-999)
+    # leito com folga maior sob a promenade e a praca (2,6 / 2,0): cobre o erro da interpolacao linear onde dois
+    # termos se cruzam dentro de uma celula (canto praca x promenade), escondido sob as lajes dos vizinhos
+    bed(mb, F, xs, ys, G - 0.12, np.maximum.reduce([
+        F["rim"] + 1.0, -(F["prom"] + 2.6), -(F["plaza"] + 2.0), 0.3 - F["notch"], -(F["hubx"] + 1.2),
+        0.3 - F["wg"]]))
+    # UMA camada so: a regiao inteira, repartida em terra (trilhas + aros), areia B (manchas) e areia
     fl = TF.Surf(mb, xs, ys, Z)
-    sk = _skirt_fn(R, dom, depth, mats)
-    fl.build(sand, SAND, skirt=sk)
-    fl.build(sand_b, SAND_B, skirt=sk)
-    fl.build(dirt, DIRT, skirt=sk)
+    fl.build(R, SAND, skirt=_skirt_fn(R, dom, depth, mats),
+             splits=[(np.minimum(P, ring), DIRT), (dpatch, SAND_B)])
     gs = TF.Surf(mb, xs, ys, Z + 0.09)
-    gs.build(grass, GRASS, skirt=_skirt_fn(R, dom, depth, mats, extra=0.26, own=GRASS))
-    TF.flush(mb, fl)
-    TF.flush(mb, gs)
+    gs.build(np.maximum.reduce([R, Gd, -P]), GRASS, skirt=_skirt_fn(R, dom, depth, mats, extra=0.26, own=GRASS))
+    TF.flush(mb, fl, tag=" chao")
+    TF.flush(mb, gs, tag=" grama")
     return mb.finish(recalc=False)
 
 
@@ -345,8 +354,52 @@ def plaza_field(X, Y):
     return d
 
 
+def street_cands(pts, hw, rng, cands, curb=0.6, tile=(2.6, 3.4), joint=0.18):
+    """rua calcada na LARGURA TODA: 2-3 fiadas de lajes desencontradas (juntas de 0,18) entre dois meios-fios de
+    bloco rentes (+-hw); cobre >= 85% da faixa"""
+    P = [Vector((x, y, 0.0)) for x, y in pts]
+    segs = list(zip(P, P[1:]))
+    total = sum((b - a).length for a, b in segs)
+
+    def at(s):
+        for a, b in segs:
+            ln = (b - a).length
+            if s <= ln + 1e-9:
+                return a + (b - a) * (s / ln), (b - a).normalized()
+            s -= ln
+        a, b = segs[-1]
+        return b.copy(), (b - a).normalized()
+    field = 2.0 * hw - 2.0 * curb
+    rows = 3 if hw >= 3.6 else 2
+    wr = field / rows
+    for r in range(rows):
+        u = -field / 2 + wr * (r + 0.5)
+        s = -rng.uniform(0.0, 1.0) - (tile[0] * 0.5 if r % 2 else 0.0)
+        while s < total + 0.5:
+            Ls = rng.uniform(*tile)
+            sm = s + Ls * 0.5
+            cl = min(max(sm, 0.0), total)
+            p, t = at(cl)
+            p = p + t * (sm - cl)
+            nrm = Vector((-t.y, t.x, 0.0))
+            c = p + nrm * u
+            cands.append(("stone", c, math.atan2(t.y, t.x) + rng.uniform(-0.015, 0.015), Ls - joint, wr - joint, t,
+                          nrm))
+            s += Ls
+    for sg in (-1, 1):
+        s = 0.0
+        while s < total - 0.3:
+            Ls = min(3.4, total - s)
+            p, t = at(s + Ls * 0.5)
+            nrm = Vector((-t.y, t.x, 0.0))
+            c = p + nrm * (sg * (hw - curb / 2))
+            cands.append(("curb", c, math.atan2(t.y, t.x), Ls - 0.08, curb - 0.08, t, nrm))
+            s += Ls
+
+
 def hub_paving(rng):
-    """calcada da vila: lajes grandes em fiadas na praca e ao longo das ruas, sobre o leito de rejunte do HubTop"""
+    """calcada da vila: lajes grandes em fiadas na praca e ruas calcadas na largura toda (meio-fio rente), sobre o
+    rejunte (Stone_DB_Block_B) do HubTop"""
     mb = MB("DB_Ter_HubPaving", C, rng, detail="near", floor=-999)
     grid = []
     x0, y0, x1, y1 = HUB_PAVE_RECTS[0]
@@ -354,28 +407,33 @@ def hub_paving(rng):
 
     def t_grid(X, Y):
         T = terms(X, Y)
-        return (hub_region(T)[0] < -0.12) & (plaza_field(X, Y) < -0.12)
+        return (hub_region(T)[0] < -0.05) & (plaza_field(X, Y) < 0.02)
     n = lay(mb, grid, cand_ok(grid, t_grid), HB + 0.14, rng)
-    street = []
+    done = []
     for pts, hw in HUB_STREETS:
-        ribbon_cands(pts, hw * 2.0, 0.0, rng, street, tile=(2.6, 3.4))
+        street = []
+        street_cands(pts, hw, rng, street)
 
-    def t_street(X, Y):
-        T = terms(X, Y)
-        return (hub_region(T)[0] < -0.12) & (T["pave_h"] < -0.12) & (plaza_field(X, Y) > 0.12)
-    n += lay(mb, street, cand_ok(street, t_street), HB + 0.14, rng)
+        def t_street(X, Y, done=tuple(done)):
+            T = terms(X, Y)
+            ok = (hub_region(T)[0] < -0.05) & (T["pave_h"] < 0.06) & (plaza_field(X, Y) > 0.1)
+            for q, qw in done:                        # rua que nasce noutra: nao sobrepoe as lajes dela
+                ok &= TF.sd_ribbon(X, Y, q, qw) > 0.06
+            return ok
+        n += lay(mb, street, cand_ok(street, t_street), HB + 0.14, rng, curb_up=0.0)
+        done.append((pts, hw))
     mb.finish()
     return n
 
 
 # ------------------------------------------------------------------ terraco da vila (topo em HUB)
 def hub_region(F):
-    tl = [(F["rim"], 0.0, DIRT),                       # borda norte: as costelas cobrem
+    tl = [(F["rim"], 1.0, DIRT),                       # borda norte: saia de 1,0 (o topo das costelas desce ate -0,9)
           (F["hubx"], 0.6, BLOCK),                     # contorno (muro de arrimo + coroamento cobrem)
           (-(F["cap"] + 1.0), 0.0, DIRT),              # terraco do Capsule (o topo entra 1,0 por baixo)
-          (-F["exit"], 0.35, BLOCK),                   # ligacao com a prateleira da saida (mesmo nivel)
+          (-(F["exit"] + 0.6), 0.0, BLOCK),            # prateleira da saida (mesmo nivel): entra 0,6 sobre o leito dela
           (-F["wh"], 0.6, BLOCK),                      # poco NW
-          (-F["lots"], 0.0, BLOCK)]                    # lotes da vila (laje propria rente, sem degrau)
+          (-F["lots"], 0.4, BLOCK)]                    # lotes da vila (laje propria rente, estendida por baixo)
     st = np.stack([t[0] for t in tl])
     return st.max(0), st.argmax(0), [t[1] for t in tl], [t[2] for t in tl]
 
@@ -389,26 +447,26 @@ def hub_top(rng):
     gr = np.minimum.reduce([TF.band(lots, 0.0, 3.0), F["gard_h"], TF.band(F["hub"], -2.8, 0.0),
                             TF.band(F["cap"], 0.0, 2.6), np.maximum(0.12 - F["gn"], 150.0 - Y)])
     fade = np.clip((-R - 1.0) / 5.0, 0.0, 1.0) * np.clip((P - 0.5) / 2.5, 0.0, 1.0)
-    Z = HB + 0.08 * F["nz"] * fade
-    pave = np.maximum(R, P)
-    Fl = np.maximum(R, -P)
-    grass = np.maximum(Fl, gr)
-    sand = np.maximum(Fl, -gr)
+    Z = HB + np.clip(0.08 * F["nz"], -0.05, 0.12) * fade
+    grass = np.maximum.reduce([R, -P, gr])
     mb = MB("DB_Ter_HubTop", C, rng, detail="near", floor=-999)
+    bed(mb, F, xs, ys, HB - 0.12, np.maximum.reduce([
+        F["rim"] + 1.0, F["hubx"] + 0.4, -(F["cap"] + 1.0), 0.3 - F["exit"], 0.3 - F["wh"]]))
+    # UMA camada: areia com o rejunte da calcada (0,3 alem das ruas/praca: as lajes sempre assentam nele)
     fl = TF.Surf(mb, xs, ys, Z)
-    sk = _skirt_fn(R, dom, depth, mats)
-    fl.build(pave, BLOCK_B, skirt=sk)
-    fl.build(sand, SAND, skirt=sk)
+    fl.build(R, SAND, skirt=_skirt_fn(R, dom, depth, mats), splits=[(P - 0.3, BLOCK_B)])
     gs = TF.Surf(mb, xs, ys, Z + 0.09)
     gs.build(grass, GRASS, skirt=_skirt_fn(R, dom, depth, mats, extra=0.26, own=GRASS))
-    TF.flush(mb, fl)
-    TF.flush(mb, gs)
+    TF.flush(mb, fl, tag=" vila")
+    TF.flush(mb, gs, tag=" grama")
     # fundo liso sob o terraco do Capsule (fica dentro do volume dele; so tapa o vao se ele for vazado)
     cp = DL.cap_poly()
     mb.prism(cp, HB - 0.9, HB - 0.3, SAND, 0.0)
-    # lajes dos lotes, rentes ao terraco (a vila assenta os predios por cima; canto descoberto = calcada, sem buraco)
+    # lajes dos lotes, rentes ao terraco (a vila assenta os predios por cima; canto descoberto = calcada) + base
+    # estendida LOT_EXT por baixo do terraco: a junta do contorno do lote nunca abre ate a massa de baixo
     for x0, y0, x1, y1 in lot_rects():
         mb.box2((x0 + 0.02, y0 + 0.02, LOT_TOP - 0.5), (x1 - 0.02, y1 - 0.02, LOT_TOP), PAVE_B, 0.0)
+        mb.box2((x0 - LOT_EXT, y0 - LOT_EXT, HB - 0.6), (x1 + LOT_EXT, y1 + LOT_EXT, HB - 0.16), PAVE_B, 0.0)
     return mb.finish(recalc=False)
 
 
@@ -583,16 +641,45 @@ def hub_walls(rng):
                     mb.box((0.5, 0.5, 0.95), (q.x, q.y, HB + 0.6 + 0.475), (0, 0, ang), WHITE, 0.0)
                 mi += 1
             acc += ln
-    # escadas da vila (visual, mesmas medidas da colisao) + pilaretes Capsule no topo
+    # escadas da vila (visual, mesmas medidas da colisao): degraus sem banzo em blocos + GUARDA LATERAL INCLINADA na
+    # linha da guarda invisivel (y = +-(w/2 + 0,6), 1,2 de espessura): corpo de arenito com o topo 1,0 acima da linha
+    # dos bocais, capa branca (0,35) e faixa azul por baixo dela, como o guarda-corpo do terraco; termina nos pilares
+    # Capsule do pe e do topo (pilares de arremate, nao soltos)
     for nm, base, ang, w, n, rise, tread, g in hub_stairs():
-        DL.vis_stairs(mb, base, ang, w, n, rise, tread, PAVE, BLOCK)
+        DL.vis_stairs(mb, base, ang, w, n, rise, tread, PAVE, BLOCK, stringers=False)
         F = Frame(base[0], base[1], base[2], ang)
+        run = tread * n
+        k = rise / tread
+
+        def zl(x):
+            return rise + x * k + 1.0
+        xa, xb = -0.3, run + 0.15
         for sg in (-1, 1):
-            for xx, hz in ((tread * n - 0.6, rise * n), (0.6, rise)):
-                p = F.p(xx, sg * (w / 2 + 0.6), hz + 1.2)
-                mb.cyl(0.62, 1.7, (p.x, p.y, p.z + 0.85), m=WHITE, n=10, bevel=0.0)
-                mb.cyl(0.78, 0.36, (p.x, p.y, p.z + 1.88), m=BLUE, n=10, bevel=0.0)
+            yi, yo = sg * (w / 2 - 0.02), sg * (w / 2 + 1.2)
+            _slant(mb, F, xa, xb, yi, yo, -0.6, zl(xa) - 0.35, -0.6, zl(xb) - 0.35, BLOCK)
+            _slant(mb, F, xa + 0.05, xb, yi - sg * 0.03, yo + sg * 0.1, zl(xa) - 0.72, zl(xa) - 0.35,
+                   zl(xb) - 0.72, zl(xb) - 0.35, BLUE)
+            _slant(mb, F, xa - 0.1, xb, yi - sg * 0.12, yo + sg * 0.16, zl(xa - 0.1) - 0.35, zl(xa - 0.1),
+                   zl(xb) - 0.35, zl(xb), WHITE)
+            for xx in (0.2, run - 0.4):
+                zt = zl(xx) + 0.8
+                p = F.p(xx, sg * (w / 2 + 0.6), 0.0)
+                mb.cyl(0.74, zt + 0.6, (p.x, p.y, base[2] - 0.6 + (zt + 0.6) / 2), m=WHITE, n=10, bevel=0.0)
+                mb.cyl(0.9, 0.36, (p.x, p.y, base[2] + zt + 0.18), m=BLUE, n=10, bevel=0.0)
     return mb.finish()
+
+
+def _slant(mb, F, xa, xb, ya, yb, za0, za1, zb0, zb1, m):
+    """bloco inclinado no quadro F: de x = xa (base za0, topo za1) ate x = xb (base zb0, topo zb1), y de ya a yb"""
+    y0, y1 = min(ya, yb), max(ya, yb)
+    v = []
+    for x, z0, z1 in ((xa, za0, za1), (xb, zb0, zb1)):
+        for y in (y0, y1):
+            for z in (z0, z1):
+                v.append(mb.bm.verts.new(F.p(x, y, z)))
+    for q in ((0, 2, 3, 1), (4, 5, 7, 6), (0, 1, 5, 4), (2, 6, 7, 3), (1, 3, 7, 5), (0, 4, 6, 2)):
+        mb.bm.faces.new([v[i] for i in q])
+    mb._post(v, m, None, 0, 1)
 
 
 # ------------------------------------------------------------------ build

@@ -1,10 +1,11 @@
 # db_towers - ZONA TOWERS da Ilha 2 (Dragon Ball): a silhueta tech da ilha (prefixo DB_Twr_, colecao 05_TECH_VILLAGE).
 # Planta: db_layout (TOWER_SITES, SAT_BRIDGES, GROUND_LOTS "landing_pad", CAPSULE_ANNEX). Tres torres DIFERENTES:
-#   comm    (-104,150) HUB: mastro de comunicacao (topo ~52): pe alargado, casulo de acoplamento da passarela (z CAP+10),
-#           pratos parabolicos, 3 discos azuis empilhados, plataforma de servico, RADAR GIRANDO (VFX_DBTWR_Radar) e 2
-#           antenas com farol vermelho no topo.
-#   lookout (100,140)  HUB: mirante com topo "disco voador" (~41): tambor de base com escotilhas, fuste com colar de
-#           acoplamento, disco menor, disco envidracado (faixa de vidro com montantes brancos + fundo opaco) e cupula azul.
+#   comm    (-104,150) HUB: mastro de comunicacao (topo ~67 = ~95 abs., passa da cupula): pe alargado, casulo de
+#           acoplamento da passarela (z CAP+10), pratos parabolicos, 3 discos azuis empilhados e espacados,
+#           plataforma de servico, RADAR GIRANDO (VFX_DBTWR_Radar) e 2 antenas com farol vermelho no topo.
+#   lookout (100,140)  HUB: mirante com topo "disco voador" (~61; disco em ~CAP+55, acima da cupula): tambor de base com
+#           escotilhas, fuste com colar de acoplamento, fuste alongado com colar, disco menor, disco envidracado
+#           (faixa de vidro com montantes brancos + fundo opaco) e cupula azul.
 #   energy  (74,118)   HUB: estacao de energia (~30): base octogonal, tambor com frisos ciano, 3 bobinas Tesla de cobre,
 #           coluna escura, taca branca, ORBE ciano que flutua (VFX_DBTWR_EnergyOrb, bob) dentro de ANEL que gira
 #           (VFX_DBTWR_EnergyRing, rpm) e gaiola de 3 arcos brancos.
@@ -14,12 +15,13 @@
 #   satelites pad_sw / pad_se: plataforma redonda andavel (calcamento em aneis, medalhao, coroamento branco/azul) sobre
 #           pilar de rocha pendurado em estratos (mesma costela do terreno), ponte curta com vigas brancas e escoras
 #           ASSENTADAS na rocha (>= 2,0 do eixo dentro dela, sapata azul-marinho), guarda-corpo Capsule nas linhas das
-#           guardas do db_col, pilones com lampiao nas cabeceiras, farol na ponta de fora, banco e luneta. Cabeceira do
+#           guardas do db_col, pilones com lampiao nas cabeceiras, TORRE-DISCO esbelta na borda de fora (topo ~G+45,
+#           o lobulo com torre da vista superior da concept), banco e luneta. Cabeceira do
 #           lado da ilha: soleira branca (topo G+0,28, colisao propria) sobre a ponta do caminho do terreno que avanca
 #           na ponte, e encontros brancos (topo G+0,1) que tapam o corte da crista ao lado da ponte.
 #   heliponto Capsule (landing_pad, GROUND): laje azul-ardosia com borda branca, marcacoes (aneis + chevrons, sem texto),
 #           luzes de pouso, 2 postes de holofote e uma aeronave-capsula estacionada (casco arredondado, canopi de vidro,
-#           asas curtas com motores, deriva azul + estabilizadores, trem de pouso). Colisao em caixa.
+#           asas curtas com motores, deriva azul + estabilizadores, trem de pouso). Colisao justa ao casco e asas.
 # Colisao: so dos volumes proprios (DB_Twr*). Piso, pontes e guardas dos satelites sao do db_col (congelado).
 # Dependencias de modulos de OUTRAS zonas (so leitura; se a assinatura mudar, as torres quebram):
 #   db_capsule_kit (K): CMB, lathe, ring, torus, porthole, sphere, cyl_axis, extrude_uz, rot_to, _smooth;
@@ -61,12 +63,16 @@ SITES = {k: (x, y, r) for x, y, r, k, w in L.TOWER_SITES}
 TUBE_R = 2.4                    # raio do tubo de vidro (<= 2,6; o colar r 3,7 e do Capsule)
 TUBE_Z = CAP + 10.0             # eixo das portas redondas dos anexos (44,2)
 DOCK_R = {"comm": 4.6, "lookout": 3.7}     # raio do casulo/colar da torre na cota do tubo
+LK_RISE = 20.0                  # fuste acrescentado no mirante (acima do colar da passarela): disco em ~CAP+55
+CM_RISE = (4.0, 8.0, 12.0, 14.0)   # alongamento do mastro: 1o, 2o, 3o disco e plataforma de servico (topo ~95)
 PILLAR_T = {"comm": (0.46, 0.76), "lookout": (0.52, 0.8)}   # posicao dos pilares ao longo do tubo (porta -> torre)
 HEAD_PLATE = (-0.6, 5.6)        # soleira da cabeceira (ao longo da ponte a partir de a0): cobre o caminho do terreno
 HEAD_TOP = 0.28                 # topo da soleira acima de G (meio-fio do caminho em G+0,23; colisao propria nessa cota)
 WING_IN, WING_OUT = 3.2, 7.2    # lateral de dentro (minima) e de fora dos encontros da cabeceira
 STRUT_BURY = 2.2                # quanto do eixo de cada escora entra na rocha da plataforma
 STRUTS = {}                     # (pe, topo) de cada escora, por satelite (auditoria)
+SAT_TWR_D = 8.0                 # torre-disco do satelite: centro a 8,0 do centro do deck (ocupa a borda de fora)
+SAT_TWR_R = 2.6                 # raio do pedestal octogonal (= octo_col); fuste r 1,8; disco r 6,1; topo ~G+45
 LANDING = [(x, y, r) for x, y, r, k in L.GROUND_LOTS if k == "landing_pad"][0]
 PAD_HDG = math.atan2(54.0 - LANDING[1], -128.0 - LANDING[0])   # nariz da aeronave: para o fim da trilha do heliponto
 
@@ -102,12 +108,12 @@ def rot2(v, ang):
 
 
 def sat_props(kind):
-    """posicoes do farol, do banco e da luneta no deck (angulo polar a partir do eixo de fora)"""
+    """posicoes da torre-disco, do banco e da luneta no deck (angulo polar a partir do eixo de fora)"""
     (x, y, r), a0, a1, u = sat_frame(kind)
     sgn = 1.0 if kind == "pad_sw" else -1.0
     db = rot2(u, sgn * 100.0 * D2R)
     dt = rot2(u, -sgn * 96.0 * D2R)
-    return {"beacon": (x + u[0] * 6.3, y + u[1] * 6.3, u),
+    return {"tower": (x + u[0] * SAT_TWR_D, y + u[1] * SAT_TWR_D, u),
             "bench": (x + db[0] * 6.9, y + db[1] * 6.9, db),
             "scope": (x + dt[0] * 7.1, y + dt[1] * 7.1, dt)}
 
@@ -115,23 +121,23 @@ def sat_props(kind):
 # ------------------------------------------------------------------ cameras de revisao (360 + altura do jogador)
 CAMS = {
     "CAM_DBTwr_Comm": ((-60.0, 108.0, HB + 34.0), (-100.0, 152.0, HB + 24.0), 22),
-    "CAM_DBTwr_CommBack": ((-176.0, 232.0, 96.0), (-100.0, 152.0, 58.0), 24),
+    "CAM_DBTwr_CommBack": ((-182.0, 238.0, 100.0), (-104.0, 150.0, 64.0), 24),
     "CAM_DBTwr_CommWest": ((-118.0, 136.0, HB + 5.2), (-104.0, 150.0, 48.0), 20),
     "CAM_DBTwr_Lookout": ((90.0, 104.0, HB + 12.0), (100.0, 140.0, HB + 24.0), 22),
-    "CAM_DBTwr_LookoutBackNE": ((124.0, 162.0, 58.0), (100.0, 140.0, 60.0), 22),
+    "CAM_DBTwr_LookoutBackNE": ((128.0, 166.0, 74.0), (100.0, 140.0, 78.0), 22),
     "CAM_DBTwr_Energy": ((95.0, 101.0, HB + 8.0), (73.0, 119.0, HB + 14.0), 20),
     "CAM_DBTwr_Skywalks": ((0.0, 70.0, 98.0), (0.0, 158.0, 46.0), 18),
     "CAM_DBTwr_PlayerHub": ((-83.0, 172.0, HB + 5.2), (-104.0, 150.0, HB + 16.0), 22),
     "CAM_DBTwr_PlayerLookout": ((118.0, 117.0, HB + 5.2), (100.0, 140.0, HB + 21.0), 20),
     "CAM_DBTwr_PortW": ((-36.0, 150.0, CAP + 14.0), (-66.0, 170.0, CAP + 9.0), 22),
     "CAM_DBTwr_SatSW_Player": ((-111.0, -68.0, G + 5.2), (-148.0, -98.0, G + 5.0), 22),
-    "CAM_DBTwr_SatSW_Deck": ((-139.5, -89.5, G + 5.2), (-158.0, -104.0, G + 3.0), 22),
-    "CAM_DBTwr_SatSW_Out": ((-212.0, -140.0, G + 8.0), (-146.0, -97.0, G - 10.0), 24),
+    "CAM_DBTwr_SatSW_Deck": ((-144.5, -94.5, G + 5.2), (-153.7, -103.7, G + 30.0), 18),
+    "CAM_DBTwr_SatSW_Out": ((-222.0, -146.0, G + 14.0), (-148.0, -98.0, G + 10.0), 24),
     "CAM_DBTwr_SatSE_Player": ((104.0, -49.0, G + 5.2), (140.0, -76.0, G + 5.0), 22),
-    "CAM_DBTwr_SatSE_Out": ((208.0, -126.0, G + 10.0), (138.0, -74.0, G - 10.0), 24),
+    "CAM_DBTwr_SatSE_Out": ((216.0, -132.0, G + 14.0), (140.0, -76.0, G + 10.0), 24),
     "CAM_DBTwr_SatSE_Under": ((153.0, -45.0, G - 9.0), (125.0, -65.0, G - 3.0), 22),
     "CAM_DBTwr_SatSE_Bench": ((143.5, -70.5, G + 5.2), (134.5, -81.5, G + 1.2), 22),
-    "CAM_DBTwr_LookoutFull": ((50.0, 150.0, CAP + 8.0), (100.0, 140.0, HB + 21.0), 22),
+    "CAM_DBTwr_LookoutFull": ((36.0, 124.0, CAP + 18.0), (100.0, 140.0, HB + 32.0), 18),
     "CAM_DBTwr_Pad": ((-106.0, 34.0, G + 16.0), (-140.0, 58.0, G + 3.0), 22),
     "CAM_DBTwr_PadPlayer": ((-123.0, 48.0, G + 5.2), (-140.0, 59.0, G + 3.5), 22),
     "CAM_DBTwr_PadSide": ((-133.0, 34.0, G + 6.0), (-140.0, 58.0, G + 3.0), 22),
@@ -170,14 +176,17 @@ EXTRA_ROUTES = {
 
 
 def _probes():
-    """props solidos: o nariz da aeronave (vindo da trilha) e o farol de cada satelite (vindo do centro do deck)"""
+    """props solidos: o nariz da aeronave (vindo da trilha) e a torre-disco de cada satelite (vindo do centro do
+    deck: a face de dentro do pedestal fica a SAT_TWR_D - SAT_TWR_R do centro)"""
     out = []
     x, y, r = LANDING
     hx, hy = math.cos(PAD_HDG), math.sin(PAD_HDG)
-    out.append(("TWR_AERONAVE_nariz", x + hx * 13.0, y + hy * 13.0, G, -hx, -hy, 8.0))
+    # o raio da sonda sai a z + 2,0: com z = G + 1,0 ele passa na cintura do nariz (a colisao comeca em ~2,0 acima
+    #   do piso; o trem de pouso e o vao sob a barriga ficam livres)
+    out.append(("TWR_AERONAVE_nariz", x + hx * 13.0, y + hy * 13.0, G + 1.0, -hx, -hy, 8.0))
     for kind in ("pad_sw", "pad_se"):
         (sx, sy, sr), a0, a1, u = sat_frame(kind)
-        out.append(("TWR_FAROL_%s" % kind, sx, sy, G, u[0], u[1], 5.5))
+        out.append(("TWR_TORRE_%s" % kind, sx, sy, G, u[0], u[1], SAT_TWR_D - SAT_TWR_R + 1.0))
     return out
 
 
@@ -429,25 +438,27 @@ def comm_tower(port):
     mb = K.CMB("DB_Twr_Comm", COLL, detail="near")
     plinth(mb, c, 6.2, z)
     Z = lambda h: z + h
+    Z1, Z2, Z3, Z4 = [(lambda h, d=d: z + h + d) for d in CM_RISE]
     pts = [
         (0.3, Z(1.0), NAVY), (4.2, Z(1.0), NAVY), (4.2, Z(2.0), WHITE), (3.9, Z(2.0), WHITE), (3.3, Z(3.4), WHITE, 1),
         (2.8, Z(5.2), WHITE, 1), (2.45, Z(7.4), WHITE), (2.3, Z(11.0), WHITE), (3.4, Z(11.6), WHITE, 1),
         (4.3, Z(12.6), NAVY), (4.6, Z(13.4), WHITE), (4.6, Z(18.6), NAVY), (4.3, Z(19.4), WHITE, 1),
         (3.2, Z(20.4), WHITE, 1), (2.1, Z(21.0), WHITE),
-        # 3 discos azuis empilhados (os "aneis" da concept)
-        (2.1, Z(26.4), WHITE), (5.4, Z(26.9), NAVY), (5.4, Z(27.35), BLUE), (5.0, Z(27.7), BLUE), (2.0, Z(28.2), WHITE),
-        (2.0, Z(30.3), WHITE), (4.8, Z(30.75), NAVY), (4.8, Z(31.15), BLUE), (4.4, Z(31.45), BLUE),
-        (1.9, Z(31.9), WHITE),
-        (1.9, Z(34.1), WHITE), (4.2, Z(34.5), NAVY), (4.2, Z(34.85), BLUE), (3.8, Z(35.15), BLUE),
-        (1.8, Z(35.6), WHITE),
+        # 3 discos azuis empilhados (os "aneis" da concept), afastados (CM_RISE): o mastro passa da cupula
+        (2.1, Z1(26.4), WHITE), (5.4, Z1(26.9), NAVY), (5.4, Z1(27.35), BLUE), (5.0, Z1(27.7), BLUE),
+        (2.0, Z1(28.2), WHITE),
+        (2.0, Z2(30.3), WHITE), (4.8, Z2(30.75), NAVY), (4.8, Z2(31.15), BLUE), (4.4, Z2(31.45), BLUE),
+        (1.9, Z2(31.9), WHITE),
+        (1.9, Z3(34.1), WHITE), (4.2, Z3(34.5), NAVY), (4.2, Z3(34.85), BLUE), (3.8, Z3(35.15), BLUE),
+        (1.8, Z3(35.6), WHITE),
         # plataforma de servico
-        (1.8, Z(39.6), WHITE), (5.3, Z(40.3), NAVY), (5.3, Z(41.0), WHITE), (1.7, Z(41.0), WHITE),
-        (1.6, Z(43.4), NAVY), (2.3, Z(43.5), NAVY), (2.3, Z(44.0), WHITE), (0.3, Z(44.0), WHITE),
+        (1.8, Z4(39.6), WHITE), (5.3, Z4(40.3), NAVY), (5.3, Z4(41.0), WHITE), (1.7, Z4(41.0), WHITE),
+        (1.6, Z4(43.4), NAVY), (2.3, Z4(43.5), NAVY), (2.3, Z4(44.0), WHITE), (0.3, Z4(44.0), WHITE),
     ]
     lathe_pts(mb, c, pts, 20)
     # mureta da plataforma de servico
-    K.ring(mb, c, 4.85, 5.15, Z(41.0), Z(42.0), WHITE, 32)
-    K.ring(mb, c, 4.8, 5.2, Z(42.0), Z(42.25), BLUE, 32)
+    K.ring(mb, c, 4.85, 5.15, Z4(41.0), Z4(42.0), WHITE, 32)
+    K.ring(mb, c, 4.8, 5.2, Z4(42.0), Z4(42.25), BLUE, 32)
     # faixa de janelas do casulo: cinta azul-marinho saliente com 16 escotilhas pequenas de aro BRANCO (fileira de
     #   janelas vista de qualquer lado). Antes: 8 escotilhas grandes de aro escuro no casulo branco - do oeste, 2
     #   delas sobre a faixa de baixo liam como um rosto (olhos + boca). Interrompida no colar do tubo (r 3,1 = +-42 gr).
@@ -468,13 +479,13 @@ def comm_tower(port):
         dish(mb, pc, dvec, R, R * 0.32, 0.25, WHITE, n=16, k=3)
         mb.rod(pc, pc + dvec * (R * 0.95), 0.12, STEEL, 6)
         mb.box((0.45, 0.45, 0.45), tuple(pc + dvec * (R * 0.95)), (0, 0, a), NAVY, 0.0)
-    # antenas com farol vermelho (a mais alta e o topo da torre, ~52 acima do piso)
+    # antenas com farol vermelho (a mais alta e o topo da torre, ~66 acima do piso = ~95 absoluto)
     tops = []
     for hd, h1 in ((104.0, 52.2), (284.0, 48.6)):
         a = hd * D2R
-        p0 = Vector((x + math.cos(a) * 4.4, y + math.sin(a) * 4.4, Z(41.0)))
-        p1 = Vector((p0.x, p0.y, Z(h1)))
-        mb.cyl(0.5, 0.8, (p0.x, p0.y, Z(41.4)), m=NAVY, n=8, bevel=0.0)
+        p0 = Vector((x + math.cos(a) * 4.4, y + math.sin(a) * 4.4, Z4(41.0)))
+        p1 = Vector((p0.x, p0.y, Z4(h1)))
+        mb.cyl(0.5, 0.8, (p0.x, p0.y, Z4(41.4)), m=NAVY, n=8, bevel=0.0)
         mb.rod(p0, p1, 0.2, STEEL, 6)
         for f in (0.45, 0.75):
             q = p0 + (p1 - p0) * f
@@ -485,7 +496,7 @@ def comm_tower(port):
     mb.finish()
     # radar giratorio no topo do mastro (peca movel)
     rv = K.CMB("VFX_DBTWR_Radar", VFXC, detail="near")
-    zt = Z(44.0)
+    zt = Z4(44.0)
     rv.cyl(1.35, 0.7, (x, y, zt + 0.35), m=STEEL, n=16, bevel=0.0)
     rv.cyl(0.55, 1.9, (x, y, zt + 1.6), m=WHITE, n=10, bevel=0.0)
     hd = 25.0 * D2R
@@ -515,47 +526,54 @@ def lookout_tower(port):
     z = L.zone_of(x, y)
     c = (x, y)
     Z = lambda h: z + h
+    U = lambda h: z + h + LK_RISE             # cota de tudo o que fica ACIMA do trecho de fuste acrescentado
     mb = K.CMB("DB_Twr_Lookout", COLL, detail="near")
     plinth(mb, c, 6.4, z)
     dome_pts = []
-    a, b, zc = 8.6, 3.8, Z(36.9)
+    a, b, zc = 8.6, 3.8, U(36.9)
     for i, ph in enumerate((0.0, 16.0, 32.0, 48.0, 62.0, 76.0)):
         dome_pts.append((a * math.cos(ph * D2R), zc + b * math.sin(ph * D2R), BLUE, 1))
+    zm = Z(19.4) + LK_RISE * 0.52              # colar intermediario do fuste alongado (quebra a coluna comprida)
     pts = [
         (0.3, Z(1.0), NAVY), (4.3, Z(1.0), NAVY), (4.3, Z(1.8), WHITE), (4.3, Z(5.6), BLUE), (4.6, Z(5.9), BLUE),
         (4.6, Z(6.4), WHITE), (2.7, Z(7.4), WHITE), (2.6, Z(12.6), NAVY), (3.7, Z(13.0), WHITE), (3.7, Z(19.0), NAVY),
         (2.5, Z(19.4), WHITE),
-        (2.45, Z(23.6), WHITE), (4.6, Z(24.0), NAVY), (4.6, Z(24.5), BLUE), (4.2, Z(24.8), BLUE),
-        (2.4, Z(25.2), WHITE),
+        # fuste alongado (+LK_RISE): o disco sobe acima da cupula do Capsule (skyline da concept)
+        (2.5, zm - 0.9, NAVY), (3.25, zm - 0.5, NAVY), (3.25, zm + 0.1, BLUE), (3.0, zm + 0.4, BLUE),
+        (2.48, zm + 0.7, WHITE),
+        (2.45, U(23.6), WHITE), (4.6, U(24.0), NAVY), (4.6, U(24.5), BLUE), (4.2, U(24.8), BLUE),
+        (2.4, U(25.2), WHITE),
         # disco voador: bojo de baixo branco, faixa azul-marinho, vidro, beiral branco, cupula azul
-        (2.4, Z(29.6), WHITE, 1), (4.6, Z(30.6), WHITE, 1), (6.9, Z(31.6), WHITE, 1), (8.7, Z(32.4), NAVY),
-        (9.3, Z(32.9), NAVY), (9.3, Z(33.4), GLASS), (9.6, Z(35.9), WHITE), (10.1, Z(36.2), WHITE),
-        (10.1, Z(36.8), WHITE),
-    ] + dome_pts + [(1.6, Z(40.7), WHITE), (1.6, Z(41.2), WHITE), (0.3, Z(41.2), WHITE)]
+        (2.4, U(29.6), WHITE, 1), (4.6, U(30.6), WHITE, 1), (6.9, U(31.6), WHITE, 1), (8.7, U(32.4), NAVY),
+        (9.3, U(32.9), NAVY), (9.3, U(33.4), GLASS), (9.6, U(35.9), WHITE), (10.1, U(36.2), WHITE),
+        (10.1, U(36.8), WHITE),
+    ] + dome_pts + [(1.6, U(40.7), WHITE), (1.6, U(41.2), WHITE), (0.3, U(41.2), WHITE)]
     lathe_pts(mb, c, pts, 28)
     # fundo opaco atras do vidro + montantes brancos
-    K.ring(mb, c, 8.5, 8.9, Z(33.2), Z(36.2), NAVY, 32)
+    K.ring(mb, c, 8.5, 8.9, U(33.2), U(36.2), NAVY, 32)
     for i in range(20):
         t = (9.0 + 18.0 * i) * D2R
-        mb.box((0.34, 0.32, 2.7), (x + 9.5 * math.cos(t), y + 9.5 * math.sin(t), Z(34.65)), (0, 0.12, t), WHITE, 0.0)
+        mb.box((0.34, 0.32, 2.7), (x + 9.5 * math.cos(t), y + 9.5 * math.sin(t), U(34.65)), (0, 0.12, t), WHITE, 0.0)
     # escotilhas do tambor de base (sem porta: nao entravel)
     for i in range(8):
         K.porthole(mb, x, y, 4.3, 22.5 + 45.0 * i, Z(3.9), rr=0.9, frame_m=NAVY, glass_m=GLASS, n=10)
     # antena curta com ponta ciano
-    mb.rod((x, y, Z(41.2)), (x, y, Z(44.2)), 0.16, STEEL, 6)
-    K.sphere(mb, (x, y, Z(44.5)), 0.42, CYAN, sub=2)
+    mb.rod((x, y, U(41.2)), (x, y, U(44.2)), 0.16, STEEL, 6)
+    K.sphere(mb, (x, y, U(44.5)), 0.42, CYAN, sub=2)
     # friso de luz ciano sob o disco (le de baixo) + nervuras radiais azul-marinho no bojo
-    K.ring(mb, c, 8.9, 9.05, Z(32.25), Z(32.6), CYAN, 40)
+    K.ring(mb, c, 8.9, 9.05, U(32.25), U(32.6), CYAN, 40)
     for i in range(12):
         t = (15.0 + 30.0 * i) * D2R
         ct, st = math.cos(t), math.sin(t)
-        a = Vector((x + 3.2 * ct, y + 3.2 * st, Z(29.96) - 0.1))
-        b = Vector((x + 8.3 * ct, y + 8.3 * st, Z(32.2) - 0.1))
+        a = Vector((x + 3.2 * ct, y + 3.2 * st, U(29.96) - 0.1))
+        b = Vector((x + 8.3 * ct, y + 8.3 * st, U(32.2) - 0.1))
         mb.beam(a, b, 0.42, 0.36, NAVY, 0.0)
-    # poco do elevador envidracado no fuste (virado para a vila), com moldura azul-marinho atras do vidro
+    # poco do elevador envidracado no fuste (virado para a vila), com moldura azul-marinho atras do vidro;
+    #   interrompido no colar intermediario e nos discos
     t = math.atan2(100.0 - y, 0.0 - x)
     ct, st = math.cos(t), math.sin(t)
-    for za, zb in ((7.7, 12.4), (19.6, 23.4), (25.4, 29.4)):
+    zm0, zm1 = zm - 0.9 - z, zm + 0.7 - z
+    for za, zb in ((7.7, 12.4), (19.6, zm0 - 0.2), (zm1 + 0.2, 23.4 + LK_RISE), (25.4 + LK_RISE, 29.4 + LK_RISE)):
         h = zb - za
         mb.box((0.36, 1.7, h + 0.3), (x + 2.42 * ct, y + 2.42 * st, Z((za + zb) / 2)), (0, 0, t), NAVY, 0.0)
         mb.box((0.3, 1.2, h), (x + 2.6 * ct, y + 2.6 * st, Z((za + zb) / 2)), (0, 0, t), GLASS, 0.0)
@@ -682,17 +700,55 @@ def sat_rock(mb, rng, x, y, u):
                 dark_from=0.5, jitter=0.07, top_jit=0.03, chamfer=0.4)
 
 
-def beacon(mb, bx, by, z):
-    """farolete Capsule na ponta de fora: base azul-marinho, fuste branco afunilado, galeria, lanterna acesa, cupula"""
-    pts = [(0.3, z - 0.1, NAVY), (1.9, z - 0.1, NAVY), (1.9, z + 0.8, WHITE), (1.45, z + 1.0, WHITE),
-           (1.3, z + 3.2, NAVY), (1.27, z + 3.8, WHITE), (1.05, z + 7.2, NAVY), (1.9, z + 7.5, NAVY),
-           (1.9, z + 7.9, WHITE), (1.05, z + 7.9, LAMP), (1.05, z + 9.4, WHITE), (1.6, z + 9.5, WHITE),
-           (1.6, z + 9.8, BLUE, 1), (1.3, z + 10.35, BLUE, 1), (0.75, z + 10.8, BLUE), (0.3, z + 10.95, BLUE)]
-    lathe_pts(mb, (bx, by), pts, 16)
-    for i in range(4):
-        t = (45.0 + 90.0 * i) * D2R
-        mb.box((0.32, 0.32, 1.5), (bx + 1.12 * math.cos(t), by + 1.12 * math.sin(t), z + 8.65), (0, 0, t), WHITE, 0.0)
-    mb.rod((bx, by, z + 10.9), (bx, by, z + 12.3), 0.13, WHITE, 6)
+def sat_tower(mb, tx, ty, u):
+    """torre-disco esbelta na borda de fora do satelite (a linguagem do mirante, em ponto menor): pedestal octogonal,
+    tambor branco com escotilhas e faixa azul-marinho (topo G+7,95 = topo da colisao: fora do alcance do pulo, sem
+    beiral onde subir), fuste r 1,8 com colares azuis, disco com bojo branco, faixa azul-marinho, VIDRO com montantes
+    e fundo opaco, beiral branco, cupula azul e antena de ponta vermelha (topo ~G+45,4). Sem porta: nao entravel."""
+    c = (tx, ty)
+    Z = lambda h: G + h
+    plinth(mb, c, SAT_TWR_R, G)
+    dome_pts = []
+    a, b, zc = 5.3, 2.9, Z(38.8)
+    for ph in (0.0, 22.0, 44.0, 66.0):
+        dome_pts.append((a * math.cos(ph * D2R), zc + b * math.sin(ph * D2R), BLUE, 1))
+    pts = [
+        (0.3, Z(1.0), WHITE), (2.3, Z(1.0), WHITE), (2.3, Z(7.2), NAVY), (2.45, Z(7.35), NAVY), (2.45, Z(7.95), WHITE),
+        (1.8, Z(8.6), WHITE), (1.8, Z(19.9), NAVY), (2.4, Z(20.2), NAVY), (2.4, Z(20.9), BLUE), (1.8, Z(21.2), WHITE),
+        (1.75, Z(31.4), NAVY), (2.5, Z(31.7), NAVY), (2.5, Z(32.2), WHITE),
+        # disco: bojo branco, faixa azul-marinho, vidro, beiral, cupula
+        (2.0, Z(32.8), WHITE, 1), (3.6, Z(33.9), WHITE, 1), (5.1, Z(34.9), NAVY), (5.6, Z(35.4), NAVY),
+        (5.6, Z(35.9), GLASS), (5.8, Z(37.9), WHITE), (6.2, Z(38.15), WHITE), (6.2, Z(38.8), WHITE),
+    ] + dome_pts + [(1.0, Z(41.6), WHITE), (1.0, Z(42.0), WHITE), (0.3, Z(42.0), WHITE)]
+    lathe_pts(mb, c, pts, 16)
+    # fundo opaco atras do vidro + montantes brancos + friso ciano sob o beiral
+    K.ring(mb, c, 4.9, 5.2, Z(35.7), Z(38.0), NAVY, 16)
+    for i in range(8):
+        t = (22.5 + 45.0 * i) * D2R
+        mb.box((0.3, 0.3, 2.1), (tx + 5.72 * math.cos(t), ty + 5.72 * math.sin(t), Z(36.9)), (0, 0.1, t), WHITE, 0.0)
+    K.ring(mb, c, 5.2, 5.35, Z(34.75), Z(35.05), CYAN, 16)
+    # nervuras radiais azul-marinho no bojo (o que o jogador ve do deck, olhando para cima; a mesma do mirante):
+    #   da gola r 2,3 (bojo em z 33,0) ate r 4,8 (bojo em z 34,7), 0,22 salientes
+    for i in range(8):
+        t = (22.5 + 45.0 * i) * D2R
+        ct, st = math.cos(t), math.sin(t)
+        a = Vector((tx + 2.3 * ct, ty + 2.3 * st, Z(33.0) - 0.05))
+        b = Vector((tx + 4.8 * ct, ty + 4.8 * st, Z(34.7) - 0.05))
+        mb.beam(a, b, 0.36, 0.34, NAVY, 0.0)
+    # poco de elevador envidracado virado para o deck (a linguagem do mirante), interrompido nos colares; sem
+    #   escotilhas em par no tambor (vistas do deck, 2 escotilhas sob a faixa liam como olhos)
+    t = math.atan2(-u[1], -u[0])
+    ct, st = math.cos(t), math.sin(t)
+    for za, zb, rr, w in ((1.7, 6.9, 2.3, 1.5), (9.2, 19.6, 1.8, 1.3), (21.5, 31.1, 1.78, 1.3)):
+        h = zb - za
+        mb.box((0.36, w, h + 0.3), (tx + (rr - 0.03) * ct, ty + (rr - 0.03) * st, Z((za + zb) / 2)), (0, 0, t), NAVY,
+               0.0)
+        mb.box((0.3, w - 0.4, h), (tx + (rr + 0.15) * ct, ty + (rr + 0.15) * st, Z((za + zb) / 2)), (0, 0, t), GLASS,
+               0.0)
+    # antena com farol vermelho (sinalizacao)
+    mb.rod((tx, ty, Z(42.0)), (tx, ty, Z(44.9)), 0.14, STEEL, 6)
+    K.sphere(mb, (tx, ty, Z(45.05)), 0.36, RED, sub=1)
+    octo_col("DB_TwrSat", tx, ty, SAT_TWR_R, G - 0.5, G + 7.95)   # pedestal + tambor (faces 2,40 ~ tambor 2,3/2,45)
 
 
 def bench(mb, bx, by, z, d):
@@ -883,19 +939,21 @@ def satellite(kind):
     # guarda-corpo da plataforma: as mesmas linhas das guardas do db_col (16-gono r, aberto na ponte)
     pad = [(x + r * math.cos(t * math.pi / 8), y + r * math.sin(t * math.pi / 8)) for t in range(16)]
 
+    P = sat_props(kind)
+    tx, ty, _ = P["tower"]
+
     def keep_pad(px, py):
-        return math.hypot(px - a1[0], py - a1[1]) > L.SAT_BRIDGE_W / 2 + 1.2
+        # aberto na ponte e na torre-disco (o guarda-corpo morre no pedestal dela)
+        return (math.hypot(px - a1[0], py - a1[1]) > L.SAT_BRIDGE_W / 2 + 1.2 and
+                math.hypot(px - tx, py - ty) > SAT_TWR_R + 0.1)
     runs = _runs(DL.ccw(pad), keep_pad)
     if len(runs) > 1 and (runs[0][0] - runs[-1][-1]).length < 1.5:
         runs[0] = runs[-1] + runs[0]
         runs.pop()
     for run in runs:
         capsule_rail(mb, run, zf)
-    # farol na ponta, banco e luneta
-    P = sat_props(kind)
-    bx, by, _ = P["beacon"]
-    beacon(mb, bx, by, zf)
-    octo_col("DB_TwrSat", bx, by, 2.0, G - 0.5, G + 8.0)
+    # torre-disco na borda de fora, banco e luneta
+    sat_tower(mb, tx, ty, u)
     b2x, b2y, db = P["bench"]
     bench(mb, b2x, b2y, zf, db)
     sx, sy, dt = P["scope"]
@@ -935,6 +993,47 @@ def aircraft(mb, F, hdg):
     # bocal traseiro
     K.cyl_axis(mb, 1.05, 0.8, F.p(-6.75, 0, zc), fw, NAVY, 16)
     K.cyl_axis(mb, 0.7, 0.3, F.p(-7.2, 0, zc), fw, CYAN, 12)
+
+
+def aircraft_col(F, hdg):
+    """colisao da aeronave justa ao visual (no referencial F: x para o nariz, y lateral, z acima do piso zf).
+    Antes: 1 caixa 14,4 x 5 x 5,9 + 1 caixa de asa 5 x 13 retangular (sobrava 1,5..4,6 alem do casco e das asas na
+    altura do peito). Agora 15 caixas que seguem o casco, o canopi, a deriva, as asas (enflechadas, afinando para a
+    ponta), os motores e os estabilizadores. Sem colisao abaixo de ~2,0: o trem de pouso e o vao sob a barriga ficam
+    livres (as pernas do jogador passam por baixo da barriga, o tronco bate na cintura do casco; ninguem cabe sob ela)."""
+    def fbox(x0, x1, hw, z0, z1):
+        col_box("DB_TwrPad", (x1 - x0, 2.0 * hw, z1 - z0), F.p((x0 + x1) / 2, 0.0, (z0 + z1) / 2), (0, 0, hdg))
+    # casco (secao eliptica: eixo z 3,45, meia-largura r(x) ate 2,35, meia-altura 0,82 r): cintura 2,3..4,3 (casco
+    #   r 1,90..2,35..2,11) e dorso 4,3..5,4 (r 2,11..0; topo do casco 5,38 = topo da caixa: quem pula em cima pisa
+    #   no casco)
+    fbox(-4.9, 4.4, 2.3, 2.3, 4.3)
+    fbox(-4.9, 4.4, 1.75, 4.3, 5.4)
+    # nariz: x 4,4..5,6 (r 1,95..1,5; casco 1,85..5,05) e ponta x 5,6..6,9 (r 1,5..0,45; casco 2,22..4,68)
+    fbox(4.4, 5.6, 1.75, 2.0, 5.1)
+    fbox(5.6, 6.9, 1.1, 2.5, 4.4)
+    # cauda: x -6,1..-4,9 (r 1,6..2,05; casco 1,77..5,13) e bocal x -7,2..-6,1 (r 1,6..0,9, bocal r 1,05: 2,4..4,5)
+    fbox(-6.1, -4.9, 2.0, 2.0, 5.1)
+    fbox(-7.2, -6.1, 1.3, 2.4, 4.6)
+    # canopi (elipsoide centro x 2,9, z 4,8, raios 3,1 x 1,75 x 1,45: topo 6,25): x 1,0..5,4 (topo do canopi
+    #   5,66..6,25), meia-largura 1,3, a partir do topo do nariz (5,1)
+    fbox(1.0, 5.4, 1.3, 5.1, 6.2)
+    # deriva (x -7,4..-3,8, z 3,9..8,0, espessura 0,44): caixa fina no meio da flecha, acima da cauda
+    col_box("DB_TwrPad", (1.9, 0.5, 2.9), F.p(-5.95, 0.0, 5.1 + 1.45), (0, 0, hdg))
+    # estabilizadores horizontais (x -5,2..-7,5, y ate +-3,0, z 3,95..4,3 = altura da cabeca): 1 laje fina
+    fbox(-7.3, -5.6, 2.9, 3.9, 4.35)
+    # asas: caixas finas NA COTA da asa (2,5..3,15; asa 2,55..3,1) ao longo da linha de meia-corda, da raiz (-1,0; 1,6)
+    #   ate a ponta (-3,25; 6,3), em 2 trechos que afinam com a corda (perpendicular a linha: 3,6 na raiz, 2,7 no
+    #   meio, 1,7 na ponta -> caixas de 3,45 e 2,3). Motores: caixa propria (r 0,66, x -4,9..-1,3; o bocal r 0,48
+    #   sobra atras), secao 1,16 (quase inscrita no cilindro: o canto nao sobra no ar)
+    sw = math.atan2(4.5, -2.25)              # rumo da linha de meia-corda no referencial da aeronave
+    dl = Vector((math.cos(sw), math.sin(sw)))
+    t1 = (6.3 - 1.6) / dl.y
+    for s in (-1, 1):
+        for f0, wd in ((0.0, 3.45), (0.5, 2.3)):
+            tm = t1 * (f0 + 0.25)
+            cx, cy = -1.0 + dl.x * tm, (1.6 + dl.y * tm) * s
+            col_box("DB_TwrPad", (t1 / 2 + 0.02, wd, 0.65), F.p(cx, cy, 2.825), (0, 0, hdg + sw * s))
+        col_box("DB_TwrPad", (3.6, 1.16, 1.16), F.p(-3.1, 6.2 * s, 2.85), (0, 0, hdg))      # nacela x -4,9..-1,3
 
 
 def landing_pad():
@@ -993,8 +1092,7 @@ def landing_pad():
     F = Frame(fx, fy, zf, hdg)
     aircraft(mb, F, hdg)
     ob = mb.finish()
-    col_box("DB_TwrPad", (14.4, 5.0, 5.9), F.p(0.1, 0.0, 2.95), (0, 0, hdg))
-    col_box("DB_TwrPad", (5.0, 13.0, 1.1), F.p(-1.6, 0.0, 2.85), (0, 0, hdg))
+    aircraft_col(F, hdg)
     light("L_DBTwr_PadFlood", "POINT", tuple(posts[0] + Vector((0, 0, -1.2))), 260, (0.55, 0.88, 1.0), 0.8)
     return ob
 
@@ -1014,6 +1112,55 @@ def _stats():
         print("TWRSTATS %s %d %s" % (ob.name, sum(per.values()), sorted(per.items(), key=lambda t: -t[1])))
 
 
+def _audit():
+    """DBTWR_AUDIT=1: raios horizontais contra o visual e contra a colisao propria (aeronave e torres-disco)"""
+    import os
+    if not os.environ.get("DBTWR_AUDIT"):
+        return
+    bpy.context.view_layer.update()
+
+    def bvh_of(obs):
+        verts, polys = [], []
+        for o in obs:
+            mw = o.matrix_world
+            b0 = len(verts)
+            verts += [mw @ v.co for v in o.data.vertices]
+            polys += [[b0 + i for i in p.vertices] for p in o.data.polygons]
+        return BVHTree.FromPolygons(verts, polys)
+
+    def cmp(tag, vis, col, cx, cy, zs, r0=11.0, n=16):
+        for zz in zs:
+            worst = short = 0.0
+            rows = []
+            for i in range(n):
+                a = 2 * math.pi * (i + 0.19) / n      # fora das arestas dos tornos (raio rente a vertice falha)
+                d = Vector((-math.cos(a), -math.sin(a), 0.0))
+                o = Vector((cx + math.cos(a) * r0, cy + math.sin(a) * r0, zz))
+                hv = vis.ray_cast(o, d, r0)[3]
+                hc = col.ray_cast(o, d, r0)[3]
+                hv = r0 if hv is None else hv
+                hc = r0 if hc is None else hc
+                worst = max(worst, hv - hc)
+                short = max(short, hc - hv)
+                rows.append("%d:%.1f/%.1f" % (round(math.degrees(a)), hc, hv))
+            print("TWRAUDIT %s z=%.1f col_antes_do_visual=%.2f visual_antes_da_col=%.2f  %s" %
+                  (tag, zz, worst, short, " ".join(rows)))
+    x, y, r = LANDING
+    hx, hy = math.cos(PAD_HDG), math.sin(PAD_HDG)
+    fx, fy = x - hx * 0.6, y - hy * 0.6
+    vis = bvh_of([bpy.data.objects["DB_Twr_LandingPad"]])
+    col = bvh_of([o for o in bpy.data.objects if o.name.startswith("COL_DB_TwrPad")])
+    cmp("aeronave", vis, col, fx, fy, [G + 0.1 + h for h in (1.0, 2.0, 2.4, 2.85, 3.45, 4.0, 4.6, 5.0, 5.8, 6.8)])
+    for kind, nm in (("pad_sw", "DB_Twr_SatSW"), ("pad_se", "DB_Twr_SatSE")):
+        tx, ty, _ = sat_props(kind)["tower"]
+        vis = bvh_of([bpy.data.objects[nm]])
+        col = bvh_of([o for o in bpy.data.objects if o.name.startswith("COL_DB_TwrSat")])
+        cmp("torre_%s" % kind, vis, col, tx, ty, (G + 2.0, G + 6.0), r0=4.0, n=8)
+    for nm in ("DB_Twr_Comm", "DB_Twr_Lookout", "DB_Twr_SatSW", "DB_Twr_SatSE"):
+        ob = bpy.data.objects[nm]
+        print("TWRAUDIT topo %s = %.2f" % (nm, max((ob.matrix_world @ v.co).z for v in ob.data.vertices)))
+
+
 def build():
     pp = ports()
     comm_tower(pp["comm"])
@@ -1023,3 +1170,4 @@ def build():
     satellite("pad_se")
     landing_pad()
     _stats()
+    _audit()

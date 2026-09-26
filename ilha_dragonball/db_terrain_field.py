@@ -6,6 +6,7 @@
 # identicas e soldadas (Surf com cache compartilhado).
 import math
 import numpy as np
+import bmesh
 
 
 # ------------------------------------------------------------------ grade
@@ -111,6 +112,44 @@ class Surf:
         self.cache = {}
         self.faces = {}          # material -> [faces]
         self.skirts = {}         # material -> [faces]
+        self.stats = {"cells": 0, "degen": 0, "dup": 0, "fan": 0, "dropped": 0}
+
+    def _face(self, vs):
+        """face da celula; nunca larga a celula: repete com os vertices unicos e cai para leque de triangulos.
+        None = a face ja existe (outra regiao do mesmo Surf cobre exatamente a celula)"""
+        bm = self.bm
+        try:
+            return [bm.faces.new(vs)]
+        except ValueError:
+            pass
+        u = []
+        for v in vs:
+            if v not in u:
+                u.append(v)
+        if len(u) < 3:
+            self.stats["degen"] += 1
+            return None
+        if bm.faces.get(u) is not None:
+            self.stats["dup"] += 1
+            return None
+        try:
+            return [bm.faces.new(u)]
+        except ValueError:
+            pass
+        out = []
+        for k in range(1, len(u) - 1):
+            tri = (u[0], u[k], u[k + 1])
+            if bm.faces.get(tri) is not None:
+                continue
+            try:
+                out.append(bm.faces.new(tri))
+            except ValueError:
+                pass
+        if out:
+            self.stats["fan"] += 1
+            return out
+        self.stats["dropped"] += 1
+        return None
 
     def _node(self, i, j):
         k = ("n", i, j)
@@ -138,11 +177,113 @@ class Surf:
             self.cache[k] = v
         return k, v
 
-    def build(self, f, mat, cell_mat=None, skirt=None):
+    # ---- divisao de material dentro da regiao (uma camada so, bordas soldadas)
+    def _info(self, key, c, splits):
+        """(arestas da celula que contem o vertice, valores dos campos de material nele)"""
+        if key[0] == "n":
+            p = (key[1], key[2])
+            k = c.index(p)
+            e1 = (min(c[k], c[(k + 1) % 4]), max(c[k], c[(k + 1) % 4]))
+            e2 = (min(c[k - 1], c[k]), max(c[k - 1], c[k]))
+            return frozenset((e1, e2)), tuple(float(g[p]) for g, _ in splits)
+        _, p, q, t = key
+        return frozenset(((p, q),)), tuple(float(g[p] + (g[q] - g[p]) * t) for g, _ in splits)
+
+    def _split_vert(self, A, B, idx, s, splits, c):
+        """ponto do nivel zero do campo idx no lado A-B do poligono. Num lado sobre aresta da grade, o ponto sai da
+        interpolacao dos NOS da aresta (a celula vizinha acha o mesmo vertice); num lado interno, da de A e B"""
+        common = A[4] & B[4]
+        if common:
+            p, q = next(iter(common))
+            g = splits[idx][0]
+            fp, fq = float(g[p]), float(g[q])
+            t = fp / (fp - fq) if abs(fp - fq) > 1e-12 else 0.5
+            t = min(1.0, max(0.0, t))
+            if t < 1e-3 or t > 1.0 - 1e-3:
+                key, v = self._node(*(p if t < 1e-3 else q))
+                ed, vals = self._info(key, c, splits)
+                return [key, v, 0, None, ed, vals]
+            key = ("e", p, q, round(t, 6))
+            v = self.cache.get(key)
+            if v is None:
+                x = self.xs[p[0]] + (self.xs[q[0]] - self.xs[p[0]]) * t
+                y = self.ys[p[1]] + (self.ys[q[1]] - self.ys[p[1]]) * t
+                z = self.Z[p] + (self.Z[q] - self.Z[p]) * t
+                v = self.bm.verts.new((float(x), float(y), float(z)))
+                self.cache[key] = v
+            vals = tuple(float(gg[p] + (gg[q] - gg[p]) * t) for gg, _ in splits)
+            return [key, v, 0, None, frozenset(((p, q),)), vals]
+        if s < 1e-3:
+            return A
+        if s > 1.0 - 1e-3:
+            return B
+        ka, kb = A[0], B[0]
+        if repr(ka) > repr(kb):
+            A, B, s = B, A, 1.0 - s
+            ka, kb = kb, ka
+        key = ("c", ka, kb, round(s, 6))
+        v = self.cache.get(key)
+        if v is None:
+            v = self.bm.verts.new(A[1].co.lerp(B[1].co, s))
+            self.cache[key] = v
+        vals = tuple(a + (b - a) * s for a, b in zip(A[5], B[5]))
+        return [key, v, 0, None, frozenset(), vals]
+
+    @staticmethod
+    def _dedupe(poly):
+        out = []
+        for e in poly:
+            if out and out[-1][0] == e[0]:
+                continue
+            out.append(e)
+        while len(out) > 1 and out[0][0] == out[-1][0]:
+            out.pop()
+        return out
+
+    def _clip(self, poly, idx, splits, c):
+        """corta o poligono pelo nivel zero do campo idx: (pecas de dentro, resto de fora). Cada trecho contiguo de
+        vertices de dentro vira uma peca PROPRIA (orelha cortada pela corda entre os 2 cruzamentos) e o resto fica
+        conectado. Antes o 'dentro' juntava todos os trechos num poligono so: na celula em sela (4 cruzamentos) as
+        duas metades se cobriam (faces sobrepostas = z-fight de areia x terra)."""
+        n = len(poly)
+        ins = [e[5][idx] < 0.0 for e in poly]
+        cross = {}
+        for k in range(n):
+            k2 = (k + 1) % n
+            if ins[k] != ins[k2]:
+                A, B = poly[k], poly[k2]
+                va, vb = A[5][idx], B[5][idx]
+                cross[k] = self._split_vert(A, B, idx, va / (va - vb), splits, c)
+        out = []
+        for k in range(n):
+            if not ins[k]:
+                out.append(poly[k])
+            if k in cross:
+                out.append(cross[k])
+        pieces = []
+        for k0 in range(n):
+            if not ins[k0] or ins[k0 - 1]:
+                continue
+            pc = [cross[(k0 - 1) % n]]
+            k = k0
+            for _ in range(n):
+                pc.append(poly[k])
+                if k in cross:
+                    pc.append(cross[k])
+                    break
+                k = (k + 1) % n
+            pieces.append(self._dedupe(pc))
+        return pieces, self._dedupe(out)
+
+    def build(self, f, mat, cell_mat=None, skirt=None, splits=None):
         """f: campo (nx, ny) - dentro onde f < 0. cell_mat(i, j) -> material da celula (xadrez de lajes).
         skirt(pa, pb, mat) -> (profundidade, material) da saia num trecho de contorno cujos nos de FORA sao pa e pb
-        (None = sem saia): distingue a borda da regiao inteira (queda) da divisa entre materiais."""
+        (None = sem saia): distingue a borda da regiao inteira (queda) da divisa entre materiais.
+        splits: [(campo, material)] em ordem de prioridade - cada poligono de celula da regiao e cortado pelo nivel
+        zero de cada campo (dentro < 0 = aquele material; o resto fica com mat). A regiao sai numa camada so, sem
+        fresta entre materiais (antes cada material era uma regiao com campo proprio e os contornos nao batiam)."""
         f = np.where(np.abs(f) < 1e-6, 1e-6, f)
+        splits = [(np.where(np.abs(g) < 1e-6, 1e-6, g), m) for g, m in (splits or [])]
         ins = f < 0.0
         cell_any = ins[:-1, :-1] | ins[1:, :-1] | ins[1:, 1:] | ins[:-1, 1:]
         bm = self.bm
@@ -172,14 +313,41 @@ class Surf:
                 out[0][2] |= out[-1][2]
                 out[0][3] = out[0][3] or out[-1][3]
                 out.pop()
+            self.stats["cells"] += 1
             if len(out) < 3:
-                continue
-            try:
-                face = bm.faces.new([e[1] for e in out])
-            except ValueError:
+                self.stats["degen"] += 1          # < 3 vertices distintos: lasca de area zero
                 continue
             m = cell_mat(i, j) if cell_mat else mat
-            self.faces.setdefault(m, []).append(face)
+            if splits:
+                rest = []
+                for e in out:
+                    ed, vals = self._info(e[0], c, splits)
+                    rest.append([e[0], e[1], e[2], e[3], ed, vals])
+                pieces = []
+                for idx in range(len(splits)):
+                    if len(rest) < 3:
+                        break
+                    if all(e[5][idx] >= 0.0 for e in rest):
+                        continue
+                    if all(e[5][idx] < 0.0 for e in rest):
+                        pieces.append((rest, splits[idx][1]))
+                        rest = []
+                        break
+                    inns, rest = self._clip(rest, idx, splits, c)
+                    for inn in inns:
+                        if len(inn) >= 3:
+                            pieces.append((inn, splits[idx][1]))
+                if len(rest) >= 3:
+                    pieces.append((rest, m))
+                for pc, pm in pieces:
+                    got = self._face([e[1] for e in pc])
+                    if got:
+                        self.faces.setdefault(pm, []).extend(got)
+            else:
+                got = self._face([e[1] for e in out])
+                if got is None:
+                    continue
+                self.faces.setdefault(m, []).extend(got)
             if skirt is None:
                 continue
             n = len(out)
@@ -226,8 +394,31 @@ def assign(mb, faces, mat, rng=None, variant=False):
     mb._uv(faces, mat)
 
 
-def flush(mb, surf, rng=None):
+def flush(mb, surf, rng=None, tag=""):
+    st = surf.stats
+    print("TERRAIN Surf %s%s celulas=%d largadas=%d (leque=%d, repetidas=%d, lascas=%d)" % (
+        mb.name if hasattr(mb, "name") else "?", tag, st["cells"], st["dropped"], st["fan"], st["dup"], st["degen"]))
     for m, fs in surf.faces.items():
         assign(mb, fs, m, rng)
     for m, fs in surf.skirts.items():
         assign(mb, fs, m, rng)
+
+
+def flat_bed(mb, xs, ys, z, f, mat):
+    """leito plano (cota z) da regiao f < 0, fundido em n-gonos: chamar ANTES de qualquer outra geometria do mb
+    (o dissolve pega o bmesh inteiro)"""
+    bm = mb.bm
+    n0 = len(bm.faces)
+    s = Surf(mb, xs, ys, np.full((len(xs), len(ys)), float(z))).build(f, mat)
+    if n0 == 0:
+        bm.normal_update()           # faces.new nao calcula a normal: sem isso o dissolve nao junta nada
+        bmesh.ops.dissolve_limit(bm, angle_limit=math.radians(0.5), verts=list(bm.verts), edges=list(bm.edges))
+        # n-gonos concavos grandes: triangula ja aqui (mesma contagem de tris) - o export e a varredura veem o mesmo
+        bmesh.ops.triangulate(bm, faces=list(bm.faces), quad_method="BEAUTY", ngon_method="BEAUTY")
+        faces = list(bm.faces)
+    else:
+        faces = [x for fs in s.faces.values() for x in fs]
+    print("TERRAIN leito %s z=%.2f celulas=%d largadas=%d faces=%d" % (mb.name, z, s.stats["cells"],
+                                                                        s.stats["dropped"], len(faces)))
+    assign(mb, faces, mat)
+    return faces

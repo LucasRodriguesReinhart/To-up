@@ -11,15 +11,16 @@
 #                 camada clara horizontal continua (a mesma geologia em todos), vaos das escadas W e SW
 # Piso: areia com relevo sutil (+-0,15 de 20,2: manchas escuras, ondulacoes, 2 placas de terra rachada RENTES longe
 # dos ORE_*, trilhas batidas do pe de cada acesso ate o pod). NADA de minerio, cristal ou pedra solta.
-# So as 7 ARENA_ROCKS (buttes de arenito em 2 camadas: base larga irregular com pe escuro de estrato inclinado,
-# ressalto parcial, fraturas e patamar plano; torre estreita deslocada ate a altura da planta) e o CORE_POD (pod de
-# sondagem Capsule, sem porta) ficam dentro.
+# So as 7 ARENA_ROCKS (buttes de arenito: base larga + torre deslocada que afunilam, arestas verticais chanfradas,
+# barriga por face, estratos sorteados por rocha, tampo da torre inclinado; + bloco encostado e lascas rentes ao pe,
+# tudo colado na rocha) e o CORE_POD (pod de sondagem Capsule, sem porta) ficam dentro.
 # Colisao: o chao, as escadas, a rampa, a guarda da borda, as colunas das mesas e do pod sao do db_col (congelado).
 # As mesas e o pod sao desenhados SOBRE a coluna pedida ao db_col (mesa_tiers / POD_COL, ngon_col 8): base = o
 # octogono atual de 0,98 r cortado no patamar + torre; pod em 4 camadas. Aqui so a colisao dos volumes proprios:
-# blocos dos patamares N, pilares W, prateleiras E, bochechas (guarda) das 5 escadas, meio-fio da rampa e pilones.
+# blocos dos patamares N, pilares W, prateleiras E, bochechas (guarda) das 5 escadas, meio-fio e rochas da rampa,
+# blocos encostados das buttes e pilones.
 import math, random
-from mathutils import Vector
+from mathutils import Vector, Matrix
 import db_lib as DL
 from db_lib import MB, col_box, col_ramp, light, ccw, ribbon_poly, dome, Frame
 import db_layout as L
@@ -59,6 +60,7 @@ CAMS = {
     "CAM_DBMine_PlayerN": ((14.0, -2.0, A + 5.2), (-2.0, 56.0, A + 3.0), 22),         # patamares N de frente
     "CAM_DBMine_PlayerW": ((-84.0, -16.0, G + 5.2), (-52.0, 8.0, G + 2.0), 22),        # promenade W: costas dos pilares
     "CAM_DBMine_PlayerMesa": ((32.0, -14.0, A + 5.2), (52.0, -26.0, A + 4.5), 24),    # mesa de perto
+    "CAM_DBMine_PlayerButte": ((13.0, -26.0, A + 5.2), (22.0, -44.0, A + 3.2), 22),    # butte S + bloco encostado
     "CAM_DBMine_PlayerE": ((36.0, 4.0, A + 5.2), (60.0, 32.0, A + 3.0), 22),          # borda E + rampa
     "CAM_DBMine_PlayerOutcrop": ((-34.0, 4.0, A + 5.2), (-62.0, 8.0, A + 6.0), 22),   # pilares W de dentro
 }
@@ -573,43 +575,19 @@ def wall_blocks(mr, r0, r1, rng, occ=(), top=(-0.9, -0.2), crest=0.1, crest_h=(0
         ang = am + deg_at(a + rng.uniform(0.25, 0.5), am)
 
 
-def slabs(mr, r0, r1, rng, occ=(), h=(0.45, 0.9), ln=(1.6, 3.4), gap=(1.2, 3.2)):
-    """guarda visual natural na linha da guarda invisivel (R + 0,7): POUCAS lajes de rocha compridas e baixas, de
-    tamanhos diferentes, com vaos (a colisao da borda segura o jogador); nunca colar de pedrinhas iguais"""
-    ang = r0 + deg_at(rng.uniform(0.3, 1.5), r0)
-    while ang < r1 - 0.5:
-        a = rng.uniform(*ln)
-        am = ang + deg_at(a, ang)
-        if am + deg_at(a, am) > r1 - deg_at(0.2, r1):
-            a = math.radians(r1 - ang) * R(ang) / 2 - 0.2
-            if a < 1.0:
-                break
-            am = ang + deg_at(a, ang)
-        lo, hi = am - deg_at(a, am), am + deg_at(a, am)
-        if not any(o0 < hi and lo < o1 for o0, o1 in occ):
-            b = rng.uniform(0.42, 0.5)
-            cx, cy, yaw, hl = on_rim(am, a, 0.7)
-            zt = G + rng.uniform(*h)
-            foot = to_world(rbox(hl, b, [rng.uniform(0.25, 0.4) for _ in range(4)]), cx, cy,
-                            yaw + rng.uniform(-0.04, 0.04))
-            banded(mr, foot, G - 0.35, zt, rng, taper=0.06, band=0.25, ch=0.15, jit=0.04,
-                   top_tilt=local_tilt(cx, cy, yaw, rng.uniform(-0.05, 0.05)))
-        ang = am + deg_at(a + rng.uniform(*gap), am)
-
-
 def standing(mr, am, a, dz, rng):
-    """rocha em pe na linha da guarda (dentro da faixa R+0,0..R+1,24): marco natural baixo"""
-    b = 0.6
-    cx, cy, yaw, hl = on_rim(am, a, 0.66)
+    """rocha em pe na linha da guarda (faixa R - 0,04..R + 1,52: a face de fora passa da guarda invisivel mesmo com o
+    recuo do topo): marco natural que interrompe a cerca E"""
+    b = 0.78
+    cx, cy, yaw, hl = on_rim(am, a, 0.74)
     foot = to_world(rbox(hl, b, [rng.uniform(0.25, 0.45) for _ in range(4)],
                          [0.0, rng.uniform(0.04, 0.1), 0.0, rng.uniform(0.05, 0.15)]), cx, cy, yaw)
     banded(mr, foot, A - 0.3, G + dz, rng, bands=RIM_GEO, base=(A + 1.5, DARK, 0.0), taper=0.18, band=0.45,
            ch=0.25, jit=0.05)
 
 
-def south(ms, mt, rng):
-    """S: muro de arrimo em arenito cortado (3 fiadas + capa) + guarda Capsule (postes brancos, corrimao azul,
-    capuz ciano)"""
+def south(ms, rng):
+    """S: muro de arrimo em arenito cortado (3 fiadas + capa); a guarda Capsule fica em guards()"""
     a0, a1 = SECTORS["S"]
     for r0, r1 in runs(a0, a1):
         rim_band(ms, r0, r1, "Stone_Paving_DB", "Dirt_DB", rin_off=0.12, z_top=G - 0.3)
@@ -639,24 +617,206 @@ def south(ms, mt, rng):
             cb = r0 + (r1 - r0) * (i + 1) / n - (0.0 if i == n - 1 else math.degrees(0.07 / R(r0)))
             ms.prism(sector_poly(ca, cb, lambda a: R(a) - 0.22, lambda a: R(a) + 1.25, 1.0), G - 0.36, G + 0.14,
                      "Stone_Paving_DB", 0.0)
-        # guarda Capsule na linha da guarda invisivel (R + 0,7): postes a cada ~4,4 + corrimao azul + barra de aco
-        rg = lambda a: R(a) + 0.7
-        arc = math.radians(r1 - r0) * R((r0 + r1) / 2)
-        n = max(1, int(round(arc / 4.4)))
-        for i in range(n + 1):
-            a = r0 + (r1 - r0) * i / n
-            a = min(max(a, r0 + math.degrees(0.5 / R(a))), r1 - math.degrees(0.5 / R(a)))
-            p = P(a, rg(a))
-            yaw = math.radians(a)
-            mt.box((0.72, 0.72, 2.6), (p.x, p.y, G + 0.14 + 1.3), (0, 0, yaw), "Plaster_DB_White", 0.1)
-            mt.box((0.9, 0.9, 0.32), (p.x, p.y, G + 0.14 + 0.16), (0, 0, yaw), "Plaster_DB_Navy", 0.06)
-            mt.cyl(0.34, 0.34, (p.x, p.y, G + 0.14 + 2.6 + 0.17), m="DB_Cyan_Glow", n=8, bevel=0.0)
-        k = max(2, int((r1 - r0) / 1.5) + 1)
-        top = [P(r0 + (r1 - r0) * i / (k - 1), rg(r0 + (r1 - r0) * i / (k - 1)), G + 0.14 + 2.2) for i in range(k)]
-        mt.sweep(top, [(-0.2, -0.17), (0.2, -0.17), (0.2, 0.17), (-0.2, 0.17)], "Roof_DB_Blue", True)
-        mid = [V((p.x, p.y, G + 0.14 + 1.15)) for p in top]
-        mt.sweep(mid, [(0.12 * math.cos(t * math.pi / 3), 0.12 * math.sin(t * math.pi / 3)) for t in range(6)],
-                 "Metal_DB_Steel", True)
+
+
+# ------------------------------------------------------------------ 2b. guardas visuais na linha da COL_DB_ArenaGuard
+# A guarda invisivel do db_col (caixas de 1,0 em cordas sobre R + 0,7, topo G + 3,2) vai ate R + 1,2 e contorna a
+# arena inteira (menos os 6 acessos). Toda a volta tem guarda VISUAL na mesma linha (R + FR), com a face de fora
+# alem de R + 1,2 (quem anda no promenade encosta no visual, nao no invisivel), travessa cobrindo G + 0,7 e corrimao
+# cobrindo G + 1,2 (topo G + 1,48). Um estilo por setor, quente como a concept (cerca de madeira + lanternas ambar):
+#   S: guarda Capsule (postes brancos com pe azul-marinho, corrimao de MADEIRA, capuz de lanterna ambar)
+#   E e W: cerca de madeira escura, postes a cada <= 4,2, lanterna ambar a cada 3 postes; as rochas em pe (E) e os
+#          pilares de canion (W) interrompem a cerca (ela morre dentro deles)
+#   N: parapeito continuo de arenito cortado com capa (juntas escuras), lanternas sobre a capa
+# Vaos so nos acessos: a guarda termina dentro da bochecha da escada (pilarete S/N, rochas W/E) ou da rocha que
+# flanqueia a cabeca da rampa. Ciano fica so no pod central e nos pilones.
+FR = 1.05                            # linha das guardas visuais (R + 1,05)
+RAIL_MID = (G + 0.52, G + 0.84)      # travessa
+RAIL_TOP = (G + 1.08, G + 1.48)      # corrimao
+RAIL_W = 0.46                        # espessura (radial) das travessas: face de fora em R + 1,28 - flecha da corda
+POST_STEP = 4.2
+RAMP_ROCK = (0.15, 1.45)             # rochas da cabeca da rampa: faixa lateral (alem de w/2)
+
+
+def end_lat(aa):
+    """distancia lateral (do eixo do acesso) onde a guarda visual termina"""
+    a, w, k = access(aa)
+    if k == "ramp":
+        return w / 2 + RAMP_ROCK[1] - 0.1          # dentro da rocha da cabeca da rampa
+    if STYLE.get(aa) == "S":
+        return w / 2 + 0.65                       # no poste-portal Capsule da cabeca da escada
+    if STYLE.get(aa) == "N":
+        return w / 2 + 1.0                        # o parapeito entra 0,25 no pilarete
+    return w / 2 + 1.3                            # o poste da ponta entra na rocha da bochecha
+
+
+def guard_spans(a0, a1, occ=()):
+    """trechos [(ang0, ang1, acesso_na_ponta0, acesso_na_ponta1)] de a0..a1 (graus, a1 > a0, pode passar de 360)
+    fora dos vaos dos acessos e dos intervalos ocupados (occ: rochas/pilares onde a guarda morre)"""
+    cuts = []
+    for aa, w, k in L.ARENA_ACCESS:
+        h = math.degrees(math.asin(min(0.99, end_lat(aa) / (R(aa) + FR))))
+        for base in (aa - 360.0, aa, aa + 360.0):
+            cuts.append((base - h, base + h, aa))
+    for o0, o1 in occ:
+        for base in (-360.0, 0.0, 360.0):
+            cuts.append((o0 + base, o1 + base, None))
+    cuts = sorted(c for c in cuts if c[1] > a0 and c[0] < a1)
+    out, cur, tag = [], a0, None
+    for c0, c1, t in cuts:
+        if c0 > cur:
+            out.append((cur, min(c0, a1), tag, t))
+        if c1 > cur:
+            cur, tag = c1, t
+    if cur < a1:
+        out.append((cur, a1, tag, None))
+    return [s for s in out if math.radians(s[1] - s[0]) * R(s[0]) > 0.8]
+
+
+def post_angles(a0, a1, step):
+    arc = math.radians(a1 - a0) * (R((a0 + a1) / 2) + FR)
+    n = max(1, int(math.ceil(arc / step)))
+    return [a0 + (a1 - a0) * i / n for i in range(n + 1)]
+
+
+def lantern(mt, x, y, z, yaw):
+    """lanterna ambar de madeira sobre um poste/capa (base, corpo aceso, tampa com pino)"""
+    # (peca pequena repetida: sem chanfro)
+    mt.box((0.8, 0.8, 0.14), (x, y, z + 0.07), (0, 0, yaw), "Wood_Dark", 0.0)
+    mt.box((0.54, 0.54, 0.62), (x, y, z + 0.45), (0, 0, yaw), "Lantern_Glow", 0.0)
+    mt.box((0.92, 0.92, 0.2), (x, y, z + 0.86), (0, 0, yaw), "Wood_Dark", 0.0)
+    mt.box((0.42, 0.42, 0.16), (x, y, z + 1.04), (0, 0, yaw), "Wood_Dark", 0.0)
+
+
+def wood_fence(mt, a0, a1, rng, phase=0):
+    """cerca de madeira escura: postes a cada <= POST_STEP (lanterna a cada 3), travessa e corrimao retos entre os
+    postes (a corda fica dentro do arco: face de fora >= R + 1,23)"""
+    angs = post_angles(a0, a1, POST_STEP)
+    ps = [P(a, R(a) + FR) for a in angs]
+    for i, (a, p) in enumerate(zip(angs, ps)):
+        lant = (i + phase) % 3 == 0 and 0 < i < len(angs) - 1
+        yaw = math.radians(a) + rng.uniform(-0.05, 0.05)
+        zt = G + (2.2 if lant else 1.8) + rng.uniform(-0.04, 0.04)
+        mt.box((0.58, 0.58, zt - (G - 0.3)), (p.x, p.y, (zt + G - 0.3) / 2), (0, 0, yaw), "Wood_Dark", 0.0)
+        if lant:
+            lantern(mt, p.x, p.y, zt, yaw)
+    for p, q in zip(ps, ps[1:]):
+        for z0, z1 in (RAIL_MID, RAIL_TOP):
+            zc = (z0 + z1) / 2 + rng.uniform(-0.02, 0.02)
+            mt.beam((p.x, p.y, zc), (q.x, q.y, zc), RAIL_W, z1 - z0, "Wood_Dark", 0.0)
+
+
+def capsule_fence(mt, a0, a1, tag0, tag1):
+    """S: postes brancos Capsule (pe azul-marinho, capuz de lanterna ambar, tampa branca), corrimao de madeira e
+    travessa de aco acompanhando o arco; na escada S o poste-portal da cabeca faz o papel do poste da ponta"""
+    rg = lambda a: R(a) + FR
+    angs = post_angles(a0, a1, 4.4)
+    for i, a in enumerate(angs):
+        if (i == 0 and tag0 == 270.0) or (i == len(angs) - 1 and tag1 == 270.0):
+            continue
+        p = P(a, rg(a))
+        yaw = math.radians(a)
+        mt.box((0.72, 0.72, 1.95), (p.x, p.y, G + 0.14 + 0.975), (0, 0, yaw), "Plaster_DB_White", 0.1)
+        mt.box((0.9, 0.9, 0.32), (p.x, p.y, G + 0.14 + 0.16), (0, 0, yaw), "Plaster_DB_Navy", 0.0)
+        mt.cyl(0.36, 0.38, (p.x, p.y, G + 2.09 + 0.19), m="Lantern_Glow", n=8, bevel=0.0)
+        mt.cyl(0.48, 0.14, (p.x, p.y, G + 2.47 + 0.07), m="Plaster_DB_White", n=8, bevel=0.0)
+    k = max(2, int((a1 - a0) / 3.0) + 1)          # corda de ~3 (flecha < 0,03)
+    line = [a0 + (a1 - a0) * i / (k - 1) for i in range(k)]
+    hw = RAIL_W / 2
+    zt = (RAIL_TOP[0] + RAIL_TOP[1]) / 2
+    ht = (RAIL_TOP[1] - RAIL_TOP[0]) / 2
+    mt.sweep([P(a, rg(a), zt) for a in line], [(-hw, -ht), (hw, -ht), (hw, ht), (-hw, ht)], "Wood_Dark", True)
+    zm = (RAIL_MID[0] + RAIL_MID[1]) / 2
+    hm = (RAIL_MID[1] - RAIL_MID[0]) / 2
+    mt.sweep([P(a, rg(a), zm) for a in line], [(-hw, -hm), (hw, -hm), (hw, hm), (-hw, hm)], "Metal_DB_Steel", True)
+
+
+def parapet(ms, mt, a0, a1, rng):
+    """N: parapeito continuo de arenito cortado (blocos de 1,8..3,6, juntas de 0,1 sobre um nucleo escuro continuo),
+    capa de lajes claras (topo G + 1,5..1,65) e lanternas sobre a capa a cada ~4 blocos"""
+    DL.ring_band(ms, lambda a: R(a) + 0.5, lambda a: R(a) + 1.26, G - 0.25, G + 1.22, "Dirt_DB", step=2.0,
+                 a0=a0, a1=a1)
+    ang = a0
+    nb = 0
+    while ang < a1 - 0.05:
+        ln = rng.uniform(1.8, 3.6)
+        end = ang + deg_at(ln, ang)
+        if a1 - end < deg_at(1.4, end):
+            end = a1
+        am = (ang + end) / 2
+        hl = math.radians(end - ang) * R(am) / 2
+        cx, cy, yaw, hl = on_rim(am, hl, 0.85)
+        zt = G + rng.uniform(1.26, 1.4)
+        ms.box((2 * hl - 0.1, 1.0, zt - (G - 0.2)), (cx, cy, (zt + G - 0.2) / 2), (0, 0, yaw), SANDSTONE, 0.0)
+        ms.box((2 * hl - 0.04, 1.22, 0.24), (cx, cy, zt + 0.1), (0, 0, yaw + rng.uniform(-0.01, 0.01)), TOP, 0.0)
+        if nb % 4 == 2 and end < a1:
+            lantern(mt, cx, cy, zt + 0.22, yaw)
+        nb += 1
+        ang = end
+
+
+def ramp_rocks(mr, rng):
+    """rochas em pe que flanqueiam a cabeca da rampa E (fecham a ponta da guarda invisivel; fora da faixa da rampa e
+    do meio-fio: lateral w/2 + 0,15..1,45, colisao propria)"""
+    for aa, w, kind in L.ARENA_ACCESS:
+        if kind != "ramp":
+            continue
+        F, run, w_, k = access_frame(aa)
+        for s in (-1, 1):
+            lat = w / 2 + (RAMP_ROCK[0] + RAMP_ROCK[1]) / 2
+            b = (RAMP_ROCK[1] - RAMP_ROCK[0]) / 2
+            hl = 1.0
+            t = run + 0.65
+            c = F.p(t, s * lat, 0)
+            foot = to_world(rbox(hl, b, [rng.uniform(0.25, 0.45) for _ in range(4)],
+                                 [rng.uniform(0.05, 0.12), 0.0, rng.uniform(0.05, 0.12), 0.0]), c.x, c.y, F.a)
+            zt = G + rng.uniform(1.9, 2.4)
+            banded(mr, foot, A - 0.3, zt, rng, bands=RIM_GEO, base=(A + 1.5, DARK, 0.0), taper=0.14, band=0.4,
+                   ch=0.25, jit=0.04, top_tilt=local_tilt(c.x, c.y, F.a, s * rng.uniform(0.04, 0.08)))
+            col_box("DB_MineRampRock", (2 * hl - 0.3, 2 * b - 0.3, zt - (A - 0.5)), (c.x, c.y, (zt + A - 0.5) / 2),
+                    (0, 0, F.a))
+
+
+def w_occ():
+    """intervalos angulares (graus) ocupados pelos pilares W na linha da guarda (pilar alto + medio de cada grupo,
+    pilar solitario), com a folga que a face de blocos/lajes respeita"""
+    occ = []
+    for g in W_GROUPS:
+        aT, hlT, dpT, hT, pin, side, hlM, dpM, hM, hlB, dpB, hB = g
+        aM = aT + side * deg_at((hlT + hlM) * 0.78, aT)
+        lo = min(aT - deg_at(hlT, aT), aM - deg_at(hlM, aM))
+        hi = max(aT + deg_at(hlT, aT), aM + deg_at(hlM, aM))
+        occ.append((lo, hi))
+    aL, hlL, dpL, hL, pinL = W_LONE
+    occ.append((aL - deg_at(hlL, aL), aL + deg_at(hlL, aL)))
+    return occ
+
+
+def guards(ms, mt, rng):
+    """guardas visuais de toda a borda (ver o cabecalho da secao 2b)"""
+    # S: guarda Capsule de escada a escada
+    for s0, s1, t0, t1 in guard_spans(*SECTORS["S"]):
+        capsule_fence(mt, s0, s1, t0, t1)
+    # E: cerca de madeira da escada 318 ate a rocha em pe de 38,5; as rochas em pe interrompem (a cerca entra 0,35)
+    inset = 0.35
+    occ_e = [(a - deg_at(hl - inset, a), a + deg_at(hl - inset, a)) for a, hl, dz in E_STANDING]
+    a_last, hl_last, _ = E_STANDING[-1]
+    e1 = 360.0 + a_last + deg_at(hl_last - inset, a_last)
+    ph = 0
+    for s0, s1, t0, t1 in guard_spans(SECTORS["E"][0], e1, occ_e):
+        wood_fence(mt, s0, s1, rng, ph)
+        ph += 1
+    # N: parapeito da rocha em pe de 38,5 ate o pilar solitario W
+    aL, hlL = W_LONE[0], W_LONE[1]
+    n0 = a_last + deg_at(hl_last - inset, a_last)
+    n1 = aL - deg_at(hlL - inset, aL)
+    for s0, s1, t0, t1 in guard_spans(n0, n1):
+        parapet(ms, mt, s0, s1, rng)
+    # W: cerca de madeira entre os pilares, ate a escada 222
+    occ_w = [(lo + deg_at(inset, lo), hi - deg_at(inset, hi)) for lo, hi in w_occ()]
+    for s0, s1, t0, t1 in guard_spans(n1, SECTORS["W"][1], occ_w):
+        wood_fence(mt, s0, s1, rng, ph)
+        ph += 1
 
 
 # E: rochas em pe (angulo, meio-comprimento, altura acima do promenade) e prateleiras baixas andaveis
@@ -667,14 +827,12 @@ E_SHELVES = [(343.0, 3.0, 2.6, 1.5), (29.0, 2.6, 2.4, 1.75)]
 
 def east(mr, rng):
     """E: borda natural BAIXA - blocos de rocha na face, 2 prateleiras baixas (andaveis, colisao propria), 3 rochas
-    em pe e poucas lajes compridas com vaos"""
+    em pe e as 2 da cabeca da rampa (a cerca de madeira da borda fica em guards())"""
     a0, a1 = SECTORS["E"]
-    occ = [(a - deg_at(hl + 0.8, a), a + deg_at(hl + 0.8, a)) for a, hl, dz in E_STANDING]
-    occ += [(a + 360.0 - deg_at(hl + 0.8, a), a + 360.0 + deg_at(hl + 0.8, a)) for a, hl, dz in E_STANDING if a < 90]
     for r0, r1 in runs(a0, a1):
         rim_band(mr, r0, r1, TOP, DARK, rin_off=0.25)
-        wall_blocks(mr, r0, r1, rng, top=(-0.95, -0.3), crest=0.08)
-        slabs(mr, r0, r1, rng, occ, h=(0.45, 0.85), ln=(1.8, 3.6), gap=(1.4, 3.4))
+        wall_blocks(mr, r0, r1, rng, top=(-0.95, -0.3), crest=0.08, crest_h=(0.15, 0.4))
+    ramp_rocks(mr, rng)
     for a, hl, dz in E_STANDING:
         standing(mr, a, hl, dz, rng)
     for a, hl, pro, zt in E_SHELVES:
@@ -693,7 +851,7 @@ def east(mr, rng):
                 (0, 0, yaw))
 
 
-def north(mr, ms, rng):
+def north(mr, rng):
     """N: patamares naturais de arenito em UNIDADES que se alternam ao longo do arco (nada de arquibancada):
     'a' = patamar baixo L1 (~A+1,3) + alto L2 (~A+2,65) atras; 'c' = so o baixo, fundo ate a borda (baia: a face de
     rocha da borda aparece atras); 'b' = massa alta que atravessa os dois (fora das rotas do patamar). Cada bloco com
@@ -748,30 +906,7 @@ def north(mr, ms, rng):
                             (0, 0, yaw))
             prev = kind
             ang = b_ang
-        # parapeito: blocos de arenito cortado (2..4,2 de comprimento, 0,55..1,2 de altura), encostados ou com vaos
-        ang = r0 + deg_at(0.4, r0)
-        while ang < r1 - 0.3:
-            ln = rng.uniform(2.0, 4.2)
-            am = ang + deg_at(ln / 2, ang)
-            end = am + deg_at(ln / 2, am)
-            if end > r1:
-                break
-            pa, pb = P2(ang, R(ang) + 0.7), P2(end, R(end) + 0.7)
-            near = any(lateral(aa, *q)[1] < w / 2 + 1.35 and -1.0 <= lateral(aa, *q)[0] <= 12.0
-                       for aa, w, k in L.ARENA_ACCESS for q in (pa, pb))
-            if not near:
-                hh = rng.uniform(0.55, 1.2)
-                dp = rng.uniform(0.9, 1.1)
-                cx, cy, yaw, hl = on_rim(am, ln / 2, 0.7)
-                yaw += rng.uniform(-0.04, 0.04)
-                ms.box((2 * hl, dp, hh + 0.1), (cx, cy, G - 0.1 + (hh + 0.1) / 2), (0, 0, yaw), SANDSTONE, 0.12)
-                if rng.random() < 0.18 and ln > 2.4:
-                    s = rng.uniform(-0.25, 0.25) * ln
-                    ms.box((ln * 0.45, dp * 0.8, 0.4), (cx + math.cos(yaw) * s, cy + math.sin(yaw) * s, G + hh + 0.2),
-                           (0, 0, yaw + rng.uniform(-0.08, 0.08)), SANDSTONE, 0.1)
-            r = rng.random()
-            g = 0.0 if r < 0.25 else (rng.uniform(2.2, 3.4) if r > 0.8 else rng.uniform(0.8, 1.8))
-            ang = end + deg_at(g + 0.06, end)
+        # (o parapeito continuo de arenito cortado na linha da guarda fica em guards())
 
 
 LEDGE_ROUTE_SPANS = [(60.0, 80.0), (118.0, 131.0)]     # trechos das EXTRA_ROUTES ao longo do patamar L1
@@ -837,21 +972,13 @@ def pillar(mr, am, hl, dp, pin, ztop, rng, taper, name_col, radial_off=0.0, band
 
 def west(mr, rng):
     """W: pilares de canion verticais em grupos (alto + medio + quebra baixa) com estratos horizontais continuos;
-    entre eles, face de blocos e poucas lajes"""
+    entre eles, face de blocos (a cerca de madeira da borda fica em guards())"""
     a0, a1 = SECTORS["W"]
-    occ = []
-    for g in W_GROUPS:
-        aT, hlT, dpT, hT, pin, side, hlM, dpM, hM, hlB, dpB, hB = g
-        aM = aT + side * deg_at((hlT + hlM) * 0.78, aT)
-        lo = min(aT - deg_at(hlT, aT), aM - deg_at(hlM, aM))
-        hi = max(aT + deg_at(hlT, aT), aM + deg_at(hlM, aM))
-        occ.append((lo - deg_at(0.3, lo), hi + deg_at(0.3, hi)))
+    occ = [(lo - deg_at(0.3, lo), hi + deg_at(0.3, hi)) for lo, hi in w_occ()]
     aL, hlL, dpL, hL, pinL = W_LONE
-    occ.append((aL - deg_at(hlL + 0.3, aL), aL + deg_at(hlL + 0.3, aL)))
     for r0, r1 in runs(a0, a1):
         rim_band(mr, r0, r1, TOP, DARK, rin_off=0.25)
-        wall_blocks(mr, r0, r1, rng, occ, top=(-0.7, -0.1), crest=0.3, crest_h=(0.2, 0.7))
-        slabs(mr, r0, r1, rng, occ, h=(0.6, 1.2), ln=(1.4, 2.8), gap=(1.0, 2.6))
+        wall_blocks(mr, r0, r1, rng, occ, top=(-0.7, -0.1), crest=0.3, crest_h=(0.15, 0.42))
     for g in W_GROUPS:
         aT, hlT, dpT, hT, pin, side, hlM, dpM, hM, hlB, dpB, hB = g
         pillar(mr, aT, hlT, dpT, pin, G + hT, rng, 0.3, "DB_MineOutcrop", band=0.75)
@@ -923,11 +1050,12 @@ def stairs(ms, mr, mt, rng):
                 q = F.p((t1 + t2) / 2, ym, 0)
                 ms.box((t2 - t1 + 0.3, 1.45, 0.32), (q.x, q.y, ztop(t1) - 0.25 + 0.16), F.r(), cap, 0.08)
                 if style == "S":
-                    # poste-portal Capsule (branco, faixa azul, capuz ciano) na cabeca da escada
+                    # poste-portal Capsule (branco, faixa azul, capuz de lanterna ambar) na cabeca da escada
                     zb = ztop(t1) + 0.07
                     mt.box((0.95, 0.95, 2.4), (q.x, q.y, zb + 1.2), F.r(), "Plaster_DB_White", 0.12)
                     mt.box((1.05, 1.05, 0.4), (q.x, q.y, zb + 1.55), F.r(), "Roof_DB_Blue", 0.06)
-                    mt.cyl(0.46, 0.42, (q.x, q.y, zb + 2.61), m="DB_Cyan_Glow", n=10, bevel=0.0)
+                    mt.cyl(0.46, 0.42, (q.x, q.y, zb + 2.61), m="Lantern_Glow", n=10, bevel=0.0)
+                    mt.cyl(0.56, 0.14, (q.x, q.y, zb + 2.89), m="Plaster_DB_White", n=10, bevel=0.0)
             else:
                 # bochecha natural: blocos de rocha que descem com a escada, DENTRO da faixa da guarda
                 # (lateral w/2 + 0,05 .. w/2 + 1,25, a mesma da colisao DB_MineCheek)
@@ -994,39 +1122,99 @@ def ramp(ms, mr, rng):
 
 
 # ------------------------------------------------------------------ 4. buttes da arena (ARENA_ROCKS)
-def oct_spec(Rb, rng, vp=(0.04, 0.32), mp=(-0.12, 0.2), grooves=2, skip=2, e=0.0, phi=0.0, rot=0.0, prom=0,
-             prom_p=(0.3, 0.5)):
-    """contorno de rocha a partir do octogono de colisao (raio Rb = raio da coluna + 0,1; vertices em k*45 graus):
-    vertices empurrados para FORA (vp), meios de aresta (mp; 'grooves' deles viram fratura vertical rasa, ate 0,25
-    para dentro: a colisao fica no maximo ~0,2 alem da rocha), 'skip' meios omitidos (faces chatas); e = alongamento
-    de um lado so (phi); rot = giro do octogono (o mesmo 'rot0' do ngon_col); prom = vertices salientes (quinas
-    fortes: silhueta irregular, nada de tambor de 8 faces iguais). -> [(angulo, raio_base, empurrao)]"""
-    mids = list(range(8))
-    rng.shuffle(mids)
-    gro = set(mids[:grooves])
-    skp = set(mids[grooves:grooves + skip])
+# Cada butte = massa primaria (base larga + torre deslocada, sobre as 2 colunas do db_col) + massa SECUNDARIA (bloco
+# encostado e inclinado contra a base, colisao propria) + quebra pequena (2-3 lascas chatas no pe, rentes a base).
+# Silhueta: as 8 arestas verticais chanfradas, barriga por face (ate +0,35), cada camada afunila (topo 0,87..0,9 do
+# pe), estratos em cotas SORTEADAS por rocha (numero, altura, espessura e cor), tampo da torre inclinado 3,5..5 graus.
+def rock_contour(Rb, rng, rot, cham=(0.4, 0.5), vp=(0.02, 0.12), bulge=(0.0, 0.35), grooves=1, e=0.0, phi=0.0,
+                 prom=0, prom_p=(0.15, 0.3)):
+    """contorno de rocha em volta do octogono de colisao (vertices em rot + k*45 graus, raio Rb = raio da coluna +
+    0,1): vertices empurrados para FORA (vp; 'prom' deles salientes; e = alongamento para o lado phi); as 8 ARESTAS
+    VERTICAIS chanfradas (2 pontos a 'cham' do vertice, sobre as faces vizinhas); em cada face um ponto no meio com
+    BARRIGA para fora (bulge) ou, em 'grooves' delas, fratura rasa (-0,2: a colisao fica <= ~0,1 alem da rocha).
+    -> [(angulo, raio)] anti-horario em volta do centro"""
     pr = set(rng.sample(range(8), prom))
-    spec = []
+    faces = list(range(8))
+    rng.shuffle(faces)
+    gro = set(faces[:grooves])
+    vs = []
     for k in range(8):
         th = rot + k * math.pi / 4
         p = rng.uniform(*vp) + e * max(0.0, math.cos(th - phi)) ** 2 + (rng.uniform(*prom_p) if k in pr else 0.0)
-        if (k - 1) % 8 in gro or k in gro:
-            p += 0.12
-        spec.append((th, Rb, p))
-        if k in skp:
-            continue
-        tm = th + math.pi / 8
-        pm = -0.25 if k in gro else rng.uniform(*mp) + e * max(0.0, math.cos(tm - phi)) ** 2
-        spec.append((tm, Rb * math.cos(math.pi / 8), pm))
-    return spec
+        vs.append(((Rb + p) * math.cos(th), (Rb + p) * math.sin(th)))
+    pts = []
+    for k in range(8):
+        vx, vy = vs[k]
+        px, py = vs[k - 1]
+        nx, ny = vs[(k + 1) % 8]
+        c = rng.uniform(*cham)
+        lp = math.hypot(px - vx, py - vy)
+        ln = math.hypot(nx - vx, ny - vy)
+        pts.append((vx + (px - vx) / lp * c, vy + (py - vy) / lp * c))
+        pts.append((vx + (nx - vx) / ln * c, vy + (ny - vy) / ln * c))
+        mx, my = (vx + nx) / 2, (vy + ny) / 2
+        ml = math.hypot(mx, my)
+        push = -0.2 if k in gro else rng.uniform(*bulge)
+        if push < 0 or push > 0.3 * bulge[1]:           # barriga muito rasa = face chata (sem ponto)
+            pts.append((mx + mx / ml * push, my + my / ml * push))
+    return [(math.atan2(py, px), math.hypot(px, py)) for px, py in pts]
 
 
-def spec_ring(spec, cx, cy, pf, rmax=1e9):
-    """anel do contorno (spec) com empurrao pf(angulo, p); rmax = raio maximo (plano: r + 12%)"""
+def cring(cont, cx, cy, s, add=0.0, jit=0.0, rng=None, keep=None):
+    """anel do contorno: raio r*s + add(angulo) + ruido PARA FORA (0..jit); keep(p, cx, cy) = restricao (ex.: puxar o
+    pe da torre para dentro do tampo da base)"""
     out = []
-    for th, rb, p in spec:
-        rr = min(rmax, rb + pf(th, p))
-        out.append((cx + rr * math.cos(th), cy + rr * math.sin(th)))
+    for th, r in cont:
+        a = add(th) if callable(add) else add
+        rr = r * s + a + (rng.uniform(0.0, jit) if jit > 0 else 0.0)
+        p = (cx + rr * math.cos(th), cy + rr * math.sin(th))
+        out.append(keep(p, cx, cy) if keep else p)
+    return out
+
+
+def pull_in(poly):
+    """restricao: ponto fora do poligono volta pela reta ate o centro (cx, cy) ate cair dentro dele"""
+    def f(p, cx, cy):
+        if L.point_in_poly(p[0], p[1], poly):
+            return p
+        lo, hi = 0.0, 1.0
+        for _ in range(12):
+            m = (lo + hi) / 2
+            if L.point_in_poly(cx + (p[0] - cx) * m, cy + (p[1] - cy) * m, poly):
+                lo = m
+            else:
+                hi = m
+        return (cx + (p[0] - cx) * lo, cy + (p[1] - cy) * lo)
+    return f
+
+
+def mono(rings, gap=0.05):
+    """garante z crescente por vertice de anel para anel (estratos inclinados + tampo inclinado: nada de face
+    invertida)"""
+    out = []
+    prev = None
+    for pts, z, m in rings:
+        zs = list(z) if isinstance(z, (list, tuple)) else [z] * len(pts)
+        if prev is not None:
+            zs = [max(a, b + gap) for a, b in zip(zs, prev)]
+        out.append((pts, zs, m))
+        prev = zs
+    return out
+
+
+def strata(rng, lo, hi, n_opts=(0, 1, 1, 2)):
+    """faixas de estrato sorteadas entre lo..hi: [(z_a, z_b, material)] (numero, cota, espessura e cor por rocha)"""
+    out = []
+    n = rng.choice(n_opts)
+    cur = lo
+    for j in range(n):
+        tb = rng.uniform(0.22, 0.6)
+        room = hi - cur - tb
+        if room < 0.15:
+            break
+        za = cur + rng.uniform(0.0, room * (0.55 if j + 1 < n else 1.0))
+        out.append((za, za + tb, rng.choice((TOP, DARK, DARK))))
+        cur = za + tb + 0.45
     return out
 
 
@@ -1047,56 +1235,258 @@ def mesa_tiers(i):
     return [(x, y, round(MESA_COL_K * r, 3), A - 1.0, zs, 0.0), (cx2, cy2, round(r2f * r, 3), zs, A + h, 22.5)]
 
 
+_ORES = []
+
+
+def ores():
+    if not _ORES:
+        _ORES.extend(L.ore_points())
+    return _ORES
+
+
+def foot_free(pts, ore_clear, lane_clear=3.0):
+    """pe de uma peca solta junto da butte: longe dos ORE_* (borda a borda), das trilhas, dos acessos e da borda"""
+    for qx, qy in pts:
+        if any(math.hypot(qx - ox, qy - oy) - orad < ore_clear for _, _, ox, oy, orad in ores()):
+            return False
+        if any(L.polyline_dist(qx, qy, lp) < lane_clear for aa, lp in LANES):
+            return False
+        if math.hypot(qx, qy) > R(ang_of(qx, qy)) - 2.0:
+            return False
+        for aa, w, k in L.ARENA_ACCESS:
+            t, s = lateral(aa, qx, qy)
+            if -1.5 <= t <= _FRAMES[aa][1] + 3.0 and s < w / 2 + 1.5:
+                return False
+    return True
+
+
+def ore_keep(clear):
+    """restricao: ponto a menos de 'clear' da borda de um ORE_* volta pela reta ate o centro (cx, cy)"""
+    def ok(qx, qy):
+        return all(math.hypot(qx - ox, qy - oy) - orad >= clear for _, _, ox, oy, orad in ores())
+
+    def f(p, cx, cy):
+        if ok(*p):
+            return p
+        lo, hi = 0.0, 1.0
+        for _ in range(12):
+            m = (lo + hi) / 2
+            if ok(cx + (p[0] - cx) * m, cy + (p[1] - cy) * m):
+                lo = m
+            else:
+                hi = m
+        return (cx + (p[0] - cx) * lo, cy + (p[1] - cy) * lo)
+    return f
+
+
+def spall(mr, x, y, R1, zs, rng):
+    """massa SECUNDARIA: bloco de arenito encostado contra a base e TOMBADO de lado (9..15 graus) e um pouco contra a
+    rocha, largura 0,62..0,85 Rb (30-45% do diametro), altura 0,55..0,78 da base; pe escuro e estrato claro giram
+    com ele. A face de fora fica a no maximo ~1,35 da coluna, de frente/lado para o centro da arena, longe dos
+    ORE_*/trilhas/acessos. Colisao propria (caixa dentro do visual). -> angulo usado (ou None)"""
+    Rb = R1 + 0.1
+    H = zs - A
+    W = rng.uniform(0.62, 0.85) * Rb
+    D = W * rng.uniform(0.5, 0.6)
+    hb = H * rng.uniform(0.55, 0.78)
+    prot = rng.uniform(1.1, 1.35)
+    kr = math.tan(math.radians(rng.uniform(9.0, 15.0))) * rng.choice((-1, 1))   # tomba para +t (ou -t)
+    kl = math.tan(math.radians(rng.uniform(3.0, 7.0)))                          # e um pouco para dentro
+    to_c = math.atan2(-y, -x)
+    offs = [35.0, 45.0, 55.0, 65.0, 75.0, 88.0, -35.0, -45.0, -55.0, -65.0, -75.0, -88.0]
+    rng.shuffle(offs)
+    pick = None
+    for d in offs:
+        ang = to_c + math.radians(d)
+        ux, uy = math.cos(ang), math.sin(ang)
+        tx, ty = -uy, ux
+        cr = R1 + prot - D / 2
+        cx, cy = x + ux * cr, y + uy * cr
+        outer = [(cx + ux * D / 2 + tx * W / 2 * s, cy + uy * D / 2 + ty * W / 2 * s) for s in (-1, 0, 1)]
+        if foot_free(outer, 2.2):
+            pick = (ang, ux, uy, tx, ty, cx, cy)
+            break
+    if pick is None:
+        return None
+    ang, ux, uy, tx, ty, cx, cy = pick
+    yaw = ang - math.pi / 2                       # +y local = para fora (radial), x local = tangente
+    foot = to_world(rbox(W / 2, D / 2, [rng.uniform(0.35, 0.55) for _ in range(4)],
+                         [rng.uniform(0.05, 0.15), rng.uniform(0.12, 0.28), rng.uniform(0.05, 0.15), 0.0]),
+                    cx, cy, yaw)
+    # o bloco gira como um todo: o topo anda kr*(z-A) em +t e kl*(z-A) para dentro; os planos (estratos, tampo)
+    # descem para +t e sobem para fora
+    tl = lambda px, py: -kr * ((px - cx) * tx + (py - cy) * ty) + kl * ((px - cx) * ux + (py - cy) * uy)
+    ch = 0.25
+    zdf = A + hb * rng.uniform(0.22, 0.38)
+    zbt = A + hb - ch - rng.uniform(0.35, 0.55)
+
+    def ring(z, inset, jit, m, tilted=True):
+        dz = z - A
+        sh = (tx * kr * dz - ux * kl * dz, ty * kr * dz - uy * kl * dz)
+        pts = offset_poly(foot, -inset) if inset > 1e-4 else list(foot)
+        if jit > 0:
+            pts = jitter_out(pts, jit, rng)
+        pts = [(px + sh[0], py + sh[1]) for px, py in pts]
+        return (pts, [z + tl(px - sh[0], py - sh[1]) for px, py in pts] if tilted else z, m)
+    rings = [ring(A - 0.3, 0.0, 0.0, None, False), ring(zdf, 0.0, 0.05, DARK), ring(zdf + 0.35, 0.08, 0.04, ROCK),
+             ring(zbt, 0.16, 0.05, ROCK), ring(A + hb - ch, 0.2, 0.0, TOP)]
+    stack(mr, mono(rings), ch=ch, top_m=TOP, flat=False)
+    # colisao: caixa GIRADA como o bloco (eixo de cima = (-kl u + kr t + z)), recuada 0,4/0,6 das faces e com o
+    # topo 0,05 abaixo do tampo (quem sobe no bloco pisa no visual +-0,15)
+    upr = Vector((-kl * ux + kr * tx, -kl * uy + kr * ty, 1.0))       # eixo do cisalhamento (por unidade de z)
+    up = upr.normalized()
+    ax = Vector((ux, uy, 0.0))
+    ax = (ax - up * ax.dot(up)).normalized()
+    ay = up.cross(ax)
+    u0, u1 = -D / 2 + 0.3, D / 2 - 0.4
+    w0 = W / 2 - 0.6
+    z0, z1 = -0.5 * upr.length, (hb - 0.05) * upr.length   # topo da caixa no centro = A + hb - 0,05
+    if u1 - u0 > 0.6 and w0 > 0.4:
+        c = V((cx, cy, A)) + ax * ((u0 + u1) / 2) + up * ((z0 + z1) / 2)
+        rot = Matrix((ax, ay, up)).transposed().to_euler("XYZ")
+        col_box("DB_MineButte", (u1 - u0, 2 * w0, z1 - z0), tuple(c), tuple(rot))
+    return ang
+
+
+def chips(mr, x, y, R1, s_bot, ang_s, rng):
+    """quebra pequena: 2-3 lascas CHATAS no pe (contorno irregular, 0,3..0,48 de altura caindo para fora, rentes ao
+    talude da base, a no maximo ~1,4 da coluna), duas ao lado do bloco encostado e uma solta no lado que olha o
+    centro; longe dos ORE_*"""
+    to_c = math.atan2(-y, -x)
+    n = rng.choice((2, 3))
+    base = [] if ang_s is None else [ang_s + s * rng.uniform(0.5, 0.7) for s in (-1, 1)]
+    cand = base + [to_c + rng.uniform(-0.9, 0.9) for _ in range(6)]
+    made = 0
+    for a in cand:
+        if made >= n:
+            break
+        a2 = rng.uniform(0.5, 0.85)
+        b2 = a2 * rng.uniform(0.6, 0.8)
+        rr = R1 * s_bot + rng.uniform(0.0, 0.25)
+        cx, cy = x + rr * math.cos(a), y + rr * math.sin(a)
+        yaw = a + math.pi / 2 + rng.uniform(-0.6, 0.6)
+        # contorno irregular de 6..7 pontos (lasca, nao tijolo)
+        nq = rng.choice((6, 7))
+        q0 = rng.uniform(0, math.tau)
+        loc = [(math.cos(q0 + math.tau * j / nq) * a2 * rng.uniform(0.75, 1.1),
+                math.sin(q0 + math.tau * j / nq) * b2 * rng.uniform(0.75, 1.1)) for j in range(nq)]
+        foot = to_world(loc, cx, cy, yaw)
+        if not foot_free(foot, 1.6, 2.6):
+            continue
+        hc = rng.uniform(0.3, 0.48)
+        k = rng.uniform(0.1, 0.2)
+        tl = local_tilt(cx, cy, a, -k)            # desce para fora (encostada no talude)
+        stack(mr, [(foot, A - 0.15, None), (jitter_out(offset_poly(foot, -0.06), 0.04, rng),
+                                             [A + hc + tl(px, py) for px, py in foot], rng.choice((ROCK, DARK)))],
+              ch=0.0, top_m=TOP, flat=False)
+        made += 1
+
+
 def mesa(mr, i, rng, shrub):
-    """butte de arenito em 2 camadas: BASE larga (contem o octogono de colisao de raio 0,98 r) com pe escuro de
-    estrato INCLINADO e ressalto parcial, faixa clara inclinada e patamar plano chanfrado; TORRE mais estreita
-    DESLOCADA para um lado ate a altura da planta, com estrato escuro e topo plano chanfrado; fraturas verticais
-    rasas e faces chatas; arbusto no patamar largo em 3 delas. Colisao = as 2 colunas (db_col, ver mesa_tiers)."""
+    """butte de arenito sobre as 2 colunas do db_col (mesa_tiers): BASE larga (pe escuro de estrato inclinado com
+    ressalto parcial, estratos sorteados, faixa clara e patamar PLANO na cota da colisao) + TORRE deslocada (talude
+    sobre o patamar, estratos sorteados, tampo inclinado). As duas afunilam (pe alem da coluna com talude que varia
+    em volta, paredes quase a prumo em cima, topo ~ na coluna: 0,87..0,9 do pe), tem as 8 arestas verticais
+    chanfradas, barriga por face e ondulacao propria por anel (nada de extrusao reta). + bloco encostado, lascas no
+    pe, pedra-capa em algumas torres e arbusto no patamar largo em 4 delas. O pe nunca chega a menos de 1,3 da
+    borda de um ORE_*."""
     x, y, r, h = L.ARENA_ROCKS[i]
     (x1, y1, R1, _, zs, rot1), (x2, y2, R2, _, zt, rot2) = mesa_tiers(i)
     oa = math.radians(MESA_FORM[i][1])
     phi = oa + math.pi + rng.uniform(-0.5, 0.5)          # a base alonga para o lado do patamar largo
-    spec = oct_spec(R1 + 0.1, rng, vp=(0.02, 0.14), mp=(-0.1, 0.1), grooves=2, skip=3, e=0.05 * r, phi=phi,
-                    rot=math.radians(rot1), prom=3, prom_p=(0.22, 0.38))
-    psi = oa + rng.choice((1, -1)) * rng.uniform(1.3, 2.0)       # lado do ressalto do pe escuro
-    tamp = min(0.6, (zs - A - 1.6) * 0.22) * rng.uniform(0.8, 1.0)
-    sm = tamp / (1.2 * r)
-    beta = rng.uniform(0, math.tau)
-    tilt = lambda px, py: sm * ((px - x) * math.cos(beta) + (py - y) * math.sin(beta))
+    cont = rock_contour(R1 + 0.1, rng, math.radians(rot1), cham=(0.4, 0.5), vp=(0.02, 0.12), bulge=(0.0, 0.35),
+                        grooves=rng.choice((1, 2)), e=0.05 * r, phi=phi, prom=3, prom_p=(0.2, 0.4))
+    H = zs - A
     ch = 0.3
-    band = max(0.5, tamp + 0.3)
-    zd = A + min(h * rng.uniform(0.18, 0.24), (zs - A) * 0.42)
-    zb = zs - ch - band
-    ledge = lambda th: 0.03 + 0.42 * max(0.0, math.cos(th - psi)) ** 3
-    rmax = 1.12 * r
-    r0 = spec_ring(spec, x, y, lambda th, p: p + ledge(th), rmax)
-    r1 = spec_ring(spec, x, y, lambda th, p: p + ledge(th) + rng.uniform(0.0, 0.04), rmax)
-    r2 = spec_ring(spec, x, y, lambda th, p: p, rmax - 0.08)
-    rings = [(r0, A - 0.3, None), (r1, [zd + tilt(*q) for q in r1], DARK), (r2, [zd + 0.07 + tilt(*q) for q in r2], TOP)]
-    if zb - zd > 2 * tamp + 1.0:
-        z3 = (zd + zb) / 2
-        r3 = spec_ring(spec, x, y, lambda th, p: p + rng.uniform(0.0, 0.1), rmax - 0.08)
-        rings.append((r3, [z3 + rng.uniform(-0.08, 0.08) for q in r3], ROCK))
-    r4 = spec_ring(spec, x, y, lambda th, p: max(-0.25, p * 0.85), rmax - 0.12)
-    rings += [(r4, [zb + tilt(*q) for q in r4], ROCK), (r4, zs - ch, TOP)]
-    stack(mr, rings, ch=ch, top_m=TOP)
-    # torre deslocada e girada 22,5 graus (nasce 0,5 dentro da base, pe alargado como talude sobre o patamar)
-    spec2 = oct_spec(R2 + 0.1, rng, vp=(0.02, 0.12), mp=(-0.1, 0.1), grooves=1, skip=3, rot=math.radians(rot2),
-                     prom=2, prom_p=(0.25, 0.4))
+    zc = zs - ch
+    s_top = rng.uniform(0.96, 0.975)                     # topo da camada ~ na coluna
+    f1, f2 = rng.uniform(0, math.tau), rng.uniform(0, math.tau)
+    # pe: 1,05..1,17 conforme o lado (talude que varia) -> topo/pe = 0,83..0,93 (media ~0,88)
+    s_foot = lambda th: 1.11 + 0.036 * math.sin(2 * th + f1) + 0.024 * math.sin(3 * th + f2)
+    pw = rng.uniform(1.0, 1.35)                          # perfil reto/levemente concavo: talude so no pe
+    sz = lambda z, th: s_top + (s_foot(th) - s_top) * (1.0 - min(1.0, max(0.0, (z - A) / (zc - A)))) ** pw
+    tamp = min(0.85, (H - 1.2) * 0.25) * rng.uniform(0.7, 1.0)   # mergulho dos estratos (geologia, nao aro)
+    beta = rng.uniform(0, math.tau)
+    sm = tamp / (1.1 * r)
+    tilt = lambda px, py: sm * ((px - x) * math.cos(beta) + (py - y) * math.sin(beta))
+    psi = oa + rng.choice((1, -1)) * rng.uniform(1.3, 2.0)       # lado do ressalto do pe escuro
+    ledge = lambda th: 0.2 * max(0.0, math.cos(th - psi)) ** 3
+    keep_o = ore_keep(1.3)
+
+    def wav(amp):
+        """ondulacao propria do anel (2 ou 3 lobulos, fase sorteada): as faces entre aneis nunca sao paralelas"""
+        k, ph = rng.choice((2, 3)), rng.uniform(0, math.tau)
+        return lambda th: amp * (0.5 + 0.5 * math.sin(k * th + ph))
+
+    def bring(z, m, add=None, jit=0.0, tl=True, s=None):
+        pts = []
+        for th, rr0 in cont:
+            ss = s if s is not None else sz(z, th)
+            rr = rr0 * ss + (add(th) if add else 0.0) + (rng.uniform(0.0, jit) if jit > 0 else 0.0)
+            pts.append(keep_o((x + rr * math.cos(th), y + rr * math.sin(th)), x, y))
+        return (pts, [z + tilt(*q) for q in pts] if tl else z, m)
+    zd = A + max(0.5 + tamp, H * rng.uniform(0.14, 0.32))
+    band = max(rng.uniform(0.45, 0.85), tamp + 0.3)
+    zb = zc - band
+    rings = [bring(A - 0.3, None, lambda th: ledge(th) + 0.03, tl=False),
+             bring(zd, DARK, lambda th, w=wav(0.1): ledge(th) + w(th), 0.04),
+             bring(zd + 0.3, ROCK, wav(0.1), 0.04)]
+    for za, zb_, m in strata(rng, zd + 0.9, zb - 0.5, (0, 1, 1)):
+        rings.append(bring(za, ROCK, wav(0.12), 0.05))
+        rings.append(bring(zb_, m, wav(0.12), 0.05))
+    rings.append(bring(zb, ROCK, wav(0.08), 0.04))
+    rings.append(bring(zc, TOP, tl=False, s=s_top))
+    stack(mr, mono(rings), ch=ch, top_m=TOP)
+    # torre deslocada e girada 22,5 graus: talude sobre o patamar (preso dentro do tampo da base), afunila, tampo
+    # inclinado 3,5..5 graus em volta do centro (+-0,2 da colisao plana)
+    cont2 = rock_contour(R2 + 0.1, rng, math.radians(rot2), cham=(0.3, 0.4), vp=(0.02, 0.1), bulge=(0.0, 0.3),
+                         grooves=1, prom=2, prom_p=(0.15, 0.3))
     ch2 = 0.3
-    band2 = max(0.55, tamp + 0.3)
-    t0 = spec_ring(spec2, x2, y2, lambda th, p: p + 0.45)
-    tf = spec_ring(spec2, x2, y2, lambda th, p: p + rng.uniform(0.3, 0.45))
-    t0b = spec_ring(spec2, x2, y2, lambda th, p: p + rng.uniform(0.0, 0.06))
-    rings2 = [(t0, zs - 0.5, None), (tf, zs + 0.05, TOP), (t0b, zs + 0.55, ROCK)]
-    zq = zs + (zt - zs) * rng.uniform(0.4, 0.52)
-    if zq - tamp > zs + 0.95 and zt - ch2 - band2 - tamp - zq > 0.6:
-        t1 = spec_ring(spec2, x2, y2, lambda th, p: p + rng.uniform(0.0, 0.08))
-        rings2.append((t1, [zq + rng.uniform(-0.1, 0.1) for q in t1], ROCK))
-    t3 = spec_ring(spec2, x2, y2, lambda th, p: max(-0.2, p * 0.8))
-    z3 = max(zs + 0.85 + tamp, zt - ch2 - band2)
-    rings2 += [(t3, [z3 + tilt(*q) for q in t3], ROCK), (t3, zt - ch2, TOP)]
-    stack(mr, rings2, ch=ch2, top_m=TOP)
+    zc2 = zt - ch2
+    s2t = rng.uniform(0.965, 0.98)
+    s2b = s2t / rng.uniform(0.87, 0.9)
+    sz2 = lambda z: s2t + (s2b - s2t) * (1.0 - min(1.0, max(0.0, (z - zs) / (zc2 - zs)))) ** pw
+    keep_t = pull_in(cring(cont, x, y, s_top, -(ch + 0.12)))
+    keep_b = pull_in(cring(cont, x, y, s_top, -0.05))
+    gam = rng.uniform(0, math.tau)
+    ck = math.tan(math.radians(rng.uniform(3.5, 5.0)))
+    cap = lambda px, py: ck * ((px - x2) * math.cos(gam) + (py - y2) * math.sin(gam))
+    top2 = cring(cont2, x2, y2, s2t)
+    capdev = max(abs(cap(*q)) for q in top2)
+    tdev = max(abs(tilt(*q)) for q in cring(cont2, x2, y2, s2b + 0.1))
+    band2 = max(rng.uniform(0.45, 0.8), capdev + tdev + 0.25)
+    zb2 = zc2 - band2
+    tl2 = zb2 - tdev > zs + 0.75
+
+    def tring(s, z, m, add=0.0, jit=0.0, tl=True, keep=None):
+        pts = cring(cont2, x2, y2, s, add, jit, rng, keep)
+        return (pts, [z + tilt(*q) for q in pts] if tl else z, m)
+    rings2 = [tring(s2b, zs - 0.5, None, 0.28, tl=False, keep=keep_t),
+              tring(s2b, zs + 0.05, TOP, wav(0.22), 0.04, False, keep_t),
+              tring(sz2(zs + 0.5), zs + 0.5, ROCK, wav(0.06), 0.04, False, keep_b)]
+    if tl2:
+        for za, zb_, m in strata(rng, zs + 1.0 + tdev, zb2 - 0.45 - tdev, (0, 1, 1)):
+            rings2.append(tring(sz2(za), za, ROCK, wav(0.1), 0.05))
+            rings2.append(tring(sz2(zb_), zb_, m, wav(0.1), 0.05))
+    rings2.append(tring(sz2(zb2), zb2, ROCK, wav(0.06), 0.04, tl2))
+    rings2.append((top2, [zc2 + cap(*q) for q in top2], TOP))
+    stack(mr, mono(rings2), ch=ch2, top_m=TOP, flat=False)
+    # pedra-capa em algumas torres (quebra da silhueta no alto; acima da colisao, fora do alcance)
+    if rng.random() < 0.5:
+        a3 = rng.uniform(0.35, 0.5) * R2
+        b3 = a3 * rng.uniform(0.6, 0.85)
+        ga = rng.uniform(0, math.tau)
+        off = R2 * rng.uniform(0.15, 0.35)
+        cx3, cy3 = x2 + off * math.cos(ga), y2 + off * math.sin(ga)
+        z3 = zt + cap(cx3, cy3)
+        foot = to_world(rbox(a3, b3, [rng.uniform(0.25, 0.4) for _ in range(4)],
+                             [rng.uniform(0.0, 0.12), rng.uniform(0.05, 0.15), 0.0, 0.0]), cx3, cy3,
+                        rng.uniform(0, math.pi))
+        banded(mr, foot, z3 - 0.4, z3 + rng.uniform(0.7, 1.15), rng, taper=0.22, band=0.3, ch=0.2, jit=0.05,
+               top_tilt=local_tilt(cx3, cy3, ga, rng.choice((-1, 1)) * rng.uniform(0.06, 0.12)))
+    # massa secundaria + quebra pequena
+    ang_s = spall(mr, x, y, R1, zs, rng)
+    chips(mr, x, y, R1, 1.1, ang_s, rng)
     if shrub:
         cx = x - math.cos(oa) * r * 0.62
         cy = y - math.sin(oa) * r * 0.62
@@ -1110,7 +1500,7 @@ def mesa(mr, i, rng, shrub):
 def mesas(mr, rng):
     shrub = {0, 2, 3, 5}
     for i in range(len(L.ARENA_ROCKS)):
-        mesa(mr, i, rng, i in shrub)
+        mesa(mr, i, random.Random(rng.randint(0, 10 ** 6)), i in shrub)
 
 
 # ------------------------------------------------------------------ 5. pod de sondagem Capsule (centro)
@@ -1184,8 +1574,8 @@ def promenade(rng):
     for k in range(24):
         a0, a1 = k * 15.0, (k + 1) * 15.0
         g = math.degrees(0.1 / 60.0)
-        mb.prism(sector_poly(a0 + g, a1 - g, rin, rb1, 3.0), G - 0.2, G + 0.1, "Stone_DB_Block", 0.0)
-        mb.prism(sector_poly(a0 + g, a1 - g, rb2, lambda a: rout(a) - 0.02, 3.0), G - 0.2, G + 0.1, "Stone_DB_Block",
+        mb.prism(sector_poly(a0 + g, a1 - g, rin, rb1, 5.0), G - 0.2, G + 0.1, "Stone_DB_Block", 0.0)
+        mb.prism(sector_poly(a0 + g, a1 - g, rb2, lambda a: rout(a) - 0.02, 5.0), G - 0.2, G + 0.1, "Stone_DB_Block",
                  0.0)
     # lajes (2 fiadas desencontradas, ~4,2 de comprimento, juntas de 0,22)
     for row, (fa, fb, sh) in enumerate(((rb1, rmid, 0.0), (rmid, rb2, 0.5))):
@@ -1202,8 +1592,8 @@ def promenade(rng):
     for aa, w, k in L.ARENA_ACCESS:
         rr = R(aa) + 4.6
         c = P(aa, rr)
-        mb.cyl(2.55, 0.34, (c.x, c.y, G - 0.05), m="Plaster_DB_Navy", n=24, bevel=0.0)
-        mb.cyl(2.1, 0.34, (c.x, c.y, G - 0.01), m="Stone_Paving_DB", n=24, bevel=0.0)
+        mb.cyl(2.55, 0.34, (c.x, c.y, G - 0.05), m="Plaster_DB_Navy", n=16, bevel=0.0)
+        mb.cyl(2.1, 0.34, (c.x, c.y, G - 0.01), m="Stone_Paving_DB", n=16, bevel=0.0)
         star = []
         for j in range(8):
             t = math.radians(aa) + j * math.pi / 4
@@ -1243,11 +1633,12 @@ def build():
     floor()
     ms = MB("DB_Mine_Stone", COLL, random.Random(2310), detail="near")      # arenito cortado, escadas, lajes
     mr = MB("DB_Mine_Rock", COLL, random.Random(2320), detail="near")       # rocha natural: bordas, mesas
-    mt = MB("DB_Mine_Tech", COLL, random.Random(2330), detail="near")       # guarda Capsule, postes, pilones
-    south(ms, mt, random.Random(2311))
+    mt = MB("DB_Mine_Tech", COLL, random.Random(2330), detail="near")       # guardas da borda, lanternas, pilones
+    south(ms, random.Random(2311))
     east(mr, random.Random(2321))
-    north(mr, ms, random.Random(2322))
+    north(mr, random.Random(2322))
     west(mr, random.Random(2323))
+    guards(ms, mt, random.Random(2314))
     stairs(ms, mr, mt, random.Random(2312))
     ramp(ms, mr, random.Random(2313))
     mesas(mr, random.Random(2324))
@@ -1260,7 +1651,7 @@ def build():
     # luz da cabeca da escada S (portal Capsule da arena)
     F, run, w, k = access_frame(270.0)
     q = F.p(run + 0.7, 0, 0)
-    light("L_DBMine_TechGate", "POINT", (q.x, q.y, G + 4.2), 140, (0.45, 0.85, 1.0), 0.5)
+    light("L_DBMine_TechGate", "POINT", (q.x, q.y, G + 4.2), 140, (1.0, 0.66, 0.34), 0.5)
 
 
 # ------------------------------------------------------------------ rotas / sondas extras (db_qa)

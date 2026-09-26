@@ -99,9 +99,9 @@ ER.BUDGET_OWNER = {"terrain": (110000, 135), "mining": (38000, 50), "entrance": 
                    "exit": (28000, 40), "gate_sg": (26000, 36), "vfx": (14000, 30), "vegetation": (40000, 60),
                    "props": (26000, 45)}
 # pecas moveis (radar, aneis, orbe, esfera do summon...) contam a parte; colisoes sao Parts invisiveis ancoradas
-# (baratas), o teto de 1500 cobre o piso fatiado da arena/ilha + as zonas + o vestir
+# (baratas), o teto de 1800 cobre o piso fatiado da arena/ilha + as zonas + o vestir
 ER.BUDGET = {"static_tris": 480000, "static_meshes": 680, "vfx_tris": 14000, "vfx_meshes": 40, "total_tris": 494000,
-             "total_meshes": 720, "materials": 115, "shadow_meshes": 300, "day_lights": 40, "col": 1500}
+             "total_meshes": 720, "materials": 115, "shadow_meshes": 300, "day_lights": 40, "col": 1800}
 cx, cy = to_world_xy(0.0, 0.0)
 ER.FAR_GROUND = None                 # o mar distante ja vem da Ilha 1 (um so FAR_GROUND no mundo)
 ER.VOID_CATCH = {"size": [440, 4, 460], "y": -40.0, "center": (cx, cy)}

@@ -445,159 +445,294 @@ def to_world(poly, t, inward):
 
 
 # ------------------------------------------------------------------ penhasco da borda (A1) + patamares (A2)
+# O penhasco e feito de MASSAS: 3-5 costelas fundidas (larguras de 4,8 a 12, ~2,5x) com topo comum em degraus leves
+# (sempre ABAIXO do piso: o terreno cobre a parte de dentro e nada fica coplanar com ele), no maximo UMA tampa de grama
+# por massa (<= 1/3 das costelas) e uma fenda escura entre massas. Nos dois setores da frente (queda SW -> escadaria
+# -> queda SE) corre um PATAMAR continuo em ~G-8 (estrato saliente com topo de grama e linguetas): o paredao le como
+# camadas horizontais, nao como palicada de colunas.
+LEDGE_Z = G - 8.0
+TOP_STEPS = (0.08, 0.46, 0.84)          # degraus do topo de uma massa (abaixo do nivel do piso)
+
+
+def front_sectors(W):
+    """trechos (s0, s1) da borda da frente: recorte da escadaria (leste) -> queda SE e queda SW -> recorte (oeste)"""
+    NX = L.ENTRY_STAIR_W / 2 + 2.2
+    s_w = W.param(-NX - 3.5, -134.0)
+    s_e = W.param(NX + 3.5, -134.0)
+    s_sw = W.param(*L.FALL_SW)
+    s_se = W.param(*L.FALL_SE)
+    return [(s_e, s_se - 9.5), (s_sw + 9.5, s_w + W.total)]
+
+
+def side_sectors(W):
+    """os dois flancos (vistos nas cameras laterais): queda SE -> ponte da saida e cacho NO -> queda SW. O patamar
+    corre mais alto no leste e mais baixo no oeste (nada de anel uniforme); pontes, plataformas e mesas o interrompem"""
+    s_sw = W.param(*L.FALL_SW)
+    s_se = W.param(*L.FALL_SE)
+    s_ex = W.param(*L.EXIT_START)
+    s_nw = W.param(-160.0, 92.0)
+    return [(s_se + 9.5, s_ex - 14.0, G - 6.5), (s_nw, s_sw - 9.5, G - 10.5)]
+
+
+def in_sectors(W, s, sectors):
+    for s0, s1 in sectors:
+        ss = s % W.total
+        for k in (0.0, W.total):
+            if s0 <= ss + k <= s1:
+                return True
+    return False
+
+
 def cliffs(rng):
     mb = MB("DB_Ter_Cliffs", C, rng, detail="near", floor=-999)
     W = Walker(rim_pts())
     total = W.total
     falls = [W.param(*L.FALL_SW), W.param(*L.FALL_SE)]
+    sectors = front_sectors(W)
+    ledged = sectors + [(a, b) for a, b, z in side_sectors(W)]
     seed = rng.uniform(0, 50)
     s = rng.uniform(0, 3)
     s_end = s + total
     count = 0
     ledge_next = rng.uniform(8, 20)
+    faces = []                     # (s, meia-largura, saliencia da face) das costelas: o patamar da frente as segue
+    NX = L.ENTRY_STAIR_W / 2 + 2.2
     while s < s_end:
-        # tres massas bem diferentes (nada de orgao de tubos): contraforte largo e saliente, laje, costela estreita
         wave = noise.noise(Vector((s / total * 7.0 + seed, 2.1, 0.7)))
-        u_k = rng.random()
-        if u_k < 0.17:
-            kind, w, D, out = "buttress", rng.uniform(14.0, 20.0), rng.uniform(10.0, 13.5), rng.uniform(3.0, 5.6)
-        elif u_k < 0.55:
-            kind, w, D, out = "slab", rng.uniform(8.5, 13.0), rng.uniform(6.0, 9.5), rng.uniform(0.4, 2.2)
-        else:
-            kind, w, D, out = "rib", rng.uniform(4.2, 7.0), rng.uniform(5.0, 8.0), rng.uniform(0.2, 2.6)
-        wide = kind != "rib"
-        sc = s + w * 0.5
-        p, t, nout = W.at(sc)
-        nin = -nout
-        dfall = min(W.sdist(sc, f) for f in falls)
-        # recorte da escadaria da chegada: a costela com o centro no vao desce para baixo da ponte; as vizinhas
-        # (ombreiras) deslizam ao longo da borda ate a face ficar fora do vao
-        NX = L.ENTRY_STAIR_W / 2 + 2.2
-        in_notch = False
-        if p.y < -110.0 and abs(p.x) < NX + w * 0.56:
-            if abs(p.x) < NX - 1.0:
-                in_notch = True
-            elif abs(t.x) > 0.3:
-                p = p + t * ((math.copysign(NX + w * 0.56, p.x) - p.x) / t.x)
-        # pe da coluna (um pouco para dentro): nivel do topo do terreno ali
-        q = p + nin * 2.5
-        lvl = level_at(q.x, q.y)
-        lid = rng.random() < 0.5 + 0.28 * wave
-        z_top = lvl + 0.1 - (0.5 if lid else 0.35)
-        deck = L.DECK - 2.0 if in_notch else None
-        for u in (-0.45, 0.0, 0.45):
-            for v in (-out, 0.0, D - out):
-                pp = p + t * (w * u) + nin * v
-                dk = bridge_deck(pp.x, pp.y, pad=1.0)
-                if dk is not None:
-                    deck = dk if deck is None else min(deck, dk)
-        if near_mesa(p.x - nout.x * 2, p.y - nout.y * 2, 0.78):
-            s += w * rng.uniform(0.72, 0.9)
-            continue
-        wet = False
-        if dfall < 4.6:
-            wet = True
-        else:
-            for u in (-0.5, 0.0, 0.5):
-                for v in (0.0, 2.0, D - out):
-                    pp = p + t * (w * u) + nin * v
-                    if in_water(pp.x, pp.y, pad=0.8):
-                        wet = True
-        if wet:
-            lid = False
-            z_top = min(z_top, L.GROUND - 1.9 - 0.35)
-            out = -0.9 if dfall < 4.6 else min(out, 0.4)
-        elif dfall < 9.0:
-            out = min(out, 1.2)
-        if deck is not None:
-            lid = False
-            z_top = min(z_top, deck - 0.3 - 0.35)
-            out = min(out, 1.0)
-        if kind == "buttress" and (deck is not None or wet):
-            out = min(out, 1.0)
-        # coluna no nivel de uma prateleira/terraco que encosta num piso MAIS BAIXO alcancavel (bolsao ao lado da
-        # prateleira da saida): nao avanca sobre ele - fica rasa, dentro da faixa da guarda da borda
-        for u in (-0.5, -0.25, 0.0, 0.25, 0.5):
-            for v in (2.0, (D - out) * 0.5, D - out):
-                pp = p + t * (w * u) + nin * v
-                if reach_w(pp.x, pp.y) > 0.0 and level_at(pp.x, pp.y) < z_top - 0.2:
-                    D = min(D, out + 3.4)
-        cc = p + nout * (out - D * 0.5)
-        poly = foot(rng, w, D, n=7 if kind == "buttress" else (6 if wide else 5))
-        wp = to_world(poly, t, nin)
-        # profundidade em FAIXAS ao longo da borda (dois ruidos de frequencias diferentes, pouco sorteio por peca):
-        # trechos rasos e trechos fundos, nada de pente de pontas iguais
-        wave2 = noise.noise(Vector((sc / total * 11.0 + seed, 1.3, 0.2)))
-        hang_d = 29.0 + 19.0 * wave2 + 9.0 * wave + rng.uniform(-6.0, 6.0)
-        if kind == "buttress":
-            hang_d += rng.uniform(10.0, 22.0)
-        elif kind == "rib" and rng.random() < 0.35:
-            hang_d *= rng.uniform(0.45, 0.7)
-        z_bot = min(z_top - 12.0, lvl - hang_d)
-        lean_k = rng.uniform(1.0, 3.5) * (1.6 if kind == "buttress" else 1.0)
-        # ~45% das massas terminam ROMBUDAS (fundo chato largo, perfil gordo) em vez de ponta de estalactite
-        blunt = wide and rng.random() < 0.5 or (not wide and rng.random() < 0.35)
-        hang(mb, cc, wp, z_top, z_bot, rng, tip=rng.uniform(0.4, 0.62) if blunt else rng.uniform(0.1, 0.32),
-             pw=rng.uniform(1.2, 1.6) if blunt else rng.uniform(1.5, 2.5),
-             lean=(nin.x * lean_k, nin.y * lean_k), lid=lid,
-             band=rng.uniform(1.4, 3.2) if not lid else rng.uniform(1.0, 1.8),
-             strata=strata_at(sc, total, z_top, z_bot, seed), mids=(0.45,) if not wide else (0.33, 0.66),
-             tongues=(rng.randint(1, 3) if lid and rng.random() < 0.6 else 0), tdir=(nout.x, nout.y),
-             dark_from=rng.uniform(0.62, 0.82), bottom_apex=not blunt)
-        count += 1
-        if blunt and deck is None and not wet and rng.random() < 0.55:
-            # lobo de baixo sob o fundo rombudo: silhueta em degrau (massa pesada, nao disco sobre espetos)
-            H0 = z_top - z_bot
-            cl = cc + nin * lean_k + t * rng.uniform(-w * 0.12, w * 0.12)      # o fundo da coluna (com a inclinacao)
-            zl = z_bot + min(3.0, H0 * 0.12)
-            hang(mb, cl, to_world(foot(rng, w * rng.uniform(0.34, 0.5), D * rng.uniform(0.4, 0.55), n=5), t, nin),
-                 zl, zl - rng.uniform(7.0, 16.0), rng, tip=rng.uniform(0.25, 0.5), pw=rng.uniform(1.3, 1.8),
-                 lean=(nin.x * 1.5, nin.y * 1.5), lid=False, band=0.0, mids=(0.5,), dark_from=0.0, chamfer=0.4,
-                 bottom_apex=rng.random() < 0.5)
+        wave2 = noise.noise(Vector((s / total * 11.0 + seed, 1.3, 0.2)))
+        nrib = rng.randint(3, 5)
+        heavy = rng.random() < 0.22                         # massa com um contraforte largo e saliente no meio
+        m_out = rng.uniform(0.5, 2.4)
+        m_hang = 29.0 + 19.0 * wave2 + 9.0 * wave
+        m_blunt = rng.random() < 0.5
+        lid_k = rng.randrange(nrib) if rng.random() < 0.8 else None
+        shape = rng.choice(("peak", "up", "down"))
+        steps = []
+        for k in range(nrib):
+            u = k / max(1, nrib - 1)
+            f = abs(u - 0.5) * 2.0 if shape == "peak" else (1.0 - u if shape == "up" else u)
+            steps.append(TOP_STEPS[int(round(f * 2))] + rng.uniform(0.0, 0.05))
+        mid = (nrib - 1) / 2.0
+        for k in range(nrib):
+            buttress = heavy and k == nrib // 2
+            if buttress:
+                w, D, out = rng.uniform(13.0, 17.0), rng.uniform(10.0, 13.0), m_out + rng.uniform(1.6, 3.2)
+            else:
+                w, D, out = rng.uniform(4.8, 12.0), rng.uniform(6.0, 9.0), m_out + rng.uniform(-0.5, 0.5)
+            wide = w > 8.4
+            sc = s + w * 0.5
+            p, t, nout = W.at(sc)
+            nin = -nout
+            dfall = min(W.sdist(sc, f) for f in falls)
+            # recorte da escadaria da chegada: a costela com o centro no vao desce para baixo da ponte; as vizinhas
+            # (ombreiras) deslizam ao longo da borda ate a face ficar fora do vao
+            in_notch = False
+            if p.y < -110.0 and abs(p.x) < NX + w * 0.56:
+                if abs(p.x) < NX - 1.0:
+                    in_notch = True
+                elif abs(t.x) > 0.3:
+                    p = p + t * ((math.copysign(NX + w * 0.56, p.x) - p.x) / t.x)
+            q = p + nin * 2.5
+            lvl = level_at(q.x, q.y)
+            lid = k == lid_k
+            # topo da costela: abaixo do piso (o terreno cobre). No terraco da vila (saia de 1,0; cantos da borda
+            # que a grade corta) o topo fica quase liso (<= 0,14 abaixo): a costela tapa o canto rente ao piso
+            top = lvl - (steps[k] if lvl < L.HUB - 1.0 else 0.08 + (steps[k] - 0.08) * 0.08)
+            z_top = top - (0.5 if lid else 0.35)
+            deck = L.DECK - 2.0 if in_notch else None
+            for uu in (-0.45, 0.0, 0.45):
+                for v in (-out, 0.0, D - out):
+                    pp = p + t * (w * uu) + nin * v
+                    dk = bridge_deck(pp.x, pp.y, pad=1.0)
+                    if dk is not None:
+                        deck = dk if deck is None else min(deck, dk)
+            if near_mesa(p.x - nout.x * 2, p.y - nout.y * 2, 0.78):
+                s += w * rng.uniform(0.6, 0.75)
+                continue
+            wet = False
+            if dfall < 4.6:
+                wet = True
+            else:
+                for uu in (-0.5, 0.0, 0.5):
+                    for v in (0.0, 2.0, D - out):
+                        pp = p + t * (w * uu) + nin * v
+                        if in_water(pp.x, pp.y, pad=0.8):
+                            wet = True
+            if wet:
+                lid = False
+                z_top = min(z_top, L.GROUND - 1.9 - 0.35)
+                out = -0.9 if dfall < 4.6 else min(out, 0.4)
+            elif dfall < 9.0:
+                out = min(out, 1.2)
+            if deck is not None:
+                lid = False
+                z_top = min(z_top, deck - 0.3 - 0.35)
+                out = min(out, 1.0)
+            if buttress and (deck is not None or wet):
+                out = min(out, 1.0)
+            # costela no nivel de uma prateleira/terraco que encosta num piso MAIS BAIXO alcancavel (bolsao ao lado da
+            # prateleira da saida): nao avanca sobre ele - fica rasa, dentro da faixa da guarda da borda
+            for uu in (-0.5, -0.25, 0.0, 0.25, 0.5):
+                for v in (2.0, (D - out) * 0.5, D - out):
+                    pp = p + t * (w * uu) + nin * v
+                    if reach_w(pp.x, pp.y) > 0.0 and level_at(pp.x, pp.y) < z_top - 0.2:
+                        D = min(D, out + 3.4)
+            cc = p + nout * (out - D * 0.5)
+            poly = foot(rng, w, D, n=7 if buttress else (6 if wide else 5))
+            wp = to_world(poly, t, nin)
+            # fundo da massa: profundidade comum (a do meio mais funda), pouca variacao por costela
+            hang_d = m_hang * (1.0 + 0.16 * (1.0 - abs(k - mid) / max(1.0, mid))) * rng.uniform(0.9, 1.08)
+            if buttress:
+                hang_d += rng.uniform(8.0, 16.0)
+            z_bot = min(z_top - 12.0, lvl - hang_d)
+            lean_k = rng.uniform(1.0, 3.0) * (1.5 if buttress else 1.0)
+            blunt = (m_blunt and rng.random() < 0.8) or (not m_blunt and rng.random() < 0.2)
+            hang(mb, cc, wp, z_top, z_bot, rng, tip=rng.uniform(0.42, 0.62) if blunt else rng.uniform(0.12, 0.32),
+                 pw=rng.uniform(1.2, 1.6) if blunt else rng.uniform(1.5, 2.4),
+                 lean=(nin.x * lean_k, nin.y * lean_k), lid=lid,
+                 band=rng.uniform(1.4, 3.0) if not lid else rng.uniform(1.0, 1.8),
+                 strata=strata_at(sc, total, z_top, z_bot, seed), mids=(0.45,) if not buttress else (0.33, 0.66),
+                 tongues=(rng.randint(1, 3) if lid else 0), tdir=(nout.x, nout.y),
+                 dark_from=rng.uniform(0.62, 0.82), bottom_apex=not blunt)
             count += 1
-        if kind == "buttress" and deck is None and not wet:
-            # lobo de baixo: o contraforte desce em degrau (silhueta escalonada, nada de cortina uniforme)
-            H0 = z_top - z_bot
-            zl = z_top - H0 * rng.uniform(0.38, 0.5)
-            cl = cc - nout * (D * 0.18) + t * rng.uniform(-w * 0.15, w * 0.15)
-            hang(mb, cl, to_world(foot(rng, w * rng.uniform(0.5, 0.66), D * 0.7, n=6), t, nin), zl,
-                 z_bot - rng.uniform(10.0, 22.0), rng, tip=rng.uniform(0.12, 0.25), pw=rng.uniform(1.6, 2.2),
-                 lean=(nin.x * 3.0, nin.y * 3.0), lid=False, band=0.0, strata=strata_at(sc, total, zl, z_bot - 20.0, seed),
-                 mids=(0.5,), dark_from=rng.uniform(0.5, 0.7), chamfer=0.6)
+            if deck is None and not wet and not in_notch:
+                faces.append((sc, w * 0.5, out))
+            if blunt and deck is None and not wet and rng.random() < 0.3:
+                # lobo de baixo sob o fundo rombudo: silhueta em degrau (massa pesada, nao disco sobre espetos)
+                H0 = z_top - z_bot
+                cl = cc + nin * lean_k + t * rng.uniform(-w * 0.12, w * 0.12)
+                zl = z_bot + min(3.0, H0 * 0.12)
+                hang(mb, cl, to_world(foot(rng, w * rng.uniform(0.34, 0.5), D * rng.uniform(0.4, 0.55), n=5), t, nin),
+                     zl, zl - rng.uniform(7.0, 16.0), rng, tip=rng.uniform(0.25, 0.5), pw=rng.uniform(1.3, 1.8),
+                     lean=(nin.x * 1.5, nin.y * 1.5), lid=False, band=0.0, mids=(0.5,), dark_from=0.0, chamfer=0.4,
+                     bottom_apex=rng.random() < 0.5)
+                count += 1
+            if buttress and deck is None and not wet:
+                # lobo de baixo: o contraforte desce em degrau (silhueta escalonada, nada de cortina uniforme)
+                H0 = z_top - z_bot
+                zl = z_top - H0 * rng.uniform(0.38, 0.5)
+                cl = cc - nout * (D * 0.18) + t * rng.uniform(-w * 0.15, w * 0.15)
+                hang(mb, cl, to_world(foot(rng, w * rng.uniform(0.5, 0.66), D * 0.7, n=6), t, nin), zl,
+                     z_bot - rng.uniform(10.0, 22.0), rng, tip=rng.uniform(0.12, 0.25), pw=rng.uniform(1.6, 2.2),
+                     lean=(nin.x * 3.0, nin.y * 3.0), lid=False, band=0.0,
+                     strata=strata_at(sc, total, zl, z_bot - 20.0, seed),
+                     mids=(0.5,), dark_from=rng.uniform(0.5, 0.7), chamfer=0.6)
+                count += 1
+            # patamar saliente (A2) so onde nao corre o patamar continuo: costela mais baixa com tufo verde
+            if (sc > ledge_next and deck is None and dfall > 11.0 and not in_notch
+                    and not in_sectors(W, sc, ledged)):
+                ledge_next = sc + rng.uniform(26.0, 46.0)
+                w2 = rng.uniform(6.5, 11.0)
+                D2 = rng.uniform(4.5, 7.0)
+                o2 = out + rng.uniform(2.0, 4.0)
+                c2 = p + t * rng.uniform(-2.0, 2.0) + nout * (o2 - D2 * 0.5)
+                if bridge_deck(c2.x, c2.y, pad=4.0) is None and not near_mesa(c2.x, c2.y, 1.1):
+                    zt2 = lvl - rng.uniform(5.0, 10.0)
+                    hang(mb, c2, to_world(foot(rng, w2, D2, n=5), t, nin), zt2 - 0.5, zt2 - rng.uniform(20.0, 34.0),
+                         rng, tip=rng.uniform(0.12, 0.25), lean=(nin.x * 2.0, nin.y * 2.0), lid=True, band=1.4,
+                         strata=strata_at(sc, total, zt2, zt2 - 30.0, seed), mids=(0.5,),
+                         tongues=rng.randint(1, 3), tdir=(nout.x, nout.y))
+                    count += 1
+            s += w * rng.uniform(0.55, 0.66)
+        # entre massas: recuo com fenda escura (fratura vertical que le de longe)
+        gap = rng.uniform(1.2, 3.2)
+        pf, tf_, nf = W.at(s + gap * 0.5)
+        dfall = min(W.sdist(s, f) for f in falls)
+        if (dfall > 9.0 and bridge_deck(pf.x, pf.y, pad=2.0) is None and not near_mesa(pf.x, pf.y, 0.9)
+                and not (pf.y < -110.0 and abs(pf.x) < NX + 4.0) and rng.random() < 0.6):
+            wf = gap + rng.uniform(1.6, 2.6)
+            qf = pf - nf * 2.5
+            lf = level_at(qf.x, qf.y)
+            cf = pf + nf * (-1.3 - 2.0)
+            hang(mb, cf, to_world(foot(rng, wf, 4.4, n=5), tf_, -nf), lf - rng.uniform(1.2, 2.5),
+                 lf - m_hang * rng.uniform(0.4, 0.65), rng, m=DARK, tip=0.3, lid=False, band=0.0,
+                 mids=(0.5,), dark_from=0.0, chamfer=0.3)
             count += 1
-        # fenda escura recuada entre massas largas (fratura vertical que le de longe)
-        gap_extra = 0.0
-        if wide and deck is None and not wet and dfall > 9.0 and rng.random() < 0.32:
-            wf = rng.uniform(2.6, 3.8)
-            pf, tf_, nf = W.at(s + w * 1.02 + wf * 0.3)
-            if bridge_deck(pf.x, pf.y, pad=2.0) is None and not near_mesa(pf.x, pf.y, 0.9):
-                qf = pf - nf * 2.5
-                lf = level_at(qf.x, qf.y)
-                cf = pf + nf * (-1.3 - 2.2)
-                hang(mb, cf, to_world(foot(rng, wf, 4.4, n=5), tf_, -nf), lf - rng.uniform(0.6, 2.5),
-                     lf - hang_d * rng.uniform(0.35, 0.6), rng, m=DARK, tip=0.3, lid=False, band=0.0,
-                     mids=(0.5,), dark_from=0.0, chamfer=0.3)
-                gap_extra = wf * 0.75
-                count += 1
-        # patamar saliente (A2): costela mais baixa na frente, com tufo verde e ponta funda
-        if sc > ledge_next and deck is None and dfall > 11.0 and not in_notch:
-            ledge_next = sc + rng.uniform(16.0, 34.0)
-            w2 = rng.uniform(5.5, 9.5)
-            D2 = rng.uniform(4.5, 7.0)
-            o2 = out + rng.uniform(2.0, 4.0)
-            c2 = p + t * rng.uniform(-2.0, 2.0) + nout * (o2 - D2 * 0.5)
-            ok = bridge_deck(c2.x, c2.y, pad=4.0) is None and not near_mesa(c2.x, c2.y, 1.1)
-            if ok:
-                zt2 = lvl - rng.uniform(3.5, 10.0)
-                poly2 = foot(rng, w2, D2, n=5)
-                hang(mb, c2, to_world(poly2, t, nin), zt2 - 0.5, zt2 - rng.uniform(20.0, 34.0), rng,
-                     tip=rng.uniform(0.12, 0.25), lean=(nin.x * 2.0, nin.y * 2.0), lid=True, band=1.4,
-                     strata=strata_at(sc, total, zt2, zt2 - 30.0, seed), mids=(0.5,),
-                     tongues=rng.randint(1, 3), tdir=(nout.x, nout.y))
-                count += 1
-        s += w * rng.uniform(0.72, 0.88) + gap_extra
+        s += gap
+    for s0, s1 in sectors:
+        count += strata_ledge(mb, rng, W, s0, s1, faces, seed)
+    for s0, s1, zl in side_sectors(W):
+        count += strata_ledge(mb, rng, W, s0, s1, faces, seed, z0=zl, step=3.0)
     mb.finish()
     return count
+
+
+def strata_ledge(mb, rng, W, s0, s1, faces, seed, z0=LEDGE_Z, step=2.0):
+    """patamar continuo (estrato saliente) de um setor da frente: laje horizontal em ~G-8 com topo de grama, beiral de
+    rocha clara, sombra escura por baixo e linguetas de grama. A saliencia acompanha a face das costelas (maior
+    saliencia num raio de 3 + 1,2..2,2) e afina nas pontas; interrompe em ponte/mesa."""
+    n = max(2, int((s1 - s0) / step))
+    rows = []
+    for i in range(n + 1):
+        s = s0 + (s1 - s0) * i / n
+        p, t, nout = W.at(s)
+        o = None
+        for sc, hw, out in faces:
+            if W.sdist(s, sc) < hw + 3.0:
+                o = out if o is None else max(o, out)
+        if o is None:
+            rows.append(None)
+            continue
+        ends = min(1.0, (s - s0) / 5.0, (s1 - s) / 5.0)
+        prot = (1.2 + 1.0 * (0.5 + 0.5 * noise.noise(Vector((s * 0.09 + seed, 3.3, 0.4))))) * max(0.15, ends)
+        zt = z0 + 0.7 * noise.noise(Vector((s * 0.03 + seed, 7.7, 0.1)))
+        ro = o + prot
+        po = p + nout * ro
+        if bridge_deck(po.x, po.y, pad=2.5) is not None or near_mesa(po.x, po.y, 1.05):
+            rows.append(None)
+            continue
+        pin = p - nout * 2.8
+        pr = [(pin, zt), (p + nout * (ro - 0.45), zt), (po, zt - 0.4), (p + nout * (ro - 0.1), zt - 1.9),
+              (p + nout * (o + prot * 0.3), zt - 2.8), (pin, zt - 3.2)]
+        rows.append(([mb.bm.verts.new((v.x, v.y, z)) for v, z in pr], p, t, nout, ro, zt))
+    mats = [GRASS, GRASS, TOP, DARK, DARK, DARK]
+    by_m = {}
+    bm = mb.bm
+    runs = 0
+    i = 0
+    while i < len(rows):
+        if rows[i] is None:
+            i += 1
+            continue
+        j = i
+        while j + 1 < len(rows) and rows[j + 1] is not None:
+            j += 1
+        if j - i >= 2:
+            runs += 1
+            for a in range(i, j):
+                ra, rb = rows[a][0], rows[a + 1][0]
+                for k in range(6):
+                    k2 = (k + 1) % 6
+                    by_m.setdefault(mats[k], []).append(bm.faces.new((ra[k], rb[k], rb[k2], ra[k2])))
+            by_m.setdefault(ROCK, []).append(bm.faces.new(rows[i][0]))
+            by_m.setdefault(ROCK, []).append(bm.faces.new(list(reversed(rows[j][0]))))
+            # linguetas de grama caindo do beiral
+            a = i + rng.randint(1, 3)
+            while a < j:
+                vs, p, t, nout, ro, zt = rows[a]
+                wt = rng.uniform(1.2, 2.6)
+                lt = rng.uniform(1.0, 2.8)
+                c = p + nout * (ro + 0.06)
+                back = -nout * 0.35
+                pts = [c - t * (wt / 2), c + t * (wt / 2), c + nout * 0.12]
+                zs = [zt - 0.3, zt - 0.3, zt - 0.3 - lt]
+                fr = [bm.verts.new((q.x, q.y, z)) for q, z in zip(pts, zs)]
+                bk = [bm.verts.new((q.x + back.x, q.y + back.y, z + (0.2 if k == 2 else 0.0)))
+                      for k, (q, z) in enumerate(zip(pts, zs))]
+                fl = [bm.faces.new(fr), bm.faces.new(list(reversed(bk)))]
+                for k in range(3):
+                    k2 = (k + 1) % 3
+                    fl.append(bm.faces.new((fr[k2], fr[k], bk[k], bk[k2])))
+                by_m.setdefault(GRASS, []).extend(fl)
+                a += rng.randint(2, 4)
+        else:
+            for a in range(i, j + 1):
+                for v in rows[a][0]:
+                    bm.verts.remove(v)
+        i = j + 1
+    for mm, fl_ in by_m.items():
+        _grp(mb, fl_, mm, variant=(mm in (ROCK, GRASS)))
+    return runs
 
 
 # ------------------------------------------------------------------ cristas baixas na borda
@@ -646,7 +781,7 @@ def crests(rng):
                     mb.rock((c2.x, c2.y, lvl + r2 * 0.25), (r2 * 2.2, r2 * 1.8, r2 * 1.5), ROCK, 1,
                             (0, 0, rng.uniform(0, 6.28)), jitter=0.25)
             s += ln * rng.uniform(0.85, 1.0)
-        s += rng.uniform(4.0, 13.0)
+        s += rng.uniform(9.0, 20.0)
     mb.finish()
     return n
 
@@ -742,7 +877,8 @@ def underside(rng):
     TF.assign(mb, cap, DARK)
     # aneis de costelas penduradas presas ao nucleo (B, C, D): a silhueta desce em degraus ate a ponta
     n = 0
-    for z_top, (wmin, wmax), (hmin, hmax), gap, nsides in ((10.0, (10.0, 17.0), (26.0, 44.0), (0.95, 1.25), 6),
+    # o primeiro anel (z 10) fica quase todo atras das costelas do penhasco: mais espacado
+    for z_top, (wmin, wmax), (hmin, hmax), gap, nsides in ((10.0, (10.0, 17.0), (26.0, 44.0), (1.25, 1.6), 6),
                                                           (-20.0, (13.0, 21.0), (26.0, 42.0), (1.0, 1.35), 6),
                                                           (-46.0, (14.0, 24.0), (24.0, 40.0), (1.05, 1.5), 5),
                                                           (-72.0, (12.0, 18.0), (16.0, 28.0), (1.2, 1.7), 5)):
@@ -773,8 +909,9 @@ def underside(rng):
                 hang(mb, cc, to_world(poly, t, nin), zt, zt - hh, rng,
                      tip=rng.uniform(0.42, 0.62) if blunt else rng.uniform(0.1, 0.25),
                      pw=rng.uniform(1.2, 1.6) if blunt else rng.uniform(1.5, 2.2), lean=(nin.x * lk, nin.y * lk),
-                     lid=False, band=0.0, strata=[(zz - th / 2, zz + th / 2) for zz, th, amp in STRATA if th > 1.0],
-                     mids=(0.5,), dark_from=rng.uniform(0.55, 0.75), jitter=0.1, top_jit=0.08, chamfer=0.6,
+                     lid=False, band=0.0, strata=[(zz - th / 2, zz + th / 2) for zz, th, amp in STRATA
+                                                  if th > 1.0 and zt - hh + 3.0 < zz - th / 2 and zz + th / 2 < zt - 1.2][:1],
+                     mids=(), dark_from=rng.uniform(0.55, 0.75), jitter=0.1, top_jit=0.08, chamfer=0.6,
                      bottom_apex=not blunt)
                 n += 1
             s += w * rng.uniform(*gap)
@@ -788,8 +925,8 @@ CLUSTERS = {"NW": (0, 1, 2, 3), "Back": (4, 5, 6), "NE": (7, 8, 9), "Front": (10
 # lateral: entre o NO, o fundo e o NE fica ceu (nada de palicada); o fundo nao ganha nenhuma (a cupula aparece)
 FILLERS = {"NW": [(-168.0, 144.0, 7.5, 47.0, "pillar")],
            "Back": [],
-           "NE": [(150.0, 160.0, 7.0, 52.0, "spire")],
-           "Front": [(-134.0, -118.0, 5.0, 40.0, "spire"), (174.0, -6.0, 6.0, 44.0, "pillar")]}
+           "NE": [(150.0, 160.0, 7.5, 52.0, "pillar")],
+           "Front": [(-134.0, -118.0, 5.5, 40.0, "pillar"), (174.0, -6.0, 6.0, 44.0, "pillar")]}
 # ombros de rocha que juntam cada cacho num macico so (topo abaixo do chao da ilha, fora das rotas): x, y, r, fundo
 MASSIFS = {"NW": [(-162.0, 118.0, 23.0, 9.0), (-120.0, 178.0, 15.0, 12.0)],
            "Back": [(-32.0, 234.0, 21.0, 10.0), (30.0, 228.0, 17.0, 14.0)],
@@ -831,6 +968,22 @@ def _stack(mb, rng, c, a, b, n, ex, rot, z0, z1, m, taper=0.94, lid=None, band=N
     if squeeze:
         K.squeeze(_new_verts(mb, n0), *sq)
     return out
+
+
+def _tier(mb, rng, c, a, b, n, ex, rot, z0, z1, m, K=None, notch=0, **kw):
+    """lance de pilar: se passa de 17 de altura, quebra em corpo de baixo + estrato escuro recuado + corpo de cima 4%
+    mais estreito (patamar horizontal visivel: o lance le como camadas de arenito, nao como prisma liso)"""
+    if z1 - z0 > 17.0:
+        zm = z0 + (z1 - z0) * rng.uniform(0.42, 0.58)
+        th = rng.uniform(0.9, 1.5)
+        _stack(mb, rng, c, a, b, n, ex, rot, z0, zm, m, taper=rng.uniform(0.96, 0.99), rings=1, chamfer=0.0, K=K,
+               notch=notch)
+        _groove(mb, rng, c, a, b, n, rot, zm, th, K=K)
+        z0 = zm + th
+        a, b = a * 0.96, b * 0.96
+        notch = 0
+        kw["rings"] = 1
+    return _stack(mb, rng, c, a, b, n, ex, rot, z0, z1, m, K=K, notch=notch, **kw)
 
 
 def _ribs(mb, rng, c, a, b, rot, z0, z1, k, face=None, K=None):
@@ -895,9 +1048,12 @@ def _place(K, rng, x, y, base_ang, out_ang, d, rad, z0, z1, spread=1.0):
     """centro de uma peca satelite em volta da rocha: angulo perto de base_ang (depois o lado de fora da ilha); so
     onde ela nao entra no chao alcancavel fora do octogono da coluna"""
     tries = [base_ang + rng.uniform(-spread, spread)]
-    tries += [base_ang + s * k for k in (0.3, 0.6, 0.9) for s in (-1, 1)] + [out_ang, out_ang + 0.35, out_ang - 0.35]
+    tries += [base_ang + s * k for k in (0.3, 0.6, 0.9, 1.25, 1.6) for s in (-1, 1)]
+    tries += [out_ang, out_ang + 0.35, out_ang - 0.35, out_ang + 0.7, out_ang - 0.7]
     for ang in tries:
         c = (x + math.cos(ang) * d, y + math.sin(ang) * d)
+        if not K.on and not K.away(c[0], c[1], rad):
+            continue                     # rocha sem coluna (longe da borda): o satelite nao pode chegar ao chao
         if K.free(c[0], c[1], rad, z0, z1):
             return c, ang
     return None, None
@@ -964,25 +1120,24 @@ def _mesa(mb, rng, x, y, r, top, K, zj, face, rot, lean_dir, tw):
 
 
 def _pillar(mb, rng, x, y, r, top, K, zj, face, rot, lean_dir, tw):
-    """pilar: 2-4 lances de alturas e larguras diferentes (nada de tambores iguais): cada troca de lance e um estrato
-    escuro OU um degrau com faixa clara; no maximo UM colar de grama no meio; ombro largo e baixo de um lado"""
+    """pilar-mesa: 2-3 lances LARGOS e arredondados (cada lance 0,86-0,95 do de baixo, quase sem deslocamento: nada de
+    haste de prismas empilhados); troca de lance = estrato escuro recuado OU degrau com faixa clara; grama no topo e no
+    maximo um colar. Ombro largo (0,7-0,9 r, 30-50% da altura) SEMPRE encostado - do lado da ilha quando cabe, senao
+    de lado/fora - e um segundo ombro mais baixo: a base le como mesa escalonada com patamares verdes"""
     Hv = top - G
     stout = tw.get("stout", False)
-    a, b = r * rng.uniform(0.95, 1.05) * (1.08 if stout else 1.0), r * rng.uniform(0.74, 0.92)
-    n = rng.choice((6, 7, 7, 8))
-    ex = rng.uniform(2.0, 2.6)
-    if stout:
-        k = 2
-    else:
-        k = rng.choice((3, 3, 4)) if Hv > 85 else rng.choice((2, 3, 3))
+    a, b = r * rng.uniform(1.0, 1.1) * (1.06 if stout else 1.0), r * rng.uniform(0.84, 0.96)
+    n = rng.choice((8, 9, 9))
+    ex = rng.uniform(2.1, 2.5)
+    k = 2 if (stout or Hv < 70.0) else 3
     fr = []
     for i in range(1, k):
-        f = (i + rng.uniform(-0.28, 0.22)) / k
-        lo = 0.17 if not fr else fr[-1] + 0.14
-        fr.append(min(0.86, max(lo, f)))
+        f = (i + rng.uniform(-0.2, 0.15)) / k
+        lo = 0.3 if not fr else fr[-1] + 0.18
+        fr.append(min(0.8, max(lo, f)))
     zs = [zj] + [G + Hv * f for f in fr] + [top]
-    trans = [None] + [("groove" if rng.random() < 0.45 else "step") for _ in range(1, k)]
-    ledge = rng.randrange(1, k) if (k > 1 and rng.random() < 0.7) else None
+    trans = [None] + [("groove" if rng.random() < 0.5 else "step") for _ in range(1, k)]
+    ledge = rng.randrange(1, k) if (k > 1 and rng.random() < 0.4) else None
     c = (x, y)
     sc = 1.0
     rt = rot
@@ -990,79 +1145,82 @@ def _pillar(mb, rng, x, y, r, top, K, zj, face, rot, lean_dir, tw):
     for i in range(k):
         last = i == k - 1
         if i > 0:
-            sc *= rng.uniform(0.74, 0.9) if not stout else rng.uniform(0.66, 0.78)
-            sh = r * rng.uniform(0.05, 0.18)
-            dirn = lean_dir + rng.uniform(-0.7, 0.7)
+            sc *= rng.uniform(0.86, 0.95) if not stout else rng.uniform(0.84, 0.9)
+            sh = r * rng.uniform(0.02, 0.07)
+            dirn = lean_dir + rng.uniform(-0.6, 0.6)
             c = (c[0] + math.cos(dirn) * sh, c[1] + math.sin(dirn) * sh)
-            rt += rng.uniform(-0.45, 0.45)
-            bb = min(a * 0.98, b * rng.uniform(0.82, 1.15))
+            rt += rng.uniform(-0.25, 0.25)
+            bb = min(a * 0.98, b * rng.uniform(0.92, 1.06))
         za, zt = zs[i], zs[i + 1]
         if i > 0 and trans[i] == "groove":
             th = rng.uniform(1.0, 1.8)
             _groove(mb, rng, c, a * sc, bb * sc, n, rt, za, th, K=K)
             za += th
-        nr = rng.choice((0, 1, 2, 2, 3))
+        nr = rng.choice((0, 1, 2, 2))
         if last:
-            if rng.random() < 0.45:
-                # topo fraturado: 2 blocos de alturas diferentes
+            if rng.random() < 0.4:
+                # topo fraturado: 2 blocos largos de alturas diferentes
                 ax = (math.cos(rt), math.sin(rt))
                 for q, sg in enumerate((-1, 1)):
-                    cq = (c[0] + ax[0] * a * sc * 0.42 * sg, c[1] + ax[1] * a * sc * 0.42 * sg)
-                    zt2 = zt - (0.0 if q == 0 else rng.uniform(3.0, 9.0))
-                    _stack(mb, rng, cq, a * sc * 0.6, bb * sc * rng.uniform(0.85, 1.0), 6, ex, rt, za, zt2, ROCK,
-                           taper=rng.uniform(0.82, 0.92), lid=GRASS if q == 0 or rng.random() < 0.5 else None,
-                           band=(2.0, TOP), tongues=(rng.randint(1, 2), GRASS, (1.0, 3.0), None), K=K)
+                    cq = (c[0] + ax[0] * a * sc * 0.36 * sg, c[1] + ax[1] * a * sc * 0.36 * sg)
+                    zt2 = zt - (0.0 if q == 0 else rng.uniform(3.0, 8.0))
+                    _stack(mb, rng, cq, a * sc * 0.68, bb * sc * rng.uniform(0.9, 1.0), 8, ex, rt, za, zt2, ROCK,
+                           taper=rng.uniform(0.88, 0.95), lid=GRASS, band=(2.0, TOP),
+                           tongues=(rng.randint(1, 3), GRASS, (1.0, 3.2), None), K=K)
             else:
-                _stack(mb, rng, c, a * sc, bb * sc, n, ex, rt, za, zt, ROCK, taper=rng.uniform(0.78, 0.9),
-                       lid=GRASS, band=(2.0, TOP), rings=2 if zt - za > 22.0 else 1,
-                       tongues=(rng.randint(1, 3), GRASS, (1.0, 3.2), None), K=K)
+                _tier(mb, rng, c, a * sc, bb * sc, n, ex, rt, za, zt, ROCK, taper=rng.uniform(0.86, 0.94),
+                      lid=GRASS, band=(2.0, TOP), rings=2 if zt - za > 22.0 else 1,
+                      tongues=(rng.randint(2, 4), GRASS, (1.2, 3.6), None), K=K)
         else:
             nxt = trans[i + 1]
             lid = GRASS if ledge == i + 1 else None
-            _stack(mb, rng, c, a * sc, bb * sc, n, ex, rt, za, zt, DARK if (i == 0 and rng.random() < 0.6) else ROCK,
-                   taper=rng.uniform(0.84, 0.95), lid=lid,
-                   band=(rng.uniform(1.6, 2.6), TOP) if (nxt == "step" or lid) else None,
-                   rings=2 if zt - za > 22.0 else 1, K=K, notch=2 if i == 0 else 0,
-                   tongues=(rng.randint(1, 2), GRASS, (1.0, 3.0), None) if lid else None)
+            _tier(mb, rng, c, a * sc, bb * sc, n, ex, rt, za, zt, DARK if (i == 0 and rng.random() < 0.5) else ROCK,
+                  taper=rng.uniform(0.9, 0.97), lid=lid,
+                  band=(rng.uniform(1.6, 2.6), TOP) if (nxt == "step" or lid) else None,
+                  rings=2 if zt - za > 22.0 else 1, K=K, notch=2 if i == 0 else 0,
+                  tongues=(rng.randint(1, 3), GRASS, (1.0, 3.0), None) if lid else None)
         if nr:
             _ribs(mb, rng, c, a * sc * 0.95, bb * sc * 0.95, rt, za, zt, nr,
                   face if rng.random() < 0.5 else face + math.pi, K=K)
-    # ombro largo e baixo (patamar verde) e/ou agulha companheira - sempre mais baixos que o pilar
-    if stout or rng.random() < 0.8:
-        _companion(mb, rng, K, x, y, r, Hv, zj, lean_dir, face + math.pi, 1.2, rng.uniform(0.62, 0.85),
-                   (rng.uniform(0.6, 0.8), rng.uniform(0.45, 0.6)) if stout else
-                   (rng.uniform(0.5, 0.7), rng.uniform(0.4, 0.55)), (0.14, 0.34), "shoulder")
-    if rng.random() < 0.4:
-        _companion(mb, rng, K, x, y, r, Hv, zj, lean_dir + math.pi * 0.6, face + math.pi, 0.8,
-                   rng.uniform(0.8, 1.0), (0.34, 0.28), (0.3, 0.5), "needle")
+    # ombro largo (patamar verde a 30-50% da altura), do lado da ilha quando cabe; + ombro baixo do outro lado
+    _companion(mb, rng, K, x, y, r, Hv, zj, face, face + math.pi, 0.5, rng.uniform(0.7, 0.9),
+               (rng.uniform(0.7, 0.9), rng.uniform(0.55, 0.72)), (0.3, 0.5), "shoulder")
+    if stout or rng.random() < 0.65:
+        _companion(mb, rng, K, x, y, r, Hv, zj, lean_dir + rng.choice((-1.0, 1.0)) * 1.1, face + math.pi, 0.5,
+                   rng.uniform(0.85, 1.05), (rng.uniform(0.5, 0.62), rng.uniform(0.42, 0.52)), (0.16, 0.3),
+                   "shoulder")
 
 
 def _spire(mb, rng, x, y, r, top, K, zj, face, rot, lean_dir, tw):
+    """agulha (so as 2 da planta): 3 lances arredondados que afinam de verdade so no ultimo, ombro largo no pe"""
     Hv = top - G
     ld = (math.cos(lean_dir), math.sin(lean_dir))
-    n = rng.choice((5, 6, 6, 7))
-    a, b = r * rng.uniform(0.95, 1.05), r * rng.uniform(0.78, 0.92)
-    k = rng.choice((3, 4, 4))
-    fr = sorted(rng.sample([rng.uniform(0.1, 0.18), rng.uniform(0.4, 0.52), rng.uniform(0.7, 0.8)], k - 1))
+    n = rng.choice((7, 8))
+    a, b = r * rng.uniform(1.0, 1.08), r * rng.uniform(0.84, 0.94)
+    k = 3
+    fr = [rng.uniform(0.28, 0.36), rng.uniform(0.6, 0.7)]
     zs = [zj] + [G + Hv * f for f in fr] + [top]
-    lid_i = rng.randrange(1, k - 1) if (k > 2 and rng.random() < 0.55) else None
     sc = 1.0
     c = (x, y)
     for i in range(k):
         last = i == k - 1
         if i > 0:
-            sc *= rng.uniform(0.64, 0.78)
-            sh = r * rng.uniform(0.1, 0.22) * i
-            c = (c[0] + ld[0] * sh * 0.5, c[1] + ld[1] * sh * 0.5)
-        za = zs[i] + (0.0 if i == 0 else -0.8)
-        _stack(mb, rng, c, a * sc, b * sc, n, rng.uniform(1.8, 2.2), rot + i * rng.uniform(0.15, 0.45), za, zs[i + 1],
-               DARK if i == 0 else ROCK, taper=rng.uniform(0.66, 0.8) if not last else rng.uniform(0.3, 0.42),
-               band=(1.8, TOP) if i > 0 else None, rings=3 if i == 0 else 2,
-               chamfer=(min(2.5, r * sc * 0.4) if last else 0.4), lid=GRASS if i == lid_i else None,
-               lean=(ld[0] * r * rng.uniform(0.08, 0.16), ld[1] * r * rng.uniform(0.08, 0.16)) if last else None,
+            sc *= rng.uniform(0.8, 0.88)
+            sh = r * rng.uniform(0.04, 0.1)
+            c = (c[0] + ld[0] * sh, c[1] + ld[1] * sh)
+        za = zs[i]
+        if i > 0 and rng.random() < 0.5:
+            th = rng.uniform(1.0, 1.6)
+            _groove(mb, rng, c, a * sc, b * sc, n, rot, za, th, K=K)
+            za += th
+        _stack(mb, rng, c, a * sc, b * sc, n, rng.uniform(2.0, 2.4), rot + i * rng.uniform(0.1, 0.3), za, zs[i + 1],
+               DARK if i == 0 else ROCK, taper=rng.uniform(0.88, 0.95) if not last else rng.uniform(0.46, 0.56),
+               band=(1.8, TOP) if i > 0 else None, rings=2 if i == 0 else (3 if last else 1),
+               chamfer=(min(2.5, r * sc * 0.4) if last else 0.4),
+               lean=(ld[0] * r * rng.uniform(0.06, 0.12), ld[1] * r * rng.uniform(0.06, 0.12)) if last else None,
                K=K, notch=2 if i == 0 else 0)
-    _companion(mb, rng, K, x, y, r, Hv, zj, lean_dir + rng.choice((-1, 1)) * 1.2, face + math.pi, 0.5,
-               rng.uniform(1.0, 1.25), (0.45, 0.38), (0.3, 0.5), "needle")
+    _companion(mb, rng, K, x, y, r, Hv, zj, face, face + math.pi, 0.6, rng.uniform(0.75, 0.95),
+               (rng.uniform(0.62, 0.78), rng.uniform(0.5, 0.62)), (0.22, 0.38), "shoulder")
 
 
 def mesa_body(mb, rng, x, y, r, top, kind, primary=True, K=None, tw=None):

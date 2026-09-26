@@ -4,6 +4,10 @@
 # carregado com os valores da planta DESTA ilha (il_layout.SUMMON_TOWER/FACE/T1/SUMMON_C/R trocados so durante o
 # import e restaurados logo depois); so as funcoes da TORRE sao chamadas (pedra, detalhes, pedestais, mastros,
 # esfera, constelacao, colisao da torre). A praca de mosaico/balaustrada da Ilha 1 NAO entra.
+# Versao QUENTE da concept (rodada final): a pedra ardosia/lilas vira arenito/creme/marrom da ilha (STONE_WARM, troca de
+# slot depois do finish), estandartes vermelhos, a constelacao ciano saiu, e a estrela de cristal virou a ESFERA DO
+# DRAGAO (VFX_DBSUM_Star: bola Neon laranja DB_Ball_Glow com a estrela amarela facetada e friso de ouro na frente e
+# atras) + o halo laranja em orbita (VFX_DBSUM_Halo). O nicho do portal continua azul.
 # Trocas na maquina (identidade DB, mesma familia): os cachos de cristal azul (liam como MINERIO numa ilha de mineracao)
 # viraram CELULAS DE ENERGIA Capsule (nucleo ciano + costelas brancas + aneis de ouro) nos mesmos pedestais, e as
 # lanternas de pagode dos 4 pedestais de canto viraram FAROIS Capsule; os postes do pe da escada da torre assentam
@@ -13,7 +17,8 @@
 # (L1 +0,4 e L2 +0,8, com colisao propria), frisos Capsule branco/azul, linhas de energia laranja (DB_Energy_Glow),
 # balaustrada branca/azul (lanterna a cada 5 postes) nas linhas da TerraceGuard (aberta na escada), 2 pilones Capsule,
 # 2 postes de lanterna emoldurando a chegada, bastiao de arenito sob a traseira da torre (que passa da borda do disco),
-# rochedos do pe no estilo de rocha da ilha (5 grupos, fora das PLATEAU_ROCKS/MESAS) e a escada visual do db_col.
+# rochedos do pe no estilo de rocha da ilha (5 grupos, fora das PLATEAU_ROCKS/MESAS), contrafortes estreitos na lateral
+# e a escada visual do db_col com banzos inclinados lisos (capa branca/azul) entre pilares-lanterna e a balaustrada.
 # Orcamento (studio): as pecas repetidas vao em POUCOS objetos por material (1 MeshPart por objeto x material).
 import math, random, sys, importlib
 import bmesh
@@ -110,6 +115,12 @@ CAMS = {
     "CAM_DBSum_FootNW": ((-158.0, 50.0, G + 5.2), (-146.0, 22.0, G + 3.5), 22),
     "CAM_DBSum_FootS": ((-146.0, -50.0, G + 5.2), (-134.0, -24.0, G + 3.0), 22),
     "CAM_DBSum_StairFoot": _cam(9.0, ST_FOOT + 8.0, 0.8 + 5.2, 0.0, ST_FOOT - 1.0, 2.2, 22),
+    # escada do plato de lado, na altura do jogador: banzo liso, pilar-lanterna do pe e contrafortes da lateral
+    "CAM_DBSum_StairSide": ((-84.0, -26.0, G + 5.2), (-99.0, -8.0, G + 3.5), 22),
+    # do plato, na altura do jogador, olhando a descida: banzos chegando aos postes-portao da balaustrada
+    "CAM_DBSum_StairTop": ((-107.5, -2.0, LV0 + 5.2), (-90.0, -2.0, G + 1.5), 22),
+    # esfera do dragao + aneis + halo de perto (de frente, um pouco abaixo)
+    "CAM_DBSum_Sphere": _cam(-6.0, 44.0, 36.0, 0.0, -3.0, 45.0, 32),
 }
 
 # ------------------------------------------------------------------ rotas e sondas proprias (db_qa)
@@ -399,6 +410,148 @@ def capsule_beacon(dress, glow, gold, Fr, u, v, z):
     return b + ZZ * zc
 
 
+# ------------------------------------------------------------------ versao QUENTE da maquina (concept DB)
+# a pedra azul-ardosia da Ilha 1 vira arenito da ilha: o bloco comum -> arenito, o bloco claro -> creme do calcamento,
+# o escuro -> marrom dos estratos (a mesma leitura clara/escura da Ilha 1, na paleta quente); ouro e nicho azul ficam
+STONE_WARM = {"Summon_Stone": "Stone_DB_Block", "Stone_SumBlock": "Stone_Paving_DB",
+              "Summon_Stone_Dark": "Cliff_Rock_DB_Dark"}
+BANNER_WARM = {"Cloth_Royal_Blue": "Cloth_Red"}      # estandartes vermelhos (acento marcial) com o debrum de ouro
+BALL_R = 5.9            # esfera do dragao (dentro do anel movel mais interno: Ring_3 r 7,35, face interna ~7,0)
+BALL_STAR = (4.6, 1.95)  # estrela da esfera: raio das pontas / raio interno (~0,78 do raio da esfera, como a concept)
+HALO = (13.5, 0.6, 12.0, 20.0, 1.5)   # halo laranja: raio, secao, inclinacao (graus), giro do eixo (graus), rpm
+
+
+def remap_materials(ob, table):
+    """troca materiais dos slots de 'ob' (nome -> nome) e junta slots que caem no mesmo material"""
+    if ob is None:
+        return
+    me = ob.data
+    names = [table.get(m.name, m.name) for m in me.materials]
+    uniq = []
+    for n in names:
+        if n not in uniq:
+            uniq.append(n)
+    idx = [uniq.index(n) for n in names]
+    mi = [0] * len(me.polygons)
+    me.polygons.foreach_get("material_index", mi)
+    mi = [idx[i] for i in mi]
+    me.materials.clear()
+    for n in uniq:
+        me.materials.append(fm_lib.mat(n))
+    me.polygons.foreach_set("material_index", mi)
+    me.update()
+
+
+def _offset_outline(pts, d, cap=2.4):
+    """contorno 2D ccw deslocado 'd' para fora (esquina em mitra, limitada a cap * d nas pontas finas)"""
+    k = len(pts)
+    out = []
+    for i in range(k):
+        p0, p1, p2 = Vector((*pts[i - 1], 0)), Vector((*pts[i], 0)), Vector((*pts[(i + 1) % k], 0))
+        e0, e1 = (p1 - p0).normalized(), (p2 - p1).normalized()
+        n0, n1 = Vector((e0.y, -e0.x, 0)), Vector((e1.y, -e1.x, 0))
+        m = n0 + n1
+        if m.length < 1e-6:
+            m = n1
+        m.normalize()
+        ln = min(d / max(m.dot(n1), 1e-3), cap * d)
+        q = p1 + m * ln
+        out.append((q.x, q.y))
+    return out
+
+
+def ball_star(mb, c, fwd, u, v, n, r_out, r_in, r_front, r_back, apex, mA, mB, m_rim, rim_w=0.42):
+    """estrela que ABRACA a esfera: o contorno (2 segmentos por aresta, para as facetas nao afundarem na bola) fica na
+    esfera r_front, o apice a 'apex' acima dela; facetas alternadas mA/mB por ponta (cristal lapidado no Neon). Em
+    volta, um friso de m_rim de largura constante (contorno deslocado rim_w) deitado rente a bola (esfera r_back + 0,27)
+    que mergulha nela (r_back): separa a estrela amarela da esfera laranja como o contorno da concept."""
+    import il_summon_kit as K
+    c, fwd, u, v = Vector(c), Vector(fwd).normalized(), Vector(u).normalized(), Vector(v).normalized()
+    base = K.star_pts(n, r_out, r_in)
+    k0 = len(base)
+    outline = []
+    for i in range(k0):
+        a, b = base[i], base[(i + 1) % k0]
+        outline.append((a, i))
+        outline.append((((a[0] + b[0]) / 2, (a[1] + b[1]) / 2), i))
+    flange = _offset_outline([p for p, _ in outline], rim_w)
+
+    def on_sphere(r, p):
+        x, y = p[0], p[1]
+        return c + u * x + v * y + fwd * math.sqrt(max(0.0, r * r - x * x - y * y))
+    bm = mb.bm
+    f = [bm.verts.new(on_sphere(r_front, p)) for p, _ in outline]
+    h = [bm.verts.new(on_sphere(r_back + 0.27, p)) for p in flange]
+    g = [bm.verts.new(on_sphere(r_back - 0.1, p)) for p in flange]
+    top = bm.verts.new(c + fwd * (r_front + apex))
+    bot = bm.verts.new(c + fwd * (r_back - 1.2))
+    face_b, rim = [], []
+    k = len(outline)
+    for i in range(k):
+        j = (i + 1) % k
+        e = outline[i][1]
+        q = bm.faces.new((f[i], f[j], top))
+        if e % 2:
+            face_b.append(q)
+        rim.append(bm.faces.new((f[j], f[i], h[i], h[j])))
+        rim.append(bm.faces.new((h[j], h[i], g[i], g[j])))
+        rim.append(bm.faces.new((g[j], g[i], bot)))
+    mb._post(f + h + g + [top, bot], mA, None, 0, 1)
+    ib, ir = mb._mi_for(mB), mb._mi_for(m_rim)
+    for q in face_b:
+        q.material_index = ib
+    for q in rim:
+        q.material_index = ir
+
+
+def dragon_ball(c):
+    """VFX_DBSUM_Star (mesmo nome, pivo, eixo e giro da estrela da Ilha 1): a ESFERA DO DRAGAO laranja brilhante com
+    a estrela amarela facetada na frente e atras (gira no eixo vertical: a estrela passa pela frente)"""
+    old = bpy.data.objects.get("VFX_DBSUM_Star")
+    if old is not None:
+        me = old.data
+        bpy.data.objects.remove(old, do_unlink=True)
+        bpy.data.meshes.remove(me)
+    st = MB("VFX_DBSUM_Star", "12_VFX_HELPERS", random.Random(691), detail="hero")
+    st.ico(BALL_R, c, "DB_Ball_Glow", 3)
+    # as estrelas olham 15 graus para baixo: o jogador ve a esfera de baixo (praca 46 abaixo, a 30-60 de distancia)
+    tl = math.radians(15.0)
+    for sgn in (1, -1):
+        fwd = YV * (sgn * math.cos(tl)) - ZZ * math.sin(tl)
+        up = ZZ * math.cos(tl) + YV * (sgn * math.sin(tl))
+        ball_star(st, c, fwd, XU * sgn, up, 5, BALL_STAR[0], BALL_STAR[1], BALL_R + 0.3, BALL_R - 0.15, 0.5,
+                  "Crystal_SumYellow_Glow", "Summon_Star_Glow", "Metal_Gold")
+    ob = st.finish()
+    ob["pivot"] = [round(c.x, 3), round(c.y, 3), round(c.z, 3)]
+    ob["axis"] = [0.0, 0.0, 1.0]
+    ob["rpm"] = 5.0
+    ob["vfx"] = "esfera do dragao (Neon laranja) com a estrela facetada na frente e atras, girando no eixo vertical"
+    return ob
+
+
+def halo(c):
+    """VFX_DBSUM_Halo: orbita de energia laranja em volta da esfera armilar (fora do Ring_1 r 11,4 e acima do topo da
+    torre z 67,5), inclinada, com 4 contas que tornam o giro legivel"""
+    r, sec, tilt, turn, rpm = HALO
+    mb = MB("VFX_DBSUM_Halo", "12_VFX_HELPERS", random.Random(707), detail="hero")
+    t = math.radians(turn)
+    ta = (XU * math.cos(t) + YV * math.sin(t)).normalized()          # eixo da inclinacao
+    fr = ZZ.cross(ta).normalized()                                  # horizontal, perpendicular (para a frente)
+    uu = ta
+    vv = (fr * math.cos(math.radians(tilt)) - ZZ * math.sin(math.radians(tilt))).normalized()   # frente desce
+    nrm = uu.cross(vv).normalized()
+    PK.ring(mb, c, r, uu, vv, sec, sec, "DB_Energy_Glow", 0, 360, 64)
+    for kk in range(4):
+        a = math.tau * (kk + 0.125) / 4
+        PK.octa(mb, c + (uu * math.cos(a) + vv * math.sin(a)) * r, 0.8, 1.1, "DB_Energy_Glow", rot=a)
+    ob = mb.finish()
+    ob["pivot"] = [round(c.x, 3), round(c.y, 3), round(c.z, 3)]
+    ob["axis"] = [round(x, 4) for x in nrm]
+    ob["rpm"] = rpm
+    ob["vfx"] = "halo de energia laranja da esfera do dragao (gira no proprio plano; as contas mostram o giro)"
+    return ob
+
+
 def build_tower(dress, glow_db):
     T = tower_mod()
     before = {o.name for o in bpy.data.objects}
@@ -421,10 +574,11 @@ def build_tower(dress, glow_db):
         T.ZL1, T.K.corner_lantern = saved
     energy_cells(T, dress, gold, glow_db)
     c = T.sphere(gold, glow)
-    T.constellation(c)
-    stone.finish()
+    # (a constelacao ciano das 2 asas da Ilha 1 saiu: a concept DB nao tem, e era ruido frio em volta da esfera)
+    ob_stone = stone.finish()
     ob_gold = gold.finish()
     ob_glow = glow.finish()
+    remap_materials(ob_stone, STONE_WARM)
     T.tower_collision()
     # renomeia o que o codigo da Ilha 1 criou: SUM_* -> DB_Sum_*, VFX_SUM_* -> VFX_DBSUM_*; colecao 05 -> 06
     dst = fm_lib.coll(COL)
@@ -446,13 +600,17 @@ def build_tower(dress, glow_db):
     c05 = bpy.data.collections.get("05_SUMMON")
     if c05 is not None and not c05.objects and not c05.children:
         bpy.data.collections.remove(c05)
-    # armacao da esfera e constelacao entram na torre (ouro / brilho): 4 MeshParts a menos, mesma geometria
-    for nm in ("DB_Sum_Sphere_Frame", "DB_Sum_Constellation"):
+    # armacao da esfera entra na torre (ouro / brilho): menos MeshParts, mesma geometria
+    for nm in ("DB_Sum_Sphere_Frame",):
         ob = bpy.data.objects.get(nm)
         if ob is not None:
             merge_by_material(ob, {"Metal_Gold": ob_gold, "*": ob_glow})
-    # luzes (4 de dia): estrela (quente), portal (fria), 2 lanternas de canto da frente
-    light("L_DBSum_Star", "POINT", c, 9000, (1.0, 0.74, 0.34), 3.0)
+    remap_materials(bpy.data.objects.get("DB_Sum_Tower_Banners"), BANNER_WARM)
+    # a estrela de cristal da Ilha 1 vira a esfera do dragao (mesmo VFX) + halo laranja em orbita
+    dragon_ball(c)
+    halo(c)
+    # luzes (4 de dia): esfera (laranja), portal (fria), 2 lanternas de canto da frente
+    light("L_DBSum_Star", "POINT", c, 9000, (1.0, 0.55, 0.2), 3.0)
     light("L_DBSum_Portal", "POINT", P(0.0, PV + 3.0, 9.0), 1800, (0.36, 0.52, 1.0), 1.2)
     for n, p in zip(("L_DBSum_Lantern_L", "L_DBSum_Lantern_R"), lamp_c[:2]):
         light(n, "POINT", p, 320, (1.0, 0.62, 0.28), 0.4)
@@ -555,7 +713,10 @@ def sides(plat):
         FP.masonry_wall(plat, (pa[0], pa[1], 0), (pb[0], pb[1], 0), G - 0.8, Z - 1.3, 1.0, rng, m="Stone_DB_Block",
                         m2="Cliff_Rock_DB", course=1.8, blk=(3.2, 5.0), quoins=(False, False), base_dark=True,
                         bevel=0.0, core_m="Stone_DB_Block")
-    # pilastras de arenito laranja a cada 20 graus (ritmo na lateral lisa) com capitel azul-marinho sob o aro
+    # contrafortes a cada 20 graus (ritmo na lateral lisa): plinto escuro no pe, fuste estreito de arenito saliente
+    # 0,5 da face da alvenaria (face em ~R + 0,45) que ATRAVESSA o aro branco e a faixa azul e morre numa capa branca
+    # logo abaixo da borda do plato. (Antes: painel largo e chato de arenito laranja sob um capitel azul-marinho,
+    # parado abaixo do aro - lia como porta falsa na altura do jogador.)
     for i in range(18):
         a = 10.0 + 20.0 * i
         if _stair_ang(a, R + 0.6) or _stair_ang(a + 4.0, R + 0.6) or _stair_ang(a - 4.0, R + 0.6):
@@ -564,10 +725,11 @@ def sides(plat):
         if in_tower(x, y, 1.2):
             continue
         ra = math.radians(a)
-        plat.box((0.9, 1.9, (Z - 1.3) - (G - 0.6)), (x, y, ((Z - 1.3) + (G - 0.6)) / 2), (0, 0, ra), "Cliff_Rock_DB",
-                 0.0)
-        cx2, cy2 = _circ_pt(R + 0.45, a)
-        plat.box((1.1, 2.3, 0.4), (cx2, cy2, Z - 1.3 - 0.2), (0, 0, ra), "Plaster_DB_Navy", 0.0)
+        for r0, r1, wt, z0, z1, m in ((R, R + 1.25, 1.6, G - 0.6, G + 0.5, "Cliff_Rock_DB_Dark"),      # plinto
+                                      (R, R + 0.95, 1.2, G + 0.5, Z - 0.45, "Stone_DB_Block_B"),     # fuste
+                                      (R, R + 1.1, 1.5, Z - 0.45, Z - 0.1, "Plaster_DB_White")):      # capa
+            px, py = _circ_pt((r0 + r1) / 2, a)
+            plat.box((r1 - r0, wt, z1 - z0), (px, py, (z0 + z1) / 2), (0, 0, ra), m, 0.0)
     # bastiao de arenito sob a parte da torre que passa da borda do disco (tras e lados)
     pu, pv0, pv1 = PLINTH_R[0] - 0.55, PLINTH_R[1] + 0.3, PLINTH_R[2]
     walls = [((-pu, pv1), (-pu, pv0)), ((-pu, pv0), (pu, pv0)), ((pu, pv0), (pu, -2.2))]
@@ -592,7 +754,7 @@ def wing_barrier(mb):
     """trecho curto da balaustrada (mesma familia: postes brancos com base azul-marinho, tampa azul e remate de ouro,
     barra baixa branca, corrimao azul + ouro, balaustres) fechando a asa sul do soco entre o podio (u 16) e a borda
     do soco (u 20,7), sobre o soco (+0,8)"""
-    zb = Z + 0.8
+    zb = 0.8                         # relativo: P() ja soma o piso Z (antes Z + 0,8 -> a grade flutuava em z ~61)
     rz = YAW
     posts = [P(16.8, WING_V, zb), P(19.95, WING_V, zb)]
     for p in posts:
@@ -854,6 +1016,95 @@ def lamp_post(mb, glow, x, y, z, rz):
     col_box("DB_SumLamp", (1.7, 1.7, 6.8), (x, y, z + 3.4), (0, 0, rz))
 
 
+# ------------------------------------------------------------------ escada do plato: banzos inclinados + pilares
+CHEEK_H = 1.1           # topo do banzo acima da linha dos boceis
+CHEEK_W = (-0.05, 1.2)  # banzo: da borda da escada (-0,05: encosta nos degraus) ate w/2 + 1,2 (= guarda do db_col)
+PIER_S, PIER_L = -0.95, 0.7     # pilar do pe: s (ao longo da escada, antes do 1o degrau) e w/2 + PIER_L na lateral
+
+
+def _gate_posts():
+    """postes-portao da balaustrada dos dois lados da escada (pontas dos vaos marcados 'stair')"""
+    out = []
+    for a0, a1, why0, why1 in rail_spans():
+        if why0 == "stair":
+            out.append(Vector((*_circ_pt(RAIL_R, a0), 0.0)))
+        if why1 == "stair":
+            out.append(Vector((*_circ_pt(RAIL_R, a1), 0.0)))
+    return out
+
+
+def side_prism(mb, Fs, prof, y0, y1, m):
+    """poligono (s, z) do referencial da escada extrudado na lateral, de y0 a y1 (banzo de face lisa)"""
+    bm = mb.bm
+    a = [bm.verts.new(Fs.p(s, y0, z)) for s, z in prof]
+    b = [bm.verts.new(Fs.p(s, y1, z)) for s, z in prof]
+    bm.faces.new(a)
+    bm.faces.new(list(reversed(b)))
+    k = len(prof)
+    for i in range(k):
+        j = (i + 1) % k
+        bm.faces.new((a[j], a[i], b[i], b[j]))
+    mb._post(a + b, m, None, 0, 1)
+
+
+def _coping(mb, Fs, sa, za, sb, zb, y, off, w, h, m, ext=0.2):
+    """viga de capa sobre a linha (sa, za) -> (sb, zb) do banzo; 'off' = deslocamento na normal para cima"""
+    A, B = Fs.p(sa, y, za), Fs.p(sb, y, zb)
+    d = (B - A).normalized()
+    up = d.cross(ZZ).cross(d).normalized()
+    if up.z < 0:
+        up = -up
+    mb.beam(A - d * ext + up * off, B + d * ext + up * off, w, h, m, 0.0)
+
+
+def stair_pier(plat, dress, glow, x, y, rz):
+    """pilar-lanterna do pe da escada (o banzo morre nele): plinto escuro, bloco de arenito, faixa azul, capa branca,
+    poste branco curto e a lanterna de posto (mesma altura do poste antigo)"""
+    for sx, z0, z1, m in ((2.4, G - 0.5, G + 0.4, "Cliff_Rock_DB_Dark"), (2.0, G + 0.4, G + 2.3, "Stone_DB_Block_B"),
+                          (2.1, G + 2.3, G + 2.6, "Roof_DB_Blue"), (2.35, G + 2.6, G + 2.95, "Plaster_DB_White"),
+                          (0.85, G + 2.95, G + 3.9, "Plaster_DB_White"), (1.15, G + 3.9, G + 4.25, "Roof_DB_Blue")):
+        plat.box((sx, sx, z1 - z0), (x, y, (z0 + z1) / 2), (0, 0, rz), m, 0.0)
+    _lamp_head(dress, glow, Vector((x, y, G + 4.25)), rz, 1.1)
+    col_box("DB_SumLamp", (2.1, 2.1, 7.2), (x, y, G + 3.2), (0, 0, rz))
+
+
+def stair_cheeks(plat, dress, glow, base, ang, w, n, rise, tread):
+    """banzos de face lisa (no lugar dos blocos em dente de serra): arenito com capa branca e faixa azul Capsule,
+    inclinados na linha dos boceis e planos no plato; nascem no pilar-lanterna do pe e morrem no poste-portao da
+    balaustrada no topo. Colisao: a guarda do banzo do db_col (mesma faixa lateral w/2 .. w/2 + 1,2)."""
+    Fs = Frame(base[0], base[1], base[2], ang)
+    dr = Vector((math.cos(ang), math.sin(ang), 0.0))
+    pp = Vector((-math.sin(ang), math.cos(ang), 0.0))
+    k = rise / tread
+    s_k = tread * (n - 1)                       # bocel do ultimo degrau (topo = SUM)
+    zf = rise * n + CHEEK_H                     # topo plano no plato (relativo ao pe)
+    s0 = PIER_S - 0.05
+
+    def top(s):
+        return rise + CHEEK_H + k * s
+    posts = _gate_posts()
+    o = Vector((base[0], base[1], 0.0))
+    for sd in (-1, 1):
+        yi, yo = sd * (w / 2 + CHEEK_W[0]), sd * (w / 2 + CHEEK_W[1])
+        yc = (yi + yo) / 2
+        side = [((q - o).dot(dr), (q - o).dot(pp)) for q in posts]
+        side = [sp for sp, lp in side if lp * sd > 0]
+        s_end = (max(side) if side else tread * n + 1.0) + 0.3
+        prof = [(s0, -0.6), (s_end, -0.6), (s_end, zf), (s_k, zf), (s0, top(s0))]
+        side_prism(plat, Fs, prof, min(yi, yo), max(yi, yo), "Stone_DB_Block_B")
+        # fiada de base escura na face de fora (a mesma do plinto dos contrafortes e do pilar), ate a borda do plato
+        s_c = s_end
+        while s_c > s0 and (o + dr * s_c + pp * yo - Vector((CX, CY, 0.0))).length < R + 0.3:
+            s_c -= 0.1
+        plat.beam(Fs.p(s0, yo, -0.075), Fs.p(s_c + 0.3, yo, -0.075), 0.3, 1.05, "Cliff_Rock_DB_Dark", 0.0)
+        wc = abs(yo - yi)
+        for (sa, za), (sb, zb) in (((s0, top(s0)), (s_k, zf)), ((s_k, zf), (s_end, zf))):
+            _coping(plat, Fs, sa, za, sb, zb, yc, 0.175, wc + 0.25, 0.35, "Plaster_DB_White")
+            _coping(plat, Fs, sa, za, sb, zb, yc, -0.2, wc + 0.1, 0.3, "Roof_DB_Blue")
+        p = Fs.p(PIER_S, sd * (w / 2 + PIER_L), 0.0)
+        stair_pier(plat, dress, glow, p.x, p.y, ang)
+
+
 def props(dress, glow, plat):
     for s in (-1, 1):
         p = P(s * PYLON_UV[0], PYLON_UV[1], 0.0)
@@ -863,12 +1114,12 @@ def props(dress, glow, plat):
             t = math.radians(th)
             p = P(s * (R1 - 0.25) * math.sin(t), PC_V + (R1 - 0.25) * math.cos(t), 0.0)
             lamp_post(dress, glow, p.x, p.y, LV0, YAW + s * t)
-    # escada visual do db_col (GROUND -> SUM, 8 x 0,75, sobe para oeste) + 2 postes de lanterna no pe
+    # escada visual do db_col (GROUND -> SUM, 8 x 0,75, sobe para oeste) SEM os banzos em dente de serra: banzos
+    # inclinados de face lisa entre os pilares-lanterna do pe e os postes-portao da balaustrada
     for nm, base, ang, w, n, rise, tread, g in db_col.stair_list():
         if nm == "Summon":
-            DL.vis_stairs(plat, base, ang, w, n, rise, tread, "Stone_Paving_DB", "Stone_DB_Block")
-            for s in (-1, 1):
-                lamp_post(dress, glow, base[0] + 1.3, base[1] + s * (w / 2 + 1.9), G, 0.0)
+            DL.vis_stairs(plat, base, ang, w, n, rise, tread, "Stone_Paving_DB", "Stone_DB_Block", stringers=False)
+            stair_cheeks(plat, dress, glow, base, ang, w, n, rise, tread)
 
 
 # ------------------------------------------------------------------ marcadores

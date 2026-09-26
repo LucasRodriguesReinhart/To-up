@@ -363,15 +363,21 @@ def rocks():
 
 
 # ------------------------------------------------------------------ chao
-def strips(area, poly, z0, z1, step, mode="inter", minus=(), cut="inter"):
+def strips(area, poly, z0, z1, step, mode="inter", minus=(), cut="inter", fine=(), fine_step=2.0):
     """colisao de poligono em faixas ao longo de y (como il_lib.col_poly), mas o RECORTE (minus) usa a intersecao
     das amostras: quando a borda recortada e inclinada, o chao sobra um pouco POR CIMA do recorte (mesma altura ou
-    embaixo de outra colisao) em vez de abrir buraco."""
+    embaixo de outra colisao) em vez de abrir buraco. fine = faixas de y (y0, y1) com passo fine_step (em volta dos
+    pocos: o piso nao avanca sobre a agua)."""
     ys = [p[1] for p in poly]
     y = min(ys)
     n = 0
     while y < max(ys) - 1e-6:
-        ya, yb = y, min(y + step, max(ys))
+        st = fine_step if any(f0 - 1e-6 <= y < f1 for f0, f1 in fine) else step
+        yb = min(y + st, max(ys))
+        for f0, f1 in fine:                 # nao atravessa o inicio de uma faixa fina com o passo grosso
+            if y < f0 < yb:
+                yb = f0
+        ya = y
         samples = [ya + 0.05, (ya + yb) / 2, yb - 0.05]
         ivs = None
         for sm in samples:
@@ -469,14 +475,17 @@ def floors():
     # praca da entrada: caixa exata (o recorte da escadaria passa 7 do topo; a praca devolve o piso ate o topo)
     hw = L.ENTRY_STAIR_W / 2 + 1.6
     col_box2(A, (-hw, L.ENTRY_STAIR_Y1, L.GROUND - 8.0), (hw, L.ENTRY_STAIR_Y1 + 8.0, L.GROUND))
-    strips(A, DL.rim(), L.GROUND - 8.0, L.GROUND, 6.0, mode="inter", minus=[band_out, entry_notch()] + g_cut)
+    def yr(ps):
+        return [(min(p[1] for p in q) - 1.0, max(p[1] for p in q) + 1.0) for q in ps]
+    strips(A, DL.rim(), L.GROUND - 8.0, L.GROUND, 6.0, mode="inter", minus=[band_out, entry_notch()] + g_cut,
+           fine=yr(g_cut))
     for p in g_cut:
         strips("DB_WaterBed", p, L.GROUND - 6.0, L.GROUND - 1.6, 4.0, mode="union")
     # arena (bacia rasa)
     strips(A, DL.arena(), L.ARENA - 6.0, L.ARENA, 5.0, mode="union")
     # terracos (assentados no GROUND): faixas + preenchimento das arestas
-    strips(A, DL.hub_poly(), L.GROUND - 1.0, L.HUB, 4.0, mode="inter", minus=h_cut)
-    edge_fill(A, DL.hub_poly(), L.GROUND - 1.0, L.HUB)
+    strips(A, DL.hub_poly(), L.GROUND - 1.0, L.HUB, 4.0, mode="inter", minus=h_cut, fine=yr(h_cut))
+    edge_fill(A, DL.hub_poly(), L.GROUND - 1.0, L.HUB, w=4.6)     # 3,2 deixava fossos na frente (+-53,79.6), (-84,83.6)
     for p in h_cut:
         strips("DB_WaterBed", p, L.GROUND, L.HUB - 1.6, 4.0, mode="union")
     strips(A, DL.cap_poly(), L.HUB - 1.0, L.CAP, 4.0, mode="inter")
