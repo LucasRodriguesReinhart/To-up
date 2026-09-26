@@ -7,6 +7,8 @@
 #   sem luz) + as luzes das pecas que o db_props montou (db_props.LAMP_SPOTS, so as que couberam): os postes Capsule
 #   dos cruzamentos trilha x promenade e a lanterna marcial do patio de treino do dojo (o L_DBHub_Dojo e interno).
 # Regra: a luz planejada que cair a menos de 9 studs (e 7 de altura) de uma luz de outra zona e PULADA (impresso).
+# As LANTERNAS DE CAMINHO do db_props (trilhas, escadas, rua ciano da saida, farol) sao SO emissivas e nao entram
+# aqui de proposito: o teto de luzes de dia do vestir (12) continua com folga.
 import math
 import db_layout as L
 from db_lib import light

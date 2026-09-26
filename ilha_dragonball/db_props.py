@@ -12,16 +12,27 @@
 #     gas, disco de flutuacao sobressalente, caixas, tambores) + scooter Capsule; 2 scooters no total;
 #   - mineracao na BORDA DE FORA do promenade: carrinhos VAZIOS no toco de trilho, tremonhas VAZIAS, cavaletes de
 #     picaretas; NADA na arena; seixos pequenos FORA da arena.
+#   - rodada final (criticos): LANTERNAS DE CAMINHO so emissivas (Lantern_Glow, SEM objeto de luz, SEM colisao: o teto
+#     de colisoes do vestir e 90 e a vegetacao ja usa 45) - poste Capsule leve a cada ~12 alternando os lados das 4
+#     trilhas radiais, par no pe e no topo das escadas da vila/saida (onde nenhuma zona ja pos lanterna; a da saida e
+#     marcial como as bochechas dela), lanterna marcial a cada ~16 no lado de dentro da trilha da saida ate a
+#     transicao Shadow Garden; linha de postes de topo CIANO no lado sul da rua da vila (x 16..63 + o par do topo da
+#     escada lateral leste) + seta de piso azul (>>) na juncao rua/ligacao da saida + mastro-farol ciano (~48) do lado
+#     da vila, visivel por cima da oficina do topo da escadaria do Capsule.
+#   - moitas: 1a passada recusa posicao com parte solta de DB_Veg_Shrubs a menos de r+0,5; se so moita impede, a 2a
+#     passada escolhe a que menos pisa em moita e, no fim, as partes de moita que um prop ATRAVESSA (BVH) saem.
 # Tudo e validado NA HORA do build contra a cena (as outras zonas e a vegetacao ja montadas): raios verticais na
 # colisao (COL_*) e no visual (malhas DB_*, inclusive DB_Veg_*), nivel do piso, rotas do db_qa (+ modulos), escadas,
 # marcadores (NPC_/PLAYER_INTERACT_/SUMMON_/...), disco e zona livre do summon, arena, pontes e vaos de porta.
 # Cada grupo tem posicoes alternativas; o que nao cabe e PULADO e impresso ("PROPS pulado ...").
-# Colisao so dos props grandes (pilhas de caixas, quiosques, carrinhos, tremonhas, cavaletes, postes, bancos),
+# Colisao so dos props grandes (pilhas de caixas, quiosques, carrinhos, tremonhas, cavaletes, postes dos
+# cruzamentos, bancos, mastro-farol),
 # caixas simples DENTRO do visual, topo = topo do visual onde da para subir.
 # Orcamento da fatia (de 50k/90/6/90/12 do vestir): 20k tris, 40 MeshParts, 3 materiais novos, 45 colisoes.
 # Objetos por KIT (1 MeshPart por material): DB_Prop_Capsule (branco/azul/marinho/vidro/ciano/amarelo/lampiao),
 # DB_Prop_Work (madeira/metal/lona/seixos), DB_Prop_Market (mercado), DB_Prop_Dojo (patio de treino).
 import math, random
+import numpy as np
 import bpy
 from mathutils import Vector
 from mathutils.bvhtree import BVHTree
@@ -64,6 +75,17 @@ CAMS = {
     "CAM_DBProp_Exit": ((52.0, 28.0, G + 5.2), (66.0, 46.0, G + 3.0), 22),
     "CAM_DBProp_EntryE": ((6.0, -96.0, G + 5.2), (28.0, -76.0, G + 3.0), 22),
     "CAM_DBProp_Overview": ((0.0, -200.0, 125.0), (0.0, -30.0, 18.0), 22),
+    # lanternas de caminho e a linha ate a saida (rodada final)
+    "CAM_DBProp_CapStairE": ((0.0, 131.0, L.CAP + 5.2), (112.0, 53.0, H + 6.0), 22),
+    "CAM_DBProp_StreetE": ((14.0, 86.0, H + 5.2), (96.0, 84.0, H + 3.0), 24),
+    "CAM_DBProp_PathSW": ((-50.0, -58.0, G + 5.2), (-110.0, -76.0, G + 3.0), 22),
+    "CAM_DBProp_PathW": ((-72.0, 14.0, G + 5.2), (-120.0, 48.0, G + 3.0), 22),
+    "CAM_DBProp_PathSE": ((50.0, -56.0, G + 5.2), (112.0, -60.0, G + 3.0), 22),
+    "CAM_DBProp_HubStair": ((0.0, 52.0, G + 6.0), (0.0, 80.0, H + 3.0), 22),
+    "CAM_DBProp_ExitPath": ((70.0, 20.0, G + 6.2), (126.0, 62.0, L.EXIT_Z + 3.0), 22),
+    "CAM_DBProp_LanternsAir": ((40.0, -150.0, 150.0), (10.0, -10.0, 20.0), 24),
+    "CAM_DBProp_Junction": ((84.0, 94.0, H + 5.2), (106.0, 78.0, H + 0.5), 22),
+    "CAM_DBProp_HubStairW": ((-78.0, 54.0, G + 6.0), (-78.0, 82.0, H + 3.0), 22),
 }
 
 EXTRA_ROUTES = {}
@@ -196,20 +218,82 @@ def kiosk_booth(mb, x, y, z, yaw, area="DB_PropKiosk"):
     return top + 1.4
 
 
-def cap_lamp(mb, x, y, z, h=4.4, area="DB_PropLamp"):
+def cap_lamp(mb, x, y, z, h=4.4, area="DB_PropLamp", col=True, lite=False, glow=LAMP):
     """poste Capsule (a familia do portal/vila): soco marinho, fuste branco com anel azul, lampiao ambar entre discos
-    brancos, capuz azul. Devolve o centro do lampiao."""
-    mb.cyl(0.85, 0.5, (x, y, z + 0.25), (0, 0, 0), NAVY, 10, bevel=0.0)
-    mb.cyl(0.32, h, (x, y, z + 0.5 + h / 2), (0, 0, 0), WHITE, 8, bevel=0.0)
-    mb.cyl(0.46, 0.36, (x, y, z + 0.5 + h * 0.42), (0, 0, 0), BLUE, 8, bevel=0.0)
+    brancos, capuz azul. Devolve o centro do lampiao.
+    lite: o mesmo desenho com menos lados (os postes de caminho/escada, que se repetem as dezenas);
+    col=False: so visual (poste de caminho FORA da faixa de andar; o teto de colisoes do vestir nao comporta 1 caixa
+    por poste); glow: o material do lampiao (ambar; ciano = a linha de postes que leva a saida)."""
+    if lite:                     # ~150 tris: soco e fuste sextavados, sem pescoco, capuz conico
+        mb.cyl(0.85, 0.5, (x, y, z + 0.25), (0, 0, math.pi / 6), NAVY, 6, bevel=0.0)
+        mb.cyl(0.32, h + 0.42, (x, y, z + 0.5 + (h + 0.42) / 2), (0, 0, 0), WHITE, 6, bevel=0.0, caps=False)
+        mb.cyl(0.46, 0.36, (x, y, z + 0.5 + h * 0.42), (0, 0, 0), BLUE, 6, bevel=0.0)
+        t = z + 0.5 + h
+        mb.cyl(0.86, 0.24, (x, y, t + 0.54), (0, 0, 0), WHITE, 8, bevel=0.0)
+        mb.cyl(0.58, 1.2, (x, y, t + 0.66 + 0.6), (0, 0, 0), glow, 8, bevel=0.0, caps=False)
+        mb.cyl(0.9, 0.24, (x, y, t + 1.86 + 0.12), (0, 0, 0), WHITE, 8, bevel=0.0)
+        mb.cyl(0.74, 0.62, (x, y, t + 2.1 + 0.31), (0, 0, 0), BLUE, 8, r2=0.14, bevel=0.0)
+        if col:
+            col_box(area, (0.95, 0.95, t + 2.1 - z), (x, y, (z + t + 2.1) / 2))
+        return Vector((x, y, t + 1.26))
+    n1, n2 = 10, 8
+    mb.cyl(0.85, 0.5, (x, y, z + 0.25), (0, 0, 0), NAVY, n1, bevel=0.0)
+    mb.cyl(0.32, h, (x, y, z + 0.5 + h / 2), (0, 0, 0), WHITE, n2, bevel=0.0)
+    mb.cyl(0.46, 0.36, (x, y, z + 0.5 + h * 0.42), (0, 0, 0), BLUE, n2, bevel=0.0)
     t = z + 0.5 + h
-    mb.cyl(0.36, 0.42, (x, y, t + 0.21), (0, 0, 0), NAVY, 8, bevel=0.0)
-    mb.cyl(0.86, 0.24, (x, y, t + 0.54), (0, 0, 0), WHITE, 10, bevel=0.0)
-    mb.cyl(0.58, 1.2, (x, y, t + 0.66 + 0.6), (0, 0, 0), LAMP, 10, bevel=0.0)
-    mb.cyl(0.9, 0.24, (x, y, t + 1.86 + 0.12), (0, 0, 0), WHITE, 10, bevel=0.0)
-    dome(mb, (x, y), 0.72, t + 2.1, BLUE, 10, 2, 0.8)
-    col_box(area, (0.95, 0.95, t + 2.1 - z), (x, y, (z + t + 2.1) / 2))
+    mb.cyl(0.36, 0.42, (x, y, t + 0.21), (0, 0, 0), NAVY, n2, bevel=0.0)
+    mb.cyl(0.86, 0.24, (x, y, t + 0.54), (0, 0, 0), WHITE, n1, bevel=0.0)
+    mb.cyl(0.58, 1.2, (x, y, t + 0.66 + 0.6), (0, 0, 0), glow, n1, bevel=0.0)
+    mb.cyl(0.9, 0.24, (x, y, t + 1.86 + 0.12), (0, 0, 0), WHITE, n1, bevel=0.0)
+    dome(mb, (x, y), 0.72, t + 2.1, BLUE, n1, 2, 0.8)
+    if col:
+        col_box(area, (0.95, 0.95, t + 2.1 - z), (x, y, (z + t + 2.1) / 2))
     return Vector((x, y, t + 1.26))
+
+
+def beacon_mast(mb, x, y, z, area="DB_PropBeacon"):
+    """mastro-farol Capsule (sem texto): soco marinho octogonal, fuste branco afunilado com aneis azuis e 2 faixas
+    ciano acesas, plataforma branca, farol ciano entre discos, capuz azul e antena com ponta ciano.
+    ~48 de altura (abaixo das torres comm/mirante): o farol passa por cima da abobada da oficina para quem esta no
+    topo da escadaria do Capsule e marca o caminho da saida."""
+    mb.cyl(1.75, 0.8, (x, y, z + 0.4), (0, 0, math.pi / 8), NAVY, 8, bevel=0.0)
+    mb.cyl(1.25, 0.6, (x, y, z + 1.1), (0, 0, math.pi / 8), WHITE, 8, bevel=0.0)
+    H = 40.0
+    mb.cyl(0.7, H, (x, y, z + 1.4 + H / 2), (0, 0, 0), WHITE, 10, r2=0.42, bevel=0.0, caps=False)
+    for k, f in enumerate((0.16, 0.34, 0.52, 0.70, 0.88)):
+        rr = 0.7 + (0.42 - 0.7) * f + 0.14
+        mb.cyl(rr, 0.55, (x, y, z + 1.4 + H * f), (0, 0, 0), CYAN if k in (1, 3) else BLUE, 10, bevel=0.0)
+    t = z + 1.4 + H
+    mb.cyl(1.5, 0.36, (x, y, t + 0.18), (0, 0, 0), WHITE, 12, bevel=0.0)
+    mb.cyl(1.62, 0.2, (x, y, t + 0.46), (0, 0, 0), BLUE, 12, bevel=0.0)
+    mb.cyl(0.95, 2.0, (x, y, t + 0.56 + 1.0), (0, 0, 0), CYAN, 10, bevel=0.0, caps=False)
+    for i in range(4):
+        a = i * math.pi / 2 + math.pi / 4
+        mb.box((0.2, 0.2, 2.0), (x + math.cos(a) * 1.0, y + math.sin(a) * 1.0, t + 1.56), (0, 0, a), NAVY, 0.0)
+    mb.cyl(1.35, 0.3, (x, y, t + 2.56 + 0.15), (0, 0, 0), WHITE, 12, bevel=0.0)
+    dome(mb, (x, y), 1.1, t + 2.86, BLUE, 12, 3, 0.7)
+    top = t + 2.86 + 1.1 * 0.7
+    mb.rod((x, y, top - 0.1), (x, y, top + 2.6), 0.1, NAVY, 5)
+    ico(mb, 0.36, (x, y, top + 2.8), CYAN, 1)
+    col_box(area, (2.3, 2.3, 1.4 + H), (x, y, z + (1.4 + H) / 2), (0, 0, math.pi / 8))     # 1 caixa so (teto)
+    return top + 3.2
+
+
+def chevron(mb, x, y, z, yaw, m=BLUE, n=2, gap=2.3):
+    """seta de piso (>>) de lajotas azuis planas, sem texto: pontas para +x local; topo = z"""
+    F = Frame(x, y, 0.0, yaw)
+    th = 0.1
+    for k in range(n):
+        u0 = (k - (n - 1) / 2.0) * gap
+        for sg in (-1, 1):
+            # braco: paralelogramo da ponta (u0, 0) para tras e para o lado
+            tip_o, tip_i = (u0 + 0.62, 0.0), (u0 - 0.62, 0.0)
+            back_o, back_i = (u0 - 1.35, sg * 1.95), (u0 - 2.59, sg * 1.95)
+            pts = [F.p(*tip_o), F.p(*back_o), F.p(*back_i), F.p(*tip_i)]
+            pts = [(p.x, p.y) for p in pts]
+            if sg < 0:
+                pts.reverse()
+            mb.prism(pts, z - th, z, m, 0.0)
 
 
 def bench(mb, x, y, z, yaw, area="DB_PropBench"):
@@ -543,7 +627,7 @@ def punching_bag(md, x, y, z, yaw, area="DB_PropDojo"):
     col_box(area, (1.3, 1.3, 2.8), F.p(2.1, 0, 4.4), F.r())
 
 
-def martial_lantern(md, x, y, z, yaw, area="DB_PropDojo"):
+def martial_lantern(md, x, y, z, yaw, area="DB_PropDojo", col=True):
     """lanterna marcial de poste (a familia do dojo/mercado): sapata de madeira, poste laqueado, caixa de papel ambar
     com montantes escuros e chapeu laranja em piramide. Devolve o centro da luz."""
     F = Frame(x, y, z, yaw)
@@ -555,7 +639,8 @@ def martial_lantern(md, x, y, z, yaw, area="DB_PropDojo"):
         for sy in (-1, 1):
             md.box((0.22, 0.22, 1.35), F.p(sx * 0.55, sy * 0.55, 5.2 + 0.62), F.r(), WD, 0.0)
     md.cyl(1.2, 0.7, F.p(0, 0, 6.45 + 0.35), F.r(0, 0, math.pi / 4), ORANGE, 4, r2=0.16, bevel=0.0)
-    col_box(area, (0.6, 0.6, 7.1), F.p(0, 0, 3.55), F.r())
+    if col:
+        col_box(area, (0.6, 0.6, 7.1), F.p(0, 0, 3.55), F.r())
     return F.p(0, 0, 5.85)
 
 
@@ -570,6 +655,82 @@ def dojo_bench(md, x, y, z, yaw):
 
 
 # ------------------------------------------------------------------ validador (cena montada)
+SHRUBS = "DB_Veg_Shrubs"
+
+
+def _mesh_arrays(ob):
+    me = ob.data
+    nv = len(me.vertices)
+    co = np.empty(nv * 3, dtype=np.float64)
+    me.vertices.foreach_get("co", co)
+    co = co.reshape(-1, 3)
+    M = np.array(ob.matrix_world, dtype=np.float64)
+    co = co @ M[:3, :3].T + M[:3, 3]
+    ed = np.empty(len(me.edges) * 2, dtype=np.int64)
+    me.edges.foreach_get("vertices", ed)
+    return co, ed.reshape(-1, 2)
+
+
+def _labels(nv, ed):
+    """componentes conexas (partes soltas) por propagacao de rotulo + salto de ponteiro"""
+    lab = np.arange(nv, dtype=np.int64)
+    if not len(ed):
+        return lab
+    a, b = ed[:, 0], ed[:, 1]
+    for _ in range(400):
+        m = np.minimum(lab[a], lab[b])
+        old = lab.copy()
+        np.minimum.at(lab, a, m)
+        np.minimum.at(lab, b, m)
+        lab = lab[lab]
+        if np.array_equal(lab, old):
+            break
+    return lab
+
+
+def shrub_islands():
+    """bbox de cada parte solta das moitas/tufos/flores da vegetacao (DB_Veg_Shrubs, montada ANTES dos props):
+    (lo[k,3], hi[k,3], rotulo por vertice, rotulo por face)"""
+    ob = bpy.data.objects.get(SHRUBS)
+    if ob is None or ob.type != "MESH" or not len(ob.data.vertices):
+        return None, None, None, None
+    co, ed = _mesh_arrays(ob)
+    lab = _labels(len(co), ed)
+    uniq, inv = np.unique(lab, return_inverse=True)
+    k = len(uniq)
+    lo = np.full((k, 3), 1e9)
+    hi = np.full((k, 3), -1e9)
+    for j in range(3):
+        np.minimum.at(lo[:, j], inv, co[:, j])
+        np.maximum.at(hi[:, j], inv, co[:, j])
+    pv = np.array([p.vertices[0] for p in ob.data.polygons], dtype=np.int64)
+    return lo, hi, inv, inv[pv] if len(pv) else pv
+
+
+def glow_index():
+    """KD-tree dos centros de face com Lantern_Glow das OUTRAS zonas (para nao dobrar lanterna onde ja existe)"""
+    from mathutils.kdtree import KDTree
+    pts, who = [], []
+    for o in bpy.data.objects:
+        if o.type != "MESH" or o.name.startswith(("COL_", "DB_Prop_")):
+            continue
+        idx = {i for i, m in enumerate(o.data.materials) if m and m.name.startswith("Lantern_Glow")}
+        if not idx:
+            continue
+        mw = o.matrix_world
+        for p in o.data.polygons:
+            if p.material_index in idx:
+                pts.append(mw @ p.center)
+                who.append(o.name)
+    if not pts:
+        return None
+    kd = KDTree(len(pts))
+    for i, p in enumerate(pts):
+        kd.insert(p, i)
+    kd.balance()
+    return kd, who
+
+
 class Scene:
     """consulta a cena ja montada (outras zonas + vegetacao): colisao COL_* e visual (malhas) por raio vertical"""
 
@@ -595,6 +756,36 @@ class Scene:
         self.markers = [(o.name, o.location.copy()) for o in bpy.data.objects if o.type == "EMPTY" and o.name.startswith(
             ("NPC_", "PLAYER_INTERACT_", "SUMMON_", "GATE_", "ISLAND_", "WORLD_", "PATH_ENTRY_CENTER"))]
         self.lights = [(o.name, o.location.copy()) for o in bpy.data.objects if o.type == "LIGHT"]
+        self.shrub_lo, self.shrub_hi, self.shrub_lab, self.shrub_poly_lab = shrub_islands()
+        self.glow = glow_index()
+
+    def shrub_hit(self, x, y, r, z0, z1, pad=0.5):
+        """alguma parte solta das moitas (DB_Veg_Shrubs) com bbox a menos de r+pad do disco (x, y, r), na faixa z?"""
+        lo, hi = self.shrub_lo, self.shrub_hi
+        if lo is None or not len(lo):
+            return False
+        dx = np.maximum(np.maximum(lo[:, 0] - x, x - hi[:, 0]), 0.0)
+        dy = np.maximum(np.maximum(lo[:, 1] - y, y - hi[:, 1]), 0.0)
+        m = (dx * dx + dy * dy < (r + pad) ** 2) & (hi[:, 2] > z0 - 0.3) & (lo[:, 2] < z1)
+        return bool(m.any())
+
+    def shrub_count(self, x, y, r, z0, z1, pad=0.5):
+        lo, hi = self.shrub_lo, self.shrub_hi
+        if lo is None or not len(lo):
+            return 0
+        dx = np.maximum(np.maximum(lo[:, 0] - x, x - hi[:, 0]), 0.0)
+        dy = np.maximum(np.maximum(lo[:, 1] - y, y - hi[:, 1]), 0.0)
+        m = (dx * dx + dy * dy < (r + pad) ** 2) & (hi[:, 2] > z0 - 0.3) & (lo[:, 2] < z1)
+        return int(m.sum())
+
+    def glow_near(self, x, y, z, rad=5.0, dz=6.0):
+        """ja existe lanterna (Lantern_Glow de outra zona) perto?"""
+        if self.glow is None:
+            return None
+        for co, idx, d in self.glow[0].find_range(Vector((x, y, z)), rad + dz):
+            if math.hypot(co.x - x, co.y - y) < rad and abs(co.z - z) < dz:
+                return self.glow[1][idx]
+        return None
 
     def _bvh(self, rec):
         if rec[3] is None:
@@ -629,7 +820,7 @@ def _stair_rects():
     """retangulos (quadro, comprimento, largura) das escadas da planta, com folga nas pontas"""
     out = []
     for nm, base, ang, w, n, rise, tread, g in db_col.stair_list():
-        out.append((Frame(base[0], base[1], 0.0, ang), -tread - 3.0, tread * n + 3.5, w / 2 + 2.2, nm))
+        out.append((Frame(base[0], base[1], 0.0, ang), -tread - 3.0, tread * n + 3.5, w / 2 + 2.2, nm, tread * n, w))
     return out
 
 
@@ -658,6 +849,17 @@ NO_GO = [
 ]
 
 
+MBS = []                 # os 4 kits (contagem de tris por grupo para o relatorio)
+COST = []                # (tris, grupo)
+
+
+def _tri_count():
+    n = 0
+    for mb in MBS:
+        n += sum(len(f.verts) - 2 for f in mb.bm.faces)
+    return n
+
+
 class Placer:
     def __init__(self):
         self.sc = Scene()
@@ -672,7 +874,10 @@ class Placer:
         self.n_ok = 0
         self.n_skip = 0
 
-    def check(self, x, y, r, h, z_floor, route_clear=2.6):
+    def check(self, x, y, r, h, z_floor, route_clear=2.6, lamp=False, gutter=GUTTER, shrubs=True):
+        """None = cabe. lamp=True: poste de caminho/escada/rua (pode ficar COLADO na borda da trilha, da ponte e da
+        escada e na calcada da rua; continua fora da faixa de andar, das rotas e das zonas proibidas).
+        shrubs: recusa quando uma parte solta das moitas da vegetacao (ja montada) fica a menos de r+0,5 do disco."""
         # nivel: tudo no mesmo piso
         pts = [(x, y)] + [(x + r * math.cos(t), y + r * math.sin(t)) for t in [k * math.pi / 8 for k in range(16)]]
         pts += [(x + r * 0.72 * math.cos(t), y + r * 0.72 * math.sin(t)) for t in [k * math.pi / 4 + 0.2 for k in range(8)]]
@@ -684,32 +889,36 @@ class Placer:
                 return "fora da ilha"
         rr = math.hypot(x, y)
         ang = math.degrees(math.atan2(y, x))
-        if rr - r < L.prom_r(ang) + GUTTER:
+        if rr - r < L.prom_r(ang) + gutter:
             return "arena/promenade/sarjeta"
         if math.hypot(x - L.SUMMON_C[0], y - L.SUMMON_C[1]) < 27.0 + r:
             return "disco do summon"
         for x0, y0, x1, y1, why in NO_GO:
             if x0 - r < x < x1 + r and y0 - r < y < y1 + r:
                 return why
-        for F, u0, u1, hw, nm in self.stairs:
+        for F, u0, u1, hw, nm, run, w in self.stairs:
             dx, dy = x - F.o.x, y - F.o.y
             u = dx * math.cos(F.a) + dy * math.sin(F.a)
             v = -dx * math.sin(F.a) + dy * math.cos(F.a)
-            if u0 - r < u < u1 + r and abs(v) < hw + r:
+            if lamp:
+                if -0.6 - r < u < run + 0.6 + r and abs(v) < w / 2 + r + 0.2:
+                    return "escada " + nm
+            elif u0 - r < u < u1 + r and abs(v) < hw + r:
                 return "escada " + nm
         # pontes (chegada, saida, satelites)
         if y < L.BRIDGE_Y1 + 20.0 and abs(x) < L.ENTRY_STAIR_W / 2 + 3.0 + r:
             return "ponte/escadaria de chegada"
         for k, (a0, a1) in L.SAT_BRIDGES.items():
             d, t = L.seg_dist(x, y, a0[0], a0[1], a1[0], a1[1])
-            if d < L.SAT_BRIDGE_W / 2 + 2.0 + r:
+            if d < L.SAT_BRIDGE_W / 2 + (0.2 if lamp else 2.0) + r:
                 return "ponte do satelite"
         for pts_, w in L.GROUND_PATHS:
-            if L.polyline_dist(x, y, pts_) < w / 2 + r + 0.3:
+            if L.polyline_dist(x, y, pts_) < w / 2 + r + (0.05 if lamp else 0.3):
                 return "trilha calcada"
-        for pts_, hw in self.streets:
-            if L.polyline_dist(x, y, pts_) < hw + r + 0.3:
-                return "rua da vila"
+        if not lamp:
+            for pts_, hw in self.streets:
+                if L.polyline_dist(x, y, pts_) < hw + r + 0.3:
+                    return "rua da vila"
         for nm, pl in self.routes:
             if len(pl) > 1 and L.polyline_dist(x, y, pl) < r + route_clear:
                 return "rota " + nm
@@ -719,6 +928,8 @@ class Placer:
         for px, py, pr in self.placed:
             if math.hypot(x - px, y - py) < r + pr + 0.6:
                 return "outro prop"
+        if shrubs and self.sc.shrub_hit(x, y, r, z_floor, z_floor + h):
+            return "moita da vegetacao"
         # raios: colisao e visual
         for px, py in pts:
             zc = self.sc.col_top(px, py, z_floor + h + 0.3, h + 3.0)
@@ -737,22 +948,46 @@ class Placer:
                 return "visual de %s (%.1f)" % (who[0], zv - z_floor)
         return None
 
-    def place(self, name, cands, r, h, fn, z_floor=None, route_clear=2.6):
-        """tenta as posicoes (x, y, yaw) em ordem; monta a primeira livre"""
-        why = []
-        for x, y, yaw in cands:
-            z = L.zone_of(x, y) if z_floor is None else z_floor
-            res = self.check(x, y, r, h, z, route_clear)
-            if res is None:
+    def place(self, name, cands, r, h, fn, z_floor=None, route_clear=2.6, lamp=False, gutter=GUTTER,
+              shrub_fallback=True, quiet=False):
+        """tenta as posicoes (x, y, yaw) em ordem; monta a primeira livre. 1a passada: longe das moitas da vegetacao;
+        se nenhuma serve SO por causa de moita e shrub_fallback, 2a passada sem essa regra (as partes de moita que o
+        prop atravessar de verdade saem no fim, em clear_shrub_overlaps)"""
+        why, why2 = [], []
+        passes = (True, False) if shrub_fallback else (True,)
+        for shrubs in passes:
+            only_shrub = False
+            best = None
+            for i, (x, y, yaw) in enumerate(cands):
+                z = L.zone_of(x, y) if z_floor is None else z_floor
+                res = self.check(x, y, r, h, z, route_clear, lamp, gutter, shrubs)
+                if res is None:
+                    if shrubs:
+                        best = (0, i, x, y, z, yaw)
+                        break
+                    # 2a passada: entre as que cabem, a que menos pisa em moita (empate: a mais perto da planta)
+                    n_sh = self.sc.shrub_count(x, y, r, z, z + h)
+                    if best is None or n_sh < best[0]:
+                        best = (n_sh, i, x, y, z, yaw)
+                    continue
+                only_shrub |= res == "moita da vegetacao"
+                (why if shrubs else why2).append("(%.0f,%.0f): %s" % (x, y, res))
+            if best is not None:
+                n_sh, i, x, y, z, yaw = best
+                t0 = _tri_count()
                 fn(x, y, z, yaw)
+                COST.append((_tri_count() - t0, name))
                 self.placed.append((x, y, r))
                 self.n_ok += 1
-                REPORT.append("ok %s (%.1f, %.1f)" % (name, x, y))
+                REPORT.append("ok %s (%.1f, %.1f)%s" % (name, x, y, "" if shrubs else " [sobre %d partes de moita]" % n_sh))
                 return (x, y, z, yaw)
-            why.append("(%.0f,%.0f): %s" % (x, y, res))
+            if not only_shrub:
+                break
         self.n_skip += 1
-        REPORT.append("PULADO %s -> %s" % (name, "; ".join(why)))
-        print("PROPS pulado %s -> %s" % (name, "; ".join(why)))
+        REPORT.append("PULADO %s -> %s" % (name, "; ".join(why[:6])))
+        if not quiet:
+            print("PROPS pulado %s -> %s%s" % (name, "; ".join(why[:8]),
+                                               (" || sem a regra da moita: " + "; ".join(why2[:10])) if why2 else ""))
         return None
 
 
@@ -794,6 +1029,295 @@ def prom_cands(a_deg, off, face_in=True, da=(0.0, 3.0, -3.0, 6.0, -6.0)):
     return out
 
 
+# ------------------------------------------------------------------ lanternas de caminho / escada / rua (emissivo)
+LANE_H = 3.6            # fuste do poste de caminho: lampiao entre 4,8 e 6,0 acima do piso (altura da cabeca)
+LANE_R = 1.0            # raio do disco livre do poste (soco 0,85)
+LANE_TOP = 7.0          # altura total para os raios do validador
+LANES = []              # (tipo, x, y, z) dos postes de caminho montados (relatorio)
+CUE_GLOW = CYAN         # a linha de postes da rua da vila que leva a saida: topo ciano (o resto e ambar)
+
+
+def pl_len(pts):
+    return sum(math.hypot(b[0] - a[0], b[1] - a[1]) for a, b in zip(pts, pts[1:]))
+
+
+def pl_at(pts, d):
+    """ponto e tangente unitaria a d (comprimento de arco) ao longo da polilinha (grampeado nas pontas)"""
+    acc = 0.0
+    segs = list(zip(pts, pts[1:]))
+    for i, (a, b) in enumerate(segs):
+        ln = math.hypot(b[0] - a[0], b[1] - a[1])
+        if d <= acc + ln or i == len(segs) - 1:
+            t = max(0.0, min(1.0, (d - acc) / ln))
+            ux, uy = (b[0] - a[0]) / ln, (b[1] - a[1]) / ln
+            return (a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t), (ux, uy)
+        acc += ln
+
+
+def side_cands(pts, d, side, lats, shifts=(0.0, 1.5, -1.5, 3.0, -3.0, 4.5, -4.5)):
+    """posicoes ao lado da polilinha (side +1 = esquerda de quem anda no sentido dos pontos)"""
+    out = []
+    for sh in shifts:
+        (px, py), (ux, uy) = pl_at(pts, d + sh)
+        for lat in lats:
+            out.append((px - uy * side * lat, py + ux * side * lat, math.atan2(uy, ux)))
+    return out
+
+
+def lane_lamp(mc, kind, glow=LAMP):
+    def f(x, y, z, yaw):
+        cap_lamp(mc, x, y, z, LANE_H, col=True, lite=True, glow=glow)   # integracao: poste com colisao (teto do vestir 130)
+        LANES.append((kind, x, y, z))
+    return f
+
+
+def mlamp(md, kind):
+    def f(x, y, z, yaw):
+        martial_lantern(md, x, y, z, yaw, col=True)
+        LANES.append((kind, x, y, z))
+    return f
+
+
+def place_pair(P, name, ca, cb, fa, fb, r, h, route_clear=2.0, gutter=GUTTER):
+    """par simetrico (as 2 pontas da escada/ponte): tenta as mesmas alternativas dos 2 lados juntas; se nenhuma serve
+    aos dois, cada lado por conta propria"""
+    for (xa, ya, wa), (xb, yb, wb) in zip(ca, cb):
+        za, zb = L.zone_of(xa, ya), L.zone_of(xb, yb)
+        if P.check(xa, ya, r, h, za, route_clear, True, gutter) is None and \
+                P.check(xb, yb, r, h, zb, route_clear, True, gutter) is None:
+            fa(xa, ya, za, wa)
+            fb(xb, yb, zb, wb)
+            P.placed += [(xa, ya, r), (xb, yb, r)]
+            P.n_ok += 2
+            REPORT.append("ok %s par (%.1f, %.1f) (%.1f, %.1f)" % (name, xa, ya, xb, yb))
+            return 2
+    n = 0
+    for tag, c, f in (("A", ca, fa), ("B", cb, fb)):
+        n += P.place(name + "_" + tag, c, r, h, f, route_clear=route_clear, lamp=True, gutter=gutter,
+                     shrub_fallback=False) is not None
+    return n
+
+
+def lanterns(P, mc, md):
+    LANES.clear()
+
+    def lit_by(pts, z):
+        for x, y in pts:
+            w = P.sc.glow_near(x, y, z + 5.0, 5.0, 6.0)
+            if w:
+                return w
+        return None
+
+    # 1) trilhas calcadas radiais: 1 poste a cada ~12, alternando os lados (a de 12 de largura do summon e so a
+    #    aproximacao da escada, coberta pelo par do pe da escada)
+    for i, (pts, w) in enumerate(L.GROUND_PATHS):
+        if w > 8.0:
+            continue
+        ln = pl_len(pts)
+        d0 = 0.0
+        while d0 < ln:
+            (px, py), _ = pl_at(pts, d0)
+            a = math.degrees(math.atan2(py, px))
+            if math.hypot(px, py) - L.prom_r(a) >= GUTTER + 2.5:
+                break
+            d0 += 0.5
+        end = ln - (7.0 if i in (0, 1) else 3.0)          # a ponta das trilhas 0 e 1 e a cabeceira da ponte
+        k, d = 0, d0 + 1.5
+        while d <= end:
+            side = 1 if k % 2 == 0 else -1
+            lats = (w / 2 + 1.1, w / 2 + 1.7)
+            cands = side_cands(pts, d, side, lats) + side_cands(pts, d, -side, lats, (0.0, 2.0, -2.0))
+            (px, py), _ = pl_at(pts, d)
+            who = lit_by([(px, py)], G)
+            if who:
+                REPORT.append("lanterna ja existe na trilha %d d=%.0f (%s)" % (i, d, who))
+            else:
+                P.place("lanterna_trilha%d_%02d" % (i, k), cands, LANE_R, LANE_TOP, lane_lamp(mc, "trilha"),
+                        route_clear=2.0, lamp=True, shrub_fallback=False)
+            k += 1
+            d += 12.0
+
+    # 2) pares no pe e no topo das escadas da vila (3), do summon e da saida
+    for nm, base, ang, w, n, rise, tread, g in db_col.stair_list():
+        if not (nm.startswith("Hub") or nm in ("Summon", "Exit")):
+            continue
+        F = Frame(base[0], base[1], 0.0, ang)
+        run = tread * n
+        z0, z1 = base[2], base[2] + rise * n
+        # pe: antes do 1o degrau ou AO LADO dos 2-3 primeiros (quando o pe encosta no promenade); topo: logo depois
+        # do ultimo degrau, ja no piso de cima
+        for end, us, zz in (("pe", (-1.0, -1.7, 0.5, 1.3, 2.1, -2.5), z0),
+                            ("topo", tuple(run + 1.3 + d_ for d_ in (0.0, 0.6, 1.2, 1.9, 2.7, 3.5)), z1)):
+            nom = [F.p(us[0], s_ * (w / 2 + 1.25)) for s_ in (1, -1)]
+            who = lit_by([(p.x, p.y) for p in nom], zz)
+            if who:
+                REPORT.append("escada %s %s ja tem lanterna (%s)" % (nm, end, who))
+                continue
+            ca, cb = [], []
+            for u_ in us:
+                for dv in (0.0, 0.5, 1.1):
+                    for s_, lst in ((1, ca), (-1, cb)):
+                        q = F.p(u_, s_ * (w / 2 + 1.25 + dv))
+                        lst.append((q.x, q.y, ang))
+            glow = CUE_GLOW if nm == "Hub2" and end == "topo" else LAMP
+            # o pe das escadas da vila e da saida ENCOSTA no promenade (as laterais sao o muro do terraco): ali o
+            # par fica na margem de fora do promenade, colado no muro (longe do meio, onde se anda)
+            gut = -2.2 if end == "pe" else 0.3
+            if nm == "Exit":             # a escada da saida ja tem lanternas marciais nas bochechas: mesma familia
+                fa = fb = mlamp(md, "escada")
+            else:
+                fa = fb = lane_lamp(mc, "escada", glow)
+            place_pair(P, "lanterna_escada_%s_%s" % (nm, end), ca, cb, fa, fb, LANE_R, LANE_TOP, route_clear=2.0,
+                       gutter=gut)
+
+    # 3) cabeceiras das pontes dos satelites (no chao, antes do tabuleiro)
+    for kind, (a0, a1) in L.SAT_BRIDGES.items():
+        ang = math.atan2(a1[1] - a0[1], a1[0] - a0[0])
+        F = Frame(a0[0], a0[1], 0.0, ang)
+        nom = [F.p(-1.0, s_ * (L.SAT_BRIDGE_W / 2 + 1.4)) for s_ in (1, -1)]
+        who = lit_by([(p.x, p.y) for p in nom], G)
+        if who:
+            REPORT.append("ponte %s ja tem lanterna (%s)" % (kind, who))
+            continue
+        ca, cb = [], []
+        for du in (0.0, 0.8, 1.6, 2.6, 3.6):
+            for dv in (0.0, 0.6, 1.3):
+                for s_, lst in ((1, ca), (-1, cb)):
+                    q = F.p(-1.0 - du, s_ * (L.SAT_BRIDGE_W / 2 + 1.4 + dv))
+                    lst.append((q.x, q.y, ang))
+        place_pair(P, "lanterna_ponte_%s" % kind, ca, cb, lane_lamp(mc, "ponte"), lane_lamp(mc, "ponte"), LANE_R,
+                   LANE_TOP, route_clear=2.0)
+
+    # 4) trilha da saida: lanterna marcial a cada ~16 no lado de DENTRO (o da vila, a esquerda de quem sai) ate o
+    #    comeco da transicao Shadow Garden (SG_TRANSITION_D antes da ponte); depois dela so as roxas do db_exit
+    pts = L.EXIT_PATH
+    ln = pl_len(pts)
+    stop = ln - L.SG_TRANSITION_D - 2.0
+
+    ml = mlamp(md, "saida")
+    k, d = 0, 7.0
+    while d <= stop:
+        lats = (L.EXIT_PATH_HW - 1.9, L.EXIT_PATH_HW - 2.6, L.EXIT_PATH_HW - 3.3)
+        cands = [c for c in side_cands(pts, d, 1, lats, (0.0, 2.0, -2.0, 4.0, -4.0, 6.0, -6.0, 8.0))]
+        P.place("lanterna_saida_%02d" % k, cands, 1.0, 7.3, ml, z_floor=L.EXIT_Z, route_clear=2.0, lamp=True,
+                shrub_fallback=False)
+        k += 1
+        d += 16.0
+
+    # 5) rua da vila -> saida (quem sai do Capsule nao via o caminho): postes de topo CIANO no lado sul da rua
+    #    principal (y ~77,5, junto do parapeito da frente do terraco, fora do corredor livre), a cada ~12 de x 16 ate
+    #    a escada lateral leste (o par ciano do topo dela continua a linha), + seta de piso na juncao rua/ligacao da
+    #    saida e o mastro-farol ciano do lado da vila (aparece por cima da oficina para quem desce do Capsule)
+    try:
+        import db_terrain
+        st = list(db_terrain.HUB_STREETS[0][0])
+        hw = db_terrain.HUB_STREETS[0][1]
+    except Exception:
+        st, hw = [(0.0, 81.2), (52.0, 81.5), (78.0, 82.5), (96.0, 87.0)], 4.3
+    st = [p for p in st if p[0] >= -0.5]
+    for k, s0 in enumerate((16.0, 28.0, 40.0, 52.0, 63.0)):
+        cands = side_cands(st, s0, -1, (hw - 0.5, hw - 0.9, hw - 0.1, hw - 1.4), (0.0, 1.5, -1.5, 3.0, -3.0))
+        P.place("poste_rua_saida_%d" % k, cands, LANE_R, LANE_TOP, lane_lamp(mc, "rua", CUE_GLOW), z_floor=H,
+                route_clear=2.0, lamp=True, shrub_fallback=False)
+
+    link = L.HUB_EXIT_LINK
+    yaw = math.atan2(link[1][1] - link[0][1], link[1][0] - link[0][0])
+    ok = False
+    dbg = []
+    # a seta fica sobre UMA familia de lajes (as da rua tem topo +0,14, as da ligacao +0,10, a base 0): amostra os
+    # bracos de verdade e aceita onde >= 80% dos pontos estao na laje mais alta e o topo da seta fica <= H + 0,15
+    for sh in (0.0, 1.5, 3.0, 4.5, 5.5, 6.5, 7.5, -1.5):
+        for lat in (0.0, 1.0, -1.0):
+            cx = 96.0 + math.cos(yaw) * sh - math.sin(yaw) * lat
+            cy = 87.0 + math.sin(yaw) * sh + math.cos(yaw) * lat
+            F = Frame(cx, cy, 0.0, yaw)
+            zs = []
+            for u0 in (-1.15, 1.15):
+                for sg in (-1, 1):
+                    for t in (0.0, 0.5, 1.0):
+                        q = F.p(u0 - 1.97 * t, sg * 1.95 * t)
+                        zs.append(P.sc.vis_top(q.x, q.y, H + 3.0, 5.0))
+            if any(z is None for z in zs):
+                dbg.append("sh=%.1f lat=%.0f sem piso" % (sh, lat))
+                continue
+            m = max(zs)
+            good = sum(1 for z in zs if abs(z - m) <= 0.035)
+            dbg.append("sh=%.1f lat=%.0f max=%+.2f min=%+.2f bons=%d/%d" % (sh, lat, m - H, min(zs) - H, good, len(zs)))
+            if good < 0.8 * len(zs) or m > H + 0.115 or min(zs) < m - 0.3:
+                continue
+            top = m + 0.035
+            chevron(mc, cx, cy, top, yaw)
+            REPORT.append("ok seta_piso_saida (%.1f, %.1f) topo=H%+.2f" % (cx, cy, top - H))
+            ok = True
+            break
+        if ok:
+            break
+    if not ok:
+        print("PROPS pulado seta_piso_saida (piso irregular na juncao rua/ligacao): %s" % " | ".join(dbg))
+
+    P.place("farol_saida", near(106.0, 98.0, lambda x, y: 0.0, 7.0), 1.9, 51.0,
+            lambda x, y, z, yaw: beacon_mast(mc, x, y, z), route_clear=2.0, shrub_fallback=True)
+
+    kinds = {}
+    for kd, x, y, z in LANES:
+        kinds[kd] = kinds.get(kd, 0) + 1
+    print("PROPS lanternas de caminho (so brilho, sem luz): %d %s" % (len(LANES), kinds))
+
+
+def clear_shrub_overlaps(objs):
+    """rede de seguranca: as partes soltas de moita/tufo/flor (DB_Veg_Shrubs) que um prop ATRAVESSA de verdade
+    (interseccao de triangulos, BVH) saem da malha das moitas; o resto da vegetacao nao e tocado"""
+    import bmesh
+    ob = bpy.data.objects.get(SHRUBS)
+    if ob is None or not len(ob.data.polygons):
+        return 0, 0
+    bpy.context.view_layer.update()
+    co, ed = _mesh_arrays(ob)
+    polys = [tuple(p.vertices) for p in ob.data.polygons]
+    sh = BVHTree.FromPolygons([Vector(v) for v in co], polys)
+    lab = _labels(len(co), ed)
+    kill = set()
+    for po in objs:
+        if po is None or not len(po.data.polygons):
+            continue
+        mw = po.matrix_world
+        bvh = BVHTree.FromPolygons([mw @ v.co for v in po.data.vertices], [tuple(p.vertices) for p in po.data.polygons])
+        for ip, js in bvh.overlap(sh):
+            kill.add(int(lab[polys[js][0]]))
+    if not kill:
+        return 0, 0
+    bm = bmesh.new()
+    bm.from_mesh(ob.data)
+    bm.verts.ensure_lookup_table()
+    dead = [bm.verts[i] for i in range(len(bm.verts)) if int(lab[i]) in kill]
+    nt = sum(len(f.verts) - 2 for f in {f for v in dead for f in v.link_faces})
+    bmesh.ops.delete(bm, geom=dead, context="VERTS")
+    bm.to_mesh(ob.data)
+    bm.free()
+    ob.data.update()
+    return len(kill), nt
+
+
+def veg_overlaps(objs):
+    """relatorio: pares de triangulos prop x vegetacao que se cruzam, por objeto da vegetacao (canteiros fora: sao piso)"""
+    out = {}
+    for vn in ("DB_Veg_Shrubs", "DB_Veg_Palms", "DB_Veg_Rocks", "DB_Veg_Planters"):
+        vo = bpy.data.objects.get(vn)
+        if vo is None or not len(vo.data.polygons):
+            continue
+        mw = vo.matrix_world
+        vb = BVHTree.FromPolygons([mw @ v.co for v in vo.data.vertices], [tuple(p.vertices) for p in vo.data.polygons])
+        n = 0
+        for po in objs:
+            if po is None:
+                continue
+            pm = po.matrix_world
+            pb = BVHTree.FromPolygons([pm @ v.co for v in po.data.vertices], [tuple(p.vertices) for p in po.data.polygons])
+            n += len(pb.overlap(vb))
+        out[vn] = n
+    return out
+
+
 def build():
     rng = random.Random(9090)
     LAMP_SPOTS.clear()
@@ -803,6 +1327,8 @@ def build():
     mw = K.CMB("DB_Prop_Work", C, rng=random.Random(9102), detail="near")
     mm = K.CMB("DB_Prop_Market", C, rng=random.Random(9103), detail="near")
     md = K.CMB("DB_Prop_Dojo", C, rng=random.Random(9104), detail="near")
+    MBS[:] = [mc, mw, mm, md]
+    COST.clear()
 
     # ---------------- estacoes de mineracao na borda de fora do promenade (nada na arena)
     def st_entry(x, y, z, yaw):          # cavalete de picaretas + tremonha vazia (ao lado da praca de entrada)
@@ -811,7 +1337,8 @@ def build():
         pick_rack(mw, p.x, p.y, z, yaw, rng)
         q = F.p(-0.6, 2.6)
         ore_bin(mw, q.x, q.y, z, yaw + math.pi / 2)
-    P.place("estacao_mineracao_S", prom_cands(248.0, 8.4), 5.2, 3.6, st_entry)
+    P.place("estacao_mineracao_S", prom_cands(248.0, 8.4) + prom_cands(248.0, 12.5, da=(0.0, 4.0, -4.0, 8.0, -8.0)) +
+            prom_cands(240.0, 8.4, da=(0.0, -3.0, -6.0, -9.0)), 5.2, 3.6, st_entry)
 
     def st_cart(x, y, z, yaw):           # carrinho vazio no toco de trilho + tremonha
         F = Frame(x, y, z, yaw)
@@ -997,7 +1524,6 @@ def build():
         pullup_bar(md, x, y, z, yaw)
         bg = F.p(2.9, -1.3)
         punching_bag(md, bg.x, bg.y, z, yaw + math.pi / 2)
-    P.place("dojo_barra_saco", near(116.5, -39.0, lambda x, y: 0.0, 6.0), 4.2, 7.6, dojo_bars, route_clear=2.0)
 
     def dojo_weights(x, y, z, yaw):      # suporte de barras + kettlebells + anilhas + banco com toalha e jarra
         F = Frame(x, y, z, yaw)
@@ -1009,7 +1535,13 @@ def build():
         plate_stack(md, ps.x, ps.y, z)
         bn = F.p(0.0, 2.3)
         dojo_bench(md, bn.x, bn.y, z, yaw + math.pi / 2)
+    # o grupo menor (pesos) antes: se a barra/saco precisar sair da planta (vegetacao em cima), ela anda, nao ele some
     P.place("dojo_pesos", near(124.5, -39.5, lambda x, y: 0.0, 6.0), 3.6, 3.0, dojo_weights, route_clear=2.0)
+    P.place("dojo_barra_saco", near(116.5, -39.0, lambda x, y: 0.0, 11.0), 4.2, 7.6, dojo_bars, route_clear=2.0)
+
+    # ---------------- LANTERNAS DE CAMINHO (a assinatura da concept: luz quente ao longo de toda trilha e escada).
+    # So brilho (Lantern_Glow), SEM objeto de luz: o teto de luzes de dia fica como esta. Sem colisao (ver cap_lamp).
+    lanterns(P, mc, md)
 
     # ---------------- aproximacao do summon: 1 lanterna de pedra (marcial) por lado FORA da zona livre
     # (o summon ja tem postes no pe da escada; aqui so seixos e a luz do db_lights)
@@ -1024,7 +1556,20 @@ def build():
     mw.finish()
     mm.finish()
     md.finish()
+    objs = [bpy.data.objects.get(n) for n in ("DB_Prop_Capsule", "DB_Prop_Work", "DB_Prop_Market", "DB_Prop_Dojo")]
+    print("PROPS cruzamentos prop x vegetacao (antes da limpeza): %s" % veg_overlaps(objs))
+    nk, nt = clear_shrub_overlaps(objs)
+    print("PROPS moitas atravessadas por prop removidas: %d partes soltas (%d tris); depois: %s" % (
+        nk, nt, veg_overlaps(objs)))
     print("PROPS montados: " + "; ".join(r[3:] for r in REPORT if r.startswith("ok ")))
+    agg = {}
+    for t, nm in COST:
+        k = nm.rstrip("0123456789_AB").replace("_par", "")
+        agg[k] = agg.get(k, 0) + t
+    print("PROPS tris por grupo: %s" % sorted(((v, k) for k, v in agg.items()), reverse=True)[:14])
+    for r in REPORT:
+        if not r.startswith(("ok ", "PULADO")):
+            print("PROPS nota: " + r)
     ncol = sum(1 for o in bpy.data.objects if o.name.startswith("COL_DB_Prop"))
     print("PROPS grupos montados=%d pulados=%d luzes=%d colisoes=%d" % (P.n_ok, P.n_skip, len(LAMP_SPOTS), ncol))
     for ob in (bpy.data.objects.get(n) for n in ("DB_Prop_Capsule", "DB_Prop_Work", "DB_Prop_Market", "DB_Prop_Dojo")):

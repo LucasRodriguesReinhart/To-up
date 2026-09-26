@@ -1,26 +1,32 @@
 # db_exit - SAIDA da Ilha 2 (Dragon Ball) em arte final: prefixo DB_Exit_, colecao 08_NEXT_ISLAND.
 # Substitui db_blockout.exit_(). A narrativa, de dentro para fora:
 #   DRAGON BALL -> TRILHA -> ARCO -> PONTE -> PORTAO DE COMPRA SHADOW GARDEN (asset aprovado, do db_core) -> ANCORA
-#   - escada "Exit" (visual das medidas do db_col) e a PRATELEIRA da saida (L.EXIT_PATH hw 9 + L.HUB_EXIT_LINK hw 7,
-#     topo EXIT_Z): lajes claras em fileiras atravessadas, muro de arrimo de arenito em blocos do GROUND ate EXIT_Z
-#     (o terreno nao faz) com o coroamento Capsule da vila (capa branca + faixa azul) e a guarda Capsule (mureta
-#     branca, balaustres, corrimao azul) EXATAMENTE nas linhas das guardas invisiveis do db_col;
+#   - escada "Exit" (visual das medidas do db_col) com pilares-lanterna de arenito no topo, e a PRATELEIRA da saida
+#     (L.EXIT_PATH hw 9 + L.HUB_EXIT_LINK hw 7, topo EXIT_Z): lajes claras em fileiras atravessadas, muro de arrimo de
+#     arenito em blocos do GROUND ate EXIT_Z (o terreno nao faz). Guardas EXATAMENTE nas linhas das guardas invisiveis
+#     do db_col: na TRILHA parapeito de arenito (blocos + capa de laje) com pilares e lanternas quentes de pedra a cada
+#     ~16 e coroamento de arenito quente; so na LIGACAO (junto da vila) a guarda Capsule (mureta branca, balaustres,
+#     corrimao azul) e o coroamento Capsule da vila. Nas quinas (ligacao x vila, ligacao x trilha) guarda e coroamento
+#     vao ate a quina, sem pilar duplicado, e o trecho sem guarda invisivel ganha colisao propria (DB_ExitGuard);
+#     nada de muro/coroamento dentro do terraco da vila (o DB_Ter_HubWalls faz aquela borda). A ponta da ligacao
+#     dentro da vila: se o terraco recortar a meia-lua da fita, ela e calcada aqui (link_cap, adaptativo);
 #   - ARCO NATURAL de arenito sobre a trilha (L.EXIT_ARCH): uma aleta de rocha so (loft continuo pe -> arco -> pe,
 #     secao de rocha facetada e irregular, pernas que alargam no chao, lintel de topo achatado e assimetrico),
 #     estratos escuros horizontais, topo iluminado com grama na crista, contrafortes e ombro de quebra; o vao livre
-#     (>= 18 x 22) e medido no build por raios; colisao das pernas (octo_col + caixa do pe);
+#     (>= 18 x 22) e medido no build por raios; colisao das pernas: octogonos (G+6..Z+10) e, no pe, faixas ajustadas a
+#     rocha REAL (raios na malha, G+1..G+6, recuo 0,35) - nada de caixa passando da rocha;
 #   - transicao SHADOW GARDEN sutil DEPOIS do arco (ultimos 20 da trilha): lajes de pedra crepuscular misturadas,
 #     muro crepuscular, 1 lanterninha roxa por lado no fim, 2 arvores secas; o resto continua Dragon Ball;
 #   - PONTE de saida (EXIT_START, rumo EXIT_DEG, 64 x 18, tabuleiro EXIT_Z) sobre 3 pilares de rocha pendurados
 #     (agulhas de arenito que somem nas nuvens; o ultimo ja crepuscular); parapeito de blocos nas linhas das guardas;
-#     arenito + capa branca + faixa azul no comeco, pedra crepuscular + capa negra-violeta e lanternas roxas perto da
-#     ilhota (manchas continuas por ruido, nada de xadrez);
+#     arenito + capa de laje clara + coroamento de arenito no comeco, pedra crepuscular + capa negra-violeta e
+#     lanternas roxas perto da ilhota (manchas continuas por ruido, nada de xadrez);
 #   - ILHOTA do portao (L.islet_center() r 22): massa de rocha crepuscular pendurada em tambores + estalactites,
 #     calcamento escuro em volta do portao (o portao GATE_ShadowGarden* e do db_core e nao e tocado), parapeito nas
 #     guardas do db_col, bastiao da ancora e a guarda PROVISORIA DB_Exit_AnchorGuard (2 pilones + correntes,
 #     next_island_guard=True).
 # Colisao: o piso, as escadas e as guardas sao do db_col (congelado); aqui so as pernas do arco, contrafortes,
-# troncos das arvores secas e os pilones da guarda da ancora.
+# troncos das arvores secas, os pilones da guarda da ancora e os trechos de guarda das quinas.
 # Pos-critica: material do arco pela ESTRUTURA do loft (sofito escuro, crista clara/grama) + estratos horizontais por
 # planos de corte (nada de xadrez) e UV em caixa no referencial do arco; lajes recortadas (clip_planes/slab_out) na
 # juncao ligacao/trilha, na cunha trilha/ponte e em volta do portao/borda da ilhota; muro de arrimo misturado bloco a
@@ -50,6 +56,19 @@ ROCK, DARK, TOP, RDUSK = "Cliff_Rock_DB", "Cliff_Rock_DB_Dark", "Cliff_Rock_DB_T
 SHADOW, GLOW = "P_Shadow_Stone", "P_Shadow_Glow"
 WHITE, BLUE = "Plaster_DB_White", "Roof_DB_Blue"
 GRASS, IRON, DEAD = "Grass_DB", "Metal_DB_Dark", "Bark_Dead"
+LAMP, ORANGE = "Lantern_Glow", "Roof_DB_Orange"
+POLY_PATH, POLY_LINK = 0, 1                  # indices de DL.exit_shelf_polys(): trilha, ligacao com a vila
+GUARD_H = db_col.GUARD_H
+# coroamento do muro de arrimo (perfil lateral, vertical em volta da linha da borda, + = para fora):
+# ligacao (junto da vila) = o Capsule da vila (capa branca + faixa azul); trilha = arenito quente (capa de laje clara +
+# faixa de bloco escuro), um pouco maior que o da ligacao para as quinas trilha/ligacao nao terem faces coplanares
+COPING = {POLY_LINK: (([(-1.25, -0.5), (0.5, -0.5), (0.5, 0.13), (-1.25, 0.13)], WHITE),
+                      ([(0.18, -0.98), (0.62, -0.98), (0.62, -0.5), (0.18, -0.5)], BLUE)),
+          POLY_PATH: (([(-1.3, -0.52), (0.56, -0.52), (0.56, 0.15), (-1.3, 0.15)], PAVE),
+                      ([(0.2, -1.0), (0.68, -1.0), (0.68, -0.46), (0.2, -0.46)], BLOCK_B))}
+# parapeito de arenito da trilha (nas linhas das guardas do db_col): corpo, capa e pilares
+PAR_W, PAR_H, PAR_CAP = 1.0, 1.35, 0.26
+PAR_POST = 8.0                               # pilar a cada ~8; lanterna quente em pilares alternados (~16)
 
 # ------------------------------------------------------------------ referenciais
 UX, UY = L.exit_dir()
@@ -372,14 +391,15 @@ def dusk_lamp(mb, p, yaw, s=1.0):
     return Vector((p.x, p.y, z + 0.26 + 0.47 * s))
 
 
-def capsule_lamp(mb, x, y, z, s=1.0):
-    """lampiao Capsule (a mesma familia do portal de entrada): pescoco azul, disco branco, globo laranja aceso,
-    disco branco e cupula azul - o lado Dragon Ball da trilha (no fim dela as lanterninhas sao roxas)"""
-    mb.cyl(0.36 * s, 0.7 * s, (x, y, z + 0.35 * s), m=BLUE, n=10, bevel=0.0)
-    mb.cyl(0.88 * s, 0.28 * s, (x, y, z + 0.84 * s), m=WHITE, n=14, bevel=0.0)
-    mb.cyl(0.62 * s, 1.35 * s, (x, y, z + 0.98 * s + 0.675 * s), m="Lantern_Glow", n=12, bevel=0.0)
-    mb.cyl(0.92 * s, 0.28 * s, (x, y, z + 2.33 * s + 0.14 * s), m=WHITE, n=14, bevel=0.0)
-    DL.dome(mb, (x, y), 0.66 * s, z + 2.61 * s, BLUE, n=12, rings=3, squash=0.9)
+def stone_lantern(mb, x, y, z, yaw, s=1.0):
+    """lanterna quente de pedra (o caminho da concept ate o portao): prato de laje, camara ambar acesa, tampa de laje
+    e chapeu laranja em piramide (acento marcial). Peca pequena repetida: sem chanfro."""
+    mb.box((1.3 * s, 1.3 * s, 0.2), (x, y, z + 0.1), (0, 0, yaw), PAVE, 0.0)
+    mb.box((0.8 * s, 0.8 * s, 0.9 * s), (x, y, z + 0.2 + 0.45 * s), (0, 0, yaw), LAMP, 0.0)
+    zt = z + 0.2 + 0.9 * s
+    mb.box((1.22 * s, 1.22 * s, 0.18), (x, y, zt + 0.09), (0, 0, yaw), PAVE, 0.0)
+    mb.cyl(1.06 * s, 0.58 * s, (x, y, zt + 0.18 + 0.29 * s), (0, 0, yaw + math.pi / 4), ORANGE, 4, r2=0.14 * s,
+           bevel=0.0)
 
 
 # ------------------------------------------------------------------ prateleira: linhas das guardas e dos muros
@@ -398,10 +418,11 @@ def _near_stair_top(x, y, z_top, stairs):
 
 
 def shelf_guard_runs():
-    """as MESMAS linhas das guardas invisiveis da prateleira (db_col.terrace_guards, poligonos Exit0/Exit1)"""
+    """as MESMAS linhas das guardas invisiveis da prateleira (db_col.terrace_guards, poligonos Exit0/Exit1):
+    [(indice do poligono, trecho)]. Nada dentro do terraco da vila (a borda dele e do db_terrain)."""
     stairs = db_col.stair_list()
     out = []
-    for rp in DL.exit_shelf_polys():
+    for k, rp in enumerate(DL.exit_shelf_polys()):
         pts = ccw(rp)
         cx = sum(p[0] for p in pts) / len(pts)
         cy = sum(p[1] for p in pts) / len(pts)
@@ -418,9 +439,139 @@ def shelf_guard_runs():
                 return False
             if db_col._opening(ox, oy, strict=True):     # igual ao db_col.terrace_guards
                 return False
+            if L.point_in_poly(x, y, L.HUB_POLY):
+                return False
             return not _near_stair_top(x, y, Z, stairs)
-        out += db_col._runs(pts, keep, step=1.0)
+        out += [(k, r) for r in db_col._runs(pts, keep, step=1.0)]
     return out
+
+
+# ------------------------------------------------------------------ quinas: onde a borda da prateleira encontra a
+# borda da vila (db_terrain) ou a outra fita. Os trechos das guardas/muros param ~1-2 antes da quina (amostragem do
+# db_col); a guarda e o coroamento daqui vao ATE a quina (sem pilar duplicado ao lado do pilar do vizinho)
+def _poly_segs(P):
+    return [(P[i], P[(i + 1) % len(P)]) for i in range(len(P))]
+
+
+def _seg_hit(p, d, segs, tmax):
+    """menor t em (0, tmax] em que o raio p + t d cruza um dos segmentos"""
+    best = None
+    for a, b in segs:
+        ex, ey = b[0] - a[0], b[1] - a[1]
+        den = d.x * ey - d.y * ex
+        if abs(den) < 1e-9:
+            continue
+        wx, wy = a[0] - p.x, a[1] - p.y
+        t = (wx * ey - wy * ex) / den
+        s = (wx * d.y - wy * d.x) / den
+        if 1e-4 < t <= tmax and -1e-6 <= s <= 1.0 + 1e-6 and (best is None or t < best):
+            best = t
+    return best
+
+
+_TARGETS = {}
+
+
+def _targets(k):
+    if not _TARGETS:
+        polys = DL.exit_shelf_polys()
+        _TARGETS[POLY_PATH] = [("link", _poly_segs(ccw(polys[POLY_LINK])))]
+        _TARGETS[POLY_LINK] = [("hub", _poly_segs(list(L.HUB_POLY))), ("path", _poly_segs(ccw(polys[POLY_PATH])))]
+    return _TARGETS[k]
+
+
+def corner_of(run, k, at_end, tmax=3.0):
+    """(tag, C) se a ponta do trecho (continuada pela borda) encontra a vila ('hub') ou a outra fita ('path'/'link')
+    ate tmax adiante; C = a quina. None nas pontas comuns (escada, ponte, fim da queda)."""
+    if len(run) < 2:
+        return None
+    p, q = (run[-1], run[-2]) if at_end else (run[0], run[1])
+    d = Vector((p.x - q.x, p.y - q.y, 0.0))
+    if d.length < 1e-6:
+        return None
+    d.normalize()
+    best = None
+    for tag, segs in _targets(k):
+        t = _seg_hit(p, d, segs, tmax)
+        if t is not None and (best is None or t < best[0]):
+            best = (t, tag)
+    if best is None:
+        return None
+    return best[1], Vector((p.x + d.x * best[0], p.y + d.y * best[0], 0.0))
+
+
+_TER_ENDS = []
+
+
+def terrain_guard_ends():
+    """pontas das guardas da vila (db_terrain.guard_runs, as mesmas linhas do db_col): a guarda da ligacao encosta
+    nelas nas quinas com a vila"""
+    if not _TER_ENDS:
+        try:
+            import db_terrain
+            for r in db_terrain.guard_runs():
+                for p in (r[0], r[-1]):
+                    _TER_ENDS.append(Vector((p.x, p.y, 0.0)))
+        except Exception as e:                        # modulo do vizinho indisponivel: para na quina
+            print("DB_EXIT AVISO: guardas do db_terrain indisponiveis (%s)" % e)
+            _TER_ENDS.append(Vector((1e9, 1e9, 0.0)))
+    return _TER_ENDS
+
+
+def guard_plan():
+    """guardas da prateleira com as pontas levadas ate as quinas: [(k, pontos, tags, extensoes)]. Na quina com a vila a
+    guarda da ligacao continua pela borda da vila ate a ponta da guarda dela (se estiver a < 3). As extensoes sao
+    trechos SEM guarda invisivel no db_col (a amostragem dele abre 1-3 studs em cada quina): viram colisao propria."""
+    stairs = db_col.stair_list()
+    out = []
+    for k, run in shelf_guard_runs():
+        run = [Vector((p.x, p.y, 0.0)) for p in run]
+        if len(run) < 2:
+            continue
+        tags = [None, None]
+        ext = []
+        for at_end in (False, True):
+            c = corner_of(run, k, at_end)
+            if c is None:
+                p = run[-1] if at_end else run[0]
+                if _near_stair_top(p.x, p.y, Z, [(nm, b, a, w + 2.8, n, r, t, g)
+                                                 for nm, b, a, w, n, r, t, g in stairs]):
+                    tags[1 if at_end else 0] = "stair"
+                continue
+            tag, C = c
+            add = [C]
+            p = run[-1] if at_end else run[0]
+            ext.append((p, C, 0.3, 0.0))              # entra 0,3 na guarda invisivel do db_col (lado da ponta)
+            if tag == "hub":
+                te = sorted(terrain_guard_ends(), key=lambda e: (e - C).length)
+                if te and 0.5 < (te[0] - C).length < 3.0:
+                    add.append(te[0].copy())
+                    ext.append((C, te[0].copy(), 0.0, 0.3))     # entra 0,3 na guarda da vila
+            if at_end:
+                run = run + add
+            else:
+                run = list(reversed(add)) + run
+            tags[1 if at_end else 0] = tag
+        out.append((k, run, tags, ext))
+    return out
+
+
+def guard_ext_col(ext):
+    """colisao das extensoes (a mesma parede do db_col: espessura 1, de Z-0,5 ate Z+GUARD_H), entrando ga/gb na guarda
+    invisivel vizinha pelo lado que encosta nela (nunca alem da quina: nada de toco no piso)"""
+    n = 0
+    for a, b, ga, gb in ext:
+        d = b - a
+        ln = d.length
+        if ln < 1.0:
+            continue                                  # fresta < 1 entre guardas de 1 de espessura: ninguem passa
+        u = d / ln
+        a2, b2 = a - u * ga, b + u * gb
+        c = (a2 + b2) / 2
+        col_box("DB_ExitGuard", ((b2 - a2).length, 1.0, GUARD_H + 0.5), (c.x, c.y, Z - 0.5 + (GUARD_H + 0.5) / 2),
+                (0, 0, math.atan2(u.y, u.x)))
+        n += 1
+    return n
 
 
 def on_bridge(x, y):
@@ -433,14 +584,24 @@ def exit_stair():
     return [s for s in db_col.stair_list() if s[0] == "Exit"][0]
 
 
+def stair_lamp_pts():
+    """pilares-lanterna do topo da escada da saida (as pontas do parapeito junto deles ficam sem lanterna)"""
+    nm, base, ang, w, nn, rise, tread, g = exit_stair()
+    F = DL.Frame(base[0], base[1], base[2], ang)
+    return [Vector((F.p(tread * nn - tread / 2, sg * (w / 2 + 0.6), 0.0).x,
+                    F.p(tread * nn - tread / 2, sg * (w / 2 + 0.6), 0.0).y, Z)) for sg in (-1, 1)]
+
+
 def wall_runs():
-    """trechos das bordas da prateleira que dao para o chao GROUND (queda de 4): muro de arrimo + coroamento"""
+    """trechos das bordas da prateleira que dao para o chao GROUND (queda de 4): muro de arrimo + coroamento.
+    [(indice do poligono, trecho)]. Nenhum trecho com o meio dentro do terraco da vila (o DB_Ter_HubWalls faz aquela
+    borda: nada de muro/coroamento duplicado nas quinas da ligacao)."""
     nm, base, ang, w, n, rise, tread, g = exit_stair()
     sd = Vector((math.cos(ang), math.sin(ang), 0.0))
     sn = Vector((-sd.y, sd.x, 0.0))
     top = Vector((base[0], base[1], 0.0)) + sd * (tread * n)
     runs = []
-    for rp in DL.exit_shelf_polys():
+    for kp, rp in enumerate(DL.exit_shelf_polys()):
         P = ccw(rp)
         m = len(P)
         pr = []
@@ -458,8 +619,9 @@ def wall_runs():
             for j in range(k):
                 p = a + d * (j / k)
                 q = p + nout * 1.6
+                mid = p + d * (0.5 / k)
                 ok = (L.point_in_poly(q.x, q.y, L.ISLAND_RIM) and L.zone_of(q.x, q.y) < Z - 2.3
-                      and not on_bridge(q.x, q.y))
+                      and not on_bridge(q.x, q.y) and not L.point_in_poly(mid.x, mid.y, L.HUB_POLY))
                 rel = p - top
                 if abs(rel.dot(sn)) < w / 2 + 0.3 and abs(rel.dot(sd)) < 1.5:
                     ok = False
@@ -474,7 +636,7 @@ def wall_runs():
         if len(pr) > 1 and (pr[0][0] - pr[-1][-1]).length < 1.5:
             pr[0] = pr[-1] + pr[0]
             pr.pop()
-        runs += pr
+        runs += [(kp, r) for r in pr]
     return runs
 
 
@@ -544,9 +706,10 @@ def pave_ribbon(mb, path, hw, rng, kfn, other=None):
     return n
 
 
-def capsule_guard(mb, run, z, lamp_fn=None, lamp_mb=None):
+def capsule_guard(mb, run, z, lamp_fn=None, lamp_mb=None, post_ends=(True, True)):
     """guarda Capsule da vila (a mesma do db_terrain): mureta branca baixa, balaustres brancos, corrimao azul e
-    pilares maiores a cada ~9,6; lamp_fn(x, y) -> True poe a lanterninha roxa (no objeto lamp_mb) no pilar"""
+    pilares maiores a cada ~9,6; lamp_fn(x, y) -> True poe a lanterninha roxa (no objeto lamp_mb) no pilar.
+    post_ends: sem pilar/balaustre na ponta que encosta no pilar do vizinho (quina com a vila ou com a trilha)"""
     pl = simplify([Vector((p.x, p.y, z)) for p in run])
     if len(pl) < 2:
         return 0
@@ -555,6 +718,8 @@ def capsule_guard(mb, run, z, lamp_fn=None, lamp_mb=None):
     marks = run_marks(pl, 3.2)
     lamps = 0
     for i, (q, ang, s) in enumerate(marks):
+        if (i == 0 and not post_ends[0]) or (i == len(marks) - 1 and not post_ends[1]):
+            continue
         if i % 3 == 0 or i == len(marks) - 1:
             mb.box((0.95, 0.95, 1.98), (q.x, q.y, z + 0.13 + 0.99), (0, 0, ang), WHITE, 0.08)
             if lamp_fn is not None and lamp_mb is not None and lamp_fn(q.x, q.y):
@@ -570,6 +735,128 @@ def capsule_guard(mb, run, z, lamp_fn=None, lamp_mb=None):
 def wall_k(x, y):
     """fracao crepuscular do muro de arrimo aqui (a mesma rampa das lajes da trilha)"""
     return k_trail(PATH.param(x, y)) if dp_path(x, y) < HW + 2.0 else 0.0
+
+
+def trail_parapet(mt, mlamp, run, rng, tags):
+    """parapeito de ARENITO da trilha (a concept leva o caminho ate o portao em pedra quente com lanternas): blocos de
+    arenito sobre nucleo de rejunte, capa continua de laje clara, pilares a cada ~8 com lanterna quente de pedra em
+    pilares alternados (~16; nenhuma junto dos pilares-lanterna da escada). Transicao Shadow Garden (ultimos 20) como
+    antes: blocos crepusculares em manchas (wall_k) e a lanterninha roxa no ultimo pilar antes da ponte, 1 por lado.
+    Na quina com a ligacao o pilar fica NA quina (a guarda Capsule da ligacao morre nele); junto da ponte o parapeito
+    entra no 1o pilar da ponte (sem pilar duplo: a lanterninha roxa da ponta vai nele, no bridge())."""
+    pts = [Vector((p.x, p.y, Z)) for p in run]
+    on_br = [False, False]
+    bps = bridge_post0()
+    for e, j in ((0, 0), (1, -1)):
+        nb = min(bps, key=lambda b: (b - pts[j]).length)
+        if (nb - pts[j]).length < 2.5:
+            on_br[e] = True
+            if e == 0:
+                pts.insert(0, nb.copy())
+            else:
+                pts.append(nb.copy())
+    pl = simplify(pts, 0.02)
+    if len(pl) < 2:
+        return 0, 0
+    hw = PAR_W / 2
+    mt.sweep(pl, [(-hw + 0.08, 0.0), (hw - 0.08, 0.0), (hw - 0.08, PAR_H), (-hw + 0.08, PAR_H)], BLOCK_B, True)
+    marks = run_marks(pl, 2.4)
+    for (a, _, sa), (b, _, sb) in zip(marks, marks[1:]):
+        mid = (a + b) / 2
+        ln = (b - a).length
+        an = math.atan2(b.y - a.y, b.x - a.x)
+        k = wall_k(mid.x, mid.y)
+        if k > 0.0 and (0.35 * rng.random() + 0.65 * patch(mid.x, mid.y, 5.1, 0.2)) < k * 1.25:
+            m = DUSK
+        else:
+            m = BLOCK_B if rng.random() < 0.14 else BLOCK
+        mt.box((ln - 0.09, PAR_W, PAR_H - 0.04), (mid.x, mid.y, Z + (PAR_H - 0.04) / 2), (0, 0, an), m, 0.0)
+    cw = hw + 0.13
+    mt.sweep(pl, [(-cw, PAR_H - 0.02), (cw, PAR_H - 0.02), (cw, PAR_H + PAR_CAP), (-cw, PAR_H + PAR_CAP)], PAVE, True)
+    posts = run_marks(pl, PAR_POST)
+    warm = dusk = 0
+    zp = Z + PAR_H + 0.5
+    for i, (q, ang, s) in enumerate(posts):
+        last = i == len(posts) - 1
+        if (i == 0 and (tags[0] == "stair" or on_br[0])) or (last and (tags[1] == "stair" or on_br[1])):
+            continue
+        sp = PATH.param(q.x, q.y)
+        near_stair = min((q - p).length for p in stair_lamp_pts()) < 4.5
+        mt.box((1.5, 1.5, zp - Z), (q.x, q.y, (Z + zp) / 2), (0, 0, ang), BLOCK_B, 0.0)
+        if sp > S_TOT - 7.0 and not any(on_br):
+            dusk_lamp(mlamp, Vector((q.x, q.y, zp)), ang, 0.8)
+            dusk += 1
+        elif i % 2 == 0 and sp < S_SG and abs(sp - S_ARCH) > 4.0 and not near_stair:
+            stone_lantern(mt, q.x, q.y, zp, ang)
+            warm += 1
+        else:
+            mt.box((1.74, 1.74, 0.24), (q.x, q.y, zp + 0.12), (0, 0, ang), PAVE, 0.0)
+    return warm, dusk
+
+
+def _terrain_cut(pts):
+    """para cada ponto: o terraco da vila (db_terrain) deixou este chao SEM piso por causa da prateleira da saida?
+    (a mesma conta do DB_Ter_HubTop: regiao R >= 0 dominada pelo termo 'exit', fora dos lotes). None = indisponivel"""
+    try:
+        import numpy as np
+        import db_terrain as T
+        X = np.array([p.x for p in pts], dtype=float)
+        Y = np.array([p.y for p in pts], dtype=float)
+        F = T.terms(X, Y)
+        R = T.hub_region(F)[0]
+        return [bool(R[i] > -0.05 and F["exit"][i] < 0.0 and F["lots"][i] > 0.0) for i in range(len(pts))]
+    except Exception as e:
+        print("DB_EXIT AVISO: recorte do terraco da vila indisponivel (%s): calca a ponta da ligacao" % e)
+        return None
+
+
+def link_cap(mt, rng):
+    """a ligacao comeca DENTRO da vila (100, 88). Se o terraco da vila recorta o piso com a ponta ARREDONDADA da fita
+    (meia-lua de raio HUB_EXIT_LINK_HW atras da ponta reta daqui), a meia-lua ganha leito + lajes nas mesmas fileiras
+    da ligacao, recortadas no circulo (sem buraco ate o DB_Ter_Underside). Se o recorte e o poligono de ponta reta (o
+    mesmo leito daqui), o terraco ja cobre: nada (sem piso duplicado)."""
+    c0 = Vector((L.HUB_EXIT_LINK[0][0], L.HUB_EXIT_LINK[0][1], 0.0))
+    u0 = Vector((L.HUB_EXIT_LINK[1][0] - c0.x, L.HUB_EXIT_LINK[1][1] - c0.y, 0.0)).normalized()
+    n0 = Vector((-u0.y, u0.x, 0.0))
+
+    def back(a, r):
+        return c0 + (-u0 * math.cos(a) + n0 * math.sin(a)) * r
+    probe = [back(math.pi * (j / 8.0 - 0.5), r) for r in (1.0, 3.0, 5.0, 6.2) for j in range(9)]
+    need = _terrain_cut(probe)
+    frac = 1.0 if need is None else sum(need) / float(len(need))
+    if frac < 0.2:
+        print("DB_EXIT ligacao: o terraco da vila ja cobre a ponta (recorte reto, %.0f%% sem piso) - sem meia-lua" % (
+            100.0 * frac))
+        return 0
+    R = HWL
+    half = [c0 + u0 * 0.5 + n0 * (R + 0.5)] + [back(math.pi * (0.5 - j / 16.0), R + 0.5) for j in range(17)] + \
+           [c0 + u0 * 0.5 - n0 * (R + 0.5)]
+    DL.prism(mt, ccw([(p.x, p.y) for p in half]), G - 0.6, Z - 0.12, BLOCK, top_m=BLOCK_B)
+    planes = [(math.cos(t), math.sin(t), math.cos(t) * c0.x + math.sin(t) * c0.y + R - 0.05)
+              for t in (math.tau * (k + 0.5) / 48 for k in range(48))]
+    planes.append((u0.x, u0.y, u0.x * c0.x + u0.y * c0.y - 0.09))      # para antes da 1a fileira da ligacao
+    ang = math.atan2(u0.y, u0.x)
+    n = 0
+    s = 0.0
+    while s > -R + 0.2:
+        Ls = min(rng.uniform(2.3, 3.1), s + R)
+        if s - Ls < -R + 0.9:
+            Ls = s + R
+        sm = s - Ls / 2
+        p = c0 + u0 * sm
+        k = 5
+        cuts = sorted([(q + rng.uniform(-0.2, 0.2)) / k for q in range(1, k)])
+        edges = [0.0] + cuts + [1.0]
+        for a0, a1 in zip(edges, edges[1:]):
+            u_0, u_1 = -R + 2 * R * a0, -R + 2 * R * a1
+            c = p + n0 * ((u_0 + u_1) / 2)
+            hh = 0.3 + rng.uniform(-0.03, 0.03)
+            if slab_out(mt, c, u0, n0, Ls - 0.18, (u_1 - u_0) - 0.18, hh, ang + rng.uniform(-0.012, 0.012), PAVE,
+                        planes):
+                n += 1
+        s -= Ls
+    print("DB_EXIT ligacao: meia-lua calcada na ponta da vila (%d lajes, %.0f%% sem piso no terraco)" % (n, 100 * frac))
+    return n
 
 
 def mixed_wall(mb, a, b, z0, z1, thick, rng, course=1.3, blk=(3.0, 5.2), bevel=0.1):
@@ -605,48 +892,74 @@ def mixed_wall(mb, a, b, z0, z1, thick, rng, course=1.3, blk=(3.0, 5.2), bevel=0
 
 
 def trail(mt, mlamp, rng):
-    """prateleira (leito + lajes), escada, muro de arrimo, coroamento e guarda Capsule"""
+    """prateleira (leito + lajes), escada, muro de arrimo, coroamento, parapeito de arenito (trilha) e guarda Capsule
+    (so na ligacao, junto da vila)"""
     for rp in DL.exit_shelf_polys():
         DL.prism(mt, rp, G - 0.6, Z - 0.12, BLOCK, top_m=BLOCK_B)
     n = pave_ribbon(mt, PATH, HW, rng, k_trail)
     n += pave_ribbon(mt, LINK, HWL, rng, lambda s: 0.0, other=(L.EXIT_PATH, HW))
-    # escada da saida (visual das medidas do db_col) + pilaretes Capsule no pe
+    n += link_cap(mt, rng)
+    # escada da saida (visual das medidas do db_col): pilaretes de arenito no pe e pilares-lanterna no topo (a entrada
+    # do caminho quente ate o portao; as pontas do parapeito encostam neles)
     nm, base, ang, w, nn, rise, tread, g = exit_stair()
     DL.vis_stairs(mt, base, ang, w, nn, rise, tread, PAVE, BLOCK)
     F = DL.Frame(base[0], base[1], base[2], ang)
     for sg in (-1, 1):
         p = F.p(0.6, sg * (w / 2 + 0.6), rise + 1.2)
-        mt.cyl(0.62, 1.7, (p.x, p.y, p.z + 0.85), m=WHITE, n=10, bevel=0.0)
-        mt.cyl(0.78, 0.36, (p.x, p.y, p.z + 1.88), m=BLUE, n=10, bevel=0.0)
-        # topo da escada: pilar branco com lampiao Capsule (a entrada da trilha, lado Dragon Ball)
+        mt.cyl(0.62, 1.5, (p.x, p.y, p.z + 0.75), m=BLOCK_B, n=8, bevel=0.0)
+        mt.cyl(0.8, 0.3, (p.x, p.y, p.z + 1.65), m=PAVE, n=8, bevel=0.0)
         p = F.p(tread * nn - tread / 2, sg * (w / 2 + 0.6), rise * nn + 1.2)
-        mt.cyl(0.7, 1.5, (p.x, p.y, p.z + 0.75), m=WHITE, n=10, bevel=0.0)
-        mt.cyl(0.86, 0.3, (p.x, p.y, p.z + 1.65), m=BLUE, n=10, bevel=0.0)
-        capsule_lamp(mt, p.x, p.y, p.z + 1.8, 1.0)
-    # muro de arrimo em blocos de arenito (blocos crepusculares em manchas no fim da trilha) + coroamento Capsule
+        mt.box((1.5, 1.5, 1.4), (p.x, p.y, p.z + 0.7), (0, 0, ang), BLOCK_B, 0.0)
+        stone_lantern(mt, p.x, p.y, p.z + 1.4, ang, 1.1)
+    # muro de arrimo em blocos de arenito (blocos crepusculares em manchas no fim da trilha) + coroamento: Capsule na
+    # ligacao (o mesmo da vila), arenito quente na trilha. Nas quinas o coroamento vai ate a quina; o muro vai ate 0,45
+    # antes da quina com a vila (o DB_Ter_HubWalls fecha a quina: sem muro dentro do muro dela) e 0,8 alem da quina
+    # entre trilha e ligacao (os dois sao daqui)
     TH = 1.5
     off = 0.35 - TH / 2
-    for run in wall_runs():
+
+    def ext_len(c, p):
+        if c is None:
+            return 0.8
+        dd = (Vector((c[1].x, c[1].y, 0.0)) - Vector((p.x, p.y, 0.0))).length
+        return max(0.1, dd - 0.45) if c[0] == "hub" else dd + 0.8
+    for k, run in wall_runs():
         pl = simplify(run)
-        for a, b in zip(pl, pl[1:]):
+        if len(pl) < 2:
+            continue
+        c0, c1 = corner_of(pl, k, False), corner_of(pl, k, True)
+        e0, e1 = ext_len(c0, pl[0]), ext_len(c1, pl[-1])
+        segs = list(zip(pl, pl[1:]))
+        for i, (a, b) in enumerate(segs):
             d = b - a
             if d.length < 0.5:
                 continue
             u = d.normalized()
             nout = Vector((u.y, -u.x, 0.0))
-            a2 = a + nout * off - u * 0.8
-            b2 = b + nout * off + u * 0.8
+            a2 = a + nout * off - u * (e0 if i == 0 else 0.8)
+            b2 = b + nout * off + u * (e1 if i == len(segs) - 1 else 0.8)
             mixed_wall(mt, a2, b2, G - 0.5, Z - 0.78, TH, rng)
-        path = [Vector((p.x, p.y, Z)) for p in pl]
-        mt.sweep(path, [(-1.25, -0.5), (0.5, -0.5), (0.5, 0.13), (-1.25, 0.13)], WHITE, True)
-        mt.sweep(path, [(0.18, -0.98), (0.62, -0.98), (0.62, -0.5), (0.18, -0.5)], BLUE, True)
-
-    def lamp_here(x, y):
-        return dp_path(x, y) < HW + 1.0 and PATH.param(x, y) > S_TOT - 13.0
-    lamps = 0
-    for run in shelf_guard_runs():
-        lamps += capsule_guard(mt, run, Z, lamp_here, mlamp)
-    return n, lamps
+        cp = list(pl)
+        if c0 and (c0[1] - cp[0]).length > 0.1:
+            cp = [c0[1]] + cp
+        if c1 and (c1[1] - cp[-1]).length > 0.1:
+            cp = cp + [c1[1]]
+        path = [Vector((p.x, p.y, Z)) for p in cp]
+        for prof, m in COPING[k]:
+            mt.sweep(path, prof, m, True)
+    # guardas nas linhas do db_col (pontas levadas ate as quinas + colisao propria nesses trechos sem guarda)
+    warm = dusk = cols = 0
+    for k, run, tags, ext in guard_plan():
+        if k == POLY_LINK:
+            capsule_guard(mt, run, Z, post_ends=(tags[0] is None, tags[1] is None))
+        else:
+            w_, d_ = trail_parapet(mt, mlamp, run, rng, tags)
+            warm += w_
+            dusk += d_
+        cols += guard_ext_col(ext)
+    print("DB_EXIT guardas: lanternas quentes=%d roxas=%d (+1 por lado no 1o pilar da ponte) colisoes nas quinas=%d" % (
+        warm, dusk, cols))
+    return n, dusk
 
 
 # ------------------------------------------------------------------ arco natural
@@ -855,6 +1168,8 @@ def arch(ma, rng):
         (22.4, -10.6, 3.2, 2.3, G - 1.0, Z + 4.0, ROCK, True, False),
         (14.6, -10.8, 3.0, 2.2, G - 1.0, G + 4.8, DARK, False, False),
     ]
+    n_loft = nverts(ma)
+    piece_rng = []                            # (primeiro vertice, fim, lado, topo) de cada contraforte
     for lat, al, a, b, z0, z1, m, band, lid in pieces:
         c = apt(lat, 0.0, al)
         k = fit_scale(c, max(a, b) * 1.1, z0, z1)
@@ -871,6 +1186,7 @@ def arch(ma, rng):
                        tilt=0.12, lean=lean, chamfer=0.4, rim=False, band=((1.1, TOP) if band else None),
                        bottom=False)
         clamp_verts(new_verts(ma, n0), c)
+        piece_rng.append((n0, nverts(ma), 1 if lat > 0 else -1, z1))
     # degrau quebrado na crista (lado sul, onde o lintel e mais alto) com tampa de grama
     top_v = max((v.co.copy() for ring in rings[nS // 2 - 5:nS // 2 - 1] for v in ring), key=lambda q: q.z)
     poly = FP._to_world(FP._rock_poly(4.8, 3.3, 7, rng, ex=2.2, jit=0.1), AU, AN)
@@ -886,18 +1202,10 @@ def arch(ma, rng):
         ma.rock((c.x, c.y, c.z + sz * 0.2), (sz * 1.5, sz * 1.1, sz * 0.9), ROCK, 1, (0, 0, rng.uniform(0, 6.28)),
                 jitter=0.25)
         clamp_verts(new_verts(ma, n0), c)
-    # colisao: pe de cada perna (caixa alinhada com a trilha, do lado de fora da guarda) + 2 octogonos (perna)
-    rot = (0, 0, math.atan2(AU.y, AU.x))
+    # colisao do pe de cada perna: faixas ajustadas a rocha REAL (medida por raios na malha do loft + contrafortes
+    # entre G+1 e G+6, recuadas 0,4); as caixas grandes de antes passavam 2,6-6,5 da rocha (paredes invisiveis)
+    nb = arch_foot_cols(ma, n_loft, piece_rng)
     for s in (-1, 1):
-        l0, l1 = 11.8, (27.0 if s < 0 else 25.8)
-        a0, a1 = -13.8, 9.6
-        if s > 0:
-            # o pe norte encosta na ligacao com a vila: recua a caixa ate ficar fora dela
-            while a1 > 2.0 and min(dp_link(q.x, q.y) for q in (apt(l0, 0, a1), apt(l1, 0, a1),
-                                                               apt((l0 + l1) / 2, 0, a1))) < HWL + 0.6:
-                a1 -= 0.4
-        c = apt(s * (l0 + l1) / 2, 0.0, (a0 + a1) / 2)
-        col_box("DB_ExitArch", (a1 - a0, l1 - l0, G + 7.0 - (G - 1.0)), (c.x, c.y, (G + 7.0 + G - 1.0) / 2), rot)
         lat = s * (INTRA[0] + EXTRA[s][0] + 1.6) / 2
         for al in (-2.7, 2.7):
             c = apt(lat, 0.0, al)
@@ -909,10 +1217,226 @@ def arch(ma, rng):
     r = min(3.0, dp_path(c.x, c.y) - (HW + 0.55), dp_link(c.x, c.y) - (HWL + 0.55))
     if r > 1.0:
         octo_col("DB_ExitArch", c.x, c.y, r, G + 6.0, Z + 10.0)
-    # contraforte sul externo (alem da caixa do pe)
-    c = apt(-25.2, 0.0, 3.4)
-    col_box("DB_ExitArch", (8.6, 6.4, 11.0), (c.x, c.y, G + 4.5), rot)
+    # contrafortes altos (acima de G+6, fora dos octogonos): faixas ajustadas a cada um
+    nb += arch_buttress_cols(ma, piece_rng)
+    print("DB_EXIT arco: colisao do pe ajustada a rocha = %d caixas" % nb)
     return clear
+
+
+# ------------------------------------------------------------------ colisao do arco ajustada a rocha
+# pe das pernas em 2 andares (o pe alarga para o chao: um andar so, medido na cota mais estreita, deixava o jogador
+# entrar ~2 na rocha embaixo): (z0, z1 da caixa, cotas medidas)
+FOOT_TIERS = [(G - 1.0, G + 6.3, [G + 1.0 + i for i in range(6)])]
+FOOT_W = 2.4
+
+
+def _hits_along(bvh, o, d, maxd):
+    ts = []
+    t = 0.0
+    while t < maxd and len(ts) < 32:
+        h = bvh.ray_cast(o + d * t, d, maxd - t)
+        if h[0] is None:
+            break
+        t += h[3]
+        ts.append(t)
+        t += 1e-3
+    return ts
+
+
+def _iv_union(iv):
+    out = []
+    for a, b in sorted(iv):
+        if out and a <= out[-1][1] + 1e-6:
+            out[-1] = (out[-1][0], max(out[-1][1], b))
+        else:
+            out.append((a, b))
+    return out
+
+
+def _iv_inter(A, B):
+    out = []
+    i = j = 0
+    while i < len(A) and j < len(B):
+        a, b = max(A[i][0], B[j][0]), min(A[i][1], B[j][1])
+        if b > a:
+            out.append((a, b))
+        if A[i][1] < B[j][1]:
+            i += 1
+        else:
+            j += 1
+    return out
+
+
+def _piece_bvhs(mb, ranges):
+    """uma BVH por peca (faixa de vertices): dentro/fora por paridade vale por peca fechada; a uniao e feita depois"""
+    bm = mb.bm
+    bm.verts.index_update()
+    co = [v.co.copy() for v in bm.verts]
+    polys = [[] for _ in ranges]
+    for f in bm.faces:
+        i0 = min(v.index for v in f.verts)
+        for k, (a, b) in enumerate(ranges):
+            if a <= i0 < b:
+                polys[k].append([v.index for v in f.verts])
+                break
+    return [BVHTree.FromPolygons(co, p) if p else None for p in polys]
+
+
+def _solid(bvhs, lats, heights, a_lo=-40.0, a_len=80.0):
+    """por linha lateral (lat): intervalos ao longo do arco (AU) com rocha em TODAS as cotas (uniao das pecas; entrada/
+    saida por pares de acertos - os raios horizontais nunca passam pelas bocas abertas, que ficam abaixo de G)"""
+    out = {}
+    for lt in lats:
+        acc = None
+        for z in heights:
+            o = apt(lt, z, a_lo)
+            ivs = []
+            for bv in bvhs:
+                if bv is None:
+                    continue
+                ts = _hits_along(bv, o, AU, a_len)
+                ivs += [(a_lo + ts[i], a_lo + ts[i + 1]) for i in range(0, len(ts) - 1, 2)]
+            u = _iv_union(ivs)
+            acc = u if acc is None else _iv_inter(acc, u)
+            if not acc:
+                break
+        out[lt] = acc or []
+    return out
+
+
+def _fit_strips(lines, lats, inset=0.35, W=2.4, minW=0.8, amin=0.9):
+    """faixas (lat_a, lat_b, along_a, along_b) DENTRO da rocha: cada faixa usa a intersecao das linhas que cobre (+ o
+    recuo dos lados), recuada 'inset' nas pontas; faixa larga que perde muito na ponta arredondada e dividida"""
+    rock = [lt for lt in lats if lines[lt]]
+    if not rock:
+        return []
+    lo, hi = min(rock), max(rock)
+
+    def strip(la, lb):
+        acc = None
+        for lt in lats:
+            if la - inset - 1e-6 <= lt <= lb + inset + 1e-6:
+                acc = lines[lt] if acc is None else _iv_inter(acc, lines[lt])
+                if not acc:
+                    return []
+        return [(a + inset, b - inset) for a, b in (acc or []) if b - a - 2 * inset >= amin]
+
+    def tot(iv):
+        return sum(b - a for a, b in iv)
+    out = []
+
+    def fit(la, lb):
+        iv = strip(la, lb)
+        if lb - la >= 2 * minW:
+            m = (la + lb) / 2
+            i1, i2 = strip(la, m), strip(m, lb)
+            if tot(iv) < 0.8 * max(tot(i1), tot(i2)):
+                fit(la, m)
+                fit(m, lb)
+                return
+        out.extend((la, lb, a, b) for a, b in iv)
+    la = lo + inset
+    while la < hi - inset - 0.3:
+        lb = min(la + W, hi - inset)
+        fit(la, lb)
+        la = lb
+    # junta faixas vizinhas quase iguais (menos caixas)
+    out.sort()
+    merged = []
+    for bx in out:
+        for i, m in enumerate(merged):
+            if abs(m[1] - bx[0]) < 1e-6 and abs(m[2] - bx[2]) < 0.45 and abs(m[3] - bx[3]) < 0.45:
+                merged[i] = (m[0], bx[1], max(m[2], bx[2]), min(m[3], bx[3]))
+                break
+        else:
+            merged.append(bx)
+    return merged
+
+
+def _clear_box(la, lb, a0, a1, amin=0.9):
+    """encolhe a faixa (ao longo) ate nenhum canto/meio de lado entrar na trilha/ligacao (+0,55); None se nao da"""
+    def ok(a, b):
+        for lt in (la, (la + lb) / 2, lb):
+            for al in (a, (a + b) / 2, b):
+                q = apt(lt, 0.0, al)
+                if dp_path(q.x, q.y) < HW + 0.55 or dp_link(q.x, q.y) < HWL + 0.55:
+                    return False
+        return True
+    while a1 - a0 >= amin:
+        if ok(a0, a1):
+            return a0, a1
+        a0 += 0.25
+        if ok(a0, a1):
+            return a0, a1
+        a1 -= 0.25
+    return None
+
+
+def _emit(strips, z0, z1):
+    rot = (0, 0, math.atan2(AU.y, AU.x))
+    n = 0
+    for la, lb, a0, a1 in strips:
+        r = _clear_box(la, lb, a0, a1)
+        if r is None:
+            continue
+        a0, a1 = r
+        c = apt((la + lb) / 2, (z0 + z1) / 2, (a0 + a1) / 2)
+        col_box("DB_ExitArch", (a1 - a0, lb - la, z1 - z0), (c.x, c.y, c.z), rot)
+        n += 1
+    return n
+
+
+def arch_foot_cols(ma, n_loft, piece_rng):
+    """pe de cada perna (G-1 .. G+6,3, encosta nos octogonos que comecam em G+6): faixas ajustadas a rocha (loft + os
+    contrafortes do lado) medida em G+1..G+6"""
+    bv = _piece_bvhs(ma, [(0, n_loft)] + [(a, b) for a, b, s, z1 in piece_rng])
+    n = 0
+    for s in (-1, 1):
+        lats = [s * 8.0 + s * 0.25 * i for i in range(105)]
+        lats.sort()
+        for z0, z1, heights in FOOT_TIERS:
+            # uniao das pecas, cada uma medida nas cotas que ela alcanca (o contraforte afina e inclina para a perna
+            # perto do topo: medido junto com a perna, ele sumia da colisao)
+            lines = _solid([bv[0]], lats, heights)
+            for i, (a, b, ss, zt) in enumerate(piece_rng):
+                if ss != s or zt < G + 6.3:
+                    continue
+                hs = [h for h in heights if h <= zt - 0.8] or [heights[0]]
+                pl = _solid([bv[i + 1]], lats, hs)
+                lines = {lt: _iv_union(lines[lt] + pl[lt]) for lt in lats}
+            n += _emit(_fit_strips(lines, lats, W=FOOT_W), z0, z1)
+        # contraforte baixo (topo < G+6,3): caixa propria ate 0,4 abaixo do topo dele (nada de parede acima da rocha)
+        for i, (a, b, ss, z1) in enumerate(piece_rng):
+            if ss != s or z1 >= G + 6.3 or z1 < G + 2.5:
+                continue
+            ma.bm.verts.ensure_lookup_table()
+            lat_c = sum(AN.dot(ma.bm.verts[j].co - AC) for j in range(a, b)) / max(1, b - a)
+            pl = [lat_c - 6.0 + 0.25 * j for j in range(49)]
+            hs = [G + 1.0 + 0.8 * j for j in range(8) if G + 1.0 + 0.8 * j <= z1 - 0.6]
+            n += _emit(_fit_strips(_solid([bv[i + 1]], pl, hs), pl, W=3.0), G - 1.0, z1 - 0.4)
+    return n
+
+
+def arch_buttress_cols(ma, piece_rng):
+    """contrafortes altos (topo >= G+9): faixas de G+6 ate perto do topo, ajustadas a cada um (acima do pe)"""
+    n = 0
+    for i, (a, b, s, z1) in enumerate(piece_rng):
+        if z1 < G + 9.0:
+            continue
+        bv = _piece_bvhs(ma, [(a, b)])
+        ma.bm.verts.ensure_lookup_table()
+        lat_c = sum(AN.dot(ma.bm.verts[j].co - AC) for j in range(a, b)) / max(1, b - a)
+        lats = [lat_c - 7.0 + 0.25 * j for j in range(57)]
+        heights = []
+        z = G + 6.5
+        while z <= z1 - 1.2 + 1e-6:
+            heights.append(z)
+            z += 1.0
+        if not heights:
+            continue
+        lines = _solid(bv, lats, heights)
+        n += _emit(_fit_strips(lines, lats, W=3.0), G + 6.0, heights[-1] + 0.4)
+    return n
 
 
 # ------------------------------------------------------------------ transicao: arvores secas
@@ -961,6 +1485,11 @@ LAT_G = L.EXIT_W / 2 + 0.6               # linha da guarda da ponte (db_col)
 D_BR1 = 62.0                              # fim do calcamento da ponte (a ilhota cobre dai para frente)
 
 
+def bridge_post0():
+    """os 2 primeiros pilares do parapeito da ponte (d = POSTS[0]): o parapeito da trilha termina dentro deles"""
+    return [ep(POSTS[0], sg * LAT_G, Z) for sg in (-1, 1)]
+
+
 def dusk_at(d, lat, bias=0.0):
     """pedra crepuscular aqui? manchas continuas cujo tamanho cresce com k_bridge(d); junto da ilhota (d > 50,
     k >= 0,94) e sempre crepuscular (o patch satura em 1: sobravam blocos de arenito ao lado da ilhota)"""
@@ -990,13 +1519,14 @@ def bridge(mb, rng):
                 q = ep(d + bl / 2, s * 10.25, zc)
                 mb.box((bl - 0.12, 0.55, hh - 0.1), (q.x, q.y, q.z), (0, 0, YAW), m, 0.08)
                 d += bl
-        # coroamento no MESMO perfil do da trilha (capa branca Z-0,5..Z+0,13 + faixa azul Z-0,98..Z-0,5): a borda da
-        # prateleira e a da ponte leem como uma linha so; crepuscular (sem azul) depois de d 24
-        for da, db_, m in ((d0, 24.0, WHITE), (24.0, D_BR1, DUSK)):
+        # coroamento no MESMO perfil do da trilha (capa de laje clara Z-0,52..Z+0,15 + faixa de bloco escuro
+        # Z-1,0..Z-0,46): a borda da prateleira e a da ponte leem como uma linha so, em arenito quente (o Capsule
+        # branco/azul fica so na ligacao com a vila); crepuscular depois de d 24
+        for da, db_, m in ((d0, 24.0, PAVE), (24.0, D_BR1, DUSK)):
             q = ep((da + db_) / 2, s * 9.8, Z - 0.185)
-            mb.box((db_ - da, 1.75, 0.63), (q.x, q.y, q.z), (0, 0, YAW), m, 0.0)
-        q = ep((d0 + 24.0) / 2, s * 10.575, Z - 0.74)
-        mb.box((24.0 - d0, 0.44, 0.48), (q.x, q.y, q.z), (0, 0, YAW), BLUE, 0.0)
+            mb.box((db_ - da, 1.86, 0.67), (q.x, q.y, q.z), (0, 0, YAW), m, 0.0)
+        q = ep((d0 + 24.0) / 2, s * 10.6, Z - 0.73)
+        mb.box((24.0 - d0, 0.48, 0.54), (q.x, q.y, q.z), (0, 0, YAW), BLOCK_B, 0.0)
     # calcamento: fileiras atravessadas (juntas desencontradas), arenito claro -> pedra crepuscular.
     # A primeira fileira comeca antes da borda (d -2, onde comeca o piso da ponte) e e recortada na ultima fileira
     # da trilha (rumo 31 x 22 graus): a cunha entre as duas fica calcada, sem leito a vista.
@@ -1030,7 +1560,7 @@ def bridge(mb, rng):
                 m = DUSK if dusk_at((da + db_) / 2, s * LAT_G) else BLOCK
                 mb.box((db_ - da - 0.1, 1.15, 1.44), (q.x, q.y, q.z), (0, 0, YAW), m, 0.1)
             kk = k_bridge((a + b) / 2)
-            cap = WHITE if kk < 0.6 else (DUSK if kk < 0.86 else SHADOW)
+            cap = PAVE if kk < 0.6 else (DUSK if kk < 0.86 else SHADOW)
             q = ep((a + b) / 2, s * LAT_G, Z + 1.44 + 0.15)
             mb.box((b - a + 0.1, 1.45, 0.3), (q.x, q.y, q.z), (0, 0, YAW), cap, 0.06)
         for d in POSTS:
@@ -1043,10 +1573,11 @@ def bridge(mb, rng):
                 lc = dusk_lamp(mb, Vector((q.x, q.y, Z + 2.5)), YAW, 1.0)
                 light("L_DBExit_DuskLamp_%s" % ("N" if s > 0 else "S"), "POINT", lc + Vector((0, 0, 0.3)), 90.0,
                       (0.62, 0.32, 1.0), 0.4)
+            elif d == POSTS[0]:
+                # a lanterninha roxa do fim da trilha (transicao Shadow Garden): o parapeito da trilha entra neste pilar
+                dusk_lamp(mb, Vector((q.x, q.y, Z + 2.5)), YAW, 0.8)
             else:
-                mb.box((1.95, 1.95, 0.3), (q.x, q.y, Z + 2.65), (0, 0, YAW), WHITE if kk < 0.6 else DUSK, 0.06)
-                if kk < 0.6:
-                    mb.box((1.7, 1.7, 0.24), (q.x, q.y, Z + 2.92), (0, 0, YAW), BLUE, 0.0)
+                mb.box((1.95, 1.95, 0.3), (q.x, q.y, Z + 2.65), (0, 0, YAW), PAVE if kk < 0.6 else DUSK, 0.06)
     # consoles sob a cornija (ritmo embaixo do tabuleiro)
     for s in (-1, 1):
         d = 2.0

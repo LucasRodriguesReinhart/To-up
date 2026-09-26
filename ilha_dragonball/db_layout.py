@@ -147,7 +147,7 @@ MESAS = [
     (-150.0, 118.0, 18.0, 90.0, "mesa"), (-126.0, 152.0, 12.0, 100.0, "pillar"), (-172.0, 84.0, 9.0, 76.0, "spire"),
     (-102.0, 184.0, 10.0, 90.0, "pillar"),
     # fundo: pilares que emolduram a cupula (concept) + mesa larga atras
-    (-58.0, 216.0, 15.0, 108.0, "pillar"), (-14.0, 240.0, 20.0, 84.0, "mesa"), (62.0, 212.0, 13.0, 88.0, "pillar"),
+    (-58.0, 216.0, 15.0, 100.0, "pillar"), (-14.0, 240.0, 20.0, 84.0, "mesa"), (62.0, 212.0, 13.0, 88.0, "pillar"),
     # cacho nordeste (atras da saida e do mirante)
     (132.0, 136.0, 17.0, 96.0, "mesa"), (154.0, 106.0, 9.0, 86.0, "spire"), (108.0, 180.0, 11.0, 86.0, "pillar"),
     # acento frontal esquerdo (ao lado da queda SW, como na concept) e mesa baixa leste (atras do dojo)

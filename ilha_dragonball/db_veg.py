@@ -1,12 +1,16 @@
 # db_veg - VEGETACAO da Ilha 2 (Dragon Ball), zona "dressing" (prefixo DB_Veg_, colecao 10_VEGETATION).
 # Achado da comparacao com a concept: o plato lia como um grande DISCO DE AREIA LARANJA vazio entre o promenade e a
-# borda. Aqui: VINHETAS compostas (nao floresta) a cada ~30-40 studs de arco do anel do plato - canteiro de grama
-# irregular com orla de terra, palmeiras em grupos de 2-3 (alturas e inclinacoes variadas), moitas redondas low-poly
-# (3 verdes + topo lima), flores quentes, rochas de arenito no estilo do terreno (2-4 por grupo, tamanhos mistos) e
-# tufos no pe das rochas/muros/predios; manchas de terra rachada fora da arena. Vila (HUB): arvores de sombra de copa
+# borda. Aqui: VINHETAS compostas (nao floresta) a cada ~30-40 studs de arco do anel do plato - canteiro de grama,
+# palmeiras em grupos de 2-3 (alturas e inclinacoes variadas), moitas redondas low-poly (3 verdes + topo lima), flores
+# quentes, rochas de arenito no estilo do terreno (2-4 por grupo, tamanhos mistos); nas vinhetas de BORDA ('edge') e
+# de ROCHAS o dobro de palmeiras/moitas, em fileira ao longo da borda. Manchas de terra rachada fora da arena.
+# Canteiros (revisao final): BOLHA MACIA (contorno do blob_poly suavizado, 14 vertices) levantada como MONTE baixo de
+# 0,3-0,45 com orla chanfrada mais escura (0,15 onde uma rota do QA passa rente), cercado de 3-5 moitinhas e com tufos
+# de laminas a cada ~1,8 studs de orla (nada de folha de papel dentada). Vila (HUB): arvores de sombra de copa
 # redonda, floreiras Capsule com palmeira, moitas no pe dos predios, canteiros nos cantos. Alas do terraco do Capsule:
-# floreiras com palmeira. Tufos/moitas pequenas nos topos de grama das mesas e das cristas (so onde o terreno ja tem
-# grama). Pocos, dojo e heliponto: palmeiras e moitas fora dos caminhos.
+# floreiras com palmeira. COROAS: toda tampa de grama das mesas ganha 1-3 folhosas/palmeiras + moitas (malha propria
+# DB_Veg_Crowns, detail far) e os rochedos do plato um tufo de moitas no topo. Pocos, dojo e heliponto: palmeiras e
+# moitas fora dos caminhos. Orcamento: VEG_TRIS (tris exatos) - o enchimento para quando so sobra a reserva das coroas.
 # Tudo passa por um teste de SITIO: regras da planta (arena/promenade, trilhas radiais, escadas, pontes, summon + zona
 # livre de 14 x 14, prateleira da saida, ruas e faixa y 76..88 da vila, lotes, portas, marcadores), folga das rotas do
 # db_qa e raios verticais contra a geometria JA MONTADA das outras zonas (o pe tem que cair no chao do terreno, a copa
@@ -29,11 +33,16 @@ G, HB, CZ = L.GROUND, L.HUB, L.CAP
 TAU = math.tau
 DOWN = Vector((0.0, 0.0, -1.0))
 COL_BUDGET = 45
+TUFT_STEP = 1.8          # tufos de laminas na orla dos canteiros: 1 a cada ~1,8 studs de contorno
+FILL_MAX = 60            # canteiros do enchimento (teto; quem manda e o orcamento abaixo)
+VEG_TRIS = 37000         # teto de tris da vegetacao (a zona 'dressing' divide 50k com os props, ~12,8k)
+CROWN_RESERVE = 5100     # reservado para as coroas das mesas (fase 'topos', depois do enchimento)
+TUFT_CAP = 4             # teto de tufos por canteiro (orcamento de tris: as moitinhas ja quebram a orla)
 
 # ------------------------------------------------------------------ cameras de revisao (plato na altura do jogador
 # nas 4 direcoes, rua da vila, ala do Capsule, vistas altas)
 CAMS = {
-    "CAM_DBVeg_PlayerSW": ((-62.0, -58.0, G + 5.2), (-120.0, -52.0, G + 4.0), 22),
+    "CAM_DBVeg_PlayerSW": ((-57.0, -60.0, G + 5.2), (-120.0, -52.0, G + 4.0), 22),
     "CAM_DBVeg_PlayerSE": ((58.0, -52.0, G + 5.2), (112.0, -70.0, G + 4.0), 22),
     "CAM_DBVeg_PlayerE": ((80.0, -10.0, G + 5.2), (132.0, 30.0, G + 5.0), 22),
     "CAM_DBVeg_PlayerW": ((-80.0, 30.0, G + 5.2), (-150.0, 60.0, G + 5.0), 22),
@@ -43,6 +52,8 @@ CAMS = {
     "CAM_DBVeg_HubEast": ((20.0, 88.0, HB + 5.2), (96.0, 112.0, HB + 5.0), 22),
     "CAM_DBVeg_CapWing": ((-14.0, 136.0, CZ + 5.2), (-60.0, 150.0, CZ + 4.0), 22),
     "CAM_DBVeg_Aerial": ((-150.0, -190.0, 120.0), (-40.0, -20.0, G), 24),
+    "CAM_DBVeg_MesaTops": ((-40.0, 40.0, 112.0), (-140.0, 150.0, 82.0), 24),     # coroas do cacho NO
+    "CAM_DBVeg_PlateauEye": ((-40.0, -64.0, G + 5.2), (-100.0, -96.0, G + 3.0), 22),
 }
 EXTRA_ROUTES = {}
 EXTRA_PROBES = []
@@ -93,7 +104,10 @@ GROUND_SURF = ("DB_Ter_Ground", "DB_Ter_HubTop")
 LID_SURF = GROUND_SURF + ("DB_Ter_Cliffs",)          # tampas das costelas da borda (moitas/palmeiras)
 
 
-def _bvh(keep, zr=None):
+def _bvh(keep, zr=None, boxes=None):
+    """BVH das malhas 'keep' (so os triangulos na faixa de cota zr e, se 'boxes', com o centro dentro de alguma
+    caixa (x0, y0, x1, y1)): (bvh, dono por tri, material por tri, [(nome, materiais)])"""
+    bx = np.array(boxes, dtype=np.float64) if boxes else None
     verts, tris, own, mats, names = [], [], [], [], []
     base = 0
     for o in bpy.data.objects:
@@ -117,6 +131,14 @@ def _bvh(keep, zr=None):
         if zr is not None:
             z = co[:, 2][tv]
             k = (z.max(1) > zr[0]) & (z.min(1) < zr[1])
+            tv, mi = tv[k], mi[k]
+            if len(tv) == 0:
+                continue
+        if bx is not None:
+            cxy = co[:, :2][tv].mean(1)
+            k = np.zeros(len(tv), dtype=bool)
+            for x0, y0, x1, y1 in bx:
+                k |= (cxy[:, 0] > x0) & (cxy[:, 0] < x1) & (cxy[:, 1] > y0) & (cxy[:, 1] < y1)
             tv, mi = tv[k], mi[k]
             if len(tv) == 0:
                 continue
@@ -452,7 +474,10 @@ class Stage:
         self.shrubs = MB("DB_Veg_Shrubs", C, random.Random(7103), detail="near", floor=-999)
         self.rocks = MB("DB_Veg_Rocks", C, random.Random(7104), detail="near", floor=-999)
         self.pots = MB("DB_Veg_Planters", C, random.Random(7105), detail="near", floor=-999)
+        self.crowns = MB("DB_Veg_Crowns", C, random.Random(7106), detail="far", floor=-999)   # topo das mesas
         self.col = []            # (tipo, x, y, raio, piso, dados) candidatos a colisao
+        self.kinds = {}          # vinheta -> [quantas, palmeiras, moitas]
+        self._tc = {}            # cache de tris por malha
         self.fails = {}
         self.n = {}
         self.area = 0.0
@@ -468,31 +493,80 @@ class Stage:
         return lambda px, py: self.W.surf(px, py, lv)
 
     # ---------------------------------------------------------- elementos (com teste de sitio)
-    def bed(self, x, y, r, rng, aspect=1.0, rot=None, m=VG.GRASS, ring_w=1.0, tries=3, flowers=None, quiet=False):
+    def bed(self, x, y, r, rng, aspect=1.0, rot=None, m=VG.GRASS, ring_w=1.0, tries=3, flowers=None, quiet=False,
+            dress=True, clumps=None):
+        """canteiro em BOLHA MACIA levantado como monte baixo (0,3-0,45; 0,15 onde uma rota do QA passa rente) com
+        orla chanfrada. dress: ja veste a orla (moitinhas + tufos); as vinhetas vestem depois (dress=False e
+        dress_bed no fim, para as palmeiras/moitas da vinheta escolherem lugar primeiro)"""
         rot = rng.uniform(0, TAU) if rot is None else rot
+        self.last_bed = None
         for k in range(tries):
             R = r * aspect * 1.24 + ring_w * 1.5
             cells = self.S.ellipse_cells(x, y, r, aspect, rot, ring_w * 1.5 + 0.4)
             self.S.why = "sobrepoe"
             if self.S.bed_ok(cells) and self._flat_ok(x, y, r, aspect, rot, ring_w):
                 lv = L.zone_of(x, y)
-                n = 10 if r < 4.0 else (12 if r < 7.0 else 14)
-                VG.bed(self.beds, x, y, r, rng, self.surf_fn(lv), aspect, rot, n, ring_w, m)
+                ext = r * max(aspect, 1.0 / aspect) * 1.21
+                n = 14
+                h = min(0.45, 0.28 + 0.025 * ext)
+                if self.S.route_d(x, y) < ext + 1.0:
+                    h = 0.15                      # a rota do QA passa por cima: fica rente (visual = piso +- 0,15)
+                    self.count("canteiros_rentes")
+                surf = self.surf_fn(lv)
+                poly = VG.bed(self.beds, x, y, r, rng, surf, aspect, rot, n, h, m)
                 self.S.beds.append((x, y, R))
                 self.S.bedcells |= cells
                 self.last_cells = cells
+                self.last_bed = (x, y, poly, lv, ext)
                 self.area += math.pi * r * r
                 self.count("canteiros")
-                nf = rng.choice((0, 3, 4, 6)) if flowers is None else flowers
+                nf = rng.choice((0, 0, 0, 0, 3)) if flowers is None else flowers
                 if nf:
-                    VG.blossoms(self.shrubs, x, y, self.W.surf(x, y, lv), r * 0.7, rng, nf,
+                    VG.blossoms(self.shrubs, x, y, self.W.surf(x, y, lv) + h * 0.72, r * 0.62, rng, nf,
                                 rng.choice((VG.BLOOM, VG.BLOOM, VG.WHITE_F)))
                     self.count("flores_soltas", nf)
+                if dress:
+                    self.dress_bed(self.last_bed, rng, clumps)
                 return r
             r *= 0.82
         if not quiet:
             self.fail("canteiro", self.S.why)
         return None
+
+    def dress_bed(self, info, rng, clumps=None):
+        """orla do canteiro: 3-5 moitinhas (meio na grama, meio na areia) + tufos de laminas a cada ~1,8 studs"""
+        if not info:
+            return
+        x, y, poly, lv, ext = info
+        k = clumps if clumps is not None else (3 if ext < 10.0 else 4)
+        got = self.bed_clumps(x, y, poly, rng, k, lv)
+        near = [(sx, sy, sr) for sx, sy, sr in self.S.solid if math.hypot(sx - x, sy - y) < ext + sr + 1.0]
+        nt = VG.edge_tufts(self.shrubs, poly, (x, y), self.surf_fn(lv), rng, step=TUFT_STEP, avoid=near,
+                           cap=TUFT_CAP)
+        self.count("tufos_orla", nt)
+
+    def bed_clumps(self, x, y, poly, rng, k, lv):
+        got = []
+        n = len(poly)
+        if k <= 0 or n < 3:
+            return got
+        i0 = rng.randrange(n)
+        for j in range(k):
+            for t in range(4):
+                f = (j + rng.uniform(-0.18, 0.18)) / k + (t + 1) // 2 * 0.09 * (1 if t % 2 else -1)
+                px, py = poly[int(round(i0 + f * n)) % n]
+                dx, dy = px - x, py - y
+                dd = math.hypot(dx, dy) or 1.0
+                s = rng.uniform(0.75, 1.3)
+                qx, qy = px - dx / dd * s * 0.25, py - dy / dd * s * 0.25
+                if self.S.ok(qx, qy, s * 0.9, "low", top=5.0, gap=0.1):
+                    VG.clump(self.shrubs, qx, qy, lv, s, rng)
+                    self.S.solid.append((qx, qy, s * 0.9))
+                    got.append((qx, qy, s * 0.9))
+                    self.count("moitinhas_orla")
+                    self.area += math.pi * s * s
+                    break
+        return got
 
     def _flat_ok(self, x, y, r, aspect, rot, ring_w):
         """o contorno (com folga da orla e do ruido do contorno) cai todo em chao livre"""
@@ -522,7 +596,7 @@ class Stage:
                              crown=(tx, ty, 4.0, z + h - 3.2, z + h + 2.0)):
                 self.fail("palmeira", self.S.why)
                 return False
-        (cx, cy), tr = VG.palm(self.palms, x, y, z, h, rng, lean, a)
+        (cx, cy), tr = VG.palm(self.palms, x, y, z, h, rng, lean, a, fronds=8 if h >= 13.0 else 7)
         self.S.solid.append((x, y, 1.2))
         self.count("palmeiras")
         self.area += 20.0
@@ -577,6 +651,22 @@ class Stage:
                  y + math.sin(a0 + i * spread + rng.uniform(-0.3, 0.3)) * R * rng.uniform(0.85, 1.1),
                  a0 + i * spread) for i in range(n)]
 
+    def rim_frame(self, x, y):
+        """(tangente, normal PARA DENTRO) da borda da ilha no ponto mais proximo de (x, y)"""
+        best, seg = 1e9, None
+        for a, b in zip(RIM_CL, RIM_CL[1:]):
+            d, t = L.seg_dist(x, y, a[0], a[1], b[0], b[1])
+            if d < best:
+                best, seg = d, (a, b, t)
+        (ax, ay), (bx, by), t = seg
+        ln = math.hypot(bx - ax, by - ay) or 1.0
+        tx, ty = (bx - ax) / ln, (by - ay) / ln
+        nx, ny = x - (ax + (bx - ax) * t), y - (ay + (by - ay) * t)
+        nn = math.hypot(nx, ny)
+        if nn < 1e-6:
+            nx, ny, nn = -x, -y, math.hypot(x, y) or 1.0
+        return tx, ty, nx / nn, ny / nn
+
     def palms_in(self, x, y, r, rng, n, hs=(15.0, 12.0, 9.5)):
         """grupo de n palmeiras dentro do raio r: alturas bem diferentes, inclinadas para fora do grupo"""
         a0 = rng.uniform(0, TAU)
@@ -628,12 +718,12 @@ class Stage:
                 VG.pebble(self.rocks, px, py, lv, ps, rng, VG.ROCK if rng.random() < 0.6 else VG.DARK)
                 self.S.solid.append((px, py, ps))
         for (px, py, pr) in placed:                                  # tufos no pe das rochas
-            for k in range(rng.randint(1, 2)):
+            for k in range(1):
                 a = rng.uniform(0, TAU)
                 self.tuft(px + math.cos(a) * (pr + 0.35), py + math.sin(a) * (pr + 0.35), rng.uniform(0.9, 1.5), rng)
         return placed
 
-    def shrubs_ring(self, x, y, R, rng, n, smin=1.2, smax=2.1, flowers=1, a0=None):
+    def shrubs_ring(self, x, y, R, rng, n, smin=1.2, smax=2.1, flowers=1, a0=None, group=True):
         got = 0
         pts = self.around(x, y, R, rng, a0, n)
         fl = set(rng.sample(range(n), min(flowers, n))) if n else set()
@@ -641,7 +731,7 @@ class Stage:
             s = rng.uniform(smin, smax)
             for t in range(3):
                 qx, qy = px + math.cos(a + t * 0.5) * t * 0.9, py + math.sin(a + t * 0.5) * t * 0.9
-                if self.shrub(qx, qy, s * (1.0 if i not in fl else 0.85), rng, flower=i in fl):
+                if self.shrub(qx, qy, s * (1.0 if i not in fl else 0.85), rng, flower=i in fl, group=group):
                     got += 1
                     break
         return got
@@ -651,32 +741,50 @@ class Stage:
             self.tuft(px, py, rng.uniform(*s), rng, VG.PALM if rng.random() < 0.7 else VG.GRASS_B)
 
     def vignette(self, x, y, r, kind, rng):
+        """a vinheta monta o canteiro sem vestir (dress=False), poe as palmeiras/moitas/rochas dela e so no fim veste
+        a orla (moitinhas + tufos), para nao roubar o lugar das pecas grandes"""
+        bed = None
+        n0 = (self.n.get("palmeiras", 0), self.n.get("moitas", 0) + self.n.get("flores", 0))
         if kind == "grove":
             asp = rng.uniform(1.0, 1.35)
-            br = self.bed(x, y, r * 1.55, rng, asp)
+            br = self.bed(x, y, r * 1.55, rng, asp, dress=False)
+            bed = self.last_bed
             rr = br or r * 0.7
             self.palms_in(x, y, rr, rng, rng.choice((2, 3, 3)))
-            self.shrubs_ring(x, y, rr * 0.95, rng, rng.randint(3, 4), flowers=1)
-            self.tufts_ring(x, y, rr * 1.2, rng, 2)
+            self.shrubs_ring(x, y, rr * 0.95, rng, rng.randint(3, 4), flowers=1, group=False)
         elif kind == "mixed":
-            br = self.bed(x, y, r * 1.45, rng, rng.uniform(1.0, 1.3))
+            br = self.bed(x, y, r * 1.45, rng, rng.uniform(1.0, 1.3), dress=False)
+            bed = self.last_bed
             rr = br or r * 0.7
             a = rng.uniform(0, TAU)
             self.rock_cluster(x + math.cos(a) * rr * 0.55, y + math.sin(a) * rr * 0.55, rng.uniform(1.5, 2.1), rng)
             self.palms_in(x - math.cos(a) * rr * 0.3, y - math.sin(a) * rr * 0.3, rr * 0.6, rng, rng.choice((1, 2)),
                           hs=(13.5, 10.0))
             self.shrubs_ring(x, y, rr * 0.9, rng, rng.randint(2, 4), flowers=1, a0=a + 1.4)
-            self.tufts_ring(x, y, rr * 1.15, rng, 2)
         elif kind == "rocks":
+            # borda: o DOBRO de moitas (2 -> 4) e de palmeiras (0,6 -> 1,2 em media) em volta das rochas
             a = rng.uniform(0, TAU)
-            self.bed(x + math.cos(a) * r * 0.4, y + math.sin(a) * r * 0.4, r * 1.1, rng, 1.2, ring_w=0.8, flowers=0)
+            self.bed(x + math.cos(a) * r * 0.4, y + math.sin(a) * r * 0.4, r * 1.1, rng, 1.2, ring_w=0.8, flowers=0,
+                     dress=False)
+            bed = self.last_bed
             self.rock_cluster(x - math.cos(a) * r * 0.25, y - math.sin(a) * r * 0.25, rng.uniform(1.7, 2.4), rng)
-            self.shrubs_ring(x + math.cos(a) * r * 0.35, y + math.sin(a) * r * 0.35, r * 0.55, rng, 2, flowers=1)
-            if rng.random() < 0.6:
-                self.palms_in(x + math.cos(a) * r * 0.5, y + math.sin(a) * r * 0.5, r * 0.4, rng, 1, hs=(12.0,))
+            # palmeiras e moitas EM VOLTA do grupo de rochas (nao no meio dele): antes as palmeiras caiam no centro
+            cx_, cy_ = x - math.cos(a) * r * 0.25, y - math.sin(a) * r * 0.25
+            npm = 1 if rng.random() < 0.8 else 2
+            b0 = a + rng.uniform(-0.6, 0.6)
+            for i in range(npm):
+                h = (12.0, 9.5)[i] * rng.uniform(0.92, 1.08)
+                for t in range(8):
+                    b = b0 + i * 2.4 + (t % 4) * 0.8 * (1 if t % 2 else -1)
+                    d = r * 0.9 + 2.0 + (t // 4) * 1.6
+                    if self.palm(cx_ + math.cos(b) * d, cy_ + math.sin(b) * d, h, rng, rng.uniform(0.12, 0.26),
+                                 b + rng.uniform(-0.4, 0.4)):
+                        break
+            self.shrubs_ring(cx_, cy_, r * 0.9 + 1.6, rng, 4, 1.0, 1.7, flowers=1, a0=b0 + 0.8, group=False)
         elif kind == "hedge":
             rot = rng.uniform(0, TAU)
-            br = self.bed(x, y, r * 1.1, rng, 1.8, rot)
+            br = self.bed(x, y, r * 1.1, rng, 1.8, rot, dress=False)
+            bed = self.last_bed
             n = rng.randint(4, 5)
             for i in range(n):
                 t = (i / (n - 1) - 0.5) * 2.0
@@ -684,16 +792,50 @@ class Stage:
                 py = y + math.sin(rot) * t * r * 1.05 + rng.uniform(-0.4, 0.4)
                 self.shrub(px, py, rng.uniform(1.1, 1.6), rng, flower=(i % 2 == 1), group=False)
             self.palms_in(x + math.cos(rot) * r * 1.3, y + math.sin(rot) * r * 1.3, 1.2, rng, 1, hs=(11.5,))
-            self.tufts_ring(x, y, r * 1.1, rng, 2)
         elif kind == "edge":
-            self.bed(x, y, r * 1.1, rng, 1.3, flowers=0, quiet=True)
-            self.palms_in(x, y, r * 0.8, rng, rng.choice((1, 2, 2)), hs=(12.5, 9.5))
-            self.shrubs_ring(x, y, r * 0.8, rng, rng.randint(2, 4), 1.2, 2.2, flowers=rng.randint(0, 1))
-            self.tufts_ring(x, y, r * 1.1, rng, rng.randint(1, 2))
+            # borda da ilha: o DOBRO de palmeiras (1-2 -> 2-4) e de moitas (2-4 -> 5-7), em FILEIRA ao longo da borda
+            # (anel em volta do centro batia na borda) e palmeiras inclinadas para fora
+            tx, ty, nx, ny = self.rim_frame(x, y)
+            self.bed(x, y, r * 1.1, rng, 1.4, math.atan2(ty, tx), flowers=0, quiet=True, dress=False)
+            bed = self.last_bed
+            out = math.atan2(-ny, -nx)
+            hs = (12.5, 9.5, 11.0, 8.5)
+            npm = rng.choice((2, 3, 4))
+            span = r * 0.9 + npm * 1.4
+            for i in range(npm):
+                u = (i / (npm - 1) - 0.5) * 2.0 * span
+                h = hs[i % 4] * rng.uniform(0.92, 1.08)
+                for t in range(6):
+                    uu = u + rng.uniform(-1.0, 1.0) + (t % 3 - 1) * 1.7
+                    vv = rng.uniform(-0.5, 1.2) + (t // 3) * 2.0
+                    if self.palm(x + tx * uu + nx * vv, y + ty * uu + ny * vv, h, rng, rng.uniform(0.14, 0.3),
+                                 out + rng.uniform(-0.5, 0.5)):
+                        break
+            nsh = rng.randint(5, 7)
+            span = r * 1.2 + nsh * 1.25
+            fl = rng.randrange(nsh) if rng.random() < 0.5 else -1
+            for i in range(nsh):
+                u = (i / (nsh - 1) - 0.5) * 2.0 * span
+                s_ = rng.uniform(0.95, 1.6)
+                side = 1.0 if i % 2 else -0.5
+                for t in range(6):
+                    uu = u + rng.uniform(-0.7, 0.7) + (t % 3 - 1) * 1.3
+                    vv = side * rng.uniform(0.8, 2.0) + t * 0.7
+                    if self.shrub(x + tx * uu + nx * vv, y + ty * uu + ny * vv, s_ * (0.85 if i == fl else 1.0), rng,
+                                  flower=i == fl, group=False):
+                        break
         elif kind == "wall":
-            self.bed(x, y, r * 0.7, rng, 1.7, 0.0, ring_w=0.8, flowers=0)
+            self.bed(x, y, r * 0.7, rng, 1.7, 0.0, ring_w=0.8, flowers=0, dress=False)
+            bed = self.last_bed
             self.shrubs_ring(x, y, r * 0.8, rng, 3, 1.1, 1.7, flowers=1)
             self.palms_in(x, y, r * 0.5, rng, 1, hs=(13.0,))
+        k = self.kinds.setdefault(kind, [0, 0, 0])
+        k[0] += 1
+        k[1] += self.n.get("palmeiras", 0) - n0[0]
+        k[2] += self.n.get("moitas", 0) + self.n.get("flores", 0) - n0[1]
+        if bed:          # a vinheta ja cerca o canteiro com as moitas dela: a orla ganha mais 1-2 moitinhas
+            self.dress_bed(bed, rng, 2 if kind in ("rocks", "wall") else 1)
+        else:
             self.tufts_ring(x, y, r * 1.1, rng, 2)
 
     # ---------------------------------------------------------- blocos da ilha
@@ -715,7 +857,7 @@ class Stage:
                         if self.S.ok(px, py, 0.6, "low", top=4.0, gap=0.1):
                             VG.pebble(self.rocks, px, py, L.zone_of(px, py), rng.uniform(0.4, 0.65), rng, VG.DARK)
                             self.S.solid.append((px, py, 0.6))
-                    self.tufts_ring(x, y, r * 1.2, rng, 2, (0.8, 1.2))
+                    self.tufts_ring(x, y, r * 1.2, rng, 1, (0.8, 1.2))
                     break
                 r *= 0.8
             else:
@@ -764,7 +906,7 @@ class Stage:
             occ[max(0, cj - rr):cj + rr + 1, max(0, ci - rr):ci + rr + 1] = True
         return _dilate(occ, int(round(pad / g)))
 
-    def fill_greedy(self, gap=2.4, min_clear=4.4):
+    def fill_greedy(self, gap=2.4, min_clear=5.4):
         """manchas de grama no MAIOR vazio que sobrou, uma de cada vez (raio do vazio -> tamanho da mancha), sempre
         com uma faixa de areia de 'gap' em volta: o plato fica verde-e-laranja misturado como na concept, nao um
         tapete. 1 em 3 ganha moita, 1 em 8 uma palmeira"""
@@ -783,29 +925,29 @@ class Stage:
             k = int(np.argmax(D))
             j, i = divmod(k, D.shape[1])
             clear = D[j, i] * g
-            if clear < min_clear:
-                print("VEG enchimento parou: it %d folga %.1f disponivel %d t %.1fs" % (it, clear, avail.sum(),
-                                                                                       time.time() - t1))
+            if clear < min_clear or n >= FILL_MAX or self.tris() > VEG_TRIS - CROWN_RESERVE:
+                print("VEG enchimento parou: it %d canteiros %d folga %.1f disponivel %d tris %d t %.1fs" % (
+                    it, n, clear, avail.sum(), self.tris(), time.time() - t1))
                 break
             x, y = float(xs[i]) + rng.uniform(-0.6, 0.6), float(ys[j]) + rng.uniform(-0.6, 0.6)
             lv = L.zone_of(x, y)
             asp = rng.uniform(1.0, 1.35)
             r = max(2.6, min(10.0, (clear - 1.4) / (1.24 * asp)))
             rot = math.atan2(y, x) + math.pi / 2 + rng.uniform(-0.5, 0.5) if lv < HB else rng.uniform(0, TAU)
-            br = self.bed(x, y, r, rng, asp, rot, tries=3, quiet=True, flowers=rng.choice((0, 0, 0, 2, 3)))
+            br = self.bed(x, y, r, rng, asp, rot, tries=3, quiet=True, flowers=0, dress=False)
             if not br:
                 self.fail("enchimento", self.S.why.split(":")[0][:22])
             if br:
                 n += 1
+                info = self.last_bed
                 u = rng.random()
                 a = rng.uniform(0, TAU)
-                if u < 0.34:
-                    self.shrub(x + math.cos(a) * br * 0.45, y + math.sin(a) * br * 0.45, rng.uniform(1.0, 1.7), rng,
-                               group=br > 4.5, flower=rng.random() < 0.2)
-                elif u > 0.88 and br > 3.5:
+                if u < 0.45 and br > 5.0:              # canteiro grande: uma moita de miolo (volume no meio)
+                    self.shrub(x + math.cos(a) * br * 0.3, y + math.sin(a) * br * 0.3, rng.uniform(1.3, 1.8), rng,
+                               group=True, flower=rng.random() < 0.2)
+                elif u > 0.86 and br > 3.5:
                     self.palm(x - math.cos(a) * br * 0.25, y - math.sin(a) * br * 0.25, rng.uniform(10.0, 17.0), rng)
-                if rng.random() < 0.4:
-                    self.tufts_ring(x, y, br * 1.15, rng, 1)
+                self.dress_bed(info, rng)
                 new = np.zeros(avail.shape, dtype=bool)
                 for ci, cj in self.last_cells:
                     jj, ii = int((cj + 0.5 - self.Y0) // g), int((ci + 0.5 - self.X0) // g)
@@ -865,7 +1007,6 @@ class Stage:
             if self.palm(x, y, h, rng):
                 self.shrub(x + rng.uniform(-3, 3), y + rng.uniform(-3, 3), rng.uniform(1.0, 1.6), rng,
                            flower=rng.random() < 0.4)
-                self.tufts_ring(x, y, 2.2, rng, 1)
 
     def hub(self):
         for i, (x, y, h) in enumerate(HUB_TREES):
@@ -876,24 +1017,27 @@ class Stage:
                              crown=(x, y, R * 0.8, lv + 6.0, lv + h + 2.0)):
                 print("VEG arvore da vila %d fora (sitio)" % i)
                 continue
-            self.bed(x, y, 3.2, rng, 1.0, ring_w=0.7)
+            self.bed(x, y, 3.2, rng, 1.0, ring_w=0.7, dress=False)
+            info = self.last_bed
             trb, cr, (p0, p1) = VG.shade_tree(self.palms, x, y, lv, h, rng)   # arvore inteira em DB_Veg_Palms
             self.S.solid.append((x, y, 1.4))
             self.count("arvores")
             self.area += math.pi * cr * cr * 0.6
             self.col.append(("tree", x, y, trb, lv, (p0, p1)))
             self.shrubs_ring(x, y, 3.4, rng, 2, 1.0, 1.4, flowers=1)
+            self.dress_bed(info, rng, 2)
         for i, (x, y, r) in enumerate(HUB_PLANTERS):
             rng = random.Random(8800 + i * 5)
             self.planter(x, y, r, rng, "palm")
         for i, (x, y, r) in enumerate(HUB_BEDS):
             rng = random.Random(8900 + i * 3)
-            br = self.bed(x, y, r, rng, rng.uniform(1.0, 1.4))
+            br = self.bed(x, y, r, rng, rng.uniform(1.0, 1.4), dress=False)
             if br:
+                info = self.last_bed
                 self.shrubs_ring(x, y, br * 0.8, rng, rng.randint(2, 3), 1.0, 1.7, flowers=1)
-                self.tufts_ring(x, y, br * 1.15, rng, 3)
                 if br > 3.5 and rng.random() < 0.7:
                     self.palms_in(x, y, br * 0.4, rng, 1, hs=(rng.uniform(10.0, 13.0),))
+                self.dress_bed(info, rng, 2)
         # moitas no pe dos predios da vila (fora das frentes/portas, fora das ruas)
         rng = random.Random(8950)
         for x0, y0, x1, y1 in self.S.lots:
@@ -904,7 +1048,7 @@ class Stage:
             rng.shuffle(per)
             got = 0
             for px, py in per:
-                if got >= 4:
+                if got >= 3:
                     break
                 if self.shrub(px, py, rng.uniform(1.0, 1.5), rng, flower=rng.random() < 0.3, group=False):
                     got += 1
@@ -936,39 +1080,176 @@ class Stage:
             self.planter(x, y, r, random.Random(9000 + i * 7), kind, cap=True)
 
     def tops(self):
-        """moitas/tufos pequenos e esparsos nos TOPOS DE GRAMA que o terreno ja tem (mesas, cristas, rochedos)"""
+        """COROAS VERDES: em TODA tampa de grama das mesas (inalcancavel, sem colisao) 1-3 folhosas de copa redonda ou
+        palmeiras + moitas, como na concept (toda rocha alta tem arvores no topo); nos rochedos do plato (topo de
+        pedra, sem grama) um tufo de 1-2 moitas. Malha propria DB_Veg_Crowns em detail 'far' (so vista de longe).
+        Cada pe e conferido por raio vertical: cai na PROPRIA tampa (grama, virada para cima) e a copa nao entra em
+        nada (degrau mais alto da mesa, torre, passarela)."""
         rng = random.Random(9100)
-        n = 0
-        for o in bpy.data.objects:
-            if o.type != "MESH" or not o.name.startswith(("DB_Ter_Mesas", "DB_Ter_PlateauRocks")):
+        lids = []
+        for o in sorted(bpy.data.objects, key=lambda o: o.name):
+            if o.type != "MESH" or not o.name.startswith("DB_Ter_Mesas"):
                 continue
             me = o.data
             gi = {i for i, m in enumerate(me.materials) if m and m.name.startswith("Grass")}
-            if not gi:
-                continue
             mw = o.matrix_world
-            lids = []
+            r3 = mw.to_3x3()
             for p in me.polygons:
-                if p.material_index in gi and p.normal.z > 0.96 and p.area > 3.0:
-                    c = mw @ p.center
-                    lids.append((c, p.area))
-            lids.sort(key=lambda t: (round(t[0].x, 1), round(t[0].y, 1)))
-            for c, a in lids:
-                big = o.name.startswith("DB_Ter_Mesas")
-                rr = math.sqrt(a / math.pi)
-                if big and rr > 5.0 and rng.random() < 0.6:
-                    aa = rng.uniform(0, TAU)
-                    d = rr * rng.uniform(0.0, 0.35)
-                    VG.shrub_group(self.shrubs, c.x + math.cos(aa) * d, c.y + math.sin(aa) * d, c.z,
-                                   min(2.4, rr * 0.33) * rng.uniform(0.85, 1.1), rng, n=2 if rr > 6 else 1)
-                    n += 1
-                elif False:
-                    aa = rng.uniform(0, TAU)
-                    d = rr * rng.uniform(0.2, 0.5)
-                    VG.tuft(self.shrubs, c.x + math.cos(aa) * d, c.y + math.sin(aa) * d, c.z, rng.uniform(0.9, 1.4), rng,
-                            n=3)
-                    n += 1
-        self.count("topos_verdes", n)
+                if p.material_index in gi and (r3 @ p.normal).normalized().z > 0.85 and p.area > 8.0:
+                    lids.append((o.name, p.area, mw @ p.center, [(mw @ me.vertices[v].co).xy for v in p.vertices]))
+        rocks = []
+        for o in bpy.data.objects:
+            if o.type == "MESH" and o.name.startswith("DB_Ter_PlateauRocks"):
+                rocks.append(o.name)
+        if not lids and not rocks:
+            self.count("coroas", 0)
+            return
+        boxes = [(min(v.x for v in pl) - 12.0, min(v.y for v in pl) - 12.0, max(v.x for v in pl) + 12.0,
+                  max(v.y for v in pl) + 12.0) for _, _, _, pl in lids]
+        boxes += [(qx - qr - 6.0, qy - qr - 6.0, qx + qr + 6.0, qy + qr + 6.0) for qx, qy, qr, h in L.PLATEAU_ROCKS]
+        z0 = min([c.z for _, _, c, _ in lids] + [G]) - 2.0
+        B = _bvh(lambda n: not n.startswith(_SKIP), (z0, 140.0), boxes)
+
+        def hit(px, py, ztop, dist):
+            if B is None:
+                return None
+            loc, nrm, idx, d = B[0].ray_cast(Vector((px, py, ztop)), DOWN, dist)
+            if loc is None:
+                return None
+            on, ml = B[3][B[1][idx]]
+            mi = B[2][idx]
+            return loc, nrm, on, (ml[mi] if 0 <= mi < len(ml) else "")
+
+        def on_lid(px, py, name, zc, mat="Grass"):
+            h = hit(px, py, zc + 30.0, 32.0)
+            if h is None:
+                return None
+            loc, nrm, on, mn = h
+            if on != name or not mn.startswith(mat) or nrm.z < 0.8 or abs(loc.z - zc) > 1.2:
+                return None
+            return loc.z
+
+        def air(px, py, rad, zt, zb):
+            for i in range(7):
+                a = i * TAU / 6
+                qx, qy = (px, py) if i == 6 else (px + rad * math.cos(a), py + rad * math.sin(a))
+                if hit(qx, qy, zt, zt - zb) is not None:
+                    return False
+            return True
+
+        def inset(px, py, pl):
+            if not L.point_in_poly(px, py, pl):
+                return -1.0
+            return L.polyline_dist(px, py, list(pl) + [pl[0]])
+
+        mb = self.crowns
+        nt_all = nb_all = 0
+        lid_n = {"com_arvore": 0, "so_moitas": 0, "vazias": 0}
+        for name, area, c, pl in lids:
+            pl = [(v.x, v.y) for v in pl]
+            rr = math.sqrt(area / math.pi)
+            if c.z < G - 1.0:          # prateleira do pe da mesa, ABAIXO do plato (quase escondida): 1 arvore
+                nt, nb = 1, (1 if rr > 6.0 else 0)
+            else:
+                nt = 1 if rr < 6.0 else (2 if rr < 11.0 else 3)
+                nb = 1 if rr < 12.0 else 2
+            placed = []
+            a0 = rng.uniform(0, TAU)
+            for i in range(nt):
+                palm = rng.random() < (0.45 if rr < 6.0 else 0.3)     # a concept coroa as rochas com copas redondas
+                # copas GRANDES (mais verde por tri: a mesa tem 60-100 de altura, arvore miuda some)
+                h = rng.uniform(9.5, 13.0) if palm else rng.uniform(10.0, 13.5) * min(1.0, 0.75 + rr * 0.035)
+                cr = h * 0.46 if palm else h * 0.34 * 1.35
+                for t in range(8):
+                    if i == 0 and t == 0:
+                        d, a = rr * rng.uniform(0.0, 0.2), rng.uniform(0, TAU)
+                    else:
+                        a = a0 + i * TAU / nt + t * 0.85
+                        d = rr * min(0.88, rng.uniform(0.3, 0.6) + t * 0.05)
+                    px, py = c.x + math.cos(a) * d, c.y + math.sin(a) * d
+                    if inset(px, py, pl) < 1.3:
+                        continue
+                    if any(math.hypot(px - qx, py - qy) < 0.62 * (cr + qr) for qx, qy, qr in placed):
+                        continue
+                    z = on_lid(px, py, name, c.z)
+                    if z is None or not air(px, py, cr * 0.8, z + h + cr * 0.6, z + 2.2):
+                        continue
+                    if palm:
+                        VG.crown_palm(mb, px, py, z, h, rng, rng.uniform(0.08, 0.2), a + rng.uniform(-0.6, 0.6))
+                    else:
+                        VG.crown_tree(mb, px, py, z, h, rng, sides=1 if (h < 10.0 or rr < 9.0) else None)
+                    placed.append((px, py, cr))
+                    nt_all += 1
+                    break
+            if not placed:              # tampa apertada (degrau mais alto do lado): palmeirinha de 6,5-8
+                h = rng.uniform(6.5, 8.0)
+                cr = h * 0.46
+                for t in range(14):
+                    d = 0.0 if t == 0 else rr * min(0.9, 0.15 + 0.06 * t)
+                    a = a0 + t * 2.1
+                    px, py = c.x + math.cos(a) * d, c.y + math.sin(a) * d
+                    if inset(px, py, pl) < 0.9:
+                        continue
+                    z = on_lid(px, py, name, c.z)
+                    if z is None or not air(px, py, cr * 0.55, z + h + cr * 0.4, z + 2.0):
+                        continue
+                    VG.crown_palm(mb, px, py, z, h, rng, rng.uniform(0.06, 0.16), a, fronds=5)
+                    placed.append((px, py, cr))
+                    nt_all += 1
+                    break
+            has_tree = bool(placed)
+            # sem arvore (degrau coberto pelo bloco de cima: so a orla livre): 2 moitas; com arvore: 1 moita nas
+            # tampas largas
+            nb = 2 if not placed else (1 if rr >= 7.0 else 0)
+            for i in range(nb):
+                s = rng.uniform(1.5, 2.4) * min(1.0, 0.6 + rr * 0.08)
+                for t in range(6 if has_tree else 12):
+                    if not has_tree and t >= 6:
+                        s *= 0.9
+                    a = rng.uniform(0, TAU)
+                    d = rr * rng.uniform(0.2, 0.75 if has_tree else 0.92)
+                    px, py = c.x + math.cos(a) * d, c.y + math.sin(a) * d
+                    if inset(px, py, pl) < s * 0.55:
+                        continue
+                    if any(math.hypot(px - qx, py - qy) < s + (1.2 if qr > 3.0 else qr) for qx, qy, qr in placed):
+                        continue
+                    z = on_lid(px, py, name, c.z)
+                    if z is None or not air(px, py, s, z + s * 1.8, z + 0.6):
+                        continue
+                    VG.crown_bush(mb, px, py, z, s, rng)
+                    placed.append((px, py, s * 0.9))
+                    nb_all += 1
+                    break
+            lid_n["com_arvore" if has_tree else ("so_moitas" if placed else "vazias")] += 1
+        nr = 0
+        for qx, qy, qr, qh in L.PLATEAU_ROCKS:            # rochedos do plato: tufo de moitas no topo de pedra
+            k = 1 if qr < 6.0 else 2
+            for i in range(k):
+                for t in range(6):
+                    a = rng.uniform(0, TAU)
+                    d = qr * rng.uniform(0.0, 0.3)
+                    px, py = qx + math.cos(a) * d, qy + math.sin(a) * d
+                    hz = hit(px, py, G + qh + 8.0, qh + 8.0)
+                    if hz is None or not hz[2].startswith("DB_Ter_PlateauRocks") or hz[1].z < 0.85 or \
+                            hz[0].z < G + qh * 0.5:
+                        continue
+                    s = rng.uniform(1.1, 1.6)
+                    ok = True
+                    for j in range(6):                      # a moita inteira em cima do topo (nada pendurado)
+                        b = j * TAU / 6
+                        hb = hit(px + math.cos(b) * s * 0.7, py + math.sin(b) * s * 0.7, hz[0].z + 3.0, 3.6)
+                        if hb is None or not hb[2].startswith("DB_Ter_PlateauRocks") or abs(hb[0].z - hz[0].z) > 0.6:
+                            ok = False
+                            break
+                    if ok:
+                        VG.crown_bush(mb, px, py, hz[0].z, s, rng)
+                        nr += 1
+                        break
+        self.count("coroas_arvores", nt_all)
+        self.count("coroas_moitas", nb_all)
+        self.count("coroas_rochedos", nr)
+        self.count("tampas_mesa", len(lids))
+        print("VEG tampas das mesas: %s" % lid_n)
 
     # ---------------------------------------------------------- colisao (orcamento) e fechamento
     def collisions(self):
@@ -1010,8 +1291,22 @@ class Stage:
 
     def finish(self):
         self.beds.finish(recalc=False)
-        for mb in (self.palms, self.shrubs, self.rocks, self.pots):
+        for mb in (self.palms, self.shrubs, self.rocks, self.pots, self.crowns):
             mb.finish()
+
+    def tris(self):
+        """tris exatos das malhas em montagem (incremental: as faces so sao acrescentadas ate o finish)"""
+        tot = 0
+        for mb in (self.beds, self.palms, self.shrubs, self.rocks, self.pots, self.crowns):
+            bm = mb.bm
+            n = len(bm.faces)
+            c0, t0 = self._tc.get(mb.name, (0, 0))
+            if n != c0:
+                bm.faces.ensure_lookup_table()
+                t0 += sum(len(bm.faces[i].verts) - 2 for i in range(c0, n))
+                self._tc[mb.name] = (n, t0)
+            tot += t0
+        return tot
 
 
 def col_seg(area, a, b, side):
@@ -1100,16 +1395,24 @@ def build():
     t0 = time.time()
     st = Stage()
     t1 = time.time()
-    tt = []
+    tt, tr = [], []
+    t_prev = 0
     for nm, fn in (("vila", st.hub), ("alas", st.cap_wings), ("pocos", st.pools_dojo_pad), ("anel", st.ground_ring),
                    ("pes", st.feet), ("enchimento", st.fill_greedy), ("topos", st.tops), ("colisao", st.collisions),
                    ("malhas", st.finish)):
         ta = time.time()
+        if nm == "malhas":
+            print("VEG tris por fase: %s | total %d" % (", ".join(tr), t_prev))
         fn()
         tt.append("%s %.1f" % (nm, time.time() - ta))
+        if nm != "malhas":
+            t_now = st.tris()
+            tr.append("%s %d" % (nm, t_now - t_prev))
+            t_prev = t_now
     print("VEG tempos: " + ", ".join(tt))
     import os
     cv, fa = coverage(st, os.environ.get("DB_VEG_MAP"))
+    print("VEG vinhetas (n, palmeiras, moitas): %s" % st.kinds)
     print("VEG falhas %s" % {k: sorted(v.items(), key=lambda t: -t[1])[:5] for k, v in st.fails.items()})
     print("VEG %s | cobertura ~%.0f%% de %.0f studs2 livres | raios %.1fs, total %.1fs" % (
         st.n, cv * 100.0, fa, t1 - t0, time.time() - t0))
