@@ -2,7 +2,7 @@
 #   muralha sobre a borda sul do P3 (ameias, mata-caes) + portao central (vao 16 x 18) com torre-portaria e as 2 torres
 #   da planta + passagem leste aberta ate o ceu com 2 torrinhas + cortina oeste ate a ala oeste + escadas Gate/EastP3;
 #   nave = CASCA do Mining Hall (face interna = retangulo do salao, parede 4, teto opaco e colidivel em HALL_CEIL),
-#   porta principal com arquivoltas ogivais e timpano, janelas altas ogivais (vidro Glass_SG_Rose) acima de piso+14,
+#   porta principal com arquivoltas ogivais e timpano, janelas altas ogivais (vidro frio de luar, o mesmo do hall) acima de piso+14,
 #   rosacea (acento violeta), clerestorio, telhado navy ingreme, naves laterais, contrafortes com pinaculos e
 #   arcobotantes; 2 torres da fachada; TORRE-COROA heroi com coroa de agulhas e flecha; alas NAO entraveis (oeste sobre
 #   o terreno bravo, leste no beco junto a nave); 2 estandartes navy na fachada.
@@ -17,6 +17,8 @@ import sg_layout as L
 
 # ------------------------------------------------------------------ materiais novos (2 de 6)
 fm_lib.MATS.setdefault("Stone_SGCasInterior", (fm_lib.S(104, 104, 120), 0.8, 0.0, 0, None, 0.08))  # pele interna
+# vidro frio de luar: MESMOS valores do sg_hall (dentro e fora casam); roxo so na rosacea
+fm_lib.MATS.setdefault("Glass_SGHallMoon", (fm_lib.S(96, 124, 186), 0.4, 0.0, 0.4, fm_lib.S(110, 145, 220), 0.0))
 fm_lib.MATS.setdefault("Stone_SGCasPlinth", (fm_lib.S(50, 53, 68), 0.9, 0.0, 0, None, 0.10))       # soco / timpano
 
 Z = L.P3
@@ -154,7 +156,7 @@ def wall_run(mb, W, u0, u1, zb, zt, t0, t1, opens, m, inner_m=None):
         panel(mb, W, rect(cur, u1, zb, zt), t0, t1, m, inner_m)
 
 
-def window(mb, W, uc, a, zs, zr, rise, t_glass, t_out, glass_m="Glass_SG_Rose", frame_m="Stone_SG_Trim", fw=0.8,
+def window(mb, W, uc, a, zs, zr, rise, t_glass, t_out, glass_m="Glass_SGHallMoon", frame_m="Stone_SG_Trim", fw=0.8,
            dp=0.45, mullion=True, sill=True):
     """vidro ogival no meio da parede + moldura (ombreiras + arquivolta numa peca so) + mainel + peitoril"""
     arc = ogive(uc, a, zr, rise)
@@ -489,9 +491,11 @@ def nave():
     for W, front in ((WS, True), (WN, False)):
         for s in (-1, 1):
             u0, u1 = (OX0, -CLR) if s < 0 else (CLR, OX1)
-            uw = s * (33.0 if front else 31.0)
-            wall_run(mb, W, u0, u1, ZB, EAVE, 0.0, TW, [(uw, WIN_A, WIN_SILL, WIN_SPRING, WIN_RISE)], CM, IM)
-            window(mb, W, uw, WIN_A, WIN_SILL, WIN_SPRING, WIN_RISE, tg, TW)
+            uw = s * 33.0
+            opens = [(uw, WIN_A, WIN_SILL, WIN_SPRING, WIN_RISE)] if front else []   # fundo fechado: altar do hall
+            wall_run(mb, W, u0, u1, ZB, EAVE, 0.0, TW, opens, CM, IM)
+            if front:
+                window(mb, W, uw, WIN_A, WIN_SILL, WIN_SPRING, WIN_RISE, tg, TW)
             # empena de meia-agua da nave lateral (esconde o perfil do telhado)
             uo, ui = (OX0, -CLR) if s < 0 else (OX1, CLR)
             panel(mb, W, [(uo, EAVE), (ui, EAVE), (ui, AISLE_HI + 1.6), (uo, EAVE + 3.2)], 0.4, TW, CM)

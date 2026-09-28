@@ -1,0 +1,102 @@
+00:15.094  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\ilha_shadowgarden\_studio\dressing\v0\CAM_SG_Ref_Main.jpg'
+00:15.563  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\ilha_shadowgarden\_studio\dressing\v0\CAM_SG_PlayerHeight_Plaza.jpg'
+00:15.984  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\ilha_shadowgarden\_studio\dressing\v0\CAM_SG_Village.jpg'
+00:16.438  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\ilha_shadowgarden\_studio\dressing\v0\CAM_SG_PlayerHeight_Village.jpg'
+00:16.813  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\ilha_shadowgarden\_studio\dressing\v0\CAM_SG_Front.jpg'
+00:17.188  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\ilha_shadowgarden\_studio\dressing\v0\CAM_SG_Left.jpg'
+COMPOSITOR ok
+DUN folga dos minerios: OK (nenhuma colisao a menos de 5 de DUN_ORE_* ate piso+12)
+WATER West bancada crista=(-124.9, -52.0, 43.15) corrida=4.7 pe=(-130.1, -52.0, -60.0) polys=2146 quebras=[(-2.1, 2.9, 4.4)]
+WATER East bancada crista=(150.7, -112.0, 35.15) corrida=8.3 pe=(161.7, -112.0, -60.0) polys=1964 quebras=[(34.9, 0.8, 2.0), (-2.1, 2.9, 8.5)]
+WATER North bancada crista=(-52.31, 192.85, 51.15) corrida=16.5 pe=(-58.1, 208.7, -60.0) polys=2072 quebras=[(29.9, 2.7, 4.6), (-10.1, 4.7, 9.5), (-21.1, 10.1, 16.7)]
+WATER South fenda crista=(-28.49, -190.91, 29.98) corrida=0.15 pe=(-30.9, -191.8, -60.0) polys=1729 quebras=[]
+STUDIO AVISO: sg_veg.py nao existe (zona em blockout)
+STUDIO AVISO: sg_props.py nao existe (zona em blockout)
+STUDIO AVISO: sg_lights.py nao existe (zona em blockout)
+SCENE emissivos limitados: 34 materiais
+STUDIO METRICAS zona=dressing objetos=0 malhas=0
+STUDIO tris=0/40000 OK | MeshParts~0/80 OK | materiais_novos=0/4 OK []
+STUDIO colisoes=0/100 OK | luzes=0 (de dia <= 6)
+STUDIO maiores: []
+STUDIO tecnico: nomes_ruins=[] prefixo_fora_do_padrao=[] sem_material=[] degeneradas=0
+STUDIO marcadores obrigatorios: 0/0 OK
+COL faces: 4566
+OK   ROTA DB_ANCORA->SG_ENTRADA
+OK   ROTA ENTRADA->CASTELO_MINING_HALL
+OK   ROTA ENTRADA->SUMMON
+OK   ROTA ENTRADA->CRAFT
+OK   ROTA ENTRADA->DUNGEON
+OK   ROTA VILA->CASTELO
+OK   ROTA CASTELO->CRAFT
+OK   ROTA CASTELO->DUNGEON
+OK   ROTA CASTELO->PORTAO_DS
+OK   ROTA DUNGEON->CRAFT
+OK   ROTA CRAFT->CASTELO
+OK   ROTA VILA_BAIXA_LESTE->PRACA
+OK   ROTA PRACA_VOLTA
+OK   ROTA DUNGEON_SALAS_R1->R3
+ROTAS 14/14 OK
+OK   ROTA PORTAO_DS_ABERTO->ANCORA
+ROTAS_ABERTAS 1/1 OK
+OK   ROTA sg_terrain:P1_pe_do_arrimo_O
+OK   ROTA sg_terrain:P1_pe_do_arrimo_L
+OK   ROTA sg_terrain:P2_pe_da_muralha_O
+OK   ROTA sg_terrain:P2_pe_da_muralha_L
+OK   ROTA sg_entry:PATIO_PORTICO_A_LATERAL
+OK   ROTA sg_entry:CALCADA_PORTICO_B_LATERAL
+OK   ROTA sg_village:VIL_RUA_P1_OESTE
+OK   ROTA sg_village:VIL_RUA_P1_LESTE
+OK   ROTA sg_village:VIL_RUA_P2
+OK   ROTA sg_village:VIL_EIXO_P2
+OK   ROTA sg_village:VIL_PRACA_ANEL
+OK   ROTA sg_castle:PATIO->BECO_OESTE->TERRACO
+OK   ROTA sg_hall:SALAO_VOLTA
+OK   ROTA sg_summon:PAD->PATAMAR
+OK   ROTA sg_summon:ESCADA->LADO_NORTE
+OK   ROTA sg_summon:ESCADA->LADO_SUL
+OK   ROTA sg_craft:CRAFT_VOLTA_CALDEIRAO
+OK   ROTA sg_dungeon:PORTARIA_ATE_O_PORTAL
+OK   ROTA sg_dungeon:SALA_R1_VOLTA
+OK   ROTA sg_dungeon:SALA_R2_VOLTA
+OK   ROTA sg_dungeon:SALA_R3_VOLTA
+OK   ROTA sg_water:WATER_mirante_oeste
+OK   ROTA sg_water:WATER_mirante_leste
+OK   ROTA sg_water:WATER_mirante_norte
+OK   ROTA sg_water:WATER_mirante_sul
+OK   ROTA sg_exit:CABECEIRA_ATRAS_DOS_PILARES
+OK   ROTA sg_exit:PONTE_BEIRA_S
+OK   ROTA sg_exit:PONTE_BEIRA_N
+ROTAS_MODULOS 28/28 OK
+OK   SONDA ANCORA_DS_borda
+OK   SONDA PONTE_SAIDA_lado_N
+OK   SONDA PONTE_SAIDA_lado_S
+OK   SONDA PONTE_CHEGADA_lado_O
+OK   SONDA PONTE_CHEGADA_lado_L
+OK   SONDA CALCADA_ALTA_O
+OK   SONDA CALCADA_ALTA_L
+OK   SONDA PATIO_BAIXO_O
+OK   SONDA SUMMON_borda_O
+OK   SONDA SUMMON_borda_N
+OK   SONDA PONTE_SUMMON_N
+OK   SONDA P2_borda_sul_O
+OK   SONDA P3_borda_sul_O
+OK   SONDA P2_borda_leste
+OK   SONDA VIL_P2_mirante_oeste
+OK   SONDA CRAFT_estante_N
+OK   SONDA CRAFT_bancada_L
+OK   SONDA ILHOTA_borda_NE
+OK   SONDA ANCORA_lado_S
+SONDAS 19/19 OK
+LARGURA rotas com trecho < 3,4 de largura: nenhuma
+OK   SALAO_LIVRE colisores na zona de minerio (piso+0,3..+12): nenhum
+OK   DUNGEON_LIMPA malhas de fora dentro da caixa das salas: nenhuma
+STUDIO RENDER C:/Users/lucas/OneDrive/Desktop/To up/ilha_shadowgarden/_studio/dressing/v0\CAM_SG_Ref_Main.jpg
+STUDIO RENDER C:/Users/lucas/OneDrive/Desktop/To up/ilha_shadowgarden/_studio/dressing/v0\CAM_SG_PlayerHeight_Plaza.jpg
+STUDIO RENDER C:/Users/lucas/OneDrive/Desktop/To up/ilha_shadowgarden/_studio/dressing/v0\CAM_SG_Village.jpg
+STUDIO RENDER C:/Users/lucas/OneDrive/Desktop/To up/ilha_shadowgarden/_studio/dressing/v0\CAM_SG_PlayerHeight_Village.jpg
+STUDIO RENDER C:/Users/lucas/OneDrive/Desktop/To up/ilha_shadowgarden/_studio/dressing/v0\CAM_SG_Front.jpg
+STUDIO RENDER C:/Users/lucas/OneDrive/Desktop/To up/ilha_shadowgarden/_studio/dressing/v0\CAM_SG_Left.jpg
+STUDIO FIM 14.2s
+Blender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 02:38:20)
+
+Blender quit

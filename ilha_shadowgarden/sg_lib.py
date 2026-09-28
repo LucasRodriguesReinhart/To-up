@@ -55,24 +55,32 @@ SMATS = {
     "Stone_SG_Castle":      (S(78, 82, 102), 0.8, 0.0, 0, None, 0.10),     # alvenaria do castelo
     "Stone_SG_Trim":        (S(150, 154, 170), 0.8, 0.0, 0, None, 0.06),   # frisos, molduras, cantaria clara
     "Stone_SG_Floor":       (S(66, 68, 84), 0.7, 0.0, 0, None, 0.08),      # piso do salao (escuro polido)
-    "Roof_SG_Slate":        (S(40, 46, 66), 0.6, 0.0, 0, None, 0.08),      # ardosia (telhados ingremes)
-    "Roof_SG_Navy":         (S(30, 36, 72), 0.55, 0.0, 0, None, 0.06),     # coberturas do castelo (navy)
+    "Roof_SG_Slate":        (S(34, 34, 46), 0.6, 0.0, 0, None, 0.08),      # ardosia quase preta (telhados da vila)
+    "Roof_SG_Navy":         (S(28, 22, 44), 0.5, 0.0, 0, None, 0.06),      # coberturas do castelo: preto-violeta
     "Wood_SG_Dark":         (S(58, 44, 40), 0.8, 0.0, 0, None, 0.10),      # enxaimel / portas / vigas
     "Plaster_SG":           (S(150, 142, 132), 0.7, 0.0, 0, None, 0.06),   # reboco da meia-enxaimel (quente apagado)
     "Metal_SG_Iron":        (S(56, 58, 68), 0.45, 0.8, 0, None, 0.04),     # ferro preto (grades, lanternas)
     "Metal_SG_Silver":      (S(176, 182, 198), 0.3, 0.9, 0, None, 0.02),   # prata (remates, simbolos)
     "Cloth_SG_Navy":        (S(32, 38, 78), 0.8, 0.0, 0, None, 0.04),      # estandartes
-    "Cloth_SG_Violet":      (S(84, 64, 118), 0.8, 0.0, 0, None, 0.04),     # tecido roxo dessaturado (acento)
+    "Cloth_SG_Violet":      (S(78, 36, 128), 0.8, 0.0, 0, None, 0.04),     # tecido roxo profundo (estandartes da ordem)
     "Glass_SG_Rose":        (S(96, 70, 150), 0.1, 0.0, 0.35, S(120, 80, 200), 0.0),   # vitral/rosacea (Glass)
     "Leaf_SG_Pine":         (S(30, 50, 48), 0.85, 0.0, 0, None, 0.10),     # pinheiro escuro
     "Water_SG":             (S(60, 110, 176), 0.1, 0.0, 0.12, S(70, 130, 210), 0.0),
+    # REFINAMENTO 2026-09-28 (pedido do usuario: roxo e preto de Shadow Garden mais presentes, materiais em camadas)
+    "Stone_SG_Obsidian":    (S(22, 20, 30), 0.35, 0.1, 0, None, 0.04),     # obsidiana: socos, faixas, cantaria nobre
+    "Stone_SG_MarbleBlack": (S(36, 32, 48), 0.25, 0.0, 0, None, 0.06),     # marmore negro (pisos nobres, incrustacoes)
+    "Stone_SG_Violet":      (S(78, 62, 110), 0.7, 0.0, 0, None, 0.06),     # pedra violeta (molduras nobres, emblemas)
+    "Metal_SG_BlackIron":   (S(26, 24, 34), 0.4, 0.8, 0, None, 0.02),      # ferro negro (grades, postes, correntes)
+    "Cloth_SG_Purple":      (S(66, 22, 112), 0.8, 0.0, 0, None, 0.04),     # estandarte da ordem (roxo profundo)
     # brilhos (Neon no Roblox): violeta so em funcao (dungeon, invocacao, craft, rosacea); azul frio = lua/agua
     "SG_Violet_Glow":       (S(150, 100, 235), 0.3, 0.0, 2.6, S(150, 100, 235), 0.0),
     "SG_Moon_Glow":         (S(170, 200, 255), 0.3, 0.0, 2.0, S(170, 200, 255), 0.0),
+    "SG_VioletDeep_Glow":   (S(110, 50, 210), 0.3, 0.0, 2.2, S(110, 50, 210), 0.0),   # linhas de energia da ordem
+    "SG_Rune_Glow":         (S(196, 150, 255), 0.3, 0.0, 3.0, S(196, 150, 255), 0.0),  # runas, fio do eixo, miolo do emblema
 }
 for k, v in SMATS.items():
     MATS.setdefault(k, v)
-for k in ("SG_Violet_Glow", "SG_Moon_Glow"):
+for k in ("SG_Violet_Glow", "SG_Moon_Glow", "SG_VioletDeep_Glow", "SG_Rune_Glow"):
     RBX_CAL.setdefault(k, (None, [int(c) for c in fm_lib.to_srgb(SMATS[k][0])]))
 add_variants("Cliff_Rock_SG", [("Cliff_Rock_SG", 5), ("Cliff_Rock_SG_B", 3, (62, 66, 84)),
                                ("Cliff_Rock_SG_C", 2, (80, 84, 100))], cap=2)

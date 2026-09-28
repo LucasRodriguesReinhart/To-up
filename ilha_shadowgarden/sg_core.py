@@ -142,13 +142,16 @@ def audio_markers():
         mk(nm, p, (0, 0, 0), 2.0, "SPHERE", props={"family": fam, "range": rng})
 
 
+# pe REAL de cada cortina (medido pelo sg_water por raio na face do penhasco; ordem de L.WATERFALLS: O, L, N, S)
+FALL_FEET = [(-130.1, -52.0, -60.0), (161.7, -112.0, -60.0), (-58.1, 208.7, -60.0), (-30.9, -191.8, -60.0)]
+
+
 def fx_markers():
     for i, (x, y, z, deg) in enumerate(L.WATERFALLS):
         a = math.radians(deg)
         mk("FX_Fall_%d_Lip" % (i + 1), (x + math.cos(a) * 2.0, y + math.sin(a) * 2.0, z - 1.0), size=3.0, kind="SPHERE",
            props={"fx": "nevoa_borda"})
-        mk("FX_Fall_%d_Base" % (i + 1), (x + math.cos(a) * 8.0, y + math.sin(a) * 8.0, z - 70.0), size=6.0,
-           kind="SPHERE", props={"fx": "nevoa_base"})
+        mk("FX_Fall_%d_Base" % (i + 1), FALL_FEET[i], size=6.0, kind="SPHERE", props={"fx": "nevoa_base"})
 
 
 def ds_gate():

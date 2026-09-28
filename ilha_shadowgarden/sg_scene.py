@@ -129,7 +129,7 @@ CAMS = {
     "CAM_SG_Castle": ((0.0, -60.0, P2 + 14.0), (0.0, 90.0, P3 + 50.0), 18),
     "CAM_SG_MiningHall": ((0.0, 48.0, H + 9.0), (0.0, 110.0, H + 8.0), 16),
     "CAM_SG_Summon": ((-96.0, -104.0, P1 + 12.0), (L.SUMMON_TOWER[0], L.SUMMON_TOWER[1], SUM + 14.0), 18),
-    "CAM_SG_Craft": ((56.0, -44.0, P2 + 12.0), (L.CRAFT_C[0], L.CRAFT_C[1], P2 + 10.0), 18),
+    "CAM_SG_Craft": ((44.0, -38.0, P2 + 14.0), (L.CRAFT_C[0], L.CRAFT_C[1], P2 + 22.0), 16),
     "CAM_SG_CraftInterior": ((L.CRAFT_C[0] - 8.5, L.CRAFT_C[1], P2 + 5.2), (L.CRAFT_C[0] + 8.0, L.CRAFT_C[1], P2 + 4.0), 14),
     "CAM_SG_Dungeon": ((70.0, 20.0, P3 + 14.0), (L.DUNGEON_HOUSE[0], L.DUNGEON_HOUSE[1], P3 + 20.0), 18),
     "CAM_SG_DungeonInterior": ((100.0, 64.0, P3 + 5.2), (100.0, 82.0, P3 + 6.0), 14),

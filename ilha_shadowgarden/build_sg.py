@@ -26,7 +26,7 @@ ZONE_MODULES = {
     "dungeon": ["sg_dungeon"],        # portaria com portal espiral + 3 salas modulares sob a ilha
     "water": ["sg_water"],            # 4 cachoeiras frias + fonte
     "exit": ["sg_exit"],              # ponte leste, ilhota do portao Demon Slayer, ancora
-    "dressing": ["sg_veg", "sg_props", "sg_lights"],   # veg antes: os props consultam a vegetacao ja montada
+    "dressing": ["sg_court", "sg_veg", "sg_props", "sg_lights"],   # patio/caminhos nobres antes; veg consulta o que ja existe
 }
 
 

@@ -37,6 +37,7 @@ local pasta                    -- RS.MasmorraEstado (atributos replicados)
 local area, areaModel, marcas  -- area da Shadow Garden (tema sombra) e marcadores do export
 local corrida                  -- { id, slot, participantes = {[player] = true}, dados = {[chave] = true}, rochas = {}, restantes, limpa }
 local prompt, saida
+local espirais = {}             -- pecas SG_Dun_R3_ExitSpiral* do export (so aparecem com a saida aberta)
 local HRP = 3.5
 
 local function agora() return workspace:GetServerTimeNow() + S.deslocamento end
@@ -195,6 +196,7 @@ local function quebrou(rocha, quem, contribuintes)
 		for p in pairs(corrida.participantes) do entregar(p, D.BONUS_LIMPEZA, "limpeza:" .. p.UserId) end
 		corrida.fimEm = agora()
 		for p in pairs(corrida.participantes) do avisar(p, "Masmorra limpa! O portal de saida se abriu.") end
+		for sp, t0 in pairs(espirais) do sp.Transparency = t0 end
 	end
 	publicar()
 end
@@ -225,10 +227,9 @@ local function entrarEstado(novo)
 		if corrida then S.slotEncerrado = corrida.slot end
 		corrida = nil
 	end
-	if saida then
-		local aceso = novo == "FINISHING" or (corrida ~= nil and corrida.limpa == true)
-		saida.Transparency = aceso and 0.35 or 0.8
-	end
+	local aceso = novo == "FINISHING" or (corrida ~= nil and corrida.limpa == true)
+	if saida then saida.Transparency = aceso and 0.35 or 0.8 end
+	for p, t0 in pairs(espirais) do p.Transparency = aceso and t0 or 1 end
 	publicar()
 end
 
@@ -308,6 +309,12 @@ function S.iniciar()
 			local p = Players:GetPlayerFromCharacter(hit.Parent)
 			if p and corrida and corrida.participantes[p] then tirar(p, true) end
 		end)
+	end
+	for _, d in ipairs(areaModel:GetDescendants()) do
+		if d:IsA("BasePart") and string.match(d.Name, "^SG_Dun_R3_ExitSpiral") then
+			espirais[d] = d.Transparency
+			d.Transparency = 1
+		end
 	end
 	Mineracao.Quebrou.Event:Connect(quebrou)
 	Players.PlayerRemoving:Connect(function(p) tirar(p, false) end)

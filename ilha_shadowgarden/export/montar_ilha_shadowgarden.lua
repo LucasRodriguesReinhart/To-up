@@ -1,0 +1,1949 @@
+-- montar_ilha_shadowgarden.lua  (gerado por export_roblox.py - nao editar a mao)  EXPORT_ID 545a69f0
+-- 1) Importe os FBX ILHA3_*_545a69.fbx (3D Importer) para dentro de workspace.ILHA_SHADOWGARDEN. Deixe o importador
+--    subir as TEXTURAS embutidas. ESPERE as texturas processarem (as MeshParts ficam BRANCAS por alguns
+--    minutos) antes de 'corrigir' cor: o branco some sozinho.
+-- 2) Rode este script na Command Bar. Ele:
+--    - CONFERE a importacao: achadas/esperadas por FBX, malhas faltando, MeshParts com eixo > 2048, texturas;
+--      normaliza nomes trocados pelo importador ('.001', ' (1)');
+--    - ALINHA cada MeshPart na posicao certa (aborta se algum FBX tiver < 90% das malhas);
+--    - aplica cor/Material por VARIANTE, sombra POR MALHA (longe/fundo/interior nao projetam), fidelidade
+--      (Box / Automatic; SKYLINE em Performance), streaming (SKYLINE persistente, modelos atomicos);
+--    - camera: as cascas dos interiores/penhascos ocluem a camera (grupo 'SoVisual', que nao colide com os
+--      personagens: o Script ILHA_SHADOWGARDEN_Servidor poe os personagens no grupo 'Personagens');
+--    - cria COLISOES invisiveis (tag CamOccluder nas paredes/tetos), MARCADORES, LUZES (NightOnly desligadas),
+--      chao distante, VOID_CATCH (rede de seguranca de quedas) e, opcional, o Lighting do lobby.
+-- Recomendado no Workspace: StreamingEnabled = true, StreamingTargetRadius = 1024, StreamingMinRadius = 128.
+-- Rodar de novo e seguro (idempotente). Ids de textura encontrados sao impressos: cole em TEX para fixar.
+local EXPORT_ID = '545a69f0'
+local ROOT_OFFSET = Vector3.new(0, 0, 0)  -- desloca o ilha3 INTEIRO (malhas alinhadas + colisoes + marcadores + luzes)
+local ALINHAR = true      -- reposiciona as MeshParts pelos centros exportados (corrige o importador)
+local RICO = false        -- true = texturas de detalhe (SurfaceAppearance Overlay) nas familias pedra/madeira/telha/rocha/grama/reboco/terra
+local LISO = false        -- true = tudo SmoothPlastic (menos Neon/Metal/Glass), sem os materiais ricos do modo hibrido
+local CAMERA_CASCAS = true  -- true = cascas visuais ocluem a camera (CanCollide/CanQuery no grupo SoVisual)
+local APLICAR_LIGHTING = false  -- true = aplica o Lighting recomendado do lobby (GLOBAL: prefira o perfil em AreaAtmosphere)
+local root = workspace:FindFirstChild('ILHA_SHADOWGARDEN') or Instance.new('Model', workspace)
+root.Name = 'ILHA_SHADOWGARDEN'
+root:SetAttribute('EXPORT_ID', EXPORT_ID); root:SetAttribute('RICO', RICO)
+local CS = game:GetService('CollectionService')
+local PS = game:GetService('PhysicsService')
+local function folder(n) local f = root:FindFirstChild(n) or Instance.new('Folder'); f.Name = n; f.Parent = root; return f end
+local COLF, MKF, LTF = folder('COLLISION'), folder('GAMEPLAY_MARKERS'), folder('LIGHTS')
+local function cf(p, x, y) local px = Vector3.new(p[1],p[2],p[3]) + ROOT_OFFSET
+  local vx = Vector3.new(x[1],x[2],x[3]); local vy = Vector3.new(y[1],y[2],y[3])
+  return CFrame.fromMatrix(px, vx, vy) end
+local function grupo(n) pcall(function() if not PS:IsCollisionGroupRegistered(n) then PS:RegisterCollisionGroup(n) end end) end
+grupo('SoVisual'); grupo('Personagens')
+pcall(function() PS:CollisionGroupSetCollidable('SoVisual', 'Personagens', false) end)
+-- ids das texturas (rbxassetid://...). Vazio = usa o que o 3D Importer subiu (lido das MeshParts).
+-- Alternativa: suba as PNG de textures/ pelo Asset Manager e cole os ids aqui.
+local TEX = {
+  ['P_DB_Swirl'] = '',  -- textures/T_swirl_db_v6.png (espiral, UV do disco)
+  ['P_DS_Swirl'] = '',  -- textures/T_swirl_ds_v5.png (espiral, UV do disco)
+  ['P_Naruto_Swirl'] = '',  -- textures/T_swirl_naruto_v5.png (espiral, UV do disco)
+  ['P_OPM_Swirl'] = '',  -- textures/T_swirl_opm_v6.png (espiral, UV do disco)
+  ['P_OP_Swirl'] = '',  -- textures/T_swirl_op_v4.png (espiral, UV do disco)
+  ['P_Shadow_Swirl'] = '',  -- textures/T_swirl_shadow_v4.png (espiral, UV do disco)
+  ['dirt'] = '',  -- textures/T_dirt_v3.png (10.0 studs por repeticao)
+  ['grass'] = '',  -- textures/T_grass_v3.png (14.0 studs por repeticao)
+  ['plaster'] = '',  -- textures/T_plaster_v3.png (8.0 studs por repeticao)
+  ['rock'] = '',  -- textures/T_rock_v3.png (18.0 studs por repeticao)
+  ['roof'] = '',  -- textures/T_roof_v3.png (5.0 studs por repeticao)
+  ['stone'] = '',  -- textures/T_stone_v3.png (6.0 studs por repeticao)
+  ['wood'] = '',  -- textures/T_wood_v3.png (5.0 studs por repeticao)
+}
+-- material/variante -> c = cor calibrada no Studio, m = Enum.Material (hibrido), t = transparencia,
+--   s = CastShadow da familia, x = textura de detalhe, w = espiral
+local MAT = {
+  ['Cliff_Rock_SG'] = {c = Color3.fromRGB(70,74,92), m = Enum.Material.Slate, t = 0.0, s = true, x = 'rock', w = nil},
+  ['Cliff_Rock_SG_B'] = {c = Color3.fromRGB(62,66,84), m = Enum.Material.Slate, t = 0.0, s = true, x = 'rock', w = nil},
+  ['Cliff_Rock_SG_C'] = {c = Color3.fromRGB(80,84,100), m = Enum.Material.Slate, t = 0.0, s = true, x = 'rock', w = nil},
+  ['Cliff_Rock_SG_Dark'] = {c = Color3.fromRGB(44,46,60), m = Enum.Material.Slate, t = 0.0, s = true, x = 'rock', w = nil},
+  ['Cliff_Rock_SG_Top'] = {c = Color3.fromRGB(104,110,128), m = Enum.Material.Slate, t = 0.0, s = true, x = 'rock', w = nil},
+  ['Cloth_Canvas'] = {c = Color3.fromRGB(225,212,188), m = Enum.Material.Fabric, t = 0.0, s = true, x = nil, w = nil},
+  ['Cloth_SGCraftBook'] = {c = Color3.fromRGB(96,58,56), m = Enum.Material.Fabric, t = 0.0, s = true, x = nil, w = nil},
+  ['Cloth_SG_Navy'] = {c = Color3.fromRGB(32,38,78), m = Enum.Material.Fabric, t = 0.0, s = true, x = nil, w = nil},
+  ['Energy_Core_DemonSlayer_Glow'] = {c = Color3.fromRGB(255,150,120), m = Enum.Material.Neon, t = 0.0, s = false, x = nil, w = nil},
+  ['Foam'] = {c = Color3.fromRGB(236,244,250), m = Enum.Material.SmoothPlastic, t = 0.0, s = false, x = nil, w = nil},
+  ['Glass_SGCraftAmber'] = {c = Color3.fromRGB(150,116,80), m = Enum.Material.Glass, t = 0.3, s = false, x = nil, w = nil},
+  ['Glass_SGCraftPale'] = {c = Color3.fromRGB(92,104,132), m = Enum.Material.Glass, t = 0.3, s = false, x = nil, w = nil},
+  ['Glass_SGCraftSage'] = {c = Color3.fromRGB(104,128,118), m = Enum.Material.Glass, t = 0.3, s = false, x = nil, w = nil},
+  ['Glass_SGHallMoon'] = {c = Color3.fromRGB(96,124,186), m = Enum.Material.Glass, t = 0.3, s = false, x = nil, w = nil},
+  ['Glass_SG_Rose'] = {c = Color3.fromRGB(96,70,150), m = Enum.Material.Glass, t = 0.3, s = false, x = nil, w = nil},
+  ['Grass_SG'] = {c = Color3.fromRGB(46,70,64), m = Enum.Material.Grass, t = 0.0, s = false, x = 'grass', w = nil},
+  ['Lantern_Glow'] = {c = Color3.fromRGB(255,146,56), m = Enum.Material.Neon, t = 0.0, s = false, x = nil, w = nil},
+  ['Leaf_GateDS_Wisteria'] = {c = Color3.fromRGB(176,132,232), m = Enum.Material.SmoothPlastic, t = 0.0, s = false, x = nil, w = nil},
+  ['Leaf_SGVegMoon'] = {c = Color3.fromRGB(66,96,104), m = Enum.Material.SmoothPlastic, t = 0.0, s = false, x = nil, w = nil},
+  ['Leaf_SGVegShade'] = {c = Color3.fromRGB(16,24,30), m = Enum.Material.SmoothPlastic, t = 0.0, s = false, x = nil, w = nil},
+  ['Leaf_SG_Pine'] = {c = Color3.fromRGB(30,50,48), m = Enum.Material.SmoothPlastic, t = 0.0, s = false, x = nil, w = nil},
+  ['Leather'] = {c = Color3.fromRGB(149,111,80), m = Enum.Material.Fabric, t = 0.0, s = true, x = nil, w = nil},
+  ['Metal_Brass'] = {c = Color3.fromRGB(186,148,90), m = Enum.Material.Metal, t = 0.0, s = true, x = nil, w = nil},
+  ['Metal_Dark'] = {c = Color3.fromRGB(78,76,76), m = Enum.Material.Metal, t = 0.0, s = true, x = nil, w = nil},
+  ['Metal_GateDS_Blade'] = {c = Color3.fromRGB(206,214,226), m = Enum.Material.Metal, t = 0.0, s = true, x = nil, w = nil},
+  ['Metal_Gold'] = {c = Color3.fromRGB(222,170,70), m = Enum.Material.Metal, t = 0.0, s = true, x = nil, w = nil},
+  ['Metal_SG_Iron'] = {c = Color3.fromRGB(56,58,68), m = Enum.Material.Metal, t = 0.0, s = true, x = nil, w = nil},
+  ['Metal_SG_Silver'] = {c = Color3.fromRGB(176,182,198), m = Enum.Material.Metal, t = 0.0, s = true, x = nil, w = nil},
+  ['P_DS_Black'] = {c = Color3.fromRGB(75,63,63), m = Enum.Material.SmoothPlastic, t = 0.0, s = true, x = nil, w = nil},
+  ['P_DS_Glow'] = {c = Color3.fromRGB(185,12,22), m = Enum.Material.Neon, t = 0.0, s = false, x = nil, w = nil},
+  ['Plaster_Cream'] = {c = Color3.fromRGB(232,212,172), m = Enum.Material.SmoothPlastic, t = 0.0, s = true, x = 'plaster', w = nil},
+  ['Plaster_SGVil'] = {c = Color3.fromRGB(96,88,88), m = Enum.Material.SmoothPlastic, t = 0.0, s = true, x = 'plaster', w = nil},
+  ['Roof_Blue'] = {c = Color3.fromRGB(62,84,138), m = Enum.Material.SmoothPlastic, t = 0.0, s = true, x = 'roof', w = nil},
+  ['Roof_SG_Navy'] = {c = Color3.fromRGB(30,36,72), m = Enum.Material.SmoothPlastic, t = 0.0, s = true, x = 'roof', w = nil},
+  ['Roof_SG_Slate'] = {c = Color3.fromRGB(40,46,66), m = Enum.Material.SmoothPlastic, t = 0.0, s = true, x = 'roof', w = nil},
+  ['SG_DunVoid_Glow'] = {c = Color3.fromRGB(46,26,104), m = Enum.Material.Neon, t = 0.0, s = false, x = nil, w = nil},
+  ['SG_SumPortal_Glow'] = {c = Color3.fromRGB(78,58,206), m = Enum.Material.Neon, t = 0.0, s = false, x = nil, w = nil},
+  ['SG_SumStar_Glow'] = {c = Color3.fromRGB(228,208,255), m = Enum.Material.Neon, t = 0.0, s = false, x = nil, w = nil},
+  ['SG_Violet_Glow'] = {c = Color3.fromRGB(150,100,235), m = Enum.Material.Neon, t = 0.0, s = false, x = nil, w = nil},
+  ['Stone_Dark'] = {c = Color3.fromRGB(102,95,88), m = Enum.Material.SmoothPlastic, t = 0.0, s = true, x = 'stone', w = nil},
+  ['Stone_Paving_SG'] = {c = Color3.fromRGB(128,132,148), m = Enum.Material.SmoothPlastic, t = 0.0, s = false, x = 'stone', w = nil},
+  ['Stone_Paving_SG_B'] = {c = Color3.fromRGB(118,122,138), m = Enum.Material.SmoothPlastic, t = 0.0, s = false, x = 'stone', w = nil},
+  ['Stone_SGCasInterior'] = {c = Color3.fromRGB(104,104,120), m = Enum.Material.SmoothPlastic, t = 0.0, s = true, x = 'stone', w = nil},
+  ['Stone_SGCasPlinth'] = {c = Color3.fromRGB(50,53,68), m = Enum.Material.SmoothPlastic, t = 0.0, s = true, x = 'stone', w = nil},
+  ['Stone_SGDunStatue'] = {c = Color3.fromRGB(58,62,80), m = Enum.Material.SmoothPlastic, t = 0.0, s = true, x = 'stone', w = nil},
+  ['Stone_SGDunVault'] = {c = Color3.fromRGB(34,38,62), m = Enum.Material.SmoothPlastic, t = 0.0, s = true, x = 'stone', w = nil},
+  ['Stone_SGHallFloor'] = {c = Color3.fromRGB(38,40,56), m = Enum.Material.SmoothPlastic, t = 0.0, s = true, x = 'stone', w = nil},
+  ['Stone_SGHallVault'] = {c = Color3.fromRGB(38,42,66), m = Enum.Material.SmoothPlastic, t = 0.0, s = true, x = 'stone', w = nil},
+  ['Stone_SGVilCobble'] = {c = Color3.fromRGB(72,76,92), m = Enum.Material.SmoothPlastic, t = 0.0, s = true, x = 'stone', w = nil},
+  ['Stone_SG_Block'] = {c = Color3.fromRGB(92,96,114), m = Enum.Material.SmoothPlastic, t = 0.0, s = true, x = 'stone', w = nil},
+  ['Stone_SG_Block_B'] = {c = Color3.fromRGB(84,88,104), m = Enum.Material.SmoothPlastic, t = 0.0, s = true, x = 'stone', w = nil},
+  ['Stone_SG_Castle'] = {c = Color3.fromRGB(78,82,102), m = Enum.Material.SmoothPlastic, t = 0.0, s = true, x = 'stone', w = nil},
+  ['Stone_SG_Castle_B'] = {c = Color3.fromRGB(70,74,94), m = Enum.Material.SmoothPlastic, t = 0.0, s = true, x = 'stone', w = nil},
+  ['Stone_SG_Floor'] = {c = Color3.fromRGB(66,68,84), m = Enum.Material.SmoothPlastic, t = 0.0, s = true, x = 'stone', w = nil},
+  ['Stone_SG_Trim'] = {c = Color3.fromRGB(150,154,170), m = Enum.Material.SmoothPlastic, t = 0.0, s = true, x = 'stone', w = nil},
+  ['Stone_Wall_Dark'] = {c = Color3.fromRGB(128,120,110), m = Enum.Material.SmoothPlastic, t = 0.0, s = true, x = 'stone', w = nil},
+  ['Stone_Wall_Light'] = {c = Color3.fromRGB(178,170,156), m = Enum.Material.SmoothPlastic, t = 0.0, s = true, x = 'stone', w = nil},
+  ['Water_Fall'] = {c = Color3.fromRGB(170,212,236), m = Enum.Material.SmoothPlastic, t = 0.0, s = false, x = nil, w = nil},
+  ['Water_SG'] = {c = Color3.fromRGB(60,110,176), m = Enum.Material.SmoothPlastic, t = 0.0, s = false, x = nil, w = nil},
+  ['Window_Warm'] = {c = Color3.fromRGB(214,140,74), m = Enum.Material.SmoothPlastic, t = 0.0, s = false, x = nil, w = nil},
+  ['Wood_Dark'] = {c = Color3.fromRGB(92,64,47), m = Enum.Material.Wood, t = 0.0, s = true, x = 'wood', w = nil},
+  ['Wood_Lacquer_Red'] = {c = Color3.fromRGB(168,42,32), m = Enum.Material.Wood, t = 0.0, s = true, x = 'wood', w = nil},
+  ['Wood_SG_Dark'] = {c = Color3.fromRGB(58,44,40), m = Enum.Material.Wood, t = 0.0, s = true, x = 'wood', w = nil},
+}
+local KEEP = {[Enum.Material.Neon]=true, [Enum.Material.Metal]=true, [Enum.Material.Glass]=true, [Enum.Material.CorrodedMetal]=true}
+local function norm(n) n = string.gsub(n, '%.%d+$', ''); n = string.gsub(n, ' %(%d+%)$', ''); return n end
+local function matOf(name)
+  local s = string.match(name, '__(.+)$'); if not s then return nil end
+  if MAT[s] then return MAT[s], s end
+  s = string.gsub(string.gsub(s, '_%d+$', ''), '_g%d+_%d+$', '')  -- fatias _k e celulas _gX_Y
+  if MAT[s] then return MAT[s], s end
+  local best, bl = nil, 0   -- tolerante: maior prefixo conhecido (variantes/materiais novos)
+  for k, v in pairs(MAT) do if #k > bl and string.sub(s, 1, #k) == k then best, bl = v, #k end end
+  return best, s
+end
+-- FBX: indice -> arquivo
+local FBX = {[1]='ILHA3_02_TERRAIN_545a69.fbx', [2]='ILHA3_03_MINING_HALL_545a69.fbx', [3]='ILHA3_04_CASTLE_545a69.fbx', [4]='ILHA3_05_VILLAGE_545a69.fbx', [5]='ILHA3_06_SUMMON_545a69.fbx', [6]='ILHA3_07_WATER_545a69.fbx', [7]='ILHA3_08_NEXT_ISLAND_545a69.fbx', [8]='ILHA3_08_PURCHASE_GATES_545a69.fbx', [9]='ILHA3_09_PROPS_545a69.fbx', [10]='ILHA3_10_VEGETATION_545a69.fbx', [11]='ILHA3_12_VFX_HELPERS_545a69.fbx', [12]='ILHA3_16_CRAFT_545a69.fbx', [13]='ILHA3_17_DUNGEON_545a69.fbx', [14]='ILHA3_18_ENTRY_545a69.fbx'}
+-- malhas exportadas: nome = {centro X,Y,Z, tamanho X,Y,Z, FBX, sombra, material, flags, modelo}
+--   flags: o = casca que oclui a camera, k = SKYLINE (persistente, RenderFidelity Performance)
+--   modelo: Model Atomic (streaming sem pecas pela metade)
+local MESH = {
+  ['SG_Sky_Islets__Cliff_Rock_SG']={-885.058,52.351,556.548,756.75,117.132,745.123,1,false,'Cliff_Rock_SG','k',''},
+  ['SG_Sky_Islets__Cliff_Rock_SG_Dark']={-883.316,43.598,555.427,749.046,120.3,741.156,1,false,'Cliff_Rock_SG_Dark','k',''},
+  ['SG_Sky_Islets__Grass_SG']={-883.61,69.9,555.722,758.938,81.0,749.766,1,false,'Grass_SG','k',''},
+  ['SG_Sky_Islets__Leaf_SG_Pine']={-882.594,78.528,556.838,742.411,92.427,729.713,1,false,'Leaf_SG_Pine','k',''},
+  ['SG_Sky_Islets__Wood_SG_Dark']={-883.0,72.996,556.651,737.982,85.334,725.584,1,false,'Wood_SG_Dark','k',''},
+  ['SG_Ter_Cliff_E__Cliff_Rock_SG']={-690.602,-19.038,487.312,135.799,151.676,136.173,1,true,'Cliff_Rock_SG','',''},
+  ['SG_Ter_Cliff_E__Cliff_Rock_SG_C']={-677.255,-19.956,500.713,112.156,111.843,99.244,1,true,'Cliff_Rock_SG_C','',''},
+  ['SG_Ter_Cliff_E__Cliff_Rock_SG_Dark']={-696.607,-34.379,487.943,150.86,147.489,141.525,1,true,'Cliff_Rock_SG_Dark','',''},
+  ['SG_Ter_Cliff_E__Cliff_Rock_SG_Top']={-667.195,37.473,480.177,92.037,41.054,121.903,1,true,'Cliff_Rock_SG_Top','',''},
+  ['SG_Ter_Cliff_E__Grass_SG']={-696.607,37.923,487.943,150.86,40.154,141.525,1,false,'Grass_SG','',''},
+  ['SG_Ter_Cliff_N__Cliff_Rock_SG_B']={-922.667,-2.327,488.042,227.872,186.254,205.098,1,true,'Cliff_Rock_SG_B','',''},
+  ['SG_Ter_Cliff_N__Cliff_Rock_SG_C']={-928.613,-7.252,497.626,192.077,173.974,146.727,1,true,'Cliff_Rock_SG_C','',''},
+  ['SG_Ter_Cliff_N__Cliff_Rock_SG_Dark_g8_11']={-898.075,-15.636,531.835,252.077,142.358,145.399,1,true,'Cliff_Rock_SG_Dark','',''},
+  ['SG_Ter_Cliff_N__Cliff_Rock_SG_Dark_g8_12']={-904.32,-3.083,494.988,264.566,158.577,219.093,1,true,'Cliff_Rock_SG_Dark','',''},
+  ['SG_Ter_Cliff_N__Cliff_Rock_SG_Dark_g9_11']={-886.293,-37.313,522.785,228.513,143.026,163.498,1,true,'Cliff_Rock_SG_Dark','',''},
+  ['SG_Ter_Cliff_N__Cliff_Rock_SG_Dark_g9_12']={-885.878,-35.062,495.098,227.683,138.524,218.872,1,true,'Cliff_Rock_SG_Dark','',''},
+  ['SG_Ter_Cliff_N__Cliff_Rock_SG_Top']={-966.969,58.637,488.042,139.269,66.726,205.098,1,true,'Cliff_Rock_SG_Top','',''},
+  ['SG_Ter_Cliff_N__Grass_SG']={-903.121,59.087,486.216,262.168,65.826,201.108,1,false,'Grass_SG','',''},
+  ['SG_Ter_Cliff_NE__Cliff_Rock_SG']={-803.557,-5.201,450.335,188.349,177.437,147.297,1,true,'Cliff_Rock_SG','',''},
+  ['SG_Ter_Cliff_NE__Cliff_Rock_SG_B']={-807.904,2.218,439.596,171.189,173.164,117.5,1,true,'Cliff_Rock_SG_B','',''},
+  ['SG_Ter_Cliff_NE__Cliff_Rock_SG_Dark_g9_12']={-835.115,-17.618,470.19,237.885,181.647,187.008,1,true,'Cliff_Rock_SG_Dark','',''},
+  ['SG_Ter_Cliff_NE__Cliff_Rock_SG_Dark_g10_12']={-741.832,-34.371,481.185,64.899,137.141,155.042,1,true,'Cliff_Rock_SG_Dark','',''},
+  ['SG_Ter_Cliff_NE__Cliff_Rock_SG_Top']={-803.557,55.645,399.65,188.349,68.709,45.927,1,true,'Cliff_Rock_SG_Top','',''},
+  ['SG_Ter_Cliff_NE__Grass_SG']={-807.204,61.772,471.82,190.474,56.457,173.772,1,false,'Grass_SG','',''},
+  ['SG_Ter_Cliff_NW__Cliff_Rock_SG_B']={-889.416,0.131,624.043,208.056,189.339,119.983,1,true,'Cliff_Rock_SG_B','',''},
+  ['SG_Ter_Cliff_NW__Cliff_Rock_SG_C']={-911.037,8.31,625.834,173.275,144.307,91.466,1,true,'Cliff_Rock_SG_C','',''},
+  ['SG_Ter_Cliff_NW__Cliff_Rock_SG_Dark_g8_11']={-896.224,-0.941,594.892,248.375,158.989,93.375,1,true,'Cliff_Rock_SG_Dark','',''},
+  ['SG_Ter_Cliff_NW__Cliff_Rock_SG_Dark_g9_10']={-836.962,-5.014,621.37,129.851,125.636,125.329,1,true,'Cliff_Rock_SG_Dark','',''},
+  ['SG_Ter_Cliff_NW__Cliff_Rock_SG_Dark_g9_11']={-886.293,-37.109,620.571,228.513,142.619,126.439,1,true,'Cliff_Rock_SG_Dark','',''},
+  ['SG_Ter_Cliff_NW__Cliff_Rock_SG_Top']={-911.931,56.556,635.631,171.488,78.887,96.808,1,true,'Cliff_Rock_SG_Top','',''},
+  ['SG_Ter_Cliff_NW__Grass_SG']={-886.293,58.784,621.37,228.513,74.432,125.329,1,false,'Grass_SG','',''},
+  ['SG_Ter_Cliff_S__Cliff_Rock_SG_B']={-675.449,-30.145,604.774,150.665,132.199,122.73,1,true,'Cliff_Rock_SG_B','',''},
+  ['SG_Ter_Cliff_S__Cliff_Rock_SG_C']={-675.787,-31.379,596.069,119.864,119.441,104.102,1,true,'Cliff_Rock_SG_C','',''},
+  ['SG_Ter_Cliff_S__Cliff_Rock_SG_Dark']={-686.076,-37.227,605.948,171.921,142.854,127.588,1,true,'Cliff_Rock_SG_Dark','',''},
+  ['SG_Ter_Cliff_S__Cliff_Rock_SG_Top']={-644.773,27.134,604.774,89.313,19.639,122.73,1,true,'Cliff_Rock_SG_Top','',''},
+  ['SG_Ter_Cliff_S__Grass_SG']={-686.899,31.277,605.948,170.276,11.354,127.588,1,false,'Grass_SG','',''},
+  ['SG_Ter_Cliff_W__Cliff_Rock_SG_B']={-762.943,-19.77,653.151,131.558,149.139,127.444,1,true,'Cliff_Rock_SG_B','',''},
+  ['SG_Ter_Cliff_W__Cliff_Rock_SG_C']={-756.326,-24.146,649.139,140.551,135.131,124.133,1,true,'Cliff_Rock_SG_C','',''},
+  ['SG_Ter_Cliff_W__Cliff_Rock_SG_Dark']={-756.199,-33.716,637.789,140.295,150.299,158.167,1,true,'Cliff_Rock_SG_Dark','',''},
+  ['SG_Ter_Cliff_W__Cliff_Rock_SG_Top']={-757.386,40.747,691.487,142.671,30.505,50.772,1,true,'Cliff_Rock_SG_Top','',''},
+  ['SG_Ter_Cliff_W__Grass_SG']={-755.59,41.285,636.703,139.077,29.429,155.994,1,false,'Grass_SG','',''},
+  ['SG_Ter_Mounds__Cliff_Rock_SG_B']={-940.465,53.747,514.967,149.961,42.295,267.293,1,true,'Cliff_Rock_SG_B','',''},
+  ['SG_Ter_Mounds__Cliff_Rock_SG_C']={-931.773,49.911,510.961,136.75,34.623,256.358,1,true,'Cliff_Rock_SG_C','',''},
+  ['SG_Ter_Mounds__Cliff_Rock_SG_Top']={-939.422,56.047,514.967,152.047,39.695,267.293,1,true,'Cliff_Rock_SG_Top','',''},
+  ['SG_Ter_Mounds__Grass_SG']={-939.422,56.547,514.967,152.047,38.695,267.293,1,false,'Grass_SG','',''},
+  ['SG_Ter_SummonIsle__Cliff_Rock_SG_C']={-767.255,-2.209,721.928,44.748,66.503,52.263,1,true,'Cliff_Rock_SG_C','',''},
+  ['SG_Ter_SummonIsle__Cliff_Rock_SG_Dark']={-767.319,-10.636,721.201,44.875,98.473,53.717,1,true,'Cliff_Rock_SG_Dark','',''},
+  ['SG_Ter_SummonIsle__Cliff_Rock_SG_Top']={-767.255,7.375,725.765,44.748,49.336,44.589,1,true,'Cliff_Rock_SG_Top','',''},
+  ['SG_Ter_SummonIsle__Stone_Paving_SG']={-767.457,40.2,725.639,43.672,0.0,43.672,1,false,'Stone_Paving_SG','',''},
+  ['SG_Ter_SummonIsle__Stone_SG_Block']={-767.472,35.8,725.593,43.989,5.44,43.923,1,true,'Stone_SG_Block','',''},
+  ['SG_Ter_SummonIsle__Stone_SG_Block_B']={-767.347,35.8,725.711,43.863,5.44,43.787,1,true,'Stone_SG_Block_B','',''},
+  ['SG_Ter_SummonIsle__Stone_SG_Trim']={-767.457,39.4,725.639,43.672,1.6,43.672,1,true,'Stone_SG_Trim','',''},
+  ['SG_Ter_Terrace_Entry__Cliff_Rock_SG_Dark']={-637.978,28.1,627.245,72.295,16.2,58.044,1,true,'Cliff_Rock_SG_Dark','',''},
+  ['SG_Ter_Terrace_Entry__Grass_SG']={-629.57,30.2,627.245,55.479,8.0,58.044,1,false,'Grass_SG','',''},
+  ['SG_Ter_Terrace_Entry__Stone_Paving_SG']={-639.786,32.2,625.401,68.681,8.0,48.018,1,false,'Stone_Paving_SG','',''},
+  ['SG_Ter_Terrace_Entry__Stone_SG_Block']={-638.193,30.725,627.203,66.416,10.09,45.325,1,true,'Stone_SG_Block','',''},
+  ['SG_Ter_Terrace_Entry__Stone_SG_Block_B']={-643.123,30.725,623.486,62.148,10.09,45.121,1,true,'Stone_SG_Block_B','',''},
+  ['SG_Ter_Terrace_P1__Cliff_Rock_SG_Dark']={-716.887,34.6,572.651,154.074,3.2,245.372,1,true,'Cliff_Rock_SG_Dark','',''},
+  ['SG_Ter_Terrace_P1__Stone_Paving_SG_B']={-716.887,36.2,572.651,154.074,0.0,245.372,1,false,'Stone_Paving_SG_B','',''},
+  ['SG_Ter_Terrace_P2__Cliff_Rock_SG']={-777.681,37.44,549.701,167.905,9.279,285.696,1,true,'Cliff_Rock_SG','',''},
+  ['SG_Ter_Terrace_P2__Cliff_Rock_SG_B']={-781.306,37.101,551.898,157.593,8.602,275.691,1,true,'Cliff_Rock_SG_B','',''},
+  ['SG_Ter_Terrace_P2__Cliff_Rock_SG_Dark']={-778.406,38.6,550.394,161.02,11.2,274.352,1,true,'Cliff_Rock_SG_Dark','',''},
+  ['SG_Ter_Terrace_P2__Cliff_Rock_SG_Top']={-777.681,39.1,549.701,167.905,7.559,285.696,1,true,'Cliff_Rock_SG_Top','',''},
+  ['SG_Ter_Terrace_P2__Grass_SG']={-778.537,41.636,549.629,166.193,5.129,279.937,1,false,'Grass_SG','',''},
+  ['SG_Ter_Terrace_P3__Cliff_Rock_SG']={-887.479,40.242,469.009,241.384,14.885,155.576,1,true,'Cliff_Rock_SG','',''},
+  ['SG_Ter_Terrace_P3__Cliff_Rock_SG_C']={-888.945,39.99,470.157,222.864,14.381,150.953,1,true,'Cliff_Rock_SG_C','',''},
+  ['SG_Ter_Terrace_P3__Cliff_Rock_SG_Dark']={-883.59,42.6,510.724,241.404,19.2,229.591,1,true,'Cliff_Rock_SG_Dark','',''},
+  ['SG_Ter_Terrace_P3__Cliff_Rock_SG_Top']={-887.479,45.558,469.009,241.384,5.854,155.576,1,true,'Cliff_Rock_SG_Top','',''},
+  ['SG_Ter_Terrace_P3__Grass_SG']={-886.715,46.031,468.427,239.856,4.908,154.413,1,false,'Grass_SG','',''},
+  ['SG_Ter_Terrace_P3__Stone_Paving_SG_B']={-883.59,52.2,510.724,241.404,0.0,229.591,1,false,'Stone_Paving_SG_B','',''},
+  ['SG_Ter_Wall_P1__Stone_SG_Block']={-713.289,36.29,572.204,149.274,4.82,247.001,1,true,'Stone_SG_Block','',''},
+  ['SG_Ter_Wall_P1__Stone_SG_Block_B']={-713.308,36.29,572.807,149.413,4.82,247.567,1,true,'Stone_SG_Block_B','',''},
+  ['SG_Ter_Wall_P1__Stone_SG_Trim']={-713.023,36.45,572.727,150.185,5.1,249.32,1,true,'Stone_SG_Trim','',''},
+  ['SG_Ter_Wall_P2__Stone_SG_Block_g9_10']={-814.091,41.45,659.654,91.4,10.5,58.189,1,true,'Stone_SG_Block','',''},
+  ['SG_Ter_Wall_P2__Stone_SG_Block_g10_11']={-778.406,41.45,540.134,162.769,10.5,218.374,1,true,'Stone_SG_Block','',''},
+  ['SG_Ter_Wall_P2__Stone_SG_Block_g10_12']={-732.423,41.49,478.143,71.592,10.42,132.396,1,true,'Stone_SG_Block','',''},
+  ['SG_Ter_Wall_P2__Stone_SG_Block_B']={-778.493,41.45,550.403,163.083,10.5,275.077,1,true,'Stone_SG_Block_B','',''},
+  ['SG_Ter_Wall_P2__Stone_SG_Trim_g9_10']={-809.69,40.45,653.508,102.597,13.1,71.979,1,true,'Stone_SG_Trim','',''},
+  ['SG_Ter_Wall_P2__Stone_SG_Trim_g10_11']={-778.406,41.59,558.079,163.492,10.82,254.659,1,true,'Stone_SG_Trim','',''},
+  ['SG_Ter_Wall_P2__Stone_SG_Trim_g10_12']={-732.259,40.45,478.002,72.314,13.1,133.135,1,true,'Stone_SG_Trim','',''},
+  ['SG_Ter_Wall_P3__Stone_SG_Block_g8_11']={-954.068,49.69,544.591,102.686,10.02,69.462,1,true,'Stone_SG_Block','',''},
+  ['SG_Ter_Wall_P3__Stone_SG_Block_g8_12']={-947.151,49.69,473.026,105.874,10.02,92.268,1,true,'Stone_SG_Block','',''},
+  ['SG_Ter_Wall_P3__Stone_SG_Block_g9_12']={-830.482,49.45,507.432,135.943,10.5,225.374,1,true,'Stone_SG_Block','',''},
+  ['SG_Ter_Wall_P3__Stone_SG_Block_B_g8_11']={-953.727,49.69,545.053,101.935,10.02,69.003,1,true,'Stone_SG_Block_B','',''},
+  ['SG_Ter_Wall_P3__Stone_SG_Block_B_g8_12']={-945.885,49.69,470.826,102.855,10.02,85.789,1,true,'Stone_SG_Block_B','',''},
+  ['SG_Ter_Wall_P3__Stone_SG_Block_B_g9_12']={-830.45,49.49,505.62,135.958,10.42,219.953,1,true,'Stone_SG_Block_B','',''},
+  ['SG_Ter_Wall_P3__Stone_SG_Trim']={-883.577,44.45,507.08,245.355,21.1,226.419,1,true,'Stone_SG_Trim','',''},
+  ['SG_Hall_Altar__Glass_SGHallMoon']={-941.749,67.7,496.857,7.263,12.6,16.667,2,false,'Glass_SGHallMoon','','SG_Hall'},
+  ['SG_Hall_Altar__Metal_SG_Silver']={-940.69,56.7,497.306,2.418,5.6,5.253,2,false,'Metal_SG_Silver','','SG_Hall'},
+  ['SG_Hall_Altar__Stone_SGHallVault']={-941.818,67.95,496.828,10.655,14.3,24.748,2,true,'Stone_SGHallVault','','SG_Hall'},
+  ['SG_Hall_Altar__Stone_SG_Castle_B']={-940.823,60.55,497.14,16.224,16.7,34.683,2,true,'Stone_SG_Castle_B','','SG_Hall'},
+  ['SG_Hall_Altar__Stone_SG_Trim']={-940.529,64.9,497.375,17.437,25.4,35.874,2,true,'Stone_SG_Trim','','SG_Hall'},
+  ['SG_Hall_Banners__Cloth_SG_Navy']={-901.603,66.8,513.52,102.254,12.8,85.512,2,true,'Cloth_SG_Navy','','SG_Hall'},
+  ['SG_Hall_Banners__Metal_SG_Iron']={-901.603,73.75,513.52,103.158,0.7,86.575,2,true,'Metal_SG_Iron','','SG_Hall'},
+  ['SG_Hall_Banners__Metal_SG_Silver']={-901.603,69.8,513.52,101.886,5.0,85.356,2,true,'Metal_SG_Silver','','SG_Hall'},
+  ['SG_Hall_Floor__Stone_SGHallFloor']={-901.407,52.0,513.98,113.825,0.4,111.705,2,true,'Stone_SGHallFloor','','SG_Hall'},
+  ['SG_Hall_Floor__Stone_SG_Trim']={-902.328,52.0,513.589,102.543,0.4,101.483,2,true,'Stone_SG_Trim','','SG_Hall'},
+  ['SG_Hall_Ironwork__Lantern_Glow']={-901.407,66.912,513.98,83.868,11.925,97.365,2,false,'Lantern_Glow','','SG_Hall'},
+  ['SG_Hall_Ironwork__Metal_SG_Iron']={-901.407,69.514,513.98,84.541,18.429,98.899,2,true,'Metal_SG_Iron','','SG_Hall'},
+  ['SG_Hall_Piers__Stone_SGHallVault']={-901.407,60.975,513.98,95.66,15.75,103.996,2,true,'Stone_SGHallVault','','SG_Hall'},
+  ['SG_Hall_Piers__Stone_SG_Castle']={-903.571,62.85,513.98,109.498,18.7,111.705,2,true,'Stone_SG_Castle','','SG_Hall'},
+  ['SG_Hall_Piers__Stone_SG_Castle_B']={-897.633,62.85,513.315,106.276,18.7,106.339,2,true,'Stone_SG_Castle_B','','SG_Hall'},
+  ['SG_Hall_Piers__Stone_SG_Trim']={-901.407,64.85,513.98,113.825,25.3,111.705,2,true,'Stone_SG_Trim','','SG_Hall'},
+  ['SG_Hall_Vault__Stone_SGHallVault']={-901.407,76.325,513.98,113.825,8.25,111.705,2,true,'Stone_SGHallVault','','SG_Hall'},
+  ['SG_Hall_Vault__Stone_SG_Castle_B']={-901.407,76.417,513.98,113.001,7.567,111.205,2,true,'Stone_SG_Castle_B','','SG_Hall'},
+  ['SG_Hall_Vault__Stone_SG_Trim']={-901.407,76.816,513.98,112.573,6.769,109.291,2,true,'Stone_SG_Trim','','SG_Hall'},
+  ['SG_Hall_Windows__Glass_SGHallMoon']={-901.407,73.85,513.98,89.852,8.1,101.455,2,false,'Glass_SGHallMoon','','SG_Hall'},
+  ['SG_Hall_Windows__Stone_SG_Trim']={-901.407,73.9,513.98,91.364,9.1,102.172,2,true,'Stone_SG_Trim','','SG_Hall'},
+  ['SG_Cas_Alas__Metal_SG_Silver']={-948.65,133.15,526.725,62.963,18.9,167.777,3,true,'Metal_SG_Silver','','SG_Cas'},
+  ['SG_Cas_Alas__Roof_SG_Navy']={-948.375,122.0,526.725,75.465,36.0,180.8,3,true,'Roof_SG_Navy','','SG_Cas'},
+  ['SG_Cas_Alas__Roof_SG_Slate']={-911.679,85.411,525.563,139.598,43.637,171.937,3,true,'Roof_SG_Slate','','SG_Cas'},
+  ['SG_Cas_Alas__Stone_SGCasPlinth']={-914.665,54.8,526.725,144.565,43.6,182.38,3,true,'Stone_SGCasPlinth','','SG_Cas'},
+  ['SG_Cas_Alas__Stone_SG_Castle']={-914.916,83.6,526.725,143.862,64.8,182.18,3,true,'Stone_SG_Castle','','SG_Cas'},
+  ['SG_Cas_Alas__Stone_SG_Trim']={-914.298,82.6,526.725,144.199,62.8,181.28,3,true,'Stone_SG_Trim','','SG_Cas'},
+  ['SG_Cas_Alas__Window_Warm']={-917.797,80.8,526.725,135.156,49.2,179.085,3,false,'Window_Warm','','SG_Cas'},
+  ['SG_Cas_Coroa__Metal_SG_Silver']={-960.32,210.4,488.975,25.885,7.2,25.908,3,true,'Metal_SG_Silver','','SG_Cas'},
+  ['SG_Cas_Coroa__Roof_SG_Navy']={-960.32,171.5,488.975,32.738,78.6,32.738,3,true,'Roof_SG_Navy','','SG_Cas'},
+  ['SG_Cas_Coroa__Stone_SGCasPlinth']={-960.32,107.2,488.975,34.065,110.8,34.065,3,true,'Stone_SGCasPlinth','','SG_Cas'},
+  ['SG_Cas_Coroa__Stone_SG_Castle_B']={-960.32,120.4,488.975,34.975,137.2,34.975,3,true,'Stone_SG_Castle_B','','SG_Cas'},
+  ['SG_Cas_Coroa__Stone_SG_Trim']={-960.32,138.7,488.975,33.471,103.0,33.471,3,true,'Stone_SG_Trim','','SG_Cas'},
+  ['SG_Cas_Coroa__Window_Warm']={-960.522,141.88,488.773,30.664,91.36,30.664,3,false,'Window_Warm','','SG_Cas'},
+  ['SG_Cas_Escadas__Stone_Paving_SG']={-782.804,48.2,504.571,65.016,8.0,122.686,3,false,'Stone_Paving_SG','','SG_Cas'},
+  ['SG_Cas_Escadas__Stone_SG_Block']={-782.804,48.8,504.571,65.862,9.2,124.856,3,true,'Stone_SG_Block','','SG_Cas'},
+  ['SG_Cas_Escadas__Stone_SG_Block_B']={-782.022,48.4,504.903,51.778,8.4,122.863,3,true,'Stone_SG_Block_B','','SG_Cas'},
+  ['SG_Cas_Fachada__Cloth_SG_Navy']={-856.601,79.2,532.997,14.764,16.8,34.341,3,true,'Cloth_SG_Navy','','SG_Cas'},
+  ['SG_Cas_Fachada__Glass_SG_Rose']={-857.2,101.5,532.743,7.107,17.6,16.299,3,false,'Glass_SG_Rose','','SG_Cas'},
+  ['SG_Cas_Fachada__Metal_SG_Iron']={-856.863,88.0,532.909,15.519,0.36,35.22,3,true,'Metal_SG_Iron','','SG_Cas'},
+  ['SG_Cas_Fachada__Metal_SG_Silver']={-855.75,107.0,533.359,17.522,70.4,40.86,3,true,'Metal_SG_Silver','','SG_Cas'},
+  ['SG_Cas_Fachada__Roof_SG_Navy']={-855.75,132.1,533.359,24.231,17.0,47.542,3,true,'Roof_SG_Navy','','SG_Cas'},
+  ['SG_Cas_Fachada__SG_Violet_Glow']={-856.993,101.5,532.831,2.336,4.8,4.614,3,false,'SG_Violet_Glow','','SG_Cas'},
+  ['SG_Cas_Fachada__Stone_SGCasPlinth']={-855.75,65.75,533.359,24.791,27.9,48.102,3,true,'Stone_SGCasPlinth','','SG_Cas'},
+  ['SG_Cas_Fachada__Stone_SG_Castle_B']={-855.75,87.0,533.359,23.591,70.4,46.902,3,true,'Stone_SG_Castle_B','','SG_Cas'},
+  ['SG_Cas_Fachada__Stone_SG_Trim']={-855.75,87.9,533.359,24.791,71.4,48.102,3,true,'Stone_SG_Trim','','SG_Cas'},
+  ['SG_Cas_Muralha__Metal_SG_Iron']={-814.879,70.0,550.706,6.712,1.6,14.924,3,false,'Metal_SG_Iron','','SG_Cas'},
+  ['SG_Cas_Muralha__Metal_SG_Silver']={-828.912,91.9,555.614,76.844,40.6,124.316,3,true,'Metal_SG_Silver','','SG_Cas'},
+  ['SG_Cas_Muralha__Roof_SG_Navy']={-818.043,90.7,533.286,109.909,37.8,196.839,3,true,'Roof_SG_Navy','','SG_Cas'},
+  ['SG_Cas_Muralha__Stone_SGCasPlinth']={-817.626,56.45,533.616,111.684,46.9,197.539,3,true,'Stone_SGCasPlinth','','SG_Cas'},
+  ['SG_Cas_Muralha__Stone_SG_Block']={-832.744,49.7,531.435,140.263,33.4,195.771,3,true,'Stone_SG_Block','','SG_Cas'},
+  ['SG_Cas_Muralha__Stone_SG_Block_B']={-814.523,64.3,540.094,78.068,4.2,176.269,3,true,'Stone_SG_Block_B','','SG_Cas'},
+  ['SG_Cas_Muralha__Stone_SG_Castle']={-808.608,69.6,533.866,89.878,44.8,196.839,3,true,'Stone_SG_Castle','','SG_Cas'},
+  ['SG_Cas_Muralha__Stone_SG_Castle_B']={-829.812,64.0,560.242,87.513,56.0,142.415,3,true,'Stone_SG_Castle_B','','SG_Cas'},
+  ['SG_Cas_Muralha__Stone_SG_Trim']={-832.784,69.9,532.389,141.632,36.6,197.875,3,true,'Stone_SG_Trim','','SG_Cas'},
+  ['SG_Cas_Muralha__Window_Warm']={-816.749,71.4,533.82,105.655,22.4,187.762,3,false,'Window_Warm','','SG_Cas'},
+  ['SG_Cas_Nave__Glass_SGHallMoon']={-896.045,89.9,513.98,102.241,40.2,105.376,3,false,'Glass_SGHallMoon','','SG_Cas'},
+  ['SG_Cas_Nave__Metal_SG_Silver']={-901.13,136.65,514.073,88.331,25.9,38.133,3,true,'Metal_SG_Silver','','SG_Cas'},
+  ['SG_Cas_Nave__Stone_SGCasInterior']={-901.407,82.0,513.98,123.528,60.4,121.408,3,true,'Stone_SGCasInterior','','SG_Cas'},
+  ['SG_Cas_Nave__Stone_SGCasPlinth']={-901.407,85.65,513.98,125.603,67.7,123.484,3,true,'Stone_SGCasPlinth','','SG_Cas'},
+  ['SG_Cas_Nave__Stone_SG_Castle']={-901.407,88.225,513.98,124.314,72.85,122.195,3,true,'Stone_SG_Castle','','SG_Cas'},
+  ['SG_Cas_Nave__Stone_SG_Castle_B']={-899.74,97.95,513.98,113.615,92.3,122.195,3,true,'Stone_SG_Castle_B','','SG_Cas'},
+  ['SG_Cas_Nave__Stone_SG_Trim']={-901.407,107.069,513.98,125.419,75.639,123.668,3,true,'Stone_SG_Trim','','SG_Cas'},
+  ['SG_Cas_Telhados__Metal_SG_Silver']={-910.613,151.9,510.073,56.473,17.6,24.105,3,true,'Metal_SG_Silver','','SG_Cas'},
+  ['SG_Cas_Telhados__Roof_SG_Navy']={-901.407,123.517,513.98,123.519,71.166,123.878,3,true,'Roof_SG_Navy','','SG_Cas'},
+  ['SG_Cas_Telhados__Stone_SGCasPlinth']={-901.407,126.173,513.98,61.417,3.6,45.841,3,true,'Stone_SGCasPlinth','','SG_Cas'},
+  ['SG_Cas_Telhados__Stone_SG_Castle']={-901.407,125.573,513.98,63.548,6.4,46.594,3,true,'Stone_SG_Castle','','SG_Cas'},
+  ['SG_Cas_Telhados__Stone_SG_Trim']={-901.407,135.736,513.98,62.179,22.727,46.39,3,true,'Stone_SG_Trim','','SG_Cas'},
+  ['SG_Cas_Torres__Metal_SG_Silver']={-859.064,160.6,531.952,43.266,4.4,100.461,3,true,'Metal_SG_Silver','','SG_Cas'},
+  ['SG_Cas_Torres__Roof_SG_Navy']={-900.041,138.3,517.995,143.291,40.6,146.47,3,true,'Roof_SG_Navy','','SG_Cas'},
+  ['SG_Cas_Torres__Stone_SGCasPlinth']={-899.426,53.7,518.61,144.921,3.8,148.1,3,true,'Stone_SGCasPlinth','','SG_Cas'},
+  ['SG_Cas_Torres__Stone_SG_Castle']={-899.126,91.6,518.46,144.121,72.8,148.2,3,true,'Stone_SG_Castle','','SG_Cas'},
+  ['SG_Cas_Torres__Stone_SG_Castle_B']={-899.887,91.6,518.586,144.4,72.8,146.652,3,true,'Stone_SG_Castle_B','','SG_Cas'},
+  ['SG_Cas_Torres__Stone_SG_Trim']={-899.526,112.34,518.51,144.121,50.28,147.3,3,true,'Stone_SG_Trim','','SG_Cas'},
+  ['SG_Cas_Torres__Window_Warm']={-899.811,103.44,518.225,141.827,66.48,145.005,3,false,'Window_Warm','','SG_Cas'},
+  ['SG_Vil_Fountain__Metal_SG_Silver']={-702.576,47.579,598.372,1.539,4.358,2.914,4,false,'Metal_SG_Silver','',''},
+  ['SG_Vil_Fountain__Stone_SG_Castle']={-702.576,40.86,598.372,13.896,8.68,13.896,4,true,'Stone_SG_Castle','',''},
+  ['SG_Vil_Fountain__Stone_SG_Trim']={-702.576,40.75,598.372,14.987,9.3,14.987,4,true,'Stone_SG_Trim','',''},
+  ['SG_Vil_Fountain__Water_SG']={-702.576,41.725,598.372,12.069,7.15,12.069,4,false,'Water_SG','',''},
+  ['SG_Vil_Houses_P1E__Cliff_Rock_SG_Dark']={-685.648,59.8,538.736,46.506,4.8,35.889,4,true,'Cliff_Rock_SG_Dark','','SG_Vil_Houses'},
+  ['SG_Vil_Houses_P1E__Metal_SG_Iron']={-682.096,53.85,539.555,53.367,24.9,54.481,4,true,'Metal_SG_Iron','','SG_Vil_Houses'},
+  ['SG_Vil_Houses_P1E__Plaster_SGVil']={-684.385,47.8,539.556,57.492,21.2,56.817,4,true,'Plaster_SGVil','','SG_Vil_Houses'},
+  ['SG_Vil_Houses_P1E__Roof_SG_Slate']={-684.726,52.867,539.559,60.127,22.467,59.438,4,true,'Roof_SG_Slate','','SG_Vil_Houses'},
+  ['SG_Vil_Houses_P1E__Stone_SG_Block_B']={-684.199,48.4,539.556,57.9,25.2,57.36,4,true,'Stone_SG_Block_B','','SG_Vil_Houses'},
+  ['SG_Vil_Houses_P1E__Stone_SG_Trim']={-684.195,49.1,539.556,57.644,24.6,57.097,4,true,'Stone_SG_Trim','','SG_Vil_Houses'},
+  ['SG_Vil_Houses_P1E__Window_Warm']={-683.983,46.654,539.556,56.306,15.109,54.965,4,false,'Window_Warm','','SG_Vil_Houses'},
+  ['SG_Vil_Houses_P1E__Wood_SG_Dark']={-684.586,48.194,539.557,60.276,21.989,59.741,4,true,'Wood_SG_Dark','','SG_Vil_Houses'},
+  ['SG_Vil_Houses_P1W__Cliff_Rock_SG_Dark']={-733.982,59.2,658.417,57.512,6.0,30.464,4,true,'Cliff_Rock_SG_Dark','','SG_Vil_Houses'},
+  ['SG_Vil_Houses_P1W__Metal_SG_Iron']={-734.097,51.525,663.045,63.965,20.249,38.312,4,true,'Metal_SG_Iron','','SG_Vil_Houses'},
+  ['SG_Vil_Houses_P1W__Plaster_SGVil']={-732.576,47.8,661.663,69.626,21.2,42.912,4,true,'Plaster_SGVil','','SG_Vil_Houses'},
+  ['SG_Vil_Houses_P1W__Roof_SG_Slate']={-732.4,50.187,661.485,72.611,17.106,45.918,4,true,'Roof_SG_Slate','','SG_Vil_Houses'},
+  ['SG_Vil_Houses_P1W__Stone_SG_Block']={-732.797,48.4,661.663,70.102,25.2,43.83,4,true,'Stone_SG_Block','','SG_Vil_Houses'},
+  ['SG_Vil_Houses_P1W__Stone_SG_Trim']={-732.797,49.1,661.041,69.839,24.6,42.324,4,true,'Stone_SG_Trim','','SG_Vil_Houses'},
+  ['SG_Vil_Houses_P1W__Window_Warm']={-732.673,46.335,661.663,67.438,14.47,39.982,4,false,'Window_Warm','','SG_Vil_Houses'},
+  ['SG_Vil_Houses_P1W__Wood_SG_Dark']={-732.51,48.19,661.596,72.687,21.98,45.984,4,true,'Wood_SG_Dark','','SG_Vil_Houses'},
+  ['SG_Vil_Houses_P2E__Cliff_Rock_SG_Dark']={-762.829,66.6,524.934,34.569,5.2,32.496,4,true,'Cliff_Rock_SG_Dark','','SG_Vil_Houses'},
+  ['SG_Vil_Houses_P2E__Metal_SG_Iron']={-762.635,58.988,525.082,39.916,19.176,36.047,4,true,'Metal_SG_Iron','','SG_Vil_Houses'},
+  ['SG_Vil_Houses_P2E__Plaster_SGVil']={-762.929,55.3,524.957,48.03,20.2,38.133,4,true,'Plaster_SGVil','','SG_Vil_Houses'},
+  ['SG_Vil_Houses_P2E__Roof_SG_Slate']={-762.915,57.697,524.963,51.395,16.127,40.769,4,true,'Roof_SG_Slate','','SG_Vil_Houses'},
+  ['SG_Vil_Houses_P2E__Stone_SG_Block']={-762.708,55.9,525.05,48.506,24.2,38.863,4,true,'Stone_SG_Block','','SG_Vil_Houses'},
+  ['SG_Vil_Houses_P2E__Stone_SG_Trim']={-763.096,56.6,524.428,47.469,23.6,37.357,4,true,'Stone_SG_Trim','','SG_Vil_Houses'},
+  ['SG_Vil_Houses_P2E__Window_Warm']={-762.929,54.235,524.687,46.038,14.27,35.742,4,false,'Window_Warm','','SG_Vil_Houses'},
+  ['SG_Vil_Houses_P2E__Wood_SG_Dark']={-762.922,55.696,524.959,51.237,20.992,41.064,4,true,'Wood_SG_Dark','','SG_Vil_Houses'},
+  ['SG_Vil_Houses_P2W__Cliff_Rock_SG_Dark']={-800.279,67.6,638.622,40.228,5.2,48.505,4,true,'Cliff_Rock_SG_Dark','','SG_Vil_Houses'},
+  ['SG_Vil_Houses_P2W__Metal_SG_Iron']={-803.527,59.516,634.982,46.165,20.232,53.294,4,true,'Metal_SG_Iron','','SG_Vil_Houses'},
+  ['SG_Vil_Houses_P2W__Plaster_SGVil']={-802.005,55.8,634.982,51.825,21.2,62.66,4,true,'Plaster_SGVil','','SG_Vil_Houses'},
+  ['SG_Vil_Houses_P2W__Roof_SG_Slate']={-801.824,58.189,634.986,54.817,17.111,66.021,4,true,'Roof_SG_Slate','','SG_Vil_Houses'},
+  ['SG_Vil_Houses_P2W__Stone_SG_Block_B']={-802.226,56.4,634.982,52.301,25.2,63.578,4,true,'Stone_SG_Block_B','','SG_Vil_Houses'},
+  ['SG_Vil_Houses_P2W__Stone_SG_Trim']={-802.226,57.1,634.36,52.039,24.6,62.072,4,true,'Stone_SG_Trim','','SG_Vil_Houses'},
+  ['SG_Vil_Houses_P2W__Window_Warm']={-802.103,54.474,634.982,49.637,14.748,59.731,4,false,'Window_Warm','','SG_Vil_Houses'},
+  ['SG_Vil_Houses_P2W__Wood_SG_Dark']={-801.937,56.191,634.984,54.89,21.983,65.867,4,true,'Wood_SG_Dark','','SG_Vil_Houses'},
+  ['SG_Vil_Lamps__Lantern_Glow']={-733.789,48.5,593.974,73.249,9.5,92.488,4,false,'Lantern_Glow','',''},
+  ['SG_Vil_Lamps__Metal_SG_Iron']={-733.789,46.3,593.974,74.081,18.6,93.32,4,true,'Metal_SG_Iron','',''},
+  ['SG_Vil_Lamps__Stone_SG_Block']={-733.789,40.55,593.975,73.634,8.9,92.873,4,true,'Stone_SG_Block','',''},
+  ['SG_Vil_Plaza__Stone_Paving_SG_B']={-702.576,36.11,598.372,51.998,0.32,51.998,4,false,'Stone_Paving_SG_B','',''},
+  ['SG_Vil_Plaza__Stone_SGVilCobble']={-702.576,36.2,598.372,32.799,0.2,32.799,4,true,'Stone_SGVilCobble','',''},
+  ['SG_Vil_Plaza__Stone_SG_Trim']={-702.576,36.21,598.372,51.998,0.24,51.998,4,true,'Stone_SG_Trim','',''},
+  ['SG_Vil_StairP1P2__Stone_Paving_SG']={-736.175,40.2,584.112,22.038,8.0,21.429,4,false,'Stone_Paving_SG','',''},
+  ['SG_Vil_StairP1P2__Stone_SG_Block']={-780.35,40.969,616.99,108.105,9.538,120.195,4,true,'Stone_SG_Block','',''},
+  ['SG_Vil_StairP1P2__Stone_SG_Block_B']={-778.481,40.969,620.38,107.497,9.538,117.095,4,true,'Stone_SG_Block_B','',''},
+  ['SG_Vil_Streets_P1__Stone_Paving_SG']={-710.633,36.1,589.757,88.536,0.3,197.445,4,false,'Stone_Paving_SG','',''},
+  ['SG_Vil_Streets_P1__Stone_SGVilCobble']={-710.672,36.188,589.662,85.76,0.175,196.327,4,true,'Stone_SGVilCobble','',''},
+  ['SG_Vil_Streets_P1__Stone_SG_Trim']={-710.636,36.25,589.303,88.573,0.34,196.631,4,true,'Stone_SG_Trim','',''},
+  ['SG_Vil_Streets_P2__Stone_Paving_SG']={-772.341,44.1,542.621,107.565,0.3,252.556,4,false,'Stone_Paving_SG','',''},
+  ['SG_Vil_Streets_P2__Stone_SGVilCobble']={-772.337,44.188,542.631,104.795,0.175,251.403,4,true,'Stone_SGVilCobble','',''},
+  ['SG_Vil_Streets_P2__Stone_SG_Trim']={-772.536,44.25,543.082,107.213,0.34,251.727,4,true,'Stone_SG_Trim','',''},
+  ['SG_Vil_Streets_P3__Stone_Paving_SG_B']={-813.386,52.1,492.374,93.143,0.3,127.208,4,false,'Stone_Paving_SG_B','',''},
+  ['SG_Sum_Balustrade__Stone_SG_Block']={-767.449,39.25,714.618,43.41,6.3,62.118,5,true,'Stone_SG_Block','','SG_Sum'},
+  ['SG_Sum_Balustrade__Stone_SG_Block_B']={-766.365,39.6,714.876,44.907,7.0,63.816,5,true,'Stone_SG_Block_B','','SG_Sum'},
+  ['SG_Sum_Balustrade__Stone_SG_Trim']={-766.507,41.775,714.871,45.584,8.05,64.201,5,true,'Stone_SG_Trim','','SG_Sum'},
+  ['SG_Sum_Base__Stone_Paving_SG']={-768.518,42.2,727.118,13.944,4.0,17.295,5,false,'Stone_Paving_SG','','SG_Sum'},
+  ['SG_Sum_Base__Stone_SG_Block']={-770.496,41.75,732.834,30.664,4.3,25.732,5,true,'Stone_SG_Block','','SG_Sum'},
+  ['SG_Sum_Base__Stone_SG_Block_B']={-770.969,42.35,732.198,29.719,5.5,28.479,5,true,'Stone_SG_Block_B','','SG_Sum'},
+  ['SG_Sum_Base__Stone_SG_Castle']={-770.611,42.0,733.382,28.535,2.2,24.467,5,true,'Stone_SG_Castle','','SG_Sum'},
+  ['SG_Sum_Base__Stone_SG_Floor']={-770.618,42.19,733.356,29.135,2.58,25.001,5,true,'Stone_SG_Floor','','SG_Sum'},
+  ['SG_Sum_Base__Stone_SG_Trim']={-766.571,43.365,723.553,12.783,4.19,11.714,5,false,'Stone_SG_Trim','','SG_Sum'},
+  ['SG_Sum_BaseTrim__Metal_SG_Silver']={-767.496,42.25,725.731,18.907,0.84,8.028,5,false,'Metal_SG_Silver','','SG_Sum'},
+  ['SG_Sum_BaseTrim__Stone_SG_Trim']={-770.623,43.275,733.344,29.477,0.45,25.309,5,true,'Stone_SG_Trim','','SG_Sum'},
+  ['SG_Sum_Bridge__Stone_Paving_SG_B']={-754.319,38.025,695.752,20.19,4.35,24.097,5,false,'Stone_Paving_SG_B','','SG_Sum'},
+  ['SG_Sum_Bridge__Stone_SG_Block']={-755.106,32.125,696.309,21.58,18.85,26.058,5,true,'Stone_SG_Block','','SG_Sum'},
+  ['SG_Sum_Bridge__Stone_SG_Trim']={-755.06,34.941,696.521,21.949,13.938,25.752,5,true,'Stone_SG_Trim','','SG_Sum'},
+  ['SG_Sum_FloorInlay__Stone_SG_Block']={-767.495,40.18,724.165,41.218,0.16,38.347,5,true,'Stone_SG_Block','','SG_Sum'},
+  ['SG_Sum_FloorInlay__Stone_SG_Block_B']={-767.457,40.175,725.153,41.294,0.15,40.021,5,true,'Stone_SG_Block_B','','SG_Sum'},
+  ['SG_Sum_FloorInlay__Stone_SG_Floor']={-764.136,40.175,717.233,22.892,0.15,21.729,5,true,'Stone_SG_Floor','','SG_Sum'},
+  ['SG_Sum_Sphere_Frame__Metal_SG_Silver']={-771.559,88.495,735.304,18.943,23.61,18.943,5,true,'Metal_SG_Silver','','SG_Sum'},
+  ['SG_Sum_Sphere_Frame__SG_Violet_Glow']={-771.559,97.5,735.304,1.367,1.4,1.326,5,false,'SG_Violet_Glow','','SG_Sum'},
+  ['SG_Sum_Tower_Banners__Cloth_SG_Navy']={-770.317,62.4,732.756,27.859,14.2,12.814,5,true,'Cloth_SG_Navy','','SG_Sum'},
+  ['SG_Sum_Tower_Banners__Wood_SG_Dark']={-770.087,70.0,732.917,30.02,0.6,15.543,5,true,'Wood_SG_Dark','','SG_Sum'},
+  ['SG_Sum_Tower_Glow__Lantern_Glow']={-769.644,57.95,731.785,21.744,20.9,17.475,5,false,'Lantern_Glow','','SG_Sum'},
+  ['SG_Sum_Tower_Glow__SG_SumPortal_Glow']={-771.559,57.525,735.911,14.824,26.75,11.198,5,false,'SG_SumPortal_Glow','','SG_Sum'},
+  ['SG_Sum_Tower_Glow__SG_SumStar_Glow']={-771.559,58.333,735.828,15.194,21.834,11.712,5,false,'SG_SumStar_Glow','','SG_Sum'},
+  ['SG_Sum_Tower_Glow__SG_Violet_Glow']={-771.05,59.6,734.938,7.461,31.1,13.988,5,false,'SG_Violet_Glow','','SG_Sum'},
+  ['SG_Sum_Tower_Silver__Metal_SG_Silver']={-769.654,61.895,733.435,31.965,36.79,24.054,5,true,'Metal_SG_Silver','','SG_Sum'},
+  ['SG_Sum_Tower_Stone__Metal_SG_Iron']={-768.199,48.3,727.388,20.034,2.6,9.862,5,false,'Metal_SG_Iron','','SG_Sum'},
+  ['SG_Sum_Tower_Stone__Stone_SG_Block']={-769.92,60.25,733.402,25.048,33.42,23.464,5,true,'Stone_SG_Block','','SG_Sum'},
+  ['SG_Sum_Tower_Stone__Stone_SG_Castle']={-770.225,60.48,733.708,24.044,33.96,22.46,5,true,'Stone_SG_Castle','','SG_Sum'},
+  ['SG_Sum_Tower_Stone__Stone_SG_Floor']={-769.495,60.05,733.107,24.723,33.1,23.399,5,true,'Stone_SG_Floor','','SG_Sum'},
+  ['SG_Water_Fall_East__Cliff_Rock_SG_Dark']={-661.277,35.08,460.119,3.161,0.3,1.757,6,false,'Cliff_Rock_SG_Dark','',''},
+  ['SG_Water_Fall_East__Foam']={-653.148,-15.155,446.751,30.156,102.122,26.965,6,false,'Foam','',''},
+  ['SG_Water_Fall_East__Water_Fall']={-652.666,-12.309,446.577,19.018,95.101,13.643,6,false,'Water_Fall','',''},
+  ['SG_Water_Fall_East__Water_SG']={-653.909,-12.072,449.636,22.853,95.857,22.126,6,false,'Water_SG','',''},
+  ['SG_Water_Fall_North__Cliff_Rock_SG_Dark']={-1010.168,51.08,521.595,0.717,0.3,3.224,6,false,'Cliff_Rock_SG_Dark','',''},
+  ['SG_Water_Fall_North__Foam']={-1026.264,-7.511,519.651,32.547,117.954,39.532,6,false,'Foam','',''},
+  ['SG_Water_Fall_North__Water_Fall']={-1028.701,-4.274,521.483,19.182,111.158,17.191,6,false,'Water_Fall','',''},
+  ['SG_Water_Fall_North__Water_SG']={-1023.971,-4.227,519.429,28.506,111.546,28.091,6,false,'Water_SG','',''},
+  ['SG_Water_Fall_South__Cliff_Rock_SG']={-655.593,28.082,646.652,13.644,15.764,5.365,6,false,'Cliff_Rock_SG','',''},
+  ['SG_Water_Fall_South__Cliff_Rock_SG_Dark']={-655.534,31.5,645.367,5.193,3.8,2.848,6,false,'Cliff_Rock_SG_Dark','',''},
+  ['SG_Water_Fall_South__Cliff_Rock_SG_Top']={-655.646,34.707,646.234,13.294,3.014,4.358,6,false,'Cliff_Rock_SG_Top','',''},
+  ['SG_Water_Fall_South__Foam']={-656.473,-17.448,652.562,29.659,95.48,11.516,6,false,'Foam','',''},
+  ['SG_Water_Fall_South__Water_Fall']={-656.186,-14.896,651.671,12.602,89.882,4.053,6,false,'Water_Fall','',''},
+  ['SG_Water_Fall_South__Water_SG']={-655.426,-14.868,649.672,19.973,90.275,7.77,6,false,'Water_SG','',''},
+  ['SG_Water_Fall_West__Cliff_Rock_SG_Dark']={-819.889,43.08,680.245,3.161,0.3,1.757,6,false,'Cliff_Rock_SG_Dark','',''},
+  ['SG_Water_Fall_West__Foam']={-823.592,-11.239,689.093,35.291,109.411,18.679,6,false,'Foam','',''},
+  ['SG_Water_Fall_West__Water_Fall']={-825.292,-8.27,688.257,18.466,103.168,10.961,6,false,'Water_Fall','',''},
+  ['SG_Water_Fall_West__Water_SG']={-822.596,-8.227,686.838,24.672,103.546,14.346,6,false,'Water_SG','',''},
+  ['SG_Exit_AnchorGuard__P_DS_Black']={-683.604,45.7,323.322,16.673,3.0,7.348,7,false,'P_DS_Black','','SG_Exit_AnchorGuard'},
+  ['SG_Exit_Bridge__Cliff_Rock_SG']={-690.594,28.978,342.963,40.821,23.045,40.518,7,false,'Cliff_Rock_SG','',''},
+  ['SG_Exit_Bridge__Cliff_Rock_SG_C']={-686.706,33.822,339.738,24.015,13.356,24.527,7,false,'Cliff_Rock_SG_C','',''},
+  ['SG_Exit_Bridge__Cliff_Rock_SG_Dark']={-697.202,-1.75,362.837,54.037,84.5,85.616,7,false,'Cliff_Rock_SG_Dark','',''},
+  ['SG_Exit_Bridge__Stone_Paving_SG']={-700.08,44.025,370.078,60.046,0.35,103.156,7,false,'Stone_Paving_SG','',''},
+  ['SG_Exit_Bridge__Stone_Paving_SG_B']={-713.884,44.025,391.01,34.703,0.35,55.954,7,false,'Stone_Paving_SG_B','',''},
+  ['SG_Exit_Bridge__Stone_SG_Block']={-703.1,12.925,373.141,65.386,61.85,108.583,7,true,'Stone_SG_Block','',''},
+  ['SG_Exit_Bridge__Stone_SG_Floor']={-701.804,43.835,373.139,61.124,0.77,98.13,7,true,'Stone_SG_Floor','',''},
+  ['SG_Exit_Bridge__Stone_SG_Trim']={-701.99,22.72,371.01,64.365,43.04,105.02,7,true,'Stone_SG_Trim','',''},
+  ['SG_Exit_Head__Lantern_Glow']={-725.136,51.85,421.173,16.514,1.2,7.613,7,false,'Lantern_Glow','',''},
+  ['SG_Exit_Head__Metal_SG_Iron']={-725.136,57.535,421.173,22.755,12.93,10.04,7,true,'Metal_SG_Iron','',''},
+  ['SG_Exit_Head__Roof_SG_Slate']={-725.136,60.4,421.173,26.419,4.2,13.704,7,true,'Roof_SG_Slate','',''},
+  ['SG_Exit_Head__Stone_Paving_SG']={-725.937,44.065,423.06,27.829,0.33,18.981,7,false,'Stone_Paving_SG','',''},
+  ['SG_Exit_Head__Stone_SG_Block_B']={-725.136,44.5,421.173,27.506,1.6,14.79,7,true,'Stone_SG_Block_B','',''},
+  ['SG_Exit_Head__Stone_SG_Castle_B']={-725.136,52.05,421.173,26.04,11.9,13.325,7,true,'Stone_SG_Castle_B','',''},
+  ['SG_Exit_Head__Stone_SG_Trim']={-725.987,51.1,423.383,29.566,14.4,20.173,7,true,'Stone_SG_Trim','',''},
+  ['SG_Exit_Rails__Lantern_Glow']={-707.711,48.8,380.118,15.949,1.3,7.261,7,false,'Lantern_Glow','',''},
+  ['SG_Exit_Rails__P_DS_Black']={-694.509,49.305,352.213,48.709,4.51,67.203,7,false,'P_DS_Black','',''},
+  ['SG_Exit_Rails__Stone_SG_Block']={-698.332,44.275,372.001,56.637,4.75,101.343,7,true,'Stone_SG_Block','',''},
+  ['SG_Exit_Rails__Stone_SG_Block_B']={-701.75,43.875,367.385,63.441,3.95,95.572,7,true,'Stone_SG_Block_B','',''},
+  ['SG_Exit_Rails__Stone_SG_Castle_B']={-696.018,45.75,352.213,45.234,2.6,66.744,7,false,'Stone_SG_Castle_B','',''},
+  ['SG_Exit_Rails__Stone_SG_Trim']={-701.773,45.725,370.66,63.718,3.75,104.163,7,true,'Stone_SG_Trim','',''},
+  ['SG_Exit_Rails__Wood_Lacquer_Red']={-694.226,48.5,352.162,47.933,6.7,65.962,7,false,'Wood_Lacquer_Red','',''},
+  ['GATE_DemonSlayer_Barrier__Energy_Core_DemonSlayer_Glow']={-694.413,53.086,348.74,12.528,13.19,6.375,8,false,'Energy_Core_DemonSlayer_Glow','','GATE_DemonSlayer'},
+  ['GATE_DemonSlayer_Barrier__P_DS_Glow']={-694.388,53.2,348.729,14.924,18.0,6.712,8,false,'P_DS_Glow','','GATE_DemonSlayer'},
+  ['GATE_DemonSlayer_Frame__Lantern_Glow']={-695.612,54.84,352.406,28.727,13.52,19.689,8,false,'Lantern_Glow','','GATE_DemonSlayer'},
+  ['GATE_DemonSlayer_Frame__Leaf_GateDS_Wisteria']={-694.42,66.025,348.643,29.262,2.904,18.175,8,false,'Leaf_GateDS_Wisteria','','GATE_DemonSlayer'},
+  ['GATE_DemonSlayer_Frame__Metal_GateDS_Blade']={-696.505,62.299,351.08,31.035,20.257,18.659,8,false,'Metal_GateDS_Blade','','GATE_DemonSlayer'},
+  ['GATE_DemonSlayer_Frame__Metal_Gold']={-695.763,60.535,349.379,33.54,28.03,24.643,8,false,'Metal_Gold','','GATE_DemonSlayer'},
+  ['GATE_DemonSlayer_Frame__P_DS_Black']={-696.249,58.125,349.19,34.143,27.85,23.744,8,false,'P_DS_Black','','GATE_DemonSlayer'},
+  ['GATE_DemonSlayer_Frame__Plaster_Cream']={-694.388,68.25,348.729,18.316,3.3,8.302,8,false,'Plaster_Cream','','GATE_DemonSlayer'},
+  ['GATE_DemonSlayer_Frame__Roof_Blue']={-695.192,60.658,349.946,31.108,21.625,26.149,8,false,'Roof_Blue','','GATE_DemonSlayer'},
+  ['GATE_DemonSlayer_Frame__Stone_Dark']={-693.331,44.35,346.016,24.542,1.5,17.628,8,false,'Stone_Dark','','GATE_DemonSlayer'},
+  ['GATE_DemonSlayer_Frame__Stone_Wall_Dark']={-695.814,46.725,352.089,38.257,6.25,26.124,8,false,'Stone_Wall_Dark','','GATE_DemonSlayer'},
+  ['GATE_DemonSlayer_Frame__Stone_Wall_Light']={-696.224,46.575,351.762,34.618,5.95,21.474,8,false,'Stone_Wall_Light','','GATE_DemonSlayer'},
+  ['GATE_DemonSlayer_Frame__Wood_Dark']={-694.388,68.4,348.729,29.374,3.6,18.354,8,false,'Wood_Dark','','GATE_DemonSlayer'},
+  ['GATE_DemonSlayer_Frame__Wood_Lacquer_Red']={-696.505,55.85,349.263,33.195,21.5,23.609,8,false,'Wood_Lacquer_Red','','GATE_DemonSlayer'},
+  ['GATE_DemonSlayer_Lock__Energy_Core_DemonSlayer_Glow']={-694.388,52.48,348.729,4.059,3.4,2.628,8,false,'Energy_Core_DemonSlayer_Glow','','GATE_DemonSlayer'},
+  ['GATE_DemonSlayer_Lock__Metal_Dark']={-694.388,52.28,348.729,1.476,1.0,2.589,8,false,'Metal_Dark','','GATE_DemonSlayer'},
+  ['GATE_DemonSlayer_Lock__Metal_Gold']={-694.388,53.443,348.729,3.844,4.625,3.367,8,false,'Metal_Gold','','GATE_DemonSlayer'},
+  ['SG_Prop_Plaza__Lantern_Glow']={-702.576,44.5,598.372,44.877,1.5,44.877,9,false,'Lantern_Glow','',''},
+  ['SG_Prop_Plaza__Metal_SG_Iron']={-702.576,42.3,598.372,45.71,10.6,45.71,9,true,'Metal_SG_Iron','',''},
+  ['SG_Prop_Plaza__Stone_SG_Block']={-702.576,36.772,598.372,48.051,1.345,45.263,9,true,'Stone_SG_Block','',''},
+  ['SG_Prop_Plaza__Stone_SG_Trim']={-702.576,37.66,598.372,48.353,0.42,40.527,9,true,'Stone_SG_Trim','',''},
+  ['SG_Prop_RouteLamps__Lantern_Glow']={-733.331,48.5,565.765,140.981,9.5,148.155,9,false,'Lantern_Glow','',''},
+  ['SG_Prop_RouteLamps__Metal_SG_Iron']={-733.331,46.3,565.765,141.814,18.6,148.988,9,true,'Metal_SG_Iron','',''},
+  ['SG_Prop_RouteLamps__Stone_SG_Block']={-733.331,40.55,565.765,141.367,8.9,148.54,9,true,'Stone_SG_Block','',''},
+  ['SG_Veg_Pines_East__Grass_SG']={-787.655,34.478,410.282,0.609,0.812,0.571,10,false,'Grass_SG','',''},
+  ['SG_Veg_Pines_East__Leaf_SGVegMoon']={-779.512,44.985,413.008,24.025,14.471,7.748,10,false,'Leaf_SGVegMoon','',''},
+  ['SG_Veg_Pines_East__Leaf_SGVegShade']={-779.175,40.697,412.376,28.401,14.388,12.16,10,false,'Leaf_SGVegShade','',''},
+  ['SG_Veg_Pines_East__Leaf_SG_Pine']={-779.175,42.351,412.376,28.401,17.697,12.16,10,false,'Leaf_SG_Pine','',''},
+  ['SG_Veg_Pines_East__Wood_SG_Dark']={-778.244,37.72,413.066,22.085,8.273,6.021,10,false,'Wood_SG_Dark','',''},
+  ['SG_Veg_Pines_North__Grass_SG']={-990.035,34.693,533.126,49.908,1.339,153.017,10,false,'Grass_SG','',''},
+  ['SG_Veg_Pines_North__Leaf_SGVegMoon']={-989.504,65.71,532.447,53.187,55.553,159.96,10,false,'Leaf_SGVegMoon','',''},
+  ['SG_Veg_Pines_North__Leaf_SGVegShade']={-989.653,61.332,532.86,59.027,55.846,162.357,10,false,'Leaf_SGVegShade','',''},
+  ['SG_Veg_Pines_North__Leaf_SG_Pine_g8_11']={-989.567,62.948,577.434,59.2,59.079,73.208,10,false,'Leaf_SG_Pine','',''},
+  ['SG_Veg_Pines_North__Leaf_SG_Pine_g8_12']={-998.611,43.702,480.426,28.849,20.195,57.488,10,false,'Leaf_SG_Pine','',''},
+  ['SG_Veg_Pines_North__Wood_SG_Dark']={-988.209,58.453,533.023,50.816,49.758,156.653,10,true,'Wood_SG_Dark','',''},
+  ['SG_Veg_Pines_NorthE__Grass_SG']={-958.803,34.715,430.308,58.435,1.368,44.562,10,false,'Grass_SG','',''},
+  ['SG_Veg_Pines_NorthE__Leaf_SGVegMoon']={-936.363,61.104,428.692,103.96,43.703,46.524,10,false,'Leaf_SGVegMoon','',''},
+  ['SG_Veg_Pines_NorthE__Leaf_SGVegShade']={-935.754,56.387,429.146,108.795,46.72,51.454,10,false,'Leaf_SGVegShade','',''},
+  ['SG_Veg_Pines_NorthE__Leaf_SG_Pine']={-935.754,57.609,429.146,108.795,49.165,51.454,10,false,'Leaf_SG_Pine','',''},
+  ['SG_Veg_Pines_NorthE__Wood_SG_Dark']={-935.706,54.388,428.694,103.341,41.612,44.276,10,true,'Wood_SG_Dark','',''},
+  ['SG_Veg_Pines_South__Grass_SG']={-661.238,31.699,649.466,106.927,11.319,95.347,10,false,'Grass_SG','',''},
+  ['SG_Veg_Pines_South__Leaf_SGVegMoon']={-660.947,43.089,644.698,109.833,26.836,107.09,10,false,'Leaf_SGVegMoon','',''},
+  ['SG_Veg_Pines_South__Leaf_SGVegShade']={-660.485,37.943,644.367,113.586,24.318,109.981,10,false,'Leaf_SGVegShade','',''},
+  ['SG_Veg_Pines_South__Leaf_SG_Pine']={-660.485,40.515,644.367,113.586,29.682,109.981,10,false,'Leaf_SG_Pine','',''},
+  ['SG_Veg_Pines_South__Wood_SG_Dark']={-660.071,35.204,644.33,108.413,19.23,104.274,10,true,'Wood_SG_Dark','',''},
+  ['SG_Veg_Pines_SouthE__Grass_SG']={-642.463,35.775,527.427,18.527,3.976,125.452,10,false,'Grass_SG','',''},
+  ['SG_Veg_Pines_SouthE__Leaf_SGVegMoon']={-663.181,47.372,516.813,60.812,14.178,151.553,10,false,'Leaf_SGVegMoon','',''},
+  ['SG_Veg_Pines_SouthE__Leaf_SGVegShade']={-662.503,41.569,517.547,65.576,16.378,155.868,10,false,'Leaf_SGVegShade','',''},
+  ['SG_Veg_Pines_SouthE__Leaf_SG_Pine']={-662.503,43.347,517.547,65.576,19.933,155.868,10,false,'Leaf_SG_Pine','',''},
+  ['SG_Veg_Pines_SouthE__Wood_SG_Dark']={-663.356,38.396,516.326,59.299,10.172,148.443,10,true,'Wood_SG_Dark','',''},
+  ['SG_Veg_Pines_VillageE__Grass_SG']={-750.017,48.557,488.3,87.422,9.057,138.873,10,false,'Grass_SG','',''},
+  ['SG_Veg_Pines_VillageE__Leaf_SGVegMoon']={-750.266,60.566,487.884,90.251,25.216,139.068,10,false,'Leaf_SGVegMoon','',''},
+  ['SG_Veg_Pines_VillageE__Leaf_SGVegShade']={-749.626,55.732,486.763,96.887,24.886,141.31,10,false,'Leaf_SGVegShade','',''},
+  ['SG_Veg_Pines_VillageE__Leaf_SG_Pine']={-749.626,57.638,486.763,96.887,28.698,141.31,10,false,'Leaf_SG_Pine','',''},
+  ['SG_Veg_Pines_VillageE__Stone_SG_Trim']={-792.209,52.33,427.333,3.8,0.42,3.8,10,false,'Stone_SG_Trim','',''},
+  ['SG_Veg_Pines_VillageE__Wood_SG_Dark']={-748.881,52.347,487.882,88.622,17.526,136.826,10,true,'Wood_SG_Dark','',''},
+  ['SG_Veg_Pines_VillageS__Grass_SG']={-719.22,36.73,568.106,102.619,1.39,214.302,10,false,'Grass_SG','',''},
+  ['SG_Veg_Pines_VillageS__Leaf_SGVegMoon']={-719.84,49.377,568.082,102.987,13.698,216.643,10,false,'Leaf_SGVegMoon','',''},
+  ['SG_Veg_Pines_VillageS__Leaf_SGVegShade']={-719.136,43.629,568.081,109.021,16.439,220.498,10,false,'Leaf_SGVegShade','',''},
+  ['SG_Veg_Pines_VillageS__Leaf_SG_Pine']={-719.136,45.251,568.081,109.021,19.683,220.498,10,false,'Leaf_SG_Pine','',''},
+  ['SG_Veg_Pines_VillageS__Stone_SG_Trim']={-719.22,36.33,567.911,103.379,0.42,214.673,10,true,'Stone_SG_Trim','',''},
+  ['SG_Veg_Pines_VillageS__Wood_SG_Dark']={-719.226,40.146,567.804,101.221,9.129,212.683,10,true,'Wood_SG_Dark','',''},
+  ['SG_Veg_Pines_VillageW__Grass_SG']={-809.058,44.711,616.93,83.117,1.367,74.402,10,false,'Grass_SG','',''},
+  ['SG_Veg_Pines_VillageW__Leaf_SGVegMoon']={-808.455,56.956,617.557,84.393,18.161,78.889,10,false,'Leaf_SGVegMoon','',''},
+  ['SG_Veg_Pines_VillageW__Leaf_SGVegShade']={-809.21,52.722,617.727,88.656,18.334,83.402,10,false,'Leaf_SGVegShade','',''},
+  ['SG_Veg_Pines_VillageW__Leaf_SG_Pine']={-809.21,54.178,617.727,88.656,21.245,83.402,10,false,'Leaf_SG_Pine','',''},
+  ['SG_Veg_Pines_VillageW__Wood_SG_Dark']={-807.781,48.531,618.159,82.964,9.896,76.098,10,true,'Wood_SG_Dark','',''},
+  ['SG_Veg_Pines_West__Grass_SG']={-906.174,35.994,633.157,96.38,3.938,51.521,10,false,'Grass_SG','',''},
+  ['SG_Veg_Pines_West__Leaf_SGVegMoon']={-907.36,48.501,633.839,101.89,22.184,59.383,10,false,'Leaf_SGVegMoon','',''},
+  ['SG_Veg_Pines_West__Leaf_SGVegShade']={-907.219,43.303,633.209,106.482,22.118,64.121,10,false,'Leaf_SGVegShade','',''},
+  ['SG_Veg_Pines_West__Leaf_SG_Pine']={-907.219,45.2,633.209,106.482,25.911,64.121,10,false,'Leaf_SG_Pine','',''},
+  ['SG_Veg_Pines_West__Wood_SG_Dark']={-905.874,39.779,633.708,99.605,12.41,57.565,10,true,'Wood_SG_Dark','',''},
+  ['VFX_GATE_DemonSlayer_Tsuba_1__Metal_Gold']={-708.035,59.8,347.608,2.695,2.8,1.45,11,false,'Metal_Gold','',''},
+  ['VFX_GATE_DemonSlayer_Tsuba_1__P_DS_Glow']={-708.035,59.8,347.608,2.376,2.36,1.401,11,false,'P_DS_Glow','',''},
+  ['VFX_GATE_DemonSlayer_Tsuba_2__Metal_Gold']={-709.123,55.0,351.708,2.695,2.8,1.45,11,false,'Metal_Gold','',''},
+  ['VFX_GATE_DemonSlayer_Tsuba_2__P_DS_Glow']={-709.123,55.0,351.708,2.376,2.36,1.401,11,false,'P_DS_Glow','',''},
+  ['VFX_GATE_DemonSlayer_Tsuba_3__Metal_Gold']={-686.294,55.3,361.398,2.695,2.8,1.45,11,false,'Metal_Gold','',''},
+  ['VFX_GATE_DemonSlayer_Tsuba_3__P_DS_Glow']={-686.294,55.3,361.398,2.376,2.36,1.401,11,false,'P_DS_Glow','',''},
+  ['VFX_GATE_DemonSlayer_Tsuba_4__Metal_Gold']={-684.101,60.1,357.766,2.695,2.8,1.45,11,false,'Metal_Gold','',''},
+  ['VFX_GATE_DemonSlayer_Tsuba_4__P_DS_Glow']={-684.101,60.1,357.766,2.376,2.36,1.401,11,false,'P_DS_Glow','',''},
+  ['VFX_SGDUN_Portal__SG_Violet_Glow']={-855.634,59.84,424.565,4.123,10.066,9.359,11,false,'SG_Violet_Glow','',''},
+  ['VFX_SGSUM_Ring_1__Metal_SG_Silver']={-771.559,86.2,735.304,23.662,7.267,23.151,11,true,'Metal_SG_Silver','',''},
+  ['VFX_SGSUM_Ring_1__SG_SumStar_Glow']={-771.559,86.278,735.282,23.241,7.818,22.255,11,false,'SG_SumStar_Glow','',''},
+  ['VFX_SGSUM_Ring_2__Metal_SG_Silver']={-771.56,86.2,735.304,17.275,17.32,2.806,11,true,'Metal_SG_Silver','',''},
+  ['VFX_SGSUM_Ring_2__SG_SumStar_Glow']={-771.527,86.2,735.363,12.925,13.023,3.017,11,false,'SG_SumStar_Glow','',''},
+  ['VFX_SGSUM_Ring_3__Metal_SG_Silver']={-771.559,86.2,735.304,8.826,13.37,15.313,11,true,'Metal_SG_Silver','',''},
+  ['VFX_SGSUM_Ring_3__SG_SumStar_Glow']={-771.562,86.18,735.277,8.263,10.223,12.199,11,false,'SG_SumStar_Glow','',''},
+  ['VFX_SGSUM_Star__SG_SumStar_Glow']={-771.559,86.83,735.304,11.908,11.94,5.733,11,false,'SG_SumStar_Glow','',''},
+  ['VFX_SGSUM_Star__SG_Violet_Glow']={-771.559,86.83,735.304,11.908,11.94,5.733,11,false,'SG_Violet_Glow','',''},
+  ['SG_Craft_Cauldron__Lantern_Glow']={-730.008,44.96,488.958,2.144,0.12,2.192,12,false,'Lantern_Glow','','SG_Craft'},
+  ['SG_Craft_Cauldron__Metal_SG_Iron']={-730.008,46.204,488.958,5.165,3.312,4.941,12,false,'Metal_SG_Iron','','SG_Craft'},
+  ['SG_Craft_Cauldron__SG_Violet_Glow']={-730.008,47.64,488.958,3.985,0.504,3.985,12,false,'SG_Violet_Glow','','SG_Craft'},
+  ['SG_Craft_Cauldron__Stone_SG_Trim']={-730.008,44.375,488.958,5.8,0.55,5.8,12,false,'Stone_SG_Trim','','SG_Craft'},
+  ['SG_Craft_Cauldron__Wood_SG_Dark']={-730.703,48.2,487.142,0.851,2.143,1.525,12,false,'Wood_SG_Dark','','SG_Craft'},
+  ['SG_Craft_Dome__Metal_SG_Silver']={-730.008,66.69,488.958,24.516,11.821,24.516,12,true,'Metal_SG_Silver','','SG_Craft'},
+  ['SG_Craft_Dome__Roof_SG_Navy']={-730.008,65.3,488.958,25.409,9.0,25.409,12,true,'Roof_SG_Navy','','SG_Craft'},
+  ['SG_Craft_Dome__Stone_SG_Castle_B']={-730.008,70.4,488.958,5.4,3.2,5.4,12,false,'Stone_SG_Castle_B','','SG_Craft'},
+  ['SG_Craft_Dome__Stone_SG_Trim']={-730.008,70.4,488.958,5.905,3.2,5.905,12,false,'Stone_SG_Trim','','SG_Craft'},
+  ['SG_Craft_Dome__Window_Warm']={-730.008,70.525,488.958,5.052,1.65,5.052,12,false,'Window_Warm','','SG_Craft'},
+  ['SG_Craft_Flask__Glass_SG_Rose']={-730.008,79.721,488.958,7.958,7.923,8.007,12,false,'Glass_SG_Rose','','SG_Craft'},
+  ['SG_Craft_Flask__Metal_SG_Silver']={-730.008,79.158,488.958,7.904,13.449,7.891,12,true,'Metal_SG_Silver','','SG_Craft'},
+  ['SG_Craft_Flask__SG_Violet_Glow']={-730.008,73.85,488.958,7.918,3.7,7.967,12,false,'SG_Violet_Glow','','SG_Craft'},
+  ['SG_Craft_Furnishings__Cloth_Canvas']={-730.008,47.644,489.796,20.44,6.932,15.351,12,true,'Cloth_Canvas','','SG_Craft'},
+  ['SG_Craft_Furnishings__Cloth_SGCraftBook']={-730.007,48.135,488.94,20.494,7.77,18.536,12,true,'Cloth_SGCraftBook','','SG_Craft'},
+  ['SG_Craft_Furnishings__Cloth_SG_Navy']={-730.009,48.085,489.057,20.475,7.67,18.302,12,true,'Cloth_SG_Navy','','SG_Craft'},
+  ['SG_Craft_Furnishings__Glass_SGCraftAmber']={-730.099,48.24,487.755,20.197,7.08,18.312,12,false,'Glass_SGCraftAmber','','SG_Craft'},
+  ['SG_Craft_Furnishings__Glass_SGCraftPale']={-730.008,51.35,487.804,20.937,13.3,18.63,12,false,'Glass_SGCraftPale','','SG_Craft'},
+  ['SG_Craft_Furnishings__Glass_SGCraftSage']={-729.718,48.24,488.06,19.878,7.08,17.517,12,false,'Glass_SGCraftSage','','SG_Craft'},
+  ['SG_Craft_Furnishings__Glass_SG_Rose']={-730.687,49.304,487.901,18.506,3.927,12.862,12,false,'Glass_SG_Rose','','SG_Craft'},
+  ['SG_Craft_Furnishings__Lantern_Glow']={-734.807,52.44,492.71,13.428,9.32,25.59,12,false,'Lantern_Glow','','SG_Craft'},
+  ['SG_Craft_Furnishings__Leather']={-730.003,48.341,488.018,20.471,7.358,16.458,12,true,'Leather','','SG_Craft'},
+  ['SG_Craft_Furnishings__Metal_Brass']={-728.627,49.055,480.328,2.388,2.39,1.747,12,false,'Metal_Brass','','SG_Craft'},
+  ['SG_Craft_Furnishings__Metal_SG_Iron']={-730.673,55.44,491.961,22.089,22.52,27.481,12,true,'Metal_SG_Iron','','SG_Craft'},
+  ['SG_Craft_Furnishings__Metal_SG_Silver']={-730.839,45.79,487.029,12.176,1.58,11.879,12,false,'Metal_SG_Silver','','SG_Craft'},
+  ['SG_Craft_Furnishings__Stone_SG_Trim']={-730.008,52.75,487.908,20.942,11.1,18.843,12,true,'Stone_SG_Trim','','SG_Craft'},
+  ['SG_Craft_Furnishings__Wood_SG_Dark']={-730.008,48.47,487.861,20.883,8.54,19.657,12,true,'Wood_SG_Dark','','SG_Craft'},
+  ['SG_Craft_Interior__Stone_SG_Floor']={-730.008,55.8,488.958,21.637,23.8,21.637,12,false,'Stone_SG_Floor','','SG_Craft'},
+  ['SG_Craft_Interior__Stone_SG_Trim']={-730.008,55.672,488.958,20.943,23.545,20.943,12,false,'Stone_SG_Trim','','SG_Craft'},
+  ['SG_Craft_Shell__Metal_SG_Silver']={-735.356,64.625,501.251,1.727,7.85,1.487,12,false,'Metal_SG_Silver','','SG_Craft'},
+  ['SG_Craft_Shell__Stone_SG_Block']={-730.008,44.45,489.839,28.101,1.3,29.862,12,true,'Stone_SG_Block','','SG_Craft'},
+  ['SG_Craft_Shell__Stone_SG_Castle']={-730.008,51.85,489.159,27.525,15.9,27.761,12,true,'Stone_SG_Castle','','SG_Craft'},
+  ['SG_Craft_Shell__Stone_SG_Castle_B']={-730.237,55.15,489.952,25.471,22.5,29.513,12,true,'Stone_SG_Castle_B','','SG_Craft'},
+  ['SG_Craft_Shell__Stone_SG_Trim']={-730.008,55.439,489.964,27.822,23.079,29.835,12,true,'Stone_SG_Trim','','SG_Craft'},
+  ['SG_Craft_Shell__Window_Warm']={-730.008,55.5,487.504,25.121,5.0,22.214,12,false,'Window_Warm','','SG_Craft'},
+  ['SG_Dun_House_Body__Metal_SG_Silver']={-847.609,95.65,428.18,34.349,51.5,34.37,13,true,'Metal_SG_Silver','','SG_Dun'},
+  ['SG_Dun_House_Body__Roof_SG_Navy']={-847.609,89.1,428.18,43.091,56.2,43.091,13,true,'Roof_SG_Navy','','SG_Dun'},
+  ['SG_Dun_House_Body__Stone_SGDunVault']={-848.62,58.55,428.18,29.398,10.1,31.421,13,true,'Stone_SGDunVault','','SG_Dun'},
+  ['SG_Dun_House_Body__Stone_SG_Block']={-847.609,52.6,428.18,41.509,1.8,41.509,13,true,'Stone_SG_Block','','SG_Dun'},
+  ['SG_Dun_House_Body__Stone_SG_Castle']={-847.609,73.85,428.18,40.767,44.3,40.767,13,true,'Stone_SG_Castle','','SG_Dun'},
+  ['SG_Dun_House_Body__Stone_SG_Castle_B']={-847.398,73.85,428.18,33.67,44.3,33.248,13,true,'Stone_SG_Castle_B','','SG_Dun'},
+  ['SG_Dun_House_Body__Stone_SG_Trim']={-847.609,72.5,428.18,41.88,40.6,41.88,13,true,'Stone_SG_Trim','','SG_Dun'},
+  ['SG_Dun_House_Body__Window_Warm']={-848.507,83.75,428.18,27.28,23.1,29.077,13,false,'Window_Warm','','SG_Dun'},
+  ['SG_Dun_House_Interior__Lantern_Glow']={-840.209,58.845,431.291,20.861,5.81,19.797,13,false,'Lantern_Glow','','SG_Dun'},
+  ['SG_Dun_House_Interior__Metal_SG_Iron']={-840.203,58.087,431.049,21.371,5.995,20.802,13,false,'Metal_SG_Iron','','SG_Dun'},
+  ['SG_Dun_House_Interior__Metal_SG_Silver']={-850.751,56.692,426.863,6.421,3.975,14.097,13,false,'Metal_SG_Silver','','SG_Dun'},
+  ['SG_Dun_House_Interior__Stone_SGDunStatue']={-852.148,58.707,426.256,8.911,8.015,16.833,13,false,'Stone_SGDunStatue','','SG_Dun'},
+  ['SG_Dun_House_Interior__Stone_SGDunVault']={-847.609,63.575,428.18,26.224,21.15,26.224,13,false,'Stone_SGDunVault','','SG_Dun'},
+  ['SG_Dun_House_Interior__Stone_SG_Block']={-847.609,51.875,428.18,26.224,0.45,26.224,13,false,'Stone_SG_Block','','SG_Dun'},
+  ['SG_Dun_House_Interior__Stone_SG_Castle_B']={-847.609,59.275,428.18,26.224,13.05,26.224,13,false,'Stone_SG_Castle_B','','SG_Dun'},
+  ['SG_Dun_House_Interior__Stone_SG_Floor']={-847.609,52.425,428.18,26.224,1.15,26.224,13,false,'Stone_SG_Floor','','SG_Dun'},
+  ['SG_Dun_House_Interior__Stone_SG_Trim']={-847.205,62.85,428.18,27.032,22.1,26.224,13,false,'Stone_SG_Trim','','SG_Dun'},
+  ['SG_Dun_House_Portal__Metal_SG_Silver']={-854.862,60.002,425.101,5.123,13.397,11.678,13,true,'Metal_SG_Silver','','SG_Dun'},
+  ['SG_Dun_House_Portal__SG_DunVoid_Glow']={-855.893,59.6,424.663,4.521,11.1,10.296,13,false,'SG_DunVoid_Glow','','SG_Dun'},
+  ['SG_Dun_House_Portal__Stone_SG_Castle_B']={-855.64,59.6,424.771,6.344,14.0,13.258,13,true,'Stone_SG_Castle_B','','SG_Dun'},
+  ['SG_Dun_House_Portal__Stone_SG_Trim']={-855.479,60.3,424.839,6.12,14.0,12.106,13,true,'Stone_SG_Trim','','SG_Dun'},
+  ['SG_Dun_R3_ExitSpiral__SG_Violet_Glow']={-868.891,12.242,456.951,8.455,9.399,3.74,13,false,'SG_Violet_Glow','','SG_Dun'},
+  ['SG_Dun_Rooms_Floor__Metal_SG_Silver']={-876.852,5.8,476.603,6.4,0.4,6.4,13,false,'Metal_SG_Silver','','SG_Dun'},
+  ['SG_Dun_Rooms_Floor__Stone_SGDunVault']={-876.852,5.8,476.603,13.999,0.4,13.999,13,true,'Stone_SGDunVault','','SG_Dun'},
+  ['SG_Dun_Rooms_Floor__Stone_SG_Block_B']={-891.421,5.625,514.483,86.831,0.45,133.454,13,true,'Stone_SG_Block_B','','SG_Dun'},
+  ['SG_Dun_Rooms_Floor__Stone_SG_Floor']={-891.421,5.8,514.483,86.831,0.4,133.454,13,true,'Stone_SG_Floor','','SG_Dun'},
+  ['SG_Dun_Rooms_Floor__Stone_SG_Trim']={-891.421,5.805,514.483,84.209,0.41,130.832,13,true,'Stone_SG_Trim','','SG_Dun'},
+  ['SG_Dun_Rooms_Iron__Lantern_Glow']={-894.048,19.125,515.264,67.32,8.95,120.414,13,false,'Lantern_Glow','','SG_Dun'},
+  ['SG_Dun_Rooms_Iron__Metal_SG_Iron']={-894.307,19.865,515.264,68.335,13.87,121.901,13,true,'Metal_SG_Iron','','SG_Dun'},
+  ['SG_Dun_Rooms_Kit__Metal_SG_Silver']={-894.825,21.4,518.946,21.382,2.6,45.753,13,true,'Metal_SG_Silver','','SG_Dun'},
+  ['SG_Dun_Rooms_Kit__Stone_SGDunVault']={-891.421,15.55,514.483,84.331,17.3,130.954,13,true,'Stone_SGDunVault','','SG_Dun'},
+  ['SG_Dun_Rooms_Kit__Stone_SG_Castle']={-894.051,12.0,514.483,81.57,10.2,133.454,13,true,'Stone_SG_Castle','','SG_Dun'},
+  ['SG_Dun_Rooms_Kit__Stone_SG_Castle_B']={-889.37,12.0,515.264,82.729,10.2,126.422,13,true,'Stone_SG_Castle_B','','SG_Dun'},
+  ['SG_Dun_Rooms_Kit__Stone_SG_Trim']={-891.421,15.45,514.483,86.831,18.9,133.454,13,true,'Stone_SG_Trim','','SG_Dun'},
+  ['SG_Dun_Rooms_Portals__Metal_SG_Silver']={-893.262,12.548,515.264,59.622,12.504,119.476,13,true,'Metal_SG_Silver','','SG_Dun'},
+  ['SG_Dun_Rooms_Portals__SG_DunVoid_Glow']={-918.033,12.2,573.625,9.559,10.3,4.208,13,false,'SG_DunVoid_Glow','','SG_Dun'},
+  ['SG_Dun_Rooms_Portals__SG_Violet_Glow']={-918.222,12.257,573.328,8.564,9.395,3.786,13,false,'SG_Violet_Glow','','SG_Dun'},
+  ['SG_Dun_Rooms_Portals__Stone_SGDunVault']={-893.262,12.75,515.264,62.345,13.5,123.061,13,true,'Stone_SGDunVault','','SG_Dun'},
+  ['SG_Dun_Rooms_Portals__Stone_SG_Castle_B']={-893.262,12.2,515.264,61.665,13.0,122.169,13,true,'Stone_SG_Castle_B','','SG_Dun'},
+  ['SG_Dun_Rooms_Portals__Stone_SG_Trim']={-893.262,13.05,515.264,63.45,14.1,123.53,13,true,'Stone_SG_Trim','','SG_Dun'},
+  ['SG_Dun_Rooms_Shell__Stone_SG_Castle']={-891.421,16.7,514.483,92.076,22.6,138.699,13,true,'Stone_SG_Castle','','SG_Dun'},
+  ['SG_Dun_Rooms_Vault__Stone_SGDunVault']={-891.421,22.975,514.483,86.831,9.95,133.454,13,true,'Stone_SGDunVault','','SG_Dun'},
+  ['SG_Dun_Rooms_Vault__Stone_SG_Trim']={-891.426,22.653,514.485,86.389,10.094,133.191,13,true,'Stone_SG_Trim','','SG_Dun'},
+  ['SG_Ent_Bridge__Cliff_Rock_SG_Dark']={-593.265,-46.0,644.769,29.975,24.0,24.071,14,false,'Cliff_Rock_SG_Dark','','SG_Ent'},
+  ['SG_Ent_Bridge__Stone_Paving_SG']={-594.16,28.035,645.052,34.709,0.37,25.659,14,false,'Stone_Paving_SG','','SG_Ent'},
+  ['SG_Ent_Bridge__Stone_Paving_SG_B']={-594.876,28.032,643.606,37.235,0.363,26.635,14,false,'Stone_Paving_SG_B','','SG_Ent'},
+  ['SG_Ent_Bridge__Stone_SG_Block_B']={-596.617,-3.075,642.084,42.75,61.85,37.357,14,false,'Stone_SG_Block_B','','SG_Ent'},
+  ['SG_Ent_Bridge__Stone_SG_Floor']={-594.876,27.7,644.085,38.33,0.5,29.853,14,false,'Stone_SG_Floor','','SG_Ent'},
+  ['SG_Ent_Bridge__Stone_SG_Trim']={-594.502,6.7,644.673,38.95,43.0,33.469,14,false,'Stone_SG_Trim','','SG_Ent'},
+  ['SG_Ent_Parapets__Stone_SG_Block']={-624.884,32.925,634.951,99.284,12.45,50.574,14,true,'Stone_SG_Block','','SG_Ent'},
+  ['SG_Ent_Parapets__Stone_SG_Block_B']={-626.352,32.925,630.141,96.486,12.45,59.951,14,true,'Stone_SG_Block_B','','SG_Ent'},
+  ['SG_Ent_Parapets__Stone_SG_Trim']={-624.918,34.65,630.202,99.608,10.9,60.466,14,true,'Stone_SG_Trim','','SG_Ent'},
+  ['SG_Ent_Porticos__Cloth_SG_Navy']={-637.945,49.254,625.559,46.699,24.092,39.33,14,true,'Cloth_SG_Navy','','SG_Ent'},
+  ['SG_Ent_Porticos__Lantern_Glow']={-636.91,36.15,626.131,46.645,9.3,37.797,14,false,'Lantern_Glow','','SG_Ent'},
+  ['SG_Ent_Porticos__Metal_SG_Iron']={-638.443,46.44,625.24,50.414,30.28,41.007,14,true,'Metal_SG_Iron','','SG_Ent'},
+  ['SG_Ent_Porticos__Metal_SG_Silver']={-638.675,55.15,625.559,49.269,43.3,41.165,14,true,'Metal_SG_Silver','','SG_Ent'},
+  ['SG_Ent_Porticos__Roof_SG_Navy']={-640.281,63.3,624.561,49.869,24.0,40.81,14,true,'Roof_SG_Navy','','SG_Ent'},
+  ['SG_Ent_Porticos__Stone_SG_Block_B']={-639.289,31.05,624.97,53.469,11.7,43.243,14,true,'Stone_SG_Block_B','','SG_Ent'},
+  ['SG_Ent_Porticos__Stone_SG_Castle']={-639.573,47.25,624.54,52.615,36.1,42.098,14,true,'Stone_SG_Castle','','SG_Ent'},
+  ['SG_Ent_Porticos__Stone_SG_Trim']={-639.334,48.9,624.925,53.904,40.0,43.678,14,true,'Stone_SG_Trim','','SG_Ent'},
+  ['SG_Ent_Stair__Stone_Paving_SG']={-639.06,32.2,625.331,23.74,8.0,23.661,14,false,'Stone_Paving_SG','','SG_Ent'},
+  ['SG_Ent_Stair__Stone_SG_Trim']={-638.365,32.55,625.626,22.272,7.34,22.887,14,true,'Stone_SG_Trim','','SG_Ent'},
+}
+
+-- CONFERENCIA DA IMPORTACAO: nomes normalizados, achadas/esperadas por FBX, faltando, eixo > 2048, duplicadas
+local ACH, DUP = {}, 0
+for _, d in ipairs(root:GetDescendants()) do
+  if d:IsA('MeshPart') then
+    local n = norm(d.Name)
+    if MESH[n] then
+      if ACH[n] and ACH[n] ~= d then DUP += 1
+      else ACH[n] = d; if d.Name ~= n then d.Name = n end end
+    end
+  end
+end
+local POR, TOT, FALTA = {}, {}, {}
+for n, e in pairs(MESH) do
+  TOT[e[7]] = (TOT[e[7]] or 0) + 1
+  if ACH[n] then POR[e[7]] = (POR[e[7]] or 0) + 1 else table.insert(FALTA, n) end
+end
+table.sort(FALTA)
+local FBX_OK = true
+for i, f in pairs(FBX) do
+  local a, t = POR[i] or 0, TOT[i] or 0
+  if t > 0 then
+    local ok = a >= 0.9 * t
+    if not ok then FBX_OK = false end
+    print(string.format('IMPORT %-34s %4d / %4d %s', f, a, t, ok and 'ok' or '<-- FALTANDO (reimporte este FBX)'))
+  end
+end
+if #FALTA > 0 then
+  print(string.format('IMPORT: %d malhas faltando; as 20 primeiras:', #FALTA))
+  for i = 1, math.min(20, #FALTA) do print('   ' .. FALTA[i]) end
+end
+if DUP > 0 then warn(string.format('IMPORT: %d MeshParts duplicadas (FBX importado 2 vezes?) - apague as sobras', DUP)) end
+local GRANDE = 0
+for _, d in ipairs(root:GetDescendants()) do
+  if d:IsA('MeshPart') and math.max(d.Size.X, d.Size.Y, d.Size.Z) > 2048 then GRANDE += 1; warn('IMPORT: eixo > 2048: ' .. d:GetFullName()) end
+end
+print(string.format('IMPORT: %d MeshParts com eixo > 2048', GRANDE))
+
+
+-- ALINHAMENTO: compara as MeshParts importadas com MESH (Procrustes discreto no plano XZ) e corrige
+local function alinhar()
+  if not FBX_OK then warn('ALINHAR: abortado - algum FBX tem menos de 90% das malhas (veja IMPORT acima)'); return end
+  local parts = {}
+  for n, d in pairs(ACH) do table.insert(parts, d) end
+  if #parts < 3 then warn('ALINHAR: poucas MeshParts com nome conhecido - confira se o importador manteve os nomes'); return end
+  -- centroides POR FBX (grupo): tolera o importador recentralizar cada arquivo separadamente
+  local G = {}
+  for _, p in ipairs(parts) do local e = MESH[p.Name]
+    local g = G[e[7]]; if not g then g = {ca = Vector3.zero, ce = Vector3.zero, n = 0}; G[e[7]] = g end
+    g.ca += p.Position; g.ce += Vector3.new(e[1], e[2], e[3]); g.n += 1 end
+  for _, g in pairs(G) do g.ca /= g.n; g.ce /= g.n end
+  local function rel(p) local e = MESH[p.Name]; local g = G[e[7]]
+    return p.Position - g.ca, Vector3.new(e[1], e[2], e[3]) - g.ce end
+  local sa, se = 0, 0
+  for _, p in ipairs(parts) do local a, b = rel(p); sa += a.Magnitude; se += b.Magnitude end
+  local escala = (se > 0) and (sa / se) or 1
+  local best, bestErr, bestMirror = 0, math.huge, false
+  for _, mir in ipairs({false, true}) do
+    for k = 0, 3 do
+      local R = CFrame.Angles(0, k * math.pi / 2, 0); local err = 0
+      for _, p in ipairs(parts) do
+        local a, b = rel(p)
+        if mir then b = Vector3.new(-b.X, b.Y, b.Z) end
+        err += (a - R:VectorToWorldSpace(b) * escala).Magnitude
+      end
+      if err < bestErr then best, bestErr, bestMirror = k, err, mir end
+    end
+  end
+  if bestMirror then warn('ALINHAR: o importador ESPELHOU o lobby. Nao da para corrigir aqui: troque a matriz T no export_roblox.py / eixos do FBX.') end
+  if best ~= 0 then warn(string.format('ALINHAR: importador girou %d graus em Y - corrigindo', best * 90)) end
+  if math.abs(escala - 1) > 0.05 then warn(string.format('ALINHAR: escala do importador %.3f (m->stud?) - corrigindo Size', escala)) end
+  local Rinv = CFrame.Angles(0, -best * math.pi / 2, 0)
+  for _, p in ipairs(parts) do local e = MESH[p.Name]
+    if math.abs(escala - 1) > 0.05 then p.Size = p.Size / escala end
+    local rot = p.CFrame - p.CFrame.Position
+    p.CFrame = CFrame.new(Vector3.new(e[1], e[2], e[3]) + ROOT_OFFSET) * Rinv * rot
+  end
+  print(string.format('ALINHAR: ok (giro %d, escala %.3f, espelho %s)', best * 90, escala, tostring(bestMirror)))
+end
+if ALINHAR then alinhar() end
+
+
+-- texturas: le os ids que o 3D Importer subiu (TextureID ou SurfaceAppearance) por familia
+local function lerMapa(d)
+  local ok, v = pcall(function() return d.TextureID end)
+  if ok and v and v ~= '' then return v end
+  local sa = d:FindFirstChildOfClass('SurfaceAppearance')
+  if sa then
+    local ok2, v2 = pcall(function() return sa.ColorMap end)
+    if ok2 and v2 and v2 ~= '' then return v2 end
+    local ok3, v3 = pcall(function() return sa.ColorMapContent.Uri end)
+    if ok3 and v3 and v3 ~= '' then return v3 end
+  end
+  return nil
+end
+local function porMapa(sa, id)
+  local ok = pcall(function() sa.ColorMap = id end)
+  if not ok then ok = pcall(function() sa.ColorMapContent = Content.fromUri(id) end) end
+  return ok
+end
+local function entrada(d)
+  local e = MESH[d.Name]
+  if e and MAT[e[9]] then return MAT[e[9]], e end
+  return matOf(d.Name), e
+end
+local achados = {}
+for _, d in ipairs(root:GetDescendants()) do
+  if d:IsA('MeshPart') then
+    local m = entrada(d)
+    local key = m and (m.w or m.x)
+    if key and (TEX[key] == nil or TEX[key] == '') then
+      local id = lerMapa(d)
+      if id then TEX[key] = id; achados[key] = id end
+    end
+  end
+end
+local nAch = 0
+for k, v in pairs(achados) do nAch += 1; print('TEX encontrada', k, v) end
+print(string.format('IMPORT: %d texturas encontradas nas MeshParts', nAch))
+-- modelos de streaming: SKYLINE (persistente) e um Model Atomic por construcao/portal/forja
+local MODELOS = {}
+local function modelo(nome, modo)
+  local m = MODELOS[nome]
+  if m then return m end
+  m = root:FindFirstChild(nome)
+  if not (m and m:IsA('Model')) then m = Instance.new('Model'); m.Name = nome; m.Parent = root end
+  pcall(function() m.ModelStreamingMode = modo end)
+  MODELOS[nome] = m
+  return m
+end
+-- aplica cor/material/sombra/textura por variante
+local nOk, nSem, nTex, nSombra, nCasca = 0, 0, 0, 0, 0
+for _, d in ipairs(root:GetDescendants()) do
+  if d:IsA('MeshPart') then
+    local m, e = entrada(d)
+    d.Anchored = true; d.CanCollide = false; d.CanTouch = false; d.CanQuery = false
+    pcall(function() d.CollisionFidelity = Enum.CollisionFidelity.Box end)
+    pcall(function() d.RenderFidelity = Enum.RenderFidelity.Automatic end)
+    if m then
+      nOk += 1
+      d.Color = m.c; d.Transparency = m.t
+      d.Material = (LISO and not KEEP[m.m]) and Enum.Material.SmoothPlastic or m.m
+      if e then d.CastShadow = e[8] else d.CastShadow = m.s and (d.Size.Magnitude > 4) end
+      if d.CastShadow then nSombra += 1 end
+      local sa = d:FindFirstChildOfClass('SurfaceAppearance')
+      local sw = m.w and TEX[m.w] or ''
+      local tx = m.x and TEX[m.x] or ''
+      if m.w and sw ~= '' then
+        -- espiral do portal: textura sempre (sem ela o disco vira um circulo chapado)
+        if sa then sa:Destroy() end
+        d.TextureID = sw; d.Material = Enum.Material.SmoothPlastic; nTex += 1
+      elseif RICO and tx ~= '' then
+        d.TextureID = ''
+        if not sa then sa = Instance.new('SurfaceAppearance') end
+        sa.AlphaMode = Enum.AlphaMode.Overlay
+        if porMapa(sa, tx) then sa.Parent = d; nTex += 1
+        else sa:Destroy(); d.TextureID = tx; nTex += 1 end
+      else
+        d.TextureID = ''
+        if sa then sa:Destroy() end
+      end
+    else
+      nSem += 1
+    end
+    if e then
+      local fl = e[10] or ''
+      if CAMERA_CASCAS and string.find(fl, 'o', 1, true) then
+        -- casca que oclui a camera: o Popper so considera pecas CanCollide/CanQuery e opacas; o grupo SoVisual
+        -- colide com Default (raio da camera) e NAO com Personagens (quem anda sao as COL invisiveis)
+        d.CanCollide = true; d.CanQuery = true; d.CollisionGroup = 'SoVisual'
+        pcall(function() d.CollisionFidelity = Enum.CollisionFidelity.PreciseConvexDecomposition end)
+        nCasca += 1
+      else
+        d.CollisionGroup = 'Default'
+      end
+      if string.find(fl, 'k', 1, true) then
+        pcall(function() d.RenderFidelity = Enum.RenderFidelity.Performance end)
+        d.Parent = modelo('SKYLINE', Enum.ModelStreamingMode.Persistent)
+      elseif e[11] and e[11] ~= '' then
+        d.Parent = modelo(e[11], Enum.ModelStreamingMode.Atomic)
+      end
+    end
+  end
+end
+print(string.format('MATERIAIS: %d MeshParts com variante reconhecida, %d sem (ficaram como vieram), %d texturizadas, %d com sombra, %d cascas de camera', nOk, nSem, nTex, nSombra, nCasca))
+
+-- colisoes: {nome, tipo, pos, eixoX, eixoY, tamanho, camera}
+local COL = {
+  {'COL_GateDemonSlayer_001','Block',{-703.409,55.925,344.9},{0.921,0.0,0.391},{0.391,0.0,-0.921},{3.6,3.6,23.45},false},
+  {'COL_GateDemonSlayer_002','Block',{-700.908,51.4,339.008},{0.921,0.0,0.391},{0.391,0.0,-0.921},{2.8,2.8,15.6},false},
+  {'COL_GateDemonSlayer_003','Block',{-685.367,55.925,352.558},{0.921,0.0,0.391},{0.391,0.0,-0.921},{3.6,3.6,23.45},false},
+  {'COL_GateDemonSlayer_004','Block',{-682.866,51.4,346.666},{0.921,0.0,0.391},{0.391,0.0,-0.921},{2.8,2.8,15.6},false},
+  {'COL_GateDemonSlayer_005','Block',{-694.388,43.975,348.729},{0.921,0.0,0.391},{0.391,0.0,-0.921},{22.0,10.0,0.75},false},
+  {'COL_GateDemonSlayer_006','Block',{-709.161,44.2,346.423},{0.921,0.0,0.391},{0.391,0.0,-0.921},{7.0,13.1,1.2},false},
+  {'COL_GateDemonSlayer_007','Block',{-710.124,45.05,347.155},{0.921,0.0,0.391},{0.391,0.0,-0.921},{5.2,5.2,0.5},false},
+  {'COL_GateDemonSlayer_008','Block',{-710.124,49.7,347.155},{0.921,0.0,0.391},{0.391,0.0,-0.921},{4.0,4.0,9.8},false},
+  {'COL_GateDemonSlayer_009','Block',{-709.123,48.05,351.708},{0.921,0.0,0.391},{0.391,0.0,-0.921},{2.0,2.0,6.5},false},
+  {'COL_GateDemonSlayer_010','Block',{-682.466,44.2,357.754},{0.921,0.0,0.391},{0.391,0.0,-0.921},{7.0,13.1,1.2},false},
+  {'COL_GateDemonSlayer_011','Block',{-682.324,45.05,358.955},{0.921,0.0,0.391},{0.391,0.0,-0.921},{5.2,5.2,0.5},false},
+  {'COL_GateDemonSlayer_012','Block',{-682.324,49.7,358.955},{0.921,0.0,0.391},{0.391,0.0,-0.921},{4.0,4.0,9.8},false},
+  {'COL_GateDemonSlayer_013','Block',{-686.294,48.05,361.398},{0.921,0.0,0.391},{0.391,0.0,-0.921},{2.0,2.0,6.5},false},
+  {'COL_SGAnchorGuard_001','Block',{-683.214,48.2,322.402},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{1.2,20.0,9.0},false},
+  {'COL_SG_Arrival_001','Block',{-594.876,27.2,644.085},{-0.921,0.0,-0.391},{-0.391,0.0,0.921},{38.0,18.0,2.0},false},
+  {'COL_SG_Arrival_002','Block',{-591.125,29.95,635.248},{-0.921,0.0,-0.391},{-0.391,0.0,0.921},{34.0,1.2,4.5},false},
+  {'COL_SG_Arrival_003','Block',{-598.627,29.95,652.922},{-0.921,0.0,-0.391},{-0.391,0.0,0.921},{34.0,1.2,4.5},false},
+  {'COL_SG_CasButtress_001','Block',{-885.678,61.95,572.475},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{3.4,3.2,20.5},false},
+  {'COL_SG_CasButtress_002','Block',{-848.405,61.95,484.658},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{3.4,3.2,20.5},false},
+  {'COL_SG_CasButtress_003','Block',{-902.861,61.95,565.182},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{3.4,3.2,20.5},false},
+  {'COL_SG_CasButtress_004','Block',{-865.588,61.95,477.364},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{3.4,3.2,20.5},false},
+  {'COL_SG_CasButtress_005','Block',{-920.044,61.95,557.888},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{3.4,3.2,20.5},false},
+  {'COL_SG_CasButtress_006','Block',{-882.771,61.95,470.071},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{3.4,3.2,20.5},false},
+  {'COL_SG_CasButtress_007','Block',{-937.227,61.95,550.595},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{3.4,3.2,20.5},false},
+  {'COL_SG_CasButtress_008','Block',{-899.954,61.95,462.778},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{3.4,3.2,20.5},false},
+  {'COL_SG_CasButtress_009','Block',{-954.41,61.95,543.302},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{3.4,3.2,20.5},false},
+  {'COL_SG_CasButtress_010','Block',{-917.137,61.95,455.485},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{3.4,3.2,20.5},false},
+  {'COL_SG_CasCrown_001','Block',{-966.56,61.7,473.533},{-0.375,0.0,-0.927},{-0.927,0.0,0.375},{3.2,3.0,20.0},false},
+  {'COL_SG_CasCrown_002','Block',{-975.762,61.7,495.214},{-0.927,0.0,0.375},{0.375,0.0,0.927},{3.2,3.0,20.0},false},
+  {'COL_SG_CasCrown_003','Block',{-954.081,61.7,504.417},{0.375,0.0,0.927},{0.927,0.0,-0.375},{3.2,3.0,20.0},false},
+  {'COL_SG_CasCrown_004','Block',{-944.878,61.7,482.735},{0.927,0.0,-0.375},{-0.375,0.0,-0.927},{3.2,3.0,20.0},false},
+  {'COL_SG_CasCrown_005','Block',{-960.32,114.85,488.975},{-0.122,0.0,-0.993},{-0.993,0.0,0.122},{30.91,8.332,126.3},false},
+  {'COL_SG_CasCrown_006','Block',{-960.32,114.85,488.975},{-0.602,0.0,-0.799},{-0.799,0.0,0.602},{30.91,8.332,126.3},false},
+  {'COL_SG_CasCrown_007','Block',{-960.32,114.85,488.975},{-0.921,0.0,-0.391},{-0.391,0.0,0.921},{30.91,8.332,126.3},false},
+  {'COL_SG_CasCrown_008','Block',{-960.32,114.85,488.975},{-0.993,0.0,0.122},{0.122,0.0,0.993},{30.91,8.332,126.3},false},
+  {'COL_SG_CasCrown_009','Block',{-960.32,114.85,488.975},{-0.799,0.0,0.602},{0.602,0.0,0.799},{30.91,8.332,126.3},false},
+  {'COL_SG_CasCrown_010','Block',{-960.32,114.85,488.975},{-0.391,0.0,0.921},{0.921,0.0,0.391},{30.91,8.332,126.3},false},
+  {'COL_SG_CasCurtain_001','Block',{-866.263,56.95,616.563},{-0.904,0.0,-0.428},{-0.428,0.0,0.904},{52.441,3.4,10.5},false},
+  {'COL_SG_CasCurtain_002','Block',{-894.927,56.95,593.061},{-0.423,0.0,-0.906},{-0.906,0.0,0.423},{30.307,3.4,10.5},false},
+  {'COL_SG_CasFacTurret_001','Block',{-864.345,61.7,553.61},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{6.4,6.4,20.0},false},
+  {'COL_SG_CasFacTurret_002','Block',{-847.154,61.7,513.107},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{6.4,6.4,20.0},false},
+  {'COL_SG_CasHallCeil_001','Block',{-901.407,81.2,513.98},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{92.0,96.0,2.0},true},
+  {'COL_SG_CasHall_001','Block',{-869.613,69.95,556.806},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{38.0,4.0,36.5},true},
+  {'COL_SG_CasHall_002','Block',{-859.064,78.95,531.952},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{16.0,4.0,18.5},true},
+  {'COL_SG_CasHall_003','Block',{-848.515,69.95,507.098},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{38.0,4.0,36.5},true},
+  {'COL_SG_CasHall_004','Block',{-943.751,69.95,496.007},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{92.0,4.0,36.5},true},
+  {'COL_SG_CasHall_005','Block',{-918.598,69.95,554.482},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{4.0,88.0,36.5},true},
+  {'COL_SG_CasHall_006','Block',{-884.216,69.95,473.477},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{4.0,88.0,36.5},true},
+  {'COL_SG_CasPorch_001','Block',{-860.02,64.45,543.931},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{4.4,3.6,25.5},false},
+  {'COL_SG_CasPorch_002','Block',{-851.112,64.45,522.943},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{4.4,3.6,25.5},false},
+  {'COL_SG_CasTower_001','Block',{-820.349,65.95,563.593},{-0.375,0.0,-0.927},{-0.927,0.0,0.375},{11.88,4.971,44.5},false},
+  {'COL_SG_CasTower_002','Block',{-820.349,65.95,563.593},{-0.921,0.0,-0.391},{-0.391,0.0,0.921},{11.88,4.971,44.5},false},
+  {'COL_SG_CasTower_003','Block',{-820.349,65.95,563.593},{-0.927,0.0,0.375},{0.375,0.0,0.927},{11.88,4.971,44.5},false},
+  {'COL_SG_CasTower_004','Block',{-820.349,65.95,563.593},{-0.391,0.0,0.921},{0.921,0.0,0.391},{11.88,4.971,44.5},false},
+  {'COL_SG_CasTower_005','Block',{-809.409,65.95,537.819},{-0.375,0.0,-0.927},{-0.927,0.0,0.375},{11.88,4.971,44.5},false},
+  {'COL_SG_CasTower_006','Block',{-809.409,65.95,537.819},{-0.921,0.0,-0.391},{-0.391,0.0,0.921},{11.88,4.971,44.5},false},
+  {'COL_SG_CasTower_007','Block',{-809.409,65.95,537.819},{-0.927,0.0,0.375},{0.375,0.0,0.927},{11.88,4.971,44.5},false},
+  {'COL_SG_CasTower_008','Block',{-809.409,65.95,537.819},{-0.391,0.0,0.921},{0.921,0.0,0.391},{11.88,4.971,44.5},false},
+  {'COL_SG_CasTower_009','Block',{-774.603,56.95,456.327},{-0.375,0.0,-0.927},{-0.927,0.0,0.375},{6.652,2.805,26.5},false},
+  {'COL_SG_CasTower_010','Block',{-774.603,56.95,456.327},{-0.921,0.0,-0.391},{-0.391,0.0,0.921},{6.652,2.805,26.5},false},
+  {'COL_SG_CasTower_011','Block',{-774.603,56.95,456.327},{-0.927,0.0,0.375},{0.375,0.0,0.927},{6.652,2.805,26.5},false},
+  {'COL_SG_CasTower_012','Block',{-774.603,56.95,456.327},{-0.391,0.0,0.921},{0.921,0.0,0.391},{6.652,2.805,26.5},false},
+  {'COL_SG_CasTower_013','Block',{-767.269,56.95,439.047},{-0.375,0.0,-0.927},{-0.927,0.0,0.375},{6.652,2.805,26.5},false},
+  {'COL_SG_CasTower_014','Block',{-767.269,56.95,439.047},{-0.921,0.0,-0.391},{-0.391,0.0,0.921},{6.652,2.805,26.5},false},
+  {'COL_SG_CasTower_015','Block',{-767.269,56.95,439.047},{-0.927,0.0,0.375},{0.375,0.0,0.927},{6.652,2.805,26.5},false},
+  {'COL_SG_CasTower_016','Block',{-767.269,56.95,439.047},{-0.391,0.0,0.921},{0.921,0.0,0.391},{6.652,2.805,26.5},false},
+  {'COL_SG_CasTower_017','Block',{-846.147,57.95,624.886},{-0.375,0.0,-0.927},{-0.927,0.0,0.375},{12.01,5.025,28.5},false},
+  {'COL_SG_CasTower_018','Block',{-846.147,57.95,624.886},{-0.921,0.0,-0.391},{-0.391,0.0,0.921},{12.01,5.025,28.5},false},
+  {'COL_SG_CasTower_019','Block',{-846.147,57.95,624.886},{-0.927,0.0,0.375},{0.375,0.0,0.927},{12.01,5.025,28.5},false},
+  {'COL_SG_CasTower_020','Block',{-846.147,57.95,624.886},{-0.391,0.0,0.921},{0.921,0.0,0.391},{12.01,5.025,28.5},false},
+  {'COL_SG_CasTower_021','Block',{-832.851,58.45,593.05},{-0.375,0.0,-0.927},{-0.927,0.0,0.375},{8.5,3.571,29.5},false},
+  {'COL_SG_CasTower_022','Block',{-832.851,58.45,593.05},{-0.921,0.0,-0.391},{-0.391,0.0,0.921},{8.5,3.571,29.5},false},
+  {'COL_SG_CasTower_023','Block',{-832.851,58.45,593.05},{-0.927,0.0,0.375},{0.375,0.0,0.927},{8.5,3.571,29.5},false},
+  {'COL_SG_CasTower_024','Block',{-832.851,58.45,593.05},{-0.391,0.0,0.921},{0.921,0.0,0.391},{8.5,3.571,29.5},false},
+  {'COL_SG_CasTower_025','Block',{-790.655,58.45,493.634},{-0.375,0.0,-0.927},{-0.927,0.0,0.375},{8.5,3.571,29.5},false},
+  {'COL_SG_CasTower_026','Block',{-790.655,58.45,493.634},{-0.921,0.0,-0.391},{-0.391,0.0,0.921},{8.5,3.571,29.5},false},
+  {'COL_SG_CasTower_027','Block',{-790.655,58.45,493.634},{-0.927,0.0,0.375},{0.375,0.0,0.927},{8.5,3.571,29.5},false},
+  {'COL_SG_CasTower_028','Block',{-790.655,58.45,493.634},{-0.391,0.0,0.921},{0.921,0.0,0.391},{8.5,3.571,29.5},false},
+  {'COL_SG_CasTower_029','Block',{-867.168,63.95,617.593},{-0.375,0.0,-0.927},{-0.927,0.0,0.375},{10.163,4.26,24.5},false},
+  {'COL_SG_CasTower_030','Block',{-867.168,63.95,617.593},{-0.921,0.0,-0.391},{-0.391,0.0,0.921},{10.163,4.26,24.5},false},
+  {'COL_SG_CasTower_031','Block',{-867.168,63.95,617.593},{-0.927,0.0,0.375},{0.375,0.0,0.927},{10.163,4.26,24.5},false},
+  {'COL_SG_CasTower_032','Block',{-867.168,63.95,617.593},{-0.391,0.0,0.921},{0.921,0.0,0.391},{10.163,4.26,24.5},false},
+  {'COL_SG_CasTower_033','Block',{-880.162,87.85,581.66},{-0.375,0.0,-0.927},{-0.927,0.0,0.375},{18.478,7.704,72.3},false},
+  {'COL_SG_CasTower_034','Block',{-880.162,87.85,581.66},{-0.921,0.0,-0.391},{-0.391,0.0,0.921},{18.478,7.704,72.3},false},
+  {'COL_SG_CasTower_035','Block',{-880.162,87.85,581.66},{-0.927,0.0,0.375},{0.375,0.0,0.927},{18.478,7.704,72.3},false},
+  {'COL_SG_CasTower_036','Block',{-880.162,87.85,581.66},{-0.391,0.0,0.921},{0.921,0.0,0.391},{18.478,7.704,72.3},false},
+  {'COL_SG_CasTower_037','Block',{-837.966,87.85,482.244},{-0.375,0.0,-0.927},{-0.927,0.0,0.375},{18.478,7.704,72.3},false},
+  {'COL_SG_CasTower_038','Block',{-837.966,87.85,482.244},{-0.921,0.0,-0.391},{-0.391,0.0,0.921},{18.478,7.704,72.3},false},
+  {'COL_SG_CasTower_039','Block',{-837.966,87.85,482.244},{-0.927,0.0,0.375},{0.375,0.0,0.927},{18.478,7.704,72.3},false},
+  {'COL_SG_CasTower_040','Block',{-837.966,87.85,482.244},{-0.391,0.0,0.921},{0.921,0.0,0.391},{18.478,7.704,72.3},false},
+  {'COL_SG_CasTower_041','Block',{-966.187,69.95,538.629},{-0.375,0.0,-0.927},{-0.927,0.0,0.375},{9.239,3.877,36.5},false},
+  {'COL_SG_CasTower_042','Block',{-966.187,69.95,538.629},{-0.921,0.0,-0.391},{-0.391,0.0,0.921},{9.239,3.877,36.5},false},
+  {'COL_SG_CasTower_043','Block',{-966.187,69.95,538.629},{-0.927,0.0,0.375},{0.375,0.0,0.927},{9.239,3.877,36.5},false},
+  {'COL_SG_CasTower_044','Block',{-966.187,69.95,538.629},{-0.391,0.0,0.921},{0.921,0.0,0.391},{9.239,3.877,36.5},false},
+  {'COL_SG_CasTower_046','Block',{-928.679,69.95,450.26},{-0.921,0.0,-0.391},{-0.391,0.0,0.921},{9.239,3.877,36.5},false},
+  {'COL_SG_CasTower_047','Block',{-928.679,69.95,450.26},{-0.927,0.0,0.375},{0.375,0.0,0.927},{9.239,3.877,36.5},false},
+  {'COL_SG_CasTower_048','Block',{-928.679,69.95,450.26},{-0.391,0.0,0.921},{0.921,0.0,0.391},{9.239,3.877,36.5},false},
+  {'COL_SG_CasWall_001','Block',{-832.07,57.95,591.209},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{72.0,6.0,12.5},true},
+  {'COL_SG_CasWall_002','Block',{-792.609,57.95,498.237},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{98.0,6.0,12.5},true},
+  {'COL_SG_CasWall_003','Block',{-767.213,57.95,438.403},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{8.0,6.0,12.5},true},
+  {'COL_SG_CasWall_004','Block',{-814.787,77.2,550.745},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{16.0,9.0,14.0},true},
+  {'COL_SG_CasWingE_001','Block',{-884.382,58.95,463.63},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{14.0,84.0,14.5},false},
+  {'COL_SG_CasWingTower_001','Block',{-917.353,81.85,610.415},{-0.375,0.0,-0.927},{-0.927,0.0,0.375},{12.01,5.025,60.3},false},
+  {'COL_SG_CasWingTower_002','Block',{-917.353,81.85,610.415},{-0.921,0.0,-0.391},{-0.391,0.0,0.921},{12.01,5.025,60.3},false},
+  {'COL_SG_CasWingTower_003','Block',{-917.353,81.85,610.415},{-0.927,0.0,0.375},{0.375,0.0,0.927},{12.01,5.025,60.3},false},
+  {'COL_SG_CasWingTower_004','Block',{-917.353,81.85,610.415},{-0.391,0.0,0.921},{0.921,0.0,0.391},{12.01,5.025,60.3},false},
+  {'COL_SG_CasWingTower_005','Block',{-979.948,76.85,583.847},{-0.375,0.0,-0.927},{-0.927,0.0,0.375},{11.087,4.642,50.3},false},
+  {'COL_SG_CasWingTower_006','Block',{-979.948,76.85,583.847},{-0.921,0.0,-0.391},{-0.391,0.0,0.921},{11.087,4.642,50.3},false},
+  {'COL_SG_CasWingTower_007','Block',{-979.948,76.85,583.847},{-0.927,0.0,0.375},{0.375,0.0,0.927},{11.087,4.642,50.3},false},
+  {'COL_SG_CasWingTower_008','Block',{-979.948,76.85,583.847},{-0.391,0.0,0.921},{0.921,0.0,0.391},{11.087,4.642,50.3},false},
+  {'COL_SG_CasWingTower_009','Block',{-973.22,82.85,555.198},{-0.375,0.0,-0.927},{-0.927,0.0,0.375},{12.01,5.025,62.3},false},
+  {'COL_SG_CasWingTower_010','Block',{-973.22,82.85,555.198},{-0.921,0.0,-0.391},{-0.391,0.0,0.921},{12.01,5.025,62.3},false},
+  {'COL_SG_CasWingTower_011','Block',{-973.22,82.85,555.198},{-0.927,0.0,0.375},{0.375,0.0,0.927},{12.01,5.025,62.3},false},
+  {'COL_SG_CasWingTower_012','Block',{-973.22,82.85,555.198},{-0.391,0.0,0.921},{0.921,0.0,0.391},{12.01,5.025,62.3},false},
+  {'COL_SG_CasWingTower_013','Block',{-927.785,78.85,443.035},{-0.375,0.0,-0.927},{-0.927,0.0,0.375},{12.01,5.025,54.3},false},
+  {'COL_SG_CasWingTower_014','Block',{-927.785,78.85,443.035},{-0.921,0.0,-0.391},{-0.391,0.0,0.921},{12.01,5.025,54.3},false},
+  {'COL_SG_CasWingTower_015','Block',{-927.785,78.85,443.035},{-0.927,0.0,0.375},{0.375,0.0,0.927},{12.01,5.025,54.3},false},
+  {'COL_SG_CasWingTower_016','Block',{-927.785,78.85,443.035},{-0.391,0.0,0.921},{0.921,0.0,0.391},{12.01,5.025,54.3},false},
+  {'COL_SG_CasWingW_001','Block',{-942.008,68.95,581.482},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{32.0,68.0,34.5},false},
+  {'COL_SG_CraftBench_001','Block',{-726.647,45.45,481.042},{0.921,0.0,0.391},{0.391,0.0,-0.921},{7.7,2.6,3.5},false},
+  {'COL_SG_CraftButtress_001','Block',{-724.753,48.45,476.577},{0.921,0.0,0.391},{0.391,0.0,-0.921},{1.7,2.1,9.5},false},
+  {'COL_SG_CraftButtress_002','Block',{-735.046,48.45,476.487},{0.927,0.0,-0.375},{-0.375,0.0,-0.927},{1.7,2.1,9.5},false},
+  {'COL_SG_CraftButtress_003','Block',{-742.388,48.45,483.703},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{1.7,2.1,9.5},false},
+  {'COL_SG_CraftButtress_004','Block',{-742.478,48.45,493.997},{-0.375,0.0,-0.927},{-0.927,0.0,0.375},{1.7,2.1,9.5},false},
+  {'COL_SG_CraftButtress_005','Block',{-724.969,48.45,501.428},{-0.927,0.0,0.375},{0.375,0.0,0.927},{1.7,2.1,9.5},false},
+  {'COL_SG_CraftButtress_006','Block',{-717.627,48.45,494.213},{-0.391,0.0,0.921},{0.921,0.0,0.391},{1.7,2.1,9.5},false},
+  {'COL_SG_CraftButtress_007','Block',{-717.537,48.45,483.919},{0.375,0.0,0.927},{0.927,0.0,-0.375},{1.7,2.1,9.5},false},
+  {'COL_SG_CraftCauldron_001','Block',{-730.008,46.0,488.958},{0.139,0.0,-0.99},{-0.99,0.0,-0.139},{5.216,1.448,3.8},false},
+  {'COL_SG_CraftCauldron_002','Block',{-730.008,46.0,488.958},{-0.375,0.0,-0.927},{-0.927,0.0,0.375},{5.216,1.448,3.8},false},
+  {'COL_SG_CraftCauldron_003','Block',{-730.008,46.0,488.958},{-0.788,0.0,-0.616},{-0.616,0.0,0.788},{5.216,1.448,3.8},false},
+  {'COL_SG_CraftCauldron_004','Block',{-730.008,46.0,488.958},{-0.99,0.0,-0.139},{-0.139,0.0,0.99},{5.216,1.448,3.8},false},
+  {'COL_SG_CraftCauldron_005','Block',{-730.008,46.0,488.958},{-0.927,0.0,0.375},{0.375,0.0,0.927},{5.216,1.448,3.8},false},
+  {'COL_SG_CraftCauldron_006','Block',{-730.008,46.0,488.958},{-0.616,0.0,0.788},{0.788,0.0,0.616},{5.216,1.448,3.8},false},
+  {'COL_SG_CraftChest_001','Block',{-737.664,44.7,492.687},{-0.492,0.0,-0.87},{-0.87,0.0,0.492},{3.25,1.5,2.0},false},
+  {'COL_SG_CraftLectern_001','Block',{-727.954,45.75,496.897},{-0.968,0.0,0.25},{0.25,0.0,0.968},{1.7,1.5,4.1},false},
+  {'COL_SG_CraftPortal_001','Block',{-729.342,51.75,501.788},{-0.921,0.0,-0.391},{-0.391,0.0,0.921},{3.25,5.1,16.1},false},
+  {'COL_SG_CraftPortal_002','Block',{-732.127,54.762,500.606},{-0.921,0.0,-0.391},{-0.391,0.0,0.921},{1.2,5.1,0.877},false},
+  {'COL_SG_CraftPortal_003','Block',{-731.206,54.146,500.996},{-0.921,0.0,-0.391},{-0.391,0.0,0.921},{0.8,5.1,2.109},false},
+  {'COL_SG_CraftPortal_004','Block',{-739.698,51.75,497.392},{-0.921,0.0,-0.391},{-0.391,0.0,0.921},{3.25,5.1,16.1},false},
+  {'COL_SG_CraftPortal_005','Block',{-736.914,54.762,498.574},{-0.921,0.0,-0.391},{-0.391,0.0,0.921},{1.2,5.1,0.877},false},
+  {'COL_SG_CraftPortal_006','Block',{-737.834,54.146,498.183},{-0.921,0.0,-0.391},{-0.391,0.0,0.921},{0.8,5.1,2.109},false},
+  {'COL_SG_CraftPortal_007','Block',{-734.52,57.5,499.59},{-0.921,0.0,-0.391},{-0.391,0.0,0.921},{8.0,5.1,4.6},false},
+  {'COL_SG_CraftRoof_001','Block',{-730.008,60.8,488.958},{0.009,0.0,-1.0},{-1.0,0.0,-0.009},{24.76,10.306,2.0},true},
+  {'COL_SG_CraftRoof_002','Block',{-730.008,60.8,488.958},{-0.701,0.0,-0.713},{-0.713,0.0,0.701},{24.76,10.306,2.0},true},
+  {'COL_SG_CraftRoof_003','Block',{-730.008,60.8,488.958},{-1.0,0.0,-0.009},{-0.009,0.0,1.0},{24.76,10.306,2.0},true},
+  {'COL_SG_CraftRoof_004','Block',{-730.008,60.8,488.958},{-0.713,0.0,0.701},{0.701,0.0,0.713},{24.76,10.306,2.0},true},
+  {'COL_SG_CraftShelf_001','Block',{-736.915,48.22,481.929},{0.713,0.0,-0.701},{-0.701,0.0,-0.713},{2.701,1.21,9.04},false},
+  {'COL_SG_CraftShelf_002','Block',{-738.499,48.22,483.956},{0.508,0.0,-0.862},{-0.862,0.0,-0.508},{2.701,1.21,9.04},false},
+  {'COL_SG_CraftShelf_003','Block',{-739.504,48.22,486.325},{0.267,0.0,-0.964},{-0.964,0.0,-0.267},{2.701,1.21,9.04},false},
+  {'COL_SG_CraftShelf_004','Block',{-739.862,48.22,488.872},{0.009,0.0,-1.0},{-1.0,0.0,-0.009},{2.701,1.21,9.04},false},
+  {'COL_SG_CraftShelf_005','Block',{-723.1,48.22,495.987},{-0.713,0.0,0.701},{0.701,0.0,0.713},{2.701,1.21,9.04},false},
+  {'COL_SG_CraftShelf_006','Block',{-721.516,48.22,493.96},{-0.508,0.0,0.862},{0.862,0.0,0.508},{2.701,1.21,9.04},false},
+  {'COL_SG_CraftShelf_007','Block',{-720.511,48.22,491.591},{-0.267,0.0,0.964},{0.964,0.0,0.267},{2.701,1.21,9.04},false},
+  {'COL_SG_CraftShelf_008','Block',{-720.153,48.22,489.044},{-0.009,0.0,1.0},{1.0,0.0,0.009},{2.701,1.21,9.04},false},
+  {'COL_SG_CraftWall_001','Block',{-727.115,51.75,500.14},{0.25,0.0,0.968},{0.968,0.0,-0.25},{2.1,3.389,16.1},true},
+  {'COL_SG_CraftWall_002','Block',{-724.32,51.75,499.01},{0.492,0.0,0.87},{0.87,0.0,-0.492},{2.1,3.389,16.1},true},
+  {'COL_SG_CraftWall_003','Block',{-721.912,51.75,497.196},{0.701,0.0,0.713},{0.713,0.0,-0.701},{2.1,3.389,16.1},true},
+  {'COL_SG_CraftWall_004','Block',{-720.056,51.75,494.82},{0.862,0.0,0.508},{0.508,0.0,-0.862},{2.1,3.389,16.1},true},
+  {'COL_SG_CraftWall_005','Block',{-718.878,51.75,492.044},{0.964,0.0,0.267},{0.267,0.0,-0.964},{2.1,3.389,16.1},true},
+  {'COL_SG_CraftWall_006','Block',{-718.458,51.75,489.058},{1.0,0.0,0.009},{0.009,0.0,-1.0},{2.1,3.389,16.1},true},
+  {'COL_SG_CraftWall_007','Block',{-718.826,51.75,486.066},{0.968,0.0,-0.25},{-0.25,0.0,-0.968},{2.1,3.389,16.1},true},
+  {'COL_SG_CraftWall_008','Block',{-719.955,51.75,483.27},{0.87,0.0,-0.492},{-0.492,0.0,-0.87},{2.1,3.389,16.1},true},
+  {'COL_SG_CraftWall_009','Block',{-721.77,51.75,480.862},{0.713,0.0,-0.701},{-0.701,0.0,-0.713},{2.1,3.389,16.1},true},
+  {'COL_SG_CraftWall_010','Block',{-724.146,51.75,479.006},{0.508,0.0,-0.862},{-0.862,0.0,-0.508},{2.1,3.389,16.1},true},
+  {'COL_SG_CraftWall_011','Block',{-726.921,51.75,477.828},{0.267,0.0,-0.964},{-0.964,0.0,-0.267},{2.1,3.389,16.1},true},
+  {'COL_SG_CraftWall_012','Block',{-729.907,51.75,477.408},{0.009,0.0,-1.0},{-1.0,0.0,-0.009},{2.1,3.389,16.1},true},
+  {'COL_SG_CraftWall_013','Block',{-732.9,51.75,477.776},{-0.25,0.0,-0.968},{-0.968,0.0,0.25},{2.1,3.389,16.1},true},
+  {'COL_SG_CraftWall_014','Block',{-735.695,51.75,478.905},{-0.492,0.0,-0.87},{-0.87,0.0,0.492},{2.1,3.389,16.1},true},
+  {'COL_SG_CraftWall_015','Block',{-738.103,51.75,480.72},{-0.701,0.0,-0.713},{-0.713,0.0,0.701},{2.1,3.389,16.1},true},
+  {'COL_SG_CraftWall_016','Block',{-739.96,51.75,483.096},{-0.862,0.0,-0.508},{-0.508,0.0,0.862},{2.1,3.389,16.1},true},
+  {'COL_SG_CraftWall_017','Block',{-741.138,51.75,485.872},{-0.964,0.0,-0.267},{-0.267,0.0,0.964},{2.1,3.389,16.1},true},
+  {'COL_SG_CraftWall_018','Block',{-741.557,51.75,488.857},{-1.0,0.0,-0.009},{-0.009,0.0,1.0},{2.1,3.389,16.1},true},
+  {'COL_SG_CraftWall_019','Block',{-741.19,51.75,491.85},{-0.968,0.0,0.25},{0.25,0.0,0.968},{2.1,3.389,16.1},true},
+  {'COL_SG_CraftWall_020','Block',{-740.06,51.75,494.646},{-0.87,0.0,0.492},{0.492,0.0,0.87},{2.1,3.389,16.1},true},
+  {'COL_SG_DunHouse_001','Block',{-838.305,62.95,441.58},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{1.6,1.6,22.5},true},
+  {'COL_SG_DunHouse_002','Block',{-831.506,62.95,425.563},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{1.6,1.6,22.5},true},
+  {'COL_SG_DunHouse_003','Block',{-840.721,72.25,445.225},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{7.2,7.2,41.1},true},
+  {'COL_SG_DunHouse_004','Block',{-830.563,72.25,421.292},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{7.2,7.2,41.1},true},
+  {'COL_SG_DunHouse_005','Block',{-864.654,72.25,435.067},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{7.2,7.2,41.1},true},
+  {'COL_SG_DunHouse_006','Block',{-854.496,72.25,411.134},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{7.2,7.2,41.1},true},
+  {'COL_SG_DunHouse_007','Block',{-840.539,70.55,440.957},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{8.0,3.0,37.7},true},
+  {'COL_SG_DunHouse_008','Block',{-833.506,70.55,424.388},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{8.0,3.0,37.7},true},
+  {'COL_SG_DunHouse_009','Block',{-837.023,77.8,432.673},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{10.0,3.0,23.2},true},
+  {'COL_SG_DunHouse_010','Block',{-838.703,65.183,436.631},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{1.4,3.0,2.033},false},
+  {'COL_SG_DunHouse_011','Block',{-835.343,65.183,428.714},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{1.4,3.0,2.033},false},
+  {'COL_SG_DunHouse_012','Block',{-858.194,70.55,423.686},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{26.0,3.0,37.7},true},
+  {'COL_SG_DunHouse_013','Block',{-852.102,70.55,438.765},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{3.0,20.0,37.7},true},
+  {'COL_SG_DunHouse_014','Block',{-843.115,70.55,417.594},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{3.0,20.0,37.7},true},
+  {'COL_SG_DunHouse_015','Block',{-847.609,75.2,428.18},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{20.0,20.0,2.0},true},
+  {'COL_SG_DunHouse_016','Block',{-849.081,52.15,427.554},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{15.6,2.0,0.9},true},
+  {'COL_SG_DunHouse_017','Block',{-853.408,52.35,425.718},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{20.0,7.4,1.3},true},
+  {'COL_SG_DunHouse_018','Block',{-843.026,59.2,439.522},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{2.7,2.7,15.0},true},
+  {'COL_SG_DunHouse_019','Block',{-858.951,59.2,432.762},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{2.7,2.7,15.0},true},
+  {'COL_SG_DunHouse_020','Block',{-851.164,59.2,436.556},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{1.8,3.6,15.0},true},
+  {'COL_SG_DunHouse_021','Block',{-836.266,59.2,423.597},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{2.7,2.7,15.0},true},
+  {'COL_SG_DunHouse_022','Block',{-852.191,59.2,416.837},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{2.7,2.7,15.0},true},
+  {'COL_SG_DunHouse_023','Block',{-844.053,59.2,419.803},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{1.8,3.6,15.0},true},
+  {'COL_SG_DunHouse_024','Block',{-854.918,57.25,433.116},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{3.0,3.0,9.5},true},
+  {'COL_SG_DunHouse_025','Block',{-849.136,57.25,419.492},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{3.0,3.0,9.5},true},
+  {'COL_SG_DunHouse_026','Block',{-847.347,54.2,435.243},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{2.0,2.0,4.0},false},
+  {'COL_SG_DunHouse_027','Block',{-842.346,54.2,423.46},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{2.0,2.0,4.0},false},
+  {'COL_SG_DunKit_001','Block',{-902.413,11.75,579.44},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{2.7,2.7,12.5},false},
+  {'COL_SG_DunKit_002','Block',{-889.403,11.75,548.787},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{2.7,2.7,12.5},false},
+  {'COL_SG_DunKit_003','Block',{-933.066,11.75,566.429},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{2.7,2.7,12.5},false},
+  {'COL_SG_DunKit_004','Block',{-920.056,11.75,535.776},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{2.7,2.7,12.5},false},
+  {'COL_SG_DunKit_005','Block',{-897.838,11.75,569.812},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{3.6,1.8,12.5},false},
+  {'COL_SG_DunKit_006','Block',{-893.149,11.75,558.766},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{3.6,1.8,12.5},false},
+  {'COL_SG_DunKit_007','Block',{-929.319,11.75,556.45},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{3.6,1.8,12.5},false},
+  {'COL_SG_DunKit_008','Block',{-924.631,11.75,545.404},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{3.6,1.8,12.5},false},
+  {'COL_SG_DunKit_009','Block',{-909.171,11.75,577.061},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{1.8,3.6,12.5},false},
+  {'COL_SG_DunKit_010','Block',{-926.66,11.75,569.637},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{1.8,3.6,12.5},false},
+  {'COL_SG_DunKit_011','Block',{-897.373,11.75,544.915},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{1.8,3.6,12.5},false},
+  {'COL_SG_DunKit_012','Block',{-911.733,11.75,538.82},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{1.8,3.6,12.5},false},
+  {'COL_SG_DunKit_013','Block',{-883.884,11.75,546.023},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{2.7,2.7,12.5},false},
+  {'COL_SG_DunKit_014','Block',{-867.748,11.75,508.006},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{2.7,2.7,12.5},false},
+  {'COL_SG_DunKit_015','Block',{-921.901,11.75,529.887},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{2.7,2.7,12.5},false},
+  {'COL_SG_DunKit_016','Block',{-905.765,11.75,491.87},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{2.7,2.7,12.5},false},
+  {'COL_SG_DunKit_017','Block',{-879.7,11.75,537.316},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{3.6,1.8,12.5},false},
+  {'COL_SG_DunKit_018','Block',{-871.104,11.75,517.065},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{3.6,1.8,12.5},false},
+  {'COL_SG_DunKit_019','Block',{-918.545,11.75,520.828},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{3.6,1.8,12.5},false},
+  {'COL_SG_DunKit_020','Block',{-909.95,11.75,500.577},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{3.6,1.8,12.5},false},
+  {'COL_SG_DunKit_021','Block',{-895.889,11.75,541.417},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{1.8,3.6,12.5},false},
+  {'COL_SG_DunKit_022','Block',{-910.249,11.75,535.322},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{1.8,3.6,12.5},false},
+  {'COL_SG_DunKit_023','Block',{-879.401,11.75,502.571},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{1.8,3.6,12.5},false},
+  {'COL_SG_DunKit_024','Block',{-893.761,11.75,496.476},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{1.8,3.6,12.5},false},
+  {'COL_SG_DunKit_025','Block',{-865.912,11.75,503.679},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{2.7,2.7,12.5},false},
+  {'COL_SG_DunKit_026','Block',{-849.775,11.75,465.662},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{2.7,2.7,12.5},false},
+  {'COL_SG_DunKit_027','Block',{-903.929,11.75,487.543},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{2.7,2.7,12.5},false},
+  {'COL_SG_DunKit_028','Block',{-887.793,11.75,449.526},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{2.7,2.7,12.5},false},
+  {'COL_SG_DunKit_029','Block',{-861.727,11.75,494.972},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{3.6,1.8,12.5},false},
+  {'COL_SG_DunKit_030','Block',{-857.429,11.75,484.847},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{3.6,1.8,12.5},false},
+  {'COL_SG_DunKit_031','Block',{-853.132,11.75,474.721},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{3.6,1.8,12.5},false},
+  {'COL_SG_DunKit_032','Block',{-900.573,11.75,478.485},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{3.6,1.8,12.5},false},
+  {'COL_SG_DunKit_033','Block',{-896.275,11.75,468.359},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{3.6,1.8,12.5},false},
+  {'COL_SG_DunKit_034','Block',{-891.977,11.75,458.233},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{3.6,1.8,12.5},false},
+  {'COL_SG_DunKit_035','Block',{-877.916,11.75,499.073},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{1.8,3.6,12.5},false},
+  {'COL_SG_DunKit_036','Block',{-892.276,11.75,492.978},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{1.8,3.6,12.5},false},
+  {'COL_SG_DunKit_037','Block',{-859.863,11.75,460.892},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{1.8,3.6,12.5},false},
+  {'COL_SG_DunKit_038','Block',{-877.353,11.75,453.468},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{1.8,3.6,12.5},false},
+  {'COL_SG_DunPortal_001','Block',{-855.801,59.8,424.702},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{14.0,2.2,13.6},false},
+  {'COL_SG_DunPortal_002','Block',{-917.925,11.95,573.372},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{1.75,13.0,12.9},false},
+  {'COL_SG_DunPortal_003','Block',{-868.599,11.95,457.157},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{1.75,13.0,12.9},false},
+  {'COL_SG_DunRoom_001','Block',{-903.811,23.0,540.118},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{2.0,12.0,10.0},true},
+  {'COL_SG_DunRoom_002','Block',{-885.838,23.0,497.775},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{2.0,12.0,10.0},true},
+  {'COL_SG_DunRoom_003','Block',{-918.658,16.7,575.098},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{2.0,40.0,22.6},true},
+  {'COL_SG_DunRoom_004','Block',{-929.115,16.7,551.105},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{38.0,2.0,22.6},true},
+  {'COL_SG_DunRoom_005','Block',{-894.135,16.7,565.952},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{38.0,2.0,22.6},true},
+  {'COL_SG_DunRoom_006','Block',{-915.997,16.7,509.96},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{44.0,2.0,22.6},true},
+  {'COL_SG_DunRoom_007','Block',{-873.653,16.7,527.933},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{44.0,2.0,22.6},true},
+  {'COL_SG_DunRoom_008','Block',{-897.633,16.7,466.696},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{46.0,2.0,22.6},true},
+  {'COL_SG_DunRoom_009','Block',{-855.29,16.7,484.668},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{46.0,2.0,22.6},true},
+  {'COL_SG_DunRoom_010','Block',{-867.866,16.7,455.431},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{2.0,48.0,22.6},true},
+  {'COL_SG_DunRoom_011','Block',{-890.003,16.7,545.979},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{2.0,18.0,22.6},true},
+  {'COL_SG_DunRoom_012','Block',{-917.619,16.7,534.258},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{2.0,18.0,22.6},true},
+  {'COL_SG_DunRoom_013','Block',{-872.031,16.7,503.635},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{2.0,18.0,22.6},true},
+  {'COL_SG_DunRoom_014','Block',{-899.646,16.7,491.914},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{2.0,18.0,22.6},true},
+  {'COL_SG_DunRoom_015','Block',{-893.262,5.0,515.264},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{132.0,48.0,2.0},true},
+  {'COL_SG_DunRoom_016','Block',{-893.262,28.75,515.264},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{132.0,48.0,1.5},true},
+  {'COL_SG_EntPortico_001','Block',{-625.986,38.7,643.156},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{3.8,3.8,21.0},false},
+  {'COL_SG_EntPortico_002','Block',{-624.973,30.8,643.586},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{4.0,6.2,5.2},false},
+  {'COL_SG_EntPortico_003','Block',{-617.156,38.7,622.353},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{3.8,3.8,21.0},false},
+  {'COL_SG_EntPortico_004','Block',{-616.143,30.8,622.782},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{4.0,6.2,5.2},false},
+  {'COL_SG_EntPortico_005','Block',{-662.924,49.7,627.804},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{4.6,4.6,27.0},false},
+  {'COL_SG_EntPortico_006','Block',{-661.911,38.8,628.234},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{4.8,7.0,5.2},false},
+  {'COL_SG_EntPortico_007','Block',{-653.859,49.7,606.448},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{4.6,4.6,27.0},false},
+  {'COL_SG_EntPortico_008','Block',{-652.847,38.8,606.878},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{4.8,7.0,5.2},false},
+  {'COL_SG_ExitBridge_001','Block',{-711.579,43.2,389.231},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{68.0,18.0,2.0},false},
+  {'COL_SG_ExitBridge_002','Block',{-702.742,45.95,392.982},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{64.0,1.2,4.5},false},
+  {'COL_SG_ExitBridge_003','Block',{-720.416,45.95,385.481},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{64.0,1.2,4.5},false},
+  {'COL_SG_ExitHead_001','Block',{-714.09,51.25,425.862},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{4.2,4.2,14.1},false},
+  {'COL_SG_ExitHead_002','Block',{-736.183,51.25,416.485},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{4.2,4.2,14.1},false},
+  {'COL_SG_Fountain_001','Block',{-702.576,37.0,598.372},{0.139,0.0,-0.99},{-0.99,0.0,-0.139},{13.523,3.673,3.6},false},
+  {'COL_SG_Fountain_002','Block',{-702.576,37.0,598.372},{-0.375,0.0,-0.927},{-0.927,0.0,0.375},{13.523,3.673,3.6},false},
+  {'COL_SG_Fountain_003','Block',{-702.576,37.0,598.372},{-0.788,0.0,-0.616},{-0.616,0.0,0.788},{13.523,3.673,3.6},false},
+  {'COL_SG_Fountain_004','Block',{-702.576,37.0,598.372},{-0.99,0.0,-0.139},{-0.139,0.0,0.99},{13.523,3.673,3.6},false},
+  {'COL_SG_Fountain_005','Block',{-702.576,37.0,598.372},{-0.927,0.0,0.375},{0.375,0.0,0.927},{13.523,3.673,3.6},false},
+  {'COL_SG_Fountain_006','Block',{-702.576,37.0,598.372},{-0.616,0.0,0.788},{0.788,0.0,0.616},{13.523,3.673,3.6},false},
+  {'COL_SG_Guard_001','Block',{-828.653,53.55,592.116},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{71.8,1.0,3.7},false},
+  {'COL_SG_Guard_009','Block',{-789.387,53.55,499.604},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{96.799,1.0,3.7},false},
+  {'COL_SG_Guard_019','Block',{-764.186,53.55,440.231},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{7.8,1.0,3.7},false},
+  {'COL_SG_Guard_020','Block',{-783.983,53.55,424.27},{-0.886,0.0,-0.464},{-0.464,0.0,0.886},{48.96,1.0,3.7},false},
+  {'COL_SG_Guard_025','Block',{-833.671,53.55,404.168},{-0.956,0.0,-0.294},{-0.294,0.0,0.956},{58.104,1.0,3.7},false},
+  {'COL_SG_Guard_031','Block',{-870.984,53.55,405.625},{-0.644,0.0,0.765},{0.765,0.0,0.644},{26.995,1.0,3.7},false},
+  {'COL_SG_Guard_034','Block',{-887.376,53.55,433.571},{-0.391,0.0,0.921},{0.921,0.0,0.391},{37.8,1.0,3.7},false},
+  {'COL_SG_Guard_038','Block',{-926.893,53.55,439.581},{-0.941,0.0,-0.338},{-0.338,0.0,0.941},{69.913,1.0,3.7},false},
+  {'COL_SG_Guard_045','Block',{-982.678,53.55,478.942},{-0.391,0.0,0.921},{0.921,0.0,0.391},{111.8,1.0,3.7},false},
+  {'COL_SG_Guard_057','Block',{-952.349,53.55,555.892},{0.907,0.0,0.422},{0.422,0.0,-0.907},{115.868,1.0,3.7},false},
+  {'COL_SG_Guard_077','Block',{-774.21,45.55,653.246},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{75.8,1.0,3.7},false},
+  {'COL_SG_Guard_085','Block',{-752.916,45.55,603.078},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{32.8,1.0,3.7},false},
+  {'COL_SG_Guard_089','Block',{-734.162,45.55,558.893},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{30.8,1.0,3.7},false},
+  {'COL_SG_Guard_092','Block',{-712.869,45.55,508.725},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{77.8,1.0,3.7},false},
+  {'COL_SG_Guard_100','Block',{-699.305,45.55,455.488},{-0.114,0.0,-0.993},{-0.993,0.0,0.114},{34.268,1.0,3.7},false},
+  {'COL_SG_Guard_104','Block',{-705.803,45.55,431.183},{-0.563,0.0,-0.826},{-0.826,0.0,0.563},{16.403,1.0,3.7},false},
+  {'COL_SG_Guard_106','Block',{-712.84,45.55,422.916},{-0.921,0.0,-0.391},{-0.391,0.0,0.921},{4.8,1.0,3.7},false},
+  {'COL_SG_Guard_107','Block',{-734.472,45.55,413.734},{-0.921,0.0,-0.391},{-0.391,0.0,0.921},{3.8,1.0,3.7},false},
+  {'COL_SG_Guard_108','Block',{-747.857,45.55,413.824},{-0.995,0.0,0.101},{0.101,0.0,0.995},{22.588,1.0,3.7},false},
+  {'COL_SG_Guard_111','Block',{-763.849,45.55,424.079},{-0.391,0.0,0.921},{0.921,0.0,0.391},{19.8,1.0,3.7},false},
+  {'COL_SG_Guard_113','Block',{-853.711,45.55,635.798},{-0.391,0.0,0.921},{0.921,0.0,0.391},{27.8,1.0,3.7},false},
+  {'COL_SG_Guard_116','Block',{-845.407,45.55,661.932},{0.75,0.0,0.662},{0.662,0.0,-0.75},{37.722,1.0,3.7},false},
+  {'COL_SG_Guard_120','Block',{-810.524,45.55,681.335},{0.953,0.0,0.304},{0.304,0.0,-0.953},{42.981,1.0,3.7},false},
+  {'COL_SG_Guard_125','Block',{-765.076,41.55,703.301},{-0.997,0.0,-0.074},{-0.074,0.0,0.997},{2.239,1.0,3.7},false},
+  {'COL_SG_Guard_126','Block',{-768.012,41.55,703.181},{-0.998,0.0,0.057},{0.057,0.0,0.998},{2.239,1.0,3.7},false},
+  {'COL_SG_Guard_127','Block',{-770.939,41.55,703.446},{-0.982,0.0,0.187},{0.187,0.0,0.982},{2.239,1.0,3.7},false},
+  {'COL_SG_Guard_128','Block',{-773.806,41.55,704.09},{-0.95,0.0,0.313},{0.313,0.0,0.95},{2.239,1.0,3.7},false},
+  {'COL_SG_Guard_129','Block',{-776.564,41.55,705.103},{-0.901,0.0,0.434},{0.434,0.0,0.901},{2.239,1.0,3.7},false},
+  {'COL_SG_Guard_130','Block',{-779.167,41.55,706.468},{-0.836,0.0,0.548},{0.548,0.0,0.836},{2.239,1.0,3.7},false},
+  {'COL_SG_Guard_131','Block',{-781.569,41.55,708.16},{-0.758,0.0,0.653},{0.653,0.0,0.758},{2.239,1.0,3.7},false},
+  {'COL_SG_Guard_132','Block',{-783.729,41.55,710.151},{-0.666,0.0,0.746},{0.746,0.0,0.666},{2.239,1.0,3.7},false},
+  {'COL_SG_Guard_133','Block',{-785.612,41.55,712.408},{-0.563,0.0,0.827},{0.827,0.0,0.563},{2.239,1.0,3.7},false},
+  {'COL_SG_Guard_134','Block',{-787.183,41.55,714.891},{-0.45,0.0,0.893},{0.893,0.0,0.45},{2.239,1.0,3.7},false},
+  {'COL_SG_Guard_135','Block',{-788.417,41.55,717.558},{-0.33,0.0,0.944},{0.944,0.0,0.33},{2.239,1.0,3.7},false},
+  {'COL_SG_Guard_136','Block',{-789.293,41.55,720.363},{-0.204,0.0,0.979},{0.979,0.0,0.204},{2.239,1.0,3.7},false},
+  {'COL_SG_Guard_137','Block',{-789.795,41.55,723.258},{-0.074,0.0,0.997},{0.997,0.0,0.074},{2.239,1.0,3.7},false},
+  {'COL_SG_Guard_138','Block',{-789.914,41.55,726.194},{0.057,0.0,0.998},{0.998,0.0,-0.057},{2.239,1.0,3.7},false},
+  {'COL_SG_Guard_139','Block',{-789.65,41.55,729.121},{0.187,0.0,0.982},{0.982,0.0,-0.187},{2.239,1.0,3.7},false},
+  {'COL_SG_Guard_140','Block',{-789.005,41.55,731.987},{0.313,0.0,0.95},{0.95,0.0,-0.313},{2.239,1.0,3.7},false},
+  {'COL_SG_Guard_141','Block',{-787.992,41.55,734.746},{0.434,0.0,0.901},{0.901,0.0,-0.434},{2.239,1.0,3.7},false},
+  {'COL_SG_Guard_142','Block',{-786.628,41.55,737.348},{0.548,0.0,0.836},{0.836,0.0,-0.548},{2.239,1.0,3.7},false},
+  {'COL_SG_Guard_143','Block',{-784.936,41.55,739.75},{0.653,0.0,0.758},{0.758,0.0,-0.653},{2.239,1.0,3.7},false},
+  {'COL_SG_Guard_144','Block',{-782.944,41.55,741.911},{0.746,0.0,0.666},{0.666,0.0,-0.746},{2.239,1.0,3.7},false},
+  {'COL_SG_Guard_145','Block',{-780.688,41.55,743.794},{0.827,0.0,0.563},{0.563,0.0,-0.827},{2.239,1.0,3.7},false},
+  {'COL_SG_Guard_146','Block',{-778.205,41.55,745.365},{0.893,0.0,0.45},{0.45,0.0,-0.893},{2.239,1.0,3.7},false},
+  {'COL_SG_Guard_147','Block',{-775.538,41.55,746.599},{0.944,0.0,0.33},{0.33,0.0,-0.944},{2.239,1.0,3.7},false},
+  {'COL_SG_Guard_148','Block',{-772.733,41.55,747.475},{0.979,0.0,0.204},{0.204,0.0,-0.979},{2.239,1.0,3.7},false},
+  {'COL_SG_Guard_149','Block',{-769.838,41.55,747.977},{0.997,0.0,0.074},{0.074,0.0,-0.997},{2.239,1.0,3.7},false},
+  {'COL_SG_Guard_150','Block',{-766.902,41.55,748.096},{0.998,0.0,-0.057},{-0.057,0.0,-0.998},{2.239,1.0,3.7},false},
+  {'COL_SG_Guard_151','Block',{-763.975,41.55,747.832},{0.982,0.0,-0.187},{-0.187,0.0,-0.982},{2.239,1.0,3.7},false},
+  {'COL_SG_Guard_152','Block',{-761.108,41.55,747.187},{0.95,0.0,-0.313},{-0.313,0.0,-0.95},{2.239,1.0,3.7},false},
+  {'COL_SG_Guard_153','Block',{-758.35,41.55,746.174},{0.901,0.0,-0.434},{-0.434,0.0,-0.901},{2.239,1.0,3.7},false},
+  {'COL_SG_Guard_154','Block',{-755.747,41.55,744.81},{0.836,0.0,-0.548},{-0.548,0.0,-0.836},{2.239,1.0,3.7},false},
+  {'COL_SG_Guard_155','Block',{-753.345,41.55,743.117},{0.758,0.0,-0.653},{-0.653,0.0,-0.758},{2.239,1.0,3.7},false},
+  {'COL_SG_Guard_156','Block',{-751.184,41.55,741.126},{0.666,0.0,-0.746},{-0.746,0.0,-0.666},{2.239,1.0,3.7},false},
+  {'COL_SG_Guard_157','Block',{-749.302,41.55,738.87},{0.563,0.0,-0.827},{-0.827,0.0,-0.563},{2.239,1.0,3.7},false},
+  {'COL_SG_Guard_158','Block',{-747.73,41.55,736.387},{0.45,0.0,-0.893},{-0.893,0.0,-0.45},{2.239,1.0,3.7},false},
+  {'COL_SG_Guard_159','Block',{-746.496,41.55,733.72},{0.33,0.0,-0.944},{-0.944,0.0,-0.33},{2.239,1.0,3.7},false},
+  {'COL_SG_Guard_160','Block',{-745.621,41.55,730.915},{0.204,0.0,-0.979},{-0.979,0.0,-0.204},{2.239,1.0,3.7},false},
+  {'COL_SG_Guard_161','Block',{-745.119,41.55,728.02},{0.074,0.0,-0.997},{-0.997,0.0,-0.074},{2.239,1.0,3.7},false},
+  {'COL_SG_Guard_162','Block',{-744.999,41.55,725.083},{-0.057,0.0,-0.998},{-0.998,0.0,0.057},{2.239,1.0,3.7},false},
+  {'COL_SG_Guard_163','Block',{-745.264,41.55,722.157},{-0.187,0.0,-0.982},{-0.982,0.0,0.187},{2.239,1.0,3.7},false},
+  {'COL_SG_Guard_164','Block',{-745.908,41.55,719.29},{-0.313,0.0,-0.95},{-0.95,0.0,0.313},{2.239,1.0,3.7},false},
+  {'COL_SG_Guard_165','Block',{-746.921,41.55,716.532},{-0.434,0.0,-0.901},{-0.901,0.0,0.434},{2.239,1.0,3.7},false},
+  {'COL_SG_Guard_166','Block',{-748.286,41.55,713.929},{-0.548,0.0,-0.836},{-0.836,0.0,0.548},{2.239,1.0,3.7},false},
+  {'COL_SG_Guard_167','Block',{-749.978,41.55,711.527},{-0.653,0.0,-0.758},{-0.758,0.0,0.653},{2.239,1.0,3.7},false},
+  {'COL_SG_Guard_168','Block',{-751.97,41.55,709.366},{-0.746,0.0,-0.666},{-0.666,0.0,0.746},{2.239,1.0,3.7},false},
+  {'COL_SG_Guard_169','Block',{-650.987,37.55,631.675},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{3.8,1.0,3.7},false},
+  {'COL_SG_Guard_170','Block',{-642.782,37.55,612.345},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{1.8,1.0,3.7},false},
+  {'COL_SG_Guard_171','Block',{-653.047,37.55,605.815},{-0.921,0.0,-0.391},{-0.391,0.0,0.921},{23.8,1.0,3.7},false},
+  {'COL_SG_Guard_174','Block',{-663.275,37.55,628.633},{0.921,0.0,0.391},{0.391,0.0,-0.921},{22.8,1.0,3.7},false},
+  {'COL_SG_Guard_177','Block',{-728.565,37.55,694.466},{0.988,0.0,0.156},{0.156,0.0,-0.988},{16.262,1.0,3.7},false},
+  {'COL_SG_Guard_179','Block',{-707.636,37.55,682.74},{0.675,0.0,-0.738},{-0.738,0.0,-0.675},{35.854,1.0,3.7},false},
+  {'COL_SG_Guard_183','Block',{-686.929,37.55,652.298},{0.439,0.0,-0.899},{-0.899,0.0,-0.439},{37.851,1.0,3.7},false},
+  {'COL_SG_Guard_187','Block',{-676.205,37.55,629.663},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{11.8,1.0,3.7},false},
+  {'COL_SG_Guard_189','Block',{-662.14,37.55,596.524},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{11.8,1.0,3.7},false},
+  {'COL_SG_Guard_191','Block',{-653.259,37.55,573.106},{0.342,0.0,-0.94},{-0.94,0.0,-0.342},{37.851,1.0,3.7},false},
+  {'COL_SG_Guard_195','Block',{-643.044,37.55,533.879},{0.167,0.0,-0.986},{-0.986,0.0,-0.167},{42.97,1.0,3.7},false},
+  {'COL_SG_Guard_200','Block',{-644.418,37.55,493.871},{-0.27,0.0,-0.963},{-0.963,0.0,0.27},{38.208,1.0,3.7},false},
+  {'COL_SG_Guard_204','Block',{-660.052,37.55,464.051},{-0.692,0.0,-0.722},{-0.722,0.0,0.692},{30.248,1.0,3.7},false},
+  {'COL_SG_Guard_207','Block',{-682.024,37.55,451.076},{-0.991,0.0,-0.135},{-0.135,0.0,0.991},{22.567,1.0,3.7},false},
+  {'COL_SG_Guard_210','Block',{-696.317,37.55,454.372},{-0.391,0.0,0.921},{0.921,0.0,0.391},{10.8,1.0,3.7},false},
+  {'COL_SG_Guard_211','Block',{-781.476,37.55,685.907},{1.0,0.0,-0.017},{-0.017,0.0,-1.0},{13.241,1.0,3.7},false},
+  {'COL_SG_Guard_213','Block',{-768.442,37.55,684.182},{0.963,0.0,-0.27},{-0.27,0.0,-0.963},{12.539,1.0,3.7},false},
+  {'COL_SG_Guard_215','Block',{-759.792,37.55,683.265},{0.921,0.0,0.391},{0.391,0.0,-0.921},{5.8,1.0,3.7},false},
+  {'COL_SG_Guard_216','Block',{-740.922,37.55,691.275},{0.921,0.0,0.391},{0.391,0.0,-0.921},{8.8,1.0,3.7},false},
+  {'COL_SG_Guard_217','Block',{-614.557,29.55,648.224},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{3.8,1.0,3.7},false},
+  {'COL_SG_Guard_218','Block',{-605.766,29.55,627.513},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{2.8,1.0,3.7},false},
+  {'COL_SG_Guard_219','Block',{-614.915,29.55,620.914},{-0.921,0.0,-0.391},{-0.391,0.0,0.921},{21.8,1.0,3.7},false},
+  {'COL_SG_Guard_222','Block',{-627.134,29.55,618.987},{-0.391,0.0,0.921},{0.921,0.0,0.391},{3.8,1.0,3.7},false},
+  {'COL_SG_Guard_223','Block',{-635.534,29.55,638.778},{-0.391,0.0,0.921},{0.921,0.0,0.391},{2.8,1.0,3.7},false},
+  {'COL_SG_Guard_224','Block',{-625.925,29.55,645.572},{0.921,0.0,0.391},{0.391,0.0,-0.921},{20.8,1.0,3.7},false},
+  {'COL_SG_HallAltar_001','Block',{-946.937,58.2,512.471},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{4.8,3.0,13.0},false},
+  {'COL_SG_HallAltar_002','Block',{-934.122,58.2,482.278},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{4.8,3.0,13.0},false},
+  {'COL_SG_HallAltar_003','Block',{-941.174,56.25,497.101},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{29.0,1.6,9.1},false},
+  {'COL_SG_HallDoor_001','Block',{-864.895,60.95,539.037},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{1.6,1.2,18.5},false},
+  {'COL_SG_HallDoor_002','Block',{-858.019,60.95,522.836},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{1.6,1.2,18.5},false},
+  {'COL_SG_HallPier_001','Block',{-882.826,61.95,565.755},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{3.2,4.6,20.5},false},
+  {'COL_SG_HallPier_002','Block',{-900.009,61.95,558.462},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{3.2,4.6,20.5},false},
+  {'COL_SG_HallPier_003','Block',{-917.192,61.95,551.169},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{3.2,4.6,20.5},false},
+  {'COL_SG_HallPier_004','Block',{-934.375,61.95,543.875},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{3.2,4.6,20.5},false},
+  {'COL_SG_HallPier_005','Block',{-951.558,61.95,536.582},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{3.2,4.6,20.5},false},
+  {'COL_SG_HallPier_006','Block',{-877.911,61.95,568.167},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{2.6,2.4,20.5},false},
+  {'COL_SG_HallPier_007','Block',{-956.707,61.95,534.723},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{2.6,2.4,20.5},false},
+  {'COL_SG_HallPier_008','Block',{-851.257,61.95,491.377},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{3.2,4.6,20.5},false},
+  {'COL_SG_HallPier_009','Block',{-868.44,61.95,484.084},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{3.2,4.6,20.5},false},
+  {'COL_SG_HallPier_010','Block',{-885.623,61.95,476.791},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{3.2,4.6,20.5},false},
+  {'COL_SG_HallPier_011','Block',{-902.806,61.95,469.498},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{3.2,4.6,20.5},false},
+  {'COL_SG_HallPier_012','Block',{-919.989,61.95,462.205},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{3.2,4.6,20.5},false},
+  {'COL_SG_HallPier_013','Block',{-846.108,61.95,493.237},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{2.6,2.4,20.5},false},
+  {'COL_SG_HallPier_014','Block',{-924.904,61.95,459.793},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{2.6,2.4,20.5},false},
+  {'COL_SG_Islet_001','Block',{-673.173,42.7,351.215},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{22.007,3.0,3.0},false},
+  {'COL_SG_Islet_002','Block',{-675.935,42.7,350.043},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{29.826,3.0,3.0},false},
+  {'COL_SG_Islet_003','Block',{-678.696,42.7,348.871},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{34.959,3.0,3.0},false},
+  {'COL_SG_Islet_004','Block',{-681.458,42.7,347.699},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{38.892,3.0,3.0},false},
+  {'COL_SG_Islet_005','Block',{-684.219,42.7,346.527},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{41.377,3.0,3.0},false},
+  {'COL_SG_Islet_006','Block',{-686.981,42.7,345.354},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{42.934,3.0,3.0},false},
+  {'COL_SG_Islet_007','Block',{-689.742,42.7,344.182},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{43.724,3.0,3.0},false},
+  {'COL_SG_Islet_008','Block',{-692.504,42.7,343.01},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{43.868,3.0,3.0},false},
+  {'COL_SG_Islet_009','Block',{-695.265,42.7,341.838},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{43.46,3.0,3.0},false},
+  {'COL_SG_Islet_010','Block',{-698.027,42.7,340.666},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{42.67,3.0,3.0},false},
+  {'COL_SG_Islet_011','Block',{-700.789,42.7,339.494},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{40.549,3.0,3.0},false},
+  {'COL_SG_Islet_012','Block',{-703.55,42.7,338.322},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{38.028,3.0,3.0},false},
+  {'COL_SG_Islet_013','Block',{-706.312,42.7,337.15},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{33.424,3.0,3.0},false},
+  {'COL_SG_Islet_014','Block',{-709.073,42.7,335.978},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{27.22,3.0,3.0},false},
+  {'COL_SG_Islet_015','Block',{-711.374,42.7,335.001},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{17.184,2.0,3.0},false},
+  {'COL_SG_Islet_016','Block',{-685.402,43.2,327.557},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{10.0,18.0,2.0},false},
+  {'COL_SG_Islet_017','Block',{-698.931,45.55,323.225},{-0.945,0.0,0.326},{0.326,0.0,0.945},{12.126,1.0,3.7},false},
+  {'COL_SG_Islet_018','Block',{-707.998,45.55,329.345},{-0.656,0.0,0.755},{0.755,0.0,0.656},{12.126,1.0,3.7},false},
+  {'COL_SG_Islet_019','Block',{-712.791,45.55,339.18},{-0.19,0.0,0.982},{0.982,0.0,0.19},{12.126,1.0,3.7},false},
+  {'COL_SG_Islet_020','Block',{-712.024,45.55,350.092},{0.326,0.0,0.945},{0.945,0.0,-0.326},{12.126,1.0,3.7},false},
+  {'COL_SG_Islet_021','Block',{-709.494,45.55,356.356},{0.602,0.0,0.799},{0.799,0.0,-0.602},{3.078,1.0,3.7},false},
+  {'COL_SG_Islet_022','Block',{-685.157,45.55,363.186},{0.945,0.0,-0.326},{-0.326,0.0,-0.945},{12.126,1.0,3.7},false},
+  {'COL_SG_Islet_023','Block',{-676.089,45.55,357.066},{0.656,0.0,-0.755},{-0.755,0.0,-0.656},{12.126,1.0,3.7},false},
+  {'COL_SG_Islet_024','Block',{-671.297,45.55,347.232},{0.19,0.0,-0.982},{-0.982,0.0,-0.19},{12.126,1.0,3.7},false},
+  {'COL_SG_Islet_025','Block',{-672.063,45.55,336.319},{-0.326,0.0,-0.945},{-0.945,0.0,0.326},{12.126,1.0,3.7},false},
+  {'COL_SG_Islet_026','Block',{-674.594,45.55,330.055},{-0.602,0.0,-0.799},{-0.799,0.0,0.602},{3.078,1.0,3.7},false},
+  {'COL_SG_Islet_027','Block',{-676.565,45.8,331.308},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{10.0,1.2,4.2},false},
+  {'COL_SG_Islet_028','Block',{-694.239,45.8,323.806},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{10.0,1.2,4.2},false},
+  {'COL_SG_PropBench_001','Block',{-717.177,37.04,580.343},{-0.777,0.0,0.629},{0.629,0.0,0.777},{5.0,1.7,1.67},false},
+  {'COL_SG_PropBench_002','Block',{-725.688,37.04,600.395},{0.087,0.0,0.996},{0.996,0.0,-0.087},{5.0,1.7,1.67},false},
+  {'COL_SG_PropBench_003','Block',{-687.975,37.04,616.402},{0.777,0.0,-0.629},{-0.629,0.0,-0.777},{5.0,1.7,1.67},false},
+  {'COL_SG_PropBench_004','Block',{-679.464,37.04,596.35},{-0.087,0.0,-0.996},{-0.996,0.0,0.087},{5.0,1.7,1.67},false},
+  {'COL_SG_PropLamp_001','Block',{-711.417,40.7,576.491},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{1.0,1.0,9.0},false},
+  {'COL_SG_PropLamp_002','Block',{-724.457,40.7,607.214},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{1.0,1.0,9.0},false},
+  {'COL_SG_PropLamp_003','Block',{-693.735,40.7,620.254},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{1.0,1.0,9.0},false},
+  {'COL_SG_PropLamp_004','Block',{-680.695,40.7,589.531},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{1.0,1.0,9.0},false},
+  {'COL_SG_PropLamp_005','Block',{-803.264,48.7,639.285},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{1.0,1.0,9.0},false},
+  {'COL_SG_PropLamp_006','Block',{-663.397,40.7,492.244},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{1.0,1.0,9.0},false},
+  {'COL_SG_StairEastP3_001','Ramp',{-759.947,47.748,452.35},{-0.833,0.426,-0.354},{-0.391,-0.0,0.921},{18.788,12.0,1.0},false},
+  {'COL_SG_StairEastP3_002','Block',{-768.105,51.7,448.888},{-0.921,0.0,-0.391},{-0.391,0.0,0.921},{1.15,12.0,1.0},false},
+  {'COL_SG_StairEastP3_003','Ramp',{-757.473,49.314,446.231},{-0.833,0.426,-0.354},{-0.391,-0.0,0.921},{18.788,1.2,5.5},false},
+  {'COL_SG_StairEastP3_004','Ramp',{-762.63,49.314,458.382},{-0.833,0.426,-0.354},{-0.391,-0.0,0.921},{18.788,1.2,5.5},false},
+  {'COL_SG_StairEntry_001','Ramp',{-638.419,31.743,625.603},{-0.841,0.406,-0.357},{-0.391,-0.0,0.921},{19.698,18.0,1.0},false},
+  {'COL_SG_StairEntry_002','Block',{-647.069,35.7,621.932},{-0.921,0.0,-0.391},{-0.391,0.0,0.921},{1.2,18.0,1.0},false},
+  {'COL_SG_StairEntry_003','Ramp',{-634.835,33.361,616.696},{-0.841,0.406,-0.357},{-0.391,-0.0,0.921},{19.698,1.2,5.5},false},
+  {'COL_SG_StairEntry_004','Ramp',{-642.336,33.361,634.37},{-0.841,0.406,-0.357},{-0.391,-0.0,0.921},{19.698,1.2,5.5},false},
+  {'COL_SG_StairGate_001','Ramp',{-803.707,47.748,555.448},{-0.833,0.426,-0.354},{-0.391,-0.0,0.921},{18.788,16.0,1.0},false},
+  {'COL_SG_StairGate_002','Block',{-811.864,51.7,551.986},{-0.921,0.0,-0.391},{-0.391,0.0,0.921},{1.15,16.0,1.0},false},
+  {'COL_SG_StairGate_003','Ramp',{-800.45,49.314,547.488},{-0.833,0.426,-0.354},{-0.391,-0.0,0.921},{18.788,1.2,5.5},false},
+  {'COL_SG_StairGate_004','Ramp',{-807.171,49.314,563.321},{-0.833,0.426,-0.354},{-0.391,-0.0,0.921},{18.788,1.2,5.5},false},
+  {'COL_SG_StairP1P2_001','Ramp',{-735.588,39.748,584.36},{-0.833,0.426,-0.354},{-0.391,-0.0,0.921},{18.788,16.0,1.0},false},
+  {'COL_SG_StairP1P2_002','Block',{-743.746,43.7,580.898},{-0.921,0.0,-0.391},{-0.391,0.0,0.921},{1.15,16.0,1.0},false},
+  {'COL_SG_StairP1P2_003','Ramp',{-732.332,41.314,576.4},{-0.833,0.426,-0.354},{-0.391,-0.0,0.921},{18.788,1.2,5.5},false},
+  {'COL_SG_StairP1P2_004','Ramp',{-739.052,41.314,592.233},{-0.833,0.426,-0.354},{-0.391,-0.0,0.921},{18.788,1.2,5.5},false},
+  {'COL_SG_StairSummon_001','Ramp',{-756.952,37.748,700.889},{-0.354,0.426,0.833},{0.921,-0.0,0.391},{9.394,12.0,1.0},false},
+  {'COL_SG_StairSummon_002','Block',{-758.754,39.7,705.134},{-0.391,0.0,0.921},{0.921,0.0,0.391},{1.15,12.0,1.0},false},
+  {'COL_SG_StairSummon_003','Ramp',{-763.071,39.314,698.414},{-0.354,0.426,0.833},{0.921,-0.0,0.391},{9.394,1.2,5.5},false},
+  {'COL_SG_StairSummon_004','Ramp',{-750.921,39.314,703.571},{-0.354,0.426,0.833},{0.921,-0.0,0.391},{9.394,1.2,5.5},false},
+  {'COL_SG_SumPodium_001','Block',{-778.621,41.55,729.481},{0.921,0.0,0.391},{0.391,0.0,-0.921},{7.55,15.898,3.9},false},
+  {'COL_SG_SumPodium_002','Block',{-762.466,41.55,736.338},{0.921,0.0,0.391},{0.391,0.0,-0.921},{7.55,15.898,3.9},false},
+  {'COL_SG_SumPodium_003','Block',{-772.291,41.55,737.029},{0.921,0.0,0.391},{0.391,0.0,-0.921},{10.0,6.948,3.9},false},
+  {'COL_SG_SumPodium_004','Block',{-774.022,41.55,741.107},{0.921,0.0,0.391},{0.391,0.0,-0.921},{18.0,1.913,3.9},false},
+  {'COL_SG_SumPodium_005','Block',{-774.69,41.55,742.68},{0.921,0.0,0.391},{0.391,0.0,-0.921},{10.0,1.504,3.9},false},
+  {'COL_SG_SumPodium_006','Block',{-782.301,40.3,727.788},{0.921,0.0,0.391},{0.391,0.0,-0.921},{0.55,16.756,1.4},false},
+  {'COL_SG_SumPodium_007','Block',{-775.407,40.3,721.911},{0.921,0.0,0.391},{0.391,0.0,-0.921},{7.55,0.55,1.4},false},
+  {'COL_SG_SumPodium_008','Block',{-758.69,40.3,737.81},{0.921,0.0,0.391},{0.391,0.0,-0.921},{0.55,16.756,1.4},false},
+  {'COL_SG_SumPodium_009','Block',{-759.252,40.3,728.768},{0.921,0.0,0.391},{0.391,0.0,-0.921},{7.55,0.55,1.4},false},
+  {'COL_SG_SumStair_001','Ramp',{-766.411,41.753,723.175},{-0.349,0.447,0.823},{0.921,-0.0,0.391},{8.944,7.6,1.0},false},
+  {'COL_SG_SumStair_002','Block',{-768.102,43.7,727.158},{-0.391,0.0,0.921},{0.921,0.0,0.391},{1.1,7.6,1.0},false},
+  {'COL_SG_SumStair_003','Ramp',{-770.479,43.26,721.499},{-0.349,0.447,0.823},{0.921,-0.0,0.391},{8.944,1.2,5.5},false},
+  {'COL_SG_SumStair_004','Ramp',{-762.379,43.26,724.937},{-0.349,0.447,0.823},{0.921,-0.0,0.391},{8.944,1.2,5.5},false},
+  {'COL_SG_SumTower_001','Block',{-772.634,60.05,737.836},{0.921,0.0,0.391},{0.391,0.0,-0.921},{17.2,8.7,33.1},false},
+  {'COL_SG_SumTower_002','Block',{-770.407,66.4,732.589},{0.921,0.0,0.391},{0.391,0.0,-0.921},{17.2,2.7,20.4},false},
+  {'COL_SG_SumTower_003','Block',{-769.293,57.3,729.965},{0.921,0.0,0.391},{0.391,0.0,-0.921},{8.0,3.0,2.2},false},
+  {'COL_SG_SumTower_004','Block',{-775.62,50.95,728.746},{0.921,0.0,0.391},{0.391,0.0,-0.921},{4.6,5.7,14.9},false},
+  {'COL_SG_SumTower_005','Block',{-780.12,57.35,731.671},{0.921,0.0,0.391},{0.391,0.0,-0.921},{4.2,2.2,27.7},false},
+  {'COL_SG_SumTower_006','Block',{-777.036,47.75,723.637},{0.921,0.0,0.391},{0.391,0.0,-0.921},{3.4,3.4,8.5},false},
+  {'COL_SG_SumTower_007','Block',{-764.021,50.95,733.669},{0.921,0.0,0.391},{0.391,0.0,-0.921},{4.6,5.7,14.9},false},
+  {'COL_SG_SumTower_008','Block',{-762.998,57.35,738.938},{0.921,0.0,0.391},{0.391,0.0,-0.921},{4.2,2.2,27.7},false},
+  {'COL_SG_SumTower_009','Block',{-759.362,47.75,731.138},{0.921,0.0,0.391},{0.391,0.0,-0.921},{3.4,3.4,8.5},false},
+  {'COL_SG_SumTower_010','Block',{-769.567,42.1,730.609},{0.921,0.0,0.391},{0.391,0.0,-0.921},{10.0,7.0,4.2},false},
+  {'COL_SG_SummonBridge_001','Block',{-753.196,35.2,692.04},{-0.391,0.0,0.921},{0.921,0.0,0.391},{16.0,12.0,2.0},false},
+  {'COL_SG_SummonBridge_002','Block',{-759.271,37.95,689.461},{-0.391,0.0,0.921},{0.921,0.0,0.391},{12.0,1.2,4.5},false},
+  {'COL_SG_SummonBridge_003','Block',{-747.121,37.95,694.619},{-0.391,0.0,0.921},{0.921,0.0,0.391},{12.0,1.2,4.5},false},
+  {'COL_SG_TerButtress_001','Block',{-835.191,47.9,609.439},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{3.2,2.5,7.45},false},
+  {'COL_SG_TerButtress_002','Block',{-823.079,47.9,580.903},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{3.2,2.5,7.45},false},
+  {'COL_SG_TerButtress_003','Block',{-799.441,47.9,525.211},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{3.2,2.5,7.45},false},
+  {'COL_SG_TerButtress_004','Block',{-792.018,47.9,507.722},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{3.2,2.5,7.45},false},
+  {'COL_SG_TerButtress_005','Block',{-781.859,47.9,483.788},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{3.2,2.5,7.45},false},
+  {'COL_SG_TerButtress_006','Block',{-775.217,47.9,468.14},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{3.2,2.5,7.45},false},
+  {'COL_SG_TerButtress_007','Block',{-783.433,39.85,676.897},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{3.2,2.5,7.35},false},
+  {'COL_SG_TerButtress_008','Block',{-776.303,39.85,660.098},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{3.2,2.5,7.35},false},
+  {'COL_SG_TerButtress_009','Block',{-769.172,39.85,643.299},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{3.2,2.5,7.35},false},
+  {'COL_SG_TerButtress_010','Block',{-762.042,39.85,626.499},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{3.2,2.5,7.35},false},
+  {'COL_SG_TerButtress_011','Block',{-750.142,39.85,598.462},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{3.2,2.5,7.35},false},
+  {'COL_SG_TerButtress_012','Block',{-735.555,39.85,564.096},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{3.2,2.5,7.35},false},
+  {'COL_SG_TerButtress_013','Block',{-723.411,39.85,535.483},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{3.2,2.5,7.35},false},
+  {'COL_SG_TerButtress_014','Block',{-715.792,39.85,517.533},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{3.2,2.5,7.35},false},
+  {'COL_SG_TerButtress_015','Block',{-708.173,39.85,499.583},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{3.2,2.5,7.35},false},
+  {'COL_SG_TerButtress_016','Block',{-700.555,39.85,481.633},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{3.2,2.5,7.35},false},
+  {'COL_SG_TerMound_001','Block',{-1002.345,54.25,562.391},{0.009,0.0,-1.0},{-1.0,0.0,-0.009},{19.956,8.316,43.5},false},
+  {'COL_SG_TerMound_002','Block',{-1002.345,54.25,562.391},{-0.701,0.0,-0.713},{-0.713,0.0,0.701},{19.956,8.316,43.5},false},
+  {'COL_SG_TerMound_003','Block',{-1002.345,54.25,562.391},{-1.0,0.0,-0.009},{-0.009,0.0,1.0},{19.956,8.316,43.5},false},
+  {'COL_SG_TerMound_004','Block',{-1002.345,54.25,562.391},{-0.713,0.0,0.701},{0.701,0.0,0.713},{19.956,8.316,43.5},false},
+  {'COL_SG_TerMound_005','Block',{-904.627,52.25,419.187},{0.009,0.0,-1.0},{-1.0,0.0,-0.009},{26.608,11.071,39.5},false},
+  {'COL_SG_TerMound_006','Block',{-904.627,52.25,419.187},{-0.701,0.0,-0.713},{-0.713,0.0,0.701},{26.608,11.071,39.5},false},
+  {'COL_SG_TerMound_007','Block',{-904.627,52.25,419.187},{-1.0,0.0,-0.009},{-0.009,0.0,1.0},{26.608,11.071,39.5},false},
+  {'COL_SG_TerMound_008','Block',{-904.627,52.25,419.187},{-0.713,0.0,0.701},{0.701,0.0,0.713},{26.608,11.071,39.5},false},
+  {'COL_SG_TerMound_009','Block',{-928.614,49.25,393.797},{0.009,0.0,-1.0},{-1.0,0.0,-0.009},{19.956,8.316,33.5},false},
+  {'COL_SG_TerMound_010','Block',{-928.614,49.25,393.797},{-0.701,0.0,-0.713},{-0.713,0.0,0.701},{19.956,8.316,33.5},false},
+  {'COL_SG_TerMound_011','Block',{-928.614,49.25,393.797},{-1.0,0.0,-0.009},{-0.009,0.0,1.0},{19.956,8.316,33.5},false},
+  {'COL_SG_TerMound_012','Block',{-928.614,49.25,393.797},{-0.713,0.0,0.701},{0.701,0.0,0.713},{19.956,8.316,33.5},false},
+  {'COL_SG_TerMound_013','Block',{-873.141,45.25,636.785},{0.009,0.0,-1.0},{-1.0,0.0,-0.009},{16.63,6.938,25.5},false},
+  {'COL_SG_TerMound_014','Block',{-873.141,45.25,636.785},{-0.701,0.0,-0.713},{-0.713,0.0,0.701},{16.63,6.938,25.5},false},
+  {'COL_SG_TerMound_015','Block',{-873.141,45.25,636.785},{-1.0,0.0,-0.009},{-0.009,0.0,1.0},{16.63,6.938,25.5},false},
+  {'COL_SG_TerMound_016','Block',{-873.141,45.25,636.785},{-0.713,0.0,0.701},{0.701,0.0,0.713},{16.63,6.938,25.5},false},
+  {'COL_SG_TerSpire_001','Block',{-888.443,42.5,391.294},{0.009,0.0,-1.0},{-1.0,0.0,-0.009},{16.26,6.785,20.0},false},
+  {'COL_SG_TerSpire_002','Block',{-888.443,42.5,391.294},{-0.701,0.0,-0.713},{-0.713,0.0,0.701},{16.26,6.785,20.0},false},
+  {'COL_SG_TerSpire_003','Block',{-888.443,42.5,391.294},{-1.0,0.0,-0.009},{-0.009,0.0,1.0},{16.26,6.785,20.0},false},
+  {'COL_SG_TerSpire_004','Block',{-888.443,42.5,391.294},{-0.713,0.0,0.701},{0.701,0.0,0.713},{16.26,6.785,20.0},false},
+  {'COL_SG_Terrain_001','Block',{-805.844,48.2,529.421},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{205.761,6.0,8.0},false},
+  {'COL_SG_Terrain_002','Block',{-811.224,48.2,526.738},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{206.006,6.0,8.0},false},
+  {'COL_SG_Terrain_003','Block',{-816.604,48.2,524.056},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{206.251,6.0,8.0},false},
+  {'COL_SG_Terrain_004','Block',{-821.983,48.2,521.373},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{206.496,6.0,8.0},false},
+  {'COL_SG_Terrain_005','Block',{-827.363,48.2,518.691},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{206.741,6.0,8.0},false},
+  {'COL_SG_Terrain_006','Block',{-832.742,48.2,516.009},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{206.986,6.0,8.0},false},
+  {'COL_SG_Terrain_007','Block',{-838.122,48.2,513.326},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{207.231,6.0,8.0},false},
+  {'COL_SG_Terrain_008','Block',{-843.501,48.2,510.644},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{207.475,6.0,8.0},false},
+  {'COL_SG_Terrain_009','Block',{-848.135,48.2,506.204},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{203.033,6.0,8.0},false},
+  {'COL_SG_Terrain_010','Block',{-852.724,48.2,501.66},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{197.012,6.0,8.0},false},
+  {'COL_SG_Terrain_011','Block',{-857.314,48.2,497.116},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{190.992,6.0,8.0},false},
+  {'COL_SG_Terrain_012','Block',{-862.402,48.2,493.747},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{187.524,6.0,8.0},false},
+  {'COL_SG_Terrain_013','Block',{-868.006,48.2,491.594},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{186.697,6.0,8.0},false},
+  {'COL_SG_Terrain_014','Block',{-873.61,48.2,489.44},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{185.869,6.0,8.0},false},
+  {'COL_SG_Terrain_015','Block',{-879.214,48.2,487.286},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{185.041,6.0,8.0},false},
+  {'COL_SG_Terrain_016','Block',{-884.818,48.2,485.132},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{184.214,6.0,8.0},false},
+  {'COL_SG_Terrain_017','Block',{-890.422,48.2,482.978},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{183.386,6.0,8.0},false},
+  {'COL_SG_Terrain_018','Block',{-896.61,48.2,482.201},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{179.569,6.0,8.0},false},
+  {'COL_SG_Terrain_019','Block',{-905.902,48.2,488.736},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{159.863,6.0,8.0},false},
+  {'COL_SG_Terrain_020','Block',{-919.53,48.2,505.487},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{117.96,6.0,8.0},false},
+  {'COL_SG_Terrain_021','Block',{-925.079,48.2,503.206},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{117.41,6.0,8.0},false},
+  {'COL_SG_Terrain_022','Block',{-930.629,48.2,500.924},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{116.861,6.0,8.0},false},
+  {'COL_SG_Terrain_023','Block',{-936.179,48.2,498.642},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{116.311,6.0,8.0},false},
+  {'COL_SG_Terrain_024','Block',{-941.728,48.2,496.361},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{115.761,6.0,8.0},false},
+  {'COL_SG_Terrain_025','Block',{-947.278,48.2,494.079},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{115.211,6.0,8.0},false},
+  {'COL_SG_Terrain_026','Block',{-952.828,48.2,491.797},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{114.662,6.0,8.0},false},
+  {'COL_SG_Terrain_027','Block',{-958.377,48.2,489.516},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{114.112,6.0,8.0},false},
+  {'COL_SG_Terrain_028','Block',{-963.927,48.2,487.234},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{113.562,6.0,8.0},false},
+  {'COL_SG_Terrain_029','Block',{-969.477,48.2,484.952},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{113.012,6.0,8.0},false},
+  {'COL_SG_Terrain_030','Block',{-975.026,48.2,482.671},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{112.463,6.0,8.0},false},
+  {'COL_SG_Terrain_032','Block',{-805.248,48.2,529.808},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{206.4,4.6,8.0},false},
+  {'COL_SG_Terrain_033','Block',{-785.728,48.2,426.517},{-0.886,0.0,-0.464},{-0.464,0.0,0.886},{49.563,4.6,8.0},false},
+  {'COL_SG_Terrain_034','Block',{-834.974,48.2,406.696},{-0.956,0.0,-0.294},{-0.294,0.0,0.956},{58.71,4.6,8.0},false},
+  {'COL_SG_Terrain_035','Block',{-869.167,48.2,407.814},{-0.644,0.0,0.765},{0.765,0.0,0.644},{27.603,4.6,8.0},false},
+  {'COL_SG_Terrain_036','Block',{-884.994,48.2,435.125},{-0.391,0.0,0.921},{0.921,0.0,0.391},{38.4,4.6,8.0},false},
+  {'COL_SG_Terrain_037','Block',{-928.31,48.2,442.047},{-0.941,0.0,-0.338},{-0.338,0.0,0.941},{70.514,4.6,8.0},false},
+  {'COL_SG_Terrain_038','Block',{-980.296,48.2,480.496},{-0.391,0.0,0.921},{0.921,0.0,0.391},{112.4,4.6,8.0},false},
+  {'COL_SG_Terrain_039','Block',{-950.713,48.2,553.564},{0.907,0.0,0.422},{0.422,0.0,-0.907},{116.469,4.6,8.0},false},
+  {'COL_SG_Terrain_040','Block',{-891.302,48.2,591.37},{0.423,0.0,0.906},{0.906,0.0,-0.423},{27.307,4.6,8.0},false},
+  {'COL_SG_Terrain_041','Block',{-864.552,48.2,612.948},{0.904,0.0,0.428},{0.428,0.0,-0.904},{49.441,4.6,8.0},false},
+  {'COL_SG_Terrain_042','Block',{-746.354,40.2,578.659},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{234.093,6.0,8.0},false},
+  {'COL_SG_Terrain_043','Block',{-749.917,40.2,571.699},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{245.239,6.0,8.0},false},
+  {'COL_SG_Terrain_044','Block',{-753.481,40.2,564.738},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{256.386,6.0,8.0},false},
+  {'COL_SG_Terrain_045','Block',{-757.275,40.2,558.32},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{266.354,6.0,8.0},false},
+  {'COL_SG_Terrain_046','Block',{-762.154,40.2,554.457},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{270.769,6.0,8.0},false},
+  {'COL_SG_Terrain_047','Block',{-767.032,40.2,550.594},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{275.185,6.0,8.0},false},
+  {'COL_SG_Terrain_048','Block',{-772.545,40.2,548.226},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{276.354,6.0,8.0},false},
+  {'COL_SG_Terrain_049','Block',{-777.872,40.2,545.42},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{275.35,6.0,8.0},false},
+  {'COL_SG_Terrain_050','Block',{-783.004,40.2,542.155},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{273.35,6.0,8.0},false},
+  {'COL_SG_Terrain_051','Block',{-788.239,40.2,539.131},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{270.827,6.0,8.0},false},
+  {'COL_SG_Terrain_052','Block',{-794.016,40.2,537.385},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{265.527,6.0,8.0},false},
+  {'COL_SG_Terrain_053','Block',{-799.793,40.2,535.639},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{260.228,6.0,8.0},false},
+  {'COL_SG_Terrain_054','Block',{-805.57,40.2,533.893},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{254.927,6.0,8.0},false},
+  {'COL_SG_Terrain_056','Block',{-776.592,40.2,651.692},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{76.4,4.6,8.0},false},
+  {'COL_SG_Terrain_058','Block',{-715.251,40.2,507.171},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{78.4,4.6,8.0},false},
+  {'COL_SG_Terrain_059','Block',{-702.145,40.2,455.303},{-0.114,0.0,-0.993},{-0.993,0.0,0.114},{34.882,4.6,8.0},false},
+  {'COL_SG_Terrain_060','Block',{-708.41,40.2,432.33},{-0.563,0.0,-0.826},{-0.826,0.0,0.563},{17.043,4.6,8.0},false},
+  {'COL_SG_Terrain_061','Block',{-724.98,40.2,420.805},{-0.921,0.0,-0.391},{-0.391,0.0,0.921},{28.4,4.6,8.0},false},
+  {'COL_SG_Terrain_062','Block',{-748.09,40.2,416.662},{-0.995,0.0,0.101},{0.101,0.0,0.995},{23.225,4.6,8.0},false},
+  {'COL_SG_Terrain_063','Block',{-807.179,40.2,533.334},{-0.391,0.0,0.921},{0.921,0.0,0.391},{254.4,4.6,8.0},false},
+  {'COL_SG_Terrain_064','Block',{-843.169,40.2,660.172},{0.75,0.0,0.662},{0.662,0.0,-0.75},{38.347,4.6,8.0},false},
+  {'COL_SG_Terrain_065','Block',{-809.195,40.2,678.82},{0.953,0.0,0.304},{0.304,0.0,-0.953},{43.586,4.6,8.0},false},
+  {'COL_SG_Terrain_066','Block',{-767.457,36.2,725.639},{0.267,0.0,-0.964},{-0.964,0.0,-0.267},{43.624,5.793,8.0},false},
+  {'COL_SG_Terrain_067','Block',{-767.457,36.2,725.639},{0.009,0.0,-1.0},{-1.0,0.0,-0.009},{43.624,5.793,8.0},false},
+  {'COL_SG_Terrain_068','Block',{-767.457,36.2,725.639},{-0.25,0.0,-0.968},{-0.968,0.0,0.25},{43.624,5.793,8.0},false},
+  {'COL_SG_Terrain_069','Block',{-767.457,36.2,725.639},{-0.492,0.0,-0.87},{-0.87,0.0,0.492},{43.624,5.793,8.0},false},
+  {'COL_SG_Terrain_070','Block',{-767.457,36.2,725.639},{-0.701,0.0,-0.713},{-0.713,0.0,0.701},{43.624,5.793,8.0},false},
+  {'COL_SG_Terrain_071','Block',{-767.457,36.2,725.639},{-0.862,0.0,-0.508},{-0.508,0.0,0.862},{43.624,5.793,8.0},false},
+  {'COL_SG_Terrain_072','Block',{-767.457,36.2,725.639},{-0.964,0.0,-0.267},{-0.267,0.0,0.964},{43.624,5.793,8.0},false},
+  {'COL_SG_Terrain_073','Block',{-767.457,36.2,725.639},{-1.0,0.0,-0.009},{-0.009,0.0,1.0},{43.624,5.793,8.0},false},
+  {'COL_SG_Terrain_074','Block',{-767.457,36.2,725.639},{-0.968,0.0,0.25},{0.25,0.0,0.968},{43.624,5.793,8.0},false},
+  {'COL_SG_Terrain_075','Block',{-767.457,36.2,725.639},{-0.87,0.0,0.492},{0.492,0.0,0.87},{43.624,5.793,8.0},false},
+  {'COL_SG_Terrain_076','Block',{-767.457,36.2,725.639},{-0.713,0.0,0.701},{0.701,0.0,0.713},{43.624,5.793,8.0},false},
+  {'COL_SG_Terrain_077','Block',{-767.457,36.2,725.639},{-0.508,0.0,0.862},{0.862,0.0,0.508},{43.624,5.793,8.0},false},
+  {'COL_SG_Terrain_078','Block',{-661.153,32.2,615.954},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{24.0,30.0,8.0},false},
+  {'COL_SG_Terrain_079','Block',{-672.199,32.2,611.266},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{49.9,6.0,8.0},false},
+  {'COL_SG_Terrain_080','Block',{-676.641,32.2,606.374},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{152.485,6.0,8.0},false},
+  {'COL_SG_Terrain_081','Block',{-680.591,32.2,600.323},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{194.538,6.0,8.0},false},
+  {'COL_SG_Terrain_082','Block',{-685.926,32.2,597.536},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{208.575,6.0,8.0},false},
+  {'COL_SG_Terrain_083','Block',{-690.277,32.2,592.43},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{217.575,6.0,8.0},false},
+  {'COL_SG_Terrain_084','Block',{-694.625,32.2,587.319},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{226.563,6.0,8.0},false},
+  {'COL_SG_Terrain_085','Block',{-698.691,32.2,581.542},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{234.021,6.0,8.0},false},
+  {'COL_SG_Terrain_086','Block',{-703.712,32.2,578.014},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{236.593,6.0,8.0},false},
+  {'COL_SG_Terrain_087','Block',{-708.733,32.2,574.486},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{239.164,6.0,8.0},false},
+  {'COL_SG_Terrain_088','Block',{-713.754,32.2,570.958},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{241.736,6.0,8.0},false},
+  {'COL_SG_Terrain_089','Block',{-719.095,32.2,568.185},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{245.947,6.0,8.0},false},
+  {'COL_SG_Terrain_090','Block',{-725.648,32.2,568.269},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{250.272,6.0,8.0},false},
+  {'COL_SG_Terrain_091','Block',{-732.148,32.2,568.225},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{251.995,6.0,8.0},false},
+  {'COL_SG_Terrain_092','Block',{-738.511,32.2,567.861},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{253.026,6.0,8.0},false},
+  {'COL_SG_Terrain_094','Block',{-727.62,32.2,691.781},{0.988,0.0,0.156},{0.156,0.0,-0.988},{16.892,4.6,8.0},false},
+  {'COL_SG_Terrain_095','Block',{-709.365,32.2,680.481},{0.675,0.0,-0.738},{-0.738,0.0,-0.675},{36.456,4.6,8.0},false},
+  {'COL_SG_Terrain_096','Block',{-689.225,32.2,650.621},{0.439,0.0,-0.899},{-0.899,0.0,-0.439},{38.453,4.6,8.0},false},
+  {'COL_SG_Terrain_098','Block',{-655.719,32.2,571.679},{0.342,0.0,-0.94},{-0.94,0.0,-0.342},{38.453,4.6,8.0},false},
+  {'COL_SG_Terrain_099','Block',{-645.72,32.2,532.916},{0.167,0.0,-0.986},{-0.986,0.0,-0.167},{43.574,4.6,8.0},false},
+  {'COL_SG_Terrain_100','Block',{-647.25,32.2,494.14},{-0.27,0.0,-0.963},{-0.963,0.0,0.27},{38.819,4.6,8.0},false},
+  {'COL_SG_Terrain_101','Block',{-662.424,32.2,465.622},{-0.692,0.0,-0.722},{-0.722,0.0,0.692},{30.863,4.6,8.0},false},
+  {'COL_SG_Terrain_102','Block',{-682.915,32.2,453.78},{-0.991,0.0,-0.135},{-0.135,0.0,0.991},{23.204,4.6,8.0},false},
+  {'COL_SG_Terrain_103','Block',{-741.796,32.2,568.689},{-0.391,0.0,0.921},{0.921,0.0,0.391},{256.4,4.6,8.0},false},
+  {'COL_SG_Terrain_104','Block',{-784.115,32.2,683.151},{1.0,0.0,-0.017},{-0.017,0.0,-1.0},{20.098,4.6,8.0},false},
+  {'COL_SG_Terrain_105','Block',{-768.684,32.2,681.342},{0.963,0.0,-0.27},{-0.27,0.0,-0.963},{13.206,4.6,8.0},false},
+  {'COL_SG_Terrain_107','Block',{-620.65,24.2,633.145},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{26.0,22.0,8.0},false},
+  {'COL_SG_VegTrunk_001','Block',{-688.407,39.7,630.213},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{1.506,1.506,7.0},false},
+  {'COL_SG_VegTrunk_002','Block',{-669.431,39.7,582.986},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{1.771,1.771,7.0},false},
+  {'COL_SG_VegTrunk_003','Block',{-670.861,39.7,587.903},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{1.386,1.386,7.0},false},
+  {'COL_SG_VegTrunk_004','Block',{-746.616,39.7,622.754},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{1.671,1.671,7.0},false},
+  {'COL_SG_VegTrunk_005','Block',{-746.17,39.7,627.638},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{1.319,1.319,7.0},false},
+  {'COL_SG_VegTrunk_006','Block',{-716.698,39.7,549.033},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{1.966,1.966,7.0},false},
+  {'COL_SG_VegTrunk_007','Block',{-714.691,39.7,554.166},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{1.674,1.674,7.0},false},
+  {'COL_SG_VegTrunk_008','Block',{-763.618,39.7,673.348},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{1.594,1.594,7.0},false},
+  {'COL_SG_VegTrunk_009','Block',{-769.01,39.7,673.254},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{1.797,1.797,7.0},false},
+  {'COL_SG_VegTrunk_010','Block',{-681.069,39.7,462.475},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{2.04,2.04,7.0},false},
+  {'COL_SG_VegTrunk_011','Block',{-681.052,39.7,471.087},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{1.843,1.843,7.0},false},
+  {'COL_SG_VegTrunk_012','Block',{-685.979,39.7,472.071},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{1.341,1.341,7.0},false},
+  {'COL_SG_VegTrunk_013','Block',{-842.335,47.7,650.347},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{1.891,1.891,7.0},false},
+  {'COL_SG_VegTrunk_014','Block',{-839.959,47.7,655.365},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{1.698,1.698,7.0},false},
+  {'COL_SG_VegTrunk_015','Block',{-832.995,47.7,653.039},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{2.367,2.367,7.0},false},
+  {'COL_SG_VegTrunk_016','Block',{-848.36,47.7,653.95},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{1.964,1.964,7.0},false},
+  {'COL_SG_VegTrunk_017','Block',{-836.515,47.7,646.439},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{1.406,1.406,7.0},false},
+  {'COL_SG_VegTrunk_018','Block',{-786.798,47.7,647.104},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{1.455,1.455,7.0},false},
+  {'COL_SG_VegTrunk_019','Block',{-784.552,47.7,648.507},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{1.239,1.239,7.0},false},
+  {'COL_SG_VegTrunk_020','Block',{-830.293,47.7,626.483},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{1.455,1.455,7.0},false},
+  {'COL_SG_VegTrunk_021','Block',{-810.119,47.7,586.037},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{1.671,1.671,7.0},false},
+  {'COL_SG_VegTrunk_022','Block',{-809.764,47.7,580.935},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{1.663,1.663,7.0},false},
+  {'COL_SG_VegTrunk_023','Block',{-766.825,47.7,603.603},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{1.455,1.455,7.0},false},
+  {'COL_SG_VegTrunk_024','Block',{-750.6,47.7,554.816},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{1.455,1.455,7.0},false},
+  {'COL_SG_VegTrunk_025','Block',{-745.99,47.7,555.893},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{1.264,1.264,7.0},false},
+  {'COL_SG_VegTrunk_026','Block',{-788.103,47.7,531.096},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{1.966,1.966,7.0},false},
+  {'COL_SG_VegTrunk_027','Block',{-782.587,47.7,533.144},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{1.634,1.634,7.0},false},
+  {'COL_SG_VegTrunk_028','Block',{-727.986,47.7,519.685},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{1.455,1.455,7.0},false},
+  {'COL_SG_VegTrunk_029','Block',{-766.95,47.7,488.45},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{1.733,1.733,7.0},false},
+  {'COL_SG_VegTrunk_030','Block',{-766.813,47.7,482.553},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{2.003,2.003,7.0},false},
+  {'COL_SG_VegTrunk_031','Block',{-749.525,47.7,427.248},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{1.652,1.652,7.0},false},
+  {'COL_SG_VegTrunk_032','Block',{-753.222,47.7,420.336},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{1.747,1.747,7.0},false},
+  {'COL_SG_VegTrunk_033','Block',{-754.009,47.7,430.306},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{1.568,1.568,7.0},false},
+  {'COL_SG_VegTrunk_034','Block',{-710.429,47.7,445.451},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{1.824,1.824,7.0},false},
+  {'COL_SG_VegTrunk_035','Block',{-705.409,47.7,449.278},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{1.822,1.822,7.0},false},
+  {'COL_SG_VegTrunk_036','Block',{-792.209,55.7,427.333},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{2.137,2.137,7.0},false},
+  {'COL_SG_VilHouse_001','Block',{-705.689,44.81,651.368},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{14.7,11.98,18.02},false},
+  {'COL_SG_VilHouse_002','Block',{-720.164,42.43,675.642},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{12.7,10.7,13.26},false},
+  {'COL_SG_VilHouse_003','Block',{-760.073,44.895,647.84},{0.921,0.0,0.391},{0.391,0.0,-0.921},{11.5,12.7,18.19},false},
+  {'COL_SG_VilHouse_004','Block',{-675.332,44.4,563.875},{0.009,0.0,-1.0},{-1.0,0.0,-0.009},{5.174,2.193,17.2},false},
+  {'COL_SG_VilHouse_005','Block',{-675.332,44.4,563.875},{-0.701,0.0,-0.713},{-0.713,0.0,0.701},{5.174,2.193,17.2},false},
+  {'COL_SG_VilHouse_006','Block',{-675.332,44.4,563.875},{-1.0,0.0,-0.009},{-0.009,0.0,1.0},{5.174,2.193,17.2},false},
+  {'COL_SG_VilHouse_007','Block',{-675.332,44.4,563.875},{-0.713,0.0,0.701},{0.701,0.0,0.713},{5.174,2.193,17.2},false},
+  {'COL_SG_VilHouse_008','Block',{-666.619,45.165,559.317},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{14.7,11.98,18.73},false},
+  {'COL_SG_VilHouse_009','Block',{-661.333,42.805,526.797},{-0.993,0.0,0.122},{0.122,0.0,0.993},{10.7,12.7,14.01},false},
+  {'COL_SG_VilHouse_010','Block',{-705.595,44.5,518.874},{-0.391,0.0,0.921},{0.921,0.0,0.391},{12.7,11.98,17.4},false},
+  {'COL_SG_VilHouse_011','Block',{-784.019,53.02,631.158},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{14.7,11.98,18.44},false},
+  {'COL_SG_VilHouse_012','Block',{-795.593,50.65,658.836},{-0.921,0.0,-0.391},{-0.391,0.0,0.921},{10.7,12.7,13.7},false},
+  {'COL_SG_VilHouse_013','Block',{-820.602,52.94,611.285},{0.921,0.0,0.391},{0.391,0.0,-0.921},{11.5,12.7,18.28},false},
+  {'COL_SG_VilHouse_014','Block',{-745.861,50.375,536.547},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{12.7,10.7,13.15},false},
+  {'COL_SG_VilHouse_015','Block',{-779.409,52.71,513.617},{-0.391,0.0,0.921},{0.921,0.0,0.391},{12.7,11.98,17.82},false},
+  {'COL_SG_VilLamp_001','Block',{-750.35,48.7,589.61},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{1.0,1.0,9.0},false},
+  {'COL_SG_VilLamp_002','Block',{-742.067,48.7,570.095},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{1.0,1.0,9.0},false},
+  {'COL_SG_VilLamp_003','Block',{-769.856,48.7,561.342},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{1.0,1.0,9.0},false},
+  {'COL_SG_VilLamp_004','Block',{-723.034,40.7,639.661},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{1.0,1.0,9.0},false},
+  {'COL_SG_VilLamp_005','Block',{-697.722,40.7,548.288},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{1.0,1.0,9.0},false},
+  {'COL_GateDemonSlayerLock_001','GateLock',{-694.388,53.2,348.729},{0.921,0.0,0.391},{0.391,0.0,-0.921},{16.6,1.4,18.0},false},
+}
+COLF:ClearAllChildren()
+for _, c in ipairs(COL) do
+  local p = Instance.new('Part'); p.Name = c[1]; p.Anchored = true; p.CanCollide = true
+  p.Transparency = 1; p.CastShadow = false; p.CanTouch = false; p.Material = Enum.Material.SmoothPlastic
+  p.Size = Vector3.new(c[6][1], c[6][2], c[6][3]); p.CFrame = cf(c[3], c[4], c[5])
+  p:SetAttribute('kind', c[2]); if c[7] then CS:AddTag(p, 'CamOccluder') end; p.Parent = COLF
+end
+local MK = {
+  {'AUDIO_Craft',{-730.008,47.2,488.958},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['family']='fire',['range']=26.0,['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'AUDIO_DungeonPortal',{-854.973,58.2,425.054},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['family']='energy',['range']=34.0,['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'AUDIO_DungeonRooms',{-894.043,12.0,517.105},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['family']='wind',['range']=70.0,['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'AUDIO_Fountain',{-702.576,38.2,598.372},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['family']='water',['range']=40.0,['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'AUDIO_HallAmbience',{-901.407,58.2,513.98},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['family']='wind',['range']=60.0,['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'AUDIO_Summon',{-770.387,46.2,732.543},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['family']='energy',['range']=36.0,['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'AUDIO_Waterfall_1',{-820.983,33.2,682.823},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['family']='water',['range']=60.0,['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'AUDIO_Waterfall_2',{-658.698,25.2,454.044},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['family']='water',['range']=60.0,['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'AUDIO_Waterfall_3',{-1017.458,41.2,521.213},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['family']='water',['range']=60.0,['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'AUDIO_Waterfall_4',{-655.662,20.2,646.53},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['family']='water',['range']=60.0,['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'CRAFT_Station',{-730.008,44.2,488.958},{-0.921,0.0,-0.391},{-0.391,0.0,0.921},{['note']='caldeirao/bancada do alquimista: ProximityPrompt \'Craft\' abre a pagina de receitas',['fwd_x']=-0.3907,['fwd_z']=0.9205}},
+  {'DUNGEON_Entrance',{-849.45,52.2,427.398},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['radius']=6.0,['note']='zona/prompt de entrada na corrida (so com ENTRY_OPEN)',['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'DUNGEON_ExitPortal',{-869.819,6.0,460.033},{-0.921,0.0,-0.391},{-0.391,0.0,0.921},{['note']='portal de volta (aparece em FINISHING/FINISHED)',['fwd_x']=-0.3907,['fwd_z']=0.9205}},
+  {'DUNGEON_Portal',{-854.973,52.2,425.054},{-0.391,0.0,0.921},{0.921,0.0,0.391},{['note']='portal espiral no fundo da portaria (encara o sul)',['fwd_x']=0.9205,['fwd_z']=0.3907}},
+  {'DUNGEON_Return',{-828.278,52.4,436.384},{-0.391,0.0,0.921},{0.921,0.0,0.391},{['note']='para onde o jogador volta ao sair/terminar (patio, em frente a porta)',['fwd_x']=0.9205,['fwd_z']=0.3907}},
+  {'DUNGEON_Spawn',{-915.141,6.2,566.813},{0.921,0.0,0.391},{0.391,0.0,-0.921},{['fwd_x']=0.3907,['fwd_z']=-0.9205}},
+  {'DUNGEON_UI',{-834.261,69.2,433.845},{-0.391,0.0,0.921},{0.921,0.0,0.391},{['ui']='BillboardGui: estado e contagem da dungeon (XX:00 / XX:30)',['fwd_x']=0.9205,['fwd_z']=0.3907}},
+  {'DUN_ORE_R2_COMMON_02',{-903.064,6.0,505.238},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['rarity']='COMMON',['radius']=2.8,['room']='R2',['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'DUN_ORE_R2_COMMON_03',{-905.871,6.0,514.258},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['rarity']='COMMON',['radius']=2.8,['room']='R2',['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'DUN_ORE_R2_COMMON_05',{-902.698,6.0,528.0},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['rarity']='COMMON',['radius']=2.8,['room']='R2',['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'DUN_ORE_R2_COMMON_06',{-896.224,6.0,534.887},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['rarity']='COMMON',['radius']=2.8,['room']='R2',['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'DUN_ORE_R2_COMMON_08',{-880.096,6.0,525.198},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['rarity']='COMMON',['radius']=2.8,['room']='R2',['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'DUN_ORE_R2_COMMON_09',{-883.132,6.0,516.251},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['rarity']='COMMON',['radius']=2.8,['room']='R2',['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'DUN_ORE_R2_UNCOMMON_01',{-893.782,6.0,506.994},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['rarity']='UNCOMMON',['radius']=2.8,['room']='R2',['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'DUN_ORE_R2_UNCOMMON_04',{-910.409,6.0,522.544},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['rarity']='UNCOMMON',['radius']=2.8,['room']='R2',['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'DUN_ORE_R2_UNCOMMON_07',{-888.641,6.0,529.23},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['rarity']='UNCOMMON',['radius']=2.8,['room']='R2',['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'DUN_ORE_R2_UNCOMMON_10',{-884.331,6.0,506.866},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['rarity']='UNCOMMON',['radius']=2.8,['room']='R2',['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'DUN_ORE_R3_EPIC_11',{-878.56,6.0,462.711},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['rarity']='EPIC',['radius']=3.4,['room']='R3',['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'DUN_ORE_R3_EPIC_12',{-889.739,6.0,471.133},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['rarity']='EPIC',['radius']=3.4,['room']='R3',['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'DUN_ORE_R3_EPIC_13',{-888.031,6.0,485.024},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['rarity']='EPIC',['radius']=3.4,['room']='R3',['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'DUN_ORE_R3_EPIC_14',{-875.144,6.0,490.494},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['rarity']='EPIC',['radius']=3.4,['room']='R3',['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'DUN_ORE_R3_EPIC_15',{-863.965,6.0,482.073},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['rarity']='EPIC',['radius']=3.4,['room']='R3',['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'DUN_ORE_R3_EPIC_16',{-865.673,6.0,468.181},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['rarity']='EPIC',['radius']=3.4,['room']='R3',['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'DUN_ORE_R3_SUPERLEGENDARY_17',{-876.852,6.0,476.603},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['rarity']='SUPERLEGENDARY',['radius']=4.4,['room']='R3',['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'DUN_ROOM_R1',{-911.234,6.0,557.608},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['sx']=36.0,['sy']=36.0,['floor']=6.0,['ceil']=28.0,['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'DUN_ROOM_R2',{-894.825,6.0,518.946},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['sx']=44.0,['sy']=44.0,['floor']=6.0,['ceil']=28.0,['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'DUN_ROOM_R3',{-876.852,6.0,476.603},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['sx']=44.0,['sy']=44.0,['floor']=6.0,['ceil']=28.0,['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'FX_Fall_1_Base',{-823.366,-60.0,688.438},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['fx']='nevoa_base',['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'FX_Fall_1_Lip',{-821.764,42.2,684.664},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['fx']='nevoa_borda',['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'FX_Fall_2_Base',{-654.127,-60.0,443.274},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['fx']='nevoa_base',['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'FX_Fall_2_Lip',{-657.917,34.2,452.203},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['fx']='nevoa_borda',['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'FX_Fall_3_Base',{-1035.214,-60.0,520.303},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['fx']='nevoa_base',['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'FX_Fall_3_Lip',{-1019.455,50.2,521.109},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['fx']='nevoa_borda',['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'FX_Fall_4_Base',{-655.92,-60.0,651.743},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['fx']='nevoa_base',['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'FX_Fall_4_Lip',{-655.767,29.2,648.527},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['fx']='nevoa_borda',['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'GATE_DemonSlayer',{-694.388,44.2,348.729},{0.921,0.0,0.391},{0.391,0.0,-0.921},{['open_w']=16.0,['open_h']=18.0,['deck_w']=18.0,['area_id']=4,['key']='DemonSlayer',['fwd_x']=0.3907,['fwd_z']=-0.9205}},
+  {'GATE_DemonSlayer_EXIT',{-689.699,44.4,337.682},{0.921,0.0,0.391},{0.391,0.0,-0.921},{['gate']='DemonSlayer',['fwd_x']=0.3907,['fwd_z']=-0.9205}},
+  {'GATE_DemonSlayer_INTERACT',{-697.123,44.4,355.172},{0.921,0.0,0.391},{0.391,0.0,-0.921},{['gate']='DemonSlayer',['radius']=10.0,['fwd_x']=0.3907,['fwd_z']=-0.9205}},
+  {'GATE_DemonSlayer_LOCKED',{-694.388,53.2,348.729},{0.921,0.0,0.391},{0.391,0.0,-0.921},{['gate']='DemonSlayer',['state_default']='locked',['fwd_x']=0.3907,['fwd_z']=-0.9205}},
+  {'GATE_DemonSlayer_OpenFX',{-694.388,53.2,348.729},{0.921,0.0,0.391},{0.391,0.0,-0.921},{['gate']='DemonSlayer',['state']='unlocked',['fx']='abertura',['fwd_x']=0.3907,['fwd_z']=-0.9205}},
+  {'GP_Block_01',{-862.746,52.2,530.389},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['radius']=7.0,['kind']='porta',['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'GP_Block_02',{-867.348,52.2,528.436},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['radius']=7.0,['kind']='porta',['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'GP_Block_03',{-871.951,52.2,526.482},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['radius']=7.0,['kind']='porta',['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'GP_Block_04',{-878.904,52.2,565.899},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['radius']=5.5,['kind']='borda',['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'GP_Block_05',{-954.386,52.2,533.861},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['radius']=5.5,['kind']='borda',['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'GP_Block_06',{-878.904,52.2,565.899},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['radius']=5.5,['kind']='borda',['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'GP_Block_07',{-848.429,52.2,494.099},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['radius']=5.5,['kind']='borda',['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'GP_Block_08',{-875.856,52.2,558.719},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['radius']=5.5,['kind']='borda',['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'GP_Block_09',{-951.339,52.2,526.681},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['radius']=5.5,['kind']='borda',['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'GP_Block_10',{-886.452,52.2,562.695},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['radius']=5.5,['kind']='borda',['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'GP_Block_11',{-855.977,52.2,490.895},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['radius']=5.5,['kind']='borda',['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'GP_Block_12',{-872.809,52.2,551.539},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['radius']=5.5,['kind']='borda',['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'GP_Block_13',{-948.291,52.2,519.501},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['radius']=5.5,['kind']='borda',['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'GP_Block_14',{-894.0,52.2,559.491},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['radius']=5.5,['kind']='borda',['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'GP_Block_15',{-863.525,52.2,487.691},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['radius']=5.5,['kind']='borda',['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'GP_Block_16',{-869.761,52.2,544.359},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['radius']=5.5,['kind']='borda',['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'GP_Block_17',{-945.244,52.2,512.321},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['radius']=5.5,['kind']='borda',['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'GP_Block_18',{-901.548,52.2,556.287},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['radius']=5.5,['kind']='borda',['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'GP_Block_19',{-871.073,52.2,484.487},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['radius']=5.5,['kind']='borda',['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'GP_Block_20',{-866.714,52.2,537.179},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['radius']=5.5,['kind']='borda',['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'GP_Block_21',{-942.196,52.2,505.141},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['radius']=5.5,['kind']='borda',['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'GP_Block_22',{-909.097,52.2,553.084},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['radius']=5.5,['kind']='borda',['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'GP_Block_23',{-878.622,52.2,481.283},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['radius']=5.5,['kind']='borda',['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'GP_Block_24',{-863.666,52.2,529.999},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['radius']=5.5,['kind']='borda',['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'GP_Block_25',{-939.149,52.2,497.961},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['radius']=5.5,['kind']='borda',['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'GP_Block_26',{-916.645,52.2,549.88},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['radius']=5.5,['kind']='borda',['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'GP_Block_27',{-886.17,52.2,478.08},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['radius']=5.5,['kind']='borda',['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'GP_Block_28',{-860.619,52.2,522.819},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['radius']=5.5,['kind']='borda',['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'GP_Block_29',{-936.101,52.2,490.781},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['radius']=5.5,['kind']='borda',['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'GP_Block_30',{-924.193,52.2,546.676},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['radius']=5.5,['kind']='borda',['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'GP_Block_31',{-893.718,52.2,474.876},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['radius']=5.5,['kind']='borda',['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'GP_Block_32',{-857.571,52.2,515.639},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['radius']=5.5,['kind']='borda',['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'GP_Block_33',{-933.054,52.2,483.601},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['radius']=5.5,['kind']='borda',['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'GP_Block_34',{-931.741,52.2,543.472},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['radius']=5.5,['kind']='borda',['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'GP_Block_35',{-901.266,52.2,471.672},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['radius']=5.5,['kind']='borda',['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'GP_Block_36',{-854.524,52.2,508.459},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['radius']=5.5,['kind']='borda',['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'GP_Block_37',{-930.006,52.2,476.421},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['radius']=5.5,['kind']='borda',['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'GP_Block_38',{-939.29,52.2,540.268},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['radius']=5.5,['kind']='borda',['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'GP_Block_39',{-908.815,52.2,468.468},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['radius']=5.5,['kind']='borda',['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'GP_Block_40',{-851.476,52.2,501.279},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['radius']=5.5,['kind']='borda',['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'GP_Block_41',{-926.958,52.2,469.241},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['radius']=5.5,['kind']='borda',['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'GP_Block_42',{-946.838,52.2,537.065},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['radius']=5.5,['kind']='borda',['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'GP_Block_43',{-916.363,52.2,465.265},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['radius']=5.5,['kind']='borda',['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'GP_Block_44',{-848.429,52.2,494.099},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['radius']=5.5,['kind']='borda',['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'GP_Block_45',{-923.911,52.2,462.061},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['radius']=5.5,['kind']='borda',['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'GP_Block_46',{-954.386,52.2,533.861},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['radius']=5.5,['kind']='borda',['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'GP_Block_47',{-923.911,52.2,462.061},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['radius']=5.5,['kind']='borda',['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'ISLAND_EXIT_ShadowGarden',{-724.082,44.2,418.688},{0.921,0.0,0.391},{0.391,0.0,-0.921},{['width']=18.0,['deck_z']=44.2,['heading_deg']=-67.002,['fwd_x']=0.3907,['fwd_z']=-0.9205,['heading_deg_local']=0.0}},
+  {'ISLAND_NEXT_ANCHOR_DemonSlayer',{-683.448,44.2,322.954},{0.921,0.0,0.391},{0.391,0.0,-0.921},{['width']=18.0,['deck_z']=44.2,['clear_h']=22.0,['heading_deg']=-67.002,['next_area']=4,['next_key']='DemonSlayer',['fwd_roblox']='0.3907,0.0000,-0.9205',['guard']='PROVISORIO: COL_SGAnchorGuard_* (next_island_guard=True)',['guard_note']='a integracao da ilha Demon Slayer REMOVE o guarda quando a ponte seguinte encosta aqui',['fwd_x']=0.3907,['fwd_z']=-0.9205,['heading_deg_local']=0.0}},
+  {'MiningZone_ShadowGarden',{-902.328,52.2,513.589},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['kind']='mining',['floor']=52.2,['sx']=76.0,['sy']=78.0,['ceil']=80.2,['note']='Mining Hall (dentro do castelo); o jogo usa ORE_* + grade hexagonal + bloqueios GP_Block_*',['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'NPC_Craft',{-727.663,44.2,483.435},{-0.921,0.0,-0.391},{-0.391,0.0,0.921},{['note']='alquimista atras do caldeirao, olhando a porta',['fwd_x']=-0.3907,['fwd_z']=0.9205}},
+  {'ORE_COMMON_01',{-898.986,52.2,523.427},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['rarity']='COMMON',['radius']=2.6,['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'ORE_COMMON_02',{-917.141,52.2,543.651},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['rarity']='COMMON',['radius']=2.6,['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'ORE_COMMON_03',{-890.92,52.2,503.374},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['rarity']='COMMON',['radius']=2.6,['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'ORE_COMMON_04',{-902.976,52.2,532.444},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['rarity']='COMMON',['radius']=2.6,['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'ORE_COMMON_05',{-887.038,52.2,494.637},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['rarity']='COMMON',['radius']=2.6,['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'ORE_COMMON_06',{-907.057,52.2,541.521},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['rarity']='COMMON',['radius']=2.6,['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'ORE_COMMON_07',{-888.068,52.2,520.815},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['rarity']='COMMON',['radius']=2.6,['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'ORE_COMMON_08',{-884.676,52.2,511.391},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['rarity']='COMMON',['radius']=2.6,['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'ORE_COMMON_09',{-892.146,52.2,530.654},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['rarity']='COMMON',['radius']=2.6,['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'ORE_COMMON_10',{-880.435,52.2,502.654},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['rarity']='COMMON',['radius']=2.6,['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'ORE_COMMON_11',{-896.81,52.2,541.156},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['rarity']='COMMON',['radius']=2.6,['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'ORE_COMMON_12',{-875.991,52.2,492.003},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['rarity']='COMMON',['radius']=2.6,['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'ORE_COMMON_13',{-877.854,52.2,520.989},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['rarity']='COMMON',['radius']=2.6,['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'ORE_COMMON_14',{-900.918,52.2,550.732},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['rarity']='COMMON',['radius']=2.6,['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'ORE_COMMON_15',{-881.792,52.2,530.344},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['rarity']='COMMON',['radius']=2.6,['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'ORE_COMMON_16',{-873.556,52.2,511.298},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['rarity']='COMMON',['radius']=2.6,['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'ORE_COMMON_17',{-886.36,52.2,539.291},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['rarity']='COMMON',['radius']=2.6,['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'ORE_COMMON_18',{-869.778,52.2,501.169},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['rarity']='COMMON',['radius']=2.6,['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'ORE_COMMON_19',{-890.489,52.2,548.608},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['rarity']='COMMON',['radius']=2.6,['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'ORE_COMMON_20',{-875.6,52.2,538.611},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['rarity']='COMMON',['radius']=2.6,['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'ORE_COMMON_21',{-863.534,52.2,509.545},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['rarity']='COMMON',['radius']=2.6,['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'ORE_COMMON_22',{-880.368,52.2,547.363},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['rarity']='COMMON',['radius']=2.6,['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'ORE_COMMON_23',{-860.394,52.2,499.894},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['rarity']='COMMON',['radius']=2.6,['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'ORE_COMMON_24',{-883.606,52.2,557.885},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['rarity']='COMMON',['radius']=2.6,['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'ORE_EPIC_01',{-923.682,52.2,489.034},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['rarity']='EPIC',['radius']=3.4,['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'ORE_EPIC_02',{-936.434,52.2,518.287},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['rarity']='EPIC',['radius']=3.4,['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'ORE_EPIC_03',{-920.405,52.2,479.855},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['rarity']='EPIC',['radius']=3.4,['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'ORE_EPIC_04',{-939.37,52.2,527.915},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['rarity']='EPIC',['radius']=3.4,['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'ORE_EPIC_05',{-920.912,52.2,507.874},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['rarity']='EPIC',['radius']=3.4,['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'ORE_EPIC_06',{-917.457,52.2,497.38},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['rarity']='EPIC',['radius']=3.4,['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'ORE_EPIC_07',{-925.42,52.2,517.367},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['rarity']='EPIC',['radius']=3.4,['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'ORE_EPIC_08',{-912.536,52.2,488.192},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['rarity']='EPIC',['radius']=3.4,['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'ORE_SUPERLEGENDARY_01',{-927.64,52.2,499.076},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['rarity']='SUPERLEGENDARY',['radius']=4.4,['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'ORE_SUPERLEGENDARY_02',{-932.141,52.2,508.377},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['rarity']='SUPERLEGENDARY',['radius']=4.4,['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'ORE_UNCOMMON_01',{-929.825,52.2,527.056},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['rarity']='UNCOMMON',['radius']=3.0,['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'ORE_UNCOMMON_02',{-909.431,52.2,478.06},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['rarity']='UNCOMMON',['radius']=3.0,['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'ORE_UNCOMMON_03',{-915.71,52.2,514.84},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['rarity']='UNCOMMON',['radius']=3.0,['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'ORE_UNCOMMON_04',{-910.742,52.2,506.487},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['rarity']='UNCOMMON',['radius']=3.0,['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'ORE_UNCOMMON_05',{-933.088,52.2,535.894},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['rarity']='UNCOMMON',['radius']=3.0,['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'ORE_UNCOMMON_06',{-906.451,52.2,496.326},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['rarity']='UNCOMMON',['radius']=3.0,['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'ORE_UNCOMMON_07',{-918.678,52.2,525.389},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['rarity']='UNCOMMON',['radius']=3.0,['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'ORE_UNCOMMON_08',{-902.628,52.2,487.346},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['rarity']='UNCOMMON',['radius']=3.0,['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'ORE_UNCOMMON_09',{-904.613,52.2,514.596},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['rarity']='UNCOMMON',['radius']=3.0,['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'ORE_UNCOMMON_10',{-923.009,52.2,535.055},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['rarity']='UNCOMMON',['radius']=3.0,['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'ORE_UNCOMMON_11',{-901.537,52.2,504.713},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['rarity']='UNCOMMON',['radius']=3.0,['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'ORE_UNCOMMON_12',{-908.806,52.2,523.604},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['rarity']='UNCOMMON',['radius']=3.0,['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'ORE_UNCOMMON_13',{-896.142,52.2,495.661},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['rarity']='UNCOMMON',['radius']=3.0,['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'ORE_UNCOMMON_14',{-913.433,52.2,533.84},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['rarity']='UNCOMMON',['radius']=3.0,['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'ORE_UNCOMMON_15',{-893.218,52.2,486.136},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['rarity']='UNCOMMON',['radius']=3.0,['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'ORE_UNCOMMON_16',{-894.152,52.2,513.702},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['rarity']='UNCOMMON',['radius']=3.0,['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'PATH_ENTRY_CENTER',{-866.428,52.2,528.827},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['waypoints']='-667.60,36.20,613.22;-689.69,36.20,603.84;-716.47,36.20,605.51;-726.51,36.20,588.21;-746.76,44.20,579.62;-792.79,44.20,560.08;-814.88,52.20,550.71;-848.02,52.20,536.64;-866.43,52.20,528.83;-884.84,52.20,521.01',['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'PATH_ENTRY_CENTER_00',{-667.596,36.2,613.219},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'PATH_ENTRY_CENTER_01',{-689.689,36.2,603.842},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'PATH_ENTRY_CENTER_02',{-716.47,36.2,605.511},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'PATH_ENTRY_CENTER_03',{-726.509,36.2,588.214},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'PATH_ENTRY_CENTER_04',{-746.761,44.2,579.618},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'PATH_ENTRY_CENTER_05',{-792.787,44.2,560.083},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'PATH_ENTRY_CENTER_06',{-814.879,52.2,550.706},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'PATH_ENTRY_CENTER_07',{-848.018,52.2,536.641},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'PATH_ENTRY_CENTER_08',{-866.428,52.2,528.827},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'PATH_ENTRY_CENTER_09',{-884.838,52.2,521.013},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'PLAYER_INTERACT_Craft',{-731.961,44.2,493.561},{0.921,0.0,0.391},{0.391,0.0,-0.921},{['radius']=8.0,['fwd_x']=0.3907,['fwd_z']=-0.9205}},
+  {'PURCHASE_UI_ANCHOR_DemonSlayer',{-695.365,58.2,351.03},{-0.921,0.0,-0.391},{-0.391,0.0,0.921},{['gate']='DemonSlayer',['faces']='approach',['ui']='BillboardGui preco/requisito',['fwd_x']=-0.3907,['fwd_z']=0.9205}},
+  {'SUMMON_Interact',{-767.652,40.2,726.099},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['note']='gabinete invisivel do Gacha_sombra (prompt Invocar)',['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'SUMMON_Main',{-770.387,40.2,732.543},{0.921,0.0,0.391},{0.391,0.0,-0.921},{['note']='torre de invocacao (familia das Ilhas 1 e 2), frente para +X (ponte)',['fwd_x']=0.3907,['fwd_z']=-0.9205}},
+  {'SUMMON_PlayerPosition',{-764.136,40.2,717.814},{-0.921,0.0,-0.391},{-0.391,0.0,0.921},{['note']='onde o jogador fica olhando a torre (pad do gacha)',['fwd_x']=-0.3907,['fwd_z']=0.9205}},
+  {'WORLD_ENTRY_ShadowGarden',{-667.596,36.4,613.219},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['note']='chegada da ilha (depois do portico B, olhando a praca e o castelo)',['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+  {'WORLD_FROM_PREV',{-579.227,28.2,650.727},{0.391,0.0,-0.921},{-0.921,0.0,-0.391},{['width']=18.0,['deck_z']=28.2,['prev']='ISLAND_NEXT_ANCHOR_ShadowGarden (Ilha 2 Dragon Ball)',['note']='centro da borda do tabuleiro da ponte de chegada; avanco +Y (para dentro da ilha)',['fwd_x']=-0.9205,['fwd_z']=-0.3907}},
+}
+MKF:ClearAllChildren()
+for _, m in ipairs(MK) do
+  local p = Instance.new('Part'); p.Name = m[1]; p.Anchored = true; p.CanCollide = false; p.CanQuery = false
+  p.CanTouch = false; p.CastShadow = false; p.Transparency = 1; p.Size = Vector3.new(1,1,1); p.CFrame = cf(m[2], m[3], m[4])
+  for k, v in pairs(m[5]) do p:SetAttribute(k, v) end
+  p.Parent = MKF
+end
+-- luzes: {nome, tipo, pos, cor, alcance, brilho, sombra, noturna, direcao(spot), angulo(spot)}
+-- noturna = Enabled false + atributo NightOnly (o ciclo dia/noite liga: for _, l in LIGHTS:GetDescendants() ...)
+local LT = {
+  {'L_SGCas_Door','POINT',{-852.62,63.2,534.687},{255,221,179},13.0,0.74,false,false},
+  {'L_SGCas_EastGap','POINT',{-764.676,59.2,450.343},{255,221,179},10.3,0.54,false,false},
+  {'L_SGCas_Gate','POINT',{-807.515,61.2,553.832},{255,221,179},12.2,0.68,false,false},
+  {'L_SGCas_Rose','POINT',{-850.779,101.5,535.469},{206,179,255},9.0,0.46,false,false},
+  {'L_SGCraft_Cauldron','POINT',{-730.008,49.4,488.958},{221,188,255},7.2,0.38,false,false},
+  {'L_SGCraft_Chandelier','POINT',{-730.008,55.6,488.958},{255,209,162},20.0,1.5,false,false},
+  {'L_SGCraft_DoorLantern','POINT',{-736.181,53.4,503.502},{255,215,170},9.7,0.5,false,false},
+  {'L_SGDun_Brazier','POINT',{-843.466,59.7,429.938},{255,212,162},20.0,1.5,false,false},
+  {'L_SGDun_Portal','POINT',{-850.83,59.2,426.812},{209,173,255},19.1,1.43,false,false},
+  {'L_SGDun_R1_Portal','POINT',{-915.923,13.0,568.654},{209,173,255},20.0,1.5,false,false},
+  {'L_SGDun_R2_ChandelierE','POINT',{-890.527,21.8,508.821},{255,215,170},20.0,1.5,false,false},
+  {'L_SGDun_R2_ChandelierW','POINT',{-899.122,21.8,529.072},{255,215,170},20.0,1.5,false,false},
+  {'L_SGDun_R3_Altar','POINT',{-876.852,21.0,476.603},{255,215,170},20.0,1.5,false,false},
+  {'L_SGEnt_PorticoA_E_Lantern','POINT',{-614.21,32.15,623.603},{255,209,158},9.7,0.5,false,false},
+  {'L_SGEnt_PorticoA_W_Lantern','POINT',{-623.04,32.15,644.407},{255,209,158},9.7,0.5,false,false},
+  {'L_SGEnt_PorticoB_E_Lantern','POINT',{-650.545,40.15,607.855},{255,209,158},9.7,0.5,false,false},
+  {'L_SGEnt_PorticoB_W_Lantern','POINT',{-659.61,40.15,629.211},{255,209,158},9.7,0.5,false,false},
+  {'L_SGExit_Head_N','POINT',{-732.869,51.85,417.891},{255,209,158},9.7,0.5,false,false},
+  {'L_SGExit_Head_S','POINT',{-717.404,51.85,424.455},{255,209,158},9.7,0.5,false,false},
+  {'L_SGHall_Chandelier_NE','POINT',{-912.73,71.5,492.879},{255,218,173},20.0,1.5,false,false},
+  {'L_SGHall_Chandelier_NW','POINT',{-924.451,71.5,520.494},{255,218,173},20.0,1.5,false,false},
+  {'L_SGHall_Chandelier_SE','POINT',{-878.364,71.5,507.465},{255,218,173},20.0,1.5,false,false},
+  {'L_SGHall_Chandelier_SW','POINT',{-890.085,71.5,535.081},{255,218,173},20.0,1.5,false,false},
+  {'L_SGHall_Moon_Altar','POINT',{-935.466,70.2,499.524},{203,218,255},20.0,1.5,false,false},
+  {'L_SGHall_Moon_W','POINT',{-924.064,74.2,543.472},{200,215,255},20.0,1.5,false,false},
+  {'L_SGProp_P1_EastEnd','POINT',{-663.397,44.5,492.244},{255,218,173},9.5,0.49,false,true},
+  {'L_SGProp_P2_West','POINT',{-803.264,52.5,639.285},{255,218,173},9.5,0.49,false,true},
+  {'L_SGProp_Plaza_NE','POINT',{-711.417,44.5,576.491},{255,218,173},9.5,0.49,false,true},
+  {'L_SGProp_Plaza_NW','POINT',{-724.457,44.5,607.214},{255,218,173},9.5,0.49,false,true},
+  {'L_SGSum_Core','POINT',{-771.559,86.2,735.304},{206,177,255},20.0,1.5,false,false},
+  {'L_SGSum_Lantern_N','POINT',{-759.362,48.3,731.138},{255,209,158},10.3,0.54,false,false},
+  {'L_SGSum_Lantern_S','POINT',{-777.036,48.3,723.637},{255,209,158},10.3,0.54,false,false},
+  {'L_SGVil_Lamp_00','POINT',{-750.35,52.5,589.61},{255,218,170},9.0,0.46,false,true},
+  {'L_SGVil_Lamp_01','POINT',{-742.067,52.5,570.095},{255,218,170},9.0,0.46,false,true},
+  {'L_SGVil_Lamp_02','POINT',{-769.856,52.5,561.342},{255,218,170},9.0,0.46,false,true},
+  {'L_SGVil_Lamp_03','POINT',{-723.034,44.5,639.661},{255,218,170},9.0,0.46,false,true},
+  {'L_SGVil_Lamp_04','POINT',{-697.722,44.5,548.288},{255,218,170},9.0,0.46,false,true},
+}
+LTF:ClearAllChildren()
+local nDia = 0
+for _, l in ipairs(LT) do
+  local a = Instance.new('Part'); a.Name = l[1]; a.Anchored = true; a.CanCollide = false; a.CanQuery = false
+  a.CanTouch = false; a.CastShadow = false; a.Transparency = 1; a.Size = Vector3.new(0.5,0.5,0.5)
+  local pos = Vector3.new(l[3][1], l[3][2], l[3][3]) + ROOT_OFFSET
+  if l[2] == 'SPOT' and l[9] then a.CFrame = CFrame.lookAt(pos, pos + Vector3.new(l[9][1], l[9][2], l[9][3])) else a.CFrame = CFrame.new(pos) end
+  local pl = Instance.new(l[2] == 'SPOT' and 'SpotLight' or 'PointLight')
+  pl.Color = Color3.fromRGB(l[4][1], l[4][2], l[4][3]); pl.Range = l[5]; pl.Brightness = l[6]; pl.Shadows = l[7]
+  pl.Enabled = not l[8]; if l[8] then a:SetAttribute('NightOnly', true); pl:SetAttribute('NightOnly', true) else nDia += 1 end
+  if l[2] == 'SPOT' then pl.Face = Enum.NormalId.Front; if l[10] then pl.Angle = l[10] end end
+  pl.Parent = a; a.Parent = LTF
+end
+-- rede de seguranca: quem cai do lobby volta ao ponto seguro mais proximo (spawn, RESPAWN_*, pes de escada)
+local SAFE = {
+  {'SAFE_Entrada',{-667.596,36.2,613.219}},
+  {'SAFE_Praca',{-682.325,36.2,606.968}},
+  {'SAFE_Vila_P1_O',{-733.383,36.2,650.478}},
+  {'SAFE_Vila_P1_L',{-684.935,36.2,536.334}},
+  {'SAFE_Vila_P2',{-778.979,44.2,565.944}},
+  {'SAFE_Vila_P2_O',{-810.235,44.2,639.585}},
+  {'SAFE_Patio_Castelo',{-838.812,52.2,540.548}},
+  {'SAFE_Salao',{-884.838,52.2,521.013}},
+  {'SAFE_Dungeon',{-827.357,52.2,436.775}},
+  {'SAFE_Craft',{-755.536,44.2,510.713}},
+  {'SAFE_Summon',{-762.768,40.2,714.593}},
+  {'SAFE_Saida',{-734.631,44.2,443.542}},
+  {'SAFE_Ilhota',{-696.732,44.2,354.252}},
+  {'SAFE_Ponte_Chegada',{-599.478,28.2,642.131}},
+}
+do local v = root:FindFirstChild('VOID_CATCH') or Instance.new('Part'); v.Name = 'VOID_CATCH'
+  v.Anchored = true; v.CanCollide = false; v.CanTouch = true; v.CanQuery = false; v.Transparency = 1; v.CastShadow = false
+  v.Size = Vector3.new(420,4,480); v.Position = Vector3.new(-811.1968994140625,-40.0,552.2689819335938) + ROOT_OFFSET
+  v:ClearAllChildren()
+  for _, s in ipairs(SAFE) do local at = Instance.new('Attachment'); at.Name = s[1]; at.Parent = v
+    at.WorldPosition = Vector3.new(s[2][1], s[2][2], s[2][3]) + ROOT_OFFSET end
+  v.Parent = root end
+
+-- Script de servidor: personagens no grupo 'Personagens' (atravessam as cascas SoVisual) + rede de quedas
+do
+  local SSS = game:GetService('ServerScriptService')
+  local s = SSS:FindFirstChild('ILHA_SHADOWGARDEN_Servidor') or Instance.new('Script')
+  s.Name = 'ILHA_SHADOWGARDEN_Servidor'
+  s.Source = [==[
+-- gerado por montar_ilha_shadowgarden.lua (export_roblox.py) - nao editar a mao
+local Players = game:GetService('Players')
+local PhysicsService = game:GetService('PhysicsService')
+local RunService = game:GetService('RunService')
+pcall(function()
+  for _, n in ipairs({'SoVisual', 'Personagens'}) do
+    if not PhysicsService:IsCollisionGroupRegistered(n) then PhysicsService:RegisterCollisionGroup(n) end
+  end
+  PhysicsService:CollisionGroupSetCollidable('SoVisual', 'Personagens', false)
+end)
+local function grupo(inst) if inst:IsA('BasePart') then inst.CollisionGroup = 'Personagens' end end
+local chao = setmetatable({}, {__mode = 'k'})   -- personagem -> Y do ultimo chao pisado
+local function personagem(ch)
+  for _, d in ipairs(ch:GetDescendants()) do grupo(d) end
+  ch.DescendantAdded:Connect(grupo)
+end
+local function jogador(p)
+  p.CharacterAdded:Connect(personagem)
+  if p.Character then personagem(p.Character) end
+end
+Players.PlayerAdded:Connect(jogador)
+for _, p in ipairs(Players:GetPlayers()) do jogador(p) end
+-- rede de seguranca
+local root = workspace:WaitForChild('ILHA_SHADOWGARDEN', 60)
+local catch = root and root:WaitForChild('VOID_CATCH', 60)
+if not catch then return end
+local seguros = {}
+for _, a in ipairs(catch:GetChildren()) do if a:IsA('Attachment') then table.insert(seguros, a.WorldPosition) end end
+local topo = catch.Position.Y + catch.Size.Y / 2
+local ult = setmetatable({}, {__mode = 'k'})
+local function dentro(p)
+  local c, s = catch.Position, catch.Size
+  return math.abs(p.X - c.X) <= s.X / 2 and math.abs(p.Z - c.Z) <= s.Z / 2
+end
+local function resgatar(ch)
+  local hrp = ch:FindFirstChild('HumanoidRootPart'); if not hrp then return end
+  local p = hrp.Position
+  -- so quem caiu DO LOBBY (ultimo chao acima da rede): nao mexe em quem anda em areas mais baixas
+  if not (chao[ch] and chao[ch] > topo + 8) or p.Y > topo or not dentro(p) then return end
+  if ult[ch] and os.clock() - ult[ch] < 1 then return end
+  ult[ch] = os.clock()
+  local best, bd = nil, math.huge
+  for _, s in ipairs(seguros) do
+    local d = (Vector3.new(s.X, 0, s.Z) - Vector3.new(p.X, 0, p.Z)).Magnitude
+    if d < bd then best, bd = s, d end
+  end
+  if not best then return end
+  hrp.AssemblyLinearVelocity = Vector3.zero
+  ch:PivotTo(CFrame.new(best + Vector3.new(0, 3.5, 0)) * (hrp.CFrame - hrp.CFrame.Position))
+  chao[ch] = best.Y
+end
+catch.Touched:Connect(function(hit)
+  local ch = hit.Parent
+  if ch and ch:FindFirstChildOfClass('Humanoid') then resgatar(ch) end
+end)
+local acc = 0
+RunService.Heartbeat:Connect(function(dt)
+  acc += dt
+  if acc < 0.2 then return end
+  acc = 0
+  for _, pl in ipairs(Players:GetPlayers()) do
+    local ch = pl.Character
+    local hum = ch and ch:FindFirstChildOfClass('Humanoid')
+    local hrp = ch and ch:FindFirstChild('HumanoidRootPart')
+    if hum and hrp then
+      if hum.FloorMaterial ~= Enum.Material.Air then chao[ch] = hrp.Position.Y end
+      if hrp.Position.Y < topo then resgatar(ch) end
+    end
+  end
+end)
+]==]
+  s.Parent = SSS
+end
+
+if APLICAR_LIGHTING then
+  local Lg = game:GetService('Lighting')
+  Lg.GeographicLatitude = 35.033
+  Lg.ClockTime = 14.95
+  Lg.EnvironmentDiffuseScale = 0.4
+  Lg.EnvironmentSpecularScale = 0.5
+  Lg.Brightness = 2.5
+  Lg.ExposureCompensation = 0.0
+  Lg.ShadowSoftness = 0.2
+  Lg.OutdoorAmbient = Color3.fromRGB(118,128,152)
+  Lg.Ambient = Color3.fromRGB(90,92,104)
+  Lg.ColorShift_Top = Color3.fromRGB(255,236,210)
+  do local e = Lg:FindFirstChildOfClass('ColorCorrectionEffect') or Instance.new('ColorCorrectionEffect', Lg)
+    e.Saturation = 0.15
+    e.Contrast = 0.12
+    e.TintColor = Color3.fromRGB(255,246,236)
+  end
+  do local e = Lg:FindFirstChildOfClass('BloomEffect') or Instance.new('BloomEffect', Lg)
+    e.Threshold = 1.3
+    e.Intensity = 0.6
+    e.Size = 28
+  end
+  do local e = Lg:FindFirstChildOfClass('Atmosphere') or Instance.new('Atmosphere', Lg)
+    e.Density = 0.34
+    e.Offset = 0.05
+    e.Haze = 1.8
+    e.Glare = 0.1
+    e.Color = Color3.fromRGB(199,214,235)
+    e.Decay = Color3.fromRGB(106,128,168)
+  end
+  local d = Lg:GetSunDirection()
+  print(string.format('Lighting do lobby aplicado: sol (%.2f, %.2f, %.2f), esperado (-0.68, 0.70, 0.20) = sol do Blender', d.X, d.Y, d.Z))
+  print('(lembre de devolver GeographicLatitude=22 nos perfis das ilhas)')
+end
+root.WorldPivot = CFrame.new(ROOT_OFFSET)
+-- ===== pecas moveis (VFX_*) =====
+local VFX = {
+  ['VFX_GATE_DemonSlayer_Tsuba_1'] = {p = Vector3.new(-708.035,59.800,347.608), a = Vector3.new(0.0000,1.0000,0.0000), rpm = -4.000, bob = 0.600, rate = 0.000},
+  ['VFX_GATE_DemonSlayer_Tsuba_2'] = {p = Vector3.new(-709.123,55.000,351.708), a = Vector3.new(0.0000,1.0000,0.0000), rpm = 5.000, bob = 0.600, rate = 0.000},
+  ['VFX_GATE_DemonSlayer_Tsuba_3'] = {p = Vector3.new(-686.294,55.300,361.398), a = Vector3.new(0.0000,1.0000,0.0000), rpm = -6.000, bob = 0.600, rate = 0.000},
+  ['VFX_GATE_DemonSlayer_Tsuba_4'] = {p = Vector3.new(-684.101,60.100,357.766), a = Vector3.new(0.0000,1.0000,0.0000), rpm = 7.000, bob = 0.600, rate = 0.000},
+  ['VFX_SGDUN_Portal'] = {p = Vector3.new(-855.525,59.600,424.819), a = Vector3.new(0.9210,0.0000,0.3910), rpm = 5.000, bob = 0.000, rate = 0.000},
+  ['VFX_SGSUM_Ring_1'] = {p = Vector3.new(-771.559,86.200,735.304), a = Vector3.new(0.0000,1.0000,0.0000), rpm = 2.000, bob = 0.000, rate = 0.000},
+  ['VFX_SGSUM_Ring_2'] = {p = Vector3.new(-771.559,86.200,735.304), a = Vector3.new(0.0000,-1.0000,0.0000), rpm = 4.000, bob = 0.000, rate = 0.000},
+  ['VFX_SGSUM_Ring_3'] = {p = Vector3.new(-771.559,86.200,735.304), a = Vector3.new(0.8420,0.5300,-0.1030), rpm = 6.000, bob = 0.000, rate = 0.000},
+  ['VFX_SGSUM_Star'] = {p = Vector3.new(-771.559,86.200,735.304), a = Vector3.new(0.0000,1.0000,0.0000), rpm = 5.000, bob = 0.000, rate = 0.000},
+}
+local nV = 0
+for _, d in ipairs(root:GetDescendants()) do
+  if d:IsA('MeshPart') then local o = string.match(d.Name, '^(VFX_[%w_]-)__')
+    local v = o and VFX[o]
+    if v then local rel = root:GetPivot():ToObjectSpace(CFrame.new(v.p + ROOT_OFFSET))
+      d:SetAttribute('pivot_rel', rel.Position); d:SetAttribute('axis_rel', v.a); d:SetAttribute('rpm', v.rpm)
+      d:SetAttribute('bob', v.bob); d:SetAttribute('rate', v.rate); d:SetAttribute('cf0_rel', root:GetPivot():ToObjectSpace(d.CFrame))
+      d:SetAttribute('movel_de', root.Name); CS:AddTag(d, 'IlhaMovel'); nV += 1 end end
+end
+do local SPS = game:GetService('StarterPlayer'):FindFirstChildOfClass('StarterPlayerScripts')
+  local s = SPS:FindFirstChild('ILHA_NARUTO_Movel') or Instance.new('LocalScript'); s.Name = 'ILHA_NARUTO_Movel'
+  s.Source = [==[
+-- gerado pelo montar da ilha/portoes: gira/flutua as pecas com a tag IlhaMovel (so visual, no cliente).
+-- Tudo e relativo ao pivo do Model dono (atributo movel_de): o Model pode ser movido com PivotTo.
+local CS = game:GetService('CollectionService'); local RS = game:GetService('RunService')
+local t0 = os.clock()
+RS.RenderStepped:Connect(function()
+  local t = os.clock() - t0
+  for _, d in ipairs(CS:GetTagged('IlhaMovel')) do
+    local dono = d:FindFirstAncestor(d:GetAttribute('movel_de') or '')
+    local cf0, p, a = d:GetAttribute('cf0_rel'), d:GetAttribute('pivot_rel'), d:GetAttribute('axis_rel')
+    if dono and cf0 and p and a and a.Magnitude > 0 then
+      local ang = t * (d:GetAttribute('rpm') or 0) * math.pi / 30
+      local amp, rate = d:GetAttribute('bob') or 0, d:GetAttribute('rate') or 0
+      local bob
+      if rate > 0 then  -- pilao: sobe devagar (70% do ciclo) e cai rapido (30%)
+        local f = (t * rate) % 1
+        bob = amp * ((f < 0.7) and (f / 0.7) or (1 - (f - 0.7) / 0.3))
+      else
+        bob = math.sin(t * 1.6 + p.X * 0.1) * amp
+      end
+      local r = CFrame.fromAxisAngle(a.Unit, ang)
+      d.CFrame = dono:GetPivot() * (CFrame.new(p + Vector3.new(0, bob, 0)) * r * CFrame.new(-p) * cf0)
+    end
+  end
+end)
+]==]
+  s.Parent = SPS end
+print(string.format('%d pecas moveis marcadas (IlhaMovel)', nV))
+-- ===== portoes de compra (LOCKED/UNLOCKED) =====
+local nP = 0
+for _, d in ipairs(root:GetDescendants()) do
+  if d:IsA('MeshPart') then
+    local k, part = string.match(d.Name, '^GATE_(%w+)_(%a+)')
+    if k and (part == 'Barrier' or part == 'Lock' or part == 'OpenGlow') then
+      if part == 'Barrier' then d.Transparency = 0.2 end   -- energia: da para ver o outro lado
+      d:SetAttribute('gate', k); d:SetAttribute('gate_part', string.lower(part)); d:SetAttribute('t0', d.Transparency)
+      if part == 'OpenGlow' then d.Transparency = 1 end
+      CS:AddTag(d, 'PortaoCompra'); nP += 1 end
+  elseif d:IsA('Part') and d.Parent == COLF then
+    local k = string.match(d.Name, '^COL_Gate(%w-)Lock_')
+    if k then d:SetAttribute('gate', k); d:SetAttribute('gate_part', 'lockcol'); CS:AddTag(d, 'PortaoCompra'); nP += 1
+      local mdl = root:FindFirstChild('GATE_' .. k)   -- Model atomico do portao: bloqueio carrega junto
+      if mdl and mdl:IsA('Model') then d.Parent = mdl end end
+  end
+end
+do local RepS = game:GetService('ReplicatedStorage')
+  local m = RepS:FindFirstChild('PortoesCompra') or Instance.new('ModuleScript'); m.Name = 'PortoesCompra'
+  m.Source = [==[
+-- gerado pelo montar da ilha/portoes. Estado de um portao de compra (DB, ShadowGarden, DemonSlayer, OnePiece,
+-- OnePunchMan). No SERVIDOR vale para todos; num LocalScript vale so para aquele jogador (quem pagou).
+--   require(game.ReplicatedStorage.PortoesCompra).Estado('DB', true)   -- desbloqueia
+local CS = game:GetService('CollectionService')
+local M = {}
+local estado = {}   -- chave -> desbloqueado (sobrevive ao streaming: pecas que chegam depois recebem o estado)
+local function aplicar(d)
+  local chave = d:GetAttribute('gate'); local desb = estado[chave]
+  if desb == nil then return end
+  local p = d:GetAttribute('gate_part')
+  if p == 'barrier' or p == 'lock' then d.Transparency = desb and 1 or (d:GetAttribute('t0') or 0)
+  elseif p == 'openglow' then d.Transparency = desb and 0 or 1
+  elseif p == 'lockcol' then d.CanCollide = not desb end
+end
+function M.Estado(chave, desbloqueado)
+  estado[chave] = desbloqueado and true or false
+  for _, d in ipairs(CS:GetTagged('PortaoCompra')) do if d:GetAttribute('gate') == chave then aplicar(d) end end
+end
+function M.Reaplicar() for _, d in ipairs(CS:GetTagged('PortaoCompra')) do aplicar(d) end end
+CS:GetInstanceAddedSignal('PortaoCompra'):Connect(aplicar)
+function M.Chaves() local s = {} for _, d in ipairs(CS:GetTagged('PortaoCompra')) do s[d:GetAttribute('gate')] = true end return s end
+return M
+]==]
+  m.Parent = RepS end
+print(string.format('%d pecas de portao de compra marcadas (PortaoCompra)', nP))
+-- ===== guarda provisoria da ancora: a integracao da Ilha 2 APAGA estas pecas ao encostar a ponte seguinte =====
+local nG = 0
+for _, d in ipairs(root:GetDescendants()) do
+  if (d:IsA('BasePart') or d:IsA('Model')) and (string.match(d.Name, '^SG_Exit_AnchorGuard') or string.match(d.Name, '^COL_SGAnchorGuard_')) then
+    d:SetAttribute('next_island_guard', true)
+    d:SetAttribute('removed_by', 'integracao da ilha Demon Slayer (ponte seguinte encosta em ISLAND_NEXT_ANCHOR_DemonSlayer)')
+    CS:AddTag(d, 'GuardaProximaIlha'); nG += 1 end
+end
+print(string.format('%d pecas da guarda da ancora marcadas (GuardaProximaIlha)', nG))
+print(string.format('ILHA_SHADOWGARDEN montado (EXPORT_ID %s): %d colisoes, %d marcadores, %d luzes (%d de dia), %d pontos seguros', EXPORT_ID, #COL, #MK, #LT, nDia, #SAFE))
