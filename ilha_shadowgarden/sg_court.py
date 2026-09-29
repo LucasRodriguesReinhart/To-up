@@ -11,6 +11,12 @@
 #   3. TRANSICOES: arco leve de ferro negro no pe da escada do portao (entrada do recinto do castelo) - mesma familia do
 #      arco do topo da escada P1P2 (sg_village); 2 estandartes da ordem em mastros na saida norte da praca.
 # Prefixo SG_Prop_, colecao 09_PROPS. Luzes: sg_lights (COURT_LIGHTS daqui). Simbolo: SO sg_emblem.
+# REFINAMENTO v2 2026-09-28: RITMO de lanternas douradas (sg_emblem.lantern_pedestal, SO Neon) ao longo do eixo no P2,
+# nos dois lados do caminho da ordem (fora do fio central e da largura util de 12), do topo da escada P1P2 ate o pe da
+# escada do portao; o vao do cruzamento com a rua do P2 fica com o lantern_post da vila (7.8, -51.6). Estandartes dos
+# mastros da praca com debrum DOURADO. Nos parapeitos do P2/P3 do terreno NAO se mexe: as lanternas ficam no chao.
+# REFINAMENTO v3 2026-09-29: contraste caminho x patio com o calcamento escurecido - filete de cantaria clara rente na
+# aresta externa do caminho da ordem (os dois lados, em todo o eixo) e a travessia do patio um valor abaixo do piso.
 import math, random
 import sg_lib as SL
 from sg_lib import MB, col_box, col_box2, fm_lib
@@ -52,6 +58,10 @@ OBELISKS = [(-21.0, 29.0), (21.0, 29.0)]
 MURETS = [(-45.0, 0.0, 13.5), (45.0, 0.0, 13.5)]
 GATE_ARCH = (0.0, -28.0, P2, 9.4)     # (x, y, z, meia-abertura) arco de ferro no pe da escada do portao
 PLAZA_MASTS = [(-11.5, -102.6), (11.5, -102.6)]
+# lanternas do eixo no P2 (referencia v2): pares em x = +-7.6 (fora da largura util de 12 do caminho), a cada ~14;
+# o vao -50 fica com o lantern_post da vila em (7.8, -51.6) (nada de cacho de postes no cruzamento)
+AXIS_LANTERN_X = 7.6
+AXIS_LANTERN_Y = (-78.0, -64.0, -36.0)
 # luzes do patio (quem cria e o sg_lights; teto de 7 no vestir)
 VIOLET = (0.62, 0.42, 1.0)
 COURT_LIGHTS = [("Court_Violet", (0.0, 30.5, P3 + 7.0), 420.0, VIOLET, 0.6)]
@@ -129,8 +139,12 @@ def noble_path(mb, y0, y1, W, z, thread=(None, None), slabs=(None, None), border
     mb.box2((-hw, y0, z - 0.2), (hw, y1, z + 0.02), OBS, 0.0)
     by0, by1 = border[0] if border[0] is not None else y0, border[1] if border[1] is not None else y1
     for s in (-1, 1):
-        xa, xb = sorted((s * hw, s * (hw - bd)))
+        xa, xb = sorted((s * (hw - 0.24), s * (hw - bd)))
         mb.box2((xa, by0, z - 0.05), (xb, by1, z + 0.05), OBS, 0.0)
+        # v3: filete de cantaria clara RENTE na aresta externa da borda: com o calcamento escurecido (refino v2b) o
+        # marmore negro + obsidiana perdiam a aresta contra o piso do patio; o filete desenha o caminho a altura do olho
+        xa, xb = sorted((s * hw, s * (hw - 0.24)))
+        mb.box2((xa, by0, z - 0.05), (xb, by1, z + 0.05), TRIM, 0.0)
     # lajes (fiadas de ~3; junta 0,12 mostra a base escura)
     sy0, sy1 = slabs[0] if slabs[0] is not None else y0, slabs[1] if slabs[1] is not None else y1
     n = max(1, int(round((sy1 - sy0) / row)))
@@ -204,7 +218,7 @@ def mast_banner(mb, x, y, z, yaw=-math.pi / 2):
     SL.spire(mb, (x, y), 0.34, z + 14.5, 1.3, SILVER, n=4)
     mb.ico(0.22, (x, y, z + 14.45), SILVER, 1)
     top = (x + fx * 0.36, y + fy * 0.36, z + 12.6)
-    EM.banner(mb, mb, mb, mb, top, yaw, 3.0, 7.4)
+    EM.banner(mb, mb, mb, mb, top, yaw, 3.0, 7.4, trim=EM.GOLD)
     col_box("SG_PropMast", (1.2, 1.2, 14.0), (x, y, z + 7.0))
 
 
@@ -214,6 +228,11 @@ def axis_north():
     y_p2_0 = L.stair_top("P1P2")[1] + 0.02          # -83
     y_p2_1 = L.stair_frame("Gate")[0][1] - 0.02      # -26
     noble_path(mb, y_p2_0, y_p2_1, PATH_W, P2)
+    # ritmo de lanternas douradas ladeando o caminho da ordem no P2 (SO Neon; colisao propria fina)
+    for yy in AXIS_LANTERN_Y:
+        for s in (-1, 1):
+            EM.lantern_pedestal(mb, mb, mb, (s * AXIS_LANTERN_X, yy, P2), 0.0, 1.0)
+            col_box("SG_PropLantern", (1.9, 1.9, 3.6), (s * AXIS_LANTERN_X, yy, P2 + 1.8))
     # patio: do portao (face sul da muralha) ate a porta; o medalhao come o trecho do meio
     cx, cy = MED_C
     y_gate = L.WALL_Y0 + 0.02                        # -8,98 (topo da escada do portao)

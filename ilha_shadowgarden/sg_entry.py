@@ -15,6 +15,19 @@ import sg_layout as L
 import sg_emblem as EM
 # REFINAMENTO 2026-09-28: o estandarte navy com o "tridente" virou o estandarte DA ORDEM (sg_emblem.banner) e o portico
 # B ganhou a verga de obsidiana com o medalhao da ordem (sg_emblem.plaque): a entrada fala pelo mesmo simbolo do castelo.
+# REFINAMENTO v2 2026-09-28: CHEGADA CERIMONIAL da referencia v2 (ref2_entry): RITMO de lanternas douradas
+# (sg_emblem.lantern_pedestal, SO Neon - as 4 luzes reais continuam as das lanternas dos porticos) sobre os parapeitos
+# da ponte (3 pares), da lateral do patio (2 pares) e da calcada alta (2 pares); estandartes dos porticos com debrum
+# DOURADO (trim="Metal_Gold").
+# REFINAMENTO v3 2026-09-29 (ref2_main / ref2_entry: o corredor cerimonial mais forte do mapa):
+#   - pedra da escadaria, das muretas inclinadas e dos parapeitos UM VALOR MAIS ESCURA (Stone_SG_Castle); a cantaria clara
+#     (Stone_SG_Trim) fica SO no remate (capa); cintas das muretas em obsidiana; meio-fio da ponte em obsidiana (moldura
+#     escura do calcamento, como o caminho da ordem);
+#   - ritmo de pares de lanternas douradas a ~5,6 na ponte (pilaretes dos pilares e da cabeceira com lanterna no lugar do
+#     pinaculo + pedestais entre eles), PILARETES COM LANTERNA na mureta da escadaria (pe, meio do lance e topo, em pares)
+#     e no fim da calcada alta; SO Neon (as 4 luzes reais continuam as dos porticos);
+#   - par de ESTANDARTES da ordem com debrum dourado em mastros sobre o parapeito no meio da ponte (encaram quem chega):
+#     o ritmo estandarte (ponte) -> portico A -> portico B da referencia.
 
 DECK, P1 = L.DECK, L.P1
 Y0, Y1 = L.BRIDGE_Y0, L.BRIDGE_Y1          # -262 .. -228
@@ -190,7 +203,7 @@ def bridge():
         while yy < Y1 - 0.05:
             ye = min(yy + 4.25, Y1)
             xa, xb = sorted((sx * HW, sx * (HW - CURB)))
-            mb.box2((xa, yy + 0.07, DECK - 0.35), (xb, ye - 0.07, DECK), "Stone_SG_Trim", 0.06)
+            mb.box2((xa, yy + 0.07, DECK - 0.35), (xb, ye - 0.07, DECK), "Stone_SG_Obsidian", 0.06)
             yy = ye
     row = 2.45
     y = Y0
@@ -215,15 +228,27 @@ def bridge():
 
 
 # ------------------------------------------------------------------ parapeitos / balaustradas (so visual: guardas no sg_col)
-def _post(mb, x, y, z, size=1.6, h=PAR_H + 0.8):
-    mb.box((size, size, h), (x, y, z + h / 2), (0, 0, 0), "Stone_SG_Block", 0.12)
+PAR_M = "Stone_SG_Castle"      # corpo dos parapeitos / muretas / pilaretes (um valor abaixo do Stone_SG_Block)
+LAN_S = 0.85                   # escala das lanternas nos pilaretes
+
+
+def _post(mb, x, y, z, size=1.6, h=PAR_H + 0.8, lamp=False):
+    """pilarete: fuste escuro + capa clara (remate) + pinaculo, ou LANTERNA dourada da ordem no lugar do pinaculo"""
+    mb.box((size, size, h), (x, y, z + h / 2), (0, 0, 0), PAR_M, 0.12)
     mb.box((size + 0.3, size + 0.3, 0.35), (x, y, z + h + 0.175), (0, 0, 0), "Stone_SG_Trim", 0.08)
-    SL.spire(mb, (x, y), (size - 0.1) / math.sqrt(2.0), z + h + 0.35, 0.6, "Stone_SG_Trim", n=4)
+    if lamp:
+        # soco de obsidiana sobre a capa e a lanterna (base da lanterna assentada no soco: nada flutua)
+        zt = z + h + 0.35
+        mb.box((size - 0.2, size - 0.2, 0.5), (x, y, zt + 0.25), (0, 0, 0), "Stone_SG_Obsidian", 0.05)
+        EM.lantern_head(mb, mb, (x, y, zt + 0.5 + 1.14 * LAN_S), 0.0, LAN_S)
+    else:
+        SL.spire(mb, (x, y), (size - 0.1) / math.sqrt(2.0), z + h + 0.35, 0.6, "Stone_SG_Trim", n=4)
 
 
-def parapet_run(mb, pts, z, th=1.2, extra=(), skip=(), post=1.6):
+def parapet_run(mb, pts, z, th=1.2, extra=(), skip=(), post=1.6, lit=()):
     """parede baixa + capa clara ao longo da polilinha (eixos alinhados); pilaretes SO nos vertices (pontas e cantos)
-    e nos pontos 'extra' (p.ex. sobre os pilares da ponte).
+    e nos pontos 'extra' (p.ex. sobre os pilares da ponte). 'lit' = indices dos vertices cujo pilarete leva lanterna;
+    extra = [(x, y)] ou [(x, y, lamp)].
     As pontas NAO passam do primeiro/ultimo ponto (a ponta sul da ponte fica em y -262 exato)."""
     n = len(pts)
     for i in range(n - 1):
@@ -231,7 +256,7 @@ def parapet_run(mb, pts, z, th=1.2, extra=(), skip=(), post=1.6):
         d = (b - a).normalized()
         ea = a - d * (th / 2 if i > 0 else 0.0)
         eb = b + d * (th / 2 if i < n - 2 else 0.0)
-        mb.beam((ea.x, ea.y, z + PAR_H / 2), (eb.x, eb.y, z + PAR_H / 2), th, PAR_H, "Stone_SG_Block", 0.1)
+        mb.beam((ea.x, ea.y, z + PAR_H / 2), (eb.x, eb.y, z + PAR_H / 2), th, PAR_H, PAR_M, 0.1)
         mb.beam((ea.x, ea.y, z + PAR_H + 0.22), (eb.x, eb.y, z + PAR_H + 0.22), th + 0.35, 0.45, "Stone_SG_Trim", 0.08)
     posts = [Vector(p) for p in pts]
     for i, p in enumerate(posts):
@@ -242,9 +267,9 @@ def parapet_run(mb, pts, z, th=1.2, extra=(), skip=(), post=1.6):
             q += (Vector(posts[1]) - Vector(posts[0])).normalized() * (post / 2 + 0.16)
         elif i == len(posts) - 1:
             q += (Vector(posts[-2]) - Vector(posts[-1])).normalized() * (post / 2 + 0.16)
-        _post(mb, q.x, q.y, z, post)
+        _post(mb, q.x, q.y, z, post, lamp=(i in lit))
     for p in extra:
-        _post(mb, p[0], p[1], z, post)
+        _post(mb, p[0], p[1], z, post, lamp=(len(p) > 2 and p[2]))
 
 
 def stair_wall(mb, s):
@@ -252,16 +277,21 @@ def stair_wall(mb, s):
     ya, yb = L.ENTRY_STAIR[1], L.ENTRY_STAIR_Y1          # -206 .. -188
     ta, tb = PAR_Z + PAR_H + 0.35, P1 - 0.35 + PAR_H + 0.35
     x0, x1 = sorted((s * HW, s * (HW + 1.4)))
-    yz_prism(mb, x0, x1, [(ya, DECK - 1.5), (yb, DECK - 1.5), (yb, tb), (ya, ta)], "Stone_SG_Block")
+    yz_prism(mb, x0, x1, [(ya, DECK - 1.5), (yb, DECK - 1.5), (yb, tb), (ya, ta)], PAR_M)
     xm = s * (HW + 0.7)
     mb.beam((xm, ya - 0.2, ta + 0.2), (xm, yb + 0.2, tb + 0.2), 1.75, 0.45, "Stone_SG_Trim", 0.08)
-    # cinta de fiadas na face externa (le como alvenaria de arrimo)
+    # cinta de fiadas na face externa (le como alvenaria de arrimo): obsidiana (faixa nobre), nao cantaria clara
     for zz in (DECK + 1.0, DECK + 4.2):
         mb.box2((min(x0, x1) - (0.12 if s < 0 else 0), ya, zz), (max(x0, x1) + (0.12 if s > 0 else 0), yb, zz + 0.35),
-                "Stone_SG_Trim", 0.0)
-    # pilaretes: pe (no patio) e topo (na calcada)
-    _post(mb, s * (HW + 0.8), ya + 0.4, PAR_Z, 1.6, PAR_H + 1.3)
-    _post(mb, s * (HW + 0.8), yb - 0.6, P1 - 0.35, 1.6, PAR_H + 1.3)
+                "Stone_SG_Obsidian", 0.0)
+    # pilaretes COM LANTERNA em pares: pe (no patio), 2 no lance (tercos, ~5,8 como o ritmo da ponte) e topo (calcada)
+    _post(mb, s * (HW + 0.8), ya + 0.4, PAR_Z, 1.6, PAR_H + 1.3, lamp=True)
+    _post(mb, s * (HW + 0.8), yb - 0.6, P1 - 0.35, 1.6, PAR_H + 1.3, lamp=True)
+    y_a, y_b = ya + 0.4, yb - 0.6
+    for k in (1, 2):
+        yy = y_a + (y_b - y_a) * k / 3.0
+        zcap = ta + (tb - ta) * (yy - ya) / (yb - ya) + 0.2 + 0.225        # topo da capa inclinada nesse ponto
+        _post(mb, s * (HW + 0.8), yy, zcap - 2.4, 1.6, 2.4 + 0.75, lamp=True)
 
 
 def parapets():
@@ -271,27 +301,64 @@ def parapets():
     for s in (-1, 1):
         skipA = [((s * PORTICO_A["xc"], PORTICO_A["y"]), 4.0)]
         # ponte -> canto sul do patio -> lateral do patio -> canto norte (pe da escada)
+        # pilaretes dos pilares da ponte e da cabeceira (canto ponte -> patio) levam lanterna
         parapet_run(mb, [(s * (HW + 0.6), Y0), (s * (HW + 0.6), Y1 - 0.6), (s * (xl + 0.6), Y1 - 0.6),
                          (s * (xl + 0.6), L.ENTRY_STAIR[1] + 0.5), (s * (HW + 1.4), L.ENTRY_STAIR[1] + 0.5)],
-                    PAR_Z, extra=[(s * (HW + 0.6), cy) for cy in PIERS],
-                    skip=skipA + [((s * (HW + 1.4), L.ENTRY_STAIR[1] + 0.5), 1.0)])
+                    PAR_Z, extra=[(s * (HW + 0.6), cy, True) for cy in PIERS],
+                    skip=skipA + [((s * (HW + 1.4), L.ENTRY_STAIR[1] + 0.5), 1.0)], lit=(1,))
         stair_wall(mb, s)
-        # calcada alta: borda sul (ao lado do topo da escada) + lateral ate a praca
+        # calcada alta: borda sul (ao lado do topo da escada) + lateral ate a praca (o pilarete do fim, na boca da
+        # praca, leva lanterna: fecha o corredor)
         skipB = [((s * PORTICO_B["xc"], PORTICO_B["y"]), 4.4), ((s * (HW + 1.4), L.ENTRY_STAIR_Y1 - 0.6), 1.0)]
         parapet_run(mb, [(s * (HW + 1.4), L.ENTRY_STAIR_Y1 - 0.6), (s * (xh + 0.6), L.ENTRY_STAIR_Y1 - 0.6),
-                         (s * (xh + 0.6), L.P1_POLY[3][1])], P1 - 0.35, skip=skipB)
+                         (s * (xh + 0.6), L.P1_POLY[3][1])], P1 - 0.35, skip=skipB, lit=(2,))
+    # RITMO DE LANTERNAS (referencia v2/v3): pares de lanternas douradas da ordem a ~5,6 na ponte (pedestais entre os
+    # pilaretes com lanterna dos pilares -258 / -235,5 e da cabeceira -228,6), a ~10 na lateral do patio e da calcada
+    # alta (o trecho -182 fica com a lanterna baixa do portico B). SO Neon (nenhuma luz real nova). As posicoes evitam
+    # os pilaretes e os mastros dos estandartes.
+    top_deck = PAR_Z + PAR_H + 0.445
+    top_p1 = P1 - 0.35 + PAR_H + 0.445
+    for s in (-1, 1):
+        for yy in BRIDGE_LANTERNS:
+            EM.lantern_pedestal(mb, mb, mb, (s * (HW + 0.6), yy, top_deck), 0.0, 0.9)
+        for yy in (-221.5, -211.0):
+            EM.lantern_pedestal(mb, mb, mb, (s * (xl + 0.6), yy, top_deck), 0.0, 0.9)
+        for yy in (-170.0,):
+            EM.lantern_pedestal(mb, mb, mb, (s * (xh + 0.6), yy, top_p1), 0.0, 0.9)
+        bridge_banner(mb, s, top_deck)
     return mb.finish()
+
+
+# ponte: pedestais de lanterna entre os pilaretes (ritmo ~5,6) e o par de estandartes no meio do vao
+BRIDGE_LANTERNS = (-252.4, -241.1)
+BRIDGE_BANNER_Y = -246.75
+
+
+def bridge_banner(mb, s, top_deck):
+    """mastro de ferro negro sobre o parapeito da ponte (soco de obsidiana na capa) com o estandarte da ordem de debrum
+    dourado pendurado a frente, encarando o SUL (quem chega da Ilha 2). O pano fica acima de 4,5 do tabuleiro (so
+    visual, sem colisao; a guarda do sg_col segue na face do parapeito)."""
+    x, y = s * (HW + 0.6), BRIDGE_BANNER_Y
+    z = top_deck
+    mb.box((1.7, 1.7, 0.55), (x, y, z + 0.275), (0, 0, 0), "Stone_SG_Obsidian", 0.06)
+    mb.box((1.3, 1.3, 0.35), (x, y, z + 0.725), (0, 0, 0), "Stone_SG_Violet", 0.0)
+    mb.cyl(0.22, 12.4, (x, y, z + 0.9 + 6.2), (0, 0, 0), "Metal_SG_BlackIron", n=8, r2=0.16, bevel=0.0)
+    mb.box((0.55, 0.55, 0.3), (x, y, z + 12.9), (0, 0, 0), EM.GOLD, 0.0)
+    SL.spire(mb, (x, y), 0.34, z + 13.05, 1.3, "Metal_SG_Silver", n=4)
+    EM.banner(mb, mb, mb, mb, (x, y - 0.36, z + 12.3), -math.pi / 2, 2.6, 8.0, trim=EM.GOLD)
 
 
 def stair():
     mb = MB("SG_Ent_Stair", "18_ENTRY", random.Random(3103), detail="near")
-    SL.plan_stair(mb, "Entry", m="Stone_Paving_SG", side_m="Stone_SG_Block", stringers=False)
-    # focinho claro em cada degrau (le a escada de longe, como na concept); rente ao piso do degrau
+    # v3: degraus um valor mais escuros (Stone_SG_Castle); o focinho vira Stone_SG_Block (le o degrau sem clarear o
+    # lance inteiro): a cantaria clara fica so nos remates das muretas
+    SL.plan_stair(mb, "Entry", m="Stone_SG_Castle", side_m="Stone_SG_Castle", stringers=False)
+    # focinho em cada degrau (le a escada de longe, como na concept); rente ao piso do degrau
     foot, deg, w, n, tread, g = L.stair_frame("Entry")
     rise = (L.STAIR_TOP_Z["Entry"] - foot[2]) / n
     for i in range(n):
         y = foot[1] + tread * i - 0.075 + 0.22
-        mb.box((w - 0.2, 0.44, 0.14), (foot[0], y, foot[2] + rise * (i + 1) - 0.05), (0, 0, 0), "Stone_SG_Trim", 0.0)
+        mb.box((w - 0.2, 0.44, 0.14), (foot[0], y, foot[2] + rise * (i + 1) - 0.05), (0, 0, 0), "Stone_SG_Block", 0.0)
     return mb.finish()
 
 
@@ -371,7 +438,7 @@ def pylon(mb, P, side):
     # face SUL: estandarte DA ORDEM (sg_emblem.banner: roxo profundo, barra negra, prata, emblema) numa verga de ferro
     # negro presa ao fuste por 2 bracos
     yb = y - (s / 2 + 0.55)
-    EM.banner(mb, mb, mb, mb, (xc, yb, zt - 0.9), -math.pi / 2, P["bw"], P["bh"])
+    EM.banner(mb, mb, mb, mb, (xc, yb, zt - 0.9), -math.pi / 2, P["bw"], P["bh"], trim=EM.GOLD)
     for sg in (-1, 1):
         mb.beam((xc + sg * (P["bw"] / 2 + 0.1), y - s / 2 + 0.1, zt - 0.9), (xc + sg * (P["bw"] / 2 + 0.1), yb, zt - 0.9),
                 0.22, 0.22, "Metal_SG_BlackIron", 0.0)

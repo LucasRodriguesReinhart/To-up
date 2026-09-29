@@ -396,7 +396,10 @@ def masts(T, stone, gold, glow):
         gold.ico(0.5, Fb.p(s * 6.8, 0.0, z_pole), "Metal_Gold", 1)
         for uu in (-s * (stub - 0.25), s * 1.3, s * 5.9):
             gold.box((0.4, 0.8, 0.8), Fb.p(uu, 0.0, z_pole), Fb.r(), "Metal_Gold", 0.0)
-        K.banner(bn, gold, bn, Fb, 1.5 if s > 0 else -5.7, 5.7 if s > 0 else -1.5, 0.0, z_pole - 0.5, 12.6, tip=1.6)
+        # refino v2b: o estandarte do kit da Ilha 1 trazia outro simbolo (rosa-dos-ventos) -> estandarte da ORDEM
+        # (sg_emblem, debrum dourado) no mesmo vao do mastro, olhando para a frente da torre
+        EM.banner(bn, gold, bn, bn, tuple(Fb.p(s * 3.6, 0.0, z_pole - 0.5)), YAW + s * BAN_TH + math.pi / 2,
+                  4.2, 12.6, trim="Metal_Gold")
         K.hang_lantern(stone, glow, gold, Fb.p(-s * 2.4, 0.0, z_pole - 0.3), 1.0, drop=0.9)
     return bn.finish()
 

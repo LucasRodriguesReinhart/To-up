@@ -8,6 +8,11 @@
 # a fonte leva o EMBLEMA da ordem (sg_emblem) no lugar da lua solta; o fio do eixo atravessa a praca ate a fonte; o par
 # de postes do topo da escada P1P2 vira o arco de ferro negro (transicao praca -> vila alta); 2 estandartes pequenos
 # da ordem nas casas do P2 que ladeiam o eixo; floreiras baixas de obsidiana nas bases das casas.
+# REFINAMENTO v2 2026-09-28 (ref2_plaza): a PRACA GANHA O MARCO - estatua encapuzada de manto longo (pedra escura,
+# lamina apontada para baixo, ~6 de altura) sobre a taca da fonte (sem colisao nova alem da bacia); 4 lanternas
+# douradas (sg_emblem.lantern_pedestal, SO Neon) na borda da bacia externa; os postes soltos viram
+# sg_emblem.lantern_post dourados (as MESMAS 3 luzes reais, realocadas para a lanterna nova); estandartes das casas
+# com debrum DOURADO.
 import math, random
 from mathutils import Vector
 import sg_lib as SL
@@ -20,6 +25,7 @@ COLL = "05_VILLAGE"
 WIN = "Window_Warm"
 WOOD = "Wood_SG_Dark"
 STONE = "Stone_SG_Block"
+STONE_H = "Stone_SG_Castle"      # v3: pavimento de pedra das casas um valor abaixo (os cunhais ficam no Block)
 TRIM = "Stone_SG_Trim"
 ROOF = "Roof_SG_Slate"
 IRON = "Metal_SG_Iron"
@@ -167,8 +173,19 @@ def window(mb, f, s, zlo, w, h, head="arch", shutters=False, planter=False):
         for k in (-1, 1):
             f.box(mb, s + k * (w * 0.75 + 0.45), 0.14, zc, w * 0.5, 0.22, h, M_SHUT)
     if planter:
-        f.box(mb, s, 0.5, zlo - 0.72, w + 0.4, 0.75, 0.5, WOOD)
-        f.box(mb, s, 0.52, zlo - 0.32, w + 0.2, 0.6, 0.4, "Leaf_SG_Pine")
+        mb = LIFE[0] or mb      # detalhe de vida vai no objeto de vestir da vila (1 MeshPart por material, nao por grupo)
+        # caixa de janela: pendurada sob o peitoril (2 maos-francesas de ferro), folhagem e flores violeta
+        # dessaturadas subindo na frente do vidro (vida humana, nao enfeite: so nas janelas da frente)
+        f.box(mb, s, 0.78, zlo - 0.72, w + 0.5, 0.62, 0.5, WOOD)
+        f.box(mb, s, 0.8, zlo - 0.36, w + 0.3, 0.5, 0.3, "Leaf_SG_Pine")
+        for k in (-1, 1):
+            mb.beam(f.P(s + k * (w / 2 - 0.1), 0.05, zlo - 1.55), f.P(s + k * (w / 2 - 0.1), 0.95, zlo - 0.98), 0.14,
+                    0.14, IRON, 0.0)
+        nb = max(2, int((w + 0.3) / 0.62))
+        for k in range(nb):
+            u = -(w + 0.3) / 2 + (w + 0.3) * (k + 0.5) / nb
+            mb.ico(0.27, tuple(f.P(s + u, 0.8 + (0.08 if k % 2 else -0.06), zlo - 0.16)), M_BLOOM, 1,
+                   scale=(1.0, 1.0, 0.75))
 
 
 def shopfront(mb, f, s, w=4.4):
@@ -193,6 +210,40 @@ def shopfront(mb, f, s, w=4.4):
     for k in (-1, 1):
         f.beam(mb, s + k * (w / 2 + 0.3), z1 + 0.9, s + k * (w / 2 + 0.3), z1 + 1.6, 1.7, 0.22, 0.22, IRON)
         f.beam(mb, s + k * (w / 2 + 0.3), z1 + 0.9, s + k * (w / 2 + 0.3), z1 + 1.9, 0.3, 0.22, 0.22, IRON)
+
+
+WL_S = 0.68                    # escala da lanterna de suporte (a mesma lanterna dourada da ordem, pequena)
+LIFE = [None]                  # MB de vestir das casas (lanternas de suporte, caixas de janela): criado no build()
+
+
+def wall_lantern(mb, f, s, za):
+    """lanterna de suporte na fachada: espelho de ferro negro na parede, braco com mao-francesa e a lanterna dourada da
+    ordem (sg_emblem.lantern_head, vidro Lantern_Glow - SO Neon) pendurada por uma haste. za = cota do braco (local)."""
+    mb = LIFE[0] or mb
+    f.box(mb, s, 0.12, za - 0.35, 0.5, 0.2, 1.1, BIRON)
+    mb.beam(f.P(s, 0.1, za), f.P(s, 1.45, za), 0.16, 0.2, BIRON, 0.0)
+    mb.beam(f.P(s, 0.1, za - 0.85), f.P(s, 0.95, za - 0.02), 0.12, 0.14, BIRON, 0.0)
+    mb.box((0.26, 0.26, 0.14), f.P(s, 1.45, za + 0.1), (0, 0, f.yaw), EM.GOLD, 0.0)      # remate da ponta do braco
+    top = za - 0.12
+    c = f.P(s, 1.2, top - 0.2 - 2.05 * WL_S)
+    mb.rod(f.P(s, 1.2, top), f.P(s, 1.2, top - 0.25), 0.05, BIRON, 4)
+    EM.lantern_head(mb, mb, (c.x, c.y, c.z), f.yaw, WL_S)
+
+
+def _lantern_slots(Lf, ss, ww, shutters, shop):
+    """onde vao as lanternas de suporte numa fachada: nos vaos LIVRES entre janelas (contando as persianas), senao nas
+    quinas (se couber); lojas: nas quinas, fora do toldo"""
+    if shop:
+        return [-(Lf / 2 - 0.95), Lf / 2 - 0.95]
+    he = (ww + 0.45) if shutters else (ww / 2 + 0.3)
+    ss = sorted(ss)
+    gaps = [(a + b) / 2 for a, b in zip(ss, ss[1:]) if b - a - 2 * he >= 1.2]
+    if gaps:
+        return [gaps[0], gaps[-1]] if len(gaps) >= 2 else gaps
+    edge = (max(abs(x) for x in ss) + he) if ss else 0.0
+    if Lf / 2 - edge >= 1.2:
+        return [-(edge + Lf / 2) / 2, (edge + Lf / 2) / 2]
+    return []
 
 
 def timber_face(mb, f, z0, z1, wins, rng):
@@ -255,7 +306,7 @@ def house(mb, idx, lot, spec, rng):
                 "-x": Face(G, (x0, (y0 + y1) / 2), (0.0, 1.0), y1 - y0)}
 
     # base de pedra (sobe 1,0; afunda 0,4)
-    mb.box((W + 0.7, D + 0.7, 1.4), G.p(0, 0, 0.3), G.r(), STONE, 0.12)
+    mb.box((W + 0.7, D + 0.7, 1.4), G.p(0, 0, 0.3), G.r(), OBS, 0.12)
     zc = 1.0
     body = (wx0, wx1, wy0, wy1)
     top_b = body
@@ -275,7 +326,7 @@ def house(mb, idx, lot, spec, rng):
             for s in win_slots(ff.L, 0.4, n=int(ff.L / 2.4), margin=0.8):
                 ff.box(mb, s, jet / 2, zc - 0.45, 0.4, jet, 0.8, WOOD)
         x0, x1, y0, y1 = b
-        mat = STONE if kind == "stone" else M_PL
+        mat = STONE_H if kind == "stone" else M_PL
         mb.box((x1 - x0, y1 - y0, h), G.p((x0 + x1) / 2, (y0 + y1) / 2, zc + h / 2), G.r(), mat, 0.0)
         fs = faces(b)
         for key, f in fs.items():
@@ -303,6 +354,17 @@ def house(mb, idx, lot, spec, rng):
                 wins.append((s, ww))
             if kind == "timber":
                 timber_face(mb, f, zc, zc + h, wins, rng)
+            if si == 0 and is_front:
+                # lanternas de suporte na fachada da rua (v3): ladeando a loja, ou nos vaos entre as janelas
+                za = zc + min(h, 6.8) - 0.9
+                tur_s = 0
+                if spec.get("turret") and not gable_front and spec["turret"][1] > 0:
+                    tur_s = spec["turret"][0]                                 # o torreao ocupa essa quina da frente
+                for sl_ in _lantern_slots(f.L, [s for s, kd in slots if kd != "shop"], ww,
+                                          is_front and kind == "stone" and not shop, shop):
+                    if tur_s and sl_ * tur_s > 0 and abs(sl_) > f.L / 2 - 3.2:
+                        continue
+                    wall_lantern(mb, f, sl_, za)
         if kind == "stone" and si < len(stories) - 1:
             mb.box((x1 - x0 + 0.5, y1 - y0 + 0.5, 0.45), G.p((x0 + x1) / 2, (y0 + y1) / 2, zc + h - 0.2), G.r(),
                    TRIM, 0.0)                                                 # cordao de pedra
@@ -314,7 +376,7 @@ def house(mb, idx, lot, spec, rng):
                 for k in range(int(h / 1.6)):
                     zz = zc + 0.8 + k * 1.6
                     ax, ay = (la, lb) if k % 2 == 0 else (lb, la)
-                    mb.box((ax, ay, 0.8), G.p(cx_ - sgx * (ax / 2 - pq), cy_ - sgy * (ay / 2 - pq), zz), G.r(), TRIM,
+                    mb.box((ax, ay, 0.8), G.p(cx_ - sgx * (ax / 2 - pq), cy_ - sgy * (ay / 2 - pq), zz), G.r(), STONE,
                            0.0)
         zc += h
         body = b
@@ -347,6 +409,17 @@ def house(mb, idx, lot, spec, rng):
         for xe in (x0 - og - 0.1, x1 + og + 0.1):
             mb.beam(G.p(xe, cy, ze + R + th), G.p(xe, cy + s * (hd + oe), ze - oe * math.tan(t) + th * 0.6), 0.28,
                     0.7, WOOD, 0.0)
+    # beiral de madeira escura (v3): testeira ao longo da borda do telhado + cachorros (pontas de caibro) a cada ~2
+    # sob o balanco, do frechal a testeira - a sombra do beiral e o que da escala de casa (e nao de caixa com telhado)
+    ez = ze - oe * math.tan(t)
+    for s in (-1, 1):
+        mb.box((x1 - x0 + 2 * og, 0.3, 0.55), G.p((x0 + x1) / 2, cy + s * (hd + oe - 0.12), ez - 0.05), G.r(), WOOD,
+               0.0)
+        nr = max(3, int((x1 - x0) / 2.0))
+        for k in range(nr + 1):
+            xr = x0 + 0.35 + (x1 - x0 - 0.7) * k / nr
+            mb.beam(G.p(xr, cy + s * (hd - 0.1), ze - 0.32), G.p(xr, cy + s * (hd + oe - 0.3), ez - 0.2), 0.26, 0.32,
+                    WOOD, 0.0)
     rt = ze + R + th / math.cos(t)
     mb.box((x1 - x0 + 2 * og + 0.2, 0.75, 0.75), G.p((x0 + x1) / 2, cy, rt - 0.2), G.r(math.pi / 4, 0, 0), IRON, 0.0)
     for xe in (x0 - og + 0.2, x1 + og - 0.2):
@@ -393,16 +466,32 @@ def house(mb, idx, lot, spec, rng):
         tri_slab(mb, [fd.P(-wd / 2, 0.0, zt), fd.P(wd / 2, 0.0, zt), fd.P(0.0, 0.0, zt + rr)], fd.nvec(), 0.4, WOOD)
         window(mb, fd, 0.0, zb + 0.5, 1.3, 1.8, head=None)
         mb.cyl(0.18, 1.2, G.p(xd, (yf + yb) / 2 + s * 0.8, zt + rr + 0.7), G.r(), IRON, n=4, r2=0.02, bevel=0.0)
-    # ---- chamine
+    # ---- chamines (v3: 3 desenhos - 'stack' fuste simples, 'twin' fuste largo com 2 potes de ferro, 'hood' fuste com
+    # chapeu de ardosia em 4 pes - e uma 2a chamine em algumas casas: a linha dos telhados deixa de ser repetida)
+    chims = []
     if spec.get("chimney"):
-        cx_, cy_ = spec["chimney"]
+        chims.append((spec["chimney"], spec.get("chim_kind", "stack"), spec.get("chim_h", 2.6)))
+    if spec.get("chimney2"):
+        chims.append((spec["chimney2"], spec.get("chim2_kind", "stack"), spec.get("chim2_h", 1.6)))
+    for (cx_, cy_), kind, hx in chims:
         cx_ *= (x1 - x0) / 2
         cy_ = cy + cy_ * hd
         zz0 = ze - 0.5
-        zz1 = ze + R + 2.6
-        mb.box((1.5, 1.5, zz1 - zz0), G.p(cx_, cy_, (zz0 + zz1) / 2), G.r(), STONE, 0.0)
-        mb.box((2.0, 2.0, 0.4), G.p(cx_, cy_, zz1 + 0.2), G.r(), TRIM, 0.0)
-        mb.box((0.7, 0.7, 0.8), G.p(cx_ - 0.3, cy_, zz1 + 0.8), G.r(), "Cliff_Rock_SG_Dark", 0.0)
+        zz1 = ze + R + hx
+        wx_ = 2.4 if kind == "twin" else 1.5
+        mb.box((wx_, 1.5, zz1 - zz0), G.p(cx_, cy_, (zz0 + zz1) / 2), G.r(), STONE, 0.0)
+        mb.box((wx_ + 0.3, 1.8, 0.3), G.p(cx_, cy_, zz1 - 1.1), G.r(), OBS, 0.0)            # cinta escura
+        mb.box((wx_ + 0.5, 2.0, 0.4), G.p(cx_, cy_, zz1 + 0.2), G.r(), TRIM, 0.0)
+        if kind == "twin":
+            for k in (-1, 1):
+                mb.cyl(0.36, 1.0, G.p(cx_ + k * 0.6, cy_, zz1 + 0.9), G.r(), IRON, n=8, r2=0.28, bevel=0.0)
+        elif kind == "hood":
+            for kx in (-1, 1):
+                for ky in (-1, 1):
+                    mb.box((0.22, 0.22, 0.9), G.p(cx_ + kx * 0.7, cy_ + ky * 0.7, zz1 + 0.85), G.r(), IRON, 0.0)
+            mb.cyl(1.5, 0.75, G.p(cx_, cy_, zz1 + 1.65), G.r(0, 0, math.pi / 4), ROOF, n=4, r2=0.12, bevel=0.0)
+        else:
+            mb.box((0.7, 0.7, 0.8), G.p(cx_ - 0.3, cy_, zz1 + 0.8), G.r(), "Cliff_Rock_SG_Dark", 0.0)
     # ---- torreao (canto da frente)
     tur = spec.get("turret")
     if tur:
@@ -414,7 +503,7 @@ def house(mb, idx, lot, spec, rng):
         zt1 = z + ze + 3.2
         c2 = (wp.x, wp.y)
         mb.prism(SL.ccw(ngon(c2, r + 0.35, 8, 22.5)), z - 0.4, z + 1.0, STONE)
-        mb.prism(SL.ccw(ngon(c2, r, 8, 22.5)), z + 1.0, zt1, STONE)
+        mb.prism(SL.ccw(ngon(c2, r, 8, 22.5)), z + 1.0, zt1, STONE_H)
         mb.prism(SL.ccw(ngon(c2, r + 0.45, 8, 22.5)), zt1, zt1 + 0.6, TRIM)
         SL.spire(mb, c2, r + 0.9, zt1 + 0.6, 10.5, ROOF, n=8)
         mb.cyl(0.26, 2.6, (wp.x, wp.y, zt1 + 0.6 + 10.5 + 0.9), (0, 0, 0), IRON, n=4, r2=0.02, bevel=0.0)
@@ -446,30 +535,59 @@ def house(mb, idx, lot, spec, rng):
 SPECS = [
     # P1 oeste
     dict(stories=[("stone", 6.4), ("timber", 5.6)], jetty=0.8, rise=8.4, shop=True, dormers=[("+y", 3.6)],
-         chimney=(-0.62, -0.35), planter=True),
-    dict(stories=[("timber", 6.8)], rise=9.2, dormers=[("+y", -2.6), ("+y", 2.6)], chimney=(0.6, -0.3), nwin=2),
-    dict(stories=[("stone", 6.0), ("timber", 5.4)], jetty=0.8, rise=9.8, gable_front=True, chimney=(-0.55, 0.5)),
+         chimney=(-0.62, -0.35), chim_kind="twin", planter=True, attic_all=True),
+    dict(stories=[("timber", 6.8)], rise=9.8, dormers=[("+y", -2.6), ("+y", 2.6)], chimney=(0.6, -0.3), nwin=2,
+         chim_kind="hood", planter=True, attic_all=True),
+    dict(stories=[("stone", 6.0), ("timber", 5.4)], jetty=0.8, rise=9.8, gable_front=True, chimney=(-0.55, 0.5),
+         chim_kind="stack", chim_h=3.4),
     # P1 leste
     dict(stories=[("stone", 6.6), ("timber", 6.0)], jetty=0.8, rise=8.6, turret=(-1, 1), dormers=[("+y", 3.2)],
-         chimney=(0.66, -0.4), planter=True),
-    dict(stories=[("timber", 7.0)], rise=10.2, gable_front=True, chimney=(0.5, -0.5), attic_all=True),
+         chimney=(0.66, -0.4), chim_kind="twin", planter=True, attic_all=True),
+    dict(stories=[("timber", 7.0)], rise=10.2, gable_front=True, chimney=(0.5, -0.5), attic_all=True,
+         chim_kind="hood", planter=True),
     dict(stories=[("stone", 6.2), ("timber", 5.4)], jetty=0.8, rise=8.0, shop=True, dormers=[("+y", -2.8)],
-         chimney=(0.6, -0.3)),
+         chimney=(0.6, -0.3), chim_kind="stack", chimney2=(-0.55, -0.4), chim2_kind="hood", attic_all=True),
     # P2 oeste
     dict(stories=[("stone", 6.4), ("timber", 5.8)], jetty=0.8, rise=8.8, shop=True, dormers=[("+y", -3.6), ("+y", 3.6)],
-         chimney=(0.62, -0.35), planter=True),
-    dict(stories=[("timber", 6.8)], rise=10.0, gable_front=True, chimney=(-0.5, 0.45)),
+         chimney=(0.62, -0.35), chim_kind="hood", planter=True, attic_all=True),
+    dict(stories=[("timber", 6.8)], rise=11.0, gable_front=True, chimney=(-0.5, 0.45), chim_kind="twin", chim_h=2.0),
     dict(stories=[("stone", 6.0), ("timber", 5.6)], jetty=0.8, rise=9.6, gable_front=True, chimney=(0.5, -0.5),
-         planter=True),
+         chim_kind="stack", planter=True),
     # P2 leste
-    dict(stories=[("timber", 6.8)], rise=9.0, dormers=[("+y", -2.6), ("+y", 2.6)], chimney=(-0.6, -0.3), nwin=2),
+    dict(stories=[("timber", 6.8)], rise=9.0, dormers=[("+y", -2.6), ("+y", 2.6)], chimney=(-0.6, -0.3), nwin=2,
+         chim_kind="hood", chimney2=(0.62, -0.3), chim2_kind="stack", planter=True, attic_all=True),
     dict(stories=[("stone", 6.2), ("timber", 5.6)], jetty=0.8, rise=8.4, shop=True, dormers=[("+y", 2.8)],
-         chimney=(-0.62, -0.35)),
+         chimney=(-0.62, -0.35), chim_kind="twin", attic_all=True),
 ]
 GROUPS = [("P1W", (0, 1, 2)), ("P1E", (3, 4, 5)), ("P2W", (6, 7, 8)), ("P2E", (9, 10))]
 
 
 # ------------------------------------------------------------------ praca + fonte
+def fountain_statue(mb, x, y, zb, yaw, s=0.7):
+    """estatua encapuzada de manto longo (a mesma familia das estatuas do patio, sg_court.statue, em escala s) sobre
+    a taca da fonte: plinto octogonal, manto de obsidiana, capuz pontudo, lamina de prata fincada A FRENTE com a
+    ponta para baixo. Local +Y = frente (yaw). Nada de colisao (fica sobre a bacia)."""
+    F = Frame(x, y, zb, yaw - math.pi / 2)
+    rot = F.r()
+    mb.cyl(1.5 * s, 0.5 * s, F.p(0, 0, 0.25 * s), F.r(0, 0, math.pi / 8), OBS, n=8, bevel=0.0)
+    z0 = 0.5 * s
+    # manto: barra alargada + corpo conico + ombros + capuz pontudo (inclinado para tras)
+    mb.cyl(1.38 * s, 0.55 * s, F.p(0, 0, z0 + 0.275 * s), rot, OBS, n=10, r2=1.26 * s, bevel=0.0)
+    mb.cyl(1.26 * s, 4.9 * s, F.p(0, 0, z0 + 3.0 * s), rot, OBS, n=10, r2=0.84 * s, bevel=0.0)
+    mb.cyl(0.98 * s, 0.75 * s, F.p(0, 0, z0 + 5.82 * s), rot, OBS, n=10, r2=0.62 * s, bevel=0.0)
+    mb.cyl(0.74 * s, 1.9 * s, F.p(0, -0.12 * s, z0 + 6.75 * s), F.r(0.2), OBS, n=8, r2=0.1 * s, bevel=0.0)
+    # bracos (mangas) descendo para o cabo; maos
+    for sg in (-1, 1):
+        mb.beam(F.p(sg * 0.95 * s, 0.05 * s, z0 + 5.2 * s), F.p(sg * 0.28 * s, 1.35 * s, z0 + 3.85 * s),
+                0.5 * s, 0.55 * s, OBS, 0.0)
+        mb.box((0.34 * s, 0.4 * s, 0.36 * s), F.p(sg * 0.17 * s, 1.42 * s, z0 + 3.72 * s), F.r(), OBS, 0.0)
+    # lamina fincada a frente (ponta para baixo), guarda e cabo de obsidiana, pomo de prata
+    mb.box((0.5 * s, 0.14 * s, 3.1 * s), F.p(0, 1.5 * s, z0 + 1.6 * s), F.r(), "Metal_SG_Silver", 0.0)
+    mb.box((1.6 * s, 0.3 * s, 0.26 * s), F.p(0, 1.5 * s, z0 + 3.28 * s), F.r(), OBS, 0.0)
+    mb.box((0.24 * s, 0.24 * s, 0.75 * s), F.p(0, 1.5 * s, z0 + 3.78 * s), F.r(), OBS, 0.0)
+    mb.ico(0.2 * s, tuple(F.p(0, 1.5 * s, z0 + 4.26 * s)), "Metal_SG_Silver", 1)
+
+
 def plaza():
     rng = random.Random(4101)
     mb = MB("SG_Vil_Plaza", COLL, rng, detail="near")
@@ -498,7 +616,7 @@ def plaza():
                 continue
             rm = (r0 + r1) / 2
             mb.box((r1 - r0, 0.55, 0.22), (c[0] + rm * math.cos(a), c[1] + rm * math.sin(a), z + 0.0),
-                   (0, 0, a), TRIM, 0.0)
+                   (0, 0, a), STONE_H, 0.0)
     # o FIO da ordem atravessa a praca no eixo: da borda (vindo da entrada / indo para a escada) ate o colar da fonte;
     # barra de obsidiana com o fio violeta rente (mesmo desenho do eixo nobre do sg_court)
     for s in (-1, 1):
@@ -529,11 +647,16 @@ def plaza():
     mf.cyl(0.5, 0.8, (cx, cy, z + 8.6), (0, 0, 0), "Stone_SG_Castle", n=12, r2=1.7, bevel=0.0)    # taca de cima
     ring_prism(mf, c, 1.45, 1.8, 12, z + 8.95, z + 9.2, TRIM)
     mf.cyl(1.47, 0.1, (cx, cy, z + 9.05), (0, 0, 0), "Water_SG", n=12, bevel=0.0)
-    # remate BAIXO e simples (a lua solta saiu): pinha de prata sobre a taca de cima. O emblema monumental da fachada
-    # do castelo fica no mesmo eixo, visto da praca: nada de segundo simbolo alto aqui (seria "lua dupla").
-    mf.cyl(0.5, 0.3, (cx, cy, z + 9.35), (0, 0, 0), "Metal_SG_Silver", n=8, bevel=0.0)
-    mf.ico(0.42, (cx, cy, z + 9.85), "Metal_SG_Silver", 1)
-    SL.spire(mf, (cx, cy), 0.34, z + 10.1, 1.3, "Metal_SG_Silver", n=8)
+    # o MARCO da praca (referencia v2, ref2_plaza): estatua encapuzada da ordem sobre a taca de cima - manto longo de
+    # pedra escura, lamina de prata apontada para baixo a frente, encarando o sul (quem chega da entrada). ~6 de
+    # altura; NENHUMA colisao nova (so a bacia do sg_col). Nao repete o emblema (o monumental da fachada esta no
+    # mesmo eixo): a figura e a mesma familia das estatuas do patio (sg_court), em escala de coroamento.
+    fountain_statue(mf, cx, cy, z + 9.05, -math.pi / 2, 0.78)   # plinto dentro do anel da taca (agua em 9,1); ~6,1 alto
+    # 4 lanternas douradas da ordem (SO Neon) sobre o capeamento da bacia externa, nas diagonais (entre os paineis
+    # do emblema): o ritmo de luz quente da referencia em volta do marco (escala 0,6: nao briga com a taca)
+    for a in (45.0, 135.0, 225.0, 315.0):
+        ra = math.radians(a)
+        EM.lantern_pedestal(mf, mf, mf, (cx + 6.7 * math.cos(ra), cy + 6.7 * math.sin(ra), z + 2.6), ra, 0.6)
     # o medalhao da ordem BAIXO, num painel de obsidiana na quina do eixo da bacia, encarando o sul (entrada) e o norte
     # (escada): topo < piso + 2
     for sgn in (-1, 1):
@@ -665,7 +788,7 @@ def streets():
                     ln = math.hypot(b[0] - a[0], b[1] - a[1])
                     if ln > 0.3:
                         mb.box((ln + 0.1, 0.6, 0.34), ((a[0] + b[0]) / 2, (a[1] + b[1]) / 2, z + 0.05),
-                               (0, 0, math.atan2(b[1] - a[1], b[0] - a[0])), TRIM, 0.0)
+                               (0, 0, math.atan2(b[1] - a[1], b[0] - a[0])), STONE, 0.0)
                     k = j
     for o in objs.values():
         o.finish()
@@ -698,32 +821,24 @@ def lamps():
     lan = CT.iron_arch(mb, (xa + xb) / 2, ya, za, abs(xb - xa) / 2, "Lantern_Glow", area="SG_VilLamp")
     for i, (x, y, zc) in enumerate(lan):
         light("L_SGVil_Lamp_%02d" % i, "POINT", (x, y, zc), 260.0, (1.0, 0.7, 0.4), 0.4)
+    # postes soltos: viram o lantern_post DOURADO da ordem (referencia v2); a lanterna fica na MESMA cota (z + 8,3),
+    # entao as 3 luzes reais continuam onde estavam (realocadas para dentro da lanterna nova, nenhuma luz a mais)
     for i, (x, y, z, lit) in enumerate(LAMPS):
         if i < 2:
             continue
-        mb.cyl(0.75, 0.9, (x, y, z + 0.35), (0, 0, math.pi / 8), OBS, n=8, bevel=0.0)
-        mb.cyl(0.5, 0.5, (x, y, z + 1.05), (0, 0, math.pi / 8), BIRON, n=8, r2=0.3, bevel=0.0)
-        mb.cyl(0.26, 6.2, (x, y, z + 4.3), (0, 0, 0), BIRON, n=8, r2=0.2, bevel=0.0)
-        mb.cyl(0.42, 0.3, (x, y, z + 4.0), (0, 0, 0), BIRON, n=8, bevel=0.0)
         zc = z + 8.3
-        mb.box((1.3, 1.3, 0.25), (x, y, zc - 0.95), (0, 0, 0), BIRON, 0.0)
-        mb.cyl(0.35, 0.6, (x, y, zc - 1.3), (0, 0, 0), BIRON, n=8, r2=0.2, bevel=0.0)
-        mb.box((0.85, 0.85, 1.5), (x, y, zc), (0, 0, 0), "Lantern_Glow", 0.0)
-        for sx in (-1, 1):
-            for sy in (-1, 1):
-                mb.box((0.22, 0.22, 1.7), (x + sx * 0.5, y + sy * 0.5, zc), (0, 0, 0), BIRON, 0.0)
-        SL.spire(mb, (x, y), 1.05, zc + 0.85, 1.6, BIRON, n=4)
-        mb.cyl(0.12, 0.8, (x, y, zc + 2.7), (0, 0, 0), BIRON, n=4, r2=0.02, bevel=0.0)
-        col_box("SG_VilLamp", (1.0, 1.0, 9.0), (x, y, z + 4.5))
+        EM.lantern_post(mb, mb, (x, y, z), 0.0, h=7.4)
+        col_box("SG_VilLamp", (1.2, 1.2, 9.0), (x, y, z + 4.5))
         if lit:
             light("L_SGVil_Lamp_%02d" % i, "POINT", (x, y, zc), 260.0, (1.0, 0.7, 0.4), 0.4)
     mb.finish()
 
 
 # ------------------------------------------------------------------ identidade nas casas: estandartes + floreiras
-# estandartes pequenos da ordem SO nas 2 casas do P2 que ladeiam o eixo na rua transversal (fachadas para a rua, quina
-# voltada para o eixo, mesma altura): ritmo, nao enfeite. (indice da casa, altura do suporte acima do piso)
-HOUSE_BANNERS = [(8, 10.4), (10, 10.4)]
+# estandartes pequenos da ordem SO nas esquinas principais: as 2 casas do P2 que ladeiam o eixo na rua transversal e
+# (v3) as 2 casas do P1 que fecham as ruas da praca pelo norte (fachadas para a rua, quina voltada para o eixo, mesma
+# altura): ritmo em pares simetricos, nao enfeite. (indice da casa, altura do suporte acima do piso)
+HOUSE_BANNERS = [(8, 10.4), (10, 10.4), (2, 10.2), (5, 10.2)]
 BANNER_W, BANNER_H = 1.8, 4.0
 
 
@@ -735,9 +850,7 @@ def _house_axes(idx):
     return x, y, w, d, z, fwd, lat
 
 
-def house_identity():
-    rng = random.Random(4104)
-    mb = MB("SG_Vil_HouseDress", COLL, rng, detail="near")
+def house_identity(mb):
     for idx, hz in HOUSE_BANNERS:
         x, y, w, d, z, fwd, lat = _house_axes(idx)
         jet = SPECS[idx].get("jetty", 0.0)
@@ -748,7 +861,7 @@ def house_identity():
         reach = BANNER_W / 2 + 0.55
         top = (wall[0] + fwd[0] * reach, wall[1] + fwd[1] * reach, z + hz)
         yaw = math.atan2(lat[1] * s, lat[0] * s)       # o pano encara a rua na direcao do eixo
-        EM.banner(mb, mb, mb, mb, top, yaw, BANNER_W, BANNER_H)
+        EM.banner(mb, mb, mb, mb, top, yaw, BANNER_W, BANNER_H, trim=EM.GOLD)
         # mao-francesa de ferro negro (da parede a ponta da verga)
         mb.beam((wall[0], wall[1], z + hz - 1.5), (wall[0] + fwd[0] * (reach * 2 - 0.2), wall[1] + fwd[1] * (reach * 2 - 0.2),
                                                    z + hz - 0.05), 0.14, 0.16, BIRON, 0.0)
@@ -780,10 +893,12 @@ def build():
     rng = random.Random(4100)
     plaza()
     streets()
+    LIFE[0] = MB("SG_Vil_HouseDress", COLL, random.Random(4104), detail="near")
     for gname, idxs in GROUPS:
         mb = MB("SG_Vil_Houses_%s" % gname, COLL, rng, detail="near")
         for i in idxs:
             house(mb, i, L.HOUSE_LOTS[i], SPECS[i], rng)
         mb.finish()
     lamps()
-    house_identity()
+    house_identity(LIFE[0])
+    LIFE[0] = None

@@ -44,9 +44,9 @@ for r in reversed(_NEW_RULES):
 # janelas/lanternas quentes pontuais. (cor_linear, rough, metal, emissao, cor_emissao, variacao)
 SMATS = {
     # terreno frio
-    "Cliff_Rock_SG":        (S(70, 74, 92), 0.9, 0.0, 0, None, 0.12),      # basalto azul-ardosia (penhascos, colunas)
-    "Cliff_Rock_SG_Dark":   (S(44, 46, 60), 0.9, 0.0, 0, None, 0.10),      # estratos escuros / sombra
-    "Cliff_Rock_SG_Top":    (S(104, 110, 128), 0.9, 0.0, 0, None, 0.10),   # borda de topo (luar)
+    "Cliff_Rock_SG":        (S(66, 60, 90), 0.9, 0.0, 0, None, 0.12),      # basalto violeta-ardosia (refino v2b: o liquen claro da textura puxava para o verde)
+    "Cliff_Rock_SG_Dark":   (S(40, 36, 58), 0.9, 0.0, 0, None, 0.10),      # estratos escuros / sombra
+    "Cliff_Rock_SG_Top":    (S(100, 96, 126), 0.9, 0.0, 0, None, 0.10),   # borda de topo (luar)
     "Grass_SG":             (S(46, 70, 64), 0.9, 0.0, 0, None, 0.16),      # grama fria (verde-azulado escuro)
     "Dirt_SG":              (S(64, 58, 60), 0.95, 0.0, 0, None, 0.12),
     # construido
@@ -77,20 +77,21 @@ SMATS = {
     "SG_Moon_Glow":         (S(170, 200, 255), 0.3, 0.0, 2.0, S(170, 200, 255), 0.0),
     "SG_VioletDeep_Glow":   (S(110, 50, 210), 0.3, 0.0, 2.2, S(110, 50, 210), 0.0),   # linhas de energia da ordem
     "SG_Rune_Glow":         (S(196, 150, 255), 0.3, 0.0, 3.0, S(196, 150, 255), 0.0),  # runas, fio do eixo, miolo do emblema
-    "SG_Crystal_Glow":      (S(168, 110, 250), 0.3, 0.0, 2.4, S(168, 110, 250), 0.0),  # cristais da borda/penhascos (IlhaPulso)
-    "Cloud_SG":             (S(118, 106, 178), 0.9, 0.0, 0.3, S(132, 112, 214), 0.0),  # mar de nuvens lilas (refino v2b)
+    "SG_Crystal_Glow":      (S(146, 84, 246), 0.3, 0.0, 2.0, S(146, 84, 246), 0.0),  # cristais da borda/penhascos (IlhaPulso)
+    "Cloud_SG":             (S(98, 88, 156), 0.9, 0.0, 0.22, S(120, 100, 200), 0.0),  # mar de nuvens lilas (refino v2b)
     "SG_MoonDisc_Glow":     (S(150, 140, 214), 0.6, 0.0, 0.55, S(170, 160, 236), 0.0),  # lua da PREVIA (00_REFERENCE)
 }
 for k, v in SMATS.items():
     MATS.setdefault(k, v)
 # refino v2b: a textura "roof" do lobby (telhas claras com alpha) vira XADREZ sobre a ardosia quase preta da ilha
 # -> telhados SG ficam lisos (so a cor da variante). Vale so no processo da Ilha 3 (sg_lib nao e importado pelas outras).
-if ("Roof_SG", None) not in fm_lib.TEX_RULES:
-    fm_lib.TEX_RULES = (("Roof_SG", None),) + tuple(fm_lib.TEX_RULES)
+for _r in (("Roof_SG", None),):
+    if _r not in fm_lib.TEX_RULES:
+        fm_lib.TEX_RULES = (_r,) + tuple(fm_lib.TEX_RULES)
 for k in ("SG_Violet_Glow", "SG_Moon_Glow", "SG_VioletDeep_Glow", "SG_Rune_Glow", "SG_Crystal_Glow"):
     RBX_CAL.setdefault(k, (None, [int(c) for c in fm_lib.to_srgb(SMATS[k][0])]))
-add_variants("Cliff_Rock_SG", [("Cliff_Rock_SG", 5), ("Cliff_Rock_SG_B", 3, (62, 66, 84)),
-                               ("Cliff_Rock_SG_C", 2, (80, 84, 100))], cap=2)
+add_variants("Cliff_Rock_SG", [("Cliff_Rock_SG", 5), ("Cliff_Rock_SG_B", 3, (56, 52, 80)),
+                               ("Cliff_Rock_SG_C", 2, (76, 70, 100))], cap=2)
 add_variants("Stone_Paving_SG", [("Stone_Paving_SG", 5), ("Stone_Paving_SG_B", 3, (84, 82, 104))], cap=2)
 add_variants("Stone_SG_Block", [("Stone_SG_Block", 5), ("Stone_SG_Block_B", 3, (84, 88, 104))], cap=2)
 add_variants("Stone_SG_Castle", [("Stone_SG_Castle", 5), ("Stone_SG_Castle_B", 3, (70, 74, 94))], cap=2)
