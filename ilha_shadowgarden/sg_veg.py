@@ -14,6 +14,9 @@
 # da ponte) e os ciprestes soltos salpicados no gramado do P2 (ficam os grupos deliberados); regra arch_clash: copa
 # nunca sobre a ponte/patio/escadaria/calcada da entrada nem sobre o volume das casas (vale mesmo quando a zona e
 # montada depois do vestir, como no estudio).
+# OVERHAUL 02 (vila, 2026-09-29, curadoria sem arvore nova): os grupos da vila viram pares/trios DELIBERADOS - sairam
+# o 2o abeto do par a leste da calcada alta (o oeste tem 1: a moldura do eixo fica simetrica), o cipreste gemeo entre as
+# casas do oeste do P2 (fica 1 atras do poste) e o 2o abeto identico do grupo da rua da saida.
 import math, random
 import bpy
 import numpy as np
@@ -250,14 +253,14 @@ GROVES = [
     ("South", (18.0, -183.0), 3.0, 0, 9.0, 12.0, LOW_MIX, False, 1),
     # P1 calcado: par de cada lado da calcada alta (plan: (-20,-150) e (30,-150)) e canteiros ao pe do arrimo
     ("VillageS", (-24.0, -153.0), 4.0, 2, 14.0, 17.0, FIR_MIX, True, 0),
-    ("VillageS", (26.0, -153.0), 4.0, 2, 14.0, 17.0, FIR_MIX, True, 0),
+    ("VillageS", (26.0, -153.0), 4.0, 1, 14.0, 17.0, FIR_MIX, True, 0),     # ov02: 1 (par duplicado; o oeste tem 1)
     ("VillageS", (-40.0, -97.0), 5.0, 2, 15.0, 19.0, TALL_MIX, True, 0),
     ("VillageS", (40.0, -97.0), 5.0, 2, 15.0, 19.0, TALL_MIX, True, 0),
     ("VillageS", (-92.0, -100.0), 5.0, 2, 14.0, 18.0, FIR_MIX, True, 0),
     ("SouthE", (128.0, -92.0), 8.0, 3, 14.0, 19.0, FIR_MIX, True, 0),
     # P2 (grama): canto noroeste (plan (-104,-20)), entre e atras das casas; ciprestes finos entre as casas
     ("VillageW", (-104.0, -22.0), 9.0, 5, 15.0, 22.0, TALL_MIX, True, 0),
-    ("VillageW", (-77.0, -70.0), 3.0, 2, 13.0, 16.0, (("cypress", 1),), True, 0),
+    ("VillageW", (-77.0, -70.0), 3.0, 1, 13.0, 16.0, (("cypress", 1),), True, 0),   # ov02: 1 (ciprestes gemeos)
     ("VillageW", (-75.0, -22.0), 3.0, 0, 13.0, 16.0, (("cypress", 1),), True, 0),     # acab.: cipreste solto
     ("VillageW", (-30.0, -24.0), 5.0, 2, 15.0, 19.0, FIR_MIX, True, 0),
     ("VillageW", (-30.0, -70.0), 4.0, 0, 13.0, 16.0, (("cypress", 1),), True, 0),     # acab.: ciprestes soltos no
@@ -266,7 +269,7 @@ GROVES = [
     ("VillageE", (62.0, -74.0), 4.0, 0, 13.0, 16.0, (("cypress", 1),), True, 0),      # acab.: cipreste solto
     ("VillageE", (76.0, -24.0), 6.0, 2, 15.0, 19.0, FIR_MIX, True, 0),
     ("VillageE", (140.0, -16.0), 6.0, 3, 14.0, 19.0, FIR_MIX, True, 0),
-    ("VillageE", (138.0, -62.0), 6.0, 2, 13.0, 17.0, FIR_MIX, True, 0),
+    ("VillageE", (138.0, -62.0), 6.0, 1, 13.0, 17.0, FIR_MIX, True, 0),     # ov02: 1 (2 abetos iguais lado a lado)
     ("NorthE", (123.0, 22.0), 5.0, 2, 16.0, 20.0, TALL_MIX, True, 0),
     # terreno bravo oeste do castelo (os grupos (-96,40) e (-86,120) da planta saem de dentro das alas: x < -100)
     ("CastleW", (-106.0, 40.0), 10.0, 7, 16.0, 24.0, TALL_MIX, False, 1),
