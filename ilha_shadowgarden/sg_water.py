@@ -13,7 +13,8 @@
 #   3. ESPUMA na crista do labio e onde bate nas saliencias; SAIA de espuma/nevoa no pe (~-60, dentro das nuvens: o
 #      export nao leva as nuvens, entao o pe nunca fica cortado no ar).
 # Marcadores FX_Fall_*/AUDIO_Waterfall_* sao do sg_core (nao cria). Materiais: Water_SG, Water_Fall, Foam + rocha da
-# paleta (nenhum material novo).
+# paleta. Refinamento v2 (agua magica): 2 fios SG_Moon_Glow finos por queda, cristais pequenos SG_Crystal_Glow no
+# labio (fora do parapeito) e halo violeta leve (SG_WaterMist_Glow, material novo 1/3) atras da saia de espuma do pe.
 import math, random
 import numpy as np
 import bpy
@@ -26,6 +27,10 @@ import fm_water_kit as WK
 
 C = "07_WATER"
 WATER, FALL, FOAM = "Water_SG", "Water_Fall", "Foam"
+MIST = "SG_WaterMist_Glow"                 # halo violeta leve do pe (Neon fraco no Roblox)
+import fm_lib
+fm_lib.MATS.setdefault(MIST, (fm_lib.S(140, 105, 225), 0.4, 0.0, 0.55, fm_lib.S(150, 110, 235), 0.0))
+fm_lib.RBX_CAL.setdefault(MIST, (None, [int(cc) for cc in fm_lib.to_srgb(fm_lib.MATS[MIST][0])]))
 ROCK, DARK, TOP = "Cliff_Rock_SG", "Cliff_Rock_SG_Dark", "Cliff_Rock_SG_Top"
 Z_END = -60.0                    # pe das quedas (mar de nuvens / nevoa do jogo nos FX_Fall_*_Base)
 TAGS = ("West", "East", "North", "South")
@@ -312,6 +317,14 @@ class Curtain:
                 continue
             self._strip(mb, u, None, z0, z1, 0.24, FOAM, 0.1, wabs=rng.uniform(0.2, 0.36),
                         u1=u + rng.uniform(-0.04, 0.04))
+        # refinamento v2: 2 fios luminosos frios (SG_Moon_Glow) - o brilho magico da agua da referencia
+        for u in spread(2, -0.3, 0.3):
+            z0 = self.z_top - rng.uniform(0.3, 1.0)
+            z1 = self.z_bot + rng.uniform(0.05, 0.18) * H
+            if z0 - z1 < 2.0:
+                continue
+            self._strip(mb, u, rng.uniform(0.035, 0.055), z0, z1, 0.16, "SG_Moon_Glow", 0.08,
+                        u1=u + rng.uniform(-0.05, 0.05))
         self.crest_foam(mb, rng, b)
         for zl, a0, a1 in self.breaks:
             self.break_foam(mb, rng, zl, a0, a1, b)
@@ -405,6 +418,24 @@ def foot_skirt(mb, rng, cur, n=9):
         q = ft + cur.s * (u * W) + cur.o * rng.uniform(0.3, 1.6)
         mb.ico(r, (q.x, q.y, cur.z_bot + rng.uniform(3.0, 5.0)), FOAM, 1, (1.25, 1.0, 1.05),
                (0, 0, rng.uniform(0, 3)), jitter=0.22)
+    # refinamento v2: halo violeta leve ATRAS/ABAIXO da espuma (a magia da agua tinge a nevoa do pe)
+    for i in range(3):
+        u = -0.42 + 0.84 * (i + 0.5) / 3 + rng.uniform(-0.05, 0.05)
+        r = rng.uniform(3.6, 5.2) * sc
+        q = ft + cur.s * (u * W) + cur.o * rng.uniform(-1.8, 0.2)
+        mb.ico(r, (q.x, q.y, cur.z_bot - rng.uniform(1.5, 3.5) - abs(u) * 2.0), MIST, 1, (1.4, 1.2, 0.75),
+               (0, 0, rng.uniform(0, 3)), jitter=0.2)
+
+
+def crystal(mb, base, ax, ln, r, m="SG_Crystal_Glow"):
+    """prisma hexagonal apontado (o mesmo desenho do sg_terrain.crystal, local para nao acoplar os modulos)"""
+    ax = Vector(ax).normalized()
+    yaw = math.atan2(ax.y, ax.x)
+    pitch = math.acos(max(-1.0, min(1.0, ax.z)))
+    rot = (0.0, pitch, yaw)
+    b = Vector(base)
+    mb.cyl(r, ln * 0.7, b + ax * (ln * 0.35), rot, m=m, n=6, r2=r * 0.8, bevel=0.0)
+    mb.cyl(r * 0.8, ln * 0.3, b + ax * (ln * 0.85), rot, m=m, n=6, r2=0.03, bevel=0.0)
 
 
 # ------------------------------------------------------------------ nascente
@@ -534,6 +565,15 @@ def fall(i, x, y, z, deg, tag, seed):
     cur.crest_back = 0.6 if kind == "bancada" else 0.3
     cur.build(mb, rng, k=ARC_K * (1.0 if kind == "bancada" else 0.8))
     foot_skirt(mb, rng, cur)
+    # refinamento v2: cristais pequenos no labio, dos 2 lados da crista (fora do parapeito, na margem de rocha)
+    w0 = WPROF[tag][0]
+    for sd in (-1, 1):
+        for k in range(rng.randint(1, 2)):
+            q = c + s * (sd * (w0 / 2 + rng.uniform(1.6, 3.2))) - o * rng.uniform(0.2, 1.8)
+            ax = (o.x * 0.35 + s.x * sd * rng.uniform(0.15, 0.45), o.y * 0.35 + s.y * sd * rng.uniform(0.15, 0.45),
+                  1.0)
+            ln = rng.uniform(1.6, 2.9)
+            crystal(mb, (q.x, q.y, z - rng.uniform(1.2, 2.0) - ln * 0.3), ax, ln, rng.uniform(0.24, 0.36))
     INFO[tag] = dict(kind=kind, crest=tuple(round(v, 2) for v in c), run=round(run, 2),
                      keys=[(round(zz, 1), round(aa, 2)) for zz, aa in cur.keys],
                      breaks=[(round(zz, 1), round(a0, 1), round(a1, 1)) for zz, a0, a1 in cur.breaks],

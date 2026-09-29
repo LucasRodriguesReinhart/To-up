@@ -17,6 +17,11 @@ import sg_lib as SL
 import fm_parts as FP
 from sg_lib import MB, col_box, light, Frame
 import sg_layout as L
+import sg_emblem as EM
+# REFINAMENTO v2 2026-09-28: RITMO de lanternas douradas (sg_emblem.lantern_pedestal, SO Neon) sobre o parapeito SG
+# da ponte a cada ~11, da cabeceira ate o MARCO; do marco em diante o guarda-corpo e a familia Demon Slayer (as
+# lanternas de papel do marco) e os 12 studs antes do portao ficam limpos. Estandartes da ordem com debrum DOURADO
+# nos pilares da cabeceira (face oeste: quem vem da rua ve a saida marcada).
 
 Z = L.EXIT_Z                                  # 44,2: tabuleiro, ilhota e ancora
 C = "08_NEXT_ISLAND"
@@ -390,6 +395,10 @@ def parapets(mb):
     for s in (-1, 1):
         sg_parapet(mb, 0.0, ub, s)
         sg_post(mb, PIERS[0], s * (HW + 0.8))
+        # ritmo de lanternas douradas da ordem (SO Neon) sobre a capa do parapeito, a cada ~11, ate o marco
+        # (as posicoes evitam o pilarete do pilar oeste e o ds_post do marco)
+        for uu in (4.5, 15.5, 26.5, 37.5):
+            EM.lantern_pedestal(mb, mb, mb, tuple(P(uu, s * (HW + 0.6), PAR_Z + PAR_H + 0.445)), ANG, 0.9)
         # depois do marco: guarda Demon Slayer ate a junta com a ilhota (e segue pela ilhota, ver islet)
         ds_rail(mb, [(PIERS[1] + 1.1, s * (HW + 0.5)), (_islet_meet(), s * (HW + 0.5))], end_posts=False)
     for s in (-1, 1):
@@ -439,6 +448,14 @@ def head_pylon(mb, s):
                        TRIM)
                     beam_uv(mb, (u + sg * w / 2, v + s * nd, zz1 - 0.1), (u, v + s * nd, zz1 + w * 0.8), 0.3, 0.24,
                             TRIM)
+    # estandarte da ordem com debrum DOURADO na face OESTE do fuste (livre de ornamento): quem vem da rua do P2 ve a
+    # cabeceira marcada; a verga fica presa ao fuste por 2 bracos de ferro
+    bw_, bh_ = 2.4, 5.2
+    ub_ = u - 1.55 - 0.55
+    EM.banner(mb, mb, mb, mb, tuple(P(ub_, v, zt - 0.2)), ANG + math.pi, bw_, bh_, trim=EM.GOLD)
+    for sg in (-1, 1):
+        beam_uv(mb, (u - 1.45, v + sg * (bw_ / 2 + 0.1), zt - 0.2), (ub_, v + sg * (bw_ / 2 + 0.1), zt - 0.2),
+                0.22, 0.22, IRON)
     # braco de ferro com lanterna pendurada para o eixo da ponte (a luz da cabeceira)
     za = z0 + 7.2
     vi = v - s * 1.55

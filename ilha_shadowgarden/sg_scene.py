@@ -52,7 +52,7 @@ def setup(res=(1600, 900), samples=32):
 
 
 def tone_emissives():
-    il_scene.ENERGY = tuple(il_scene.ENERGY) + ("SG_Violet_Glow", "SG_Moon_Glow")
+    il_scene.ENERGY = tuple(il_scene.ENERGY) + ("SG_Violet_Glow", "SG_Moon_Glow", "SG_VioletDeep_Glow", "SG_Rune_Glow", "SG_Crystal_Glow")
     il_scene.tone_emissives()
 
 
@@ -66,16 +66,31 @@ def sea():
 
 
 # a Ilha 2 fica ao SUL/SUDESTE no referencial desta ilha: nada de ilhota no setor 240..300 graus (a ponte de chegada)
+# refinamento v2: +4 ilhotas pequenas ao fundo (norte/leste/oeste) para adensar o ceu, longe das pontes
 ISLET_SPOTS = [(-300.0, 60.0, 52.0, 20.0), (-260.0, 260.0, 80.0, 16.0), (40.0, 360.0, 64.0, 22.0),
                (300.0, 200.0, 90.0, 14.0), (340.0, 40.0, 30.0, 18.0), (-340.0, -140.0, 40.0, 14.0),
-               (200.0, 380.0, 110.0, 12.0), (-150.0, 400.0, 34.0, 18.0), (380.0, -170.0, 60.0, 12.0)]
+               (200.0, 380.0, 110.0, 12.0), (-150.0, 400.0, 34.0, 18.0), (380.0, -170.0, 60.0, 12.0),
+               (-430.0, 40.0, 46.0, 10.0), (150.0, 470.0, 96.0, 11.0), (440.0, 250.0, 72.0, 9.0),
+               (-300.0, 390.0, 58.0, 10.0)]
 
 
 def islets():
-    """ilhotas flutuantes de basalto escuro com pinheiros (fora do alcance)"""
+    """ilhotas flutuantes: fragmentos de Shadow Garden (referencia v2) - basalto escuro com pinheiros, ponta de
+    cristal violeta embaixo, lascas de cristal nas faces, 1-2 cristais no topo e METADE delas vertendo um fio de
+    cachoeira (Water_SG + espuma). Fora do alcance; sem colisao."""
     rng = random.Random(3909)
     mb = MB("SG_Sky_Islets", "02_TERRAIN", rng, detail="far", floor=-999)
-    for x, y, z, r in ISLET_SPOTS:
+
+    def crys(base, ax, ln, r):
+        ax = Vector(ax).normalized()
+        yaw = math.atan2(ax.y, ax.x)
+        pitch = math.acos(max(-1.0, min(1.0, ax.z)))
+        b = Vector(base)
+        mb.cyl(r, ln * 0.7, b + ax * (ln * 0.35), (0.0, pitch, yaw), m="SG_Crystal_Glow", n=6, r2=r * 0.8, bevel=0.0)
+        mb.cyl(r * 0.8, ln * 0.3, b + ax * (ln * 0.85), (0.0, pitch, yaw), m="SG_Crystal_Glow", n=6, r2=0.03,
+               bevel=0.0)
+
+    for idx, (x, y, z, r) in enumerate(ISLET_SPOTS):
         for k, (f, dz) in enumerate(((1.0, -0.35), (0.8, -0.95), (0.55, -1.55), (0.3, -2.1))):
             ox, oy = rng.uniform(-0.12, 0.12) * r, rng.uniform(-0.12, 0.12) * r
             mb.rock((x + ox, y + oy, z + dz * r), (2 * r * f, 2 * r * f * rng.uniform(0.8, 1.0), r * 0.9),
@@ -90,20 +105,49 @@ def islets():
             mb.cyl(0.5, h * 0.35, (px, py, z + 0.4 + h * 0.17), m="Wood_SG_Dark", n=6, bevel=0.0)
             for j, (fr, fz) in enumerate(((1.0, 0.3), (0.72, 0.55), (0.45, 0.78))):
                 mb.cyl(h * 0.2 * fr, h * 0.32, (px, py, z + 0.4 + h * fz), m="Leaf_SG_Pine", n=7, r2=0.2, bevel=0.0)
+        # ponta de cristal violeta embaixo (o coracao do fragmento) + lascas nas faces de baixo
+        crys((x, y, z - 1.9 * r), (rng.uniform(-0.22, 0.22), rng.uniform(-0.22, 0.22), -1.0),
+             r * rng.uniform(0.85, 1.15), r * rng.uniform(0.16, 0.22))
+        for k in range(2):
+            a = rng.uniform(0, 2 * math.pi)
+            crys((x + math.cos(a) * r * 0.55, y + math.sin(a) * r * 0.55, z - rng.uniform(1.0, 1.5) * r),
+                 (math.cos(a) * 0.8, math.sin(a) * 0.8, -0.9), r * rng.uniform(0.35, 0.5),
+                 r * rng.uniform(0.09, 0.13))
+        # 1-2 cristais no topo
+        for k in range(rng.randint(1, 2)):
+            a = rng.uniform(0, 2 * math.pi)
+            rr = rng.uniform(0.3, 0.65) * r
+            crys((x + rr * math.cos(a), y + rr * math.sin(a), z + 0.1),
+                 (rng.uniform(-0.35, 0.35), rng.uniform(-0.35, 0.35), 1.0), rng.uniform(2.2, 3.8),
+                 rng.uniform(0.32, 0.48))
+        # metade das ilhotas verte um fio de cachoeira (como a referencia)
+        if idx % 2 == 0:
+            a = rng.uniform(0, 2 * math.pi)
+            ex, ey = x + (r * 0.92) * math.cos(a), y + (r * 0.92) * math.sin(a)
+            drop = rng.uniform(0.9, 1.4) * (26.0 + r)
+            w = rng.uniform(1.6, 2.6)
+            mb.box((w, 0.4, 1.4), (ex, ey, z - 0.2), (0, 0, a + math.pi / 2), "Water_SG", 0.0)
+            mb.box((w * 0.85, 0.4, drop), (ex + math.cos(a) * 0.6, ey + math.sin(a) * 0.6, z - drop / 2 - 0.4),
+                   (0, 0, a + math.pi / 2), "Water_SG", 0.0)
+            mb.ico(w * 0.55, (ex, ey, z + 0.25), "Foam", 1, (1.5, 1.1, 0.5), (0, 0, a), jitter=0.2)
+            mb.ico(w * 0.7, (ex + math.cos(a) * 0.6, ey + math.sin(a) * 0.6, z - drop - 0.6), "Foam", 1,
+                   (1.4, 1.2, 0.7), (0, 0, a), jitter=0.22)
     mb.finish()
 
 
 def clouds():
-    """mar de nuvens embaixo da ilha (a concept: neblina fria sob os penhascos)"""
+    """mar de nuvens embaixo da ilha (refinamento v2: um pouco mais alto e denso perto da borda)"""
     rng = random.Random(1313)
     mb = MB("SG_Sky_Clouds", "02_TERRAIN", rng, detail="far", floor=-999)
-    for i in range(20):
-        a = math.radians(i * 18.0 + rng.uniform(-7, 7))
-        R = SL.ray_poly(L.ISLAND_RIM, math.degrees(a), 0.0, -20.0) + rng.uniform(8.0, 36.0)
+    for i in range(26):
+        a = math.radians(i * 13.8 + rng.uniform(-6, 6))
+        R = SL.ray_poly(L.ISLAND_RIM, math.degrees(a), 0.0, -20.0) + rng.uniform(4.0, 30.0)
         cx, cy = math.cos(a) * R, -20.0 + math.sin(a) * R
-        for k in range(rng.randint(4, 6)):
-            rr = rng.uniform(14.0, 26.0)
-            mb.ico(rr, (cx + rng.uniform(-22, 22), cy + rng.uniform(-22, 22), rng.uniform(-70.0, -38.0)), "Cloud", 2,
+        near = rng.random() < 0.5
+        for k in range(rng.randint(4, 6) + (1 if near else 0)):
+            rr = rng.uniform(14.0, 27.0)
+            zz = rng.uniform(-64.0, -30.0) if near else rng.uniform(-70.0, -38.0)
+            mb.ico(rr, (cx + rng.uniform(-22, 22), cy + rng.uniform(-22, 22), zz), "Cloud_SG", 2,
                    (1.25, 1.0, 0.5), jitter=0.12)
     mb.finish()
 
@@ -115,7 +159,7 @@ def moon():
     mb = MB("PREVIEW_Moon", "00_REFERENCE", rng, detail="far", floor=-999)
     d = MOON_DIR
     c = Vector((d.x, d.y, 0.0)).normalized() * 1500.0
-    mb.ico(220.0, (c.x, c.y, 640.0), "SG_Moon_Glow", 3, jitter=0.03)
+    mb.ico(220.0, (c.x, c.y, 640.0), "SG_MoonDisc_Glow", 3, jitter=0.03)
     for i in range(90):
         a = rng.uniform(0, 2 * math.pi)
         r = rng.uniform(700.0, 1700.0)

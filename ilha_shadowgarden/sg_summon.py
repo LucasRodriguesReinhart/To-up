@@ -33,6 +33,7 @@ import sg_layout as L
 import fm_lib
 import fm_parts as FP
 import fm_portal_kit as PK
+import sg_emblem as EM
 
 COL = "06_SUMMON"
 CX, CY = L.SUMMON_C
@@ -816,6 +817,28 @@ def plan_stair(st):
         st.beam(b, Fs.p(x_end, s * BR_Y, zt + 1.35 + 0.18), 1.3, 0.36, "Stone_SG_Trim", 0.0)
 
 
+# ------------------------------------------------------------------ ritmo da ordem (refinamento v2, polimento leve)
+def order_dressing():
+    """4 lanternas da ordem (sg_emblem.lantern_pedestal) na balaustrada da plataforma (fora do corredor da escada,
+    +-20 graus, e fora da frente da torre) e 2 estandartes trim dourado nos pilares-portao da escada. So Neon: nenhuma
+    luz nova (teto 3 ja usado); sem colisao (pecas na borda, fora das rotas)."""
+    rng = random.Random(7701)
+    mb = MB("SG_Sum_OrderDressing", COL, rng, detail="near")
+    for a in (52.0, 118.0, -52.0, -118.0):
+        ar = math.radians(a)
+        x = CX + (RAIL_R - 1.4) * math.cos(ar)
+        y = CY + (RAIL_R - 1.4) * math.sin(ar)
+        EM.lantern_pedestal(mb, mb, mb, (x, y, Z), ar, s=0.9)
+    for s in (-1, 1):
+        ar = math.radians(s * (GATE_A + 2.5))
+        px = CX + (RAIL_R + 0.55) * math.cos(ar)
+        py = CY + (RAIL_R + 0.55) * math.sin(ar)
+        # mastro de ferro negro atras do pilar do portao, estandarte olhando para fora (a chegada pela escada)
+        mb.box((0.42, 0.42, 6.4), (px, py, Z + 5.6), (0, 0, ar), "Metal_SG_BlackIron", 0.0)
+        EM.banner(mb, mb, mb, mb, (px, py, Z + 8.7), ar, 3.0, 6.2, trim="Metal_Gold")
+    mb.finish()
+
+
 # ------------------------------------------------------------------ build
 def build():
     T, c, lamp_c = build_tower()
@@ -833,6 +856,7 @@ def build():
     plan_stair(br)
     for mb in (stone, trim, inl, rl, br):
         mb.finish()
+    order_dressing()
     # luzes (3): nucleo violeta (esfera-estrela) + 2 quentes baixas (lanternas goticas dos pedestais)
     light("L_SGSum_Core", "POINT", c, 9000.0, VIOLET, 3.0)
     for n, p in zip(("L_SGSum_Lantern_S", "L_SGSum_Lantern_N"), lamp_c):

@@ -11,6 +11,10 @@ import math, random
 import sg_lib as SL
 from sg_lib import MB, col_box, Frame
 import sg_layout as L
+import sg_emblem as EM
+# REFINAMENTO v2 2026-09-28: os postes de ferro viram o lantern_post DOURADO da ordem (sg_emblem): a mesma familia
+# de lanternas da referencia v2 em toda a ilha. A lanterna fica na MESMA cota (z + LAMP_H), entao as luzes reais do
+# sg_lights nao mudam de lugar nem de numero.
 
 P1, P2, P3 = L.P1, L.P2, L.P3
 COLL = "09_PROPS"
@@ -50,21 +54,10 @@ BENCH_A = (62.0, 118.0, 242.0, 298.0)
 
 
 def lamp(mb, x, y, z):
-    """poste de ferro da vila (mesma familia do sg_village): soco de pedra, fuste, lanterna ambar com grade e agulha"""
-    mb.cyl(0.75, 0.9, (x, y, z + 0.35), (0, 0, math.pi / 8), OBS, n=8, bevel=0.0)
-    mb.cyl(0.5, 0.5, (x, y, z + 1.05), (0, 0, math.pi / 8), IRON, n=8, r2=0.3, bevel=0.0)
-    mb.cyl(0.26, 6.2, (x, y, z + 4.3), (0, 0, 0), IRON, n=8, r2=0.2, bevel=0.0)
-    mb.cyl(0.42, 0.3, (x, y, z + 4.0), (0, 0, 0), IRON, n=8, bevel=0.0)
-    zc = z + LAMP_H
-    mb.box((1.3, 1.3, 0.25), (x, y, zc - 0.95), (0, 0, 0), IRON, 0.0)
-    mb.cyl(0.35, 0.6, (x, y, zc - 1.3), (0, 0, 0), IRON, n=8, r2=0.2, bevel=0.0)
-    mb.box((0.85, 0.85, 1.5), (x, y, zc), (0, 0, 0), GLOW, 0.0)
-    for sx in (-1, 1):
-        for sy in (-1, 1):
-            mb.box((0.22, 0.22, 1.7), (x + sx * 0.5, y + sy * 0.5, zc), (0, 0, 0), IRON, 0.0)
-    SL.spire(mb, (x, y), 1.05, zc + 0.85, 1.6, IRON, n=4)
-    mb.cyl(0.12, 0.8, (x, y, zc + 2.7), (0, 0, 0), IRON, n=4, r2=0.02, bevel=0.0)
-    col_box("SG_PropLamp", (1.0, 1.0, 9.0), (x, y, z + 4.5))
+    """poste-lanterna da ordem (sg_emblem.lantern_post): soco de obsidiana, fuste de ferro negro, lanterna DOURADA
+    com vidro quente (Neon). Cabeca da lanterna em z + LAMP_H (h = LAMP_H - 0.9): as luzes reais nao mudam."""
+    EM.lantern_post(mb, mb, (x, y, z), 0.0, h=LAMP_H - 0.9)
+    col_box("SG_PropLamp", (1.2, 1.2, 9.0), (x, y, z + 4.5))
 
 
 def bench(mb, x, y, z, yaw):

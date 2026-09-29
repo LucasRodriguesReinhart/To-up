@@ -10,7 +10,9 @@
 #   4. penhasco: coroa de blocos de colunas hexagonais na borda (topos de grama em alturas diferentes, fendas
 #      recuadas, pilares destacados na frente, estrato claro/escuro), massa de baixo em aneis de colunas pendentes
 #      afinando ate ~-110 (nada de cone liso), CLIFF_SPIRES como aglomerados de colunas altas, ilhota do summon;
-#   5. nada de arvore, cachoeira ou ponte (so as bordas/entalhes onde a agua e as pontes encostam).
+#   5. nada de arvore, cachoeira ou ponte (so as bordas/entalhes onde a agua e as pontes encostam);
+#   6. refinamento v2 (borda viva): aglomerados de cristais SG_Crystal_Glow encravados na face externa (abaixo do
+#      topo, fora do alcance), veios SG_VioletDeep_Glow e pontas de cristal nas colunas pendentes (rim_crystals).
 # REGRA DA DUNGEON: nenhuma face entra em sg_layout.DUN_KEEP_OUT (x -70..74, y 50..110, z 2..32): tudo que fica
 # dentro dessa projecao XY esta acima de 32,5 (topos/corpos) ou abaixo de -14 (massa de baixo); as faces laterais da
 # massa ficam na borda da ilha, fora da caixa.
@@ -1041,6 +1043,124 @@ def water_lips():
                        band=(0.7, TOP))
 
 
+# ------------------------------------------------------------------ cristais da borda (refinamento v2: borda viva)
+def crystal(mb, base, ax, ln, r, m="SG_Crystal_Glow"):
+    """prisma hexagonal apontado (corpo + ponta) com o eixo ax a partir de base (encravado na rocha)"""
+    ax = Vector(ax).normalized()
+    yaw = math.atan2(ax.y, ax.x)
+    pitch = math.acos(max(-1.0, min(1.0, ax.z)))
+    rot = (0.0, pitch, yaw)
+    b = Vector(base)
+    mb.cyl(r, ln * 0.7, b + ax * (ln * 0.35), rot, m=m, n=6, r2=r * 0.8, bevel=0.0)
+    mb.cyl(r * 0.8, ln * 0.3, b + ax * (ln * 0.85), rot, m=m, n=6, r2=0.03, bevel=0.0)
+
+
+def cave_hit(x, y, pad=2.0):
+    """caixa DUNGEON_CAVE_MASS (a boca de caverna e do agente da dungeon): nada meu ali"""
+    cx0, cy0, cx1, cy1 = L.DUNGEON_CAVE_MASS
+    return cx0 - pad < x < cx1 + pad and cy0 - pad < y < cy1 + pad
+
+
+def crystal_ok(x, y, r, z0, z1):
+    """fora da dungeon (keepout + caverna), fora das pontes e fora da frente das cortinas d'agua"""
+    if cave_hit(x, y) or not dun_ok(x, y, r, z0, z1):
+        return False
+    for nm, a, b, z, w in BRIDGES:
+        if sg_col._in_rect_along(x, y, a, b, w / 2 + 3.0, pad=4.0):
+            return False
+    for wx, wy, wz, ux, uy in FALLS:
+        lat = abs(-(x - wx) * uy + (y - wy) * ux)
+        along = (x - wx) * ux + (y - wy) * uy
+        if lat < 5.5 and along > -6.0:
+            return False
+    return True
+
+
+def rim_crystals():
+    """a borda viva da referencia v2: aglomerados de SG_Crystal_Glow (2-4 prismas inclinados para fora) encravados
+    na face EXTERNA dos penhascos, abaixo do topo (fora do alcance do jogador); mais densos perto das quedas e da
+    ponta da dungeon. Veios finos SG_VioletDeep_Glow rente a rocha e pontas esparsas nas colunas pendentes de baixo.
+    Sem colisao nenhuma."""
+    rng = random.Random(4101)
+    mb = smb("SG_Ter_Crystals")
+    smp = resample_closed(RIM, 1.0)
+    N = len(smp)
+    # pontos quentes: os 4 labios de cachoeira + a ponta leste da dungeon (fora da caixa da caverna)
+    hot = [(wx, wy) for wx, wy, wz, ux, uy in FALLS] + [(136.0, 96.0)]
+
+    def heat(x, y):
+        d = min(math.hypot(x - hx, y - hy) for hx, hy in hot)
+        return 0.95 if d < 36.0 else 0.5
+
+    groups = 0
+    i = 0
+    while i < N and groups < 28:
+        x, y, nx, ny = smp[i]
+        i += int(rng.uniform(16.0, 30.0))
+        if rng.random() > heat(x, y):
+            continue
+        zc = ground_z(x, y)
+        zt = zc - rng.uniform(4.5, 11.0)
+        gx, gy = x + nx * 0.4, y + ny * 0.4
+        if not crystal_ok(gx, gy, 2.5, zt - 8.0, zt + 6.0):
+            continue
+        sx, sy = -ny, nx
+        # 1 cristal-heroi + 1-3 menores encostados: quase verticais com leve inclinacao para FORA (como na
+        # referencia, espigoes que crescem das prateleiras da rocha; de lado leem como agulha, nunca como bolha)
+        hero_ln = rng.uniform(4.5, 7.5)
+        nk = rng.randint(1, 3)
+        for k in range(nk + 1):
+            f = 1.0 if k == 0 else rng.uniform(0.45, 0.68)
+            ln = hero_ln * f
+            rr = (0.32 + hero_ln * 0.10) * f
+            lat = 0.0 if k == 0 else rng.choice((-1, 1)) * rng.uniform(0.8, 1.5)
+            lean = rng.uniform(-0.12, 0.12) if k == 0 else (0.3 * (1 if lat > 0 else -1) + rng.uniform(-0.15, 0.15))
+            out = rng.uniform(0.3, 0.7)
+            ax = (nx * out + sx * lean, ny * out + sy * lean, 1.0)
+            base = (gx + sx * lat + nx * rng.uniform(-1.4, -0.6), gy + sy * lat + ny * rng.uniform(-1.4, -0.6),
+                    zt - ln * 0.4 - (0.0 if k == 0 else 0.6))
+            crystal(mb, base, ax, ln, rr, m="SG_Crystal_Glow" if k == 0 else "SG_VioletDeep_Glow")
+        groups += 1
+    # veios finos de energia rente a face da rocha (~10 pontos)
+    veins = 0
+    tries = 0
+    while veins < 10 and tries < 60:
+        tries += 1
+        x, y, nx, ny = smp[rng.randrange(N)]
+        zc = ground_z(x, y)
+        zt = zc - rng.uniform(6.0, 15.0)
+        if not crystal_ok(x, y, 1.5, zt - 6.0, zt + 1.0):
+            continue
+        yaw_t = math.atan2(nx, -ny)                    # tangente da borda
+        for j in range(rng.randint(2, 3)):
+            ln = rng.uniform(2.0, 4.0)
+            mb.box((ln, 0.4, 0.34), (x + nx * rng.uniform(-0.6, -0.1) - ny * rng.uniform(-1.2, 1.2),
+                                     y + ny * rng.uniform(-0.6, -0.1) + nx * rng.uniform(-1.2, 1.2),
+                                     zt - j * rng.uniform(1.4, 2.4)),
+                   (0, rng.uniform(-0.4, 0.4), yaw_t), "SG_VioletDeep_Glow", 0.0)
+        veins += 1
+    # pontas esparsas nas colunas pendentes de baixo (como as ilhotas da referencia)
+    tips = 0
+    for f, zlo, zhi in ((0.88, -24.0, -6.0), (0.74, -42.0, -22.0), (0.60, -60.0, -42.0)):
+        for x, y, nx, ny in resample_closed(scaled(RIM, f, C), 46.0):
+            if rng.random() > 0.5:
+                continue
+            z = rng.uniform(zlo, zhi)
+            if not crystal_ok(x + nx * 1.2, y + ny * 1.2, 1.5, z - 6.0, z):
+                continue
+            crystal(mb, (x - nx * 0.6, y - ny * 0.6, z), (nx * 0.55, ny * 0.55, -1.0),
+                    rng.uniform(2.6, 5.0), rng.uniform(0.45, 0.7))
+            tips += 1
+    # 3 pontas na massa pendente da ilhota do summon
+    ssx, ssy = L.SUMMON_C
+    for k in range(3):
+        a = rng.uniform(0, 2 * math.pi)
+        crystal(mb, (ssx + (L.SUMMON_R - 5.0) * math.cos(a), ssy + (L.SUMMON_R - 5.0) * math.sin(a),
+                     rng.uniform(-18.0, -4.0)),
+                (math.cos(a) * 0.6, math.sin(a) * 0.6, -1.0), rng.uniform(2.0, 3.6), rng.uniform(0.35, 0.5))
+    print("TER CRISTAIS grupos=%d veios=%d pontas=%d" % (groups, veins, tips))
+
+
 # ------------------------------------------------------------------ ilhota do summon
 def summon_isle():
     """plataforma redonda propria (topo 40,2 na cota, 24-gono igual a colisao do sg_col) sobre tambor de alvenaria e
@@ -1132,6 +1252,7 @@ def build():
     mounds()
     water_lips()
     summon_isle()
+    rim_crystals()
     for nm in sorted(_MB):
         _MB[nm].finish()
     _MB.clear()
