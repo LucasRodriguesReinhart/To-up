@@ -66,27 +66,36 @@ ZT = 33.0                           # base do que nasce no terreno bravo (acima 
 CEIL = L.HALL_CEIL                  # 80,2
 HX0, HY0, HX1, HY1 = L.HALL_X0, L.HALL_Y0, L.HALL_X1, L.HALL_Y1
 TW = L.HALL_WALL
-OX0, OY0, OX1, OY1 = HX0 - TW, HY0 - TW, HX1 + TW, HY1 + TW     # -46, 40, 46, 136 (face externa)
-EAVE = CEIL + 8.0                   # 88,2 cornija das naves laterais
+OX0, OY0, OX1, OY1 = HX0 - TW, HY0 - TW, HX1 + TW, HY1 + TW     # -51,5, 40,5, 51,5, 146,5 (face externa)
+# SETOR 04b (salao maior, 2026-09-29): a casca cresce junto com o salao (96 x 99 x 44): nave 3 mais larga de cada
+# lado (parede 3,5), 11 mais comprida para o norte e 20 mais alta; o corpo central da fachada (porta, arco do emblema,
+# janelao) fica com a mesma largura. Atras, a torre-coroa desce ate o piso com a ABSIDE do trono na base.
+EAVE = CEIL + 8.0                   # 108,2 cornija das naves laterais
 CLR = 22.0                          # meia largura do corpo central (clerestorio / fachada central)
-CLR_TOP = CEIL + 32.0               # 112,2 beiral do telhado da nave
-NAVE_RISE = 30.0                    # cumeeira ~142, de quatro aguas na frente (a coroa aparece da praca)
-AISLE_HI = 101.0                    # topo do telhado de meia-agua das naves laterais (encosta no clerestorio)
+CLR_TOP = CEIL + 32.0               # 132,2 beiral do telhado da nave
+NAVE_RISE = 30.0                    # cumeeira ~150, de quatro aguas na frente (a coroa aparece da praca)
+AISLE_HI = EAVE + 12.8              # 121,0 topo do telhado de meia-agua das naves laterais (encosta no clerestorio)
 # ritmo da nave casado com o interior (sg_hall): 4 janelas por lado no eixo dos vitrais, contrafortes nas pilastras
-WIN_Y = [HY0 + 16.0 + k * (HY1 - HY0 - 32.0) / 3.0 for k in range(4)]                 # 60, 78,67, 97,33, 116
+WIN_Y = [HY0 + 16.0 + k * (HY1 - HY0 - 32.0) / 3.0 for k in range(4)]                 # 60, 82,33, 104,67, 127
 _DY = WIN_Y[1] - WIN_Y[0]
-BUTT_Y = [WIN_Y[0] - _DY / 2] + [(a + b) / 2 for a, b in zip(WIN_Y, WIN_Y[1:])] + [WIN_Y[-1] + _DY / 2]  # 50,67..125,33
-WIN_A, WIN_RISE = 3.0, 3.9          # meia largura / flecha do arco (vao 6 x 12,0, igual ao vitral interno)
+BUTT_Y = [WIN_Y[0] - _DY / 2] + [(a + b) / 2 for a, b in zip(WIN_Y, WIN_Y[1:])] + [WIN_Y[-1] + _DY / 2]  # 48,8..138,2
+# saliencia do contraforte por lado: a oeste corre o BECO (borda do P3 em x ~ -57): contraforte RASO (lesena em talude)
+# para o beco continuar com >= 3,5 livres; a leste (patio da dungeon / ala leste) o contraforte cheio
+BUTT_P = {-1: 1.3, 1: 3.4}
+WIN_A, WIN_RISE = 3.0, 3.9          # meia largura / flecha do arco (vao 6 x 21,3, igual ao vitral interno)
 WIN_SILL = Z + 17.6                 # 69,8 (acima de piso+14; o peitoril interno e a galeria alta do salao)
-WIN_SPRING = Z + 21.8               # 74,0 -> apice 77,9 (abaixo do teto em 80,2)
+WIN_SPRING = Z + 35.0               # 87,2 -> apice 91,1 (abaixo do teto em 100,2)
 DW, DH = L.HALL_DOOR_W, L.HALL_DOOR_H
+APSE_RISE = L.APSE_KEY - L.APSE_SPRING   # flecha do arco triunfal / abobada do presbiterio (04b)
 ARCH_RISE = 9.5                     # flecha das arquivoltas do portal (nascem na verga, 70,2)
 SOC = Z + 2.6                       # topo do soco de obsidiana (cordao de prata logo acima)
 # emblema monumental da fachada (centro piso+58, acima do janelao, abaixo da empena) e o arco de prata que o emoldura
-EMB_Z, EMB_R = Z + 58.0, 9.5
-ARC_A, ARC_ZR, ARC_RISE = 15.0, Z + 32.0, 40.0
-# JANELAO da fachada (refs/v2): boca de luz violeta entre a verga da porta (70,2) e o emblema (base ~95,7)
-JAN_A, JAN_SILL, JAN_SPRING, JAN_RISE = 7.0, Z + 28.3, Z + 38.0, 4.6      # 80,5 / 90,2 / apice 94,8
+# (04b: a fachada subiu 20 com a nave: emblema, arco e janelao sobem junto, o janelao fica mais alto)
+EMB_Z, EMB_R = Z + 76.0, 9.5
+ARC_A, ARC_ZR, ARC_RISE = 15.0, Z + 32.0, 58.0
+# JANELAO da fachada (refs/v2): boca de luz violeta entre a verga da porta (70,2) e o emblema (base ~103,5)
+JAN_A, JAN_SILL, JAN_SPRING, JAN_RISE = 7.0, Z + 30.0, Z + 54.0, 4.6      # 82,2 / 106,2 / apice 110,8
+JAN_TR = Z + 42.0                   # travessa do rendilhado do janelao
 GAB_W, GAB_TOP = 13.0, CLR_TOP + 18.0
 FT_SPIRE = 36.0                     # agulha das torres da fachada (abaixo da flecha da coroa)
 WALL_TOP = Z + 12.0                 # 64,2 passeio da muralha
@@ -97,15 +106,15 @@ EG_AP = EG_R * math.cos(math.pi / 8)
 EG_TURRETS = [(EG_X - EG_W / 2 - EG_AP - 0.06, -6.2), (EG_X + EG_W / 2 + EG_AP + 0.06, -6.2)]
 SW_TOWER = (L.WALL_X[0] - 0.5, -6.2, 6.5)
 CR_X, CR_Y, CR_R, CR_TOP = L.CROWN_TOWER
-BACK_TURRETS = [(-48.0, 138.0, 5.0), (48.0, 138.0, 5.0)]
+BACK_TURRETS = [(-47.0, 149.0, 4.5), (47.0, 149.0, 4.5)]     # quinas de tras (a oeste deixam o beco passar)
 FAC_TURRETS = [(-CLR, 38.4, 3.2), (CLR, 38.4, 3.2)]
 # alas (nao entraveis): oeste sobre o terreno bravo, leste no beco entre a nave e o patio da dungeon
 WW = (-94.0, 65.0, -62.0, 133.0)    # x0, y0, x1, y1 corpo da ala oeste
 WW_EAVE = 86.2
-EW = (OX1 + 3.4, 50.0, 60.0, 134.0)  # ala leste (encosta nos contrafortes)
+EW = (OX1 + 3.4, 50.0, 60.5, 143.0)  # ala leste (encosta nos contrafortes)
 EW_EAVE = Z + 12.0
 WING_TOWERS = [(-95.0, 65.0, 6.5, 112.0, 26.0), (-95.0, 133.0, 6.0, 102.0, 20.0), (-66.0, 138.0, 6.5, 114.0, 24.0),
-               (55.0, 140.0, 6.5, 106.0, 22.0)]
+               (59.0, 151.0, 6.0, 108.0, 22.0)]
 WALL_TOWERS = [(-46.0, -6.0, 4.6), (62.0, -6.0, 4.6)]      # torres intermediarias da muralha (sul da face: y -10,3)
 CURTAIN_TOWER = (-82.0, 16.0, 5.5)                          # torre da cortina oeste
 
@@ -121,7 +130,7 @@ CAMS = {
     "CAM_SGCas_PlayerHeight_Plaza": ((6.0, -150.0, P1 + 5.2), (0.0, 60.0, P3 + 62.0), 22),
     "CAM_SGCas_PlayerHeight_Gate": ((-8.0, -52.0, P2 + 5.2), (0.0, -6.0, P3 + 16.0), 22),
     "CAM_SGCas_PlayerHeight_Forecourt": ((-30.0, 6.0, P3 + 5.2), (6.0, 60.0, P3 + 36.0), 20),
-    "CAM_SGCas_PlayerHeight_WestAlley": ((-56.0, 60.0, P3 + 5.2), (-50.0, 130.0, P3 + 18.0), 20),
+    "CAM_SGCas_PlayerHeight_WestAlley": ((-55.5, 58.0, P3 + 5.2), (-52.0, 140.0, P3 + 18.0), 20),
     "CAM_SGCas_PlayerHeight_DungeonYard": ((96.0, 36.0, P3 + 5.2), (40.0, 110.0, P3 + 40.0), 20),
     "CAM_SGCas_PlayerHeight_Terrace": ((-40.0, 172.0, P3 + 5.2), (0.0, 140.0, P3 + 66.0), 20),
     "CAM_SGCas_PlayerHeight_EastGap": ((112.0, -46.0, P2 + 5.2), (112.0, -4.0, P3 + 10.0), 22),
@@ -129,11 +138,11 @@ CAMS = {
     "CAM_SGCas_OV_WallBase": ((-16.5, -21.0, P2 + 5.2), (-32.0, -9.3, P2 + 7.5), 22),
     "CAM_SGCas_OV_WallTop": ((-17.0, -19.0, P2 + 5.2), (-30.0, -9.3, P3 + 12.0), 22),
     "CAM_SGCas_OV_GateIn": ((5.0, 10.0, P3 + 5.2), (0.0, -6.0, P3 + 13.0), 22),
-    "CAM_SGCas_OV_Buttress": ((-56.0, 57.0, P3 + 5.2), (-47.0, 67.0, P3 + 7.0), 20),
+    "CAM_SGCas_OV_Buttress": ((-55.8, 60.0, P3 + 5.2), (-51.5, 71.2, P3 + 7.0), 20),
     "CAM_SGCas_OV_Flyer": ((96.0, 42.0, P3 + 5.2), (40.0, 67.3, P3 + 44.0), 24),
-    "CAM_SGCas_OV_NaveWindow": ((-57.5, 86.0, P3 + 5.2), (-46.0, 97.3, P3 + 19.0), 22),
+    "CAM_SGCas_OV_NaveWindow": ((-56.0, 92.0, P3 + 5.2), (-51.5, 104.7, P3 + 22.0), 22),
     "CAM_SGCas_OV_Pinnacle": ((-5.0, 25.0, P3 + 5.2), (-13.0, 36.5, P3 + 24.0), 22),
-    "CAM_SGCas_OV_Corner": ((-33.0, 25.0, P3 + 5.2), (-44.0, 40.0, P3 + 9.0), 20),
+    "CAM_SGCas_OV_Corner": ((-36.0, 25.0, P3 + 5.2), (-49.0, 40.0, P3 + 9.0), 20),
     "CAM_SGCas_OV_RoofSeam": ((76.0, 42.0, P3 + 5.2), (56.0, 62.0, P3 + 13.0), 20),
     "CAM_SGCas_OV_Porch": ((-9.0, 28.0, P3 + 5.2), (-8.0, 38.0, P3 + 12.0), 22),
     "CAM_SGCas_OV_Rail": ((-30.0, 160.0, P3 + 5.2), (-14.0, 142.0, P3 + 6.0), 20),
@@ -144,9 +153,11 @@ CAMS = {
 
 # rota extra: patio -> contorno da torre oeste da fachada -> beco oeste -> terraco norte (atras da coroa)
 EXTRA_ROUTES = {
-    "PATIO->BECO_OESTE->TERRACO": ([(0.0, 20.0), (-40.0, 24.0), (-60.0, 28.0), (-70.0, 36.0), (-66.0, 50.0),
-                                    (-56.0, 62.0), (-54.0, 100.0), (-52.0, 128.0), (-55.3, 136.0), (-55.0, 142.0),
-                                    (-40.0, 162.0), (-24.0, 170.0)], P3),
+    # 04b: a nave cresceu (face externa oeste em x -51,5, contrafortes rasos do lado do beco): o beco segue colado
+    # na borda do P3 e desemboca no terraco norte, a oeste da torre-coroa (que desceu para y 158)
+    "PATIO->BECO_OESTE->TERRACO": ([(0.0, 20.0), (-40.0, 24.0), (-60.0, 28.0), (-70.0, 36.0), (-69.5, 44.0),
+                                    (-66.5, 49.6), (-61.0, 56.0), (-56.5, 62.0), (-55.5, 100.0), (-55.4, 140.0), (-54.8, 150.0), (-52.0, 158.0),
+                                    (-40.0, 165.0), (-26.0, 171.0)], P3),
 }
 EXTRA_PROBES = []
 
@@ -832,8 +843,9 @@ def muralha(banners):
         ledge(mb, Wi, a, b, [(-0.9, WALL_TOP + 1.1), (0.12, WALL_TOP + 1.1), (0.12, WALL_TOP + 1.26),
                              (-0.2, WALL_TOP + 1.4), (-0.9, WALL_TOP + 1.4)], OB)
         col_box2("SG_CasWall", (a, wy0, Z - 0.5), (b, wy1, WALL_TOP))
-    # lanternas da ordem SO nos nos (junto das torres), no passeio atras do parapeito
-    for lx in (-71.0, -38.0, -23.0, 23.0, 54.0, 96.0):
+    # lanternas da ordem SO nos nos, no passeio atras do parapeito. OVERHAUL 12 (12.04): as 2 das torres intermediarias
+    # (-38 e 54) SAIRAM - torre intermediaria nao e passagem; ficam o portao (+-23), o canto oeste e o vao leste
+    for lx in (-71.0, -23.0, 23.0, 96.0):
         EM.lantern_pedestal(mb, mb, mb, (lx, front + 1.5, WALL_TOP), 0.0, 0.8)
     # --- torre-portaria: VERGA baixa entre as 2 torres (vao 16 x 18 livre). Baixa de proposito: da praca o olho passa
     # por cima dela e encontra o emblema monumental da fachada. Overhaul 03 (03.12): verga de ADUELAS em arco abatido
@@ -1079,14 +1091,14 @@ def nave():
             # OVERHAUL 03 (03.08): beco oeste na altura do olho - soco em talude, silhar em fiadas entre os
             # contrafortes e cordao com pingadeira a +8 (a torre da fachada cobre ate y 48, a torrinha de tras de 133)
             excl = [(y - 1.75, y + 1.75, ZB, Z + 40.0) for y in BUTT_Y]
-            wall_base(mb, W, 48.4, 133.2, t=TW, excl=excl)
+            wall_base(mb, W, 49.8, OY1 - 2.3, t=TW, excl=excl)
     # fachada sul (u = x, t para fora = -y): naves laterais com janela + corpo central com a porta
     WS = ((0.0, HY0), (1.0, 0.0), (0.0, -1.0))
     WN = ((0.0, HY1), (1.0, 0.0), (0.0, 1.0))
     for W, front in ((WS, True), (WN, False)):
         for s in (-1, 1):
             u0, u1 = (OX0, -CLR) if s < 0 else (CLR, OX1)
-            uw = s * 33.0
+            uw = s * (CLR + (OX1 - CLR) * 0.4)           # 04b: janela no meio da nave lateral (era 33 com 46)
             opens = [(uw, WIN_A, WIN_SILL, WIN_SPRING, WIN_RISE)] if front else []   # fundo fechado: altar do hall
             wall_run(mb, W, u0, u1, ZB, EAVE, 0.0, TW, opens, CM, IM)
             if front:
@@ -1103,8 +1115,8 @@ def nave():
                     continue                                  # soco/cordao: wall_base (zona do olho) abaixo
                 ua = s * (OX1 - (TW - t0_))                   # face interna da faixa lateral
                 # overhaul 03 (03.18): na fachada a faixa MORRE num bloco de arremate antes da torrinha (antes entrava
-                # ate o eixo da torrinha); no fundo corre inteira (passa atras da coroa)
-                ub = s * (CLR + 3.5) if front else 0.0
+                # ate o eixo da torrinha); no fundo morre na torre-coroa (04b: a base dela abre a abside do trono)
+                ub = s * (CLR + 3.5) if front else s * (L.APSE_HW + 0.1)   # 04b: atras morre na torre-coroa
                 panel(mb, W, rect(min(ua, ub), max(ua, ub), z0_, z1_), t0_, t1_, m_)
                 if front and bi in (0, 5):
                     us0, us1 = sorted((s * (CLR + 2.5), s * (CLR + 3.6)))
@@ -1112,20 +1124,31 @@ def nave():
             # zona do olho: soco em talude, silhar e cordao (fachada: entre a torre da ponta e a torrinha; fundo: entre
             # a torrinha de tras e a torre-coroa, voltado para o terraco)
             if front:
-                ua_, ub_ = sorted((s * 43.8, s * (CLR + 3.9)))
+                ua_, ub_ = sorted((s * (OX1 - 3.5), s * (CLR + 3.9)))      # ate a torre da fachada (x 58)
                 wall_base(mb, W, ua_, ub_, t=TW, phase=0.9)
             else:
-                ua_, ub_ = sorted((s * 43.0, s * 7.2))
+                ua_, ub_ = sorted((s * (OX1 - 4.2), s * 11.6))             # da torrinha de tras ate a torre-coroa
                 wall_base(mb, W, ua_, ub_, t=TW, phase=0.4)
             # ritmo de janelas quentes na empena da nave lateral (sotao, acima do teto do salao: nada de interior falso)
-            for uu, z0w, hw_ in ((28.0, EAVE + 2.2, 4.0), (35.0, EAVE + 1.6, 3.4), (42.0, EAVE + 0.9, 2.6)):
-                wlancet(mb, W, s * uu, z0w, hw_, 1.0, t=TW + 0.02)
+            # (04b: posicao e altura seguem a empena da nave lateral, que ficou mais larga e mais inclinada)
+            for f_ in (0.22, 0.5, 0.78):
+                uu = CLR + (OX1 - CLR) * f_
+                ztop = AISLE_HI + 1.6 + (EAVE + 3.2 - AISLE_HI - 1.6) * f_ - 1.6
+                hw_ = min(4.4, ztop - EAVE - 0.9)
+                wlancet(mb, W, s * uu, ztop - hw_, hw_, 1.0, t=TW + 0.02)
         if front:
             panel(mb, W, rect(-CLR, -DW / 2, ZB, CLR_TOP), 0.0, TW, CM, IM)
             panel(mb, W, rect(DW / 2, CLR, ZB, CLR_TOP), 0.0, TW, CM, IM)
             panel(mb, W, rect(-DW / 2, DW / 2, Z + DH, CLR_TOP), 0.0, TW, CM, IM)
         else:
-            panel(mb, W, rect(-CLR, CLR, ZB, CLR_TOP), 0.0, TW, CM, IM)
+            # 04b: ARCO TRIUNFAL no eixo (a abside do trono fica na base da torre-coroa, atras desta parede)
+            # o vao na casca e o contorno da ORDEM EXTERNA (as 3 ordens escalonadas que fecham ate o presbiterio sao
+            # do sg_hall, dentro da espessura desta parede)
+            ho = L.TRI_HW + L.TRI_ORDERS * L.TRI_STEP
+            panel(mb, W, rect(-CLR, -ho, ZB, CLR_TOP), 0.0, TW, CM, IM)
+            panel(mb, W, rect(ho, CLR, ZB, CLR_TOP), 0.0, TW, CM, IM)
+            panel(mb, W, [(ho, CLR_TOP), (-ho, CLR_TOP)] + ogive(0.0, L.TRI_HW, Z + L.TRI_SPRING, L.TRI_RISE,
+                                                                 d=ho - L.TRI_HW), 0.0, TW, CM, IM)
         if front:
             # soco + cordao de prata do corpo central (fora do vao da porta)
             for s_ in (-1, 1):
@@ -1137,7 +1160,7 @@ def nave():
             for s_ in (-1, 1):
                 # pilha de janelas quentes ladeando o arco do emblema (2 andares, acima do teto do salao)
                 # (acabamento: estreitas e no vao livre entre a banda do arco e a torrinha - antes entravam na torrinha)
-                for z0w in (Z + 38.3, Z + 45.8):
+                for z0w in (Z + 38.3, Z + 45.8, Z + 53.3, Z + 60.8, Z + 68.3, Z + 75.8):   # 04b: 6 andares (a fachada subiu)
                     wlancet(mb, W, s_ * 18.5, z0w, 3.4, 0.8, t=TW + 0.02)
             # coroamento da fachada: misulas de obsidiana + parapeito; no meio, a EMPENA que recebe o arco de prata do
             # emblema (o parapeito se interrompe onde o arco sobe)
@@ -1205,26 +1228,32 @@ def nave():
     for y in BUTT_Y:
         for s in (-1, 1):
             xo = s * OX1
+            bp = BUTT_P[s]                                         # saliencia do 1o lance (oeste raso: beco)
+            bp2 = min(2.4, bp * 0.72)                              # 2o lance
             Wb = ((xo, 0.0), (0.0, 1.0), (float(s), 0.0))           # u = y, t = saliencia a partir da face da nave
-            ledge(mb, Wb, y - 2.1, y + 2.1, plinth(ZB, SOC, 4.1, 3.62), OB)
-            ledge(mb, Wb, y - 1.78, y + 1.78, [(-0.1, SOC), (3.58, SOC), (3.58, SOC + 0.3), (-0.1, SOC + 0.3)], SV)
-            # 1o lance (3,4 x 3,2) com talude de 45 graus ate o 2o lance + pingadeira sob o talude
-            ledge(mb, Wb, y - 1.6, y + 1.6, [(-0.1, SOC), (3.4, SOC), (3.4, Z + 18.6), (2.35, Z + 19.65),
-                                             (-0.1, Z + 19.65)], CM)
-            ledge(mb, Wb, y - 1.72, y + 1.72, [(3.25, Z + 17.95), (3.62, Z + 18.05), (3.62, Z + 18.3),
-                                               (3.25, Z + 18.55)], OB)
+            ledge(mb, Wb, y - 2.1, y + 2.1, plinth(ZB, SOC, bp + 0.7, bp + 0.22), OB)
+            ledge(mb, Wb, y - 1.78, y + 1.78, [(-0.1, SOC), (bp + 0.18, SOC), (bp + 0.18, SOC + 0.3), (-0.1, SOC + 0.3)],
+                  SV)
+            # 1o lance (bp x 3,2) com talude de 45 graus ate o 2o lance + pingadeira sob o talude
+            zt1 = Z + 18.6
+            ledge(mb, Wb, y - 1.6, y + 1.6, [(-0.1, SOC), (bp, SOC), (bp, zt1), (bp2 - 0.05, zt1 + bp - bp2 + 0.05),
+                                             (-0.1, zt1 + bp - bp2 + 0.05)], CM)
+            ledge(mb, Wb, y - 1.72, y + 1.72, [(bp - 0.15, zt1 - 0.65), (bp + 0.22, zt1 - 0.55), (bp + 0.22, zt1 - 0.3),
+                                               (bp - 0.15, zt1 - 0.05)], OB)
             # silhar nas 3 faces do 1o lance + cordao a +8 contornando (casa com o da parede)
-            Wf_ = ((xo + s * 3.4, 0.0), (0.0, 1.0), (float(s), 0.0))
+            Wf_ = ((xo + s * bp, 0.0), (0.0, 1.0), (float(s), 0.0))
             ashlar(mb, Wf_, y - 1.6, y + 1.6, SOC + 0.34, Z + 7.7, 0.0, PL=2.05, phase=0.55 if s > 0 else 0.0)
             ledge(mb, Wf_, y - 2.1, y + 2.1, drip(Z + 8.0, 0.5), OB)
             for sy in (-1, 1):
                 Ws_ = ((0.0, y + sy * 1.6), (float(s), 0.0), (0.0, float(sy)))
-                ashlar(mb, Ws_, OX1 + 0.02, OX1 + 3.4, SOC + 0.34, Z + 7.7, 0.0, PL=2.3, phase=0.4)
-                ledge(mb, Ws_, OX1 - 0.1, OX1 + 3.4 + 0.5, drip(Z + 8.0, 0.5), OB)
-            # 2o lance (2,4 x 2,6) ate o pe do pinaculo
-            ledge(mb, Wb, y - 1.3, y + 1.3, [(-0.1, Z + 19.55), (2.4, Z + 19.55), (2.4, EAVE + 3.0),
+                if bp > 2.0:
+                    ashlar(mb, Ws_, OX1 + 0.02, OX1 + bp, SOC + 0.34, Z + 7.7, 0.0, PL=2.3, phase=0.4)
+                ledge(mb, Ws_, OX1 - 0.1, OX1 + bp + 0.5, drip(Z + 8.0, 0.5), OB)
+            # 2o lance ate o pe do pinaculo
+            z2 = zt1 + bp - bp2 + 0.05
+            ledge(mb, Wb, y - 1.3, y + 1.3, [(-0.1, z2 - 0.1), (bp2, z2 - 0.1), (bp2, EAVE + 3.0),
                                              (-0.1, EAVE + 3.0)], CM)
-            ptop = pinnacle(mb, xo + s * 1.2, y, EAVE + 3.0, 1.0, hb=7.0, hn=9.5)
+            ptop = pinnacle(mb, xo + s * bp2 / 2.0, y, EAVE + 3.0, 1.0 if bp2 > 2.0 else 0.62, hb=7.0, hn=9.5)
             # pinaculo no topo do clerestorio onde o arcobotante encosta (Tier C: sem crochés)
             pinnacle(mb, s * (CLR + 0.6), y, CLR_TOP + 0.2, 0.85, hb=3.0, hn=7.6, crock=False)
             # arcobotante
@@ -1240,7 +1269,7 @@ def nave():
             Wfl = ((0.0, y), (float(s), 0.0), (0.0, 1.0))
             strip(mb, Wfl, lo, hi, -0.55, 0.55, CM)
             mb.beam((s * dp_, y, z_ex0 + 0.12), (s * dw_, y, z_ex1 + 0.12), 1.4, 0.3, OB, 0.0)
-            col_box2("SG_CasButtress", (min(xo, xo + s * 3.4), y - 1.6, Z - 0.5), (max(xo, xo + s * 3.4), y + 1.6, Z + 20.0))
+            col_box2("SG_CasButtress", (min(xo, xo + s * bp), y - 1.6, Z - 0.5), (max(xo, xo + s * bp), y + 1.6, Z + 20.0))
     # teto interno (opaco) + nervuras transversais alinhadas aos contrafortes
     mb.box2((OX0 + 0.3, OY0 + 0.3, CEIL), (OX1 - 0.3, OY1 - 0.3, CEIL + 2.0), IM, 0.0)
     for y in BUTT_Y:
@@ -1250,7 +1279,8 @@ def nave():
         mb.box2((x - 0.5, HY0, CEIL - 0.9), (x + 0.5, HY1, CEIL), "Stone_SG_Trim", 0.0)
     mb.finish()
     # colisao: paredes com o vao da porta + teto que segura a camera
-    box_walls_col("SG_CasHall", (HX0, HY0, HX1, HY1), Z - 0.5, EAVE, TW, doors=[("S", 0.0, DW, DH)])
+    box_walls_col("SG_CasHall", (HX0, HY0, HX1, HY1), Z - 0.5, EAVE, TW,
+                  doors=[("S", 0.0, DW, DH), ("N", 0.0, 2 * (L.TRI_HW + L.TRI_ORDERS * L.TRI_STEP), L.TRI_SPRING + 0.5)])
     col_box2("SG_CasHallCeil", (OX0, OY0, CEIL), (OX1, OY1, CEIL + 2.0))
 
 
@@ -1341,7 +1371,7 @@ def roofs():
     spire(mb, 0.0, fy, 2.4, 8, ridge + 4.0, 16.0, "Roof_SG_Navy", 22.5, rings=(0.4,))
     finial(mb, 0.0, fy, ridge + 19.5, 1.5)                   # overhaul 03: florao de prata (a ponta de neon saiu)
     # lucarnas escuras no telhado da nave (quebram a agua comprida; sem luz: sotao)
-    for yy in (61.0, 88.0, 115.0):
+    for yy in [OY0 + (OY1 - OY0) * f_ for f_ in (0.215, 0.5, 0.785)]:     # 04b: ritmo pela nave nova
         for s in (-1, 1):
             xo = s * 13.0
             zr = CLR_TOP + NAVE_RISE * (1.0 - 13.0 / CLR) + 0.9
@@ -1370,7 +1400,7 @@ def roofs():
     # lucarnas QUENTES nas meia-aguas das naves laterais (ritmo por vao: no eixo dos vitrais, entre os arcobotantes)
     for yy in WIN_Y:
         for s in (-1, 1):
-            xo2 = s * 38.5
+            xo2 = s * (OX1 - 1.0 - 0.283 * (OX1 - 1.0 - CLR))      # 04b: mesma posicao relativa na agua
             f = (OX1 - 1.0 - abs(xo2)) / (OX1 - 1.0 - CLR)
             zr = EAVE + 0.4 + f * (AISLE_HI - EAVE - 0.4)
             mb.box2((min(xo2, xo2 - s * 4.4), yy - 1.9, zr - 2.6), (max(xo2, xo2 - s * 4.4), yy + 1.9, zr + 2.6),
@@ -1549,7 +1579,7 @@ def facade(banners):
     zsub = JAN_SPRING + 3.6
     for uj, ztop in ((-3.5, zsub - 0.2), (0.0, JAN_SPRING + 0.9), (3.5, zsub - 0.2)):
         panel(mb, W, rect(uj - 0.25, uj + 0.25, JAN_SILL, ztop), td0, td1, OB)
-    panel(mb, W, rect(-JAN_A, JAN_A, Z + 34.0 - 0.22, Z + 34.0 + 0.22), td0, td1, OB)
+    panel(mb, W, rect(-JAN_A, JAN_A, JAN_TR - 0.22, JAN_TR + 0.22), td0, td1, OB)
     for uc_ in (-3.5, 3.5):
         i0 = ogive(uc_, 3.25, JAN_SPRING, 3.6, n=6)
         i1 = ogive(uc_, 3.25, JAN_SPRING, 3.6, d=0.45, n=6)
@@ -1673,8 +1703,8 @@ def towers(banners):
             pinnacle(mb, px, py, top + 2.6, 0.62, hb=2.4, hn=hp - 1.0, body_m=OB, crock=False, rot=a)
         # estandarte da ordem pendurado sob a varanda, na face que olha a praca (o uplight de neon no pe saiu: competia
         # com a arquitetura)
-        W = face_frame(x, y, ap, 270.0)
-        banners.append((_P(W, 0.0, 0.5, EAVE - 1.9), -math.pi / 2, 5.0, 19.0, 0.5))
+        # OVERHAUL 12 (12.05/16.02): o estandarte das torres da fachada SAIU - repetia o par das torres do portao (que
+        # marcam o portao e o eixo) e o emblema monumental da fachada no mesmo quadro
         ngon_col("SG_CasTower", x, y, 8, r, Z - 0.5, top, rot)
     for x, y, r in BACK_TURRETS:
         socle(mb, x, y, r, 8, ZB, Z + 3.0, 22.5, e=0.7)
@@ -1694,7 +1724,7 @@ def towers(banners):
 
 def standards(banners):
     """estandartes da ordem (sg_emblem.banner): roxo profundo, barra negra, debrum DOURADO, emblema; ritmo simetrico
-    (2 nas torres do portao da muralha, 2 nas torres da fachada)"""
+    (2 nas torres do portao da muralha; as 2 das torres da fachada sairam no overhaul 12)"""
     # acabamento: 4 estandartes (os 2 que ladeavam o janelao sairam - repetiam o emblema monumental logo acima) e
     # SUPORTE de verdade: cada verga presa na parede por 2 bracos de ferro negro com escora e chapa de fixacao
     mb = MB("SG_Cas_Estandartes", "04_CASTLE", random.Random(5801), detail="near")
@@ -1713,6 +1743,46 @@ def standards(banners):
     _fin(mb)
 
 
+# ------------------------------------------------------------------ 04b: base da torre-coroa com a abside do trono
+# janelas da abside vistas de fora: (face em graus, meia largura, peitoril, nascenca, flecha) acima do piso (= sg_hall)
+APSE_WINDOWS_OUT = [(90.0, 3.4, 10.5, 25.5, 4.2), (30.0, 1.9, 14.0, 23.5, 2.8), (150.0, 1.9, 14.0, 23.5, 2.8)]
+
+
+def crown_shell():
+    """as 2 metades (anti-horario) da CASCA da base da torre-coroa: por fora o 12-gono (vertices a 15 + 30k graus), por
+    dentro o presbiterio (x = +-APSE_HW, desde a face interna da nave) e o meio hexagono da abside"""
+    x, y, r = CR_X, CR_Y, CR_R
+    ap = r * math.cos(math.pi / 12)
+    V = lambda a, rr=r: (x + rr * math.cos(math.radians(a)), y + rr * math.sin(math.radians(a)))
+    hw, ri = L.APSE_HW, L.APSE_R
+    x315 = V(315.0)
+    east = [(hw, OY1 - 0.02), (x315[0], OY1 - 0.02), x315, V(345.0), V(15.0), V(45.0), V(75.0), (x, y + ap),
+            (x, y + ri * math.sin(math.radians(60.0))), V(60.0, ri), V(0.0, ri)]
+    west = [(2 * x - px, py) for px, py in reversed(east)]
+    return [SL.ccw(east), SL.ccw(west)]
+
+
+def crown_ring(mb, prof, m):
+    """anel com perfil [(raio, z)] (poligono fechado) em volta da torre-coroa SO nas faces de fora (vertices de 315 a
+    225 graus passando pelo norte): as 3 faces de dentro da nave nao ganham soco/cordao (estariam no salao)"""
+    x, y, n = CR_X, CR_Y, 12
+    angs = [315.0 + 30.0 * k for k in range(10)]                    # 315 ... 585 (= 225)
+    bm = mb.bm
+    rows = [[bm.verts.new((x + rr * math.cos(math.radians(a)), y + rr * math.sin(math.radians(a)), z)) for rr, z in prof]
+            for a in angs]
+    fs = []
+    np_ = len(prof)
+    for i in range(len(angs) - 1):
+        A, B = rows[i], rows[i + 1]
+        for j in range(np_):
+            k = (j + 1) % np_
+            fs.append(bm.faces.new((A[j], A[k], B[k], B[j])))
+    fs.append(bm.faces.new(rows[0]))
+    fs.append(bm.faces.new(list(reversed(rows[-1]))))
+    _faces_ok(mb, fs)
+    mb._post([v for r_ in rows for v in r_], m, None, 0, 1)
+
+
 # ------------------------------------------------------------------ 5. torre-coroa (heroi)
 def crown():
     rng = random.Random(5601)
@@ -1722,11 +1792,18 @@ def crown():
     n = 12
     rot = 15.0
     ap = r * math.cos(math.pi / n)
-    z1 = Z + 72.0                                          # 1o corpo ate ~124
+    z1 = Z + 90.0                                          # 1o corpo ate ~142 (04b: +18 com a nave)
     r2 = r - 1.6
     ap2 = r2 * math.cos(math.pi / n)
-    socle(mb, x, y, r, n, ZB, Z + 4.0, rot, e=1.3)
-    shaft(mb, x, y, r, n, Z + 4.0, z1, CM, rot)
+    # SETOR 04b: a base da torre guarda a ABSIDE do trono (presbiterio + meio hexagono, sg_layout.apse_poly) aberta
+    # para a nave pelo arco triunfal. Ate o teto do salao a torre e uma CASCA (2 metades: fora = 12-gono, dentro =
+    # abside); acima, o fuste cheio. As 3 faces de dentro da nave (240/270/300 graus) nao existem por fora.
+    shell_halves = crown_shell()
+    for poly in shell_halves:
+        mb.prism(poly, ZB, CEIL, CM)
+    shaft(mb, x, y, r, n, CEIL, z1, CM, rot)
+    crown_ring(mb, [(r - 0.3, ZB), (r + 1.3, ZB), (r + 0.25, Z + 4.0), (r - 0.3, Z + 4.0)], OB)          # soco
+    crown_ring(mb, [(r - 0.3, Z + 3.95), (r + 0.42, Z + 3.95), (r + 0.42, Z + 4.4), (r - 0.3, Z + 4.4)], SV)
     band(mb, x, y, r, n, EAVE - 1.0, rot, e=0.7)
     # OVERHAUL 03: zona do olho no terraco - silhar em fiadas nas faces que o jogador alcanca (as de dentro da nave
     # ficam lisas) e cordao com pingadeira a +10
@@ -1737,10 +1814,13 @@ def crown():
         if _P(W, 0.0, 0.0, 0.0)[1] < OY1 + 1.5:
             continue
         ashlar(mb, W, -side / 2 + 0.05, side / 2 - 0.05, Z + 4.4, Z + 9.7, 0.0, PL=2.9, phase=0.7 * (k % 2))
-    band(mb, x, y, r, n, Z + 9.8, rot, h=0.9, e=0.45)
-    # contrafortes diagonais (4) em 2 lances com talude e pinaculo do kit no recuo (03.14: a LINHA DE ENERGIA que
-    # corria na face de cada um SAIU - era neon colado na arquitetura)
-    for k in range(4):
+    h_ = 0.9
+    crown_ring(mb, [(r - 0.3, Z + 9.8), (r + 0.05, Z + 9.8), (r + 0.45, Z + 9.8 + h_ * 0.28), (r + 0.45, Z + 9.8 + h_ * 0.7),
+                    (r + 0.1, Z + 9.8 + h_), (r - 0.3, Z + 9.8 + h_)], OB)
+    # contrafortes diagonais em 2 lances com talude e pinaculo do kit no recuo (03.14: a LINHA DE ENERGIA que
+    # corria na face de cada um SAIU - era neon colado na arquitetura). 04b: so os 2 de tras (NE/NO); os do sul
+    # cairiam na juncao com a nave
+    for k in range(2):
         a = math.radians(45.0 + 90.0 * k)
         ca, sa = math.cos(a), math.sin(a)
         bx, by = x + (ap + 1.2) * ca, y + (ap + 1.2) * sa
@@ -1756,14 +1836,18 @@ def crown():
         mb.box((2.2, 2.4, 8.0), (bx - 0.6 * ca, by - 0.6 * sa, z1 + 4.0), (0, 0, a), CM, 0.0)
         pinnacle(mb, bx - 0.6 * ca, by - 0.6 * sa, z1 + 8.0, 1.0, hb=2.2, hn=9.0, crock=False, rot=a)
         col_box("SG_CasCrown", (3.2, 3.0, 20.0), (bx, by, Z + 9.5), (0, 0, a))
-    # janelas do 1o corpo: fileiras QUENTES nos andares baixos (vida), energia violeta no andar alto
-    for phi in (0.0, 60.0, 90.0, 120.0, 180.0):
+    # 04b: as janelas da ABSIDE aparecem por fora (vitral da lua ao norte, lancetas de luar a NE/NO: o mesmo vidro de
+    # luar do salao) + fileira quente nos andares de cima (vida) e energia violeta no andar alto
+    for phi, a_, zs_, zr_, ri_ in APSE_WINDOWS_OUT:
+        window(mb, face_frame(x, y, ap, phi), 0.0, a_, Z + zs_, Z + zr_, ri_, -0.02, 0.0, glass_m="Glass_SGHallMoon",
+               mullion=a_ > 2.0, fw=0.6, dp=0.5, hood=True)
+    for phi in (0.0, 180.0):
         slit(mb, face_frame(x, y, ap, phi), Z + 24.0, 3.2, 0.9)
     for phi in (30.0, 90.0, 150.0):
-        slit(mb, face_frame(x, y, ap, phi), Z + 32.0, 3.0, 0.85)
+        slit(mb, face_frame(x, y, ap, phi), Z + 36.0, 3.0, 0.85)
     for phi in (0.0, 30.0, 60.0, 90.0, 120.0, 150.0, 180.0):
         Wf = face_frame(x, y, ap, phi)
-        window(mb, Wf, 0.0, 1.1, Z + 44.0, Z + 51.5, 1.9, -0.02, 0.0, glass_m=VG, mullion=False, fw=0.5, dp=0.45)
+        window(mb, Wf, 0.0, 1.1, Z + 60.0, Z + 67.5, 1.9, -0.02, 0.0, glass_m=VG, mullion=False, fw=0.5, dp=0.45)
     frustum(mb, x, y, r + 0.9, r + 0.9, n, z1, z1 + 1.4, OB, rot)
     frustum(mb, x, y, r + 1.05, r + 1.05, n, z1 + 1.0, z1 + 1.4, VI, rot)
     # fileira de pinaculos do kit na cornija do 1o corpo (alturas alternadas: ritmo A-B)
@@ -1825,7 +1909,11 @@ def crown():
     finial(mb, x, y, L.CROWN_SPIRE_TOP - 2.8, 2.2)
     mb.box((0.3, 2.6, 0.3), (x, y, top + sh + 1.3), (0, 0, 0), SV, 0.0)
     mb.finish()
-    ngon_col("SG_CasCrown", x, y, n, r, Z - 0.5, top, rot)
+    # colisao: casca da abside (as 2 metades, por dentro do contorno), teto da abside e o fuste cheio acima do salao
+    for poly in shell_halves:
+        SL.col_poly("SG_CasCrown", poly, Z - 0.5, CEIL, step=2.0, mode="inter")
+    col_box2("SG_CasCrown", (-L.APSE_HW, HY1, Z + L.APSE_KEY), (L.APSE_HW, CR_Y + L.APSE_R, CEIL))
+    ngon_col("SG_CasCrown", x, y, n, r, CEIL, top, rot)
 
 
 def dormer_roof(mb, x, y, z0, w, d, h, a):

@@ -3,7 +3,8 @@
 --    precisa, botao Fabricar (Remotes.FabricarItem, com requestId) e a lista dos seus itens com Beber nas pocoes
 --    (Remotes.UsarItem). O estado vem do snapshot de sempre (AtualizarDados/PedirDados, campo itens).
 --  * faixa da MASMORRA no topo, so na Shadow Garden: estado e contagem lidos dos atributos de RS.MasmorraEstado
---    (AbreEm/EntradaFechaEm/FechaEm em GetServerTimeNow; o servidor publica, o cliente so conta).
+--    (AbreEm/EntradaFechaEm/FechaEm em GetServerTimeNow; o servidor publica, o cliente so conta). Masmorra infinita
+--    (ov09b): Sala, Nivel, FimSala (prazo da sala atual) e Transicao (troca de sala em curso).
 -- Usa os tokens do ExpeditionUI.Theme (cores, fontes, icones, raridade) para casar com o resto da UI.
 local Players = game:GetService("Players")
 local RS = game:GetService("ReplicatedStorage")
@@ -195,7 +196,7 @@ end)
 
 -- ---------------------------------------------------------------- faixa da Masmorra
 local faixa = frame(gui, "Masmorra", { AnchorPoint = Vector2.new(.5, 0), Position = UDim2.new(.5, 0, 0, 58),
-	Size = UDim2.fromOffset(330, 34), BackgroundColor3 = P.bg1, BackgroundTransparency = 0.12, Visible = false })
+	Size = UDim2.fromOffset(390, 34), BackgroundColor3 = P.bg1, BackgroundTransparency = 0.12, Visible = false })
 corner(faixa, 17); local fs = stroke(faixa, P.violet, 1.5)
 local ft = label(faixa, "Texto", "", { Size = UDim2.fromScale(1, 1), TextXAlignment = Enum.TextXAlignment.Center,
 	FontFace = font("label"), TextSize = 15, TextColor3 = P.text })
@@ -213,17 +214,26 @@ task.spawn(function()
 			local t = workspace:GetServerTimeNow() + (est:GetAttribute("Deslocamento") or 0)
 			local dentro = player:GetAttribute("DungeonRun") ~= nil
 			local txt, cor
+			-- masmorra infinita (ov09b): sala, nivel e prazo da SALA (FimSala); na troca de sala, a passagem aberta
+			local sala = est:GetAttribute("Sala") or 0
+			local function faixaSala()
+				if est:GetAttribute("Transicao") then
+					return "SALA " .. sala .. " LIMPA!  a passagem se abriu"
+				end
+				return "SALA " .. math.max(sala, 1) .. "  NIVEL " .. (est:GetAttribute("Nivel") or 1) .. "  tempo "
+					.. relogio((est:GetAttribute("FimSala") or est:GetAttribute("FechaEm") or t) - t) .. "  restam "
+					.. (est:GetAttribute("Restantes") or 0)
+			end
 			if e == "WAITING" then txt, cor = "MASMORRA DAS SOMBRAS  abre em " .. relogio((est:GetAttribute("AbreEm") or t) - t), P.text2
 			elseif e == "COUNTDOWN" then txt, cor = "MASMORRA ABRE EM " .. relogio((est:GetAttribute("AbreEm") or t) - t), P.violet
 			elseif e == "ENTRY_OPEN" then
-				if dentro then txt = "MASMORRA  tempo " .. relogio((est:GetAttribute("FechaEm") or t) - t) .. "  restam " .. (est:GetAttribute("Restantes") or 0)
+				if dentro then txt = faixaSala()
 				else txt = "MASMORRA ABERTA!  entre em " .. relogio((est:GetAttribute("EntradaFechaEm") or t) - t) end
 				cor = P.success
 			elseif e == "RUNNING" then
-				txt = dentro and ("MASMORRA  tempo " .. relogio((est:GetAttribute("FechaEm") or t) - t) .. "  restam " .. (est:GetAttribute("Restantes") or 0))
-					or ("MASMORRA EM ANDAMENTO  " .. relogio((est:GetAttribute("FechaEm") or t) - t))
+				txt = dentro and faixaSala() or ("MASMORRA EM ANDAMENTO  sala " .. math.max(sala, 1))
 				cor = P.violet
-			elseif e == "FINISHING" then txt, cor = dentro and "FIM DA CORRIDA  saia pelo portal" or "MASMORRA TERMINANDO", P.text2
+			elseif e == "FINISHING" then txt, cor = dentro and ("FIM DA CORRIDA (sala " .. sala .. ")  saia pelo portal") or "MASMORRA TERMINANDO", P.text2
 			else txt, cor = "MASMORRA REINICIANDO", P.text3 end
 			ft.Text = txt
 			fs.Color = cor

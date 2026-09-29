@@ -118,35 +118,81 @@ EAST_WALL_GAP = (112.0, 12.0)         # (x, largura) passagem do topo da escada 
 
 # ------------------------------------------------------------------ castelo (P3) + MINING HALL interno
 CASTLE_FACADE_Y = 40.0
-HALL_X0, HALL_X1 = -42.0, 42.0        # interior livre 84 x 88
-HALL_Y0, HALL_Y1 = 44.0, 132.0
-HALL_WALL = 4.0                       # espessura das paredes externas
-HALL_CEIL = HALL + 28.0               # teto interno (opaco e colidivel: segura a camera) - pe-direito 28
+# SALAO MAIOR (setor 04b, 2026-09-29, pedido do usuario: "o castelo por dentro ta muito pouco espacoso"):
+#   antes 84 x 88 x 28 (pilastras saindo 3,25: vao livre 77,5); agora 96 x 99 x 48 com pilastras rasas (1,85: vao
+#   livre 92,3) e ABSIDE do trono cavada na base da torre-coroa (arco triunfal de 34 no eixo com a ROSACEA da lua
+#   acima; trono a ~120 da porta). Revisao 04b-2/3: pe-direito 36 -> 48 para caber arco largo + rosacea de 18 no fundo.
+#   A porta, a fachada (y 40), o patio e a rota de entrada nao mudam. Limites: a oeste o beco do castelo (a borda do
+#   P3 em x ~ -57) segura a largura; ao norte a rota do mirante norte (sg_water, ponto (-20, 150)) segura a nave
+#   retangular - por isso o ganho de profundidade vem da abside dentro da torre-coroa.
+HALL_X0, HALL_X1 = -48.0, 48.0        # interior 96 x 99 x 48 (+ abside)
+HALL_Y0, HALL_Y1 = 44.0, 143.0
+HALL_WALL = 3.5                       # espessura das paredes externas
+HALL_CEIL = HALL + 48.0               # teto interno (opaco e colidivel: segura a camera) - pe-direito 48
 HALL_DOOR_W = 16.0                    # porta principal (fachada sul): vao 16 x 18
 HALL_DOOR_H = 18.0
-FRONT_TOWERS = [(-54.0, 42.0, 10.0, 124.0), (54.0, 42.0, 10.0, 124.0)]   # (x, y, raio, topo) torres da fachada
-CROWN_TOWER = (0.0, 152.0, 16.0, 178.0)      # torre-coroa (heroi), atras da nave, topo da alvenaria
-CROWN_SPIRE_TOP = 214.0
+FRONT_TOWERS = [(-58.0, 42.0, 10.0, 142.0), (58.0, 42.0, 10.0, 142.0)]   # (x, y, raio, topo) torres da fachada
+CROWN_TOWER = (0.0, 158.0, 16.0, 196.0)      # torre-coroa (heroi), atras da nave; a base guarda a ABSIDE do trono
+CROWN_SPIRE_TOP = 232.0
 CASTLE_FORECOURT = (-46.0, -3.0, 46.0, 40.0)   # patio de chegada em frente a fachada
+# ABSIDE (dentro da base da torre-coroa): presbiterio de meia largura APSE_HW de HALL_Y1 ate o centro da torre e meio
+# hexagono de raio APSE_R (vertices a 0/60/120/180 graus) ao norte. Arco triunfal e abobada: nascenca APSE_SPRING,
+# fecho APSE_KEY (acima do piso). Piso da abside = estrado do trono (degraus).
+APSE_C = (CROWN_TOWER[0], CROWN_TOWER[1])
+APSE_HW = 11.0
+APSE_R = 11.0
+APSE_SPRING = 22.0
+APSE_KEY = 34.0
+# ARCO TRIUNFAL (parede norte da nave): vao LIVRE = presbiterio (TRI_HW = APSE_HW), nascenca TRI_SPRING e flecha
+# TRI_RISE; TRI_ORDERS ordens de TRI_STEP escalonadas na espessura da parede -> na face da nave o arco tem
+# 2 * (TRI_HW + TRI_ORDERS * TRI_STEP) = 34 de vao (35% da nave) e fecho a ~28,5 (22,5 no vao livre = nascenca da
+# abobada da abside); a rosacea da lua (18 de diametro) ocupa a parede acima ate a abobada
+TRI_HW = APSE_HW
+TRI_SPRING = 10.0
+TRI_RISE = 12.5
+TRI_ORDERS = 3
+TRI_STEP = 2.0
+
+
+def apse_poly():
+    """contorno interno (x, y) do presbiterio + abside, anti-horario, a partir da face interna norte da nave"""
+    cx, cy = APSE_C
+    pts = [(-APSE_HW, HALL_Y1), (APSE_HW, HALL_Y1)]
+    for a in (0.0, 60.0, 120.0, 180.0):
+        pts.append((cx + APSE_R * math.cos(math.radians(a)), cy + APSE_R * math.sin(math.radians(a))))
+    return pts
+
 
 # zona de mineracao DENTRO do salao (sem colunas no meio; o auto-minerador anda reto)
-MINE_RECT = (-38.0, 50.0, 38.0, 128.0)       # x0, y0, x1, y1 (76 x 78)
+MINE_RECT = (-45.0, 50.0, 45.0, 139.0)       # x0, y0, x1, y1 (90 x 89; antes 76 x 78)
 MINE_DOOR_LANE = (0.0, 44.0, 60.0, 7.0)      # (x, y0, y1, meia-largura) corredor livre da porta ate dentro
 
 # ------------------------------------------------------------------ dungeon: portaria (NE, P3) + salas modulares (sob a ilha)
-DUNGEON_HOUSE = (100.0, 72.0, 26.0, 26.0)    # (cx, cy, largura, profundidade) torre-portaria; porta na face SUL
+DUNGEON_HOUSE = (100.0, 72.0, 30.0, 26.0)    # (cx, cy, largura, profundidade) torre-portaria; porta na face SUL
 # refino v2: a portaria vira BOCA DE CAVERNA escavada na rocha; a massa de rocha da caverna pode ocupar esta caixa
 # (x0, y0, x1, y1) no P3, fundindo com os montes do terreno. Interior/porta/portal/rotas iguais.
+# ov09b (2026-09-29, "cabe um GRUPO"): portaria 26 -> 30 de largura (tunel com vao livre >= 18,8; boca 22), mesma
+# profundidade, mesmo eixo x = 100, mesma boca no patio (a rota do patio ate a boca nao muda).
 DUNGEON_CAVE_MASS = (80.0, 74.0, 126.0, 116.0)
-DUNGEON_DOOR_W = 10.0
-DUNGEON_DOOR_H = 14.0
+DUNGEON_DOOR_W = 22.0                        # vao LIVRE da boca (colisao das ombreiras); era 10 (desenho) / 16,8 (colisao)
+DUNGEON_DOOR_H = 25.0                        # altura livre sob o arco da boca (colisao do dintel)
 DUNGEON_PORTAL = (100.0, 80.0)               # portal espiral no fundo do interior (encara o sul)
-DUN_Z = 6.0                                  # piso das salas da dungeon (dentro da regiao da area, acima de Y -12)
-DUN_CEIL = DUN_Z + 22.0
-# salas modulares em fila (x0, y0, x1, y1): R1 chegada, R2 mineracao, R3 camara final; vaos de 12 entre elas
-DUN_ROOMS = [("R1", (-62.0, 62.0, -26.0, 98.0)), ("R2", (-24.0, 58.0, 20.0, 102.0)), ("R3", (22.0, 58.0, 66.0, 102.0))]
-DUN_LINK_W = 12.0
-DUN_KEEP_OUT = (-70.0, 50.0, 2.0, 74.0, 110.0, 32.0)   # caixa onde NENHUMA geometria de fora da dungeon pode entrar
+# ov09b: salas MAIORES (R1 36 -> 48, R2/R3 44 -> 60) e pe-direito 22 -> 29,5: o piso desce de 6 para 2 (o teto fica
+# abaixo de 32, onde o terreno comeca: a caixa DUN_KEEP_OUT desce junto); vaos de ligacao 12 x 12 -> 18 x 14.
+DUN_Z = 2.0                                  # piso das salas da dungeon (dentro da regiao da area, acima de Y -12)
+DUN_CEIL = DUN_Z + 29.5
+# salas modulares em fila (x0, y0, x1, y1): R1 chegada, R2 e R3 as ARENAS da masmorra infinita (sala 1 = R2, depois
+# R3, R2, R3...); paredes de 2 entre elas; eixo dos vaos e dos portais em y = DUN_LY
+DUN_LY = 80.0
+DUN_ROOMS = [("R1", (-84.0, 56.0, -36.0, 104.0)), ("R2", (-34.0, 50.0, 26.0, 110.0)), ("R3", (28.0, 50.0, 88.0, 110.0))]
+DUN_LINK_W = 18.0
+DUN_LINK_H = 14.0
+DUN_WALL = 2.0
+# caixa (x0, y0, z0, x1, y1, z1) onde NENHUMA geometria de fora da dungeon pode entrar. ov09b: justa nas paredes externas
+# (o terreno descarta bloco da coroa do penhasco a menos da largura do bloco (ate 26) desta caixa: x0 >= -87 e
+# x1 <= 95,5 mantem a coroa inteira; por isso a fila de salas corre de -86 a 90)
+DUN_KEEP_OUT = (-86.5, 46.0, -2.0, 90.5, 114.0, 32.0)
+DUN_SPAWN_CLEAR = 10.0                       # raio sem minerio em volta do spawn de cada arena (o grupo chega junto)
 
 # ------------------------------------------------------------------ craft (P2, leste do meio)
 CRAFT_C = (90.0, -60.0)
@@ -359,6 +405,9 @@ def ore_blocked(x, y, clear):
     lx, ly0, ly1, hw = MINE_DOOR_LANE
     if ly0 - 1.0 <= y <= ly1 and abs(x - lx) < hw + clear:
         return True
+    # 04b: fora do anel de bloqueio "borda" do SpawnMinerio (sg_core.spawn_blocks: circulos de 5,5 a 3 das paredes)
+    if x < HALL_X0 + 9.0 or x > HALL_X1 - 9.0 or y < HALL_Y0 + 9.0 or y > HALL_Y1 - 9.0:
+        return True
     return False
 
 
@@ -366,27 +415,38 @@ def ore_points():
     """lista (kind, i, x, y, raio) - 2 super, 8 epicos, 16 incomuns, 28 comuns (mesma contagem das Ilhas 1 e 2),
     espacamento >= r1 + r2 + 3. Os super ficam no fundo do salao (o 'altar' da nave); o jogo completa com a grade."""
     import random
-    rng = random.Random(3303)
     rad = dict(ORE_KINDS)
     x0, y0, x1, y1 = MINE_RECT
-    # grade hexagonal com leve ruido (passo 10,4 >= 4,4 + 2,6 + 3): todos os pontos validos, depois a raridade por
-    # faixa de profundidade (porta = comum ... fundo = super, o 'altar' da nave)
-    step = 10.4
-    cand = []
-    row = 0
-    y = y0 + ORE_WALL_CLEAR
-    while y <= y1 - ORE_WALL_CLEAR + 1e-6:
-        x = x0 + ORE_WALL_CLEAR + (step / 2 if row % 2 else 0.0)
-        while x <= x1 - ORE_WALL_CLEAR + 1e-6:
-            jx, jy = rng.uniform(-0.8, 0.8), rng.uniform(-0.8, 0.8)
-            if not ore_blocked(x + jx, y + jy, 3.7):
-                cand.append((round(x + jx, 2), round(y + jy, 2)))
-            x += step
-        y += step * 0.866
-        row += 1
-    cy_back = y1 - ORE_WALL_CLEAR
-    cand.sort(key=lambda p: (-(p[1]) + abs(p[0]) * 0.35))         # fundo e centro primeiro
     plan = [("SUPERLEGENDARY", 2), ("EPIC", 8), ("UNCOMMON", 16), ("COMMON", 28)]
+    need = sum(n for _, n in plan)
+    # grade hexagonal CENTRADA com leve ruido; setor 04b (salao maior): o passo e o MAIOR (>= 10,4 = 4,4 + 2,6 + 3)
+    # que ainda da a contagem do plano -> os pontos se ESPALHAM pela area nova (nao se amontoam no fundo). Depois a
+    # raridade por faixa de profundidade (porta = comum ... fundo = super, diante do arco do trono)
+
+    def grid(step):
+        rng = random.Random(3303)
+        out = []
+        row = 0
+        ny = int((y1 - y0 - 2 * ORE_WALL_CLEAR) / (step * 0.866) + 1e-6)
+        y = y0 + ORE_WALL_CLEAR + ((y1 - y0 - 2 * ORE_WALL_CLEAR) - ny * step * 0.866) / 2.0
+        while y <= y1 - ORE_WALL_CLEAR + 1e-6:
+            sh = step / 2 if row % 2 else 0.0
+            nx = int((x1 - x0 - 2 * ORE_WALL_CLEAR - sh) / step + 1e-6)
+            x = x0 + ORE_WALL_CLEAR + sh + ((x1 - x0 - 2 * ORE_WALL_CLEAR - sh) - nx * step) / 2.0
+            while x <= x1 - ORE_WALL_CLEAR + 1e-6:
+                jx, jy = rng.uniform(-0.8, 0.8), rng.uniform(-0.8, 0.8)
+                if not ore_blocked(x + jx, y + jy, 3.7):
+                    out.append((round(x + jx, 2), round(y + jy, 2)))
+                x += step
+            y += step * 0.866
+            row += 1
+        return out
+    step = 14.0
+    cand = grid(step)
+    while len(cand) < need and step > 10.4 + 1e-6:
+        step = max(10.4, step - 0.1)
+        cand = grid(step)
+    cand.sort(key=lambda p: (-(p[1]) + abs(p[0]) * 0.35))         # fundo e centro primeiro
     pts = []
     i = 0
     for kind, n in plan:
@@ -399,26 +459,68 @@ def ore_points():
     return pts
 
 
-def dun_ore_points():
-    """minerios FIXOS da dungeon (posFixa do AreaBuilder.novoMinerio): R2 = 10 (comuns/incomuns), R3 = 6 (epicos) +
-    1 grande (super, o 'ultimo minerio'). (sala, tipo, i, x, y, raio)"""
+def dun_rect(name):
+    return dict(DUN_ROOMS)[name]
+
+
+def dun_spawn(name):
+    """(x, y) do spawn de cada sala: R1 = DUNGEON_Spawn (chegada, 8 a leste do portal); R2/R3 = junto do vao OESTE
+    (a sala e alcancada andando pela R1 na sala 1 e por teleporte curto nas seguintes)"""
+    x0, y0, x1, y1 = dun_rect(name)
+    return (x0 + (8.0 if name == "R1" else 6.5), DUN_LY)
+
+
+def dun_links():
+    """vaos de ligacao: (nome, x do meio da parede, y do eixo) - R1R2 fica sempre aberto; R2R3 e o que a masmorra
+    infinita sela entre as salas (o selo e do jogo)"""
     out = []
-    rooms = dict(DUN_ROOMS)
-    x0, y0, x1, y1 = rooms["R2"]
-    cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
+    for (na, ra), (nb, rb) in zip(DUN_ROOMS, DUN_ROOMS[1:]):
+        out.append(("%s%s" % (na, nb), (ra[2] + rb[0]) / 2.0, DUN_LY))
+    return out
+
+
+def dun_exit_r3():
+    x0, y0, x1, y1 = dun_rect("R3")
+    return (x1 - 4.0, DUN_LY)
+
+
+# pontos de minerio de cada ARENA (mesma logica de aneis em volta do centro; densidade ~1 ponto / 210 studs2):
+# centro (o grande), anel interno de 6 e anel externo de 12 posicoes sem as 2 do eixo dos vaos (spawn e vao/saida).
+# O marcador diz a raridade do NIVEL 1 (piso); o DungeonService promove por nivel (AlquimiaConfig.Masmorra.NIVEL).
+# Espacamento: pequeno-pequeno >= 3,4 + 3,4 + 3 (um ponto pequeno pode virar EPICO); centro e anel interno da R3
+# >= 4,4 + 3,4 + 3 (podem virar LENDARIO).
+DUN_ORE_PLAN = {
+    "R2": ("EPIC", "UNCOMMON", ("COMMON", "UNCOMMON")),
+    "R3": ("SUPERLEGENDARY", "EPIC", ("UNCOMMON", "COMMON")),
+}
+DUN_ORE_RINGS = (12.0, 23.0)
+DUN_ORE_RADIUS = {"COMMON": 2.8, "UNCOMMON": 3.0, "EPIC": 3.4, "SUPERLEGENDARY": 4.4}
+
+
+def dun_ore_points():
+    """minerios FIXOS da dungeon (posFixa do AreaBuilder.novoMinerio), R2 e R3 (a R1 e a chegada, sem minerio):
+    17 pontos por arena = centro + 6 (anel de 12) + 10 (anel de 23, sem 0 e 180 graus). (sala, tipo, i, x, y, raio)"""
+    out = []
     k = 0
-    for i in range(10):
-        a = math.radians(i * 36.0 + 18.0)
-        r = 12.0 if i % 2 == 0 else 16.0
+    for room in ("R2", "R3"):
+        center, inner, outer = DUN_ORE_PLAN[room]
+        x0, y0, x1, y1 = dun_rect(room)
+        cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
         k += 1
-        out.append(("R2", "COMMON" if i % 3 else "UNCOMMON", k, round(cx + r * math.cos(a), 2),
-                    round(cy + r * math.sin(a), 2), 2.8))
-    x0, y0, x1, y1 = rooms["R3"]
-    cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
-    for i in range(6):
-        a = math.radians(i * 60.0 + 30.0)
-        k += 1
-        out.append(("R3", "EPIC", k, round(cx + 14.0 * math.cos(a), 2), round(cy + 14.0 * math.sin(a), 2), 3.4))
-    k += 1
-    out.append(("R3", "SUPERLEGENDARY", k, cx, cy, 4.4))
+        out.append((room, center, k, cx, cy, DUN_ORE_RADIUS[center]))
+        for i in range(6):
+            a = math.radians(30.0 + 60.0 * i)
+            k += 1
+            out.append((room, inner, k, round(cx + DUN_ORE_RINGS[0] * math.cos(a), 2),
+                        round(cy + DUN_ORE_RINGS[0] * math.sin(a), 2), DUN_ORE_RADIUS[inner]))
+        j = 0
+        for i in range(12):
+            if i in (0, 6):
+                continue
+            a = math.radians(30.0 * i)
+            kind = outer[j % 2]
+            j += 1
+            k += 1
+            out.append((room, kind, k, round(cx + DUN_ORE_RINGS[1] * math.cos(a), 2),
+                        round(cy + DUN_ORE_RINGS[1] * math.sin(a), 2), DUN_ORE_RADIUS[kind]))
     return out

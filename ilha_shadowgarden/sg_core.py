@@ -7,7 +7,7 @@
 #     invocacao: SUMMON_Main, SUMMON_Interact, SUMMON_PlayerPosition
 #     craft: CRAFT_Station, PLAYER_INTERACT_Craft, NPC_Craft
 #     dungeon: DUNGEON_Entrance, DUNGEON_Portal, DUNGEON_UI, DUNGEON_Return, DUNGEON_Spawn, DUNGEON_ExitPortal,
-#              DUN_ROOM_<R>, DUN_ORE_<R>_<RARIDADE>_<nn>
+#              DUN_ROOM_<R>, DUN_ORE_<R>_<RARIDADE>_<nn>, DUN_SPAWN_<R>, DUN_LINK_<RaRb>, DUN_EXIT_R1 (ov09b)
 #     audio: AUDIO_<Coisa> (familia + alcance); efeitos: FX_Fall_<n>_Lip/_Base
 #   portao de compra DEMON SLAYER: o asset APROVADO (ilha_naruto/il_gate_ds.build_gate), sem redesenho, no eixo da
 #   ilhota da saida (NextAreaId = 4 depois da troca 3<->4, DECISOES.md D1).
@@ -119,11 +119,25 @@ def dungeon_markers():
     for nm, (x0, y0, x1, y1) in L.DUN_ROOMS:
         mk("DUN_ROOM_%s" % nm, ((x0 + x1) / 2, (y0 + y1) / 2, L.DUN_Z), (0, 0, 0), (x1 - x0) / 2, "CUBE",
            props={"sx": x1 - x0, "sy": y1 - y0, "floor": L.DUN_Z, "ceil": L.DUN_CEIL})
+    sx, sy = L.dun_spawn("R1")
+    mk("DUNGEON_Spawn", (sx, sy, L.DUN_Z + 0.2), (0, 0, yaw_to(1, 0)), 2.0, "ARROWS")
+    ex, ey = L.dun_exit_r3()
+    mk("DUNGEON_ExitPortal", (ex, ey, L.DUN_Z), (0, 0, yaw_to(-1, 0)), 3.0, "ARROWS",
+       props={"note": "portal de saida da R3 (a qualquer momento: sai com o que ja ganhou)"})
+    # ov09b (masmorra infinita): spawn de cada ARENA (teleporte curto entre as salas), vaos de ligacao (o R2R3 e o
+    # que o jogo sela durante a sala) e o portal de chegada da R1 como SEGUNDA saida (alcancavel com a R2 ativa)
+    for nm in ("R2", "R3"):
+        sx, sy = L.dun_spawn(nm)
+        mk("DUN_SPAWN_%s" % nm, (sx, sy, L.DUN_Z + 0.2), (0, 0, yaw_to(1, 0)), 2.0, "ARROWS",
+           props={"note": "spawn do grupo ao entrar nesta sala (espalhar em volta; sem minerio a menos de %.0f)"
+                  % L.DUN_SPAWN_CLEAR})
+    for nm, lx, ly in L.dun_links():
+        mk("DUN_LINK_%s" % nm, (lx, ly, L.DUN_Z), (0, 0, yaw_to(1, 0)), 2.0, "CUBE",
+           props={"w": L.DUN_LINK_W, "h": L.DUN_LINK_H, "t": L.DUN_WALL,
+                  "note": "vao de ligacao (largura w ao longo de y, altura h); R2R3 = selo da masmorra infinita"})
     x0, y0, x1, y1 = rooms["R1"]
-    mk("DUNGEON_Spawn", (x0 + 8.0, (y0 + y1) / 2, L.DUN_Z + 0.2), (0, 0, yaw_to(1, 0)), 2.0, "ARROWS")
-    x0, y0, x1, y1 = rooms["R3"]
-    mk("DUNGEON_ExitPortal", (x1 - 4.0, (y0 + y1) / 2, L.DUN_Z), (0, 0, yaw_to(-1, 0)), 3.0, "ARROWS",
-       props={"note": "portal de volta (aparece em FINISHING/FINISHED)"})
+    mk("DUN_EXIT_R1", (x0 + 2.0, L.DUN_LY, L.DUN_Z), (0, 0, yaw_to(1, 0)), 3.0, "ARROWS",
+       props={"note": "portal de chegada da R1 = saida alternativa (prompt 'Sair'), sempre alcancavel"})
     for room, kind, i, x, y, r in L.dun_ore_points():
         mk("DUN_ORE_%s_%s_%02d" % (room, kind, i), (x, y, L.DUN_Z), size=r, kind="SPHERE",
            props={"rarity": kind, "radius": r, "room": room})
@@ -136,7 +150,7 @@ def audio_markers():
            ("AUDIO_Summon", (L.SUMMON_TOWER[0], L.SUMMON_TOWER[1], L.SUM + 6.0), "energy", 36.0),
            ("AUDIO_Craft", (L.CRAFT_C[0], L.CRAFT_C[1], L.P2 + 3.0), "fire", 26.0),
            ("AUDIO_DungeonPortal", (L.DUNGEON_PORTAL[0], L.DUNGEON_PORTAL[1], L.P3 + 6.0), "energy", 34.0),
-           ("AUDIO_DungeonRooms", (0.0, 80.0, L.DUN_Z + 6.0), "wind", 70.0)]
+           ("AUDIO_DungeonRooms", (-4.0, L.DUN_LY, L.DUN_Z + 8.0), "wind", 92.0)]
     for i, (x, y, z, deg) in enumerate(L.WATERFALLS):
         pts.append(("AUDIO_Waterfall_%d" % (i + 1), (x, y, z - 10.0), "water", 60.0))
     for nm, p, fam, rng in pts:

@@ -95,10 +95,14 @@ def routes():
     r["VILA_BAIXA_LESTE->PRACA"] = ([(100.0, -118.0), (64.0, -120.0), (26.0, -120.0), (14.0, -130.0)], P1)
     r["PRACA_VOLTA"] = ([(0.0, -150.0), (-18.0, -140.0), (-18.0, -116.0), (0.0, -105.0), (18.0, -116.0),
                          (18.0, -140.0), (0.0, -150.0)], P1)
-    rooms = dict(L.DUN_ROOMS)
-    yc = 80.0
-    r["DUNGEON_SALAS_R1->R3"] = ([(-54.0, yc), (-36.0, yc), (-25.0, yc), (-10.0, yc), (10.0, yc), (21.0, yc),
-                                   (40.0, yc), (60.0, yc)], L.DUN_Z)
+    # salas da dungeon (ov09b: tirado da planta): R1 -> vao -> R2 -> vao -> R3 pelo eixo dos vaos
+    yc = L.DUN_LY
+    pts = []
+    for nm, (x0, y0, x1, y1) in L.DUN_ROOMS:
+        pts += [(x0 + 8.0, yc), (x1 - 3.0, yc)]
+    pts.insert(2, (L.dun_links()[0][1], yc))
+    pts.insert(5, (L.dun_links()[1][1], yc))
+    r["DUNGEON_SALAS_R1->R3"] = (pts, L.DUN_Z)
     return r
 
 
@@ -280,7 +284,8 @@ def clear():
 REQUIRED = ["WORLD_FROM_PREV", "WORLD_ENTRY_ShadowGarden", "PATH_ENTRY_CENTER", "MiningZone_ShadowGarden", "SUMMON_Main",
             "SUMMON_Interact", "SUMMON_PlayerPosition", "CRAFT_Station", "PLAYER_INTERACT_Craft", "NPC_Craft",
             "DUNGEON_Entrance", "DUNGEON_Portal", "DUNGEON_UI", "DUNGEON_Return", "DUNGEON_Spawn", "DUNGEON_ExitPortal",
-            "DUN_ROOM_R1", "DUN_ROOM_R2", "DUN_ROOM_R3", "ISLAND_EXIT_ShadowGarden", "ISLAND_NEXT_ANCHOR_DemonSlayer",
+            "DUN_ROOM_R1", "DUN_ROOM_R2", "DUN_ROOM_R3", "DUN_SPAWN_R2", "DUN_SPAWN_R3", "DUN_LINK_R1R2",
+            "DUN_LINK_R2R3", "DUN_EXIT_R1", "ISLAND_EXIT_ShadowGarden", "ISLAND_NEXT_ANCHOR_DemonSlayer",
             "GATE_DemonSlayer", "GATE_DemonSlayer_INTERACT", "GATE_DemonSlayer_LOCKED", "GATE_DemonSlayer_EXIT",
             "PURCHASE_UI_ANCHOR_DemonSlayer", "GATE_DemonSlayer_OpenFX", "AUDIO_Fountain", "AUDIO_HallAmbience"]
 REQUIRED_CAMS = ["CAM_SG_Entry", "CAM_SG_Front", "CAM_SG_Left", "CAM_SG_Right", "CAM_SG_Back", "CAM_SG_BirdEye",

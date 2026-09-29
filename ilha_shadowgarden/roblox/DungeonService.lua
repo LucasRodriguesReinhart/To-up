@@ -4,21 +4,34 @@
 -- quebra do Mineracao (minerio Temporario + evento Mineracao.Quebrou), PlayerData.darItem para os ingredientes,
 -- FeedbackMina para os avisos. Nenhum DataStore novo; o estado global vai em atributos de RS.MasmorraEstado.
 --
+-- MASMORRA INFINITA (ov09b, 2026-09-29): a corrida e uma SEQUENCIA SEM FIM DE SALAS. A R1 e a chegada; a sala 1 e a
+-- R2 e depois alternam R3, R2, R3... (AlquimiaConfig.Masmorra.SALAS). Quando todos os minerios da sala atual caem, o
+-- selo do vao R2-R3 abre, todo mundo ganha o bonus da sala e, depois de TRANSICAO s, o grupo e teleportado para o
+-- spawn da proxima sala, que nasce com minerios novos. Dificuldade: nivel = 1 + floor((sala - 1) / SALAS_POR_NIVEL);
+-- cada nivel sobe o HP, a chance de promover o minerio (epico/lendario) e a recompensa (tabela NIVEL da config).
+-- A cada SALAS_POR_NIVEL salas limpas: bonus de MARCO (1 vez por jogador por marco). O tempo e POR SALA (TEMPO_SALA):
+-- se acabar sem limpar, a corrida termina. O portal de saida (R3) e o portal de chegada da R1 (prompt "Sair") ficam
+-- disponiveis a qualquer momento: sai com o que ja ganhou.
+--
 -- MAQUINA DE ESTADOS (explicita, uma por servidor; a corrida atual e a do slot S = inicio da abertura):
 --   WAITING    -> COUNTDOWN   em S - CONTAGEM
---   COUNTDOWN  -> ENTRY_OPEN  em S            (abre a corrida; minerios nascem na 1a entrada)
+--   COUNTDOWN  -> ENTRY_OPEN  em S            (abre a corrida; a sala 1 nasce na 1a entrada)
 --   ENTRY_OPEN -> RUNNING     em S + JANELA_ENTRADA (ninguem mais entra)
---   ENTRY_OPEN/RUNNING -> FINISHING em S + DURACAO, ou antes se TODOS os minerios da corrida cairem
---   FINISHING  -> RESETTING   depois de FINALIZANDO s (portal de saida aceso; bonus de limpeza ja entregue)
+--   ENTRY_OPEN/RUNNING -> FINISHING quando a corrida marca fimEm:
+--       o TEMPO DA SALA atual acabou sem limpar | ninguem mais dentro (so depois da janela de entrada) |
+--       teto de seguranca S + DURACAO_MAX (a corrida acaba antes da contagem da proxima abertura)
+--   FINISHING  -> RESETTING   depois de FINALIZANDO s (portal de saida aceso; minerios travados)
 --   RESETTING  -> WAITING     depois de RESET s (quem ficou dentro volta; minerios somem; corrida apagada)
--- Regras de teste da missao:
---   ultimo segundo: o golpe so vale com a rocha viva e DungeonRun == corrida dona; RESETTING apaga as rochas
+-- Garantias (testes da missao):
+--   ultimo segundo: o golpe so vale com a rocha viva e DungeonRun == corrida dona; no fim da corrida as rochas perdem
+--     o dono (ninguem golpeia) e RESETTING as apaga
 --   entrada atrasada: fora de ENTRY_OPEN a entrada e recusada (servidor), e o prompt some
 --   morte/reset/sair: CharacterAdded/PlayerRemoving tiram o jogador da corrida; pode voltar SO durante ENTRY_OPEN e SO
---     neste servidor (perfil.masmorra = {slot, job}); recompensas ja dadas nao se repetem (chave por minerio+jogador)
+--     neste servidor (perfil.masmorra = {slot, job}); recompensas ja dadas nao se repetem (chave sala+minerio+jogador)
 --   servidor vazio: a maquina roda so com o relogio; nada nasce sem alguem entrar
---   ultimo minerio simultaneo: a quebra e unica (Mineracao ignora golpe com HP <= 0); o fim antecipado e o bonus sao
---     marcados ANTES de entregar (idempotentes)
+--   ultimo minerio simultaneo: a quebra e unica (Mineracao ignora golpe com HP <= 0; a rocha sai da tabela antes de
+--     contar); a sala limpa, o bonus e o marco sao marcados ANTES de entregar (idempotentes); a troca de sala confere
+--     corrida e sala no task.delay (uma troca so)
 local Players = game:GetService("Players")
 local RS = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
@@ -29,19 +42,58 @@ local AreaBuilder = require(script.Parent.AreaBuilder)
 local Mineracao = require(script.Parent.Mineracao)
 
 local D = Alq.Masmorra
+local N = D.NIVEL or {}
 local S = {}
 S.estado = "WAITING"
 S.deslocamento = 0              -- so testes no Studio: desloca o relogio da masmorra (segundos)
 
 local pasta                    -- RS.MasmorraEstado (atributos replicados)
 local area, areaModel, marcas  -- area da Shadow Garden (tema sombra) e marcadores do export
-local corrida                  -- { id, slot, participantes = {[player] = true}, dados = {[chave] = true}, rochas = {}, restantes, limpa }
-local prompt, saida
-local espirais = {}             -- pecas SG_Dun_R3_ExitSpiral* do export (so aparecem com a saida aberta)
+-- corrida = { id, slot, participantes = {[player] = true}, dados = {[chave] = true}, rochas = {[hit] = variante},
+--             restantes, nasceu, sala, nivel, fimSala, transicao, limpas = {[sala] = true}, fimEm }
+local corrida
+local prompt, saida, selo, promptSair
+local espirais = {}             -- pecas SG_Dun_R3_ExitSpiral* do export (acesas enquanto ha corrida)
+local pontos = {}               -- [sala fisica] = { {nome, pos, rar}, ... } (marcadores DUN_ORE_<sala>_<RAR>_<nn>)
 local HRP = 3.5
+local GIRO = CFrame.Angles(0, -math.pi / 2, 0)   -- a mesma orientacao do spawn da R1 (as salas estao em fila)
+
+local RANK = { comum = 1, incomum = 2, epica = 3, lendaria = 4 }
+local ORDEM = { "comum", "incomum", "epica", "lendaria" }
 
 local function agora() return workspace:GetServerTimeNow() + S.deslocamento end
 local function slotAtual(t) return math.floor((t + D.CONTAGEM) / D.PERIODO) * D.PERIODO end
+
+-- ---------- dificuldade (formulas em AlquimiaConfig.Masmorra) ----------
+local function nivelDe(sala) return 1 + math.floor((sala - 1) / (D.SALAS_POR_NIVEL or 5)) end
+local function salaFisica(sala)
+	local ciclo = D.SALAS or { "R2", "R3" }
+	return ciclo[((sala - 1) % #ciclo) + 1]
+end
+local function fator(nivel, porNivel) return 1 + (porNivel or 0) * (nivel - 1) end
+-- lista de recompensa {{item, qtd}} escalada pelo nivel (nunca menos que a base)
+local function escalar(lista, nivel)
+	local f = fator(nivel, N.RECOMPENSA_POR_NIVEL)
+	local out = {}
+	for _, par in ipairs(lista or {}) do
+		table.insert(out, { par[1], math.max(par[2], math.floor(par[2] * f + 0.5)) })
+	end
+	return out
+end
+-- raridade do ponto no nivel: o marcador e o PISO; cada nivel acima do 1 da chance de subir 1 degrau (e de novo, a mesma
+-- chance, para o 2o); lendaria so nos pontos espacados para o minerio grande (N.TETO_LENDARIA)
+local function promover(varianteBase, rarMarcador, nivel, rng)
+	local p = math.min(N.PROMOCAO_MAX or 0.6, (N.PROMOCAO_POR_NIVEL or 0) * (nivel - 1))
+	local r = RANK[varianteBase] or 1
+	local base = r
+	if p > 0 and rng:NextNumber() < p then
+		r += 1
+		if rng:NextNumber() < p then r += 1 end
+	end
+	local teto = (N.TETO_LENDARIA and N.TETO_LENDARIA[rarMarcador]) and 4 or 3
+	r = math.max(base, math.min(r, teto))
+	return ORDEM[r]
+end
 
 local function avisar(player, texto)
 	RS.Remotes.FeedbackMina:FireClient(player, { tipo = "area", texto = texto })
@@ -51,14 +103,42 @@ local function avisarIlha(texto)
 		if p:GetAttribute("CurrentAreaId") == area.id then avisar(p, texto) end
 	end
 end
+local function avisarCorrida(texto)
+	if not corrida then return end
+	for p in pairs(corrida.participantes) do avisar(p, texto) end
+end
 
 local function marcador(nome) return marcas and marcas:FindFirstChild(nome) end
 local function posMarcador(nome, dy)
 	local m = marcador(nome)
 	return m and (m.Position + Vector3.new(0, dy or 0, 0)) or nil
 end
+-- spawn de cada sala: DUN_SPAWN_<sala> (R1 = DUNGEON_Spawn); sem o marcador, cai na chegada (R1) e avisa
+local function spawnDaSala(sala)
+	local p = (sala ~= "R1" and posMarcador("DUN_SPAWN_" .. sala)) or posMarcador("DUNGEON_Spawn")
+	if sala ~= "R1" and not marcador("DUN_SPAWN_" .. sala) then
+		warn("[DungeonService] marcador DUN_SPAWN_" .. sala .. " nao encontrado: usando DUNGEON_Spawn")
+	end
+	return p
+end
+-- o grupo chega espalhado (centro + anel de 4 + anel de 7,5): ninguem nasce dentro do outro
+local function posGrupo(base, i)
+	if not base or i <= 1 then return base end
+	local k, n, r = i - 2, 6, 4
+	if i > 7 then k, n, r = i - 8, 8, 7.5 end
+	local a = 2 * math.pi * k / n
+	return base + Vector3.new(math.cos(a) * r, 0, math.sin(a) * r)
+end
+local function teleportar(player, pos)
+	local char = player.Character
+	if char and pos and char:FindFirstChild("HumanoidRootPart") then
+		char:PivotTo(CFrame.new(pos + Vector3.new(0, HRP, 0)) * GIRO)
+	end
+end
 
-local function publicar(extra)
+local function contar(t) local n = 0 for _ in pairs(t) do n += 1 end return n end
+
+local function publicar()
 	if not pasta then return end
 	local t = agora()
 	local s = corrida and corrida.slot or slotAtual(t)
@@ -67,12 +147,18 @@ local function publicar(extra)
 	pasta:SetAttribute("Slot", s)
 	pasta:SetAttribute("AbreEm", s)
 	pasta:SetAttribute("EntradaFechaEm", s + D.JANELA_ENTRADA)
-	pasta:SetAttribute("FechaEm", corrida and corrida.fimEm or (s + D.DURACAO))
+	-- FechaEm (a UI ja usa): o prazo que vale agora = o fim da SALA atual (ou o fim da corrida em FINISHING)
+	local fimSala = corrida and corrida.fimSala or 0
+	pasta:SetAttribute("FechaEm", corrida and (corrida.fimEm or (corrida.nasceu and fimSala) or (s + D.DURACAO_MAX))
+		or (s + D.DURACAO_MAX))
 	pasta:SetAttribute("Deslocamento", S.deslocamento)
-	local n = 0
-	if corrida then for _ in pairs(corrida.participantes) do n += 1 end end
-	pasta:SetAttribute("Participantes", n)
+	pasta:SetAttribute("Participantes", corrida and contar(corrida.participantes) or 0)
 	pasta:SetAttribute("Restantes", corrida and corrida.restantes or 0)
+	-- masmorra infinita: sala atual, nivel, prazo da sala (timestamp GetServerTimeNow) e troca de sala em curso
+	pasta:SetAttribute("Sala", corrida and corrida.sala or 0)
+	pasta:SetAttribute("Nivel", corrida and corrida.nivel or 1)
+	pasta:SetAttribute("FimSala", fimSala)
+	pasta:SetAttribute("Transicao", corrida ~= nil and corrida.transicao == true)
 	if prompt then
 		prompt.Enabled = S.estado == "ENTRY_OPEN"
 		prompt.ObjectText = "Masmorra das Sombras"
@@ -95,12 +181,19 @@ local function entregar(player, lista, chave)
 	PlayerData.sincronizar(player)
 end
 
+-- ---------- selo do vao R2-R3 (colidivel durante a sala; aberto na troca) ----------
+local function abrirSelo(aberto)
+	if not selo then return end
+	selo.CanCollide = not aberto
+	selo.Transparency = aberto and 1 or 0.55
+end
+
 -- ---------- participantes ----------
-local function tirar(player, teleportar)
+local function tirar(player, teleportarAoPatio)
 	if not corrida or not corrida.participantes[player] then return end
 	corrida.participantes[player] = nil
 	player:SetAttribute("DungeonRun", nil)
-	if teleportar then
+	if teleportarAoPatio then
 		local char = player.Character
 		local ret = posMarcador("DUNGEON_Return", HRP)
 		if char and ret and char:FindFirstChild("HumanoidRootPart") then
@@ -110,45 +203,117 @@ local function tirar(player, teleportar)
 	publicar()
 end
 
-local function nascerMinerios()
+local function limparMinerios()
+	local folder = areaModel and areaModel:FindFirstChild("Masmorra")
+	if folder then folder:ClearAllChildren() end
+	if corrida then corrida.rochas = {} end
+end
+
+-- minerios NOVOS nos pontos da sala fisica, com a raridade e o HP do nivel
+local function nascerMinerios(salaF)
 	corrida.rochas = {}
 	local folder = areaModel:FindFirstChild("Masmorra") or Instance.new("Folder")
 	folder.Name = "Masmorra"        -- NAO e "Rochas": o SpawnMinerio/energia nao mexem aqui
 	folder.Parent = areaModel
+	local nivel = corrida.nivel
+	local rng = Random.new(corrida.slot + corrida.sala * 7919)
+	local hpF = fator(nivel, N.HP_POR_NIVEL)
 	local n = 0
-	for _, m in ipairs(marcas:GetChildren()) do
-		local rar = string.match(m.Name, "^DUN_ORE_%w+_(%u+)_%d+$")
-		local variante = rar and Alq.VARIANTE_DO_MARCADOR[rar]
+	for _, pt in ipairs(pontos[salaF] or {}) do
+		local base = Alq.VARIANTE_DO_MARCADOR[pt.rar]
+		local variante = base and promover(base, pt.rar, nivel, rng)
 		if variante then
-			local ok, grupo = pcall(AreaBuilder.novoMinerio, area, folder, nil, variante, m.Position)
+			local ok, grupo = pcall(AreaBuilder.novoMinerio, area, folder, nil, variante, pt.pos)
 			local hit = ok and grupo and grupo:FindFirstChild("Hitbox")
 			if hit then
-				local hp = math.max(1, math.floor((hit:GetAttribute("HPMax") or 1) * (D.HP_MULT[variante] or 0.5)))
+				local hp = math.max(1, math.floor((hit:GetAttribute("HPMax") or 1) * (D.HP_MULT[variante] or 0.5) * hpF))
 				hit:SetAttribute("HPMax", hp)
 				hit:SetAttribute("HP", hp)
 				hit:SetAttribute("Temporario", true)
 				hit:SetAttribute("DonoRun", corrida.id)
-				hit:SetAttribute("ChaveMasmorra", m.Name)
+				hit:SetAttribute("DonoSala", corrida.sala)
+				hit:SetAttribute("NivelMasmorra", nivel)
+				hit:SetAttribute("ChaveMasmorra", corrida.sala .. ":" .. pt.nome)
 				Mineracao.registrar(hit)
 				corrida.rochas[hit] = variante
 				n += 1
 			elseif not ok then
-				warn("[DungeonService] minerio " .. m.Name .. ": " .. tostring(grupo))
+				warn("[DungeonService] minerio " .. pt.nome .. ": " .. tostring(grupo))
 			end
 		end
 	end
 	corrida.restantes = n
-	corrida.nasceu = true
+	if n == 0 then warn("[DungeonService] sala " .. salaF .. " sem minerio (marcadores DUN_ORE_" .. salaF .. "_* ?)") end
 end
 
-local function limparMinerios()
-	local folder = areaModel and areaModel:FindFirstChild("Masmorra")
-	if folder then folder:ClearAllChildren() end
+-- comeca a sala 'n' (1 = primeira entrada; > 1 = troca): minerios novos, prazo novo, grupo teleportado, selo fechado
+local function iniciarSala(n)
+	if not corrida or corrida.fimEm then return end
+	local nivelAntes = corrida.nivel or 1
+	corrida.sala = n
+	corrida.nivel = nivelDe(n)
+	corrida.transicao = false
+	corrida.nasceu = true
+	limparMinerios()
+	local salaF = salaFisica(n)
+	nascerMinerios(salaF)
+	corrida.fimSala = agora() + D.TEMPO_SALA
+	if n > 1 then
+		local base = spawnDaSala(salaF)
+		local i = 0
+		for p in pairs(corrida.participantes) do
+			i += 1
+			teleportar(p, posGrupo(base, i))
+		end
+	end
+	abrirSelo(false)                               -- depois do teleporte: ninguem fica preso no vao
+	avisarCorrida("Sala " .. n .. "  (Nivel " .. corrida.nivel .. ")")
+	if corrida.nivel > nivelAntes then
+		avisarCorrida("Nivel " .. corrida.nivel .. "! Minerios mais fortes e mais raros.")
+	end
+	publicar()
+end
+
+local function finalizar(msg)
+	if not corrida or corrida.fimEm then return end
+	corrida.fimEm = agora()
+	-- rochas travadas: sem dono, ninguem golpeia mais (RESETTING apaga)
+	for rocha in pairs(corrida.rochas) do rocha:SetAttribute("DonoRun", "fim") end
+	if msg then avisarCorrida(msg) end
+	publicar()
+end
+
+-- sala atual limpa: bonus (e marco), selo aberto, troca agendada
+local function salaLimpa()
+	local sala = corrida.sala
+	if corrida.limpas[sala] then return end
+	corrida.limpas[sala] = true                     -- marca ANTES (ultimo minerio simultaneo)
+	local nivel = corrida.nivel
+	local bonus = escalar(D.BONUS_LIMPEZA, nivel)
+	for p in pairs(corrida.participantes) do entregar(p, bonus, "limpeza:" .. sala .. ":" .. p.UserId) end
+	if sala % (D.SALAS_POR_NIVEL or 5) == 0 then
+		local marco = escalar(D.BONUS_MARCO, nivel)
+		for p in pairs(corrida.participantes) do
+			avisar(p, "MARCO! " .. sala .. " salas vencidas.")
+			entregar(p, marco, "marco:" .. sala .. ":" .. p.UserId)
+		end
+	end
+	corrida.transicao = true
+	corrida.fimSala = agora() + D.TRANSICAO + D.TEMPO_SALA   -- ja publica o prazo da proxima sala
+	abrirSelo(true)
+	avisarCorrida("Sala " .. sala .. " limpa! A passagem se abriu.")
+	local id = corrida.id
+	task.delay(D.TRANSICAO, function()
+		if corrida and corrida.id == id and corrida.sala == sala and corrida.transicao and not corrida.fimEm then
+			iniciarSala(sala + 1)
+		end
+	end)
+	publicar()
 end
 
 -- ---------- entrada ----------
 function S.entrar(player)
-	if S.estado ~= "ENTRY_OPEN" or not corrida then
+	if S.estado ~= "ENTRY_OPEN" or not corrida or corrida.fimEm then
 		return { ok = false, msg = S.estado == "COUNTDOWN" and "A Masmorra ainda nao abriu." or "A entrada da Masmorra esta fechada." }
 	end
 	local perfil = PlayerData.get(player)
@@ -160,32 +325,32 @@ function S.entrar(player)
 	local porta = posMarcador("DUNGEON_Entrance")
 	if not porta or (hrp.Position - porta).Magnitude > 14 then return { ok = false, msg = "Chegue mais perto do portal." } end
 	if corrida.participantes[player] then return { ok = false } end
-	local n = 0
-	for _ in pairs(corrida.participantes) do n += 1 end
-	if n >= D.MAX_JOGADORES then return { ok = false, msg = "A Masmorra esta lotada." } end
+	if contar(corrida.participantes) >= D.MAX_JOGADORES then return { ok = false, msg = "A Masmorra esta lotada." } end
 	-- 1 corrida por abertura: pode voltar (morreu/saiu) so nesta abertura E neste servidor
 	local mm = perfil.masmorra
 	if mm.slot == corrida.slot and mm.job ~= game.JobId then return { ok = false, msg = "Voce ja entrou nesta abertura." } end
 	mm.slot, mm.job = corrida.slot, game.JobId
-	if not corrida.nasceu then nascerMinerios() end
 	corrida.participantes[player] = true
 	player:SetAttribute("DungeonRun", corrida.id)
-	local sp = posMarcador("DUNGEON_Spawn", HRP)
-	if sp then char:PivotTo(CFrame.new(sp) * CFrame.Angles(0, -math.pi / 2, 0)) end
-	avisar(player, "Masmorra das Sombras: quebre os minerios antes do tempo acabar!")
+	if not corrida.nasceu then iniciarSala(1) end
+	-- sala 1: chega pela R1 (a chegada) e anda ate a R2; depois dela: direto no spawn da sala atual
+	local destino = corrida.sala <= 1 and posMarcador("DUNGEON_Spawn") or spawnDaSala(salaFisica(corrida.sala))
+	teleportar(player, posGrupo(destino, contar(corrida.participantes)))
+	avisar(player, "Masmorra das Sombras: limpe cada sala antes do tempo acabar! Sala " .. corrida.sala
+		.. " (Nivel " .. corrida.nivel .. ")")
 	publicar()
 	return { ok = true }
 end
 
 -- ---------- quebra de minerio da masmorra ----------
 local function quebrou(rocha, quem, contribuintes)
-	if not corrida or rocha:GetAttribute("DonoRun") ~= corrida.id then return end
+	if not corrida or corrida.fimEm or rocha:GetAttribute("DonoRun") ~= corrida.id then return end
 	local variante = corrida.rochas[rocha]
-	if not variante then return end
-	corrida.rochas[rocha] = nil
+	if not variante or rocha:GetAttribute("DonoSala") ~= corrida.sala then return end
+	corrida.rochas[rocha] = nil                     -- sai da tabela ANTES de contar (quebra unica)
 	corrida.restantes = math.max(0, corrida.restantes - 1)
 	local chave = rocha:GetAttribute("ChaveMasmorra") or tostring(rocha)
-	local lista = D.RECOMPENSA[variante] or {}
+	local lista = escalar(D.RECOMPENSA[variante], rocha:GetAttribute("NivelMasmorra") or corrida.nivel)
 	-- contribuintes chega como LISTA {player, ...} (o BindableEvent descarta chaves Instance de um mapa); quem quebrou
 	-- sempre entra, entao uma lista vazia/antiga nunca deixa a corrida sem recompensa
 	local alvos = { [quem] = true }
@@ -197,14 +362,21 @@ local function quebrou(rocha, quem, contribuintes)
 			entregar(p, lista, chave .. ":" .. p.UserId)
 		end
 	end
-	if corrida.restantes == 0 and not corrida.limpa then
-		corrida.limpa = true                            -- marca ANTES (ultimo minerio simultaneo)
-		for p in pairs(corrida.participantes) do entregar(p, D.BONUS_LIMPEZA, "limpeza:" .. p.UserId) end
-		corrida.fimEm = agora()
-		for p in pairs(corrida.participantes) do avisar(p, "Masmorra limpa! O portal de saida se abriu.") end
-		for sp, t0 in pairs(espirais) do sp.Transparency = t0 end
-	end
+	if corrida.restantes == 0 then salaLimpa() end
 	publicar()
+end
+
+-- ---------- fim da corrida pelo relogio da sala / corrida vazia / teto ----------
+local function verificar(t)
+	if not corrida or corrida.fimEm then return end
+	if S.estado ~= "ENTRY_OPEN" and S.estado ~= "RUNNING" then return end
+	if t >= corrida.slot + D.DURACAO_MAX then
+		finalizar("A Masmorra vai fechar: tempo maximo da abertura.")
+	elseif corrida.nasceu and not corrida.transicao and corrida.fimSala and t >= corrida.fimSala then
+		finalizar("O tempo da Sala " .. corrida.sala .. " acabou! Fim da corrida.")
+	elseif S.estado == "RUNNING" and next(corrida.participantes) == nil then
+		finalizar(nil)                               -- todos sairam, morreram ou deslogaram
+	end
 end
 
 -- ---------- transicoes ----------
@@ -215,37 +387,42 @@ local function entrarEstado(novo)
 		avisarIlha("A Masmorra das Sombras abre em " .. D.CONTAGEM .. " s!")
 	elseif novo == "ENTRY_OPEN" then
 		local s = slotAtual(agora())
-		corrida = { id = "m" .. s, slot = s, participantes = {}, dados = {}, rochas = {}, restantes = 0, nasceu = false }
-		avisarIlha("A Masmorra das Sombras abriu! Entre pelo portal da torre.")
+		corrida = { id = "m" .. s, slot = s, participantes = {}, dados = {}, rochas = {}, restantes = 0, nasceu = false,
+			sala = 0, nivel = 1, limpas = {}, transicao = false }
+		abrirSelo(false)
+		avisarIlha("A Masmorra das Sombras abriu! Entre pelo portal da caverna.")
 	elseif novo == "RUNNING" then
-		if corrida then for p in pairs(corrida.participantes) do avisar(p, "A entrada da Masmorra fechou.") end end
+		avisarCorrida("A entrada da Masmorra fechou.")
 	elseif novo == "FINISHING" then
 		if corrida then
-			corrida.fimEm = corrida.fimEm or agora()
-			for p in pairs(corrida.participantes) do avisar(p, "Fim da corrida! Saia pelo portal.") end
+			finalizar(nil)
+			avisarCorrida("Fim da corrida! Voce chegou a Sala " .. corrida.sala .. ". Saia pelo portal.")
 		end
 	elseif novo == "RESETTING" then
 		if corrida then
 			for p in pairs(corrida.participantes) do tirar(p, true) end
 		end
 		limparMinerios()
+		abrirSelo(false)
 	elseif novo == "WAITING" then
 		if corrida then S.slotEncerrado = corrida.slot end
 		corrida = nil
 	end
-	local aceso = novo == "FINISHING" or (corrida ~= nil and corrida.limpa == true)
+	-- portal de saida: aceso durante toda a corrida (sair a qualquer momento), apagado sem corrida
+	local aceso = corrida ~= nil and (novo == "ENTRY_OPEN" or novo == "RUNNING" or novo == "FINISHING")
 	if saida then saida.Transparency = aceso and 0.35 or 0.8 end
 	for p, t0 in pairs(espirais) do p.Transparency = aceso and t0 or 1 end
+	if promptSair then promptSair.Enabled = aceso end
 	publicar()
 end
 
--- estado desejado pelo relogio (+ fim antecipado; slot ja encerrado nao reabre)
+-- estado desejado pelo relogio (+ fim marcado pela corrida; slot ja encerrado nao reabre)
 local function estadoPara(t)
 	local s = slotAtual(t)
 	local dt = t - s
 	if dt < 0 then return "COUNTDOWN" end
 	if S.slotEncerrado == s then return "WAITING" end
-	local fim = s + D.DURACAO
+	local fim = s + D.DURACAO_MAX
 	if corrida and corrida.slot == s and corrida.fimEm then fim = math.min(fim, corrida.fimEm) end
 	if dt < D.JANELA_ENTRADA and t < fim then return "ENTRY_OPEN" end
 	if t < fim then return "RUNNING" end
@@ -258,6 +435,7 @@ end
 local CICLO = { WAITING = "COUNTDOWN", COUNTDOWN = "ENTRY_OPEN", ENTRY_OPEN = "RUNNING", RUNNING = "FINISHING",
 	FINISHING = "RESETTING", RESETTING = "WAITING" }
 local function passo()
+	verificar(agora())
 	local alvo = estadoPara(agora())
 	local n = 0
 	while alvo ~= S.estado and n < 6 do
@@ -268,6 +446,7 @@ local function passo()
 		else
 			entrarEstado(CICLO[S.estado])
 		end
+		verificar(agora())
 		alvo = estadoPara(agora())
 	end
 end
@@ -275,6 +454,44 @@ end
 -- ---------- montagem ----------
 local function acharArea()
 	for _, a in ipairs(Config.Areas) do if a.tema == "sombra" then return a end end
+end
+
+local function lerPontos()
+	pontos = {}
+	local n = 0
+	for _, m in ipairs(marcas:GetChildren()) do
+		local sala, rar = string.match(m.Name, "^DUN_ORE_(%w+)_(%u+)_%d+$")
+		if sala and Alq.VARIANTE_DO_MARCADOR[rar] then
+			pontos[sala] = pontos[sala] or {}
+			table.insert(pontos[sala], { nome = m.Name, pos = m.Position, rar = rar })
+			n += 1
+		end
+	end
+	for _, lista in pairs(pontos) do table.sort(lista, function(a, b) return a.nome < b.nome end) end
+	return n
+end
+
+-- selo: parede de energia no vao DUN_LINK_R2R3, deitada na direcao R2 -> R3 (tirada dos marcadores das salas)
+local function criarSelo()
+	local link = marcador("DUN_LINK_R2R3")
+	local r2, r3 = marcador("DUN_ROOM_R2"), marcador("DUN_ROOM_R3")
+	if not (link and r2 and r3) then
+		warn("[DungeonService] DUN_LINK_R2R3 / DUN_ROOM_R2 / DUN_ROOM_R3 ausentes: sem selo entre as salas")
+		return
+	end
+	local cfg = D.SELO or {}
+	local w = link:GetAttribute("w") or cfg.largura or 18
+	local h = link:GetAttribute("h") or cfg.altura or 14
+	local t = link:GetAttribute("t") or cfg.espessura or 2
+	local dir = Vector3.new(r3.Position.X - r2.Position.X, 0, r3.Position.Z - r2.Position.Z).Unit
+	local c = link.Position + Vector3.new(0, h / 2, 0)
+	selo = Instance.new("Part")
+	selo.Name = "MasmorraSelo"; selo.Anchored = true; selo.CanQuery = false; selo.CanTouch = false
+	selo.Material = Enum.Material.Neon; selo.Color = Color3.fromRGB(96, 60, 170); selo.CastShadow = false
+	selo.Size = Vector3.new(w, h, t * 0.5)
+	selo.CFrame = CFrame.lookAt(c, c + dir)
+	selo.Parent = areaModel
+	abrirSelo(false)
 end
 
 function S.iniciar()
@@ -290,7 +507,9 @@ function S.iniciar()
 		warn("[DungeonService] marcadores da Masmorra nao encontrados (Ilha 3 ainda nao montada?)")
 		return false
 	end
-	-- prompt de entrada no portal da torre (so habilitado em ENTRY_OPEN)
+	local np = lerPontos()
+	if np == 0 then warn("[DungeonService] nenhum marcador DUN_ORE_* encontrado") end
+	-- prompt de entrada no portal da caverna (so habilitado em ENTRY_OPEN)
 	local ent = marcador("DUNGEON_Entrance")
 	local ancora = Instance.new("Part")
 	ancora.Name = "MasmorraEntrada"; ancora.Size = Vector3.new(4, 6, 4); ancora.Anchored = true
@@ -304,18 +523,42 @@ function S.iniciar()
 		local res = S.entrar(player)
 		if res and res.msg then avisar(player, res.msg) end
 	end)
-	-- portal de saida (sala final): tocar = voltar para o patio (a qualquer momento)
+	-- portal de saida (R3): tocar = voltar para o patio (a qualquer momento, com o que ja ganhou)
 	local ex = marcador("DUNGEON_ExitPortal")
 	if ex then
 		saida = Instance.new("Part")
-		saida.Name = "MasmorraSaida"; saida.Size = Vector3.new(2, 10, 9); saida.Anchored = true; saida.CanCollide = false
+		saida.Name = "MasmorraSaida"; saida.Size = Vector3.new(2, 13, 12); saida.Anchored = true; saida.CanCollide = false
 		saida.CanQuery = false; saida.Material = Enum.Material.Neon; saida.Color = Color3.fromRGB(150, 100, 235)
-		saida.Transparency = 0.8; saida.CFrame = CFrame.new(ex.Position + Vector3.new(0, 5.5, 0)); saida.Parent = areaModel
+		saida.Transparency = 0.8; saida.CFrame = CFrame.new(ex.Position + Vector3.new(0, 7, 0)); saida.Parent = areaModel
 		saida.Touched:Connect(function(hit)
 			local p = Players:GetPlayerFromCharacter(hit.Parent)
-			if p and corrida and corrida.participantes[p] then tirar(p, true) end
+			if p and corrida and corrida.participantes[p] then
+				avisar(p, "Voce saiu da Masmorra (Sala " .. corrida.sala .. ").")
+				tirar(p, true)
+			end
 		end)
 	end
+	-- segunda saida: o portal de chegada da R1 (sempre alcancavel quando a R2 e a sala ativa), por prompt
+	local ex1 = marcador("DUN_EXIT_R1")
+	if ex1 then
+		local a1 = Instance.new("Part")
+		a1.Name = "MasmorraSaidaR1"; a1.Size = Vector3.new(4, 8, 4); a1.Anchored = true; a1.CanCollide = false
+		a1.CanQuery = false; a1.CanTouch = false; a1.Transparency = 1
+		a1.CFrame = CFrame.new(ex1.Position + Vector3.new(0, 4, 0)); a1.Parent = areaModel
+		promptSair = Instance.new("ProximityPrompt")
+		promptSair.Name = "MasmorraSairPrompt"; promptSair.ActionText = "Sair"; promptSair.ObjectText = "Masmorra das Sombras"
+		promptSair.MaxActivationDistance = 12; promptSair.RequiresLineOfSight = false; promptSair.HoldDuration = 0.6
+		promptSair.Enabled = false; promptSair.Parent = a1
+		promptSair.Triggered:Connect(function(p)
+			if corrida and corrida.participantes[p] then
+				avisar(p, "Voce saiu da Masmorra (Sala " .. corrida.sala .. ").")
+				tirar(p, true)
+			end
+		end)
+	else
+		warn("[DungeonService] DUN_EXIT_R1 ausente: a unica saida e o portal da R3")
+	end
+	criarSelo()
 	for _, d in ipairs(areaModel:GetDescendants()) do
 		if d:IsA("BasePart") and string.match(d.Name, "^SG_Dun_R3_ExitSpiral") then
 			espirais[d] = d.Transparency
@@ -341,12 +584,16 @@ function S.iniciar()
 			task.wait(0.25)
 		end
 	end)
-	-- so no Studio: gancho de teste para os ganchos abaixo (a barra de comando nao enxerga este modulo ja carregado)
+	-- so no Studio: gancho de teste (a barra de comando nao enxerga este modulo ja carregado)
+	--   Invoke("abrirEm", seg) | Invoke("estado") | Invoke("pularSala", n) | Invoke("fimSala") | Invoke("limparSala")
 	if RunService:IsStudio() then
 		local bf = game:GetService("ServerStorage"):FindFirstChild("DebugMasmorra") or Instance.new("BindableFunction")
 		bf.Name = "DebugMasmorra"
 		bf.OnInvoke = function(acao, a)
 			if acao == "abrirEm" then return S.debugAbrirEm(a) end
+			if acao == "pularSala" then return S.debugPularSala(a) end
+			if acao == "fimSala" then return S.debugFimSala() end
+			if acao == "limparSala" then return S.debugLimparSala() end
 			return S.debugEstado()
 		end
 		bf.Parent = game:GetService("ServerStorage")
@@ -364,13 +611,41 @@ function S.debugAbrirEm(seg)
 	publicar()
 	return S.deslocamento
 end
+-- pula direto para a sala n (minerios da sala atual somem SEM recompensa; o grupo e teleportado)
+function S.debugPularSala(n)
+	if not RunService:IsStudio() or not corrida or corrida.fimEm or not corrida.nasceu then return "sem corrida ativa" end
+	n = math.max(1, math.floor(tonumber(n) or 1))
+	corrida.nivel = nivelDe(math.max(1, n - 1))     -- o aviso de "Nivel X" sai se a sala n abre um nivel novo
+	iniciarSala(n)
+	return S.debugEstado()
+end
+-- forca o fim do tempo da sala atual (a corrida termina no proximo passo)
+function S.debugFimSala()
+	if not RunService:IsStudio() or not corrida or corrida.fimEm then return "sem corrida ativa" end
+	corrida.transicao = false
+	corrida.fimSala = agora() - 1
+	return S.debugEstado()
+end
+-- limpa a sala atual como se o ultimo minerio tivesse caido (bonus/marco/troca normais; sem recompensa por minerio)
+function S.debugLimparSala()
+	if not RunService:IsStudio() or not corrida or corrida.fimEm or not corrida.nasceu or corrida.transicao then
+		return "sem sala ativa"
+	end
+	limparMinerios()
+	corrida.restantes = 0
+	salaLimpa()
+	return S.debugEstado()
+end
 function S.debugEstado()
-	local n = 0
-	if corrida then for _ in pairs(corrida.participantes) do n += 1 end end
-	return { estado = S.estado, corrida = corrida and corrida.id, participantes = n, restantes = corrida and corrida.restantes,
-		dados = corrida and (function() local c = 0 for _ in pairs(corrida.dados) do c += 1 end return c end)() }
+	return { estado = S.estado, corrida = corrida and corrida.id, participantes = corrida and contar(corrida.participantes) or 0,
+		sala = corrida and corrida.sala, salaFisica = corrida and corrida.sala > 0 and salaFisica(corrida.sala) or nil,
+		nivel = corrida and corrida.nivel, restantes = corrida and corrida.restantes,
+		tempoSala = corrida and corrida.fimSala and math.floor(corrida.fimSala - agora()) or nil,
+		transicao = corrida and corrida.transicao, dados = corrida and contar(corrida.dados) }
 end
 S.passo = passo
 S.estadoPara = estadoPara
+S.nivelDe = nivelDe
+S.salaFisica = salaFisica
 
 return S

@@ -43,8 +43,8 @@ ZONE_MARKERS = {
 BUDGET = {
     # passe de acabamento (2026-09-29): folga para kits de livros/frascos, portas/janelas com caixilho e ruinas
     "terrain": (120000, 150, 8, 90, 0), "entry": (40000, 55, 4, 45, 5), "village": (88000, 110, 9, 90, 6),
-    "castle": (160000, 190, 12, 175, 5), "hall": (52000, 58, 9, 40, 6), "summon": (38000, 50, 5, 42, 3),
-    "craft": (84000, 74, 11, 75, 4), "dungeon": (80000, 100, 10, 155, 7), "water": (20000, 32, 3, 10, 0),
+    "castle": (160000, 190, 12, 175, 5), "hall": (64000, 62, 9, 40, 6), "summon": (38000, 52, 5, 42, 3),
+    "craft": (84000, 74, 11, 75, 4), "dungeon": (95000, 100, 10, 155, 7), "water": (20000, 32, 3, 10, 0),
     "exit": (26000, 38, 4, 45, 3), "dressing": (90000, 150, 9, 160, 7),
 }
 # overhaul 06-08 (2026-09-29): craft 66k -> 84k tris. A alquimia e heroi por fora e por dentro e estava com a
@@ -52,6 +52,13 @@ BUDGET = {
 # portico com aduelas, telhado proprio e medalhao (+2k), vasos de bronze no lugar dos tanques (+2k), domo em escamas
 # e frasco pintado com berco e mancais (+2k), lambril/pilastras/reboco, patas, carvoes e kit de vela (+4k). O teto
 # da ilha e 700k (antes do overhaul ~640k): a ilha fica em ~662k. MeshParts e materiais novos seguem no limite antigo.
+# setor 04b (2026-09-29, pedido do usuario: salao maior + trono melhor): hall 52k -> 64k tris, MeshParts 58 -> 62. O
+# salao cresceu de 84 x 88 x 28 para 96 x 99 x 48 (mesma quantidade de tramos, cada um maior: silhar/abobada/vitrais
+# ~+3k por escala) e ganhou a ABSIDE do trono dentro da torre-coroa: arco triunfal com pilares compostos, estrado de
+# 4 degraus, abobada de nervuras da abside, vitrais e o trono novo (~+5k); revisao 04b-3: ROSACEA DA LUA de 18 no
+# fundo, lancetas ao lado e o cordao na altura do arranque dos vitrais (~+2k). O castelo segue <= 160k.
+# setor 09b (pedido do usuario: dungeon maior, cabe um grupo): dungeon 80k -> 95k tris (salas x1,84 de area, boca e
+# tunel para 4-6 avatares; +10 pilastras, +18 arcadas, +8 tochas). Summon MeshParts 50 -> 52 (kit de lanterna 12).
 
 
 def est_meshparts(ob):

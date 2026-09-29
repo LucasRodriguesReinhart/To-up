@@ -95,6 +95,7 @@ def main(out):
         d.ellipse([P(x - r, y + r), P(x + r, y - r)], fill=(40, 42, 60), outline=(150, 120, 230), width=2)
     x, y, r, top = L.CROWN_TOWER
     d.ellipse([P(x - r, y + r), P(x + r, y - r)], fill=(40, 42, 60), outline=(180, 140, 255), width=3)
+    poly(d, L.apse_poly(), fill=(96, 92, 120), outline=(180, 140, 255))           # abside do trono (setor 04b)
     # dungeon (portaria + salas sob a ilha, tracejado)
     cx, cy, w, dd = L.DUNGEON_HOUSE
     d.rectangle([P(cx - w / 2, cy + dd / 2), P(cx + w / 2, cy - dd / 2)], fill=(50, 40, 70), outline=(170, 90, 255), width=3)
@@ -160,7 +161,8 @@ def check():
           "(esperado -579,227 28,2 650,727)")
     print("rumo +Y roblox:", tuple(round(v, 4) for v in L.dir_to_roblox(0, 1)), "(esperado -0,9205 0 -0,3907)")
     print("entrada roblox:", tuple(round(v, 2) for v in L.to_roblox(*L.ENTRY_SPAWN, L.P1)))
-    print("castelo (centro do salao) roblox:", tuple(round(v, 2) for v in L.to_roblox(0.0, 88.0, L.P3)))
+    print("castelo (centro do salao) roblox:", tuple(round(v, 2) for v in L.to_roblox(0.0, (L.HALL_Y0 + L.HALL_Y1) / 2,
+                                                                                       L.P3)))
     a = L.anchor_pos()
     print("ancora DS (local):", tuple(round(v, 2) for v in a), "roblox:", tuple(round(v, 2) for v in L.to_roblox(a[0], a[1], L.EXIT_Z)))
     print("rumo saida roblox:", tuple(round(v, 4) for v in L.dir_to_roblox(*L.exit_dir())))

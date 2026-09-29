@@ -75,6 +75,9 @@ SMATS = {
     "Stone_SG_Violet":      (S(78, 62, 110), 0.7, 0.0, 0, None, 0.06),     # pedra violeta (molduras nobres, emblemas)
     "Metal_SG_BlackIron":   (S(40, 38, 46), 0.35, 0.85, 0, None, 0.02),      # ferro negro (grades, postes, correntes)
     "Cloth_SG_Purple":      (S(66, 22, 112), 0.8, 0.0, 0, None, 0.04),     # estandarte da ordem (roxo profundo)
+    # overhaul 12 (kit compartilhado): crescente SEM brilho do estandarte/placas e vidro ambar da lanterna (Glass 0,3)
+    "Stone_SG_MoonPale":    (S(176, 160, 210), 0.6, 0.0, 0, None, 0.0),
+    "Glass_SG_LampAmber":   (S(112, 70, 30), 0.08, 0.0, 0, None, 0.0),
     # brilhos (Neon no Roblox): violeta so em funcao (dungeon, invocacao, craft, rosacea); azul frio = lua/agua
     "SG_Violet_Glow":       (S(150, 100, 235), 0.3, 0.0, 2.6, S(150, 100, 235), 0.0),
     "SG_Moon_Glow":         (S(170, 200, 255), 0.3, 0.0, 2.0, S(170, 200, 255), 0.0),
