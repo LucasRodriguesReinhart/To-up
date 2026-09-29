@@ -240,12 +240,27 @@ CAMS = {
     "CAM_SG_CU_DunMouth": ((100.0, 44.0, P3 + 5.2), (100.0, 66.0, P3 + 10.0), 20),
     "CAM_SG_CU_CastleDoor": ((0.0, 22.0, P3 + 5.2), (0.0, 42.0, P3 + 9.0), 22),
     "CAM_SG_CU_CastleWindow": ((-12.0, 25.0, P3 + 5.2), (-22.0, 40.0, P3 + 12.5), 24),
+    # overhaul 09: close da inscricao do obelisco oeste (alfabeto unico da ilha)
+    "CAM_SG_OV_Obelisk": ((-14.5, 27.0, P3 + 6.0), (-21.0, 29.0, P3 + 9.2), 30),
     "CAM_SG_CU_VillageHouse": ((28.0, -124.0, P1 + 5.2), (50.0, -140.0, P1 + 8.0), 22),
     # auditoria do passe de acabamento 2 (guardas do porche do castelo, frasco gigante da alquimia)
     "CAM_SG_AU_GuardFront": ((-4.0, 24.0, P3 + 4.6), (-12.0, 37.0, P3 + 8.5), 30),
     "CAM_SG_AU_GuardSide": ((-26.0, 30.0, P3 + 5.2), (-12.0, 37.0, P3 + 8.0), 30),
     "CAM_SG_AU_Flask": ((70.0, -50.0, P2 + 20.0), (90.0, -60.0, P2 + 27.0), 30),
     "CAM_SG_AU_CraftBase": ((70.0, -74.0, P2 + 5.2), (90.0, -60.0, P2 + 6.0), 24),
+    # overhaul 06-08 (alquimia): gameplay natural e close-ups dos heroi (vila P2, portico, base, tanque, frasco,
+    # lustre, bancada, bau/atril, parede interna, pocoes)
+    "CAM_SG_OVA_FromVillage": ((30.0, -47.0, P2 + 5.2), (90.0, -60.0, P2 + 12.0), 22),
+    "CAM_SG_OVA_Portal34": ((60.0, -44.0, P2 + 5.2), (74.0, -58.0, P2 + 8.5), 22),
+    "CAM_SG_OVA_WallBase": ((82.0, -35.0, P2 + 5.2), (94.0, -45.0, P2 + 6.5), 22),
+    "CAM_SG_OVA_TankCU": ((68.0, -82.0, P2 + 5.0), (76.3, -73.8, P2 + 3.8), 26),
+    "CAM_SG_OVA_FlaskCU": ((74.0, -47.0, P2 + 40.0), (90.0, -60.0, P2 + 38.5), 30),
+    "CAM_SG_OVA_Chandelier": ((83.0, -63.0, P2 + 7.5), (90.0, -60.0, P2 + 12.5), 20),
+    "CAM_SG_OVA_Bench": ((95.5, -65.0, P2 + 5.4), (101.8, -60.0, P2 + 4.2), 22),
+    "CAM_SG_OVA_ChestCU": ((86.0, -53.0, P2 + 4.2), (80.9, -53.1, P2 + 1.0), 26),
+    "CAM_SG_OVA_LecternCU": ((86.0, -67.0, P2 + 4.8), (81.0, -67.0, P2 + 3.0), 26),
+    "CAM_SG_OVA_WallIn": ((96.5, -63.5, P2 + 5.2), (99.2, -50.8, P2 + 6.0), 20),
+    "CAM_SG_OVA_Potions": ((88.8, -54.5, P2 + 4.6), (88.3, -47.5, P2 + 4.2), 28),
 }
 
 
