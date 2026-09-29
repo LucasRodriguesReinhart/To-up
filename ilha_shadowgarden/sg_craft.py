@@ -39,7 +39,7 @@
 #     labio de bronze, patas de 3 dedos, orelhas fundidas, grelha sobre carvoes (so as frestas brilham).
 #   INTERIOR: lambril de madeira + pilastras de pedra ate as misulas + reboco; estantes com fundo escuro; pocoes com
 #     cor media (vidro 0,55 so onde o liquido aparece); kit de vela no lustre e nas mesas; circulo com o alfabeto unico
-#     (sg_court.GLYPHS) embutido; hierarquia de magia: a POCAO do caldeirao e o unico foco (SG_VioletDeep); frasco,
+#     (sg_court.RUNE_SEGS) embutido; hierarquia de magia: a POCAO do caldeirao e o unico foco (SG_VioletDeep); frasco,
 #     cristal, circulo e 2 pocoes acesas em SG_VioletSoft (Neon escuro).
 import math, random
 import bmesh
@@ -50,7 +50,7 @@ import fm_lib
 import sg_layout as L
 import sg_emblem as EM
 import sg_castle as CA          # kit de cantaria do overhaul 03 (ledge, block, ashlar, strip, finial, drip, plinth)
-from sg_court import GLYPHS as RUNES   # o alfabeto UNICO da ilha (16.07): haste + gancho em arco + ponto/traco
+from sg_court import RUNE_SEGS, OBELISK_RUNES   # o alfabeto UNICO da ilha (16.07): runas angulares da ordem
 
 S = fm_lib.S
 # ------------------------------------------------------------------ materiais novos da zona (11)
@@ -1396,10 +1396,9 @@ def flat_stroke(mb, pts, w, z0, z1, m):
                  z0, z1, m)
 
 
-def floor_glyph(mb, c, ang, spec, sc=1.55, m=VSOFT):
-    """glifo do ALFABETO UNICO da ilha (sg_court.GLYPHS: haste, gancho em arco, ponto ou traco) deitado e EMBUTIDO
-    no marmore (sobe 0,02 acima do piso); c = centro (x, y), ang = rumo do 'alto' do glifo"""
-    sd, hook_up, dot = spec
+def floor_glyph(mb, c, ang, k, sc=1.55, m=VSOFT):
+    """runa k do ALFABETO UNICO da ilha (sg_court.RUNE_SEGS: haste + ramos diagonais, angular) deitada e EMBUTIDA
+    no marmore (sobe 0,07 acima do piso); c = centro (x, y), ang = rumo do 'alto' do glifo"""
     ex, ey = math.cos(ang), math.sin(ang)          # alto do glifo
     tx, ty = -ey, ex                               # lateral
 
@@ -1407,23 +1406,13 @@ def floor_glyph(mb, c, ang, spec, sc=1.55, m=VSOFT):
         return (c[0] + (tx * u + ex * w) * sc, c[1] + (ty * u + ey * w) * sc)
     z0, z1 = Z + 0.0, Z + 0.07
     wd = 0.14
-    flat_stroke(mb, [P(0.0, -0.38), P(0.0, 0.38)], wd, z0, z1, m)
-    za = 0.12 if hook_up else -0.22
-    flat_stroke(mb, [P(sd * 0.26 * (1 - math.cos(t)), za + 0.24 * math.sin(t) * (1 if hook_up else -1))
-                     for t in [math.pi * i / 6 for i in range(5)]], wd, z0, z1, m)
-    if dot:
-        q = P(-sd * 0.2, -0.05)
-        h = 0.07 * sc
-        mb.prism([(q[0] + h * (ex + tx), q[1] + h * (ey + ty)), (q[0] + h * (-ex + tx), q[1] + h * (-ey + ty)),
-                  (q[0] - h * (ex + tx), q[1] - h * (ey + ty)), (q[0] + h * (ex - tx), q[1] + h * (ey - ty))],
-                 z0, z1, m)
-    else:
-        flat_stroke(mb, [P(-sd * 0.08, -0.3), P(-sd * 0.26, -0.12)], wd, z0, z1, m)
+    for (a0, b0), (a1, b1) in RUNE_SEGS[k % len(RUNE_SEGS)]:
+        flat_stroke(mb, [P(a0, b0), P(a1, b1)], wd, z0, z1, m)
 
 
 def magic_circle(mb):
     """CIRCULO MAGICO no piso em volta do estrado (07.07): anel fino de energia (Neon ESCURO) rente, anel de bronze
-    embutido como moldura e 10 GLIFOS do alfabeto unico (sg_court.GLYPHS) EMBUTIDOS, em sequencia fixa; as 2 lanternas
+    embutido como moldura e 10 GLIFOS do alfabeto unico (sg_court.RUNE_SEGS) EMBUTIDOS, em sequencia fixa; as 2 lanternas
     da porta (POST_A) sao as ancoras do circulo (sem glifo embaixo delas)"""
     ring_band(mb, 8.82, 9.0, 0.03, 0.07, VSOFT, 0.0, 360.0, 10.0)
     ring_band(mb, 7.1, 7.25, 0.03, 0.075, IRON, 0.0, 360.0, 10.0)
@@ -1433,7 +1422,7 @@ def magic_circle(mb):
         if min(abs(a - p) for p in POST_A) < 20.0:
             continue
         c = pol(8.05, a, 0.0)
-        floor_glyph(mb, c, math.radians(a), RUNES[i % len(RUNES)])
+        floor_glyph(mb, c, math.radians(a), OBELISK_RUNES[i % len(OBELISK_RUNES)])
         i += 1
 
 

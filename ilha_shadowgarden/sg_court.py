@@ -635,27 +635,36 @@ def statue(mb, x, y, z, yaw):
     col_box("SG_PropStatue", (3.6, 3.6, 11.0), (x, y, z + 5.5), (0, 0, yaw))
 
 
-# OVERHAUL 03 (03.05/15.03/16.07): a inscricao vira ENTALHE - um so alfabeto de glifos de 3 tracos com curva (haste,
-# gancho em arco, ponto/traco), em pedra violeta SEM brilho dentro de um painel rebaixado com moldura; sequencia fixa
-# (nada aleatorio), nenhuma letra latina
-GLYPHS = ((1, 1, 0), (-1, 0, 1), (1, 0, 1), (-1, 1, 0), (1, 1, 1))
+# OVERHAUL 03 (03.05/15.03/16.07): a inscricao vira ENTALHE em pedra violeta SEM brilho dentro de um painel rebaixado
+# com moldura; sequencia fixa (nada aleatorio).
+# OVERHAUL 09 (2026-09-29, pedido da coordenacao): o ALFABETO UNICO da ilha foi REDESENHADO - o gancho em arco lia
+# "r"/"L" a meia distancia. Agora sao RUNAS ANGULARES da ordem (inspiradas no futhark): haste vertical com ramos
+# DIAGONAIS, sem curva de letra latina. Cada glifo = tracos ((u0, v0), (u1, v1)) numa caixa de 0,76 de altura
+# (v de -0,38 a 0,38; u lateral). Usado aqui (obeliscos) e em sg_dungeon.rune (boca, marcos, portais, pisos).
+_ST = ((0.0, -0.38), (0.0, 0.38))
+RUNE_SEGS = (
+    (_ST, ((0.0, 0.38), (0.24, 0.16)), ((0.0, 0.12), (0.24, -0.1))),                 # 0 dois ramos caindo a direita
+    (_ST, ((0.0, 0.2), (0.22, 0.02)), ((0.22, 0.02), (0.0, -0.16))),                 # 1 espinho angular (thurs)
+    (_ST, ((0.0, 0.38), (-0.24, 0.16)), ((0.0, 0.14), (-0.24, -0.08))),              # 2 dois ramos para baixo
+    (_ST, ((0.0, -0.22), (-0.22, 0.06)), ((0.0, -0.22), (0.22, 0.06))),              # 3 garfo baixo, haste alta (algiz)
+    (_ST, ((0.0, 0.22), (-0.22, -0.06)), ((0.0, 0.22), (0.22, -0.06))),              # 4 garfo alto invertido (yr)
+    (_ST, ((0.0, 0.06), (-0.22, -0.12)), ((-0.22, -0.12), (0.0, -0.3))),              # 5 espinho baixo a esquerda
+    (_ST, ((0.0, 0.38), (0.22, 0.2)), ((0.0, -0.12), (-0.22, -0.32))),               # 6 ramos opostos
+    (_ST, ((0.0, 0.26), (0.24, 0.1)), ((0.24, 0.1), (0.24, -0.22))),                 # 7 gancho em angulo
+    (((-0.17, -0.38), (-0.17, 0.38)), ((0.17, -0.38), (0.17, 0.38)),
+     ((-0.17, 0.14), (0.17, -0.1))),                                                 # 8 duas hastes (hagal)
+)
+OBELISK_RUNES = (0, 3, 1, 5, 2)                  # a inscricao do obelisco (sequencia fixa)
 
 
-def _glyph(mb, P, u0, zc, spec, m):
-    """glifo de 3 tracos em (u, z) da face P(u, t, z): haste vertical, gancho em arco (lado sd) e ponto ou traco"""
-    sd, hook_up, dot = spec
+def _glyph(mb, P, u0, zc, k, m):
+    """runa k do alfabeto da ilha (RUNE_SEGS) em (u, z) da face P(u, t, z): tracos retos de secao 0,09 x 0,07"""
     sq = [(-0.045, -0.035), (0.045, -0.035), (0.045, 0.035), (-0.045, 0.035)]
-    mb.sweep([P(u0, 0.0, zc - 0.38), P(u0, 0.0, zc + 0.38)], sq, m, True, None, up=(0.0, 0.0, 1.0))
-    za = zc + (0.12 if hook_up else -0.22)
-    arc = [P(u0 + sd * 0.26 * (1 - math.cos(t)), 0.0, za + 0.24 * math.sin(t) * (1 if hook_up else -1))
-           for t in [math.pi * i / 6 for i in range(5)]]
-    mb.sweep(arc, sq, m, True, None, up=(0.0, 0.0, 1.0))
-    if dot:
-        c = P(u0 - sd * 0.2, 0.02, zc - 0.05)
-        mb.box((0.11, 0.11, 0.11), c, (0, 0, 0), m, 0.0)
-    else:
-        mb.sweep([P(u0 - sd * 0.08, 0.0, zc - 0.3), P(u0 - sd * 0.26, 0.0, zc - 0.12)], sq, m, True, None,
-                 up=(0.0, 0.0, 1.0))
+    for (a0, b0), (a1, b1) in RUNE_SEGS[k % len(RUNE_SEGS)]:
+        L_ = math.hypot(a1 - a0, b1 - b0)
+        e = 0.03 / max(L_, 1e-6)                                  # ponta estendida: os tracos se encontram sem fresta
+        a0, b0, a1, b1 = a0 - (a1 - a0) * e, b0 - (b1 - b0) * e, a1 + (a1 - a0) * e, b1 + (b1 - b0) * e
+        mb.sweep([P(u0 + a0, 0.0, zc + b0), P(u0 + a1, 0.0, zc + b1)], sq, m, True, None, up=(0.0, 0.0, 1.0))
 
 
 def obelisk(mb, x, y, z, face_yaw):
@@ -716,8 +725,8 @@ def obelisk(mb, x, y, z, face_yaw):
         for zz in (za - 0.1, zb + 0.1):
             mb.sweep([P(-0.7, 0.0, zz), P(0.7, 0.0, zz)], [(0.0, -0.1), (0.14, -0.1), (0.14, 0.1), (0.0, 0.1)],
                      OBS, True, None, up=(0.0, 0.0, 1.0))
-        for i, spec in enumerate(GLYPHS):
-            _glyph(mb, lambda u, t, zz: P(u, 0.01 + t, zz), -0.02, z + 6.2 + i * 1.45, spec, VIO)
+        for i, k in enumerate(OBELISK_RUNES):
+            _glyph(mb, lambda u, t, zz: P(u, 0.01 + t, zz), -0.02, z + 6.2 + i * 1.45, k, VIO)
     col_box("SG_PropObelisk", (3.6, 3.6, 15.0), (x, y, z + 7.5))
 
 
