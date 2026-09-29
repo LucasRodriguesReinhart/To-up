@@ -1436,17 +1436,82 @@ def facade(banners):
              up=(0.0, -1.0, 0.0))
     mb.box((DW - 0.4, 0.4, 0.4), _P(W, 0.0, 0.05, zd + 0.2), (0, 0, 0), VI, 0.05)
     EM.plaque(mb, mb, mb, mb, _P(W, 0.0, 0.1, zd + 4.3), -math.pi / 2, 2.9)
-    # PORTA (acabamento): SOLEIRA de obsidiana (+0,06) do pe do porche ate a face interna com focinho de prata; ligacao
-    # com a parede: rodape de obsidiana nas ombreiras do vao (continua o soco da fachada) e verga aparente no intradorso
+    # PORTA (OVERHAUL 04.01, 2026-09-29, agente do setor 04): a porta mais importante da ilha ganha FOLHAS. Com a parede
+    # de 4, uma folha de 8 aberta entraria no salao: cada folha e DOBRADICA (2 panos de ~3,3 articulados) e fica aberta
+    # e dobrada contra a ombreira, dentro do vao (vao livre de 14,5; colisao propria). Tabuas verticais com junta,
+    # 3 ferragens em T com cravos, dobradicas de pino visiveis na dobra (vista de fora) e no batente (vista de dentro),
+    # argola de puxar. SOLEIRA em pedras (fiada do porche e fiada do vao, juntas desencontradas, filetes de prata) e
+    # INTRADORSO com 3 caixotoes rasos (grelha de obsidiana, degrau interno, fundo de pedra violeta).
     yf0 = fy - orders * ow
-    mb.box2((-DW / 2, yf0, Z - 0.3), (DW / 2, HY0, Z + 0.06), OB, 0.04)
+    for (ya_, yb_), cuts in (((yf0 + 0.3, fy - 0.2), (-8.0, -4.0, 0.0, 4.0, 8.0)),
+                             ((fy + 0.2, HY0), (-8.0, -2.7, 2.7, 8.0))):
+        for xa_, xb_ in zip(cuts, cuts[1:]):
+            ga = 0.03 if xa_ > -DW / 2 + 1e-6 else 0.0
+            gb = 0.03 if xb_ < DW / 2 - 1e-6 else 0.0
+            mb.box2((xa_ + ga, ya_, Z - 0.3), (xb_ - gb, yb_, Z + 0.06), OB, 0.04)
     mb.box2((-DW / 2, yf0 - 0.12, Z - 0.3), (DW / 2, yf0 + 0.3, Z + 0.09), SV, 0.03)
     mb.box2((-DW / 2, fy - 0.2, Z - 0.3), (DW / 2, fy + 0.2, Z + 0.08), SV, 0.03)
+    # intradorso em caixotoes: fundo violeta, grelha de obsidiana (2 longarinas + 4 travessas), degrau interno
+    zi = zd
+    mb.box2((-DW / 2, fy, zi - 0.06), (DW / 2, HY0, zi + 0.02), VI, 0.0)
+    for ya_, yb_ in ((fy, fy + 0.5), (HY0 - 0.5, HY0)):
+        mb.box2((-DW / 2, ya_, zi - 0.44), (DW / 2, yb_, zi - 0.04), OB, 0.05)
+    for xc_ in (-DW / 2 + 0.25, -2.58, 2.58, DW / 2 - 0.25):
+        mb.box2((xc_ - 0.25, fy + 0.5, zi - 0.44), (xc_ + 0.25, HY0 - 0.5, zi - 0.04), OB, 0.05)
+    for xa_, xb_ in ((-7.5, -2.83), (-2.33, 2.33), (2.83, 7.5)):
+        ya_, yb_ = fy + 0.5, HY0 - 0.5
+        for p0_, p1_ in (((xa_, ya_), (xb_, ya_ + 0.22)), ((xa_, yb_ - 0.22), (xb_, yb_)),
+                         ((xa_, ya_ + 0.22), (xa_ + 0.22, yb_ - 0.22)), ((xb_ - 0.22, ya_ + 0.22), (xb_, yb_ - 0.22))):
+            mb.box2((p0_[0], p0_[1], zi - 0.24), (p1_[0], p1_[1], zi - 0.05), OB, 0.03)
+    # folhas dobradas: pano A (junto da ombreira, articulado no batente do lado do salao) e pano B (face a vista,
+    # articulado ao A na frente); o fecho de cada folha fica do lado do salao
+    LT = 0.34
+    LY0, LY1 = fy + 0.62, HY0 - 0.05
+    lz0, lz1 = Z + 0.1, zd - 0.5
+    hz = (Z + 2.4, Z + 8.9, zd - 2.7)
     for s in (-1, 1):
-        a_, b_ = sorted((s * DW / 2, s * (DW / 2 - 0.3)))
-        mb.box2((a_, fy - ow, Z - 0.3), (b_, HY0, SOC), OB, 0.06)
-        mb.box2((a_ - 0.02 * s, fy - ow, SOC), (b_ + 0.02 * s, HY0, SOC + 0.3), SV, 0.0)
-    mb.box2((-DW / 2, fy, zd - 0.55), (DW / 2, HY0, zd + 0.02), OB, 0.06)
+        xo = s * (DW / 2 - 0.02)
+        xa = xo - s * LT
+        xb = xa - s * 0.03
+        xc = xb - s * LT
+        mb.box2((min(xo, xa), LY0, lz0), (max(xo, xa), LY1, lz1), WD, 0.04)
+        nb = 4
+        wbd = (LY1 - LY0) / nb
+        for i in range(nb):
+            y0_ = LY0 + i * wbd + (0.025 if i else 0.0)
+            y1_ = LY0 + (i + 1) * wbd - (0.025 if i < nb - 1 else 0.0)
+            mb.box2((min(xb, xc), y0_, lz0), (max(xb, xc), y1_, lz1), WD, 0.05)
+        # travessas de tras (cinta) nas pontas de cima e de baixo do pano B
+        for zz in (lz0 + 0.5, lz1 - 0.5):
+            mb.box2((min(xc, xc - s * 0.06), LY0 + 0.1, zz - 0.3), (max(xc, xc - s * 0.06), LY1 - 0.1, zz + 0.3), WD,
+                    0.03)
+        rs = (0, -s * math.pi / 2, 0)                    # eixo z local -> para o centro do vao
+        xf = xc - s * 0.06                               # face das ferragens
+        for zz in hz:
+            # ferragem em T: tira ate perto do fecho + travessa vertical na dobra
+            mb.box2((min(xf, xf - s * 0.07), LY0 + 0.2, zz - 0.16), (max(xf, xf - s * 0.07), LY1 - 0.45, zz + 0.16),
+                    BI, 0.02)
+            mb.box2((min(xf, xf - s * 0.08), LY0 + 0.14, zz - 0.72), (max(xf, xf - s * 0.08), LY0 + 0.44, zz + 0.72),
+                    BI, 0.02)
+            mb.cyl(0.13, 0.24, (xf - s * 0.07 - 0.0 * s, LY1 - 0.45, zz), (0, 0, 0), BI, n=8, bevel=0.0)
+            for q in range(5):
+                yy = LY0 + 0.75 + q * (LY1 - LY0 - 1.5) / 4.0
+                mb.cyl(0.075, 0.08, (xf - s * 0.11, yy, zz), rs, BI, n=6, r2=0.035, bevel=0.0)
+            for zz2 in (zz - 0.5, zz + 0.5):
+                mb.cyl(0.07, 0.08, (xf - s * 0.12, LY0 + 0.29, zz2), rs, BI, n=6, r2=0.035, bevel=0.0)
+            # dobradicas de pino: na dobra A|B (frente) e no batente (lado do salao)
+            mb.cyl(0.13, 0.95, (xa - s * 0.015, LY0 - 0.08, zz), (0, 0, 0), BI, n=8, bevel=0.0)
+            mb.cyl(0.15, 1.05, (xo - s * 0.1, LY1 + 0.02, zz), (0, 0, 0), BI, n=8, bevel=0.0)
+            mb.box2((min(xo, xo + s * 0.02), LY1 - 0.9, zz - 0.18), (max(xo, xo + s * 0.02), LY1 + 0.05, zz + 0.18),
+                    BI, 0.0)
+        # argola: espelho redondo + aro pendurado
+        yr, zr_ = LY1 - 0.8, Z + 4.7
+        mb.cyl(0.3, 0.07, (xf - s * 0.035, yr, zr_), rs, BI, n=10, bevel=0.0)
+        mb.cyl(0.1, 0.16, (xf - s * 0.1, yr, zr_), rs, BI, n=8, bevel=0.0)
+        rp = [(xf - s * 0.14, yr + 0.36 * math.sin(2 * math.pi * k / 12), zr_ - 0.36 + 0.36 * math.cos(2 * math.pi * k / 12))
+              for k in range(13)]
+        mb.tube(rp, 0.055, BI, 6)
+        col_box2("SG_CasDoorLeaf", (min(xo, xc) - 0.02, LY0, Z - 0.5), (max(xo, xc) + 0.02, LY1, lz1))
     for s in (-1, 1):
         a = (s * pw, zd + 6.0)
         b = (0.0, gab_top)
