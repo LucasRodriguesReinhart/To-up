@@ -9,6 +9,7 @@ from sg_lib import MB, camera, dome
 import sg_layout as L
 import fm_scene
 import il_scene
+import fm_water_kit as WK
 
 MOON_DIR = Vector((-0.45, 0.55, 0.70)).normalized()     # aponta PARA a lua (noroeste, alta: contraluz na fachada)
 
@@ -96,81 +97,138 @@ ISLET_SPOTS = [(-300.0, 60.0, 52.0, 20.0), (-260.0, 260.0, 80.0, 16.0), (40.0, 3
                (-300.0, 390.0, 58.0, 10.0)]
 
 
+def _loft(mb, rings, apex, mats, top_m=None):
+    """solido de aneis [(pontos xy, z)] com o mesmo numero de pontos, fechado no topo (top_m) e numa ponta (apex);
+    mats = material de cada faixa entre aneis (a ponta usa o ultimo)"""
+    import bmesh
+    bm = mb.bm
+    vr = [[bm.verts.new((x, y, z)) for x, y in pts] for pts, z in rings]
+    n = len(vr[0])
+    groups = {}
+    top = bm.faces.new(vr[0]) if top_m else None
+    for (r0, r1), mm in zip(zip(vr, vr[1:]), mats):
+        for k in range(n):
+            groups.setdefault(mm, []).append(bm.faces.new((r0[(k + 1) % n], r0[k], r1[k], r1[(k + 1) % n])))
+    av = bm.verts.new(apex)
+    for k in range(n):
+        groups.setdefault(mats[-1], []).append(bm.faces.new((vr[-1][(k + 1) % n], vr[-1][k], av)))
+    allf = [f for fs in groups.values() for f in fs] + ([top] if top else [])
+    bmesh.ops.recalc_face_normals(bm, faces=allf)
+    mb._post([v for r in vr for v in r] + [av], mats[0], None, 0, 1)
+    for mm, fs in groups.items():
+        mi = mb._mi_for(mm)
+        for f in fs:
+            f.material_index = mi
+    if top:
+        top.material_index = mb._mi_for(top_m)
+
+
 def islets():
-    """ilhotas flutuantes: fragmentos de Shadow Garden (referencia v2) - basalto escuro com pinheiros, ponta de
-    cristal violeta embaixo, lascas de cristal nas faces, 1-2 cristais no topo e METADE delas vertendo um fio de
-    cachoeira (Water_SG + espuma). Fora do alcance; sem colisao."""
-    rng = random.Random(3909)
-    mb = MB("SG_Sky_Islets", "02_TERRAIN", rng, detail="far", floor=-999)
+    """ilhotas flutuantes (13.04): fragmentos de Shadow Garden - rocha em 3 ESTRATOS (a familia do penhasco e da
+    dungeon: faixa canelada, degrau ao luar, faixa escura) fechando numa ponta com o cristal-coracao embaixo,
+    pinheiros do kit da vegetacao em LOD2 (sg_veg.pine, 1 a 3 conforme o tamanho) e, em metade delas, a cachoeira do
+    13.02 em miniatura (lamina em arco + faixa clara). Contorno com lobos DIRIGIDOS (senoides), sem sorteio de forma.
+    Antes: 4 icosferas empilhadas + pinheiro de 3 cones + cachoeira em caixa + 4-5 cristais soltos. Sem colisao."""
+    import sg_veg as VG
+    import fm_veg_kit as VK
+    mb = MB("SG_Sky_Islets", "02_TERRAIN", random.Random(3909), detail="far", floor=-999)
+    old_sun = VK.SUN
+    VK.SUN = VG.MOON_DIR
+    ROCK, DARK, TOPM = "Cliff_Rock_SG", "Cliff_Rock_SG_Dark", "Cliff_Rock_SG_Top"
+    try:
+        for idx, (x, y, z, r) in enumerate(ISLET_SPOTS):
+            ph = idx * 1.7
+            n = 8
 
-    def crys(base, ax, ln, r):
-        ax = Vector(ax).normalized()
-        yaw = math.atan2(ax.y, ax.x)
-        pitch = math.acos(max(-1.0, min(1.0, ax.z)))
-        b = Vector(base)
-        mb.cyl(r, ln * 0.7, b + ax * (ln * 0.35), (0.0, pitch, yaw), m="SG_Crystal_Glow", n=6, r2=r * 0.8, bevel=0.0)
-        mb.cyl(r * 0.8, ln * 0.3, b + ax * (ln * 0.85), (0.0, pitch, yaw), m="SG_Crystal_Glow", n=6, r2=0.03,
-               bevel=0.0)
-
-    for idx, (x, y, z, r) in enumerate(ISLET_SPOTS):
-        for k, (f, dz) in enumerate(((1.0, -0.35), (0.8, -0.95), (0.55, -1.55), (0.3, -2.1))):
-            ox, oy = rng.uniform(-0.12, 0.12) * r, rng.uniform(-0.12, 0.12) * r
-            mb.rock((x + ox, y + oy, z + dz * r), (2 * r * f, 2 * r * f * rng.uniform(0.8, 1.0), r * 0.9),
-                    "Cliff_Rock_SG" if k % 2 == 0 else "Cliff_Rock_SG_Dark", 1, jitter=0.3, flat_bottom=False)
-        pts = [(x + r * rng.uniform(0.85, 1.05) * math.cos(a), y + r * rng.uniform(0.85, 1.05) * math.sin(a))
-               for a in [2 * math.pi * i / 9 for i in range(9)]]
-        mb.prism(pts, z - 0.6, z + 0.4, "Grass_SG")
-        for k in range(rng.randint(2, 4)):
-            a = rng.uniform(0, 6.28)
-            rr = rng.uniform(0, r * 0.55)
-            px, py, h = x + rr * math.cos(a), y + rr * math.sin(a), rng.uniform(10, 16)
-            mb.cyl(0.5, h * 0.35, (px, py, z + 0.4 + h * 0.17), m="Wood_SG_Dark", n=6, bevel=0.0)
-            for j, (fr, fz) in enumerate(((1.0, 0.3), (0.72, 0.55), (0.45, 0.78))):
-                mb.cyl(h * 0.2 * fr, h * 0.32, (px, py, z + 0.4 + h * fz), m="Leaf_SG_Pine", n=7, r2=0.2, bevel=0.0)
-        # ponta de cristal violeta embaixo (o coracao do fragmento) + lascas nas faces de baixo
-        crys((x, y, z - 1.9 * r), (rng.uniform(-0.22, 0.22), rng.uniform(-0.22, 0.22), -1.0),
-             r * rng.uniform(0.85, 1.15), r * rng.uniform(0.16, 0.22))
-        for k in range(2):
-            a = rng.uniform(0, 2 * math.pi)
-            crys((x + math.cos(a) * r * 0.55, y + math.sin(a) * r * 0.55, z - rng.uniform(1.0, 1.5) * r),
-                 (math.cos(a) * 0.8, math.sin(a) * 0.8, -0.9), r * rng.uniform(0.35, 0.5),
-                 r * rng.uniform(0.09, 0.13))
-        # 1-2 cristais no topo
-        for k in range(rng.randint(1, 2)):
-            a = rng.uniform(0, 2 * math.pi)
-            rr = rng.uniform(0.3, 0.65) * r
-            crys((x + rr * math.cos(a), y + rr * math.sin(a), z + 0.1),
-                 (rng.uniform(-0.35, 0.35), rng.uniform(-0.35, 0.35), 1.0), rng.uniform(2.2, 3.8),
-                 rng.uniform(0.32, 0.48))
-        # metade das ilhotas verte um fio de cachoeira (como a referencia)
-        if idx % 2 == 0:
-            a = rng.uniform(0, 2 * math.pi)
-            ex, ey = x + (r * 0.92) * math.cos(a), y + (r * 0.92) * math.sin(a)
-            drop = rng.uniform(0.9, 1.4) * (26.0 + r)
-            w = rng.uniform(1.6, 2.6)
-            mb.box((w, 0.4, 1.4), (ex, ey, z - 0.2), (0, 0, a + math.pi / 2), "Water_SG", 0.0)
-            mb.box((w * 0.85, 0.4, drop), (ex + math.cos(a) * 0.6, ey + math.sin(a) * 0.6, z - drop / 2 - 0.4),
-                   (0, 0, a + math.pi / 2), "Water_SG", 0.0)
-            mb.ico(w * 0.55, (ex, ey, z + 0.25), "Foam", 1, (1.5, 1.1, 0.5), (0, 0, a), jitter=0.2)
-            mb.ico(w * 0.7, (ex + math.cos(a) * 0.6, ey + math.sin(a) * 0.6, z - drop - 0.6), "Foam", 1,
-                   (1.4, 1.2, 0.7), (0, 0, a), jitter=0.22)
+            def outline(sc, amp=1.0, fl=0.0):
+                pts = []
+                for k in range(n):
+                    a = 2 * math.pi * k / n + ph
+                    kk = 1.0 + amp * (0.14 * math.sin(3 * a + ph) + 0.06 * math.sin(5 * a))
+                    rr = r * sc * kk + (fl if k % 2 == 0 else -fl)
+                    pts.append((x + rr * math.cos(a), y + rr * math.sin(a)))
+                return pts
+            rings = [(outline(1.0, fl=0.4), z), (outline(0.93, fl=0.4), z - 0.45 * r),
+                     (outline(0.80), z - 0.45 * r), (outline(0.66, fl=0.3), z - 1.0 * r),
+                     (outline(0.52), z - 1.0 * r), (outline(0.30, 0.6), z - 1.45 * r)]
+            _loft(mb, rings, (x, y, z - 1.85 * r), [ROCK, TOPM, ROCK, TOPM, DARK], top_m="Grass_SG")
+            # cristal-coracao na ponta (o unico cristal da ilhota)
+            ax = Vector((0.12 * math.cos(ph), 0.12 * math.sin(ph), -1.0)).normalized()
+            b = Vector((x, y, z - 1.7 * r))
+            yaw, pitch = math.atan2(ax.y, ax.x), math.acos(max(-1.0, min(1.0, ax.z)))
+            ln, cr = r * 0.95, r * 0.18
+            mb.cyl(cr, ln * 0.7, b + ax * (ln * 0.35), (0.0, pitch, yaw), m="SG_Crystal_Glow", n=6, r2=cr * 0.8,
+                   bevel=0.0)
+            mb.cyl(cr * 0.8, ln * 0.3, b + ax * (ln * 0.85), (0.0, pitch, yaw), m="SG_Crystal_Glow", n=6, r2=0.03,
+                   bevel=0.0)
+            # pinheiros LOD2 do kit: 1 (pequena), 2 (media), 3 (grande); o mais alto no miolo, dirigidos
+            nt = 1 if r < 13 else (2 if r < 18 else 3)
+            g = random.Random(4100 + idx)
+            for j in range(nt):
+                a = ph + 2.1 * j
+                d = 0.0 if j == 0 else r * 0.42
+                h = r * (0.85 if j == 0 else 0.6)
+                VG.pine(mb, x + d * math.cos(a), y + d * math.sin(a), z, h, g, "fir" if j != 1 else "spire",
+                        lod=2)
+            # metade verte a cachoeira do 13.02 em miniatura: lamina em arco (corpo) + uma faixa clara
+            if idx % 2 == 0:
+                a = ph + 3.6
+                ox, oy = math.cos(a), math.sin(a)
+                ex, ey = x + ox * r * 0.9, y + oy * r * 0.9
+                drop = 26.0 + r
+                w = 1.4 + r * 0.06
+                side = (-oy, ox, 0.0)
+                pts = [(ex - ox * 0.8, ey - oy * 0.8, z + 0.05), (ex + ox * 0.6, ey + oy * 0.6, z - 0.3),
+                       (ex + ox * 1.4, ey + oy * 1.4, z - drop * 0.3), (ex + ox * 1.9, ey + oy * 1.9, z - drop)]
+                WK.ribbon(mb, pts, [w, w * 1.05, w * 0.9, w * 0.3], "Water_SG", side, thick=0.3, bulge=0.25)
+                pts2 = [(px + ox * 0.14, py + oy * 0.14, pz - 0.02) for px, py, pz in pts[1:]]
+                WK.ribbon(mb, pts2, [w * 0.35, w * 0.38, w * 0.12], "Water_Fall", side, thick=0.1, flat=True)
+    finally:
+        VK.SUN = old_sun
     mb.finish()
 
 
+def _slab(mb, c, r, h, m, n=12, ph=0.0, sx=1.0):
+    """disco de nuvem MUITO achatado (lente): borda fina, topo levemente abaulado, fundo quase plano; contorno com
+    lobos dirigidos (senoides)"""
+    x, y, z = c
+    rings = []
+    for f, dz in ((0.72, h * 0.55), (1.0, 0.0), (0.78, -h * 0.35)):
+        pts = []
+        for k in range(n):
+            a = 2 * math.pi * k / n
+            kk = 1.0 + 0.1 * math.sin(3 * a + ph) + 0.05 * math.sin(5 * a + ph * 2)
+            pts.append((x + r * f * kk * sx * math.cos(a), y + r * f * kk * math.sin(a)))
+        rings.append((pts, z + dz))
+    _loft(mb, rings, (x, y, z - h * 0.45), [m, m], top_m=m)
+
+
 def clouds():
-    """mar de nuvens embaixo da ilha (refinamento v2: um pouco mais alto e denso perto da borda)"""
-    rng = random.Random(1313)
-    mb = MB("SG_Sky_Clouds", "02_TERRAIN", rng, detail="far", floor=-999)
-    for i in range(26):
-        a = math.radians(i * 13.8 + rng.uniform(-6, 6))
-        R = SL.ray_poly(L.ISLAND_RIM, math.degrees(a), 0.0, -20.0) + rng.uniform(4.0, 30.0)
+    """mar de nuvens (13.03): CAMADAS horizontais de discos muito achatados sobrepostos - em cada banco, o disco de
+    baixo largo e escuro, o do meio no tom base, o de cima menor e mais claro (luar por cima); 2 camadas de altura
+    (a de perto da borda mais alta). Tamanhos e posicoes em ritmo dirigido ao redor da ilha. Previa: nao exporta.
+    (2 discos por banco: o de baixo largo e escuro, o de cima menor e claro, deslocado)"""
+    import fm_lib
+    fm_lib.MATS.setdefault("Cloud_SGLight", (fm_lib.S(132, 122, 196), 0.9, 0.0, 0.22, fm_lib.S(150, 136, 220), 0.0))
+    fm_lib.MATS.setdefault("Cloud_SGShade", (fm_lib.S(64, 56, 112), 0.9, 0.0, 0.12, fm_lib.S(80, 70, 140), 0.0))
+    for nm in ("Cloud_SGLight", "Cloud_SGShade"):
+        if nm not in bpy.data.materials:
+            fm_lib.mat(nm)
+    mb = MB("SG_Sky_Clouds", "02_TERRAIN", random.Random(1313), detail="far", floor=-999)
+    NB = 22
+    for i in range(NB):
+        a = math.radians(i * 360.0 / NB + 7.0 * math.sin(i * 1.3))
+        near = i % 3 != 2
+        R = SL.ray_poly(L.ISLAND_RIM, math.degrees(a), 0.0, -20.0) + (8.0 if near else 30.0) + 6.0 * math.sin(i * 2.1)
         cx, cy = math.cos(a) * R, -20.0 + math.sin(a) * R
-        near = rng.random() < 0.5
-        for k in range(rng.randint(4, 6) + (1 if near else 0)):
-            rr = rng.uniform(14.0, 27.0)
-            zz = rng.uniform(-64.0, -30.0) if near else rng.uniform(-70.0, -38.0)
-            mb.ico(rr, (cx + rng.uniform(-22, 22), cy + rng.uniform(-22, 22), zz), "Cloud_SG", 2,
-                   (1.25, 1.0, 0.5), jitter=0.12)
+        zc = (-46.0 if near else -60.0) + 4.0 * math.sin(i * 0.9)
+        rr = 30.0 + 8.0 * math.sin(i * 1.7 + 0.5)
+        ang = a + math.pi / 2
+        ux, uy = math.cos(ang), math.sin(ang)
+        # banco: largo/escuro embaixo, base no meio (deslocado ao longo da borda), claro e menor em cima
+        _slab(mb, (cx, cy, zc - 2.6), rr * 1.1, 3.2, "Cloud_SGShade", n=10, ph=i * 0.7)
+        _slab(mb, (cx - ux * rr * 0.22, cy - uy * rr * 0.22, zc + 1.2), rr * 0.68, 3.4, "Cloud_SGLight", n=10,
+              ph=i * 0.7 + 2.3)
     mb.finish()
 
 

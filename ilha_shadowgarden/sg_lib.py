@@ -35,7 +35,9 @@ fm_lib._FLOOR_LEVELS = tuple(sorted(set(L.LEVELS + (L.DUN_Z,))))
 
 # ------------------------------------------------------------------ traducao Roblox dos prefixos novos
 _NEW_RULES = [("Glass_SGCraft", "Glass", 0.55, False),   # frascos da alquimia: o liquido tem de aparecer (acabamento)
-              ("Glass_SG", "Glass", 0.3, False), ("SG_", "Neon", 0.0, False)]
+              ("Glass_SG", "Glass", 0.3, False), ("SG_", "Neon", 0.0, False),
+              # overhaul 13 (cachoeiras): corpo da lamina com transparencia leve; os filetes claros ficam opacos
+              ("Water_SGFallLine", "SmoothPlastic", 0.0, False), ("Water_SGFall", "SmoothPlastic", 0.15, False)]
 for r in reversed(_NEW_RULES):
     if r not in fm_lib.RBX_RULES:
         fm_lib.RBX_RULES.insert(0, r)

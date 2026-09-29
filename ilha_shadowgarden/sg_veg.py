@@ -17,6 +17,11 @@
 # OVERHAUL 02 (vila, 2026-09-29, curadoria sem arvore nova): os grupos da vila viram pares/trios DELIBERADOS - sairam
 # o 2o abeto do par a leste da calcada alta (o oeste tem 1: a moldura do eixo fica simetrica), o cipreste gemeo entre as
 # casas do oeste do P2 (fica 1 atras do poste) e o 2o abeto identico do grupo da rua da saida.
+# OVERHAUL 13 (terreno e fundo, 2026-09-29, nenhuma arvore nova): LOD pela distancia da ROTA - a menos de 15 o abeto
+# vira LOD0 com a saia de baixo em 8 lobos (de perto nao faceta); no terreno bravo longe de rota e de piso, LOD2 e sem
+# arbusto/tufo no pe (fundo); o rng de cada grupo avanca igual (a arvore antiga e sorteada num MB descartavel: nenhuma
+# muda de lugar); cipreste com 4o fuso estreito e torto no topo; mancha da borda um pouco mais rala (a coroa nova do
+# terreno tem mais topo plano e o limiar antigo acrescentava arvores).
 import math, random
 import bpy
 import numpy as np
@@ -63,6 +68,20 @@ EXTRA_PROBES = []
 
 # arvores ja plantadas (x, y, z_pe, raio_copa, altura) - os props consultam
 PLACED = []
+CLAMPED = []        # overhaul 13: saias limitadas pelo parapeito vizinho
+
+
+def edge_clear(x, y):
+    """arvore do terreno bravo: (raio livre ate a face de fora do parapeito da borda mais proxima, topo do
+    parapeito) ou None se nenhum piso esta a menos de 14"""
+    best = None
+    for nm, poly, z, pr in L.floors():
+        d = L.polyline_dist(x, y, list(poly) + [poly[0]])
+        if best is None or d < best[0]:
+            best = (d, z)
+    if best is None or best[0] > 14.0:
+        return None
+    return best[0] - 1.35, best[1] + 2.3
 
 
 # ------------------------------------------------------------------ o chao real (raios contra as malhas montadas)
@@ -183,9 +202,12 @@ def crown_r(form, h):
     return h * (0.13 if form == "cypress" else FORMS[form]["r0"])
 
 
-def pine(mb, x, y, z, h, rng, form="fir", lod=1):
+def pine(mb, x, y, z, h, rng, form="fir", lod=1, near=False, clear=None):
     """abeto escuro estilizado: camadas conicas escalonadas com saia caida (pontas pendentes, vaos recolhidos), fundo
-    escuro (SHADE), faces de cima voltadas para a lua em MOON (so nas 2 camadas de cima), topo levemente torto"""
+    escuro (SHADE), faces de cima voltadas para a lua em MOON (so nas 2 camadas de cima), topo levemente torto.
+    near (overhaul 13.08: arvore a menos de 15 da rota): a saia de BAIXO ganha 8 lobos (de perto nao faceta).
+    clear = (raio livre, cota): saia cujas pontas descem abaixo da cota (topo do parapeito da borda vizinha) nao passa
+    do raio livre (a copa nao atravessa o parapeito; so limita o raio, nao consome o rng)"""
     P = FORMS[form]
     T = P["T"] - (1 if lod == 2 else 0)
     lobes = LOBES[lod]
@@ -205,6 +227,9 @@ def pine(mb, x, y, z, h, rng, form="fir", lod=1):
         u = k / (T - 1)
         zc = zb + ch * P["span"] * (u ** 0.92)
         r = r0 * (1.0 - P["taper"] * u) * rng.uniform(0.9, 1.1)
+        if clear and zc - r * math.tan(math.radians(droop)) < clear[1] and r > clear[0]:
+            r = max(clear[0], 0.45 * r)
+            CLAMPED.append((round(x, 1), round(y, 1), k))
         top = k == T - 1
         th = (zt - zc) if top else ch * P["th"] * (1.0 - 0.3 * u) * rng.uniform(0.92, 1.08)
         cxy = (x + tx * u * 0.5, y + ty * u * 0.5)
@@ -212,7 +237,8 @@ def pine(mb, x, y, z, h, rng, form="fir", lod=1):
         shoulder = P["sh"] if ((lod == 0 and k < T - 2) or (lod == 1 and k == 0)) else None
         under = 0.14 if (lod < 2 or k == 0) else None
         lm = MOON if (lod < 2 and k >= T - 2) else None
-        VK.skirt(mb, (cxy[0], cxy[1], zc), r, th, lobes, LEAF, rng, rot=rot0 + k * 0.9 + rng.uniform(-0.3, 0.3),
+        VK.skirt(mb, (cxy[0], cxy[1], zc), r, th, 8 if (near and k == 0) else lobes, LEAF, rng,
+                 rot=rot0 + k * 0.9 + rng.uniform(-0.3, 0.3),
                  droop=droop * (1.0 - 0.25 * u), lob=0.3 if lod < 2 else 0.22, shoulder=shoulder, under=under,
                  under_m=SHADE, lean=lean, lit=lm, lit_k=(0.2 if top else 0.45), asym=0.06, wind=ta)
     if lod < 2:
@@ -230,6 +256,13 @@ def cypress(mb, x, y, z, h, rng, lod=0):
         VK.skirt(mb, (x, y, z + h * zb), r * rr, h * th, 5 if lod < 2 else 4, LEAF, rng, rot=rot0 + k * 1.1,
                  droop=8.0, lob=0.18, shoulder=0.82, under=0.1, under_m=SHADE, lit=MOON if k >= 1 else None,
                  lit_k=0.4, jit=0.08)
+    # overhaul 13.08: 4o fuso, estreito e TORTO no topo (o cipreste deixa de ler cone escuro); rng proprio derivado
+    # da posicao (nao consome o rng do grupo: as outras arvores ficam onde estao)
+    r4 = random.Random(int(abs(x) * 131 + abs(y) * 71) & 0xffff)
+    lean = (math.cos(rot0 + 2.0) * h * 0.035, math.sin(rot0 + 2.0) * h * 0.035)
+    VK.skirt(mb, (x + lean[0] * 0.3, y + lean[1] * 0.3, z + h * 0.74), r * 0.4, h * 0.3, 4, LEAF, r4,
+             rot=rot0 + 3.3, droop=6.0, lob=0.16, shoulder=0.8, under=None, lean=lean, lit=MOON, lit_k=0.45,
+             jit=0.06)
 
 
 # ------------------------------------------------------------------ grupos (a planta PINE_GROVES + moldura)
@@ -431,6 +464,7 @@ def base_dressing(mb, S, x, y, zg, h, rng, wild):
 
 def build():
     PLACED.clear()
+    CLAMPED.clear()
     WHY.clear()
     old_sun = VK.SUN
     VK.SUN = MOON_DIR
@@ -465,6 +499,7 @@ class Planter:
         self.mbs = {}
         self.placed = []
         self.ncol = 0
+        self.lods = {}
 
     def mb(self, key):
         mb = self.mbs.get(key)
@@ -480,9 +515,30 @@ class Planter:
         if form == "cypress":
             cypress(mb, x, y, zg, h, g, lod)
         else:
-            pine(mb, x, y, zg, h, g, form, lod)
-        if dress:
+            # overhaul 13.08: LOD pela distancia da ROTA - a menos de 15: LOD0 com a saia de baixo em 8 lobos; no
+            # terreno bravo longe de rota e de piso andavel: LOD2 (fundo, so silhueta). O rng do grupo avanca como
+            # antes (a arvore original e sorteada num MB descartavel): nenhuma arvore muda de lugar.
+            new_lod, near = self.lod_for(x, y, fl, lod)
+            clr = edge_clear(x, y) if fl is None else None
+            if (new_lod, near) == (lod, False):
+                pine(mb, x, y, zg, h, g, form, lod, clear=clr)
+            else:
+                st = g.getstate()
+                tmp = MB("SG_Veg_Tmp", COLL, random.Random(1), detail="near", floor=-999)
+                pine(tmp, x, y, zg, h, g, form, lod)
+                tmp.bm.free()
+                end = g.getstate()
+                g.setstate(st)
+                pine(mb, x, y, zg, h, g, form, new_lod, near=near, clear=clr)
+                g.setstate(end)
+                self.lods[(new_lod, near)] = self.lods.get((new_lod, near), 0) + 1
+        if dress and (form == "cypress" or self.lod_for(x, y, fl, lod)[0] < 2):
             base_dressing(mb, self.S, x, y, zg, h, g, wild=fl is None)
+        elif dress:
+            # overhaul 13: arvore de FUNDO (LOD2) sem arbusto/tufo no pe (nao se ve de longe); o rng avanca igual
+            tmp = MB("SG_Veg_Tmp", COLL, random.Random(1), detail="near", floor=-999)
+            base_dressing(tmp, self.S, x, y, zg, h, g, wild=fl is None)
+            tmp.bm.free()
         if fl is not None:
             tr = h * (0.035 if form == "cypress" else FORMS[form]["tr"]) * 1.35
             w = max(0.9, tr * 2.0)
@@ -490,6 +546,18 @@ class Planter:
             self.ncol += 1
         self.placed.append((x, y, zg, crown_r(form, h), h))
         PLACED.append((x, y, zg, crown_r(form, h), h, form))
+
+    def lod_for(self, x, y, fl, lod):
+        d = route_dist(x, y, self.routes)
+        if d < 15.0:
+            return 0, True
+        if fl is None and d > 24.0 and lod >= 1:
+            for k in range(8):
+                a = k * math.tau / 8
+                if L.zone_of(x + math.cos(a) * 12.0, y + math.sin(a) * 12.0) is not None:
+                    return lod, False
+            return 2, False
+        return lod, False
 
     def finish(self):
         for mb in self.mbs.values():
@@ -550,7 +618,9 @@ def rim_pass(P):
             ux, uy = (b[0] - a[0]) / seg, (b[1] - a[1]) / seg
             nx, ny = -uy, ux                                        # para dentro (contorno anti-horario)
             m = math.sin(s / 31.0 + 0.7) + 0.75 * math.sin(s / 11.7 + 2.1) + 0.35 * math.sin(s / 5.3)
-            if m > 0.25:
+            # overhaul 13: mancha um pouco mais rala (0,25 -> 0,42): a coroa nova tem mais topo plano e o
+            # limiar antigo PLANTAVA mais arvores na borda (a regra e nao acrescentar vegetacao)
+            if m > 0.42:
                 h = g.uniform(9.0, 15.0) + (3.0 if m > 1.3 else 0.0)
                 form = pick(g, LOW_MIX if h < 12.0 else FIR_MIX)
                 for d in (g.uniform(2.0, 4.0), g.uniform(4.0, 7.0), g.uniform(7.0, 10.0)):
@@ -577,6 +647,7 @@ def _build():
     P.finish()
     miss = ["%d:%s(%d/%d)%s" % (gi, GROVES[gi][0], a, b, sorted(w.items(), key=lambda t: -t[1])[:3])
             for gi, (a, b, w) in stats.items() if a < b]
-    print("VEG arvores=%d (borda %d) colisoes_tronco=%d" % (len(PLACED), nrim, P.ncol))
+    print("VEG arvores=%d (borda %d) colisoes_tronco=%d lod_mudado=%s saias_limitadas=%d" % (
+        len(PLACED), nrim, P.ncol, P.lods, len(CLAMPED)))
     print("VEG grupos_incompletos=%s" % miss)
     print("VEG recusas_borda=%s" % sorted(why_rim.items(), key=lambda t: -t[1])[:6])
