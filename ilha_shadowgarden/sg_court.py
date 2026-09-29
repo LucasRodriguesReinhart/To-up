@@ -42,6 +42,9 @@ SILVER = "Metal_SG_Silver"
 IRON = "Metal_SG_BlackIron"
 THREAD = "SG_VioletDeep_Glow"
 RUNE = "SG_Rune_Glow"
+# overhaul 01 (2026-09-29): cantaria de remate um valor abaixo do Stone_SG_Trim (o mesmo do sg_entry e da praca)
+CAP = "Stone_SG_TrimLow"
+fm_lib.MATS.setdefault(CAP, (fm_lib.S(132, 128, 134), 0.8, 0.0, 0, None, 0.06))
 # ACABAMENTO 2026-09-29 (hierarquia de brilho): na VILA (P1/P2) o fio do caminho da ordem vira PEDRA violeta sem brilho
 # (o desenho continua, o neon sai); no patio do CASTELO (P3) o fio, o halo do medalhao, as runas dos obeliscos e as
 # lanternas do norte ficam no violeta BAIXO (SG_VioletSoft_Glow). Lanternas de caminho: quentes.
@@ -143,35 +146,41 @@ def bez(p0, p1, p2, p3, n):
 
 # ------------------------------------------------------------------ 1. caminho da ordem
 def noble_path(mb, y0, y1, W, z, thread=(None, None), slabs=(None, None), border=(None, None), row=3.0,
-               thread_m=THREAD_VIL):
+               thread_m=THREAD_VIL, filete=True):
     """eixo nobre ao longo de +Y (x = 0) de y0 a y1, largura W, piso na cota z.
     base de obsidiana (juntas/canal do fio) + bordas de obsidiana + lajes grandes de marmore negro (uma por lado e por
-    fiada) + fio violeta no centro + junta de prata a cada 4 fiadas. thread/slabs/border = (y_ini, y_fim) opcionais
-    (quando o medalhao come um trecho)."""
+    fiada) + fio no centro. thread/slabs/border = (y_ini, y_fim) opcionais (quando o medalhao come um trecho).
+    Overhaul 01 (2026-09-29): fiadas em RITMO A-B (2,4 / 3,6) com chanfro de 0,04, junta de prata SO a cada 8 fiadas e
+    o filete claro da aresta so onde o piso em volta nao contrasta (filete=False na calcada alta e na praca; e em
+    cantaria baixa, nao mais no Stone_SG_Trim quase branco)."""
     hw = W / 2.0
     bd = 0.9                                     # borda
     mb.box2((-hw, y0, z - 0.2), (hw, y1, z + 0.02), OBS, 0.0)
     by0, by1 = border[0] if border[0] is not None else y0, border[1] if border[1] is not None else y1
     for s in (-1, 1):
-        xa, xb = sorted((s * (hw - 0.24), s * (hw - bd)))
+        xa, xb = sorted((s * (hw - (0.24 if filete else 0.0)), s * (hw - bd)))
         mb.box2((xa, by0, z - 0.05), (xb, by1, z + 0.05), OBS, 0.0)
-        # v3: filete de cantaria clara RENTE na aresta externa da borda: com o calcamento escurecido (refino v2b) o
-        # marmore negro + obsidiana perdiam a aresta contra o piso do patio; o filete desenha o caminho a altura do olho
-        xa, xb = sorted((s * hw, s * (hw - 0.24)))
-        mb.box2((xa, by0, z - 0.05), (xb, by1, z + 0.05), TRIM, 0.0)
-    # lajes (fiadas de ~3; junta 0,12 mostra a base escura)
+        if filete:
+            xa, xb = sorted((s * hw, s * (hw - 0.24)))
+            mb.box2((xa, by0, z - 0.05), (xb, by1, z + 0.05), CAP, 0.0)
     sy0, sy1 = slabs[0] if slabs[0] is not None else y0, slabs[1] if slabs[1] is not None else y1
-    n = max(1, int(round((sy1 - sy0) / row)))
-    dy = (sy1 - sy0) / n
+    Lr = sy1 - sy0
+    pat = (2.4, 3.6)
+    rows, acc = [], 0.0
+    while acc < Lr - 0.6 or not rows:
+        rows.append(pat[len(rows) % 2])
+        acc += rows[-1]
+    k_ = Lr / acc
     xin, xout = 0.55, hw - bd - 0.12
-    for k in range(n):
-        ya, yb = sy0 + k * dy + 0.06, sy0 + (k + 1) * dy - 0.06
+    yy = sy0
+    for k, ln in enumerate(rows):
+        ya, yb = yy + 0.06, yy + ln * k_ - 0.06
         for s in (-1, 1):
             xa, xb = sorted((s * xin, s * xout))
-            mb.box2((xa, ya, z - 0.05), (xb, yb, z + 0.045), MARB, 0.0)
-        if k > 0 and k % 4 == 0:
-            yj = sy0 + k * dy
-            mb.box2((-xout, yj - 0.06, z - 0.05), (xout, yj + 0.06, z + 0.035), SILVER, 0.0)
+            mb.box2((xa, ya, z - 0.05), (xb, yb, z + 0.045), MARB, 0.04)
+        if k > 0 and k % 8 == 0:
+            mb.box2((-xout, yy - 0.06, z - 0.05), (xout, yy + 0.06, z + 0.035), SILVER, 0.0)
+        yy += ln * k_
     ty0, ty1 = thread[0] if thread[0] is not None else y0, thread[1] if thread[1] is not None else y1
     mb.box2((-0.14, ty0, z - 0.05), (0.14, ty1, z + 0.05), thread_m, 0.0)
 
@@ -196,9 +205,9 @@ def axis_south():
     mb = MB("SG_Prop_NobleAxis_P1", COLL, random.Random(3601), detail="near")
     y_top = L.ENTRY_STAIR_Y1 + 0.35                  # topo da escadaria da entrada (-187,65)
     y_plaza_s = L.PLAZA_C[1] - L.PLAZA_R + 1.0       # a borda de cantaria da praca cobre a junta
-    noble_path(mb, y_top, y_plaza_s, PATH_W, P1)
+    noble_path(mb, y_top, y_plaza_s, PATH_W, P1, filete=False)
     foot = L.stair_frame("P1P2")[0]
-    noble_path(mb, L.PLAZA_C[1] + L.PLAZA_R - 1.0, foot[1] - 0.02, PATH_W, P1)
+    noble_path(mb, L.PLAZA_C[1] + L.PLAZA_R - 1.0, foot[1] - 0.02, PATH_W, P1, filete=False)
     # estandartes da ordem em mastros na saida norte da praca (encaram a praca)
     for x, y in PLAZA_MASTS:
         mast_banner(mb, x, y, P1)
@@ -345,58 +354,265 @@ def lamp(mb, x, y, z, kind):
     col_box("SG_PropCourtLamp", (1.2, 1.2, 9.0), (x, y, z + 4.5))
 
 
-def hooded_figure(mb, F, s, z0, body, void=OBS):
-    """a FIGURA da ordem (estatua do patio e coroamento da fonte da praca): encapuzado de manto longo com as maos sobre
-    a lamina fincada a frente. Referencial F (local +Y = frente), escala s, z0 = pe da figura (local).
-    Acabamento 2026-09-29: o manto deixa de ser um cone liso - barra de 12 lados, DOBRAS verticais (5 pregas que
-    afinam para cima), capa curta sobre os ombros, capuz com a borda em ponta emoldurando o rosto (vazio escuro),
-    mangas com punho. Pedra lisa, sem brilho: le por silhueta e sombra."""
-    rot = F.r()
-    mb.cyl(1.4 * s, 0.55 * s, F.p(0, 0, z0 + 0.275 * s), rot, body, n=16, r2=1.28 * s, bevel=0.0)       # barra
-    mb.cyl(1.28 * s, 4.9 * s, F.p(0, 0, z0 + 3.0 * s), rot, body, n=16, r2=0.84 * s, bevel=0.0)       # manto
-    for deg, w in ((122.0, 0.34), (58.0, 0.34), (196.0, 0.3), (-16.0, 0.3), (270.0, 0.36)):
-        c, d = math.cos(math.radians(deg)), math.sin(math.radians(deg))
-        mb.beam(F.p(1.24 * s * c, 1.24 * s * d, z0 + 0.5 * s), F.p(0.8 * s * c, 0.8 * s * d, z0 + 5.2 * s),
-                w * s, 0.24 * s, body, 0.0)                                                      # pregas
-    mb.cyl(1.12 * s, 1.15 * s, F.p(0, -0.04 * s, z0 + 5.35 * s), rot, body, n=14, r2=0.64 * s, bevel=0.0)  # capa
-    mb.cyl(0.74 * s, 1.9 * s, F.p(0, -0.12 * s, z0 + 6.75 * s), F.r(0.2), body, n=12, r2=0.1 * s, bevel=0.0)  # capuz
-    mb.box((0.56 * s, 0.3 * s, 0.7 * s), F.p(0, 0.3 * s, z0 + 6.42 * s), F.r(0.2), void, 0.0)            # rosto
+def _loft(mb, rows, m, cap0="ngon", cap1="ngon", strip=None):
+    """casca por secoes (listas de pontos MUNDO com a mesma contagem; uma secao de 1 ponto = polo).
+    cap: 'ngon' (secao convexa), 'fan' (leque pelo centroide: secao estrelada), 'strip' (secao = arco externo de
+    strip+1 pontos + linha interna de volta com strip+1 pontos: costura em faixa) ou None"""
+    import bmesh
+    from mathutils import Vector
+    bm = mb.bm
+    V = [[bm.verts.new(Vector(p)) for p in r] for r in rows]
+    faces = []
+    for A, B in zip(V, V[1:]):
+        if len(A) == 1 and len(B) == 1:
+            continue
+        n = max(len(A), len(B))
+        for i in range(n):
+            j = (i + 1) % n
+            if len(A) == 1:
+                faces.append(bm.faces.new((A[0], B[i], B[j])))
+            elif len(B) == 1:
+                faces.append(bm.faces.new((A[i], A[j], B[0])))
+            else:
+                faces.append(bm.faces.new((A[i], A[j], B[j], B[i])))
+    for cap, R in ((cap0, V[0]), (cap1, V[-1])):
+        if cap is None or len(R) < 3:
+            continue
+        if cap == "ngon":
+            faces.append(bm.faces.new(R))
+        elif cap == "fan":
+            cen = sum((v.co for v in R), Vector()) / len(R)
+            cv = bm.verts.new(cen)
+            for i in range(len(R)):
+                faces.append(bm.faces.new((R[i], R[(i + 1) % len(R)], cv)))
+        elif cap == "strip":
+            M = strip
+            for i in range(M):
+                faces.append(bm.faces.new((R[i], R[i + 1], R[2 * M + 1 - (i + 1)], R[2 * M + 1 - i])))
+    bmesh.ops.recalc_face_normals(bm, faces=faces)
+    mb._post([v for r in V for v in r], m, None, 0, 1)
+
+
+def _lathe_ax(mb, o, ax, prof, m, n=8, ph=0.0):
+    """solido de revolucao em torno de um eixo qualquer (o = origem MUNDO, ax = direcao); prof = [(raio, dist)]"""
+    from mathutils import Vector
+    ax = Vector(ax).normalized()
+    o = Vector(o)
+    ref = Vector((0.0, 0.0, 1.0)) if abs(ax.z) < 0.9 else Vector((1.0, 0.0, 0.0))
+    e1 = ax.cross(ref).normalized()
+    e2 = ax.cross(e1).normalized()
+    rows = []
+    for r, d in prof:
+        if r < 1e-5:
+            rows.append([o + ax * d])
+        else:
+            rows.append([o + ax * d + (e1 * math.cos(ph + 2 * math.pi * i / n) + e2 * math.sin(ph + 2 * math.pi * i / n)) * r
+                         for i in range(n)])
+    _loft(mb, rows, m)
+
+
+BLADE_OF = {TRIM: "Stone_SG_Block_B", "Stone_SG_TrimLow": "Stone_SG_Block_B",
+            "Stone_SG_Castle_B": "Stone_SG_Floor", "Stone_SG_Castle": "Stone_SG_Floor"}
+
+
+def hooded_figure(mb, F, s, z0, body, void=OBS, kind="guard"):
+    """a FIGURA da ordem (estatuas do patio e coroamento da fonte da praca). Referencial F (local +Y = frente),
+    escala s, z0 = pe da figura (local). Altura ~7,3 s.
+    OVERHAUL 01 (2026-09-29): GUARDIAO DE PEDRA em armadura fantastica estilizada, massas planas e duras (nada de
+    cone/saco inflavel): sapatos, grevas e joelheiras, coxotes, saia de lamas, peitoral com quilha, cinto, gorjal,
+    ESPALDEIRAS em 2 lamas, bracos com cotoveleira e manopla, as 2 maos (uma sobre a outra) no punho da ESPADA fincada
+    a frente; tabardo liso na frente e MANTO de dobras duras nas costas (base larga = silhueta heroica).
+    Espada de verdade: lamina de secao em losango com SULCO, ponta entrando no plinto, guarda em perfil curvo com
+    quillons caidos e pontas em gota, punho com anel, pomo facetado com colar. Lamina e punho um valor MAIS ESCUROS que
+    o corpo (le objeto na mao).
+    kind: 'guard' (as guardas do portao do castelo: ELMO fechado com viseira em cruz e crista baixa, capuz caido nas
+    costas) ou 'hood' (o marco da praca: CAPUZ de formas definidas com a borda dobrada e o vazio escuro do rosto)."""
+    from mathutils import Vector
+
+    def W(x, y, z):
+        return F.p(x * s, y * s, z0 + z * s)
+
+    def ell(cx, cy, z, rx, ryf, ryb=None, n=8, ridge=0.0, ph=math.pi / 2):
+        """secao eliptica (frente ryf, costas ryb) com n pontos, o 1o na frente; ridge = quilha na frente"""
+        ryb = ryf if ryb is None else ryb
+        out = []
+        for k in range(n):
+            a = ph + 2 * math.pi * k / n
+            ca, sa = math.cos(a), math.sin(a)
+            yy = (ryf if sa > 0 else ryb) * sa
+            if k == 0:
+                yy += ridge
+            out.append(W(cx + rx * ca, cy + yy, z))
+        return out
+    blade_m = BLADE_OF.get(body, "Stone_SG_Floor")
+    # ---- pernas (x = +-0,40): sapato, greva, joelheira, coxote
     for sg in (-1, 1):
-        mb.beam(F.p(sg * 0.42 * s, 0.47 * s, z0 + 5.95 * s), F.p(0, 0.36 * s, z0 + 7.05 * s), 0.2 * s, 0.24 * s,
-                body, 0.0)                                                                       # borda do capuz
-        # mangas descendo para o cabo, punho alargado, mao
-        mb.beam(F.p(sg * 0.95 * s, 0.05 * s, z0 + 5.2 * s), F.p(sg * 0.32 * s, 1.28 * s, z0 + 3.92 * s),
-                0.5 * s, 0.55 * s, body, 0.0)
-        mb.box((0.46 * s, 0.34 * s, 0.5 * s), F.p(sg * 0.3 * s, 1.3 * s, z0 + 3.9 * s), rot, body, 0.0)
-        mb.box((0.34 * s, 0.4 * s, 0.36 * s), F.p(sg * 0.17 * s, 1.42 * s, z0 + 3.72 * s), rot, body, 0.0)
-    # espada ESCULPIDA na mesma pedra da figura (acabamento: antes lamina chata + barra negra solta como guarda):
-    # lamina afunilada ate a ponta fincada no plinto, guarda com as pontas alargadas, cabo redondo, pomo de prata.
-    yb = 1.5 * s
-    FP.frustum(mb, tuple(F.p(0, yb, z0 + 0.1 * s)), 0.1 * s, 0.07 * s, 0.46 * s, 0.15 * s, 3.08 * s, body,
-               ang=F.a)                                                                  # lamina (ponta embaixo)
-    mb.box((0.14 * s, 0.17 * s, 2.7 * s), F.p(0, yb, z0 + 1.75 * s), rot, body, 0.02 * s)  # aresta central
-    mb.box((1.0 * s, 0.24 * s, 0.2 * s), F.p(0, yb, z0 + 3.28 * s), rot, body, 0.05 * s)  # guarda
+        x = sg * 0.40
+        foot0 = [(-0.21, -0.30), (0.21, -0.30), (0.21, 0.40), (0.0, 0.62), (-0.21, 0.40)]
+        foot1 = [(-0.20, -0.28), (0.20, -0.28), (0.20, 0.12), (0.0, 0.26), (-0.20, 0.12)]
+        _loft(mb, [[W(x + a, b, 0.0) for a, b in foot0], [W(x + a, b, 0.34) for a, b in foot1]], body)
+        _loft(mb, [ell(x, 0.0, 0.30, 0.21, 0.22), ell(x, 0.02, 0.92, 0.25, 0.29, 0.26),
+                   ell(x, 0.02, 1.55, 0.23, 0.25)], body)
+        _loft(mb, [ell(x, 0.03, 1.48, 0.25, 0.27), ell(x, 0.05, 1.70, 0.30, 0.30, 0.27, ridge=0.08),
+                   ell(x, 0.03, 1.95, 0.25, 0.26)], body)
+        _loft(mb, [ell(x, 0.02, 1.90, 0.26, 0.28), ell(sg * 0.36, 0.0, 3.30, 0.32, 0.33)], body)
+    # ---- saia de lamas (2 lamas escalonadas) e tabardo
+    _loft(mb, [ell(0, -0.02, 3.95, 0.60, 0.42, 0.44, 10), ell(0, -0.02, 3.52, 0.74, 0.50, 0.50, 10)], body)
+    _loft(mb, [ell(0, -0.02, 3.60, 0.70, 0.48, 0.48, 10), ell(0, -0.02, 3.12, 0.82, 0.54, 0.54, 10)], body)
+    tab = [(-0.34, 3.40), (0.34, 3.40), (0.31, 1.40), (0.0, 1.08), (-0.31, 1.40)]
+    _loft(mb, [[W(a, 0.42, b) for a, b in tab], [W(a, 0.52, b) for a, b in tab]], body)
+    # ---- manto nas costas: arco externo com dobras duras (amplitude cresce para baixo) + linha interna
+    M = 10
+    secs = []
+    for z, hw, yb, yi, amp in ((5.50, 0.92, -0.66, -0.26, 0.0), (4.70, 1.00, -0.72, -0.30, 0.03),
+                               (3.20, 1.12, -0.80, -0.34, 0.06), (1.60, 1.20, -0.88, -0.36, 0.08),
+                               (0.02, 1.26, -0.94, -0.38, 0.09)):
+        outer, inner = [], []
+        for i in range(M + 1):
+            ph = math.pi * i / M
+            fold = amp * (1 if i % 2 else -0.6) if 0 < i < M else 0.0
+            px = (hw + fold) * math.cos(ph)
+            py = yi - (yi - yb + fold) * math.sin(ph)
+            outer.append(W(px, py, z))
+        for i in range(M + 1):
+            xx = -hw * 0.9 + 1.8 * hw * i / M
+            inner.append(W(xx, yi + 0.02, z))
+        secs.append(outer + inner)
+    _loft(mb, secs, body, "strip", "strip", strip=M)
+    # ---- tronco: peitoral com quilha, cinto, gorjal
+    _loft(mb, [ell(0, -0.02, 3.88, 0.56, 0.36, 0.40, 10), ell(0, -0.02, 4.30, 0.66, 0.44, 0.44, 10, 0.02),
+               ell(0, -0.02, 4.90, 0.74, 0.52, 0.48, 10, 0.07), ell(0, -0.02, 5.45, 0.72, 0.42, 0.46, 10, 0.03),
+               ell(0, -0.04, 5.72, 0.46, 0.26, 0.34, 10)], body)
+    _loft(mb, [ell(0, -0.02, 3.84, 0.61, 0.42, 0.45, 10), ell(0, -0.02, 4.02, 0.62, 0.43, 0.46, 10)], body)
+    _loft(mb, [ell(0, -0.04, 5.60, 0.40, 0.36, 0.38, 8), ell(0, -0.04, 6.02, 0.30, 0.28, 0.30, 8)], body)
+    # ---- espaldeiras: calota + lama de baixo, apontando para fora e um pouco para cima
     for sg in (-1, 1):
-        mb.box((0.16 * s, 0.3 * s, 0.32 * s), F.p(sg * 0.54 * s, yb, z0 + 3.3 * s), rot, body, 0.05 * s)  # pontas
-    mb.cyl(0.11 * s, 0.72 * s, F.p(0, yb, z0 + 3.74 * s), rot, body, n=8, bevel=0.0)       # cabo
-    mb.ico(0.2 * s, tuple(F.p(0, yb, z0 + 4.2 * s)), SILVER, 1)                           # pomo
+        o = W(sg * 0.74, -0.04, 5.36)
+        ax = F.p(sg * 0.9, 0.0, 0.45) - F.p(0.0, 0.0, 0.0)
+        _lathe_ax(mb, o, ax, [(0.54 * s, -0.28 * s), (0.58 * s, -0.06 * s), (0.50 * s, 0.16 * s),
+                              (0.34 * s, 0.32 * s), (0.0, 0.42 * s)], body, 8)
+        o2 = W(sg * 0.86, -0.04, 5.10)
+        _lathe_ax(mb, o2, ax, [(0.50 * s, -0.20 * s), (0.60 * s, -0.04 * s), (0.54 * s, 0.10 * s),
+                               (0.30 * s, 0.14 * s)], body, 8)
+    # ---- bracos: ombro -> cotovelo -> punho; manopla fechada no punho da espada (direita em cima)
+    YS = 0.98                                            # plano da espada (local y)
+    hands = {1: 4.10, -1: 3.78}                          # altura do centro de cada mao
+    for sg in (-1, 1):
+        J = Vector((sg * 0.80, -0.02, 5.22))
+        E = Vector((sg * 0.80, 0.24, 4.36))
+        zh = hands[sg]
+        Wr = Vector((sg * 0.30, YS - 0.06, zh + 0.02))
+        wJ, wE, wW = W(*J), W(*E), W(*Wr)
+        _lathe_ax(mb, wJ, wE - wJ, [(0.21 * s, 0.0), (0.18 * s, (wE - wJ).length)], body, 8)
+        _lathe_ax(mb, wE, wW - wE, [(0.18 * s, -0.04 * s), (0.16 * s, (wW - wE).length - 0.14 * s),
+                                    (0.22 * s, (wW - wE).length - 0.06 * s), (0.25 * s, (wW - wE).length + 0.06 * s)],
+                  body, 8)
+        ce = W(sg * 0.86, 0.18, 4.34)
+        _lathe_ax(mb, ce, F.p(sg * 0.55, -0.6, -0.1) - F.p(0, 0, 0), [(0.22 * s, -0.06 * s), (0.20 * s, 0.08 * s),
+                                                                     (0.10 * s, 0.18 * s), (0.0, 0.21 * s)], body, 6)
+        # manopla: punho fechado envolvendo o cabo (o cabo passa pelo meio): loft de secoes chanfradas com os nos dos
+        # dedos saltando na frente; o polegar da mao de cima dobra sobre o indicador
+        cxh = sg * 0.07
+
+        def fsec(z, hx, hy, ch, knuck=0.0):
+            pts = [(-hx + ch, -hy), (hx - ch, -hy), (hx, -hy + ch), (hx, hy - ch), (hx - ch, hy + knuck),
+                   (-hx + ch, hy + knuck), (-hx, hy - ch), (-hx, -hy + ch)]
+            return [W(cxh + a, YS + b, z) for a, b in pts]
+        _loft(mb, [fsec(zh - 0.16, 0.14, 0.14, 0.05), fsec(zh - 0.07, 0.19, 0.18, 0.06, 0.04),
+                   fsec(zh + 0.09, 0.19, 0.18, 0.06, 0.04), fsec(zh + 0.16, 0.15, 0.14, 0.05)], body)
+        if sg > 0:
+            _lathe_ax(mb, W(cxh + 0.16, YS + 0.10, zh + 0.12), W(cxh - 0.06, YS + 0.20, zh + 0.10)
+                      - W(cxh + 0.16, YS + 0.10, zh + 0.12), [(0.055 * s, 0.0), (0.05 * s, 0.2 * s), (0.0, 0.26 * s)],
+                      body, 6)
+    # ---- cabeca
+    if kind == "hood":
+        # capuz em CASCA de espessura 0,1: arco aberto na frente (a abertura estreita embaixo e no alto: ogiva), bico
+        # caindo para tras; a borda da abertura e a propria espessura da casca. Dentro, o vazio escuro recuado.
+        secs = []
+        for z, cy, rx, ry, al in ((5.60, -0.06, 0.64, 0.58, 16.0), (6.00, -0.02, 0.52, 0.52, 34.0),
+                                  (6.45, 0.00, 0.49, 0.52, 40.0), (6.85, -0.04, 0.42, 0.50, 30.0),
+                                  (7.12, -0.20, 0.28, 0.40, 14.0)):
+            a0, a1 = math.radians(90.0 + al), math.radians(450.0 - al)
+            M2 = 12
+            outer = [W(rx * math.cos(a0 + (a1 - a0) * i / M2), cy + ry * math.sin(a0 + (a1 - a0) * i / M2), z)
+                     for i in range(M2 + 1)]
+            inner = [W((rx - 0.1) * math.cos(a1 - (a1 - a0) * i / M2), cy + (ry - 0.1) * math.sin(a1 - (a1 - a0) * i / M2), z)
+                     for i in range(M2 + 1)]
+            secs.append(outer + inner)
+        secs.append([W(0.0, -0.58, 7.32)])
+        _loft(mb, secs, body, "strip", None, strip=12)
+        _loft(mb, [ell(0, -0.04, 5.80, 0.34, 0.26, 0.34, 8), ell(0, -0.02, 6.45, 0.40, 0.30, 0.40, 8),
+                   ell(0, -0.06, 6.90, 0.30, 0.26, 0.32, 8), [W(0.0, -0.10, 7.08)]], void)
+    else:
+        _loft(mb, [ell(0, 0.02, 5.94, 0.36, 0.36, 0.36, 8), ell(0, 0.02, 6.10, 0.43, 0.44, 0.42, 8),
+                   ell(0, 0.02, 6.56, 0.45, 0.46, 0.43, 8, 0.05), ell(0, 0.02, 6.88, 0.42, 0.43, 0.41, 8, 0.04),
+                   ell(0, 0.0, 7.06, 0.33, 0.33, 0.33, 8), ell(0, 0.0, 7.17, 0.17, 0.17, 0.17, 8),
+                   [W(0.0, 0.0, 7.21)]], body)
+        # viseira em cruz: fenda horizontal + reforco vertical (vazio escuro e nervura de pedra)
+        _loft(mb, [[W(a, 0.36, b) for a, b in ((-0.30, 6.56), (0.30, 6.56), (0.28, 6.64), (-0.28, 6.64))],
+                   [W(a, 0.50, b) for a, b in ((-0.30, 6.56), (0.30, 6.56), (0.28, 6.64), (-0.28, 6.64))]], void)
+        _loft(mb, [[W(a, 0.40, b) for a, b in ((-0.05, 6.14), (0.05, 6.14), (0.05, 6.52), (-0.05, 6.52))],
+                   [W(a, 0.52, b) for a, b in ((-0.05, 6.14), (0.05, 6.14), (0.05, 6.52), (-0.05, 6.52))]], body)
+        # crista baixa ao longo do elmo
+        cr = [(-0.30, 7.04), (0.26, 7.06), (0.14, 7.34), (-0.22, 7.38)]
+        _loft(mb, [[W(-0.05, b, c) for b, c in cr], [W(0.05, b, c) for b, c in cr]], body)
+        # capuz caido nas costas (a ordem): rolo de tecido de pedra atras do gorjal
+        _loft(mb, [ell(0, -0.42, 5.56, 0.56, 0.26, 0.30, 8), ell(0, -0.48, 5.92, 0.46, 0.24, 0.28, 8),
+                   ell(0, -0.46, 6.14, 0.28, 0.14, 0.16, 8)], body)
+    # ---- ESPADA fincada a frente
+    def blade_sec(z, hw, t, groove=True):
+        g = 0.45 if groove else 1.0
+        pts = [(-hw, 0.0), (-0.4 * hw, t), (0.0, g * t), (0.4 * hw, t), (hw, 0.0), (0.4 * hw, -t), (0.0, -g * t),
+               (-0.4 * hw, -t)]
+        return [W(a, YS + b, z) for a, b in pts]
+    _loft(mb, [[W(0.0, YS, -0.14)], blade_sec(0.42, 0.16, 0.055, False), blade_sec(0.62, 0.17, 0.056),
+               blade_sec(2.70, 0.21, 0.06), blade_sec(3.02, 0.21, 0.06, False)], blade_m, None, "fan")
+    # guarda: perfil curvo com os quillons caindo, secao em losango, pontas em gota; escudete no centro
+    gp = []
+    for i in range(9):
+        x = -0.62 + 1.24 * i / 8
+        gp.append(W(x, YS, 3.10 - 0.26 * (abs(x) / 0.62) ** 2))
+    nrm = F.p(0.0, 1.0, 0.0) - F.p(0.0, 0.0, 0.0)
+    mb.sweep(gp, [(0.0, 0.09 * s), (0.075 * s, 0.0), (0.0, -0.09 * s), (-0.075 * s, 0.0)], blade_m, True, None,
+             up=tuple(nrm))
+    for sg in (-1, 1):
+        tip = W(sg * 0.62, YS, 2.84)
+        _lathe_ax(mb, tip, W(sg * 0.66, YS, 2.62) - tip, [(0.0, -0.04 * s), (0.09 * s, 0.05 * s), (0.10 * s, 0.13 * s),
+                                                         (0.0, 0.27 * s)], blade_m, 6)
+    esc = [(-0.13, 2.94), (0.13, 2.94), (0.16, 3.22), (0.0, 3.30), (-0.16, 3.22)]
+    _loft(mb, [[W(a, YS - 0.12, b) for a, b in esc], [W(a, YS + 0.12, b) for a, b in esc]], blade_m)
+    # punho (com anel a mostra entre a guarda e as maos) e pomo facetado com colar
+    EM._lathe(mb, tuple(W(0.0, YS, 0.0)), [(0.08 * s, 3.20 * s), (0.09 * s, 3.28 * s), (0.09 * s, 3.40 * s),
+                                           (0.115 * s, 3.45 * s), (0.09 * s, 3.50 * s), (0.09 * s, 4.25 * s),
+                                           (0.08 * s, 4.30 * s)], blade_m, 8, math.pi / 8)
+    EM._lathe(mb, tuple(W(0.0, YS, 0.0)), [(0.07 * s, 4.27 * s), (0.13 * s, 4.32 * s), (0.13 * s, 4.37 * s),
+                                           (0.09 * s, 4.40 * s), (0.19 * s, 4.47 * s), (0.21 * s, 4.56 * s),
+                                           (0.19 * s, 4.65 * s), (0.08 * s, 4.71 * s), (0.0, 4.73 * s)], blade_m, 8,
+              math.pi / 8)
 
 
 def statue(mb, x, y, z, yaw):
-    """estatua da ordem: figura encapuzada de manto longo, maos sobre a lamina fincada a frente; pedestal de obsidiana,
-    dado de pedra violeta com o medalhao da ordem e cornija clara. Local +Y = frente (yaw)."""
+    """estatua da ordem: o GUARDIAO de pedra (hooded_figure 'guard': armadura, elmo, espada fincada) sobre pedestal de
+    obsidiana com dado de pedra violeta. Overhaul 01: o dado ganhou PAINEL rebaixado com moldura de obsidiana nas 4
+    faces e a placa com emblema SAIU (16.02/12.11: o emblema da porta e da fachada ja estao no quadro). Local +Y =
+    frente (yaw)."""
     F = SL.Frame(x, y, z, yaw - math.pi / 2)
     a = F.a
-    # pedestal com MOLDURAS (acabamento): soco, chanfro de assento, dado violeta, cornija em talude + filete, plinto
+    # pedestal com MOLDURAS: soco, chanfro de assento, dado violeta com paineis, cornija em talude + filete, plinto
     mb.box((3.6, 3.6, 0.6), F.p(0, 0, 0.3), F.r(), OBS, 0.1)
     FP.frustum(mb, tuple(F.p(0, 0, 0.6)), 3.6, 3.6, 2.8, 2.8, 0.3, OBS, ang=a)
     mb.box((2.7, 2.7, 2.5), F.p(0, 0, 0.9 + 1.25), F.r(), VIO, 0.08)
-    FP.frustum(mb, tuple(F.p(0, 0, 3.4)), 2.72, 2.72, 3.4, 3.4, 0.32, TRIM, ang=a)
-    mb.box((3.4, 3.4, 0.12), F.p(0, 0, 3.78), F.r(), TRIM, 0.0)
+    for k in range(4):
+        Fk = SL.Frame(x, y, z, a + k * math.pi / 2)
+        for sg in (-1, 1):
+            mb.box((0.16, 0.12, 1.9), Fk.p(sg * 0.98, 1.39, 2.15), Fk.r(), OBS, 0.0)
+        for zz in (1.2, 3.1):
+            mb.box((2.12, 0.12, 0.16), Fk.p(0.0, 1.39, zz), Fk.r(), OBS, 0.0)
+    FP.frustum(mb, tuple(F.p(0, 0, 3.4)), 2.72, 2.72, 3.4, 3.4, 0.32, CAP, ang=a)
+    mb.box((3.4, 3.4, 0.12), F.p(0, 0, 3.78), F.r(), CAP, 0.0)
     mb.box((3.0, 3.0, 0.23), F.p(0, 0, 3.935), F.r(), OBS, 0.06)
-    EM.plaque(mb, mb, mb, mb, tuple(F.p(0, 1.35 + 0.3, 2.2)), yaw, 0.82)
-    # figura em pedra CLARA (a da cantaria): le contra a fachada escura; o rosto e um vazio de obsidiana
-    hooded_figure(mb, F, 1.0, 4.05, TRIM)
+    # guardiao em cantaria clara (um valor abaixo do antigo Stone_SG_Trim): le contra a fachada escura
+    hooded_figure(mb, F, 1.0, 4.05, CAP, kind="guard")
     col_box("SG_PropStatue", (3.6, 3.6, 11.0), (x, y, z + 5.5), (0, 0, yaw))
 
 
@@ -475,15 +691,11 @@ def iron_arch(mb, cx, y, z, hs, glass, post_h=10.0, rise=5.4, lanterns=True, col
             ax = x - s * 1.25
             mb.beam((x - s * 0.28, y, z + 8.9), (ax + s * 0.1, y, z + 8.9), 0.16, 0.2, IRON, 0.0)
             mb.beam((x - s * 0.28, y, z + 8.1), (x - s * 0.9, y, z + 8.9), 0.12, 0.14, IRON, 0.0)
-            zc = z + 7.9
-            mb.rod((ax, y, z + 8.9), (ax, y, zc + 0.75), 0.05, IRON, 4)
-            mb.box((0.62, 0.62, 1.0), (ax, y, zc), (0, 0, 0), glass, 0.0)
-            for sx in (-1, 1):
-                for sy in (-1, 1):
-                    mb.box((0.14, 0.14, 1.12), (ax + sx * 0.34, y + sy * 0.34, zc), (0, 0, 0), IRON, 0.0)
-            mb.box((0.9, 0.9, 0.14), (ax, y, zc - 0.55), (0, 0, 0), IRON, 0.0)
-            SL.spire(mb, (ax, y), 0.7, zc + 0.55, 0.8, IRON, n=4)
-            lan.append((ax, y, zc))
+            # overhaul 01: a lanterna da ordem do kit (sg_emblem), pendurada pela ponta do remate (o cubo saiu)
+            sl = 0.62
+            zb_ = z + 8.55 - 2.30 * sl
+            mb.rod((ax, y, z + 8.9), (ax, y, z + 8.5), 0.05, IRON, 4)
+            lan.append(EM.lantern_head(mb, mb, (ax, y, zb_ + EM.LH_BASE * sl), 0.0, sl))
         if col:
             col_box(area, (1.4, 1.4, post_h + 1.0), (x, y, z + (post_h + 1.0) / 2))
     # arco: 2 trilhos (curva cubica abatida e pontuda no fecho) + montantes

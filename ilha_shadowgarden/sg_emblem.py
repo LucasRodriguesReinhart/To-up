@@ -383,49 +383,143 @@ def banner(mb_cloth, mb_metal, mb_glow, mb_dark, top, yaw, w, h, tails=True, tri
     emblem(mb_metal, mb_glow, mb_dark, P(0, -h * 0.36, dc + th / 2), yaw, er, depth=D)   # fundos embutidos no pano
 
 
-# ---------------------------------------------------------------- lanternas da ordem (referencia v2)
-# Lanterna de moldura DOURADA com vidro quente (Lantern_Glow): o ritmo de luz da referencia. SO Neon (sem luz real):
-# quem chamar decide se poe uma luz de verdade perto (teto de luzes do export e apertado).
+# ---------------------------------------------------------------- lanternas da ordem (kit definitivo)
+# OVERHAUL 01 (2026-09-29, "zero tolerancia"): o "cubo amarelo" saiu. A lanterna da ordem e UM asset desenhado:
+#   - HEXAGONAL (6 lados, uma face de frente para 'yaw'), escala 0,72 da antiga (2,3 s de altura, 1,2 s no beiral);
+#   - base em prato moldurado (torno), vidro quente RECUADO atras de 6 montantes em losango (a aresta viva do montante
+#     fica para fora: le chanfrado), travessa DOURADA a 2/3 dividindo cada face em 2 vidros;
+#   - tampa com BEIRAL curvo (torno concavo que sai alem da base) e remate dourado (colar + pinha + ponta);
+#   - estrutura em ferro (Metal_SG_Iron, um valor acima do ferro negro), ouro so em acento (travessa e remate):
+#     a luz quente (Lantern_Glow) fica SO dentro da moldura.
+# Posicionamento IGUAL ao antigo: c = ponto de referencia, a BASE fica em c.z - 1,14 s (assenta onde o chamador ja
+# punha). O centro do vidro agora fica em c.z - 0,29 s (as luzes reais existentes continuam dentro do corpo).
+# Poste: soco de obsidiana + UM perfil de torno (sino moldurado com plinto, toro e escocia -> fuste sextavado afinando
+# com anel a 1/3 -> colar) + capitel em prato sustentado por 4 consoles em S. Pedestal: dado moldurado baixo (plinto,
+# dado, capitel em 2 degraus), altura total <= 3,44 s.
 GOLD = "Metal_Gold"
+L_IRON = "Metal_SG_Iron"
+L_GLOW = "Lantern_Glow"
+LH_BASE = 1.14               # fundo da lanterna abaixo do ponto de referencia (API antiga)
+LH_GLASS = 0.85              # centro do vidro acima do fundo
+
+
+def _lathe(mb, c, prof, m, n=6, rot=0.0, closed=False, caps=(True, True)):
+    """solido de revolucao vertical em c = (x, y, z): prof = [(raio, altura)] de baixo para cima, raio 0 = polo.
+    closed=True: perfil fechado (anel/moldura), sem tampas."""
+    bm = mb.bm
+    x, y, z = c
+    rows = []
+    for r, h in prof:
+        if r < 1e-5:
+            rows.append([bm.verts.new((x, y, z + h))])
+        else:
+            rows.append([bm.verts.new((x + r * math.cos(rot + 2 * math.pi * i / n),
+                                       y + r * math.sin(rot + 2 * math.pi * i / n), z + h)) for i in range(n)])
+    pairs = list(zip(rows, rows[1:]))
+    if closed:
+        pairs.append((rows[-1], rows[0]))
+    faces = []
+    for A, B in pairs:
+        if len(A) == 1 and len(B) == 1:
+            continue
+        for i in range(n):
+            j = (i + 1) % n
+            if len(A) == 1:
+                faces.append(bm.faces.new((A[0], B[i], B[j])))
+            elif len(B) == 1:
+                faces.append(bm.faces.new((A[i], A[j], B[0])))
+            else:
+                faces.append(bm.faces.new((A[i], A[j], B[j], B[i])))
+    if not closed:
+        if caps[0] and len(rows[0]) > 1:
+            faces.append(bm.faces.new(list(reversed(rows[0]))))
+        if caps[1] and len(rows[-1]) > 1:
+            faces.append(bm.faces.new(rows[-1]))
+    bmesh.ops.recalc_face_normals(bm, faces=faces)
+    mb._post([v for r in rows for v in r], m, None, 0, 1)
 
 
 def lantern_head(mb_metal, mb_glow, c, yaw=0.0, s=1.0):
-    """caixa da lanterna centrada em c (centro do vidro): base (fundo em c - 1,14 s: assenta onde o chamador pos),
-    vidro DENTRO dos 4 montantes, travessa de cima que assenta a tampa, tampa com beiral e remate"""
+    """lanterna da ordem (hexagonal). c = ponto de referencia da API antiga: o FUNDO da base fica em c.z - 1,14 s.
+    Devolve o centro do vidro."""
     x, y, z = c
-    ca, sa = math.cos(yaw), math.sin(yaw)
-    mb_metal.box((1.5 * s, 1.5 * s, 0.28 * s), (x, y, z - 1.0 * s), (0, 0, yaw), GOLD, 0.0)
-    mb_glow.box((1.05 * s, 1.05 * s, 1.74 * s), (x, y, z), (0, 0, yaw), "Lantern_Glow", 0.0)
-    for sx in (-1, 1):
-        for sy in (-1, 1):
-            dx, dy = sx * 0.6 * s, sy * 0.6 * s
-            mb_metal.box((0.16 * s, 0.16 * s, 1.95 * s), (x + dx * ca - dy * sa, y + dx * sa + dy * ca, z - 0.02 * s),
-                         (0, 0, yaw), GOLD, 0.0)
-    mb_metal.box((1.36 * s, 1.36 * s, 0.14 * s), (x, y, z + 0.9 * s), (0, 0, yaw), GOLD, 0.0)    # travessa
-    mb_metal.cyl(1.2 * s, 0.6 * s, (x, y, z + 1.26 * s), (0, 0, yaw + math.pi / 4), m=GOLD, n=4, r2=0.16 * s,
-                 bevel=0.0)                                                                           # tampa c/ beiral
-    # remate: agulha quadrada nascendo de dentro do topo da tampa (mesma altura final de antes: z + 2,05 s)
-    mb_metal.cyl(0.13 * s, 0.55 * s, (x, y, z + 1.775 * s), (0, 0, yaw + math.pi / 4), m=GOLD, n=4, r2=0.05 * s,
-                 bevel=0.0)
+    b = z - LH_BASE * s
+    rot = yaw + math.pi / 6.0              # vertices em yaw +- 30: uma FACE olha para 'yaw'
+
+    def P(pr):
+        return [(r * s, h * s) for r, h in pr]
+    # base: prato moldurado (pe, bojo, aba) - ferro (sem tampa de baixo: assenta sempre em alguma coisa)
+    _lathe(mb_metal, (x, y, b), P([(0.30, 0.0), (0.55, 0.11), (0.55, 0.20), (0.47, 0.25)]), L_IRON, 6, rot,
+           caps=(False, True))
+    # vidro quente recuado (hexagono de 0,40 no vertice: a face fica 0,05 atras da face dos montantes/travessas); as
+    # tampas ficariam escondidas dentro da base e da tampa
+    _lathe(mb_glow, (x, y, b), P([(0.40, 0.24), (0.40, 1.46)]), L_GLOW, 6, rot, caps=(False, False))
+    # 6 montantes de secao triangular nos vertices (a aresta viva aponta para fora: le como montante chanfrado)
+    bm = mb_metal.bm
+    for k in range(6):
+        a = rot + k * math.pi / 3.0
+        ca, sa = math.cos(a), math.sin(a)
+        tri = [(0.37, -0.055), (0.49, 0.0), (0.37, 0.055)]            # (raio, deslocamento tangencial)
+        vs = []
+        for zz in (0.22, 1.48):
+            vs.append([bm.verts.new((x + (r * ca - t * sa) * s, y + (r * sa + t * ca) * s, b + zz * s))
+                       for r, t in tri])
+        fs = [bm.faces.new((vs[0][i], vs[0][(i + 1) % 3], vs[1][(i + 1) % 3], vs[1][i])) for i in range(3)]
+        bmesh.ops.recalc_face_normals(bm, faces=fs)
+        mb_metal._post(vs[0] + vs[1], L_IRON, None, 0, 1)
+    # travessa dourada a 2/3 (divide cada face em 2 vidros)
+    _lathe(mb_metal, (x, y, b), P([(0.46, 0.99), (0.46, 1.07)]), GOLD, 6, rot)      # (o miolo fica dentro do vidro)
+    # tampa: cinta, BEIRAL que sai alem da base, telhado concavo ate o colar do remate
+    _lathe(mb_metal, (x, y, b), P([(0.36, 1.44), (0.50, 1.47), (0.62, 1.58), (0.59, 1.65), (0.32, 1.80),
+                                   (0.15, 1.96)]), L_IRON, 6, rot)
+    # remate dourado: colar, pinha, ponta
+    _lathe(mb_metal, (x, y, b), P([(0.12, 1.94), (0.16, 2.03), (0.09, 2.12), (0.0, 2.30)]), GOLD, 6, rot,
+           caps=(False, True))
+    return (x, y, b + LH_GLASS * s)
 
 
 def lantern_pedestal(mb_stone, mb_metal, mb_glow, base, yaw=0.0, s=1.0):
-    """lanterna sobre pedestal baixo de obsidiana (parapeito de ponte/calcada, como na referencia). base = (x, y, z do piso)"""
+    """lanterna sobre DADO MOLDURADO baixo de obsidiana (parapeitos, eixo). base = (x, y, z do apoio).
+    Pedestal 1,12 s + lanterna 2,3 s = 3,42 s. Devolve o centro do vidro."""
     x, y, z = base
-    mb_stone.box((1.9 * s, 1.9 * s, 0.5 * s), (x, y, z + 0.25 * s), (0, 0, yaw), SHADOW, 0.05)
-    mb_stone.box((1.4 * s, 1.4 * s, 1.5 * s), (x, y, z + 1.25 * s), (0, 0, yaw), SHADOW, 0.05)
-    mb_stone.box((1.7 * s, 1.7 * s, 0.3 * s), (x, y, z + 2.15 * s), (0, 0, yaw), SILVER, 0.0)
-    lantern_head(mb_metal, mb_glow, (x, y, z + 3.35 * s), yaw, s)
-    return (x, y, z + 3.35 * s)
+    mb_stone.box((1.24 * s, 1.24 * s, 0.16 * s), (x, y, z + 0.08 * s), (0, 0, yaw), SHADOW, 0.04 * s)      # plinto
+    mb_stone.box((0.92 * s, 0.92 * s, 0.80 * s), (x, y, z + 0.56 * s), (0, 0, yaw), SHADOW, 0.05 * s)      # dado
+    mb_stone.box((1.10 * s, 1.10 * s, 0.10 * s), (x, y, z + 1.01 * s), (0, 0, yaw), SHADOW, 0.0)          # capitel
+    mb_stone.box((1.00 * s, 1.00 * s, 0.07 * s), (x, y, z + 1.09 * s), (0, 0, yaw), SHADOW, 0.02 * s)
+    return lantern_head(mb_metal, mb_glow, (x, y, z + (1.12 + LH_BASE) * s), yaw, s)
 
 
 def lantern_post(mb_metal, mb_glow, base, yaw=0.0, h=7.0, s=1.0):
-    """poste de ferro negro com soco de obsidiana e lanterna dourada no alto (praca/eixo/patio)"""
+    """poste da ordem: soco de obsidiana, fuste de ferro torneado e lanterna no alto. O fundo da lanterna fica na
+    MESMA cota de antes (z + h - 0,24 s): as luzes reais do sg_lights continuam dentro dela. Devolve o centro do vidro."""
     x, y, z = base
-    mb_metal.box((1.4 * s, 1.4 * s, 0.9 * s), (x, y, z + 0.45 * s), (0, 0, yaw), SHADOW, 0.05)
-    mb_metal.box((0.5 * s, 0.5 * s, h - 1.4 * s), (x, y, z + 0.9 * s + (h - 1.4 * s) / 2), (0, 0, yaw), IRON, 0.0)
-    # capitel dourado ate o fundo da lanterna (antes ficava uma fresta de 0,05 entre o colar e a base)
-    zc0, zc1 = z + h - 0.52 * s, z + h + 0.9 * s - 1.12 * s
-    mb_metal.box((0.9 * s, 0.9 * s, zc1 - zc0), (x, y, (zc0 + zc1) / 2), (0, 0, yaw), GOLD, 0.0)
-    lantern_head(mb_metal, mb_glow, (x, y, z + h + 0.9 * s), yaw, s)
-    return (x, y, z + h + 0.9 * s)
+    zb = z + h - 0.24 * s                          # fundo da lanterna (API antiga)
+    mb_metal.box((1.2 * s, 1.2 * s, 0.3 * s), (x, y, z + 0.15 * s), (0, 0, yaw), SHADOW, 0.05 * s)       # soco
+    z0 = z + 0.3 * s
+    zc = zb - 0.40 * s                             # topo do colar (onde nasce o capitel)
+    L = zc - z0
+    h1 = 0.95 * s + (L - 0.95 * s) * 0.34          # anel a 1/3 do fuste
+    rot = yaw + math.pi / 6.0
+    prof = [(0.48, 0.0), (0.48, 0.10), (0.40, 0.15), (0.43, 0.24), (0.28, 0.36), (0.18, 0.95)]
+    prof = [(r * s, hh * s) for r, hh in prof]
+    prof += [(0.165 * s, h1 - 0.10 * s), (0.22 * s, h1 - 0.05 * s), (0.22 * s, h1 + 0.05 * s),
+             (0.155 * s, h1 + 0.10 * s), (0.13 * s, L - 0.18 * s), (0.19 * s, L - 0.12 * s), (0.13 * s, L)]
+    _lathe(mb_metal, (x, y, z0), prof, L_IRON, 6, rot, caps=(False, True))
+    # capitel: prato que recebe a lanterna (sai do colar e abre ate a base dela)
+    _lathe(mb_metal, (x, y, zc), [(0.13 * s, 0.0), (0.20 * s, 0.12 * s), (0.30 * s, 0.26 * s), (0.52 * s, 0.33 * s),
+                                  (0.56 * s, 0.38 * s), (0.48 * s, 0.40 * s)], L_IRON, 6, rot, caps=(False, True))
+    # 4 consoles em S (do fuste ate a aba do prato): nas faces do fuste sextavado
+    prof_c = [(-0.035 * s, -0.05 * s), (0.035 * s, -0.05 * s), (0.035 * s, 0.05 * s), (-0.035 * s, 0.05 * s)]
+    for k in range(4):
+        a = yaw + math.pi / 4.0 + k * math.pi / 2.0
+        ca, sa = math.cos(a), math.sin(a)
+        pts = []
+        p0, p1, p2, p3 = (0.14, -0.62), (0.16, -0.18), (0.50, -0.30), (0.50, 0.30)
+        for i in range(4):
+            t = i / 3.0
+            u = 1 - t
+            r = u ** 3 * p0[0] + 3 * u * u * t * p1[0] + 3 * u * t * t * p2[0] + t ** 3 * p3[0]
+            hh = u ** 3 * p0[1] + 3 * u * u * t * p1[1] + 3 * u * t * t * p2[1] + t ** 3 * p3[1]
+            pts.append((x + ca * r * s, y + sa * r * s, zc + hh * s))
+        mb_metal.sweep(pts, prof_c, L_IRON, True, None, up=(-sa, ca, 0.0))
+    return lantern_head(mb_metal, mb_glow, (x, y, zb + LH_BASE * s), yaw, s)

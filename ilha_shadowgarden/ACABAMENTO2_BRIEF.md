@@ -39,7 +39,7 @@ Não gaste geometria de hero em fundo.
 - Se algo piora a composição, REMOVA. Menos e melhor.
 - Variação é DIRIGIDA: nada de rotação, escala ou cor aleatórias chamadas de refinamento.
 - Desempenho: melhore por silhueta, bevel, proporção, material, encaixe e reuso, não por polycount.
-  Respeite `studio_sg.BUDGET`; o total da ilha fica ≤ 560k tris e ≤ 800 MeshParts.
+  Respeite `studio_sg.BUDGET`; o total da ilha fica ≤ 640k tris (teto novo; o setor 13 recupera geometria de fundo) e ≤ 800 MeshParts.
 - Faça os passes de interseção, flutuantes e escala em tudo o que o seu setor gera.
 
 ## Antes e depois

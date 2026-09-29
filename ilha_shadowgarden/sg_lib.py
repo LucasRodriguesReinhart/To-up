@@ -142,11 +142,42 @@ def vis_stairs(mb, base, ang, width, n, rise, tread, m="Stone_Paving_SG", side_m
                      stringers=stringers, col=False)
 
 
-def plan_stair(mb, name, m="Stone_Paving_SG", side_m="Stone_SG_Block", stringers=True):
-    """a escada 'name' da planta (sg_layout.STAIRS) so no visual, casando com a colisao do sg_col"""
+def plan_stair(mb, name, m="Stone_Paving_SG", side_m="Stone_SG_Block", stringers=True, riser_m=None):
+    """a escada 'name' da planta (sg_layout.STAIRS) so no visual, casando com a colisao do sg_col.
+    OVERHAUL 01 (2026-09-29): degrau de PEDRA em vez de laje-caixa lisa (mesmo envelope, mesmas cotas):
+      - espelho recuado 0,12 (nucleo do degrau em riser_m, padrao = m) sob a pisada;
+      - pisada de 0,26 com FOCINHO saliente 0,12 e chanfro (o MB 'near' chanfra so a aresta de cima), partida em 4 ou 5
+        pedras com juntas DESENCONTRADAS de degrau para degrau (junta de 0,07);
+      - banzos (stringers=True) iguais aos de antes (blocos por degrau)."""
     foot, deg, w, n, tread, g = L.stair_frame(name)
     rise = (L.STAIR_TOP_Z[name] - foot[2]) / n
-    return vis_stairs(mb, foot, math.radians(deg), w, n, rise, tread, m, side_m, stringers)
+    ang = math.radians(deg)
+    F = Frame(foot[0], foot[1], foot[2], ang)
+    rm = riser_m or m
+    TH, NOSE, GAP = 0.26, 0.12, 0.07
+    for i in range(n):
+        ztop = rise * (i + 1)
+        # nucleo macico do chao ate a base da pisada; a face da frente (x = tread*i) e o espelho recuado
+        hc = ztop - TH
+        if hc > 0.02:
+            mb.box((tread + 0.02, w, hc), F.p(tread * i + tread / 2 + 0.01, 0, hc / 2), F.r(), rm, 0.06, 1)
+        # pisada partida: 4 pedras nos degraus pares, 5 (juntas deslocadas) nos impares
+        if i % 2 == 0:
+            cuts = [-w / 2 + w * k / 4.0 for k in range(5)]
+        else:
+            cuts = [-w / 2] + [-w / 2 + w * (k + 0.5) / 4.0 for k in range(4)] + [w / 2]
+        x0, x1 = tread * i - NOSE, tread * (i + 1) + 0.01
+        for a, b in zip(cuts, cuts[1:]):
+            ya_ = a + (GAP / 2 if a > -w / 2 + 1e-6 else 0.0)
+            yb_ = b - (GAP / 2 if b < w / 2 - 1e-6 else 0.0)
+            mb.box((x1 - x0, yb_ - ya_, TH), F.p((x0 + x1) / 2, (ya_ + yb_) / 2, ztop - TH / 2), F.r(), m, 0.06, 1)
+    if stringers:
+        for s in (-1, 1):
+            for i in range(n):
+                h = rise * (i + 1) + 1.2
+                mb.box((tread + 0.05, 1.2, h), F.p(tread * i + tread / 2, s * (w / 2 + 0.6), h / 2), F.r(), side_m,
+                       0.16, 1)
+    return F.p(tread * n, 0, rise * n)
 
 
 def vis_fence(mb, pts, h=3.0, post_step=4.0, m="Metal_SG_Iron", rail_m="Metal_SG_Iron", rope=False):

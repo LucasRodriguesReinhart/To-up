@@ -99,7 +99,7 @@ ER.BUDGET_OWNER = {"terrain": (130000, 165), "entry": (44000, 60), "village": (8
                    "hall": (46000, 57), "summon": (42000, 55), "craft": (64000, 78), "dungeon": (86000, 108),
                    "water": (22000, 35), "exit": (28000, 42), "gate_ds": (30000, 40), "vfx": (18000, 50),
                    "vegetation": (34000, 62), "props": (70000, 110)}
-ER.BUDGET = {"static_tris": 560000, "static_meshes": 800, "vfx_tris": 18000, "vfx_meshes": 50, "total_tris": 578000,
+ER.BUDGET = {"static_tris": 640000, "static_meshes": 800, "vfx_tris": 18000, "vfx_meshes": 50, "total_tris": 658000,
              "total_meshes": 850, "materials": 130, "shadow_meshes": 320, "day_lights": 42, "col": 1800}
 cx, cy = to_world_xy(0.0, -10.0)
 ER.FAR_GROUND = None                 # o mar distante ja vem da Ilha 1 (um so FAR_GROUND no mundo)

@@ -23,6 +23,11 @@ OBS = "Stone_SG_Obsidian"
 STONE = "Stone_SG_Block"
 TRIM = "Stone_SG_Trim"
 GLOW = "Lantern_Glow"
+# overhaul 01 (2026-09-29): banco e postes do kit novo. Pedra fixa (sem sorteio de variante) e cantaria de remate
+LEG_M = "Stone_SG_Block_B"
+SEAT_M = "Stone_SG_TrimLow"
+SL.fm_lib.MATS.setdefault(SEAT_M, (SL.fm_lib.S(132, 128, 134), 0.8, 0.0, 0, None, 0.06))
+import sg_court as CT
 
 CAMS = {
     "CAM_SGProp_Plaza": ((34.0, -168.0, P1 + 22.0), (0.0, -124.0, P1 + 2.0), 22),
@@ -61,13 +66,28 @@ def lamp(mb, x, y, z):
 
 
 def bench(mb, x, y, z, yaw):
-    """banco de pedra (sem encosto): 2 pes de alvenaria + tampo de cantaria clara; frente para 'yaw'"""
+    """banco de pedra da praca (overhaul 01, 2026-09-29): nada de laje sobre 2 blocos.
+    - 2 PES em console: perfil de balaustre achatado (pe largo, cintura, cabeca que abre sob o assento) em lofts de
+      secoes retangulares, pedra media;
+    - ASSENTO em 2 pedras com junta no meio, borda boleada (chanfro 0,1 em cima) e PINGADEIRA por baixo, cantaria de
+      remate (um valor abaixo do Stone_SG_Trim);
+    - ENCOSTO baixo com espaldar em fronton suave, apoiado no fundo do assento.
+    Frente (local +y) para 'yaw'. Colisao: um bloco que cobre assento e encosto."""
     F = Frame(x, y, z, yaw)
-    for s in (-1, 1):
-        mb.box((0.9, 1.3, 1.25), F.p(s * 1.75, 0.0, 0.62), F.r(), STONE, 0.08)
-    mb.box((5.0, 1.7, 0.42), F.p(0.0, 0.0, 1.46), F.r(), TRIM, 0.1)
-    mb.box((4.4, 0.35, 0.3), F.p(0.0, -0.55, 0.15), F.r(), STONE, 0.0)      # travessa baixa (le como peca, nao caixa)
-    col_box("SG_PropBench", (5.0, 1.7, 1.67), F.p(0.0, 0.0, 0.84), F.r())
+    prof = [(0.0, 0.62), (0.16, 0.62), (0.26, 0.46), (0.55, 0.34), (0.85, 0.40), (1.02, 0.56), (1.12, 0.64),
+            (1.20, 0.64)]
+    for sx in (-1.7, 1.7):
+        rows = []
+        for zz, hw in prof:
+            rows.append([F.p(sx - 0.23, -hw, zz), F.p(sx + 0.23, -hw, zz), F.p(sx + 0.23, hw, zz),
+                         F.p(sx - 0.23, hw, zz)])
+        CT._loft(mb, rows, LEG_M)
+    mb.box((4.7, 1.36, 0.10), F.p(0.0, 0.0, 1.25), F.r(), SEAT_M, 0.0)                     # pingadeira
+    for sx in (-1, 1):
+        mb.box((2.47, 1.6, 0.32), F.p(sx * 1.255, 0.0, 1.46), F.r(), SEAT_M, 0.1)          # assento (2 pedras)
+    back = [(-2.3, 1.62), (2.3, 1.62), (2.3, 2.22), (1.2, 2.36), (0.0, 2.50), (-1.2, 2.36), (-2.3, 2.22)]
+    CT._loft(mb, [[F.p(a, -0.80, b) for a, b in back], [F.p(a, -0.54, b) for a, b in back]], LEG_M)
+    col_box("SG_PropBench", (5.0, 1.7, 2.5), F.p(0.0, 0.0, 1.25), F.r())
 
 
 def build():
