@@ -52,14 +52,36 @@ def setup(res=(1600, 900), samples=32):
 
 
 def tone_emissives():
-    il_scene.ENERGY = tuple(il_scene.ENERGY) + ("SG_Violet_Glow", "SG_Moon_Glow", "SG_VioletDeep_Glow", "SG_Rune_Glow", "SG_Crystal_Glow")
+    il_scene.ENERGY = tuple(il_scene.ENERGY) + ("SG_Violet_Glow", "SG_Moon_Glow", "SG_VioletDeep_Glow", "SG_Rune_Glow",
+                                                "SG_Crystal_Glow", "SG_VioletSoft_Glow")
     il_scene.tone_emissives()
+    import os
+    if os.environ.get("SG_SEM_EMISSAO"):
+        # teste do passe de acabamento: TODO brilho quase desligado (a ilha tem de funcionar so com forma e material)
+        for m in bpy.data.materials:
+            if m.use_nodes:
+                for nd in m.node_tree.nodes:
+                    if nd.bl_idname == "ShaderNodeBsdfPrincipled" and nd.inputs["Emission Strength"].default_value > 0:
+                        nd.inputs["Emission Strength"].default_value = 0.03
+                        bc = nd.inputs["Base Color"]
+                        if not bc.is_linked:     # a cor clara do Neon tambem "brilha" sob luz: vira um tom medio
+                            c = bc.default_value
+                            bc.default_value = (c[0] * 0.35, c[1] * 0.35, c[2] * 0.35, 1.0)
+        bpy.context.scene.render.use_compositing = False     # sem glare
+        nl = 0
+        for ob in bpy.data.objects:
+            if ob.type == "LIGHT":
+                ob.data.energy *= 0.15
+                nl += 1
+        print("SEM_EMISSAO: emissao quase zero em todos os materiais, %d luzes a 15%%" % nl)
 
 
 def sea():
     import fm_lib
     fm_lib.MATS.setdefault("Water_SG_Sea", (fm_lib.S(16, 20, 44), 0.2, 0.0, 0, None, 0.0))
-    fm_lib.make_materials()
+    # so o material do mar: make_materials() reconstruia TODOS e desfazia o tone_emissives (brilhos estourados na previa)
+    if "Water_SG_Sea" not in bpy.data.materials:
+        fm_lib.mat("Water_SG_Sea")
     mb = MB("SG_Sky_Sea", "02_TERRAIN", random.Random(3), detail="far", floor=-999)
     mb.box((4200.0, 4200.0, 1.0), (0, 0, L.SEA - 0.5), (0, 0, 0), "Water_SG_Sea", 0.0)
     mb.finish()
@@ -207,6 +229,18 @@ CAMS = {
     "CAM_SG_Ref_Side": ((-400.0, -160.0, 160.0), (0.0, 20.0, 50.0), 24),
     "CAM_SG_Ref_Castle": ((0.0, -40.0, P2 + 20.0), (0.0, 100.0, P3 + 60.0), 20),
     "CAM_SG_Ref_Village": ((40.0, -166.0, P1 + 10.0), (-40.0, -90.0, P2 + 8.0), 20),
+    # passe de acabamento (close-ups na altura do jogador; mesmas cameras no ANTES e no DEPOIS)
+    "CAM_SG_CU_Cauldron": ((83.5, -60.0, P2 + 6.2), (90.0, -60.0, P2 + 3.6), 24),
+    "CAM_SG_CU_Emblem": ((82.4, -60.0, P2 + 4.6), (90.0, -60.0, P2 + 4.0), 40),
+    "CAM_SG_CU_Library": ((86.0, -67.0, P2 + 6.6), (92.0, -47.5, P2 + 5.0), 20),
+    "CAM_SG_CU_Shelf": ((87.0, -54.0, P2 + 5.2), (91.5, -46.5, P2 + 4.6), 30),
+    "CAM_SG_CU_CraftTable": ((83.0, -67.5, P2 + 8.0), (92.5, -57.5, P2 + 1.4), 18),
+    "CAM_SG_CU_CraftDoor": ((62.0, -58.0, P2 + 5.2), (90.0, -60.0, P2 + 11.0), 22),
+    "CAM_SG_CU_DunApproach": ((90.0, 30.0, P3 + 5.2), (100.0, 60.0, P3 + 12.0), 20),
+    "CAM_SG_CU_DunMouth": ((100.0, 44.0, P3 + 5.2), (100.0, 66.0, P3 + 10.0), 20),
+    "CAM_SG_CU_CastleDoor": ((0.0, 22.0, P3 + 5.2), (0.0, 42.0, P3 + 9.0), 22),
+    "CAM_SG_CU_CastleWindow": ((-12.0, 25.0, P3 + 5.2), (-22.0, 40.0, P3 + 12.5), 24),
+    "CAM_SG_CU_VillageHouse": ((28.0, -124.0, P1 + 5.2), (50.0, -140.0, P1 + 8.0), 22),
 }
 
 

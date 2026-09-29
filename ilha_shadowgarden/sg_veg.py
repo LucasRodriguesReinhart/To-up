@@ -10,6 +10,10 @@
 # em SG_Ter_*; a copa nao pode encostar em predio, muro, ponte, rua, escada, agua; nada em rua/escada/ponte/praca/patio
 # do castelo/salao/summon/craft/portaria/ilhota. Arvore em piso andavel: colisao so no tronco (caixa fina) e copa longe
 # das rotas do QA; no terreno bravo (fora de piso: nao alcancavel, guarda invisivel na borda) sem colisao.
+# ACABAMENTO 2026-09-29 (nenhuma arvore nova): sairam os pinheiros do pescoco da entrada (na frente da escadaria vista
+# da ponte) e os ciprestes soltos salpicados no gramado do P2 (ficam os grupos deliberados); regra arch_clash: copa
+# nunca sobre a ponte/patio/escadaria/calcada da entrada nem sobre o volume das casas (vale mesmo quando a zona e
+# montada depois do vestir, como no estudio).
 import math, random
 import bpy
 import numpy as np
@@ -240,9 +244,10 @@ GROVES = [
     ("SouthE", (82.0, -162.0), 11.0, 6, 13.0, 20.0, FIR_MIX, False, 1),
     ("SouthE", (116.0, -146.0), 8.0, 4, 12.0, 18.0, FIR_MIX, False, 1),
     ("SouthE", (146.0, -126.0), 6.0, 2, 11.0, 15.0, LOW_MIX, False, 1),
-    # pescoco da entrada: pinheiros baixos na espinha de rocha, dos dois lados da escadaria (nao escondem os porticos)
-    ("South", (-18.0, -184.0), 3.0, 2, 9.0, 12.0, LOW_MIX, False, 1),
-    ("South", (18.0, -183.0), 3.0, 2, 9.0, 12.0, LOW_MIX, False, 1),
+    # pescoco da entrada: SAIU no acabamento (n = 0; a linha fica para as sementes dos grupos seguintes nao mudarem):
+    # vistos da ponte, os pinheiros baixos ficavam NA FRENTE da escadaria e do portico B
+    ("South", (-18.0, -184.0), 3.0, 0, 9.0, 12.0, LOW_MIX, False, 1),
+    ("South", (18.0, -183.0), 3.0, 0, 9.0, 12.0, LOW_MIX, False, 1),
     # P1 calcado: par de cada lado da calcada alta (plan: (-20,-150) e (30,-150)) e canteiros ao pe do arrimo
     ("VillageS", (-24.0, -153.0), 4.0, 2, 14.0, 17.0, FIR_MIX, True, 0),
     ("VillageS", (26.0, -153.0), 4.0, 2, 14.0, 17.0, FIR_MIX, True, 0),
@@ -253,12 +258,12 @@ GROVES = [
     # P2 (grama): canto noroeste (plan (-104,-20)), entre e atras das casas; ciprestes finos entre as casas
     ("VillageW", (-104.0, -22.0), 9.0, 5, 15.0, 22.0, TALL_MIX, True, 0),
     ("VillageW", (-77.0, -70.0), 3.0, 2, 13.0, 16.0, (("cypress", 1),), True, 0),
-    ("VillageW", (-75.0, -22.0), 3.0, 1, 13.0, 16.0, (("cypress", 1),), True, 0),
+    ("VillageW", (-75.0, -22.0), 3.0, 0, 13.0, 16.0, (("cypress", 1),), True, 0),     # acab.: cipreste solto
     ("VillageW", (-30.0, -24.0), 5.0, 2, 15.0, 19.0, FIR_MIX, True, 0),
-    ("VillageW", (-30.0, -70.0), 4.0, 1, 13.0, 16.0, (("cypress", 1),), True, 0),
-    ("VillageE", (22.0, -68.0), 4.0, 2, 13.0, 16.0, (("cypress", 1),), True, 0),
+    ("VillageW", (-30.0, -70.0), 4.0, 0, 13.0, 16.0, (("cypress", 1),), True, 0),     # acab.: ciprestes soltos no
+    ("VillageE", (22.0, -68.0), 4.0, 0, 13.0, 16.0, (("cypress", 1),), True, 0),      # gramado do eixo (salpicados)
     ("VillageE", (28.0, -24.0), 5.0, 2, 15.0, 19.0, FIR_MIX, True, 0),
-    ("VillageE", (62.0, -74.0), 4.0, 1, 13.0, 16.0, (("cypress", 1),), True, 0),
+    ("VillageE", (62.0, -74.0), 4.0, 0, 13.0, 16.0, (("cypress", 1),), True, 0),      # acab.: cipreste solto
     ("VillageE", (76.0, -24.0), 6.0, 2, 15.0, 19.0, FIR_MIX, True, 0),
     ("VillageE", (140.0, -16.0), 6.0, 3, 14.0, 19.0, FIR_MIX, True, 0),
     ("VillageE", (138.0, -62.0), 6.0, 2, 13.0, 17.0, FIR_MIX, True, 0),
@@ -310,9 +315,27 @@ def forbidden_floor(x, y, fl):
     return False
 
 
+def arch_clash(x, y, rc):
+    """copa sobre ARQUITETURA conhecida da planta, independente da ordem de montagem (no estudio de uma zona ela e
+    montada DEPOIS do vestir e o raio nao a ve): ponte + patio baixo + escadaria + calcada alta da entrada (parapeitos
+    ate |x| 14,2) e o volume das casas da vila (lote + balanco + beiral + 1,5 de folga)"""
+    if abs(x) < 14.6 + rc and L.BRIDGE_Y0 - 2.0 < y < L.ENTRY_HIGH[1] + 2.0:
+        return True
+    for hx, hy, w, d, deg, z in L.HOUSE_LOTS:
+        a = math.radians(deg)
+        dx, dy = x - hx, y - hy
+        u = dx * math.cos(a) + dy * math.sin(a)          # ao longo da frente (fundo -> fachada)
+        v = -dx * math.sin(a) + dy * math.cos(a)         # ao longo da largura
+        if abs(u) < d / 2 + 2.6 + rc and abs(v) < w / 2 + 2.6 + rc:
+            return True
+    return False
+
+
 def site_ok(S, x, y, h, form, floor_ok, routes, placed):
     """(z_pe, piso) se a arvore cabe em (x, y); None se nao"""
     rc = crown_r(form, h)
+    if arch_clash(x, y, rc):
+        return why("arquitetura")
     for ox, oy, orr in prop_spots():
         if math.hypot(x - ox, y - oy) < rc + orr:
             return why("prop")
@@ -468,6 +491,8 @@ class Planter:
 def groves(P):
     stats = {}
     for gi, (grp, c, R, n, hmin, hmax, mix, floor_ok, lod) in enumerate(GROVES):
+        if n <= 0:
+            continue            # grupo retirado no acabamento (o indice fica: as sementes dos outros nao mudam)
         g = random.Random(3310 + gi * 97)
         WHY.clear()
         # alturas do grupo: a mais alta no miolo, as outras caem (composicao, nao fila)

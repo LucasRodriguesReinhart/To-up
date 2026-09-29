@@ -23,6 +23,9 @@
 # Colisao propria: podio/soco, corpo da torre, patamar + escada da torre, pedestais. Piso, escada da planta, ponte e
 # guardas: sg_col (congelado). Marcadores SUMMON_*: sg_core (congelado; o jogador fica em v 16 no piso, o gabinete
 # invisivel do gacha em v 7).
+# ACABAMENTO 2026-09-29: brilho MODERADO (portal indigo mais fundo 1,3 -> 0,7, estrela lilas 2,6 -> 1,5, bordas azuis da
+# Ilha 1 -> SG_VioletSoft_Glow, luz do nucleo 9000 -> 6000); sairam os 2 estandartes em mastro do portao da escada (na
+# frente do portal, repetiam os da torre). Torre e plataforma sem redesenho.
 import math, random, sys, importlib
 from contextlib import contextmanager
 from mathutils import Vector
@@ -43,8 +46,11 @@ P1 = L.P1
 
 # ------------------------------------------------------------------ materiais novos (2 de 4)
 _S = fm_lib.S
-fm_lib.MATS.setdefault("SG_SumPortal_Glow", (_S(78, 58, 206), 0.3, 0.0, 1.3, _S(92, 66, 240), 0.0))   # nicho/janelas
-fm_lib.MATS.setdefault("SG_SumStar_Glow", (_S(228, 208, 255), 0.2, 0.0, 2.6, _S(212, 186, 255), 0.0))  # estrela lilas
+# ACABAMENTO 2026-09-29 (brilho MODERADO): o portal e a estrela estouravam e achatavam o nicho/a esfera (o neon so
+# escondia a forma). Portal: indigo mais fundo e emissao 1,3 -> 0,7 (o arco e as aduelas voltam a ler); estrela:
+# lilas menos branco, 2,6 -> 1,5. As bordas azuis da Ilha 1 viram o violeta BAIXO (SG_VioletSoft_Glow).
+fm_lib.MATS.setdefault("SG_SumPortal_Glow", (_S(70, 54, 166), 0.3, 0.0, 0.7, _S(82, 62, 190), 0.0))   # nicho/janelas
+fm_lib.MATS.setdefault("SG_SumStar_Glow", (_S(206, 180, 250), 0.2, 0.0, 1.5, _S(190, 160, 250), 0.0))  # estrela lilas
 for _k in ("SG_SumPortal_Glow", "SG_SumStar_Glow"):
     fm_lib.RBX_CAL.setdefault(_k, (None, [int(c) for c in fm_lib.to_srgb(fm_lib.MATS[_k][0])]))
 
@@ -53,9 +59,9 @@ TOWER_ALIAS = {
     "Summon_Stone": "Stone_SG_Castle", "Stone_SumBlock": "Stone_SG_Block", "Summon_Stone_Dark": "Stone_SG_Floor",
     "Metal_Gold": "Metal_SG_Silver", "Cloth_Royal_Blue": "Cloth_SG_Navy", "Wood_Dark": "Wood_SG_Dark",
     "Crystal_SumPortal_Glow": "SG_SumPortal_Glow", "Crystal_SumStar_Glow": "SG_SumStar_Glow",
-    "Summon_Blue_Glow": "SG_Violet_Glow", "Summon_Star_Glow": "SG_SumStar_Glow",
+    "Summon_Blue_Glow": "SG_VioletSoft_Glow", "Summon_Star_Glow": "SG_SumStar_Glow",
     "Crystal_SumAmber_Glow": "SG_Violet_Glow", "Crystal_SumYellow_Glow": "SG_SumStar_Glow",
-    "Crystal_Blue": "SG_Violet_Glow",
+    "Crystal_Blue": "SG_VioletSoft_Glow",
 }
 
 # ------------------------------------------------------------------ referencial da torre (o mesmo do il_summon)
@@ -410,7 +416,7 @@ def gothic_lantern(stone, glow, silver, base):
     b = Vector(base)
     stone.box((1.7, 1.7, 0.3), b + ZZ * 0.15, (0, 0, YAW), "Metal_SG_Iron", 0.0)
     zc = 0.3 + 1.0
-    glow.box((0.9, 0.9, 1.6), b + ZZ * zc, (0, 0, YAW), "Lantern_Glow", 0.0)
+    glow.box((0.9, 0.9, 2.0), b + ZZ * zc, (0, 0, YAW), "Lantern_Glow", 0.0)      # do prato ao chapeu (sem fresta)
     for k in range(4):
         a = YAW + math.pi / 4 + k * math.pi / 2
         d = Vector((math.cos(a), math.sin(a), 0.0))
@@ -823,8 +829,9 @@ def plan_stair(st):
 # ------------------------------------------------------------------ ritmo da ordem (refinamento v2, polimento leve)
 def order_dressing():
     """4 lanternas da ordem (sg_emblem.lantern_pedestal) na balaustrada da plataforma (fora do corredor da escada,
-    +-20 graus, e fora da frente da torre) e 2 estandartes trim dourado nos pilares-portao da escada. So Neon: nenhuma
-    luz nova (teto 3 ja usado); sem colisao (pecas na borda, fora das rotas)."""
+    +-20 graus, e fora da frente da torre). So Neon: nenhuma luz nova (teto 3 ja usado); sem colisao (pecas na borda,
+    fora das rotas). Acabamento 2026-09-29: os 2 estandartes em mastro nos pilares-portao da escada SAIRAM - vistos da
+    chegada ficavam NA FRENTE do portal (tapavam o nicho) e repetiam os 2 estandartes dos mastros da propria torre."""
     rng = random.Random(7701)
     mb = MB("SG_Sum_OrderDressing", COL, rng, detail="near")
     for a in (52.0, 118.0, -52.0, -118.0):
@@ -832,13 +839,6 @@ def order_dressing():
         x = CX + (RAIL_R - 1.4) * math.cos(ar)
         y = CY + (RAIL_R - 1.4) * math.sin(ar)
         EM.lantern_pedestal(mb, mb, mb, (x, y, Z), ar, s=0.9)
-    for s in (-1, 1):
-        ar = math.radians(s * (GATE_A + 2.5))
-        px = CX + (RAIL_R + 0.55) * math.cos(ar)
-        py = CY + (RAIL_R + 0.55) * math.sin(ar)
-        # mastro de ferro negro atras do pilar do portao, estandarte olhando para fora (a chegada pela escada)
-        mb.box((0.42, 0.42, 6.4), (px, py, Z + 5.6), (0, 0, ar), "Metal_SG_BlackIron", 0.0)
-        EM.banner(mb, mb, mb, mb, (px, py, Z + 8.7), ar, 3.0, 6.2, trim="Metal_Gold")
     mb.finish()
 
 
@@ -861,6 +861,6 @@ def build():
         mb.finish()
     order_dressing()
     # luzes (3): nucleo violeta (esfera-estrela) + 2 quentes baixas (lanternas goticas dos pedestais)
-    light("L_SGSum_Core", "POINT", c, 9000.0, VIOLET, 3.0)
+    light("L_SGSum_Core", "POINT", c, 6000.0, VIOLET, 3.0)       # acabamento: 9000 -> 6000 (brilho moderado)
     for n, p in zip(("L_SGSum_Lantern_S", "L_SGSum_Lantern_N"), lamp_c):
         light(n, "POINT", p, 380.0, WARM, 0.4)

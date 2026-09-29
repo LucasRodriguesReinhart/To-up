@@ -34,7 +34,8 @@ IL.COLS = COLS
 fm_lib._FLOOR_LEVELS = tuple(sorted(set(L.LEVELS + (L.DUN_Z,))))
 
 # ------------------------------------------------------------------ traducao Roblox dos prefixos novos
-_NEW_RULES = [("Glass_SG", "Glass", 0.3, False), ("SG_", "Neon", 0.0, False)]
+_NEW_RULES = [("Glass_SGCraft", "Glass", 0.55, False),   # frascos da alquimia: o liquido tem de aparecer (acabamento)
+              ("Glass_SG", "Glass", 0.3, False), ("SG_", "Neon", 0.0, False)]
 for r in reversed(_NEW_RULES):
     if r not in fm_lib.RBX_RULES:
         fm_lib.RBX_RULES.insert(0, r)
@@ -51,13 +52,13 @@ SMATS = {
     "Dirt_SG":              (S(64, 58, 60), 0.95, 0.0, 0, None, 0.12),
     # construido
     "Stone_Paving_SG":      (S(94, 92, 114), 0.85, 0.0, 0, None, 0.12),    # calcamento frio (refino v2b: escurecido, sem cara de maquete)
-    "Stone_SG_Block":       (S(92, 96, 114), 0.85, 0.0, 0, None, 0.12),    # muros de arrimo / muralha
-    "Stone_SG_Castle":      (S(78, 82, 102), 0.8, 0.0, 0, None, 0.10),     # alvenaria do castelo
-    "Stone_SG_Trim":        (S(150, 154, 170), 0.8, 0.0, 0, None, 0.06),   # frisos, molduras, cantaria clara
+    "Stone_SG_Block":       (S(100, 100, 112), 0.85, 0.0, 0, None, 0.12),  # muros de arrimo / muralha (acabamento: pedra neutra)
+    "Stone_SG_Castle":      (S(88, 88, 104), 0.8, 0.0, 0, None, 0.10),     # alvenaria do castelo (acabamento: menos azul, le pedra)
+    "Stone_SG_Trim":        (S(164, 160, 168), 0.8, 0.0, 0, None, 0.06),   # frisos, molduras, cantaria clara (pedra lavrada)
     "Stone_SG_Floor":       (S(66, 68, 84), 0.7, 0.0, 0, None, 0.08),      # piso do salao (escuro polido)
-    "Roof_SG_Slate":        (S(34, 34, 46), 0.6, 0.0, 0, None, 0.08),      # ardosia quase preta (telhados da vila)
-    "Roof_SG_Navy":         (S(28, 22, 44), 0.5, 0.0, 0, None, 0.06),      # coberturas do castelo: preto-violeta
-    "Wood_SG_Dark":         (S(58, 44, 40), 0.8, 0.0, 0, None, 0.10),      # enxaimel / portas / vigas
+    "Roof_SG_Slate":        (S(46, 48, 62), 0.6, 0.0, 0, None, 0.08),      # ardosia azul-escura (telhados da vila)
+    "Roof_SG_Navy":         (S(40, 34, 62), 0.5, 0.0, 0, None, 0.06),      # coberturas do castelo: ardosia violeta-escura
+    "Wood_SG_Dark":         (S(82, 56, 40), 0.8, 0.0, 0, None, 0.10),      # enxaimel / portas / vigas (madeira quente legivel)
     "Plaster_SG":           (S(150, 142, 132), 0.7, 0.0, 0, None, 0.06),   # reboco da meia-enxaimel (quente apagado)
     "Metal_SG_Iron":        (S(56, 58, 68), 0.45, 0.8, 0, None, 0.04),     # ferro preto (grades, lanternas)
     "Metal_SG_Silver":      (S(176, 182, 198), 0.3, 0.9, 0, None, 0.02),   # prata (remates, simbolos)
@@ -67,17 +68,19 @@ SMATS = {
     "Leaf_SG_Pine":         (S(30, 50, 48), 0.85, 0.0, 0, None, 0.10),     # pinheiro escuro
     "Water_SG":             (S(64, 96, 196), 0.1, 0.0, 0.2, S(96, 118, 235), 0.0),   # azul-violeta (refino v2)
     # REFINAMENTO 2026-09-28 (pedido do usuario: roxo e preto de Shadow Garden mais presentes, materiais em camadas)
-    "Stone_SG_Obsidian":    (S(22, 20, 30), 0.35, 0.1, 0, None, 0.04),     # obsidiana: socos, faixas, cantaria nobre
-    "Stone_SG_MarbleBlack": (S(36, 32, 48), 0.25, 0.0, 0, None, 0.06),     # marmore negro (pisos nobres, incrustacoes)
+    "Stone_SG_Obsidian":    (S(30, 28, 40), 0.35, 0.1, 0, None, 0.04),     # obsidiana: socos, faixas, cantaria nobre
+    "Stone_SG_MarbleBlack": (S(42, 38, 54), 0.25, 0.0, 0, None, 0.06),     # marmore negro (pisos nobres, incrustacoes)
     "Stone_SG_Violet":      (S(78, 62, 110), 0.7, 0.0, 0, None, 0.06),     # pedra violeta (molduras nobres, emblemas)
-    "Metal_SG_BlackIron":   (S(26, 24, 34), 0.4, 0.8, 0, None, 0.02),      # ferro negro (grades, postes, correntes)
+    "Metal_SG_BlackIron":   (S(40, 38, 46), 0.35, 0.85, 0, None, 0.02),      # ferro negro (grades, postes, correntes)
     "Cloth_SG_Purple":      (S(66, 22, 112), 0.8, 0.0, 0, None, 0.04),     # estandarte da ordem (roxo profundo)
     # brilhos (Neon no Roblox): violeta so em funcao (dungeon, invocacao, craft, rosacea); azul frio = lua/agua
     "SG_Violet_Glow":       (S(150, 100, 235), 0.3, 0.0, 2.6, S(150, 100, 235), 0.0),
     "SG_Moon_Glow":         (S(170, 200, 255), 0.3, 0.0, 2.0, S(170, 200, 255), 0.0),
-    "SG_VioletDeep_Glow":   (S(110, 50, 210), 0.3, 0.0, 2.2, S(110, 50, 210), 0.0),   # linhas de energia da ordem
-    "SG_Rune_Glow":         (S(196, 150, 255), 0.3, 0.0, 3.0, S(196, 150, 255), 0.0),  # runas, fio do eixo, miolo do emblema
+    "SG_VioletDeep_Glow":   (S(110, 50, 210), 0.3, 0.0, 1.8, S(110, 50, 210), 0.0),   # linhas de energia da ordem
+    "SG_Rune_Glow":         (S(150, 104, 230), 0.3, 0.0, 2.4, S(150, 104, 230), 0.0),  # runas, fio do eixo, crescente do emblema (acabamento: lavanda clara virava branco com o bloom do Roblox)
     "SG_Crystal_Glow":      (S(146, 84, 246), 0.3, 0.0, 2.0, S(146, 84, 246), 0.0),  # cristais da borda/penhascos (IlhaPulso)
+    # passe de acabamento: violeta SUAVE para detalhes magicos do castelo/hall (Neon escuro = pouco bloom no Roblox)
+    "SG_VioletSoft_Glow":   (S(84, 52, 140), 0.3, 0.0, 1.0, S(84, 52, 140), 0.0),
     "Cloud_SG":             (S(98, 88, 156), 0.9, 0.0, 0.22, S(120, 100, 200), 0.0),  # mar de nuvens lilas (refino v2b)
     "SG_MoonDisc_Glow":     (S(150, 140, 214), 0.6, 0.0, 0.55, S(170, 160, 236), 0.0),  # lua da PREVIA (00_REFERENCE)
 }
@@ -88,13 +91,13 @@ for k, v in SMATS.items():
 for _r in (("Roof_SG", None),):
     if _r not in fm_lib.TEX_RULES:
         fm_lib.TEX_RULES = (_r,) + tuple(fm_lib.TEX_RULES)
-for k in ("SG_Violet_Glow", "SG_Moon_Glow", "SG_VioletDeep_Glow", "SG_Rune_Glow", "SG_Crystal_Glow"):
+for k in ("SG_Violet_Glow", "SG_Moon_Glow", "SG_VioletDeep_Glow", "SG_Rune_Glow", "SG_Crystal_Glow", "SG_VioletSoft_Glow"):
     RBX_CAL.setdefault(k, (None, [int(c) for c in fm_lib.to_srgb(SMATS[k][0])]))
 add_variants("Cliff_Rock_SG", [("Cliff_Rock_SG", 5), ("Cliff_Rock_SG_B", 3, (56, 52, 80)),
                                ("Cliff_Rock_SG_C", 2, (76, 70, 100))], cap=2)
 add_variants("Stone_Paving_SG", [("Stone_Paving_SG", 5), ("Stone_Paving_SG_B", 3, (84, 82, 104))], cap=2)
-add_variants("Stone_SG_Block", [("Stone_SG_Block", 5), ("Stone_SG_Block_B", 3, (84, 88, 104))], cap=2)
-add_variants("Stone_SG_Castle", [("Stone_SG_Castle", 5), ("Stone_SG_Castle_B", 3, (70, 74, 94))], cap=2)
+add_variants("Stone_SG_Block", [("Stone_SG_Block", 5), ("Stone_SG_Block_B", 3, (92, 92, 104))], cap=2)
+add_variants("Stone_SG_Castle", [("Stone_SG_Castle", 5), ("Stone_SG_Castle_B", 3, (80, 80, 96))], cap=2)
 add_variants("Grass_SG", [("Grass_SG", 6), ("Grass_SG_B", 4, (40, 62, 58))], cap=2)
 
 # prefixos de dono (export Roblox): SG_<Zona>_<Coisa>

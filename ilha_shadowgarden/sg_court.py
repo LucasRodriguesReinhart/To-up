@@ -17,11 +17,17 @@
 # mastros da praca com debrum DOURADO. Nos parapeitos do P2/P3 do terreno NAO se mexe: as lanternas ficam no chao.
 # REFINAMENTO v3 2026-09-29: contraste caminho x patio com o calcamento escurecido - filete de cantaria clara rente na
 # aresta externa do caminho da ordem (os dois lados, em todo o eixo) e a travessia do patio um valor abaixo do piso.
+# ACABAMENTO 2026-09-29: hierarquia de brilho (fio do eixo na vila = pedra violeta sem brilho; patio do castelo no
+# violeta BAIXO SG_VioletSoft_Glow: fio, halo do medalhao, runas dos obeliscos, lanternas do norte; arco do portao com
+# lanternas quentes); os 2 mastros-estandarte da praca sairam (sinal repetido); a figura da ordem virou
+# hooded_figure() (manto com pregas, capa, borda do capuz, punhos) - a mesma da fonte da praca (sg_village); flores
+# dos canteiros em tufos achatados; vidro da lanterna do patio assentado no prato e no chapeu.
 import math, random
 import sg_lib as SL
 from sg_lib import MB, col_box, col_box2, fm_lib
 import sg_layout as L
 import sg_emblem as EM
+import fm_parts as FP
 import sg_veg as VEG                 # cipreste do canteiro (mesma arvore da ilha) + material do luar das folhas
 import fm_veg_kit as VK
 
@@ -36,6 +42,11 @@ SILVER = "Metal_SG_Silver"
 IRON = "Metal_SG_BlackIron"
 THREAD = "SG_VioletDeep_Glow"
 RUNE = "SG_Rune_Glow"
+# ACABAMENTO 2026-09-29 (hierarquia de brilho): na VILA (P1/P2) o fio do caminho da ordem vira PEDRA violeta sem brilho
+# (o desenho continua, o neon sai); no patio do CASTELO (P3) o fio, o halo do medalhao, as runas dos obeliscos e as
+# lanternas do norte ficam no violeta BAIXO (SG_VioletSoft_Glow). Lanternas de caminho: quentes.
+THREAD_VIL = VIO
+THREAD_CASTLE = "SG_VioletSoft_Glow"
 WARM_G = "Lantern_Glow"
 HEDGE = "Leaf_SG_Pine"
 HEDGE_TOP = VEG.MOON                  # topo das sebes raspado pelo luar (o mesmo das copas)
@@ -57,7 +68,9 @@ STATUES = [(-12.5, 33.5), (12.5, 33.5)]
 OBELISKS = [(-21.0, 29.0), (21.0, 29.0)]
 MURETS = [(-45.0, 0.0, 13.5), (45.0, 0.0, 13.5)]
 GATE_ARCH = (0.0, -28.0, P2, 9.4)     # (x, y, z, meia-abertura) arco de ferro no pe da escada do portao
-PLAZA_MASTS = [(-11.5, -102.6), (11.5, -102.6)]
+# acabamento 2026-09-29: os 2 mastros com estandarte na saida norte da praca SAIRAM (repetiam, na frente, os
+# estandartes da fachada do castelo; o arco de ferro do topo da escada P1P2 ja marca a transicao)
+PLAZA_MASTS = []
 # lanternas do eixo no P2 (referencia v2): pares em x = +-7.6 (fora da largura util de 12 do caminho), a cada ~14;
 # o vao -50 fica com o lantern_post da vila em (7.8, -51.6) (nada de cacho de postes no cruzamento)
 AXIS_LANTERN_X = 7.6
@@ -129,7 +142,8 @@ def bez(p0, p1, p2, p3, n):
 
 
 # ------------------------------------------------------------------ 1. caminho da ordem
-def noble_path(mb, y0, y1, W, z, thread=(None, None), slabs=(None, None), border=(None, None), row=3.0):
+def noble_path(mb, y0, y1, W, z, thread=(None, None), slabs=(None, None), border=(None, None), row=3.0,
+               thread_m=THREAD_VIL):
     """eixo nobre ao longo de +Y (x = 0) de y0 a y1, largura W, piso na cota z.
     base de obsidiana (juntas/canal do fio) + bordas de obsidiana + lajes grandes de marmore negro (uma por lado e por
     fiada) + fio violeta no centro + junta de prata a cada 4 fiadas. thread/slabs/border = (y_ini, y_fim) opcionais
@@ -159,39 +173,22 @@ def noble_path(mb, y0, y1, W, z, thread=(None, None), slabs=(None, None), border
             yj = sy0 + k * dy
             mb.box2((-xout, yj - 0.06, z - 0.05), (xout, yj + 0.06, z + 0.035), SILVER, 0.0)
     ty0, ty1 = thread[0] if thread[0] is not None else y0, thread[1] if thread[1] is not None else y1
-    mb.box2((-0.14, ty0, z - 0.05), (0.14, ty1, z + 0.05), THREAD, 0.0)
+    mb.box2((-0.14, ty0, z - 0.05), (0.14, ty1, z + 0.05), thread_m, 0.0)
 
 
 def medallion(mb, c, r, z):
-    """o EMBLEMA da ordem no chao, rente (sg_emblem em planta): lua violeta em eclipse (disco negro deslocado), aneis e
-    lamina de prata, guarda/cabo de obsidiana, 8 raios curtos de prata sobre um aro de obsidiana. 'Cima' do emblema =
-    norte (a lamina aponta para a porta do castelo). Camadas sem sobreposicao coplanar: 0,02 / 0,035 / 0,05."""
+    """o EMBLEMA da ordem no chao do patio (acabamento 2026-09-29: o simbolo e o do sg_emblem.emblem_flat - o MESMO
+    desenho limpo de toda a ilha, deitado e rente; nada de copia local). Aqui fica so a MOLDURA: leito de obsidiana
+    ate 1,365 r (o campo negro do simbolo) com filete de cantaria na borda, rente ao piso. A lamina aponta para o norte
+    (porta do castelo); o crescente no violeta BAIXO do patio. Tudo <= piso + 0,05."""
     cx, cy = c
-    zt1, zt2, zt3 = z + 0.02, z + 0.035, z + 0.05
-    ring(mb, c, 0.96 * r, 1.365 * r, z - 0.1, zt1, OBS, 64)             # aro
-    ring(mb, c, 0.84 * r, 0.96 * r, z - 0.05, zt3, SILVER, 64)          # anel externo
-    ring(mb, c, 0.80 * r, 0.84 * r, z - 0.1, zt1, MARB, 56)             # entre aneis
-    ring(mb, c, 0.765 * r, 0.80 * r, z - 0.05, zt3, SILVER, 56)         # anel interno
-    ring(mb, c, 0.74 * r, 0.765 * r, z - 0.1, zt1, THREAD, 56)          # halo da lua (linha de energia)
-    disc(mb, c, 0.74 * r, z - 0.1, zt1, VIO, 48)                        # a lua
-    disc(mb, (cx + 0.26 * r, cy + 0.10 * r), 0.64 * r, z - 0.08, zt2, OBS, 48)   # a sombra que come a lua
-    # lamina (prata) apontando para o norte, ponta em triangulo
-    bw = max(0.6, 0.10 * r)
-    ya, yb = cy - 0.433 * r, cy + 0.993 * r
-    mb.box2((cx - bw / 2, ya, z - 0.04), (cx + bw / 2, yb, zt3), SILVER, 0.0)
-    mb.prism(SL.ccw([(cx - bw / 2, yb), (cx + bw / 2, yb), (cx, yb + 0.22 * r)]), z - 0.04, zt3, SILVER)
-    # guarda e cabo (obsidiana, como no emblema) + pomo de prata
-    gw = 0.09 * r
-    mb.box2((cx - 0.31 * r, cy - 0.05 * r - gw / 2, z - 0.04), (cx + 0.31 * r, cy - 0.05 * r + gw / 2, zt3), OBS, 0.0)
-    mb.box2((cx - gw / 2, cy - 0.57 * r, z - 0.04), (cx + gw / 2, cy - 0.11 * r, zt3), OBS, 0.0)
-    disc(mb, (cx, cy - 0.62 * r), 0.075 * r, z - 0.04, zt3, SILVER, 12)
-    # 8 raios (versao monumental) sobre o aro
-    for k in range(8):
-        t = 2 * math.pi * k / 8 + math.pi / 8
-        Lr = r * (0.34 if k % 2 == 0 else 0.22)
-        rm = r * 1.0 + Lr / 2
-        mb.box((Lr, 0.07 * r, zt3 - z + 0.04), (cx + rm * math.cos(t), cy + rm * math.sin(t), (zt3 + z - 0.04) / 2),
-               (0, 0, t), SILVER, 0.0)
+    zb = z + 0.01                                             # topo do leito (acima do piso: sem z-fight)
+    disc(mb, c, 1.3 * r, z - 0.1, zb, OBS, 64)                # leito / campo
+    ring(mb, c, 1.3 * r, 1.365 * r, z - 0.1, z + 0.03, TRIM, 64)   # filete da borda
+    if hasattr(EM, "emblem_flat"):
+        EM.emblem_flat(mb, mb, mb, (cx, cy, zb), math.pi / 2, r, monumental=True, glow=THREAD_CASTLE, field=False)
+    else:
+        EM.emblem(mb, mb, mb, (cx, cy, zb), math.pi / 2, r, depth=0.04)     # (so se o sg_emblem for antigo)
 
 
 def axis_south():
@@ -240,9 +237,11 @@ def axis_north():
     hwA = AXIS_W / 2.0
     edge = math.sqrt(MED_RIM ** 2 - (hwA - 0.45) ** 2)      # onde a borda do eixo encontra o aro
     noble_path(mb, y_gate, cy - math.sqrt(MED_RIM ** 2 - hwA ** 2), AXIS_W, P3,
-               thread=(None, cy - 0.96 * MED_R - 0.02), slabs=(None, cy - MED_RIM - 0.1), border=(None, cy - edge))
+               thread=(None, cy - 0.96 * MED_R - 0.02), slabs=(None, cy - MED_RIM - 0.1), border=(None, cy - edge),
+               thread_m=THREAD_CASTLE)
     noble_path(mb, cy + math.sqrt(MED_RIM ** 2 - hwA ** 2), y_door, AXIS_W, P3,
-               thread=(cy + 1.213 * MED_R + 0.01, None), slabs=(cy + MED_RIM + 0.1, None), border=(cy + edge, None))
+               thread=(cy + 1.213 * MED_R + 0.01, None), slabs=(cy + MED_RIM + 0.1, None), border=(cy + edge, None),
+               thread_m=THREAD_CASTLE)
     medallion(mb, MED_C, MED_R, P3)
     for s in (-1, 1):
         cross_walk(mb, s)
@@ -325,7 +324,8 @@ def parterre(mb, s, rng):
                     xx = xa + (xb - xa) * (k + 0.5 + (0.25 if ri else -0.25)) / nx
                     if not (xa + 0.3 < xx < xb - 0.3):
                         continue
-                    mb.ico(0.62, (xx, yy, z + 0.86), BLOOM, 1, scale=(1.0, 1.0, 0.7))
+                    # tufo baixo e achatado (acabamento: a bola de 0,62 lia como gema facetada)
+                    mb.ico(0.5, (xx, yy, z + 0.78), BLOOM, 1, scale=(1.3, 1.3, 0.52))
     # cipreste no centro (a mesma especie da ilha: le como plantado, nao enfeite)
     old = VK.SUN
     VK.SUN = VEG.MOON_DIR
@@ -337,54 +337,66 @@ def parterre(mb, s, rng):
 
 
 def lamp(mb, x, y, z, kind):
-    """poste de ferro negro do patio: soco de obsidiana, fuste, gaiola com vidro quente (sul) ou violeta (norte)"""
-    glass = WARM_G if kind == "warm" else RUNE
-    mb.cyl(0.8, 0.9, (x, y, z + 0.35), (0, 0, math.pi / 8), OBS, n=8, bevel=0.0)
-    mb.cyl(0.9, 0.16, (x, y, z + 0.86), (0, 0, math.pi / 8), VIO, n=8, bevel=0.0)
-    mb.cyl(0.5, 0.5, (x, y, z + 1.15), (0, 0, math.pi / 8), IRON, n=8, r2=0.28, bevel=0.0)
-    mb.cyl(0.24, 6.3, (x, y, z + 4.5), (0, 0, 0), IRON, n=8, r2=0.17, bevel=0.0)
-    mb.cyl(0.4, 0.3, (x, y, z + 4.2), (0, 0, 0), IRON, n=8, bevel=0.0)
-    zc = z + 8.3
-    mb.box((1.35, 1.35, 0.25), (x, y, zc - 0.95), (0, 0, 0), IRON, 0.0)
-    mb.cyl(0.35, 0.6, (x, y, zc - 1.3), (0, 0, 0), IRON, n=8, r2=0.2, bevel=0.0)
-    mb.box((0.85, 0.85, 1.5), (x, y, zc), (0, 0, 0), glass, 0.0)
-    for sx in (-1, 1):
-        for sy in (-1, 1):
-            mb.box((0.22, 0.22, 1.7), (x + sx * 0.5, y + sy * 0.5, zc), (0, 0, 0), IRON, 0.0)
-    SL.spire(mb, (x, y), 1.08, zc + 0.85, 1.7, IRON, n=4)
-    mb.ico(0.2, (x, y, zc + 2.7), SILVER, 1)
-    col_box("SG_PropCourtLamp", (1.0, 1.0, 9.0), (x, y, z + 4.5))
+    """poste do patio (acabamento 2026-09-29): o lantern_post da ordem (soco de obsidiana, fuste de ferro negro, colar
+    dourado, lanterna com montantes e chapeu) - a MESMA familia da praca, do eixo e das ruas, no lugar do poste de
+    cilindros empilhados; lanterna na mesma cota (z + 8,3). Os 4 ficam quentes: o violeta do patio e o da luz central
+    (Court_Violet) e o do medalhao, baixos."""
+    EM.lantern_post(mb, mb, (x, y, z), 0.0, h=7.4)
+    col_box("SG_PropCourtLamp", (1.2, 1.2, 9.0), (x, y, z + 4.5))
+
+
+def hooded_figure(mb, F, s, z0, body, void=OBS):
+    """a FIGURA da ordem (estatua do patio e coroamento da fonte da praca): encapuzado de manto longo com as maos sobre
+    a lamina fincada a frente. Referencial F (local +Y = frente), escala s, z0 = pe da figura (local).
+    Acabamento 2026-09-29: o manto deixa de ser um cone liso - barra de 12 lados, DOBRAS verticais (5 pregas que
+    afinam para cima), capa curta sobre os ombros, capuz com a borda em ponta emoldurando o rosto (vazio escuro),
+    mangas com punho. Pedra lisa, sem brilho: le por silhueta e sombra."""
+    rot = F.r()
+    mb.cyl(1.4 * s, 0.55 * s, F.p(0, 0, z0 + 0.275 * s), rot, body, n=16, r2=1.28 * s, bevel=0.0)       # barra
+    mb.cyl(1.28 * s, 4.9 * s, F.p(0, 0, z0 + 3.0 * s), rot, body, n=16, r2=0.84 * s, bevel=0.0)       # manto
+    for deg, w in ((122.0, 0.34), (58.0, 0.34), (196.0, 0.3), (-16.0, 0.3), (270.0, 0.36)):
+        c, d = math.cos(math.radians(deg)), math.sin(math.radians(deg))
+        mb.beam(F.p(1.24 * s * c, 1.24 * s * d, z0 + 0.5 * s), F.p(0.8 * s * c, 0.8 * s * d, z0 + 5.2 * s),
+                w * s, 0.24 * s, body, 0.0)                                                      # pregas
+    mb.cyl(1.12 * s, 1.15 * s, F.p(0, -0.04 * s, z0 + 5.35 * s), rot, body, n=14, r2=0.64 * s, bevel=0.0)  # capa
+    mb.cyl(0.74 * s, 1.9 * s, F.p(0, -0.12 * s, z0 + 6.75 * s), F.r(0.2), body, n=12, r2=0.1 * s, bevel=0.0)  # capuz
+    mb.box((0.56 * s, 0.3 * s, 0.7 * s), F.p(0, 0.3 * s, z0 + 6.42 * s), F.r(0.2), void, 0.0)            # rosto
+    for sg in (-1, 1):
+        mb.beam(F.p(sg * 0.42 * s, 0.47 * s, z0 + 5.95 * s), F.p(0, 0.36 * s, z0 + 7.05 * s), 0.2 * s, 0.24 * s,
+                body, 0.0)                                                                       # borda do capuz
+        # mangas descendo para o cabo, punho alargado, mao
+        mb.beam(F.p(sg * 0.95 * s, 0.05 * s, z0 + 5.2 * s), F.p(sg * 0.32 * s, 1.28 * s, z0 + 3.92 * s),
+                0.5 * s, 0.55 * s, body, 0.0)
+        mb.box((0.46 * s, 0.34 * s, 0.5 * s), F.p(sg * 0.3 * s, 1.3 * s, z0 + 3.9 * s), rot, body, 0.0)
+        mb.box((0.34 * s, 0.4 * s, 0.36 * s), F.p(sg * 0.17 * s, 1.42 * s, z0 + 3.72 * s), rot, body, 0.0)
+    # espada ESCULPIDA na mesma pedra da figura (acabamento: antes lamina chata + barra negra solta como guarda):
+    # lamina afunilada ate a ponta fincada no plinto, guarda com as pontas alargadas, cabo redondo, pomo de prata.
+    yb = 1.5 * s
+    FP.frustum(mb, tuple(F.p(0, yb, z0 + 0.1 * s)), 0.1 * s, 0.07 * s, 0.46 * s, 0.15 * s, 3.08 * s, body,
+               ang=F.a)                                                                  # lamina (ponta embaixo)
+    mb.box((0.14 * s, 0.17 * s, 2.7 * s), F.p(0, yb, z0 + 1.75 * s), rot, body, 0.02 * s)  # aresta central
+    mb.box((1.0 * s, 0.24 * s, 0.2 * s), F.p(0, yb, z0 + 3.28 * s), rot, body, 0.05 * s)  # guarda
+    for sg in (-1, 1):
+        mb.box((0.16 * s, 0.3 * s, 0.32 * s), F.p(sg * 0.54 * s, yb, z0 + 3.3 * s), rot, body, 0.05 * s)  # pontas
+    mb.cyl(0.11 * s, 0.72 * s, F.p(0, yb, z0 + 3.74 * s), rot, body, n=8, bevel=0.0)       # cabo
+    mb.ico(0.2 * s, tuple(F.p(0, yb, z0 + 4.2 * s)), SILVER, 1)                           # pomo
 
 
 def statue(mb, x, y, z, yaw):
     """estatua da ordem: figura encapuzada de manto longo, maos sobre a lamina fincada a frente; pedestal de obsidiana,
     dado de pedra violeta com o medalhao da ordem e cornija clara. Local +Y = frente (yaw)."""
     F = SL.Frame(x, y, z, yaw - math.pi / 2)
+    a = F.a
+    # pedestal com MOLDURAS (acabamento): soco, chanfro de assento, dado violeta, cornija em talude + filete, plinto
     mb.box((3.6, 3.6, 0.6), F.p(0, 0, 0.3), F.r(), OBS, 0.1)
-    mb.box((3.1, 3.1, 0.3), F.p(0, 0, 0.75), F.r(), OBS, 0.06)
+    FP.frustum(mb, tuple(F.p(0, 0, 0.6)), 3.6, 3.6, 2.8, 2.8, 0.3, OBS, ang=a)
     mb.box((2.7, 2.7, 2.5), F.p(0, 0, 0.9 + 1.25), F.r(), VIO, 0.08)
-    mb.box((3.4, 3.4, 0.4), F.p(0, 0, 3.4 + 0.2), F.r(), TRIM, 0.08)
-    mb.box((3.0, 3.0, 0.25), F.p(0, 0, 3.8 + 0.125), F.r(), OBS, 0.0)
+    FP.frustum(mb, tuple(F.p(0, 0, 3.4)), 2.72, 2.72, 3.4, 3.4, 0.32, TRIM, ang=a)
+    mb.box((3.4, 3.4, 0.12), F.p(0, 0, 3.78), F.r(), TRIM, 0.0)
+    mb.box((3.0, 3.0, 0.23), F.p(0, 0, 3.935), F.r(), OBS, 0.06)
     EM.plaque(mb, mb, mb, mb, tuple(F.p(0, 1.35 + 0.3, 2.2)), yaw, 0.82)
-    z0 = 4.05
-    rot = F.r()
-    # manto: barra alargada + corpo conico + ombros + capuz pontudo (inclinado para tras) + abertura escura do rosto.
-    # Pedra CLARA (a da cantaria): a figura le contra a fachada escura; o rosto e um vazio de obsidiana
-    ST = TRIM
-    mb.cyl(1.38, 0.55, F.p(0, 0, z0 + 0.275), rot, ST, n=10, r2=1.26, bevel=0.0)
-    mb.cyl(1.26, 4.9, F.p(0, 0, z0 + 0.55 + 2.45), rot, ST, n=10, r2=0.84, bevel=0.0)
-    mb.cyl(0.98, 0.75, F.p(0, 0, z0 + 5.45 + 0.37), rot, ST, n=10, r2=0.62, bevel=0.0)
-    mb.cyl(0.74, 1.9, F.p(0, -0.12, z0 + 6.75), F.r(0.2), ST, n=8, r2=0.1, bevel=0.0)
-    mb.box((0.6, 0.3, 0.76), F.p(0, 0.4, z0 + 6.45), F.r(), OBS, 0.0)
-    # bracos (mangas) descendo para o cabo; maos
-    for s in (-1, 1):
-        mb.beam(F.p(s * 0.95, 0.05, z0 + 5.2), F.p(s * 0.28, 1.35, z0 + 3.85), 0.5, 0.55, ST, 0.0)
-        mb.box((0.34, 0.4, 0.36), F.p(s * 0.17, 1.42, z0 + 3.72), F.r(), ST, 0.0)
-    # lamina fincada a frente (ponta para baixo), guarda e cabo negros, pomo de prata
-    mb.box((0.5, 0.14, 3.1), F.p(0, 1.5, z0 + 1.6), F.r(), SILVER, 0.0)
-    mb.box((1.6, 0.3, 0.26), F.p(0, 1.5, z0 + 3.28), F.r(), OBS, 0.0)
-    mb.box((0.24, 0.24, 0.75), F.p(0, 1.5, z0 + 3.78), F.r(), OBS, 0.0)
-    mb.ico(0.2, tuple(F.p(0, 1.5, z0 + 4.26)), SILVER, 1)
+    # figura em pedra CLARA (a da cantaria): le contra a fachada escura; o rosto e um vazio de obsidiana
+    hooded_figure(mb, F, 1.0, 4.05, TRIM)
     col_box("SG_PropStatue", (3.6, 3.6, 11.0), (x, y, z + 5.5), (0, 0, yaw))
 
 
@@ -392,35 +404,44 @@ GLYPHS = (0.25, 0.75, 0.5, 0.75, 0.25, 0.5)        # a "inscricao": a mesma sequ
 
 
 def obelisk(mb, x, y, z, face_yaw):
+    """obelisco da ordem (acabamento 2026-09-29): base em 3 molduras + chanfro de assento, fuste afunilado com as
+    ARESTAS em filete (as faces leem rebaixadas entre elas), colar de cantaria e piramidion de prata no topo. As runas
+    ficam SO na face que olha o eixo, rentes (0,03) e no violeta baixo - gravadas, nao letreiro de neon."""
     hw0, hw1, zs0, zs1 = 0.95, 0.6, z + 1.9, z + 14.2
     mb.box((3.6, 3.6, 0.55), (x, y, z + 0.225), (0, 0, 0), OBS, 0.1)
     mb.box((2.8, 2.8, 1.0), (x, y, z + 1.0), (0, 0, 0), VIO, 0.08)
     mb.box((3.0, 3.0, 0.25), (x, y, z + 1.6), (0, 0, 0), TRIM, 0.06)
-    mb.box((2.3, 2.3, 0.2), (x, y, z + 1.8), (0, 0, 0), OBS, 0.0)
+    mb.box((2.4, 2.4, 0.2), (x, y, z + 1.82), (0, 0, 0), OBS, 0.0)
+    FP.frustum(mb, (x, y, z + 1.92), 2.4, 2.4, 2.0, 2.0, 0.34, OBS)
     mb.cyl(hw0 * math.sqrt(2), zs1 - zs0, (x, y, (zs0 + zs1) / 2), (0, 0, math.pi / 4), OBS, n=4,
            r2=hw1 * math.sqrt(2), bevel=0.0)
-    SL.spire(mb, (x, y), hw1 * math.sqrt(2) + 0.05, zs1, 1.7, SILVER, n=4)
+    for sx in (-1, 1):
+        for sy in (-1, 1):
+            mb.rod((x + sx * hw0, y + sy * hw0, zs0 + 0.3), (x + sx * hw1, y + sy * hw1, zs1 - 0.05), 0.2, OBS,
+                   4)                                                                      # filete da aresta
+    mb.box((2 * hw1 + 0.4, 2 * hw1 + 0.4, 0.26), (x, y, zs1 + 0.1), (0, 0, 0), TRIM, 0.0)  # colar
+    SL.spire(mb, (x, y), hw1 * math.sqrt(2) + 0.1, zs1 + 0.23, 1.8, SILVER, n=4)          # piramidion
 
     def hw(zz):
         return hw0 + (hw1 - hw0) * (zz - zs0) / (zs1 - zs0)
     for k in range(4):
         a = k * math.pi / 2
+        front = abs(((a - face_yaw + math.pi) % (2 * math.pi)) - math.pi) < 0.1
+        if not front:
+            continue
         nx, ny = math.cos(a), math.sin(a)
         tx, ty = -ny, nx
-        front = abs(((a - face_yaw + math.pi) % (2 * math.pi)) - math.pi) < 0.1
-        zg0 = z + 6.4 if front else z + 4.2
-        for i, cb in enumerate(GLYPHS if not front else GLYPHS[:4]):
-            zc = zg0 + i * 1.55
-            off = hw(zc) + 0.02
+        for i, cb in enumerate(GLYPHS[:5]):
+            zc = z + 6.2 + i * 1.5
+            off = hw(zc) - 0.02
             p = (x + nx * off, y + ny * off)
-            mb.box((0.1, 0.16, 0.95), (p[0], p[1], zc), (0, 0, a), RUNE, 0.0)
+            mb.box((0.1, 0.12, 0.85), (p[0], p[1], zc), (0, 0, a), THREAD_CASTLE, 0.0)
             side = 1 if i % 2 == 0 else -1
-            mb.box((0.1, 0.46, 0.13), (p[0] + tx * side * 0.2, p[1] + ty * side * 0.2, zc - 0.475 + cb * 0.95),
-                   (side * 0.6, 0, a), RUNE, 0.0)
-        if front:
-            zc = z + 4.1
-            off = hw(zc) + 0.3
-            EM.plaque(mb, mb, mb, mb, (x + nx * off, y + ny * off, zc), a, 0.62)
+            mb.box((0.1, 0.36, 0.1), (p[0] + tx * side * 0.16, p[1] + ty * side * 0.16, zc - 0.425 + cb * 0.85),
+                   (side * 0.6, 0, a), THREAD_CASTLE, 0.0)
+        zc = z + 4.1
+        off = hw(zc) + 0.3
+        EM.plaque(mb, mb, mb, mb, (x + nx * off, y + ny * off, zc), a, 0.62)
     col_box("SG_PropObelisk", (3.6, 3.6, 15.0), (x, y, z + 7.5))
 
 
@@ -505,10 +526,11 @@ def court():
     for x, y0, y1 in MURETS:
         muret(mb, x, y0, y1, z)
     mb.finish()
-    # arco de ferro no pe da escada do portao (entrada do recinto do castelo): lanternas violeta (so Neon)
+    # arco de ferro no pe da escada do portao (entrada do recinto do castelo): lanternas QUENTES (so Neon) - o arco
+    # fica na rua do P2 (vila): violeta forte ali era "magia" fora do lugar
     ma = MB("SG_Prop_GateArch", COLL, random.Random(3604), detail="near")
     x, y, zz, hs = GATE_ARCH
-    iron_arch(ma, x, y, zz, hs, RUNE)
+    iron_arch(ma, x, y, zz, hs, WARM_G)
     ma.finish()
 
 

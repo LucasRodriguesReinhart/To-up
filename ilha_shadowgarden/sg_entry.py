@@ -29,6 +29,11 @@ import sg_emblem as EM
 #   - par de ESTANDARTES da ordem com debrum dourado em mastros sobre o parapeito no meio da ponte (encaram quem chega):
 #     o ritmo estandarte (ponte) -> portico A -> portico B da referencia.
 
+# ACABAMENTO 2026-09-29: o par de estandartes em mastro no meio da ponte SAIU (o sinal da ordem fica nos 2 porticos);
+# um pedestal de lanterna ocupa o lugar do mastro (o ritmo de ~5,6 fecha); os 2 pares de pilaretes-lanterna do meio do
+# lance da escadaria SAIRAM (cerca de luz que escondia a escada: fica o par do pe e o do topo); pedestais de lanterna
+# dos parapeitos na escala 0,8 (a base cabe na capa, nada sobrando no ar).
+
 DECK, P1 = L.DECK, L.P1
 Y0, Y1 = L.BRIDGE_Y0, L.BRIDGE_Y1          # -262 .. -228
 HW = L.DECK_W / 2.0                        # 9: face interna dos parapeitos / guardas
@@ -284,14 +289,11 @@ def stair_wall(mb, s):
     for zz in (DECK + 1.0, DECK + 4.2):
         mb.box2((min(x0, x1) - (0.12 if s < 0 else 0), ya, zz), (max(x0, x1) + (0.12 if s > 0 else 0), yb, zz + 0.35),
                 "Stone_SG_Obsidian", 0.0)
-    # pilaretes COM LANTERNA em pares: pe (no patio), 2 no lance (tercos, ~5,8 como o ritmo da ponte) e topo (calcada)
+    # pilaretes COM LANTERNA em pares: pe (no patio) e topo (calcada). Acabamento 2026-09-29: os 2 pares do meio do
+    # lance SAIRAM - pilarete espetado na mureta inclinada + 8 lanternas no lance viravam "cerca de luz" e escondiam a
+    # escada; o lance fica limpo entre o par do pe e o do topo (e o portico B)
     _post(mb, s * (HW + 0.8), ya + 0.4, PAR_Z, 1.6, PAR_H + 1.3, lamp=True)
     _post(mb, s * (HW + 0.8), yb - 0.6, P1 - 0.35, 1.6, PAR_H + 1.3, lamp=True)
-    y_a, y_b = ya + 0.4, yb - 0.6
-    for k in (1, 2):
-        yy = y_a + (y_b - y_a) * k / 3.0
-        zcap = ta + (tb - ta) * (yy - ya) / (yb - ya) + 0.2 + 0.225        # topo da capa inclinada nesse ponto
-        _post(mb, s * (HW + 0.8), yy, zcap - 2.4, 1.6, 2.4 + 0.75, lamp=True)
 
 
 def parapets():
@@ -319,33 +321,21 @@ def parapets():
     top_deck = PAR_Z + PAR_H + 0.445
     top_p1 = P1 - 0.35 + PAR_H + 0.445
     for s in (-1, 1):
+        # pedestal na escala 0,8: a base (1,52) cabe DENTRO da capa do parapeito (1,55) - nada sobrando no ar
         for yy in BRIDGE_LANTERNS:
-            EM.lantern_pedestal(mb, mb, mb, (s * (HW + 0.6), yy, top_deck), 0.0, 0.9)
+            EM.lantern_pedestal(mb, mb, mb, (s * (HW + 0.6), yy, top_deck), 0.0, LP_S)
         for yy in (-221.5, -211.0):
-            EM.lantern_pedestal(mb, mb, mb, (s * (xl + 0.6), yy, top_deck), 0.0, 0.9)
+            EM.lantern_pedestal(mb, mb, mb, (s * (xl + 0.6), yy, top_deck), 0.0, LP_S)
         for yy in (-170.0,):
-            EM.lantern_pedestal(mb, mb, mb, (s * (xh + 0.6), yy, top_p1), 0.0, 0.9)
-        bridge_banner(mb, s, top_deck)
+            EM.lantern_pedestal(mb, mb, mb, (s * (xh + 0.6), yy, top_p1), 0.0, LP_S)
     return mb.finish()
 
 
-# ponte: pedestais de lanterna entre os pilaretes (ritmo ~5,6) e o par de estandartes no meio do vao
-BRIDGE_LANTERNS = (-252.4, -241.1)
-BRIDGE_BANNER_Y = -246.75
-
-
-def bridge_banner(mb, s, top_deck):
-    """mastro de ferro negro sobre o parapeito da ponte (soco de obsidiana na capa) com o estandarte da ordem de debrum
-    dourado pendurado a frente, encarando o SUL (quem chega da Ilha 2). O pano fica acima de 4,5 do tabuleiro (so
-    visual, sem colisao; a guarda do sg_col segue na face do parapeito)."""
-    x, y = s * (HW + 0.6), BRIDGE_BANNER_Y
-    z = top_deck
-    mb.box((1.7, 1.7, 0.55), (x, y, z + 0.275), (0, 0, 0), "Stone_SG_Obsidian", 0.06)
-    mb.box((1.3, 1.3, 0.35), (x, y, z + 0.725), (0, 0, 0), "Stone_SG_Violet", 0.0)
-    mb.cyl(0.22, 12.4, (x, y, z + 0.9 + 6.2), (0, 0, 0), "Metal_SG_BlackIron", n=8, r2=0.16, bevel=0.0)
-    mb.box((0.55, 0.55, 0.3), (x, y, z + 12.9), (0, 0, 0), EM.GOLD, 0.0)
-    SL.spire(mb, (x, y), 0.34, z + 13.05, 1.3, "Metal_SG_Silver", n=4)
-    EM.banner(mb, mb, mb, mb, (x, y - 0.36, z + 12.3), -math.pi / 2, 2.6, 8.0, trim=EM.GOLD)
+# ponte: pedestais de lanterna entre os pilaretes (ritmo ~5,6). Acabamento 2026-09-29: o par de estandartes em mastro
+# no meio da ponte SAIU (6 estandartes em 60 studs: a ponte, o portico A e o portico B diziam a mesma coisa; o sinal
+# da ordem fica nos 2 porticos, que sao os portoes).
+BRIDGE_LANTERNS = (-252.4, -246.75, -241.1)      # o do meio ocupa o lugar do mastro (o ritmo fecha)
+LP_S = 0.8
 
 
 def stair():

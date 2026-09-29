@@ -71,3 +71,36 @@ A Área 3 inteira soma **3.429 instâncias e 1.931 Parts**. A área antiga gené
 - **Salvar o place** (o agente não salva).
 - O custo do gacha Natagumo (55.000) continua provisório (D1b).
 - As recompensas e os tempos da masmorra são provisórios (`AlquimiaConfig`).
+
+## Passe final de acabamento (craftsmanship), 2026-09-29
+Export `4ec5f0f0` (665 MeshParts, 483k tris, 730 colisões, 40 luzes), reimportado (665/665) e montado. A fonte
+anterior ficou em `ServerStorage.IlhaShadowGarden_ac1e1ae5` (rollback: renomear).
+
+- **Símbolo da ordem** (`sg_emblem.py`):
+  - malha limpa: anel contínuo, crescente num único polígono, espada simétrica com guarda, cabo e pomo;
+  - estandarte com espessura e verga de verdade;
+  - `emblem_flat` para os medalhões do piso do salão e do pátio.
+- **Alquimia:** caldeirão com perfil de revolução (pés, cintas, medalhão com aro), kit de livros e frascos arrumados à mão, estantes com rodapé e cornija, móveis com estrutura, exterior com menos neon (anéis armilares, câmaras de vidro com flange).
+- **Dungeon:** caverna antiga em ruína. O exterior é quase natural, com poucos danos deliberados; a magia vem de dentro.
+- **Castelo e Hall:** janelas com moldura, recuo e vidro (a maioria quente), janelão com rendilhado, soleira, trims fechados, estandartes presos, brilho baixo (`SG_VioletSoft_Glow`).
+- **Vila, entrada, pátio e invocação:**
+  - variações dirigidas do kit (janelas, enxaimel, cumeeiras), sem neon roxo na vila;
+  - menos bandeiras e árvores fora de lugar;
+  - estátuas e obeliscos refeitos, com a espada da estátua esculpida;
+  - invocação com brilho moderado.
+- **Paleta:** pedra mais neutra, madeira quente, telhados e obsidiana legíveis, ferro com leitura de metal.
+  - No Roblox o `SG_Rune_Glow` ficou mais escuro, porque o crescente virava branco com o bloom.
+  - Os frascos da alquimia ficaram com transparência 0,55.
+  - Estas duas mudanças estão aplicadas no Studio (Color/Transparency) e no `sg_lib`; o próximo export já sai com elas.
+- **Luz da área 3** (`AreaAtmosphere`): luar mais neutro, com ambient C(142,140,174), out C(162,160,194), saturação −0,03 e exposição 0,19.
+  - Cópia em `roblox/patches_jogo/AreaAtmosphere.client.lua`; o backup do original está em `ServerStorage.BeforeShadowGarden_20260929`.
+- **Testes no Play:**
+  - rotas (âncora → Mining Hall, dungeon, caldeirão, invocação pela ponte) OK;
+  - marcadores OK e 50 minérios no salão;
+  - alquimia e masmorra ligadas;
+  - Output sem erros.
+- **Antes/depois:**
+  - Blender: `renders/finesse_ad_closeups_1.jpg`, `finesse_ad_closeups_2.jpg`, `finesse_ad_gerais.jpg`, `finesse_ad_sem_brilho.jpg`;
+  - jogo: `renders/finesse_ad_jogo.jpg` e `renders/finesse_jogo_gerais.jpg`;
+  - folhas por zona em `renders/finesse_folhas_*` e `renders/finesse_depois_castelo_hall/`.
+- **Correção de prévia:** o `sea()` do `sg_scene` reconstruía todos os materiais e anulava o limite de brilho da prévia. O ANTES foi renderizado de novo com a correção e a paleta antiga, para a comparação ser justa.

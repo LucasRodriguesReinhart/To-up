@@ -41,6 +41,10 @@ for _k, _v in NEW_MATS.items():
 
 MARBLE, OBS, SILVER, IRON = "Stone_SG_MarbleBlack", "Stone_SG_Obsidian", "Metal_SG_Silver", "Metal_SG_BlackIron"
 CLOTH, VIOST, RUNE, VGLOW = "Cloth_SG_Purple", "Stone_SG_Violet", "SG_Rune_Glow", "SG_VioletDeep_Glow"
+# passe de ACABAMENTO (2026-09-29): brilho magico do salao BAIXO - os aneis das pilastras viram pedra violeta SEM brilho
+# (16 placas de neon competiam com a arquitetura); fio da arquivolta do altar e crescentes do piso e das chaves em violeta
+# SUAVE (Neon escuro). Violeta forte so no vitral/emblema do trono.
+VSOFT = "SG_VioletSoft_Glow"
 CS, TR, VA, NI = "Stone_SG_Castle", "Stone_SG_Trim", "Stone_SGHallVault", "Stone_SGHallNiche"
 MOON, VGLASS = "Glass_SGHallMoon", "Glass_SGHallViolet"
 
@@ -225,94 +229,13 @@ def _ann(mb, cx, cy, r0, r1, z0, z1, m, n=32):
     mb._post(oT + iT + oB + iB, m, None, 0, 1)
 
 
-def _arc_between(ctr, rad, p, q, away, n):
-    """arco da circunferencia (ctr, rad) de p ate q passando pelo lado da direcao 'away' (angulo)"""
-    a0 = math.atan2(p[1] - ctr[1], p[0] - ctr[0])
-    a1 = math.atan2(q[1] - ctr[1], q[0] - ctr[0])
-    d = (a1 - a0) % (2 * math.pi)
-    mid = a0 + d / 2.0
-    if math.cos(mid - away) < 0.0:
-        d -= 2 * math.pi
-    return [(ctr[0] + rad * math.cos(a0 + d * k / n), ctr[1] + rad * math.sin(a0 + d * k / n)) for k in range(n + 1)]
-
-
-def _crescent(mb, P, rA, bc, rB, z0, z1, m, n=14):
-    """crescente = disco A (centro 0, raio rA) menos disco B (centro bc, raio rB), em coordenadas locais mapeadas
-    por P(a, b) -> (x, y). Fita entre o arco externo (A) e o interno (B) com as pontas compartilhadas."""
-    d = math.hypot(bc[0], bc[1])
-    ex, ey = bc[0] / d, bc[1] / d
-    a = (rA * rA - rB * rB + d * d) / (2 * d)
-    h = math.sqrt(max(0.0, rA * rA - a * a))
-    p1 = (ex * a - ey * h, ey * a + ex * h)
-    p2 = (ex * a + ey * h, ey * a - ex * h)
-    away = math.atan2(-ey, -ex)
-    outer = _arc_between((0.0, 0.0), rA, p1, p2, away, n)
-    inner = _arc_between(bc, rB, p1, p2, away, n)
-    bm = mb.bm
-    def vs(pts, z):
-        return [bm.verts.new((P(u, v)[0], P(u, v)[1], z)) for u, v in pts]
-    oT, iT, oB, iB = vs(outer, z1), vs(inner[1:-1], z1), vs(outer, z0), vs(inner[1:-1], z0)
-    iT = [oT[0]] + iT + [oT[-1]]
-    iB = [oB[0]] + iB + [oB[-1]]
-    for T, B in ((oT, iT), (oB, iB)):
-        up = T is oT
-        f = [(T[0], T[1], B[1])]
-        for k in range(1, n - 1):
-            f.append((T[k], T[k + 1], B[k + 1], B[k]))
-        f.append((T[n - 1], T[n], B[n - 1]))
-        for q in f:
-            bm.faces.new(q if up else tuple(reversed(q)))
-    for k in range(n):
-        bm.faces.new((oB[k], oB[k + 1], oT[k + 1], oT[k]))
-        bm.faces.new((iT[k], iT[k + 1], iB[k + 1], iB[k]))
-    mb._post(oT + oB + iT[1:-1] + iB[1:-1], m, None, 0, 1)
-
-
-def flat_emblem(mb, cx, cy, zf, r, sgn=1, rays=False, v=(0.0, 1.0), n=32, glow=RUNE, thin=False):
-    """o emblema da ordem (sg_emblem) DEITADO: piso (sgn=+1, face para cima em zf) ou chave do teto (sgn=-1, face para
-    baixo). Camadas rentes (+0,03..0,045) sobre o campo escuro; lamina apontando para v."""
-    vx, vy = v
-    ux, uy = vy, -vx
-
-    def P(a, b):
-        return (cx + ux * a + vx * b, cy + uy * a + vy * b)
-
-    def zr(hg):
-        lo, hi = zf - 0.05 * sgn, zf + hg * sgn
-        return min(lo, hi), max(lo, hi)
-
-    def poly(pts, hg, m):
-        z0, z1 = zr(hg)
-        mb.prism([P(a, b) for a, b in pts], z0, z1, m)
-
-    w_out = max(0.22, r * 0.09)
-    _ann(mb, cx, cy, r * 0.95 - w_out, r * 0.95, *zr(0.035), SILVER, n)
-    if r >= 3.0:
-        w_in = max(0.2, r * 0.03)
-        _ann(mb, cx, cy, r * 0.79, r * 0.79 + w_in, *zr(0.035), SILVER, n)
-    if thin:        # crescente fino (piso: o brilho fica sutil, so um fio de lua)
-        _crescent(mb, P, r * 0.70, (r * 0.13, r * 0.04), r * 0.66, *zr(0.03), glow, n=max(8, n // 2 - 2))
-    else:
-        _crescent(mb, P, r * 0.70, (r * 0.26, r * 0.10), r * 0.60, *zr(0.03), glow, n=max(8, n // 2 - 2))
-    bw = max(0.22, r * 0.10)
-    poly([(-bw / 2, -0.05 * r), (bw / 2, -0.05 * r), (bw / 2, 0.99 * r), (0.0, 1.22 * r), (-bw / 2, 0.99 * r)],
-         0.045, SILVER)
-    gh = max(0.11, r * 0.045)
-    poly([(-0.31 * r, -0.05 * r - gh), (0.31 * r, -0.05 * r - gh), (0.31 * r, -0.05 * r + gh),
-          (-0.31 * r, -0.05 * r + gh)], 0.045, SILVER)
-    hh = max(0.11, r * 0.045)
-    poly([(-hh, -0.05 * r - gh), (hh, -0.05 * r - gh), (hh, -0.52 * r), (-hh, -0.52 * r)], 0.045, SILVER)
-    pm = max(0.16, r * 0.08)
-    poly([(0.0, -0.52 * r - 2 * pm), (pm, -0.52 * r - pm), (0.0, -0.52 * r), (-pm, -0.52 * r - pm)], 0.045, SILVER)
-    if rays:
-        for k in range(8):
-            t = 2 * math.pi * k / 8 + math.pi / 8
-            Lr = r * (0.30 if k % 2 == 0 else 0.20)
-            ca, sa = math.cos(t), math.sin(t)
-            hw = max(0.2, r * 0.05)
-            r0 = r * 0.99
-            poly([(ca * r0 - sa * hw, sa * r0 + ca * hw), (ca * r0 + sa * hw, sa * r0 - ca * hw),
-                  (ca * (r0 + Lr), sa * (r0 + Lr))], 0.035, SILVER)
+def flat_emblem(mb, cx, cy, zf, r, sgn=1, rays=False, v=(0.0, 1.0), seg=None, glow=RUNE):
+    """o emblema da ordem DEITADO e rente: piso (sgn=+1, face para cima em zf) ou chave do teto (sgn=-1, face para
+    baixo). Geometria unica do sg_emblem (emblem_flat, acabamento 2026-09-29): anel continuo chanfrado, crescente de
+    um poligono, espada em losango; sobe no maximo ~0,056 da superficie (nada em que tropecar), fundos embutidos.
+    Sem campo negro proprio: o medalhao do piso e as chaves ja sao de obsidiana. Lamina apontando para v."""
+    EM.emblem_flat(mb, mb, mb, (cx, cy, zf), math.atan2(v[1], v[0]), r, monumental=rays, up=sgn, glow=glow,
+                   field=False, seg=seg)
 
 
 def finish(mb):
@@ -427,7 +350,8 @@ def floor():
             bm.faces.new((iT[i], iT[j], iB[j], iB[i]))
         mb._post(oT + iT + oB + iB, m, None, 0, 1)
     mb.prism(circ(R1), zb, zt, OBS)
-    flat_emblem(mb, ecx, ecy, zt, EMB_R, 1, rays=True, thin=True)
+    # raio 0,97 * EMB_R: as pontas dos raios longos (0,98 r + 0,34 r) ficam dentro do campo de obsidiana (R1 = 8,3)
+    flat_emblem(mb, ecx, ecy, zt, EMB_R * 0.97, 1, rays=True, glow=VSOFT)
     finish(mb)
 
 
@@ -486,7 +410,7 @@ def walls():
             for k in (-1, 1):
                 wcyl(mb, side, s + k * 1.75, 0.55, 1.8, SPRING, 0.45, CS, 6)
             wbox(mb, side, s - 2.1, s + 2.1, 0.0, 3.1, GAL_H - 0.6, GAL_H + 0.4, OBS, 0.08)
-            wbox(mb, side, s - 2.25, s + 2.25, 0.0, 3.05, SPRING - 1.3, SPRING - 1.05, VGLOW, 0.0)
+            wbox(mb, side, s - 2.25, s + 2.25, 0.0, 3.05, SPRING - 1.3, SPRING - 1.05, VIOST, 0.0)
             wbox(mb, side, s - 1.9, s + 1.9, 0.0, 2.7, SPRING - 1.05, SPRING, TR, 0.06)
             wbox(mb, side, s - PIER_HW - 0.2, s + PIER_HW + 0.2, 0.0, PIER_D + 0.3, SPRING, SPRING + 1.1, TR, 0.12)
             wcol("SG_HallPier", side, s - PIER_HW - 0.3, s + PIER_HW + 0.3, 0.0, PIER_D + 0.2, -0.5, SPRING)
@@ -495,7 +419,7 @@ def walls():
             a = s + corner * 2.4
             wbox(mb, side, min(s, a), max(s, a), 0.0, 2.6, 0.0, 1.5, OBS, 0.12)
             wbox(mb, side, min(s, a), max(s, a), 0.0, 2.2, 1.5, SPRING, CS, 0.1)
-            wbox(mb, side, min(s, a), max(s, a), 0.0, 2.35, SPRING - 1.3, SPRING - 1.05, VGLOW, 0.0)
+            wbox(mb, side, min(s, a), max(s, a), 0.0, 2.35, SPRING - 1.3, SPRING - 1.05, VIOST, 0.0)
             wbox(mb, side, min(s, a), max(s, a), 0.0, 2.6, SPRING, SPRING + 1.1, TR, 0.12)
             wcol("SG_HallPier", side, min(s, a), max(s, a), 0.0, 2.6, -0.5, SPRING)
 
@@ -668,7 +592,7 @@ def vault():
         zb = Z + zv(0.0, y) - 1.35
         mb.cyl(1.8, 0.5, (0.0, y, zb + 0.25), m=OBS, n=16, bevel=0.0)
         mb.cyl(1.3, 0.75, (0.0, y, zb + 0.75), m=OBS, n=12, bevel=0.0)
-        flat_emblem(mb, 0.0, y, zb, 1.4, -1, rays=False, n=12)
+        flat_emblem(mb, 0.0, y, zb, 1.4, -1, rays=False, seg=16, glow=VSOFT)
     for ya, yb in zip(VAULT_Y, VAULT_Y[1:]):
         y = (ya + yb) / 2.0
         if yb - ya < 10.0:
@@ -699,7 +623,7 @@ def altar():
         wcyl(mb, side, s, 2.2, 1.9, SP - 1.0, 0.8, CS, 8)
         for j in (-1, 1):
             wcyl(mb, side, s + j * 1.9, 0.9, 1.9, SP - 1.0, 0.5, CS, 6)
-        wbox(mb, side, s - 2.3, s + 2.3, 0.0, 3.05, SP - 1.35, SP - 1.1, VGLOW, 0.0)
+        wbox(mb, side, s - 2.3, s + 2.3, 0.0, 3.05, SP - 1.35, SP - 1.1, VIOST, 0.0)
         wbox(mb, side, s - 2.5, s + 2.5, 0.0, 3.0, SP - 1.1, SP, TR, 0.12)
         # pinaculo sobre o pilar: agulha de cantaria com remate de prata
         wbox(mb, side, s - 1.1, s + 1.1, 0.4, 2.6, SP, SP + 4.2, CS, 0.08)
@@ -714,7 +638,7 @@ def altar():
     wbox(mb, side, -14.0, 14.0, 0.0, 0.5, 0.0, 0.9, OBS, 0.06)
     for hw, t, dep, rise, m in AR:
         arch_band(mb, side, 0.0, hw, rise, SP, SP, t, 0.0, dep, m, n=8)
-    arch_band(mb, side, 0.0, AR[0][0] - 0.25, AR[0][3] - 0.25, SP, SP, 0.25, 1.9, 2.25, VGLOW, n=8)
+    arch_band(mb, side, 0.0, AR[0][0] - 0.25, AR[0][3] - 0.25, SP, SP, 0.25, 1.9, 2.25, VSOFT, n=8)
     # vitral violeta central (o fundo do emblema) + 2 lancetas de luar com medalhao violeta
     lancet(mb, side, 0.0, 4.4, 11.0, EMB_H, 5.0, m_gl=VGLASS, tracery=False)
     for k in (-1, 1):
@@ -800,8 +724,12 @@ def chandelier(mb, x, y):
         cx, cy = x + 3.2 * ca, y + 3.2 * sa
         mb.cyl(0.36, 0.3, (cx, cy, Z + h + 0.3), m=IRON, n=6, bevel=0.0)
         mb.cyl(0.22, 0.75, (cx, cy, Z + h + 0.8), m="Lantern_Glow", n=6, bevel=0.0)
-    top = zv(x, y) - 0.85
-    mb.rod((x, y, Z + h + 2.6), (x, y, Z + top), 0.13, IRON, 6)
+    # haste ate o arco transversal (o lustre fica no eixo de uma nervura) + ROSETA de ferro aparafusada sob a nervura:
+    # o lustre esta visivelmente preso ao teto (acabamento)
+    top = zv(x, y) - 0.9
+    mb.rod((x, y, Z + h + 2.6), (x, y, Z + top + 0.3), 0.13, IRON, 6)
+    mb.cyl(0.62, 0.34, (x, y, Z + top - 0.17), m=IRON, n=8, r2=0.4, rot=(math.pi, 0, 0), bevel=0.0)
+    mb.cyl(0.26, 0.3, (x, y, Z + top - 0.45), m=SILVER, n=6, bevel=0.0)
 
 
 def ironwork():

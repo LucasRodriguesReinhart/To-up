@@ -95,8 +95,8 @@ ER.OWNERS = [("SG_Ter_", "terrain"), ("SG_Sky_", "terrain"), ("SG_Ent_", "entry"
              ("SG_Dun_", "dungeon"), ("SG_Water_", "water"), ("SG_Exit_", "exit"), ("GATE_", "gate_ds"),
              ("VFX_", "vfx"), ("SG_Veg_", "vegetation"), ("SG_Prop_", "props")]
 # tetos por dono = orcamento das zonas (REFINAMENTO_BRIEF.md) + ~8% de folga do export (fatias por material/celula)
-ER.BUDGET_OWNER = {"terrain": (130000, 165), "entry": (44000, 60), "village": (76000, 110), "castle": (162000, 195),
-                   "hall": (44000, 55), "summon": (42000, 55), "craft": (54000, 66), "dungeon": (86000, 108),
+ER.BUDGET_OWNER = {"terrain": (130000, 165), "entry": (44000, 60), "village": (82000, 116), "castle": (172000, 205),
+                   "hall": (46000, 57), "summon": (42000, 55), "craft": (64000, 78), "dungeon": (86000, 108),
                    "water": (22000, 35), "exit": (28000, 42), "gate_ds": (30000, 40), "vfx": (18000, 50),
                    "vegetation": (34000, 62), "props": (70000, 110)}
 ER.BUDGET = {"static_tris": 560000, "static_meshes": 800, "vfx_tris": 18000, "vfx_meshes": 50, "total_tris": 578000,

@@ -49,6 +49,11 @@ BI = "Metal_SG_BlackIron"
 VG = "SG_VioletDeep_Glow"
 RG = "SG_Rune_Glow"
 WW_M = "Window_Warm"
+# passe de ACABAMENTO (2026-09-29): brilho magico do castelo BAIXO. Linhas/remates secundarios em violeta SUAVE (Neon
+# escuro); violeta forte (VG) so onde tem funcao: o janelao da fachada e a torre-coroa. Janelas comuns = luz QUENTE.
+VS = "SG_VioletSoft_Glow"
+WD = "Wood_SG_Dark"
+CM_ = "Stone_SG_Castle"
 
 Z = L.P3
 Z2 = L.P2
@@ -213,10 +218,34 @@ def wall_run(mb, W, u0, u1, zb, zt, t0, t1, opens, m, inner_m=None):
 
 
 def window(mb, W, uc, a, zs, zr, rise, t_glass, t_out, glass_m="Glass_SGHallMoon", frame_m=VI, fw=0.8,
-           dp=0.45, mullion=True, sill=True, sill_m=OB):
-    """vidro ogival no meio da parede + moldura (ombreiras + arquivolta numa peca so) + mainel + peitoril"""
+           dp=0.45, mullion=True, sill=True, sill_m=OB, lead=True, hood=False):
+    """vidro ogival no meio da parede + moldura (ombreiras + arquivolta numa peca so) + mainel + peitoril.
+    Acabamento: chumbo de ferro negro sobre o vidro (le VIDRO, nao plano de luz), pingadeira (hood) opcional;
+    glass_m='shutter' -> folhas de madeira fechadas com ferragens (quarto sem luz: nunca um retangulo escuro)."""
     arc = ogive(uc, a, zr, rise)
-    panel(mb, W, [(uc - a, zs), (uc + a, zs)] + list(reversed(arc)), t_glass - 0.08, t_glass + 0.08, glass_m)
+    shut = glass_m == "shutter"
+    panel(mb, W, [(uc - a, zs), (uc + a, zs)] + list(reversed(arc)), t_glass - 0.08, t_glass + 0.08,
+          WD if shut else glass_m)
+    tf = t_glass + 0.08
+    if shut:
+        panel(mb, W, rect(uc - 0.05, uc + 0.05, zs, zr + rise * 0.55), tf, tf + 0.08, BI)
+        for zz in (zs + (zr - zs) * 0.22, zs + (zr - zs) * 0.8):
+            panel(mb, W, rect(uc - a, uc + a, zz - 0.1, zz + 0.1), tf, tf + 0.09, BI)
+    elif lead:
+        step = 1.7 if a > 1.5 else 1.3
+        nz = int((zr - zs - 0.4) / step)
+        for k in range(1, nz + 1):
+            zz = zs + (zr - zs) * k / (nz + 1)
+            panel(mb, W, rect(uc - a, uc + a, zz - 0.06, zz + 0.06), tf, tf + 0.08, BI)
+        if not mullion:
+            panel(mb, W, rect(uc - 0.06, uc + 0.06, zs, zr + rise * 0.6), tf, tf + 0.08, BI)
+    if hood and frame_m:
+        h0 = ogive(uc, a, zr, rise, d=fw)
+        h1 = ogive(uc, a, zr, rise, d=fw + 0.42)
+        panel(mb, W, h0 + list(reversed(h1)), t_out + dp - 0.2, t_out + dp + 0.22, OB)
+        for s in (-1, 1):
+            u0_, u1_ = sorted((s * (a + fw - 0.05), s * (a + fw + 0.62)))
+            panel(mb, W, rect(uc + u0_, uc + u1_, zr - 0.9, zr + 0.02), t_out + dp - 0.2, t_out + dp + 0.26, OB)
     if mullion:
         panel(mb, W, rect(uc - 0.22, uc + 0.22, zs, zr + rise * 0.45), t_glass - 0.3, t_glass + 0.3, frame_m)
         panel(mb, W, rect(uc - a, uc + a, zr - 0.2, zr + 0.2), t_glass - 0.3, t_glass + 0.3, frame_m)
@@ -354,30 +383,53 @@ def face_frame(cx, cy, ap, phi_deg):
     return ((cx + ap * math.cos(ph), cy + ap * math.sin(ph)), (-math.sin(ph), math.cos(ph)), (math.cos(ph), math.sin(ph)))
 
 
-def slit(mb, W, z0, h, w=0.9, m="Window_Warm", pointed=True):
+def louvers(mb, W, u0, u1, z0, z1, t, m=None):
+    """venezianas de madeira (sotao / campanario / quarto fechado): fundo escuro no recuo + palhetas inclinadas"""
+    m = m or WD
+    panel(mb, W, rect(u0, u1, z0, z1), t - 0.1, t + 0.04, OB)
+    n = max(2, int((z1 - z0) / 0.55))
+    for k in range(n):
+        zc = z0 + (k + 0.6) * (z1 - z0) / (n + 0.2)
+        panel(mb, W, [(u0, zc - 0.16), (u1, zc - 0.16), (u1, zc + 0.12), (u0, zc + 0.12)], t + 0.04, t + 0.2, m)
+
+
+def lancet_win(mb, W, uc, z0, h, w=1.0, t=0.0, glass=WW_M, frame_m=OB, dp=0.42, fw=0.26, bar=True, sill=True):
+    """JANELA pequena de verdade numa face plana (plano externo em t): VIDRO com a luz interior rente a face, MOLDURA
+    saliente (ombreiras + arco ogival numa peca) que cria o RECUO, PEITORIL com pingadeira e travessa de ferro no vidro.
+    glass='louver' -> venezianas de madeira no lugar do vidro (quarto fechado)"""
     a = w / 2
-    if pointed:
-        panel(mb, W, [(-a, z0), (a, z0)] + list(reversed(ogive(0.0, a, z0 + h - a * 1.4, a * 1.4, n=3))), -0.1, 0.14, m)
+    rise = a * 1.4
+    zr = z0 + h - rise
+    arc = ogive(uc, a, zr, rise, n=3)
+    if glass == "louver":
+        louvers(mb, W, uc - a, uc + a, z0, zr, t)
+        panel(mb, W, [(uc - a, zr), (uc + a, zr)] + list(reversed(arc))[1:-1], t - 0.1, t + 0.04, OB)
     else:
-        panel(mb, W, rect(-a, a, z0, z0 + h), -0.1, 0.14, m)
+        panel(mb, W, [(uc - a, z0), (uc + a, z0)] + list(reversed(arc)), t - 0.1, t + 0.04, glass)
+    outer = ogive(uc, a, zr, rise, d=fw, n=3)
+    band_ = [(uc - a, z0), (uc - a, zr)] + arc[1:-1] + [(uc + a, zr), (uc + a, z0), (uc + a + fw, z0),
+                                                      (uc + a + fw, zr)] + list(reversed(outer))[1:-1] + \
+            [(uc - a - fw, zr), (uc - a - fw, z0)]
+    panel(mb, W, band_, t - 0.05, t + dp, frame_m)
+    if sill:
+        # peitoril com pingadeira: mais largo e mais saliente que a moldura
+        panel(mb, W, rect(uc - a - fw - 0.18, uc + a + fw + 0.18, z0 - 0.34, z0 + 0.02), t - 0.05, t + dp + 0.22,
+              frame_m)
+    if bar and glass != "louver":
+        zb = z0 + (zr - z0) * 0.55
+        panel(mb, W, rect(uc - a, uc + a, zb - 0.07, zb + 0.07), t + 0.04, t + 0.12, BI)
+        if w >= 1.3:
+            panel(mb, W, rect(uc - 0.06, uc + 0.06, z0, zr + rise * 0.5), t + 0.04, t + 0.12, BI)
+
+
+def slit(mb, W, z0, h, w=0.9, m="Window_Warm", pointed=True):
+    """seteira/lanceta das torres: agora janela de verdade (moldura + recuo + vidro + peitoril), nao plano emissivo"""
+    lancet_win(mb, W, 0.0, z0, h, w, 0.0, glass=m)
 
 
 def wlancet(mb, W, uc, z0, h, w=1.0, t=0.0, m=WW_M):
     """lanceta ogival pequena e quente na face de uma parede cujo plano externo esta em t (ritmo de janelas da ref v2)"""
-    a = w / 2
-    panel(mb, W, [(uc - a, z0), (uc + a, z0)] + list(reversed(ogive(uc, a, z0 + h - a * 1.4, a * 1.4, n=3))),
-          t, t + 0.22, m)
-    panel(mb, W, rect(uc - a - 0.22, uc + a + 0.22, z0 - 0.3, z0), t, t + 0.34, OB)
-
-
-def planter_pine(mb, x, y, z, h=4.2):
-    """floreira de obsidiana com pinheiro pequeno (terracos/varandas com vida, ref v2); sem colisao"""
-    mb.box((2.2, 2.2, 1.1), (x, y, z + 0.55), (0, 0, 0), OB, 0.05)
-    mb.box((2.4, 2.4, 0.18), (x, y, z + 1.12), (0, 0, 0), SV, 0.0)
-    s = h / 4.2
-    mb.cyl(0.24 * s, 1.4 * s, (x, y, z + 1.0 + 0.7 * s), (0, 0, 0), "Bark", 6, bevel=0.0)
-    for r, hh, zb in ((1.55, 2.3, 1.5), (1.15, 2.0, 2.6), (0.72, 1.7, 3.7)):
-        mb.cyl(r * s, hh * s, (x, y, z + 1.0 + (zb + hh / 2) * s), (0, 0, 0), "Leaf_SG_Pine", 8, r2=0.0, bevel=0.0)
+    lancet_win(mb, W, uc, z0, h, w, t, glass=m)
 
 
 def socle(mb, x, y, r, n, z0, z1, rot, e=0.9):
@@ -391,12 +443,12 @@ def band(mb, x, y, r, n, z, rot, m=OB, h=1.2, e=0.5):
     frustum(mb, x, y, r + e, r + e, n, z, z + h, m, rot)
 
 
-def glow_edges(mb, cx, cy, r, n, z0, z1, rot0, which, w=0.32, out=0.12):
-    """linhas de energia finas e continuas nas arestas (vertices) de um fuste poligonal"""
+def glow_edges(mb, cx, cy, r, n, z0, z1, rot0, which, w=0.32, out=0.12, m=VS):
+    """linhas de energia finas e continuas nas arestas (vertices) de um fuste poligonal (acabamento: violeta SUAVE)"""
     for k in which:
         a = math.radians(rot0 + 360.0 * k / n)
         px, py = cx + (r + out) * math.cos(a), cy + (r + out) * math.sin(a)
-        mb.box((w, w, z1 - z0), (px, py, (z0 + z1) / 2), (0, 0, a + math.pi / 4), VG, 0.0)
+        mb.box((w, w, z1 - z0), (px, py, (z0 + z1) / 2), (0, 0, a + math.pi / 4), m, 0.0)
 
 
 def small_tower(mb, x, y, r, z0, ztop, sph, rot=22.5, slits=(270.0,)):
@@ -507,7 +559,7 @@ def muralha(banners):
                               (270.0 + s * 45.0, Z + 29.0, 3.0, 0.85)):
             slit(mb, face_frame(x, y, ap, phi % 360.0), zz, h, w)
         W = face_frame(x, y, ap, 270.0)
-        banners.append((_P(W, 0.0, 0.45, Z + 33.0), -math.pi / 2, 3.8, 17.0))
+        banners.append((_P(W, 0.0, 0.45, Z + 33.0), -math.pi / 2, 3.8, 17.0, 0.45))
         ngon_col("SG_CasTower", x, y, 8, r, Z2 - 0.5, Z + 36.0, rot)
     # lanternas de poste no patamar do portao (lado do patio), fora do vao de 16
     for sx in (-1, 1):
@@ -566,6 +618,12 @@ def stairs():
 
 
 # ------------------------------------------------------------------ 2. nave: casca do Mining Hall
+# faixas horizontais da casca (z0, z1, t0, t1, material): cornija, parapeito, remate, soco, cordao, faixa das janelas
+SIDE_BANDS = [(EAVE - 1.0, EAVE + 0.4, TW - 0.2, TW + 0.8, OB), (EAVE + 0.4, EAVE + 2.0, TW - 0.9, TW, CM_),
+              (EAVE + 1.7, EAVE + 2.1, TW - 1.0, TW + 0.15, VI), (ZB, SOC, TW - 0.1, TW + 0.7, OB),
+              (SOC - 0.05, SOC + 0.35, TW - 0.1, TW + 0.8, SV), (WIN_SILL - 1.6, WIN_SILL - 0.55, TW - 0.1, TW + 0.5, OB)]
+
+
 def nave():
     rng = random.Random(5201)
     mb = MB("SG_Cas_Nave", "04_CASTLE", rng, detail="near")
@@ -577,15 +635,13 @@ def nave():
     for W in (((HX0, 0.0), (0.0, 1.0), (-1.0, 0.0)), ((HX1, 0.0), (0.0, 1.0), (1.0, 0.0))):
         wall_run(mb, W, HY0, HY1, ZB, EAVE, 0.0, TW, opens_side, CM, IM)
         for y in WIN_Y:
-            window(mb, W, y, WIN_A, WIN_SILL, WIN_SPRING, WIN_RISE, tg, TW)
+            window(mb, W, y, WIN_A, WIN_SILL, WIN_SPRING, WIN_RISE, tg, TW, glass_m=WW_M, hood=True)
         # cornija de obsidiana (coroamento) + parapeito baixo com remate violeta
-        panel(mb, W, rect(HY0 - TW, HY1 + TW, EAVE - 1.0, EAVE + 0.4), TW - 0.2, TW + 0.8, OB)
-        panel(mb, W, rect(HY0 - TW, HY1 + TW, EAVE + 0.4, EAVE + 2.0), TW - 0.9, TW, CM)
-        panel(mb, W, rect(HY0 - TW, HY1 + TW, EAVE + 1.7, EAVE + 2.1), TW - 1.0, TW + 0.15, VI)
-        # soco de obsidiana + cordao de prata; faixa de obsidiana marcando o andar das janelas
-        panel(mb, W, rect(HY0 - TW, HY1 + TW, ZB, SOC), TW - 0.1, TW + 0.7, OB)
-        panel(mb, W, rect(HY0 - TW, HY1 + TW, SOC - 0.05, SOC + 0.35), TW - 0.1, TW + 0.8, SV)
-        panel(mb, W, rect(HY0 - TW, HY1 + TW, WIN_SILL - 1.6, WIN_SILL - 0.55), TW - 0.1, TW + 0.5, OB)
+        # acabamento: as faixas laterais passam a saliencia delas alem das quinas (ext = t1 - TW) e as faixas das
+        # fachadas sul/norte comecam na face interna delas -> quina fechada, sem dente nem ponta cortada no ar
+        for (z0_, z1_, t0_, t1_, m_) in SIDE_BANDS:
+            ext = max(0.0, t1_ - TW) if z0_ < EAVE + 0.3 else 0.0   # parapeito/remate terminam na empena
+            panel(mb, W, rect(HY0 - TW - ext, HY1 + TW + ext, z0_, z1_), t0_, t1_, m_)
     # fachada sul (u = x, t para fora = -y): naves laterais com janela + corpo central com a porta
     WS = ((0.0, HY0), (1.0, 0.0), (0.0, -1.0))
     WN = ((0.0, HY1), (1.0, 0.0), (0.0, 1.0))
@@ -596,16 +652,18 @@ def nave():
             opens = [(uw, WIN_A, WIN_SILL, WIN_SPRING, WIN_RISE)] if front else []   # fundo fechado: altar do hall
             wall_run(mb, W, u0, u1, ZB, EAVE, 0.0, TW, opens, CM, IM)
             if front:
-                window(mb, W, uw, WIN_A, WIN_SILL, WIN_SPRING, WIN_RISE, tg, TW)
+                window(mb, W, uw, WIN_A, WIN_SILL, WIN_SPRING, WIN_RISE, tg, TW, glass_m=WW_M, hood=True)
             # empena de meia-agua da nave lateral (esconde o perfil do telhado)
             uo, ui = (OX0, -CLR) if s < 0 else (OX1, CLR)
             panel(mb, W, [(uo, EAVE), (ui, EAVE), (ui, AISLE_HI + 1.6), (uo, EAVE + 3.2)], 0.4, TW, CM)
             panel(mb, W, [(uo, EAVE + 2.6), (ui, AISLE_HI + 1.0), (ui, AISLE_HI + 2.2), (uo, EAVE + 3.8)], TW - 0.2,
                   TW + 0.6, OB)
-            panel(mb, W, rect(min(uo, ui), max(uo, ui), ZB, SOC), TW - 0.1, TW + 0.7, OB)
-            panel(mb, W, rect(min(uo, ui), max(uo, ui), SOC - 0.05, SOC + 0.35), TW - 0.1, TW + 0.8, SV)
-            panel(mb, W, rect(min(uo, ui), max(uo, ui), EAVE - 1.0, EAVE + 0.4), TW - 0.2, TW + 0.8, OB)
-            panel(mb, W, rect(min(uo, ui), max(uo, ui), WIN_SILL - 1.6, WIN_SILL - 0.55), TW - 0.1, TW + 0.5, OB)
+            for (z0_, z1_, t0_, t1_, m_) in SIDE_BANDS:
+                if z0_ >= EAVE + 0.3:
+                    continue                                  # parapeito: a empena da nave lateral ja fecha a quina
+                ua = s * (OX1 - (TW - t0_))                   # face interna da faixa lateral
+                ub = s * CLR if front else 0.0                # fundo: a faixa corre inteira (passa atras da coroa)
+                panel(mb, W, rect(min(ua, ub), max(ua, ub), z0_, z1_), t0_, t1_, m_)
             # ritmo de janelas quentes na empena da nave lateral (sotao, acima do teto do salao: nada de interior falso)
             for uu, z0w, hw_ in ((28.0, EAVE + 2.2, 4.0), (35.0, EAVE + 1.6, 3.4), (42.0, EAVE + 0.9, 2.6)):
                 wlancet(mb, W, s * uu, z0w, hw_, 1.0, t=TW + 0.02)
@@ -627,8 +685,9 @@ def nave():
                 panel(mb, W, rect(u0_, u1_, EAVE - 1.0, EAVE + 0.4), TW - 0.2, TW + 0.8, OB)
                 panel(mb, W, rect(u0_, u1_, WIN_SILL - 1.6, WIN_SILL - 0.55), TW - 0.1, TW + 0.5, OB)
                 # pilha de janelas quentes ladeando o arco do emblema (2 andares, acima do teto do salao)
+                # (acabamento: estreitas e no vao livre entre a banda do arco e a torrinha - antes entravam na torrinha)
                 for z0w in (Z + 38.3, Z + 45.8):
-                    wlancet(mb, W, s_ * 19.5, z0w, 3.6, 1.1, t=TW + 0.02)
+                    wlancet(mb, W, s_ * 18.5, z0w, 3.4, 0.8, t=TW + 0.02)
             # coroamento da fachada: misulas de obsidiana + parapeito; no meio, a EMPENA que recebe o arco de prata do
             # emblema (o parapeito se interrompe onde o arco sobe)
             for k in range(14):
@@ -686,7 +745,7 @@ def nave():
         panel(mb, W, rect(HY0, HY1, CEIL + 2.0, CLR_TOP), 0.0, 2.0, CM)
         for y in WIN_Y:
             # lancetas altas do clerestorio: energia violeta (o castelo "respira" violeta no alto)
-            window(mb, W, y, 1.9, AISLE_HI + 1.6, CLR_TOP - 5.0, 2.8, 2.05, 2.0, glass_m=VG, mullion=True, fw=0.6,
+            window(mb, W, y, 1.9, AISLE_HI + 1.6, CLR_TOP - 5.0, 2.8, 2.05, 2.0, glass_m=WW_M, mullion=True, fw=0.6,
                    dp=0.35)
         panel(mb, W, rect(HY0 - TW, HY1 + TW, CLR_TOP - 0.9, CLR_TOP + 0.3), 1.6, 2.7, OB)
     # contrafortes (em degraus) + pinaculos + arcobotantes ate o clerestorio
@@ -714,8 +773,9 @@ def nave():
             a = (xo + s * 0.4, y, EAVE + 2.4)
             b = (s * CLR, y, AISLE_HI + 3.4)
             mb.beam(a, b, 1.1, 1.3, CM, 0.0)
-            c = (s * (CLR + (OX1 - CLR) * 0.45), y, AISLE_HI - 1.6)
-            mb.beam((xo + s * 0.2, y, EAVE + 0.4), c, 0.9, 0.9, CM, 0.0)
+            # (acabamento: a escora nasce acima do parapeito da cornija - antes atravessava o parapeito)
+            c = (s * (CLR + (OX1 - CLR) * 0.45), y, AISLE_HI - 2.4)
+            mb.beam((xo + s * 0.2, y, EAVE + 2.0), c, 0.9, 0.9, CM, 0.0)
             mb.beam(c, (s * CLR, y, AISLE_HI + 1.4), 0.9, 0.9, CM, 0.0)
             col_box2("SG_CasButtress", (min(xo, xo + s * 3.4), y - 1.6, Z - 0.5), (max(xo, xo + s * 3.4), y + 1.6, Z + 20.0))
     # teto interno (opaco) + nervuras transversais alinhadas aos contrafortes
@@ -765,6 +825,11 @@ def nave_roof(mb, e=1.6, yf=HY0 - 2.0, yb=OY1 + 1.4):
         if xl > 0.6:
             y = yf + fm * H
             mb.box((xl, rl, 0.45), (0.0, y - math.sin(th) * 0.22, z + math.cos(th) * 0.22), (th, 0, 0), "Roof_SG_Navy", 0.0)
+    # beiral com ESPESSURA (acabamento): testeira de obsidiana ao longo das aguas laterais (antes a agua terminava em
+    # lamina de espessura zero)
+    for sd in (-1, 1):
+        x0_, x1_ = sorted((sd * (H - 0.45), sd * (H + 0.12)))
+        mb.box2((x0_, yf + 0.2, zE - 0.75), (x1_, yb, zE + 0.32), OB, 0.0)
     mb.beam((0.0, yr, zR + 0.4), (0.0, yb, zR + 0.4), 1.1, 1.1, "Roof_SG_Navy", 0.0)
     mb.beam((0.0, yr, zR + 1.05), (0.0, yb, zR + 1.05), 0.5, 0.3, SV, 0.0)          # cumeeira de prata
     for sd in (-1, 1):
@@ -788,7 +853,7 @@ def roofs():
     shaft(mb, 0.0, fy, 2.2, 8, ridge - 2.0, ridge + 4.0, OB, 22.5)
     spire(mb, 0.0, fy, 2.4, 8, ridge + 4.0, 16.0, "Roof_SG_Navy", 22.5, rings=(0.4,))
     mb.rod((0.0, fy, ridge + 19.6), (0.0, fy, ridge + 21.6), 0.18, "Metal_SG_Silver", 6)
-    SL.spire(mb, (0.0, fy), 0.32, ridge + 21.4, 2.2, VG, n=4)
+    SL.spire(mb, (0.0, fy), 0.32, ridge + 21.4, 2.2, VS, n=4)
     # lucarnas escuras no telhado da nave (quebram a agua comprida; sem luz: sotao)
     for yy in (61.0, 88.0, 115.0):
         for s in (-1, 1):
@@ -799,12 +864,13 @@ def roofs():
             mb.gable_roof(xo - s * 2.5, yy, 5.0, 4.0, zr + 3.4, 2.8, "Roof_SG_Navy", thick=0.45, over=0.35, axis="X",
                           shingles=False, ridge_m="Roof_SG_Navy")
             Wl = ((xo, 0.0), (0.0, 1.0), (s * 1.0, 0.0))
-            window(mb, Wl, yy, 0.8, zr - 1.0, zr + 1.6, 1.0, 0.02, 0.0, glass_m=OB, mullion=False,
+            window(mb, Wl, yy, 0.8, zr - 0.2, zr + 2.0, 1.0, 0.02, 0.0, glass_m="shutter", mullion=False,
                    fw=0.35, dp=0.25, sill=False)
     # meia-aguas das naves laterais (da cornija ao clerestorio)
+    # acabamento: a agua nasce ATRAS do parapeito da cornija (calha), nao atravessa mais o parapeito e a cornija
     for s in (-1, 1):
-        xo, xi = s * (OX1 + 1.2), s * CLR
-        zo, zi = EAVE - 0.3, AISLE_HI
+        xo, xi = s * (OX1 - 1.0), s * CLR
+        zo, zi = EAVE + 0.4, AISLE_HI
         L2 = math.hypot(xi - xo, zi - zo)
         tilt = math.atan2(zi - zo, xi - xo)
         rows = int(L2 / 1.9)
@@ -818,13 +884,14 @@ def roofs():
     for yy in WIN_Y:
         for s in (-1, 1):
             xo2 = s * 38.5
-            f = (47.2 - abs(xo2)) / (47.2 - CLR)
-            zr = EAVE - 0.3 + f * (AISLE_HI - EAVE + 0.3)
+            f = (OX1 - 1.0 - abs(xo2)) / (OX1 - 1.0 - CLR)
+            zr = EAVE + 0.4 + f * (AISLE_HI - EAVE - 0.4)
             mb.box2((min(xo2, xo2 - s * 4.4), yy - 1.9, zr - 2.6), (max(xo2, xo2 - s * 4.4), yy + 1.9, zr + 2.6),
                     "Stone_SG_Castle", 0.0)
             mb.gable_roof(xo2 - s * 2.2, yy, 4.4, 3.8, zr + 2.6, 2.4, "Roof_SG_Navy", thick=0.45, over=0.35, axis="X",
                           shingles=False, ridge_m="Roof_SG_Navy")
-            mb.box((0.3, 1.3, 2.4), (xo2 + s * 0.08, yy, zr + 0.3), (0, 0, 0), WW_M, 0.0)
+            lancet_win(mb, ((xo2, 0.0), (0.0, 1.0), (s * 1.0, 0.0)), yy, zr + 0.85, 1.6, 0.9, 0.0, glass=WW_M,
+                       dp=0.3, fw=0.2)
     mb.finish()
 
 
@@ -850,6 +917,9 @@ def facade(banners):
             mb.cyl(0.42, DH - 1.6, _P(W, s * (DW / 2 + k * ow + 0.1), t0 + 0.1, Z + 0.8 + (DH - 1.6) / 2),
                    (0, 0, 0), arch_m[k], 8, bevel=0.0)
             mb.box((1.3, 1.3, 0.8), _P(W, s * (DW / 2 + k * ow + 0.1), t0 + 0.1, Z + 0.4), (0, 0, 0), OB, 0.1)
+            # capitel (o colunelo chega no friso da verga: antes parava 0,8 abaixo)
+            mb.box((1.2, 1.2, 0.8), _P(W, s * (DW / 2 + k * ow + 0.1), t0 + 0.1, zd - 0.4), (0, 0, 0), OB, 0.1)
+            mb.cyl(0.52, 0.18, _P(W, s * (DW / 2 + k * ow + 0.1), t0 + 0.1, zd - 0.88), (0, 0, 0), SV, 8, bevel=0.0)
         inner = ogive(0.0, DW / 2, zd, ARCH_RISE, d=k * ow)
         outer = ogive(0.0, DW / 2, zd, ARCH_RISE, d=(k + 1) * ow)
         panel(mb, W, inner + list(reversed(outer)), t0, t1 + 0.1, arch_m[k])
@@ -864,6 +934,17 @@ def facade(banners):
           orders * ow - 0.6, orders * ow + 0.2, CM)
     panel(mb, W, [(-DW / 2, zd), (DW / 2, zd)] + list(reversed(ogive(0.0, DW / 2, zd, ARCH_RISE))), -0.05, 0.25, OB)
     EM.plaque(mb, mb, mb, mb, _P(W, 0.0, 0.3, zd + 4.3), -math.pi / 2, 2.9)
+    # PORTA (acabamento): SOLEIRA de obsidiana (+0,06) do pe do porche ate a face interna com focinho de prata; ligacao
+    # com a parede: rodape de obsidiana nas ombreiras do vao (continua o soco da fachada) e verga aparente no intradorso
+    yf0 = fy - orders * ow
+    mb.box2((-DW / 2, yf0, Z - 0.3), (DW / 2, HY0, Z + 0.06), OB, 0.04)
+    mb.box2((-DW / 2, yf0 - 0.12, Z - 0.3), (DW / 2, yf0 + 0.3, Z + 0.09), SV, 0.03)
+    mb.box2((-DW / 2, fy - 0.2, Z - 0.3), (DW / 2, fy + 0.2, Z + 0.08), SV, 0.03)
+    for s in (-1, 1):
+        a_, b_ = sorted((s * DW / 2, s * (DW / 2 - 0.3)))
+        mb.box2((a_, fy - ow, Z - 0.3), (b_, HY0, SOC), OB, 0.06)
+        mb.box2((a_ - 0.02 * s, fy - ow, SOC), (b_ + 0.02 * s, HY0, SOC + 0.3), SV, 0.0)
+    mb.box2((-DW / 2, fy, zd - 0.55), (DW / 2, HY0, zd + 0.02), OB, 0.06)
     for s in (-1, 1):
         a = (s * pw, zd + 6.0)
         b = (0.0, gab_top)
@@ -880,30 +961,37 @@ def facade(banners):
         SL.spire(mb, _P(W, px, orders * ow + 0.4, 0)[:2], 1.2, zd + 8.0, 7.5, "Roof_SG_Navy", n=4)
         mb.rod(_P(W, px, orders * ow + 0.4, zd + 15.2), _P(W, px, orders * ow + 0.4, zd + 16.6), 0.14, SV, 4)
     mb.ico(0.5, _P(W, 0.0, orders * ow - 0.2, gab_top + 0.5), SV, 1)
-    # --- JANELAO ogival violeta aceso (ref v2): a "boca de luz" da fachada, entre a verga da porta e o emblema.
-    # Vidro em SG_VioletDeep_Glow, maineis de obsidiana, moldura de obsidiana com filete de pedra violeta.
-    window(mb, W, 0.0, JAN_A, JAN_SILL, JAN_SPRING, JAN_RISE, 0.5, 0.4, glass_m=VG, frame_m=OB, fw=1.0,
-           dp=0.6, mullion=False, sill=True, sill_m=OB)
+    # --- JANELAO ogival violeta (ref v2): a "boca de luz" da fachada, entre a verga da porta e o emblema. Uma das POUCAS
+    # janelas violeta (funcao). Acabamento: vidro com chumbo RECUADO atras de uma moldura funda de obsidiana (1,3) e de
+    # uma ordem externa de pedra violeta (1,6); RENDILHADO de obsidiana (3 maineis, 2 subarcos ogivais e oculo no
+    # timpano, travessa) em vez da grade reta; peitoril com pingadeira.
+    tf = 0.3                                              # face do campo violeta do emblema (t 0..0,3)
+    window(mb, W, 0.0, JAN_A, JAN_SILL, JAN_SPRING, JAN_RISE, tf + 0.15, tf, glass_m=VG, frame_m=OB, fw=1.0,
+           dp=1.3, mullion=False, sill=True, sill_m=OB, lead=True)
     jv0 = ogive(0.0, JAN_A, JAN_SPRING, JAN_RISE, d=1.0)
-    jv1 = ogive(0.0, JAN_A, JAN_SPRING, JAN_RISE, d=1.45)
-    panel(mb, W, jv0 + list(reversed(jv1)), 0.35, 0.85, VI)
+    jv1 = ogive(0.0, JAN_A, JAN_SPRING, JAN_RISE, d=1.55)
+    panel(mb, W, jv0 + list(reversed(jv1)), tf - 0.05, tf + 1.6, VI)
     for s in (-1, 1):
-        u0j, u1j = sorted((s * (JAN_A + 1.0), s * (JAN_A + 1.45)))
-        panel(mb, W, rect(u0j, u1j, JAN_SILL - 0.55, JAN_SPRING), 0.35, 0.85, VI)
-    for uj in (-3.5, 0.0, 3.5):
-        panel(mb, W, rect(uj - 0.26, uj + 0.26, JAN_SILL, JAN_SPRING + JAN_RISE * (0.55 if uj == 0.0 else 0.18)),
-              0.55, 0.85, OB)
-    for zj in (Z + 34.0, JAN_SPRING):
-        panel(mb, W, rect(-JAN_A, JAN_A, zj - 0.2, zj + 0.2), 0.55, 0.85, OB)
-    # +2 estandartes da ordem ladeando o janelao (com os 4 das torres: 6, simetricos)
-    for s in (-1, 1):
-        banners.append((_P(W, s * 11.0, 0.55, Z + 43.3), -math.pi / 2, 3.6, 17.0))
+        u0j, u1j = sorted((s * (JAN_A + 1.0), s * (JAN_A + 1.55)))
+        panel(mb, W, rect(u0j, u1j, JAN_SILL - 0.55, JAN_SPRING), tf - 0.05, tf + 1.6, VI)
+    td0, td1 = tf + 0.05, tf + 0.85                        # rendilhado: atras da moldura, na frente do vidro
+    zsub = JAN_SPRING + 3.6
+    for uj, ztop in ((-3.5, zsub - 0.2), (0.0, JAN_SPRING + 0.9), (3.5, zsub - 0.2)):
+        panel(mb, W, rect(uj - 0.25, uj + 0.25, JAN_SILL, ztop), td0, td1, OB)
+    panel(mb, W, rect(-JAN_A, JAN_A, Z + 34.0 - 0.22, Z + 34.0 + 0.22), td0, td1, OB)
+    for uc_ in (-3.5, 3.5):
+        i0 = ogive(uc_, 3.25, JAN_SPRING, 3.6, n=6)
+        i1 = ogive(uc_, 3.25, JAN_SPRING, 3.6, d=0.45, n=6)
+        panel(mb, W, i0 + list(reversed(i1)), td0, td1, OB)
+    C = (0.0, fy, JAN_SPRING + 4.45)
+    ring(mb, C, (1.0, 0.0, 0.0), (0.0, 0.0, 1.0), (0.0, -1.0, 0.0), 1.4, 1.85, td0, td1, OB, 16)
     # torrinhas-contraforte da fachada (marcam o corpo central) com agulhas
     for x, y, r in FAC_TURRETS:
         socle(mb, x, y, r, 8, ZB, SOC, 22.5, e=0.6)
         shaft(mb, x, y, r, 8, SOC, CLR_TOP + 10.0, CM, 22.5)
         for zz in (EAVE - 1.0, CLR_TOP - 0.9):
             band(mb, x, y, r, 8, zz, 22.5, e=0.45)
+        band(mb, x, y, r, 8, WIN_SILL - 1.6, 22.5, h=1.05, e=0.45)
         frustum(mb, x, y, r + 0.6, r + 0.6, 8, CLR_TOP + 10.0, CLR_TOP + 11.4, OB, 22.5)
         frustum(mb, x, y, r + 0.75, r + 0.75, 8, CLR_TOP + 11.0, CLR_TOP + 11.4, VI, 22.5)
         spire(mb, x, y, r, 8, CLR_TOP + 11.4, 20.0, "Roof_SG_Navy", 22.5, rings=(0.36,))
@@ -934,24 +1022,26 @@ def emblem_monument():
     a_sv = ogive(0.0, ARC_A, ARC_ZR, ARC_RISE, d=0.9, n=10)
     a_ob = ogive(0.0, ARC_A, ARC_ZR, ARC_RISE, d=2.6, n=10)
     panel(mb, W, arc + list(reversed(a_sv)), -0.05, 1.0, SV)
-    panel(mb, W, a_sv + list(reversed(a_ob)), -0.05, 0.7, OB)
+    panel(mb, W, a_sv + list(reversed(a_ob)), -0.05, 0.95, OB)
     for s in (-1, 1):
         u0, u1 = sorted((s * ARC_A, s * (ARC_A + 0.9)))
         u2, u3 = sorted((s * (ARC_A + 0.9), s * (ARC_A + 2.6)))
         panel(mb, W, rect(u0, u1, SOC + 0.35, ARC_ZR), -0.05, 1.0, SV)
-        panel(mb, W, rect(u2, u3, SOC + 0.35, ARC_ZR), -0.05, 0.7, OB)
+        panel(mb, W, rect(u2, u3, SOC + 0.35, ARC_ZR), -0.05, 0.95, OB)
         # capitel da ombreira (onde o arco nasce)
         panel(mb, W, rect(min(u0, u2) - 0.3, max(u1, u3) + 0.3, ARC_ZR - 1.0, ARC_ZR), -0.05, 1.3, OB)
-        # uplight de energia no pe da ombreira (luminaria de obsidiana com o topo em neon violeta)
+        # luminaria baixa no pe da ombreira: caixa de obsidiana chanfrada, aro de prata e o vidro em violeta SUAVE
+        # rebaixado dentro do aro (acabamento: antes era uma placa de neon forte em cima de uma caixa)
         ux = s * (ARC_A + 1.3)
-        mb.box((3.0, 1.6, 0.5), _P(W, ux, 1.9, Z + 0.25), (0, 0, 0), OB, 0.0)
-        mb.box((2.4, 1.0, 0.14), _P(W, ux, 1.9, Z + 0.55), (0, 0, 0), VG, 0.0)
+        mb.box((3.0, 1.6, 0.56), _P(W, ux, 1.9, Z + 0.28), (0, 0, 0), OB, 0.08)
+        mb.box((2.6, 1.2, 0.1), _P(W, ux, 1.9, Z + 0.6), (0, 0, 0), SV, 0.0)
+        mb.box((2.2, 0.8, 0.1), _P(W, ux, 1.9, Z + 0.58), (0, 0, 0), VS, 0.0)
     # medalhao: disco de obsidiana, contorno de energia (neon violeta) e aro de obsidiana
     C = (0.0, fy, EMB_Z)
     U, V, N = (1.0, 0.0, 0.0), (0.0, 0.0, 1.0), (0.0, -1.0, 0.0)
     R0 = EMB_R * 1.2
     disc(mb, C, U, V, N, R0, 0.3, 1.0, OB, 32)
-    ring(mb, C, U, V, N, R0, R0 + 0.55, 0.3, 0.9, VG, 32)
+    ring(mb, C, U, V, N, R0, R0 + 0.55, 0.3, 0.9, VS, 32)
     ring(mb, C, U, V, N, R0 + 0.55, R0 + 1.25, 0.3, 1.1, OB, 32)
     EM.emblem(mb, mb, mb, _P(W, 0.0, 1.0, EMB_Z), -math.pi / 2, EMB_R, depth=1.2, monumental=True)
     _fin(mb)
@@ -974,10 +1064,7 @@ def towers(banners):
         band(mb, x, y, r, 8, Z + 15.0, rot, h=1.0, e=0.4)
         band(mb, x, y, r, 8, top - 14.0, rot, h=1.2, e=0.5)
         parapet_ring(mb, x, y, r, 8, EAVE + 0.4, 1.9, OB, rot)                     # varanda com ameias de obsidiana
-        # terracos com vida (ref v2): floreiras de obsidiana com pinheiros pequenos na varanda
-        for adeg, hp_ in ((67.5, 4.6), (112.5, 3.8)):
-            aa = math.radians(adeg)
-            planter_pine(mb, x + (r + 0.9) * math.cos(aa), y + (r + 0.9) * math.sin(aa), EAVE + 2.3, h=hp_)
+        # (acabamento: as floreiras com pinheiro da varanda sairam - ficavam metade no ar, fora do anel do parapeito)
         out_phi = 0.0 if s > 0 else 180.0
         # janelas: fileiras ritmicas QUENTES (vida) nos andares; ultimo andar em lancetas de energia violeta
         for phi in (out_phi, 270.0 + 45.0 * s, 90.0 - 45.0 * s):
@@ -990,7 +1077,7 @@ def towers(banners):
             slit(mb, face_frame(x, y, ap, phi % 360.0), Z + 52.0, 3.0, 0.85)
         for phi in (270.0, out_phi, 90.0):
             Wf = face_frame(x, y, ap, phi)
-            window(mb, Wf, 0.0, 1.3, top - 11.5, top - 5.6, 2.2, -0.02, 0.0, glass_m=VG, mullion=True,
+            window(mb, Wf, 0.0, 1.3, top - 11.5, top - 5.6, 2.2, -0.02, 0.0, glass_m=WW_M, mullion=True,
                    fw=0.55, dp=0.35)
         parapet_ring(mb, x, y, r, 8, top, 2.6, OB, rot)
         spire(mb, x, y, r - 1.3, 8, top + 2.6, FT_SPIRE, "Roof_SG_Navy", rot, rings=(0.3, 0.62))
@@ -1003,8 +1090,9 @@ def towers(banners):
             lx, ly = x + d * math.cos(phi), y + d * math.sin(phi)
             lz = top + 2.6 + FT_SPIRE * 0.24
             mb.box((1.6, 2.2, 3.2), (lx, ly, lz + 1.6), (0, 0, phi), OB, 0.0)
-            mb.box((0.25, 1.2, 1.8), (lx + 0.8 * math.cos(phi), ly + 0.8 * math.sin(phi), lz + 1.5), (0, 0, phi),
-                   VG, 0.0)
+            # janelinha da lucarna: vidro quente com moldura (antes: placa de neon violeta)
+            lancet_win(mb, face_frame(lx, ly, 0.8, math.degrees(phi)), 0.0, lz + 0.5, 2.1, 0.8, 0.0, glass=WW_M,
+                       dp=0.25, fw=0.18, bar=False)
             SL.spire(mb, (lx, ly), 1.25, lz + 3.2, 2.6, "Roof_SG_Navy", n=4)
         for k in range(4):
             a = math.radians(rot + 45.0 + 90.0 * k)
@@ -1014,12 +1102,11 @@ def towers(banners):
             SL.spire(mb, (px, py), 0.9, top + 5.2, hp, "Roof_SG_Navy", n=4)
             mb.rod((px, py, top + 5.2 + hp - 0.2), (px, py, top + 6.4 + hp), 0.1, SV, 4)
             if k % 2 == 0:
-                SL.spire(mb, (px, py), 0.24, top + 6.2 + hp, 1.8, VG, n=4)
-        # estandarte da ordem pendurado sob a varanda, na face que olha a praca; uplight de energia no pe
+                SL.spire(mb, (px, py), 0.24, top + 6.2 + hp, 1.8, VS, n=4)
+        # estandarte da ordem pendurado sob a varanda, na face que olha a praca (o uplight de neon no pe saiu: competia
+        # com a arquitetura)
         W = face_frame(x, y, ap, 270.0)
-        banners.append((_P(W, 0.0, 0.5, EAVE - 1.9), -math.pi / 2, 5.0, 19.0))
-        mb.box((3.2, 1.6, 0.5), _P(W, 0.0, 2.2, Z + 0.25), (0, 0, 0), OB, 0.0)
-        mb.box((2.6, 1.0, 0.14), _P(W, 0.0, 2.2, Z + 0.55), (0, 0, 0), VG, 0.0)
+        banners.append((_P(W, 0.0, 0.5, EAVE - 1.9), -math.pi / 2, 5.0, 19.0, 0.5))
         ngon_col("SG_CasTower", x, y, 8, r, Z - 0.5, top, rot)
     for x, y, r in BACK_TURRETS:
         socle(mb, x, y, r, 8, ZB, Z + 3.0, 22.5, e=0.7)
@@ -1028,21 +1115,32 @@ def towers(banners):
         parapet_ring(mb, x, y, r, 8, CLR_TOP + 4.0, 1.8, OB, 22.5)
         spire(mb, x, y, r, 8, CLR_TOP + 5.8, 25.0, "Roof_SG_Navy", 22.5, rings=(0.36,))
         mb.rod((x, y, CLR_TOP + 30.4), (x, y, CLR_TOP + 32.6), 0.16, SV, 6)
-        planter_pine(mb, x + (r + 0.9) * (1.0 if x < 0 else -1.0), y, CLR_TOP + 5.8, h=3.6)
         for phi in (90.0, 0.0 if x > 0 else 180.0):
             slit(mb, face_frame(x, y, r * math.cos(math.pi / 8), phi), Z + 22.0, 3.2, 0.8)
             slit(mb, face_frame(x, y, r * math.cos(math.pi / 8), phi), Z + 38.0, 3.0, 0.8)
-            slit(mb, face_frame(x, y, r * math.cos(math.pi / 8), phi), EAVE + 6.0, 3.2, 0.8, m=VG)
+            slit(mb, face_frame(x, y, r * math.cos(math.pi / 8), phi), EAVE + 6.0, 3.2, 0.8)
         ngon_col("SG_CasTower", x, y, 8, r, Z - 0.5, EAVE, 22.5)
     mb.finish()
 
 
 def standards(banners):
     """estandartes da ordem (sg_emblem.banner): roxo profundo, barra negra, debrum DOURADO, emblema; ritmo simetrico
-    (2 nas torres do portao da muralha, 2 nas torres da fachada, 2 na fachada da nave ladeando o janelao)"""
+    (2 nas torres do portao da muralha, 2 nas torres da fachada)"""
+    # acabamento: 4 estandartes (os 2 que ladeavam o janelao sairam - repetiam o emblema monumental logo acima) e
+    # SUPORTE de verdade: cada verga presa na parede por 2 bracos de ferro negro com escora e chapa de fixacao
     mb = MB("SG_Cas_Estandartes", "04_CASTLE", random.Random(5801), detail="near")
-    for top, yaw, w, h in banners:
+    for top, yaw, w, h, off in banners:
         EM.banner(mb, mb, mb, mb, top, yaw, w, h, trim=EM.GOLD)   # debrum DOURADO (ref v2)
+        fx, fy_ = math.cos(yaw), math.sin(yaw)
+        ux, uy = math.sin(yaw), -math.cos(yaw)
+        for sd in (-1, 1):
+            du = sd * (w / 2 + 0.25)
+            wx, wy = top[0] + ux * du - fx * off, top[1] + uy * du - fy_ * off     # ponto na face da parede
+            mb.beam((wx - fx * 0.1, wy - fy_ * 0.1, top[2]), (wx + fx * (off + 0.2), wy + fy_ * (off + 0.2), top[2]),
+                    0.22, 0.26, BI, 0.0)
+            mb.beam((wx - fx * 0.05, wy - fy_ * 0.05, top[2] - 1.3), (wx + fx * off * 0.85, wy + fy_ * off * 0.85,
+                    top[2] - 0.1), 0.16, 0.16, BI, 0.0)
+            mb.box((0.7, 0.12, 1.9), (wx + fx * 0.02, wy + fy_ * 0.02, top[2] - 0.6), (0, 0, yaw + math.pi / 2), BI, 0.0)
     _fin(mb)
 
 
@@ -1073,7 +1171,7 @@ def crown():
         SL.spire(mb, (bx - 0.6 * math.cos(a), by - 0.6 * math.sin(a)), 1.6, z1 + 8.0, 10.0, "Roof_SG_Navy", n=4)
         ro = ap + 1.2 + 1.6 + 0.08
         mb.box((0.3, 0.36, z1 - Z - 6.0), (x + ro * math.cos(a), y + ro * math.sin(a), (Z + 5.0 + z1 - 1.0) / 2),
-               (0, 0, a), VG, 0.0)
+               (0, 0, a), VS, 0.0)
         col_box("SG_CasCrown", (3.2, 3.0, 20.0), (bx, by, Z + 9.5), (0, 0, a))
     # janelas do 1o corpo: fileiras QUENTES nos andares baixos (vida), energia violeta no andar alto
     for phi in (0.0, 60.0, 90.0, 120.0, 180.0):
@@ -1082,7 +1180,7 @@ def crown():
         slit(mb, face_frame(x, y, ap, phi), Z + 32.0, 3.0, 0.85)
     for phi in (0.0, 30.0, 60.0, 90.0, 120.0, 150.0, 180.0):
         Wf = face_frame(x, y, ap, phi)
-        window(mb, Wf, 0.0, 1.1, Z + 44.0, Z + 51.5, 1.9, -0.02, 0.0, glass_m=VG, mullion=False, fw=0.5, dp=0.3)
+        window(mb, Wf, 0.0, 1.1, Z + 44.0, Z + 51.5, 1.9, -0.02, 0.0, glass_m=VG, mullion=False, fw=0.5, dp=0.45)
     frustum(mb, x, y, r + 0.9, r + 0.9, n, z1, z1 + 1.4, OB, rot)
     frustum(mb, x, y, r + 1.05, r + 1.05, n, z1 + 1.0, z1 + 1.4, VI, rot)
     # fileira NOVA de pinaculos na cornija do 1o corpo (fileiras escalonadas da ref v2; alturas alternadas)
@@ -1104,7 +1202,7 @@ def crown():
         Wf = face_frame(x, y, ap2, phi)
         lit = int(round(phi)) % 60 == 30
         window(mb, Wf, 0.0, 1.5, z1 + 16.0, zc - 12.0, 2.6, -0.02, 0.0,
-               glass_m=VG if lit else OB, mullion=True, fw=0.6, dp=0.4)
+               glass_m=VG if lit else "shutter", mullion=True, fw=0.6, dp=0.4)
     band(mb, x, y, r2, n, z1 + 10.0, rot, h=1.0, e=0.5)
     glow_edges(mb, x, y, r2, n, z1 + 1.4, zc, rot, (1, 4, 7, 10))
     glow_edges(mb, x, y, r2 + 0.9, n, zc, top - 0.45, rot, (1, 4, 7, 10))
@@ -1124,7 +1222,7 @@ def crown():
             SL.spire(mb, (px, py), 0.42, top + 30.4, 2.6, VG, n=4)
             slit(mb, face_frame(px, py, 2.4 * math.cos(math.pi / 8), math.degrees(a)), top + 3.0, 3.6, 0.8, m=VG)
             ro = 2.4 * math.cos(math.pi / 8) + 0.1
-            mb.box((0.3, 0.3, 11.2), (px + ro * math.cos(a), py + ro * math.sin(a), top + 5.4), (0, 0, a), VG, 0.0)
+            mb.box((0.3, 0.3, 11.2), (px + ro * math.cos(a), py + ro * math.sin(a), top + 5.4), (0, 0, a), VS, 0.0)
         else:
             rr = r2 + 0.3
             px, py = x + rr * math.cos(a), y + rr * math.sin(a)
@@ -1133,7 +1231,7 @@ def crown():
             SL.spire(mb, (px, py), 1.5, top + 6.0, hs, "Roof_SG_Navy", n=6)
             mb.rod((px, py, top + 6.0 + hs - 0.4), (px, py, top + 7.2 + hs), 0.1, SV, 4)
             if k % 2 == 0:
-                SL.spire(mb, (px, py), 0.28, top + 7.0 + hs, 2.0, VG, n=4)
+                SL.spire(mb, (px, py), 0.28, top + 7.0 + hs, 2.0, VS, n=4)
     # flecha principal (sai direto do coroamento) com 4 lucarnas violeta e aneis de prata, ate CROWN_SPIRE_TOP;
     # no topo, o ponto mais alto da ilha: orbe de energia violeta sobre a haste de prata
     rs = 10.2
@@ -1145,7 +1243,8 @@ def crown():
         lz = top + sh * 0.2
         lx, ly = x + d * math.cos(a), y + d * math.sin(a)
         mb.box((2.4, 2.8, 4.0), (lx, ly, lz + 2.0), (0, 0, a), OB, 0.0)
-        mb.box((0.25, 1.4, 2.2), (lx + 1.2 * math.cos(a), ly + 1.2 * math.sin(a), lz + 1.9), (0, 0, a), VG, 0.0)
+        lancet_win(mb, face_frame(lx, ly, 1.2, phi), 0.0, lz + 0.8, 2.6, 1.0, 0.0, glass=VG, frame_m=VI, dp=0.3,
+                   fw=0.22, bar=False)
         SL.spire(mb, (lx, ly), 1.6, lz + 4.0, 3.2, "Roof_SG_Navy", n=4)
     mb.rod((x, y, top + sh - 0.4), (x, y, L.CROWN_SPIRE_TOP - 1.4), 0.3, SV, 6)
     mb.ico(0.9, (x, y, L.CROWN_SPIRE_TOP - 0.9), VG, 1)
@@ -1175,10 +1274,11 @@ def wings():
     for yy, sg in ((y0, -1), (y1, 1)):
         mb.gable_wall(cx, yy + sg * 0.4, w, WW_EAVE, rise, 0.8, "Y", CM)
     # janelas quentes (2 andares) nas 4 faces; nenhuma porta
+    # (acabamento: faixas de janela recuadas das torres de canto - as das pontas entravam nas torres)
     faces = [(((x1, 0.0), (0.0, 1.0), (1.0, 0.0)), y0 + 5.0, y1 - 5.0),
-             (((x0, 0.0), (0.0, 1.0), (-1.0, 0.0)), y0 + 5.0, y1 - 5.0),
-             (((0.0, y0), (1.0, 0.0), (0.0, -1.0)), x0 + 5.0, x1 - 5.0),
-             (((0.0, y1), (1.0, 0.0), (0.0, 1.0)), x0 + 5.0, x1 - 5.0)]
+             (((x0, 0.0), (0.0, 1.0), (-1.0, 0.0)), y0 + 9.5, y1 - 9.5),
+             (((0.0, y0), (1.0, 0.0), (0.0, -1.0)), x0 + 10.0, x1 - 11.0),
+             (((0.0, y1), (1.0, 0.0), (0.0, 1.0)), x0 + 10.0, x1 - 11.0)]
     for fi, (W, u0, u1) in enumerate(faces):
         nwin = max(2, int((u1 - u0) / 9.0) + 1)
         for k in range(nwin):
@@ -1186,13 +1286,14 @@ def wings():
             for j, zz in enumerate((Z + 6.0, Z + 20.0)):
                 lit = (k + j + fi) % 3 != 2                    # ref v2: maioria quente (vida), venezianas pontuais
                 window(mb, W, u, 1.0, zz, zz + 3.0, 1.4, 0.02, 0.0,
-                       glass_m="Window_Warm" if lit else OB, mullion=False, fw=0.45, dp=0.3, sill=True)
+                       glass_m="Window_Warm" if lit else "shutter", mullion=False, fw=0.45, dp=0.5, sill=True)
     for yy in (y0 + 14.0, (y0 + y1) / 2, y1 - 14.0):
         dx0 = x1 - 1.0
         mb.box2((dx0 - 5.0, yy - 2.2, WW_EAVE + 0.5), (dx0, yy + 2.2, WW_EAVE + 6.0), CM, 0.0)
         mb.gable_roof(dx0 - 2.5, yy, 5.0, 4.4, WW_EAVE + 6.0, 3.0, "Roof_SG_Navy", thick=0.5, over=0.4, axis="X",
                       shingles=False, ridge_m="Roof_SG_Navy")
-        mb.box((0.3, 1.5, 2.6), (dx0 + 0.05, yy, WW_EAVE + 3.4), (0, 0, 0), "Window_Warm", 0.0)
+        lancet_win(mb, ((dx0, 0.0), (0.0, 1.0), (1.0, 0.0)), yy, WW_EAVE + 2.4, 2.3, 1.0, 0.0, glass=WW_M,
+                   dp=0.3, fw=0.22)
     col_box2("SG_CasWingW", (x0, y0, Z - 0.5), (x1, y1, WW_EAVE))
     # --- ala leste: corpo baixo no beco (deixa as janelas da nave livres acima), telhado de ardosia
     ex0, ey0, ex1, ey1 = EW
@@ -1207,8 +1308,8 @@ def wings():
     W = ((ex1, 0.0), (0.0, 1.0), (1.0, 0.0))
     for k in range(6):
         u = ey0 + 9.0 + k * (ey1 - ey0 - 18.0) / 5
-        window(mb, W, u, 1.1, Z + 4.0, Z + 7.6, 1.5, 0.02, 0.0, glass_m="Window_Warm" if k % 3 != 1 else OB,
-               mullion=False, fw=0.45, dp=0.3)
+        window(mb, W, u, 1.1, Z + 4.0, Z + 7.6, 1.5, 0.02, 0.0, glass_m="Window_Warm" if k % 3 != 1 else "shutter",
+               mullion=False, fw=0.45, dp=0.5)
         mb.box((0.5, 1.4, 1.2), (ex1 + 0.3, u, EW_EAVE - 1.8), (0, 0, 0), OB, 0.0)
     col_box2("SG_CasWingE", (ex0 - 3.4, ey0, Z - 0.5), (ex1, ey1, EW_EAVE + 2.0))
     # --- torres das alas (agulhas escalonadas ate a coroa)
@@ -1220,9 +1321,6 @@ def wings():
         parapet_ring(mb, tx, ty, tr, 8, ttop, 2.0, OB, 22.5)   # ameias de obsidiana (terracos da ref v2)
         spire(mb, tx, ty, tr - 0.4, 8, ttop + 2.0, sph, "Roof_SG_Navy", 22.5, rings=(0.36,))
         mb.rod((tx, ty, ttop + 2.0 + sph - 0.3), (tx, ty, ttop + 4.6 + sph), 0.2, SV, 6)
-        aa = math.radians(22.5 + (0.0 if tx < -70.0 else 180.0))
-        planter_pine(mb, tx + (tr + 0.9) * math.cos(aa), ty + (tr + 0.9) * math.sin(aa), ttop + 2.0,
-                     h=4.4 if ti % 2 == 0 else 3.6)
         apx = tr * math.cos(math.pi / 8)
         for phi in (0.0, 90.0, 180.0, 270.0):
             slit(mb, face_frame(tx, ty, apx, phi), ttop - 12.0, 3.4, 1.0)

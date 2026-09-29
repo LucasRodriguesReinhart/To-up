@@ -1,21 +1,21 @@
 {
  "mapping": "Roblox = (x_blender, z_blender, -y_blender); 1 BU = 1 stud; malha: origem = centro do bbox",
- "export_id": "ac1e1ae5",
+ "export_id": "4ec5f0f0",
  "fbx": {
-  "02_TERRAIN": "ILHA3_02_TERRAIN_ac1e1a.fbx",
-  "03_MINING_HALL": "ILHA3_03_MINING_HALL_ac1e1a.fbx",
-  "04_CASTLE": "ILHA3_04_CASTLE_ac1e1a.fbx",
-  "05_VILLAGE": "ILHA3_05_VILLAGE_ac1e1a.fbx",
-  "06_SUMMON": "ILHA3_06_SUMMON_ac1e1a.fbx",
-  "07_WATER": "ILHA3_07_WATER_ac1e1a.fbx",
-  "08_NEXT_ISLAND": "ILHA3_08_NEXT_ISLAND_ac1e1a.fbx",
-  "08_PURCHASE_GATES": "ILHA3_08_PURCHASE_GATES_ac1e1a.fbx",
-  "09_PROPS": "ILHA3_09_PROPS_ac1e1a.fbx",
-  "10_VEGETATION": "ILHA3_10_VEGETATION_ac1e1a.fbx",
-  "12_VFX_HELPERS": "ILHA3_12_VFX_HELPERS_ac1e1a.fbx",
-  "16_CRAFT": "ILHA3_16_CRAFT_ac1e1a.fbx",
-  "17_DUNGEON": "ILHA3_17_DUNGEON_ac1e1a.fbx",
-  "18_ENTRY": "ILHA3_18_ENTRY_ac1e1a.fbx"
+  "02_TERRAIN": "ILHA3_02_TERRAIN_4ec5f0.fbx",
+  "03_MINING_HALL": "ILHA3_03_MINING_HALL_4ec5f0.fbx",
+  "04_CASTLE": "ILHA3_04_CASTLE_4ec5f0.fbx",
+  "05_VILLAGE": "ILHA3_05_VILLAGE_4ec5f0.fbx",
+  "06_SUMMON": "ILHA3_06_SUMMON_4ec5f0.fbx",
+  "07_WATER": "ILHA3_07_WATER_4ec5f0.fbx",
+  "08_NEXT_ISLAND": "ILHA3_08_NEXT_ISLAND_4ec5f0.fbx",
+  "08_PURCHASE_GATES": "ILHA3_08_PURCHASE_GATES_4ec5f0.fbx",
+  "09_PROPS": "ILHA3_09_PROPS_4ec5f0.fbx",
+  "10_VEGETATION": "ILHA3_10_VEGETATION_4ec5f0.fbx",
+  "12_VFX_HELPERS": "ILHA3_12_VFX_HELPERS_4ec5f0.fbx",
+  "16_CRAFT": "ILHA3_16_CRAFT_4ec5f0.fbx",
+  "17_DUNGEON": "ILHA3_17_DUNGEON_4ec5f0.fbx",
+  "18_ENTRY": "ILHA3_18_ENTRY_4ec5f0.fbx"
  },
  "meshes": [
   {
@@ -25,14 +25,14 @@
    "material": "Cliff_Rock_SG",
    "tris": 320,
    "center_rbx": [
-    -1008.925,
-    52.82,
-    483.644
+    -1008.006,
+    52.803,
+    482.97
    ],
    "size_rbx": [
-    584.46,
-    116.186,
-    892.694
+    585.612,
+    116.87,
+    891.023
    ],
    "owner": "terrain",
    "shadow": false,
@@ -46,14 +46,14 @@
    "material": "Cliff_Rock_SG_B",
    "tris": 200,
    "center_rbx": [
-    -904.423,
-    53.887,
-    557.729
+    -905.207,
+    52.714,
+    558.835
    ],
    "size_rbx": [
-    798.827,
-    75.27,
-    756.33
+    797.87,
+    75.869,
+    757.086
    ],
    "owner": "terrain",
    "shadow": false,
@@ -67,14 +67,14 @@
    "material": "Cliff_Rock_SG_Dark",
    "tris": 520,
    "center_rbx": [
-    -903.915,
-    43.829,
-    487.868
+    -904.201,
+    43.834,
+    487.381
    ],
    "size_rbx": [
-    795.107,
-    119.024,
-    894.219
+    794.804,
+    119.719,
+    894.548
    ],
    "owner": "terrain",
    "shadow": false,
@@ -88,14 +88,14 @@
    "material": "Foam",
    "tris": 280,
    "center_rbx": [
-    -903.664,
-    46.797,
-    513.958
+    -903.718,
+    46.865,
+    514.055
    ],
    "size_rbx": [
-    772.843,
-    127.581,
-    577.345
+    772.93,
+    127.706,
+    577.619
    ],
    "owner": "terrain",
    "shadow": false,
@@ -1976,16 +1976,16 @@
    "group": "03_MINING_HALL",
    "obj": "SG_Hall_Altar",
    "material": "Cloth_SG_Purple",
-   "tris": 32,
+   "tris": 88,
    "center_rbx": [
-    -940.944,
-    61.8,
-    497.199
+    -940.976,
+    61.985,
+    497.185
    ],
    "size_rbx": [
-    10.713,
-    10.5,
-    24.848
+    10.915,
+    10.87,
+    24.934
    ],
    "owner": "hall",
    "shadow": false,
@@ -2039,16 +2039,16 @@
    "group": "03_MINING_HALL",
    "obj": "SG_Hall_Altar",
    "material": "Metal_SG_BlackIron",
-   "tris": 156,
+   "tris": 188,
    "center_rbx": [
     -940.99,
     66.65,
     497.179
    ],
    "size_rbx": [
-    11.158,
+    11.041,
     6.9,
-    25.792
+    25.516
    ],
    "owner": "hall",
    "shadow": false,
@@ -2060,15 +2060,15 @@
    "group": "03_MINING_HALL",
    "obj": "SG_Hall_Altar",
    "material": "Metal_SG_Silver",
-   "tris": 2046,
+   "tris": 2090,
    "center_rbx": [
     -940.483,
-    66.715,
+    65.875,
     497.394
    ],
    "size_rbx": [
     13.528,
-    16.97,
+    18.65,
     30.89
    ],
    "owner": "hall",
@@ -2081,16 +2081,16 @@
    "group": "03_MINING_HALL",
    "obj": "SG_Hall_Altar",
    "material": "SG_Rune_Glow",
-   "tris": 276,
+   "tris": 636,
    "center_rbx": [
-    -940.755,
-    67.043,
-    497.279
+    -940.776,
+    66.988,
+    497.146
    ],
    "size_rbx": [
-    10.068,
-    8.738,
-    23.587
+    9.939,
+    8.545,
+    23.295
    ],
    "owner": "hall",
    "shadow": false,
@@ -2098,20 +2098,20 @@
    "model": "SG_Hall"
   },
   {
-   "name": "SG_Hall_Altar__SG_VioletDeep_Glow",
+   "name": "SG_Hall_Altar__SG_VioletSoft_Glow",
    "group": "03_MINING_HALL",
    "obj": "SG_Hall_Altar",
-   "material": "SG_VioletDeep_Glow",
-   "tris": 156,
+   "material": "SG_VioletSoft_Glow",
+   "tris": 132,
    "center_rbx": [
-    -940.506,
-    69.225,
-    497.385
+    -940.0,
+    69.9,
+    497.599
    ],
    "size_rbx": [
-    17.42,
-    11.75,
-    35.619
+    10.793,
+    10.4,
+    24.807
    ],
    "owner": "hall",
    "shadow": false,
@@ -2165,7 +2165,7 @@
    "group": "03_MINING_HALL",
    "obj": "SG_Hall_Altar",
    "material": "Stone_SG_Obsidian",
-   "tris": 724,
+   "tris": 652,
    "center_rbx": [
     -940.529,
     64.1,
@@ -2177,7 +2177,7 @@
     35.674
    ],
    "owner": "hall",
-   "shadow": true,
+   "shadow": false,
    "flags": "",
    "model": "SG_Hall"
   },
@@ -2207,16 +2207,16 @@
    "group": "03_MINING_HALL",
    "obj": "SG_Hall_Altar",
    "material": "Stone_SG_Violet",
-   "tris": 132,
+   "tris": 156,
    "center_rbx": [
-    -941.128,
-    70.75,
-    497.121
+    -940.506,
+    70.075,
+    497.385
    ],
    "size_rbx": [
-    13.364,
-    12.1,
-    28.464
+    17.42,
+    13.45,
+    35.619
    ],
    "owner": "hall",
    "shadow": false,
@@ -2228,16 +2228,16 @@
    "group": "03_MINING_HALL",
    "obj": "SG_Hall_Banners",
    "material": "Cloth_SG_Purple",
-   "tris": 64,
+   "tris": 176,
    "center_rbx": [
     -901.407,
-    65.75,
+    65.935,
     513.98
    ],
    "size_rbx": [
-    66.969,
-    8.6,
-    86.776
+    67.082,
+    8.97,
+    87.043
    ],
    "owner": "hall",
    "shadow": true,
@@ -2249,7 +2249,7 @@
    "group": "03_MINING_HALL",
    "obj": "SG_Hall_Banners",
    "material": "Metal_SG_BlackIron",
-   "tris": 144,
+   "tris": 208,
    "center_rbx": [
     -901.407,
     70.2,
@@ -2270,16 +2270,16 @@
    "group": "03_MINING_HALL",
    "obj": "SG_Hall_Banners",
    "material": "Metal_SG_Silver",
-   "tris": 2632,
+   "tris": 2552,
    "center_rbx": [
     -901.407,
-    66.643,
+    65.925,
     513.98
    ],
    "size_rbx": [
-    68.306,
-    7.634,
-    87.51
+    68.321,
+    8.95,
+    87.362
    ],
    "owner": "hall",
    "shadow": true,
@@ -2291,16 +2291,16 @@
    "group": "03_MINING_HALL",
    "obj": "SG_Hall_Banners",
    "material": "SG_Rune_Glow",
-   "tris": 368,
+   "tris": 752,
    "center_rbx": [
     -901.407,
-    67.104,
+    67.102,
     513.98
    ],
    "size_rbx": [
-    65.634,
-    1.385,
-    85.791
+    65.612,
+    1.305,
+    85.72
    ],
    "owner": "hall",
    "shadow": false,
@@ -2312,16 +2312,16 @@
    "group": "03_MINING_HALL",
    "obj": "SG_Hall_Banners",
    "material": "Stone_SG_Obsidian",
-   "tris": 512,
+   "tris": 416,
    "center_rbx": [
     -901.407,
-    68.17,
+    68.022,
     513.98
    ],
    "size_rbx": [
-    66.987,
-    3.2,
-    86.784
+    67.018,
+    3.495,
+    86.858
    ],
    "owner": "hall",
    "shadow": true,
@@ -2354,15 +2354,15 @@
    "group": "03_MINING_HALL",
    "obj": "SG_Hall_Floor",
    "material": "Metal_SG_Silver",
-   "tris": 1412,
+   "tris": 1558,
    "center_rbx": [
     -902.328,
-    52.022,
+    52.028,
     513.589
    ],
    "size_rbx": [
     102.149,
-    0.445,
+    0.456,
     101.09
    ],
    "owner": "hall",
@@ -2371,20 +2371,20 @@
    "model": "SG_Hall"
   },
   {
-   "name": "SG_Hall_Floor__SG_Rune_Glow",
+   "name": "SG_Hall_Floor__SG_VioletSoft_Glow",
    "group": "03_MINING_HALL",
    "obj": "SG_Hall_Floor",
-   "material": "SG_Rune_Glow",
-   "tris": 108,
+   "material": "SG_VioletSoft_Glow",
+   "tris": 260,
    "center_rbx": [
-    -901.403,
-    52.19,
-    515.142
+    -901.407,
+    52.18,
+    513.789
    ],
    "size_rbx": [
-    8.95,
+    8.69,
     0.08,
-    6.587
+    8.309
    ],
    "owner": "hall",
    "shadow": false,
@@ -2459,15 +2459,15 @@
    "group": "03_MINING_HALL",
    "obj": "SG_Hall_Ironwork",
    "material": "Metal_SG_BlackIron",
-   "tris": 2640,
+   "tris": 2752,
    "center_rbx": [
     -902.091,
-    69.514,
+    69.639,
     513.98
    ],
    "size_rbx": [
     105.81,
-    18.429,
+    18.679,
     98.807
    ],
    "owner": "hall",
@@ -2480,15 +2480,15 @@
    "group": "03_MINING_HALL",
    "obj": "SG_Hall_Ironwork",
    "material": "Metal_SG_Silver",
-   "tris": 608,
+   "tris": 688,
    "center_rbx": [
     -901.407,
-    72.63,
+    74.99,
     513.98
    ],
    "size_rbx": [
     50.207,
-    2.06,
+    6.779,
     46.322
    ],
    "owner": "hall",
@@ -2539,27 +2539,6 @@
    "model": "SG_Hall"
   },
   {
-   "name": "SG_Hall_Piers__SG_VioletDeep_Glow",
-   "group": "03_MINING_HALL",
-   "obj": "SG_Hall_Piers",
-   "material": "SG_VioletDeep_Glow",
-   "tris": 168,
-   "center_rbx": [
-    -901.407,
-    71.025,
-    513.98
-   ],
-   "size_rbx": [
-    113.825,
-    0.25,
-    111.705
-   ],
-   "owner": "hall",
-   "shadow": false,
-   "flags": "",
-   "model": "SG_Hall"
-  },
-  {
    "name": "SG_Hall_Piers__Stone_SGHallNiche",
    "group": "03_MINING_HALL",
    "obj": "SG_Hall_Piers",
@@ -2585,7 +2564,7 @@
    "group": "03_MINING_HALL",
    "obj": "SG_Hall_Piers",
    "material": "Stone_SG_Castle",
-   "tris": 1200,
+   "tris": 1100,
    "center_rbx": [
     -902.512,
     66.575,
@@ -2665,6 +2644,27 @@
    "model": "SG_Hall"
   },
   {
+   "name": "SG_Hall_Piers__Stone_SG_Violet",
+   "group": "03_MINING_HALL",
+   "obj": "SG_Hall_Piers",
+   "material": "Stone_SG_Violet",
+   "tris": 268,
+   "center_rbx": [
+    -901.407,
+    74.45,
+    513.98
+   ],
+   "size_rbx": [
+    113.825,
+    7.1,
+    111.705
+   ],
+   "owner": "hall",
+   "shadow": true,
+   "flags": "",
+   "model": "SG_Hall"
+  },
+  {
    "name": "SG_Hall_Throne__Cloth_SG_Purple",
    "group": "03_MINING_HALL",
    "obj": "SG_Hall_Throne",
@@ -2732,7 +2732,7 @@
    "group": "03_MINING_HALL",
    "obj": "SG_Hall_Vault",
    "material": "Metal_SG_Silver",
-   "tris": 2056,
+   "tris": 2946,
    "center_rbx": [
     -901.407,
     76.946,
@@ -2749,20 +2749,20 @@
    "model": "SG_Hall"
   },
   {
-   "name": "SG_Hall_Vault__SG_Rune_Glow",
+   "name": "SG_Hall_Vault__SG_VioletSoft_Glow",
    "group": "03_MINING_HALL",
    "obj": "SG_Hall_Vault",
-   "material": "SG_Rune_Glow",
-   "tris": 300,
+   "material": "SG_VioletSoft_Glow",
+   "tris": 460,
    "center_rbx": [
-    -901.406,
-    78.76,
-    514.195
+    -901.401,
+    78.77,
+    514.113
    ],
    "size_rbx": [
-    70.69,
+    70.644,
     0.08,
-    30.702
+    30.82
    ],
    "owner": "hall",
    "shadow": false,
@@ -2896,44 +2896,23 @@
    "model": "SG_Hall"
   },
   {
-   "name": "SG_Cas_Alas__Bark",
+   "name": "SG_Cas_Alas__Metal_SG_BlackIron",
    "group": "04_CASTLE",
    "obj": "SG_Cas_Alas",
-   "material": "Bark",
-   "tris": 80,
+   "material": "Metal_SG_BlackIron",
+   "tris": 1764,
    "center_rbx": [
-    -948.567,
-    111.733,
-    526.748
+    -917.772,
+    79.878,
+    526.725
    ],
    "size_rbx": [
-    63.02,
-    13.467,
-    153.035
+    135.169,
+    47.355,
+    179.048
    ],
    "owner": "castle",
    "shadow": true,
-   "flags": "",
-   "model": "SG_Cas"
-  },
-  {
-   "name": "SG_Cas_Alas__Leaf_SG_Pine",
-   "group": "04_CASTLE",
-   "obj": "SG_Cas_Alas",
-   "material": "Leaf_SG_Pine",
-   "tris": 168,
-   "center_rbx": [
-    -948.451,
-    114.471,
-    526.862
-   ],
-   "size_rbx": [
-    65.337,
-    16.371,
-    155.318
-   ],
-   "owner": "castle",
-   "shadow": false,
    "flags": "",
    "model": "SG_Cas"
   },
@@ -2942,7 +2921,7 @@
    "group": "04_CASTLE",
    "obj": "SG_Cas_Alas",
    "material": "Metal_SG_Silver",
-   "tris": 528,
+   "tris": 480,
    "center_rbx": [
     -914.277,
     100.675,
@@ -3001,20 +2980,41 @@
    "model": "SG_Cas"
   },
   {
-   "name": "SG_Cas_Alas__Stone_SG_Obsidian",
+   "name": "SG_Cas_Alas__Stone_SG_Obsidian_g8_11",
    "group": "04_CASTLE",
    "obj": "SG_Cas_Alas",
    "material": "Stone_SG_Obsidian",
-   "tris": 2720,
+   "tris": 3075,
    "center_rbx": [
     -914.573,
     75.2,
-    526.725
+    528.952
    ],
    "size_rbx": [
     144.749,
     84.4,
-    182.38
+    177.925
+   ],
+   "owner": "castle",
+   "shadow": true,
+   "flags": "",
+   "model": "SG_Cas"
+  },
+  {
+   "name": "SG_Cas_Alas__Stone_SG_Obsidian_g8_12",
+   "group": "04_CASTLE",
+   "obj": "SG_Cas_Alas",
+   "material": "Stone_SG_Obsidian",
+   "tris": 813,
+   "center_rbx": [
+    -890.93,
+    71.2,
+    459.561
+   ],
+   "size_rbx": [
+    88.71,
+    76.4,
+    48.053
    ],
    "owner": "castle",
    "shadow": true,
@@ -3026,14 +3026,14 @@
    "group": "04_CASTLE",
    "obj": "SG_Cas_Alas",
    "material": "Stone_SG_Violet",
-   "tris": 5448,
+   "tris": 4752,
    "center_rbx": [
-    -918.387,
+    -918.348,
     86.1,
     526.725
    ],
    "size_rbx": [
-    137.321,
+    137.399,
     59.8,
     182.58
    ],
@@ -3047,19 +3047,61 @@
    "group": "04_CASTLE",
    "obj": "SG_Cas_Alas",
    "material": "Window_Warm",
-   "tris": 2540,
+   "tris": 2432,
    "center_rbx": [
-    -917.797,
+    -917.75,
     80.8,
     526.725
    ],
    "size_rbx": [
-    135.156,
+    135.064,
     49.2,
-    179.085
+    178.9
    ],
    "owner": "castle",
    "shadow": false,
+   "flags": "",
+   "model": "SG_Cas"
+  },
+  {
+   "name": "SG_Cas_Alas__Wood_SG_Dark",
+   "group": "04_CASTLE",
+   "obj": "SG_Cas_Alas",
+   "material": "Wood_SG_Dark",
+   "tris": 672,
+   "center_rbx": [
+    -917.102,
+    66.4,
+    527.597
+   ],
+   "size_rbx": [
+    109.466,
+    20.4,
+    157.337
+   ],
+   "owner": "castle",
+   "shadow": true,
+   "flags": "",
+   "model": "SG_Cas"
+  },
+  {
+   "name": "SG_Cas_Coroa__Metal_SG_BlackIron",
+   "group": "04_CASTLE",
+   "obj": "SG_Cas_Coroa",
+   "material": "Metal_SG_BlackIron",
+   "tris": 1872,
+   "center_rbx": [
+    -960.571,
+    130.143,
+    488.724
+   ],
+   "size_rbx": [
+    30.725,
+    105.199,
+    30.725
+   ],
+   "owner": "castle",
+   "shadow": true,
    "flags": "",
    "model": "SG_Cas"
   },
@@ -3110,15 +3152,36 @@
    "group": "04_CASTLE",
    "obj": "SG_Cas_Coroa",
    "material": "SG_VioletDeep_Glow",
-   "tris": 1164,
+   "tris": 1028,
+   "center_rbx": [
+    -960.568,
+    155.1,
+    488.727
+   ],
+   "size_rbx": [
+    30.571,
+    117.8,
+    30.571
+   ],
+   "owner": "castle",
+   "shadow": false,
+   "flags": "",
+   "model": "SG_Cas"
+  },
+  {
+   "name": "SG_Cas_Coroa__SG_VioletSoft_Glow",
+   "group": "04_CASTLE",
+   "obj": "SG_Cas_Coroa",
+   "material": "SG_VioletSoft_Glow",
+   "tris": 216,
    "center_rbx": [
     -960.32,
-    135.6,
+    129.1,
     488.975
    ],
    "size_rbx": [
     34.412,
-    156.8,
+    143.8,
     34.412
    ],
    "owner": "castle",
@@ -3152,7 +3215,7 @@
    "group": "04_CASTLE",
    "obj": "SG_Cas_Coroa",
    "material": "Stone_SG_Obsidian",
-   "tris": 1536,
+   "tris": 2160,
    "center_rbx": [
     -960.32,
     121.0,
@@ -3173,7 +3236,7 @@
    "group": "04_CASTLE",
    "obj": "SG_Cas_Coroa",
    "material": "Stone_SG_Violet",
-   "tris": 2692,
+   "tris": 3012,
    "center_rbx": [
     -960.32,
     143.2,
@@ -3196,14 +3259,35 @@
    "material": "Window_Warm",
    "tris": 256,
    "center_rbx": [
-    -964.833,
+    -964.803,
     81.7,
-    488.475
+    488.479
    ],
    "size_rbx": [
-    22.041,
+    21.902,
     11.0,
-    30.061
+    29.87
+   ],
+   "owner": "castle",
+   "shadow": false,
+   "flags": "",
+   "model": "SG_Cas"
+  },
+  {
+   "name": "SG_Cas_Coroa__Wood_SG_Dark",
+   "group": "04_CASTLE",
+   "obj": "SG_Cas_Coroa",
+   "material": "Wood_SG_Dark",
+   "tris": 336,
+   "center_rbx": [
+    -960.32,
+    151.4,
+    488.975
+   ],
+   "size_rbx": [
+    28.096,
+    22.4,
+    26.89
    ],
    "owner": "castle",
    "shadow": false,
@@ -3215,16 +3299,16 @@
    "group": "04_CASTLE",
    "obj": "SG_Cas_Emblema",
    "material": "Metal_SG_Silver",
-   "tris": 878,
+   "tris": 986,
    "center_rbx": [
-    -856.785,
-    90.353,
-    532.919
+    -855.763,
+    89.153,
+    533.476
    ],
    "size_rbx": [
-    13.391,
-    70.406,
-    29.683
+    15.436,
+    72.806,
+    32.871
    ],
    "owner": "castle",
    "shadow": true,
@@ -3236,16 +3320,16 @@
    "group": "04_CASTLE",
    "obj": "SG_Cas_Emblema",
    "material": "SG_Rune_Glow",
-   "tris": 92,
+   "tris": 260,
    "center_rbx": [
-    -856.192,
-    110.2,
-    533.171
+    -855.712,
+    110.201,
+    532.209
    ],
    "size_rbx": [
-    5.825,
-    14.06,
-    13.083
+    4.622,
+    13.297,
+    10.373
    ],
    "owner": "castle",
    "shadow": false,
@@ -3253,20 +3337,20 @@
    "model": "SG_Cas"
   },
   {
-   "name": "SG_Cas_Emblema__SG_VioletDeep_Glow",
+   "name": "SG_Cas_Emblema__SG_VioletSoft_Glow",
    "group": "04_CASTLE",
    "obj": "SG_Cas_Emblema",
-   "material": "SG_VioletDeep_Glow",
+   "material": "SG_VioletSoft_Glow",
    "tris": 280,
    "center_rbx": [
     -855.474,
-    87.415,
+    87.44,
     533.476
    ],
    "size_rbx": [
-    14.595,
-    69.47,
-    32.609
+    14.333,
+    69.42,
+    32.346
    ],
    "owner": "castle",
    "shadow": false,
@@ -3278,16 +3362,16 @@
    "group": "04_CASTLE",
    "obj": "SG_Cas_Emblema",
    "material": "Stone_SG_Obsidian",
-   "tris": 732,
+   "tris": 772,
    "center_rbx": [
-    -856.023,
+    -856.038,
     90.127,
-    533.205
+    533.19
    ],
    "size_rbx": [
-    16.48,
+    16.448,
     75.853,
-    33.937
+    33.906
    ],
    "owner": "castle",
    "shadow": true,
@@ -3383,16 +3467,16 @@
    "group": "04_CASTLE",
    "obj": "SG_Cas_Estandartes",
    "material": "Cloth_SG_Purple",
-   "tris": 96,
+   "tris": 176,
    "center_rbx": [
-    -837.433,
-    81.25,
-    535.777
+    -837.465,
+    76.835,
+    535.763
    ],
    "size_rbx": [
-    69.592,
-    28.2,
-    104.104
+    69.794,
+    19.37,
+    104.19
    ],
    "owner": "castle",
    "shadow": true,
@@ -3406,14 +3490,14 @@
    "material": "Metal_Gold",
    "tris": 144,
    "center_rbx": [
-    -837.406,
-    82.77,
-    535.789
+    -837.452,
+    76.7,
+    535.769
    ],
    "size_rbx": [
-    69.647,
-    25.16,
-    104.128
+    69.656,
+    19.1,
+    104.132
    ],
    "owner": "castle",
    "shadow": true,
@@ -3425,16 +3509,16 @@
    "group": "04_CASTLE",
    "obj": "SG_Cas_Estandartes",
    "material": "Metal_SG_BlackIron",
-   "tris": 72,
+   "tris": 400,
    "center_rbx": [
-    -837.479,
-    90.35,
-    535.757
+    -837.683,
+    85.15,
+    535.58
    ],
    "size_rbx": [
-    70.038,
-    10.58,
-    105.048
+    70.446,
+    3.0,
+    105.191
    ],
    "owner": "castle",
    "shadow": true,
@@ -3446,16 +3530,16 @@
    "group": "04_CASTLE",
    "obj": "SG_Cas_Estandartes",
    "material": "Metal_SG_Silver",
-   "tris": 3804,
+   "tris": 2408,
    "center_rbx": [
     -837.479,
-    86.743,
+    82.107,
     535.757
    ],
    "size_rbx": [
-    70.243,
-    18.035,
-    105.392
+    70.086,
+    8.786,
+    105.417
    ],
    "owner": "castle",
    "shadow": true,
@@ -3467,16 +3551,16 @@
    "group": "04_CASTLE",
    "obj": "SG_Cas_Estandartes",
    "material": "SG_Rune_Glow",
-   "tris": 552,
+   "tris": 752,
    "center_rbx": [
-    -837.19,
-    84.203,
-    535.857
+    -837.173,
+    79.418,
+    535.643
    ],
    "size_rbx": [
-    68.655,
-    12.271,
-    101.897
+    68.438,
+    2.588,
+    101.381
    ],
    "owner": "castle",
    "shadow": false,
@@ -3488,16 +3572,37 @@
    "group": "04_CASTLE",
    "obj": "SG_Cas_Estandartes",
    "material": "Stone_SG_Obsidian",
-   "tris": 768,
+   "tris": 416,
    "center_rbx": [
-    -837.415,
-    86.475,
-    535.785
+    -837.452,
+    81.608,
+    535.769
    ],
    "size_rbx": [
     69.636,
-    16.35,
+    7.485,
     104.138
+   ],
+   "owner": "castle",
+   "shadow": true,
+   "flags": "",
+   "model": "SG_Cas"
+  },
+  {
+   "name": "SG_Cas_Fachada__Metal_SG_BlackIron",
+   "group": "04_CASTLE",
+   "obj": "SG_Cas_Fachada",
+   "material": "Metal_SG_BlackIron",
+   "tris": 96,
+   "center_rbx": [
+    -852.955,
+    90.092,
+    534.545
+   ],
+   "size_rbx": [
+    17.616,
+    19.184,
+    41.362
    ],
    "owner": "castle",
    "shadow": true,
@@ -3509,15 +3614,15 @@
    "group": "04_CASTLE",
    "obj": "SG_Cas_Fachada",
    "material": "Metal_SG_Silver",
-   "tris": 882,
+   "tris": 1182,
    "center_rbx": [
     -855.75,
-    99.975,
+    98.55,
     533.359
    ],
    "size_rbx": [
     24.471,
-    90.45,
+    93.3,
     47.782
    ],
    "owner": "castle",
@@ -3551,16 +3656,16 @@
    "group": "04_CASTLE",
    "obj": "SG_Cas_Fachada",
    "material": "SG_Rune_Glow",
-   "tris": 92,
+   "tris": 260,
    "center_rbx": [
-    -856.859,
+    -856.764,
     74.5,
-    532.888
+    532.6
    ],
    "size_rbx": [
-    1.667,
-    3.949,
-    3.688
+    1.323,
+    3.734,
+    2.922
    ],
    "owner": "castle",
    "shadow": false,
@@ -3574,9 +3679,9 @@
    "material": "SG_VioletDeep_Glow",
    "tris": 56,
    "center_rbx": [
-    -856.762,
+    -856.808,
     88.85,
-    532.929
+    532.91
    ],
    "size_rbx": [
     5.617,
@@ -3614,7 +3719,7 @@
    "group": "04_CASTLE",
    "obj": "SG_Cas_Fachada",
    "material": "Stone_SG_Obsidian",
-   "tris": 1220,
+   "tris": 2264,
    "center_rbx": [
     -855.75,
     87.7,
@@ -3658,14 +3763,14 @@
    "material": "Window_Warm",
    "tris": 64,
    "center_rbx": [
-    -853.01,
+    -853.056,
     99.8,
-    534.522
+    534.502
    ],
    "size_rbx": [
-    17.764,
+    17.672,
     3.2,
-    41.425
+    41.386
    ],
    "owner": "castle",
    "shadow": false,
@@ -3680,12 +3785,12 @@
    "tris": 180,
    "center_rbx": [
     -807.991,
-    63.402,
+    63.401,
     539.086
    ],
    "size_rbx": [
     65.949,
-    8.315,
+    8.349,
     153.884
    ],
    "owner": "castle",
@@ -3698,16 +3803,16 @@
    "group": "04_CASTLE",
    "obj": "SG_Cas_Muralha",
    "material": "Metal_Gold",
-   "tris": 1284,
+   "tris": 1464,
    "center_rbx": [
     -807.991,
-    63.631,
+    63.626,
     539.086
    ],
    "size_rbx": [
-    66.421,
-    9.779,
-    154.356
+    66.628,
+    9.788,
+    154.563
    ],
    "owner": "castle",
    "shadow": true,
@@ -3719,16 +3824,16 @@
    "group": "04_CASTLE",
    "obj": "SG_Cas_Muralha",
    "material": "Metal_SG_BlackIron",
-   "tris": 144,
+   "tris": 408,
    "center_rbx": [
-    -818.995,
-    61.905,
-    547.742
+    -816.754,
+    67.801,
+    533.843
    ],
    "size_rbx": [
-    14.944,
-    17.79,
-    20.852
+    105.628,
+    29.583,
+    187.7
    ],
    "owner": "castle",
    "shadow": true,
@@ -3845,7 +3950,7 @@
    "group": "04_CASTLE",
    "obj": "SG_Cas_Muralha",
    "material": "Stone_SG_Obsidian",
-   "tris": 2088,
+   "tris": 3528,
    "center_rbx": [
     -832.692,
     62.5,
@@ -3866,7 +3971,7 @@
    "group": "04_CASTLE",
    "obj": "SG_Cas_Muralha",
    "material": "Stone_SG_Obsidian",
-   "tris": 696,
+   "tris": 1016,
    "center_rbx": [
     -789.634,
     59.3,
@@ -3910,14 +4015,14 @@
    "material": "Window_Warm",
    "tris": 704,
    "center_rbx": [
-    -816.749,
+    -816.776,
     72.2,
-    533.82
+    533.8
    ],
    "size_rbx": [
-    105.655,
+    105.523,
     24.0,
-    187.762
+    187.723
    ],
    "owner": "castle",
    "shadow": false,
@@ -3925,23 +4030,23 @@
    "model": "SG_Cas"
   },
   {
-   "name": "SG_Cas_Nave__Glass_SGHallMoon",
+   "name": "SG_Cas_Nave__Metal_SG_BlackIron",
    "group": "04_CASTLE",
    "obj": "SG_Cas_Nave",
-   "material": "Glass_SGHallMoon",
-   "tris": 560,
+   "material": "Metal_SG_BlackIron",
+   "tris": 624,
    "center_rbx": [
-    -896.045,
-    73.85,
+    -901.407,
+    88.433,
     513.98
    ],
    "size_rbx": [
-    102.241,
-    8.1,
-    105.376
+    121.837,
+    34.587,
+    115.861
    ],
    "owner": "castle",
-   "shadow": false,
+   "shadow": true,
    "flags": "",
    "model": "SG_Cas"
   },
@@ -3957,9 +4062,9 @@
     513.98
    ],
    "size_rbx": [
-    125.787,
+    126.412,
     94.85,
-    123.668
+    124.293
    ],
    "owner": "castle",
    "shadow": true,
@@ -3984,27 +4089,6 @@
    ],
    "owner": "castle",
    "shadow": true,
-   "flags": "",
-   "model": "SG_Cas"
-  },
-  {
-   "name": "SG_Cas_Nave__SG_VioletDeep_Glow",
-   "group": "04_CASTLE",
-   "obj": "SG_Cas_Nave",
-   "material": "SG_VioletDeep_Glow",
-   "tris": 448,
-   "center_rbx": [
-    -901.407,
-    106.3,
-    513.98
-   ],
-   "size_rbx": [
-    72.339,
-    7.4,
-    64.106
-   ],
-   "owner": "castle",
-   "shadow": false,
    "flags": "",
    "model": "SG_Cas"
   },
@@ -4076,16 +4160,16 @@
    "group": "04_CASTLE",
    "obj": "SG_Cas_Nave",
    "material": "Stone_SG_Obsidian",
-   "tris": 1452,
+   "tris": 3780,
    "center_rbx": [
     -901.407,
     98.344,
     513.98
    ],
    "size_rbx": [
-    125.787,
+    126.412,
     93.089,
-    123.668
+    124.293
    ],
    "owner": "castle",
    "shadow": true,
@@ -4139,19 +4223,40 @@
    "group": "04_CASTLE",
    "obj": "SG_Cas_Nave",
    "material": "Window_Warm",
-   "tris": 512,
+   "tris": 1520,
    "center_rbx": [
     -901.407,
-    95.35,
+    89.9,
     513.98
    ],
    "size_rbx": [
-    122.021,
-    12.5,
-    115.939
+    121.69,
+    40.2,
+    115.798
    ],
    "owner": "castle",
    "shadow": false,
+   "flags": "",
+   "model": "SG_Cas"
+  },
+  {
+   "name": "SG_Cas_Telhados__Metal_SG_BlackIron",
+   "group": "04_CASTLE",
+   "obj": "SG_Cas_Telhados",
+   "material": "Metal_SG_BlackIron",
+   "tris": 312,
+   "center_rbx": [
+    -901.407,
+    110.67,
+    513.98
+   ],
+   "size_rbx": [
+    82.555,
+    34.505,
+    93.332
+   ],
+   "owner": "castle",
+   "shadow": true,
    "flags": "",
    "model": "SG_Cas"
   },
@@ -4181,16 +4286,16 @@
    "group": "04_CASTLE",
    "obj": "SG_Cas_Telhados",
    "material": "Roof_SG_Navy",
-   "tris": 1882,
+   "tris": 1858,
    "center_rbx": [
     -901.407,
-    125.517,
+    125.868,
     513.98
    ],
    "size_rbx": [
-    123.519,
-    75.166,
-    123.878
+    121.803,
+    74.464,
+    119.835
    ],
    "owner": "castle",
    "shadow": true,
@@ -4198,10 +4303,10 @@
    "model": "SG_Cas"
   },
   {
-   "name": "SG_Cas_Telhados__SG_VioletDeep_Glow",
+   "name": "SG_Cas_Telhados__SG_VioletSoft_Glow",
    "group": "04_CASTLE",
    "obj": "SG_Cas_Telhados",
-   "material": "SG_VioletDeep_Glow",
+   "material": "SG_VioletSoft_Glow",
    "tris": 6,
    "center_rbx": [
     -906.93,
@@ -4226,12 +4331,12 @@
    "tris": 168,
    "center_rbx": [
     -901.407,
-    109.298,
+    109.139,
     513.98
    ],
    "size_rbx": [
     85.131,
-    38.95,
+    39.268,
     94.244
    ],
    "owner": "castle",
@@ -4244,16 +4349,16 @@
    "group": "04_CASTLE",
    "obj": "SG_Cas_Telhados",
    "material": "Stone_SG_Obsidian",
-   "tris": 364,
+   "tris": 692,
    "center_rbx": [
-    -901.407,
-    135.736,
+    -903.064,
+    119.857,
     513.98
    ],
    "size_rbx": [
-    61.417,
-    22.727,
-    45.841
+    106.168,
+    54.486,
+    94.365
    ],
    "owner": "castle",
    "shadow": true,
@@ -4268,12 +4373,12 @@
    "tris": 696,
    "center_rbx": [
     -901.407,
-    126.351,
+    126.951,
     513.98
    ],
    "size_rbx": [
     62.179,
-    3.956,
+    3.556,
     46.39
    ],
    "owner": "castle",
@@ -4286,16 +4391,16 @@
    "group": "04_CASTLE",
    "obj": "SG_Cas_Telhados",
    "material": "Window_Warm",
-   "tris": 96,
+   "tris": 256,
    "center_rbx": [
     -901.407,
-    92.723,
+    93.754,
     513.98
    ],
    "size_rbx": [
-    83.01,
-    2.4,
-    93.691
+    82.493,
+    1.6,
+    93.185
    ],
    "owner": "castle",
    "shadow": false,
@@ -4303,20 +4408,20 @@
    "model": "SG_Cas"
   },
   {
-   "name": "SG_Cas_Torres__Bark",
+   "name": "SG_Cas_Telhados__Wood_SG_Dark",
    "group": "04_CASTLE",
-   "obj": "SG_Cas_Torres",
-   "material": "Bark",
-   "tris": 120,
+   "obj": "SG_Cas_Telhados",
+   "material": "Wood_SG_Dark",
+   "tris": 336,
    "center_rbx": [
-    -904.718,
-    105.85,
-    518.634
+    -901.407,
+    126.773,
+    513.98
    ],
    "size_rbx": [
-    118.708,
-    28.7,
-    126.294
+    61.417,
+    3.2,
+    45.841
    ],
    "owner": "castle",
    "shadow": true,
@@ -4324,23 +4429,23 @@
    "model": "SG_Cas"
   },
   {
-   "name": "SG_Cas_Torres__Leaf_SG_Pine",
+   "name": "SG_Cas_Torres__Metal_SG_BlackIron",
    "group": "04_CASTLE",
    "obj": "SG_Cas_Torres",
-   "material": "Leaf_SG_Pine",
-   "tris": 252,
+   "material": "Metal_SG_BlackIron",
+   "tris": 744,
    "center_rbx": [
-    -904.573,
-    108.243,
-    518.662
+    -899.765,
+    94.467,
+    518.271
    ],
    "size_rbx": [
-    121.082,
-    30.771,
-    128.407
+    141.882,
+    45.626,
+    145.061
    ],
    "owner": "castle",
-   "shadow": false,
+   "shadow": true,
    "flags": "",
    "model": "SG_Cas"
   },
@@ -4349,7 +4454,7 @@
    "group": "04_CASTLE",
    "obj": "SG_Cas_Torres",
    "material": "Metal_SG_Silver",
-   "tris": 680,
+   "tris": 608,
    "center_rbx": [
     -899.676,
     110.975,
@@ -4387,20 +4492,20 @@
    "model": "SG_Cas"
   },
   {
-   "name": "SG_Cas_Torres__SG_VioletDeep_Glow",
+   "name": "SG_Cas_Torres__SG_VioletSoft_Glow",
    "group": "04_CASTLE",
    "obj": "SG_Cas_Torres",
-   "material": "SG_VioletDeep_Glow",
-   "tris": 608,
+   "material": "SG_VioletSoft_Glow",
+   "tris": 24,
    "center_rbx": [
-    -898.596,
-    97.59,
-    518.225
+    -859.064,
+    141.6,
+    531.952
    ],
    "size_rbx": [
-    144.257,
-    89.82,
-    145.005
+    57.221,
+    1.8,
+    114.696
    ],
    "owner": "castle",
    "shadow": false,
@@ -4433,14 +4538,14 @@
    "group": "04_CASTLE",
    "obj": "SG_Cas_Torres",
    "material": "Stone_SG_Obsidian",
-   "tris": 2776,
+   "tris": 6312,
    "center_rbx": [
-    -899.081,
+    -899.476,
     95.12,
     518.56
    ],
    "size_rbx": [
-    146.012,
+    145.221,
     86.64,
     148.4
    ],
@@ -4475,16 +4580,16 @@
    "group": "04_CASTLE",
    "obj": "SG_Cas_Torres",
    "material": "Window_Warm",
-   "tris": 1088,
+   "tris": 1808,
    "center_rbx": [
-    -899.913,
-    88.7,
-    518.123
+    -899.765,
+    104.02,
+    518.271
    ],
    "size_rbx": [
-    141.623,
-    37.0,
-    144.802
+    141.734,
+    67.64,
+    144.913
    ],
    "owner": "castle",
    "shadow": false,
@@ -4504,7 +4609,7 @@
    ],
    "size_rbx": [
     13.244,
-    1.02,
+    1.044,
     13.244
    ],
    "owner": "village",
@@ -4517,16 +4622,16 @@
    "group": "05_VILLAGE",
    "obj": "SG_Vil_Fountain",
    "material": "Metal_Gold",
-   "tris": 336,
+   "tris": 384,
    "center_rbx": [
     -702.576,
     41.083,
     598.372
    ],
    "size_rbx": [
-    13.596,
+    13.75,
     1.914,
-    13.596
+    13.75
    ],
    "owner": "village",
    "shadow": false,
@@ -4538,37 +4643,16 @@
    "group": "05_VILLAGE",
    "obj": "SG_Vil_Fountain",
    "material": "Metal_SG_Silver",
-   "tris": 1268,
+   "tris": 68,
    "center_rbx": [
     -702.576,
-    43.019,
+    44.544,
     598.372
    ],
    "size_rbx": [
-    15.689,
-    12.199,
+    13.752,
+    9.088,
     13.752
-   ],
-   "owner": "village",
-   "shadow": false,
-   "flags": "",
-   "model": ""
-  },
-  {
-   "name": "SG_Vil_Fountain__SG_Rune_Glow",
-   "group": "05_VILLAGE",
-   "obj": "SG_Vil_Fountain",
-   "material": "SG_Rune_Glow",
-   "tris": 184,
-   "center_rbx": [
-    -702.576,
-    37.5,
-    598.372
-   ],
-   "size_rbx": [
-    15.244,
-    0.79,
-    7.066
    ],
    "owner": "village",
    "shadow": false,
@@ -4580,16 +4664,16 @@
    "group": "05_VILLAGE",
    "obj": "SG_Vil_Fountain",
    "material": "Stone_SG_Castle",
-   "tris": 228,
+   "tris": 344,
    "center_rbx": [
     -702.576,
-    40.86,
+    44.091,
     598.372
    ],
    "size_rbx": [
-    13.896,
-    8.68,
-    13.896
+    12.109,
+    15.142,
+    12.109
    ],
    "owner": "village",
    "shadow": false,
@@ -4597,19 +4681,19 @@
    "model": ""
   },
   {
-   "name": "SG_Vil_Fountain__Stone_SG_Obsidian",
+   "name": "SG_Vil_Fountain__Stone_SG_Castle_B",
    "group": "05_VILLAGE",
    "obj": "SG_Vil_Fountain",
-   "material": "Stone_SG_Obsidian",
-   "tris": 852,
+   "material": "Stone_SG_Castle_B",
+   "tris": 580,
    "center_rbx": [
     -702.576,
-    44.136,
+    43.854,
     598.372
    ],
    "size_rbx": [
-    15.57,
-    15.022,
+    13.908,
+    14.669,
     13.908
    ],
    "owner": "village",
@@ -4622,15 +4706,15 @@
    "group": "05_VILLAGE",
    "obj": "SG_Vil_Fountain",
    "material": "Stone_SG_Trim",
-   "tris": 584,
+   "tris": 588,
    "center_rbx": [
     -702.576,
-    40.75,
+    40.878,
     598.372
    ],
    "size_rbx": [
-    15.225,
-    9.3,
+    14.987,
+    9.556,
     14.987
    ],
    "owner": "village",
@@ -4664,16 +4748,16 @@
    "group": "05_VILLAGE",
    "obj": "SG_Vil_HouseDress",
    "material": "Cloth_SG_Purple",
-   "tris": 64,
+   "tris": 88,
    "center_rbx": [
-    -756.683,
-    48.35,
-    583.451
+    -793.589,
+    52.635,
+    565.174
    ],
    "size_rbx": [
-    113.103,
-    12.2,
-    125.922
+    39.403,
+    4.37,
+    89.634
    ],
    "owner": "village",
    "shadow": true,
@@ -4685,7 +4769,7 @@
    "group": "05_VILLAGE",
    "obj": "SG_Vil_HouseDress",
    "material": "Lantern_Glow",
-   "tris": 204,
+   "tris": 192,
    "center_rbx": [
     -742.411,
     44.986,
@@ -4693,8 +4777,29 @@
    ],
    "size_rbx": [
     150.645,
-    9.956,
+    9.983,
     162.828
+   ],
+   "owner": "village",
+   "shadow": false,
+   "flags": "",
+   "model": "SG_Vil_HouseDress"
+  },
+  {
+   "name": "SG_Vil_HouseDress__Leaf_SGPropBloom_g9_11",
+   "group": "05_VILLAGE",
+   "obj": "SG_Vil_HouseDress",
+   "material": "Leaf_SGPropBloom",
+   "tris": 972,
+   "center_rbx": [
+    -795.099,
+    48.996,
+    573.364
+   ],
+   "size_rbx": [
+    45.623,
+    8.056,
+    122.952
    ],
    "owner": "village",
    "shadow": false,
@@ -4706,16 +4811,16 @@
    "group": "05_VILLAGE",
    "obj": "SG_Vil_HouseDress",
    "material": "Leaf_SGPropBloom",
-   "tris": 600,
+   "tris": 1040,
    "center_rbx": [
     -732.797,
-    41.042,
+    40.996,
     660.822
    ],
    "size_rbx": [
-    49.157,
-    8.201,
-    34.875
+    49.17,
+    8.056,
+    35.038
    ],
    "owner": "village",
    "shadow": false,
@@ -4727,16 +4832,16 @@
    "group": "05_VILLAGE",
    "obj": "SG_Vil_HouseDress",
    "material": "Leaf_SGPropBloom",
-   "tris": 1500,
+   "tris": 1448,
    "center_rbx": [
-    -742.028,
-    45.042,
+    -734.669,
+    42.046,
     586.195
    ],
    "size_rbx": [
-    151.753,
-    16.201,
-    150.516
+    136.973,
+    10.156,
+    150.679
    ],
    "owner": "village",
    "shadow": false,
@@ -4769,16 +4874,16 @@
    "group": "05_VILLAGE",
    "obj": "SG_Vil_HouseDress",
    "material": "Metal_Gold",
-   "tris": 1728,
+   "tris": 1800,
    "center_rbx": [
-    -742.426,
-    47.13,
+    -742.433,
+    47.18,
     592.274
    ],
    "size_rbx": [
-    151.016,
-    14.639,
-    163.23
+    151.179,
+    14.739,
+    163.405
    ],
    "owner": "village",
    "shadow": true,
@@ -4790,14 +4895,14 @@
    "group": "05_VILLAGE",
    "obj": "SG_Vil_HouseDress",
    "material": "Metal_SG_BlackIron",
-   "tris": 1296,
+   "tris": 1208,
    "center_rbx": [
-    -742.195,
+    -742.198,
     46.165,
     593.55
    ],
    "size_rbx": [
-    152.51,
+    152.504,
     17.149,
     165.827
    ],
@@ -4811,16 +4916,16 @@
    "group": "05_VILLAGE",
    "obj": "SG_Vil_HouseDress",
    "material": "Metal_SG_Silver",
-   "tris": 2536,
+   "tris": 1204,
    "center_rbx": [
-    -756.683,
-    49.572,
-    583.451
+    -793.589,
+    53.67,
+    565.174
    ],
    "size_rbx": [
-    114.44,
-    10.576,
-    126.655
+    40.642,
+    2.261,
+    89.953
    ],
    "owner": "village",
    "shadow": true,
@@ -4832,16 +4937,16 @@
    "group": "05_VILLAGE",
    "obj": "SG_Vil_HouseDress",
    "material": "SG_Rune_Glow",
-   "tris": 368,
+   "tris": 376,
    "center_rbx": [
-    -756.683,
-    49.06,
-    583.451
+    -793.589,
+    53.159,
+    565.174
    ],
    "size_rbx": [
-    112.101,
-    9.147,
-    125.078
+    38.29,
+    0.892,
+    88.513
    ],
    "owner": "village",
    "shadow": false,
@@ -4853,7 +4958,7 @@
    "group": "05_VILLAGE",
    "obj": "SG_Vil_HouseDress",
    "material": "Stone_SG_Obsidian",
-   "tris": 932,
+   "tris": 628,
    "center_rbx": [
     -742.07,
     45.27,
@@ -4876,14 +4981,14 @@
    "material": "Wood_SG_Dark",
    "tris": 168,
    "center_rbx": [
-    -741.424,
+    -741.417,
     45.43,
-    600.366
+    600.391
    ],
    "size_rbx": [
-    150.128,
+    150.103,
     14.4,
-    152.354
+    152.305
    ],
    "owner": "village",
    "shadow": true,
@@ -4891,41 +4996,20 @@
    "model": "SG_Vil_HouseDress"
   },
   {
-   "name": "SG_Vil_Houses_P1E__Cliff_Rock_SG_Dark",
-   "group": "05_VILLAGE",
-   "obj": "SG_Vil_Houses_P1E",
-   "material": "Cliff_Rock_SG_Dark",
-   "tris": 12,
-   "center_rbx": [
-    -708.442,
-    60.2,
-    521.25
-   ],
-   "size_rbx": [
-    0.918,
-    0.8,
-    0.918
-   ],
-   "owner": "village",
-   "shadow": false,
-   "flags": "",
-   "model": "SG_Vil_Houses"
-  },
-  {
    "name": "SG_Vil_Houses_P1E__Metal_SG_Iron",
    "group": "05_VILLAGE",
    "obj": "SG_Vil_Houses_P1E",
    "material": "Metal_SG_Iron",
-   "tris": 344,
+   "tris": 556,
    "center_rbx": [
-    -682.096,
-    53.85,
-    539.555
+    -685.587,
+    52.95,
+    539.556
    ],
    "size_rbx": [
-    53.367,
-    24.9,
-    54.481
+    46.836,
+    26.7,
+    54.88
    ],
    "owner": "village",
    "shadow": true,
@@ -4958,7 +5042,7 @@
    "group": "05_VILLAGE",
    "obj": "SG_Vil_Houses_P1E",
    "material": "Roof_SG_Slate",
-   "tris": 626,
+   "tris": 906,
    "center_rbx": [
     -684.726,
     52.867,
@@ -5063,14 +5147,14 @@
    "group": "05_VILLAGE",
    "obj": "SG_Vil_Houses_P1E",
    "material": "Stone_SG_Trim",
-   "tris": 964,
+   "tris": 1780,
    "center_rbx": [
-    -684.195,
+    -684.141,
     49.1,
     539.556
    ],
    "size_rbx": [
-    57.644,
+    57.752,
     24.6,
     57.097
    ],
@@ -5084,16 +5168,16 @@
    "group": "05_VILLAGE",
    "obj": "SG_Vil_Houses_P1E",
    "material": "Window_Warm",
-   "tris": 576,
+   "tris": 636,
    "center_rbx": [
-    -683.983,
+    -683.986,
     46.654,
     539.556
    ],
    "size_rbx": [
-    56.306,
+    56.114,
     15.109,
-    54.965
+    54.781
    ],
    "owner": "village",
    "shadow": false,
@@ -5105,15 +5189,15 @@
    "group": "05_VILLAGE",
    "obj": "SG_Vil_Houses_P1E",
    "material": "Wood_SG_Dark",
-   "tris": 6472,
+   "tris": 7876,
    "center_rbx": [
     -684.586,
-    48.194,
+    48.797,
     539.557
    ],
    "size_rbx": [
     60.276,
-    21.989,
+    23.194,
     59.741
    ],
    "owner": "village",
@@ -5122,41 +5206,20 @@
    "model": "SG_Vil_Houses"
   },
   {
-   "name": "SG_Vil_Houses_P1W__Cliff_Rock_SG_Dark",
-   "group": "05_VILLAGE",
-   "obj": "SG_Vil_Houses_P1W",
-   "material": "Cliff_Rock_SG_Dark",
-   "tris": 12,
-   "center_rbx": [
-    -762.28,
-    62.6,
-    643.644
-   ],
-   "size_rbx": [
-    0.918,
-    0.8,
-    0.918
-   ],
-   "owner": "village",
-   "shadow": false,
-   "flags": "",
-   "model": "SG_Vil_Houses"
-  },
-  {
    "name": "SG_Vil_Houses_P1W__Metal_SG_Iron",
    "group": "05_VILLAGE",
    "obj": "SG_Vil_Houses_P1W",
    "material": "Metal_SG_Iron",
-   "tris": 296,
+   "tris": 304,
    "center_rbx": [
-    -734.097,
-    51.525,
-    663.045
+    -732.282,
+    52.285,
+    659.958
    ],
    "size_rbx": [
-    63.965,
-    20.249,
-    38.312
+    60.334,
+    21.77,
+    33.284
    ],
    "owner": "village",
    "shadow": true,
@@ -5189,15 +5252,15 @@
    "group": "05_VILLAGE",
    "obj": "SG_Vil_Houses_P1W",
    "material": "Roof_SG_Slate",
-   "tris": 648,
+   "tris": 956,
    "center_rbx": [
     -732.4,
-    50.187,
+    50.711,
     661.486
    ],
    "size_rbx": [
     72.611,
-    17.106,
+    18.156,
     45.918
    ],
    "owner": "village",
@@ -5294,16 +5357,16 @@
    "group": "05_VILLAGE",
    "obj": "SG_Vil_Houses_P1W",
    "material": "Stone_SG_Trim",
-   "tris": 708,
+   "tris": 1404,
    "center_rbx": [
     -732.797,
     49.5,
-    661.041
+    661.094
    ],
    "size_rbx": [
     69.839,
     25.4,
-    42.324
+    42.43
    ],
    "owner": "village",
    "shadow": true,
@@ -5315,16 +5378,16 @@
    "group": "05_VILLAGE",
    "obj": "SG_Vil_Houses_P1W",
    "material": "Window_Warm",
-   "tris": 492,
+   "tris": 516,
    "center_rbx": [
     -732.673,
     46.335,
     661.663
    ],
    "size_rbx": [
-    67.438,
+    67.254,
     14.47,
-    39.982
+    39.798
    ],
    "owner": "village",
    "shadow": false,
@@ -5336,15 +5399,15 @@
    "group": "05_VILLAGE",
    "obj": "SG_Vil_Houses_P1W",
    "material": "Wood_SG_Dark",
-   "tris": 6360,
+   "tris": 7524,
    "center_rbx": [
     -732.51,
-    48.19,
+    49.102,
     661.596
    ],
    "size_rbx": [
     72.687,
-    21.98,
+    23.804,
     45.986
    ],
    "owner": "village",
@@ -5353,41 +5416,20 @@
    "model": "SG_Vil_Houses"
   },
   {
-   "name": "SG_Vil_Houses_P2E__Cliff_Rock_SG_Dark",
-   "group": "05_VILLAGE",
-   "obj": "SG_Vil_Houses_P2E",
-   "material": "Cliff_Rock_SG_Dark",
-   "tris": 12,
-   "center_rbx": [
-    -743.144,
-    63.4,
-    533.984
-   ],
-   "size_rbx": [
-    0.918,
-    0.8,
-    0.918
-   ],
-   "owner": "village",
-   "shadow": false,
-   "flags": "",
-   "model": "SG_Vil_Houses"
-  },
-  {
    "name": "SG_Vil_Houses_P2E__Metal_SG_Iron",
    "group": "05_VILLAGE",
    "obj": "SG_Vil_Houses_P2E",
    "material": "Metal_SG_Iron",
-   "tris": 260,
+   "tris": 304,
    "center_rbx": [
-    -762.635,
-    59.4,
-    525.082
+    -762.587,
+    59.568,
+    524.184
    ],
    "size_rbx": [
-    39.916,
-    20.0,
-    36.047
+    40.011,
+    20.336,
+    34.65
    ],
    "owner": "village",
    "shadow": true,
@@ -5420,7 +5462,7 @@
    "group": "05_VILLAGE",
    "obj": "SG_Vil_Houses_P2E",
    "material": "Roof_SG_Slate",
-   "tris": 432,
+   "tris": 652,
    "center_rbx": [
     -762.915,
     57.697,
@@ -5504,16 +5546,16 @@
    "group": "05_VILLAGE",
    "obj": "SG_Vil_Houses_P2E",
    "material": "Stone_SG_Trim",
-   "tris": 420,
+   "tris": 744,
    "center_rbx": [
-    -763.096,
+    -763.043,
     56.6,
-    524.428
+    524.482
    ],
    "size_rbx": [
-    47.469,
+    47.575,
     23.6,
-    37.357
+    37.464
    ],
    "owner": "village",
    "shadow": true,
@@ -5525,16 +5567,16 @@
    "group": "05_VILLAGE",
    "obj": "SG_Vil_Houses_P2E",
    "material": "Window_Warm",
-   "tris": 312,
+   "tris": 300,
    "center_rbx": [
     -762.929,
     54.235,
     524.687
    ],
    "size_rbx": [
-    46.038,
+    45.854,
     14.27,
-    35.742
+    35.558
    ],
    "owner": "village",
    "shadow": false,
@@ -5546,15 +5588,15 @@
    "group": "05_VILLAGE",
    "obj": "SG_Vil_Houses_P2E",
    "material": "Wood_SG_Dark",
-   "tris": 4080,
+   "tris": 4992,
    "center_rbx": [
     -762.922,
-    55.696,
+    56.288,
     524.959
    ],
    "size_rbx": [
     51.237,
-    20.992,
+    22.176,
     41.064
    ],
    "owner": "village",
@@ -5563,41 +5605,20 @@
    "model": "SG_Vil_Houses"
   },
   {
-   "name": "SG_Vil_Houses_P2W__Cliff_Rock_SG_Dark",
-   "group": "05_VILLAGE",
-   "obj": "SG_Vil_Houses_P2W",
-   "material": "Cliff_Rock_SG_Dark",
-   "tris": 12,
-   "center_rbx": [
-    -819.934,
-    69.8,
-    614.828
-   ],
-   "size_rbx": [
-    0.918,
-    0.8,
-    0.918
-   ],
-   "owner": "village",
-   "shadow": false,
-   "flags": "",
-   "model": "SG_Vil_Houses"
-  },
-  {
    "name": "SG_Vil_Houses_P2W__Metal_SG_Iron",
    "group": "05_VILLAGE",
    "obj": "SG_Vil_Houses_P2W",
    "material": "Metal_SG_Iron",
-   "tris": 284,
+   "tris": 388,
    "center_rbx": [
-    -803.027,
-    59.75,
-    635.601
+    -799.773,
+    59.086,
+    636.268
    ],
    "size_rbx": [
-    47.165,
-    20.7,
-    54.531
+    40.658,
+    22.972,
+    53.197
    ],
    "owner": "village",
    "shadow": true,
@@ -5630,7 +5651,7 @@
    "group": "05_VILLAGE",
    "obj": "SG_Vil_Houses_P2W",
    "material": "Roof_SG_Slate",
-   "tris": 648,
+   "tris": 920,
    "center_rbx": [
     -801.824,
     60.229,
@@ -5735,16 +5756,16 @@
    "group": "05_VILLAGE",
    "obj": "SG_Vil_Houses_P2W",
    "material": "Stone_SG_Trim",
-   "tris": 684,
+   "tris": 1356,
    "center_rbx": [
     -802.226,
     57.1,
-    634.36
+    634.414
    ],
    "size_rbx": [
     52.039,
     24.6,
-    62.072
+    62.178
    ],
    "owner": "village",
    "shadow": true,
@@ -5756,16 +5777,16 @@
    "group": "05_VILLAGE",
    "obj": "SG_Vil_Houses_P2W",
    "material": "Window_Warm",
-   "tris": 468,
+   "tris": 516,
    "center_rbx": [
     -802.103,
     54.474,
     634.982
    ],
    "size_rbx": [
-    49.637,
+    49.453,
     14.748,
-    59.731
+    59.546
    ],
    "owner": "village",
    "shadow": false,
@@ -5777,15 +5798,15 @@
    "group": "05_VILLAGE",
    "obj": "SG_Vil_Houses_P2W",
    "material": "Wood_SG_Dark",
-   "tris": 6208,
+   "tris": 7336,
    "center_rbx": [
     -801.937,
-    56.191,
+    57.094,
     634.987
    ],
    "size_rbx": [
     54.89,
-    21.983,
+    23.787,
     65.873
    ],
    "owner": "village",
@@ -5806,7 +5827,7 @@
    ],
    "size_rbx": [
     73.511,
-    9.7,
+    9.74,
     92.75
    ],
    "owner": "village",
@@ -5819,16 +5840,16 @@
    "group": "05_VILLAGE",
    "obj": "SG_Vil_Lamps",
    "material": "Metal_Gold",
-   "tris": 288,
+   "tris": 324,
    "center_rbx": [
     -733.789,
-    48.82,
-    593.974
+    48.815,
+    593.975
    ],
    "size_rbx": [
-    74.101,
-    11.46,
-    93.34
+    74.359,
+    11.47,
+    93.598
    ],
    "owner": "village",
    "shadow": true,
@@ -5882,15 +5903,15 @@
    "group": "05_VILLAGE",
    "obj": "SG_Vil_Lamps",
    "material": "Stone_SG_Obsidian",
-   "tris": 100,
+   "tris": 124,
    "center_rbx": [
     -733.789,
-    40.65,
+    40.75,
     593.974
    ],
    "size_rbx": [
     73.97,
-    8.9,
+    9.1,
     93.209
    ],
    "owner": "village",
@@ -5899,61 +5920,19 @@
    "model": ""
   },
   {
-   "name": "SG_Vil_Lamps__Stone_SG_Violet",
-   "group": "05_VILLAGE",
-   "obj": "SG_Vil_Lamps",
-   "material": "Stone_SG_Violet",
-   "tris": 24,
-   "center_rbx": [
-    -746.208,
-    45.2,
-    579.853
-   ],
-   "size_rbx": [
-    9.856,
-    0.2,
-    21.088
-   ],
-   "owner": "village",
-   "shadow": false,
-   "flags": "",
-   "model": ""
-  },
-  {
-   "name": "SG_Vil_Plaza__SG_VioletDeep_Glow",
-   "group": "05_VILLAGE",
-   "obj": "SG_Vil_Plaza",
-   "material": "SG_VioletDeep_Glow",
-   "tris": 24,
-   "center_rbx": [
-    -702.576,
-    36.225,
-    598.372
-   ],
-   "size_rbx": [
-    48.013,
-    0.25,
-    20.59
-   ],
-   "owner": "village",
-   "shadow": false,
-   "flags": "",
-   "model": ""
-  },
-  {
    "name": "SG_Vil_Plaza__Stone_Paving_SG",
    "group": "05_VILLAGE",
    "obj": "SG_Vil_Plaza",
    "material": "Stone_Paving_SG",
-   "tris": 252,
+   "tris": 276,
    "center_rbx": [
     -702.576,
-    36.11,
+    36.15,
     598.372
    ],
    "size_rbx": [
     51.998,
-    0.32,
+    0.4,
     51.998
    ],
    "owner": "village",
@@ -6596,15 +6575,15 @@
    "group": "06_SUMMON",
    "obj": "SG_Sum_FloorInlay",
    "material": "Stone_SG_Block",
-   "tris": 414,
+   "tris": 368,
    "center_rbx": [
     -767.495,
-    40.18,
+    40.175,
     724.165
    ],
    "size_rbx": [
     41.218,
-    0.16,
+    0.15,
     38.347
    ],
    "owner": "summon",
@@ -6655,20 +6634,20 @@
    "model": "SG_Sum"
   },
   {
-   "name": "SG_Sum_OrderDressing__Cloth_SG_Purple",
+   "name": "SG_Sum_FloorInlay__Stone_SG_Trim",
    "group": "06_SUMMON",
-   "obj": "SG_Sum_OrderDressing",
-   "material": "Cloth_SG_Purple",
-   "tris": 32,
+   "obj": "SG_Sum_FloorInlay",
+   "material": "Stone_SG_Trim",
+   "tris": 46,
    "center_rbx": [
-    -759.773,
-    45.65,
-    707.611
+    -764.136,
+    40.18,
+    717.814
    ],
    "size_rbx": [
-    17.99,
-    6.2,
-    7.789
+    4.014,
+    0.16,
+    4.014
    ],
    "owner": "summon",
    "shadow": false,
@@ -6688,7 +6667,7 @@
    ],
    "size_rbx": [
     39.94,
-    1.53,
+    1.566,
     34.011
    ],
    "owner": "summon",
@@ -6703,38 +6682,17 @@
    "material": "Metal_Gold",
    "tris": 384,
    "center_rbx": [
-    -767.709,
-    45.469,
-    722.816
+    -767.703,
+    43.625,
+    724.692
    ],
    "size_rbx": [
-    40.408,
-    6.561,
-    38.319
+    40.612,
+    2.871,
+    34.817
    ],
    "owner": "summon",
    "shadow": true,
-   "flags": "",
-   "model": "SG_Sum"
-  },
-  {
-   "name": "SG_Sum_OrderDressing__Metal_SG_BlackIron",
-   "group": "06_SUMMON",
-   "obj": "SG_Sum_OrderDressing",
-   "material": "Metal_SG_BlackIron",
-   "tris": 48,
-   "center_rbx": [
-    -759.856,
-    45.82,
-    707.798
-   ],
-   "size_rbx": [
-    18.826,
-    6.44,
-    8.24
-   ],
-   "owner": "summon",
-   "shadow": false,
    "flags": "",
    "model": "SG_Sum"
   },
@@ -6743,40 +6701,19 @@
    "group": "06_SUMMON",
    "obj": "SG_Sum_OrderDressing",
    "material": "Metal_SG_Silver",
-   "tris": 1316,
+   "tris": 48,
    "center_rbx": [
     -767.703,
-    45.58,
-    722.771
+    42.135,
+    724.692
    ],
    "size_rbx": [
     40.616,
-    7.16,
-    38.662
+    0.27,
+    34.82
    ],
    "owner": "summon",
    "shadow": true,
-   "flags": "",
-   "model": "SG_Sum"
-  },
-  {
-   "name": "SG_Sum_OrderDressing__SG_Rune_Glow",
-   "group": "06_SUMMON",
-   "obj": "SG_Sum_OrderDressing",
-   "material": "SG_Rune_Glow",
-   "tris": 184,
-   "center_rbx": [
-    -759.61,
-    46.668,
-    707.178
-   ],
-   "size_rbx": [
-    16.779,
-    1.468,
-    7.174
-   ],
-   "owner": "summon",
-   "shadow": false,
    "flags": "",
    "model": "SG_Sum"
   },
@@ -6785,16 +6722,16 @@
    "group": "06_SUMMON",
    "obj": "SG_Sum_OrderDressing",
    "material": "Stone_SG_Obsidian",
-   "tris": 416,
+   "tris": 160,
    "center_rbx": [
     -767.696,
-    44.395,
-    722.825
+    41.1,
+    724.694
    ],
    "size_rbx": [
     40.823,
-    8.39,
-    38.807
+    1.8,
+    35.069
    ],
    "owner": "summon",
    "shadow": true,
@@ -6823,10 +6760,10 @@
    "model": "SG_Sum"
   },
   {
-   "name": "SG_Sum_Sphere_Frame__SG_Violet_Glow",
+   "name": "SG_Sum_Sphere_Frame__SG_VioletSoft_Glow",
    "group": "06_SUMMON",
    "obj": "SG_Sum_Sphere_Frame",
-   "material": "SG_Violet_Glow",
+   "material": "SG_VioletSoft_Glow",
    "tris": 32,
    "center_rbx": [
     -771.559,
@@ -6848,16 +6785,16 @@
    "group": "06_SUMMON",
    "obj": "SG_Sum_Tower_Banners",
    "material": "Cloth_SG_Purple",
-   "tris": 32,
+   "tris": 88,
    "center_rbx": [
-    -770.301,
-    63.05,
-    732.718
+    -770.348,
+    63.235,
+    732.769
    ],
    "size_rbx": [
-    27.806,
-    12.6,
-    12.792
+    27.959,
+    12.97,
+    12.974
    ],
    "owner": "summon",
    "shadow": false,
@@ -6869,16 +6806,16 @@
    "group": "06_SUMMON",
    "obj": "SG_Sum_Tower_Banners",
    "material": "SG_Rune_Glow",
-   "tris": 184,
+   "tris": 376,
    "center_rbx": [
-    -770.432,
-    64.964,
-    732.861
+    -770.632,
+    64.961,
+    732.937
    ],
    "size_rbx": [
-    26.034,
-    2.238,
-    11.555
+    25.678,
+    2.108,
+    11.507
    ],
    "owner": "summon",
    "shadow": false,
@@ -6890,16 +6827,16 @@
    "group": "06_SUMMON",
    "obj": "SG_Sum_Tower_Banners",
    "material": "Stone_SG_Obsidian",
-   "tris": 256,
+   "tris": 208,
    "center_rbx": [
-    -770.299,
-    66.486,
-    732.704
+    -770.312,
+    66.247,
+    732.735
    ],
    "size_rbx": [
-    27.821,
-    4.768,
-    12.824
+    27.863,
+    5.246,
+    12.842
    ],
    "owner": "summon",
    "shadow": false,
@@ -6935,12 +6872,12 @@
    "tris": 48,
    "center_rbx": [
     -769.644,
-    57.95,
+    57.85,
     731.785
    ],
    "size_rbx": [
     21.744,
-    20.9,
+    21.1,
     17.475
    ],
    "owner": "summon",
@@ -6991,10 +6928,10 @@
    "model": "SG_Sum"
   },
   {
-   "name": "SG_Sum_Tower_Glow__SG_Violet_Glow",
+   "name": "SG_Sum_Tower_Glow__SG_VioletSoft_Glow",
    "group": "06_SUMMON",
    "obj": "SG_Sum_Tower_Glow",
-   "material": "SG_Violet_Glow",
+   "material": "SG_VioletSoft_Glow",
    "tris": 520,
    "center_rbx": [
     -771.05,
@@ -7016,16 +6953,16 @@
    "group": "06_SUMMON",
    "obj": "SG_Sum_Tower_Silver",
    "material": "Metal_SG_BlackIron",
-   "tris": 24,
+   "tris": 56,
    "center_rbx": [
-    -770.215,
+    -770.248,
     69.5,
-    732.603
+    732.651
    ],
    "size_rbx": [
-    28.645,
+    28.418,
     0.28,
-    13.388
+    13.229
    ],
    "owner": "summon",
    "shadow": false,
@@ -7037,7 +6974,7 @@
    "group": "06_SUMMON",
    "obj": "SG_Sum_Tower_Silver",
    "material": "Metal_SG_Silver",
-   "tris": 3808,
+   "tris": 3768,
    "center_rbx": [
     -769.654,
     61.895,
@@ -7049,7 +6986,7 @@
     24.054
    ],
    "owner": "summon",
-   "shadow": true,
+   "shadow": false,
    "flags": "",
    "model": "SG_Sum"
   },
@@ -7165,14 +7102,14 @@
    "material": "Foam",
    "tris": 1032,
    "center_rbx": [
-    -653.916,
-    -15.246,
-    447.679
+    -653.944,
+    -14.948,
+    447.36
    ],
    "size_rbx": [
-    31.087,
-    102.533,
-    25.224
+    31.249,
+    101.935,
+    25.811
    ],
    "owner": "water",
    "shadow": false,
@@ -7207,14 +7144,14 @@
    "material": "SG_WaterMist_Glow",
    "tris": 140,
    "center_rbx": [
-    -655.367,
-    -15.703,
-    446.294
+    -655.405,
+    -15.689,
+    446.4
    ],
    "size_rbx": [
-    24.505,
-    102.481,
-    20.179
+    24.027,
+    102.453,
+    19.968
    ],
    "owner": "water",
    "shadow": false,
@@ -7291,14 +7228,14 @@
    "material": "Foam",
    "tris": 1048,
    "center_rbx": [
-    -1025.827,
-    -7.69,
-    520.402
+    -1025.577,
+    -7.662,
+    520.178
    ],
    "size_rbx": [
-    31.643,
-    118.312,
-    38.262
+    31.156,
+    118.257,
+    38.455
    ],
    "owner": "water",
    "shadow": false,
@@ -7333,14 +7270,14 @@
    "material": "SG_WaterMist_Glow",
    "tris": 220,
    "center_rbx": [
-    -1028.754,
-    -7.703,
-    521.637
+    -1028.838,
+    -7.882,
+    522.034
    ],
    "size_rbx": [
-    25.256,
-    118.681,
-    28.755
+    25.424,
+    119.04,
+    29.171
    ],
    "owner": "water",
    "shadow": false,
@@ -7459,14 +7396,14 @@
    "material": "Foam",
    "tris": 476,
    "center_rbx": [
-    -655.846,
-    -17.323,
-    652.194
+    -655.656,
+    -17.254,
+    652.503
    ],
    "size_rbx": [
-    30.019,
-    95.23,
-    11.101
+    30.09,
+    95.091,
+    11.823
    ],
    "owner": "water",
    "shadow": false,
@@ -7501,14 +7438,14 @@
    "material": "SG_WaterMist_Glow",
    "tris": 140,
    "center_rbx": [
-    -656.459,
-    -18.564,
-    650.661
+    -656.092,
+    -18.316,
+    650.818
    ],
    "size_rbx": [
-    23.84,
-    97.582,
-    12.107
+    22.946,
+    97.085,
+    11.498
    ],
    "owner": "water",
    "shadow": false,
@@ -7585,14 +7522,14 @@
    "material": "Foam",
    "tris": 680,
    "center_rbx": [
-    -822.678,
-    -11.653,
-    689.824
+    -822.677,
+    -11.571,
+    690.068
    ],
    "size_rbx": [
-    33.516,
-    110.238,
-    20.31
+    33.382,
+    110.074,
+    20.652
    ],
    "owner": "water",
    "shadow": false,
@@ -7627,14 +7564,14 @@
    "material": "SG_WaterMist_Glow",
    "tris": 220,
    "center_rbx": [
-    -823.498,
-    -12.109,
-    686.967
+    -823.675,
+    -12.321,
+    686.934
    ],
    "size_rbx": [
-    24.242,
-    110.857,
-    16.599
+    24.79,
+    111.28,
+    17.064
    ],
    "owner": "water",
    "shadow": false,
@@ -7856,16 +7793,16 @@
    "group": "08_NEXT_ISLAND",
    "obj": "SG_Exit_Head",
    "material": "Cloth_SG_Purple",
-   "tris": 32,
+   "tris": 88,
    "center_rbx": [
-    -725.977,
-    52.75,
-    423.152
+    -725.963,
+    52.935,
+    423.12
    ],
    "size_rbx": [
-    24.388,
-    5.2,
-    10.517
+    24.474,
+    5.57,
+    10.72
    ],
    "owner": "exit",
    "shadow": false,
@@ -7898,16 +7835,16 @@
    "group": "08_NEXT_ISLAND",
    "obj": "SG_Exit_Head",
    "material": "Metal_Gold",
-   "tris": 48,
+   "tris": 72,
    "center_rbx": [
-    -725.988,
-    53.166,
-    423.18
+    -725.969,
+    52.8,
+    423.134
    ],
    "size_rbx": [
-    24.411,
-    4.368,
-    10.572
+    24.415,
+    5.3,
+    10.582
    ],
    "owner": "exit",
    "shadow": false,
@@ -7919,16 +7856,16 @@
    "group": "08_NEXT_ISLAND",
    "obj": "SG_Exit_Head",
    "material": "Metal_SG_Iron",
-   "tris": 376,
+   "tris": 408,
    "center_rbx": [
-    -725.957,
+    -725.922,
     57.535,
-    422.371
+    422.341
    ],
    "size_rbx": [
-    25.332,
+    25.126,
     12.93,
-    12.435
+    12.376
    ],
    "owner": "exit",
    "shadow": false,
@@ -7940,16 +7877,16 @@
    "group": "08_NEXT_ISLAND",
    "obj": "SG_Exit_Head",
    "material": "Metal_SG_Silver",
-   "tris": 1268,
+   "tris": 1204,
    "center_rbx": [
     -725.957,
-    54.269,
+    54.26,
     423.106
    ],
    "size_rbx": [
-    25.685,
-    2.983,
-    11.159
+    25.701,
+    2.879,
+    11.011
    ],
    "owner": "exit",
    "shadow": false,
@@ -7982,16 +7919,16 @@
    "group": "08_NEXT_ISLAND",
    "obj": "SG_Exit_Head",
    "material": "SG_Rune_Glow",
-   "tris": 184,
+   "tris": 376,
    "center_rbx": [
-    -726.057,
-    53.628,
-    423.341
+    -725.942,
+    53.627,
+    423.312
    ],
    "size_rbx": [
-    23.255,
-    1.231,
-    9.927
+    23.013,
+    1.16,
+    9.819
    ],
    "owner": "exit",
    "shadow": false,
@@ -8045,16 +7982,16 @@
    "group": "08_NEXT_ISLAND",
    "obj": "SG_Exit_Head",
    "material": "Stone_SG_Castle_B",
-   "tris": 432,
+   "tris": 384,
    "center_rbx": [
-    -725.156,
+    -725.148,
     52.05,
-    421.481
+    421.463
    ],
    "size_rbx": [
-    26.079,
+    26.063,
     11.9,
-    13.941
+    13.904
    ],
    "owner": "exit",
    "shadow": false,
@@ -8090,12 +8027,12 @@
    "tris": 152,
    "center_rbx": [
     -715.758,
-    49.112,
+    49.121,
     397.702
    ],
    "size_rbx": [
     32.044,
-    1.925,
+    1.943,
     42.428
    ],
    "owner": "exit",
@@ -8108,19 +8045,19 @@
    "group": "08_NEXT_ISLAND",
    "obj": "SG_Exit_Rails",
    "material": "Metal_Gold",
-   "tris": 672,
+   "tris": 768,
    "center_rbx": [
     -715.877,
     49.719,
     399.357
    ],
    "size_rbx": [
-    32.337,
+    32.57,
     2.871,
-    39.649
+    39.881
    ],
    "owner": "exit",
-   "shadow": true,
+   "shadow": false,
    "flags": "",
    "model": ""
   },
@@ -8141,7 +8078,7 @@
     39.885
    ],
    "owner": "exit",
-   "shadow": true,
+   "shadow": false,
    "flags": "",
    "model": ""
   },
@@ -8246,7 +8183,7 @@
     40.121
    ],
    "owner": "exit",
-   "shadow": true,
+   "shadow": false,
    "flags": "",
    "model": ""
   },
@@ -8675,16 +8612,16 @@
    "group": "09_PROPS",
    "obj": "SG_Prop_Court",
    "material": "Lantern_Glow",
-   "tris": 24,
+   "tris": 48,
    "center_rbx": [
-    -830.988,
+    -838.812,
     60.5,
-    543.869
+    540.548
    ],
    "size_rbx": [
-    7.678,
-    1.5,
-    16.579
+    23.589,
+    1.74,
+    23.483
    ],
    "owner": "props",
    "shadow": false,
@@ -8699,13 +8636,13 @@
    "tris": 1600,
    "center_rbx": [
     -828.917,
-    53.06,
+    52.98,
     544.748
    ],
    "size_rbx": [
-    32.989,
-    0.868,
-    67.275
+    33.042,
+    0.52,
+    67.327
    ],
    "owner": "props",
    "shadow": false,
@@ -8755,20 +8692,41 @@
    "model": ""
   },
   {
+   "name": "SG_Prop_Court__Metal_Gold",
+   "group": "09_PROPS",
+   "obj": "SG_Prop_Court",
+   "material": "Metal_Gold",
+   "tris": 432,
+   "center_rbx": [
+    -838.812,
+    60.815,
+    540.548
+   ],
+   "size_rbx": [
+    24.438,
+    3.47,
+    24.332
+   ],
+   "owner": "props",
+   "shadow": true,
+   "flags": "",
+   "model": ""
+  },
+  {
    "name": "SG_Prop_Court__Metal_SG_BlackIron",
    "group": "09_PROPS",
    "obj": "SG_Prop_Court",
    "material": "Metal_SG_BlackIron",
-   "tris": 712,
+   "tris": 48,
    "center_rbx": [
     -838.812,
-    58.075,
+    56.1,
     540.548
    ],
    "size_rbx": [
-    24.215,
-    9.95,
-    24.109
+    22.868,
+    6.0,
+    22.762
    ],
    "owner": "props",
    "shadow": true,
@@ -8780,16 +8738,16 @@
    "group": "09_PROPS",
    "obj": "SG_Prop_Court",
    "material": "Metal_SG_Silver",
-   "tris": 2532,
+   "tris": 2124,
    "center_rbx": [
-    -841.831,
-    60.86,
+    -847.097,
+    61.049,
     537.031
    ],
    "size_rbx": [
-    28.607,
-    14.48,
-    40.328
+    18.169,
+    14.762,
+    40.421
    ],
    "owner": "props",
    "shadow": true,
@@ -8801,16 +8759,37 @@
    "group": "09_PROPS",
    "obj": "SG_Prop_Court",
    "material": "SG_Rune_Glow",
-   "tris": 1448,
+   "tris": 752,
    "center_rbx": [
     -847.097,
-    59.233,
+    55.285,
     537.031
    ],
    "size_rbx": [
-    18.5,
-    10.783,
-    40.752
+    16.2,
+    2.824,
+    36.654
+   ],
+   "owner": "props",
+   "shadow": false,
+   "flags": "",
+   "model": ""
+  },
+  {
+   "name": "SG_Prop_Court__SG_VioletSoft_Glow",
+   "group": "09_PROPS",
+   "obj": "SG_Prop_Court",
+   "material": "SG_VioletSoft_Glow",
+   "tris": 240,
+   "center_rbx": [
+    -847.097,
+    61.4,
+    537.031
+   ],
+   "size_rbx": [
+    16.571,
+    6.85,
+    37.766
    ],
    "owner": "props",
    "shadow": false,
@@ -8843,7 +8822,7 @@
    "group": "09_PROPS",
    "obj": "SG_Prop_Court",
    "material": "Stone_SG_Obsidian",
-   "tris": 1780,
+   "tris": 2140,
    "center_rbx": [
     -829.873,
     59.25,
@@ -8864,15 +8843,15 @@
    "group": "09_PROPS",
    "obj": "SG_Prop_Court",
    "material": "Stone_SG_Trim",
-   "tris": 448,
+   "tris": 1120,
    "center_rbx": [
     -847.445,
-    58.813,
+    60.152,
     537.031
    ],
    "size_rbx": [
     21.039,
-    10.276,
+    12.955,
     42.595
    ],
    "owner": "props",
@@ -8885,7 +8864,7 @@
    "group": "09_PROPS",
    "obj": "SG_Prop_Court",
    "material": "Stone_SG_Violet",
-   "tris": 288,
+   "tris": 176,
    "center_rbx": [
     -833.295,
     54.15,
@@ -8919,6 +8898,27 @@
    ],
    "owner": "props",
    "shadow": true,
+   "flags": "",
+   "model": ""
+  },
+  {
+   "name": "SG_Prop_GateArch__Lantern_Glow",
+   "group": "09_PROPS",
+   "obj": "SG_Prop_GateArch",
+   "material": "Lantern_Glow",
+   "tris": 24,
+   "center_rbx": [
+    -794.628,
+    52.1,
+    559.302
+   ],
+   "size_rbx": [
+    7.181,
+    1.0,
+    15.817
+   ],
+   "owner": "props",
+   "shadow": false,
    "flags": "",
    "model": ""
   },
@@ -8965,125 +8965,20 @@
    "model": ""
   },
   {
-   "name": "SG_Prop_GateArch__SG_Rune_Glow",
-   "group": "09_PROPS",
-   "obj": "SG_Prop_GateArch",
-   "material": "SG_Rune_Glow",
-   "tris": 24,
-   "center_rbx": [
-    -794.628,
-    52.1,
-    559.302
-   ],
-   "size_rbx": [
-    7.181,
-    1.0,
-    15.817
-   ],
-   "owner": "props",
-   "shadow": false,
-   "flags": "",
-   "model": ""
-  },
-  {
    "name": "SG_Prop_GateArch__Stone_SG_Obsidian",
    "group": "09_PROPS",
    "obj": "SG_Prop_GateArch",
    "material": "Stone_SG_Obsidian",
-   "tris": 40,
+   "tris": 64,
    "center_rbx": [
     -794.628,
-    44.6,
+    44.7,
     559.302
    ],
    "size_rbx": [
     9.312,
-    1.0,
+    1.2,
     19.273
-   ],
-   "owner": "props",
-   "shadow": false,
-   "flags": "",
-   "model": ""
-  },
-  {
-   "name": "SG_Prop_GateArch__Stone_SG_Violet",
-   "group": "09_PROPS",
-   "obj": "SG_Prop_GateArch",
-   "material": "Stone_SG_Violet",
-   "tris": 24,
-   "center_rbx": [
-    -794.628,
-    45.2,
-    559.302
-   ],
-   "size_rbx": [
-    8.919,
-    0.2,
-    18.879
-   ],
-   "owner": "props",
-   "shadow": false,
-   "flags": "",
-   "model": ""
-  },
-  {
-   "name": "SG_Prop_NobleAxis_P1__Cloth_SG_Purple",
-   "group": "09_PROPS",
-   "obj": "SG_Prop_NobleAxis_P1",
-   "material": "Cloth_SG_Purple",
-   "tris": 32,
-   "center_rbx": [
-    -725.58,
-    44.95,
-    588.609
-   ],
-   "size_rbx": [
-    10.361,
-    7.4,
-    24.019
-   ],
-   "owner": "props",
-   "shadow": false,
-   "flags": "",
-   "model": ""
-  },
-  {
-   "name": "SG_Prop_NobleAxis_P1__Metal_Gold",
-   "group": "09_PROPS",
-   "obj": "SG_Prop_NobleAxis_P1",
-   "material": "Metal_Gold",
-   "tris": 48,
-   "center_rbx": [
-    -725.552,
-    45.542,
-    588.62
-   ],
-   "size_rbx": [
-    10.416,
-    6.216,
-    24.043
-   ],
-   "owner": "props",
-   "shadow": false,
-   "flags": "",
-   "model": ""
-  },
-  {
-   "name": "SG_Prop_NobleAxis_P1__Metal_SG_BlackIron",
-   "group": "09_PROPS",
-   "obj": "SG_Prop_NobleAxis_P1",
-   "material": "Metal_SG_BlackIron",
-   "tris": 136,
-   "center_rbx": [
-    -725.626,
-    44.1,
-    588.589
-   ],
-   "size_rbx": [
-    10.807,
-    13.2,
-    24.963
    ],
    "owner": "props",
    "shadow": false,
@@ -9095,58 +8990,16 @@
    "group": "09_PROPS",
    "obj": "SG_Prop_NobleAxis_P1",
    "material": "Metal_SG_Silver",
-   "tris": 1344,
-   "center_rbx": [
-    -693.715,
-    44.075,
-    598.854
-   ],
-   "size_rbx": [
-    74.834,
-    15.85,
-    45.837
-   ],
-   "owner": "props",
-   "shadow": true,
-   "flags": "",
-   "model": ""
-  },
-  {
-   "name": "SG_Prop_NobleAxis_P1__SG_Rune_Glow",
-   "group": "09_PROPS",
-   "obj": "SG_Prop_NobleAxis_P1",
-   "material": "SG_Rune_Glow",
-   "tris": 184,
-   "center_rbx": [
-    -725.391,
-    46.136,
-    588.689
-   ],
-   "size_rbx": [
-    9.68,
-    1.598,
-    22.673
-   ],
-   "owner": "props",
-   "shadow": false,
-   "flags": "",
-   "model": ""
-  },
-  {
-   "name": "SG_Prop_NobleAxis_P1__SG_VioletDeep_Glow",
-   "group": "09_PROPS",
-   "obj": "SG_Prop_NobleAxis_P1",
-   "material": "SG_VioletDeep_Glow",
    "tris": 24,
    "center_rbx": [
-    -688.0,
-    36.2,
-    604.559
+    -663.615,
+    36.193,
+    614.909
    ],
    "size_rbx": [
-    80.774,
-    0.1,
-    34.495
+    14.634,
+    0.085,
+    13.728
    ],
    "owner": "props",
    "shadow": false,
@@ -9158,16 +9011,16 @@
    "group": "09_PROPS",
    "obj": "SG_Prop_NobleAxis_P1",
    "material": "Stone_SG_MarbleBlack",
-   "tris": 352,
+   "tris": 312,
    "center_rbx": [
-    -688.474,
-    36.825,
-    601.69
+    -688.0,
+    36.198,
+    604.559
    ],
    "size_rbx": [
-    85.395,
-    1.35,
-    49.097
+    84.446,
+    0.095,
+    43.359
    ],
    "owner": "props",
    "shadow": true,
@@ -9179,16 +9032,16 @@
    "group": "09_PROPS",
    "obj": "SG_Prop_NobleAxis_P1",
    "material": "Stone_SG_Obsidian",
-   "tris": 368,
+   "tris": 96,
    "center_rbx": [
-    -688.378,
-    42.215,
-    601.895
+    -688.0,
+    36.125,
+    604.559
    ],
    "size_rbx": [
-    86.111,
-    12.43,
-    50.611
+    85.353,
+    0.25,
+    45.284
    ],
    "owner": "props",
    "shadow": true,
@@ -9229,7 +9082,7 @@
    ],
    "size_rbx": [
     45.977,
-    1.7,
+    1.74,
     31.778
    ],
    "owner": "props",
@@ -9242,16 +9095,16 @@
    "group": "09_PROPS",
    "obj": "SG_Prop_NobleAxis_P2P3",
    "material": "Metal_Gold",
-   "tris": 504,
+   "tris": 576,
    "center_rbx": [
     -767.933,
     48.005,
     570.632
    ],
    "size_rbx": [
-    46.567,
+    46.826,
     3.19,
-    32.368
+    32.627
    ],
    "owner": "props",
    "shadow": true,
@@ -9263,16 +9116,16 @@
    "group": "09_PROPS",
    "obj": "SG_Prop_NobleAxis_P2P3",
    "material": "Metal_SG_Silver",
-   "tris": 1252,
+   "tris": 906,
    "center_rbx": [
-    -797.361,
-    48.2,
-    558.052
+    -796.765,
+    48.208,
+    558.138
    ],
    "size_rbx": [
-    105.687,
-    8.1,
-    57.792
+    104.494,
+    8.116,
+    57.619
    ],
    "owner": "props",
    "shadow": true,
@@ -9280,20 +9133,20 @@
    "model": ""
   },
   {
-   "name": "SG_Prop_NobleAxis_P2P3__SG_VioletDeep_Glow",
+   "name": "SG_Prop_NobleAxis_P2P3__SG_VioletSoft_Glow",
    "group": "09_PROPS",
    "obj": "SG_Prop_NobleAxis_P2P3",
-   "material": "SG_VioletDeep_Glow",
-   "tris": 484,
+   "material": "SG_VioletSoft_Glow",
+   "tris": 284,
    "center_rbx": [
-    -800.611,
-    48.2,
-    556.762
+    -834.67,
+    52.2,
+    542.306
    ],
    "size_rbx": [
-    113.296,
-    8.1,
-    48.299
+    45.178,
+    0.1,
+    19.387
    ],
    "owner": "props",
    "shadow": false,
@@ -9326,7 +9179,7 @@
    "group": "09_PROPS",
    "obj": "SG_Prop_NobleAxis_P2P3",
    "material": "Stone_SG_MarbleBlack",
-   "tris": 1120,
+   "tris": 672,
    "center_rbx": [
     -800.806,
     48.198,
@@ -9347,7 +9200,7 @@
    "group": "09_PROPS",
    "obj": "SG_Prop_NobleAxis_P2P3",
    "material": "Stone_SG_Obsidian",
-   "tris": 1300,
+   "tris": 840,
    "center_rbx": [
     -800.806,
     48.125,
@@ -9368,7 +9221,7 @@
    "group": "09_PROPS",
    "obj": "SG_Prop_NobleAxis_P2P3",
    "material": "Stone_SG_Trim",
-   "tris": 144,
+   "tris": 656,
    "center_rbx": [
     -800.806,
     48.2,
@@ -9385,27 +9238,6 @@
    "model": ""
   },
   {
-   "name": "SG_Prop_NobleAxis_P2P3__Stone_SG_Violet",
-   "group": "09_PROPS",
-   "obj": "SG_Prop_NobleAxis_P2P3",
-   "material": "Stone_SG_Violet",
-   "tris": 188,
-   "center_rbx": [
-    -838.812,
-    52.16,
-    540.548
-   ],
-   "size_rbx": [
-    12.58,
-    0.12,
-    12.58
-   ],
-   "owner": "props",
-   "shadow": false,
-   "flags": "",
-   "model": ""
-  },
-  {
    "name": "SG_Prop_Plaza__Lantern_Glow",
    "group": "09_PROPS",
    "obj": "SG_Prop_Plaza",
@@ -9418,7 +9250,7 @@
    ],
    "size_rbx": [
     45.139,
-    1.7,
+    1.74,
     45.139
    ],
    "owner": "props",
@@ -9431,16 +9263,16 @@
    "group": "09_PROPS",
    "obj": "SG_Prop_Plaza",
    "material": "Metal_Gold",
-   "tris": 384,
+   "tris": 432,
    "center_rbx": [
     -702.576,
-    44.82,
+    44.815,
     598.372
    ],
    "size_rbx": [
-    45.729,
-    3.46,
-    45.729
+    45.988,
+    3.47,
+    45.988
    ],
    "owner": "props",
    "shadow": true,
@@ -9544,7 +9376,7 @@
    ],
    "size_rbx": [
     141.244,
-    9.7,
+    9.74,
     148.417
    ],
    "owner": "props",
@@ -9557,16 +9389,16 @@
    "group": "09_PROPS",
    "obj": "SG_Prop_RouteLamps",
    "material": "Metal_Gold",
-   "tris": 192,
+   "tris": 216,
    "center_rbx": [
     -733.331,
-    48.82,
+    48.815,
     565.765
    ],
    "size_rbx": [
-    141.834,
-    11.46,
-    149.007
+    142.092,
+    11.47,
+    149.266
    ],
    "owner": "props",
    "shadow": true,
@@ -9956,16 +9788,16 @@
    "group": "10_VEGETATION",
    "obj": "SG_Veg_Pines_South",
    "material": "Grass_SG",
-   "tris": 272,
+   "tris": 220,
    "center_rbx": [
     -661.238,
     31.699,
-    649.466
+    652.969
    ],
    "size_rbx": [
     106.927,
     11.319,
-    95.347
+    88.341
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -9977,15 +9809,15 @@
    "group": "10_VEGETATION",
    "obj": "SG_Veg_Pines_South",
    "material": "Leaf_SGVegMoon",
-   "tris": 330,
+   "tris": 286,
    "center_rbx": [
     -660.947,
-    43.089,
+    44.752,
     644.698
    ],
    "size_rbx": [
     109.833,
-    26.836,
+    23.511,
     107.09
    ],
    "owner": "vegetation",
@@ -9998,15 +9830,15 @@
    "group": "10_VEGETATION",
    "obj": "SG_Veg_Pines_South",
    "material": "Leaf_SGVegShade",
-   "tris": 1056,
+   "tris": 948,
    "center_rbx": [
     -660.485,
-    37.943,
+    37.899,
     644.367
    ],
    "size_rbx": [
     113.586,
-    24.318,
+    24.408,
     109.981
    ],
    "owner": "vegetation",
@@ -10019,7 +9851,7 @@
    "group": "10_VEGETATION",
    "obj": "SG_Veg_Pines_South",
    "material": "Leaf_SG_Pine",
-   "tris": 1538,
+   "tris": 1390,
    "center_rbx": [
     -660.485,
     40.515,
@@ -10040,15 +9872,15 @@
    "group": "10_VEGETATION",
    "obj": "SG_Veg_Pines_South",
    "material": "Wood_SG_Dark",
-   "tris": 230,
+   "tris": 200,
    "center_rbx": [
     -660.071,
-    35.204,
+    35.203,
     644.33
    ],
    "size_rbx": [
     108.413,
-    19.23,
+    19.231,
     104.274
    ],
    "owner": "vegetation",
@@ -10166,16 +9998,16 @@
    "group": "10_VEGETATION",
    "obj": "SG_Veg_Pines_VillageE",
    "material": "Grass_SG",
-   "tris": 240,
+   "tris": 176,
    "center_rbx": [
     -750.017,
     48.557,
-    488.3
+    475.758
    ],
    "size_rbx": [
     87.422,
     9.057,
-    138.873
+    113.788
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -10187,16 +10019,16 @@
    "group": "10_VEGETATION",
    "obj": "SG_Veg_Pines_VillageE",
    "material": "Leaf_SGVegMoon",
-   "tris": 213,
+   "tris": 143,
    "center_rbx": [
     -750.266,
-    60.566,
-    487.884
+    62.419,
+    476.841
    ],
    "size_rbx": [
     90.251,
-    25.216,
-    139.068
+    21.51,
+    116.981
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -10208,16 +10040,16 @@
    "group": "10_VEGETATION",
    "obj": "SG_Veg_Pines_VillageE",
    "material": "Leaf_SGVegShade",
-   "tris": 594,
+   "tris": 504,
    "center_rbx": [
     -749.626,
     55.732,
-    486.763
+    476.422
    ],
    "size_rbx": [
     96.887,
     24.886,
-    141.31
+    120.627
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -10229,16 +10061,16 @@
    "group": "10_VEGETATION",
    "obj": "SG_Veg_Pines_VillageE",
    "material": "Leaf_SG_Pine",
-   "tris": 1129,
+   "tris": 929,
    "center_rbx": [
     -749.626,
     57.638,
-    486.763
+    476.422
    ],
    "size_rbx": [
     96.887,
     28.698,
-    141.31
+    120.627
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -10271,16 +10103,16 @@
    "group": "10_VEGETATION",
    "obj": "SG_Veg_Pines_VillageE",
    "material": "Wood_SG_Dark",
-   "tris": 150,
+   "tris": 120,
    "center_rbx": [
     -748.881,
     52.347,
-    487.882
+    476.712
    ],
    "size_rbx": [
     88.622,
     17.526,
-    136.826
+    114.486
    ],
    "owner": "vegetation",
    "shadow": true,
@@ -10418,14 +10250,14 @@
    "group": "10_VEGETATION",
    "obj": "SG_Veg_Pines_VillageW",
    "material": "Grass_SG",
-   "tris": 120,
+   "tris": 108,
    "center_rbx": [
-    -809.058,
+    -817.129,
     44.711,
     616.93
    ],
    "size_rbx": [
-    83.117,
+    66.974,
     1.367,
     74.402
    ],
@@ -10439,14 +10271,14 @@
    "group": "10_VEGETATION",
    "obj": "SG_Veg_Pines_VillageW",
    "material": "Leaf_SGVegMoon",
-   "tris": 188,
+   "tris": 143,
    "center_rbx": [
-    -808.455,
+    -817.571,
     56.956,
     617.557
    ],
    "size_rbx": [
-    84.393,
+    66.162,
     18.161,
     78.889
    ],
@@ -10460,14 +10292,14 @@
    "group": "10_VEGETATION",
    "obj": "SG_Veg_Pines_VillageW",
    "material": "Leaf_SGVegShade",
-   "tris": 492,
+   "tris": 432,
    "center_rbx": [
-    -809.21,
+    -818.292,
     52.722,
     617.727
    ],
    "size_rbx": [
-    88.656,
+    70.492,
     18.334,
     83.402
    ],
@@ -10481,14 +10313,14 @@
    "group": "10_VEGETATION",
    "obj": "SG_Veg_Pines_VillageW",
    "material": "Leaf_SG_Pine",
-   "tris": 980,
+   "tris": 845,
    "center_rbx": [
-    -809.21,
+    -818.292,
     54.178,
     617.727
    ],
    "size_rbx": [
-    88.656,
+    70.492,
     21.245,
     83.402
    ],
@@ -10502,14 +10334,14 @@
    "group": "10_VEGETATION",
    "obj": "SG_Veg_Pines_VillageW",
    "material": "Wood_SG_Dark",
-   "tris": 124,
+   "tris": 104,
    "center_rbx": [
-    -807.781,
+    -816.684,
     48.531,
     618.159
    ],
    "size_rbx": [
-    82.964,
+    65.159,
     9.896,
     76.098
    ],
@@ -10792,20 +10624,20 @@
    "model": ""
   },
   {
-   "name": "VFX_SGCRAFT_Ring_1__SG_VioletDeep_Glow",
+   "name": "VFX_SGCRAFT_Ring_1__Metal_Gold",
    "group": "12_VFX_HELPERS",
    "obj": "VFX_SGCRAFT_Ring_1",
-   "material": "SG_VioletDeep_Glow",
-   "tris": 524,
+   "material": "Metal_Gold",
+   "tris": 144,
    "center_rbx": [
     -730.008,
     81.6,
     488.958
    ],
    "size_rbx": [
-    15.782,
-    5.522,
-    16.324
+    15.441,
+    5.39,
+    15.966
    ],
    "owner": "vfx",
    "shadow": false,
@@ -10813,20 +10645,62 @@
    "model": ""
   },
   {
-   "name": "VFX_SGCRAFT_Ring_2__SG_VioletDeep_Glow",
+   "name": "VFX_SGCRAFT_Ring_1__Metal_SG_Silver",
    "group": "12_VFX_HELPERS",
-   "obj": "VFX_SGCRAFT_Ring_2",
-   "material": "SG_VioletDeep_Glow",
-   "tris": 524,
+   "obj": "VFX_SGCRAFT_Ring_1",
+   "material": "Metal_SG_Silver",
+   "tris": 256,
    "center_rbx": [
     -730.008,
     81.6,
     488.958
    ],
    "size_rbx": [
-    19.932,
-    11.712,
-    17.559
+    15.454,
+    5.465,
+    15.91
+   ],
+   "owner": "vfx",
+   "shadow": false,
+   "flags": "",
+   "model": ""
+  },
+  {
+   "name": "VFX_SGCRAFT_Ring_2__Metal_Gold",
+   "group": "12_VFX_HELPERS",
+   "obj": "VFX_SGCRAFT_Ring_2",
+   "material": "Metal_Gold",
+   "tris": 144,
+   "center_rbx": [
+    -730.008,
+    81.6,
+    488.958
+   ],
+   "size_rbx": [
+    19.72,
+    11.378,
+    17.181
+   ],
+   "owner": "vfx",
+   "shadow": false,
+   "flags": "",
+   "model": ""
+  },
+  {
+   "name": "VFX_SGCRAFT_Ring_2__Metal_SG_Silver",
+   "group": "12_VFX_HELPERS",
+   "obj": "VFX_SGCRAFT_Ring_2",
+   "material": "Metal_SG_Silver",
+   "tris": 256,
+   "center_rbx": [
+    -730.008,
+    81.6,
+    488.958
+   ],
+   "size_rbx": [
+    19.571,
+    11.626,
+    17.345
    ],
    "owner": "vfx",
    "shadow": false,
@@ -10840,14 +10714,14 @@
    "material": "SG_Crystal_Glow",
    "tris": 24,
    "center_rbx": [
-    -829.797,
-    77.996,
-    435.74
+    -833.709,
+    72.428,
+    434.079
    ],
    "size_rbx": [
-    3.222,
-    6.6,
-    3.222
+    1.841,
+    3.8,
+    1.841
    ],
    "owner": "vfx",
    "shadow": false,
@@ -11048,16 +10922,16 @@
    "group": "16_CRAFT",
    "obj": "SG_Craft_Cauldron",
    "material": "Metal_Gold",
-   "tris": 724,
+   "tris": 1776,
    "center_rbx": [
     -730.008,
-    48.313,
+    49.035,
     488.958
    ],
    "size_rbx": [
-    6.725,
-    4.246,
-    6.452
+    7.481,
+    2.83,
+    6.458
    ],
    "owner": "craft",
    "shadow": false,
@@ -11069,16 +10943,16 @@
    "group": "16_CRAFT",
    "obj": "SG_Craft_Cauldron",
    "material": "Metal_SG_Iron",
-   "tris": 636,
+   "tris": 1536,
    "center_rbx": [
     -730.008,
-    48.207,
+    47.66,
     488.958
    ],
    "size_rbx": [
-    6.4,
-    4.302,
-    6.4
+    6.427,
+    4.12,
+    6.352
    ],
    "owner": "craft",
    "shadow": false,
@@ -11090,16 +10964,16 @@
    "group": "16_CRAFT",
    "obj": "SG_Craft_Cauldron",
    "material": "Metal_SG_Silver",
-   "tris": 1188,
+   "tris": 1036,
    "center_rbx": [
     -730.008,
-    48.655,
+    48.534,
     488.958
    ],
    "size_rbx": [
-    4.227,
-    1.656,
-    7.243
+    3.626,
+    1.215,
+    6.596
    ],
    "owner": "craft",
    "shadow": false,
@@ -11111,16 +10985,16 @@
    "group": "16_CRAFT",
    "obj": "SG_Craft_Cauldron",
    "material": "SG_Rune_Glow",
-   "tris": 396,
+   "tris": 436,
    "center_rbx": [
     -730.008,
-    49.449,
+    49.143,
     488.958
    ],
    "size_rbx": [
-    5.201,
-    6.002,
-    6.771
+    3.037,
+    2.124,
+    6.309
    ],
    "owner": "craft",
    "shadow": false,
@@ -11132,16 +11006,16 @@
    "group": "16_CRAFT",
    "obj": "SG_Craft_Cauldron",
    "material": "SG_VioletDeep_Glow",
-   "tris": 128,
+   "tris": 112,
    "center_rbx": [
     -730.008,
-    45.94,
+    51.195,
     488.958
    ],
    "size_rbx": [
-    7.68,
-    0.12,
-    7.68
+    4.744,
+    2.51,
+    4.744
    ],
    "owner": "craft",
    "shadow": false,
@@ -11149,20 +11023,20 @@
    "model": "SG_Craft"
   },
   {
-   "name": "SG_Craft_Cauldron__SG_Violet_Glow",
+   "name": "SG_Craft_Cauldron__SG_VioletSoft_Glow",
    "group": "16_CRAFT",
    "obj": "SG_Craft_Cauldron",
-   "material": "SG_Violet_Glow",
-   "tris": 296,
+   "material": "SG_VioletSoft_Glow",
+   "tris": 64,
    "center_rbx": [
     -730.008,
-    48.484,
+    45.785,
     488.958
    ],
    "size_rbx": [
-    5.201,
-    3.929,
-    5.201
+    3.4,
+    0.07,
+    3.4
    ],
    "owner": "craft",
    "shadow": false,
@@ -11174,16 +11048,16 @@
    "group": "16_CRAFT",
    "obj": "SG_Craft_Cauldron",
    "material": "Stone_SG_Obsidian",
-   "tris": 512,
+   "tris": 1280,
    "center_rbx": [
     -730.008,
-    47.493,
+    47.387,
     488.958
    ],
    "size_rbx": [
-    7.6,
-    3.986,
-    7.6
+    7.0,
+    3.574,
+    7.0
    ],
    "owner": "craft",
    "shadow": false,
@@ -11195,16 +11069,16 @@
    "group": "16_CRAFT",
    "obj": "SG_Craft_Cauldron",
    "material": "Wood_SG_Dark",
-   "tris": 20,
+   "tris": 40,
    "center_rbx": [
-    -730.912,
-    50.8,
-    486.597
+    -730.778,
+    50.561,
+    486.461
    ],
    "size_rbx": [
-    1.095,
-    2.779,
-    1.974
+    0.943,
+    1.776,
+    2.597
    ],
    "owner": "craft",
    "shadow": false,
@@ -11279,27 +11153,6 @@
    "group": "16_CRAFT",
    "obj": "SG_Craft_Dome",
    "material": "SG_VioletDeep_Glow",
-   "tris": 128,
-   "center_rbx": [
-    -730.008,
-    74.71,
-    488.958
-   ],
-   "size_rbx": [
-    5.797,
-    2.22,
-    5.797
-   ],
-   "owner": "craft",
-   "shadow": false,
-   "flags": "",
-   "model": "SG_Craft"
-  },
-  {
-   "name": "SG_Craft_Dome__SG_Violet_Glow",
-   "group": "16_CRAFT",
-   "obj": "SG_Craft_Dome",
-   "material": "SG_Violet_Glow",
    "tris": 286,
    "center_rbx": [
     -730.008,
@@ -11363,16 +11216,16 @@
    "group": "16_CRAFT",
    "obj": "SG_Craft_Dome",
    "material": "Window_Warm",
-   "tris": 128,
+   "tris": 256,
    "center_rbx": [
     -730.008,
     74.71,
     488.958
    ],
    "size_rbx": [
-    5.774,
+    5.797,
     2.22,
-    5.774
+    5.797
    ],
    "owner": "craft",
    "shadow": false,
@@ -11384,16 +11237,16 @@
    "group": "16_CRAFT",
    "obj": "SG_Craft_Furnishings",
    "material": "Cloth_Canvas",
-   "tris": 736,
+   "tris": 2008,
    "center_rbx": [
-    -730.008,
-    48.174,
-    489.477
+    -730.007,
+    48.059,
+    487.426
    ],
    "size_rbx": [
-    26.055,
-    7.992,
-    21.411
+    25.702,
+    7.762,
+    23.004
    ],
    "owner": "craft",
    "shadow": false,
@@ -11405,19 +11258,61 @@
    "group": "16_CRAFT",
    "obj": "SG_Craft_Furnishings",
    "material": "Cloth_SGCraftBook",
-   "tris": 672,
+   "tris": 2532,
    "center_rbx": [
-    -729.999,
-    49.225,
-    488.164
+    -730.016,
+    49.485,
+    488.322
    ],
    "size_rbx": [
-    26.057,
-    9.05,
-    24.226
+    25.782,
+    9.57,
+    23.908
    ],
    "owner": "craft",
-   "shadow": true,
+   "shadow": false,
+   "flags": "",
+   "model": "SG_Craft"
+  },
+  {
+   "name": "SG_Craft_Furnishings__Cloth_SGCraftBookBrown",
+   "group": "16_CRAFT",
+   "obj": "SG_Craft_Furnishings",
+   "material": "Cloth_SGCraftBookBrown",
+   "tris": 1920,
+   "center_rbx": [
+    -730.007,
+    49.615,
+    487.494
+   ],
+   "size_rbx": [
+    25.702,
+    9.83,
+    23.22
+   ],
+   "owner": "craft",
+   "shadow": false,
+   "flags": "",
+   "model": "SG_Craft"
+  },
+  {
+   "name": "SG_Craft_Furnishings__Cloth_SGCraftBookInk",
+   "group": "16_CRAFT",
+   "obj": "SG_Craft_Furnishings",
+   "material": "Cloth_SGCraftBookInk",
+   "tris": 1824,
+   "center_rbx": [
+    -730.022,
+    49.445,
+    487.693
+   ],
+   "size_rbx": [
+    25.772,
+    9.49,
+    22.808
+   ],
+   "owner": "craft",
+   "shadow": false,
    "flags": "",
    "model": "SG_Craft"
   },
@@ -11426,19 +11321,19 @@
    "group": "16_CRAFT",
    "obj": "SG_Craft_Furnishings",
    "material": "Cloth_SG_Navy",
-   "tris": 744,
+   "tris": 2064,
    "center_rbx": [
-    -730.006,
-    49.316,
-    489.04
+    -729.989,
+    49.3,
+    489.018
    ],
    "size_rbx": [
-    26.054,
-    10.133,
-    26.04
+    25.649,
+    10.1,
+    26.086
    ],
    "owner": "craft",
-   "shadow": true,
+   "shadow": false,
    "flags": "",
    "model": "SG_Craft"
   },
@@ -11447,16 +11342,16 @@
    "group": "16_CRAFT",
    "obj": "SG_Craft_Furnishings",
    "material": "Cloth_SG_Purple",
-   "tris": 32,
+   "tris": 88,
    "center_rbx": [
-    -727.3,
-    54.25,
-    481.916
+    -727.274,
+    54.635,
+    481.983
    ],
    "size_rbx": [
-    20.863,
-    7.6,
-    10.289
+    20.413,
+    7.57,
+    9.956
    ],
    "owner": "craft",
    "shadow": false,
@@ -11468,16 +11363,16 @@
    "group": "16_CRAFT",
    "obj": "SG_Craft_Furnishings",
    "material": "Glass_SGCraftAmber",
-   "tris": 1720,
+   "tris": 520,
    "center_rbx": [
-    -730.006,
-    48.632,
-    487.484
+    -730.316,
+    48.06,
+    486.21
    ],
    "size_rbx": [
-    25.839,
-    7.864,
-    23.111
+    24.922,
+    6.72,
+    20.622
    ],
    "owner": "craft",
    "shadow": false,
@@ -11489,16 +11384,16 @@
    "group": "16_CRAFT",
    "obj": "SG_Craft_Furnishings",
    "material": "Glass_SGCraftPale",
-   "tris": 1406,
+   "tris": 2274,
    "center_rbx": [
-    -730.084,
-    48.24,
-    487.509
+    -729.978,
+    51.492,
+    488.08
    ],
    "size_rbx": [
-    25.734,
-    7.08,
-    22.457
+    25.781,
+    9.516,
+    20.501
    ],
    "owner": "craft",
    "shadow": false,
@@ -11510,37 +11405,16 @@
    "group": "16_CRAFT",
    "obj": "SG_Craft_Furnishings",
    "material": "Glass_SGCraftSage",
-   "tris": 1618,
+   "tris": 678,
    "center_rbx": [
-    -729.924,
-    48.492,
-    487.946
+    -730.006,
+    48.27,
+    487.535
    ],
    "size_rbx": [
-    25.788,
-    7.584,
-    22.628
-   ],
-   "owner": "craft",
-   "shadow": false,
-   "flags": "",
-   "model": "SG_Craft"
-  },
-  {
-   "name": "SG_Craft_Furnishings__Glass_SG_Rose",
-   "group": "16_CRAFT",
-   "obj": "SG_Craft_Furnishings",
-   "material": "Glass_SG_Rose",
-   "tris": 84,
-   "center_rbx": [
-    -724.282,
-    47.89,
-    479.184
-   ],
-   "size_rbx": [
-    0.779,
-    1.1,
-    0.768
+    25.602,
+    7.14,
+    22.804
    ],
    "owner": "craft",
    "shadow": false,
@@ -11552,37 +11426,16 @@
    "group": "16_CRAFT",
    "obj": "SG_Craft_Furnishings",
    "material": "Lantern_Glow",
-   "tris": 858,
+   "tris": 304,
    "center_rbx": [
-    -730.043,
-    52.665,
-    487.79
+    -730.805,
+    52.623,
+    487.331
    ],
    "size_rbx": [
-    25.815,
-    10.912,
-    21.089
-   ],
-   "owner": "craft",
-   "shadow": false,
-   "flags": "",
-   "model": "SG_Craft"
-  },
-  {
-   "name": "SG_Craft_Furnishings__Leather",
-   "group": "16_CRAFT",
-   "obj": "SG_Craft_Furnishings",
-   "material": "Leather",
-   "tris": 624,
-   "center_rbx": [
-    -730.012,
-    49.523,
-    487.609
-   ],
-   "size_rbx": [
-    26.031,
-    9.646,
-    23.337
+    23.212,
+    10.997,
+    20.17
    ],
    "owner": "craft",
    "shadow": false,
@@ -11594,16 +11447,16 @@
    "group": "16_CRAFT",
    "obj": "SG_Craft_Furnishings",
    "material": "Metal_Brass",
-   "tris": 392,
+   "tris": 452,
    "center_rbx": [
-    -728.969,
-    48.615,
-    478.017
+    -725.935,
+    48.625,
+    481.13
    ],
    "size_rbx": [
-    5.337,
-    3.27,
-    2.464
+    11.186,
+    3.25,
+    8.689
    ],
    "owner": "craft",
    "shadow": false,
@@ -11615,19 +11468,19 @@
    "group": "16_CRAFT",
    "obj": "SG_Craft_Furnishings",
    "material": "Metal_Gold",
-   "tris": 1918,
+   "tris": 3452,
    "center_rbx": [
-    -729.653,
-    51.15,
+    -729.894,
+    51.2,
     489.158
    ],
    "size_rbx": [
-    25.571,
-    13.8,
+    25.477,
+    13.9,
     25.805
    ],
    "owner": "craft",
-   "shadow": true,
+   "shadow": false,
    "flags": "",
    "model": "SG_Craft"
   },
@@ -11636,16 +11489,16 @@
    "group": "16_CRAFT",
    "obj": "SG_Craft_Furnishings",
    "material": "Metal_SG_BlackIron",
-   "tris": 1980,
+   "tris": 1732,
    "center_rbx": [
-    -729.965,
+    -729.997,
     57.19,
-    487.892
+    487.97
    ],
    "size_rbx": [
-    26.599,
+    26.534,
     26.02,
-    24.636
+    24.537
    ],
    "owner": "craft",
    "shadow": true,
@@ -11657,16 +11510,37 @@
    "group": "16_CRAFT",
    "obj": "SG_Craft_Furnishings",
    "material": "Metal_SG_Silver",
-   "tris": 2196,
+   "tris": 1808,
    "center_rbx": [
-    -728.338,
-    51.18,
-    487.704
+    -728.518,
+    51.15,
+    487.929
    ],
    "size_rbx": [
-    23.538,
-    14.56,
-    22.707
+    23.102,
+    14.5,
+    22.254
+   ],
+   "owner": "craft",
+   "shadow": false,
+   "flags": "",
+   "model": "SG_Craft"
+  },
+  {
+   "name": "SG_Craft_Furnishings__Plaster_SG",
+   "group": "16_CRAFT",
+   "obj": "SG_Craft_Furnishings",
+   "material": "Plaster_SG",
+   "tris": 2532,
+   "center_rbx": [
+    -730.016,
+    51.256,
+    488.057
+   ],
+   "size_rbx": [
+    25.702,
+    13.048,
+    24.265
    ],
    "owner": "craft",
    "shadow": false,
@@ -11678,16 +11552,16 @@
    "group": "16_CRAFT",
    "obj": "SG_Craft_Furnishings",
    "material": "SG_Rune_Glow",
-   "tris": 436,
+   "tris": 376,
    "center_rbx": [
-    -727.82,
-    50.232,
-    485.753
+    -727.09,
+    55.606,
+    481.992
    ],
    "size_rbx": [
-    21.039,
-    11.956,
-    16.835
+    19.056,
+    1.205,
+    8.767
    ],
    "owner": "craft",
    "shadow": false,
@@ -11699,16 +11573,16 @@
    "group": "16_CRAFT",
    "obj": "SG_Craft_Furnishings",
    "material": "SG_VioletDeep_Glow",
-   "tris": 2112,
+   "tris": 756,
    "center_rbx": [
-    -730.0,
-    52.677,
-    488.958
+    -729.149,
+    50.327,
+    489.154
    ],
    "size_rbx": [
-    25.983,
-    16.846,
-    20.915
+    24.163,
+    12.146,
+    18.392
    ],
    "owner": "craft",
    "shadow": false,
@@ -11720,7 +11594,7 @@
    "group": "16_CRAFT",
    "obj": "SG_Craft_Furnishings",
    "material": "Stone_SG_MarbleBlack",
-   "tris": 1584,
+   "tris": 2288,
    "center_rbx": [
     -730.008,
     57.55,
@@ -11741,7 +11615,7 @@
    "group": "16_CRAFT",
    "obj": "SG_Craft_Furnishings",
    "material": "Stone_SG_Obsidian",
-   "tris": 1016,
+   "tris": 1056,
    "center_rbx": [
     -730.008,
     52.75,
@@ -11762,15 +11636,15 @@
    "group": "16_CRAFT",
    "obj": "SG_Craft_Furnishings",
    "material": "Stone_SG_Trim",
-   "tris": 1060,
+   "tris": 880,
    "center_rbx": [
     -730.008,
-    58.956,
+    59.066,
     488.958
    ],
    "size_rbx": [
     25.516,
-    23.952,
+    23.732,
     25.516
    ],
    "owner": "craft",
@@ -11804,16 +11678,16 @@
    "group": "16_CRAFT",
    "obj": "SG_Craft_Furnishings",
    "material": "Window_Warm",
-   "tris": 168,
+   "tris": 336,
    "center_rbx": [
     -730.008,
     57.35,
-    483.018
+    487.513
    ],
    "size_rbx": [
     26.693,
     7.5,
-    14.813
+    23.804
    ],
    "owner": "craft",
    "shadow": false,
@@ -11825,19 +11699,19 @@
    "group": "16_CRAFT",
    "obj": "SG_Craft_Furnishings",
    "material": "Wood_SG_Dark",
-   "tris": 2888,
+   "tris": 5314,
    "center_rbx": [
     -730.008,
-    49.7,
-    487.893
+    49.705,
+    488.004
    ],
    "size_rbx": [
-    26.64,
-    11.0,
-    25.014
+    26.6,
+    11.031,
+    24.792
    ],
    "owner": "craft",
-   "shadow": true,
+   "shadow": false,
    "flags": "",
    "model": "SG_Craft"
   },
@@ -11846,16 +11720,16 @@
    "group": "16_CRAFT",
    "obj": "SG_Craft_Shell",
    "material": "Cloth_SG_Purple",
-   "tris": 32,
+   "tris": 88,
    "center_rbx": [
-    -736.708,
-    56.95,
-    504.745
+    -736.694,
+    57.135,
+    504.713
    ],
    "size_rbx": [
-    13.249,
-    8.2,
-    5.79
+    13.335,
+    8.57,
+    5.992
    ],
    "owner": "craft",
    "shadow": false,
@@ -11863,20 +11737,41 @@
    "model": "SG_Craft"
   },
   {
-   "name": "SG_Craft_Shell__Dirt_SG",
+   "name": "SG_Craft_Shell__Glass_SGCraftPale",
    "group": "16_CRAFT",
    "obj": "SG_Craft_Shell",
-   "material": "Dirt_SG",
-   "tris": 48,
+   "material": "Glass_SGCraftPale",
+   "tris": 864,
    "center_rbx": [
-    -730.008,
-    44.825,
+    -728.38,
+    56.697,
     488.958
    ],
    "size_rbx": [
-    37.804,
-    0.15,
-    37.804
+    35.112,
+    17.594,
+    38.367
+   ],
+   "owner": "craft",
+   "shadow": false,
+   "flags": "",
+   "model": "SG_Craft"
+  },
+  {
+   "name": "SG_Craft_Shell__Glass_SG_Rose",
+   "group": "16_CRAFT",
+   "obj": "SG_Craft_Shell",
+   "material": "Glass_SG_Rose",
+   "tris": 120,
+   "center_rbx": [
+    -735.556,
+    59.0,
+    502.029
+   ],
+   "size_rbx": [
+    5.044,
+    3.4,
+    5.839
    ],
    "owner": "craft",
    "shadow": false,
@@ -11896,7 +11791,7 @@
    ],
    "size_rbx": [
     13.159,
-    1.7,
+    1.74,
     6.378
    ],
    "owner": "craft",
@@ -11905,20 +11800,41 @@
    "model": "SG_Craft"
   },
   {
+   "name": "SG_Craft_Shell__Metal_Brass",
+   "group": "16_CRAFT",
+   "obj": "SG_Craft_Shell",
+   "material": "Metal_Brass",
+   "tris": 2712,
+   "center_rbx": [
+    -728.323,
+    55.765,
+    488.958
+   ],
+   "size_rbx": [
+    35.338,
+    21.85,
+    38.707
+   ],
+   "owner": "craft",
+   "shadow": true,
+   "flags": "",
+   "model": "SG_Craft"
+  },
+  {
    "name": "SG_Craft_Shell__Metal_Gold",
    "group": "16_CRAFT",
    "obj": "SG_Craft_Shell",
    "material": "Metal_Gold",
-   "tris": 240,
+   "tris": 288,
    "center_rbx": [
-    -737.156,
-    55.67,
-    505.799
+    -737.209,
+    55.715,
+    505.838
    ],
    "size_rbx": [
-    14.144,
-    10.76,
-    7.898
+    14.295,
+    10.87,
+    8.077
    ],
    "owner": "craft",
    "shadow": false,
@@ -11930,16 +11846,16 @@
    "group": "16_CRAFT",
    "obj": "SG_Craft_Shell",
    "material": "Metal_SG_BlackIron",
-   "tris": 216,
+   "tris": 1112,
    "center_rbx": [
-    -730.008,
+    -728.225,
     53.22,
-    491.176
+    489.393
    ],
    "size_rbx": [
-    31.395,
+    34.961,
     16.24,
-    35.832
+    39.397
    ],
    "owner": "craft",
    "shadow": true,
@@ -11951,40 +11867,19 @@
    "group": "16_CRAFT",
    "obj": "SG_Craft_Shell",
    "material": "Metal_SG_Silver",
-   "tris": 1714,
+   "tris": 1470,
    "center_rbx": [
     -730.008,
-    64.798,
-    490.387
+    64.827,
+    490.35
    ],
    "size_rbx": [
     32.198,
-    14.403,
-    35.055
+    14.346,
+    34.982
    ],
    "owner": "craft",
    "shadow": true,
-   "flags": "",
-   "model": "SG_Craft"
-  },
-  {
-   "name": "SG_Craft_Shell__SG_Crystal_Glow",
-   "group": "16_CRAFT",
-   "obj": "SG_Craft_Shell",
-   "material": "SG_Crystal_Glow",
-   "tris": 440,
-   "center_rbx": [
-    -730.01,
-    46.374,
-    488.945
-   ],
-   "size_rbx": [
-    37.155,
-    3.952,
-    37.145
-   ],
-   "owner": "craft",
-   "shadow": false,
    "flags": "",
    "model": "SG_Craft"
   },
@@ -11993,37 +11888,16 @@
    "group": "16_CRAFT",
    "obj": "SG_Craft_Shell",
    "material": "SG_Rune_Glow",
-   "tris": 184,
+   "tris": 376,
    "center_rbx": [
-    -736.788,
-    58.248,
-    504.933
+    -736.696,
+    58.247,
+    504.895
    ],
    "size_rbx": [
-    12.462,
-    0.906,
-    5.346
-   ],
-   "owner": "craft",
-   "shadow": false,
-   "flags": "",
-   "model": "SG_Craft"
-  },
-  {
-   "name": "SG_Craft_Shell__SG_VioletDeep_Glow",
-   "group": "16_CRAFT",
-   "obj": "SG_Craft_Shell",
-   "material": "SG_VioletDeep_Glow",
-   "tris": 568,
-   "center_rbx": [
-    -730.008,
-    54.15,
-    489.834
-   ],
-   "size_rbx": [
-    32.0,
-    13.9,
-    33.752
+    12.281,
+    0.853,
+    5.264
    ],
    "owner": "craft",
    "shadow": false,
@@ -12035,16 +11909,16 @@
    "group": "16_CRAFT",
    "obj": "SG_Craft_Shell",
    "material": "Stone_SGCraftDark",
-   "tris": 394,
+   "tris": 484,
    "center_rbx": [
-    -730.008,
+    -728.158,
     56.75,
-    490.482
+    488.958
    ],
    "size_rbx": [
-    31.969,
+    34.667,
     25.7,
-    35.016
+    38.367
    ],
    "owner": "craft",
    "shadow": true,
@@ -12077,16 +11951,16 @@
    "group": "16_CRAFT",
    "obj": "SG_Craft_Shell",
    "material": "Stone_SG_Obsidian",
-   "tris": 1072,
+   "tris": 1088,
    "center_rbx": [
-    -730.008,
+    -728.676,
     53.0,
-    489.739
+    489.553
    ],
    "size_rbx": [
-    38.325,
+    36.403,
     18.4,
-    39.887
+    40.258
    ],
    "owner": "craft",
    "shadow": true,
@@ -12098,7 +11972,7 @@
    "group": "16_CRAFT",
    "obj": "SG_Craft_Shell",
    "material": "Stone_SG_Violet",
-   "tris": 2232,
+   "tris": 2348,
    "center_rbx": [
     -730.008,
     57.626,
@@ -12119,63 +11993,21 @@
    "group": "16_CRAFT",
    "obj": "SG_Craft_Shell",
    "material": "Window_Warm",
-   "tris": 168,
+   "tris": 336,
    "center_rbx": [
     -730.008,
     57.3,
-    481.932
+    487.199
    ],
    "size_rbx": [
     31.075,
     7.6,
-    17.023
+    27.558
    ],
    "owner": "craft",
    "shadow": false,
    "flags": "",
    "model": "SG_Craft"
-  },
-  {
-   "name": "SG_Dun_Approach_Floor__SG_Rune_Glow",
-   "group": "17_DUNGEON",
-   "obj": "SG_Dun_Approach_Floor",
-   "material": "SG_Rune_Glow",
-   "tris": 156,
-   "center_rbx": [
-    -830.592,
-    52.295,
-    435.236
-   ],
-   "size_rbx": [
-    4.067,
-    0.13,
-    6.973
-   ],
-   "owner": "dungeon",
-   "shadow": false,
-   "flags": "",
-   "model": "SG_Dun"
-  },
-  {
-   "name": "SG_Dun_Approach_Floor__SG_VioletDeep_Glow",
-   "group": "17_DUNGEON",
-   "obj": "SG_Dun_Approach_Floor",
-   "material": "SG_VioletDeep_Glow",
-   "tris": 24,
-   "center_rbx": [
-    -819.165,
-    52.29,
-    440.252
-   ],
-   "size_rbx": [
-    37.056,
-    0.12,
-    24.362
-   ],
-   "owner": "dungeon",
-   "shadow": false,
-   "flags": "",
-   "model": "SG_Dun"
   },
   {
    "name": "SG_Dun_Approach_Floor__Stone_SG_MarbleBlack",
@@ -12224,103 +12056,19 @@
    "group": "17_DUNGEON",
    "obj": "SG_Dun_Approach_Guard",
    "material": "Metal_SG_BlackIron",
-   "tris": 1344,
+   "tris": 2448,
    "center_rbx": [
-    -825.707,
-    56.919,
-    437.411
+    -824.8,
+    56.085,
+    438.132
    ],
    "size_rbx": [
-    22.378,
-    5.291,
-    33.356
+    25.348,
+    5.25,
+    35.165
    ],
    "owner": "dungeon",
    "shadow": true,
-   "flags": "",
-   "model": "SG_Dun"
-  },
-  {
-   "name": "SG_Dun_Approach_Guard__Metal_SG_Silver",
-   "group": "17_DUNGEON",
-   "obj": "SG_Dun_Approach_Guard",
-   "material": "Metal_SG_Silver",
-   "tris": 48,
-   "center_rbx": [
-    -821.673,
-    55.625,
-    439.942
-   ],
-   "size_rbx": [
-    19.54,
-    0.25,
-    31.991
-   ],
-   "owner": "dungeon",
-   "shadow": false,
-   "flags": "",
-   "model": "SG_Dun"
-  },
-  {
-   "name": "SG_Dun_Approach_Guard__SG_Crystal_Glow",
-   "group": "17_DUNGEON",
-   "obj": "SG_Dun_Approach_Guard",
-   "material": "SG_Crystal_Glow",
-   "tris": 96,
-   "center_rbx": [
-    -821.673,
-    57.75,
-    439.942
-   ],
-   "size_rbx": [
-    18.05,
-    3.6,
-    30.501
-   ],
-   "owner": "dungeon",
-   "shadow": false,
-   "flags": "",
-   "model": "SG_Dun"
-  },
-  {
-   "name": "SG_Dun_Approach_Guard__SG_Rune_Glow",
-   "group": "17_DUNGEON",
-   "obj": "SG_Dun_Approach_Guard",
-   "material": "SG_Rune_Glow",
-   "tris": 120,
-   "center_rbx": [
-    -821.656,
-    54.456,
-    439.928
-   ],
-   "size_rbx": [
-    16.555,
-    1.316,
-    27.451
-   ],
-   "owner": "dungeon",
-   "shadow": false,
-   "flags": "",
-   "model": "SG_Dun"
-  },
-  {
-   "name": "SG_Dun_Approach_Guard__SG_VioletDeep_Glow",
-   "group": "17_DUNGEON",
-   "obj": "SG_Dun_Approach_Guard",
-   "material": "SG_VioletDeep_Glow",
-   "tris": 48,
-   "center_rbx": [
-    -821.674,
-    53.41,
-    439.942
-   ],
-   "size_rbx": [
-    19.016,
-    0.22,
-    31.466
-   ],
-   "owner": "dungeon",
-   "shadow": false,
    "flags": "",
    "model": "SG_Dun"
   },
@@ -12350,16 +12098,58 @@
    "group": "17_DUNGEON",
    "obj": "SG_Dun_Approach_Guard",
    "material": "Stone_SG_Obsidian",
-   "tris": 160,
+   "tris": 248,
    "center_rbx": [
     -821.674,
-    54.075,
+    54.36,
     439.942
    ],
    "size_rbx": [
     19.934,
-    4.15,
+    4.72,
     32.384
+   ],
+   "owner": "dungeon",
+   "shadow": false,
+   "flags": "",
+   "model": "SG_Dun"
+  },
+  {
+   "name": "SG_Dun_Approach_Guard__Stone_SG_Trim",
+   "group": "17_DUNGEON",
+   "obj": "SG_Dun_Approach_Guard",
+   "material": "Stone_SG_Trim",
+   "tris": 80,
+   "center_rbx": [
+    -821.673,
+    55.66,
+    439.942
+   ],
+   "size_rbx": [
+    19.54,
+    0.32,
+    31.991
+   ],
+   "owner": "dungeon",
+   "shadow": false,
+   "flags": "",
+   "model": "SG_Dun"
+  },
+  {
+   "name": "SG_Dun_Cave_Body__Cliff_Rock_SG",
+   "group": "17_DUNGEON",
+   "obj": "SG_Dun_Cave_Body",
+   "material": "Cliff_Rock_SG",
+   "tris": 2617,
+   "center_rbx": [
+    -854.153,
+    76.612,
+    422.907
+   ],
+   "size_rbx": [
+    46.835,
+    61.239,
+    46.307
    ],
    "owner": "dungeon",
    "shadow": true,
@@ -12367,20 +12157,62 @@
    "model": "SG_Dun"
   },
   {
-   "name": "SG_Dun_Cave_Body__Cliff_Rock_SGDunBasalt",
+   "name": "SG_Dun_Cave_Body__Cliff_Rock_SG_B",
    "group": "17_DUNGEON",
    "obj": "SG_Dun_Cave_Body",
-   "material": "Cliff_Rock_SGDunBasalt",
-   "tris": 329,
+   "material": "Cliff_Rock_SG_B",
+   "tris": 1417,
    "center_rbx": [
-    -854.459,
-    71.2,
-    425.295
+    -853.941,
+    74.262,
+    422.668
    ],
    "size_rbx": [
-    46.129,
-    48.0,
-    39.484
+    46.544,
+    53.982,
+    44.966
+   ],
+   "owner": "dungeon",
+   "shadow": true,
+   "flags": "",
+   "model": "SG_Dun"
+  },
+  {
+   "name": "SG_Dun_Cave_Body__Cliff_Rock_SG_Dark",
+   "group": "17_DUNGEON",
+   "obj": "SG_Dun_Cave_Body",
+   "material": "Cliff_Rock_SG_Dark",
+   "tris": 3473,
+   "center_rbx": [
+    -853.833,
+    77.118,
+    423.178
+   ],
+   "size_rbx": [
+    45.564,
+    55.028,
+    45.15
+   ],
+   "owner": "dungeon",
+   "shadow": true,
+   "flags": "",
+   "model": "SG_Dun"
+  },
+  {
+   "name": "SG_Dun_Cave_Body__Cliff_Rock_SG_Top",
+   "group": "17_DUNGEON",
+   "obj": "SG_Dun_Cave_Body",
+   "material": "Cliff_Rock_SG_Top",
+   "tris": 1050,
+   "center_rbx": [
+    -853.789,
+    76.619,
+    423.154
+   ],
+   "size_rbx": [
+    45.623,
+    54.022,
+    45.194
    ],
    "owner": "dungeon",
    "shadow": true,
@@ -12392,16 +12224,16 @@
    "group": "17_DUNGEON",
    "obj": "SG_Dun_Cave_Body",
    "material": "Grass_SG",
-   "tris": 36,
+   "tris": 163,
    "center_rbx": [
-    -854.887,
-    88.746,
-    424.465
+    -853.108,
+    86.62,
+    424.265
    ],
    "size_rbx": [
-    42.2,
-    34.348,
-    37.975
+    44.115,
+    41.223,
+    42.272
    ],
    "owner": "dungeon",
    "shadow": false,
@@ -12409,65 +12241,23 @@
    "model": "SG_Dun"
   },
   {
-   "name": "SG_Dun_Cave_Body__SG_Crystal_Glow",
+   "name": "SG_Dun_Cave_Interior__Cliff_Rock_SG_Dark",
    "group": "17_DUNGEON",
-   "obj": "SG_Dun_Cave_Body",
-   "material": "SG_Crystal_Glow",
-   "tris": 480,
+   "obj": "SG_Dun_Cave_Interior",
+   "material": "Cliff_Rock_SG_Dark",
+   "tris": 478,
    "center_rbx": [
-    -842.446,
-    79.609,
-    424.639
+    -846.044,
+    64.325,
+    429.669
    ],
    "size_rbx": [
-    23.555,
-    13.35,
-    40.491
+    29.734,
+    25.05,
+    26.593
    ],
    "owner": "dungeon",
    "shadow": false,
-   "flags": "",
-   "model": "SG_Dun"
-  },
-  {
-   "name": "SG_Dun_Cave_Body__SG_VioletDeep_Glow",
-   "group": "17_DUNGEON",
-   "obj": "SG_Dun_Cave_Body",
-   "material": "SG_VioletDeep_Glow",
-   "tris": 1008,
-   "center_rbx": [
-    -853.5,
-    76.205,
-    424.649
-   ],
-   "size_rbx": [
-    42.339,
-    36.181,
-    40.775
-   ],
-   "owner": "dungeon",
-   "shadow": false,
-   "flags": "",
-   "model": "SG_Dun"
-  },
-  {
-   "name": "SG_Dun_Cave_Body__Stone_SG_Obsidian",
-   "group": "17_DUNGEON",
-   "obj": "SG_Dun_Cave_Body",
-   "material": "Stone_SG_Obsidian",
-   "tris": 705,
-   "center_rbx": [
-    -853.582,
-    76.56,
-    422.805
-   ],
-   "size_rbx": [
-    45.419,
-    58.72,
-    46.451
-   ],
-   "owner": "dungeon",
-   "shadow": true,
    "flags": "",
    "model": "SG_Dun"
   },
@@ -12478,14 +12268,14 @@
    "material": "SG_Crystal_Glow",
    "tris": 960,
    "center_rbx": [
-    -846.719,
-    59.287,
-    429.474
+    -848.958,
+    59.111,
+    428.771
    ],
    "size_rbx": [
-    21.31,
-    15.437,
-    23.829
+    18.362,
+    15.118,
+    22.424
    ],
    "owner": "dungeon",
    "shadow": false,
@@ -12497,16 +12287,16 @@
    "group": "17_DUNGEON",
    "obj": "SG_Dun_Cave_Interior",
    "material": "SG_VioletDeep_Glow",
-   "tris": 24,
+   "tris": 276,
    "center_rbx": [
-    -841.671,
-    52.275,
-    430.7
+    -846.496,
+    59.046,
+    427.964
    ],
    "size_rbx": [
-    16.897,
-    0.15,
-    15.805
+    23.602,
+    13.692,
+    20.026
    ],
    "owner": "dungeon",
    "shadow": false,
@@ -12518,16 +12308,37 @@
    "group": "17_DUNGEON",
    "obj": "SG_Dun_Cave_Interior",
    "material": "Stone_SGDunCaveDeep",
-   "tris": 222,
+   "tris": 198,
    "center_rbx": [
-    -851.609,
-    61.841,
-    426.817
+    -851.713,
+    61.52,
+    426.732
    ],
    "size_rbx": [
-    20.343,
-    20.082,
-    21.381
+    20.134,
+    19.441,
+    21.209
+   ],
+   "owner": "dungeon",
+   "shadow": false,
+   "flags": "",
+   "model": "SG_Dun"
+  },
+  {
+   "name": "SG_Dun_Cave_Interior__Stone_SG_Castle",
+   "group": "17_DUNGEON",
+   "obj": "SG_Dun_Cave_Interior",
+   "material": "Stone_SG_Castle",
+   "tris": 360,
+   "center_rbx": [
+    -838.634,
+    57.16,
+    432.341
+   ],
+   "size_rbx": [
+    13.425,
+    10.12,
+    19.938
    ],
    "owner": "dungeon",
    "shadow": false,
@@ -12560,16 +12371,16 @@
    "group": "17_DUNGEON",
    "obj": "SG_Dun_Cave_Interior",
    "material": "Stone_SG_Obsidian",
-   "tris": 690,
+   "tris": 236,
    "center_rbx": [
-    -846.041,
-    63.775,
-    429.027
+    -846.136,
+    58.761,
+    428.805
    ],
    "size_rbx": [
-    29.784,
-    26.246,
-    27.92
+    29.17,
+    15.858,
+    27.475
    ],
    "owner": "dungeon",
    "shadow": false,
@@ -12581,16 +12392,16 @@
    "group": "17_DUNGEON",
    "obj": "SG_Dun_Cave_Mouth",
    "material": "Metal_SG_BlackIron",
-   "tris": 20,
+   "tris": 176,
    "center_rbx": [
-    -829.958,
-    81.225,
-    435.671
+    -833.709,
+    75.624,
+    434.079
    ],
    "size_rbx": [
-    0.526,
-    0.941,
-    0.371
+    1.311,
+    1.952,
+    1.311
    ],
    "owner": "dungeon",
    "shadow": false,
@@ -12602,16 +12413,16 @@
    "group": "17_DUNGEON",
    "obj": "SG_Dun_Cave_Mouth",
    "material": "Metal_SG_Silver",
-   "tris": 12,
+   "tris": 538,
    "center_rbx": [
-    -830.947,
-    82.6,
-    435.251
+    -832.26,
+    77.125,
+    434.912
    ],
    "size_rbx": [
-    0.921,
-    1.1,
-    0.921
+    3.909,
+    5.904,
+    2.757
    ],
    "owner": "dungeon",
    "shadow": false,
@@ -12623,16 +12434,16 @@
    "group": "17_DUNGEON",
    "obj": "SG_Dun_Cave_Mouth",
    "material": "SG_Rune_Glow",
-   "tris": 240,
+   "tris": 188,
    "center_rbx": [
-    -831.694,
-    67.99,
-    434.913
+    -830.79,
+    78.848,
+    435.187
    ],
    "size_rbx": [
-    9.242,
-    26.6,
-    21.562
+    0.583,
+    1.475,
+    1.178
    ],
    "owner": "dungeon",
    "shadow": false,
@@ -12640,41 +12451,20 @@
    "model": "SG_Dun"
   },
   {
-   "name": "SG_Dun_Cave_Mouth__SG_VioletDeep_Glow",
+   "name": "SG_Dun_Cave_Mouth__Stone_SG_Castle_B",
    "group": "17_DUNGEON",
    "obj": "SG_Dun_Cave_Mouth",
-   "material": "SG_VioletDeep_Glow",
-   "tris": 648,
+   "material": "Stone_SG_Castle_B",
+   "tris": 356,
    "center_rbx": [
-    -831.72,
-    67.56,
-    434.923
+    -833.686,
+    65.864,
+    434.089
    ],
    "size_rbx": [
-    9.898,
-    30.051,
-    23.071
-   ],
-   "owner": "dungeon",
-   "shadow": false,
-   "flags": "",
-   "model": "SG_Dun"
-  },
-  {
-   "name": "SG_Dun_Cave_Mouth__Stone_SGDunVault",
-   "group": "17_DUNGEON",
-   "obj": "SG_Dun_Cave_Mouth",
-   "material": "Stone_SGDunVault",
-   "tris": 80,
-   "center_rbx": [
-    -833.847,
-    57.815,
-    434.021
-   ],
-   "size_rbx": [
-    14.066,
-    7.129,
-    25.139
+    15.468,
+    27.929,
+    27.82
    ],
    "owner": "dungeon",
    "shadow": false,
@@ -12686,16 +12476,16 @@
    "group": "17_DUNGEON",
    "obj": "SG_Dun_Cave_Mouth",
    "material": "Stone_SG_Obsidian",
-   "tris": 164,
+   "tris": 744,
    "center_rbx": [
-    -833.737,
-    67.15,
-    433.942
+    -833.64,
+    66.45,
+    434.109
    ],
    "size_rbx": [
-    15.223,
-    30.5,
-    27.192
+    15.574,
+    29.1,
+    27.893
    ],
    "owner": "dungeon",
    "shadow": true,
@@ -12707,19 +12497,19 @@
    "group": "17_DUNGEON",
    "obj": "SG_Dun_Cave_Mouth",
    "material": "Stone_SG_Violet",
-   "tris": 264,
+   "tris": 168,
    "center_rbx": [
-    -833.907,
-    67.496,
+    -833.847,
+    70.811,
     434.021
    ],
    "size_rbx": [
-    14.422,
-    31.191,
-    25.692
+    14.17,
+    15.305,
+    25.383
    ],
    "owner": "dungeon",
-   "shadow": true,
+   "shadow": false,
    "flags": "",
    "model": "SG_Dun"
   },
@@ -12728,16 +12518,16 @@
    "group": "17_DUNGEON",
    "obj": "SG_Dun_Cave_Pillars",
    "material": "Cloth_SG_Purple",
-   "tris": 32,
+   "tris": 44,
    "center_rbx": [
-    -830.855,
-    66.45,
-    435.29
+    -836.943,
+    66.635,
+    449.545
    ],
    "size_rbx": [
-    13.487,
-    10.4,
-    31.383
+    1.577,
+    10.77,
+    2.933
    ],
    "owner": "dungeon",
    "shadow": false,
@@ -12757,7 +12547,7 @@
    ],
    "size_rbx": [
     34.619,
-    1.7,
+    1.74,
     28.844
    ],
    "owner": "dungeon",
@@ -12770,16 +12560,16 @@
    "group": "17_DUNGEON",
    "obj": "SG_Dun_Cave_Pillars",
    "material": "Metal_Gold",
-   "tris": 384,
+   "tris": 420,
    "center_rbx": [
-    -818.75,
-    63.03,
-    436.749
+    -818.71,
+    63.08,
+    439.183
    ],
    "size_rbx": [
-    37.698,
-    17.24,
-    34.302
+    37.877,
+    17.34,
+    29.693
    ],
    "owner": "dungeon",
    "shadow": true,
@@ -12791,16 +12581,16 @@
    "group": "17_DUNGEON",
    "obj": "SG_Dun_Cave_Pillars",
    "material": "Metal_SG_BlackIron",
-   "tris": 24,
+   "tris": 28,
    "center_rbx": [
-    -830.901,
+    -836.957,
     71.8,
-    435.271
+    449.539
    ],
    "size_rbx": [
-    13.932,
+    1.703,
     0.28,
-    32.327
+    3.515
    ],
    "owner": "dungeon",
    "shadow": false,
@@ -12812,16 +12602,16 @@
    "group": "17_DUNGEON",
    "obj": "SG_Dun_Cave_Pillars",
    "material": "Metal_SG_Silver",
-   "tris": 1356,
+   "tris": 650,
    "center_rbx": [
-    -819.606,
-    65.598,
-    436.483
+    -818.831,
+    63.1,
+    439.183
    ],
    "size_rbx": [
-    39.673,
-    22.795,
-    35.096
+    38.122,
+    17.8,
+    29.696
    ],
    "owner": "dungeon",
    "shadow": true,
@@ -12833,37 +12623,16 @@
    "group": "17_DUNGEON",
    "obj": "SG_Dun_Cave_Pillars",
    "material": "SG_Rune_Glow",
-   "tris": 184,
+   "tris": 188,
    "center_rbx": [
-    -830.666,
-    68.056,
-    435.37
+    -836.741,
+    68.054,
+    449.498
    ],
    "size_rbx": [
-    12.805,
-    1.598,
-    30.037
-   ],
-   "owner": "dungeon",
-   "shadow": false,
-   "flags": "",
-   "model": "SG_Dun"
-  },
-  {
-   "name": "SG_Dun_Cave_Pillars__SG_VioletDeep_Glow",
-   "group": "17_DUNGEON",
-   "obj": "SG_Dun_Cave_Pillars",
-   "material": "SG_VioletDeep_Glow",
-   "tris": 96,
-   "center_rbx": [
-    -832.202,
-    68.0,
-    434.799
-   ],
-   "size_rbx": [
-    15.033,
-    26.8,
-    31.049
+    0.556,
+    1.506,
+    1.188
    ],
    "owner": "dungeon",
    "shadow": false,
@@ -12875,16 +12644,16 @@
    "group": "17_DUNGEON",
    "obj": "SG_Dun_Cave_Pillars",
    "material": "Stone_SGDunVault",
-   "tris": 320,
+   "tris": 324,
    "center_rbx": [
-    -832.696,
-    63.95,
-    434.509
+    -829.501,
+    63.115,
+    432.334
    ],
    "size_rbx": [
-    16.308,
-    20.1,
-    32.732
+    22.699,
+    21.77,
+    37.082
    ],
    "owner": "dungeon",
    "shadow": true,
@@ -12896,19 +12665,40 @@
    "group": "17_DUNGEON",
    "obj": "SG_Dun_Cave_Pillars",
    "material": "Stone_SG_Obsidian",
-   "tris": 640,
+   "tris": 440,
    "center_rbx": [
     -820.572,
     64.3,
-    435.825
+    435.003
    ],
    "size_rbx": [
     41.867,
     24.8,
-    36.675
+    38.318
    ],
    "owner": "dungeon",
    "shadow": true,
+   "flags": "",
+   "model": "SG_Dun"
+  },
+  {
+   "name": "SG_Dun_Cave_Pillars__Stone_SG_Trim",
+   "group": "17_DUNGEON",
+   "obj": "SG_Dun_Cave_Pillars",
+   "material": "Stone_SG_Trim",
+   "tris": 32,
+   "center_rbx": [
+    -838.752,
+    77.6,
+    448.777
+   ],
+   "size_rbx": [
+    1.626,
+    1.8,
+    1.626
+   ],
+   "owner": "dungeon",
+   "shadow": false,
    "flags": "",
    "model": "SG_Dun"
   },
@@ -12940,14 +12730,14 @@
    "material": "Leaf_SGVegShade",
    "tris": 336,
    "center_rbx": [
-    -857.365,
-    84.369,
-    422.552
+    -856.261,
+    85.031,
+    423.657
    ],
    "size_rbx": [
-    39.101,
-    26.792,
-    35.204
+    41.311,
+    26.655,
+    37.413
    ],
    "owner": "dungeon",
    "shadow": false,
@@ -12961,14 +12751,14 @@
    "material": "Leaf_SG_Pine",
    "tris": 532,
    "center_rbx": [
-    -857.365,
-    85.323,
-    422.552
+    -856.261,
+    85.984,
+    423.657
    ],
    "size_rbx": [
-    39.101,
-    28.699,
-    35.204
+    41.311,
+    28.562,
+    37.413
    ],
    "owner": "dungeon",
    "shadow": false,
@@ -12982,14 +12772,14 @@
    "material": "Wood_SG_Dark",
    "tris": 70,
    "center_rbx": [
-    -857.085,
-    82.793,
-    422.765
+    -855.98,
+    83.455,
+    423.869
    ],
    "size_rbx": [
-    35.423,
-    24.615,
-    31.125
+    37.632,
+    24.478,
+    33.334
    ],
    "owner": "dungeon",
    "shadow": true,
@@ -13274,16 +13064,16 @@
    "group": "17_DUNGEON",
    "obj": "SG_Dun_Rooms_Kit",
    "material": "Metal_SG_Silver",
-   "tris": 2376,
+   "tris": 2072,
    "center_rbx": [
     -894.825,
-    21.628,
+    21.609,
     518.946
    ],
    "size_rbx": [
-    21.576,
-    2.535,
-    46.78
+    21.425,
+    2.449,
+    46.548
    ],
    "owner": "dungeon",
    "shadow": true,
@@ -13295,16 +13085,16 @@
    "group": "17_DUNGEON",
    "obj": "SG_Dun_Rooms_Kit",
    "material": "SG_Rune_Glow",
-   "tris": 368,
+   "tris": 752,
    "center_rbx": [
     -894.825,
-    21.5,
+    21.498,
     518.946
    ],
    "size_rbx": [
-    20.916,
-    1.702,
-    46.254
+    20.314,
+    1.604,
+    46.145
    ],
    "owner": "dungeon",
    "shadow": false,
@@ -13379,16 +13169,16 @@
    "group": "17_DUNGEON",
    "obj": "SG_Dun_Rooms_Kit",
    "material": "Stone_SG_Obsidian",
-   "tris": 832,
+   "tris": 1120,
    "center_rbx": [
     -894.825,
     21.5,
     518.946
    ],
    "size_rbx": [
-    21.8,
+    21.735,
     2.8,
-    46.383
+    46.318
    ],
    "owner": "dungeon",
    "shadow": true,
@@ -13753,40 +13543,19 @@
    "model": "SG_Ent"
   },
   {
-   "name": "SG_Ent_Parapets__Cloth_SG_Purple",
-   "group": "18_ENTRY",
-   "obj": "SG_Ent_Parapets",
-   "material": "Cloth_SG_Purple",
-   "tris": 32,
-   "center_rbx": [
-    -592.887,
-    38.445,
-    644.929
-   ],
-   "size_rbx": [
-    8.72,
-    8.0,
-    20.153
-   ],
-   "owner": "entry",
-   "shadow": false,
-   "flags": "",
-   "model": "SG_Ent"
-  },
-  {
    "name": "SG_Ent_Parapets__Lantern_Glow",
    "group": "18_ENTRY",
    "obj": "SG_Ent_Parapets",
    "material": "Lantern_Glow",
-   "tris": 312,
+   "tris": 288,
    "center_rbx": [
     -626.318,
-    36.911,
+    36.719,
     629.608
    ],
    "size_rbx": [
     95.489,
-    10.328,
+    9.979,
     57.957
    ],
    "owner": "entry",
@@ -13799,40 +13568,19 @@
    "group": "18_ENTRY",
    "obj": "SG_Ent_Parapets",
    "material": "Metal_Gold",
-   "tris": 2256,
+   "tris": 2304,
    "center_rbx": [
     -626.318,
-    37.423,
+    37.106,
     629.608
    ],
    "size_rbx": [
-    95.99,
-    11.845,
-    58.459
+    96.21,
+    11.211,
+    58.678
    ],
    "owner": "entry",
    "shadow": true,
-   "flags": "",
-   "model": "SG_Ent"
-  },
-  {
-   "name": "SG_Ent_Parapets__Metal_SG_BlackIron",
-   "group": "18_ENTRY",
-   "obj": "SG_Ent_Parapets",
-   "material": "Metal_SG_BlackIron",
-   "tris": 80,
-   "center_rbx": [
-    -592.933,
-    37.395,
-    644.909
-   ],
-   "size_rbx": [
-    9.166,
-    12.4,
-    21.097
-   ],
-   "owner": "entry",
-   "shadow": false,
    "flags": "",
    "model": "SG_Ent"
   },
@@ -13841,40 +13589,19 @@
    "group": "18_ENTRY",
    "obj": "SG_Ent_Parapets",
    "material": "Metal_SG_Silver",
-   "tris": 1400,
+   "tris": 144,
    "center_rbx": [
     -626.575,
-    38.37,
+    36.015,
     629.498
    ],
    "size_rbx": [
-    86.53,
-    12.55,
-    54.636
+    86.307,
+    8.24,
+    54.413
    ],
    "owner": "entry",
    "shadow": true,
-   "flags": "",
-   "model": "SG_Ent"
-  },
-  {
-   "name": "SG_Ent_Parapets__SG_Rune_Glow",
-   "group": "18_ENTRY",
-   "obj": "SG_Ent_Parapets",
-   "material": "SG_Rune_Glow",
-   "tris": 184,
-   "center_rbx": [
-    -592.699,
-    39.715,
-    645.009
-   ],
-   "size_rbx": [
-    8.112,
-    1.385,
-    18.978
-   ],
-   "owner": "entry",
-   "shadow": false,
    "flags": "",
    "model": "SG_Ent"
   },
@@ -13883,16 +13610,16 @@
    "group": "18_ENTRY",
    "obj": "SG_Ent_Parapets",
    "material": "Stone_SG_Castle",
-   "tris": 448,
+   "tris": 372,
    "center_rbx": [
-    -624.918,
-    32.675,
-    630.202
+    -624.884,
+    32.925,
+    634.951
    ],
    "size_rbx": [
-    99.353,
-    11.95,
-    60.072
+    99.284,
+    12.45,
+    50.574
    ],
    "owner": "entry",
    "shadow": true,
@@ -13904,16 +13631,16 @@
    "group": "18_ENTRY",
    "obj": "SG_Ent_Parapets",
    "material": "Stone_SG_Castle_B",
-   "tris": 320,
+   "tris": 292,
    "center_rbx": [
-    -614.89,
-    33.5,
-    634.759
+    -626.352,
+    32.925,
+    630.141
    ],
    "size_rbx": [
-    73.561,
-    11.3,
-    50.715
+    96.486,
+    12.45,
+    59.951
    ],
    "owner": "entry",
    "shadow": true,
@@ -13925,15 +13652,15 @@
    "group": "18_ENTRY",
    "obj": "SG_Ent_Parapets",
    "material": "Stone_SG_Obsidian",
-   "tris": 1064,
+   "tris": 768,
    "center_rbx": [
     -626.318,
-    35.698,
+    34.6,
     629.608
    ],
    "size_rbx": [
     96.154,
-    12.995,
+    10.8,
     58.622
    ],
    "owner": "entry",
@@ -13946,7 +13673,7 @@
    "group": "18_ENTRY",
    "obj": "SG_Ent_Parapets",
    "material": "Stone_SG_Trim",
-   "tris": 800,
+   "tris": 720,
    "center_rbx": [
     -624.918,
     34.722,
@@ -13967,16 +13694,16 @@
    "group": "18_ENTRY",
    "obj": "SG_Ent_Porticos",
    "material": "Cloth_SG_Purple",
-   "tris": 64,
+   "tris": 176,
    "center_rbx": [
-    -637.899,
-    49.65,
-    625.579
+    -637.931,
+    49.835,
+    625.565
    ],
    "size_rbx": [
-    46.755,
-    23.0,
-    39.353
+    46.957,
+    23.37,
+    39.439
    ],
    "owner": "entry",
    "shadow": true,
@@ -14009,16 +13736,16 @@
    "group": "18_ENTRY",
    "obj": "SG_Ent_Porticos",
    "material": "Metal_Gold",
-   "tris": 96,
+   "tris": 144,
    "center_rbx": [
-    -637.871,
-    50.37,
-    625.591
+    -637.917,
+    49.7,
+    625.571
    ],
    "size_rbx": [
-    46.81,
-    21.56,
-    39.377
+    46.819,
+    23.1,
+    39.381
    ],
    "owner": "entry",
    "shadow": true,
@@ -14030,16 +13757,16 @@
    "group": "18_ENTRY",
    "obj": "SG_Ent_Porticos",
    "material": "Metal_SG_Iron",
-   "tris": 432,
+   "tris": 496,
    "center_rbx": [
     -637.569,
     46.37,
-    625.559
+    625.524
    ],
    "size_rbx": [
     48.665,
     30.14,
-    40.297
+    40.091
    ],
    "owner": "entry",
    "shadow": true,
@@ -14051,7 +13778,7 @@
    "group": "18_ENTRY",
    "obj": "SG_Ent_Porticos",
    "material": "Metal_SG_Silver",
-   "tris": 3948,
+   "tris": 3668,
    "center_rbx": [
     -638.675,
     55.15,
@@ -14060,7 +13787,7 @@
    "size_rbx": [
     49.269,
     43.3,
-    40.641
+    40.666
    ],
    "owner": "entry",
    "shadow": true,
@@ -14093,16 +13820,16 @@
    "group": "18_ENTRY",
    "obj": "SG_Ent_Porticos",
    "material": "SG_Rune_Glow",
-   "tris": 552,
+   "tris": 1128,
    "center_rbx": [
-    -637.678,
-    52.512,
-    625.734
+    -637.69,
+    52.51,
+    625.614
    ],
    "size_rbx": [
-    46.083,
-    18.288,
-    38.028
+    45.936,
+    18.209,
+    37.746
    ],
    "owner": "entry",
    "shadow": false,
@@ -14156,15 +13883,15 @@
    "group": "18_ENTRY",
    "obj": "SG_Ent_Porticos",
    "material": "Stone_SG_Obsidian",
-   "tris": 940,
+   "tris": 988,
    "center_rbx": [
-    -638.883,
-    52.838,
-    625.587
+    -638.902,
+    52.69,
+    625.571
    ],
    "size_rbx": [
-    48.805,
-    18.624,
+    48.768,
+    18.919,
     39.387
    ],
    "owner": "entry",
@@ -14258,20 +13985,6 @@
   }
  ],
  "materials": {
-  "Bark": {
-   "color": [
-    120,
-    98,
-    76
-   ],
-   "material": "Wood",
-   "transparency": 0.0,
-   "shadow": true,
-   "family": "Bark",
-   "tex": "wood",
-   "swirl": null,
-   "meshes": 2
-  },
   "Cliff_Rock_SG": {
    "color": [
     66,
@@ -14284,21 +13997,7 @@
    "family": "Cliff_Rock_SG",
    "tex": "rock",
    "swirl": null,
-   "meshes": 7
-  },
-  "Cliff_Rock_SGDunBasalt": {
-   "color": [
-    32,
-    24,
-    58
-   ],
-   "material": "Slate",
-   "transparency": 0.0,
-   "shadow": true,
-   "family": "Cliff_Rock_SGDunBasalt",
-   "tex": "rock",
-   "swirl": null,
-   "meshes": 1
+   "meshes": 8
   },
   "Cliff_Rock_SG_B": {
    "color": [
@@ -14312,7 +14011,7 @@
    "family": "Cliff_Rock_SG",
    "tex": "rock",
    "swirl": null,
-   "meshes": 8
+   "meshes": 9
   },
   "Cliff_Rock_SG_C": {
    "color": [
@@ -14340,7 +14039,7 @@
    "family": "Cliff_Rock_SG_Dark",
    "tex": "rock",
    "swirl": null,
-   "meshes": 28
+   "meshes": 26
   },
   "Cliff_Rock_SG_Top": {
    "color": [
@@ -14354,7 +14053,7 @@
    "family": "Cliff_Rock_SG_Top",
    "tex": "rock",
    "swirl": null,
-   "meshes": 11
+   "meshes": 12
   },
   "Cloth_Canvas": {
    "color": [
@@ -14372,14 +14071,42 @@
   },
   "Cloth_SGCraftBook": {
    "color": [
-    96,
-    58,
-    56
+    98,
+    42,
+    52
    ],
    "material": "Fabric",
    "transparency": 0.0,
    "shadow": true,
    "family": "Cloth_SGCraftBook",
+   "tex": null,
+   "swirl": null,
+   "meshes": 1
+  },
+  "Cloth_SGCraftBookBrown": {
+   "color": [
+    96,
+    64,
+    44
+   ],
+   "material": "Fabric",
+   "transparency": 0.0,
+   "shadow": true,
+   "family": "Cloth_SGCraftBookBrown",
+   "tex": null,
+   "swirl": null,
+   "meshes": 1
+  },
+  "Cloth_SGCraftBookInk": {
+   "color": [
+    38,
+    36,
+    46
+   ],
+   "material": "Fabric",
+   "transparency": 0.0,
+   "shadow": true,
+   "family": "Cloth_SGCraftBookInk",
    "tex": null,
    "swirl": null,
    "meshes": 1
@@ -14410,7 +14137,7 @@
    "family": "Cloth_SG_Purple",
    "tex": null,
    "swirl": null,
-   "meshes": 15
+   "meshes": 12
   },
   "Dirt_SG": {
    "color": [
@@ -14424,7 +14151,7 @@
    "family": "Dirt_SG",
    "tex": "dirt",
    "swirl": null,
-   "meshes": 2
+   "meshes": 1
   },
   "Energy_Core_DemonSlayer_Glow": {
    "color": [
@@ -14470,9 +14197,9 @@
   },
   "Glass_SGCraftPale": {
    "color": [
-    92,
-    104,
-    132
+    150,
+    162,
+    186
    ],
    "material": "Glass",
    "transparency": 0.3,
@@ -14480,7 +14207,7 @@
    "family": "Glass_SGCraftPale",
    "tex": null,
    "swirl": null,
-   "meshes": 1
+   "meshes": 2
   },
   "Glass_SGCraftSage": {
    "color": [
@@ -14508,7 +14235,7 @@
    "family": "Glass_SGHallMoon",
    "tex": null,
    "swirl": null,
-   "meshes": 3
+   "meshes": 2
   },
   "Glass_SGHallViolet": {
    "color": [
@@ -14564,7 +14291,7 @@
    "family": "Lantern_Glow",
    "tex": null,
    "swirl": null,
-   "meshes": 20
+   "meshes": 21
   },
   "Leaf_GateDS_Wisteria": {
    "color": [
@@ -14592,7 +14319,7 @@
    "family": "Leaf_SGPropBloom",
    "tex": null,
    "swirl": null,
-   "meshes": 3
+   "meshes": 4
   },
   "Leaf_SGVegMoon": {
    "color": [
@@ -14634,21 +14361,7 @@
    "family": "Leaf_SG_Pine",
    "tex": null,
    "swirl": null,
-   "meshes": 16
-  },
-  "Leather": {
-   "color": [
-    149,
-    111,
-    80
-   ],
-   "material": "Fabric",
-   "transparency": 0.0,
-   "shadow": true,
-   "family": "Leather",
-   "tex": null,
-   "swirl": null,
-   "meshes": 1
+   "meshes": 14
   },
   "Metal_Brass": {
    "color": [
@@ -14662,7 +14375,7 @@
    "family": "Metal_Brass",
    "tex": null,
    "swirl": null,
-   "meshes": 1
+   "meshes": 2
   },
   "Metal_Dark": {
    "color": [
@@ -14704,13 +14417,13 @@
    "family": "Metal_Gold",
    "tex": null,
    "swirl": null,
-   "meshes": 24
+   "meshes": 26
   },
   "Metal_SG_BlackIron": {
    "color": [
-    26,
-    24,
-    34
+    40,
+    38,
+    46
    ],
    "material": "Metal",
    "transparency": 0.0,
@@ -14718,7 +14431,7 @@
    "family": "Metal_SG_BlackIron",
    "tex": null,
    "swirl": null,
-   "meshes": 23
+   "meshes": 26
   },
   "Metal_SG_Iron": {
    "color": [
@@ -14746,7 +14459,7 @@
    "family": "Metal_SG_Silver",
    "tex": null,
    "swirl": null,
-   "meshes": 44
+   "meshes": 45
   },
   "P_DS_Black": {
    "color": [
@@ -14790,6 +14503,20 @@
    "swirl": null,
    "meshes": 1
   },
+  "Plaster_SG": {
+   "color": [
+    150,
+    142,
+    132
+   ],
+   "material": "SmoothPlastic",
+   "transparency": 0.0,
+   "shadow": true,
+   "family": "Plaster_SG",
+   "tex": "plaster",
+   "swirl": null,
+   "meshes": 1
+  },
   "Plaster_SGVil": {
    "color": [
     96,
@@ -14820,9 +14547,9 @@
   },
   "Roof_SG_Navy": {
    "color": [
-    28,
-    22,
-    44
+    40,
+    34,
+    62
    ],
    "material": "SmoothPlastic",
    "transparency": 0.0,
@@ -14834,9 +14561,9 @@
   },
   "Roof_SG_Slate": {
    "color": [
-    34,
-    34,
-    46
+    46,
+    48,
+    62
    ],
    "material": "SmoothPlastic",
    "transparency": 0.0,
@@ -14858,7 +14585,7 @@
    "family": "SG_Crystal_Glow",
    "tex": null,
    "swirl": null,
-   "meshes": 7
+   "meshes": 4
   },
   "SG_DunVoid_Glow": {
    "color": [
@@ -14900,13 +14627,13 @@
    "family": "SG_Rune_Glow",
    "tex": null,
    "swirl": null,
-   "meshes": 27
+   "meshes": 18
   },
   "SG_SumPortal_Glow": {
    "color": [
-    78,
-    58,
-    206
+    70,
+    54,
+    166
    ],
    "material": "Neon",
    "transparency": 0.0,
@@ -14918,9 +14645,9 @@
   },
   "SG_SumStar_Glow": {
    "color": [
-    228,
-    208,
-    255
+    206,
+    180,
+    250
    ],
    "material": "Neon",
    "transparency": 0.0,
@@ -14942,7 +14669,21 @@
    "family": "SG_VioletDeep_Glow",
    "tex": null,
    "swirl": null,
-   "meshes": 25
+   "meshes": 8
+  },
+  "SG_VioletSoft_Glow": {
+   "color": [
+    84,
+    52,
+    140
+   ],
+   "material": "Neon",
+   "transparency": 0.0,
+   "shadow": false,
+   "family": "SG_VioletSoft_Glow",
+   "tex": null,
+   "swirl": null,
+   "meshes": 12
   },
   "SG_Violet_Glow": {
    "color": [
@@ -14956,7 +14697,7 @@
    "family": "SG_Violet_Glow",
    "tex": null,
    "swirl": null,
-   "meshes": 8
+   "meshes": 4
   },
   "SG_WaterMist_Glow": {
    "color": [
@@ -15054,7 +14795,7 @@
    "family": "Stone_SGDunVault",
    "tex": "stone",
    "swirl": null,
-   "meshes": 7
+   "meshes": 6
   },
   "Stone_SGHallNiche": {
    "color": [
@@ -15100,9 +14841,9 @@
   },
   "Stone_SG_Block": {
    "color": [
-    92,
-    96,
-    114
+    100,
+    100,
+    112
    ],
    "material": "SmoothPlastic",
    "transparency": 0.0,
@@ -15114,8 +14855,8 @@
   },
   "Stone_SG_Block_B": {
    "color": [
-    84,
-    88,
+    92,
+    92,
     104
    ],
    "material": "SmoothPlastic",
@@ -15128,9 +14869,9 @@
   },
   "Stone_SG_Castle": {
    "color": [
-    78,
-    82,
-    102
+    88,
+    88,
+    104
    ],
    "material": "SmoothPlastic",
    "transparency": 0.0,
@@ -15138,13 +14879,13 @@
    "family": "Stone_SG_Castle",
    "tex": "stone",
    "swirl": null,
-   "meshes": 17
+   "meshes": 18
   },
   "Stone_SG_Castle_B": {
    "color": [
-    70,
-    74,
-    94
+    80,
+    80,
+    96
    ],
    "material": "SmoothPlastic",
    "transparency": 0.0,
@@ -15152,7 +14893,7 @@
    "family": "Stone_SG_Castle",
    "tex": "stone",
    "swirl": null,
-   "meshes": 13
+   "meshes": 15
   },
   "Stone_SG_Floor": {
    "color": [
@@ -15170,9 +14911,9 @@
   },
   "Stone_SG_MarbleBlack": {
    "color": [
-    36,
-    32,
-    48
+    42,
+    38,
+    54
    ],
    "material": "SmoothPlastic",
    "transparency": 0.0,
@@ -15184,9 +14925,9 @@
   },
   "Stone_SG_Obsidian": {
    "color": [
-    22,
-    20,
-    30
+    30,
+    28,
+    40
    ],
    "material": "SmoothPlastic",
    "transparency": 0.0,
@@ -15194,13 +14935,13 @@
    "family": "Stone_SG_Obsidian",
    "tex": "stone",
    "swirl": null,
-   "meshes": 48
+   "meshes": 47
   },
   "Stone_SG_Trim": {
    "color": [
-    150,
-    154,
-    170
+    164,
+    160,
+    168
    ],
    "material": "SmoothPlastic",
    "transparency": 0.0,
@@ -15208,7 +14949,7 @@
    "family": "Stone_SG_Trim",
    "tex": "stone",
    "swirl": null,
-   "meshes": 37
+   "meshes": 40
   },
   "Stone_SG_Violet": {
    "color": [
@@ -15222,7 +14963,7 @@
    "family": "Stone_SG_Violet",
    "tex": "stone",
    "swirl": null,
-   "meshes": 19
+   "meshes": 17
   },
   "Stone_Wall_Dark": {
    "color": [
@@ -15324,8 +15065,8 @@
   },
   "Wood_SG_Dark": {
    "color": [
-    58,
-    44,
+    82,
+    56,
     40
    ],
    "material": "Wood",
@@ -15334,7 +15075,7 @@
    "family": "Wood_SG_Dark",
    "tex": "wood",
    "swirl": null,
-   "meshes": 20
+   "meshes": 23
   }
  },
  "textures": {
@@ -19427,7 +19168,7 @@
     -0.713
    ],
    "size": [
-    3.458,
+    3.46,
     1.34,
     9.64
    ],
@@ -19452,7 +19193,7 @@
     -0.508
    ],
    "size": [
-    3.458,
+    3.46,
     1.34,
     9.64
    ],
@@ -19477,7 +19218,7 @@
     -0.267
    ],
    "size": [
-    3.458,
+    3.46,
     1.34,
     9.64
    ],
@@ -19502,7 +19243,7 @@
     -0.009
    ],
    "size": [
-    3.458,
+    3.46,
     1.34,
     9.64
    ],
@@ -19527,7 +19268,7 @@
     0.713
    ],
    "size": [
-    3.458,
+    3.46,
     1.34,
     9.64
    ],
@@ -19552,7 +19293,7 @@
     0.508
    ],
    "size": [
-    3.458,
+    3.46,
     1.34,
     9.64
    ],
@@ -19577,7 +19318,7 @@
     0.267
    ],
    "size": [
-    3.458,
+    3.46,
     1.34,
     9.64
    ],
@@ -19602,7 +19343,7 @@
     0.009
    ],
    "size": [
-    3.458,
+    3.46,
     1.34,
     9.64
    ],
@@ -19655,6 +19396,81 @@
     4.0,
     2.3,
     3.28
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_SG_CraftTank_001",
+   "kind": "Block",
+   "pos": [
+    -737.294,
+    47.2,
+    470.924
+   ],
+   "x": [
+    0.927,
+    0.0,
+    -0.375
+   ],
+   "y": [
+    -0.375,
+    0.0,
+    -0.927
+   ],
+   "size": [
+    2.8,
+    2.8,
+    6.6
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_SG_CraftTank_002",
+   "kind": "Block",
+   "pos": [
+    -722.721,
+    47.2,
+    506.991
+   ],
+   "x": [
+    -0.927,
+    0.0,
+    0.375
+   ],
+   "y": [
+    0.375,
+    0.0,
+    0.927
+   ],
+   "size": [
+    2.8,
+    2.8,
+    6.6
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_SG_CraftTank_003",
+   "kind": "Block",
+   "pos": [
+    -711.974,
+    47.2,
+    481.671
+   ],
+   "x": [
+    0.375,
+    0.0,
+    0.927
+   ],
+   "y": [
+    0.927,
+    0.0,
+    -0.375
+   ],
+   "size": [
+    2.8,
+    2.8,
+    6.6
    ],
    "cam": false
   },
@@ -20188,7 +20004,7 @@
    "kind": "Block",
    "pos": [
     -826.64,
-    64.05,
+    59.025,
     420.241
    ],
    "x": [
@@ -20204,12 +20020,87 @@
    "size": [
     4.2,
     4.2,
-    24.3
+    14.25
    ],
    "cam": false
   },
   {
    "name": "COL_SG_DunApproach_003",
+   "kind": "Block",
+   "pos": [
+    -820.949,
+    53.545,
+    418.094
+   ],
+   "x": [
+    -0.118,
+    0.0,
+    -0.993
+   ],
+   "y": [
+    -0.993,
+    0.0,
+    0.118
+   ],
+   "size": [
+    3.6,
+    3.6,
+    3.29
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_SG_DunApproach_004",
+   "kind": "Block",
+   "pos": [
+    -826.26,
+    53.724,
+    416.274
+   ],
+   "x": [
+    0.645,
+    0.0,
+    -0.764
+   ],
+   "y": [
+    -0.764,
+    0.0,
+    -0.645
+   ],
+   "size": [
+    2.88,
+    2.88,
+    3.649
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_SG_DunApproach_005",
+   "kind": "Block",
+   "pos": [
+    -819.27,
+    53.106,
+    421.305
+   ],
+   "x": [
+    -0.478,
+    0.0,
+    -0.878
+   ],
+   "y": [
+    -0.878,
+    0.0,
+    0.478
+   ],
+   "size": [
+    2.07,
+    1.08,
+    2.412
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_SG_DunApproach_006",
    "kind": "Block",
    "pos": [
     -834.126,
@@ -20234,7 +20125,7 @@
    "cam": false
   },
   {
-   "name": "COL_SG_DunApproach_004",
+   "name": "COL_SG_DunApproach_007",
    "kind": "Block",
    "pos": [
     -825.375,
@@ -20259,7 +20150,7 @@
    "cam": false
   },
   {
-   "name": "COL_SG_DunApproach_005",
+   "name": "COL_SG_DunApproach_008",
    "kind": "Block",
    "pos": [
     -805.963,
@@ -20284,7 +20175,7 @@
    "cam": false
   },
   {
-   "name": "COL_SG_DunApproach_006",
+   "name": "COL_SG_DunApproach_009",
    "kind": "Block",
    "pos": [
     -800.884,
@@ -20309,11 +20200,11 @@
    "cam": false
   },
   {
-   "name": "COL_SG_DunApproach_007",
+   "name": "COL_SG_DunApproach_010",
    "kind": "Block",
    "pos": [
     -829.87,
-    55.45,
+    54.35,
     450.374
    ],
    "x": [
@@ -20329,16 +20220,16 @@
    "size": [
     2.7,
     2.7,
-    7.1
+    4.9
    ],
    "cam": false
   },
   {
-   "name": "COL_SG_DunApproach_008",
+   "name": "COL_SG_DunApproach_011",
    "kind": "Block",
    "pos": [
     -819.321,
-    55.45,
+    54.35,
     425.52
    ],
    "x": [
@@ -20354,16 +20245,16 @@
    "size": [
     2.7,
     2.7,
-    7.1
+    4.9
    ],
    "cam": false
   },
   {
-   "name": "COL_SG_DunApproach_009",
+   "name": "COL_SG_DunApproach_012",
    "kind": "Block",
    "pos": [
     -825.589,
-    55.45,
+    54.35,
     454.364
    ],
    "x": [
@@ -20379,16 +20270,16 @@
    "size": [
     2.7,
     2.7,
-    7.1
+    4.9
    ],
    "cam": false
   },
   {
-   "name": "COL_SG_DunApproach_010",
+   "name": "COL_SG_DunApproach_013",
    "kind": "Block",
    "pos": [
     -813.477,
-    55.45,
+    54.35,
     425.828
    ],
    "x": [
@@ -20404,7 +20295,7 @@
    "size": [
     2.7,
     2.7,
-    7.1
+    4.9
    ],
    "cam": false
   },
@@ -26577,8 +26468,8 @@
     -0.391
    ],
    "size": [
-    1.0,
-    1.0,
+    1.2,
+    1.2,
     9.0
    ],
    "cam": false
@@ -26602,8 +26493,8 @@
     -0.391
    ],
    "size": [
-    1.0,
-    1.0,
+    1.2,
+    1.2,
     9.0
    ],
    "cam": false
@@ -26627,8 +26518,8 @@
     -0.391
    ],
    "size": [
-    1.0,
-    1.0,
+    1.2,
+    1.2,
     9.0
    ],
    "cam": false
@@ -26652,8 +26543,8 @@
     -0.391
    ],
    "size": [
-    1.0,
-    1.0,
+    1.2,
+    1.2,
     9.0
    ],
    "cam": false
@@ -26955,56 +26846,6 @@
     1.9,
     1.9,
     3.6
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_SG_PropMast_001",
-   "kind": "Block",
-   "pos": [
-    -730.45,
-    43.2,
-    599.034
-   ],
-   "x": [
-    0.391,
-    0.0,
-    -0.921
-   ],
-   "y": [
-    -0.921,
-    0.0,
-    -0.391
-   ],
-   "size": [
-    1.2,
-    1.2,
-    14.0
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_SG_PropMast_002",
-   "kind": "Block",
-   "pos": [
-    -721.464,
-    43.2,
-    577.862
-   ],
-   "x": [
-    0.391,
-    0.0,
-    -0.921
-   ],
-   "y": [
-    -0.921,
-    0.0,
-    -0.391
-   ],
-   "size": [
-    1.2,
-    1.2,
-    14.0
    ],
    "cam": false
   },
@@ -32262,31 +32103,6 @@
    "name": "COL_SG_VegTrunk_020",
    "kind": "Block",
    "pos": [
-    -830.293,
-    47.7,
-    626.483
-   ],
-   "x": [
-    0.391,
-    0.0,
-    -0.921
-   ],
-   "y": [
-    -0.921,
-    0.0,
-    -0.391
-   ],
-   "size": [
-    1.455,
-    1.455,
-    7.0
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_SG_VegTrunk_021",
-   "kind": "Block",
-   "pos": [
     -810.119,
     47.7,
     586.037
@@ -32309,7 +32125,7 @@
    "cam": false
   },
   {
-   "name": "COL_SG_VegTrunk_022",
+   "name": "COL_SG_VegTrunk_021",
    "kind": "Block",
    "pos": [
     -809.764,
@@ -32334,82 +32150,7 @@
    "cam": false
   },
   {
-   "name": "COL_SG_VegTrunk_023",
-   "kind": "Block",
-   "pos": [
-    -766.825,
-    47.7,
-    603.603
-   ],
-   "x": [
-    0.391,
-    0.0,
-    -0.921
-   ],
-   "y": [
-    -0.921,
-    0.0,
-    -0.391
-   ],
-   "size": [
-    1.455,
-    1.455,
-    7.0
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_SG_VegTrunk_024",
-   "kind": "Block",
-   "pos": [
-    -750.6,
-    47.7,
-    554.816
-   ],
-   "x": [
-    0.391,
-    0.0,
-    -0.921
-   ],
-   "y": [
-    -0.921,
-    0.0,
-    -0.391
-   ],
-   "size": [
-    1.455,
-    1.455,
-    7.0
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_SG_VegTrunk_025",
-   "kind": "Block",
-   "pos": [
-    -745.99,
-    47.7,
-    555.893
-   ],
-   "x": [
-    0.391,
-    0.0,
-    -0.921
-   ],
-   "y": [
-    -0.921,
-    0.0,
-    -0.391
-   ],
-   "size": [
-    1.264,
-    1.264,
-    7.0
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_SG_VegTrunk_026",
+   "name": "COL_SG_VegTrunk_022",
    "kind": "Block",
    "pos": [
     -788.103,
@@ -32434,7 +32175,7 @@
    "cam": false
   },
   {
-   "name": "COL_SG_VegTrunk_027",
+   "name": "COL_SG_VegTrunk_023",
    "kind": "Block",
    "pos": [
     -782.587,
@@ -32459,32 +32200,7 @@
    "cam": false
   },
   {
-   "name": "COL_SG_VegTrunk_028",
-   "kind": "Block",
-   "pos": [
-    -727.986,
-    47.7,
-    519.685
-   ],
-   "x": [
-    0.391,
-    0.0,
-    -0.921
-   ],
-   "y": [
-    -0.921,
-    0.0,
-    -0.391
-   ],
-   "size": [
-    1.455,
-    1.455,
-    7.0
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_SG_VegTrunk_029",
+   "name": "COL_SG_VegTrunk_024",
    "kind": "Block",
    "pos": [
     -766.95,
@@ -32509,7 +32225,7 @@
    "cam": false
   },
   {
-   "name": "COL_SG_VegTrunk_030",
+   "name": "COL_SG_VegTrunk_025",
    "kind": "Block",
    "pos": [
     -766.813,
@@ -32534,7 +32250,7 @@
    "cam": false
   },
   {
-   "name": "COL_SG_VegTrunk_031",
+   "name": "COL_SG_VegTrunk_026",
    "kind": "Block",
    "pos": [
     -749.525,
@@ -32559,7 +32275,7 @@
    "cam": false
   },
   {
-   "name": "COL_SG_VegTrunk_032",
+   "name": "COL_SG_VegTrunk_027",
    "kind": "Block",
    "pos": [
     -753.222,
@@ -32584,7 +32300,7 @@
    "cam": false
   },
   {
-   "name": "COL_SG_VegTrunk_033",
+   "name": "COL_SG_VegTrunk_028",
    "kind": "Block",
    "pos": [
     -754.009,
@@ -32609,7 +32325,7 @@
    "cam": false
   },
   {
-   "name": "COL_SG_VegTrunk_034",
+   "name": "COL_SG_VegTrunk_029",
    "kind": "Block",
    "pos": [
     -710.429,
@@ -32634,7 +32350,7 @@
    "cam": false
   },
   {
-   "name": "COL_SG_VegTrunk_035",
+   "name": "COL_SG_VegTrunk_030",
    "kind": "Block",
    "pos": [
     -705.409,
@@ -32659,7 +32375,7 @@
    "cam": false
   },
   {
-   "name": "COL_SG_VegTrunk_036",
+   "name": "COL_SG_VegTrunk_031",
    "kind": "Block",
    "pos": [
     -792.209,
@@ -32680,56 +32396,6 @@
     2.137,
     2.137,
     7.0
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_SG_VilFountainPanel_001",
-   "kind": "Block",
-   "pos": [
-    -696.017,
-    37.4,
-    601.156
-   ],
-   "x": [
-    0.391,
-    0.0,
-    -0.921
-   ],
-   "y": [
-    -0.921,
-    0.0,
-    -0.391
-   ],
-   "size": [
-    2.2,
-    1.05,
-    2.4
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_SG_VilFountainPanel_002",
-   "kind": "Block",
-   "pos": [
-    -709.135,
-    37.4,
-    595.589
-   ],
-   "x": [
-    0.391,
-    0.0,
-    -0.921
-   ],
-   "y": [
-    -0.921,
-    0.0,
-    -0.391
-   ],
-   "size": [
-    2.2,
-    1.05,
-    2.4
    ],
    "cam": false
   },
@@ -37947,8 +37613,8 @@
     188,
     255
    ],
-   "range": 9.7,
-   "brightness": 0.5,
+   "range": 9.5,
+   "brightness": 0.49,
    "shadows": false,
    "night": false
   },
@@ -37992,17 +37658,17 @@
    "name": "L_SGDun_Approach",
    "type": "POINT",
    "pos": [
-    -822.755,
-    61.2,
-    438.729
+    -839.784,
+    59.2,
+    431.501
    ],
    "color": [
     206,
     166,
     255
    ],
-   "range": 20.0,
-   "brightness": 1.5,
+   "range": 19.1,
+   "brightness": 1.43,
    "shadows": false,
    "night": false
   },
@@ -38756,29 +38422,29 @@
  "budget": {
   "lines": [
    "ORCAMENTO por dono (tris / MeshParts; limite entre parenteses)",
-   "  castle            58098 (162000)    76 (195)",
-   "  craft             39994 (54000)    52 (66)",
-   "  dungeon           45126 (86000)    71 (108)",
-   "  entry             19180 (44000)    30 (60)",
-   "  exit              16450 (28000)    29 (42)",
+   "  castle            74858 (172000)    81 (205)",
+   "  craft             57302 (64000)    52 (78)",
+   "  dungeon           52880 (86000)    67 (108)",
+   "  entry             17740 (44000)    27 (60)",
+   "  exit              16738 (28000)    29 (42)",
    "  gate_ds            9720 (30000)    17 (40)",
-   "  hall              37674 (44000)    44 (55)",
-   "  props             19970 (70000)    46 (110)",
-   "  summon            21350 (42000)    40 (55)",
+   "  hall              40018 (46000)    44 (57)",
+   "  props             16776 (70000)    41 (110)",
+   "  summon            19754 (42000)    38 (55)",
    "  terrain           78084 (130000)    93 (165)",
-   "  vegetation        22752 (34000)    48 (62)",
-   "  vfx                4820 (18000)    20 (50)",
-   "  village           53840 (76000)    86 (110)",
+   "  vegetation        21644 (34000)    48 (62)",
+   "  vfx                4572 (18000)    22 (50)",
+   "  village           60752 (82000)    80 (116)",
    "  water             11866 (22000)    26 (35)",
    "METAS GLOBAIS",
-   "  tris estaticos                          438924 / 560000 ",
-   "  MeshParts estaticas                        678 / 800    ",
-   "  tris total (+ reserva VFX 18000)        456924 / 578000 ",
-   "  MeshParts total (+ reserva VFX 50)         728 / 850    ",
-   "  materiais                                   77 / 130    ",
+   "  tris estaticos                          482704 / 560000 ",
+   "  MeshParts estaticas                        665 / 800    ",
+   "  tris total (+ reserva VFX 18000)        500704 / 578000 ",
+   "  MeshParts total (+ reserva VFX 50)         715 / 850    ",
+   "  materiais                                   78 / 130    ",
    "  MeshParts com sombra                       320 / 320    ",
    "  luzes ativas de dia                         30 / 42     ",
-   "  COL                                        733 / 1800   "
+   "  COL                                        730 / 1800   "
   ],
   "over": []
  }
