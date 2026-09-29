@@ -25,9 +25,11 @@ def sea():
 
 
 # a Ilha 1 fica ao SUL no referencial desta ilha (centro local ~(0, -458)): nada de ilhota no setor 225..315 graus
-ISLET_SPOTS = [(-360.0, 120.0, 46.0, 22.0, True), (340.0, 180.0, 60.0, 18.0, False), (-300.0, 330.0, 70.0, 20.0, False),
+# 2026-09-29: as ilhotas (340,180) e (440,110) caiam DENTRO da Ilha 3 (Shadow Garden, encaixada na ancora desta ilha):
+# a 1a aparecia no gramado oeste da praca da Ilha 3. Movidas para o norte (mesma quantidade/ordem -> as outras nao mudam).
+ISLET_SPOTS = [(-360.0, 120.0, 46.0, 22.0, True), (120.0, 560.0, 60.0, 18.0, False), (-300.0, 330.0, 70.0, 20.0, False),
                (60.0, 420.0, 40.0, 16.0, True), (380.0, -60.0, 30.0, 20.0, True), (-420.0, -40.0, 56.0, 16.0, False),
-               (250.0, 380.0, 90.0, 14.0, False), (-160.0, 440.0, 26.0, 18.0, True), (440.0, 110.0, 16.0, 14.0, False)]
+               (250.0, 380.0, 90.0, 14.0, False), (-160.0, 440.0, 26.0, 18.0, True), (-200.0, 560.0, 16.0, 14.0, False)]
 
 
 def islets():

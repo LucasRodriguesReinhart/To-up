@@ -1,0 +1,73 @@
+# Ilha 3 Shadow Garden: integração no Roblox (2026-09-29)
+
+Export `ac1e1ae5` importado e montado no place **Anime Mining Simulator**. O agente NÃO salvou nem publicou o place:
+as mudanças do Studio abaixo só ficam permanentes quando o usuário salvar.
+
+## O que foi feito no Studio
+- **Import**: 14 FBX `ILHA3_*_ac1e1a` importados, 678/678 MeshParts. O importador truncou 2 nomes do portão Demon
+  Slayer (`GATE_DemonSlayer_Barrier__Energy_Core_DemonSlayer_Glow`, `GATE_DemonSlayer_Lock__Energy_Core_DemonSlayer_Glow`),
+  e eles foram renomeados antes da montagem.
+- **Montagem** (`export/montar_ilha_shadowgarden.lua`): 14/14 FBX ok, ALINHAR girou 180° (escala 1,000), 733 colisões,
+  169 marcadores, 40 luzes, 14 pontos seguros.
+- **Fonte**: o modelo montado virou `ServerStorage.IlhaShadowGarden`, com a mesma estrutura de `IlhaDragonBall`.
+  `ServerScriptService.ILHA_SHADOWGARDEN_Servidor` ficou **desligado**, como o da Ilha 2.
+- **Scripts** (cópias iguais em `roblox/`):
+  - `Core.JardimSombrasIsland` (novo);
+  - `Core.DungeonService`, com o gancho Studio-only `ServerStorage.DebugMasmorra` e a correção das recompensas;
+  - `Core.CraftService`, com a mensagem "Voce criou: X!";
+  - `CeuSombras`, que esconde o chão distante do lobby e escurece o mar da Ilha 1, só no cliente e só na área.
+- **Patches no código do jogo** (cópias em `roblox/patches_jogo/`):
+  - `Core.Mineracao`: o evento `Quebrou` do minério temporário passa uma LISTA de jogadores.
+    - **Antes** mandava um mapa `{[player] = golpes}`, e o BindableEvent descarta chaves que são objetos.
+    - **Efeito**: a masmorra não entregava a recompensa por minério, só o bônus de limpeza.
+  - `OreVFX`: o círculo mágico de chão do tema ShadowMana (só a Ilha 3 usa) ficou menor e mais translúcido.
+    - `0,8 + 0,2·tier` em vez de `1,2 + 0,35·tier`, e transparência 0,45.
+    - **Motivo**: no Mining Hall os círculos se sobrepunham numa malha de linhas magenta.
+- **Ilha 2**: duas ilhotas decorativas caíam dentro da Ilha 3.
+  - `(340,180)` aparecia no gramado oeste da praça.
+  - `(440,110)` ficava dentro do penhasco.
+  - Foram movidas em `ilha_dragonball/db_scene.py`, sem mudar a quantidade nem a ordem, então as outras ilhotas não mudam.
+  - Só as 5 MeshParts `DB_Sky_Islets__*` foram trocadas em `ServerStorage.IlhaDragonBall.SKYLINE`, pela mesma regra do
+    montar (centro do export + giro 180°).
+  - As antigas estão em `ServerStorage.BeforeShadowGarden_20260929.DB_Sky_Islets_antigas`.
+- **Backup** de tudo o que foi alterado: `ServerStorage.BeforeShadowGarden_20260929`.
+
+## Testes no Play (sem salvar o progresso: `DebugV31 semSalvar`)
+| Teste | Resultado |
+|---|---|
+| Encaixe na âncora da Ilha 2 | exato: (-579,23; 28,2; 650,73) |
+| Rota âncora → escadaria → praça → vila → pátio → Mining Hall | andando, OK; área 3 detectada |
+| Clima da área | noite, lua 24, 3.000 estrelas, bloom 0,35; tudo restaurado ao sair |
+| Mineração no salão | 51 minérios; golpe tira HP, minério +1, rocha renasce |
+| Invocação | pela ponte até a plataforma; "Invocar" abre o gacha da área 3 |
+| Alquimia | longe → "Va ate o caldeirao"; sem ingredientes → recusa; receita inválida → recusa; Elixir e Poção de Sorte fabricados com o consumo exato; mesmo `requestId` não fabrica de novo; beber a poção ativa |
+| Masmorra | WAITING → COUNTDOWN (entrada fechada) → ENTRY_OPEN (abre) → entrada leva ao salão de baixo → 17 minérios → fim antecipado → FINISHING (portal de saída aceso, entrada fechada para atrasados) → RESETTING (volta ao pátio, rochas somem) → WAITING |
+| Recompensas da masmorra (depois da correção) | 6 comuns + 4 incomuns + bônus = 17 Pó; 6 épicas + 1 lendária = 7 Essência; 1 Fragmento |
+| Rota de saída | até a ilhota do portão Demon Slayer; aviso "Desbloquear" desligado para quem já tem a área 4 (sem teleporte) |
+| Paredes de custo | 2 ativas (a Ilha 3 tem `RotaPropria`, como a Ilha 2) |
+| Output | sem erros |
+
+**Não testado com 2 jogadores reais.** O "Server and Clients" do Studio não abriu por comando, e os clientes seriam
+processos que a ferramenta não alcança. Foi verificado só o que afeta vários jogadores:
+- a lista de quem golpeou chega completa;
+- a entrega é idempotente por minério+jogador;
+- o bônus é marcado antes de entregar.
+
+## Desempenho (Play, cliente, 1 jogador; mesma medição de `_audit/PERF_BASELINE.md`)
+| Ponto | FPS | Memória | Instâncias (workspace) | Parts | MeshParts | Luzes | Emissores |
+|---|---|---|---|---|---|---|---|
+| lobby | 60 | 3.104 MB | 24.704 | 14.143 | 4.093 | 236 | 690 |
+| Ilha 2 (âncora) | 60 | 3.104 MB | 24.790 | 14.224 | 4.172 | 237 | 690 |
+| Ilha 3 (praça) | 60 | 3.105 MB | 24.790 | 14.224 | 4.172 | 237 | 690 |
+| Ilha 3 (Mining Hall) | 60 | 3.105 MB | 24.790 | 14.224 | 4.172 | 237 | 690 |
+
+A Área 3 inteira soma **3.429 instâncias e 1.931 Parts**. A área antiga genérica somava cerca de 15 mil instâncias e
+11,4 mil Parts.
+
+## Imagens no jogo
+`renders/ingame_v3/IG_01..IG_11` e a folha `renders/ingame_v3_folha.jpg`, com as mesmas câmeras dos renders.
+
+## Pendências
+- **Salvar o place** (o agente não salva).
+- O custo do gacha Natagumo (55.000) continua provisório (D1b).
+- As recompensas e os tempos da masmorra são provisórios (`AlquimiaConfig`).
