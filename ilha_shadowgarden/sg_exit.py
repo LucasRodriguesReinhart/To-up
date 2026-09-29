@@ -18,6 +18,7 @@ import fm_parts as FP
 from sg_lib import MB, col_box, light, Frame
 import sg_layout as L
 import sg_emblem as EM
+import fm_lib
 # REFINAMENTO v2 2026-09-28: RITMO de lanternas douradas (sg_emblem.lantern_pedestal, SO Neon) sobre o parapeito SG
 # da ponte a cada ~11, da cabeceira ate o MARCO; do marco em diante o guarda-corpo e a familia Demon Slayer (as
 # lanternas de papel do marco) e os 12 studs antes do portao ficam limpos. Estandartes da ordem com debrum DOURADO
@@ -89,6 +90,16 @@ CAMS = {
     "CAM_SGExit_Top": _cam(UC - 30.0, -34.0, Z + 58.0, UC - 4.0, 0.0, Z, 22),
     "CAM_SGExit_Junction": _cam(PAVE_END - 4.0, -22.0, Z + 12.0, PAVE_END + 6.0, -9.0, Z, 22),
     "CAM_SGExit_HeadFromBridge": _cam(22.0, -4.0, Z + 6.0, -8.0, 0.0, Z + 7.0, 22),
+    # overhaul 11 (2026-09-29): closes na altura do jogador - pilar da cabeceira, lanterna do braco, parapeito da
+    # ponte, marco da transicao e guarda-corpo Demon Slayer da ilhota
+    "CAM_SGExit_OV_Pylon": _cam(-11.0, 2.0, Z + 5.2, -2.7, 12.0, Z + 7.5, 24),
+    "CAM_SGExit_OV_Lantern": _cam(-7.0, 3.0, Z + 5.6, -2.7, 8.4, Z + 7.4, 40),
+    "CAM_SGExit_OV_Parapet": _cam(10.0, 3.0, Z + 5.2, 18.0, -9.6, Z + 1.6, 24),
+    "CAM_SGExit_OV_Marco": _cam(33.0, 4.0, Z + 5.2, 41.9, 10.3, Z + 5.0, 28),
+    "CAM_SGExit_OV_DSRail": _cam(48.0, -3.0, Z + 5.2, 55.0, -9.5, Z + 2.0, 26),
+    # inspecao (fora da altura do jogador): ponta do guarda-corpo DS na quina da ponte e coroa do pilar-marco
+    "CAM_SGExit_OV_RailCorner": _cam(58.5, 4.0, Z + 5.0, 63.0, 11.0, Z + 2.6, 30),
+    "CAM_SGExit_OV_PylonTop": _cam(-12.0, 3.0, Z + 17.0, -2.7, 12.0, Z + 16.5, 30),
 }
 
 # rotas extras: o P2 continua andavel atras dos pilares-marco; a beira da ponte e a volta da ilhota ficam livres
@@ -198,6 +209,21 @@ def spandrel(mb, v0, v1, arc, ztop, m):
     mb._post([v for p in A + B for v in p], m, None, 0, 1)
 
 
+def _uz_faces(mb, q, v0, v1, m):
+    """poligono CONVEXO [(u, z)] no plano do arco, extrudado de v0 a v1 (atravessado)"""
+    import bmesh
+    bm = mb.bm
+    va = [bm.verts.new(P(u, v0, z)) for u, z in q]
+    vb = [bm.verts.new(P(u, v1, z)) for u, z in q]
+    fs = [bm.faces.new(va), bm.faces.new(list(reversed(vb)))]
+    n = len(q)
+    for i in range(n):
+        j = (i + 1) % n
+        fs.append(bm.faces.new((va[i], va[j], vb[j], vb[i])))
+    bmesh.ops.recalc_face_normals(bm, faces=fs)
+    mb._post(va + vb, m, None, 0, 1)
+
+
 # ------------------------------------------------------------------ ponte
 SPANS = [(0.0, PIERS[0] - PIER_HU), (PIERS[0] + PIER_HU, PIERS[1] - PIER_HU), (PIERS[1] + PIER_HU, ABUT_E)]
 
@@ -239,7 +265,8 @@ def bridge(mb, rng):
         for sv in (-1, 1):
             beam_uv(mb, (cu, sv * 12.45, 2.0), (cu, sv * 12.45, 23.2), 0.5, 0.5, TRIM)
             beam_uv(mb, (cu, sv * 12.45, 24.0), (cu, sv * 12.45, SOFFIT - 0.8), 0.5, 0.5, TRIM)
-    # 3 arcos ogivais: timpano + aduelas claras salientes + fecho
+    # 3 arcos ogivais: timpano + aduelas RADIAIS nas 2 faces + fecho (overhaul 11, 11.07/01.09: antes eram vigas de
+    # 19,6 atravessando o tabuleiro inteiro, que liam em degraus no intradorso)
     band = 1.2
     for ua, ub in SPANS:
         span = ub - ua
@@ -247,22 +274,25 @@ def bridge(mb, rng):
         arc = ogive(ua, ub, zs, 6)
         spandrel(mb, -9.4, 9.4, arc, SOFFIT + 0.2, STONE)
         cA, cB = (ub, zs), (ua, zs)
-        for i in range(len(arc) - 1):
-            (u0, z0), (u1, z1) = arc[i], arc[i + 1]
-            c = cA if i < 6 else cB
-            mu, mz = (u0 + u1) / 2 - c[0], (z0 + z1) / 2 - c[1]
-            ln = math.hypot(mu, mz)
-            nu, nz = mu / ln, mz / ln
-            off = band / 2 - 0.1
-            du, dz = u1 - u0, z1 - z0
-            dl = math.hypot(du, dz)
-            sh = (du / dl * 0.07, dz / dl * 0.07)
-            a = (u0 + nu * off + sh[0], 0.0, z0 + nz * off + sh[1])
-            b = (u1 + nu * off - sh[0], 0.0, z1 + nz * off - sh[1])
-            # beam ao longo do arco: largura = atravessado (v), altura = espessura radial
-            mb.beam(P(*a), P(*b), 19.6, band, TRIM, 0.0, roll=0.0)
-        ap = arc[6]
-        bx(mb, ap[0] - 0.65, -10.0, ap[1] - 0.25, ap[0] + 0.65, 10.0, ap[1] + 1.65, TRIM)          # fecho
+        for sv in (-1, 1):
+            v0, v1 = sorted((sv * 9.3, sv * 9.8))
+            for i in range(len(arc) - 1):
+                (u0, z0), (u1, z1) = arc[i], arc[i + 1]
+                c = cA if i < 6 else cB
+                du, dz = u1 - u0, z1 - z0
+                dl = math.hypot(du, dz)
+                eu, ez = du / dl * 0.04, dz / dl * 0.04
+                n0 = ((u0 - c[0]), (z0 - c[1]))
+                n1 = ((u1 - c[0]), (z1 - c[1]))
+                l0, l1 = math.hypot(*n0), math.hypot(*n1)
+                n0 = (n0[0] / l0, n0[1] / l0)
+                n1 = (n1[0] / l1, n1[1] / l1)
+                quad = [(u0 + eu - n0[0] * 0.08, z0 + ez - n0[1] * 0.08), (u1 - eu - n1[0] * 0.08, z1 - ez - n1[1] * 0.08),
+                        (u1 - eu + n1[0] * band, z1 - ez + n1[1] * band), (u0 + eu + n0[0] * band, z0 + ez + n0[1] * band)]
+                _uz_faces(mb, quad, v0, v1, TRIM)
+            ap = arc[6]
+            _uz_faces(mb, [(ap[0] - 0.55, ap[1] - 0.3), (ap[0] + 0.55, ap[1] - 0.3), (ap[0] + 0.8, ap[1] + band + 0.45),
+                           (ap[0] - 0.8, ap[1] + band + 0.45)], v0 - 0.06, v1 + 0.06, TRIM)              # fecho
     deck(mb, rng)
 
 
@@ -275,10 +305,10 @@ def deck(mb, rng):
         while u < PAVE_END - 0.05:
             ue = min(u + 4.3, PAVE_END)
             v0, v1 = sorted((s * HW, s * (HW - CURB)))
-            bx(mb, u + 0.07, v0, Z - 0.35, ue - 0.07, v1, Z, TRIM)
+            bx(mb, u + 0.07, v0, Z - 0.35, ue - 0.07, v1, Z, CAPL, 0.04)
             u = ue
     mk0, mk1 = PIERS[1] - 0.6, PIERS[1] + 0.6          # faixa do marco (atravessada, rente)
-    bx(mb, mk0, -HW + CURB, Z - 0.35, mk1, HW - CURB, Z, TRIM)
+    bx(mb, mk0, -HW + CURB, Z - 0.35, mk1, HW - CURB, Z, CAPL)
     row = 2.9
     u = 0.0
     k = 0
@@ -303,106 +333,177 @@ def deck(mb, rng):
 
 
 # ------------------------------------------------------------------ guardas visuais
+# OVERHAUL 11 "zero tolerancia" (2026-09-29):
+#   - parapeito da ponte = a MESMA cantaria da entrada (sg_entry.parapet_run: plinto, corpo, arcada cega nas 2 faces,
+#     pingadeira, capa segmentada; pilaretes com base moldurada, fuste chanfrado, capitel em 2 degraus e o remate do
+#     kit) no lugar da viga lisa + capa; as 8 lanternas de pedestal a cada 11 SAIRAM (12.04: lanterna so nos NOS - a
+#     cabeceira e o marco);
+#   - guarda-corpo Demon Slayer: pilaretes de laca sob o KASAGI (corrimao que passa por cima), NUKI (travessa) com
+#     espiga saindo dos pilares de ponta, pilares de ponta/canto mais altos com GIBOSHI (remate em cebola de bronze,
+#     torno) e o kasagi com a PONTA CURVADA PARA CIMA nas pontas da corrida - nada de capacete-piramide;
+#   - marco (ds_post): capacete de 4 aguas CONCAVO com beiral (torno de 4) e hoju de bronze no lugar da piramide + cubo;
+#     lanterna de papel com bojo torneado, 6 costelas escuras e tampa/fundo torneados (antes: cilindro de Neon).
 PAR_Z = Z - 0.35
 PAR_H = 2.0
+CAPL = "Stone_SG_TrimLow"                   # remate de cantaria perto do jogador (setores 01/03, auditoria 14.01)
+fm_lib.MATS.setdefault(CAPL, (fm_lib.S(132, 128, 134), 0.8, 0.0, 0, None, 0.06))
+BRONZE = "Metal_Gold"                       # o mesmo metal dos remates do portao DS aprovado (0 materiais novos)
 
 
-def sg_post(mb, u, v, size=1.6, h=PAR_H + 0.8, z=PAR_Z):
-    mb.box((size, size, h), P(u, v, z + h / 2), R0, STONE, 0.12)
-    mb.box((size + 0.3, size + 0.3, 0.35), P(u, v, z + h + 0.175), R0, TRIM, 0.08)
-    SL.spire(mb, PW(u, v), (size - 0.1) / math.sqrt(2.0), z + h + 0.35, 0.6, TRIM, n=4)
+def _lathe(mb, c, prof, m, n=8, rot=0.0, caps=(True, True)):
+    EM._lathe(mb, tuple(c), prof, m, n, rot, caps=caps)
 
 
-def sg_parapet(mb, u0, u1, s):
-    """parapeito baixo de pedra escura com remate claro (face interna = guarda invisivel, |v| = 9)"""
-    vc = s * (HW + 0.6)
-    beam_uv(mb, (u0, vc, PAR_Z + PAR_H / 2), (u1, vc, PAR_Z + PAR_H / 2), 1.2, PAR_H, STONE, 0.1)
-    beam_uv(mb, (u0, vc, PAR_Z + PAR_H + 0.22), (u1, vc, PAR_Z + PAR_H + 0.22), 1.55, 0.45, TRIM, 0.08)
+def giboshi(mb, c, s=1.0):
+    """remate em cebola (giboshi) de bronze sobre um colar preto: c = topo do pilar"""
+    x, y, z = c
+    _lathe(mb, (x, y, z), [(0.31 * s, 0.0), (0.31 * s, 0.1 * s), (0.2 * s, 0.14 * s)], BLACK, 6, 0.0,
+           caps=(False, True))
+    _lathe(mb, (x, y, z + 0.14 * s), [(0.19 * s, 0.0), (0.34 * s, 0.22 * s), (0.25 * s, 0.46 * s), (0.08 * s, 0.64 * s),
+                                      (0.0, 0.86 * s)], BRONZE, 6, 0.0, caps=(True, False))
 
 
-def ds_rail(mb, pts, z=PAR_Z, post_step=3.0, end_posts=True):
-    """guarda-corpo Demon Slayer (so depois do MARCO): base de pedra, pilaretes de laca vermelha com capacete de ferro
-    preto, corrimao (kasagi) e travessa de laca. pts [(u, v)] na linha da guarda invisivel."""
+def _yz_up(mb, a, d, nrm, prof, w, m):
+    """perfil [(t, z)] no plano vertical que contem a direcao d (t ao longo de d a partir de a), extrudado +-w/2 na
+    normal horizontal nrm"""
+    import bmesh
+    bm = mb.bm
+    A = [bm.verts.new(Vector((a.x + d.x * t + nrm.x * w / 2, a.y + d.y * t + nrm.y * w / 2, z))) for t, z in prof]
+    B = [bm.verts.new(Vector((a.x + d.x * t - nrm.x * w / 2, a.y + d.y * t - nrm.y * w / 2, z))) for t, z in prof]
+    n = len(prof)
+    fs = [bm.faces.new(A), bm.faces.new(list(reversed(B)))]
+    for i in range(n):
+        j = (i + 1) % n
+        fs.append(bm.faces.new((A[i], A[j], B[j], B[i])))
+    bmesh.ops.recalc_face_normals(bm, faces=fs)
+    mb._post(A + B, m, None, 0, 1)
+
+
+KAS_Z, KAS_H, KAS_W = 3.05, 0.26, 0.44      # kasagi (corrimao) - centro relativo a z da guarda
+NUKI_Z = 2.2
+
+
+def ds_rail(mb, pts, z=PAR_Z, post_step=3.0, end_posts=(True, True), tips=(True, True)):
+    """guarda-corpo Demon Slayer (so depois do MARCO): base de pedra com capa de cantaria, pilaretes de laca vermelha
+    sob o kasagi, nuki passando pelos pilaretes e pilares de ponta mais altos com giboshi. pts [(u, v)] na linha da
+    guarda invisivel. tips: pontas da corrida com pilar de ponta + kasagi curvado (False = a corrida continua noutra)."""
     base_h = 1.1
+    if isinstance(end_posts, bool):
+        end_posts = (end_posts, end_posts)
+    tips = (tips[0] and end_posts[0], tips[1] and end_posts[1])
     n = len(pts)
+    W = [Vector(PW(*p)) for p in pts]
+    W = [Vector((w.x, w.y, 0.0)) for w in W]
     for i in range(n - 1):
-        a, b = Vector((*pts[i], 0)), Vector((*pts[i + 1], 0))
+        a, b = W[i], W[i + 1]
         d = (b - a)
         if d.length < 0.2:
             continue
         dn = d.normalized()
         ea = a - dn * (0.5 if i > 0 else 0.0)
         eb = b + dn * (0.5 if i < n - 2 else 0.0)
-        beam_uv(mb, (ea.x, ea.y, z + base_h / 2), (eb.x, eb.y, z + base_h / 2), 1.0, base_h, STONE, 0.08)
-        beam_uv(mb, (ea.x, ea.y, z + base_h + 0.1), (eb.x, eb.y, z + base_h + 0.1), 1.2, 0.2, TRIM, 0.0)
-        beam_uv(mb, (a.x, a.y, z + 3.05), (b.x, b.y, z + 3.05), 0.42, 0.3, RED, 0.0)          # kasagi
-        beam_uv(mb, (a.x, a.y, z + 2.2), (b.x, b.y, z + 2.2), 0.24, 0.24, RED, 0.0)            # travessa
+        mb.beam((ea.x, ea.y, z + base_h / 2), (eb.x, eb.y, z + base_h / 2), 1.0, base_h, STONE, 0.08)
+        mb.beam((ea.x, ea.y, z + base_h + 0.1), (eb.x, eb.y, z + base_h + 0.1), 1.2, 0.2, CAPL, 0.04)
+        ka = a - dn * (0.21 if i > 0 else 0.0)
+        kb = b + dn * (0.21 if i < n - 2 else 0.0)
+        mb.beam((ka.x, ka.y, z + KAS_Z), (kb.x, kb.y, z + KAS_Z), KAS_W, KAS_H, RED, 0.03)          # kasagi
+        mb.beam((a.x, a.y, z + NUKI_Z), (b.x, b.y, z + NUKI_Z), 0.2, 0.26, RED, 0.0)                # nuki
     # pilaretes ao longo da polilinha (passo ~3)
     tot = []
     acc = 0.0
     for i in range(n - 1):
-        ln = (Vector(pts[i + 1]) - Vector(pts[i])).length
+        ln = (W[i + 1] - W[i]).length
         tot.append((acc, ln, i))
         acc += ln
     k = max(1, int(round(acc / post_step)))
-    for j in range(k + 1):
-        if not end_posts and j in (0, k):
-            continue
-        t = acc * j / k
+
+    def at(t):
         for a0, ln, i in tot:
             if t <= a0 + ln + 1e-6:
                 f = (t - a0) / ln if ln > 1e-9 else 0.0
-                p = Vector(pts[i]).lerp(Vector(pts[i + 1]), f)
-                break
-        zb = z + base_h + 0.2
-        mb.box((0.46, 0.46, 3.2 - base_h - 0.2 + 0.25), P(p.x, p.y, (zb + z + 3.45) / 2), R0, RED, 0.0)
-        mb.box((0.62, 0.62, 0.22), P(p.x, p.y, z + 3.31), R0, BLACK, 0.0)
-        mb.cyl(0.36, 0.42, P(p.x, p.y, z + 3.63), R0, BLACK, 4, r2=0.06, bevel=0.0)
+                return W[i].lerp(W[i + 1], f), (W[i + 1] - W[i]).normalized()
+        return W[-1], (W[-1] - W[-2]).normalized()
+    zb = z + base_h + 0.2
+    for j in range(k + 1):
+        end = j in (0, k)
+        if end and not end_posts[0 if j == 0 else 1]:
+            continue
+        p, d = at(acc * j / k)
+        rz = math.atan2(d.y, d.x)
+        tip = end and tips[0 if j == 0 else 1]
+        if tip:
+            # pilar de ponta: mais grosso e mais alto que o kasagi, giboshi em cima
+            ht = z + 3.62
+            mb.box((0.52, 0.52, ht - zb), (p.x, p.y, (zb + ht) / 2), (0, 0, rz), RED, 0.03)
+            giboshi(mb, (p.x, p.y, ht))
+        else:
+            ht = z + KAS_Z - KAS_H / 2 + 0.02
+            mb.box((0.42, 0.42, ht - zb), (p.x, p.y, (zb + ht) / 2), (0, 0, rz), RED, 0.03)
+    # pontas da corrida: espiga do nuki saindo do pilar e kasagi com a ponta curvada para cima
+    for j, sgn in ((0, -1.0), (1, 1.0)):
+        if not tips[j]:
+            continue
+        pu, pv = pts[0 if j == 0 else -1]
+        if in_gate_rect(pu, pv, 1.3):
+            continue                     # a corrida morre no pilar de ponta junto da base do portao (sem ponta solta)
+        p, d = at(0.0 if j == 0 else acc)
+        dd = d * sgn
+        nrm = Vector((-d.y, d.x, 0.0))
+        q = p + dd * 0.26
+        mb.beam((q.x, q.y, z + NUKI_Z), (q.x + dd.x * 0.32, q.y + dd.y * 0.32, z + NUKI_Z), 0.2, 0.26, RED, 0.0)
+        z0 = z + KAS_Z - KAS_H / 2
+        s0 = 0.26
+        _yz_up(mb, p, dd, nrm, [(s0 - 0.05, z0), (s0 + 0.36, z0 + 0.04), (s0 + 0.62, z0 + 0.3), (s0 + 0.56, z0 + 0.46),
+                                (s0 - 0.05, z0 + KAS_H)], KAS_W, RED)
+
+
+def ds_lantern(mb, c):
+    """lanterna de papel (chochin) do marco: bojo torneado de papel quente, 6 costelas escuras seguindo o bojo, tampa e
+    fundo torneados de laca preta com argola. c = centro do bojo"""
+    x, y, zc = c
+    prof = [(0.3, -0.62), (0.44, -0.34), (0.48, 0.0), (0.44, 0.34), (0.3, 0.62)]
+    _lathe(mb, (x, y, zc), prof, GLOW, 8, 0.0, caps=(False, False))
+    rib = [(-0.04, -0.03), (0.04, -0.03), (0.0, 0.05)]
+    for k in range(6):
+        a = 2 * math.pi * k / 6 + math.pi / 6
+        ca, sa = math.cos(a), math.sin(a)
+        pts = [(x + ca * (r + 0.03), y + sa * (r + 0.03), zc + h) for r, h in prof]
+        mb.sweep(pts, rib, BLACK, True, None, up=(ca, sa, 0.0))
+    _lathe(mb, (x, y, zc + 0.58), [(0.36, 0.0), (0.36, 0.12), (0.2, 0.2), (0.1, 0.24)], BLACK, 8, math.pi / 8)
+    _lathe(mb, (x, y, zc - 0.74), [(0.1, -0.04), (0.2, 0.0), (0.36, 0.08), (0.36, 0.16)], BLACK, 8, math.pi / 8)
 
 
 def ds_post(mb, u, v, sz=2.2, lantern_s=0, drop=None):
     """pilarete da familia do portao DS: fuste de pedra escura ate a altura da guarda, pilar OCTOGONAL de ferro/laca
-    preta com 2 aneis de laca vermelha (o mesmo desenho dos pilares do portao aprovado) e capacete preto de 4 aguas.
-    lantern_s != 0: lanterna de papel num braco preto voltado para o eixo (so no MARCO); drop: a base desce ate essa
-    cota pela face do tabuleiro (pilastra sobre o pilar da ponte)"""
+    preta com 2 aneis de laca vermelha (o mesmo desenho dos pilares do portao aprovado) e CAPACETE de 4 aguas concavo
+    com beiral + hoju de bronze. lantern_s != 0: lanterna de papel num braco preto voltado para o eixo (so no MARCO);
+    drop: a base desce ate essa cota pela face do tabuleiro (pilastra sobre o pilar da ponte)"""
     if drop is not None:
         mb.box((sz + 0.4, sz + 0.4, PAR_Z - drop), P(u, v, (PAR_Z + drop) / 2), R0, STONE, 0.0)
-    mb.box((sz + 0.4, sz + 0.4, 0.6), P(u, v, PAR_Z + 0.3), R0, TRIM, 0.08)
+    mb.box((sz + 0.4, sz + 0.4, 0.6), P(u, v, PAR_Z + 0.3), R0, CAPL, 0.08)
     mb.box((sz, sz, 2.6), P(u, v, PAR_Z + 0.6 + 1.3), R0, CASTLE, 0.12)
-    mb.box((sz + 0.3, sz + 0.3, 0.35), P(u, v, PAR_Z + 3.375), R0, TRIM, 0.06)
+    mb.box((sz + 0.3, sz + 0.3, 0.35), P(u, v, PAR_Z + 3.375), R0, CAPL, 0.06)
     z0 = PAR_Z + 3.55
     ro = sz * 0.4
     mb.cyl(ro, 2.9, P(u, v, z0 + 1.45), (0, 0, ANG + math.pi / 8), BLACK, 8, bevel=0.0)
     for zz in (z0 + 0.45, z0 + 2.2):
         mb.cyl(ro + 0.12, 0.32, P(u, v, zz), (0, 0, ANG + math.pi / 8), RED, 8, bevel=0.0)
-    mb.box((sz + 0.2, sz + 0.2, 0.26), P(u, v, z0 + 3.03), R0, BLACK, 0.0)
-    mb.cyl((sz + 0.35) / math.sqrt(2.0), 1.0, P(u, v, z0 + 3.16 + 0.5), (0, 0, ANG + math.pi / 4), BLACK, 4, r2=0.1,
-           bevel=0.0)
-    mb.box((0.3, 0.3, 0.3), P(u, v, z0 + 4.3), (0, 0, ANG + math.pi / 4), RED, 0.0)
+    mb.box((sz + 0.2, sz + 0.2, 0.26), P(u, v, z0 + 3.03), R0, BLACK, 0.03)
+    # capacete: 4 aguas CONCAVO (torno de 4 com os vertices nas quinas) com beiral levantado
+    hr = (sz + 0.5) / 2 * math.sqrt(2.0)
+    zr = z0 + 3.16
+    _lathe(mb, P(u, v, zr), [(hr, 0.0), (hr * 1.02, 0.12), (hr * 0.78, 0.3), (hr * 0.42, 0.62), (hr * 0.16, 0.92),
+                             (hr * 0.1, 1.02)], BLACK, 4, ANG + math.pi / 4)
+    # hoju (joia em cebola) de bronze
+    _lathe(mb, P(u, v, zr + 1.0), [(0.12, 0.0), (0.2, 0.08), (0.24, 0.22), (0.16, 0.38), (0.06, 0.5), (0.0, 0.62)],
+           BRONZE, 8, math.pi / 8, caps=(True, False))
     if lantern_s:
         s = lantern_s
         arm_z = z0 + 2.7
         va = s * (HW - 0.8)
         beam_uv(mb, (u, v - s * ro, arm_z), (u, va, arm_z), 0.2, 0.2, BLACK)
         beam_uv(mb, (u, va, arm_z), (u, va, arm_z - 0.5), 0.1, 0.1, BLACK)
-        mb.cyl(0.46, 1.3, P(u, va, arm_z - 1.3), R0, GLOW, 8, bevel=0.0)
-        for dz in (-0.72, 0.72):
-            mb.cyl(0.32, 0.16, P(u, va, arm_z - 1.3 + dz), R0, BLACK, 8, bevel=0.0)
-
-
-def parapets(mb):
-    ub = PIERS[1] - 1.1                       # o parapeito de pedra termina no marco
-    for s in (-1, 1):
-        sg_parapet(mb, 0.0, ub, s)
-        sg_post(mb, PIERS[0], s * (HW + 0.8))
-        # ritmo de lanternas douradas da ordem (SO Neon) sobre a capa do parapeito, a cada ~11, ate o marco
-        # (as posicoes evitam o pilarete do pilar oeste e o ds_post do marco)
-        for uu in (4.5, 15.5, 26.5, 37.5):
-            EM.lantern_pedestal(mb, mb, mb, tuple(P(uu, s * (HW + 0.6), PAR_Z + PAR_H + 0.445)), ANG, 0.9)
-        # depois do marco: guarda Demon Slayer ate a junta com a ilhota (e segue pela ilhota, ver islet)
-        ds_rail(mb, [(PIERS[1] + 1.1, s * (HW + 0.5)), (_islet_meet(), s * (HW + 0.5))], end_posts=False)
-    for s in (-1, 1):
-        ds_post(mb, PIERS[1], s * (HW + 1.3), 2.2, lantern_s=s, drop=SOFFIT + 0.5)          # o MARCO da transicao
+        ds_lantern(mb, P(u, va, arm_z - 1.3))
 
 
 def _islet_meet():
@@ -410,70 +511,152 @@ def _islet_meet():
     return UC - math.sqrt(RI * RI - (HW + 0.5) ** 2)
 
 
+def parapets(mb):
+    import sg_entry as EN
+    ub = PIERS[1] - 1.0                       # o parapeito de pedra termina DENTRO do plinto do marco
+    orig = EN.arcade
+    for s in (-1, 1):
+        a, b = PW(0.0, s * (HW + 0.6)), PW(ub, s * (HW + 0.6))
+        inward = Vector(PW(0.0, -s)) - Vector(PW(0.0, 0.0))
+
+        def arcade_in(mb_, pa, pb, nrm, *aa, **kw):
+            # a arcada cega vai so na face de DENTRO (a que o jogador ve); a de fora e so paramento (Tier C)
+            if nrm.x * inward.x + nrm.y * inward.y > 0.5:
+                return orig(mb_, pa, pb, nrm, *aa, **kw)
+            return None
+        EN.arcade = arcade_in
+        try:
+            EN.parapet_run(mb, [a, b], PAR_Z, extra=[PW(PIERS[0], s * (HW + 0.6)) + (False,)], skip=[(b, 0.5)])
+        finally:
+            EN.arcade = orig
+        # depois do marco: guarda Demon Slayer ate a junta com a ilhota (e segue pela ilhota, ver islet_rails): o
+        # marco e a ponta de cá; a quina com a ilhota leva o pilar de ponta com giboshi
+        ds_rail(mb, [(PIERS[1] + 1.0, s * (HW + 0.5)), (_islet_meet(), s * (HW + 0.5))], end_posts=(False, True),
+                tips=(False, True))
+    for s in (-1, 1):
+        ds_post(mb, PIERS[1], s * (HW + 1.3), 2.2, lantern_s=s, drop=SOFFIT + 0.5)          # o MARCO da transicao
+
+
 # ------------------------------------------------------------------ cabeceira (P2)
 HEAD_U = -2.7
 HEAD_V = 12.0
+PYL_S, PYL_H = 3.1, 9.6                  # secao e altura do fuste do pilar-marco
+LAMP_S = 0.85                            # lanterna da ordem do braco (kit, pendurada)
+
+
+def _gablet(mb, x, y, a, cs, zc, m_body, m_cap):
+    """gablete com espessura numa face da coroa (rumo a), cimalha nas 2 vertentes e florao do kit no vertice"""
+    F = Frame(x, y, 0.0, a)
+    gh = cs * 0.55
+    pts = [(-cs / 2, 0.0), (cs / 2, 0.0), (0.0, gh)]
+    bm = mb.bm
+    yo0, yo1 = cs / 2 - 0.45, cs / 2 + 0.12
+    v0 = [bm.verts.new(F.p(px, yo0, zc - 0.6 + pz)) for px, pz in pts]
+    v1 = [bm.verts.new(F.p(px, yo1, zc - 0.6 + pz)) for px, pz in pts]
+    bm.faces.new(v0)
+    bm.faces.new(list(reversed(v1)))
+    for i in range(3):
+        j = (i + 1) % 3
+        bm.faces.new((v0[i], v0[j], v1[j], v1[i]))
+    mb._post(v0 + v1, m_body, None, 0, 1)
+    for sg in (-1, 1):
+        pa_ = F.p(sg * (cs / 2 + 0.1), (yo0 + yo1) / 2 + 0.06, zc - 0.6 - 0.02)
+        pb_ = F.p(0.0, (yo0 + yo1) / 2 + 0.06, zc - 0.6 + gh + 0.06)
+        mb.beam(pa_, pb_, 0.62, 0.22, m_cap, 0.04)
 
 
 def head_pylon(mb, s):
+    """pilar-marco da cabeceira (OVERHAUL 11, 11.01 = a receita 01.06 dos porticos da entrada): plinto, assento em
+    talude, fuste de QUINAS CHANFRADAS com o terco de baixo em fiadas de cantaria e COLUNELOS nos chanfros, friso,
+    cornija, coroa com GABLETES (cimalha + florao) e PINACULOS do kit nas quinas, agulha OCTOGONAL navy com florao de
+    prata; JANELAS CEGAS de verdade (vazio + moldura com espessura + peitoril, sg_entry.lancet) nas faces leste e de
+    fora; estandarte da ordem na face oeste; LANTERNA DA ORDEM (kit) pendurada num braco de ferro com mao-francesa curva
+    na face do eixo (no lugar do cubo de vidro)."""
+    import sg_entry as EN
+    import sg_castle as CA
     u, v = HEAD_U, s * HEAD_V
-    # plinto (assentado no grama/adro) + chanfro
+    x, y = PW(u, v)
+    SH = "Stone_SG_Castle_B"
+    # plinto (assentado no grama/adro) + capa + assento em talude
     mb.box((4.2, 4.2, 1.6), P(u, v, Z + 0.3), R0, STONE, 0.12)
-    mb.box((4.45, 4.45, 0.3), P(u, v, Z + 1.25), R0, TRIM, 0.08)
-    FP.frustum(mb, P(u, v, Z + 1.4), 3.7, 3.7, 3.1, 3.1, 0.5, TRIM, ang=ANG)
-    H = 9.6
+    mb.box((4.45, 4.45, 0.3), P(u, v, Z + 1.25), R0, CAPL, 0.08)
+    FP.frustum(mb, P(u, v, Z + 1.4), 3.7, 3.7, PYL_S, PYL_S, 0.5, CAPL, ang=ANG)
     z0 = Z + 1.9
-    mb.box((3.1, 3.1, H), P(u, v, z0 + H / 2), R0, CASTLE, 0.15)
-    mb.box((3.5, 3.5, 0.45), P(u, v, z0 + H * 0.42), R0, TRIM, 0.08)
-    zt = z0 + H
-    mb.box((4.0, 4.0, 0.8), P(u, v, zt + 0.4), R0, TRIM, 0.12)
-    mb.box((2.8, 2.8, 1.5), P(u, v, zt + 0.8 + 0.75), R0, CASTLE, 0.1)
-    zc = zt + 2.3
-    mb.box((3.3, 3.3, 0.3), P(u, v, zc + 0.15), R0, TRIM, 0.05)
-    mb.cyl(3.3 / math.sqrt(2.0), 4.2, P(u, v, zc + 0.3 + 2.1), (0, 0, ANG + math.pi / 4), SLATE, 4, r2=0.08, bevel=0.0)
-    ztip = zc + 0.3 + 4.2
-    mb.cyl(0.12, 1.2, P(u, v, ztip + 0.45), R0, IRON, 6, bevel=0.0)
-    mb.cyl(0.36, 0.6, P(u, v, ztip + 1.2), R0, IRON, 4, r2=0.02, bevel=0.0)
-    # janela cega ogival em relevo nas 2 faces que se veem (para a ponte e para fora)
-    for fu, fv, nd in ((1, 0, 1.55), (0, s, 1.55)):
-        for zz0, zz1 in ((z0 + 0.9, z0 + H * 0.42 - 1.6), (z0 + H * 0.42 + 1.0, zt - 1.6)):
-            w = 1.25
-            if fu:
-                for sg in (-1, 1):
-                    bx(mb, u + nd - 0.12, v + sg * w / 2 - 0.15, zz0, u + nd + 0.12, v + sg * w / 2 + 0.15, zz1, TRIM)
-                    beam_uv(mb, (u + nd, v + sg * w / 2, zz1 - 0.1), (u + nd, v, zz1 + w * 0.8), 0.24, 0.3, TRIM)
-            else:
-                for sg in (-1, 1):
-                    bx(mb, u + sg * w / 2 - 0.15, v + s * nd - 0.12, zz0, u + sg * w / 2 + 0.15, v + s * nd + 0.12, zz1,
-                       TRIM)
-                    beam_uv(mb, (u + sg * w / 2, v + s * nd, zz1 - 0.1), (u, v + s * nd, zz1 + w * 0.8), 0.3, 0.24,
-                            TRIM)
-    # estandarte da ordem com debrum DOURADO na face OESTE do fuste (livre de ornamento): quem vem da rua do P2 ve a
-    # cabeceira marcada; a verga fica presa ao fuste por 2 bracos de ferro
+    zt = z0 + PYL_H
+    zm = z0 + PYL_H * 0.42
+    ch = 0.32
+    zc_ = z0
+    for hh in (1.3, 1.1, 1.3):
+        mb.prism(EN.chamfer_sq(x, y, PYL_S / 2, ch), zc_, zc_ + hh, SH, bevel=0.06)
+        zc_ += hh
+    mb.prism(EN.chamfer_sq(x, y, PYL_S / 2, ch), zc_, zt, SH)
+    for sx in (-1, 1):
+        for sy in (-1, 1):
+            cx_, cy_ = x + sx * (PYL_S / 2 - ch * 0.5), y + sy * (PYL_S / 2 - ch * 0.5)
+            mb.rod((cx_, cy_, z0), (cx_, cy_, zm - 0.25), 0.12, CAPL, 6)
+            mb.rod((cx_, cy_, zm + 0.25), (cx_, cy_, zt), 0.12, CAPL, 6)
+    mb.box((PYL_S + 0.4, PYL_S + 0.4, 0.5), P(u, v, zm), R0, CAPL, 0.08)                     # friso
+    mb.box((PYL_S + 1.0, PYL_S + 1.0, 0.8), P(u, v, zt + 0.4), R0, CAPL, 0.12)              # cornija
+    # coroa: bloco + 4 gabletes + pinaculos do kit + agulha octogonal
+    cs = PYL_S - 0.3
+    mb.box((cs, cs, 1.6), P(u, v, zt + 0.8 + 0.8), R0, SH, 0.1)
+    zc = zt + 0.8 + 1.6
+    for k in range(4):
+        _gablet(mb, x, y, ANG + k * math.pi / 2, cs, zc, SH, CAPL)
+    for sx in (-1, 1):
+        for sy in (-1, 1):
+            EN.pinnacle(mb, x + sx * (cs / 2 - 0.1), y + sy * (cs / 2 - 0.1), zc, 1.9)
+    SL.spire(mb, (x, y), cs / 2 * 0.98, zc, 5.4, "Roof_SG_Navy", n=8)
+    CA.finial(mb, x, y, zc + 5.4 - 0.25, 0.9)
+    # janelas cegas ogivais: face leste (para a ponte) e face de fora
+    w = PYL_S * 0.42
+    for a in (ANG - math.pi / 2, ANG + (0.0 if s > 0 else math.pi)):
+        Fw = Frame(x, y, 0.0, a)
+        EN.lancet(mb, Fw, PYL_S / 2, w, zm + 0.9, zt - 1.0 - 0.85 * w)
+    # estandarte da ordem com debrum DOURADO na face OESTE (livre de ornamento): quem vem da rua do P2 ve a cabeceira
+    # marcada; a verga fica presa ao fuste por 2 bracos de ferro
     bw_, bh_ = 2.4, 5.2
-    ub_ = u - 1.55 - 0.55
+    ub_ = u - PYL_S / 2 - 0.55
     EM.banner(mb, mb, mb, mb, tuple(P(ub_, v, zt - 0.2)), ANG + math.pi, bw_, bh_, trim=EM.GOLD)
     for sg in (-1, 1):
-        beam_uv(mb, (u - 1.45, v + sg * (bw_ / 2 + 0.1), zt - 0.2), (ub_, v + sg * (bw_ / 2 + 0.1), zt - 0.2),
-                0.22, 0.22, IRON)
-    # braco de ferro com lanterna pendurada para o eixo da ponte (a luz da cabeceira)
+        beam_uv(mb, (u - PYL_S / 2 + 0.1, v + sg * (bw_ / 2 + 0.1), zt - 0.2), (ub_, v + sg * (bw_ / 2 + 0.1), zt - 0.2),
+                0.22, 0.22, "Metal_SG_BlackIron")
+    # lanterna da ordem pendurada num braco de ferro na face do eixo (espelho chanfrado, braco, mao-francesa curva,
+    # remate torneado na ponta, tirante)
+    n_ = -s                                           # para o eixo
+    vf = v + n_ * PYL_S / 2                           # face do fuste
     za = z0 + 7.2
-    vi = v - s * 1.55
-    ve = v - s * 3.6
-    beam_uv(mb, (u, vi, za), (u, ve, za), 0.24, 0.24, IRON)
-    beam_uv(mb, (u, vi, za - 1.3), (u, v - s * 2.6, za - 0.05), 0.16, 0.16, IRON)
-    beam_uv(mb, (u, ve, za), (u, ve, za - 0.55), 0.1, 0.1, IRON)
-    zl = za - 1.45
-    mb.box((1.1, 1.1, 0.18), P(u, ve, zl + 0.72), R0, IRON, 0.0)
-    mb.box((0.8, 0.8, 1.2), P(u, ve, zl), R0, GLOW, 0.0)
-    for su in (-1, 1):
-        for sv in (-1, 1):
-            mb.box((0.14, 0.14, 1.36), P(u + su * 0.47, ve + sv * 0.47, zl), R0, IRON, 0.0)
-    mb.box((1.0, 1.0, 0.16), P(u, ve, zl - 0.7), R0, IRON, 0.0)
-    mb.cyl(0.85, 0.6, P(u, ve, zl + 1.1), (0, 0, ANG + math.pi / 4), IRON, 4, r2=0.14, bevel=0.0)
-    light("L_SGExit_Head_%s" % ("N" if s > 0 else "S"), "POINT", tuple(P(u, ve, zl)), 320.0, WARM, 0.4)
+    arm = 1.75
+    mb.box((0.5, 0.16, 1.1), P(u, vf + n_ * 0.07, za - 0.42), R0, IRON, 0.03)
+    beam_uv(mb, (u, vf + n_ * 0.1, za), (u, vf + n_ * (arm + 0.1), za), 0.14, 0.16, IRON)
+    br = []
+    for i in range(5):
+        t = (math.pi / 2) * i / 4
+        br.append(P(u, vf + n_ * (0.12 + (arm - 0.35) * (1 - math.cos(t))), za - 1.0 + 0.95 * math.sin(t)))
+    mb.sweep(br, [(-0.055, -0.055), (0.055, -0.055), (0.055, 0.055), (-0.055, 0.055)], IRON, True, None,
+             up=(1.0, 0.0, 0.0))
+    _lathe(mb, P(u, vf + n_ * (arm + 0.14), za - 0.08), [(0.11, 0.0), (0.11, 0.1), (0.0, 0.26)], IRON, 6)
+    lc = P(u, vf + n_ * (arm - 0.2), 0.0)
+    tip = za - 0.08 - 0.45
+    mb.rod((lc.x, lc.y, za - 0.02), (lc.x, lc.y, tip - 0.2 * LAMP_S), 0.05, IRON, 6)
+    base = tip - 2.30 * LAMP_S
+    gc = EM.lantern_head(mb, mb, (lc.x, lc.y, base + EM.LH_BASE * LAMP_S), ANG + (math.pi / 2) * n_, LAMP_S)
+    light("L_SGExit_Head_%s" % ("N" if s > 0 else "S"), "POINT", tuple(gc), 320.0, WARM, 0.4)
     # colisao propria: plinto + fuste (o braco fica acima de 6,5 do piso)
     col_box("SG_ExitHead", (4.2, 4.2, zc + 0.3 - Z), tuple(P(u, v, Z + (zc + 0.3 - Z) / 2)), R0)
+
+
+def finish_quiet(mb):
+    """finish com o crescente do emblema em Stone_SG_Violet (sem Neon) - estandartes (auditoria 15.05)"""
+    saved = fm_lib.MAT_ALIAS.get(EM.MOON)
+    fm_lib.MAT_ALIAS[EM.MOON] = "Stone_SG_Violet"
+    try:
+        return mb.finish()
+    finally:
+        if saved is None:
+            fm_lib.MAT_ALIAS.pop(EM.MOON, None)
+        else:
+            fm_lib.MAT_ALIAS[EM.MOON] = saved
 
 
 def head():
@@ -484,11 +667,11 @@ def head():
     ma = mb
     u0 = -9.5
     bx(ma, u0, -HEAD_V - 1.1, Z - 0.3, 0.0, HEAD_V + 1.1, Z + 0.03, PAVE)
-    bx(ma, u0 - 0.7, -HEAD_V - 1.8, Z - 0.3, u0, HEAD_V + 1.8, Z + 0.04, TRIM)
+    bx(ma, u0 - 0.7, -HEAD_V - 1.8, Z - 0.3, u0, HEAD_V + 1.8, Z + 0.04, CAPL)
     for s in (-1, 1):
         v0, v1 = sorted((s * (HEAD_V + 1.1), s * (HEAD_V + 1.8)))
-        bx(ma, u0, v0, Z - 0.3, 0.0, v1, Z + 0.04, TRIM)
-    return mb.finish()
+        bx(ma, u0, v0, Z - 0.3, 0.0, v1, Z + 0.04, CAPL)
+    return finish_quiet(mb)
 
 
 # ------------------------------------------------------------------ ilhota do portao + plataforma da ancora
@@ -613,17 +796,22 @@ def hexcol(mb, cu, cv, r, zt, zb, rng, m=ROCK, tip=0.0, strata=None):
 def islet(mb, rng):
     poly = islet_poly()
     # piso de lajes (topo = Z exato) com a quina clara; borda de cantaria escura recuada; soco
-    prism_uv(mb, poly, Z - 0.6, Z, TRIM, top_m=PAVE)
+    prism_uv(mb, poly, Z - 0.6, Z, CAPL, top_m=PAVE)
     prism_uv(mb, islet_poly(0.35), Z - 3.9, Z - 0.6, STONE)
     prism_uv(mb, islet_poly(0.1), Z - 4.5, Z - 3.9, TRIM)
-    # junta reta com a ponte (faixa clara atravessada) e faixa da ancora (onde a ponte seguinte encosta)
-    bx(mb, PAVE_END, -HW, Z - 0.3, PAVE_END + 1.0, HW, Z + 0.03, TRIM)
-    bx(mb, ANCHOR_U0 - 0.5, -HW, Z - 0.3, ANCHOR_U0 + 0.5, HW, Z + 0.03, TRIM)
-    bx(mb, UA - 1.0, -HW, Z - 0.6, UA, HW, Z + 0.04, TRIM)
+    # OVERHAUL 11 (11.06): SOLEIRA de cantaria na junta com a ponte (5 pedras chanfradas com junta, um pouco mais
+    # larga que o corredor, pousada sobre a quina) no lugar da faixa reta; faixa da ancora (onde a ponte seguinte encosta)
+    nb = 5
+    for k in range(nb):
+        va = -HW - 0.3 + (2 * HW + 0.6) * k / nb + (0.04 if k else 0.0)
+        vb = -HW - 0.3 + (2 * HW + 0.6) * (k + 1) / nb - (0.04 if k < nb - 1 else 0.0)
+        bx(mb, PAVE_END - 0.05, va, Z - 0.3, PAVE_END + 1.15, vb, Z + 0.04, CAPL, 0.05)
+    bx(mb, ANCHOR_U0 - 0.5, -HW, Z - 0.3, ANCHOR_U0 + 0.5, HW, Z + 0.03, CAPL)
+    bx(mb, UA - 1.0, -HW, Z - 0.6, UA, HW, Z + 0.04, CAPL)
     # corredor do eixo (portao -> ancora): 2 frisos claros rentes que levam o olho ate a ancora
     for s in (-1, 1):
-        bx(mb, GATE_RECT[1] + 0.2, s * 7.6 - 0.3, Z - 0.3, ANCHOR_U0 - 0.5, s * 7.6 + 0.3, Z + 0.03, TRIM)
-        bx(mb, PAVE_END + 1.0, s * 7.6 - 0.3, Z - 0.3, GATE_RECT[0] - 0.2, s * 7.6 + 0.3, Z + 0.03, TRIM)
+        bx(mb, GATE_RECT[1] + 0.2, s * 7.6 - 0.3, Z - 0.3, ANCHOR_U0 - 0.5, s * 7.6 + 0.3, Z + 0.03, CAPL)
+        bx(mb, PAVE_END + 1.15, s * 7.6 - 0.3, Z - 0.3, GATE_RECT[0] - 0.2, s * 7.6 + 0.3, Z + 0.03, CAPL)
     # juntas das lajes em aneis e raios (faixas escuras rentes) dos 2 lados do corredor do eixo; o corredor
     # (entre os frisos claros), a base do portao e a plataforma da ancora ficam lisos
     def joint_ok(u, v):
@@ -670,8 +858,13 @@ def islet(mb, rng):
             continue
         d = (b_ - a_).normalized()
         nrm = Vector((d.y, -d.x)) if SL.area([PW(*p) for p in ring]) > 0 else Vector((-d.y, d.x))
-        c = q + nrm * 0.25
-        mb.box((0.8, 0.7, 1.0), P(c.x, c.y, Z - 1.25), (0, 0, ANG + math.atan2(d.y, d.x)), TRIM, 0.0)
+        # OVERHAUL 11 (11.06): MISULA em cunha encostada na laje (topo em Z - 0,6) e recolhida sob a quina (sai 0,3 da
+        # parede; a laje sai 0,35): a borda le capa continua sobre misulas, nao fileira de dentes
+        qw = Vector((*PW(q.x, q.y), 0.0))
+        nw = Vector((nrm.x, nrm.y, 0.0))
+        dw = Vector((d.x, d.y, 0.0))
+        _yz_up(mb, qw, nw, dw, [(-0.1, Z - 0.6), (0.3, Z - 0.6), (0.3, Z - 0.84), (0.06, Z - 1.5), (-0.1, Z - 1.5)],
+               0.7, TRIM)
     # rocha em colunas embaixo (cone invertido de basalto): massa primaria (5 colunas grossas e fundas no meio),
     # secundaria (grade de colunas medias que afinam para a borda) e quebra pequena (colunetas curtas na quina)
     zt = Z - 3.7
@@ -741,13 +934,17 @@ def islet_rails(mb):
     if len(run) > 2:
         runs.append(run)
     # junta o ultimo com o primeiro se o corte cair no angulo 0
+    corners = [Vector((_islet_meet(), s * (HW + 0.5))) for s in (-1, 1)]
     for run in runs:
         simp = run[::6] + ([run[-1]] if (len(run) - 1) % 6 else [])
-        ds_rail(mb, simp)
+        # a ponta que encosta na quina da ponte usa o pilar de ponta da guarda da ponte (nada de 2 pilares juntos)
+        ends = tuple(min((Vector(simp[i]) - c).length for c in corners) > 2.5 for i in (0, -1))
+        ds_rail(mb, simp, end_posts=ends, tips=ends)
     # lados da plataforma da ancora (da borda do circulo ate a ponta) - pilaretes-ponta onde a ponte seguinte encosta
     for s in (-1, 1):
         u_c = UC + math.sqrt(max(0.0, (RI - 0.5) ** 2 - (HW + 0.5) ** 2))
-        ds_rail(mb, [(min(u_c, ANCHOR_U0), s * (HW + 0.5)), (UA - 0.6, s * (HW + 0.5))])
+        ds_rail(mb, [(min(u_c, ANCHOR_U0), s * (HW + 0.5)), (UA - 0.6, s * (HW + 0.5))], end_posts=(True, False),
+                tips=(True, False))
         ds_post(mb, UA - 1.1, s * (HW + 1.1), 1.8)                   # pilaretes-ponta (onde a ponte seguinte encosta)
 
 
