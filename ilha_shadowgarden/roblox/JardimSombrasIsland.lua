@@ -108,6 +108,17 @@ local function vfx(model, mk)
 			vel = 0.7, tam = 0.4, fim = 0.2, acc = V(0, 1, 0), luz = 0.7, infl = 0.3, transp = 0.35, area = V(10, 16, 10),
 			forma = Enum.ParticleEmitterShape.Box, dist = 180 })
 	end
+	-- cristais da borda (refino v2): pecas Neon do material SG_Crystal_Glow pulsam devagar (ILHAS_Cliente anima a tag
+	-- IlhaPulso com a cor base Cor0; culling por distancia ja e dele)
+	local nc = 0
+	for _, d in ipairs(model:GetDescendants()) do
+		if d:IsA('BasePart') and d.Material == Enum.Material.Neon and string.find(d.Name, 'SG_Crystal_Glow', 1, true) then
+			d:SetAttribute('Cor0', d.Color)
+			CS:AddTag(d, 'IlhaPulso')
+			nc += 1
+		end
+	end
+	if nc > 0 then print('[JardimSombrasIsland] ' .. nc .. ' pecas de cristal pulsando (IlhaPulso)') end
 end
 
 -- a maquina de gacha vira o motor invisivel da torre (o mesmo esquema das Ilhas 1 e 2)

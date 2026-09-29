@@ -24,10 +24,10 @@ def setup(res=(1600, 900), samples=32):
             cr = nd.color_ramp
             cols = {0: (0.080, 0.085, 0.20, 1), 1: (0.010, 0.012, 0.045, 1)}
             els = sorted(cr.elements, key=lambda e: e.position)
-            els[0].color = (0.090, 0.085, 0.21, 1)       # horizonte roxo-navy
-            els[-1].color = (0.008, 0.010, 0.040, 1)     # zenite quase preto azulado
+            els[0].color = (0.115, 0.085, 0.26, 1)       # horizonte roxo (referencia v2)
+            els[-1].color = (0.012, 0.010, 0.055, 1)     # zenite roxo-preto
             if len(els) > 2:
-                els[1].color = (0.030, 0.034, 0.110, 1)
+                els[1].color = (0.045, 0.036, 0.150, 1)
         if nd.bl_idname == "ShaderNodeBackground" and nd.inputs["Color"].is_linked:
             nd.inputs["Strength"].default_value = 0.55       # ceu visto pela camera: noite (a luz ambiente e a outra)
     fm_scene.SUN_DIR = MOON_DIR
@@ -109,11 +109,20 @@ def clouds():
 
 
 def moon():
-    """SO previa (o Roblox usa a lua do Sky): disco frio grande no noroeste, fora do export"""
-    mb = MB("PREVIEW_Moon", "00_REFERENCE", random.Random(5), detail="far", floor=-999)
+    """SO previa (o Roblox usa a lua do Sky): LUA ENORME no noroeste (referencia v2: ela ocupa o fundo do castelo)
+    + estrelas espalhadas. Colecao 00_REFERENCE: fora do export."""
+    rng = random.Random(5)
+    mb = MB("PREVIEW_Moon", "00_REFERENCE", rng, detail="far", floor=-999)
     d = MOON_DIR
     c = Vector((d.x, d.y, 0.0)).normalized() * 1500.0
-    mb.ico(90.0, (c.x, c.y, 620.0), "SG_Moon_Glow", 2)
+    mb.ico(220.0, (c.x, c.y, 640.0), "SG_Moon_Glow", 3, jitter=0.03)
+    for i in range(90):
+        a = rng.uniform(0, 2 * math.pi)
+        r = rng.uniform(700.0, 1700.0)
+        z = rng.uniform(180.0, 900.0)
+        if (Vector((math.cos(a), math.sin(a), 0)) - Vector((d.x, d.y, 0)).normalized()).length < 0.35 and z > 400:
+            continue                                    # nao cobre a lua
+        mb.ico(rng.uniform(1.6, 4.2), (math.cos(a) * r, math.sin(a) * r, z), "SG_Moon_Glow", 1)
     mb.finish()
 
 

@@ -87,7 +87,7 @@ def plaque(mb_stone, mb_metal, mb_glow, mb_dark, c, yaw, r):
     emblem(mb_metal, mb_glow, mb_dark, _p(c, f, u, 0, 0, 0.05), yaw, r * 0.92, depth=0.45)
 
 
-def banner(mb_cloth, mb_metal, mb_glow, mb_dark, top, yaw, w, h, tails=True):
+def banner(mb_cloth, mb_metal, mb_glow, mb_dark, top, yaw, w, h, tails=True, trim=None):
     """estandarte pendurado por uma verga de ferro/prata em 'top' (centro da verga), olhando para yaw"""
     f, u = _frame(top, yaw)
     th = 0.22
@@ -97,10 +97,11 @@ def banner(mb_cloth, mb_metal, mb_glow, mb_dark, top, yaw, w, h, tails=True):
     body_h = h * (0.84 if tails else 1.0)
     mb_cloth.box((w, th, body_h), _p(top, f, u, 0, -body_h / 2 - 0.15, 0.05), (0, 0, yaw + math.pi / 2), CLOTH, 0.0)
     # barra negra no alto e bordas de prata
+    tm = trim or SILVER
     mb_dark.box((w + 0.02, th + 0.04, h * 0.08), _p(top, f, u, 0, -h * 0.09, 0.07), (0, 0, yaw + math.pi / 2), SHADOW, 0.0)
     for s in (-1, 1):
         mb_metal.box((0.14, th + 0.06, body_h), _p(top, f, u, s * (w / 2 - 0.07), -body_h / 2 - 0.15, 0.08),
-                     (0, 0, yaw + math.pi / 2), SILVER, 0.0)
+                     (0, 0, yaw + math.pi / 2), tm, 0.0)
     if tails:
         zb = -body_h - 0.15
         for s in (-1, 1):
@@ -111,3 +112,45 @@ def banner(mb_cloth, mb_metal, mb_glow, mb_dark, top, yaw, w, h, tails=True):
             mb_cloth.tri(cc, b, a, CLOTH)
     er = min(w * 0.36, h * 0.16)
     emblem(mb_metal, mb_glow, mb_dark, _p(top, f, u, 0, -h * 0.36, th / 2 + 0.12), yaw, er, depth=0.25)
+
+
+# ---------------------------------------------------------------- lanternas da ordem (referencia v2)
+# Lanterna de moldura DOURADA com vidro quente (Lantern_Glow): o ritmo de luz da referencia. SO Neon (sem luz real):
+# quem chamar decide se poe uma luz de verdade perto (teto de luzes do export e apertado).
+GOLD = "Metal_Gold"
+
+
+def lantern_head(mb_metal, mb_glow, c, yaw=0.0, s=1.0):
+    """caixa da lanterna centrada em c (centro do vidro): base, vidro, 4 montantes dourados, chapeu com remate"""
+    x, y, z = c
+    mb_metal.box((1.5 * s, 1.5 * s, 0.28 * s), (x, y, z - 1.0 * s), (0, 0, yaw), GOLD, 0.0)
+    mb_glow.box((1.05 * s, 1.05 * s, 1.7 * s), (x, y, z), (0, 0, yaw), "Lantern_Glow", 0.0)
+    for sx in (-1, 1):
+        for sy in (-1, 1):
+            ca, sa = math.cos(yaw), math.sin(yaw)
+            dx, dy = sx * 0.6 * s, sy * 0.6 * s
+            mb_metal.box((0.16 * s, 0.16 * s, 1.95 * s), (x + dx * ca - dy * sa, y + dx * sa + dy * ca, z), (0, 0, yaw),
+                         GOLD, 0.0)
+    mb_metal.cyl(1.05 * s, 0.62 * s, (x, y, z + 1.25 * s), (0, 0, yaw + math.pi / 4), m=GOLD, n=4, r2=0.18 * s, bevel=0.0)
+    mb_metal.box((0.18 * s, 0.18 * s, 0.7 * s), (x, y, z + 1.7 * s), (0, 0, yaw), GOLD, 0.0)
+
+
+def lantern_pedestal(mb_stone, mb_metal, mb_glow, base, yaw=0.0, s=1.0):
+    """lanterna sobre pedestal baixo de obsidiana (parapeito de ponte/calcada, como na referencia). base = (x, y, z do piso)"""
+    x, y, z = base
+    mb_stone.box((1.9 * s, 1.9 * s, 0.5 * s), (x, y, z + 0.25 * s), (0, 0, yaw), SHADOW, 0.05)
+    mb_stone.box((1.4 * s, 1.4 * s, 1.5 * s), (x, y, z + 1.25 * s), (0, 0, yaw), SHADOW, 0.05)
+    mb_stone.box((1.7 * s, 1.7 * s, 0.3 * s), (x, y, z + 2.15 * s), (0, 0, yaw), SILVER, 0.0)
+    lantern_head(mb_metal, mb_glow, (x, y, z + 3.35 * s), yaw, s)
+    return (x, y, z + 3.35 * s)
+
+
+def lantern_post(mb_metal, mb_glow, base, yaw=0.0, h=7.0, s=1.0):
+    """poste de ferro negro com soco de obsidiana e lanterna dourada no alto (praca/eixo/patio)"""
+    x, y, z = base
+    mb_metal.box((1.4 * s, 1.4 * s, 0.9 * s), (x, y, z + 0.45 * s), (0, 0, yaw), SHADOW, 0.05)
+    mb_metal.box((0.5 * s, 0.5 * s, h - 1.4 * s), (x, y, z + 0.9 * s + (h - 1.4 * s) / 2), (0, 0, yaw),
+                 "Metal_SG_BlackIron", 0.0)
+    mb_metal.box((0.9 * s, 0.9 * s, 0.22 * s), (x, y, z + h - 0.4 * s), (0, 0, yaw), GOLD, 0.0)
+    lantern_head(mb_metal, mb_glow, (x, y, z + h + 0.9 * s), yaw, s)
+    return (x, y, z + h + 0.9 * s)

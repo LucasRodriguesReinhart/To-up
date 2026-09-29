@@ -95,12 +95,12 @@ ER.OWNERS = [("SG_Ter_", "terrain"), ("SG_Sky_", "terrain"), ("SG_Ent_", "entry"
              ("SG_Dun_", "dungeon"), ("SG_Water_", "water"), ("SG_Exit_", "exit"), ("GATE_", "gate_ds"),
              ("VFX_", "vfx"), ("SG_Veg_", "vegetation"), ("SG_Prop_", "props")]
 # tetos por dono = orcamento das zonas (REFINAMENTO_BRIEF.md) + ~8% de folga do export (fatias por material/celula)
-ER.BUDGET_OWNER = {"terrain": (100000, 125), "entry": (34000, 45), "village": (66000, 100), "castle": (130000, 165),
-                   "hall": (44000, 55), "summon": (40000, 52), "craft": (34000, 45), "dungeon": (65000, 82),
-                   "water": (17000, 28), "exit": (23000, 34), "gate_ds": (30000, 40), "vfx": (16000, 45),
-                   "vegetation": (32000, 60), "props": (48000, 80)}
-ER.BUDGET = {"static_tris": 480000, "static_meshes": 700, "vfx_tris": 14000, "vfx_meshes": 40, "total_tris": 494000,
-             "total_meshes": 740, "materials": 120, "shadow_meshes": 300, "day_lights": 42, "col": 1800}
+ER.BUDGET_OWNER = {"terrain": (130000, 165), "entry": (44000, 60), "village": (76000, 110), "castle": (162000, 195),
+                   "hall": (44000, 55), "summon": (42000, 55), "craft": (54000, 66), "dungeon": (86000, 108),
+                   "water": (22000, 35), "exit": (28000, 42), "gate_ds": (30000, 40), "vfx": (18000, 50),
+                   "vegetation": (34000, 62), "props": (70000, 110)}
+ER.BUDGET = {"static_tris": 560000, "static_meshes": 800, "vfx_tris": 18000, "vfx_meshes": 50, "total_tris": 578000,
+             "total_meshes": 850, "materials": 130, "shadow_meshes": 320, "day_lights": 42, "col": 1800}
 cx, cy = to_world_xy(0.0, -10.0)
 ER.FAR_GROUND = None                 # o mar distante ja vem da Ilha 1 (um so FAR_GROUND no mundo)
 # rede de seguranca embaixo da ilha: ABAIXO das salas da masmorra (piso 6,0 dentro da rocha)

@@ -41,10 +41,10 @@ ZONE_MARKERS = {
 # orcamento por zona: (tris, MeshParts estimadas, materiais NOVOS, colisoes COL_, luzes)
 # total da ilha: <= 480k tris, <= ~680 MeshParts, <= ~1800 colisoes, <= 40 luzes (a noite pede luz local)
 BUDGET = {
-    "terrain": (90000, 110, 6, 80, 0), "entry": (30000, 40, 3, 40, 4), "village": (60000, 90, 5, 80, 5),
-    "castle": (120000, 150, 9, 160, 5), "hall": (40000, 50, 7, 40, 6), "summon": (35000, 45, 4, 40, 3),
-    "craft": (30000, 40, 4, 60, 3), "dungeon": (60000, 75, 8, 140, 7), "water": (15000, 25, 2, 10, 0),
-    "exit": (20000, 30, 3, 40, 2), "dressing": (70000, 120, 8, 150, 7),
+    "terrain": (120000, 150, 8, 90, 0), "entry": (40000, 55, 4, 45, 5), "village": (70000, 100, 6, 90, 6),
+    "castle": (150000, 180, 10, 170, 5), "hall": (40000, 50, 7, 40, 6), "summon": (38000, 50, 5, 42, 3),
+    "craft": (50000, 60, 6, 70, 4), "dungeon": (80000, 100, 9, 150, 7), "water": (20000, 32, 3, 10, 0),
+    "exit": (26000, 38, 4, 45, 3), "dressing": (90000, 150, 9, 160, 7),
 }
 
 

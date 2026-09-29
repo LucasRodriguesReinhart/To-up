@@ -135,6 +135,9 @@ MINE_DOOR_LANE = (0.0, 44.0, 60.0, 7.0)      # (x, y0, y1, meia-largura) corredo
 
 # ------------------------------------------------------------------ dungeon: portaria (NE, P3) + salas modulares (sob a ilha)
 DUNGEON_HOUSE = (100.0, 72.0, 26.0, 26.0)    # (cx, cy, largura, profundidade) torre-portaria; porta na face SUL
+# refino v2: a portaria vira BOCA DE CAVERNA escavada na rocha; a massa de rocha da caverna pode ocupar esta caixa
+# (x0, y0, x1, y1) no P3, fundindo com os montes do terreno. Interior/porta/portal/rotas iguais.
+DUNGEON_CAVE_MASS = (80.0, 74.0, 126.0, 116.0)
 DUNGEON_DOOR_W = 10.0
 DUNGEON_DOOR_H = 14.0
 DUNGEON_PORTAL = (100.0, 80.0)               # portal espiral no fundo do interior (encara o sul)
@@ -147,7 +150,7 @@ DUN_KEEP_OUT = (-70.0, 50.0, 2.0, 74.0, 110.0, 32.0)   # caixa onde NENHUMA geom
 
 # ------------------------------------------------------------------ craft (P2, leste do meio)
 CRAFT_C = (90.0, -60.0)
-CRAFT_R = 13.0                        # raio externo do pavilhao redondo (interior ~10,5; porta a oeste)
+CRAFT_R = 16.0                        # raio externo do pavilhao redondo (interior ~13; porta a oeste)  [refino v2]
 CRAFT_DOOR_DEG = 180.0                # porta voltada para o oeste (rua principal do P2)
 CRAFT_DOOR_W = 8.0
 CRAFT_DOOR_H = 11.0
@@ -179,8 +182,8 @@ STREETS = [
     ([(-26.0, -118.0), (-60.0, -120.0), (-100.0, -118.0)], 9.0, P1),          # praca -> ponte do summon
     ([(26.0, -118.0), (64.0, -120.0), (110.0, -116.0)], 9.0, P1),             # praca -> mirante leste
     ([(0.0, -83.0), (0.0, -26.0)], 12.0, P2),                                 # eixo: escada P1P2 -> escada do portao
-    ([(-110.0, -45.0), (-40.0, -44.0), (0.0, -45.0), (60.0, -45.0), (70.0, -56.0), (77.0, -60.0)], 9.0, P2),   # rua do P2 -> craft
-    ([(100.0, -38.0), (130.0, -38.0), (157.0, -38.0)], 12.0, P2),             # craft -> saida
+    ([(-110.0, -45.0), (-40.0, -44.0), (0.0, -45.0), (58.0, -45.0), (66.0, -56.0), (72.0, -60.0)], 9.0, P2),   # rua do P2 -> craft (pavilhao maior)
+    ([(104.0, -36.0), (130.0, -38.0), (157.0, -38.0)], 12.0, P2),             # craft -> saida (pavilhao maior)
     ([(0.0, -3.0), (0.0, 40.0)], 14.0, P3),                                   # portao -> porta do castelo
     ([(46.0, 20.0), (80.0, 30.0), (100.0, 59.0)], 9.0, P3),                   # patio -> portaria da dungeon
     ([(112.0, -9.0), (110.0, 30.0), (100.0, 59.0)], 9.0, P3),                 # escada leste -> dungeon
