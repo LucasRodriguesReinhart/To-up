@@ -61,6 +61,41 @@ task.spawn(function()          -- as pecas entram/saem com o streaming: reaplica
 	end
 end)
 
+-- INTERIORES: a musica (SomJogo) NAO reinicia ao entrar no castelo/alquimia/masmorra (mesma area); so o ambiente
+-- acustico muda de leve via SoundService.AmbientReverb. Restaurado ao sair dos interiores e da area.
+local SoundService = game:GetService('SoundService')
+local reverbOriginal = SoundService.AmbientReverb
+local function interiorAtual()
+	if not ligadoFundos then return nil end
+	if player:GetAttribute('DungeonRun') then return Enum.ReverbType.StoneCorridor end
+	local ch = player.Character
+	local hrp = ch and ch:FindFirstChild('HumanoidRootPart')
+	local areas = workspace:FindFirstChild('Areas')
+	local a3 = areas and areas:FindFirstChild('Area3')
+	if not (hrp and a3) then return nil end
+	local p = hrp.Position
+	local zona = a3:FindFirstChild('MiningZone_ShadowGarden', true)
+	if zona and zona:IsA('BasePart') then
+		local l = zona.CFrame:PointToObjectSpace(p)
+		if math.abs(l.X) <= zona.Size.X / 2 + 3 and math.abs(l.Z) <= zona.Size.Z / 2 + 3 and l.Y > -2 and l.Y < 26 then
+			return Enum.ReverbType.StoneRoom
+		end
+	end
+	local alq = a3:FindFirstChild('AlquimiaEstacao', true)
+	if alq and alq:IsA('BasePart') and (Vector3.new(p.X, 0, p.Z) - Vector3.new(alq.Position.X, 0, alq.Position.Z)).Magnitude < 14
+		and math.abs(p.Y - alq.Position.Y) < 10 then
+		return Enum.ReverbType.StoneRoom
+	end
+	return nil
+end
+task.spawn(function()
+	while true do
+		task.wait(0.5)
+		local r = interiorAtual() or reverbOriginal
+		if SoundService.AmbientReverb ~= r then SoundService.AmbientReverb = r end
+	end
+end)
+
 local function aplicar(ligado)
 	ligadoFundos = ligado
 	if ligado then aplicarFundos() else restaurarFundos() end

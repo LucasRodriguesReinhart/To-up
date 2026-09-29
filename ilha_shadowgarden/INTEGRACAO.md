@@ -104,3 +104,24 @@ anterior ficou em `ServerStorage.IlhaShadowGarden_ac1e1ae5` (rollback: renomear)
   - jogo: `renders/finesse_ad_jogo.jpg` e `renders/finesse_jogo_gerais.jpg`;
   - folhas por zona em `renders/finesse_folhas_*` e `renders/finesse_depois_castelo_hall/`.
 - **Correção de prévia:** o `sea()` do `sg_scene` reconstruía todos os materiais e anulava o limite de brilho da prévia. O ANTES foi renderizado de novo com a correção e a paleta antiga, para a comparação ser justa.
+
+## Trilha da área 3: Moonlight Sonata, 1º movimento (2026-09-29)
+- **Faixa:** `AudioCatalog.Music[3]` passou a ser o asset `1848050065`, "Moonlight Sonata, Adagio Sostenuto": Beethoven, Sonata nº 14, op. 27 nº 2, I. Adagio sostenuto; 367 s no Roblox.
+  - A faixa anterior era "The Forgotten Crypt" (`131334832939011`).
+  - Cópia em `roblox/patches_jogo/AudioCatalog.lua`; backup em `ServerStorage.BeforeShadowGarden_20260929.AudioCatalog`.
+- **Origem e uso:** gravação da biblioteca de música licenciada do Roblox.
+  - Asset publicado no Creator Store pela conta `APMOfficial` (APM Music, parceira de licenciamento do Roblox; biblioteca Sonia Classic, descrição "Courtesy of APM Music").
+  - É a mesma fonte das outras músicas de área do jogo (o `AudioCatalog` já registra "Licensed Roblox library sources").
+  - A composição é de domínio público. A GRAVAÇÃO **não** é domínio público: o uso vale dentro de experiências Roblox pela licença do catálogo.
+  - Nada foi baixado nem reenviado de serviço externo.
+- **Sistema:** o existente (`SomJogo`, duas faixas com crossfade por área). Nenhum sistema novo.
+  - Castelo, alquimia e masmorra ficam na mesma área, então a música NÃO reinicia.
+  - O `CeuSombras` troca só o `SoundService.AmbientReverb`: StoneRoom no Mining Hall e na alquimia, StoneCorridor na masmorra. Restaura ao sair.
+- **Teste no Play:**
+  - Dragon Ball → Shadow Garden: crossfade de cerca de 2 s e depois só a Moonlight Sonata;
+  - pátio → Mining Hall: continua em 33 s, com reverb;
+  - Mining Hall → pátio: sem reverb, música contínua;
+  - alquimia: reverb, música contínua;
+  - masmorra: StoneCorridor, música contínua;
+  - morte na masmorra: respawn no lobby do jogo, crossfade para a trilha do lobby, uma trilha só.
+  - As outras áreas usam as mesmas faixas de antes.

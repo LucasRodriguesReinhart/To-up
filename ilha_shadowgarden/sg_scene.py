@@ -241,6 +241,11 @@ CAMS = {
     "CAM_SG_CU_CastleDoor": ((0.0, 22.0, P3 + 5.2), (0.0, 42.0, P3 + 9.0), 22),
     "CAM_SG_CU_CastleWindow": ((-12.0, 25.0, P3 + 5.2), (-22.0, 40.0, P3 + 12.5), 24),
     "CAM_SG_CU_VillageHouse": ((28.0, -124.0, P1 + 5.2), (50.0, -140.0, P1 + 8.0), 22),
+    # auditoria do passe de acabamento 2 (guardas do porche do castelo, frasco gigante da alquimia)
+    "CAM_SG_AU_GuardFront": ((-4.0, 24.0, P3 + 4.6), (-12.0, 37.0, P3 + 8.5), 30),
+    "CAM_SG_AU_GuardSide": ((-26.0, 30.0, P3 + 5.2), (-12.0, 37.0, P3 + 8.0), 30),
+    "CAM_SG_AU_Flask": ((70.0, -50.0, P2 + 20.0), (90.0, -60.0, P2 + 27.0), 30),
+    "CAM_SG_AU_CraftBase": ((70.0, -74.0, P2 + 5.2), (90.0, -60.0, P2 + 6.0), 24),
 }
 
 
