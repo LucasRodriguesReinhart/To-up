@@ -110,7 +110,8 @@ def dungeon_markers():
        props={"note": "portal espiral no fundo da portaria (encara o sul)"})
     mk("DUNGEON_Entrance", (px, py - 6.0, L.P3), (0, 0, 0), 2.0, "SPHERE",
        props={"radius": 6.0, "note": "zona/prompt de entrada na corrida (so com ENTRY_OPEN)"})
-    mk("DUNGEON_UI", (cx, cy - d / 2 - 1.5, L.P3 + L.DUNGEON_DOOR_H + 3.0), (0, 0, yaw_to(0, -1)), 2.0, "SINGLE_ARROW",
+    # centro da placa de contagem da fachada-portal (sg_dungeon: placa em P3+14..16,9, logo abaixo do vortice)
+    mk("DUNGEON_UI", (cx, 58.1, L.P3 + 15.45), (0, 0, yaw_to(0, -1)), 2.0, "SINGLE_ARROW",
        props={"ui": "BillboardGui: estado e contagem da dungeon (XX:00 / XX:30)"})
     mk("DUNGEON_Return", (cx, cy - d / 2 - 8.0, L.P3 + 0.2), (0, 0, yaw_to(0, -1)), 2.0, "ARROWS",
        props={"note": "para onde o jogador volta ao sair/terminar (patio, em frente a porta)"})

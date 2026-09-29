@@ -39,12 +39,16 @@ def _disc(mb, c, f, r, thick, m, n=24):
     mb.cyl(r, thick, c, (0.0, math.pi / 2, yaw), m=m, n=n, bevel=0.0)
 
 
-def _ring(mb, c, f, u, r, w, m, n=28, d=0.0):
-    pts = []
-    for i in range(n + 1):
-        t = 2 * math.pi * i / n
-        pts.append(_p(c, f, u, r * math.cos(t), r * math.sin(t), d))
-    mb.tube(pts, w, m, 6)
+def _ring(mb, c, f, u, r, w, m, n=24, d=0.0):
+    """anel por segmentos retos (caixas) no plano do emblema: sem costura degenerada de tubo fechado"""
+    yaw = math.atan2(f[1], f[0])
+    seg = 2 * math.pi * r / n * 1.04
+    for i in range(n):
+        t = 2 * math.pi * (i + 0.5) / n
+        p = _p(c, f, u, r * math.cos(t), r * math.sin(t), d)
+        # tangente no plano (-sin t, cos t) em (u, z): inclina em Y pelo angulo da tangente e gira para o eixo u
+        ang = t + math.pi / 2
+        mb.box((seg, w * 1.6, w * 1.6), p, (0, -ang, yaw - math.pi / 2), m, 0.0)
 
 
 def emblem(mb_metal, mb_glow, mb_dark, c, yaw, r, depth=0.6, monumental=False):

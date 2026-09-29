@@ -3,11 +3,17 @@
 # praca. So ambientacao (o ultimo na hierarquia): poucas pecas, cada uma com funcao de leitura.
 # Substitui sg_blockout.village. Colisao propria: corpo de cada casa (caixa), torreao, postes. O piso, a escada, a
 # bacia da fonte e as guardas sao do sg_col (congelado).
+# REFINAMENTO 2026-09-28 (identidade da ordem): o eixo nobre (rua do P2 e patio) e desenhado pelo sg_court (lajes de
+# marmore negro, borda de obsidiana, fio violeta); as ruas secundarias viram paralelepipedo escuro com meio-fio claro;
+# a fonte leva o EMBLEMA da ordem (sg_emblem) no lugar da lua solta; o fio do eixo atravessa a praca ate a fonte; o par
+# de postes do topo da escada P1P2 vira o arco de ferro negro (transicao praca -> vila alta); 2 estandartes pequenos
+# da ordem nas casas do P2 que ladeiam o eixo; floreiras baixas de obsidiana nas bases das casas.
 import math, random
 from mathutils import Vector
 import sg_lib as SL
 from sg_lib import MB, col_box, Frame, light, octo_col, fm_lib
 import sg_layout as L
+import sg_emblem as EM
 
 P1, P2, P3 = L.P1, L.P2, L.P3
 COLL = "05_VILLAGE"
@@ -24,6 +30,13 @@ M_SHUT = "Wood_SGVilNavy"       # persianas / postigos pintados de navy
 fm_lib.MATS.setdefault(M_PL, (fm_lib.S(96, 88, 88), 0.8, 0.0, 0, None, 0.06))
 fm_lib.MATS.setdefault(M_COB, (fm_lib.S(72, 76, 92), 0.9, 0.0, 0, None, 0.10))
 fm_lib.MATS.setdefault(M_SHUT, (fm_lib.S(36, 42, 72), 0.75, 0.0, 0, None, 0.05))
+# 4o material: a flor violeta dessaturada (o mesmo dos canteiros do patio, sg_court) nas floreiras das casas
+M_BLOOM = "Leaf_SGPropBloom"
+fm_lib.MATS.setdefault(M_BLOOM, (fm_lib.S(98, 66, 132), 0.85, 0.0, 0, None, 0.08))
+OBS = "Stone_SG_Obsidian"
+BIRON = "Metal_SG_BlackIron"
+AXIS_HW = 6.0                   # meia-largura do eixo nobre no P2 (sg_court.PATH_W / 2)
+DUN_PLAZA_Y = 33.0              # borda sul da praca de aproximacao da dungeon (sg_dungeon): as ruas do P3 param aqui
 
 CAMS = {
     # 360 da vila (frente, tras, lados) + altura do jogador nas ruas do P1 e do P2
@@ -478,12 +491,20 @@ def plaza():
             inner = SL.arc_pts(9.8, a1, a0, 5.0, c[0], c[1])
             mb.prism(SL.ccw(outer + inner), z - 0.1, z + 0.095, M_COB)
         a = math.radians(a0)
+        if k in (4, 12):
+            continue            # os raios do eixo viram o fio da ordem (abaixo)
         for r0, r1 in ((9.8, 16.4), (17.0, R - 1.4)):
             if r0 > 16 and k % 2 == 1:
                 continue
             rm = (r0 + r1) / 2
             mb.box((r1 - r0, 0.55, 0.22), (c[0] + rm * math.cos(a), c[1] + rm * math.sin(a), z + 0.0),
                    (0, 0, a), TRIM, 0.0)
+    # o FIO da ordem atravessa a praca no eixo: da borda (vindo da entrada / indo para a escada) ate o colar da fonte;
+    # barra de obsidiana com o fio violeta rente (mesmo desenho do eixo nobre do sg_court)
+    for s in (-1, 1):
+        ya, yb = sorted((c[1] + s * 9.25, c[1] + s * (R + 0.02)))
+        mb.box2((c[0] - 0.55, ya, z - 0.1), (c[0] + 0.55, yb, z + 0.14), OBS, 0.0)
+        mb.box2((c[0] - 0.14, ya, z - 0.1), (c[0] + 0.14, yb, z + 0.15), "SG_VioletDeep_Glow", 0.0)
     mb.finish()
 
     # fonte: bacia dodecagonal (casa com a colisao do sg_col: 12 lados, R 7, topo P1+2,6), taca em 2 niveis, lua de prata
@@ -508,24 +529,18 @@ def plaza():
     mf.cyl(0.5, 0.8, (cx, cy, z + 8.6), (0, 0, 0), "Stone_SG_Castle", n=12, r2=1.7, bevel=0.0)    # taca de cima
     ring_prism(mf, c, 1.45, 1.8, 12, z + 8.95, z + 9.2, TRIM)
     mf.cyl(1.47, 0.1, (cx, cy, z + 9.05), (0, 0, 0), "Water_SG", n=12, bevel=0.0)
-    # remate de prata: haste + lua crescente (encara a entrada, -Y)
-    mf.cyl(0.28, 1.6, (cx, cy, z + 10.0), (0, 0, 0), "Metal_SG_Silver", n=8, r2=0.18, bevel=0.0)
-    # crescente: circulo externo R 1,5 menos o interno R 1,22 deslocado 0,55 (pontas nas intersecoes)
-    Ro, Ri, dx = 1.5, 1.22, 0.55
-    xi = (Ro * Ro - Ri * Ri + dx * dx) / (2 * dx)
-    yi = math.sqrt(Ro * Ro - xi * xi)
-    ao = math.degrees(math.atan2(yi, xi)) + 1.5
-    ai = math.degrees(math.atan2(yi, xi - dx)) + 1.5
-    cres = [(Ro * math.cos(math.radians(ao + (360 - 2 * ao) * i / 18)), Ro * math.sin(math.radians(ao + (360 - 2 * ao) * i / 18)))
-            for i in range(19)]
-    cres += [(dx + Ri * math.cos(math.radians(360 - ai - (360 - 2 * ai) * i / 14)),
-              Ri * math.sin(math.radians(360 - ai - (360 - 2 * ai) * i / 14))) for i in range(15)]
-    # plano vertical XZ (encara -Y, a entrada): parte grossa embaixo, sobre a haste; pontas para cima, leve giro
-    o = Vector((cx, cy + 0.2, z + 10.75 + Ro))
-    ang = math.radians(68.0)
-    eu = Vector((math.cos(ang), 0.0, math.sin(ang)))
-    ev = Vector((-math.sin(ang), 0.0, math.cos(ang)))
-    poly_slab(mf, cres, (o, eu, ev, Vector((0, 1.0, 0))), 0.4, "Metal_SG_Silver")
+    # remate BAIXO e simples (a lua solta saiu): pinha de prata sobre a taca de cima. O emblema monumental da fachada
+    # do castelo fica no mesmo eixo, visto da praca: nada de segundo simbolo alto aqui (seria "lua dupla").
+    mf.cyl(0.5, 0.3, (cx, cy, z + 9.35), (0, 0, 0), "Metal_SG_Silver", n=8, bevel=0.0)
+    mf.ico(0.42, (cx, cy, z + 9.85), "Metal_SG_Silver", 1)
+    SL.spire(mf, (cx, cy), 0.34, z + 10.1, 1.3, "Metal_SG_Silver", n=8)
+    # o medalhao da ordem BAIXO, num painel de obsidiana na quina do eixo da bacia, encarando o sul (entrada) e o norte
+    # (escada): topo < piso + 2
+    for sgn in (-1, 1):
+        mf.box((2.2, 1.05, 1.75), (cx, cy + sgn * 7.125, z + 1.3), (0, 0, 0), OBS, 0.06)
+        mf.box((2.45, 1.2, 0.2), (cx, cy + sgn * 7.15, z + 2.25), (0, 0, 0), TRIM, 0.0)
+        EM.plaque(mf, mf, mf, mf, (cx, cy + sgn * (7.65 + 0.3), z + 1.3), sgn * math.pi / 2, 0.58)
+        col_box("SG_VilFountainPanel", (2.2, 1.05, 2.4), (cx, cy + sgn * 7.125, z + 1.2))
     mf.finish()
 
 
@@ -601,14 +616,34 @@ def streets():
     sl = _street_list()
     objs = {P1: MB("SG_Vil_Streets_P1", COLL, rng, detail="near"), P2: MB("SG_Vil_Streets_P2", COLL, rng, detail="near"),
             P3: MB("SG_Vil_Streets_P3", COLL, rng, detail="near")}
+    def cut_axis(poly):
+        """tira do poligono a faixa do eixo nobre (|x| < AXIS_HW): o cruzamento e do caminho da ordem (sg_court)"""
+        out = []
+        for part in (SL.clip(poly, 1.0, 0.0, -AXIS_HW), SL.clip(poly, -1.0, 0.0, -AXIS_HW)):
+            if len(part) >= 3 and abs(SL.area(part)) > 0.5:
+                out.append(SL.ccw(part))
+        return out
+
     for i, pts, w, z in sl:
+        if all(abs(p[0]) < 1e-6 for p in pts):
+            continue            # eixo nobre (rua do P2 e patio do castelo): desenhado pelo sg_court
         mb = objs[z]
-        mb.prism(SL.ccw(SL.ribbon_poly(pts, w / 2)), z - 0.25, z + 0.05, "Stone_Paving_SG")
+        crosses = min(p[0] for p in pts) < -AXIS_HW < AXIS_HW < max(p[0] for p in pts)
+        base = SL.ccw(SL.ribbon_poly(pts, w / 2))
         if z == P3:
-            continue            # patio do castelo / dungeon: so o calcamento (o detalhe e das zonas do P3)
-        # faixa central de calcamento escuro (margens claras + centro escuro: le como rua sobre grama OU lajes)
+            # os caminhos do patio leste param na borda da praca de aproximacao da dungeon (y 33; a praca e do
+            # sg_dungeon: semicirculo r 23 em (100, 56) e faixa x 77..123, y 33..59)
+            base = SL.ccw(SL.clip(base, 0.0, 1.0, DUN_PLAZA_Y))
+        for poly in (cut_axis(base) if crosses else [base]):
+            mb.prism(poly, z - 0.25, z + 0.05, M_COB)
+        if z == P3:
+            continue            # patio leste / dungeon: so o calcamento (o detalhe e das zonas do P3)
+        # paralelepipedo escuro: margens de calcamento escuro + faixa central ainda mais escura (le como rua sobre
+        # grama OU lajes, abaixo do eixo nobre na hierarquia)
         core = L.STREETS[i][0]
-        mb.prism(SL.ccw(SL.ribbon_poly(core, w / 2 - 1.5)), z - 0.1, z + 0.075, M_COB)
+        cpoly = SL.ccw(SL.ribbon_poly(core, w / 2 - 1.5))
+        for poly in (cut_axis(cpoly) if crosses else [cpoly]):
+            mb.prism(poly, z - 0.1, z + 0.075, "Stone_SG_Floor")
         # meio-fio dos dois lados (interrompido em cruzamentos, praca, escadas, porta do craft e fora do piso)
         for side in (-1, 1):
             line = _resample(_offset_line(pts, side * (w / 2 - 0.3)), 1.0)
@@ -656,23 +691,87 @@ LAMPS = [
 def lamps():
     rng = random.Random(4103)
     mb = MB("SG_Vil_Lamps", COLL, rng, detail="near")
+    # topo da escada P1P2: o par de postes vira o ARCO de ferro negro (transicao praca -> vila alta), lanternas quentes
+    # penduradas para dentro; as 2 luzes continuam as mesmas (agora na lanterna do arco)
+    import sg_court as CT
+    (xa, ya, za, _), (xb, yb, zb, _) = LAMPS[0], LAMPS[1]
+    lan = CT.iron_arch(mb, (xa + xb) / 2, ya, za, abs(xb - xa) / 2, "Lantern_Glow", area="SG_VilLamp")
+    for i, (x, y, zc) in enumerate(lan):
+        light("L_SGVil_Lamp_%02d" % i, "POINT", (x, y, zc), 260.0, (1.0, 0.7, 0.4), 0.4)
     for i, (x, y, z, lit) in enumerate(LAMPS):
-        mb.cyl(0.75, 0.9, (x, y, z + 0.35), (0, 0, math.pi / 8), STONE, n=8, bevel=0.0)
-        mb.cyl(0.5, 0.5, (x, y, z + 1.05), (0, 0, math.pi / 8), IRON, n=8, r2=0.3, bevel=0.0)
-        mb.cyl(0.26, 6.2, (x, y, z + 4.3), (0, 0, 0), IRON, n=8, r2=0.2, bevel=0.0)
-        mb.cyl(0.42, 0.3, (x, y, z + 4.0), (0, 0, 0), IRON, n=8, bevel=0.0)
+        if i < 2:
+            continue
+        mb.cyl(0.75, 0.9, (x, y, z + 0.35), (0, 0, math.pi / 8), OBS, n=8, bevel=0.0)
+        mb.cyl(0.5, 0.5, (x, y, z + 1.05), (0, 0, math.pi / 8), BIRON, n=8, r2=0.3, bevel=0.0)
+        mb.cyl(0.26, 6.2, (x, y, z + 4.3), (0, 0, 0), BIRON, n=8, r2=0.2, bevel=0.0)
+        mb.cyl(0.42, 0.3, (x, y, z + 4.0), (0, 0, 0), BIRON, n=8, bevel=0.0)
         zc = z + 8.3
-        mb.box((1.3, 1.3, 0.25), (x, y, zc - 0.95), (0, 0, 0), IRON, 0.0)
-        mb.cyl(0.35, 0.6, (x, y, zc - 1.3), (0, 0, 0), IRON, n=8, r2=0.2, bevel=0.0)
+        mb.box((1.3, 1.3, 0.25), (x, y, zc - 0.95), (0, 0, 0), BIRON, 0.0)
+        mb.cyl(0.35, 0.6, (x, y, zc - 1.3), (0, 0, 0), BIRON, n=8, r2=0.2, bevel=0.0)
         mb.box((0.85, 0.85, 1.5), (x, y, zc), (0, 0, 0), "Lantern_Glow", 0.0)
         for sx in (-1, 1):
             for sy in (-1, 1):
-                mb.box((0.22, 0.22, 1.7), (x + sx * 0.5, y + sy * 0.5, zc), (0, 0, 0), IRON, 0.0)
-        SL.spire(mb, (x, y), 1.05, zc + 0.85, 1.6, IRON, n=4)
-        mb.cyl(0.12, 0.8, (x, y, zc + 2.7), (0, 0, 0), IRON, n=4, r2=0.02, bevel=0.0)
+                mb.box((0.22, 0.22, 1.7), (x + sx * 0.5, y + sy * 0.5, zc), (0, 0, 0), BIRON, 0.0)
+        SL.spire(mb, (x, y), 1.05, zc + 0.85, 1.6, BIRON, n=4)
+        mb.cyl(0.12, 0.8, (x, y, zc + 2.7), (0, 0, 0), BIRON, n=4, r2=0.02, bevel=0.0)
         col_box("SG_VilLamp", (1.0, 1.0, 9.0), (x, y, z + 4.5))
         if lit:
             light("L_SGVil_Lamp_%02d" % i, "POINT", (x, y, zc), 260.0, (1.0, 0.7, 0.4), 0.4)
+    mb.finish()
+
+
+# ------------------------------------------------------------------ identidade nas casas: estandartes + floreiras
+# estandartes pequenos da ordem SO nas 2 casas do P2 que ladeiam o eixo na rua transversal (fachadas para a rua, quina
+# voltada para o eixo, mesma altura): ritmo, nao enfeite. (indice da casa, altura do suporte acima do piso)
+HOUSE_BANNERS = [(8, 10.4), (10, 10.4)]
+BANNER_W, BANNER_H = 1.8, 4.0
+
+
+def _house_axes(idx):
+    x, y, w, d, deg, z = L.HOUSE_LOTS[idx]
+    a = math.radians(deg)
+    fwd = (math.cos(a), math.sin(a))                  # para onde a fachada olha
+    lat = (-fwd[1], fwd[0])
+    return x, y, w, d, z, fwd, lat
+
+
+def house_identity():
+    rng = random.Random(4104)
+    mb = MB("SG_Vil_HouseDress", COLL, rng, detail="near")
+    for idx, hz in HOUSE_BANNERS:
+        x, y, w, d, z, fwd, lat = _house_axes(idx)
+        jet = SPECS[idx].get("jetty", 0.0)
+        # quina da fachada mais perto do eixo (x = 0)
+        s = 1.0 if -x * lat[0] > 0 else -1.0
+        wall = (x + fwd[0] * (d / 2 + jet) + lat[0] * s * (w / 2 - 1.1),
+                y + fwd[1] * (d / 2 + jet) + lat[1] * s * (w / 2 - 1.1))
+        reach = BANNER_W / 2 + 0.55
+        top = (wall[0] + fwd[0] * reach, wall[1] + fwd[1] * reach, z + hz)
+        yaw = math.atan2(lat[1] * s, lat[0] * s)       # o pano encara a rua na direcao do eixo
+        EM.banner(mb, mb, mb, mb, top, yaw, BANNER_W, BANNER_H)
+        # mao-francesa de ferro negro (da parede a ponta da verga)
+        mb.beam((wall[0], wall[1], z + hz - 1.5), (wall[0] + fwd[0] * (reach * 2 - 0.2), wall[1] + fwd[1] * (reach * 2 - 0.2),
+                                                   z + hz - 0.05), 0.14, 0.16, BIRON, 0.0)
+        mb.box((0.5, 0.5, 0.6), (wall[0] + fwd[0] * 0.1, wall[1] + fwd[1] * 0.1, z + hz - 1.5), (0, 0, yaw), BIRON, 0.0)
+    # floreiras baixas de obsidiana ao pe da fachada (as duas quinas da frente; a do torreao fica sem)
+    for idx, lot in enumerate(L.HOUSE_LOTS):
+        x, y, w, d, z, fwd, lat = _house_axes(idx)
+        spec = SPECS[idx]
+        tur = spec.get("turret")
+        ya = math.radians(lot[4]) - math.pi / 2
+        for s in (-1, 1):
+            if tur and not spec.get("gable_front") and \
+                    lat[0] * s * tur[0] * math.cos(ya) + lat[1] * s * tur[0] * math.sin(ya) > 0.5:
+                continue
+            off = d / 2 + 0.35 + 0.42
+            px, py = x + fwd[0] * off + lat[0] * s * (w / 2 - 1.55), y + fwd[1] * off + lat[1] * s * (w / 2 - 1.55)
+            yaw = math.atan2(fwd[1], fwd[0])
+            mb.box((0.84, 1.9, 0.72), (px, py, z + 0.3), (0, 0, yaw), OBS, 0.08)
+            mb.box((0.62, 1.66, 0.3), (px, py, z + 0.72), (0, 0, yaw), "Leaf_SG_Pine", 0.08)
+            for k in (-1, 0, 1):
+                mb.ico(0.34, (px + lat[0] * k * 0.52, py + lat[1] * k * 0.52, z + 0.98), M_BLOOM, 1,
+                       scale=(1.0, 1.0, 0.7))
+            col_box("SG_VilPlanter", (0.9, 1.95, 1.0), (px, py, z + 0.4), (0, 0, yaw))
     mb.finish()
 
 
@@ -687,3 +786,4 @@ def build():
             house(mb, i, L.HOUSE_LOTS[i], SPECS[i], rng)
         mb.finish()
     lamps()
+    house_identity()

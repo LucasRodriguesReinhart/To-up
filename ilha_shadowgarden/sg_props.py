@@ -14,7 +14,8 @@ import sg_layout as L
 
 P1, P2, P3 = L.P1, L.P2, L.P3
 COLL = "09_PROPS"
-IRON = "Metal_SG_Iron"
+IRON = "Metal_SG_BlackIron"          # ferro negro (paleta: grades, postes, correntes)
+OBS = "Stone_SG_Obsidian"
 STONE = "Stone_SG_Block"
 TRIM = "Stone_SG_Trim"
 GLOW = "Lantern_Glow"
@@ -50,7 +51,7 @@ BENCH_A = (62.0, 118.0, 242.0, 298.0)
 
 def lamp(mb, x, y, z):
     """poste de ferro da vila (mesma familia do sg_village): soco de pedra, fuste, lanterna ambar com grade e agulha"""
-    mb.cyl(0.75, 0.9, (x, y, z + 0.35), (0, 0, math.pi / 8), STONE, n=8, bevel=0.0)
+    mb.cyl(0.75, 0.9, (x, y, z + 0.35), (0, 0, math.pi / 8), OBS, n=8, bevel=0.0)
     mb.cyl(0.5, 0.5, (x, y, z + 1.05), (0, 0, math.pi / 8), IRON, n=8, r2=0.3, bevel=0.0)
     mb.cyl(0.26, 6.2, (x, y, z + 4.3), (0, 0, 0), IRON, n=8, r2=0.2, bevel=0.0)
     mb.cyl(0.42, 0.3, (x, y, z + 4.0), (0, 0, 0), IRON, n=8, bevel=0.0)

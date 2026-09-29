@@ -12,6 +12,9 @@ import sg_lib as SL
 import fm_parts as FP
 from sg_lib import MB, col_box2, light, Frame
 import sg_layout as L
+import sg_emblem as EM
+# REFINAMENTO 2026-09-28: o estandarte navy com o "tridente" virou o estandarte DA ORDEM (sg_emblem.banner) e o portico
+# B ganhou a verga de obsidiana com o medalhao da ordem (sg_emblem.plaque): a entrada fala pelo mesmo simbolo do castelo.
 
 DECK, P1 = L.DECK, L.P1
 Y0, Y1 = L.BRIDGE_Y0, L.BRIDGE_Y1          # -262 .. -228
@@ -293,51 +296,6 @@ def stair():
 
 
 # ------------------------------------------------------------------ porticos
-def emblem(mb, F, yf, cz, s):
-    """emblema de prata do Shadow Garden: lamina com guarda e duas asas que sobem (le como tridente/flor-de-lis)"""
-    t = 0.14
-    mb.box((0.3 * s, t, 2.7 * s), F.p(0, yf, cz - 0.1 * s), F.r(), "Metal_SG_Silver", 0.0)
-    mb.box((0.62 * s, t, 0.62 * s), F.p(0, yf, cz + 1.3 * s), F.r(0, math.pi / 4, 0), "Metal_SG_Silver", 0.0)
-    mb.box((1.3 * s, t, 0.22 * s), F.p(0, yf, cz - 0.85 * s), F.r(), "Metal_SG_Silver", 0.0)
-    for sg in (-1, 1):
-        pts = [(0.1, -0.45), (0.62, -0.25), (0.92, 0.25), (0.86, 0.95)]
-        for (xa, za), (xb, zb) in zip(pts, pts[1:]):
-            mb.beam(F.p(sg * xa * s, yf, cz + za * s), F.p(sg * xb * s, yf, cz + zb * s), t, 0.24 * s,
-                    "Metal_SG_Silver", 0.0)
-
-
-def banner(mb, F, yb, ztop, w, h):
-    """estandarte navy pendurado numa verga de ferro presa ao fuste (face local -Y = frente)"""
-    hw = w / 2
-    vt = w * 0.42
-    th = 0.16
-    # braços e verga
-    for sg in (-1, 1):
-        mb.beam(F.p(sg * (hw + 0.1), 0.0, ztop + 0.15), F.p(sg * (hw + 0.1), yb + 0.15, ztop + 0.15), 0.22, 0.22,
-                "Metal_SG_Iron", 0.0)
-    mb.rod(F.p(-hw - 0.55, yb, ztop + 0.15), F.p(hw + 0.55, yb, ztop + 0.15), 0.13, "Metal_SG_Iron", 6)
-    for sg in (-1, 1):
-        mb.box((0.36, 0.36, 0.36), F.p(sg * (hw + 0.7), yb, ztop + 0.15), F.r(0, math.pi / 4, 0), "Metal_SG_Silver", 0.0)
-    # pano (5 pontas: ponta em V embaixo)
-    prof = [(-hw, 0.0), (hw, 0.0), (hw, -h), (0.0, -h - vt), (-hw, -h)]
-    bm = mb.bm
-    vf = [bm.verts.new(F.p(px, yb - th / 2, ztop + pz)) for px, pz in prof]
-    vk = [bm.verts.new(F.p(px, yb + th / 2, ztop + pz)) for px, pz in prof]
-    bm.faces.new(list(reversed(vf)))
-    bm.faces.new(vk)
-    for i in range(5):
-        j = (i + 1) % 5
-        bm.faces.new((vf[i], vf[j], vk[j], vk[i]))
-    mb._post(vf + vk, "Cloth_SG_Navy", None, 0, 1)
-    # debrum de prata: faixa do topo, laterais e o V
-    yf = yb + th / 2 + 0.05                       # frente do pano (local +Y = para fora da face)
-    mb.box((w + 0.1, 0.12, 0.4), F.p(0, yf, ztop - 0.35), F.r(), "Metal_SG_Silver", 0.0)
-    for sg in (-1, 1):
-        mb.box((0.14, 0.12, h - 0.6), F.p(sg * (hw - 0.1), yf, ztop - 0.55 - (h - 0.6) / 2), F.r(), "Metal_SG_Silver", 0.0)
-        mb.beam(F.p(sg * (hw - 0.1), yf, ztop - h), F.p(0.0, yf, ztop - h - vt + 0.15), 0.12, 0.16, "Metal_SG_Silver", 0.0)
-    emblem(mb, F, yf + 0.02, ztop - h * 0.4, w / 2.6)
-
-
 def lancet(mb, F, yo, w, z0, z1, m="Stone_SG_Trim"):
     """janela cega ogival em relevo (moldura clara) numa face do fuste; local +Y = normal da face"""
     t = 0.3
@@ -410,9 +368,13 @@ def pylon(mb, P, side):
     mb.cyl(0.13, 1.4, (xc, y, ztip + 0.4), (0, 0, 0), "Metal_SG_Silver", 6, bevel=0.0)
     mb.cyl(0.42, 0.7, (xc, y, ztip + 1.15), (0, 0, 0), "Metal_SG_Silver", 4, r2=0.02, bevel=0.0)
     mb.cyl(0.42, 0.5, (xc, y, ztip + 0.55), (math.pi, 0, 0), "Metal_SG_Silver", 4, r2=0.02, bevel=0.0)
-    # face SUL: estandarte (local +Y = normal da face)
-    Fs = Frame(xc, y, 0.0, math.pi)             # local +Y -> mundo -Y (sul)
-    banner(mb, Fs, s / 2 + 0.55, zt - 0.9, P["bw"], P["bh"])
+    # face SUL: estandarte DA ORDEM (sg_emblem.banner: roxo profundo, barra negra, prata, emblema) numa verga de ferro
+    # negro presa ao fuste por 2 bracos
+    yb = y - (s / 2 + 0.55)
+    EM.banner(mb, mb, mb, mb, (xc, yb, zt - 0.9), -math.pi / 2, P["bw"], P["bh"])
+    for sg in (-1, 1):
+        mb.beam((xc + sg * (P["bw"] / 2 + 0.1), y - s / 2 + 0.1, zt - 0.9), (xc + sg * (P["bw"] / 2 + 0.1), yb, zt - 0.9),
+                0.22, 0.22, "Metal_SG_BlackIron", 0.0)
     # face interna (para o eixo) e face norte: janela cega ogival
     Fi = Frame(xc, y, 0.0, math.pi / 2 if side > 0 else -math.pi / 2)     # local +Y -> mundo -side*X (eixo)
     lancet(mb, Fi, s / 2 + 0.08, s * 0.42, zm + 1.2, zt - 2.4 - s * 0.36)
@@ -427,11 +389,29 @@ def pylon(mb, P, side):
     col_box2("SG_EntPortico", (xc - pl / 2, y - pl / 2 - apron, z), (xc + pl / 2, y + pl / 2, z + 5.2))
 
 
+def lintel_b(mb):
+    """verga do portico B (o portao da ordem): viga de obsidiana entre os fustes, logo abaixo das cornijas, com filete
+    violeta, cornija clara e o medalhao da ordem (sg_emblem.plaque) no meio, nas duas faces. Vao livre de 23,7."""
+    P = PORTICO_B
+    y, z, s = P["y"], P["z"], P["s"]
+    xi = P["xc"] - s / 2 + 0.1                        # entra 0,1 no fuste
+    zt = z + 4.0 + P["H"]
+    z0, z1 = zt - 2.3, zt - 0.05
+    dep = s * 0.6
+    mb.box2((-xi, y - dep / 2, z0), (xi, y + dep / 2, z1), "Stone_SG_Obsidian", 0.0)
+    mb.box2((-xi, y - dep / 2 - 0.12, z0 - 0.18), (xi, y + dep / 2 + 0.12, z0 + 0.06), "Stone_SG_Violet", 0.0)
+    mb.box2((-xi, y - dep / 2 - 0.25, z1), (xi, y + dep / 2 + 0.25, z1 + 0.5), "Stone_SG_Trim", 0.0)
+    for sgn in (-1, 1):
+        c = (0.0, y + sgn * (dep / 2 + 0.3), (z0 + z1) / 2 - 0.05)
+        EM.plaque(mb, mb, mb, mb, c, sgn * math.pi / 2, 1.0)
+
+
 def porticos():
     mb = MB("SG_Ent_Porticos", "18_ENTRY", random.Random(3104), detail="hero")
     for P in (PORTICO_A, PORTICO_B):
         for side in (-1, 1):
             pylon(mb, P, side)
+    lintel_b(mb)
     return mb.finish()
 
 
