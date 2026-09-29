@@ -43,7 +43,7 @@ ZONE_MARKERS = {
 BUDGET = {
     # passe de acabamento (2026-09-29): folga para kits de livros/frascos, portas/janelas com caixilho e ruinas
     "terrain": (120000, 150, 8, 90, 0), "entry": (40000, 55, 4, 45, 5), "village": (88000, 110, 9, 90, 6),
-    "castle": (160000, 190, 12, 175, 5), "hall": (42000, 52, 8, 40, 6), "summon": (38000, 50, 5, 42, 3),
+    "castle": (160000, 190, 12, 175, 5), "hall": (52000, 58, 9, 40, 6), "summon": (38000, 50, 5, 42, 3),
     "craft": (66000, 74, 11, 75, 4), "dungeon": (80000, 100, 10, 155, 7), "water": (20000, 32, 3, 10, 0),
     "exit": (26000, 38, 4, 45, 3), "dressing": (90000, 150, 9, 160, 7),
 }

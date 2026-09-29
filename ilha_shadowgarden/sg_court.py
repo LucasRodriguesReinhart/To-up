@@ -66,7 +66,10 @@ AXIS_W = 14.0                         # eixo do patio (livre)
 PATH_W = 12.0                         # eixo na calcada alta, pe da escada e rua do P2
 PARTERRE_X = (12.0, 37.0)             # |x| dos canteiros
 PARTERRE_Y = (3.5, 15.0)
-LAMPS = [(-8.4, 11.5, "warm"), (8.4, 11.5, "warm"), (-8.4, 28.5, "violet"), (8.4, 28.5, "violet")]
+# OVERHAUL 03 (03.04): o par NORTE (-+8,4; 28,5) SAIU - cortava a estatua ao meio na linha de visao de quem sobe
+# para a porta (mover para x +-9,5 / y 23 caia de novo no cone de quem vem do portao). A porta ja tem a luz quente
+# dela (L_SGCas_Door) e o violeta baixo central (Court_Violet); o par sul marca a entrada do patio.
+LAMPS = [(-8.4, 11.5, "warm"), (8.4, 11.5, "warm")]
 STATUES = [(-12.5, 33.5), (12.5, 33.5)]
 OBELISKS = [(-21.0, 29.0), (21.0, 29.0)]
 MURETS = [(-45.0, 0.0, 13.5), (45.0, 0.0, 13.5)]
@@ -193,7 +196,7 @@ def medallion(mb, c, r, z):
     cx, cy = c
     zb = z + 0.01                                             # topo do leito (acima do piso: sem z-fight)
     disc(mb, c, 1.3 * r, z - 0.1, zb, OBS, 64)                # leito / campo
-    ring(mb, c, 1.3 * r, 1.365 * r, z - 0.1, z + 0.03, TRIM, 64)   # filete da borda
+    ring(mb, c, 1.3 * r, 1.365 * r, z - 0.1, z + 0.03, CAP, 64)    # filete da borda (overhaul 03: TrimLow, 14.01)
     if hasattr(EM, "emblem_flat"):
         EM.emblem_flat(mb, mb, mb, (cx, cy, zb), math.pi / 2, r, monumental=True, glow=THREAD_CASTLE, field=False)
     else:
@@ -273,7 +276,7 @@ def cross_walk(mb, s, hw=3.6, x_end=(44.0, 44.9)):
         ya, yb = sorted((cy + e * hw, cy + e * (hw - 0.55)))
         x0 = cx + s * math.sqrt(MED_RIM ** 2 - (cy + e * (hw - 0.3) - cy) ** 2)
         xa, xb = sorted((x0, s * xe))
-        mb.box2((xa, ya, z - 0.05), (xb, yb, z + 0.045), TRIM, 0.0)
+        mb.box2((xa, ya, z - 0.05), (xb, yb, z + 0.045), CAP, 0.0)
     # juntas transversais a cada 3,2 (fiadas), e a soleira na ponta
     xs = abs(cx + math.sqrt(MED_RIM ** 2 - hw ** 2))
     k = 1
@@ -282,14 +285,17 @@ def cross_walk(mb, s, hw=3.6, x_end=(44.0, 44.9)):
         mb.box2((xj - 0.07, cy - hw + 0.55, z - 0.05), (xj + 0.07, cy + hw - 0.55, z + 0.04), OBS, 0.0)
         k += 1
     xa, xb = sorted((s * (xe - 0.6), s * xe))
-    mb.box2((xa, cy - hw, z - 0.05), (xb, cy + hw, z + 0.045), TRIM, 0.0)
+    mb.box2((xa, cy - hw, z - 0.05), (xb, cy + hw, z + 0.045), CAP, 0.0)
 
 
 # ------------------------------------------------------------------ 2. patio: canteiros, estatuas, obeliscos, postes
 def hedge(mb, a, b, w=0.8, h=0.95, z=P3 + 0.5):
-    """sebe recortada reta de a a b (xy), com o topo raspado de luar"""
-    mb.beam((a[0], a[1], z + h / 2), (b[0], b[1], z + h / 2), w, h, HEDGE, 0.12)
-    mb.beam((a[0], a[1], z + h + 0.04), (b[0], b[1], z + h + 0.04), w - 0.12, 0.08, HEDGE_TOP, 0.0)
+    """sebe recortada de a a b (xy). Overhaul 03 (03.06): secao com o TOPO CHANFRADO (6 lados; antes viga quadrada)
+    e a faixa de cima raspada de luar"""
+    c = min(0.24, w * 0.3)
+    prof = [(-w / 2, 0.0), (w / 2, 0.0), (w / 2, h - c), (w / 2 - c, h), (-w / 2 + c, h), (-w / 2, h - c)]
+    mb.sweep([(a[0], a[1], z), (b[0], b[1], z)], prof, HEDGE, True, None, up=(0.0, 0.0, 1.0))
+    mb.beam((a[0], a[1], z + h + 0.02), (b[0], b[1], z + h + 0.02), w - 2 * c - 0.04, 0.05, HEDGE_TOP, 0.0)
 
 
 def parterre(mb, s, rng):
@@ -303,11 +309,15 @@ def parterre(mb, s, rng):
     mb.box2((x0, y1 - bw, z - 0.1), (x1, y1, z + 0.8), OBS, 0.1)
     mb.box2((x0, y0 + bw, z - 0.1), (x0 + bw, y1 - bw, z + 0.8), OBS, 0.1)
     mb.box2((x1 - bw, y0 + bw, z - 0.1), (x1, y1 - bw, z + 0.8), OBS, 0.1)
+    # overhaul 03 (03.06/12.12): dado de canto de quinas chanfradas, capa moldurada e o remate do kit (bola com
+    # colar, cantaria baixa) no lugar da piramide de 4 lados
+    import sg_entry as SE
     for px in (x0 + 0.6, x1 - 0.6):
         for py in (y0 + 0.6, y1 - 0.6):
-            mb.box((1.3, 1.3, 1.3), (px, py, z + 0.55), (0, 0, 0), OBS, 0.1)
-            mb.box((1.45, 1.45, 0.16), (px, py, z + 1.28), (0, 0, 0), VIO, 0.0)
-            SL.spire(mb, (px, py), 0.62, z + 1.36, 0.9, OBS, n=4)
+            mb.prism(SE.chamfer_sq(px, py, 0.65, 0.16), z - 0.1, z + 1.12, OBS)
+            mb.box((1.5, 1.5, 0.14), (px, py, z + 1.19), (0, 0, 0), CAP, 0.03)
+            mb.box((1.3, 1.3, 0.12), (px, py, z + 1.32), (0, 0, 0), CAP, 0.03)
+            SE.finial(mb, px, py, z + 1.38, 0.4, m=CAP, n=8)
     # terra
     mb.box2((x0 + bw, y0 + bw, z - 0.1), (x1 - bw, y1 - bw, z + 0.62), SOIL, 0.0)
     # sebes: moldura, circulo do cipreste e a sebe mediana (o desenho e o mesmo nos dois canteiros, espelhado)
@@ -327,19 +337,26 @@ def parterre(mb, s, rng):
     for ya, yb in ((j0 + 0.45, cy - 0.45), (cy + 0.45, j1 - 0.45)):
         rows = (ya + (yb - ya) * 0.28, ya + (yb - ya) * 0.72)
         for xa, xb in ((i0 + 0.45, cx - rr - 0.6), (cx + rr + 0.6, i1 - 0.45)):
-            nx = max(2, int((xb - xa) / 1.35))
+            nx = max(2, int((xb - xa) / 1.7))
             for ri, yy in enumerate(rows):
                 for k in range(nx):
                     xx = xa + (xb - xa) * (k + 0.5 + (0.25 if ri else -0.25)) / nx
                     if not (xa + 0.3 < xx < xb - 0.3):
                         continue
-                    # tufo baixo e achatado (acabamento: a bola de 0,62 lia como gema facetada)
-                    mb.ico(0.5, (xx, yy, z + 0.78), BLOOM, 1, scale=(1.3, 1.3, 0.52))
+                    # overhaul 03: TUFO = moita baixa de folhas + cacho de 3 flores de 5 petalas com miolo claro
+                    # (a icosfera achatada lia gema)
+                    mb.ico(0.5, (xx, yy, z + 0.64), HEDGE, 0, scale=(1.4, 1.2, 0.46), rot=(0, 0, 0.4 * k))
+                    for fk, (dx_, dy_, dz_) in enumerate(((-0.24, 0.06, 0.0), (0.2, -0.1, 0.06), (0.0, 0.22, 0.1))):
+                        fx, fy_, fz = xx + dx_, yy + dy_, z + 0.88 + dz_
+                        mb.cyl(0.19, 0.05, (fx, fy_, fz), (0.3 * (fk - 1), 0.2, fk * 0.9), BLOOM, n=5, bevel=0.0)
+                        if fk == 2:
+                            mb.cyl(0.08, 0.07, (fx, fy_, fz + 0.03), (0.3 * (fk - 1), 0.2, 0.0), "Flower_White",
+                                   n=4, bevel=0.0)
     # cipreste no centro (a mesma especie da ilha: le como plantado, nao enfeite)
     old = VK.SUN
     VK.SUN = VEG.MOON_DIR
     try:
-        VEG.cypress(mb, cx, cy, z + 0.5, 11.5, rng, 0)
+        VEG.cypress(mb, cx, cy, z + 0.5, 7.6, rng, 0)          # overhaul 03: 11,5 tapava a fachada
     finally:
         VK.SUN = old
     col_box2("SG_PropParterre", (x0, y0, z - 0.1), (x1, y1, z + 1.8))
@@ -608,7 +625,9 @@ def statue(mb, x, y, z, yaw):
             mb.box((0.16, 0.12, 1.9), Fk.p(sg * 0.98, 1.39, 2.15), Fk.r(), OBS, 0.0)
         for zz in (1.2, 3.1):
             mb.box((2.12, 0.12, 0.16), Fk.p(0.0, 1.39, zz), Fk.r(), OBS, 0.0)
-    FP.frustum(mb, tuple(F.p(0, 0, 3.4)), 2.72, 2.72, 3.4, 3.4, 0.32, CAP, ang=a)
+    # overhaul 03 (03.03): cornija em CAVETE (curva concava em 3 lances) no lugar do talude reto
+    for zc_, w0_, w1_, hc_ in ((3.4, 2.72, 2.8, 0.13), (3.53, 2.8, 3.02, 0.1), (3.63, 3.02, 3.4, 0.09)):
+        FP.frustum(mb, tuple(F.p(0, 0, zc_)), w0_, w0_, w1_, w1_, hc_, CAP, ang=a)
     mb.box((3.4, 3.4, 0.12), F.p(0, 0, 3.78), F.r(), CAP, 0.0)
     mb.box((3.0, 3.0, 0.23), F.p(0, 0, 3.935), F.r(), OBS, 0.06)
     # guardiao em cantaria clara (um valor abaixo do antigo Stone_SG_Trim): le contra a fachada escura
@@ -616,30 +635,68 @@ def statue(mb, x, y, z, yaw):
     col_box("SG_PropStatue", (3.6, 3.6, 11.0), (x, y, z + 5.5), (0, 0, yaw))
 
 
-GLYPHS = (0.25, 0.75, 0.5, 0.75, 0.25, 0.5)        # a "inscricao": a mesma sequencia nas 4 faces (nada aleatorio)
+# OVERHAUL 03 (03.05/15.03/16.07): a inscricao vira ENTALHE - um so alfabeto de glifos de 3 tracos com curva (haste,
+# gancho em arco, ponto/traco), em pedra violeta SEM brilho dentro de um painel rebaixado com moldura; sequencia fixa
+# (nada aleatorio), nenhuma letra latina
+GLYPHS = ((1, 1, 0), (-1, 0, 1), (1, 0, 1), (-1, 1, 0), (1, 1, 1))
+
+
+def _glyph(mb, P, u0, zc, spec, m):
+    """glifo de 3 tracos em (u, z) da face P(u, t, z): haste vertical, gancho em arco (lado sd) e ponto ou traco"""
+    sd, hook_up, dot = spec
+    sq = [(-0.045, -0.035), (0.045, -0.035), (0.045, 0.035), (-0.045, 0.035)]
+    mb.sweep([P(u0, 0.0, zc - 0.38), P(u0, 0.0, zc + 0.38)], sq, m, True, None, up=(0.0, 0.0, 1.0))
+    za = zc + (0.12 if hook_up else -0.22)
+    arc = [P(u0 + sd * 0.26 * (1 - math.cos(t)), 0.0, za + 0.24 * math.sin(t) * (1 if hook_up else -1))
+           for t in [math.pi * i / 6 for i in range(5)]]
+    mb.sweep(arc, sq, m, True, None, up=(0.0, 0.0, 1.0))
+    if dot:
+        c = P(u0 - sd * 0.2, 0.02, zc - 0.05)
+        mb.box((0.11, 0.11, 0.11), c, (0, 0, 0), m, 0.0)
+    else:
+        mb.sweep([P(u0 - sd * 0.08, 0.0, zc - 0.3), P(u0 - sd * 0.26, 0.0, zc - 0.12)], sq, m, True, None,
+                 up=(0.0, 0.0, 1.0))
 
 
 def obelisk(mb, x, y, z, face_yaw):
-    """obelisco da ordem (acabamento 2026-09-29): base em 3 molduras + chanfro de assento, fuste afunilado com as
-    ARESTAS em filete (as faces leem rebaixadas entre elas), colar de cantaria e piramidion de prata no topo. As runas
-    ficam SO na face que olha o eixo, rentes (0,03) e no violeta baixo - gravadas, nao letreiro de neon."""
+    """obelisco da ordem. Overhaul 03 (03.05): base em 3 MOLDURAS com perfil (plinto, toro, escocia, toro menor) e dado
+    violeta; fuste com leve ENTASE (secao do meio 0,05 acima da reta) e filetes nas arestas; colar moldurado e
+    piramidion de obsidiana com florao de prata; inscricao ENTALHADA (painel rebaixado + moldura + glifos em pedra
+    violeta sem brilho) so na face que olha o eixo. A placa com emblema da base SAIU (16.02/12.11)."""
+    from mathutils import Vector
     hw0, hw1, zs0, zs1 = 0.95, 0.6, z + 1.9, z + 14.2
-    mb.box((3.6, 3.6, 0.55), (x, y, z + 0.225), (0, 0, 0), OBS, 0.1)
-    mb.box((2.8, 2.8, 1.0), (x, y, z + 1.0), (0, 0, 0), VIO, 0.08)
-    mb.box((3.0, 3.0, 0.25), (x, y, z + 1.6), (0, 0, 0), TRIM, 0.06)
-    mb.box((2.4, 2.4, 0.2), (x, y, z + 1.82), (0, 0, 0), OBS, 0.0)
-    FP.frustum(mb, (x, y, z + 1.92), 2.4, 2.4, 2.0, 2.0, 0.34, OBS)
-    mb.cyl(hw0 * math.sqrt(2), zs1 - zs0, (x, y, (zs0 + zs1) / 2), (0, 0, math.pi / 4), OBS, n=4,
-           r2=hw1 * math.sqrt(2), bevel=0.0)
-    for sx in (-1, 1):
-        for sy in (-1, 1):
-            mb.rod((x + sx * hw0, y + sy * hw0, zs0 + 0.3), (x + sx * hw1, y + sy * hw1, zs1 - 0.05), 0.2, OBS,
-                   4)                                                                      # filete da aresta
-    mb.box((2 * hw1 + 0.4, 2 * hw1 + 0.4, 0.26), (x, y, zs1 + 0.1), (0, 0, 0), TRIM, 0.0)  # colar
-    SL.spire(mb, (x, y), hw1 * math.sqrt(2) + 0.1, zs1 + 0.23, 1.8, SILVER, n=4)          # piramidion
+    mb.box((3.6, 3.6, 0.45), (x, y, z + 0.175), (0, 0, 0), OBS, 0.08)
+    FP.frustum(mb, (x, y, z + 0.4), 3.2, 3.2, 3.4, 3.4, 0.12, CAP)             # toro (sobe e volta)
+    FP.frustum(mb, (x, y, z + 0.52), 3.4, 3.4, 3.1, 3.1, 0.12, CAP)
+    mb.box((2.9, 2.9, 0.16), (x, y, z + 0.72), (0, 0, 0), OBS, 0.0)          # escocia (recuada)
+    FP.frustum(mb, (x, y, z + 0.8), 2.9, 2.9, 3.05, 3.05, 0.09, CAP)          # toro menor
+    FP.frustum(mb, (x, y, z + 0.89), 3.05, 3.05, 2.8, 2.8, 0.09, CAP)
+    mb.box((2.8, 2.8, 0.62), (x, y, z + 1.29), (0, 0, 0), VIO, 0.06)          # dado
+    FP.frustum(mb, (x, y, z + 1.6), 2.8, 2.8, 2.95, 2.95, 0.14, CAP)         # cornija do dado
+    mb.box((2.95, 2.95, 0.1), (x, y, z + 1.79), (0, 0, 0), CAP, 0.0)
+    FP.frustum(mb, (x, y, z + 1.84), 2.4, 2.4, 2.0, 2.0, 0.12, OBS)
 
     def hw(zz):
-        return hw0 + (hw1 - hw0) * (zz - zs0) / (zs1 - zs0)
+        f = (zz - zs0) / (zs1 - zs0)
+        return hw0 + (hw1 - hw0) * f + 0.2 * f * (1.0 - f)                  # entase: +0,05 no meio
+    rows = []
+    for zz in (zs0, zs0 + (zs1 - zs0) * 0.33, zs0 + (zs1 - zs0) * 0.66, zs1):
+        h_ = hw(zz)
+        rows.append([Vector((x - h_, y - h_, zz)), Vector((x + h_, y - h_, zz)), Vector((x + h_, y + h_, zz)),
+                     Vector((x - h_, y + h_, zz))])
+    _loft(mb, rows, OBS)
+    for sx in (-1, 1):
+        for sy in (-1, 1):
+            pts = [(x + sx * hw(zz), y + sy * hw(zz), zz) for zz in (zs0 + 0.3, (zs0 + zs1) / 2, zs1 - 0.05)]
+            mb.sweep(pts, [(0.18 * math.cos(2 * math.pi * i / 4 + math.pi / 4),
+                            0.18 * math.sin(2 * math.pi * i / 4 + math.pi / 4)) for i in range(4)], OBS, True, None,
+                     up=(1.0, 0.0, 0.0))
+    # colar moldurado + piramidion de obsidiana (baixo) + florao de prata
+    FP.frustum(mb, (x, y, zs1 - 0.02), 2 * hw1 + 0.1, 2 * hw1 + 0.1, 2 * hw1 + 0.44, 2 * hw1 + 0.44, 0.16, CAP)
+    mb.box((2 * hw1 + 0.44, 2 * hw1 + 0.44, 0.12), (x, y, zs1 + 0.2), (0, 0, 0), CAP, 0.0)
+    FP.frustum(mb, (x, y, zs1 + 0.26), 2 * hw1 + 0.2, 2 * hw1 + 0.2, 0.3, 0.3, 1.05, OBS)
+    EM._lathe(mb, (x, y, zs1 + 1.22), [(0.14, 0.0), (0.2, 0.08), (0.11, 0.18), (0.24, 0.38), (0.17, 0.56),
+                                       (0.07, 0.7), (0.0, 1.1)], SILVER, 6, math.pi / 6)
     for k in range(4):
         a = k * math.pi / 2
         front = abs(((a - face_yaw + math.pi) % (2 * math.pi)) - math.pi) < 0.1
@@ -647,79 +704,40 @@ def obelisk(mb, x, y, z, face_yaw):
             continue
         nx, ny = math.cos(a), math.sin(a)
         tx, ty = -ny, nx
-        for i, cb in enumerate(GLYPHS[:5]):
-            zc = z + 6.2 + i * 1.5
-            off = hw(zc) - 0.02
-            p = (x + nx * off, y + ny * off)
-            mb.box((0.1, 0.12, 0.85), (p[0], p[1], zc), (0, 0, a), THREAD_CASTLE, 0.0)
-            side = 1 if i % 2 == 0 else -1
-            mb.box((0.1, 0.36, 0.1), (p[0] + tx * side * 0.16, p[1] + ty * side * 0.16, zc - 0.425 + cb * 0.85),
-                   (side * 0.6, 0, a), THREAD_CASTLE, 0.0)
-        zc = z + 4.1
-        off = hw(zc) + 0.3
-        EM.plaque(mb, mb, mb, mb, (x + nx * off, y + ny * off, zc), a, 0.62)
+
+        def P(u, t, zz):
+            o = hw(zz) + t
+            return (x + nx * o + tx * u, y + ny * o + ty * u, zz)
+        # painel rebaixado: moldura de obsidiana saliente em volta do campo; os glifos = o fundo violeta do entalhe
+        za, zb = z + 5.3, z + 12.9
+        for su in (-1, 1):
+            mb.sweep([P(su * 0.6, 0.0, za - 0.1), P(su * 0.6, 0.0, zb + 0.1)],
+                     [(-0.1, 0.0), (0.1, 0.0), (0.1, 0.14), (-0.1, 0.14)], OBS, True, None, up=(nx, ny, 0.0))
+        for zz in (za - 0.1, zb + 0.1):
+            mb.sweep([P(-0.7, 0.0, zz), P(0.7, 0.0, zz)], [(0.0, -0.1), (0.14, -0.1), (0.14, 0.1), (0.0, 0.1)],
+                     OBS, True, None, up=(0.0, 0.0, 1.0))
+        for i, spec in enumerate(GLYPHS):
+            _glyph(mb, lambda u, t, zz: P(u, 0.01 + t, zz), -0.02, z + 6.2 + i * 1.45, spec, VIO)
     col_box("SG_PropObelisk", (3.6, 3.6, 15.0), (x, y, z + 7.5))
 
 
 def muret(mb, x, y0, y1, z):
-    """mureta de transicao: corpo de pedra da muralha + remate de obsidiana + pilares de ponta"""
-    mb.box2((x - 0.45, y0, z - 0.1), (x + 0.45, y1, z + 1.0), BLOCK, 0.08)
-    mb.box2((x - 0.65, y0 - 0.1, z + 1.0), (x + 0.65, y1 + 0.1, z + 1.28), OBS, 0.06)
+    """mureta de transicao. Overhaul 03 (03.07): corpo de cantaria em 2 fiadas com juntas desencontradas, CAPA
+    moldurada com pingadeira nos 2 lados e os pilaretes do kit (plinto + toro, fuste chanfrado, capitel, bola com
+    colar) nas pontas - antes corpo-caixa, remate-caixa, pilar-caixa e piramide"""
+    import sg_entry as SE
+    for zc_, hc_, off in ((z - 0.1, 0.62, 0.0), (z + 0.52, 0.5, 1.2)):
+        cuts = [y0 + 0.8] + [y0 + 0.8 + off + 2.4 * j for j in range(1, 8) if y0 + 0.8 + off + 2.4 * j < y1 - 1.4] +                [y1 - 0.8]
+        for a_, b_ in zip(cuts, cuts[1:]):
+            mb.box2((x - 0.45, a_ + 0.04, zc_ + 0.03), (x + 0.45, b_ - 0.04, zc_ + hc_ - 0.03), SE.PAR_M, 0.05)
+    mb.box2((x - 0.4, y0, z - 0.1), (x + 0.4, y1, z + 1.0), SE.PAR_M, 0.0)
+    for sx in (-1, 1):
+        a_, b_ = sorted((x + sx * 0.3, x + sx * 0.66))
+        mb.box2((a_, y0 + 0.6, z + 1.0), (b_, y1 - 0.6, z + 1.12), CAP, 0.0)
+    FP.frustum(mb, (x, (y0 + y1) / 2, z + 1.12), 1.32, y1 - y0 - 1.2, 1.0, y1 - y0 - 1.4, 0.2, CAP)
     for yy in (y0, y1):
-        mb.box((1.5, 1.5, 1.7), (x, yy, z + 0.75), (0, 0, 0), BLOCK, 0.08)
-        mb.box((1.75, 1.75, 0.3), (x, yy, z + 1.75), (0, 0, 0), OBS, 0.06)
-        SL.spire(mb, (x, yy), 0.9, z + 1.9, 1.0, OBS, n=4)
+        SE._post(mb, x, yy, z - 0.1, 1.4, 1.35, lamp=False)
     col_box2("SG_PropMuret", (x - 0.75, y0 - 0.75, z - 0.1), (x + 0.75, y1 + 0.75, z + 1.9))
-
-
-def iron_arch(mb, cx, y, z, hs, glass, post_h=10.0, rise=5.4, lanterns=True, col=True, area="SG_PropArch"):
-    """arco leve de ferro negro (transicao entre espacos): 2 postes com soco de obsidiana, arco ogival abatido de
-    2 trilhos com montantes, remate de prata no fecho e lanternas penduradas para dentro. SEM emblema: os arcos ficam
-    no eixo, na frente do emblema monumental da fachada (simbolo empilhado = ruido). Sem colisao no vao (so os
-    postes). Devolve as posicoes das lanternas."""
-    lan = []
-    for s in (-1, 1):
-        x = cx + s * hs
-        mb.box((1.5, 1.5, 1.0), (x, y, z + 0.4), (0, 0, 0), OBS, 0.1)
-        mb.box((1.2, 1.2, 0.2), (x, y, z + 1.0), (0, 0, 0), VIO, 0.0)
-        mb.box((0.56, 0.56, post_h - 1.1), (x, y, z + 1.1 + (post_h - 1.1) / 2), (0, 0, 0), IRON, 0.0)
-        for zz in (z + 4.2, z + post_h - 0.2):
-            mb.box((0.8, 0.8, 0.22), (x, y, zz), (0, 0, 0), IRON, 0.0)
-        mb.box((0.9, 0.9, 0.35), (x, y, z + post_h + 0.175), (0, 0, 0), IRON, 0.0)
-        mb.box((0.34, 1.1, 0.34), (x, y, z + post_h + 0.1), (0, 0, 0), SILVER, 0.0)     # prata na nascenca do arco
-        if lanterns:
-            ax = x - s * 1.25
-            mb.beam((x - s * 0.28, y, z + 8.9), (ax + s * 0.1, y, z + 8.9), 0.16, 0.2, IRON, 0.0)
-            mb.beam((x - s * 0.28, y, z + 8.1), (x - s * 0.9, y, z + 8.9), 0.12, 0.14, IRON, 0.0)
-            # overhaul 01: a lanterna da ordem do kit (sg_emblem), pendurada pela ponta do remate (o cubo saiu)
-            sl = 0.62
-            zb_ = z + 8.55 - 2.30 * sl
-            mb.rod((ax, y, z + 8.9), (ax, y, z + 8.5), 0.05, IRON, 4)
-            lan.append(EM.lantern_head(mb, mb, (ax, y, zb_ + EM.LH_BASE * sl), 0.0, sl))
-        if col:
-            col_box(area, (1.4, 1.4, post_h + 1.0), (x, y, z + (post_h + 1.0) / 2))
-    # arco: 2 trilhos (curva cubica abatida e pontuda no fecho) + montantes
-    zs = z + post_h + 0.35
-    for off, rad in ((0.0, 0.2), (-0.95, 0.13)):
-        for s in (-1, 1):
-            pts = bez((cx + s * hs, off), (cx + s * hs, 0.52 * rise + off), (cx + s * 0.33 * hs, 0.86 * rise + off),
-                      (cx, rise + off), 10)
-            prof = [(rad * math.cos(2 * math.pi * i / 6), rad * math.sin(2 * math.pi * i / 6)) for i in range(6)]
-            # 'up' = normal do plano do arco: o referencial do perfil nao vira no trecho vertical (sem face torcida)
-            mb.sweep([(px, y, zs + pz) for px, pz in pts], prof, IRON, True, None, up=(0.0, 1.0, 0.0))
-    for s in (-1, 1):
-        o = bez((cx + s * hs, 0.0), (cx + s * hs, 0.52 * rise), (cx + s * 0.33 * hs, 0.86 * rise), (cx, rise), 10)
-        i = bez((cx + s * hs, -0.95), (cx + s * hs, 0.52 * rise - 0.95), (cx + s * 0.33 * hs, 0.86 * rise - 0.95),
-                (cx, rise - 0.95), 10)
-        for t in (3, 6, 8):
-            mb.beam((o[t][0], y, zs + o[t][1] - 0.1), (i[t][0], y, zs + i[t][1] + 0.08), 0.12, 0.12, IRON, 0.0)
-    SL.spire(mb, (cx, y), 0.34, zs + rise + 0.1, 1.2, IRON, n=4)          # remate do fecho
-    mb.ico(0.16, (cx, y, zs + rise + 1.35), SILVER, 1)
-    # fecho: gota de prata pendurada do trilho de baixo (marca o eixo sem repetir o simbolo)
-    mb.rod((cx, y, zs + rise - 0.95), (cx, y, zs + rise - 1.6), 0.05, IRON, 4)
-    mb.cyl(0.26, 0.7, (cx, y, zs + rise - 1.95), (0, 0, 0), SILVER, n=8, r2=0.02, bevel=0.0)
-    mb.cyl(0.26, 0.3, (cx, y, zs + rise - 1.45), (math.pi, 0, 0), SILVER, n=8, r2=0.02, bevel=0.0)
-    return lan
 
 
 def court():
@@ -740,9 +758,12 @@ def court():
     mb.finish()
     # arco de ferro no pe da escada do portao (entrada do recinto do castelo): lanternas QUENTES (so Neon) - o arco
     # fica na rua do P2 (vila): violeta forte ali era "magia" fora do lugar
+    # overhaul 03: o arco do KIT da vila (sg_village.iron_arch: postes torneados, volutas, maos-francesas, remate
+    # torneado) - o CT.iron_arch antigo (postes-caixa, piramide no fecho) saiu daqui
+    import sg_village as VL
     ma = MB("SG_Prop_GateArch", COLL, random.Random(3604), detail="near")
     x, y, zz, hs = GATE_ARCH
-    iron_arch(ma, x, y, zz, hs, WARM_G)
+    VL.iron_arch(ma, x, y, zz, hs, area="SG_PropArch")
     ma.finish()
 
 

@@ -398,10 +398,15 @@ def site_ok(S, x, y, h, form, floor_ok, routes, placed):
 
 
 # ------------------------------------------------------------------ build
+PIT_M = "Stone_SG_TrimLow"    # overhaul 03 (14.01): cantaria de remate um valor abaixo do Stone_SG_Trim (o mesmo do kit)
+fm_lib.MATS.setdefault(PIT_M, (fm_lib.S(132, 128, 134), 0.8, 0.0, 0, None, 0.06))
+
+
 def tree_pit(mb, x, y, z, rng):
-    """canteiro de cantaria (octogono baixo) + terra/grama: arvore no piso calcado"""
+    """canteiro de cantaria (octogono baixo) + terra/grama: arvore no piso calcado. Overhaul 03: pedra de remate
+    (TrimLow, nao o Trim quase branco) com a aresta de cima chanfrada"""
     r = 1.9
-    mb.cyl(r, 0.42, (x, y, z + 0.13), (0, 0, math.pi / 8), TRIM, n=8, bevel=0.0)
+    mb.cyl(r, 0.42, (x, y, z + 0.13), (0, 0, math.pi / 8), PIT_M, n=8, bevel=0.06)
     mb.cyl(r - 0.38, 0.1, (x, y, z + 0.36), (0, 0, math.pi / 8), GRASS, n=8, bevel=0.0)
 
 
