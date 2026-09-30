@@ -77,7 +77,8 @@ SMATS = {
     "Cloth_SG_Purple":      (S(66, 22, 112), 0.8, 0.0, 0, None, 0.04),     # estandarte da ordem (roxo profundo)
     # overhaul 12 (kit compartilhado): crescente SEM brilho do estandarte/placas e vidro ambar da lanterna (Glass 0,3)
     "Stone_SG_MoonPale":    (S(176, 160, 210), 0.6, 0.0, 0, None, 0.0),
-    "Glass_SG_LampAmber":   (S(112, 70, 30), 0.08, 0.0, 0, None, 0.0),
+    "Glass_SG_LampAmber":   (S(206, 142, 70), 0.08, 0.0, 0, None, 0.0),
+    "SG_LampCore_Glow":     (S(190, 110, 40), 0.3, 0.0, 1.2, S(190, 110, 40), 0.0),   # nucleo quente ESCURO dentro da lanterna (atras do vidro)
     # brilhos (Neon no Roblox): violeta so em funcao (dungeon, invocacao, craft, rosacea); azul frio = lua/agua
     "SG_Violet_Glow":       (S(150, 100, 235), 0.3, 0.0, 2.6, S(150, 100, 235), 0.0),
     "SG_Moon_Glow":         (S(170, 200, 255), 0.3, 0.0, 2.0, S(170, 200, 255), 0.0),
@@ -96,7 +97,8 @@ for k, v in SMATS.items():
 for _r in (("Roof_SG", None),):
     if _r not in fm_lib.TEX_RULES:
         fm_lib.TEX_RULES = (_r,) + tuple(fm_lib.TEX_RULES)
-for k in ("SG_Violet_Glow", "SG_Moon_Glow", "SG_VioletDeep_Glow", "SG_Rune_Glow", "SG_Crystal_Glow", "SG_VioletSoft_Glow"):
+for k in ("SG_Violet_Glow", "SG_Moon_Glow", "SG_VioletDeep_Glow", "SG_Rune_Glow", "SG_Crystal_Glow", "SG_VioletSoft_Glow",
+          "SG_LampCore_Glow"):
     RBX_CAL.setdefault(k, (None, [int(c) for c in fm_lib.to_srgb(SMATS[k][0])]))
 add_variants("Cliff_Rock_SG", [("Cliff_Rock_SG", 5), ("Cliff_Rock_SG_B", 3, (56, 52, 80)),
                                ("Cliff_Rock_SG_C", 2, (76, 70, 100))], cap=2)

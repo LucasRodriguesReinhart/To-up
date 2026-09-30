@@ -1,6 +1,6 @@
 # sg_props - VESTIR / PROPS da Ilha 3 (Shadow Garden). SO o que tem funcao de leitura (nada de encher vazio):
-#   1. praca: 4 postes de ferro na borda (o pe da escada P1->P2 e a chegada da calcada ficam marcados; a vila deixou o
-#      pe da escada para estas lanternas) e 4 bancos de pedra voltados para a fonte, nos vaos entre as ruas e a rota;
+#   1. praca: 2 postes de ferro na borda norte (o pe da escada P1->P2; a vila deixou o pe da escada para estas
+#      lanternas; o par sul saiu no overhaul 12) e 4 bancos de pedra voltados para a fonte, nos vaos entre as ruas e a rota;
 #   2. postes de rota (mesma familia dos postes da vila) SO nos trechos que ficaram escuros a noite: rua do P2 no oeste
 #      (entre as casas, olhando para o mirante da cachoeira) e o fim da rua leste do P1 (mirante da cachoeira leste,
 #      a rua termina ali). O caminho do patio ate a dungeon ja fica lido pelo
@@ -54,6 +54,10 @@ LAMPS += [
     ("P2_West", -77.0, -51.3, P2, True),          # rua do P2 entre as casas do oeste (cipreste atras)
     ("P1_EastEnd", 113.0, -122.6, P1, True),      # fim da rua leste do P1: marca o mirante da cachoeira leste
 ]
+# OVERHAUL 12 (12.04): a praca fica com o par NORTE (o pe da escada P1P2, o NO; sao as 2 acesas). O par SUL (apagado)
+# repetia os postes da rua da praca e a lanterna do portico B logo atras: SAIU. As entradas continuam em LAMPS (o
+# sg_veg as usa como zona livre: nada muda na vegetacao), so nao sao construidas.
+PLAZA_BUILT = ("Plaza_NE", "Plaza_NW")
 BENCH_R = 23.2
 BENCH_A = (62.0, 118.0, 242.0, 298.0)
 
@@ -94,7 +98,7 @@ def build():
     rng = random.Random(3320)
     mb = MB("SG_Prop_Plaza", COLL, rng, detail="near")
     for n, x, y, z, lit in LAMPS:
-        if n.startswith("Plaza"):
+        if n in PLAZA_BUILT:
             lamp(mb, x, y, z)
     for a in BENCH_A:
         r = math.radians(a)

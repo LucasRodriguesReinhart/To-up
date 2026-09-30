@@ -19,16 +19,21 @@
 #   - camadas em profundidade sem nada coplanar (fracoes de 'depth'): campo -0,04..0,12 | crescente 0,04..0,30 |
 #     anel -0,05..0,50 | raios ate ~0,32 | cabo ~0,60 | lamina 0,55..~0,67 | pomo ~0,70 | guarda ~0,78;
 #   - larguras de traco coerentes (anel ~ lamina) e engrossadas de leve nos emblemas pequenos (legivel de longe).
-#   Estandarte: verga redonda com luva de tecido e remates de prata; pano pentagonal com espessura (ponta em V na mesma
-#   peca); debrum continuo com espessura contornando laterais e V com esquadria limpa. Placa: disco de obsidiana
-#   chanfrado. Lanternas: travessa superior que assenta a tampa, beiral, remate; capitel do poste encosta na base.
+#   Estandarte: verga redonda com luva de tecido e remates de prata torneados; pano com dobras, abaulado e borlas (ver
+#   OVERHAUL 12 em banner()); debrum continuo com espessura contornando laterais e V com esquadria limpa. Placa: disco
+#   de obsidiana chanfrado. Lanternas: travessa superior que assenta a tampa, beiral, remate; capitel do poste encosta
+#   na base.
+# OVERHAUL 12 (2026-09-29): crescente em Neon (MOON) SO no emblema monumental, no trono e no caldeirao; estandartes e
+#   placas levam o crescente SEM emissao em lilas-prata palido (15.05). Placa so na porta do castelo, no caldeirao e no
+#   fecho da dungeon (12.11). Pedestal de lanterna em UM perfil de torno quadrado (sem caixas empilhadas).
 #
 # API (todas desenham em MBs que o modulo chamador ja criou; nada de colisao aqui):
-#   emblem(mb_metal, mb_glow, mb_dark, c, yaw, r, depth=0.6, monumental=False)
+#   emblem(mb_metal, mb_glow, mb_dark, c, yaw, r, depth=0.6, monumental=False, glow=MOON)
 #       c = (x, y, z) centro; yaw = rumo (rad) para onde o simbolo OLHA; r = raio do anel externo
 #   banner(mb_cloth, mb_metal, mb_glow, mb_dark, top, yaw, w, h, tails=True, trim=None)
-#       estandarte da ordem: tecido roxo profundo com barra negra e borda de prata, emblema em cima, ponta em V
-#   plaque(mb_stone, mb_metal, mb_glow, mb_dark, c, yaw, r)
+#       estandarte da ordem: tecido roxo profundo com barra negra e borda de prata, emblema em cima, ponta em V;
+#       2 larguras (BANNER_NARROW 2,6 / BANNER_WIDE 3,8)
+#   plaque(mb_stone, mb_metal, mb_glow, mb_dark, c, yaw, r, glow=None)   (None = crescente lilas-prata palido, sem emissao)
 #       medalhao de pedra obsidiana com o emblema (portais, pedestais, fontes)
 #   emblem_flat(mb_metal, mb_glow, mb_dark, c, yaw, r, monumental=False, up=1, glow=MOON, field=True, seg=None)
 #       o mesmo simbolo DEITADO e rente (incrustacao de piso / chave de teto); yaw = rumo da ponta da lamina
@@ -39,6 +44,9 @@ import bmesh
 
 SILVER, MOON, SHADOW, CLOTH, TRIM = "Metal_SG_Silver", "SG_Rune_Glow", "Stone_SG_Obsidian", "Cloth_SG_Purple", "Stone_SG_Obsidian"
 IRON = "Metal_SG_BlackIron"
+# crescente SEM emissao (estandartes e placas, 15.05): lilas-prata PALIDO (SmoothPlastic no Roblox). Testado no modo
+# roblox: a pedra violeta some no campo de obsidiana e a prata funde com o anel; o palido le a lua e separa do anel
+QUIET = "Stone_SG_MoonPale"      # (registrado no sg_lib.SMATS)
 
 # ---------------------------------------------------------------- desenho do simbolo (unidades de r, a = lateral, b = cima)
 RING_OUT = 0.97                  # borda externa do anel
@@ -301,18 +309,21 @@ def _emblem_geo(mb_metal, mb_glow, mb_dark, P, r, lay, monumental=False, glow=MO
     _bar(mb_metal, P, SILVER, (0.0, GUARD_B * r), (1.0, 0.0), gst, lay["guard"][0], lay["guard"][1], k)
 
 
-def emblem(mb_metal, mb_glow, mb_dark, c, yaw, r, depth=0.6, monumental=False):
+def emblem(mb_metal, mb_glow, mb_dark, c, yaw, r, depth=0.6, monumental=False, glow=MOON):
+    """glow = material do crescente: MOON (Neon) SO no emblema monumental, no trono e no caldeirao (15.05); nos
+    estandartes e placas, QUIET (lilas-prata palido, sem emissao)"""
     f, u = _frame(c, yaw)
     P = _W(c, f, u)
     D = depth
     kb = min(1.4, max(1.0, 0.8 / r))
     w = RING_W * r * kb
     ch = min(0.032 * r, 0.12 * D, 0.22 * w)       # o MESMO chanfro no anel e no crescente
+    seg = 24 if r < 1.2 else None                  # overhaul 12: emblema pequeno (estandarte/placa) com anel de 24
     lay = {"ch": ch, "chc": min(ch, 0.06 * D), "k": min(1.0, max(0.3, 0.12 * D / (BLADE_HW0 * r * kb))),
            "field": (-0.04 * D, 0.12 * D), "moon": (0.04 * D, 0.30 * D), "ring": (-0.05 * D, 0.50 * D),
            "rays": (-0.045 * D, 0.22 * D), "blade": (-0.03 * D, 0.55 * D), "grip": (-0.025 * D, 0.54 * D),
            "pommel": (-0.02 * D, 0.58 * D), "guard": (-0.02 * D, 0.67 * D)}
-    _emblem_geo(mb_metal, mb_glow, mb_dark, P, r, lay, monumental)
+    _emblem_geo(mb_metal, mb_glow, mb_dark, P, r, lay, monumental, glow, seg=seg)
 
 
 def emblem_flat(mb_metal, mb_glow, mb_dark, c, yaw, r, monumental=False, up=1, glow=MOON, field=True, seg=None):
@@ -337,51 +348,226 @@ def emblem_flat(mb_metal, mb_glow, mb_dark, c, yaw, r, monumental=False, up=1, g
     _emblem_geo(mb_metal, mb_glow, mb_dark, P, r, lay, monumental, glow, field, seg)
 
 
-def plaque(mb_stone, mb_metal, mb_glow, mb_dark, c, yaw, r):
-    """medalhao: disco de obsidiana chanfrado (fundo em -0,5, frente em 0) com o emblema assentado (fundo embutido)"""
+def plaque(mb_stone, mb_metal, mb_glow, mb_dark, c, yaw, r, glow=None):
+    """medalhao: disco de obsidiana chanfrado (fundo em -0,5, frente em 0) com o emblema assentado (fundo embutido).
+    OVERHAUL 12 (12.11/15.05): a placa fica SO na porta do castelo, no caldeirao e no fecho da dungeon; o crescente e
+    lilas-prata palido SEM emissao (glow=MOON so no caldeirao)."""
     f, u = _frame(c, yaw)
     P = _W(c, f, u)
     R = r * 1.12
-    _disc(mb_stone, P, R, -0.5, 0.0, TRIM, n=32, ch=min(0.14, max(0.04, 0.06 * R)))
-    emblem(mb_metal, mb_glow, mb_dark, _p(c, f, u, 0, 0, 0.0), yaw, r * 0.92, depth=0.45)
+    _disc(mb_stone, P, R, -0.5, 0.0, TRIM, n=24 if R < 1.5 else 32, ch=min(0.14, max(0.04, 0.06 * R)))   # ov12: 24 nas pequenas
+    emblem(mb_metal, mb_glow, mb_dark, _p(c, f, u, 0, 0, 0.0), yaw, r * 0.92, depth=0.45, glow=glow or QUIET)
+
+
+# OVERHAUL 12 (2026-09-29, 12.05/15.05/16.02): o estandarte deixa de ser placa pentagonal rigida.
+#   - pano com SECAO ONDULADA: painel central plano (o emblema assenta nele) e UMA dobra vertical em crista de cada lado;
+#     as bordas voltam para tras. As dobras nascem pequenas na luva (o pano franzido na verga) e abrem ate a barra
+#     negra; na ponta em V estreitam junto com o pano (tudo converge na ponta);
+#   - leve ABAULADO para a frente no terco de baixo (a ponta sai ~3% da altura);
+#   - barra negra TECIDA no pano (as faces daquela faixa, nada colado por cima) e debrum com espessura que segue as
+#     dobras; BORLAS pequenas (torno de 6) nas 2 quinas e na ponta do V;
+#   - 2 LARGURAS so (estreito 2,6 / largo 3,8, escolhida pelo chamador; um w intermediario cai no estreito). A verga
+#     continua do tamanho do w pedido (os bracos dos modulos seguem encostando); o pano nunca fica mais largo que o w;
+#   - crescente SEM emissao em lilas-prata palido (Stone_SG_MoonPale); remate da verga em torno (colar + bulbo + ponta), sem cone.
+BANNER_NARROW, BANNER_WIDE = 2.6, 3.8
+# secao (t = -1..1 da meia-largura, d em unidades da amplitude)
+_BN_SEC = ((-1.0, -0.4), (-0.87, 1.0), (-0.74, 0.0), (0.74, 0.0), (0.87, 1.0), (1.0, -0.4))   # painel central
+# plano ate 0,74 (o medalhao grande cabe inteiro nele) e a dobra lateral em crista ingreme: os 2 flancos da dobra
+# ficam de lado para a luz e leem mais escuros que o painel
+
+
+def _pl(xs, ys, x):
+    """interpolacao linear por partes (xs crescente)"""
+    if x <= xs[0]:
+        return ys[0]
+    for k in range(len(xs) - 1):
+        if x <= xs[k + 1]:
+            f = (x - xs[k]) / (xs[k + 1] - xs[k])
+            return ys[k] + (ys[k + 1] - ys[k]) * f
+    return ys[-1]
+
+
+def _lathe_ax(mb, o, ax, prof, m, n=8):
+    """solido de revolucao em torno do eixo ax (unitario) a partir de o: prof = [(raio, distancia)], raio 0 = polo"""
+    ax = tuple(ax)
+    ref = (0.0, 0.0, 1.0) if abs(ax[2]) < 0.9 else (1.0, 0.0, 0.0)
+    e1 = (ax[1] * ref[2] - ax[2] * ref[1], ax[2] * ref[0] - ax[0] * ref[2], ax[0] * ref[1] - ax[1] * ref[0])
+    L_ = math.sqrt(sum(v * v for v in e1))
+    e1 = tuple(v / L_ for v in e1)
+    e2 = (ax[1] * e1[2] - ax[2] * e1[1], ax[2] * e1[0] - ax[0] * e1[2], ax[0] * e1[1] - ax[1] * e1[0])
+    bm = mb.bm
+    rows = []
+    for r, d in prof:
+        c = tuple(o[i] + ax[i] * d for i in range(3))
+        if r < 1e-5:
+            rows.append([bm.verts.new(c)])
+        else:
+            rows.append([bm.verts.new(tuple(c[i] + r * (math.cos(2 * math.pi * k / n) * e1[i] +
+                                                        math.sin(2 * math.pi * k / n) * e2[i]) for i in range(3)))
+                         for k in range(n)])
+    faces = []
+    for A, B in zip(rows, rows[1:]):
+        for k in range(n):
+            j = (k + 1) % n
+            if len(A) == 1:
+                faces.append(bm.faces.new((A[0], B[k], B[j])))
+            elif len(B) == 1:
+                faces.append(bm.faces.new((A[k], A[j], B[0])))
+            else:
+                faces.append(bm.faces.new((A[k], A[j], B[j], B[k])))
+    for R in (rows[0], rows[-1]):
+        if len(R) > 1:
+            faces.append(bm.faces.new(R))
+    bmesh.ops.recalc_face_normals(bm, faces=faces)
+    mb._post([v for r in rows for v in r], m, None, 0, 1)
+
+
+def _tassel(mb, P, a, b, d, s, m):
+    """borla pendurada: o topo (cordao) entra 0,06 no pano em (a, b, d); s = escala"""
+    prof = [(0.0, 0.0), (0.14, 0.06), (0.09, 0.44), (0.10, 0.58), (0.0, 0.80)]     # saia, cabeca, cordao
+    top = P(a, b + 0.06, d)
+    _lathe(mb, (top[0], top[1], top[2] - 0.80 * s), [(r * s, h * s) for r, h in prof], m, 5)
 
 
 def banner(mb_cloth, mb_metal, mb_glow, mb_dark, top, yaw, w, h, tails=True, trim=None):
     """estandarte pendurado por uma verga de ferro/prata em 'top' (centro da verga), olhando para yaw"""
     f, u = _frame(top, yaw)
     P = _W(top, f, u)
-    th = 0.22                     # espessura do pano
-    dc = 0.03                     # plano medio do pano (a verga fica em d = 0)
     yu = math.atan2(u[1], u[0])
-    # verga redonda de ferro negro (mesmo comprimento/altura de antes: os bracos dos modulos continuam encostando)
+    # verga redonda de ferro negro (comprimento pelo w PEDIDO: os bracos dos modulos continuam encostando)
     half = w / 2 + 0.35
     mb_metal.cyl(0.14, 2 * half, P(0, 0, 0), (0, math.pi / 2, yu), m=IRON, n=8, bevel=0.0)
     for s in (-1, 1):
-        ys = math.atan2(s * u[1], s * u[0])
-        mb_metal.cyl(0.2, 0.14, P(s * half, 0, 0), (0, math.pi / 2, ys), m=SILVER, n=8, bevel=0.0)        # colar
-        mb_metal.cyl(0.17, 0.34, P(s * (half + 0.24), 0, 0), (0, math.pi / 2, ys), m=SILVER, n=8, r2=0.0,
-                     bevel=0.0)                                                                             # remate
-    # luva de tecido abracando a verga (o pano pende DELA, nao flutua embaixo)
-    mb_cloth.cyl(0.22, w, P(0, 0, dc * 0.5), (0, math.pi / 2, yu), m=CLOTH, n=8, bevel=0.0)
+        o = P(s * (half - 0.07), 0, 0)
+        _lathe_ax(mb_metal, o, (s * u[0], s * u[1], 0.0),
+                  [(0.19, 0.0), (0.19, 0.12), (0.16, 0.3), (0.0, 0.52)], SILVER, 6)          # colar, bulbo, ponta
+    w = BANNER_WIDE if w >= 3.6 else min(w, BANNER_NARROW)     # 2 larguras so (nunca mais largo que o pedido)
+    th = 0.12                     # espessura do pano
+    dc = 0.03                     # plano medio do pano (a verga fica em d = 0)
+    hw = w / 2.0
+    mb_cloth.cyl(0.22, w, P(0, 0, dc * 0.5), (0, math.pi / 2, yu), m=CLOTH, n=8, bevel=0.0)   # luva
     body_h = h * (0.84 if tails else 1.0)
     bt = -0.05                    # topo do pano (dentro da luva)
     zb = -body_h - 0.15
-    zt = zb - h * 0.16
+    zt = zb - h * 0.16 if tails else zb
+    zl = bt + (zt - bt) * 0.62    # comeco do terco de baixo (abaulado)
+    amp = 0.12 * w
+    bulge = 0.035 * h
+    # linhas do pano: (z, fator da amplitude: as dobras abrem ate a barra); barra negra entre as linhas 1 e 2
+    rows = [(bt, 0.3), (-h * 0.05, 0.6), (-h * 0.13, 1.0), (zl, 1.0), ((zl + zb) / 2, 1.0), (zb, 1.0)]
     if tails:
-        pts = [(-w / 2, bt), (-w / 2, zb), (0.0, zt), (w / 2, zb), (w / 2, bt)]
-    else:
-        pts = [(-w / 2, bt), (-w / 2, zb), (w / 2, zb), (w / 2, bt)]
-    _prism(mb_cloth, P, pts, dc - th / 2, dc + th / 2, CLOTH)
-    # barra negra no alto (abraca o pano) e debrum continuo (laterais + V) com espessura
-    _prism(mb_dark, P, [(-w / 2 - 0.01, -h * 0.13), (w / 2 + 0.01, -h * 0.13), (w / 2 + 0.01, -h * 0.05),
-                        (-w / 2 - 0.01, -h * 0.05)], dc - th / 2 - 0.02, dc + th / 2 + 0.02, SHADOW)
+        rows += [((zb + zt) / 2, 1.0), (zt, 1.0)]
+    zs = [r_[0] for r_ in rows][::-1]
+    As = [r_[1] for r_ in rows][::-1]
+    ts = [t for t, _ in _BN_SEC]
+    ds = [d for _, d in _BN_SEC]
+
+    def halfw(z):
+        if not tails or z >= zb:
+            return hw
+        return hw * max(0.0, (z - zt) / (zb - zt))
+
+    def D(a, z):
+        """profundidade do plano medio do pano em (a, z)"""
+        k = halfw(z) / hw
+        t = a / halfw(z) if halfw(z) > 1e-6 else 0.0
+        bz = bulge * ((zl - z) / (zl - zt)) ** 2 if z < zl else 0.0
+        return dc + amp * _pl(zs, As, z) * k * _pl(ts, ds, t) + bz
+    bm = mb_cloth.bm
+    Fr, Bk = [], []
+    for z, _ in rows:
+        hz = halfw(z)
+        if hz < 1e-6:
+            cols = [0.0]
+        else:
+            cols = [t * hz for t in ts]
+        Fr.append([bm.verts.new(P(a, z, D(a, z) + th / 2)) for a in cols])
+        Bk.append([bm.verts.new(P(a, z, D(a, z) - th / 2)) for a in cols])
+    faces, bar = [], []
+    for j in range(len(rows) - 1):
+        A, B, A2, B2 = Fr[j], Fr[j + 1], Bk[j], Bk[j + 1]
+        fj = []
+        for i in range(len(A) - 1):
+            if len(B) == 1:
+                fj.append(bm.faces.new((A[i], A[i + 1], B[0])))
+                fj.append(bm.faces.new((A2[i + 1], A2[i], B2[0])))
+            else:
+                fj.append(bm.faces.new((A[i], A[i + 1], B[i + 1], B[i])))
+                fj.append(bm.faces.new((A2[i + 1], A2[i], B2[i], B2[i + 1])))
+        # laterais (esquerda e direita)
+        for iA, iB in ((0, 0), (len(A) - 1, len(B) - 1)):
+            fj.append(bm.faces.new((A[iA], B[iB], B2[iB], A2[iA])))
+        faces += fj
+        if j == 1:
+            bar += fj
+    for i in range(len(Fr[0]) - 1):                                        # topo (dentro da luva)
+        faces.append(bm.faces.new((Fr[0][i + 1], Fr[0][i], Bk[0][i], Bk[0][i + 1])))
+    if not tails:
+        for i in range(len(Fr[-1]) - 1):                                   # fundo reto
+            faces.append(bm.faces.new((Fr[-1][i], Fr[-1][i + 1], Bk[-1][i + 1], Bk[-1][i])))
+    bmesh.ops.recalc_face_normals(bm, faces=faces)
+    mb_cloth._post([v for R in Fr + Bk for v in R], CLOTH, None, 0, 1)
+    # barra negra tecida: as faces da faixa 1-2 trocam de material
+    mi = mb_cloth._mi_for(SHADOW)
+    for fc in bar:
+        fc.material_index = mi
+    mb_cloth._uv(set(bar), SHADOW)
+    # debrum continuo (laterais + V) com espessura, seguindo as dobras
     tm = trim or SILVER
     tw = min(0.2, max(0.12, 0.05 * w))
-    _band(mb_metal, P, pts, tw, dc - th / 2 - 0.035, dc + th / 2 + 0.035, tm)
-    er = min(w * 0.36, h * 0.16)
-    D = 0.28
-    emblem(mb_metal, mb_glow, mb_dark, P(0, -h * 0.36, dc + th / 2), yaw, er, depth=D)   # fundos embutidos no pano
+    left = [(-halfw(z), z) for z, _ in rows]
+    if tails:
+        path = left[:-1] + [(0.0, zt)] + [(-a, z) for a, z in reversed(left[:-1])]
+    else:
+        path = left + [(-a, z) for a, z in reversed(left)]
+    _band_s(mb_metal, P, path, tw, D, th / 2 + 0.04, tm)
+    # borlas nas pontas
+    ts_ = 0.24 * w
+    for a in (-hw, hw):
+        _tassel(mb_metal, P, a * 0.97, zb, D(a * 0.97, zb), ts_, tm)
+    if tails:
+        _tassel(mb_metal, P, 0.0, zt, D(0.0, zt), ts_, tm)
+    er = min(w * 0.36, h * 0.16)                  # o medalhao grande de antes (~70 % do pano)
+    ze = -h * 0.36
+    emblem(mb_metal, mb_glow, mb_dark, P(0, ze, D(0.0, ze) + th / 2), yaw, er, depth=0.28, glow=QUIET)
 
+
+def _band_s(mb, P, path, tw, S, off, m):
+    """faixa de largura tw ao longo de uma polilinha aberta do plano (a, b), deslocada para a ESQUERDA do caminho com
+    esquadria; a profundidade de cada vertice vem da superficie S(a, b) +- off (o debrum abraca o pano nas dobras)"""
+    n = len(path)
+    nrm = []
+    for i in range(n - 1):
+        dx, dy = path[i + 1][0] - path[i][0], path[i + 1][1] - path[i][1]
+        L_ = math.hypot(dx, dy)
+        nrm.append((-dy / L_, dx / L_))
+    inner = []
+    for i in range(n):
+        if i == 0:
+            mx, my = nrm[0]
+        elif i == n - 1:
+            mx, my = nrm[-1]
+        else:
+            a, b = nrm[i - 1], nrm[i]
+            s = 1.0 + a[0] * b[0] + a[1] * b[1]
+            mx, my = (a[0] + b[0]) / s, (a[1] + b[1]) / s
+        inner.append((path[i][0] + mx * tw, path[i][1] + my * tw))
+    bm = mb.bm
+    O0 = [bm.verts.new(P(a, b, S(a, b) - off)) for a, b in path]
+    O1 = [bm.verts.new(P(a, b, S(a, b) + off)) for a, b in path]
+    I0 = [bm.verts.new(P(a, b, S(a, b) - off)) for a, b in inner]
+    I1 = [bm.verts.new(P(a, b, S(a, b) + off)) for a, b in inner]
+    faces = []
+    for i in range(n - 1):
+        j = i + 1
+        faces.append(bm.faces.new((O1[i], O1[j], I1[j], I1[i])))
+        faces.append(bm.faces.new((I0[i], I0[j], O0[j], O0[i])))
+        faces.append(bm.faces.new((O0[i], O0[j], O1[j], O1[i])))
+        faces.append(bm.faces.new((I1[i], I1[j], I0[j], I0[i])))
+    for i in (0, n - 1):
+        faces.append(bm.faces.new((O0[i], O1[i], I1[i], I0[i])))
+    bmesh.ops.recalc_face_normals(bm, faces=faces)
+    mb._post(O0 + O1 + I0 + I1, m, None, 0, 1)
 
 # ---------------------------------------------------------------- lanternas da ordem (kit definitivo)
 # OVERHAUL 01 (2026-09-29, "zero tolerancia"): o "cubo amarelo" saiu. A lanterna da ordem e UM asset desenhado:
@@ -399,6 +585,9 @@ def banner(mb_cloth, mb_metal, mb_glow, mb_dark, top, yaw, w, h, tails=True, tri
 GOLD = "Metal_Gold"
 L_IRON = "Metal_SG_Iron"
 L_GLOW = "Lantern_Glow"
+L_WAX = "Plaster_SG"         # vela creme (paleta base: nao e material novo)
+L_GLASS = "Glass_SG_LampAmber"   # vidro ambar (Glass 0,3 no Roblox pela regra Glass_SG do sg_lib), NAO emissivo
+L_CORE = "SG_LampCore_Glow"   # nucleo quente ESCURO (Neon ambar fechado; sg_lib.SMATS) atras da chama
 LH_BASE = 1.14               # fundo da lanterna abaixo do ponto de referencia (API antiga)
 LH_GLASS = 0.85              # centro do vidro acima do fundo
 
@@ -441,7 +630,11 @@ def _lathe(mb, c, prof, m, n=6, rot=0.0, closed=False, caps=(True, True)):
 
 def lantern_head(mb_metal, mb_glow, c, yaw=0.0, s=1.0):
     """lanterna da ordem (hexagonal). c = ponto de referencia da API antiga: o FUNDO da base fica em c.z - 1,14 s.
-    Devolve o centro do vidro."""
+    Devolve o centro do vidro.
+    OVERHAUL 12 (12.01, o que faltava do setor 01): o vidro deixa de ser Neon - e VIDRO ambar claro (L_GLASS, Glass
+    0,3 no Roblox) e dentro fica uma VELA com a CHAMA em gota de Lantern_Glow (~0,48, no centro do vidro) na frente de
+    um NUCLEO quente fosco (SG_LampCore_Glow, Neon ambar escuro). No jogo: gaiola + vidro + nucleo + chama. Montantes de secao
+    trapezoidal (0,12 na frente, chanfros para os lados) no lugar do triangulo."""
     x, y, z = c
     b = z - LH_BASE * s
     rot = yaw + math.pi / 6.0              # vertices em yaw +- 30: uma FACE olha para 'yaw'
@@ -449,32 +642,41 @@ def lantern_head(mb_metal, mb_glow, c, yaw=0.0, s=1.0):
     def P(pr):
         return [(r * s, h * s) for r, h in pr]
     # base: prato moldurado (pe, bojo, aba) - ferro (sem tampa de baixo: assenta sempre em alguma coisa)
-    _lathe(mb_metal, (x, y, b), P([(0.30, 0.0), (0.55, 0.11), (0.55, 0.20), (0.47, 0.25)]), L_IRON, 6, rot,
+    _lathe(mb_metal, (x, y, b), P([(0.30, 0.0), (0.55, 0.13), (0.47, 0.25)]), L_IRON, 6, rot, caps=(False, True))
+    # rodada 4: NUCLEO quente fosco (SG_LampCore_Glow, Neon ambar ESCURO: nao estoura) - cilindro sextavado de ~60 %
+    # do raio e ~70 % da altura do vidro, recuado para o fundo (face de tras 0,03 antes do vidro); a vela e a chama
+    # clara ficam NA FRENTE dele (deslocadas 0,12 para 'yaw'). Leitura: ferro > vidro ambar > nucleo quente > chama.
+    fx_, fy_ = math.cos(yaw), math.sin(yaw)
+    _lathe(mb_glow, (x - fx_ * 0.15 * s, y - fy_ * 0.15 * s, b), P([(0.21, 0.26), (0.21, 1.11)]), L_CORE, 6, rot,
            caps=(False, True))
-    # vidro quente recuado (hexagono de 0,40 no vertice: a face fica 0,05 atras da face dos montantes/travessas); as
-    # tampas ficariam escondidas dentro da base e da tampa
-    _lathe(mb_glow, (x, y, b), P([(0.40, 0.24), (0.40, 1.46)]), L_GLOW, 6, rot, caps=(False, False))
-    # 6 montantes de secao triangular nos vertices (a aresta viva aponta para fora: le como montante chanfrado)
+    # vela creme de pe no prato da base (torno quadrado) e chama em gota, na frente do nucleo
+    vx_, vy_ = x + fx_ * 0.12 * s, y + fy_ * 0.12 * s
+    _lathe(mb_metal, (vx_, vy_, b + 0.24 * s), P([(0.08, 0.0), (0.08, 0.40), (0.0, 0.42)]), L_WAX, 4, rot,
+           caps=(False, False))
+    _lathe(mb_glow, (vx_, vy_, b + 0.63 * s), P([(0.0, 0.0), (0.12, 0.15), (0.065, 0.31), (0.0, 0.48)]), L_GLOW, 5,
+           rot)
+    # vidro ambar recuado (hexagono de 0,40 no vertice, atras dos montantes); tampas escondidas na base/tampa
+    _lathe(mb_metal, (x, y, b), P([(0.40, 0.24), (0.40, 1.46)]), L_GLASS, 6, rot, caps=(False, False))
+    # 6 montantes de secao trapezoidal nos vertices (frente de 0,07 de meia-largura, chanfros para os lados)
     bm = mb_metal.bm
     for k in range(6):
         a = rot + k * math.pi / 3.0
         ca, sa = math.cos(a), math.sin(a)
-        tri = [(0.37, -0.055), (0.49, 0.0), (0.37, 0.055)]            # (raio, deslocamento tangencial)
+        sec = [(0.37, -0.06), (0.48, -0.035), (0.48, 0.035), (0.37, 0.06)]      # (raio, deslocamento tangencial)
         vs = []
         for zz in (0.22, 1.48):
             vs.append([bm.verts.new((x + (r * ca - t * sa) * s, y + (r * sa + t * ca) * s, b + zz * s))
-                       for r, t in tri])
-        fs = [bm.faces.new((vs[0][i], vs[0][(i + 1) % 3], vs[1][(i + 1) % 3], vs[1][i])) for i in range(3)]
+                       for r, t in sec])
+        fs = [bm.faces.new((vs[0][i], vs[0][(i + 1) % 4], vs[1][(i + 1) % 4], vs[1][i])) for i in range(4)]
         bmesh.ops.recalc_face_normals(bm, faces=fs)
         mb_metal._post(vs[0] + vs[1], L_IRON, None, 0, 1)
-    # travessa dourada a 2/3 (divide cada face em 2 vidros)
-    _lathe(mb_metal, (x, y, b), P([(0.46, 0.99), (0.46, 1.07)]), GOLD, 6, rot)      # (o miolo fica dentro do vidro)
+    # travessa dourada a ~3/4 (divide cada face em 2 vidros), acima da chama (a chama fica no centro do vidro)
+    _lathe(mb_metal, (x, y, b), P([(0.46, 1.14), (0.46, 1.21)]), GOLD, 6, rot, caps=(False, False))   # cinta
     # tampa: cinta, BEIRAL que sai alem da base, telhado concavo ate o colar do remate
-    _lathe(mb_metal, (x, y, b), P([(0.36, 1.44), (0.50, 1.47), (0.62, 1.58), (0.59, 1.65), (0.32, 1.80),
-                                   (0.15, 1.96)]), L_IRON, 6, rot)
-    # remate dourado: colar, pinha, ponta
-    _lathe(mb_metal, (x, y, b), P([(0.12, 1.94), (0.16, 2.03), (0.09, 2.12), (0.0, 2.30)]), GOLD, 6, rot,
-           caps=(False, True))
+    _lathe(mb_metal, (x, y, b), P([(0.36, 1.44), (0.50, 1.47), (0.62, 1.58), (0.32, 1.80), (0.15, 1.96)]), L_IRON,
+           6, rot, caps=(True, False))                                           # (o topo fica dentro do remate)
+    # remate dourado: colar e ponta
+    _lathe(mb_metal, (x, y, b), P([(0.12, 1.94), (0.16, 2.03), (0.0, 2.30)]), GOLD, 6, rot, caps=(False, True))
     return (x, y, b + LH_GLASS * s)
 
 
@@ -482,10 +684,12 @@ def lantern_pedestal(mb_stone, mb_metal, mb_glow, base, yaw=0.0, s=1.0):
     """lanterna sobre DADO MOLDURADO baixo de obsidiana (parapeitos, eixo). base = (x, y, z do apoio).
     Pedestal 1,12 s + lanterna 2,3 s = 3,42 s. Devolve o centro do vidro."""
     x, y, z = base
-    mb_stone.box((1.24 * s, 1.24 * s, 0.16 * s), (x, y, z + 0.08 * s), (0, 0, yaw), SHADOW, 0.04 * s)      # plinto
-    mb_stone.box((0.92 * s, 0.92 * s, 0.80 * s), (x, y, z + 0.56 * s), (0, 0, yaw), SHADOW, 0.05 * s)      # dado
-    mb_stone.box((1.10 * s, 1.10 * s, 0.10 * s), (x, y, z + 1.01 * s), (0, 0, yaw), SHADOW, 0.0)          # capitel
-    mb_stone.box((1.00 * s, 1.00 * s, 0.07 * s), (x, y, z + 1.09 * s), (0, 0, yaw), SHADOW, 0.02 * s)
+    # OVERHAUL 12 (16.03): as 4 caixas empilhadas viram UM perfil de torno de secao quadrada (n=4, quinas a 45 graus
+    # do yaw): plinto chanfrado, toro, dado, colarinho, capitel em 2 degraus com cimalha - mesmas cotas de antes
+    prof = [(0.62, 0.0), (0.62, 0.12), (0.54, 0.18), (0.47, 0.25), (0.46, 0.86), (0.49, 0.90), (0.55, 0.96),
+            (0.55, 1.03), (0.50, 1.06), (0.50, 1.12)]
+    _lathe(mb_stone, (x, y, z), [(r * s * math.sqrt(2.0), hh * s) for r, hh in prof], SHADOW, 4, yaw + math.pi / 4,
+           caps=(False, True))
     return lantern_head(mb_metal, mb_glow, (x, y, z + (1.12 + LH_BASE) * s), yaw, s)
 
 

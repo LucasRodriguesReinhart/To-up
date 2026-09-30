@@ -22,6 +22,9 @@
 # lanternas quentes); os 2 mastros-estandarte da praca sairam (sinal repetido); a figura da ordem virou
 # hooded_figure() (manto com pregas, capa, borda do capuz, punhos) - a mesma da fonte da praca (sg_village); flores
 # dos canteiros em tufos achatados; vidro da lanterna do patio assentado no prato e no chapeu.
+# OVERHAUL 12 (2026-09-29, props globais): lanterna SO nos NOS - os 3 pares de pedestais do eixo do P2 e o par de
+# postes do patio SAIRAM (os arcos de ferro nas 2 pontas do eixo, o poste do cruzamento e os postes do patamar do
+# portao ja marcam os nos); remate do mastro (codigo parado) em florao torneado no lugar da piramide.
 import math, random
 import sg_lib as SL
 from sg_lib import MB, col_box, col_box2, fm_lib
@@ -69,7 +72,9 @@ PARTERRE_Y = (3.5, 15.0)
 # OVERHAUL 03 (03.04): o par NORTE (-+8,4; 28,5) SAIU - cortava a estatua ao meio na linha de visao de quem sobe
 # para a porta (mover para x +-9,5 / y 23 caia de novo no cone de quem vem do portao). A porta ja tem a luz quente
 # dela (L_SGCas_Door) e o violeta baixo central (Court_Violet); o par sul marca a entrada do patio.
-LAMPS = [(-8.4, 11.5, "warm"), (8.4, 11.5, "warm")]
+# OVERHAUL 12 (12.04): o par sul tambem SAIU - repetia, 10 studs adiante, o par de postes do patamar do portao
+# (sg_castle, o NO de verdade: topo da escada + portao). O patio fica com o portao, as estatuas e a luz central.
+LAMPS = []
 STATUES = [(-12.5, 33.5), (12.5, 33.5)]
 OBELISKS = [(-21.0, 29.0), (21.0, 29.0)]
 MURETS = [(-45.0, 0.0, 13.5), (45.0, 0.0, 13.5)]
@@ -79,8 +84,11 @@ GATE_ARCH = (0.0, -28.0, P2, 9.4)     # (x, y, z, meia-abertura) arco de ferro n
 PLAZA_MASTS = []
 # lanternas do eixo no P2 (referencia v2): pares em x = +-7.6 (fora da largura util de 12 do caminho), a cada ~14;
 # o vao -50 fica com o lantern_post da vila em (7.8, -51.6) (nada de cacho de postes no cruzamento)
+# OVERHAUL 12 (12.04/16.04): os 3 pares de pedestais SAIRAM (cerca de luz a cada 14). Os NOS do eixo ja tem lanterna:
+# topo da escada P1P2 = arco de ferro da vila (2 lanternas acesas), cruzamento com a rua do P2 = poste da vila
+# (7.8, -51.6, aceso), pe da escada do portao = arco de ferro do patio (GATE_ARCH, 2 lanternas). Nenhuma luz real muda.
 AXIS_LANTERN_X = 7.6
-AXIS_LANTERN_Y = (-78.0, -64.0, -36.0)
+AXIS_LANTERN_Y = ()
 # luzes do patio (quem cria e o sg_lights; teto de 7 no vestir)
 VIOLET = (0.62, 0.42, 1.0)
 COURT_LIGHTS = [("Court_Violet", (0.0, 30.5, P3 + 7.0), 420.0, VIOLET, 0.6)]
@@ -224,8 +232,9 @@ def mast_banner(mb, x, y, z, yaw=-math.pi / 2):
     mb.box((1.1, 1.1, 0.5), (x, y, z + 1.05), (0, 0, 0), VIO, 0.06)
     mb.cyl(0.24, 13.2, (x, y, z + 1.3 + 6.6), (0, 0, 0), IRON, n=8, r2=0.17, bevel=0.0)
     mb.cyl(0.36, 0.3, (x, y, z + 12.9), (0, 0, 0), IRON, n=8, bevel=0.0)
-    SL.spire(mb, (x, y), 0.34, z + 14.5, 1.3, SILVER, n=4)
-    mb.ico(0.22, (x, y, z + 14.45), SILVER, 1)
+    # remate do kit (12.12): florao torneado no lugar da piramide de 4 lados + bola
+    EM._lathe(mb, (x, y, z + 13.05), [(0.2, 0.0), (0.14, 0.2), (0.3, 0.46), (0.1, 0.82), (0.0, 1.45)], SILVER, 6,
+              math.pi / 6)
     top = (x + fx * 0.36, y + fy * 0.36, z + 12.6)
     EM.banner(mb, mb, mb, mb, top, yaw, 3.0, 7.4, trim=EM.GOLD)
     col_box("SG_PropMast", (1.2, 1.2, 14.0), (x, y, z + 7.0))
@@ -237,7 +246,7 @@ def axis_north():
     y_p2_0 = L.stair_top("P1P2")[1] + 0.02          # -83
     y_p2_1 = L.stair_frame("Gate")[0][1] - 0.02      # -26
     noble_path(mb, y_p2_0, y_p2_1, PATH_W, P2)
-    # ritmo de lanternas douradas ladeando o caminho da ordem no P2 (SO Neon; colisao propria fina)
+    # (vazio desde o overhaul 12: o eixo so tem lanterna nos NOS - ver AXIS_LANTERN_Y)
     for yy in AXIS_LANTERN_Y:
         for s in (-1, 1):
             EM.lantern_pedestal(mb, mb, mb, (s * AXIS_LANTERN_X, yy, P2), 0.0, 1.0)

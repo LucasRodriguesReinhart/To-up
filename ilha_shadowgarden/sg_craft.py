@@ -1706,7 +1706,7 @@ def cauldron():
         f = Vector((math.cos(ang), math.sin(ang), 0.0))
         O = Vector((x, y, Z + MED_Z)) + f * caul_r(MED_Z)
         medal_bezel(mb, O, f)
-        EM.plaque(mb, mb, mb, mb, tuple(O + f * MED_CD), ang, MED_R)
+        EM.plaque(mb, mb, mb, mb, tuple(O + f * MED_CD), ang, MED_R, glow=EM.MOON)   # ov12: crescente aceso SO aqui
     # ORELHAS fundidas com ARGOLA (norte e sul)
     pin = (3.3, 5.02)
     Rr, tr = 0.42, 0.075

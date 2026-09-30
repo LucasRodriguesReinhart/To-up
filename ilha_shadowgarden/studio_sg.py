@@ -43,7 +43,7 @@ ZONE_MARKERS = {
 BUDGET = {
     # passe de acabamento (2026-09-29): folga para kits de livros/frascos, portas/janelas com caixilho e ruinas
     "terrain": (120000, 150, 8, 90, 0), "entry": (40000, 55, 4, 45, 5), "village": (88000, 110, 9, 90, 6),
-    "castle": (160000, 190, 12, 175, 5), "hall": (64000, 62, 9, 40, 6), "summon": (38000, 52, 5, 42, 3),
+    "castle": (160000, 190, 12, 175, 5), "hall": (64000, 62, 9, 40, 6), "summon": (38000, 54, 5, 42, 3),
     "craft": (84000, 74, 11, 75, 4), "dungeon": (95000, 100, 10, 155, 7), "water": (20000, 32, 3, 10, 0),
     "exit": (26000, 38, 4, 45, 3), "dressing": (90000, 150, 9, 160, 7),
 }
@@ -58,7 +58,7 @@ BUDGET = {
 # 4 degraus, abobada de nervuras da abside, vitrais e o trono novo (~+5k); revisao 04b-3: ROSACEA DA LUA de 18 no
 # fundo, lancetas ao lado e o cordao na altura do arranque dos vitrais (~+2k). O castelo segue <= 160k.
 # setor 09b (pedido do usuario: dungeon maior, cabe um grupo): dungeon 80k -> 95k tris (salas x1,84 de area, boca e
-# tunel para 4-6 avatares; +10 pilastras, +18 arcadas, +8 tochas). Summon MeshParts 50 -> 52 (kit de lanterna 12).
+# tunel para 4-6 avatares; +10 pilastras, +18 arcadas, +8 tochas). Summon MeshParts 50 -> 54 (kit de lanterna 12: vidro ambar + nucleo quente).
 
 
 def est_meshparts(ob):

@@ -40,6 +40,9 @@ import sg_emblem as EM
 # porticos com quinas chanfradas, colunelos e fiadas no terco de baixo, janelas cegas com vazio + moldura com espessura,
 # gabletes com cimalha e florao, pinaculos do kit; verga B com perfil e fecho esculpido (sem placa); estandarte so no
 # portico B; lanterna baixa em balaustre com a lanterna do kit; aduelas radiais no arco da ponte.
+# OVERHAUL 12 (2026-09-29, props globais): de 10 para 6 lanternas - a da cabeceira da ponte e a do topo da escada
+# sairam (cada uma a ~9 studs da lanterna baixa acesa do portico A/B: o no fica com UMA lanterna por lado); agulha dos
+# porticos octogonal com anel e florao de prata (sem piramide de 4 lados); estandarte do portico B na largura estreita.
 
 DECK, P1 = L.DECK, L.P1
 Y0, Y1 = L.BRIDGE_Y0, L.BRIDGE_Y1          # -262 .. -228
@@ -54,7 +57,7 @@ fm_lib.MATS.setdefault(CAP_M, (fm_lib.S(132, 128, 134), 0.8, 0.0, 0, None, 0.06)
 
 # (x do eixo do pilar, secao do fuste, altura do fuste, agulha, largura e altura do estandarte)
 PORTICO_A = dict(y=L.PORTICO_A_Y, z=DECK, xc=11.3, s=3.2, H=16.0, spire=7.0, bw=2.6, bh=9.0, name="A")
-PORTICO_B = dict(y=L.PORTICO_B_Y, z=P1, xc=11.6, s=4.0, H=22.0, spire=10.0, bw=3.3, bh=12.0, name="B")
+PORTICO_B = dict(y=L.PORTICO_B_Y, z=P1, xc=11.6, s=4.0, H=22.0, spire=10.0, bw=2.6, bh=12.0, name="B")   # ov12: estreito
 
 CAMS = {
     # frente: chegando da Ilha 2 pela ponte (um pouco acima, de lado)
@@ -536,9 +539,10 @@ def stair_wall(mb, mh, s):
         p1 = A + dd * ((j + 1) / nseg) - dd.normalized() * (0.03 if j < nseg - 1 else 0.0)
         mb.beam((p0.x, p0.y, p0.z + 0.28), (p1.x, p1.y, p1.z + 0.28), 1.8, 0.36, CAP_M, 0.07)
     mb.beam((xm, A.y + 0.1, A.z + 0.1 * k + 0.04), (xm, B.y - 0.1, B.z - 0.1 * k + 0.04), 1.58, 0.14, CAP_M, 0.0)
-    # arranque (pe: dado com remate do kit) e topo (lanterna: no da escada)
+    # arranque (pe e topo: dado com remate do kit). OVERHAUL 12 (12.04): a lanterna do topo SAIU - a 9 studs dela a
+    # lanterna baixa do portico B ja marca o mesmo no (2 lanternas por lado lia cacho)
     _post(mb, s * (HW + 0.8), ya + 0.4, PAR_Z, 1.6, PAR_H + 1.3, lamp=False)
-    _post(mb, s * (HW + 0.8), yb - 0.6, P1 - 0.35, 1.6, PAR_H + 1.3, lamp=True)
+    _post(mb, s * (HW + 0.8), yb - 0.6, P1 - 0.35, 1.6, PAR_H + 1.3, lamp=False)
 
 
 def parapets():
@@ -549,11 +553,12 @@ def parapets():
     for s in (-1, 1):
         skipA = [((s * PORTICO_A["xc"], PORTICO_A["y"]), 4.0)]
         # ponte -> canto sul do patio -> lateral do patio -> canto norte (pe da escada). LANTERNAS SO NOS NOS: o
-        # pilarete da ponta sul (comeco da ponte) e o da cabeceira (fim da ponte); os dos pilares levam remate
+        # pilarete da ponta sul (comeco da ponte); o da cabeceira leva remate desde o overhaul 12 (o fim da ponte e o
+        # portico A, com a lanterna baixa acesa a 9 studs); os dos pilares levam remate
         parapet_run(mb, [(s * (HW + 0.6), Y0), (s * (HW + 0.6), Y1 - 0.6), (s * (xl + 0.6), Y1 - 0.6),
                          (s * (xl + 0.6), L.ENTRY_STAIR[1] + 0.5), (s * (HW + 1.4), L.ENTRY_STAIR[1] + 0.5)],
                     PAR_Z, extra=[(s * (HW + 0.6), cy, False) for cy in PIERS],
-                    skip=skipA + [((s * (HW + 1.4), L.ENTRY_STAIR[1] + 0.5), 1.0)], lit=(0, 1))
+                    skip=skipA + [((s * (HW + 1.4), L.ENTRY_STAIR[1] + 0.5), 1.0)], lit=(0,))
         stair_wall(mb, mh, s)
         # calcada alta: borda sul (ao lado do topo da escada) + lateral ate a praca (sem lanterna: o portico B e os
         # postes da praca ja marcam os nos)
@@ -640,6 +645,23 @@ def lantern(mb, x, y, z, tag):
     light("L_SGEnt_Portico%s_Lantern" % tag, "POINT", c, 320.0, WARM, 0.4)
 
 
+def spire8(mb, x, y, r, z0, h, m="Roof_SG_Navy", ring_m="Metal_SG_Silver"):
+    """agulha octogonal do portico (a mesma leitura das agulhas das torres do castelo): beiral alargado 10 %, cone
+    ingreme, anel de prata a 0,36 h, florao de prata torneado (colar, bulbo, gola, ponta) no topo"""
+    rot = math.pi / 8
+    _lathe(mb, (x, y, z0), [(r * 1.1, 0.0), (r * 0.9, h * 0.08), (0.12, h - 0.02), (0.0, h)], m, 8, rot)
+    zf = h * 0.36
+
+    def rad(z):
+        return r * 0.9 + (0.12 - r * 0.9) * (z - h * 0.08) / (h * 0.92 - 0.02)
+    _lathe(mb, (x, y, z0), [(rad(zf - 0.22) - 0.05, zf - 0.22), (rad(zf - 0.22) + 0.13, zf - 0.16),
+                            (rad(zf + 0.16) + 0.13, zf + 0.16), (rad(zf + 0.22) - 0.05, zf + 0.22)], ring_m, 8, rot)
+    prof = [(0.17, 0.0), (0.24, 0.1), (0.14, 0.22), (0.3, 0.46), (0.22, 0.68), (0.09, 0.84), (0.13, 0.96),
+            (0.0, 1.45)]
+    k = 1.3
+    _lathe(mb, (x, y, z0 + h - 0.35), [(a * k, b * k) for a, b in prof], ring_m, 6, math.pi / 6)
+
+
 def pinnacle(mb, px, py, z0, h, r=0.34, m=CAP_M):
     """pinaculo do kit (altos): fuste octogonal, colar, agulha de 8 lados e botao"""
     mb.prism(chamfer_sq(px, py, r, r * 0.29), z0, z0 + 0.8, m)
@@ -709,11 +731,9 @@ def pylon(mb, P, side):
         for sy in (-1, 1):
             px, py = xc + sx * (cs / 2 - 0.1), y + sy * (cs / 2 - 0.1)
             pinnacle(mb, px, py, zc, 1.3 + s * 0.25)
-    SL.spire(mb, (xc, y), cs / math.sqrt(2.0) * 0.92, zc, P["spire"], "Roof_SG_Navy", n=4)
-    ztip = zc + P["spire"]
-    mb.cyl(0.13, 1.4, (xc, y, ztip + 0.4), (0, 0, 0), "Metal_SG_Silver", 6, bevel=0.0)
-    mb.cyl(0.42, 0.7, (xc, y, ztip + 1.15), (0, 0, 0), "Metal_SG_Silver", 4, r2=0.02, bevel=0.0)
-    mb.cyl(0.42, 0.5, (xc, y, ztip + 0.55), (math.pi, 0, 0), "Metal_SG_Silver", 4, r2=0.02, bevel=0.0)
+    # OVERHAUL 12 (12.12): a piramide de 4 lados (+ losango de prata de 4) virou a AGULHA OCTOGONAL da familia das
+    # torres do castelo (beiral alargado, anel de prata a 1/3) com o florao de prata torneado no topo
+    spire8(mb, xc, y, cs / 2 * 0.92, zc, P["spire"])
     Fi = Frame(xc, y, 0.0, math.pi / 2 if side > 0 else -math.pi / 2)     # local +Y -> mundo -side*X (eixo)
     Fn = Frame(xc, y, 0.0, 0.0)
     Fs = Frame(xc, y, 0.0, math.pi)
