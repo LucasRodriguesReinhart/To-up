@@ -3,6 +3,13 @@
 #      SG_OUT=<caminho.blend> muda a saida (padrao ilha_shadowgarden.blend)
 #   sg_core (colisao andavel + TODOS os marcadores + portao Demon Slayer aprovado) roda sempre. Cada zona usa o modulo
 #   de detalhe quando ele existe (ZONE_MODULES) e o blockout quando nao existe (ou com o argumento 'blockout').
+# PLANTA v4 (ONDA 0, plano mestre renders/plano_mestre/PLANO.md):
+#   - zonas que MUDAM DE ESCALA ou de forma ficam em BLOCKOUT v4 ate a onda 1 refazer o modulo: terreno (ilha nova),
+#     vila (7 casas visitaveis; a praca/fonte da v3 entra realocada), castelo 2x, salao 2x + trono movel, SALAO
+#     SOMBRIO (zona nova 'cave'), masmorra 3x, agua (so a pedra das bicas) e vestir (patio-jardim/mirante simples);
+#   - zonas que SO MUDAM DE LUGAR rodam o modulo da v3 pelo sg_relocate (referencial v3 + transformacao rigida):
+#     entrada (a ponte curva ate ela e do blockout), invocacao, alquimia e saida (giro de 120 para o noroeste).
+#   Onda 1: quando um modulo for refeito na v4, ponha-o em ZONE_MODULES e tire de LEGACY. Nao apague codigo de detalhe.
 import sys, os, time, importlib
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
@@ -14,24 +21,48 @@ import sg_scene
 import sg_core
 import sg_blockout
 
-# zona -> modulos de detalhe (na ordem)
+# zona -> modulos de detalhe (na ordem); lista vazia = BLOCKOUT v4
 ZONE_MODULES = {
-    "terrain": ["sg_terrain"],        # massa da ilha, patamares, arrimos, ombro, penhascos em coluna, montes
-    "entry": ["sg_entry"],            # ponte de chegada, patio baixo, escadaria, 2 porticos, calcada alta
-    "village": ["sg_village"],        # praca + fonte, ruas, 12 casas de meia-enxaimel (so ambientacao)
-    "castle": ["sg_castle"],          # muralha + portao, nave (casca do Mining Hall), torres, torre-coroa
-    "hall": ["sg_hall"],              # interior do Mining Hall (piso livre, pilastras, janelas, lustres, luz)
-    "summon": ["sg_summon"],          # ponte + plataforma + torre de invocacao (familia das Ilhas 1 e 2)
-    "craft": ["sg_craft"],            # pavilhao redondo do alquimista (interior + frasco gigante)
-    "dungeon": ["sg_dungeon"],        # portaria com portal espiral + 3 salas modulares sob a ilha
-    "water": ["sg_water"],            # 4 cachoeiras frias + fonte
-    "exit": ["sg_exit"],              # ponte leste, ilhota do portao Demon Slayer, ancora
-    "dressing": ["sg_court", "sg_veg", "sg_props", "sg_lights"],   # patio/caminhos nobres antes; veg consulta o que ja existe
+    "terrain": [],                    # v4: ilha nova (onda 1 refaz sg_terrain)
+    "entry": ["sg_entry"],            # v3 realocada (so o fim da ponte, patio, escadaria e porticos)
+    "village": [],                    # v4: 7 casas visitaveis (onda 1 refaz sg_village); praca da v3 realocada
+    "castle": [],                     # v4: castelo 2x (onda 1 refaz sg_castle)
+    "hall": [],                       # v4: salao 2x + trono movel (onda 1 refaz sg_hall)
+    "cave": [],                       # v4 NOVO: salao sombrio + escada caracol (onda 1 cria sg_cave)
+    "summon": ["sg_summon"],          # v3 realocada
+    "craft": ["sg_craft"],            # v3 realocada
+    "dungeon": [],                    # v4: salas 3x (onda 1 refaz sg_dungeon)
+    "water": [],                      # v4: agua no Roblox; o blockout faz so a pedra das bicas
+    "exit": ["sg_exit"],              # v3 realocada (giro 120, +8 de cota) para a ponta noroeste
+    "dressing": [],                   # v4: patio-jardim/mirante simples (onda 2 refaz sg_court/sg_veg/sg_garden)
 }
+# modulos da v3 que rodam pelo sg_relocate (referencial v3 -> planta v4)
+LEGACY = ("sg_entry", "sg_summon", "sg_craft", "sg_exit")
 
 
 def zone_ready(zone):
-    return all(os.path.exists(os.path.join(HERE, m + ".py")) for m in ZONE_MODULES[zone])
+    ms = ZONE_MODULES[zone]
+    return bool(ms) and all(os.path.exists(os.path.join(HERE, m + ".py")) for m in ms)
+
+
+def load_module(m):
+    if m in LEGACY:
+        import sg_relocate
+        return sg_relocate.load(m)
+    return importlib.import_module(m)
+
+
+def run_module(m):
+    """roda o modulo de detalhe (os da v3 pelo sg_relocate) e o que a zona precisa em volta dele"""
+    if m in LEGACY:
+        import sg_relocate
+        mod, made = sg_relocate.run(m)
+    else:
+        mod = importlib.import_module(m)
+        mod.build()
+    if m == "sg_entry":
+        sg_blockout.entry_bridge(y_end=L.Y_ENTRY - 34.0)      # a ponte curva da ancora ate o trecho do sg_entry
+    return mod
 
 
 def build(blockout=False, skip_zones=(), studio_zone=None, res=(1600, 900), samples=24):
@@ -45,13 +76,13 @@ def build(blockout=False, skip_zones=(), studio_zone=None, res=(1600, 900), samp
     for zone in ZONE_MODULES:
         if zone in skip_zones:
             continue
-        use[zone] = (zone == studio_zone) if studio_zone else (not blockout and zone_ready(zone))
+        use[zone] = (zone == studio_zone and zone_ready(zone)) if studio_zone else (not blockout and zone_ready(zone))
     detailed = [z for z, u in use.items() if u]
     sg_blockout.build(skip=set(detailed) | set(skip_zones))
     for zone in detailed:
         for m in ZONE_MODULES[zone]:
             t = time.time()
-            importlib.import_module(m).build()
+            run_module(m)
             print("%s %.1fs" % (m, time.time() - t))
     fm_lib.make_materials()           # materiais registrados pelos modulos depois do primeiro make
     sg_scene.tone_emissives()
@@ -59,6 +90,7 @@ def build(blockout=False, skip_zones=(), studio_zone=None, res=(1600, 900), samp
     sg_scene.islets()
     sg_scene.clouds()
     sg_scene.moon()
+    sg_scene.neighbors()
     sg_scene.cameras()
     sg_scene.scale_reference(visible=not detailed or bool(studio_zone))
     bpy.context.view_layer.update()

@@ -4,7 +4,9 @@
 # uso:
 #   blender -b --factory-startup --python studio_db.py -- <zona> <pasta_saida_ABSOLUTA> [--cams CAM_A,CAM_B]
 #           [--res 960x540] [--save] [--no-render] [--samples 16] [--all-detail]
-# zonas: terrain entry village castle hall summon craft dungeon water exit dressing
+# zonas: terrain entry village castle hall cave summon craft dungeon water exit dressing
+# v4 (ONDA 0): a zona pedida entra em detalhe se tiver modulo em build_sg.ZONE_MODULES (os da v3 pelo sg_relocate);
+# zona sem modulo (lista vazia) = BLOCKOUT v4 (mede o blockout).
 #   --all-detail: as OUTRAS zonas prontas tambem entram em detalhe (para o vestir/integracao)
 import sys, os, time, math, re, importlib
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -21,12 +23,14 @@ import build_sg as B
 ZONE_CAMS = {
     "terrain": ["CAM_SG_Ref_Main", "CAM_SG_Front", "CAM_SG_Left", "CAM_SG_Right", "CAM_SG_Back", "CAM_SG_Ref_Side"],
     "entry": ["CAM_SG_Entry", "CAM_SG_PlayerHeight_Entry", "CAM_SG_Ref_Front"],
-    "village": ["CAM_SG_Village", "CAM_SG_Ref_Village", "CAM_SG_PlayerHeight_Plaza", "CAM_SG_PlayerHeight_Village"],
     "castle": ["CAM_SG_Castle", "CAM_SG_Ref_Castle", "CAM_SG_PlayerHeight_Castle", "CAM_SG_Ref_Main", "CAM_SG_Back"],
-    "hall": ["CAM_SG_MiningHall", "CAM_SG_PlayerHeight_MiningHall"],
+    "hall": ["CAM_SG_MiningHall", "CAM_SG_PlayerHeight_MiningHall", "CAM_SG_Throne", "CAM_SG_ThroneWide"],
+    "cave": ["CAM_SG_Cave", "CAM_SG_CavePortal", "CAM_SG_Spiral", "CAM_SG_SpiralCave", "CAM_SG_PlayerHeight_Dungeon"],
     "summon": ["CAM_SG_Summon", "CAM_SG_PlayerHeight_Summon"],
     "craft": ["CAM_SG_Craft", "CAM_SG_CraftInterior", "CAM_SG_PlayerHeight_Craft"],
-    "dungeon": ["CAM_SG_Dungeon", "CAM_SG_DungeonInterior", "CAM_SG_DungeonRooms", "CAM_SG_PlayerHeight_DungeonRoom"],
+    "dungeon": ["CAM_SG_DungeonRooms", "CAM_SG_PlayerHeight_DungeonRoom"],
+    "village": ["CAM_SG_Village", "CAM_SG_Ref_Village", "CAM_SG_PlayerHeight_Plaza", "CAM_SG_PlayerHeight_Village",
+                "CAM_SG_PlayerHeight_House"],
     "water": ["CAM_SG_Ref_Main", "CAM_SG_Front", "CAM_SG_Left"],
     "exit": ["CAM_SG_ExitGate", "CAM_SG_PlayerHeight_ExitGate", "CAM_SG_Right"],
     "dressing": ["CAM_SG_Ref_Main", "CAM_SG_PlayerHeight_Plaza", "CAM_SG_Village", "CAM_SG_PlayerHeight_Village"],
@@ -34,18 +38,20 @@ ZONE_CAMS = {
 ZONE_MARKERS = {
     "summon": ["SUMMON_Main", "SUMMON_Interact", "SUMMON_PlayerPosition"],
     "craft": ["CRAFT_Station", "PLAYER_INTERACT_Craft", "NPC_Craft"],
-    "dungeon": ["DUNGEON_Entrance", "DUNGEON_Portal", "DUNGEON_Spawn", "DUNGEON_ExitPortal"],
+    "dungeon": ["DUNGEON_Spawn", "DUN_NEXT_R2", "DUN_NEXT_R3", "DUN_EXIT_R1", "DUN_EXIT_R3"],
+    "cave": ["DUNGEON_Hall", "DUNGEON_Entrance", "DUNGEON_UI", "DUNGEON_Return", "CAVE_Zone", "THRONE_Stair_Bottom"],
     "exit": ["ISLAND_EXIT_ShadowGarden", "ISLAND_NEXT_ANCHOR_DemonSlayer", "GATE_DemonSlayer"],
-    "hall": ["MiningZone_ShadowGarden"],
+    "hall": ["MiningZone_ShadowGarden", "THRONE_Rest", "THRONE_Park", "THRONE_Interact", "THRONE_Stair_Top"],
 }
 # orcamento por zona: (tris, MeshParts estimadas, materiais NOVOS, colisoes COL_, luzes)
 # total da ilha: <= 480k tris, <= ~680 MeshParts, <= ~1800 colisoes, <= 40 luzes (a noite pede luz local)
 BUDGET = {
-    # passe de acabamento (2026-09-29): folga para kits de livros/frascos, portas/janelas com caixilho e ruinas
-    "terrain": (120000, 150, 8, 90, 0), "entry": (40000, 55, 4, 45, 5), "village": (90000, 110, 9, 90, 6),
-    "castle": (160000, 190, 12, 175, 5), "hall": (65000, 62, 9, 40, 6), "summon": (38000, 54, 5, 42, 3),
-    "craft": (84000, 74, 11, 75, 4), "dungeon": (95000, 100, 10, 155, 7), "water": (20000, 32, 3, 10, 0),
-    "exit": (26000, 38, 4, 45, 3), "dressing": (125000, 160, 9, 160, 7),
+    # v4 (ONDA 0, plano mestre aprovado 2026-09-30: static 860k / 870 MeshParts; superficie <= 700k / 720, subsolo
+    # (salao sombrio + salas) <= 160k / 130, escondido no cliente por zona; interiores das casas por distancia)
+    "terrain": (72000, 115, 8, 140, 0), "entry": (40000, 38, 4, 60, 5), "village": (100000, 108, 11, 230, 6),
+    "castle": (170000, 125, 12, 260, 5), "hall": (80000, 58, 9, 80, 6), "cave": (70000, 60, 6, 260, 6),
+    "summon": (29000, 44, 5, 42, 3), "craft": (84000, 74, 11, 75, 4), "dungeon": (78000, 64, 10, 160, 5),
+    "water": (3000, 10, 3, 10, 0), "exit": (26000, 34, 4, 45, 3), "dressing": (80000, 107, 9, 160, 7),
 }
 # overhaul 06-08 (2026-09-29): craft 66k -> 84k tris. A alquimia e heroi por fora e por dentro e estava com a
 # hierarquia de acabamento invertida (16.05): +cantaria/arcada cega/cunhais/contrafortes em lances (exterior ~+6k),
@@ -114,23 +120,31 @@ def main():
     db_scene.setup(res=res, samples=samples)
     db_core.build()
     others = [z for z in B.ZONE_MODULES if z != zone and all_detail and B.zone_ready(z)]
-    db_blockout.build(skip={zone} | set(others))
+    detail_zone = B.zone_ready(zone)
+    db_blockout.build(skip=({zone} if detail_zone else set()) | set(others))
     for z in others:
         for m in B.ZONE_MODULES[z]:
             try:
-                importlib.import_module(m).build()
+                B.run_module(m)
             except Exception:
                 import traceback
                 traceback.print_exc()
                 print("STUDIO ERRO no modulo vizinho %s" % m)
     before = {o.name for o in bpy.data.objects}
+    if not detail_zone:
+        # zona em BLOCKOUT v4: mede o que o blockout dela criou (prefixo da zona)
+        pre = {"terrain": ("SG_Ter_",), "entry": ("SG_Ent_",), "village": ("SG_Vil_", "COL_SG_VilHouse"),
+               "castle": ("SG_Cas_", "COL_SG_Cas"), "hall": ("SG_Hall_", "COL_SG_Hall"), "cave": ("SG_Cave_", "COL_SG_Cave"),
+               "summon": ("SG_Sum_",), "craft": ("SG_Craft_",), "dungeon": ("SG_Dun_", "COL_SG_Dun"),
+               "water": ("SG_Water_",), "exit": ("SG_Exit_",), "dressing": ("SG_Veg_", "SG_Prop_")}[zone]
+        before = {o.name for o in bpy.data.objects if not o.name.startswith(pre)}
+        print("STUDIO AVISO: zona %s em BLOCKOUT v4 (sem modulo de detalhe na onda 0)" % zone)
     mods = []
-    for m in B.ZONE_MODULES[zone]:
+    for m in (B.ZONE_MODULES[zone] if detail_zone else []):
         if os.path.exists(os.path.join(HERE, m + ".py")):
             t = time.time()
             try:
-                mod = importlib.import_module(m)
-                mod.build()
+                mod = B.run_module(m)
                 mods.append(mod)
                 print("STUDIO modulo %s %.1fs" % (m, time.time() - t))
             except Exception:
@@ -141,6 +155,7 @@ def main():
             print("STUDIO AVISO: %s.py nao existe (zona em blockout)" % m)
     made = [o for o in bpy.data.objects if o.name not in before]
     fm_lib.make_materials()
+    db_scene.neighbors()
     db_scene.tone_emissives()
     db_scene.sea()
     db_scene.islets()
@@ -148,7 +163,7 @@ def main():
     db_scene.moon()
     db_scene.cameras()
     db_scene.scale_reference(visible=True)
-    for mod in mods:
+    for mod in [m for m in mods if m.__name__ not in B.LEGACY]:
         for n, v in getattr(mod, "CAMS", {}).items():
             DL.camera(n, v[0], v[1], v[2] if len(v) > 2 else 20)
     bpy.context.view_layer.update()
@@ -200,7 +215,8 @@ def main():
         sc = bpy.context.scene
         sc.render.image_settings.file_format = "JPEG"
         sc.render.image_settings.quality = 88
-        want = cams or (ZONE_CAMS.get(zone, []) + [n for mod in mods for n in getattr(mod, "CAMS", {})])
+        want = cams or (ZONE_CAMS.get(zone, []) + [n for mod in mods if mod.__name__ not in B.LEGACY
+                                                   for n in getattr(mod, "CAMS", {})])
         for cn in want:
             ob = bpy.data.objects.get(cn)
             if not ob:

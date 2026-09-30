@@ -6,8 +6,11 @@
 #     mineracao (Mining Hall): ORE_<RARIDADE>_<nn>, MiningZone_ShadowGarden, GP_Block_<nn>
 #     invocacao: SUMMON_Main, SUMMON_Interact, SUMMON_PlayerPosition
 #     craft: CRAFT_Station, PLAYER_INTERACT_Craft, NPC_Craft
-#     dungeon: DUNGEON_Entrance, DUNGEON_Portal, DUNGEON_UI, DUNGEON_Return, DUNGEON_Spawn, DUNGEON_ExitPortal,
-#              DUN_ROOM_<R>, DUN_ORE_<R>_<RARIDADE>_<nn>, DUN_SPAWN_<R>, DUN_LINK_<RaRb>, DUN_EXIT_R1 (ov09b)
+#     dungeon (v4: portal no SALAO SOMBRIO): DUNGEON_Hall (= DUNGEON_Portal), DUNGEON_Entrance, DUNGEON_UI,
+#              DUNGEON_Return, DUNGEON_Spawn, DUN_ROOM_<R>, DUN_ORE_<R>_<RARIDADE>_<nn>, DUN_SPAWN_<R>, DUN_LINK_<RaRb>,
+#              DUN_NEXT_R2/R3 (portal da proxima sala DENTRO do vao/nicho), DUN_EXIT_R1/R3 (+ alias DUNGEON_ExitPortal)
+#     trono e escada (v4): THRONE_Rest/Park/Interact/OpenZone/Stair_Top/Stair_Bottom/Return; CAVE_Zone, CAVE_Stair_Up
+#     agua do salao sombrio e do patio (v4): WATER_CavePool, WATER_CaveFall_Lip/_Base, WATER_Court_L/R
 #     audio: AUDIO_<Coisa> (familia + alcance); efeitos: FX_Fall_<n>_Lip/_Step(_Upper)/_Base
 #     agua da fonte (feita no Roblox): WATER_Fountain_Basin, WATER_Fountain_Bowl_<n>, WATER_Fountain_Spout_<n>
 #   portao de compra DEMON SLAYER: o asset APROVADO (ilha_naruto/il_gate_ds.build_gate), sem redesenho, no eixo da
@@ -20,15 +23,20 @@ import sg_col
 
 
 def world_markers():
-    mk("WORLD_FROM_PREV", (0.0, L.PREV_Y, L.DECK), (0, 0, 0), 4.0, "ARROWS",
+    # v4: a ponte de chegada e CURVA; o WORLD_FROM_PREV fica na ancora com a frente no rumo do 1o trecho da ponte
+    (ax, ay), (bx, by) = L.BRIDGE_PATH[0], L.BRIDGE_PATH[1]
+    mk("WORLD_FROM_PREV", (L.PREV_X, L.PREV_Y, L.DECK), (0, 0, yaw_to(bx - ax, by - ay)), 4.0, "ARROWS",
        props={"width": L.DECK_W, "deck_z": L.DECK, "prev": "ISLAND_NEXT_ANCHOR_ShadowGarden (Ilha 2 Dragon Ball)",
-              "note": "centro da borda do tabuleiro da ponte de chegada; avanco +Y (para dentro da ilha)"})
+              "bridge_len": round(L.BRIDGE_LEN, 1),
+              "note": "centro da borda do tabuleiro da ponte de chegada (curva de 33 graus, 232); avanco = frente"})
     sx, sy = L.ENTRY_SPAWN
     mk("WORLD_ENTRY_ShadowGarden", (sx, sy, L.P1 + 0.2), (0, 0, 0), 3.0, "ARROWS",
        props={"note": "chegada da ilha (depois do portico B, olhando a praca e o castelo)"})
     gt = L.stair_top("Gate")
-    path = [(sx, sy, L.P1), (0.0, -142.0, L.P1), (-12.0, -118.0, L.P1), (0.0, -102.0, L.P1), (0.0, -80.0, L.P2),
-            (0.0, -30.0, L.P2), (gt[0], gt[1] + 3.0, L.P3), (0.0, 30.0, L.P3), (0.0, 50.0, L.HALL), (0.0, 70.0, L.HALL)]
+    cx, cy = L.PLAZA_C
+    path = [(sx, sy, L.P1), (0.0, cy - L.PLAZA_R - 2.0, L.P1), (-14.0, cy - 12.0, L.P1), (-14.0, cy + 12.0, L.P1),
+            (0.0, cy + L.PLAZA_R + 2.0, L.P1), (0.0, -130.0, L.P2), (0.0, -46.0, L.P2), (gt[0], gt[1] + 3.0, L.P3),
+            (0.0, 40.0, L.P3), (0.0, 70.0, L.HALL), (0.0, 96.0, L.HALL)]
     for i, p in enumerate(path):
         mk("PATH_ENTRY_CENTER_%02d" % i, p, (0, 0, 0), 1.5, "SPHERE")
     mk("PATH_ENTRY_CENTER", path[-2], (0, 0, 0), 3.0, "ARROWS",
@@ -57,8 +65,9 @@ def ore_markers():
 
 
 def spawn_blocks():
-    """bloqueios do SpawnMinerio (circulos) para o builder do Roblox: corredor da porta e anel junto as paredes do
-    salao (kind='borda': o builder tira o tamanho da zona do min/max desses)"""
+    """bloqueios do SpawnMinerio (circulos) para o builder do Roblox: corredor da porta e anel 'borda' em volta da
+    MiningZone (v4: a zona e a nave central, nao o salao inteiro; o builder tira o tamanho da zona do min/max dos
+    'borda')"""
     n = 0
 
     def blk(x, y, r, kind):
@@ -70,8 +79,9 @@ def spawn_blocks():
     while y <= ly1:
         blk(lx, y, hw, "porta")
         y += 5.0
-    x0, y0, x1, y1 = L.HALL_X0 + 3.0, L.HALL_Y0 + 3.0, L.HALL_X1 - 3.0, L.HALL_Y1 - 3.0
-    k = 10
+    mx0, my0, mx1, my1 = L.MINE_RECT
+    x0, y0, x1, y1 = mx0 - 3.0, my0 - 3.0, mx1 + 3.0, my1 + 3.0
+    k = 12
     for i in range(k + 1):
         t = i / k
         for x, y in ((x0 + (x1 - x0) * t, y0), (x0 + (x1 - x0) * t, y1), (x0, y0 + (y1 - y0) * t),
@@ -105,53 +115,104 @@ def craft_markers():
 
 
 def dungeon_markers():
-    cx, cy, w, d = L.DUNGEON_HOUSE
-    px, py = L.DUNGEON_PORTAL
-    mk("DUNGEON_Portal", (px, py, L.P3), (0, 0, yaw_to(0, -1)), 3.0, "ARROWS",
-       props={"note": "portal espiral no fundo da portaria (encara o sul)"})
-    mk("DUNGEON_Entrance", (px, py - 6.0, L.P3), (0, 0, 0), 2.0, "SPHERE",
-       props={"radius": 6.0, "note": "zona/prompt de entrada na corrida (so com ENTRY_OPEN)"})
-    # centro da placa de contagem da fachada-portal (sg_dungeon: placa em P3+14..16,9, logo abaixo do vortice)
-    mk("DUNGEON_UI", (cx, 58.1, L.P3 + 15.45), (0, 0, yaw_to(0, -1)), 2.0, "SINGLE_ARROW",
-       props={"ui": "BillboardGui: estado e contagem da dungeon (XX:00 / XX:30)"})
-    mk("DUNGEON_Return", (cx, cy - d / 2 - 8.0, L.P3 + 0.2), (0, 0, yaw_to(0, -1)), 2.0, "ARROWS",
-       props={"note": "para onde o jogador volta ao sair/terminar (patio, em frente a porta)"})
-    rooms = dict(L.DUN_ROOMS)
+    """v4: o portal da masmorra fica no FUNDO SUL do SALAO SOMBRIO (sob o castelo); as salas 3x ficam em fila no eixo
+    +Y sob ele. Tudo o que o DungeonService cria (selo/portal da proxima sala, saidas, spawns) usa o CFrame do marcador
+    (fwd_x/fwd_z do export): nada alinhado aos eixos do mundo."""
+    px, py = L.CAVE_PORTAL
+    zd = L.CAVE_DAIS[4]
+    north = yaw_to(0, 1)
+    for nm in ("DUNGEON_Hall", "DUNGEON_Portal"):
+        mk(nm, (px, py + 4.0, zd), (0, 0, north), 3.0, "ARROWS",
+           props={"radius": L.CAVE_PORTAL_R, "ring_y_local": py,
+                  "note": "portal/vortice da masmorra no fundo sul do salao sombrio (frente = para o norte, quem chega)"
+                  + (" [alias de DUNGEON_Hall para as particulas do JardimSombrasIsland]" if nm == "DUNGEON_Portal" else "")})
+    mk("DUNGEON_Entrance", (px, py + 12.0, zd), (0, 0, north), 2.0, "SPHERE",
+       props={"radius": 8.0, "note": "zona/prompt de entrada na corrida (so com ENTRY_OPEN); <= 14 do marcador"})
+    mk("DUNGEON_UI", (px, py - 1.0, zd + 2.0 * L.CAVE_PORTAL_R + 6.0), (0, 0, north), 2.0, "SINGLE_ARROW",
+       props={"ui": "BillboardGui/SurfaceGui: estado e contagem da dungeon (XX:00 / XX:30)", "w": 22.0, "h": 6.0})
+    mk("DUNGEON_Return", (px, py + 34.0, L.CAVE_FLOOR + 0.2), (0, 0, north), 2.0, "ARROWS",
+       props={"note": "para onde o jogador volta ao sair/terminar (salao sombrio, na frente do portal, olhando a escada)"})
     for nm, (x0, y0, x1, y1) in L.DUN_ROOMS:
-        mk("DUN_ROOM_%s" % nm, ((x0 + x1) / 2, (y0 + y1) / 2, L.DUN_Z), (0, 0, 0), (x1 - x0) / 2, "CUBE",
-           props={"sx": x1 - x0, "sy": y1 - y0, "floor": L.DUN_Z, "ceil": L.DUN_CEIL})
+        mk("DUN_ROOM_%s" % nm, ((x0 + x1) / 2, (y0 + y1) / 2, L.DUN_Z), (0, 0, north), (x1 - x0) / 2, "CUBE",
+           props={"sx": x1 - x0, "sy": y1 - y0, "floor": L.DUN_Z, "ceil": L.DUN_CEIL,
+                  "note": "frente = eixo da fila de salas (R1 -> R2 -> R3)"})
     sx, sy = L.dun_spawn("R1")
-    mk("DUNGEON_Spawn", (sx, sy, L.DUN_Z + 0.2), (0, 0, yaw_to(1, 0)), 2.0, "ARROWS")
-    ex, ey = L.dun_exit_r3()
-    mk("DUNGEON_ExitPortal", (ex, ey, L.DUN_Z), (0, 0, yaw_to(-1, 0)), 3.0, "ARROWS",
-       props={"note": "portal de saida da R3 (a qualquer momento: sai com o que ja ganhou)"})
-    # ov09b (masmorra infinita): spawn de cada ARENA (teleporte curto entre as salas), vaos de ligacao (o R2R3 e o
-    # que o jogo sela durante a sala) e o portal de chegada da R1 como SEGUNDA saida (alcancavel com a R2 ativa)
+    mk("DUNGEON_Spawn", (sx, sy, L.DUN_Z + 0.2), (0, 0, north), 2.0, "ARROWS",
+       props={"note": "chegada na R1 (frente = para a R2)"})
     for nm in ("R2", "R3"):
         sx, sy = L.dun_spawn(nm)
-        mk("DUN_SPAWN_%s" % nm, (sx, sy, L.DUN_Z + 0.2), (0, 0, yaw_to(1, 0)), 2.0, "ARROWS",
+        mk("DUN_SPAWN_%s" % nm, (sx, sy, L.DUN_Z + 0.2), (0, 0, north), 2.0, "ARROWS",
            props={"note": "spawn do grupo ao entrar nesta sala (espalhar em volta; sem minerio a menos de %.0f)"
                   % L.DUN_SPAWN_CLEAR})
     for nm, lx, ly in L.dun_links():
-        mk("DUN_LINK_%s" % nm, (lx, ly, L.DUN_Z), (0, 0, yaw_to(1, 0)), 2.0, "CUBE",
+        mk("DUN_LINK_%s" % nm, (lx, ly, L.DUN_Z), (0, 0, north), 2.0, "CUBE",
            props={"w": L.DUN_LINK_W, "h": L.DUN_LINK_H, "t": L.DUN_WALL,
-                  "note": "vao de ligacao (largura w ao longo de y, altura h); R2R3 = selo da masmorra infinita"})
-    x0, y0, x1, y1 = rooms["R1"]
-    mk("DUN_EXIT_R1", (x0 + 2.0, L.DUN_LY, L.DUN_Z), (0, 0, yaw_to(1, 0)), 3.0, "ARROWS",
-       props={"note": "portal de chegada da R1 = saida alternativa (prompt 'Sair'), sempre alcancavel"})
+                  "note": "vao de ligacao (largura w perpendicular a frente, altura h); centro no plano medio da parede"})
+    for nm in ("R2", "R3"):
+        nx, ny = L.dun_next(nm)
+        mk("DUN_NEXT_%s" % nm, (nx, ny, L.DUN_Z), (0, 0, north), 2.0, "CUBE",
+           props={"w": L.DUN_NEXT_W, "h": L.DUN_NEXT_H, "t": L.DUN_NEXT_T, "room": nm,
+                  "note": "portal da PROXIMA sala (e o selo enquanto a sala nao limpa): Part (w, h, t) com "
+                          "CFrame = marcador * (0, h/2, 0); DENTRO do plano medio do vao (R2) / nicho (R3)"})
+    for nm in ("R1", "R3"):
+        ex, ey = L.dun_exit(nm)
+        f = (1, 0) if nm == "R3" else (0, 1)
+        for mn in (("DUN_EXIT_%s" % nm,) + (("DUNGEON_ExitPortal",) if nm == "R3" else ())):
+            mk(mn, (ex, ey, L.DUN_Z), (0, 0, yaw_to(*f)), 3.0, "ARROWS",
+               props={"note": "saida por PROMPT ('Sair', hold 0,6); sem barreira de toque"
+                      + (" [alias de DUN_EXIT_R3]" if mn == "DUNGEON_ExitPortal" else "")})
     for room, kind, i, x, y, r in L.dun_ore_points():
         mk("DUN_ORE_%s_%s_%02d" % (room, kind, i), (x, y, L.DUN_Z), size=r, kind="SPHERE",
            props={"rarity": kind, "radius": r, "room": room})
 
 
+def throne_markers():
+    """trono que desliza (servidor, TronoService): pivos de repouso/recolhido, prompt, zona de seguranca, patamares da
+    escada caracol e o destino do atalho 'Subir'"""
+    tx, ty = L.THRONE_REST
+    z = L.CHANCEL_Z
+    south = yaw_to(0, -1)
+    w, d, h = L.THRONE_SIZE
+    mk("THRONE_Rest", (tx, ty, z), (0, 0, south), 3.0, "ARROWS",
+       props={"sx": w, "sy": d, "sz": h, "note": "pivo do trono em repouso (base no piso do presbiterio; frente = nave)"})
+    px, py = L.THRONE_PARK
+    mk("THRONE_Park", (px, py, z), (0, 0, south), 3.0, "ARROWS",
+       props={"travel": L.THRONE_TRAVEL, "tween_s": 3.0, "note": "pivo do trono recolhido no bolso da parede leste"})
+    mk("THRONE_Interact", (tx, ty - d / 2 - 4.5, z), (0, 0, south), 2.0, "SPHERE",
+       props={"prompt": "Tocar o trono", "hold": 0.5, "dist": 10.0})
+    oy0, oy1 = ty - d / 2 - 2.0, L.SPIRAL_C[1] - L.SPIRAL_R_IN + 4.0
+    mk("THRONE_OpenZone", (tx, (oy0 + oy1) / 2, z), (0, 0, 0), 2.0, "CUBE",
+       props={"sx": 18.0, "sy": round(oy1 - oy0, 2), "sz": 14.0,
+              "note": "caixa (centro na base): nao fecha o trono com jogador dentro"})
+    sy_top = L.SPIRAL_C[1] - L.SPIRAL_R_IN + 0.5
+    mk("THRONE_Stair_Top", (0.0, sy_top, z), (0, 0, yaw_to(0, 1)), 2.0, "ARROWS",
+       props={"prompt": "Abrir passagem", "note": "patamar de topo da escada caracol (dentro do arco secreto)"})
+    mk("THRONE_Stair_Bottom", (0.0, L.SPIRAL_C[1] - L.SPIRAL_R_OUT - 2.0, L.SPIRAL_BOT_Z), (0, 0, south), 2.0, "ARROWS",
+       props={"note": "saida da escada caracol na galeria do salao sombrio"})
+    mk("THRONE_Return", (0.0, L.CHANCEL[1] + 14.0, z), (0, 0, south), 2.0, "ARROWS",
+       props={"note": "destino do atalho 'Subir' (prompt em CAVE_Stair_Up), no presbiterio"})
+    x0, y0, x1, y1 = L.CAVE
+    mk("CAVE_Zone", ((x0 + x1) / 2, (y0 + y1) / 2, L.CAVE_FLOOR), (0, 0, yaw_to(0, 1)), 4.0, "CUBE",
+       props={"sx": x1 - x0, "sy": y1 - y0, "h": L.CAVE_TOP - L.CAVE_FLOOR, "floor": L.CAVE_FLOOR,
+              "note": "salao sombrio: reverb Cave e corte do SUBSOLO no cliente"})
+    mk("CAVE_Stair_Up", (14.0, L.CAVE_PORTAL[1] + 28.0, L.CAVE_FLOOR), (0, 0, yaw_to(0, 1)), 2.0, "SPHERE",
+       props={"prompt": "Subir ao salao", "to": "THRONE_Return", "optional": True})
+
+
 def audio_markers():
     """pontos de audio (o AudioWorld/Som.RegisterEmitter usa familia + alcance): agua, fogo, energia, vento"""
     cx, cy = L.PLAZA_C
-    pts = [("AUDIO_Fountain", (cx, cy, L.P1 + 2.0), "water", 40.0), ("AUDIO_HallAmbience", (0.0, 88.0, L.HALL + 6.0), "wind", 60.0),
+    mx0, my0, mx1, my1 = L.MINE_RECT
+    pts = [("AUDIO_Fountain", (cx, cy, L.P1 + 2.0), "water", 40.0),
+           ("AUDIO_HallAmbience", (0.0, (my0 + my1) / 2, L.HALL + 8.0), "wind", 110.0),
            ("AUDIO_Summon", (L.SUMMON_TOWER[0], L.SUMMON_TOWER[1], L.SUM + 6.0), "energy", 36.0),
            ("AUDIO_Craft", (L.CRAFT_C[0], L.CRAFT_C[1], L.P2 + 3.0), "fire", 26.0),
-           ("AUDIO_DungeonPortal", (L.DUNGEON_PORTAL[0], L.DUNGEON_PORTAL[1], L.P3 + 6.0), "energy", 34.0),
-           ("AUDIO_DungeonRooms", (-4.0, L.DUN_LY, L.DUN_Z + 8.0), "wind", 92.0)]
+           ("AUDIO_DungeonPortal", (L.CAVE_PORTAL[0], L.CAVE_PORTAL[1] + 4.0, L.CAVE_FLOOR + 8.0), "energy", 44.0),
+           ("AUDIO_DungeonRooms", (L.DUN_LX, 154.0, L.DUN_Z + 10.0), "wind", 160.0),
+           ("AUDIO_Cave", (0.0, 212.0, L.CAVE_FLOOR + 14.0), "wind", 140.0),
+           ("AUDIO_Forge", ((L.CAVE_FORGE[0] + L.CAVE_FORGE[2]) / 2, (L.CAVE_FORGE[1] + L.CAVE_FORGE[3]) / 2,
+                            L.CAVE_FLOOR + 3.0), "fire", 34.0),
+           ("AUDIO_CaveWater", (60.0, 208.0, L.CAVE_FLOOR), "water", 70.0)]
     for i, (x, y, z, deg) in enumerate(L.WATERFALLS):
         pts.append(("AUDIO_Waterfall_%d" % (i + 1), (x, y, z - 10.0), "water", 60.0))
     for nm, p, fam, rng in pts:
@@ -160,15 +221,23 @@ def audio_markers():
 
 # ACABAMENTO 2 / AGUA NO ROBLOX (2026-09-30, pedido do usuario): a agua das 4 quedas e da fonte da praca e feita NO
 # ROBLOX (Terrain Water / partes com textura e particulas) a partir destes marcadores; a malha d'agua saiu do export.
-# QUEDAS: tabela MEDIDA pelo sg_water (bica de pedra + cortina por raio na rocha; na build ele confere, corrige e
-# acrescenta src_pos/waypoints/widths/jump). Ordem de L.WATERFALLS: O, L, N, S.
+# QUEDAS: na v3 a tabela era MEDIDA pelo sg_water (bica de pedra + cortina por raio na rocha; na build ele confere,
+# corrige e acrescenta src_pos/waypoints/widths/jump). Ordem de L.WATERFALLS: O, L, N, S.
 #   (labio = borda da bica no nivel da pedra, largura da calha, saliencia de cima | None, degrau de basalto, pe)
-FALL_FX = [
-    ((-126.00, -52.00, 42.98), 5.4, None, (-129.23, -52.00, 20.00), (-130.48, -52.00, -53.00)),
-    ((151.80, -112.00, 34.98), 5.4, None, (154.68, -112.00, 20.00), (156.45, -112.00, -53.00)),
-    ((-52.68, 193.88, 50.98), 5.4, None, (-53.71, 196.71, 20.00), (-54.18, 197.98, -53.00)),
-    ((-28.60, -190.95, 29.90), 3.8, None, (-30.82, -191.76, 20.00), (-31.96, -192.17, -53.00)),
-]
+def _fall_fx():
+    """v4 (onda 0): labio na borda da planta, degrau de basalto a 20 e pe a -53 (mesma familia de cotas da tabela medida
+    da v3). A tabela e ESTIMADA: o sg_water mede na rocha e corrige quando rodar na planta v4 (onda 1)."""
+    out = []
+    for x, y, z, deg in L.WATERFALLS:
+        a = math.radians(deg)
+        ux, uy = math.cos(a), math.sin(a)
+        w = 3.8 if z < L.P1 else 5.4
+        out.append(((x, y, round(z - 0.22, 2)), w, None, (round(x + ux * 3.2, 2), round(y + uy * 3.2, 2), 20.0),
+                    (round(x + ux * 4.5, 2), round(y + uy * 4.5, 2), -53.0)))
+    return out
+
+
+FALL_FX = _fall_fx()
 
 
 def fx_markers():
@@ -223,6 +292,23 @@ def fountain_markers():
                                   "note": "ponta da bica no nivel da agua; fwd = direcao do jato"})
 
 
+def water_markers_v4():
+    """agua nova da v4 (feita no Roblox): rio escuro do salao sombrio, queda da fenda NE da caverna e os 2 espelhos
+    d'agua do patio-jardim (o Blender so faz a pedra estanque)"""
+    x0, y0, x1, y1, lev, bot = L.CAVE_POOL
+    mk("WATER_CavePool", ((x0 + x1) / 2, (y0 + y1) / 2, lev), (0, 0, yaw_to(1, 0)), 4.0, "CUBE",
+       props={"sx": x1 - x0, "sy": y1 - y0, "level": lev, "floor": bot, "depth": round(lev - bot, 2),
+              "note": "rio escuro (lamina parada, quase preta); a ponte do eixo atravessa (x +-%.0f)" % (L.CAVE_POOL_BRIDGE_W / 2)})
+    lip = (72.0, 222.0, L.CAVE_TOP - 6.0)
+    mk("WATER_CaveFall_Lip", lip, (0, 0, yaw_to(0, -1)), 2.0, "SINGLE_ARROW",
+       props={"width": 4.0, "drop": round(lip[2] - lev, 2), "to": "WATER_CavePool", "note": "queda da fenda NE da caverna"})
+    mk("WATER_CaveFall_Base", (72.0, 216.0, lev), (0, 0, yaw_to(0, -1)), 3.0, "SPHERE", props={"fx": "nevoa_base"})
+    for nm, cx in (("L", -52.0), ("R", 52.0)):
+        mk("WATER_Court_%s" % nm, (cx, 24.0, L.P3 + 0.6), (0, 0, yaw_to(0, 1)), 3.0, "CUBE",
+           props={"sx": 20.0, "sy": 32.0, "level": L.P3 + 0.6, "floor": L.P3 + 0.1, "depth": 0.5,
+                  "note": "espelho d'agua do patio-jardim (reflete a fachada); borda de pedra ate P3+0,8"})
+
+
 def ds_gate():
     """portao APROVADO da galeria (il_gate_ds), sem redesenho, no eixo da ilhota; area_id = 4 (troca 3<->4)"""
     import il_gate_ds
@@ -246,7 +332,9 @@ def build():
     summon_markers()
     craft_markers()
     dungeon_markers()
+    throne_markers()
     audio_markers()
     fx_markers()
     fountain_markers()
+    water_markers_v4()
     ds_gate()

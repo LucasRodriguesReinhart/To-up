@@ -7,7 +7,7 @@ import sg_layout as L
 from PIL import Image, ImageDraw, ImageFont
 
 S = 3.0                      # px por stud
-X0, X1, Y0, Y1 = -190.0, 300.0, -275.0, 225.0
+X0, X1, Y0, Y1 = -260.0, 220.0, -580.0, 470.0      # v4: ilha + ponte curva + saida NO
 W, H = int((X1 - X0) * S), int((Y1 - Y0) * S)
 
 
@@ -60,8 +60,7 @@ def main(out):
     r = L.FOUNTAIN_R
     d.ellipse([P(c[0] - r, c[1] + r), P(c[0] + r, c[1] - r)], fill=(70, 120, 200))
     # ponte de chegada
-    hw = L.DECK_W / 2
-    d.rectangle([P(-hw, L.BRIDGE_Y1), P(hw, L.BRIDGE_Y0)], fill=(90, 90, 100), outline=(30, 30, 30))
+    poly(d, ribbon(L.BRIDGE_PATH, L.DECK_W / 2), fill=(90, 90, 100), outline=(30, 30, 30))
     for y in (L.PORTICO_A_Y, L.PORTICO_B_Y):
         d.line([P(-14, y), P(14, y)], fill=(120, 80, 200), width=6)
     # ruas
@@ -95,12 +94,25 @@ def main(out):
         d.ellipse([P(x - r, y + r), P(x + r, y - r)], fill=(40, 42, 60), outline=(150, 120, 230), width=2)
     x, y, r, top = L.CROWN_TOWER
     d.ellipse([P(x - r, y + r), P(x + r, y - r)], fill=(40, 42, 60), outline=(180, 140, 255), width=3)
-    poly(d, L.apse_poly(), fill=(96, 92, 120), outline=(180, 140, 255))           # abside do trono (setor 04b)
-    # dungeon (portaria + salas sob a ilha, tracejado)
-    cx, cy, w, dd = L.DUNGEON_HOUSE
-    d.rectangle([P(cx - w / 2, cy + dd / 2), P(cx + w / 2, cy - dd / 2)], fill=(50, 40, 70), outline=(170, 90, 255), width=3)
-    px, py = L.DUNGEON_PORTAL
-    d.ellipse([P(px - 4, py + 4), P(px + 4, py - 4)], fill=(170, 90, 255))
+    bx0, by0, bx1, by1 = L.CROWN_BASE                                            # v4: base da torre-coroa
+    d.rectangle([P(bx0, by1), P(bx1, by0)], fill=(40, 42, 60), outline=(180, 140, 255), width=2)
+    cx0, cy0, cx1, cy1 = L.CHANCEL
+    d.rectangle([P(cx0, cy1), P(cx1, cy0)], fill=(96, 92, 120))
+    tx, ty = L.THRONE_REST
+    tw, td, th = L.THRONE_SIZE
+    d.rectangle([P(tx - tw / 2, ty + td / 2), P(tx + tw / 2, ty - td / 2)], fill=(170, 90, 255))
+    px_, py_ = L.THRONE_PARK
+    d.rectangle([P(px_ - tw / 2, py_ + td / 2), P(px_ + tw / 2, py_ - td / 2)], outline=(170, 90, 255), width=1)
+    sx_, sy_ = L.SPIRAL_C
+    for r_, c_ in ((L.SPIRAL_R_OUT, (30, 24, 48)), (L.SPIRAL_R_IN, (120, 110, 150)), (L.SPIRAL_R_NEWEL, (30, 24, 48))):
+        d.ellipse([P(sx_ - r_, sy_ + r_), P(sx_ + r_, sy_ - r_)], fill=c_)
+    # SUBSOLO (tracejado): salao sombrio, portal e salas da masmorra
+    x0_, y0_, x1_, y1_ = L.CAVE
+    d.rectangle([P(x0_, y1_), P(x1_, y0_)], outline=(80, 200, 255), width=2)
+    px, py = L.CAVE_PORTAL
+    d.ellipse([P(px - L.CAVE_PORTAL_R, py + 3), P(px + L.CAVE_PORTAL_R, py - 3)], fill=(170, 90, 255))
+    mx_, my_, mr_ = L.MIRANTE_E
+    d.ellipse([P(mx_ - mr_, my_ + mr_), P(mx_ + mr_, my_ - mr_)], fill=(70, 120, 80))
     for nm, (a, b, c2, e) in L.DUN_ROOMS:
         d.rectangle([P(a, e), P(c2, b)], outline=(200, 120, 255), width=1)
         if f:
@@ -116,6 +128,7 @@ def main(out):
         vx, vy = -uy, ux
         pts = [(x + ux * s * dd / 2 + vx * t * w / 2, y + uy * s * dd / 2 + vy * t * w / 2)
                for s, t in ((-1, -1), (-1, 1), (1, 1), (1, -1))]
+        x, y = x + ux * dd / 2, y + uy * dd / 2                                   # a seta sai da PORTA (frente)
         poly(d, pts, fill=(60, 50, 44), outline=(230, 170, 80), width=2)
         d.line([P(x, y), P(x + ux * 7, y + uy * 7)], fill=(255, 200, 100), width=2)
     # saida
@@ -144,9 +157,9 @@ def main(out):
         d.ellipse([P(x - r, y + r), P(x + r, y - r)], fill=cols[kind])
     for room, kind, i, x, y, r in L.dun_ore_points():
         d.ellipse([P(x - r, y + r), P(x + r, y - r)], outline=cols[kind], width=2)
-    for gx in range(-150, 301, 50):
+    for gx in range(-250, 221, 50):
         d.line([P(gx, Y0), P(gx, Y1)], fill=(80, 80, 110) if gx else (255, 80, 80), width=1)
-    for gy in range(-250, 226, 50):
+    for gy in range(-550, 451, 50):
         d.line([P(X0, gy), P(X1, gy)], fill=(80, 80, 110) if gy else (255, 80, 80), width=1)
     if f:
         d.text((8, 8), "SG layout  (N para cima; 1 quadrado = 50 studs)  ores=%d" % len(pts), fill=(255, 255, 255), font=f)
@@ -157,9 +170,13 @@ def main(out):
 
 def check():
     print("yaw mundo: %.3f" % L.WORLD_YAW_DEG)
-    print("WORLD_FROM_PREV roblox:", tuple(round(v, 3) for v in L.to_roblox(0.0, L.PREV_Y, L.DECK)),
+    print("WORLD_FROM_PREV roblox:", tuple(round(v, 3) for v in L.to_roblox(L.PREV_X, L.PREV_Y, L.DECK)),
           "(esperado -579,227 28,2 650,727)")
-    print("rumo +Y roblox:", tuple(round(v, 4) for v in L.dir_to_roblox(0, 1)), "(esperado -0,9205 0 -0,3907)")
+    (ax, ay), (bx, by) = L.BRIDGE_PATH[0], L.BRIDGE_PATH[1]
+    ln = math.hypot(bx - ax, by - ay)
+    print("rumo da ponte na ancora roblox:", tuple(round(v, 4) for v in L.dir_to_roblox((bx - ax) / ln, (by - ay) / ln)),
+          "(esperado -0,9205 0 -0,3907)  ponte %.1f" % L.BRIDGE_LEN)
+    print("rumo +Y (ilha) roblox:", tuple(round(v, 4) for v in L.dir_to_roblox(0, 1)))
     print("entrada roblox:", tuple(round(v, 2) for v in L.to_roblox(*L.ENTRY_SPAWN, L.P1)))
     print("castelo (centro do salao) roblox:", tuple(round(v, 2) for v in L.to_roblox(0.0, (L.HALL_Y0 + L.HALL_Y1) / 2,
                                                                                        L.P3)))
@@ -173,7 +190,7 @@ def check():
         zs.append(rz)
     print("contorno roblox: x %.1f..%.1f  z %.1f..%.1f" % (min(xs), max(xs), min(zs), max(zs)))
     # Ilhas 1 e 2 (caixas das pecas no Studio, 2026-09-28): Naruto x -199..170 z 222..628; DB x -583..-142 z 582..946
-    boxes = {"Naruto": (-199, 170, 222, 628), "DragonBall": (-583, -142, 582, 946)}
+    boxes = {"Naruto": (-199, 170, 222, 628), "DragonBall": (-583, -142, 582, 946), "LobbyPicos": (-650, 660, -710, 408)}
     for nm, (bx0, bx1, bz0, bz1) in boxes.items():
         best = 1e9
         for x, y in L.ISLAND_RIM + L.summon_poly():
@@ -183,7 +200,7 @@ def check():
             best = min(best, math.hypot(dx, dz))
         print("distancia minima contorno SG <-> caixa %s: %.1f" % (nm, best))
     for nm, (x, y) in {"spawn": L.ENTRY_SPAWN, "praca": L.PLAZA_C, "summon": L.SUMMON_C, "craft": L.CRAFT_C,
-                       "salao": (0, 88), "dungeon": L.DUNGEON_HOUSE[:2], "saida": (150, -38)}.items():
+                       "salao": (0, 148), "trono": L.THRONE_REST, "saida": L.EXIT_START, "mirante": L.MIRANTE_E[:2]}.items():
         print("zona %-8s -> %s (%s)" % (nm, L.zone_of(x, y), L.floor_name(x, y)))
     for nm, pts, z, pr in L.floors():
         if nm == "Summon":

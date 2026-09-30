@@ -91,7 +91,8 @@ ER.SKIP_PREFIX = ("COL_", "SCALE_", "BLK_", "NPC_", "SG_Sky_Sea", "SG_Sky_Clouds
                   "SG_Hall_OreProxy", "SG_Dun_OreProxy")
 ER.SKIP_NAMES = set()
 ER.OWNERS = [("SG_Ter_", "terrain"), ("SG_Sky_", "terrain"), ("SG_Ent_", "entry"), ("SG_Vil_", "village"),
-             ("SG_Cas_", "castle"), ("SG_Hall_", "hall"), ("SG_Sum_", "summon"), ("SG_Craft_", "craft"),
+             ("SG_Cas_", "castle"), ("SG_Hall_ThroneMov", "vfx"), ("SG_Hall_", "hall"), ("SG_Cave_", "cave"),
+             ("SG_Sum_", "summon"), ("SG_Craft_", "craft"),
              ("SG_Dun_", "dungeon"), ("SG_Water_", "water"), ("SG_Exit_", "exit"), ("GATE_", "gate_ds"),
              ("VFX_", "vfx"), ("SG_Veg_", "vegetation"), ("SG_Prop_", "props")]
 # tetos por dono = orcamento das zonas (REFINAMENTO_BRIEF.md) + ~8% de folga do export (fatias por material/celula)
@@ -100,28 +101,36 @@ ER.OWNERS = [("SG_Ter_", "terrain"), ("SG_Sky_", "terrain"), ("SG_Ent_", "entry"
 # trono, setor 04b), craft 64k -> 86k (alquimia heroi por dentro e por fora, setores 06-08), dungeon 86k -> 98k (salas
 # para um grupo, setor 09b), village 82k -> 90k (kit de casas refeito, setor 02). O total da ilha segue <= 700k
 # (static_tris) e <= 800 MeshParts; castle/terrain/props/summon ficaram bem abaixo dos tetos antigos.
-ER.BUDGET_OWNER = {"terrain": (130000, 165), "entry": (44000, 60), "village": (90000, 116), "castle": (172000, 205),
-                   "hall": (66000, 57), "summon": (42000, 55), "craft": (86000, 78), "dungeon": (98000, 108),
-                   "water": (22000, 35), "exit": (28000, 42), "gate_ds": (30000, 40), "vfx": (18000, 50),
-                   "vegetation": (106000, 82), "props": (70000, 110)}
+# v4 (ONDA 0, plano mestre aprovado 2026-09-30): tetos por dono = studio_sg.BUDGET v4 + ~8% de folga do export.
+# Superficie (render junto) <= 700k / 720; SUBSOLO (cave + dungeon) <= 160k / 130, escondido no cliente fora do subsolo.
+# 'cave' e o dono novo (SG_Cave_: salao sombrio + poco da escada caracol); o trono movel (SG_Hall_ThroneMov) conta
+# como peca movel (vfx).
+ER.BUDGET_OWNER = {"terrain": (78000, 124), "entry": (44000, 42), "village": (108000, 117), "castle": (184000, 135),
+                   "hall": (86000, 63), "cave": (76000, 65), "summon": (32000, 48), "craft": (91000, 68),
+                   "dungeon": (84000, 70), "water": (4000, 12), "exit": (29000, 38), "gate_ds": (30000, 40),
+                   "vfx": (18000, 50), "vegetation": (64000, 68), "props": (25000, 50)}
 # JARDINAGEM (2026-09-30, pedido do usuario, orcamento autorizado pela coordenacao: grama + flores ate ~80k e ilha ate
 # 750k): o campo de tufos "bonemeal", as flores em manchas, os jardins das casas e o jardim de lua do patio
 # (SG_Veg_Gdn_*, sg_garden) entram no dono 'vegetation': medido 96,6k tris / 74 MeshParts no estudio -> teto com ~10%.
-ER.BUDGET = {"static_tris": 750000, "static_meshes": 800, "vfx_tris": 18000, "vfx_meshes": 50, "total_tris": 768000,
-             "total_meshes": 850, "materials": 130, "shadow_meshes": 320, "day_lights": 42, "col": 1800}
-cx, cy = to_world_xy(0.0, -10.0)
-ER.FAR_GROUND = None                 # o mar distante ja vem da Ilha 1 (um so FAR_GROUND no mundo)
-# rede de seguranca embaixo da ilha: ABAIXO das salas da masmorra (piso 6,0 dentro da rocha)
-ER.VOID_CATCH = {"size": [420, 4, 480], "y": -40.0, "center": (cx, cy)}
+# v4 (ONDA 0, plano mestre aprovado 2026-09-30): 860k / 870 estaticos (superficie <= 700k / 720 + subsolo <= 160k /
+# 130), total com a reserva de VFX 880k / 910; luzes de dia 48 (salao sombrio 6 + casas 4)
+ER.BUDGET = {"static_tris": 860000, "static_meshes": 870, "vfx_tris": 20000, "vfx_meshes": 40, "total_tris": 880000,
+             "total_meshes": 910, "materials": 130, "shadow_meshes": 320, "day_lights": 48, "col": 1800}
+cx, cy = to_world_xy(0.0, 20.0)
+ER.FAR_GROUND = None                 # v4: o mar escuro da area 3 e feito no cliente (CeuSombras), 0,5 abaixo do da Ilha 1
+# rede de seguranca embaixo da ilha (v4): ABAIXO das salas da masmorra (piso -72, fundo -76) e acima do mar (-111);
+# caixa alinhada ao mundo que cobre a ilha girada 100 (contorno ~720 x 420 no mundo) com folga
+ER.VOID_CATCH = {"size": [800, 4, 560], "y": -100.0, "center": (cx, cy)}
 ER.SKYLINE_WHOLE = ("SG_Sky_Islets",)
 ER.SKYLINE_MODEL = ("SG_Sky_Islets",)
 ER.BACKGROUND = ("SG_Sky_Islets",)
 ER.CARVED = ("__nenhum__",)
-ER.NO_FOLD_OBJ = ("VFX_",)
+ER.NO_FOLD_OBJ = ("VFX_", "SG_Hall_ThroneMov")
 ER.SHELL_OBJ = ()
 # colisoes que tambem seguram a CAMERA (teto do Mining Hall, paredes de salas/predios entraveis)
 ER.CAM_COL_AREAS = {"SG_CasHall": 5.0, "SG_CasHallCeil": 1.0, "SG_CasWall": 5.0, "SG_DunRoom": 1.0,
-                    "SG_DunHouse": 5.0, "SG_DunHouseRoof": 1.0, "SG_CraftWall": 5.0, "SG_CraftRoof": 1.0}
+                    "SG_CaveWall": 2.0, "SG_CaveCeil": 1.0, "SG_CasCrown": 5.0, "SG_CasChancel": 5.0,
+                    "SG_CasRetable": 5.0, "SG_SpiralGuard": 1.0, "SG_CraftWall": 5.0, "SG_CraftRoof": 1.0}
 ER.NIGHT_ONLY = ("L_SGProp_", "L_SGVil_Lamp", "L_SGExit_Lantern")
 ER.LIGHT_KEEP = ("L_SGHall", "L_SGSum", "L_SGDun", "L_SGCraft", "L_SGCas", "GateDemonSlayer", "L_Gate_DemonSlayer")
 ER.FOLD_PROTECT = ER.FOLD_PROTECT + ("SG_Violet", "SG_Moon", "Glass_SG", "Energy_Core", "Metal_Gold", "P_DS_",
@@ -135,7 +144,9 @@ ER.FOLD_PROTECT = ER.FOLD_PROTECT + ("SG_Violet", "SG_Moon", "Glass_SG", "Energy
 
 def atomic(name):
     """Model Atomic por construcao/marco (streaming sem pecas pela metade)"""
-    for pre in ("SG_Cas_", "SG_Hall_", "SG_Sum_", "SG_Craft_", "SG_Dun_", "SG_Ent_", "GATE_DemonSlayer",
+    if name.startswith("SG_Hall_ThroneMov"):
+        return "SG_Hall_ThroneMov"          # o TronoService move este Model inteiro (PivotTo / tween)
+    for pre in ("SG_Cas_", "SG_Hall_", "SG_Cave_", "SG_Sum_", "SG_Craft_", "SG_Dun_", "SG_Ent_", "GATE_DemonSlayer",
                 "SG_Exit_AnchorGuard"):
         if name.startswith(pre):
             return pre.rstrip("_")
@@ -148,20 +159,22 @@ ER.atomic_model = atomic
 
 def safe_candidates():
     sx, sy = L.SUMMON_C
-    pts = [("SAFE_Entrada", L.ENTRY_SPAWN, L.P1), ("SAFE_Praca", (0.0, -150.0), L.P1),
-           ("SAFE_Vila_P1_O", (-60.0, -120.0), L.P1), ("SAFE_Vila_P1_L", (64.0, -120.0), L.P1),
-           ("SAFE_Vila_P2", (0.0, -45.0), L.P2), ("SAFE_Vila_P2_O", (-80.0, -45.0), L.P2),
-           ("SAFE_Patio_Castelo", (0.0, 20.0), L.P3), ("SAFE_Salao", (0.0, 70.0), L.HALL),
-           ("SAFE_Dungeon", (100.0, 50.0), L.P3), ("SAFE_Craft", (60.0, -45.0), L.P2),
-           ("SAFE_Summon", (sx + 12.0, sy), L.SUM), ("SAFE_Saida", (130.0, -38.0), L.EXIT_Z),
+    cx_, cy_ = L.PLAZA_C
+    pts = [("SAFE_Entrada", L.ENTRY_SPAWN, L.P1), ("SAFE_Praca", (0.0, cy_ - 28.0), L.P1),
+           ("SAFE_Vila_P1_O", (-60.0, cy_), L.P1), ("SAFE_Vila_P1_L", (64.0, cy_), L.P1),
+           ("SAFE_Vila_P2", (0.0, -86.0), L.P2), ("SAFE_Vila_P2_O", (-100.0, -86.0), L.P2),
+           ("SAFE_Patio_Castelo", (0.0, 20.0), L.P3), ("SAFE_Salao", (0.0, 96.0), L.HALL),
+           ("SAFE_Cova", (0.0, 140.0), L.CAVE_FLOOR), ("SAFE_Galeria", (-30.0, 290.0), L.CAVE_GALLERY_Z),
+           ("SAFE_Craft", (80.0, -86.0), L.P2), ("SAFE_Mirante", L.MIRANTE_E[:2], L.P3),
+           ("SAFE_Summon", (sx + 12.0, sy), L.SUM), ("SAFE_Terraco_N", (-120.0, 300.0), L.P3),
            ("SAFE_Ilhota", L.exit_point(L.EXIT_BRIDGE_LEN + 6.0), L.EXIT_Z),
-           ("SAFE_Ponte_Chegada", (0.0, -240.0), L.DECK)]
+           ("SAFE_Ponte_Chegada", L.BRIDGE_PATH[-2], L.DECK)]
     return [(n, to_world_xy(*p), z) for n, p, z in pts]
 
 
 ER.SAFE_CANDIDATES = safe_candidates
 
-_CX, _CY = to_world_xy(0.0, -10.0)
+_CX, _CY = to_world_xy(0.0, 20.0)
 _PF = ER.piece_flags
 
 
@@ -241,7 +254,7 @@ def main():
         data = json.load(open(os.path.join(OUT, ER.DATA_FILE), encoding="utf-8"))
         want = {"WORLD_FROM_PREV", "WORLD_ENTRY_ShadowGarden", "ISLAND_EXIT_ShadowGarden", "ISLAND_NEXT_ANCHOR_DemonSlayer",
                 "GATE_DemonSlayer", "SUMMON_Main", "MiningZone_ShadowGarden", "CRAFT_Station", "DUNGEON_Entrance",
-                "DUNGEON_Spawn"}
+                "DUNGEON_Spawn", "DUNGEON_Hall", "THRONE_Rest", "THRONE_Park", "DUN_NEXT_R2", "DUN_NEXT_R3"}
         con = {m["name"]: m for m in data["markers"] if m["name"] in want}
         json.dump(con, open(os.path.join(OUT, "conexao_roblox.json"), "w", encoding="utf-8"), indent=1)
         for k in sorted(con):

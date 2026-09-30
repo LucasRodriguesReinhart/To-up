@@ -16,59 +16,126 @@ P1, P2, P3, SUM = L.P1, L.P2, L.P3, L.SUM
 
 
 # ------------------------------------------------------------------ trechos de rota (pontos xy; o andador acha o z)
+# v4 (ONDA 0, plano mestre): ponte curva, castelo 2x, trono -> escada caracol -> salao sombrio -> portal, salas 3x,
+# 7 casas visitaveis (porta + andar de cima), saida no noroeste, jardim-mirante.
+def _bdir():
+    (ax, ay), (bx, by) = L.BRIDGE_PATH[0], L.BRIDGE_PATH[1]
+    ln = math.hypot(bx - ax, by - ay)
+    return (bx - ax) / ln, (by - ay) / ln
+
+
 def arrival():
     sx, sy = L.ENTRY_SPAWN
-    return [(0.0, L.PREV_Y - 24.0), (0.0, L.PREV_Y + 1.0), (0.0, L.BRIDGE_Y1 + 2.0), (0.0, L.ENTRY_STAIR[1] - 1.5),
-            (0.0, L.ENTRY_STAIR_Y1 + 1.5), (0.0, L.PORTICO_B_Y), (sx, sy)]
+    ux, uy = _bdir()
+    pts = [(L.PREV_X - ux * 24.0, L.PREV_Y - uy * 24.0), (L.PREV_X + ux * 1.0, L.PREV_Y + uy * 1.0)]
+    pts += list(L.BRIDGE_PATH[1:-1]) + [(0.0, L.Y_ENTRY + 2.0)]
+    fx, fy = L.ENTRY_STAIR[:2]
+    return pts + [(0.0, fy - 1.5), (0.0, L.ENTRY_STAIR_Y1 + 1.5), (0.0, L.PORTICO_B_Y), (sx, sy)]
 
 
 def spawn_to_plaza_north():
     sx, sy = L.ENTRY_SPAWN
-    return [(sx, sy), (0.0, -152.0), (-14.0, -140.0), (-14.0, -116.0), (0.0, -103.0)]
+    cx, cy = L.PLAZA_C
+    return [(sx, sy), (0.0, cy - 26.0), (-14.0, cy - 14.0), (-14.0, cy + 12.0), (0.0, cy + 26.0)]
 
 
 def up_to_p2():
-    return [(0.0, -103.0), (0.0, -100.5), (0.0, -82.0), (0.0, -60.0), (0.0, -45.0)]
+    f = L.stair_frame("P1P2")[0]
+    return [(0.0, L.PLAZA_C[1] + 26.0), (0.0, f[1] - 1.5), (0.0, f[1] + 20.0), (0.0, -120.0), (0.0, -86.0)]
 
 
 def p2_to_forecourt():
-    return [(0.0, -45.0), (0.0, -29.0), (0.0, -26.5), (0.0, -8.0), (0.0, -2.0), (0.0, 20.0)]
+    f = L.stair_frame("Gate")[0]
+    return [(0.0, -86.0), (0.0, f[1] - 1.5), (0.0, f[1] + 19.0), (0.0, -8.0), (0.0, 20.0)]
 
 
 def forecourt_to_hall():
-    return [(0.0, 20.0), (0.0, 36.0), (0.0, 42.0), (0.0, 50.0), (0.0, 70.0), (-20.0, 100.0), (20.0, 120.0)]
+    return [(0.0, 20.0), (0.0, 55.0), (0.0, 62.0), (0.0, 70.0), (0.0, 96.0)]
+
+
+def hall_to_throne():
+    (fx, fy), w, n, tread = L.CHANCEL_STEPS
+    tx, ty = L.THRONE_REST
+    return [(0.0, 96.0), (-30.0, 150.0), (0.0, 230.0), (0.0, fy - 1.5), (0.0, fy + n * tread + 1.5),
+            (0.0, ty - L.THRONE_SIZE[1] / 2 - 3.0)]
+
+
+def throne_to_portal():
+    """trono ABERTO: arco secreto -> patamar -> escada caracol (2 voltas) -> galeria -> escadaria -> ponte do rio ->
+    estrado do portal"""
+    tx, ty = L.THRONE_REST
+    cy = L.SPIRAL_C[1]
+    pts = [(0.0, ty - L.THRONE_SIZE[1] / 2 - 3.0), (0.0, ty), (0.0, L.RETABLE_Y[1] - 1.0),
+           L.stair_point(-90.0), L.stair_point(-66.0)]
+    a = L.SPIRAL_A0
+    while a < L.SPIRAL_A1 - 1e-6:
+        a = min(L.SPIRAL_A1, a + 11.5)
+        pts.append(L.stair_point(a))
+    pts += [L.stair_point(L.SPIRAL_A1 + 5.0, 6.0), (0.0, cy - L.SPIRAL_R_IN - 1.0), (0.0, cy - L.SPIRAL_R_OUT - 3.0),
+            (0.0, 280.0)]
+    for nm, foot, n, rise, tread in reversed(L.CAVE_STAIRS):
+        pts += [(0.0, foot[1] + n * tread + 1.0), (0.0, foot[1] - 1.5)]
+    dy1 = L.CAVE_DAIS[3]
+    pts += [(0.0, 200.0), (0.0, 150.0), (0.0, dy1 + 5.0), (0.0, dy1 + 1.0), (0.0, dy1 - 3.0)]
+    return pts
 
 
 def p2_east_to_craft():
     cx, cy = L.CRAFT_C
-    return [(0.0, -45.0), (40.0, -45.0), (60.0, -46.0), (68.0, -56.0), (cx - L.CRAFT_R - 3.0, cy),
-            (cx - L.CRAFT_R + 1.0, cy), (cx - 5.0, cy)]
-
-
-def forecourt_to_dungeon():
-    cx, cy, w, d = L.DUNGEON_HOUSE
-    return [(0.0, 20.0), (46.0, 20.0), (80.0, 30.0), (cx, cy - d / 2 - 8.0), (cx, cy - d / 2 + 1.0), (cx, cy - 2.0)]
+    return [(0.0, -86.0), (40.0, -86.0), (80.0, -86.0), (cx - L.CRAFT_R - 3.0, cy), (cx - L.CRAFT_R + 1.0, cy),
+            (cx - 5.0, cy)]
 
 
 def plaza_to_summon():
     a0, a1, w = L.SUMMON_BRIDGE
     top = L.stair_top("Summon")
-    return [(-14.0, -140.0), (-26.0, -120.0), (-60.0, -120.0), (-96.0, -118.0), (a0[0] - 1.0, a0[1]),
+    cx, cy = L.PLAZA_C
+    return [(-14.0, cy - 14.0), (-28.0, cy), (-60.0, cy), (-140.0, cy), (a0[0] - 1.0, a0[1]),
             (a1[0] + 0.5, a1[1]), (top[0] - 1.5, top[1]), (L.SUMMON_TOWER[0] + 14.0, L.SUMMON_TOWER[1])]
 
 
-def p2_to_exit_gate():
+def forecourt_to_exit_gate():
     g = L.gate_ds_pos()
     ux, uy = L.exit_dir()
-    return [(0.0, -45.0), (60.0, -45.0), (100.0, -38.0), (130.0, -38.0), (L.EXIT_START[0] - 2.0, L.EXIT_START[1]),
-            L.exit_point(20.0), L.exit_point(44.0), L.exit_point(L.EXIT_BRIDGE_LEN + 2.0), (g[0] - ux * 7.0, g[1] - uy * 7.0)]
+    return ([(0.0, 20.0)] + list(L.EXIT_ROUTE) + [(L.EXIT_START[0] + 1.0, L.EXIT_START[1] - 2.0), L.exit_point(20.0),
+            L.exit_point(44.0), L.exit_point(L.EXIT_BRIDGE_LEN + 2.0), (g[0] - ux * 7.0, g[1] - uy * 7.0)])
 
 
-def dungeon_to_p2_east():
-    cx, cy, w, d = L.DUNGEON_HOUSE
-    ft = L.stair_frame("EastP3")[0]
-    return [(cx, cy - 2.0), (cx, cy - d / 2 + 1.0), (cx, cy - d / 2 - 8.0), (110.0, 30.0), (ft[0], -6.0), (ft[0], -10.0),
-            (ft[0], ft[1] - 1.0), (ft[0] - 2.0, -36.0)]
+def forecourt_to_mirante():
+    mx, my, mr = L.MIRANTE_E
+    return [(0.0, 20.0), (60.0, 20.0), (120.0, 26.0), (150.0, 40.0), (140.0, 120.0), (mx, my)]
+
+
+def craft_to_mirante():
+    f = L.stair_frame("EastP3")[0]
+    mx, my, mr = L.MIRANTE_E
+    return [(L.CRAFT_C[0] + L.CRAFT_R + 6.0, L.CRAFT_C[1]), (150.0, -70.0), (f[0], f[1] - 1.5), (f[0], f[1] + 19.0),
+            (150.0, 40.0), (140.0, 120.0), (mx, my)]
+
+
+def house_routes():
+    """por casa: rua -> porta (vao 8 x 11) -> dentro; A/B: sobe a escada ate o andar de cima"""
+    r = {}
+    for nm, tp, x, y, w, d, deg, z in L.HOUSES:
+        a = math.radians(deg)
+        fx, fy = math.cos(a), math.sin(a)          # frente
+        lx, ly = fy, -fx                            # +X local (Frame com ang = deg - 90)
+
+        def P(u, v):
+            return (x + lx * u + fx * v, y + ly * u + fy * v)
+        pts = [P(0.0, d / 2 + 7.0), P(0.0, d / 2 + 0.5), P(0.0, d / 2 - 3.0), P(-6.0, 0.0)]
+        r["CASA_%s_PORTA->DENTRO" % nm] = (pts, z)
+        if L.HOUSE_TYPES[tp]["stair"]:
+            iw, idp = w - 2 * L.HOUSE_WALL, d - 2 * L.HOUSE_WALL
+            h0 = L.HOUSE_TYPES[tp]["h0"]
+            n = int(math.ceil((h0 + 1.0) / 0.83))
+            xs = -iw / 2 + 2.0
+            yb = -idp / 2 + 3.0
+            xe = xs + n * 1.6
+            up = [P(-6.0, 0.0), P(-8.0, -3.5), P(xs - 0.2, -3.5), P(xs - 0.2, yb), P(xe - 0.6, yb), P(xe + 0.9, yb),
+                  P(xe + 0.9, -idp / 2 + 7.5), P(0.0, 4.0)]
+            r["CASA_%s_ESCADA->ANDAR" % nm] = (up, z)
+    return r
 
 
 def rev(p):
@@ -79,38 +146,45 @@ def routes():
     r = {}
     r["DB_ANCORA->SG_ENTRADA"] = (arrival(), L.DECK)
     ent_hall = spawn_to_plaza_north() + up_to_p2()[1:] + p2_to_forecourt()[1:] + forecourt_to_hall()[1:]
-    r["ENTRADA->CASTELO_MINING_HALL"] = (ent_hall, P1)
-    r["ENTRADA->SUMMON"] = ([L.ENTRY_SPAWN, (0.0, -152.0)] + plaza_to_summon(), P1)
+    r["ENTRADA->CASTELO_MINING_HALL"] = (ent_hall, L.P1)
+    r["PORTA->TRONO"] = (hall_to_throne(), L.HALL)
+    r["ENTRADA->SUMMON"] = ([L.ENTRY_SPAWN, (0.0, L.PLAZA_C[1] - 26.0)] + plaza_to_summon(), P1)
     r["ENTRADA->CRAFT"] = (spawn_to_plaza_north() + up_to_p2()[1:] + p2_east_to_craft()[1:], P1)
-    r["ENTRADA->DUNGEON"] = (spawn_to_plaza_north() + up_to_p2()[1:] + p2_to_forecourt()[1:] + forecourt_to_dungeon()[1:], P1)
-    r["VILA->CASTELO"] = ([(-100.0, -45.0), (-40.0, -44.0)] + p2_to_forecourt() + forecourt_to_hall()[1:4], P2)
-    hall_out = rev(forecourt_to_hall()[:5])
+    r["VILA->CASTELO"] = ([(-100.0, -86.0), (-40.0, -86.0)] + p2_to_forecourt() + forecourt_to_hall()[1:4], P2)
+    hall_out = rev(forecourt_to_hall())
     r["CASTELO->CRAFT"] = (hall_out + rev(p2_to_forecourt())[1:] + p2_east_to_craft()[1:], P3)
-    r["CASTELO->DUNGEON"] = (hall_out + forecourt_to_dungeon()[1:], P3)
-    r["CASTELO->PORTAO_DS"] = (hall_out + rev(p2_to_forecourt())[1:] + p2_to_exit_gate()[1:], P3)
-    cx, cy = L.CRAFT_C
-    r["DUNGEON->CRAFT"] = (dungeon_to_p2_east() + [(70.0, -46.0), (66.0, -58.0), (cx - L.CRAFT_R - 3.0, cy),
-                                                   (cx - 5.0, cy)], P3)
-    r["CRAFT->CASTELO"] = (rev(p2_east_to_craft()) + p2_to_forecourt()[1:] + forecourt_to_hall()[1:4], P2)
-    r["VILA_BAIXA_LESTE->PRACA"] = ([(100.0, -118.0), (64.0, -120.0), (26.0, -120.0), (14.0, -130.0)], P1)
-    r["PRACA_VOLTA"] = ([(0.0, -150.0), (-18.0, -140.0), (-18.0, -116.0), (0.0, -105.0), (18.0, -116.0),
-                         (18.0, -140.0), (0.0, -150.0)], P1)
-    # salas da dungeon (ov09b: tirado da planta): R1 -> vao -> R2 -> vao -> R3 pelo eixo dos vaos
-    yc = L.DUN_LY
+    r["CASTELO->PORTAO_DS"] = (hall_out + forecourt_to_exit_gate()[1:], P3)
+    r["CASTELO->JARDIM_MIRANTE"] = (hall_out + forecourt_to_mirante()[1:], P3)
+    r["CRAFT->JARDIM_MIRANTE"] = (craft_to_mirante(), P2)
+    cx, cy = L.PLAZA_C
+    r["PRACA_VOLTA"] = ([(0.0, cy - 22.0), (-18.0, cy - 12.0), (-18.0, cy + 12.0), (0.0, cy + 22.0), (18.0, cy + 12.0),
+                         (18.0, cy - 12.0), (0.0, cy - 22.0)], P1)
+    r["VILA_BAIXA_LESTE->PRACA"] = ([(150.0, cy), (96.0, cy), (28.0, cy), (14.0, cy - 12.0)], P1)
+    r.update(house_routes())
+    # salas da masmorra: R1 -> vao -> R2 -> vao -> R3 (eixo x = DUN_LX)
     pts = []
     for nm, (x0, y0, x1, y1) in L.DUN_ROOMS:
-        pts += [(x0 + 8.0, yc), (x1 - 3.0, yc)]
-    pts.insert(2, (L.dun_links()[0][1], yc))
-    pts.insert(5, (L.dun_links()[1][1], yc))
+        pts += [(L.DUN_LX, y0 + 8.0), (L.DUN_LX, y1 - 3.0)]
     r["DUNGEON_SALAS_R1->R3"] = (pts, L.DUN_Z)
+    # salao sombrio: galeria -> passarela oeste -> ponte suspensa -> passarela leste -> galeria
+    zg = L.CAVE_GALLERY_Z
+    r["SALAO_SOMBRIO_PASSARELAS"] = ([(-20.0, 290.0), (-85.0, 286.0), (-85.0, 230.0), (-85.0, 200.0), (-60.0, 200.0),
+                                      (60.0, 200.0), (85.0, 200.0), (85.0, 230.0), (85.0, 286.0), (20.0, 290.0)], zg)
+    r["SALAO_SOMBRIO_PISO"] = ([(0.0, 150.0), (-60.0, 150.0), (-60.0, 186.0), (0.0, 186.0), (0.0, 221.0), (30.0, 224.0),
+                                (60.0, 240.0), (60.0, 300.0), (-60.0, 300.0), (-60.0, 236.0), (-30.0, 224.0), (0.0, 221.0),
+                                (0.0, 190.0), (40.0, 170.0), (0.0, 130.0)], L.CAVE_FLOOR)
     return r
 
 
 def open_routes():
+    """rotas com peca movel ABERTA (a colisao dela fica de fora): portao DS e o TRONO (arco secreto)"""
     g = L.gate_ds_pos()
     ux, uy = L.exit_dir()
+    down = throne_to_portal()
     return {"PORTAO_DS_ABERTO->ANCORA": ([(g[0] - ux * 7.0, g[1] - uy * 7.0), g, (g[0] + ux * 12.0, g[1] + uy * 12.0),
-                                          L.exit_point(L.EXIT_BRIDGE_LEN + L.ANCHOR_OFF - 1.0)], L.EXIT_Z)}
+                                          L.exit_point(L.EXIT_BRIDGE_LEN + L.ANCHOR_OFF - 1.0)], L.EXIT_Z, "COL_GateDemonSlayerLock"),
+            "TRONO_ABERTO->ESCADA->SALAO_SOMBRIO->PORTAL": (down, L.CHANCEL_Z, "COL_SGHallThroneMov"),
+            "PORTAL->SALAO_SOMBRIO->ESCADA->TRONO (subida)": (rev(down), L.CAVE_DAIS[4], "COL_SGHallThroneMov")}
 
 
 def module_routes():
@@ -121,13 +195,17 @@ def module_routes():
             if not os.path.exists(os.path.join(HERE, m + ".py")):
                 continue
             try:
-                mod = importlib.import_module(m)
+                mod = build_sg.load_module(m)
             except Exception as ex:
                 print("QA aviso: nao importou %s (%s)" % (m, ex))
                 continue
+            legacy = m in build_sg.LEGACY
+            if legacy:
+                import sg_relocate
             for k, v in getattr(mod, "EXTRA_ROUTES", {}).items():
-                rr["%s:%s" % (m, k)] = v
-            pp += list(getattr(mod, "EXTRA_PROBES", []))
+                rr["%s:%s" % (m, k)] = sg_relocate.map_route(m, v[0], v[1]) if legacy else v
+            for pr in getattr(mod, "EXTRA_PROBES", []):
+                pp.append(sg_relocate.map_probe(m, pr) if legacy else pr)
     return rr, pp
 
 
@@ -139,19 +217,35 @@ def _probes():
     p = L.exit_point(32.0)
     out.append(("PONTE_SAIDA_lado_N", p[0], p[1], L.EXIT_Z, -uy, ux, L.EXIT_W / 2 + 3.0))
     out.append(("PONTE_SAIDA_lado_S", p[0], p[1], L.EXIT_Z, uy, -ux, L.EXIT_W / 2 + 3.0))
-    out.append(("PONTE_CHEGADA_lado_O", 0.0, -245.0, L.DECK, -1.0, 0.0, L.DECK_W / 2 + 3.0))
-    out.append(("PONTE_CHEGADA_lado_L", 0.0, -245.0, L.DECK, 1.0, 0.0, L.DECK_W / 2 + 3.0))
-    out.append(("CALCADA_ALTA_O", 0.0, -170.0, P1, -1.0, 0.0, 16.0))
-    out.append(("CALCADA_ALTA_L", 0.0, -170.0, P1, 1.0, 0.0, 16.0))
-    out.append(("PATIO_BAIXO_O", 0.0, -214.0, L.DECK, -1.0, 0.0, 16.0))
+    for k in (4, 10, len(L.BRIDGE_PATH) - 1):
+        (ax, ay), (bx, by) = L.BRIDGE_PATH[k - 1], L.BRIDGE_PATH[k]
+        ln = math.hypot(bx - ax, by - ay)
+        dx, dy = (bx - ax) / ln, (by - ay) / ln
+        mx, my = (ax + bx) / 2, (ay + by) / 2
+        out.append(("PONTE_CHEGADA_%02d_E" % k, mx, my, L.DECK, -dy, dx, L.DECK_W / 2 + 3.0))
+        out.append(("PONTE_CHEGADA_%02d_D" % k, mx, my, L.DECK, dy, -dx, L.DECK_W / 2 + 3.0))
+    out.append(("CALCADA_ALTA_O", 0.0, -278.0, P1, -1.0, 0.0, 16.0))
+    out.append(("CALCADA_ALTA_L", 0.0, -278.0, P1, 1.0, 0.0, 16.0))
+    out.append(("PATIO_BAIXO_O", 0.0, -320.0, L.DECK, -1.0, 0.0, 16.0))
     sx, sy = L.SUMMON_C
     out.append(("SUMMON_borda_O", sx, sy, SUM, -1.0, 0.0, L.SUMMON_R + 3.0))
     out.append(("SUMMON_borda_N", sx, sy, SUM, 0.0, 1.0, L.SUMMON_R + 3.0))
     a0, a1, w = L.SUMMON_BRIDGE
     out.append(("PONTE_SUMMON_N", (a0[0] + a1[0]) / 2, a0[1], P1, 0.0, 1.0, w / 2 + 3.0))
-    out.append(("P2_borda_sul_O", -60.0, -76.0, P2, 0.0, -1.0, 12.0))
-    out.append(("P3_borda_sul_O", -50.0, -1.0, P3, 0.0, -1.0, 12.0))
-    out.append(("P2_borda_leste", 150.0, -60.0, P2, 1.0, 0.0, 14.0))
+    out.append(("P2_borda_sul_O", -60.0, -146.0, P2, 0.0, -1.0, 12.0))
+    out.append(("P3_muralha_O", -50.0, -8.0, P3, 0.0, -1.0, 12.0))
+    out.append(("P2_borda_leste", 170.0, -100.0, P2, 1.0, 0.0, 20.0))
+    out.append(("TERRACO_NORTE_borda", 0.0, 374.0, P3, 0.0, 1.0, 12.0))
+    zg = L.CAVE_GALLERY_Z
+    out.append(("GALERIA_borda_sul", -40.0, 277.0, zg, 0.0, -1.0, 5.0))
+    out.append(("PASSARELA_O_borda", -84.0, 170.0, zg, 1.0, 0.0, 6.0))
+    out.append(("PONTE_SUSPENSA_lado", 0.0, 200.0, zg, 0.0, 1.0, 6.0))
+    out.append(("RIO_borda_norte", -40.0, 224.0, L.CAVE_FLOOR, 0.0, -1.0, 6.0))
+    a = 180.0
+    px, py = L.stair_point(a)
+    out.append(("ESCADA_CARACOL_guarda", px, py, L.stair_z(a), -1.0, 0.0, 8.0))
+    tx, ty = L.THRONE_REST
+    out.append(("TRONO_FECHADO_tapa_o_arco", tx, ty - L.THRONE_SIZE[1] / 2 - 3.0, L.CHANCEL_Z, 0.0, 1.0, 6.0))
     return out
 
 
@@ -187,7 +281,9 @@ def db_stub():
     """cabeceira da Ilha 2 (so para o teste DB_ANCORA->SG_ENTRADA): 30 studs de tabuleiro antes de WORLD_FROM_PREV"""
     if bpy.data.objects.get("COL_QA_DBStub_001"):
         return
-    ob = SL.col_box2("QA_DBStub", (-L.DECK_W / 2, L.PREV_Y - 30.0, L.DECK - 2.0), (L.DECK_W / 2, L.PREV_Y + 0.5, L.DECK))
+    ux, uy = _bdir()
+    c = (L.PREV_X - ux * 14.75, L.PREV_Y - uy * 14.75, L.DECK - 1.0)
+    ob = SL.col_box("QA_DBStub", (30.5, L.DECK_W, 2.0), c, (0, 0, math.atan2(uy, ux)))
     bpy.context.view_layer.update()
     return ob
 
@@ -204,10 +300,10 @@ def nav():
         ok += not f
         print(("OK   " if not f else "FAIL ") + "ROTA " + name + ("" if not f else "  " + str(f)))
     print("ROTAS %d/%d OK" % (ok, len(res)))
-    bvh2, _ = col_bvh(exclude=("COL_GateDemonSlayerLock",))
     ok2 = 0
     rr = open_routes()
-    for name, (pts, z0) in rr.items():
+    for name, (pts, z0, excl) in rr.items():
+        bvh2, _ = col_bvh(exclude=(excl,))
         f, zend = fm_qa.walk(bvh2, pts, z0)
         ok2 += not f
         print(("OK   " if not f else "FAIL ") + "ROTA " + name + ("" if not f else "  " + str(f)))
@@ -278,20 +374,31 @@ def clear():
     bad2 = [o.name for o in bpy.data.objects if o.type == "MESH" and not o.name.startswith(("SG_Dun_", "COL_SGDun", "SCALE_"))
             and not o.name.startswith("COL_") and _obj_hits_box(o, q0, q1)]
     print(("OK   " if not bad2 else "FAIL ") + "DUNGEON_LIMPA malhas de fora dentro da caixa das salas: %s" % (bad2[:10] or "nenhuma"))
+    # v4: nada de fora do salao sombrio dentro da caixa dele (rocha, patamar, castelo, ombro...)
+    kx0, ky0, kz0, kx1, ky1, kz1 = L.CAVE_KEEP_OUT
+    bad3 = [o.name for o in bpy.data.objects if o.type == "MESH" and not o.name.startswith(("SG_Cave_", "COL_", "SCALE_", "PREVIEW_"))
+            and _obj_hits_box(o, (kx0, ky0, kz0), (kx1, ky1, kz1))]
+    print(("OK   " if not bad3 else "FAIL ") + "CAVE_LIVRE malhas de fora dentro da caixa do salao sombrio: %s" % (bad3[:10] or "nenhuma"))
     return bad, bad2
 
 
 REQUIRED = ["WORLD_FROM_PREV", "WORLD_ENTRY_ShadowGarden", "PATH_ENTRY_CENTER", "MiningZone_ShadowGarden", "SUMMON_Main",
             "SUMMON_Interact", "SUMMON_PlayerPosition", "CRAFT_Station", "PLAYER_INTERACT_Craft", "NPC_Craft",
-            "DUNGEON_Entrance", "DUNGEON_Portal", "DUNGEON_UI", "DUNGEON_Return", "DUNGEON_Spawn", "DUNGEON_ExitPortal",
-            "DUN_ROOM_R1", "DUN_ROOM_R2", "DUN_ROOM_R3", "DUN_SPAWN_R2", "DUN_SPAWN_R3", "DUN_LINK_R1R2",
-            "DUN_LINK_R2R3", "DUN_EXIT_R1", "ISLAND_EXIT_ShadowGarden", "ISLAND_NEXT_ANCHOR_DemonSlayer",
+            "DUNGEON_Hall", "DUNGEON_Entrance", "DUNGEON_Portal", "DUNGEON_UI", "DUNGEON_Return", "DUNGEON_Spawn",
+            "DUNGEON_ExitPortal", "DUN_ROOM_R1", "DUN_ROOM_R2", "DUN_ROOM_R3", "DUN_SPAWN_R2", "DUN_SPAWN_R3",
+            "DUN_LINK_R1R2", "DUN_LINK_R2R3", "DUN_NEXT_R2", "DUN_NEXT_R3", "DUN_EXIT_R1", "DUN_EXIT_R3",
+            "THRONE_Rest", "THRONE_Park", "THRONE_Interact", "THRONE_OpenZone", "THRONE_Stair_Top", "THRONE_Stair_Bottom",
+            "THRONE_Return", "CAVE_Zone", "CAVE_Stair_Up", "WATER_Fountain_Basin", "WATER_CavePool", "WATER_CaveFall_Lip",
+            "WATER_Court_L", "WATER_Court_R", "FX_Fall_1_Lip", "FX_Fall_4_Base",
+            "ISLAND_EXIT_ShadowGarden", "ISLAND_NEXT_ANCHOR_DemonSlayer",
             "GATE_DemonSlayer", "GATE_DemonSlayer_INTERACT", "GATE_DemonSlayer_LOCKED", "GATE_DemonSlayer_EXIT",
-            "PURCHASE_UI_ANCHOR_DemonSlayer", "GATE_DemonSlayer_OpenFX", "AUDIO_Fountain", "AUDIO_HallAmbience"]
+            "PURCHASE_UI_ANCHOR_DemonSlayer", "GATE_DemonSlayer_OpenFX", "AUDIO_Fountain", "AUDIO_HallAmbience", "AUDIO_Cave"]
 REQUIRED_CAMS = ["CAM_SG_Entry", "CAM_SG_Front", "CAM_SG_Left", "CAM_SG_Right", "CAM_SG_Back", "CAM_SG_BirdEye",
-                 "CAM_SG_Castle", "CAM_SG_MiningHall", "CAM_SG_Summon", "CAM_SG_Craft", "CAM_SG_Dungeon",
+                 "CAM_SG_World", "CAM_SG_Castle", "CAM_SG_MiningHall", "CAM_SG_Throne", "CAM_SG_Spiral", "CAM_SG_Cave",
+                 "CAM_SG_CavePortal", "CAM_SG_Summon", "CAM_SG_Craft", "CAM_SG_Dungeon", "CAM_SG_DungeonRooms",
                  "CAM_SG_ExitGate", "CAM_SG_PlayerHeight_Entry", "CAM_SG_PlayerHeight_MiningHall",
-                 "CAM_SG_PlayerHeight_Summon", "CAM_SG_PlayerHeight_Craft", "CAM_SG_PlayerHeight_Dungeon",
+                 "CAM_SG_PlayerHeight_Castle", "CAM_SG_PlayerHeight_Summon", "CAM_SG_PlayerHeight_Craft",
+                 "CAM_SG_PlayerHeight_Dungeon", "CAM_SG_PlayerHeight_DungeonRoom", "CAM_SG_PlayerHeight_House",
                  "CAM_SG_PlayerHeight_ExitGate"]
 
 

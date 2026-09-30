@@ -4,6 +4,10 @@
 # exceto topo de escada e cabeceira de ponte). Os modulos de detalhe desenham SO o visual destas pecas (escadas com
 # sg_lib.plan_stair, guardas com vis_parapet/vis_fence) e criam a colisao SO dos proprios predios/props.
 # Generico por construcao: a planta (sg_layout.floors/STAIRS) manda; nada aqui tem coordenada solta.
+# v4 (onda 0, plano mestre): ponte de chegada CURVA (polilinha L.BRIDGE_PATH), buraco do POCO da escada caracol no piso
+# do P3 e o SUBSOLO andavel: presbiterio (degraus + piso), escada caracol (rampas helicoidais + patamares + guarda do
+# poco + nucleo), salao sombrio (piso, rio com fundo e guardas, ponte do rio, estrado do portal, galeria, escadaria,
+# passarelas e ponte suspensa). As paredes/teto do salao sombrio e das salas sao dos modulos (volumes proprios).
 import math
 from mathutils import Vector
 import sg_lib as SL
@@ -65,9 +69,8 @@ def bridge_list():
     """(nome, inicio (x, y), fim (x, y), cota, largura)"""
     ex = L.exit_point(L.EXIT_BRIDGE_LEN)
     a0, a1, w = L.SUMMON_BRIDGE
-    return [("Arrival", (0.0, L.BRIDGE_Y0), (0.0, L.BRIDGE_Y1), L.DECK, L.DECK_W),
-            ("SummonBridge", a0, a1, L.P1, w),
-            ("ExitBridge", L.EXIT_START, ex, L.EXIT_Z, L.EXIT_W)]
+    out = [("Arrival", a, b, L.DECK, L.DECK_W) for a, b in zip(L.BRIDGE_PATH, L.BRIDGE_PATH[1:])]
+    return out + [("SummonBridge", a0, a1, L.P1, w), ("ExitBridge", L.EXIT_START, ex, L.EXIT_Z, L.EXIT_W)]
 
 
 def _in_rect_along(x, y, a, b, hw, pad=0.0):
@@ -200,8 +203,8 @@ def edge_guards():
 
 
 # ------------------------------------------------------------------ chao
-def strips(area, poly, z0, z1, step, mode="inter"):
-    """colisao de poligono em faixas ao longo de y (como il_lib.col_poly)"""
+def strips(area, poly, z0, z1, step, mode="inter", holes=()):
+    """colisao de poligono em faixas ao longo de y (como il_lib.col_poly); holes = retangulos (x0, y0, x1, y1) vazados"""
     ys = [p[1] for p in poly]
     y = min(ys)
     n = 0
@@ -213,10 +216,18 @@ def strips(area, poly, z0, z1, step, mode="inter"):
         for sm in samples:
             iv = SL.x_intervals(poly, sm)
             ivs = iv if ivs is None else (SL.IL._union(ivs, iv) if mode == "union" else SL.IL._inter(ivs, iv))
+        cut = []
+        for hx0, hy0, hx1, hy1 in holes:
+            if ya < hy1 and yb > hy0:
+                cut.append((hx0, hx1))
         for x0, x1 in ivs or []:
-            if x1 - x0 > 0.3:
-                col_box2(area, (x0, ya, z0), (x1, yb, z1))
-                n += 1
+            segs = [(x0, x1)]
+            for c0, c1 in cut:
+                segs = [q for a, b in segs for q in ((a, min(b, c0)), (max(a, c1), b))]
+            for a, b in segs:
+                if b - a > 0.3:
+                    col_box2(area, (a, ya, z0), (b, yb, z1))
+                    n += 1
         y = yb
     return n
 
@@ -247,14 +258,146 @@ def floors():
             ys = [p[1] for p in poly]
             col_box2(A, (min(xs), min(ys), z - FLOOR_T), (max(xs), max(ys), z))
             continue
-        strips(A, ccw(poly), z - FLOOR_T, z, 6.0, mode="inter")
+        holes = (shaft_hole(),) if nm == "P3" else ()
+        strips(A, ccw(poly), z - FLOOR_T, z, 6.0, mode="inter", holes=holes)
         edge_fill(A, poly, z - FLOOR_T, z, w=4.6)
+
+
+def shaft_hole():
+    cx, cy = L.SPIRAL_C
+    r = L.SPIRAL_R_OUT + 0.5
+    return (cx - r, cy - r, cx + r, cy + r)
 
 
 def fountain():
     """bacia da fonte da praca: solida ate 2,6 acima do piso (nao da para subir: > 2,3)"""
     cx, cy = L.PLAZA_C
     ngon_col("SG_Fountain", cx, cy, 12, L.FOUNTAIN_R, L.P1 - 1.0, L.P1 + 2.6)
+
+
+# ------------------------------------------------------------------ v4: presbiterio, escada caracol, salao sombrio
+def _guard_line(area, a, b, z, h=GUARD_H + 0.5, th=1.0):
+    dx, dy = b[0] - a[0], b[1] - a[1]
+    ln = math.hypot(dx, dy)
+    if ln > 0.3:
+        col_box(area, (ln + 0.6, th, h), ((a[0] + b[0]) / 2, (a[1] + b[1]) / 2, z - 0.5 + h / 2), (0, 0, math.atan2(dy, dx)))
+
+
+def _slab(area, x0, y0, x1, y1, ztop, t=2.0):
+    col_box2(area, (x0, y0, ztop - t), (x1, y1, ztop))
+
+
+def chancel():
+    """presbiterio (base da torre-coroa): 3 degraus a partir da nave, piso P3+2,4 e a passagem do arco secreto"""
+    (fx, fy), w, n, tread = L.CHANCEL_STEPS
+    stair_col("SG_ChancelStep", (fx, fy, L.P3), math.pi / 2, w, n, (L.CHANCEL_Z - L.P3) / n, tread, guards=False)
+    x0, y0, x1, y1 = L.CHANCEL
+    _slab("SG_Chancel", x0, fy + n * tread - 0.2, x1, y1, L.CHANCEL_Z, 3.0)
+    aw = L.SECRET_ARCH[0] / 2
+    _slab("SG_Chancel", -aw, L.RETABLE_Y[0] - 0.5, aw, L.SPIRAL_C[1] - L.SPIRAL_R_IN + 3.0, L.CHANCEL_Z, 3.0)
+
+
+def spiral():
+    """escada caracol: patamar de topo (setor), 60 rampas helicoidais, patamar de baixo e saida para a galeria, guarda
+    do poco (anel com as 2 aberturas) e o nucleo. Desce no sentido anti-horario de SPIRAL_A0 ate SPIRAL_A1."""
+    cx, cy = L.SPIRAL_C
+    r0, r1 = L.SPIRAL_R_NEWEL, L.SPIRAL_R_STEP
+    rm, w = (r0 + r1) / 2.0, r1 - r0
+
+    def fan(a0, a1, z, step=6.0):
+        a = a0
+        while a < a1 - 1e-6:
+            b = min(a1, a + step)
+            m = math.radians((a + b) / 2)
+            chord = 2 * r1 * math.sin(math.radians(b - a) / 2) + 0.6
+            col_box("SG_SpiralLanding", (w + 0.2, chord, 1.0), (cx + rm * math.cos(m), cy + rm * math.sin(m), z - 0.5),
+                    (0, 0, m))
+            a = b
+    la0, la1 = L.SPIRAL_LANDING
+    fan(la0, la1, L.SPIRAL_TOP_Z)
+    for i in range(L.SPIRAL_N):
+        a_hi, a_lo = L.stair_angle(i), L.stair_angle(i + 1)
+        z_hi = L.SPIRAL_TOP_Z - L.SPIRAL_RISE * i
+        p_hi, p_lo = L.stair_point(a_hi, rm), L.stair_point(a_lo, rm)
+        col_ramp("SG_SpiralStep", (p_lo[0], p_lo[1], z_hi - L.SPIRAL_RISE), (p_hi[0], p_hi[1], z_hi), w)
+    fan(L.SPIRAL_A1, L.SPIRAL_A1 + 45.0, L.SPIRAL_BOT_Z)
+    # saida de baixo (sul) ate a galeria
+    _slab("SG_SpiralLanding", -6.0, cy - L.SPIRAL_R_OUT - 4.0, 6.0, cy - L.SPIRAL_R_IN + 4.0, L.SPIRAL_BOT_Z, 1.5)
+    # nucleo
+    ngon_col("SG_SpiralNewel", cx, cy, 12, r0, L.SPIRAL_BOT_Z - 1.0, L.SPIRAL_TOP_Z + 20.0)
+    # guarda do poco: anel em R 14..15 do fundo ate o topo; aberturas no sul (topo: arco secreto; baixo: galeria)
+    aw = math.degrees(math.asin(min(1.0, (L.SECRET_ARCH[0] / 2 + 0.2) / L.SPIRAL_R_IN)))
+    zt, zb = L.SPIRAL_TOP_Z, L.SPIRAL_BOT_Z
+    n = 36
+    for k in range(n):
+        a = 360.0 * k / n
+        m = math.radians(a + 5.0)
+        chord = 2 * (L.SPIRAL_R_IN + 0.5) * math.sin(math.radians(5.0)) + 0.5
+        x, y = cx + (L.SPIRAL_R_IN + 0.5) * math.cos(m), cy + (L.SPIRAL_R_IN + 0.5) * math.sin(m)
+        south = abs(((a + 5.0) - 270.0 + 180.0) % 360.0 - 180.0) < aw + 5.0
+        spans = [(zb + L.SECRET_ARCH[1], zt - 1.0), (zt + L.SECRET_ARCH[1], zt + 20.0)] if south else [(zb - 1.0, zt + 20.0)]
+        for z0, z1 in spans:
+            if z1 - z0 > 0.3:
+                col_box("SG_SpiralGuard", (1.0, chord, z1 - z0), (x, y, (z0 + z1) / 2), (0, 0, m))
+
+
+def cave():
+    """salao sombrio: piso em 2 pedacos (o rio corta no meio), fundo do rio e guardas, ponte do rio, estrado do portal
+    com 2 degraus, escadaria (2 lances + patamar), galeria, passarelas e ponte suspensa (com guardas)"""
+    A_ = "SG_CaveFloor"
+    x0, y0, x1, y1 = L.CAVE
+    zf = L.CAVE_FLOOR
+    px0, py0, px1, py1, plev, pbot = L.CAVE_POOL
+    col_box2(A_, (x0, y0, zf - 8.0), (x1, py0, zf))
+    col_box2(A_, (x0, py1, zf - 8.0), (x1, y1, zf))
+    col_box2(A_, (px0, py0, pbot - 4.0), (px1, py1, pbot))                     # fundo do rio
+    for a, b in ((x0, px0), (px1, x1)):
+        col_box2(A_, (a, py0, zf - 8.0), (b, py1, zf))
+    bw = L.CAVE_POOL_BRIDGE_W / 2
+    col_box2("SG_CaveBridge", (-bw, py0 - 1.0, zf - 2.0), (bw, py1 + 1.0, zf))
+    for yy in (py0, py1):
+        for a, b in ((px0, -bw), (bw, px1)):
+            _guard_line("SG_CaveGuard", (a, yy), (b, yy), zf)
+    for s in (-1, 1):
+        _guard_line("SG_CaveGuard", (s * (bw + 0.5), py0), (s * (bw + 0.5), py1), zf)
+    # estrado do portal + 2 degraus pelo norte
+    dx0, dy0, dx1, dy1, dz = L.CAVE_DAIS
+    col_box2("SG_CaveDais", (dx0, dy0, zf - 1.0), (dx1, dy1, dz))
+    stair_col("SG_CaveDaisStep", (0.0, dy1 + 2 * 1.8, zf), -math.pi / 2, dx1 - dx0, 2, (dz - zf) / 2, 1.8, guards=False)
+    # escadaria + patamar
+    for nm, foot, n, rise, tread in L.CAVE_STAIRS:
+        stair_col("SG_" + nm, foot, math.pi / 2, L.CAVE_STAIR_W, n, rise, tread, guards=True)
+    lx0, ly0, lx1, ly1, lz = L.CAVE_LANDING
+    col_box2("SG_CaveLanding", (lx0, ly0 - 0.3, lz - 1.5), (lx1, ly1 + 0.3, lz))
+    for s in (-1, 1):
+        _guard_line("SG_CaveGuard", (s * (lx1 + 0.6), ly0), (s * (lx1 + 0.6), ly1), lz)
+    # galeria + passarelas + ponte suspensa (a 6,6)
+    zg = L.CAVE_GALLERY_Z
+    gx0, gy0, gx1, gy1 = L.CAVE_GALLERY
+    gy1 = L.SPIRAL_C[1] - L.SPIRAL_R_OUT      # a galeria encosta no pe do poco
+    col_box2("SG_CaveGallery", (gx0, gy0, zg - 1.5), (gx1, gy1, zg))
+    sw = L.CAVE_STAIR_W / 2 + 0.6
+    cw = list(L.CAVE_CATWALKS)
+    _guard_line("SG_CaveGuard", (cw[0][2], gy0), (-sw, gy0), zg)
+    _guard_line("SG_CaveGuard", (sw, gy0), (cw[1][0], gy0), zg)
+    _guard_line("SG_CaveGuard", (gx0, gy1), (-6.0, gy1), zg)
+    _guard_line("SG_CaveGuard", (6.0, gy1), (gx1, gy1), zg)
+    hx0, hy0, hx1, hy1 = L.CAVE_HANGING_BRIDGE
+    for cx0, cy0, cx1, cy1 in cw:
+        col_box2("SG_CaveCatwalk", (cx0, cy0, zg - 1.0), (cx1, gy0 + 0.5, zg))
+        inner = cx1 if cx0 < 0 else cx0
+        _guard_line("SG_CaveGuard", (inner, cy0), (inner, hy0), zg)
+        _guard_line("SG_CaveGuard", (inner, hy1), (inner, gy0), zg)
+        _guard_line("SG_CaveGuard", (cx0, cy0), (cx1, cy0), zg)
+    col_box2("SG_CaveBridgeHigh", (hx0 - 0.5, hy0, zg - 1.0), (hx1 + 0.5, hy1, zg))
+    for yy in (hy0, hy1):
+        _guard_line("SG_CaveGuard", (hx0, yy), (hx1, yy), zg)
+
+
+def underground():
+    chancel()
+    spiral()
+    cave()
 
 
 def terrain_col():
@@ -264,3 +407,4 @@ def terrain_col():
     bridges()
     fountain()
     edge_guards()
+    underground()

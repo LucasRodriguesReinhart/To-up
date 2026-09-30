@@ -260,75 +260,92 @@ def moon():
 
 
 P1, P2, P3, SUM, H = L.P1, L.P2, L.P3, L.SUM, L.HALL
+# v4 (ONDA 0, plano mestre): cameras refeitas para a planta nova (castelo 2x, salao sombrio, salas 3x, vila visitavel)
+_CZ = L.CHANCEL_Z
+_CX, _CY = L.CRAFT_C
+_SX, _SY = L.SUMMON_TOWER
 CAMS = {
     # visoes pedidas (secao de QA da missao)
-    "CAM_SG_Entry": ((0.0, -250.0, L.DECK + 12.0), (0.0, -120.0, P1 + 16.0), 20),
-    "CAM_SG_Front": ((20.0, -470.0, 190.0), (0.0, 20.0, 60.0), 24),
-    "CAM_SG_Left": ((-440.0, -20.0, 170.0), (0.0, 10.0, 60.0), 24),
-    "CAM_SG_Right": ((460.0, -40.0, 170.0), (0.0, 10.0, 60.0), 24),
-    "CAM_SG_Back": ((0.0, 480.0, 210.0), (0.0, 0.0, 60.0), 24),
-    "CAM_SG_BirdEye": ((0.0, -40.0, 720.0), (0.0, -20.0, 0.0), 24),
-    "CAM_SG_Castle": ((0.0, -60.0, P2 + 14.0), (0.0, 90.0, P3 + 50.0), 18),
-    "CAM_SG_MiningHall": ((0.0, 48.0, H + 9.0), (0.0, 110.0, H + 8.0), 16),
-    "CAM_SG_Summon": ((-96.0, -104.0, P1 + 12.0), (L.SUMMON_TOWER[0], L.SUMMON_TOWER[1], SUM + 14.0), 18),
-    "CAM_SG_Craft": ((44.0, -38.0, P2 + 14.0), (L.CRAFT_C[0], L.CRAFT_C[1], P2 + 22.0), 16),
-    "CAM_SG_CraftInterior": ((L.CRAFT_C[0] - 8.5, L.CRAFT_C[1], P2 + 5.2), (L.CRAFT_C[0] + 8.0, L.CRAFT_C[1], P2 + 4.0), 14),
-    "CAM_SG_Dungeon": ((70.0, 20.0, P3 + 14.0), (L.DUNGEON_HOUSE[0], L.DUNGEON_HOUSE[1], P3 + 20.0), 18),
-    "CAM_SG_DungeonInterior": ((100.0, 64.0, P3 + 5.2), (100.0, 82.0, P3 + 6.0), 14),
-    "CAM_SG_DungeonRooms": ((-58.0, 80.0, L.DUN_Z + 9.0), (40.0, 80.0, L.DUN_Z + 4.0), 16),
-    "CAM_SG_Village": ((-30.0, -150.0, P1 + 16.0), (-70.0, -60.0, P2 + 6.0), 20),
+    "CAM_SG_Entry": ((0.0, -358.0, L.DECK + 12.0), (0.0, -222.0, P1 + 16.0), 20),
+    "CAM_SG_Front": ((30.0, -820.0, 300.0), (0.0, 0.0, 90.0), 24),
+    "CAM_SG_Left": ((-760.0, 20.0, 260.0), (0.0, 20.0, 90.0), 24),
+    "CAM_SG_Right": ((780.0, 0.0, 260.0), (0.0, 20.0, 90.0), 24),
+    "CAM_SG_Back": ((0.0, 1000.0, 360.0), (0.0, 40.0, 110.0), 24),
+    "CAM_SG_BirdEye": ((-80.0, -110.0, 1150.0), (0.0, -110.0, 0.0), 24),
+    "CAM_SG_World": ((520.0, -380.0, 820.0), (-90.0, -560.0, 0.0), 24),
+    "CAM_SG_Castle": ((0.0, -128.0, P2 + 14.0), (0.0, 150.0, P3 + 100.0), 18),
+    "CAM_SG_MiningHall": ((0.0, 72.0, H + 9.0), (0.0, 220.0, H + 26.0), 16),
+    "CAM_SG_Throne": ((-15.0, 270.0, _CZ + 7.0), (0.0, 302.0, _CZ + 9.0), 20),
+    "CAM_SG_ThroneWide": ((0.0, 230.0, H + 10.0), (0.0, 300.0, _CZ + 12.0), 18),
+    "CAM_SG_Spiral": ((0.0, 309.5, _CZ + 15.0), (1.0, 326.0, L.SPIRAL_BOT_Z + 8.0), 14),
+    "CAM_SG_SpiralCave": ((46.0, 262.0, L.CAVE_GALLERY_Z + 8.0), (0.0, 322.0, 20.0), 18),
+    "CAM_SG_Cave": ((0.0, 298.0, L.CAVE_GALLERY_Z + 7.0), (0.0, 120.0, L.CAVE_FLOOR + 6.0), 14),
+    "CAM_SG_CavePortal": ((12.0, 160.0, L.CAVE_FLOOR + 6.0), (0.0, 100.0, L.CAVE_FLOOR + 14.0), 18),
+    "CAM_SG_Summon": ((_SX + 60.0, _SY + 16.0, P1 + 12.0), (_SX, _SY, SUM + 14.0), 18),
+    "CAM_SG_Craft": ((_CX - 46.0, _CY + 22.0, P2 + 14.0), (_CX, _CY, P2 + 22.0), 16),
+    "CAM_SG_CraftInterior": ((_CX - 8.5, _CY, P2 + 5.2), (_CX + 8.0, _CY, P2 + 4.0), 14),
+    "CAM_SG_Dungeon": ((0.0, 190.0, L.CAVE_FLOOR + 12.0), (0.0, 100.0, L.CAVE_FLOOR + 10.0), 18),
+    "CAM_SG_DungeonInterior": ((0.0, 130.0, L.CAVE_FLOOR + 5.2), (0.0, 100.0, L.CAVE_FLOOR + 10.0), 18),
+    "CAM_SG_DungeonRooms": ((0.0, 98.0, L.DUN_Z + 9.0), (0.0, 197.0, L.DUN_Z + 9.0), 16),
+    "CAM_SG_Village": ((0.0, -196.0, P1 + 16.0), (-92.0, -262.0, P1 + 8.0), 18),
     "CAM_SG_ExitGate": None,          # calculada (frente do portao DS, na ponte de saida)
     # altura do jogador (olho ~5,2 acima do piso)
-    "CAM_SG_PlayerHeight_Entry": ((0.0, -222.0, L.DECK + 5.2), (0.0, -150.0, P1 + 6.0), 22),
-    "CAM_SG_PlayerHeight_Plaza": ((0.0, -160.0, P1 + 5.2), (0.0, -60.0, P2 + 14.0), 22),
-    "CAM_SG_PlayerHeight_Village": ((-30.0, -45.0, P2 + 5.2), (-100.0, -45.0, P2 + 6.0), 22),
-    "CAM_SG_PlayerHeight_Castle": ((0.0, 4.0, P3 + 5.2), (0.0, 60.0, P3 + 22.0), 20),
-    "CAM_SG_PlayerHeight_MiningHall": ((0.0, 47.0, H + 5.2), (0.0, 120.0, H + 3.0), 20),
-    "CAM_SG_PlayerHeight_Summon": ((-124.0, -118.0, SUM + 5.2), (L.SUMMON_TOWER[0], L.SUMMON_TOWER[1], SUM + 10.0), 22),
-    "CAM_SG_PlayerHeight_Craft": ((64.0, -50.0, P2 + 5.2), (L.CRAFT_C[0], L.CRAFT_C[1], P2 + 5.0), 22),
-    "CAM_SG_PlayerHeight_Dungeon": ((100.0, 40.0, P3 + 5.2), (L.DUNGEON_HOUSE[0], L.DUNGEON_HOUSE[1], P3 + 9.0), 22),
-    "CAM_SG_PlayerHeight_DungeonRoom": ((-2.0, 62.0, L.DUN_Z + 5.2), (0.0, 100.0, L.DUN_Z + 3.0), 20),
+    "CAM_SG_PlayerHeight_Entry": ((0.0, -328.0, L.DECK + 5.2), (0.0, -250.0, P1 + 6.0), 22),
+    "CAM_SG_PlayerHeight_Plaza": ((0.0, -254.0, P1 + 5.2), (0.0, -150.0, P2 + 14.0), 22),
+    "CAM_SG_PlayerHeight_Village": ((-30.0, -86.0, P2 + 5.2), (-100.0, -86.0, P2 + 6.0), 22),
+    "CAM_SG_PlayerHeight_Castle": ((0.0, 8.0, P3 + 5.2), (0.0, 61.0, P3 + 28.0), 20),
+    "CAM_SG_PlayerHeight_MiningHall": ((0.0, 70.0, H + 5.2), (0.0, 200.0, H + 3.0), 20),
+    "CAM_SG_PlayerHeight_Summon": ((_SX + 30.0, _SY, SUM + 5.2), (_SX, _SY, SUM + 10.0), 22),
+    "CAM_SG_PlayerHeight_Craft": ((_CX - 26.0, _CY + 6.0, P2 + 5.2), (_CX, _CY, P2 + 5.0), 22),
+    "CAM_SG_PlayerHeight_Dungeon": ((0.0, 132.0, L.CAVE_FLOOR + 5.2), (0.0, 100.0, L.CAVE_FLOOR + 9.0), 22),
+    "CAM_SG_PlayerHeight_DungeonRoom": ((10.0, 222.0, L.DUN_Z + 5.2), (0.0, 303.0, L.DUN_Z + 10.0), 18),
+    "CAM_SG_PlayerHeight_House": ((-100.0, -206.0, P1 + 5.2), (-100.0, -176.0, P1 + 5.0), 20),
     "CAM_SG_PlayerHeight_ExitGate": None,
-    # cameras que imitam a concept aprovada (comparacao lado a lado)
-    "CAM_SG_Ref_Main": ((70.0, -430.0, 250.0), (0.0, 10.0, 40.0), 26),
-    "CAM_SG_Ref_Top": ((0.0, -10.0, 780.0), (0.0, -9.0, 0.0), 26),
-    "CAM_SG_Ref_Front": ((0.0, -380.0, 110.0), (0.0, 20.0, 70.0), 24),
-    "CAM_SG_Ref_Side": ((-400.0, -160.0, 160.0), (0.0, 20.0, 50.0), 24),
-    "CAM_SG_Ref_Castle": ((0.0, -40.0, P2 + 20.0), (0.0, 100.0, P3 + 60.0), 20),
-    "CAM_SG_Ref_Village": ((40.0, -166.0, P1 + 10.0), (-40.0, -90.0, P2 + 8.0), 20),
-    # passe de acabamento (close-ups na altura do jogador; mesmas cameras no ANTES e no DEPOIS)
-    "CAM_SG_CU_Cauldron": ((83.5, -60.0, P2 + 6.2), (90.0, -60.0, P2 + 3.6), 24),
-    "CAM_SG_CU_Emblem": ((82.4, -60.0, P2 + 4.6), (90.0, -60.0, P2 + 4.0), 40),
-    "CAM_SG_CU_Library": ((86.0, -67.0, P2 + 6.6), (92.0, -47.5, P2 + 5.0), 20),
-    "CAM_SG_CU_Shelf": ((87.0, -54.0, P2 + 5.2), (91.5, -46.5, P2 + 4.6), 30),
-    "CAM_SG_CU_CraftTable": ((83.0, -67.5, P2 + 8.0), (92.5, -57.5, P2 + 1.4), 18),
-    "CAM_SG_CU_CraftDoor": ((62.0, -58.0, P2 + 5.2), (90.0, -60.0, P2 + 11.0), 22),
-    "CAM_SG_CU_DunApproach": ((90.0, 30.0, P3 + 5.2), (100.0, 60.0, P3 + 12.0), 20),
-    "CAM_SG_CU_DunMouth": ((100.0, 44.0, P3 + 5.2), (100.0, 66.0, P3 + 10.0), 20),
-    "CAM_SG_CU_CastleDoor": ((0.0, 22.0, P3 + 5.2), (0.0, 42.0, P3 + 9.0), 22),
-    "CAM_SG_CU_CastleWindow": ((-12.0, 25.0, P3 + 5.2), (-22.0, 40.0, P3 + 12.5), 24),
-    # overhaul 09: close da inscricao do obelisco oeste (alfabeto unico da ilha)
-    "CAM_SG_OV_Obelisk": ((-14.5, 27.0, P3 + 6.0), (-21.0, 29.0, P3 + 9.2), 30),
-    "CAM_SG_CU_VillageHouse": ((28.0, -124.0, P1 + 5.2), (50.0, -140.0, P1 + 8.0), 22),
-    # auditoria do passe de acabamento 2 (guardas do porche do castelo, frasco gigante da alquimia)
-    "CAM_SG_AU_GuardFront": ((-4.0, 24.0, P3 + 4.6), (-12.0, 37.0, P3 + 8.5), 30),
-    "CAM_SG_AU_GuardSide": ((-26.0, 30.0, P3 + 5.2), (-12.0, 37.0, P3 + 8.0), 30),
-    "CAM_SG_AU_Flask": ((70.0, -50.0, P2 + 20.0), (90.0, -60.0, P2 + 27.0), 30),
-    "CAM_SG_AU_CraftBase": ((70.0, -74.0, P2 + 5.2), (90.0, -60.0, P2 + 6.0), 24),
-    # overhaul 06-08 (alquimia): gameplay natural e close-ups dos heroi (vila P2, portico, base, tanque, frasco,
-    # lustre, bancada, bau/atril, parede interna, pocoes)
-    "CAM_SG_OVA_FromVillage": ((30.0, -47.0, P2 + 5.2), (90.0, -60.0, P2 + 12.0), 22),
-    "CAM_SG_OVA_Portal34": ((60.0, -44.0, P2 + 5.2), (74.0, -58.0, P2 + 8.5), 22),
-    "CAM_SG_OVA_WallBase": ((82.0, -35.0, P2 + 5.2), (94.0, -45.0, P2 + 6.5), 22),
-    "CAM_SG_OVA_TankCU": ((68.0, -82.0, P2 + 5.0), (76.3, -73.8, P2 + 3.8), 26),
-    "CAM_SG_OVA_FlaskCU": ((74.0, -47.0, P2 + 40.0), (90.0, -60.0, P2 + 38.5), 30),
-    "CAM_SG_OVA_Chandelier": ((83.0, -63.0, P2 + 7.5), (90.0, -60.0, P2 + 12.5), 20),
-    "CAM_SG_OVA_Bench": ((95.5, -65.0, P2 + 5.4), (101.8, -60.0, P2 + 4.2), 22),
-    "CAM_SG_OVA_ChestCU": ((86.0, -53.0, P2 + 4.2), (80.9, -53.1, P2 + 1.0), 26),
-    "CAM_SG_OVA_LecternCU": ((86.0, -67.0, P2 + 4.8), (81.0, -67.0, P2 + 3.0), 26),
-    "CAM_SG_OVA_WallIn": ((96.5, -63.5, P2 + 5.2), (99.2, -50.8, P2 + 6.0), 20),
-    "CAM_SG_OVA_Potions": ((88.8, -54.5, P2 + 4.6), (88.3, -47.5, P2 + 4.2), 28),
+    # cameras gerais de comparacao
+    "CAM_SG_Ref_Main": ((120.0, -760.0, 420.0), (0.0, 0.0, 60.0), 26),
+    "CAM_SG_Ref_Top": ((0.0, -60.0, 1400.0), (0.0, -59.0, 0.0), 26),
+    "CAM_SG_Ref_Front": ((0.0, -640.0, 150.0), (0.0, 40.0, 90.0), 24),
+    "CAM_SG_Ref_Side": ((-700.0, -200.0, 220.0), (0.0, 40.0, 70.0), 24),
+    "CAM_SG_Ref_Castle": ((0.0, -40.0, P2 + 24.0), (0.0, 160.0, P3 + 110.0), 20),
+    "CAM_SG_Ref_Village": ((40.0, -270.0, P1 + 10.0), (-60.0, -150.0, P2 + 8.0), 20),
 }
+
+
+def neighbors():
+    """SO previa (00_REFERENCE, fora do export): silhuetas da Ilha 2 (com a ponte e a ilhota da ancora), da Ilha 1 e dos
+    picos/montanhas do lobby, levadas para o referencial local desta ilha - para as vistas do mundo mostrarem a FOLGA"""
+    import importlib, fm_lib
+    fm_lib.MATS.setdefault("PREVIEW_Neighbor", (fm_lib.S(120, 110, 90), 0.9, 0.0, 0, None, 0.0))
+    fm_lib.MATS.setdefault("PREVIEW_Lobby", (fm_lib.S(90, 96, 104), 0.9, 0.0, 0, None, 0.0))
+    for nm in ("PREVIEW_Neighbor", "PREVIEW_Lobby"):
+        if nm not in bpy.data.materials:
+            fm_lib.mat(nm)
+    mb = MB("PREVIEW_Neighbors", "00_REFERENCE", random.Random(9), detail="far", floor=-999)
+    try:
+        DB = importlib.import_module("db_layout")
+        loc = lambda p: L.local_of_world(*DB.to_world_xy(*p))
+        rim = [loc(p) for p in DB.ISLAND_RIM]
+        mb.prism(SL.ccw(rim), -40.0, 24.0, "PREVIEW_Neighbor")
+        ex = [loc(DB.exit_point(d)) for d in (0.0, DB.EXIT_BRIDGE_LEN)]
+        mb.prism(SL.ribbon_poly(ex, 9.0), L.DECK - 2.0, L.DECK, "PREVIEW_Neighbor")
+        ic = loc(DB.islet_center())
+        mb.cyl(DB.GATE_ISLET_R, 4.0, (ic[0], ic[1], L.DECK - 2.0), m="PREVIEW_Neighbor", n=24, bevel=0.0)
+    except Exception as ex:
+        print("AVISO neighbors: Ilha 2 fora da previa (%s)" % ex)
+    try:
+        IL = importlib.import_module("il_layout")
+        rim = [L.local_of_world(-x, -(420.0 + y)) for x, y in IL.ISLAND_RIM]
+        mb.prism(SL.ccw(rim), -40.0, 16.0, "PREVIEW_Neighbor")
+    except Exception as ex:
+        print("AVISO neighbors: Ilha 1 fora da previa (%s)" % ex)
+    # lobby: montanhas proximas (bloco) e a bbox dos picos do fundo (moldura baixa)
+    rb = lambda x, z: L.local_of_world(x, -z)
+    mont = [rb(-225.0, -208.0), rb(245.0, -208.0), rb(245.0, 182.0), rb(-225.0, 182.0)]
+    mb.prism(SL.ccw(mont), -70.0, 60.0, "PREVIEW_Lobby")
+    pk = [rb(-650.0, -710.0), rb(660.0, -710.0), rb(660.0, 408.0), rb(-650.0, 408.0)]
+    for a, b in zip(pk, pk[1:] + pk[:1]):
+        mb.prism(SL.ribbon_poly([a, b], 3.0), -70.0, 20.0, "PREVIEW_Lobby")
+    mb.finish()
 
 
 def cameras():
@@ -350,11 +367,14 @@ def cameras():
 def scale_reference(visible=True):
     gp = L.gate_ds_pos()
     ux, uy = L.exit_dir()
-    spots = [("SCALE_Dummy_Entry", 3.0, -168.0, P1), ("SCALE_Dummy_Plaza", 10.0, -110.0, P1),
-             ("SCALE_Dummy_Village", -40.0, -45.0, P2), ("SCALE_Dummy_Castle", 4.0, 30.0, P3),
-             ("SCALE_Dummy_Hall", 6.0, 70.0, H), ("SCALE_Dummy_Summon", -128.0, -118.0, SUM + 0.05),
-             ("SCALE_Dummy_Craft", 72.0, -60.0, P2), ("SCALE_Dummy_Dungeon", 100.0, 52.0, P3),
-             ("SCALE_Dummy_DunRoom", 0.0, 72.0, L.DUN_Z),
+    spots = [("SCALE_Dummy_Entry", 3.0, -272.0, P1), ("SCALE_Dummy_Plaza", 10.0, -196.0, P1),
+             ("SCALE_Dummy_Village", -40.0, -86.0, P2), ("SCALE_Dummy_Castle", 6.0, 40.0, P3),
+             ("SCALE_Dummy_Door", -6.0, 58.0, P3), ("SCALE_Dummy_House", -96.0, -196.0, P1),
+             ("SCALE_Dummy_Hall", 6.0, 90.0, H), ("SCALE_Dummy_Throne", -8.0, 284.0, L.CHANCEL_Z),
+             ("SCALE_Dummy_Spiral", L.stair_point(60.0)[0], L.stair_point(60.0)[1], L.stair_z(60.0)), ("SCALE_Dummy_Gallery", -4.0, 284.0, L.CAVE_GALLERY_Z),
+             ("SCALE_Dummy_Summon", L.SUMMON_C[0] + 10.0, L.SUMMON_C[1], SUM + 0.05),
+             ("SCALE_Dummy_Craft", L.CRAFT_C[0] - 20.0, L.CRAFT_C[1], P2), ("SCALE_Dummy_Dungeon", 4.0, 130.0, L.CAVE_FLOOR),
+             ("SCALE_Dummy_DunRoom", 4.0, 110.0, L.DUN_Z),
              ("SCALE_Dummy_DSGate", gp[0] - ux * 9.0 - uy * 4.0, gp[1] - uy * 9.0 + ux * 4.0, L.EXIT_Z)]
     for n, x, y, z in spots:
         SL.dummy(n, x, y, z, visible=visible)
