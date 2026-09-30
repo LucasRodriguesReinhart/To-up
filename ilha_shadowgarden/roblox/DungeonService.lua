@@ -215,6 +215,9 @@ local function abrirSelo(aberto)
 		sp.Transparency = este and 0.25 or 0.55
 		sp.Color = este and Color3.fromRGB(170, 120, 255) or Color3.fromRGB(70, 44, 128)
 	end
+	-- a espiral do nicho da R3 (SG_Dun_R3_ExitSpiral) acende junto com o portal da R3 aberto
+	local r3aberto = aberto and atual == "R3"
+	for p, t0 in pairs(espirais) do p.Transparency = r3aberto and t0 or 1 end
 end
 
 -- ---------- participantes ----------
@@ -439,7 +442,7 @@ local function entrarEstado(novo)
 	end
 	-- portal de saida: aceso durante toda a corrida (sair a qualquer momento), apagado sem corrida
 	local aceso = corrida ~= nil and (novo == "ENTRY_OPEN" or novo == "RUNNING" or novo == "FINISHING")
-	for p, t0 in pairs(espirais) do p.Transparency = aceso and t0 or 1 end
+	if not aceso then for p in pairs(espirais) do p.Transparency = 1 end end   -- espiral = visual do DUN_NEXT_R3 (abrirSelo)
 	for _, ps in ipairs(promptsSair) do ps.Enabled = aceso end
 	publicar()
 end

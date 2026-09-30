@@ -1,65 +1,54 @@
-# sg_dungeon - ZONA DUNGEON da Ilha 3 (Shadow Garden). build() substitui sg_blockout.dungeon (inclusive as colisoes e as
-# luzes dela). Prefixo SG_Dun_, colecao 17_DUNGEON, VFX_SGDUN_* em 12_VFX_HELPERS. A dungeon e a "corrida de mineracao"
-# periodica do jogo (XX:00 / XX:30): o jogador entra pelo PORTAL (vortice no fundo da caverna, superficie, P3) e o jogo o
-# leva para as 3 SALAS modulares escondidas dentro da rocha (piso DUN_Z 6,0; teto DUN_CEIL 28); minera nos DUN_ORE_* e
-# sai pelo portal de saida da R3. O sistema e do jogo: aqui so o LUGAR. NAO modela minerio.
-# v3 (2026-09-29, referencia dominante refs/v2/ref2_dungeon_cave.png): a portaria e uma BOCA DE CAVERNA.
-# ACABAMENTO (2026-09-29): CAVERNA ANTIGA EM RUINAS COM MAGIA QUE SURGE DE DENTRO. Gradiente de brilho: EXTERIOR quase
-# natural (so lanternas quentes e o emblema) -> BOCA (cristal pendurado, fios que se apagam em tracos) -> TUNEL forte
-# (veios que saem do vortice, cristais mais densos no fundo, portal). Sem brilho a entrada se sustenta pela forma.
-# OVERHAUL 09 (2026-09-29, AUDITORIA2 09.01-09.13, "tolerancia zero"): caverna ANTIGA em ruina com a magia vindo de
-#   dentro. Rocha FRATURADA (bancos grossos + diaclases verticais de rumo unico, blocos deslocados, labios; rock_mass) no
-#   lugar dos estratos empilhados; boca em cantaria da RUINA (Stone_SGDunRuin, um tom acima da rocha) com quinas
-#   quebradas, aduelas em CUNHA, arco externo partido com fratura; revestimento do tunel com quebra irregular e pedra
-#   caida; UM alfabeto de runas = o dos obeliscos (rune); cristais em COLUNA hexagonal com calo (so a ponta acende);
-#   veios em FENDA; pilares/marcos/entulho com pecas de verdade (kit do castelo: pinnacle, sq_ch); salas com pilastras
-#   de base e capitel + colunelos, arcadas cegas de 2 ordens, piso em 2 tamanhos, nervuras em pera, tochas de ferro,
-#   portal de aduelas e inscricao entalhada; variacao dirigida R1 (arcos altos) / R2 (escoras + grelhas) / R3
-#   (colunelos duplos + retabulo). Planta, marcadores, colisoes e gameplay IGUAIS.
-#   1. MASSA DE ROCHA NATURAL em ESTRATOS (strata_rock): juntas globais com mergulho leve, camada dura saliente / mole
-#      recuada, topo chanfrado de cada camada, degraus que recuam para o centro; topos de liquen com pinheiros. Nada de
-#      veio ou cristal por fora. Dentro da pegada DUNGEON_HOUSE + DUNGEON_CAVE_MASS.
-#   2. RUINA na boca: ombreiras de cantaria em fiadas, imposta de obsidiana, arco ogival de ADUELAS violeta sobre nucleo
-#      escuro, ARCO EXTERNO de cantaria PARTIDO a leste, FECHO de obsidiana com o emblema (sg_emblem.plaque); o cristal
-#      VFX_SGDUN_MouthCrystal pende do fecho por corrente. Pilar oeste inteiro com o estandarte; pilar LESTE partido
-#      (quebra em degrau) com o capitel, uma fiada e uma aduela caidos no patio (RUBBLE, colisao propria).
-#   3. TUNEL: casca de rocha com ESTRATOS continuos (cristas ao longo do tunel), gradiente rocha natural -> violeta
-#      profundo; os primeiros metros revestidos de CANTARIA que termina em degraus partidos (encontro ruina x caverna);
-#      veios que sobem do vortice e morrem perto da boca; cristais; piso de marmore negro com 2 fios que nascem dentro;
-#      VORTICE com anel escuro sobre o estrado de 2 degraus (colisao casada).
-#   4. APROXIMACAO: ferradura + corredor de lajes de marmore negro SEM energia; 2 pares de MARCOS de pedra com cinta de
-#      ferro e correntes presas em ARGOLAS aos pilares; lanternas quentes. Linhas do andador livres (_approach_check).
-#   5. SALAS (R1 chegada 36 x 36, R2 mineracao 44 x 44, R3 camara final 44 x 44) com o MESMO kit: parede com pilastras
-#      e arcos ogivais cegos, colunas de canto, cornija, tochas, piso de lajes com friso, abobada ogival de bercos com
-#      nervuras. Vaos de ligacao 12 x 12 (timpano com o emblema). R1 portal de chegada (aceso); R3 portal de saida (a
-#      espiral e objeto proprio SG_Dun_R3_ExitSpiral que o jogo liga em FINISHING), altar = medalhao embutido no piso.
-#   Colisao propria (caixas): massa de rocha, paredes da portaria com o vao da boca, paredes/teto do tunel, estrado,
-#   ombreiras, pilares, pedestais, lanternas; salas (piso, paredes com vaos, teto). Nada colidivel a menos de 5 dos
-#   DUN_ORE_* ate piso+12 (ccol()). Luzes (7): vortice, violeta DENTRO da boca, lanternas da boca (quente); salas 4.
+# sg_dungeon - ZONA DUNGEON da Ilha 3 (Shadow Garden), PLANTA v4 (onda 1, agente 1d, 2026-09-30). build() substitui
+# sg_blockout.dungeon (colisoes e luzes incluidas). Prefixo SG_Dun_, colecao 17_DUNGEON. A dungeon e a "corrida de
+# mineracao" periodica do jogo (XX:00 / XX:30): o jogador desce pelo trono -> escada caracol -> Salao Sombrio (sg_cave)
+# e o portal DUNGEON_Hall o leva a R1; minera nas arenas R2/R3 (DUN_ORE_*) e passa de sala pelo portal DUN_NEXT_* (parede
+# de energia 27 x 21 x 1 que o JOGO cria no CFrame do marcador). O sistema e do jogo: aqui so o LUGAR. NAO modela minerio.
+# v4 (renders/plano_mestre/PLANO.md):
+#   - a PORTARIA-caverna ao lado do castelo SAIU (boca, tunel, rocha em estratos, aproximacao, vortice da superficie):
+#     a entrada agora e o portal do Salao Sombrio (sg_cave, agente 1c).
+#   - SALAS 3x sob o Salao Sombrio, fila em +Y no eixo x = 0: R1 84 x 84 (chegada), R2 e R3 104 x 104 (arenas), piso
+#     -72, teto -28 (pe-direito 44), paredes de 2. O MESMO kit aprovado do overhaul 09 (pilastras com colunelo, arcadas
+#     cegas de 2 ordens, cornija, nervuras em pera, lajes em 2 tamanhos, tochas de ferro, runas do alfabeto unico,
+#     lustres com o kit de vela) no ritmo da escala nova: tramos de 14 / 14,9 com os MESMOS arcos de antes (so mais
+#     tramos, nada esticado); a altura extra vai para a ABOBADA (arranque 18, fecho 43,6) com nervuras e liernes.
+#     Variacao dirigida: R1 lancetas altas + portal de chegada aceso; R2 escoras de mina e grelhas alternadas; R3
+#     colunelos duplos + retabulo no eixo do muro leste + medalhao no centro.
+#   - VAOS de ligacao 28 x 22 (DUN_LINK_*): ombreiras em cunhais, VERGA DE ADUELAS (arco adintelado) com runas no
+#     fecho, timpano ogival de aduelas com chave; soleira no plano do vao.
+#   - PORTAL DA PROXIMA SALA: DUN_NEXT_R2 no plano medio do vao R2R3, DUN_NEXT_R3 num NICHO do muro norte da R3. A
+#     parede de energia (27 x 21 x 1, base no piso) cabe INTEIRA no vao livre 28 x 22 (0,5 nos lados, 1 em cima) e toda
+#     a moldura fica FORA do vao: era o bug "a barreira que teleporta esta para fora". Soleira com canal runico sob a
+#     parede e medalhao runico no timpano. A espiral SG_Dun_R3_ExitSpiral* fica no fundo do nicho (visual do
+#     DUN_NEXT_R3; o DungeonService acende).
+#   - SAIDAS por PROMPT (DUN_EXIT_R1 no muro sul da R1, DUN_EXIT_R3 no muro oeste da R3): arco de saida menor com o
+#     vortice APAGADO (disco navy + espiral de pedra negra, sem brilho). Nenhuma barreira de toque.
+#   - SPAWNS (DUNGEON_Spawn, DUN_SPAWN_R2/R3): circulo runico baixo (placa de 0,15) onde o grupo chega.
+#   Z-fight (familia F11 do relatorio 19): nada coplanar ou a < 0,12 de face paralela de outro material (runas do piso
+#   a +0,13, campos navy a 0,15 da parede, placas +0,15 sobre as lajes, fundo das lajes 0,15 abaixo).
+#   Colisao: paredes com os vaos, piso, teto, pilastras, colunas de canto, portais, retabulo e nicho; nada colidivel a
+#   menos de 5 dos DUN_ORE_* ate piso+12 (ccol()). Luzes (5): portal de chegada, lustres R1, R2 (2) e R3.
 import math, random
 import bpy
 import bmesh
 from mathutils import Vector
-from mathutils.bvhtree import BVHTree
 import sg_lib as SL
-from sg_lib import MB, col_box, col_box2, light
+from sg_lib import MB, col_box2, light
 import fm_lib
 import sg_layout as L
 import sg_emblem as EM
-import sg_veg as VEG
 
 S = fm_lib.S
-# ------------------------------------------------------------------ materiais novos da zona (6 + TrimLow do kit do castelo +
-# vela do kit do salao; os pinheiros trazem 2 do sg_veg = 10)
+# ------------------------------------------------------------------ materiais da zona (os do overhaul 09 continuam
+# registrados: so contam os que alguma malha usa)
 NEW_MATS = {
-    "Stone_SGDunVault": (S(34, 38, 62), 0.8, 0.0, 0, None, 0.06),      # navy escuro: abobadas, fustes dos pilares
+    "Stone_SGDunVault": (S(34, 38, 62), 0.8, 0.0, 0, None, 0.06),      # navy escuro: abobadas, campos das arcadas
     "SG_DunVoid_Glow": (S(46, 26, 104), 0.3, 0.0, 1.0, S(56, 30, 124), 0.0),   # fundo do vortice (violeta profundo)
-    "Stone_SGDunCaveDeep": (S(40, 24, 74), 0.8, 0.0, 0, None, 0.06),          # pedra violeta profunda do fundo do tunel
-    # OVERHAUL 09 (2026-09-29): cantaria da RUINA um tom acima da rocha (09.02); cristal = casca escura nao emissiva
-    # (Crystal_ -> SmoothPlastic) + ponta Neon media menos saturada (09.08)
+    "Stone_SGDunCaveDeep": (S(40, 24, 74), 0.8, 0.0, 0, None, 0.06),
     "Stone_SGDunRuin": (S(80, 74, 102), 0.85, 0.0, 0, None, 0.08),
     "Crystal_SGDun": (S(62, 42, 108), 0.3, 0.0, 0, None, 0.04),
     "SG_DunCrystal_Glow": (S(140, 100, 228), 0.3, 0.0, 2.2, S(140, 100, 228), 0.0),
+    # cera da vela do kit (mesma do salao: sg_hall.NEW_MATS; registrada aqui para a zona nao depender do sg_hall)
+    "Wax_SGHallCandle": (S(212, 170, 116), 0.7, 0.0, 0, None, 0.0),
 }
 for _k, _v in NEW_MATS.items():
     fm_lib.MATS.setdefault(_k, _v)
@@ -67,196 +56,34 @@ fm_lib.RBX_CAL.setdefault("SG_DunCrystal_Glow", (None, [int(c) for c in fm_lib.t
 # a abobada das salas nao usa a textura de ruido da pedra (14.02): a leitura vem das nervuras
 if ("Stone_SGDunVault", None) not in fm_lib.TEX_RULES:
     fm_lib.TEX_RULES = (("Stone_SGDunVault", None),) + tuple(fm_lib.TEX_RULES)
-import sg_castle as CA                           # kit de cantaria do overhaul (pinnacle, finial, sq_ch, drip)
-import sg_hall as HA                             # kit de vela (12.09) e perfil de nervura em pera
-RUIN, CSH, CGL = "Stone_SGDunRuin", "Crystal_SGDun", "SG_DunCrystal_Glow"
-TRL = CA.CAPL                                    # Stone_SG_TrimLow: remate perto do jogador (14.01)
+CSH, CGL = "Crystal_SGDun", "SG_DunCrystal_Glow"
+TRL = "Stone_SG_TrimLow"                         # remate perto do jogador (14.01; = sg_castle.CAPL)
 WD = "Wood_SG_Dark"
-
 CS, BL, FL = "Stone_SG_Castle", "Stone_SG_Block", "Stone_SG_Floor"
 VA, VO = "Stone_SGDunVault", "SG_DunVoid_Glow"
-NAVY, SLATE, SV, IR = "Roof_SG_Navy", "Roof_SG_Slate", "Metal_SG_Silver", "Metal_SG_Iron"
-GL, WW, VG = "Lantern_Glow", "Window_Warm", "SG_Violet_Glow"
-# paleta de identidade (sg_lib.SMATS, refinamento): funcao de cada material na dungeon
-OB, MBK, VS, BI = "Stone_SG_Obsidian", "Stone_SG_MarbleBlack", "Stone_SG_Violet", "Metal_SG_BlackIron"
+SV, IR = "Metal_SG_Silver", "Metal_SG_Iron"
+GL, VG = "Lantern_Glow", "SG_Violet_Glow"
+OB, MBK, BI = "Stone_SG_Obsidian", "Stone_SG_MarbleBlack", "Metal_SG_BlackIron"
 VD = "SG_VioletDeep_Glow"
+WAX = "Wax_SGHallCandle"
 
-P3 = L.P3
-HX, HY, HW, HD = L.DUNGEON_HOUSE                 # 100, 72, 30, 26 (ov09b: 26 -> 30 de largura)
-HT = 3.0                                         # espessura das paredes da portaria
-HX0, HX1, HY0, HY1 = HX - HW / 2, HX + HW / 2, HY - HD / 2, HY + HD / 2      # 85..115 x 59..85
-IX0, IX1, IY0, IY1 = HX0 + HT, HX1 - HT, HY0 + HT, HY1 - HT                 # 88..112 x 62..82 (interior 24 x 20)
-DW, DH = L.DUNGEON_DOOR_W, L.DUNGEON_DOOR_H      # 22 x 25: vao livre da boca (colisao)
-BODY = 38.0                                      # topo da COLISAO das paredes do nucleo da caverna (acima do piso P3)
-IN_CEIL = 24.0                                   # teto colidivel do tunel (o apice da rocha fica <= 24 onde ha teto)
-PX, PY = L.DUNGEON_PORTAL                        # (100, 80)
-DAIS = ((72.6, 0.4), (74.6, 0.8))                # (y inicial, topo) dos 2 degraus do estrado
-
-Z, ZCEIL = L.DUN_Z, L.DUN_CEIL                   # 2, 31,5 (ov09b: pe-direito 22 -> 29,5)
+# ------------------------------------------------------------------ planta v4 das salas (sg_layout)
+Z, ZCEIL = L.DUN_Z, L.DUN_CEIL                   # -72 / -28 (pe-direito 44)
 ROOMS = dict(L.DUN_ROOMS)
-WT = L.DUN_WALL                                  # espessura das paredes das salas
-LINK_H = L.DUN_LINK_H                            # vao de ligacao 18 x 14 (ov09b; era 12 x 12)
-LINK_HW = L.DUN_LINK_W / 2.0
-LY = L.DUN_LY                                    # eixo dos vaos / portais das salas
-R_SPR = 16.0                                     # arranque da abobada das salas (acima do piso) (ov09b: 12 -> 16)
-R_CROWN = ZCEIL - Z - 0.4                        # fecho (29,1): a casca (0,35) fica abaixo do teto colidivel
-BX0 = min(r[0] for r in ROOMS.values()) - WT     # envelope das salas (paredes externas incluidas)
+ORDER = [n for n, _ in L.DUN_ROOMS]
+WT = L.DUN_WALL                                  # 2
+LX = L.DUN_LX                                    # eixo dos vaos e portais (x = 0)
+LINK_W, LINK_H = L.DUN_LINK_W, L.DUN_LINK_H      # vao LIVRE 28 x 22
+LINK_HW = LINK_W / 2.0
+NEXT_W, NEXT_H, NEXT_T = L.DUN_NEXT_W, L.DUN_NEXT_H, L.DUN_NEXT_T   # parede de energia do jogo 27 x 21 x 1
+R_SPR = 18.0                                     # cornija / arranque da abobada (acima do piso)
+R_CROWN = ZCEIL - Z - 0.4                        # fecho 43,6: a casca (0,35) fica abaixo do teto colidivel
+BX0 = min(r[0] for r in ROOMS.values()) - WT     # envelope (paredes externas incluidas)
 BY0 = min(r[1] for r in ROOMS.values()) - WT
 BX1 = max(r[2] for r in ROOMS.values()) + WT
-BY1 = max(r[3] for r in ROOMS.values()) + WT
-
-# ------------------------------------------------------------------ BOCA DE CAVERNA v3 (face sul; F: s = x, d = para o sul)
-ROCK, RKD, RKT = "Cliff_Rock_SG", "Cliff_Rock_SG_Dark", "Cliff_Rock_SG_Top"
-DEEP, GOLD = "Stone_SGDunCaveDeep", "Metal_SG_Bronze"     # 14.04: debrum de bronze (era Metal_Gold)
-CMX0, CMY0, CMX1, CMY1 = L.DUNGEON_CAVE_MASS     # caixa da massa de rocha (80..126 x 74..116)
-# ov09b (2026-09-29, "so cabe uma pessoa"): boca e tunel para um GRUPO (4-6 avatares lado a lado). Boca 19,2 -> 24 de
-# intradorso (vao livre 16,8 -> 22), apice 24 -> 27; tunel com vao livre (colisao) >= 18,8 ate o estrado (era ~15,2);
-# pilares dos estandartes afastados (x 100 +- 19) e massa de rocha recuada junto. Mesmo kit, mesma linguagem.
-M_HW, M_SPR, M_RISE = 12.0, 12.0, 15.0           # intradorso do arco ogival da boca (apice 27)
-M_T, M_DEP = 3.4, 4.2                            # espessura radial das aduelas / projecao do arco para o sul
-PIL_DX, PIL_Y, PIL_H = 19.0, 55.8, 27.0          # pilares dos estandartes (x = 100 +- PIL_DX)
-# tunel: secoes (y, meia-largura, arranque, flecha, jitter maximo para DENTRO); apice <= 24 onde ha teto (y >= 62)
-TUN = [(58.5, 12.0, 12.0, 14.8, 0.15), (61.8, 11.9, 11.0, 13.0, 0.7), (65.4, 11.7, 10.8, 12.6, 0.9),
-       (69.0, 11.4, 10.4, 12.2, 0.9), (72.6, 11.1, 10.0, 11.8, 0.8), (76.2, 10.8, 9.6, 11.4, 0.6),
-       (79.6, 10.6, 9.4, 11.0, 0.45), (82.9, 10.2, 9.0, 10.4, 0.3)]
-MOUTH_W = DW / 2.0                               # meia-largura livre (colisao) da boca entre as ombreiras (11)
-TUN_COL = ((IY0, 69.0, 10.0), (69.0, 76.0, 9.7), (76.0, IY1, 9.4))   # colisao das paredes: vao livre >= 18,8
-# volumes vazios que a rocha NUNCA invade: tunel + arco + pilares (x0, x1, y0, y1, z0, z1 acima do P3)
-VOIDS = [(HX - 12.9, HX + 12.9, 50.0, 83.4, -9.0, 27.2), (83.2, 116.8, 50.0, 59.2, -9.0, 34.5),
-         (HX - PIL_DX - 2.3, HX - PIL_DX + 2.3, 53.5, 58.1, -9.0, 36.0),
-         (HX + PIL_DX - 2.3, HX + PIL_DX + 2.3, 53.5, 58.1, -9.0, 36.0)]
-# massa de rocha facetada (casco convexo de pontos sorteados em cada caixa): (x0, x1, y0, y1, z0, z1, pontos)
-CHUNKS = [
-    # ombros da boca (baixos na frente, sobem para tras) - ov09b: recuados 2,4 para fora (tunel mais largo)
-    (83.3, 87.1, 59.3, 63.0, -5.0, 16.0, 14), (83.3, 87.1, 60.0, 69.0, -5.0, 29.0, 18),
-    (83.3, 87.1, 63.0, 74.0, 16.0, 42.0, 16), (112.9, 116.7, 59.3, 63.0, -5.0, 17.0, 14),
-    (112.9, 116.7, 60.0, 69.0, -5.0, 31.0, 18), (112.9, 116.7, 63.0, 74.0, 18.0, 46.0, 16),
-    # sobrancelha sobre o arco (atras dele) e coroa sobre o tunel (ov09b: +4 de altura, o arco subiu 3)
-    (85.0, 99.2, 59.4, 68.0, 27.4, 42.0, 18), (100.8, 115.0, 59.4, 69.0, 27.6, 45.0, 18),
-    (93.0, 107.0, 60.5, 72.0, 31.0, 52.0, 20), (86.0, 104.0, 66.0, 84.0, 27.4, 50.0, 22),
-    (98.0, 114.0, 70.0, 86.5, 27.4, 47.0, 20), (91.0, 103.0, 74.0, 90.0, 33.0, 56.0, 18),
-    # flancos (fundem com os montes do terreno)
-    (80.5, 87.0, 74.0, 86.0, -5.0, 34.0, 22), (81.0, 90.5, 84.0, 99.0, -5.0, 29.0, 20),
-    (113.0, 121.5, 74.0, 86.0, -5.0, 37.0, 22), (113.0, 123.0, 84.0, 97.0, -5.0, 31.0, 20),
-    # costas
-    (89.0, 104.0, 83.6, 100.0, -5.0, 40.0, 20), (102.0, 116.0, 83.6, 98.5, -5.0, 36.0, 20),
-    (92.0, 108.0, 95.0, 102.0, -5.0, 22.0, 14),
-]
-# agulhas de rocha (penhascos) na coroa: silhueta quebrada da referencia (x, y, meio-x, meio-y, z0, z1)
-SPIRES = [(96.5, 70.5, 3.6, 3.2, 38.0, 59.0), (106.5, 76.0, 3.2, 3.0, 36.0, 52.0), (86.6, 67.5, 2.0, 2.6, 32.0, 46.0),
-          (113.4, 66.5, 2.0, 2.6, 34.0, 49.0), (99.5, 88.0, 3.4, 3.4, 34.0, 51.0), (83.6, 80.0, 2.8, 3.2, 28.0, 40.0)]
-# mergulho das juntas GLOBAIS da massa de rocha (bancos e diaclases: ver OVERHAUL 09.01, rock_mass)
-STRATA_DIP = (-0.05, 0.025)                      # dz por stud em x / y a partir de (100, 80): camadas sobem a oeste
-MASS_C = (100.0, 88.0)                           # centro da massa: os degraus dos estratos recuam para ele
-# pinheiros no topo da massa (x, y, altura): so onde o raio acha topo quase plano
-MASS_PINES = [(84.0, 90.0, 10.5), (86.5, 76.5, 9.0), (116.5, 80.0, 9.5), (117.5, 91.0, 11.0), (108.0, 94.5, 8.5),
-              (95.0, 96.5, 9.5), (113.0, 69.0, 7.5)]
-# veios de energia NAS PAREDES DO TUNEL: nascem no anel do vortice e SOBEM em diagonal pela parede ate morrer perto da
-# boca (raios que saem da fonte). (angulo a partir do zenite no portal, angulo no fim, y inicial, y final)
-TUN_VEINS = [(-80.0, -40.0, 80.2, 66.4), (78.0, 44.0, 80.0, 67.2)]
-
-
-def _box_hit(a, b):
-    return a[0] < b[1] and b[0] < a[1] and a[2] < b[3] and b[2] < a[3] and a[4] < b[5] and b[4] < a[5]
-
-
-def chunk_check():
-    """cada caixa de rocha: dentro da regiao permitida (pegada da portaria + DUNGEON_CAVE_MASS, folga 1,8) e fora
-    dos vazios (tunel, arco, pilares)"""
-    bad = []
-    boxes = [c[:6] for c in CHUNKS] + [(x - rx, x + rx, y - ry, y + ry, z0, z1) for x, y, rx, ry, z0, z1 in SPIRES]
-    for i, c in enumerate(boxes):
-        x0, x1, y0, y1 = c[:4]
-        in_house = HX0 - 1.8 <= x0 and x1 <= HX1 + 1.8 and HY0 - 1.8 <= y0 and y1 <= HY1 + 1.8
-        in_box = CMX0 <= x0 and x1 <= CMX1 and CMY0 <= y0 and y1 <= CMY1
-        if not (in_house or in_box):
-            bad.append(("fora", i))
-        for v in VOIDS:
-            if _box_hit(c[:6], v):
-                bad.append(("vazio", i, v[:2]))
-    print("DUN massa: %d blocos de rocha, conferencia %s" % (len(boxes), bad or "OK"))
-
-
-# ------------------------------------------------------------------ APROXIMACAO (patio P3 ao sul da boca)
-PC = (100.0, 56.0)                               # centro da ferradura de lajes
-PR = 22.0                                        # raio da ferradura
-COR_Y0 = 24.0                                    # inicio do corredor cerimonial (lanternas do eixo)
-LINE_DX = 7.0                                    # fios de energia rentes ao piso (x = 100 +- 7) ate o estrado
-# pares de pedestais de obsidiana com cristal (funil que abre para o sul) e lanternas quentes
-PED_XY = ((84.5, 46.5), (115.5, 46.5), (82.5, 41.0), (117.5, 41.0))           # ov09b: funil mais aberto
-LANTERN_XY = ((85.6, 52.6), (114.4, 52.6), (92.0, 24.0), (108.0, 24.0))
-COR_HW = 7.5                                     # meia-largura do corredor cerimonial (ov09b: 6 -> 7,5)
-PILLAR_XY = ((HX - PIL_DX, PIL_Y), (HX + PIL_DX, PIL_Y))
-# linhas do andador do sg_qa que cruzam o patio (patio -> portaria e portaria -> escada leste) + corredor do eixo
-WALK_LINES = [((80.0, 30.0), (100.0, 51.0)), ((100.0, 51.0), (110.0, 30.0)), ((100.0, 51.0), (100.0, 62.0))]
-
-_R1, _R2, _R3 = (dict(L.DUN_ROOMS)[k] for k in ("R1", "R2", "R3"))
-_R2C = ((_R2[0] + _R2[2]) / 2.0, (_R2[1] + _R2[3]) / 2.0)
-LY_, Z_ = L.DUN_LY, L.DUN_Z
-
-
-def _loop(r, d=4.5):
-    x0, y0, x1, y1 = r
-    return [(x0 + d, y0 + d), (x1 - d, y0 + d), (x1 - d, y1 - d), (x0 + d, y1 - d), (x0 + d, y0 + d)]
-
-
-CAMS = {
-    "CAM_SGDun_HouseSouth": ((100.0, 18.0, P3 + 9.0), (100.0, 72.0, P3 + 24.0), 20),
-    "CAM_SGDun_HouseEast": ((150.0, 40.0, P3 + 16.0), (100.0, 72.0, P3 + 24.0), 22),
-    "CAM_SGDun_HouseNorth": ((132.0, 128.0, P3 + 34.0), (100.0, 72.0, P3 + 26.0), 22),
-    "CAM_SGDun_HouseWest": ((58.0, 104.0, P3 + 16.0), (100.0, 72.0, P3 + 24.0), 22),
-    "CAM_SGDun_PlayerDoor": ((100.0, 42.0, P3 + 5.2), (100.0, 72.0, P3 + 9.0), 22),
-    "CAM_SGDun_Mouth": ((100.0, 30.0, P3 + 4.6), (100.0, 60.0, P3 + 20.0), 24),
-    "CAM_SGDun_Tunnel": ((100.0, 60.5, P3 + 5.2), (100.0, 82.0, P3 + 8.0), 18),
-    "CAM_SGDun_InteriorBack": ((100.0, 77.5, P3 + 6.0), (100.0, 59.0, P3 + 7.0), 18),
-    # salas (ov09b: tiradas da planta; o mesmo enquadramento de antes nas salas maiores)
-    "CAM_SGDun_R1Arrival": ((_R1[2] - 6.0, LY_ + 6.0, Z_ + 5.2), (_R1[0], LY_ - 1.0, Z_ + 8.0), 20),
-    "CAM_SGDun_R1Spawn": ((_R1[0] + 4.0, _R1[1] + 8.0, Z_ + 5.2), (_R2C[0], LY_ + 2.0, Z_ + 6.0), 20),
-    "CAM_SGDun_R2": ((_R2[0] + 3.0, _R2[1] + 3.0, Z_ + 11.0), (_R2[2] - 4.0, _R2[3] - 4.0, Z_ + 10.0), 16),
-    "CAM_SGDun_R2Link": ((_R1[2] - 4.0, LY_ + 4.0, Z_ + 5.2), (_R2C[0] + 2.0, LY_ - 2.0, Z_ + 7.0), 20),
-    "CAM_SGDun_R3Exit": ((_R3[0] + 3.0, LY_ - 4.0, Z_ + 5.2), (_R3[2], LY_, Z_ + 8.0), 20),
-    "CAM_SGDun_R3Back": ((_R3[2] - 4.0, _R3[1] + 4.0, Z_ + 12.0), (_R3[0], _R3[3] - 6.0, Z_ + 9.0), 16),
-    "CAM_SGDun_FromCastleCourt": ((30.0, 4.0, P3 + 7.0), (100.0, 58.0, P3 + 15.0), 26),
-    "CAM_SGDun_Approach": ((90.0, 30.0, P3 + 5.2), (100.0, 60.0, P3 + 12.0), 20),
-    "CAM_SGDun_Far": ((10.0, -70.0, P3 + 62.0), (100.0, 62.0, P3 + 16.0), 34),
-    # overhaul 09 (2026-09-29): closes na altura do jogador (antes/depois)
-    "CAM_SGDun_OV_Jamb": ((95.5, 44.0, P3 + 5.2), (88.5, 57.5, P3 + 5.5), 24),
-    "CAM_SGDun_OV_Rubble": ((125.0, 43.0, P3 + 5.2), (118.5, 53.5, P3 + 1.5), 24),
-    "CAM_SGDun_OV_Marker": ((99.0, 38.0, P3 + 5.2), (86.5, 46.0, P3 + 2.8), 26),
-    "CAM_SGDun_OV_Rock": ((126.0, 50.0, P3 + 5.2), (113.0, 70.0, P3 + 12.0), 20),
-    "CAM_SGDun_OV_TunnelWall": ((98.5, 61.0, P3 + 5.2), (91.0, 69.0, P3 + 4.0), 22),
-    "CAM_SGDun_OV_Crystal": ((96.5, 72.5, P3 + 5.0), (92.3, 78.0, P3 + 3.0), 30),
-    "CAM_SGDun_OV_Torch": ((_R1[0] + 15.0, _R1[1] + 7.0, Z_ + 9.2), (_R1[0] + 12.0, _R1[1] + 2.8, Z_ + 10.6), 30),
-    "CAM_SGDun_OV_Portal": ((_R1[0] + 14.0, LY_ - 4.0, Z_ + 5.2), (_R1[0] + 1.0, LY_, Z_ + 7.6), 20),
-    "CAM_SGDun_OV_R2Wall": ((_R2[0] + 40.0, _R2[3] - 22.0, Z_ + 5.2), (_R2[0] + 36.0, _R2[3], Z_ + 9.5), 20),
-    # ov09b: gameplay com GRUPO (os bonecos de escala do estudio ov09b ficam na boca, no tunel e nos vaos)
-    "CAM_SGDunB_GroupMouth": ((100.0, 34.0, P3 + 7.0), (100.0, 62.0, P3 + 9.0), 20),
-    "CAM_SGDunB_GroupFront": ((100.0, 36.0, P3 + 9.5), (100.0, 72.0, P3 + 5.0), 20),
-    "CAM_SGDunB_GroupTunnel": ((100.0, 78.5, P3 + 11.0), (100.0, 56.0, P3 + 3.0), 18),
-    "CAM_SGDunB_MouthSide": ((78.0, 38.0, P3 + 6.0), (100.0, 60.0, P3 + 10.0), 20),
-    "CAM_SGDunB_R1Group": ((_R1[0] + 3.0, LY_ - 12.0, Z_ + 7.5), (_R1[2] + 6.0, LY_, Z_ + 5.0), 18),
-    "CAM_SGDunB_R2Group": ((_R2[0] - 1.0, LY_ - 4.0, Z_ + 6.5), (_R2[2], LY_ + 6.0, Z_ + 6.0), 16),
-    "CAM_SGDunB_R3Wide": ((_R3[0] + 3.0, _R3[1] + 3.0, Z_ + 9.0), (_R3[2] - 4.0, _R3[3] - 8.0, Z_ + 7.0), 15),
-    "CAM_SGDunB_LinkGroup": ((_R2[2] - 14.0, LY_ - 2.0, Z_ + 5.2), (_R3[0] + 10.0, LY_, Z_ + 6.0), 20),
-}
-
-EXTRA_ROUTES = {
-    "PORTARIA_ATE_O_PORTAL": ([(100.0, 50.0), (100.0, 60.0), (100.0, 70.0), (100.0, 73.6), (100.0, 76.5)], P3),
-    "APROXIMACAO_EIXO": ([(100.0, 26.0), (100.0, 36.0), (100.0, 46.0), (100.0, 54.0), (100.0, 61.0)], P3),
-    "APROXIMACAO_TRAVESSIA": ([(92.0, 40.0), (100.0, 46.5), (108.0, 40.0)], P3),
-    "SALA_R1_VOLTA": (_loop(_R1), Z),
-    "SALA_R2_VOLTA": (_loop(_R2), Z),
-    "SALA_R3_VOLTA": (_loop(_R3), Z),
-    # ov09b: LARGURA para o grupo - duas linhas paralelas a +-8 do eixo (corpo 1,1: vao livre >= 18,2) da boca ate o
-    # estrado, e a +-7,5 do eixo nos 2 vaos de ligacao (vao 18)
-    "GRUPO_TUNEL_OESTE": ([(92.0, 48.0), (92.0, 58.0), (92.0, 66.0), (92.0, 72.0)], P3),
-    "GRUPO_TUNEL_LESTE": ([(108.0, 48.0), (108.0, 58.0), (108.0, 66.0), (108.0, 72.0)], P3),
-    "GRUPO_VAO_R1R2": ([(_R1[2] - 6.0, LY_ - 7.5), (_R2[0] + 6.0, LY_ - 7.5), (_R2[0] + 6.0, LY_ + 7.5),
-                        (_R1[2] - 6.0, LY_ + 7.5)], Z),
-    "GRUPO_VAO_R2R3": ([(_R2[2] - 6.0, LY_ - 7.5), (_R3[0] + 6.0, LY_ - 7.5), (_R3[0] + 6.0, LY_ + 7.5),
-                        (_R2[2] - 6.0, LY_ + 7.5)], Z),
-}
-EXTRA_PROBES = []
+BY1 = max(r[3] for r in ROOMS.values()) + WT + 2.5   # + fundo do nicho da R3
+NICHE_BACK = ROOMS["R3"][3] + WT + 1.0           # face do fundo do nicho (305): a parede de energia fica 1,5 a frente
+UPZ = Vector((0.0, 0.0, 1.0))
 
 
 # ------------------------------------------------------------------ colisao com folga dos minerios
@@ -284,6 +111,22 @@ def ccol(area, p0, p1):
         _SKIP.append((area, tuple(round(v, 1) for v in p0)))
         return None
     return col_box2(area, p0, p1)
+
+
+def candle(mb, x, y, z, hc=0.6, s=1.0, dish=True):
+    """vela do kit (= sg_hall.candle, 12.09): prato de ferro, vela creme nao emissiva, pavio e chama em gota (so ela
+    e Neon). z = apoio."""
+    if dish:
+        EM._lathe(mb, (x, y, z), [(0.12 * s, 0.0), (0.34 * s, 0.07 * s), (0.3 * s, 0.1 * s), (0.0, 0.07 * s)], IR, 6,
+                  caps=(True, False))
+        z += 0.07 * s
+    r = 0.1 * s
+    EM._lathe(mb, (x, y, z), [(r, 0.0), (r, hc - 0.04 * s), (0.0, hc - 0.01 * s)], WAX, 5, caps=(False, False))
+    zt = z + hc - 0.02 * s
+    mb.rod((x, y, zt - 0.02 * s), (x, y, zt + 0.12 * s), 0.018 * s + 0.01, IR, 3, caps=False)
+    zf = zt + 0.05 * s
+    EM._lathe(mb, (x, y, zf), [(0.0, 0.0), (0.11 * s, 0.14 * s), (0.06 * s, 0.3 * s), (0.0, 0.44 * s)], GL, 6)
+    return zf + 0.44 * s
 
 
 # ------------------------------------------------------------------ referencial de uma face de parede
@@ -402,8 +245,6 @@ def arch_band(mb, F, cs, hw, rise, spring, foot, t, d0, d1, m, n=6):
 
 def arch_panel(mb, F, cs, hw, rise, spring, foot, d0, d1, m, n=6):
     slab(mb, F, [(cs - hw, foot)] + ogive(cs, hw, rise, spring, n) + [(cs + hw, foot)], d0, d1, m)
-
-
 
 
 # ------------------------------------------------------------------ pecas do sistema (laminas, runas, correntes)
@@ -605,53 +446,12 @@ def lathe_ax(mb, o, ax, prof, m, n=6, ph=0.0):
     return mb._post([v for r in rows for v in r], m, None, 0, 1)
 
 
-def chain(mb, p0, p1, sag, m=BI, pitch=0.66):
-    """corrente de ferro negro em catenaria (parabola): elos VAZADOS (4 barras) alternando deitado/em pe"""
-    p0, p1 = Vector(p0), Vector(p1)
-    n = max(3, int((p1 - p0).length / pitch))
-    pts = []
-    for i in range(n + 1):
-        t = i / n
-        pts.append(p0.lerp(p1, t) + Vector((0.0, 0.0, -4.0 * sag * t * (1.0 - t))))
-    hw, wr = 0.26, 0.2
-    for i in range(n):
-        a, b = pts[i], pts[i + 1]
-        ax = (b - a).normalized()
-        hl = (b - a).length * 0.5 + 0.13
-        s0 = ax.cross(Vector((0.0, 0.0, 1.0)))
-        s0 = s0.normalized() if s0.length > 1e-3 else Vector((1.0, 0.0, 0.0))     # corrente a prumo
-        s = s0 if i % 2 == 0 else ax.cross(s0).normalized()
-        nn = ax.cross(s).normalized()
-        c = (a + b) / 2
-        for sg in (-1, 1):
-            obox3(mb, c + s * (sg * hw), ax, s, nn, 2 * hl, wr, wr, m)
-            obox3(mb, c + ax * (sg * (hl - wr / 2)), s, ax, nn, 2 * hw + wr, wr, wr, m)
-
-
-def eye_ring(mb, p, n, r=0.34, m=BI):
-    """ARGOLA de ferro: chapa na face (p = ponto da face, n = normal para fora), grampo e anel pendurado no plano
-    (n, z). Devolve o ponto mais baixo do anel (onde a corrente prende)."""
-    p, n = Vector(p), Vector(n).normalized()
-    up = Vector((0.0, 0.0, 1.0))
-    sd = up.cross(n).normalized()
-    obox3(mb, p + n * 0.06, n, sd, up, 0.12, 0.62, 0.62, m)                       # chapa
-    obox3(mb, p + n * 0.24, n, sd, up, 0.3, 0.16, 0.16, m)                        # grampo
-    c = p + n * 0.38 - up * (r - 0.05)
-    k = 8
-    for i in range(k):
-        a0, a1 = 2 * math.pi * i / k, 2 * math.pi * (i + 1) / k
-        q0 = c + n * (math.sin(a0) * r) + up * (math.cos(a0) * r)
-        q1 = c + n * (math.sin(a1) * r) + up * (math.cos(a1) * r)
-        ax = (q1 - q0).normalized()
-        obox3(mb, (q0 + q1) / 2, ax, sd, ax.cross(sd).normalized(), (q1 - q0).length + 0.08, 0.14, 0.14, m)
-    return c - up * r
-
 
 # ------------------------------------------------------------------ KIT DAS SALAS (OVERHAUL 09.10: Tier A)
 # linguagem unica de chanfro 0,1 na cantaria; remates em Stone_SG_TrimLow (14.01); pecas redondas em torno (n 10)
-PIL_D, PIL_HW = 1.5, 1.5
-COL_R = 0.42                                     # colunelo engastado da pilastra
-UPZ = Vector((0.0, 0.0, 1.0))
+# v4: pilastra um pouco mais cheia para o pe-direito de 44 (arranque 18): mesma secao em proporcao ao fuste de antes
+PIL_D, PIL_HW = 1.8, 1.8
+COL_R = 0.5                                      # colunelo engastado da pilastra
 
 
 def fplinth(mb, F, s0, s1, d1, h0, h1, e, m, d0=-0.2):
@@ -661,18 +461,21 @@ def fplinth(mb, F, s0, s1, d1, h0, h1, e, m, d0=-0.2):
     return hull(mb, pts, m)
 
 
-def colonette(mb, F, s, d, h0, h1, r, cap=True):
+def colonette(mb, F, s, d, h0, h1, r, cap=True, n=8, rot=None):
     """colunelo redondo em pe na face F (centro s, d): base com PLINTO e TORO, fuste, capitel em SINO com astragalo.
     h0 = pe, h1 = topo do capitel (o abaco e o bloco de cima)"""
     o = F.v(s, d, 0.0)
     x, y, z0 = o.x, o.y, o.z
+    ph = math.pi / n if rot is None else rot
     EM._lathe(mb, (x, y, z0 + h0), [(r + 0.24, 0.0), (r + 0.24, 0.16), (r + 0.1, 0.32), (r + 0.02, 0.5)],
-              TRL, 8, math.pi / 8, caps=(False, True))
-    EM._lathe(mb, (x, y, z0 + h0 + 0.5), [(r, 0.0), (r, h1 - h0 - (1.05 if cap else 0.5))], CS, 8, math.pi / 8,
+              TRL, n, ph, caps=(False, True))
+    # F11: o fuste entra so 0,13 no colar do capitel (o colar fica 0,16 fora do fuste; antes o fuste subia 0,5 dentro
+    # do capitel a 0,1 da face)
+    EM._lathe(mb, (x, y, z0 + h0 + 0.5), [(r, 0.0), (r, h1 - h0 - (1.42 if cap else 0.5))], CS, n, ph,
               caps=(False, False))
     if cap:
-        EM._lathe(mb, (x, y, z0 + h1 - 1.05), [(r + 0.1, 0.0), (r + 0.1, 0.14), (r + 0.04, 0.45),
-                                                (r + 0.3, 0.85)], TRL, 8, math.pi / 8, caps=(False, True))
+        EM._lathe(mb, (x, y, z0 + h1 - 1.05), [(r + 0.16, 0.0), (r + 0.16, 0.14), (r + 0.04, 0.45),
+                                                (r + 0.3, 0.85)], TRL, n, ph, caps=(False, True))
         a = r + 0.38                                                                    # abaco sobre o sino
         fblock(mb, F, s - a, s + a, d - a, d + a, h1 - 0.2, h1, TRL, 0.0)
 
@@ -687,11 +490,11 @@ def pilaster(mb, F, s, top, area=None, twin=False, altar=False, mi=None):
         if area:
             fcol(area, F, s - W - 0.3, s + W + 0.3, 0.0, PIL_D + 0.3, -0.5, top)
         return
-    fblock(mb, F, s - W - 0.35, s + W + 0.35, -0.2, PIL_D + 0.45, -0.1, 0.7, OB, 0.1)
+    fblock(mb, F, s - W - 0.35, s + W + 0.35, -0.2, PIL_D + 0.45, -0.1, 0.7, OB, 0.0)     # v4: soco reto (o talude chanfra)
     fplinth(mb, F, s - W - 0.35, s + W + 0.35, PIL_D + 0.45, 0.7, 1.0, 0.25, OB)
     fblock(mb, F, s - W, s + W, -0.2, PIL_D, 1.0, top - 1.3, CS, 0.1)
     for sc in ((s - 0.54, s + 0.54) if twin else (s,)):
-        colonette(mb, F, sc, PIL_D + 0.08, 1.0, top - 1.3, COL_R * (0.78 if twin else 1.0))
+        colonette(mb, F, sc, PIL_D + 0.08, 1.0, top - 1.3, COL_R * (0.78 if twin else 1.0), n=6 if twin else 8)
     fledge(mb, F, s - W - 0.3, s + W + 0.3, [(-0.2, top - 1.3), (PIL_D + 0.3, top - 1.3), (PIL_D + 0.62, top - 0.62),
                                              (PIL_D + 0.66, top - 0.36), (PIL_D + 0.66, top), (-0.2, top)], TRL)
     if area:
@@ -708,7 +511,7 @@ def altar_retable(mb, F, s, top, mi):
     rune(mb, F.v(s, 1.1, 1.65), F.u(), UPZ, F.n(), 4, 1.25, VD, 0.04)
     for sc in (s - 1.7, s + 1.7):
         p = F.v(sc, 0.55, 3.1)
-        HA.candle(mi, p.x, p.y, p.z, 0.62, 1.1, dish=True)
+        candle(mi, p.x, p.y, p.z, 0.62, 1.1, dish=True)
     # painel ogival (retabulo) + moldura
     arch_panel(mb, F, s, 2.0, 2.4, 7.6, 3.1, 0.0, 0.18, VA, n=6)
     ogee_band(mb, F, s, 2.0, 2.4, 7.6, 0.42, 0.0, 0.5, TRL)
@@ -762,7 +565,7 @@ def shoring(mb, F, cs, hw, spring):
     for sg in (-1, 1):
         sp = cs + sg * (hw + 0.2)
         fblock(mb, F, sp - hp, sp + hp, 0.6, 1.16, -0.02, zt, WD, 0.0)
-        fblock(mb, F, sp - hp - 0.06, sp + hp + 0.06, 0.56, 1.2, zt - 1.05, zt - 0.85, BI, 0.0)        # grampo
+        fblock(mb, F, sp - hp - 0.14, sp + hp + 0.14, 0.46, 1.3, zt - 1.05, zt - 0.85, BI, 0.0)        # grampo (F11)
         a = F.v(sp - sg * 0.2, 0.88, zt - 1.7)
         b = F.v(sp - sg * 1.5, 0.88, zt - 0.15)
         mb.beam(a, b, 0.34, 0.34, WD, 0.05)
@@ -772,11 +575,11 @@ def shoring(mb, F, cs, hw, spring):
                WD, 0.0)
 
 
-def _arch_geo(s0, s1, spring):
+def _arch_geo(s0, s1, spring, lancet=False):
     """(meia-largura, flecha, arranque) da arcada cega: a ogiva mantem a proporcao e o ARRANQUE desce se preciso para
-    a chave ficar 0,1 abaixo da cornija (nada atravessa a cornija)"""
+    a chave ficar 0,1 abaixo da cornija (nada atravessa a cornija). lancet (R1): ogiva mais aguda"""
     hw = (s1 - s0) / 2.0 - 0.8
-    rise = min(hw * 1.15, 6.0)
+    rise = min(hw * (1.7 if lancet else 1.15), 6.0)
     return hw, rise, min(spring, R_SPR - 0.88 - 1.02 - rise)
 
 
@@ -791,21 +594,23 @@ def blind_arch(mb, F, s0, s1, spring=7.0, twin=False, room="R1", mi=None, skirt=
         mid = (s0 + s1) / 2.0
         blind_arch(mb, F, s0, mid + 0.35, spring, False, room + "_twin", mi, False)
         blind_arch(mb, F, mid - 0.35, s1, spring, False, room + "_twin", mi, False)
-        colonette(mb, F, mid, 0.45, 0.78, _arch_geo(s0, mid + 0.35, spring)[2], 0.34)
+        colonette(mb, F, mid, 0.45, 0.78, _arch_geo(s0, mid + 0.35, spring, room.startswith("R1"))[2], 0.34, n=6,
+                  rot=0.0 if F.hz else math.pi / 2)   # F11: vertice (nao face) virado para as ombreiras
         return
     cs = (s0 + s1) / 2.0
-    hw, rise, spring = _arch_geo(s0, s1, spring)
+    hw, rise, spring = _arch_geo(s0, s1, spring, room.startswith("R1"))
     if hw < 1.2:
         return
-    arch_panel(mb, F, cs, hw, rise, spring, 0.78, 0.0, 0.12, VA, 5)
+    arch_panel(mb, F, cs, hw, rise, spring, 0.78, 0.0, 0.15, VA, 4)
     for sg in (-1, 1):
         a, b = sorted((cs + sg * hw, cs + sg * (hw + 0.42)))
         fblock(mb, F, a, b, -0.1, 0.34, 0.78, spring - 0.34, CS, 0.0)                     # ombreira (recuada)
         a, b = sorted((cs + sg * (hw - 0.06), cs + sg * (hw + 0.62)))
         fledge(mb, F, a, b, [(-0.1, spring - 0.34), (0.42, spring - 0.34), (0.56, spring - 0.12), (0.56, spring),
                              (-0.1, spring)], TRL)                                          # imposta
-    ogee_band(mb, F, cs, hw, rise, spring, 0.4, -0.1, 0.34, CS, 5)
-    ogee_band(mb, F, cs, hw + 0.4, rise + 0.4, spring, 0.42, -0.1, 0.52, TRL, 5)
+    ogee_band(mb, F, cs, hw, rise, spring, 0.4, -0.1, 0.34, CS, 4)
+    if room != "R1_twin":                         # v4: as lancetas geminadas da R1 ficam com 1 ordem (orcamento)
+        ogee_band(mb, F, cs, hw + 0.4, rise + 0.4, spring, 0.42, -0.1, 0.52, TRL, 4)
     kz = spring + rise + 0.4
     fblock(mb, F, cs - 0.34, cs + 0.34, -0.1, 0.62, kz - 0.25, kz + 0.62, TRL, 0.0)        # chave
     if room == "R2_twin":
@@ -830,11 +635,11 @@ def torch(mb, F, s, d, h, twin=False):
     zc = F.p(s, 0, h - 1.75)[2]
     if twin:
         p = F.v(s, PIL_D, h - 1.75)
-        obox3(mb, p + n * 0.05, u, n, UPZ, 0.34, 0.1, 0.9, BI)
-        root = p + n * 0.1
+        obox3(mb, p + n * 0.08, u, n, UPZ, 0.34, 0.16, 0.9, BI)                         # chapa (F11: 0,16)
+        root = p + n * 0.16
     else:
-        EM._lathe(mb, (cc.x, cc.y, zc - 0.14), [(COL_R + 0.06, 0.0), (COL_R + 0.06, 0.28)], BI, 8, math.pi / 8)
-        root = Vector((cc.x, cc.y, zc)) + n * (COL_R + 0.06)
+        EM._lathe(mb, (cc.x, cc.y, zc - 0.14), [(COL_R + 0.14, 0.0), (COL_R + 0.14, 0.28)], BI, 8, math.pi / 8)
+        root = Vector((cc.x, cc.y, zc)) + n * (COL_R + 0.14)      # F11: bracadeira 0,14 fora do fuste
     tip = root + n * 0.55 + UPZ * 0.28
     obox3(mb, (root + tip) / 2, (tip - root).normalized(), u, (tip - root).normalized().cross(u).normalized(),
           (tip - root).length + 0.06, 0.13, 0.13, BI)
@@ -855,55 +660,6 @@ def torch(mb, F, s, d, h, twin=False):
               [(0.0, 0.0), (0.13, 0.11), (0.085, 0.28), (0.0, 0.47)], GL, 6)
 
 
-def link_frame(mb, F, cs, hw_open, rise=6.0):
-    """moldura do vao de ligacao 18 x 14 (ov09b): verga moldurada, timpano ogival navy, arquivolta com chave. Sem
-    emblema (12.11/16.02: o emblema fica no fecho da boca)"""
-    fledge(mb, F, cs - hw_open - 1.3, cs + hw_open + 1.3, [(-0.1, LINK_H), (0.7, LINK_H), (0.86, LINK_H + 0.22),
-                                                           (0.86, LINK_H + 1.0), (0.6, LINK_H + 1.22),
-                                                           (-0.1, LINK_H + 1.22)], TRL)
-    th = hw_open + 0.6
-    arch_panel(mb, F, cs, th, rise, LINK_H + 1.2, LINK_H + 1.2, 0.0, 0.15, VA, n=8)
-    ogee_band(mb, F, cs, th, rise, LINK_H + 1.2, 0.72, -0.1, 0.62, TRL, n=8)
-    kz = LINK_H + 1.2 + rise + 0.72
-    fblock(mb, F, cs - 0.45, cs + 0.45, -0.1, 0.78, kz - 0.4, kz + 0.7, TRL, 0.06)
-
-
-def tile_floor(mb, rect, z, margin=1.0, friso=0.8, gap=0.25, skip=None, mod=4.0):
-    """piso (09.10): lajes em 2 TAMANHOS - fiadas de lajes grandes 4 x 4 e, a cada 2, uma fiada de meias lajes
-    4 x 2 desencontradas (junta que aparece mostra a base clara); friso de remate junto as paredes"""
-    x0, y0, x1, y1 = rect
-    mb.box2((x0, y0, z - 0.6), (x1, y1, z - 0.15), BL, 0.0)
-
-    def ringbox(a, b, m):
-        ax0, ay0, ax1, ay1 = x0 + a, y0 + a, x1 - a, y1 - a
-        bx0, by0, bx1, by1 = x0 + b, y0 + b, x1 - b, y1 - b
-        mb.box2((ax0, ay0, z - 0.4), (ax1, by0, z), m, 0.0)
-        mb.box2((ax0, by1, z - 0.4), (ax1, ay1, z), m, 0.0)
-        mb.box2((ax0, by0, z - 0.4), (bx0, by1, z), m, 0.0)
-        mb.box2((bx1, by0, z - 0.4), (ax1, by1, z), m, 0.0)
-    ringbox(0.0, margin, FL)
-    ringbox(margin, margin + friso, TRL)
-    ix0, iy0, ix1, iy1 = x0 + margin + friso, y0 + margin + friso, x1 - margin - friso, y1 - margin - friso
-    pat = (mod, mod, mod / 2.0)                    # ov09b: arenas de 60 com modulo 5 (mesma proporcao laje/sala)
-    rows, acc, k = [], 0.0, 0
-    while acc < (iy1 - iy0) - 0.5:
-        rows.append(pat[k % 3])
-        acc += pat[k % 3]
-        k += 1
-    sc = (iy1 - iy0) / sum(rows)
-    nx = max(1, int(round((ix1 - ix0) / mod)))
-    tx = (ix1 - ix0) / nx
-    yy = iy0
-    for j, rh in enumerate(rows):
-        ty = rh * sc
-        off = 0.0 if rh > 3.0 else tx / 2.0
-        cuts = [ix0] + [ix0 + off + tx * i for i in range(nx + 1) if ix0 + 0.5 < ix0 + off + tx * i < ix1 - 0.5] + [ix1]
-        for a, b in zip(cuts, cuts[1:]):
-            if skip and skip((a + b) / 2, yy + ty / 2):
-                continue
-            mb.box2((a + gap / 2, yy + gap / 2, z - 0.4), (b - gap / 2, yy + ty - gap / 2, z), FL, 0.0)
-        yy += ty
-
 
 # ------------------------------------------------------------------ abobada ogival de bercos + nervuras
 def _vault_map(rect, axis):
@@ -920,7 +676,7 @@ def vault_z(rect, axis, zf, spring, crown, u):
     return zf + spring + ogive_z(hw, crown - spring, u)
 
 
-def vault(mb, rect, axis, zf, spring, crown, ribs=(), nseg=18):
+def vault(mb, rect, axis, zf, spring, crown, ribs=(), nseg=18, liernes=()):
     """berco ogival (arranque 'spring', fecho 'crown' acima de zf) ao longo de 'axis'; NERVURAS em perfil de PERA
     (redondo por baixo: 09.10) nas pilastras, nervuras de testa e cumeeira; chaves em ROSETA de torno"""
     (a0, a1), hw, mp = _vault_map(rect, axis)
@@ -946,7 +702,7 @@ def vault(mb, rect, axis, zf, spring, crown, ribs=(), nseg=18):
         return [(-h, 0.12), (h, 0.12), (h * 0.82, -dep * 0.52), (0.0, -dep), (-h * 0.82, -dep * 0.52)]
     prof = pear5(0.9, 0.85)
     prof_w = pear5(0.7, 0.62)
-    ue = [-hw + 0.3 + (2 * hw - 0.6) * (0.5 - 0.5 * math.cos(math.pi * k / 20)) for k in range(21)]
+    ue = [-hw + 0.3 + (2 * hw - 0.6) * (0.5 - 0.5 * math.cos(math.pi * k / 14)) for k in range(15)]
 
     def rib(a, pr):
         mb.sweep([(*mp(a, u), zz(u) - 0.02) for u in ue], pr, TRL)
@@ -955,6 +711,10 @@ def vault(mb, rect, axis, zf, spring, crown, ribs=(), nseg=18):
     rib(a0 + 0.4, prof_w)
     rib(a1 - 0.4, prof_w)
     mb.sweep([(*mp(a0 + 0.4, 0.0), zz(0.0) - 0.02), (*mp(a1 - 0.4, 0.0), zz(0.0) - 0.02)], prof, TRL)
+    for f in liernes:                              # v4: LIERNES longitudinais (a abobada de 104 ganha trama)
+        for sg in (-1, 1):
+            u = sg * hw * f
+            mb.sweep([(*mp(a0 + 0.4, u), zz(u) - 0.02), (*mp(a1 - 0.4, u), zz(u) - 0.02)], prof_w, TRL)
     for a in ribs:
         x, y = mp(a, 0.0)
         EM._lathe(mb, (x, y, zz(0.0) - 0.9), [(0.0, -0.05), (0.36, 0.0), (0.78, 0.28), (1.02, 0.6), (0.9, 0.88)],
@@ -1032,16 +792,16 @@ def obox(mb, c, u, v, n, su, sv, sn, m, bev=0.0):
 PORTAL_NV = 18                                   # aduelas do anel do portal das salas
 
 
-def portal_frame(mb, c, u, v, n, r_in, r_out, floor_z):
+def portal_frame(mb, c, u, v, n, r_in, r_out, floor_z, nv=PORTAL_NV, seg=28):
     """moldura do portal das salas (09.12): ANEL DE ADUELAS de remate (juntas abertas sobre o aro escuro) com runas
     ENTALHADAS do alfabeto da ilha em aduelas alternadas (Neon escuro), coroa de cantaria, CHAVE esculpida saliente
     (degraus + voluta) e PES em consola sobre socos de obsidiana"""
-    ring3(mb, c, u, v, n, r_in - 0.05, r_in + 0.9, -0.6, 0.3, OB)                        # aro escuro (juntas)
-    ring3(mb, c, u, v, n, r_in + 0.9, r_out, -0.6, 0.35, CS)
+    ring3(mb, c, u, v, n, r_in + 0.18, r_in + 0.9, -0.6, 0.3, OB, seg)                   # aro escuro (juntas; F11)
+    ring3(mb, c, u, v, n, r_in + 0.9, r_out, -0.6, 0.35, CS, seg)
     ch = 0.1
-    for k in range(PORTAL_NV):
-        a0 = math.pi / 2 + 2 * math.pi * (k - 0.5) / PORTAL_NV + 0.018
-        a1 = math.pi / 2 + 2 * math.pi * (k + 0.5) / PORTAL_NV - 0.018
+    for k in range(nv):
+        a0 = math.pi / 2 + 2 * math.pi * (k - 0.5) / nv + 0.018
+        a1 = math.pi / 2 + 2 * math.pi * (k + 0.5) / nv - 0.018
         if k == 0:
             continue                                                                    # a chave
         pts = []
@@ -1053,11 +813,11 @@ def portal_frame(mb, c, u, v, n, r_in, r_out, floor_z):
                 aa = a + (ch / r if a == a0 else (-ch / r if a == a1 else 0.0))
                 pts.append(_pl(c, u, v, n, aa, rr, 0.72))
         hull(mb, pts, TRL)
-        if k % 2 == 0 and k not in (PORTAL_NV // 2 - 1, PORTAL_NV // 2, PORTAL_NV // 2 + 1):
+        if k % 2 == 0 and k not in (nv // 2 - 1, nv // 2, nv // 2 + 1):
             am = (a0 + a1) / 2
             radial = u * math.cos(am) + v * math.sin(am)
             tang = u * -math.sin(am) + v * math.cos(am)
-            rune(mb, c + radial * (r_in + 0.47) + n * 0.72, tang, radial, n, k // 2, 0.78, VD, 0.04, 0.12)
+            rune(mb, c + radial * (r_in + 0.47) + n * 0.72, tang, radial, n, k // 2, 0.78, VD, 0.14, 0.12)
     # chave: pedra maior que sai do anel (frente em degraus) + voluta de remate em cima
     top = c + v * (r_in + 0.35)
     for w, hh, d1 in ((1.3, 2.2, 1.0), (0.9, 1.6, 1.3)):
@@ -1087,12 +847,12 @@ def chandelier(mb, x, y, h, top, r=3.0, n=8):
         ca, sa = math.cos(a), math.sin(a)
         pts = [(x + rr * ca, y + rr * sa, h + zz) for rr, zz in ((0.3, 0.9), (1.2, 0.2), (2.2, 0.55), (r, 0.12))]
         mb.tube(pts, 0.08, BI, 4)
-        HA.candle(mb, x + r * ca, y + r * sa, h + 0.1, 0.8, 1.3, dish=True)
+        candle(mb, x + r * ca, y + r * sa, h + 0.1, 0.8, 1.3, dish=True)
     mb.rod((x, y, h + 1.6), (x, y, top - 0.2), 0.11, BI, 6)
     EM._lathe(mb, (x, y, top - 0.55), [(0.12, 0.0), (0.62, 0.35), (0.66, 0.5), (0.0, 0.58)], BI, 6, caps=(True, False))
 
 
-# ==================================================================== PORTARIA = BOCA DE CAVERNA (superficie)
+
 # ------------------------------------------------------------------ OVERHAUL 09.08: CRISTAIS com facetas de verdade
 def _frame3(d):
     d = Vector(d).normalized()
@@ -1152,734 +912,6 @@ def crystal_pendant(mb, c, m=CGL):
     EM._lathe(mb, (c.x, c.y, c.z), [(0.0, -1.75), (0.6, -0.9), (0.7, 0.55), (0.6, 1.15), (0.0, 2.08)], m, 6)
 
 
-# ------------------------------------------------------------------ OVERHAUL 09.01: MASSA DE ROCHA FRATURADA
-# a massa deixa de ser a mesma planta empilhada ("pilha de pneus"): BANCOS GROSSOS (duro) e finos (mole) nas juntas
-# globais com mergulho; cada banco e cortado por DIACLASES VERTICAIS de rumo unico na massa inteira (fendas abertas de
-# ~0,5) em prismas que escorregam 0,3..0,8 ao longo da fenda e sobem/descem um pouco (blocos deslocados); planta
-# diferente a cada banco (nao so escala); banco duro com LABIO saliente e topo chanfrado; faces de fenda escuras.
-JOINT_A = math.radians(34.0)                     # rumo das diaclases (o mesmo em toda a massa)
-JT = (math.cos(JOINT_A), math.sin(JOINT_A))      # ao longo da fenda
-JN = (-math.sin(JOINT_A), math.cos(JOINT_A))     # normal da fenda
-JOINT_S, JOINT_O, JOINT_GAP = 9.2, 2.6, 0.26     # passo, fase global, meia-abertura
-BENCH_T = (6.4, 2.6, 7.6, 3.6, 5.8, 2.4, 8.2, 3.4, 6.8, 3.0, 7.2, 2.8)
-BENCH_Z0 = -6.0
-
-
-def _bench_bounds(z0, z1):
-    """bancos [za, zb, duro] entre z0 e z1 cortados nas juntas GLOBAIS; sobra fina (< 1,6) junta no vizinho"""
-    out = []
-    z, i = BENCH_Z0, 0
-    while z < z1 and i < 400:
-        t = BENCH_T[i % len(BENCH_T)]
-        a, b = max(z, z0), min(z + t, z1)
-        if b - a > 0.02:
-            out.append([a, b, i % 2 == 0])
-        z += t
-        i += 1
-    merged = []
-    for s in out:
-        if merged and (s[1] - s[0] < 1.6 or merged[-1][1] - merged[-1][0] < 1.6):
-            merged[-1][1] = s[1]
-        else:
-            merged.append(s)
-    return merged
-
-
-def _dip(x, y):
-    return STRATA_DIP[0] * (x - 100.0) + STRATA_DIP[1] * (y - 80.0)
-
-
-def _clip2(poly, n, c):
-    """poligono convexo 2D recortado pelo semiplano n.p <= c"""
-    out = []
-    k = len(poly)
-    for i in range(k):
-        a, b = poly[i], poly[(i + 1) % k]
-        da = n[0] * a[0] + n[1] * a[1] - c
-        db = n[0] * b[0] + n[1] * b[1] - c
-        if da <= 0:
-            out.append(a)
-        if (da < 0 < db) or (db < 0 < da):
-            t = da / (da - db)
-            out.append((a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t))
-    return out
-
-
-def _area2(p):
-    return 0.5 * abs(sum(p[i][0] * p[(i + 1) % len(p)][1] - p[(i + 1) % len(p)][0] * p[i][1] for i in range(len(p))))
-
-
-def rock_mass(mb, box, rng, idx, taper=0.8, n=9):
-    """bloco de ROCHA NATURAL fraturada dentro da caixa (x0, x1, y0, y1, z0, z1)"""
-    x0, x1, y0, y1, z0, z1 = box
-    cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
-    hx, hy = (x1 - x0) / 2, (y1 - y0) / 2
-    ph = rng.uniform(0.0, 2 * math.pi / n)
-    shape = []
-    for k in range(n):
-        a = ph + 2 * math.pi * k / n + rng.uniform(-0.14, 0.14)
-        ca, sa = math.cos(a), math.sin(a)
-        f = rng.uniform(0.9, 1.0)
-        shape.append((math.copysign(abs(ca) ** 0.7, ca) * f, math.copysign(abs(sa) ** 0.7, sa) * f))
-    dv = Vector((MASS_C[0] - cx, MASS_C[1] - cy))
-    dv = dv.normalized() if dv.length > 1e-3 else Vector((0.0, 0.0))
-    benches = _bench_bounds(z0, z1)
-    H = max(0.1, z1 - z0)
-    corners = [(x0, y0), (x1, y0), (x1, y1), (x0, y1)]
-    pj = [JN[0] * x + JN[1] * y for x, y in corners]
-    k0, k1 = int(math.floor((min(pj) - JOINT_O) / JOINT_S)), int(math.ceil((max(pj) - JOINT_O) / JOINT_S))
-    cuts = [JOINT_O + k * JOINT_S for k in range(k0, k1 + 1) if min(pj) + 2.4 < JOINT_O + k * JOINT_S < max(pj) - 2.4]
-    gi, ti, di = mb._mi_for("Grass_SG"), mb._mi_for(RKT), mb._mi_for(RKD)
-    jn3 = Vector((JN[0], JN[1], 0.0))
-    prev = []                                    # plantas do banco de baixo: bloco sem apoio nao entra (flutuante)
-    for li, (za, zb, hard) in enumerate(benches):
-        cur = []
-        top = li == len(benches) - 1
-        t = ((za + zb) / 2 - z0) / H
-        s = 1.0 - (1.0 - taper) * t ** 1.15
-        if not hard:
-            s *= 0.9
-        off = dv * ((1.0 - s) * min(hx, hy) * 0.85)
-        ex = 1.04 if li % 2 == 0 else 0.95                                  # planta muda de banco para banco
-        poly = []
-        for k, (u, v) in enumerate(shape):
-            wv = 1.0 + 0.09 * math.sin(k * 2.3 + li * 1.7)
-            poly.append((cx + off.x + u * hx * s * wv * ex, cy + off.y + v * hy * s * wv * (2.0 - ex)))
-        pieces = [poly]
-        for c in cuts:
-            nxt = []
-            for P in pieces:
-                for Q in (_clip2(P, JN, c - JOINT_GAP), _clip2(P, (-JN[0], -JN[1]), -(c + JOINT_GAP))):
-                    if len(Q) >= 3 and _area2(Q) > 1.2:
-                        nxt.append(Q)
-            pieces = nxt
-        for pi, P in enumerate(pieces):
-            f = (idx * 0.37 + pi * 0.618 + li * 0.29) % 1.0
-            slip = (0.3 + 0.5 * f) * (1.0 if (pi + li) % 2 else -1.0)
-            P = [(px + JT[0] * slip, py + JT[1] * slip) for px, py in P]
-            dz = (0.45, 0.15, 0.0)[(pi + li + idx) % 3] if not top else -0.2 * ((pi + idx) % 2)
-            zt = min(zb + dz, z1)
-            gx = sum(p[0] for p in P) / len(P)
-            gy = sum(p[1] for p in P) / len(P)
-            if li > 0 and not any(fm_lib.point_in_poly(gx, gy, Q) for Q in prev):
-                continue
-            cur.append(P)
-            ch = min(0.75, (zt - za) * 0.2)
-            if hard and (li + pi + idx) % 3 == 0:
-                rings = ((za, 0.95), (zt - ch, 1.03), (zt, 0.92))          # LABIO saliente quebrado (1 em 3)
-            elif hard:
-                rings = ((za, 0.98), (zt - ch * 0.5, 1.0), (zt, 0.95))     # face quase a prumo, aresta viva
-            else:
-                rings = ((za, 1.0), (zt - ch * 0.4, 0.99), (zt, 0.96))
-            vs = []
-            for ri, (zz, sc) in enumerate(rings):
-                for vi, (px, py) in enumerate(P):
-                    # plano de fratura: cada vertice recua um pouco diferente por anel (dirigido, sem sorteio)
-                    sc2 = sc * (1.0 - 0.05 * ri * (0.5 + 0.5 * math.sin(vi * 2.3 + li * 1.3 + pi * 0.7)))
-                    qx = min(max(gx + (px - gx) * sc2, x0), x1)
-                    qy = min(max(gy + (py - gy) * sc2, y0), y1)
-                    vs.append(Vector((qx, qy, P3 + zz + _dip(qx, qy))))
-            faces = hull(mb, vs, ROCK if hard else RKD)
-            for fc in faces:
-                nz = fc.normal.z
-                if nz > 0.97:
-                    fc.material_index = gi if (top and zb > 6.0) else ti
-                elif abs(fc.normal.dot(jn3)) > 0.93:
-                    fc.material_index = di                                  # parede da fenda: sombra
-        prev = cur
-
-
-def _surf(bvh, o, d):
-    hit = bvh.ray_cast(Vector(o), Vector(d).normalized(), 200.0)
-    if hit[0] is None:
-        return None, None
-    n = Vector(hit[1])
-    if n.dot(Vector(d)) > 0:
-        n = -n
-    return hit[0], n
-
-
-def house_shell():
-    """a MASSA DE ROCHA da caverna: rocha NATURAL em estratos (juntas globais, camada dura saliente / mole recuada,
-    degraus que recuam para o centro) em volta e em cima do tunel, fundindo com os montes do terreno; pinheiros nos
-    topos. Nada de veio ou cristal por fora (acabamento: a magia nasce DENTRO da caverna). Depois: a boca e as
-    colisoes."""
-    chunk_check()
-    mb = MB("SG_Dun_Cave_Body", "17_DUNGEON", random.Random(701), detail="near")
-    for i, c in enumerate(CHUNKS):
-        # ombros e sobrancelha (8 primeiros) quase a prumo: a rocha fica COLADA atras do arco (o arco nao fica solto)
-        rock_mass(mb, c[:6], random.Random(7100 + i), i, taper=0.95 if i < 8 else (0.78 if c[5] - c[4] > 16.0 else 0.88))
-    for i, (x, y, rx, ry, z0, z1) in enumerate(SPIRES):
-        rock_mass(mb, (x - rx, x + rx, y - ry, y + ry, z0, z1), random.Random(7300 + i), 30 + i, taper=0.4, n=7)
-    bvh = BVHTree.FromBMesh(mb.bm)
-    mv = MB("SG_Dun_Cave_Pines", "17_DUNGEON", random.Random(705), detail="near")
-    npine = 0
-    for x, y, h in MASS_PINES:
-        best = (None, None)
-        for dx in (-2.4, 0.0, 2.4):
-            for dy in (-2.4, 0.0, 2.4):
-                q, nq = _surf(bvh, Vector((x + dx, y + dy, P3 + 90.0)), (0.0, 0.0, -1.0))
-                if q is not None and (best[0] is None or nq.z > best[1].z):
-                    best = (q, nq)
-        p, n = best
-        if p is None or n.z < 0.62:
-            print("DUN AVISO pinheiro sem topo plano em", (x, y))
-            continue
-        VEG.pine(mv, p.x, p.y, p.z - 0.9, h, random.Random(int(x * 13 + y)), "fir", lod=1)
-        npine += 1
-    mb.finish()
-    mv.finish()
-    print("DUN massa: pinheiros %d" % npine)
-    cave_mouth()
-    # colisao da massa de rocha (caixas grossas; o tunel e as paredes da portaria ja tem as suas)
-    ccol("SG_DunRock", (83.3, 59.2, P3 - 0.5), (IX0 - 0.6, 74.0, P3 + 31.0))      # ombro oeste
-    ccol("SG_DunRock", (80.5, 74.0, P3 - 0.5), (IX0 - 0.6, 99.0, P3 + 31.0))      # flanco oeste
-    ccol("SG_DunRock", (IX1 + 0.6, 59.2, P3 - 0.5), (116.7, 74.0, P3 + 33.0))     # ombro leste
-    ccol("SG_DunRock", (IX1 + 0.6, 74.0, P3 - 0.5), (122.5, 97.0, P3 + 33.0))     # flanco leste
-    ccol("SG_DunRock", (IX0 - 0.6, 83.4, P3 - 0.5), (IX1 + 0.6, 101.5, P3 + 37.0))  # costas
-    # colisao das paredes da portaria: vao da boca (2 x MOUTH_W, teto em 21,8), fundo, lados e teto do tunel
-    ccol("SG_DunHouse", (HX0, HY0, P3 - 0.5), (HX - MOUTH_W, IY0, P3 + BODY + 3.2))
-    ccol("SG_DunHouse", (HX + MOUTH_W, HY0, P3 - 0.5), (HX1, IY0, P3 + BODY + 3.2))
-    ccol("SG_DunHouse", (HX - MOUTH_W, HY0, P3 + DH), (HX + MOUTH_W, IY0, P3 + BODY + 3.2))
-    ccol("SG_DunHouse", (HX0, IY1, P3 - 0.5), (HX1, HY1, P3 + BODY + 3.2))
-    ccol("SG_DunHouse", (HX0, IY0, P3 - 0.5), (IX0, IY1, P3 + BODY + 3.2))
-    ccol("SG_DunHouse", (IX1, IY0, P3 - 0.5), (HX1, IY1, P3 + BODY + 3.2))
-    ccol("SG_DunHouse", (IX0, IY0, P3 + IN_CEIL), (IX1, IY1, P3 + IN_CEIL + 2.0))
-
-
-def _arc_at(pts, f):
-    """ponto e tangente (unitaria) a uma fracao f do comprimento de uma polilinha 2D"""
-    cum = [0.0]
-    for a, b in zip(pts, pts[1:]):
-        cum.append(cum[-1] + math.hypot(b[0] - a[0], b[1] - a[1]))
-    t = f * cum[-1]
-    for i in range(len(pts) - 1):
-        if cum[i + 1] >= t:
-            a, b = pts[i], pts[i + 1]
-            L_ = max(1e-6, cum[i + 1] - cum[i])
-            k = (t - cum[i]) / L_
-            return (a[0] + (b[0] - a[0]) * k, a[1] + (b[1] - a[1]) * k), ((b[0] - a[0]) / L_, (b[1] - a[1]) / L_)
-    a, b = pts[-2], pts[-1]
-    L_ = math.hypot(b[0] - a[0], b[1] - a[1])
-    return b, ((b[0] - a[0]) / L_, (b[1] - a[1]) / L_)
-
-
-PIL_BREAK = 12.7                                 # o pilar LESTE partiu nesta fiada (o topo caiu no patio)
-UPV = Vector((0.0, 0.0, 1.0))
-
-
-def ring8(x, y, hw, c, z):
-    return [Vector((px, py, z)) for px, py in CA.sq_ch(x, y, hw, c)]
-
-
-def place(pts, xy, rot, floor=P3 + 0.13, sink=0.1):
-    """pontos locais girados (Euler) e POUSADOS no piso: o ponto mais baixo fica 'sink' abaixo de 'floor'"""
-    from mathutils import Euler
-    R = Euler(rot).to_matrix()
-    q = [R @ Vector(p) for p in pts]
-    low = min(p.z for p in q)
-    return [Vector((xy[0] + p.x, xy[1] + p.y, floor - sink - low + p.z)) for p in q]
-
-
-def pillar(mb, x, y, broken=False):
-    """pilar da ordem (09.05): base MOLDURADA (plinto chanfrado, talude, filete violeta), fuste OCTOGONAL (quinas
-    chanfradas) em fiadas navy, cintas finas de obsidiana com PINGADEIRA, capitel com 4 MISULAS e cornija, remate =
-    PINACULO do kit do castelo (sem piramide de 4 lados). broken = o pilar LESTE partiu (fratura em cunha, dirigida)."""
-    cbox(mb, (x, y, P3 + 0.4), (1, 0, 0), (0, 1, 0), UPV, 4.2, 4.2, 1.4, OB, 0.1)
-    hull(mb, ring8(x, y, 2.05, 0.5, P3 + 1.1) + ring8(x, y, 1.8, 0.45, P3 + 1.45), OB)
-    hull(mb, ring8(x, y, 1.86, 0.46, P3 + 1.45) + ring8(x, y, 1.86, 0.46, P3 + 1.62), VS)
-    top_h = PIL_BREAK if broken else PIL_H - 2.6
-    h, k = 1.62, 0
-    CH = (2.5, 2.1, 2.3)
-    while h < top_h - 0.05:
-        if k % 3 == 2 and top_h - h > 1.0:
-            hull(mb, ring8(x, y, 1.66, 0.43, P3 + h) + ring8(x, y, 1.76, 0.45, P3 + h + 0.07) +
-                 ring8(x, y, 1.76, 0.45, P3 + h + 0.22) + ring8(x, y, 1.6, 0.42, P3 + h + 0.4), OB)
-            h += 0.4
-            k += 1
-            continue
-        ch_ = min(CH[k % 3], top_h - h)
-        mb.prism(SL.ccw(CA.sq_ch(x, y, 1.6, 0.42)), P3 + h, P3 + h + ch_, VA, 0.07)
-        h += ch_
-        k += 1
-    if broken:
-        # fratura em CUNHA: a fiada partida desce de oeste (alta) para leste (baixa), com uma lasca presa no canto NO
-        bot = ring8(x, y, 1.6, 0.42, P3 + h)
-        topr = [Vector((p.x, p.y, P3 + h + 1.25 + 0.5 * (x - p.x) / 1.6 + 0.2 * (p.y - y) / 1.6)) for p in bot]
-        hull(mb, bot + topr, VA)
-        zt = P3 + h + 1.25
-        hull(mb, [Vector((x - 1.6, y + 0.1, zt + 0.35)), Vector((x - 0.5, y + 1.6, zt + 0.2)),
-                  Vector((x - 1.55, y + 1.55, zt + 0.25)), Vector((x - 0.9, y + 0.5, zt + 0.1)),
-                  Vector((x - 1.45, y + 1.2, zt + 1.05)), Vector((x - 1.2, y + 0.9, zt + 0.95))], VA)
-        col_box2("SG_DunApproach", (x - 2.1, y - 2.1, P3 - 0.3), (x + 2.1, y + 2.1, P3 + h + 1.25))
-        return P3 + h
-    zc = P3 + h
-    for a in (0.0, math.pi / 2, math.pi, 1.5 * math.pi):                     # 4 misulas sob o capitel
-        n, t = Vector((math.cos(a), math.sin(a), 0.0)), Vector((-math.sin(a), math.cos(a), 0.0))
-        c = Vector((x, y, 0.0))
-        prof = [(1.5, zc - 1.2), (1.5, zc + 0.02), (2.0, zc + 0.02), (1.96, zc - 0.28), (1.72, zc - 0.78)]
-        hull(mb, [c + n * r + t * w + UPV * z for r, z in prof for w in (-0.42, 0.42)], OB)
-    hull(mb, ring8(x, y, 2.0, 0.5, zc) + ring8(x, y, 2.0, 0.5, zc + 0.7) + ring8(x, y, 2.26, 0.56, zc + 0.86) +
-         ring8(x, y, 2.26, 0.56, zc + 1.08) + ring8(x, y, 2.02, 0.5, zc + 1.25), OB)
-    CA.pinnacle(mb, x, y, zc + 1.25, s=1.0, hb=1.8, hn=4.0, body_m=VA, spire_m=NAVY, ring_m=SV, cap_m=OB)
-    EM.banner(mb, mb, mb, mb, (x, y - 1.95, P3 + PIL_H - 4.4), -math.pi / 2, EM.BANNER_NARROW, 10.4, trim=GOLD)
-    col_box2("SG_DunApproach", (x - 2.1, y - 2.1, P3 - 0.3), (x + 2.1, y + 2.1, P3 + PIL_H))
-    return P3 + PIL_H
-
-
-# o que caiu do lado LESTE (pilar partido + aduelas do arco externo): (tamanho, (x, y), rotacao, material) - o
-# tamanho e o da COLISAO e da folga (_approach_check); a peca visual e a PECA de verdade (09.06)
-RUBBLE = [((4.0, 4.0, 1.1), (123.2, 51.2), (0.16, -0.05, 0.52), OB),       # capitel do pilar, de lado
-          ((3.2, 3.2, 2.5), (122.8, 57.0), (-0.1, 0.22, -0.3), VA),        # fiada do fuste
-          ((2.3, 1.2, 1.6), (120.6, 48.4), (0.0, 0.12, 0.9), RUIN)]       # aduela do arco externo
-
-
-def _oct_loc(hw, c, z):
-    return [(px, py, z) for px, py in CA.sq_ch(0.0, 0.0, hw, c)]
-
-
-def rubble(mb):
-    """as PECAS do pilar e do arco no patio, todas com face de FRATURA (casco recortado), pousadas no piso"""
-    # capitel: a cornija moldurada inteira de um lado, partida em diagonal do outro
-    cap = _oct_loc(2.0, 0.5, -0.55) + _oct_loc(2.0, 0.5, 0.05) + _oct_loc(2.25, 0.56, 0.2) + \
-        _oct_loc(2.25, 0.56, 0.42) + _oct_loc(2.02, 0.5, 0.55)
-    cap = clip(cap, Vector((0.8, 0.35, 0.45)).normalized(), 1.45)
-    # fiada do fuste: as 2 pontas quebradas (planos inclinados diferentes)
-    sh = _oct_loc(1.6, 0.42, -1.25) + _oct_loc(1.6, 0.42, 1.25)
-    sh = clip(sh, Vector((0.35, 0.2, 1.0)).normalized(), 0.85)
-    sh = clip(sh, Vector((-0.25, 0.1, -1.0)).normalized(), 1.1)
-    # aduela: cunha (intradorso 2,0 -> extradorso 2,5) com uma ponta partida
-    vo = []
-    for z in (-0.8, 0.8):
-        vo += [(-1.0, -0.6, z), (1.0, -0.6, z), (1.25, 0.6, z), (-1.25, 0.6, z)]
-    vo = clip(vo, Vector((1.0, 0.25, 0.3)).normalized(), 0.95)
-    vo = clip(vo, Vector((-0.8, 0.5, -0.35)).normalized(), 0.85)                   # lasca do outro lado
-    for (size, xy, rot, m), pts in zip(RUBBLE, (cap, sh, vo)):
-        q = place(pts, xy, rot)
-        hull(mb, q, m)
-        top = max(p.z for p in q)
-        col_box("SG_DunApproach", (size[0] * 0.9, size[1] * 0.9, top - P3 + 0.3), (xy[0], xy[1], (P3 + top) / 2 - 0.15),
-                (0.0, 0.0, rot[2]))
-    # 2 lascas (mesma queda): cascos dirigidos
-    for pts, xy, rot, m in ((((-0.45, -0.3, -0.2), (0.4, -0.35, -0.25), (0.5, 0.3, -0.2), (-0.3, 0.35, -0.3),
-                               (-0.2, -0.1, 0.3), (0.25, 0.1, 0.25)), (121.1, 52.7), (0.3, 0.1, 0.4), OB),
-                            (((-0.55, -0.4, -0.3), (0.5, -0.35, -0.3), (0.55, 0.4, -0.25), (-0.45, 0.4, -0.35),
-                              (-0.3, -0.2, 0.35), (0.35, 0.05, 0.3), (0.0, 0.3, 0.2)), (125.2, 54.4), (0.0, 0.25, 1.2),
-                             VA)):
-        hull(mb, place(pts, xy, rot), m)
-
-
-def crystal_pedestal(mb, x, y, k):
-    """MARCO de pedra da aproximacao (09.07, sem magia): plinto chanfrado e talude de obsidiana, fuste OCTOGONAL com
-    leve entase, runa ENTALHADA (fundo violeta, o mesmo do obelisco), cinta de ferro onde as ARGOLAS prendem, capa
-    moldurada e remate em BOLA com colar"""
-    cbox(mb, (x, y, P3 + 0.12), (1, 0, 0), (0, 1, 0), UPV, 2.7, 2.7, 0.64, OB, 0.1)
-    hull(mb, ring8(x, y, 1.2, 0.3, P3 + 0.44) + ring8(x, y, 1.0, 0.26, P3 + 0.7), OB)
-    hull(mb, ring8(x, y, 0.95, 0.26, P3 + 0.7) + ring8(x, y, 0.97, 0.26, P3 + 1.8) + ring8(x, y, 0.9, 0.25, P3 + 3.3),
-         VA)
-    hull(mb, ring8(x, y, 1.03, 0.28, P3 + 2.6) + ring8(x, y, 1.03, 0.28, P3 + 2.9), BI)
-    hull(mb, ring8(x, y, 0.9, 0.25, P3 + 3.3) + ring8(x, y, 1.2, 0.32, P3 + 3.48) + ring8(x, y, 1.2, 0.32, P3 + 3.62) +
-         ring8(x, y, 1.0, 0.27, P3 + 3.72), OB)
-    EM._lathe(mb, (x, y, P3 + 3.72), [(0.34, 0.0), (0.36, 0.08), (0.2, 0.2), (0.46, 0.5), (0.4, 0.75), (0.0, 0.95)],
-              OB, 8, math.pi / 8)
-    tx = -1.0 if x > HX else 1.0                                                  # face que olha o corredor
-    rune(mb, (x + tx * 0.95, y, P3 + 1.75), (0.0, tx, 0.0), UPV, (tx, 0.0, 0.0), k, 1.15, m=VS, dep=0.05)
-    col_box2("SG_DunApproach", (x - 1.35, y - 1.35, P3 - 0.3), (x + 1.35, y + 1.35, P3 + 4.6))
-
-
-def vouss(F, cs, sg, cin, cout, f0, f1, d0, d1, spring, ch=0.1, lean=0.0, dz=0.0):
-    """pontos de uma ADUELA em cunha entre as fracoes f0..f1 do intradorso 'cin' e do extradorso 'cout'
-    (ogive_right), da face de tras d0 a frente d1 com chanfro; lean = a pedra tomba para fora no extradorso"""
-    prof = [(_arc_at(cin, f)[0], 0) for f in (f0, (f0 + f1) / 2, f1)] + \
-           [(_arc_at(cout, f)[0], 1) for f in (f0, (f0 + f1) / 2, f1)]
-    gu = sum(p[0][0] for p in prof) / 6.0
-    gv = sum(p[0][1] for p in prof) / 6.0
-    pts = []
-    for (u, v), side in prof:
-        dl = lean * side
-        g = Vector((gu - u, gv - v))
-        g = g.normalized() * (ch * 1.3) if g.length > 1e-6 else g
-        for d in (d0, d1 - ch):
-            pts.append(F.v(cs + sg * u, d + dl, spring + v + dz))
-        pts.append(F.v(cs + sg * (u + g.x), d1 + dl, spring + v + g.y + dz))
-    return pts
-
-
-JAMB_BREAK = {(-1, 3): 0.45, (1, 2): 0.4, (1, 3): 0.7, (1, 4): 0.5}     # (lado, fiada) -> quina quebrada (ruina)
-
-
-def cave_mouth():
-    """BOCA = RUINA ANTIGA encaixada na rocha (OVERHAUL 09.02/09.04): ombreiras de CANTARIA no valor da rocha (um tom
-    acima), blocos chanfrados com quinas QUEBRADAS nas fiadas altas (o lado leste mais arruinado), runas ENTALHADAS do
-    alfabeto da ilha, imposta de obsidiana com pingadeira, arco ogival de ADUELAS em cunha de pedra violeta (uma
-    escorregou) sobre nucleo escuro, ARCO EXTERNO de cantaria PARTIDO a leste (pedra fraturada, as outras no patio),
-    fecho de obsidiana com o emblema. Por fora nada brilha; a magia comeca NA boca (cristal pendurado)."""
-    mb = MB("SG_Dun_Cave_Mouth", "17_DUNGEON", random.Random(731), detail="near")
-    F = Face(True, HY0, -1, P3)
-    up = UPV
-    # 1. ombreiras em fiadas (mesmo envelope/colisao de antes)
-    COURSES = (2.4, 2.0, 2.6, 2.2, 2.3)
-    for sg in (-1, 1):
-        h, k = -0.3, 0
-        while h < M_SPR - 1.05:
-            ch = min(COURSES[k % len(COURSES)], M_SPR - 1.0 - h)
-            ex = 0.0 if k % 2 == 0 else 0.3
-            rc = 0.0 if k % 2 == 0 else 0.1
-            s0, s1 = sorted((HX + sg * (M_HW - 0.1 + rc), HX + sg * (M_HW + M_T + 0.2 - ex)))
-            bk = JAMB_BREAK.get((sg, k))
-            cuts = [((sg, 1.0, 1.0), bk)] if bk else []
-            if sg > 0 and k == 1:
-                cuts.append(((-1.0, 1.0, -0.6), 0.3))                              # lasca no pe da face do vao
-            fblock(mb, F, s0, s1, -0.3, M_DEP - rc, h, h + ch, RUIN, 0.1, cuts)
-            if k in (1, 2):
-                rune(mb, F.v(HX + sg * (M_HW + M_T / 2 + 0.1), M_DEP - rc, h + ch / 2), F.u(), up, F.n(),
-                     2 * (k - 1) + (0 if sg < 0 else 1), 1.35, OB, 0.05)
-            if k == 2:                                                            # liquen no topo exposto da fiada
-                so = HX + sg * (M_HW + M_T + 0.2)
-                hull(mb, [F.v(so - sg * a, d, h + ch + z) for a, d, z in
-                          ((0.0, -0.1, 0.0), (0.32, -0.1, 0.0), (0.0, M_DEP - 0.3, 0.0), (0.3, M_DEP - 0.2, 0.0),
-                           (0.05, 0.4, 0.09), (0.25, 1.6, 0.08), (0.0, 2.6, 0.02))], "Grass_SG")
-            h += ch
-            k += 1
-        s0, s1 = sorted((HX + sg * (M_HW - 0.5), HX + sg * (M_HW + M_T + 1.3)))
-        fledge(mb, F, s0, s1, [(-0.3, M_SPR - 1.0), (M_DEP + 0.2, M_SPR - 1.0), (M_DEP + 0.45, M_SPR - 0.72),
-                               (M_DEP + 0.45, M_SPR - 0.05), (M_DEP + 0.28, M_SPR + 0.2), (-0.3, M_SPR + 0.2)], OB)
-        s0, s1 = sorted((HX + sg * (M_HW + M_T + 0.2), HX + sg * (M_HW + M_T + 1.1)))
-        fblock(mb, F, s0, s1, -0.3, M_DEP - 0.4, -0.3, M_SPR - 1.0, OB, 0.1)          # contraforte escuro
-    # 2. nucleo escuro + ADUELAS em cunha (juntas abertas mostram o nucleo)
-    arch_band(mb, F, HX, M_HW + 0.15, M_RISE + 0.15, M_SPR, M_SPR, M_T - 0.5, -0.2, M_DEP - 0.25, OB, n=14)
-    cin = ogive_right(M_HW, M_RISE, 60)
-    NV = 7
-    for sg in (-1, 1):
-        for k in range(NV):
-            rad = M_T * (1.0 if k % 2 == 0 else 1.1)
-            cout = ogive_right(M_HW + rad, M_RISE + rad * 0.9, 60)
-            f0, f1 = 0.9 * k / NV + 0.006, 0.9 * (k + 1) / NV - 0.006
-            slip = sg > 0 and k == 4
-            pts = vouss(F, HX, sg, cin, cout, f0, f1, -0.3, M_DEP - 0.05, M_SPR, 0.1,
-                        lean=0.28 if slip else 0.0, dz=-0.07 if slip else 0.0)
-            if sg > 0 and k == 5:
-                (u, v), _ = _arc_at(cout, f1)
-                pn = (F.u() * sg * 0.6 + up * 0.5 + F.n() * 0.8).normalized()
-                pts = clip(pts, pn, pn.dot(F.v(HX + sg * u, M_DEP - 0.05, M_SPR + v)) - 0.55)
-            hull(mb, pts, VS)
-    # 3. ARCO EXTERNO de cantaria (ruina): inteiro a oeste, PARTIDO a leste (a pedra que ficou esta fraturada)
-    hw_h, rs_h, t_h = M_HW + M_T / 2 + 1.76 + 0.55, M_RISE + M_T * 0.45 + 1.76 + 0.55, 1.1
-    lo = ogive_right(hw_h - t_h / 2, rs_h - t_h / 2, 60)
-    hi = ogive_right(hw_h + t_h / 2, rs_h + t_h / 2, 60)
-    NH = 9
-    for sg in (-1, 1):
-        for k in range(NH):
-            if sg > 0 and k > 3:
-                break
-            f0, f1 = 0.9 * k / NH + 0.005, 0.9 * (k + 1) / NH - 0.005
-            if sg > 0 and k == 3:
-                f1 = f0 + (f1 - f0) * 0.75
-            pts = vouss(F, HX, sg, lo, hi, f0, f1, -0.3, M_DEP + 0.35, M_SPR, 0.1)
-            if sg > 0 and k == 3:                         # fratura obliqua na ponta de cima
-                (u, v), (tu, tv) = _arc_at(hi, f1)
-                pn = (F.u() * (sg * tu) + up * tv + F.n() * 0.45).normalized()
-                pts = clip(pts, pn, pn.dot(F.v(HX + sg * u, M_DEP / 2, M_SPR + v)) - 0.35)
-            hull(mb, pts, RUIN)
-    # 4. FECHO: pedra de obsidiana saliente (2 prismas convexos) que prende aduelas e arco externo; emblema da ordem
-    intr = ogive_right(M_HW, M_RISE, 60)
-    outr = ogive_right(hw_h + t_h / 2, rs_h + t_h / 2, 60)
-    (ui, vi), _ = _arc_at(intr, 0.86)
-    (uo, vo), _ = _arc_at(outr, 0.88)
-    top_k = rs_h + t_h / 2 + 0.5
-    for sg in (-1, 1):
-        q = [(HX + sg * ui, M_SPR + vi), (HX, M_SPR + M_RISE - 0.05), (HX, M_SPR + top_k), (HX + sg * uo, M_SPR + vo)]
-        if sg > 0:
-            q = list(reversed(q))
-        slab(mb, F, q, -0.3, M_DEP + 0.7, OB)
-    zc = M_SPR + (M_RISE + top_k) / 2 + 0.25
-    EM.plaque(mb, mb, mb, mb, F.v(HX, M_DEP + 0.95, zc), -math.pi / 2, 1.15)
-    # 5. o cristal da boca PENDURADO do fecho por corrente (argola no intradorso, capuz de prata)
-    ya = HY0 - M_DEP / 2
-    zi = P3 + M_SPR + M_RISE
-    cc = Vector((HX, ya, zi - 4.0))              # ponta de baixo em P3+18,3: livre da placa DUNGEON_UI (P3+15,45)
-    ch_top = Vector((HX, ya, zi - 0.55))
-    mb.box2((HX - 0.5, ya - 0.5, zi - 0.25), (HX + 0.5, ya + 0.5, zi + 0.4), BI, 0.0)          # chapa no intradorso
-    mb.rod(Vector((HX, ya, zi - 0.25)), ch_top, 0.1, BI, 6)
-    cap = cc + up * (3.8 * 0.56 - 0.1)
-    chain(mb, ch_top, cap + up * 0.55, 0.0, pitch=0.6)
-    mb.cyl(0.55, 0.55, cap + up * 0.22, m=SV, n=6, r2=0.18, bevel=0.0)
-    mb.finish()
-    vf = MB("VFX_SGDUN_MouthCrystal", "12_VFX_HELPERS", random.Random(735), detail="near")
-    crystal_pendant(vf, cc)
-    ob = vf.finish()
-    ob["pivot"] = [round(cc.x, 3), round(cc.y, 3), round(cc.z, 3)]
-    ob["axis"] = [0.0, 0.0, 1.0]
-    ob["rpm"] = 4.0
-    ob["vfx"] = "cristal pendurado por corrente no fecho do arco (a magia comeca na boca): gira devagar e pulsa"
-    # 6. pilares (o leste partido) + o que caiu; lanternas quentes ao pe das ombreiras e no inicio do corredor
-    mp = MB("SG_Dun_Cave_Pillars", "17_DUNGEON", random.Random(739), detail="near")
-    for i, (x, y) in enumerate(PILLAR_XY):
-        pillar(mp, x, y, broken=(i == 1))
-    rubble(mp)
-    for x, y in LANTERN_XY:
-        EM.lantern_pedestal(mp, mp, mp, (x, y, P3), 0.0, 1.0)
-        col_box2("SG_DunApproach", (x - 0.95, y - 0.95, P3 - 0.3), (x + 0.95, y + 0.95, P3 + 5.2))
-    mp.finish()
-    # 7. colisao das ombreiras (o vao livre da boca e 2 x M_HW)
-    for sg in (-1, 1):
-        s0, s1 = sorted((HX + sg * M_HW, HX + sg * (M_HW + M_T + 1.1)))
-        ccol("SG_DunMouth", (s0, HY0 - M_DEP - 0.5, P3 - 0.5), (s1, HY0 + 0.3, P3 + M_SPR + 1.5))
-    print("DUN boca: arco hw %.1f apice %.1f | fecho %.1f..%.1f (u intradorso %.2f, externo %.2f) | cristal z %.1f"
-          % (M_HW, M_SPR + M_RISE, M_SPR + M_RISE, M_SPR + top_k, ui, uo, cc.z - P3))
-
-
-# ==================================================================== TUNEL (interior da caverna ate o vortice)
-def tun_profile(hw, spr, rise, n_arc=7):
-    """perfil (u, h) de uma secao do tunel: pe oeste -> parede -> ogiva -> apice -> ... -> pe leste (19 pontos)"""
-    r = ogive_right(hw, rise, n_arc)
-    left = [(-u, spr + v) for u, v in r]
-    right = [(u, spr + v) for u, v in reversed(r)][1:]
-    return [(-hw, -0.4), (-hw, spr * 0.5)] + left + right + [(hw, spr * 0.5), (hw, -0.4)]
-
-
-def tun_at(y):
-    """parametros (hw, arranque, flecha) interpolados no y"""
-    for a, b in zip(TUN, TUN[1:]):
-        if a[0] <= y <= b[0]:
-            t = (y - a[0]) / (b[0] - a[0])
-            return tuple(a[i] + (b[i] - a[i]) * t for i in (1, 2, 3))
-    s = TUN[0] if y < TUN[0][0] else TUN[-1]
-    return s[1], s[2], s[3]
-
-
-def tun_point(y, t):
-    """ponto do perfil (sem jitter) na fracao t (0..1 pelos indices) + normal para DENTRO do tunel"""
-    hw, spr, rise = tun_at(y)
-    pr = tun_profile(hw, spr, rise)
-    f = t * (len(pr) - 1)
-    i = min(len(pr) - 2, int(f))
-    k = f - i
-    u = pr[i][0] + (pr[i + 1][0] - pr[i][0]) * k
-    h = pr[i][1] + (pr[i + 1][1] - pr[i][1]) * k
-    c = Vector((0.0, spr * 0.55))
-    d = (c - Vector((u, h))).normalized()
-    return Vector((HX + u, y, P3 + h)), Vector((d.x, 0.0, d.y))
-
-
-def tunnel(mb, rng):
-    """casca FACETADA do tunel: secoes ogivais que encolhem para o fundo (perspectiva), vertices puxados para dentro
-    (rocha irregular), casca dupla fechada; gradiente de material: rocha escura na boca -> violeta profundo no fundo"""
-    bm = mb.bm
-    rows_i, rows_o = [], []
-    last = len(TUN) - 1
-    # ESTRATOS do tunel: o recuo de cada ponto do perfil e (quase) o mesmo em todas as secoes -> cristas e sulcos
-    # CONTINUOS ao longo do tunel (camadas da rocha), nao facetas soltas
-    kr = random.Random(719)
-    KJ = [kr.choice((0.25, 0.45, 1.0)) for _ in range(len(tun_profile(*TUN[0][1:4])))]
-    for j, (y, hw, spr, rise, jit) in enumerate(TUN):
-        pr = tun_profile(hw, spr, rise)
-        cen = Vector((0.0, spr * 0.55))
-        ri, ro = [], []
-        for k, (u, h) in enumerate(pr):
-            p = Vector((u, h))
-            d = (cen - p).normalized() if h > 0 else Vector((-math.copysign(1.0, u), 0.0))
-            if 0 < j < last:
-                p = p + d * (jit * (0.8 * KJ[k] + 0.2 * rng.random()))
-                yy = y + rng.uniform(-0.2, 0.2)
-            else:
-                p = p + d * (jit * KJ[k])
-                yy = y
-            if h < 0:
-                p.y = -0.4
-            ri.append(bm.verts.new((HX + p.x, yy, P3 + p.y)))
-            po = p - d * 0.9
-            if h < 0:
-                po.y = -0.4
-            ro.append(bm.verts.new((HX + po.x, yy, P3 + po.y)))
-        rows_i.append(ri)
-        rows_o.append(ro)
-    ns, npf = len(rows_i), len(rows_i[0])
-    band_faces = []
-    for j in range(ns - 1):
-        fs = []
-        for k in range(npf - 1):
-            fs.append(bm.faces.new((rows_i[j][k], rows_i[j + 1][k], rows_i[j + 1][k + 1], rows_i[j][k + 1])))
-            bm.faces.new((rows_o[j][k], rows_o[j][k + 1], rows_o[j + 1][k + 1], rows_o[j + 1][k]))
-        band_faces.append(fs)
-    for j in (0, ns - 1):
-        for k in range(npf - 1):
-            qd = (rows_i[j][k], rows_i[j][k + 1], rows_o[j][k + 1], rows_o[j][k])
-            bm.faces.new(qd if j == 0 else tuple(reversed(qd)))
-    for k in (0, npf - 1):
-        for j in range(ns - 1):
-            qd = (rows_i[j][k], rows_o[j][k], rows_o[j + 1][k], rows_i[j + 1][k])
-            bm.faces.new(qd if k == 0 else tuple(reversed(qd)))
-    mb._post([v for r in rows_i + rows_o for v in r], RKD, None, 0, 1)
-    # gradiente: rocha natural na boca -> bandas do fundo em rocha violeta profunda (a luz do portal pega nelas)
-    mi_deep = mb._mi_for(DEEP)
-    for j, fs in enumerate(band_faces):
-        for k, f in enumerate(fs):
-            if j >= 4 or (j == 3 and (k // 3) % 2 == 0):
-                f.material_index = mi_deep
-    # parede do fundo (atras do portal), mesma rocha profunda
-    y, hw, spr, rise, jit = TUN[-1]
-    pr = tun_profile(hw + 0.4, spr + 0.2, rise + 0.3)
-    fv = [bm.verts.new((HX + u, y + 0.2, P3 + h)) for u, h in pr]
-    bv = [bm.verts.new((HX + u, y + 1.1, P3 + h)) for u, h in pr]
-    bm.faces.new(fv)
-    bm.faces.new(list(reversed(bv)))
-    for k in range(len(pr)):
-        k2 = (k + 1) % len(pr)
-        bm.faces.new((fv[k2], fv[k], bv[k], bv[k2]))
-    mb._post(fv + bv, DEEP, None, 0, 1)
-
-
-def tunnel_veins(mb, bvh, rng):
-    """veios de energia nas PAREDES DO TUNEL (09.09): cada veio e uma FENDA - dois labios de rocha escura saltam da
-    parede e o fio Neon corre no fundo, 0,2 abaixo deles (a borda faz sombra; nao e raio 2D colado). Nascem no anel do
-    vortice e vem para a boca afinando ate sumir."""
-    nseg = 0
-    for ang, ang1, ya, yb in TUN_VEINS:
-        th = math.radians(ang)
-        pts = []
-        y = ya
-        while y >= yb - 0.01:
-            hw, spr, rise = tun_at(y)
-            p, n = _surf(bvh, Vector((HX, y, P3 + spr * 0.55)), Vector((math.sin(th), 0.0, math.cos(th))))
-            if p is not None:
-                pts.append((p, n, y))
-            y -= 1.5
-            f = max(0.0, min(1.0, (ya - y) / (ya - yb)))
-            th = math.radians(ang + (ang1 - ang) * f) + 0.05 * math.sin(y * 0.7 + ang)    # ondula devagar
-        for (a, na, y_a), (b, nb, y_b) in zip(pts, pts[1:]):
-            if (b - a).length > 3.2:
-                continue
-            f = max(0.0, min(1.0, (y_a - yb) / max(0.1, ya - yb)))
-            w = 0.1 + 0.16 * f
-            ax = (b - a).normalized()
-            nn = (na + nb).normalized()
-            sd = nn.cross(ax).normalized()
-            up_ = ax.cross(sd).normalized()
-            if up_.dot(nn) < 0:
-                up_ = -up_
-            c = (a + b) / 2
-            ln = (b - a).length + 0.2
-            lip_m = DEEP if (a.y + b.y) / 2 > 71.0 else RKD
-            obox3(mb, c + up_ * 0.02, ax, sd, up_, ln, w, 0.14, VD)                    # fio no fundo da fenda
-            for s_ in (-1, 1):                                                        # labios (sombra)
-                obox3(mb, c + sd * (s_ * (w / 2 + 0.13)) + up_ * 0.08, ax, sd, up_, ln + 0.1, 0.26, 0.36, lip_m)
-            nseg += 1
-    print("DUN tunel: %d segmentos de veio (fenda com fio no fundo)" % nseg)
-
-
-# revestimento de cantaria dos primeiros metros do tunel (09.03): lado -> y final de cada fiada (quebra IRREGULAR,
-# dirigida: nada de escadinha regular; o leste mais arruinado)
-LINING_END = {-1: (65.4, 64.1, 64.9, 62.8, 63.6, 61.5), 1: (63.6, 62.2, 62.9, 60.9)}
-LINING_ROWS = (1.9, 1.7, 1.8, 1.6, 1.7, 1.5)
-LINING_LEN = (2.6, 2.2, 2.8, 2.4)
-LINING_U = 11.1                                  # face da cantaria (colisao da boca em 11 / tunel em 10)
-
-
-def mouth_lining(mb):
-    """o ENCONTRO RUINA x CAVERNA: cantaria da RUINA (o tom da boca) em fiadas desencontradas nos primeiros metros; cada
-    fiada termina num bloco PARTIDO (face de fratura inclinada), uma pedra alta tombou para dentro e outra caiu no piso
-    junto a parede leste. So visual: a colisao das paredes do tunel ja esta atras dela."""
-    X, Y = Vector((1.0, 0.0, 0.0)), Vector((0.0, 1.0, 0.0))
-    y0 = HY0 + 0.1
-    for sg, ends in LINING_END.items():
-        h = -0.1
-        for r, y_end in enumerate(ends):
-            rh = LINING_ROWS[r]
-            y = y0 - (1.3 if r % 2 else 0.0)
-            i = r
-            blocks = []
-            while y < y_end - 0.6:
-                ln = LINING_LEN[i % len(LINING_LEN)]
-                a, b = max(y, y0), min(y + ln, y_end)
-                if b - a > 0.6:
-                    blocks.append((a, b))
-                y += ln
-                i += 1
-            for j, (a, b) in enumerate(blocks):
-                last = j == len(blocks) - 1
-                cuts = []
-                ax_, ay_ = X, Y
-                if last:
-                    cuts.append(((0.0, 1.0, 0.55 if r % 2 else -0.45), 0.55 + 0.1 * (r % 3)))    # face de fratura
-                    cuts.append(((-sg * 0.6, 1.0, 0.8), 0.3))
-                c = Vector((HX + sg * (LINING_U + 0.7), (a + b) / 2, P3 + h + rh / 2 - 0.02))
-                az_ = UPV
-                if last and sg < 0 and r == 3:                  # a pedra que tombou: gira 7 graus para dentro
-                    t = math.radians(7.0)
-                    ax_ = Vector((math.cos(t), 0.0, math.sin(t) * sg))
-                    az_ = Vector((-math.sin(t) * sg, 0.0, math.cos(t)))
-                    c = c + Vector((-sg * 0.12, 0.0, 0.06))
-                cbox(mb, c, ax_, ay_, az_, 1.4, b - a - 0.08, rh - 0.06, RUIN, 0.1, cuts)
-            h += rh
-    # a pedra que caiu: deitada no piso rente a parede leste, depois do fim do revestimento
-    q = place(cbox_pts(Vector(), X, Y, UPV, 1.3, 1.9, 1.4, 0.1), (HX + 10.6, 64.6), (0.3, 0.12, 0.35),
-              floor=P3 + 0.12, sink=0.08)
-    q = clip(q, Vector((0.2, 1.0, 0.5)).normalized(), max(Vector((0.2, 1.0, 0.5)).normalized().dot(p) for p in q) - 0.45)
-    hull(mb, q, RUIN)
-
-
-# aglomerados de cristal do tunel (09.08): 3 grupos ASSIMETRICOS, crescendo para o fundo
-# (y, t no perfil 0 = pe oeste .. 1 = pe leste, altura da coluna maior, raio, colunas)
-TUN_CLUSTERS = [(71.0, 0.03, 4.4, 0.72, 4),      # o maior: pe da parede oeste, na metade do tunel
-                (75.0, 0.76, 3.3, 0.55, 3),      # medio: alto na parede leste, junto ao arranque
-                (67.2, 0.28, 2.0, 0.36, 2),      # pequeno: parede oeste alta, o primeiro que se ve da boca
-                (73.2, 0.97, 2.6, 0.46, 3)]      # pe da parede leste, antes do estrado (nunca em par com o oeste)
-
-
-def house_interior():
-    """interior da caverna: TUNEL de rocha facetada do arco ate o vortice (paredes e teto irregulares recuando em
-    perspectiva), piso de lajes de marmore negro com os 2 fios de energia do corredor, estrado de 2 degraus (colisao
-    casada) e aglomerados de cristal violeta nas paredes/teto, mais densos no fundo (gradiente escuro -> violeta)"""
-    mb = MB("SG_Dun_Cave_Interior", "17_DUNGEON", random.Random(711), detail="near")
-    rng = random.Random(713)
-    tunnel(mb, rng)
-    tunnel_veins(mb, BVHTree.FromBMesh(mb.bm), random.Random(717))
-    mouth_lining(mb)
-    # piso: base de obsidiana + lajes de marmore negro em fiadas desencontradas ate o estrado
-    (y1, z1), (y2, z2) = DAIS
-    mb.box2((IX0, HY0 - 0.2, P3 - 0.4), (IX1, y1, P3 + 0.06), OB, 0.0)
-    yy, row = HY0 - 0.1, 0
-    while yy < y1 - 0.4:
-        dy = min(3.0, y1 - yy)
-        hwf = tun_at(yy + dy / 2)[0] - 0.6
-        xs = -hwf + (1.6 if row % 2 else 0.0)
-        cuts = [-hwf] + [v for v in (xs + 3.2 * i for i in range(8)) if -hwf + 0.5 < v < hwf - 0.5] + [hwf]
-        for a, b in zip(cuts, cuts[1:]):
-            mb.box2((HX + a + 0.12, yy + 0.12, P3 - 0.1), (HX + b - 0.12, yy + dy - 0.12, P3 + 0.12), MBK, 0.0)
-        yy += dy
-        row += 1
-    # estrado: 2 degraus (0,4 e 0,8: colisao casada), espelho de obsidiana, focinho de pedra violeta
-    mb.box2((IX0 + 2.2, y1, P3 - 0.2), (IX1 - 2.2, y2, P3 + z1), OB, 0.06)
-    mb.box2((IX0 + 2.2, y1 - 0.05, P3 + z1 - 0.14), (IX1 - 2.2, y1 + 0.35, P3 + z1 + 0.02), VS, 0.0)
-    mb.box2((IX0, y2, P3 - 0.2), (IX1, IY1, P3 + z2), OB, 0.06)
-    mb.box2((IX0, y2 - 0.05, P3 + z2 - 0.14), (IX1, y2 + 0.35, P3 + z2 + 0.02), VS, 0.0)
-    col_box2("SG_DunHouse", (IX0 + 2.2, y1, P3 - 0.5), (IX1 - 2.2, y2, P3 + z1))
-    col_box2("SG_DunHouse", (IX0, y2, P3 - 0.5), (IX1, IY1, P3 + z2))
-    # fios de energia do corredor continuam ate o estrado (rentes: topo P3 + 0,15)
-    # (acabamento: nascem DENTRO e se apagam em tracos junto a boca; por fora o piso e so pedra)
-    for sx in (-LINE_DX, LINE_DX):
-        for ya, yb in ((60.4, 60.9), (61.4, 62.3), (62.8, y1 - 0.3)):
-            mb.box2((HX + sx - 0.12, ya, P3 + 0.0), (HX + sx + 0.12, yb, P3 + 0.15), VD, 0.0)
-    # cristais do tunel (09.08): 3 aglomerados assimetricos com calo de rocha (casca escura, so a ponta acesa)
-    for y, t, h, r, k in TUN_CLUSTERS:
-        p, n = tun_point(y, t)
-        base = p - n * 0.35
-        d = n if 0.25 < t < 0.75 else (n + Vector((0.0, 0.0, 1.1))).normalized()
-        cluster(mb, base, d, h, r, k, DEEP if y > 72.0 else RKD)
-    # 2 aglomerados no estrado ladeando o vortice: o oeste maior, o leste menor e mais aberto (nada espelhado)
-    for sg, h, r, k, d in ((-1, 4.8, 0.9, 4, Vector((0.4, -0.25, 1.0))), (1, 3.3, 0.66, 3, Vector((-0.55, -0.1, 1.0)))):
-        b = Vector((HX + sg * 9.7, 78.2, P3 + z2 - 0.2))
-        cluster(mb, b, d, h, r, k, OB)
-        col_box2("SG_DunHouse", (HX + sg * 9.7 - 1.1, 76.9, P3), (HX + sg * 9.7 + 1.1, 79.5, P3 + 5.5))
-    mb.finish()
-    # colisao das paredes do tunel (a rocha facetada; o vao andavel fica com >= 9,4 de meia-largura: ov09b)
-    for y0_, y1_, hwc in TUN_COL:
-        for sg in (-1, 1):
-            s0, s1 = sorted((HX + sg * hwc, HX + sg * (IX1 - HX)))
-            ccol("SG_DunHouse", (s0, y0_, P3 - 0.5), (s1, y1_, P3 + 14.0))
-    light("L_SGDun_Portal", "POINT", (PX, 77.0, P3 + 7.5), 1200.0, (0.64, 0.42, 1.0), 1.5)
-
 
 def portal_ring_dark(mb, c, u, v, n, r_in, r_out, floor_z):
     """anel ESCURO do vortice: aro de obsidiana com runas acesas, coroa de ferro negro com laminas de obsidiana em raio
@@ -1907,263 +939,19 @@ def portal_ring_dark(mb, c, u, v, n, r_in, r_out, floor_z):
         obox(mb, Vector((p.x, p.y, floor_z + h / 2)), u, v, n, 2.4, h, 2.2, OB, 0.08)
 
 
-def house_portal():
-    """vortice da portaria: anel escuro + disco (estaticos) e a espiral que gira (VFX_SGDUN_Portal)"""
-    r_in, r_out = 6.4, 8.2                        # ov09b: 5,4/7,0 -> 6,4/8,2 (tunel mais largo e mais alto)
-    zf = P3 + DAIS[1][1]
-    c = Vector((PX, PY + 0.6, zf + r_out - 0.4))
-    u, v, n = Vector((1, 0, 0)), Vector((0, 0, 1)), Vector((0, -1, 0))
-    mb = MB("SG_Dun_House_Portal", "17_DUNGEON", random.Random(721), detail="near")
-    portal_ring_dark(mb, c, u, v, n, r_in, r_out, zf)
-    disc3(mb, c, u, v, n, r_in + 0.15, -0.5, -0.3, VO, 32)
-    mb.finish()
-    vf = MB("VFX_SGDUN_Portal", "12_VFX_HELPERS", random.Random(723), detail="near")
-    spiral(vf, c, u, v, n, r_in - 0.1, -0.3, -0.1, VG, arms=5, twist=2.7)
-    ob = vf.finish()
-    ob["pivot"] = [round(c.x, 3), round(c.y, 3), round(c.z, 3)]
-    ob["axis"] = [0.0, -1.0, 0.0]
-    ob["rpm"] = 5.0
-    ob["vfx"] = "espiral violeta do portal da dungeon (gira no plano do disco)"
-    col_box2("SG_DunPortal", (PX - r_out, PY - 0.2, zf), (PX + r_out, IY1, zf + 2 * r_out - 0.4))
-    return c
-
-
-# ==================================================================== APROXIMACAO (patio P3 ao sul da boca)
-def approach_floor():
-    """ferradura de lajes de marmore negro (juntas de obsidiana) + CORREDOR cerimonial reto desde as lanternas do eixo;
-    2 fios de energia rentes (x = 100 +- 5,6) levam ate o estrado; soleira escura com runas. Topo das lajes P3+0,13."""
-    mb = MB("SG_Dun_Approach_Floor", "17_DUNGEON", random.Random(781), detail="near")
-    cx, cy = PC
-    z0, zj, zt = P3 - 0.25, P3 + 0.07, P3 + 0.13
-    arc = [(cx + PR * math.cos(math.pi + math.pi * k / 32), cy + PR * math.sin(math.pi + math.pi * k / 32))
-           for k in range(33)]
-    mb.prism(SL.ccw(arc), z0, zj, OB)
-    mb.box2((cx - PR, cy - 0.01, z0), (cx + PR, HY0, zj), OB, 0.0)
-    rings = (5.5, 9.0, 12.5, 16.0, 19.2, PR)
-    for r0, r1 in zip(rings, rings[1:]):
-        rm = (r0 + r1) / 2.0
-        n = max(4, int(round(math.pi * rm / 3.3)))
-        for i in range(n):
-            ga = math.pi + math.pi * i / n + 0.13 / rm
-            gb = math.pi + math.pi * (i + 1) / n - 0.13 / rm
-            ra, rb = r0 + 0.13, r1 - 0.13
-            gm = (ga + gb) / 2.0
-            pts = [(cx + ra * math.cos(g), cy + ra * math.sin(g)) for g in (ga, gm, gb)] + \
-                  [(cx + rb * math.cos(g), cy + rb * math.sin(g)) for g in (gb, gm, ga)]
-            mb.prism(SL.ccw(pts), P3 - 0.1, zt, MBK)
-    for x0 in (cx - PR, cx - PR + 3.0, cx - PR + 6.0, cx + PR - 9.0, cx + PR - 6.0, cx + PR - 3.0):
-        mb.box2((x0 + 0.13, cy + 0.13, P3 - 0.1), (x0 + 2.87, HY0 - 0.13, zt), MBK, 0.0)
-    # borda de obsidiana (limite do lugar do desafio sobre o calcamento do patio)
-    rim_o = [(cx + (PR + 0.7) * math.cos(math.pi + math.pi * k / 32), cy + (PR + 0.7) * math.sin(math.pi + math.pi * k / 32))
-             for k in range(33)]
-    for k in range(32):
-        a0, a1 = rim_o[k], rim_o[k + 1]
-        i0, i1 = arc[k], arc[k + 1]
-        if abs((a0[0] + a1[0]) / 2 - cx) < COR_HW + 0.8:
-            continue                                                         # o corredor entra aqui
-        mb.prism(SL.ccw([i0, i1, a1, a0]), z0, P3 + 0.3, OB)
-    for sx in (-1, 1):
-        xa = cx + sx * PR
-        xb = cx + sx * (PR + 0.7)
-        mb.box2((min(xa, xb), cy, z0), (max(xa, xb), HY0, P3 + 0.3), OB, 0.0)
-    # corredor cerimonial: base de obsidiana, lajes de marmore negro em 2 fiadas desencontradas, meio-fio de obsidiana
-    y_end = cy - PR + 1.0
-    mb.box2((cx - COR_HW, COR_Y0 - 1.0, z0), (cx + COR_HW, y_end, zj), OB, 0.0)
-    yy, row = COR_Y0 - 1.0, 0
-    while yy < y_end - 0.3:
-        dy = min(2.6, y_end - yy)
-        cuts = (-7.5, -2.5, 2.5, 7.5) if row % 2 == 0 else (-7.5, -5.0, 0.0, 5.0, 7.5)
-        for a, b in zip(cuts, cuts[1:]):
-            mb.box2((cx + a + 0.13, yy + 0.13, P3 - 0.1), (cx + b - 0.13, yy + dy - 0.13, zt), MBK, 0.0)
-        yy += dy
-        row += 1
-    for sx in (-1, 1):
-        mb.box2((cx + sx * COR_HW - 0.35, COR_Y0 - 1.0, z0), (cx + sx * COR_HW + 0.35, y_end, P3 + 0.3), OB, 0.0)
-    # soleira escura (meia-lua r 5,4 + recuo sob o arco) com runas
-    a5 = [(cx + 5.37 * math.cos(math.pi + math.pi * k / 16), cy + 5.37 * math.sin(math.pi + math.pi * k / 16))
-          for k in range(17)]
-    mb.prism(SL.ccw(a5), P3 - 0.1, zt, OB)
-    mb.box2((HX - M_HW, HY0 - M_DEP - 0.3, P3 - 0.1), (HX + M_HW, HY0, zt), OB, 0.0)
-    # (acabamento: sem runas acesas nem fios de energia por fora; os fios nascem dentro do tunel)
-    mb.finish()
-
-
-def approach_guard():
-    """2 pares de PEDESTAIS de obsidiana com cristal (funil que abre para o sul) acorrentados aos pilares da boca;
-    1 luz violeta na aproximacao + 1 quente das lanternas da boca"""
-    mb = MB("SG_Dun_Approach_Guard", "17_DUNGEON", random.Random(791), detail="near")
-    for i, (x, y) in enumerate(PED_XY):
-        crystal_pedestal(mb, x, y, i + 2)
-    ys, yn = Vector((0.0, -1.0, 0.0)), Vector((0.0, 1.0, 0.0))
-    for sg, (pa, pb) in ((-1, (0, 2)), (1, (1, 3))):
-        px, py = PILLAR_XY[0 if sg < 0 else 1]
-        (ax_, ay_), (bx_, by_) = PED_XY[pa], PED_XY[pb]
-        # correntes presas em ARGOLAS: pilar (fiada navy) -> marco -> marco
-        r0 = eye_ring(mb, (px, py - 1.52, P3 + 6.2), ys)
-        r1 = eye_ring(mb, (ax_, ay_ + 1.03, P3 + 2.75), yn)
-        r2 = eye_ring(mb, (ax_, ay_ - 1.03, P3 + 2.75), ys)
-        r3 = eye_ring(mb, (bx_, by_ + 1.03, P3 + 2.75), yn)
-        chain(mb, r0, r1, 0.8)
-        chain(mb, r2, r3, 0.5)
-    mb.finish()
-    # a luz violeta mora DENTRO da boca: acende o intradorso e o tunel e so derrama no patio (mesma luz, outro lugar)
-    light("L_SGDun_Approach", "POINT", (100.0, 63.5, P3 + 7.0), 1800.0, (0.62, 0.38, 1.0), 2.0)
-    light("L_SGDun_MouthWarm", "POINT", (100.0, 51.5, P3 + 5.0), 1300.0, (1.0, 0.66, 0.36), 1.0)
-
-
-def _approach_check():
-    """folga das colisoes novas do patio ate as linhas do andador (corpo 1,1; exigimos >= 1,7) e o corredor x=100"""
-    items = [("pedestal", x, y, 1.35 * math.sqrt(2.0)) for x, y in PED_XY]
-    items += [("lanterna", x, y, 0.95 * math.sqrt(2.0)) for x, y in LANTERN_XY]
-    items += [("pilar", x, y, 2.1 * math.sqrt(2.0)) for x, y in PILLAR_XY]
-    items += [("entulho", xy[0], xy[1], max(sz[:2]) * 0.75) for sz, xy, rot, m in RUBBLE]
-    worst = 99.0
-    for nm, x, y, r in items:
-        dmin = min(L.seg_dist(x, y, a[0], a[1], b[0], b[1])[0] for a, b in WALK_LINES) - r
-        dcor = abs(x - HX) - r - (COR_HW - 1.0)
-        worst = min(worst, dmin, dcor + 1.7)
-        if dmin < 1.7 or dcor < 0.0:
-            print("DUN AVISO aproximacao: %s (%.1f, %.1f) folga rota %.2f corredor %.2f" % (nm, x, y, dmin, dcor))
-    print("DUN aproximacao: folga minima ate o andador/corredor = %.2f (exige >= 1,7)" % worst)
-
-
-def approach():
-    approach_floor()
-    approach_guard()
-    _approach_check()
-
-
-
-# ==================================================================== SALAS (sob a ilha)
-def room_walls():
-    """paredes das 3 salas (visual + colisao identicos), piso e teto colidiveis. ov09b: tirado da planta (salas de
-    larguras diferentes: a parede compartilhada cobre a MAIOR das duas; paredes N/S so no vao interno da sala)"""
-    mb = MB("SG_Dun_Rooms_Shell", "17_DUNGEON", random.Random(741), detail="far", floor=-999)
-    zb, zt = Z - 0.6, ZCEIL
-    y0l, y1l = LY - LINK_HW, LY + LINK_HW
-    seq = [ROOMS[n] for n, _ in L.DUN_ROOMS]
-    pieces = []
-    for x0, y0, x1, y1 in seq:
-        pieces += [((x0, y1), (x1, y1 + WT)), ((x0, y0 - WT), (x1, y0))]              # norte / sul
-    a, b = seq[0], seq[-1]
-    pieces += [((a[0] - WT, a[1] - WT), (a[0], a[3] + WT)), ((b[2], b[1] - WT), (b[2] + WT, b[3] + WT))]
-    for ra, rb in zip(seq, seq[1:]):                # paredes compartilhadas com o vao de ligacao
-        xa, xb = ra[2], rb[0]
-        ylo, yhi = min(ra[1], rb[1]) - WT, max(ra[3], rb[3]) + WT
-        pieces += [((xa, ylo), (xb, y0l)), ((xa, y1l), (xb, yhi))]
-        mb.box2((xa, y0l, Z + LINK_H), (xb, y1l, zt), CS, 0.0)
-        ccol("SG_DunRoom", (xa, y0l, Z + LINK_H), (xb, y1l, zt))
-    for (xa, ya), (xb, yb) in pieces:
-        mb.box2((xa, ya, zb), (xb, yb, zt), CS, 0.0)
-        ccol("SG_DunRoom", (xa, ya, zb), (xb, yb, zt))
-    mb.finish()
-    ccol("SG_DunRoom", (BX0, BY0, Z - 2.0), (BX1, BY1, Z))
-    ccol("SG_DunRoom", (BX0, BY0, ZCEIL), (BX1, BY1, ZCEIL + 1.5))
-
-
-ROOM_SPRING = {"R1": 12.0, "R2": 9.5, "R3": 9.5}  # R1 (chegada): arcos ALTOS; R2 mina; R3 altar (09.10)
-# ov09b: RITMO de pilastras das salas maiores (distancia a partir de x0): passo de 12 na R1/R2 e de 10 na R3 (a do meio
-# e o retabulo) = vaos de 6,4..8,4 como antes; nada esticado, so mais vaos
-ROOM_PS = {"R1": (12.0, 24.0, 36.0), "R2": (12.0, 24.0, 36.0, 48.0), "R3": (10.0, 20.0, 30.0, 40.0, 50.0)}
-TORCH_H = 10.2                                    # altura da chama das tochas (ov09b: 8,4 -> 10,2)
-PORTAL_R = (6.0, 7.6)                             # portais das salas (ov09b: 5,0/6,5 -> 6,0/7,6)
-PORTAL_JAM = 11.0                                 # pilastras que ladeiam os portais (LY +- 11)
-
-
-def room_kit():
-    """kit das salas (OVERHAUL 09.10; ov09b: salas maiores com o MESMO kit e mais vaos) - 1 variacao DIRIGIDA por sala:
-    R1 chegada = arcadas cegas ALTAS (lancetas duplas) e o portal em nicho de 2 ordens; R2 mineracao = ESCORAS de
-    madeira de mina e GRELHAS de ferro ALTERNADAS vao a vao; R3 camara final = colunelos DUPLOS e o RETABULO (altar)
-    no eixo da parede norte. Pilastras com base e capitel, piso em 2 tamanhos de laje, nervuras em pera, tochas."""
-    mk = MB("SG_Dun_Rooms_Kit", "17_DUNGEON", random.Random(751), detail="near")
-    mv = MB("SG_Dun_Rooms_Vault", "17_DUNGEON", random.Random(753), detail="near")
-    mf = MB("SG_Dun_Rooms_Floor", "17_DUNGEON", random.Random(755), detail="near")
-    mi = MB("SG_Dun_Rooms_Iron", "17_DUNGEON", random.Random(757), detail="near")
-    A = "SG_DunKit"
-    cx3 = sum(ROOMS["R3"][0::2]) / 2.0
-    for nm in ("R1", "R2", "R3"):
-        x0, y0, x1, y1 = ROOMS[nm]
-        FS, FN = Face(True, y0, 1, Z), Face(True, y1, -1, Z)
-        FW, FE = Face(False, x0, 1, Z), Face(False, x1, -1, Z)
-        spr = ROOM_SPRING[nm]
-        twin = nm == "R3"
-        for F, a, b in ((FS, x0, x1), (FN, x0, x1)):
-            corner_col(mk, F, a, 1, R_SPR, A)
-            corner_col(mk, F, b, -1, R_SPR, A)
-        ps = [x0 + d for d in ROOM_PS[nm]]
-        for F in (FS, FN):
-            bounds = [x0 + 2.4] + [q for p in ps for q in (p - PIL_HW - 0.3, p + PIL_HW + 0.3)] + [x1 - 2.4]
-            for p in ps:
-                alt = nm == "R3" and F is FN and abs(p - cx3) < 0.1
-                pilaster(mk, F, p, R_SPR, A, twin=twin, altar=alt, mi=mi)
-            for k in range(0, len(bounds), 2):
-                sa, sb = bounds[k], bounds[k + 1]
-                if nm == "R1":          # arcada dupla de LANCETAS altas e estreitas em todo vao (a variacao da sala)
-                    blind_arch(mk, F, sa, sb, spr, twin=sb - sa > 7.0, room=nm, mi=mi)
-                elif nm == "R2":        # escora e grelha ALTERNADAS (vao impar = grelha de ferro)
-                    blind_arch(mk, F, sa, sb, spr, room="R2_twin" if (k // 2) % 2 else "R2", mi=mi)
-                else:
-                    blind_arch(mk, F, sa, sb, spr, twin=sb - sa > 16.0, room=nm, mi=mi)
-            cornice(mk, F, x0 + 2.4, x1 - 2.4, R_SPR)
-            # tochas: todas as pilastras da R1; nas arenas, as 2 pilastras das pontas (luz nos 4 cantos)
-            for p in (ps if nm == "R1" else (ps[0], ps[-1])):
-                if not (nm == "R3" and F is FN and abs(p - cx3) < 0.1):
-                    torch(mi, F, p, 0.0, TORCH_H, twin=twin)
-        for F, side in ((FW, "W"), (FE, "E")):
-            jam = (LY - LINK_HW - PIL_HW - 0.3, LY + LINK_HW + PIL_HW + 0.3)
-            if (nm, side) in (("R1", "W"), ("R3", "E")):
-                jam = (LY - PORTAL_JAM, LY + PORTAL_JAM)
-            for p in jam:
-                pilaster(mk, F, p, R_SPR, A, twin=twin)
-                torch(mi, F, p, 0.0, TORCH_H, twin=twin)
-            for sa, sb in ((y0 + 2.4, jam[0] - PIL_HW - 0.3), (jam[1] + PIL_HW + 0.3, y1 - 2.4)):
-                # trechos longos das arenas (15) viram arcada DUPLA sobre colunelo (R2: grelhas) em vez de 1 arco largo
-                blind_arch(mk, F, sa, sb, spr, twin=sb - sa > 12.0, room=nm, mi=mi)
-                cornice(mk, F, sa, sb, R_SPR)
-            is_link = (nm == "R1" and side == "E") or nm == "R2" or (nm == "R3" and side == "W")
-            if is_link:
-                link_frame(mk, F, LY, LINK_HW)
-                skirting(mk, F, jam[0] + PIL_HW + 0.3, LY - LINK_HW)
-                skirting(mk, F, LY + LINK_HW, jam[1] - PIL_HW - 0.3)
-        cxr, cyr = (x0 + x1) / 2.0, (y0 + y1) / 2.0
-        skip = (lambda x, y, cx=cxr, cy=cyr: abs(x - cx) < 9.0 and abs(y - cy) < 9.0) if nm == "R3" else None
-        tile_floor(mf, (x0, y0, x1, y1), Z, margin=1.0, friso=0.8, skip=skip, mod=4.0 if nm == "R1" else 5.0)
-        vault(mv, (x0, y0, x1, y1), "x", Z, R_SPR, R_CROWN, ribs=ps)
-    # soleiras dos vaos (remate em 3 pedras)
-    for nm, lx, ly in L.dun_links():
-        xa, xb = lx - WT / 2.0, lx + WT / 2.0
-        for k in range(3):
-            ya = ly - LINK_HW + k * L.DUN_LINK_W / 3
-            mf.box2((xa, ya + 0.04, Z - 0.4), (xb, ya + L.DUN_LINK_W / 3 - 0.04, Z), TRL, 0.06)
-    altar_medallion(mf, *[(ROOMS["R3"][0] + ROOMS["R3"][2]) / 2.0, (ROOMS["R3"][1] + ROOMS["R3"][3]) / 2.0])
-    # lustres: 2 na R2 (mineracao, entre as nervuras), 1 coroa na R3 (altar, na nervura do meio)
-    for x, y, h, r in CHANDELIERS:
-        rect = ROOMS["R2"] if x < ROOMS["R3"][0] else ROOMS["R3"]
-        top = vault_z(rect, "x", Z, R_SPR, R_CROWN, 0.0) - 0.8
-        chandelier(mi, x, y, Z + h, top, r=r, n=6 if r < 3.5 else 8)
-    for m in (mk, mv, mf, mi):
-        m.finish()
-
-
-# (x, y, altura do aro, raio): R2 entre as nervuras 12/24 e 36/48; R3 na nervura do meio (30)
-CHANDELIERS = ((ROOMS["R2"][0] + 18.0, LY, 21.5, 3.4), (ROOMS["R2"][0] + 42.0, LY, 21.5, 3.4),
-               ((ROOMS["R3"][0] + ROOMS["R3"][2]) / 2.0, LY, 20.8, 4.4))
-
 
 def altar_medallion(mb, cx, cy):
-    """quadrado 18 x 18 sem lajes -> anel de remate -> campo navy com as runas ENTALHADAS (Neon escuro) -> anel de
-    prata -> disco (tudo com topo em Z)"""
+    """MEDALHAO do centro da R3 (v4: placa baixa +0,15 sobre as lajes, F11): anel de remate -> fio aceso -> campo navy
+    com 8 runas (Neon escuro, +0,13) -> fio aceso -> disco de pedra"""
     n = 32
     ang = [2 * math.pi * k / n for k in range(n)]
-    Hs = 9.0
+    k_ = MED_HS / 9.0
 
     def circ(r):
         return [(cx + r * math.cos(a), cy + r * math.sin(a)) for a in ang]
-    sq = [(cx + Hs * math.cos(a) / max(abs(math.cos(a)), abs(math.sin(a))),
-           cy + Hs * math.sin(a) / max(abs(math.cos(a)), abs(math.sin(a)))) for a in ang]
-    rings = [(sq, circ(7.8), FL), (circ(7.8), circ(7.0), TRL), (circ(7.0), circ(6.8), VD), (circ(6.8), circ(3.2), VA),
-             (circ(3.2), circ(2.7), VD)]
-    zt, zb = Z, Z - 0.4
+    rings = [(circ(7.8 * k_), circ(7.0 * k_), TRL), (circ(7.0 * k_), circ(6.8 * k_), VD),
+             (circ(6.8 * k_), circ(3.2 * k_), VA), (circ(3.2 * k_), circ(2.7 * k_), VD)]
+    zt, zb = Z + 0.15, Z - 0.1
     bm = mb.bm
     for outer, inner, m in rings:
         oT = [bm.verts.new((x, y, zt)) for x, y in outer]
@@ -2177,19 +965,20 @@ def altar_medallion(mb, cx, cy):
             bm.faces.new((oB[i], oB[j], oT[j], oT[i]))
             bm.faces.new((iT[i], iT[j], iB[j], iB[i]))
         mb._post(oT + iT + oB + iB, m, None, 0, 1)
-    mb.prism(circ(2.7), zb, zt, FL)
+    mb.prism(circ(2.7 * k_), zb, zt, FL)
     up = Vector((0.0, 0.0, 1.0))
     for k in range(8):
         a = 2 * math.pi * k / 8 + math.pi / 8
         rad = Vector((math.cos(a), math.sin(a), 0.0))
-        rune(mb, Vector((cx, cy, zt - 0.05)) + rad * 5.1, Vector((-rad.y, rad.x, 0.0)), rad, up, k, 2.6, VD, dep=0.06)
+        rune(mb, Vector((cx, cy, zt - 0.05)) + rad * (5.1 * k_), Vector((-rad.y, rad.x, 0.0)), rad, up, k, 2.6 * k_, VD,
+             dep=0.18)   # F11: runa +0,13 sobre o campo
 
 
 def _floor_arc(mb, c, r, a0, a1, w, m, k=12):
-    """filete ENTALHADO rente ao piso (arco continuo, topo em Z + 0,01)"""
+    """filete runico no piso (arco continuo, topo em Z + 0,13: F11, nada a menos de 0,12 da laje)"""
     pts = [Vector((c.x + r * math.cos(a0 + (a1 - a0) * i / k), c.y + r * math.sin(a0 + (a1 - a0) * i / k),
                    Z - 0.05)) for i in range(k + 1)]
-    mb.sweep(pts, [(-w / 2, 0.0), (w / 2, 0.0), (w / 2, 0.06), (-w / 2, 0.06)], m, True, None, up=(0.0, 0.0, 1.0))
+    mb.sweep(pts, [(-w / 2, 0.0), (w / 2, 0.0), (w / 2, 0.18), (-w / 2, 0.18)], m, True, None, up=(0.0, 0.0, 1.0))
 
 
 def floor_runes(mb, c, n, sc=1.0):
@@ -2201,67 +990,564 @@ def floor_runes(mb, c, n, sc=1.0):
         a = base + math.radians(-54.0 + 18.0 * i)
         rad = Vector((math.cos(a), math.sin(a), 0.0))
         rune(mb, Vector((c.x, c.y, Z - 0.05)) + rad * (6.4 * sc), Vector((-rad.y, rad.x, 0.0)), -rad, up, i + 2,
-             1.6 * sc, VD, dep=0.06)
+             1.6 * sc, VD, dep=0.18)
     for r in (5.3 * sc, 7.5 * sc):
         _floor_arc(mb, c, r, base - math.radians(64.0), base + math.radians(64.0), 0.16, VD)
 
 
-def room_portals():
-    """portal de chegada (R1, parede oeste, aceso) e portal de saida (R3, parede leste): moldura de aduelas (09.12);
-    R1 (chegada): nicho de 2 ORDENS mais alto (a variacao da sala)"""
-    mb = MB("SG_Dun_Rooms_Portals", "17_DUNGEON", random.Random(761), detail="near")
-    r_in, r_out = PORTAL_R
-    x0 = ROOMS["R1"][0]
-    x1 = ROOMS["R3"][2]
-    v = Vector((0, 0, 1))
-    specs = [("R1", Vector((x0 + 1.0, LY, Z + r_out - 0.3)), Vector((1, 0, 0)), Face(False, x0, 1, Z)),
-             ("R3", Vector((x1 - 1.0, LY, Z + r_out - 0.3)), Vector((-1, 0, 0)), Face(False, x1, -1, Z))]
-    out = {}
-    for nm, c, n, F in specs:
-        u = n.cross(v).normalized()
-        portal_frame(mb, c, u, v, n, r_in, r_out, Z)
-        disc3(mb, c, u, v, n, r_in + 0.15, -0.5, -0.3, VO if nm == "R1" else VA, 32)
-        rise = r_out + (2.2 if nm == "R1" else 0.8)
-        arch_panel(mb, F, LY, r_out + 0.2, rise, c.z - Z, 0.0, 0.0, 0.15, VA, n=8)
-        arch_band(mb, F, LY, r_out + 0.2, rise, c.z - Z, 0.0, 0.6, -0.1, 0.55, TRL, n=8)
-        if nm == "R1":
-            ogee_band(mb, F, LY, r_out + 0.8, rise + 0.6, c.z - Z, 0.5, -0.1, 0.8, CS, n=8)
-        ccol("SG_DunPortal", F.p(LY - r_out, 0.0, -0.5), F.p(LY + r_out, 1.75, 2 * r_out - 0.6))
-        floor_runes(mb, Vector((c.x, c.y, Z)), n, r_out / 6.5)
-        out[nm] = (c, u, n)
-    c, u, n = out["R1"]
-    spiral(mb, c, u, v, n, r_in - 0.1, -0.3, -0.1, VG, arms=5, twist=2.7, a0=0.4)
-    mb.finish()
-    # espiral da saida: objeto proprio (o jogo mostra so em FINISHING/FINISHED)
-    c, u, n = out["R3"]
+
+# ==================================================================== SALAS v4
+def tile_floor(mb, rect, z, margin=1.0, friso=0.8, gap=0.25, skip=None, mod=6.0):
+    """piso (09.10 na v4): fiadas de lajes grandes e, a cada 2, uma FAIXA estreita de marmore negro (2 tons: a faixa
+    marca o ritmo da sala e poupa lajes); a junta rebaixada mostra a base clara 0,15 abaixo;
+    friso de remate junto as paredes. skip(a, b, ya, yb) -> True = laje nao entra (medalhao)."""
+    x0, y0, x1, y1 = rect
+    mb.box2((x0, y0, z - 0.6), (x1, y1, z - 0.15), BL, 0.0)
+
+    def ringbox(a, b, m):
+        ax0, ay0, ax1, ay1 = x0 + a, y0 + a, x1 - a, y1 - a
+        bx0, by0, bx1, by1 = x0 + b, y0 + b, x1 - b, y1 - b
+        mb.box2((ax0, ay0, z - 0.4), (ax1, by0, z), m, 0.0)
+        mb.box2((ax0, by1, z - 0.4), (ax1, ay1, z), m, 0.0)
+        mb.box2((ax0, by0, z - 0.4), (bx0, by1, z), m, 0.0)
+        mb.box2((bx1, by0, z - 0.4), (ax1, by1, z), m, 0.0)
+    ringbox(0.0, margin, FL)
+    ringbox(margin, margin + friso, TRL)
+    ix0, iy0, ix1, iy1 = x0 + margin + friso, y0 + margin + friso, x1 - margin - friso, y1 - margin - friso
+    pat = (mod, mod, mod / 2.0)
+    rows, acc, k = [], 0.0, 0
+    while acc < (iy1 - iy0) - 0.5:
+        rows.append(pat[k % 3])
+        acc += pat[k % 3]
+        k += 1
+    sc = (iy1 - iy0) / sum(rows)
+    nx = max(1, int(round((ix1 - ix0) / mod)))
+    tx = (ix1 - ix0) / nx
+    yy = iy0
+    for j, rh in enumerate(rows):
+        ty = rh * sc
+        if rh < mod * 0.75:                        # fiada estreita = FAIXA continua de marmore negro (2 tons)
+            mb.box2((ix0 + gap / 2, yy + gap / 2, z - 0.4), (ix1 - gap / 2, yy + ty - gap / 2, z), MBK, 0.0)
+            yy += ty
+            continue
+        cuts = [ix0 + tx * i for i in range(nx + 1)]
+        for a, b in zip(cuts, cuts[1:]):
+            if skip and skip(a, b, yy, yy + ty):
+                continue
+            mb.box2((a + gap / 2, yy + gap / 2, z - 0.4), (b - gap / 2, yy + ty - gap / 2, z), FL, 0.0)
+        yy += ty
+
+
+def room_faces(nm):
+    x0, y0, x1, y1 = ROOMS[nm]
+    return {"S": Face(True, y0, 1, Z), "N": Face(True, y1, -1, Z), "W": Face(False, x0, 1, Z),
+            "E": Face(False, x1, -1, Z)}
+
+
+PITCH_N = {"R1": 6, "R2": 7, "R3": 7}            # tramos dos muros longos: 14 (R1) / 14,86 (arenas)
+
+
+def rib_ys(nm):
+    x0, y0, x1, y1 = ROOMS[nm]
+    p = (y1 - y0) / PITCH_N[nm]
+    return [y0 + p * k for k in range(1, PITCH_N[nm])]
+
+
+JAMB_W = 1.8                                     # cunhais da ombreira: de |x| 14 a 15,8 (FORA do vao livre)
+FRAME_HW = LINK_HW + JAMB_W                      # 15,8
+PJ = FRAME_HW + 0.3 + PIL_HW                     # pilastra ao lado do vao (17,9)
+CORNER = 2.75                                    # coluna de canto (avanco nos 2 muros)
+ARCH_SPRING = {"R1": 13.5, "R2": 10.0, "R3": 10.5}   # R1 lancetas altas; R2 mina; R3 altar
+TORCH_H = 11.4
+PORTAL_R = (7.4, 9.2)                            # portal de chegada da R1 (aceso)
+EXIT_R = (2.9, 4.1)                              # arco de saida (vortice apagado): coroa de cantaria de 0,3
+EXIT_S = {"R1": -30.0, "R3": 205.8}              # centro do arco de saida no muro (marcador: x -30 / y 204); na R3 o
+#                                                  arco ocupa o 1o tramo inteiro (200,85..210,76) sem tocar coluna/pilastra
+# muros de ponta (s = x): tipo do centro e pilastras
+END = {("R1", "S"): "arrival", ("R1", "N"): "link", ("R2", "S"): "link", ("R2", "N"): "next",
+       ("R3", "S"): "next", ("R3", "N"): "niche"}
+
+
+def end_pils(nm, side):
+    x0, y0, x1, y1 = ROOMS[nm]
+    hw = (x1 - x0) / 2.0
+    m = (PJ + hw - 0.75) / 2.0                   # pilastra do meio: 2 tramos iguais ate a coluna de canto
+    ps = [-m, -PJ, PJ, m]
+    if (nm, side) == ("R1", "S"):
+        ps = [-PJ, PJ, m]                        # o tramo oeste inteiro e o da saida (DUN_EXIT_R1 em x -30)
+    return [LX + p for p in ps]
+
+
+def torch_pils(nm, side, ps):
+    if side in ("W", "E"):
+        return [ps[k] for k in (0, len(ps) - 1)]
+    if END[(nm, side)] == "link" and nm != "R1":
+        return []                                # o lado R2 do vao R1R2 fica sem tocha (luz nos portais e na chegada)
+    if (nm, side) == ("R1", "N"):
+        return []
+    return [p for p in ps if abs(abs(p - LX) - PJ) < 0.1]
+
+
+def fill_bay(mk, mi, F, nm, sa, sb, idx):
+    """tramo entre pilastras: a arcada cega do kit com a variacao da sala"""
+    w = sb - sa
+    if w < 2.8:
+        skirting(mk, F, sa, sb)
+        return
+    spr = ARCH_SPRING[nm]
+    if nm == "R1":
+        blind_arch(mk, F, sa, sb, spr, twin=w > 7.0, room="R1", mi=mi)
+    elif nm == "R2":
+        blind_arch(mk, F, sa, sb, spr, room="R2_twin" if idx % 2 else "R2", mi=mi)
+    else:
+        blind_arch(mk, F, sa, sb, spr, twin=w > 16.0, room="R3", mi=mi)
+
+
+def bays_between(a, b, ps):
+    """tramos livres entre a e b cortados pelas pilastras ps"""
+    cuts = [a] + [q for p in sorted(ps) if a < p < b for q in (p - PIL_HW - 0.3, p + PIL_HW + 0.3)] + [b]
+    return [(cuts[i], cuts[i + 1]) for i in range(0, len(cuts), 2)]
+
+
+# ------------------------------------------------------------------ vaos, portais da proxima sala e nicho
+def vouss_piece(mb, F, quad, d0, d1, m, g=0.04):
+    """aduela: quadrilatero (s, h) no plano da parede encolhido 'g' nas juntas, de d0 a d1"""
+    cs = sum(q[0] for q in quad) / 4.0
+    ch = sum(q[1] for q in quad) / 4.0
+    pts = []
+    for s, h in quad:
+        ds, dh = cs - s, ch - h
+        ln = math.hypot(ds, dh) or 1.0
+        s2, h2 = s + ds / ln * g, h + dh / ln * g
+        for d in (d0, d1):
+            pts.append(F.v(s2, d, h2))
+    hull(mb, pts, m)
+
+
+def flat_arch(mb, F, cs, ext, zb, zt, nv=9, dep=0.75, key_rune=None):
+    """VERGA DE ADUELAS (arco adintelado): cunhas com juntas radiais que convergem abaixo do vao; as pontas sao
+    verticais (nao invadem as pilastras); o FECHO sobe e avanca, com runa entalhada acesa (Neon escuro)"""
+    ah = zb - 22.0                                   # ponto de convergencia das juntas
+
+    def top_s(s):
+        return max(cs - ext, min(cs + ext, cs + (s - cs) * (zt - ah) / (zb - ah)))
+    for i in range(nv):
+        s0 = cs - ext + 2.0 * ext * i / nv
+        s1 = cs - ext + 2.0 * ext * (i + 1) / nv
+        key = i == nv // 2
+        zz = zt + (0.9 if key else 0.0)
+        if key:
+            quad = [(s0, zb), (s1, zb), (top_s(s1) + 0.25, zz), (top_s(s0) - 0.25, zz)]
+        else:
+            quad = [(s0, zb), (s1, zb), (top_s(s1), zt), (top_s(s0), zt)]
+        vouss_piece(mb, F, quad, -0.1, dep + (0.3 if key else 0.0), TRL)
+    if key_rune is not None:
+        rune(mb, F.v(cs, dep + 0.28, (zb + zt + 0.9) / 2.0), F.u(), UPZ, F.n(), key_rune, 1.9, VD, 0.16, 0.14)
+
+
+def ogive_vouss(mb, F, cs, hw, rise, spring, t, d0, d1, m, n=12, per=2):
+    """arco ogival de ADUELAS (pecas de 'per' segmentos) - a chave e posta a parte"""
+    inner = ogive(cs, hw, rise, spring, n)
+    outer = ogive(cs, hw + t, rise + t, spring, n)
+    k = 0
+    while k < len(inner) - 1:
+        j = min(len(inner) - 1, k + per)
+        quad = [inner[k], outer[k], outer[j], inner[j]]
+        vouss_piece(mb, F, quad, d0, d1, m)
+        k = j
+
+
+def link_frame(mk, F, kind):
+    """moldura de um lado do vao 28 x 22 (kind 'link' | 'next' | 'niche'): cunhais das ombreiras, verga de aduelas com
+    runas no fecho, timpano ogival navy com arco de aduelas e chave; 'next'/'niche' ganham o MEDALHAO runico no timpano.
+    Tudo em |s| >= 14 ou h >= 22: o vao livre (e a parede de energia 27 x 21 do jogo) fica limpo."""
+    cs, hw = LX, LINK_HW
+    rows = 6
+    hh = LINK_H / rows
+    for sg in (-1, 1):
+        for k in range(rows):
+            lg = k % 2 == 0
+            a, b = sorted((cs + sg * hw, cs + sg * (hw + (JAMB_W if lg else 1.25))))
+            h0, h1 = k * hh + (0.0 if k == 0 else 0.05), (k + 1) * hh - 0.05
+            fblock(mk, F, a, b, 0.0, 0.62 if lg else 0.46, h0 if k else -0.1, h1, OB if k == 0 else TRL,
+                   0.1 if k == 0 else 0.0)
+    zb, zt = LINK_H, LINK_H + 3.0
+    flat_arch(mk, F, cs, FRAME_HW, zb, zt, key_rune=5 if kind != "link" else 1)
+    spr, rise, t = zt, 9.0, 1.1
+    arch_panel(mk, F, cs, FRAME_HW - 0.15, rise - 0.1, spr, spr - 0.3, 0.0, 0.15, VA, n=10)
+    ogive_vouss(mk, F, cs, FRAME_HW, rise, spr, t, -0.1, 0.62, TRL, n=12, per=2)
+    for sg in (-1, 1):                                                   # impostas sobre os cunhais
+        a, b = sorted((cs + sg * (FRAME_HW - 0.2), cs + sg * (FRAME_HW + t + 0.25)))
+        fledge(mk, F, a, b, [(-0.1, spr - 0.02), (0.72, spr - 0.02), (0.72, spr + 0.3), (-0.1, spr + 0.3)], TRL)
+    kz = spr + rise + t
+    fblock(mk, F, cs - 0.75, cs + 0.75, -0.1, 0.95, kz - 1.9, kz + 0.9, TRL, 0.1)          # chave do timpano
+    if kind != "link":
+        c = F.v(cs, 0.15, spr + 4.3)
+        u, v, n = F.u(), UPZ, F.n()
+        ring3(mk, c, u, v, n, 2.3, 3.1, 0.0, 0.42, OB, 24)
+        disc3(mk, c, u, v, n, 2.35, 0.0, 0.2, OB, 16)
+        rune(mk, c + n * 0.2, u, v, n, 3, 2.9, VD, 0.16, 0.16)
+        for i in range(8):
+            a = 2 * math.pi * i / 8 + math.pi / 8
+            rad = u * math.cos(a) + v * math.sin(a)
+            obox3(mk, c + rad * 2.7 + n * 0.49, rad, u * -math.sin(a) + v * math.cos(a), n, 0.42, 0.14, 0.16, VD)
+
+
+def link_sill(mb, ya, yb, next_=False, ym=None, back=1.2):
+    """soleira no plano do vao (y de ya a yb = espessura da parede): 3 pedras de remate +0,15 sobre o piso; no portal da
+    proxima sala a soleira e de obsidiana com um CANAL runico aceso sob a parede de energia (1,1 de largura)"""
+    zt = Z + 0.15
+    w3 = LINK_W / 3.0
+    ym = (ya + yb) / 2.0 if ym is None else ym
+    for k in range(3):
+        xa = LX - LINK_HW + k * w3 + 0.04
+        xb = xa + w3 - 0.08
+        if next_:
+            mb.box2((xa, ya - 1.2, Z - 0.4), (xb, ym - 0.55, zt), OB, 0.06)
+            mb.box2((xa, ym + 0.55, Z - 0.4), (xb, yb + back, zt), OB, 0.06)
+        else:
+            mb.box2((xa, ya - 1.2, Z - 0.4), (xb, yb + 1.2, zt), TRL, 0.06)
+    if next_:
+        mb.box2((LX - LINK_HW, ym - 0.55, Z - 0.4), (LX + LINK_HW, ym + 0.55, Z - 0.05), VD, 0.0)
+
+
+def niche(mk, ms, F):
+    """NICHO do muro norte da R3 (DUN_NEXT_R3): fundo 1,5 atras do plano medio do muro, bochechas e teto de cantaria;
+    no fundo o disco navy com aro runico e a ESPIRAL (objeto proprio SG_Dun_R3_ExitSpiral, o jogo acende)"""
+    y1 = ROOMS["R3"][3]
+    yw = y1 + WT                                  # face de tras do muro (304)
+    yb = NICHE_BACK                               # face do fundo (305)
+    hw = LINK_HW
+    zb = Z - 0.6
+    mk.box2((LX - hw - 1.2, yb, zb), (LX + hw + 1.2, yb + 1.4, Z + LINK_H + 1.2), CS, 0.0)
+    for sg in (-1, 1):
+        a, b = sorted((LX + sg * hw, LX + sg * (hw + 1.2)))
+        mk.box2((a, yw - 0.05, zb), (b, yb, Z + LINK_H + 1.2), CS, 0.0)
+    mk.box2((LX - hw, yw - 0.05, Z + LINK_H), (LX + hw, yb, Z + LINK_H + 1.2), CS, 0.0)
+    ccol("SG_DunRoom", (LX - hw - 1.2, yb, Z - 0.5), (LX + hw + 1.2, yb + 1.4, Z + LINK_H + 1.2))
+    # fundo: disco navy + aro de obsidiana com runas e fio aceso no labio
+    c = Vector((LX, yb, Z + 11.0))
+    u, v, n = Vector((1, 0, 0)), UPZ, Vector((0, -1, 0))
+    disc3(mk, c, u, v, n, 9.7, 0.0, 0.15, VA, 32)
+    ring3(mk, c, u, v, n, 9.7, 10.5, 0.0, 0.55, OB, 32)
+    ring3(mk, c, u, v, n, 9.55, 9.72, 0.0, 0.68, VD, 32)
+    for k in range(6):
+        a = 2 * math.pi * (k + 0.5) / 6
+        radial = u * math.cos(a) + v * math.sin(a)
+        tang = u * -math.sin(a) + v * math.cos(a)
+        rune(mk, c + radial * 10.1 + n * 0.55, tang, radial, n, k + 1, 0.62, VD, 0.14, 0.12)
+    spiral(ms, c, u, v, n, 9.0, 0.18, 0.36, VG, arms=5, twist=2.7, a0=1.1)
+    return c, n
+
+
+def next_portals(mk):
+    """os 2 portais da proxima sala: moldura dos 2 lados do vao R2R3 (DUN_NEXT_R2) e do nicho da R3 (DUN_NEXT_R3)"""
     ms = MB("SG_Dun_R3_ExitSpiral", "17_DUNGEON", random.Random(763), detail="near")
-    spiral(ms, c, u, v, n, r_in - 0.1, -0.3, -0.1, VG, arms=5, twist=2.7, a0=1.1)
+    c, n = niche(mk, ms, room_faces("R3")["N"])
     ob = ms.finish()
-    ob["show"] = "FINISHING,FINISHED"
+    ob["show"] = "TRANSITION,FINISHING,FINISHED"
     ob["pivot"] = [round(c.x, 3), round(c.y, 3), round(c.z, 3)]
-    ob["axis"] = [round(n.x, 3), round(n.y, 3), round(n.z, 3)]
-    ob["note"] = "espiral do portal de saida: o jogo liga (Transparency 0) quando a corrida termina"
+    ob["axis"] = [0.0, -1.0, 0.0]
+    ob["note"] = ("espiral do NICHO do muro norte da R3 = visual do DUN_NEXT_R3 (portal da proxima sala): fica 1,5 atras "
+                  "da parede de energia; o DungeonService liga (Transparency 0) quando a sala limpa / em transicao")
+
+
+# ------------------------------------------------------------------ portal de chegada (R1), saidas e spawns
+def arrival_portal(mb, F):
+    """portal de CHEGADA no muro sul da R1 (aceso: o grupo sai dele): anel de aduelas (09.12) em nicho de 2 ORDENS"""
+    r_in, r_out = PORTAL_R
+    n = F.n()
+    c = F.v(LX, 1.0, r_out - 0.3)
+    u = n.cross(UPZ).normalized()
+    portal_frame(mb, c, u, UPZ, n, r_in, r_out, Z)
+    disc3(mb, c, u, UPZ, n, r_in + 0.15, -0.5, -0.3, VO, 32)
+    spiral(mb, c, u, UPZ, n, r_in - 0.1, -0.3, -0.1, VG, arms=5, twist=2.7, a0=0.4)
+    rise = r_out + 2.2
+    spr = c.z - Z
+    arch_panel(mb, F, LX, r_out + 0.2, rise, spr, 0.0, 0.0, 0.15, VA, n=8)
+    arch_band(mb, F, LX, r_out + 0.2, rise, spr, 0.0, 0.6, -0.1, 0.55, TRL, n=8)
+    ogee_band(mb, F, LX, r_out + 0.8, rise + 0.6, spr, 0.5, -0.1, 0.8, CS, n=8)
+    ccol("SG_DunPortal", F.p(LX - r_out, 0.0, -0.5), F.p(LX + r_out, 1.75, 2 * r_out - 0.6))
+    return c                                     # (a inscricao do piso e o circulo runico do spawn, 11 a frente)
+
+
+def exit_arch(mb, F, s, orders=2):
+    """SAIDA por prompt ('Sair'): arco menor com o vortice APAGADO - anel de aduelas com runas, disco navy e espiral
+    de pedra negra (sem brilho), campo e arquivolta do kit. Colisao so do anel (nada de barreira de toque)."""
+    r_in, r_out = EXIT_R
+    n = F.n()
+    c = F.v(s, 1.0, r_out - 0.3)
+    u = n.cross(UPZ).normalized()
+    portal_frame(mb, c, u, UPZ, n, r_in, r_out, Z, nv=12, seg=20)
+    disc3(mb, c, u, UPZ, n, r_in + 0.15, -0.5, -0.3, VA, 24)
+    spiral(mb, c, u, UPZ, n, r_in - 0.2, -0.28, -0.12, OB, arms=5, twist=2.7, seg=7, a0=0.8)
+    rise = r_out + 0.9
+    spr = c.z - Z
+    arch_panel(mb, F, s, r_out + 0.2, rise, spr, 0.0, 0.0, 0.15, VA, n=8)
+    t = 0.6 if orders == 2 else 0.5
+    arch_band(mb, F, s, r_out + 0.2, rise, spr, 0.0, t, -0.1, 0.55, TRL, n=8)
+    if orders == 2:                                                             # 2a ordem: le como PORTA
+        ogee_band(mb, F, s, r_out + 0.8, rise + 0.6, spr, 0.4, -0.1, 0.8, CS, n=8)
+    ccol("SG_DunExit", F.p(s - r_out, 0.0, -0.5), F.p(s + r_out, 1.75, 2 * r_out - 0.6))
+
+
+def spawn_circle(mb, cx, cy, r=4.2, k0=0):
+    """CIRCULO RUNICO do spawn: placa baixa (+0,15) com aro de remate, faixa de obsidiana com 6 runas acesas (Neon
+    escuro, +0,13) e miolo de marmore negro com a seta do rumo (+Y, para a proxima sala)"""
+    n = 20
+    ang = [2 * math.pi * k / n for k in range(n)]
+    zt, zb = Z + 0.15, Z - 0.1
+
+    def circ(rr):
+        return [(cx + rr * math.cos(a), cy + rr * math.sin(a)) for a in ang]
+    bm = mb.bm
+    for outer, inner, m in ((circ(r), circ(r - 0.45), TRL), (circ(r - 0.45), circ(r - 1.85), OB)):
+        oT = [bm.verts.new((x, y, zt)) for x, y in outer]
+        iT = [bm.verts.new((x, y, zt)) for x, y in inner]
+        oB = [bm.verts.new((x, y, zb)) for x, y in outer]
+        iB = [bm.verts.new((x, y, zb)) for x, y in inner]
+        for i in range(n):
+            j = (i + 1) % n
+            bm.faces.new((oT[i], oT[j], iT[j], iT[i]))
+            bm.faces.new((oB[i], oB[j], oT[j], oT[i]))
+            bm.faces.new((iT[i], iT[j], iB[j], iB[i]))
+        mb._post(oT + iT + oB + iB, m, None, 0, 1)
+    mb.prism(circ(r - 1.85), zb, zt, MBK)
+    for k in range(6):
+        a = 2 * math.pi * k / 6 + math.pi / 6
+        rad = Vector((math.cos(a), math.sin(a), 0.0))
+        rune(mb, Vector((cx, cy, zt - 0.05)) + rad * (r - 1.15), Vector((-rad.y, rad.x, 0.0)), rad, UPZ, k + k0, 1.1,
+             VD, dep=0.18)
+    # seta rasa (chevron) no miolo: aponta a proxima sala
+    for sg in (-1, 1):
+        a = Vector((cx, cy + 1.0, zt - 0.05))
+        b = Vector((cx + sg * 1.0, cy - 0.2, zt - 0.05))
+        ax = (b - a).normalized()
+        obox3(mb, (a + b) / 2 + UPZ * 0.09, ax, UPZ.cross(ax), UPZ, (b - a).length + 0.2, 0.22, 0.18, VD)
+
+
+def retable_bay(mk, mi, F, s0, s1):
+    """RETABULO da R3 (variacao da sala: 'altar') no tramo do eixo do muro leste: a arcada cega do tramo, mesa de altar
+    de obsidiana com frontal navy e runa acesa baixa, 4 velas do kit, painel ogival interno com a runa grande"""
+    s = (s0 + s1) / 2.0
+    blind_arch(mk, F, s0, s1, ARCH_SPRING["R3"], room="R3_altar", mi=mi)
+    fblock(mk, F, s - 3.4, s + 3.4, -0.2, 1.9, -0.1, 0.45, OB, 0.1)                       # degrau
+    fblock(mk, F, s - 2.9, s + 2.9, -0.2, 1.5, 0.45, 3.0, OB, 0.1)                        # corpo da mesa
+    fledge(mk, F, s - 3.2, s + 3.2, [(-0.2, 3.0), (1.65, 3.0), (1.85, 3.16), (1.85, 3.38), (-0.2, 3.38)], TRL)
+    fblock(mk, F, s - 2.1, s + 2.1, 1.5, 1.64, 1.0, 2.55, VA, 0.04)                       # frontal rebaixado
+    rune(mk, F.v(s, 1.64, 1.78), F.u(), UPZ, F.n(), 4, 1.35, VD, 0.16, 0.12)
+    for sc in (s - 2.5, s - 1.6, s + 1.6, s + 2.5):
+        p = F.v(sc, 0.7, 3.38)
+        candle(mi, p.x, p.y, p.z, 0.62 if abs(sc - s) > 2.0 else 0.9, 1.1, dish=True)
+    arch_panel(mk, F, s, 2.2, 2.6, 8.2, 3.38, 0.15, 0.32, VA, n=6)
+    ogee_band(mk, F, s, 2.2, 2.6, 8.2, 0.42, 0.15, 0.62, TRL)
+    for sc in (s - 2.41, s + 2.41):
+        fblock(mk, F, sc - 0.21, sc + 0.21, 0.15, 0.62, 3.38, 8.2, TRL, 0.06)
+    rune(mk, F.v(s, 0.32, 6.9), F.u(), UPZ, F.n(), 6, 2.4, VD, 0.16, 0.14)
+    fcol("SG_DunKit", F, s - 3.4, s + 3.4, 0.0, 1.9, -0.5, 3.4)
+
+
+def lunette_lancets(mk, F, nm):
+    """CLERESTORIO CEGO no timpano dos muros de ponta (o pano entre a cornija e a abobada nao fica chapado): 2 lancetas
+    com campo navy, ombreiras e arquivolta de remate sobre um peitoril moldurado, ate 1,6 abaixo da abobada"""
+    x0, y0, x1, y1 = ROOMS[nm]
+    xc = (x0 + x1) / 2.0
+    for sg in (-1, 1):
+        u = sg * (24.0 if nm == "R1" else 27.0)
+        s = xc + u
+        top = vault_z((x0, y0, x1, y1), "y", 0.0, R_SPR, R_CROWN, abs(u) + 2.6) - 1.6
+        hw, h0 = 2.1, R_SPR + 2.4
+        rise = hw * 1.6
+        spr = top - rise - 0.45
+        fledge(mk, F, s - hw - 0.9, s + hw + 0.9, [(-0.1, h0 - 0.5), (0.5, h0 - 0.5), (0.62, h0 - 0.2), (0.62, h0),
+                                                 (-0.1, h0)], TRL)
+        arch_panel(mk, F, s, hw, rise, spr, h0, 0.0, 0.15, VA, 4)
+        for q in (-1, 1):
+            a, b = sorted((s + q * hw, s + q * (hw + 0.45)))
+            fblock(mk, F, a, b, -0.1, 0.42, h0, spr, TRL, 0.0)
+        ogee_band(mk, F, s, hw, rise, spr, 0.45, -0.1, 0.5, TRL, 4)
+
+
+# ------------------------------------------------------------------ paredes, kit e abobadas
+def room_walls():
+    """paredes (visual + colisao identicos) com os vaos 28 x 22 e o nicho; piso e teto colidiveis"""
+    mb = MB("SG_Dun_Rooms_Shell", "17_DUNGEON", random.Random(741), detail="far", floor=-999)
+    zb, zt = Z - 0.6, ZCEIL
+    pieces = []
+    r1 = ROOMS["R1"]
+    pieces.append(((r1[0] - WT, r1[1] - WT), (r1[2] + WT, r1[1])))                       # muro sul da R1
+    for nm in ORDER:
+        x0, y0, x1, y1 = ROOMS[nm]
+        ya = y0 - (WT if nm == "R1" else 0.0)
+        pieces += [((x0 - WT, ya), (x0, y1 + WT)), ((x1, ya), (x1 + WT, y1 + WT))]      # muros oeste / leste
+    walls_ns = []
+    for ra, rb in zip(ORDER, ORDER[1:]):
+        a, b = ROOMS[ra], ROOMS[rb]
+        walls_ns.append((a[3], b[1], min(a[0], b[0]) - WT, max(a[2], b[2]) + WT))
+    r3 = ROOMS["R3"]
+    walls_ns.append((r3[3], r3[3] + WT, r3[0] - WT, r3[2] + WT))                         # muro norte (nicho)
+    for ya, yb, xa, xb in walls_ns:
+        pieces += [((xa, ya), (LX - LINK_HW, yb)), ((LX + LINK_HW, ya), (xb, yb))]
+        mb.box2((LX - LINK_HW, ya, Z + LINK_H), (LX + LINK_HW, yb, zt), CS, 0.0)
+        ccol("SG_DunRoom", (LX - LINK_HW, ya, Z + LINK_H), (LX + LINK_HW, yb, zt))
+    for (xa, ya), (xb, yb) in pieces:
+        mb.box2((xa, ya, zb), (xb, yb, zt), CS, 0.0)
+        ccol("SG_DunRoom", (xa, ya, zb), (xb, yb, zt))
+    mb.finish()
+    ccol("SG_DunRoom", (BX0, BY0, Z - 2.0), (BX1, BY1, Z))
+    ccol("SG_DunRoom", (BX0, BY0, ZCEIL), (BX1, BY1, ZCEIL + 1.5))
+
+
+def room_kit():
+    """kit das salas (overhaul 09.10 na escala v4): pilastras com colunelo e capitel onde a nervura nasce, colunas de
+    canto, arcadas cegas de 2 ordens com a variacao DIRIGIDA de cada sala, cornija, tochas, pisos de lajes, abobada de
+    bercos com nervuras em pera e liernes, vaos/portais, portal de chegada, saidas, spawns, retabulo e lustres"""
+    mk = MB("SG_Dun_Rooms_Kit", "17_DUNGEON", random.Random(751), detail="near")
+    mv = MB("SG_Dun_Rooms_Vault", "17_DUNGEON", random.Random(753), detail="near")
+    mf = MB("SG_Dun_Rooms_Floor", "17_DUNGEON", random.Random(755), detail="far", floor=Z - 0.4)
+    mfd = MB("SG_Dun_Rooms_FloorInlay", "17_DUNGEON", random.Random(756), detail="near")
+    mi = MB("SG_Dun_Rooms_Iron", "17_DUNGEON", random.Random(757), detail="near")
+    mp = MB("SG_Dun_Rooms_Portals", "17_DUNGEON", random.Random(761), detail="near")
+    A = "SG_DunKit"
+    for nm in ORDER:
+        x0, y0, x1, y1 = ROOMS[nm]
+        Fs = room_faces(nm)
+        twin = nm == "R3"
+        ribs = rib_ys(nm)
+        # ---- muros longos (oeste / leste): pilastras nos pontos das nervuras
+        for side in ("W", "E"):
+            F = Fs[side]
+            for p in ribs:
+                pilaster(mk, F, p, R_SPR, A, twin=twin)
+            for p in torch_pils(nm, side, ribs):
+                torch(mi, F, p, 0.0, TORCH_H, twin=twin)
+            bays = bays_between(y0 + CORNER + 0.1, y1 - CORNER - 0.1, ribs)
+            for i, (sa, sb) in enumerate(bays):
+                if nm == "R3" and side == "W" and i == 0:
+                    skirting(mk, F, sa, sb)
+                    exit_arch(mp, F, EXIT_S["R3"], orders=1)
+                elif nm == "R3" and side == "E" and i == len(bays) // 2:
+                    skirting(mk, F, sa, sb)
+                    retable_bay(mk, mi, F, sa, sb)
+                else:
+                    fill_bay(mk, mi, F, nm, sa, sb, i)
+            cornice(mk, F, y0 + 2.4, y1 - 2.4, R_SPR)
+        # ---- muros de ponta (sul / norte): colunas de canto, pilastras, vao/portal/nicho no eixo
+        for side in ("S", "N"):
+            F = Fs[side]
+            kind = END[(nm, side)]
+            corner_col(mk, F, x0, 1, R_SPR, A)
+            corner_col(mk, F, x1, -1, R_SPR, A)
+            ps = end_pils(nm, side)
+            for p in ps:
+                pilaster(mk, F, p, R_SPR, A, twin=twin)
+            for p in torch_pils(nm, side, ps):
+                torch(mi, F, p, 0.0, TORCH_H, twin=twin)
+            lunette_lancets(mk, F, nm)
+            if kind == "arrival":
+                c = arrival_portal(mp, F)
+                hwp = PORTAL_R[1] + 0.2 + 0.6 + 0.5 + 0.4
+                spans = [(x0 + CORNER + 0.1, LX - hwp), (LX + hwp, x1 - CORNER - 0.1)]
+            else:
+                link_frame(mk, F, kind)
+                spans = [(x0 + CORNER + 0.1, LX - FRAME_HW - 0.1), (LX + FRAME_HW + 0.1, x1 - CORNER - 0.1)]
+            k = 0
+            for a, b in spans:
+                for sa, sb in bays_between(a, b, ps):
+                    if kind == "arrival" and sa < EXIT_S["R1"] < sb:
+                        skirting(mk, F, sa, sb)
+                        exit_arch(mp, F, EXIT_S["R1"])
+                    else:
+                        fill_bay(mk, mi, F, nm, sa, sb, k)
+                    cornice(mk, F, sa - 0.1, sb + 0.1, R_SPR)
+                    k += 1
+        # ---- piso, spawn, abobada
+        cxr, cyr = (x0 + x1) / 2.0, (y0 + y1) / 2.0
+        tile_floor(mf, (x0, y0, x1, y1), Z, margin=1.0, friso=0.8, mod=7.0)
+        sx, sy = L.dun_spawn(nm)
+        spawn_circle(mfd, sx, sy, 4.2, k0={"R1": 0, "R2": 2, "R3": 4}[nm])
+        vault(mv, (x0, y0, x1, y1), "y", Z, R_SPR, R_CROWN, ribs=ribs, liernes=(0.5,))
+    # soleiras dos vaos (no plano da parede)
+    for ra, rb in zip(ORDER, ORDER[1:]):
+        link_sill(mfd, ROOMS[ra][3], ROOMS[rb][1], next_=(ra == "R2"))
+    link_sill(mfd, ROOMS["R3"][3], NICHE_BACK, next_=True, ym=L.dun_next("R3")[1], back=0.0)
+    next_portals(mk)
+    altar_medallion(mfd, (ROOMS["R3"][0] + ROOMS["R3"][2]) / 2.0, (ROOMS["R3"][1] + ROOMS["R3"][3]) / 2.0)
+    for nm, x, y, h, r, nc in CHANDELIERS:
+        rect = ROOMS[nm]
+        top = vault_z(rect, "y", Z, R_SPR, R_CROWN, 0.0) - 0.8
+        chandelier(mi, x, y, Z + h, top, r=r, n=nc)
+    for m in (mk, mv, mf, mfd, mi, mp):
+        m.finish()
+
+
+MED_HS = 10.5                                    # medalhao do centro da R3 (raio 9,1: placa baixa)
+_R2 = ROOMS["R2"]
+# lustres: (sala, x, y, altura do aro, raio, velas) - R1 na nervura do meio, R2 nos cruzamentos das nervuras 2 e 5,
+# R3 coroa maior no centro (sobre o medalhao)
+CHANDELIERS = (("R1", LX, (ROOMS["R1"][1] + ROOMS["R1"][3]) / 2.0, 21.0, 4.2, 6),
+               ("R2", LX, _R2[1] + (_R2[3] - _R2[1]) * 2.0 / 7.0, 21.5, 4.6, 6),
+               ("R2", LX, _R2[1] + (_R2[3] - _R2[1]) * 5.0 / 7.0, 21.5, 4.6, 6),
+               ("R3", LX, (ROOMS["R3"][1] + ROOMS["R3"][3]) / 2.0, 20.8, 5.8, 10))
 
 
 def room_lights():
-    # ov09b: as mesmas 4 luzes (orcamento 7 na zona), mais fortes para as salas maiores
-    x0 = ROOMS["R1"][0]
-    light("L_SGDun_R1_Portal", "POINT", (x0 + 7.0, LY, Z + 8.0), 3600.0, (0.64, 0.42, 1.0), 1.5)
-    (xa, ya, ha, _), (xb, yb, hb, _), (x3, y3, h3, _) = CHANDELIERS
-    light("L_SGDun_R2_ChandelierW", "POINT", (xa, ya, Z + ha - 0.7), 8200.0, (1.0, 0.68, 0.40), 1.0)
-    light("L_SGDun_R2_ChandelierE", "POINT", (xb, yb, Z + hb - 0.7), 8200.0, (1.0, 0.68, 0.40), 1.0)
-    light("L_SGDun_R3_Altar", "POINT", (x3, y3, Z + h3 - 0.8), 9400.0, (1.0, 0.68, 0.40), 1.0)
+    """5 luzes: portal de chegada (violeta) e os 4 lustres (quentes)"""
+    y0 = ROOMS["R1"][1]
+    light("L_SGDun_R1_Portal", "POINT", (LX, y0 + 7.0, Z + 8.5), 5000.0, (0.64, 0.42, 1.0), 1.5)
+    for i, (nm, x, y, h, r, nc) in enumerate(CHANDELIERS):
+        e = {"R1": 11000.0, "R2": 15000.0, "R3": 21000.0}[nm]
+        light("L_SGDun_%s_Chandelier%s" % (nm, "" if nm != "R2" else ("S" if i == 1 else "N")), "POINT",
+              (x, y, Z + h - 0.7), e, (1.0, 0.68, 0.40), 1.0)
+
+
+# ------------------------------------------------------------------ cameras e rotas extras do QA
+_R1, _R3 = ROOMS["R1"], ROOMS["R3"]
+CAMS = {
+    # chegada na R1 (o que o grupo ve ao sair do portal) e o fundo com o portal de chegada e a saida
+    "CAM_SGDun_R1_Arrival": ((LX + 3.0, _R1[1] + 10.0, Z + 5.4), (LX, _R1[3], Z + 11.0), 18),
+    "CAM_SGDun_R1_Back": ((_R1[2] - 12.0, _R1[3] - 10.0, Z + 5.4), (LX - 14.0, _R1[1], Z + 9.0), 18),
+    "CAM_SGDun_R2_A": ((LX + 4.0, _R2[1] + 8.0, Z + 5.4), (LX, _R2[3], Z + 11.0), 16),
+    "CAM_SGDun_R2_B": ((_R2[2] - 8.0, _R2[3] - 8.0, Z + 5.4), (_R2[0] + 20.0, _R2[1] + 12.0, Z + 11.0), 16),
+    "CAM_SGDun_R3_A": ((LX + 4.0, _R3[1] + 8.0, Z + 5.4), (LX, _R3[3], Z + 11.0), 16),
+    "CAM_SGDun_R3_B": ((_R3[2] - 10.0, _R3[3] - 8.0, Z + 5.4), (_R3[0], _R3[1] + 14.0, Z + 9.0), 16),
+    # portais da proxima sala DE FRENTE (com a parede 27 x 21 x 1 simulada no estudio) e as saidas
+    "CAM_SGDun_NextR2_Front": ((LX, _R2[3] - 42.0, Z + 12.0), (LX, _R2[3], Z + 16.5), 20),
+    "CAM_SGDun_NextR3_Front": ((LX, _R3[3] - 42.0, Z + 12.0), (LX, _R3[3], Z + 16.5), 20),
+    "CAM_SGDun_ExitR1": ((EXIT_S["R1"] + 3.0, _R1[1] + 20.0, Z + 5.4), (EXIT_S["R1"], _R1[1], Z + 5.0), 22),
+    "CAM_SGDun_ExitR3": ((_R3[0] + 20.0, EXIT_S["R3"] + 5.0, Z + 5.4), (_R3[0], EXIT_S["R3"], Z + 5.0), 22),
+    # closes de acabamento
+    "CAM_SGDun_Torch": ((_R2[0] + 8.0, _R2[1] + 22.0, Z + 9.0), (_R2[0], _R2[1] + 14.86, Z + 10.5), 26),
+    "CAM_SGDun_Retable": ((_R3[2] - 16.0, 250.0, Z + 5.4), (_R3[2], 250.0, Z + 6.0), 22),
+    "CAM_SGDun_SpawnR1": ((LX + 9.0, _R1[1] + 27.0, Z + 7.0), (LX, _R1[1] + 9.0, Z + 2.0), 22),
+}
+
+
+def _loop(r, d=5.0):
+    x0, y0, x1, y1 = r
+    return [(x0 + d, y0 + d), (x1 - d, y0 + d), (x1 - d, y1 - d), (x0 + d, y1 - d), (x0 + d, y0 + d)]
+
+
+EXTRA_ROUTES = {
+    "SALA_R1_VOLTA": (_loop(ROOMS["R1"]), Z),
+    "SALA_R2_VOLTA": (_loop(ROOMS["R2"]), Z),
+    "SALA_R3_VOLTA": (_loop(ROOMS["R3"]), Z),
+    # grupo: 2 linhas a +-10 do eixo nos vaos de 28
+    "GRUPO_VAO_R1R2": ([(LX - 10.0, _R1[3] - 6.0), (LX - 10.0, _R2[1] + 6.0), (LX + 10.0, _R2[1] + 6.0),
+                        (LX + 10.0, _R1[3] - 6.0)], Z),
+    "GRUPO_VAO_R2R3": ([(LX - 10.0, _R2[3] - 6.0), (LX - 10.0, _R3[1] + 6.0), (LX + 10.0, _R3[1] + 6.0),
+                        (LX + 10.0, _R2[3] - 6.0)], Z),
+    "SPAWN_R1_ATE_SAIDA": ([L.dun_spawn("R1"), (EXIT_S["R1"], _R1[1] + 6.0)], Z),
+    "SPAWN_R3_ATE_SAIDA": ([L.dun_spawn("R3"), (_R3[0] + 8.0, L.dun_exit("R3")[1])], Z),
+    "SALA_R3_ATE_O_NICHO": ([(LX, _R3[3] - 20.0), (LX, _R3[3] + 0.5)], Z),
+}
+EXTRA_PROBES = []
 
 
 def build():
     _SKIP.clear()
-    house_shell()
-    house_interior()
-    house_portal()
-    approach()
     room_walls()
     room_kit()
-    room_portals()
     room_lights()
     bad = []
     for o in bpy.data.objects:
@@ -2275,3 +1561,37 @@ def build():
         print("DUN AVISO colisoes omitidas por folga de minerio (so visual):", _SKIP)
     else:
         print("DUN folga dos minerios: OK (nenhuma colisao a menos de 5 de DUN_ORE_* ate piso+12)")
+    fit_check()
+
+
+def fit_check():
+    """prova numerica: a parede de energia do jogo (w x h x t no CFrame do marcador DUN_NEXT_*) cabe no vao livre e nao
+    encosta em nenhuma peca da dungeon (malhas SG_Dun_* e colisoes COL_SG_Dun*)"""
+    from mathutils.bvhtree import BVHTree
+    for nm in ("R2", "R3"):
+        nx, ny = L.dun_next(nm)
+        p0 = (nx - NEXT_W / 2, ny - NEXT_T / 2, Z + 0.01)
+        p1 = (nx + NEXT_W / 2, ny + NEXT_T / 2, Z + NEXT_H)
+        hits = []
+        for o in bpy.data.objects:
+            if o.type != "MESH" or not o.name.startswith(("SG_Dun_", "COL_SG_Dun", "COL_SGDun")):
+                continue
+            if o.name.startswith("SG_Dun_R3_ExitSpiral"):
+                continue
+            mw = o.matrix_world
+            vs = [mw @ v.co for v in o.data.vertices]
+            if not vs:
+                continue
+            if (max(v.x for v in vs) < p0[0] or min(v.x for v in vs) > p1[0] or max(v.y for v in vs) < p0[1] or
+                    min(v.y for v in vs) > p1[1] or max(v.z for v in vs) < p0[2] or min(v.z for v in vs) > p1[2]):
+                continue
+            inside = any(p0[0] < v.x < p1[0] and p0[1] < v.y < p1[1] and p0[2] < v.z < p1[2] for v in vs)
+            t = BVHTree.FromPolygons(vs, [list(p.vertices) for p in o.data.polygons])
+            bx = [(p0[0], p0[1], p0[2]), (p1[0], p0[1], p0[2]), (p1[0], p1[1], p0[2]), (p0[0], p1[1], p0[2]),
+                  (p0[0], p0[1], p1[2]), (p1[0], p0[1], p1[2]), (p1[0], p1[1], p1[2]), (p0[0], p1[1], p1[2])]
+            bf = [(0, 1, 2, 3), (4, 5, 6, 7), (0, 1, 5, 4), (1, 2, 6, 5), (2, 3, 7, 6), (3, 0, 4, 7)]
+            if inside or t.overlap(BVHTree.FromPolygons(bx, bf)):
+                hits.append(o.name)
+        print(("OK   " if not hits else "FAIL ") + "DUN_NEXT_%s parede %gx%gx%g no vao (%.1f, %.1f): %s" % (
+            nm, NEXT_W, NEXT_H, NEXT_T, nx, ny, "livre (folga 0,5 nos lados, %.1f em cima)" % (LINK_H - NEXT_H)
+            if not hits else "ENCOSTA em %s" % hits[:6]))

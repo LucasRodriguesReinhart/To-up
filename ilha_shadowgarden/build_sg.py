@@ -24,20 +24,20 @@ import sg_blockout
 # zona -> modulos de detalhe (na ordem); lista vazia = BLOCKOUT v4
 ZONE_MODULES = {
     "terrain": [],                    # v4: ilha nova (onda 1 refaz sg_terrain)
-    "entry": ["sg_entry"],            # v3 realocada (so o fim da ponte, patio, escadaria e porticos)
+    "entry": ["sg_entry"],            # v4 (onda 1, agente 1g): ponte curva de 234 inteira + patio + portico monumental
     "village": [],                    # v4: 7 casas visitaveis (onda 1 refaz sg_village); praca da v3 realocada
-    "castle": [],                     # v4: castelo 2x (onda 1 refaz sg_castle)
-    "hall": [],                       # v4: salao 2x + trono movel (onda 1 refaz sg_hall)
-    "cave": [],                       # v4 NOVO: salao sombrio + escada caracol (onda 1 cria sg_cave)
+    "castle": ["sg_castle"],          # v4: castelo 2x (ONDA 1 / agente 1a: sg_castle refeito na planta v4)
+    "hall": ["sg_hall"],              # ONDA 1 (1b): interior 2x (arcada, naves laterais, presbiterio) + trono movel
+    "cave": ["sg_cave"],              # v4 NOVO: salao sombrio + torre do poco/escada caracol (onda 1, agente 1c)
     "summon": ["sg_summon"],          # v3 realocada
     "craft": ["sg_craft"],            # v3 realocada
-    "dungeon": [],                    # v4: salas 3x (onda 1 refaz sg_dungeon)
+    "dungeon": ["sg_dungeon"],        # v4: salas 3x (onda 1, agente 1d: sg_dungeon refeito na v4)
     "water": [],                      # v4: agua no Roblox; o blockout faz so a pedra das bicas
-    "exit": ["sg_exit"],              # v3 realocada (giro 120, +8 de cota) para a ponta noroeste
+    "exit": ["sg_exit"],              # v4 (onda 1, agente 1g): roda direto na ponta noroeste (P3)
     "dressing": [],                   # v4: patio-jardim/mirante simples (onda 2 refaz sg_court/sg_veg/sg_garden)
 }
 # modulos da v3 que rodam pelo sg_relocate (referencial v3 -> planta v4)
-LEGACY = ("sg_entry", "sg_summon", "sg_craft", "sg_exit")
+LEGACY = ("sg_summon", "sg_craft")          # onda 1: sg_entry e sg_exit rodam direto na v4 (agente 1g)
 
 
 def zone_ready(zone):
@@ -60,9 +60,7 @@ def run_module(m):
     else:
         mod = importlib.import_module(m)
         mod.build()
-    if m == "sg_entry":
-        sg_blockout.entry_bridge(y_end=L.Y_ENTRY - 34.0)      # a ponte curva da ancora ate o trecho do sg_entry
-    return mod
+    return mod                        # (onda 1: o sg_entry faz a ponte curva inteira; o sg_blockout.entry_bridge so no blockout)
 
 
 def build(blockout=False, skip_zones=(), studio_zone=None, res=(1600, 900), samples=24):
