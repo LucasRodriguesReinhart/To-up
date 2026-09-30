@@ -67,8 +67,6 @@ NEW_MATS = {
     "Stone_SGCraftDark": (S(54, 52, 74), 0.8, 0.0, 0, None, 0.08),                     # alvenaria ESCURA do pavilhao
     # overhaul 07.01/14.03: VIDRO PINTADO opaco (frasco gigante): le sem transparencia; o reflexo e malha propria
     "Glaze_SGCraftFlask": (S(140, 132, 174), 0.2, 0.0, 0, None, 0.0),
-    # overhaul 14.04: BRONZE envelhecido (no lugar do ouro/latao saturados na alquimia)
-    "Metal_SGCraftBronze": (S(132, 96, 64), 0.45, 0.85, 0, None, 0.04),
 }
 for _k, _v in NEW_MATS.items():
     fm_lib.MATS.setdefault(_k, _v)
@@ -106,7 +104,8 @@ DAIS_R1, DAIS_R2 = 6.2, 4.8                  # estrado: degrau de baixo / de cim
 DAIS_H1, DAIS_H2 = 0.7, 1.4                  # topos dos degraus (espelhos 0,7 <= 0,8)
 WARM = (1.0, 0.68, 0.40)
 
-BRONZE, GLAZE, VSOFT = "Metal_SGCraftBronze", "Glaze_SGCraftFlask", "SG_VioletSoft_Glow"
+# overhaul 14-16: o bronze da alquimia virou o bronze da ilha (Metal_SG_Bronze, sg_lib)
+BRONZE, GLAZE, VSOFT = "Metal_SG_Bronze", "Glaze_SGCraftFlask", "SG_VioletSoft_Glow"
 # overhaul 14.04: latao e ouro da alquimia viram BRONZE envelhecido (um metal de acento so)
 IRON, SILVER, BRASS = "Metal_SG_Iron", "Metal_SG_Silver", BRONZE
 CASTLE, TRIM, BLOCK, NAVY = "Stone_SG_Castle", "Stone_SG_Trim", "Stone_SG_Block", "Roof_SG_Navy"

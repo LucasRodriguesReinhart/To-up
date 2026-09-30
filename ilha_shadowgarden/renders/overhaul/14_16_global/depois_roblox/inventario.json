@@ -1,0 +1,6097 @@
+{
+ "zones": {
+  "core": {
+   "tris": 10920,
+   "mp": 25,
+   "col": 410,
+   "lights": 0
+  },
+  "terrain": {
+   "tris": 45106,
+   "mp": 79,
+   "col": 36,
+   "lights": 0
+  },
+  "entry": {
+   "tris": 34064,
+   "mp": 36,
+   "col": 8,
+   "lights": 4
+  },
+  "village": {
+   "tris": 88576,
+   "mp": 105,
+   "col": 22,
+   "lights": 5
+  },
+  "castle": {
+   "tris": 145368,
+   "mp": 99,
+   "col": 134,
+   "lights": 4
+  },
+  "hall": {
+   "tris": 62646,
+   "mp": 49,
+   "col": 31,
+   "lights": 6
+  },
+  "summon": {
+   "tris": 31098,
+   "mp": 53,
+   "col": 23,
+   "lights": 3
+  },
+  "craft": {
+   "tris": 83024,
+   "mp": 74,
+   "col": 74,
+   "lights": 4
+  },
+  "dungeon": {
+   "tris": 92112,
+   "mp": 83,
+   "col": 104,
+   "lights": 7
+  },
+  "water": {
+   "tris": 5482,
+   "mp": 22,
+   "col": 0,
+   "lights": 0
+  },
+  "exit": {
+   "tris": 24312,
+   "mp": 35,
+   "col": 2,
+   "lights": 2
+  },
+  "dressing": {
+   "tris": 39452,
+   "mp": 96,
+   "col": 46,
+   "lights": 5
+  },
+  "sky": {
+   "tris": 3206,
+   "mp": 25,
+   "col": 0,
+   "lights": 0
+  }
+ },
+ "total": {
+  "tris": 665366,
+  "mp": 781,
+  "col": 890,
+  "lights": 40
+ },
+ "materials": [
+  {
+   "zone": "castle",
+   "mat": "Cloth_SG_Purple",
+   "rbx": "Fabric",
+   "transp": 0.0,
+   "color": [
+    66,
+    22,
+    112
+   ],
+   "emission": 0,
+   "area": 318.6,
+   "near": 0.0,
+   "nobj": 1,
+   "objs": [
+    "SG_Cas_Estandartes"
+   ]
+  },
+  {
+   "zone": "castle",
+   "mat": "Glass_SGHallMoon",
+   "rbx": "Glass",
+   "transp": 0.3,
+   "color": [
+    96,
+    124,
+    186
+   ],
+   "emission": 0.4,
+   "area": 438.6,
+   "near": 0.0,
+   "nobj": 1,
+   "objs": [
+    "SG_Cas_Coroa"
+   ]
+  },
+  {
+   "zone": "castle",
+   "mat": "Glass_SG_LampAmber",
+   "rbx": "Glass",
+   "transp": 0.3,
+   "color": [
+    206,
+    142,
+    70
+   ],
+   "emission": 0,
+   "area": 12.2,
+   "near": 4.7,
+   "nobj": 1,
+   "objs": [
+    "SG_Cas_Muralha"
+   ]
+  },
+  {
+   "zone": "castle",
+   "mat": "Lantern_Glow",
+   "rbx": "Neon",
+   "transp": 0.0,
+   "color": [
+    255,
+    146,
+    56
+   ],
+   "emission": 1.2,
+   "area": 0.8,
+   "near": 0.3,
+   "nobj": 1,
+   "objs": [
+    "SG_Cas_Muralha"
+   ]
+  },
+  {
+   "zone": "castle",
+   "mat": "Metal_Gold",
+   "rbx": "Metal",
+   "transp": 0.0,
+   "color": [
+    222,
+    170,
+    70
+   ],
+   "emission": 0,
+   "area": 1.8,
+   "near": 0.7,
+   "nobj": 1,
+   "objs": [
+    "SG_Cas_Muralha"
+   ]
+  },
+  {
+   "zone": "castle",
+   "mat": "Metal_SG_BlackIron",
+   "rbx": "Metal",
+   "transp": 0.0,
+   "color": [
+    56,
+    54,
+    64
+   ],
+   "emission": 0,
+   "area": 1221.1,
+   "near": 80.6,
+   "nobj": 8,
+   "objs": [
+    "SG_Cas_Alas",
+    "SG_Cas_Coroa",
+    "SG_Cas_Estandartes",
+    "SG_Cas_Fachada",
+    "SG_Cas_Muralha",
+    "SG_Cas_Nave"
+   ]
+  },
+  {
+   "zone": "castle",
+   "mat": "Metal_SG_Bronze",
+   "rbx": "Metal",
+   "transp": 0.0,
+   "color": [
+    132,
+    96,
+    64
+   ],
+   "emission": 0,
+   "area": 95.6,
+   "near": 0.0,
+   "nobj": 1,
+   "objs": [
+    "SG_Cas_Estandartes"
+   ]
+  },
+  {
+   "zone": "castle",
+   "mat": "Metal_SG_Iron",
+   "rbx": "Metal",
+   "transp": 0.0,
+   "color": [
+    56,
+    58,
+    68
+   ],
+   "emission": 0,
+   "area": 47.8,
+   "near": 29.3,
+   "nobj": 1,
+   "objs": [
+    "SG_Cas_Muralha"
+   ]
+  },
+  {
+   "zone": "castle",
+   "mat": "Metal_SG_Silver",
+   "rbx": "Metal",
+   "transp": 0.0,
+   "color": [
+    176,
+    182,
+    198
+   ],
+   "emission": 0,
+   "area": 22557.8,
+   "near": 2455.9,
+   "nobj": 9,
+   "objs": [
+    "SG_Cas_Alas",
+    "SG_Cas_Coroa",
+    "SG_Cas_Emblema",
+    "SG_Cas_Estandartes",
+    "SG_Cas_Fachada",
+    "SG_Cas_Muralha"
+   ]
+  },
+  {
+   "zone": "castle",
+   "mat": "Plaster_SG",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    150,
+    142,
+    132
+   ],
+   "emission": 0,
+   "area": 0.8,
+   "near": 0.3,
+   "nobj": 1,
+   "objs": [
+    "SG_Cas_Muralha"
+   ]
+  },
+  {
+   "zone": "castle",
+   "mat": "Roof_SG_Navy",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    40,
+    34,
+    62
+   ],
+   "emission": 0,
+   "area": 91853.2,
+   "near": 0.0,
+   "nobj": 7,
+   "objs": [
+    "SG_Cas_Alas",
+    "SG_Cas_Coroa",
+    "SG_Cas_Fachada",
+    "SG_Cas_Muralha",
+    "SG_Cas_Nave",
+    "SG_Cas_Telhados"
+   ]
+  },
+  {
+   "zone": "castle",
+   "mat": "SG_LampCore_Glow",
+   "rbx": "Neon",
+   "transp": 0.0,
+   "color": [
+    190,
+    110,
+    40
+   ],
+   "emission": 1.2,
+   "area": 5.0,
+   "near": 1.9,
+   "nobj": 1,
+   "objs": [
+    "SG_Cas_Muralha"
+   ]
+  },
+  {
+   "zone": "castle",
+   "mat": "SG_VilRoom_Glow",
+   "rbx": "Neon",
+   "transp": 0.0,
+   "color": [
+    178,
+    96,
+    40
+   ],
+   "emission": 1.25,
+   "area": 2367.5,
+   "near": 55.2,
+   "nobj": 7,
+   "objs": [
+    "SG_Cas_Alas",
+    "SG_Cas_Coroa",
+    "SG_Cas_Fachada",
+    "SG_Cas_Muralha",
+    "SG_Cas_Nave",
+    "SG_Cas_Telhados"
+   ]
+  },
+  {
+   "zone": "castle",
+   "mat": "SG_VioletDeep_Glow",
+   "rbx": "Neon",
+   "transp": 0.0,
+   "color": [
+    110,
+    50,
+    210
+   ],
+   "emission": 1.8,
+   "area": 117.5,
+   "near": 0.0,
+   "nobj": 1,
+   "objs": [
+    "SG_Cas_Emblema"
+   ]
+  },
+  {
+   "zone": "castle",
+   "mat": "SG_VioletSoft_Glow",
+   "rbx": "Neon",
+   "transp": 0.0,
+   "color": [
+    84,
+    52,
+    140
+   ],
+   "emission": 1.0,
+   "area": 2185.5,
+   "near": 8.2,
+   "nobj": 3,
+   "objs": [
+    "SG_Cas_Coroa",
+    "SG_Cas_Emblema",
+    "SG_Cas_Fachada"
+   ]
+  },
+  {
+   "zone": "castle",
+   "mat": "Stone_Paving_SG",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    94,
+    92,
+    114
+   ],
+   "emission": 0,
+   "area": 3056.1,
+   "near": 1441.1,
+   "nobj": 1,
+   "objs": [
+    "SG_Cas_Escadas"
+   ]
+  },
+  {
+   "zone": "castle",
+   "mat": "Stone_Paving_SG_B",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    84,
+    82,
+    104
+   ],
+   "emission": 0,
+   "area": 1692.3,
+   "near": 602.6,
+   "nobj": 1,
+   "objs": [
+    "SG_Cas_Escadas"
+   ]
+  },
+  {
+   "zone": "castle",
+   "mat": "Stone_SGCasInterior",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    104,
+    104,
+    120
+   ],
+   "emission": 0,
+   "area": 44972.5,
+   "near": 1080.0,
+   "nobj": 1,
+   "objs": [
+    "SG_Cas_Nave"
+   ]
+  },
+  {
+   "zone": "castle",
+   "mat": "Stone_SG_Block",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    100,
+    100,
+    112
+   ],
+   "emission": 0,
+   "area": 16129.5,
+   "near": 7376.2,
+   "nobj": 1,
+   "objs": [
+    "SG_Cas_Muralha"
+   ]
+  },
+  {
+   "zone": "castle",
+   "mat": "Stone_SG_Block_B",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    92,
+    92,
+    104
+   ],
+   "emission": 0,
+   "area": 15476.5,
+   "near": 11328.8,
+   "nobj": 7,
+   "objs": [
+    "SG_Cas_Alas",
+    "SG_Cas_Coroa",
+    "SG_Cas_Escadas",
+    "SG_Cas_Fachada",
+    "SG_Cas_Muralha",
+    "SG_Cas_Nave"
+   ]
+  },
+  {
+   "zone": "castle",
+   "mat": "Stone_SG_Castle",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    88,
+    88,
+    104
+   ],
+   "emission": 0,
+   "area": 106706.1,
+   "near": 2521.5,
+   "nobj": 6,
+   "objs": [
+    "SG_Cas_Alas",
+    "SG_Cas_Coroa",
+    "SG_Cas_Muralha",
+    "SG_Cas_Nave",
+    "SG_Cas_Telhados",
+    "SG_Cas_Torres"
+   ]
+  },
+  {
+   "zone": "castle",
+   "mat": "Stone_SG_Castle_B",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    80,
+    80,
+    96
+   ],
+   "emission": 0,
+   "area": 42638.1,
+   "near": 5110.1,
+   "nobj": 5,
+   "objs": [
+    "SG_Cas_Coroa",
+    "SG_Cas_Escadas",
+    "SG_Cas_Fachada",
+    "SG_Cas_Nave",
+    "SG_Cas_Telhados"
+   ]
+  },
+  {
+   "zone": "castle",
+   "mat": "Stone_SG_MoonPale",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    176,
+    160,
+    210
+   ],
+   "emission": 0,
+   "area": 14.8,
+   "near": 0.0,
+   "nobj": 2,
+   "objs": [
+    "SG_Cas_Estandartes",
+    "SG_Cas_Fachada"
+   ]
+  },
+  {
+   "zone": "castle",
+   "mat": "Stone_SG_Obsidian",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    30,
+    28,
+    40
+   ],
+   "emission": 0,
+   "area": 88217.4,
+   "near": 12113.8,
+   "nobj": 9,
+   "objs": [
+    "SG_Cas_Alas",
+    "SG_Cas_Coroa",
+    "SG_Cas_Emblema",
+    "SG_Cas_Estandartes",
+    "SG_Cas_Fachada",
+    "SG_Cas_Muralha"
+   ]
+  },
+  {
+   "zone": "castle",
+   "mat": "Stone_SG_Trim",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    150,
+    146,
+    154
+   ],
+   "emission": 0,
+   "area": 3552.0,
+   "near": 0.0,
+   "nobj": 1,
+   "objs": [
+    "SG_Cas_Nave"
+   ]
+  },
+  {
+   "zone": "castle",
+   "mat": "Stone_SG_TrimLow",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    132,
+    128,
+    134
+   ],
+   "emission": 0,
+   "area": 690.2,
+   "near": 611.5,
+   "nobj": 2,
+   "objs": [
+    "SG_Cas_Escadas",
+    "SG_Cas_Fachada"
+   ]
+  },
+  {
+   "zone": "castle",
+   "mat": "Stone_SG_Violet",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    78,
+    62,
+    110
+   ],
+   "emission": 0,
+   "area": 22173.2,
+   "near": 337.6,
+   "nobj": 8,
+   "objs": [
+    "SG_Cas_Alas",
+    "SG_Cas_Coroa",
+    "SG_Cas_Emblema",
+    "SG_Cas_Fachada",
+    "SG_Cas_Muralha",
+    "SG_Cas_Nave"
+   ]
+  },
+  {
+   "zone": "castle",
+   "mat": "Window_Warm",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    214,
+    140,
+    74
+   ],
+   "emission": 0.8,
+   "area": 2277.9,
+   "near": 60.3,
+   "nobj": 7,
+   "objs": [
+    "SG_Cas_Alas",
+    "SG_Cas_Coroa",
+    "SG_Cas_Fachada",
+    "SG_Cas_Muralha",
+    "SG_Cas_Nave",
+    "SG_Cas_Telhados"
+   ]
+  },
+  {
+   "zone": "castle",
+   "mat": "Wood_SG_Dark",
+   "rbx": "Wood",
+   "transp": 0.0,
+   "color": [
+    82,
+    56,
+    40
+   ],
+   "emission": 0,
+   "area": 1616.8,
+   "near": 526.6,
+   "nobj": 4,
+   "objs": [
+    "SG_Cas_Alas",
+    "SG_Cas_Coroa",
+    "SG_Cas_Fachada",
+    "SG_Cas_Telhados"
+   ]
+  },
+  {
+   "zone": "craft",
+   "mat": "Cloth_Canvas",
+   "rbx": "Fabric",
+   "transp": 0.0,
+   "color": [
+    225,
+    212,
+    188
+   ],
+   "emission": 0,
+   "area": 9.1,
+   "near": 9.1,
+   "nobj": 1,
+   "objs": [
+    "SG_Craft_Furnishings"
+   ]
+  },
+  {
+   "zone": "craft",
+   "mat": "Cloth_SGCraftBook",
+   "rbx": "Fabric",
+   "transp": 0.0,
+   "color": [
+    98,
+    42,
+    52
+   ],
+   "emission": 0,
+   "area": 149.7,
+   "near": 233.0,
+   "nobj": 1,
+   "objs": [
+    "SG_Craft_Furnishings"
+   ]
+  },
+  {
+   "zone": "craft",
+   "mat": "Cloth_SGCraftBookBrown",
+   "rbx": "Fabric",
+   "transp": 0.0,
+   "color": [
+    96,
+    64,
+    44
+   ],
+   "emission": 0,
+   "area": 132.0,
+   "near": 195.9,
+   "nobj": 1,
+   "objs": [
+    "SG_Craft_Furnishings"
+   ]
+  },
+  {
+   "zone": "craft",
+   "mat": "Cloth_SGCraftBookInk",
+   "rbx": "Fabric",
+   "transp": 0.0,
+   "color": [
+    38,
+    36,
+    46
+   ],
+   "emission": 0,
+   "area": 186.6,
+   "near": 291.4,
+   "nobj": 1,
+   "objs": [
+    "SG_Craft_Furnishings"
+   ]
+  },
+  {
+   "zone": "craft",
+   "mat": "Cloth_SG_Navy",
+   "rbx": "Fabric",
+   "transp": 0.0,
+   "color": [
+    32,
+    38,
+    78
+   ],
+   "emission": 0,
+   "area": 289.0,
+   "near": 289.0,
+   "nobj": 1,
+   "objs": [
+    "SG_Craft_Furnishings"
+   ]
+  },
+  {
+   "zone": "craft",
+   "mat": "Cloth_SG_Purple",
+   "rbx": "Fabric",
+   "transp": 0.0,
+   "color": [
+    66,
+    22,
+    112
+   ],
+   "emission": 0,
+   "area": 139.6,
+   "near": 128.5,
+   "nobj": 1,
+   "objs": [
+    "SG_Craft_Furnishings"
+   ]
+  },
+  {
+   "zone": "craft",
+   "mat": "Flower_White",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    236,
+    232,
+    220
+   ],
+   "emission": 0,
+   "area": 5.5,
+   "near": 0.0,
+   "nobj": 1,
+   "objs": [
+    "SG_Craft_Dome"
+   ]
+  },
+  {
+   "zone": "craft",
+   "mat": "Glass_SGCraftAmber",
+   "rbx": "Glass",
+   "transp": 0.55,
+   "color": [
+    150,
+    116,
+    80
+   ],
+   "emission": 0.22,
+   "area": 14.5,
+   "near": 14.5,
+   "nobj": 1,
+   "objs": [
+    "SG_Craft_Furnishings"
+   ]
+  },
+  {
+   "zone": "craft",
+   "mat": "Glass_SGCraftPale",
+   "rbx": "Glass",
+   "transp": 0.55,
+   "color": [
+    150,
+    162,
+    186
+   ],
+   "emission": 0.1,
+   "area": 17.6,
+   "near": 17.9,
+   "nobj": 1,
+   "objs": [
+    "SG_Craft_Furnishings"
+   ]
+  },
+  {
+   "zone": "craft",
+   "mat": "Glass_SGCraftSage",
+   "rbx": "Glass",
+   "transp": 0.55,
+   "color": [
+    104,
+    128,
+    118
+   ],
+   "emission": 0.14,
+   "area": 11.5,
+   "near": 11.5,
+   "nobj": 1,
+   "objs": [
+    "SG_Craft_Furnishings"
+   ]
+  },
+  {
+   "zone": "craft",
+   "mat": "Glass_SG_LampAmber",
+   "rbx": "Glass",
+   "transp": 0.3,
+   "color": [
+    206,
+    142,
+    70
+   ],
+   "emission": 0,
+   "area": 8.3,
+   "near": 8.3,
+   "nobj": 2,
+   "objs": [
+    "SG_Craft_Furnishings",
+    "SG_Craft_Shell"
+   ]
+  },
+  {
+   "zone": "craft",
+   "mat": "Glass_SG_Rose",
+   "rbx": "Glass",
+   "transp": 0.3,
+   "color": [
+    96,
+    70,
+    150
+   ],
+   "emission": 0.35,
+   "area": 37.7,
+   "near": 0.0,
+   "nobj": 1,
+   "objs": [
+    "SG_Craft_Shell"
+   ]
+  },
+  {
+   "zone": "craft",
+   "mat": "Glaze_SGCraftFlask",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    140,
+    132,
+    174
+   ],
+   "emission": 0,
+   "area": 342.3,
+   "near": 0.0,
+   "nobj": 1,
+   "objs": [
+    "SG_Craft_Dome"
+   ]
+  },
+  {
+   "zone": "craft",
+   "mat": "Lantern_Glow",
+   "rbx": "Neon",
+   "transp": 0.0,
+   "color": [
+    255,
+    146,
+    56
+   ],
+   "emission": 1.2,
+   "area": 2.5,
+   "near": 0.9,
+   "nobj": 2,
+   "objs": [
+    "SG_Craft_Furnishings",
+    "SG_Craft_Shell"
+   ]
+  },
+  {
+   "zone": "craft",
+   "mat": "Leather",
+   "rbx": "Fabric",
+   "transp": 0.0,
+   "color": [
+    149,
+    111,
+    80
+   ],
+   "emission": 0,
+   "area": 46.7,
+   "near": 46.7,
+   "nobj": 1,
+   "objs": [
+    "SG_Craft_Furnishings"
+   ]
+  },
+  {
+   "zone": "craft",
+   "mat": "Metal_Gold",
+   "rbx": "Metal",
+   "transp": 0.0,
+   "color": [
+    222,
+    170,
+    70
+   ],
+   "emission": 0,
+   "area": 1.2,
+   "near": 1.2,
+   "nobj": 2,
+   "objs": [
+    "SG_Craft_Furnishings",
+    "SG_Craft_Shell"
+   ]
+  },
+  {
+   "zone": "craft",
+   "mat": "Metal_SG_BlackIron",
+   "rbx": "Metal",
+   "transp": 0.0,
+   "color": [
+    56,
+    54,
+    64
+   ],
+   "emission": 0,
+   "area": 367.9,
+   "near": 161.3,
+   "nobj": 3,
+   "objs": [
+    "SG_Craft_Cauldron",
+    "SG_Craft_Furnishings",
+    "SG_Craft_Shell"
+   ]
+  },
+  {
+   "zone": "craft",
+   "mat": "Metal_SG_Bronze",
+   "rbx": "Metal",
+   "transp": 0.0,
+   "color": [
+    132,
+    96,
+    64
+   ],
+   "emission": 0,
+   "area": 465.4,
+   "near": 221.3,
+   "nobj": 4,
+   "objs": [
+    "SG_Craft_Cauldron",
+    "SG_Craft_Dome",
+    "SG_Craft_Furnishings",
+    "SG_Craft_Shell"
+   ]
+  },
+  {
+   "zone": "craft",
+   "mat": "Metal_SG_Iron",
+   "rbx": "Metal",
+   "transp": 0.0,
+   "color": [
+    56,
+    58,
+    68
+   ],
+   "emission": 0,
+   "area": 236.1,
+   "near": 237.2,
+   "nobj": 3,
+   "objs": [
+    "SG_Craft_Cauldron",
+    "SG_Craft_Furnishings",
+    "SG_Craft_Shell"
+   ]
+  },
+  {
+   "zone": "craft",
+   "mat": "Metal_SG_Silver",
+   "rbx": "Metal",
+   "transp": 0.0,
+   "color": [
+    176,
+    182,
+    198
+   ],
+   "emission": 0,
+   "area": 584.0,
+   "near": 136.9,
+   "nobj": 4,
+   "objs": [
+    "SG_Craft_Cauldron",
+    "SG_Craft_Dome",
+    "SG_Craft_Furnishings",
+    "SG_Craft_Shell"
+   ]
+  },
+  {
+   "zone": "craft",
+   "mat": "Plaster_SG",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    150,
+    142,
+    132
+   ],
+   "emission": 0,
+   "area": 385.2,
+   "near": 491.6,
+   "nobj": 2,
+   "objs": [
+    "SG_Craft_Furnishings",
+    "SG_Craft_Shell"
+   ]
+  },
+  {
+   "zone": "craft",
+   "mat": "Potion_SGCraftTeal",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    58,
+    146,
+    136
+   ],
+   "emission": 0,
+   "area": 11.8,
+   "near": 11.5,
+   "nobj": 2,
+   "objs": [
+    "SG_Craft_Furnishings",
+    "SG_Craft_Shell"
+   ]
+  },
+  {
+   "zone": "craft",
+   "mat": "Potion_SGCraftWine",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    160,
+    58,
+    98
+   ],
+   "emission": 0,
+   "area": 19.4,
+   "near": 19.1,
+   "nobj": 2,
+   "objs": [
+    "SG_Craft_Furnishings",
+    "SG_Craft_Shell"
+   ]
+  },
+  {
+   "zone": "craft",
+   "mat": "Roof_SG_Navy",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    40,
+    34,
+    62
+   ],
+   "emission": 0,
+   "area": 3104.8,
+   "near": 0.0,
+   "nobj": 2,
+   "objs": [
+    "SG_Craft_Dome",
+    "SG_Craft_Shell"
+   ]
+  },
+  {
+   "zone": "craft",
+   "mat": "Roof_SG_Slate",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    46,
+    48,
+    62
+   ],
+   "emission": 0,
+   "area": 489.4,
+   "near": 489.4,
+   "nobj": 1,
+   "objs": [
+    "SG_Craft_Furnishings"
+   ]
+  },
+  {
+   "zone": "craft",
+   "mat": "SG_LampCore_Glow",
+   "rbx": "Neon",
+   "transp": 0.0,
+   "color": [
+    190,
+    110,
+    40
+   ],
+   "emission": 1.2,
+   "area": 3.4,
+   "near": 3.4,
+   "nobj": 2,
+   "objs": [
+    "SG_Craft_Furnishings",
+    "SG_Craft_Shell"
+   ]
+  },
+  {
+   "zone": "craft",
+   "mat": "SG_Rune_Glow",
+   "rbx": "Neon",
+   "transp": 0.0,
+   "color": [
+    150,
+    104,
+    230
+   ],
+   "emission": 2.4,
+   "area": 1.4,
+   "near": 1.4,
+   "nobj": 1,
+   "objs": [
+    "SG_Craft_Cauldron"
+   ]
+  },
+  {
+   "zone": "craft",
+   "mat": "SG_VioletDeep_Glow",
+   "rbx": "Neon",
+   "transp": 0.0,
+   "color": [
+    110,
+    50,
+    210
+   ],
+   "emission": 1.8,
+   "area": 37.9,
+   "near": 37.9,
+   "nobj": 1,
+   "objs": [
+    "SG_Craft_Cauldron"
+   ]
+  },
+  {
+   "zone": "craft",
+   "mat": "SG_VioletSoft_Glow",
+   "rbx": "Neon",
+   "transp": 0.0,
+   "color": [
+    84,
+    52,
+    140
+   ],
+   "emission": 1.0,
+   "area": 286.8,
+   "near": 55.1,
+   "nobj": 3,
+   "objs": [
+    "SG_Craft_Cauldron",
+    "SG_Craft_Dome",
+    "SG_Craft_Furnishings"
+   ]
+  },
+  {
+   "zone": "craft",
+   "mat": "Stone_SGCraftDark",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    54,
+    52,
+    74
+   ],
+   "emission": 0,
+   "area": 5362.4,
+   "near": 2852.2,
+   "nobj": 1,
+   "objs": [
+    "SG_Craft_Shell"
+   ]
+  },
+  {
+   "zone": "craft",
+   "mat": "Stone_SG_Block_B",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    92,
+    92,
+    104
+   ],
+   "emission": 0,
+   "area": 1275.9,
+   "near": 550.6,
+   "nobj": 1,
+   "objs": [
+    "SG_Craft_Shell"
+   ]
+  },
+  {
+   "zone": "craft",
+   "mat": "Stone_SG_Castle",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    88,
+    88,
+    104
+   ],
+   "emission": 0,
+   "area": 854.2,
+   "near": 274.2,
+   "nobj": 1,
+   "objs": [
+    "SG_Craft_Shell"
+   ]
+  },
+  {
+   "zone": "craft",
+   "mat": "Stone_SG_Castle_B",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    80,
+    80,
+    96
+   ],
+   "emission": 0,
+   "area": 2550.7,
+   "near": 2223.4,
+   "nobj": 2,
+   "objs": [
+    "SG_Craft_Furnishings",
+    "SG_Craft_Shell"
+   ]
+  },
+  {
+   "zone": "craft",
+   "mat": "Stone_SG_MarbleBlack",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    42,
+    38,
+    54
+   ],
+   "emission": 0,
+   "area": 3055.1,
+   "near": 888.4,
+   "nobj": 1,
+   "objs": [
+    "SG_Craft_Furnishings"
+   ]
+  },
+  {
+   "zone": "craft",
+   "mat": "Stone_SG_MoonPale",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    176,
+    160,
+    210
+   ],
+   "emission": 0,
+   "area": 2.2,
+   "near": 2.2,
+   "nobj": 1,
+   "objs": [
+    "SG_Craft_Furnishings"
+   ]
+  },
+  {
+   "zone": "craft",
+   "mat": "Stone_SG_Obsidian",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    30,
+    28,
+    40
+   ],
+   "emission": 0,
+   "area": 2808.4,
+   "near": 1493.0,
+   "nobj": 4,
+   "objs": [
+    "SG_Craft_Cauldron",
+    "SG_Craft_Dome",
+    "SG_Craft_Furnishings",
+    "SG_Craft_Shell"
+   ]
+  },
+  {
+   "zone": "craft",
+   "mat": "Stone_SG_Trim",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    150,
+    146,
+    154
+   ],
+   "emission": 0,
+   "area": 272.9,
+   "near": 3.2,
+   "nobj": 1,
+   "objs": [
+    "SG_Craft_Furnishings"
+   ]
+  },
+  {
+   "zone": "craft",
+   "mat": "Stone_SG_Violet",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    78,
+    62,
+    110
+   ],
+   "emission": 0,
+   "area": 2257.3,
+   "near": 629.2,
+   "nobj": 4,
+   "objs": [
+    "SG_Craft_Cauldron",
+    "SG_Craft_Dome",
+    "SG_Craft_Furnishings",
+    "SG_Craft_Shell"
+   ]
+  },
+  {
+   "zone": "craft",
+   "mat": "Window_Warm",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    214,
+    140,
+    74
+   ],
+   "emission": 0.8,
+   "area": 505.5,
+   "near": 15.0,
+   "nobj": 3,
+   "objs": [
+    "SG_Craft_Dome",
+    "SG_Craft_Furnishings",
+    "SG_Craft_Shell"
+   ]
+  },
+  {
+   "zone": "craft",
+   "mat": "Wood_SG_Dark",
+   "rbx": "Wood",
+   "transp": 0.0,
+   "color": [
+    82,
+    56,
+    40
+   ],
+   "emission": 0,
+   "area": 1941.1,
+   "near": 1671.1,
+   "nobj": 2,
+   "objs": [
+    "SG_Craft_Cauldron",
+    "SG_Craft_Furnishings"
+   ]
+  },
+  {
+   "zone": "dungeon",
+   "mat": "Cliff_Rock_SG",
+   "rbx": "Slate",
+   "transp": 0.0,
+   "color": [
+    66,
+    60,
+    90
+   ],
+   "emission": 0,
+   "area": 10814.2,
+   "near": 686.2,
+   "nobj": 1,
+   "objs": [
+    "SG_Dun_Cave_Body"
+   ]
+  },
+  {
+   "zone": "dungeon",
+   "mat": "Cliff_Rock_SG_B",
+   "rbx": "Slate",
+   "transp": 0.0,
+   "color": [
+    56,
+    52,
+    80
+   ],
+   "emission": 0,
+   "area": 4565.0,
+   "near": 118.3,
+   "nobj": 1,
+   "objs": [
+    "SG_Dun_Cave_Body"
+   ]
+  },
+  {
+   "zone": "dungeon",
+   "mat": "Cliff_Rock_SG_Dark",
+   "rbx": "Slate",
+   "transp": 0.0,
+   "color": [
+    40,
+    36,
+    58
+   ],
+   "emission": 0,
+   "area": 19706.4,
+   "near": 1514.2,
+   "nobj": 2,
+   "objs": [
+    "SG_Dun_Cave_Body",
+    "SG_Dun_Cave_Interior"
+   ]
+  },
+  {
+   "zone": "dungeon",
+   "mat": "Cliff_Rock_SG_Top",
+   "rbx": "Slate",
+   "transp": 0.0,
+   "color": [
+    100,
+    96,
+    126
+   ],
+   "emission": 0,
+   "area": 5481.2,
+   "near": 209.2,
+   "nobj": 1,
+   "objs": [
+    "SG_Dun_Cave_Body"
+   ]
+  },
+  {
+   "zone": "dungeon",
+   "mat": "Cloth_SG_Navy",
+   "rbx": "Fabric",
+   "transp": 0.0,
+   "color": [
+    32,
+    38,
+    78
+   ],
+   "emission": 0,
+   "area": 16.5,
+   "near": 16.5,
+   "nobj": 1,
+   "objs": [
+    "SG_Dun_Rooms_Iron"
+   ]
+  },
+  {
+   "zone": "dungeon",
+   "mat": "Cloth_SG_Purple",
+   "rbx": "Fabric",
+   "transp": 0.0,
+   "color": [
+    66,
+    22,
+    112
+   ],
+   "emission": 0,
+   "area": 69.5,
+   "near": 0.0,
+   "nobj": 1,
+   "objs": [
+    "SG_Dun_Cave_Pillars"
+   ]
+  },
+  {
+   "zone": "dungeon",
+   "mat": "Crystal_SGDun",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    62,
+    42,
+    108
+   ],
+   "emission": 0,
+   "area": 137.3,
+   "near": 112.3,
+   "nobj": 1,
+   "objs": [
+    "SG_Dun_Cave_Interior"
+   ]
+  },
+  {
+   "zone": "dungeon",
+   "mat": "Glass_SG_LampAmber",
+   "rbx": "Glass",
+   "transp": 0.3,
+   "color": [
+    206,
+    142,
+    70
+   ],
+   "emission": 0,
+   "area": 11.7,
+   "near": 11.7,
+   "nobj": 1,
+   "objs": [
+    "SG_Dun_Cave_Pillars"
+   ]
+  },
+  {
+   "zone": "dungeon",
+   "mat": "Grass_SG",
+   "rbx": "Grass",
+   "transp": 0.0,
+   "color": [
+    46,
+    70,
+    64
+   ],
+   "emission": 0,
+   "area": 396.6,
+   "near": 5.4,
+   "nobj": 2,
+   "objs": [
+    "SG_Dun_Cave_Body",
+    "SG_Dun_Cave_Mouth"
+   ]
+  },
+  {
+   "zone": "dungeon",
+   "mat": "Grass_SG_B",
+   "rbx": "Grass",
+   "transp": 0.0,
+   "color": [
+    40,
+    62,
+    58
+   ],
+   "emission": 0,
+   "area": 514.0,
+   "near": 0.0,
+   "nobj": 1,
+   "objs": [
+    "SG_Dun_Cave_Body"
+   ]
+  },
+  {
+   "zone": "dungeon",
+   "mat": "Lantern_Glow",
+   "rbx": "Neon",
+   "transp": 0.0,
+   "color": [
+    255,
+    146,
+    56
+   ],
+   "emission": 1.2,
+   "area": 12.7,
+   "near": 7.0,
+   "nobj": 2,
+   "objs": [
+    "SG_Dun_Cave_Pillars",
+    "SG_Dun_Rooms_Iron"
+   ]
+  },
+  {
+   "zone": "dungeon",
+   "mat": "Leaf_SGVegMoon",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    66,
+    96,
+    104
+   ],
+   "emission": 0,
+   "area": 54.3,
+   "near": 0.0,
+   "nobj": 1,
+   "objs": [
+    "SG_Dun_Cave_Pines"
+   ]
+  },
+  {
+   "zone": "dungeon",
+   "mat": "Leaf_SGVegShade",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    16,
+    24,
+    30
+   ],
+   "emission": 0,
+   "area": 247.6,
+   "near": 0.0,
+   "nobj": 1,
+   "objs": [
+    "SG_Dun_Cave_Pines"
+   ]
+  },
+  {
+   "zone": "dungeon",
+   "mat": "Leaf_SG_Pine",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    30,
+    50,
+    48
+   ],
+   "emission": 0,
+   "area": 446.5,
+   "near": 0.0,
+   "nobj": 1,
+   "objs": [
+    "SG_Dun_Cave_Pines"
+   ]
+  },
+  {
+   "zone": "dungeon",
+   "mat": "Metal_Gold",
+   "rbx": "Metal",
+   "transp": 0.0,
+   "color": [
+    222,
+    170,
+    70
+   ],
+   "emission": 0,
+   "area": 1.7,
+   "near": 1.7,
+   "nobj": 1,
+   "objs": [
+    "SG_Dun_Cave_Pillars"
+   ]
+  },
+  {
+   "zone": "dungeon",
+   "mat": "Metal_SG_BlackIron",
+   "rbx": "Metal",
+   "transp": 0.0,
+   "color": [
+    56,
+    54,
+    64
+   ],
+   "emission": 0,
+   "area": 841.4,
+   "near": 634.7,
+   "nobj": 5,
+   "objs": [
+    "SG_Dun_Approach_Guard",
+    "SG_Dun_Cave_Mouth",
+    "SG_Dun_Cave_Pillars",
+    "SG_Dun_House_Portal",
+    "SG_Dun_Rooms_Iron"
+   ]
+  },
+  {
+   "zone": "dungeon",
+   "mat": "Metal_SG_Bronze",
+   "rbx": "Metal",
+   "transp": 0.0,
+   "color": [
+    132,
+    96,
+    64
+   ],
+   "emission": 0,
+   "area": 23.0,
+   "near": 0.0,
+   "nobj": 1,
+   "objs": [
+    "SG_Dun_Cave_Pillars"
+   ]
+  },
+  {
+   "zone": "dungeon",
+   "mat": "Metal_SG_Iron",
+   "rbx": "Metal",
+   "transp": 0.0,
+   "color": [
+    56,
+    58,
+    68
+   ],
+   "emission": 0,
+   "area": 52.1,
+   "near": 30.4,
+   "nobj": 2,
+   "objs": [
+    "SG_Dun_Cave_Pillars",
+    "SG_Dun_Rooms_Iron"
+   ]
+  },
+  {
+   "zone": "dungeon",
+   "mat": "Metal_SG_Silver",
+   "rbx": "Metal",
+   "transp": 0.0,
+   "color": [
+    176,
+    182,
+    198
+   ],
+   "emission": 0,
+   "area": 18.1,
+   "near": 0.0,
+   "nobj": 2,
+   "objs": [
+    "SG_Dun_Cave_Mouth",
+    "SG_Dun_Cave_Pillars"
+   ]
+  },
+  {
+   "zone": "dungeon",
+   "mat": "Plaster_SG",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    150,
+    142,
+    132
+   ],
+   "emission": 0,
+   "area": 0.8,
+   "near": 0.8,
+   "nobj": 1,
+   "objs": [
+    "SG_Dun_Cave_Pillars"
+   ]
+  },
+  {
+   "zone": "dungeon",
+   "mat": "Roof_SG_Navy",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    40,
+    34,
+    62
+   ],
+   "emission": 0,
+   "area": 13.6,
+   "near": 0.0,
+   "nobj": 1,
+   "objs": [
+    "SG_Dun_Cave_Pillars"
+   ]
+  },
+  {
+   "zone": "dungeon",
+   "mat": "SG_DunCrystal_Glow",
+   "rbx": "Neon",
+   "transp": 0.0,
+   "color": [
+    140,
+    100,
+    228
+   ],
+   "emission": 2.2,
+   "area": 27.9,
+   "near": 23.1,
+   "nobj": 1,
+   "objs": [
+    "SG_Dun_Cave_Interior"
+   ]
+  },
+  {
+   "zone": "dungeon",
+   "mat": "SG_DunVoid_Glow",
+   "rbx": "Neon",
+   "transp": 0.0,
+   "color": [
+    46,
+    26,
+    104
+   ],
+   "emission": 1.0,
+   "area": 519.9,
+   "near": 515.9,
+   "nobj": 2,
+   "objs": [
+    "SG_Dun_House_Portal",
+    "SG_Dun_Rooms_Portals"
+   ]
+  },
+  {
+   "zone": "dungeon",
+   "mat": "SG_LampCore_Glow",
+   "rbx": "Neon",
+   "transp": 0.0,
+   "color": [
+    190,
+    110,
+    40
+   ],
+   "emission": 1.2,
+   "area": 4.7,
+   "near": 4.7,
+   "nobj": 1,
+   "objs": [
+    "SG_Dun_Cave_Pillars"
+   ]
+  },
+  {
+   "zone": "dungeon",
+   "mat": "SG_VioletDeep_Glow",
+   "rbx": "Neon",
+   "transp": 0.0,
+   "color": [
+    110,
+    50,
+    210
+   ],
+   "emission": 1.8,
+   "area": 312.0,
+   "near": 272.2,
+   "nobj": 5,
+   "objs": [
+    "SG_Dun_Cave_Interior",
+    "SG_Dun_House_Portal",
+    "SG_Dun_Rooms_Floor",
+    "SG_Dun_Rooms_Kit",
+    "SG_Dun_Rooms_Portals"
+   ]
+  },
+  {
+   "zone": "dungeon",
+   "mat": "SG_Violet_Glow",
+   "rbx": "Neon",
+   "transp": 0.0,
+   "color": [
+    150,
+    100,
+    235
+   ],
+   "emission": 2.6,
+   "area": 116.0,
+   "near": 113.0,
+   "nobj": 2,
+   "objs": [
+    "SG_Dun_R3_ExitSpiral",
+    "SG_Dun_Rooms_Portals"
+   ]
+  },
+  {
+   "zone": "dungeon",
+   "mat": "Stone_SGDunCaveDeep",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    40,
+    24,
+    74
+   ],
+   "emission": 0,
+   "area": 1513.9,
+   "near": 1087.7,
+   "nobj": 1,
+   "objs": [
+    "SG_Dun_Cave_Interior"
+   ]
+  },
+  {
+   "zone": "dungeon",
+   "mat": "Stone_SGDunRuin",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    80,
+    74,
+    102
+   ],
+   "emission": 0,
+   "area": 1508.9,
+   "near": 1182.0,
+   "nobj": 3,
+   "objs": [
+    "SG_Dun_Cave_Interior",
+    "SG_Dun_Cave_Mouth",
+    "SG_Dun_Cave_Pillars"
+   ]
+  },
+  {
+   "zone": "dungeon",
+   "mat": "Stone_SGDunVault",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    34,
+    38,
+    62
+   ],
+   "emission": 0,
+   "area": 31434.9,
+   "near": 8525.4,
+   "nobj": 6,
+   "objs": [
+    "SG_Dun_Approach_Guard",
+    "SG_Dun_Cave_Pillars",
+    "SG_Dun_Rooms_Floor",
+    "SG_Dun_Rooms_Kit",
+    "SG_Dun_Rooms_Portals",
+    "SG_Dun_Rooms_Vault"
+   ]
+  },
+  {
+   "zone": "dungeon",
+   "mat": "Stone_SG_Block_B",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    92,
+    92,
+    104
+   ],
+   "emission": 0,
+   "area": 19310.4,
+   "near": 19310.4,
+   "nobj": 1,
+   "objs": [
+    "SG_Dun_Rooms_Floor"
+   ]
+  },
+  {
+   "zone": "dungeon",
+   "mat": "Stone_SG_Castle",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    88,
+    88,
+    104
+   ],
+   "emission": 0,
+   "area": 44882.2,
+   "near": 11224.8,
+   "nobj": 2,
+   "objs": [
+    "SG_Dun_Rooms_Kit",
+    "SG_Dun_Rooms_Shell"
+   ]
+  },
+  {
+   "zone": "dungeon",
+   "mat": "Stone_SG_Castle_B",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    80,
+    80,
+    96
+   ],
+   "emission": 0,
+   "area": 4810.7,
+   "near": 4490.6,
+   "nobj": 2,
+   "objs": [
+    "SG_Dun_Rooms_Kit",
+    "SG_Dun_Rooms_Portals"
+   ]
+  },
+  {
+   "zone": "dungeon",
+   "mat": "Stone_SG_Floor",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    66,
+    68,
+    84
+   ],
+   "emission": 0,
+   "area": 19425.7,
+   "near": 18063.5,
+   "nobj": 1,
+   "objs": [
+    "SG_Dun_Rooms_Floor"
+   ]
+  },
+  {
+   "zone": "dungeon",
+   "mat": "Stone_SG_MarbleBlack",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    42,
+    38,
+    54
+   ],
+   "emission": 0,
+   "area": 2437.6,
+   "near": 2291.2,
+   "nobj": 2,
+   "objs": [
+    "SG_Dun_Approach_Floor",
+    "SG_Dun_Cave_Interior"
+   ]
+  },
+  {
+   "zone": "dungeon",
+   "mat": "Stone_SG_MoonPale",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    176,
+    160,
+    210
+   ],
+   "emission": 0,
+   "area": 3.1,
+   "near": 0.0,
+   "nobj": 2,
+   "objs": [
+    "SG_Dun_Cave_Mouth",
+    "SG_Dun_Cave_Pillars"
+   ]
+  },
+  {
+   "zone": "dungeon",
+   "mat": "Stone_SG_Obsidian",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    30,
+    28,
+    40
+   ],
+   "emission": 0,
+   "area": 9618.0,
+   "near": 10418.3,
+   "nobj": 8,
+   "objs": [
+    "SG_Dun_Approach_Floor",
+    "SG_Dun_Approach_Guard",
+    "SG_Dun_Cave_Interior",
+    "SG_Dun_Cave_Mouth",
+    "SG_Dun_Cave_Pillars",
+    "SG_Dun_House_Portal"
+   ]
+  },
+  {
+   "zone": "dungeon",
+   "mat": "Stone_SG_TrimLow",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    132,
+    128,
+    134
+   ],
+   "emission": 0,
+   "area": 12768.2,
+   "near": 3753.5,
+   "nobj": 4,
+   "objs": [
+    "SG_Dun_Rooms_Floor",
+    "SG_Dun_Rooms_Kit",
+    "SG_Dun_Rooms_Portals",
+    "SG_Dun_Rooms_Vault"
+   ]
+  },
+  {
+   "zone": "dungeon",
+   "mat": "Stone_SG_Violet",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    78,
+    62,
+    110
+   ],
+   "emission": 0,
+   "area": 1079.9,
+   "near": 55.1,
+   "nobj": 4,
+   "objs": [
+    "SG_Dun_Approach_Guard",
+    "SG_Dun_Cave_Interior",
+    "SG_Dun_Cave_Mouth",
+    "SG_Dun_Cave_Pillars"
+   ]
+  },
+  {
+   "zone": "dungeon",
+   "mat": "Wax_SGHallCandle",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    212,
+    170,
+    116
+   ],
+   "emission": 0,
+   "area": 14.0,
+   "near": 0.9,
+   "nobj": 1,
+   "objs": [
+    "SG_Dun_Rooms_Iron"
+   ]
+  },
+  {
+   "zone": "dungeon",
+   "mat": "Wood_SG_Dark",
+   "rbx": "Wood",
+   "transp": 0.0,
+   "color": [
+    82,
+    56,
+    40
+   ],
+   "emission": 0,
+   "area": 550.3,
+   "near": 469.0,
+   "nobj": 2,
+   "objs": [
+    "SG_Dun_Cave_Pines",
+    "SG_Dun_Rooms_Iron"
+   ]
+  },
+  {
+   "zone": "entry",
+   "mat": "Cliff_Rock_SG_Dark",
+   "rbx": "Slate",
+   "transp": 0.0,
+   "color": [
+    40,
+    36,
+    58
+   ],
+   "emission": 0,
+   "area": 1053.8,
+   "near": 0.0,
+   "nobj": 1,
+   "objs": [
+    "SG_Ent_Bridge"
+   ]
+  },
+  {
+   "zone": "entry",
+   "mat": "Cloth_SG_Purple",
+   "rbx": "Fabric",
+   "transp": 0.0,
+   "color": [
+    66,
+    22,
+    112
+   ],
+   "emission": 0,
+   "area": 158.5,
+   "near": 0.0,
+   "nobj": 1,
+   "objs": [
+    "SG_Ent_Porticos"
+   ]
+  },
+  {
+   "zone": "entry",
+   "mat": "Glass_SG_LampAmber",
+   "rbx": "Glass",
+   "transp": 0.3,
+   "color": [
+    206,
+    142,
+    70
+   ],
+   "emission": 0,
+   "area": 14.8,
+   "near": 9.5,
+   "nobj": 2,
+   "objs": [
+    "SG_Ent_Parapets",
+    "SG_Ent_Porticos"
+   ]
+  },
+  {
+   "zone": "entry",
+   "mat": "Lantern_Glow",
+   "rbx": "Neon",
+   "transp": 0.0,
+   "color": [
+    255,
+    146,
+    56
+   ],
+   "emission": 1.2,
+   "area": 0.9,
+   "near": 0.6,
+   "nobj": 2,
+   "objs": [
+    "SG_Ent_Parapets",
+    "SG_Ent_Porticos"
+   ]
+  },
+  {
+   "zone": "entry",
+   "mat": "Metal_Gold",
+   "rbx": "Metal",
+   "transp": 0.0,
+   "color": [
+    222,
+    170,
+    70
+   ],
+   "emission": 0,
+   "area": 2.1,
+   "near": 1.4,
+   "nobj": 2,
+   "objs": [
+    "SG_Ent_Parapets",
+    "SG_Ent_Porticos"
+   ]
+  },
+  {
+   "zone": "entry",
+   "mat": "Metal_SG_BlackIron",
+   "rbx": "Metal",
+   "transp": 0.0,
+   "color": [
+    56,
+    54,
+    64
+   ],
+   "emission": 0,
+   "area": 8.6,
+   "near": 0.0,
+   "nobj": 1,
+   "objs": [
+    "SG_Ent_Porticos"
+   ]
+  },
+  {
+   "zone": "entry",
+   "mat": "Metal_SG_Bronze",
+   "rbx": "Metal",
+   "transp": 0.0,
+   "color": [
+    132,
+    96,
+    64
+   ],
+   "emission": 0,
+   "area": 52.5,
+   "near": 0.0,
+   "nobj": 1,
+   "objs": [
+    "SG_Ent_Porticos"
+   ]
+  },
+  {
+   "zone": "entry",
+   "mat": "Metal_SG_Iron",
+   "rbx": "Metal",
+   "transp": 0.0,
+   "color": [
+    56,
+    58,
+    68
+   ],
+   "emission": 0,
+   "area": 36.5,
+   "near": 23.3,
+   "nobj": 2,
+   "objs": [
+    "SG_Ent_Parapets",
+    "SG_Ent_Porticos"
+   ]
+  },
+  {
+   "zone": "entry",
+   "mat": "Metal_SG_Silver",
+   "rbx": "Metal",
+   "transp": 0.0,
+   "color": [
+    176,
+    182,
+    198
+   ],
+   "emission": 0,
+   "area": 60.9,
+   "near": 0.0,
+   "nobj": 1,
+   "objs": [
+    "SG_Ent_Porticos"
+   ]
+  },
+  {
+   "zone": "entry",
+   "mat": "Plaster_SG",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    150,
+    142,
+    132
+   ],
+   "emission": 0,
+   "area": 1.0,
+   "near": 0.6,
+   "nobj": 2,
+   "objs": [
+    "SG_Ent_Parapets",
+    "SG_Ent_Porticos"
+   ]
+  },
+  {
+   "zone": "entry",
+   "mat": "Roof_SG_Navy",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    40,
+    34,
+    62
+   ],
+   "emission": 0,
+   "area": 213.4,
+   "near": 0.0,
+   "nobj": 1,
+   "objs": [
+    "SG_Ent_Porticos"
+   ]
+  },
+  {
+   "zone": "entry",
+   "mat": "SG_LampCore_Glow",
+   "rbx": "Neon",
+   "transp": 0.0,
+   "color": [
+    190,
+    110,
+    40
+   ],
+   "emission": 1.2,
+   "area": 6.0,
+   "near": 3.9,
+   "nobj": 2,
+   "objs": [
+    "SG_Ent_Parapets",
+    "SG_Ent_Porticos"
+   ]
+  },
+  {
+   "zone": "entry",
+   "mat": "Stone_Paving_SG",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    94,
+    92,
+    114
+   ],
+   "emission": 0,
+   "area": 740.4,
+   "near": 740.4,
+   "nobj": 1,
+   "objs": [
+    "SG_Ent_Bridge"
+   ]
+  },
+  {
+   "zone": "entry",
+   "mat": "Stone_Paving_SG_B",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    84,
+    82,
+    104
+   ],
+   "emission": 0,
+   "area": 424.0,
+   "near": 424.0,
+   "nobj": 1,
+   "objs": [
+    "SG_Ent_Bridge"
+   ]
+  },
+  {
+   "zone": "entry",
+   "mat": "Stone_SG_Block_B",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    92,
+    92,
+    104
+   ],
+   "emission": 0,
+   "area": 14769.3,
+   "near": 2929.4,
+   "nobj": 4,
+   "objs": [
+    "SG_Ent_Bridge",
+    "SG_Ent_Parapets",
+    "SG_Ent_Porticos",
+    "SG_Ent_Stair"
+   ]
+  },
+  {
+   "zone": "entry",
+   "mat": "Stone_SG_Castle_B",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    80,
+    80,
+    96
+   ],
+   "emission": 0,
+   "area": 7563.9,
+   "near": 2339.6,
+   "nobj": 4,
+   "objs": [
+    "SG_Ent_Parapets",
+    "SG_Ent_Porticos",
+    "SG_Ent_Stair",
+    "SG_Ent_StairWalls"
+   ]
+  },
+  {
+   "zone": "entry",
+   "mat": "Stone_SG_Floor",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    66,
+    68,
+    84
+   ],
+   "emission": 0,
+   "area": 1276.0,
+   "near": 1276.0,
+   "nobj": 1,
+   "objs": [
+    "SG_Ent_Bridge"
+   ]
+  },
+  {
+   "zone": "entry",
+   "mat": "Stone_SG_MoonPale",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    176,
+    160,
+    210
+   ],
+   "emission": 0,
+   "area": 2.6,
+   "near": 0.0,
+   "nobj": 1,
+   "objs": [
+    "SG_Ent_Porticos"
+   ]
+  },
+  {
+   "zone": "entry",
+   "mat": "Stone_SG_Obsidian",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    30,
+    28,
+    40
+   ],
+   "emission": 0,
+   "area": 700.7,
+   "near": 258.3,
+   "nobj": 3,
+   "objs": [
+    "SG_Ent_Bridge",
+    "SG_Ent_Parapets",
+    "SG_Ent_Porticos"
+   ]
+  },
+  {
+   "zone": "entry",
+   "mat": "Stone_SG_Trim",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    150,
+    146,
+    154
+   ],
+   "emission": 0,
+   "area": 3113.7,
+   "near": 0.0,
+   "nobj": 1,
+   "objs": [
+    "SG_Ent_Bridge"
+   ]
+  },
+  {
+   "zone": "entry",
+   "mat": "Stone_SG_TrimLow",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    132,
+    128,
+    134
+   ],
+   "emission": 0,
+   "area": 4325.8,
+   "near": 2746.1,
+   "nobj": 2,
+   "objs": [
+    "SG_Ent_Parapets",
+    "SG_Ent_Porticos"
+   ]
+  },
+  {
+   "zone": "exit",
+   "mat": "Cliff_Rock_SG",
+   "rbx": "Slate",
+   "transp": 0.0,
+   "color": [
+    66,
+    60,
+    90
+   ],
+   "emission": 0,
+   "area": 5356.9,
+   "near": 0.0,
+   "nobj": 1,
+   "objs": [
+    "SG_Exit_Bridge"
+   ]
+  },
+  {
+   "zone": "exit",
+   "mat": "Cliff_Rock_SG_C",
+   "rbx": "Slate",
+   "transp": 0.0,
+   "color": [
+    76,
+    70,
+    100
+   ],
+   "emission": 0,
+   "area": 1086.1,
+   "near": 0.0,
+   "nobj": 1,
+   "objs": [
+    "SG_Exit_Bridge"
+   ]
+  },
+  {
+   "zone": "exit",
+   "mat": "Cliff_Rock_SG_Dark",
+   "rbx": "Slate",
+   "transp": 0.0,
+   "color": [
+    40,
+    36,
+    58
+   ],
+   "emission": 0,
+   "area": 10574.7,
+   "near": 0.0,
+   "nobj": 1,
+   "objs": [
+    "SG_Exit_Bridge"
+   ]
+  },
+  {
+   "zone": "exit",
+   "mat": "Cloth_SG_Purple",
+   "rbx": "Fabric",
+   "transp": 0.0,
+   "color": [
+    66,
+    22,
+    112
+   ],
+   "emission": 0,
+   "area": 70.0,
+   "near": 70.0,
+   "nobj": 1,
+   "objs": [
+    "SG_Exit_Head"
+   ]
+  },
+  {
+   "zone": "exit",
+   "mat": "Glass_SG_LampAmber",
+   "rbx": "Glass",
+   "transp": 0.3,
+   "color": [
+    206,
+    142,
+    70
+   ],
+   "emission": 0,
+   "area": 4.2,
+   "near": 4.2,
+   "nobj": 1,
+   "objs": [
+    "SG_Exit_Head"
+   ]
+  },
+  {
+   "zone": "exit",
+   "mat": "Lantern_Glow",
+   "rbx": "Neon",
+   "transp": 0.0,
+   "color": [
+    255,
+    146,
+    56
+   ],
+   "emission": 1.2,
+   "area": 6.9,
+   "near": 6.9,
+   "nobj": 2,
+   "objs": [
+    "SG_Exit_Head",
+    "SG_Exit_Rails"
+   ]
+  },
+  {
+   "zone": "exit",
+   "mat": "Metal_Gold",
+   "rbx": "Metal",
+   "transp": 0.0,
+   "color": [
+    222,
+    170,
+    70
+   ],
+   "emission": 0,
+   "area": 15.7,
+   "near": 6.9,
+   "nobj": 2,
+   "objs": [
+    "SG_Exit_Head",
+    "SG_Exit_Rails"
+   ]
+  },
+  {
+   "zone": "exit",
+   "mat": "Metal_SG_BlackIron",
+   "rbx": "Metal",
+   "transp": 0.0,
+   "color": [
+    56,
+    54,
+    64
+   ],
+   "emission": 0,
+   "area": 8.2,
+   "near": 8.2,
+   "nobj": 1,
+   "objs": [
+    "SG_Exit_Head"
+   ]
+  },
+  {
+   "zone": "exit",
+   "mat": "Metal_SG_Bronze",
+   "rbx": "Metal",
+   "transp": 0.0,
+   "color": [
+    132,
+    96,
+    64
+   ],
+   "emission": 0,
+   "area": 23.5,
+   "near": 23.5,
+   "nobj": 1,
+   "objs": [
+    "SG_Exit_Head"
+   ]
+  },
+  {
+   "zone": "exit",
+   "mat": "Metal_SG_Iron",
+   "rbx": "Metal",
+   "transp": 0.0,
+   "color": [
+    56,
+    58,
+    68
+   ],
+   "emission": 0,
+   "area": 18.0,
+   "near": 18.0,
+   "nobj": 1,
+   "objs": [
+    "SG_Exit_Head"
+   ]
+  },
+  {
+   "zone": "exit",
+   "mat": "Metal_SG_Silver",
+   "rbx": "Metal",
+   "transp": 0.0,
+   "color": [
+    176,
+    182,
+    198
+   ],
+   "emission": 0,
+   "area": 11.4,
+   "near": 9.2,
+   "nobj": 1,
+   "objs": [
+    "SG_Exit_Head"
+   ]
+  },
+  {
+   "zone": "exit",
+   "mat": "P_DS_Black",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    75,
+    63,
+    63
+   ],
+   "emission": 0,
+   "area": 261.5,
+   "near": 115.6,
+   "nobj": 2,
+   "objs": [
+    "SG_Exit_AnchorGuard",
+    "SG_Exit_Rails"
+   ]
+  },
+  {
+   "zone": "exit",
+   "mat": "Plaster_SG",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    150,
+    142,
+    132
+   ],
+   "emission": 0,
+   "area": 0.3,
+   "near": 0.3,
+   "nobj": 1,
+   "objs": [
+    "SG_Exit_Head"
+   ]
+  },
+  {
+   "zone": "exit",
+   "mat": "Roof_SG_Navy",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    40,
+    34,
+    62
+   ],
+   "emission": 0,
+   "area": 57.2,
+   "near": 0.0,
+   "nobj": 1,
+   "objs": [
+    "SG_Exit_Head"
+   ]
+  },
+  {
+   "zone": "exit",
+   "mat": "SG_LampCore_Glow",
+   "rbx": "Neon",
+   "transp": 0.0,
+   "color": [
+    190,
+    110,
+    40
+   ],
+   "emission": 1.2,
+   "area": 1.7,
+   "near": 1.7,
+   "nobj": 1,
+   "objs": [
+    "SG_Exit_Head"
+   ]
+  },
+  {
+   "zone": "exit",
+   "mat": "Stone_Paving_SG",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    94,
+    92,
+    114
+   ],
+   "emission": 0,
+   "area": 1849.1,
+   "near": 1849.1,
+   "nobj": 2,
+   "objs": [
+    "SG_Exit_Bridge",
+    "SG_Exit_Head"
+   ]
+  },
+  {
+   "zone": "exit",
+   "mat": "Stone_Paving_SG_B",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    84,
+    82,
+    104
+   ],
+   "emission": 0,
+   "area": 2281.0,
+   "near": 658.4,
+   "nobj": 1,
+   "objs": [
+    "SG_Exit_Bridge"
+   ]
+  },
+  {
+   "zone": "exit",
+   "mat": "Stone_SG_Block",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    100,
+    100,
+    112
+   ],
+   "emission": 0,
+   "area": 22985.4,
+   "near": 1502.0,
+   "nobj": 2,
+   "objs": [
+    "SG_Exit_Bridge",
+    "SG_Exit_Rails"
+   ]
+  },
+  {
+   "zone": "exit",
+   "mat": "Stone_SG_Block_B",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    92,
+    92,
+    104
+   ],
+   "emission": 0,
+   "area": 880.7,
+   "near": 752.9,
+   "nobj": 2,
+   "objs": [
+    "SG_Exit_Head",
+    "SG_Exit_Rails"
+   ]
+  },
+  {
+   "zone": "exit",
+   "mat": "Stone_SG_Castle_B",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    80,
+    80,
+    96
+   ],
+   "emission": 0,
+   "area": 1214.9,
+   "near": 1035.5,
+   "nobj": 2,
+   "objs": [
+    "SG_Exit_Head",
+    "SG_Exit_Rails"
+   ]
+  },
+  {
+   "zone": "exit",
+   "mat": "Stone_SG_Floor",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    66,
+    68,
+    84
+   ],
+   "emission": 0,
+   "area": 2207.9,
+   "near": 2164.0,
+   "nobj": 1,
+   "objs": [
+    "SG_Exit_Bridge"
+   ]
+  },
+  {
+   "zone": "exit",
+   "mat": "Stone_SG_MoonPale",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    176,
+    160,
+    210
+   ],
+   "emission": 0,
+   "area": 2.1,
+   "near": 2.1,
+   "nobj": 1,
+   "objs": [
+    "SG_Exit_Head"
+   ]
+  },
+  {
+   "zone": "exit",
+   "mat": "Stone_SG_Obsidian",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    30,
+    28,
+    40
+   ],
+   "emission": 0,
+   "area": 49.3,
+   "near": 49.3,
+   "nobj": 1,
+   "objs": [
+    "SG_Exit_Head"
+   ]
+  },
+  {
+   "zone": "exit",
+   "mat": "Stone_SG_Trim",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    150,
+    146,
+    154
+   ],
+   "emission": 0,
+   "area": 7923.9,
+   "near": 1.8,
+   "nobj": 1,
+   "objs": [
+    "SG_Exit_Bridge"
+   ]
+  },
+  {
+   "zone": "exit",
+   "mat": "Stone_SG_TrimLow",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    132,
+    128,
+    134
+   ],
+   "emission": 0,
+   "area": 4181.1,
+   "near": 1721.7,
+   "nobj": 3,
+   "objs": [
+    "SG_Exit_Bridge",
+    "SG_Exit_Head",
+    "SG_Exit_Rails"
+   ]
+  },
+  {
+   "zone": "exit",
+   "mat": "Wood_Lacquer_Red",
+   "rbx": "Wood",
+   "transp": 0.0,
+   "color": [
+    168,
+    42,
+    32
+   ],
+   "emission": 0,
+   "area": 546.9,
+   "near": 222.6,
+   "nobj": 1,
+   "objs": [
+    "SG_Exit_Rails"
+   ]
+  },
+  {
+   "zone": "gate_ds",
+   "mat": "Energy_Core_DemonSlayer_Glow",
+   "rbx": "Neon",
+   "transp": 0.0,
+   "color": [
+    255,
+    150,
+    120
+   ],
+   "emission": 2.0,
+   "area": 279.8,
+   "near": 229.1,
+   "nobj": 2,
+   "objs": [
+    "GATE_DemonSlayer_Barrier",
+    "GATE_DemonSlayer_Lock"
+   ]
+  },
+  {
+   "zone": "gate_ds",
+   "mat": "Lantern_Glow",
+   "rbx": "Neon",
+   "transp": 0.0,
+   "color": [
+    255,
+    146,
+    56
+   ],
+   "emission": 1.2,
+   "area": 74.3,
+   "near": 22.8,
+   "nobj": 1,
+   "objs": [
+    "GATE_DemonSlayer_Frame"
+   ]
+  },
+  {
+   "zone": "gate_ds",
+   "mat": "Leaf_GateDS_Wisteria",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    176,
+    132,
+    232
+   ],
+   "emission": 0,
+   "area": 82.6,
+   "near": 0.0,
+   "nobj": 1,
+   "objs": [
+    "GATE_DemonSlayer_Frame"
+   ]
+  },
+  {
+   "zone": "gate_ds",
+   "mat": "Metal_Dark",
+   "rbx": "Metal",
+   "transp": 0.0,
+   "color": [
+    78,
+    76,
+    76
+   ],
+   "emission": 0,
+   "area": 8.0,
+   "near": 8.0,
+   "nobj": 1,
+   "objs": [
+    "GATE_DemonSlayer_Lock"
+   ]
+  },
+  {
+   "zone": "gate_ds",
+   "mat": "Metal_GateDS_Blade",
+   "rbx": "Metal",
+   "transp": 0.0,
+   "color": [
+    206,
+    214,
+    226
+   ],
+   "emission": 0,
+   "area": 73.1,
+   "near": 0.0,
+   "nobj": 1,
+   "objs": [
+    "GATE_DemonSlayer_Frame"
+   ]
+  },
+  {
+   "zone": "gate_ds",
+   "mat": "Metal_Gold",
+   "rbx": "Metal",
+   "transp": 0.0,
+   "color": [
+    222,
+    170,
+    70
+   ],
+   "emission": 0,
+   "area": 571.5,
+   "near": 86.2,
+   "nobj": 2,
+   "objs": [
+    "GATE_DemonSlayer_Frame",
+    "GATE_DemonSlayer_Lock"
+   ]
+  },
+  {
+   "zone": "gate_ds",
+   "mat": "P_DS_Black",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    75,
+    63,
+    63
+   ],
+   "emission": 0,
+   "area": 1789.0,
+   "near": 0.0,
+   "nobj": 1,
+   "objs": [
+    "GATE_DemonSlayer_Frame"
+   ]
+  },
+  {
+   "zone": "gate_ds",
+   "mat": "P_DS_Glow",
+   "rbx": "Neon",
+   "transp": 0.0,
+   "color": [
+    185,
+    12,
+    22
+   ],
+   "emission": 5.0,
+   "area": 610.0,
+   "near": 584.0,
+   "nobj": 1,
+   "objs": [
+    "GATE_DemonSlayer_Barrier"
+   ]
+  },
+  {
+   "zone": "gate_ds",
+   "mat": "Plaster_Cream",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    232,
+    212,
+    172
+   ],
+   "emission": 0,
+   "area": 118.6,
+   "near": 0.0,
+   "nobj": 1,
+   "objs": [
+    "GATE_DemonSlayer_Frame"
+   ]
+  },
+  {
+   "zone": "gate_ds",
+   "mat": "Roof_Blue",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    62,
+    84,
+    138
+   ],
+   "emission": 0,
+   "area": 1102.2,
+   "near": 28.8,
+   "nobj": 1,
+   "objs": [
+    "GATE_DemonSlayer_Frame"
+   ]
+  },
+  {
+   "zone": "gate_ds",
+   "mat": "Stone_Dark",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    102,
+    95,
+    88
+   ],
+   "emission": 0,
+   "area": 148.4,
+   "near": 0.3,
+   "nobj": 1,
+   "objs": [
+    "GATE_DemonSlayer_Frame"
+   ]
+  },
+  {
+   "zone": "gate_ds",
+   "mat": "Stone_Wall_Dark",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    128,
+    120,
+    110
+   ],
+   "emission": 0,
+   "area": 865.3,
+   "near": 174.5,
+   "nobj": 1,
+   "objs": [
+    "GATE_DemonSlayer_Frame"
+   ]
+  },
+  {
+   "zone": "gate_ds",
+   "mat": "Stone_Wall_Light",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    178,
+    170,
+    156
+   ],
+   "emission": 0,
+   "area": 761.8,
+   "near": 313.1,
+   "nobj": 1,
+   "objs": [
+    "GATE_DemonSlayer_Frame"
+   ]
+  },
+  {
+   "zone": "gate_ds",
+   "mat": "Wood_Dark",
+   "rbx": "Wood",
+   "transp": 0.0,
+   "color": [
+    92,
+    64,
+    47
+   ],
+   "emission": 0,
+   "area": 571.3,
+   "near": 0.0,
+   "nobj": 1,
+   "objs": [
+    "GATE_DemonSlayer_Frame"
+   ]
+  },
+  {
+   "zone": "gate_ds",
+   "mat": "Wood_Lacquer_Red",
+   "rbx": "Wood",
+   "transp": 0.0,
+   "color": [
+    168,
+    42,
+    32
+   ],
+   "emission": 0,
+   "area": 608.3,
+   "near": 0.0,
+   "nobj": 1,
+   "objs": [
+    "GATE_DemonSlayer_Frame"
+   ]
+  },
+  {
+   "zone": "hall",
+   "mat": "Cloth_SG_Navy",
+   "rbx": "Fabric",
+   "transp": 0.0,
+   "color": [
+    32,
+    38,
+    78
+   ],
+   "emission": 0,
+   "area": 117.5,
+   "near": 0.0,
+   "nobj": 1,
+   "objs": [
+    "SG_Hall_Altar"
+   ]
+  },
+  {
+   "zone": "hall",
+   "mat": "Cloth_SG_Purple",
+   "rbx": "Fabric",
+   "transp": 0.0,
+   "color": [
+    66,
+    22,
+    112
+   ],
+   "emission": 0,
+   "area": 1125.6,
+   "near": 1083.3,
+   "nobj": 2,
+   "objs": [
+    "SG_Hall_Altar",
+    "SG_Hall_Floor"
+   ]
+  },
+  {
+   "zone": "hall",
+   "mat": "Glass_SGHallMoon",
+   "rbx": "Glass",
+   "transp": 0.3,
+   "color": [
+    96,
+    124,
+    186
+   ],
+   "emission": 0.4,
+   "area": 2663.6,
+   "near": 0.0,
+   "nobj": 2,
+   "objs": [
+    "SG_Hall_Altar",
+    "SG_Hall_Windows"
+   ]
+  },
+  {
+   "zone": "hall",
+   "mat": "Glass_SGHallViolet",
+   "rbx": "Glass",
+   "transp": 0.3,
+   "color": [
+    112,
+    56,
+    196
+   ],
+   "emission": 0.9,
+   "area": 405.1,
+   "near": 0.0,
+   "nobj": 2,
+   "objs": [
+    "SG_Hall_Altar",
+    "SG_Hall_Windows"
+   ]
+  },
+  {
+   "zone": "hall",
+   "mat": "Lantern_Glow",
+   "rbx": "Neon",
+   "transp": 0.0,
+   "color": [
+    255,
+    146,
+    56
+   ],
+   "emission": 1.2,
+   "area": 15.7,
+   "near": 8.4,
+   "nobj": 2,
+   "objs": [
+    "SG_Hall_Altar",
+    "SG_Hall_Ironwork"
+   ]
+  },
+  {
+   "zone": "hall",
+   "mat": "Metal_SG_BlackIron",
+   "rbx": "Metal",
+   "transp": 0.0,
+   "color": [
+    56,
+    54,
+    64
+   ],
+   "emission": 0,
+   "area": 595.7,
+   "near": 8.2,
+   "nobj": 4,
+   "objs": [
+    "SG_Hall_Altar",
+    "SG_Hall_Ironwork",
+    "SG_Hall_Walls",
+    "SG_Hall_Windows"
+   ]
+  },
+  {
+   "zone": "hall",
+   "mat": "Metal_SG_Iron",
+   "rbx": "Metal",
+   "transp": 0.0,
+   "color": [
+    56,
+    58,
+    68
+   ],
+   "emission": 0,
+   "area": 135.3,
+   "near": 76.6,
+   "nobj": 2,
+   "objs": [
+    "SG_Hall_Altar",
+    "SG_Hall_Ironwork"
+   ]
+  },
+  {
+   "zone": "hall",
+   "mat": "Metal_SG_Silver",
+   "rbx": "Metal",
+   "transp": 0.0,
+   "color": [
+    176,
+    182,
+    198
+   ],
+   "emission": 0,
+   "area": 4111.9,
+   "near": 1739.6,
+   "nobj": 5,
+   "objs": [
+    "SG_Hall_Altar",
+    "SG_Hall_Floor",
+    "SG_Hall_Ironwork",
+    "SG_Hall_Ribs",
+    "SG_Hall_Walls"
+   ]
+  },
+  {
+   "zone": "hall",
+   "mat": "SG_VioletDeep_Glow",
+   "rbx": "Neon",
+   "transp": 0.0,
+   "color": [
+    110,
+    50,
+    210
+   ],
+   "emission": 1.8,
+   "area": 26.4,
+   "near": 0.0,
+   "nobj": 1,
+   "objs": [
+    "SG_Hall_Altar"
+   ]
+  },
+  {
+   "zone": "hall",
+   "mat": "SG_VioletSoft_Glow",
+   "rbx": "Neon",
+   "transp": 0.0,
+   "color": [
+    84,
+    52,
+    140
+   ],
+   "emission": 1.0,
+   "area": 49.7,
+   "near": 47.0,
+   "nobj": 2,
+   "objs": [
+    "SG_Hall_Floor",
+    "SG_Hall_Ribs"
+   ]
+  },
+  {
+   "zone": "hall",
+   "mat": "Slate_SGHallNiche",
+   "rbx": "Slate",
+   "transp": 0.0,
+   "color": [
+    58,
+    50,
+    76
+   ],
+   "emission": 0,
+   "area": 3402.2,
+   "near": 2067.5,
+   "nobj": 1,
+   "objs": [
+    "SG_Hall_Walls"
+   ]
+  },
+  {
+   "zone": "hall",
+   "mat": "Slate_SGHallVault",
+   "rbx": "Slate",
+   "transp": 0.0,
+   "color": [
+    26,
+    30,
+    60
+   ],
+   "emission": 0,
+   "area": 10989.2,
+   "near": 0.0,
+   "nobj": 2,
+   "objs": [
+    "SG_Hall_Altar",
+    "SG_Hall_Vault"
+   ]
+  },
+  {
+   "zone": "hall",
+   "mat": "Slate_SGHallVaultJoint",
+   "rbx": "Slate",
+   "transp": 0.0,
+   "color": [
+    50,
+    56,
+    94
+   ],
+   "emission": 0,
+   "area": 205.1,
+   "near": 0.0,
+   "nobj": 1,
+   "objs": [
+    "SG_Hall_Vault"
+   ]
+  },
+  {
+   "zone": "hall",
+   "mat": "Stone_SG_Block_B",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    92,
+    92,
+    104
+   ],
+   "emission": 0,
+   "area": 1175.5,
+   "near": 862.7,
+   "nobj": 2,
+   "objs": [
+    "SG_Hall_Altar",
+    "SG_Hall_Walls"
+   ]
+  },
+  {
+   "zone": "hall",
+   "mat": "Stone_SG_Castle",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    88,
+    88,
+    104
+   ],
+   "emission": 0,
+   "area": 11434.4,
+   "near": 3401.9,
+   "nobj": 1,
+   "objs": [
+    "SG_Hall_Walls"
+   ]
+  },
+  {
+   "zone": "hall",
+   "mat": "Stone_SG_Castle_B",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    80,
+    80,
+    96
+   ],
+   "emission": 0,
+   "area": 13316.8,
+   "near": 2525.8,
+   "nobj": 2,
+   "objs": [
+    "SG_Hall_Altar",
+    "SG_Hall_Walls"
+   ]
+  },
+  {
+   "zone": "hall",
+   "mat": "Stone_SG_MarbleBlack",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    42,
+    38,
+    54
+   ],
+   "emission": 0,
+   "area": 17270.7,
+   "near": 11537.6,
+   "nobj": 3,
+   "objs": [
+    "SG_Hall_Altar",
+    "SG_Hall_Floor",
+    "SG_Hall_Walls"
+   ]
+  },
+  {
+   "zone": "hall",
+   "mat": "Stone_SG_MoonPale",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    176,
+    160,
+    210
+   ],
+   "emission": 0,
+   "area": 2.6,
+   "near": 2.6,
+   "nobj": 1,
+   "objs": [
+    "SG_Hall_Altar"
+   ]
+  },
+  {
+   "zone": "hall",
+   "mat": "Stone_SG_Obsidian",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    30,
+    28,
+    40
+   ],
+   "emission": 0,
+   "area": 24534.4,
+   "near": 14027.2,
+   "nobj": 4,
+   "objs": [
+    "SG_Hall_Altar",
+    "SG_Hall_Floor",
+    "SG_Hall_Ribs",
+    "SG_Hall_Walls"
+   ]
+  },
+  {
+   "zone": "hall",
+   "mat": "Stone_SG_Trim",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    150,
+    146,
+    154
+   ],
+   "emission": 0,
+   "area": 4621.7,
+   "near": 128.5,
+   "nobj": 3,
+   "objs": [
+    "SG_Hall_Altar",
+    "SG_Hall_Walls",
+    "SG_Hall_Windows"
+   ]
+  },
+  {
+   "zone": "hall",
+   "mat": "Stone_SG_TrimLow",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    132,
+    128,
+    134
+   ],
+   "emission": 0,
+   "area": 3162.2,
+   "near": 2127.8,
+   "nobj": 2,
+   "objs": [
+    "SG_Hall_Altar",
+    "SG_Hall_Walls"
+   ]
+  },
+  {
+   "zone": "hall",
+   "mat": "Stone_SG_Violet",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    78,
+    62,
+    110
+   ],
+   "emission": 0,
+   "area": 1416.9,
+   "near": 628.9,
+   "nobj": 2,
+   "objs": [
+    "SG_Hall_Altar",
+    "SG_Hall_Walls"
+   ]
+  },
+  {
+   "zone": "hall",
+   "mat": "Wax_SGHallCandle",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    212,
+    170,
+    116
+   ],
+   "emission": 0,
+   "area": 35.4,
+   "near": 17.1,
+   "nobj": 2,
+   "objs": [
+    "SG_Hall_Altar",
+    "SG_Hall_Ironwork"
+   ]
+  },
+  {
+   "zone": "props",
+   "mat": "Dirt_SG",
+   "rbx": "Ground",
+   "transp": 0.0,
+   "color": [
+    64,
+    58,
+    60
+   ],
+   "emission": 0,
+   "area": 994.9,
+   "near": 994.9,
+   "nobj": 1,
+   "objs": [
+    "SG_Prop_Court"
+   ]
+  },
+  {
+   "zone": "props",
+   "mat": "Flower_White",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    236,
+    232,
+    220
+   ],
+   "emission": 0,
+   "area": 3.7,
+   "near": 3.7,
+   "nobj": 1,
+   "objs": [
+    "SG_Prop_Court"
+   ]
+  },
+  {
+   "zone": "props",
+   "mat": "Glass_SG_LampAmber",
+   "rbx": "Glass",
+   "transp": 0.3,
+   "color": [
+    206,
+    142,
+    70
+   ],
+   "emission": 0,
+   "area": 14.0,
+   "near": 14.0,
+   "nobj": 3,
+   "objs": [
+    "SG_Prop_GateArch",
+    "SG_Prop_Plaza",
+    "SG_Prop_RouteLamps"
+   ]
+  },
+  {
+   "zone": "props",
+   "mat": "Lantern_Glow",
+   "rbx": "Neon",
+   "transp": 0.0,
+   "color": [
+    255,
+    146,
+    56
+   ],
+   "emission": 1.2,
+   "area": 0.9,
+   "near": 0.9,
+   "nobj": 3,
+   "objs": [
+    "SG_Prop_GateArch",
+    "SG_Prop_Plaza",
+    "SG_Prop_RouteLamps"
+   ]
+  },
+  {
+   "zone": "props",
+   "mat": "Leaf_SGPropBloom",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    98,
+    66,
+    132
+   ],
+   "emission": 0,
+   "area": 43.7,
+   "near": 15.0,
+   "nobj": 1,
+   "objs": [
+    "SG_Prop_Court"
+   ]
+  },
+  {
+   "zone": "props",
+   "mat": "Leaf_SGVegMoon",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    66,
+    96,
+    104
+   ],
+   "emission": 0,
+   "area": 132.3,
+   "near": 132.3,
+   "nobj": 1,
+   "objs": [
+    "SG_Prop_Court"
+   ]
+  },
+  {
+   "zone": "props",
+   "mat": "Leaf_SGVegShade",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    16,
+    24,
+    30
+   ],
+   "emission": 0,
+   "area": 11.7,
+   "near": 11.7,
+   "nobj": 1,
+   "objs": [
+    "SG_Prop_Court"
+   ]
+  },
+  {
+   "zone": "props",
+   "mat": "Leaf_SG_Pine",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    30,
+    50,
+    48
+   ],
+   "emission": 0,
+   "area": 834.0,
+   "near": 996.7,
+   "nobj": 1,
+   "objs": [
+    "SG_Prop_Court"
+   ]
+  },
+  {
+   "zone": "props",
+   "mat": "Metal_Gold",
+   "rbx": "Metal",
+   "transp": 0.0,
+   "color": [
+    222,
+    170,
+    70
+   ],
+   "emission": 0,
+   "area": 2.0,
+   "near": 2.0,
+   "nobj": 3,
+   "objs": [
+    "SG_Prop_GateArch",
+    "SG_Prop_Plaza",
+    "SG_Prop_RouteLamps"
+   ]
+  },
+  {
+   "zone": "props",
+   "mat": "Metal_SG_BlackIron",
+   "rbx": "Metal",
+   "transp": 0.0,
+   "color": [
+    56,
+    54,
+    64
+   ],
+   "emission": 0,
+   "area": 78.4,
+   "near": 48.7,
+   "nobj": 1,
+   "objs": [
+    "SG_Prop_GateArch"
+   ]
+  },
+  {
+   "zone": "props",
+   "mat": "Metal_SG_Iron",
+   "rbx": "Metal",
+   "transp": 0.0,
+   "color": [
+    56,
+    58,
+    68
+   ],
+   "emission": 0,
+   "area": 76.5,
+   "near": 76.5,
+   "nobj": 3,
+   "objs": [
+    "SG_Prop_GateArch",
+    "SG_Prop_Plaza",
+    "SG_Prop_RouteLamps"
+   ]
+  },
+  {
+   "zone": "props",
+   "mat": "Metal_SG_Silver",
+   "rbx": "Metal",
+   "transp": 0.0,
+   "color": [
+    176,
+    182,
+    198
+   ],
+   "emission": 0,
+   "area": 212.7,
+   "near": 210.5,
+   "nobj": 4,
+   "objs": [
+    "SG_Prop_Court",
+    "SG_Prop_GateArch",
+    "SG_Prop_NobleAxis_P1",
+    "SG_Prop_NobleAxis_P2P3"
+   ]
+  },
+  {
+   "zone": "props",
+   "mat": "Plaster_SG",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    150,
+    142,
+    132
+   ],
+   "emission": 0,
+   "area": 0.9,
+   "near": 0.9,
+   "nobj": 3,
+   "objs": [
+    "SG_Prop_GateArch",
+    "SG_Prop_Plaza",
+    "SG_Prop_RouteLamps"
+   ]
+  },
+  {
+   "zone": "props",
+   "mat": "SG_LampCore_Glow",
+   "rbx": "Neon",
+   "transp": 0.0,
+   "color": [
+    190,
+    110,
+    40
+   ],
+   "emission": 1.2,
+   "area": 5.7,
+   "near": 5.7,
+   "nobj": 3,
+   "objs": [
+    "SG_Prop_GateArch",
+    "SG_Prop_Plaza",
+    "SG_Prop_RouteLamps"
+   ]
+  },
+  {
+   "zone": "props",
+   "mat": "SG_VioletSoft_Glow",
+   "rbx": "Neon",
+   "transp": 0.0,
+   "color": [
+    84,
+    52,
+    140
+   ],
+   "emission": 1.0,
+   "area": 110.2,
+   "near": 110.2,
+   "nobj": 1,
+   "objs": [
+    "SG_Prop_NobleAxis_P2P3"
+   ]
+  },
+  {
+   "zone": "props",
+   "mat": "Stone_SG_Block_B",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    92,
+    92,
+    104
+   ],
+   "emission": 0,
+   "area": 149.9,
+   "near": 149.9,
+   "nobj": 2,
+   "objs": [
+    "SG_Prop_Court",
+    "SG_Prop_Plaza"
+   ]
+  },
+  {
+   "zone": "props",
+   "mat": "Stone_SG_Castle_B",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    80,
+    80,
+    96
+   ],
+   "emission": 0,
+   "area": 277.3,
+   "near": 277.3,
+   "nobj": 1,
+   "objs": [
+    "SG_Prop_Court"
+   ]
+  },
+  {
+   "zone": "props",
+   "mat": "Stone_SG_Floor",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    66,
+    68,
+    84
+   ],
+   "emission": 0,
+   "area": 972.8,
+   "near": 972.8,
+   "nobj": 1,
+   "objs": [
+    "SG_Prop_NobleAxis_P2P3"
+   ]
+  },
+  {
+   "zone": "props",
+   "mat": "Stone_SG_MarbleBlack",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    42,
+    38,
+    54
+   ],
+   "emission": 0,
+   "area": 2235.4,
+   "near": 2235.4,
+   "nobj": 2,
+   "objs": [
+    "SG_Prop_NobleAxis_P1",
+    "SG_Prop_NobleAxis_P2P3"
+   ]
+  },
+  {
+   "zone": "props",
+   "mat": "Stone_SG_Obsidian",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    30,
+    28,
+    40
+   ],
+   "emission": 0,
+   "area": 5674.8,
+   "near": 5610.5,
+   "nobj": 6,
+   "objs": [
+    "SG_Prop_Court",
+    "SG_Prop_GateArch",
+    "SG_Prop_NobleAxis_P1",
+    "SG_Prop_NobleAxis_P2P3",
+    "SG_Prop_Plaza",
+    "SG_Prop_RouteLamps"
+   ]
+  },
+  {
+   "zone": "props",
+   "mat": "Stone_SG_TrimLow",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    132,
+    128,
+    134
+   ],
+   "emission": 0,
+   "area": 1411.1,
+   "near": 1468.4,
+   "nobj": 3,
+   "objs": [
+    "SG_Prop_Court",
+    "SG_Prop_NobleAxis_P2P3",
+    "SG_Prop_Plaza"
+   ]
+  },
+  {
+   "zone": "props",
+   "mat": "Stone_SG_Violet",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    78,
+    62,
+    110
+   ],
+   "emission": 0,
+   "area": 204.0,
+   "near": 203.2,
+   "nobj": 3,
+   "objs": [
+    "SG_Prop_Court",
+    "SG_Prop_NobleAxis_P1",
+    "SG_Prop_NobleAxis_P2P3"
+   ]
+  },
+  {
+   "zone": "props",
+   "mat": "Wood_SG_Dark",
+   "rbx": "Wood",
+   "transp": 0.0,
+   "color": [
+    82,
+    56,
+    40
+   ],
+   "emission": 0,
+   "area": 7.1,
+   "near": 7.1,
+   "nobj": 1,
+   "objs": [
+    "SG_Prop_Court"
+   ]
+  },
+  {
+   "zone": "summon",
+   "mat": "Cloth_SG_Purple",
+   "rbx": "Fabric",
+   "transp": 0.0,
+   "color": [
+    66,
+    22,
+    112
+   ],
+   "emission": 0,
+   "area": 240.9,
+   "near": 0.0,
+   "nobj": 1,
+   "objs": [
+    "SG_Sum_Tower_Banners"
+   ]
+  },
+  {
+   "zone": "summon",
+   "mat": "Glass_SG_LampAmber",
+   "rbx": "Glass",
+   "transp": 0.3,
+   "color": [
+    206,
+    142,
+    70
+   ],
+   "emission": 0,
+   "area": 23.5,
+   "near": 17.6,
+   "nobj": 2,
+   "objs": [
+    "SG_Sum_OrderDressing",
+    "SG_Sum_Tower_Silver"
+   ]
+  },
+  {
+   "zone": "summon",
+   "mat": "Lantern_Glow",
+   "rbx": "Neon",
+   "transp": 0.0,
+   "color": [
+    255,
+    146,
+    56
+   ],
+   "emission": 1.2,
+   "area": 1.5,
+   "near": 1.1,
+   "nobj": 2,
+   "objs": [
+    "SG_Sum_OrderDressing",
+    "SG_Sum_Tower_Glow"
+   ]
+  },
+  {
+   "zone": "summon",
+   "mat": "Metal_Gold",
+   "rbx": "Metal",
+   "transp": 0.0,
+   "color": [
+    222,
+    170,
+    70
+   ],
+   "emission": 0,
+   "area": 0.8,
+   "near": 0.8,
+   "nobj": 1,
+   "objs": [
+    "SG_Sum_OrderDressing"
+   ]
+  },
+  {
+   "zone": "summon",
+   "mat": "Metal_SG_BlackIron",
+   "rbx": "Metal",
+   "transp": 0.0,
+   "color": [
+    56,
+    54,
+    64
+   ],
+   "emission": 0,
+   "area": 8.6,
+   "near": 0.0,
+   "nobj": 1,
+   "objs": [
+    "SG_Sum_Tower_Silver"
+   ]
+  },
+  {
+   "zone": "summon",
+   "mat": "Metal_SG_Iron",
+   "rbx": "Metal",
+   "transp": 0.0,
+   "color": [
+    56,
+    58,
+    68
+   ],
+   "emission": 0,
+   "area": 58.9,
+   "near": 40.9,
+   "nobj": 2,
+   "objs": [
+    "SG_Sum_OrderDressing",
+    "SG_Sum_Tower_Silver"
+   ]
+  },
+  {
+   "zone": "summon",
+   "mat": "Metal_SG_Silver",
+   "rbx": "Metal",
+   "transp": 0.0,
+   "color": [
+    176,
+    182,
+    198
+   ],
+   "emission": 0,
+   "area": 3351.7,
+   "near": 442.9,
+   "nobj": 2,
+   "objs": [
+    "SG_Sum_Sphere_Frame",
+    "SG_Sum_Tower_Silver"
+   ]
+  },
+  {
+   "zone": "summon",
+   "mat": "Plaster_SG",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    150,
+    142,
+    132
+   ],
+   "emission": 0,
+   "area": 1.6,
+   "near": 1.2,
+   "nobj": 2,
+   "objs": [
+    "SG_Sum_OrderDressing",
+    "SG_Sum_Tower_Silver"
+   ]
+  },
+  {
+   "zone": "summon",
+   "mat": "SG_LampCore_Glow",
+   "rbx": "Neon",
+   "transp": 0.0,
+   "color": [
+    190,
+    110,
+    40
+   ],
+   "emission": 1.2,
+   "area": 9.5,
+   "near": 7.1,
+   "nobj": 2,
+   "objs": [
+    "SG_Sum_OrderDressing",
+    "SG_Sum_Tower_Glow"
+   ]
+  },
+  {
+   "zone": "summon",
+   "mat": "SG_SumPortalDeep_Glow",
+   "rbx": "Neon",
+   "transp": 0.0,
+   "color": [
+    34,
+    24,
+    98
+   ],
+   "emission": 0.45,
+   "area": 252.1,
+   "near": 93.0,
+   "nobj": 1,
+   "objs": [
+    "SG_Sum_Tower_Glow"
+   ]
+  },
+  {
+   "zone": "summon",
+   "mat": "SG_SumPortal_Glow",
+   "rbx": "Neon",
+   "transp": 0.0,
+   "color": [
+    70,
+    54,
+    166
+   ],
+   "emission": 0.7,
+   "area": 357.2,
+   "near": 132.5,
+   "nobj": 1,
+   "objs": [
+    "SG_Sum_Tower_Glow"
+   ]
+  },
+  {
+   "zone": "summon",
+   "mat": "SG_SumStar_Glow",
+   "rbx": "Neon",
+   "transp": 0.0,
+   "color": [
+    146,
+    104,
+    232
+   ],
+   "emission": 0.9,
+   "area": 45.4,
+   "near": 45.4,
+   "nobj": 1,
+   "objs": [
+    "SG_Sum_Tower_Glow"
+   ]
+  },
+  {
+   "zone": "summon",
+   "mat": "SG_VioletSoft_Glow",
+   "rbx": "Neon",
+   "transp": 0.0,
+   "color": [
+    84,
+    52,
+    140
+   ],
+   "emission": 1.0,
+   "area": 35.3,
+   "near": 31.5,
+   "nobj": 2,
+   "objs": [
+    "SG_Sum_Sphere_Frame",
+    "SG_Sum_Tower_Glow"
+   ]
+  },
+  {
+   "zone": "summon",
+   "mat": "Stone_Paving_SG",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    94,
+    92,
+    114
+   ],
+   "emission": 0,
+   "area": 1225.5,
+   "near": 865.3,
+   "nobj": 2,
+   "objs": [
+    "SG_Sum_Base",
+    "SG_Sum_Bridge"
+   ]
+  },
+  {
+   "zone": "summon",
+   "mat": "Stone_Paving_SG_B",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    84,
+    82,
+    104
+   ],
+   "emission": 0,
+   "area": 358.5,
+   "near": 236.8,
+   "nobj": 1,
+   "objs": [
+    "SG_Sum_Bridge"
+   ]
+  },
+  {
+   "zone": "summon",
+   "mat": "Stone_SG_Block",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    100,
+    100,
+    112
+   ],
+   "emission": 0,
+   "area": 5351.1,
+   "near": 2104.5,
+   "nobj": 3,
+   "objs": [
+    "SG_Sum_Base",
+    "SG_Sum_Bridge",
+    "SG_Sum_Tower_Stone"
+   ]
+  },
+  {
+   "zone": "summon",
+   "mat": "Stone_SG_Block_B",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    92,
+    92,
+    104
+   ],
+   "emission": 0,
+   "area": 1003.1,
+   "near": 623.1,
+   "nobj": 3,
+   "objs": [
+    "SG_Sum_Balustrade",
+    "SG_Sum_Base",
+    "SG_Sum_FloorInlay"
+   ]
+  },
+  {
+   "zone": "summon",
+   "mat": "Stone_SG_Castle",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    88,
+    88,
+    104
+   ],
+   "emission": 0,
+   "area": 5086.7,
+   "near": 2236.5,
+   "nobj": 2,
+   "objs": [
+    "SG_Sum_Base",
+    "SG_Sum_Tower_Stone"
+   ]
+  },
+  {
+   "zone": "summon",
+   "mat": "Stone_SG_Castle_B",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    80,
+    80,
+    96
+   ],
+   "emission": 0,
+   "area": 547.5,
+   "near": 547.5,
+   "nobj": 1,
+   "objs": [
+    "SG_Sum_Balustrade"
+   ]
+  },
+  {
+   "zone": "summon",
+   "mat": "Stone_SG_Floor",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    66,
+    68,
+    84
+   ],
+   "emission": 0,
+   "area": 4805.4,
+   "near": 2429.0,
+   "nobj": 4,
+   "objs": [
+    "SG_Sum_Base",
+    "SG_Sum_Bridge",
+    "SG_Sum_FloorInlay",
+    "SG_Sum_Tower_Stone"
+   ]
+  },
+  {
+   "zone": "summon",
+   "mat": "Stone_SG_MoonPale",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    176,
+    160,
+    210
+   ],
+   "emission": 0,
+   "area": 5.2,
+   "near": 0.0,
+   "nobj": 1,
+   "objs": [
+    "SG_Sum_Tower_Banners"
+   ]
+  },
+  {
+   "zone": "summon",
+   "mat": "Stone_SG_Obsidian",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    30,
+    28,
+    40
+   ],
+   "emission": 0,
+   "area": 46.9,
+   "near": 8.0,
+   "nobj": 2,
+   "objs": [
+    "SG_Sum_OrderDressing",
+    "SG_Sum_Tower_Banners"
+   ]
+  },
+  {
+   "zone": "summon",
+   "mat": "Stone_SG_TrimLow",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    132,
+    128,
+    134
+   ],
+   "emission": 0,
+   "area": 1567.5,
+   "near": 1324.0,
+   "nobj": 5,
+   "objs": [
+    "SG_Sum_Balustrade",
+    "SG_Sum_Base",
+    "SG_Sum_BaseTrim",
+    "SG_Sum_Bridge",
+    "SG_Sum_FloorInlay"
+   ]
+  },
+  {
+   "zone": "summon",
+   "mat": "Wood_SG_Dark",
+   "rbx": "Wood",
+   "transp": 0.0,
+   "color": [
+    82,
+    56,
+    40
+   ],
+   "emission": 0,
+   "area": 44.9,
+   "near": 0.0,
+   "nobj": 1,
+   "objs": [
+    "SG_Sum_Tower_Banners"
+   ]
+  },
+  {
+   "zone": "terrain",
+   "mat": "Cliff_Rock_SG",
+   "rbx": "Slate",
+   "transp": 0.0,
+   "color": [
+    66,
+    60,
+    90
+   ],
+   "emission": 0,
+   "area": 35718.5,
+   "near": 0.0,
+   "nobj": 4,
+   "objs": [
+    "SG_Sky_Islets",
+    "SG_Ter_Cliff_E",
+    "SG_Ter_Terrace_P2",
+    "SG_Ter_Terrace_P3"
+   ]
+  },
+  {
+   "zone": "terrain",
+   "mat": "Cliff_Rock_SG_B",
+   "rbx": "Slate",
+   "transp": 0.0,
+   "color": [
+    56,
+    52,
+    80
+   ],
+   "emission": 0,
+   "area": 126818.1,
+   "near": 0.0,
+   "nobj": 7,
+   "objs": [
+    "SG_Sky_Islets",
+    "SG_Ter_Cliff_N",
+    "SG_Ter_Cliff_NE",
+    "SG_Ter_Cliff_Under",
+    "SG_Ter_Cliff_W",
+    "SG_Ter_Mounds"
+   ]
+  },
+  {
+   "zone": "terrain",
+   "mat": "Cliff_Rock_SG_C",
+   "rbx": "Slate",
+   "transp": 0.0,
+   "color": [
+    76,
+    70,
+    100
+   ],
+   "emission": 0,
+   "area": 50991.2,
+   "near": 0.0,
+   "nobj": 8,
+   "objs": [
+    "SG_Ter_Cliff_E",
+    "SG_Ter_Cliff_N",
+    "SG_Ter_Cliff_NW",
+    "SG_Ter_Cliff_S",
+    "SG_Ter_Cliff_W",
+    "SG_Ter_Mounds"
+   ]
+  },
+  {
+   "zone": "terrain",
+   "mat": "Cliff_Rock_SG_Dark",
+   "rbx": "Slate",
+   "transp": 0.0,
+   "color": [
+    40,
+    36,
+    58
+   ],
+   "emission": 0,
+   "area": 777834.1,
+   "near": 1724.8,
+   "nobj": 13,
+   "objs": [
+    "SG_Sky_Islets",
+    "SG_Ter_Cliff_E",
+    "SG_Ter_Cliff_N",
+    "SG_Ter_Cliff_NE",
+    "SG_Ter_Cliff_NW",
+    "SG_Ter_Cliff_S"
+   ]
+  },
+  {
+   "zone": "terrain",
+   "mat": "Cliff_Rock_SG_Top",
+   "rbx": "Slate",
+   "transp": 0.0,
+   "color": [
+    100,
+    96,
+    126
+   ],
+   "emission": 0,
+   "area": 14445.4,
+   "near": 27.5,
+   "nobj": 11,
+   "objs": [
+    "SG_Sky_Islets",
+    "SG_Ter_Cliff_E",
+    "SG_Ter_Cliff_N",
+    "SG_Ter_Cliff_NE",
+    "SG_Ter_Cliff_NW",
+    "SG_Ter_Cliff_S"
+   ]
+  },
+  {
+   "zone": "terrain",
+   "mat": "Grass_SG",
+   "rbx": "Grass",
+   "transp": 0.0,
+   "color": [
+    46,
+    70,
+    64
+   ],
+   "emission": 0,
+   "area": 90784.9,
+   "near": 0.0,
+   "nobj": 8,
+   "objs": [
+    "SG_Sky_Islets",
+    "SG_Ter_Cliff_E",
+    "SG_Ter_Cliff_N",
+    "SG_Ter_Cliff_NW",
+    "SG_Ter_Cliff_S",
+    "SG_Ter_Cliff_W"
+   ]
+  },
+  {
+   "zone": "terrain",
+   "mat": "Grass_SG_B",
+   "rbx": "Grass",
+   "transp": 0.0,
+   "color": [
+    40,
+    62,
+    58
+   ],
+   "emission": 0,
+   "area": 38774.2,
+   "near": 21000.0,
+   "nobj": 5,
+   "objs": [
+    "SG_Ter_Cliff_NE",
+    "SG_Ter_Mounds",
+    "SG_Ter_Terrace_Entry",
+    "SG_Ter_Terrace_P2",
+    "SG_Ter_Terrace_P3"
+   ]
+  },
+  {
+   "zone": "terrain",
+   "mat": "Leaf_SGVegShade",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    16,
+    24,
+    30
+   ],
+   "emission": 0,
+   "area": 618.5,
+   "near": 0.0,
+   "nobj": 1,
+   "objs": [
+    "SG_Sky_Islets"
+   ]
+  },
+  {
+   "zone": "terrain",
+   "mat": "Leaf_SG_Pine",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    30,
+    50,
+    48
+   ],
+   "emission": 0,
+   "area": 1888.7,
+   "near": 0.0,
+   "nobj": 1,
+   "objs": [
+    "SG_Sky_Islets"
+   ]
+  },
+  {
+   "zone": "terrain",
+   "mat": "SG_Crystal_Glow",
+   "rbx": "Neon",
+   "transp": 0.0,
+   "color": [
+    76,
+    46,
+    132
+   ],
+   "emission": 1.0,
+   "area": 3001.4,
+   "near": 0.0,
+   "nobj": 2,
+   "objs": [
+    "SG_Sky_Islets",
+    "SG_Ter_Crystals"
+   ]
+  },
+  {
+   "zone": "terrain",
+   "mat": "Stone_Paving_SG",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    94,
+    92,
+    114
+   ],
+   "emission": 0,
+   "area": 2651.2,
+   "near": 1148.0,
+   "nobj": 2,
+   "objs": [
+    "SG_Ter_SummonIsle",
+    "SG_Ter_Terrace_Entry"
+   ]
+  },
+  {
+   "zone": "terrain",
+   "mat": "Stone_Paving_SG_B",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    84,
+    82,
+    104
+   ],
+   "emission": 0,
+   "area": 40357.0,
+   "near": 12151.4,
+   "nobj": 2,
+   "objs": [
+    "SG_Ter_Terrace_P1",
+    "SG_Ter_Terrace_P3"
+   ]
+  },
+  {
+   "zone": "terrain",
+   "mat": "Stone_SG_Block",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    100,
+    100,
+    112
+   ],
+   "emission": 0,
+   "area": 11171.3,
+   "near": 4758.0,
+   "nobj": 4,
+   "objs": [
+    "SG_Ter_SummonIsle",
+    "SG_Ter_Terrace_Entry",
+    "SG_Ter_Wall_P2",
+    "SG_Ter_Wall_P3"
+   ]
+  },
+  {
+   "zone": "terrain",
+   "mat": "Stone_SG_Block_B",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    92,
+    92,
+    104
+   ],
+   "emission": 0,
+   "area": 11261.8,
+   "near": 4180.8,
+   "nobj": 5,
+   "objs": [
+    "SG_Ter_SummonIsle",
+    "SG_Ter_Terrace_Entry",
+    "SG_Ter_Wall_P1",
+    "SG_Ter_Wall_P2",
+    "SG_Ter_Wall_P3"
+   ]
+  },
+  {
+   "zone": "terrain",
+   "mat": "Stone_SG_Castle_B",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    80,
+    80,
+    96
+   ],
+   "emission": 0,
+   "area": 6850.0,
+   "near": 2332.3,
+   "nobj": 3,
+   "objs": [
+    "SG_Ter_Wall_P1",
+    "SG_Ter_Wall_P2",
+    "SG_Ter_Wall_P3"
+   ]
+  },
+  {
+   "zone": "terrain",
+   "mat": "Stone_SG_Trim",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    150,
+    146,
+    154
+   ],
+   "emission": 0,
+   "area": 1723.8,
+   "near": 183.8,
+   "nobj": 1,
+   "objs": [
+    "SG_Ter_SummonIsle"
+   ]
+  },
+  {
+   "zone": "terrain",
+   "mat": "Stone_SG_TrimLow",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    132,
+    128,
+    134
+   ],
+   "emission": 0,
+   "area": 13459.8,
+   "near": 5700.1,
+   "nobj": 3,
+   "objs": [
+    "SG_Ter_Wall_P1",
+    "SG_Ter_Wall_P2",
+    "SG_Ter_Wall_P3"
+   ]
+  },
+  {
+   "zone": "terrain",
+   "mat": "Water_Fall",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    170,
+    212,
+    236
+   ],
+   "emission": 0.55,
+   "area": 435.0,
+   "near": 0.0,
+   "nobj": 1,
+   "objs": [
+    "SG_Sky_Islets"
+   ]
+  },
+  {
+   "zone": "terrain",
+   "mat": "Water_SG",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    64,
+    96,
+    196
+   ],
+   "emission": 0.2,
+   "area": 1184.2,
+   "near": 0.0,
+   "nobj": 1,
+   "objs": [
+    "SG_Sky_Islets"
+   ]
+  },
+  {
+   "zone": "terrain",
+   "mat": "Wood_SG_Dark",
+   "rbx": "Wood",
+   "transp": 0.0,
+   "color": [
+    82,
+    56,
+    40
+   ],
+   "emission": 0,
+   "area": 381.1,
+   "near": 0.0,
+   "nobj": 1,
+   "objs": [
+    "SG_Sky_Islets"
+   ]
+  },
+  {
+   "zone": "vegetation",
+   "mat": "Grass_SG",
+   "rbx": "Grass",
+   "transp": 0.0,
+   "color": [
+    46,
+    70,
+    64
+   ],
+   "emission": 0,
+   "area": 228.4,
+   "near": 124.7,
+   "nobj": 9,
+   "objs": [
+    "SG_Veg_Pines_East",
+    "SG_Veg_Pines_North",
+    "SG_Veg_Pines_NorthE",
+    "SG_Veg_Pines_South",
+    "SG_Veg_Pines_SouthE",
+    "SG_Veg_Pines_VillageE"
+   ]
+  },
+  {
+   "zone": "vegetation",
+   "mat": "Leaf_SGVegMoon",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    66,
+    96,
+    104
+   ],
+   "emission": 0,
+   "area": 1476.0,
+   "near": 162.2,
+   "nobj": 9,
+   "objs": [
+    "SG_Veg_Pines_East",
+    "SG_Veg_Pines_North",
+    "SG_Veg_Pines_NorthE",
+    "SG_Veg_Pines_South",
+    "SG_Veg_Pines_SouthE",
+    "SG_Veg_Pines_VillageE"
+   ]
+  },
+  {
+   "zone": "vegetation",
+   "mat": "Leaf_SGVegShade",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    16,
+    24,
+    30
+   ],
+   "emission": 0,
+   "area": 8490.9,
+   "near": 1387.0,
+   "nobj": 9,
+   "objs": [
+    "SG_Veg_Pines_East",
+    "SG_Veg_Pines_North",
+    "SG_Veg_Pines_NorthE",
+    "SG_Veg_Pines_South",
+    "SG_Veg_Pines_SouthE",
+    "SG_Veg_Pines_VillageE"
+   ]
+  },
+  {
+   "zone": "vegetation",
+   "mat": "Leaf_SG_Pine",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    30,
+    50,
+    48
+   ],
+   "emission": 0,
+   "area": 18610.7,
+   "near": 2457.9,
+   "nobj": 9,
+   "objs": [
+    "SG_Veg_Pines_East",
+    "SG_Veg_Pines_North",
+    "SG_Veg_Pines_NorthE",
+    "SG_Veg_Pines_South",
+    "SG_Veg_Pines_SouthE",
+    "SG_Veg_Pines_VillageE"
+   ]
+  },
+  {
+   "zone": "vegetation",
+   "mat": "Stone_SG_TrimLow",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    132,
+    128,
+    134
+   ],
+   "emission": 0,
+   "area": 298.7,
+   "near": 195.9,
+   "nobj": 2,
+   "objs": [
+    "SG_Veg_Pines_VillageE",
+    "SG_Veg_Pines_VillageS"
+   ]
+  },
+  {
+   "zone": "vegetation",
+   "mat": "Wood_SG_Dark",
+   "rbx": "Wood",
+   "transp": 0.0,
+   "color": [
+    82,
+    56,
+    40
+   ],
+   "emission": 0,
+   "area": 3456.1,
+   "near": 491.7,
+   "nobj": 9,
+   "objs": [
+    "SG_Veg_Pines_East",
+    "SG_Veg_Pines_North",
+    "SG_Veg_Pines_NorthE",
+    "SG_Veg_Pines_South",
+    "SG_Veg_Pines_SouthE",
+    "SG_Veg_Pines_VillageE"
+   ]
+  },
+  {
+   "zone": "vfx",
+   "mat": "Metal_Gold",
+   "rbx": "Metal",
+   "transp": 0.0,
+   "color": [
+    222,
+    170,
+    70
+   ],
+   "emission": 0,
+   "area": 85.2,
+   "near": 41.6,
+   "nobj": 4,
+   "objs": [
+    "VFX_GATE_DemonSlayer_Tsuba_1",
+    "VFX_GATE_DemonSlayer_Tsuba_2",
+    "VFX_GATE_DemonSlayer_Tsuba_3",
+    "VFX_GATE_DemonSlayer_Tsuba_4"
+   ]
+  },
+  {
+   "zone": "vfx",
+   "mat": "Metal_SG_Silver",
+   "rbx": "Metal",
+   "transp": 0.0,
+   "color": [
+    176,
+    182,
+    198
+   ],
+   "emission": 0,
+   "area": 774.8,
+   "near": 0.0,
+   "nobj": 5,
+   "objs": [
+    "VFX_SGCRAFT_Ring_1",
+    "VFX_SGCRAFT_Ring_2",
+    "VFX_SGSUM_Ring_1",
+    "VFX_SGSUM_Ring_2",
+    "VFX_SGSUM_Ring_3"
+   ]
+  },
+  {
+   "zone": "vfx",
+   "mat": "P_DS_Glow",
+   "rbx": "Neon",
+   "transp": 0.0,
+   "color": [
+    185,
+    12,
+    22
+   ],
+   "emission": 5.0,
+   "area": 47.2,
+   "near": 22.9,
+   "nobj": 4,
+   "objs": [
+    "VFX_GATE_DemonSlayer_Tsuba_1",
+    "VFX_GATE_DemonSlayer_Tsuba_2",
+    "VFX_GATE_DemonSlayer_Tsuba_3",
+    "VFX_GATE_DemonSlayer_Tsuba_4"
+   ]
+  },
+  {
+   "zone": "vfx",
+   "mat": "SG_DunCrystal_Glow",
+   "rbx": "Neon",
+   "transp": 0.0,
+   "color": [
+    140,
+    100,
+    228
+   ],
+   "emission": 2.2,
+   "area": 11.7,
+   "near": 0.0,
+   "nobj": 1,
+   "objs": [
+    "VFX_SGDUN_MouthCrystal"
+   ]
+  },
+  {
+   "zone": "vfx",
+   "mat": "SG_SumStarDeep_Glow",
+   "rbx": "Neon",
+   "transp": 0.0,
+   "color": [
+    96,
+    58,
+    188
+   ],
+   "emission": 0.9,
+   "area": 88.0,
+   "near": 0.0,
+   "nobj": 1,
+   "objs": [
+    "VFX_SGSUM_Star"
+   ]
+  },
+  {
+   "zone": "vfx",
+   "mat": "SG_SumStar_Glow",
+   "rbx": "Neon",
+   "transp": 0.0,
+   "color": [
+    146,
+    104,
+    232
+   ],
+   "emission": 0.9,
+   "area": 149.6,
+   "near": 0.0,
+   "nobj": 4,
+   "objs": [
+    "VFX_SGSUM_Ring_1",
+    "VFX_SGSUM_Ring_2",
+    "VFX_SGSUM_Ring_3",
+    "VFX_SGSUM_Star"
+   ]
+  },
+  {
+   "zone": "vfx",
+   "mat": "SG_VioletSoft_Glow",
+   "rbx": "Neon",
+   "transp": 0.0,
+   "color": [
+    84,
+    52,
+    140
+   ],
+   "emission": 1.0,
+   "area": 47.9,
+   "near": 0.0,
+   "nobj": 2,
+   "objs": [
+    "VFX_SGCRAFT_Ring_1",
+    "VFX_SGCRAFT_Ring_2"
+   ]
+  },
+  {
+   "zone": "vfx",
+   "mat": "SG_Violet_Glow",
+   "rbx": "Neon",
+   "transp": 0.0,
+   "color": [
+    150,
+    100,
+    235
+   ],
+   "emission": 2.6,
+   "area": 61.6,
+   "near": 57.4,
+   "nobj": 1,
+   "objs": [
+    "VFX_SGDUN_Portal"
+   ]
+  },
+  {
+   "zone": "village",
+   "mat": "Cloth_SG_Navy",
+   "rbx": "Fabric",
+   "transp": 0.0,
+   "color": [
+    32,
+    38,
+    78
+   ],
+   "emission": 0,
+   "area": 176.0,
+   "near": 47.0,
+   "nobj": 4,
+   "objs": [
+    "SG_Vil_Houses_P1E",
+    "SG_Vil_Houses_P1W",
+    "SG_Vil_Houses_P2E",
+    "SG_Vil_Houses_P2W"
+   ]
+  },
+  {
+   "zone": "village",
+   "mat": "Dirt_SG",
+   "rbx": "Ground",
+   "transp": 0.0,
+   "color": [
+    64,
+    58,
+    60
+   ],
+   "emission": 0,
+   "area": 716.0,
+   "near": 716.0,
+   "nobj": 1,
+   "objs": [
+    "SG_Vil_Streets_P2"
+   ]
+  },
+  {
+   "zone": "village",
+   "mat": "Flower_White",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    236,
+    232,
+    220
+   ],
+   "emission": 0,
+   "area": 0.8,
+   "near": 0.0,
+   "nobj": 1,
+   "objs": [
+    "SG_Vil_HouseDress"
+   ]
+  },
+  {
+   "zone": "village",
+   "mat": "Glass_SG_LampAmber",
+   "rbx": "Glass",
+   "transp": 0.3,
+   "color": [
+    206,
+    142,
+    70
+   ],
+   "emission": 0,
+   "area": 25.9,
+   "near": 12.4,
+   "nobj": 2,
+   "objs": [
+    "SG_Vil_HouseDress",
+    "SG_Vil_Lamps"
+   ]
+  },
+  {
+   "zone": "village",
+   "mat": "Grass_SG",
+   "rbx": "Grass",
+   "transp": 0.0,
+   "color": [
+    46,
+    70,
+    64
+   ],
+   "emission": 0,
+   "area": 9.4,
+   "near": 9.4,
+   "nobj": 1,
+   "objs": [
+    "SG_Vil_Streets_P2"
+   ]
+  },
+  {
+   "zone": "village",
+   "mat": "Lantern_Glow",
+   "rbx": "Neon",
+   "transp": 0.0,
+   "color": [
+    255,
+    146,
+    56
+   ],
+   "emission": 1.2,
+   "area": 1.7,
+   "near": 0.8,
+   "nobj": 2,
+   "objs": [
+    "SG_Vil_HouseDress",
+    "SG_Vil_Lamps"
+   ]
+  },
+  {
+   "zone": "village",
+   "mat": "Leaf_SGPropBloom",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    98,
+    66,
+    132
+   ],
+   "emission": 0,
+   "area": 8.5,
+   "near": 0.0,
+   "nobj": 1,
+   "objs": [
+    "SG_Vil_HouseDress"
+   ]
+  },
+  {
+   "zone": "village",
+   "mat": "Leaf_SG_Pine",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    30,
+    50,
+    48
+   ],
+   "emission": 0,
+   "area": 66.7,
+   "near": 0.0,
+   "nobj": 1,
+   "objs": [
+    "SG_Vil_HouseDress"
+   ]
+  },
+  {
+   "zone": "village",
+   "mat": "Metal_Gold",
+   "rbx": "Metal",
+   "transp": 0.0,
+   "color": [
+    222,
+    170,
+    70
+   ],
+   "emission": 0,
+   "area": 3.7,
+   "near": 1.8,
+   "nobj": 2,
+   "objs": [
+    "SG_Vil_HouseDress",
+    "SG_Vil_Lamps"
+   ]
+  },
+  {
+   "zone": "village",
+   "mat": "Metal_SG_BlackIron",
+   "rbx": "Metal",
+   "transp": 0.0,
+   "color": [
+    56,
+    54,
+    64
+   ],
+   "emission": 0,
+   "area": 86.3,
+   "near": 7.6,
+   "nobj": 5,
+   "objs": [
+    "SG_Vil_Houses_P1E",
+    "SG_Vil_Houses_P1W",
+    "SG_Vil_Houses_P2E",
+    "SG_Vil_Houses_P2W",
+    "SG_Vil_Lamps"
+   ]
+  },
+  {
+   "zone": "village",
+   "mat": "Metal_SG_Iron",
+   "rbx": "Metal",
+   "transp": 0.0,
+   "color": [
+    56,
+    58,
+    68
+   ],
+   "emission": 0,
+   "area": 168.8,
+   "near": 64.8,
+   "nobj": 6,
+   "objs": [
+    "SG_Vil_HouseDress",
+    "SG_Vil_Houses_P1E",
+    "SG_Vil_Houses_P1W",
+    "SG_Vil_Houses_P2E",
+    "SG_Vil_Houses_P2W",
+    "SG_Vil_Lamps"
+   ]
+  },
+  {
+   "zone": "village",
+   "mat": "Metal_SG_Silver",
+   "rbx": "Metal",
+   "transp": 0.0,
+   "color": [
+    176,
+    182,
+    198
+   ],
+   "emission": 0,
+   "area": 1.1,
+   "near": 0.0,
+   "nobj": 1,
+   "objs": [
+    "SG_Vil_Lamps"
+   ]
+  },
+  {
+   "zone": "village",
+   "mat": "Plaster_SG",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    150,
+    142,
+    132
+   ],
+   "emission": 0,
+   "area": 1.7,
+   "near": 0.8,
+   "nobj": 2,
+   "objs": [
+    "SG_Vil_HouseDress",
+    "SG_Vil_Lamps"
+   ]
+  },
+  {
+   "zone": "village",
+   "mat": "Plaster_SGVil",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    96,
+    88,
+    88
+   ],
+   "emission": 0,
+   "area": 9521.5,
+   "near": 1384.7,
+   "nobj": 4,
+   "objs": [
+    "SG_Vil_Houses_P1E",
+    "SG_Vil_Houses_P1W",
+    "SG_Vil_Houses_P2E",
+    "SG_Vil_Houses_P2W"
+   ]
+  },
+  {
+   "zone": "village",
+   "mat": "Roof_Red",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    103,
+    56,
+    43
+   ],
+   "emission": 0,
+   "area": 25.2,
+   "near": 0.0,
+   "nobj": 4,
+   "objs": [
+    "SG_Vil_Houses_P1E",
+    "SG_Vil_Houses_P1W",
+    "SG_Vil_Houses_P2E",
+    "SG_Vil_Houses_P2W"
+   ]
+  },
+  {
+   "zone": "village",
+   "mat": "Roof_SG_Slate",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    46,
+    48,
+    62
+   ],
+   "emission": 0,
+   "area": 13077.1,
+   "near": 247.4,
+   "nobj": 4,
+   "objs": [
+    "SG_Vil_Houses_P1E",
+    "SG_Vil_Houses_P1W",
+    "SG_Vil_Houses_P2E",
+    "SG_Vil_Houses_P2W"
+   ]
+  },
+  {
+   "zone": "village",
+   "mat": "SG_LampCore_Glow",
+   "rbx": "Neon",
+   "transp": 0.0,
+   "color": [
+    190,
+    110,
+    40
+   ],
+   "emission": 1.2,
+   "area": 10.5,
+   "near": 5.0,
+   "nobj": 2,
+   "objs": [
+    "SG_Vil_HouseDress",
+    "SG_Vil_Lamps"
+   ]
+  },
+  {
+   "zone": "village",
+   "mat": "SG_VilRoom_Glow",
+   "rbx": "Neon",
+   "transp": 0.0,
+   "color": [
+    178,
+    96,
+    40
+   ],
+   "emission": 1.25,
+   "area": 660.9,
+   "near": 175.9,
+   "nobj": 4,
+   "objs": [
+    "SG_Vil_Houses_P1E",
+    "SG_Vil_Houses_P1W",
+    "SG_Vil_Houses_P2E",
+    "SG_Vil_Houses_P2W"
+   ]
+  },
+  {
+   "zone": "village",
+   "mat": "Stone_Paving_SG_B",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    84,
+    82,
+    104
+   ],
+   "emission": 0,
+   "area": 1516.6,
+   "near": 1567.3,
+   "nobj": 1,
+   "objs": [
+    "SG_Vil_Plaza"
+   ]
+  },
+  {
+   "zone": "village",
+   "mat": "Stone_SGVilCobble",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    72,
+    76,
+    92
+   ],
+   "emission": 0,
+   "area": 6568.1,
+   "near": 6559.2,
+   "nobj": 4,
+   "objs": [
+    "SG_Vil_Plaza",
+    "SG_Vil_Streets_P1",
+    "SG_Vil_Streets_P2",
+    "SG_Vil_Streets_P3"
+   ]
+  },
+  {
+   "zone": "village",
+   "mat": "Stone_SG_Block_B",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    92,
+    92,
+    104
+   ],
+   "emission": 0,
+   "area": 12508.4,
+   "near": 5861.8,
+   "nobj": 10,
+   "objs": [
+    "SG_Vil_Fountain",
+    "SG_Vil_HouseDress",
+    "SG_Vil_Houses_P1E",
+    "SG_Vil_Houses_P1W",
+    "SG_Vil_Houses_P2E",
+    "SG_Vil_Houses_P2W"
+   ]
+  },
+  {
+   "zone": "village",
+   "mat": "Stone_SG_Castle_B",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    80,
+    80,
+    96
+   ],
+   "emission": 0,
+   "area": 6745.2,
+   "near": 3180.9,
+   "nobj": 6,
+   "objs": [
+    "SG_Vil_Fountain",
+    "SG_Vil_Houses_P1E",
+    "SG_Vil_Houses_P1W",
+    "SG_Vil_Houses_P2E",
+    "SG_Vil_Houses_P2W",
+    "SG_Vil_StairP1P2"
+   ]
+  },
+  {
+   "zone": "village",
+   "mat": "Stone_SG_Floor",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    66,
+    68,
+    84
+   ],
+   "emission": 0,
+   "area": 19734.5,
+   "near": 11140.9,
+   "nobj": 9,
+   "objs": [
+    "SG_Vil_Fountain",
+    "SG_Vil_Houses_P1E",
+    "SG_Vil_Houses_P1W",
+    "SG_Vil_Houses_P2E",
+    "SG_Vil_Houses_P2W",
+    "SG_Vil_Plaza"
+   ]
+  },
+  {
+   "zone": "village",
+   "mat": "Stone_SG_Obsidian",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    30,
+    28,
+    40
+   ],
+   "emission": 0,
+   "area": 3175.9,
+   "near": 1149.1,
+   "nobj": 6,
+   "objs": [
+    "SG_Vil_Fountain",
+    "SG_Vil_Houses_P1E",
+    "SG_Vil_Houses_P1W",
+    "SG_Vil_Houses_P2E",
+    "SG_Vil_Houses_P2W",
+    "SG_Vil_Lamps"
+   ]
+  },
+  {
+   "zone": "village",
+   "mat": "Stone_SG_TrimLow",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    132,
+    128,
+    134
+   ],
+   "emission": 0,
+   "area": 4123.2,
+   "near": 2293.1,
+   "nobj": 7,
+   "objs": [
+    "SG_Vil_Fountain",
+    "SG_Vil_HouseDress",
+    "SG_Vil_Houses_P1E",
+    "SG_Vil_Houses_P1W",
+    "SG_Vil_Houses_P2E",
+    "SG_Vil_Houses_P2W"
+   ]
+  },
+  {
+   "zone": "village",
+   "mat": "Water_SGFoam",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    150,
+    180,
+    188
+   ],
+   "emission": 0,
+   "area": 61.3,
+   "near": 61.3,
+   "nobj": 1,
+   "objs": [
+    "SG_Vil_Fountain"
+   ]
+  },
+  {
+   "zone": "village",
+   "mat": "Water_SGFountain",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    44,
+    78,
+    88
+   ],
+   "emission": 0,
+   "area": 294.7,
+   "near": 7.8,
+   "nobj": 1,
+   "objs": [
+    "SG_Vil_Fountain"
+   ]
+  },
+  {
+   "zone": "village",
+   "mat": "Window_Warm",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    214,
+    140,
+    74
+   ],
+   "emission": 0.8,
+   "area": 306.3,
+   "near": 69.8,
+   "nobj": 4,
+   "objs": [
+    "SG_Vil_Houses_P1E",
+    "SG_Vil_Houses_P1W",
+    "SG_Vil_Houses_P2E",
+    "SG_Vil_Houses_P2W"
+   ]
+  },
+  {
+   "zone": "village",
+   "mat": "Wood_SGVilNavy",
+   "rbx": "Wood",
+   "transp": 0.0,
+   "color": [
+    36,
+    42,
+    72
+   ],
+   "emission": 0,
+   "area": 143.0,
+   "near": 22.8,
+   "nobj": 4,
+   "objs": [
+    "SG_Vil_Houses_P1E",
+    "SG_Vil_Houses_P1W",
+    "SG_Vil_Houses_P2E",
+    "SG_Vil_Houses_P2W"
+   ]
+  },
+  {
+   "zone": "village",
+   "mat": "Wood_SG_Dark",
+   "rbx": "Wood",
+   "transp": 0.0,
+   "color": [
+    82,
+    56,
+    40
+   ],
+   "emission": 0,
+   "area": 12131.5,
+   "near": 2364.5,
+   "nobj": 5,
+   "objs": [
+    "SG_Vil_HouseDress",
+    "SG_Vil_Houses_P1E",
+    "SG_Vil_Houses_P1W",
+    "SG_Vil_Houses_P2E",
+    "SG_Vil_Houses_P2W"
+   ]
+  },
+  {
+   "zone": "water",
+   "mat": "Cliff_Rock_SG",
+   "rbx": "Slate",
+   "transp": 0.0,
+   "color": [
+    66,
+    60,
+    90
+   ],
+   "emission": 0,
+   "area": 630.1,
+   "near": 0.0,
+   "nobj": 1,
+   "objs": [
+    "SG_Water_Fall_South"
+   ]
+  },
+  {
+   "zone": "water",
+   "mat": "Cliff_Rock_SG_Dark",
+   "rbx": "Slate",
+   "transp": 0.0,
+   "color": [
+    40,
+    36,
+    58
+   ],
+   "emission": 0,
+   "area": 98.7,
+   "near": 1.8,
+   "nobj": 4,
+   "objs": [
+    "SG_Water_Fall_East",
+    "SG_Water_Fall_North",
+    "SG_Water_Fall_South",
+    "SG_Water_Fall_West"
+   ]
+  },
+  {
+   "zone": "water",
+   "mat": "Cliff_Rock_SG_Top",
+   "rbx": "Slate",
+   "transp": 0.0,
+   "color": [
+    100,
+    96,
+    126
+   ],
+   "emission": 0,
+   "area": 85.2,
+   "near": 0.0,
+   "nobj": 1,
+   "objs": [
+    "SG_Water_Fall_South"
+   ]
+  },
+  {
+   "zone": "water",
+   "mat": "Foam",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    236,
+    244,
+    250
+   ],
+   "emission": 0.6,
+   "area": 4384.1,
+   "near": 0.4,
+   "nobj": 4,
+   "objs": [
+    "SG_Water_Fall_East",
+    "SG_Water_Fall_North",
+    "SG_Water_Fall_South",
+    "SG_Water_Fall_West"
+   ]
+  },
+  {
+   "zone": "water",
+   "mat": "Water_SG",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    64,
+    96,
+    196
+   ],
+   "emission": 0.2,
+   "area": 235.8,
+   "near": 0.0,
+   "nobj": 4,
+   "objs": [
+    "SG_Water_Fall_East",
+    "SG_Water_Fall_North",
+    "SG_Water_Fall_South",
+    "SG_Water_Fall_West"
+   ]
+  },
+  {
+   "zone": "water",
+   "mat": "Water_SGFall",
+   "rbx": "SmoothPlastic",
+   "transp": 0.15,
+   "color": [
+    58,
+    86,
+    140
+   ],
+   "emission": 0.1,
+   "area": 7125.3,
+   "near": 0.0,
+   "nobj": 4,
+   "objs": [
+    "SG_Water_Fall_East",
+    "SG_Water_Fall_North",
+    "SG_Water_Fall_South",
+    "SG_Water_Fall_West"
+   ]
+  },
+  {
+   "zone": "water",
+   "mat": "Water_SGFallLine",
+   "rbx": "SmoothPlastic",
+   "transp": 0.0,
+   "color": [
+    140,
+    175,
+    220
+   ],
+   "emission": 0.12,
+   "area": 1416.9,
+   "near": 0.0,
+   "nobj": 4,
+   "objs": [
+    "SG_Water_Fall_East",
+    "SG_Water_Fall_North",
+    "SG_Water_Fall_South",
+    "SG_Water_Fall_West"
+   ]
+  }
+ ]
+}

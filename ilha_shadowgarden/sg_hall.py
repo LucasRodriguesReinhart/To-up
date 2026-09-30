@@ -851,7 +851,7 @@ def portal(mb):
                                                     (1.25, Z + dh + 0.36), (1.25, Z + dh + 0.95), (1.5, Z + dh + 1.15),
                                                     (1.5, Z + dh + 1.4), (-0.1, Z + dh + 1.4)], OBS)
     pts = [(-(dw + 1.0), dh + 1.4)] + ogive(0.0, dw + 1.0, 5.2, dh + 1.4, 8) + [(dw + 1.0, dh + 1.4)]
-    mold(mb, "S", pts, 0.1, PROF_DOOR, TR)
+    mold(mb, "S", pts, 0.1, PROF_DOOR, CAPL)     # 14.01: moldura da porta (vista de perto ao entrar)
     arch_band(mb, "S", 0.0, dw + 1.85, 6.05, dh + 1.4, dh + 1.4, 0.45, 0.0, 0.5, VIOST)
 
 
@@ -1127,7 +1127,7 @@ def triumph(mb):
     remate em cada aresta), pilares compostos, capa de obsidiana, tampo ate o formeiro e a ROSACEA DA LUA acima"""
     side = "N"
     tw = L.HALL_WALL
-    mats = (TR, VIOST, OBS)
+    mats = (CAPL, VIOST, OBS)       # 14.01: a ordem interna desce ao piso (perto do jogador) -> TrimLow
     roll = [(0.2 * math.cos(2 * math.pi * i / 6), 0.2 * math.sin(2 * math.pi * i / 6)) for i in range(6)]
     for k in range(L.TRI_ORDERS):
         off = k * L.TRI_STEP
@@ -1171,7 +1171,8 @@ def rose(mb):
         p0 = (C[0] + 5.0 * math.cos(a), C[1], C[2] + 5.0 * math.sin(a))
         p1 = (C[0] + (ROSE_R - 0.02) * math.cos(a), C[1], C[2] + (ROSE_R - 0.02) * math.sin(a))
         mb.beam((p0[0], p0[1] - 0.3, p0[2]), (p1[0], p1[1] - 0.3, p1[2]), 0.26, 0.3, TR, 0.0)
-    EM.emblem(mb, mb, mb, wp(side, 0.0, 0.6, ROSE_Z), -math.pi / 2, 4.4, depth=0.8, monumental=True)
+    EM.emblem(mb, mb, mb, wp(side, 0.0, 0.6, ROSE_Z), -math.pi / 2, 4.4, depth=0.8, monumental=True,
+              glow=VGLOW)    # 15: crescente em violeta medio (a lavanda clara virava branco no bloom)
     # 2 lancetas de luar ladeando a rosacea (acompanham a escala dela)
     for k in (-1, 1):
         apse_lancet(mb, WT(side, 0.1), k * 15.5, 2.2, 30.0, 41.0, 3.8, MOON, med=True)
@@ -1224,7 +1225,10 @@ def apse(mb):
         if nm == "N":
             continue                                   # a face norte e do dorsal + dossel + vitral da lua
         z0 = DAIS_TOP + 0.05 if nm in ("NE", "NW") else 0.4
-        u0, u1 = (0.9, ln - 0.9) if nm in ("NE", "NW") else ((0.0, ln - 0.9) if nm == "CE" else (0.9, ln))
+        # 14-16 (passe de flutuantes): nas faces do presbiterio o silhar comecava em Y1, DENTRO da espessura do arco
+        # triunfal, e ficava solto na frente das ordens recuadas (vao de 2 a 4); agora comeca depois do arco
+        tw_ = L.HALL_WALL + 0.02
+        u0, u1 = (0.9, ln - 0.9) if nm in ("NE", "NW") else ((tw_, ln - 0.9) if nm == "CE" else (0.9, ln - tw_))
         excl = []
         if nm in APSE_WIN:
             hw, sill, spring, rise = APSE_WIN[nm]
@@ -1440,77 +1444,216 @@ def altar():
 
 
 def throne(mb):
-    """TRONO DE SHADOW (04b-2, monumental, ~16 de altura no estrado). Soco proprio (5o degrau); assento ALTO e FUNDO de
-    obsidiana (2,6 x 3,0) com avental de marmore negro emoldurado em prata; BRACOS com VOLUTA grande (botao e filete de
-    prata); pes em PATA; ESPALDAR alto e estreito (~2,5x o assento) em ogiva entre MONTANTES de marmore negro com capitel
-    de prata e PINACULOS do kit; o CRESCENTE fino de prata (chanfro em 2 niveis, aresta clara) NASCE dos montantes e
-    abraca o topo do espaldar; a ESPADA da ordem (pomo, cabo, guarda e lamina com fio de prata) atravessa o crescente.
-    Violeta so na almofada e no estofo do espaldar. Le em contraluz contra o vitral de luar."""
+    """TRONO DE SHADOW (04c, pedido do usuario: "o assento esta muito curto e feio"). Linguagem de CATEDRA GOTICA
+    (trono de bispo) lida como ARQUITETURA, nao como movel, em 3 materiais (obsidiana, marmore negro e prata; violeta so
+    no estofado). Medidas em studs sobre o soco (avatar ~5):
+      - ASSENTO monumental: almofada ESPESSA (0,55) com nariz boleado e quinas arredondadas, 4,6 de largura e 3,6 de
+        profundidade util (da face do capitone ate o nariz), topo a 2,8; cai sobre o frontal numa QUEDA DE PANO curta
+        com 3 pontas e debrum de prata;
+      - BASE: caixa macica de marmore negro com RODAPE moldurado, frontal em ARCADA CEGA de 3 arcos ogivais (fundo de
+        obsidiana, colunelos nos pilares, filete de prata no contorno), paineis rebaixados nas laterais e PES EM GARRA
+        (bola de obsidiana e 3 garras de prata) nas quinas da frente;
+      - BRACOS largos (0,8) no cotovelo de quem senta (4,1 = assento + 1,3): trilho de obsidiana, apoio estofado sobre
+        filete de prata, VOLUTA grande em espiral de verdade (fita que enrola 1,3 volta, miolo recuado, filete de prata
+        na espiral) e BALAUSTRE torneado sobre a perna da quina (a perna desce ao chao do trono na garra);
+      - ESPALDAR alto (topo a 10,9: 2,9x a altura do assento acima dele) em OGIVA de obsidiana com aresta de prata,
+        painel CAPITONE violeta (losangos por geometria: pontas altas e botoes fundos), moldura de prata e timpano
+        estofado; MONTANTES de marmore negro com colunelo, capitel de prata e PINACULO do kit;
+      - o CRESCENTE de prata nasce dos montantes e a ESPADA da ordem o atravessa (como no 04b, trazidos para a frente
+        do capitone). Le em contraluz contra o vitral de luar."""
     side = "T"
     W = WFR[side]
     step_block(mb, -5.2, 5.2, YT - 6.0, YN - 0.02, Z + DAIS_TOP - 0.02, Z + THRONE_DAIS)
     col_box2("SG_HallThrone", (-5.2, YT - 6.0, Z - 0.5), (5.2, YN, Z + THRONE_DAIS))
     b = THRONE_DAIS
     zb = Z + b
-    SH = 2.6                                               # altura do assento
-    # soco do trono e caixa do assento com AVENTAL de marmore negro emoldurado em prata
-    CA.ledge(mb, W, -4.0, 4.0, [(0.1, zb), (3.3, zb), (3.3, zb + 0.2), (3.16, zb + 0.34), (0.1, zb + 0.34)], OBS)
-    CA.ledge(mb, W, -3.0, 3.0, [(0.2, zb + 0.34), (3.02, zb + 0.34), (3.02, zb + 0.56), (2.9, zb + 0.66),
-                                (2.9, zb + SH - 0.4), (3.04, zb + SH - 0.28), (3.08, zb + SH - 0.1), (2.98, zb + SH),
-                                (0.2, zb + SH)], OBS)
-    inner = [(-2.2, b + 0.95), (2.2, b + 0.95), (2.2, b + SH - 0.55), (-2.2, b + SH - 0.55)]
-    outer = [(-2.42, b + 0.78), (2.42, b + 0.78), (2.42, b + SH - 0.38), (-2.42, b + SH - 0.38)]
-    band(mb, side, inner, outer, 2.88, 2.96, SILVER, closed=True)
-    slab(mb, side, inner, 2.88, 2.93, MARBLE)
-    # almofada do assento com volume
-    mb.box((5.2, 2.5, 0.5), wp(side, 0.0, 1.75, b + SH + 0.22), (0, 0, 0), CLOTH, 0.18, 2)
-    # bracos: perfil lateral com VOLUTA grande na frente; botao de prata no olho e filete de prata na espiral
-    cx_, cz_, rv = 2.6, SH + 0.95, 0.82
-    scroll = [(cx_ + rv * math.cos(math.radians(a)), cz_ + rv * math.sin(math.radians(a)))
-              for a in (-90, -50, -15, 20, 55, 90)]
-    arm = [(0.3, 0.34), (3.0, 0.34), (3.0, 0.62), (2.86, 0.78), (2.86, cz_ - rv + 0.05)] + scroll[1:] + \
-        [(0.9, cz_ + rv), (0.3, cz_ + rv - 0.12)]
+
+    def P(u, d, h):                                        # ponto do trono: h acima do soco, d para a nave
+        return wp(side, u, d, b + h)
+
+    SH, CU = 2.8, 0.55                                     # topo do assento, espessura da almofada
+    BT = SH - CU                                           # topo da caixa (2,25)
+    SW = 2.3                                               # meia largura do assento
+    DC = 0.92                                              # face do capitone (pontas)
+    DF = 4.5                                               # nariz da almofada: profundidade util DF - DC = 3,58
+    DS, DR = 4.35, 4.17                                    # face da arcada cega / fundo dos arcos
+    AW0, AW1 = 2.35, 3.15                                  # braco (0,8 de largura)
+    MU0, MU1 = 3.05, 3.8                                   # montantes
+    LG = 2.75                                              # eixo das pernas da frente (garra + balaustre + voluta)
+    LD = 4.15
+    PT = 10.2                                              # topo dos montantes
+    AH = SH + 1.3                                          # topo do apoio do braco (cotovelo de quem senta)
+    SPB, RB = 8.6, 2.3                                     # nascenca e flecha da ogiva do espaldar (topo 10,9)
+    WS = {1: ((0.0, YT), (0.0, -1.0), (1.0, 0.0)), -1: ((0.0, YT), (0.0, -1.0), (-1.0, 0.0))}   # laterais: t = |x|
+
+    def uloft(secs, m):
+        """solido entre perfis (d, h) em cortes u (mesmo numero de pontos): almofada de quinas boleadas"""
+        bm = mb.bm
+        rows = [[bm.verts.new(P(u, d, h)) for d, h in prof] for u, prof in secs]
+        n = len(secs[0][1])
+        for A, B in zip(rows, rows[1:]):
+            for i in range(n):
+                j = (i + 1) % n
+                bm.faces.new((A[i], A[j], B[j], B[i]))
+        bm.faces.new(rows[0])
+        bm.faces.new(list(reversed(rows[-1])))
+        mb._post([v for r in rows for v in r], m, None, 0, 1)
+
+    def uribbon(u0, u1, inner, outer, m):
+        """fita solida entre 2 polilinhas (d, h) extrudada de u0 a u1 (a espiral da voluta)"""
+        bm = mb.bm
+        n = len(inner)
+        iA = [bm.verts.new(P(u0, d, h)) for d, h in inner]
+        oA = [bm.verts.new(P(u0, d, h)) for d, h in outer]
+        iB = [bm.verts.new(P(u1, d, h)) for d, h in inner]
+        oB = [bm.verts.new(P(u1, d, h)) for d, h in outer]
+        for i in range(n - 1):
+            j = i + 1
+            bm.faces.new((oA[i], oA[j], iA[j], iA[i]))
+            bm.faces.new((iB[i], iB[j], oB[j], oB[i]))
+            bm.faces.new((oA[i], oB[i], oB[j], oA[j]))
+            bm.faces.new((iA[i], iA[j], iB[j], iB[i]))
+        for k in (0, n - 1):
+            bm.faces.new((iA[k], oA[k], oB[k], iB[k]))
+        mb._post(iA + oA + iB + oB, m, None, 0, 1)
+
+    def tufted(u0, u1, h0, h1, nx, ny, dlo, dhi, dbk, m):
+        """CAPITONE: grade em losango (pontas em dhi, botoes em dlo, vinco na diagonal botao-botao), solido fechado"""
+        bm = mb.bm
+        G, UH = {}, {}
+        for i in range(nx + 1):
+            for j in range(ny + 1):
+                u, h = u0 + (u1 - u0) * i / nx, h0 + (h1 - h0) * j / ny
+                UH[i, j] = (u, h)
+                G[i, j] = bm.verts.new(P(u, dhi if (i + j) % 2 else dlo, h))
+        for i in range(nx):
+            for j in range(ny):
+                a, c1, c2, e = G[i, j], G[i + 1, j], G[i + 1, j + 1], G[i, j + 1]
+                if (i + j) % 2 == 0:
+                    bm.faces.new((a, c1, c2))
+                    bm.faces.new((a, c2, e))
+                else:
+                    bm.faces.new((a, c1, e))
+                    bm.faces.new((c1, c2, e))
+        # paredes planas em n-gono (4) e fundo em quad: fecha o solido com o minimo de faces
+        C = [bm.verts.new(P(UH[k][0], dbk, UH[k][1])) for k in ((0, 0), (nx, 0), (nx, ny), (0, ny))]
+        edges = [[G[i, 0] for i in range(nx + 1)], [G[nx, j] for j in range(ny + 1)],
+                 [G[i, ny] for i in range(nx, -1, -1)], [G[0, j] for j in range(ny, -1, -1)]]
+        for q, e_ in enumerate(edges):
+            bm.faces.new(e_ + [C[(q + 1) % 4], C[q]])
+        bm.faces.new(list(reversed(C)))
+        mb._post(list(G.values()) + C, m, None, 0, 1)
+
+    # ---------------- BASE: caixa macica de marmore negro
+    mb.box2(P(-MU0, 0.3, 0.45), P(MU0, DR, BT - 0.02), MARBLE, 0.0)
+    # rodape moldurado (filete, toro, cavete) na frente, entre as pernas, e nas laterais, entre montante e perna
+    rod = [(0.3, 0.0), (4.5, 0.0), (4.5, 0.1), (4.44, 0.15), (4.47, 0.24), (4.41, 0.33), (4.36, 0.4), (4.36, 0.5),
+           (0.3, 0.5)]
+    CA.ledge(mb, W, -(LG - 0.3), LG - 0.3, [(d, zb + h) for d, h in rod], MARBLE)
+    rods = [(2.8, 0.0), (3.2, 0.0), (3.2, 0.1), (3.14, 0.15), (3.17, 0.24), (3.11, 0.33), (3.07, 0.4), (3.07, 0.5),
+            (2.8, 0.5)]
     for k in (-1, 1):
-        a0, a1 = sorted((k * 3.0, k * 3.7))
-        CA.ledge(mb, W, a0, a1, [(d, zb + h) for d, h in arm], OBS)
-        CA.ledge(mb, W, a0 - 0.05, a1 + 0.05, [(0.7, zb + cz_ + rv - 0.08), (cx_, zb + cz_ + rv - 0.02),
-                                               (cx_, zb + cz_ + rv + 0.1), (0.7, zb + cz_ + rv + 0.04)], SILVER)
-        for u in (a0 - 0.06, a1 + 0.06):
-            c = wp(side, u, cx_, b + cz_)
-            mb.cyl(0.36, 0.12, c, (0, math.pi / 2, 0), m=SILVER, n=12, bevel=0.0)
-        uo = k * 3.7 + k * 0.04
-        rb = rv - 0.18
-        bead = [(cx_ + rb * math.cos(math.radians(a)), cz_ + rb * math.sin(math.radians(a)))
-                for a in (-70, -35, 0, 35, 70, 100)] + [(1.6, cz_ + rv - 0.1), (0.8, cz_ + rv - 0.16)]
-        mb.tube([wp(side, uo, d, b + h) for d, h in bead], 0.07, SILVER, 5)
-        p = wp(side, k * 3.35, 2.75, b + 0.34)
-        EM._lathe(mb, p, [(0.42, 0.0), (0.54, 0.14), (0.52, 0.36), (0.33, 0.55), (0.0, 0.62)], OBS, 10,
-                  caps=(True, False))
-        for du in (-0.26, 0.0, 0.26):
-            q = wp(side, k * 3.35 + du, 3.05, b + 0.5)
-            mb.rod(q, wp(side, k * 3.35 + du * 1.15, 3.45, b + 0.4), 0.1, SILVER, 5)
-    # MONTANTES de marmore negro (quinas chanfradas), capitel de prata e PINACULO do kit
-    PT = 10.2                                              # topo dos montantes (acima do soco do trono)
+        CA.ledge(mb, WS[k], 1.1, LD - 0.3, [(t, zb + h) for t, h in rods], MARBLE)
+        # painel rebaixado da lateral (fundo de obsidiana, filete de prata) e filete de prata no topo da caixa
+        CA.panel(mb, WS[k], CA.rect(1.39, 3.51, zb + 0.74, zb + 1.96), MU0 - 0.01, MU0 + 0.03, SILVER)
+        CA.panel(mb, WS[k], CA.rect(1.45, 3.45, zb + 0.8, zb + 1.9), MU0 - 0.01, MU0 + 0.045, OBS)
+        CA.panel(mb, WS[k], CA.rect(1.0, LD - 0.3, zb + BT - 0.1, zb + BT - 0.02), MU0 - 0.02, MU0 + 0.04, SILVER)
+    # frontal: ARCADA CEGA de 3 arcos ogivais (pilares, timpanos entre arco e faixa, faixa sob a queda de pano)
+    AC, AO, ASP, ARS = (-1.5, 0.0, 1.5), 0.45, 1.1, 0.52
+    TOPA = BT - 0.35
+    for u0, u1 in ((-(LG - 0.3), -1.95), (-1.05, -AO), (AO, 1.05), (1.95, LG - 0.3)):
+        mb.box2(P(u0, DR - 0.02, 0.45), P(u1, DS, TOPA), MARBLE, 0.0)
+    mb.box2(P(-(LG - 0.3), DR - 0.02, TOPA), P(LG - 0.3, DS, BT - 0.02), MARBLE, 0.0)
+    for uc in AC:
+        inner = ogive(uc, AO, ARS, ASP, 3)
+        band(mb, side, [(s, b + h) for s, h in inner], [(s, b + TOPA) for s, _ in inner], DR - 0.02, DS, MARBLE)
+        mb.box2(P(uc - AO, DR - 0.03, 0.45), P(uc + AO, DR + 0.012, TOPA - 0.05), OBS, 0.0)
+        bead = [(uc - AO - 0.035, 0.5)] + ogive(uc, AO + 0.035, ARS + 0.035, ASP, 3) + [(uc + AO + 0.035, 0.5)]
+        mb.tube([P(s, DS + 0.015, h) for s, h in bead], 0.035, SILVER, 4)
+    for k in (-1, 1):                                       # colunelos dos pilares do meio
+        c = P(k * 0.75, DS + 0.07, 0.45)
+        EM._lathe(mb, c, [(0.16, 0.0), (0.1, 0.12), (0.09, 0.56), (0.17, 0.68), (0.0, 0.68)], OBS, 6)
+    # ---------------- ALMOFADA do assento (nariz boleado, quinas arredondadas) e QUEDA DE PANO com debrum de prata
+    def cp(e):
+        return [(0.62, BT + e), (4.3 - e, BT + e), (4.42 - e, BT + 0.07 + e * 0.6), (DF - e, BT + 0.2),
+                (DF - e, BT + 0.34), (4.44 - e, BT + 0.46 - e * 0.3), (4.3 - e, SH - 0.01 - e), (2.6, SH + 0.03 - e),
+                (DC + 0.03, SH - e), (0.7, SH - 0.12 - e)]
+    uloft([(-SW, cp(0.1)), (-SW + 0.14, cp(0.0)), (SW - 0.14, cp(0.0)), (SW, cp(0.1))], CLOTH)
+    us = [-2.3, -1.95, -1.5, -1.05, -0.45, 0.0, 0.45, 1.05, 1.5, 1.95, 2.3]
+    hh = [TOPA + 0.01 - (0.15 if abs(abs(u) - 1.5) < 1e-6 or abs(u) < 1e-6 else 0.0) for u in us]
+    slab(mb, side, [(-SW, b + BT + 0.12), (SW, b + BT + 0.12)] + [(u, b + h) for u, h in zip(us[::-1], hh[::-1])],
+         4.43, 4.52, CLOTH)
+    mb.tube([P(u, 4.535, h) for u, h in zip(us, hh)], 0.04, SILVER, 4)
+    # ---------------- PERNAS da frente: garra (bola + 3 garras de prata), perna de marmore, balaustre torneado
     for k in (-1, 1):
-        a0, a1 = sorted((k * 3.2, k * 3.95))
-        wprism(mb, side, rect_sd(a0, a1, 0.0, 0.95, 0.14), b, b + PT, MARBLE, 0.04)
-        wloft(mb, side, rect_sd(a0, a1, 0.0, 0.95, 0.14), rect_sd(a0 - 0.14, a1 + 0.14, 0.0, 1.09, 0.14), b + PT,
+        a0, a1 = sorted((k * (LG - 0.3), k * (LG + 0.3)))
+        wprism(mb, side, rect_sd(a0, a1, LD - 0.3, LD + 0.3, 0.08), b + 0.55, b + BT, MARBLE)
+        wprism(mb, side, rect_sd(a0 - 0.05, a1 + 0.05, LD - 0.35, LD + 0.35, 0.1), b + BT - 0.14, b + BT, OBS)
+        x, y, _ = P(k * LG, LD, 0.0)
+        EM._lathe(mb, (x, y, zb), [(0.0, 0.0), (0.24, 0.06), (0.31, 0.27), (0.22, 0.5), (0.0, 0.56)], OBS, 6)
+        for a in (-30.0, 25.0, 80.0):
+            ca, sa = math.cos(math.radians(a)), math.sin(math.radians(a))
+            dx, dy = k * sa, -ca                            # para a frente (-y) abrindo para fora (k)
+            mb.tube([(x + dx * r, y + dy * r, zb + h) for r, h in ((0.2, 0.58), (0.36, 0.32), (0.42, 0.03))], 0.07,
+                    SILVER, 4)
+        EM._lathe(mb, P(k * LG, LD, BT), [(0.27, 0.0), (0.27, 0.08), (0.13, 0.2), (0.24, 0.44), (0.11, 0.7),
+                                          (0.16, 0.78), (0.26, 0.86), (0.2, 0.97), (0.0, 0.97)], OBS, 6, math.pi / 6)
+    # ---------------- BRACOS: trilho de obsidiana, apoio estofado sobre filete de prata, VOLUTA em espiral
+    dC, hC, R0, Re = 4.05, AH - 0.5, 0.55, 0.18
+    th0, th1, NS = 125.0, -340.0, 17
+    sp_o, sp_i, sp_b = [], [], []
+    for i in range(NS + 1):
+        f = i / NS
+        th = math.radians(th0 + (th1 - th0) * f)
+        ro = R0 - (R0 - Re) * f
+        ri = ro - (0.26 - 0.15 * f)
+        sp_o.append((dC + ro * math.cos(th), hC + ro * math.sin(th)))
+        sp_i.append((dC + ri * math.cos(th), hC + ri * math.sin(th)))
+        sp_b.append((dC + (ro - 0.06) * math.cos(th), hC + (ro - 0.06) * math.sin(th)))
+    for k in (-1, 1):
+        a0, a1 = sorted((k * AW0, k * AW1))
+        CA.ledge(mb, W, a0, a1, [(0.6, zb + AH - 0.68), (3.75, zb + AH - 0.68), (3.9, zb + AH - 0.55),
+                                 (3.9, zb + AH - 0.24), (0.6, zb + AH - 0.24)], OBS)
+        mb.box2(P(a0 + 0.03, 0.95, AH - 0.24), P(a1 - 0.03, 3.9, AH - 0.2), SILVER, 0.0)
+        pad = [(AW0 + 0.07, AH - 0.2), (AW1 - 0.07, AH - 0.2), (AW1 - 0.07, AH - 0.1), (AW1 - 0.14, AH - 0.01),
+               ((AW0 + AW1) / 2.0, AH + 0.02), (AW0 + 0.14, AH - 0.01), (AW0 + 0.07, AH - 0.1)]
+        CA.ledge(mb, WS[k], 0.97, 3.88, [(t, zb + h) for t, h in pad], CLOTH)
+        uribbon(a0, a1, sp_i, sp_o, OBS)
+        mb.cyl(0.36, AW1 - AW0 - 0.36, P(k * (AW0 + AW1) / 2.0, dC, hC), (0, math.pi / 2, 0), m=OBS, n=10,
+               bevel=0.0)
+        mb.tube([P(k * (AW1 + 0.02), d, h) for d, h in sp_b[:15]], 0.04, SILVER, 4)
+    # ---------------- MONTANTES de marmore negro: soco moldurado, colunelo, capitel de prata e PINACULO do kit
+    for k in (-1, 1):
+        a0, a1 = sorted((k * MU0, k * MU1))
+        um = k * (MU0 + MU1) / 2.0
+        wprism(mb, side, rect_sd(a0 - 0.1, a1 + 0.1, -0.05, 1.12, 0.12), b, b + 0.5, MARBLE)
+        wloft(mb, side, rect_sd(a0 - 0.1, a1 + 0.1, -0.05, 1.12, 0.12), rect_sd(a0, a1, 0.0, 1.0, 0.14), b + 0.5,
+              b + 0.64, MARBLE)
+        wprism(mb, side, rect_sd(a0, a1, 0.0, 1.0, 0.14), b + 0.64, b + PT, MARBLE, 0.04)
+        EM._lathe(mb, P(um, 1.02, 0.64), [(0.17, 0.0), (0.17, 0.08), (0.12, 0.16), (0.12, PT - 0.64),
+                                          (0.0, PT - 0.64)], OBS, 6)
+        wloft(mb, side, rect_sd(a0, a1, 0.0, 1.0, 0.14), rect_sd(a0 - 0.14, a1 + 0.14, 0.0, 1.14, 0.14), b + PT,
               b + PT + 0.32, SILVER)
-        wprism(mb, side, rect_sd(a0 - 0.14, a1 + 0.14, 0.0, 1.09, 0.14), b + PT + 0.32, b + PT + 0.48, SILVER)
-        c = wp(side, k * 3.575, 0.48, b + PT + 0.48)
+        wprism(mb, side, rect_sd(a0 - 0.14, a1 + 0.14, 0.0, 1.14, 0.14), b + PT + 0.32, b + PT + 0.48, SILVER)
+        c = P(um, 0.5, PT + 0.48)
         CA.pinnacle(mb, c[0], c[1], c[2], s=0.42, hb=1.4, hn=3.2, body_m=OBS, spire_m=OBS, cap_m=SILVER, crock=False)
-    # ESPALDAR alto e estreito em ogiva (obsidiana) com o estofo violeta ogival em 2 niveis e moldura de prata
-    bw = 3.2
-    back = [(-bw, b + SH), (bw, b + SH), (bw, b + 9.1)] + ogive(0.0, bw, 1.8, b + 9.1, 4)[::-1][1:-1] + [(-bw, b + 9.1)]
+    # ---------------- ESPALDAR: chapa ogival de obsidiana com aresta de prata, CAPITONE, timpano e moldura de prata
+    bw = MU0
+    back = [(-bw, b + BT), (bw, b + BT), (bw, b + SPB)] + \
+        [(s, b + h) for s, h in ogive(0.0, bw, RB, SPB, 6)[::-1][1:-1]] + [(-bw, b + SPB)]
     slab(mb, side, back, 0.0, 0.62, OBS)
+    mb.tube([P(s, 0.64, h) for s, h in ogive(0.0, bw, RB, SPB, 6)], 0.05, SILVER, 4)
 
     def ogv(w_, h0_, h1, h2):
-        return [(-w_, h0_), (w_, h0_), (w_, h1)] + ogive(0.0, w_, h2 - h1, h1, 4)[::-1][1:-1] + [(-w_, h1)]
-    band(mb, side, ogv(2.2, b + SH + 0.5, b + 8.4, b + 9.9), ogv(2.45, b + SH + 0.35, b + 8.4, b + 10.2), 0.55, 0.84,
+        return [(-w_, b + h0_), (w_, b + h0_), (w_, b + h1)] + \
+            [(s, b + h) for s, h in ogive(0.0, w_, h2 - h1, h1, 5)[::-1][1:-1]] + [(-w_, b + h1)]
+    CW, CT = 2.15, 8.2                                     # meia largura e topo do capitone
+    band(mb, side, ogv(CW, SH + 0.05, SPB, SPB + 1.6), ogv(CW + 0.27, SH - 0.1, SPB, SPB + 1.95), 0.55, 0.98,
          SILVER, closed=True)
-    slab(mb, side, ogv(2.2, b + SH + 0.5, b + 8.4, b + 9.9), 0.55, 0.76, CLOTH)
-    slab(mb, side, ogv(1.6, b + SH + 1.0, b + 8.1, b + 9.3), 0.76, 0.88, CLOTH)
-    # CRESCENTE fino de prata: nasce dos montantes, abraca o topo do espaldar, chifres ao lado dos pinaculos
+    tufted(-CW, CW, SH + 0.05, CT, 8, 8, 0.74, DC, 0.6, CLOTH)
+    slab(mb, side, ogv(CW, CT, SPB, SPB + 1.6), 0.6, 0.8, CLOTH)
+    mb.box2(P(-CW, 0.6, CT - 0.06), P(CW, 0.97, CT + 0.06), SILVER, 0.0)
+    # ---------------- CRESCENTE fino de prata: nasce dos montantes, abraca o topo; na frente do capitone
     h0, RO, RI, DH = b + 10.3, 3.5, 3.2, 0.8
     yt = (RO * RO - RI * RI + DH * DH) / (2.0 * DH)
     xt = math.sqrt(RO * RO - yt * yt)
@@ -1520,30 +1663,32 @@ def throne(mb):
                                      cy + r * math.sin(math.radians(a0 + (a1 - a0) * k / n))) for k in range(n + 1)]
     lo = arc(h0, RO, a_tip, -180.0 - a_tip, 20)                     # chifre direito -> por baixo -> esquerdo
     hi = arc(h0 + DH, RI, a_in0, -180.0 - a_in0, 20)
-    band(mb, side, hi, lo, 0.62, 0.86, SILVER)                        # corpo
+    band(mb, side, hi, lo, 0.98, 1.22, SILVER)                        # corpo
     lo2 = arc(h0, RO - 0.09, a_tip - 2.0, -178.0 - a_tip, 20)
     hi2 = arc(h0 + DH, RI + 0.09, a_in0 - 3.0, -177.0 - a_in0, 20)
-    band(mb, side, hi2, lo2, 0.86, 0.94, SILVER)                      # face recuada: o degrau le como CHANFRO
-    mb.tube([wp(side, u, 0.9, h) for u, h in lo], 0.045, SILVER, 5)   # aresta clara
+    band(mb, side, hi2, lo2, 1.22, 1.3, SILVER)                       # face recuada: o degrau le como CHANFRO
+    mb.tube([wp(side, u, 1.26, h) for u, h in lo], 0.045, SILVER, 4)  # aresta clara
     # a ESPADA da ordem atravessando o crescente: pomo, cabo, guarda e lamina (obsidiana com fio de prata)
-    zg = b + 9.7
-    EM._lathe(mb, wp(side, 0.0, 1.08, zg - 1.55), [(0.0, 0.0), (0.26, 0.1), (0.3, 0.26), (0.18, 0.42), (0.1, 0.48)],
+    zg, DW = b + 9.7, 1.4
+    EM._lathe(mb, wp(side, 0.0, DW, zg - 1.55), [(0.0, 0.0), (0.26, 0.1), (0.3, 0.26), (0.18, 0.42), (0.1, 0.48)],
               SILVER, 6, caps=(False, False))
-    mb.cyl(0.11, 1.1, wp(side, 0.0, 1.08, zg - 0.6), (0, 0, 0), m=OBS, n=6, bevel=0.0)
+    mb.cyl(0.11, 1.1, wp(side, 0.0, DW, zg - 0.6), (0, 0, 0), m=OBS, n=6, bevel=0.0)
     for zz in (zg - 0.9, zg - 0.45):
-        mb.cyl(0.13, 0.08, wp(side, 0.0, 1.08, zz), (0, 0, 0), m=SILVER, n=6, bevel=0.0)
-    mb.box((2.6, 0.34, 0.32), wp(side, 0.0, 1.08, zg), (0, 0, 0), OBS, 0.08)
-    mb.box((2.66, 0.12, 0.08), wp(side, 0.0, 1.27, zg), (0, 0, 0), SILVER, 0.0)
+        mb.cyl(0.13, 0.08, wp(side, 0.0, DW, zz), (0, 0, 0), m=SILVER, n=6, bevel=0.0)
+    mb.box((2.6, 0.34, 0.32), wp(side, 0.0, DW, zg), (0, 0, 0), OBS, 0.08)
+    mb.box((2.66, 0.12, 0.08), wp(side, 0.0, DW + 0.19, zg), (0, 0, 0), SILVER, 0.0)
     for k in (-1, 1):
-        ball_finial(mb, *wp(side, k * 1.38, 1.08, zg - 0.14), r=0.15)
+        ball_finial(mb, *wp(side, k * 1.38, DW, zg - 0.14), r=0.15)
     bl = 0.42
     blade = [(-bl, zg + 0.16), (bl, zg + 0.16), (0.36, b + 14.3), (0.0, b + 15.4), (-0.36, b + 14.3)]
-    slab(mb, side, blade, 0.96, 1.16, OBS)
+    slab(mb, side, blade, DW - 0.12, DW + 0.08, OBS)
     for k in (-1, 1):
-        mb.tube([wp(side, k * bl * 0.98, 1.18, zg + 0.2), wp(side, k * 0.35, 1.18, b + 14.3),
-                 wp(side, 0.0, 1.18, b + 15.35)], 0.04, SILVER, 4)
-    mb.tube([wp(side, 0.0, 1.19, zg + 0.3), wp(side, 0.0, 1.19, b + 14.0)], 0.035, SILVER, 4)
-    wcol("SG_HallThrone", side, -4.0, 4.0, 0.0, 3.3, b, b + PT)
+        mb.tube([wp(side, k * bl * 0.98, DW + 0.1, zg + 0.2), wp(side, k * 0.35, DW + 0.1, b + 14.3),
+                 wp(side, 0.0, DW + 0.1, b + 15.35)], 0.04, SILVER, 4)
+    mb.tube([wp(side, 0.0, DW + 0.11, zg + 0.3), wp(side, 0.0, DW + 0.11, b + 14.0)], 0.035, SILVER, 4)
+    # colisao: caixa + bracos (ate o apoio) e espaldar + montantes (ate o topo dos montantes)
+    wcol("SG_HallThrone", side, -AW1 - 0.05, AW1 + 0.05, 0.0, DF, b, b + AH)
+    wcol("SG_HallThrone", side, -MU1, MU1, 0.0, 1.12, b, b + PT)
 
 
 # ------------------------------------------------------------------ ferro: lustres

@@ -741,7 +741,7 @@ def pylon(mb, P, side):
         # face SUL do portico B (o portao da ordem): estandarte da ordem numa verga presa ao fuste por 2 bracos.
         # O portico A ficou SEM estandarte (16.02: metade dos estandartes da entrada; o sinal fica no portao)
         yb = y - (s / 2 + 0.55)
-        EM.banner(mb, mb, mb, mb, (xc, yb, zt - 0.9), -math.pi / 2, P["bw"], P["bh"], trim=EM.GOLD)
+        EM.banner(mb, mb, mb, mb, (xc, yb, zt - 0.9), -math.pi / 2, P["bw"], P["bh"], trim=EM.BRONZE)
         for sg in (-1, 1):
             mb.beam((xc + sg * (P["bw"] / 2 + 0.1), y - s / 2 + 0.1, zt - 0.9),
                     (xc + sg * (P["bw"] / 2 + 0.1), yb, zt - 0.9), 0.22, 0.22, "Metal_SG_BlackIron", 0.0)

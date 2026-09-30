@@ -107,7 +107,7 @@ BY1 = max(r[3] for r in ROOMS.values()) + WT
 
 # ------------------------------------------------------------------ BOCA DE CAVERNA v3 (face sul; F: s = x, d = para o sul)
 ROCK, RKD, RKT = "Cliff_Rock_SG", "Cliff_Rock_SG_Dark", "Cliff_Rock_SG_Top"
-DEEP, GOLD = "Stone_SGDunCaveDeep", "Metal_Gold"
+DEEP, GOLD = "Stone_SGDunCaveDeep", "Metal_SG_Bronze"     # 14.04: debrum de bronze (era Metal_Gold)
 CMX0, CMY0, CMX1, CMY1 = L.DUNGEON_CAVE_MASS     # caixa da massa de rocha (80..126 x 74..116)
 # ov09b (2026-09-29, "so cabe uma pessoa"): boca e tunel para um GRUPO (4-6 avatares lado a lado). Boca 19,2 -> 24 de
 # intradorso (vao livre 16,8 -> 22), apice 24 -> 27; tunel com vao livre (colisao) >= 18,8 ate o estrado (era ~15,2);

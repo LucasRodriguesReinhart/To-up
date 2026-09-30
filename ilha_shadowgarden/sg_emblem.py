@@ -583,6 +583,8 @@ def _band_s(mb, P, path, tw, S, off, m):
 # com anel a 1/3 -> colar) + capitel em prato sustentado por 4 consoles em S. Pedestal: dado moldurado baixo (plinto,
 # dado, capitel em 2 degraus), altura total <= 3,44 s.
 GOLD = "Metal_Gold"
+# overhaul 14.04: debrum dos estandartes em BRONZE envelhecido (o ouro saturado lia brinquedo no jogo)
+BRONZE = "Metal_SG_Bronze"
 L_IRON = "Metal_SG_Iron"
 L_GLOW = "Lantern_Glow"
 L_WAX = "Plaster_SG"         # vela creme (paleta base: nao e material novo)

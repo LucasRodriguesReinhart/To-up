@@ -47,7 +47,11 @@ OB = "Stone_SG_Obsidian"
 VI = "Stone_SG_Violet"
 SV = "Metal_SG_Silver"
 BI = "Metal_SG_BlackIron"
-VG = "SG_VioletDeep_Glow"
+# overhaul 15 (hierarquia pedida: dungeon > alquimia > summon > MAGIA DO CASTELO > ambiente): o janelao da fachada e as
+# lancetas/seteiras da torre-coroa eram o maior Neon da ilha (~2.000 studs2 de violeta forte, acima do summon); agora
+# violeta SUAVE (Neon escuro). O foco medio do castelo fica so no crescente do emblema monumental (VG_EMB).
+VG = "SG_VioletSoft_Glow"
+VG_EMB = "SG_VioletDeep_Glow"
 RG = "SG_Rune_Glow"
 WW_M = "Window_Warm"
 # passe de ACABAMENTO (2026-09-29): brilho magico do castelo BAIXO. Linhas/remates secundarios em violeta SUAVE (Neon
@@ -248,7 +252,7 @@ def wall_run(mb, W, u0, u1, zb, zt, t0, t1, opens, m, inner_m=None):
 
 
 def window(mb, W, uc, a, zs, zr, rise, t_glass, t_out, glass_m="Glass_SGHallMoon", frame_m=VI, fw=0.8,
-           dp=0.45, mullion=True, sill=True, sill_m=OB, lead=True, hood=False):
+           dp=0.45, mullion=True, sill=True, sill_m=OB, lead=True, hood=False, back_m=None):
     """vidro ogival no meio da parede + moldura (ombreiras + arquivolta numa peca so) + mainel + peitoril.
     Acabamento: chumbo de ferro negro sobre o vidro (le VIDRO, nao plano de luz), pingadeira (hood) opcional;
     glass_m='shutter' -> folhas de madeira fechadas com ferragens (quarto sem luz: nunca um retangulo escuro)."""
@@ -260,6 +264,11 @@ def window(mb, W, uc, a, zs, zr, rise, t_glass, t_out, glass_m="Glass_SGHallMoon
         zl = zs + (zr - zs) * 0.62
         panel(mb, W, rect(uc - a, uc + a, zs, zl), t_glass - 0.14, t_glass + 0.02, ROOM)
         panel(mb, W, [(uc - a, zl), (uc + a, zl)] + list(reversed(arc)), t_glass - 0.08, t_glass + 0.08, WW_M)
+        if back_m:
+            # overhaul 15 (pendencia do salao): nas paredes da nave o lado de DENTRO desta janela e o vitral de luar
+            # do Mining Hall (Glass 0,3 no Roblox): sem fundo, o Neon quente do comodo aparecia atras do vitral.
+            # Fundo opaco escuro atras do comodo aceso e do vidro ambar (invisivel por fora).
+            panel(mb, W, [(uc - a, zs), (uc + a, zs)] + list(reversed(arc)), t_glass - 0.3, t_glass - 0.16, back_m)
     else:
         panel(mb, W, [(uc - a, zs), (uc + a, zs)] + list(reversed(arc)), t_glass - 0.08, t_glass + 0.08,
               WD if shut else glass_m)
@@ -1027,7 +1036,7 @@ def banzo(mb, name, s, yb_max, post=True):
         for u0, u1 in zip(cuts, cuts[1:]):
             bp = SE._dedupe(SE._clip_y(poly, u0 + 0.04, u1 - 0.04))
             if len(bp) >= 3 and abs(SL.area(bp)) > 0.2 and max(p[0] for p in bp) - min(p[0] for p in bp) > 0.3:
-                SE.yz_block(mb, x0, x1, bp, SE.PAR_M, 0.0)
+                SE.yz_block(mb, x0, x1, bp, SE.PAR_M, 0.07)   # 16.01: o mesmo chanfro do banzo da entrada (0,07)
         c0, ci = c1, ci + 1
 
     def zn(y):
@@ -1078,7 +1087,7 @@ def nave():
         west = W[2][0] < 0
         wall_run(mb, W, HY0, HY1, ZB, EAVE, 0.0, TW, opens_side, CM, IM)
         for y in WIN_Y:
-            window(mb, W, y, WIN_A, WIN_SILL, WIN_SPRING, WIN_RISE, tg, TW, glass_m=WW_M, hood=True)
+            window(mb, W, y, WIN_A, WIN_SILL, WIN_SPRING, WIN_RISE, tg, TW, glass_m=WW_M, hood=True, back_m=OB)
         # cornija de obsidiana (coroamento) + parapeito baixo com remate violeta
         # acabamento: as faixas laterais passam a saliencia delas alem das quinas (ext = t1 - TW) e as faixas das
         # fachadas sul/norte comecam na face interna delas -> quina fechada, sem dente nem ponta cortada no ar
@@ -1645,7 +1654,8 @@ def emblem_monument():
     disc(mb, C, U, V, N, R0, 0.3, 1.0, OB, 32)
     ring(mb, C, U, V, N, R0, R0 + 0.55, 0.3, 0.9, VS, 32)
     ring(mb, C, U, V, N, R0 + 0.55, R0 + 1.25, 0.3, 1.1, OB, 32)
-    EM.emblem(mb, mb, mb, _P(W, 0.0, 1.0, EMB_Z), -math.pi / 2, EMB_R, depth=1.2, monumental=True)
+    EM.emblem(mb, mb, mb, _P(W, 0.0, 1.0, EMB_Z), -math.pi / 2, EMB_R, depth=1.2, monumental=True,
+              glow=VG_EMB)   # 15: lavanda clara (SG_Rune_Glow) virava branco no bloom
     _fin(mb)
     light("L_SGCas_Emblem", "POINT", (0.0, fy - 9.0, Z + 40.0), 950.0, VIOLET, 1.0)
 
@@ -1729,7 +1739,7 @@ def standards(banners):
     # SUPORTE de verdade: cada verga presa na parede por 2 bracos de ferro negro com escora e chapa de fixacao
     mb = MB("SG_Cas_Estandartes", "04_CASTLE", random.Random(5801), detail="near")
     for top, yaw, w, h, off in banners:
-        EM.banner(mb, mb, mb, mb, top, yaw, w, h, trim=EM.GOLD)   # debrum DOURADO (ref v2)
+        EM.banner(mb, mb, mb, mb, top, yaw, w, h, trim=EM.BRONZE)   # debrum de bronze (14.04; era dourado)
         fx, fy_ = math.cos(yaw), math.sin(yaw)
         ux, uy = math.sin(yaw), -math.cos(yaw)
         for sd in (-1, 1):

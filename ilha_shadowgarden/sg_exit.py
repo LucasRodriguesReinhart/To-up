@@ -617,7 +617,7 @@ def head_pylon(mb, s):
     # marcada; a verga fica presa ao fuste por 2 bracos de ferro
     bw_, bh_ = 2.4, 5.2
     ub_ = u - PYL_S / 2 - 0.55
-    EM.banner(mb, mb, mb, mb, tuple(P(ub_, v, zt - 0.2)), ANG + math.pi, bw_, bh_, trim=EM.GOLD)
+    EM.banner(mb, mb, mb, mb, tuple(P(ub_, v, zt - 0.2)), ANG + math.pi, bw_, bh_, trim=EM.BRONZE)
     for sg in (-1, 1):
         beam_uv(mb, (u - PYL_S / 2 + 0.1, v + sg * (bw_ / 2 + 0.1), zt - 0.2), (ub_, v + sg * (bw_ / 2 + 0.1), zt - 0.2),
                 0.22, 0.22, "Metal_SG_BlackIron")

@@ -1470,7 +1470,7 @@ def rim_crystals():
             rr = (0.32 + hero * 0.10) * f
             ax = (nx * 0.45 + sx * lean, ny * 0.45 + sy * lean, 1.0)
             crystal(mb, (fx + sx * lat, fy + sy * lat, zt - ln * 0.4 - (0.0 if f == 1.0 else 0.6)), ax, ln, rr,
-                    m="SG_Crystal_Glow" if f == 1.0 else "SG_VioletDeep_Glow")
+                    m="SG_Crystal_Glow")   # 15: ambiente = o violeta mais baixo da ilha (o VioletDeep das pontas subia a hierarquia)
         # 2 pontas pendentes no estrato de baixo (a mesma veia, mais funda)
         for lat, dz, ln, rr in ((-1.8, 18.0, 4.4, 0.62), (2.2, 24.0, 3.2, 0.5)):
             if crystal_ok(fx, fy, 2.0, zt - dz - ln, zt - dz):
