@@ -1,53 +1,45 @@
-# sg_water - ZONA WATER da Ilha 3 (Shadow Garden): as 4 cachoeiras FRIAS da borda (sg_layout.WATERFALLS).
+# sg_water - ZONA WATER da Ilha 3 (Shadow Garden): a PEDRA das 4 cachoeiras frias da borda (sg_layout.WATERFALLS).
 # build() substitui sg_blockout.water. Prefixo SG_Water_, colecao 07_WATER. Sem luz, sem colisao (nada andavel aqui:
 # o piso, a bancada do labio e as guardas sao do sg_col/sg_terrain; a fonte da praca e da vila).
-#   Cada queda (1 objeto MB por queda -> 1 MeshPart por material):
-#   1. NASCENTE curta: a agua brota de uma FENDA escura na bancada de pedra do terreno (cota do labio -0,1) poucos
-#      studs antes do labio, com borbulho de espuma, e corre rasa (lamina Water_SG 0,08 acima da pedra) ate a borda;
+# ACABAMENTO 2 / AGUA NO ROBLOX (2026-09-30, pedido do usuario: "a agua voce deve fazer no Roblox, porque isso aqui e
+# lixo"): a AGUA SAIU DO EXPORT - sem lamina, filetes, espuma de crista/quebra, veu do pe e lamina da nascente. O jogo
+# faz a agua (Terrain Water / partes com textura e particulas) lendo os MARCADORES. Aqui fica so a rocha:
+#   Cada queda (1 objeto MB por queda -> 1 MeshPart por material de rocha):
+#   1. NASCENTE da bancada (Oeste/Leste/Norte): boca de pedra no fundo da corrida (2 ombreiras + verga + fundo escuro),
+#      CALHA de 2 margens de pedra em blocos (largura 2,4 na boca -> W_LIP no labio) sobre a bancada do terreno e BICA
+#      de pedra em balanco (SPOUT alem da crista, 0,12 abaixo da bancada) de onde a agua cai;
 #      a do SUL (sem bancada) sai de uma fenda na face do penhasco (fundo escuro, ombreiras e soleira em colunas de
-#      basalto, sobrancelha em balanco);
-#   2. CORTINA que cai colada a face REAL do penhasco: raios BVH nas malhas SG_Ter_* da cena (a mesma tecnica da
-#      Ilha 2, db_water): o avanco nunca diminui, onde a rocha avanca a agua passa por fora com folga e ganha espuma na
-#      quebra; corpo azul frio (Water_SG, secao em arco) + fios claros (Water_Fall: o jogo anima a textura
-#      FluxoCachoeira nessas pecas) + riscos de espuma;
-#   3. ESPUMA na crista do labio e onde bate nas saliencias; SAIA de espuma/nevoa no pe (~-60, dentro das nuvens: o
-#      export nao leva as nuvens, entao o pe nunca fica cortado no ar).
-# Marcadores FX_Fall_*/AUDIO_Waterfall_* sao do sg_core (nao cria). Materiais: Water_SG, Water_Fall, Foam + rocha da
-# paleta. Refinamento v2 (agua magica): 2 fios SG_Moon_Glow finos por queda, cristais pequenos SG_Crystal_Glow no
-# labio (fora do parapeito) e halo violeta leve (SG_WaterMist_Glow, material novo 1/3) atras da saia de espuma do pe.
+#      basalto, sobrancelha em balanco); a soleira virou bica com 2 bochechas convergentes (calha);
+#   2. a CORTINA nao e mais modelada, mas o PERFIL continua medido (raios BVH nas malhas SG_Ter_* + a pedra desta zona,
+#      a tecnica da Ilha 2): o avanco nunca diminui e passa por fora da rocha com folga; saliencia = degrau (quebra).
+# Marcadores (criados pelo sg_core.fx_markers a partir da tabela FALL_FX; AQUI so sao conferidos e ATUALIZADOS com o
+# medido, nunca criados):
+#   FX_Fall_<n>_Lip   borda da bica no nivel da PEDRA (a agua corre por cima); frente local +Y = para fora da rocha
+#                     (fwd_x/fwd_z no export). width (largura da calha na bica), kind (bancada|fenda), src_pos (boca da
+#                     nascente, convertido para o Roblox), channel_w0, drop, depth_hint, waypoints (eixo da cortina medido,
+#                     do labio ao pe, convertido para o Roblox) e widths (largura em cada waypoint);
+#   FX_Fall_<n>_Step  onde a cortina bate no degrau de basalto (sg_terrain.fall_steps): width, jump (quanto a lamina
+#                     passa mais para fora); FX_Fall_<n>_Step_Upper = saliencia de cima do estrato (so onde existe);
+#   FX_Fall_<n>_Base  pe da cortina (cota Z_END): width.
 import math, random
 import numpy as np
 import bpy
 from mathutils import Vector
 from mathutils.bvhtree import BVHTree
 import sg_lib as SL
-from sg_lib import MB
+from sg_lib import MB, yaw_to
 import sg_layout as L
-import fm_water_kit as WK
 
 C = "07_WATER"
-WATER, FALL, FOAM = "Water_SG", "Water_Fall", "Foam"
-MIST = "SG_WaterMist_Glow"                 # halo violeta leve do pe (Neon fraco no Roblox)
-import fm_lib
-fm_lib.MATS.setdefault(MIST, (fm_lib.S(140, 105, 225), 0.4, 0.0, 0.55, fm_lib.S(150, 110, 235), 0.0))
-fm_lib.RBX_CAL.setdefault(MIST, (None, [int(cc) for cc in fm_lib.to_srgb(fm_lib.MATS[MIST][0])]))
-# OVERHAUL 13 (2026-09-29, 13.02): a cortina lia "fita de cetim" (lamina azul saturada + listras claras paralelas e
-# retas + espuma em icosfera). Agora: corpo num azul MENOS saturado (Water_SGFall, material novo 1/3 da zona; o
-# SG_WaterMist_Glow saiu), 3 FAIXAS claras de largura variavel que ALARGAM e se abrem a cada quebra na rocha (a agua
-# bate e espalha), sem riscos de espuma soltos nem fios de brilho; o pe vira um veu de espuma em 2 ANEIS; sem cristais
-# no labio (13.09: cristal so nos 3 aglomerados do terreno).
-BODY = "Water_SGFall"
-fm_lib.MATS.setdefault(BODY, (fm_lib.S(58, 86, 140), 0.12, 0.0, 0.1, fm_lib.S(70, 100, 160), 0.0))   # azul medio
-# revisao 13 (coordenacao): filetes LEVEMENTE mais claros que o corpo (a Water_Fall quase branca fazia listra de fita);
-# o export desta ilha nao poe textura animada na Water_Fall (SmoothPlastic liso), nada se perde no jogo
-LINE = "Water_SGFallLine"
-fm_lib.MATS.setdefault(LINE, (fm_lib.S(140, 175, 220), 0.12, 0.0, 0.12, fm_lib.S(150, 182, 226), 0.0))
-SHEET_K = -0.03                 # secao LIGEIRAMENTE concava (bordas a frente): lamina, nao tubo
 ROCK, DARK, TOP = "Cliff_Rock_SG", "Cliff_Rock_SG_Dark", "Cliff_Rock_SG_Top"
-Z_END = -53.0                    # revisao 13b: o veu do pe fica meio encoberto pela camada de nuvens; pe das quedas (mar de nuvens / nevoa do jogo nos FX_Fall_*_Base)
+Z_END = -53.0                    # pe das quedas (cota do veu antigo, meio encoberto pelo mar de nuvens/nevoa do jogo)
 TAGS = ("West", "East", "North", "South")
 DEBUG = True
 INFO = {}                        # tag -> dados medidos (labio, perfil, quebras)
+W_LIP = {"West": 5.4, "East": 5.4, "North": 5.4, "South": 3.8}    # largura da calha na bica (= width do FX_Fall_n_Lip)
+W_SRC = 2.4                      # largura da boca da nascente (bancada)
+SPOUT = 1.1                      # bica: avanco alem da crista da bancada
+SPOUT_DROP = 0.12                # bica: topo abaixo da bancada (a agua desce um dedo antes de cair)
 
 # (tag, ponto do mirante (x, y, piso)) - onde o jogador para e olha o labio
 MIRANTES = {
@@ -144,54 +136,7 @@ class Face:
         return None if h is None else z0 - h
 
 
-# ------------------------------------------------------------------ cortina d'agua
-ARC_K = 0.11                     # flecha do arco da secao da cortina / largura (convexa para fora)
-ARC_N = 4                        # segmentos do arco (overhaul 13: 6 -> 4, fundo)
-
-
-def sheet(mb, pts, widths, side, m, k=ARC_K, thick=0.4, fwd=None):
-    """lamina varrida por pts com secao em ARCO (flecha k * largura para fora, espessura 'thick')"""
-    bm = mb.bm
-    side = Vector(side).normalized()
-    rings = []
-    n = len(pts)
-    for i, p in enumerate(pts):
-        p = Vector(p)
-        t = (Vector(pts[min(n - 1, i + 1)]) - Vector(pts[max(0, i - 1)]))
-        t = t.normalized() if t.length > 1e-9 else Vector((0, 0, -1))
-        f = Vector(fwd).normalized() if fwd is not None else t.cross(side)
-        f = f.normalized() if f.length > 1e-6 else Vector((0, 0, 1))
-        w = widths[i]
-        D = k * w
-        prof = []
-        for j in range(ARC_N + 1):
-            x = -0.5 + j / ARC_N
-            prof.append((x * w, D * (1.0 - 4.0 * x * x)))
-        for j in range(ARC_N, -1, -1):
-            x = -0.5 + j / ARC_N
-            prof.append((x * w * 0.96, D * (1.0 - 4.0 * x * x) - thick))
-        rings.append([bm.verts.new(p + side * a + f * b) for a, b in prof])
-    kk = len(rings[0])
-    for r0, r1 in zip(rings, rings[1:]):
-        for j in range(kk):
-            j2 = (j + 1) % kk
-            try:
-                bm.faces.new((r0[j], r0[j2], r1[j2], r1[j]))
-            except ValueError:
-                pass
-    for cap in (list(reversed(rings[0])), rings[-1]):
-        try:
-            bm.faces.new(cap)
-        except ValueError:
-            pass
-    return mb._post([v for r in rings for v in r], m, None, 0, 1)
-
-
-def arc_off(u, k=ARC_K):
-    u = max(-0.5, min(0.5, u))
-    return k * (1.0 - 4.0 * u * u)
-
-
+# ------------------------------------------------------------------ perfil da cortina (medido; a agua e do Roblox)
 class Curtain:
     """cortina que sai de uma crista c (Vector 3D) para fora (o, horizontal) e cai ate z_bot.
     wprof = (largura no labio, depois de abrir, altura da abertura, no pe). Perfil (avanco x cota): parabola curta no
@@ -302,152 +247,12 @@ class Curtain:
                 return a0 + (a1 - a0) * ((z0 - z) / (z0 - z1) if z0 > z1 else 0.0)
         return K[-1][1]
 
-    def build(self, mb, rng, nb=None, ns=None, k=SHEET_K):
-        """revisao 13 (coordenacao): LAMINA larga, ligeiramente concava, que alarga para baixo e cai colada a rocha
-        (sem ondulacao); 3 filetes VERTICAIS retos levemente mais claros (largura constante, sem desvio); na quebra do
-        degrau a lamina abre em leque curto (width) e segue; espuma so na crista (borda fina continua) e no pe"""
-        pts, ws = self.path()
-        if len(pts) < 2:
-            return
-        self.k = k
-        sheet(mb, pts, ws, self.s, BODY, k=k, thick=0.4)
-        H = self.z_top - self.z_bot
-        # 5 filetes verticais finos CLARAMENTE mais claros, larguras diferentes, comecam/terminam em alturas diferentes
-        for u, fw, d0, d1 in ((-0.34, 0.035, 0.3, 0.1 * H), (-0.15, 0.06, 0.08 * H, 0.2), (0.02, 0.03, 0.4, 0.35 * H),
-                              (0.19, 0.05, 0.22 * H, 0.2), (0.36, 0.04, 0.5, 0.18 * H)):
-            z0, z1 = self.z_top - d0, self.z_bot + d1
-            if z0 - z1 < 2.0:
-                continue
-            self._strip(mb, u, fw, z0, z1, 0.06, LINE, 0.08, u1=u)
-        self.crest_edge(mb)
-
-    def crest_edge(self, mb):
-        """borda fina CONTINUA de espuma no labio: um rolo baixo de ponta a ponta da crista, acompanhando a secao
-        concava (no lugar das 2-3 linguas que liam almofadas)"""
-        c, o, s = self.c, self.o, self.s
-        w = self.width(self.z_top - 0.2)
-        k = getattr(self, "k", SHEET_K)
-        n = 6
-        pts = []
-        for i in range(n + 1):
-            u = -0.48 + 0.96 * i / n
-            q = c + s * (u * w) + o * (k * w * (1.0 - 4.0 * u * u) + 0.12) + Vector((0, 0, -0.08))
-            pts.append(q)
-        side = (o - Vector((0, 0, 1.0))).normalized()
-        WK.ribbon(mb, pts, [0.8] * (n + 1), FOAM, side, thick=0.2, bulge=0.14, fwd=(o + Vector((0, 0, 1.0))))
-
-    def _strip(self, mb, u, fw, z0, z1, off, m, thick, wabs=None, u1=None, wf=None, uf=None):
-        """fita chata na frente da lamina de z0 a z1 (off acima da frente do arco), afinada nas duas pontas"""
-        u1 = u if u1 is None else u1
-        kk = getattr(self, "k", ARC_K)
-        um = 0.5 * (u + u1)
-        side = (self.s - self.o * (8.0 * kk * um)).normalized()
-        span = z0 - z1
-        zz = sorted({z for z, a in self.keys if z1 + 1e-6 < z < z0 - 1e-6} |
-                    {z0, z1, z0 - 0.12 * span, z1 + 0.15 * span} |
-                    ({z1 + 8.0 * i for i in range(1, int(span / 8.0))} if wf else set()), reverse=True)
-        ks = [(z, self.adv(z)) for z in zz]
-        if len(ks) < 2:
-            return
-        pts, ws = [], []
-        full = [self.c + self.o * a + Vector((0, 0, z - self.c.z)) for z, a in ks]
-        for i, (z, a) in enumerate(ks):
-            p0, p1 = full[max(0, i - 1)], full[min(len(full) - 1, i + 1)]
-            t = (p1 - p0)
-            t = t.normalized() if t.length > 1e-6 else Vector((0, 0, -1))
-            f = t.cross(self.s)
-            f = f.normalized() if f.length > 1e-6 else self.o
-            w = self.width(z)
-            tt = (z0 - z) / max(1e-6, span)
-            uu = u + (u1 - u) * tt + (uf(z) if uf else 0.0)
-            k = min(1.0, 0.55 + tt / 0.12 * 0.45) * (1.0 - 0.45 * max(0.0, (tt - 0.85) / 0.15))
-            pts.append(full[i] + self.s * (uu * w + self.wob(z)) + f * (arc_off(uu, kk) * w + off))
-            base = wabs * (1.0 + 0.6 * tt) if wabs else max(0.24, fw * w * (wf(z) if wf else 1.0))
-            ws.append(max(0.2, base * k))
-        WK.ribbon(mb, pts, ws, m, side, thick=thick, flat=True)
-
-    def crest_foam(self, mb, rng, b):
-        """crista: a agua rola por cima da borda em 2-3 linguas de espuma de larguras diferentes + poucos tufos"""
-        c, o, s = self.c, self.o, self.s
-        w = self.wprof[0]
-        k = 2 if w < 6.0 else 3
-        cuts = sorted(rng.uniform(-0.5, 0.5) * 0.5 + (-0.5 + (i + 1) / k) * 0.5 for i in range(k - 1))
-        edges = [-0.5] + cuts + [0.5]
-        for i in range(k):
-            ua, ub = edges[i] + 0.04, edges[i + 1] - 0.04
-            if ub - ua < 0.12:
-                continue
-            u = (ua + ub) / 2
-            wi = (ub - ua) * w
-            z1 = self.z_top - rng.uniform(0.9, 1.6)
-            pts = [c - o * self.crest_back + s * (u * w) + Vector((0, 0, 0.1)),
-                   c + o * (b * 0.4 + 0.3) + s * (u * w) + Vector((0, 0, -0.12)),
-                   c + o * (self.adv(z1) + b + 0.45) + s * (u * self.width(z1) + self.wob(z1)) +
-                   Vector((0, 0, z1 - c.z))]
-            WK.ribbon(mb, pts, [wi * 0.95, wi, wi * rng.uniform(0.6, 0.8)], FOAM, s, thick=0.2, bulge=0.22)
-        # (overhaul 13: sem os tufos de espuma em icosfera nas pontas da crista: as linguas bastam)
-
-    def break_foam(self, mb, rng, zl, a0, a1, b):
-        """a agua bate no degrau de rocha: COLAR de espuma achatado em volta da lamina na quebra (a mesma familia do veu
-        do pe; overhaul 13: no lugar das 2 faixas retangulares + 2 icosferas de respingo)"""
-        c, o, s = self.c, self.o, self.s
-        w = self.width(zl)
-        q = c + o * ((a0 + a1) / 2.0 + b * 0.6)
-        foam_ring(mb, Vector((q.x, q.y, 0.0)), s, o, w * 0.56, (a1 - a0) / 2.0 + b + 1.1, 1.3, zl - 0.75, n=10,
-                  lump=0.1, ph=zl * 0.3)
-
     def foot(self):
         a = self.keys[-1][1]
         return self.c + self.o * a + Vector((0, 0, self.z_bot - self.c.z))
 
 
-def foam_ring(mb, c, s, o, rx, ry, h, z, m=FOAM, n=12, lump=0.12, ph=0.0):
-    """anel de espuma achatado (toro eliptico de secao em gota: borda de fora fina e baixa, miolo mais alto) em volta
-    de c; rx ao longo de s (largura da queda), ry ao longo de o; lump = ondulacao DIRIGIDA da borda (seno, sem sorteio)"""
-    bm = mb.bm
-    prof = [(1.0, 0.0), (0.84, 0.55), (0.62, 0.8), (0.5, 0.35), (0.56, -0.12)]
-    rows = []
-    for i in range(n):
-        a = 2 * math.pi * i / n
-        k = 1.0 + lump * math.sin(3 * a + ph)
-        rows.append([bm.verts.new(c + s * (rx * pr * k * math.cos(a)) + o * (ry * pr * k * math.sin(a)) +
-                                  Vector((0, 0, z + h * pz * (0.85 + 0.3 * (0.5 + 0.5 * math.sin(2 * a + ph))))))
-                     for pr, pz in prof])
-    faces = []
-    m_ = len(prof)
-    for i in range(n):
-        A, B = rows[i], rows[(i + 1) % n]
-        for j in range(m_):
-            j2 = (j + 1) % m_
-            faces.append(bm.faces.new((A[j], A[j2], B[j2], B[j])))
-    import bmesh
-    bmesh.ops.recalc_face_normals(bm, faces=faces)
-    mb._post([v for r in rows for v in r], m, None, 0, 1)
-
-
-def foot_skirt(mb, rng, cur, n=9):
-    """pe da queda no vazio (13.02): VEU de espuma em 2 ANEIS achatados (o de fora largo e baixo, o de dentro menor e
-    mais alto, girado) - a lamina termina dentro deles. Antes: 12 icosferas de espuma + 3 de nevoa violeta."""
-    ft = cur.foot()
-    ft = Vector((ft.x, ft.y, 0.0))                  # a cota vai no argumento z do anel
-    W = cur.width(cur.z_bot)
-    ph = (sum(map(ord, cur.name)) % 7) * 0.9
-    foam_ring(mb, ft + cur.o * 0.8, cur.s, cur.o, W * 1.25, W * 0.7 + 2.0, 4.6, cur.z_bot - 2.0, n=10, ph=ph)
-    foam_ring(mb, ft + cur.o * 0.4, cur.s, cur.o, W * 0.85, W * 0.5 + 1.4, 5.0, cur.z_bot + 0.8, n=8, ph=ph + 1.7)
-
-
-def crystal(mb, base, ax, ln, r, m="SG_Crystal_Glow"):
-    """prisma hexagonal apontado (o mesmo desenho do sg_terrain.crystal, local para nao acoplar os modulos)"""
-    ax = Vector(ax).normalized()
-    yaw = math.atan2(ax.y, ax.x)
-    pitch = math.acos(max(-1.0, min(1.0, ax.z)))
-    rot = (0.0, pitch, yaw)
-    b = Vector(base)
-    mb.cyl(r, ln * 0.7, b + ax * (ln * 0.35), rot, m=m, n=6, r2=r * 0.8, bevel=0.0)
-    mb.cyl(r * 0.8, ln * 0.3, b + ax * (ln * 0.85), rot, m=m, n=6, r2=0.03, bevel=0.0)
-
-
-# ------------------------------------------------------------------ nascente
+# ------------------------------------------------------------------ nascente (so pedra)
 def hexp(cx, cy, r, rot=0.0, n=6, sx=1.0):
     return [(cx + r * sx * math.cos(rot + 2 * math.pi * k / n), cy + r * math.sin(rot + 2 * math.pi * k / n))
             for k in range(n)]
@@ -458,36 +263,87 @@ def poly_frame(c, o, s, pts):
     return [(c.x + o.x * a + s.x * l, c.y + o.y * a + s.y * l) for a, l in pts]
 
 
-def spring_bench(mb, rng, F, c, o, s, t_back):
-    """nascente na BANCADA do terreno: fenda escura atravessada t_back antes do labio, borbulho de espuma sobre ela e
-    lamina rasa ate a crista (larga 2,8 na fenda -> 6,2 na borda). Topo da lamina = crista (0,05 acima da pedra)."""
-    z = c.z + 0.05                   # cota do labio (a pedra da bancada fica em z - 0,1)
-    w0, w1 = 2.8, 6.2
-    n = 6
-    left, right = [], []
-    for i in range(n + 1):
-        t = i / n
-        a = -t_back + t_back * t
-        w = w0 + (w1 - w0) * (t ** 0.8)
-        jl = rng.uniform(-0.3, 0.3) if 0 < i < n else 0.0
-        jr = rng.uniform(-0.3, 0.3) if 0 < i < n else 0.0
-        left.append((a, -w / 2 + jl))
-        right.append((a, w / 2 + jr))
-    # fecho de tras arredondado (a agua sai da fenda)
-    back = [(-t_back - 0.45, -w0 * 0.32), (-t_back - 0.65, 0.0), (-t_back - 0.45, w0 * 0.32)]
-    outline = poly_frame(c, o, s, [right[-1]] + right[-2::-1] + back[::-1] + left)
-    mb.prism(SL.ccw(outline), z - 0.35, z - 0.05, WATER)
-    # fenda escura atravessada (a boca da nascente) com labios de pedra clara de cada lado
-    fq = c - o * (t_back + 0.2)
-    ang = math.atan2(o.y, o.x)
-    mb.box((0.55, w0 + 0.4, 0.3), (fq.x, fq.y, z - 0.12), (0, 0, ang), DARK, 0.0)
-    # borbulho: um anel baixo de espuma saindo da fenda (overhaul 13: no lugar das 2 icosferas)
-    foam_ring(mb, Vector((fq.x, fq.y, 0.0)) + o * 0.45, s, o, w0 * 0.42, 0.75, 0.22, z - 0.12, n=8, lump=0.18)
+def _shrink(poly, f):
+    cx = sum(p[0] for p in poly) / len(poly)
+    cy = sum(p[1] for p in poly) / len(poly)
+    return [(cx + (x - cx) * f, cy + (y - cy) * f) for x, y in poly]
 
 
-def spring_cleft(mb, rng, F, P0, o, s, zm):
+def stone(mb, c, o, s, pts, z0, z1, cap=True):
+    """bloco de pedra (contorno no referencial da queda) com chanfro; cap = tampo claro ao luar (Cliff_Rock_SG_Top)"""
+    poly = SL.ccw(poly_frame(c, o, s, pts))
+    mb.prism(poly, z0, z1, ROCK, bevel=0.1)
+    if cap:
+        mb.prism(SL.ccw(_shrink(poly, 0.86)), z1 - 0.02, z1 + 0.1, TOP)
+
+
+def banks(mb, c, o, s, a0, a1, lin, zb, h0, h1, w=1.25, ph=0.0, zbot=None):
+    """as 2 MARGENS da calha: blocos ao longo de a0..a1 (junta 0,08), face de dentro na lateral +-lin(a), largura ~w,
+    topo zb + h (h0 -> h1) com variacao DIRIGIDA (senoide por bloco, sem sorteio); contorno de 6 lados (pedra, nao caixa)"""
+    n = max(2, int(round((a1 - a0) / 2.2)))
+    zbot = zb - 0.45 if zbot is None else zbot
+    for sd in (-1, 1):
+        for k in range(n):
+            t0, t1 = k / n, (k + 1) / n
+            aa0 = a0 + (a1 - a0) * t0 + (0.04 if k else 0.0)
+            aa1 = a0 + (a1 - a0) * t1 - (0.04 if k < n - 1 else 0.0)
+            li0, li1 = lin(aa0), lin(aa1)
+            wk = w * (1.0 + 0.14 * math.sin(2.3 * k + ph + sd))
+            hk = h0 + (h1 - h0) * (t0 + t1) / 2 + 0.08 * math.sin(1.9 * k + ph + 2 * sd)
+            pts = [(aa0 + 0.08, li0), (aa1 - 0.08, li1), (aa1, li1 + wk * 0.35), (aa1 - 0.22, li1 + wk),
+                   (aa0 + 0.22, li0 + wk * 0.92), (aa0, li0 + wk * 0.4)]
+            pts = [(a, sd * l) for a, l in pts]
+            if sd < 0:
+                pts = pts[::-1]
+            stone(mb, c, o, s, pts, zbot, zb + hk)
+
+
+def spring_bench(mb, F, c, o, s, t_back, w_lip, ph):
+    """nascente na BANCADA do terreno (topo zb = crista - 0,05): boca de pedra no fundo da corrida (ombreiras + verga +
+    fundo escuro: a agua sai por baixo da verga), CALHA com 2 margens de blocos (largura W_SRC na boca -> w_lip na
+    crista) e BICA em balanco (SPOUT alem da crista, topo SPOUT_DROP abaixo da bancada). Devolve (labio, boca):
+    labio = borda da bica no nivel da pedra, boca = saida da nascente no piso da calha."""
+    zb = c.z - 0.05
+    tb = t_back
+    # teto da boca: nunca acima do piso do patamar atras dela (a verga nao pode virar calombo na calcada)
+    top = 1.18
+    for lat in (-2.8, 0.0, 2.8):
+        q = c - o * (tb + 2.6) + s * lat
+        zp = F.down(q.x, q.y, zb + 6.0, 9.0)
+        if zp is not None and zp > zb + 0.3:
+            top = min(top, zp - zb - 0.14)
+    top = max(0.7, top)
+    # boca: 2 ombreiras, verga por cima, fundo escuro recuado (a abertura fica 2,2 x ~0,6)
+    for sd, h in ((-1, 1.0), (1, 0.82)):
+        pts = [(-tb + 0.05, sd * 1.1), (-tb - 0.1, sd * 3.0), (-tb - 1.2, sd * 3.3), (-tb - 2.2, sd * 2.6),
+               (-tb - 2.3, sd * 1.1)]
+        stone(mb, c, o, s, pts[::-1] if sd < 0 else pts, zb - 0.45, zb + min(h, top - 0.1))
+    stone(mb, c, o, s, [(-tb + 0.18, -2.1), (-tb + 0.02, 2.2), (-tb - 1.9, 2.0), (-tb - 2.1, -1.9)],
+          zb + top - 0.58, zb + top - 0.1)
+    q = poly_frame(c, o, s, [(-tb - 1.3, -1.3), (-tb - 2.1, -1.3), (-tb - 2.1, 1.3), (-tb - 1.3, 1.3)])
+    mb.prism(SL.ccw(q), zb - 0.2, zb + top - 0.5, DARK)
+    # calha: margens da boca ate a ponta da bica (a face de dentro abre de W_SRC para w_lip ate a crista)
+
+    def lin(a):
+        t = max(0.0, min(1.0, (a + tb) / max(0.1, tb)))
+        return W_SRC / 2 + (w_lip / 2 - W_SRC / 2) * (t ** 0.8)
+    banks(mb, c, o, s, -tb + 0.02, SPOUT - 0.2, lin, zb, 0.72, 0.36, ph=ph)
+    # bica: laje em balanco sob a ponta da calha (entra 0,8 na bancada) + misula por baixo (le como pedra encaixada)
+    hw = w_lip / 2 + 1.5
+    spout = [(-0.8, -hw), (SPOUT - 0.4, -hw + 0.25), (SPOUT, -hw + 0.9), (SPOUT + 0.06, 0.0), (SPOUT, hw - 0.9),
+             (SPOUT - 0.4, hw - 0.25), (-0.8, hw)]
+    zt = zb - SPOUT_DROP
+    mb.prism(SL.ccw(poly_frame(c, o, s, spout)), zt - 0.8, zt, ROCK, bevel=0.1)
+    corb = [(-0.8, -hw + 0.6), (SPOUT - 0.7, -hw + 1.0), (SPOUT - 0.5, 0.0), (SPOUT - 0.7, hw - 1.0), (-0.8, hw - 0.6)]
+    mb.prism(SL.ccw(poly_frame(c, o, s, corb)), zt - 1.9, zt - 0.8, DARK, bevel=0.1)
+    lip = c + o * SPOUT + Vector((0.0, 0.0, zt - c.z))
+    src = c - o * (tb - 0.3) + Vector((0.0, 0.0, zb - c.z))
+    return lip, src
+
+
+def spring_cleft(mb, rng, F, P0, o, s, zm, w_lip):
     """fenda na FACE do penhasco (queda sul, sem bancada): fundo escuro recuado, sobrancelha, ombreiras de colunas de
-    basalto de alturas diferentes e soleira; a agua sai do fundo escuro, corre pela soleira e cai. Devolve a crista."""
+    basalto de alturas diferentes e SOLEIRA-BICA com 2 bochechas convergentes (calha). Devolve (labio, boca, face)."""
     ang = math.atan2(o.y, o.x)
     fs = [F.out(P0, o, s, lat, z) for lat in (-3.0, -1.5, 0.0, 1.5, 3.0) for z in (zm - 1.0, zm + 1.0, zm + 3.0)]
     fs = [f for f in fs if f is not None and -8.0 < f < 12.0]
@@ -499,36 +355,72 @@ def spring_cleft(mb, rng, F, P0, o, s, zm):
     q = A(face - 1.0, 0.0)
     mb.prism(SL.ccw(poly_frame(q, o, s, [(-1.6, -2.6), (1.0, -2.2), (1.0, 2.2), (-1.6, 2.6)])), zm - 0.6, zm + 3.2,
              DARK)
-    # soleira: laje de basalto em balanco sob a agua (bica natural)
+    # soleira: laje de basalto em balanco (bica natural), frente larga o bastante para a calha
     q = A(face, 0.0)
-    sill = poly_frame(q, o, s, [(-1.0, -3.0), (1.9, -2.6), (2.5, -1.0), (2.6, 1.2), (1.8, 2.8), (-1.0, 3.1)])
+    sill = poly_frame(q, o, s, [(-1.0, -3.0), (2.0, -2.9), (2.6, -2.1), (2.7, 0.0), (2.6, 2.1), (2.0, 3.0), (-1.0, 3.1)])
     mb.prism(SL.ccw(sill), zm - 1.6, zm - 0.3, ROCK, bevel=0.15)
+    # bochechas da calha: convergem de +-2,2 (fundo) para +-w_lip/2 (ponta)
+    lipx = 2.62
+
+    def lin(a):
+        t = max(0.0, min(1.0, (a + 1.0) / (lipx + 1.0)))
+        return 2.2 + (w_lip / 2 - 2.2) * t
+    banks(mb, q, o, s, -1.0, lipx - 0.2, lin, zm - 0.3, 0.6, 0.34, w=0.8, ph=1.3, zbot=zm - 0.7)
     # ombreiras: colunas hexagonais de alturas diferentes
     for sd, (h0, h1) in ((-1, (6.5, 4.2)), (1, (8.0, 3.0))):
         for j in range(2):
-            q = A(face + 0.3 - j * 1.4, sd * (3.9 + j * 1.6 + rng.uniform(-0.2, 0.2)))
+            q2 = A(face + 0.3 - j * 1.4, sd * (3.9 + j * 1.6 + rng.uniform(-0.2, 0.2)))
             r = rng.uniform(1.25, 1.6)
             zt = zm + (h1 if j == 0 else h1 + rng.uniform(1.0, 2.2))
-            mb.prism(SL.ccw(hexp(q.x, q.y, r, ang + rng.uniform(0, 1))), zm - h0 - j * 2.0, zt, ROCK, bevel=0.15)
-            mb.prism(SL.ccw(hexp(q.x, q.y, r * 0.92, ang + rng.uniform(0, 1))), zt, zt + 0.25, TOP)
+            mb.prism(SL.ccw(hexp(q2.x, q2.y, r, ang + rng.uniform(0, 1))), zm - h0 - j * 2.0, zt, ROCK, bevel=0.15)
+            mb.prism(SL.ccw(hexp(q2.x, q2.y, r * 0.92, ang + rng.uniform(0, 1))), zt, zt + 0.25, TOP)
     # sobrancelha: bloco de colunas deitado por cima da boca
-    q = A(face + 0.2, rng.uniform(-0.3, 0.3))
-    brow = poly_frame(q, o, s, [(-1.8, -3.6), (1.2, -3.2), (1.5, 0.0), (1.1, 3.4), (-1.8, 3.8)])
+    q2 = A(face + 0.2, rng.uniform(-0.3, 0.3))
+    brow = poly_frame(q2, o, s, [(-1.8, -3.6), (1.2, -3.2), (1.5, 0.0), (1.1, 3.4), (-1.8, 3.8)])
     mb.prism(SL.ccw(brow), zm + 3.0, zm + 4.6, ROCK, bevel=0.15)
-    mb.prism(SL.ccw(poly_frame(q, o, s, [(-1.6, -3.3), (0.9, -2.9), (1.2, 0.0), (0.8, 3.1), (-1.6, 3.5)])),
+    mb.prism(SL.ccw(poly_frame(q2, o, s, [(-1.6, -3.3), (0.9, -2.9), (1.2, 0.0), (0.8, 3.1), (-1.6, 3.5)])),
              zm + 4.6, zm + 4.85, TOP)
-    # agua: sai do fundo escuro, corre pela soleira e cai (os raios enxergam a fenda + o penhasco)
-    F.add_bmesh(mb.bm)
-    lipx = face + 2.5
-    WK.ribbon(mb, [A(face - 0.8, 0.0, zm - 0.12), A(face + 1.0, 0.0, zm - 0.2), A(lipx - 0.05, 0.0, zm - 0.24)],
-              [3.4, 4.4, 5.0], WATER, s, thick=0.3, bulge=0.08, fwd=(0, 0, 1))
-    return A(lipx, 0.0, zm - 0.22), face
+    return A(face + lipx, 0.0, zm - 0.3), A(face - 0.7, 0.0, zm - 0.3), face
 
 
 # ------------------------------------------------------------------ uma queda
-# revisao 13b: o pe com ~1,3-1,4x a crista (antes triangulo 4-5x: lia cortina/vestido)
-WPROF = {"West": (6.5, 7.6, 12.0, 8.2), "East": (6.5, 7.5, 12.0, 8.0), "North": (6.5, 7.8, 12.0, 8.4),
-         "South": (5.5, 6.4, 12.0, 6.8)}
+# largura da cortina medida (so para os marcadores: labio = W_LIP, abre, altura da abertura, pe)
+WPROF = {"West": (5.4, 6.3, 12.0, 6.8), "East": (5.4, 6.2, 12.0, 6.6), "North": (5.4, 6.5, 12.0, 7.0),
+         "South": (3.8, 4.4, 12.0, 4.7)}
+
+
+def _set_marker(name, loc, yaw, props):
+    """ATUALIZA um marcador do sg_core com o medido (nunca cria); avisa se a tabela do sg_core ficou velha"""
+    ob = bpy.data.objects.get(name)
+    if ob is None:
+        print("WATER AVISO marcador %s nao existe (sg_core.fx_markers / FALL_FX)" % name)
+        return
+    d = (Vector(loc) - ob.location).length
+    if d > 0.3:
+        print("WATER AVISO %s: sg_core.FALL_FX difere %.2f do medido (corrigido aqui; atualize a tabela)" % (name, d))
+    ob.location = Vector(loc)
+    ob.rotation_euler = (0.0, 0.0, yaw)
+    for k, v in props.items():
+        ob[k] = v
+
+
+def markers(n, tag, cur, lip, src, o, kind):
+    yaw = yaw_to(o.x, o.y)
+    pts, ws = cur.path()
+    _set_marker("FX_Fall_%d_Lip" % n, lip, yaw, {
+        "fx": "nevoa_borda", "kind": kind, "width": W_LIP[tag], "channel_w0": W_SRC if kind == "bancada" else 4.4,
+        "src_pos": tuple(round(v, 3) for v in src), "drop": round(lip.z - cur.z_bot, 2), "depth_hint": 0.25,
+        "waypoints": ";".join("%.2f,%.2f,%.2f" % tuple(p) for p in pts),
+        "widths": ";".join("%.2f" % w for w in ws)})
+    brk = sorted(cur.breaks, key=lambda b: -b[0])          # de cima para baixo
+    names = ["FX_Fall_%d_Step" % n] if len(brk) == 1 else ["FX_Fall_%d_Step_Upper" % n, "FX_Fall_%d_Step" % n]
+    if len(brk) > 2:
+        print("WATER AVISO %s: %d quebras (marcadores so para as 2 de baixo)" % (tag, len(brk)))
+        brk = brk[-2:]
+    for nm, (zl, a0, a1) in zip(names, brk):
+        q = cur.c + cur.o * ((a0 + a1) / 2.0) + Vector((0.0, 0.0, zl - cur.c.z))
+        _set_marker(nm, q, yaw, {"fx": "espuma_degrau", "width": round(cur.width(zl), 2), "jump": round(a1 - a0, 2)})
+    _set_marker("FX_Fall_%d_Base" % n, cur.foot(), yaw, {"fx": "nevoa_base", "width": round(cur.width(cur.z_bot), 2)})
 
 
 def fall(i, x, y, z, deg, tag, seed):
@@ -560,23 +452,20 @@ def fall(i, x, y, z, deg, tag, seed):
         t_edge += 0.1
         c = Vector((x + o.x * t_edge, y + o.y * t_edge, z - 0.05))
         run = t_edge - t_back
-        spring_bench(mb, rng, F, c, o, s, min(8.0, max(2.5, run - 1.2)))
+        lip, src = spring_bench(mb, F, c, o, s, min(8.0, max(2.5, run - 1.2)), W_LIP[tag], ph=i * 1.1)
         kind = "bancada"
     else:
         P0 = Vector((x, y, 0.0))
-        c, face = spring_cleft(mb, rng, F, P0, o, s, z)
+        lip, src, face = spring_cleft(mb, rng, F, P0, o, s, z, W_LIP[tag])
         run = face
         kind = "fenda"
-    cur = Curtain(F, c, (o.x, o.y), Z_END, WPROF[tag], lip=1.0, clear=1.1, drift=0.008, name=tag)
-    cur.crest_back = 0.6 if kind == "bancada" else 0.3
-    cur.build(mb, rng)
-    foot_skirt(mb, rng, cur)
-    INFO[tag] = dict(kind=kind, crest=tuple(round(v, 2) for v in c), run=round(run, 2),
-                     keys=[(round(zz, 1), round(aa, 2)) for zz, aa in cur.keys],
-                     breaks=[(round(zz, 1), round(a0, 1), round(a1, 1)) for zz, a0, a1 in cur.breaks],
+    F.add_bmesh(mb.bm)                      # a cortina (medida) passa por fora da bica e das margens
+    cur = Curtain(F, lip, (o.x, o.y), Z_END, WPROF[tag], lip=1.0, clear=1.1, drift=0.008, name=tag)
+    markers(i + 1, tag, cur, lip, src, o, kind)
+    INFO[tag] = dict(kind=kind, lip=tuple(round(v, 2) for v in lip), src=tuple(round(v, 2) for v in src),
+                     run=round(run, 2), breaks=[(round(zz, 1), round(a0, 1), round(a1, 1)) for zz, a0, a1 in cur.breaks],
                      foot=tuple(round(v, 1) for v in cur.foot()), polys=F.npolys)
-    ob = mb.finish()
-    return ob
+    return mb.finish()
 
 
 # ------------------------------------------------------------------ build
@@ -585,7 +474,12 @@ def build():
     for i, ((x, y, z, deg), tag) in enumerate(zip(L.WATERFALLS, TAGS)):
         fall(i, x, y, z, deg, tag, 7301 + 97 * i)
     if DEBUG:
-        for tag in TAGS:
+        for i, tag in enumerate(TAGS):
             d = INFO.get(tag, {})
-            print("WATER %s %s crista=%s corrida=%s pe=%s polys=%s quebras=%s" % (
-                tag, d.get("kind"), d.get("crest"), d.get("run"), d.get("foot"), d.get("polys"), d.get("breaks")))
+            print("WATER %s %s labio=%s boca=%s corrida=%s pe=%s polys=%s quebras=%s" % (
+                tag, d.get("kind"), d.get("lip"), d.get("src"), d.get("run"), d.get("foot"), d.get("polys"),
+                d.get("breaks")))
+            for nm in ("Lip", "Step_Upper", "Step", "Base"):
+                ob = bpy.data.objects.get("FX_Fall_%d_%s" % (i + 1, nm))
+                if ob is not None:
+                    print("WATER FALL_FX %s (%.2f, %.2f, %.2f) width=%s" % (ob.name, *ob.location, ob.get("width")))

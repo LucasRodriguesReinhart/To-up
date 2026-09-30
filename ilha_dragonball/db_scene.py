@@ -32,9 +32,18 @@ ISLET_SPOTS = [(-360.0, 120.0, 46.0, 22.0, True), (120.0, 560.0, 60.0, 18.0, Fal
                (250.0, 380.0, 90.0, 14.0, False), (-160.0, 440.0, 26.0, 18.0, True), (-200.0, 560.0, 16.0, 14.0, False)]
 
 
+# 2026-09-30 (pedido do usuario: "tire tambem essas ilhas em volta de todos os mapas"): as ilhotas flutuantes
+# decorativas estao DESLIGADAS - islets() nao constroi nada e o DB_Sky_Islets some do proximo export. Codigo mantido;
+# para voltar: ISLETS = True (ou DB_ISLETS=1 no ambiente).
+import os as _os
+ISLETS = _os.environ.get("DB_ISLETS", "0") == "1"
+
+
 def islets():
     """ilhotas flutuantes em volta (fora do alcance): rocha pendente em estratos laranja + topo verde + palmeiras,
     algumas com um pod Capsule (a concept tem casinhas-domo nas ilhotas)"""
+    if not ISLETS:
+        return None
     rng = random.Random(909)
     mb = MB("DB_Sky_Islets", "02_TERRAIN", rng, detail="far", floor=-999)
     for x, y, z, r, pod in ISLET_SPOTS:

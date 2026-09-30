@@ -88,6 +88,12 @@ def sea():
     mb.finish()
 
 
+# ACABAMENTO 2 (2026-09-30, pedido do usuario: "tire tambem essas ilhas em volta de todos os mapas"): as ilhotas
+# flutuantes decorativas NAO sao mais construidas nem exportadas. Codigo mantido; para voltar: ISLETS = True
+# (ou SG_ISLETS=1 no ambiente).
+import os as _os
+ISLETS = _os.environ.get("SG_ISLETS", "0") == "1"
+
 # a Ilha 2 fica ao SUL/SUDESTE no referencial desta ilha: nada de ilhota no setor 240..300 graus (a ponte de chegada)
 # refinamento v2: +4 ilhotas pequenas ao fundo (norte/leste/oeste) para adensar o ceu, longe das pontes
 ISLET_SPOTS = [(-300.0, 60.0, 52.0, 20.0), (-260.0, 260.0, 80.0, 16.0), (40.0, 360.0, 64.0, 22.0),
@@ -128,7 +134,10 @@ def islets():
     dungeon: faixa canelada, degrau ao luar, faixa escura) fechando numa ponta com o cristal-coracao embaixo,
     pinheiros do kit da vegetacao em LOD2 (sg_veg.pine, 1 a 3 conforme o tamanho) e, em metade delas, a cachoeira do
     13.02 em miniatura (lamina em arco + faixa clara). Contorno com lobos DIRIGIDOS (senoides), sem sorteio de forma.
-    Antes: 4 icosferas empilhadas + pinheiro de 3 cones + cachoeira em caixa + 4-5 cristais soltos. Sem colisao."""
+    Antes: 4 icosferas empilhadas + pinheiro de 3 cones + cachoeira em caixa + 4-5 cristais soltos. Sem colisao.
+    DESLIGADO (acabamento 2): so constroi com ISLETS = True."""
+    if not ISLETS:
+        return None
     import sg_veg as VG
     import fm_veg_kit as VK
     mb = MB("SG_Sky_Islets", "02_TERRAIN", random.Random(3909), detail="far", floor=-999)

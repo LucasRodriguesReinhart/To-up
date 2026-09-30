@@ -35,6 +35,7 @@ import sg_lib as SL
 from sg_lib import MB, col_box, Frame, light, octo_col, fm_lib
 import sg_layout as L
 import sg_emblem as EM
+import sg_core as CORE
 
 P1, P2, P3 = L.P1, L.P2, L.P3
 COLL = "05_VILLAGE"
@@ -1086,14 +1087,11 @@ GROUPS = [("P1W", (0, 1, 2)), ("P1E", (3, 4, 5)), ("P2W", (6, 7, 8)), ("P2E", (9
 #     antigo Stone_SG_Trim; o "fio da ordem" que lia como trilho preto SAIU (a fonte e a escada ja dao o eixo).
 #   - FONTE: bacia dodecagonal (mesmo envelope da colisao do sg_col) com pilastras de base e capitel e paineis de moldura
 #     saliente; pe, fuste, tacas e colares num PERFIL DE TORNO continuo de 16 lados (bojo, labio enrolado, espessura);
-#     agua em material proprio escuro-esverdeado SEM emissao nos 3 niveis, com bicas de agua caindo das tacas e anel de
-#     espuma onde caem; as 4 lanternas da borda da bacia SAIRAM (ruido em volta do marco).
+#     as 4 lanternas da borda da bacia SAIRAM (ruido em volta do marco). (A agua dos 3 niveis saiu no acabamento 2:
+#     e feita no Roblox; aqui ficam a pedra estanque e as 8 bicas de pedra.)
 M_CAP = "Stone_SG_TrimLow"       # cantaria de remate (o mesmo do sg_entry: um valor abaixo do Stone_SG_Trim)
 fm_lib.MATS.setdefault(M_CAP, (fm_lib.S(132, 128, 134), 0.8, 0.0, 0, None, 0.06))
-M_WATER = "Water_SGFountain"     # agua da fonte: escura, esverdeada, sem emissao (a Water_SG azul lia plastico)
-fm_lib.MATS.setdefault(M_WATER, (fm_lib.S(44, 78, 88), 0.1, 0.0, 0, None, 0.0))
-M_FALL = "Water_SGFoam"          # bicas e espuma: agua clara SEM emissao (a Water_Fall brilha na previa)
-fm_lib.MATS.setdefault(M_FALL, (fm_lib.S(150, 180, 188), 0.3, 0.0, 0, None, 0.0))
+# (acabamento 2: a agua da fonte - Water_SGFountain / Water_SGFoam - saiu; e feita no Roblox pelos WATER_Fountain_*)
 M_SLAB_A = "Stone_Paving_SG_B"   # lajes, tom A (fixo: a variante B do calcamento)
 M_SLAB_B = M_COB                 # lajes, tom B (um passo abaixo)
 M_ASHLAR = "Stone_SG_Block_B"    # cantaria dos aneis
@@ -1128,21 +1126,6 @@ def fountain_statue(mb, x, y, zb, yaw, s=0.7):
     mb.cyl(1.5 * s, 0.4 * s, F.p(0, 0, 0.2 * s), F.r(0, 0, math.pi / 8), OBS, n=8, bevel=0.0)
     mb.cyl(1.62 * s, 0.14 * s, F.p(0, 0, 0.45 * s), F.r(0, 0, math.pi / 8), M_CAP, n=8, bevel=0.0)
     CT.hooded_figure(mb, F, s, 0.52 * s, "Stone_SG_Block_B", OBS, kind="hood")
-
-
-def _water_fall(mb, c, a, r0, z0, r1, z1, out=0.35, rad=0.09):
-    """bica: fio de agua saindo do labio (r0, z0) e caindo em arco ate (r1, z1) na direcao a"""
-    ca, sa = math.cos(a), math.sin(a)
-    pts = []
-    for i in range(7):
-        t = i / 6.0
-        u = 1 - t
-        p0, p1, p2, p3 = (r0, z0), (r0 + out, z0 + 0.05), (r1, z0 - (z0 - z1) * 0.35), (r1, z1)
-        r = u ** 3 * p0[0] + 3 * u * u * t * p1[0] + 3 * u * t * t * p2[0] + t ** 3 * p3[0]
-        zz = u ** 3 * p0[1] + 3 * u * u * t * p1[1] + 3 * u * t * t * p2[1] + t ** 3 * p3[1]
-        pts.append((c[0] + ca * r, c[1] + sa * r, zz))
-    prof = [(rad * math.cos(2 * math.pi * i / 6), rad * math.sin(2 * math.pi * i / 6)) for i in range(6)]
-    mb.sweep(pts, prof, M_FALL, True, None, up=(-sa, ca, 0.0))
 
 
 def plaza():
@@ -1200,29 +1183,41 @@ def plaza():
                    M_ASHLAR, 0.0)
         for zz in (z0p, z1p):
             mf.box((2 * hw + 0.14, 0.12, 0.14), (fx, fy, zz), (0, 0, am + math.pi / 2), M_ASHLAR, 0.0)
-    mf.prism(SL.ccw(ngon(c, 6.1, 12, rot)), z + 0.32, z + 1.95, M_BASIN)                    # fundo da bacia
-    mf.prism(SL.ccw(ngon(c, 6.08, 12, rot)), z + 1.95, z + 2.05, M_WATER)                    # lamina d'agua
+    # ACABAMENTO 2 / AGUA NO ROBLOX (2026-09-30, pedido do usuario: "a agua da fonte deve funcionar e deve ser feita no
+    # Roblox"): SEM malha d'agua (lamina da bacia, discos das tacas, bicas de agua e aneis de espuma sairam). A pedra fica
+    # ESTANQUE com as cotas do sg_core (FOUNTAIN_*: nivel, fundo, raio) e o jogo enche lendo os WATER_Fountain_*:
+    # fundo da bacia 0,5 abaixo da lamina (antes 0,1), fundos das tacas rebaixados, fustes descem ate os fundos novos e
+    # 8 BICAS de pedra (lingueta com 2 bochechas) na borda das tacas, onde saem os jatos.
+    B, (T1, T2) = CORE.FOUNTAIN_BASIN, CORE.FOUNTAIN_BOWLS
+    mf.prism(SL.ccw(ngon(c, 6.1, 12, rot)), z + 0.32, z + B["floor"], M_BASIN)                # fundo da bacia
     # coluna e tacas: UM perfil de torno (16 lados) do pe ate o fundo da taca de baixo, outro ate a taca de cima
-    low = [(1.60, 1.90), (1.60, 2.30), (1.40, 2.42), (1.46, 2.58), (1.20, 2.72), (0.80, 2.95), (0.70, 3.40),
-           (0.86, 3.90), (0.62, 4.50), (0.72, 4.70), (0.72, 4.85), (0.95, 5.05), (1.90, 5.35), (2.70, 5.70),
-           (3.10, 6.05), (3.22, 6.25), (3.14, 6.42), (2.96, 6.40), (2.86, 6.10)]
+    low = [(1.60, B["floor"] - 0.05), (1.60, 2.30), (1.40, 2.42), (1.46, 2.58), (1.20, 2.72), (0.80, 2.95),
+           (0.70, 3.40), (0.86, 3.90), (0.62, 4.50), (0.72, 4.70), (0.72, 4.85), (0.95, 5.05), (1.90, 5.35),
+           (2.70, 5.70), (3.10, 6.05), (3.22, 6.25), (3.14, 6.42), (2.96, 6.40), (2.86, 6.10), (2.80, T1["floor"])]
     EM._lathe(mf, (cx, cy, z), low, M_CAP, 16, math.pi / 16)
-    EM._lathe(mf, (cx, cy, z), [(2.9, 6.08), (2.9, 6.24)], M_WATER, 16, math.pi / 16)
-    up = [(0.62, 6.10), (0.62, 6.32), (0.50, 6.46), (0.42, 7.00), (0.52, 7.50), (0.40, 7.90), (0.50, 8.05),
-          (0.56, 8.18), (1.10, 8.42), (1.55, 8.70), (1.74, 8.92), (1.68, 9.10), (1.54, 9.08), (1.46, 8.90)]
+    up = [(0.62, T1["floor"] - 0.02), (0.62, 6.32), (0.50, 6.46), (0.42, 7.00), (0.52, 7.50), (0.40, 7.90),
+          (0.50, 8.05), (0.56, 8.18), (1.10, 8.42), (1.55, 8.70), (1.74, 8.92), (1.68, 9.10), (1.54, 9.08),
+          (1.46, 8.90), (1.42, T2["floor"])]
     EM._lathe(mf, (cx, cy, z), up, M_CAP, 16, math.pi / 16)
-    EM._lathe(mf, (cx, cy, z), [(1.49, 8.88), (1.49, 9.00)], M_WATER, 16, math.pi / 16)
-    # bicas: 8 da taca de baixo para a bacia, 4 da de cima para a de baixo; espuma onde caem
-    for k in range(4):
-        _water_fall(mf, c, math.radians(45.0 + 90.0 * k), 3.16, z + 6.38, 3.78, z + 2.04, 0.3, 0.08)
-        _water_fall(mf, c, math.radians(90.0 * k), 1.68, z + 9.04, 2.2, z + 6.22, 0.22, 0.06)
-    EM._lathe(mf, (cx, cy, z), [(3.45, 2.04), (4.15, 2.04), (4.15, 2.08), (3.45, 2.08)], M_FALL, 16, 0.0,
-              closed=True)
-    EM._lathe(mf, (cx, cy, z), [(1.98, 6.23), (2.45, 6.23), (2.45, 6.27), (1.98, 6.27)], M_FALL, 16, 0.0,
-              closed=True)
+    # bicas de pedra: lingueta que atravessa a borda logo abaixo do labio (topo 0,04 abaixo do nivel da taca) e sai
+    # em balanco, com 2 bochechas baixas; a ponta = WATER_Fountain_Spout_n
+    for bowl, deg, r_tip, r_land, dst in CORE.FOUNTAIN_SPOUTS:
+        tb = CORE.FOUNTAIN_BOWLS[bowl - 1]
+        a = math.radians(deg)
+        r_in = tb["radius"] - 0.05
+        wd = 0.56 if bowl == 1 else 0.4
+        ln = r_tip - r_in
+        rm = (r_in + r_tip) / 2
+        zt = z + tb["level"] - 0.04
+        ca, sa = math.cos(a), math.sin(a)
+        mf.box((ln, wd, 0.16), (cx + ca * rm, cy + sa * rm, zt - 0.08), (0, 0, a), M_CAP, 0.03)
+        for sd in (-1, 1):
+            ox, oy = -sa * sd * (wd / 2 - 0.05), ca * sd * (wd / 2 - 0.05)
+            mf.box((ln - 0.06, 0.1, 0.12), (cx + ca * (rm - 0.03) + ox, cy + sa * (rm - 0.03) + oy, zt + 0.05), (0, 0, a),
+                   M_CAP, 0.02)
     # o MARCO da praca: o guardiao ENCAPUZADO da ordem sobre a taca de cima, encarando o sul (quem chega). O plinto
-    # nasce de dentro da agua da taca (9,0); NENHUMA colisao nova (so a bacia do sg_col).
-    fountain_statue(mf, cx, cy, z + 8.96, -math.pi / 2, 0.78)
+    # nasce do fundo da taca de cima (dentro da agua do Roblox); NENHUMA colisao nova (so a bacia do sg_col).
+    fountain_statue(mf, cx, cy, z + T2["floor"], -math.pi / 2, 0.78)
     mf.finish()
 
 

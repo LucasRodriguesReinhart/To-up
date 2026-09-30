@@ -69,8 +69,17 @@ def sea():
     mb.finish()
 
 
+# 2026-09-30 (pedido do usuario: "tire tambem essas ilhas em volta de todos os mapas"): as ilhotas flutuantes
+# decorativas estao DESLIGADAS - islets() nao constroi nada e o SKY_Islets some do proximo export. Codigo mantido;
+# para voltar: ISLETS = True (ou IL_ISLETS=1 no ambiente).
+import os as _os
+ISLETS = _os.environ.get("IL_ISLETS", "0") == "1"
+
+
 def islets(detail="blockout"):
     """ilhotas flutuantes em volta (fora do alcance do jogador): rocha em cone invertido + gramado + arvores"""
+    if not ISLETS:
+        return None
     rng = random.Random(909)
     # rodada 2: todas a >= 420 do centro, fora do lobby (y local >= -180 ou |x| >= 360) e fora de uma faixa de 80 ao
     # longo do eixo da saida (45 graus a partir de (96,96)); rocha empilhada irregular, nao cone de festa
