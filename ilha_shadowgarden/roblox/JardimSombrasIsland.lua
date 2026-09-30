@@ -96,12 +96,8 @@ local function vfx(model, mk)
 		nevoa_borda = { cor = C(214, 228, 248), rate = 1.2, vida = 2.6, vel = 0.8, tam = 4, fim = 1.4, acc = V(0, -1.2, 0),
 			transp = 0.82, area = V(6, 1, 3), forma = Enum.ParticleEmitterShape.Box, dist = 220 },
 	}
-	for _, m in pairs(mk) do
-		if string.match(m.Name, '^FX_Fall') then
-			local s = FX[m:GetAttribute('fx') or ''] or FX.nevoa_base
-			emissor(pasta, 'Agua_' .. m.Name, m.Position, s)
-		end
-	end
+	-- (a nevoa das quedas agora nasce junto com a agua do Roblox, em agua())
+	local _ = FX
 	local g = mpos(mk, 'GATE_' .. M.GATE_KEY)
 	if g then
 		emissor(pasta, 'Portao_' .. M.GATE_KEY, g + V(0, 9, 0), { tex = 'brilho', cor = C(255, 120, 110), rate = 3, vida = 2,
@@ -119,6 +115,155 @@ local function vfx(model, mk)
 		end
 	end
 	if nc > 0 then print('[JardimSombrasIsland] ' .. nc .. ' pecas de cristal pulsando (IlhaPulso)') end
+end
+
+-- AGUA feita no Roblox (pedido do usuario: a agua de malha saiu do export). O Blender so deixa a pedra (bicas, calhas,
+-- bacia e tacas estanques) e os marcadores:
+--   FX_Fall_N_Lip (width, fwd, waypoints/widths = eixo da cortina medido na rocha), FX_Fall_N_Step, FX_Fall_N_Base;
+--   WATER_Fountain_Basin/Bowl_1/Bowl_2 (radius, apothem, depth) e WATER_Fountain_Spout_1..8 (land_pos_x/y/z, fwd).
+-- Cortina = paineis finos por trecho do eixo, face para fora da rocha, com Texture de agua corrente que o cliente
+-- (CeuSombras) rola pelo atributo Velocidade (tag AguaCorrente). Espelhos d'agua = Glass + ForceField (brilho animado
+-- nativo). Jatos = Beam curvo com textura. Nevoa/respingo = ParticleEmitter. Tudo decorativo: sem colisao nem consulta.
+local AGUA = {
+	correnteza = 'rbxassetid://1190623231',   -- textura de agua corrente (imagem da biblioteca; so a imagem, sem codigo)
+	nevoa = 'rbxassetid://534953301',
+	gota = 'rbxassetid://1389215359',
+	corpo = C(58, 96, 150), claro = C(196, 222, 250), espelho = C(52, 100, 158), brilho = C(150, 196, 240),
+}
+local function lista(s)
+	local t = {}
+	for item in string.gmatch(s or '', '[^;]+') do table.insert(t, item) end
+	return t
+end
+local function painel(pai, nome, p0, p1, w0, w1, fora, camada)
+	local eixo = p1 - p0
+	local len = eixo.Magnitude
+	if len < 0.05 then return end
+	local cima = -eixo.Unit
+	local f = (fora - cima * fora:Dot(cima))
+	if f.Magnitude < 1e-3 then return end
+	f = f.Unit
+	local dir = cima:Cross(f)
+	local w = (w0 + w1) / 2
+	local p = Instance.new('Part')
+	p.Name = nome; p.Anchored = true; p.CanCollide = false; p.CanQuery = false; p.CanTouch = false; p.CastShadow = false
+	p.Size = V(w, len + 0.15, 0.05)
+	p.CFrame = CFrame.fromMatrix((p0 + p1) / 2 + f * (0.12 + camada * 0.06), dir, cima)
+	p.Material = Enum.Material.SmoothPlastic
+	p.Color = AGUA.corpo
+	p.Transparency = camada == 0 and 0.28 or 1
+	local t = Instance.new('Texture')
+	t.Texture = AGUA.correnteza; t.Face = Enum.NormalId.Back
+	t.StudsPerTileU = w; t.StudsPerTileV = camada == 0 and 10 or 6
+	t.Color3 = AGUA.claro; t.Transparency = camada == 0 and 0.35 or 0.55
+	t:SetAttribute('Velocidade', camada == 0 and 14 or 22)
+	CS:AddTag(t, 'AguaCorrente')
+	t.Parent = p
+	p.Parent = pai
+	return p
+end
+local function nevoa(pai, nome, pos, tam, rate, cor)
+	local a = peca('VFX_' .. nome, V(tam, 1, tam), CFrame.new(pos), pai)
+	local e = Instance.new('ParticleEmitter')
+	e.Name = nome; e.Texture = AGUA.nevoa; e.Rate = rate
+	e.Lifetime = NumberRange.new(1.6, 2.6); e.Speed = NumberRange.new(1.5, 4)
+	e.SpreadAngle = Vector2.new(70, 70); e.Acceleration = V(0, 1.2, 0)
+	e.Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, tam * 0.35), NumberSequenceKeypoint.new(1, tam * 0.9) })
+	e.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 1), NumberSequenceKeypoint.new(0.25, 0.55),
+		NumberSequenceKeypoint.new(1, 1) })
+	e.Color = ColorSequence.new(cor or C(214, 228, 248)); e.LightInfluence = 0.9; e.LightEmission = 0.1
+	e.Rotation = NumberRange.new(0, 360); e.RotSpeed = NumberRange.new(-20, 20)
+	e.Shape = Enum.ParticleEmitterShape.Box; e.ShapeStyle = Enum.ParticleEmitterShapeStyle.Volume
+	e:SetAttribute('Dist', 260); e:SetAttribute('Rate0', rate)
+	CS:AddTag(e, 'IlhaVFX')
+	e.Parent = a
+	return e
+end
+local function espelho(pai, nome, centro, raio, cor, mat, transp, alt)
+	local p = Instance.new('Part')
+	p.Name = nome; p.Shape = Enum.PartType.Cylinder; p.Anchored = true
+	p.CanCollide = false; p.CanQuery = false; p.CanTouch = false; p.CastShadow = false
+	p.Size = V(alt, raio * 2, raio * 2)
+	p.CFrame = CFrame.new(centro) * CFrame.Angles(0, 0, math.rad(90))
+	p.Material = mat; p.Color = cor; p.Transparency = transp
+	p.Parent = pai
+	return p
+end
+local function agua(model, mk)
+	local pasta = Instance.new('Folder'); pasta.Name = 'AGUA_Roblox'; pasta.Parent = model
+	-- cachoeiras
+	for i = 1, 9 do
+		local lip = mk['FX_Fall_' .. i .. '_Lip']
+		if lip then
+			local fora = fwd(mk, 'FX_Fall_' .. i .. '_Lip')
+			local pts, ws = {}, {}
+			for _, s in ipairs(lista(lip:GetAttribute('waypoints'))) do
+				local x, y, z = string.match(s, '([%-%d%.]+),([%-%d%.]+),([%-%d%.]+)')
+				if x then table.insert(pts, V(tonumber(x), tonumber(y), tonumber(z))) end
+			end
+			for _, s in ipairs(lista(lip:GetAttribute('widths'))) do table.insert(ws, tonumber(s)) end
+			if #pts < 2 then
+				local base = mk['FX_Fall_' .. i .. '_Base']
+				pts = { lip.Position, base and base.Position or (lip.Position - V(0, 90, 0)) }
+				ws = { lip:GetAttribute('width') or 5, (base and base:GetAttribute('width')) or 7 }
+			end
+			local q = Instance.new('Folder'); q.Name = 'Queda_' .. i; q.Parent = pasta
+			for k = 1, #pts - 1 do
+				local w0, w1 = ws[k] or ws[#ws] or 5, ws[k + 1] or ws[#ws] or 5
+				painel(q, 'Agua_' .. k, pts[k], pts[k + 1], w0, w1, fora, 0)
+				painel(q, 'Brilho_' .. k, pts[k], pts[k + 1], w0 * 0.7, w1 * 0.7, fora, 1)
+			end
+			local w = lip:GetAttribute('width') or 5
+			nevoa(q, 'Crista_' .. i, lip.Position + fora * 0.8 - V(0, 1, 0), w * 0.5, 3)
+			local st = mk['FX_Fall_' .. i .. '_Step']
+			if st then nevoa(q, 'Degrau_' .. i, st.Position + fora * 1.5, (st:GetAttribute('width') or w) * 0.8, 8) end
+			local bs = mk['FX_Fall_' .. i .. '_Base']
+			if bs then nevoa(q, 'Pe_' .. i, bs.Position + V(0, 4, 0), (bs:GetAttribute('width') or w) * 1.6, 14) end
+		end
+	end
+	-- fonte: espelhos em 2 camadas (Glass por baixo, ForceField com brilho animado por cima) + jatos + respingos
+	local fonte = Instance.new('Folder'); fonte.Name = 'Fonte'; fonte.Parent = pasta
+	for _, n in ipairs({ 'Basin', 'Bowl_1', 'Bowl_2' }) do
+		local m = mk['WATER_Fountain_' .. n]
+		if m then
+			local r = (m:GetAttribute('apothem') or m:GetAttribute('radius') or 2) - 0.08
+			local nivel = m.Position - V(0, 0.06, 0)
+			espelho(fonte, 'Espelho_' .. n, nivel - V(0, 0.1, 0), r, AGUA.espelho, Enum.Material.Glass, 0.25, 0.2)
+			espelho(fonte, 'Brilho_' .. n, nivel + V(0, 0.02, 0), r, AGUA.brilho, Enum.Material.ForceField, 0, 0.04)
+		end
+	end
+	for i = 1, 16 do
+		local m = mk['WATER_Fountain_Spout_' .. i]
+		if m then
+			local lx, ly, lz = m:GetAttribute('land_pos_x'), m:GetAttribute('land_pos_y'), m:GetAttribute('land_pos_z')
+			local land = lx and V(lx, ly, lz) or (m.Position + fwd(mk, m.Name) * 0.6 - V(0, 2.5, 0))
+			local f = fwd(mk, m.Name)
+			local base = peca('Jato_' .. i, V(0.2, 0.2, 0.2), CFrame.new(m.Position), fonte)
+			local a0 = Instance.new('Attachment'); a0.Parent = base
+			a0.WorldCFrame = CFrame.fromMatrix(m.Position + f * 0.05 + V(0, 0.05, 0), f, V(0, 1, 0))
+			local a1 = Instance.new('Attachment'); a1.Parent = base
+			a1.WorldCFrame = CFrame.fromMatrix(land, V(0, -1, 0), f)
+			local b = Instance.new('Beam')
+			b.Attachment0 = a0; b.Attachment1 = a1; b.Texture = AGUA.correnteza
+			b.TextureMode = Enum.TextureMode.Stretch; b.TextureSpeed = 1.6
+			b.Width0 = 0.32; b.Width1 = 0.5; b.FaceCamera = true; b.Segments = 12
+			b.CurveSize0 = 0.9; b.CurveSize1 = 0.4
+			b.Color = ColorSequence.new(AGUA.claro); b.LightEmission = 0.2; b.LightInfluence = 0.8
+			b.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.15), NumberSequenceKeypoint.new(1, 0.35) })
+			b.Parent = base
+			local sp = peca('Respingo_' .. i, V(0.6, 0.2, 0.6), CFrame.new(land + V(0, 0.1, 0)), fonte)
+			local e = Instance.new('ParticleEmitter')
+			e.Texture = AGUA.gota; e.Rate = 10; e.Lifetime = NumberRange.new(0.35, 0.6)
+			e.Speed = NumberRange.new(1.5, 3); e.SpreadAngle = Vector2.new(35, 35); e.Acceleration = V(0, -18, 0)
+			e.EmissionDirection = Enum.NormalId.Top
+			e.Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.18), NumberSequenceKeypoint.new(1, 0.05) })
+			e.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.2), NumberSequenceKeypoint.new(1, 1) })
+			e.Color = ColorSequence.new(AGUA.claro); e.LightInfluence = 0.8
+			e:SetAttribute('Dist', 120); e:SetAttribute('Rate0', 10)
+			CS:AddTag(e, 'IlhaVFX')
+			e.Parent = sp
+		end
+	end
 end
 
 -- a maquina de gacha vira o motor invisivel da torre (o mesmo esquema das Ilhas 1 e 2)
@@ -239,6 +384,7 @@ function M.build(parent, area)
 	if gacha then parent:SetAttribute('GachaPosition', gacha) end
 	portao(model, mk, Config)
 	vfx(model, mk)
+	agua(model, mk)
 
 	-- minerio: zona e bloqueios a partir dos marcadores do export (piso do Mining Hall; teto em piso+28)
 	local zm = mk.MiningZone_ShadowGarden

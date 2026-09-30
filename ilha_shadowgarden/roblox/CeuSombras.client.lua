@@ -96,6 +96,17 @@ task.spawn(function()
 	end
 end)
 
+-- AGUA do Roblox (JardimSombrasIsland): as Textures com tag AguaCorrente rolam para baixo pelo atributo Velocidade
+-- (studs/s). So anima enquanto o jogador esta na area (ligadoFundos); fora dela nada roda.
+local CS = game:GetService('CollectionService')
+game:GetService('RunService').Heartbeat:Connect(function(dt)
+	if not ligadoFundos then return end
+	for _, t in ipairs(CS:GetTagged('AguaCorrente')) do
+		local v = t:GetAttribute('Velocidade') or 12
+		t.OffsetStudsV = (t.OffsetStudsV + v * dt) % math.max(t.StudsPerTileV, 1)
+	end
+end)
+
 local function aplicar(ligado)
 	ligadoFundos = ligado
 	if ligado then aplicarFundos() else restaurarFundos() end
