@@ -607,6 +607,8 @@ function S.debugAbrirEm(seg)
 	if not RunService:IsStudio() then return end
 	local t = workspace:GetServerTimeNow()
 	local prox = math.ceil((t + seg) / D.PERIODO) * D.PERIODO
+	-- a abertura que ja foi usada neste servidor nao reabre (slotEncerrado): o teste vai para a seguinte
+	while S.slotEncerrado and prox <= S.slotEncerrado do prox += D.PERIODO end
 	S.deslocamento = prox - (t + seg)
 	publicar()
 	return S.deslocamento

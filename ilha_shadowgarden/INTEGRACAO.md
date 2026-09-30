@@ -125,3 +125,35 @@ anterior ficou em `ServerStorage.IlhaShadowGarden_ac1e1ae5` (rollback: renomear)
   - masmorra: StoneCorridor, música contínua;
   - morte na masmorra: respawn no lobby do jogo, crossfade para a trilha do lobby, uma trilha só.
   - As outras áreas usam as mesmas faixas de antes.
+
+## Overhaul de acabamento + pedidos do usuário (2026-09-30)
+Export `58cdd0bf` (766 MeshParts, 745k tris estáticos, 749 colisões, 195 marcadores, 40 luzes), importado (766/766) e
+montado. A fonte anterior ficou em `ServerStorage.IlhaShadowGarden_4ec5f0f0` (rollback: renomear). Os scripts antigos
+(DungeonService, AlquimiaConfig, AlquimiaUI) estão em `ServerStorage.BeforeShadowGarden_20260930`.
+
+- **Overhaul por setores 01–16:** folhas em `renders/overhaul/<setor>/`, cada uma em prévia e no modo roblox.
+- **Salão do castelo maior:** nave 96 × 99 × 48, abside, arco triunfal, rosácea da lua e trono em cátedra gótica com assento fundo. A MiningZone passou a 90 × 89 e o salão tem 61 minérios no jogo.
+- **Dungeon maior e infinita:** boca, túnel e vãos cabem um grupo; R1 48 × 48, R2 e R3 60 × 60.
+  - As salas não têm fim e alternam R2/R3, com nível = 1 + floor((sala − 1) / 5).
+  - HP, raridade e recompensa sobem com o nível; há bônus por sala e marco a cada 5 salas.
+  - Cada sala tem tempo limite de 150 s.
+  - Saída a qualquer momento pelo portal da R3 (toque) ou pela R1 (prompt).
+- **Jardinagem "bonemeal":** kit `sg_garden.py` com cerca de 78k tris de capim e flores. O gramado visível das rotas ficou coberto, com jardins por casa e um jardim formal no pátio. FPS na vila: 56 (60 no resto).
+- **Teste no Play:**
+  - salão com os minérios;
+  - trono;
+  - vila e pátio;
+  - dungeon:
+    - entrada;
+    - sala 1 com 17 minérios na R2;
+    - limpeza, com teleporte para a sala 2 na R3;
+    - pulo até a sala 5 e limpeza: marco, sala 6 no nível 2, HP 3300 → 4455;
+    - 17 minérios quebrados com golpes reais (Golpear), com recompensa por minério e sala 7;
+    - tempo da sala esgotado: FINISHING → RESETTING → WAITING, volta ao pátio;
+    - morte: sai da corrida;
+    - reentrada durante ENTRY_OPEN;
+    - saída pela R1.
+  - Output sem erros.
+- **Correção de teste:** `debugAbrirEm` pula a abertura já encerrada no servidor.
+- **Fotos no jogo:** `renders/ingame_final/`.
+- **Pendente:** salvar o place. Os NPCs da vila e o pianista na entrada do castelo vêm depois desta avaliação.
