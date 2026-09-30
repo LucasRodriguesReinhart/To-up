@@ -95,11 +95,19 @@ ER.OWNERS = [("SG_Ter_", "terrain"), ("SG_Sky_", "terrain"), ("SG_Ent_", "entry"
              ("SG_Dun_", "dungeon"), ("SG_Water_", "water"), ("SG_Exit_", "exit"), ("GATE_", "gate_ds"),
              ("VFX_", "vfx"), ("SG_Veg_", "vegetation"), ("SG_Prop_", "props")]
 # tetos por dono = orcamento das zonas (REFINAMENTO_BRIEF.md) + ~8% de folga do export (fatias por material/celula)
-ER.BUDGET_OWNER = {"terrain": (130000, 165), "entry": (44000, 60), "village": (82000, 116), "castle": (172000, 205),
-                   "hall": (46000, 57), "summon": (42000, 55), "craft": (64000, 78), "dungeon": (86000, 108),
+# overhaul 14-16 (2026-09-29): tetos por dono alinhados com o studio_sg.BUDGET atual (+ folga do export). As zonas
+# cresceram por pedido do usuario ou por acabamento heroi aprovado: hall 46k -> 66k (salao 96 x 99 x 48 + abside do
+# trono, setor 04b), craft 64k -> 86k (alquimia heroi por dentro e por fora, setores 06-08), dungeon 86k -> 98k (salas
+# para um grupo, setor 09b), village 82k -> 90k (kit de casas refeito, setor 02). O total da ilha segue <= 700k
+# (static_tris) e <= 800 MeshParts; castle/terrain/props/summon ficaram bem abaixo dos tetos antigos.
+ER.BUDGET_OWNER = {"terrain": (130000, 165), "entry": (44000, 60), "village": (90000, 116), "castle": (172000, 205),
+                   "hall": (66000, 57), "summon": (42000, 55), "craft": (86000, 78), "dungeon": (98000, 108),
                    "water": (22000, 35), "exit": (28000, 42), "gate_ds": (30000, 40), "vfx": (18000, 50),
-                   "vegetation": (34000, 62), "props": (70000, 110)}
-ER.BUDGET = {"static_tris": 700000, "static_meshes": 800, "vfx_tris": 18000, "vfx_meshes": 50, "total_tris": 718000,
+                   "vegetation": (106000, 82), "props": (70000, 110)}
+# JARDINAGEM (2026-09-30, pedido do usuario, orcamento autorizado pela coordenacao: grama + flores ate ~80k e ilha ate
+# 750k): o campo de tufos "bonemeal", as flores em manchas, os jardins das casas e o jardim de lua do patio
+# (SG_Veg_Gdn_*, sg_garden) entram no dono 'vegetation': medido 96,6k tris / 74 MeshParts no estudio -> teto com ~10%.
+ER.BUDGET = {"static_tris": 750000, "static_meshes": 800, "vfx_tris": 18000, "vfx_meshes": 50, "total_tris": 768000,
              "total_meshes": 850, "materials": 130, "shadow_meshes": 320, "day_lights": 42, "col": 1800}
 cx, cy = to_world_xy(0.0, -10.0)
 ER.FAR_GROUND = None                 # o mar distante ja vem da Ilha 1 (um so FAR_GROUND no mundo)
@@ -116,7 +124,13 @@ ER.CAM_COL_AREAS = {"SG_CasHall": 5.0, "SG_CasHallCeil": 1.0, "SG_CasWall": 5.0,
                     "SG_DunHouse": 5.0, "SG_DunHouseRoof": 1.0, "SG_CraftWall": 5.0, "SG_CraftRoof": 1.0}
 ER.NIGHT_ONLY = ("L_SGProp_", "L_SGVil_Lamp", "L_SGExit_Lantern")
 ER.LIGHT_KEEP = ("L_SGHall", "L_SGSum", "L_SGDun", "L_SGCraft", "L_SGCas", "GateDemonSlayer", "L_Gate_DemonSlayer")
-ER.FOLD_PROTECT = ER.FOLD_PROTECT + ("SG_Violet", "SG_Moon", "Glass_SG", "Energy_Core", "Metal_Gold", "P_DS_")
+ER.FOLD_PROTECT = ER.FOLD_PROTECT + ("SG_Violet", "SG_Moon", "Glass_SG", "Energy_Core", "Metal_Gold", "P_DS_",
+                                     "Metal_SG_Bronze",   # 14.04: o debrum de bronze nao funde no ferro
+                                     "Leaf_SGPropBloom",  # 14.09: a flor fundia na pedra (TrimLow/Block_B) e sumia no jogo
+                                     "Stone_SG_TrimLow",  # a borda de pedra dos canteiros fundia na folha (Leaf_SGVegMoon)
+                                     # jardinagem: os 3 tons de lamina, o buxo e as flores do kit nao fundem (o tom e a
+                                     # propria leitura do campo; nas floreiras a folhagem tem pouca area e ia para o reboco)
+                                     "Leaf_SGGrass", "Leaf_SGBox", "Flower_SG")
 
 
 def atomic(name):

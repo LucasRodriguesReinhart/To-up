@@ -33,6 +33,7 @@ import sg_emblem as EM
 import fm_parts as FP
 import sg_veg as VEG                 # cipreste do canteiro (mesma arvore da ilha) + material do luar das folhas
 import fm_veg_kit as VK
+import sg_garden as GD           # kit de jardinagem (sebe de buxo, flores, trepadeiras)
 
 P1, P2, P3 = L.P1, L.P2, L.P3
 COLL = "09_PROPS"
@@ -236,7 +237,7 @@ def mast_banner(mb, x, y, z, yaw=-math.pi / 2):
     EM._lathe(mb, (x, y, z + 13.05), [(0.2, 0.0), (0.14, 0.2), (0.3, 0.46), (0.1, 0.82), (0.0, 1.45)], SILVER, 6,
               math.pi / 6)
     top = (x + fx * 0.36, y + fy * 0.36, z + 12.6)
-    EM.banner(mb, mb, mb, mb, top, yaw, 3.0, 7.4, trim=EM.GOLD)
+    EM.banner(mb, mb, mb, mb, top, yaw, 3.0, 7.4, trim=EM.BRONZE)
     col_box("SG_PropMast", (1.2, 1.2, 14.0), (x, y, z + 7.0))
 
 
@@ -299,15 +300,20 @@ def cross_walk(mb, s, hw=3.6, x_end=(44.0, 44.9)):
 
 # ------------------------------------------------------------------ 2. patio: canteiros, estatuas, obeliscos, postes
 def hedge(mb, a, b, w=0.8, h=0.95, z=P3 + 0.5):
-    """sebe recortada de a a b (xy). Overhaul 03 (03.06): secao com o TOPO CHANFRADO (6 lados; antes viga quadrada)
-    e a faixa de cima raspada de luar"""
-    c = min(0.24, w * 0.3)
-    prof = [(-w / 2, 0.0), (w / 2, 0.0), (w / 2, h - c), (w / 2 - c, h), (-w / 2 + c, h), (-w / 2, h - c)]
-    mb.sweep([(a[0], a[1], z), (b[0], b[1], z)], prof, HEDGE, True, None, up=(0.0, 0.0, 1.0))
-    mb.beam((a[0], a[1], z + h + 0.02), (b[0], b[1], z + h + 0.02), w - 2 * c - 0.04, 0.05, HEDGE_TOP, 0.0)
+    """sebe de BUXO de a a b (xy). JARDINAGEM 2026-09-29 (sg_garden): topo ARREDONDADO (perfil de 8 pontos: paredes
+    quase retas e meia-cana em 3 lances; antes topo chanfrado de 6 lados + faixa de luar colada) no verde do buxo"""
+    GD.hedge_round(mb, a, b, w, h, z, GD.LEAF_BOX)
 
 
-def parterre(mb, s, rng):
+def parterre(mb, s, rng, mg=None):
+    """canteiro do patio = JARDIM DE LUA formal (jardinagem 2026-09-29, pedido do usuario). Mesmo envelope e mesma
+    colisao de antes (a volta COURT_JARDIM_* nao muda); a mureta de obsidiana, os pilaretes e o cipreste ficam.
+    Dentro: sebe de buxo de topo arredondado na moldura com BOLAS de topiaria nas quinas e nas bocas dos caminhos,
+    rosas brancas entremeadas no topo da sebe, CASCALHO nos caminhos (cruz + roda em volta do cipreste, que ganha
+    uma sebe redonda de 12 lances), e 4 compartimentos de cantaria baixa com FAIXAS de cor: lavanda junto da moldura,
+    massa de flores-da-lua no meio, campanulas junto do caminho (espelhado: o desenho le simetrico do eixo).
+    mb = pedra/sebes/cipreste (SG_Prop_Court), mg = plantas (SG_Veg_Gdn_Court)."""
+    mg = mg or mb
     x0, x1 = sorted((s * PARTERRE_X[0], s * PARTERRE_X[1]))
     y0, y1 = PARTERRE_Y
     z = P3
@@ -327,40 +333,41 @@ def parterre(mb, s, rng):
             mb.box((1.5, 1.5, 0.14), (px, py, z + 1.19), (0, 0, 0), CAP, 0.03)
             mb.box((1.3, 1.3, 0.12), (px, py, z + 1.32), (0, 0, 0), CAP, 0.03)
             SE.finial(mb, px, py, z + 1.38, 0.4, m=CAP, n=8)
-    # terra
-    mb.box2((x0 + bw, y0 + bw, z - 0.1), (x1 - bw, y1 - bw, z + 0.62), SOIL, 0.0)
-    # sebes: moldura, circulo do cipreste e a sebe mediana (o desenho e o mesmo nos dois canteiros, espelhado)
+    # terra (leito do canteiro) + cascalho em toda a area de dentro da moldura (os caminhos do jardim)
+    zt = z + 0.62
+    mb.box2((x0 + bw, y0 + bw, z - 0.1), (x1 - bw, y1 - bw, zt), SOIL, 0.0)
     i0, i1, j0, j1 = x0 + bw + 0.55, x1 - bw - 0.55, y0 + bw + 0.55, y1 - bw - 0.55
-    hedge(mb, (i0 - 0.42, j0), (i1 + 0.42, j0))
-    hedge(mb, (i0 - 0.42, j1), (i1 + 0.42, j1))
-    hedge(mb, (i0, j0 + 0.42), (i0, j1 - 0.42))
-    hedge(mb, (i1, j0 + 0.42), (i1, j1 - 0.42))
-    rr = 2.5
-    pts = ngon((cx, cy), rr, 8, math.pi / 8)
-    for k in range(8):
-        a, b = pts[k], pts[(k + 1) % 8]
-        hedge(mb, a, b, w=0.75, h=1.2)
-    hedge(mb, (i0 + 0.42, cy), (cx - rr - 0.2, cy), w=0.6, h=0.7)
-    hedge(mb, (cx + rr + 0.2, cy), (i1 - 0.42, cy), w=0.6, h=0.7)
-    # flores violeta em fileiras escalonadas (4 canteiros internos, 2 fileiras cada)
-    for ya, yb in ((j0 + 0.45, cy - 0.45), (cy + 0.45, j1 - 0.45)):
-        rows = (ya + (yb - ya) * 0.28, ya + (yb - ya) * 0.72)
-        for xa, xb in ((i0 + 0.45, cx - rr - 0.6), (cx + rr + 0.6, i1 - 0.45)):
-            nx = max(2, int((xb - xa) / 1.7))
-            for ri, yy in enumerate(rows):
-                for k in range(nx):
-                    xx = xa + (xb - xa) * (k + 0.5 + (0.25 if ri else -0.25)) / nx
-                    if not (xa + 0.3 < xx < xb - 0.3):
-                        continue
-                    # overhaul 03: TUFO = moita baixa de folhas + cacho de 3 flores de 5 petalas com miolo claro
-                    # (a icosfera achatada lia gema)
-                    mb.ico(0.5, (xx, yy, z + 0.64), HEDGE, 0, scale=(1.4, 1.2, 0.46), rot=(0, 0, 0.4 * k))
-                    for fk, (dx_, dy_, dz_) in enumerate(((-0.24, 0.06, 0.0), (0.2, -0.1, 0.06), (0.0, 0.22, 0.1))):
-                        fx, fy_, fz = xx + dx_, yy + dy_, z + 0.88 + dz_
-                        mb.cyl(0.19, 0.05, (fx, fy_, fz), (0.3 * (fk - 1), 0.2, fk * 0.9), BLOOM, n=5, bevel=0.0)
-                        if fk == 2:
-                            mb.cyl(0.08, 0.07, (fx, fy_, fz + 0.03), (0.3 * (fk - 1), 0.2, 0.0), "Flower_White",
-                                   n=4, bevel=0.0)
+    mb.box2((i0 + 0.3, j0 + 0.3, zt - 0.04), (i1 - 0.3, j1 - 0.3, zt + 0.04), GD.GRAVEL, 0.0)
+    zg = zt + 0.04
+    # moldura de buxo (sebe arredondada) + bolas de topiaria nas 4 quinas
+    hedge(mb, (i0 + 0.3, j0), (i1 - 0.3, j0))
+    hedge(mb, (i0 + 0.3, j1), (i1 - 0.3, j1))
+    hedge(mb, (i0, j0 + 0.3), (i0, j1 - 0.3))
+    hedge(mb, (i1, j0 + 0.3), (i1, j1 - 0.3))
+    for px in (i0, i1):
+        for py in (j0, j1):
+            GD.topiary(mb, (px, py, z + 0.5), 0.66, squash=0.95)
+    # rosas brancas no topo das sebes compridas (a roseira entremeada no buxo)
+    for py in (j0, j1):
+        GD.hedge_roses(mg, (i0 + 0.9, py), (i1 - 0.9, py), z + 0.5 + 0.95, step=2.3)
+    # roda do cipreste: sebe redonda de 12 lances (r 2,4) com 4 bocas; bolas pequenas nas bocas do caminho em cruz
+    rr = 2.4
+    for k in range(12):
+        a0 = math.radians(15.0 + 30.0 * k)
+        a1 = math.radians(15.0 + 30.0 * (k + 1))
+        if k % 3 == 2:
+            continue                                   # bocas a 0/90/180/270 (a cruz de cascalho chega ao cipreste)
+        hedge(mb, (cx + rr * math.cos(a0), cy + rr * math.sin(a0)), (cx + rr * math.cos(a1), cy + rr * math.sin(a1)),
+              w=0.62, h=0.8)
+    for k in range(4):
+        a = math.radians(90.0 * k)
+        for sg in (-1, 1):
+            b = a + sg * math.radians(15.0)
+            GD.topiary(mb, (cx + (rr + 0.05) * math.cos(b), cy + (rr + 0.05) * math.sin(b), z + 0.5), 0.36)
+    # 4 compartimentos de flores em faixas (entre a moldura, o caminho em cruz e a roda)
+    for (xa, xb) in ((i0 + 0.75, cx - rr - 0.9), (cx + rr + 0.9, i1 - 0.75)):
+        GD.formal_bed(mb, mg, xa, xb, j0 + 0.75, cy - 0.65, zg, outer=-1)
+        GD.formal_bed(mb, mg, xa, xb, cy + 0.65, j1 - 0.75, zg, outer=1)
     # cipreste no centro (a mesma especie da ilha: le como plantado, nao enfeite)
     old = VK.SUN
     VK.SUN = VEG.MOON_DIR
@@ -761,9 +768,13 @@ def muret(mb, x, y0, y1, z):
 def court():
     rng = random.Random(3603)
     mb = MB("SG_Prop_Court", COLL, rng, detail="near")
+    # jardinagem 2026-09-29: as plantas do jardim do patio num objeto proprio (1 MeshPart por material)
+    mg = MB("SG_Veg_Gdn_Court", "10_VEGETATION", None, detail="near", floor=-999)
     z = P3
     for s in (-1, 1):
-        parterre(mb, s, random.Random(3610 + s))
+        parterre(mb, s, random.Random(3610 + s), mg)
+    GD.court_vines(mg)                  # roseiras trepadeiras na face interna da muralha, atras dos canteiros
+    mg.finish(recalc=False)
     for x, y, kind in LAMPS:
         lamp(mb, x, y, z, kind)
     for x, y in STATUES:
@@ -786,6 +797,7 @@ def court():
 
 
 def build():
+    GD.reset()
     axis_south()
     axis_north()
     court()

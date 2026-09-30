@@ -31,6 +31,7 @@ import sg_lib as SL
 from sg_lib import MB, col_box, fm_lib
 import sg_layout as L
 import fm_veg_kit as VK
+import sg_garden as GD             # jardinagem (2026-09-29): o campo de grama/flores roda no fim deste build
 
 P1, P2, P3, SUM = L.P1, L.P2, L.P3, L.SUM
 COLL = "10_VEGETATION"
@@ -58,6 +59,7 @@ CAMS = {
     "CAM_SGVeg_PH_P2": ((-10.0, -58.0, P2 + 5.2), (-90.0, -30.0, P2 + 8.0), 22),
     "CAM_SGVeg_PH_P3North": ((-22.0, 170.0, P3 + 5.2), (14.0, 196.0, P3 - 4.0), 22),
 }
+CAMS.update(GD.CAMS)                # cameras da jardinagem (renders/overhaul/13b_jardim)
 # rotas extras: a faixa do P1 ao pe do arrimo entre as casas e a escada (onde ha canteiros) continua livre
 EXTRA_ROUTES = {
     "VEG_P1_canteiros_O": ([(-14.0, -104.0), (-40.0, -106.0), (-56.0, -106.0)], P1),
@@ -436,11 +438,13 @@ fm_lib.MATS.setdefault(PIT_M, (fm_lib.S(132, 128, 134), 0.8, 0.0, 0, None, 0.06)
 
 
 def tree_pit(mb, x, y, z, rng):
-    """canteiro de cantaria (octogono baixo) + terra/grama: arvore no piso calcado. Overhaul 03: pedra de remate
-    (TrimLow, nao o Trim quase branco) com a aresta de cima chanfrada"""
+    """canteiro de cantaria (octogono baixo) + terra: arvore no piso calcado. Overhaul 03: pedra de remate
+    (TrimLow, nao o Trim quase branco) com a aresta de cima chanfrada. Jardinagem 2026-09-29: o disco de grama chapada
+    vira TERRA e o sg_garden planta o anel de tufos e as flores-da-lua (GD.PITS)"""
     r = 1.9
     mb.cyl(r, 0.42, (x, y, z + 0.13), (0, 0, math.pi / 8), PIT_M, n=8, bevel=0.06)
-    mb.cyl(r - 0.38, 0.1, (x, y, z + 0.36), (0, 0, math.pi / 8), GRASS, n=8, bevel=0.0)
+    mb.cyl(r - 0.38, 0.1, (x, y, z + 0.36), (0, 0, math.pi / 8), GD.SOIL, n=8, bevel=0.0)
+    GD.PITS.append((x, y, z + 0.41))
 
 
 def base_dressing(mb, S, x, y, zg, h, rng, wild):
@@ -453,19 +457,27 @@ def base_dressing(mb, S, x, y, zg, h, rng, wild):
         if is_ter(n1) and abs(z1 - zg) < 1.2:
             s = rng.uniform(1.1, 1.8)
             VK.puff(mb, (bx, by, z1 - 0.1), s, LEAF, rng, 1, rng.uniform(0.7, 0.95))
+    # jardinagem 2026-09-29: os 1-2 tufos de espeto (Grass_SG = material Grass do Roblox) sairam: no gramado o campo do
+    # sg_garden adensa o pe das arvores; no terreno bravo (fundo) nada. O rng avanca IGUAL (tufo num MB descartavel):
+    # nenhuma arvore muda de lugar.
+    tmp = None
     for k in range(rng.choice((0, 1, 1, 2))):
         a = rng.uniform(0, math.tau)
         d = rng.uniform(1.0, 2.4)
         bx, by = x + math.cos(a) * d, y + math.sin(a) * d
         z1, n1, _ = S.hit(bx, by)
         if is_ter(n1) and abs(z1 - zg) < 1.0:
-            VK.grass_tuft(mb, (bx, by, z1), rng.uniform(0.7, 1.1), rng, m=GRASS, n=rng.randint(3, 4))
+            tmp = tmp or MB("SG_Veg_Tmp", COLL, random.Random(1), detail="near", floor=-999)
+            VK.grass_tuft(tmp, (bx, by, z1), rng.uniform(0.7, 1.1), rng, m=GRASS, n=rng.randint(3, 4))
+    if tmp is not None:
+        tmp.bm.free()
 
 
 def build():
     PLACED.clear()
     CLAMPED.clear()
     WHY.clear()
+    GD.PITS.clear()
     old_sun = VK.SUN
     VK.SUN = MOON_DIR
     try:
@@ -651,3 +663,6 @@ def _build():
         len(PLACED), nrim, P.ncol, P.lods, len(CLAMPED)))
     print("VEG grupos_incompletos=%s" % miss)
     print("VEG recusas_borda=%s" % sorted(why_rim.items(), key=lambda t: -t[1])[:6])
+    # JARDINAGEM (2026-09-29): campo de grama alta + flores em manchas no gramado, canteiros das arvores, jardins das
+    # casas (sg_garden). Roda aqui porque precisa das arvores (PLACED) e das rotas; as zonas ja estao montadas.
+    GD.build(trees=[(x, y, z, r, h) for x, y, z, r, h, f in PLACED], routes=P.routes)

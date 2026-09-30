@@ -247,29 +247,11 @@ def _hood(mb, f, s, z, w):
         mb.beam(f.P(sb, 0.06, z - 0.42), f.P(sb, 0.86, z + 0.2), 0.14, 0.14, WOOD, 0.0)   # mao-francesa
 
 
-def flower_cluster(mb, f, s, off, z, r=0.13):
-    """cacho de 3 flores (disco de 5 petalas achatado + miolo claro), levemente inclinadas para fora"""
-    for k, (ds, dz, do) in enumerate(((-0.13, 0.0, 0.0), (0.12, 0.05, 0.04), (0.0, 0.1, -0.08))):
-        p = f.P(s + ds, off + do, z + dz)
-        rx = 0.35 if k != 2 else 0.2
-        mb.cyl(r, 0.05, tuple(p), (rx, 0.0, f.yaw + k * 0.7), M_BLOOM, n=5, bevel=0.0)
-        if k == 2:
-            mb.cyl(r * 0.4, 0.07, tuple(f.P(s + ds, off + do + 0.02, z + dz + 0.02)), (rx, 0.0, f.yaw), M_PETAL_C,
-                   n=4, bevel=0.0)
-
-
-def foliage_lobes(mb, f, s, off, z, span, hang=True):
-    """folhagem em 3 a 4 lobos baixos: um monte comprido atras e lobos pendentes que transbordam a borda da frente"""
-    mb.cyl(0.24, span, tuple(f.P(s, off - 0.12, z)), (0.0, math.pi / 2, f.yaw), "Leaf_SG_Pine", n=6, bevel=0.0)
-    if hang:
-        for ds, ln, dz in ((-span * 0.24, span * 0.4, -0.14), (span * 0.26, span * 0.36, -0.2)):
-            mb.cyl(0.19, ln, tuple(f.P(s + ds, off + 0.2, z + dz)), (0.0, math.pi / 2, f.yaw), "Leaf_SG_Pine", n=6,
-                   bevel=0.0)
-
-
 def window_box(mb, f, s, zlo, w):
-    """caixa de janela: corpo de madeira com REBORDO, pendurada sob o peitoril em 2 maos-francesas de ferro; folhagem
-    em lobos que transbordam a borda e 3 cachos de flores de 2 tons (petala violeta apagada + miolo claro)"""
+    """caixa de janela: corpo de madeira com REBORDO, pendurada sob o peitoril em 2 maos-francesas de ferro.
+    JARDINAGEM 2026-09-29: o plantio e o do kit do sg_garden (o mesmo dos canteiros e do gramado) - terra rente ao
+    rebordo, laminas atras, folhas PENDENTES transbordando a frente e as flores da CASA (tema dirigido por casa:
+    sg_garden.BOX_THEME), no lugar dos lobos-cilindro e dos discos de 5 lados"""
     mb = LIFE[0] or mb
     zb = zlo - 0.72
     f.box(mb, s, 0.72, zb, w + 0.4, 0.56, 0.42, WOOD)
@@ -277,9 +259,8 @@ def window_box(mb, f, s, zlo, w):
     for k in (-1, 1):
         mb.beam(f.P(s + k * (w / 2 - 0.1), 0.05, zb - 0.9), f.P(s + k * (w / 2 - 0.1), 0.86, zb - 0.28), 0.1, 0.1,
                 IRON, 0.0)
-    foliage_lobes(mb, f, s, 0.78, zb + 0.34, w + 0.3)
-    for u in (-w * 0.28, w * 0.3):
-        flower_cluster(mb, f, s + u, 0.9, zb + 0.52 + (0.06 if u > 0 else 0.0))
+    import sg_garden as GD
+    GD.window_box_planting(mb, f, s, zb, w)
 
 
 def window(mb, f, s, zlo, w, h, head="hood", shutters=False, planter=False, style="cross", dress="open",
@@ -1427,14 +1408,10 @@ def streets():
                         q1 = min(len(run) - 1, q + 6)
                         poly = [ra[q], ra[q1], rb[q1], rb[q]]
                         mb.prism(SL.ccw(poly), z - 0.1, z + 0.03, M_DIRT)
-    # transicao rua/grama do P2 em pontos ESCOLHIDOS (a frente de cada casa, onde se pisa para chegar a ela): 2 tufos
-    # baixos de grama fria e uma pedra solta na borda da terra batida (nada de tapete: 5 pontos)
-    import fm_veg_kit as VK
-    g = random.Random(4106)
+    # transicao rua/grama do P2 em pontos ESCOLHIDOS (a frente de cada casa, onde se pisa para chegar a ela): uma pedra
+    # solta na borda da terra batida. Jardinagem 2026-09-29: os 2 tufos de espeto (material Grass) sairam - a borda do
+    # gramado com a rua agora e CHEIA de tufos do campo do sg_garden (mais densos junto da terra batida)
     for x, y, a in EDGE_TUFTS:
-        for k, (dx, dy) in enumerate(((0.0, 0.0), (1.1, 0.35))):
-            VK.grass_tuft(objs[P2], (x + dx * math.cos(a) - dy * math.sin(a), y + dx * math.sin(a) + dy * math.cos(a),
-                                     P2), 0.8 if k else 1.0, g, m="Grass_SG", n=3)
         objs[P2].box((0.55, 0.42, 0.2), (x - 0.9 * math.cos(a), y - 0.9 * math.sin(a), P2 + 0.04), (0, 0, a + 0.5),
                      M_DRESS, 0.0)
     for o in objs.values():
@@ -1480,7 +1457,7 @@ def stair_banzo(mb, s):
         for u0, u1 in zip(cuts, cuts[1:]):
             bp = SE._dedupe(SE._clip_y(poly, u0 + 0.04, u1 - 0.04))
             if len(bp) >= 3 and abs(SL.area(bp)) > 0.2 and max(p[0] for p in bp) - min(p[0] for p in bp) > 0.3:
-                SE.yz_block(mb, x0, x1, bp, M_ASH, 0.0)
+                SE.yz_block(mb, x0, x1, bp, M_ASH, 0.07)   # 16.01: o mesmo chanfro do banzo da entrada (0,07)
         c0, ci = c1, ci + 1
 
     def zn(y):
@@ -1654,9 +1631,10 @@ def ground_planter(mb, x, y, z, fwd, lat):
     mb.box((1.92, 0.9, 0.1), (x, y, z + 0.77), (0, 0, yaw), M_CAP, 0.03)
     # face de referencia: tangente = -lat -> normal = fwd (o "off" positivo aponta para a rua)
     f2 = Face(Frame(x, y, z, 0.0), (0.0, 0.0), (-lat[0], -lat[1]), 1.8)
-    foliage_lobes(mb, f2, 0.0, 0.1, 0.9, 1.5)
-    for u in (-0.42, 0.44):
-        flower_cluster(mb, f2, u, 0.22, 1.02 + (0.05 if u > 0 else 0.0))
+    # jardinagem 2026-09-29: terra + plantio do kit (campanulas e flores-da-lua, folhas pendentes)
+    import sg_garden as GD
+    mb.box((1.62, 0.6, 0.08), (x, y, z + 0.78), (0, 0, yaw), GD.SOIL, 0.0)
+    GD.ground_planter_planting(mb, f2, 0.82, 1.5)          # (z relativo: o Face ja soma o piso)
 
 
 def house_identity(mb):

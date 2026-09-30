@@ -50,13 +50,16 @@ SMATS = {
     "Cliff_Rock_SG":        (S(66, 60, 90), 0.9, 0.0, 0, None, 0.12),      # basalto violeta-ardosia (refino v2b: o liquen claro da textura puxava para o verde)
     "Cliff_Rock_SG_Dark":   (S(40, 36, 58), 0.9, 0.0, 0, None, 0.10),      # estratos escuros / sombra
     "Cliff_Rock_SG_Top":    (S(100, 96, 126), 0.9, 0.0, 0, None, 0.10),   # borda de topo (luar)
-    "Grass_SG":             (S(46, 70, 64), 0.9, 0.0, 0, None, 0.16),      # grama fria (verde-azulado escuro)
+    # jardinagem 2026-09-30: o chao da grama desce um valor para os tufos (mais claros, "bonemeal") lerem por cima
+    "Grass_SG":             (S(40, 62, 57), 0.9, 0.0, 0, None, 0.16),      # grama fria (verde-azulado escuro)
     "Dirt_SG":              (S(64, 58, 60), 0.95, 0.0, 0, None, 0.12),
     # construido
     "Stone_Paving_SG":      (S(94, 92, 114), 0.85, 0.0, 0, None, 0.12),    # calcamento frio (refino v2b: escurecido, sem cara de maquete)
     "Stone_SG_Block":       (S(100, 100, 112), 0.85, 0.0, 0, None, 0.12),  # muros de arrimo / muralha (acabamento: pedra neutra)
     "Stone_SG_Castle":      (S(88, 88, 104), 0.8, 0.0, 0, None, 0.10),     # alvenaria do castelo (acabamento: menos azul, le pedra)
-    "Stone_SG_Trim":        (S(164, 160, 168), 0.8, 0.0, 0, None, 0.06),   # frisos, molduras, cantaria clara (pedra lavrada)
+    # overhaul 14.01: 164 lia plastico branco no jogo; o Trim claro fica SO em pecas altas/distantes (perto do jogador =
+    # Stone_SG_TrimLow, 132) e desce um valor para nao estourar contra a pedra escura nas vistas gerais
+    "Stone_SG_Trim":        (S(150, 146, 154), 0.8, 0.0, 0, None, 0.06),   # frisos, molduras, cantaria clara (pedra lavrada)
     "Stone_SG_Floor":       (S(66, 68, 84), 0.7, 0.0, 0, None, 0.08),      # piso do salao (escuro polido)
     "Roof_SG_Slate":        (S(46, 48, 62), 0.6, 0.0, 0, None, 0.08),      # ardosia azul-escura (telhados da vila)
     "Roof_SG_Navy":         (S(40, 34, 62), 0.5, 0.0, 0, None, 0.06),      # coberturas do castelo: ardosia violeta-escura
@@ -73,10 +76,13 @@ SMATS = {
     "Stone_SG_Obsidian":    (S(30, 28, 40), 0.35, 0.1, 0, None, 0.04),     # obsidiana: socos, faixas, cantaria nobre
     "Stone_SG_MarbleBlack": (S(42, 38, 54), 0.25, 0.0, 0, None, 0.06),     # marmore negro (pisos nobres, incrustacoes)
     "Stone_SG_Violet":      (S(78, 62, 110), 0.7, 0.0, 0, None, 0.06),     # pedra violeta (molduras nobres, emblemas)
-    "Metal_SG_BlackIron":   (S(40, 38, 46), 0.35, 0.85, 0, None, 0.02),      # ferro negro (grades, postes, correntes)
+    # overhaul 14.08: (40, 38, 46) virava silhueta preta sem volume no jogo; um valor acima e mais metal (o luar marca a forma)
+    "Metal_SG_BlackIron":   (S(56, 54, 64), 0.32, 0.9, 0, None, 0.02),      # ferro negro (grades, postes, correntes)
     "Cloth_SG_Purple":      (S(66, 22, 112), 0.8, 0.0, 0, None, 0.04),     # estandarte da ordem (roxo profundo)
     # overhaul 12 (kit compartilhado): crescente SEM brilho do estandarte/placas e vidro ambar da lanterna (Glass 0,3)
     "Stone_SG_MoonPale":    (S(176, 160, 210), 0.6, 0.0, 0, None, 0.0),
+    # overhaul 14.04: BRONZE envelhecido da ilha (debrum dos estandartes, alquimia) no lugar do Metal_Gold saturado
+    "Metal_SG_Bronze":      (S(132, 96, 64), 0.45, 0.85, 0, None, 0.04),
     "Glass_SG_LampAmber":   (S(206, 142, 70), 0.08, 0.0, 0, None, 0.0),
     "SG_LampCore_Glow":     (S(190, 110, 40), 0.3, 0.0, 1.2, S(190, 110, 40), 0.0),   # nucleo quente ESCURO dentro da lanterna (atras do vidro)
     # brilhos (Neon no Roblox): violeta so em funcao (dungeon, invocacao, craft, rosacea); azul frio = lua/agua
@@ -84,11 +90,24 @@ SMATS = {
     "SG_Moon_Glow":         (S(170, 200, 255), 0.3, 0.0, 2.0, S(170, 200, 255), 0.0),
     "SG_VioletDeep_Glow":   (S(110, 50, 210), 0.3, 0.0, 1.8, S(110, 50, 210), 0.0),   # linhas de energia da ordem
     "SG_Rune_Glow":         (S(150, 104, 230), 0.3, 0.0, 2.4, S(150, 104, 230), 0.0),  # runas, fio do eixo, crescente do emblema (acabamento: lavanda clara virava branco com o bloom do Roblox)
-    "SG_Crystal_Glow":      (S(146, 84, 246), 0.3, 0.0, 2.0, S(146, 84, 246), 0.0),  # cristais da borda/penhascos (IlhaPulso)
+    # overhaul 15 (hierarquia dungeon > alquimia > summon > magia do castelo > AMBIENTE): o cristal de fundo era o Neon
+    # mais claro e maior da ilha (2.900 studs2); vira o violeta mais escuro (abaixo do SG_VioletSoft do castelo)
+    "SG_Crystal_Glow":      (S(76, 46, 132), 0.3, 0.0, 1.0, S(76, 46, 132), 0.0),  # cristais da borda/penhascos (IlhaPulso)
     # passe de acabamento: violeta SUAVE para detalhes magicos do castelo/hall (Neon escuro = pouco bloom no Roblox)
     "SG_VioletSoft_Glow":   (S(84, 52, 140), 0.3, 0.0, 1.0, S(84, 52, 140), 0.0),
     "Cloud_SG":             (S(98, 88, 156), 0.9, 0.0, 0.22, S(120, 100, 200), 0.0),  # mar de nuvens lilas (refino v2b)
     "SG_MoonDisc_Glow":     (S(150, 140, 214), 0.6, 0.0, 0.55, S(170, 160, 236), 0.0),  # lua da PREVIA (00_REFERENCE)
+    # JARDINAGEM 2026-09-29 (sg_garden: grama alta em tufos + flores em manchas; Leaf_/Flower_ = SmoothPlastic sem sombra)
+    "Leaf_SGGrassDark":     (S(56, 86, 74), 0.85, 0.0, 0, None, 0.04),     # tufo na sombra (ainda acima do chao)
+    "Leaf_SGGrass":         (S(74, 110, 90), 0.85, 0.0, 0, None, 0.04),    # tufo medio e hastes das flores
+    "Leaf_SGGrassLight":    (S(104, 140, 112), 0.85, 0.0, 0, None, 0.04),  # tufo ao luar (o "pelo" claro do bonemeal)
+    "Flower_SGMoon":        (S(198, 202, 216), 0.7, 0.0, 0, None, 0.0),    # flor-da-lua / rosa branca (claro medio)
+    "Flower_SGBell":        (S(122, 90, 168), 0.7, 0.0, 0, None, 0.0),     # campanula violeta (medio, dessaturado)
+    "Flower_SGSpike":       (S(86, 110, 178), 0.7, 0.0, 0, None, 0.0),     # espiga azul (lavanda/delfinio)
+    "Flower_SGAmber":       (S(204, 152, 72), 0.7, 0.0, 0, None, 0.0),     # dente-de-leao e miolo: o toque quente raro
+    "Leaf_SGBox":           (S(40, 68, 56), 0.85, 0.0, 0, None, 0.04),     # buxo (sebes, bolas, folhas das trepadeiras)
+    "Grass_SGLight":        (S(50, 76, 67), 0.9, 0.0, 0, None, 0.06),      # clareira de luar no gramado base (sutil)
+    "Dirt_SGGravel":        (S(98, 96, 106), 0.95, 0.0, 0, None, 0.06),    # cascalho dos caminhos do jardim do patio
 }
 for k, v in SMATS.items():
     MATS.setdefault(k, v)
@@ -105,7 +124,7 @@ add_variants("Cliff_Rock_SG", [("Cliff_Rock_SG", 5), ("Cliff_Rock_SG_B", 3, (56,
 add_variants("Stone_Paving_SG", [("Stone_Paving_SG", 5), ("Stone_Paving_SG_B", 3, (84, 82, 104))], cap=2)
 add_variants("Stone_SG_Block", [("Stone_SG_Block", 5), ("Stone_SG_Block_B", 3, (92, 92, 104))], cap=2)
 add_variants("Stone_SG_Castle", [("Stone_SG_Castle", 5), ("Stone_SG_Castle_B", 3, (80, 80, 96))], cap=2)
-add_variants("Grass_SG", [("Grass_SG", 6), ("Grass_SG_B", 4, (40, 62, 58))], cap=2)
+add_variants("Grass_SG", [("Grass_SG", 6), ("Grass_SG_B", 4, (34, 54, 51))], cap=2)   # jardinagem: um valor abaixo
 
 # prefixos de dono (export Roblox): SG_<Zona>_<Coisa>
 OWNER_PREFIX = {"terrain": ("SG_Ter_", "SG_Sky_"), "entry": ("SG_Ent_",), "village": ("SG_Vil_",),

@@ -42,10 +42,10 @@ ZONE_MARKERS = {
 # total da ilha: <= 480k tris, <= ~680 MeshParts, <= ~1800 colisoes, <= 40 luzes (a noite pede luz local)
 BUDGET = {
     # passe de acabamento (2026-09-29): folga para kits de livros/frascos, portas/janelas com caixilho e ruinas
-    "terrain": (120000, 150, 8, 90, 0), "entry": (40000, 55, 4, 45, 5), "village": (88000, 110, 9, 90, 6),
-    "castle": (160000, 190, 12, 175, 5), "hall": (64000, 62, 9, 40, 6), "summon": (38000, 54, 5, 42, 3),
+    "terrain": (120000, 150, 8, 90, 0), "entry": (40000, 55, 4, 45, 5), "village": (90000, 110, 9, 90, 6),
+    "castle": (160000, 190, 12, 175, 5), "hall": (65000, 62, 9, 40, 6), "summon": (38000, 54, 5, 42, 3),
     "craft": (84000, 74, 11, 75, 4), "dungeon": (95000, 100, 10, 155, 7), "water": (20000, 32, 3, 10, 0),
-    "exit": (26000, 38, 4, 45, 3), "dressing": (90000, 150, 9, 160, 7),
+    "exit": (26000, 38, 4, 45, 3), "dressing": (125000, 160, 9, 160, 7),
 }
 # overhaul 06-08 (2026-09-29): craft 66k -> 84k tris. A alquimia e heroi por fora e por dentro e estava com a
 # hierarquia de acabamento invertida (16.05): +cantaria/arcada cega/cunhais/contrafortes em lances (exterior ~+6k),
@@ -57,8 +57,20 @@ BUDGET = {
 # ~+3k por escala) e ganhou a ABSIDE do trono dentro da torre-coroa: arco triunfal com pilares compostos, estrado de
 # 4 degraus, abobada de nervuras da abside, vitrais e o trono novo (~+5k); revisao 04b-3: ROSACEA DA LUA de 18 no
 # fundo, lancetas ao lado e o cordao na altura do arranque dos vitrais (~+2k). O castelo segue <= 160k.
+# overhaul 14-16 (passe global): village 88k -> 90k (banzo da escada P1P2 com o chanfro 0,07 do kit da entrada, 16.01;
+# +0,7k). Tetos do export_sg.BUDGET_OWNER alinhados com esta tabela (hall 66k, craft 86k, dungeon 98k, village 90k).
 # setor 09b (pedido do usuario: dungeon maior, cabe um grupo): dungeon 80k -> 95k tris (salas x1,84 de area, boca e
 # tunel para 4-6 avatares; +10 pilastras, +18 arcadas, +8 tochas). Summon MeshParts 50 -> 54 (kit de lanterna 12: vidro ambar + nucleo quente).
+# setor 04c (pedido do usuario: "o assento do trono esta muito curto e feio"): hall 64k -> 65k tris. O trono virou
+# catedra gotica (assento fundo de 3,6 com almofada espessa e queda de pano, base com rodape, arcada cega de 3 arcos
+# e pes em garra, bracos com balaustre e voluta em espiral, espaldar ogival em capitone): 2,6k -> 4,2k tris; ja
+# recuperados ~1,5k dentro do proprio trono (tornos n=6, espiral 17 passos, apoio varrido, capitone fechado com n-gonos).
+# JARDINAGEM (2026-09-30, pedido do usuario: grama "bonemeal", flores, jardim do castelo e jardins da vila; orcamento
+# autorizado pela coordenacao: grama + flores ate ~80k, ilha ate 750k): o campo de touceiras cobrindo o gramado visto
+# das rotas + flores em manchas (sg_garden, chamado no fim do sg_veg) e o jardim de lua do patio (sg_court) ENTRAM NO
+# VESTIR: dressing 90k/150 -> 125k/160 (medido ~116,6k tris / ~126 MeshParts estimadas; antes 39,5k / 96). Liquido da
+# jardinagem na ilha ~78k (vestir +77,1k; floreiras da vila +1,0k, dentro dos 90k da vila). export_sg: static 750k e
+# dono 'vegetation' 106k/82.
 
 
 def est_meshparts(ob):
