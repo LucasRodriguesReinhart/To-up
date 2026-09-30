@@ -11,14 +11,14 @@
 #     - CALDEIRAO (hero): bojo de perfil desenhado, BOCA de bronze enrolada, cinta de ferro negro com rebites,
 #       MEDALHAO DA ORDEM (sg_emblem.plaque) preso por espelho que abraca a curvatura do bojo, 2 orelhas fundidas com
 #       argola, 4 patas sobre a LAREIRA (4 setores de obsidiana com bocas de ventilacao: carvoes sob a grelha), pocao
-#       violeta na boca, colher de pau apoiada na borda e um fio de energia fino ate o cristal do lustre;
+#       violeta na boca, colher de pau apoiada na borda (ajuste 19: o fio de energia e o cristal do lustre sairam);
 #     - ESTANTES de verdade (rodape, montantes nas bissetrizes das faces - o movel acompanha a parede curva sem
 #       atravessar -, prateleiras com testeira, fundo escuro, friso e cornija; frontao nas estantes sem janela) com KIT
 #       de livros (6 formatos, capa maior que o miolo, lombada com nervuras) arrumado a mao em grupos, inclinados,
 #       pilhas e vazios, e KIT de frascos (redondo, tubo de ensaio no suporte, quadrado com rotulo, pote de
 #       ingrediente, frasco de pocao grande): liquido embaixo, vidro em cima, tampas diferentes; 2 acesos;
 #     - 2 MESAS DE ESTUDO (pernas torneadas sob o tampo, saia, travessa em H, banqueta de 3 pes), bancada do
-#       alquimista com alambique ligado ao coletor, atril e bau perto da porta, lustre baixo com o cristal;
+#       alquimista com alambique ligado ao coletor, atril e bau perto da porta, lustre baixo de velas;
 #     - 2 ESTANDARTES da ordem presos por mao-francesa; GALERIA estreita nas costas (leste), so leitura de profundidade.
 # Colisao propria: anel da parede (20 caixas) + portico com o vao, contrafortes, tanques, cobertura, ESTRADO
 # (2 x 10-gono), caldeirao (8-gono), bancada, estantes, mesas, atril, bau e 4 postes de lanterna. Luzes (4): caldeirao
@@ -40,7 +40,7 @@
 #   INTERIOR: lambril de madeira + pilastras de pedra ate as misulas + reboco; estantes com fundo escuro; pocoes com
 #     cor media (vidro 0,55 so onde o liquido aparece); kit de vela no lustre e nas mesas; circulo com o alfabeto unico
 #     (sg_court.RUNE_SEGS) embutido; hierarquia de magia: a POCAO do caldeirao e o unico foco (SG_VioletDeep); frasco,
-#     cristal, circulo e 2 pocoes acesas em SG_VioletSoft (Neon escuro).
+#     circulo e 2 pocoes acesas em SG_VioletSoft (Neon escuro).
 import math, random
 import bmesh
 from mathutils import Vector
@@ -53,7 +53,7 @@ import sg_castle as CA          # kit de cantaria do overhaul 03 (ledge, block, 
 from sg_court import RUNE_SEGS, OBELISK_RUNES   # o alfabeto UNICO da ilha (16.07): runas angulares da ordem
 
 S = fm_lib.S
-# ------------------------------------------------------------------ materiais novos da zona (11)
+# ------------------------------------------------------------------ materiais novos da zona (12; 11 contam no orcamento)
 NEW_MATS = {
     "Glass_SGCraftAmber": (S(150, 116, 80), 0.15, 0.0, 0.22, S(168, 118, 70), 0.0),    # vidro ambar (potes, frascos)
     "Glass_SGCraftSage": (S(104, 128, 118), 0.15, 0.0, 0.14, S(110, 140, 126), 0.0),   # vidro verde-salvia
@@ -67,6 +67,8 @@ NEW_MATS = {
     "Stone_SGCraftDark": (S(54, 52, 74), 0.8, 0.0, 0, None, 0.08),                     # alvenaria ESCURA do pavilhao
     # overhaul 07.01/14.03: VIDRO PINTADO opaco (frasco gigante): le sem transparencia; o reflexo e malha propria
     "Glaze_SGCraftFlask": (S(140, 132, 174), 0.2, 0.0, 0, None, 0.0),
+    # ajuste 19: vidro do ICONE da empena - azul-violeta claro e saturado, opaco (SmoothPlastic no Roblox, sem Neon)
+    "Glaze_SGCraftIcon": (S(128, 138, 240), 0.35, 0.0, 0, None, 0.0),
 }
 for _k, _v in NEW_MATS.items():
     fm_lib.MATS.setdefault(_k, _v)
@@ -120,7 +122,7 @@ OCU_Z, OCU_R = 14.8, 1.7       # oculo sobre a porta (portico)
 POST_A = [150.0, 210.0]        # lanternas do circulo magico (ancoras dos raios)
 TANK_A = [45.0, 225.0, 315.0]         # camaras de vidro no pe dos contrafortes diagonais (135 ficaria na rota da dungeon)
 TANK_Y = 19.45                 # centro radial dos tanques (face do contraforte em 17,5; soco do contraforte ate 17,75)
-CHAND_Z, CHAND_R, CHAND_TIP = 12.6, 5.0, 9.6   # lustre BAIXO (lido da camera da porta): aro, raio, ponta do cristal
+CHAND_Z, CHAND_R = 12.6, 5.0   # lustre BAIXO (lido da camera da porta): aro, raio (ajuste 19: o cristal pendurado saiu)
 AMBER, SAGE, PALE, ROSE = "Glass_SGCraftAmber", "Glass_SGCraftSage", "Glass_SGCraftPale", "Glass_SG_Rose"
 BK_WINE, BK_INK, BK_PLUM, BK_BROWN = "Cloth_SGCraftBook", "Cloth_SGCraftBookInk", "Cloth_SG_Purple", "Cloth_SGCraftBookBrown"
 POT_W, POT_T = "Potion_SGCraftWine", "Potion_SGCraftTeal"
@@ -951,6 +953,70 @@ def half_lathe(mb, F, uc, y0, vc, prof, dep, m, n=10):
     mb._post([v for r_ in rows for v in r_], m, None, 0, 1)
 
 
+# ICONE DA ALQUIMIA (ajuste 19): frasco de bojo redondo em relevo, lido SO por cor solida (sem transparencia e sem
+# Neon: no Roblox o vidro vira SmoothPlastic azul-violeta claro): placa de BRONZE com a silhueta do frasco + rolha
+# (o contorno de bronze aparece 0,08 em volta), vidro azul-violeta (ICON_GLASS), liquido AMBAR no terco de baixo do
+# bojo (Window_Warm: SmoothPlastic ambar 214/140/74 no Roblox, o mesmo material das janelas - sem MeshPart nova),
+# rolha de bronze e 3 borbulhas BRANCAS (icosfera baixa, Flower_White: o branco do reflexo do frasco gigante)
+# subindo no liquido. Perfis (raio, altura) do centro do disco.
+ICON_GLASS = "Glaze_SGCraftIcon"
+ICON_LIQ = "Window_Warm"
+ICON_FOAM = "Flower_White"
+ICON_FLASK = [(0.24, -1.0), (0.48, -0.93), (0.64, -0.7), (0.69, -0.42), (0.6, -0.13), (0.38, 0.06), (0.21, 0.19),
+              (0.19, 0.6), (0.28, 0.66), (0.28, 0.78)]
+ICON_CORK = [(0.19, 0.74), (0.24, 0.8), (0.25, 1.02), (0.2, 1.08)]
+ICON_LIQ_V = -0.34                         # nivel do liquido (logo acima da barriga)
+ICON_DV = -0.04                            # o icone inteiro desce um pouco: fica centrado no disco
+
+
+def _prof_r(prof, v):
+    """raio do perfil na altura v (interpolacao linear)"""
+    for (r0, v0), (r1, v1) in zip(prof, prof[1:]):
+        if v0 <= v <= v1:
+            return r0 + (r1 - r0) * (v - v0) / max(v1 - v0, 1e-6)
+    return prof[0][0] if v < prof[0][1] else prof[-1][0]
+
+
+def flat_profile(mb, F, y0, y1, vc, prof, m):
+    """placa plana com a silhueta de um perfil de torno [(r, dv)] (simetrica em u = 0), de y0 a y1: faixas trapezoidais
+    (convexas) empilhadas numa casca fechada"""
+    bm = mb.bm
+    rows = [[bm.verts.new(F.p(s_ * r, y, vc + dv)) for s_, y in ((-1, y0), (1, y0), (1, y1), (-1, y1))]
+            for r, dv in prof]
+    fs = []
+    for A, B in zip(rows, rows[1:]):
+        for i in range(4):
+            j = (i + 1) % 4
+            fs.append(bm.faces.new((A[i], A[j], B[j], B[i])))
+    fs.append(bm.faces.new(list(reversed(rows[0]))))
+    fs.append(bm.faces.new(rows[-1]))
+    bmesh.ops.recalc_face_normals(bm, faces=fs)
+    mb._post([v for r_ in rows for v in r_], m, None, 0, 1)
+
+
+def alchemy_icon(mb, F, yf, vc):
+    """o icone da empena da alquimia. yf = face do disco de obsidiana (distancia radial), vc = centro (altura)"""
+    vc += ICON_DV
+    # contorno: placa de bronze 0,08 maior que frasco + rolha, saindo 0,1 do disco
+    out = [(0.3, -1.08), (0.56, -0.99), (0.72, -0.74), (0.77, -0.42), (0.68, -0.1), (0.46, 0.09), (0.29, 0.23),
+           (0.27, 0.58), (0.36, 0.62), (0.36, 0.8), (0.33, 0.83), (0.33, 1.03), (0.27, 1.15)]
+    flat_profile(mb, F, yf - 0.02, yf + 0.1, vc, out, BRONZE)
+    # vidro azul-violeta (meio torno achatado; o fundo fica 0,02 dentro da placa)
+    y0 = yf + 0.08
+    half_lathe(mb, F, 0.0, y0, vc, ICON_FLASK, 0.5, ICON_GLASS, n=10)
+    # liquido ambar: casca do bojo ate o nivel, 0,025 mais larga (cobre o vidro), com a superficie plana no nivel
+    liq = [(r + 0.025, dv) for r, dv in ICON_FLASK if dv < ICON_LIQ_V]
+    liq = [(liq[0][0], liq[0][1] - 0.02)] + liq[1:] + [(_prof_r(ICON_FLASK, ICON_LIQ_V) + 0.025, ICON_LIQ_V)]
+    half_lathe(mb, F, 0.0, y0, vc, liq, 0.5, ICON_LIQ, n=10)
+    # rolha de bronze (sai um pouco mais que o gargalo)
+    half_lathe(mb, F, 0.0, y0, vc, ICON_CORK, 0.62, BRONZE, n=8)
+    # 3 borbulhas claras subindo no liquido (meio embutidas na superficie do liquido)
+    for u, dv, rb in ((0.2, -0.56, 0.1), (-0.14, -0.74, 0.075), (0.02, -0.45, 0.06)):
+        R = _prof_r(ICON_FLASK, dv) + 0.025
+        d = 0.5 * math.sqrt(max(R * R - u * u, 0.0))
+        mb.ico(rb, F.p(u, y0 + d, vc + dv), ICON_FOAM, 1)
+
+
 def _dome_rho(z):
     """raio horizontal da superficie externa do domo na altura z (acima do piso); abaixo do domo: anel de apoio"""
     if z <= DOME_Z:
@@ -1061,14 +1127,13 @@ def portal(mb):
     lathe(mb, ap[0], ap[1], ap[2] - 0.1, [(0.0, 0.0), (0.42, 0.0), (0.42, 0.34), (0.3, 0.46), (0.0, 0.46)], VSTONE, n=8,
           rot=math.pi / 8)
     CA.finial(mb, ap[0], ap[1], ap[2] + 0.36, 1.25)
-    # MEDALHAO do frasco (06.07): disco de obsidiana, moldura de torno e o frasco em RELEVO de prata (meio torno)
+    # MEDALHAO do frasco (06.07; ajuste 19, pedido do usuario: "o icone de alquimia sem cor, um lixo"): disco de
+    # obsidiana e ARO DE BRONZE (era pedra violeta); o icone COLORIDO em relevo sai no MB do domo (alchemy_icon: la
+    # ja existem todos os materiais dele menos o vidro)
     mc = Vector(F.p(0.0, 0.0, H + 2.55))
     disc_ax(mb, mc, ax, 1.45, y1 - 0.05, y1 + 0.12, OBS, n=16)
     ring_ax(mb, mc, ax, [(1.34, y1 - 0.05), (1.72, y1 - 0.05), (1.72, y1 + 0.2), (1.56, y1 + 0.34), (1.36, y1 + 0.28)],
-            VSTONE, n=16)
-    half_lathe(mb, F, 0.0, y1 + 0.1, H + 2.55, [(0.26, -1.0), (0.5, -0.92), (0.66, -0.66), (0.7, -0.4), (0.6, -0.12),
-                                                (0.36, 0.08), (0.2, 0.2), (0.19, 0.68), (0.3, 0.74), (0.29, 0.86)],
-               0.5, SILVER, n=10)
+            BRONZE, n=16)
     # TELHADO PROPRIO de 2 aguas (navy) atras da empena: nasce dentro da cimalha e morre no domo; rufo e cumeeira
     bm = mb.bm
     NU = 7
@@ -1206,6 +1271,9 @@ def dome():
         fbox(mb, fr(a), -0.42, 0.42, 15.55, 16.55, H + 0.95, H + 1.35, SILVER, 0.04)
     lanternim(mb)
     flask(mb)
+    # icone da empena (ajuste 19) neste MB: bronze, ambar (Window_Warm) e branco (Flower_White) ja estao aqui - so o
+    # vidro do icone e MeshPart nova (compensada no caldeirao: crescente da placa no violeta da pocao)
+    alchemy_icon(mb, FD, PORT_Y1 + 0.12, H + 2.55)
     mb.finish()
     # cobertura (colisao): octogono no topo da parede
     ngon_col("SG_CraftRoof", CX, CY, 8, R_OUT + 0.8, Z + H, Z + DOME_Z + 1.0)
@@ -1705,7 +1773,9 @@ def cauldron():
         f = Vector((math.cos(ang), math.sin(ang), 0.0))
         O = Vector((x, y, Z + MED_Z)) + f * caul_r(MED_Z)
         medal_bezel(mb, O, f)
-        EM.plaque(mb, mb, mb, mb, tuple(O + f * MED_CD), ang, MED_R, glow=EM.MOON)   # ov12: crescente aceso SO aqui
+        # ov12: crescente aceso SO aqui; ajuste 19: no violeta da POCAO (VDEEP, o foco da sala) em vez da lavanda
+        # SG_Rune_Glow - uma MeshPart a menos no caldeirao (paga o vidro do icone da empena)
+        EM.plaque(mb, mb, mb, mb, tuple(O + f * MED_CD), ang, MED_R, glow=VDEEP)
     # ORELHAS fundidas com ARGOLA (norte e sul)
     pin = (3.3, 5.02)
     Rr, tr = 0.42, 0.075
@@ -1731,8 +1801,7 @@ def cauldron():
     mb.rod((x + d0[0] * math.cos(a), y + d0[0] * math.sin(a), Z + d0[1]),
            (x + e[0] * math.cos(a), y + e[0] * math.sin(a), Z + e[1]), 0.09, WOOD, 6)
     mb.ico(0.13, (x + e[0] * math.cos(a), y + e[0] * math.sin(a), Z + e[1]), WOOD, 1)
-    # FIO DE ENERGIA fino (violeta escuro) do cristal do lustre ate a pocao
-    mb.rod((x, y, Z + LIQ_Z), (x, y, Z + CHAND_TIP + 0.05), 0.035, VSOFT, 6)
+    # (ajuste 19: o FIO DE ENERGIA que subia da pocao ate o cristal do lustre saiu junto com o cristal)
     mb.finish()
     ngon_col("SG_CraftCauldron", x, y, 8, 3.5, Z + DAIS_H2 - 0.1, Z + DAIS_H2 + 4.9, rot0=22.5)
 
@@ -2398,8 +2467,8 @@ def windows_in(mb):
 
 def chandelier(mb):
     """LUSTRE de ferro negro BAIXO (07.05 / 08.09): ARO de perfil moldurado (8 pontos), 8 VELAS DO KIT em copinhos de
-    bronze, 8 PINGENTES em gota com capa de bronze, cubo em BALAUSTRE torneado e o CRISTAL menor (2,2 de altura, 6
-    facetas, topo cortado, violeta ESCURO) preso por GARRA de bronze de 3 dedos; correntes ate o florao da abobada.
+    bronze, 8 PINGENTES em gota com capa de bronze e cubo em BALAUSTRE torneado (ajuste 19: o CRISTAL pendurado e a
+    garra que o prendia sairam); correntes ate o florao da abobada.
     Sem colisao (fora do alcance de quem esta no estrado)."""
     x, y = CX, CY
     zr = Z + CHAND_Z
@@ -2426,18 +2495,9 @@ def chandelier(mb):
         mb.rod((px, py, zr), (x + 0.45 * ca, y + 0.45 * sa, zr + 1.25), 0.07, BIRON, 5)
     EM._lathe(mb, (x, y, zr - 0.5), [(0.0, 0.0), (0.3, 0.2), (0.48, 0.55), (0.4, 0.85), (0.22, 1.1), (0.3, 1.35),
                                      (0.52, 1.5), (0.44, 1.7), (0.16, 1.9), (0.16, 2.4)], BIRON, 6, caps=(False, True))
-    # CRISTAL (violeta escuro, Neon fraco) e garra de bronze
-    t0 = CHAND_TIP
-    top = t0 + 2.2
-    lathe(mb, x, y, Z, [(0.0, t0), (0.3, t0 + 0.42), (0.52, t0 + 1.15), (0.46, t0 + 1.7), (0.34, top), (0.0, top)],
-          VSOFT, n=6, rot=math.pi / 6)
-    EM._lathe(mb, (x, y, Z + top - 0.05), [(0.4, 0.0), (0.44, 0.1), (0.22, 0.24), (0.12, 0.32)], GOLD, 6,
-              caps=(False, True))
-    for k in range(3):
-        a = 2 * math.pi * k / 3 + math.pi / 6
-        mb.rod((x + 0.38 * math.cos(a), y + 0.38 * math.sin(a), Z + top), (x + 0.44 * math.cos(a), y + 0.44 * math.sin(a),
-                                                                            Z + top - 0.62), 0.05, GOLD, 4)
-    mb.rod((x, y, Z + top + 0.3), (x, y, zr - 0.5), 0.06, BIRON, 4)
+    # (ajuste 19, pedido do usuario: "esse cristal em cima do pote de pocoes muito ruim, remova isso") o CRISTAL
+    # pendurado, a garra de bronze de 3 dedos e a haste que o prendia ao cubo SAIRAM; o cubo em balaustre termina no
+    # proprio pingente torneado (ponta fechada em zr - 0,5)
     # correntes ate a abobada (4 tirantes + o fio central ate o florao)
     for k in range(4):
         a = 2 * math.pi * k / 4 + math.pi / 4

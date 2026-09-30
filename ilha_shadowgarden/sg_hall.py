@@ -27,7 +27,7 @@
 #   vao livre) com a ROSACEA DA LUA de 18 (vidro violeta + emblema) acima dele, para a ABSIDE do trono
 #   cavada na base da torre-coroa: presbiterio + meio hexagono com abobada de nervuras, estrado de 4 degraus largos com
 #   espelho e focinho, TRONO monumental (~16 de altura: espaldar alto e estreito entre montantes de marmore negro com
-#   pinaculos do kit, CRESCENTE fino de prata nascendo dos montantes, a ESPADA da ordem atravessando-o com guarda e pomo,
+#   pinaculos do kit, CRESCENTE fino de prata nascendo dos montantes (ajuste 19: sem a espada que o atravessava),
 #   bracos com volutas grandes) em CONTRALUZ contra o vitral de luar da abside; dorsal azul-noite, tocheiros e
 #   estandartes no presbiterio.
 # NAO modela minerio nem pedra/cristal flutuante (sao do jogo). Dentro da MINE_RECT nada colidivel e nada solto no chao;
@@ -1459,8 +1459,8 @@ def throne(mb):
       - ESPALDAR alto (topo a 10,9: 2,9x a altura do assento acima dele) em OGIVA de obsidiana com aresta de prata,
         painel CAPITONE violeta (losangos por geometria: pontas altas e botoes fundos), moldura de prata e timpano
         estofado; MONTANTES de marmore negro com colunelo, capitel de prata e PINACULO do kit;
-      - o CRESCENTE de prata nasce dos montantes e a ESPADA da ordem o atravessa (como no 04b, trazidos para a frente
-        do capitone). Le em contraluz contra o vitral de luar."""
+      - o CRESCENTE de prata nasce dos montantes, na frente do capitone (ajuste 19: a ESPADA que o atravessava saiu,
+        como no simbolo da ordem). Le em contraluz contra o vitral de luar."""
     side = "T"
     W = WFR[side]
     step_block(mb, -5.2, 5.2, YT - 6.0, YN - 0.02, Z + DAIS_TOP - 0.02, Z + THRONE_DAIS)
@@ -1668,24 +1668,8 @@ def throne(mb):
     hi2 = arc(h0 + DH, RI + 0.09, a_in0 - 3.0, -177.0 - a_in0, 20)
     band(mb, side, hi2, lo2, 1.22, 1.3, SILVER)                       # face recuada: o degrau le como CHANFRO
     mb.tube([wp(side, u, 1.26, h) for u, h in lo], 0.045, SILVER, 4)  # aresta clara
-    # a ESPADA da ordem atravessando o crescente: pomo, cabo, guarda e lamina (obsidiana com fio de prata)
-    zg, DW = b + 9.7, 1.4
-    EM._lathe(mb, wp(side, 0.0, DW, zg - 1.55), [(0.0, 0.0), (0.26, 0.1), (0.3, 0.26), (0.18, 0.42), (0.1, 0.48)],
-              SILVER, 6, caps=(False, False))
-    mb.cyl(0.11, 1.1, wp(side, 0.0, DW, zg - 0.6), (0, 0, 0), m=OBS, n=6, bevel=0.0)
-    for zz in (zg - 0.9, zg - 0.45):
-        mb.cyl(0.13, 0.08, wp(side, 0.0, DW, zz), (0, 0, 0), m=SILVER, n=6, bevel=0.0)
-    mb.box((2.6, 0.34, 0.32), wp(side, 0.0, DW, zg), (0, 0, 0), OBS, 0.08)
-    mb.box((2.66, 0.12, 0.08), wp(side, 0.0, DW + 0.19, zg), (0, 0, 0), SILVER, 0.0)
-    for k in (-1, 1):
-        ball_finial(mb, *wp(side, k * 1.38, DW, zg - 0.14), r=0.15)
-    bl = 0.42
-    blade = [(-bl, zg + 0.16), (bl, zg + 0.16), (0.36, b + 14.3), (0.0, b + 15.4), (-0.36, b + 14.3)]
-    slab(mb, side, blade, DW - 0.12, DW + 0.08, OBS)
-    for k in (-1, 1):
-        mb.tube([wp(side, k * bl * 0.98, DW + 0.1, zg + 0.2), wp(side, k * 0.35, DW + 0.1, b + 14.3),
-                 wp(side, 0.0, DW + 0.1, b + 15.35)], 0.04, SILVER, 4)
-    mb.tube([wp(side, 0.0, DW + 0.11, zg + 0.3), wp(side, 0.0, DW + 0.11, b + 14.0)], 0.035, SILVER, 4)
+    # (ajuste 19, 2026-09-30, pedido do usuario: a espada saiu do simbolo da ordem - pomo, cabo, guarda e lamina que
+    # atravessavam o crescente foram removidos; o crescente continua sozinho, centrado no eixo do espaldar)
     # colisao: caixa + bracos (ate o apoio) e espaldar + montantes (ate o topo dos montantes)
     wcol("SG_HallThrone", side, -AW1 - 0.05, AW1 + 0.05, 0.0, DF, b, b + AH)
     wcol("SG_HallThrone", side, -MU1, MU1, 0.0, 1.12, b, b + PT)

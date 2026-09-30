@@ -3,7 +3,7 @@
 #   1. CAMINHO DA ORDEM (eixo nobre): calcada alta da entrada -> praca -> pe da escada P1P2 -> rua do eixo (P2) -> portao
 #      da muralha -> patio -> porta do castelo. Lajes grandes de marmore negro, borda de obsidiana e um FIO violeta
 #      (SG_VioletDeep_Glow) rente no centro; juntas de prata a cada 4 fiadas. Topo <= cota + 0,05 (nada de degrau).
-#   2. PATIO DO CASTELO (CASTLE_FORECOURT): medalhao do EMBLEMA da ordem no chao (marmore negro/prata/violeta, rente),
+#   2. PATIO DO CASTELO (CASTLE_FORECOURT): (o medalhao do EMBLEMA no chao saiu no ajuste 19: o eixo segue continuo),
 #      2 canteiros sombrios (borda de obsidiana, sebes recortadas, flores violeta dessaturadas, 1 cipreste), 2 estatuas
 #      da ordem (encapuzado de manto longo com a lamina) em pedestais com o medalhao, 2 obeliscos com runas, 4 postes de
 #      ferro negro (par sul quente, par norte violeta), muretas com remate de obsidiana nas laterais (o patio muda de
@@ -63,9 +63,8 @@ BLOOM = "Leaf_SGPropBloom"
 fm_lib.MATS.setdefault(BLOOM, (fm_lib.S(98, 66, 132), 0.85, 0.0, 0, None, 0.08))
 
 FC = L.CASTLE_FORECOURT               # (-46, -3, 46, 40)
-MED_C = (0.0, 20.0)                   # centro do medalhao (cruzamento do eixo com a travessia patio -> dungeon/beco)
-MED_R = 8.5                           # raio do emblema (anel externo ~0,96 r); aro de obsidiana ate 1,365 r
-MED_RIM = MED_R * 1.365
+MED_C = (0.0, 20.0)                   # cruzamento do eixo com a travessia patio -> dungeon/beco (era o centro do
+                                      # medalhao da lua no chao, que SAIU no ajuste 19)
 AXIS_W = 14.0                         # eixo do patio (livre)
 PATH_W = 12.0                         # eixo na calcada alta, pe da escada e rua do P2
 PARTERRE_X = (12.0, 37.0)             # |x| dos canteiros
@@ -197,21 +196,6 @@ def noble_path(mb, y0, y1, W, z, thread=(None, None), slabs=(None, None), border
     mb.box2((-0.14, ty0, z - 0.05), (0.14, ty1, z + 0.05), thread_m, 0.0)
 
 
-def medallion(mb, c, r, z):
-    """o EMBLEMA da ordem no chao do patio (acabamento 2026-09-29: o simbolo e o do sg_emblem.emblem_flat - o MESMO
-    desenho limpo de toda a ilha, deitado e rente; nada de copia local). Aqui fica so a MOLDURA: leito de obsidiana
-    ate 1,365 r (o campo negro do simbolo) com filete de cantaria na borda, rente ao piso. A lamina aponta para o norte
-    (porta do castelo); o crescente no violeta BAIXO do patio. Tudo <= piso + 0,05."""
-    cx, cy = c
-    zb = z + 0.01                                             # topo do leito (acima do piso: sem z-fight)
-    disc(mb, c, 1.3 * r, z - 0.1, zb, OBS, 64)                # leito / campo
-    ring(mb, c, 1.3 * r, 1.365 * r, z - 0.1, z + 0.03, CAP, 64)    # filete da borda (overhaul 03: TrimLow, 14.01)
-    if hasattr(EM, "emblem_flat"):
-        EM.emblem_flat(mb, mb, mb, (cx, cy, zb), math.pi / 2, r, monumental=True, glow=THREAD_CASTLE, field=False)
-    else:
-        EM.emblem(mb, mb, mb, (cx, cy, zb), math.pi / 2, r, depth=0.04)     # (so se o sg_emblem for antigo)
-
-
 def axis_south():
     """calcada alta da entrada ate a praca + o trecho entre a praca e o pe da escada P1P2 (P1)"""
     mb = MB("SG_Prop_NobleAxis_P1", COLL, random.Random(3601), detail="near")
@@ -242,7 +226,7 @@ def mast_banner(mb, x, y, z, yaw=-math.pi / 2):
 
 
 def axis_north():
-    """rua do eixo no P2 + portao + patio do castelo (P3) com o medalhao; o arco de ferro no pe da escada do portao"""
+    """rua do eixo no P2 + portao + patio do castelo (P3) com o eixo continuo; o arco de ferro no pe da escada do portao"""
     mb = MB("SG_Prop_NobleAxis_P2P3", COLL, random.Random(3602), detail="near")
     y_p2_0 = L.stair_top("P1P2")[1] + 0.02          # -83
     y_p2_1 = L.stair_frame("Gate")[0][1] - 0.02      # -26
@@ -252,43 +236,33 @@ def axis_north():
         for s in (-1, 1):
             EM.lantern_pedestal(mb, mb, mb, (s * AXIS_LANTERN_X, yy, P2), 0.0, 1.0)
             col_box("SG_PropLantern", (1.9, 1.9, 3.6), (s * AXIS_LANTERN_X, yy, P2 + 1.8))
-    # patio: do portao (face sul da muralha) ate a porta; o medalhao come o trecho do meio
-    cx, cy = MED_C
+    # patio: do portao (face sul da muralha) ate a porta, CONTINUO. Ajuste 19 (2026-09-30): o medalhao da lua no chao
+    # SAIU (o jogador lia como placa de teleporte) - no lugar dele o mesmo piso do eixo segue sem emenda e as 2
+    # travessias encostam na borda do eixo
     y_gate = L.WALL_Y0 + 0.02                        # -8,98 (topo da escada do portao)
     y_door = L.CASTLE_FACADE_Y - 0.02
-    hwA = AXIS_W / 2.0
-    edge = math.sqrt(MED_RIM ** 2 - (hwA - 0.45) ** 2)      # onde a borda do eixo encontra o aro
-    noble_path(mb, y_gate, cy - math.sqrt(MED_RIM ** 2 - hwA ** 2), AXIS_W, P3,
-               thread=(None, cy - 0.96 * MED_R - 0.02), slabs=(None, cy - MED_RIM - 0.1), border=(None, cy - edge),
-               thread_m=THREAD_CASTLE)
-    noble_path(mb, cy + math.sqrt(MED_RIM ** 2 - hwA ** 2), y_door, AXIS_W, P3,
-               thread=(cy + 1.213 * MED_R + 0.01, None), slabs=(cy + MED_RIM + 0.1, None), border=(cy + edge, None),
-               thread_m=THREAD_CASTLE)
-    medallion(mb, MED_C, MED_R, P3)
+    noble_path(mb, y_gate, y_door, AXIS_W, P3, thread_m=THREAD_CASTLE)
     for s in (-1, 1):
         cross_walk(mb, s)
     mb.finish()
 
 
 def cross_walk(mb, s, hw=3.6, x_end=(44.0, 44.9)):
-    """travessia secundaria do patio (do aro do medalhao ate a borda do patio): lajota escura (Stone_SG_Floor) com
-    faixas de cantaria clara rentes nas bordas - abaixo do eixo nobre na hierarquia, acima do piso liso"""
+    """travessia secundaria do patio (da borda do eixo nobre ate a borda do patio): lajota escura (Stone_SG_Floor) com
+    faixas de cantaria clara rentes nas bordas - abaixo do eixo nobre na hierarquia, acima do piso liso. Ajuste 19: sem
+    o medalhao, nasce reta na borda do eixo (x = +-AXIS_W / 2) no cruzamento MED_C"""
     cx, cy = MED_C
     z = P3
     xe = x_end[1] if s > 0 else x_end[0]
-    arc = []
-    for k in range(9):
-        yy = cy - hw + 2 * hw * k / 8
-        arc.append((cx + s * math.sqrt(MED_RIM ** 2 - (yy - cy) ** 2), yy))
-    poly = arc + [(s * xe, cy + hw), (s * xe, cy - hw)]
+    x0 = cx + s * AXIS_W / 2.0
+    poly = [(x0, cy - hw), (x0, cy + hw), (s * xe, cy + hw), (s * xe, cy - hw)]
     mb.prism(SL.ccw(poly), z - 0.1, z + 0.03, "Stone_SG_Floor")
     for e in (-1, 1):
         ya, yb = sorted((cy + e * hw, cy + e * (hw - 0.55)))
-        x0 = cx + s * math.sqrt(MED_RIM ** 2 - (cy + e * (hw - 0.3) - cy) ** 2)
         xa, xb = sorted((x0, s * xe))
         mb.box2((xa, ya, z - 0.05), (xb, yb, z + 0.045), CAP, 0.0)
     # juntas transversais a cada 3,2 (fiadas), e a soleira na ponta
-    xs = abs(cx + math.sqrt(MED_RIM ** 2 - hw ** 2))
+    xs = abs(x0)
     k = 1
     while xs + 3.2 * k < xe - 1.0:
         xj = s * (xs + 3.2 * k)

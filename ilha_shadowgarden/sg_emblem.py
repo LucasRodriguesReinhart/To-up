@@ -1,10 +1,14 @@
 # sg_emblem - SISTEMA DE IDENTIDADE da Ilha 3 (Shadow Garden). COMPARTILHADO E CONGELADO (dono: integracao).
-# Um UNICO simbolo da ordem, original (nao e logo de obra nenhuma): a LUA EM ECLIPSE atravessada por uma LAMINA.
+# Um UNICO simbolo da ordem, original (nao e logo de obra nenhuma): a LUA EM ECLIPSE.
 #   - anel externo de prata (a moldura nobre)
 #   - campo negro (a lua apagada) e o CRESCENTE violeta luminoso (a parte que a sombra ainda nao comeu: "a eminencia
 #     nas sombras")
-#   - espada vertical de prata atravessando o simbolo (a espada de Shadow): ponta, lamina, guarda, cabo e pomo
 #   - 8 raios curtos de prata fora do anel (so na versao 'monumental')
+# AJUSTE 19 (2026-09-30, pedido do usuario: "tire a espada do logo da lua, acaba estragando o visual"): a ESPADA saiu do
+#   simbolo (lamina, guarda, cabo e pomo). O crescente foi recomposto para o anel vazio: simetrico no eixo horizontal
+#   (pontas para a direita de quem olha), centrado pela caixa (pontas e dorso a mesma distancia do centro) e um pouco
+#   menor que o de antes para as pontas respirarem dentro do anel tambem nos emblemas pequenos (traco engrossado).
+#   As espadas das estatuas/guardas NAO sao do simbolo e continuam.
 # Todo lugar que fala pela ordem usa ESTE simbolo: fachada do castelo, estandartes, portoes, piso do salao, dungeon,
 # porticos da entrada. Nada de tridente/estrela/lua soltos (ornamento sem sistema = cara de IA).
 #
@@ -14,11 +18,10 @@
 #     45 graus nas duas arestas;
 #   - crescente = UM poligono (diferenca de dois circulos calculada), extrudado e chanfrado; o campo negro fica ATRAS
 #     (nao ha mais disco claro com disco escuro por cima);
-#   - espada simetrica no eixo, secao em losango (aresta central) com a MESMA inclinacao de faceta em todas as pecas:
-#     a lamina nasce de dentro da guarda, o cabo sai da guarda e entra no pomo sextavado (dentro da faixa do crescente);
+#   - raios em secao de losango (aresta central) com a MESMA inclinacao de faceta;
 #   - camadas em profundidade sem nada coplanar (fracoes de 'depth'): campo -0,04..0,12 | crescente 0,04..0,30 |
-#     anel -0,05..0,50 | raios ate ~0,32 | cabo ~0,60 | lamina 0,55..~0,67 | pomo ~0,70 | guarda ~0,78;
-#   - larguras de traco coerentes (anel ~ lamina) e engrossadas de leve nos emblemas pequenos (legivel de longe).
+#     anel -0,05..0,50 | raios ate ~0,32;
+#   - traco do anel engrossado de leve nos emblemas pequenos (legivel de longe).
 #   Estandarte: verga redonda com luva de tecido e remates de prata torneados; pano com dobras, abaulado e borlas (ver
 #   OVERHAUL 12 em banner()); debrum continuo com espessura contornando laterais e V com esquadria limpa. Placa: disco
 #   de obsidiana chanfrado. Lanternas: travessa superior que assenta a tampa, beiral, remate; capitel do poste encosta
@@ -36,7 +39,7 @@
 #   plaque(mb_stone, mb_metal, mb_glow, mb_dark, c, yaw, r, glow=None)   (None = crescente lilas-prata palido, sem emissao)
 #       medalhao de pedra obsidiana com o emblema (portais, pedestais, fontes)
 #   emblem_flat(mb_metal, mb_glow, mb_dark, c, yaw, r, monumental=False, up=1, glow=MOON, field=True, seg=None)
-#       o mesmo simbolo DEITADO e rente (incrustacao de piso / chave de teto); yaw = rumo da ponta da lamina
+#       o mesmo simbolo DEITADO e rente (incrustacao de piso / chave de teto); yaw = rumo do "alto" do simbolo
 #   lantern_head / lantern_pedestal / lantern_post (abaixo)
 # Materiais: Metal_SG_Silver (prata), SG_Rune_Glow (lua), Stone_SG_Obsidian (sombra/campo), Cloth_SG_Purple (tecido).
 import math
@@ -51,14 +54,14 @@ QUIET = "Stone_SG_MoonPale"      # (registrado no sg_lib.SMATS)
 # ---------------------------------------------------------------- desenho do simbolo (unidades de r, a = lateral, b = cima)
 RING_OUT = 0.97                  # borda externa do anel
 RING_W = 0.14                    # largura do anel (traco principal)
-MOON_R = 0.70                    # circulo da lua
-SHADOW_C, SHADOW_R = (0.27, 0.05), 0.60      # circulo da sombra (deslocado para +u): pontas longe da lamina
-BLADE_B0, BLADE_SH, BLADE_TIP = -0.07, 0.90, 1.16    # base (dentro da guarda), ombro da ponta, ponta
-BLADE_HW0, BLADE_HW1 = 0.068, 0.056                  # meia-largura da lamina na base e no ombro (afina de leve)
-GUARD_B = -0.05
-GUARD = ((0.26, 0.0), (0.215, 0.050), (0.10, 0.034), (0.045, 0.058))   # (|a|, meia-altura) do extremo ao miolo
-GRIP = ((-0.02, 0.034), (-0.30, 0.029), (-0.58, 0.034))   # de dentro da guarda a dentro do pomo
-POMMEL = ((-0.545, 0.0), (-0.572, 0.062), (-0.625, 0.062), (-0.652, 0.0))   # sextavado, DENTRO da faixa do crescente
+# crescente (ajuste 19, sem a espada): lua de raio MOON_R com centro deslocado MOON_C para a direita e sombra de raio
+# SHADOW_R deslocada SHADOW_DX da lua, no mesmo eixo (simetrico em cima/embaixo). Pontas em (+0,48; +-0,51) e dorso
+# em -0,48: a caixa do crescente fica centrada no anel; pontas a 0,71 do centro (anel por dentro: 0,83 / 0,77 nos
+# emblemas pequenos), espessura maxima 0,37
+MOON_R = 0.62
+MOON_C = 0.137
+SHADOW_DX, SHADOW_R = 0.27, 0.52
+FACET_HW = 0.068                 # meia-largura de referencia da inclinacao das facetas (raios)
 N_FIELD = 24                     # o campo so aparece por dentro do anel (a borda dele fica escondida sob o anel)
 
 
@@ -277,20 +280,19 @@ def _emblem_geo(mb_metal, mb_glow, mb_dark, P, r, lay, monumental=False, glow=MO
     # 1) campo negro (a lua apagada), escondido sob o anel pela borda
     if field:
         _disc(mb_dark, P, ri + 0.4 * w, lay["field"][0], lay["field"][1], SHADOW, n=N_FIELD)
-    # 2) crescente violeta: um poligono so, chanfrado
-    c2 = (SHADOW_C[0] * r, SHADOW_C[1] * r)
+    # 2) crescente violeta: um poligono so, chanfrado (lua deslocada MOON_C para a caixa ficar centrada no anel)
+    Pm = lambda a, b, d: P(a + MOON_C * r, b, d)
+    c2 = (SHADOW_DX * r, 0.0)
     R1, R2 = MOON_R * r, SHADOW_R * r
     m0, m1 = lay["moon"]
-    loops = [_crescent_loop(P, R1, c2, R2, n_moon, m0), _crescent_loop(P, R1, c2, R2, n_moon, m1 - chc),
-             _crescent_loop(P, R1 - chc, c2, R2 + chc, n_moon, m1)]
+    loops = [_crescent_loop(Pm, R1, c2, R2, n_moon, m0), _crescent_loop(Pm, R1, c2, R2, n_moon, m1 - chc),
+             _crescent_loop(Pm, R1 - chc, c2, R2 + chc, n_moon, m1)]
     _shell(mb_glow, loops, glow, "strip", "strip", strip_n=n_moon)
     # 3) anel de prata continuo
     _annulus(mb_metal, P, ri, ro, lay["ring"][0], lay["ring"][1], ch, SILVER, n=n_ring)
-    # 4) espada (prata), secao em losango com a mesma inclinacao de faceta em todas as pecas
-    hw0, hw1 = BLADE_HW0 * r * kb, BLADE_HW1 * r * kb
+    # 4) raios de prata (so no monumental): saem de baixo do anel, longos perto da horizontal, curtos perto da vertical
+    #    (simetrico nos dois eixos). A espada saiu do simbolo (ajuste 19).
     if monumental:
-        # raios de prata saindo de baixo do anel: longos perto da horizontal, curtos ladeando a ponta e o pomo
-        # (simetrico nos dois eixos; a lamina e o raio do alto)
         for q in range(8):
             t = math.pi / 8 + q * math.pi / 4
             longo = abs(math.cos(t)) > 0.7
@@ -299,14 +301,6 @@ def _emblem_geo(mb_metal, mb_glow, mb_dark, P, r, lay, monumental=False, glow=MO
             _bar(mb_metal, P, SILVER, (0.0, 0.0), (math.cos(t), math.sin(t)),
                  ((ro - 0.6 * w, hwr), (ro + 0.02 * r, hwr * 0.92), (0.98 * r + L, 0.0)),
                  lay["rays"][0], lay["rays"][1], k)
-    _bar(mb_metal, P, SILVER, (0.0, 0.0), (0.0, 1.0),
-         ((BLADE_B0 * r, hw0), (BLADE_SH * r, hw1), (BLADE_TIP * r, 0.0)), lay["blade"][0], lay["blade"][1], k)
-    _bar(mb_metal, P, SILVER, (0.0, 0.0), (0.0, 1.0),
-         tuple((b * r, hw * r * kb) for b, hw in GRIP), lay["grip"][0], lay["grip"][1], k)
-    _bar(mb_metal, P, SILVER, (0.0, 0.0), (0.0, 1.0),
-         tuple((b * r, hw * r * kb) for b, hw in POMMEL), lay["pommel"][0], lay["pommel"][1], k)
-    gst = [(-a * r, hw * r * kb) for a, hw in GUARD] + [(a * r, hw * r * kb) for a, hw in reversed(GUARD)]
-    _bar(mb_metal, P, SILVER, (0.0, GUARD_B * r), (1.0, 0.0), gst, lay["guard"][0], lay["guard"][1], k)
 
 
 def emblem(mb_metal, mb_glow, mb_dark, c, yaw, r, depth=0.6, monumental=False, glow=MOON):
@@ -319,19 +313,18 @@ def emblem(mb_metal, mb_glow, mb_dark, c, yaw, r, depth=0.6, monumental=False, g
     w = RING_W * r * kb
     ch = min(0.032 * r, 0.12 * D, 0.22 * w)       # o MESMO chanfro no anel e no crescente
     seg = 24 if r < 1.2 else None                  # overhaul 12: emblema pequeno (estandarte/placa) com anel de 24
-    lay = {"ch": ch, "chc": min(ch, 0.06 * D), "k": min(1.0, max(0.3, 0.12 * D / (BLADE_HW0 * r * kb))),
+    lay = {"ch": ch, "chc": min(ch, 0.06 * D), "k": min(1.0, max(0.3, 0.12 * D / (FACET_HW * r * kb))),
            "field": (-0.04 * D, 0.12 * D), "moon": (0.04 * D, 0.30 * D), "ring": (-0.05 * D, 0.50 * D),
-           "rays": (-0.045 * D, 0.22 * D), "blade": (-0.03 * D, 0.55 * D), "grip": (-0.025 * D, 0.54 * D),
-           "pommel": (-0.02 * D, 0.58 * D), "guard": (-0.02 * D, 0.67 * D)}
+           "rays": (-0.045 * D, 0.22 * D)}
     _emblem_geo(mb_metal, mb_glow, mb_dark, P, r, lay, monumental, glow, seg=seg)
 
 
 def emblem_flat(mb_metal, mb_glow, mb_dark, c, yaw, r, monumental=False, up=1, glow=MOON, field=True, seg=None):
     """o MESMO simbolo DEITADO, como incrustacao RENTE (piso ou chave de teto): c = (x, y, z da superficie), yaw = rumo
-    (rad) para onde a PONTA da lamina aponta na planta, r = raio do anel externo. up=+1: face para cima (piso);
+    (rad) para onde o "alto" do simbolo aponta na planta, r = raio do anel externo. up=+1: face para cima (piso);
     up=-1: face para baixo (chave/teto). Mesma logica de camadas, mas em alturas ABSOLUTAS: tudo sobe no maximo ~0,056
-    acima da superficie (nada em que tropecar) e os fundos ficam embutidos nela. Visto de cima com a ponta para
-    a frente, o crescente fica a direita (igual ao emblema de pe). glow = material do crescente (ex. um Neon mais fraco
+    acima da superficie (nada em que tropecar) e os fundos ficam embutidos nela. Visto de cima com o "alto" para
+    a frente, as pontas do crescente apontam para a direita (igual ao emblema de pe). glow = material do crescente (ex. um Neon mais fraco
     no piso); field=False dispensa o campo negro quando a superficie ja e de obsidiana; seg = segmentos do anel
     (multiplo de 4) para chaves pequenas."""
     vx, vy = math.cos(yaw), math.sin(yaw)
@@ -342,9 +335,8 @@ def emblem_flat(mb_metal, mb_glow, mb_dark, c, yaw, r, monumental=False, up=1, g
         return (cx + ux * a + vx * b, cy + uy * a + vy * b, cz + up * d)
     kb = min(1.4, max(1.0, 0.8 / r))
     ch = min(0.032 * r, 0.008)
-    lay = {"ch": ch, "chc": min(ch, 0.006), "k": 0.012 / (BLADE_HW0 * r * kb),
-           "field": (-0.10, 0.010), "moon": (-0.06, 0.020), "ring": (-0.12, 0.030), "rays": (-0.11, 0.024),
-           "blade": (-0.09, 0.038), "grip": (-0.085, 0.036), "pommel": (-0.08, 0.040), "guard": (-0.08, 0.046)}
+    lay = {"ch": ch, "chc": min(ch, 0.006), "k": 0.012 / (FACET_HW * r * kb),
+           "field": (-0.10, 0.010), "moon": (-0.06, 0.020), "ring": (-0.12, 0.030), "rays": (-0.11, 0.024)}
     _emblem_geo(mb_metal, mb_glow, mb_dark, P, r, lay, monumental, glow, field, seg)
 
 
