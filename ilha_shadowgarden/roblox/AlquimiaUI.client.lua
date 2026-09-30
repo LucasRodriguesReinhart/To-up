@@ -172,7 +172,7 @@ desenhar = function()
 		end
 	end
 	if n == 0 then
-		label(colI, "Vazio", "Nada ainda. Entre na Masmorra das Sombras (torre ao lado do castelo) nas aberturas das XX:00 e XX:30.",
+		label(colI, "Vazio", "Nada ainda. Entre na Masmorra das Sombras (desca pelo trono do castelo) nas aberturas das XX:00 e XX:30.",
 			{ Position = UDim2.fromOffset(14, 40), Size = UDim2.fromOffset(230, 120), TextWrapped = true, TextSize = 13,
 				TextYAlignment = Enum.TextYAlignment.Top, TextColor3 = P.text3, FontFace = font("regular") })
 	end

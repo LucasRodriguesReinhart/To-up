@@ -52,7 +52,8 @@ local area, areaModel, marcas  -- area da Shadow Garden (tema sombra) e marcador
 -- corrida = { id, slot, participantes = {[player] = true}, dados = {[chave] = true}, rochas = {[hit] = variante},
 --             restantes, nasceu, sala, nivel, fimSala, transicao, limpas = {[sala] = true}, fimEm }
 local corrida
-local prompt, saida, selo, promptSair
+local prompt
+local promptsSair = {}          -- prompts "Sair" (DUN_EXIT_R1, DUN_EXIT_R3)
 local espirais = {}             -- pecas SG_Dun_R3_ExitSpiral* do export (acesas enquanto ha corrida)
 local pontos = {}               -- [sala fisica] = { {nome, pos, rar}, ... } (marcadores DUN_ORE_<sala>_<RAR>_<nn>)
 local HRP = 3.5
@@ -121,6 +122,9 @@ local function spawnDaSala(sala)
 	end
 	return p
 end
+local function frenteDaSala(sala)
+	return (sala ~= "R1" and frenteMarcador("DUN_SPAWN_" .. sala)) or frenteMarcador("DUNGEON_Spawn")
+end
 -- o grupo chega espalhado (centro + anel de 4 + anel de 7,5): ninguem nasce dentro do outro
 local function posGrupo(base, i)
 	if not base or i <= 1 then return base end
@@ -129,10 +133,28 @@ local function posGrupo(base, i)
 	local a = 2 * math.pi * k / n
 	return base + Vector3.new(math.cos(a) * r, 0, math.sin(a) * r)
 end
-local function teleportar(player, pos)
+-- frente de um marcador (fwd_x/fwd_z do export; a ilha e GIRADA no mundo, nada pode nascer alinhado aos eixos)
+local function frenteMarcador(nome)
+	local m = marcador(nome)
+	if not m then return nil end
+	local fx, fz = m:GetAttribute("fwd_x"), m:GetAttribute("fwd_z")
+	if fx and fz and (fx ~= 0 or fz ~= 0) then return Vector3.new(fx, 0, fz).Unit end
+	local lv = m.CFrame.LookVector
+	return Vector3.new(lv.X, 0, lv.Z).Magnitude > 1e-3 and Vector3.new(lv.X, 0, lv.Z).Unit or nil
+end
+local function cfMarcador(nome, dy)
+	local m = marcador(nome)
+	if not m then return nil end
+	local pos = m.Position + Vector3.new(0, dy or 0, 0)
+	local f = frenteMarcador(nome) or Vector3.new(0, 0, -1)
+	return CFrame.lookAt(pos, pos + f)
+end
+local function teleportar(player, pos, frente)
 	local char = player.Character
 	if char and pos and char:FindFirstChild("HumanoidRootPart") then
-		char:PivotTo(CFrame.new(pos + Vector3.new(0, HRP, 0)) * GIRO)
+		pcall(function() player:RequestStreamAroundAsync(pos, 4) end)   -- o subsolo pode estar recolhido no cliente
+		local alvo = pos + Vector3.new(0, HRP, 0)
+		if frente then char:PivotTo(CFrame.lookAt(alvo, alvo + frente)) else char:PivotTo(CFrame.new(alvo) * GIRO) end
 	end
 end
 
@@ -181,11 +203,18 @@ local function entregar(player, lista, chave)
 	PlayerData.sincronizar(player)
 end
 
--- ---------- selo do vao R2-R3 (colidivel durante a sala; aberto na troca) ----------
+-- ---------- portal da proxima sala (um por arena: DUN_NEXT_<sala fisica>, DENTRO do vao/nicho) ----------
+-- fechado durante a sala (parede escura colidivel); aberto quando a sala limpa (brilho, atravessavel, tocar = seguir)
+local selos = {}                 -- [salaFisica] = Part
 local function abrirSelo(aberto)
-	if not selo then return end
-	selo.CanCollide = not aberto
-	selo.Transparency = aberto and 1 or 0.55
+	local atual = corrida and corrida.sala and corrida.sala > 0 and salaFisica(corrida.sala)
+	for salaF, sp in pairs(selos) do
+		local este = aberto and (salaF == atual or not atual)
+		sp.CanCollide = not este
+		sp.CanTouch = este
+		sp.Transparency = este and 0.25 or 0.55
+		sp.Color = este and Color3.fromRGB(170, 120, 255) or Color3.fromRGB(70, 44, 128)
+	end
 end
 
 -- ---------- participantes ----------
@@ -195,9 +224,9 @@ local function tirar(player, teleportarAoPatio)
 	player:SetAttribute("DungeonRun", nil)
 	if teleportarAoPatio then
 		local char = player.Character
-		local ret = posMarcador("DUNGEON_Return", HRP)
+		local ret = posMarcador("DUNGEON_Return")
 		if char and ret and char:FindFirstChild("HumanoidRootPart") then
-			char:PivotTo(CFrame.new(ret) * CFrame.Angles(0, math.pi, 0))
+			teleportar(player, ret, frenteMarcador("DUNGEON_Return"))
 		end
 	end
 	publicar()
@@ -259,11 +288,11 @@ local function iniciarSala(n)
 	nascerMinerios(salaF)
 	corrida.fimSala = agora() + D.TEMPO_SALA
 	if n > 1 then
-		local base = spawnDaSala(salaF)
+		local base, frente = spawnDaSala(salaF), frenteDaSala(salaF)
 		local i = 0
 		for p in pairs(corrida.participantes) do
 			i += 1
-			teleportar(p, posGrupo(base, i))
+			teleportar(p, posGrupo(base, i), frente)
 		end
 	end
 	abrirSelo(false)                               -- depois do teleporte: ninguem fica preso no vao
@@ -410,9 +439,8 @@ local function entrarEstado(novo)
 	end
 	-- portal de saida: aceso durante toda a corrida (sair a qualquer momento), apagado sem corrida
 	local aceso = corrida ~= nil and (novo == "ENTRY_OPEN" or novo == "RUNNING" or novo == "FINISHING")
-	if saida then saida.Transparency = aceso and 0.35 or 0.8 end
 	for p, t0 in pairs(espirais) do p.Transparency = aceso and t0 or 1 end
-	if promptSair then promptSair.Enabled = aceso end
+	for _, ps in ipairs(promptsSair) do ps.Enabled = aceso end
 	publicar()
 end
 
@@ -471,26 +499,46 @@ local function lerPontos()
 	return n
 end
 
--- selo: parede de energia no vao DUN_LINK_R2R3, deitada na direcao R2 -> R3 (tirada dos marcadores das salas)
+-- portais da proxima sala: DUN_NEXT_R2 (plano medio do vao R2-R3) e DUN_NEXT_R3 (nicho do muro norte da R3), com o
+-- CFrame do marcador (frente = eixo das salas). Sem esses marcadores (export antigo), cai no selo unico do DUN_LINK_R2R3,
+-- agora com a parede NO vao (largura perpendicular ao eixo das salas).
+local function portal(salaF, cf, w, h, t)
+	local sp = Instance.new("Part")
+	sp.Name = "MasmorraProxima_" .. salaF; sp.Anchored = true; sp.CanQuery = false; sp.CanTouch = false
+	sp.Material = Enum.Material.Neon; sp.Color = Color3.fromRGB(70, 44, 128); sp.CastShadow = false
+	sp.Size = Vector3.new(w, h, t)
+	sp.CFrame = cf * CFrame.new(0, h / 2, 0)
+	sp.Parent = areaModel
+	sp.Touched:Connect(function(hit)
+		local p = Players:GetPlayerFromCharacter(hit.Parent)
+		if not (p and corrida and corrida.participantes[p] and corrida.transicao and not corrida.fimEm) then return end
+		if salaFisica(corrida.sala) ~= salaF then return end
+		iniciarSala(corrida.sala + 1)          -- uma vez so: iniciarSala desliga a transicao
+	end)
+	selos[salaF] = sp
+end
 local function criarSelo()
+	local cfg = D.SELO or {}
+	local n = 0
+	for _, salaF in ipairs(D.SALAS or { "R2", "R3" }) do
+		local m = marcador("DUN_NEXT_" .. salaF)
+		if m then
+			portal(salaF, cfMarcador("DUN_NEXT_" .. salaF), m:GetAttribute("w") or cfg.largura or 27,
+				m:GetAttribute("h") or cfg.altura or 21, m:GetAttribute("t") or cfg.espessura or 1)
+			n += 1
+		end
+	end
+	if n > 0 then abrirSelo(false) return end
 	local link = marcador("DUN_LINK_R2R3")
 	local r2, r3 = marcador("DUN_ROOM_R2"), marcador("DUN_ROOM_R3")
 	if not (link and r2 and r3) then
-		warn("[DungeonService] DUN_LINK_R2R3 / DUN_ROOM_R2 / DUN_ROOM_R3 ausentes: sem selo entre as salas")
+		warn("[DungeonService] sem DUN_NEXT_* nem DUN_LINK_R2R3: sem portal entre as salas")
 		return
 	end
-	local cfg = D.SELO or {}
-	local w = link:GetAttribute("w") or cfg.largura or 18
-	local h = link:GetAttribute("h") or cfg.altura or 14
-	local t = link:GetAttribute("t") or cfg.espessura or 2
 	local dir = Vector3.new(r3.Position.X - r2.Position.X, 0, r3.Position.Z - r2.Position.Z).Unit
-	local c = link.Position + Vector3.new(0, h / 2, 0)
-	selo = Instance.new("Part")
-	selo.Name = "MasmorraSelo"; selo.Anchored = true; selo.CanQuery = false; selo.CanTouch = false
-	selo.Material = Enum.Material.Neon; selo.Color = Color3.fromRGB(96, 60, 170); selo.CastShadow = false
-	selo.Size = Vector3.new(w, h, t * 0.5)
-	selo.CFrame = CFrame.lookAt(c, c + dir)
-	selo.Parent = areaModel
+	local lado = Vector3.new(-dir.Z, 0, dir.X)
+	portal("R2", CFrame.fromMatrix(link.Position, lado, Vector3.new(0, 1, 0)), link:GetAttribute("w") or cfg.largura or 18,
+		link:GetAttribute("h") or cfg.altura or 14, (link:GetAttribute("t") or cfg.espessura or 2) * 0.5)
 	abrirSelo(false)
 end
 
@@ -523,41 +571,29 @@ function S.iniciar()
 		local res = S.entrar(player)
 		if res and res.msg then avisar(player, res.msg) end
 	end)
-	-- portal de saida (R3): tocar = voltar para o patio (a qualquer momento, com o que ja ganhou)
-	local ex = marcador("DUNGEON_ExitPortal")
-	if ex then
-		saida = Instance.new("Part")
-		saida.Name = "MasmorraSaida"; saida.Size = Vector3.new(2, 13, 12); saida.Anchored = true; saida.CanCollide = false
-		saida.CanQuery = false; saida.Material = Enum.Material.Neon; saida.Color = Color3.fromRGB(150, 100, 235)
-		saida.Transparency = 0.8; saida.CFrame = CFrame.new(ex.Position + Vector3.new(0, 7, 0)); saida.Parent = areaModel
-		saida.Touched:Connect(function(hit)
-			local p = Players:GetPlayerFromCharacter(hit.Parent)
-			if p and corrida and corrida.participantes[p] then
-				avisar(p, "Voce saiu da Masmorra (Sala " .. corrida.sala .. ").")
-				tirar(p, true)
-			end
-		end)
+	-- saidas SO por prompt (a barreira de toque antiga ficava para fora da sala): DUN_EXIT_R1 e DUN_EXIT_R3
+	-- (DUNGEON_ExitPortal = alias da R3 em export antigo). "Sair" a qualquer momento, com o que ja ganhou.
+	for _, nome in ipairs({ "DUN_EXIT_R1", marcador("DUN_EXIT_R3") and "DUN_EXIT_R3" or "DUNGEON_ExitPortal" }) do
+		local ex = marcador(nome)
+		if ex then
+			local a1 = Instance.new("Part")
+			a1.Name = "MasmorraSaida_" .. nome; a1.Size = Vector3.new(4, 8, 4); a1.Anchored = true; a1.CanCollide = false
+			a1.CanQuery = false; a1.CanTouch = false; a1.Transparency = 1
+			a1.CFrame = cfMarcador(nome, 4); a1.Parent = areaModel
+			local ps = Instance.new("ProximityPrompt")
+			ps.Name = "MasmorraSairPrompt"; ps.ActionText = "Sair"; ps.ObjectText = "Masmorra das Sombras"
+			ps.MaxActivationDistance = 12; ps.RequiresLineOfSight = false; ps.HoldDuration = 0.6
+			ps.Enabled = false; ps.Parent = a1
+			ps.Triggered:Connect(function(p)
+				if corrida and corrida.participantes[p] then
+					avisar(p, "Voce saiu da Masmorra (Sala " .. corrida.sala .. ").")
+					tirar(p, true)
+				end
+			end)
+			table.insert(promptsSair, ps)
+		end
 	end
-	-- segunda saida: o portal de chegada da R1 (sempre alcancavel quando a R2 e a sala ativa), por prompt
-	local ex1 = marcador("DUN_EXIT_R1")
-	if ex1 then
-		local a1 = Instance.new("Part")
-		a1.Name = "MasmorraSaidaR1"; a1.Size = Vector3.new(4, 8, 4); a1.Anchored = true; a1.CanCollide = false
-		a1.CanQuery = false; a1.CanTouch = false; a1.Transparency = 1
-		a1.CFrame = CFrame.new(ex1.Position + Vector3.new(0, 4, 0)); a1.Parent = areaModel
-		promptSair = Instance.new("ProximityPrompt")
-		promptSair.Name = "MasmorraSairPrompt"; promptSair.ActionText = "Sair"; promptSair.ObjectText = "Masmorra das Sombras"
-		promptSair.MaxActivationDistance = 12; promptSair.RequiresLineOfSight = false; promptSair.HoldDuration = 0.6
-		promptSair.Enabled = false; promptSair.Parent = a1
-		promptSair.Triggered:Connect(function(p)
-			if corrida and corrida.participantes[p] then
-				avisar(p, "Voce saiu da Masmorra (Sala " .. corrida.sala .. ").")
-				tirar(p, true)
-			end
-		end)
-	else
-		warn("[DungeonService] DUN_EXIT_R1 ausente: a unica saida e o portal da R3")
-	end
+	if #promptsSair == 0 then warn("[DungeonService] sem DUN_EXIT_R1/DUN_EXIT_R3: nenhuma saida por prompt") end
 	criarSelo()
 	for _, d in ipairs(areaModel:GetDescendants()) do
 		if d:IsA("BasePart") and string.match(d.Name, "^SG_Dun_R3_ExitSpiral") then

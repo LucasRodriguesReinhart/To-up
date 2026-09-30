@@ -53,8 +53,8 @@ M.Masmorra = {
 	CONTAGEM = 60,             -- s de contagem regressiva antes de abrir (estado COUNTDOWN)
 	JANELA_ENTRADA = 90,       -- s depois de abrir em que ainda da para entrar (ENTRY_OPEN)          PROVISORIO
 	-- masmorra infinita (ov09b): o tempo e POR SALA; esgotou sem limpar = fim da corrida
-	TEMPO_SALA = 150,          -- s para limpar a sala atual (o relogio da sala 1 comeca na 1a entrada) PROVISORIO
-	TRANSICAO = 4,             -- s entre limpar a sala (passagem aberta, bonus) e o teleporte para a proxima
+	TEMPO_SALA = 180,          -- s para limpar a sala atual (salas 3x: 150 -> 180; o relogio da sala 1 comeca na 1a entrada)
+	TRANSICAO = 8,             -- s entre limpar a sala e o teleporte do grupo (tocar o portal aberto segue na hora)
 	DURACAO_MAX = 1500,        -- s desde a abertura: TETO de seguranca da corrida. Tem de ser
 	                           -- <= PERIODO - CONTAGEM - FINALIZANDO - RESET (1722), senao encosta na proxima abertura
 	FINALIZANDO = 12,          -- s com o portal de saida aceso e as rochas travadas (FINISHING)
@@ -94,7 +94,7 @@ M.Masmorra = {
 		TETO_LENDARIA = { EPIC = true, SUPERLEGENDARY = true },
 	},
 	-- selo de energia no vao R2-R3 (medidas de reserva se o marcador DUN_LINK_R2R3 nao trouxer os atributos w/h/t)
-	SELO = { largura = 18, altura = 14, espessura = 2 },
+	SELO = { largura = 27, altura = 21, espessura = 1 },
 }
 
 -- tipos de minerio da masmorra: o marcador DUN_ORE_<sala>_<RARIDADE>_<nn> -> variante do jogo (no nivel 1; acima,
