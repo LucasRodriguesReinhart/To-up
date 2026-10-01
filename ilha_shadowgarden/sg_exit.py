@@ -18,13 +18,29 @@ import fm_parts as FP
 from sg_lib import MB, col_box, light, Frame
 import sg_layout as L
 import sg_emblem as EM
+if L.__name__ != "sg_layout":
+    # importado DENTRO do sg_relocate (um modulo da v3 usa os ajudantes de cantaria daqui, com sys.modules['sg_layout']
+    # = sg_layout_v3): este modulo e da planta v4 sempre -> carrega a v4 a parte (fica fora da troca do sg_relocate)
+    import importlib.util as _ilu, os as _os
+    _sp = _ilu.spec_from_file_location("sg_layout", _os.path.join(_os.path.dirname(_os.path.abspath(__file__)),
+                                                                  "sg_layout.py"))
+    L = _ilu.module_from_spec(_sp)
+    _sp.loader.exec_module(L)
 import fm_lib
+# ONDA 1 (planta v4, plano mestre 2026-09-30): o modulo roda DIRETO na v4 (saiu do sg_relocate). A saida fica na
+# PONTA NOROESTE do terraco norte (P3, cota 52,2): cabeceira com os 2 pilares-marco aprovados na borda do P3 ->
+# ponte de 64 no rumo local 120 (mundo ~(-0,766; 0; 0,643): ceu aberto, 3 graus do radial lobby -> fora) -> ilhota R 22
+# com o portao Demon Slayer APROVADO (il_gate_ds, sg_core: nao mexe) -> plataforma da ISLAND_NEXT_ANCHOR_DemonSlayer
+# (-1534,5; 52,2; 962,4). Cotas dos pilares/encontro relativas ao tabuleiro (as da v3 eram absolutas para 44,2). O
+# ADRO de lajes da cabeceira SAIU (piso sobre o topo do terreno a +0,03 = z-fight F5): o chao da cabeceira e o do
+# terraco norte. O florao da agulha e local (antes sg_castle.finial, modulo em obra na onda 1).
 # REFINAMENTO v2 2026-09-28: RITMO de lanternas douradas (sg_emblem.lantern_pedestal, SO Neon) sobre o parapeito SG
 # da ponte a cada ~11, da cabeceira ate o MARCO; do marco em diante o guarda-corpo e a familia Demon Slayer (as
 # lanternas de papel do marco) e os 12 studs antes do portao ficam limpos. Estandartes da ordem com debrum DOURADO
 # nos pilares da cabeceira (face oeste: quem vem da rua ve a saida marcada).
 
-Z = L.EXIT_Z                                  # 44,2: tabuleiro, ilhota e ancora
+Z = L.EXIT_Z                                  # 52,2 (v4): tabuleiro, ilhota e ancora
+ZO = Z - 44.2                                 # as cotas da estrutura da v3 foram desenhadas com o tabuleiro em 44,2
 C = "08_NEXT_ISLAND"
 ANG = math.radians(L.EXIT_DEG)
 F = Frame(L.EXIT_START[0], L.EXIT_START[1], 0.0, ANG)     # local: u ao longo da ponte (0 = borda do P2), v para a esquerda
@@ -44,6 +60,20 @@ PAVE_END = 58.0                               # fim das lajes da ponte = inicio 
 ANCHOR_U0 = UA - 10.0                         # 94: inicio da plataforma da ancora
 # base de familia do portao DS (referencial do portao: vao +-8, plintos ate +-18, de 10,2 antes a 7,8 depois do eixo)
 GATE_RECT = (UG - 10.8, UG + 8.6, 18.8)       # (u0, u1, meia-largura v) - nada meu acima do piso ali dentro
+
+
+def _edge_u():
+    """u (ao longo da ponte) onde o terraco P3 acaba de verdade, no pior ponto da largura da ponte"""
+    best = 0.0
+    for v in (-HW - 1.2, 0.0, HW + 1.2):
+        u = -3.0
+        while u < 8.0 and L.point_in_poly(*tuple(F.p(u, v, 0.0))[:2], L.P3_POLY):
+            u += 0.05
+        best = max(best, u)
+    return best
+
+
+U_EDGE = _edge_u()                            # ~1,9: borda do P3 (o ISLAND_EXIT fica 1,5 para dentro do terraco)
 
 STONE, CASTLE, TRIM, PAVE, FLOOR = "Stone_SG_Block", "Stone_SG_Castle", "Stone_SG_Trim", "Stone_Paving_SG", "Stone_SG_Floor"
 ROCK, DARK, TOP = "Cliff_Rock_SG", "Cliff_Rock_SG_Dark", "Cliff_Rock_SG_Top"
@@ -100,6 +130,9 @@ CAMS = {
     # inspecao (fora da altura do jogador): ponta do guarda-corpo DS na quina da ponte e coroa do pilar-marco
     "CAM_SGExit_OV_RailCorner": _cam(58.5, 4.0, Z + 5.0, 63.0, 11.0, Z + 2.6, 30),
     "CAM_SGExit_OV_PylonTop": _cam(-12.0, 3.0, Z + 17.0, -2.7, 12.0, Z + 16.5, 30),
+    # onda 1: do terraco norte, atras da cabeceira, a ponte saindo para o CEU ABERTO; o portao DS com o ceu atras
+    "CAM_SGExit_Out": _cam(-34.0, -6.0, Z + 7.0, UA + 40.0, 0.0, Z + 10.0, 20),
+    "CAM_SGExit_GateSky": _cam(14.0, -7.0, Z + 4.6, UG, 0.0, Z + 15.0, 20),
 }
 
 # rotas extras: o P2 continua andavel atras dos pilares-marco; a beira da ponte e a volta da ilhota ficam livres
@@ -230,9 +263,11 @@ SPANS = [(0.0, PIERS[0] - PIER_HU), (PIERS[0] + PIER_HU, PIERS[1] - PIER_HU), (P
 
 def bridge(mb, rng):
     # corpo do tabuleiro: de dentro do P2 ate dentro da ilhota (as pontas ficam escondidas sob os pisos)
-    bx(mb, -1.5, -BODY, SOFFIT, 63.0, BODY, Z - 0.35, STONE)
+    # ONDA 1: o topo do corpo E o leito escuro das juntas (Z - 0,3, material proprio na face de cima): nada de leito
+    # 0,05 acima do corpo (z-fight de 1.040 studs2 no detector) e 0,3 abaixo do topo do terraco/ilhota nas pontas
+    prism_uv(mb, [(-1.5, -BODY), (63.0, -BODY), (63.0, BODY), (-1.5, BODY)], SOFFIT, Z - 0.3, STONE, top_m=FLOOR)
     # encontros: oeste (entra no penhasco do P2) e leste (entra na rocha da ilhota)
-    bx(mb, -5.0, -BODY - 0.4, 14.0, 0.0, BODY + 0.4, SOFFIT, STONE)
+    bx(mb, -5.0, -BODY - 0.4, 14.0 + ZO, 0.0, BODY + 0.4, SOFFIT, STONE)
     ce = ABUT_E + 2.6
     zsp = SOFFIT - 1.3 - (SPANS[2][1] - SPANS[2][0]) * 0.866
     prism_uv(mb, pier_poly(ce, 9.4, 2.6, 3.2), zsp - 1.0, SOFFIT - 0.8, STONE)
@@ -253,18 +288,18 @@ def bridge(mb, rng):
     # pilares com talha-mar: 3 estagios com ressalto (friso claro) e ponta escura pendendo para as nuvens
     for cu in PIERS:
         top = pier_poly(cu, 9.4, PIER_HU, 3.2)
-        prism_uv(mb, top, 24.0, SOFFIT - 0.8, STONE)
+        prism_uv(mb, top, 24.0 + ZO, SOFFIT - 0.8, STONE)
         loft_uv(mb, top, SOFFIT - 0.8, pier_poly(cu, 9.4, PIER_HU, 0.9), SOFFIT + 0.5, TRIM)    # capeamento
-        prism_uv(mb, pier_poly(cu, 9.8, PIER_HU + 0.35, 3.5), 23.2, 24.0, TRIM)
-        loft_uv(mb, pier_poly(cu, 8.2, 3.0, 2.7), 2.0, pier_poly(cu, 9.2, PIER_HU - 0.1, 3.0), 23.2, STONE)
-        prism_uv(mb, pier_poly(cu, 8.6, 3.3, 3.0), 1.2, 2.0, TRIM)
+        prism_uv(mb, pier_poly(cu, 9.8, PIER_HU + 0.35, 3.5), 23.2 + ZO, 24.0 + ZO, TRIM)
+        loft_uv(mb, pier_poly(cu, 8.2, 3.0, 2.7), 2.0 + ZO, pier_poly(cu, 9.2, PIER_HU - 0.1, 3.0), 23.2 + ZO, STONE)
+        prism_uv(mb, pier_poly(cu, 8.6, 3.3, 3.0), 1.2 + ZO, 2.0 + ZO, TRIM)
         low = pier_poly(cu, 6.2, 2.4, 2.1)
-        loft_uv(mb, low, -18.0, pier_poly(cu, 7.9, 2.9, 2.6), 1.2, STONE)
-        point_down(mb, low, -18.0, (cu + 0.4, 0.0, -44.0), DARK)
+        loft_uv(mb, low, -18.0 + ZO, pier_poly(cu, 7.9, 2.9, 2.6), 1.2 + ZO, STONE)
+        point_down(mb, low, -18.0 + ZO, (cu + 0.4, 0.0, -44.0 + ZO), DARK)
         # quina clara no bico do talha-mar (le a ponta gotica de longe)
         for sv in (-1, 1):
-            beam_uv(mb, (cu, sv * 12.45, 2.0), (cu, sv * 12.45, 23.2), 0.5, 0.5, TRIM)
-            beam_uv(mb, (cu, sv * 12.45, 24.0), (cu, sv * 12.45, SOFFIT - 0.8), 0.5, 0.5, TRIM)
+            beam_uv(mb, (cu, sv * 12.45, 2.0 + ZO), (cu, sv * 12.45, 23.2 + ZO), 0.5, 0.5, TRIM)
+            beam_uv(mb, (cu, sv * 12.45, 24.0 + ZO), (cu, sv * 12.45, SOFFIT - 0.8), 0.5, 0.5, TRIM)
     # 3 arcos ogivais: timpano + aduelas RADIAIS nas 2 faces + fecho (overhaul 11, 11.07/01.09: antes eram vigas de
     # 19,6 atravessando o tabuleiro inteiro, que liam em degraus no intradorso)
     band = 1.2
@@ -297,20 +332,30 @@ def bridge(mb, rng):
 
 
 def deck(mb, rng):
-    """lajes frias (fiadas atravessadas, juntas escuras), meio-fio claro, faixa clara do MARCO; topo = Z exato"""
-    bx(mb, 0.0, -HW, Z - 0.75, PAVE_END, HW, Z - 0.25, FLOOR)
+    """lajes frias (fiadas atravessadas, juntas escuras), meio-fio claro, faixa clara do MARCO; topo = Z exato.
+    ONDA 1: leito das juntas (topo do corpo) 0,3 abaixo das lajes (junta rebaixada que le no Roblox) e as lajes comecam
+    depois da BORDA REAL do P3 (U_EDGE: o ISLAND_EXIT fica 1,5 para dentro do terraco e a borda corre a ~2 graus da
+    perpendicular): nada de laje ou soleira sob o topo do terreno"""
+    U0 = U_EDGE + 1.45
+    # SOLEIRA de cantaria na boca da ponte (5 pedras chanfradas com junta, a mesma da junta com a ilhota), 0,6 depois
+    # da borda do terraco: marca a cabeceira no chao sem piso sobre o topo do terreno
+    nb = 5
+    for k in range(nb):
+        va = -HW - 0.3 + (2 * HW + 0.6) * k / nb + (0.04 if k else 0.0)
+        vb = -HW - 0.3 + (2 * HW + 0.6) * (k + 1) / nb - (0.04 if k < nb - 1 else 0.0)
+        bx(mb, U_EDGE + 0.1, va, Z - 0.5, U_EDGE + 1.35, vb, Z + 0.04, CAPL, 0.05)
     CURB = 1.1
     for s in (-1, 1):
-        u = 0.0
+        u = U0
         while u < PAVE_END - 0.05:
             ue = min(u + 4.3, PAVE_END)
             v0, v1 = sorted((s * HW, s * (HW - CURB)))
-            bx(mb, u + 0.07, v0, Z - 0.35, ue - 0.07, v1, Z, CAPL, 0.04)
+            bx(mb, u + 0.07, v0, Z - 0.5, ue - 0.07, v1, Z, CAPL, 0.04)
             u = ue
     mk0, mk1 = PIERS[1] - 0.6, PIERS[1] + 0.6          # faixa do marco (atravessada, rente)
-    bx(mb, mk0, -HW + CURB, Z - 0.35, mk1, HW - CURB, Z, CAPL)
+    bx(mb, mk0, -HW + CURB, Z - 0.5, mk1, HW - CURB, Z, CAPL)
     row = 2.9
-    u = 0.0
+    u = U0
     k = 0
     while u < PAVE_END - 0.05:
         ue = min(u + row, PAVE_END)
@@ -326,7 +371,7 @@ def deck(mb, rng):
                 w = rng.choice((2.8, 3.4, 4.0))
                 va, vb = max(v, -HW + CURB), min(v + w, HW - CURB)
                 if vb - va > 0.6:
-                    bx(mb, a0 + 0.09, va + 0.09, Z - 0.35, a1 - 0.09, vb - 0.09, Z, PAVE)
+                    bx(mb, a0 + 0.09, va + 0.09, Z - 0.5, a1 - 0.09, vb - 0.09, Z, PAVE)
                 v += w
         u = ue
         k += 1
@@ -534,7 +579,7 @@ def parapets(mb):
         ds_rail(mb, [(PIERS[1] + 1.0, s * (HW + 0.5)), (_islet_meet(), s * (HW + 0.5))], end_posts=(False, True),
                 tips=(False, True))
     for s in (-1, 1):
-        ds_post(mb, PIERS[1], s * (HW + 1.3), 2.2, lantern_s=s, drop=SOFFIT + 0.5)          # o MARCO da transicao
+        ds_post(mb, PIERS[1], s * (HW + 1.3), 2.2, lantern_s=s, drop=SOFFIT + 0.35)         # o MARCO da transicao
 
 
 # ------------------------------------------------------------------ cabeceira (P2)
@@ -573,7 +618,6 @@ def head_pylon(mb, s):
     fora; estandarte da ordem na face oeste; LANTERNA DA ORDEM (kit) pendurada num braco de ferro com mao-francesa curva
     na face do eixo (no lugar do cubo de vidro)."""
     import sg_entry as EN
-    import sg_castle as CA
     u, v = HEAD_U, s * HEAD_V
     x, y = PW(u, v)
     SH = "Stone_SG_Castle_B"
@@ -607,7 +651,9 @@ def head_pylon(mb, s):
         for sy in (-1, 1):
             EN.pinnacle(mb, x + sx * (cs / 2 - 0.1), y + sy * (cs / 2 - 0.1), zc, 1.9)
     SL.spire(mb, (x, y), cs / 2 * 0.98, zc, 5.4, "Roof_SG_Navy", n=8)
-    CA.finial(mb, x, y, zc + 5.4 - 0.25, 0.9)
+    _lathe(mb, (x, y, zc + 5.4 - 0.25), [(r * 0.9, h * 0.9) for r, h in ((0.2, 0.0), (0.14, 0.2), (0.3, 0.46),
+                                                                          (0.1, 0.82), (0.0, 1.45))],
+           SILVER, 6, math.pi / 6)                    # florao de prata (a receita do sg_castle.finial, s 0,9)
     # janelas cegas ogivais: face leste (para a ponte) e face de fora
     w = PYL_S * 0.42
     for a in (ANG - math.pi / 2, ANG + (0.0 if s > 0 else math.pi)):
@@ -663,14 +709,8 @@ def head():
     mb = MB("SG_Exit_Head", C, random.Random(3804), detail="hero")
     for s in (-1, 1):
         head_pylon(mb, s)
-    # adro da cabeceira: lajes que alargam a rua (12) para a boca da ponte (18); rente (a rua do P2 passa por cima)
-    ma = mb
-    u0 = -9.5
-    bx(ma, u0, -HEAD_V - 1.1, Z - 0.3, 0.0, HEAD_V + 1.1, Z + 0.03, PAVE)
-    bx(ma, u0 - 0.7, -HEAD_V - 1.8, Z - 0.3, u0, HEAD_V + 1.8, Z + 0.04, CAPL)
-    for s in (-1, 1):
-        v0, v1 = sorted((s * (HEAD_V + 1.1), s * (HEAD_V + 1.8)))
-        bx(ma, u0, v0, Z - 0.3, 0.0, v1, Z + 0.04, CAPL)
+    # ONDA 1: o ADRO de lajes (topo a Z+0,03 sobre o topo do terraco = z-fight F5) saiu; o chao da cabeceira e o do
+    # terraco norte (terreno/vestir)
     return finish_quiet(mb)
 
 
@@ -805,13 +845,14 @@ def islet(mb, rng):
     for k in range(nb):
         va = -HW - 0.3 + (2 * HW + 0.6) * k / nb + (0.04 if k else 0.0)
         vb = -HW - 0.3 + (2 * HW + 0.6) * (k + 1) / nb - (0.04 if k < nb - 1 else 0.0)
-        bx(mb, PAVE_END - 0.05, va, Z - 0.3, PAVE_END + 1.15, vb, Z + 0.04, CAPL, 0.05)
-    bx(mb, ANCHOR_U0 - 0.5, -HW, Z - 0.3, ANCHOR_U0 + 0.5, HW, Z + 0.03, CAPL)
-    bx(mb, UA - 1.0, -HW, Z - 0.6, UA, HW, Z + 0.04, CAPL)
+        bx(mb, PAVE_END - 0.05, va, Z - 0.3, PAVE_END + 1.15, vb, Z + 0.12, CAPL, 0.05)
+    # ONDA 1 (z-fight): faixas e soleiras sobre o piso da ilhota sobem para +0,12 (eram +0,03/+0,04)
+    bx(mb, ANCHOR_U0 - 0.5, -HW, Z - 0.3, ANCHOR_U0 + 0.5, HW, Z + 0.12, CAPL)
+    bx(mb, UA - 1.0, -HW, Z - 0.6, UA, HW, Z + 0.12, CAPL)
     # corredor do eixo (portao -> ancora): 2 frisos claros rentes que levam o olho ate a ancora
     for s in (-1, 1):
-        bx(mb, GATE_RECT[1] + 0.2, s * 7.6 - 0.3, Z - 0.3, ANCHOR_U0 - 0.5, s * 7.6 + 0.3, Z + 0.03, CAPL)
-        bx(mb, PAVE_END + 1.15, s * 7.6 - 0.3, Z - 0.3, GATE_RECT[0] - 0.2, s * 7.6 + 0.3, Z + 0.03, CAPL)
+        bx(mb, GATE_RECT[1] + 0.2, s * 7.6 - 0.3, Z - 0.3, ANCHOR_U0 - 0.5, s * 7.6 + 0.3, Z + 0.12, CAPL)
+        bx(mb, PAVE_END + 1.15, s * 7.6 - 0.3, Z - 0.3, GATE_RECT[0] - 0.2, s * 7.6 + 0.3, Z + 0.12, CAPL)
     # juntas das lajes em aneis e raios (faixas escuras rentes) dos 2 lados do corredor do eixo; o corredor
     # (entre os frisos claros), a base do portao e a plataforma da ancora ficam lisos
     def joint_ok(u, v):
@@ -825,7 +866,7 @@ def islet(mb, rng):
             p0 = (UC + rr * math.cos(a0), rr * math.sin(a0))
             p1 = (UC + rr * math.cos(a1), rr * math.sin(a1))
             if joint_ok(*p0) and joint_ok(*p1):
-                beam_uv(mb, (p0[0], p0[1], Z - 0.04), (p1[0], p1[1], Z - 0.04), 0.16, 0.12, FLOOR)
+                beam_uv(mb, (p0[0], p0[1], Z + 0.06), (p1[0], p1[1], Z + 0.06), 0.16, 0.12, FLOOR)
     for (ra, rb), stepl, off in (((8.5, 13.0), 3.4, 0.0), ((13.0, 17.4), 3.6, 0.5), ((17.4, 20.9), 3.8, 0.0)):
         rm = (ra + rb) / 2
         n2 = int(2 * math.pi * rm / stepl)
@@ -834,7 +875,7 @@ def islet(mb, rng):
             p0 = (UC + (ra + 0.08) * math.cos(a), (ra + 0.08) * math.sin(a))
             p1 = (UC + (rb - 0.08) * math.cos(a), (rb - 0.08) * math.sin(a))
             if joint_ok(*p0) and joint_ok(*p1):
-                beam_uv(mb, (p0[0], p0[1], Z - 0.04), (p1[0], p1[1], Z - 0.04), 0.16, 0.12, FLOOR)
+                beam_uv(mb, (p0[0], p0[1], Z + 0.06), (p1[0], p1[1], Z + 0.06), 0.16, 0.12, FLOOR)
     # mesa de cachorros sob a quina (a mesma linha gotica da ponte continua em volta da ilhota)
     ring = islet_poly(0.35)
     n = len(ring)

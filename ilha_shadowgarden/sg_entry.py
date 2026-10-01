@@ -1,51 +1,42 @@
 # sg_entry - ENTRADA da Ilha 3 (Shadow Garden), 3a na hierarquia: a primeira impressao de quem chega da Ilha 2.
-# Substitui sg_blockout.entry. Sul da ilha, eixo x = 0:
-#   ponte de chegada gotica (tabuleiro de lajes frias, parapeito baixo com cornija e cachorros, 2 pilares com talha-mar
-#   descendo em ponta para as nuvens e um arco ogival entre eles) -> patio baixo (DECK) com o PORTICO A -> escadaria
-#   (sg_lib.plan_stair "Entry", sem banzo: as muretas inclinadas fazem o papel) -> calcada alta (P1) com o PORTICO B.
-# Portico = par de pilares escuros com coroa de gabletes + agulha navy + remate de prata, ESTANDARTE navy com emblema de
-# prata na face sul (sinalizacao da entrada) e lanterna baixa quente ao pe (4 luzes no total). Vao livre >= 18 no eixo.
-# Colisao PROPRIA so dos pilares (fora do caminho de 18). Piso, escada, ponte e guardas: sg_col (congelado).
+# ONDA 1 (planta v4, plano mestre 2026-09-30, renders/plano_mestre/PLANO.md): o modulo roda DIRETO na v4 (saiu do
+# sg_relocate). Da ancora da Ilha 2 ao spawn:
+#   PONTE DE CHEGADA CURVA de 234 na polilinha da onda 0 (L.BRIDGE_PATH: 2 retos tangentes ao rumo da Ilha 2, arco de
+#   33 graus com raio 160, 140 retos ate o patio baixo), no idioma da ponte aprovada: tabuleiro de LAJES com junta
+#   rebaixada (2 tons alternando pela variante), meio-fio de obsidiana, parapeito de CANTARIA (plinto, blocos com junta
+#   escura, pingadeira, capa segmentada), cornija sobre mesa de cachorros, 7 ARCOS ogivais com ADUELAS por baixo e
+#   PILARES com talha-mar ASSENTADOS EM ROCHAS FLUTUANTES (plato + colunas de basalto pendentes). Tudo e varrido no
+#   referencial da curva (s ao longo do eixo, v para a esquerda): a curva e analitica, as juntas acompanham o raio.
+#   LANTERNAS SO NOS 3 NOS: comeco (pilaretes da ancora), CURVA (pilar-marco sobre o pilar do fim do arco, com misula)
+#   e FIM (pilaretes do canto do patio baixo).
+#   -> patio baixo (DECK) -> escadaria (sg_lib.plan_stair "Entry" + muretas de cantaria) -> calcada alta (P1) com o
+#   PORTICO DE CHEGADA MONUMENTAL (o portico B aprovado, escalado: fuste 5,2, 30 de altura, agulha octogonal de 14, verga
+#   de obsidiana, estandarte da ordem sem espada), a 10 do spawn. O portico A do patio SAIU (orcamento da ponte de 234 e
+#   um portico so, monumental; as lanternas acesas dele foram para o no do fim da ponte).
+# Colisao PROPRIA so dos pilares do portico. Piso, escada, ponte e guardas: sg_col (congelado).
+# Historico da v3 (sg_entry aprovado): refinamentos v1-v3 e overhauls 01/12 (lanternas so nos nos, cantaria de remate
+# Stone_SG_TrimLow, agulha octogonal sem piramide, estandarte da ordem so no portico de cima). Os ajudantes de cantaria
+# (parapet_run, _post, arcade, lancet, pinnacle, chamfer_sq, finial, yz_block...) sao usados por sg_exit, sg_castle,
+# sg_court, sg_village, sg_summon e sg_terrain: a API nao muda.
 import math, random
+import bmesh
 from mathutils import Vector
 import sg_lib as SL
 import fm_parts as FP
 from sg_lib import MB, col_box2, light, Frame, fm_lib
 import sg_layout as L
 import sg_emblem as EM
-# REFINAMENTO 2026-09-28: o estandarte navy com o "tridente" virou o estandarte DA ORDEM (sg_emblem.banner) e o portico
-# B ganhou a verga de obsidiana com o medalhao da ordem (sg_emblem.plaque): a entrada fala pelo mesmo simbolo do castelo.
-# REFINAMENTO v2 2026-09-28: CHEGADA CERIMONIAL da referencia v2 (ref2_entry): RITMO de lanternas douradas
-# (sg_emblem.lantern_pedestal, SO Neon - as 4 luzes reais continuam as das lanternas dos porticos) sobre os parapeitos
-# da ponte (3 pares), da lateral do patio (2 pares) e da calcada alta (2 pares); estandartes dos porticos com debrum
-# DOURADO (trim="Metal_Gold").
-# REFINAMENTO v3 2026-09-29 (ref2_main / ref2_entry: o corredor cerimonial mais forte do mapa):
-#   - pedra da escadaria, das muretas inclinadas e dos parapeitos UM VALOR MAIS ESCURA (Stone_SG_Castle); a cantaria clara
-#     (Stone_SG_Trim) fica SO no remate (capa); cintas das muretas em obsidiana; meio-fio da ponte em obsidiana (moldura
-#     escura do calcamento, como o caminho da ordem);
-#   - ritmo de pares de lanternas douradas a ~5,6 na ponte (pilaretes dos pilares e da cabeceira com lanterna no lugar do
-#     pinaculo + pedestais entre eles), PILARETES COM LANTERNA na mureta da escadaria (pe, meio do lance e topo, em pares)
-#     e no fim da calcada alta; SO Neon (as 4 luzes reais continuam as dos porticos);
-#   - par de ESTANDARTES da ordem com debrum dourado em mastros sobre o parapeito no meio da ponte (encaram quem chega):
-#     o ritmo estandarte (ponte) -> portico A -> portico B da referencia.
-
-# ACABAMENTO 2026-09-29: o par de estandartes em mastro no meio da ponte SAIU (o sinal da ordem fica nos 2 porticos);
-# um pedestal de lanterna ocupa o lugar do mastro (o ritmo de ~5,6 fecha); os 2 pares de pilaretes-lanterna do meio do
-# lance da escadaria SAIRAM (cerca de luz que escondia a escada: fica o par do pe e o do topo); pedestais de lanterna
-# dos parapeitos na escala 0,8 (a base cabe na capa, nada sobrando no ar).
-# OVERHAUL 01 "zero tolerancia" (2026-09-29): lanternas SO nos NOS (comeco e fim da ponte, porticos, topo da escada:
-# de 28 para 10); parapeito de cantaria com arcada cega, plinto, pingadeira e capa segmentada; pilarete com base
-# moldurada, fuste chanfrado, capitel em 2 degraus e remate do kit (bola com colar); banzo da escadaria em fiadas de
-# cantaria com juntas desencontradas, rodape e capa inclinada em pecas; degraus de pedra (sg_lib.plan_stair); fustes dos
-# porticos com quinas chanfradas, colunelos e fiadas no terco de baixo, janelas cegas com vazio + moldura com espessura,
-# gabletes com cimalha e florao, pinaculos do kit; verga B com perfil e fecho esculpido (sem placa); estandarte so no
-# portico B; lanterna baixa em balaustre com a lanterna do kit; aduelas radiais no arco da ponte.
-# OVERHAUL 12 (2026-09-29, props globais): de 10 para 6 lanternas - a da cabeceira da ponte e a do topo da escada
-# sairam (cada uma a ~9 studs da lanterna baixa acesa do portico A/B: o no fica com UMA lanterna por lado); agulha dos
-# porticos octogonal com anel e florao de prata (sem piramide de 4 lados); estandarte do portico B na largura estreita.
+if L.__name__ != "sg_layout":
+    # importado DENTRO do sg_relocate (um modulo da v3 usa os ajudantes de cantaria daqui, com sys.modules['sg_layout']
+    # = sg_layout_v3): este modulo e da planta v4 sempre -> carrega a v4 a parte (fica fora da troca do sg_relocate)
+    import importlib.util as _ilu, os as _os
+    _sp = _ilu.spec_from_file_location("sg_layout", _os.path.join(_os.path.dirname(_os.path.abspath(__file__)),
+                                                                  "sg_layout.py"))
+    L = _ilu.module_from_spec(_sp)
+    _sp.loader.exec_module(L)
 
 DECK, P1 = L.DECK, L.P1
-Y0, Y1 = L.BRIDGE_Y0, L.BRIDGE_Y1          # -262 .. -228
+Y0, Y1 = L.BRIDGE_Y0, L.BRIDGE_Y1          # compat (v4: a ponte e a polilinha L.BRIDGE_PATH; Y1 = -334 fim da ponte)
 HW = L.DECK_W / 2.0                        # 9: face interna dos parapeitos / guardas
 PAR_Z = DECK - 0.35                        # base dos parapeitos (assentados no corpo do tabuleiro)
 PAR_H = 2.0                                # parede do parapeito (+ capa 0,45)
@@ -56,229 +47,138 @@ CAP_M = "Stone_SG_TrimLow"
 fm_lib.MATS.setdefault(CAP_M, (fm_lib.S(132, 128, 134), 0.8, 0.0, 0, None, 0.06))
 
 # (x do eixo do pilar, secao do fuste, altura do fuste, agulha, largura e altura do estandarte)
-PORTICO_A = dict(y=L.PORTICO_A_Y, z=DECK, xc=11.3, s=3.2, H=16.0, spire=7.0, bw=2.6, bh=9.0, name="A")
-PORTICO_B = dict(y=L.PORTICO_B_Y, z=P1, xc=11.6, s=4.0, H=22.0, spire=10.0, bw=2.6, bh=12.0, name="B")   # ov12: estreito
+PORTICO_A = dict(y=L.PORTICO_A_Y, z=DECK, xc=11.3, s=3.2, H=16.0, spire=7.0, bw=2.6, bh=9.0, name="A")   # (fora: v4)
+# ONDA 1: o portico B aprovado, MONUMENTAL (era s 4, H 22, agulha 10): face interna do fuste em 9,8 (colisao 9,5 >= 9,2)
+PORTICO_B = dict(y=L.PORTICO_B_Y, z=P1, xc=12.4, s=5.2, H=30.0, spire=14.0, bw=3.4, bh=15.0, name="B")
+
+
+# ------------------------------------------------------------------ eixo da ponte curva (referencial s, v)
+class _Path:
+    """eixo analitico da ponte de chegada, reconstruido da polilinha da onda 0: reto P0->P1, arco de raio
+    BRIDGE_ARC_R ate o penultimo ponto, reto ate (0, Y_ENTRY). pt(s, v): ponto a s do inicio e v a esquerda."""
+
+    def __init__(self):
+        P = L.BRIDGE_PATH
+        p0, p1 = Vector((P[0][0], P[0][1], 0.0)), Vector((P[1][0], P[1][1], 0.0))
+        pe, pf = Vector((P[-2][0], P[-2][1], 0.0)), Vector((P[-1][0], P[-1][1], 0.0))
+        self.p0 = p0
+        self.t0 = (p1 - p0).normalized()
+        self.s1 = (p1 - p0).length
+        t1 = (pf - pe).normalized()
+        self.h0 = math.atan2(self.t0.y, self.t0.x)
+        self.h1 = math.atan2(t1.y, t1.x)
+        d = (self.h1 - self.h0 + math.pi) % (2 * math.pi) - math.pi
+        self.sg = 1.0 if d > 0 else -1.0
+        self.R = L.BRIDGE_ARC_R
+        self.c = p1 + Vector((-self.t0.y, self.t0.x, 0.0)) * self.R * self.sg
+        self.a0 = math.atan2(p1.y - self.c.y, p1.x - self.c.x)
+        self.s2 = self.s1 + self.R * abs(d)
+        a2 = self.a0 + d
+        self.pe = self.c + Vector((math.cos(a2), math.sin(a2), 0.0)) * self.R
+        self.t1 = t1
+        self.S = self.s2 + (pf - self.pe).length
+
+    def head(self, s):
+        if s <= self.s1:
+            return self.h0
+        if s <= self.s2:
+            return self.h0 + self.sg * (s - self.s1) / self.R
+        return self.h1
+
+    def pt(self, s, v=0.0):
+        h = self.head(s)
+        if s <= self.s1:
+            c = self.p0 + self.t0 * s
+        elif s <= self.s2:
+            a = self.a0 + self.sg * (s - self.s1) / self.R
+            c = self.c + Vector((math.cos(a), math.sin(a), 0.0)) * self.R
+        else:
+            c = self.pe + self.t1 * (s - self.s2)
+        return c + Vector((-math.sin(h), math.cos(h), 0.0)) * v
+
+    def stations(self, sa, sb, step=4.0):
+        """estacoes de sa a sb: quebras nos pontos de tangencia; o trecho em arco subdividido a <= step"""
+        cuts = sorted({sa, sb} | {x for x in (self.s1, self.s2) if sa < x < sb})
+        out = [cuts[0]]
+        for a, b in zip(cuts, cuts[1:]):
+            n = max(1, int(math.ceil((b - a) / step))) if (a >= self.s1 - 1e-6 and b <= self.s2 + 1e-6) else 1
+            out += [a + (b - a) * k / n for k in range(1, n + 1)]
+        return out
+
+
+BP = _Path()
+SLEN = BP.S                                  # ~234,1
+
+
+def W(s, v, z):
+    p = BP.pt(s, v)
+    return Vector((p.x, p.y, z))
+
+
+def FR(s, v=0.0):
+    """Frame rigido em (s, v): local x ao longo do eixo, y para a esquerda"""
+    p = BP.pt(s, v)
+    return Frame(p.x, p.y, 0.0, BP.head(s))
+
+
+# ------------------------------------------------------------------ CAMERAS (v4)
+def _cam_sv(s0, v0, z0, s1, v1, z1, lens):
+    a, b = W(s0, v0, z0), W(s1, v1, z1)
+    return (tuple(round(c, 2) for c in a), tuple(round(c, 2) for c in b), lens)
+
+
+PIER_S = []                      # preenchido abaixo (eixos dos pilares ao longo de s)
+NODE_S = 0.0
+
+
+def _layout():
+    """pilares: 4 tramos iguais antes do no da curva (fim do arco, s2) e 4 depois ate o encontro na falesia"""
+    global NODE_S
+    NODE_S = BP.s2
+    s_first = 4.0
+    d0 = (NODE_S - s_first) / 3.0
+    out = [s_first + d0 * k for k in range(4)]
+    # tramos depois do no: 3 pilares + encontro; vao livre igual (d1 - 2 PIER_HU) em todos, o ultimo ate ABUT_S
+    d1 = (ABUT_S - NODE_S + PIER_HU) / 4.0
+    out += [NODE_S + d1 * k for k in range(1, 4)]
+    return out
+
+
+PIER_HU = 3.5                    # meia-espessura do pilar ao longo do eixo
+ABUT_S = SLEN - 2.2              # face do encontro (falesia) no fim da ponte
+PIER_S = _layout()
 
 CAMS = {
-    # frente: chegando da Ilha 2 pela ponte (um pouco acima, de lado)
-    "CAM_SGEnt_Front": ((16.0, -322.0, DECK + 16.0), (0.0, -214.0, DECK + 12.0), 24),
-    # altura do jogador na ponta da ponte olhando a subida
-    "CAM_SGEnt_PlayerBridge": ((0.0, -259.0, DECK + 5.2), (0.0, -176.0, P1 + 12.0), 22),
-    # altura do jogador no topo da escada: o portico B emoldura a praca e o castelo
-    "CAM_SGEnt_PlayerStairTop": ((0.0, -187.0, P1 + 5.2), (0.0, -40.0, P1 + 34.0), 22),
-    # tras: da praca olhando de volta para o sul (costas dos porticos, saida para a Ilha 2)
-    "CAM_SGEnt_Back": ((6.0, -150.0, P1 + 8.0), (0.0, -236.0, DECK + 6.0), 22),
-    # lados: ponte (arco e pilares) e o conjunto patio/escada/calcada
-    "CAM_SGEnt_SideW": ((-74.0, -236.0, DECK + 20.0), (0.0, -220.0, DECK + 6.0), 24),
-    "CAM_SGEnt_SideE_Low": ((96.0, -300.0, DECK - 14.0), (0.0, -244.0, DECK - 22.0), 24),
-    # overhaul 01 (2026-09-29): closes na altura do jogador - escada, banzo, parapeito, lanterna, praca, fonte,
-    # estatua da fonte, banco e poste (as guardas do patio usam CAM_SG_AU_GuardFront/Side do sg_scene)
-    "CAM_SGEnt_OV_Stair": ((-5.0, -215.0, DECK + 5.2), (3.0, -196.0, DECK + 4.0), 22),
-    "CAM_SGEnt_OV_Banzo": ((-3.5, -199.0, DECK + 8.8), (9.8, -190.0, P1 + 1.2), 24),
-    "CAM_SGEnt_OV_Parapet": ((-3.0, -251.0, DECK + 5.2), (9.6, -240.0, DECK + 2.0), 24),
-    "CAM_SGEnt_OV_Lantern": ((5.2, -233.6, DECK + 5.4), (9.6, -228.6, DECK + 4.6), 35),
-    "CAM_SGEnt_OV_Plaza": ((-14.0, -151.0, P1 + 5.2), (0.0, -128.0, P1 + 0.5), 22),
-    "CAM_SGEnt_OV_Fountain": ((9.0, -142.0, P1 + 5.2), (0.0, -128.0, P1 + 5.0), 26),
-    "CAM_SGEnt_OV_Statue": ((4.0, -141.0, P1 + 5.2), (0.0, -128.0, P1 + 11.8), 40),
-    "CAM_SGEnt_OV_Bench": ((-4.5, -143.0, P1 + 4.2), (-10.9, -148.5, P1 + 1.0), 28),
-    "CAM_SGEnt_OV_PlazaLamp": ((-10.0, -150.5, P1 + 5.2), (-16.7, -144.7, P1 + 5.4), 24),
-    "CAM_SGEnt_OV_GuardFront": ((-9.4, 22.0, L.P3 + 4.8), (-12.5, 33.5, L.P3 + 7.6), 24),
-    "CAM_SGEnt_OV_GuardSide": ((-2.6, 36.8, L.P3 + 5.2), (-12.5, 33.5, L.P3 + 7.6), 24),
-    # inspecao (fora da altura do jogador): a figura da fonte e a guarda de perto
-    "CAM_SGEnt_OV_StatueHi": ((3.0, -137.5, P1 + 13.0), (0.0, -128.0, P1 + 12.2), 35),
-    "CAM_SGEnt_OV_GuardHi": ((-10.3, 27.0, L.P3 + 9.0), (-12.5, 33.5, L.P3 + 8.2), 30),
+    # CHEGADA: da ancora da Ilha 2 (um pouco atras e acima do olho), a ponte curva e o castelo ao fundo
+    "CAM_SGEnt_FromAnchor": (tuple(round(c, 2) for c in W(-10.0, 1.5, DECK + 7.5)), (4.0, -400.0, DECK + 20.0), 20),
+    # NO MEIO DA CURVA (s 47), altura do jogador pelo lado de fora: o resto do arco virando ate o no e a ilha
+    "CAM_SGEnt_MidCurve": _cam_sv(47.0, -5.0, DECK + 5.2, 90.0, 6.0, DECK + 5.0, 20),
+    # a CURVA inteira: do comeco, pelo lado de dentro, a ponte virando para a ilha
+    "CAM_SGEnt_Curve": _cam_sv(10.0, -3.0, DECK + 6.0, 70.0, 9.0, DECK + 2.0, 20),
+    # o no da curva: pilar-marco com a lanterna
+    "CAM_SGEnt_Node": _cam_sv(NODE_S - 16.0, -3.0, DECK + 5.2, NODE_S, 10.0, DECK + 3.4, 24),
+    # lateral de fora da curva: arcos, pilares e rochas flutuantes
+    "CAM_SGEnt_SideCurve": ((96.0, -600.0, 34.0), (-8.0, -470.0, -6.0), 22),
+    # de baixo: aduelas, talha-mar e o plato das rochas
+    "CAM_SGEnt_Under": ((34.0, -430.0, -34.0), (0.0, -404.0, 14.0), 20),
+    # lajes e parapeito de perto (altura do jogador)
+    "CAM_SGEnt_Deck": _cam_sv(150.0, -4.5, DECK + 5.2, 162.0, 9.2, DECK + 1.2, 24),
+    # fim da ponte: no do fim, patio, escadaria e o portico monumental
+    "CAM_SGEnt_End": _cam_sv(200.0, 0.0, DECK + 5.2, 260.0, 0.0, DECK + 16.0, 22),
+    # o PORTICO DE CHEGADA: do patio baixo e do pe da escada
+    "CAM_SGEnt_Portico": ((6.0, -332.0, DECK + 5.2), (0.0, -282.0, P1 + 24.0), 20),
+    "CAM_SGEnt_PorticoNear": ((-5.0, -300.0, P1 + 3.0), (0.0, -282.0, P1 + 16.0), 18),
+    # tras: do spawn olhando de volta para a ponte (a curva ao longe)
+    "CAM_SGEnt_Back": ((4.0, -262.0, P1 + 6.0), (-10.0, -420.0, DECK + 2.0), 22),
 }
 
-# rota extra: o jogador contorna o pilar do portico A por dentro do vao (o caminho de 18 fica livre)
+# rotas extras: o jogador contorna o pilar do portico por dentro do vao; beiras da ponte (curva inteira) livres
 EXTRA_ROUTES = {
-    "PATIO_PORTICO_A_LATERAL": ([(0.0, -226.0), (-7.8, -222.0), (-7.8, -210.0), (0.0, -207.5)], DECK),
-    "CALCADA_PORTICO_B_LATERAL": ([(0.0, -186.0), (7.6, -182.0), (7.6, -170.0), (0.0, -164.0)], P1),
+    "CALCADA_PORTICO_B_LATERAL": ([(0.0, -292.0), (7.6, -288.0), (7.6, -276.0), (0.0, -270.0)], P1),
+    "PONTE_BEIRA_E": ([tuple(BP.pt(s, -7.6))[:2] for s in BP.stations(2.0, SLEN - 1.0, 12.0)], DECK),
+    "PONTE_BEIRA_W": ([tuple(BP.pt(s, 7.6))[:2] for s in BP.stations(2.0, SLEN - 1.0, 12.0)], DECK),
 }
 EXTRA_PROBES = []
-
-
-# ------------------------------------------------------------------ geometria auxiliar
-def loft(mb, poly0, z0, poly1, z1, m, bevel=0.0, caps=(True, True)):
-    """tronco entre dois poligonos (mesmo numero de vertices, anti-horario) em z0 e z1"""
-    bm = mb.bm
-    v0 = [bm.verts.new((x, y, z0)) for x, y in poly0]
-    v1 = [bm.verts.new((x, y, z1)) for x, y in poly1]
-    n = len(v0)
-    if caps[0]:
-        bm.faces.new(list(reversed(v0)))
-    if caps[1]:
-        bm.faces.new(v1)
-    for i in range(n):
-        j = (i + 1) % n
-        bm.faces.new((v0[i], v0[j], v1[j], v1[i]))
-    mb._post(v0 + v1, m, None, bevel, 1)
-
-
-def point_down(mb, poly, z, apex, m):
-    """ponta invertida (piramide para baixo) sob o poligono em z"""
-    bm = mb.bm
-    ring = [bm.verts.new((x, y, z)) for x, y in poly]
-    tip = bm.verts.new(apex)
-    n = len(ring)
-    bm.faces.new(ring)
-    for i in range(n):
-        bm.faces.new((ring[(i + 1) % n], ring[i], tip))
-    mb._post(ring + [tip], m, None, 0, 1)
-
-
-def yz_prism(mb, x0, x1, pts, m):
-    """poligono CONVEXO no plano YZ [(y, z)] extrudado de x0 a x1"""
-    bm = mb.bm
-    va = [bm.verts.new((x0, y, z)) for y, z in pts]
-    vb = [bm.verts.new((x1, y, z)) for y, z in pts]
-    n = len(pts)
-    bm.faces.new(list(reversed(va)))
-    bm.faces.new(vb)
-    for i in range(n):
-        j = (i + 1) % n
-        bm.faces.new((va[i], va[j], vb[j], vb[i]))
-    mb._post(va + vb, m, None, 0, 1)
-
-
-def ogive(y0, y1, zs, n=6):
-    """intradorso de arco ogival equilatero de y0 a y1 (nascencas em zs): [(y, z)] do pe sul ao pe norte"""
-    r = y1 - y0
-    pts = []
-    for k in range(n + 1):
-        t = math.pi - (math.pi / 3.0) * k / n
-        pts.append((y1 + r * math.cos(t), zs + r * math.sin(t)))
-    for k in range(1, n + 1):
-        t = math.pi / 3.0 - (math.pi / 3.0) * k / n
-        pts.append((y0 + r * math.cos(t), zs + r * math.sin(t)))
-    return pts
-
-
-def spandrel(mb, x0, x1, arc, ztop, m):
-    """tímpano macico entre o intradorso 'arc' e ztop, de x0 a x1 (faixas convexas: sem ngon concavo)"""
-    bm = mb.bm
-    A = [(bm.verts.new((x0, y, z)), bm.verts.new((x0, y, ztop))) for y, z in arc]
-    B = [(bm.verts.new((x1, y, z)), bm.verts.new((x1, y, ztop))) for y, z in arc]
-    for i in range(len(arc) - 1):
-        bm.faces.new((A[i][0], A[i + 1][0], A[i + 1][1], A[i][1]))
-        bm.faces.new((B[i][0], B[i][1], B[i + 1][1], B[i + 1][0]))
-        bm.faces.new((A[i][0], B[i][0], B[i + 1][0], A[i + 1][0]))
-        bm.faces.new((A[i][1], A[i + 1][1], B[i + 1][1], B[i][1]))
-    for k in (0, -1):
-        bm.faces.new((A[k][0], A[k][1], B[k][1], B[k][0]))
-    mb._post([v for p in A + B for v in p], m, None, 0, 1)
-
-
-def pier_poly(cy, hx, hy, tip):
-    """planta do pilar da ponte: retangulo com talha-mar em ponta nos dois lados (leste/oeste)"""
-    return [(-hx - tip, cy), (-hx, cy - hy), (hx, cy - hy), (hx + tip, cy), (hx, cy + hy), (-hx, cy + hy)]
-
-
-# ------------------------------------------------------------------ ponte de chegada
-BR_BODY_X = 10.2           # meia-largura do corpo do tabuleiro (face externa do parapeito)
-BR_Z_SOFFIT = 25.4         # fundo do tabuleiro
-PIERS = (-258.0, -235.5)   # eixo dos 2 pilares
-PIER_HY = 3.5
-
-
-def bridge():
-    rng = random.Random(3101)
-    mb = MB("SG_Ent_Bridge", "18_ENTRY", rng, detail="near")
-    # corpo do tabuleiro: da ponta sul (y -262 exato) ate dentro do patio (escondido sob o piso do terreno)
-    mb.box2((-BR_BODY_X, Y0, BR_Z_SOFFIT), (BR_BODY_X, Y1 + 2.0, DECK - 0.35), "Stone_SG_Block", 0.0)
-    # encontro norte (base do canto do parapeito do patio, entra no penhasco)
-    mb.box2((-14.4, Y1 - 4.0, 18.0), (14.4, Y1 + 2.0, DECK - 0.35), "Stone_SG_Block", 0.0)
-    # cornija + cachorros (mesa de cachorros gotica) nos 2 lados
-    for s in (-1, 1):
-        mb.box2((s * (BR_BODY_X - 0.4), Y0, 25.9), (s * (BR_BODY_X + 0.55), Y1 - 1.0, 26.75), "Stone_SG_Trim", 0.08)
-        y = Y0 + 1.3
-        while y < Y1 - 1.5:
-            mb.box((0.7, 0.8, 1.0), (s * (BR_BODY_X + 0.2), y, 25.4), (0, 0, 0), "Stone_SG_Trim", 0.0)
-            y += 2.4
-    # pilares com talha-mar: 3 estagios com ressalto (friso claro) e ponta escura para as nuvens
-    for cy in PIERS:
-        top = pier_poly(cy, 9.4, PIER_HY, 3.2)
-        mb.prism(SL.ccw(top), 8.0, 24.6, "Stone_SG_Block")
-        loft(mb, top, 24.6, pier_poly(cy, 9.4, PIER_HY, 0.9), BR_Z_SOFFIT + 0.5, "Stone_SG_Trim")   # capeamento das pontas
-        mb.prism(SL.ccw(pier_poly(cy, 9.8, PIER_HY + 0.35, 3.5)), 7.2, 8.0, "Stone_SG_Trim")
-        loft(mb, pier_poly(cy, 8.2, 3.0, 2.7), -14.0, pier_poly(cy, 9.2, PIER_HY - 0.1, 3.0), 7.2, "Stone_SG_Block")
-        mb.prism(SL.ccw(pier_poly(cy, 8.6, 3.3, 3.0)), -14.8, -14.0, "Stone_SG_Trim")
-        low = pier_poly(cy, 6.2, 2.4, 2.1)
-        loft(mb, low, -34.0, pier_poly(cy, 7.9, 2.9, 2.6), -14.8, "Stone_SG_Block")
-        point_down(mb, low, -34.0, (0.0, cy + 0.4, -58.0), "Cliff_Rock_SG_Dark")
-        # quina clara no bico do talha-mar (le a ponta gotica de longe)
-        for sx in (-1, 1):
-            mb.beam((sx * 12.45, cy, -14.0), (sx * 12.45, cy, 7.2), 0.5, 0.5, "Stone_SG_Trim", 0.0)
-            mb.beam((sx * 12.45, cy, 8.0), (sx * 12.45, cy, 24.6), 0.5, 0.5, "Stone_SG_Trim", 0.0)
-    # arco ogival entre os pilares (timpano + aduelas claras salientes + fecho)
-    ya, yb = PIERS[0] + PIER_HY, PIERS[1] - PIER_HY
-    zs = BR_Z_SOFFIT - 1.3 - (yb - ya) * 0.866
-    arc = ogive(ya, yb, zs, 6)
-    spandrel(mb, -9.4, 9.4, arc, BR_Z_SOFFIT + 0.2, "Stone_SG_Block")
-    # aduelas RADIAIS individuais nas 2 faces (overhaul 01: antes eram vigas de 19,6 que liam em degraus), um pouco
-    # abaixo do intradorso para o anel do arco ler tambem por baixo; fecho maior no vertice
-    band = 1.3
-    cA, cB = (yb, zs), (ya, zs)
-
-    def ring(pts, c):
-        out = []
-        for i in range(len(pts) - 1):
-            (y0_, z0_), (y1_, z1_) = pts[i], pts[i + 1]
-            for t in (0.0, 0.5):
-                out.append((y0_ + (y1_ - y0_) * t, z0_ + (z1_ - z0_) * t))
-        out.append(pts[-1])
-        res = []
-        for py, pz in out:
-            ny, nz = py - c[0], pz - c[1]
-            ln = math.hypot(ny, nz)
-            res.append(((py - ny / ln * 0.08, pz - nz / ln * 0.08), (py + ny / ln * band, pz + nz / ln * band)))
-        return res
-    halves = (ring(arc[:7], cA), ring(arc[6:], cB))
-    for sx in (-1, 1):
-        xa, xb = sorted((sx * 9.2, sx * 9.72))
-        for hi, rr in enumerate(halves):
-            rng_ = range(len(rr) - 2) if hi == 0 else range(1, len(rr) - 1)
-            for j in rng_:
-                (i0, o0), (i1, o1) = rr[j], rr[j + 1]
-                gy, gz = (i1[0] - i0[0]), (i1[1] - i0[1])
-                gl = math.hypot(gy, gz)
-                ey, ez = gy / gl * 0.03, gz / gl * 0.03
-                q = [(i0[0] + ey, i0[1] + ez), (i1[0] - ey, i1[1] - ez), (o1[0] - ey, o1[1] - ez),
-                     (o0[0] + ey, o0[1] + ez)]
-                yz_prism(mb, xa, xb, q, "Stone_SG_Trim")
-        ap = arc[6]
-        yz_prism(mb, xa - (0.1 if sx < 0 else 0), xb + (0.1 if sx > 0 else 0),
-                 [(ap[0] - 0.55, ap[1] - 0.2), (ap[0] + 0.55, ap[1] - 0.2), (ap[0] + 0.8, ap[1] + band + 0.5),
-                  (ap[0] - 0.8, ap[1] + band + 0.5)], "Stone_SG_Trim")                          # fecho
-    # tabuleiro de lajes (fiada corrida, juntas escuras); topo = DECK
-    mb.box2((-HW, Y0, DECK - 0.75), (HW, Y1, DECK - 0.25), "Stone_SG_Floor", 0.0)
-    CURB = 1.1
-    for sx in (-1, 1):
-        yy = Y0
-        while yy < Y1 - 0.05:
-            ye = min(yy + 4.25, Y1)
-            xa, xb = sorted((sx * HW, sx * (HW - CURB)))
-            mb.box2((xa, yy + 0.07, DECK - 0.35), (xb, ye - 0.07, DECK), "Stone_SG_Obsidian", 0.06)
-            yy = ye
-    row = 2.45
-    y = Y0
-    k = 0
-    while y < Y1 - 0.05:
-        yy = min(y + row, Y1)
-        x = -HW + CURB
-        widths = [2.4, 3.0, 3.6]
-        if k % 2:
-            x -= 1.3
-        while x < HW - CURB - 0.05:
-            w = rng.choice(widths)
-            xa, xb = max(x, -HW + CURB), min(x + w, HW - CURB)
-            if xb - xa > 0.6:
-                h = 0.35 + rng.uniform(-0.03, 0.02)
-                mb.box2((xa + 0.09, y + 0.09, DECK - 0.35), (xb - 0.09, yy - 0.09, DECK - 0.35 + h),
-                        "Stone_Paving_SG", 0.07)
-            x += w
-        y = yy
-        k += 1
-    return mb.finish()
 
 
 # ------------------------------------------------------------------ parapeitos / balaustradas (so visual: guardas no sg_col)
@@ -308,9 +208,10 @@ def chamfer_sq(x, y, hs, c):
             (x + hs - c, y + hs), (x - hs + c, y + hs), (x - hs, y + hs - c), (x - hs, y - hs + c)]
 
 
-def _post(mb, x, y, z, size=1.6, h=PAR_H + 0.8, lamp=False):
+def _post(mb, x, y, z, size=1.6, h=PAR_H + 0.8, lamp=False, lmb=None, lamp_s=LAN_S):
     """pilarete: plinto + toro, fuste de quinas chanfradas, capitel em 2 degraus (topo em z + h + 0,35) e remate do kit
-    (bola com colar) ou a LANTERNA da ordem assentada num prato de obsidiana"""
+    (bola com colar) ou a LANTERNA da ordem assentada num prato de obsidiana (onda 1: lmb = objeto da lanterna,
+    lamp_s = escala; devolve o centro do vidro)"""
     sp = size + 0.34
     mb.box((sp, sp, 0.55), (x, y, z + 0.275), (0, 0, 0), REL_M, 0.08)
     FP.frustum(mb, (x, y, z + 0.55), sp, sp, size + 0.04, size + 0.04, 0.16, REL_M)
@@ -319,10 +220,10 @@ def _post(mb, x, y, z, size=1.6, h=PAR_H + 0.8, lamp=False):
     mb.box((size + 0.38, size + 0.38, 0.21), (x, y, z + h + 0.245), (0, 0, 0), CAP_M, 0.06)
     zt = z + h + 0.35
     if lamp:
-        mb.box((1.12 * LAN_S + 0.1, 1.12 * LAN_S + 0.1, 0.16), (x, y, zt + 0.08), (0, 0, 0), "Stone_SG_Obsidian", 0.04)
-        EM.lantern_head(mb, mb, (x, y, zt + 0.16 + EM.LH_BASE * LAN_S), 0.0, LAN_S)
-    else:
-        finial(mb, x, y, zt, 0.44, n=6)
+        mb.box((1.12 * lamp_s + 0.1, 1.12 * lamp_s + 0.1, 0.16), (x, y, zt + 0.08), (0, 0, 0), "Stone_SG_Obsidian", 0.04)
+        return EM.lantern_head(lmb or mb, lmb or mb, (x, y, zt + 0.16 + EM.LH_BASE * lamp_s), 0.0, lamp_s)
+    finial(mb, x, y, zt, 0.44, n=6)
+    return None
 
 
 def face_spandrel(mb, org, d, nrm, arc, ztop, off0, off1, m):
@@ -545,37 +446,435 @@ def stair_wall(mb, mh, s):
     _post(mb, s * (HW + 0.8), yb - 0.6, P1 - 0.35, 1.6, PAR_H + 1.3, lamp=False)
 
 
-def parapets():
-    mb = MB("SG_Ent_Parapets", "18_ENTRY", random.Random(3102), detail="near")
-    mh = MB("SG_Ent_StairWalls", "18_ENTRY", random.Random(3105), detail="hero")
+
+# ------------------------------------------------------------------ ONDA 1: PONTE CURVA (geometria no referencial s, v)
+BODY = 10.2                     # meia-largura do corpo do tabuleiro (= face externa do parapeito)
+SOFFIT = 25.4                   # fundo do tabuleiro
+BTOP = DECK - 0.45              # topo do corpo = LEITO escuro das juntas (0,45 abaixo das lajes)
+PZ = BTOP                       # base do parapeito da ponte (plinto embute 0,05 no corpo)
+ZS = 4.0                        # nascenca de TODOS os arcos (arco de 2 centros: a flecha e fixa, o vao muda)
+ZK = SOFFIT - 1.3               # intradorso no fecho
+ZTOP_SP = SOFFIT + 0.2          # topo do timpano (dentro do corpo)
+CURB = 1.1
+BED_M, PAVE_M, CURB_M = "Stone_SG_Floor", "Stone_Paving_SG", "Stone_SG_Obsidian"
+BODY_M, ROCK_M, ROCKD_M = "Stone_SG_Block", "Cliff_Rock_SG", "Cliff_Rock_SG_Dark"
+# rochas flutuantes: cota do plato sob cada pilar (variacao DIRIGIDA: sobe para o meio do vao grande e desce nas pontas)
+ROCK_Z = (-8.0, -13.0, -10.5, -15.0, -11.0, -14.0, -9.5)
+
+
+def quad_sv(mb, pts, m):
+    """face solta a partir de [(s, v, z)]"""
+    vs = [mb.bm.verts.new(W(*p)) for p in pts]
+    mb.bm.faces.new(vs)
+    mb._post(vs, m, None, 0, 1)
+
+
+def box_sv(mb, s0, s1, v0, v1, z0, z1, m, bottom=False, top=True, ends=(True, True), bev=0.0, top_m=None):
+    """caixa 'curva' entre as estacoes s0..s1 (curtas: cantos no eixo curvo), v0..v1, z0..z1. Sem fundo por padrao
+    (sempre assentada em alguma coisa). ends = faces em s0 / s1."""
+    bm = mb.bm
+    c = [(s0, v0), (s1, v0), (s1, v1), (s0, v1)]
+    lo = [bm.verts.new(W(s, v, z0)) for s, v in c]
+    hi = [bm.verts.new(W(s, v, z1)) for s, v in c]
+    fs = []
+    if top:
+        fs.append(bm.faces.new(hi))
+    if bottom:
+        fs.append(bm.faces.new(list(reversed(lo))))
+    for i in range(4):
+        j = (i + 1) % 4
+        if (i == 3 and not ends[0]) or (i == 1 and not ends[1]):
+            continue
+        fs.append(bm.faces.new((lo[i], lo[j], hi[j], hi[i])))
+    bmesh.ops.recalc_face_normals(bm, faces=fs)
+    mb._post(lo + hi, m, None, bev, 1)
+    if top and top_m:
+        fs[0].material_index = mb._mi_for(top_m)
+
+
+def sweep_sv(mb, sa, sb, prof, m, mats=None, caps=(True, True), step=6.0):
+    """varre o perfil fechado [(v, z)] de sa a sb pelo eixo curvo; mats[i] = material da face do lado i -> i+1"""
+    bm = mb.bm
+    rings = [[bm.verts.new(W(s, v, z)) for v, z in prof] for s in BP.stations(sa, sb, step)]
+    n = len(prof)
+    per = {}
+    fs = []
+    for r0, r1 in zip(rings, rings[1:]):
+        for i in range(n):
+            j = (i + 1) % n
+            f = bm.faces.new((r0[i], r0[j], r1[j], r1[i]))
+            fs.append(f)
+            if mats:
+                per.setdefault(mats[i], []).append(f)
+    if caps[0]:
+        fs.append(bm.faces.new(list(reversed(rings[0]))))
+    if caps[1]:
+        fs.append(bm.faces.new(rings[-1]))
+    bmesh.ops.recalc_face_normals(bm, faces=fs)
+    mb._post([v for r in rings for v in r], m, None, 0, 1)
+    for mm, ff in per.items():
+        if mm != m:
+            mi = mb._mi_for(mm)
+            for f in ff:
+                f.material_index = mi
+
+
+def prism_f(mb, F, pts, z0, z1, m, top=True, bottom=False):
+    """prisma vertical de um poligono local [(u, v)] no Frame F"""
+    bm = mb.bm
+    w = SL.ccw([tuple(F.p(u, v, 0.0))[:2] for u, v in pts])
+    lo = [bm.verts.new((x, y, z0)) for x, y in w]
+    hi = [bm.verts.new((x, y, z1)) for x, y in w]
+    fs = []
+    if top:
+        fs.append(bm.faces.new(hi))
+    if bottom:
+        fs.append(bm.faces.new(list(reversed(lo))))
+    n = len(w)
+    for i in range(n):
+        j = (i + 1) % n
+        fs.append(bm.faces.new((lo[i], lo[j], hi[j], hi[i])))
+    mb._post(lo + hi, m, None, 0, 1)
+
+
+def loft_f(mb, F, poly0, z0, poly1, z1, m, top=False):
+    """tronco entre 2 poligonos locais (mesmo numero de vertices, anti-horario)"""
+    bm = mb.bm
+    v0 = [bm.verts.new(F.p(u, v, z0)) for u, v in poly0]
+    v1 = [bm.verts.new(F.p(u, v, z1)) for u, v in poly1]
+    n = len(v0)
+    fs = []
+    if top:
+        fs.append(bm.faces.new(v1))
+    for i in range(n):
+        j = (i + 1) % n
+        fs.append(bm.faces.new((v0[i], v0[j], v1[j], v1[i])))
+    bmesh.ops.recalc_face_normals(bm, faces=fs)
+    mb._post(v0 + v1, m, None, 0, 1)
+
+
+def pier_poly(hv, hu, tip):
+    """planta do pilar no Frame do eixo: retangulo (hu ao longo, hv atravessado) com talha-mar em ponta nos 2 lados"""
+    return [(0.0, -hv - tip), (hu, -hv), (hu, hv), (0.0, hv + tip), (-hu, hv), (-hu, -hv)]
+
+
+def ogive2(t0, t1, zs, rise, n=6):
+    """arco ogival de 2 centros de t0 a t1 com nascenca zs e FLECHA fixa 'rise' (o vao muda, a altura nao):
+    [(t, z)] do pe t0 ao pe t1 e os 2 centros"""
+    w = t1 - t0
+    R = (rise * rise + w * w / 4.0) / w
+    tha = math.acos(max(-1.0, min(1.0, (w / 2.0 - R) / R)))
+    left = [(t0 + R + R * math.cos(math.pi - (math.pi - tha) * k / n),
+             zs + R * math.sin(math.pi - (math.pi - tha) * k / n)) for k in range(n + 1)]
+    left[-1] = ((t0 + t1) / 2.0, zs + rise)
+    right = [(t0 + t1 - t, z) for t, z in reversed(left[:-1])]
+    return left + right, (t0 + R, zs), (t1 - R, zs)
+
+
+def arch(mb, t0, t1):
+    """timpano macico (intradorso + 2 faces a |v| 9,4) e ADUELAS radiais salientes nas 2 faces + fecho"""
+    n = 5
+    arc, cL, cR = ogive2(t0, t1, ZS, ZK - ZS, n)
+    bm = mb.bm
+    A = [(bm.verts.new(W(t, -9.4, z)), bm.verts.new(W(t, -9.4, ZTOP_SP))) for t, z in arc]
+    B = [(bm.verts.new(W(t, 9.4, z)), bm.verts.new(W(t, 9.4, ZTOP_SP))) for t, z in arc]
+    fs = []
+    for i in range(len(arc) - 1):
+        fs.append(bm.faces.new((A[i][0], A[i + 1][0], A[i + 1][1], A[i][1])))
+        fs.append(bm.faces.new((B[i][0], B[i][1], B[i + 1][1], B[i + 1][0])))
+        fs.append(bm.faces.new((A[i][0], B[i][0], B[i + 1][0], A[i + 1][0])))
+    bmesh.ops.recalc_face_normals(bm, faces=fs)
+    mb._post([v for p in A + B for v in p], BODY_M, None, 0, 1)
+    band = 1.3
+    for sd in (-1, 1):
+        va, vb = sorted((sd * 9.3, sd * 9.8))
+        for i in range(len(arc) - 1):
+            (u0, z0), (u1, z1) = arc[i], arc[i + 1]
+            c = cL if i < n else cR
+            du, dz = u1 - u0, z1 - z0
+            dl = math.hypot(du, dz)
+            eu, ez = du / dl * 0.05, dz / dl * 0.05
+            n0 = ((u0 - c[0]), (z0 - c[1]))
+            n1 = ((u1 - c[0]), (z1 - c[1]))
+            l0, l1 = math.hypot(*n0), math.hypot(*n1)
+            n0, n1 = (n0[0] / l0, n0[1] / l0), (n1[0] / l1, n1[1] / l1)
+            q = [(u0 + eu - n0[0] * 0.08, z0 + ez - n0[1] * 0.08), (u1 - eu - n1[0] * 0.08, z1 - ez - n1[1] * 0.08),
+                 (u1 - eu + n1[0] * band, z1 - ez + n1[1] * band), (u0 + eu + n0[0] * band, z0 + ez + n0[1] * band)]
+            # a aduela de arranque entra no pilar: a face de tras fica 0,15 DENTRO dele (nunca rente a face do pilar)
+            q = [(max(t0 - 0.15, min(t1 + 0.15, t)), z) for t, z in q]
+            _tz_block(mb, q, va, vb, CAP_M)
+        ap = arc[n]
+        _tz_block(mb, [(ap[0] - 0.6, ap[1] - 0.3), (ap[0] + 0.6, ap[1] - 0.3), (ap[0] + 0.85, ap[1] + band + 0.5),
+                       (ap[0] - 0.85, ap[1] + band + 0.5)], va - 0.06, vb + 0.06, CAP_M)          # fecho
+
+
+def _tz_block(mb, q, v0, v1, m):
+    """poligono CONVEXO [(s, z)] no plano do arco, extrudado de v0 a v1 (atravessado) sobre o eixo curvo"""
+    bm = mb.bm
+    va = [bm.verts.new(W(t, v0, z)) for t, z in q]
+    vb = [bm.verts.new(W(t, v1, z)) for t, z in q]
+    fs = [bm.faces.new(va), bm.faces.new(list(reversed(vb)))]
+    k = len(q)
+    for i in range(k):
+        j = (i + 1) % k
+        fs.append(bm.faces.new((va[i], va[j], vb[j], vb[i])))
+    bmesh.ops.recalc_face_normals(bm, faces=fs)
+    mb._post(va + vb, m, None, 0, 1)
+
+
+def hexcol_f(mb, F, cu, cv, r, zt, zb, rot, m, tip=0.0, band=None):
+    """coluna de basalto hexagonal pendente no Frame F; band = (z, fator, material) estrato com ressalto"""
+    bm = mb.bm
+
+    def ring(rr, z):
+        return [bm.verts.new(F.p(cu + rr * math.cos(rot + k * math.pi / 3), cv + rr * math.sin(rot + k * math.pi / 3),
+                                 z)) for k in range(6)]
+    seq, mats = [ring(r, zt)], []
+    if band and zb + 1.0 < band[0] < zt - 1.0:
+        seq.append(ring(r, band[0]))
+        mats.append(m)
+        seq.append(ring(r * band[1], band[0]))
+        mats.append(band[2])
+        seq.append(ring(r * band[1] * 0.93, zb))
+        mats.append(band[2])
+    else:
+        seq.append(ring(r * 0.9, zb))
+        mats.append(m)
+    groups = {}
+    for (a, b), mm in zip(zip(seq, seq[1:]), mats):
+        for k in range(6):
+            k2 = (k + 1) % 6
+            groups.setdefault(mm, []).append(bm.faces.new((a[k2], a[k], b[k], b[k2])))
+    last, lm = seq[-1], mats[-1]
+    allv = [v for rg in seq for v in rg]
+    if tip > 0:
+        c = sum((v.co for v in last), Vector()) / 6
+        apex = bm.verts.new((c.x, c.y, zb - tip))
+        allv.append(apex)
+        for k in range(6):
+            groups.setdefault(lm, []).append(bm.faces.new((last[(k + 1) % 6], last[k], apex)))
+    else:
+        groups.setdefault(lm, []).append(bm.faces.new(list(reversed(last))))
+    fs = [f for ff in groups.values() for f in ff]
+    bmesh.ops.recalc_face_normals(bm, faces=fs)
+    mb._post(allv, m, None, 0, 1)
+    for mm, ff in groups.items():
+        if mm != m:
+            mi = mb._mi_for(mm)
+            for f in ff:
+                f.material_index = mi
+
+
+def rock(mb, F, zr, k):
+    """ROCHA FLUTUANTE sob o pilar: plato de basalto (topo em zr, lobos dirigidos) e colunas hexagonais pendentes -
+    3 grossas e fundas no miolo (com estrato escuro) e um anel de colunas medias que afinam para a borda"""
+    ph = 0.9 * k
+    ru, rv = 8.6, 16.2
+    poly = []
+    for i in range(10):
+        a = 2 * math.pi * i / 10 + ph * 0.2
+        kk = 1.0 + 0.10 * math.sin(3 * a + ph) + 0.05 * math.sin(5 * a + 2 * ph)
+        poly.append((ru * kk * math.cos(a), rv * kk * math.sin(a)))
+    prism_f(mb, F, poly, zr - 2.6, zr, ROCK_M)
+    prim = [(0.0, 0.0, 4.6, 30.0 + 4.0 * math.sin(ph), 8.0), (0.6, 7.6, 3.9, 22.0 + 3.0 * math.cos(ph), 6.0),
+            (-0.6, -7.4, 4.0, 25.0 - 3.0 * math.sin(ph * 1.3), 7.0)]
+    for j, (cu, cv, r, dep, tip) in enumerate(prim):
+        hexcol_f(mb, F, cu, cv, r, zr - 2.2, zr - 2.2 - dep, 0.3 * j + ph, ROCK_M, tip,
+                 band=(zr - 2.2 - dep * 0.45, 0.84, ROCKD_M))
+    for i in range(6):
+        a = 2 * math.pi * (i + 0.5) / 6 + ph * 0.2
+        cu, cv = 0.62 * ru * math.cos(a), 0.66 * rv * math.sin(a)
+        r = 2.3 + 0.5 * math.sin(2 * a + ph)
+        dep = 9.0 + 5.0 * abs(math.sin(a)) + 3.0 * math.sin(3 * a + ph)
+        hexcol_f(mb, F, cu, cv, r, zr - 2.2, zr - 2.2 - dep, a + ph, ROCKD_M if i % 3 == 0 else ROCK_M,
+                 2.0 + 1.5 * abs(math.cos(a + ph)))
+
+
+def pier(mb, s, zr, k):
+    """pilar com talha-mar nos 2 lados, em 4 estagios (base sobre a rocha, fuste que alarga ate a IMPOSTA na nascenca
+    dos arcos, fuste reto e capeamento das pontas sob a cornija) + quinas claras nos bicos"""
+    F = FR(s)
+    prism_f(mb, F, pier_poly(8.9, 3.9, 3.2), zr - 0.4, zr + 0.8, CAP_M)                     # base (embute no plato)
+    loft_f(mb, F, pier_poly(8.4, 3.3, 2.8), zr + 0.8, pier_poly(9.2, 3.4, 3.1), ZS - 0.8, BODY_M)
+    prism_f(mb, F, pier_poly(9.8, 3.85, 3.5), ZS - 0.8, ZS, CAP_M)                           # imposta
+    prism_f(mb, F, pier_poly(9.4, PIER_HU, 3.2), ZS, SOFFIT - 0.8, BODY_M, top=False)
+    loft_f(mb, F, pier_poly(9.4, PIER_HU, 3.2), SOFFIT - 0.8, pier_poly(9.4, PIER_HU, 0.9), SOFFIT + 0.5, CAP_M)
+    for sv in (-1, 1):
+        a, b = F.p(0.0, sv * (8.4 + 2.8 - 0.2), zr + 0.8), F.p(0.0, sv * (9.2 + 3.1 - 0.2), ZS - 0.8)
+        mb.beam(a, b, 0.5, 0.5, CAP_M, 0.0)
+        mb.beam(F.p(0.0, sv * (9.4 + 3.2 - 0.15), ZS), F.p(0.0, sv * (9.4 + 3.2 - 0.15), SOFFIT - 0.8), 0.5, 0.5, CAP_M,
+                0.0)
+    rock(mb, F, zr, k)
+
+
+def abutment(mb):
+    """encontro na falesia: bloco do fundo do ultimo arco ate dentro do penhasco (a face dele recebe o arco)"""
+    box_sv(mb, ABUT_S, SLEN + 4.0, -BODY - 0.4, BODY + 0.4, ZS - 6.0, SOFFIT + 0.3, BODY_M, bottom=True, ends=(True, False))
+    box_sv(mb, ABUT_S - 0.3, ABUT_S + 0.9, -BODY - 0.6, BODY + 0.6, ZS - 0.8, ZS, CAP_M, ends=(True, False))
+
+
+def deck(mb, rng):
+    """corpo (topo = leito escuro das juntas), cornija corrida, meio-fio de obsidiana e as LAJES em
+    fiadas atravessadas com juntas desencontradas (fiada de 2,6; pecas de 3,2 / 3,8 / 4,4; junta de 0,18)"""
+    sweep_sv(mb, 0.0, SLEN + 2.0, [(-BODY, SOFFIT), (BODY, SOFFIT), (BODY, BTOP), (-BODY, BTOP)], BODY_M,
+             mats=[BODY_M, BODY_M, BED_M, BODY_M], caps=(True, False))
+    for sd in (-1, 1):
+        v0, v1 = sorted((sd * (BODY - 0.1), sd * (BODY + 0.55)))
+        sweep_sv(mb, 0.0, SLEN + 2.0, [(v0, 25.9), (v1, 25.9), (v1, 26.75), (v0, 26.75)], CAP_M, caps=(True, False))
+        s = 0.0
+        while s < SLEN - 0.05:
+            se = min(s + 5.2, SLEN)
+            va, vb = sorted((sd * HW, sd * (HW - CURB)))
+            box_sv(mb, s + 0.07, se - 0.07, va, vb, DECK - 0.55, DECK, CURB_M)
+            s = se
+    hwp = HW - CURB
+    row = 2.6
+    s, k = 0.0, 0
+    while s < SLEN - 0.05:
+        se = min(s + row, SLEN)
+        v = -hwp - (1.5 if k % 2 else 0.0)
+        while v < hwp - 0.05:
+            w = rng.choice((3.2, 3.8, 4.4))
+            va, vb = max(v, -hwp), min(v + w, hwp)
+            if vb - va > 0.6:
+                h = rng.uniform(-0.02, 0.015)
+                box_sv(mb, s + 0.09, se - 0.09, va + 0.09, vb - 0.09, DECK - 0.55, DECK + h, PAVE_M)
+            v += w
+        s, k = se, k + 1
+
+
+def post_sv(mb, lmb, s, v, z, size=1.6, h=PAR_H + 0.8, lamp=0.0, bracket=False):
+    """pilarete do kit (plinto + toro, fuste de quinas chanfradas, capitel em 2 degraus) alinhado ao eixo curvo; remate
+    do kit ou a LANTERNA da ordem (lamp = escala; a lanterna vai no objeto lmb). bracket: misula sob a parte que sai do
+    corpo do tabuleiro (pilar-marco). Devolve o centro do vidro (ou None)."""
+    F = FR(s, v)
+    sp = size + 0.34
+    mb.box((sp, sp, 0.55), F.p(0, 0, z + 0.275), F.r(), REL_M, 0.08)
+    FP.frustum(mb, F.p(0, 0, z + 0.55), sp, sp, size + 0.04, size + 0.04, 0.16, REL_M, ang=F.a)
+    mb.prism([tuple(F.p(x, y, 0.0))[:2] for x, y in chamfer_sq(0.0, 0.0, size / 2, 0.16)], z + 0.71, z + h - 0.02, PAR_M)
+    mb.box((size + 0.12, size + 0.12, 0.16), F.p(0, 0, z + h + 0.06), F.r(), CAP_M, 0.04)
+    mb.box((size + 0.38, size + 0.38, 0.21), F.p(0, 0, z + h + 0.245), F.r(), CAP_M, 0.06)
+    zt = z + h + 0.35
+    if bracket:
+        # pilar-MARCO: friso no meio do fuste (le o no de longe) e misula sob a parte que sai do corpo
+        mb.box((size + 0.3, size + 0.3, 0.34), F.p(0, 0, z + 0.71 + (h - 0.71) * 0.55), F.r(), CAP_M, 0.05)
+        sgn = 1.0 if v > 0 else -1.0
+        vo = abs(v) + sp / 2 - BODY                            # quanto o plinto sai do corpo
+        q = [(0.0, z + 0.02), (vo + 0.1, z + 0.02), (vo + 0.1, z - 0.7), (0.0, 26.75 - 0.02)]
+        Fb = FR(s, sgn * BODY)
+        bm = mb.bm
+        va = [bm.verts.new(Fb.p(-sp / 2 + 0.1, sgn * (dv - 0.1), zz)) for dv, zz in q]
+        vb = [bm.verts.new(Fb.p(sp / 2 - 0.1, sgn * (dv - 0.1), zz)) for dv, zz in q]
+        fs = [bm.faces.new(va), bm.faces.new(list(reversed(vb)))]
+        for i in range(4):
+            j = (i + 1) % 4
+            fs.append(bm.faces.new((va[i], va[j], vb[j], vb[i])))
+        bmesh.ops.recalc_face_normals(bm, faces=fs)
+        mb._post(va + vb, CAP_M, None, 0, 1)
+    if lamp:
+        c = F.p(0, 0, 0)
+        mb.box((1.12 * lamp + 0.1, 1.12 * lamp + 0.1, 0.16), F.p(0, 0, zt + 0.08), F.r(), "Stone_SG_Obsidian", 0.04)
+        return EM.lantern_head(lmb, lmb, (c.x, c.y, zt + 0.16 + EM.LH_BASE * lamp), F.a + math.pi / 2, lamp)
+    c = F.p(0, 0, 0)
+    finial(mb, c.x, c.y, zt, 0.44, n=6)
+    return None
+
+
+def bridge_parapet(mb, sa, sb, sd):
+    """parapeito de CANTARIA de sa a sb num lado: plinto e pingadeira varridos, miolo escuro recuado 0,15 e BLOCOS
+    de ~3 com junta de 0,1 na frente dele, capa em pecas de ~3 com junta (topo no mesmo z da cantaria da v3)"""
+    zp1, zc = DECK + 0.45, DECK + 1.65
+    vc = HW + 0.6
+
+    def V(a, b):
+        return sorted((sd * (vc + a), sd * (vc + b)))
+    a_, b_ = V(-0.77, 0.77)
+    sweep_sv(mb, sa, sb, [(a_, PZ - 0.05), (b_, PZ - 0.05), (b_, zp1), (a_, zp1)], REL_M, caps=(False, False))
+    a_, b_ = V(-0.45, 0.45)
+    sweep_sv(mb, sa, sb, [(a_, zp1 - 0.02), (b_, zp1 - 0.02), (b_, zc - 0.03), (a_, zc - 0.03)], CURB_M,
+             caps=(False, False))                   # miolo: topo 0,15 abaixo do topo da pingadeira (z-fight)
+    a_, b_ = V(-0.68, 0.68)
+    sweep_sv(mb, sa, sb, [(a_, zc), (b_, zc), (b_, zc + 0.12), (a_, zc + 0.12)], CAP_M, caps=(False, False))
+    n = max(1, int(round((sb - sa) / 3.0)))
+    ln = (sb - sa) / n
+    a_, b_ = V(-0.6, 0.6)
+    for j in range(n):
+        box_sv(mb, sa + ln * j + (0.05 if j else 0.0), sa + ln * (j + 1) - (0.05 if j < n - 1 else 0.0), a_, b_, zp1,
+               zc, PAR_M, top=False)
+    n = max(1, int(round((sb - sa) / 3.0)))
+    ln = (sb - sa) / n
+    a_, b_ = V(-0.81, 0.81)
+    for j in range(n):
+        box_sv(mb, sa + ln * j + (0.03 if j else 0.0), sa + ln * (j + 1) - (0.03 if j < n - 1 else 0.0), a_, b_,
+               zc + 0.12, zc + 0.445, CAP_M, bev=0.05)
+
+
+def bridge(mb, lmb):
+    rng = random.Random(3101)
+    deck(mb, rng)
+    for k, s in enumerate(PIER_S):
+        pier(mb, s, ROCK_Z[k % len(ROCK_Z)], k)
+    faces = [s + PIER_HU for s in PIER_S] + [ABUT_S]
+    for a, b in zip(faces, [s - PIER_HU for s in PIER_S[1:]] + [ABUT_S]):
+        if b - a > 4.0:
+            arch(mb, a, b)
+    abutment(mb)
+    # parapeitos: trechos entre os pilaretes. Nos (lanterna): COMECO (ancora), CURVA (pilar-marco) e FIM (canto do
+    # patio, pilaretes feitos no parapets() do patio). Os outros pilaretes ficam sobre os pilares, com remate do kit.
+    s_start, s_end = 1.3, SLEN - 0.6
+    posts = [(s_start, 2.0, 1.0, False)] + [(s, 1.6, 0.0, False) for s in PIER_S[1:] if abs(s - NODE_S) > 1.0]
+    posts += [(NODE_S, 2.4, 1.15, True)]
+    posts.sort()
+    glass = []
+    for sd in (-1, 1):
+        cuts = [(s, sz) for s, sz, lp, br in posts] + [(s_end, 2.0)]
+        prev = 0.0
+        for s, sz in cuts:
+            if s - sz / 2 - prev > 0.5:
+                bridge_parapet(mb, prev, s - sz / 2 + 0.12, sd)
+            prev = s + sz / 2 - 0.12
+        for s, sz, lp, br in posts:
+            v = sd * (HW + 0.6 + (0.4 if br else 0.0))
+            h = PAR_H + (3.6 if br else (1.2 if lp else 0.8))
+            g = post_sv(mb, lmb, s, v, PZ, sz, h, lamp=lp, bracket=br)
+            if g is not None:
+                glass.append((s, g))
+    # luz real SO no no da curva (1): no eixo, na altura das lanternas do pilar-marco
+    c = W(NODE_S, 0.0, DECK + 7.0)
+    light("L_SGEnt_CurveNode", "POINT", tuple(c), 480.0, WARM, 0.6)
+    return glass
+
+
+# ------------------------------------------------------------------ patio baixo e calcada alta (parapeitos da v3)
+def parapets(mb, mh, lmb):
+    """patio baixo: do canto do fim da ponte (NO do fim: pilarete com lanterna acesa) ate o pe da escada; muretas da
+    escadaria; calcada alta ate a praca, interrompida pelo plinto do portico monumental"""
     xh = L.ENTRY_HIGH[2]                   # 12
     xl = L.ENTRY_LOW[2]                    # 13
+    yc = L.BRIDGE_Y1 - 0.6                 # -334,6: canto do patio (fim da ponte)
+    P = PORTICO_B
+    pl = P["s"] + 0.8
+    yb0, yb1 = P["y"] - pl / 2 - 2.2 - 0.15, P["y"] + pl / 2 + 0.15      # plinto + avental do portico
     for s in (-1, 1):
-        skipA = [((s * PORTICO_A["xc"], PORTICO_A["y"]), 4.0)]
-        # ponte -> canto sul do patio -> lateral do patio -> canto norte (pe da escada). LANTERNAS SO NOS NOS: o
-        # pilarete da ponta sul (comeco da ponte); o da cabeceira leva remate desde o overhaul 12 (o fim da ponte e o
-        # portico A, com a lanterna baixa acesa a 9 studs); os dos pilares levam remate
-        parapet_run(mb, [(s * (HW + 0.6), Y0), (s * (HW + 0.6), Y1 - 0.6), (s * (xl + 0.6), Y1 - 0.6),
-                         (s * (xl + 0.6), L.ENTRY_STAIR[1] + 0.5), (s * (HW + 1.4), L.ENTRY_STAIR[1] + 0.5)],
-                    PAR_Z, extra=[(s * (HW + 0.6), cy, False) for cy in PIERS],
-                    skip=skipA + [((s * (HW + 1.4), L.ENTRY_STAIR[1] + 0.5), 1.0)], lit=(0,))
+        parapet_run(mb, [(s * (HW + 0.6), yc), (s * (xl + 0.6), yc), (s * (xl + 0.6), L.ENTRY_STAIR[1] + 0.5),
+                         (s * (HW + 1.4), L.ENTRY_STAIR[1] + 0.5)], PAR_Z,
+                    skip=[((s * (HW + 0.6), yc), 1.0), ((s * (HW + 1.4), L.ENTRY_STAIR[1] + 0.5), 1.0)])
+        # NO DO FIM DA PONTE: pilarete de canto com a lanterna da ordem (luz real; eram as do portico A)
+        c = _post(mb, s * (HW + 0.6), yc, PAR_Z, 2.0, PAR_H + 1.2, lamp=True, lmb=lmb, lamp_s=1.0)
+        light("L_SGEnt_EndNode_%s" % ("W" if s < 0 else "E"), "POINT", c, 320.0, WARM, 0.4)
         stair_wall(mb, mh, s)
-        # calcada alta: borda sul (ao lado do topo da escada) + lateral ate a praca (sem lanterna: o portico B e os
-        # postes da praca ja marcam os nos)
-        skipB = [((s * PORTICO_B["xc"], PORTICO_B["y"]), 4.4), ((s * (HW + 1.4), L.ENTRY_STAIR_Y1 - 0.6), 1.0)]
+        skipB = [((s * (HW + 1.4), L.ENTRY_STAIR_Y1 - 0.6), 1.0), ((s * (xh + 0.6), yb0), 1.0)]
         parapet_run(mb, [(s * (HW + 1.4), L.ENTRY_STAIR_Y1 - 0.6), (s * (xh + 0.6), L.ENTRY_STAIR_Y1 - 0.6),
-                         (s * (xh + 0.6), L.P1_POLY[3][1])], P1 - 0.35, skip=skipB)
-    mh.finish()
-    return mb.finish()
+                         (s * (xh + 0.6), yb0)], P1 - 0.35, skip=skipB)
+        parapet_run(mb, [(s * (xh + 0.6), yb1), (s * (xh + 0.6), L.P1_POLY[3][1])], P1 - 0.35,
+                    skip=[((s * (xh + 0.6), yb1), 1.0)])
 
 
-def stair():
-    mb = MB("SG_Ent_Stair", "18_ENTRY", random.Random(3103), detail="near")
+def stair(mb):
     # overhaul 01: degraus de PEDRA (sg_lib.plan_stair com pisadas partidas em 4-5 pedras de juntas desencontradas,
     # focinho saliente 0,12 chanfrado e mais claro, espelho recuado e mais escuro)
     SL.plan_stair(mb, "Entry", m="Stone_SG_Block_B", side_m="Stone_SG_Castle_B", stringers=False,
                   riser_m="Stone_SG_Castle_B")
-    return mb.finish()
 
 
 # ------------------------------------------------------------------ porticos
@@ -618,8 +917,10 @@ def lancet(mb, F, yo, w, z0, z1, m=CAP_M, void="Stone_SG_Obsidian"):
     pts += [(w / 2 - w * math.cos(math.radians(a)), zs + w * math.sin(math.radians(a))) for a in (40.0, 20.0)]
     pts += [(-w / 2, zs)]
     bm = mb.bm
-    va = [bm.verts.new(F.p(px, yo - 0.12, pz)) for px, pz in pts]
-    vb = [bm.verts.new(F.p(px, yo + 0.02, pz)) for px, pz in pts]
+    # ONDA 1 (z-fight): o vazio escuro fica 0,14 NA FRENTE da face do fuste (era +0,02: pintado na pedra); a moldura
+    # (ombreiras e arco, ate +0,2) continua mais saliente que ele
+    va = [bm.verts.new(F.p(px, yo - 0.1, pz)) for px, pz in pts]
+    vb = [bm.verts.new(F.p(px, yo + 0.14, pz)) for px, pz in pts]
     faces = [bm.faces.new(va), bm.faces.new(list(reversed(vb)))]
     for i in range(len(pts)):
         j = (i + 1) % len(pts)
@@ -769,7 +1070,8 @@ def lintel_b(mb):
     zt = z + 4.0 + P["H"]
     z0, z1 = zt - 2.3, zt - 0.05
     dep = s * 0.6
-    mb.box2((-xi, y - dep / 2, z0), (xi, y + dep / 2, z1), "Stone_SG_Obsidian", 0.0)
+    # ONDA 1 (z-fight): o corpo de obsidiana fica 0,1 dentro das faixas de baixo e de cima (fundo e topo nao rentes)
+    mb.box2((-xi, y - dep / 2, z0 + 0.1), (xi, y + dep / 2, z1 - 0.1), "Stone_SG_Obsidian", 0.0)
     # faixas que emolduram o campo (o campo fica rebaixado 0,14 entre elas)
     mb.box2((-xi, y - dep / 2 - 0.14, z0 - 0.02), (xi, y + dep / 2 + 0.14, z0 + 0.3), CAP_M, 0.04)
     mb.box2((-xi, y - dep / 2 - 0.14, z1 - 0.42), (xi, y + dep / 2 + 0.14, z1 - 0.12), CAP_M, 0.04)
@@ -794,16 +1096,22 @@ def lintel_b(mb):
 
 
 def porticos():
+    """o PORTICO DE CHEGADA monumental (B). Devolve o MB ABERTO: as lanternas da ordem dos 3 nos da ponte entram nele
+    (mesmos materiais das lanternas do portico: nenhuma MeshPart a mais)"""
     mb = MB("SG_Ent_Porticos", "18_ENTRY", random.Random(3104), detail="hero")
-    for P in (PORTICO_A, PORTICO_B):
-        for side in (-1, 1):
-            pylon(mb, P, side)
+    for side in (-1, 1):
+        pylon(mb, PORTICO_B, side)
     lintel_b(mb)
-    return mb.finish()
+    return mb
 
 
 def build():
-    bridge()
-    stair()
-    parapets()
-    porticos()
+    mp = porticos()
+    mb = MB("SG_Ent_Bridge", "18_ENTRY", random.Random(3102), detail="near")   # ponte + patio + escada (1 objeto)
+    mh = MB("SG_Ent_StairWalls", "18_ENTRY", random.Random(3105), detail="hero")
+    bridge(mb, mp)
+    stair(mb)
+    parapets(mb, mh, mp)
+    mh.finish()
+    mb.finish()
+    mp.finish()
