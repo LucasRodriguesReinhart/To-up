@@ -131,8 +131,14 @@ ER.SHELL_OBJ = ()
 ER.CAM_COL_AREAS = {"SG_CasHall": 5.0, "SG_CasHallCeil": 1.0, "SG_CasWall": 5.0, "SG_DunRoom": 1.0,
                     "SG_CaveWall": 2.0, "SG_CaveCeil": 1.0, "SG_CasCrown": 5.0, "SG_CasChancel": 5.0,
                     "SG_CasRetable": 5.0, "SG_SpiralGuard": 1.0, "SG_CraftWall": 5.0, "SG_CraftRoof": 1.0}
+# ONDA 2: casas visitaveis (sg_village_int.collisions): paredes, torreao, forro e laje do andar seguram a camera
+# (soco, escada e guarda nao)
+for _h in L.HOUSES:
+    ER.CAM_COL_AREAS.update({"SG_VilHouse%s" % _h[0]: 5.0, "SG_VilHouse%sTurret" % _h[0]: 5.0,
+                             "SG_VilHouse%sRoof" % _h[0]: 1.0, "SG_VilHouse%sFloor" % _h[0]: 1.0})
 ER.NIGHT_ONLY = ("L_SGProp_", "L_SGVil_Lamp", "L_SGExit_Lantern")
-ER.LIGHT_KEEP = ("L_SGHall", "L_SGSum", "L_SGDun", "L_SGCraft", "L_SGCas", "GateDemonSlayer", "L_Gate_DemonSlayer")
+ER.LIGHT_KEEP = ("L_SGHall", "L_SGSum", "L_SGDun", "L_SGCraft", "L_SGCas", "L_SGCave", "GateDemonSlayer",
+                 "L_Gate_DemonSlayer")
 ER.FOLD_PROTECT = ER.FOLD_PROTECT + ("SG_Violet", "SG_Moon", "Glass_SG", "Energy_Core", "Metal_Gold", "P_DS_",
                                      "Metal_SG_Bronze",   # 14.04: o debrum de bronze nao funde no ferro
                                      "Leaf_SGPropBloom",  # 14.09: a flor fundia na pedra (TrimLow/Block_B) e sumia no jogo

@@ -1,41 +1,47 @@
-# sg_props - VESTIR / PROPS da Ilha 3 (Shadow Garden). SO o que tem funcao de leitura (nada de encher vazio):
-#   1. praca: 2 postes de ferro na borda norte (o pe da escada P1->P2; a vila deixou o pe da escada para estas
-#      lanternas; o par sul saiu no overhaul 12) e 4 bancos de pedra voltados para a fonte, nos vaos entre as ruas e a rota;
-#   2. postes de rota (mesma familia dos postes da vila) SO nos trechos que ficaram escuros a noite: rua do P2 no oeste
-#      (entre as casas, olhando para o mirante da cachoeira) e o fim da rua leste do P1 (mirante da cachoeira leste,
-#      a rua termina ali). O caminho do patio ate a dungeon ja fica lido pelo
-#      calcamento, pela luz do vao leste da muralha e pelo braseiro da portaria: sem poste ali.
-# Prefixo SG_Prop_, colecao 09_PROPS. Colisao propria: poste (caixa fina) e banco (bloco). As luzes sao do sg_lights
-# (LAMPS: nome, posicao da lanterna, acesa?).
+# sg_props - VESTIR / PROPS da Ilha 3 (Shadow Garden). SO o que tem funcao de leitura (nada de encher vazio).
+# ONDA 2 (2026-09-30, planta v4): lanterna da ordem (sg_emblem.lantern_post: soco de obsidiana, fuste de ferro negro,
+# lanterna com vidro ambar, nucleo quente e chama) SO nos NOS da ilha nova que ninguem marcou ainda. Nos intervalos,
+# nada (nada de cerca de luz). Quem ja marca os outros nos:
+#   - entrada: porticos A/B, nos da ponte (sg_entry);       - topo da escada P1P2: arco de ferro da vila (sg_village);
+#   - portas das casas: lanterna de parede (sg_village);      - topo da escada do portao e passagem leste: postes do
+#   - alquimia / invocacao / saida: os modulos delas;           patamar do portao (sg_castle);
+#   - pe da escada do portao: arco de ferro SG_Prop_GateArch (sg_court, agente do jardim).
+# Este modulo poe:
+#   1. PRACA (R 26): 4 postes nas diagonais (marcam a praca e as 4 bocas de rua) e 4 bancos de pedra voltados para a
+#      fonte, nos vaos entre as ruas;
+#   2. PE DA ESCADA P1P2: par de postes menores ao lado dos pilaretes do banzo (o topo ja tem o arco de ferro);
+#   3. CRUZAMENTO do eixo com a rua do P2: 1 poste na quina sudeste (fora das 2 ruas);
+#   4. PE DA ESCADA LESTE (EastP3, alquimia -> passagem leste): 1 poste ao lado do pe;
+#   5. PORTA DO CASTELO: par de postes nas pontas dos degraus do porche (a luz quente e a L_SGCas_Door do castelo);
+#   6. BOCA DO BECO OESTE (patio -> rota da saida): 1 poste ao sul da boca.
+# Os postes e bancos assentam no chao REAL (raio para baixo na cena montada; o calcamento da vila fica 0,30 acima do
+# patamar). Prefixo SG_Prop_, colecao 09_PROPS. Colisao propria: poste (caixa fina) e banco (bloco). As luzes reais sao
+# do sg_lights (LAMPS: nome, x, y, z do chao, acesa?).
 import math, random
 import sg_lib as SL
 from sg_lib import MB, col_box, Frame
 import sg_layout as L
 import sg_emblem as EM
-# REFINAMENTO v2 2026-09-28: os postes de ferro viram o lantern_post DOURADO da ordem (sg_emblem): a mesma familia
-# de lanternas da referencia v2 em toda a ilha. A lanterna fica na MESMA cota (z + LAMP_H), entao as luzes reais do
-# sg_lights nao mudam de lugar nem de numero.
 
 P1, P2, P3 = L.P1, L.P2, L.P3
 COLL = "09_PROPS"
-IRON = "Metal_SG_BlackIron"          # ferro negro (paleta: grades, postes, correntes)
-OBS = "Stone_SG_Obsidian"
-STONE = "Stone_SG_Block"
-TRIM = "Stone_SG_Trim"
-GLOW = "Lantern_Glow"
-# overhaul 01 (2026-09-29): banco e postes do kit novo. Pedra fixa (sem sorteio de variante) e cantaria de remate
+PAVE = 0.30                          # topo do calcamento da vila acima do patamar (sg_village.PAVE)
 LEG_M = "Stone_SG_Block_B"
 SEAT_M = "Stone_SG_TrimLow"
 SL.fm_lib.MATS.setdefault(SEAT_M, (SL.fm_lib.S(132, 128, 134), 0.8, 0.0, 0, None, 0.06))
 import sg_court as CT
 
+_C = L.PLAZA_C
 CAMS = {
-    "CAM_SGProp_Plaza": ((34.0, -168.0, P1 + 22.0), (0.0, -124.0, P1 + 2.0), 22),
-    "CAM_SGProp_PH_PlazaN": ((6.0, -140.0, P1 + 5.2), (-4.0, -104.0, P1 + 5.0), 22),
-    "CAM_SGProp_PH_P2West": ((-40.0, -44.0, P2 + 5.2), (-100.0, -50.0, P2 + 5.0), 22),
+    "CAM_SGProp_Plaza": ((40.0, -262.0, P1 + 24.0), (0.0, -214.0, P1 + 2.0), 22),
+    "CAM_SGProp_PH_Plaza": ((-30.0, -246.0, P1 + 5.5), (8.0, -205.0, P1 + 6.0), 22),
+    "CAM_SGProp_PH_StairTop": ((-10.0, -128.0, P2 + 5.5), (0.0, -175.0, P1 + 6.0), 22),
+    "CAM_SGProp_PH_P2Cross": ((-36.0, -80.0, P2 + 5.5), (10.0, -95.0, P2 + 5.0), 22),
+    "CAM_SGProp_PH_CastleDoor": ((0.0, -6.0, P3 + 5.5), (0.0, 48.0, P3 + 12.0), 15),
+    "CAM_SGProp_PH_EastFoot": ((132.0, -78.0, P2 + 5.5), (155.0, -30.0, P2 + 8.0), 22),
+    "CAM_SGProp_PH_Beco": ((-60.0, 14.0, P3 + 5.5), (-120.0, 34.0, P3 + 5.0), 22),
 }
 # rotas extras: a volta pela borda da praca passa entre os bancos e os postes
-_C = L.PLAZA_C
 EXTRA_ROUTES = {
     "PROP_PRACA_BORDA_N": ([(_C[0] + 20.5 * math.cos(math.radians(a)), _C[1] + 20.5 * math.sin(math.radians(a)))
                             for a in (20.0, 45.0, 62.0, 90.0, 118.0, 135.0, 150.0)], P1),
@@ -44,39 +50,75 @@ EXTRA_ROUTES = {
 }
 EXTRA_PROBES = []
 
-# (nome, x, y, z_piso, acesa) - postes; a lanterna fica em z_piso + 8,3 (como os postes da vila)
-LAMP_H = 8.3
+# postes: (nome, x, y, z_do_chao_esperado, acesa, altura, escala). A lanterna fica em z + h - 0,24 s + LH_GLASS s.
+LAMP_H = 8.3                          # poste padrao (como os postes da vila)
 PLAZA_LAMP_R = 23.6
-LAMPS = [("Plaza_NE", 45.0), ("Plaza_NW", 135.0), ("Plaza_SW", 225.0), ("Plaza_SE", 315.0)]
-LAMPS = [(n, _C[0] + PLAZA_LAMP_R * math.cos(math.radians(a)), _C[1] + PLAZA_LAMP_R * math.sin(math.radians(a)), P1,
-          n in ("Plaza_NE", "Plaza_NW")) for n, a in LAMPS]
-LAMPS += [
-    ("P2_West", -77.0, -51.3, P2, True),          # rua do P2 entre as casas do oeste (cipreste atras)
-    ("P1_EastEnd", 113.0, -122.6, P1, True),      # fim da rua leste do P1: marca o mirante da cachoeira leste
+_P1P2 = L.stair_frame("P1P2")
+_EAST = L.stair_frame("EastP3")
+POSTS = [("Plaza_%s" % n, _C[0] + PLAZA_LAMP_R * math.cos(math.radians(a)),
+          _C[1] + PLAZA_LAMP_R * math.sin(math.radians(a)), P1 + PAVE, True, LAMP_H - 0.9, 1.0)
+         for n, a in (("NE", 45.0), ("NW", 135.0), ("SW", 225.0), ("SE", 315.0))]
+POSTS += [
+    # pe da escada P1P2: ao lado dos pilaretes do banzo (x +-10, y -168,1), fora da largura da rua (14)
+    ("P1P2Foot_W", -(_P1P2[2] / 2 + 4.0), _P1P2[0][1] - 1.6, P1 + PAVE, False, 6.6, 0.9),
+    ("P1P2Foot_E", (_P1P2[2] / 2 + 4.0), _P1P2[0][1] - 1.6, P1 + PAVE, False, 6.6, 0.9),
+    # cruzamento eixo (x +-7) x rua do P2 (y -91..-81): quina sudeste, no gramado
+    ("P2Cross", 10.8, -95.0, P2, True, LAMP_H - 0.9, 1.0),
+    # pe da escada leste (x 143..157, pe em y -40): lado leste, fora da rua que chega da alquimia
+    ("EastP3Foot", _EAST[0][0] + _EAST[2] / 2 + 3.2, _EAST[0][1] - 3.0, P2, True, LAMP_H - 0.9, 1.0),
+    # porta do castelo: pontas dos degraus do porche (x +-31, y 38..44); maiores (a porta e 28 x 34)
+    ("CastleDoor_W", -35.5, 40.5, P3, False, 10.8, 1.4),
+    ("CastleDoor_E", 35.5, 40.5, P3, False, 10.8, 1.4),
+    # boca do beco oeste (o caminho sai do patio em (-90, 30) para (-150, 44)): ao sul da boca, no gramado
+    ("BecoW", -103.0, 25.0, P3, True, LAMP_H - 0.9, 1.0),
 ]
-# OVERHAUL 12 (12.04): a praca fica com o par NORTE (o pe da escada P1P2, o NO; sao as 2 acesas). O par SUL (apagado)
-# repetia os postes da rua da praca e a lanterna do portico B logo atras: SAIU. As entradas continuam em LAMPS (o
-# sg_veg as usa como zona livre: nada muda na vegetacao), so nao sao construidas.
-PLAZA_BUILT = ("Plaza_NE", "Plaza_NW")
+# compat (sg_veg / sg_garden usam LAMPS como zona livre: nome, x, y, z, acesa)
+LAMPS = [(n, x, y, z, lit) for n, x, y, z, lit, h, s in POSTS]
 BENCH_R = 23.2
 BENCH_A = (62.0, 118.0, 242.0, 298.0)
+GLASS = {}                            # nome -> centro do vidro (o sg_lights poe a luz ali)
+SINK = 0.05                           # soco e pes entram 0,05 no chao (nada coplanar com o calcamento: z-fight F5)
 
 
-def lamp(mb, x, y, z):
-    """poste-lanterna da ordem (sg_emblem.lantern_post): soco de obsidiana, fuste de ferro negro, lanterna DOURADA
-    com vidro quente (Neon). Cabeca da lanterna em z + LAMP_H (h = LAMP_H - 0.9): as luzes reais nao mudam."""
-    EM.lantern_post(mb, mb, (x, y, z), 0.0, h=LAMP_H - 0.9)
-    col_box("SG_PropLamp", (1.2, 1.2, 9.0), (x, y, z + 4.5))
+def _ground(x, y, z0, tol=1.2):
+    """topo do chao REAL em (x, y) perto de z0: raio para baixo na cena montada, pulando colisao, vegetacao e
+    marcadores. Sem acerto dentro da tolerancia, fica z0."""
+    import bpy
+    from mathutils import Vector
+    dg = bpy.context.evaluated_depsgraph_get()
+    sc = bpy.context.scene
+    o = Vector((x, y, z0 + tol + 6.0))
+    seen = []
+    walk = None
+    for _ in range(12):
+        hit, loc, nrm, idx, ob, mw = sc.ray_cast(dg, o, Vector((0.0, 0.0, -1.0)), distance=2 * tol + 8.0)
+        if not hit:
+            break
+        seen.append((ob.name, round(loc.z, 2)))
+        if ob.name.startswith("COL_") and abs(loc.z - z0) <= tol and nrm.z > 0.7 and walk is None:
+            walk = loc.z              # topo andavel: vale se o visual estiver coplanar com ele (o raio nao o ve)
+        if ob.name.startswith(("COL_", "SG_Veg_", "SCALE_", "PREVIEW_", "BLK_")) or nrm.z < 0.7:
+            o = loc - Vector((0.0, 0.0, 0.02))
+            continue
+        if abs(loc.z - z0) <= tol:
+            return loc.z - SINK
+        break
+    if walk is not None:
+        return walk - SINK
+    print("PROPS AVISO: chao nao achado em (%.1f, %.1f) perto de %.2f; fica %.2f %s" % (x, y, z0, z0, seen))
+    return z0
+
+
+def lamp(mb, x, y, z, h=LAMP_H - 0.9, s=1.0):
+    """poste-lanterna da ordem (sg_emblem.lantern_post). Devolve o centro do vidro."""
+    c = EM.lantern_post(mb, mb, (x, y, z), 0.0, h=h, s=s)
+    col_box("SG_PropLamp", (1.2 * s, 1.2 * s, h + 1.6 * s), (x, y, z + (h + 1.6 * s) / 2))
+    return c
 
 
 def bench(mb, x, y, z, yaw):
-    """banco de pedra da praca (overhaul 01, 2026-09-29): nada de laje sobre 2 blocos.
-    - 2 PES em console: perfil de balaustre achatado (pe largo, cintura, cabeca que abre sob o assento) em lofts de
-      secoes retangulares, pedra media;
-    - ASSENTO em 2 pedras com junta no meio, borda boleada (chanfro 0,1 em cima) e PINGADEIRA por baixo, cantaria de
-      remate (um valor abaixo do Stone_SG_Trim);
-    - ENCOSTO baixo com espaldar em fronton suave, apoiado no fundo do assento.
-    Frente (local +y) para 'yaw'. Colisao: um bloco que cobre assento e encosto."""
+    """banco de pedra da praca (overhaul 01): 2 pes em console (perfil de balaustre achatado), assento em 2 pedras com
+    pingadeira, encosto baixo em fronton suave. Frente (local +y) para 'yaw'. Colisao: um bloco."""
     F = Frame(x, y, z, yaw)
     prof = [(0.0, 0.62), (0.16, 0.62), (0.26, 0.46), (0.55, 0.34), (0.85, 0.40), (1.02, 0.56), (1.12, 0.64),
             (1.20, 0.64)]
@@ -96,18 +138,19 @@ def bench(mb, x, y, z, yaw):
 
 def build():
     rng = random.Random(3320)
+    GLASS.clear()
     mb = MB("SG_Prop_Plaza", COLL, rng, detail="near")
-    for n, x, y, z, lit in LAMPS:
-        if n in PLAZA_BUILT:
-            lamp(mb, x, y, z)
+    for n, x, y, z, lit, h, s in POSTS:
+        if n.startswith(("Plaza", "P1P2Foot")):
+            GLASS[n] = tuple(lamp(mb, x, y, _ground(x, y, z), h, s))
     for a in BENCH_A:
         r = math.radians(a)
         x, y = _C[0] + BENCH_R * math.cos(r), _C[1] + BENCH_R * math.sin(r)
-        # Frame: local +y = frente do banco -> aponta para a fonte
-        bench(mb, x, y, P1, r + math.pi / 2)
+        bench(mb, x, y, _ground(x, y, P1 + PAVE), r + math.pi / 2)      # frente para a fonte
     mb.finish()
-    mr = MB("SG_Prop_RouteLamps", COLL, rng, detail="near")
-    for n, x, y, z, lit in LAMPS:
-        if not n.startswith("Plaza"):
-            lamp(mr, x, y, z)
+    mr = MB("SG_Prop_NodeLamps", COLL, rng, detail="near")
+    for n, x, y, z, lit, h, s in POSTS:
+        if not n.startswith(("Plaza", "P1P2Foot")):
+            GLASS[n] = tuple(lamp(mr, x, y, _ground(x, y, z), h, s))
     mr.finish()
+    print("PROPS postes=%d bancos=%d acesos=%d" % (len(POSTS), len(BENCH_A), sum(1 for p in POSTS if p[4])))
