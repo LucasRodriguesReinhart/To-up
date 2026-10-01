@@ -84,7 +84,7 @@ local function vfx(model, mk)
 			tam = 0.45, fim = 0.2, acc = V(0, 1.4, 0), luz = 0.7, infl = 0.3, transp = 0.35, area = V(8, 1, 8),
 			forma = Enum.ParticleEmitterShape.Box, dist = 180 })
 	end
-	local dp = mpos(mk, 'DUNGEON_Portal')
+	local dp = mpos(mk, 'DUNGEON_Portal') or mpos(mk, 'DUNGEON_Hall')
 	if dp then
 		emissor(pasta, 'Dun_Portal', dp + V(0, 7, 0), { tex = 'brilho', cor = C(160, 100, 250), rate = 6, vida = 2.2, vel = 1.2,
 			tam = 0.5, fim = 0.2, luz = 0.8, infl = 0.2, transp = 0.3, area = V(8, 10, 1), spread = Vector2.new(10, 10),
@@ -330,15 +330,22 @@ local function portao(model, mk, Config)
 	txt('Dica', 62, 20, 'Interaja no portao para desbloquear', C(225, 225, 235), Enum.Font.GothamMedium)
 end
 
--- caixa da ilha no mundo (regiao do IslandTravel): todas as pecas menos o fundo (ilhotas de skyline)
+-- caixa da ilha no mundo (regiao do IslandTravel): inclui o subsolo, mas nao o fundo decorativo
 local function caixa(model)
 	local mn, mx = V(math.huge, math.huge, math.huge), V(-math.huge, -math.huge, -math.huge)
+	local subsolo = model:FindFirstChild('SUBSOLO')
 	for _, d in ipairs(model:GetDescendants()) do
-		if d:IsA('BasePart') and not string.match(d.Name, '^SG_Sky_') and d.Name ~= 'VOID_CATCH' and d.Size.Magnitude < 900 then
-			local h = d.Size / 2
+		if d:IsA('BasePart') and not string.match(d.Name, '^SG_Sky_') and d.Name ~= 'VOID_CATCH'
+			and (d.Size.Magnitude < 900 or (subsolo and d:IsDescendantOf(subsolo))) then
+			local s = d.Size / 2
+			local cf = d.CFrame
+			local h = V(math.abs(cf.RightVector.X) * s.X + math.abs(cf.UpVector.X) * s.Y + math.abs(cf.LookVector.X) * s.Z,
+				math.abs(cf.RightVector.Y) * s.X + math.abs(cf.UpVector.Y) * s.Y + math.abs(cf.LookVector.Y) * s.Z,
+				math.abs(cf.RightVector.Z) * s.X + math.abs(cf.UpVector.Z) * s.Y + math.abs(cf.LookVector.Z) * s.Z)
 			mn = mn:Min(d.Position - h); mx = mx:Max(d.Position + h)
 		end
 	end
+	mn = V(mn.X, math.min(mn.Y, -80), mn.Z)
 	return (mn + mx) / 2, (mx - mn) / 2
 end
 
@@ -361,9 +368,13 @@ function M.build(parent, area)
 	parent:SetAttribute('SafePosition', V(ent.X, ent.Y - 0.2 + HRP, ent.Z) + fe * 8)
 	parent:SetAttribute('RotaPropria', true)
 	parent:SetAttribute('SafeMaxY', 60)           -- IslandTravel: salva posicao segura em todos os patamares (ate o P3 52,2)
+	parent:SetAttribute('OreMax', 90)
 	local bc, bh = caixa(model)
+	-- convencao do IslandTravel: centro em Y 0 e teto em BoundsHalfSize.Y; o subsolo (salao sombrio e masmorra, ate
+	-- ~-80) entra pelo BoundsMinY (o IslandTravel usa -12 quando a area nao declara)
 	parent:SetAttribute('BoundsCenter', V(bc.X, 0, bc.Z))
-	parent:SetAttribute('BoundsHalfSize', V(bh.X + 10, 130, bh.Z + 10))
+	parent:SetAttribute('BoundsHalfSize', V(bh.X + 10, math.max(130, bc.Y + bh.Y + 10), bh.Z + 10))
+	parent:SetAttribute('BoundsMinY', math.min(-12, bc.Y - bh.Y - 10))
 	local anc = mk['ISLAND_NEXT_ANCHOR_' .. M.GATE_KEY]
 	if anc then
 		parent:SetAttribute('NextAnchorPosition', anc.Position)

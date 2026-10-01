@@ -23,9 +23,9 @@ import sg_blockout
 
 # zona -> modulos de detalhe (na ordem); lista vazia = BLOCKOUT v4
 ZONE_MODULES = {
-    "terrain": [],                    # v4: ilha nova (onda 1 refaz sg_terrain)
+    "terrain": ["sg_terrain"],        # v4 (onda 1, agente 1f): ilha nova, quilha envolvendo o subsolo, topo rebaixado sob os pisos
     "entry": ["sg_entry"],            # v4 (onda 1, agente 1g): ponte curva de 234 inteira + patio + portico monumental
-    "village": [],                    # v4: 7 casas visitaveis (onda 1 refaz sg_village); praca da v3 realocada
+    "village": ["sg_village"],        # v4 (onda 1e): 7 casas visitaveis (exterior + sg_village_int), praca, ruas
     "castle": ["sg_castle"],          # v4: castelo 2x (ONDA 1 / agente 1a: sg_castle refeito na planta v4)
     "hall": ["sg_hall"],              # ONDA 1 (1b): interior 2x (arcada, naves laterais, presbiterio) + trono movel
     "cave": ["sg_cave"],              # v4 NOVO: salao sombrio + torre do poco/escada caracol (onda 1, agente 1c)
