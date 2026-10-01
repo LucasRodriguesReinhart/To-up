@@ -32,12 +32,13 @@ ZONE_MODULES = {
     "summon": ["sg_summon"],          # v3 realocada
     "craft": ["sg_craft"],            # v3 realocada
     "dungeon": ["sg_dungeon"],        # v4: salas 3x (onda 1, agente 1d: sg_dungeon refeito na v4)
-    "water": [],                      # v4: agua no Roblox; o blockout faz so a pedra das bicas
+    "water": ["sg_water"],            # v4 (onda 2, o2b): agua no Roblox; so a pedra das bicas + marcadores MEDIDOS
     "exit": ["sg_exit"],              # v4 (onda 1, agente 1g): roda direto na ponta noroeste (P3)
-    "dressing": [],                   # v4: patio-jardim/mirante simples (onda 2 refaz sg_court/sg_veg/sg_garden)
+    "dressing": ["sg_court", "sg_veg", "sg_props", "sg_lights"],   # ONDA 2: patio-jardim + mirante (sg_court), arvores +
+    #                                     grama/flores (sg_veg -> sg_garden), postes/bancos (sg_props) e luzes (sg_lights, por ultimo)
 }
 # modulos da v3 que rodam pelo sg_relocate (referencial v3 -> planta v4)
-LEGACY = ("sg_summon", "sg_craft")          # onda 1: sg_entry e sg_exit rodam direto na v4 (agente 1g)
+LEGACY = ()          # onda 2 (o2b): sg_summon e sg_craft rodam direto na v4 (onda 1: sg_entry e sg_exit, agente 1g)
 
 
 def zone_ready(zone):

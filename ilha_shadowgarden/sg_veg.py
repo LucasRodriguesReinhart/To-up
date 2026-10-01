@@ -22,6 +22,12 @@
 # arbusto/tufo no pe (fundo); o rng de cada grupo avanca igual (a arvore antiga e sorteada num MB descartavel: nenhuma
 # muda de lugar); cipreste com 4o fuso estreito e torto no topo; mancha da borda um pouco mais rala (a coroa nova do
 # terreno tem mais topo plano e o limiar antigo acrescentava arvores).
+# ONDA 2 (planta v4, agente do jardim, 2026-09-30): CURADORIA para a ilha nova (2,4x a area): poucos grupos e bem
+# colocados - pares/trios nos cantos do gramado da vila alta, 1 cipreste de marco por canto de casa, abetos nos becos
+# do castelo entre a parede e a rota, trios no terraco norte, os 3 pinheiros do jardim-mirante (grupo Mirante) e 2
+# trios no ombro sul; a borda (rim_pass) mais rala. LOD0 perto das rotas (< 15), LOD2 no fundo. Forma nova 'marco'
+# (teixo de copa ALTA das 2 arvores-marco do patio, sg_court: tronco livre ate ~7,5 para o banco embaixo da copa).
+# Objetos por FAIXA de 160 studs (1 MeshPart por material). Historico dos grupos da v3: git (commit 5329773).
 import math, random
 import bpy
 import numpy as np
@@ -47,17 +53,12 @@ fm_lib.MATS.setdefault(SHADE, (fm_lib.S(16, 24, 30), 0.9, 0.0, 0, None, 0.06))
 MOON_DIR = Vector((-0.45, 0.55, 0.70)).normalized()      # = sg_scene.MOON_DIR (luar de noroeste)
 
 CAMS = {
-    # 360: frente (sul), tras (norte), lados; + altura do jogador no P1, no P2 e no beco oeste do castelo
-    "CAM_SGVeg_Front": ((30.0, -262.0, 70.0), (0.0, -150.0, 40.0), 24),
-    "CAM_SGVeg_Back": ((40.0, 330.0, 120.0), (0.0, 150.0, 60.0), 24),
-    "CAM_SGVeg_West": ((-250.0, 60.0, 90.0), (-100.0, 60.0, 48.0), 24),
-    "CAM_SGVeg_East": ((270.0, 60.0, 100.0), (110.0, 90.0, 50.0), 24),
-    "CAM_SGVeg_Neck": ((95.0, -300.0, 62.0), (0.0, -200.0, 22.0), 22),
-    "CAM_SGVeg_NorthWest": ((-300.0, 320.0, 120.0), (-40.0, 100.0, 30.0), 24),
-    "CAM_SGVeg_CliffSE": ((260.0, -250.0, 80.0), (100.0, -150.0, 36.0), 24),
-    "CAM_SGVeg_PH_P1South": ((-4.0, -150.0, P1 + 5.2), (-80.0, -165.0, P1 + 8.0), 22),
-    "CAM_SGVeg_PH_P2": ((-10.0, -58.0, P2 + 5.2), (-90.0, -30.0, P2 + 8.0), 22),
-    "CAM_SGVeg_PH_P3North": ((-22.0, 170.0, P3 + 5.2), (14.0, 196.0, P3 - 4.0), 22),
+    # onda 2 (v4): 360 da ilha nova + altura do jogador no terraco norte e no beco oeste
+    "CAM_SGVeg_Front": ((0.0, -470.0, 140.0), (0.0, -40.0, 40.0), 24),
+    "CAM_SGVeg_Back": ((60.0, 520.0, 170.0), (0.0, 120.0, 60.0), 24),
+    "CAM_SGVeg_West": ((-360.0, 40.0, 120.0), (-60.0, 40.0, 48.0), 24),
+    "CAM_SGVeg_East": ((360.0, 40.0, 120.0), (60.0, 40.0, 48.0), 24),
+    "CAM_SGVeg_PH_North": ((0.0, 336.0, P3 + 5.2), (-70.0, 362.0, P3 + 6.0), 22),
 }
 CAMS.update(GD.CAMS)                # cameras da jardinagem (renders/overhaul/13b_jardim)
 # rotas extras: a faixa do P1 ao pe do arrimo entre as casas e a escada (onde ha canteiros) continua livre
@@ -136,8 +137,8 @@ def route_lines():
     out = []
     try:
         import sg_qa
-        for pts, z in list(sg_qa.routes().values()) + list(sg_qa.open_routes().values()):
-            out.append((list(pts), z))
+        for v in list(sg_qa.routes().values()) + list(sg_qa.open_routes().values()):
+            out.append((list(v[0]), v[1]))
     except Exception as ex:
         print("VEG AVISO rotas do sg_qa indisponiveis (%s)" % ex)
     try:
@@ -190,6 +191,7 @@ FORMS = {
     "fir":   dict(T=4, r0=0.28, droop=22.0, base=0.12, taper=0.72, span=0.74, th=0.40, sh=0.5, tr=0.040),
     "spire": dict(T=5, r0=0.22, droop=26.0, base=0.09, taper=0.78, span=0.82, th=0.30, sh=0.55, tr=0.034),
     "stout": dict(T=3, r0=0.33, droop=18.0, base=0.10, taper=0.64, span=0.64, th=0.50, sh=0.5, tr=0.048),
+    "marco": dict(T=5, r0=0.30, droop=12.0, base=0.22, taper=0.70, span=0.76, th=0.34, sh=0.55, tr=0.036),
 }
 LOBES = (6, 6, 4)
 WHY = {}
@@ -274,51 +276,36 @@ FIR_MIX = (("fir", 5), ("spire", 3), ("stout", 2))
 TALL_MIX = (("spire", 5), ("fir", 4), ("stout", 1))
 LOW_MIX = (("stout", 4), ("fir", 4), ("spire", 1))
 GROVES = [
-    # borda sul (frente da ilha): emoldura a praca vista da chegada; mais baixos que as casas do P1
-    ("South", (-90.0, -158.0), 10.0, 6, 13.0, 20.0, FIR_MIX, False, 1),
-    ("South", (-62.0, -168.0), 8.0, 3, 11.0, 16.0, LOW_MIX, False, 1),
-    ("South", (-40.0, -172.0), 7.0, 3, 11.0, 16.0, LOW_MIX, False, 1),
-    ("South", (28.0, -172.0), 7.0, 3, 11.0, 16.0, LOW_MIX, False, 1),
-    ("SouthE", (82.0, -162.0), 11.0, 6, 13.0, 20.0, FIR_MIX, False, 1),
-    ("SouthE", (116.0, -146.0), 8.0, 4, 12.0, 18.0, FIR_MIX, False, 1),
-    ("SouthE", (146.0, -126.0), 6.0, 2, 11.0, 15.0, LOW_MIX, False, 1),
-    # pescoco da entrada: SAIU no acabamento (n = 0; a linha fica para as sementes dos grupos seguintes nao mudarem):
-    # vistos da ponte, os pinheiros baixos ficavam NA FRENTE da escadaria e do portico B
-    ("South", (-18.0, -184.0), 3.0, 0, 9.0, 12.0, LOW_MIX, False, 1),
-    ("South", (18.0, -183.0), 3.0, 0, 9.0, 12.0, LOW_MIX, False, 1),
-    # P1 calcado: par de cada lado da calcada alta (plan: (-20,-150) e (30,-150)) e canteiros ao pe do arrimo
-    ("VillageS", (-24.0, -153.0), 4.0, 2, 14.0, 17.0, FIR_MIX, True, 0),
-    ("VillageS", (26.0, -153.0), 4.0, 1, 14.0, 17.0, FIR_MIX, True, 0),     # ov02: 1 (par duplicado; o oeste tem 1)
-    ("VillageS", (-40.0, -97.0), 5.0, 2, 15.0, 19.0, TALL_MIX, True, 0),
-    ("VillageS", (40.0, -97.0), 5.0, 2, 15.0, 19.0, TALL_MIX, True, 0),
-    ("VillageS", (-92.0, -100.0), 5.0, 2, 14.0, 18.0, FIR_MIX, True, 0),
-    ("SouthE", (128.0, -92.0), 8.0, 3, 14.0, 19.0, FIR_MIX, True, 0),
-    # P2 (grama): canto noroeste (plan (-104,-20)), entre e atras das casas; ciprestes finos entre as casas
-    ("VillageW", (-104.0, -22.0), 9.0, 5, 15.0, 22.0, TALL_MIX, True, 0),
-    ("VillageW", (-77.0, -70.0), 3.0, 1, 13.0, 16.0, (("cypress", 1),), True, 0),   # ov02: 1 (ciprestes gemeos)
-    ("VillageW", (-75.0, -22.0), 3.0, 0, 13.0, 16.0, (("cypress", 1),), True, 0),     # acab.: cipreste solto
-    ("VillageW", (-30.0, -24.0), 5.0, 2, 15.0, 19.0, FIR_MIX, True, 0),
-    ("VillageW", (-30.0, -70.0), 4.0, 0, 13.0, 16.0, (("cypress", 1),), True, 0),     # acab.: ciprestes soltos no
-    ("VillageE", (22.0, -68.0), 4.0, 0, 13.0, 16.0, (("cypress", 1),), True, 0),      # gramado do eixo (salpicados)
-    ("VillageE", (28.0, -24.0), 5.0, 2, 15.0, 19.0, FIR_MIX, True, 0),
-    ("VillageE", (62.0, -74.0), 4.0, 0, 13.0, 16.0, (("cypress", 1),), True, 0),      # acab.: cipreste solto
-    ("VillageE", (76.0, -24.0), 6.0, 2, 15.0, 19.0, FIR_MIX, True, 0),
-    ("VillageE", (140.0, -16.0), 6.0, 3, 14.0, 19.0, FIR_MIX, True, 0),
-    ("VillageE", (138.0, -62.0), 6.0, 1, 13.0, 17.0, FIR_MIX, True, 0),     # ov02: 1 (2 abetos iguais lado a lado)
-    ("NorthE", (123.0, 22.0), 5.0, 2, 16.0, 20.0, TALL_MIX, True, 0),
-    # terreno bravo oeste do castelo (os grupos (-96,40) e (-86,120) da planta saem de dentro das alas: x < -100)
-    ("CastleW", (-106.0, 40.0), 10.0, 7, 16.0, 24.0, TALL_MIX, False, 1),
-    ("CastleW", (-108.0, 90.0), 10.0, 7, 17.0, 24.0, TALL_MIX, False, 1),
-    ("CastleW", (-102.0, 146.0), 8.0, 4, 15.0, 22.0, FIR_MIX, False, 1),
-    ("VillageW", (-116.0, -10.0), 5.0, 2, 14.0, 18.0, FIR_MIX, False, 1),
-    # norte (atras da torre-coroa) e nordeste (entre os montes de basalto; plan (84,150))
-    ("North", (-74.0, 170.0), 9.0, 4, 14.0, 21.0, FIR_MIX, False, 1),
-    ("North", (-24.0, 189.0), 9.0, 4, 14.0, 21.0, FIR_MIX, False, 1),
-    ("North", (24.0, 189.0), 9.0, 4, 14.0, 21.0, FIR_MIX, False, 1),
-    ("NorthE", (74.0, 158.0), 12.0, 8, 15.0, 24.0, TALL_MIX, False, 1),
-    ("NorthE", (63.0, 124.0), 5.0, 2, 15.0, 21.0, FIR_MIX, False, 1),
-    ("NorthE", (104.0, 112.0), 5.0, 2, 14.0, 19.0, FIR_MIX, False, 1),
-    ("NorthE", (137.0, 28.0), 6.0, 3, 13.0, 18.0, LOW_MIX, False, 1),
+    # P1 (calcado: a arvore nasce num canteiro de cantaria): 1 por canto, nunca na frente das casas
+    ("P1", (-52.0, -160.0), 5.0, 1, 15.0, 18.0, FIR_MIX, True, 0),
+    ("P1", (46.0, -158.0), 4.0, 1, 15.0, 18.0, FIR_MIX, True, 0),
+    ("P1", (-142.0, -198.0), 5.0, 1, 13.0, 16.0, (("cypress", 1),), True, 0),
+    ("P1", (140.0, -198.0), 6.0, 2, 14.0, 19.0, FIR_MIX, True, 0),
+    ("P1", (-44.0, -260.0), 3.0, 1, 13.0, 16.0, (("cypress", 1),), True, 0),
+    ("P1", (44.0, -260.0), 3.0, 1, 13.0, 16.0, (("cypress", 1),), True, 0),
+    # P2 (gramado da vila alta): trios nos cantos, 1 cipreste de marco entre as casas
+    ("P2", (-152.0, -120.0), 10.0, 3, 15.0, 22.0, TALL_MIX, True, 0),
+    ("P2", (-160.0, -40.0), 8.0, 3, 14.0, 20.0, FIR_MIX, True, 0),
+    ("P2", (-95.0, -34.0), 3.0, 1, 14.0, 17.0, (("cypress", 1),), True, 0),
+    ("P2", (-26.0, -128.0), 5.0, 2, 14.0, 18.0, FIR_MIX, True, 0),
+    ("P2", (44.0, -128.0), 8.0, 3, 14.0, 20.0, FIR_MIX, True, 0),
+    ("P2", (60.0, -40.0), 6.0, 2, 15.0, 19.0, TALL_MIX, True, 0),
+    ("P2", (98.0, -48.0), 4.0, 1, 13.0, 16.0, (("cypress", 1),), True, 0),
+    ("P2", (150.0, -128.0), 8.0, 3, 13.0, 19.0, FIR_MIX, True, 0),
+    ("P2", (170.0, -60.0), 5.0, 2, 13.0, 18.0, FIR_MIX, True, 0),
+    # P3: becos do castelo (entre a parede e a rota), terraco norte, jardim-mirante (3 pinheiros)
+    ("P3", (-124.0, 112.0), 7.0, 2, 18.0, 24.0, TALL_MIX, True, 0),
+    ("P3", (-124.0, 232.0), 7.0, 2, 17.0, 23.0, FIR_MIX, True, 0),
+    ("P3", (-50.0, 362.0), 9.0, 3, 14.0, 20.0, FIR_MIX, True, 0),
+    ("P3", (52.0, 358.0), 9.0, 3, 14.0, 20.0, FIR_MIX, True, 0),
+    ("P3", (102.0, 318.0), 7.0, 2, 15.0, 21.0, TALL_MIX, True, 0),
+    ("P3", (124.0, 14.0), 6.0, 2, 16.0, 21.0, TALL_MIX, True, 0),
+    ("P3", (124.0, 250.0), 7.0, 2, 16.0, 22.0, FIR_MIX, True, 0),
+    ("Mirante", (113.0, 199.0), 8.0, 2, 15.0, 19.0, FIR_MIX, True, 0),
+    ("Mirante", (112.0, 146.0), 3.0, 1, 14.0, 17.0, FIR_MIX, True, 0),
+    # ombro sul (terreno bravo, fundo): 2 trios que emolduram a chegada
+    ("South", (-120.0, -288.0), 10.0, 3, 11.0, 16.0, LOW_MIX, False, 1),
+    ("South", (100.0, -290.0), 10.0, 3, 11.0, 16.0, LOW_MIX, False, 1),
 ]
 
 
@@ -345,8 +332,8 @@ def forbidden_floor(x, y, fl):
         return True
     if math.hypot(x - L.CRAFT_C[0], y - L.CRAFT_C[1]) < L.CRAFT_R + 8.0:
         return True
-    hx, hy, hw, hd = L.DUNGEON_HOUSE
-    if abs(x - hx) < hw / 2 + 8.0 and abs(y - hy) < hd / 2 + 10.0:
+    mx, my, mr = L.MIRANTE_E                       # terraco do jardim-mirante (a arvore da lua e do sg_court)
+    if math.hypot(x - mx, y - my) < mr + 3.0:
         return True
     if math.hypot(x - L.PLAZA_C[0], y - L.PLAZA_C[1]) < L.PLAZA_R + 5.0:
         return True
@@ -443,8 +430,8 @@ def tree_pit(mb, x, y, z, rng):
     vira TERRA e o sg_garden planta o anel de tufos e as flores-da-lua (GD.PITS)"""
     r = 1.9
     mb.cyl(r, 0.42, (x, y, z + 0.13), (0, 0, math.pi / 8), PIT_M, n=8, bevel=0.06)
-    mb.cyl(r - 0.38, 0.1, (x, y, z + 0.36), (0, 0, math.pi / 8), GD.SOIL, n=8, bevel=0.0)
-    GD.PITS.append((x, y, z + 0.41))
+    mb.cyl(r - 0.38, 0.16, (x, y, z + 0.38), (0, 0, math.pi / 8), GD.SOIL, n=8, bevel=0.0)   # topo 0,12 acima da cantaria
+    GD.PITS.append((x, y, z + 0.46))
 
 
 def base_dressing(mb, S, x, y, zg, h, rng, wild):
@@ -474,7 +461,8 @@ def base_dressing(mb, S, x, y, zg, h, rng, wild):
 
 
 def build():
-    PLACED.clear()
+    # as arvores do sg_court (marco do patio, arvore da lua do mirante) ja estao plantadas: ficam no registro
+    PLACED[:] = [p for p in PLACED if p[5] in ("marco", "moon")]
     CLAMPED.clear()
     WHY.clear()
     GD.PITS.clear()
@@ -487,22 +475,9 @@ def build():
 
 
 def region(x, y, fl):
-    """objeto de destino (cada um com extensao < ~160 studs: 1 MeshPart por material no export)"""
-    if fl in ("P1", "EntryHigh", "EntryLow"):
-        return "VillageS"
-    if fl == "P2":
-        return "VillageW" if x < 10.0 else "VillageE"
-    if fl == "P3":
-        return "VillageE" if y < 60.0 else "North"
-    if y < -140.0 and x < 25.0:
-        return "South"
-    if x >= 25.0 and y < -60.0:
-        return "SouthE"
-    if x >= 95.0 and y < 100.0:
-        return "East"
-    if y >= 100.0:
-        return "NorthE" if x >= 20.0 else "North"
-    return "West"
+    """objeto de destino: 3 faixas de 240 em y (a MeshPart conta por MATERIAL: menos objetos = menos MeshParts)"""
+    band = min(2, int(max(0.0, y + 340.0) // 240.0))
+    return "B%d" % band
 
 
 class Planter:
@@ -632,7 +607,7 @@ def rim_pass(P):
             m = math.sin(s / 31.0 + 0.7) + 0.75 * math.sin(s / 11.7 + 2.1) + 0.35 * math.sin(s / 5.3)
             # overhaul 13: mancha um pouco mais rala (0,25 -> 0,42): a coroa nova tem mais topo plano e o
             # limiar antigo PLANTAVA mais arvores na borda (a regra e nao acrescentar vegetacao)
-            if m > 0.42:
+            if m > 0.95:
                 h = g.uniform(9.0, 15.0) + (3.0 if m > 1.3 else 0.0)
                 form = pick(g, LOW_MIX if h < 12.0 else FIR_MIX)
                 for d in (g.uniform(2.0, 4.0), g.uniform(4.0, 7.0), g.uniform(7.0, 10.0)):

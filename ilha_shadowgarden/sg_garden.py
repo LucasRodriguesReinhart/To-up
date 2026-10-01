@@ -36,6 +36,15 @@
 # Orcamento: grama + flores <= ~80k tris (rodada 2, autorizado; medido ~78k liquidos na ilha); MeshParts <= +50.
 # Prefixo SG_Veg_Gdn_, colecao 10_VEGETATION (1 objeto por zona: P1, P2W, P2E, LawnTone, Court).
 # Materiais: registrados na paleta base (sg_lib.SMATS).
+# ONDA 2 (planta v4, 2026-09-30; usuario: "voce spamou muita grama ... parece poluicao visual"): o CAMPO deixa de ser
+# tapete. Touceiras BAIXAS e baratas (4-5 laminas, 8-10 tris) SO na ORLA (0,5-2,6 da borda do gramado: muro, rua, casa,
+# canteiro, murete, caminho) em trechos que vem e vao (fringe), no pe das arvores do gramado e em 10 MANCHAS do gramado
+# aberto (SPOTS, com flores); o resto e o chao de grama em 2 tons do terreno. Grade da ILHA inteira (RES 0,75; nada no
+# ombro bravo, nada a mais de 120 das rotas). Tufos ~14k + touceiras dos canteiros ~5k = grama ~20k (meta <= 35k).
+# Jardins das casas da vila v4: os canteiros de pedra (SG_Vil_Beds) e as floreiras de janela (SG_Vil_HouseDress) que a
+# vila deixou vazios sao achados pela GEOMETRIA (faces de topo da terra / do rebordo) e plantados com tema por casa
+# (HOUSE_THEME); roseiras nas fachadas da taverna (H1) e do mestre de armas (H7). Sairam: canteiros da praca da v3,
+# manchas de tom (LawnTone: F5) e o campo cheio. Objetos por FAIXA de 240 em y (SG_Veg_Gdn_B0..B2).
 import math
 import bpy
 import numpy as np
@@ -76,19 +85,17 @@ WIND = (WIND[0] / _wl, WIND[1] / _wl)
 
 # ------------------------------------------------------------------ cameras (renders/overhaul/13b_jardim)
 CAMS = {
-    "CAM_SGGdn_PH_P2W": ((-44.0, -47.0, P2 + 5.2), (-78.0, -60.0, P2 + 1.5), 22),
-    "CAM_SGGdn_PH_P2E": ((22.0, -47.0, P2 + 5.2), (44.0, -60.0, P2 + 1.5), 22),
-    "CAM_SGGdn_PH_P1": ((-60.0, -124.0, P1 + 5.2), (-78.0, -140.0, P1 + 2.0), 22),
-    "CAM_SGGdn_Plaza": ((14.0, -110.0, P1 + 6.5), (-10.0, -146.0, P1 + 1.0), 22),
-    "CAM_SGGdn_StreetEdge": ((-24.0, -43.0, P2 + 4.0), (-60.0, -50.0, P2 + 0.3), 24),
-    "CAM_SGGdn_Court_A": ((-4.0, 1.0, P3 + 5.2), (-26.0, 10.0, P3 + 0.5), 22),
-    "CAM_SGGdn_Court_B": ((42.0, 22.0, P3 + 6.5), (22.0, 9.0, P3 + 0.3), 22),
-    "CAM_SGGdn_CU_Tuft": ((41.0, -53.6, P2 + 2.1), (41.6, -57.0, P2 + 0.45), 30),
-    "CAM_SGGdn_CU_WinBox": ((-75.0, -131.0, P1 + 5.5), (-78.0, -137.0, P1 + 3.5), 30),
-    "CAM_SGGdn_Block": ((-40.0, -28.0, P2 + 34.0), (-70.0, -60.0, P2), 22),
-    "CAM_SGGdn_House_A": ((-86.0, -52.0, P2 + 5.2), (-94.0, -61.0, P2 + 1.5), 24),
-    "CAM_SGGdn_House_B": ((72.0, -120.7, P1 + 5.2), (80.0, -134.5, P1 + 1.5), 24),
-    "CAM_SGGdn_House_C": ((-51.0, -38.8, P2 + 5.2), (-58.5, -29.6, P2 + 2.0), 24),
+    # onda 2 (planta v4): ruas da vila com os jardins das casas, closes de canteiro/floreira, gramado aberto, geral
+    "CAM_SGGdn_Street_P1": ((-30.0, -221.0, P1 + 5.2), (-112.0, -228.0, P1 + 4.0), 22),
+    "CAM_SGGdn_Street_P1E": ((30.0, -223.0, P1 + 5.2), (112.0, -214.0, P1 + 4.0), 22),
+    "CAM_SGGdn_Street_P2": ((-14.0, -87.0, P2 + 5.2), (-100.0, -80.0, P2 + 4.0), 22),
+    "CAM_SGGdn_CU_Bed": ((-70.0, -236.5, P1 + 3.6), (-80.5, -245.0, P1 + 0.4), 26),
+    "CAM_SGGdn_House_P2": ((-38.0, -84.0, P2 + 5.2), (-62.0, -70.0, P2 + 3.0), 22),
+    "CAM_SGGdn_WinBox": ((100.0, -201.0, P1 + 4.6), (110.0, -190.5, P1 + 2.4), 26),
+    "CAM_SGGdn_PH_P2Lawn": ((30.0, -60.0, P2 + 5.2), (96.0, -126.0, P2 + 1.0), 22),
+    "CAM_SGGdn_PH_P3Alley": ((-150.0, 40.0, P3 + 5.2), (-130.0, 150.0, P3 + 2.0), 22),
+    "CAM_SGGdn_Overview": ((260.0, -330.0, P3 + 175.0), (0.0, -20.0, P2), 22),
+    "CAM_SGGdn_Village_High": ((40.0, -300.0, P1 + 70.0), (-30.0, -160.0, P1), 22),
 }
 
 # ------------------------------------------------------------------ utilidades deterministicas
@@ -381,7 +388,7 @@ def flower_bell(mb, x, y, z, s=1.0, closed=False):
     ca, sa = math.cos(a), math.sin(a)
     top = Vector((x + ca * 0.22 * s, y + sa * 0.22 * s, z + h))
     stem(mb, (x, y, z), top, 0.032 * s + 0.01, closed=closed)
-    for k, t in enumerate((0.62, 0.8, 1.0)):
+    for k, t in enumerate((0.72, 1.0)):
         p = Vector((x, y, z)) + (top - Vector((x, y, z))) * t
         side = 1 if k % 2 == 0 else -1
         ox, oy = -sa * side * 0.09 * s + ca * 0.05 * s, ca * side * 0.09 * s + sa * 0.05 * s
@@ -475,7 +482,7 @@ def leaf_clump(mb, c, r, nrm, m=LEAF_BOX, flat=0.55):
     mb.ico(r, tuple(c), m, 0, scale=(flat, 1.0, 0.85), rot=(0.0, 0.0, ang))
 
 
-def vine(mb, base, u, n, H, W=1.6, roses=6, socle=(0.0, 0.0)):
+def vine(mb, base, u, n, H, W=1.6, roses=6, socle=(0.0, 0.0), s=1.0):
     """ROSEIRA TREPADEIRA encostada numa parede: base (x, y, z) = pe da PAREDE no chao, u = tangente, n = normal para
     fora (2D), socle = (quanto o soco sai, altura do soco). 2 hastes de madeira nascem na terra na frente do soco,
     sobem por ele e abrem em zigue-zague ate H; tufos de folhas de buxo nos nos e no meio dos lances, rosas brancas
@@ -501,7 +508,7 @@ def vine(mb, base, u, n, H, W=1.6, roses=6, socle=(0.0, 0.0)):
             sw = side * W * 0.5 * (0.4 + 0.6 * i / steps) * (1.0 if i % 2 else 0.6)
             pts.append(W3(sw, 0.2, zc))
         for a, b in zip(pts, pts[1:]):
-            mb.rod(tuple(a), tuple(b), 0.055 if k == 0 else 0.045, STEM_W, n=4)
+            mb.rod(tuple(a), tuple(b), (0.055 if k == 0 else 0.045) * s, STEM_W, n=4)
         pts_all.append(pts)
     spots = []
     for pts in pts_all:
@@ -509,22 +516,24 @@ def vine(mb, base, u, n, H, W=1.6, roses=6, socle=(0.0, 0.0)):
             a, b = pts[i - 1], pts[i]
             if b.z < bz + sh + 0.3:
                 continue
-            for t in ((0.5, 1.0) if (b - a).length > 1.0 else (1.0,)):
+            ln_ = (b - a).length
+            ts = (0.34, 0.67, 1.0) if ln_ > 2.2 else ((0.5, 1.0) if ln_ > 1.0 else (1.0,))
+            for t in ts:
                 spots.append(a + (b - a) * t)
     spots.sort(key=lambda p: p.z)
     for i, p in enumerate(spots):
-        r = 0.42 + 0.1 * hh(p.x, p.y, 40)
-        leaf_clump(mb, (p.x + nx * 0.16, p.y + ny * 0.16, p.z), r, (nx, ny))
+        r = (0.42 + 0.1 * hh(p.x, p.y, 40)) * s
+        leaf_clump(mb, (p.x + nx * 0.16 * s, p.y + ny * 0.16 * s, p.z), r, (nx, ny))
         if i % 2 == 0:
             # folhas de lado (a trepadeira abre em leque, nao e um cordao)
             sg = 1 if i % 4 == 0 else -1
-            leaf_clump(mb, (p.x + nx * 0.14 + ux * 0.5 * sg, p.y + ny * 0.14 + uy * 0.5 * sg, p.z - 0.25), r * 0.8,
-                       (nx, ny))
+            leaf_clump(mb, (p.x + nx * 0.14 * s + ux * 0.5 * s * sg, p.y + ny * 0.14 * s + uy * 0.5 * s * sg,
+                            p.z - 0.25 * s), r * 0.8, (nx, ny))
     top = [p for p in spots if p.z > bz + H * 0.4]
     for i, p in enumerate(top[-roses:] if roses else []):
         sg = 1 if i % 2 else -1
-        c = (p.x + nx * 0.36 + ux * 0.1 * sg, p.y + ny * 0.36 + uy * 0.1 * sg, p.z + 0.12)
-        pent_bud(mb, c, 0.16, (nx * 0.8, ny * 0.8, 0.6), hh(p.x, p.y, 41) * 2, F_MOON)
+        c = (p.x + nx * 0.36 * s + ux * 0.1 * s * sg, p.y + ny * 0.36 * s + uy * 0.1 * s * sg, p.z + 0.12 * s)
+        pent_bud(mb, c, 0.16 * s, (nx * 0.8, ny * 0.8, 0.6), hh(p.x, p.y, 41) * 2, F_MOON)
     _count("trepadeiras")
 
 
@@ -725,6 +734,7 @@ def ground_planter_planting(mb, f2, zs, span):
 # ------------------------------------------------------------------ o chao (raios com o MATERIAL da face)
 class Ground:
     SKIP = ("COL_", "SG_Sky_", "PREVIEW_", "SCALE_", "CAM_", "L_", "SG_Veg_", "VFX_", "GATE_")
+    KEEP = ("SG_Veg_Gdn_Court", "SG_Veg_Gdn_Mirante")    # sebes/topiarias do patio e do mirante: a grama contorna
 
     def __init__(self, box, only=None):
         x0, y0, x1, y1 = box
@@ -733,7 +743,9 @@ class Ground:
         self.ok = False
         base = 0
         for o in bpy.data.objects:
-            if o.type != "MESH" or o.name.startswith(self.SKIP) or o.hide_render or not o.data.polygons:
+            if o.type != "MESH" or o.hide_render or not o.data.polygons:
+                continue
+            if o.name.startswith(self.SKIP) and not o.name.startswith(self.KEEP):
                 continue
             if only and not o.name.startswith(only):
                 continue
@@ -856,7 +868,8 @@ def plan_blocked(x, y, z):
     if min(a0[0], a1[0]) - 1.0 < x < max(a0[0], a1[0]) + 1.0 and abs(y - a0[1]) < sw / 2 + 1.5:
         return "ponte"
     ex, ey = L.EXIT_START
-    if x > ex - 2.0 and abs(y - ey) < L.EXIT_W / 2 + 2.0:
+    qx, qy = L.exit_point(L.EXIT_BRIDGE_LEN)
+    if L.seg_dist(x, y, ex, ey, qx, qy)[0] < L.EXIT_W / 2 + 2.0:
         return "ponte"
     for wx, wy, wz, deg in L.WATERFALLS:
         if math.hypot(x - wx, y - wy) < 8.0:
@@ -910,8 +923,12 @@ def plan_mask(X, Y, Z):
     out.append(("alquimia", np.hypot(X - L.CRAFT_C[0], Y - L.CRAFT_C[1]) < L.CRAFT_R + 0.8))
     a0, a1, sw = L.SUMMON_BRIDGE
     ex, ey = L.EXIT_START
+    qx, qy = L.exit_point(L.EXIT_BRIDGE_LEN)
+    dx, dy = qx - ex, qy - ey
+    tt = np.clip(((X - ex) * dx + (Y - ey) * dy) / (dx * dx + dy * dy), 0.0, 1.0)
+    dex = np.hypot(X - (ex + dx * tt), Y - (ey + dy * tt))
     out.append(("ponte", ((X > min(a0[0], a1[0]) - 1.0) & (X < max(a0[0], a1[0]) + 1.0) & (np.abs(Y - a0[1]) < sw / 2 + 1.5))
-                | ((X > ex - 2.0) & (np.abs(Y - ey) < L.EXIT_W / 2 + 2.0))))
+                | (dex < L.EXIT_W / 2 + 2.0)))
     ag = np.zeros(X.shape, dtype=bool)
     for wx, wy, wz, deg in L.WATERFALLS:
         ag |= np.hypot(X - wx, Y - wy) < 8.0
@@ -919,14 +936,17 @@ def plan_mask(X, Y, Z):
     return out
 
 
-# ------------------------------------------------------------------ mascara do gramado + campo de distancia
-RES = 0.5
-BOX_VIL = (-126.0, -176.0, 162.0, -2.0)
-CAP = 8.0
+# ------------------------------------------------------------------ mascara do gramado + campo de distancia (ilha inteira)
+RES = 0.75
+BOX_ISLAND = (-194.0, -300.0, 194.0, 394.0)
+CAP = 6.0
 
 
 class Lawn:
-    def __init__(self, G, box=BOX_VIL):
+    """grade do gramado na ilha inteira (P1 para cima; o ombro bravo fica de fora): so face de grama para cima, fora
+    das ruas/praca/escadas/casas/alquimia/pontes/cachoeiras da planta e fora de solido; distancia ate a borda"""
+
+    def __init__(self, G, box=BOX_ISLAND, zmin=P1 - 1.0):
         self.G = G
         x0, y0, x1, y1 = box
         self.x0, self.y0 = x0, y0
@@ -935,19 +955,19 @@ class Lawn:
         mask = np.zeros((ny, nx), dtype=bool)
         zz = np.zeros((ny, nx), dtype=np.float32)
         why = {}
+        z0 = P3 + 3.0
         for j in range(ny):
             y = y0 + (j + 0.5) * RES
             for i in range(nx):
                 x = x0 + (i + 0.5) * RES
-                h = G.down(x, y, P2 + 3.2, 16.0)
+                h = G.down(x, y, z0, 26.0)
                 if h is None:
                     continue
                 z, nrm, idx = h
-                if nrm.z < 0.9 or not G.is_grass(idx):
+                if z < zmin or nrm.z < 0.9 or not G.is_grass(idx):
                     continue
                 mask[j, i] = True
                 zz[j, i] = z
-        # planta (vetorizado na grade) e solidos (raio para cima so nas celulas que sobraram)
         X = x0 + (np.arange(nx) + 0.5) * RES
         Y = y0 + (np.arange(ny) + 0.5) * RES
         XX, YY = np.meshgrid(X, Y)
@@ -964,7 +984,6 @@ class Lawn:
                 mask[j, i] = False
                 why["solido"] = why.get("solido", 0) + 1
         self.mask, self.z, self.why = mask, zz, why
-        # distancia (studs) ate a celula de nao-grama mais proxima (dilatacao em 8 vizinhos, ate CAP)
         dist = np.full(mask.shape, CAP, dtype=np.float32)
         front = ~mask
         dist[front] = 0.0
@@ -974,7 +993,7 @@ class Lawn:
             g[:-1, :] |= front[1:, :]
             g[:, 1:] |= front[:, :-1]
             g[:, :-1] |= front[:, 1:]
-            if k % 2 == 0:              # diagonais a cada 2 passos: aproxima a distancia euclidiana (octogono)
+            if k % 2 == 0:
                 g[1:, 1:] |= front[:-1, :-1]
                 g[:-1, :-1] |= front[1:, 1:]
                 g[1:, :-1] |= front[:-1, 1:]
@@ -1011,13 +1030,12 @@ class Lawn:
         return gx / ln, gy / ln
 
     def raster_routes(self, routes):
-        """distancia ate as rotas do QA (mesmo nivel), rasterizada na grade"""
         X = self.x0 + (np.arange(self.nx) + 0.5) * RES
         Y = self.y0 + (np.arange(self.ny) + 0.5) * RES
         for pts, z in routes:
             for a, b in zip(pts, pts[1:]):
-                lo_x, hi_x = min(a[0], b[0]) - 28.0, max(a[0], b[0]) + 28.0
-                lo_y, hi_y = min(a[1], b[1]) - 28.0, max(a[1], b[1]) + 28.0
+                lo_x, hi_x = min(a[0], b[0]) - 12.0, max(a[0], b[0]) + 12.0
+                lo_y, hi_y = min(a[1], b[1]) - 12.0, max(a[1], b[1]) + 12.0
                 i0, i1 = max(0, int((lo_x - self.x0) / RES)), min(self.nx, int((hi_x - self.x0) / RES) + 1)
                 j0, j1 = max(0, int((lo_y - self.y0) / RES)), min(self.ny, int((hi_y - self.y0) / RES) + 1)
                 if i0 >= i1 or j0 >= j1:
@@ -1036,7 +1054,7 @@ class Lawn:
         return 99.0 if c is None else float(self.route[c])
 
 
-# ------------------------------------------------------------------ objetos por zona (1 MeshPart por material)
+# ------------------------------------------------------------------ objetos por faixa (1 MeshPart por material)
 class Beds:
     def __init__(self):
         self.mbs = {}
@@ -1057,17 +1075,15 @@ class Beds:
         return out
 
 
-def zone_key(x, y, z):
-    if z > P3 - 3.0:
-        return "P2W" if x < 10.0 else "P2E"
-    if y > -84.0 and z > P2 - 3.0:
-        return "P2W" if x < 10.0 else "P2E"
-    return "P1"
+def zone_key(x, y, z=None):
+    """3 faixas de 240 em y (a MeshPart conta por MATERIAL do objeto: menos objetos = menos MeshParts)"""
+    band = min(2, int(max(0.0, y + 340.0) // 240.0))
+    return "B%d" % band
 
 
 # ------------------------------------------------------------------ registro do que foi plantado (QA)
 PLANTED = []        # (tipo, x, y, z, contexto)
-OCC = {}            # discos ocupados por plantio dirigido (grade de 2 studs -> [(x, y, r)]): os tufos rareiam ali
+OCC = {}            # discos ocupados por plantio dirigido: os tufos rareiam ali
 
 
 def _occ(x, y, r):
@@ -1084,275 +1100,265 @@ def _occupied(x, y, pad=0.0):
     return False
 
 
-# ------------------------------------------------------------------ jardins das casas (variacao DIRIGIDA por casa)
-# kind: 'bed' (canteiro de cantaria encostado na fachada; P1 calcado) | 'lawn' (plantio direto no gramado; P2)
-# back: especie ALTA da fileira de tras (ritmo: 3 plantas e um respiro); front: especies das DERIVAS da frente (grupos de
-# 3-5 flores com uma touceira baixa entre eles; as especies se revezam por grupo); vines: roseiras (fracao da
-# meia-largura, a coluna anda ate cair em parede plana); box: bolas de buxo nas quinas; patch: mancha no gramado da
-# frente; skip: trecho livre (balcao da loja); half: so a metade sem o torreao
-HOUSE_GARDENS = {
-    0: dict(kind="bed", dp=1.5, back="spike", front=("moon",), skip=(-3.2, 3.2)),                 # loja: lavanda + lua
-    1: dict(kind="bed", dp=1.4, back="bell", front=("moon",)),                                    # floreiras cheias
-    2: dict(kind="bed", dp=1.3, back=None, front=("bell", "moon"), vines=(-0.72, 0.72)),         # roseiras na fachada
-    3: dict(kind="bed", dp=1.4, back="spike", front=("moon",), half=1),                          # meia fachada (torreao)
-    4: dict(kind="bed", dp=1.5, back="spike", front=("spike", "moon")),                          # canteiro de lavanda
-    5: dict(kind="bed", dp=1.4, back="moon", front=("amber", "moon"), skip=(-3.2, 3.2)),         # loja: toque ambar
-    6: dict(kind="lawn", back="spike", front=("moon",), skip=(-3.2, 3.2), box=True),
-    7: dict(kind="lawn", back=None, front=("moon", "bell"), box=True, patch=("moon", "bell")),
-    8: dict(kind="lawn", back="bell", front=("moon",), vines=(-0.72, 0.72)),
-    9: dict(kind="lawn", back="bell", front=("moon", "amber"), patch=("amber", "moon")),
-    10: dict(kind="lawn", back="spike", front=("moon",), skip=(-3.2, 3.2), box=True),
-}
+# ------------------------------------------------------------------ plantio em faixa (canteiros)
 DRIFT = (3, 4, 3, 5, 4)             # tamanho dos grupos da frente (ciclo fixo)
 
 
-def plant_band(mb, pos, sa, sb, back, front, idx, ctx, closed=False):
-    """fileira de tras (alta, em ritmo) + DERIVAS na frente. pos(s, tv) -> Vector (ou None fora do gramado)"""
+def plant_band(mb, pos, sa, sb, back, front, idx, ctx, closed=False, s=1.0, step=0.66):
+    """fileira de tras (alta, em ritmo: 3 plantas e um respiro) + DERIVAS na frente. pos(s, tv) -> Vector ou None"""
     if back:
-        n = max(1, int((sb - sa) / 0.66))
+        n = max(1, int((sb - sa) / step))
         for k in range(n):
             if k % 4 == 3:
-                continue                                      # respiro do ritmo
+                continue
             sv = sa + (sb - sa) * (k + 0.5) / n
             p = pos(sv, 0.22 + 0.06 * (k % 2))
             if p is not None:
-                plant(mb, back, p.x, p.y, p.z, 1.0, closed=closed)
+                plant(mb, back, p.x, p.y, p.z, 1.05 * s, closed=closed)
                 PLANTED.append(("flor", p.x, p.y, p.z, ctx))
     sv = sa + 0.1
     g = 0
     while sv < sb - 0.3:
         cnt = DRIFT[(g + idx) % len(DRIFT)]
         kind = front[g % len(front)]
-        step = 0.42 if kind != "bell" else 0.5
+        stp = (0.46 if kind != "bell" else 0.54) * s
         for k in range(cnt):
-            s_ = sv + k * step
+            s_ = sv + k * stp
             if s_ > sb - 0.2:
                 break
-            tv = 0.62 + (0.2 if k % 2 else -0.02) + 0.06 * math.sin(s_ * 3.1 + idx)
+            tv = 0.64 + (0.18 if k % 2 else -0.02) + 0.06 * math.sin(s_ * 3.1 + idx)
             p = pos(s_, tv)
             if p is not None:
-                plant(mb, kind, p.x, p.y, p.z, 0.95 + 0.1 * (k == cnt // 2), closed=closed)
+                plant(mb, kind, p.x, p.y, p.z, (0.95 + 0.1 * (k == cnt // 2)) * s, closed=closed)
                 PLANTED.append(("flor", p.x, p.y, p.z, ctx))
-        sv += cnt * step + 0.2
-        # respiro entre as derivas: touceira baixa de folhas
+        sv += cnt * stp + 0.2
         p = pos(sv, 0.7)
         if p is not None and sv < sb - 0.2:
-            clump(mb, p.x, p.y, p.z, 0.72, 5, m=BLADE_D)
-        sv += 0.45
+            clump(mb, p.x, p.y, p.z, 0.72 * s, 5, m=BLADE_D)
+        sv += 0.45 * s
         g += 1
 
 
-def house_face(idx):
-    """P(s, off, z) da FACHADA da casa idx (s ao longo, off para fora a partir da parede, z relativo ao piso), a
-    meia-largura e o rumo da frente (o mesmo referencial do sg_village.house)"""
-    x, y, w, d, deg, z = L.HOUSE_LOTS[idx]
-    a = math.radians(deg)
-    fx, fy = math.cos(a), math.sin(a)
-    tx, ty = fy, -fx                         # tangente (s positivo): direita de quem olha a fachada de frente
-    cx, cy = x + fx * d / 2, y + fy * d / 2
-
-    def P(s, off, zz):
-        return Vector((cx + tx * s + fx * off, cy + ty * s + fy * off, z + zz))
-    return P, w / 2, (fx, fy), (tx, ty), z
-
-
-def house_gardens(B, lawn, G=None):
-    try:
-        import sg_village as VL
-        specs = VL.SPECS
-    except Exception:
-        specs = [{} for _ in L.HOUSE_LOTS]
-    for idx, g in sorted(HOUSE_GARDENS.items()):
-        P, hw, fwd, tan, z0 = house_face(idx)
-        spec = specs[idx] if idx < len(specs) else {}
-        zkey = "P1" if z0 < P2 - 1 else ("P2W" if L.HOUSE_LOTS[idx][0] < 10 else "P2E")
-        mb = B.mb(zkey)
-        off0 = 0.56                                 # frente do soco (sai 0,5)
-        sa, sb = -hw + 0.4, hw - 0.4
-        if g.get("half"):
-            tur = spec.get("turret")
-            side = -tur[0] if tur else 1
-            sa, sb = (0.4, hw - 0.4) if side > 0 else (-hw + 0.4, -0.4)
-        spans = [(sa, sb)]
-        if g.get("skip"):
-            k0, k1 = g["skip"]
-            spans = [(sa, min(sb, k0)), (max(sa, k1), sb)]
-        spans = [(a, b) for a, b in spans if b - a > 1.2]
-        ctx = "casa%d" % idx
-        if g["kind"] == "bed":
-            for a, b in spans:
-                spot = bed(mb, P, a, b, off0, g["dp"], 0.0)
-                plant_band(mb, lambda sv, tv: spot(sv, tv), a + 0.3, b - 0.3, g.get("back"), g["front"], idx, ctx)
-                c = P((a + b) / 2, off0 + g["dp"] / 2, 0.0)
-                PLANTED.append(("canteiro", c.x, c.y, c.z, ctx))
-        else:
-            def pos(sv, tv):
-                q = P(sv, off0 + 0.3 + 1.25 * tv + 0.15 * math.sin(sv * 1.7 + idx), 0.0)
-                h = lawn.at(q.x, q.y) if lawn else None
-                if h is None:
-                    return None
-                _occ(q.x, q.y, 0.35)
-                return Vector((q.x, q.y, h[0]))
-            for a, b in spans:
-                plant_band(mb, pos, a + 0.2, b - 0.2, g.get("back"), g["front"], idx, ctx)
-                # pe da parede: touceiras escuras rentes ao soco (a casa "senta" no gramado)
-                n = max(1, int((b - a) / 1.25))
-                for k in range(n):
-                    q = pos(a + (b - a) * (k + 0.5) / n, -0.12)
-                    if q is not None:
-                        clump(mb, q.x, q.y, q.z, 0.8 + 0.15 * (k % 2), 5, out=fwd, m=BLADE_D)
-                        PLANTED.append(("tufo", q.x, q.y, q.z, ctx))
-            if g.get("box"):
-                for sv in (-hw - 0.1, hw + 0.1):
-                    p = P(sv, off0 + 0.55, 0.0)
-                    h = lawn.at(p.x, p.y) if lawn else None
-                    if h is not None:
-                        topiary(mb, (p.x, p.y, h[0] - 0.05), 0.62)
-                        _occ(p.x, p.y, 0.8)
-                        PLANTED.append(("buxo", p.x, p.y, h[0], "casa%d" % idx))
-            if g.get("patch"):
-                # mancha de flores num canto do gramado da frente (lado mais longe da rua transversal)
-                p = P(hw - 1.6, off0 + 4.2, 0.0)
-                patch(mb, lawn, p.x, p.y, 1.9, g["patch"], "casa%d" % idx)
-        for fr in g.get("vines", ()):
-            # altura: abaixo do cordao/balanco do 1o pavimento; a coluna precisa cair em parede PLANA (raios): anda
-            # para o meio da fachada ate achar (nunca sobre janela, postigo, lanterna ou cunhal)
-            st = spec.get("stories", [("stone", 6.0)]) if spec else [("stone", 6.0)]
-            H = min(5.2, 1.0 + st[0][1] - 1.4)
-            base = P(0.0, 0.0, 0.0)
-            got = None
-            for k in range(12):
-                sv = fr * hw + math.copysign(0.35 * ((k + 1) // 2) * (1 if k % 2 else -1), fr)
-                if G is None:
-                    break
-                off = flat_wall(G, (base.x, base.y, base.z), tan, fwd, sv, H, want="SG_Vil_", tol=0.3)
-                if off is not None and abs(off) < 0.35:
-                    got = (sv, off)
-                    break
-            if got is None and G is not None:
-                # a fachada nao tem coluna plana desse lado: a roseira vai para a EMPENA/LATERAL do mesmo lado,
-                # perto da quina da frente (o que se ve da rua)
-                hx, hy, w_, d_, deg_, hz = L.HOUSE_LOTS[idx]
-                sgn = 1.0 if fr > 0 else -1.0
-                nrm = (tan[0] * sgn, tan[1] * sgn)
-                bs = Vector((hx + nrm[0] * w_ / 2, hy + nrm[1] * w_ / 2, hz))
-                for k in range(10):
-                    sv2 = d_ / 2 - 1.1 - 0.4 * k
-                    off = flat_wall(G, (bs.x, bs.y, bs.z), fwd, nrm, sv2, H, want="SG_Vil_", tol=0.3)
-                    if off is not None and abs(off) < 0.35:
-                        def PS(sv_, of_, zz_, bs=bs, nrm=nrm):
-                            return Vector((bs.x + fwd[0] * sv_ + nrm[0] * of_, bs.y + fwd[1] * sv_ + nrm[1] * of_,
-                                           bs.z + zz_))
-                        q = PS(sv2, off, 0.0)
-                        if g["kind"] == "bed":
-                            spot = bed(mb, PS, sv2 - 0.8, sv2 + 0.8, 0.56, 1.0, 0.0)
-                            for tv, sx in ((0.7, -0.45), (0.7, 0.45)):
-                                pp = spot(sv2 + sx, tv)
-                                plant(mb, "moon", pp.x, pp.y, pp.z, 0.95)
-                        vine(mb, (q.x, q.y, q.z), fwd, nrm, H, W=1.5, roses=6, socle=(0.5 - off, 0.98))
-                        _occ(q.x + nrm[0] * 0.8, q.y + nrm[1] * 0.8, 1.0)
-                        PLANTED.append(("trepadeira", q.x, q.y, q.z, "casa%d_lateral" % idx))
-                        _count("trepadeira_lateral")
-                        got = "lateral"
-                        break
-            if got is None:
-                _count("trepadeira_recusada")
-                continue
-            if got == "lateral":
-                continue
-            sv, off = got
-            p = P(sv, off, 0.0)
-            vine(mb, (p.x, p.y, p.z), tan, fwd, H, W=1.5, roses=6, socle=(0.5 - off, 0.98))
-            _occ(p.x + fwd[0] * 0.8, p.y + fwd[1] * 0.8, 1.0)
-            PLANTED.append(("trepadeira", p.x, p.y, p.z, "casa%d" % idx))
+# ------------------------------------------------------------------ JARDINS DAS CASAS (canteiros e floreiras da vila)
+# variacao DIRIGIDA por casa (o agente da vila deixou os canteiros de pedra e as floreiras de janela VAZIOS):
+#   back = fileira alta de tras; front = derivas da frente; box = bolas de buxo; vine = roseiras na fachada;
+#   wbox = flores das floreiras de janela; tufts = touceiras nas pontas do canteiro
+HOUSE_THEME = {
+    "H1": dict(back="spike", front=("moon", "bell"), wbox=("moon", "bell"), vine=(-0.72,)),      # taverna: lavanda + roseira
+    "H2": dict(back=None, front=("amber", "moon"), wbox=("amber", "moon"), tufts=True),          # ferreiro: capim + ambar
+    "H3": dict(back="spike", front=("spike", "moon"), wbox=("spike",)),                           # boticario: ervas (lavanda)
+    "H4": dict(back="bell", front=("bell", "moon"), wbox=("bell", "moon")),                       # tecela: campanulas
+    "H5": dict(back="spike", front=("moon", "bell", "amber"), wbox=("moon", "bell", "spike")),   # cartografo: floreiras cheias
+    "H6": dict(back=None, front=("moon",), box=True, wbox=("moon",)),                             # guarda: buxo podado
+    "H7": dict(back="bell", front=("moon", "bell"), wbox=("moon", "bell"), vine=(-0.72, 0.72)),  # mestre de armas: roseiras
+}
 
 
-# ------------------------------------------------------------------ canteiros da fonte da praca
-PLAZA_ARCS = (45.0, 135.0, 225.0, 315.0)      # meio de cada arco (os eixos 0/90/180/270 ficam livres: caminhos)
-PLAZA_ARC_HALF = 27.0
+def house_name_of(x, y):
+    best, bn = 1e9, "H1"
+    for nm, tp, hx, hy, w, d, deg, z in L.HOUSES:
+        dd = math.hypot(x - hx, y - hy)
+        if dd < best:
+            best, bn = dd, nm
+    return bn
 
 
-def plaza_beds(B, G):
-    """4 canteiros em ARCO ao pe da bacia da fonte (entre os 4 caminhos), bordadura de cantaria baixa, lavanda junto
-    da bacia e derivas de flor-da-lua/campanula na frente. O raio vem da bacia REAL (raios horizontais); a volta da
-    praca (anel de 12) fica livre (o canteiro termina antes de 10,2)."""
-    if G is None or not G.ok:
-        return 0
-    cx, cy = L.PLAZA_C
-    z = P1
-    mb = B.mb("P1")
-    rmax = 0.0
-    for k in range(48):
-        a = math.radians(k * 7.5)
-        h = G.horiz((cx + 12.0 * math.cos(a), cy + 12.0 * math.sin(a), z + 0.35), (-math.cos(a), -math.sin(a), 0.0), 9.0)
-        if h is None:
+def _house(nm):
+    for h in L.HOUSES:
+        if h[0] == nm:
+            return h
+    return None
+
+
+def _top_faces(ob, mat, nz=0.95):
+    """faces de TOPO (normal para cima) de um material do objeto: [(x0, y0, x1, y1, z)] no mundo"""
+    out = []
+    if ob is None:
+        return out
+    me = ob.data
+    M = ob.matrix_world
+    names = [m.name if m else "" for m in me.materials]
+    for p in me.polygons:
+        if p.material_index >= len(names) or fm_lib.family_of(names[p.material_index]) != mat and \
+                names[p.material_index] != mat:
             continue
-        rmax = max(rmax, math.hypot(h[0].x - cx, h[0].y - cy))
-    if rmax < 5.0 or rmax > 8.8:
-        _count("praca_sem_bacia")
-        return 0
-    r0 = rmax + 0.2
-    dp = 1.25
-    t = 0.26
+        n = (M.to_3x3() @ p.normal).normalized()
+        if n.z < nz:
+            continue
+        vs = [M @ me.vertices[i].co for i in p.vertices]
+        out.append((min(v.x for v in vs), min(v.y for v in vs), max(v.x for v in vs), max(v.y for v in vs),
+                    max(v.z for v in vs)))
+    return out
+
+
+def village_beds(B):
+    """canteiros de pedra da frente das casas (sg_village.front_beds, objeto SG_Vil_Beds): o topo da terra de cada um
+    vira o plano de plantio; tema dirigido pela casa"""
     got = 0
-    for am in PLAZA_ARCS:
-        a0, a1 = math.radians(am - PLAZA_ARC_HALF), math.radians(am + PLAZA_ARC_HALF)
-        nseg = 10
+    for x0, y0, x1, y1, z in _top_faces(bpy.data.objects.get("SG_Vil_Beds"), SOIL):
+        if (x1 - x0) * (y1 - y0) < 1.5:
+            continue
+        cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
+        nm = house_name_of(cx, cy)
+        th = HOUSE_THEME.get(nm, HOUSE_THEME["H1"])
+        h = _house(nm)
+        along_x = (x1 - x0) >= (y1 - y0)
+        # tv 0 = lado da CASA (fileira alta), 1 = lado da rua
+        if along_x:
+            sa, sb = x0 + 0.25, x1 - 0.25
+            near = y0 if abs(y0 - h[3]) < abs(y1 - h[3]) else y1
+            far = y1 if near == y0 else y0
 
-        def A(i):
-            return a0 + (a1 - a0) * i / nseg
-        # terra: setor de coroa (prisma)
-        pts = [(cx + (r0 + dp) * math.cos(A(i)), cy + (r0 + dp) * math.sin(A(i))) for i in range(nseg + 1)]
-        pts += [(cx + r0 * math.cos(A(i)), cy + r0 * math.sin(A(i))) for i in range(nseg, -1, -1)]
-        mb.prism(SL.ccw(pts), z - 0.05, z + 0.3, SOIL)
-        # bordadura: pecas no arco de fora + 2 cabeceiras radiais
-        for i in range(0, nseg, 2):
-            aa, ab = A(i) + 0.004, A(i + 2) - 0.004
-            rm = r0 + dp - t / 2
-            p0 = (cx + rm * math.cos(aa), cy + rm * math.sin(aa))
-            p1 = (cx + rm * math.cos(ab), cy + rm * math.sin(ab))
-            L_ = math.hypot(p1[0] - p0[0], p1[1] - p0[1])
-            mb.box((L_, t, 0.44), ((p0[0] + p1[0]) / 2, (p0[1] + p1[1]) / 2, z + 0.19),
-                   (0, 0, math.atan2(p1[1] - p0[1], p1[0] - p0[0])), CURB, 0.04)
-        for aa in (a0, a1):
-            rm = r0 + (dp - t) / 2
-            mb.box((dp - t, t, 0.44), (cx + rm * math.cos(aa), cy + rm * math.sin(aa), z + 0.19), (0, 0, aa), CURB, 0.04)
-        # plantio: s = comprimento de arco no raio do meio, tv = de dentro (bacia) para fora
-        rmid = r0 + dp / 2
-        Ls = (a1 - a0) * rmid
+            def pos(sv, tv, near=near, far=far):
+                return Vector((sv, near + (far - near) * (0.12 + 0.76 * tv), z))
+        else:
+            sa, sb = y0 + 0.25, y1 - 0.25
+            near = x0 if abs(x0 - h[2]) < abs(x1 - h[2]) else x1
+            far = x1 if near == x0 else x0
 
-        def pos(sv, tv, a0=a0):
-            a = a0 + sv / rmid
-            r = r0 + 0.15 + (dp - t - 0.3) * tv
-            return Vector((cx + r * math.cos(a), cy + r * math.sin(a), z + 0.3))
-        plant_band(mb, pos, 0.35, Ls - 0.35, "spike", ("moon", "bell") if am in (45.0, 225.0) else ("bell", "moon"),
-                   int(am), "praca_canteiro")
-        PLANTED.append(("canteiro", cx + rmid * math.cos(math.radians(am)), cy + rmid * math.sin(math.radians(am)), z,
-                        "praca_canteiro"))
+            def pos(sv, tv, near=near, far=far):
+                return Vector((near + (far - near) * (0.12 + 0.76 * tv), sv, z))
+        mb = B.mb(zone_key(cx, cy))
+        idx = int(nm[1:])
+        ctx = "casa_%s" % nm
+        # ALMOFADAS de folhagem (o canteiro le CHEIO, a flor sai de dentro da folha, nada de terra pelada)
+        for tv, wv, hv, mm in ((0.3, 0.95, 0.5, BLADE_D), (0.72, 0.8, 0.36, BLADE_M)):
+            pa, pb = pos(sa + 0.15, tv), pos(sb - 0.15, tv)
+            hedge_round(mb, (pa.x, pa.y), (pb.x, pb.y), wv, hv, z - 0.08, mm)
+        if th.get("box"):
+            n = max(2, int((sb - sa) / 3.2))
+            for k in range(n):
+                p = pos(sa + (sb - sa) * (k + 0.5) / n, 0.42)
+                topiary(mb, (p.x, p.y, z - 0.05), 0.72)
+                PLANTED.append(("buxo", p.x, p.y, z, ctx))
+            for k in range(n - 1):
+                p = pos(sa + (sb - sa) * (k + 1.0) / n, 0.5)
+                for dd in (-0.45, 0.45):
+                    q = pos(sa + (sb - sa) * (k + 1.0) / n + dd, 0.62)
+                    plant(mb, "moon", q.x, q.y, q.z, 1.0)
+        else:
+            plant_band(mb, pos, sa, sb, th.get("back"), th["front"], idx, ctx, s=1.15, step=0.72)
+        # touceiras nas 2 pontas (o canteiro senta: folha transbordando a bordadura)
+        for sv in (sa + 0.2, sb - 0.2):
+            for tv in ((0.2, 0.75) if th.get("tufts") else (0.75,)):
+                p = pos(sv, tv)
+                clump(mb, p.x, p.y, p.z, 0.85, 6, m=BLADE_D if tv > 0.5 else BLADE_M)
+        PLANTED.append(("canteiro", cx, cy, z, ctx))
         got += 1
-    _count("canteiros_praca", got)
+    _count("canteiros_casas", got)
     return got
 
 
-# ------------------------------------------------------------------ manchas de flores (bonemeal dirigido)
-def patch(mb, lawn, cx, cy, R, kinds, ctx, dens=1.0):
-    """mancha: flores em espiral de filotaxia (angulo aureo) ate R, especies por ANEL (miolo = 1a especie, borda = a
-    2a), mais densa no miolo; so onde ha gramado; tufos no meio"""
-    ga = math.pi * (3.0 - math.sqrt(5.0))
-    n = int(R * R * 2.4 * dens)
+def window_boxes(B):
+    """floreiras de janela (sg_village.window_box, objeto SG_Vil_HouseDress): o rebordo de madeira (topo 2,2..9 x
+    ~1,3) recebe uma almofada de folhagem, as flores da casa por cima e folhas pendentes pela frente"""
     got = 0
+    for x0, y0, x1, y1, z in _top_faces(bpy.data.objects.get("SG_Vil_HouseDress"), "Wood_SG_Dark"):
+        dx, dy = x1 - x0, y1 - y0
+        lo, hi = min(dx, dy), max(dx, dy)
+        if not (1.15 < lo < 1.5 and 2.2 < hi < 9.5):
+            continue
+        cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
+        nm = house_name_of(cx, cy)
+        h = _house(nm)
+        if z < h[7] + 1.5:
+            continue
+        th = HOUSE_THEME.get(nm, HOUSE_THEME["H1"])
+        along_x = dx >= dy
+        # para fora = para longe do centro do lote, no eixo curto
+        if along_x:
+            ox, oy = 0.0, (1.0 if cy > h[3] else -1.0)
+            ux, uy = 1.0, 0.0
+        else:
+            ox, oy = (1.0 if cx > h[2] else -1.0), 0.0
+            ux, uy = 0.0, 1.0
+        mb = B.mb(zone_key(cx, cy))
+        zt = z + 0.02
+        half = hi / 2 - 0.25
+        # almofada de folhagem (enche a caixa) um pouco para tras
+        a = (cx - ux * half - ox * 0.12, cy - uy * half - oy * 0.12)
+        b = (cx + ux * half - ox * 0.12, cy + uy * half - oy * 0.12)
+        hedge_round(mb, a, b, lo - 0.2, 0.42, zt + 0.05, BLADE_D)
+        n = max(4, int(round(hi / 0.62)))
+        kinds = th.get("wbox", ("moon", "bell"))
+        for k in range(n):
+            t = -half + 0.15 + (2 * half - 0.3) * (k + 0.5) / n
+            off = 0.12 if k % 2 else -0.2
+            px, py = cx + ux * t + ox * off, cy + uy * t + oy * off
+            plant(mb, kinds[k % len(kinds)], px, py, zt + 0.3, 1.15, closed=True)
+            PLANTED.append(("flor", px, py, zt, "floreira_%s" % nm))
+            if k % 2 == 0:
+                e = lo / 2 + 0.05
+                trail(mb, (cx + ux * t + ox * (e - 0.15), cy + uy * t + oy * (e - 0.15), zt + 0.2),
+                      (cx + ux * (t + 0.1) + ox * (e + 0.12), cy + uy * (t + 0.1) + oy * (e + 0.12),
+                       zt - (1.1 if k % 4 == 0 else 0.7)))
+        got += 1
+    _count("floreiras_janela", got)
+    return got
+
+
+def house_vines(B, G):
+    """roseiras trepadeiras nas fachadas dirigidas (HOUSE_THEME vine): a coluna precisa cair em parede PLANA (raios)"""
+    got = 0
+    for nm, th in sorted(HOUSE_THEME.items()):
+        for fr in th.get("vine", ()):
+            h = _house(nm)
+            nmh, tp, x, y, w, d, deg, z = h
+            a = math.radians(deg)
+            fwd = (math.cos(a), math.sin(a))
+            tan = (fwd[1], -fwd[0])
+            base = Vector((x + fwd[0] * d / 2, y + fwd[1] * d / 2, z))
+            H = 8.5
+            ok = None
+            for k in range(16):
+                sv = fr * w / 2 + math.copysign(0.5 * ((k + 1) // 2) * (1 if k % 2 else -1), fr)
+                off = flat_wall(G, (base.x, base.y, base.z), tan, fwd, sv, H, z0=1.6, want="SG_Vil_", tol=0.35)
+                if off is not None and abs(off) < 1.6:
+                    ok = (sv, off)
+                    break
+            if ok is None:
+                _count("trepadeira_recusada")
+                continue
+            sv, off = ok
+            p = Vector((base.x + tan[0] * sv + fwd[0] * off, base.y + tan[1] * sv + fwd[1] * off, z))
+            # soco: quanto a base sai da parede (raio rente ao chao)
+            h0 = G.horiz((p.x + fwd[0] * 3.0, p.y + fwd[1] * 3.0, z + 0.5), (-fwd[0], -fwd[1], 0.0), 6.0)
+            sd = 0.0
+            if h0:
+                sd = max(0.0, 3.0 - ((h0[0].x - (p.x + fwd[0] * 3.0)) * -fwd[0] + (h0[0].y - (p.y + fwd[1] * 3.0))
+                                     * -fwd[1]))
+            mb = B.mb(zone_key(p.x, p.y))
+            vine(mb, (p.x, p.y, z + 0.3), tan, fwd, H, W=3.0, roses=9, socle=(sd, 1.4 if sd > 0.1 else 0.0), s=1.7)
+            _occ(p.x + fwd[0] * 0.8, p.y + fwd[1] * 0.8, 1.2)
+            PLANTED.append(("trepadeira", p.x, p.y, z, "casa_%s" % nm))
+            got += 1
+    _count("trepadeiras_casas", got)
+    return got
+
+
+# ------------------------------------------------------------------ manchas de flores (grupos naturais)
+def patch(mb, lawn, cx, cy, R, kinds, ctx, dens=1.0, s=1.0):
+    """mancha: flores em espiral de filotaxia dentro de um contorno organico, 1a especie no miolo, 2a na borda, rala na
+    borda; so onde ha gramado e longe da rota"""
+    ga = math.pi * (3.0 - math.sqrt(5.0))
+    n = int(R * R * 2.0 * dens)
+    got = 0
+    sq = 0.65 + 0.5 * hh(cx, cy, 3)
+    rot = hh(cx, cy, 4) * math.pi
     for k in range(n):
-        r = R * math.sqrt((k + 0.5) / n)
+        r = math.sqrt((k + 0.5) / n)
         a = k * ga + hh(cx, cy) * 6.0
-        x, y = cx + r * math.cos(a), cy + r * math.sin(a)
+        u, v = R * r * math.cos(a), R * r * sq * math.sin(a)
+        x, y = cx + u * math.cos(rot) - v * math.sin(rot), cy + u * math.sin(rot) + v * math.cos(rot)
+        if r > 0.7 and hh(x, y, 5) < 0.4:
+            continue
         h = lawn.at(x, y) if lawn else None
         if h is None or h[1] < 0.35 or lawn.rdist(x, y) < 1.3 or _occupied(x, y, 0.1):
             continue
         if plan_blocked(x, y, h[0] if h[0] > 40.0 else P1):
             continue
-        kind = kinds[0] if r < R * 0.62 or len(kinds) == 1 else kinds[1]
-        s = 1.15 + 0.2 * (1.0 - r / R)             # acima do capim cheio (a flor le por cima dos tufos)
-        plant(mb, kind, x, y, h[0], s, rich=True)
+        kind = kinds[0] if r < 0.62 or len(kinds) == 1 else kinds[1]
+        plant(mb, kind, x, y, h[0], s * (1.05 + 0.2 * (1.0 - r)), rich=True)
         PLANTED.append(("flor", x, y, h[0], ctx))
         _occ(x, y, 0.3)
         got += 1
@@ -1360,27 +1366,32 @@ def patch(mb, lawn, cx, cy, R, kinds, ctx, dens=1.0):
     return got
 
 
-# ------------------------------------------------------------------ o campo de tufos
-TUFT_TARGET = 48000          # tris dos tufos do gramado (o resto do orcamento: flores, canteiros, patio, floreiras)
+# ------------------------------------------------------------------ o campo de tufos (SO bordas e manchas)
+TUFT_TARGET = 14000          # tris dos tufos do gramado na ilha inteira (o total do vestir de grama ~35k)
+SPOTS = []                   # manchas do gramado aberto (x, y, R): tufos + flores
+
+
+def fringe(x, y):
+    """a orla de capim nas bordas VEM E VAI (trechos cheios e trechos limpos), nunca uma regua continua"""
+    f = field(x * 0.8, y * 0.8)
+    return max(0.0, min(1.0, (f - 0.38) / 0.24))
 
 
 def scatter(B, lawn, trees, lamps):
-    """o CAMPO (rodada 2, 2026-09-30: "o gramado tem de ficar COBERTO, como o bonemeal"):
-      - VISIVEL (a menos de 25 do eixo de uma rota): grade de ~1,05 com tremor, quase todo ponto recebe tufo -> os
-        tufos quase se tocam e o chao so aparece entre eles; longe das rotas: ralo (so bordas);
-      - 2 tamanhos: TOUCEIRA grande (7-9 laminas) so nas BORDAS (muro, rua, casa, canteiro), ao pe das arvores, dos
-        postes e nos focos do campo de manchas; no miolo, o tufo LOD de 3-4 laminas largas (6-8 tris);
-      - tons CLAROS sobre o chao (o capim do bonemeal e mais claro que o bloco): meio / luar na maioria, escuro so na
-        sombra (pe de arvore, junto do muro); ZERO em rota (corredor de 0,9, esmaecendo ate 2,2)."""
+    """o CAMPO (onda 2: "voce spamou muita grama"): touceiras BAIXAS e baratas (4-5 laminas, 8-10 tris) SO
+      - na orla de 0,5 a 2,6 da borda do gramado (muro, rua, casa, canteiro, murete, caminho), em trechos que vem e vao;
+      - no pe das arvores do gramado (anel de 0,8 a 0,75 r);
+      - nas MANCHAS (SPOTS) do gramado aberto;
+    o gramado aberto fica liso (o chao de grama do terreno em 2 tons). ZERO em rota (corredor de 0,9)."""
     cand = []
-    SP = 1.25
+    SP = 1.45
     X0, Y0 = lawn.x0, lawn.y0
     nx = int(lawn.nx * RES / SP)
     ny = int(lawn.ny * RES / SP)
     for jj in range(ny):
         for ii in range(nx):
-            x = X0 + (ii + 0.5) * SP + (hh(ii, jj, 1) - 0.5) * SP * 0.7
-            y = Y0 + (jj + 0.5) * SP + (hh(jj, ii, 2) - 0.5) * SP * 0.7
+            x = X0 + (ii + 0.5) * SP + (hh(ii, jj, 1) - 0.5) * SP * 0.75
+            y = Y0 + (jj + 0.5) * SP + (hh(jj, ii, 2) - 0.5) * SP * 0.75
             h = lawn.at(x, y)
             if h is None:
                 continue
@@ -1388,159 +1399,99 @@ def scatter(B, lawn, trees, lamps):
             if de < 0.45:
                 continue
             rd = lawn.rdist(x, y)
-            if rd < 0.9:
+            if rd < 0.9 or rd > 120.0:
                 continue
-            if plan_blocked(x, y, z if z > 40.0 else P1):
-                continue
-            wild = z < P2 - 3.0
-            if wild:
-                if y > -80.0:
-                    continue
-                near = False
-                for k in range(6):
-                    aa = k * math.tau / 6
-                    if L.zone_of(x + math.cos(aa) * 9.0, y + math.sin(aa) * 9.0) is not None:
-                        near = True
-                        break
-                if not near:
-                    continue
-            edge = max(0.0, min(1.0, 1.0 - (de - 0.7) / 2.4))
+            p = 0.0
+            edge = 0.0
+            if de < 2.6:
+                edge = 1.0 - (de - 0.45) / 2.15
+                p = max(p, (0.25 + 0.6 * edge) * fringe(x, y))
             tree = 0.0
             for tx, ty, tz, tr, th in trees:
                 dd = math.hypot(x - tx, y - ty)
-                if dd < tr + 2.4:
-                    tree = max(tree, 1.0 - max(0.0, dd - 0.8) / (tr + 1.6))
+                if 0.8 < dd < tr * 0.75 + 0.8 and abs(z - tz) < 2.0:
+                    tree = max(tree, 1.0 - dd / (tr * 0.75 + 0.8))
+            p = max(p, 0.25 + 0.5 * tree if tree > 0 else 0.0)
+            spot = 0.0
+            for sx, sy, sr in SPOTS:
+                dd = math.hypot(x - sx, y - sy)
+                if dd < sr:
+                    spot = max(spot, 1.0 - dd / sr)
+            p = max(p, 0.15 + 0.65 * spot if spot > 0 else 0.0)
             lamp = 0.0
             for lx, ly in lamps:
                 dd = math.hypot(x - lx, y - ly)
-                if dd < 3.2:
-                    lamp = max(lamp, 1.0 - dd / 3.2)
-            f = field(x, y)
-            if rd < 25.0 and not wild:
-                p = 0.9 + 0.08 * edge
-            else:
-                p = 0.06 + 0.5 * edge + 0.4 * tree + 0.3 * max(0.0, f - 0.55)
-                if wild:
-                    p *= 0.5
+                if dd < 2.6:
+                    lamp = max(lamp, 1.0 - dd / 2.6)
+            p = max(p, 0.6 * lamp)
+            if p <= 0.0:
+                continue
+            if plan_blocked(x, y, z if z > 40.0 else P1):
+                continue
             if rd < 2.2:
                 p *= (rd - 0.9) / 1.3
             if _occupied(x, y):
                 p *= 0.3
-            p = min(0.98, p)
-            cand.append((x, y, z, de, p, edge, tree, f, wild, rd, lamp))
+            cand.append((x, y, z, de, min(0.95, p), edge, tree, spot, lamp))
 
     def form(c):
-        x, y, z, de, p, edge, tree, f, wild, rd, lamp = c
-        big = edge > 0.75 or tree > 0.45 or lamp > 0.4 or f > 0.86
-        if big:
-            s = 0.9 + 0.5 * edge + 0.36 * tree + 0.2 * max(0.0, f - 0.5)
-            s *= 0.9 + 0.2 * hh(x, y, 3)
-            s = max(0.8, min(1.6, s))
-            n = 9 if s > 1.3 else (8 if s > 1.05 else 7)
-        else:
-            s = (0.78 + 0.3 * f) * (0.88 + 0.26 * hh(x, y, 3))
-            n = 4 if hh(x, y, 4) < 0.3 else 3
+        x, y, z, de, p, edge, tree, spot, lamp = c
+        big = tree > 0.4 or (edge > 0.8 and hh(x, y, 6) < 0.35)
+        s = 0.55 + 0.22 * edge + 0.25 * tree + 0.18 * spot
+        s *= 0.88 + 0.24 * hh(x, y, 3)
+        s = max(0.5, min(1.05, s))
+        n = 6 if big else (5 if hh(x, y, 4) < 0.45 else 4)
         return s, n, 2 * n, big
     forms = [form(c) for c in cand]
     exp = sum(c[4] * fm[2] for c, fm in zip(cand, forms))
     k = min(1.0, TUFT_TARGET / max(1.0, exp))
     placed = 0
-    nbig = 0
     for c, fm in zip(cand, forms):
-        x, y, z, de, p, edge, tree, f, wild, rd, lamp = c
+        x, y, z, de, p, edge, tree, spot, lamp = c
         if hh(x, y, 9) >= p * k:
             continue
         s, n, tris, big = fm
-        out = lawn.out_dir(x, y) if de < 3.5 else WIND
-        t = field2(x, y) + 0.3 * (hh(x, y, 17) - 0.5) - 0.5 * tree - (0.15 if de < 1.0 else 0.0)
-        m = BLADE_L if (t > 0.45 and not wild and y > -84.0) else (BLADE_M if t > 0.12 else BLADE_D)
-        clump(B.mb(zone_key(x, y, z)), x, y, z, s, n, out=out, m=m, wide=(not big))
-        PLANTED.append(("tufo", x, y, z, "gramado" if not wild else "ombro"))
+        out = lawn.out_dir(x, y) if de < 3.0 else WIND
+        t = field2(x, y) + 0.3 * (hh(x, y, 17) - 0.5) - 0.5 * tree - (0.2 if de < 1.0 else 0.0)
+        m = BLADE_L if (t > 0.62 and spot > 0.2) else (BLADE_M if t > 0.2 else BLADE_D)
+        clump(B.mb(zone_key(x, y)), x, y, z, s, n, out=out, m=m, wide=not big)
+        PLANTED.append(("tufo", x, y, z, "gramado"))
         placed += 1
-        nbig += 1 if big else 0
-    _count("touceiras_grandes", nbig)
     return placed, k, len(cand)
 
 
-# ------------------------------------------------------------------ manchas de tom no gramado base
-def lawn_tones(lawn, trees):
-    """pocas escuras sob as arvores do gramado e clareiras de luar no gramado aberto: poligonos irregulares rentes
-    (0,05 acima do chao: sem z-fight) que so existem onde TODO o contorno cai no gramado"""
-    mb = MB("SG_Veg_Gdn_LawnTone", COLL, None, detail="far", floor=-999)
-    n = 0
-
-    def blob(cx, cy, R, z, m, k):
-        for tries in range(4):
-            pts = []
-            NV = 16
-            for i in range(NV):
-                a = i * math.tau / NV + hh(cx, cy, k) * 2.0
-                rr = R * (0.62 + 0.25 * math.sin(3.0 * a + hh(cx, cy, k + 2) * 6.0) + 0.3 * hh(cx + i, cy - i, k + 1))
-                pts.append((cx + rr * math.cos(a), cy + rr * math.sin(a)))
-            ok = True
-            for (px, py) in pts + [(cx, cy)]:
-                h = lawn.at(px, py)
-                if h is None or abs(h[0] - z) > 0.3 or lawn.rdist(px, py) < 0.5:
-                    ok = False
-                    break
-            if ok:
-                bm = mb.bm
-                top = [bm.verts.new((px, py, z + 0.05)) for px, py in pts]
-                bot = [bm.verts.new((px, py, z - 0.05)) for px, py in pts]
-                ins = Vector((cx, cy, z))
-                _face(bm, top, ins)
-                for i in range(NV):
-                    j = (i + 1) % NV
-                    _face(bm, [top[i], top[j], bot[j], bot[i]], ins)
-                mb._post(top + bot, m, 0.0, 0, 1)
-                return True
-            R *= 0.78
-        return False
-    for tx, ty, tz, tr, th in trees:
-        h = lawn.at(tx + 0.6, ty + 0.6)
-        if h and tz > P2 - 3.0 and blob(tx, ty, tr * 1.05, h[0], LAWN_D, 50):
-            n += 1
-    # clareiras de luar: maximos do campo nos gramados abertos do P2 (grade grossa, os 8 maiores, bem separados)
+def pick_spots(lawn, n=10, sep=32.0):
+    """manchas de 'bonemeal' no gramado aberto: maximos do campo longe da borda e perto das rotas, bem separados"""
     cands = []
-    for gy in np.arange(-80.0, -8.0, 4.0):
-        for gx in np.arange(-116.0, 150.0, 4.0):
+    for gy in np.arange(-280.0, 384.0, 4.0):
+        for gx in np.arange(-186.0, 188.0, 4.0):
             h = lawn.at(gx, gy)
-            if h is None or h[1] < 3.5:
+            if h is None or h[1] < 4.0:
                 continue
-            cands.append((field2(gx, gy) + 0.3 * field(gx, gy), gx, gy, h[0]))
+            rd = lawn.rdist(gx, gy)
+            if rd < 4.0 or rd > 40.0:
+                continue
+            cands.append((field(gx, gy) - 0.4 * field2(gx, gy) + 0.2 * hh(gx, gy, 77), gx, gy))
     cands.sort(reverse=True)
-    chosen = []
-    for v, gx, gy, z in cands:
-        if all(math.hypot(gx - a, gy - b) > 20.0 for a, b in chosen):
-            if blob(gx, gy, 5.0 + 2.0 * hh(gx, gy, 61), z, LAWN_L, 60):
-                chosen.append((gx, gy))
-                n += 1
-        if len(chosen) >= 12:
+    SPOTS.clear()
+    for v, gx, gy in cands:
+        if all(math.hypot(gx - a, gy - b) > sep for a, b, r in SPOTS):
+            SPOTS.append((gx, gy, 2.6 + 1.4 * hh(gx, gy, 81)))
+        if len(SPOTS) >= n:
             break
-    # pocas escuras onde o capim adensa (maximos do campo das manchas), fora das clareiras
-    cands = sorted(((field(gx, gy), gx, gy, z) for v, gx, gy, z in cands), reverse=True)
-    dark = []
-    for v, gx, gy, z in cands:
-        if all(math.hypot(gx - a, gy - b) > 18.0 for a, b in dark) and                 all(math.hypot(gx - a, gy - b) > 11.0 for a, b in chosen):
-            if blob(gx, gy, 3.5 + 1.5 * hh(gx, gy, 71), z, LAWN_D, 80):
-                dark.append((gx, gy))
-                n += 1
-        if len(dark) >= 10:
-            break
-    mb.finish(recalc=False)
-    return n
+    return SPOTS
 
 
 # ------------------------------------------------------------------ canteiros das arvores (piso calcado)
 def plant_pits(B, pits):
-    """o canteiro octogonal da arvore em piso calcado (sg_veg.tree_pit): anel de tufos e 3 flores-da-lua na terra"""
+    """o canteiro octogonal da arvore em piso calcado (sg_veg.tree_pit): anel de 5 tufos e 3 flores-da-lua"""
     for x, y, zt in pits:
-        mb = B.mb(zone_key(x, y, zt))
-        for k in range(7):
-            a = k * math.tau / 7 + 0.3
-            r = 1.12 + 0.12 * (k % 2)
+        mb = B.mb(zone_key(x, y))
+        for k in range(5):
+            a = k * math.tau / 5 + 0.3
+            r = 1.12 + 0.1 * (k % 2)
             px, py = x + r * math.cos(a), y + r * math.sin(a)
-            clump(mb, px, py, zt, 0.9 + 0.15 * (k % 3 == 0), 6, out=(math.cos(a), math.sin(a)),
+            clump(mb, px, py, zt, 0.8 + 0.12 * (k % 3 == 0), 5, out=(math.cos(a), math.sin(a)),
                   m=BLADE_M if k % 2 else BLADE_D)
             PLANTED.append(("tufo", px, py, zt, "canteiro_arvore"))
         for k in range(3):
@@ -1550,41 +1501,41 @@ def plant_pits(B, pits):
             PLANTED.append(("flor", px, py, zt, "canteiro_arvore"))
 
 
-# ------------------------------------------------------------------ roseiras nos muros do patio do castelo
-COURT_VINES = (-34.0, -26.0, 26.0, 34.0)      # |x| 7..21 e a torre redonda do portao
+# ------------------------------------------------------------------ roseiras na face interna da muralha (patio)
+COURT_VINES = (-71.0, -57.0, -44.0, 44.0, 57.0, 71.0)
 
 
 def court_vines(mb):
-    """roseiras trepadeiras na face interna da muralha (y ~ -3), atras dos canteiros do patio (chamado pelo
-    sg_court.court): acha a face por raio (so malhas do castelo) e confere que a coluna e parede PLANA; se o castelo
-    ainda nao foi montado (estudio de outra zona), nao planta"""
-    G = Ground((-60.0, -14.0, 60.0, 6.0), only=("SG_Cas_",))
+    """roseiras trepadeiras na face interna da muralha (y -13), atras dos gramados (chamado pelo sg_court.court): acha
+    a face por raio (so malhas do castelo) e confere que a coluna e parede PLANA; sem castelo (estudio de outra
+    zona), nao planta"""
+    G = Ground((-100.0, -20.0, 100.0, 4.0), only=("SG_Cas_",))
     if not G.ok:
         return 0
     got = 0
     for x in COURT_VINES:
-        hit = G.horiz((x, 1.5, P3 + 2.0), (0.0, -1.0, 0.0), 8.0)
+        hit = G.horiz((x, -4.0, P3 + 2.0), (0.0, -1.0, 0.0), 14.0)
         if hit is None:
             continue
         yw = hit[0].y
-        H = 6.5
-        for dx in (0.0, 0.8, -0.8, 1.6, -1.6):
-            off = flat_wall(G, (x + dx, yw, P3), (1.0, 0.0), (0.0, 1.0), 0.0, H, z0=3.0, span=0.8)
+        H = 9.0
+        for dx in (0.0, 1.0, -1.0, 2.0, -2.0, 3.0, -3.0):
+            off = flat_wall(G, (x + dx, yw, P3), (1.0, 0.0), (0.0, 1.0), 0.0, H, z0=3.0, span=0.9, tol=0.3)
             if off is None:
                 continue
-            # soco/embasamento da muralha: quanto sai (raio rente ao chao) e ate onde sobe
             h0 = G.horiz((x + dx, yw + 3.0, P3 + 0.4), (0.0, -1.0, 0.0), 6.0)
             sd = max(0.0, (h0[0].y - (yw + off)) if h0 else 0.0)
             sh = 0.0
             if sd > 0.1:
-                for zz in (0.8, 1.2, 1.6, 2.0, 2.4, 2.8):
+                for zz in (0.8, 1.2, 1.6, 2.0, 2.4, 2.8, 3.2):
                     h1 = G.horiz((x + dx, yw + 3.0, P3 + zz), (0.0, -1.0, 0.0), 6.0)
                     if h1 and h1[0].y - (yw + off) > 0.1:
                         sh = zz
-            vine(mb, (x + dx, yw + off, P3), (1.0, 0.0), (0.0, 1.0), H, W=2.0, roses=8, socle=(sd, sh))
+            vine(mb, (x + dx, yw + off, P3), (1.0, 0.0), (0.0, 1.0), H, W=3.4, roses=10, socle=(sd, sh), s=1.9)
             PLANTED.append(("trepadeira", x + dx, yw, P3, "muralha"))
             got += 1
             break
+    _count("trepadeiras_muralha", got)
     return got
 
 
@@ -1597,18 +1548,13 @@ def qa(lawn):
         if kx0 < x < kx1 and ky0 < y < ky1 and kz0 < z < kz1:
             bad["dungeon"] += 1
         hx = L.MINE_RECT
-        if hx[0] < x < hx[2] and hx[1] < y < hx[3]:
+        if hx[0] < x < hx[2] and hx[1] < y < hx[3] and abs(z - P3) < 14.0:
             bad["salao"] += 1
-        if ctx in ("gramado", "ombro") or (kind == "flor" and ctx.startswith("mancha")):
+        if ctx in ("gramado",) or (kind == "flor" and ctx.startswith("mancha")):
             b = plan_blocked(x, y, z)
             if b in ("rua", "praca", "escada", "casa"):
                 bad[b] += 1
                 ex.append((kind, round(x, 1), round(y, 1), b))
-            fl = L.floor_name(x, y)
-            fz = L.zone_of(x, y)
-            if fl is not None and fl != "P2" and fz is not None and abs(fz - z) < 1.0:
-                bad["piso"] += 1
-                ex.append((kind, round(x, 1), round(y, 1), round(z, 1), fl))
             if lawn is not None and lawn.rdist(x, y) < 0.9:
                 bad["rota"] += 1
                 ex.append((kind, round(x, 1), round(y, 1), "rota"))
@@ -1636,8 +1582,7 @@ def _tris(B):
 
 
 def reset():
-    """inicio do vestir (sg_court.build): zera o registro (o patio planta antes do campo); as contas das floreiras
-    (a vila monta antes do vestir) ficam"""
+    """inicio do vestir (sg_court.build): zera o registro (o patio planta antes do campo)"""
     keep = {k: v for k, v in STATS.items() if "floreiras" in k}
     STATS.clear()
     STATS.update(keep)
@@ -1645,18 +1590,28 @@ def reset():
     OCC.clear()
 
 
+# manchas dirigidas (pe de escada/portao, porta da alquimia, cabeceira da saida): (x, y, R, especies)
+DIRECTED = [
+    (-15.5, -46.0, 2.0, ("moon", "spike")), (15.5, -46.0, 2.0, ("spike", "moon")),        # pe da escada do portao
+    (139.0, -45.0, 1.8, ("bell", "moon")), (161.0, -45.0, 1.8, ("moon", "bell")),         # pe da escada leste
+    (-14.5, -144.0, 1.8, ("moon", "bell")), (14.5, -144.0, 1.8, ("bell", "moon")),       # topo da escada P1P2
+    (92.0, -74.0, 1.8, ("amber", "bell")), (92.0, -98.0, 1.8, ("bell", "amber")),        # porta da alquimia
+    (-104.0, 326.0, 2.0, ("moon", "spike")),                                              # cabeceira da saida
+]
+
+
 def build(trees=None, routes=None):
     import time
     t0 = time.time()
     trees = trees or []
     B = Beds()
-    G = Ground((BOX_VIL[0] - 2, BOX_VIL[1] - 2, BOX_VIL[2] + 2, 60.0))
+    G = Ground((BOX_ISLAND[0] - 2, BOX_ISLAND[1] - 2, BOX_ISLAND[2] + 2, BOX_ISLAND[3] + 2))
     lawn = Lawn(G)
     if routes:
         lawn.raster_routes(routes)
     t1 = time.time()
-    lawn_trees = [(x, y, z, r, h) for x, y, z, r, h in trees if lawn.at(x + 0.8, y + 0.8) is not None
-                  or lawn.at(x - 0.8, y - 0.8) is not None]
+    lawn_trees = [(x, y, z, r, h) for x, y, z, r, h in trees if lawn.at(x + 1.2, y + 1.2) is not None
+                  or lawn.at(x - 1.2, y - 1.2) is not None]
     lamps = []
     try:
         import sg_props as PR
@@ -1668,77 +1623,40 @@ def build(trees=None, routes=None):
         lamps += [(x, y) for x, y, z, lit in VL.LAMPS]
     except Exception:
         pass
-    # 1. plantio dirigido primeiro (ocupa o lugar): casas, postes, escadas/portoes, alquimia, arvores do gramado
     ph = {}
-    house_gardens(B, lawn, G)
+    # 1. jardins das casas (canteiros de pedra, floreiras de janela, roseiras nas fachadas dirigidas)
+    village_beds(B)
+    window_boxes(B)
+    house_vines(B, G)
     ph["casas"] = _tris(B)
-    ring_spots = [
-        # (x, y, raio, especies, contexto)
-        (-77.0, -48.4, 1.8, ("moon", "bell"), "mancha_poste"),     # poste da rua do P2 oeste (lado do gramado)
-        (10.2, -54.2, 1.6, ("moon", "spike"), "mancha_poste"),      # poste do cruzamento do eixo
-        (-12.4, -77.0, 1.8, ("spike", "moon"), "mancha_escada"),    # topo da escada P1P2 (arco)
-        (12.4, -77.0, 1.8, ("spike", "moon"), "mancha_escada"),
-        (-11.0, -31.0, 2.2, ("moon", "spike"), "mancha_portao"),    # pe da escada do portao do castelo
-        (11.0, -31.0, 2.2, ("moon", "spike"), "mancha_portao"),
-        (104.0, -30.0, 1.8, ("bell", "moon"), "mancha_portao"),     # pe da escada leste (dungeon)
-        (120.0, -30.0, 1.8, ("bell", "moon"), "mancha_portao"),
-        (76.5, -49.5, 1.9, ("amber", "bell"), "mancha_alquimia"),   # porta da alquimia (oeste)
-        (77.0, -70.5, 1.9, ("bell", "amber"), "mancha_alquimia"),
-        (147.0, -28.0, 1.8, ("moon", "amber"), "mancha_saida"),     # cabeceira da ponte da saida
-        (147.0, -48.5, 1.8, ("moon", "bell"), "mancha_saida"),
-    ]
-    for x, y, R, kinds, ctx in ring_spots:
-        patch(B.mb(zone_key(x, y, P2)), lawn, x, y, R, kinds, ctx)
+    # 2. flores em grupos: manchas dirigidas, pe das arvores do gramado, manchas do gramado aberto
+    for x, y, R, kinds in DIRECTED:
+        patch(B.mb(zone_key(x, y)), lawn, x, y, R, kinds, "mancha_dirigida")
     for i, (tx, ty, tz, tr, th) in enumerate(lawn_trees):
-        if tz < P2 - 3.0:
-            continue
         a = hh(tx, ty, 70) * math.tau
-        px, py = tx + math.cos(a) * (tr + 0.9), ty + math.sin(a) * (tr + 0.9)
-        kinds = (("bell", "moon"), ("moon", "spike"), ("bell",))[i % 3]
-        patch(B.mb(zone_key(px, py, tz)), lawn, px, py, 1.5, kinds, "mancha_arvore", dens=0.8)
-    # pontos de "bonemeal" no gramado aberto: maximos do campo, bem separados
-    spots = []
-    for gy in np.arange(-80.0, -8.0, 3.0):
-        for gx in np.arange(-116.0, 152.0, 3.0):
-            h = lawn.at(gx, gy)
-            if h is None or h[1] < 2.5 or lawn.rdist(gx, gy) < 3.0:
-                continue
-            spots.append((field(gx, gy) - 0.4 * field2(gx, gy), gx, gy))
-    spots.sort(reverse=True)
-    mix = (("moon", "bell"), ("spike", "moon"), ("bell", "spike"), ("moon", "amber"), ("moon",), ("bell", "moon"))
-    chosen = []
-    for v, gx, gy in spots:
-        if all(math.hypot(gx - a, gy - b) > 11.0 for a, b in chosen):
-            chosen.append((gx, gy))
-            patch(B.mb(zone_key(gx, gy, P2)), lawn, gx, gy, 1.6 + 0.6 * (len(chosen) % 2),
-                  mix[len(chosen) % len(mix)], "mancha_gramado")
-        if len(chosen) >= 24:
-            break
+        px, py = tx + math.cos(a) * (tr * 0.6 + 1.2), ty + math.sin(a) * (tr * 0.6 + 1.2)
+        kinds = (("moon", "bell"), ("moon", "spike"), ("spike", "moon"))[i % 3]
+        patch(B.mb(zone_key(px, py)), lawn, px, py, 1.6, kinds, "mancha_arvore", dens=0.9)
+    pick_spots(lawn)
+    mix = (("moon", "spike"), ("spike", "moon"), ("moon", "bell"), ("moon", "amber"), ("moon",), ("spike", "amber"))
+    for k, (sx, sy, sr) in enumerate(SPOTS):
+        patch(B.mb(zone_key(sx, sy)), lawn, sx, sy, sr * 0.55, mix[k % len(mix)], "mancha_gramado", dens=0.9)
     ph["manchas"] = _tris(B) - sum(ph.values())
-    # 2. canteiros das arvores do piso calcado e da fonte da praca
     plant_pits(B, PITS)
     ph["canteiros_arvore"] = _tris(B) - sum(ph.values())
-    plaza_beds(B, G)
-    ph["praca"] = _tris(B) - sum(ph.values())
-    nv = 0
-    # 4. o campo de tufos
     placed, kf, ncand = scatter(B, lawn, lawn_trees, lamps)
     ph["campo"] = _tris(B) - sum(ph.values())
-    # 5. manchas de tom
-    ntone = lawn_tones(lawn, lawn_trees)
     obs = B.finish()
     tris = {}
-    for o in obs + [bpy.data.objects.get("SG_Veg_Gdn_LawnTone")]:
-        if o is None:
-            continue
+    for o in obs:
         per = {}
         for p in o.data.polygons:
             nm = o.data.materials[p.material_index].name
             per[nm] = per.get(nm, 0) + len(p.vertices) - 2
         tris[o.name] = (sum(per.values()), len(per))
     print("GARDEN mascara %.1fs celulas_grama=%d excluidas=%s" % (t1 - t0, int(lawn.mask.sum()), lawn.why))
-    print("GARDEN tufos_campo=%d/%d (fator %.2f) stats=%s tons=%d trepadeiras_patio=%d" % (
-        placed, ncand, kf, {k: (round(v, 1) if isinstance(v, float) else v) for k, v in STATS.items()}, ntone, nv))
+    print("GARDEN tufos_campo=%d/%d (fator %.2f) manchas=%d stats=%s" % (
+        placed, ncand, kf, len(SPOTS), {k: (round(v, 1) if isinstance(v, float) else v) for k, v in STATS.items()}))
     print("GARDEN tris por fase:", ph)
     print("GARDEN objetos (tris, materiais=MeshParts):", tris, "total_tris=%d MeshParts=%d" % (
         sum(v[0] for v in tris.values()), sum(v[1] for v in tris.values())))

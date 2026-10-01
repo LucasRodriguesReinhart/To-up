@@ -686,10 +686,49 @@ def risers(mb, domain, cuts, recess, pave_zone, z, base, step=0.5):
                 k = j + 1
 
 
+# ------------------------------------------------------------------ ONDA 2 (agente do jardim, 2026-09-30): recorte do
+# PATIO-JARDIM. Funcao isolada pedida pela coordenacao (o resto do sg_terrain e do agente 1f):
+#   - o patio inteiro (CASTLE_FORECOURT) desce RECESS: o piso de la (eixo nobre, cascalho, lajes, canteiros) e todo do
+#     sg_court, nunca coplanar com o topo do terreno (F5);
+#   - os 2 GRAMADOS REBAIXADOS 1,2 (COURT_LAWNS = contorno EXTERNO do murete de cantaria do sg_court) ficam SEM topo e o
+#     terreno fecha o buraco sozinho: chao de grama em P3-1,2 + espelhos verticais ate o topo rebaixado (o murete do
+#     sg_court encosta neles de costas: face oposta, inerte). Sem o sg_court (estudio de outra zona) o buraco le como um
+#     gramado rebaixado simples, sem fresta.
+#   - a COLISAO do piso do P3 (sg_col.floors) e da onda 0: o furo dos gramados precisa entrar nos 'holes' do P3 la
+#     (pendencia no relatorio da onda 2; o sg_court poe a colisao do fundo do gramado e dos degraus).
+COURT_LAWN_DEPTH = 1.2
+COURT_LAWNS = [(33.0, -3.0, 83.0, 15.0), (-83.0, -3.0, -33.0, 15.0)]
+
+
+def court_garden_areas():
+    """(rebaixo, recorte) do patio-jardim para o topo do P3"""
+    return [rect(*L.CASTLE_FORECOURT)], [rect(*r) for r in COURT_LAWNS]
+
+
+def court_lawn_pits(mb):
+    """fundo dos gramados rebaixados (grama em P3-1,2) + espelhos do recorte (de P3-1,2 ate o topo rebaixado)"""
+    bm = mb.bm
+    zb, zt = P3 - COURT_LAWN_DEPTH, P3 - RECESS
+    for x0, y0, x1, y1 in COURT_LAWNS:
+        flat_face(mb, rect(x0, y0, x1, y1), zb, GRASS)
+        pts = ccw(rect(x0, y0, x1, y1))
+        n = len(pts)
+        for i in range(n):
+            a, b = pts[i], pts[(i + 1) % n]
+            vs = [bm.verts.new((a[0], a[1], zb)), bm.verts.new((a[0], a[1], zt)), bm.verts.new((b[0], b[1], zt)),
+                  bm.verts.new((b[0], b[1], zb))]
+            f = bm.faces.new(vs)                      # contorno anti-horario: normal para DENTRO do buraco
+            f.material_index = mb._mi(ROCK)
+            f[mb.tint] = 0.0
+            f.normal_update()
+            mb._uv([f], ROCK)
+
+
 def tops():
     fl = L.floors()
     rec = floor_areas()
     cut = cut_areas()
+    court_rec, court_cut = court_garden_areas()          # onda 2: patio-jardim (ver court_lawn_pits)
     pats = patch_polys()
     court = [rect(*L.CASTLE_FORECOURT)]
     base = {"P1": PAVE, "P2": GRASS, "P3": GRASS, "EntryHigh": PAVE, "EntryLow": PAVE}
@@ -702,8 +741,11 @@ def tops():
         if nm == "EntryLow":                             # patio baixo aberto no DECK, x +-14,6, ate o contorno sul
             nf += emit_top(mb, [rect(*PATIO_LOW)], z, higher + cut + [rect(*UNDER_BRIDGE)], [], [], [], PAVE)
             continue
-        nf += emit_top(mb, [poly], z, higher + cut, rec if nm != "EntryHigh" else [],
+        nf += emit_top(mb, [poly], z, higher + cut + (court_cut if nm == "P3" else []),
+                       (rec + (court_rec if nm == "P3" else [])) if nm != "EntryHigh" else [],
                        court if nm == "P3" else [], pats if base[nm] == GRASS else [], base[nm])
+        if nm == "P3":
+            court_lawn_pits(mb)                          # onda 2: fundo dos gramados rebaixados
     # ombro (terreno bravo) ao norte do pescoco: contorno menos os patamares, em grama
     top = SL.clip(RIM, 0.0, -1.0, -CUT_Y)                # y >= -294
     ms = smb("SG_Ter_Shoulder")

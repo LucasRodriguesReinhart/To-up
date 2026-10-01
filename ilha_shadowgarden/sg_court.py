@@ -1,39 +1,35 @@
-# sg_court - VESTIR / PATIO E CAMINHOS NOBRES da Ilha 3 (Shadow Garden). Roda ANTES do sg_veg (zona dressing).
-# O exterior deixa de ser "laje lisa": um SISTEMA de leitura, simetrico onde e cerimonial.
-#   1. CAMINHO DA ORDEM (eixo nobre): calcada alta da entrada -> praca -> pe da escada P1P2 -> rua do eixo (P2) -> portao
-#      da muralha -> patio -> porta do castelo. Lajes grandes de marmore negro, borda de obsidiana e um FIO violeta
-#      (SG_VioletDeep_Glow) rente no centro; juntas de prata a cada 4 fiadas. Topo <= cota + 0,05 (nada de degrau).
-#   2. PATIO DO CASTELO (CASTLE_FORECOURT): (o medalhao do EMBLEMA no chao saiu no ajuste 19: o eixo segue continuo),
-#      2 canteiros sombrios (borda de obsidiana, sebes recortadas, flores violeta dessaturadas, 1 cipreste), 2 estatuas
-#      da ordem (encapuzado de manto longo com a lamina) em pedestais com o medalhao, 2 obeliscos com runas, 4 postes de
-#      ferro negro (par sul quente, par norte violeta), muretas com remate de obsidiana nas laterais (o patio muda de
-#      funcao ali). O eixo (14) e as rotas CASTELO->DUNGEON / beco oeste ficam livres.
-#   3. TRANSICOES: arco leve de ferro negro no pe da escada do portao (entrada do recinto do castelo) - mesma familia do
-#      arco do topo da escada P1P2 (sg_village); 2 estandartes da ordem em mastros na saida norte da praca.
-# Prefixo SG_Prop_, colecao 09_PROPS. Luzes: sg_lights (COURT_LIGHTS daqui). Simbolo: SO sg_emblem.
-# REFINAMENTO v2 2026-09-28: RITMO de lanternas douradas (sg_emblem.lantern_pedestal, SO Neon) ao longo do eixo no P2,
-# nos dois lados do caminho da ordem (fora do fio central e da largura util de 12), do topo da escada P1P2 ate o pe da
-# escada do portao; o vao do cruzamento com a rua do P2 fica com o lantern_post da vila (7.8, -51.6). Estandartes dos
-# mastros da praca com debrum DOURADO. Nos parapeitos do P2/P3 do terreno NAO se mexe: as lanternas ficam no chao.
-# REFINAMENTO v3 2026-09-29: contraste caminho x patio com o calcamento escurecido - filete de cantaria clara rente na
-# aresta externa do caminho da ordem (os dois lados, em todo o eixo) e a travessia do patio um valor abaixo do piso.
-# ACABAMENTO 2026-09-29: hierarquia de brilho (fio do eixo na vila = pedra violeta sem brilho; patio do castelo no
-# violeta BAIXO SG_VioletSoft_Glow: fio, halo do medalhao, runas dos obeliscos, lanternas do norte; arco do portao com
-# lanternas quentes); os 2 mastros-estandarte da praca sairam (sinal repetido); a figura da ordem virou
-# hooded_figure() (manto com pregas, capa, borda do capuz, punhos) - a mesma da fonte da praca (sg_village); flores
-# dos canteiros em tufos achatados; vidro da lanterna do patio assentado no prato e no chapeu.
-# OVERHAUL 12 (2026-09-29, props globais): lanterna SO nos NOS - os 3 pares de pedestais do eixo do P2 e o par de
-# postes do patio SAIRAM (os arcos de ferro nas 2 pontas do eixo, o poste do cruzamento e os postes do patamar do
-# portao ja marcam os nos); remate do mastro (codigo parado) em florao torneado no lugar da piramide.
+# sg_court - VESTIR / PATIO-JARDIM do castelo e JARDIM-MIRANTE da Ilha 3 (Shadow Garden), PLANTA v4 (onda 2, agente
+# do jardim, 2026-09-30). Roda ANTES do sg_veg (zona dressing). Prefixo SG_Prop_ (pedra, 09_PROPS) e SG_Veg_Gdn_
+# (plantas, 10_VEGETATION).
+# Pedido do usuario (jogando): "melhore a ambientacao do jardim, ta parecendo uma maquete na frente do castelo" e "voce
+# spamou muita grama". Causas da maquete (PLANO 2): tudo na mesma altura, sebes de brinquedo iguais num retangulo
+# preto chapado, espacamento uniforme e nada com escala maior que o jogador. O patio (200 x 74) vira um JARDIM-SALA:
+#   1. CHAO todo do sg_court (o terreno desce 0,45 no patio: sg_terrain.court_garden_areas): eixo nobre de 20 em lajes
+#      de marmore negro com o fio violeta baixo, CASCALHO de bordas irregulares (travessias nas rotas do QA, anel em
+#      volta dos gramados e dos espelhos, roda da arvore), GRAMA no resto e terra nos canteiros;
+#   2. 2 GRAMADOS REBAIXADOS 1,2 (o terreno recorta o topo: sg_terrain.COURT_LAWNS) com murete de cantaria, capa em
+#      pecas e degraus nas 2 pontas (pilaretes com remate);
+#   3. 2 ESPELHOS D'AGUA de 32 x 20 entre a travessia e a fachada: bacia de pedra estanque (fundo escuro; a agua e do
+#      Roblox pelos WATER_Court_L/R, que o build reposiciona sobre a bacia real);
+#   4. MASSAS DE ALTURA: sebes ALTAS (3-4, lances de altura variada) fechando as laterais e na frente da fachada,
+#      sebes medias em L nas quinas dos espelhos, cones de teixo nos degraus, bolas de buxo nas estatuas, flores na
+#      frente em DERIVAS, 2 ARVORES-MARCO de 34 (teixo de copa alta) com banco circular embaixo;
+#   5. trepadeiras na face interna da muralha, estatuas da ordem no pe do porche, lanterna SO no no (cruzamento).
+# JARDIM-MIRANTE (P3 leste, no lugar da antiga portaria): terraco de lajes em aneis, balaustrada na borda da vista,
+# banco em exedra, a arvore velha da lua inclinada para a vista e flores; os 3 pinheiros vem do sg_veg (grupo Mirante).
+# Historico da v3 (caminho da ordem no P1/P2, parterre, obeliscos): git, sg_court.py ate o commit 5329773. O eixo no
+# P1/P2 agora e da vila (sg_village.AXIS_BY_VILLAGE).
+# API usada por outros modulos (nao mudar): hooded_figure, bez, _loft, _lathe_ax, RUNE_SEGS, OBELISK_RUNES, _glyph,
+# COURT_LIGHTS.
 import math, random
 import sg_lib as SL
 from sg_lib import MB, col_box, col_box2, fm_lib
 import sg_layout as L
 import sg_emblem as EM
 import fm_parts as FP
-import sg_veg as VEG                 # cipreste do canteiro (mesma arvore da ilha) + material do luar das folhas
+import sg_veg as VEG                 # arvores (mesmas especies da ilha) + material do luar das folhas
 import fm_veg_kit as VK
-import sg_garden as GD           # kit de jardinagem (sebe de buxo, flores, trepadeiras)
+import sg_garden as GD               # kit de jardinagem (sebe, topiaria, flores, trepadeiras)
 
 P1, P2, P3 = L.P1, L.P2, L.P3
 COLL = "09_PROPS"
@@ -46,79 +42,94 @@ SILVER = "Metal_SG_Silver"
 IRON = "Metal_SG_BlackIron"
 THREAD = "SG_VioletDeep_Glow"
 RUNE = "SG_Rune_Glow"
-# overhaul 01 (2026-09-29): cantaria de remate um valor abaixo do Stone_SG_Trim (o mesmo do sg_entry e da praca)
 CAP = "Stone_SG_TrimLow"
 fm_lib.MATS.setdefault(CAP, (fm_lib.S(132, 128, 134), 0.8, 0.0, 0, None, 0.06))
-# ACABAMENTO 2026-09-29 (hierarquia de brilho): na VILA (P1/P2) o fio do caminho da ordem vira PEDRA violeta sem brilho
-# (o desenho continua, o neon sai); no patio do CASTELO (P3) o fio, o halo do medalhao, as runas dos obeliscos e as
-# lanternas do norte ficam no violeta BAIXO (SG_VioletSoft_Glow). Lanternas de caminho: quentes.
-THREAD_VIL = VIO
+WALLM = "Stone_SG_Castle_B"          # corpo do murete / bacia (a mesma dupla dos parapeitos da entrada)
+RELM = "Stone_SG_Block_B"
 THREAD_CASTLE = "SG_VioletSoft_Glow"
-WARM_G = "Lantern_Glow"
-HEDGE = "Leaf_SG_Pine"
-HEDGE_TOP = VEG.MOON                  # topo das sebes raspado pelo luar (o mesmo das copas)
-SOIL = "Dirt_SG"
-# material novo do vestir (1): flor violeta DESSATURADA dos canteiros (a vila usa o mesmo nos floreiras das casas)
+GRASS = "Grass_SG"
+GRAVEL = GD.GRAVEL
+SOIL = GD.SOIL
+BOX = GD.LEAF_BOX
+YEW = "Leaf_SG_Pine"                 # sebe alta / cones: o verde escuro das arvores (le teixo, nao buxo)
 BLOOM = "Leaf_SGPropBloom"
 fm_lib.MATS.setdefault(BLOOM, (fm_lib.S(98, 66, 132), 0.85, 0.0, 0, None, 0.08))
 
-FC = L.CASTLE_FORECOURT               # (-46, -3, 46, 40)
-MED_C = (0.0, 20.0)                   # cruzamento do eixo com a travessia patio -> dungeon/beco (era o centro do
-                                      # medalhao da lua no chao, que SAIU no ajuste 19)
-AXIS_W = 14.0                         # eixo do patio (livre)
-PATH_W = 12.0                         # eixo na calcada alta, pe da escada e rua do P2
-PARTERRE_X = (12.0, 37.0)             # |x| dos canteiros
-PARTERRE_Y = (3.5, 15.0)
-# OVERHAUL 03 (03.04): o par NORTE (-+8,4; 28,5) SAIU - cortava a estatua ao meio na linha de visao de quem sobe
-# para a porta (mover para x +-9,5 / y 23 caia de novo no cone de quem vem do portao). A porta ja tem a luz quente
-# dela (L_SGCas_Door) e o violeta baixo central (Court_Violet); o par sul marca a entrada do patio.
-# OVERHAUL 12 (12.04): o par sul tambem SAIU - repetia, 10 studs adiante, o par de postes do patamar do portao
-# (sg_castle, o NO de verdade: topo da escada + portao). O patio fica com o portao, as estatuas e a luz central.
-LAMPS = []
-STATUES = [(-12.5, 33.5), (12.5, 33.5)]
-OBELISKS = [(-21.0, 29.0), (21.0, 29.0)]
-MURETS = [(-45.0, 0.0, 13.5), (45.0, 0.0, 13.5)]
-GATE_ARCH = (0.0, -28.0, P2, 9.4)     # (x, y, z, meia-abertura) arco de ferro no pe da escada do portao
-# acabamento 2026-09-29: os 2 mastros com estandarte na saida norte da praca SAIRAM (repetiam, na frente, os
-# estandartes da fachada do castelo; o arco de ferro do topo da escada P1P2 ja marca a transicao)
-PLAZA_MASTS = []
-# lanternas do eixo no P2 (referencia v2): pares em x = +-7.6 (fora da largura util de 12 do caminho), a cada ~14;
-# o vao -50 fica com o lantern_post da vila em (7.8, -51.6) (nada de cacho de postes no cruzamento)
-# OVERHAUL 12 (12.04/16.04): os 3 pares de pedestais SAIRAM (cerca de luz a cada 14). Os NOS do eixo ja tem lanterna:
-# topo da escada P1P2 = arco de ferro da vila (2 lanternas acesas), cruzamento com a rua do P2 = poste da vila
-# (7.8, -51.6, aceso), pe da escada do portao = arco de ferro do patio (GATE_ARCH, 2 lanternas). Nenhuma luz real muda.
-AXIS_LANTERN_X = 7.6
-AXIS_LANTERN_Y = ()
-# luzes do patio (quem cria e o sg_lights; teto de 7 no vestir)
+# ------------------------------------------------------------------ medidas do patio (planta v4)
+FC = L.CASTLE_FORECOURT               # (-100, -13, 100, 61)
+AXIS_HW = 10.0                         # eixo nobre de 20 (= rua do P3 da planta)
+AXIS_Y = (L.WALL_Y1, 38.0)             # do portao (face interna da muralha) ao 1o degrau do porche (sg_castle)
+PORCH = (-31.0, 38.0, 31.0, FC[3])     # degraus/estrado do porche (sg_castle): fora do chao do patio
+LAWN_DEPTH = 1.2
+MUR_T = 1.0                            # murete dos gramados (dentro do recorte do terreno)
+STEP_Y = (2.6, 9.4)                    # vao dos degraus nas pontas dos gramados (y)
+POOLS = [(-74.0, 32.0, -42.0, 52.0), (42.0, 32.0, 74.0, 52.0)]   # espelho (agua) 32 x 20
+POOL_RIM = 1.2
+POOL_LEVEL = P3 + 0.6
+POOL_FLOOR = P3 + 0.1
+TREES = [(-90.5, 2.5), (90.5, 2.5)]   # arvores-marco (teixo de 34) com banco circular
+TREE_H = 34.0
+STATUES = [(-21.0, 34.5), (21.0, 34.5)]
+NODE_LAMPS = []     # os postes do patio sao do sg_props (pontas dos degraus do porche, boca do beco oeste)
+MED_C = (0.0, 20.0)
+# arco de ferro do kit da vila no PE da escada do portao (rua do eixo do P2; a escada vai de y -40 a -23): entrada do
+# recinto do castelo, lanternas quentes (so Neon). (x, y, z, meia-abertura) - a escada tem 20 de largura
+GATE_ARCH = (0.0, -43.0, P2, 11.6)
+# travessias (cascalho) = as rotas do QA CASTELO->PORTAO_DS (oeste) e CASTELO->JARDIM_MIRANTE (leste)
+CROSS = {1: [(AXIS_HW - 0.5, 20.0), (60.0, 20.0), (101.5, 24.4)],
+         -1: [(-(AXIS_HW - 0.5), 21.0), (-90.0, 30.0), (-101.5, 32.7)]}
+CROSS_HW = 3.5
+# sebes altas nas laterais: lances (y0, y1, h) e a abertura da travessia com 2 cones
+SIDE_HEDGE = {1: [(-10.6, -3.5, 4.6), (-3.5, 5.0, 5.6), (5.0, 11.6, 5.0), (11.6, 16.0, 4.3),
+                  (32.6, 40.0, 4.2), (40.0, 47.2, 5.3), (47.2, 53.0, 4.7)],
+              -1: [(-10.6, -2.0, 4.8), (-2.0, 7.0, 5.5), (7.0, 15.4, 4.7), (15.4, 24.4, 4.2),
+                   (41.0, 46.8, 4.6), (46.8, 53.0, 5.4)]}
+SIDE_CONES = {1: (17.8, 30.8), -1: (26.2, 39.4)}
+SIDE_X = 98.0
+FACADE_HEDGE = [(35.0, 46.0, 3.6), (46.0, 57.5, 3.0), (57.5, 69.5, 4.1), (69.5, 81.5, 3.3), (81.5, 93.5, 4.3)]
+FACADE_HEDGE_Y = 56.6
+# arbustos (massa media entre a sebe alta e as flores): (x, y) por lado (x > 0; o oeste espelha)
+SHRUBS = [(95.0, 1.5), (95.2, 13.0), (95.0, 42.5), (38.5, 54.2), (53.0, 54.0), (74.0, 54.3), (90.0, 53.9)]
 VIOLET = (0.62, 0.42, 1.0)
 COURT_LIGHTS = [("Court_Violet", (0.0, 30.5, P3 + 7.0), 420.0, VIOLET, 0.6)]
+# jardim-mirante
+MIR = L.MIRANTE_E                      # (132, 170, 16)
+MIR_VIEW = (-72.0, 72.0)               # arco da balaustrada (graus; 0 = leste, a vista)
+MIR_EXEDRA = (130.0, 230.0, 12.4)      # arco do banco em exedra (graus) e raio
+MIR_TREE = (125.5, 184.0)              # a arvore velha da lua (inclinada para leste, para a vista)
 
 CAMS = {
-    # 360 do patio + altura do jogador (entrando pelo portao, na travessia, voltando da porta)
-    "CAM_SGCourt_High": ((0.0, 0.0, P3 + 50.0), (0.0, 22.0, P3), 20),
-    "CAM_SGCourt_PH_Gate": ((0.0, -1.0, P3 + 5.2), (0.0, 40.0, P3 + 9.0), 22),
-    "CAM_SGCourt_PH_Cross": ((-40.0, 18.0, P3 + 5.2), (10.0, 24.0, P3 + 6.0), 22),
-    "CAM_SGCourt_PH_Back": ((0.0, 35.0, P3 + 5.2), (0.0, -10.0, P3 + 5.0), 22),
-    "CAM_SGCourt_SideE": ((44.0, 4.0, P3 + 24.0), (0.0, 22.0, P3 + 1.0), 22),
-    "CAM_SGCourt_PH_P2Axis": ((0.0, -78.0, P2 + 5.2), (0.0, -20.0, P2 + 10.0), 22),
-    "CAM_SGCourt_PH_PlazaN": ((0.0, -120.0, P1 + 5.2), (0.0, -90.0, P1 + 9.0), 22),
-    "CAM_SGCourt_PH_EntryHigh": ((0.0, -186.0, P1 + 5.2), (0.0, -140.0, P1 + 6.0), 22),
+    "CAM_SGCourt_PH_Gate": ((0.0, -11.0, P3 + 5.2), (0.0, 40.0, P3 + 9.0), 20),
+    "CAM_SGCourt_PH_GateDiag": ((-6.0, -4.5, P3 + 5.2), (62.0, 26.0, P3 + 5.0), 22),
+    "CAM_SGCourt_PH_Door": ((8.0, 35.0, P3 + 5.6), (-46.0, 2.0, P3 + 3.0), 22),
+    "CAM_SGCourt_PH_Lawn": ((24.0, 22.5, P3 + 5.2), (78.0, 2.0, P3 + 2.0), 22),
+    "CAM_SGCourt_PH_GateArch": ((4.0, -78.0, P2 + 5.2), (0.0, -30.0, P2 + 11.0), 22),
+    "CAM_SGCourt_High": ((0.0, -60.0, P3 + 150.0), (0.0, 24.0, P3), 20),
+    "CAM_SGCourt_Top": ((0.0, 23.0, P3 + 230.0), (0.0, 24.0, P3), 18),
+    "CAM_SGCourt_CU_Steps": ((25.5, 15.5, P3 + 3.6), (33.0, 4.0, P3 - 0.8), 24),
+    "CAM_SGCourt_CU_Bed": ((27.0, 25.0, P3 + 3.2), (21.0, 33.0, P3 + 1.0), 24),
+    "CAM_SGCourt_Tree": ((58.0, 16.0, P3 + 5.2), (90.0, 3.0, P3 + 9.0), 22),
+    "CAM_SGCourt_Pool": ((30.0, 24.0, P3 + 5.2), (64.0, 46.0, P3 + 3.0), 22),
+    "CAM_SGMir_PH": ((133.0, 142.0, P3 + 5.2), (136.0, 176.0, P3 + 3.5), 20),
+    "CAM_SGMir_View": ((120.0, 166.0, P3 + 5.2), (190.0, 176.0, P3 + 2.0), 22),
+    "CAM_SGMir_High": ((186.0, 128.0, P3 + 42.0), (130.0, 172.0, P3), 22),
 }
 
-# rotas extras: a volta pelos canteiros (entre o poste, o canteiro e a mureta) e o contorno das estatuas/obeliscos
+# rotas extras: a volta pelos gramados (no cascalho), ate o banco da arvore, em volta do espelho e o terraco do mirante
 EXTRA_ROUTES = {
-    "COURT_JARDIM_O": ([(0.0, 1.6), (-10.3, 1.6), (-10.3, 17.2), (-39.5, 17.2), (-41.0, 9.0), (-39.5, 1.6),
-                        (-10.3, 1.6)], P3),
-    "COURT_JARDIM_L": ([(0.0, 1.6), (10.3, 1.6), (10.3, 17.2), (39.5, 17.2), (41.0, 9.0), (39.5, 1.6),
-                        (10.3, 1.6)], P3),
-    "COURT_ESTATUA_O": ([(0.0, 24.0), (-16.75, 24.0), (-16.75, 34.0)], P3),
-    "COURT_ESTATUA_L": ([(0.0, 24.0), (16.75, 24.0), (16.75, 34.0)], P3),
-    "COURT_ARCO_PORTAO": ([(0.0, -40.0), (0.0, -28.0), (0.0, -24.0)], P2),
+    "COURT_ANEL_GRAMADO_L": ([(12.0, 18.0), (31.7, 17.4), (31.7, -4.3), (84.3, -4.3), (84.3, 12.0)], P3),
+    "COURT_ANEL_GRAMADO_O": ([(-12.0, 18.0), (-31.7, 17.4), (-31.7, -4.3), (-84.3, -4.3), (-84.3, 12.0)], P3),
+    "COURT_DEGRAUS_L": ([(31.7, 6.0), (34.5, 6.0), (40.0, 6.0)], P3),
+    "COURT_BANCO_L": ([(60.0, 20.0), (85.0, 16.0), (86.0, 8.0)], P3),
+    "COURT_BANCO_O": ([(-60.0, 26.0), (-85.0, 16.0), (-86.0, 8.0)], P3),
+    "COURT_ESPELHO_L": ([(30.0, 22.0), (38.0, 28.2), (78.2, 28.2), (78.2, 52.0)], P3),
+    "COURT_ESPELHO_O": ([(-30.0, 24.0), (-38.0, 28.6), (-78.2, 29.6), (-78.2, 52.0)], P3),
+    "MIRANTE_TERRACO": ([(132.0, 152.0), (132.0, 168.0), (141.0, 170.0), (128.0, 176.0)], P3),
 }
 EXTRA_PROBES = []
 
 
-# ------------------------------------------------------------------ utilidades de forma
+# ------------------------------------------------------------------ utilidades de forma (API: bez)
 def ngon(c, r, n, rot=0.0):
     return [(c[0] + r * math.cos(rot + 2 * math.pi * k / n), c[1] + r * math.sin(rot + 2 * math.pi * k / n))
             for k in range(n)]
@@ -155,212 +166,8 @@ def bez(p0, p1, p2, p3, n):
     return out
 
 
-# ------------------------------------------------------------------ 1. caminho da ordem
-def noble_path(mb, y0, y1, W, z, thread=(None, None), slabs=(None, None), border=(None, None), row=3.0,
-               thread_m=THREAD_VIL, filete=True):
-    """eixo nobre ao longo de +Y (x = 0) de y0 a y1, largura W, piso na cota z.
-    base de obsidiana (juntas/canal do fio) + bordas de obsidiana + lajes grandes de marmore negro (uma por lado e por
-    fiada) + fio no centro. thread/slabs/border = (y_ini, y_fim) opcionais (quando o medalhao come um trecho).
-    Overhaul 01 (2026-09-29): fiadas em RITMO A-B (2,4 / 3,6) com chanfro de 0,04, junta de prata SO a cada 8 fiadas e
-    o filete claro da aresta so onde o piso em volta nao contrasta (filete=False na calcada alta e na praca; e em
-    cantaria baixa, nao mais no Stone_SG_Trim quase branco)."""
-    hw = W / 2.0
-    bd = 0.9                                     # borda
-    mb.box2((-hw, y0, z - 0.2), (hw, y1, z + 0.02), OBS, 0.0)
-    by0, by1 = border[0] if border[0] is not None else y0, border[1] if border[1] is not None else y1
-    for s in (-1, 1):
-        xa, xb = sorted((s * (hw - (0.24 if filete else 0.0)), s * (hw - bd)))
-        mb.box2((xa, by0, z - 0.05), (xb, by1, z + 0.05), OBS, 0.0)
-        if filete:
-            xa, xb = sorted((s * hw, s * (hw - 0.24)))
-            mb.box2((xa, by0, z - 0.05), (xb, by1, z + 0.05), CAP, 0.0)
-    sy0, sy1 = slabs[0] if slabs[0] is not None else y0, slabs[1] if slabs[1] is not None else y1
-    Lr = sy1 - sy0
-    pat = (2.4, 3.6)
-    rows, acc = [], 0.0
-    while acc < Lr - 0.6 or not rows:
-        rows.append(pat[len(rows) % 2])
-        acc += rows[-1]
-    k_ = Lr / acc
-    xin, xout = 0.55, hw - bd - 0.12
-    yy = sy0
-    for k, ln in enumerate(rows):
-        ya, yb = yy + 0.06, yy + ln * k_ - 0.06
-        for s in (-1, 1):
-            xa, xb = sorted((s * xin, s * xout))
-            mb.box2((xa, ya, z - 0.05), (xb, yb, z + 0.045), MARB, 0.04)
-        if k > 0 and k % 8 == 0:
-            mb.box2((-xout, yy - 0.06, z - 0.05), (xout, yy + 0.06, z + 0.035), SILVER, 0.0)
-        yy += ln * k_
-    ty0, ty1 = thread[0] if thread[0] is not None else y0, thread[1] if thread[1] is not None else y1
-    mb.box2((-0.14, ty0, z - 0.05), (0.14, ty1, z + 0.05), thread_m, 0.0)
 
-
-def axis_south():
-    """calcada alta da entrada ate a praca + o trecho entre a praca e o pe da escada P1P2 (P1)"""
-    mb = MB("SG_Prop_NobleAxis_P1", COLL, random.Random(3601), detail="near")
-    y_top = L.ENTRY_STAIR_Y1 + 0.35                  # topo da escadaria da entrada (-187,65)
-    y_plaza_s = L.PLAZA_C[1] - L.PLAZA_R + 1.0       # a borda de cantaria da praca cobre a junta
-    noble_path(mb, y_top, y_plaza_s, PATH_W, P1, filete=False)
-    foot = L.stair_frame("P1P2")[0]
-    noble_path(mb, L.PLAZA_C[1] + L.PLAZA_R - 1.0, foot[1] - 0.02, PATH_W, P1, filete=False)
-    # estandartes da ordem em mastros na saida norte da praca (encaram a praca)
-    for x, y in PLAZA_MASTS:
-        mast_banner(mb, x, y, P1)
-    mb.finish()
-
-
-def mast_banner(mb, x, y, z, yaw=-math.pi / 2):
-    """mastro de ferro negro com soco de obsidiana e o estandarte da ordem pendurado a frente (lado 'yaw')"""
-    fx, fy = math.cos(yaw), math.sin(yaw)
-    mb.box((1.5, 1.5, 0.9), (x, y, z + 0.35), (0, 0, 0), OBS, 0.1)
-    mb.box((1.1, 1.1, 0.5), (x, y, z + 1.05), (0, 0, 0), VIO, 0.06)
-    mb.cyl(0.24, 13.2, (x, y, z + 1.3 + 6.6), (0, 0, 0), IRON, n=8, r2=0.17, bevel=0.0)
-    mb.cyl(0.36, 0.3, (x, y, z + 12.9), (0, 0, 0), IRON, n=8, bevel=0.0)
-    # remate do kit (12.12): florao torneado no lugar da piramide de 4 lados + bola
-    EM._lathe(mb, (x, y, z + 13.05), [(0.2, 0.0), (0.14, 0.2), (0.3, 0.46), (0.1, 0.82), (0.0, 1.45)], SILVER, 6,
-              math.pi / 6)
-    top = (x + fx * 0.36, y + fy * 0.36, z + 12.6)
-    EM.banner(mb, mb, mb, mb, top, yaw, 3.0, 7.4, trim=EM.BRONZE)
-    col_box("SG_PropMast", (1.2, 1.2, 14.0), (x, y, z + 7.0))
-
-
-def axis_north():
-    """rua do eixo no P2 + portao + patio do castelo (P3) com o eixo continuo; o arco de ferro no pe da escada do portao"""
-    mb = MB("SG_Prop_NobleAxis_P2P3", COLL, random.Random(3602), detail="near")
-    y_p2_0 = L.stair_top("P1P2")[1] + 0.02          # -83
-    y_p2_1 = L.stair_frame("Gate")[0][1] - 0.02      # -26
-    noble_path(mb, y_p2_0, y_p2_1, PATH_W, P2)
-    # (vazio desde o overhaul 12: o eixo so tem lanterna nos NOS - ver AXIS_LANTERN_Y)
-    for yy in AXIS_LANTERN_Y:
-        for s in (-1, 1):
-            EM.lantern_pedestal(mb, mb, mb, (s * AXIS_LANTERN_X, yy, P2), 0.0, 1.0)
-            col_box("SG_PropLantern", (1.9, 1.9, 3.6), (s * AXIS_LANTERN_X, yy, P2 + 1.8))
-    # patio: do portao (face sul da muralha) ate a porta, CONTINUO. Ajuste 19 (2026-09-30): o medalhao da lua no chao
-    # SAIU (o jogador lia como placa de teleporte) - no lugar dele o mesmo piso do eixo segue sem emenda e as 2
-    # travessias encostam na borda do eixo
-    y_gate = L.WALL_Y0 + 0.02                        # -8,98 (topo da escada do portao)
-    y_door = L.CASTLE_FACADE_Y - 0.02
-    noble_path(mb, y_gate, y_door, AXIS_W, P3, thread_m=THREAD_CASTLE)
-    for s in (-1, 1):
-        cross_walk(mb, s)
-    mb.finish()
-
-
-def cross_walk(mb, s, hw=3.6, x_end=(44.0, 44.9)):
-    """travessia secundaria do patio (da borda do eixo nobre ate a borda do patio): lajota escura (Stone_SG_Floor) com
-    faixas de cantaria clara rentes nas bordas - abaixo do eixo nobre na hierarquia, acima do piso liso. Ajuste 19: sem
-    o medalhao, nasce reta na borda do eixo (x = +-AXIS_W / 2) no cruzamento MED_C"""
-    cx, cy = MED_C
-    z = P3
-    xe = x_end[1] if s > 0 else x_end[0]
-    x0 = cx + s * AXIS_W / 2.0
-    poly = [(x0, cy - hw), (x0, cy + hw), (s * xe, cy + hw), (s * xe, cy - hw)]
-    mb.prism(SL.ccw(poly), z - 0.1, z + 0.03, "Stone_SG_Floor")
-    for e in (-1, 1):
-        ya, yb = sorted((cy + e * hw, cy + e * (hw - 0.55)))
-        xa, xb = sorted((x0, s * xe))
-        mb.box2((xa, ya, z - 0.05), (xb, yb, z + 0.045), CAP, 0.0)
-    # juntas transversais a cada 3,2 (fiadas), e a soleira na ponta
-    xs = abs(x0)
-    k = 1
-    while xs + 3.2 * k < xe - 1.0:
-        xj = s * (xs + 3.2 * k)
-        mb.box2((xj - 0.07, cy - hw + 0.55, z - 0.05), (xj + 0.07, cy + hw - 0.55, z + 0.04), OBS, 0.0)
-        k += 1
-    xa, xb = sorted((s * (xe - 0.6), s * xe))
-    mb.box2((xa, cy - hw, z - 0.05), (xb, cy + hw, z + 0.045), CAP, 0.0)
-
-
-# ------------------------------------------------------------------ 2. patio: canteiros, estatuas, obeliscos, postes
-def hedge(mb, a, b, w=0.8, h=0.95, z=P3 + 0.5):
-    """sebe de BUXO de a a b (xy). JARDINAGEM 2026-09-29 (sg_garden): topo ARREDONDADO (perfil de 8 pontos: paredes
-    quase retas e meia-cana em 3 lances; antes topo chanfrado de 6 lados + faixa de luar colada) no verde do buxo"""
-    GD.hedge_round(mb, a, b, w, h, z, GD.LEAF_BOX)
-
-
-def parterre(mb, s, rng, mg=None):
-    """canteiro do patio = JARDIM DE LUA formal (jardinagem 2026-09-29, pedido do usuario). Mesmo envelope e mesma
-    colisao de antes (a volta COURT_JARDIM_* nao muda); a mureta de obsidiana, os pilaretes e o cipreste ficam.
-    Dentro: sebe de buxo de topo arredondado na moldura com BOLAS de topiaria nas quinas e nas bocas dos caminhos,
-    rosas brancas entremeadas no topo da sebe, CASCALHO nos caminhos (cruz + roda em volta do cipreste, que ganha
-    uma sebe redonda de 12 lances), e 4 compartimentos de cantaria baixa com FAIXAS de cor: lavanda junto da moldura,
-    massa de flores-da-lua no meio, campanulas junto do caminho (espelhado: o desenho le simetrico do eixo).
-    mb = pedra/sebes/cipreste (SG_Prop_Court), mg = plantas (SG_Veg_Gdn_Court)."""
-    mg = mg or mb
-    x0, x1 = sorted((s * PARTERRE_X[0], s * PARTERRE_X[1]))
-    y0, y1 = PARTERRE_Y
-    z = P3
-    cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
-    bw = 0.9
-    # borda de obsidiana (mureta baixa com chanfro no topo) + pilaretes de canto com pinaculo
-    mb.box2((x0, y0, z - 0.1), (x1, y0 + bw, z + 0.8), OBS, 0.1)
-    mb.box2((x0, y1 - bw, z - 0.1), (x1, y1, z + 0.8), OBS, 0.1)
-    mb.box2((x0, y0 + bw, z - 0.1), (x0 + bw, y1 - bw, z + 0.8), OBS, 0.1)
-    mb.box2((x1 - bw, y0 + bw, z - 0.1), (x1, y1 - bw, z + 0.8), OBS, 0.1)
-    # overhaul 03 (03.06/12.12): dado de canto de quinas chanfradas, capa moldurada e o remate do kit (bola com
-    # colar, cantaria baixa) no lugar da piramide de 4 lados
-    import sg_entry as SE
-    for px in (x0 + 0.6, x1 - 0.6):
-        for py in (y0 + 0.6, y1 - 0.6):
-            mb.prism(SE.chamfer_sq(px, py, 0.65, 0.16), z - 0.1, z + 1.12, OBS)
-            mb.box((1.5, 1.5, 0.14), (px, py, z + 1.19), (0, 0, 0), CAP, 0.03)
-            mb.box((1.3, 1.3, 0.12), (px, py, z + 1.32), (0, 0, 0), CAP, 0.03)
-            SE.finial(mb, px, py, z + 1.38, 0.4, m=CAP, n=8)
-    # terra (leito do canteiro) + cascalho em toda a area de dentro da moldura (os caminhos do jardim)
-    zt = z + 0.62
-    mb.box2((x0 + bw, y0 + bw, z - 0.1), (x1 - bw, y1 - bw, zt), SOIL, 0.0)
-    i0, i1, j0, j1 = x0 + bw + 0.55, x1 - bw - 0.55, y0 + bw + 0.55, y1 - bw - 0.55
-    mb.box2((i0 + 0.3, j0 + 0.3, zt - 0.04), (i1 - 0.3, j1 - 0.3, zt + 0.04), GD.GRAVEL, 0.0)
-    zg = zt + 0.04
-    # moldura de buxo (sebe arredondada) + bolas de topiaria nas 4 quinas
-    hedge(mb, (i0 + 0.3, j0), (i1 - 0.3, j0))
-    hedge(mb, (i0 + 0.3, j1), (i1 - 0.3, j1))
-    hedge(mb, (i0, j0 + 0.3), (i0, j1 - 0.3))
-    hedge(mb, (i1, j0 + 0.3), (i1, j1 - 0.3))
-    for px in (i0, i1):
-        for py in (j0, j1):
-            GD.topiary(mb, (px, py, z + 0.5), 0.66, squash=0.95)
-    # rosas brancas no topo das sebes compridas (a roseira entremeada no buxo)
-    for py in (j0, j1):
-        GD.hedge_roses(mg, (i0 + 0.9, py), (i1 - 0.9, py), z + 0.5 + 0.95, step=2.3)
-    # roda do cipreste: sebe redonda de 12 lances (r 2,4) com 4 bocas; bolas pequenas nas bocas do caminho em cruz
-    rr = 2.4
-    for k in range(12):
-        a0 = math.radians(15.0 + 30.0 * k)
-        a1 = math.radians(15.0 + 30.0 * (k + 1))
-        if k % 3 == 2:
-            continue                                   # bocas a 0/90/180/270 (a cruz de cascalho chega ao cipreste)
-        hedge(mb, (cx + rr * math.cos(a0), cy + rr * math.sin(a0)), (cx + rr * math.cos(a1), cy + rr * math.sin(a1)),
-              w=0.62, h=0.8)
-    for k in range(4):
-        a = math.radians(90.0 * k)
-        for sg in (-1, 1):
-            b = a + sg * math.radians(15.0)
-            GD.topiary(mb, (cx + (rr + 0.05) * math.cos(b), cy + (rr + 0.05) * math.sin(b), z + 0.5), 0.36)
-    # 4 compartimentos de flores em faixas (entre a moldura, o caminho em cruz e a roda)
-    for (xa, xb) in ((i0 + 0.75, cx - rr - 0.9), (cx + rr + 0.9, i1 - 0.75)):
-        GD.formal_bed(mb, mg, xa, xb, j0 + 0.75, cy - 0.65, zg, outer=-1)
-        GD.formal_bed(mb, mg, xa, xb, cy + 0.65, j1 - 0.75, zg, outer=1)
-    # cipreste no centro (a mesma especie da ilha: le como plantado, nao enfeite)
-    old = VK.SUN
-    VK.SUN = VEG.MOON_DIR
-    try:
-        VEG.cypress(mb, cx, cy, z + 0.5, 7.6, rng, 0)          # overhaul 03: 11,5 tapava a fachada
-    finally:
-        VK.SUN = old
-    col_box2("SG_PropParterre", (x0, y0, z - 0.1), (x1, y1, z + 1.8))
-
-
-def lamp(mb, x, y, z, kind):
-    """poste do patio (acabamento 2026-09-29): o lantern_post da ordem (soco de obsidiana, fuste de ferro negro, colar
-    dourado, lanterna com montantes e chapeu) - a MESMA familia da praca, do eixo e das ruas, no lugar do poste de
-    cilindros empilhados; lanterna na mesma cota (z + 8,3). Os 4 ficam quentes: o violeta do patio e o da luz central
-    (Court_Violet) e o do medalhao, baixos."""
-    EM.lantern_post(mb, mb, (x, y, z), 0.0, h=7.4)
-    col_box("SG_PropCourtLamp", (1.2, 1.2, 9.0), (x, y, z + 4.5))
-
-
+# ------------------------------------------------------------------ figura da ordem, estatua, runas (API de outros modulos)
 def _loft(mb, rows, m, cap0="ngon", cap1="ngon", strip=None):
     """casca por secoes (listas de pontos MUNDO com a mesma contagem; uma secao de 1 ponto = polo).
     cap: 'ngon' (secao convexa), 'fan' (leque pelo centroide: secao estrelada), 'strip' (secao = arco externo de
@@ -720,58 +527,587 @@ def obelisk(mb, x, y, z, face_yaw):
     col_box("SG_PropObelisk", (3.6, 3.6, 15.0), (x, y, z + 7.5))
 
 
-def muret(mb, x, y0, y1, z):
-    """mureta de transicao. Overhaul 03 (03.07): corpo de cantaria em 2 fiadas com juntas desencontradas, CAPA
-    moldurada com pingadeira nos 2 lados e os pilaretes do kit (plinto + toro, fuste chanfrado, capitel, bola com
-    colar) nas pontas - antes corpo-caixa, remate-caixa, pilar-caixa e piramide"""
+
+# ------------------------------------------------------------------ contornos organicos (bordas irregulares do cascalho)
+def _wob(t, ph, amp):
+    """ruido suave ao longo do comprimento t (studs): 2 ondas lentas, nada de serrilha"""
+    return amp * (0.6 * math.sin(t / 3.3 + ph) + 0.4 * math.sin(t / 1.9 + 2.1 * ph))
+
+
+def round_rect(x0, y0, x1, y1, d, rc=None, n=5):
+    """retangulo expandido de d com cantos arredondados (raio rc)"""
+    rc = d if rc is None else rc
+    X0, Y0, X1, Y1 = x0 - d, y0 - d, x1 + d, y1 + d
+    pts = []
+    for cx, cy, a0 in ((X1 - rc, Y0 + rc, -90.0), (X1 - rc, Y1 - rc, 0.0), (X0 + rc, Y1 - rc, 90.0),
+                       (X0 + rc, Y0 + rc, 180.0)):
+        for k in range(n + 1):
+            a = math.radians(a0 + 90.0 * k / n)
+            pts.append((cx + rc * math.cos(a), cy + rc * math.sin(a)))
+    return pts
+
+
+def wobble_closed(pts, amp, seed, step=1.6):
+    """contorno fechado com a borda ondulada (para fora/dentro pela normal), amostrado a cada 'step'"""
+    import sg_terrain as TER
+    ph = (seed % 97) * 0.37
+    out = []
+    for i, (x, y, nx, ny) in enumerate(TER.resample_closed(pts, step)):
+        w = _wob(i * step, ph, amp)
+        out.append((x + nx * w, y + ny * w))
+    return out
+
+
+def wobble_ribbon(cl, hw, amp, seed, step=1.5):
+    """faixa (caminho) ao longo da polilinha cl, meia-largura hw com as 2 bordas onduladas de forma independente"""
+    pts = []
+    for a, b in zip(cl, cl[1:]):
+        ln = math.hypot(b[0] - a[0], b[1] - a[1])
+        k = max(1, int(round(ln / step)))
+        for i in range(k):
+            pts.append((a[0] + (b[0] - a[0]) * i / k, a[1] + (b[1] - a[1]) * i / k))
+    pts.append(cl[-1])
+    ph = (seed % 89) * 0.41
+    L_, R_ = [], []
+    acc = 0.0
+    for i, p in enumerate(pts):
+        if i:
+            acc += math.hypot(p[0] - pts[i - 1][0], p[1] - pts[i - 1][1])
+        q0 = pts[max(0, i - 1)]
+        q1 = pts[min(len(pts) - 1, i + 1)]
+        tx, ty = q1[0] - q0[0], q1[1] - q0[1]
+        tl = math.hypot(tx, ty) or 1.0
+        nx, ny = -ty / tl, tx / tl
+        e = 1.0 if 0 < i < len(pts) - 1 else 0.0
+        wl = hw + e * _wob(acc, ph, amp)
+        wr = hw + e * _wob(acc, ph + 1.7, amp)
+        L_.append((p[0] + nx * wl, p[1] + ny * wl))
+        R_.append((p[0] - nx * wr, p[1] - ny * wr))
+    return L_ + list(reversed(R_))
+
+
+def blob(cx, cy, rx, ry, seed, rot=0.0):
+    import sg_terrain as TER
+    return TER.blob(cx, cy, rx, ry, rot, seed, n=22, amp=0.12)
+
+
+# ------------------------------------------------------------------ 1. o CHAO do patio (varredura: eixo, cascalho, terra, grama)
+def lawn_rects():
+    import sg_terrain as TER
+    return list(TER.COURT_LAWNS)
+
+
+def floor_layers():
+    """(cortes, cascalho, terra) do patio em poligonos"""
+    cuts = [SL.ccw([(-AXIS_HW, AXIS_Y[0] - 0.5), (AXIS_HW, AXIS_Y[0] - 0.5), (AXIS_HW, AXIS_Y[1]), (-AXIS_HW, AXIS_Y[1])]),
+            [(PORCH[0], PORCH[1]), (PORCH[2], PORCH[1]), (PORCH[2], PORCH[3] + 1.0), (PORCH[0], PORCH[3] + 1.0)]]
+    cuts += [[(a, b), (c, b), (c, d), (a, d)] for a, b, c, d in lawn_rects()]
+    cuts += [[(a - POOL_RIM, b - POOL_RIM), (c + POOL_RIM, b - POOL_RIM), (c + POOL_RIM, d + POOL_RIM),
+              (a - POOL_RIM, d + POOL_RIM)] for a, b, c, d in POOLS]
+    gravel, soil = [], []
+    for s in (-1, 1):
+        gravel.append(wobble_ribbon(CROSS[s], CROSS_HW, 0.5, 11 + s))
+        x0, y0, x1, y1 = [r for r in lawn_rects() if (r[0] > 0) == (s > 0)][0]
+        gravel.append(wobble_closed(round_rect(x0, y0, x1, y1, 2.6, 2.0), 0.45, 21 + s))
+        px0, py0, px1, py1 = [p for p in POOLS if (p[0] > 0) == (s > 0)][0]
+        gravel.append(wobble_closed(round_rect(px0, py0, px1, py1 - 2.2, POOL_RIM + 2.4, 2.4), 0.4, 31 + s))
+        tx, ty = TREES[0 if s < 0 else 1]
+        gravel.append(blob(tx - s * 0.6, ty, 5.8, 5.2, 41 + s))
+        # terra: pe da muralha, faixa da sebe da fachada, faixa das sebes laterais
+        # (a roda da estatua fica em GRAMA: as flores nascem do gramado, nada de terra pelada no close)
+        xa, xb = sorted((s * 37.5, s * 87.0))
+        soil.append(wobble_closed([(xa, FC[1] - 0.5), (xb, FC[1] - 0.5), (xb, FC[1] + 3.2), (xa, FC[1] + 3.2)], 0.35,
+                                  61 + s))
+        xa, xb = sorted((s * 33.5, s * 99.0))
+        soil.append(wobble_closed([(xa, FACADE_HEDGE_Y - 3.2), (xb, FACADE_HEDGE_Y - 3.2), (xb, FC[3] + 0.5),
+                                   (xa, FC[3] + 0.5)], 0.35, 71 + s))
+        xa, xb = sorted((s * (SIDE_X - 3.6), s * (FC[2] + 0.5)))
+        soil.append(wobble_closed([(xa, FC[1] - 0.5), (xb, FC[1] - 0.5), (xb, FC[3] + 0.5), (xa, FC[3] + 0.5)], 0.3,
+                                  81 + s))
+    return cuts, gravel, soil
+
+
+def court_floor():
+    """o chao do patio inteiro (o terreno desce 0,45 aqui): faces de topo EXATAS na cota P3 por varredura (cascalho /
+    terra / grama sem sobreposicao) + o eixo nobre (lajes com profundidade propria)"""
+    import sg_terrain as TER
+    mb = MB("SG_Prop_CourtFloor", COLL, random.Random(3601), detail="near")
+    dom = [[(FC[0], FC[1]), (FC[2], FC[1]), (FC[2], FC[3]), (FC[0], FC[3])]]
+    cuts, gravel, soil = floor_layers()
+    nf = 0
+    for fl, pts in TER.scan_regions(dom, [cuts, gravel, soil]):
+        cut, grv, sl = fl
+        if cut:
+            continue
+        TER.flat_face(mb, pts, P3, GRAVEL if grv else (SOIL if sl else GRASS))
+        nf += 1
+    noble_path(mb, AXIS_Y[0], AXIS_Y[1], 2 * AXIS_HW, P3, thread_m=THREAD_CASTLE, zb=P3 - 0.55)
+    mb.finish(recalc=False)
+    return nf
+
+
+def noble_path(mb, y0, y1, W, z, thread_m=THREAD_CASTLE, zb=None, row=3.0):
+    """eixo nobre ao longo de +Y (x = 0): leito de obsidiana (juntas/canal do fio) + bordas de obsidiana com filete de
+    cantaria + lajes de marmore negro em ritmo A-B (2,4 / 3,6) com chanfro + fio violeta baixo no centro + junta de
+    prata a cada 8 fiadas. zb = fundo do leito (o terreno do patio desce 0,45: o leito fecha o rebaixo)"""
+    hw = W / 2.0
+    bd = 0.9
+    zb = z - 0.2 if zb is None else zb
+    mb.box2((-hw, y0, zb), (hw, y1, z - 0.16), OBS, 0.0)
+    for s in (-1, 1):
+        xa, xb = sorted((s * (hw - 0.24), s * (hw - bd)))
+        mb.box2((xa, y0, z - 0.2), (xb, y1, z + 0.0), OBS, 0.0)
+        xa, xb = sorted((s * hw, s * (hw - 0.24)))
+        mb.box2((xa, y0, z - 0.15), (xb, y1, z + 0.12), CAP, 0.0)
+    Lr = y1 - y0
+    pat = (2.4, 3.6)
+    rows, acc = [], 0.0
+    while acc < Lr - 0.6 or not rows:
+        rows.append(pat[len(rows) % 2])
+        acc += rows[-1]
+    k_ = Lr / acc
+    xin, xout = 0.55, hw - bd - 0.12
+    yy = y0
+    for k, ln in enumerate(rows):
+        ya, yb = yy + 0.06, yy + ln * k_ - 0.06
+        for s in (-1, 1):
+            xa, xb = sorted((s * xin, s * xout))
+            mb.box2((xa, ya, z - 0.1), (xb, yb, z + 0.05), MARB, 0.04)
+        if k > 0 and k % 8 == 0:
+            mb.box2((-xout, yy - 0.06, z - 0.2), (xout, yy + 0.06, z - 0.04), SILVER, 0.0)
+        yy += ln * k_
+    mb.box2((-0.14, y0, z - 0.2), (0.14, y1, z + 0.08), thread_m, 0.0)
+
+
+# ------------------------------------------------------------------ 2. gramados rebaixados (murete + degraus)
+def lawn_wall(mb, rect_, s):
+    """murete de cantaria dentro do recorte do terreno (face de fora encosta de costas no espelho do terreno): corpo
+    de P3-1,3 a P3+0,42, embasamento saliente por dentro, capa em pecas de 2,4 com pingadeira para os 2 lados;
+    vao dos degraus nas 2 pontas (STEP_Y) com pilaretes de remate"""
     import sg_entry as SE
-    for zc_, hc_, off in ((z - 0.1, 0.62, 0.0), (z + 0.52, 0.5, 1.2)):
-        cuts = [y0 + 0.8] + [y0 + 0.8 + off + 2.4 * j for j in range(1, 8) if y0 + 0.8 + off + 2.4 * j < y1 - 1.4] +                [y1 - 0.8]
-        for a_, b_ in zip(cuts, cuts[1:]):
-            mb.box2((x - 0.45, a_ + 0.04, zc_ + 0.03), (x + 0.45, b_ - 0.04, zc_ + hc_ - 0.03), SE.PAR_M, 0.05)
-    mb.box2((x - 0.4, y0, z - 0.1), (x + 0.4, y1, z + 1.0), SE.PAR_M, 0.0)
-    for sx in (-1, 1):
-        a_, b_ = sorted((x + sx * 0.3, x + sx * 0.66))
-        mb.box2((a_, y0 + 0.6, z + 1.0), (b_, y1 - 0.6, z + 1.12), CAP, 0.0)
-    FP.frustum(mb, (x, (y0 + y1) / 2, z + 1.12), 1.32, y1 - y0 - 1.2, 1.0, y1 - y0 - 1.4, 0.2, CAP)
-    for yy in (y0, y1):
-        SE._post(mb, x, yy, z - 0.1, 1.4, 1.35, lamp=False)
-    col_box2("SG_PropMuret", (x - 0.75, y0 - 0.75, z - 0.1), (x + 0.75, y1 + 0.75, z + 1.9))
+    x0, y0, x1, y1 = rect_
+    T = MUR_T
+    zb, zt = P3 - LAWN_DEPTH - 0.1, P3 + 0.42
+    zl = P3 - LAWN_DEPTH
+    g0, g1 = STEP_Y
+    runs = [((x0, y0), (x1, y0), (0.0, 1.0)), ((x0, y1), (x1, y1), (0.0, -1.0)),
+            ((x0, y0 + T), (x0, g0), (1.0, 0.0)), ((x0, g1), (x0, y1 - T), (1.0, 0.0)),
+            ((x1, y0 + T), (x1, g0), (-1.0, 0.0)), ((x1, g1), (x1, y1 - T), (-1.0, 0.0))]
+    for (a, b, (nx, ny)) in runs:
+        # corpo (faixa de espessura T para dentro)
+        pa = (a[0] + nx * T, a[1] + ny * T)
+        pb = (b[0] + nx * T, b[1] + ny * T)
+        xs, ys = sorted((a[0], b[0], pa[0], pb[0])), sorted((a[1], b[1], pa[1], pb[1]))
+        mb.box2((xs[0], ys[0], zb), (xs[-1], ys[-1], zt), WALLM, 0.0)
+        # embasamento por dentro (0,14 para fora da face interna, 0,4 de altura)
+        q0 = (pa[0] + nx * 0.14, pa[1] + ny * 0.14)
+        q1 = (pb[0] + nx * 0.14, pb[1] + ny * 0.14)
+        xs, ys = sorted((pa[0], pb[0], q0[0], q1[0])), sorted((pa[1], pb[1], q0[1], q1[1]))
+        if nx:                                                    # lados curtos: o embasamento para antes do muro longo
+            ys = [ys[0] + (0.14 if abs(ys[0] - (y0 + T)) < 1e-6 else 0.0), ys[-1] - (0.14 if abs(ys[-1] - (y1 - T)) < 1e-6 else 0.0)]
+        mb.box2((xs[0], ys[0], zl - 0.05), (xs[-1], ys[-1], zl + 0.4), RELM, 0.03)
+        # fiada intermediaria (junta horizontal rebaixada: faixa 0,06 para dentro da face, 0,12 de altura)
+        # capa em pecas: 0,12 para fora dos 2 lados, pingadeira
+        ln = math.hypot(b[0] - a[0], b[1] - a[1])
+        nseg = max(1, int(round(ln / 2.4)))
+        ux, uy = (b[0] - a[0]) / ln, (b[1] - a[1]) / ln
+        for k in range(nseg):
+            t0 = ln * k / nseg + (0.03 if k else -0.12)
+            t1 = ln * (k + 1) / nseg - (0.03 if k < nseg - 1 else -0.12)
+            c0 = (a[0] + ux * t0 - nx * 0.12, a[1] + uy * t0 - ny * 0.12)
+            c1 = (a[0] + ux * t1 + nx * (T + 0.12), a[1] + uy * t1 + ny * (T + 0.12))
+            mb.box2((min(c0[0], c1[0]), min(c0[1], c1[1]), zt), (max(c0[0], c1[0]), max(c0[1], c1[1]), zt + 0.2), CAP,
+                    0.0)
+    # pilaretes nas bocas dos degraus + degraus (2 lances de 0,6) + bochechas
+    for xe, d in ((x0, 1.0), (x1, -1.0)):
+        for ye in (g0, g1):
+            px = xe + d * 0.7
+            py = ye + (-0.7 if ye == g0 else 0.7)
+            mb.prism(SE.chamfer_sq(px, py, 0.75, 0.16), zb, P3 + 0.95, WALLM)
+            mb.box((1.7, 1.7, 0.16), (px, py, P3 + 1.03), (0, 0, 0), CAP, 0.04)
+            SE.finial(mb, px, py, P3 + 1.11, 0.42, m=CAP, n=8)
+        xa, xb = sorted((xe, xe + d * 1.0))
+        mb.box2((xa, g0, zb + 0.03), (xb, g1, P3 - 0.04), CAP, 0.05)                # patamar (soleira)
+        xa, xb = sorted((xe + d * 1.0, xe + d * 2.75))
+        mb.box2((xa, g0, zb + 0.03), (xb, g1, P3 - 0.6), CAP, 0.05)                  # degrau do meio
+        for ye in (g0, g1):
+            ya, yb = sorted((ye, ye + (0.5 if ye == g0 else -0.5)))
+            xa, xb = sorted((xe + d * 1.4, xe + d * 2.9))
+            mb.box2((xa, ya, zb), (xb, yb, P3 - 0.1), WALLM, 0.03)                   # bochecha
+        xa, xb = sorted((xe, xe + d * 2.75))
+        col_box2("SG_PropLawnStep", (xa, g0, P3 - 0.6 - 0.5), (xb, g1, P3 - 0.6))
+    col_box2("SG_PropLawnFloor", (x0 + T, y0 + T, P3 - LAWN_DEPTH - 1.0), (x1 - T, y1 - T, P3 - LAWN_DEPTH))
+    for (a, b, (nx, ny)) in runs:
+        pa = (a[0] + nx * T, a[1] + ny * T)
+        pb = (b[0] + nx * T, b[1] + ny * T)
+        xs, ys = sorted((a[0], b[0], pa[0], pb[0])), sorted((a[1], b[1], pa[1], pb[1]))
+        col_box2("SG_PropLawnWall", (xs[0], ys[0], P3 - LAWN_DEPTH), (xs[-1], ys[-1], zt + 0.2))
+
+
+# ------------------------------------------------------------------ 3. espelhos d'agua
+def pool(mb, rect_, name):
+    """bacia estanque: fundo de obsidiana em POOL_FLOOR, paredes de cantaria, capa em pecas com pingadeira (0,06 acima
+    da lamina) e dados de canto um pouco mais altos. A agua e do Roblox (WATER_Court_<name>)."""
+    x0, y0, x1, y1 = rect_
+    R = POOL_RIM
+    zc = POOL_LEVEL + 0.06
+    mb.box2((x0, y0, P3 - 0.56), (x1, y1, POOL_FLOOR), OBS, 0.0)
+    # so na PREVIA (PREVIEW_ nao exporta): a lamina como o Roblox fara, para julgar a leitura do espelho
+    pv = MB("PREVIEW_CourtWater_%s" % name, "00_REFERENCE", None, detail="far", floor=-999)
+    pv.box2((x0, y0, POOL_LEVEL - 0.02), (x1, y1, POOL_LEVEL), "Water_SG", 0.0)
+    pv.finish()
+    for (a, b) in (((x0 - R, y0 - R), (x1 + R, y0)), ((x0 - R, y1), (x1 + R, y1 + R)), ((x0 - R, y0), (x0, y1)),
+                   ((x1, y0), (x1 + R, y1))):
+        mb.box2((a[0], a[1], P3 - 0.5), (b[0], b[1], zc), WALLM, 0.0)
+        col_box2("SG_PropPool", (a[0], a[1], P3 - 0.5), (b[0], b[1], zc + 0.22))
+    # capa: pecas de ~2,6 nos 4 lados (0,1 para dentro sobre a agua e 0,12 para fora)
+    for (a, b, horiz) in (((x0 - R, y0 - R), (x1 + R, y0), True), ((x0 - R, y1), (x1 + R, y1 + R), True),
+                          ((x0 - R, y0), (x0, y1), False), ((x1, y0), (x1 + R, y1), False)):
+        ln = (b[0] - a[0]) if horiz else (b[1] - a[1])
+        n = max(1, int(round(ln / 2.6)))
+        for k in range(n):
+            t0 = ln * k / n + (0.03 if k else 0.0)
+            t1 = ln * (k + 1) / n - (0.03 if k < n - 1 else 0.0)
+            if horiz:
+                p0 = (a[0] + t0 - (0.12 if k == 0 else 0.0), a[1] - 0.12)
+                p1 = (a[0] + t1 + (0.12 if k == n - 1 else 0.0), b[1] + 0.12)
+            else:
+                p0 = (a[0] - 0.12, a[1] + t0 + 0.12)
+                p1 = (b[0] + 0.12, a[1] + t1 - 0.12)
+            mb.box2((p0[0], p0[1], zc), (p1[0], p1[1], zc + 0.2), CAP, 0.0)
+    for cx in (x0 - R / 2, x1 + R / 2):
+        for cy in (y0 - R / 2, y1 + R / 2):
+            mb.box((R + 0.5, R + 0.5, zc + 0.42 - (P3 - 0.44)), (cx, cy, (P3 - 0.44 + zc + 0.42) / 2), (0, 0, 0),
+                   RELM, 0.06)
+            mb.box((R + 0.7, R + 0.7, 0.14), (cx, cy, zc + 0.49), (0, 0, 0), CAP, 0.04)
+
+
+def sync_water_markers():
+    """os marcadores do espelho (sg_core, onda 0) passam a ficar sobre a bacia REAL (centro, 32 x 20, nivel, fundo)"""
+    import bpy
+    for nm, (x0, y0, x1, y1) in (("L", POOLS[0]), ("R", POOLS[1])):
+        ob = bpy.data.objects.get("WATER_Court_%s" % nm)
+        if ob is None:
+            print("COURT AVISO marcador WATER_Court_%s inexistente" % nm)
+            continue
+        ob.location = ((x0 + x1) / 2, (y0 + y1) / 2, POOL_LEVEL)
+        ob["sx"], ob["sy"] = round(x1 - x0, 2), round(y1 - y0, 2)
+        ob["level"], ob["floor"], ob["depth"] = POOL_LEVEL, POOL_FLOOR, round(POOL_LEVEL - POOL_FLOOR, 2)
+        ob["note"] = ("espelho d'agua do patio-jardim (sg_court, onda 2): bacia estanque %.0f x %.0f, capa a %.2f "
+                      "(0,06 acima da lamina); sx ao longo de X local, sy ao longo de Y local (fwd)" %
+                      (x1 - x0, y1 - y0, POOL_LEVEL + 0.06 - P3))
+
+
+# ------------------------------------------------------------------ 4. plantas: sebes, topiarias, derivas de flores
+def tall_hedge(mg, a, b, w, h, seed, m=YEW):
+    """sebe ALTA de teixo: lances de ~3 com altura e largura levemente variadas (o topo nao e regua) e topo de luar"""
+    L_ = math.hypot(b[0] - a[0], b[1] - a[1])
+    n = max(1, int(round(L_ / 3.2)))
+    ux, uy = (b[0] - a[0]) / L_, (b[1] - a[1]) / L_
+    for k in range(n):
+        t0 = L_ * k / n - (0.25 if k else 0.0)
+        t1 = L_ * (k + 1) / n + (0.25 if k < n - 1 else 0.0)
+        hk = h * (1.0 + 0.05 * math.sin(seed + k * 2.3))
+        wk = w * (1.0 + 0.05 * math.cos(seed * 0.7 + k * 1.9))
+        GD.hedge_round(mg, (a[0] + ux * t0, a[1] + uy * t0), (a[0] + ux * t1, a[1] + uy * t1), wk, hk, P3 - 0.05, m)
+
+
+def cone(mg, x, y, z, h, r, m=YEW):
+    """teixo podado em CHAMA (ogiva: barriga baixa, ponta fina) - topiaria, nao cone de papel"""
+    GD._occ(x, y, r + 0.4)
+    EM._lathe(mg, (x, y, z - 0.05), [(r * 0.86, 0.0), (r, 0.12 * h), (r * 0.94, 0.3 * h), (r * 0.72, 0.55 * h),
+                                     (r * 0.4, 0.8 * h), (r * 0.12, 0.96 * h), (0.0, h)], m, 10, 0.2)
+
+
+def drift(mg, cx, cy, rx, ry, kinds, seed, z=P3, dens=1.0, s=1.0, rot=0.0, ctx="patio"):
+    """DERIVA de flores (mancha alongada de contorno organico): espiral de filotaxia dentro do blob, 1a especie no miolo,
+    2a na borda; mais rala na borda (le grupo natural, nao canteiro de regua)"""
+    poly = blob(cx, cy, rx, ry, seed, rot)
+    ga = math.pi * (3.0 - math.sqrt(5.0))
+    n = int(rx * ry * 2.2 * dens)
+    got = 0
+    for k in range(n):
+        r = math.sqrt((k + 0.5) / n)
+        a = k * ga + seed
+        x = cx + r * rx * math.cos(a) * math.cos(rot) - r * ry * math.sin(a) * math.sin(rot)
+        y = cy + r * rx * math.cos(a) * math.sin(rot) + r * ry * math.sin(a) * math.cos(rot)
+        if not L.point_in_poly(x, y, poly):
+            continue
+        if r > 0.75 and GD.hh(x, y, 5) < 0.35:
+            continue
+        kind = kinds[0] if (r < 0.62 or len(kinds) == 1) else kinds[1]
+        GD.plant(mg, kind, x, y, z, s * (1.08 + 0.18 * (1.0 - r)), rich=True)
+        GD.PLANTED.append(("flor", x, y, z, ctx))
+        GD._occ(x, y, 0.3)
+        got += 1
+    return got
+
+
+def shrub(mg, x, y, z, r, seed, m=BOX):
+    """arbusto baixo de folha (almofada lobada do kit, nao bola lisa)"""
+    VK.puff(mg, (x, y, z - 0.08), r, m, random.Random(seed), 1, 0.8, under=None)
+
+
+def plants_half(mb, mg, s):
+    i = 0 if s < 0 else 1
+    # sebes altas laterais (com a abertura da travessia marcada por 2 chamas de teixo)
+    for k, (y0, y1, h) in enumerate(SIDE_HEDGE[s]):
+        tall_hedge(mg, (s * SIDE_X, y0), (s * SIDE_X, y1), 2.6, h, 3.1 * k + s)
+        xa, xb = sorted((s * (SIDE_X - 1.3), s * (SIDE_X + 1.3)))
+        col_box2("SG_VegHedge", (xa, y0, P3), (xb, y1, P3 + h))
+    for yc in SIDE_CONES[s]:
+        cone(mg, s * SIDE_X, yc, P3, 7.2, 1.6)
+        col_box("SG_VegHedge", (2.2, 2.2, 6.0), (s * SIDE_X, yc, P3 + 3.0))
+    # sebe alta na frente da fachada (lances de alturas diferentes: le massa viva contra o paredao)
+    for k, (x0, x1, h) in enumerate(FACADE_HEDGE):
+        tall_hedge(mg, (s * x0, FACADE_HEDGE_Y), (s * x1, FACADE_HEDGE_Y), 2.2, h, 5.3 * k + 2 * s)
+        xa, xb = sorted((s * x0, s * x1))
+        col_box2("SG_VegHedge", (xa, FACADE_HEDGE_Y - 1.1, P3), (xb, FACADE_HEDGE_Y + 1.1, P3 + h))
+    # sebe MEDIA em L na quina entre o porche e o espelho
+    a, b, c = (s * 33.4, 53.6), (s * 33.4, 46.0), (s * 37.4, 46.0)
+    GD.hedge_round(mg, a, b, 1.3, 1.7, P3 - 0.05, BOX)
+    GD.hedge_round(mg, (b[0], b[1] + 0.6), c, 1.3, 1.5, P3 - 0.05, BOX)
+    xa, xb = sorted((s * 32.7, s * 34.1))
+    col_box2("SG_VegHedge", (xa, 45.4, P3), (xb, 53.6, P3 + 1.7))
+    GD.topiary(mg, (s * 37.9, 46.0, P3 - 0.05), 0.9)
+    # chamas de teixo nas bocas de dentro dos gramados (marcam os degraus vistos do eixo)
+    x0 = [r for r in lawn_rects() if (r[0] > 0) == (s > 0)][0]
+    xin = x0[0] if s > 0 else x0[2]
+    xout = x0[2] if s > 0 else x0[0]
+    for yc in (STEP_Y[0] - 5.2, STEP_Y[1] + 5.2):
+        cone(mg, xin - s * 4.6, yc, P3, 4.4, 1.15)
+        col_box("SG_VegTopiary", (1.6, 1.6, 4.0), (xin - s * 4.6, yc, P3 + 2.0))
+    # bolas de buxo ao pe das estatuas
+    sx, sy = STATUES[i]
+    for dx in (-2.6, 2.6):
+        GD.topiary(mg, (sx + dx, sy - 1.2, P3 - 0.05), 0.85)
+    # derivas de flores (frente das massas): roda da estatua, pe das sebes, gramado nos degraus, roda da arvore
+    drift(mg, sx, sy - 2.7, 3.2, 1.1, ("moon", "spike"), 7 + i, dens=1.5)
+    drift(mg, sx + s * 2.9, sy + 0.4, 0.9, 2.2, ("bell", "moon"), 9 + i, dens=1.2)
+    for k, (yc, kinds) in enumerate(((-6.0, ("spike", "moon")), (7.5, ("bell", "moon")), (36.5, ("moon", "amber")),
+                                    (48.5, ("spike", "bell")))):
+        drift(mg, s * (SIDE_X - 3.1), yc, 0.9, 2.6 + 0.4 * (k % 2), kinds, 13 + k + 4 * i, dens=1.2)
+    for k, (xc, rx) in enumerate(((43.0, 5.5), (62.5, 6.5), (84.5, 5.0))):
+        drift(mg, s * xc, FACADE_HEDGE_Y - 2.0, rx, 0.8, ("spike", "moon") if k % 2 == 0 else ("moon", "spike"),
+              23 + k + 3 * i, dens=1.0)
+    zl = P3 - LAWN_DEPTH
+    for xe, sg in ((xin, 1.0), (xout, -1.0)):
+        for ye in (STEP_Y[0] - 2.1, STEP_Y[1] + 2.1):
+            drift(mg, xe + s * sg * 2.6, ye, 1.4, 1.3, ("moon", "spike") if sg > 0 else ("bell", "moon"),
+                  31 + int(ye) + i, z=zl, dens=1.2)
+    # 2 derivas soltas DENTRO do gramado rebaixado (encostadas no murete, nunca no meio: o gramado fica limpo)
+    for k, (xc, yc, kinds) in enumerate(((49.0, 12.4, ("moon", "spike")), (69.5, -0.4, ("spike", "moon")))):
+        drift(mg, s * xc, yc, 3.2, 0.9, kinds, 47 + k + 2 * i, z=zl, dens=1.0)
+    tx, ty = TREES[i]
+    for k, a in enumerate((205.0, 330.0)):
+        ra = math.radians(a if s > 0 else 180.0 - a)
+        drift(mg, tx + 6.6 * math.cos(ra), ty + 6.6 * math.sin(ra), 1.6, 1.0, ("bell", "moon"), 37 + k + 2 * i,
+              rot=ra + math.pi / 2, dens=1.2)
+    for lx, ly in NODE_LAMPS:
+        if (lx > 0) == (s > 0):
+            drift(mg, lx + s * 1.6, ly + 1.4, 1.0, 0.8, ("moon",), 43 + i, dens=1.3)
+    # massa MEDIA: grupos de 2-3 arbustos lobados na frente das sebes altas (a flor fica na frente deles)
+    for k, (xc, yc) in enumerate(SHRUBS):
+        n = 2
+        for j in range(n):
+            a = GD.hh(xc, yc, j + 3) * math.tau
+            d = 0.0 if j == 0 else 1.3
+            shrub(mg, s * xc + math.cos(a) * d, yc + math.sin(a) * d * 0.6, P3, 1.55 - 0.3 * j, 101 + k * 7 + j + 50 * i)
+        GD._occ(s * xc, yc, 2.2)
+    # pe da muralha: arbustos baixos entre as trepadeiras (a grama do sg_garden adensa a borda)
+    for k, xc in enumerate((40.5, 51.5, 64.5, 78.0, 85.0)):
+        shrub(mg, s * xc, FC[1] + 1.6, P3, 1.0 + 0.25 * (k % 2), 91 + k + 7 * i)
+
+
+def tree_bench(mb, x, y, r0=2.35, r1=3.25, zs=1.75):
+    """banco circular em volta do tronco da arvore-marco: 8 tabuas de cantaria em octogono sobre 8 pes"""
+    for k in range(8):
+        a0 = (k + 0.04) * math.tau / 8 + math.pi / 8
+        a1 = (k + 0.96) * math.tau / 8 + math.pi / 8
+        pts = [(x + r0 * math.cos(a0), y + r0 * math.sin(a0)), (x + r1 * math.cos(a0), y + r1 * math.sin(a0)),
+               (x + r1 * math.cos(a1), y + r1 * math.sin(a1)), (x + r0 * math.cos(a1), y + r0 * math.sin(a1))]
+        mb.prism(SL.ccw(pts), P3 + zs - 0.3, P3 + zs, CAP)
+        am = (a0 + a1) / 2
+        rm = (r0 + r1) / 2
+        mb.box((0.5, 0.7, zs - 0.3 + 0.1), (x + rm * math.cos(am), y + rm * math.sin(am), P3 + (zs - 0.3) / 2 - 0.05),
+               (0, 0, am), RELM, 0.05)
+    SL.octo_col("SG_PropBench", x, y, r1, P3, P3 + zs)
 
 
 def court():
     rng = random.Random(3603)
     mb = MB("SG_Prop_Court", COLL, rng, detail="near")
-    # jardinagem 2026-09-29: as plantas do jardim do patio num objeto proprio (1 MeshPart por material)
     mg = MB("SG_Veg_Gdn_Court", "10_VEGETATION", None, detail="near", floor=-999)
-    z = P3
-    for s in (-1, 1):
-        parterre(mb, s, random.Random(3610 + s), mg)
-    GD.court_vines(mg)                  # roseiras trepadeiras na face interna da muralha, atras dos canteiros
-    mg.finish(recalc=False)
-    for x, y, kind in LAMPS:
-        lamp(mb, x, y, z, kind)
+    for i, r in enumerate(lawn_rects()):
+        lawn_wall(mb, r, 1 if r[0] > 0 else -1)
+    for nm, p in (("L", POOLS[0]), ("R", POOLS[1])):
+        pool(mb, p, nm)
+    sync_water_markers()
     for x, y in STATUES:
-        # de frente para quem chega (sul), um pouco voltadas para o eixo
-        statue(mb, x, y, z, -math.pi / 2 - math.copysign(math.radians(18.0), x))
-    for x, y in OBELISKS:
-        obelisk(mb, x, y, z, math.pi if x > 0 else 0.0)
-    for x, y0, y1 in MURETS:
-        muret(mb, x, y0, y1, z)
-    mb.finish()
-    # arco de ferro no pe da escada do portao (entrada do recinto do castelo): lanternas QUENTES (so Neon) - o arco
-    # fica na rua do P2 (vila): violeta forte ali era "magia" fora do lugar
-    # overhaul 03: o arco do KIT da vila (sg_village.iron_arch: postes torneados, volutas, maos-francesas, remate
-    # torneado) - o CT.iron_arch antigo (postes-caixa, piramide no fecho) saiu daqui
+        statue(mb, x, y, P3, -math.pi / 2 - math.copysign(math.radians(16.0), x))
+    for x, y in NODE_LAMPS:
+        EM.lantern_post(mb, mb, (x, y, P3), 0.0, h=7.4)
+        col_box("SG_PropCourtLamp", (1.2, 1.2, 9.0), (x, y, P3 + 4.5))
+    for x, y in TREES:
+        tree_bench(mb, x, y)
+    for s in (-1, 1):
+        plants_half(mb, mg, s)
+    GD.court_vines(mg)
+    # arco de ferro no pe da escada do portao: o arco do KIT da vila (sg_village.iron_arch), no objeto do patio
     import sg_village as VL
-    ma = MB("SG_Prop_GateArch", COLL, random.Random(3604), detail="near")
     x, y, zz, hs = GATE_ARCH
-    VL.iron_arch(ma, x, y, zz, hs, area="SG_PropArch")
-    ma.finish()
+    VL.iron_arch(mb, x, y, zz, hs, area="SG_PropArch")
+    mirante(mb, mg)
+    mb.finish()
+    # arvores-marco: teixo de copa alta (tronco livre ate ~7,5: o banco fica embaixo da copa), no MESMO objeto das
+    # plantas do patio (1 MeshPart por material)
+    mt = mg
+    old = VK.SUN
+    VK.SUN = VEG.MOON_DIR
+    try:
+        for k, (x, y) in enumerate(TREES):
+            VEG.pine(mt, x, y, P3, TREE_H * (1.0 if k else 0.94), random.Random(3620 + k), "marco", 0, near=True)
+            col_box("SG_VegTrunk", (2.6, 2.6, 7.0), (x, y, P3 + 3.5))
+            VEG.PLACED.append((x, y, P3, VEG.crown_r("marco", TREE_H), TREE_H, "marco"))
+    finally:
+        VK.SUN = old
+    mg.finish(recalc=False)
+
+
+# ------------------------------------------------------------------ 5. jardim-mirante
+def mirante(mb, mg):
+    """terraco do jardim-mirante: lajes em 3 aneis (o terreno desce 0,45 no disco), balaustrada na borda da vista,
+    banco em exedra de costas para o castelo, a arvore velha da lua inclinada para a vista e flores"""
+    cx, cy, R = MIR
+    R1 = R + 0.6                                  # = rebaixo do terreno
+    # leito escuro (juntas) e lajes
+    mb.cyl(R1, 0.5, (cx, cy, P3 - 0.55), (0, 0, 0), "Stone_SG_Floor", n=40, bevel=0.0)
+    mb.cyl(3.4, 0.4, (cx, cy, P3 - 0.25), (0, 0, 0), OBS, n=16, bevel=0.0)
+    EM._lathe(mb, (cx, cy, P3 - 0.1), [(1.3, 0.0), (1.3, 0.17), (0.0, 0.21)], VIO, 16)
+    for (ra, rb, n, mats) in ((3.48, 8.6, 10, (CAP, RELM)), (8.68, 13.2, 16, (RELM, CAP)), (13.28, R1, 22, (CAP, RELM))):
+        for k in range(n):
+            a0 = (k + 0.012 * 16 / n) * math.tau / n
+            a1 = (k + 1 - 0.012 * 16 / n) * math.tau / n
+            arc0 = [(cx + ra * math.cos(a0 + (a1 - a0) * t / 2), cy + ra * math.sin(a0 + (a1 - a0) * t / 2))
+                    for t in range(3)]
+            arc1 = [(cx + rb * math.cos(a1 - (a1 - a0) * t / 2), cy + rb * math.sin(a1 - (a1 - a0) * t / 2))
+                    for t in range(3)]
+            mb.prism(SL.ccw(arc0 + arc1), P3 - 0.3, P3, mats[k % 2])
+    # balaustrada (arco da vista): plinto, balaustres torneados, corrimao em pecas, pedestais a cada ~30 graus
+    rb_ = R - 0.4
+    a0, a1 = MIR_VIEW
+    nped = 6
+    peds = [a0 + (a1 - a0) * k / nped for k in range(nped + 1)]
+    for k in range(nped):
+        pa, pbb = math.radians(peds[k]), math.radians(peds[k + 1])
+        seg = 5
+        for j in range(seg):
+            q0 = pa + (pbb - pa) * j / seg
+            q1 = pa + (pbb - pa) * (j + 1) / seg
+            c0 = (cx + rb_ * math.cos(q0), cy + rb_ * math.sin(q0))
+            c1 = (cx + rb_ * math.cos(q1), cy + rb_ * math.sin(q1))
+            ln = math.hypot(c1[0] - c0[0], c1[1] - c0[1])
+            mid = ((c0[0] + c1[0]) / 2, (c0[1] + c1[1]) / 2)
+            yaw = math.atan2(c1[1] - c0[1], c1[0] - c0[0])
+            mb.box((ln + 0.04, 1.1, 0.5), (mid[0], mid[1], P3 + 0.25), (0, 0, yaw), WALLM, 0.04)
+            mb.box((ln + 0.06, 1.0, 0.26), (mid[0], mid[1], P3 + 2.85), (0, 0, yaw), CAP, 0.06)
+            EM._lathe(mb, (mid[0], mid[1], P3 + 0.5), [(0.18, 0.0), (0.32, 0.8), (0.14, 1.55), (0.24, 2.22)], RELM, 6)
+    for a in peds:
+        ra = math.radians(a)
+        px, py = cx + rb_ * math.cos(ra), cy + rb_ * math.sin(ra)
+        mb.box((1.5, 1.5, 3.3), (px, py, P3 + 1.6), (0, 0, ra), WALLM, 0.06)
+        mb.box((1.8, 1.8, 0.24), (px, py, P3 + 3.36), (0, 0, ra), CAP, 0.05)
+        EM._lathe(mb, (px, py, P3 + 3.48), [(0.42, 0.0), (0.5, 0.2), (0.3, 0.55), (0.0, 0.8)], CAP, 8)
+    for k in range(4):
+        qa = math.radians(a0 + (a1 - a0) * k / 4)
+        qb = math.radians(a0 + (a1 - a0) * (k + 1) / 4)
+        qm = (qa + qb) / 2
+        ln = 2 * rb_ * math.sin((qb - qa) / 2) + 0.6
+        col_box("SG_PropBalustrade", (ln, 1.2, 3.4), (cx + rb_ * math.cos(qm) * math.cos((qb - qa) / 2),
+                                                      cy + rb_ * math.sin(qm) * math.cos((qb - qa) / 2), P3 + 1.7),
+                (0, 0, qm + math.pi / 2))
+    # banco em EXEDRA (oeste, de frente para a vista): assento curvo + encosto com remate + pes; voluta nas pontas
+    e0, e1, er = MIR_EXEDRA
+    nseg = 12
+    for j in range(nseg):
+        q0 = math.radians(e0 + (e1 - e0) * j / nseg)
+        q1 = math.radians(e0 + (e1 - e0) * (j + 1) / nseg)
+        for (r0, r1, z0, z1, m) in ((er - 0.9, er + 0.9, P3 + 1.4, P3 + 1.75, CAP),
+                                    (er + 0.9, er + 1.5, P3 + 0.0, P3 + 3.6, WALLM),
+                                    (er + 0.8, er + 1.6, P3 + 3.6, P3 + 3.85, CAP)):
+            pts = [(cx + r0 * math.cos(q0), cy + r0 * math.sin(q0)), (cx + r1 * math.cos(q0), cy + r1 * math.sin(q0)),
+                   (cx + r1 * math.cos(q1), cy + r1 * math.sin(q1)), (cx + r0 * math.cos(q1), cy + r0 * math.sin(q1))]
+            mb.prism(SL.ccw(pts), z0, z1, m)
+        if j % 2 == 0:
+            qm = (q0 + q1) / 2
+            mb.box((1.3, 0.6, 1.42), (cx + (er - 0.1) * math.cos(qm), cy + (er - 0.1) * math.sin(qm), P3 + 0.69),
+                   (0, 0, qm), RELM, 0.05)
+    for q in (e0, e1):
+        qr = math.radians(q)
+        px, py = cx + (er + 0.3) * math.cos(qr), cy + (er + 0.3) * math.sin(qr)
+        mb.box((2.6, 0.9, 2.4), (px, py, P3 + 1.2), (0, 0, qr), WALLM, 0.08)
+        EM._lathe_ax(mb, (px, py, P3 + 2.4), (math.cos(qr + math.pi / 2), math.sin(qr + math.pi / 2), 0.0),
+                     [(0.0, -0.6), (0.62, -0.52), (0.7, 0.0), (0.62, 0.52), (0.0, 0.6)], CAP, 8)
+    for k in range(5):
+        qa = math.radians(e0 + (e1 - e0) * k / 5)
+        qb = math.radians(e0 + (e1 - e0) * (k + 1) / 5)
+        qm = (qa + qb) / 2
+        ln = 2 * er * math.sin((qb - qa) / 2)
+        col_box("SG_PropBench", (ln, 2.6, 1.75), (cx + (er + 0.2) * math.cos(qm), cy + (er + 0.2) * math.sin(qm),
+                                                   P3 + 0.875), (0, 0, qm + math.pi / 2))
+    # flores: atras do encosto (faixa de lavanda e lua) e em volta da arvore
+    for k in range(3):
+        q = math.radians(e0 + 25.0 + 35.0 * k)
+        drift(mg, cx + (er + 3.4) * math.cos(q), cy + (er + 3.4) * math.sin(q), 2.6, 0.9,
+              ("spike", "moon") if k != 1 else ("moon", "bell"), 61 + k, rot=q + math.pi / 2, dens=1.2, ctx="mirante")
+    tx, ty = MIR_TREE
+    drift(mg, tx - 2.4, ty + 1.8, 1.6, 1.1, ("bell", "moon"), 67, dens=1.3, ctx="mirante")
+    for k, (dx, dy) in enumerate(((-3.0, -2.6), (2.6, 2.8))):
+        shrub(mg, tx + dx, ty + dy, P3, 1.1, 71 + k)
+    # a ARVORE VELHA DA LUA: tronco grosso e torto inclinado para leste (a vista), bracos e almofadas de saia (no
+    # mesmo objeto das plantas do patio: 1 MeshPart por material)
+    old = VK.SUN
+    VK.SUN = VEG.MOON_DIR
+    try:
+        moon_tree(mg, tx, ty, P3, 17.0, random.Random(3703))
+    finally:
+        VK.SUN = old
+    col_box("SG_VegTrunk", (2.4, 2.4, 7.0), (tx, ty, P3 + 3.5))
+    VEG.PLACED.append((tx, ty, P3, 6.0, 17.0, "moon"))
+
+
+def moon_tree(mb, x, y, z, h, rng):
+    """pinheiro velho em guarda-chuva, inclinado para a vista (+X): tronco em 4 lances, bracos e almofadas achatadas
+    de saia caida (as de cima com o luar). Materiais da ilha (folha / luar / fundo / casca)."""
+    from mathutils import Vector
+    tr = h * 0.075
+    p0 = Vector((x, y, z - 0.6))
+    p1 = Vector((x + h * 0.06, y - h * 0.02, z + h * 0.3))
+    p2 = Vector((x + h * 0.22, y + h * 0.03, z + h * 0.56))
+    p3 = Vector((x + h * 0.36, y + h * 0.01, z + h * 0.8))
+    VK.ttube(mb, [p0, p1, p2, p3], [tr * 1.5, tr * 1.05, tr * 0.8, tr * 0.5], VEG.BARK, n=7, cap1=False)
+    # raizes de pe
+    for k in range(4):
+        a = k * math.tau / 4 + 0.5
+        VK.ttube(mb, [(x + math.cos(a) * tr * 0.4, y + math.sin(a) * tr * 0.4, z + tr * 1.1),
+                      (x + math.cos(a) * tr * 2.1, y + math.sin(a) * tr * 2.1, z - 0.25)], [tr * 0.55, tr * 0.2],
+                 VEG.BARK, n=4, cap1=False)
+    pads = [(p3 + Vector((0.4, 0.0, h * 0.04)), h * 0.27, True)]
+    arms = ((p1.lerp(p2, 0.5), 2.6, 0.28, 0.10), (p2, 0.9, 0.3, 0.14), (p2.lerp(p3, 0.4), -0.7, 0.26, 0.12),
+            (p1.lerp(p2, 0.85), -2.2, 0.24, 0.08))
+    for base, a, ln, up in arms:
+        end = base + Vector((math.cos(a) * h * ln, math.sin(a) * h * ln, h * up))
+        mid = base.lerp(end, 0.5) + Vector((0, 0, h * 0.05))
+        VK.ttube(mb, [base, mid, end], [tr * 0.55, tr * 0.42, tr * 0.28], VEG.BARK, n=5, cap1=False)
+        pads.append((end, h * rng.uniform(0.18, 0.22), False))
+    for (pc, pr, top) in pads:
+        VK.skirt(mb, (pc.x, pc.y, pc.z), pr, pr * 0.62, 7, VEG.LEAF, rng, droop=22, lob=0.26, shoulder=0.55,
+                 under=0.12, under_m=VEG.SHADE, lit=VEG.MOON, lit_k=0.35 if top else 0.5, jit=0.14)
 
 
 def build():
     GD.reset()
-    axis_south()
-    axis_north()
+    nf = court_floor()
     court()
+    print("COURT chao=%d trapezios; gramados=%d espelhos=%d estatuas=%d arvores-marco=%d" % (
+        nf, len(lawn_rects()), len(POOLS), len(STATUES), len(TREES)))

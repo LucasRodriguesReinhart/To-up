@@ -51,7 +51,7 @@ BUDGET = {
     "terrain": (72000, 115, 8, 140, 0), "entry": (40000, 38, 4, 60, 5), "village": (110000, 108, 11, 230, 6),
     "castle": (170000, 125, 12, 260, 5), "hall": (88000, 58, 9, 80, 6), "cave": (70000, 60, 6, 260, 6),
     "summon": (29000, 44, 5, 42, 3), "craft": (84000, 74, 11, 75, 4), "dungeon": (78000, 64, 10, 160, 5),
-    "water": (3000, 10, 3, 10, 0), "exit": (26000, 34, 4, 45, 3), "dressing": (80000, 107, 9, 160, 7),
+    "water": (3000, 10, 3, 10, 0), "exit": (26000, 34, 4, 45, 3), "dressing": (88000, 107, 9, 160, 18),
 }
 # overhaul 06-08 (2026-09-29): craft 66k -> 84k tris. A alquimia e heroi por fora e por dentro e estava com a
 # hierarquia de acabamento invertida (16.05): +cantaria/arcada cega/cunhais/contrafortes em lances (exterior ~+6k),
@@ -83,6 +83,11 @@ BUDGET = {
 # ONDA 1 / 1b (2026-09-30): hall 80k -> 88k porque o estudio soma o TRONO MOVEL (SG_Hall_ThroneMov, ~4,3k), que no
 # export e do dono 'vfx' (PLANO secao 4: vfx 14k "trono movel"). O salao estatico mede ~83k (teto do export_sg
 # BUDGET_OWNER hall 86k): +3k sobre a estimativa do plano pelas 16 pilastras/nichos/galerias das naves laterais.
+# ONDA 2 / jardim (2026-09-30): dressing 80k -> 88k tris (luzes de dia 7 -> 18: o sg_lights da onda 2 cria as luzes de
+# rua e de casa da ilha inteira). O vestir passou a incluir o CHAO do patio inteiro (SG_Prop_CourtFloor ~4k: o terreno
+# desce 0,45 no patio e nao emite mais o topo la) e o terraco do jardim-mirante (~5k, antes blockout). Medido: veg 58k
+# (grama ~21k na ilha inteira, flores ~13k, arvores ~16k, sebes/topiarias ~8k), pedra do patio+mirante ~20,6k,
+# props/luzes (outro agente) ~7k = ~86k / ~91 MeshParts.
 
 
 def est_meshparts(ob):
