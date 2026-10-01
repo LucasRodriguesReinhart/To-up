@@ -1,0 +1,57 @@
+{
+  "checks": [
+    {
+      "path": "ReplicatedStorage/ExpeditionUI/Inventory.lua",
+      "match": true,
+      "compiled": true
+    },
+    {
+      "path": "ReplicatedStorage/ExpeditionUI/Menus.lua",
+      "match": true,
+      "compiled": true
+    },
+    {
+      "path": "ReplicatedStorage/ExpeditionUI/Notify.lua",
+      "match": true,
+      "compiled": true
+    },
+    {
+      "path": "ReplicatedStorage/ExpeditionUI/Theme.lua",
+      "match": true,
+      "compiled": true
+    },
+    {
+      "path": "ServerScriptService/Core/AreaBuilder.lua",
+      "match": true,
+      "compiled": true
+    },
+    {
+      "path": "StarterPlayer/StarterPlayerScripts/AutoMinerar.lua",
+      "match": true,
+      "compiled": true
+    },
+    {
+      "path": "StarterPlayer/StarterPlayerScripts/ExpeditionClient.lua",
+      "match": true,
+      "compiled": true
+    },
+    {
+      "path": "StarterPlayer/StarterPlayerScripts/IslandTransition.lua",
+      "match": true,
+      "compiled": true
+    },
+    {
+      "path": "StarterPlayer/StarterPlayerScripts/MineracaoVisual.lua",
+      "match": true,
+      "compiled": true
+    },
+    {
+      "path": "StarterPlayer/StarterPlayerScripts/PetsSeguidores.lua",
+      "match": true,
+      "compiled": true
+    }
+  ],
+  "backupSources": 10,
+  "qaPresent": false,
+  "probePresent": false
+}

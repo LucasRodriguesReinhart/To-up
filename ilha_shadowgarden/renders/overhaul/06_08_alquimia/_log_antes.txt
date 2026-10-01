@@ -1,0 +1,181 @@
+01:11.828  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\ilha_shadowgarden\renders\overhaul\06_08_alquimia\antes\CAM_SG_Craft.jpg'
+01:13.062  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\ilha_shadowgarden\renders\overhaul\06_08_alquimia\antes\CAM_SG_CraftInterior.jpg'
+01:17.297  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\ilha_shadowgarden\renders\overhaul\06_08_alquimia\antes\CAM_SG_PlayerHeight_Craft.jpg'
+01:19.203  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\ilha_shadowgarden\renders\overhaul\06_08_alquimia\antes\CAM_SG_AU_Flask.jpg'
+01:20.953  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\ilha_shadowgarden\renders\overhaul\06_08_alquimia\antes\CAM_SG_AU_CraftBase.jpg'
+01:22.734  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\ilha_shadowgarden\renders\overhaul\06_08_alquimia\antes\CAM_SG_CU_Cauldron.jpg'
+01:24.484  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\ilha_shadowgarden\renders\overhaul\06_08_alquimia\antes\CAM_SG_CU_Emblem.jpg'
+01:25.687  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\ilha_shadowgarden\renders\overhaul\06_08_alquimia\antes\CAM_SG_CU_Library.jpg'
+01:29.922  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\ilha_shadowgarden\renders\overhaul\06_08_alquimia\antes\CAM_SG_CU_Shelf.jpg'
+01:32.765  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\ilha_shadowgarden\renders\overhaul\06_08_alquimia\antes\CAM_SG_CU_CraftTable.jpg'
+01:34.531  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\ilha_shadowgarden\renders\overhaul\06_08_alquimia\antes\CAM_SG_CU_CraftDoor.jpg'
+01:38.062  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\ilha_shadowgarden\renders\overhaul\06_08_alquimia\antes\CAM_SGCraft_W.jpg'
+01:40.984  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\ilha_shadowgarden\renders\overhaul\06_08_alquimia\antes\CAM_SGCraft_N.jpg'
+01:42.547  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\ilha_shadowgarden\renders\overhaul\06_08_alquimia\antes\CAM_SGCraft_E.jpg'
+01:43.890  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\ilha_shadowgarden\renders\overhaul\06_08_alquimia\antes\CAM_SGCraft_S.jpg'
+01:45.234  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\ilha_shadowgarden\renders\overhaul\06_08_alquimia\antes\CAM_SGCraft_Far.jpg'
+01:50.515  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\ilha_shadowgarden\renders\overhaul\06_08_alquimia\antes\CAM_SGCraft_PH_Door.jpg'
+01:52.000  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\ilha_shadowgarden\renders\overhaul\06_08_alquimia\antes\CAM_SGCraft_In_Cauldron.jpg'
+01:53.344  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\ilha_shadowgarden\renders\overhaul\06_08_alquimia\antes\CAM_SGCraft_In_ShelvesN.jpg'
+COMPOSITOR ok
+TER CRISTAIS grupos=28 veios=10 pontas=32
+DUN massa: 25 blocos de rocha, conferencia OK
+DUN massa: pinheiros 7
+DUN boca: arco hw 9.6 apice 24.0 | fecho 24.0..28.8 (u intradorso 2.24, externo 2.77) | cristal z 20.0
+DUN tunel: 17 segmentos de veio (do vortice para a boca)
+DUN aproximacao: folga minima ate o andador/corredor = 1.86 (exige >= 1,7)
+DUN faces degeneradas: nenhuma
+DUN folga dos minerios: OK (nenhuma colisao a menos de 5 de DUN_ORE_* ate piso+12)
+WATER West bancada crista=(-124.9, -52.0, 43.15) corrida=4.7 pe=(-130.1, -52.0, -60.0) polys=2454 quebras=[(-2.1, 2.9, 4.4)]
+WATER East bancada crista=(150.7, -112.0, 35.15) corrida=8.3 pe=(161.7, -112.0, -60.0) polys=2204 quebras=[(34.9, 0.8, 2.0), (27.9, 2.4, 5.3), (-2.1, 5.3, 8.5)]
+WATER North bancada crista=(-52.31, 192.85, 51.15) corrida=16.5 pe=(-58.1, 208.7, -60.0) polys=2260 quebras=[(29.9, 2.7, 4.6), (-10.1, 4.7, 9.5), (-21.1, 10.1, 16.7)]
+WATER South fenda crista=(-28.49, -190.91, 29.98) corrida=0.15 pe=(-30.9, -191.8, -60.0) polys=1761 quebras=[]
+VEG arvores=124 (borda 37) colisoes_tronco=28
+VEG grupos_incompletos=["0:South(3/6)[('vizinha', 63), ('pe_fora_do_terreno', 50), ('arquitetura', 36)]", "1:South(2/3)[('vizinha', 33), ('pe_fora_do_terreno', 15), ('piso_proibido', 6)]", "4:SouthE(3/6)[('vizinha', 78), ('piso_proibido', 40), ('pe_fora_do_terreno', 26)]", "5:SouthE(2/4)[('vizinha', 51), ('piso_proibido', 35), ('pe_degrau', 19)]", "6:SouthE(1/2)[('pe_fora_do_terreno', 38), ('vizinha', 19), ('pe_degrau', 9)]", "9:VillageS(1/2)[('vizinha', 48)]", "26:NorthE(1/2)[('vizinha', 47), ('pe_degrau', 1)]", "34:NorthE(7/8)[('vizinha', 89), ('copa_no_terreno', 7), ('pe_degrau', 1)]", "35:NorthE(1/2)[('vizinha', 27), ('pe_degrau', 14), ('pe_borda', 7)]", "36:NorthE(1/2)[('copa_no_terreno', 45), ('vizinha', 26), ('pe_degrau', 22)]", "37:NorthE(1/3)[('vizinha', 50), ('copa_no_terreno', 40), ('pe_degrau', 13)]"]
+VEG recusas_borda=[('pe_degrau', 44), ('copa_no_terreno', 29), ('piso_proibido', 27), ('vizinha', 26), ('arquitetura', 23), ('copa_em_Water', 4)]
+LIGHTS luzes=5
+STUDIO modulo sg_craft 10.3s
+SCENE emissivos limitados: 38 materiais
+STUDIO METRICAS zona=craft objetos=82 malhas=6
+STUDIO tris=59890/66000 OK | MeshParts~67/74 OK | materiais_novos=10/11 OK ['Cloth_SGCraftBook', 'Cloth_SGCraftBookBrown', 'Cloth_SGCraftBookInk', 'Cloth_SGCraftBookPlum', 'Glass_SGCraftAmber', 'Glass_SGCraftPale', 'Glass_SGCraftSage', 'Potion_SGCraftTeal', 'Potion_SGCraftWine', 'Stone_SGCraftDark']
+STUDIO colisoes=72/75 OK | luzes=4 (de dia <= 4)
+STUDIO maiores: [(37334, 'SG_Craft_Furnishings'), (12302, 'SG_Craft_Shell'), (6280, 'SG_Craft_Cauldron'), (3174, 'SG_Craft_Dome'), (400, 'VFX_SGCRAFT_Ring_2'), (400, 'VFX_SGCRAFT_Ring_1')]
+STUDIO tecnico: nomes_ruins=[] prefixo_fora_do_padrao=[] sem_material=[] degeneradas=0
+STUDIO marcadores obrigatorios: 3/3 OK
+COL faces: 5106
+OK   ROTA DB_ANCORA->SG_ENTRADA
+OK   ROTA ENTRADA->CASTELO_MINING_HALL
+OK   ROTA ENTRADA->SUMMON
+OK   ROTA ENTRADA->CRAFT
+OK   ROTA ENTRADA->DUNGEON
+OK   ROTA VILA->CASTELO
+OK   ROTA CASTELO->CRAFT
+OK   ROTA CASTELO->DUNGEON
+OK   ROTA CASTELO->PORTAO_DS
+OK   ROTA DUNGEON->CRAFT
+OK   ROTA CRAFT->CASTELO
+OK   ROTA VILA_BAIXA_LESTE->PRACA
+OK   ROTA PRACA_VOLTA
+OK   ROTA DUNGEON_SALAS_R1->R3
+ROTAS 14/14 OK
+OK   ROTA PORTAO_DS_ABERTO->ANCORA
+ROTAS_ABERTAS 1/1 OK
+OK   ROTA sg_terrain:P1_pe_do_arrimo_O
+OK   ROTA sg_terrain:P1_pe_do_arrimo_L
+OK   ROTA sg_terrain:P2_pe_da_muralha_O
+OK   ROTA sg_terrain:P2_pe_da_muralha_L
+OK   ROTA sg_entry:PATIO_PORTICO_A_LATERAL
+OK   ROTA sg_entry:CALCADA_PORTICO_B_LATERAL
+OK   ROTA sg_village:VIL_RUA_P1_OESTE
+OK   ROTA sg_village:VIL_RUA_P1_LESTE
+OK   ROTA sg_village:VIL_RUA_P2
+OK   ROTA sg_village:VIL_EIXO_P2
+OK   ROTA sg_village:VIL_PRACA_ANEL
+OK   ROTA sg_castle:PATIO->BECO_OESTE->TERRACO
+OK   ROTA sg_hall:SALAO_VOLTA
+OK   ROTA sg_summon:PAD->PATAMAR
+OK   ROTA sg_summon:ESCADA->LADO_NORTE
+OK   ROTA sg_summon:ESCADA->LADO_SUL
+OK   ROTA sg_craft:CRAFT_VOLTA_CALDEIRAO
+OK   ROTA sg_dungeon:PORTARIA_ATE_O_PORTAL
+OK   ROTA sg_dungeon:APROXIMACAO_EIXO
+OK   ROTA sg_dungeon:APROXIMACAO_TRAVESSIA
+OK   ROTA sg_dungeon:SALA_R1_VOLTA
+OK   ROTA sg_dungeon:SALA_R2_VOLTA
+OK   ROTA sg_dungeon:SALA_R3_VOLTA
+OK   ROTA sg_water:WATER_mirante_oeste
+OK   ROTA sg_water:WATER_mirante_leste
+OK   ROTA sg_water:WATER_mirante_norte
+OK   ROTA sg_water:WATER_mirante_sul
+OK   ROTA sg_exit:CABECEIRA_ATRAS_DOS_PILARES
+OK   ROTA sg_exit:PONTE_BEIRA_S
+OK   ROTA sg_exit:PONTE_BEIRA_N
+OK   ROTA sg_court:COURT_JARDIM_O
+OK   ROTA sg_court:COURT_JARDIM_L
+OK   ROTA sg_court:COURT_ESTATUA_O
+OK   ROTA sg_court:COURT_ESTATUA_L
+OK   ROTA sg_court:COURT_ARCO_PORTAO
+OK   ROTA sg_veg:VEG_P1_canteiros_O
+OK   ROTA sg_veg:VEG_P1_canteiros_L
+OK   ROTA sg_veg:VEG_P2_ciprestes
+OK   ROTA sg_props:PROP_PRACA_BORDA_N
+OK   ROTA sg_props:PROP_PRACA_BORDA_S
+ROTAS_MODULOS 40/40 OK
+OK   SONDA ANCORA_DS_borda
+OK   SONDA PONTE_SAIDA_lado_N
+OK   SONDA PONTE_SAIDA_lado_S
+OK   SONDA PONTE_CHEGADA_lado_O
+OK   SONDA PONTE_CHEGADA_lado_L
+OK   SONDA CALCADA_ALTA_O
+OK   SONDA CALCADA_ALTA_L
+OK   SONDA PATIO_BAIXO_O
+OK   SONDA SUMMON_borda_O
+OK   SONDA SUMMON_borda_N
+OK   SONDA PONTE_SUMMON_N
+OK   SONDA P2_borda_sul_O
+OK   SONDA P3_borda_sul_O
+OK   SONDA P2_borda_leste
+OK   SONDA VIL_P2_mirante_oeste
+OK   SONDA CRAFT_estante_N
+OK   SONDA CRAFT_bancada_L
+OK   SONDA ILHOTA_borda_NE
+OK   SONDA ANCORA_lado_S
+SONDAS 19/19 OK
+LARGURA rotas com trecho < 3,4 de largura: ['ENTRADA->CRAFT', 'CASTELO->CRAFT', 'DUNGEON->CRAFT', 'CRAFT->CASTELO']
+OK   SALAO_LIVRE colisores na zona de minerio (piso+0,3..+12): nenhum
+OK   DUNGEON_LIMPA malhas de fora dentro da caixa das salas: nenhuma
+STUDIO RENDER C:/Users/lucas/OneDrive/Desktop/To up/ilha_shadowgarden/renders/overhaul/06_08_alquimia/antes\CAM_SG_Craft.jpg
+STUDIO RENDER C:/Users/lucas/OneDrive/Desktop/To up/ilha_shadowgarden/renders/overhaul/06_08_alquimia/antes\CAM_SG_CraftInterior.jpg
+STUDIO RENDER C:/Users/lucas/OneDrive/Desktop/To up/ilha_shadowgarden/renders/overhaul/06_08_alquimia/antes\CAM_SG_PlayerHeight_Craft.jpg
+STUDIO RENDER C:/Users/lucas/OneDrive/Desktop/To up/ilha_shadowgarden/renders/overhaul/06_08_alquimia/antes\CAM_SG_AU_Flask.jpg
+STUDIO RENDER C:/Users/lucas/OneDrive/Desktop/To up/ilha_shadowgarden/renders/overhaul/06_08_alquimia/antes\CAM_SG_AU_CraftBase.jpg
+STUDIO RENDER C:/Users/lucas/OneDrive/Desktop/To up/ilha_shadowgarden/renders/overhaul/06_08_alquimia/antes\CAM_SG_CU_Cauldron.jpg
+STUDIO RENDER C:/Users/lucas/OneDrive/Desktop/To up/ilha_shadowgarden/renders/overhaul/06_08_alquimia/antes\CAM_SG_CU_Emblem.jpg
+STUDIO RENDER C:/Users/lucas/OneDrive/Desktop/To up/ilha_shadowgarden/renders/overhaul/06_08_alquimia/antes\CAM_SG_CU_Library.jpg
+STUDIO RENDER C:/Users/lucas/OneDrive/Desktop/To up/ilha_shadowgarden/renders/overhaul/06_08_alquimia/antes\CAM_SG_CU_Shelf.jpg
+STUDIO RENDER C:/Users/lucas/OneDrive/Desktop/To up/ilha_shadowgarden/renders/overhaul/06_08_alquimia/antes\CAM_SG_CU_CraftTable.jpg
+STUDIO RENDER C:/Users/lucas/OneDrive/Desktop/To up/ilha_shadowgarden/renders/overhaul/06_08_alquimia/antes\CAM_SG_CU_CraftDoor.jpg
+STUDIO RENDER C:/Users/lucas/OneDrive/Desktop/To up/ilha_shadowgarden/renders/overhaul/06_08_alquimia/antes\CAM_SGCraft_W.jpg
+STUDIO RENDER C:/Users/lucas/OneDrive/Desktop/To up/ilha_shadowgarden/renders/overhaul/06_08_alquimia/antes\CAM_SGCraft_N.jpg
+STUDIO RENDER C:/Users/lucas/OneDrive/Desktop/To up/ilha_shadowgarden/renders/overhaul/06_08_alquimia/antes\CAM_SGCraft_E.jpg
+STUDIO RENDER C:/Users/lucas/OneDrive/Desktop/To up/ilha_shadowgarden/renders/overhaul/06_08_alquimia/antes\CAM_SGCraft_S.jpg
+STUDIO RENDER C:/Users/lucas/OneDrive/Desktop/To up/ilha_shadowgarden/renders/overhaul/06_08_alquimia/antes\CAM_SGCraft_Far.jpg
+STUDIO RENDER C:/Users/lucas/OneDrive/Desktop/To up/ilha_shadowgarden/renders/overhaul/06_08_alquimia/antes\CAM_SGCraft_PH_Door.jpg
+STUDIO RENDER C:/Users/lucas/OneDrive/Desktop/To up/ilha_shadowgarden/renders/overhaul/06_08_alquimia/antes\CAM_SGCraft_In_Cauldron.jpg
+STUDIO RENDER C:/Users/lucas/OneDrive/Desktop/To up/ilha_shadowgarden/renders/overhaul/06_08_alquimia/antes\CAM_SGCraft_In_ShelvesN.jpg01:55.094  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\ilha_shadowgarden\renders\overhaul\06_08_alquimia\antes\CAM_SGCraft_In_ShelvesS.jpg'
+01:56.594  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\ilha_shadowgarden\renders\overhaul\06_08_alquimia\antes\CAM_SGCraft_In_Gallery.jpg'
+01:57.672  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\ilha_shadowgarden\renders\overhaul\06_08_alquimia\antes\CAM_SGCraft_In_Circle.jpg'
+01:59.047  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\ilha_shadowgarden\renders\overhaul\06_08_alquimia\antes\CAM_SGCraft_In_Door.jpg'
+02:00.265  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\ilha_shadowgarden\renders\overhaul\06_08_alquimia\antes\CAM_SGCraft_In_Up.jpg'
+02:01.250  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\ilha_shadowgarden\renders\overhaul\06_08_alquimia\antes\CAM_SG_OVA_FromVillage.jpg'
+02:03.140  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\ilha_shadowgarden\renders\overhaul\06_08_alquimia\antes\CAM_SG_OVA_Portal34.jpg'
+02:05.625  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\ilha_shadowgarden\renders\overhaul\06_08_alquimia\antes\CAM_SG_OVA_WallBase.jpg'
+02:07.078  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\ilha_shadowgarden\renders\overhaul\06_08_alquimia\antes\CAM_SG_OVA_TankCU.jpg'
+02:08.359  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\ilha_shadowgarden\renders\overhaul\06_08_alquimia\antes\CAM_SG_OVA_FlaskCU.jpg'
+02:09.781  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\ilha_shadowgarden\renders\overhaul\06_08_alquimia\antes\CAM_SG_OVA_Chandelier.jpg'
+02:11.484  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\ilha_shadowgarden\renders\overhaul\06_08_alquimia\antes\CAM_SG_OVA_Bench.jpg'
+02:12.812  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\ilha_shadowgarden\renders\overhaul\06_08_alquimia\antes\CAM_SG_OVA_ChestCU.jpg'
+02:15.062  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\ilha_shadowgarden\renders\overhaul\06_08_alquimia\antes\CAM_SG_OVA_LecternCU.jpg'
+02:16.984  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\ilha_shadowgarden\renders\overhaul\06_08_alquimia\antes\CAM_SG_OVA_WallIn.jpg'
+02:18.344  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\ilha_shadowgarden\renders\overhaul\06_08_alquimia\antes\CAM_SG_OVA_Potions.jpg'
+
+STUDIO RENDER C:/Users/lucas/OneDrive/Desktop/To up/ilha_shadowgarden/renders/overhaul/06_08_alquimia/antes\CAM_SGCraft_In_ShelvesS.jpg
+STUDIO RENDER C:/Users/lucas/OneDrive/Desktop/To up/ilha_shadowgarden/renders/overhaul/06_08_alquimia/antes\CAM_SGCraft_In_Gallery.jpg
+STUDIO RENDER C:/Users/lucas/OneDrive/Desktop/To up/ilha_shadowgarden/renders/overhaul/06_08_alquimia/antes\CAM_SGCraft_In_Circle.jpg
+STUDIO RENDER C:/Users/lucas/OneDrive/Desktop/To up/ilha_shadowgarden/renders/overhaul/06_08_alquimia/antes\CAM_SGCraft_In_Door.jpg
+STUDIO RENDER C:/Users/lucas/OneDrive/Desktop/To up/ilha_shadowgarden/renders/overhaul/06_08_alquimia/antes\CAM_SGCraft_In_Up.jpg
+STUDIO RENDER C:/Users/lucas/OneDrive/Desktop/To up/ilha_shadowgarden/renders/overhaul/06_08_alquimia/antes\CAM_SG_OVA_FromVillage.jpg
+STUDIO RENDER C:/Users/lucas/OneDrive/Desktop/To up/ilha_shadowgarden/renders/overhaul/06_08_alquimia/antes\CAM_SG_OVA_Portal34.jpg
+STUDIO RENDER C:/Users/lucas/OneDrive/Desktop/To up/ilha_shadowgarden/renders/overhaul/06_08_alquimia/antes\CAM_SG_OVA_WallBase.jpg
+STUDIO RENDER C:/Users/lucas/OneDrive/Desktop/To up/ilha_shadowgarden/renders/overhaul/06_08_alquimia/antes\CAM_SG_OVA_TankCU.jpg
+STUDIO RENDER C:/Users/lucas/OneDrive/Desktop/To up/ilha_shadowgarden/renders/overhaul/06_08_alquimia/antes\CAM_SG_OVA_FlaskCU.jpg
+STUDIO RENDER C:/Users/lucas/OneDrive/Desktop/To up/ilha_shadowgarden/renders/overhaul/06_08_alquimia/antes\CAM_SG_OVA_Chandelier.jpg
+STUDIO RENDER C:/Users/lucas/OneDrive/Desktop/To up/ilha_shadowgarden/renders/overhaul/06_08_alquimia/antes\CAM_SG_OVA_Bench.jpg
+STUDIO RENDER C:/Users/lucas/OneDrive/Desktop/To up/ilha_shadowgarden/renders/overhaul/06_08_alquimia/antes\CAM_SG_OVA_ChestCU.jpg
+STUDIO RENDER C:/Users/lucas/OneDrive/Desktop/To up/ilha_shadowgarden/renders/overhaul/06_08_alquimia/antes\CAM_SG_OVA_LecternCU.jpg
+STUDIO RENDER C:/Users/lucas/OneDrive/Desktop/To up/ilha_shadowgarden/renders/overhaul/06_08_alquimia/antes\CAM_SG_OVA_WallIn.jpg
+STUDIO RENDER C:/Users/lucas/OneDrive/Desktop/To up/ilha_shadowgarden/renders/overhaul/06_08_alquimia/antes\CAM_SG_OVA_Potions.jpg
+STUDIO FIM 133.8s
+Blender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 02:38:20)
+
+Blender quit

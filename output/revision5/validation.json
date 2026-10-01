@@ -1,0 +1,271 @@
+{
+  "finalStreamingSession": {"currentArea": 3, "visibleOnly": "Area3", "mood": "Natagumo", "music": "Mysterious Forest", "unfrozen": true},
+  "finalReturn": {"recovered": true, "returnedToLobby": true},
+  "allTwelveSourcesMatchStudio": true,
+  "temporaryTestsLeftInEdit": 0,
+  "islands": 6,
+  "oreCount": 146,
+  "oreApproachChecks": 438,
+  "routesWithoutJumping": 54,
+  "navigation": [
+    {
+      "id": 1,
+      "failures": [],
+      "routes": {
+        "BankLoop1": "Success",
+        "EastBank": "Success",
+        "Portal": "Success",
+        "WestBank": "Success",
+        "Mine": "Success",
+        "Boss": "Success",
+        "Center": "Success",
+        "BankLoop-1": "Success",
+        "Gacha": "Success"
+      },
+      "orePass": 30
+    },
+    {
+      "id": 2,
+      "failures": [],
+      "routes": {
+        "BankLoop1": "Success",
+        "EastBank": "Success",
+        "Portal": "Success",
+        "WestBank": "Success",
+        "Mine": "Success",
+        "Boss": "Success",
+        "Center": "Success",
+        "BankLoop-1": "Success",
+        "Gacha": "Success"
+      },
+      "orePass": 22
+    },
+    {
+      "id": 3,
+      "failures": [],
+      "routes": {
+        "BankLoop1": "Success",
+        "EastBank": "Success",
+        "Portal": "Success",
+        "WestBank": "Success",
+        "Mine": "Success",
+        "Boss": "Success",
+        "Center": "Success",
+        "BankLoop-1": "Success",
+        "Gacha": "Success"
+      },
+      "orePass": 24
+    },
+    {
+      "id": 4,
+      "failures": [],
+      "routes": {
+        "BankLoop1": "Success",
+        "EastBank": "Success",
+        "Portal": "Success",
+        "WestBank": "Success",
+        "Mine": "Success",
+        "Boss": "Success",
+        "Center": "Success",
+        "BankLoop-1": "Success",
+        "Gacha": "Success"
+      },
+      "orePass": 22
+    },
+    {
+      "id": 5,
+      "failures": [],
+      "routes": {
+        "BankLoop1": "Success",
+        "EastBank": "Success",
+        "Portal": "Success",
+        "WestBank": "Success",
+        "Mine": "Success",
+        "Boss": "Success",
+        "Center": "Success",
+        "BankLoop-1": "Success",
+        "Gacha": "Success"
+      },
+      "orePass": 24
+    },
+    {
+      "id": 6,
+      "failures": [],
+      "routes": {
+        "BankLoop1": "Success",
+        "EastBank": "Success",
+        "Portal": "Success",
+        "WestBank": "Success",
+        "Mine": "Success",
+        "Boss": "Success",
+        "Center": "Success",
+        "BankLoop-1": "Success",
+        "Gacha": "Success"
+      },
+      "orePass": 24
+    }
+  ],
+  "recovery": [
+    {
+      "id": 1,
+      "area": 1,
+      "test": "Below",
+      "inside": true
+    },
+    {
+      "id": 1,
+      "area": 1,
+      "test": "Above",
+      "inside": true
+    },
+    {
+      "id": 1,
+      "area": 1,
+      "test": "Side",
+      "inside": true
+    },
+    {
+      "id": 1,
+      "area": 1,
+      "test": "Back",
+      "inside": true
+    },
+    {
+      "id": 2,
+      "area": 2,
+      "test": "Below",
+      "inside": true
+    },
+    {
+      "id": 2,
+      "area": 2,
+      "test": "Above",
+      "inside": true
+    },
+    {
+      "id": 2,
+      "area": 2,
+      "test": "Side",
+      "inside": true
+    },
+    {
+      "id": 2,
+      "area": 2,
+      "test": "Back",
+      "inside": true
+    },
+    {
+      "id": 3,
+      "area": 3,
+      "test": "Below",
+      "inside": true
+    },
+    {
+      "id": 3,
+      "area": 3,
+      "test": "Above",
+      "inside": true
+    },
+    {
+      "id": 3,
+      "area": 3,
+      "test": "Side",
+      "inside": true
+    },
+    {
+      "id": 3,
+      "area": 3,
+      "test": "Back",
+      "inside": true
+    },
+    {
+      "id": 4,
+      "area": 4,
+      "test": "Below",
+      "inside": true
+    },
+    {
+      "id": 4,
+      "area": 4,
+      "test": "Above",
+      "inside": true
+    },
+    {
+      "id": 4,
+      "area": 4,
+      "test": "Side",
+      "inside": true
+    },
+    {
+      "id": 4,
+      "area": 4,
+      "test": "Back",
+      "inside": true
+    },
+    {
+      "id": 5,
+      "area": 5,
+      "test": "Below",
+      "inside": true
+    },
+    {
+      "id": 5,
+      "area": 5,
+      "test": "Above",
+      "inside": true
+    },
+    {
+      "id": 5,
+      "area": 5,
+      "test": "Side",
+      "inside": true
+    },
+    {
+      "id": 5,
+      "area": 5,
+      "test": "Back",
+      "inside": true
+    },
+    {
+      "id": 6,
+      "area": 6,
+      "test": "Below",
+      "inside": true
+    },
+    {
+      "id": 6,
+      "area": 6,
+      "test": "Above",
+      "inside": true
+    },
+    {
+      "id": 6,
+      "area": 6,
+      "test": "Side",
+      "inside": true
+    },
+    {
+      "id": 6,
+      "area": 6,
+      "test": "Back",
+      "inside": true
+    }
+  ],
+  "music": {
+    "allSixLoaded": true,
+    "mutingThroughHUDButon": true,
+    "muteSurvivesTeleport": true
+  },
+  "walk": {
+    "speed": 18,
+    "jumps": 0,
+    "entryToCrossroads": true,
+    "crossroadsToBridge": true,
+    "bridgeToBank": true
+  },
+  "streaming": {
+    "preloadSucceeded": true,
+    "firstMeasuredSeconds": 0.1493,
+    "onlyCurrentIslandVisible": true
+  }
+}

@@ -1,0 +1,82 @@
+[
+  {
+    "id": "enferrujada",
+    "fbx_roundtrip": "pass",
+    "dimensions_blender": [
+      2.7840462923049927,
+      0.46330171823501587,
+      3.1325000524520874
+    ],
+    "mesh_parts": 5
+  },
+  {
+    "id": "ferro",
+    "fbx_roundtrip": "pass",
+    "dimensions_blender": [
+      2.769699811935425,
+      0.46330131590366364,
+      3.1325000524520874
+    ],
+    "mesh_parts": 5
+  },
+  {
+    "id": "aco",
+    "fbx_roundtrip": "pass",
+    "dimensions_blender": [
+      3.1941304206848145,
+      0.46330174803733826,
+      3.20946729183197
+    ],
+    "mesh_parts": 5
+  },
+  {
+    "id": "rubi",
+    "fbx_roundtrip": "pass",
+    "dimensions_blender": [
+      3.452758550643921,
+      0.7358851432800293,
+      3.57999324798584
+    ],
+    "mesh_parts": 6
+  },
+  {
+    "id": "obsidiana",
+    "fbx_roundtrip": "pass",
+    "dimensions_blender": [
+      3.9032130241394043,
+      0.7358851730823517,
+      3.6500000953674316
+    ],
+    "mesh_parts": 6
+  },
+  {
+    "id": "runica",
+    "fbx_roundtrip": "pass",
+    "dimensions_blender": [
+      3.652073860168457,
+      0.7358851730823517,
+      3.6700003147125244
+    ],
+    "mesh_parts": 5
+  },
+  {
+    "id": "estelar",
+    "fbx_roundtrip": "pass",
+    "dimensions_blender": [
+      3.7917227745056152,
+      0.7358851432800293,
+      3.7614145278930664
+    ],
+    "mesh_parts": 5
+  },
+  {
+    "id": "ignis",
+    "fbx_roundtrip": "pass",
+    "dimensions_blender": [
+      4.094814777374268,
+      0.7358851730823517,
+      3.91845440864563
+    ],
+    "mesh_parts": 6
+  }
+]

@@ -1,0 +1,91 @@
+{
+  "sounds": {
+    "rbxassetid://9118770617": 1,
+    "rbxassetid://9118690959": 1,
+    "rbxasset://sounds/action_swim.mp3": 1,
+    "rbxassetid://1835322563": 2,
+    "rbxasset://sounds/action_jump_land.mp3": 1,
+    "rbxassetid://9116651255": 1,
+    "rbxassetid://9048681794": 2,
+    "rbxasset://sounds/impact_water.mp3": 1,
+    "rbxasset://sounds/action_jump.mp3": 1,
+    "rbxassetid://82061470648013": 2,
+    "rbxasset://sounds/uuhhh.mp3": 1,
+    "rbxassetid://1845676363": 2,
+    "rbxassetid://9116652038": 1,
+    "rbxassetid://1845421369": 2,
+    "rbxasset://sounds/action_footsteps_plastic.mp3": 2,
+    "rbxassetid://9118585250": 1,
+    "rbxassetid://112898538778548": 2,
+    "rbxassetid://131334832939011": 2,
+    "rbxassetid://4608067546": 1,
+    "rbxassetid://9116652339": 1,
+    "rbxassetid://93529351909119": 2,
+    "rbxasset://sounds/action_get_up.mp3": 1,
+    "rbxasset://sounds/action_falling.ogg": 1
+  },
+  "guis": {
+    "ScreenGui:ExpeditionUI": {
+      "enabled": true,
+      "path": "Players.lucas94292.PlayerGui.ExpeditionUI",
+      "children": 809
+    },
+    "ScreenGui:HoldModeGui": {
+      "enabled": true,
+      "path": "Players.lucas94292.PlayerGui.HoldModeGui",
+      "children": 16
+    },
+    "BillboardGui:BillboardGui": {
+      "enabled": true,
+      "path": "Workspace.NPCs.Ignis.LetreiroIgnis.BillboardGui",
+      "children": 1
+    },
+    "ScreenGui:IslandTransition": {
+      "enabled": true,
+      "path": "Players.lucas94292.PlayerGui.IslandTransition",
+      "children": 18
+    },
+    "BillboardGui:NomePet": {
+      "enabled": true,
+      "path": "Workspace.PetsVisuais.muzan.NomePet",
+      "children": 4
+    },
+    "DockWidgetPluginGui:Brushtool": {
+      "enabled": false,
+      "path": "PluginGuiService.Brushtool",
+      "children": 9
+    },
+    "ScreenGui:Freecam": {
+      "enabled": true,
+      "path": "Players.lucas94292.PlayerGui.Freecam",
+      "children": 1
+    },
+    "BillboardGui:Vida": {
+      "enabled": false,
+      "path": "Workspace.Areas.Area2.Rochas.Rocha.Hitbox.Vida",
+      "children": 17
+    },
+    "SurfaceGui:SurfaceGui": {
+      "enabled": true,
+      "path": "Workspace.LobbyRenovado.ApprovedGuild.ServiceSign.SurfaceGui",
+      "children": 1
+    },
+    "SurfaceGui:VortexCanvas": {
+      "enabled": true,
+      "path": "Workspace.LobbyRenovado.SakuraPolish.PortalFX3.VortexSurface.VortexCanvas",
+      "children": 6
+    }
+  },
+  "counts": {
+    "ScreenGui:ExpeditionUI": 1,
+    "ScreenGui:HoldModeGui": 1,
+    "BillboardGui:BillboardGui": 10,
+    "ScreenGui:IslandTransition": 1,
+    "BillboardGui:NomePet": 3,
+    "DockWidgetPluginGui:Brushtool": 1,
+    "ScreenGui:Freecam": 1,
+    "BillboardGui:Vida": 210,
+    "SurfaceGui:SurfaceGui": 108,
+    "SurfaceGui:VortexCanvas": 12
+  }
+}

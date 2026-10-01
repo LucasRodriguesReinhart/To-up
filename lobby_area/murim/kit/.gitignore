@@ -1,0 +1,7 @@
+*.blend1
+_prev_*.png
+__pycache__/
+*.log
+lobby_forja_celeste.blend
+export/*.fbx
+export/*.fbm/

@@ -1,0 +1,15 @@
+from pathlib import Path
+import math
+p=Path(__file__).parent/'assets';p.mkdir(exist_ok=True)
+def star(cx,cy,r):
+ return ' '.join(f'{cx+math.cos(i*math.pi/5-math.pi/2)*(r if i%2==0 else r*.46):.1f},{cy+math.sin(i*math.pi/5-math.pi/2)*(r if i%2==0 else r*.46):.1f}' for i in range(10))
+def build(name,title,color,content):
+ rays=''.join(f'<path d="M256 256 L{256+230*math.cos(i*math.pi/12):.1f} {256+230*math.sin(i*math.pi/12):.1f} L{256+230*math.cos((i+.5)*math.pi/12):.1f} {256+230*math.sin((i+.5)*math.pi/12):.1f} Z" fill="#fff" opacity=".08"/>' for i in range(24))
+ svg=f'''<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512"><defs><radialGradient id="bg"><stop stop-color="{color}"/><stop offset="1" stop-color="#111c38"/></radialGradient><linearGradient id="gold" x2="0" y2="1"><stop stop-color="#fff8a9"/><stop offset=".38" stop-color="#ffd73f"/><stop offset="1" stop-color="#e7850b"/></linearGradient><linearGradient id="ice" x2="0" y2="1"><stop stop-color="#eaffff"/><stop offset=".4" stop-color="#55e6ff"/><stop offset="1" stop-color="#147ee6"/></linearGradient></defs><circle cx="256" cy="256" r="245" fill="#101523"/><circle cx="256" cy="256" r="235" fill="url(#gold)"/><circle cx="256" cy="256" r="220" fill="url(#bg)" stroke="#694210" stroke-width="5"/>{rays}<circle cx="256" cy="256" r="212" fill="none" stroke="#fff1a0" stroke-opacity=".65" stroke-width="2"/>{content}<path d="M66 369 Q256 336 446 369 L425 425 Q256 402 87 425Z" fill="#121827" stroke="#ffd95a" stroke-width="5"/><text x="256" y="398" text-anchor="middle" font-family="Arial Black,Arial" font-weight="900" font-size="42" fill="#fff5b0" stroke="#060b16" stroke-width="7" paint-order="stroke">{title}</text><path d="M127 96l5 18 18 5-18 5-5 18-5-18-18-5 18-5z M401 273l4 13 13 4-13 4-4 13-4-13-13-4 13-4z" fill="#fff6c5"/></svg>'''
+ (p/(name+'.svg')).write_text(svg)
+stars=''.join(f'<polygon points="{star(x,y,r)}" fill="url(#gold)" stroke="#532b10" stroke-width="8" stroke-linejoin="round"/>' for x,y,r in [(156,159,58),(348,159,58),(155,283,58),(348,283,58)])
+stars+='<text x="256" y="255" text-anchor="middle" font-family="Arial Black" font-weight="900" font-size="102" fill="#fff" stroke="#171d35" stroke-width="12" paint-order="stroke">4</text>'
+build('multi-open','MULTI OPEN','#ae45e3',stars)
+shoe='''<path d="M177 134 Q226 149 235 200 L325 228 Q360 237 376 273 L376 298 Q252 322 136 280 L127 238 148 219 141 159Z" fill="url(#ice)" stroke="#092640" stroke-width="9" stroke-linejoin="round"/><path d="M132 263 Q252 303 376 275 L376 306 Q242 332 135 288Z" fill="#f1fcff" stroke="#092640" stroke-width="6"/><path d="M185 180l56 12m-43 10 58 13m-42 7 61 13" stroke="#fff" stroke-width="10" stroke-linecap="round"/><path d="M74 192h62M61 221h64M71 250h44" stroke="#a8f8ff" stroke-width="12" stroke-linecap="round"/><text x="326" y="163" text-anchor="middle" font-family="Arial Black" font-weight="900" font-size="90" fill="url(#gold)" stroke="#13203b" stroke-width="11" paint-order="stroke">2X</text>'''
+build('speed-2x','2X SPEED','#067eac',shoe)
+print(p)

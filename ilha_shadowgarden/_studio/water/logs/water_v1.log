@@ -1,0 +1,112 @@
+00:13.609  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\ilha_shadowgarden\_studio\water\v1\CAM_SG_Ref_Main.jpg'
+00:14.187  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\ilha_shadowgarden\_studio\water\v1\CAM_SG_Front.jpg'
+00:14.578  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\ilha_shadowgarden\_studio\water\v1\CAM_SG_Left.jpg'
+00:14.969  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\ilha_shadowgarden\_studio\water\v1\CAM_SGWater_West_Near.jpg'
+00:15.344  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\ilha_shadowgarden\_studio\water\v1\CAM_SGWater_West_Below.jpg'
+00:15.734  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\ilha_shadowgarden\_studio\water\v1\CAM_SGWater_West_PlayerHeight.jpg'
+00:16.172  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\ilha_shadowgarden\_studio\water\v1\CAM_SGWater_East_Near.jpg'
+00:16.578  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\ilha_shadowgarden\_studio\water\v1\CAM_SGWater_East_Below.jpg'
+00:16.984  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\ilha_shadowgarden\_studio\water\v1\CAM_SGWater_East_PlayerHeight.jpg'
+00:17.359  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\ilha_shadowgarden\_studio\water\v1\CAM_SGWater_North_Near.jpg'
+00:17.719  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\ilha_shadowgarden\_studio\water\v1\CAM_SGWater_North_Below.jpg'
+00:18.125  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\ilha_shadowgarden\_studio\water\v1\CAM_SGWater_North_PlayerHeight.jpg'
+00:18.500  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\ilha_shadowgarden\_studio\water\v1\CAM_SGWater_South_Near.jpg'
+00:18.875  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\ilha_shadowgarden\_studio\water\v1\CAM_SGWater_South_Below.jpg'
+00:19.281  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\ilha_shadowgarden\_studio\water\v1\CAM_SGWater_South_PlayerHeight.jpg'
+COMPOSITOR ok
+WATER West bancada crista=(-124.9, -52.0, 43.2) corrida=4.7 pe=(-127.8, -52.0, -60.0) polys=2146 quebras=[]
+WATER West perfil [(43.2, 0.0), (42.2, 0.75), (40.2, 1.3), (34.2, 1.39), (33.2, 2.86), (24.7, 2.86), (16.3, 2.86), (7.8, 2.86), (-0.7, 2.86), (-9.2, 2.86), (-17.6, 2.86), (-26.1, 2.86), (-34.6, 2.86), (-43.1, 2.86), (-51.5, 2.86), (-60.0, 2.86)]
+WATER East bancada crista=(150.7, -112.0, 35.2) corrida=8.3 pe=(153.4, -112.0, -60.0) polys=1964 quebras=[]
+WATER East perfil [(35.2, 0.0), (33.2, 1.98), (31.2, 2.05), (24.0, 2.13), (16.7, 2.21), (9.5, 2.29), (2.2, 2.38), (-6.2, 2.38), (-14.6, 2.38), (-23.0, 2.38), (-31.4, 2.38), (-39.8, 2.38), (-46.5, 2.48), (-53.3, 2.58), (-60.0, 2.68)]
+WATER North bancada crista=(-52.31, 192.85, 51.2) corrida=16.5 pe=(-53.3, 195.6, -60.0) polys=2072 quebras=[]
+WATER North perfil [(51.2, 0.0), (50.2, 0.75), (48.2, 1.3), (41.2, 1.41), (34.2, 1.51), (33.2, 2.64), (24.6, 2.64), (16.1, 2.65), (7.5, 2.65), (-1.0, 2.66), (-9.6, 2.67), (-18.1, 2.67), (-26.7, 2.68), (-35.2, 2.68), (-43.8, 2.69), (-51.9, 2.81), (-60.0, 2.92)]
+WATER South fenda crista=(-28.49, -190.91, 60.18) corrida=0.15 pe=(-31.4, -192.0, -60.0) polys=1729 quebras=[]
+WATER South perfil [(60.2, 0.0), (59.2, 0.75), (57.2, 1.3), (48.8, 1.43), (40.4, 1.55), (32.1, 1.68), (23.7, 1.8), (15.3, 1.93), (7.0, 2.05), (-1.4, 2.18), (-9.8, 2.3), (-18.1, 2.43), (-26.5, 2.56), (-34.9, 2.68), (-43.3, 2.81), (-51.6, 2.93), (-60.0, 3.06)]
+STUDIO modulo sg_water 0.2s
+SCENE emissivos limitados: 34 materiais
+STUDIO METRICAS zona=water objetos=4 malhas=4
+STUDIO tris=6438/15000 OK | MeshParts~21/25 OK | materiais_novos=0/2 OK []
+STUDIO colisoes=0/10 OK | luzes=0 (de dia <= 0)
+STUDIO maiores: [(1682, 'SG_Water_Fall_South'), (1664, 'SG_Water_Fall_North'), (1604, 'SG_Water_Fall_West'), (1488, 'SG_Water_Fall_East')]
+STUDIO tecnico: nomes_ruins=[] prefixo_fora_do_padrao=[] sem_material=[] degeneradas=0
+STUDIO marcadores obrigatorios: 0/0 OK
+COL faces: 4392
+OK   ROTA DB_ANCORA->SG_ENTRADA
+OK   ROTA ENTRADA->CASTELO_MINING_HALL
+OK   ROTA ENTRADA->SUMMON
+OK   ROTA ENTRADA->CRAFT
+OK   ROTA ENTRADA->DUNGEON
+OK   ROTA VILA->CASTELO
+OK   ROTA CASTELO->CRAFT
+OK   ROTA CASTELO->DUNGEON
+OK   ROTA CASTELO->PORTAO_DS
+OK   ROTA DUNGEON->CRAFT
+OK   ROTA CRAFT->CASTELO
+OK   ROTA VILA_BAIXA_LESTE->PRACA
+OK   ROTA PRACA_VOLTA
+OK   ROTA DUNGEON_SALAS_R1->R3
+ROTAS 14/14 OK
+OK   ROTA PORTAO_DS_ABERTO->ANCORA
+ROTAS_ABERTAS 1/1 OK
+OK   ROTA sg_terrain:P1_pe_do_arrimo_O
+OK   ROTA sg_terrain:P1_pe_do_arrimo_L
+OK   ROTA sg_terrain:P2_pe_da_muralha_O
+OK   ROTA sg_terrain:P2_pe_da_muralha_L
+OK   ROTA sg_entry:PATIO_PORTICO_A_LATERAL
+OK   ROTA sg_entry:CALCADA_PORTICO_B_LATERAL
+OK   ROTA sg_village:VIL_RUA_P1_OESTE
+OK   ROTA sg_village:VIL_RUA_P1_LESTE
+OK   ROTA sg_village:VIL_RUA_P2
+OK   ROTA sg_village:VIL_EIXO_P2
+OK   ROTA sg_village:VIL_PRACA_ANEL
+OK   ROTA sg_castle:PATIO->BECO_OESTE->TERRACO
+OK   ROTA sg_hall:SALAO_VOLTA
+OK   ROTA sg_summon:PAD->PATAMAR
+OK   ROTA sg_summon:ESCADA->LADO_NORTE
+OK   ROTA sg_summon:ESCADA->LADO_SUL
+OK   ROTA sg_craft:CRAFT_VOLTA_CALDEIRAO
+OK   ROTA sg_water:WATER_mirante_oeste
+OK   ROTA sg_water:WATER_mirante_leste
+OK   ROTA sg_water:WATER_mirante_norte
+OK   ROTA sg_water:WATER_mirante_sul
+ROTAS_MODULOS 21/21 OK
+OK   SONDA ANCORA_DS_borda
+OK   SONDA PONTE_SAIDA_lado_N
+OK   SONDA PONTE_SAIDA_lado_S
+OK   SONDA PONTE_CHEGADA_lado_O
+OK   SONDA PONTE_CHEGADA_lado_L
+OK   SONDA CALCADA_ALTA_O
+OK   SONDA CALCADA_ALTA_L
+OK   SONDA PATIO_BAIXO_O
+OK   SONDA SUMMON_borda_O
+OK   SONDA SUMMON_borda_N
+OK   SONDA PONTE_SUMMON_N
+OK   SONDA P2_borda_sul_O
+OK   SONDA P3_borda_sul_O
+OK   SONDA P2_borda_leste
+OK   SONDA VIL_P2_mirante_oeste
+OK   SONDA CRAFT_estante_N
+OK   SONDA CRAFT_bancada_L
+SONDAS 17/17 OK
+LARGURA rotas com trecho < 3,4 de largura: nenhuma
+OK   SALAO_LIVRE colisores na zona de minerio (piso+0,3..+12): nenhum
+OK   DUNGEON_LIMPA malhas de fora dentro da caixa das salas: nenhuma
+STUDIO RENDER C:/Users/lucas/OneDrive/Desktop/To up/ilha_shadowgarden/_studio/water/v1\CAM_SG_Ref_Main.jpg
+STUDIO RENDER C:/Users/lucas/OneDrive/Desktop/To up/ilha_shadowgarden/_studio/water/v1\CAM_SG_Front.jpg
+STUDIO RENDER C:/Users/lucas/OneDrive/Desktop/To up/ilha_shadowgarden/_studio/water/v1\CAM_SG_Left.jpg
+STUDIO RENDER C:/Users/lucas/OneDrive/Desktop/To up/ilha_shadowgarden/_studio/water/v1\CAM_SGWater_West_Near.jpg
+STUDIO RENDER C:/Users/lucas/OneDrive/Desktop/To up/ilha_shadowgarden/_studio/water/v1\CAM_SGWater_West_Below.jpg
+STUDIO RENDER C:/Users/lucas/OneDrive/Desktop/To up/ilha_shadowgarden/_studio/water/v1\CAM_SGWater_West_PlayerHeight.jpg
+STUDIO RENDER C:/Users/lucas/OneDrive/Desktop/To up/ilha_shadowgarden/_studio/water/v1\CAM_SGWater_East_Near.jpg
+STUDIO RENDER C:/Users/lucas/OneDrive/Desktop/To up/ilha_shadowgarden/_studio/water/v1\CAM_SGWater_East_Below.jpg
+STUDIO RENDER C:/Users/lucas/OneDrive/Desktop/To up/ilha_shadowgarden/_studio/water/v1\CAM_SGWater_East_PlayerHeight.jpg
+STUDIO RENDER C:/Users/lucas/OneDrive/Desktop/To up/ilha_shadowgarden/_studio/water/v1\CAM_SGWater_North_Near.jpg
+STUDIO RENDER C:/Users/lucas/OneDrive/Desktop/To up/ilha_shadowgarden/_studio/water/v1\CAM_SGWater_North_Below.jpg
+STUDIO RENDER C:/Users/lucas/OneDrive/Desktop/To up/ilha_shadowgarden/_studio/water/v1\CAM_SGWater_North_PlayerHeight.jpg
+STUDIO RENDER C:/Users/lucas/OneDrive/Desktop/To up/ilha_shadowgarden/_studio/water/v1\CAM_SGWater_South_Near.jpg
+STUDIO RENDER C:/Users/lucas/OneDrive/Desktop/To up/ilha_shadowgarden/_studio/water/v1\CAM_SGWater_South_Below.jpg
+STUDIO RENDER C:/Users/lucas/OneDrive/Desktop/To up/ilha_shadowgarden/_studio/water/v1\CAM_SGWater_South_PlayerHeight.jpg
+STUDIO FIM 16.2s
+Blender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 02:38:20)
+
+Blender quit

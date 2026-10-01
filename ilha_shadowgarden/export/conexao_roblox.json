@@ -1,0 +1,388 @@
+{
+ "CRAFT_Station": {
+  "name": "CRAFT_Station",
+  "pos": [
+   -1072.919,
+   44.2,
+   596.735
+  ],
+  "x": [
+   -0.985,
+   0.0,
+   0.174
+  ],
+  "y": [
+   0.174,
+   0.0,
+   0.985
+  ],
+  "props": {
+   "note": "caldeirao/bancada do alquimista: ProximityPrompt 'Craft' abre a pagina de receitas",
+   "fwd_x": 0.1736,
+   "fwd_z": 0.9848
+  }
+ },
+ "DUNGEON_Entrance": {
+  "name": "DUNGEON_Entrance",
+  "pos": [
+   -1248.462,
+   -10.4,
+   741.416
+  ],
+  "x": [
+   -0.174,
+   0.0,
+   -0.985
+  ],
+  "y": [
+   -0.985,
+   0.0,
+   0.174
+  ],
+  "props": {
+   "radius": 8.0,
+   "note": "zona/prompt de entrada na corrida (so com ENTRY_OPEN); <= 14 do marcador",
+   "fwd_x": -0.9848,
+   "fwd_z": 0.1736
+  }
+ },
+ "DUNGEON_Hall": {
+  "name": "DUNGEON_Hall",
+  "pos": [
+   -1240.584,
+   -10.4,
+   740.027
+  ],
+  "x": [
+   -0.174,
+   0.0,
+   -0.985
+  ],
+  "y": [
+   -0.985,
+   0.0,
+   0.174
+  ],
+  "props": {
+   "radius": 13.0,
+   "ring_y_local": 100.0,
+   "note": "portal/vortice da masmorra no fundo sul do salao sombrio (frente = para o norte, quem chega)",
+   "fwd_x": -0.9848,
+   "fwd_z": 0.1736
+  }
+ },
+ "DUNGEON_Spawn": {
+  "name": "DUNGEON_Spawn",
+  "pos": [
+   -1155.89,
+   -71.8,
+   725.093
+  ],
+  "x": [
+   -0.174,
+   0.0,
+   -0.985
+  ],
+  "y": [
+   -0.985,
+   0.0,
+   0.174
+  ],
+  "props": {
+   "note": "chegada na R1 (frente = para a R2)",
+   "fwd_x": -0.9848,
+   "fwd_z": 0.1736
+  }
+ },
+ "DUN_NEXT_R2": {
+  "name": "DUN_NEXT_R2",
+  "pos": [
+   -1332.171,
+   -72.0,
+   756.176
+  ],
+  "x": [
+   -0.174,
+   0.0,
+   -0.985
+  ],
+  "y": [
+   -0.985,
+   0.0,
+   0.174
+  ],
+  "props": {
+   "w": 27.0,
+   "h": 21.0,
+   "t": 1.0,
+   "room": "R2",
+   "note": "portal da PROXIMA sala (e o selo enquanto a sala nao limpa): Part (w, h, t) com CFrame = marcador * (0, h/2, 0); DENTRO do plano medio do vao (R2) / nicho (R3)",
+   "fwd_x": -0.9848,
+   "fwd_z": 0.1736
+  }
+ },
+ "DUN_NEXT_R3": {
+  "name": "DUN_NEXT_R3",
+  "pos": [
+   -1436.56,
+   -72.0,
+   774.583
+  ],
+  "x": [
+   -0.174,
+   0.0,
+   -0.985
+  ],
+  "y": [
+   -0.985,
+   0.0,
+   0.174
+  ],
+  "props": {
+   "w": 27.0,
+   "h": 21.0,
+   "t": 1.0,
+   "room": "R3",
+   "note": "portal da PROXIMA sala (e o selo enquanto a sala nao limpa): Part (w, h, t) com CFrame = marcador * (0, h/2, 0); DENTRO do plano medio do vao (R2) / nicho (R3)",
+   "fwd_x": -0.9848,
+   "fwd_z": 0.1736
+  }
+ },
+ "GATE_DemonSlayer": {
+  "name": "GATE_DemonSlayer",
+  "pos": [
+   -1513.044,
+   52.2,
+   944.445
+  ],
+  "x": [
+   -0.643,
+   0.0,
+   -0.766
+  ],
+  "y": [
+   -0.766,
+   0.0,
+   0.643
+  ],
+  "props": {
+   "open_w": 16.0,
+   "open_h": 18.0,
+   "deck_w": 18.0,
+   "area_id": 4,
+   "key": "DemonSlayer",
+   "fwd_x": -0.766,
+   "fwd_z": 0.6428
+  }
+ },
+ "ISLAND_EXIT_ShadowGarden": {
+  "name": "ISLAND_EXIT_ShadowGarden",
+  "pos": [
+   -1454.825,
+   52.2,
+   895.593
+  ],
+  "x": [
+   -0.643,
+   0.0,
+   -0.766
+  ],
+  "y": [
+   -0.766,
+   0.0,
+   0.643
+  ],
+  "props": {
+   "width": 18.0,
+   "deck_z": 52.2,
+   "heading_deg": 140.0,
+   "fwd_x": -0.766,
+   "fwd_z": 0.6428,
+   "heading_deg_local": 120.0
+  }
+ },
+ "ISLAND_NEXT_ANCHOR_DemonSlayer": {
+  "name": "ISLAND_NEXT_ANCHOR_DemonSlayer",
+  "pos": [
+   -1534.493,
+   52.2,
+   962.443
+  ],
+  "x": [
+   -0.643,
+   0.0,
+   -0.766
+  ],
+  "y": [
+   -0.766,
+   0.0,
+   0.643
+  ],
+  "props": {
+   "width": 18.0,
+   "deck_z": 52.2,
+   "clear_h": 22.0,
+   "heading_deg": 140.0,
+   "next_area": 4,
+   "next_key": "DemonSlayer",
+   "fwd_roblox": "-0.7660,0.0000,0.6428",
+   "guard": "PROVISORIO: COL_SGAnchorGuard_* (next_island_guard=True)",
+   "guard_note": "a integracao da ilha Demon Slayer REMOVE o guarda quando a ponte seguinte encosta aqui",
+   "fwd_x": -0.766,
+   "fwd_z": 0.6428,
+   "heading_deg_local": 120.0
+  }
+ },
+ "MiningZone_ShadowGarden": {
+  "name": "MiningZone_ShadowGarden",
+  "pos": [
+   -1283.915,
+   52.2,
+   747.667
+  ],
+  "x": [
+   -0.174,
+   0.0,
+   -0.985
+  ],
+  "y": [
+   -0.985,
+   0.0,
+   0.174
+  ],
+  "props": {
+   "kind": "mining",
+   "floor": 52.2,
+   "sx": 104.0,
+   "sy": 136.0,
+   "ceil": 136.2,
+   "note": "Mining Hall (dentro do castelo); o jogo usa ORE_* + grade hexagonal + bloqueios GP_Block_*",
+   "fwd_x": -0.9848,
+   "fwd_z": 0.1736
+  }
+ },
+ "SUMMON_Main": {
+  "name": "SUMMON_Main",
+  "pos": [
+   -882.028,
+   40.2,
+   896.136
+  ],
+  "x": [
+   0.985,
+   0.0,
+   -0.174
+  ],
+  "y": [
+   -0.174,
+   0.0,
+   -0.985
+  ],
+  "props": {
+   "note": "torre de invocacao (familia das Ilhas 1 e 2), frente para +X (ponte)",
+   "fwd_x": -0.1736,
+   "fwd_z": -0.9848
+  }
+ },
+ "THRONE_Park": {
+  "name": "THRONE_Park",
+  "pos": [
+   -1432.473,
+   54.6,
+   745.938
+  ],
+  "x": [
+   0.174,
+   0.0,
+   0.985
+  ],
+  "y": [
+   0.985,
+   0.0,
+   -0.174
+  ],
+  "props": {
+   "travel": 27.5,
+   "tween_s": 3.0,
+   "note": "pivo do trono recolhido no bolso da parede leste",
+   "fwd_x": 0.9848,
+   "fwd_z": -0.1736
+  }
+ },
+ "THRONE_Rest": {
+  "name": "THRONE_Rest",
+  "pos": [
+   -1427.697,
+   54.6,
+   773.02
+  ],
+  "x": [
+   0.174,
+   0.0,
+   0.985
+  ],
+  "y": [
+   0.985,
+   0.0,
+   -0.174
+  ],
+  "props": {
+   "sx": 14.0,
+   "sy": 11.0,
+   "sz": 20.0,
+   "note": "pivo do trono em repouso (base no piso do presbiterio; frente = nave)",
+   "fwd_x": 0.9848,
+   "fwd_z": -0.1736
+  }
+ },
+ "WORLD_ENTRY_ShadowGarden": {
+  "name": "WORLD_ENTRY_ShadowGarden",
+  "pos": [
+   -870.296,
+   36.4,
+   674.735
+  ],
+  "x": [
+   -0.174,
+   0.0,
+   -0.985
+  ],
+  "y": [
+   -0.985,
+   0.0,
+   0.174
+  ],
+  "props": {
+   "note": "chegada da ilha (depois do portico B, olhando a praca e o castelo)",
+   "fwd_x": -0.9848,
+   "fwd_z": 0.1736
+  }
+ },
+ "WORLD_FROM_PREV": {
+  "name": "WORLD_FROM_PREV",
+  "pos": [
+   -579.227,
+   28.2,
+   650.727
+  ],
+  "x": [
+   0.391,
+   0.0,
+   -0.92
+  ],
+  "y": [
+   -0.92,
+   0.0,
+   -0.391
+  ],
+  "props": {
+   "width": 18.0,
+   "deck_z": 28.2,
+   "prev": "ISLAND_NEXT_ANCHOR_ShadowGarden (Ilha 2 Dragon Ball)",
+   "bridge_len": 234.1,
+   "note": "centro da borda do tabuleiro da ponte de chegada (curva de 33 graus, 232); avanco = frente",
+   "fwd_x": -0.9204,
+   "fwd_z": -0.3911
+  }
+ }
+}

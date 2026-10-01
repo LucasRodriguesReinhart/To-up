@@ -1,0 +1,133 @@
+02:17.594  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\ilha_shadowgarden\renders\onda1\entry\roblox\CAM_SGEnt_FromAnchor.jpg'
+02:18.750  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\ilha_shadowgarden\renders\onda1\entry\roblox\CAM_SGEnt_Curve.jpg'
+02:20.141  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\ilha_shadowgarden\renders\onda1\entry\roblox\CAM_SGEnt_MidCurve.jpg'
+02:21.485  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\ilha_shadowgarden\renders\onda1\entry\roblox\CAM_SGEnt_Node.jpg'
+02:22.578  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\ilha_shadowgarden\renders\onda1\entry\roblox\CAM_SGEnt_SideCurve.jpg'
+02:24.438  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\ilha_shadowgarden\renders\onda1\entry\roblox\CAM_SGEnt_Under.jpg'
+02:26.235  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\ilha_shadowgarden\renders\onda1\entry\roblox\CAM_SGEnt_Deck.jpg'
+02:27.953  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\ilha_shadowgarden\renders\onda1\entry\roblox\CAM_SGEnt_End.jpg'
+02:29.797  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\ilha_shadowgarden\renders\onda1\entry\roblox\CAM_SGEnt_Portico.jpg'
+02:31.110  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\ilha_shadowgarden\renders\onda1\entry\roblox\CAM_SGEnt_PorticoNear.jpg'
+02:32.422  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\ilha_shadowgarden\renders\onda1\entry\roblox\CAM_SGEnt_Back.jpg'
+COMPOSITOR ok
+CAVE torre: aberturas [(270.0, 6.3, 24.6), (190.0, 14.3, 32.4), (226.0, 11.8, 30.9), (321.0, 8.4, 24.3)] pedacos 217 tochas 7
+CAVE partes: 0_floor 6114, 1_bridge 968, 2_nave 3744, 3_tower_and_spiral 7398, 4_tower_and_spiral 2556, 5_tower_and_spiral 2060, 6_gallery 5606, 7_grand_stair 2420, 8_walkways 5764, 9_portal 3540, 0_portal 188, 1_forge 3976, 2_maproom 3644, 3_crystals 1434
+CAVE build: blocos de rocha 797, estalactites 52, lajes 182, cristais 12 (10.5s)
+DUN faces degeneradas: nenhuma
+DUN folga dos minerios: OK (nenhuma colisao a menos de 5 de DUN_ORE_* ate piso+12)
+OK   DUN_NEXT_R2 parede 27x21x1 no vao (0.0, 197.0): livre (folga 0,5 nos lados, 1.0 em cima)
+OK   DUN_NEXT_R3 parede 27x21x1 no vao (0.0, 303.0): livre (folga 0,5 nos lados, 1.0 em cima)
+STUDIO modulo sg_entry 16.1s
+SCENE emissivos limitados: 42 materiais
+STUDIO METRICAS zona=entry objetos=12 malhas=3
+STUDIO tris=39420/40000 OK | MeshParts~27/38 OK | materiais_novos=1/4 OK ['Stone_SG_TrimLow']
+STUDIO colisoes=4/60 OK | luzes=5 (de dia <= 5)
+STUDIO maiores: [(24960, 'SG_Ent_Bridge'), (9548, 'SG_Ent_Porticos'), (4912, 'SG_Ent_StairWalls')]
+STUDIO tecnico: nomes_ruins=[] prefixo_fora_do_padrao=[] sem_material=[] degeneradas=0
+STUDIO marcadores obrigatorios: 0/0 OK
+COL faces: 8202
+OK   ROTA DB_ANCORA->SG_ENTRADA
+OK   ROTA ENTRADA->CASTELO_MINING_HALL
+OK   ROTA PORTA->TRONO
+OK   ROTA ENTRADA->SUMMON
+OK   ROTA ENTRADA->CRAFT
+OK   ROTA VILA->CASTELO
+OK   ROTA CASTELO->CRAFT
+OK   ROTA CASTELO->PORTAO_DS
+OK   ROTA CASTELO->JARDIM_MIRANTE
+OK   ROTA CRAFT->JARDIM_MIRANTE
+OK   ROTA PRACA_VOLTA
+OK   ROTA VILA_BAIXA_LESTE->PRACA
+OK   ROTA CASA_H1_PORTA->DENTRO
+OK   ROTA CASA_H1_ESCADA->ANDAR
+OK   ROTA CASA_H2_PORTA->DENTRO
+OK   ROTA CASA_H2_ESCADA->ANDAR
+OK   ROTA CASA_H3_PORTA->DENTRO
+OK   ROTA CASA_H3_ESCADA->ANDAR
+OK   ROTA CASA_H4_PORTA->DENTRO
+OK   ROTA CASA_H5_PORTA->DENTRO
+OK   ROTA CASA_H5_ESCADA->ANDAR
+OK   ROTA CASA_H6_PORTA->DENTRO
+OK   ROTA CASA_H7_PORTA->DENTRO
+OK   ROTA CASA_H7_ESCADA->ANDAR
+OK   ROTA DUNGEON_SALAS_R1->R3
+OK   ROTA SALAO_SOMBRIO_PASSARELAS
+OK   ROTA SALAO_SOMBRIO_PISO
+ROTAS 27/27 OK
+OK   ROTA PORTAO_DS_ABERTO->ANCORA
+OK   ROTA TRONO_ABERTO->ESCADA->SALAO_SOMBRIO->PORTAL
+OK   ROTA PORTAL->SALAO_SOMBRIO->ESCADA->TRONO (subida)
+ROTAS_ABERTAS 3/3 OK
+OK   ROTA sg_entry:CALCADA_PORTICO_B_LATERAL
+OK   ROTA sg_entry:PONTE_BEIRA_E
+OK   ROTA sg_entry:PONTE_BEIRA_W
+OK   ROTA sg_castle:PATIO->PORCHE->PORTA
+OK   ROTA sg_castle:PATIO->PORCHE_LADO
+OK   ROTA sg_hall:SALAO_VOLTA
+OK   ROTA sg_hall:NAVE_LATERAL_O
+OK   ROTA sg_hall:NAVE_LATERAL_L
+OK   ROTA sg_summon:PAD->PATAMAR
+OK   ROTA sg_summon:ESCADA->LADO_NORTE
+OK   ROTA sg_summon:ESCADA->LADO_SUL
+OK   ROTA sg_craft:CRAFT_VOLTA_CALDEIRAO
+OK   ROTA sg_dungeon:SALA_R1_VOLTA
+OK   ROTA sg_dungeon:SALA_R2_VOLTA
+OK   ROTA sg_dungeon:SALA_R3_VOLTA
+OK   ROTA sg_dungeon:GRUPO_VAO_R1R2
+OK   ROTA sg_dungeon:GRUPO_VAO_R2R3
+OK   ROTA sg_dungeon:SPAWN_R1_ATE_SAIDA
+OK   ROTA sg_dungeon:SPAWN_R3_ATE_SAIDA
+OK   ROTA sg_dungeon:SALA_R3_ATE_O_NICHO
+OK   ROTA sg_exit:CABECEIRA_ATRAS_DOS_PILARES
+OK   ROTA sg_exit:PONTE_BEIRA_S
+OK   ROTA sg_exit:PONTE_BEIRA_N
+ROTAS_MODULOS 23/23 OK
+OK   SONDA ANCORA_DS_borda
+OK   SONDA PONTE_SAIDA_lado_N
+OK   SONDA PONTE_SAIDA_lado_S
+OK   SONDA PONTE_CHEGADA_04_E
+OK   SONDA PONTE_CHEGADA_04_D
+OK   SONDA PONTE_CHEGADA_10_E
+OK   SONDA PONTE_CHEGADA_10_D
+OK   SONDA PONTE_CHEGADA_14_E
+OK   SONDA PONTE_CHEGADA_14_D
+OK   SONDA CALCADA_ALTA_O
+OK   SONDA CALCADA_ALTA_L
+OK   SONDA PATIO_BAIXO_O
+OK   SONDA SUMMON_borda_O
+OK   SONDA SUMMON_borda_N
+OK   SONDA PONTE_SUMMON_N
+OK   SONDA P2_borda_sul_O
+OK   SONDA P3_muralha_O
+OK   SONDA P2_borda_leste
+OK   SONDA TERRACO_NORTE_borda
+OK   SONDA GALERIA_borda_sul
+OK   SONDA PASSARELA_O_borda
+OK   SONDA PONTE_SUSPENSA_lado
+OK   SONDA RIO_borda_norte
+OK   SONDA ESCADA_CARACOL_guarda
+OK   SONDA TRONO_FECHADO_tapa_o_arco
+OK   SONDA CRAFT_estante_N
+OK   SONDA CRAFT_bancada_L
+OK   SONDA ILHOTA_borda_NE
+OK   SONDA ANCORA_lado_S
+SONDAS 29/29 OK
+LARGURA rotas com trecho < 3,4 de largura: ['ENTRADA->CRAFT', 'CASTELO->CRAFT', 'CASA_H1_ESCADA->ANDAR', 'CASA_H2_ESCADA->ANDAR', 'CASA_H3_ESCADA->ANDAR', 'CASA_H5_ESCADA->ANDAR', 'CASA_H7_ESCADA->ANDAR', 'SALAO_SOMBRIO_PISO']
+OK   SALAO_LIVRE colisores na zona de minerio (piso+0,3..+12): nenhum
+OK   DUNGEON_LIMPA malhas de fora dentro da caixa das salas: nenhuma
+FAIL CAVE_LIVRE malhas de fora dentro da caixa do salao sombrio: ['SG_Ter_Blockout_Shoulder', 'SG_Ter_Blockout_Under']
+STUDIO RENDER C:/Users/lucas/OneDrive/Desktop/To up/ilha_shadowgarden/renders/onda1/entry/roblox\CAM_SGEnt_FromAnchor.jpg
+STUDIO RENDER C:/Users/lucas/OneDrive/Desktop/To up/ilha_shadowgarden/renders/onda1/entry/roblox\CAM_SGEnt_Curve.jpg
+STUDIO RENDER C:/Users/lucas/OneDrive/Desktop/To up/ilha_shadowgarden/renders/onda1/entry/roblox\CAM_SGEnt_MidCurve.jpg
+STUDIO RENDER C:/Users/lucas/OneDrive/Desktop/To up/ilha_shadowgarden/renders/onda1/entry/roblox\CAM_SGEnt_Node.jpg
+STUDIO RENDER C:/Users/lucas/OneDrive/Desktop/To up/ilha_shadowgarden/renders/onda1/entry/roblox\CAM_SGEnt_SideCurve.jpg
+STUDIO RENDER C:/Users/lucas/OneDrive/Desktop/To up/ilha_shadowgarden/renders/onda1/entry/roblox\CAM_SGEnt_Under.jpg
+STUDIO RENDER C:/Users/lucas/OneDrive/Desktop/To up/ilha_shadowgarden/renders/onda1/entry/roblox\CAM_SGEnt_Deck.jpg
+STUDIO RENDER C:/Users/lucas/OneDrive/Desktop/To up/ilha_shadowgarden/renders/onda1/entry/roblox\CAM_SGEnt_End.jpg
+STUDIO RENDER C:/Users/lucas/OneDrive/Desktop/To up/ilha_shadowgarden/renders/onda1/entry/roblox\CAM_SGEnt_Portico.jpg
+STUDIO RENDER C:/Users/lucas/OneDrive/Desktop/To up/ilha_shadowgarden/renders/onda1/entry/roblox\CAM_SGEnt_PorticoNear.jpg
+STUDIO RENDER C:/Users/lucas/OneDrive/Desktop/To up/ilha_shadowgarden/renders/onda1/entry/roblox\CAM_SGEnt_Back.jpg
+STUDIO FIM 142.7s
+Blender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 02:38:20)
+
+Blender quit

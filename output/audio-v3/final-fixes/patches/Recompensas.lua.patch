@@ -1,0 +1,16 @@
+--- a/ServerScriptService/Core/Recompensas.lua
++++ b/ServerScriptService/Core/Recompensas.lua
+@@ -53,11 +53,11 @@
+ 		Telemetria.marco(player, perfil, "FirstHatEquipped", { manual = 0 })
+ 		task.defer(HatVisual.aplicar, player)
+ 	end
+-	feedback(player, { tipo = "hat", id = def.id, texto = def.nome, raridade = def.raridade, novo = novo, nivel = perfil.hatsInv[uid].nivel })
++	feedback(player, { tipo = "hat", id = def.id, texto = def.nome, raridade = def.raridade, novo = novo, nivel = perfil.hatsInv[uid].nivel, audioContext = origem })
+ 	if Config.RAR_INDICE[def.raridade] >= 5 then
+ 		Telemetria.evento(player, perfil, "HatDropped", Config.RAR_INDICE[def.raridade], { raridade = def.raridade, mundo = def.mundo, origem = origem or "" })
+ 	end
+-	return uid
++	return uid, def -- additive metadata: the exact definition delivered, including fallbacks
+ end
+ 
+ -- raridade sorteada com a regra do simulador: Lucky/boost exatos em Epico+, depois sorte do tipo de minerio

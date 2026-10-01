@@ -1,0 +1,125 @@
+[
+  {
+    "id": "enferrujada",
+    "name": "ENFERRUJADA",
+    "base_damage": 2,
+    "triangles": 1580,
+    "mesh_parts": 5,
+    "uv": true,
+    "materials": [
+      "Blackened metal.001",
+      "Walnut.001",
+      "Leather wrap.001",
+      "Iron.001",
+      "Rust.001"
+    ]
+  },
+  {
+    "id": "ferro",
+    "name": "FERRO",
+    "base_damage": 8,
+    "triangles": 1428,
+    "mesh_parts": 5,
+    "uv": true,
+    "materials": [
+      "Blackened metal.001",
+      "Walnut.001",
+      "Leather wrap.001",
+      "Iron.001",
+      "Steel edge.001"
+    ]
+  },
+  {
+    "id": "aco",
+    "name": "ACO",
+    "base_damage": 34,
+    "triangles": 1944,
+    "mesh_parts": 5,
+    "uv": true,
+    "materials": [
+      "Blackened metal.001",
+      "Leather.001",
+      "Leather wrap.001",
+      "Steel edge.001",
+      "Iron.001"
+    ]
+  },
+  {
+    "id": "rubi",
+    "name": "RUBI",
+    "base_damage": 150,
+    "triangles": 2240,
+    "mesh_parts": 6,
+    "uv": true,
+    "materials": [
+      "Blackened metal.001",
+      "Leather.001",
+      "Leather wrap.001",
+      "Royal gold.001",
+      "Ruby crystal.001",
+      "Steel edge.001"
+    ]
+  },
+  {
+    "id": "obsidiana",
+    "name": "OBSIDIANA",
+    "base_damage": 700,
+    "triangles": 2336,
+    "mesh_parts": 6,
+    "uv": true,
+    "materials": [
+      "Blackened metal.001",
+      "Leather.001",
+      "Amethyst metal.001",
+      "Arcane violet.001",
+      "Obsidian glass.001",
+      "Steel edge.001"
+    ]
+  },
+  {
+    "id": "runica",
+    "name": "RUNICA",
+    "base_damage": 3400,
+    "triangles": 3756,
+    "mesh_parts": 5,
+    "uv": true,
+    "materials": [
+      "Blackened metal.001",
+      "Leather.001",
+      "Steel edge.001",
+      "Arcane violet.001",
+      "Amethyst metal.001"
+    ]
+  },
+  {
+    "id": "estelar",
+    "name": "ESTELAR",
+    "base_damage": 17000,
+    "triangles": 2724,
+    "mesh_parts": 5,
+    "uv": true,
+    "materials": [
+      "Blackened metal.001",
+      "Leather.001",
+      "Royal gold.001",
+      "Starlight.001",
+      "Celestial blue.001"
+    ]
+  },
+  {
+    "id": "ignis",
+    "name": "IGNIS",
+    "base_damage": 90000,
+    "triangles": 3400,
+    "mesh_parts": 6,
+    "uv": true,
+    "materials": [
+      "Blackened metal.001",
+      "Leather.001",
+      "Royal gold.001",
+      "Molten orange.001",
+      "Volcanic armor.001",
+      "White hot core.001"
+    ]
+  }
+]

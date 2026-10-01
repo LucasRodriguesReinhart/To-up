@@ -1,0 +1,7 @@
+StarterGui [StarterGui] ch=0
+Lighting [Lighting] ch=5 {AMOSTRA_EnvironmentDiffuseScale=0.550000011920929, V9_Brightness=3, PRE_MURIM_ClockTime=14, P0_EnvironmentSpecularScale=0.5, P0_EnvironmentDiffuseScale=0.6200000047683716, PRE_MURIM_ExposureCompensation=0, P0_ColorShift_Top=1, 0.972549, 0.909804, V9_OutdoorAmbient=0.658824, 0.729412, 0.839216, P0_Am}
+  Atmosphere [Atmosphere] ch=0 {P0_Density=0.1899999976158142, P0_Color=0.780392, 0.843137, 0.901961, V9_Haze=0.8999999761581421, P0_Haze=1.100000023841858, P0_Glare=0.05000000074505806, V9_Glare=0.07999999821186066, V9_Density=0.20000000298023224, P0_Decay=0.580392, 0.682353, 0.784314, V9_Offset=0.05000000074505806, V9_Decay=0.58}
+  ColorCorrection [ColorCorrectionEffect] ch=0 {P0_Brightness=0, P0_Contrast=0.10000000149011612, V9_TintColor=1, 0.992157, 0.980392, P0_Saturation=0.05999999865889549, V9_Contrast=0.10000000149011612, P0_TintColor=1, 0.980392, 0.94902, V9_Saturation=0.3400000035762787, V9_Brightness=0.019999999552965164}
+  Bloom [BloomEffect] ch=0 {P0_Size=22, V9_Intensity=0.5, V9_Threshold=1.9500000476837158, V9_Size=16, P0_Intensity=0.2199999988079071, P0_Threshold=2.0999999046325684}
+  SunRays [SunRaysEffect] ch=0 {P0_Intensity=0.07999999821186066, P0_Spread=0.5}
+  CeuAnimeSky [Sky] ch=0

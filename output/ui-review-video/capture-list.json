@@ -1,0 +1,110 @@
+[
+  {
+    "id": "01_hud",
+    "title": "HUD e navegação"
+  },
+  {
+    "id": "02_inventory",
+    "title": "Inventário de unidades"
+  },
+  {
+    "id": "03_filters",
+    "title": "Busca e filtros"
+  },
+  {
+    "id": "04_feed",
+    "title": "Alimentar e evoluir"
+  },
+  {
+    "id": "05_rename",
+    "title": "Renomear unidade"
+  },
+  {
+    "id": "06_items",
+    "title": "Itens e acessórios"
+  },
+  {
+    "id": "07_store_pickaxes",
+    "title": "Loja — picaretas"
+  },
+  {
+    "id": "08_store_bags",
+    "title": "Loja — mochilas"
+  },
+  {
+    "id": "09_store_passes",
+    "title": "Loja — passes"
+  },
+  {
+    "id": "10_summon",
+    "title": "Invocações"
+  },
+  {
+    "id": "11_chances",
+    "title": "Chances de invocação"
+  },
+  {
+    "id": "12_areas",
+    "title": "Áreas e viagens"
+  },
+  {
+    "id": "13_quests",
+    "title": "Missões"
+  },
+  {
+    "id": "14_forge",
+    "title": "Forja e venda"
+  },
+  {
+    "id": "15_daily",
+    "title": "Recompensas diárias"
+  },
+  {
+    "id": "16_index",
+    "title": "Index da coleção"
+  },
+  {
+    "id": "17_settings",
+    "title": "Áudio e códigos"
+  },
+  {
+    "id": "18b_effects",
+    "title": "Efeitos visuais e acessibilidade"
+  },
+  {
+    "id": "19_boosts",
+    "title": "Boosts e pacotes"
+  },
+  {
+    "id": "20_mobile_hud",
+    "title": "Celular — HUD"
+  },
+  {
+    "id": "21_mobile_inventory",
+    "title": "Celular — inventário"
+  },
+  {
+    "id": "22_mobile_detail",
+    "title": "Celular — unidade selecionada"
+  },
+  {
+    "id": "23_mobile_summon",
+    "title": "Celular — invocar"
+  },
+  {
+    "id": "24_mobile_daily",
+    "title": "Celular — diário"
+  },
+  {
+    "id": "25_notifications",
+    "title": "Avisos e coleta"
+  },
+  {
+    "id": "26_celebration",
+    "title": "Celebrações"
+  },
+  {
+    "id": "27_reveal",
+    "title": "Revelação de unidade rara"
+  }
+]

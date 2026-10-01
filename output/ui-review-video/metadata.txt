@@ -1,0 +1,143 @@
+;FFMETADATA1
+title=Anime Mining Simulator - Apresentação da UI
+comment=Apresentação narrada com capturas reais e prévias visuais identificadas.
+[CHAPTER]
+TIMEBASE=1/1000
+START=0
+END=13917
+title=HUD e navegação
+[CHAPTER]
+TIMEBASE=1/1000
+START=13917
+END=27667
+title=Inventário de unidades
+[CHAPTER]
+TIMEBASE=1/1000
+START=27667
+END=40125
+title=Busca e filtros
+[CHAPTER]
+TIMEBASE=1/1000
+START=40125
+END=54417
+title=Alimentar e evoluir
+[CHAPTER]
+TIMEBASE=1/1000
+START=54417
+END=66458
+title=Renomear unidade
+[CHAPTER]
+TIMEBASE=1/1000
+START=66458
+END=76958
+title=Itens e acessórios
+[CHAPTER]
+TIMEBASE=1/1000
+START=76958
+END=91917
+title=Loja de picaretas
+[CHAPTER]
+TIMEBASE=1/1000
+START=91917
+END=104833
+title=Loja de mochilas
+[CHAPTER]
+TIMEBASE=1/1000
+START=104833
+END=119042
+title=Passes
+[CHAPTER]
+TIMEBASE=1/1000
+START=119042
+END=134125
+title=Boosts e pacotes
+[CHAPTER]
+TIMEBASE=1/1000
+START=134125
+END=149625
+title=Invocações
+[CHAPTER]
+TIMEBASE=1/1000
+START=149625
+END=164250
+title=Chances de invocação
+[CHAPTER]
+TIMEBASE=1/1000
+START=164250
+END=178042
+title=Áreas e viagens
+[CHAPTER]
+TIMEBASE=1/1000
+START=178042
+END=191792
+title=Transição entre ilhas
+[CHAPTER]
+TIMEBASE=1/1000
+START=191792
+END=204750
+title=Missões
+[CHAPTER]
+TIMEBASE=1/1000
+START=204750
+END=217583
+title=Forja e venda de minérios
+[CHAPTER]
+TIMEBASE=1/1000
+START=217583
+END=230708
+title=Recompensas diárias
+[CHAPTER]
+TIMEBASE=1/1000
+START=230708
+END=245417
+title=Index da coleção
+[CHAPTER]
+TIMEBASE=1/1000
+START=245417
+END=260042
+title=Áudio, códigos e atalhos
+[CHAPTER]
+TIMEBASE=1/1000
+START=260042
+END=272417
+title=Efeitos e acessibilidade
+[CHAPTER]
+TIMEBASE=1/1000
+START=272417
+END=287542
+title=Avisos e coleta
+[CHAPTER]
+TIMEBASE=1/1000
+START=287542
+END=301833
+title=Celebrações de conquista
+[CHAPTER]
+TIMEBASE=1/1000
+START=301833
+END=316625
+title=Revelação de unidade rara
+[CHAPTER]
+TIMEBASE=1/1000
+START=316625
+END=331333
+title=Celular: HUD
+[CHAPTER]
+TIMEBASE=1/1000
+START=331333
+END=344042
+title=Celular: inventário
+[CHAPTER]
+TIMEBASE=1/1000
+START=344042
+END=356792
+title=Celular: detalhes da unidade
+[CHAPTER]
+TIMEBASE=1/1000
+START=356792
+END=369167
+title=Celular: invocações
+[CHAPTER]
+TIMEBASE=1/1000
+START=369167
+END=384458
+title=Celular: recompensas diárias

@@ -1,0 +1,118 @@
+00:08.953  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\ilha_shadowgarden\_studio\dungeon\v4\CAM_SG_Dungeon.jpg'
+00:09.469  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\ilha_shadowgarden\_studio\dungeon\v4\CAM_SG_DungeonInterior.jpg'
+00:09.906  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\ilha_shadowgarden\_studio\dungeon\v4\CAM_SG_DungeonRooms.jpg'
+00:10.328  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\ilha_shadowgarden\_studio\dungeon\v4\CAM_SG_PlayerHeight_DungeonRoom.jpg'
+00:10.656  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\ilha_shadowgarden\_studio\dungeon\v4\CAM_SGDun_HouseSouth.jpg'
+00:11.016  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\ilha_shadowgarden\_studio\dungeon\v4\CAM_SGDun_HouseEast.jpg'
+00:11.375  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\ilha_shadowgarden\_studio\dungeon\v4\CAM_SGDun_HouseNorth.jpg'
+00:11.703  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\ilha_shadowgarden\_studio\dungeon\v4\CAM_SGDun_HouseWest.jpg'
+00:12.094  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\ilha_shadowgarden\_studio\dungeon\v4\CAM_SGDun_PlayerDoor.jpg'
+00:12.469  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\ilha_shadowgarden\_studio\dungeon\v4\CAM_SGDun_Guardian.jpg'
+00:12.891  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\ilha_shadowgarden\_studio\dungeon\v4\CAM_SGDun_InteriorBack.jpg'
+00:13.297  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\ilha_shadowgarden\_studio\dungeon\v4\CAM_SGDun_R1Arrival.jpg'
+00:13.766  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\ilha_shadowgarden\_studio\dungeon\v4\CAM_SGDun_R1Spawn.jpg'
+00:14.219  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\ilha_shadowgarden\_studio\dungeon\v4\CAM_SGDun_R2.jpg'
+00:14.641  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\ilha_shadowgarden\_studio\dungeon\v4\CAM_SGDun_R2Link.jpg'
+00:15.063  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\ilha_shadowgarden\_studio\dungeon\v4\CAM_SGDun_R3Exit.jpg'
+00:15.516  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\ilha_shadowgarden\_studio\dungeon\v4\CAM_SGDun_R3Back.jpg'
+COMPOSITOR ok
+DUN folga dos minerios: OK (nenhuma colisao a menos de 5 de DUN_ORE_* ate piso+12)
+STUDIO modulo sg_dungeon 1.2s
+SCENE emissivos limitados: 30 materiais
+STUDIO METRICAS zona=dungeon objetos=101 malhas=11
+STUDIO tris=35442/40000 OK | MeshParts~43/55 OK | materiais_novos=3/4 OK ['SG_DunVoid_Glow', 'Stone_SGDunStatue', 'Stone_SGDunVault']
+STUDIO colisoes=84/120 OK | luzes=6 (de dia <= 6)
+STUDIO maiores: [(11160, 'SG_Dun_Rooms_Kit'), (4758, 'SG_Dun_House_Body'), (4568, 'SG_Dun_Rooms_Floor'), (4128, 'SG_Dun_House_Interior'), (3032, 'SG_Dun_Rooms_Iron'), (2808, 'SG_Dun_Rooms_Vault')]
+STUDIO tecnico: nomes_ruins=[] prefixo_fora_do_padrao=[] sem_material=[] degeneradas=0
+STUDIO marcadores obrigatorios: 4/4 OK
+COL faces: 3840
+OK   ROTA DB_ANCORA->SG_ENTRADA
+OK   ROTA ENTRADA->CASTELO_MINING_HALL
+OK   ROTA ENTRADA->SUMMON
+OK   ROTA ENTRADA->CRAFT
+OK   ROTA ENTRADA->DUNGEON
+OK   ROTA VILA->CASTELO
+OK   ROTA CASTELO->CRAFT
+OK   ROTA CASTELO->DUNGEON
+OK   ROTA CASTELO->PORTAO_DS
+OK   ROTA DUNGEON->CRAFT
+OK   ROTA CRAFT->CASTELO
+OK   ROTA VILA_BAIXA_LESTE->PRACA
+OK   ROTA PRACA_VOLTA
+OK   ROTA DUNGEON_SALAS_R1->R3
+ROTAS 14/14 OK
+OK   ROTA PORTAO_DS_ABERTO->ANCORA
+ROTAS_ABERTAS 1/1 OK
+OK   ROTA sg_terrain:P1_pe_do_arrimo_O
+OK   ROTA sg_terrain:P1_pe_do_arrimo_L
+OK   ROTA sg_terrain:P2_pe_da_muralha_O
+OK   ROTA sg_terrain:P2_pe_da_muralha_L
+OK   ROTA sg_entry:PATIO_PORTICO_A_LATERAL
+OK   ROTA sg_entry:CALCADA_PORTICO_B_LATERAL
+OK   ROTA sg_village:VIL_RUA_P1_OESTE
+OK   ROTA sg_village:VIL_RUA_P1_LESTE
+OK   ROTA sg_village:VIL_RUA_P2
+OK   ROTA sg_village:VIL_EIXO_P2
+OK   ROTA sg_village:VIL_PRACA_ANEL
+OK   ROTA sg_castle:PATIO->BECO_OESTE->TERRACO
+OK   ROTA sg_hall:SALAO_VOLTA
+FAIL ROTA sg_summon:PAD->PATAMAR  [('OBSTACULO', (-148.4, -118.0), 2.0, 'COL_SG_TerMound_001')]
+OK   ROTA sg_summon:ESCADA->LADO_NORTE
+OK   ROTA sg_summon:ESCADA->LADO_SUL
+OK   ROTA sg_craft:CRAFT_VOLTA_CALDEIRAO
+OK   ROTA sg_dungeon:PORTARIA_ATE_O_PORTAL
+OK   ROTA sg_dungeon:SALA_R1_VOLTA
+OK   ROTA sg_dungeon:SALA_R2_VOLTA
+OK   ROTA sg_dungeon:SALA_R3_VOLTA
+OK   ROTA sg_water:WATER_mirante_oeste
+OK   ROTA sg_water:WATER_mirante_leste
+OK   ROTA sg_water:WATER_mirante_norte
+FAIL ROTA sg_water:WATER_mirante_sul  [('OBSTACULO', (-42.5, -140.5), 2.0, 'COL_SG_VilHouse_002')]
+OK   ROTA sg_exit:CABECEIRA_ATRAS_DOS_PILARES
+OK   ROTA sg_exit:PONTE_BEIRA_S
+OK   ROTA sg_exit:PONTE_BEIRA_N
+ROTAS_MODULOS 26/28 OK
+OK   SONDA ANCORA_DS_borda
+OK   SONDA PONTE_SAIDA_lado_N
+OK   SONDA PONTE_SAIDA_lado_S
+OK   SONDA PONTE_CHEGADA_lado_O
+OK   SONDA PONTE_CHEGADA_lado_L
+OK   SONDA CALCADA_ALTA_O
+OK   SONDA CALCADA_ALTA_L
+OK   SONDA PATIO_BAIXO_O
+OK   SONDA SUMMON_borda_O
+OK   SONDA SUMMON_borda_N
+OK   SONDA PONTE_SUMMON_N
+OK   SONDA P2_borda_sul_O
+OK   SONDA P3_borda_sul_O
+OK   SONDA P2_borda_leste
+OK   SONDA VIL_P2_mirante_oeste
+FAIL SONDA CRAFT_estante_N  (borda aberta: nada segura o jogador)
+FAIL SONDA CRAFT_bancada_L  (borda aberta: nada segura o jogador)
+OK   SONDA ILHOTA_borda_NE
+OK   SONDA ANCORA_lado_S
+SONDAS 17/19 OK
+LARGURA rotas com trecho < 3,4 de largura: nenhuma
+OK   SALAO_LIVRE colisores na zona de minerio (piso+0,3..+12): nenhum
+OK   DUNGEON_LIMPA malhas de fora dentro da caixa das salas: nenhuma
+STUDIO RENDER C:/Users/lucas/OneDrive/Desktop/To up/ilha_shadowgarden/_studio/dungeon/v4\CAM_SG_Dungeon.jpg
+STUDIO RENDER C:/Users/lucas/OneDrive/Desktop/To up/ilha_shadowgarden/_studio/dungeon/v4\CAM_SG_DungeonInterior.jpg
+STUDIO RENDER C:/Users/lucas/OneDrive/Desktop/To up/ilha_shadowgarden/_studio/dungeon/v4\CAM_SG_DungeonRooms.jpg
+STUDIO RENDER C:/Users/lucas/OneDrive/Desktop/To up/ilha_shadowgarden/_studio/dungeon/v4\CAM_SG_PlayerHeight_DungeonRoom.jpg
+STUDIO RENDER C:/Users/lucas/OneDrive/Desktop/To up/ilha_shadowgarden/_studio/dungeon/v4\CAM_SGDun_HouseSouth.jpg
+STUDIO RENDER C:/Users/lucas/OneDrive/Desktop/To up/ilha_shadowgarden/_studio/dungeon/v4\CAM_SGDun_HouseEast.jpg
+STUDIO RENDER C:/Users/lucas/OneDrive/Desktop/To up/ilha_shadowgarden/_studio/dungeon/v4\CAM_SGDun_HouseNorth.jpg
+STUDIO RENDER C:/Users/lucas/OneDrive/Desktop/To up/ilha_shadowgarden/_studio/dungeon/v4\CAM_SGDun_HouseWest.jpg
+STUDIO RENDER C:/Users/lucas/OneDrive/Desktop/To up/ilha_shadowgarden/_studio/dungeon/v4\CAM_SGDun_PlayerDoor.jpg
+STUDIO RENDER C:/Users/lucas/OneDrive/Desktop/To up/ilha_shadowgarden/_studio/dungeon/v4\CAM_SGDun_Guardian.jpg
+STUDIO RENDER C:/Users/lucas/OneDrive/Desktop/To up/ilha_shadowgarden/_studio/dungeon/v4\CAM_SGDun_InteriorBack.jpg
+STUDIO RENDER C:/Users/lucas/OneDrive/Desktop/To up/ilha_shadowgarden/_studio/dungeon/v4\CAM_SGDun_R1Arrival.jpg
+STUDIO RENDER C:/Users/lucas/OneDrive/Desktop/To up/ilha_shadowgarden/_studio/dungeon/v4\CAM_SGDun_R1Spawn.jpg
+STUDIO RENDER C:/Users/lucas/OneDrive/Desktop/To up/ilha_shadowgarden/_studio/dungeon/v4\CAM_SGDun_R2.jpg
+STUDIO RENDER C:/Users/lucas/OneDrive/Desktop/To up/ilha_shadowgarden/_studio/dungeon/v4\CAM_SGDun_R2Link.jpg
+STUDIO RENDER C:/Users/lucas/OneDrive/Desktop/To up/ilha_shadowgarden/_studio/dungeon/v4\CAM_SGDun_R3Exit.jpg
+STUDIO RENDER C:/Users/lucas/OneDrive/Desktop/To up/ilha_shadowgarden/_studio/dungeon/v4\CAM_SGDun_R3Back.jpg
+STUDIO FIM 12.5s
+Blender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 02:38:20)
+
+Blender quit

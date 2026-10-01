@@ -1,0 +1,39 @@
+--- a/ServerScriptService/Core/Codigos.lua
++++ b/ServerScriptService/Core/Codigos.lua
+@@ -33,11 +33,16 @@
+ 	if perfil.codigos[codigo] then return { ok = false, msg = "Voce ja usou esse codigo" } end
+ 
+ 	local partes = {}
++	local audioReward = { moedas = 0, boost = false }
++	local function deliveredRarity(rarity)
++		if (Config.RAR_INDICE[rarity] or 0) > (Config.RAR_INDICE[audioReward.raridade] or 0) then audioReward.raridade = rarity end
++	end
+ 	if c.hat and Config.hatPorId(c.hat) then
+ 		if PlayerData.totalHats(perfil) >= PlayerData.capacidadeHats(perfil) then
+ 			return { ok = false, msg = "Inventário de hats cheio. Libere espaço e tente de novo." }
+ 		end
+ 		PlayerData.novoHat(perfil, c.hat, 1)
++		deliveredRarity(Config.hatPorId(c.hat).raridade)
+ 		table.insert(partes, Config.hatPorId(c.hat).nome)
+ 	end
+ 	if c.pet and Config.petPorId(c.pet) then
+@@ -45,15 +50,17 @@
+ 			return { ok = false, msg = "Inventário de pets cheio. Libere espaço e tente de novo." }
+ 		end
+ 		PlayerData.novoPet(perfil, c.pet, 1)
++		deliveredRarity(Config.petPorId(c.pet).raridade)
+ 		table.insert(partes, Config.petPorId(c.pet).nome)
+ 	end
+ 	if c.moeda and c.moeda > 0 then
+ 		perfil.moeda += c.moeda
++		audioReward.moedas += c.moeda
+ 		table.insert(partes, Config.formatar(c.moeda) .. " moedas")
+ 	end
+ 	perfil.codigos[codigo] = true
+-	PlayerData.sincronizar(player)
+-	return { ok = true, msg = "Codigo resgatado: " .. table.concat(partes, " + ") }
++	PlayerData.sincronizar(player, "code")
++	return { ok = true, msg = "Codigo resgatado: " .. table.concat(partes, " + "), audioReward = audioReward }
+ end
+ 
+ game:GetService("Players").PlayerRemoving:Connect(function(p) ultimo[p] = nil end)

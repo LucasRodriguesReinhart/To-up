@@ -1,0 +1,41 @@
+{
+  "asset_count": 61,
+  "instances": 202,
+  "colliders": 193,
+  "triangles_unique": 44385,
+  "triangles_placed": 105751,
+  "largest": [
+    [
+      "Portal_Sombrio",
+      3572
+    ],
+    [
+      "Arco_Basalto",
+      3298
+    ],
+    [
+      "Capela_Ruina",
+      3180
+    ],
+    [
+      "Arvore_1",
+      2140
+    ],
+    [
+      "Arvore_2",
+      2140
+    ],
+    [
+      "Arvore_3",
+      2140
+    ],
+    [
+      "Cipreste",
+      2140
+    ],
+    [
+      "Relogio_Arcano",
+      1682
+    ]
+  ]
+}

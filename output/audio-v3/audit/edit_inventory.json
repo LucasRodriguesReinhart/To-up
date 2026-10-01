@@ -1,0 +1,954 @@
+{
+  "sounds": [
+    {
+      "path": "SoundService.OST",
+      "volume": 0.2800000011920929,
+      "id": "rbxassetid://112898538778548",
+      "group": "SoundService.MusicaGrupo",
+      "loop": true
+    },
+    {
+      "path": "ReplicatedStorage.Sons.Quebra",
+      "volume": 0.550000011920929,
+      "id": "rbxassetid://9118585250",
+      "loop": false
+    },
+    {
+      "path": "ReplicatedStorage.Sons.GolpeAlt",
+      "volume": 0.44999998807907104,
+      "id": "rbxassetid://9116652339",
+      "loop": false
+    },
+    {
+      "path": "ReplicatedStorage.Sons.Detrito",
+      "volume": 0.3499999940395355,
+      "id": "rbxassetid://9118690959",
+      "loop": false
+    },
+    {
+      "path": "ReplicatedStorage.Sons.Premio",
+      "volume": 0.6000000238418579,
+      "id": "rbxassetid://93529351909119",
+      "loop": false
+    },
+    {
+      "path": "ReplicatedStorage.Sons.Golpe",
+      "volume": 0.44999998807907104,
+      "id": "rbxassetid://9116651255",
+      "loop": false
+    },
+    {
+      "path": "ReplicatedStorage.Sons.Erro",
+      "volume": 0.30000001192092896,
+      "id": "rbxassetid://9116652038",
+      "loop": false
+    },
+    {
+      "path": "ReplicatedStorage.Sons.Ovo",
+      "volume": 0.5,
+      "id": "rbxassetid://9118770617",
+      "loop": false
+    },
+    {
+      "path": "ReplicatedStorage.Sons.Compra",
+      "volume": 0.44999998807907104,
+      "id": "rbxassetid://93529351909119",
+      "loop": false
+    },
+    {
+      "path": "ReplicatedStorage.Sons.Moeda",
+      "volume": 0.5,
+      "id": "rbxassetid://4608067546",
+      "loop": false
+    },
+    {
+      "path": "ReplicatedStorage.AreaMusicAssets.Hidden Lotus Pond",
+      "volume": 0.5,
+      "id": "rbxassetid://82061470648013",
+      "loop": false
+    },
+    {
+      "path": "ReplicatedStorage.AreaMusicAssets.Space Atmosphere",
+      "volume": 0.5,
+      "id": "rbxassetid://1845421369",
+      "loop": false
+    },
+    {
+      "path": "ReplicatedStorage.AreaMusicAssets.Mysterious Forest",
+      "volume": 0.5,
+      "id": "rbxassetid://9048681794",
+      "loop": false
+    },
+    {
+      "path": "ReplicatedStorage.AreaMusicAssets.The Forgotten Crypt",
+      "volume": 0.5,
+      "id": "rbxassetid://131334832939011",
+      "loop": false
+    },
+    {
+      "path": "ReplicatedStorage.AreaMusicAssets.Pirate King",
+      "volume": 0.5,
+      "id": "rbxassetid://1835322563",
+      "loop": false
+    },
+    {
+      "path": "ReplicatedStorage.AreaMusicAssets.Home Bound",
+      "volume": 0.5,
+      "id": "rbxassetid://1845676363",
+      "loop": false
+    },
+    {
+      "path": "ServerStorage.ToolboxAnimationSources.Toolbox_Pickaxe_FIN.Pickaxe.Pickaxe.Workspace.Coin",
+      "volume": 0.5,
+      "id": "rbxassetid://3302699870",
+      "loop": false
+    },
+    {
+      "path": "ServerStorage.ToolboxAnimationSources.Toolbox_PickaxeSwing.Rig.Pick-Axe.Handle.Sound",
+      "volume": 0,
+      "id": "http://www.roblox.com/Asset/?ID=12135982",
+      "loop": false
+    },
+    {
+      "path": "ServerStorage.BeforeIslandFinish_1789008574.OST",
+      "volume": 0.2800000011920929,
+      "id": "rbxassetid://112898538778548",
+      "group": "SoundService.MusicaGrupo",
+      "loop": true
+    }
+  ],
+  "groups": [
+    {
+      "volume": 0.3499999940395355,
+      "path": "SoundService.MusicaGrupo"
+    }
+  ],
+  "scripts": [
+    {
+      "bytes": 1924,
+      "path": "Workspace.NPCs.Ignis.IgnisForjando",
+      "class": "Script"
+    },
+    {
+      "bytes": 38595,
+      "path": "ReplicatedStorage.Config",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 1850,
+      "path": "ReplicatedStorage.MiningSwing",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 2527,
+      "path": "ReplicatedStorage.MiningGeometry",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 2876,
+      "path": "ReplicatedStorage.BannersConfig",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 46729,
+      "path": "ReplicatedStorage.ExpeditionUI.Theme",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 41996,
+      "path": "ReplicatedStorage.ExpeditionUI.Menus",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 36425,
+      "path": "ReplicatedStorage.ExpeditionUI.Inventory",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 14995,
+      "path": "ReplicatedStorage.ExpeditionUI.Notify",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 52487,
+      "path": "ReplicatedStorage.OreVFX",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 5183,
+      "path": "ReplicatedStorage.EconomiaV31",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 3219,
+      "path": "ReplicatedStorage.MonetizacaoConfig",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 7983,
+      "path": "ReplicatedStorage.MiningAnimations",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 11679,
+      "path": "ReplicatedStorage.SomJogo",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 15456,
+      "path": "ReplicatedStorage.CharacterRig",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 53109,
+      "path": "ServerStorage.ClienteMina_AntesGamepasses_1788831978",
+      "class": "LocalScript"
+    },
+    {
+      "bytes": 3935,
+      "path": "ServerStorage.LobbyArtBuilderV2",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 1922,
+      "path": "ServerStorage.AntesAnimacaoToolbox_1788899596.MineracaoVisual",
+      "class": "LocalScript"
+    },
+    {
+      "bytes": 7509,
+      "path": "ServerStorage.AntesAnimacaoToolbox_1788899596.Mineracao",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 56544,
+      "path": "ServerStorage.ClienteMina_AntesIcones_1788899792",
+      "class": "LocalScript"
+    },
+    {
+      "bytes": 22891,
+      "path": "ServerStorage.ToolboxAnimationSources.Toolbox_R15_Pickaxe_Animations.Rig.Animate",
+      "disabled": true,
+      "class": "LocalScript"
+    },
+    {
+      "bytes": 265,
+      "path": "ServerStorage.ToolboxAnimationSources.Toolbox_WorkingPickaxe.Pickaxe.Script",
+      "disabled": true,
+      "class": "Script"
+    },
+    {
+      "bytes": 290,
+      "path": "ServerStorage.ToolboxAnimationSources.Toolbox_WorkingPickaxe.Pickaxe.LocalScript",
+      "disabled": true,
+      "class": "LocalScript"
+    },
+    {
+      "bytes": 1033,
+      "path": "ServerStorage.ToolboxAnimationSources.Toolbox_Pickaxe_FIN.Pickaxe.Pickaxe.StarterPack.Pickaxe.PickaxeServer",
+      "disabled": true,
+      "class": "Script"
+    },
+    {
+      "bytes": 1162,
+      "path": "ServerStorage.ToolboxAnimationSources.Toolbox_Pickaxe_FIN.Pickaxe.Pickaxe.StarterPack.Pickaxe.PickaxeClient",
+      "disabled": true,
+      "class": "LocalScript"
+    },
+    {
+      "bytes": 514,
+      "path": "ServerStorage.ToolboxAnimationSources.Toolbox_Pickaxe_FIN.Pickaxe.Pickaxe.StarterPack.Pickaxe.Animation",
+      "disabled": true,
+      "class": "LocalScript"
+    },
+    {
+      "bytes": 279,
+      "path": "ServerStorage.ToolboxAnimationSources.Toolbox_Pickaxe_FIN.Pickaxe.Pickaxe.ServerScriptService.leaderstats",
+      "disabled": true,
+      "class": "Script"
+    },
+    {
+      "bytes": 155,
+      "path": "ServerStorage.ToolboxAnimationSources.Toolbox_Pickaxe_FIN.Pickaxe.Stone.Stone.HitsToBreak.Script",
+      "disabled": true,
+      "class": "Script"
+    },
+    {
+      "bytes": 22989,
+      "path": "ServerStorage.ToolboxAnimationSources.Toolbox_PickaxeSwing.Rig.Animate",
+      "disabled": true,
+      "class": "LocalScript"
+    },
+    {
+      "bytes": 936,
+      "path": "ServerStorage.ToolboxAnimationSources.Toolbox_PickaxeSwing.Rig.Pick-Axe.SwordScript",
+      "disabled": true,
+      "class": "Script"
+    },
+    {
+      "bytes": 20499,
+      "path": "ServerStorage.ToolboxAnimationSources.Toolbox_PickaxeSwing.Rig.Pick-Axe.Model Delete Local",
+      "disabled": true,
+      "class": "LocalScript"
+    },
+    {
+      "bytes": 2386,
+      "path": "ServerStorage.BeforeBigAxeLocomotion_1788918972.LocomocaoPadrao",
+      "disabled": true,
+      "class": "LocalScript"
+    },
+    {
+      "bytes": 10290,
+      "path": "ServerStorage.BeforeFolhaMining_1788919666.AreaBuilder",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 7559,
+      "path": "ServerStorage.BeforeFolhaMining_1788919666.Mineracao",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 5071,
+      "path": "ServerStorage.BeforeFolhaMining_1788919666.AutoMinerar",
+      "disabled": true,
+      "class": "LocalScript"
+    },
+    {
+      "bytes": 2011,
+      "path": "ServerStorage.BeforeFolhaMining_1788919666.MineracaoVisual",
+      "disabled": true,
+      "class": "LocalScript"
+    },
+    {
+      "bytes": 2724,
+      "path": "ServerStorage.BeforeFolhaMining_1788919666.MiningSwing",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 8127,
+      "path": "ServerStorage.BeforeFolhaMining_1788919666.MainBeforeArrivalFacing",
+      "disabled": true,
+      "class": "Script"
+    },
+    {
+      "bytes": 3853,
+      "path": "ServerStorage.BeforeFolhaMining_1788919666.PicaretaToolBeforeEquipGuard",
+      "disabled": true,
+      "class": "Script"
+    },
+    {
+      "bytes": 60677,
+      "path": "ServerStorage.RevisionWorldPets_1788982774.StarterPlayerScripts.ClienteMina",
+      "disabled": true,
+      "class": "LocalScript"
+    },
+    {
+      "bytes": 2574,
+      "path": "ServerStorage.RevisionWorldPets_1788982774.StarterPlayerScripts.MineracaoVisual",
+      "disabled": true,
+      "class": "LocalScript"
+    },
+    {
+      "bytes": 4431,
+      "path": "ServerStorage.RevisionWorldPets_1788982774.StarterPlayerScripts.AutoMinerar",
+      "disabled": true,
+      "class": "LocalScript"
+    },
+    {
+      "bytes": 2445,
+      "path": "ServerStorage.RevisionWorldPets_1788982774.StarterPlayerScripts.AmbienteLobby",
+      "disabled": true,
+      "class": "LocalScript"
+    },
+    {
+      "bytes": 8341,
+      "path": "ServerStorage.RevisionWorldPets_1788982774.StarterPlayerScripts.LocomocaoBigAxe",
+      "disabled": true,
+      "class": "LocalScript"
+    },
+    {
+      "bytes": 1915,
+      "path": "ServerStorage.RevisionWorldPets_1788982774.StarterPlayerScripts.AmbienteFolha",
+      "disabled": true,
+      "class": "LocalScript"
+    },
+    {
+      "bytes": 7067,
+      "path": "ServerStorage.RevisionWorldPets_1788982774.Core.PlayerData",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 11544,
+      "path": "ServerStorage.RevisionWorldPets_1788982774.Core.AreaBuilder",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 7897,
+      "path": "ServerStorage.RevisionWorldPets_1788982774.Core.Mineracao",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 4888,
+      "path": "ServerStorage.RevisionWorldPets_1788982774.Core.IgnisService",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 8887,
+      "path": "ServerStorage.RevisionWorldPets_1788982774.Core.Main",
+      "disabled": true,
+      "class": "Script"
+    },
+    {
+      "bytes": 3296,
+      "path": "ServerStorage.RevisionWorldPets_1788982774.Core.GachaService",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 2664,
+      "path": "ServerStorage.RevisionWorldPets_1788982774.Core.PetService",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 4204,
+      "path": "ServerStorage.RevisionWorldPets_1788982774.Core.PicaretaTool",
+      "disabled": true,
+      "class": "Script"
+    },
+    {
+      "bytes": 20279,
+      "path": "ServerStorage.RevisionWorldPets_1788982774.Core.FolhaEnvironment",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 3532,
+      "path": "ServerStorage.RevisionWorldPets_1788982774.Core.HatVisual",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 3951,
+      "path": "ServerStorage.RevisionWorldPets_1788982774.Core.DevTest",
+      "disabled": true,
+      "class": "Script"
+    },
+    {
+      "bytes": 10380,
+      "path": "ServerStorage.RevisionWorldPets_1788982774.StarterGui.SummonGui.SummonController",
+      "disabled": true,
+      "class": "LocalScript"
+    },
+    {
+      "bytes": 2261,
+      "path": "ServerStorage.RevisionWorldPets_1788982774.MiningGeometry",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 6367,
+      "path": "ServerStorage.RevisionWorldPets_1788982774.MiningSwing",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 16573,
+      "path": "ServerStorage.RevisionWorldPets_1788982774.Config",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 12341,
+      "path": "ServerStorage.BeforeRemainingIslands_1789006688.AreaBuilder",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 9963,
+      "path": "ServerStorage.BeforeRemainingIslands_1789006688.Main",
+      "disabled": true,
+      "class": "Script"
+    },
+    {
+      "bytes": 2082,
+      "path": "ServerStorage.BeforeRemainingIslands_1789006688.AreaAtmosphere",
+      "disabled": true,
+      "class": "LocalScript"
+    },
+    {
+      "bytes": 16573,
+      "path": "ServerStorage.BeforeIslandFinish_1789008574.Config",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 9963,
+      "path": "ServerStorage.BeforeIslandFinish_1789008574.Main",
+      "disabled": true,
+      "class": "Script"
+    },
+    {
+      "bytes": 12460,
+      "path": "ServerStorage.BeforeIslandFinish_1789008574.AreaBuilder",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 3207,
+      "path": "ServerStorage.BeforeIslandFinish_1789008574.AreaAtmosphere",
+      "disabled": true,
+      "class": "LocalScript"
+    },
+    {
+      "bytes": 60677,
+      "path": "ServerStorage.BeforeIslandFinish_1789008574.ClienteMina",
+      "disabled": true,
+      "class": "LocalScript"
+    },
+    {
+      "bytes": 4519,
+      "path": "ServerStorage.BeforeIslandFinish_1789008574.AutoMinerar",
+      "disabled": true,
+      "class": "LocalScript"
+    },
+    {
+      "bytes": 10498,
+      "path": "ServerStorage.BeforeGuiEditable_1789069773.StarterGui.SummonGui.SummonController",
+      "class": "LocalScript"
+    },
+    {
+      "bytes": 60521,
+      "path": "ServerStorage.BeforeGuiEditable_1789069773.ClienteMina",
+      "disabled": true,
+      "class": "LocalScript"
+    },
+    {
+      "bytes": 1502,
+      "path": "ServerStorage.BeforeGuiEditable_1789069773.IslandTransition",
+      "disabled": true,
+      "class": "LocalScript"
+    },
+    {
+      "bytes": 11551,
+      "path": "ServerStorage.BeforeGuiEditable_1789069773.AreaBuilder",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 14703,
+      "path": "ServerStorage.BeforeGuiEditable_1789069773.IslandArt",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 27843,
+      "path": "ServerStorage.BeforeGuiEditable_1789069773.IslandWorld",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 9969,
+      "path": "ServerStorage.BeforeUndoGuiMigration_1789079096.StarterGui.SummonGui.SummonController",
+      "class": "LocalScript"
+    },
+    {
+      "bytes": 26461,
+      "path": "ServerStorage.BeforeUndoGuiMigration_1789079096.StarterGui.MinaHUD.HUDController",
+      "class": "LocalScript"
+    },
+    {
+      "bytes": 1010,
+      "path": "ServerStorage.BeforeUndoGuiMigration_1789079096.StarterGui.IslandTransition.TransitionController",
+      "class": "LocalScript"
+    },
+    {
+      "bytes": 1982,
+      "path": "ServerStorage.BeforeUndoGuiMigration_1789079096.StarterGui.LEIA_ME_ComoEditar",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 9238,
+      "path": "ServerStorage.BeforeUndoGuiMigration_1789079096.ScriptsMigrados.AreaBuilder",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 14423,
+      "path": "ServerStorage.BeforeUndoGuiMigration_1789079096.ScriptsMigrados.IslandArt",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 26320,
+      "path": "ServerStorage.BeforeUndoGuiMigration_1789079096.ScriptsMigrados.IslandWorld",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 1037,
+      "path": "ServerStorage.BeforeUndoGuiMigration_1789079096.ScriptsMigrados.AplicarInterfacesMundo",
+      "disabled": true,
+      "class": "Script"
+    },
+    {
+      "bytes": 4149,
+      "path": "ServerStorage.BeforeBlenderPickaxes_1789088127.PicaretaTool",
+      "disabled": true,
+      "class": "Script"
+    },
+    {
+      "bytes": 9653,
+      "path": "ServerStorage.FinalizePickaxeImport",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 86651,
+      "path": "ServerStorage.ExpeditionUI_BeforeInstall_1789247090.ClienteMina",
+      "class": "LocalScript"
+    },
+    {
+      "bytes": 10498,
+      "path": "ServerStorage.ExpeditionUI_BeforeInstall_1789247090.SummonGui.SummonController",
+      "class": "LocalScript"
+    },
+    {
+      "bytes": 11551,
+      "path": "ServerStorage.BeforeAnimeOres_1789257808.AreaBuilder",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 8057,
+      "path": "ServerStorage.BeforeAnimeOres_1789257808.Mineracao",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 5542,
+      "path": "ServerStorage.BeforeLobbyRevamp_20260913.Scripts.ExpeditionTravel",
+      "class": "Script"
+    },
+    {
+      "bytes": 5618,
+      "path": "ServerStorage.BeforeLobbyRevamp_20260913.Scripts.LobbyPolish",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 2445,
+      "path": "ServerStorage.BeforeLobbyRevamp_20260913.Scripts.AmbienteLobby",
+      "class": "LocalScript"
+    },
+    {
+      "bytes": 1924,
+      "path": "ServerStorage.BeforeSakuraPolish_20260913.NPCs.Ignis.IgnisForjando",
+      "class": "Script"
+    },
+    {
+      "bytes": 1924,
+      "path": "ServerStorage.BeforeGuildLayoutV3_20260913.NPCs.Ignis.IgnisForjando",
+      "class": "Script"
+    },
+    {
+      "bytes": 5542,
+      "path": "ServerStorage.BeforeGuildLayoutV3_20260913.ExpeditionTravel",
+      "class": "Script"
+    },
+    {
+      "bytes": 3056,
+      "path": "ServerStorage.BeforeGuildLayoutV3_20260913.SakuraEffects",
+      "class": "LocalScript"
+    },
+    {
+      "bytes": 5542,
+      "path": "ServerStorage.BeforeApprovedConcept_20260913.ExpeditionTravel",
+      "class": "Script"
+    },
+    {
+      "bytes": 4957,
+      "path": "ServerStorage.BeforeApprovedConcept_20260913.IslandTravel",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 11564,
+      "path": "ServerStorage.BeforeUIV2_20260915.ExpeditionUI_Theme",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 27669,
+      "path": "ServerStorage.BeforeUIV2_20260915.ExpeditionUI_Menus",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 41053,
+      "path": "ServerStorage.BeforeUIV2_20260915.ExpeditionUI_Inventory",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 33579,
+      "path": "ServerStorage.BeforeUIV2_20260915.ExpeditionClient",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 12156,
+      "path": "ServerStorage.BeforeUIV2_20260915.AutoMinerar",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 1587,
+      "path": "ServerStorage.BeforeUIV2_20260915.IslandTransition",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 9917,
+      "path": "ServerStorage.BeforeUIV2_20260915.PetsSeguidores",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 10478,
+      "path": "ServerStorage.BeforeUIV2_20260915.SomJogo",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 17510,
+      "path": "ServerStorage.BeforeUIV2_20260915.AreaBuilder",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 86590,
+      "path": "ServerStorage.BeforeUIV2_20260915.Legacy_ClienteMina",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 10617,
+      "path": "ServerStorage.BeforeUIV2_20260915.Legacy_SummonController",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 13027,
+      "path": "ServerStorage.BeforeUIV2_20260915.MineracaoVisual",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 19958,
+      "path": "ServerScriptService.Core.PlayerData",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 19692,
+      "path": "ServerScriptService.Core.AreaBuilder",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 15108,
+      "path": "ServerScriptService.Core.Mineracao",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 8384,
+      "path": "ServerScriptService.Core.IgnisService",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 18598,
+      "path": "ServerScriptService.Core.Main",
+      "class": "Script"
+    },
+    {
+      "bytes": 4517,
+      "path": "ServerScriptService.Core.GachaService",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 5267,
+      "path": "ServerScriptService.Core.PetService",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 4502,
+      "path": "ServerScriptService.Core.PicaretaTool",
+      "class": "Script"
+    },
+    {
+      "bytes": 23911,
+      "path": "ServerScriptService.Core.FolhaEnvironment",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 4095,
+      "path": "ServerScriptService.Core.HatVisual",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 4677,
+      "path": "ServerScriptService.Core.DevTest",
+      "class": "Script"
+    },
+    {
+      "bytes": 21135,
+      "path": "ServerScriptService.Core.ThemeIslands",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 5618,
+      "path": "ServerScriptService.Core.LobbyPolish",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 25999,
+      "path": "ServerScriptService.Core.RemainingIslands",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 14703,
+      "path": "ServerScriptService.Core.IslandArt",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 28286,
+      "path": "ServerScriptService.Core.IslandWorld",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 5249,
+      "path": "ServerScriptService.Core.IslandTravel",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 1871,
+      "path": "ServerScriptService.Core.PickaxeModels",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 5542,
+      "path": "ServerScriptService.Core.ExpeditionTravel",
+      "class": "Script"
+    },
+    {
+      "bytes": 1846,
+      "path": "ServerScriptService.Core.Passes",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 2478,
+      "path": "ServerScriptService.Core.Progresso",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 2459,
+      "path": "ServerScriptService.Core.Codigos",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 8103,
+      "path": "ServerScriptService.Core.SpawnMinerio",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 3461,
+      "path": "ServerScriptService.Core.Telemetria",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 3280,
+      "path": "ServerScriptService.Core.ExperimentService",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 3261,
+      "path": "ServerScriptService.Core.Economia",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 5340,
+      "path": "ServerScriptService.Core.Ofertas",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 4987,
+      "path": "ServerScriptService.Core.Recompensas",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 7043,
+      "path": "ServerScriptService.Core.BossService",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 3118,
+      "path": "ServerScriptService.Core.Retencao",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 4644,
+      "path": "ServerScriptService.Core.Produtos",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 10247,
+      "path": "ServerScriptService.Core.KonohaIsland",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 9383,
+      "path": "ServerScriptService.Core.CapsuleIsland",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 10845,
+      "path": "ServerScriptService.Core.StylizedWater",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 5174,
+      "path": "ServerScriptService.LEIA-ME",
+      "class": "ModuleScript"
+    },
+    {
+      "bytes": 2901,
+      "path": "ServerScriptService.OreVFX_Setup",
+      "class": "Script"
+    },
+    {
+      "bytes": 16971,
+      "path": "StarterPlayer.StarterPlayerScripts.MineracaoVisual",
+      "class": "LocalScript"
+    },
+    {
+      "bytes": 14286,
+      "path": "StarterPlayer.StarterPlayerScripts.AutoMinerar",
+      "class": "LocalScript"
+    },
+    {
+      "bytes": 2445,
+      "path": "StarterPlayer.StarterPlayerScripts.AmbienteLobby",
+      "class": "LocalScript"
+    },
+    {
+      "bytes": 18181,
+      "path": "StarterPlayer.StarterPlayerScripts.LocomocaoBigAxe",
+      "class": "LocalScript"
+    },
+    {
+      "bytes": 3906,
+      "path": "StarterPlayer.StarterPlayerScripts.AmbienteFolha",
+      "class": "LocalScript"
+    },
+    {
+      "bytes": 4629,
+      "path": "StarterPlayer.StarterPlayerScripts.AreaAtmosphere",
+      "class": "LocalScript"
+    },
+    {
+      "bytes": 1180,
+      "path": "StarterPlayer.StarterPlayerScripts.IslandVisibility",
+      "class": "LocalScript"
+    },
+    {
+      "bytes": 5252,
+      "path": "StarterPlayer.StarterPlayerScripts.IslandTransition",
+      "class": "LocalScript"
+    },
+    {
+      "bytes": 56741,
+      "path": "StarterPlayer.StarterPlayerScripts.ExpeditionClient",
+      "class": "LocalScript"
+    },
+    {
+      "bytes": 11054,
+      "path": "StarterPlayer.StarterPlayerScripts.PetsSeguidores",
+      "class": "LocalScript"
+    },
+    {
+      "bytes": 3027,
+      "path": "StarterPlayer.StarterPlayerScripts.SakuraEffects",
+      "class": "LocalScript"
+    },
+    {
+      "bytes": 832,
+      "path": "StarterPlayer.in: StarterPlayerScripts",
+      "class": "LocalScript"
+    }
+  ]
+}
