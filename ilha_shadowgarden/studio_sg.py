@@ -48,8 +48,8 @@ ZONE_MARKERS = {
 BUDGET = {
     # v4 (ONDA 0, plano mestre aprovado 2026-09-30: static 860k / 870 MeshParts; superficie <= 700k / 720, subsolo
     # (salao sombrio + salas) <= 160k / 130, escondido no cliente por zona; interiores das casas por distancia)
-    "terrain": (72000, 115, 8, 140, 0), "entry": (40000, 38, 4, 60, 5), "village": (100000, 108, 11, 230, 6),
-    "castle": (170000, 125, 12, 260, 5), "hall": (80000, 58, 9, 80, 6), "cave": (70000, 60, 6, 260, 6),
+    "terrain": (72000, 115, 8, 140, 0), "entry": (40000, 38, 4, 60, 5), "village": (110000, 108, 11, 230, 6),
+    "castle": (170000, 125, 12, 260, 5), "hall": (88000, 58, 9, 80, 6), "cave": (70000, 60, 6, 260, 6),
     "summon": (29000, 44, 5, 42, 3), "craft": (84000, 74, 11, 75, 4), "dungeon": (78000, 64, 10, 160, 5),
     "water": (3000, 10, 3, 10, 0), "exit": (26000, 34, 4, 45, 3), "dressing": (80000, 107, 9, 160, 7),
 }
@@ -77,6 +77,12 @@ BUDGET = {
 # VESTIR: dressing 90k/150 -> 125k/160 (medido ~116,6k tris / ~126 MeshParts estimadas; antes 39,5k / 96). Liquido da
 # jardinagem na ilha ~78k (vestir +77,1k; floreiras da vila +1,0k, dentro dos 90k da vila). export_sg: static 750k e
 # dono 'vegetation' 106k/82.
+# ONDA 1 / 1e (2026-09-30): village 100k -> 110k (PROPOSTO, precisa da coordenacao). As 7 casas (exterior ~44k +
+# interiores ~36k = 80k) batem o PLANO (7 x 11,5k = 80,5k); o excesso e o que veio da v3 sem mudar (praca 6,3k, fonte
+# 5,3k, escada P1P2 4,7k, arco + lanternas 5,6k) + ruas em lajes elevadas, caminhos das portas e canteiros (~10k).
+# ONDA 1 / 1b (2026-09-30): hall 80k -> 88k porque o estudio soma o TRONO MOVEL (SG_Hall_ThroneMov, ~4,3k), que no
+# export e do dono 'vfx' (PLANO secao 4: vfx 14k "trono movel"). O salao estatico mede ~83k (teto do export_sg
+# BUDGET_OWNER hall 86k): +3k sobre a estimativa do plano pelas 16 pilastras/nichos/galerias das naves laterais.
 
 
 def est_meshparts(ob):
