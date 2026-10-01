@@ -5,6 +5,8 @@
 --   * Bloom proprio (fraco) para os neons violeta/lanternas brilharem de noite.
 --   * fundos das outras ilhas: esconde o chao distante do lobby e escurece o mar da Ilha 1 (so neste cliente).
 --   * mar proprio, reverb da caverna e corte visual do subsolo e dos interiores das casas.
+--   * luz do subsolo: ambiente (offset sobre o do AreaAtmosphere) + contraste no Salao Sombrio e na masmorra, camadas
+--     de luz (L_SGCave_* / L_SGDun_* so ligadas onde o jogador esta) e postes NightOnly ligados (secao SUBSOLO).
 -- Tudo restaurado ao sair. Local: nao afeta outros jogadores.
 local Players = game:GetService('Players')
 local Lighting = game:GetService('Lighting')
@@ -225,6 +227,195 @@ task.spawn(function()
 	end
 end)
 
+-- SUBSOLO: luz no jogo (AUDITORIA3 09.01, 15.01, 10.11). So neste cliente, restaurado ao sair.
+--  * Ambiente de subsolo: dentro do CAVE_Zone (Salao Sombrio) e das salas DUN_ROOM_* (ou em DungeonRun), o Ambient e
+--    o OutdoorAmbient sobem um OFFSET violeta-frio SOMADO ao valor que o AreaAtmosphere (dono do Lighting) deixou,
+--    com tween; ao sair voltam a esse valor. Sem briga com o AreaAtmosphere: so age 2 s depois do ShadowGardenMood
+--    ligar (o tween de 1,6 s dele ja acabou; um tween novo na mesma propriedade cancelaria o dele), so restaura se o
+--    Lighting ainda estiver no caminho base -> alvo deste script e, na troca de area, apenas solta (nao toca).
+--  * ColorCorrection PROPRIO (CeuSombrasSubsolo) com contraste leve, para a rocha ler como forma e nao como preto.
+--  * Camadas de luz: o export_sg da Range ate 60 aos interiores; sem Shadows a luz do Roblox atravessa rocha, entao
+--    L_SGCave_* so ficam ligadas com o jogador no Salao Sombrio ou no poco da escada caracol e L_SGDun_* so na
+--    masmorra (sem vazar no patio, no salao nem de uma camada na outra; na superficie sao 11 luzes a menos).
+--  * Luzes NightOnly da ilha (postes, lanternas da praca, do patio e da saida): a area 3 e noite eterna e nada as
+--    ligava (o export as grava desligadas para um ciclo dia/noite que a area nao tem).
+local C = Color3.fromRGB
+local SUB_AMBIENT = C(70, 62, 96)      -- offset somado ao Ambient (interior, sem ceu)
+local SUB_OUTDOOR = C(35, 31, 48)      -- metade no OutdoorAmbient (o poco e as frestas veem o ceu)
+local SUB_CC = { Contrast = 0.08, Brightness = 0.02 }
+local SUB_TWEEN = 1.4
+local SUB_ESPERA = 2.0                 -- s depois do ShadowGardenMood ligar (tween do AreaAtmosphere: 1,6 s)
+local SUB_FOLGA = 4                    -- histerese na borda das zonas (studs)
+local LIGAR_NOTURNAS = true
+
+local ccSub = Instance.new('ColorCorrectionEffect')
+ccSub.Name = 'CeuSombrasSubsolo'
+ccSub.Enabled = false
+ccSub.Contrast = 0; ccSub.Brightness = 0
+ccSub.Parent = Lighting
+
+local moodDesde = math.huge
+local sub = { ativo = false, base = nil, alvo = nil, tweens = {} }
+local luzesSalvas = setmetatable({}, { __mode = 'k' })     -- [Light] = Enabled de antes
+
+local function ilhaEMarcadores()
+	local areas = workspace:FindFirstChild('Areas')
+	local a3 = areas and areas:FindFirstChild('Area3')
+	local ilha = a3 and a3:FindFirstChild('ILHA_SHADOWGARDEN')
+	return ilha, ilha and ilha:FindFirstChild('GAMEPLAY_MARKERS')
+end
+
+-- p dentro da caixa do marcador: frente (fwd_x, fwd_z), sx de lado, sy na frente, de 0 a h acima dele; folga em volta
+local function dentroCaixa(m, p, h, folga)
+	local fx, fz = m:GetAttribute('fwd_x'), m:GetAttribute('fwd_z')
+	local sx, sy = m:GetAttribute('sx'), m:GetAttribute('sy')
+	if not (fx and fz and sx and sy and h) then return false end
+	local frente = Vector3.new(fx, 0, fz).Unit
+	local lado = Vector3.new(-frente.Z, 0, frente.X)
+	local d = p - m.Position
+	return math.abs(d:Dot(lado)) <= sx / 2 + folga and math.abs(d:Dot(frente)) <= sy / 2 + folga
+		and d.Y >= -folga and d.Y <= h + folga
+end
+
+local function naCavernaZona(mk, p, folga)
+	local cave = mk and mk:FindFirstChild('CAVE_Zone')
+	return cave ~= nil and cave:IsA('BasePart') and dentroCaixa(cave, p, cave:GetAttribute('h'), folga)
+end
+
+-- 'masmorra' | 'caverna' (Salao Sombrio) | 'poco' (escada caracol entre o salao e o Salao Sombrio) | nil (superficie)
+local function camadaSubsolo(folgaCave, folgaDun)
+	if player:GetAttribute('DungeonRun') then return 'masmorra' end
+	local ch = player.Character
+	local hrp = ch and ch:FindFirstChild('HumanoidRootPart')
+	local _, mk = ilhaEMarcadores()
+	if not (hrp and mk) then return nil end
+	local p = hrp.Position
+	for _, m in ipairs(mk:GetChildren()) do
+		if m:IsA('BasePart') and string.match(m.Name, '^DUN_ROOM_') then
+			local piso, teto = m:GetAttribute('floor'), m:GetAttribute('ceil')
+			if piso and teto and dentroCaixa(m, p, teto - piso, folgaDun) then return 'masmorra' end
+		end
+	end
+	if naCavernaZona(mk, p, folgaCave) then return 'caverna' end
+	local topo, pe = mk:FindFirstChild('THRONE_Stair_Top'), mk:FindFirstChild('THRONE_Stair_Bottom')
+	if topo and pe and topo:IsA('BasePart') and pe:IsA('BasePart') then
+		local h = Vector3.new(p.X - topo.Position.X, 0, p.Z - topo.Position.Z).Magnitude
+		if h <= 22 and p.Y < topo.Position.Y - 3 and p.Y > pe.Position.Y - 4 then return 'poco' end
+	end
+	return nil
+end
+
+local function somar(c, d)
+	return Color3.new(math.min(1, c.R + d.R), math.min(1, c.G + d.G), math.min(1, c.B + d.B))
+end
+
+-- o Lighting ainda esta entre a base e o alvo deste script (ninguem trocou no meio)?
+local function aindaMeu(cor, base, alvo)
+	local tol = 3 / 255
+	for _, k in ipairs({ 'R', 'G', 'B' }) do
+		local a, b = base[k], alvo[k]
+		if cor[k] < math.min(a, b) - tol or cor[k] > math.max(a, b) + tol then return false end
+	end
+	return true
+end
+
+local function pararTweensSub()
+	for _, t in ipairs(sub.tweens) do t:Cancel() end
+	table.clear(sub.tweens)
+end
+
+local function tweenSub(obj, props)
+	local t = TweenService:Create(obj, TweenInfo.new(SUB_TWEEN, Enum.EasingStyle.Sine), props)
+	table.insert(sub.tweens, t)
+	t:Play()
+	return t
+end
+
+local function entrarAmbienteSubsolo()
+	if sub.ativo then return end
+	sub.ativo = true
+	pararTweensSub()
+	if not sub.base then           -- reentrada durante a volta: a base de antes continua valendo
+		sub.base = { Ambient = Lighting.Ambient, OutdoorAmbient = Lighting.OutdoorAmbient }
+	end
+	sub.alvo = { Ambient = somar(sub.base.Ambient, SUB_AMBIENT), OutdoorAmbient = somar(sub.base.OutdoorAmbient, SUB_OUTDOOR) }
+	tweenSub(Lighting, sub.alvo)
+	ccSub.Enabled = true
+	tweenSub(ccSub, SUB_CC)
+end
+
+-- soltar = true: a area mudou e o AreaAtmosphere ja esta no tween dele -> nao toca no Lighting
+local function sairAmbienteSubsolo(soltar)
+	if not sub.ativo and not sub.base then return end
+	sub.ativo = false
+	pararTweensSub()
+	local base, alvo = sub.base, sub.alvo
+	local volta = not soltar and base and alvo
+		and aindaMeu(Lighting.Ambient, base.Ambient, alvo.Ambient)
+		and aindaMeu(Lighting.OutdoorAmbient, base.OutdoorAmbient, alvo.OutdoorAmbient)
+	if volta then
+		tweenSub(Lighting, base).Completed:Once(function(estado)
+			if estado == Enum.PlaybackState.Completed and not sub.ativo then sub.base = nil; sub.alvo = nil end
+		end)
+	else
+		sub.base = nil; sub.alvo = nil
+	end
+	tweenSub(ccSub, { Contrast = 0, Brightness = 0 }).Completed:Once(function(estado)
+		if estado == Enum.PlaybackState.Completed and not sub.ativo then ccSub.Enabled = false end
+	end)
+end
+
+local function aplicarLuzesCamada(camada)
+	local ilha = ilhaEMarcadores()
+	local pasta = ilha and ilha:FindFirstChild('LIGHTS')
+	if not pasta then return end
+	for _, a in ipairs(pasta:GetChildren()) do
+		local quer = nil
+		if string.match(a.Name, '^L_SGCave') then
+			quer = camada == 'caverna' or camada == 'poco'
+		elseif string.match(a.Name, '^L_SGDun') then
+			quer = camada == 'masmorra'
+		elseif LIGAR_NOTURNAS and a:GetAttribute('NightOnly') then
+			quer = true
+		end
+		if quer ~= nil then
+			for _, l in ipairs(a:GetChildren()) do
+				if l:IsA('Light') then
+					if luzesSalvas[l] == nil then luzesSalvas[l] = l.Enabled end
+					if l.Enabled ~= quer then l.Enabled = quer end
+				end
+			end
+		end
+	end
+end
+
+local function restaurarLuzesCamada()
+	for l, ligada in pairs(luzesSalvas) do
+		if l.Parent then l.Enabled = ligada end
+		luzesSalvas[l] = nil
+	end
+end
+
+local camadaAtual = nil
+local function atualizarSubsoloLuz()
+	-- histerese: quem ja esta numa zona so sai SUB_FOLGA alem da borda
+	local camada = camadaSubsolo(camadaAtual == 'caverna' and SUB_FOLGA or 0, camadaAtual == 'masmorra' and SUB_FOLGA or 0)
+	camadaAtual = camada
+	aplicarLuzesCamada(camada)          -- todo tick: as luzes entram e saem com o streaming
+	local quer = (camada == 'caverna' or camada == 'masmorra') and os.clock() - moodDesde >= SUB_ESPERA
+	if quer then entrarAmbienteSubsolo() elseif sub.ativo then sairAmbienteSubsolo(false) end
+end
+
+task.spawn(function()
+	while true do
+		task.wait(0.3)
+		if ligadoFundos then
+			local ok, erro = pcall(atualizarSubsoloLuz)
+			if not ok then warn('[CeuSombras] subsolo:', erro) end
+		end
+	end
+end)
+
 -- INTERIORES: a musica (SomJogo) NAO reinicia ao entrar no castelo/alquimia/masmorra (mesma area); so o ambiente
 -- acustico muda de leve via SoundService.AmbientReverb. Restaurado ao sair dos interiores e da area.
 local SoundService = game:GetService('SoundService')
@@ -239,18 +430,8 @@ local function interiorAtual()
 	if not (hrp and a3) then return nil end
 	local p = hrp.Position
 	local ok, naCaverna = pcall(function()
-		local ilha = a3:FindFirstChild('ILHA_SHADOWGARDEN')
-		local markers = ilha and ilha:FindFirstChild('GAMEPLAY_MARKERS')
-		local cave = markers and markers:FindFirstChild('CAVE_Zone')
-		if not (cave and cave:IsA('BasePart')) then return false end
-		local fx, fz = cave:GetAttribute('fwd_x'), cave:GetAttribute('fwd_z')
-		local sx, sy, h = cave:GetAttribute('sx'), cave:GetAttribute('sy'), cave:GetAttribute('h')
-		if not (fx and fz and sx and sy and h) then return false end
-		local frente = Vector3.new(fx, 0, fz).Unit
-		local lado = Vector3.new(-frente.Z, 0, frente.X)
-		local delta = p - cave.Position
-		return math.abs(delta:Dot(lado)) <= sx / 2 and math.abs(delta:Dot(frente)) <= sy / 2
-			and delta.Y >= 0 and delta.Y <= h
+		local _, mk = ilhaEMarcadores()
+		return naCavernaZona(mk, p, 0)
 	end)
 	if ok and naCaverna then return Enum.ReverbType.Cave end
 	local zona = a3:FindFirstChild('MiningZone_ShadowGarden', true)
@@ -291,11 +472,17 @@ end)
 local function aplicar(ligado)
 	ligadoFundos = ligado
 	if ligado then
+		moodDesde = os.clock()          -- o ambiente de subsolo espera o tween do AreaAtmosphere acabar
 		aplicarFundos()
 		atualizarMarArea3()
 		atualizarSubsolo()
 		atualizarInteriores()
+		pcall(atualizarSubsoloLuz)
 	else
+		moodDesde = math.huge
+		camadaAtual = nil
+		restaurarLuzesCamada()
+		sairAmbienteSubsolo(true)       -- troca de area: o AreaAtmosphere ja esta no tween dele, so solta
 		restaurarFundos()
 		restaurarSubsolo()
 		restaurarInteriores()

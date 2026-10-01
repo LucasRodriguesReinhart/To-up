@@ -152,6 +152,59 @@ ER.FOLD_PROTECT = ER.FOLD_PROTECT + ("SG_Violet", "SG_Moon", "Glass_SG", "Energy
                                      # propria leitura do campo; nas floreiras a folhagem tem pouca area e ia para o reboco)
                                      "Leaf_SGGrass", "Leaf_SGBox", "Flower_SG")
 
+# ------------------------------------------------------------------ luz dos interiores no jogo (AUDITORIA3 15.01, 09.01, 10.11)
+# O export compartilhado (export_roblox.lights, NAO editar: lobby e ilhas 1 e 2) le a luz do Blender como
+#   R0 = min(60; 8 + 1,1 * sqrt(E))   B0 = min(4; 0,6 + E / 800)        (E = energia da luz em W)
+# e CORTA toda PointLight/SpotLight para Range = min(20; 0,35 * R0), Brightness = min(1,5; 0,5 * B0). Isso serve para
+# lanterna de rua, mas deixava o salao (184 x 196 x 84), o Salao Sombrio (180 x 248 x 53) e as salas da masmorra
+# (104 x 104 x 44) com ilhas de luz de 20 e o resto no ambiente noturno: quase preto no Play (J/06, J/07).
+# Override SO desta ilha, por prefixo (o primeiro que casa vale), com a mesma leitura da energia do Blender:
+#   Range = min(teto da zona; R0)       (o R0 sem o fator 0,35: o raio que a luz tem no Blender)
+#   Brightness = min(teto da zona; 0,75 * B0)   (lustres de E >= 2720 saturam em 3; tochas fracas ficam proporcionais)
+# O teto da zona e o tamanho util do ambiente: sem Shadows, a luz do Roblox atravessa parede, entao alcance maior que
+# o comodo vira bolha de luz do lado de fora. Luzes de rua, de casa, do summon e da saida ficam como o export faz.
+# O vazamento do subsolo para a superficie (e entre Salao Sombrio e masmorra) e cortado no cliente: o CeuSombras so
+# liga L_SGCave_* com o jogador no Salao Sombrio/poco e L_SGDun_* na masmorra.
+INTERIOR_LIGHTS = (
+    ("L_SGHall_Throne", 36.0, 3.0),   # abside 40 x 38: chega nas paredes dela sem vazar 40 para fora
+    ("L_SGHall", 60.0, 3.0),          # nave: lustre a 36 do piso e 46 a 60 das paredes
+    ("L_SGCave", 60.0, 3.0),          # Salao Sombrio
+    ("L_SGDun", 60.0, 3.0),           # salas da masmorra: lustre a 21 do piso e 52 das paredes
+    ("L_SGCraft", 28.0, 2.0),         # alquimia: interior de ~26 de diametro (sem bolha de luz na rua do P2)
+    ("L_SGCas", 60.0, 3.0),           # castelo por fora: portao, porta, rosacea, coroa
+)
+INTERIOR_BR_K = 0.75
+_ER_LIGHTS = ER.lights
+
+
+def _lights():
+    out, demoted = _ER_LIGHTS()
+    log = []
+    for l in out:
+        rule = next((r for r in INTERIOR_LIGHTS if l["name"].startswith(r[0])), None)
+        ob = bpy.data.objects.get(l["name"])
+        if rule is None or ob is None:
+            continue
+        e = ob.data.energy
+        r0 = min(60.0, 8.0 + math.sqrt(e) * 1.1)
+        b0 = min(4.0, 0.6 + e / 800.0)
+        rng, br = round(min(rule[1], r0), 1), round(min(rule[2], INTERIOR_BR_K * b0), 2)
+        log.append((l["name"], e, l["range"], rng, l["brightness"], br))
+        l["range"], l["brightness"] = rng, br
+    for nm, e, r_a, r_d, b_a, b_d in log:
+        print("LUZ_SG %-30s E %6.0f  Range %5.1f -> %5.1f  Brightness %4.2f -> %4.2f" % (nm, e, r_a, r_d, b_a, b_d))
+    camada = {"superficie": 0, "salao sombrio": 0, "masmorra": 0}
+    for l in out:
+        if not l["night"]:
+            camada["salao sombrio" if l["name"].startswith("L_SGCave") else
+                   "masmorra" if l["name"].startswith("L_SGDun") else "superficie"] += 1
+    print("LUZ_SG ativas por camada (o cliente so liga uma camada do subsolo por vez): %s; override em %d luzes"
+          % (", ".join("%s %d" % kv for kv in camada.items()), len(log)))
+    return out, demoted
+
+
+ER.lights = _lights
+
 
 def atomic(name):
     """Model Atomic por construcao/marco (streaming sem pecas pela metade)"""
