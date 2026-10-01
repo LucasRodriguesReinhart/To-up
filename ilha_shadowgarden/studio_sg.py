@@ -50,7 +50,7 @@ BUDGET = {
     # (salao sombrio + salas) <= 160k / 130, escondido no cliente por zona; interiores das casas por distancia)
     "terrain": (72000, 115, 8, 140, 0), "entry": (40000, 38, 4, 60, 5), "village": (110000, 108, 11, 230, 6),
     "castle": (170000, 125, 12, 260, 5), "hall": (88000, 58, 9, 80, 6), "cave": (70000, 60, 6, 260, 6),
-    "summon": (29000, 44, 5, 42, 3), "craft": (84000, 74, 11, 75, 4), "dungeon": (78000, 64, 10, 160, 5),
+    "summon": (31000, 44, 5, 42, 3), "craft": (84000, 74, 11, 75, 4), "dungeon": (78000, 64, 10, 160, 5),
     "water": (3000, 10, 3, 10, 0), "exit": (26000, 34, 4, 45, 3), "dressing": (88000, 107, 9, 160, 18),
 }
 # overhaul 06-08 (2026-09-29): craft 66k -> 84k tris. A alquimia e heroi por fora e por dentro e estava com a
@@ -77,6 +77,9 @@ BUDGET = {
 # VESTIR: dressing 90k/150 -> 125k/160 (medido ~116,6k tris / ~126 MeshParts estimadas; antes 39,5k / 96). Liquido da
 # jardinagem na ilha ~78k (vestir +77,1k; floreiras da vila +1,0k, dentro dos 90k da vila). export_sg: static 750k e
 # dono 'vegetation' 106k/82.
+# ONDA 2 / o2b (2026-10-01): summon 29k -> 31k SO no estudio: ele soma os aneis/estrela da esfera armilar (VFX_SGSUM_*, 1,9k
+# tris), que no export sao do dono 'vfx'; o estatico mede 28,9k (PLANO 29k; export_sg BUDGET_OWNER summon 32k). MeshParts
+# 53 -> 43 (base, remates, piso, balaustrada e ponte num objeto so: mesma paleta de pedra).
 # ONDA 1 / 1e (2026-09-30): village 100k -> 110k (PROPOSTO, precisa da coordenacao). As 7 casas (exterior ~44k +
 # interiores ~36k = 80k) batem o PLANO (7 x 11,5k = 80,5k); o excesso e o que veio da v3 sem mudar (praca 6,3k, fonte
 # 5,3k, escada P1P2 4,7k, arco + lanternas 5,6k) + ruas em lajes elevadas, caminhos das portas e canteiros (~10k).

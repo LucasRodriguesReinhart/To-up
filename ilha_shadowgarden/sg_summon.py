@@ -31,6 +31,9 @@
 # kit (pedestais, mastros e pilares-portao) no lugar da lanterna gotica local e da caixa de Neon da Ilha 1; pedestal
 # interno com painel rebaixado; pilastras do podio com base e capitel; balaustrada de balaustres torneados; ponte com
 # arco entre as faces de rocha, impostas e aduelas radiais; estrela da esfera em violeta medio 0,9 (sem estouro).
+# ONDA 2 / o2b (2026-10-01, planta v4): roda DIRETO na v4 (saiu do build_sg.LEGACY / sg_relocate): tudo sai de
+# SUMMON_C / SUMMON_TOWER / SUMMON_BRIDGE (cameras relativas ao centro); as faces de rocha do arco da ponte sao
+# MEDIDAS no terreno v4; rotas do QA so com o modulo construido (o FAIL PAD->PATAMAR era a colisao do blockout).
 import math, random, sys, importlib
 from contextlib import contextmanager
 from mathutils import Vector
@@ -139,37 +142,50 @@ def _cam(u, v, z, tu, tv, tz, lens):
 # ------------------------------------------------------------------ cameras de revisao (360 + altura do jogador)
 CAMS = {
     # frente: da ponta da ponte, acima (a torre inteira, base ao remate da esfera ~62)
-    "CAM_SGSum_Front": ((-78.0, -114.0, Z + 18.0), (TX, TY, Z + 28.0), 20),
+    "CAM_SGSum_Front": ((CX + 64.5, CY + 4.0, Z + 18.0), (TX, TY, Z + 28.0), 20),
     # tras (oeste, fora da ilha): bastiao do podio na borda + costas da torre
-    "CAM_SGSum_Back": ((-236.0, -96.0, Z + 26.0), (TX, TY, Z + 24.0), 22),
+    "CAM_SGSum_Back": ((CX - 93.5, CY + 22.0, Z + 26.0), (TX, TY, Z + 24.0), 22),
     # lados
-    "CAM_SGSum_North": ((-138.0, -38.0, Z + 22.0), (-146.0, -118.0, Z + 24.0), 22),
-    "CAM_SGSum_South": ((-150.0, -198.0, Z + 22.0), (-146.0, -118.0, Z + 24.0), 22),
+    "CAM_SGSum_North": ((CX + 4.5, CY + 80.0, Z + 22.0), (CX - 3.5, CY + 0.0, Z + 24.0), 22),
+    "CAM_SGSum_South": ((CX - 7.5, CY - 80.0, Z + 22.0), (CX - 3.5, CY + 0.0, Z + 24.0), 22),
     # altura do jogador: na ponte olhando a subida e a torre; no pad (SUMMON_PlayerPosition) olhando o portal
-    "CAM_SGSum_PlayerBridge": ((-102.0, -118.0, P1 + 5.2), (TX, TY, Z + 14.0), 22),
-    "CAM_SGSum_PlayerPad": ((-131.5, -121.0, Z + 5.2), (TX, TY, Z + 10.0), 20),
+    "CAM_SGSum_PlayerBridge": ((CX + 40.5, CY + 0.0, P1 + 5.2), (TX, TY, Z + 14.0), 22),
+    "CAM_SGSum_PlayerPad": ((CX + 11.0, CY - 3.0, Z + 5.2), (TX, TY, Z + 10.0), 20),
     # altura do jogador na passagem lateral (norte) entre o podio e a balaustrada
-    "CAM_SGSum_PlayerWalk": ((-127.0, -100.5, Z + 5.2), (-158.0, -108.0, Z + 3.0), 20),
+    "CAM_SGSum_PlayerWalk": ((CX + 15.5, CY + 17.5, Z + 5.2), (CX - 15.5, CY + 10.0, Z + 3.0), 20),
     # ponte vista de lado (arco ogival) a partir do vao ao norte, entre a ilha e a ilhota, baixa
-    "CAM_SGSum_BridgeSide": ((-119.0, -95.0, P1 - 2.0), (-106.0, -118.0, P1 - 4.0), 22),
+    # (o2b, v4: o olho fica no AR, no alinhamento do vao entre o penhasco e a lingua da ilhota)
+    "CAM_SGSum_BridgeSide": ((CX + 34.5, CY + 36.0, P1 - 5.0), (CX + 34.5, CY + 0.0, P1 - 4.5), 22),
     # esfera armilar + estrela de perto
-    "CAM_SGSum_Sphere": ((-112.0, -128.0, Z + 44.0), (TX - 3.0, TY, Z + 46.0), 30),
+    "CAM_SGSum_Sphere": ((CX + 30.5, CY - 10.0, Z + 44.0), (TX - 3.0, TY, Z + 46.0), 30),
     # overhaul 10 (2026-09-29): closes na altura do jogador - lanterna do pedestal interno, balaustrada, podio,
     # parapeito da ponte e a ponte vista do P1 (o arco e os pes na rocha)
-    "CAM_SGSum_OV_Lantern": ((-133.0, -132.0, Z + 5.4), (-144.4, -127.6, Z + 7.8), 32),
-    "CAM_SGSum_OV_Rail": ((-133.5, -108.5, Z + 5.2), (-131.5, -99.0, Z + 1.4), 24),
-    "CAM_SGSum_OV_Podium": ((-133.0, -131.0, Z + 5.2), (-142.8, -125.0, Z + 1.8), 26),
-    "CAM_SGSum_OV_BridgeRail": ((-102.5, -114.5, P1 + 5.2), (-110.0, -124.8, P1 + 1.2), 24),
-    "CAM_SGSum_OV_BridgeArch": ((-107.0, -104.0, P1 - 3.5), (-107.3, -118.0, P1 - 4.8), 30),
+    "CAM_SGSum_OV_Lantern": ((CX + 9.5, CY - 14.0, Z + 5.4), (CX - 1.9, CY - 9.6, Z + 7.8), 32),
+    "CAM_SGSum_OV_Rail": ((CX + 9.0, CY + 9.5, Z + 5.2), (CX + 11.0, CY + 19.0, Z + 1.4), 24),
+    "CAM_SGSum_OV_Podium": ((CX + 9.5, CY - 13.0, Z + 5.2), (CX - 0.3, CY - 7.0, Z + 1.8), 26),
+    "CAM_SGSum_OV_BridgeRail": ((CX + 40.0, CY + 3.5, P1 + 5.2), (CX + 32.5, CY - 6.8, P1 + 1.2), 24),
+    "CAM_SGSum_OV_BridgeArch": ((CX + 35.5, CY + 14.0, P1 - 3.5), (CX + 35.2, CY + 0.0, P1 - 4.8), 30),
     # inspecao: pilar-portao do topo da escada (lanterna + banzo) e o fim da balaustrada no soco
-    "CAM_SGSum_OV_GatePost": ((-116.0, -106.0, Z + 4.4), (-122.6, -110.8, Z + 2.2), 30),
-    "CAM_SGSum_OV_RailEnd": ((-150.0, -99.0, Z + 4.8), (-158.8, -104.8, Z + 1.4), 28),
+    "CAM_SGSum_OV_GatePost": ((CX + 26.5, CY + 12.0, Z + 4.4), (CX + 19.9, CY + 7.2, Z + 2.2), 30),
+    "CAM_SGSum_OV_RailEnd": ((CX - 7.5, CY + 19.0, Z + 4.8), (CX - 16.3, CY + 13.2, Z + 1.4), 28),
 }
 
 # ------------------------------------------------------------------ rotas e sondas proprias (sg_qa)
+class _OnlyBuilt(dict):
+    """ONDA 2 (o2b): as rotas desta zona so valem com o MODULO construido. Com a invocacao em BLOCKOUT (estudio de outra
+    zona sem --all-detail) a colisao do blockout (COL_SG_SumTower, 4 x 16 x 22 no pe da torre) fecha o nicho do
+    portal e o QA acusava 'sg_summon:PAD->PATAMAR' OBSTACULO (-214,4; -222) - nao era defeito da invocacao."""
+
+    def items(self):
+        return dict.items(self) if bpy.data.objects.get("SG_Sum_Base") else []
+
+    def __iter__(self):
+        return iter(dict.__iter__(self) if bpy.data.objects.get("SG_Sum_Base") else [])
+
+
 _TOP = L.stair_top("Summon")
 _PAD = tuple(P(0.0, PAD_V).xy)
-EXTRA_ROUTES = {
+EXTRA_ROUTES = _OnlyBuilt({
     # pad do jogador -> sobe a escada da torre -> patamar diante do portal
     "PAD->PATAMAR": ([_PAD, tuple(P(0.0, ST_FOOT + 0.4).xy), tuple(P(0.0, ST_FOOT - 1.0).xy),
                       tuple(P(0.0, LAND_V1 + 0.6).xy), tuple(P(0.0, LAND_V1 - 1.0).xy), tuple(P(0.0, PV + 2.0).xy)], Z),
@@ -180,7 +196,7 @@ EXTRA_ROUTES = {
     "ESCADA->LADO_SUL": ([(_TOP[0] - 1.5, _TOP[1])] + [(CX + 18.0 * math.cos(math.radians(a)),
                                                         CY + 18.0 * math.sin(math.radians(a)))
                                                        for a in (-20.0, -50.0, -80.0, -105.0, -128.0)], Z),
-}
+})
 EXTRA_PROBES = []
 
 
@@ -1048,7 +1064,43 @@ def balustrade(rl):
 # 2 faces de rocha (penhasco da ilha em x -103,0; lingua da plataforma em x -111,6, cuja base fica em z 30,0), nasce
 # de IMPOSTAS de cantaria encostadas nessas faces (acima da base da lingua) e tem aduelas RADIAIS (normal do intradorso)
 # com fecho; timpano liso recuado, friso e cornija; encontro leste assentado no patamar do penhasco; lajes no tabuleiro.
-BR_FACE_E, BR_FACE_W = -103.0, -111.6
+# ONDA 2 (o2b, planta v4): as 2 faces sao MEDIDAS na rocha do terreno v4 (sg_terrain, onda 1f) quando ele ja esta na
+# cena: a do penhasco varia com y (-169,9 a -170,7 na v4) e vale a mais a OESTE na largura do timpano (o arco nunca
+# fica descolado da rocha); sem terreno de detalhe, a relacao da v3 (3,0 alem do inicio da ponte / 0,4 alem do pe da
+# escada da planta).
+BR_FACE_E, BR_FACE_W = L.SUMMON_BRIDGE[0][0] - 3.0, L.SUMMON_BRIDGE[1][0] + 0.4
+
+
+def measure_bridge_faces():
+    """(face leste = penhasco da ilha, face oeste = lingua de rocha da plataforma) na linha da ponte, por raios nas
+    malhas SG_Ter_*; None onde nao achou"""
+    from mathutils.bvhtree import BVHTree
+    a0, a1, w = L.SUMMON_BRIDGE
+    y = a0[1]
+    xm = (a0[0] + a1[0]) / 2.0
+    verts, polys = [], []
+    for o in bpy.data.objects:
+        if o.type != "MESH" or not o.name.startswith("SG_Ter_"):
+            continue
+        M = o.matrix_world
+        base = len(verts)
+        verts.extend(M @ v.co for v in o.data.vertices)
+        polys.extend([base + i for i in p.vertices] for p in o.data.polygons)
+    if not polys:
+        return None, None
+    T = BVHTree.FromPolygons(verts, polys)
+    east, west = [], []
+    for dy in (-BR_TYMP - BR_RING, -BR_TYMP / 2, 0.0, BR_TYMP / 2, BR_TYMP + BR_RING):
+        for z in (BR_SPRING - 0.4, BR_SPRING + 1.0, P1 - 3.0):
+            h = T.ray_cast(Vector((xm, y + dy, z)), Vector((1.0, 0.0, 0.0)), 12.0)
+            if h[0] is not None:
+                east.append(h[0].x)
+            h = T.ray_cast(Vector((xm, y + dy, z)), Vector((-1.0, 0.0, 0.0)), 12.0)
+            if h[0] is not None:
+                west.append(h[0].x)
+    fe = min(east) if east else None
+    fw = max(west) if west else None
+    return fe, fw
 BR_SPRING = 30.8                 # nascenca (impostas de 30,2 a 30,8: acima da base da lingua, sem face coplanar)
 BR_CROWN = P1 - 2.2              # fecho do intradorso (34,0)
 BR_TYMP = 6.4                    # meia largura do timpano
@@ -1072,6 +1124,15 @@ def _yz_faces(mb, q, y0, y1, m, bevel=0.0):
 
 def bridge(br, rl):
     import sg_entry as EN
+    global BR_FACE_E, BR_FACE_W
+    fe, fw = measure_bridge_faces()
+    a0_, a1_ = L.SUMMON_BRIDGE[0][0], L.SUMMON_BRIDGE[1][0]
+    if fe is not None and a1_ + 4.0 < fe < a0_ - 0.5:
+        BR_FACE_E = fe
+    if fw is not None and a1_ - 1.0 < fw < BR_FACE_E - 4.0:
+        BR_FACE_W = fw
+    print("SUM ponte: faces da rocha medidas leste %s oeste %s -> arco de %.2f a %.2f" % (
+        None if fe is None else round(fe, 2), None if fw is None else round(fw, 2), BR_FACE_W, BR_FACE_E))
     a0, a1, w = L.SUMMON_BRIDGE
     x0, x1 = a0[0], a1[0] + 0.4                     # -100 .. -111,6 (a lingua de rocha do terreno comeca em -111,6)
     y = a0[1]
@@ -1183,6 +1244,18 @@ def order_dressing(gates):
 
 
 # ------------------------------------------------------------------ build
+def join_into(target, others):
+    """ONDA 2 (o2b): base, remates, incrustacao do piso, balaustrada e ponte sao a MESMA paleta de pedra (Floor,
+    Castle(_B), Block(_B), Paving(_B), TrimLow): num objeto so viram 8 MeshParts em vez de 18 (o desenho nao muda)"""
+    objs = [target] + [o for o in others if o is not None and o.type == "MESH"]
+    if target is None or len(objs) < 2:
+        return target
+    with bpy.context.temp_override(active_object=target, object=target, selected_objects=objs,
+                                   selected_editable_objects=objs):
+        bpy.ops.object.join()
+    return target
+
+
 def build():
     T, c, lamp_c = build_tower()
     stone = MB("SG_Sum_Base", COL, random.Random(7301), detail="near")
@@ -1197,9 +1270,11 @@ def build():
     br = MB("SG_Sum_Bridge", COL, random.Random(7601), detail="near")
     bridge(br, rl)
     plan_stair(br)
-    for mb in (stone, trim, inl, rl, br):
-        mb.finish()
+    obs = [mb.finish() for mb in (stone, trim, inl, rl, br)]
+    join_into(obs[0], obs[1:])
     order_dressing(gates)
+    import sg_water
+    sg_water.zone_relief(("SG_Sum_", "VFX_SGSUM"))
     # luzes (3): nucleo violeta (esfera-estrela) + 2 quentes baixas (lanternas da ordem dos pedestais)
     light("L_SGSum_Core", "POINT", c, 6000.0, VIOLET, 3.0)       # acabamento: 9000 -> 6000 (brilho moderado)
     for n, p in zip(("L_SGSum_Lantern_S", "L_SGSum_Lantern_N"), lamp_c):

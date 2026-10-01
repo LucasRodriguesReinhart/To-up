@@ -41,9 +41,13 @@
 #     cor media (vidro 0,55 so onde o liquido aparece); kit de vela no lustre e nas mesas; circulo com o alfabeto unico
 #     (sg_court.RUNE_SEGS) embutido; hierarquia de magia: a POCAO do caldeirao e o unico foco (SG_VioletDeep); frasco,
 #     circulo e 2 pocoes acesas em SG_VioletSoft (Neon escuro).
+# ONDA 2 / o2b (2026-10-01, planta v4): roda DIRETO na v4 (saiu do build_sg.LEGACY / sg_relocate) em CRAFT_C
+# (112, -86), porta a oeste para a rua do P2; o pavilhao inteiro CRESCE 12% (SCALE, ver grow()) para nao ficar
+# pequeno ao lado do castelo 2x e das casas novas; cameras relativas ao centro; rotas/sondas so com o modulo construido.
 import math, random
 import bmesh
-from mathutils import Vector
+import bpy
+from mathutils import Vector, Matrix
 import sg_lib as SL
 from sg_lib import MB, col_box, col_box2, light, Frame, ngon_col
 import fm_lib
@@ -131,32 +135,69 @@ PAGES, CANVAS = "Plaster_SG", "Cloth_Canvas"
 P2 = Z
 CAMS = {
     # 360 de fora (frente = oeste, a porta; tras = leste; lados norte e sul)
-    "CAM_SGCraft_W": ((46.0, -52.0, P2 + 9.0), (90.0, -60.0, P2 + 24.0), 22),
-    "CAM_SGCraft_N": ((102.0, -12.0, P2 + 18.0), (90.0, -60.0, P2 + 18.0), 22),
-    "CAM_SGCraft_E": ((148.0, -46.0, P2 + 13.0), (90.0, -60.0, P2 + 22.0), 22),
-    "CAM_SGCraft_S": ((108.0, -120.0, P2 + 9.0), (90.0, -60.0, P2 + 22.0), 22),
-    "CAM_SGCraft_Far": ((0.0, -164.0, P2 + 50.0), (90.0, -60.0, P2 + 22.0), 30),
+    "CAM_SGCraft_W": ((CX - 44.0, CY + 8.0, P2 + 9.0), (CX + 0.0, CY + 0.0, P2 + 24.0), 22),
+    "CAM_SGCraft_N": ((CX + 12.0, CY + 48.0, P2 + 18.0), (CX + 0.0, CY + 0.0, P2 + 18.0), 22),
+    "CAM_SGCraft_E": ((CX + 58.0, CY + 14.0, P2 + 13.0), (CX + 0.0, CY + 0.0, P2 + 22.0), 22),
+    "CAM_SGCraft_S": ((CX + 18.0, CY - 60.0, P2 + 9.0), (CX + 0.0, CY + 0.0, P2 + 22.0), 22),
+    "CAM_SGCraft_Far": ((CX - 90.0, CY - 104.0, P2 + 50.0), (CX + 0.0, CY + 0.0, P2 + 22.0), 30),
     # altura do jogador chegando pela rua do P2 (a porta e o frasco lidos juntos)
-    "CAM_SGCraft_PH_Door": ((62.0, -58.0, P2 + 5.2), (90.0, -60.0, P2 + 11.0), 22),
+    "CAM_SGCraft_PH_Door": ((CX - 32.0, CY + 2.0, P2 + 5.2), (CX + 0.0, CY + 0.0, P2 + 12.0), 22),
+    # onda 2 (o2b, planta v4): da RUA do P2 (altura do jogador, ~70 a oeste) e do P1 leste com a casa H4 na frente
+    "CAM_SGCraft_Street": ((CX - 72.0, CY - 3.0, P2 + 5.2), (CX + 0.0, CY + 0.0, P2 + 17.0), 22),
+    "CAM_SGCraft_FromP1": ((CX - 52.0, CY - 150.0, L.P1 + 5.2), (CX - 4.0, CY - 30.0, P2 + 14.0), 20),
     # dentro: da porta para o estrado/caldeirao; estantes; galeria; circulo; de volta; teto e lustre
-    "CAM_SGCraft_In_Cauldron": ((78.2, -62.8, P2 + 6.2), (97.0, -59.0, P2 + 5.0), 18),
-    "CAM_SGCraft_In_ShelvesN": ((81.5, -66.5, P2 + 6.0), (93.0, -46.5, P2 + 6.0), 18),
-    "CAM_SGCraft_In_ShelvesS": ((81.5, -53.5, P2 + 6.0), (93.0, -73.5, P2 + 6.0), 18),
-    "CAM_SGCraft_In_Gallery": ((80.0, -65.5, P2 + 5.2), (102.5, -57.0, P2 + 10.5), 17),
-    "CAM_SGCraft_In_Circle": ((83.0, -67.5, P2 + 8.0), (92.5, -57.5, P2 + 1.4), 18),
-    "CAM_SGCraft_In_Door": ((99.0, -61.0, P2 + 5.6), (76.0, -60.0, P2 + 7.0), 16),
-    "CAM_SGCraft_In_Up": ((80.6, -60.0, P2 + 3.2), (93.0, -60.0, P2 + 18.0), 14),
+    "CAM_SGCraft_In_Cauldron": ((CX - 11.8, CY - 2.8, P2 + 6.2), (CX + 7.0, CY + 1.0, P2 + 5.0), 18),
+    "CAM_SGCraft_In_ShelvesN": ((CX - 8.5, CY - 6.5, P2 + 6.0), (CX + 3.0, CY + 13.5, P2 + 6.0), 18),
+    "CAM_SGCraft_In_ShelvesS": ((CX - 8.5, CY + 6.5, P2 + 6.0), (CX + 3.0, CY - 13.5, P2 + 6.0), 18),
+    "CAM_SGCraft_In_Gallery": ((CX - 10.0, CY - 5.5, P2 + 5.2), (CX + 12.5, CY + 3.0, P2 + 10.5), 17),
+    "CAM_SGCraft_In_Circle": ((CX - 7.0, CY - 7.5, P2 + 8.0), (CX + 2.5, CY + 2.5, P2 + 1.4), 18),
+    "CAM_SGCraft_In_Door": ((CX + 9.0, CY - 1.0, P2 + 5.6), (CX - 14.0, CY + 0.0, P2 + 7.0), 16),
+    "CAM_SGCraft_In_Up": ((CX - 9.4, CY + 0.0, P2 + 3.2), (CX + 3.0, CY + 0.0, P2 + 18.0), 14),
 }
 
-# rota extra: da rua, pela porta, uma volta inteira em torno do caldeirao (raio 5,2 - SOBE no estrado, degraus 0,7) e
-# saida - prova que estrado, mesas, atril, bau e estantes deixam a circulacao livre
-_VOLTA = [(CX + 5.2 * math.cos(math.radians(180.0 - 30.0 * k)), CY + 5.2 * math.sin(math.radians(180.0 - 30.0 * k)))
+# ONDA 2 (o2b, planta v4: roda DIRETO na v4, sem sg_relocate): a alquimia CRESCE 12% em volta de (CX, CY, P2) para
+# acompanhar o castelo 2x e as casas novas (o desenho aprovado nao muda; build() desenha na medida antiga e escala tudo
+# o que criou: malhas, colisoes, luzes, pivos). 1,12 e o teto: o espelho do estrado (0,7) vira 0,78 (<= 0,8); o vao da
+# porta vira 9,0 x 12,3 (casas: 8 x 11). Pegada: parede externa 17,5, soco 18,3, vasos de bronze ate ~24,3 (CRAFT_R 16
+# do sg_layout continua sendo o raio NOMINAL; o rebaixo do terreno (R 16,9) cobre o piso interno (R 15,0)).
+SCALE = 1.12
+
+
+def _sc(p):
+    return (CX + (p[0] - CX) * SCALE, CY + (p[1] - CY) * SCALE, Z + (p[2] - Z) * SCALE)
+
+
+# as cameras de dentro acompanham a escala (as de fora e as da altura do jogador ficam como estao)
+CAMS = {k: ((_sc(a), _sc(b), f) if k.startswith("CAM_SGCraft_In_") else (a, b, f)) for k, (a, b, f) in CAMS.items()}
+
+
+class _OnlyBuilt(dict):
+    """rotas/sondas desta zona so valem com o MODULO construido (com a zona em blockout, as do blockout nao tem estantes
+    nem estrado: o QA de outra zona acusava CRAFT_estante_N/CRAFT_bancada_L)"""
+
+    def items(self):
+        return dict.items(self) if bpy.data.objects.get("SG_Craft_Shell") else []
+
+    def __iter__(self):
+        return iter(dict.__iter__(self) if bpy.data.objects.get("SG_Craft_Shell") else [])
+
+
+class _OnlyBuiltList(list):
+    def __iter__(self):
+        return list.__iter__(self) if bpy.data.objects.get("SG_Craft_Shell") else iter([])
+
+
+# rota extra: da rua, pela porta, uma volta inteira em torno do caldeirao (raio 5,2 x escala - SOBE no estrado, degraus
+# 0,78) e saida - prova que estrado, mesas, atril, bau e estantes deixam a circulacao livre
+_RV = 5.2 * SCALE
+_VOLTA = [(CX + _RV * math.cos(math.radians(180.0 - 30.0 * k)), CY + _RV * math.sin(math.radians(180.0 - 30.0 * k)))
           for k in range(13)]
-EXTRA_ROUTES = {
-    "CRAFT_VOLTA_CALDEIRAO": ([(CX - 20.0, CY), (CX - 13.0, CY), (CX - 8.0, CY)] + _VOLTA + [(CX - 8.0, CY), (CX - 20.0, CY)],
-                              P2),
-}
-EXTRA_PROBES = [("CRAFT_estante_N", CX + 1.3, CY + 9.5, P2, 0.0, 1.0), ("CRAFT_bancada_L", CX + 7.6, CY, P2, 1.0, 0.0)]
+EXTRA_ROUTES = _OnlyBuilt({
+    "CRAFT_VOLTA_CALDEIRAO": ([(CX - 22.0, CY), (CX - 13.0 * SCALE, CY), (CX - 8.0 * SCALE, CY)] + _VOLTA +
+                              [(CX - 8.0 * SCALE, CY), (CX - 22.0, CY)], P2),
+})
+EXTRA_PROBES = _OnlyBuiltList([("CRAFT_estante_N", CX + 1.3 * SCALE, CY + 9.5 * SCALE, P2, 0.0, 1.0),
+                               ("CRAFT_bancada_L", CX + 7.6 * SCALE, CY, P2, 1.0, 0.0)])
 
 
 # ------------------------------------------------------------------ referenciais
@@ -2533,10 +2574,38 @@ def lights():
     light("L_SGCraft_Bench", "POINT", tuple(q), 900.0, WARM, 0.8)
 
 
+def grow(made):
+    """escala uniforme SCALE em volta de (CX, CY, P2) de tudo o que o build criou (malha na propria geometria; colisao,
+    luz e VFX pela matriz; pivo dos aneis armilares junto; luz com energia x S^2 para a mesma iluminancia)"""
+    if abs(SCALE - 1.0) < 1e-6:
+        return
+    M = Matrix.Translation((CX, CY, Z)) @ Matrix.Scale(SCALE, 4) @ Matrix.Translation((-CX, -CY, -Z))
+    bpy.context.view_layer.update()
+    for o in made:
+        if o.parent is not None:
+            continue
+        if o.type == "MESH" and not o.name.startswith("COL_") and o.data.users == 1:
+            o.data.transform(M @ o.matrix_world)
+            o.matrix_world = Matrix.Identity(4)
+        else:
+            o.matrix_world = M @ o.matrix_world
+        if "pivot" in o.keys():
+            o["pivot"] = tuple(M @ Vector(o["pivot"]))
+        if o.type == "LIGHT":
+            o.data.energy *= SCALE * SCALE
+            if hasattr(o.data, "shadow_soft_size"):
+                o.data.shadow_soft_size *= SCALE
+    bpy.context.view_layer.update()
+
+
 def build():
+    before = {o.name for o in bpy.data.objects}
     shell()
     dome()
     energy_rings()
     cauldron()
     furnishings()
     lights()
+    grow([o for o in bpy.data.objects if o.name not in before])
+    import sg_water
+    sg_water.zone_relief(("SG_Craft_", "VFX_SGCRAFT"), passes=3)

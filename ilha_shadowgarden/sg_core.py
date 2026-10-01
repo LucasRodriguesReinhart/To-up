@@ -238,6 +238,16 @@ def _fall_fx():
 
 
 FALL_FX = _fall_fx()
+# ONDA 2 (o2b, 2026-10-01): tabela MEDIDA pelo sg_water na rocha v4 (sg_terrain onda 1f): labio na borda real da bica
+# (bancada +0,8 + bica 1,1 alem do ponto da planta; a sul sai da fenda), degrau no basalto (20) e pe (-53). O sg_water
+# ainda confere e acrescenta waypoints/widths/src_pos no build; aqui fica o valor certo para quando ele nao roda.
+_FALL_FX_V4 = [((-189.0, -60.0, 42.98), 5.4, None, (-191.8, -60.0, 20.0), (-193.48, -60.0, -53.0)),
+               ((175.8, -200.0, 34.98), 5.4, None, (178.67, -200.0, 20.0), (180.45, -200.0, -53.0)),
+               ((-60.52, 384.93, 50.98), 5.4, None, (-61.23, 387.59, 20.0), (-61.63, 389.1, -53.0)),
+               ((-29.66, -297.04, 29.9), 3.8, None, (-31.75, -297.8, 20.0), (-32.76, -298.17, -53.0))]
+if [tuple(w) for w in L.WATERFALLS] == [(-187.0, -60.0, L.P2 - 1.0, 180.0), (174.0, -200.0, L.P1 - 1.0, 0.0),
+                                        (-60.0, 383.0, L.P3 - 1.0, 105.0), (-26.8, -296.0, L.DECK + 2.0, 200.0)]:
+    FALL_FX = _FALL_FX_V4
 
 
 def fx_markers():
@@ -273,14 +283,17 @@ def fountain_markers():
     va = math.radians(B["vertex_deg"])
     mk("WATER_Fountain_Basin", (cx, cy, z + B["level"]), (0, 0, yaw_to(math.cos(va), math.sin(va))), 6.0, "CIRCLE",
        props={"radius": B["radius"], "apothem": B["apothem"], "sides": B["sides"], "depth": round(B["level"] - B["floor"], 2),
-              "hole_r": B["hole_r"], "note": "bacia dodecagonal; fwd aponta para um vertice; agua do Roblox"})
+              "hole_r": B["hole_r"], "shape": "poligono", "level": round(z + B["level"], 3),
+              "floor": round(z + B["floor"], 3), "note": "bacia dodecagonal; fwd aponta para um vertice; agua do Roblox"})
     lv = {"Basin": B["level"]}
     for k, b in enumerate(FOUNTAIN_BOWLS):
         va = math.radians(b["vertex_deg"])
         lv["Bowl_%d" % (k + 1)] = b["level"]
         mk("WATER_Fountain_Bowl_%d" % (k + 1), (cx, cy, z + b["level"]), (0, 0, yaw_to(math.cos(va), math.sin(va))),
            b["radius"], "CIRCLE", props={"radius": b["radius"], "sides": b["sides"],
-                                         "depth": round(b["level"] - b["floor"], 2), "hole_r": b["hole_r"]})
+                                         "depth": round(b["level"] - b["floor"], 2), "hole_r": b["hole_r"],
+                                         "shape": "poligono", "level": round(z + b["level"], 3),
+                                         "floor": round(z + b["floor"], 3)})
     for n, (bowl, deg, r0, r1, dst) in enumerate(FOUNTAIN_SPOUTS):
         a = math.radians(deg)
         ux, uy = math.cos(a), math.sin(a)
@@ -295,18 +308,25 @@ def fountain_markers():
 def water_markers_v4():
     """agua nova da v4 (feita no Roblox): rio escuro do salao sombrio, queda da fenda NE da caverna e os 2 espelhos
     d'agua do patio-jardim (o Blender so faz a pedra estanque)"""
+    # ONDA 2 (o2b): valores MEDIDOS pelo sg_water na pedra do sg_cave / sg_court (ele confere de novo no build). Todos
+    # no idioma da fonte: centro no NIVEL da lamina, sx = X local, sy = Y local (= fwd, aqui +Y), level/floor/depth.
     x0, y0, x1, y1, lev, bot = L.CAVE_POOL
-    mk("WATER_CavePool", ((x0 + x1) / 2, (y0 + y1) / 2, lev), (0, 0, yaw_to(1, 0)), 4.0, "CUBE",
-       props={"sx": x1 - x0, "sy": y1 - y0, "level": lev, "floor": bot, "depth": round(lev - bot, 2),
-              "note": "rio escuro (lamina parada, quase preta); a ponte do eixo atravessa (x +-%.0f)" % (L.CAVE_POOL_BRIDGE_W / 2)})
-    lip = (72.0, 222.0, L.CAVE_TOP - 6.0)
+    mk("WATER_CavePool", ((x0 + x1) / 2, (y0 + y1) / 2, lev), (0, 0, yaw_to(0, 1)), 4.0, "CUBE",
+       props={"shape": "retangulo", "sx": round(x1 - x0 - 1.8, 2), "sy": round(y1 - y0 - 1.8, 2), "level": lev,
+              "floor": bot, "depth": round(lev - bot, 2), "bridge_x0": -10.4, "bridge_x1": 10.4,
+              "note": "rio escuro (lamina parada, quase preta) entre os meios-fios; o corpo da ponte do eixo corta a "
+                      "lamina em x bridge_x0..bridge_x1 (local)"})
+    lip = (72.0, 220.9, L.CAVE_TOP - 6.0)
     mk("WATER_CaveFall_Lip", lip, (0, 0, yaw_to(0, -1)), 2.0, "SINGLE_ARROW",
-       props={"width": 4.0, "drop": round(lip[2] - lev, 2), "to": "WATER_CavePool", "note": "queda da fenda NE da caverna"})
-    mk("WATER_CaveFall_Base", (72.0, 216.0, lev), (0, 0, yaw_to(0, -1)), 3.0, "SPHERE", props={"fx": "nevoa_base"})
-    for nm, cx in (("L", -52.0), ("R", 52.0)):
-        mk("WATER_Court_%s" % nm, (cx, 24.0, L.P3 + 0.6), (0, 0, yaw_to(0, 1)), 3.0, "CUBE",
-           props={"sx": 20.0, "sy": 32.0, "level": L.P3 + 0.6, "floor": L.P3 + 0.1, "depth": 0.5,
-                  "note": "espelho d'agua do patio-jardim (reflete a fachada); borda de pedra ate P3+0,8"})
+       props={"width": 2.8, "drop": round(lip[2] - lev, 2), "to": "WATER_CavePool", "kind": "fenda",
+              "note": "queda da fenda NE da caverna: borda da bica no nivel da pedra"})
+    mk("WATER_CaveFall_Base", (72.0, 217.64, lev), (0, 0, yaw_to(0, -1)), 3.0, "SPHERE",
+       props={"fx": "nevoa_base", "level": lev})
+    # espelhos do patio-jardim (sg_court, onda 2): bacias de 32 x 20 centradas em (+-58, 42)
+    for nm, cx in (("L", -58.0), ("R", 58.0)):
+        mk("WATER_Court_%s" % nm, (cx, 42.0, L.P3 + 0.6), (0, 0, yaw_to(0, 1)), 3.0, "CUBE",
+           props={"shape": "retangulo", "sx": 32.0, "sy": 20.0, "level": L.P3 + 0.6, "floor": L.P3 + 0.1,
+                  "depth": 0.5, "note": "espelho d'agua do patio-jardim (reflete a fachada); capa a P3+0,66"})
 
 
 def ds_gate():
