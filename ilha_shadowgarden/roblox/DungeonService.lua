@@ -122,9 +122,6 @@ local function spawnDaSala(sala)
 	end
 	return p
 end
-local function frenteDaSala(sala)
-	return (sala ~= "R1" and frenteMarcador("DUN_SPAWN_" .. sala)) or frenteMarcador("DUNGEON_Spawn")
-end
 -- o grupo chega espalhado (centro + anel de 4 + anel de 7,5): ninguem nasce dentro do outro
 local function posGrupo(base, i)
 	if not base or i <= 1 then return base end
@@ -148,6 +145,9 @@ local function cfMarcador(nome, dy)
 	local pos = m.Position + Vector3.new(0, dy or 0, 0)
 	local f = frenteMarcador(nome) or Vector3.new(0, 0, -1)
 	return CFrame.lookAt(pos, pos + f)
+end
+local function frenteDaSala(sala)
+	return (sala ~= "R1" and frenteMarcador("DUN_SPAWN_" .. sala)) or frenteMarcador("DUNGEON_Spawn")
 end
 local function teleportar(player, pos, frente)
 	local char = player.Character
@@ -512,14 +512,30 @@ local function portal(salaF, cf, w, h, t)
 	sp.Size = Vector3.new(w, h, t)
 	sp.CFrame = cf * CFrame.new(0, h / 2, 0)
 	sp.Parent = areaModel
-	sp.Touched:Connect(function(hit)
-		local p = Players:GetPlayerFromCharacter(hit.Parent)
-		if not (p and corrida and corrida.participantes[p] and corrida.transicao and not corrida.fimEm) then return end
-		if salaFisica(corrida.sala) ~= salaF then return end
-		iniciarSala(corrida.sala + 1)          -- uma vez so: iniciarSala desliga a transicao
-	end)
 	selos[salaF] = sp
 end
+-- quem chega PERTO do portal aberto segue na hora (caixa do portal + 4 de folga na espessura e 2 nas bordas).
+-- Por proximidade e nao por Touched: o portal do nicho da R3 fica atras de soleira/colunelos e o toque falhava.
+task.spawn(function()
+	while true do
+		task.wait(0.2)
+		if corrida and corrida.transicao and not corrida.fimEm and corrida.sala and corrida.sala > 0 then
+			local sp = selos[salaFisica(corrida.sala)]
+			if sp then
+				for p in pairs(corrida.participantes) do
+					local hrp = p.Character and p.Character:FindFirstChild("HumanoidRootPart")
+					if hrp then
+						local l = sp.CFrame:PointToObjectSpace(hrp.Position)
+						if math.abs(l.X) <= sp.Size.X / 2 + 2 and math.abs(l.Y) <= sp.Size.Y / 2 + 2 and math.abs(l.Z) <= 5 then
+							iniciarSala(corrida.sala + 1)      -- uma vez so: iniciarSala desliga a transicao
+							break
+						end
+					end
+				end
+			end
+		end
+	end
+end)
 local function criarSelo()
 	local cfg = D.SELO or {}
 	local n = 0

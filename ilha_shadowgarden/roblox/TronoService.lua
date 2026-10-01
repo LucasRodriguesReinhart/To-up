@@ -102,11 +102,18 @@ local function prompt(nome, acao, objeto, dist, fn)
 	return pp
 end
 
-function T.iniciar()
+local function montar()
 	for _, a in ipairs(Config.Areas) do if a.tema == "sombra" then area = a end end
-	local areas = workspace:WaitForChild("Areas", 60)
-	areaModel = area and areas and areas:WaitForChild("Area" .. area.id, 60)
-	marcas = areaModel and areaModel:FindFirstChild("GAMEPLAY_MARKERS", true)
+	if not area then warn("[TronoService] area de tema sombra nao encontrada no Config") return false end
+	-- a Area3 nasce antes do clone da ilha (e o AreaBuilder pode demorar): espera os marcadores sem prazo
+	-- o AreaBuilder RECRIA a Area3: busca o modelo de novo a cada volta (a referencia antiga fica orfa)
+	repeat
+		local areas = workspace:FindFirstChild("Areas")     -- a pasta Areas tambem pode ser recriada
+		areaModel = areas and areas:FindFirstChild("Area" .. area.id)
+		marcas = areaModel and areaModel:FindFirstChild("GAMEPLAY_MARKERS", true)
+		if marcas and marcas:FindFirstChild("THRONE_Rest") then break end
+		task.wait(1)
+	until false
 	local rest, park = marcador("THRONE_Rest"), marcador("THRONE_Park")
 	if not (rest and park) then
 		warn("[TronoService] THRONE_Rest/THRONE_Park ausentes (export sem a passagem do trono)")
@@ -153,6 +160,16 @@ function T.iniciar()
 			end)
 			if not ok then warn("[TronoService] " .. tostring(err)) end
 		end
+	end)
+	return true
+end
+
+-- iniciar devolve na hora (o SistemasShadowGarden nao espera); a montagem roda em segundo plano ate achar o trono
+function T.iniciar()
+	task.spawn(function()
+		local ok, res = pcall(montar)
+		if not ok then warn("[TronoService] " .. tostring(res))
+		elseif res then print("[TronoService] passagem do trono pronta (" .. #pecas .. " pecas moveis)") end
 	end)
 	return true
 end
