@@ -37,7 +37,10 @@ fm_lib._FLOOR_LEVELS = tuple(sorted(set(L.LEVELS + (L.DUN_Z,))))
 _NEW_RULES = [("Glass_SGCraft", "Glass", 0.55, False),   # frascos da alquimia: o liquido tem de aparecer (acabamento)
               ("Glass_SG", "Glass", 0.3, False), ("SG_", "Neon", 0.0, False),
               # overhaul 13 (cachoeiras): corpo da lamina com transparencia leve; os filetes claros ficam opacos
-              ("Water_SGFallLine", "SmoothPlastic", 0.0, False), ("Water_SGFall", "SmoothPlastic", 0.15, False)]
+              ("Water_SGFallLine", "SmoothPlastic", 0.0, False), ("Water_SGFall", "SmoothPlastic", 0.15, False),
+              # FINESSE 3 (15.05): o marmore negro e PISO (patio, salao, salas) -> pedra fosca no Roblox (Slate), nao
+              # plastico liso com cara de piso molhado
+              ("Stone_SG_MarbleBlack", "Slate", 0.0, True)]
 for r in reversed(_NEW_RULES):
     if r not in fm_lib.RBX_RULES:
         fm_lib.RBX_RULES.insert(0, r)
@@ -50,20 +53,30 @@ SMATS = {
     "Cliff_Rock_SG":        (S(66, 60, 90), 0.9, 0.0, 0, None, 0.12),      # basalto violeta-ardosia (refino v2b: o liquen claro da textura puxava para o verde)
     "Cliff_Rock_SG_Dark":   (S(40, 36, 58), 0.9, 0.0, 0, None, 0.10),      # estratos escuros / sombra
     "Cliff_Rock_SG_Top":    (S(100, 96, 126), 0.9, 0.0, 0, None, 0.10),   # borda de topo (luar)
-    # jardinagem 2026-09-30: o chao da grama desce um valor para os tufos (mais claros, "bonemeal") lerem por cima
-    "Grass_SG":             (S(40, 62, 57), 0.9, 0.0, 0, None, 0.16),      # grama fria (verde-azulado escuro)
-    "Dirt_SG":              (S(64, 58, 60), 0.95, 0.0, 0, None, 0.12),
+    # FINESSE 3 (03.03): grama em 3 TONS DIRIGIDOS (nao ruido): Grass_SG_B escuro (sob arvores / pe dos muros),
+    # Grass_SG medio (campo), Grass_SGLight claro (luar / junto aos caminhos). Os 3 ficam ABAIXO dos tufos
+    # (Leaf_SGGrass*), que leem por cima. A variante sorteada da familia agora e a sutil Grass_SG_C (+1 valor).
+    "Grass_SG":             (S(40, 62, 54), 0.9, 0.0, 0, None, 0.16),      # grama fria (verde-azulado escuro)
+    "Grass_SG_B":           (S(30, 46, 44), 0.9, 0.0, 0, None, 0.16),      # tom ESCURO dirigido (sg_garden LAWN_D)
+    "Dirt_SG":              (S(66, 58, 56), 0.95, 0.0, 0, None, 0.12),
     # construido
-    "Stone_Paving_SG":      (S(94, 92, 114), 0.85, 0.0, 0, None, 0.12),    # calcamento frio (refino v2b: escurecido, sem cara de maquete)
-    "Stone_SG_Block":       (S(100, 100, 112), 0.85, 0.0, 0, None, 0.12),  # muros de arrimo / muralha (acabamento: pedra neutra)
-    "Stone_SG_Castle":      (S(88, 88, 104), 0.8, 0.0, 0, None, 0.10),     # alvenaria do castelo (acabamento: menos azul, le pedra)
+    # FINESSE 3 (15.02, 2026-10-01): ESCALA DE VALOR dirigida (antes chao 40 / muro 43 / castelo 38 de L*: tudo um
+    # lilas so no jogo). Hierarquia em L* (CIE, sRGB): obsidiana/marmore ~11-17 < telhados ~15-18 < grama 18-32 <
+    # leito de junta ~29 < MURO de cantaria 32-43 (frio, medio) < CHAO andavel 43-47 (um degrau acima, um pouco
+    # QUENTE: r >= b) < remate TrimLow ~56 < Trim ~62. Madeira quente ~31. O violeta fica em tecido, vidro e magia.
+    "Stone_Paving_SG":      (S(117, 110, 108), 0.85, 0.0, 0, None, 0.12),  # CHAO andavel: calcamento/lajes (claro, quente)
+    "Stone_SG_Block":       (S(88, 91, 104), 0.85, 0.0, 0, None, 0.12),    # muros de arrimo / muralha (medio, frio)
+    "Stone_SG_Castle":      (S(80, 83, 98), 0.8, 0.0, 0, None, 0.10),     # alvenaria do castelo (medio-escuro, frio)
     # overhaul 14.01: 164 lia plastico branco no jogo; o Trim claro fica SO em pecas altas/distantes (perto do jogador =
-    # Stone_SG_TrimLow, 132) e desce um valor para nao estourar contra a pedra escura nas vistas gerais
-    "Stone_SG_Trim":        (S(150, 146, 154), 0.8, 0.0, 0, None, 0.06),   # frisos, molduras, cantaria clara (pedra lavrada)
-    "Stone_SG_Floor":       (S(66, 68, 84), 0.7, 0.0, 0, None, 0.08),      # piso do salao (escuro polido)
-    "Roof_SG_Slate":        (S(46, 48, 62), 0.6, 0.0, 0, None, 0.08),      # ardosia azul-escura (telhados da vila)
-    "Roof_SG_Navy":         (S(40, 34, 62), 0.5, 0.0, 0, None, 0.06),      # coberturas do castelo: ardosia violeta-escura
-    "Wood_SG_Dark":         (S(82, 56, 40), 0.8, 0.0, 0, None, 0.10),      # enxaimel / portas / vigas (madeira quente legivel)
+    # Stone_SG_TrimLow). Finesse 3: remate = a pedra MAIS CLARA da ilha, levemente quente (cantaria lavrada)
+    "Stone_SG_Trim":        (S(154, 148, 148), 0.8, 0.0, 0, None, 0.06),   # frisos, molduras, cantaria clara (pedra lavrada)
+    "Stone_SG_TrimLow":     (S(140, 134, 134), 0.8, 0.0, 0, None, 0.06),   # remate perto do jogador (era 132,128,134 nos modulos)
+    # Stone_SG_Floor e sobretudo LEITO DE JUNTA (vila, entrada, summon) e acento escuro de piso: tom medio-escuro
+    # (nao preto) para a junta ler contra o calcamento claro
+    "Stone_SG_Floor":       (S(70, 66, 74), 0.85, 0.0, 0, None, 0.08),     # leito de junta / piso escuro fosco
+    "Roof_SG_Slate":        (S(40, 44, 60), 0.75, 0.0, 0, None, 0.08),     # ardosia azul-escura (telhados da vila)
+    "Roof_SG_Navy":         (S(36, 34, 58), 0.6, 0.0, 0, None, 0.06),      # coberturas do castelo: ardosia violeta-escura
+    "Wood_SG_Dark":         (S(100, 66, 42), 0.8, 0.0, 0, None, 0.10),     # enxaimel / portas / vigas (madeira QUENTE)
     "Plaster_SG":           (S(150, 142, 132), 0.7, 0.0, 0, None, 0.06),   # reboco da meia-enxaimel (quente apagado)
     "Metal_SG_Iron":        (S(56, 58, 68), 0.45, 0.8, 0, None, 0.04),     # ferro preto (grades, lanternas)
     "Metal_SG_Silver":      (S(176, 182, 198), 0.3, 0.9, 0, None, 0.02),   # prata (remates, simbolos)
@@ -71,11 +84,13 @@ SMATS = {
     "Cloth_SG_Violet":      (S(78, 36, 128), 0.8, 0.0, 0, None, 0.04),     # tecido roxo profundo (estandartes da ordem)
     "Glass_SG_Rose":        (S(96, 70, 150), 0.1, 0.0, 0.35, S(120, 80, 200), 0.0),   # vitral/rosacea (Glass)
     "Leaf_SG_Pine":         (S(30, 50, 48), 0.85, 0.0, 0, None, 0.10),     # pinheiro escuro
-    "Water_SG":             (S(64, 96, 196), 0.1, 0.0, 0.2, S(96, 118, 235), 0.0),   # azul-violeta (refino v2)
+    # FINESSE 3 (15.04): navy escuro sem emissao; o reflexo (rough 0,05) faz o trabalho
+    "Water_SG":             (S(30, 40, 80), 0.05, 0.0, 0, None, 0.0),
     # REFINAMENTO 2026-09-28 (pedido do usuario: roxo e preto de Shadow Garden mais presentes, materiais em camadas)
-    "Stone_SG_Obsidian":    (S(30, 28, 40), 0.35, 0.1, 0, None, 0.04),     # obsidiana: socos, faixas, cantaria nobre
-    "Stone_SG_MarbleBlack": (S(42, 38, 54), 0.25, 0.0, 0, None, 0.06),     # marmore negro (pisos nobres, incrustacoes)
-    "Stone_SG_Violet":      (S(78, 62, 110), 0.7, 0.0, 0, None, 0.06),     # pedra violeta (molduras nobres, emblemas)
+    "Stone_SG_Obsidian":    (S(30, 28, 38), 0.4, 0.1, 0, None, 0.04),      # obsidiana: socos, faixas, cantaria nobre
+    # 15.05: rough 0,25 dava piso molhado; agora fosco (e Slate no Roblox, regra acima)
+    "Stone_SG_MarbleBlack": (S(44, 40, 50), 0.6, 0.0, 0, None, 0.06),      # marmore negro (pisos nobres, incrustacoes)
+    "Stone_SG_Violet":      (S(74, 64, 96), 0.7, 0.0, 0, None, 0.06),      # pedra violeta DESSATURADA (molduras nobres)
     # overhaul 14.08: (40, 38, 46) virava silhueta preta sem volume no jogo; um valor acima e mais metal (o luar marca a forma)
     "Metal_SG_BlackIron":   (S(56, 54, 64), 0.32, 0.9, 0, None, 0.02),      # ferro negro (grades, postes, correntes)
     "Cloth_SG_Purple":      (S(66, 22, 112), 0.8, 0.0, 0, None, 0.04),     # estandarte da ordem (roxo profundo)
@@ -106,8 +121,8 @@ SMATS = {
     "Flower_SGSpike":       (S(86, 110, 178), 0.7, 0.0, 0, None, 0.0),     # espiga azul (lavanda/delfinio)
     "Flower_SGAmber":       (S(204, 152, 72), 0.7, 0.0, 0, None, 0.0),     # dente-de-leao e miolo: o toque quente raro
     "Leaf_SGBox":           (S(40, 68, 56), 0.85, 0.0, 0, None, 0.04),     # buxo (sebes, bolas, folhas das trepadeiras)
-    "Grass_SGLight":        (S(50, 76, 67), 0.9, 0.0, 0, None, 0.06),      # clareira de luar no gramado base (sutil)
-    "Dirt_SGGravel":        (S(98, 96, 106), 0.95, 0.0, 0, None, 0.06),    # cascalho dos caminhos do jardim do patio
+    "Grass_SGLight":        (S(56, 82, 64), 0.9, 0.0, 0, None, 0.06),      # tom CLARO dirigido: luar / junto aos caminhos
+    "Dirt_SGGravel":        (S(108, 102, 100), 0.95, 0.0, 0, None, 0.06),  # cascalho (bordadura/caminhos): quente, le contra a grama
 }
 for k, v in SMATS.items():
     MATS.setdefault(k, v)
@@ -121,10 +136,12 @@ for k in ("SG_Violet_Glow", "SG_Moon_Glow", "SG_VioletDeep_Glow", "SG_Rune_Glow"
     RBX_CAL.setdefault(k, (None, [int(c) for c in fm_lib.to_srgb(SMATS[k][0])]))
 add_variants("Cliff_Rock_SG", [("Cliff_Rock_SG", 5), ("Cliff_Rock_SG_B", 3, (56, 52, 80)),
                                ("Cliff_Rock_SG_C", 2, (76, 70, 100))], cap=2)
-add_variants("Stone_Paving_SG", [("Stone_Paving_SG", 5), ("Stone_Paving_SG_B", 3, (84, 82, 104))], cap=2)
-add_variants("Stone_SG_Block", [("Stone_SG_Block", 5), ("Stone_SG_Block_B", 3, (92, 92, 104))], cap=2)
-add_variants("Stone_SG_Castle", [("Stone_SG_Castle", 5), ("Stone_SG_Castle_B", 3, (80, 80, 96))], cap=2)
-add_variants("Grass_SG", [("Grass_SG", 6), ("Grass_SG_B", 4, (34, 54, 51))], cap=2)   # jardinagem: um valor abaixo
+# FINESSE 3: os pares corpo/relevo dos modulos (PAR_M = Castle_B < REL_M = Block_B) seguem a escala nova
+add_variants("Stone_Paving_SG", [("Stone_Paving_SG", 5), ("Stone_Paving_SG_B", 3, (106, 100, 100))], cap=2)
+add_variants("Stone_SG_Block", [("Stone_SG_Block", 5), ("Stone_SG_Block_B", 3, (98, 101, 114))], cap=2)
+add_variants("Stone_SG_Castle", [("Stone_SG_Castle", 5), ("Stone_SG_Castle_B", 3, (72, 75, 90))], cap=2)
+# a variante SORTEADA da grama e sutil (Grass_SG_C); Grass_SG_B (escuro) e Grass_SGLight (claro) sao tons DIRIGIDOS
+add_variants("Grass_SG", [("Grass_SG", 6), ("Grass_SG_C", 4, (43, 65, 56))], cap=2)
 
 # prefixos de dono (export Roblox): SG_<Zona>_<Coisa>
 OWNER_PREFIX = {"terrain": ("SG_Ter_", "SG_Sky_"), "entry": ("SG_Ent_",), "village": ("SG_Vil_",),
@@ -168,30 +185,58 @@ def vis_stairs(mb, base, ang, width, n, rise, tread, m="Stone_Paving_SG", side_m
                      stringers=stringers, col=False)
 
 
+STAIR_MODS = (1.00, 0.78, 1.18, 0.88, 1.08, 0.82, 1.14, 0.94, 1.22, 0.86)   # modulos DIRIGIDOS das pedras do degrau
+STAIR_RISER_M = "Stone_SG_Castle_B"     # espelho padrao: um tom ABAIXO da pisada (2 tons no Roblox, sem textura)
+
+
+def _stair_cuts(w, k, start, prev, min_off=0.7):
+    """cortes (y) de k pedras em modulos irregulares que somam w, com as juntas a >= min_off das do degrau de baixo"""
+    best = None
+    for t in range(len(STAIR_MODS)):
+        ms = [STAIR_MODS[(start + t + j) % len(STAIR_MODS)] for j in range(k)]
+        tot = sum(ms)
+        cuts = [-w / 2.0]
+        for x in ms:
+            cuts.append(cuts[-1] + w * x / tot)
+        cuts[-1] = w / 2.0
+        inner = cuts[1:-1]
+        d = min((abs(a - b) for a in inner for b in prev), default=99.0)
+        if best is None or d > best[0]:
+            best = (d, cuts)
+        if d >= min_off:
+            break
+    return best[1]
+
+
 def plan_stair(mb, name, m="Stone_Paving_SG", side_m="Stone_SG_Block", stringers=True, riser_m=None):
-    """a escada 'name' da planta (sg_layout.STAIRS) so no visual, casando com a colisao do sg_col.
-    OVERHAUL 01 (2026-09-29): degrau de PEDRA em vez de laje-caixa lisa (mesmo envelope, mesmas cotas):
-      - espelho recuado 0,12 (nucleo do degrau em riser_m, padrao = m) sob a pisada;
-      - pisada de 0,26 com FOCINHO saliente 0,12 e chanfro (o MB 'near' chanfra so a aresta de cima), partida em 4 ou 5
-        pedras com juntas DESENCONTRADAS de degrau para degrau (junta de 0,07);
+    """a escada 'name' da planta (sg_layout.STAIRS) so no visual, casando com a colisao do sg_col (mesmo envelope,
+    mesmas cotas, mesma assinatura).
+    FINESSE 3 (16.03 / 01.02 / 03.04, 2026-10-01): o degrau do overhaul 01 lia como laje continua no Roblox (pisada e
+    espelho no mesmo tom, junta de 0,07 sumia). Agora:
+      - ESPELHO recuado 0,12 sob o focinho, num tom ABAIXO (riser_m; padrao STAIR_RISER_M = Stone_SG_Castle_B);
+      - PISADA de 0,26 com FOCINHO saliente 0,12 e chanfro 0,06 (o MB 'near' chanfra a aresta de cima), partida em
+        3-5 pedras de MODULOS IRREGULARES (STAIR_MODS) com juntas DESENCONTRADAS de degrau para degrau (>= 0,7);
+      - JUNTA de 0,14 que mostra o nucleo escuro 0,26 abaixo (le como rejunte no Roblox, sem textura); a junta corta
+        tambem a face do focinho (ritmo das pedras visto de frente);
+      - nucleo 0,03 para dentro nas laterais e 0,02 abaixo da pisada (sem face coplanar/de contato: regra do z-fight);
       - banzos (stringers=True) iguais aos de antes (blocos por degrau)."""
     foot, deg, w, n, tread, g = L.stair_frame(name)
     rise = (L.STAIR_TOP_Z[name] - foot[2]) / n
     ang = math.radians(deg)
     F = Frame(foot[0], foot[1], foot[2], ang)
-    rm = riser_m or m
-    TH, NOSE, GAP = 0.26, 0.12, 0.07
+    rm = riser_m or STAIR_RISER_M
+    TH, NOSE, GAP, INS = 0.26, 0.12, 0.14, 0.03
+    k0 = max(3, int(round(w / 4.6)))
+    prev = []
     for i in range(n):
         ztop = rise * (i + 1)
         # nucleo macico do chao ate a base da pisada; a face da frente (x = tread*i) e o espelho recuado
-        hc = ztop - TH
+        hc = ztop - TH - 0.02           # 0,02 abaixo da pisada: sem face de contato coplanar (z-fight)
         if hc > 0.02:
-            mb.box((tread + 0.02, w, hc), F.p(tread * i + tread / 2 + 0.01, 0, hc / 2), F.r(), rm, 0.06, 1)
-        # pisada partida: 4 pedras nos degraus pares, 5 (juntas deslocadas) nos impares
-        if i % 2 == 0:
-            cuts = [-w / 2 + w * k / 4.0 for k in range(5)]
-        else:
-            cuts = [-w / 2] + [-w / 2 + w * (k + 0.5) / 4.0 for k in range(4)] + [w / 2]
+            mb.box((tread + 0.02, w - 2 * INS, hc), F.p(tread * i + tread / 2 + 0.01, 0, hc / 2), F.r(), rm, 0.06, 1)
+        # pisada partida: k0 pedras nos degraus pares, k0 + 1 nos impares, modulos irregulares e juntas desencontradas
+        cuts = _stair_cuts(w, k0 + (i % 2), 3 * i, prev)
+        prev = cuts[1:-1]
         x0, x1 = tread * i - NOSE, tread * (i + 1) + 0.01
         for a, b in zip(cuts, cuts[1:]):
             ya_ = a + (GAP / 2 if a > -w / 2 + 1e-6 else 0.0)
