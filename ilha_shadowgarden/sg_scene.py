@@ -378,3 +378,259 @@ def scale_reference(visible=True):
              ("SCALE_Dummy_DSGate", gp[0] - ux * 9.0 - uy * 4.0, gp[1] - uy * 9.0 + ux * 4.0, L.EXIT_Z)]
     for n, x, y, z in spots:
         SL.dummy(n, x, y, z, visible=visible)
+
+
+# ------------------------------------------------------------------ AUDITORIA 3 (2026-10-01): cameras do passe de finesse
+# Acrescimo (so cameras, nada de geometria): olho do jogador a ~5,5 acima do piso (avatar ~5), em todos os lugares por
+# onde ele anda, mais vistas medias e de longe. Prefixo CAM_A3_<setor>_<lugar>. As que tem "_Open" no nome pedem o trono
+# recolhido no bolso (o script de render desloca SG_Hall_ThroneMov* de THRONE_REST para THRONE_PARK so para elas).
+# Nao entram no build (cameras() nao chama): crie com cameras_a3() num .blend montado.
+EYE = 5.5
+
+
+def _bridge_at(s, v=0.0):
+    """ponto da ponte de chegada a 's' studs da ancora (L.BRIDGE_PATH) com afastamento lateral 'v' (+v = esquerda de
+    quem chega); devolve (x, y, tx, ty)"""
+    pts = L.BRIDGE_PATH
+    acc = 0.0
+    n = len(pts)
+    for i in range(n - 1):
+        a, b = pts[i], pts[i + 1]
+        ln = math.hypot(b[0] - a[0], b[1] - a[1]) or 1e-9
+        if acc + ln >= s or i == n - 2:
+            t = max(0.0, min(1.0, (s - acc) / ln))
+            tx, ty = (b[0] - a[0]) / ln, (b[1] - a[1]) / ln
+            x, y = a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t
+            return (x - ty * v, y + tx * v, tx, ty)
+        acc += ln
+
+
+def _bcam(s0, v0, z0, s1, v1, z1, lens):
+    a, b = _bridge_at(s0, v0), _bridge_at(s1, v1)
+    return ((a[0], a[1], z0), (b[0], b[1], z1), lens)
+
+
+def _house_cams():
+    """por casa (referencial do lote: +v = frente, porta no meio da frente; piso interno 0,30 acima da cota da casa):
+    exterior de frente em 3/4 e de lado; porta de fora; sala/taverna; escada e quarto/mezanino (2 andares) ou oficina e
+    forro (terrea)"""
+    out = {}
+    for nm, tp, x, y, w, d, deg, z in L.HOUSES:
+        a = math.radians(deg) - math.pi / 2
+
+        def P(u, v, h, x=x, y=y, z=z, a=a):
+            return (x + u * math.cos(a) - v * math.sin(a), y + u * math.sin(a) + v * math.cos(a), z + h)
+        iw, idp = w - 2.0, d - 2.0
+        T = L.HOUSE_TYPES[tp]
+        zf = T["h0"] + 1.0
+        e = 0.3 + EYE
+        k = "CAM_A3_04_%s_" % nm
+        out["CAM_A3_03_%s_Frente" % nm] = (P(w * 0.45, d / 2 + 20.0, EYE), P(-2.0, 0.0, 9.0), 20)
+        out["CAM_A3_03_%s_Lado" % nm] = (P(-w / 2 - 16.0, d / 2 + 8.0, EYE), P(0.0, -2.0, 8.0), 20)
+        out[k + "Porta"] = (P(1.5, d / 2 + 9.0, EYE), P(0.0, 0.0, 5.0), 22)
+        if tp == "B":
+            out[k + "Taverna"] = (P(iw / 2 - 4.0, idp / 2 - 3.0, e), P(-iw / 2 + 2.0, 0.0, 6.0), 16)
+            out[k + "Escada"] = (P(iw / 2 - 6.0, -1.0, e), P(-iw / 2 + 6.0, -idp / 2 + 3.0, 10.0), 16)
+            out[k + "Mezanino"] = (P(iw / 2 - 5.0, idp / 2 - 6.0, zf + e), P(-iw / 2 + 6.0, 2.0, zf - 3.0), 16)
+            out[k + "Quarto"] = (P(-iw / 2 + 4.0, -idp / 2 + 9.0, zf + e), P(iw / 2 - 3.0, idp / 2 - 4.0, zf + 2.0), 16)
+        elif tp == "A":
+            out[k + "Sala"] = (P(iw / 2 - 7.0, idp / 2 - 3.0, e), P(-iw / 2, 1.0, 4.5), 16)
+            out[k + "Escada"] = (P(iw / 2 - 5.0, -1.0, e), P(-iw / 2 + 5.0, -idp / 2 + 3.0, 9.0), 16)
+            out[k + "Quarto"] = (P(-iw / 2 + 5.0, 2.0, zf + e), P(iw / 2 - 2.7, idp / 2 - 4.6, zf + 1.5), 16)
+        else:
+            out[k + "Sala"] = (P(iw / 2 - 3.0, idp / 2 - 2.5, e), P(-iw / 2, 1.0, 4.5), 16)
+            out[k + "Oficina"] = (P(-iw / 2 + 4.0, idp / 2 - 2.5, e), P(iw / 2 - 3.0, -idp / 2 + 2.0, 3.0), 16)
+            out[k + "Forro"] = (P(0.0, idp / 2 - 2.0, e), P(0.0, -3.0, T["h0"] + 6.0), 15)
+    return out
+
+
+def _spiral_cam(a0, a1, dz1=4.0, lens=15):
+    x0, y0 = L.stair_point(a0)
+    x1, y1 = L.stair_point(a1)
+    return ((x0, y0, L.stair_z(a0) + EYE), (x1, y1, L.stair_z(a1) + dz1), lens)
+
+
+def _exit_cam(d0, v0, z0, d1, v1, z1, lens):
+    ux, uy = L.exit_dir()
+    a = L.exit_point(d0)
+    b = L.exit_point(d1)
+    return ((a[0] - uy * v0, a[1] + ux * v0, z0), (b[0] - uy * v1, b[1] + ux * v1, z1), lens)
+
+
+def a3_cams():
+    E = EYE
+    D, Z1, Z2, Z3, ZS = L.DECK, P1, P2, P3, SUM
+    CZ, GZ, FZ, DZ = L.CHANCEL_Z, L.CAVE_GALLERY_Z, L.CAVE_FLOOR, L.DUN_Z
+    cx, cy = L.CRAFT_C
+    tx, ty = L.SUMMON_TOWER
+    SL_ = L.BRIDGE_LEN
+    c = {
+        # 01 ponte de chegada, encontro, patio baixo, porticos e escadaria
+        "CAM_A3_01_Ponte_Ancora": _bcam(4.0, 0.0, D + E, 60.0, 0.0, D + 4.0, 20),
+        "CAM_A3_01_Ponte_Curva": _bcam(62.0, -3.0, D + E, 120.0, 2.0, D + 5.0, 20),
+        "CAM_A3_01_Ponte_Reta": _bcam(140.0, 0.0, D + E, SL_, 0.0, D + 22.0, 20),
+        "CAM_A3_01_Ponte_Parapeito": _bcam(124.0, -4.0, D + E, 130.0, 8.6, D + 1.4, 22),
+        "CAM_A3_01_Ponte_Lajes": _bcam(176.0, 3.0, D + E, 184.0, -2.0, D, 22),
+        "CAM_A3_01_Ponte_Lado": _bcam(150.0, -90.0, D + 12.0, 150.0, 0.0, D - 14.0, 22),
+        "CAM_A3_01_Ponte_Encontro": _bcam(196.0, -42.0, D - 2.0, SL_ - 4.0, 0.0, D - 10.0, 20),
+        "CAM_A3_01_PatioBaixo": ((8.0, -331.0, D + E), (0.0, -296.0, Z1 + 10.0), 20),
+        "CAM_A3_01_PorticoA_CU": ((-4.0, -328.0, D + E), (-12.0, -322.0, D + 7.0), 20),
+        "CAM_A3_01_Escada": ((6.0, -315.0, D + E), (0.0, -294.0, Z1 + 4.0), 20),
+        "CAM_A3_01_PorticoB": ((5.0, -291.0, Z1 + E), (0.0, -276.0, Z1 + 14.0), 18),
+        "CAM_A3_01_Spawn_Volta": ((0.0, -270.0, Z1 + E), (0.0, -340.0, D + 2.0), 20),
+        # 02 praca e fonte
+        "CAM_A3_02_Praca_Chegada": ((0.0, -262.0, Z1 + E), (0.0, -222.0, Z1 + 6.0), 20),
+        "CAM_A3_02_Fonte_CU": ((10.0, -237.0, Z1 + E), (0.0, -222.0, Z1 + 5.0), 20),
+        "CAM_A3_02_Praca_Piso": ((-17.0, -210.0, Z1 + E), (-2.0, -232.0, Z1), 22),
+        "CAM_A3_02_Praca_Norte": ((-4.0, -200.0, Z1 + E), (0.0, -260.0, Z1 + 6.0), 20),
+        "CAM_A3_02_Praca_Alta": ((44.0, -284.0, Z1 + 42.0), (0.0, -222.0, Z1), 22),
+        # 03 vila: ruas P1/P2, eixo, escada P1P2, arrimo, gramados, vista media (as casas por fora: _house_cams)
+        "CAM_A3_03_RuaP1_W": ((-30.0, -222.0, Z1 + E), (-150.0, -222.0, Z1 + 8.0), 20),
+        "CAM_A3_03_RuaP1_E": ((30.0, -222.0, Z1 + E), (150.0, -222.0, Z1 + 8.0), 20),
+        "CAM_A3_03_RuaP1_W_Volta": ((-150.0, -221.0, Z1 + E), (-50.0, -222.0, Z1 + 10.0), 20),
+        "CAM_A3_03_RuaP2_W": ((-10.0, -86.0, Z2 + E), (-160.0, -86.0, Z2 + 8.0), 20),
+        "CAM_A3_03_RuaP2_E": ((10.0, -86.0, Z2 + E), (96.0, -86.0, Z2 + 10.0), 20),
+        "CAM_A3_03_RuaP2_W_Volta": ((-160.0, -85.0, Z2 + E), (-40.0, -86.0, Z2 + 10.0), 20),
+        "CAM_A3_03_EixoP2": ((0.0, -140.0, Z2 + E), (0.0, -40.0, Z3 + 20.0), 20),
+        "CAM_A3_03_EscP1P2_Pe": ((6.0, -184.0, Z1 + E), (0.0, -150.0, Z2 + 6.0), 20),
+        "CAM_A3_03_EscP1P2_Topo": ((-4.0, -145.0, Z2 + E), (0.0, -200.0, Z1 + 4.0), 20),
+        "CAM_A3_03_Arrimo_W": ((-62.0, -162.0, Z1 + E), (-20.0, -149.0, Z1 + 5.0), 20),
+        "CAM_A3_03_Arrimo_E": ((62.0, -162.0, Z1 + E), (20.0, -149.0, Z1 + 5.0), 20),
+        "CAM_A3_03_Arrimo_Frente": ((-30.0, -200.0, Z1 + E), (-40.0, -148.0, Z1 + 6.0), 20),
+        "CAM_A3_03_Gramado_P2": ((30.0, -62.0, Z2 + E), (96.0, -126.0, Z2), 22),
+        "CAM_A3_03_Gramado_P1": ((40.0, -200.0, Z1 + E), (140.0, -250.0, Z1), 22),
+        "CAM_A3_03_Vila_Media": ((70.0, -310.0, Z1 + 55.0), (-30.0, -170.0, Z1), 20),
+        "CAM_A3_03_VilaAlta_Media": ((60.0, -150.0, Z2 + 45.0), (-70.0, -80.0, Z2), 20),
+        # 05 muralha, portao, patio-jardim
+        "CAM_A3_05_Muralha_P2": ((-44.0, -62.0, Z2 + E), (-14.0, -18.0, Z2 + 18.0), 20),
+        "CAM_A3_05_Portao_Fora": ((6.0, -54.0, Z2 + E), (0.0, -18.0, Z3 + 14.0), 20),
+        "CAM_A3_05_Portao_Vao": ((3.0, -19.0, Z3 + E), (0.0, 24.0, Z3 + 8.0), 20),
+        "CAM_A3_05_Patio_Eixo": ((0.0, -6.0, Z3 + E), (0.0, 61.0, Z3 + 20.0), 18),
+        "CAM_A3_05_Patio_Caminho": ((3.0, 2.0, Z3 + E), (0.0, 30.0, Z3), 22),
+        "CAM_A3_05_Patio_W": ((-18.0, 8.0, Z3 + E), (-92.0, 30.0, Z3 + 4.0), 20),
+        "CAM_A3_05_Patio_E": ((18.0, 8.0, Z3 + E), (92.0, 30.0, Z3 + 4.0), 20),
+        "CAM_A3_05_Patio_Volta": ((0.0, 50.0, Z3 + E), (0.0, -20.0, Z3 + 12.0), 20),
+        "CAM_A3_05_Muralha_Dentro": ((-60.0, 4.0, Z3 + E), (-62.0, -23.0, Z3 + 14.0), 20),
+        "CAM_A3_05_Passagem_Leste": ((150.0, -52.0, Z2 + E), (150.0, -10.0, Z3 + 8.0), 20),
+        "CAM_A3_05_Patio_Alto": ((0.0, -76.0, Z3 + 72.0), (0.0, 25.0, Z3), 20),
+        # 06 castelo por fora
+        "CAM_A3_06_Fachada_Patio": ((22.0, 8.0, Z3 + E), (0.0, 61.0, Z3 + 26.0), 18),
+        "CAM_A3_06_Porta": ((6.0, 40.0, Z3 + E), (0.0, 61.0, Z3 + 16.0), 18),
+        "CAM_A3_06_Porta_Folha": ((2.0, 57.0, Z3 + E), (-13.0, 68.0, Z3 + 8.0), 18),
+        "CAM_A3_06_Guardas": ((16.0, 44.0, Z3 + E), (-20.0, 58.0, Z3 + 8.0), 20),
+        "CAM_A3_06_Fachada_Base": ((40.0, 50.0, Z3 + E), (62.0, 62.0, Z3 + 9.0), 20),
+        "CAM_A3_06_Torre_Pe": ((92.0, 44.0, Z3 + E), (116.0, 72.0, Z3 + 30.0), 18),
+        "CAM_A3_06_Flanco_W": ((-132.0, 96.0, Z3 + E), (-104.0, 180.0, Z3 + 30.0), 18),
+        "CAM_A3_06_Flanco_E": ((140.0, 116.0, Z3 + E), (104.0, 200.0, Z3 + 30.0), 18),
+        "CAM_A3_06_Coroa_Norte": ((56.0, 368.0, Z3 + E), (0.0, 303.0, Z3 + 80.0), 18),
+        "CAM_A3_06_Castelo_Vila": ((20.0, -110.0, Z2 + E), (0.0, 150.0, Z3 + 120.0), 20),
+        "CAM_A3_06_Castelo_Alto": ((280.0, -120.0, Z3 + 130.0), (0.0, 170.0, Z3 + 80.0), 22),
+        # 07 salao
+        "CAM_A3_07_Nave_Porta": ((4.0, 70.0, Z3 + E), (0.0, 262.0, Z3 + 30.0), 18),
+        "CAM_A3_07_Nave_Meio": ((14.0, 160.0, Z3 + E), (-6.0, 262.0, Z3 + 26.0), 18),
+        "CAM_A3_07_Nave_Volta": ((0.0, 240.0, Z3 + E), (0.0, 66.0, Z3 + 30.0), 18),
+        "CAM_A3_07_Lateral_W": ((-79.0, 80.0, Z3 + E), (-79.0, 250.0, Z3 + 20.0), 18),
+        "CAM_A3_07_Lateral_E_Parede": ((74.0, 150.0, Z3 + E), (92.0, 160.0, Z3 + 16.0), 20),
+        "CAM_A3_07_Pilar_CU": ((52.0, 125.0, Z3 + E), (66.0, 145.0, Z3 + 12.0), 20),
+        "CAM_A3_07_Teto": ((0.0, 140.0, Z3 + E), (0.0, 186.0, Z3 + 84.0), 14),
+        "CAM_A3_07_Piso": ((-20.0, 110.0, Z3 + E), (-10.0, 128.0, Z3), 20),
+        "CAM_A3_07_Presbiterio": ((0.0, 238.0, Z3 + E), (0.0, 290.0, Z3 + 30.0), 18),
+        # 08 trono e caracol
+        "CAM_A3_08_Trono_Fechado": ((0.0, 272.0, CZ + E), (0.0, 294.0, CZ + 9.0), 20),
+        "CAM_A3_08_Trono_34": ((-12.0, 276.0, CZ + E), (2.0, 296.0, CZ + 8.0), 20),
+        "CAM_A3_08_Trono_Open": ((-9.0, 268.0, CZ + 8.0), (2.0, 304.0, CZ + 7.0), 18),
+        "CAM_A3_08_Arco_Open": ((-3.0, 287.0, CZ + E), (0.0, 312.0, CZ + 3.0), 16),
+        "CAM_A3_08_Bolso_Open": ((4.0, 282.0, CZ + E), (28.0, 294.0, CZ + 8.0), 18),
+        "CAM_A3_08_Caracol_Topo_Open": ((0.0, 304.0, CZ + E), (6.0, 322.0, CZ - 8.0), 14),
+        "CAM_A3_08_Caracol_Patamar": _spiral_cam(-90.0, -30.0, 3.0, 14),
+        "CAM_A3_08_Caracol_Meio": _spiral_cam(285.0, 335.0, 3.0, 14),
+        "CAM_A3_08_Caracol_Meio_Cima": _spiral_cam(300.0, 250.0, 12.0, 14),
+        "CAM_A3_08_Caracol_Fundo": _spiral_cam(585.0, 630.0, 1.0, 14),
+        "CAM_A3_08_Torre_Poco": ((22.0, 288.0, GZ + E), (0.0, 322.0, 40.0), 16),
+        # 09 salao sombrio
+        "CAM_A3_09_Galeria_Chegada": ((0.0, 298.0, GZ + E), (0.0, 150.0, -2.0), 16),
+        "CAM_A3_09_Galeria_Lateral": ((-56.0, 290.0, GZ + E), (50.0, 286.0, GZ + 2.0), 18),
+        "CAM_A3_09_Escadaria_Topo": ((4.0, 276.0, GZ + E), (0.0, 224.0, FZ), 18),
+        "CAM_A3_09_Escadaria_Pe": ((5.0, 212.0, FZ + E), (0.0, 262.0, GZ + 4.0), 18),
+        "CAM_A3_09_Passarela_W": ((-85.0, 268.0, GZ + E), (-85.0, 160.0, GZ + 2.0), 18),
+        "CAM_A3_09_Ponte_Suspensa": ((-74.0, 200.0, GZ + E), (40.0, 200.0, GZ + 2.0), 18),
+        "CAM_A3_09_Ponte_De_Baixo": ((30.0, 232.0, FZ + E), (0.0, 200.0, GZ), 18),
+        "CAM_A3_09_Rio": ((-40.0, 228.0, FZ + E), (-62.0, 208.0, FZ - 2.0), 20),
+        "CAM_A3_09_Forja": ((-46.0, 176.0, FZ + E), (-78.0, 150.0, FZ + 3.0), 16),
+        "CAM_A3_09_Forja_2": ((-56.0, 138.0, FZ + E), (-80.0, 180.0, FZ + 6.0), 16),
+        "CAM_A3_09_Mapa": ((47.0, 178.0, FZ + 8.0), (73.0, 160.0, FZ + 3.5), 17),
+        "CAM_A3_09_Mapa_2": ((56.0, 138.0, FZ + E), (72.0, 176.0, FZ + 4.0), 16),
+        "CAM_A3_09_Portal": ((6.0, 158.0, FZ + E), (0.0, 100.0, 7.5), 17),
+        "CAM_A3_09_Portal_CU": ((8.0, 126.0, FZ + E), (0.0, 100.0, FZ + 12.0), 18),
+        "CAM_A3_09_Volta": ((0.0, 124.0, FZ + E), (0.0, 300.0, 12.0), 16),
+        "CAM_A3_09_Abobada": ((0.0, 176.0, FZ + E), (0.0, 224.0, 41.0), 14),
+        "CAM_A3_09_Visao_Geral": ((50.0, 294.0, 24.0), (-12.0, 150.0, -6.0), 13),
+        "CAM_A3_09_Rocha_CU": ((-66.0, 246.0, FZ + E), (-90.0, 254.0, FZ + 6.0), 20),
+        # 10 masmorra
+        "CAM_A3_10_R1_Chegada": ((3.0, 16.0, DZ + E), (0.0, 90.0, DZ + 11.0), 18),
+        "CAM_A3_10_R1_Fundo": ((30.0, 80.0, DZ + E), (-14.0, 6.0, DZ + 9.0), 18),
+        "CAM_A3_10_R1_Saida": ((-26.0, 26.0, DZ + E), (-30.0, 6.0, DZ + 5.0), 20),
+        "CAM_A3_10_Vao_R1R2": ((2.0, 78.0, DZ + E), (0.0, 104.0, DZ + 10.0), 18),
+        "CAM_A3_10_R2_Entrada": ((4.0, 100.0, DZ + E), (0.0, 196.0, DZ + 11.0), 18),
+        "CAM_A3_10_R2_Diagonal": ((44.0, 188.0, DZ + E), (-32.0, 104.0, DZ + 11.0), 18),
+        "CAM_A3_10_R2_Portal": ((0.0, 160.0, DZ + E), (0.0, 196.0, DZ + 12.0), 18),
+        "CAM_A3_10_R2_Parede": ((-38.0, 140.0, DZ + E), (-52.0, 150.0, DZ + 10.0), 20),
+        "CAM_A3_10_R3_Entrada": ((4.0, 206.0, DZ + E), (0.0, 302.0, DZ + 11.0), 18),
+        "CAM_A3_10_R3_Diagonal": ((42.0, 294.0, DZ + E), (-52.0, 212.0, DZ + 9.0), 18),
+        "CAM_A3_10_R3_Portal": ((0.0, 266.0, DZ + E), (0.0, 303.0, DZ + 12.0), 18),
+        "CAM_A3_10_R3_Retabulo": ((36.0, 250.0, DZ + E), (52.0, 250.0, DZ + 6.0), 20),
+        "CAM_A3_10_R3_Teto": ((0.0, 250.0, DZ + E), (0.0, 262.0, DZ + 44.0), 14),
+        # 11 alquimia
+        "CAM_A3_11_Rua": ((40.0, -89.0, Z2 + E), (cx, cy, Z2 + 17.0), 20),
+        "CAM_A3_11_Porta": ((cx - 30.0, cy + 2.0, Z2 + E), (cx, cy, Z2 + 10.0), 20),
+        "CAM_A3_11_Leste": ((150.0, -44.0, Z2 + E), (cx, cy, Z2 + 20.0), 20),
+        "CAM_A3_11_DoP1": ((60.0, -168.0, Z1 + E), (cx, cy, Z2 + 22.0), 20),
+        "CAM_A3_11_Fundo": ((cx + 30.0, cy - 30.0, Z2 + E), (cx, cy, Z2 + 16.0), 20),
+        "CAM_A3_11_In_Caldeirao": ((cx - 11.8, cy - 2.8, Z2 + 6.2), (cx + 7.0, cy + 1.0, Z2 + 5.0), 16),
+        "CAM_A3_11_In_Prateleiras": ((cx - 8.5, cy - 6.5, Z2 + 6.0), (cx + 3.0, cy + 13.5, Z2 + 6.0), 16),
+        "CAM_A3_11_In_Porta": ((cx + 9.0, cy - 1.0, Z2 + 5.8), (cx - 14.0, cy, Z2 + 7.0), 16),
+        "CAM_A3_11_In_Cima": ((cx - 9.4, cy, Z2 + 3.2), (cx + 3.0, cy, Z2 + 18.0), 14),
+        # 12 invocacao
+        "CAM_A3_12_Ponte": ((-150.0, -224.0, Z1 + E), (tx, ty, ZS + 14.0), 20),
+        "CAM_A3_12_Ponte_Parapeito": ((-169.0, -218.0, Z1 + E), (-175.0, -228.5, Z1 + 1.5), 22),
+        "CAM_A3_12_Ponte_Lado": ((-172.0, -176.0, Z1 - 4.0), (-172.0, -222.0, Z1 - 6.0), 20),
+        "CAM_A3_12_Plataforma": ((-194.0, -210.0, ZS + E), (tx, ty, ZS + 10.0), 18),
+        "CAM_A3_12_Borda": ((-198.0, -236.0, ZS + E), (-226.0, -240.0, ZS + 1.0), 20),
+        "CAM_A3_12_Torre_Cima": ((-198.0, -226.0, ZS + E), (tx, ty, ZS + 34.0), 16),
+        "CAM_A3_12_Media": ((-120.0, -176.0, ZS + 40.0), (-208.0, -222.0, ZS + 10.0), 20),
+        # 13 saida noroeste, portao DS, jardim-mirante
+        "CAM_A3_13_Beco_W1": ((-88.0, 30.0, Z3 + E), (-150.0, 46.0, Z3 + 6.0), 20),
+        "CAM_A3_13_Beco_W2": ((-148.0, 96.0, Z3 + E), (-136.0, 200.0, Z3 + 8.0), 20),
+        "CAM_A3_13_Beco_W3": ((-136.0, 240.0, Z3 + E), (-118.0, 334.0, Z3 + 6.0), 20),
+        "CAM_A3_13_Terraco_Norte": ((10.0, 358.0, Z3 + E), (-116.0, 342.0, Z3 + 6.0), 20),
+        "CAM_A3_13_Saida_Cabeceira": _exit_cam(-16.0, 2.0, Z3 + E, 70.0, 0.0, Z3 + 10.0, 20),
+        "CAM_A3_13_Saida_Ponte": _exit_cam(28.0, -3.0, Z3 + E, 76.0, 0.0, Z3 + 12.0, 20),
+        "CAM_A3_13_PortaoDS": _exit_cam(54.0, 5.0, Z3 + E, 76.0, 0.0, Z3 + 14.0, 20),
+        "CAM_A3_13_Saida_Volta": _exit_cam(70.0, 2.0, Z3 + E, -40.0, 0.0, Z3 + 30.0, 20),
+        "CAM_A3_13_Saida_Lado": _exit_cam(40.0, -80.0, Z3 + 14.0, 40.0, 0.0, Z3 - 6.0, 22),
+        "CAM_A3_13_Mirante_Caminho": ((150.0, 0.0, Z3 + E), (140.0, 120.0, Z3 + 5.0), 20),
+        "CAM_A3_13_Mirante": ((133.0, 142.0, Z3 + E), (136.0, 176.0, Z3 + 3.5), 20),
+        "CAM_A3_13_Mirante_Vista": ((120.0, 166.0, Z3 + E), (190.0, 176.0, Z3), 20),
+        # 14 silhueta (4 lados, 3/4 alto, quilha e a vista da Ilha 2)
+        "CAM_A3_14_Sul": ((0.0, -920.0, 240.0), (0.0, 0.0, 80.0), 24),
+        "CAM_A3_14_Norte": ((0.0, 1020.0, 300.0), (0.0, 40.0, 100.0), 24),
+        "CAM_A3_14_Leste": ((820.0, 20.0, 220.0), (0.0, 20.0, 80.0), 24),
+        "CAM_A3_14_Oeste": ((-820.0, 20.0, 220.0), (0.0, 20.0, 80.0), 24),
+        "CAM_A3_14_Alto_34": ((560.0, -540.0, 520.0), (0.0, 0.0, 40.0), 24),
+        "CAM_A3_14_Quilha": ((320.0, -320.0, -130.0), (0.0, 40.0, -30.0), 24),
+    }
+    c.update(_house_cams())
+    # vista da Ilha 2: atras da ancora (WORLD_FROM_PREV), no rumo inverso da ponte, olhando a ilha inteira
+    (x0, y0), (x1, y1) = L.BRIDGE_PATH[0], L.BRIDGE_PATH[1]
+    ln = math.hypot(x1 - x0, y1 - y0) or 1.0
+    ux, uy = (x1 - x0) / ln, (y1 - y0) / ln
+    c["CAM_A3_14_Ilha2"] = ((x0 - ux * 140.0, y0 - uy * 140.0, D + 60.0), (0.0, -20.0, 90.0), 24)
+    c["CAM_A3_14_Ilha2_Perto"] = ((x0 - ux * 20.0, y0 - uy * 20.0, D + E), (0.0, -60.0, 110.0), 22)
+    return c
+
+
+def cameras_a3():
+    """cria as cameras CAM_A3_* (auditoria 3) na cena atual"""
+    for n, v in a3_cams().items():
+        loc, tgt, lens = v
+        camera(n, loc, tgt, lens)
