@@ -1512,7 +1512,7 @@ def floor_glyph(mb, c, ang, k, sc=1.55, m=VSOFT):
 
     def P(u, w):
         return (c[0] + (tx * u + ex * w) * sc, c[1] + (ty * u + ey * w) * sc)
-    z0, z1 = Z + 0.0, Z + 0.07
+    z0, z1 = Z + 0.0, Z + 0.12              # ONDA 3: 0,07 acima do piso nobre (+0,05)
     wd = 0.14
     for (a0, b0), (a1, b1) in RUNE_SEGS[k % len(RUNE_SEGS)]:
         flat_stroke(mb, [P(a0, b0), P(a1, b1)], wd, z0, z1, m)
@@ -1522,8 +1522,10 @@ def magic_circle(mb):
     """CIRCULO MAGICO no piso em volta do estrado (07.07): anel fino de energia (Neon ESCURO) rente, anel de bronze
     embutido como moldura e 10 GLIFOS do alfabeto unico (sg_court.RUNE_SEGS) EMBUTIDOS, em sequencia fixa; as 2 lanternas
     da porta (POST_A) sao as ancoras do circulo (sem glifo embaixo delas)"""
-    ring_band(mb, 8.82, 9.0, 0.03, 0.07, VSOFT, 0.0, 360.0, 10.0)
-    ring_band(mb, 7.1, 7.25, 0.03, 0.075, IRON, 0.0, 360.0, 10.0)
+    # ONDA 3 (z-fight): aneis e glifos sobem 0,07 acima do piso nobre (topo do piso em +0,05; antes 0,02 = tremia)
+    # os 2 aneis ABREM onde passa a passadeira (oeste, |y| <= 2,2): as pontas ficam fora dela, nada sob o pano
+    ring_band(mb, 8.82, 9.0, 0.03, 0.12, VSOFT, 195.0, 525.0, 10.0)
+    ring_band(mb, 7.1, 7.25, 0.03, 0.12, IRON, 199.0, 521.0, 10.0)
     i = 0
     for k in range(12):
         a = 15.0 + 30.0 * k
@@ -1907,16 +1909,19 @@ def book(row, x0, v0, w, d, h, m, yoff=0.0, tilt=0.0, px=0.0, ridges=2, gold=Fal
         xx = px + (xm - px) * c - zm * s
         zz = (xm - px) * s + zm * c
         row.box((x0 + xx, yoff + ym, v0 + zz), (xb - xa, yb - ya, zb - za), tilt, mm)
-    t = 0.032 if w >= 0.18 else 0.026
+    # ONDA 3 (z-fight): capa de 0,052 (a face de fora da capa e a lateral do miolo ficavam a 0,026-0,032, paralelas, e
+    # o miolo claro tremia atras da capa; com o vao de 0,012 entre livros o par vizinho tambem ficava < 0,05), miolo
+    # comecando 0,055 atras da frente da lombada e nervuras so na frente dela (y < 0: sem face lateral sobre a lombada)
+    t = 0.052
     sp = 0.05
     B(0.0, w, 0.0, sp, 0.0, h, m)                                 # lombada
     B(0.0, t, sp, d, 0.0, h, m)                                   # capas
     B(w - t, w, sp, d, 0.0, h, m)
-    B(t, w - t, sp - 0.01, d - 0.04, 0.035, h - 0.035, PAGES)     # miolo (recuado 0,035 em cima/baixo/frente)
+    B(t, w - t, 0.055, d - 0.04, 0.055, h - 0.055, PAGES)         # miolo (recuado 0,055 em cima/baixo, 0,04 na frente)
     rm = GOLD if gold else m
     for k in range(ridges):
         zr = h * (0.18 + 0.64 * k / (ridges - 1)) if ridges > 1 else h * 0.82
-        B(0.0, w, -0.024, 0.01, zr - 0.035, zr + 0.035, rm)
+        B(0.0, w, -0.024, 0.0, zr - 0.035, zr + 0.035, rm)
 
 
 def _ridges(t, gold=False):
@@ -2300,7 +2305,7 @@ def study_tables(mb, rng):
         F = fr(a)
         rc = 10.6
         # tapete navy + debrum dourado (rente: 0,05..0,12)
-        fbox(mb, F, -2.4, 2.4, rc - 1.9, rc + 1.9, 0.05, 0.1, "Cloth_SG_Navy")
+        fbox(mb, F, -2.08, 2.08, rc - 1.62, rc + 1.62, 0.05, 0.1, "Cloth_SG_Navy")   # ONDA 3: so o miolo do debrum
         for u0, u1, w0, w1 in ((-2.4, -2.08, rc - 1.9, rc + 1.9), (2.08, 2.4, rc - 1.9, rc + 1.9),
                                (-2.08, 2.08, rc - 1.9, rc - 1.62), (-2.08, 2.08, rc + 1.62, rc + 1.9)):
             fbox(mb, F, u0, u1, w0, w1, 0.05, 0.12, GOLD)
@@ -2488,7 +2493,9 @@ def chest(mb):
 def rug(mb):
     """passadeira da porta ao estrado (a linha que leva o jogador a estacao): navy com debrum DOURADO rente"""
     x0, x1 = CX - 13.3, CX - 6.45
-    mb.box2((x0, CY - 2.2, Z + 0.05), (x1, CY + 2.2, Z + 0.1), "Cloth_SG_Navy", 0.0)
+    # ONDA 3 (z-fight): o pano so preenche o MIOLO do debrum (antes passava por baixo dele: topos a 0,02 e lados
+    # coplanares, e o alivio automatico afundava o debrum ate o piso)
+    mb.box2((x0 + 0.42, CY - 1.78, Z + 0.05), (x1 - 0.42, CY + 1.78, Z + 0.1), "Cloth_SG_Navy", 0.0)
     for s in (-1, 1):
         mb.box2((x0, CY + s * 2.2, Z + 0.05), (x1, CY + s * 1.78, Z + 0.12), GOLD, 0.0)
     for xx in (x0, x1 - 0.42):

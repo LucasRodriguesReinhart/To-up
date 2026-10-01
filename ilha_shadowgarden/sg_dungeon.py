@@ -1388,7 +1388,9 @@ def room_walls():
     walls_ns.append((r3[3], r3[3] + WT, r3[0] - WT, r3[2] + WT))                         # muro norte (nicho)
     for ya, yb, xa, xb in walls_ns:
         pieces += [((xa, ya), (LX - LINK_HW, yb)), ((LX + LINK_HW, ya), (xb, yb))]
-        mb.box2((LX - LINK_HW, ya, Z + LINK_H), (LX + LINK_HW, yb, zt), CS, 0.0)
+        # ONDA 3 (z-fight): o intradorso da casca sobe 0,08 (a verga de aduelas do kit entra 0,1 no muro com o fundo a
+        # 0,02-0,03 dele); a colisao continua na cota do vao
+        mb.box2((LX - LINK_HW, ya, Z + LINK_H + 0.08), (LX + LINK_HW, yb, zt), CS, 0.0)
         ccol("SG_DunRoom", (LX - LINK_HW, ya, Z + LINK_H), (LX + LINK_HW, yb, zt))
     for (xa, ya), (xb, yb) in pieces:
         mb.box2((xa, ya, zb), (xb, yb, zt), CS, 0.0)

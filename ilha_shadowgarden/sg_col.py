@@ -208,8 +208,10 @@ def strips(area, poly, z0, z1, step, mode="inter", holes=()):
     ys = [p[1] for p in poly]
     y = min(ys)
     n = 0
+    # ONDA 3: a faixa para nas bordas y dos furos (senao o furo come a faixa inteira de 6 e abre buraco fora dele)
+    edges = sorted({e for h in holes for e in (h[1], h[3])})
     while y < max(ys) - 1e-6:
-        yb = min(y + step, max(ys))
+        yb = min([y + step, max(ys)] + [e for e in edges if e > y + 0.05])
         ya = y
         samples = [ya + 0.05, (ya + yb) / 2, yb - 0.05]
         ivs = None
@@ -258,7 +260,13 @@ def floors():
             ys = [p[1] for p in poly]
             col_box2(A, (min(xs), min(ys), z - FLOOR_T), (max(xs), max(ys), z))
             continue
-        holes = (shaft_hole(),) if nm == "P3" else ()
+        # ONDA 3: o P3 vaza o poco da caracol e os 2 GRAMADOS REBAIXADOS do patio (sg_terrain.COURT_LAWNS = contorno
+        # externo do murete; o sg_court poe o fundo, os degraus e o murete colidiveis). Sem isso o jogador andava 1,2
+        # acima do gramado.
+        holes = ()
+        if nm == "P3":
+            import sg_terrain
+            holes = (shaft_hole(),) + tuple(tuple(r) for r in sg_terrain.COURT_LAWNS)
         strips(A, ccw(poly), z - FLOOR_T, z, 6.0, mode="inter", holes=holes)
         edge_fill(A, poly, z - FLOOR_T, z, w=4.6)
 

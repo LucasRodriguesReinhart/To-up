@@ -1056,7 +1056,8 @@ def kit_house(mb, hrec, spec):
                0.0)
         tri_slab(mb, [fd.P(-wd / 2, 0.0, zt), fd.P(wd / 2, 0.0, zt), fd.P(0.0, 0.0, zt + rr)], fd.nvec(), 0.4, WOOD)
         for k in (-1, 1):
-            mb.beam(fd.P(k * (hw + 0.05), 0.72, zt + 0.02), fd.P(0.0, 0.72, zt + rr + 0.34), 0.2, 0.42, WOOD, 0.0)
+            # ONDA 3 (z-fight): guarda-po 0,08 mais para fora (a frente dele ficava a 0,04 da ponta da agua da agua-furtada)
+            mb.beam(fd.P(k * (hw + 0.05), 0.80, zt + 0.02), fd.P(0.0, 0.80, zt + rr + 0.34), 0.2, 0.42, WOOD, 0.0)
             xk = xd + k * (wd / 2 + 0.16)
             mb.beam(G.p(xk, yf, roof_z(ze, R, hd, cy, yf) - 0.06), G.p(xk, yb, roof_z(ze, R, hd, cy, yb) - 0.06),
                     0.34, 0.14, ROOF, 0.0)

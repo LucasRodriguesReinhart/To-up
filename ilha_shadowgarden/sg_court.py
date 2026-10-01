@@ -984,7 +984,10 @@ def mirante(mb, mg):
     mb.cyl(R1, 0.5, (cx, cy, P3 - 0.55), (0, 0, 0), "Stone_SG_Floor", n=40, bevel=0.0)
     mb.cyl(3.4, 0.4, (cx, cy, P3 - 0.25), (0, 0, 0), OBS, n=16, bevel=0.0)
     EM._lathe(mb, (cx, cy, P3 - 0.1), [(1.3, 0.0), (1.3, 0.17), (0.0, 0.21)], VIO, 16)
-    for (ra, rb, n, mats) in ((3.48, 8.6, 10, (CAP, RELM)), (8.68, 13.2, 16, (RELM, CAP)), (13.28, R1, 22, (CAP, RELM))):
+    # ONDA 3 (z-fight): o anel de fora para 0,1 antes do rebaixo (o recorte do terreno e um 32-gono de raio R1: os
+    # vertices das lajes em R1 saiam pela corda e o topo ficava coplanar com a grama em P3)
+    for (ra, rb, n, mats) in ((3.48, 8.6, 10, (CAP, RELM)), (8.68, 13.2, 16, (RELM, CAP)),
+                              (13.28, R1 - 0.1, 22, (CAP, RELM))):
         for k in range(n):
             a0 = (k + 0.012 * 16 / n) * math.tau / n
             a1 = (k + 1 - 0.012 * 16 / n) * math.tau / n

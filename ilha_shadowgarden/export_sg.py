@@ -105,10 +105,15 @@ ER.OWNERS = [("SG_Ter_", "terrain"), ("SG_Sky_", "terrain"), ("SG_Ent_", "entry"
 # Superficie (render junto) <= 700k / 720; SUBSOLO (cave + dungeon) <= 160k / 130, escondido no cliente fora do subsolo.
 # 'cave' e o dono novo (SG_Cave_: salao sombrio + poco da escada caracol); o trono movel (SG_Hall_ThroneMov) conta
 # como peca movel (vfx).
-ER.BUDGET_OWNER = {"terrain": (78000, 124), "entry": (44000, 42), "village": (108000, 117), "castle": (184000, 135),
-                   "hall": (86000, 63), "cave": (76000, 65), "summon": (32000, 48), "craft": (91000, 68),
+ER.BUDGET_OWNER = {"terrain": (78000, 124), "entry": (44000, 42), "village": (118000, 117), "castle": (184000, 135),
+                   "hall": (90000, 86), "cave": (76000, 65), "summon": (31500, 38), "craft": (86500, 68),
                    "dungeon": (84000, 70), "water": (4000, 12), "exit": (29000, 38), "gate_ds": (30000, 40),
-                   "vfx": (18000, 50), "vegetation": (64000, 68), "props": (25000, 50)}
+                   "vfx": (18000, 50), "vegetation": (63000, 68), "props": (30000, 50)}
+# ONDA 3 (integracao, 2026-10-01): tetos dos donos que mudaram = medido no export da ilha inteira + ~8% de folga:
+# hall 83,6k / 79 MeshParts (arcada de 16 pilares, naves laterais, galerias; o salao 2x fatia em mais celulas de 128),
+# village 109,0k / 105 (7 casas com interior), props 27,4k / 39 (chao do patio inteiro + terraco do mirante, onda 2),
+# vegetation 58,2k / 61, summon 28,9k / 34, craft 80,0k / 62. O teto que manda continua o da ilha (ER.BUDGET:
+# 860k tris / 870 MeshParts estaticos; medido 847k / 809).
 # JARDINAGEM (2026-09-30, pedido do usuario, orcamento autorizado pela coordenacao: grama + flores ate ~80k e ilha ate
 # 750k): o campo de tufos "bonemeal", as flores em manchas, os jardins das casas e o jardim de lua do patio
 # (SG_Veg_Gdn_*, sg_garden) entram no dono 'vegetation': medido 96,6k tris / 74 MeshParts no estudio -> teto com ~10%.
@@ -152,7 +157,11 @@ def atomic(name):
     """Model Atomic por construcao/marco (streaming sem pecas pela metade)"""
     if name.startswith("SG_Hall_ThroneMov"):
         return "SG_Hall_ThroneMov"          # o TronoService move este Model inteiro (PivotTo / tween)
-    for pre in ("SG_Cas_", "SG_Hall_", "SG_Cave_", "SG_Sum_", "SG_Craft_", "SG_Dun_", "SG_Ent_", "GATE_DemonSlayer",
+    # ONDA 3: Salao Sombrio + salas da masmorra num Model so, 'SUBSOLO' (filho direto de ILHA_SHADOWGARDEN): o
+    # CeuSombras esconde ele de longe (HRP.Y > 46 e > 40 do poco) e o JardimSombrasIsland o inclui na caixa da area
+    if name.startswith(("SG_Cave_", "SG_Dun_")):
+        return "SUBSOLO"
+    for pre in ("SG_Cas_", "SG_Hall_", "SG_Sum_", "SG_Craft_", "SG_Ent_", "GATE_DemonSlayer",
                 "SG_Exit_AnchorGuard"):
         if name.startswith(pre):
             return pre.rstrip("_")

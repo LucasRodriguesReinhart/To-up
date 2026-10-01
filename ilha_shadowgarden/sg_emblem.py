@@ -314,7 +314,9 @@ def emblem(mb_metal, mb_glow, mb_dark, c, yaw, r, depth=0.6, monumental=False, g
     ch = min(0.032 * r, 0.12 * D, 0.22 * w)       # o MESMO chanfro no anel e no crescente
     seg = 24 if r < 1.2 else None                  # overhaul 12: emblema pequeno (estandarte/placa) com anel de 24
     lay = {"ch": ch, "chc": min(ch, 0.06 * D), "k": min(1.0, max(0.3, 0.12 * D / (FACET_HW * r * kb))),
-           "field": (-0.04 * D, 0.12 * D), "moon": (0.04 * D, 0.30 * D), "ring": (-0.05 * D, 0.50 * D),
+           # ONDA 3 (z-fight): o fundo do campo negro ia a -0,04 D, a 0,01 D do fundo do anel de prata (os 2 de costas,
+           # sobrepostos na faixa do anel): agora fica 0,05 atras do fundo do anel (embutido no suporte quando ha um)
+           "field": (-0.05 * D - 0.05, 0.12 * D), "moon": (0.04 * D, 0.30 * D), "ring": (-0.05 * D, 0.50 * D),
            "rays": (-0.045 * D, 0.22 * D)}
     _emblem_geo(mb_metal, mb_glow, mb_dark, P, r, lay, monumental, glow, seg=seg)
 
@@ -507,9 +509,12 @@ def banner(mb_cloth, mb_metal, mb_glow, mb_dark, top, yaw, w, h, tails=True, tri
     # debrum continuo (laterais + V) com espessura, seguindo as dobras
     tm = trim or SILVER
     tw = min(0.2, max(0.12, 0.05 * w))
-    left = [(-halfw(z), z) for z, _ in rows]
+    # ONDA 3 (z-fight): o debrum passa 0,06 PARA FORA da lateral do pano (a face de fora dele era coplanar com a
+    # lateral do pano: pano x debrum tremia nos estandartes da muralha, dos porticos, da invocacao e do altar)
+    eo = 0.06
+    left = [(-halfw(z) - eo, z) for z, _ in rows]
     if tails:
-        path = left[:-1] + [(0.0, zt)] + [(-a, z) for a, z in reversed(left[:-1])]
+        path = left[:-1] + [(0.0, zt - eo)] + [(-a, z) for a, z in reversed(left[:-1])]
     else:
         path = left + [(-a, z) for a, z in reversed(left)]
     _band_s(mb_metal, P, path, tw, D, th / 2 + 0.04, tm)
