@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AMS — Equipamentos</title>
+<meta name="description" content="Protótipo navegável da loja de equipamentos do Anime Mining Simulator (picaretas e mochilas).">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body data-cat="mochilas">
+
+<!-- ÍCONES DE INTERFACE (sprite) -->
+<svg class="sprite" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
+  <symbol id="i-coin" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="10.5" fill="#f7c948" stroke="#8a5a0b" stroke-width="1.6"/>
+    <circle cx="12" cy="12" r="7.2" fill="none" stroke="#c98a16" stroke-width="1.4"/>
+    <path d="M12 7.2l1.3 3 3.2.3-2.4 2.1.7 3.2L12 14.1 9.2 15.8l.7-3.2-2.4-2.1 3.2-.3z" fill="#fff4c2"/>
+    <path d="M6.2 7.5a7 7 0 0 1 4.3-2.8" fill="none" stroke="#fff6cf" stroke-width="1.5" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="i-check" viewBox="0 0 24 24">
+    <path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24">
+    <rect x="5" y="10.5" width="14" height="10" rx="2.6" fill="currentColor"/>
+    <path d="M8 10.5V8a4 4 0 0 1 8 0v2.5" fill="none" stroke="currentColor" stroke-width="2.6"/>
+    <circle cx="12" cy="15.5" r="1.6" fill="#0d1218"/>
+  </symbol>
+  <symbol id="i-close" viewBox="0 0 24 24">
+    <path d="M7 7l10 10M17 7L7 17" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"/>
+  </symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24">
+    <path d="M5 12h13M13 6.5l5.5 5.5-5.5 5.5" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+  </symbol>
+  <symbol id="i-pick" viewBox="0 0 24 24">
+    <path d="M4 20l9.5-9.5" stroke="currentColor" stroke-width="3" stroke-linecap="round"/>
+    <path d="M8 6c3.5-2.5 8.5-2.5 12 2-2.5-1-5-.8-7 .8L11 11C9.5 9 8.5 7.5 8 6z" fill="currentColor"/>
+  </symbol>
+  <symbol id="i-bag" viewBox="0 0 24 24">
+    <rect x="5" y="7" width="14" height="14" rx="4" fill="currentColor"/>
+    <path d="M9 7V5.5a3 3 0 0 1 6 0V7" fill="none" stroke="currentColor" stroke-width="2.4"/>
+    <rect x="8.5" y="14" width="7" height="4.5" rx="1.6" fill="#0d1218" opacity=".55"/>
+  </symbol>
+  <symbol id="i-bolt" viewBox="0 0 24 24">
+    <path d="M13 2L5 13.5h6L10 22l9-11.5h-6z" fill="currentColor"/>
+  </symbol>
+  <symbol id="i-box" viewBox="0 0 24 24">
+    <path d="M12 2.5l9 4.5v10l-9 4.5-9-4.5V7z" fill="currentColor"/>
+    <path d="M12 12l9-4.5M12 12L3 7.5M12 12v9.5" fill="none" stroke="#0d1218" stroke-width="1.6" opacity=".6"/>
+  </symbol>
+</svg>
+
+<!-- NÍVEL 0 — mundo do jogo (desfocado) + scrim -->
+<div class="world" aria-hidden="true">
+  <div class="world__sky"></div>
+  <div class="world__blob world__blob--a"></div>
+  <div class="world__blob world__blob--b"></div>
+  <div class="world__blob world__blob--c"></div>
+  <div class="world__ground"></div>
+  <div class="world__ore world__ore--1"></div>
+  <div class="world__ore world__ore--2"></div>
+  <div class="world__ore world__ore--3"></div>
+  <div class="world__ore world__ore--4"></div>
+</div>
+<div class="scrim" aria-hidden="true"></div>
+
+<!-- HUD mínimo do jogo (contexto para o overlay) -->
+<div class="hud" aria-hidden="true">
+  <div class="hud__coins"><svg><use href="#i-coin"/></svg><span id="hud-coins">1,85M</span></div>
+  <div class="hud__nav">
+    <span class="hud__btn">Loja</span>
+    <span class="hud__btn is-active">Itens</span>
+    <span class="hud__btn">Missões</span>
+  </div>
+</div>
+<button class="hud-reopen" id="reopen" type="button" hidden>
+  <svg><use href="#i-bag"/></svg> Abrir equipamentos
+</button>
+
+<!-- NÍVEL 1 — janela principal -->
+<main class="shop" id="shop" role="dialog" aria-modal="true" aria-labelledby="shop-title">
+  <header class="shop__header">
+    <div class="shop__title">
+      <span class="title-mark" aria-hidden="true"></span>
+      <h1 id="shop-title">Equipamentos</h1>
+    </div>
+
+    <nav class="tabs" role="tablist" aria-label="Categorias">
+      <button class="tab" role="tab" type="button" data-cat="picaretas" id="tab-picaretas">
+        <svg class="tab__icon"><use href="#i-pick"/></svg>
+        <span class="tab__label">Picaretas</span>
+        <em class="tab__count" data-count="picaretas">4/12</em>
+      </button>
+      <button class="tab" role="tab" type="button" data-cat="mochilas" id="tab-mochilas">
+        <svg class="tab__icon"><use href="#i-bag"/></svg>
+        <span class="tab__label">Mochilas</span>
+        <em class="tab__count" data-count="mochilas">4/12</em>
+      </button>
+    </nav>
+
+    <div class="shop__tools">
+      <div class="wallet" id="wallet" title="Suas moedas">
+        <svg class="wallet__icon"><use href="#i-coin"/></svg>
+        <strong class="wallet__value" id="wallet-value">1,85M</strong>
+      </div>
+      <button class="close" id="close" type="button" aria-label="Fechar">
+        <svg><use href="#i-close"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <section class="shop__body">
+    <!-- COLEÇÃO -->
+    <div class="collection">
+      <div class="collection__head">
+        <h2 class="collection__title" id="collection-title">Mochilas</h2>
+        <span class="collection__owned"><b id="owned-count">4</b><small>/12 adquiridas</small></span>
+        <ol class="ladder" id="ladder" aria-label="Progressão da categoria"></ol>
+        <span class="collection__hint">Ordem de nível</span>
+      </div>
+      <div class="grid" id="grid" role="listbox" aria-label="Equipamentos da categoria"></div>
+    </div>
+
+    <!-- SHOWCASE -->
+    <aside class="showcase" id="showcase" aria-live="polite"></aside>
+  </section>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+</main>
+
+<script src="art.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
