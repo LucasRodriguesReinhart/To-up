@@ -5,6 +5,8 @@ from PIL import Image, ImageDraw, ImageFont
 
 W = 960                                  # largura de cada quadro na folha
 FONT = "C:/Windows/Fonts/arialbd.ttf"
+if not os.path.exists(FONT):   # Linux (container da sessao em nuvem)
+    FONT = "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf"
 
 
 def label(im, text, size=26):
