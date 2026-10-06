@@ -1,8 +1,10 @@
 -- CeuSombras (LocalScript, StarterPlayerScripts) - ceu noturno da Ilha 3 (Shadow Garden).
 -- O AreaAtmosphere e o dono do Lighting (ClockTime/Ambient/Atmosphere/ColorCorrection) e NAO toca em Sky nem Bloom
 -- (auditoria C). Este script cuida dos efeitos locais, reagindo ao atributo ShadowGardenMood que o AreaAtmosphere publica:
---   * Sky: lua GRANDE + muitas estrelas enquanto o jogador esta na area sombra (a referencia tem uma lua enorme);
---   * Bloom proprio (fraco) para os neons violeta/lanternas brilharem de noite.
+--   * Sky: lua GRANDE + muitas estrelas enquanto o jogador esta na area sombra (a referencia tem uma lua enorme) e o
+--     skybox padrao do Roblox no lugar do ceu anime de dia (as nuvens diurnas viravam manchas verdes no ceu noturno):
+--     zenite preto, e o Atmosphere do AreaAtmosphere pinta a faixa azul eletrico do horizonte (efeitos 2026-10-06);
+--   * Bloom proprio para o que e claro (neon, lanternas, efeitos) brilhar de noite.
 --   * fundos das outras ilhas: esconde o chao distante do lobby e escurece o mar da Ilha 1 (so neste cliente).
 --   * mar proprio, reverb da caverna e corte visual do subsolo e dos interiores das casas.
 --   * luz do subsolo: ambiente (offset sobre o do AreaAtmosphere) + contraste no Salao Sombrio e na masmorra, camadas
@@ -13,9 +15,12 @@ local Lighting = game:GetService('Lighting')
 local TweenService = game:GetService('TweenService')
 local player = Players.LocalPlayer
 
-local MOON_SIZE = 24          -- MoonAngularSize na area (padrao do Roblox: 11)
-local STARS = 3000
-local BLOOM = { Intensity = 0.35, Size = 42, Threshold = 1.55 }
+local MOON_SIZE = 32          -- MoonAngularSize na area (padrao do Roblox: 11); ClockTime 3,5 a poe a 37 graus em -X,
+                              -- sobre o castelo para quem atravessa a ponte de entrada
+local STARS = 3500
+local BLOOM = { Intensity = 0.55, Size = 36, Threshold = 1.15 }
+local SKYBOX_NOITE = 'rbxasset://textures/sky/sky512_'   -- + bk/dn/ft/lf/rt/up .tex (ceu padrao, preto a noite)
+local FACES = { 'Bk', 'Dn', 'Ft', 'Lf', 'Rt', 'Up' }
 
 local bloom = Instance.new('BloomEffect')
 bloom.Name = 'CeuSombrasBloom'
@@ -492,9 +497,13 @@ local function aplicar(ligado)
 	local sky = Lighting:FindFirstChildOfClass('Sky')
 	if ligado then
 		if sky and not salvo then
-			salvo = { sky = sky, moon = sky.MoonAngularSize, stars = sky.StarCount }
+			salvo = { sky = sky, moon = sky.MoonAngularSize, stars = sky.StarCount, faces = {} }
 			sky.MoonAngularSize = MOON_SIZE
 			sky.StarCount = STARS
+			for _, f in ipairs(FACES) do
+				salvo.faces[f] = sky['Skybox' .. f]
+				sky['Skybox' .. f] = SKYBOX_NOITE .. string.lower(f) .. '.tex'
+			end
 		end
 		bloom.Enabled = true
 		TweenService:Create(bloom, TweenInfo.new(1.6, Enum.EasingStyle.Sine), { Intensity = BLOOM.Intensity }):Play()
@@ -503,6 +512,7 @@ local function aplicar(ligado)
 			if salvo.sky.Parent then
 				salvo.sky.MoonAngularSize = salvo.moon
 				salvo.sky.StarCount = salvo.stars
+				for f, id in pairs(salvo.faces) do salvo.sky['Skybox' .. f] = id end
 			end
 			salvo = nil
 		end

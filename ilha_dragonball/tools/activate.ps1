@@ -10,7 +10,10 @@ public class W8 {
   public static readonly IntPtr NOTOP = new IntPtr(-2);
 }
 "@
-$proc = Get-Process RobloxStudioBeta -ErrorAction SilentlyContinue | Where-Object { $_.MainWindowTitle -ne '' } | Select-Object -First 1
+# com mais de um Studio aberto, prefere o place do jogo (titulo "Anime Mining Simulator")
+$all = @(Get-Process RobloxStudioBeta -ErrorAction SilentlyContinue | Where-Object { $_.MainWindowTitle -ne '' })
+$proc = $all | Where-Object { $_.MainWindowTitle -like 'Anime Mining Simulator*' } | Select-Object -First 1
+if (-not $proc) { $proc = $all | Select-Object -First 1 }
 if (-not $proc) { "ERRO: Studio nao encontrado"; exit 1 }
 $h = $proc.MainWindowHandle
 [W8]::ShowWindow($h, 3) | Out-Null            # SW_MAXIMIZE (nunca 9)

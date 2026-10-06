@@ -157,3 +157,53 @@ montado. A fonte anterior ficou em `ServerStorage.IlhaShadowGarden_4ec5f0f0` (ro
 - **Correção de teste:** `debugAbrirEm` pula a abertura já encerrada no servidor.
 - **Fotos no jogo:** `renders/ingame_final/`.
 - **Pendente:** salvar o place. Os NPCs da vila e o pianista na entrada do castelo vêm depois desta avaliação.
+
+## Efeitos visuais, luz da noite e export pós-finesse (2026-10-06)
+**No Studio** (place Anime Mining Simulator, NÃO salvo pelo agente; backup das fontes em
+`ServerStorage.BeforeEfeitosSG_20261006`):
+- **Luz** (`AreaAtmosphere` perfil `[3]` + `CeuSombras`): ClockTime 3,5 põe a lua a 37° em -X, sobre o castelo
+  para quem cruza a ponte. Lua 32 e 3500 estrelas. O skybox anime de dia é trocado pelo `sky512_*` padrão
+  só na área. Atmosphere: Color (28,82,240), Decay (8,10,32), Density 0,22, Haze 1,05, Glare 0,15 e Offset 0,4.
+  O resultado é zênite preto descendo para a faixa azul elétrico do horizonte. Ambient (112,118,162),
+  OutdoorAmbient (122,132,186) e luar ColorShift_Top (178,198,255). Contraste e saturação +0,1. Bloom 0,55/36/1,15.
+  O `AreaAtmosphere` passou a aceitar `cst/csb/glare/offset` por perfil; as outras áreas seguem como antes.
+- **`StarterPlayerScripts.EfeitosShadowGarden`** (novo, só cliente, culling por distância):
+  - Invocação:
+    - círculo de runas girando no piso;
+    - motas subindo;
+    - 2 fitas em espiral até a esfera;
+    - halo e cintilas no núcleo;
+    - névoa escorrendo da porta.
+  - Ao invocar: carga → flash + onda + coluna na cor da raridade. Os outros jogadores veem na hora; quem
+    invocou vê quando a tela da estrela fecha. O `PadGacha` neon vazava luz por uma fresta do piso e fica
+    invisível neste cliente.
+  - Portal do Salão Sombrio:
+    - núcleo escuro;
+    - vórtice em 2 velocidades;
+    - borda clara;
+    - sucção;
+    - névoa rasteira;
+    - a `L_SGCave_Portal` pulsa (sem luz nova: teto de 6 na caverna).
+    - O neon da malha do vórtice é escurecido no cliente. A força sobe com `MasmorraEstado.Estado = ENTRY_OPEN`.
+  - Portais das salas (`MasmorraProxima_*`): selado tem véu escuro com runas; aberto tem vórtice + sucção, e a
+    placa é escurecida no cliente (o lilás neon estourava em branco).
+- **`Core.Main`**: `RolarGacha` dispara `Remotes.InvocacaoFX(areaId, userId, melhorRaridade)` (só visual, em pcall).
+- **`JardimSombrasIsland`**: saíram as faíscas fracas Sum_Energia/Dun_Portal (o portão DS ficou como estava).
+- **Testado no Play:**
+  - portal aberto e selado;
+  - sala aberta e selada (simulada no cliente);
+  - ato lendário;
+  - plano da ponte com a lua;
+  - Output sem erros.
+
+**Export `7fc3e990`** (build atual com finesse3/3B/3C: 862.655 tris no .blend, QA verde): 14 FBX, 854 MeshParts,
+853k tris estáticos, 281 marcadores (iguais aos do b4d23c3b). Gravado com `SG_BUDGET=warn`. As metas globais
+estão dentro, mas 4 limites por dono estouraram:
+- castelo: 141/135 MeshParts;
+- caverna: 74/65 MeshParts;
+- props: 37,5k/30k tris e 51/50 MeshParts;
+- luzes de dia: 49/48.
+
+**PENDENTE:** importar os FBX `ILHA3_*_7fc3e9` + montar. Isso exige a interface do Studio
+(File > Import; o ribbon está recolhido nesta versão). Não foi feito porque o usuário estava usando o PC.
+Depois: salvar o place.

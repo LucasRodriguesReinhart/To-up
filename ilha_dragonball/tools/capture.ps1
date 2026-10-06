@@ -20,7 +20,9 @@ public class W5 {
   public static readonly IntPtr NOTOP = new IntPtr(-2);
 }
 "@
-$proc = Get-Process RobloxStudioBeta -ErrorAction SilentlyContinue | Where-Object { $_.MainWindowTitle -ne '' } | Select-Object -First 1
+$all = @(Get-Process RobloxStudioBeta -ErrorAction SilentlyContinue | Where-Object { $_.MainWindowTitle -ne '' })
+$proc = $all | Where-Object { $_.MainWindowTitle -like 'Anime Mining Simulator*' } | Select-Object -First 1
+if (-not $proc) { $proc = $all | Select-Object -First 1 }
 if (-not $proc) { Write-Error "Roblox Studio nao encontrado"; exit 1 }
 $h = $proc.MainWindowHandle
 [W5]::ShowWindow($h, 3) | Out-Null          # SW_MAXIMIZE (nunca usar 9/SW_RESTORE aqui: desmaximiza)

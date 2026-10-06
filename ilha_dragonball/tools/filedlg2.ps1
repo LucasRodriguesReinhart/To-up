@@ -11,7 +11,10 @@ public class FD {
 "@
 $A = [System.Windows.Automation.AutomationElement]
 $T = [System.Windows.Automation.TreeScope]
-$studio = (Get-Process RobloxStudioBeta | Select-Object -First 1).Id
+$all = @(Get-Process RobloxStudioBeta | Where-Object { $_.MainWindowTitle -ne '' })
+$sp = $all | Where-Object { $_.MainWindowTitle -like 'Anime Mining Simulator*' } | Select-Object -First 1
+if (-not $sp) { $sp = $all | Select-Object -First 1 }
+$studio = $sp.Id
 $main = $A::FromHandle((Get-Process -Id $studio).MainWindowHandle)
 $cls = New-Object System.Windows.Automation.PropertyCondition($A::ClassNameProperty, "#32770")
 

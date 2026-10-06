@@ -78,18 +78,8 @@ end
 -- VFX com funcao (hierarquia: portal da dungeon > invocacao > portao > quedas). Nada de particula decorativa solta.
 local function vfx(model, mk)
 	local pasta = Instance.new('Folder'); pasta.Name = 'VFX_Integracao'; pasta.Parent = model
-	local sm = mpos(mk, 'SUMMON_Main')
-	if sm then
-		emissor(pasta, 'Sum_Energia', sm + V(0, 6, 0), { tex = 'brilho', cor = C(170, 120, 255), rate = 4, vida = 2.8, vel = 0.9,
-			tam = 0.45, fim = 0.2, acc = V(0, 1.4, 0), luz = 0.7, infl = 0.3, transp = 0.35, area = V(8, 1, 8),
-			forma = Enum.ParticleEmitterShape.Box, dist = 180 })
-	end
-	local dp = mpos(mk, 'DUNGEON_Portal') or mpos(mk, 'DUNGEON_Hall')
-	if dp then
-		emissor(pasta, 'Dun_Portal', dp + V(0, 7, 0), { tex = 'brilho', cor = C(160, 100, 250), rate = 6, vida = 2.2, vel = 1.2,
-			tam = 0.5, fim = 0.2, luz = 0.8, infl = 0.2, transp = 0.3, area = V(8, 10, 1), spread = Vector2.new(10, 10),
-			forma = Enum.ParticleEmitterShape.Box, dist = 160 })
-	end
+	-- invocacao e portal do salao sombrio: efeitos em camadas no cliente (StarterPlayerScripts.EfeitosShadowGarden,
+	-- 2026-10-06); as faiscas fracas que ficavam aqui sairam
 	local FX = {
 		nevoa_base = { cor = C(200, 214, 240), rate = 1.6, vida = 4, vel = 1.2, tam = 9, fim = 1.2, acc = V(0, 0.6, 0),
 			transp = 0.8, area = V(12, 2, 12), forma = Enum.ParticleEmitterShape.Box, dist = 320 },
