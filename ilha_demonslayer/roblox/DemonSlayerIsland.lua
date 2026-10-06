@@ -458,8 +458,8 @@ local function espelhoPoligono(pai, nome, pts, nivel)
 	for i, t in ipairs(tris) do
 		local d = V(0, -0.1, 0)
 		np += triangulo(pai, nome .. '_Vidro_' .. i, t[1] + d, t[2] + d, t[3] + d, 0.2, Enum.Material.Glass, AGUA.espelho, 0.25)
-		local u = V(0, 0.02, 0)
-		np += triangulo(pai, nome .. '_Brilho_' .. i, t[1] + u, t[2] + u, t[3] + u, 0.04, Enum.Material.ForceField, AGUA.brilho, 0)
+		-- sem a camada ForceField por triangulo: o brilho de borda de cada cunha desenhava as emendas do leque
+		-- (linhas brancas radiais no Play, 2026-10-06)
 	end
 	return #tris, np
 end

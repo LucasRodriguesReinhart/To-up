@@ -59,7 +59,7 @@ DSMATS = {
     "Cliff_DS_Moss":      (S(60, 86, 52), 0.9, 0.0, 0, None, 0.08),      # quina com musgo (topo dos estratos) (ONDA 4b: era 70,92,66)
     "Metal_DS_Iron":      (S(64, 62, 60), 0.5, 0.5, 0, None, 0.04),      # ferro envelhecido
     "Metal_DS_Rust":      (S(112, 66, 42), 0.85, 0.2, 0, None, 0.06),    # acento de ferrugem
-    "Glass_DS_Lantern":   (S(255, 192, 118), 0.4, 0.0, 1.2, S(255, 170, 90), 0.0),    # papel/vidro de lanterna aceso
+    "Glass_DS_Lantern":   (S(232, 146, 66), 0.4, 0.0, 1.2, S(255, 170, 90), 0.0),     # papel/vidro de lanterna aceso (Play 06/10: o (255,192,118) estourava branco no bloom)
     "Window_DS_Warm":     (S(255, 204, 140), 0.5, 0.0, 0.7, S(255, 180, 110), 0.0),   # shoji aceso, recuado
     "Bamboo_DS":          (S(106, 136, 66), 0.7, 0.0, 0, None, 0.08),     # ONDA 4: era 118,150,72 (verde-limao, o verde
                                                                          # mais claro da ilha); segue o mais claro da vegetacao

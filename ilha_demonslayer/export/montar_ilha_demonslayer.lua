@@ -74,7 +74,7 @@ local MAT = {
   ['Emblem_Cream'] = {c = Color3.fromRGB(237,231,215), m = Enum.Material.SmoothPlastic, t = 0.0, s = false, x = nil, w = nil},
   ['Energy_Core_OnePiece_Glow'] = {c = Color3.fromRGB(140,214,255), m = Enum.Material.Neon, t = 0.0, s = false, x = nil, w = nil},
   ['Fire_DS_Glow'] = {c = Color3.fromRGB(255,122,40), m = Enum.Material.Neon, t = 0.0, s = false, x = nil, w = nil},
-  ['Glass_DS_Lantern'] = {c = Color3.fromRGB(255,192,118), m = Enum.Material.Neon, t = 0.0, s = false, x = nil, w = nil},
+  ['Glass_DS_Lantern'] = {c = Color3.fromRGB(232,146,66), m = Enum.Material.Neon, t = 0.0, s = false, x = nil, w = nil},
   ['Grass_DS'] = {c = Color3.fromRGB(84,118,62), m = Enum.Material.Grass, t = 0.0, s = false, x = nil, w = nil},
   ['Grass_DS_B'] = {c = Color3.fromRGB(76,108,58), m = Enum.Material.Grass, t = 0.0, s = false, x = nil, w = nil},
   ['Grass_DS_Deep'] = {c = Color3.fromRGB(56,90,46), m = Enum.Material.Grass, t = 0.0, s = false, x = nil, w = nil},
