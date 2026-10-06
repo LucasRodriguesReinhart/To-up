@@ -42,3 +42,29 @@ São 4 agentes ao mesmo tempo numa máquina de 4 núcleos e 16 GB. Renderize **n
 e nunca rode 2 studios seus ao mesmo tempo. Se o render morrer por memória, espere e tente de novo.
 
 Não faça `git commit` nem `git push`. Relatório final no formato do `FINESSE3_BRIEF.md`.
+
+## Fechamento das ondas 3B e 3C (2026-10-06)
+
+Onda 3B (J, G, A, S) e onda 3C (R, props e vida nas ruas) concluídas e aprovadas pelas folhas no modo Roblox.
+Build completo OK com **862.692 tris** (teto 870k), 2203 objetos, 1679 colisões, 61 luzes.
+QA: ROTAS 27/27, ROTAS_ABERTAS 3/3, ROTAS_MODULOS 52/52 (6 rotas novas do R), SONDAS 29/29, SALAO_LIVRE,
+DUNGEON_LIMPA, CAVE_LIVRE e TECH OK.
+
+| Zona | Tris início → fim | Observação |
+|---|---|---|
+| craft | 82.214 → 76.392 | MeshParts 75 → 58 (estava estourada) |
+| summon | 30.730 → 30.664 | |
+| exit | 23.984 → 23.556 | 3/3 luzes |
+| water | 2.332 → 2.254 | 10/10 MeshParts |
+| dressing (J + G + R + luzes) | 84.643 → 85.378 | 105/107 MeshParts, 153/160 colisões, **18/18 luzes** |
+
+Correções da coordenação nesta onda: colisão das ruas do P2 recortada na face do pórtico da alquimia;
+canteiros só no H1, H4 e H7 e floreiras só no H3 e H7; fonte da vila ligada à `sg_court.fountain_figure`.
+
+### Pendências
+- **Decisão do usuário:** teto de luzes da zona cave 6 → 8 (cristais 09.14 e luz da queda d'água 09.10).
+- **Decisão do usuário:** baixar um tom o Neon do painel do portão Demon Slayer (asset aprovado `il_gate_ds`/`sg_core`).
+- **G:** `sg_garden` ler zonas de props (ex.: `sg_props.PROP_ZONES`) para as touceiras ao pé das casas não atravessarem lenha e barris; trepadeira nas pérgulas do mirante e das pontas do pátio.
+- **J:** a forma da água dos espelhos continua retangular (água do Roblox); caminho do mirante reto (lajes do `sg_village`, planta travada).
+- **Folga:** a zona dressing está sem luzes e quase sem MeshParts; craft com colisões 75/75; hall, cave, castle, dungeon e village no teto de tris.
+- **Conferir no Play:** braseiro da H6 e lanterna do pórtico do beco (NightOnly); abertura dos portões das muretas da H1 e H3 (~3,8); fresta de luz na base das casas; vão do portão da muralha (06.13); escuridão do salão.

@@ -4,6 +4,8 @@
 #      do P2, pe da escada leste, boca do beco oeste), com a luz no centro do vidro, e o foco do patio do sg_court
 #      (COURT_LIGHTS). Os postes da porta do castelo e do pe da escada P1P2 ficam so no Neon: a porta ja tem a
 #      L_SGCas_Door e o topo da escada o arco de ferro da vila (L_SGVil_Lamp_*).
+#      FINESSE 3C (agente R): + a lanterna pendurada no portico do beco oeste (GLASS["BecoPortico"]) e o braseiro do
+#      posto de vigia da casa da guarda (sg_props.EXTRA_LIGHTS). Teto de rua 9 -> 10 (zona dressing: 18 / 18).
 #   2. CASAS (ativas de dia; o cluster do export nao chega nelas): 1 luz quente por andar. As 4 da lareira
 #      (L_SGVil_House_H1/H2/H5/H7, sg_village_int) continuam; aqui entram as que faltam, nas posicoes que o agente da
 #      vila propos (Roblox -> referencial do projeto por sg_layout.local_of_world). Cada uma substitui o
@@ -28,7 +30,7 @@ CAMS = {
 }
 EXTRA_ROUTES = {}
 EXTRA_PROBES = []
-MAX_STREET = 9                                  # teto das luzes de rua (NightOnly)
+MAX_STREET = 10                                 # teto das luzes de rua (NightOnly): 7 postes + patio + beco + braseiro
 LAMP_E = 300.0
 
 # casa -> (terreo, andar) em coordenadas do ROBLOX (X, Y, Z); None = sem luz nova (ja existe ou nao ha andar)
@@ -61,6 +63,9 @@ def build():
     want = [("L_SGProp_%s" % name, PR.GLASS.get(name, (x, y, z + PR.LAMP_H)), LAMP_E, WARM, 0.4)
             for name, x, y, z, lit in PR.LAMPS if lit]
     want += [("L_SGProp_%s" % name, loc, e, col, rad) for name, loc, e, col, rad in CT.COURT_LIGHTS]
+    if "BecoPortico" in PR.GLASS:
+        want.append(("L_SGProp_BecoPortico", PR.GLASS["BecoPortico"], LAMP_E, WARM, 0.4))
+    want += [("L_SGProp_%s" % name, loc, e, col, rad) for name, loc, e, col, rad in PR.EXTRA_LIGHTS]
     for name, loc, e, col, rad in want:
         if n >= MAX_STREET:
             print("LIGHTS AVISO: teto de %d luzes de rua: %s fica sem luz" % (MAX_STREET, name))
