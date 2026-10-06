@@ -94,9 +94,15 @@ ER.OWNERS = [("DS_Ter_", "terrain"), ("DS_Clr_", "terrain"), ("DS_Ent_", "entry"
              ("DS_Frg_", "forge"), ("DS_Sum_", "summon"), ("DS_Exit_", "exit"), ("GATE_", "gate_op"),
              ("DS_Water_", "water"), ("VFX_", "vfx"), ("DS_Veg_", "vegetation"), ("DS_Prop_", "props")]
 # tetos por dono = PLANO_DS secao 7 + ~8% de folga do export (fatias por material/celula), como na SG
-ER.BUDGET_OWNER = {"terrain": (102600, 119), "entry": (34600, 37), "village": (118800, 113), "forge": (129600, 103),
+# ONDA 4b (densidade do terreno: musgo escorrendo, tons de grama, manchas da clareira): terrain 99,2k/65 -> teto
+# 112k/75 (acrescimo pontual combinado com o lead; total da ilha <= 590k/600 com veg +50k/+43 e props +22k/+30)
+# ONDA 4b (densidade de props: ~100 lanternas de caminho leves, cercas baixas em setores, bancos/placas/lenha):
+# props 25,4k/27 -> teto 48k/57 (acrescimo pontual combinado com o lead; medido no export: ~46,2k / 46)
+ER.BUDGET_OWNER = {"terrain": (112000, 75), "entry": (34600, 37), "village": (118800, 113), "forge": (129600, 103),
                    "summon": (34600, 43), "exit": (25900, 32), "gate_op": (30300, 41), "water": (6500, 13),
-                   "props": (37800, 59), "vegetation": (75600, 76), "vfx": (16200, 32)}
+                   "props": (48000, 57), "vegetation": (118000, 95), "vfx": (16200, 32)}
+# ONDA 4b (densidade da vegetacao, agente 4b-VEG): vegetation 75,6k/76 -> teto 118k/95 (acrescimo pontual do lead;
+# fileiras/molduras de arvores leves, franja das falesias, pe de muro, bambuzal 23 -> 29 touceiras)
 # PLANO_DS secao 7: <= 600k tris / 650 MeshParts estaticos + reserva VFX 15k / 30
 ER.BUDGET = {"static_tris": 600000, "static_meshes": 650, "vfx_tris": 15000, "vfx_meshes": 30, "total_tris": 615000,
              "total_meshes": 680, "materials": 110, "shadow_meshes": 260, "day_lights": 36, "col": 1300}

@@ -25,6 +25,17 @@
 #      O miolo fica LIVRE (CLAREIRA_LIVRE: nada colidivel na MiningZone).
 #   7. RAVINA leste: corte entre colunas com o leito em degraus ate o labio (FX_Fall_2_Lip, 53,4) e a calha recuada na
 #      coroa para a queda; a pedra da cascata interna fica para o ds_water (aqui so o recuo das colunas atras dela).
+# ONDA 4b (DENSIDADE, critica do lead: falesia em colunas cinza limpas e clareira = retangulo marrom chapado):
+#   - FALESIA: tom POR COLUNA (Cliff_DS_B quente explicito / familia fria), estrato de baixo escuro em metade das
+#     colunas (sem linha continua), capa verde que CAI pela face de fora (drip_dir: os vertices de fora descem 1..5,
+#     borda irregular; musgo ou Grass_DS_Deep) e DS_Ter_Moss = linguas de musgo/verde escorrendo (streaks: 0,22 a
+#     frente da face, nunca coplanar). Forma, posicao e topo plano das colunas NAO mudam (ancoras do ds_veg).
+#   - CLAREIRA: pele em manchas terra / terra escura (material por regiao NA MESMA cota, sem saia na borda interna:
+#     field_mesh(inner=)), terra escura mais perto da grama + trilhas de passagem (CLR_TRACKS, so fora da MiningZone),
+#     faixa de grama da borda larga e rasgada, grama rala em manchas ate ~46 da borda; relevo (<= 0,26) so FORA da
+#     MiningZone + 2. Colisao intocada (CLAREIRA_PISO plano).
+#   - CAMPOS DE GRAMA: cada camada em pedacos de TOM (Grass_DS_Deep / Grass_DS / Grass_DS_B / Grass_DS_Dry; vies da
+#     borda das falesias e da borda da clareira) + trilhas de passagem no patamar, vila alta e saida (FIELD_TRACKS).
 # CONTRATO COM OS OUTROS MODULOS: ver BED_REGIONS (onde a pele nao existe). O patio do torii (lajes) e o chao do plato
 # do summon sao DESTE modulo (eram do terreno no blockout). A clareira do blockout (DS_Clr_Ground + as pedras de
 # DS_Clr_Edges) e removida aqui: o chao da clareira e do terreno (build_ds.ZONE_MODULES).
@@ -49,6 +60,10 @@ ROCK, ROCKD, MOSS = "Cliff_DS", "Cliff_DS_Dark", "Cliff_DS_Moss"
 STONE, PATH, SDARK = "Stone_DS", "Stone_DS_Path", "Stone_DS_Dark"
 LAJE = "Stone_DS_Laje"      # lajes dos caminhos: cinza quente MEDIO (Path claro demais ao lado da madeira escura)
 DIRT, DIRTD, GRASS, GRASSB = "Dirt_DS", "Dirt_DS_Dark", "Grass_DS", "Grass_DS_B"
+# ONDA 4b (densidade): rocha quente explicita (o resto da familia Cliff_DS segue sorteando), grama funda (borda verde
+# que cai, musgo escorrendo, manchas junto das falesias) e grama rala/seca (manchas da clareira)
+ROCKB, GDEEP, GDRY = "Cliff_DS_B", "Grass_DS_Deep", "Grass_DS_Dry"
+MOSS_REC = []               # colunas registradas para o musgo escorrendo (ver streaks)
 
 # ------------------------------------------------------------------ cameras de revisao da zona
 CAMS = {
@@ -139,9 +154,23 @@ class Grid:
 DISSOLVE_ANG = float(__import__("os").environ.get("DS_DISSOLVE_ANG", "0.02"))   # rad (ONDA 4: era 0,15)
 
 
-def field_mesh(mb, G, F, zfun, m, top_off=0.0, skirt=0.5, flare=0.0, m_skirt=None, dissolve=True):
+def sample(G, A, x, y):
+    """valor bilinear do campo A (na grade G) em (x, y)"""
+    fi, fj = (x - G.x0) / G.h, (y - G.y0) / G.h
+    i, j = int(math.floor(fi)), int(math.floor(fj))
+    ny, nx = A.shape
+    if not (0 <= i < nx - 1 and 0 <= j < ny - 1):
+        return -1.0
+    tx, ty = fi - i, fj - j
+    return float((A[j, i] * (1 - tx) + A[j, i + 1] * tx) * (1 - ty) + (A[j + 1, i] * (1 - tx) + A[j + 1, i + 1] * tx) * ty)
+
+
+def field_mesh(mb, G, F, zfun, m, top_off=0.0, skirt=0.5, flare=0.0, m_skirt=None, dissolve=True, inner=None,
+               inner_thr=0.3):
     """superficie da regiao F > 0 (marching squares sobre a grade G) no z = zfun(x, y) + top_off, com saia de
-    'skirt' para baixo na borda (alargando 'flare' para fora: chanfro). Faces em ordem anti-horaria (normal +Z)."""
+    'skirt' para baixo na borda (alargando 'flare' para fora: chanfro). Faces em ordem anti-horaria (normal +Z).
+    ONDA 4b: inner = campo da regiao INTEIRA quando F e um pedaco dela (tom/material por mancha): a borda interna
+    (entre 2 pedacos da mesma camada, inner > inner_thr no meio da aresta) fica sem saia (nada a esconder, e tris)."""
     F = np.where(np.abs(F) < 1e-3, -1e-3, F)
     Fl = F.tolist()
     ny, nx = F.shape
@@ -212,7 +241,11 @@ def field_mesh(mb, G, F, zfun, m, top_off=0.0, skirt=0.5, flare=0.0, m_skirt=Non
     for f in faces:
         for lp in f.loops:
             if len(lp.edge.link_faces) == 1:
-                bnd.append((lp.vert, lp.link_loop_next.vert))
+                a_, b_ = lp.vert, lp.link_loop_next.vert
+                if inner is not None and sample(G, inner, (a_.co.x + b_.co.x) / 2, (a_.co.y + b_.co.y) / 2) > inner_thr:
+                    continue
+                bnd.append((a_, b_))
+    bnd.sort(key=lambda e: (e[0].index, e[1].index))
     nrm = {}
     for a, b in bnd:
         dx, dy = b.co.x - a.co.x, b.co.y - a.co.y
@@ -239,7 +272,7 @@ def field_mesh(mb, G, F, zfun, m, top_off=0.0, skirt=0.5, flare=0.0, m_skirt=Non
 # ------------------------------------------------------------------ pecas de rocha
 def column(mb, cx, cy, a, b, ang, ztop, zbot, key, m=ROCK, cap=MOSS, strata=(), taper=0.55, tip=3.0, ch=0.7,
            n=6, mlow=ROCKD, ledge=None, bottom=True, flare=1.0, cap_top_only=False, block=False, top_s=0.80,
-           step_s=0.88, tilt=None, drip=0.0):
+           step_s=0.88, tilt=None, drip=0.0, drip_dir=None, rec=None):
     """COLUNA de rocha facetada: pegada de n lados (meia-largura a no rumo ang, meia-profundidade b), raios DIRIGIDOS
     pela chave; topo com chanfro (material cap); estratos: abaixo de cada cota a coluna recua 12% (ressalto 'ledge')
     e escurece (mlow); pe pendente: o ultimo trecho afina (taper) numa ponta 'tip' abaixo de zbot (tip <= 0 = pe reto;
@@ -284,7 +317,16 @@ def column(mb, cx, cy, a, b, ang, ztop, zbot, key, m=ROCK, cap=MOSS, strata=(), 
         ztops = [ztop - slope * (p - pmin) * top_s for p in pr]
     else:
         ztops = [ztop] * n
-    chs = [min(ch + drip * hh(key, k, "d"), (ztop - zbot) * 0.35) for k in range(n)]
+    chs = [ch + drip * hh(key, k, "d") for k in range(n)]
+    if drip_dir:
+        # ONDA 4b: a capa verde CAI pela face de fora (vertices virados para drip_dir descem mais: borda irregular)
+        ddx, ddy, amt = drip_dir
+        for k, (u, v) in enumerate(base):
+            px, py = u * ca - v * sa, u * sa + v * ca
+            d = (px * ddx + py * ddy) / (math.hypot(px, py) or 1.0)
+            if d > 0.0:
+                chs[k] += amt * d ** 1.5 * (0.35 + 0.65 * hh(key, k, "dd"))
+    chs = [min(c_, (ztop - zbot) * 0.35) for c_ in chs]
     zmid = [zt_ - c_ for zt_, c_ in zip(ztops, chs)]
 
     def band(lo, up):
@@ -304,6 +346,9 @@ def column(mb, cx, cy, a, b, ang, ztop, zbot, key, m=ROCK, cap=MOSS, strata=(), 
         band(mid, top)
         mb._post(top + mid, cap, None, 0, 1)
     zs = [zmid] + cuts + [zbot]
+    if rec is not None:                 # faces da 1a faixa (vertical, escala 1) para o musgo escorrendo
+        pts = [(cx + u * ca - v * sa, cy + u * sa + v * ca) for u, v in base]
+        rec[0].append((rec[1], key, pts, list(zmid), zs[1], rec[2]))
     s = 1.0
     for k in range(len(zs) - 1):
         mm = m if k == 0 else mlow
@@ -329,6 +374,68 @@ def column(mb, cx, cy, a, b, ang, ztop, zbot, key, m=ROCK, cap=MOSS, strata=(), 
             mb._post(o + i_, ledge or mlow, None, 0, 1)
             s *= step_s
     return 1
+
+
+def streaks(mb, recs):
+    """ONDA 4b: MUSGO E VERDE ESCORRENDO pelas faces de fora das colunas (a lingua das refs: faixas verdes que descem
+    da capa do topo). Cada faixa e uma lingua de 5 lados 0,22 A FRENTE da face (nunca coplanar), com espessura que
+    entra na rocha; comeca 0,25 acima do pe da capa (emenda com o chanfro verde) e desce L DIRIGIDO pela chave.
+    recs: (fora (dx, dy) ou None, chave, pegada, zmid por vertice, pe da 1a faixa, (quantas, Lmin, Lmax))"""
+    n = 0
+    for out, key, pts, zmid, zlow, (cnt, lmin, lmax) in recs:
+        nv = len(pts)
+        cands = []
+        for k in range(nv):
+            a, b = pts[k], pts[(k + 1) % nv]
+            dx, dy = b[0] - a[0], b[1] - a[1]
+            ln = math.hypot(dx, dy)
+            if ln < 1.4:
+                continue
+            nx_, ny_ = dy / ln, -dx / ln
+            if out is None or nx_ * out[0] + ny_ * out[1] > 0.3:
+                cands.append((hh(key, k, "sk"), k, a, b, ln, nx_, ny_))
+        cands.sort()
+        for _, k, a, b, ln, nx_, ny_ in cands[:cnt]:
+            j = (k + 1) % nv
+            hb = min(zmid[k], zmid[j]) - zlow
+            L = min(lmin + (lmax - lmin) * hh(key, k, "sl"), hb * 0.7)
+            if L < 1.2:
+                continue
+            ux, uy = (b[0] - a[0]) / ln, (b[1] - a[1]) / ln
+            w = min(ln * (0.45 + 0.3 * hh(key, k, "sw")), 4.6)
+            u0 = 0.12 * ln + (ln * 0.76 - w) * hh(key, k, "st")
+            u1 = u0 + w
+
+            def P(u, d, off):
+                zt = zmid[k] + (zmid[j] - zmid[k]) * u / ln
+                return (a[0] + ux * u + nx_ * off, a[1] + uy * u + ny_ * off, zt - d)
+            lip = 0.25
+            shape = [(u0, -lip), (u1, -lip), (u1 - 0.18 * w, (0.45 + 0.25 * hh(key, k, "s1")) * L),
+                     (u0 + (0.25 + 0.3 * hh(key, k, "s2")) * w, L)]
+            bm = mb.bm
+            fr = [bm.verts.new(P(u, d, 0.22)) for u, d in shape]
+            bk = [bm.verts.new(P(u, d, -0.12)) for u, d in shape]
+            ff = bm.faces.new(fr)
+            ff.normal_update()
+            if ff.normal.x * nx_ + ff.normal.y * ny_ < 0:
+                ff.normal_flip()
+            ns_ = len(shape)
+            cxs = sum(p[0] for p in shape) / ns_
+            cds = sum(p[1] for p in shape) / ns_
+            for q in range(ns_):
+                r = (q + 1) % ns_
+                sf = bm.faces.new((fr[q], fr[r], bk[r], bk[q]))
+                sf.normal_update()
+                # fora da lingua = do centro da forma para o meio da aresta (no plano da face)
+                mu = (shape[q][0] + shape[r][0]) / 2 - cxs
+                md = (shape[q][1] + shape[r][1]) / 2 - cds
+                want = (ux * mu, uy * mu, -md)
+                if sf.normal.x * want[0] + sf.normal.y * want[1] + sf.normal.z * want[2] < 0:
+                    sf.normal_flip()
+            m = GDEEP if hh(key, k, "sm") < 0.45 else MOSS
+            mb._post(fr + bk, m, None, 0, 1)
+            n += 1
+    return n
 
 
 def boulder(mb, cx, cy, z0, r, hgt, key, m=STONE, cap=None, ang=0.0, n=7):
@@ -540,9 +647,14 @@ def crown(mb):
             if ds_col._in_rect_along(cx, cy, p0, p1, w / 2 + 3.0, pad=6.0):
                 zt = min(zt, p1[2] - 3.0)
         zb = cyc(bots, i) + (8.0 if zref > 76.0 else 0.0)
-        column(mb, cx, cy, a * 0.92, b, ang, zt, zb, ("cr", i), strata=(STRATA, 66.0, 86.0),
-               tip=2.0 + 4.0 * hh(i, "t"), mlow=ROCK, ledge=ROCKD, n=None, top_s=0.88, ch=0.4,
-               tilt=(nx_, ny_, 0.2), drip=0.3 + 1.1 * hh(i, "dr"))
+        # ONDA 4b: tom POR COLUNA (quente explicita / familia fria), capa verde que cai pela face de fora (musgo ou
+        # grama funda), estrato de baixo escuro e faixas de musgo escorrendo (0..3 por coluna, ciclo dirigido)
+        mcol = ROCKB if hh(i, "wm") < 0.38 else ROCK
+        capm = GDEEP if hh(i, "cg") < 0.6 else MOSS
+        column(mb, cx, cy, a * 0.92, b, ang, zt, zb, ("cr", i), m=mcol, cap=capm, strata=(STRATA, 66.0, 86.0),
+               tip=2.0 + 4.0 * hh(i, "t"), mlow=ROCKD if hh(i, "ml") < 0.5 else ROCK, ledge=ROCKD, n=None, top_s=0.88, ch=0.4,
+               tilt=(nx_, ny_, 0.2), drip=0.3 + 1.1 * hh(i, "dr"), drip_dir=(nx_, ny_, 2.0 + 3.0 * hh(i, "dd")),
+               rec=(MOSS_REC, (nx_, ny_), (cyc((1, 0, 1, 2, 1, 0, 1), i), 4.0, 14.0)))
         n += 1
     return n
 
@@ -762,7 +874,9 @@ def rock_wall(mb, mcol, p0, p1, nrm, zt, zb, key, recess=(), inward=False, colli
             fx, fy = (-nx_, -ny_) if inward else (nx_, ny_)
             column(mb, cx, cy, aa * sc, b * sc, ang, top, zb - 1.0, (key, i), tip=0.0, ch=0.35, bottom=False,
                    flare=1.05, n=None, top_s=0.9, mlow=ROCK, ledge=MOSS, step_s=1.08, tilt=(fx, fy, 0.16),
-                   drip=0.5 + 0.9 * hh(key, i, "dr"),
+                   drip=0.5 + 0.9 * hh(key, i, "dr"), m=ROCKB if hh(key, i, "wm") < 0.4 else ROCK,
+                   cap=GDEEP if hh(key, i, "cg") < 0.4 else MOSS, drip_dir=(fx, fy, 0.8 + 1.4 * hh(key, i, "dd")),
+                   rec=(MOSS_REC, (fx, fy), (cyc((0, 0, 1, 0, 1), i), 1.6, min(5.0, hgt * 0.5))),
                    strata=(zb + hgt * (0.3 + 0.12 * hh(key, i, "st")),) if hgt > 5.0 else ())
             # blocos caidos ao pe (dentro da faixa da colisao quando ha piso embaixo)
             if hh(key, i, "tal") > 0.4:
@@ -911,10 +1025,18 @@ def _fill_pass(mb, sp):
             if back:                    # montanha: colunas mais esguias, topo quebrado em degraus dirigidos
                 a, b = a * 0.8, b * 0.8
                 ok += cyc((0.0, 3.5, -2.0, 6.0, 1.0, -3.5, 4.5), int(hh(*kk) * 7))
-            column(mb, cx, cy, a, b, ang, ok, zlow if ok < 76.0 else 74.0, kk,
+            # ONDA 4b: tom por coluna; perto da borda (ou na montanha) a face de FORA ganha capa caindo e musgo
+            edge_d = L.poly_edge_dist(cx, cy, rim)
+            ox, oy = cx - 20.0, cy - 300.0
+            ol = math.hypot(ox, oy) or 1.0
+            outd = (ox / ol, oy / ol) if (back or edge_d < 16.0) else None
+            column(mb, cx, cy, a, b, ang, ok, zlow if ok < 76.0 else 74.0, kk, m=ROCKB if hh(*kk, "wm") < 0.36 else ROCK,
+                   cap=GDEEP if (outd and hh(*kk, "cg") < 0.45) else MOSS,
                    strata=(86.0, 98.0, 110.0) if ok > 90.0 else ((66.0,) if ok > 70.0 else ()), tip=0.0, bottom=False,
                    n=None, top_s=0.86, ch=0.45, drip=0.4 + 1.0 * hh(*kk, "dr"),
-                   tilt=(math.cos(ang * 3.1), math.sin(ang * 3.1), 0.22 if back else 0.12), ledge=MOSS, mlow=ROCK)
+                   tilt=(math.cos(ang * 3.1), math.sin(ang * 3.1), 0.22 if back else 0.12), ledge=MOSS, mlow=ROCK,
+                   drip_dir=(outd[0], outd[1], 1.2 + 2.0 * hh(*kk, "dd")) if outd else None,
+                   rec=(MOSS_REC, outd, (cyc((1, 0, 0, 1, 0), int(hh(*kk, "ns") * 5)), 3.0, 11.0)) if outd else None)
             n += 1
         y += sp * 0.866
         j += 1
@@ -1010,6 +1132,49 @@ SKIN = {"Entry": DIRTD, "T1": DIRT, "Bamboo": DIRT, "VillageHigh": DIRT, "Berm":
         "Forge": DIRTD, "ExitLand": DIRT}
 
 
+# ONDA 4b: trilhas de PASSAGEM na borda da clareira (onde as rotas cruzam a faixa de grama): a grama abre e a pele
+# fica em terra ESCURA (calcada). So FORA da MiningZone (no miolo a terra batida e uma so).
+CLR_TRACKS = [([(12.0, 148.0), (20.0, 166.0), (30.0, 186.0)], 2.6),             # trilha -> antecampo
+              ([(66.0, 132.0), (63.0, 150.0), (58.0, 172.0)], 2.2),             # bambuzal -> antecampo
+              ([(16.0, 336.0), (16.0, 356.0), (17.0, 378.0)], 2.4),             # pe da SubidaA
+              ([(101.0, 296.0), (112.0, 299.0), (124.0, 300.0)], 2.2),          # pontezinha do summon
+              ([(-11.0, 284.0), (-28.0, 284.0), (-42.0, 284.0)], 2.2),          # VilaClareira
+              ([(-11.0, 230.0), (-24.0, 222.0), (-34.0, 208.0)], 1.8),          # poco/hokora
+              ([(101.0, 200.0), (112.0, 190.0)], 1.8)]                          # arvore sudeste
+# tom da grama por piso (semente das manchas de verde)
+TONE_SEED = {"T1": 9.4, "Bamboo": 2.7, "VillageHigh": 5.9, "Berm": 7.3, "Summon": 1.9, "Forge": 8.8, "ExitLand": 3.3,
+             "Entry": 4.6}
+# trilhas de passagem nos campos de grama fora da clareira (rotas do plano 4.4 que cruzam a grama)
+FIELD_TRACKS = {"Berm": [([(-14.0, 405.0), (-30.0, 398.0), (-46.0, 383.0)], 1.9),              # patamar -> oeste
+                         ([(46.0, 408.0), (66.0, 401.0), (88.0, 408.0), (98.0, 420.0)], 1.9)],  # -> mirante leste
+                "VillageHigh": [([(-50.0, 284.0), (-62.0, 286.0), (-76.0, 290.0)], 1.9)],
+                "ExitLand": [([(-100.0, 524.0), (-92.0, 548.0), (-86.0, 574.0)], 1.6)]}
+
+
+def clr_tracks(X, Y):
+    out = None
+    for pts, hw in CLR_TRACKS:
+        f = sdf_line(X, Y, pts, hw + 0.5 * waves(X, Y, 12.1, 2.0))
+        out = f if out is None else np.maximum(out, f)
+    return np.minimum(out, -(sdf_rect(X, Y, L.MINE_RECT) + 0.5))
+
+
+def clr_dark(X, Y):
+    """terra ESCURA na pele da clareira (> 0): manchas de terra calcada/umida (so material, sem relevo) + trilhas.
+    Mais perto da grama (transicao terra -> grama), rara no miolo"""
+    clr = sdf_poly(X, Y, ccw(L.CLEARING))
+    mt = waves(X, Y, 21.3, 1.05) + 0.25 * waves(X, Y, 5.1, 2.4) - 0.95 + 0.75 * np.clip(1.0 - (clr - 14.0) / 22.0, 0.0, 1.0)
+    return np.maximum(mt * 8.0, clr_tracks(X, Y))
+
+
+def tone_parts(nm, X, Y, bias):
+    """pedacos de TOM de uma camada de grama (campos que eram um verde so): funda > B > base > seca, manchas largas
+    dirigidas (ondas fixas) + vies (borda da clareira e beira das falesias puxam para o funda)"""
+    t = 0.85 * waves(X, Y, TONE_SEED.get(nm, 0.0), 0.85) + bias
+    return [(t - 0.5, GDEEP), (np.minimum(t + 0.45, 0.5 - t), GRASS), (np.minimum(t + 0.95, -0.45 - t), GRASSB),
+            (-0.95 - t, GDRY)]
+
+
 def grass_cover(nm, X, Y):
     """cobertura de grama DIRIGIDA por piso (> 0 = grama). As trilhas de terra ficam onde ela abre."""
     w = waves(X, Y, {"T1": 0.3, "Bamboo": 1.1, "VillageHigh": 2.2, "Berm": 3.1, "Summon": 4.0, "Forge": 5.2,
@@ -1019,6 +1184,13 @@ def grass_cover(nm, X, Y):
         clr = sdf_poly(X, Y, ccw(L.CLEARING))
         ring = 9.0 + 4.0 * w - clr                          # ~9..13 a partir da borda da clareira para dentro
         vil = 1.3 + 2.6 * w                                 # fora da clareira (trilha, vila baixa): grama em manchas
+        # ONDA 4b: a faixa de grama da borda fica larga e RASGADA (2a onda mais fina: ilhas de grama soltas) e a
+        # grama rala se espalha em manchas pequenas ate ~44 da borda, rareando para dentro
+        w2 = waves(X, Y, 15.7, 2.6)
+        ring = 21.0 + 6.0 * w + 4.0 * w2 - clr
+        rala = np.minimum((waves(X, Y, 33.0, 2.5) + 0.3 * w2 - 0.58 - 0.012 * np.maximum(0.0, clr - 16.0)) * 6.0,
+                          np.minimum(clr - 8.0, 46.0 - clr))
+        ring = np.maximum(ring, rala)
         g = np.where(clr > 0, ring, vil)
         mine = sdf_rect(X, Y, L.MINE_RECT)
         g = np.where(mine > 6.0, -1.0, g)                   # miolo da zona: terra limpa
@@ -1032,14 +1204,16 @@ def grass_cover(nm, X, Y):
                         ([(60.0, 150.0), (90.0, 180.0), (110.0, 240.0), (112.0, 290.0), (116.0, 300.0)], 2.6),
                         ([(-40.0, 112.0), (-30.0, 104.0)], 2.4)):
             g = np.minimum(g, -sdf_line(X, Y, pts, hw + 0.6 * w))
+        g = np.minimum(g, -(clr_tracks(X, Y) + 0.3))        # ONDA 4b: trilhas de passagem na borda da clareira
         return g
     if nm == "Bamboo":
         g = 2.0 + 2.2 * w
         return np.minimum(g, -sdf_line(X, Y, L.BAMBOO_RAMP, 3.0 + 0.5 * w))
     if nm == "VillageHigh":
-        return 1.0 + 2.6 * w
+        return _tracks(nm, X, Y, 1.0 + 2.6 * w)
     if nm == "Berm":
-        return 2.6 + 1.6 * w
+        # ONDA 4b: o patamar era um campo liso: clareiras de terra em manchas + trilhas de passagem
+        return _tracks(nm, X, Y, np.minimum(2.6 + 1.6 * w, 2.2 + 2.4 * waves(X, Y, 17.2, 2.2)))
     if nm == "Summon":
         r = np.hypot(X - L.SUMMON_C[0], Y - L.SUMMON_C[1])
         g = r - 17.0 + 3.0 * w
@@ -1049,8 +1223,14 @@ def grass_cover(nm, X, Y):
         return np.minimum(-1.0 + 3.0 * w + (Y - 500.0) * 0.12 + np.maximum(0.0, -X - 80.0) * 0.08,
                           -sdf_line(X, Y, [(-104.0, 452.0), (-60.0, 446.0), (-20.0, 450.0)], 3.0))
     if nm == "ExitLand":
-        return 2.0 + 2.0 * w
+        return _tracks(nm, X, Y, 2.0 + 2.0 * w)
     return np.full(X.shape, -1.0)
+
+
+def _tracks(nm, X, Y, g):
+    for pts, hw in FIELD_TRACKS.get(nm, ()):
+        g = np.minimum(g, -sdf_line(X, Y, pts, hw + 0.4 * waves(X, Y, 12.1, 2.0)))
+    return g
 
 
 def slab_regions(X, Y):
@@ -1066,6 +1246,10 @@ def ground(mb_skin, mb_grass, mb_clr):
     bed = bed_regions(X, Y)
     slabs_f = slab_regions(X, Y)
     clr = sdf_poly(X, Y, ccw(L.CLEARING))
+    dark = clr_dark(X, Y)
+    # vies do tom: beira das falesias (ate 14 do contorno) puxa para o verde fundo
+    rim_b = 0.55 * np.clip(1.0 - sdf_poly(X, Y, ccw(rim)) / 14.0, 0.0, 1.0)
+    clr_b = np.clip(0.7 - 0.075 * clr, -0.95, 0.7)          # clareira: funda na borda, seca/rala para dentro
     stats = {}
     for nm, poly, z, pr in FLOORS:
         zf = (lambda x, y, z=z: L._zval(z, x, y))
@@ -1077,19 +1261,26 @@ def ground(mb_skin, mb_grass, mb_clr):
             tr = sdf_line(X, Y, TRAIL_PATH, TRAIL_HW + 0.5)       # junta das lajes da trilha: terra ESCURA
             field_mesh(mb_skin, G, np.minimum(fo, -tr), zf, SKIN[nm], skirt=BEDD)
             field_mesh(mb_skin, G, np.minimum(fo, tr), zf, DIRTD, skirt=BEDD)
-            field_mesh(mb_clr, G, np.minimum(fi, -tr), zf, DIRT, skirt=BEDD)
-            field_mesh(mb_clr, G, np.minimum(fi, tr), zf, DIRTD, skirt=BEDD)
+            # ONDA 4b: pele da clareira em manchas terra / terra escura (calcada, trilhas): MATERIAL por regiao na
+            # mesma cota (bordas coincidentes, sem saia entre elas)
+            dk = np.maximum(tr, dark)
+            field_mesh(mb_clr, G, np.minimum(fi, -dk), zf, DIRT, skirt=BEDD, inner=fi)
+            field_mesh(mb_clr, G, np.minimum(fi, dk), zf, DIRTD, skirt=BEDD, inner=fi)
         else:
             field_mesh(mb_skin, G, f, zf, SKIN[nm], skirt=BEDD)
         g = np.minimum(np.minimum(f - 0.9, grass_cover(nm, X, Y)), -(slabs_f + 0.4))
         tgt = mb_clr if nm == "T1" else mb_grass
-        if nm == "T1":
-            field_mesh(mb_grass, G, np.minimum(g, -clr), zf, GRASS, top_off=GRASS_H, skirt=0.3, flare=0.35,
-                       m_skirt=GRASSB)
-            field_mesh(mb_clr, G, np.minimum(g, clr), zf, GRASS, top_off=GRASS_H, skirt=0.3, flare=0.35,
-                       m_skirt=GRASSB)
-        else:
-            field_mesh(tgt, G, g, zf, GRASS, top_off=GRASS_H, skirt=0.3, flare=0.35, m_skirt=GRASSB)
+        # ONDA 4b: cada camada de grama em pedacos de TOM (funda / B / base / seca), bordas internas sem saia
+        bias = rim_b + (np.where(clr > 0, clr_b, 0.0) if nm == "T1" else 0.0)
+        for mask, mat in tone_parts(nm, X, Y, bias):
+            gp = np.minimum(g, mask)
+            if nm == "T1":
+                field_mesh(mb_grass, G, np.minimum(gp, -clr), zf, mat, top_off=GRASS_H, skirt=0.3, flare=0.35,
+                           m_skirt=GRASSB, inner=g)
+                field_mesh(mb_clr, G, np.minimum(gp, clr), zf, mat, top_off=GRASS_H, skirt=0.3, flare=0.35,
+                           m_skirt=GRASSB, inner=g)
+            else:
+                field_mesh(tgt, G, gp, zf, mat, top_off=GRASS_H, skirt=0.3, flare=0.35, m_skirt=GRASSB, inner=g)
         stats[nm] = True
     return G
 
@@ -1105,6 +1296,9 @@ def clearing_relief(mb):
     f = np.minimum(f, -sdf_poly(X, Y, L.POND) - 3.0)
     f = np.minimum(f, -sdf_line(X, Y, L.CHANNEL, 4.0))
     f = np.minimum(f, -(grass_cover("T1", X, Y) + 2.5))     # nunca sob/sobre a grama (0,08 de folga = z-fight)
+    # ONDA 4b: relevo so FORA da MiningZone (+2) e nunca sobre a terra escura (a lomba e de terra clara)
+    f = np.minimum(f, -sdf_rect(X, Y, L.MINE_RECT) - 2.0)
+    f = np.minimum(f, -(clr_dark(X, Y) + 1.5))
     field_mesh(mb, G, f, lambda x, y: T1, DIRT, top_off=0.26, skirt=0.4, flare=1.6, m_skirt=DIRT)
 
 
@@ -1247,6 +1441,7 @@ def drop_blockout_clearing():
 def build():
     drop_blockout_clearing()
     stats = {}
+    MOSS_REC.clear()
     # quilha e coroa: Tier C (sem chanfro de bevel; o chanfro de musgo e geometria propria)
     mk = MB("DS_Ter_Cliff", "02_TERRAIN", None, detail="far", floor=-999)
     stats["coroa"] = crown(mk)
@@ -1267,6 +1462,10 @@ def build():
     stats["enchimento"] = fill(mf)
     ravine(mf)
     mf.finish(recalc=False)
+    # ONDA 4b: musgo e verde escorrendo (1 objeto, 2 materiais) sobre as colunas registradas acima
+    mm = MB("DS_Ter_Moss", "02_TERRAIN", None, detail="far", floor=-999)
+    stats["musgo"] = streaks(mm, MOSS_REC)
+    mm.finish(recalc=False)
     ms = MB("DS_Ter_Ground", "02_TERRAIN", None, detail="far", floor=-999)
     mg = MB("DS_Ter_Grass", "02_TERRAIN", None, detail="far", floor=-999)
     mc = MB("DS_Clr_Floor", "03_CLEARING", None, detail="far", floor=-999)

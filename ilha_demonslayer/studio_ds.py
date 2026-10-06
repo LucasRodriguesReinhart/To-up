@@ -37,10 +37,13 @@ ZONE_MARKERS = {
 # orcamento por zona (PLANO_DS secao 7): (tris, MeshParts estimadas, materiais NOVOS, colisoes COL_, luzes)
 # total da ilha: <= 600k tris e <= 650 MeshParts estaticos (+ reserva VFX 15k / 30), materiais <= 110, colisoes <= 1300,
 # luzes de dia <= 36 (+ NightOnly)
+# ONDA 4b: terrain era (95000, 110, ...) -> teto novo 112k / 75 MeshParts (acrescimo pontual do lead)
+# ONDA 4b (4b-VEG): dressing era (105000, 125, 10, 120, 24) -> + a parte da vegetacao (70k/70 -> 118k/95, COL +30)
+# ONDA 4b (4b-PROPS): + a parte dos props (35k/55 -> 48k/57; COL +66: cercas de caminho, toros, bancos/placas/lenha)
 BUDGET = {
-    "terrain": (95000, 110, 8, 700, 0), "entry": (32000, 34, 4, 40, 4), "village": (110000, 105, 10, 160, 8),
+    "terrain": (112000, 75, 8, 700, 0), "entry": (32000, 34, 4, 40, 4), "village": (110000, 105, 10, 160, 8),
     "clearing": (12000, 20, 3, 30, 0), "forge": (120000, 95, 10, 90, 6), "summon": (32000, 40, 5, 60, 4),
-    "water": (6000, 12, 2, 10, 0), "exit": (24000, 30, 3, 40, 3), "dressing": (105000, 125, 10, 120, 24),
+    "water": (6000, 12, 2, 10, 0), "exit": (24000, 30, 3, 40, 3), "dressing": (166000, 152, 10, 220, 24),
 }
 # donos do export (prefixo -> dono), iguais ao export_ds.OWNERS
 OWNERS = [("DS_Ter_", "terrain"), ("DS_Ent_", "entry"), ("DS_Vil_", "village"), ("DS_Clr_", "terrain"),

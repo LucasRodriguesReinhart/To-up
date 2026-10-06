@@ -1,4 +1,4 @@
-# Ilha 4 Demon Slayer: import no Studio (export d8e4b685)
+# Ilha 4 Demon Slayer: import no Studio (export ef639523)
 
 Gerado na Onda 4 em 2026-10-06 por `./run.sh export`. Resultado: EXPORT OK, nenhum dono estourou e a CONEXAO ficou em 0,0004.
 
@@ -7,18 +7,18 @@ Importe um FBX por vez, pelo botão Import do ribbon, para dentro de `workspace.
 
 | # | FBX | Malhas | Tris |
 |---|---|---|---|
-| 1 | `ILHA4_02_TERRAIN_d8e4b6.fbx` | 58 | 93.597 |
-| 2 | `ILHA4_03_CLEARING_d8e4b6.fbx` | 7 | 5.593 |
-| 3 | `ILHA4_18_ENTRY_d8e4b6.fbx` | 24 | 19.688 |
-| 4 | `ILHA4_05_VILLAGE_d8e4b6.fbx` | 98 | 105.966 |
-| 5 | `ILHA4_04_FORGE_d8e4b6.fbx` | 76 | 110.566 |
-| 6 | `ILHA4_06_SUMMON_d8e4b6.fbx` | 24 | 26.564 |
-| 7 | `ILHA4_07_WATER_d8e4b6.fbx` | 11 | 4.588 |
-| 8 | `ILHA4_09_PROPS_d8e4b6.fbx` | 27 | 25.377 |
-| 9 | `ILHA4_10_VEGETATION_d8e4b6.fbx` | 52 | 68.568 |
-| 10 | `ILHA4_08_NEXT_ISLAND_d8e4b6.fbx` | 28 | 23.986 |
-| 11 | `ILHA4_08_PURCHASE_GATES_d8e4b6.fbx` | 18 | 12.668 |
-| 12 | `ILHA4_12_VFX_HELPERS_d8e4b6.fbx` | 25 | 4.648 |
+| 1 | `ILHA4_02_TERRAIN_ef6395.fbx` | 58 | 93.597 |
+| 2 | `ILHA4_03_CLEARING_ef6395.fbx` | 7 | 5.593 |
+| 3 | `ILHA4_18_ENTRY_ef6395.fbx` | 24 | 19.688 |
+| 4 | `ILHA4_05_VILLAGE_ef6395.fbx` | 98 | 105.966 |
+| 5 | `ILHA4_04_FORGE_ef6395.fbx` | 76 | 110.566 |
+| 6 | `ILHA4_06_SUMMON_ef6395.fbx` | 24 | 26.564 |
+| 7 | `ILHA4_07_WATER_ef6395.fbx` | 11 | 4.588 |
+| 8 | `ILHA4_09_PROPS_ef6395.fbx` | 27 | 25.377 |
+| 9 | `ILHA4_10_VEGETATION_ef6395.fbx` | 52 | 68.568 |
+| 10 | `ILHA4_08_NEXT_ISLAND_ef6395.fbx` | 28 | 23.986 |
+| 11 | `ILHA4_08_PURCHASE_GATES_ef6395.fbx` | 18 | 12.668 |
+| 12 | `ILHA4_12_VFX_HELPERS_ef6395.fbx` | 25 | 4.648 |
 
 **Total:** 448 MeshParts e 501.809 tris.
 

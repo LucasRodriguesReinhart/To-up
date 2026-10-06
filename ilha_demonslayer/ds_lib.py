@@ -54,9 +54,9 @@ DSMATS = {
                                                                          # (ONDA 4: era 128,118,104 - mesmo valor do Stone_DS
                                                                          # do arrimo ao lado; agora 1 degrau acima, abaixo do Path)
     "Stone_DS_Dark":      (S(72, 70, 70), 0.8, 0.0, 0, None, 0.08),      # base da forja, fornalha, podio do summon
-    "Cliff_DS":           (S(86, 92, 104), 0.9, 0.0, 0, None, 0.12),     # penhasco em estratos, cinza-azulado
-    "Cliff_DS_Dark":      (S(62, 66, 78), 0.9, 0.0, 0, None, 0.10),      # estrato escuro / quilha
-    "Cliff_DS_Moss":      (S(70, 92, 66), 0.9, 0.0, 0, None, 0.08),      # quina com musgo (topo dos estratos)
+    "Cliff_DS":           (S(70, 74, 82), 0.9, 0.0, 0, None, 0.12),      # penhasco: carvao frio (ONDA 4b: era 86,92,104)
+    "Cliff_DS_Dark":      (S(46, 49, 57), 0.9, 0.0, 0, None, 0.10),      # estrato escuro / quilha (ONDA 4b: era 62,66,78)
+    "Cliff_DS_Moss":      (S(60, 86, 52), 0.9, 0.0, 0, None, 0.08),      # quina com musgo (topo dos estratos) (ONDA 4b: era 70,92,66)
     "Metal_DS_Iron":      (S(64, 62, 60), 0.5, 0.5, 0, None, 0.04),      # ferro envelhecido
     "Metal_DS_Rust":      (S(112, 66, 42), 0.85, 0.2, 0, None, 0.06),    # acento de ferrugem
     "Glass_DS_Lantern":   (S(255, 192, 118), 0.4, 0.0, 1.2, S(255, 170, 90), 0.0),    # papel/vidro de lanterna aceso
@@ -73,6 +73,8 @@ DSMATS = {
     "Grass_DS":           (S(84, 118, 62), 0.9, 0.0, 0, None, 0.10),
     "Dirt_DS":            (S(132, 106, 76), 0.95, 0.0, 0, None, 0.10),   # chao da clareira (contraste com os minerios)
     "Dirt_DS_Dark":       (S(98, 80, 60), 0.95, 0.0, 0, None, 0.08),
+    "Grass_DS_Deep":      (S(56, 90, 46), 0.9, 0.0, 0, None, 0.08),      # ds_terrain (4b): grama funda/borda verde que cai
+    "Grass_DS_Dry":       (S(112, 118, 70), 0.9, 0.0, 0, None, 0.08),    # ds_terrain (4b): grama rala/seca (manchas da clareira)
     "Wisteria_DS":        (S(150, 110, 205), 0.8, 0.0, 0, None, 0.04),   # SO nos 4 acentos
     "Wisteria_DS_Light":  (S(186, 156, 230), 0.8, 0.0, 0, None, 0.02),
     "Fire_DS_Glow":       (S(255, 122, 40), 0.5, 0.0, 2.2, S(255, 122, 40), 0.0),   # boca da fornalha
@@ -122,7 +124,7 @@ for k in ("Glass_DS_Lantern", "Fire_DS_Glow", "Ember_DS_Glow", "Window_DS_Warm")
 for _p in ("Stone_DS", "Wood_DS", "Roof_DS", "Plaster_DS", "Grass_DS", "Dirt_DS"):
     if (_p, None) not in fm_lib.TEX_RULES:
         fm_lib.TEX_RULES = ((_p, None),) + tuple(fm_lib.TEX_RULES)
-add_variants("Cliff_DS", [("Cliff_DS", 5), ("Cliff_DS_B", 3, (78, 84, 96))], cap=2)
+add_variants("Cliff_DS", [("Cliff_DS", 5), ("Cliff_DS_B", 3, (80, 75, 69))], cap=2)    # B quente (ONDA 4b: era 78,84,96)
 add_variants("Stone_DS", [("Stone_DS", 5), ("Stone_DS_B", 3, (112, 108, 100))], cap=2)
 add_variants("Grass_DS", [("Grass_DS", 6), ("Grass_DS_B", 4, (76, 108, 58))], cap=2)
 

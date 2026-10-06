@@ -28,6 +28,20 @@
 # de bambu e tufos de grama). Lilas so nas glicinias.
 # RAIZES: cada arvore da clareira tem as suas (curvas, mergulhando no chao real, fora do canal). (ONDA 4: o ds_terrain
 # nao gera mais as raizes retas DS_Clr_Roots, entao o apagamento delas aqui saiu.)
+# ONDA 4b (agente 4b-VEG, DENSIDADE): a ilha lia esparsa contra as refs. Acrescimos (densify, secao "ONDA 4b"):
+#   - DEN_TREES: 47 arvores da MESMA familia em versao LEVE (broad_lite: keyaki/momiji com metade das massas; cedro)
+#     em fileiras/grupos com intencao: crista da Trilha, fundo e rua da vila baixa, topo do arrimo vila alta -> clareira,
+#     moldura da clareira (O/S/SE/L/N), barranco NE, abas da subida na berma, borda do patio do carvao, as 2 margens
+#     do caminho de saida, lobo leste da forja, fundo e tras do summon. site_ok: chao natural, fora da MiningZone + 6,
+#     tronco >= 7 + r da rota (faixa das lanternas/cercas do ds_props livre), fora de escada/agua/frente de casa/ancora
+#     de prop; NUDGE ate 5 em volta; a copa encolhe (0,82/0,68) se fechar uma VISADA protegida (protected_views: forja
+#     boca/salao/torre-chamine, estrela e torre do summon, portao OP, das PlayerHeight, Ref_* e do gate do QA).
+#     Colisao do tronco so a <= 26 de rota ou na clareira (o COL_ da ilha e compartilhado).
+#   - saias de mato no pe das arvores novas (do lado de fora do caminho); FRANJA das falesias: moitas e arvorezinhas
+#     agarradas (cliff_tree) no topo REAL das colunas da coroa (raio de cima) + moitas na FACE das colunas (raio
+#     horizontal, face_clump), em setores de ruido de baixa frequencia; moitas de PE DE MURO em setores.
+#   - bambuzal 23 -> 29 touceiras (+ moitas na aba oeste, sobre o arrimo da Trilha); grama 280 -> 170 tufos.
+#   Glicinias continuam so as 4. Orcamento: ~115,5k tris (teto 118k / 95 MeshParts no export_ds).
 # OBJETOS: 1 por celula de 140 x 140 da planta (o export fatia > 160 em celulas e cada material vira 1 MeshPart);
 # bambuzal e glicinias em objetos proprios.
 import math, random, zlib
@@ -384,15 +398,16 @@ def karikomi(mb, P, x, y, rng, r=1.7, lumps=2, m=SHRUB):
                 prof=((0.0, 0.86), (0.32, 1.0), (0.7, 0.82)))
 
 
-def bush(mb, P, x, y, rng, r=1.6, m=BROAD):
+def bush(mb, P, x, y, rng, r=1.6, m=BROAD, n=6, lumps=None):
     """mato baixo SELVAGEM (pe de muro, borda da clareira): 2-3 almofadas asperas e desencontradas, mais alto num
-    lado, enterradas 0,25 (contraponto ao karikomi podado da vila)"""
+    lado, enterradas 0,25 (contraponto ao karikomi podado da vila). ONDA 4b: n/lumps para a versao de LONGE (franja
+    das falesias: 2 almofadas de 5 lados)"""
     z = P.gz(x, y, T1)
     a0 = rng.uniform(0, TAU)
-    for k in range(rng.randint(2, 3)):
+    for k in range(lumps or rng.randint(2, 3)):
         q = Vector((x, y, z - 0.25)) + vdir(a0 + 2.3 * k) * r * (0.0 if k == 0 else rng.uniform(0.55, 0.85))
         rr = r * (1.0 if k == 0 else rng.uniform(0.55, 0.75))
-        cushion(mb, q, rr, rr * 0.85, rr * rng.uniform(0.95, 1.25), m, rng, n=6, rot=a0 + k, jit=0.16)
+        cushion(mb, q, rr, rr * 0.85, rr * rng.uniform(0.95, 1.25), m, rng, n=n, rot=a0 + k, jit=0.16)
     return z
 
 
@@ -728,6 +743,498 @@ SHRUBS = [(-54.0, 120.0, 1.6), (-74.0, 141.0, 1.4), (-76.0, 182.0, 1.7), (-84.0,
           (-24.0, 46.0, 1.4), (20.0, 44.0, 1.3), (-36.0, 124.0, 1.5), (-44.0, 196.0, 1.4)]
 
 
+# ================================================================== ONDA 4b: DENSIDADE DIRIGIDA
+# A leitura do lead: a ilha lia esparsa demais contra as refs (copa densa ladeando TODOS os caminhos, bordas dos
+# terracos e topo das falesias; moitas no pe dos muros; bambuzal cheio; massa verde emoldurando a clareira e a vila).
+# Cada grupo abaixo tem um porque (fileira que ladeia um caminho, borda de terraco, moldura de capitulo); nada e
+# espalhado por sorteio. As arvores novas sao da MESMA familia (keyaki / momiji / sugi) em versao LEVE (broad_lite:
+# a mesma linguagem de massas em nuvem, metade das massas, sem os galhos ate cada massa) - custa ~1/2 e le igual de
+# longe. Regras de cada sitio (site_ok): chao natural, fora da MiningZone, tronco a >= 7 + r da linha de rota (a faixa
+# de ~2 entre a borda do caminho e o tronco fica para as lanternas e cercas do ds_props), fora de escada, agua, frente
+# de casa (porta), ancoras de props, portao da vila; a copa nao fecha nenhuma VISADA protegida (forja: boca, salao,
+# torre-chamine; estrela e torre do summon; portao OP) das PlayerHeight, das Ref_* e das visadas do gate do QA.
+# (x, y, tipo, altura, raio da copa, chave/intencao)   tipo: K = keyaki leve, M = momiji leve, C = cedro
+DEN_TREES = [
+    # TRILHA: a crista oeste fecha o gargalo (copa debrucada sobre a escada), entre os cedros da crista
+    (-56.0, 72.0, "K", 18.0, 9.0, "TrilhaCrista"), (-42.0, 63.0, "M", 14.0, 7.0, "TrilhaCrista"),
+    # VILA BAIXA: atras das casas (borda oeste) e entre a rua e a clareira (moldura da rua vista da clareira)
+    (-120.0, 134.0, "C", 22.0, 3.7, "VilaFundo"), (-120.0, 215.0, "M", 15.0, 8.0, "VilaFundo"),
+    (-52.0, 186.0, "K", 18.0, 9.0, "VilaRua"), (-56.0, 216.0, "M", 13.0, 6.5, "VilaRua"),
+    # VILA ALTA: fileira no topo do arrimo para a clareira (as refs: copas sobre o muro entre a vila e a clareira)
+    (-62.0, 248.0, "K", 18.0, 9.0, "VilaAltaBorda"), (-60.0, 268.0, "C", 21.0, 3.7, "VilaAltaBorda"),
+    (-58.0, 312.0, "K", 18.0, 9.5, "VilaAltaBorda"), (-60.0, 330.0, "M", 14.0, 7.0, "VilaAltaBorda"),
+    (-86.0, 366.0, "K", 17.0, 8.5, "VilaAltaN"),          # gramado ao norte do jardim do V6, ao pe da OesteForja
+    # CLAREIRA: moldura da borda (oeste ao pe do arrimo, sudeste junto do bambuzal, leste entre o canal e o summon,
+    # norte ao pe da berma flanqueando a SubidaA); o miolo continua vazio
+    (-28.0, 174.0, "M", 15.0, 7.5, "ClareiraO"), (-34.0, 246.0, "K", 17.0, 8.5, "ClareiraO"),
+    (-34.0, 316.0, "M", 15.0, 7.5, "ClareiraO"), (-30.0, 340.0, "K", 18.0, 9.0, "ClareiraO"),
+    (84.0, 146.0, "K", 18.0, 9.5, "ClareiraSE"), (124.0, 194.0, "M", 15.0, 8.0, "ClareiraSE"),
+    (138.0, 252.0, "C", 19.0, 3.5, "ClareiraL"), (138.0, 282.0, "K", 16.0, 8.0, "ClareiraL"),
+    (136.0, 322.0, "M", 14.0, 7.0, "ClareiraL"),
+    (24.0, 138.0, "K", 18.0, 9.5, "ClareiraS"), (46.0, 140.0, "M", 14.0, 7.0, "ClareiraS"),
+    (38.0, 362.0, "K", 17.0, 8.5, "ClareiraN"), (62.0, 358.0, "K", 18.0, 9.0, "ClareiraN"),
+    (88.0, 366.0, "M", 13.0, 6.5, "ClareiraN"),
+    # BARRANCO NE (topo da falesia sobre a lagoa)
+    (135.0, 392.0, "K", 16.0, 8.0, "Barranco"), (132.0, 430.0, "C", 20.0, 3.5, "Barranco"),
+    (156.0, 352.0, "M", 13.0, 6.5, "Barranco"),
+    # BERMA: as 2 abas da subida (fora do corredor clareira -> boca da fornalha)
+    (-24.0, 392.0, "K", 16.0, 8.5, "Berma"), (64.0, 410.0, "K", 17.0, 9.0, "Berma"),
+    (84.0, 414.0, "M", 13.0, 6.5, "Berma"), (58.0, 390.0, "C", 19.0, 3.5, "Berma"),
+    # TERRACO DA FORJA: borda oeste do patio do carvao, as 2 margens do caminho de saida, lobo leste (roda)
+    (-140.0, 392.0, "C", 22.0, 3.8, "Carvao"), (-140.0, 484.0, "K", 18.0, 9.0, "Carvao"), (-138.0, 418.0, "K", 18.0, 9.0, "Carvao"),
+    (-134.0, 446.0, "C", 20.0, 3.5, "Carvao"), (-100.0, 384.0, "M", 14.0, 7.0, "Carvao"),
+    (-124.0, 508.0, "M", 13.0, 6.5, "SaidaO"), (-118.0, 548.0, "M", 13.0, 6.5, "SaidaO"),
+    (-88.0, 474.0, "K", 17.0, 8.5, "SaidaL"), (-84.0, 500.0, "C", 21.0, 3.6, "SaidaL"),
+    (124.0, 462.0, "C", 20.0, 3.5, "ForjaL"), (114.0, 500.0, "K", 16.0, 8.0, "ForjaL"),
+    # FUNDO (rochas da montanha), longe da sela atras da chamine
+    (-36.0, 548.0, "C", 22.0, 3.8, "Fundo"), (88.0, 556.0, "K", 17.0, 8.5, "Fundo"),
+    # SUMMON: borda de tras do plato (enquadra a torre por tras, abaixo da estrela)
+    (204.0, 286.0, "K", 14.0, 7.0, "Summon"), (206.0, 314.0, "M", 13.0, 6.0, "Summon"),
+]
+# arcos do contorno SEM franja de vegetacao (pontes, torii, mirante do summon, sangradouro, cascata, saida)
+FRINGE_SKIP = [((0.0, 0.0), 30.0), ((-95.0, 594.0), 26.0), ((210.0, 300.0), 16.0), ((154.0, 230.0), 14.0),
+               ((-97.0, 586.0), 22.0)]
+WATER_LINES = (L.CHANNEL, L.TAILRACE, L.FLUME)
+
+
+def front_of_house(x, y, reach=22.0):
+    """ponto na frente de uma casa (lado da porta/rua) a menos de reach do centro"""
+    for h in L.HOUSES:
+        cx, cy = h[2], h[3]
+        dx, dy = x - cx, y - cy
+        if dx * dx + dy * dy > reach * reach:
+            continue
+        rum = math.radians(_HOUSE_RUMO.get(h[0], 0.0))
+        if dx * math.cos(rum) + dy * math.sin(rum) > -2.0:
+            return h[0]
+    return None
+
+
+_HOUSE_RUMO = {"V1": 15.0, "V2": 20.0, "V3": 23.0, "V4": -90.0, "V5": -6.0, "V6": 0.0}   # = ds_village.HOUSES
+
+
+def _prop_anchors():
+    try:
+        import ds_village
+        return [(a[1], a[2], a[4]) for a in ds_village.PROP_ANCHORS]
+    except Exception:
+        return []
+
+
+def protected_views():
+    """(olho, alvo) que copa nenhuma pode fechar: as visadas do gate do QA + forja/summon das PlayerHeight e Ref_*"""
+    cams = L.cams()
+    star = None
+    o = bpy.data.objects.get("L_DSSum_Star")
+    if o:
+        star = o.location.copy()
+    chim = Vector((L.CHIMNEY[0], L.CHIMNEY[1], L.CHIMNEY_TOP - 0.6))
+    mouth = Vector((L.FURNACE_MOUTH[0], L.FURNACE_MOUTH[1] - 2.2, T4 + 6.0))
+    hall = Vector((0.0, 486.0, T4 + 22.0))
+    tower = [Vector((L.CHIMNEY[0], L.CHIMNEY[1], T4 + 56.0)), Vector((L.CHIMNEY[0], L.CHIMNEY[1] - 7.6, T4 + 46.0)),
+             Vector((L.CHIMNEY[0] - 7.6, L.CHIMNEY[1] - 7.6, T4 + 40.0))]
+    tower_c = Vector((L.SUMMON_TOWER[0], L.SUMMON_TOWER[1], T3 + 30.0))
+    forge = [chim, mouth, hall] + tower
+    summ = [p for p in (star, tower_c) if p is not None]
+    out = []
+    for cn in L.PLAYER_CAMS + L.REF_CAMS + ["CAM_DS_Entry", "CAM_DS_Clearing", "CAM_DS_Forge", "CAM_DS_Summon"]:
+        if cn not in cams:
+            continue
+        eye = Vector(cams[cn][0])
+        tg = Vector(cams[cn][1])
+        out.append((eye, tg))
+        if "OnePiece" in cn:
+            continue
+        for p in forge + summ:
+            out.append((eye, p))
+    g = L.gate_op_pos()
+    for eye, tgts in (((0.0, 150.0, T1 + L.EYE), [mouth]), ((L.MINE_C[0], L.MINE_C[1], T1 + L.EYE), [mouth]),
+                      ((-12.0, 58.0, T1 + L.EYE), summ), ((-12.0, 64.0, T1 + L.EYE), summ),
+                      ((30.0, 200.0, T1 + L.EYE), summ),
+                      ((L.EXIT_START[0], L.EXIT_START[1] - 4.0, T4 + L.EYE), [Vector((g[0], g[1], T4 + 12.0))])):
+        for p in tgts:
+            out.append((Vector(eye), p))
+    return out
+
+
+def seg_point_dist(a, b, p):
+    d = b - a
+    t = max(0.0, min(1.0, (p - a).dot(d) / max(1e-9, d.length_squared)))
+    return (a + d * t - p).length
+
+
+def blocks_view(views, spheres):
+    for e, t in views:
+        for c, r in spheres:
+            if seg_point_dist(e, t, c) < r + 0.8:
+                return True
+    return False
+
+
+def tree_spheres(kind, x, y, z, h, R):
+    if kind == "C":
+        return [(Vector((x, y, z + h * 0.35)), R * 1.05), (Vector((x, y, z + h * 0.68)), R * 0.75)]
+    return [(Vector((x, y, z + h * 0.62)), R * 0.92), (Vector((x, y, z + h * 0.86)), R * 0.62)]
+
+
+def site_ok(P, x, y, r_trunk, ctx, route_gap=7.0, need_floor=False, ring=True):
+    """(z, None) se o pe pode nascer em (x, y); senao (None, motivo)"""
+    t = P.top(x, y)
+    if t is None or not t[1].startswith(P.NATURAL):
+        return None, "chao %s" % (t[1] if t else None)
+    if t[3] < 0.6:
+        return None, "inclinado"
+    if need_floor and L.zone_of(x, y) is None:
+        return None, "fora do piso"
+    if in_mine(x, y, 6.0):
+        return None, "zona"
+    if P.route_dist(x, y) < route_gap + r_trunk:
+        return None, "rota"
+    if P.in_stairs(x, y, 3.0):
+        return None, "escada"
+    if any(L.polyline_dist(x, y, w) < 4.5 + r_trunk for w in WATER_LINES) or \
+            L.point_in_poly(x, y, DL.offset_poly(L.POND, 2.0 + r_trunk)):
+        return None, "agua"
+    if front_of_house(x, y):
+        return None, "frente de casa"
+    for ax, ay, ar in ctx["anchors"]:
+        if (x - ax) ** 2 + (y - ay) ** 2 < (ar + r_trunk + 2.5) ** 2:
+            return None, "ancora"
+    if not P.clear_of_built(Vector((x, y, t[0] + 1.5)), r_trunk + 2.5):
+        return None, "construido"
+    if ring:                                # a faixa da beira do caminho (lajes, rua, patio) fica livre
+        for k in range(8):
+            a = TAU * k / 8
+            q = P.top(x + math.cos(a) * (r_trunk + 2.2), y + math.sin(a) * (r_trunk + 2.2))
+            if q is not None and abs(q[0] - t[0]) < 2.5 and not q[1].startswith(P.NATURAL):
+                return None, "beira de %s" % q[1]
+    return t[0], None
+
+
+def broad_lite(mb, P, x, y, rng, h=15.0, R=7.0, leaf_m=BROAD, dark=CEDAR, limbs=3, flat=0.86, lean=(0.0, 0.0),
+               adjust=None, nroots=2, col=True):
+    """a arvore larga da familia em versao LEVE: tronco curto e grosso (base alargada, 2 raizes que agarram o chao),
+    forquilha baixa em 'limbs' bracos em vaso; COPA = 1 massa larga na ponta de cada braco + anel de cima recolhido
+    (limbs - 1 massas, girado) + coroa + 1 massa interna escura (profundidade). Mesmas almofadas (pad) da familia."""
+    z = P.gz(x, y, T1)
+    base = Vector((x, y, z))
+    r0 = 0.45 + R * 0.08
+    lv = Vector((lean[0], lean[1], 0.0))
+    hf = h * rng.uniform(0.28, 0.33)
+    ph = rng.uniform(0, TAU)
+    tp, tr = [], []
+    for i in range(4):
+        f = i / 3
+        tp.append(base + lv * f * f * 0.6 + vdir(ph) * math.sin(f * math.pi) * 0.3 * r0 + ZZ * (hf * f - 0.5 * (1 - f)))
+        tr.append(r0 * (1.32 if i == 0 else (1.1 - 0.3 * f)))
+    tube(mb, tp, tr, n=6)
+    F, rf = tp[-1], tr[-1]
+    nr = roots(mb, P, base, r0, rng, n=nroots, reach=(1.8, 3.0)) if nroots else 0
+    C0 = base + lv
+    a0 = rng.uniform(0, TAU)
+    pads = []
+
+    def place(pc, s, m):
+        if adjust:
+            r_ = adjust(pc, s)
+            if r_ is None:
+                return
+            pc, s = r_
+        pads.append((pc, s, m))
+
+    for k in range(limbs):
+        a = a0 + TAU * k / limbs + rng.uniform(-0.25, 0.25)
+        pc = C0 + vdir(a) * R * rng.uniform(0.5, 0.6) + ZZ * h * rng.uniform(0.52, 0.6)
+        mid = F + vdir(a) * R * 0.22 + ZZ * h * 0.12
+        tube(mb, [F - ZZ * 0.6, mid, pc - ZZ * 0.3], [rf * 0.72, rf * 0.5, rf * 0.3], n=5)
+        place(pc, R * rng.uniform(0.46, 0.52), leaf_m)
+    for k in range(max(1, limbs - 1)):
+        a = a0 + math.pi / limbs + TAU * k / max(1, limbs - 1) + rng.uniform(-0.2, 0.2)
+        place(C0 + vdir(a) * R * rng.uniform(0.26, 0.34) + ZZ * h * rng.uniform(0.72, 0.78), R * rng.uniform(0.44, 0.5),
+              leaf_m)
+    place(C0 + vdir(ph + 1.0) * R * 0.08 + ZZ * h * 0.88, R * 0.42, leaf_m)
+    inner = C0 + vdir(a0 + math.pi) * R * 0.2 + ZZ * h * 0.6
+    if adjust:
+        r_ = adjust(inner, R * 0.44)
+        inner = r_ if r_ else None
+    else:
+        inner = (inner, R * 0.44)
+    for pc, s, m in pads:
+        pad(mb, pc, s, m, rng, flat=flat, subs=1)
+    if inner:
+        cushion(mb, inner[0] - ZZ * inner[1] * 0.3, inner[1] * 1.05, inner[1] * 0.9, inner[1] * 0.8, dark, rng, n=6)
+    if col and L.zone_of(x, y) is not None:
+        col_box("DS_VegTrunk", (r0 * 2.0, r0 * 2.0, 7.0), (x, y, z + 3.5))
+    return dict(top=max((pc.z + s * flat * 1.1 for pc, s, m in pads), default=z + h), pads=len(pads) + 1, roots=nr)
+
+
+def cliff_tree(mb, P, x, y, z, rng, out_az, h=8.0, R=3.8, m=BROAD):
+    """arvorezinha AGARRADA no topo de uma coluna da coroa: tronco que sai inclinado para o vazio e sobe em S (o
+    vento da montanha), copa de 2-3 massas pequenas; sem colisao (ninguem chega la)"""
+    base = Vector((x, y, z))
+    d = vdir(out_az)
+    pts = [base - ZZ * 0.5, base + d * 0.9 + ZZ * h * 0.25, base + d * 2.0 + ZZ * h * 0.55, base + d * 2.4 + ZZ * h * 0.8]
+    tube(mb, pts, [0.62, 0.48, 0.34, 0.2], n=5)
+    top = pts[-1]
+    cushion(mb, top - ZZ * R * 0.35, R * 1.05, R * 0.85, R * 0.75, m, rng, n=7, rot=out_az)
+    for k in range(rng.randint(1, 2)):
+        a = out_az + (1.6 if k else -1.6) + rng.uniform(-0.4, 0.4)
+        q = top + vdir(a) * R * 0.75 - ZZ * R * rng.uniform(0.25, 0.45)
+        cushion(mb, q - ZZ * R * 0.2, R * 0.7, R * 0.58, R * 0.55, m, rng, n=6, rot=a)
+    return top.z + R * 0.5
+
+
+def densify(P, cells, trunks, make_adjust):
+    """ONDA 4b: a densidade dirigida (arvores, saias de mato, franja das falesias, moitas de pe de muro)"""
+    ctx = dict(anchors=_prop_anchors() + [(L.VILLAGE_GATE[0], L.VILLAGE_GATE[1], 6.0), (L.WELL[0], L.WELL[1], 5.0),
+                                          (L.HOKORA[0], L.HOKORA[1], 4.0)] +
+               [(wx, wy, 6.0) for wx, wy in L.WISTERIA])
+    views = protected_views()
+    rej = STATS.setdefault("den_rejeitado", [])
+    made = []
+    # ---------------- arvores (fileiras e grupos dirigidos)
+    t0 = _tris(cells)
+    for i, (x0, y0, kind, h0, R0, grp) in enumerate(DEN_TREES):
+        r_ = random.Random(zlib.crc32(("den%s%d" % (grp, i)).encode()))
+        # o ponto da planta; se o pe nao serve (chanfro da coluna, beira de caminho...), procura ate 5 em volta; se a
+        # copa fecha uma visada, a arvore encolhe (0,82 / 0,68) antes de desistir
+        why0 = None
+        found = None
+        for ox, oy in NUDGE:
+            x, y = x0 + ox, y0 + oy
+            rt = 0.5 if kind == "C" else 0.45 + R0 * 0.08
+            z, why = site_ok(P, x, y, rt * 1.3, ctx)
+            if why is None and any(math.hypot(x - tx, y - ty) < tr + rt + 2.0 for tx, ty, tr in trunks):
+                why = "tronco vizinho"
+            if why is None:
+                for sc in (1.0, 0.82, 0.68):
+                    h, R = min(h0 * sc, TOP_MAX - z - 1.0), R0 * sc
+                    if not blocks_view(views, tree_spheres(kind, x, y, z, h, R)):
+                        found = (x, y, z, h, R)
+                        break
+                if found:
+                    break
+                why = "visada"
+            why0 = why0 or why
+        if not found:
+            rej.append((grp, x0, y0, why0))
+            continue
+        x, y, z, h, R = found
+        if (x, y) != (x0, y0) or R != R0:
+            STATS.setdefault("den_ajustado", []).append((grp, x0, y0, round(x - x0, 1), round(y - y0, 1), round(R / R0, 2)))
+        hh_ = h
+        mb = cells.at(x, y)
+        # colisao do tronco so onde o jogador circula (<= 26 de uma rota ou na clareira): o orcamento de COL_ da ilha
+        # e compartilhado (1300); tronco no fundo atras das casas / na beira do contorno fica sem caixa
+        colide = P.route_dist(x, y) < 26.0 or L.point_in_poly(x, y, L.CLEARING)
+        if kind == "C":
+            top = cedar(mb, P, x, y, r_, h=hh_, r=R, col=colide)
+        else:
+            kw = dict(leaf_m=SHRUB, dark=BROAD, limbs=4, flat=0.74) if kind == "M" else dict(leaf_m=BROAD, dark=CEDAR)
+            top = broad_lite(mb, P, x, y, r_, h=hh_, R=R, adjust=make_adjust(R), col=colide, **kw)["top"]
+        STATS["den_col"] = STATS.get("den_col", 0) + (1 if colide and L.zone_of(x, y) is not None else 0)
+        made.append((x, y, kind, R, z))
+        trunks.append((x, y, 2.0 if kind == "C" else 2.6))
+        STATS.setdefault("den_arvores", 0)
+        STATS["den_arvores"] += 1
+    t1 = _tris(cells)
+    # ---------------- saias de mato: 2-3 moitas no pe de cada arvore nova, do lado de FORA do caminho (a arvore
+    # 'planta' no chao e o gramado vazio vira massa)
+    nsk = 0
+    for j, (x, y, kind, R, z) in enumerate(made):
+        r_ = random.Random(7000 + j)
+        # rumo de fora: para longe da rota mais proxima
+        best = None
+        for a in range(12):
+            aa = TAU * a / 12
+            d = P.route_dist(x + math.cos(aa) * 6.0, y + math.sin(aa) * 6.0)
+            if best is None or d > best[0]:
+                best = (d, aa)
+        az = best[1]
+        for k in range(2 if kind == "K" else (1 if kind == "M" else 0)):
+            a = az + (k - 0.5) * 1.1 + r_.uniform(-0.3, 0.3)
+            rr = (R * r_.uniform(0.55, 0.85)) if kind != "C" else r_.uniform(2.6, 3.6)
+            bx, by = x + math.cos(a) * rr, y + math.sin(a) * rr
+            br = r_.uniform(1.5, 2.3)
+            zz, why = site_ok(P, bx, by, br, ctx, route_gap=4.0, ring=False)
+            if why:
+                continue
+            bush(cells.at(bx, by), P, bx, by, r_, r=br, m=(CEDAR if (j + k) % 3 == 0 else BROAD))
+            trunks.append((bx, by, br + 0.4))
+            nsk += 1
+    STATS["den_saias"] = nsk
+    t2 = _tris(cells)
+    # ---------------- franja das falesias: moitas e arvorezinhas agarradas no TOPO REAL das colunas da coroa
+    STATS["den_franja"] = cliff_fringe(P, cells, ctx, views)
+    t3 = _tris(cells)
+    # ---------------- moitas de pe de muro (em setores, massas, nao tufos)
+    STATS["den_pe_muro"] = wall_foot(P, cells, ctx, trunks)
+    t4 = _tris(cells)
+    STATS["den_tris"] = dict(arvores=t1 - t0, saias=t2 - t1, franja=t3 - t2, pe_muro=t4 - t3)
+    return made
+
+
+NUDGE = [(0.0, 0.0)] + [(math.cos(TAU * k / 8) * d, math.sin(TAU * k / 8) * d) for d in (2.5, 5.0) for k in range(8)]
+
+
+def _tris(cells):
+    return sum(sum(len(f.verts) - 2 for f in mb.bm.faces) for mb in cells.mbs.values())
+
+
+def cliff_fringe(P, cells, ctx, views):
+    """anda pelo contorno (passo de ciclo fixo); onde o raio de cima acha o topo de uma coluna da coroa (DS_Ter_Cliff,
+    face de cima) a 0,3..4 abaixo do piso vizinho, a franja nasce: setores DIRIGIDOS pelo ruido de baixa frequencia
+    (trechos verdes de 3-6 moitas + 1 arvorezinha agarrada a cada ~3 trechos, e trechos de rocha nua entre eles)"""
+    rim = list(L.ISLAND_RIM)
+    steps = (5.2, 4.1, 6.3, 4.6, 5.6)
+    pts = []
+    k = 0
+    need = steps[0]
+    for a, b in zip(rim, rim[1:] + rim[:1]):
+        ln = math.hypot(b[0] - a[0], b[1] - a[1])
+        if ln < 1e-6:
+            continue
+        t = 0.0
+        while ln - t >= need:
+            t += need
+            pts.append((a[0] + (b[0] - a[0]) * t / ln, a[1] + (b[1] - a[1]) * t / ln, (b[0] - a[0]) / ln, (b[1] - a[1]) / ln))
+            k += 1
+            need = steps[k % len(steps)]
+        need -= ln - t
+    n = nt = nf = 0
+    sector = 0
+    for i, (x, y, tx, ty) in enumerate(pts):
+        if any(math.hypot(x - c[0], y - c[1]) < r for c, r in FRINGE_SKIP):
+            continue
+        g = noise.noise(Vector((x * 0.035, y * 0.035, 11.3)))
+        if g < 0.04:
+            sector = 0
+            continue
+        # normal para fora: o contorno e anti-horario? testa os 2 lados
+        nx_, ny_ = ty, -tx
+        if L.point_in_poly(x + nx_ * 6.0, y + ny_ * 6.0, L.ISLAND_RIM):
+            nx_, ny_ = -nx_, -ny_
+        best = None
+        for off in (1.0, -0.5, 2.6, -2.0):
+            px, py = x + nx_ * off, y + ny_ * off
+            t = P.top(px, py)
+            if t is None or not t[1].startswith("DS_Ter_Cliff") or t[3] < 0.7:
+                continue
+            best = (px, py, t[0])
+            break
+        if best is None:
+            continue
+        px, py, z = best
+        zf = None
+        for d in (5.0, 9.0, 14.0):
+            zf = L.zone_of(px - nx_ * d, py - ny_ * d)
+            if zf is not None:
+                break
+        if zf is not None and not (zf - 4.5 < z < zf - 0.2):
+            continue
+        if P.route_dist(px, py) < 6.0 or P.in_stairs(px, py, 3.0):
+            continue
+        if not P.clear_of_built(Vector((px, py, z + 1.0)), 2.6):
+            continue
+        r_ = random.Random(8800 + i)
+        sector += 1
+        out_az = math.atan2(ny_, nx_)
+        # moita PENDURADA na face da falesia (as refs: verde agarrado nas colunas a meia altura), 1 a cada 3 pontos
+        # do trecho verde: raio horizontal de fora para dentro numa cota de ciclo fixo abaixo do piso
+        if sector % 3 == 1 and nf < FACE_MAX and zf is not None:
+            zc = zf - FACE_DROPS[i % len(FACE_DROPS)]
+            o = Vector((px + nx_ * 18.0, py + ny_ * 18.0, zc))
+            hit = P.bvh.ray_cast(o, Vector((-nx_, -ny_, 0.0)), 30.0)
+            if hit[0] is not None and P.own[hit[2]].startswith("DS_Ter_Cliff") and abs(hit[1].z) < 0.6:
+                face_clump(cells.at(px, py), hit[0], Vector((hit[1].x, hit[1].y, 0.0)).normalized(),
+                           r_.uniform(2.4, 3.4), (BROAD, CEDAR, SHRUB)[nf % 3], r_)
+                nf += 1
+        if sector % 7 == 3 and g > 0.12:
+            hh_ = r_.uniform(7.0, 10.0)
+            RR = r_.uniform(3.4, 4.6)
+            sph = [(Vector((px + nx_ * 2.4, py + ny_ * 2.4, z + hh_ * 0.8)), RR)]
+            if not blocks_view(views, sph):
+                cliff_tree(cells.at(px, py), P, px, py, z, r_, out_az, h=hh_, R=RR, m=(BROAD, SHRUB, CEDAR)[i % 3])
+                nt += 1
+                continue
+        br = r_.uniform(1.4, 2.4) * (1.0 + 0.4 * max(0.0, g))
+        bush(cells.at(px, py), P, px, py, r_, r=br, m=(CEDAR if i % 4 == 0 else (SHRUB if i % 5 == 0 else BROAD)),
+             n=5, lumps=2)
+        n += 1
+    return (n, nt, nf)
+
+
+FACE_MAX = 20
+FACE_DROPS = (7.5, 12.0, 9.0, 15.5, 10.5)
+
+
+def face_clump(mb, p, nrm, r, m, rng):
+    """moita agarrada na FACE de uma coluna: almofada achatada contra a rocha (metade enterrada na face) + 1 menor
+    pendendo ao lado e abaixo (le como mato que desce da fresta). Sem colisao"""
+    az = math.atan2(nrm.y, nrm.x)
+    c = p + nrm * (r * 0.25) - ZZ * (r * 0.45)
+    cushion(mb, c, r * 0.8, r * 1.1, r * 1.0, m, rng, n=5, rot=az, jit=0.15)
+    side = vdir(az + math.pi / 2) * (r * rng.choice((-0.8, 0.8)))
+    cushion(mb, c + side - ZZ * (r * 0.55), r * 0.55, r * 0.7, r * 0.7, m, rng, n=5, rot=az, jit=0.15)
+
+
+def wall_foot(P, cells, ctx, trunks, budget=40):
+    """moitas no PE dos muros de arrimo e das faces de rocha (vizinho 2+ mais alto, de muro/rocha), em SETORES (ruido
+    de baixa frequencia) e com espacamento minimo: trechos de massa e trechos de muro limpo, nunca uma fita uniforme"""
+    rim = L.ISLAND_RIM
+    xs = [p[0] for p in rim]
+    ys = [p[1] for p in rim]
+    cand = []
+    step = 3.0
+    y = min(ys) + 1.0
+    while y < max(ys):
+        x = min(xs) + 1.0
+        while x < max(xs):
+            jx = x + (hh("wfx", x, y) - 0.5) * 2.0
+            jy = y + (hh("wfy", x, y) - 0.5) * 2.0
+            x += step
+            if not L.point_in_poly(jx, jy, rim) or in_mine(jx, jy, 6.0):
+                continue
+            g = noise.noise(Vector((jx * 0.045, jy * 0.045, 7.1)))
+            if g < 0.0:
+                continue
+            t = P.top(jx, jy)
+            if t is None or not t[1].startswith(P.NATURAL) or t[3] < 0.8 or L.zone_of(jx, jy) is None:
+                continue
+            z0 = t[0]
+            wall = None
+            for a in range(8):
+                aa = TAU * a / 8
+                q = P.top(jx + math.cos(aa) * 2.6, jy + math.sin(aa) * 2.6)
+                if q is not None and q[0] - z0 > 2.0 and q[1].startswith(P.WALLS):
+                    wall = aa
+                    break
+            if wall is None:
+                continue
+            cand.append((g + 0.3 * hh("wfw", jx, jy), jx, jy, wall))
+        y += step
+    cand.sort(reverse=True)
+    n = 0
+    placed = []
+    for w, x, y, wall in cand:
+        if n >= budget:
+            break
+        r_ = random.Random(zlib.crc32(("wf%.1f%.1f" % (x, y)).encode()))
+        br = r_.uniform(1.6, 2.6)
+        if any(math.hypot(x - px, y - py) < br + pr + 0.6 for px, py, pr in placed):
+            continue
+        if any(math.hypot(x - tx, y - ty) < tr + br * 0.5 for tx, ty, tr in trunks):
+            continue
+        zz, why = site_ok(P, x, y, br, ctx, route_gap=4.2, ring=False)
+        if why:
+            continue
+        bush(cells.at(x, y), P, x, y, r_, r=br, m=(CEDAR if n % 3 == 0 else BROAD))
+        placed.append((x, y, br))
+        trunks.append((x, y, br + 0.4))
+        n += 1
+    return n
+
+
 # ================================================================== objetos por celula
 CELL = 140.0
 CELL_X0, CELL_Y0 = -185.0, -20.0
@@ -875,6 +1382,10 @@ def _ramp_station(ramp, s):
         acc += ln
 
 
+BAMBOO_MAX = 29                 # ONDA 4b: 23 -> 29 touceiras (bambuzal cheio das refs 02/04)
+BAMBOO_SEEDS_4B = [(22.0, 72.0), (24.0, 98.0), (22.0, 120.0), (100.0, 140.0)]
+
+
 def bamboo_grove(P, mb, rng, wis_c):
     """o bambu cresce em MOITAS (rizoma): 3-4 touceiras juntas por moita. Moitas de beira alternam os lados do
     caminho (as touceiras da beira se debrucam sobre ele: tunel), moitas de fundo encostam na borda da ilha; entre
@@ -892,6 +1403,9 @@ def bamboo_grove(P, mb, rng, wis_c):
         seeds.append((px - ty * off * side, py + tx * off * side, "edge", (ty * side, -tx * side)))
         side = -side
         s += rng.uniform(17.0, 22.0)
+    # ONDA 4b: moitas na aba oeste (o bambu fecha o lado leste da Trilha, sobre o arrimo) e no fundo leste
+    for sx, sy in BAMBOO_SEEDS_4B:
+        seeds.append((sx, sy, "deep", None))
     for i in range(300):
         x = rng.uniform(8.0, 122.0)
         y = rng.uniform(0.0, 152.0)
@@ -903,7 +1417,7 @@ def bamboo_grove(P, mb, rng, wis_c):
         nwant = rng.randint(3, 4)
         got = 0
         for k in range(30):
-            if got >= nwant or len(made) >= 23:
+            if got >= nwant or len(made) >= BAMBOO_MAX:
                 break
             if got == 0:
                 x, y = sx, sy
@@ -1080,8 +1594,11 @@ def build():
         trunks.append((x, y, r + 0.6))
         nk += 1
     STATS["karikomi"] = nk
+    # ---------------- ONDA 4b: densidade dirigida (arvores leves, saias, franja das falesias, pe de muro)
+    densify(P, cells, trunks, make_adjust)
     # ---------------- grama em manchas
-    n, tris, nc = grass(P, cells, random.Random(5150), avoid_pts=trunks)
+    # ONDA 4b: 280 -> 170 tufos (o orcamento foi para as massas; as moitas novas ja fazem a transicao das bordas)
+    n, tris, nc = grass(P, cells, random.Random(5150), budget=170, avoid_pts=trunks)
     STATS["grass"] = (n, tris, nc)
     objs = cells.finish()
     for mb in (mbb, mbw):
@@ -1121,6 +1638,15 @@ def _cams():
         "CAM_DSVeg_PineEntry": ((10.0, 18.0, T0 + 5.5), (-28.0, 32.0, T0 + 12.0), 20),
         "CAM_DSVeg_Village": ((-60.0, 236.0, T2 + 26.0), (-128.0, 250.0, T2 + 4.0), 22),
         "CAM_DSVeg_ForgeBack": ((10.0, 430.0, T4 + 22.0), (10.0, 540.0, 108.0), 22),
+        # ONDA 4b (densidade): closes da franja das falesias e das molduras novas
+        "CAM_DSVeg_CliffW": ((-235.0, 190.0, 78.0), (-160.0, 230.0, 58.0), 24),
+        "CAM_DSVeg_CliffE": ((205.0, 110.0, 74.0), (140.0, 170.0, 56.0), 24),
+        "CAM_DSVeg_CliffNE": ((215.0, 430.0, 92.0), (145.0, 400.0, 72.0), 24),
+        "CAM_DSVeg_CliffForgeW": ((-235.0, 470.0, 104.0), (-150.0, 450.0, 80.0), 24),
+        "CAM_DSVeg_ClearingFrameW": ((40.0, 250.0, T1 + 18.0), (-40.0, 290.0, T1 + 6.0), 22),
+        "CAM_DSVeg_ClearingFrameS": ((45.0, 300.0, T1 + 18.0), (30.0, 150.0, T1 + 4.0), 22),
+        "CAM_DSVeg_Berm": ((40.0, 300.0, T1 + 12.0), (40.0, 400.0, T3 + 8.0), 22),
+        "CAM_DSVeg_ExitPath": ((-104.0, 446.0, T4 + 5.5), (-112.0, 520.0, T4 + 4.0), 22),
     }
 
 

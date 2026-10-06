@@ -26,9 +26,10 @@
 #         estacao de polimento), bancos virados para a boca; a oeste banco + fardos junto da oficina. Rotas livres.
 #   NOS   lanternas de poste do kit nos nos da clareira (topo da Trilha, antecampo, pe da subida, pe da escada do
 #         summon, bambuzal): as do blockout nao existem no build detalhado.
+# ONDA 4b (4b-PROPS): lanternas de caminho em fileira, cercas baixas em setores e vida - secao "ONDA 4b: DENSIDADE".
 # Colisao: so no que bloqueia (barris, potes, fardos, carrinhos, rebolo, lenha, caixote, cercas e postes); props
 # pequenos sem colisao; nada dentro de rota/porta (ver PROP_KEEP_OUT e o QA de rotas).
-import math, zlib
+import math, os, zlib
 import bpy, bmesh
 from mathutils import Vector, Matrix
 import ds_lib as DL
@@ -880,6 +881,669 @@ def node_lamps(mb):
         col_box(AREA, (1.0, 1.0, 8.6), (x, y, g + 4.3))
 
 
+# ================================================================== ONDA 4b: DENSIDADE (luz de caminho, cercas, vida)
+# Critica do lead (renders/onda4/folha_referencias.jpg): nas refs FILEIRAS de lanternas acesas marcam todos os caminhos
+# (um ponto quente a cada ~10-14), cercas baixas de madeira acompanham trilhas e bordas de terraco e o caminho le como
+# uma linha de luz a noite; aqui so havia lanterna nos nos. Esta secao (agente 4b-PROPS):
+#  - LANTERNAS DE CAMINHO em fileira em TODOS os caminhos (trilha, rampa do bambuzal, rua baixa e alta da vila, borda
+#    da clareira, patio da forja e do carvao, caminho de saida): passo 10-14 dirigido (mais curto nas curvas), lados
+#    alternados. 3 tipos LEVES da linguagem do kit (~125-175 tris cada; o lantern_post do kit tem 620):
+#      andon (poste com caixa) | toro baixo de caminho (oki) | tsuri (poste curto com lanterna pendurada no braco).
+#    PERFORMANCE: quase todas SEM PointLight - a camara de papel (Glass_DS_Lantern -> Neon) fica RECUADA 0,15 dentro de
+#    4 montantes com 2 cintas de travessas na frente (le como ponto de luz sem custo de luz; neon so dentro de armacao).
+#    So as de PATH_LIT (<= 12, curvas / pes de escada / frente de portao) ganham luz NightOnly L_DSProp_Lamp_* (o
+#    ds_lights trata pelo nome: posto 5 caminho; as 'Toro' no posto 6).
+#  - CERCAS baixas (K.railing) em SETORES ao longo de trechos de trilha/rampa e da borda do terraco T3 sobre a clareira;
+#    cortadas onde passam rotas, escadas, acessos, colisoes existentes e onde ha lanterna.
+#  - VIDA: 3 bancos, 3 placas de direcao, 3 pilhas pequenas de lenha.
+# Posicionamento por RAYCAST no build (o ds_terrain e o ds_veg rodam ANTES): cada peca escorrega ao longo do caminho ate
+# achar chao livre (grama/terra, sem tronco/casa/prop/colisao), fora das rotas do QA (ROUTE_CLR), da MiningZone (+6),
+# das escadas e do cone da PlayerHeight da forja. Colisao so no poste/pedestal (DS_PropPath) e nas cercas (DS_PropFence).
+import ds_terrain as _TR
+
+ROUTE_CLR = 3.3          # folga das polilinhas de rota do QA (corpo 1,1 + a largura 3,4 do teste de largura)
+LAMP_GAP = 6.5           # distancia minima entre lanternas (novas e as que ja existem: luzes L_*)
+MINE_PAD = 6.0
+GROUND_OK = ("DS_Ter_", "DS_Clr_", "DS_Vil_Street", "DS_Frg_Ground", "DS_Ent_Court", "DS_Exit_Path")
+PATH_SURF = ("DS_Vil_Street", "DS_Ter_Paving", "DS_Exit_Path", "DS_Ent_Court")
+PATH_MATS = ("Stone_DS_Path", "Stone_DS_Laje", "Stone_DS_Slab")
+LGLOW = K.LGLOW
+PST = "Stone_DS_Path"     # pedra das lanternas novas: sem familia de variantes (o Stone_DS dobra as MeshParts)
+PH_FORGE = ((16.0, 352.0), (10.0, 470.0), 6.0)     # cone da CAM_DS_PlayerHeight_Forge (nada de lanterna na frente)
+
+# caminhos: (nome, regiao, polilinha, meia-largura do piso, tipos alternados, lado inicial, modo, s0, s1, folga)
+#   modo "alt" = lados alternados (afastadas meia-largura + folga do eixo); "on" = sobre a linha (borda da clareira,
+#   com jitter lateral de +-1)
+PATHS = [
+    ("Trilha", "Sul", _TR.TRAIL_PATH, _TR.TRAIL_HW, ("andon", "toro"), -1, "alt", 6.0, None, 1.1),
+    ("Bambu", "Sul", L.BAMBOO_RAMP, 2.8, ("toro", "tsuri", "andon"), 1, "alt", 8.0, None, 1.2),
+    ("VilRua", "Vila", L.VILLAGE_STREET, 4.2, ("tsuri", "andon"), 1, "alt", 6.0, None, 1.0),
+    ("VilAlta", "Vila", L.VILLAGE_STREET_HIGH, 4.2, ("andon", "tsuri"), -1, "alt", 6.0, None, 1.0),
+    ("ClrS", "Sul", [(-26.0, 150.0), (0.0, 153.0), (30.0, 157.0), (56.0, 161.0), (80.0, 167.0), (97.0, 175.0)],
+     0.0, ("toro", "andon"), 1, "on", 22.0, None, 0.0),
+    ("ClrO", "Clareira", [(-34.0, 162.0), (-36.0, 200.0), (-37.0, 250.0), (-37.0, 300.0), (-35.0, 340.0),
+                          (-28.0, 358.0)], 0.0, ("andon", "toro"), 1, "on", 4.0, None, 0.0),
+    ("ClrL", "Clareira", [(102.0, 180.0), (109.0, 205.0), (111.0, 240.0), (110.0, 275.0), (110.0, 320.0),
+                          (108.0, 350.0), (100.0, 366.0)], 0.0, ("toro", "andon"), -1, "on", 4.0, None, 0.0),
+    ("ClrN", "Clareira", [(-20.0, 362.0), (2.0, 366.0), (30.0, 368.0), (52.0, 370.0), (74.0, 372.0), (90.0, 376.0)],
+     0.0, ("andon", "toro"), 1, "on", 2.0, None, 0.0),
+    ("FrgPatio", "Forja", [(-12.0, 447.0), (-40.0, 446.0), (-70.0, 449.0), (-100.0, 452.0)], 3.0, ("andon", "tsuri"),
+     1, "alt", 4.0, None, 1.2),
+    ("Carvao", "Forja", [(-66.0, 377.0), (-62.0, 396.0), (-55.0, 416.0), (-38.0, 438.0)], 3.0, ("tsuri", "andon"),
+     -1, "alt", 6.0, None, 1.2),
+    ("Saida", "Forja", L.EXIT_PATH, 3.4, ("toro", "tsuri"), 1, "alt", 10.0, None, 1.4),
+]
+# as <= 12 PointLights novas (NightOnly): ancora (x, y) -> a lanterna nova mais proxima (<= 10) ganha a luz
+PATH_LIT = [("Trilha", -6.0, 96.0), ("Bambu", 54.0, 98.0), ("VilRua", -72.0, 186.0), ("VilAlta", -80.0, 300.0),
+            ("ClrSO", 2.0, 154.0), ("ClrO", -37.0, 250.0), ("ClrNO", -26.0, 356.0), ("ClrN", 60.0, 371.0),
+            ("ClrL", 110.0, 250.0), ("ClrSE", 92.0, 172.0), ("FrgOeste", -55.0, 448.0), ("Carvao", -60.0, 400.0)]
+LIT_E = {"andon": 120.0, "tsuri": 120.0, "toro": 70.0}
+
+# cercas em SETORES ao longo dos caminhos: caminho -> [(lado, s0, s1)] (lado 0 = sobre a linha: borda da clareira).
+#   A cerca fica a FENCE_OFF alem da meia-largura (dentro da faixa de ~2 que o ds_veg deixa livre entre a borda do
+#   caminho e os troncos) e a lanterna desse lado entra NA LINHA da cerca: a colisao da cerca (continua) segura a
+#   lanterna tambem - sem caixa propria (orcamento de COL da ilha: 1300). Os setores evitam as cercas que ja existem
+#   (Bambuzal_O/L, Vila, PeSubida_O/L do FENCE_SECTORS: nada de cerca dupla paralela).
+FENCE_OFF = 1.5
+FENCED = {
+    "Trilha": [(-1, 8.0, 40.0), (-1, 52.0, 92.0), (1, 64.0, 92.0)],
+    "Bambu": [(-1, 12.0, 42.0), (-1, 70.0, 104.0), (1, 40.0, 66.0)],
+    "Saida": [(-1, 84.0, 128.0)],
+    "ClrO": [(0, 8.0, 36.0), (0, 100.0, 130.0), (0, 146.0, 178.0)],
+    "ClrL": [(0, 6.0, 36.0), (0, 60.0, 90.0), (0, 146.0, 180.0)],
+    "ClrN": [(0, 74.0, 112.0)],
+}
+# bordas de terraco (sem lanterna): o T3 da berma sobre a clareira, dos 2 lados do pe da SubidaA
+FENCE_LINES = [
+    ("BermaO", [(-44.0, 374.2), (-22.0, 372.2), (5.0, 377.6)]),
+    ("BermaL", [(28.0, 379.4), (54.0, 381.6), (74.0, 383.6), (88.0, 398.0)]),
+]
+LIFE = [
+    # (tipo, nome, [(x, y) candidatos em ordem], rumo em graus (frente / seta principal))
+    ("bench", "ClrO", [(-42.0, 268.0), (-44.0, 318.0)], 0.0),
+    ("bench", "Bambu", [(64.0, 112.0), (60.0, 84.0)], 180.0),
+    ("bench", "Saida", [(-122.0, 528.0), (-118.0, 556.0)], 0.0),
+    ("sign", "Trilha", [(-18.0, 60.0), (-2.0, 62.0)], 0.0),
+    ("sign", "PeSubida", [(34.0, 368.0), (-2.0, 366.0)], 0.0),
+    ("sign", "Patio", [(-94.0, 442.0), (-20.0, 438.0), (-14.0, 443.0)], 0.0),
+    ("pile", "VilRua", [(-52.0, 190.0), (-70.0, 162.0), (-48.0, 236.0)], 60.0),
+    ("pile", "VilAlta", [(-62.0, 318.0), (-60.0, 300.0)], 80.0),
+    ("pile", "Carvao", [(-74.0, 404.0), (-90.0, 420.0)], 80.0),
+]
+
+_ROUTES = None
+_STAIRS = None
+_COLB = None
+
+
+def _routes():
+    global _ROUTES, _STAIRS
+    if _ROUTES is None:
+        _ROUTES = [pts for pts, z0 in L.routes().values()] + [L.gate_open_route()]
+        _STAIRS = []
+        for nm, foot, deg, w, n, tread, g in L.STAIRS:
+            a = math.radians(deg)
+            ux, uy = math.cos(a), math.sin(a)
+            t = L.stair_top(nm)
+            _STAIRS.append(L.ribbon([(foot[0] - ux * 3.0, foot[1] - uy * 3.0), (t[0] + ux * 3.0, t[1] + uy * 3.0)],
+                                    w / 2 + 1.6))
+    return _ROUTES, _STAIRS
+
+
+def _col_bvh():
+    """BVH de todas as colisoes COL_ ja criadas (pisos, guardas, cercas, postes, casas, troncos)"""
+    global _COLB
+    from mathutils.bvhtree import BVHTree
+    verts, polys = [], []
+    for o in bpy.data.objects:
+        if o.type != "MESH" or not o.name.startswith("COL_"):
+            continue
+        mw = o.matrix_world
+        b = len(verts)
+        verts += [mw @ v.co for v in o.data.vertices]
+        polys += [[b + i for i in p.vertices] for p in o.data.polygons]
+    _COLB = BVHTree.FromPolygons(verts, polys) if polys else None
+    return _COLB
+
+
+def _col_hit(x, y, z0, z1, r):
+    """True se a caixa (x+-r, y+-r, z0..z1) cruza ou esta DENTRO de uma colisao existente"""
+    if _COLB is None:
+        return False
+    from mathutils.bvhtree import BVHTree
+    vs = [(x + sx * r, y + sy * r, z) for z in (z0, z1) for sx, sy in ((-1, -1), (1, -1), (1, 1), (-1, 1))]
+    fs = [(0, 1, 2, 3), (4, 7, 6, 5), (0, 4, 5, 1), (1, 5, 6, 2), (2, 6, 7, 3), (3, 7, 4, 0)]
+    if _COLB.overlap(BVHTree.FromPolygons(vs, fs)):
+        return True
+    for dx, dy in ((0.0, 0.0), (r, r), (-r, -r)):
+        hit = _COLB.ray_cast(Vector((x + dx, y + dy, (z0 + z1) / 2)), Vector((0, 0, 1)), 400.0)
+        if hit[0] is not None and hit[1].z > 0.0:                # saiu por uma face virada para cima: esta dentro
+            return True
+    return False
+
+
+def _top(x, y, zexp):
+    """primeiro objeto VISUAL de cima em (x, y): (nome, material, z, nz) - pula colisao, previa, VFX, copa alta e a
+    forracao baixa da vegetacao (grama/samambaia: a lanterna fica no meio dela)"""
+    dg = bpy.context.evaluated_depsgraph_get()
+    sc = bpy.context.scene
+    o = Vector((x, y, zexp + 30.0))
+    d = Vector((0.0, 0.0, -1.0))
+    for _ in range(24):
+        hit, loc, nrm, idx, ob, mtx = sc.ray_cast(dg, o, d, distance=60.0)
+        if not hit:
+            return None
+        nm = ob.name
+        skip = nm.startswith(("COL_", "PREVIEW_", "SCALE_", "VFX_", "DS_Prop_Path"))
+        if nm.startswith("DS_Veg_") and (loc.z > zexp + 7.0 or loc.z < zexp + 0.9):
+            skip = True
+        if skip:
+            o = loc + d * 0.02
+            continue
+        mt = "-"
+        try:
+            me = ob.data
+            mt = me.materials[me.polygons[idx].material_index].name
+        except Exception:
+            pass
+        return nm, mt, loc.z, nrm.z
+    return None
+
+
+def _spot(x, y, r=0.8, h=4.5):
+    """chao livre para uma peca de raio r: devolve (z do chao, sobre_o_piso_do_caminho) ou None"""
+    zexp = L.zone_of(x, y)
+    if zexp is None:
+        return None
+    zs, on = [], False
+    for k, (dx, dy) in enumerate(((0.0, 0.0), (r, 0.0), (-r, 0.0), (0.0, r), (0.0, -r))):
+        t = _top(x + dx, y + dy, zexp)
+        if t is None:
+            return None
+        nm, mt, z, nz = t
+        if not nm.startswith(GROUND_OK) or abs(z - zexp) > 1.0 or nz < 0.75:
+            return None
+        if k == 0 and (nm.startswith(PATH_SURF) or mt in PATH_MATS):
+            on = True
+        zs.append(z)
+    if max(zs) - min(zs) > 0.6:
+        return None
+    if _col_hit(x, y, min(zs) + 0.6, min(zs) + h, r):
+        return None
+    if _side_hit(x, y, min(zs), r + 0.35, h):
+        return None
+    return min(zs), on
+
+
+def _side_hit(x, y, z, r, h):
+    """raios horizontais (8 rumos, 2 alturas) do eixo da peca: bate em colmo de bambu, tronco, arbusto, parede?"""
+    dg = bpy.context.evaluated_depsgraph_get()
+    sc = bpy.context.scene
+    for zz in (z + 1.0, z + min(h, 3.2)):
+        for k in range(8):
+            a = k * math.pi / 4
+            d = Vector((math.cos(a), math.sin(a), 0.0))
+            o = Vector((x, y, zz))
+            for _ in range(4):
+                hit, loc, nrm, idx, ob, mtx = sc.ray_cast(dg, o, d, distance=r)
+                if not hit:
+                    break
+                if ob.name.startswith(("COL_", "PREVIEW_", "SCALE_", "VFX_", "DS_Prop_Path")):
+                    o = loc + d * 0.02
+                    continue
+                return True
+    return False
+
+
+def _xy_ok(x, y, clr=ROUTE_CLR):
+    """fora das rotas, escadas, MiningZone (+6) e do cone da PlayerHeight da forja"""
+    x0, y0, x1, y1 = L.MINE_RECT
+    if x0 - MINE_PAD < x < x1 + MINE_PAD and y0 - MINE_PAD < y < y1 + MINE_PAD:
+        return False
+    R, S = _routes()
+    if any(L.polyline_dist(x, y, pts) < clr for pts in R):
+        return False
+    if any(L.point_in_poly(x, y, poly) for poly in S):
+        return False
+    (ax, ay), (bx_, by_), w = PH_FORGE
+    if L.seg_dist(x, y, ax, ay, bx_, by_)[0] < w:
+        return False
+    return True
+
+
+def _at(pts, s):
+    """ponto, tangente e curvatura (mudanca de rumo em +-5) na estacao s da polilinha"""
+    def pos(ss):
+        ss = max(0.0, ss)
+        for a, b in zip(pts, pts[1:]):
+            ln = math.hypot(b[0] - a[0], b[1] - a[1])
+            if ss <= ln or b is pts[-1]:
+                t = min(1.0, ss / ln) if ln else 0.0
+                return a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, (b[0] - a[0]) / ln, (b[1] - a[1]) / ln
+            ss -= ln
+    x, y, dx, dy = pos(s)
+    _, _, ax, ay = pos(s - 5.0)
+    _, _, bx2, by2 = pos(s + 5.0)
+    turn = abs(math.atan2(ax * by2 - ay * bx2, ax * bx2 + ay * by2))
+    return x, y, dx, dy, turn
+
+
+def _near_lights(x, y, d):
+    for o in bpy.data.objects:
+        if o.type == "LIGHT" and o.name.startswith("L_"):
+            p = o.matrix_world.translation
+            if math.hypot(p.x - x, p.y - y) < d:
+                return True
+    return False
+
+
+def _fenced(nm, side, s):
+    """o trecho (caminho, lado, estacao) tem setor de cerca?"""
+    return any(sd == side and s0 - 0.5 <= s <= s1 + 0.5 for sd, s0, s1 in FENCED.get(nm, ()))
+
+
+def plan_lamps():
+    """posiciona as lanternas de todos os caminhos; devolve [(regiao, tipo, x, y, z, rumo, caminho, i, na_cerca)]
+    passo: 10-14 nos caminhos e 12-16 na borda da clareira (borda, nao rua), 2 a menos nas curvas; lados alternados.
+    Do lado com setor de cerca a lanterna entra na LINHA da cerca (e so escorrega ao longo dela)."""
+    out = []
+    for nm, reg, pts, hw, kinds, side0, mode, s0, s1, off in PATHS:
+        total = L.plen(pts)
+        s1 = total - 2.0 if s1 is None else s1
+        s, side, i, k = s0, side0, 0, 0
+        while s < s1:
+            x, y, dx, dy, turn = _at(pts, s)
+            got = None
+            kind = kinds[k % len(kinds)]
+            for ds in (0.0, 1.5, -1.5, 3.0, -3.0, 4.5, -4.5):
+                ss = min(max(s + ds, 0.0), total)
+                xs, ys, dxs, dys, _ = _at(pts, ss)
+                nxs, nys = -dys, dxs                                 # normal a ESQUERDA de quem segue a polilinha
+                fen = _fenced(nm, 0 if mode == "on" else side, ss)
+                for push in ((0.0,) if fen else (0.0, 0.6, 1.2, 1.8)):
+                    if fen:
+                        o_ = 0.0 if mode == "on" else side * (hw + FENCE_OFF)
+                    elif mode == "on":
+                        o_ = side * (0.6 + push) * (1.0 if hh(nm, i, "j") > 0.35 else -1.0)
+                    else:
+                        o_ = side * (hw + off + push)
+                    px, py = xs + nxs * o_, ys + nys * o_
+                    if not _xy_ok(px, py):
+                        continue
+                    if any(math.hypot(px - q[2], py - q[3]) < LAMP_GAP for q in out) or _near_lights(px, py, LAMP_GAP):
+                        continue
+                    sp = _spot(px, py, 0.95 if kind == "toro" else 0.8)
+                    if sp is None or sp[1]:                          # nunca em cima da laje do caminho
+                        continue
+                    sgn = side if mode != "on" else 1.0
+                    got = (px, py, sp[0], math.atan2(-nys * sgn, -nxs * sgn), fen)   # frente virada para o caminho
+                    break
+                if got:
+                    break
+            if got:
+                out.append((reg, kind, got[0], got[1], got[2], got[3], nm, i, got[4]))
+                k += 1
+            side = -side
+            g = (13.0 if mode == "on" else 10.5) + (4.0 if mode == "on" else 3.5) * hh(nm, i, "g")
+            if turn > 0.3:
+                g -= 2.0
+            if not got:
+                g = 4.0                                              # nao achou: tenta logo adiante (nao abre buraco)
+            s += g
+            i += 1
+    return out
+
+
+def _sq(o, z):
+    return [(-o, -o, z), (o, -o, z), (o, o, z), (-o, o, z)]
+
+
+def lamp_box(mb, F, z0, hw=0.55, hz=1.15, frame=WD, cap=WD):
+    """caixa de lanterna LEVE (andon): papel aceso recuado 0,15 dentro de 4 montantes, 2 cintas de travessas 0,13 na
+    frente do papel, bandeja e chapeu de 4 aguas com beiral e botao. F no eixo; z0 = topo da bandeja. ~124 tris"""
+    p = hw - 0.15
+    bb(mb, F, -p, p, -p, p, z0 - 0.04, z0 + hz - 0.06, LGLOW)        # pontas dentro da bandeja e do chapeu
+    t = 0.17
+    for sx in (-1, 1):
+        for sy in (-1, 1):
+            cx, cy = sx * (hw - t / 2), sy * (hw - t / 2)
+            bb(mb, F, cx - t / 2, cx + t / 2, cy - t / 2, cy + t / 2, z0, z0 + hz, frame)
+    for zz in (0.34, 0.68):
+        zc = z0 + hz * zz
+        q = hw - 0.02
+        bb(mb, F, -q, q, -q, q, zc - 0.045, zc + 0.045, frame)
+    bb(mb, F, -hw - 0.07, hw + 0.07, -hw - 0.07, hw + 0.07, z0 - 0.16, z0 + 0.0, frame)
+    zc = z0 + hz - 0.03
+    o = hw + 0.2                                                     # beiral curto: o papel le de cima
+    loft(mb, F, [_sq(o, zc), _sq(o, zc + 0.11), _sq(0.16, zc + 0.5), _sq(0.05, zc + 0.74)], cap)
+    return F.p(0.0, 0.0, z0 + hz * 0.5)
+
+
+def andon_post(mb, F, key=0):
+    """poste com caixa: pedra-base, poste de 0,46, caixa de lanterna no topo (luz ~4 acima do chao). ~150 tris"""
+    a = 0.3 * (hh(key, "r") - 0.5)
+    Fs = sub(F, 0.0, 0.0, 0.0, a)
+    bb(mb, Fs, -0.62, 0.62, -0.62, 0.62, -0.2, 0.36, PST)
+    h0 = 3.3 + 0.3 * hh(key, "h")
+    bb(mb, F, -0.23, 0.23, -0.23, 0.23, 0.3, h0 - 0.1, WD)
+    c = lamp_box(mb, F, h0, 0.7, 1.45)
+    return c, h0 + 2.0, 0.7
+
+
+def toro_low(mb, F, key=0):
+    """toro baixo de caminho (oki-doro): soco de pedra, fuste, plataforma, camara de papel recuado entre 4 pilaretes de
+    pedra, chapeu de 4 aguas com joia (hoju). Tudo pedra + papel. ~150 tris"""
+    s = 0.95 + 0.12 * hh(key, "s")
+    loft(mb, F, [_sq(0.78 * s, -0.2), _sq(0.78 * s, 0.32 * s), _sq(0.6 * s, 0.42 * s)], PST)
+    bb(mb, F, -0.27 * s, 0.27 * s, -0.27 * s, 0.27 * s, 0.4 * s, 1.36 * s, PST)
+    bb(mb, F, -0.74 * s, 0.74 * s, -0.74 * s, 0.74 * s, 1.34 * s, 1.58 * s, PST)
+    z0, z1 = 1.58 * s, 2.82 * s
+    p = 0.44 * s
+    bb(mb, F, -p, p, -p, p, z0 - 0.04, z1 + 0.04, LGLOW)
+    t = 0.22 * s
+    q = 0.58 * s                                                     # pilaretes: face de fora 0,69 (plataforma 0,74)
+    for sx in (-1, 1):
+        for sy in (-1, 1):
+            bb(mb, F, sx * q - t / 2, sx * q + t / 2, sy * q - t / 2, sy * q + t / 2, z0, z1, PST)
+    loft(mb, F, [_sq(0.98 * s, z1 - 0.02), _sq(0.98 * s, z1 + 0.14 * s), _sq(0.3 * s, z1 + 0.56 * s),
+                 _sq(0.17 * s, z1 + 0.6 * s), _sq(0.19 * s, z1 + 0.78 * s), _sq(0.02, z1 + 1.0 * s)], PST)
+    return F.p(0.0, 0.0, (z0 + z1) / 2), z1 + 1.0 * s, 0.9
+
+
+def tsuri_post(mb, F, key=0):
+    """poste curto com braco e lanterna pendurada (tsuri-doro): pedra-base, poste, braco em balanco para +y (o
+    caminho), gancho e caixa pendurada. ~170 tris"""
+    h = 5.9 + 0.5 * hh(key, "h")
+    a = 0.3 * (hh(key, "r") - 0.5)
+    bb(mb, sub(F, 0.0, 0.0, 0.0, a), -0.6, 0.6, -0.6, 0.6, -0.2, 0.34, PST)
+    bb(mb, F, -0.22, 0.22, -0.22, 0.22, 0.3, h, WD)
+    bb(mb, F, -0.14, 0.14, -0.3, 1.82, h - 0.62, h - 0.34, WD)
+    beam(mb, F, (0.0, 0.18, h - 1.7), (0.0, 1.0, h - 0.6), 0.14, 0.16, WD)
+    bb(mb, F, -0.045, 0.045, 1.5, 1.6, h - 1.12, h - 0.6, WD)
+    c = lamp_box(mb, sub(F, 0.0, 1.55, 0.0), h - 2.8, 0.56, 1.18)
+    return c, h + 0.1, 0.6
+
+
+LAMP_FN = {"andon": andon_post, "toro": toro_low, "tsuri": tsuri_post}
+
+
+def signpost(mb, F, arrows=((0.0, 0.0), (65.0, 0.6), (-110.0, 1.2))):
+    """placa de direcao: poste com chapeu de 2 aguas e 2-3 tabuas em seta (rumo relativo em graus, altura extra)"""
+    bb(mb, F, -0.62, 0.62, -0.62, 0.62, -0.2, 0.3, PST)
+    bb(mb, F, -0.2, 0.2, -0.2, 0.2, 0.25, 5.4, WD)
+    ext(mb, F, [(-0.5, 5.35), (0.5, 5.35), (0.0, 5.75)], "x", -0.42, 0.42, WD)
+    for deg, dz in arrows:
+        Fa = sub(F, 0.0, 0.0, 0.0, math.radians(deg))
+        z = 3.2 + dz
+        ext(mb, Fa, [(0.16, z), (1.9, z), (2.35, z + 0.32), (1.9, z + 0.64), (0.16, z + 0.64)], "y", -0.07, 0.07, WM)
+
+
+def wood_pile(mb, F, key=0):
+    """pilha pequena de lenha rachada sobre 2 dormentes (6 achas de 6 lados)"""
+    for y in (-0.55, 0.55):
+        bb(mb, F, -1.3, 1.3, y - 0.16, y + 0.16, -0.05, 0.22, WD)
+    for r, (n, z) in enumerate(((3, 0.55), (2, 1.12), (1, 1.66))):
+        for i in range(n):
+            x = (i - (n - 1) / 2) * 0.66 + (hh(key, r, i) - 0.5) * 0.12
+            rr = 0.3 + 0.04 * hh(key, r, i, "r")
+            rot = hh(key, r, i, "a") * 6.28
+            ring = lambda yy: [(x + rr * math.cos(rot + 2 * math.pi * j / 6), yy, z + rr * math.sin(rot + 2 * math.pi * j / 6))
+                               for j in range(6)]
+            loft(mb, F, [ring(-1.0 - 0.15 * hh(key, r, i, "u")), ring(1.0 + 0.15 * hh(key, r, i, "v"))],
+                 WM if (r + i) % 3 else BD)
+
+
+def path_lamps(plan):
+    """constroi as lanternas planejadas (1 objeto por regiao) e as luzes de PATH_LIT; devolve (luzes, alturas)"""
+    lit = {}
+    for lnm, ax, ay in PATH_LIT:
+        best = None
+        for j, q in enumerate(plan):
+            d = math.hypot(q[2] - ax, q[3] - ay) + (6.0 if q[1] == "toro" else 0.0)
+            if d < 15.0 and j not in lit.values() and (best is None or d < best[0]):
+                best = (d, j)
+        if best:
+            lit[lnm] = best[1]
+        else:
+            print("ds_props AVISO luz de caminho %s sem lanterna perto de (%.0f, %.0f)" % (lnm, ax, ay))
+    lit_of = {j: n for n, j in lit.items()}
+    mbs = {r: MB("DS_Prop_PathLamps_%s" % r, C, None, detail="hero") for r in sorted({q[0] for q in plan})}
+    lights, dims = [], []
+    for j, (reg, kind, x, y, z, yaw, nm, i, fen) in enumerate(plan):
+        F = Frame(x, y, z - 0.06, yaw - math.pi / 2)                    # +y local do tsuri = para o caminho
+        c, h, r = LAMP_FN[kind](mbs[reg], F, (nm, i))
+        dims.append((h, r, F.a))
+        if j in lit_of:
+            ln = "L_DSProp_Lamp_%s%s" % (lit_of[j], "Toro" if kind == "toro" else "")
+            light(ln, "POINT", tuple(c), LIT_E[kind], K.WARM, 0.2)
+            lights.append(ln)
+    for r, mb in mbs.items():
+        mb.finish()
+    return lights, dims
+
+
+def lamp_cols(plan, dims, fence_cols):
+    """caixa de colisao SO no toro (pedestal de pedra de 1,5): os postes finos (andon/tsuri, 0,46) ficam sem colisao,
+    como os props pequenos (orcamento de COL da ilha: 1300); a lanterna NA linha de uma cerca (<= 0,8) usa a dela"""
+    n = 0
+    for (reg, kind, x, y, z, yaw, nm, i, fen), (h, r, a) in zip(plan, dims):
+        if kind != "toro":
+            continue
+        if fen and any(L.seg_dist(x, y, p0[0], p0[1], p1[0], p1[1])[0] <= 0.8 for p0, p1 in fence_cols):
+            continue
+        col_box("DS_PropPath", (r * 1.6, r * 1.6, h), (x, y, z + h / 2), (0, 0, a))
+        n += 1
+    return n
+
+
+def low_fence(mb, pts, z, h=2.5, step=3.6):
+    """cerca baixa de caminho LEVE (~10 tris por stud; o K.railing tem ~23): mouroes 0,36 com a capa (kasagi) passando
+    por cima e uma travessa no meio - a mesma silhueta do guarda-corpo do kit, sem a travessa baixa e os montantes"""
+    P = [Vector((p[0], p[1], 0.0)) for p in pts]
+    posts = []
+    for i, (a, b) in enumerate(zip(P, P[1:])):
+        d = b - a
+        ln = d.length
+        if ln < 0.3:
+            continue
+        n = max(1, int(math.ceil(ln / step)))
+        posts += [a + d * (j / n) for j in range(n)]
+        if i == len(P) - 2:
+            posts.append(b)
+        ang = math.atan2(d.y, d.x)
+        e0 = 0.3 if i == 0 else 0.0
+        e1 = 0.3 if i == len(P) - 2 else 0.0
+        c = (a + b) / 2 + d.normalized() * (e1 - e0) / 2
+        mb.box((ln + e0 + e1 + 0.02, 0.34, 0.2), (c.x, c.y, z + h - 0.1), (0, 0, ang), WD, 0.0)
+        c = (a + b) / 2
+        mb.box((ln, 0.16, 0.2), (c.x, c.y, z + h * 0.52), (0, 0, ang), WD, 0.0)
+    for q in posts:
+        mb.box((0.36, 0.36, h - 0.1), (q.x, q.y, z + (h - 0.1) / 2), (0, 0, 0), WD, 0.0)
+
+
+def _fence_lines():
+    """(nome, polilinha) de todos os setores: os dos caminhos (FENCED) e as bordas de terraco (FENCE_LINES)"""
+    out = []
+    for nm, reg, pts, hw, kinds, side0, mode, s0_, s1_, off in PATHS:
+        for side, s0, s1 in FENCED.get(nm, ()):
+            o_ = 0.0 if side == 0 else side * (hw + FENCE_OFF)
+            line = []
+            s = s0
+            while s <= min(s1, L.plen(pts)) + 1e-6:
+                x, y, dx, dy, _ = _at(pts, s)
+                line.append((x - dy * o_, y + dx * o_))
+                s += 1.0
+            if len(line) >= 2:
+                out.append(("%s%s" % (nm, "L" if side < 0 else ("O" if side > 0 else "")), line))
+    return out + list(FENCE_LINES)
+
+
+def _chords(p, tol=0.45):
+    """polilinha densa -> menos cordas (desvio <= tol): as caixas de colisao da cerca"""
+    out = []
+    i = 0
+    while i < len(p) - 1:
+        j = i + 1
+        while j + 1 < len(p):
+            a, b = p[i], p[j + 1]
+            if all(L.seg_dist(q[0], q[1], a[0], a[1], b[0], b[1])[0] <= tol for q in p[i + 1:j + 1]):
+                j += 1
+            else:
+                break
+        out.append((p[i], p[j]))
+        i = j
+    return out
+
+
+def path_fences(mb, lamps):
+    """cercas baixas em setores; cada linha e amostrada a cada ~1 e quebrada onde nao pode (rota, escada, colisao
+    existente, chao fora de cota ou laje do caminho); trechos >= 6 viram K.railing (base = o chao mais baixo - 0,06,
+    trechos de rampa cortados a cada 0,5 de desnivel). A COLISAO e continua no trecho (poucas caixas, por cordas); o
+    VISUAL abre 1,0-1,2 em volta de cada lanterna que esta na linha. Devolve as cordas de colisao."""
+    n_runs, total, cols = 0, 0.0, []
+    for nm, line in _fence_lines():
+        dense = []
+        for a, b in zip(line, line[1:]):
+            ln = math.hypot(b[0] - a[0], b[1] - a[1])
+            k = max(1, int(ln / 1.0))
+            dense += [(a[0] + (b[0] - a[0]) * t / k, a[1] + (b[1] - a[1]) * t / k) for t in range(k)]
+        dense.append(line[-1])
+        runs, cur = [], []
+        for x, y in dense:
+            ok = _xy_ok(x, y, ROUTE_CLR)
+            z = None
+            if ok:
+                zexp = L.zone_of(x, y)
+                t = _top(x, y, zexp) if zexp is not None else None
+                ok = bool(t) and t[0].startswith(GROUND_OK) and abs(t[2] - zexp) < 1.0 and not \
+                    t[0].startswith(PATH_SURF) and t[1] not in PATH_MATS
+                if ok:
+                    z = t[2]
+                    ok = not _col_hit(x, y, z + 0.7, z + 2.4, 0.3) and not _side_hit(x, y, z, 0.45, 2.4)
+            if ok:
+                cur.append((x, y, z))
+            elif cur:
+                runs.append(cur)
+                cur = []
+        if cur:
+            runs.append(cur)
+        for r in runs:
+            pieces = [r]
+            if max(q[2] for q in r) - min(q[2] for q in r) > 0.5:      # rampa: trechos com desnivel <= 0,5
+                pieces, cur = [], [r[0]]
+                for q in r[1:]:
+                    if q[2] - min(c[2] for c in cur) > 0.5 or max(c[2] for c in cur) - q[2] > 0.5:
+                        pieces.append(cur)
+                        cur = [cur[-1], q]
+                    else:
+                        cur.append(q)
+                pieces.append(cur)
+            for p in pieces:
+                ln = sum(math.hypot(b[0] - a[0], b[1] - a[1]) for a, b in zip(p, p[1:]))
+                if ln < 6.0:
+                    continue
+                z = min(q[2] for q in p) - 0.06
+                for a, b in _chords(p):
+                    d = Vector((b[0] - a[0], b[1] - a[1]))
+                    if d.length > 0.3:
+                        col_box("DS_PropFence", (d.length + 0.4, 0.5, 3.0), ((a[0] + b[0]) / 2, (a[1] + b[1]) / 2,
+                                z + 1.5), (0, 0, math.atan2(d.y, d.x)))
+                        cols.append((a, b))
+                # visual: abre em volta das lanternas da linha
+                vis, cur = [], []
+                for q in p:
+                    near = any(math.hypot(q[0] - l[2], q[1] - l[3]) < (1.25 if l[1] == "toro" else 1.05) for l in lamps)
+                    if near:
+                        if cur:
+                            vis.append(cur)
+                        cur = []
+                    else:
+                        cur.append(q)
+                if cur:
+                    vis.append(cur)
+                for v in vis:
+                    if len(v) < 2 or math.hypot(v[-1][0] - v[0][0], v[-1][1] - v[0][1]) < 3.0:
+                        continue
+                    simp = [v[0]]
+                    for q in v[1:-1]:
+                        if math.hypot(q[0] - simp[-1][0], q[1] - simp[-1][1]) >= 3.4:
+                            simp.append(q)
+                    simp.append(v[-1])
+                    low_fence(mb, [(q[0], q[1]) for q in simp], z, 2.5, 3.6)
+                n_runs += 1
+                total += ln
+    print("ds_props cercas de caminho: %d trechos, %.0f studs, %d caixas de colisao" % (n_runs, total, len(cols)))
+    return cols
+
+
+def path_life(mb, lamps):
+    """bancos, placas e pilhas: cada um procura chao livre num raio de ate 4 em volta do ponto pedido"""
+    n = 0
+    for kind, nm, cands, deg in LIFE:
+        r = {"bench": 2.6, "sign": 0.8, "pile": 1.5}[kind]
+        got = None
+        for x0, y0 in cands:
+            for dd in (0.0, 1.5, 3.0, 4.5):
+                for k in range(1 if dd == 0 else 8):
+                    a = k * math.pi / 4
+                    x, y = x0 + math.cos(a) * dd, y0 + math.sin(a) * dd
+                    if not _xy_ok(x, y, ROUTE_CLR + 0.5) or any(math.hypot(x - q[2], y - q[3]) < r + 1.4 for q in lamps):
+                        continue
+                    sp = _spot(x, y, r, 3.0)
+                    if sp and not sp[1]:
+                        got = (x, y, sp[0])
+                        break
+                if got:
+                    break
+            if got:
+                break
+        if not got:
+            print("ds_props AVISO %s %s sem lugar perto de %s" % (kind, nm, cands))
+            continue
+        x, y, z = got
+        F = Frame(x, y, z - 0.06, math.radians(deg))
+        if kind == "bench":
+            K.bench(mb, F, 0.0, 0.0, 5.0, 1.8, 1.7)
+            col_box("DS_PropPath", (5.0, 1.8, 1.8), (x, y, z + 0.9), (0, 0, F.a))
+        elif kind == "sign":
+            signpost(mb, F)
+            col_box("DS_PropPath", (0.6, 0.6, 5.6), (x, y, z + 2.8))
+        else:
+            wood_pile(mb, F, (nm, "p"))
+            col_box("DS_PropPath", (2.8, 2.4, 2.2), (x, y, z + 1.1), (0, 0, F.a))
+        n += 1
+    print("ds_props vida de caminho: %d pecas" % n)
+    return n
+
+
+def density():
+    _col_bvh()
+    plan = plan_lamps()
+    by = {}
+    for q in plan:
+        by[q[6]] = by.get(q[6], 0) + 1
+    print("ds_props lanternas de caminho: %d (na cerca %d) %s" % (len(plan), sum(1 for q in plan if q[8]),
+                                                                   sorted(by.items())))
+    lights, dims = path_lamps(plan)
+    print("ds_props luzes NightOnly novas: %d %s" % (len(lights), lights))
+    mf = MB("DS_Prop_PathFences", C, None, detail="hero")
+    fcols = path_fences(mf, plan)
+    mf.finish()
+    nl = lamp_cols(plan, dims, fcols)
+    _col_bvh()                                    # agora com os postes e cercas novos
+    ml = MB("DS_Prop_PathLife", C, None, detail="hero")
+    nv = path_life(ml, plan)
+    ml.finish()
+    print("ds_props COL novas da densidade: cercas %d + lanternas %d + vida %d = %d" % (len(fcols), nl, nv,
+                                                                                      len(fcols) + nl + nv))
+    out = os.environ.get("DS_PROP_PLAN")                 # planta das pecas novas (folha de conferencia)
+    if out:
+        import json
+        json.dump({"lamps": [[q[1], q[2], q[3], q[8], q[4], q[6]] for q in plan], "lights": lights,
+                   "fences": [[list(a[:2]), list(b[:2])] for a, b in fcols]}, open(out, "w"))
+    return plan
+
+
 # ================================================================== limpeza e build
 def drop_blockout():
     """a cerca em setores do blockout (DS_Clr_Edges, so restam as cercas depois do ds_terrain) sai: e deste modulo"""
@@ -949,5 +1613,7 @@ def build():
         ml = MB("DS_Prop_Lamps", C, None, detail="hero")
         node_lamps(ml)
         ml.finish()
+        bpy.context.view_layer.update()
+        density()                                   # ONDA 4b: luz de caminho, cercas e vida (raycast no que ja existe)
     finally:
         K.MIN_BEVEL, K.MIN_BEVEL_SIZE = old
