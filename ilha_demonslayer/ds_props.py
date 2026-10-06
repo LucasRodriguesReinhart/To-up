@@ -153,7 +153,7 @@ def rosette(mb, x, y, z, s=1.0, key=0, n=6, m=LEAF):
 
 
 # ================================================================== RECIPIENTES DE MADEIRA (taru / oke)
-def _hoop(mb, F, x, y, z, r, m=BD, hw=0.12, out=0.07, n=14):
+def _hoop(mb, F, x, y, z, r, m=BD, hw=0.12, out=0.13, n=14):        # 6b (item 54): aro 0,13 fora (era 0,07)
     lathe(mb, F, (x, y, z), [(r - 0.05, -hw), (r + out, -hw * 0.8), (r + out, hw * 0.8), (r - 0.05, hw)], n, m,
           0.0, (False, False))
 
@@ -179,7 +179,7 @@ def taru(mb, F, x, y, s=1.0, top="lid", n=14):
                zl - 0.04, zl + 0.08, WD)
     for zz in (0.42, 1.15, 1.92):
         rz = (0.98 if zz < 1.0 else (1.0 if zz < 1.5 else 0.96)) * s
-        _hoop(mb, F, x, y, zz * s, rz, BD, 0.12 * s, 0.07, n)
+        _hoop(mb, F, x, y, zz * s, rz, BD, 0.12 * s, 0.13, n)
 
 
 def oke(mb, F, x, y, s=1.0, n=14):
@@ -194,7 +194,7 @@ def oke(mb, F, x, y, s=1.0, n=14):
     loft(mb, F, rings, WM, caps=(True, False))           # sem tampa interna: a agua e o unico plano ali
     lathe(mb, F, (x, y, zt - 0.32 * s), [(inner + 0.03, -0.02), (inner + 0.03, 0.03)], n, WATER)
     for zz, rr in ((0.2, 1.11), (0.66, 1.17)):
-        _hoop(mb, F, x, y, zz * s, rr * s, BD, 0.09 * s, 0.06, n)
+        _hoop(mb, F, x, y, zz * s, rr * s, BD, 0.09 * s, 0.13, n)
 
 
 def kame(mb, F, x, y, s=1.0, n=12):
@@ -232,10 +232,10 @@ def tawara(mb, F, x, y, z, ang, s=1.0, charcoal=False, n=8):
     loft(mb, Fa, [ring(u * s, r * s) for u, r in prof], STRAW)
     for e in (-1, 1):                                   # tampas (sandawara): disco mais largo, levemente saliente
         u0 = e * 0.84 * s
-        loft(mb, Fa, [ring(u0, 0.54 * s), ring(u0 + e * 0.1 * s, 0.56 * s), ring(u0 + e * 0.14 * s, 0.46 * s)],
+        loft(mb, Fa, [ring(u0, 0.54 * s), ring(u0 + e * 0.12 * s, 0.56 * s), ring(u0 + e * 0.18 * s, 0.46 * s)],   # 6b: 0,16
              BD if not charcoal else STRAW)
         if charcoal:
-            loft(mb, Fa, [ring(u0 + e * 0.12 * s, 0.34 * s), ring(u0 + e * 0.17 * s, 0.3 * s)], SOOT)
+            loft(mb, Fa, [ring(u0 + e * 0.2 * s, 0.34 * s), ring(u0 + e * 0.32 * s, 0.3 * s)], SOOT)    # 6b: 0,14 fora
     for u in (-0.42, 0.42):                             # amarras
         u *= s
         r = 0.65 * s
@@ -282,7 +282,7 @@ def monohoshi(mb, F, L_=7.0, key=0, cloths=("yukata", "tenugui", "tenugui2")):
             ext(mb, Fy, poly, "y", -0.06, 0.06, AI)
             # gola (eri) clara: desce do pescoco cruzando para a esquerda (okumi), so nas 2 faces
             for sy in (-1, 1):
-                y0, y1 = (0.06, 0.1) if sy > 0 else (-0.1, -0.06)
+                y0, y1 = (0.06, 0.2) if sy > 0 else (-0.2, -0.06)          # 6b (item 54): 0,14 a frente (era 0,04)
                 ext(mb, Fy, [(-0.42, 0.02), (-0.12, 0.02), (0.52, -1.6), (0.38, -3.85), (0.16, -3.85), (0.3, -1.6)],
                     "y", y0, y1, LINEN)
                 ext(mb, Fy, [(0.12, 0.02), (0.42, 0.02), (0.08, -0.7), (-0.12, -0.55)], "y", y0, y1, LINEN)
@@ -312,11 +312,11 @@ def hatake(mb, F, n_beds=2, Lb=7.0, Wb=2.2, key=0, trellis=True):
         yc = (b - (n_beds - 1) / 2) * (Wb + gap)
         ext(mb, F, [(yc - Wb / 2, -0.1), (yc + Wb / 2, -0.1), (yc + Wb / 2, 0.38), (yc + Wb / 2 - 0.35, 0.58),
                     (yc - Wb / 2 + 0.35, 0.58), (yc - Wb / 2, 0.38)], "x", -Lb / 2, Lb / 2, DIRTD)
-        for s in (-1, 1):                                       # tabuas de borda (0,12 fora do monte)
-            bb(mb, F, -Lb / 2 - 0.12, Lb / 2 + 0.12, yc + s * (Wb / 2 + 0.06) - 0.08, yc + s * (Wb / 2 + 0.06) + 0.08,
+        for s in (-1, 1):                                       # tabuas de borda (6b: 0,16 fora do monte)
+            bb(mb, F, -Lb / 2 - 0.16, Lb / 2 + 0.16, yc + s * (Wb / 2 + 0.1) - 0.08, yc + s * (Wb / 2 + 0.1) + 0.08,
                -0.12, 0.42, WM)
         for s in (-1, 1):
-            bb(mb, F, s * (Lb / 2 + 0.04) - 0.08, s * (Lb / 2 + 0.04) + 0.08, yc - Wb / 2 - 0.1, yc + Wb / 2 + 0.1,
+            bb(mb, F, s * (Lb / 2 + 0.08) - 0.08, s * (Lb / 2 + 0.08) + 0.08, yc - Wb / 2 - 0.14, yc + Wb / 2 + 0.14,
                -0.12, 0.42, WM)
         last = b == n_beds - 1 and trellis
         if not last:
@@ -635,12 +635,12 @@ def hagane_bako(mb, F, key=0):
                zp[k] + 0.03, zp[k + 1] - 0.03, WM)
         mb.rod(F.p(sx * (hx + 0.12), -0.35, 1.45), F.p(sx * (hx + 0.12), 0.35, 1.45), 0.07, STRAW, 5)
         for sy in (-1, 1):
-            bb(mb, F, sx * (hx + 0.02) - 0.07, sx * (hx + 0.02) + 0.07, sy * 0.38 - 0.06, sy * 0.38 + 0.06, 1.3, 1.6,
+            bb(mb, F, sx * (hx + 0.08) - 0.08, sx * (hx + 0.08) + 0.08, sy * 0.38 - 0.06, sy * 0.38 + 0.06, 1.3, 1.6,
                WD)
     for sx in (-1, 1):
         for sy in (-1, 1):
             bb(mb, F, sx * hx - 0.21, sx * hx + 0.21, sy * hy - 0.21, sy * hy + 0.21, 0.0, h + 0.06, WD, 0.04)
-    bb(mb, F, -hx + 0.1, hx - 0.1, -hy + 0.1, hy - 0.1, 0.12, h - 0.62, WD)          # falso fundo (cheio por baixo)
+    bb(mb, F, -hx + 0.16, hx - 0.16, -hy + 0.16, hy - 0.16, 0.12, h - 0.62, WD)      # falso fundo (6b: atras das tabuas)
     z = h - 0.62
     for layer in range(2):
         nb = 6 if layer == 0 else 5
@@ -660,7 +660,7 @@ def hagane_bako(mb, F, key=0):
     for k in (-1, 0, 1):
         obox(mb, (Vector(p0) + Vector(p1)) / 2 + side * k * 0.62, A, nrm, (A.length, 0.58, 0.13), WM, 0.0)
     for t in (0.25, 0.8):
-        obox(mb, Vector(p0) + A * t - nrm.normalized() * 0.1, side, nrm, (1.9, 0.26, 0.1), WD, 0.0)
+        obox(mb, Vector(p0) + A * t - nrm.normalized() * 0.14, side, nrm, (1.9, 0.26, 0.1), WD, 0.0)   # 6b: 0,125
 
 
 def togi_dai(mb, F):
@@ -714,7 +714,7 @@ def village(mb):
     zaru(mb, Fe, 0.0, -3.4, 0.0, 1.0)
     zaru(mb, Fe, 0.3, -1.6, 0.0, 0.85)
     kago(mb, Frame(*F2.p(W2 / 2 + 4.2, 2.6, 0.0)[:2], gz(*F2.p(W2 / 2 + 4.2, 2.6, 0.0)[:2], T1), F2.a), 0.0, 0.0)
-    Fw = fz(F2, -W2 / 2 - 1.5, -3.0, T1)
+    Fw = fz(F2, -W2 / 2 - 2.0, -3.0, T1)                              # 6b (item 52): era -1,5 (entrava no ishigaki)
     Fw = Frame(Fw.o.x, Fw.o.y, Fw.o.z, F2.a + math.pi / 2)
     makiba(mb, Fw, 6.0, 3.4, 22)
     p = Fw.p(0, 0, 0)
@@ -730,7 +730,7 @@ def village(mb):
     toishi_guruma(mb, Fr)
     p = Fr.p(0, 0, 0)
     col_box(AREA, (2.4, 2.4, 2.8), (p.x, p.y, Fr.o.z + 1.4), (0, 0, Fr.a))
-    wall0 = F3.p(W3 / 2 + 0.75, -1.0, 0.0)
+    wall0 = F3.p(W3 / 2 + 1.05, -1.0, 0.0)                              # 6b (item 52): era 0,75 (entrava na parede)
     zw = gz(wall0.x, wall0.y, T1)
     planks_leaning(mb, (wall0.x, wall0.y, zw), F3.p(-1, 0, 0) - F3.p(0, 0, 0), F3.p(0, -1, 0) - F3.p(0, 0, 0), 5, 31, 7.4)
     Ft = fz(F3, W3 / 2 + 3.6, D3 / 2 - 1.6, T1)
@@ -757,12 +757,12 @@ def village(mb):
     F5, s5 = _vframe("V5")
     W5, D5 = s5["W"], s5["D"]
     for i, (lx, s_) in enumerate(((-5.0, 1.0), (-6.4, 0.8))):
-        Fp = fz(F5, lx, D5 / 2 + 1.2, T2)
+        Fp = fz(F5, lx, D5 / 2 + 1.7, T2)                               # 6b (item 52): +0,5 (soco em talude)
         hachi(mb, Fp, 0.0, 0.0, s_, 50 + i)
-    Fk = fz(F5, -8.2, D5 / 2 + 1.5, T2)
+    Fk = fz(F5, -8.2, D5 / 2 + 2.0, T2)
     kame(mb, Fk, 0.0, 0.0, 0.95)
     col_box(AREA, (2.0, 2.0, 2.2), (Fk.o.x, Fk.o.y, Fk.o.z + 1.1))
-    Fo = fz(F5, 5.6, D5 / 2 + 1.4, T2)
+    Fo = fz(F5, 5.6, D5 / 2 + 1.9, T2)
     oke(mb, Fo, 0.0, 0.0, 0.75)
     vx, vy = -117.0, 306.5
     monohoshi(mb, Frame(vx, vy, gz(vx, vy, T2), math.radians(4.0)), 6.0, 24, ("tenugui", "tenugui2", "yukata"))
@@ -863,7 +863,7 @@ NODE_LAMPS = [
     ("Trilha", -20.2, 58.4, T1, 0.0),
     ("Antecampo", 22.0, 138.0, T1, 150.0),
     ("PeSubida", 4.6, 371.2, T1, -60.0),
-    ("SummonFoot", 125.6, 292.4, T1, 70.0),
+    ("SummonFoot", 124.6, 292.4, T1, 70.0),          # 6b (item 53): 1,0 para oeste (a base entrava na bochecha)
     ("Bambuzal", 40.5, 44.0, None, 200.0),
 ]
 
@@ -909,6 +909,7 @@ PATH_SURF = ("DS_Vil_Street", "DS_Ter_Paving", "DS_Exit_Path", "DS_Ent_Court")
 PATH_MATS = ("Stone_DS_Path", "Stone_DS_Laje", "Stone_DS_Slab")
 LGLOW = K.LGLOW
 PST = "Stone_DS_Path"     # pedra das lanternas novas: sem familia de variantes (o Stone_DS dobra as MeshParts)
+PWARM = K.LIT             # 6b (item 50): papel quente FOSCO (Window_DS_Warm, SmoothPlastic) nas faixas de cima/baixo
 PH_FORGE = ((16.0, 352.0), (10.0, 470.0), 6.0)     # cone da CAM_DS_PlayerHeight_Forge (nada de lanterna na frente)
 
 # caminhos: (nome, regiao, polilinha, meia-largura do piso, tipos alternados, lado inicial, modo, s0, s1, folga)
@@ -1147,9 +1148,15 @@ def plan_lamps():
     passo: 10-14 nos caminhos e 12-16 na borda da clareira (borda, nao rua), 2 a menos nas curvas; lados alternados.
     Do lado com setor de cerca a lanterna entra na LINHA da cerca (e so escorrega ao longo dela)."""
     out = []
+    trunks = _trunks()
     for nm, reg, pts, hw, kinds, side0, mode, s0, s1, off in PATHS:
+        if len(kinds) == 2:                                  # 6b (item 51): ritmo A-A-B (nao mais A/B estrito)
+            kinds = (kinds[0], kinds[0], kinds[1])
         total = L.plen(pts)
         s1 = total - 2.0 if s1 is None else s1
+        # 6b (item 51): estacoes OBRIGATORIAS = a mais proxima de cada ancora de luz (PATH_LIT) a <= 12 da polilinha -
+        # com o passo maior a lanterna da luz nao pode cair num vao
+        must = sorted(_station_near(pts, ax, ay) for _, ax, ay in PATH_LIT if L.polyline_dist(ax, ay, pts) <= 12.0)
         s, side, i, k = s0, side0, 0, 0
         while s < s1:
             x, y, dx, dy, turn = _at(pts, s)
@@ -1172,6 +1179,10 @@ def plan_lamps():
                         continue
                     if any(math.hypot(px - q[2], py - q[3]) < LAMP_GAP for q in out) or _near_lights(px, py, LAMP_GAP):
                         continue
+                    if any(math.hypot(px - tx, py - ty) < TRUNK_CLR + tr for tx, ty, tr in trunks):   # 6b (item 51)
+                        continue
+                    if any(math.hypot(px - kx, py - ky) < kr for kx, ky, kr in LAMP_KEEP_OUT):
+                        continue
                     sp = _spot(px, py, 0.95 if kind == "toro" else 0.8)
                     if sp is None or sp[1]:                          # nunca em cima da laje do caminho
                         continue
@@ -1184,14 +1195,51 @@ def plan_lamps():
                 out.append((reg, kind, got[0], got[1], got[2], got[3], nm, i, got[4]))
                 k += 1
             side = -side
-            g = (13.0 if mode == "on" else 10.5) + (4.0 if mode == "on" else 3.5) * hh(nm, i, "g")
+            # 6b (item 51): passo 16-20 nos caminhos e 18-22 na borda da clareira (era 10,5-14 / 13-17: 6-10 lanternas
+            # por quadro); nas curvas 3 a menos (os nos, as escadas e os portoes continuam marcados)
+            g = (18.0 if mode == "on" else 16.0) + 4.0 * hh(nm, i, "g")
             if turn > 0.3:
-                g -= 2.0
+                g -= 3.0
             if not got:
                 g = 4.0                                              # nao achou: tenta logo adiante (nao abre buraco)
+            nxt = [m for m in must if s + 3.0 < m < s + g - 3.0]
+            if nxt:
+                g = nxt[0] - s
             s += g
             i += 1
     return out
+
+
+# 6b (lead): pontos livres de lanterna de caminho - glicinia da pergola (52; 112) a >= 4 e o ponto das cameras
+# C_Bam_Rampa / VFXPREV_Bambu (40; 66) a >= 2,5
+LAMP_KEEP_OUT = ((52.0, 112.0, 4.0), (40.0, 66.0, 2.5))
+TRUNK_CLR = 2.5          # 6b (item 51/44): lanterna a >= 2,5 da caixa de tronco (COL_DS_VegTrunk) do ds_veg
+
+
+def _trunks():
+    """(x, y, meia-largura) das colisoes de tronco do ds_veg (ja criadas: o ds_veg roda antes)"""
+    out = []
+    for o in bpy.data.objects:
+        if o.type == "MESH" and o.name.startswith("COL_DS_VegTrunk"):
+            bb_ = [o.matrix_world @ Vector(c) for c in o.bound_box]
+            xs, ys = [v.x for v in bb_], [v.y for v in bb_]
+            out.append(((min(xs) + max(xs)) / 2, (min(ys) + max(ys)) / 2, max(max(xs) - min(xs), max(ys) - min(ys)) / 2))
+    return out
+
+
+def _station_near(pts, x, y, step=0.5):
+    """estacao (comprimento ao longo da polilinha) do ponto mais proximo de (x, y)"""
+    best, s = (1e9, 0.0), 0.0
+    for a, b in zip(pts, pts[1:]):
+        ln = math.hypot(b[0] - a[0], b[1] - a[1])
+        n = max(1, int(ln / step))
+        for j in range(n + 1):
+            t = j / n
+            d = math.hypot(a[0] + (b[0] - a[0]) * t - x, a[1] + (b[1] - a[1]) * t - y)
+            if d < best[0]:
+                best = (d, s + ln * t)
+        s += ln
+    return best[1]
 
 
 def _sq(o, z):
@@ -1199,63 +1247,88 @@ def _sq(o, z):
 
 
 def lamp_box(mb, F, z0, hw=0.55, hz=1.15, frame=WD, cap=WD):
-    """caixa de lanterna LEVE (andon): papel aceso recuado 0,15 dentro de 4 montantes, 2 cintas de travessas 0,13 na
-    frente do papel, bandeja e chapeu de 4 aguas com beiral e botao. F no eixo; z0 = topo da bandeja. ~124 tris"""
-    p = hw - 0.15
-    bb(mb, F, -p, p, -p, p, z0 - 0.04, z0 + hz - 0.06, LGLOW)        # pontas dentro da bandeja e do chapeu
-    t = 0.17
+    """caixa de lanterna LEVE (andon) - 6b (item 50, mesma linguagem do ds_kit._box_lantern): 4 montantes de canto
+    0,2, travessa de baixo e de cima, 2 cintas de 0,16 + montante central de 0,12 por face (grade 2 x 3), papel RECUADO
+    0,16 atras da grade em 3 faixas - SO a do meio em Neon (Glass_DS_Lantern, 1/3 da area), as de cima e de baixo em
+    papel quente fosco (Window_DS_Warm: le papel iluminado sem estourar no bloom) - e chapeu de 4 aguas com beiral de
+    0,35 e botao. F no eixo; z0 = base da armacao. ~190 tris"""
+    # volta 2: faixa acesa do meio com 50% da altura (~45% da face), faixas foscas estreitas, armacao mais fina
+    t, rb = 0.17, 0.14
+    za, zb = z0 + rb, z0 + hz - rb
+    z1, z2 = za + 0.25 * (zb - za), za + 0.75 * (zb - za)
+    p = hw - 0.17
+    bb(mb, F, -p, p, -p, p, za, z1, PWARM)                           # papel: as emendas ficam dentro das cintas
+    bb(mb, F, -p, p, -p, p, z1, z2, LGLOW)
+    bb(mb, F, -p, p, -p, p, z2, zb, PWARM)
     for sx in (-1, 1):
         for sy in (-1, 1):
             cx, cy = sx * (hw - t / 2), sy * (hw - t / 2)
             bb(mb, F, cx - t / 2, cx + t / 2, cy - t / 2, cy + t / 2, z0, z0 + hz, frame)
-    for zz in (0.34, 0.68):
-        zc = z0 + hz * zz
-        q = hw - 0.02
-        bb(mb, F, -q, q, -q, q, zc - 0.045, zc + 0.045, frame)
-    bb(mb, F, -hw - 0.07, hw + 0.07, -hw - 0.07, hw + 0.07, z0 - 0.16, z0 + 0.0, frame)
-    zc = z0 + hz - 0.03
-    o = hw + 0.2                                                     # beiral curto: o papel le de cima
+    q = hw - 0.02
+    bb(mb, F, -q, q, -q, q, z0, za, frame)                           # travessas de baixo e de cima
+    bb(mb, F, -q, q, -q, q, zb, z0 + hz, frame)
+    q = hw - 0.03
+    for zz in (z1, z2):                                              # cintas (0,14)
+        bb(mb, F, -q, q, -q, q, zz - 0.07, zz + 0.07, frame)
+    bb(mb, F, -0.05, 0.05, -q, q, za, zb, frame)                     # montante central (as 4 faces)
+    bb(mb, F, -q, q, -0.05, 0.05, za, zb, frame)
+    zc = z0 + hz - 0.03                                              # (a travessa de baixo faz a vez da bandeja)
+    o = hw + 0.35                                                    # beiral 0,35: sombreia o topo do papel
     loft(mb, F, [_sq(o, zc), _sq(o, zc + 0.11), _sq(0.16, zc + 0.5), _sq(0.05, zc + 0.74)], cap)
     return F.p(0.0, 0.0, z0 + hz * 0.5)
 
 
+def stone_base(mb, F, key, r=0.8, top=0.36, n=6):
+    """6b (item 50): pedra-base natural sob o poste (6 lados irregulares, ombro chanfrado, enterrada 0,3, sem tampa
+    embaixo) - a lanterna ASSENTA numa pedra, nao sai do chao. 28 tris"""
+    rot = 6.283 * hh(key, "pb")
+    ks = [0.84 + 0.3 * hh(key, "pk", j) for j in range(n)]
+    ring = lambda f, z: [(r * f * ks[j] * math.cos(rot + 2 * math.pi * j / n),
+                          r * f * ks[j] * math.sin(rot + 2 * math.pi * j / n), z) for j in range(n)]
+    loft(mb, F, [ring(1.08, -0.3), ring(1.0, top - 0.12), ring(0.78, top)], PST, caps=(False, True))
+
+
 def andon_post(mb, F, key=0):
-    """poste com caixa: pedra-base, poste de 0,46, caixa de lanterna no topo (luz ~4 acima do chao). ~150 tris"""
-    a = 0.3 * (hh(key, "r") - 0.5)
-    Fs = sub(F, 0.0, 0.0, 0.0, a)
-    bb(mb, Fs, -0.62, 0.62, -0.62, 0.62, -0.2, 0.36, PST)
+    """poste com caixa: pedra-base natural, poste de 0,46, caixa de lanterna no topo (luz ~4 acima do chao). ~260 tris"""
+    stone_base(mb, F, key, 0.78, 0.42)
     h0 = 3.3 + 0.3 * hh(key, "h")
-    bb(mb, F, -0.23, 0.23, -0.23, 0.23, 0.3, h0 - 0.1, WD)
+    bb(mb, F, -0.23, 0.23, -0.23, 0.23, 0.3, h0 + 0.02, WD)
     c = lamp_box(mb, F, h0, 0.7, 1.45)
     return c, h0 + 2.0, 0.7
 
 
 def toro_low(mb, F, key=0):
     """toro baixo de caminho (oki-doro): soco de pedra, fuste, plataforma, camara de papel recuado entre 4 pilaretes de
-    pedra, chapeu de 4 aguas com joia (hoju). Tudo pedra + papel. ~150 tris"""
+    pedra, chapeu de 4 aguas com joia (hoju). 6b (item 50): a camara ganha 2 travessas de pedra (0,16 a frente do papel)
+    e SO a faixa do meio fica em Neon (as de cima/baixo em papel quente fosco). ~190 tris"""
     s = 0.95 + 0.12 * hh(key, "s")
     loft(mb, F, [_sq(0.78 * s, -0.2), _sq(0.78 * s, 0.32 * s), _sq(0.6 * s, 0.42 * s)], PST)
     bb(mb, F, -0.27 * s, 0.27 * s, -0.27 * s, 0.27 * s, 0.4 * s, 1.36 * s, PST)
     bb(mb, F, -0.74 * s, 0.74 * s, -0.74 * s, 0.74 * s, 1.34 * s, 1.58 * s, PST)
     z0, z1 = 1.58 * s, 2.82 * s
     p = 0.44 * s
-    bb(mb, F, -p, p, -p, p, z0 - 0.04, z1 + 0.04, LGLOW)
+    za, zb = z0 + 0.25 * (z1 - z0), z0 + 0.75 * (z1 - z0)
+    bb(mb, F, -p, p, -p, p, z0 - 0.04, za, PWARM)
+    bb(mb, F, -p, p, -p, p, za, zb, LGLOW)
+    bb(mb, F, -p, p, -p, p, zb, z1 + 0.04, PWARM)
     t = 0.22 * s
     q = 0.58 * s                                                     # pilaretes: face de fora 0,69 (plataforma 0,74)
     for sx in (-1, 1):
         for sy in (-1, 1):
             bb(mb, F, sx * q - t / 2, sx * q + t / 2, sy * q - t / 2, sy * q + t / 2, z0, z1, PST)
+    w = 0.6 * s + 0.0                                                # travessas de pedra (frente 0,6s: 0,16s do papel)
+    for zz in (za, zb):
+        bb(mb, F, -w, w, -w, w, zz - 0.08, zz + 0.08, PST)
     loft(mb, F, [_sq(0.98 * s, z1 - 0.02), _sq(0.98 * s, z1 + 0.14 * s), _sq(0.3 * s, z1 + 0.56 * s),
                  _sq(0.17 * s, z1 + 0.6 * s), _sq(0.19 * s, z1 + 0.78 * s), _sq(0.02, z1 + 1.0 * s)], PST)
     return F.p(0.0, 0.0, (z0 + z1) / 2), z1 + 1.0 * s, 0.9
 
 
 def tsuri_post(mb, F, key=0):
-    """poste curto com braco e lanterna pendurada (tsuri-doro): pedra-base, poste, braco em balanco para +y (o
-    caminho), gancho e caixa pendurada. ~170 tris"""
+    """poste curto com braco e lanterna pendurada (tsuri-doro): pedra-base natural, poste, braco em balanco para +y
+    (o caminho), gancho e caixa pendurada. ~280 tris"""
     h = 5.9 + 0.5 * hh(key, "h")
-    a = 0.3 * (hh(key, "r") - 0.5)
-    bb(mb, sub(F, 0.0, 0.0, 0.0, a), -0.6, 0.6, -0.6, 0.6, -0.2, 0.34, PST)
+    stone_base(mb, F, key, 0.74, 0.4)
     bb(mb, F, -0.22, 0.22, -0.22, 0.22, 0.3, h, WD)
     bb(mb, F, -0.14, 0.14, -0.3, 1.82, h - 0.62, h - 0.34, WD)
     beam(mb, F, (0.0, 0.18, h - 1.7), (0.0, 1.0, h - 0.6), 0.14, 0.16, WD)
@@ -1281,7 +1354,7 @@ def signpost(mb, F, arrows=((0.0, 0.0), (65.0, 0.6), (-110.0, 1.2))):
 def wood_pile(mb, F, key=0):
     """pilha pequena de lenha rachada sobre 2 dormentes (6 achas de 6 lados)"""
     for y in (-0.55, 0.55):
-        bb(mb, F, -1.3, 1.3, y - 0.16, y + 0.16, -0.05, 0.22, WD)
+        bb(mb, F, -1.3, 1.3, y - 0.16, y + 0.16, -0.05, 0.38, WD)        # 6b: dormente 0,2 acima da grama (era 0,07)
     for r, (n, z) in enumerate(((3, 0.55), (2, 1.12), (1, 1.66))):
         for i in range(n):
             x = (i - (n - 1) / 2) * 0.66 + (hh(key, r, i) - 0.5) * 0.12
@@ -1307,7 +1380,15 @@ def path_lamps(plan):
         else:
             print("ds_props AVISO luz de caminho %s sem lanterna perto de (%.0f, %.0f)" % (lnm, ax, ay))
     lit_of = {j: n for n, j in lit.items()}
-    mbs = {r: MB("DS_Prop_PathLamps_%s" % r, C, None, detail="hero") for r in sorted({q[0] for q in plan})}
+    # 6b: 2 objetos em vez de 4 (Sul+Clareira | Vila+Forja): o papel quente fosco (Window_DS_Warm) e 1 material a mais
+    # por objeto - a juncao devolve as MeshParts
+    REG = {"Sul": "SulClareira", "Clareira": "SulClareira", "Vila": "VilaForja", "Forja": "VilaForja"}
+    mbs = {}
+    for r in sorted({q[0] for q in plan}):
+        g = REG.get(r, r)
+        if g not in mbs:
+            mbs[g] = MB("DS_Prop_PathLamps_%s" % g, C, None, detail="hero")
+        mbs[r] = mbs[g]
     lights, dims = [], []
     for j, (reg, kind, x, y, z, yaw, nm, i, fen) in enumerate(plan):
         F = Frame(x, y, z - 0.06, yaw - math.pi / 2)                    # +y local do tsuri = para o caminho
@@ -1317,7 +1398,7 @@ def path_lamps(plan):
             ln = "L_DSProp_Lamp_%s%s" % (lit_of[j], "Toro" if kind == "toro" else "")
             light(ln, "POINT", tuple(c), LIT_E[kind], K.WARM, 0.2)
             lights.append(ln)
-    for r, mb in mbs.items():
+    for mb in {id(m): m for m in mbs.values()}.values():
         mb.finish()
     return lights, dims
 

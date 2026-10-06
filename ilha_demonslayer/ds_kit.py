@@ -90,7 +90,7 @@
 #     pecas com menor dimensao < MIN_BEVEL_SIZE (a vila usa 0,07 / 0,5 durante o build: ~-20% de tris na madeira).
 # ESTUDIO (folhas de close-up, fora do jogo):
 #   blender -b --factory-startup --python ds_kit.py -- <pasta_saida> [peca ...]   (previa + roblox, 960 x 540)
-import math, os, sys
+import math, os, sys, zlib
 HERE = os.path.dirname(os.path.abspath(__file__))
 if HERE not in sys.path:
     sys.path.insert(0, HERE)
@@ -364,7 +364,8 @@ def ridge(mb, F, x0, x1, zr, pitch, w=2.0, oni=True, s=1.0):
     """cumeeira (o-mune) ao longo de x: base em tenda casada nos dois caimentos + 2 fiadas de noshi + capa redonda
     (kanmuri) + onigawara nas pontas"""
     hw = w / 2
-    poly = [(-hw, zr - pitch * hw - 0.2), (0.0, zr - 0.2), (hw, zr - pitch * hw - 0.2), (hw, zr + 0.32 * s),
+    # 6b: base da tenda 0,05 abaixo da telha (era 0,2: a face de baixo ficava a 0,1 do forro nos telhados finos)
+    poly = [(-hw, zr - pitch * hw - 0.05), (0.0, zr - 0.05), (hw, zr - pitch * hw - 0.05), (hw, zr + 0.32 * s),
             (-hw, zr + 0.32 * s)]
     ext(mb, F, poly, "x", x0, x1, RR)
     bb(mb, F, x0 + 0.1, x1 - 0.1, -0.78 * w / 2, 0.78 * w / 2, zr + 0.28 * s, zr + 0.64 * s, RR, 0.05)
@@ -384,7 +385,7 @@ def _gegyo(mb, F, xh, za, sx, m=WD, s=1.0):
     """pendente do encontro das tabeiras (gegyo)"""
     poly = [(-0.95 * s, za + 0.5 * s), (0.95 * s, za + 0.5 * s), (0.6 * s, za - 0.45 * s), (0.0, za - 0.95 * s),
             (-0.6 * s, za - 0.45 * s)]
-    ext(mb, F, poly, "x", xh - 0.12 * sx, xh + 0.24 * sx, m, 0.04)
+    ext(mb, F, poly, "x", xh - 0.12 * sx, xh + 0.45 * sx, m, 0.04)     # 6b: 0,15 a frente da aba (era 0,06 dentro)
 
 
 def _gable_timber(mb, F, x_in, x_out, zb, top, ymax, style="timber"):
@@ -416,14 +417,17 @@ def _gable_timber(mb, F, x_in, x_out, zb, top, ymax, style="timber"):
         hw = min(hw, (zc - za) * 0.9)
         d = x_out - x_in
         xm = x_in + 0.14
-        bb(mb, F, x_in - 0.1, xm, -hw, hw, za, zc, RR)
+        # 6b (item 26): fundo escuro so NA FRENTE do reboco (antes entrava 0,1 atras: face de tras exposta a 0,08 do
+        # reboco) e 0,14 a frente dele; balaustres 0,14 a frente do fundo (antes 0,04: 'cumeeira x madeira' da auditoria)
+        xm = x_in + 0.16
+        bb(mb, F, x_in, xm, -hw, hw, za, zc, RR)
         for a, b, c_, e in ((-hw - 0.22, -hw, za - 0.22, zc + 0.22), (hw, hw + 0.22, za - 0.22, zc + 0.22),
                             (-hw, hw, za - 0.22, za), (-hw, hw, zc, zc + 0.22)):
             bb(mb, F, x_in, x_out, a, b, c_, e, WD)
         n = max(2, int(round(2 * hw / 0.5)))
         for i in range(1, n):
             y = -hw + 2 * hw * i / n
-            bb(mb, F, xm - 0.02, x_out - 0.04, y - 0.07, y + 0.07, za, zc, WD)
+            bb(mb, F, xm - 0.02, xm + 0.14, y - 0.07, y + 0.07, za, zc, WD)
 
 
 def _rafter(mb, F, pts, zf, tv, w=0.28, h=0.34):
@@ -553,7 +557,7 @@ def roof_hip(mb, F, W, D, h, kind="irimoya", pitch=0.55, over=3.4, gable=0.68, g
                 _gegyo(mb, Fk, xh, S.zy(xh, 0.0) - tv - 0.65, 1)
             for y in (0.0, yb * 0.5, -yb * 0.5):                       # tercas (moya) aparecendo sob a aba
                 zt = S.zy(xg, y) - tv + 0.02
-                bb(mb, Fk, xg - 0.5, xh - 0.2, y - 0.3, y + 0.3, zt - 0.7, zt, WD, 0.05)
+                bb(mb, Fk, xg - 0.62, xh - 0.2, y - 0.3, y + 0.3, zt - 0.7, zt, WD, 0.05)   # 6b: 0,17 atras do reboco
     # -------- cumeeira
     if irim:
         ridge(mb, F, -(xg + go + 0.2), xg + go + 0.2, zr, pu)
@@ -639,7 +643,7 @@ def roof_pent(mb, Ff, L, depth, z_top, pitch=0.42, tv=0.4, lift=0.35, lod=0, sup
         ribs(mb, Ff, [[(x, depth + 0.15), (x, depth), (x, depth * 0.5), (x, 0.2)]
                       for x in even(-X + 0.35, X - 0.35, 1.3 if lod == 0 else 1.75)], zf, lod, m)
     # rufo de madeira contra a parede (mizukiri)
-    bb(mb, Ff, -X + 0.06, X - 0.06, -0.12, 0.3 if not small else 0.22, z_top - 0.35, z_top + (0.3 if not small else 0.2), WD,
+    bb(mb, Ff, -X + 0.2, X - 0.2, -0.12, 0.3 if not small else 0.22, z_top - 0.35, z_top + (0.3 if not small else 0.2), WD,
        0.03)
     yf = depth - 0.3
     hb = 0.5 if not small else 0.3
@@ -647,7 +651,7 @@ def roof_pent(mb, Ff, L, depth, z_top, pitch=0.42, tv=0.4, lift=0.35, lod=0, sup
           (0, 1, 0), -0.15, 0.15, -hb, 0.06, WD)
     if ends:
         for sx in (-1, 1):
-            strip(mb, Ff, [(sx * (X - 0.18), y, zf(sx * (X - 0.18), y) - tv) for y in (0.0, depth * 0.5, depth - 0.05)],
+            strip(mb, Ff, [(sx * (X - 0.32), y, zf(sx * (X - 0.32), y) - tv) for y in (0.0, depth * 0.5, depth - 0.05)],
                   (1, 0, 0), -0.13, 0.13, -hb, 0.08, WD)
     xs = xs if xs is not None else ([-X + 0.6, X - 0.6] + ([] if L < 9 else
                                                           [x for x in even(-X + 0.6, X - 0.6, 4.5)][1:-1] if L > 14 else []))
@@ -687,11 +691,11 @@ def hip_cap(mb, F, c, hx, hy, z, over, rise, t, m, lift=0.0, nu=2):
 # ------------------------------------------------------------------ PAREDES: estrutura + vedacao + vaos
 def boards(mb, Ff, a, b, z0=0.7, z1=KH):
     """rodape de tabuas (koshi-ita) recuado + mata-juntas verticais"""
-    bb(mb, Ff, a, b, -0.72, -0.14, z0, z1, WM)
+    bb(mb, Ff, a, b, -0.72, -0.18, z0, z1, WM)          # 6b (item 27): tabua 0,16 atras da mata-junta (era 0,12)
     n = max(1, int(round((b - a) / 0.95)))
     for i in range(1, n):
         x = a + (b - a) * i / n
-        bb(mb, Ff, x - 0.09, x + 0.09, -0.16, -0.02, z0, z1, WD)
+        bb(mb, Ff, x - 0.09, x + 0.09, -0.2, -0.02, z0, z1, WD)
 
 
 def window(mb, Ff, s, z, w, h, kind="koshi", lit=True, hood=False, sill=True, head=0.3, lod=0):
@@ -706,7 +710,9 @@ def window(mb, Ff, s, z, w, h, kind="koshi", lit=True, hood=False, sill=True, he
     bb(mb, Ff, x0, x1, -0.86, -0.06, z + h, z + h + head, WD, 0.04)
     if sill:
         bb(mb, Ff, x0 - j - 0.1, x1 + j + 0.1, -0.86, 0.1, z - 0.3, z, WD, 0.04)
-    bb(mb, Ff, x0 - 0.02, x1 + 0.02, -0.7, -0.62, z, z + h, LIT if lit else PAPER)
+    # 6b (item 25): papel 0,24 atras da frente do kumiko e 0,14 atras das costas dele (era 0,06: as costas do kumiko
+    # e do papel, viradas para dentro, cintilavam vistas de dentro das casas e na diagonal)
+    bb(mb, Ff, x0 - 0.02, x1 + 0.02, -0.78, -0.74, z, z + h, LIT if lit else PAPER)
     nv = max(1, int(round(w / 0.95))) - 1
     nh = max(1, int(round(h / 1.15))) - 1
     for i in range(1, nv + 1):
@@ -731,18 +737,21 @@ def window(mb, Ff, s, z, w, h, kind="koshi", lit=True, hood=False, sill=True, he
 def _leaf(mb, Ff, xa, xb, ya, yb_, za, zb, kind, lit, lod=0):
     """folha de porta de correr: quadro (montantes/travessas), almofada baixa, trelica + papel em cima, puxador"""
     st = 0.3
+    # 6b (itens 25/27): almofada de tabuas 0,13 atras da frente do quadro, sarrafos 0,14 a frente dela, puxador de
+    # ferro 0,14 a frente da madeira; no shoji o papel sai 0,01 ATRAS do quadro (0,16 da frente do kumiko, 0,14 das
+    # costas dele - antes 0,12 / 0,06)
     if kind == "itado":
-        bb(mb, Ff, xa + 0.05, xb - 0.05, ya + 0.03, yb_ - 0.05, za, zb, WM)
+        bb(mb, Ff, xa + st, xb - st, ya - 0.1, yb_ - 0.13, za, zb, WM)       # tabuado de 0,13 (sai 0,1 para dentro)
         for x in (xa, xb - st):
             bb(mb, Ff, x, x + st, ya, yb_, za, zb, WD, 0.03)
         for zz in (za + 0.6, (za + zb) / 2, zb - 0.6):
-            bb(mb, Ff, xa + st, xb - st, yb_ - 0.06, yb_ + 0.04, zz - 0.2, zz + 0.2, WD, 0.03)
+            bb(mb, Ff, xa + st, xb - st, yb_ - 0.13, yb_ + 0.04, zz - 0.2, zz + 0.2, WD, 0.03)
         if lod == 0:
             n = max(2, int(round((xb - xa - 2 * st) / 0.6)))
             for i in range(1, n):
                 x = xa + st + (xb - xa - 2 * st) * i / n
-                bb(mb, Ff, x - 0.03, x + 0.03, yb_ - 0.08, yb_ - 0.04, za + 0.1, zb - 0.1, WD)
-        bb(mb, Ff, xb - st - 0.4, xb - st - 0.15, yb_ + 0.02, yb_ + 0.1, za + 3.6, za + 4.3, IRON)
+                bb(mb, Ff, x - 0.03, x + 0.03, yb_ - 0.13, yb_ + 0.01, za + 0.1, zb - 0.1, WD)
+        bb(mb, Ff, xb - st - 0.4, xb - st - 0.15, yb_ + 0.02, yb_ + 0.18, za + 3.6, za + 4.3, IRON)
         return
     for x in (xa, xb - st):
         bb(mb, Ff, x, x + st, ya, yb_, za, zb, WM, 0.03)
@@ -750,14 +759,14 @@ def _leaf(mb, Ff, xa, xb, ya, yb_, za, zb, kind, lit, lod=0):
     for z0_, z1_ in ((za, za + 0.55), (zm, zm + 0.25), (zb - 0.3, zb)):
         bb(mb, Ff, xa + st, xb - st, ya, yb_, z0_, z1_, WM, 0.03)
     bb(mb, Ff, xa + st, xb - st, ya + 0.04, yb_ - 0.04, za + 0.55, zm, WD)                       # almofada
-    bb(mb, Ff, xa + st, xb - st, ya, ya + 0.03, zm + 0.25, zb - 0.3, LIT if lit else PAPER)       # papel (atras)
+    bb(mb, Ff, xa + st, xb - st, ya - 0.04, ya - 0.01, zm + 0.25, zb - 0.3, LIT if lit else PAPER)   # papel (atras)
     n = max(2, int(round((xb - xa - 2 * st) / 0.34)))
     for i in range(1, n):
         x = xa + st + (xb - xa - 2 * st) * i / n
-        bb(mb, Ff, x - 0.05, x + 0.05, yb_ - 0.1, yb_ - 0.01, zm + 0.25, zb - 0.3, WD)
+        bb(mb, Ff, x - 0.05, x + 0.05, yb_ - 0.06, yb_ - 0.01, zm + 0.25, zb - 0.3, WD)
     zk = (zm + zb) / 2
-    bb(mb, Ff, xa + st, xb - st, yb_ - 0.1, yb_ - 0.01, zk - 0.05, zk + 0.05, WD)
-    bb(mb, Ff, xb - st + 0.08, xb - 0.08, yb_ - 0.02, yb_ + 0.04, za + 3.7, za + 4.2, IRON)
+    bb(mb, Ff, xa + st, xb - st, yb_ - 0.06, yb_ - 0.01, zk - 0.05, zk + 0.05, WD)
+    bb(mb, Ff, xb - st + 0.03, xb - st + 0.13, yb_ - 0.02, yb_ + 0.14, za + 3.7, za + 4.2, IRON)
 
 
 def door(mb, Ff, s, w, h, kind="hikido", lit=False, noren=None, z0=SILL, lod=0):
@@ -792,7 +801,7 @@ def noren_cloth(mb, Ff, x0, x1, zt, ln, noren=True):
     for i in range(n):
         xa = x0 - 0.2 + i * (sw + g)
         bb(mb, Ff, xa, xa + sw, 0.3, 0.36, zt - ln, zt - 0.2, nm)
-        bb(mb, Ff, xa, xa + sw, 0.3, 0.54, zt - 0.3, zt + 0.12, nm)
+        bb(mb, Ff, xa, xa + sw, 0.22, 0.62, zt - 0.3, zt + 0.12, nm)      # 6b: bainha 0,12 a volta do varao
 
 
 def _shop(mb, Ff, a, b, zn, lit=True, ground=0.0):
@@ -1017,15 +1026,43 @@ def kura_body(mb, F, W, D, h, m=PLK, r=0.7, namako=3.4, belts=(), lod=0):
             pitch_ = 1.42 if lod == 0 else 1.9
             row = 0
             z = 0.45 + pitch_ / 2
+            xm = Lf / 2 - r - 0.65                  # volta 2: campo inteiro no trecho reto (sem rede solta na quina)
+            zlo, zhi = 0.45, namako - 0.4
             while z < namako - 0.4:
                 off = (row % 2) * pitch_ / 2
-                xm = Lf / 2 - r - 0.35
                 xx = -xm + off
                 while xx <= xm + 1e-6:
-                    bx(mb, Ff, xx, yy + 0.05, z, pitch_ * 0.64, 0.16, pitch_ * 0.64, RR, 0.0, ry=math.pi / 4)
+                    # 6b (item 29): telha 0,14 saliente e menor (a rede de juntas passa entre elas, 0,14 mais alta)
+                    bx(mb, Ff, xx, yy + 0.05, z, pitch_ * 0.6, 0.18, pitch_ * 0.6, RR, 0.03, ry=math.pi / 4)
                     xx += pitch_
                 z += pitch_ / 2
                 row += 1
+            # 6b (item 29): rede de juntas de reboco EM RELEVO (0,12 de largura, 0,28 a frente da faixa) nas 2 diagonais,
+            # recortada na faixa (x ate a ultima telha, z entre as cornijas)
+            z0r = 0.45 + pitch_ / 2
+            xa_, xb_ = -xm - 0.42 * pitch_, xm + 0.42 * pitch_
+            H_ = zhi - zlo
+            for xe in (xa_ - 0.06, xb_ + 0.06):              # junta vertical que fecha o campo nas pontas
+                bb(mb, Ff, xe - 0.06, xe + 0.06, yy, yy + 0.28, zlo, zhi, m)
+            for sg in (1, -1):                                  # linhas x - sg*(z - z0r) = -xm + p/2 + j*p
+                j = -int(math.ceil((H_ + pitch_) / pitch_)) - 1
+                while True:
+                    c = -xm + pitch_ / 2 + j * pitch_
+                    if c > xb_ + H_ + pitch_:
+                        break
+                    j += 1
+                    ax_, az_ = c + sg * (zlo - z0r), zlo
+                    dx_, dz_ = sg * H_, H_
+                    ta, tb = (xa_ - ax_) / dx_, (xb_ - ax_) / dx_
+                    t0, t1 = max(0.0, min(ta, tb)), min(1.0, max(ta, tb))
+                    if t1 - t0 < 0.04:
+                        continue
+                    p0 = (ax_ + dx_ * t0, az_ + dz_ * t0)
+                    p1 = (ax_ + dx_ * t1, az_ + dz_ * t1)
+                    ln = math.hypot(p1[0] - p0[0], p1[1] - p0[1]) + 0.06
+                    bx(mb, Ff, (p0[0] + p1[0]) / 2, yy + 0.14, (p0[1] + p1[1]) / 2, ln, 0.28, 0.12, m, 0.03,
+                       ry=-sg * math.pi / 4)
+
     for zb in belts:
         ext(mb, F, rrect(W + 0.5, D + 0.5, r + 0.25), "z", zb, zb + 0.55, m)
     ext(mb, F, rrect(W + 0.5, D + 0.5, r + 0.25), "z", h - 0.95, h - 0.45, m)
@@ -1056,7 +1093,7 @@ def kura_window(mb, Ff, s, z, w, h, lit=True, shutters=True, hood=True, m=PLK):
             bb(mb, Ff, xa, xb, 0.14, 0.6, z - 0.35, z + h + 0.35, m, 0.05)
             bb(mb, Ff, xa + k * 0.22, xb - k * 0.22, 0.6, 0.86, z - 0.12, z + h + 0.12, m, 0.04)
             for zz in (z + 0.4, z + h - 0.4):
-                bb(mb, Ff, min(xa + k * 0.2, xa - k * 0.45), max(xa + k * 0.2, xa - k * 0.45), 0.08, 0.66, zz - 0.09, zz + 0.09,
+                bb(mb, Ff, min(xa + k * 0.16, xa - k * 0.45), max(xa + k * 0.16, xa - k * 0.45), 0.08, 0.74, zz - 0.09, zz + 0.09,
                    IRON)
     if hood:
         roof_pent(mb, sub(Ff, s, 0.0, 0.0), w + 3.4, 1.6, z + h + 1.75, 0.5, 0.3, 0.2, 1, "braces",
@@ -1075,10 +1112,10 @@ def kura_door(mb, Ff, s, w, h, z0=0.0, m=PLK, lit=False):
             bb(mb, Ff, a, b, -0.3, d, c, e, m, 0.05)
     for k in (-1, 1):
         xa, xb = (x0, s - 0.03) if k < 0 else (s + 0.03, x1)
-        bb(mb, Ff, xa, xb, 0.32, 0.48, z0 + 0.05, z0 + h, IRON)          # folha a frente da faixa namako (>= 0,12)
+        bb(mb, Ff, xa, xb, 0.44, 0.6, z0 + 0.05, z0 + h, IRON)           # 6b: folha 0,16 a frente das juntas do namako
         for zz in (z0 + 0.9, z0 + h * 0.5, z0 + h - 0.9):
-            bb(mb, Ff, xa + 0.1, xb - 0.1, 0.48, 0.56, zz - 0.18, zz + 0.18, IRON)
-        mb.rod(Ff.p(s + k * 0.55, 0.56, z0 + h * 0.5 - 0.45), Ff.p(s + k * 0.55, 0.78, z0 + h * 0.5 - 0.45), 0.2,
+            bb(mb, Ff, xa + 0.1, xb - 0.1, 0.6, 0.74, zz - 0.18, zz + 0.18, IRON)
+        mb.rod(Ff.p(s + k * 0.55, 0.74, z0 + h * 0.5 - 0.45), Ff.p(s + k * 0.55, 0.96, z0 + h * 0.5 - 0.45), 0.2,
                IRON, 8)
     bb(mb, Ff, x0 - 1.4, x1 + 1.4, -0.3, 1.5, z0 - 0.45, z0 + 0.04, ST, 0.08)
     roof_pent(mb, sub(Ff, s, 0.0, 0.0), w + 4.2, 2.4, z0 + h + 2.4, 0.45, 0.34, 0.25, 0, "brackets",
@@ -1088,23 +1125,33 @@ def kura_door(mb, Ff, s, w, h, z0=0.0, m=PLK, lit=False):
 
 # ------------------------------------------------------------------ VARANDA, ESCADAS, GUARDAS, CERCAS
 def steps_to(mb, Ff, x, y0, z_top, z_ground, w=3.6):
-    """pedras de degrau naturais (kutsunugi-ishi) do chao ate z_top, saindo de y0 para +y"""
+    """pedras de degrau naturais (kutsunugi-ishi) do chao ate z_top, saindo de y0 para +y - 6b (item 28): cada pedra e
+    um poligono de 7-9 vertices com raios sorteados, topo abaulado 0,05, rumo aleatorio; a de cima GRANDE e as de
+    baixo menores e DESLOCADAS para os lados (nao mais 'moedas' iguais empilhadas)"""
     dz = z_top - z_ground
     if dz < 0.25:
         return
     n = max(1, int(math.ceil(dz / 0.78 - 0.05)))
     rise = dz / n
+    P = Ff.p(x, y0, 0.0)
+    key = (round(P.x, 1), round(P.y, 1), round(z_top, 1))
     for i in range(n):
         zt = z_top - rise * i
         if zt <= z_ground + 0.12:
             break
+        nv = 7 + int(_h01(key, i, "n") * 3)
+        # volta 2: pedras largas e baixas (a 1a versao, estreita, lia 'pilha de postes' no V4/V5)
+        rx = min(w / 2, 1.7 + 0.5 * _h01(key, i, "r")) * (1.0 if i == 0 else 0.84)
+        ry = 0.9 + 0.18 * _h01(key, i, "y")
         ya = y0 + 0.05 + i * 1.35
-        wi = w - i * 0.35
+        side = (1 if (i + int(_h01(key, "s") * 2)) % 2 else -1) if i else 0
+        cx_ = x + side * (0.35 + 0.35 * _h01(key, i, "o")) * min(1.0, w / 3.4)
         cy_ = ya + 0.8
-        kk = (1.0, 0.93, 1.04, 0.97, 1.02, 0.95, 1.05, 0.96, 1.0, 0.94)
-        poly = [(x + wi / 2 * kk[(j + i * 3) % 10] * math.cos(2 * math.pi * j / 10 + 0.2 * i),
-                 cy_ + 0.8 * kk[(j + i * 3 + 5) % 10] * math.sin(2 * math.pi * j / 10 + 0.2 * i)) for j in range(10)]
-        ext(mb, Ff, poly, "z", z_ground - 0.25, zt - 0.02, STP, 0.16)
+        rot = 6.283 * _h01(key, i, "a")
+        ks = [0.8 + 0.34 * _h01(key, i, j, "k") for j in range(nv)]
+        ring = lambda f, z: [(cx_ + rx * f * ks[j] * math.cos(rot + 2 * math.pi * j / nv),
+                              cy_ + ry * f * ks[j] * math.sin(rot + 2 * math.pi * j / nv), z) for j in range(nv)]
+        loft(mb, Ff, [ring(1.08, z_ground - 0.25), ring(1.0, zt - 0.14), ring(0.9, zt - 0.03), ring(0.66, zt)], STP)
 
 
 def engawa(mb, Ff, x0, x1, depth, ground, z=0.35, step_x=None, posts=True, lod=0):
@@ -1130,24 +1177,74 @@ def engawa(mb, Ff, x0, x1, depth, ground, z=0.35, step_x=None, posts=True, lod=0
         steps_to(mb, Ff, step_x, depth, z - 0.75, ground, 3.4)
 
 
-def stair_stone(mb, F, w, n, rise=0.75, tread=1.9, cheeks=True, m=STP, riser_m=STD, cheek_m=ST, z_floor=None):
-    """escada de pedra: pisada com focinho chanfrado saliente 0,12, espelho escuro recuado, banzos de pedra em
-    degraus com capa. F no pe do 1o espelho (centro), sobe para +y"""
-    TH, NOSE = 0.3, 0.12
+def _h01(*a):
+    """sorteio deterministico 0..1 (crc32 da chave) - mesma ideia do ds_props.hh"""
+    k = "|".join("%.2f" % v if isinstance(v, float) else str(v) for v in a)
+    return (zlib.crc32(k.encode("utf-8")) & 0xffffffff) / 4294967296.0
+
+
+def _tread_cuts(w, k, key, prev, tries=8):
+    """larguras das pedras de um degrau (k pedras, 2,2..4,6) com as juntas DESENCONTRADAS das do degrau de baixo"""
+    best = None
+    for t in range(tries):
+        ws = [0.7 + 0.6 * _h01(key, t, j) for j in range(k)]
+        sc = w / sum(ws)
+        ws = [v * sc for v in ws]
+        cuts = [-w / 2]
+        for v in ws:
+            cuts.append(cuts[-1] + v)
+        cuts[-1] = w / 2
+        inner = cuts[1:-1]
+        gap = min([abs(c - p) for c in inner for p in prev] or [9.0])
+        if best is None or gap > best[0]:
+            best = (gap, cuts)
+        if gap > 0.8:
+            break
+    return best[1]
+
+
+def stair_stone(mb, F, w, n, rise=0.75, tread=1.9, cheeks=True, m=STP, riser_m=STD, cheek_m=ST, z_floor=None, seed=None):
+    """escada de pedra - 6b (item 24): cada degrau em 3-5 PEDRAS (2,2..4,6 de largura, juntas desencontradas de degrau a
+    degrau), focinho 0,1 com chanfro 0,05, espelho escuro recuado 0,1 (bloco por baixo da pisada), 1 degrau em 5 com a
+    pedra do meio gasta (topo 0,04 mais baixo), arranque e chegada em lajes maiores; banzos em pedras de 2 fiadas que
+    vencem 2 degraus (nao um bloco por degrau). A variacao vem do seed (padrao: posicao/rumo de F + w + n), entao cada
+    escada da ilha sai diferente. F no pe do 1o espelho (centro), sobe para +y. Mesma API/retorno da onda 1b"""
+    TH, NOSE, G = 0.3, 0.1, 0.05
     zf = -0.3 if z_floor is None else z_floor
+    key = seed if seed is not None else (round(F.o.x, 1), round(F.o.y, 1), round(F.a, 2), round(w, 1), n)
+    kk = max(3, min(5, int(round(w / 3.3))))
+    wear0 = int(_h01(key, "wear") * 5)
+    prev = []
     for i in range(n):
         zt = rise * (i + 1)
-        bb(mb, F, -w / 2 + 0.04, w / 2 - 0.04, tread * i, tread * (i + 1) + 0.02, zf, zt - TH - 0.02, riser_m)
-        stone(mb, F, -w / 2, w / 2, zt - TH, zt, tread * (i + 1) + 0.02, tread * i - NOSE, tread * i - NOSE, 0.07, m)
+        y0, y1 = tread * i, tread * (i + 1)
+        bb(mb, F, -w / 2 + 0.04, w / 2 - 0.04, y0, y1 + 0.02, zf, zt - TH - 0.02, riser_m)          # espelho / miolo
+        k = kk - 1 if i in (0, n - 1) else kk
+        cuts = _tread_cuts(w, max(2, k), (key, i), prev)
+        prev = cuts[1:-1]
+        mid = len(cuts) // 2 - 1
+        for j, (x0, x1) in enumerate(zip(cuts, cuts[1:])):
+            gx0 = x0 + (G if j > 0 else 0.0)
+            gx1 = x1 - (G if j < len(cuts) - 2 else 0.0)
+            ztop = zt - (0.04 if (i % 5 == wear0 and j == mid and 0 < i < n - 1) else 0.0)
+            dn = 0.03 * (_h01(key, i, j, "n") - 0.5)                                     # focinho +-0,015
+            stone(mb, F, gx0, gx1, zt - TH, ztop, y1 + 0.02, y0 - NOSE + dn, y0 - NOSE + dn, 0.05, m)
     if cheeks:
         for s in (-1, 1):
-            for i in range(n):
-                zt = rise * (i + 1) + 0.55
-                xa, xb = (w / 2, w / 2 + 1.0) if s > 0 else (-w / 2 - 1.0, -w / 2)
-                Fc = sub(F, (xa + xb) / 2, 0.0, 0.0, -s * math.pi / 2)      # +y do banzo = para FORA da escada
-                ya_, yb2 = tread * i - 0.12, (tread * (i + 1) + 0.12 if i == n - 1 else tread * (i + 1) - 0.02)
+            xa, xb = (w / 2, w / 2 + 1.0) if s > 0 else (-w / 2 - 1.0, -w / 2)
+            Fc = sub(F, (xa + xb) / 2, 0.0, 0.0, -s * math.pi / 2)      # +y do banzo = para FORA da escada
+            i = 0
+            while i < n:
+                i2 = min(n, i + 2)
+                zt = rise * i2 + 0.55
+                ya_ = tread * i - 0.12
+                yb2 = tread * i2 + 0.12 if i2 == n else tread * i2 - 0.02
                 u0, u1 = (-yb2, -ya_) if s > 0 else (ya_, yb2)                 # x do banzo = -+y da escada
-                stone(mb, Fc, u0, u1, zf, zt, -0.5, 0.5, 0.5, 0.1, cheek_m)
+                zm = zf + (zt - zf) * (0.42 + 0.16 * _h01(key, s, i, "c"))      # fiada de baixo / de cima
+                d = 0.07 * (1 if (i // 2) % 2 else -1)                          # faces 0,14 desencontradas
+                stone(mb, Fc, u0, u1, zf, zm, -0.5, 0.5 + d, 0.5 + d, 0.1, cheek_m)
+                stone(mb, Fc, u0, u1, zm, zt, -0.5, 0.5 - d, 0.5 - d, 0.1, cheek_m)
+                i = i2
     return F.p(0.0, tread * n, rise * n)
 
 
@@ -1289,7 +1386,7 @@ def gate_mon(mb, F, w=8.5, h=9.5, depth=3.2, open_=True, lod=0):
         beam(mb, F, (s * hw, 0.4, h - 2.6), (s * hw, depth / 2 + 0.1, h + 0.1), 0.3, 0.34, WD)
     bb(mb, F, -hw - 1.4, hw + 1.4, -0.5, 0.5, h - 1.25, h - 0.45, WD, B)
     bb(mb, F, -hw, hw, -0.35, 0.35, h - 3.1, h - 2.6, WD, 0.05)
-    bb(mb, F, -hw, hw, -0.75, 0.75, -0.3, 0.22, ST, 0.08)
+    bb(mb, F, -hw, hw, -0.75, 0.75, -0.3, 0.34, ST, 0.08)                 # 6b: soleira 0,16 acima da grama (era 0,04)
     info = roof_gable(mb, F, 2 * hw + 1.1, depth, h + 0.65, 0.62, 1.2, 1.4, 0.4, 0.42, 1, PL, "none", False)
     for s in (-1, 1):
         bb(mb, F, s * hw - 0.25, s * hw + 0.25, -0.25, 0.25, h + 0.65, info["zr"] - 0.4, WD, 0.04)
@@ -1309,42 +1406,73 @@ def gate_mon(mb, F, w=8.5, h=9.5, depth=3.2, open_=True, lod=0):
             bb(mb, Fl, xa + 0.15, xb - 0.15, -0.24, -0.12, zz - 0.22, zz + 0.22, WD, 0.03)
         for zz in (1.2, zt - 0.8):
             e = xb if s > 0 else xa
-            bb(mb, Fl, e - 1.4 if s > 0 else e, e if s > 0 else e + 1.4, 0.12, 0.18, zz - 0.12, zz + 0.12, IRON)
+            bb(mb, Fl, e - 1.4 if s > 0 else e, e if s > 0 else e + 1.4, 0.12, 0.26, zz - 0.12, zz + 0.12, IRON)   # 6b: 0,14
     return info
 
 
 # ------------------------------------------------------------------ LANTERNAS
-def _box_lantern(mb, F, c, hx, hy, hz, frame=WD, paper=LGLOW, cap_m=RT, iron_top=IRON, tray=True):
-    """caixa de lanterna: 4 montantes, travessa de cima, bandeja, papel/vidro RECUADO 0,15 da armacao, cruzetas na
-    frente do papel, chapeu de 4 aguas com beiral e argola/ponteira. c = (x, y, z da base)"""
+def _box_lantern(mb, F, c, hx, hy, hz, frame=WD, paper=LGLOW, cap_m=RT, iron_top=IRON, tray=True, warm=LIT):
+    """caixa de lanterna (andon) - 6b (item 23): ARMACAO de verdade (montantes de canto 0,22, travessa de baixo e de
+    cima 0,18, kumiko 2 x 3 por face: montante central 0,14 + 2 travessas 0,16), papel RECUADO 0,2 da face da armacao
+    em 3 faixas: SO a do meio acesa (paper = Neon, 1/3 da area: as 2 celulas centrais de cada face), as de cima e de
+    baixo em papel quente fosco (warm = Window_DS_Warm, SmoothPlastic - le 'papel iluminado' sem virar bloco no bloom);
+    chapeu de 4 aguas com beiral 0,45 sombreando o topo e argola/ponteira. c = (x, y, z da base). Mesma API/retorno"""
     cx, cy, z0 = c
-    t = 0.16
-    bb(mb, F, cx - hx + 0.15, cx + hx - 0.15, cy - hy + 0.15, cy + hy - 0.15, z0 + 0.05, z0 + hz - 0.12, paper)
+    # volta 2 (render na altura do jogador): com faixas iguais e armacao grossa a caixa lia 'caixa preta com 6
+    # furinhos'. Agora a faixa ACESA do meio tem 50% da altura (as 2 celulas centrais = ~45% da face) e as de papel
+    # fosco ficam estreitas em cima/embaixo; montantes de canto 0,2, kumiko de 0,12/0,14
+    t, rb, ins = 0.2, 0.16, 0.18
+    za, zb = z0 + rb, z0 + hz - rb
+    z1, z2 = za + 0.25 * (zb - za), za + 0.75 * (zb - za)
+    px, py = hx - ins, hy - ins
+    bb(mb, F, cx - px, cx + px, cy - py, cy + py, za, z1, warm)                       # papel em 3 faixas (as emendas
+    bb(mb, F, cx - px, cx + px, cy - py, cy + py, z1, z2, paper)                       # ficam DENTRO das travessas)
+    bb(mb, F, cx - px, cx + px, cy - py, cy + py, z2, zb, warm)
     for sx in (-1, 1):
         for sy in (-1, 1):
             bb(mb, F, cx + sx * hx - (t if sx > 0 else 0), cx + sx * hx + (0 if sx > 0 else t),
                cy + sy * hy - (t if sy > 0 else 0), cy + sy * hy + (0 if sy > 0 else t), z0, z0 + hz, frame)
-    bb(mb, F, cx - hx, cx + hx, cy - hy, cy + hy, z0 + hz - 0.16, z0 + hz, frame)
+    q = 0.02
+    bb(mb, F, cx - hx + q, cx + hx - q, cy - hy + q, cy + hy - q, z0, za, frame)          # travessa de baixo
+    bb(mb, F, cx - hx + q, cx + hx - q, cy - hy + q, cy + hy - q, zb, z0 + hz, frame)     # travessa de cima
+    q = 0.04
+    for zz in (z1, z2):                                                                    # kumiko: 2 travessas
+        bb(mb, F, cx - hx + q, cx + hx - q, cy - hy + q, cy + hy - q, zz - 0.07, zz + 0.07, frame)
+    bb(mb, F, cx - 0.06, cx + 0.06, cy - hy + q, cy + hy - q, za, zb, frame)              # montante central (x2)
+    bb(mb, F, cx - hx + q, cx + hx - q, cy - 0.06, cy + 0.06, za, zb, frame)
     if tray:
         bb(mb, F, cx - hx - 0.08, cx + hx + 0.08, cy - hy - 0.08, cy + hy + 0.08, z0 - 0.14, z0 + 0.05, frame, 0.03)
-    zm = z0 + hz * 0.52
-    for sx in (-1, 1):
-        x = cx + sx * (hx - 0.06)
-        bb(mb, F, x - 0.04, x + 0.04, cy - hy + t, cy + hy - t, zm - 0.04, zm + 0.04, frame)
-        bb(mb, F, x - 0.04, x + 0.04, cy - 0.04, cy + 0.04, z0 + 0.05, z0 + hz - 0.16, frame)
-    for sy in (-1, 1):
-        y = cy + sy * (hy - 0.06)
-        bb(mb, F, cx - hx + t, cx + hx - t, y - 0.04, y + 0.04, zm - 0.04, zm + 0.04, frame)
-        bb(mb, F, cx - 0.04, cx + 0.04, y - 0.04, y + 0.04, z0 + 0.05, z0 + hz - 0.16, frame)
-    zr = hip_cap(mb, F, (cx, cy), hx + 0.04, hy + 0.04, z0 + hz, 0.32, min(hx, hy) * 0.75, 0.1, cap_m, 0.1)
+    zr = hip_cap(mb, F, (cx, cy), hx + 0.04, hy + 0.04, z0 + hz, 0.45, min(hx, hy) * 0.75, 0.1, cap_m, 0.12)
     lathe(mb, F, (cx, cy, zr - 0.05), [(0.16, 0.0), (0.2, 0.12), (0.1, 0.26), (0.13, 0.38), (0.02, 0.55)], 6, iron_top)
     return (cx, cy, z0 + hz * 0.5), zr + 0.5
 
 
+def chochin(mb, F, c, r=0.46, hgt=1.25, cap_m=WD, paper=LGLOW, warm=LIT, n=8):
+    """6b (item 23): chochin de 8 lados - corpo de papel abaulado em 3 faixas (SO a do meio acesa; as pontas em papel
+    quente fosco), 4 aros (hoops) 0,12 para fora do papel e tampas de laca escura em cima e embaixo. c = centro da
+    BASE (x, y, z). Devolve o centro do corpo (ponto da luz)"""
+    cx, cy, z0 = c
+    zA, zB = z0 + 0.16, z0 + hgt - 0.16
+    H = zB - zA
+    rz = lambda u: r * (0.72 + 0.28 * math.sin(math.pi * u))            # perfil abaulado (u 0..1)
+    cuts = (0.0, 1.0 / 3.0, 2.0 / 3.0, 1.0)
+    for k in range(3):
+        u0, u1 = cuts[k], cuts[k + 1]
+        prof = [(rz(u0), H * u0), (rz((u0 + u1) / 2), H * (u0 + u1) / 2), (rz(u1), H * u1)]
+        lathe(mb, F, (cx, cy, zA), prof, n, paper if k == 1 else warm, math.pi / n)
+    for u in (1.0 / 3.0, 2.0 / 3.0):                                      # aros finos nas emendas: 0,12 fora do papel
+        rr = rz(u) + 0.12
+        lathe(mb, F, (cx, cy, zA + H * u), [(rr, -0.035), (rr, 0.035)], n, cap_m, math.pi / n)
+    rc = rz(0.0) + 0.06                                                  # tampas (laca), 0,04 dentro do papel
+    lathe(mb, F, (cx, cy, zA), [(rc * 0.8, -0.16), (rc, -0.08), (rc, 0.04)], n, cap_m, math.pi / n)
+    lathe(mb, F, (cx, cy, zB), [(rc, -0.04), (rc, 0.08), (rc * 0.8, 0.16)], n, cap_m, math.pi / n)
+    return (cx, cy, zA + H * 0.5)
+
+
 def lantern_post(mb, F, h=8.6, arm=1.9, light_name=None, energy=40.0):
     """lanterna de poste: pedra-base, poste chanfrado com capitel e chapeu, braco com mao-francesa, gancho de ferro
-    e caixa de papel pendurada (armacao, papel recuado, cruzetas, chapeu de telha, ponteira). F no pe; braco p/ +y"""
-    rock_base(mb, F, 0.0, 0.0, 0.0, 0.95, 0.5)
+    e caixa de papel pendurada (armacao, papel recuado, kumiko, chapeu de telha, ponteira). F no pe; braco p/ +y"""
+    rock_base(mb, F, 0.0, 0.0, 0.0, 0.95, 0.62)                       # 6b: 0,12 mais alta (rente a grama alta)
     bb(mb, F, -0.3, 0.3, -0.3, 0.3, 0.3, h, WD, 0.08)
     bb(mb, F, -0.42, 0.42, -0.42, 0.42, h, h + 0.16, WD, 0.04)
     hip_cap(mb, F, (0.0, 0.0), 0.42, 0.42, h + 0.16, 0.18, 0.32, 0.1, RT, 0.05)
@@ -1362,15 +1490,18 @@ def lantern_post(mb, F, h=8.6, arm=1.9, light_name=None, energy=40.0):
 
 
 def lantern_wall(mb, F, light_name=None, energy=30.0, out=1.3):
-    """lanterna de parede: espelho de ferro com 2 parafusos, braco e mao-francesa de ferro, base e caixa pequena
-    (armacao de ferro, vidro/papel recuado, chapeu de ferro). F na face da parede (+y fora), z = altura do braco"""
+    """lanterna de parede - 6b (item 23): CHOCHIN de 8 lados pendurado num pescoco de ferro (espelho com 2 parafusos,
+    braco e mao-francesa, montante e gancho), na MESMA faixa de altura da caixa antiga (corpo de z 0,14 a 1,3).
+    F na face da parede (+y fora), z = altura do braco"""
     bb(mb, F, -0.28, 0.28, -0.05, 0.12, -1.0, 0.85, IRON, 0.03)
     for zz in (-0.7, 0.55):
-        mb.rod(F.p(0.0, 0.1, zz), F.p(0.0, 0.2, zz), 0.07, IRON, 6)
-    bb(mb, F, -0.08, 0.08, 0.05, out + 0.3, -0.12, 0.04, IRON)
-    beam(mb, F, (0.0, 0.1, -0.85), (0.0, out * 0.7, -0.1), 0.1, 0.1, IRON)
-    bb(mb, F, -0.48, 0.48, out - 0.48, out + 0.48, 0.04, 0.12, IRON, 0.02)
-    c, _ = _box_lantern(mb, F, (0.0, out, 0.14), 0.4, 0.4, 0.95, IRON, LGLOW, IRON, IRON, tray=False)
+        mb.rod(F.p(0.0, 0.1, zz), F.p(0.0, 0.26, zz), 0.07, IRON, 6)
+    bb(mb, F, -0.08, 0.08, 0.05, out + 0.62, -0.12, 0.04, IRON)                      # braco
+    beam(mb, F, (0.0, 0.1, -0.85), (0.0, out * 0.7, -0.1), 0.1, 0.1, IRON)              # mao-francesa
+    bb(mb, F, -0.06, 0.06, out + 0.5, out + 0.62, -0.12, 1.62, IRON)                    # montante (pescoco)
+    bb(mb, F, -0.06, 0.06, out - 0.02, out + 0.62, 1.5, 1.62, IRON)                     # volta por cima
+    mb.rod(F.p(0.0, out, 1.52), F.p(0.0, out, 1.3), 0.04, IRON, 6)                      # gancho
+    c = chochin(mb, F, (0.0, out, 0.1), 0.42, 1.2, IRON)
     if light_name:
         light(light_name, "POINT", F.p(*c), energy, WARM, 0.15)
     return F.p(*c)

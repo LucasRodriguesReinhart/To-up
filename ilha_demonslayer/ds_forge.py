@@ -28,7 +28,7 @@
 # Luzes de dia (L_DSFrg_*, 6): fornalha (interior), boca, torre, oficina, ala leste, forno de carvao.
 # Noite (L_DSProp_Lamp_Frg*): lanternas de parede da boca, postes do topo da subida, toro do patamar, poste do carvao.
 # Colisao: so dos proprios predios/props (o chao, as escadas e as guardas sao do ds_col).
-import math, os, sys, random
+import math, os, sys, random, zlib
 HERE = os.path.dirname(os.path.abspath(__file__))
 if HERE not in sys.path:
     sys.path.insert(0, HERE)
@@ -97,6 +97,17 @@ def _flume_pts():
 
 
 # ------------------------------------------------------------------ helpers
+def stone(mb, F, x0, x1, z0, z1, yb, yf0, yf1, c=0.12, m=ST):
+    """= ds_kit.stone (bloco com a face em y, chanfro c so na face) SEM a tampa de tras: aqui ela sempre encosta no
+    miolo da alvenaria e nunca se ve (ONDA 6b: -2 tris por bloco no salao e no soco)"""
+    yz = lambda z: yf0 + (yf1 - yf0) * (z - z0) / max(1e-6, z1 - z0)
+    r0 = [(x0, yb, z0), (x1, yb, z0), (x1, yb, z1), (x0, yb, z1)]
+    r1 = [(x0, yz(z0) - c, z0), (x1, yz(z0) - c, z0), (x1, yz(z1) - c, z1), (x0, yz(z1) - c, z1)]
+    r2 = [(x0 + c, yz(z0 + c), z0 + c), (x1 - c, yz(z0 + c), z0 + c), (x1 - c, yz(z1 - c), z1 - c),
+          (x0 + c, yz(z1 - c), z1 - c)]
+    loft(mb, F, [r0, r1, r2], m, caps=(False, True))
+
+
 def wbb(mb, x0, x1, y0, y1, z0, z1, m, bev=0.0):
     bb(mb, W0, x0, x1, y0, y1, z0, z1, m, bev)
 
@@ -147,6 +158,16 @@ def rings_solid(mb, rings, m, cap0=True, cap1=True, tip=None, mats=None, closed=
         fm.append(None)
     bmesh.ops.recalc_face_normals(bm, faces=fs)
     allv = [v for r in V for v in r] + ([vt] if vt is not None else [])
+    if not (cap0 and (cap1 or tip is not None)):
+        # ONDA 6b: casca ABERTA (sem fundo): confere que as normais ficaram para fora (o Roblox nao desenha o verso)
+        cen = sum((v.co for v in allv), Vector()) / len(allv)
+        s = 0.0
+        for f in fs:
+            f.normal_update()
+            s += f.normal.dot(f.calc_center_median() - cen) * f.calc_area()
+        if s < 0.0:
+            for f in fs:
+                f.normal_flip()
     mb._post(allv, m, None, 0, 1)
     for f, mm in zip(fs, fm):
         if mm and f.is_valid:
@@ -179,11 +200,12 @@ def rect_ring(cx, cy, z, hx, hy):
 
 
 def slab(mb, x0, y0, x1, y1, ztop, th=0.5, c=0.08, m=LAJE):
-    """laje com chanfro no topo (20 tris)"""
+    """laje com chanfro no topo (18 tris). ONDA 6b: sem a face de baixo (assenta na terra/no leito: nunca se ve)"""
     r0 = rect_ring((x0 + x1) / 2, (y0 + y1) / 2, ztop - th, (x1 - x0) / 2, (y1 - y0) / 2)
     r1 = rect_ring((x0 + x1) / 2, (y0 + y1) / 2, ztop - c, (x1 - x0) / 2, (y1 - y0) / 2)
     r2 = rect_ring((x0 + x1) / 2, (y0 + y1) / 2, ztop, (x1 - x0) / 2 - c, (y1 - y0) / 2 - c)
-    rings_solid(mb, [r0, r1, r2], m)
+    rings_solid(mb, [r0, r1, r2], m, cap0=False)
+    PAVED.append([(x0, y0), (x1, y0), (x1, y1), (x0, y1)])
 
 
 def ground_z(x, y, top=220.0):
@@ -200,6 +222,154 @@ def ground_z(x, y, top=220.0):
             return loc.z
         o = loc + d * 0.02
     return None
+
+
+# ================================================================== ONDA 6b (6b-C, finesse): chao do patio
+def _hh(*a):
+    """hash estavel 0..1 (variacao dirigida, igual em todo build)"""
+    s = "|".join(("%.3f" % v) if isinstance(v, float) else str(v) for v in a)
+    h = zlib.crc32(s.encode("utf-8")) & 0xffffffff
+    # o crc32 e LINEAR (chaves vizinhas dao valores vizinhos): finalizador do murmur3 espalha os bits
+    h ^= h >> 16
+    h = (h * 0x85EBCA6B) & 0xffffffff
+    h ^= h >> 13
+    h = (h * 0xC2B2AE35) & 0xffffffff
+    h ^= h >> 16
+    return h / 4294967296.0
+
+
+def _pin(x, y, P):
+    """ponto dentro do poligono P (x, y)"""
+    ins = False
+    n = len(P)
+    for i in range(n):
+        (x0, y0), (x1, y1) = P[i], P[(i + 1) % n]
+        if (y0 > y) != (y1 > y) and x < x0 + (x1 - x0) * (y - y0) / (y1 - y0):
+            ins = not ins
+    return ins
+
+
+PAVED = []          # pegadas (poligonos) do que ja esta pavimentado no patio: as manchas ficam fora delas
+
+
+def flag(mb, poly, ztop, th=0.42, c=0.07, m=LAJE):
+    """laje IRREGULAR (poligono convexo em (x, y)): chanfro no topo, sem fundo (assenta na terra). 5n-2 tris"""
+    P = DL.ccw(poly)
+    Pi = DL.offset_poly(P, -c)
+    r0 = [Vector((x, y, ztop - th)) for x, y in P]
+    r1 = [Vector((x, y, ztop - c)) for x, y in P]
+    r2 = [Vector((x, y, ztop)) for x, y in Pi]
+    rings_solid(mb, [r0, r1, r2], m, cap0=False)
+    PAVED.append(P)
+
+
+def flag_lattice(C, nu, nv, key, put, keep=None, merge=0.3, gap=0.2):
+    """lajes sobre um reticulado deformado de cantos PARTILHADOS C[i][j] (i ao longo, j atravessado): juntas
+    continuas e desencontradas como num ishidatami; merge = chance de juntar 2 celulas em i (laje maior);
+    keep(i, j) -> False tira a celula (borda rasgada); put(poly, i, j) desenha a laje ja recuada de gap/2"""
+    n = 0
+    for j in range(nv):
+        i = 0
+        while i < nu:
+            if keep and not keep(i, j):
+                i += 1
+                continue
+            span = 2 if (i + 1 < nu and _hh(key, "m", i, j) < merge and (keep is None or keep(i + 1, j))) else 1
+            poly = [C[i + k][j] for k in range(span + 1)] + [C[i + k][j + 1] for k in range(span, -1, -1)]
+            poly = DL.offset_poly(DL.ccw(poly), -gap / 2)
+            put(poly, i, j)
+            n += 1
+            i += span
+    return n
+
+
+def _smooth(pts, it=2):
+    """Chaikin: curva a polilinha (a trilha nao quebra em quina)"""
+    for _ in range(it):
+        q = [pts[0]]
+        for a, b in zip(pts, pts[1:]):
+            q.append((0.75 * a[0] + 0.25 * b[0], 0.75 * a[1] + 0.25 * b[1]))
+            q.append((0.25 * a[0] + 0.75 * b[0], 0.25 * a[1] + 0.75 * b[1]))
+        q.append(pts[-1])
+        pts = q
+    return pts
+
+
+def _along(pts, s):
+    """ponto e tangente unitaria a distancia s ao longo da polilinha"""
+    acc = 0.0
+    for k, (a, b) in enumerate(zip(pts, pts[1:])):
+        dx, dy = b[0] - a[0], b[1] - a[1]
+        ln = math.hypot(dx, dy) or 1e-6
+        if acc + ln >= s or k == len(pts) - 2:
+            t = max(0.0, min(1.0, (s - acc) / ln))
+            return (a[0] + dx * t, a[1] + dy * t), (dx / ln, dy / ln)
+        acc += ln
+
+
+def _plen(pts):
+    return sum(math.hypot(b[0] - a[0], b[1] - a[1]) for a, b in zip(pts, pts[1:]))
+
+
+def trail_flags(mb, pts, hw, ztop, key, step=1.55, cols=2, m=LAJE, rag=0.3):
+    """trilha de lajes irregulares (largura 2*hw) ao longo de pts: reticulado (ao longo x atravessado) com cantos
+    sacudidos, bordas rasgadas (celulas de borda caem) e lajes maiores aqui e ali"""
+    pts = _smooth(pts)
+    Ln = _plen(pts)
+    nu = max(2, int(round(Ln / step)))
+    C = []
+    for i in range(nu + 1):
+        s = Ln * i / nu
+        (x, y), (tx, ty) = _along(pts, s)
+        nx, ny = -ty, tx
+        row = []
+        for j in range(cols + 1):
+            v = -hw + 2 * hw * j / cols
+            ju = (_hh(key, "u", i, j) - 0.5) * 0.42 * step * (0.0 if i in (0, nu) else 1.0)
+            jv = (_hh(key, "v", i, j) - 0.5) * (0.5 if j in (0, cols) else 0.32) * (2 * hw / cols)
+            row.append((x + tx * ju + nx * (v + jv), y + ty * ju + ny * (v + jv)))
+        C.append(row)
+
+    def keep(i, j):
+        edge = j in (0, cols - 1)
+        return not (edge and _hh(key, "k", i, j) < rag and 0 < i < nu - 1)
+
+    def put(poly, i, j):
+        flag(mb, poly, ztop + (_hh(key, "z", i, j) - 0.5) * 0.05, m=m)
+    return flag_lattice(C, nu, cols, key, put, keep, merge=0.25)
+
+
+def patch(mb, x, y, r, ztop, key, m, sx=1.0, rot=0.0, n=12, base=None, sat=True):
+    """mancha de chao (terra pisada clara, cinza, respingo da tempera): placa fina IRREGULAR com chanfro, 0,12 acima
+    da terra (nada coplanar). Fica FORA do que ja esta pavimentado (PAVED): encolhe ate caber ou some"""
+    base = T4 if base is None else base
+    for k in range(4):
+        rr = r * (1.0 - 0.18 * k)
+        P = DL.ccw(DL.blob_poly(x, y, rr, n, rng=random.Random(zlib.crc32(("%s" % key).encode("utf-8"))), amp=0.3,
+                                rot=rot, sx=sx))
+        big = DL.offset_poly(P, 0.25)
+        bx0, bx1 = min(q[0] for q in big), max(q[0] for q in big)
+        by0, by1 = min(q[1] for q in big), max(q[1] for q in big)
+        near = [Q for Q in PAVED if min(q[0] for q in Q) < bx1 and max(q[0] for q in Q) > bx0 and
+                min(q[1] for q in Q) < by1 and max(q[1] for q in Q) > by0]
+        mids = [((a[0] + b[0]) / 2, (a[1] + b[1]) / 2) for a, b in zip(big, big[1:] + big[:1])]
+        if not any(_pin(px, py, Q) for px, py in big + mids + [(x, y)] for Q in near) and \
+                not any(_pin(qx, qy, big) for Q in near for qx, qy in Q):
+            break
+    else:
+        print("ds_forge AVISO mancha %s sem lugar (encosta no pavimento)" % key)
+        return False
+    Pi = DL.offset_poly(P, -0.06)
+    r0 = [Vector((px, py, base - 0.08)) for px, py in P]
+    r1 = [Vector((px, py, ztop - 0.06)) for px, py in P]
+    r2 = [Vector((px, py, ztop)) for px, py in Pi]
+    rings_solid(mb, [r0, r1, r2], m, cap0=False)
+    if sat:
+        # satelite menor encostado (mesma cota e material: contorno organico, nada coplanar de outra cor)
+        a = rot + math.tau * _hh(key, "sat")
+        d = rr * (0.75 + 0.25 * _hh(key, "sd")) * (1.0 + 0.4 * (sx - 1.0))
+        patch(mb, x + d * math.cos(a), y + d * math.sin(a), rr * 0.55, ztop, "%s_s" % key, m, 1.2, a, 10, base, False)
+    return True
 
 
 # ================================================================== ESPADAS (katana: lamina com shinogi, kissaki,
@@ -394,8 +564,10 @@ def hall_block(mb, mi):
     yback = HY0 + 5.2
     # miolo (fundo escuro das juntas): pilares, faixa sobre o arco, rins (entre o intradorso e o retangulo), massa alta
     for a, b in ((x0 + 0.15, -AR0 - 0.6), (AR0 + 0.6, x1 - 0.15)):
-        wbb(mb, a, b, BFY + 0.25, BBY, T4 - 0.1, BTOP - 0.1, SOOT)
-    wbb(mb, -AR0 - 0.6, AR0 + 0.6, BFY + 0.25, BBY, zc + AR0 + 0.6, BTOP - 0.1, SOOT)
+        wbb(mb, a, b, BFY + 0.25, BBY, T4 - 0.1, BTOP - 0.3, SOOT)
+    # ONDA 6b (item 41): o miolo termina 0,3 abaixo do topo (era 0,1: o topo dele ficava 0,06 sob o das pedras da
+    # face, Stone_DS_Dark x Soot paralelos); a empena cobre o vao
+    wbb(mb, -AR0 - 0.6, AR0 + 0.6, BFY + 0.25, BBY, zc + AR0 + 0.6, BTOP - 0.3, SOOT)
     n = 10
     for s in (-1, 1):
         r = AR0 + 0.6
@@ -405,7 +577,7 @@ def hall_block(mb, mi):
         if s > 0:
             poly = list(reversed(poly))
         ext(mb, W0, poly, "y", BFY + 0.3, BBY - 0.05, SOOT)
-    wbb(mb, x0 + 0.15, x1 - 0.15, BBY - 0.05, yback, zk, BTOP - 0.1, SOOT)                    # massa alta que recua
+    wbb(mb, x0 + 0.15, x1 - 0.15, BBY - 0.05, yback, zk, BTOP - 0.3, SOOT)                    # massa alta que recua
     # cantaria da face sul (com o corte do extradorso) e das ilhargas
     FF = Frame(0.0, BFY + 0.25, 0.0, math.pi)              # face sul: +y local = sul; x local = -x mundo
     hc = (BTOP - T4) / 14.0
@@ -748,17 +920,20 @@ def hall_interior(mi, mw, zr):
     wbb(mw, HX1 - 1.1, HX1 - 0.85, 485.0, 491.2, DOMA + 5.9, DOMA + 6.3, WD, 0.03)
 
 
-def tawara(mw, mi, x, y, z, ang, s=1.0):
-    """saco de carvao de palha (sumidawara): cilindro de palha com 2 amarras, carvao aparecendo nas pontas"""
+def tawara(mw, mi, x, y, z, ang, s=1.0, lod=0):
+    """saco de carvao de palha (sumidawara): cilindro de palha com 2 amarras, carvao aparecendo nas pontas.
+    ONDA 6b: a tampa de carvao salta 0,14 da ponta da palha (saltava 0,06: Rope x Soot coplanar); lod=1 = 6 lados e
+    1 amarra (os sacos do patio do carvao)"""
     r, ln = 0.5 * s, 1.6 * s
+    n = 8 if lod == 0 else 6
     a = Vector((math.cos(ang), math.sin(ang), 0.0))
     c = Vector((x, y, z + r))
     rot = (0.0, math.pi / 2, ang)
-    mw.cyl(r, ln, tuple(c), rot, STRAW, 8, bevel=0.0)
-    for t in (-0.28, 0.28):
-        mw.cyl(r + 0.05, 0.14, tuple(c + a * ln * t), rot, STRAW, 8, bevel=0.0)
+    mw.cyl(r, ln, tuple(c), rot, STRAW, n, bevel=0.0)
+    for t in ((-0.28, 0.28) if lod == 0 else (0.06,)):
+        mw.cyl(r + 0.05, 0.14, tuple(c + a * ln * t), rot, STRAW, n, bevel=0.0)
     for t in (-0.5, 0.5):
-        mi.cyl(r * 0.7, 0.08, tuple(c + a * (ln * t + 0.02 * (1 if t > 0 else -1))), rot, SOOT, 8, bevel=0.0)
+        mi.cyl(r * 0.7, 0.16, tuple(c + a * (ln * t + 0.06 * (1 if t > 0 else -1))), rot, SOOT, n, bevel=0.0)
 
 
 # ================================================================== TORRE-CHAMINE
@@ -1200,6 +1375,83 @@ def yard(mg):
     pave_rect(mg, st[0] - 3.2, y0 + 7.4, st[0] + 3.2, yw, zt, (2.2, 2.6, 2.4), (3.2, 3.2), 6)
 
 
+TRAIL_W = [(-59.6, 446.3), (-47.0, 446.8), (-34.0, 449.3), (-21.8, 454.0), (-13.6, 457.4)]   # trilha oeste (lajes)
+ADRO = (4.45, 12.6, 452.6, 461.7)          # adro de lajes irregulares nos 2 lados do sando: |x| de/ate, y de/ate
+GUTTER_Y = (461.85, 462.38)                # sulco de drenagem (canal) entre a terra e a calcada das fachadas
+GUTTER_RUNS = [(-55.6, -12.9, True), (-12.9, -4.3, False), (4.3, 12.9, False), (12.9, 26.5, True),
+               (33.5, 82.6, True)]         # (x de, x ate, meio-fio do lado da terra)
+
+
+def yard_dressing(mg, mi):
+    """ONDA 6b (6b-C, item 33): o patio de trabalho em volta do heroi deixa de ser terra chapada de uma cor:
+    - ADRO de lajes irregulares (reticulado deformado, juntas desencontradas) dos 2 lados do sando na frente da boca,
+      com a borda RASGADA (a pedra acaba na terra aos poucos) e as lajes mais perto da boca manchadas de carvao;
+    - TRILHA de lajes irregulares do topo oeste do patio ate o adro: continua o caminho de terra do ds_terrain em
+      (-60, 446) e acompanha a rota FORGE->ONE_PIECE_GATE;
+    - SULCO de drenagem (amamizo) de pedra ao longo da calcada das fachadas: canal escuro + meio-fio do lado da
+      terra (a transicao terra -> calcada deixa de ser a quina crua da laje);
+    - MANCHAS: terra pisada clara nos caminhos de passagem, cinza/carvao na borda do adro, respingo escuro da tempera
+      em volta do cocho da bigorna do patio (todas 0,12 acima da terra e fora do pavimento: nada coplanar)."""
+    zt = T4 + 0.17                    # lajes 0,15-0,2 acima da terra (com 0,14 o topo da terra ficava a 0,12 delas)
+    # --- adro
+    xa, xb, ya, yb = ADRO
+    nu, nv = 4, 5
+    for sgn in (-1, 1):
+        key = "adro%d" % sgn
+        C = []
+        for i in range(nu + 1):
+            row = []
+            for j in range(nv + 1):
+                x = xa + (xb - xa) * i / nu + (0.0 if i == 0 else (_hh(key, "x", i, j) - 0.5) * 0.55)
+                y = ya + (yb - ya) * j / nv + (0.0 if j == nv else (_hh(key, "y", i, j) - 0.5) * 0.5)
+                row.append((sgn * x, y))
+            C.append(row)
+
+        def keep(i, j, key=key):
+            xc = xa + (xb - xa) * (i + 0.5) / nu
+            yc = ya + (yb - ya) * (j + 0.5) / nv
+            d = math.hypot(xc / 11.5, (yc - yb) / 8.6)
+            return d < 0.93 + 0.3 * _hh(key, "k", i, j)
+
+        def put(poly, i, j, key=key):
+            cx = sum(p[0] for p in poly) / len(poly)
+            cy = sum(p[1] for p in poly) / len(poly)
+            sooty = math.hypot(cx, (cy - 466.0) * 1.3) < 7.6 and _hh(key, "s", i, j) < 0.6
+            flag(mi if sooty else mg, poly, zt + (_hh(key, "z", i, j) - 0.5) * 0.05, m=SOOT if sooty else LAJE)
+        flag_lattice(C, nu, nv, key, put, keep, merge=0.28)
+    # --- trilha oeste
+    trail_flags(mg, TRAIL_W, 1.45, zt, "trilhaW", rag=0.14)
+    # --- sulco de drenagem + meio-fio
+    g0, g1 = GUTTER_Y
+    for xa_, xb_, curb in GUTTER_RUNS:
+        wbb(mg, xa_, xb_, g0, g1, T4 - 0.1, T4 + 0.14, STD)
+        if curb:
+            x = xa_
+            k = 0
+            while x < xb_ - 0.3:
+                x2 = min(xb_, x + 2.2 + 0.9 * _hh("meiofio", round(xa_, 1), k))
+                if xb_ - x2 < 1.0:
+                    x2 = xb_
+                wbb(mg, x + 0.04, x2 - 0.04, g0 - 0.46, g0 - 0.01, T4 - 0.1, T4 + 0.27 + 0.03 * _hh("mfz", k), ST)
+                PAVED.append([(x, g0 - 0.46), (x2, g0 - 0.46), (x2, g1), (x, g1)])
+                x = x2
+                k += 1
+        else:
+            PAVED.append([(xa_, g0), (xb_, g0), (xb_, g1), (xa_, g1)])
+    # --- manchas (claras na terra pisada; cinza e respingo da tempera em Stone_DS_Soot, no objeto que ja tem fuligem)
+    zp = T4 + 0.14
+    for k, (x, y, r, sx, rot) in enumerate(((15.5, 448.5, 2.9, 1.6, -0.6), (7.0, 441.8, 1.8, 1.7, 0.1),
+                                            (44.0, 447.0, 2.3, 1.5, 0.35), (-22.5, 448.6, 1.9, 1.5, 0.4),
+                                            (-45.0, 452.9, 2.0, 1.4, 0.1), (-52.0, 441.0, 2.2, 1.6, -0.2),
+                                            (61.5, 447.5, 1.7, 1.5, 0.2), (38.0, 456.5, 1.8, 1.3, 0.9))):
+        patch(mg, x, y, r * 0.78, zp, "pisada%d" % k, "Dirt_DS", sx, rot)
+    for k, (x, y, r, sx, rot) in enumerate(((-13.6, 460.6, 0.9, 1.3, 0.3), (13.6, 455.6, 1.0, 1.4, -0.4),
+                                            (10.2, 451.2, 0.75, 1.2, 0.2))):
+        patch(mi, x, y, r, zp, "cinza%d" % k, SOOT, sx, rot)
+    for k, (x, y, r, sx, rot) in enumerate(((-31.7, 460.3, 0.8, 1.5, 0.15), (-33.5, 457.6, 0.6, 1.3, -0.3))):
+        patch(mi, x, y, r * 0.8, zp, "poca%d" % k, WATER, sx, rot)
+
+
 def stairs_and_landing(mg, mp):
     for nm in ("SubidaA", "SubidaB"):
         foot, deg, w, n, tread, g = L.stair_frame(nm)
@@ -1220,8 +1472,13 @@ def stairs_and_landing(mg, mp):
         col_box("DS_FrgProp", (1.0, 1.0, 8.6), (x, y, T4 + 4.3))
 
 
-def fence_run(mb, pts, h=2.9, step=3.6):
-    """cerca baixa de mouroes (capitel) e 2 travessas, ao longo de pts (x, y) na cota z"""
+def fence_run(mb, pts, h=2.6, step=3.6, curb=None):
+    """cerca baixa ao longo de pts (x, y, z; na ordem do contorno: o lado de FORA fica a direita): mouroes de madeira
+    escura, travessa (nuki) PREGADA na face de fora dos mouroes e corrimao (kasagi) ASSENTADO no topo deles, com
+    balanco. ONDA 6b (item 37): as 2 travessas atravessavam o mourao a 0,1 da face dele (257 faces WD x WM a 0,1,
+    a cerca sul vista da clareira inteira); agora nenhuma face da travessa fica paralela a < 0,15 de uma do mourao.
+    curb = (x_min, x_max): meio-fio de pedra sob os mouroes nesse trecho de x (borda sul do patio)"""
+    PH = 0.46
     for i, (a, b) in enumerate(zip(pts, pts[1:])):
         a, b = Vector(a), Vector(b)
         d = b - a
@@ -1229,13 +1486,34 @@ def fence_run(mb, pts, h=2.9, step=3.6):
         if ln < 0.4:
             continue
         ang = math.atan2(d.y, d.x)
+        t = Vector((d.x, d.y, 0.0)) / ln
+        out = Vector((t.y, -t.x, 0.0))                        # direita do sentido = fora do terraco
         nseg = max(1, int(math.ceil(ln / step)))
+        top = h - 0.2
         for j in range(nseg + (1 if i == len(pts) - 2 else 0)):
             q = a + d * (j / nseg)
-            mb.box((0.46, 0.46, h), (q.x, q.y, q.z + h / 2 - 0.2), (0, 0, ang), WD, 0.05)
-        for zz, hh, ww in ((h * 0.4, 0.26, 0.2), (h * 0.86, 0.3, 0.26)):
-            c = (a + b) / 2
-            mb.box((ln + 0.3, ww, hh), (c.x, c.y, c.z + zz), (0, 0, ang), WM, 0.03)
+            mb.box((PH, PH, h), (q.x, q.y, q.z + top - h / 2), (0, 0, ang), WD, 0.0)
+        c = (a + b) / 2
+        n0 = c + out * (PH / 2 + 0.005 + 0.11)                 # nuki: face de dentro encosta na face de fora do mourao
+        mb.box((ln + PH + 0.2, 0.22, 0.26), (n0.x, n0.y, c.z + h * 0.42), (0, 0, ang), WM, 0.0)
+        mb.box((ln + PH + 0.5, 0.64, 0.24), (c.x, c.y, c.z + top + 0.12), (0, 0, ang), WM, 0.03)   # kasagi
+        if curb:
+            # meio-fio: blocos de pedra de 2,2-3,0 sob os mouroes (o mourao nasce dentro dele), 0,47 acima da terra
+            # (0,17 acima da capa do ishigaki do ds_terrain, que ele cobre em parte)
+            s0 = 0.0
+            k = 0
+            while s0 < ln - 0.3:
+                s1 = min(ln, s0 + 2.2 + 0.8 * _hh("curb", round(a.x, 1), k))
+                if ln - s1 < 1.0:
+                    s1 = ln
+                pa = a + d * (s0 / ln)
+                pb = a + d * (s1 / ln)
+                m_ = (pa + pb) / 2
+                if curb[0] <= m_.x <= curb[1]:
+                    obox(mb, (m_.x, m_.y, T4 + 0.16), t, Vector((0, 0, 1)), (s1 - s0 - 0.08, 0.8, 0.62),
+                         ST if k % 3 else STD)
+                s0 = s1
+                k += 1
 
 
 def edges(mf, mg):
@@ -1265,9 +1543,10 @@ def edges(mf, mg):
 
     def pz(v):
         return (v.x, v.y, zt)
-    fence_run(mf, [pz(along(0.0)), pz(along(tM0))])
-    fence_run(mf, [pz(along(tM1)), pz(along(tA))])
-    fence_run(mf, [pz(along(tB)), pz(along(tE))])
+    yx0, _, yx1, _ = L.FORGE_YARD                              # ONDA 6b: meio-fio so na borda do patio de trabalho
+    fence_run(mf, [pz(along(0.0)), pz(along(tM0))], curb=(yx0, yx1))
+    fence_run(mf, [pz(along(tM1)), pz(along(tA))], curb=(yx0, yx1))
+    fence_run(mf, [pz(along(tB)), pz(along(tE))], curb=(yx0, yx1))
     # mureta de pedra (eixo): blocos + capa
     m0, m1 = along(tM0), along(tM1)
     stone_wall(mg, (m0.x, m0.y), (m1.x, m1.y), T4 - 0.3, T4 + 1.25, 0.9, 7, STD)
@@ -1291,12 +1570,73 @@ def edges(mf, mg):
 
 
 # ================================================================== PATIO: kake, polimento, bigorna de pedra
+def estrado(mw, F, L=6.0, D=3.0):
+    """estrado de madeira (ONDA 6b): 3 dormentes escuros + 5 tabuas com fresta, sobre a calcada; devolve a cota do
+    topo das tabuas (relativa a F)"""
+    for x in (-L / 2 + 0.45, 0.0, L / 2 - 0.45):
+        bb(mw, F, x - 0.16, x + 0.16, -D / 2, D / 2, 0.0, 0.28, WD)
+    nb = 5
+    w = (D - 0.08 * (nb - 1)) / nb
+    for k in range(nb):
+        y0 = -D / 2 + k * (w + 0.08)
+        bb(mw, F, -L / 2 - 0.08 * (k % 2), L / 2 + 0.08 * ((k + 1) % 2), y0 + 0.02, y0 + w, 0.28, 0.42, WM)
+    return 0.42
+
+
+def yard_anvil(mi, x, y, ang):
+    """ONDA 6b (item 34): BIGORNA do patio - kanatoko baixa de ferro (pe, cintura, aba, mesa de aco temperado, chifre
+    curto e calcanhar) encaixada no topo de um CEPO de madeira (casca, topo de veio claro, 2 aros de ferro saltados
+    0,14), martelo deitado no cepo, tenaz e marreta encostadas, COCHO de tempera de tabuas ao lado (agua recuada).
+    F local: +x = comprimento da bigorna (o chifre aponta para o cocho)"""
+    F = Frame(x, y, T4, ang)
+    o_, ex, ey, ez = axes(F)
+    P = lambda a, b, c: F.p(a, b, c)
+    # cepo
+    mi.cyl(0.92, 0.88, P(0.0, 0.0, 0.36), (0, 0, ang), "Bark_DS", 10, bevel=0.0)
+    mi.cyl(0.84, 0.14, P(0.0, 0.0, 0.86), (0, 0, ang), WM, 10, bevel=0.0)
+    mi.cyl(1.06, 0.16, P(0.0, 0.0, 0.58), (0, 0, ang), IRON, 10, bevel=0.0)
+    z0 = 0.93
+    # bigorna: aneis retangulares (meia-largura em x, meia-largura em y, z)
+    prof = [(0.56, 0.36, z0 - 0.14), (0.56, 0.36, z0 + 0.12), (0.4, 0.25, z0 + 0.32), (0.6, 0.33, z0 + 0.54),
+            (0.63, 0.34, z0 + 0.68)]
+    rings = [[P(sx * hx, sy * hy, z) for sx, sy in ((-1, -1), (1, -1), (1, 1), (-1, 1))] for hx, hy, z in prof]
+    rings_solid(mi, rings, IRON)
+    bb(mi, F, -0.6, 0.6, -0.31, 0.31, z0 + 0.68, z0 + 0.8, STEEL)                          # mesa de aco
+    hr = [P(0.63, sy * hy, z) for sy, hy, z in ((-1, 0.22, z0 + 0.4), (1, 0.22, z0 + 0.4), (1, 0.27, z0 + 0.67),
+                                                (-1, 0.27, z0 + 0.67))]
+    hm = [P(0.95, sy * hy, z) for sy, hy, z in ((-1, 0.14, z0 + 0.5), (1, 0.14, z0 + 0.5), (1, 0.17, z0 + 0.67),
+                                                (-1, 0.17, z0 + 0.67))]
+    rings_solid(mi, [hr, hm], IRON, cap0=False, tip=P(1.25, 0.0, z0 + 0.63))              # chifre curto
+    bb(mi, F, -0.84, -0.6, -0.26, 0.26, z0 + 0.46, z0 + 0.67, IRON)                        # calcanhar
+    # martelo deitado no cepo (cabo ao longo de x, cabeca atravessada) e tenaz + marreta encostadas no cepo
+    mi.rod(P(-0.62, 0.62, 0.99), P(0.25, 0.56, 0.99), 0.06, WM, 6)
+    obox(mi, P(0.34, 0.56, 1.03), ey, ez, (0.46, 0.19, 0.19), IRON)
+    for dy in (-0.06, 0.06):
+        mi.rod(P(-1.05, -0.35 + dy, 0.02), P(-0.66, -0.52 + dy * 2.5, 1.05), 0.045, IRON, 5)
+    mi.rod(P(-0.2, -1.15, 0.02), P(-0.15, -0.72, 1.12), 0.07, WM, 6)
+    obox(mi, P(-0.21, -1.17, 0.14), ex, ez, (0.5, 0.26, 0.26), IRON)
+    # cocho de tempera (mizubune): 4 tabuas + pes, agua 0,16 abaixo da borda
+    Fq = sub(F, 1.95, 0.25)
+    qx, qy, qh = 0.78, 0.4, 0.62
+    for a, b, c_, d in ((-qx, qx, -qy, -qy + 0.12), (-qx, qx, qy - 0.12, qy), (-qx, -qx + 0.12, -qy, qy),
+                        (qx - 0.12, qx, -qy, qy)):
+        bb(mi, Fq, a, b, c_, d, 0.12, qh, WM)
+    for sx in (-1, 1):
+        bb(mi, Fq, sx * (qx - 0.22) - 0.13, sx * (qx - 0.22) + 0.13, -qy - 0.06, qy + 0.06, -0.02, 0.16, WD)
+    bb(mi, Fq, -qx + 0.14, qx - 0.14, -qy + 0.14, qy - 0.14, 0.14, qh - 0.16, WATER)
+    col_box("DS_FrgProp", (1.9, 1.9, 1.8), (x, y, T4 + 0.9))
+    c = Fq.p(0.0, 0.0, 0.0)
+    col_box("DS_FrgProp", (1.7, 1.0, 0.8), (c.x, c.y, T4 + 0.4), (0, 0, ang))
+
+
 def yard_props(mi, mw):
     for s, key in ((-1, "patio_W"), (1, "patio_E")):
         x = s * 15.2
         F = Frame(x, HY0 - 3.9, T4 + 0.14, math.pi)
-        kake(mi, F, SWORD_SETS[key])
-        col_box("DS_FrgProp", (3.0, 2.2, 3.2), (x, HY0 - 3.9, T4 + 1.6))
+        # ONDA 6b: as 2 estantes de laminas sobre um estrado de madeira de 6 x 3 (nao direto na calcada)
+        ze = estrado(mi, F)
+        kake(mi, sub(F, z=ze), SWORD_SETS[key])
+        col_box("DS_FrgProp", (6.2, 3.2, 3.6), (x, HY0 - 3.9, T4 + 1.8))
     # estacao de polimento (togi) na frente da ala leste: estrado, cavalete inclinado com a pedra, tina d'agua
     F = Frame(56.5, 469.8, T4 + 0.14, math.pi)
     bb(mw, F, -2.2, 2.2, -1.4, 1.4, 0.0, 0.5, WM, 0.04)
@@ -1308,35 +1648,261 @@ def yard_props(mi, mw):
     mw.cyl(0.7, 0.8, tuple(F.p(1.4, 0.6, 0.9)), (0, 0, 0), WM, 10, bevel=0.0)
     mi.cyl(0.58, 0.05, tuple(F.p(1.4, 0.6, 1.12)), (0, 0, 0), WATER, 10, bevel=0.0)
     col_box("DS_FrgProp", (4.6, 3.0, 1.6), (56.5, 469.8, T4 + 0.8))
-    # bigorna de pedra do patio (bloco + ferro + toco de agua) a oeste
+    # bigorna do patio a oeste (ONDA 6b: era bloco de pedra + caixa preta) - ver yard_anvil
     bx_, by_ = -30.0, 459.0
-    mw.box((2.4, 1.8, 1.4), (bx_, by_, T4 + 0.7), (0, 0, 0.15), ST, 0.12)
-    mi.box((1.6, 0.8, 0.6), (bx_, by_, T4 + 1.65), (0, 0, 0.15), IRON, 0.06)
-    for i, (x, y) in enumerate(((-34.0, 462.2), (-35.7, 462.0), (-34.8, 462.1))):
+    yard_anvil(mi, bx_, by_, 0.15 + math.pi)
+    # (ONDA 6b: os 3 sacos sobem para a calcada - em y 462 ficavam sobre o sulco de drenagem novo)
+    for i, (x, y) in enumerate(((-34.0, 463.5), (-35.7, 463.3), (-34.8, 463.4))):
         tawara(mw, mi, x, y, T4 + 0.14 + (0.0 if i < 2 else 0.95), 0.1)
-    col_box("DS_FrgProp", (2.6, 2.0, 2.0), (bx_, by_, T4 + 1.0))
-    col_box("DS_FrgProp", (3.6, 1.4, 2.0), (-34.9, 462.1, T4 + 1.0))
+    col_box("DS_FrgProp", (3.6, 1.4, 2.0), (-34.9, 463.4, T4 + 1.0))
 
 
 # ================================================================== PATIO DO CARVAO
-def coal_yard(mb, mi):
-    kx, ky = -112.0, 400.0
-    # forno de carvao (sumigama): cupula de barro, porta em arco de pedra com brasa recuada, chamine de pedra
-    prof = [(5.2, 0.0), (5.3, 0.9), (5.0, 2.0), (4.3, 3.1), (3.2, 4.0), (1.8, 4.6), (0.3, 4.85)]
-    lathe(mb, W0, (kx, ky, T4 - 0.1), prof, 14, CLAY, 0.12)
-    fx, fy = kx, ky - 5.1
+# ONDA 6b (6b-C, itens 35-36): o domo liso de barro ("iglu") vira um SUMIGAMA de barro feito a mao, em 4 FIADAS
+# (cada uma salta 0,12-0,15 sobre a de cima: as camadas pegam luz) + coroa de terra, raio com variacao dirigida, base
+# de pedra, remendos de tijolo, 2 rachaduras e mancha de fuligem sobre a boca, BOCA em arco de tijolo com soleira e
+# capa de pedra (brasa recuada atras), 2 respiros na base, chamine de tijolo atras com o duto, lenha encostada; e o
+# patio ganha uma AREA DE TRABALHO com sentido: lenha crua a oeste (3 pilhas + cepo de rachar), carvao pronto a
+# sudeste (2 pilhas de tawara, cestos, bancada de ensacar) e o carrinho de levar o carvao para a forja.
+KILN = (-112.0, 400.0)
+KILN_BANDS = [(0.55, 1.45, 5.30, 5.10), (1.40, 2.25, 5.24, 4.70), (2.20, 2.95, 4.84, 3.96), (2.90, 3.45, 4.10, 2.95)]
+KILN_CAP = (3.47, 4.04, 3.08, 0.45)          # coroa de terra (z0, z1, r0, r1)
+
+
+def kiln_r(z):
+    """raio da casca do forno na cota z (relativa a T4), pelo LADO DE FORA: o maior das fiadas que passam por z
+    (com a barriga de 0,05) - as cascas de remendo/fuligem/rachadura assentam a partir dele"""
+    r = 0.0
+    for k, (zb, zt, rb, rt) in enumerate(KILN_BANDS):
+        zb2 = zb - (0.05 if k else 0.0)
+        if zb2 - 1e-6 <= z <= zt + 0.04:
+            t = max(0.0, min(1.0, (z - zb2) / (zt - zb2)))
+            r = max(r, rb + 0.05 + (rt - rb - 0.05) * t)
+    z0, z1, r0, r1 = KILN_CAP
+    if z0 <= z <= z1:
+        zm = z0 + 0.44
+        rc = r0 + (0.62 * r0 - r0) * (z - z0) / 0.44 if z <= zm else 0.62 * r0 * (z1 - z) / (z1 - zm)
+        r = max(r, rc)
+    if r == 0.0:
+        r = 5.3 if z < 0.55 else 0.3
+    return r
+
+
+def _kband(mb, c, n, zb, zt, rb, rt, key, m, bulge=0.05):
+    """uma fiada do forno: 3 aneis (pe, barriga, topo) com o raio e a borda de cima sacudidos (feita a mao)"""
+    rings = []
+    for k, (z, r) in enumerate(((zb, rb), (zb + 0.22, rb + bulge), (zt, rt))):
+        ring = []
+        for j in range(n):
+            a = 0.13 + math.tau * j / n
+            rr = r * (1.0 + (_hh(key, k, j) - 0.5) * 0.035)
+            zz = z + ((_hh(key, "z", j) - 0.5) * 0.08 if k == 2 else 0.0)
+            ring.append(Vector((c[0] + rr * math.cos(a), c[1] + rr * math.sin(a), c[2] + zz)))
+        rings.append(ring)
+    rings_solid(mb, rings, m)
+
+
+def _kshell(mb, pts_az_z, m, lift=0.24, width=None):
+    """casca sobre o forno (remendo / mancha / rachadura): pts_az_z = grade [linhas][colunas] de (azimute, z) na
+    superficie; a face de fora fica 'lift' acima da casca nominal (acima da variacao de +-0,09) e as laterais descem
+    0,3 para dentro dela. width: rachadura - 1 linha de pontos vira uma fita dessa largura"""
+    kx, ky = KILN
+    bm = mb.bm
+
+    def P(az, z, d):
+        r = kiln_r(z) + d
+        return Vector((kx + r * math.cos(az), ky + r * math.sin(az), T4 + z))
+    if width is not None:
+        line = pts_az_z
+        pts_az_z = [[(az + s_ * width / max(1.0, kiln_r(z)), z) for az, z in line] for s_ in (-0.5, 0.5)]
+    R = len(pts_az_z)
+    Cc = len(pts_az_z[0])
+    O = [[bm.verts.new(P(az, z, lift)) for az, z in row] for row in pts_az_z]
+    I = [[bm.verts.new(P(az, z, -0.3)) for az, z in row] for row in pts_az_z]
+    fs = []
+    for i in range(R - 1):
+        for j in range(Cc - 1):
+            fs.append(bm.faces.new((O[i][j], O[i][j + 1], O[i + 1][j + 1], O[i + 1][j])))
+    nfront = len(fs)
+    idx = [(0, j) for j in range(Cc)] + [(i, Cc - 1) for i in range(1, R)] + \
+          [(R - 1, j) for j in range(Cc - 2, -1, -1)] + [(i, 0) for i in range(R - 2, 0, -1)]
+    nb = len(idx)
+    for k in range(nb):
+        (a, b), (a2, b2) = idx[k], idx[(k + 1) % nb]
+        fs.append(bm.faces.new((O[a][b], I[a][b], I[a2][b2], O[a2][b2])))
+    # normais para FORA do forno (a casca e aberta por dentro: o verso nunca se ve)
+    bmesh.ops.recalc_face_normals(bm, faces=fs)
+    c0 = Vector((kx, ky, T4 + 1.0))
+    if sum(f.normal.dot(f.calc_center_median() - c0) * f.calc_area() for f in fs[:nfront]) < 0:
+        for f in fs:
+            f.normal_flip()
+    mb._post([v for r in O for v in r] + [v for r in I for v in r], m, None, 0, 1)
+
+
+def kiln(mb, mi):
+    """o forno de carvao (sumigama) - ver o cabecalho do patio do carvao. Boca a sul (-y), chamine a norte"""
+    kx, ky = KILN
+    c = (kx, ky, T4)
+    n = 16
+    # base de pedra escura (16 lados) - o barro nasce dela
+    ring = [(kx + 5.62 * math.cos(0.13 + math.tau * j / n), ky + 5.62 * math.sin(0.13 + math.tau * j / n))
+            for j in range(n)]
+    mb.prism(DL.ccw(ring), T4 - 0.1, T4 + 0.55, STD)
+    for k, (zb, zt, rb, rt) in enumerate(KILN_BANDS):
+        _kband(mb, c, n, zb - (0.05 if k else 0.0), zt, rb, rt, "kiln%d" % k, CLAY)
+    z0, z1, r0, r1 = KILN_CAP                                                  # coroa de terra (so no topo)
+    ring0 = [Vector((kx + r0 * math.cos(0.13 + math.tau * j / 12), ky + r0 * math.sin(0.13 + math.tau * j / 12),
+                     T4 + z0)) for j in range(12)]
+    ring1 = [Vector((kx + (r0 * 0.62) * math.cos(0.4 + math.tau * j / 12),
+                     ky + (r0 * 0.62) * math.sin(0.4 + math.tau * j / 12), T4 + z0 + 0.38 + 0.06 * _hh("coroa", j)))
+             for j in range(12)]
+    rings_solid(mi, [ring0, ring1], DIRTD, tip=Vector((kx + 0.2, ky - 0.1, T4 + z1)))
+    # remendos de tijolo nos flancos, mancha de fuligem sobre a boca, 2 rachaduras
+    for az0, az1, za, zb_ in ((-0.42, -0.2, 1.0, 1.9), (3.42, 3.66, 1.6, 2.5)):
+        _kshell(mb, [[(az0 + (az1 - az0) * i / 2, za + (zb_ - za) * j / 2) for i in range(3)] for j in range(3)],
+                BRICK, lift=0.22)
+    _kshell(mb, [[(-math.pi / 2 - 0.27 + 0.54 * i / 3 + 0.04 * j * (1 if i % 2 else -1), 3.0 + 0.55 * j)
+                  for i in range(4)] for j in range(3)], SOOT, lift=0.26)
+    for pts in ([(0.55, 0.75), (0.6, 1.2), (0.53, 1.55), (0.62, 2.05)],
+                [(2.45, 1.0), (2.38, 1.5), (2.47, 1.85), (2.4, 2.3), (2.46, 2.6)]):
+        _kshell(mb, pts, SOOT, lift=0.22, width=0.17)
+    # BOCA (sul): ombreiras de tijolo, arco de 7 aduelas com fecho de pedra saliente, cheios, capa de pedra, soleira
+    yf = ky - 5.55
+    zs = T4 + 1.5
+    r0_, r1_ = 0.95, 1.62
     for s in (-1, 1):
-        wbb(mb, fx + s * 1.05, fx + s * 1.9, fy - 0.7, fy + 1.2, T4 - 0.1, T4 + 2.0, STD, 0.06)
-    wbb(mb, fx - 1.9, fx + 1.9, fy - 0.7, fy + 1.2, T4 + 1.95, T4 + 2.9, STD, 0.06)
-    wbb(mi, fx - 1.1, fx + 1.1, fy + 0.55, fy + 1.3, T4 - 0.05, T4 + 2.0, SOOT)
-    wbb(mi, fx - 1.0, fx + 1.0, fy + 0.3, fy + 0.5, T4 + 0.9, T4 + 1.45, EMBER)
-    for i in range(3):
-        wbb(mb, fx - 1.0, fx + 1.0, fy - 0.45, fy - 0.15, T4 - 0.05 + 0.32 * i, T4 + 0.23 + 0.32 * i,
-            BRICK if i % 2 else STD, 0.03)
-    wbb(mb, kx - 0.7, kx + 0.7, ky + 5.0, ky + 6.4, T4 - 0.1, T4 + 4.8, ST, 0.06)
-    wbb(mb, kx - 0.85, kx + 0.85, ky + 4.85, ky + 6.55, T4 + 4.8, T4 + 5.25, SOOT, 0.04)
+        wbb(mb, kx + s * r0_, kx + s * 1.78, yf, yf + 1.45, T4 - 0.1, zs, BRICK, 0.04)
+    for i in range(7):
+        a0, a1 = math.pi * i / 7 + 0.02, math.pi * (i + 1) / 7 - 0.02
+        key = i == 3
+        rr = r1_ + (0.22 if key else 0.0)
+        poly = [(kx + r0_ * math.cos(a0), zs + r0_ * math.sin(a0)), (kx + rr * math.cos(a0), zs + rr * math.sin(a0)),
+                (kx + rr * math.cos(a1), zs + rr * math.sin(a1)), (kx + r0_ * math.cos(a1), zs + r0_ * math.sin(a1))]
+        ext(mb, W0, list(reversed(poly)), "y", yf - (0.14 if key else 0.0), yf + 2.2, STD if key else BRICK, 0.03)
+    ztop = zs + 1.75
+    for sx in (-1, 1):
+        pts = [(kx + sx * 1.78, zs), (kx + sx * 1.78, ztop), (kx + sx * 0.3, ztop)] + \
+              [(kx + sx * 1.64 * math.cos(math.pi / 2 * (1 - k / 6)), zs + 1.64 * math.sin(math.pi / 2 * (1 - k / 6)))
+               for k in range(1, 6)]
+        if sx > 0:
+            pts = list(reversed(pts))
+        ext(mb, W0, pts, "y", yf + 0.02, yf + 2.2, BRICK)
+    wbb(mb, kx - 2.1, kx + 2.1, yf - 0.16, yf + 2.4, ztop, ztop + 0.34, STD, 0.05)          # capa de pedra
+    wbb(mb, kx - 1.3, kx + 1.3, yf - 0.42, yf + 1.3, T4 - 0.1, T4 + 0.62, STD, 0.05)        # soleira
+    wbb(mb, kx - r0_ - 0.05, kx + r0_ + 0.05, yf + 1.25, yf + 1.6, T4 + 0.5, zs + r0_ + 0.1, SOOT)   # fundo
+    wbb(mi, kx - 0.82, kx + 0.82, yf + 1.02, yf + 1.12, T4 + 0.66, T4 + 1.12, EMBER)           # brasa recuada
+    for k, (dx, dy, sz) in enumerate(((-0.45, 0.85, 0.34), (0.2, 0.7, 0.28), (0.55, 0.9, 0.3))):
+        mb.box((sz, sz * 0.9, sz * 0.7), (kx + dx, yf + dy, T4 + 0.62 + sz * 0.3), (0.3 * k, 0.2, 0.7 * k), SOOT, 0.0)
+    # 2 respiros na base de pedra, ladeando a boca (furo escuro saltado + verga de tijolo)
+    for az in (-math.pi / 2 - 0.78, -math.pi / 2 + 0.78):
+        t_ = Vector((-math.sin(az), math.cos(az), 0.0))
+        p = Vector((kx + 5.62 * math.cos(az), ky + 5.62 * math.sin(az), T4 + 0.27))
+        obox(mb, p, t_, Vector((0, 0, 1)), (0.6, 0.3, 0.36), SOOT)
+        obox(mb, p + Vector((0, 0, 0.3)) + Vector((math.cos(az), math.sin(az), 0)) * 0.05, t_, Vector((0, 0, 1)),
+             (0.95, 0.42, 0.22), BRICK)
+    # chamine de tijolo atras (norte), conica, com cinta, coroa de pedra e boca de fuligem; duto baixo ate a casca
+    cx_, cy_ = kx, ky + 5.95
+    rings = [rect_ring(cx_, cy_, T4 - 0.1, 0.78, 0.78), rect_ring(cx_, cy_, T4 + 3.9, 0.6, 0.6),
+             rect_ring(cx_, cy_, T4 + 3.9, 0.74, 0.74), rect_ring(cx_, cy_, T4 + 4.32, 0.74, 0.74)]
+    rings_solid(mb, rings, BRICK)
+    wbb(mb, cx_ - 0.86, cx_ + 0.86, cy_ - 0.86, cy_ + 0.86, T4 + 4.32, T4 + 4.6, STD, 0.04)
+    wbb(mb, cx_ - 0.5, cx_ + 0.5, cy_ - 0.5, cy_ + 0.5, T4 + 4.5, T4 + 4.74, SOOT)
+    wbb(mb, kx - 0.55, kx + 0.55, ky + 4.4, cy_ - 0.6, T4 - 0.1, T4 + 1.25, BRICK, 0.03)
+    # lenha encostada no flanco oeste (5 toros)
+    for k in range(5):
+        az = math.pi * (0.88 + 0.06 * k) + (_hh("encost", k) - 0.5) * 0.05
+        zt_ = 1.7 + 0.35 * _hh("encost", "z", k)
+        top = Vector((kx + (kiln_r(zt_) + 0.24) * math.cos(az), ky + (kiln_r(zt_) + 0.24) * math.sin(az), T4 + zt_))
+        bot = Vector((kx + 6.55 * math.cos(az + 0.03), ky + 6.55 * math.sin(az + 0.03), T4 + 0.12))
+        mb.rod(bot, top, 0.19 + 0.04 * _hh("encost", "r", k), WM, 6)
     col_box("DS_FrgCoal", (10.6, 10.6, 4.8), (kx, ky, T4 + 2.4))
-    light("L_DSFrg_Kiln", "POINT", (fx, fy - 1.6, T4 + 1.2), 140.0, FIREC, 0.4)
+    col_box("DS_FrgCoal", (3.6, 1.2, 3.6), (kx, yf + 0.4, T4 + 1.8))
+    light("L_DSFrg_Kiln", "POINT", (kx, ky - 6.7, T4 + 1.2), 140.0, FIREC, 0.4)
+
+
+def woodpile(mb, F, ln=6.4, rows=4, key="lenha", sp=0.74):
+    """lenha rachada empilhada entre 2 pares de mouroes (os topos dos toros nos 2 lados compridos, fiadas
+    desencontradas) com cobertura de 2 tabuas inclinadas. F no chao, +x ao longo da pilha"""
+    zc = 0.66 * rows + 0.3
+    for x in (-ln / 2 - 0.28, ln / 2 + 0.28):
+        for y in (-0.82, 0.82):
+            bb(mb, F, x - 0.17, x + 0.17, y - 0.17, y + 0.17, 0.0, zc + 0.25, WD)
+    for r_ in range(rows):
+        off = sp / 2 if r_ % 2 else 0.0
+        k = 0
+        x = -ln / 2 + sp / 2 + off
+        while x < ln / 2 - 0.25:
+            rr = 0.3 + 0.06 * _hh(key, r_, k)
+            mb.cyl(rr, 2.0 - 0.18 * _hh(key, "l", r_, k), tuple(F.p(x, (_hh(key, "y", r_, k) - 0.5) * 0.22,
+                                                                    0.33 + r_ * 0.62)),
+                   F.r(math.pi / 2, 0.0, 0.0), WM, 5, bevel=0.0)
+            x += sp
+            k += 1
+    ext(mb, F, [(-1.3, zc), (1.3, zc - 0.22), (1.3, zc + 0.04), (-1.3, zc + 0.26)], "x", -ln / 2 - 0.6, ln / 2 + 0.6,
+        WD, 0.04)
+
+
+def basket(mb, x, y, z, r=0.55, h=0.62):
+    """cesto de palha (kago) com parede de espessura e carvao amontoado dentro (o monte sai pela boca)"""
+    n = 7
+    prof = [(r * 0.78, 0.0), (r * 0.98, h * 0.55), (r, h), (r - 0.08, h), (r - 0.08, h - 0.12)]
+    rings = [[Vector((x + rr * math.cos(0.3 + math.tau * j / n), y + rr * math.sin(0.3 + math.tau * j / n), z + zz))
+              for j in range(n)] for rr, zz in prof]
+    rings_solid(mb, rings, STRAW, tip=Vector((x + 0.05, y - 0.04, z + h + 0.06)),
+                mats=lambda i, j: SOOT if i >= len(prof) - 1 else None)
+
+
+def cart(mb, x, y, ang):
+    """carrinho de 2 rodas (daihachi-guruma) estacionado: carroceria de tabuas, guardas, varais que descem ate o chao
+    (a frente encosta na terra), rodas com raios saltados 0,14 e cubo de ferro, 2 sacos de carvao em cima"""
+    zA = 1.05
+    tilt = math.asin((zA + 0.12 - 0.1) / 3.7)
+    ca, sa = math.cos(ang), math.sin(ang)
+    ct, st_ = math.cos(tilt), math.sin(tilt)
+
+    def W(lx, ly, lz):
+        dz = lz - zA
+        lx2, lz2 = lx * ct + dz * st_, -lx * st_ + dz * ct + zA
+        return Vector((x + lx2 * ca - ly * sa, y + lx2 * sa + ly * ca, T4 + lz2))
+    ex_ = W(1, 0, zA) - W(0, 0, zA)
+    ez_ = W(0, 0, zA + 1) - W(0, 0, zA)
+    ey_ = Vector((-sa, ca, 0.0))
+    obox(mb, W(0.15, 0.0, zA + 0.24), ex_, ez_, (2.9, 1.8, 0.14), WM)
+    for s in (-1, 1):
+        obox(mb, W(0.15, s * 0.86, zA + 0.44), ex_, ez_, (2.9, 0.14, 0.3), WD)
+        obox(mb, W(2.45, s * 0.62, zA + 0.12), ex_, ez_, (2.6, 0.17, 0.17), WD)
+    obox(mb, W(3.62, 0.0, zA + 0.12), ey_, ez_, (1.5, 0.15, 0.15), WD)
+    rot = (math.pi / 2, 0.0, ang)
+    for s in (-1, 1):
+        cw = Vector((x - sa * s * 1.08, y + ca * s * 1.08, T4 + zA))
+        mb.cyl(1.05, 0.15, tuple(cw), rot, WD, 12, bevel=0.0)
+        mb.cyl(0.22, 0.46, tuple(cw + ey_ * s * 0.08), rot, IRON, 8, bevel=0.0)
+        for k in range(2):
+            a = 0.35 + k * math.pi / 2
+            dirv = Vector((math.cos(a) * ca, math.cos(a) * sa, math.sin(a)))
+            obox(mb, cw + ey_ * s * 0.16, dirv, ey_, (1.9, 0.15, 0.13), WM)
+    mb.rod(W(0.0, -1.2, zA), W(0.0, 1.2, zA), 0.1, WD, 6)
+    for lx in (-0.55, 0.5):
+        p = W(lx, 0.0, zA + 0.31 + 0.475)
+        tawara(mb, mb, p.x, p.y, p.z - 0.475, ang + math.pi / 2, 0.95, lod=1)
+
+
+def chopping_block(mb, x, y, ang):
+    """cepo de rachar lenha (makiwari-dai) com o machado cravado e achas espalhadas"""
+    F = Frame(x, y, T4, ang)
+    mb.cyl(0.56, 0.78, tuple(F.p(0, 0, 0.29)), F.r(), WD, 8, bevel=0.0)
+    mb.cyl(0.5, 0.14, tuple(F.p(0, 0, 0.73)), F.r(), WM, 8, bevel=0.0)
+    mb.rod(F.p(0.08, 0.0, 0.76), F.p(0.62, 0.1, 1.55), 0.055, WM, 6)
+    obox(mb, F.p(0.06, 0.0, 0.84), F.p(1, 0, 0) - F.p(0, 0, 0), Vector((0, 0, 1)), (0.12, 0.42, 0.3), IRON)
+    for k, (dx, dy, a) in enumerate(((0.95, 0.35, 0.4), (-0.85, 0.6, 1.9), (0.2, -1.0, -0.6), (-0.6, -0.7, 2.6))):
+        p = F.p(dx, dy, 0.2)
+        d = Vector((math.cos(F.a + a), math.sin(F.a + a), 0.0)) * 0.45
+        mb.rod(p - d, p + d, 0.2, WM, 5)
+
+
+def coal_yard(mb, mi):
+    kx, ky = KILN
+    kiln(mb, mi)
     # telheiro do forno: 4 pilares, frechais, kirizuma
     tx0, tx1, ty0, ty1 = kx - 8.0, kx + 8.0, ky - 7.5, ky + 8.5
     for x in (tx0, tx1):
@@ -1348,25 +1914,41 @@ def coal_yard(mb, mi):
         wbb(mb, tx0 - 0.6, tx1 + 0.6, y - 0.4, y + 0.4, T4 + 8.6, T4 + 9.4, WD, 0.05)
     K.roof_gable(mb, Frame(kx, ky + 0.5, T4, 0.0), tx1 - tx0 + 0.8, ty1 - ty0 + 0.8, 9.4, pitch=0.55, over=1.8,
                  g_over=1.2, lift=0.35, tv=0.42, lod=1, gable_m=WD, gable_style="board")
-    # lenha empilhada entre mouroes, com cobertura de tabuas
-    for (wx, wy, ang) in ((-132.0, 424.0, -0.4),):
+    # LENHA CRUA (oeste): 3 pilhas + cepo de rachar
+    for (wx, wy, ang, ln, rows, key) in ((-132.0, 424.0, -0.4, 7.6, 4, "lenhaA"),
+                                        (-139.6, 405.0, math.pi / 2, 7.0, 3, "lenhaB"),
+                                        (-103.0, 427.0, 0.25, 6.0, 3, "lenhaC")):
         F = Frame(wx, wy, T4, ang)
-        for x in (-4.2, 4.2):
-            bb(mb, F, x - 0.3, x + 0.3, -0.3, 0.3, 0.0, 4.4, WD, 0.04)
-        for r_ in range(4):
-            for i in range(9):
-                x = -3.7 + 0.92 * i + (0.46 if r_ % 2 else 0.0)
-                if x > 3.8:
-                    continue
-                mb.cyl(0.42, 2.2, tuple(F.p(x, 0.0, 0.45 + r_ * 0.8)), F.r(math.pi / 2, 0.0, 0.0), WM, 6, bevel=0.0)
-        ext(mb, F, [(-1.6, 4.2), (1.6, 4.0), (1.6, 4.25), (-1.6, 4.55)], "x", -4.8, 4.8, WD, 0.04)
-        c = F.p(0.0, 0.0, 0.0)
-        col_box("DS_FrgCoal", (9.0, 2.6, 4.4), (c.x, c.y, T4 + 2.2), (0, 0, ang))
-    # sacos de carvao
-    for i, (x, y, z) in enumerate(((-100.0, 388.0, 0.0), (-98.2, 388.0, 0.0), (-96.4, 388.0, 0.0), (-99.1, 388.0, 0.95),
-                                   (-97.3, 388.0, 0.95), (-98.2, 388.0, 1.9))):
-        tawara(mb, mi, x, y, T4 + z, 0.0)
-    col_box("DS_FrgCoal", (5.6, 1.6, 2.8), (-98.2, 388.0, T4 + 1.4))
+        woodpile(mb, F, ln, rows, key)
+        col_box("DS_FrgCoal", (ln + 1.2, 2.4, 0.66 * rows + 0.6), (wx, wy, T4 + (0.66 * rows + 0.6) / 2), (0, 0, ang))
+    chopping_block(mb, -127.0, 414.5, 0.5)
+    col_box("DS_FrgCoal", (1.4, 1.4, 1.2), (-127.0, 414.5, T4 + 0.6))
+    # CARVAO PRONTO (sudeste da boca): 2 pilhas de tawara (3-2-1, deitados lado a lado), cestos, bancada de ensacar
+    # (a trilha do ds_terrain chega na boca vindo de sudeste por (-68, 376) -> (-106, 390): nada fica sobre ela)
+    for (sx_, sy_, key, rows_) in ((-91.5, 392.6, "pilhaA", (3, 2, 1)), (-111.8, 385.8, "pilhaB", (2, 1))):
+        for row, cnt in enumerate(rows_):
+            for i in range(cnt):
+                xx = sx_ + (i - (cnt - 1) / 2) * 1.04
+                tawara(mb, mb, xx, sy_ + (_hh(key, row, i) - 0.5) * 0.25, T4 + row * 0.9,
+                       math.pi / 2 + 0.05 * (_hh(key, "a", row, i) - 0.5), lod=1)
+        col_box("DS_FrgCoal", (3.4, 1.8, 2.7), (sx_, sy_, T4 + 1.35))
+    for (bx_, by_, s_) in ((-114.6, 391.5, 1.0), (-116.4, 392.4, 0.85), (-96.0, 397.6, 0.8)):
+        basket(mb, bx_, by_, T4, 0.55 * s_, 0.62 * s_)
+    # bancada de ensacar (tampo de tabua, 4 pes, travessas) com um cesto e um saco aberto em cima
+    F = Frame(-97.5, 399.8, T4, 0.0)
+    bb(mb, F, -1.5, 1.5, -0.5, 0.5, 0.95, 1.08, WM)
+    for sx in (-1.3, 1.3):
+        for sy in (-0.36, 0.36):
+            bb(mb, F, sx - 0.09, sx + 0.09, sy - 0.09, sy + 0.09, 0.0, 0.95, WD)
+        bb(mb, F, sx - 0.06, sx + 0.06, -0.36, 0.36, 0.3, 0.42, WD)
+    bb(mb, F, -1.3, 1.3, -0.05, 0.05, 0.3, 0.42, WD)
+    basket(mb, -98.3, 399.8, T4 + 1.08, 0.42, 0.5)
+    tawara(mb, mb, -96.7, 399.9, T4 + 1.08, 0.0, 0.85, lod=1)
+    col_box("DS_FrgCoal", (3.2, 1.2, 1.4), (-97.5, 399.8, T4 + 0.7))
+    # carrinho de levar o carvao para a forja (varais para nordeste, no chao)
+    cart(mb, -88.0, 403.5, 0.6)
+    col_box("DS_FrgCoal", (4.4, 2.6, 2.4), (-88.0 + 1.0 * math.cos(0.6), 403.5 + 1.0 * math.sin(0.6), T4 + 1.2),
+            (0, 0, 0.6))
     K.lantern_post(mb, Frame(-92.0, 410.0, T4, math.pi), 8.0, 1.8, "L_DSProp_Lamp_FrgCoal", 36.0)
     col_box("DS_FrgCoal", (1.6, 1.6, 8.0), (-92.0, 410.0, T4 + 4.0))
 
@@ -1448,6 +2030,7 @@ def drop_blockout_forge():
 def build():
     """objetos agrupados por familia de material (cada material de cada objeto vira 1 MeshPart no export)"""
     drop_blockout_forge()
+    PAVED.clear()
     bpy.context.view_layer.update()
     mh = MB("DS_Frg_Hall", C, random.Random(4401), detail="hero")       # salao + bloco da boca + empenas + lanternim
     mi = MB("DS_Frg_Smithy", C, random.Random(4402), detail="hero")     # fornalha, ferro, aco, brasas, espadas, moveis
@@ -1468,6 +2051,7 @@ def build():
     wheel()
     mg = MB("DS_Frg_Ground", C, random.Random(4409), detail="near")     # patio, escadas, patamar, cercas, lanternas
     yard(mg)
+    yard_dressing(mg, mi)                                               # ONDA 6b: adro, trilha, sulco, manchas
     stairs_and_landing(mg, mg)
     edges(mg, mg)
     mg.finish()

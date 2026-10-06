@@ -204,9 +204,25 @@ def leaf(mb, a, d, Ln, W, m, rng):
     mb._post([va, vt, vl, vr], m, None, 0, 1)
 
 
+ROOT_KO = [None]            # ONDA 6b: (pontos, linhas) dos props fixos (prop_keepout), posto no build
+
+
+def _root_ground_ok(P, q, z0):
+    """ONDA 6b (item 45): a raiz so mergulha em CHAO NATURAL na cota do pe (-1,2..+1,6). Na borda do plato o raio
+    de cima achava o pe da falesia 17-30 abaixo e a 'raiz' descia o paredao (lia tronco escorrendo pela falesia, e uma
+    atravessava a madeira do summon); tambem nada de raiz entrando em construido nem em prop fixo (cerca, lanterna)"""
+    t = P.top(q.x, q.y)
+    if t is None or not t[1].startswith(P.NATURAL) or not (z0 - 1.2 < t[0] < z0 + 1.6):
+        return False
+    if ROOT_KO[0] is not None and prop_gap(q.x, q.y, ROOT_KO[0]) < 1.0:
+        return False
+    return P.clear_of_built(Vector((q.x, q.y, t[0] + 0.3)), 0.7)
+
+
 def roots(mb, P, base, r0, rng, n=5, reach=(2.4, 4.0), avoid=None, a0=None):
     """raizes que AGARRAM o chao: nascem no tronco a ~1,5 de altura, descem em arco e mergulham 0,45 no chao real
-    (sondado). avoid(x, y) -> True = proibido (canal, rua): a raiz gira; se nao achar lugar, nao nasce"""
+    (sondado). avoid(x, y) -> True = proibido (canal, rua): a raiz gira; se nao achar lugar, nao nasce.
+    ONDA 6b: tambem gira (ou nao nasce) se o chao do meio/da ponta nao for natural na cota do pe (_root_ground_ok)"""
     a0 = rng.uniform(0, TAU) if a0 is None else a0
     made = 0
     for k in range(n):
@@ -217,7 +233,8 @@ def roots(mb, P, base, r0, rng, n=5, reach=(2.4, 4.0), avoid=None, a0=None):
             aa = a + (0.0, 0.45, -0.45, 0.9, -0.9)[t]
             e = base + vdir(aa) * (r0 + Ln)
             m_ = base + vdir(aa) * (r0 + Ln * 0.55)
-            if not avoid or not (avoid(e.x, e.y) or avoid(m_.x, m_.y)):
+            if (not avoid or not (avoid(e.x, e.y) or avoid(m_.x, m_.y))) and \
+                    _root_ground_ok(P, e, base.z) and _root_ground_ok(P, m_, base.z):
                 ok = True
                 a = aa
                 break
@@ -387,6 +404,15 @@ def cedar(mb, P, x, y, rng, h=22.0, r=3.4, leaf_m=CEDAR, col=True):
 
 
 # ================================================================== KARIKOMI (arbusto podado) e TUFO de grama
+def low_ground(P, x, y, r, z_ref, drop=1.0):
+    """ONDA 6b (item 46): cota MAIS BAIXA do chao sob uma almofada (centro + 4 pontos a 0,6 r), limitada a z_ref -
+    drop (na quina de falesia/arrimo a almofada fica agarrada na borda, nao desce o paredao). Antes cada almofada
+    satelite usava a cota do centro da moita e boiava 0,2-0,5 em chao inclinado"""
+    zs = [P.gz(x + dx, y + dy, z_ref) for dx, dy in ((0.0, 0.0), (0.6 * r, 0.0), (-0.6 * r, 0.0), (0.0, 0.6 * r),
+                                                       (0.0, -0.6 * r))]
+    return max(min(zs), z_ref - drop)
+
+
 def karikomi(mb, P, x, y, rng, r=1.7, lumps=2, m=SHRUB):
     """azaleia podada: 1-3 almofadas LISAS (poda) encostadas, mais largas que altas, enterradas 0,2"""
     z = P.gz(x, y, T1)
@@ -394,6 +420,7 @@ def karikomi(mb, P, x, y, rng, r=1.7, lumps=2, m=SHRUB):
     for k in range(lumps):
         q = Vector((x, y, z - 0.2)) + (vdir(a0 + 2.4 * k) * r * 0.75 if k else Vector())
         rr = r * (1.0 if k == 0 else rng.uniform(0.62, 0.8))
+        q.z = low_ground(P, q.x, q.y, rr, z) - 0.2
         cushion(mb, q, rr * 1.08, rr * 0.95, rr * 1.0, m, rng, n=9, rot=a0 + k, jit=0.05,
                 prof=((0.0, 0.86), (0.32, 1.0), (0.7, 0.82)))
 
@@ -407,15 +434,19 @@ def bush(mb, P, x, y, rng, r=1.6, m=BROAD, n=6, lumps=None):
     for k in range(lumps or rng.randint(2, 3)):
         q = Vector((x, y, z - 0.25)) + vdir(a0 + 2.3 * k) * r * (0.0 if k == 0 else rng.uniform(0.55, 0.85))
         rr = r * (1.0 if k == 0 else rng.uniform(0.55, 0.75))
+        q.z = low_ground(P, q.x, q.y, rr, z) - 0.25
         cushion(mb, q, rr, rr * 0.85, rr * rng.uniform(0.95, 1.25), m, rng, n=n, rot=a0 + k, jit=0.16)
     return z
 
 
-def tuft(mb, x, y, z, rng, s=1.0, m=SHRUB):
-    """tufo de capim: 6-9 laminas (tetraedros finos e inclinados para fora), a base enterrada 0,22 no chao"""
+def tuft(mb, x, y, z, rng, s=1.0, m=SHRUB, P=None):
+    """tufo de capim: 6-9 laminas (tetraedros finos e inclinados para fora), a base enterrada 0,22 no chao.
+    ONDA 6b (item 46): com P, cada lamina assenta no chao DELA (borda de terraco/caminho: a lamina do lado baixo
+    boiava ate 0,46); lamina cujo chao cai > 0,9 (quina de muro) sai"""
     bm = mb.bm
     vs = []
     nb = rng.randint(6, 9)
+    made = 0
     for k in range(nb):
         a = rng.uniform(0, TAU)
         rr = rng.uniform(0.0, 0.45) * s
@@ -425,24 +456,38 @@ def tuft(mb, x, y, z, rng, s=1.0, m=SHRUB):
         lx, ly = math.cos(la) * hg * rng.uniform(0.15, 0.5), math.sin(la) * hg * rng.uniform(0.15, 0.5)
         w = 0.14 * s
         r0 = rng.uniform(0, TAU)
-        b = [bm.verts.new((bx + math.cos(r0 + TAU * i / 3) * w, by + math.sin(r0 + TAU * i / 3) * w, z - 0.22))
+        zb = z
+        if P is not None:
+            zb = min(P.gz(bx + math.cos(r0 + TAU * i / 3) * w, by + math.sin(r0 + TAU * i / 3) * w, z)
+                     for i in range(3))
+            if zb < z - 0.9:
+                continue
+            zb = min(zb, z)
+        made += 1
+        b = [bm.verts.new((bx + math.cos(r0 + TAU * i / 3) * w, by + math.sin(r0 + TAU * i / 3) * w, zb - 0.22))
              for i in range(3)]
-        tp = bm.verts.new((bx + lx, by + ly, z + hg))
+        tp = bm.verts.new((bx + lx, by + ly, zb + hg))
         for f in ((b[0], b[1], tp), (b[1], b[2], tp), (b[2], b[0], tp), (b[0], b[2], b[1])):
             bm.faces.new(f)
         vs += b + [tp]
     mb._post(vs, m, None, 0, 1)
-    return nb * 4
+    return made * 4
 
 
 # ================================================================== BAMBU em touceira
-def culm(mb, p0, h, r, splay, bend, rng, collars=3):
-    """colmo: segmentos que alongam para cima (no proximo do chao = curto), leve dobra em cada no, afina para a
-    ponta; anel do no (Bamboo_DS_Dry, 1,3 x o raio: le de longe como as listras do bambu) nos de baixo. Devolve os
-    nos (ponto, tangente, raio) para as folhas"""
-    segs = [1.2, 1.7, 2.1, 2.4, 2.6, 2.8, 2.9, 3.0, 3.0, 3.0]
+def culm(mb, p0, h, r, splay, bend, rng, collars=4):
+    """colmo: entrenos que alongam para cima, leve dobra em cada no, afina para a ponta. Devolve os nos (ponto,
+    tangente, raio) para as folhas.
+    ONDA 6b (item 47): o no era um anel claro (Bamboo_DS_Dry, 1,3 x o raio, 0,25) no MESMO intervalo em todos os
+    colmos - lia fita adesiva. Agora o proprio colmo ALARGA no no (na cor do colmo) e, nos 'collars' nos de baixo (a
+    altura do olho), volta ao raio 0,12 acima (a aresta do no: 1 anel a mais, ~os 10 tris do anel antigo): 1,10 x
+    nesses (1,08 lia liso demais de perto, volta 2), 1,06 x nos de cima (so a quebra de faceta). Os entrenos
+    crescem da base ao topo (0,8 -> 1,2 x o passo do colmo, o 1o curto) e o passo e de cada colmo (hash da posicao:
+    nao consome o rng, o resto da touceira nao muda)"""
+    k0 = 2.15 + 0.5 * hh("colmo", p0.x, p0.y)
     zs = [0.0]
-    for s in segs:
+    for i in range(14):
+        s = k0 * (0.8 + 0.4 * min(1.0, zs[-1] / h)) * (0.55 if i == 0 else 0.92 + 0.16 * hh("entreno", p0.x, p0.y, i))
         if zs[-1] + s > h:
             break
         zs.append(zs[-1] + s)
@@ -450,30 +495,28 @@ def culm(mb, p0, h, r, splay, bend, rng, collars=3):
         zs.append(h)
     else:
         zs[-1] = h
-    pts, rads = [p0 - ZZ * 0.4], [r * 1.05]
+    bp, br = [p0 - ZZ * 0.4], [r * 1.05]
     kink = vdir(rng.uniform(0, TAU)) * 0.05
     for i, zz in enumerate(zs[1:], 1):
         t = zz / h
-        pts.append(p0 + splay * zz + bend * (t ** 2.2) * h + kink * (i % 2) * zz * 0.2 + ZZ * zz)
-        rads.append(r * (1.0 - 0.45 * t))
+        bp.append(p0 + splay * zz + bend * (t ** 2.2) * h + kink * (i % 2) * zz * 0.2 + ZZ * zz)
+        br.append(r * (1.0 - 0.45 * t))
+    pts, rads, nodes = [], [], []
+    for i, (p, rr) in enumerate(zip(bp, br)):
+        if 0 < i < len(bp) - 1:
+            d = (bp[i + 1] - bp[i - 1]).normalized()
+            nodes.append((p, d, rr))
+            pts.append(p)
+            rads.append(rr * (1.10 if i <= collars else 1.06))
+            if i <= collars:
+                pts.append(p + d * 0.12)
+                rads.append(rr)
+        else:
+            pts.append(p)
+            rads.append(rr)
     PK.taper_tube(mb, pts, rads, BAMB, n=5)
-    nodes = []
-    for i in range(1, len(pts) - 1):
-        d = (pts[i + 1] - pts[i - 1]).normalized()
-        nodes.append((pts[i], d, rads[i]))
-        if i <= collars:
-            collar(mb, pts[i], d, rads[i])
-    nodes.append((pts[-1], (pts[-1] - pts[-2]).normalized(), rads[-1]))
+    nodes.append((bp[-1], (bp[-1] - bp[-2]).normalized(), br[-1]))
     return nodes
-
-
-def collar(mb, p, d, r):
-    """anel do no: tubo curto ABERTO (sem tampa: 10 tris), le como a listra do bambu.
-    ONDA 4 (z-fight): o pentagono do anel era PARALELO ao do colmo a 0,035-0,05 (16 touceiras, ~200 studs2 de pisca);
-    agora gira meio passo (36 graus): as faces do anel cruzam as do colmo em angulo e nenhuma fica paralela. Raio no
-    vertice 1,30 / 1,24 (no meio da face 1,05 / 1,00 x o raio: as quinas do colmo continuam cobertas)"""
-    PK.loft(mb, [p - d * 0.1, p + d * 0.14], [PK.circ(r * 1.30, 5, math.pi / 5), PK.circ(r * 1.24, 5, math.pi / 5)],
-            BAMB_DRY, caps=False)
 
 
 def leaf_fan(mb, p, rng, az0, n=4, Ln=2.0, up=-0.35, m="Leaf_DS_Bamboo"):
@@ -509,8 +552,8 @@ def bamboo_clump(mb, P, x, y, rng, h=20.0, n=5, toward=None, lean=0.0):
     for k in range(rng.randint(1, 2)):
         a = rng.uniform(0, TAU)
         q = Vector((x + math.cos(a) * 1.9, y + math.sin(a) * 1.9, 0.0))
-        q.z = P.gz(q.x, q.y, z)
-        PK.cone(mb, q - ZZ * 0.2, q + ZZ * rng.uniform(0.9, 1.5), 0.38, 0.05, BAMB_DRY, n=5)
+        q.z = low_ground(P, q.x, q.y, 0.38, P.gz(q.x, q.y, z), drop=0.8)       # ONDA 6b (46): o broto boiava 0,33
+        PK.cone(mb, q - ZZ * 0.3, q + ZZ * rng.uniform(0.9, 1.5), 0.38, 0.05, BAMB_DRY, n=5)
     col_box("DS_VegBamboo", (2.8, 2.8, 8.0), (x, y, z + 4.0))
     return z
 
@@ -674,9 +717,13 @@ def bamboo_pergola(mb, mbw, P, rng):
         bamboo_pole(mb, (a.x, a.y, top - 0.08), (b.x, b.y, top - 0.08), 0.18, BAMB, nodes=False)
 
     def min_bottom(x, y):
+        """ONDA 6b (item 49): na faixa de 2,5 de cada lado do eixo do caminho o cacho termina >= piso + 8 (la a camera
+        de 3a pessoa encosta, 10-12, e os cachos enchiam o topo do quadro); ate 3,8, >= + 6,9; fora, + 5,2. Piso
+        LOCAL (a rampa sobe ao longo da pergola)"""
         q = Vector((x, y, 0.0)) - Vector((fc.x, fc.y, 0.0))
         lateral = abs(q.dot(u))
-        return gz + (6.9 if lateral < 3.8 else 5.2)
+        g = max(gz, P.gz(x, y, gz))
+        return g + (8.0 if lateral < 2.5 else (6.9 if lateral < 3.8 else 5.2))
     posts = [fc + u * su * au + v * sv * av for su in (-1, 1) for sv in (-1, 1)]
     n = wisteria_on_frame(mbw, P, rng, (wx, wy), P.gz(wx, wy, gz), fc, u, v, au, av, top + 0.1, min_bottom, posts)
     return n, (cx, cy, gz)
@@ -691,7 +738,11 @@ def v6_wisteria(mb, P, rng):
     u, v = Vector((1.0, 0.0, 0.0)), Vector((0.0, 1.0, 0.0))
     top = gz + 8.66
     posts = [fc + u * sx * 3.6 + v * sy * 3.2 for sx in (-1, 1) for sy in (-1, 1)]
-    n = wisteria_on_frame(mb, P, rng, (wx - 2.75, wy - 2.35), P.gz(wx - 2.75, wy - 2.35, gz), fc, u, v, 4.4, 3.9,
+    # ONDA 6b: o pe saiu de (-2,75; -2,35) para (-2,2; +1,8) (esteio NOROESTE): a 1,2 do esteio SO o tronco (r 0,72
+    # + ondulacao 0,7) e o cone de raiz (1,15) atravessavam o esteio e a pedra dele, e em y 350 o tronco entrava no
+    # beiral da casa; a 2,0 do esteio NO, longe do beiral, ele sobe JUNTO do esteio sem entrar.
+    # Cachos: o jardim nao e caminho (a rota do V6 passa no eixo da casa, a 12 daqui): pe-direito 5,6 sob a trelica
+    n = wisteria_on_frame(mb, P, rng, (wx - 2.2, wy + 1.8), P.gz(wx - 2.2, wy + 1.8, gz), fc, u, v, 4.4, 3.9,
                           top, lambda x, y: gz + 5.6, posts)
     return n
 
@@ -877,8 +928,58 @@ def tree_spheres(kind, x, y, z, h, R):
     return [(Vector((x, y, z + h * 0.62)), R * 0.92), (Vector((x, y, z + h * 0.86)), R * 0.62)]
 
 
-def site_ok(P, x, y, r_trunk, ctx, route_gap=7.0, need_floor=False, ring=True):
-    """(z, None) se o pe pode nascer em (x, y); senao (None, motivo)"""
+# ================================================================== ONDA 6b (item 44): folga dos PROPS
+# O ds_props roda DEPOIS do ds_veg (build_ds: dressing = veg, props, vfx, lights), entao a vegetacao nao enxerga as
+# pecas dele no raio. As de posicao FIXA (lanternas de no, cercas dos setores, das bordas de terraco e dos caminhos,
+# canto dos mineiros, candidatos de banco/placa/pilha) sao lidas do proprio modulo (sem copiar numero: se o ds_props
+# muda uma cerca, a folga acompanha). As lanternas de caminho (posicao dinamica) ja desviam de tronco/moita no
+# ds_props (raio lateral a +1 e +3,2); o que sobra embaixo disso (raiz, lamina de capim) sai no after_props().
+PROP_GAP_TRUNK = 2.5            # face do tronco -> prop/cerca (auditoria 6a, item 44)
+PROP_GAP_BUSH = 0.6             # borda da moita -> prop/cerca
+
+
+def prop_keepout():
+    """(pontos (x, y, raio), polilinhas) dos props de posicao fixa do ds_props"""
+    pts, lines = [], []
+    try:
+        import ds_props as PR
+    except Exception as e:
+        print("AVISO ds_veg: ds_props nao importou (%s): sem folga de props" % e)
+        return pts, lines
+    for it in getattr(PR, "NODE_LAMPS", ()):
+        pts.append((it[1], it[2], 1.3))
+    m = getattr(PR, "MINERS", None)
+    if m:
+        pts.append((m[0], m[1], 3.4))
+    for it in getattr(PR, "LIFE", ()):
+        for q in it[2]:
+            pts.append((q[0], q[1], 1.2))
+    for it in getattr(PR, "FENCE_SECTORS", ()):
+        lines.append([tuple(q) for q in it[1]])
+    try:
+        lines += [[tuple(q) for q in ln] for nm, ln in PR._fence_lines()]
+    except Exception as e:
+        print("AVISO ds_veg: ds_props._fence_lines falhou (%s): so FENCE_LINES" % e)
+        lines += [[tuple(q) for q in ln] for nm, ln in getattr(PR, "FENCE_LINES", ())]
+    return pts, [ln for ln in lines if len(ln) >= 2]
+
+
+def prop_gap(x, y, ko):
+    """distancia horizontal de (x, y) a BORDA do prop fixo mais proximo"""
+    pts, lines = ko
+    d = 1e9
+    for px, py, pr in pts:
+        d = min(d, math.hypot(x - px, y - py) - pr)
+    for ln in lines:
+        d = min(d, L.polyline_dist(x, y, ln))
+    return d
+
+
+def site_ok(P, x, y, r_trunk, ctx, route_gap=7.0, need_floor=False, ring=True, prop_min=None):
+    """(z, None) se o pe pode nascer em (x, y); senao (None, motivo). ONDA 6b: prop_min = folga minima do centro ate
+    a borda dos props fixos (ctx['ko'])"""
+    if prop_min is not None and ctx.get("ko") and prop_gap(x, y, ctx["ko"]) < prop_min:
+        return None, "prop"
     t = P.top(x, y)
     if t is None or not t[1].startswith(P.NATURAL):
         return None, "chao %s" % (t[1] if t else None)
@@ -988,7 +1089,7 @@ def densify(P, cells, trunks, make_adjust):
     """ONDA 4b: a densidade dirigida (arvores, saias de mato, franja das falesias, moitas de pe de muro)"""
     ctx = dict(anchors=_prop_anchors() + [(L.VILLAGE_GATE[0], L.VILLAGE_GATE[1], 6.0), (L.WELL[0], L.WELL[1], 5.0),
                                           (L.HOKORA[0], L.HOKORA[1], 4.0)] +
-               [(wx, wy, 6.0) for wx, wy in L.WISTERIA])
+               [(wx, wy, 6.0) for wx, wy in L.WISTERIA], ko=ROOT_KO[0])
     views = protected_views()
     rej = STATS.setdefault("den_rejeitado", [])
     made = []
@@ -1003,7 +1104,7 @@ def densify(P, cells, trunks, make_adjust):
         for ox, oy in NUDGE:
             x, y = x0 + ox, y0 + oy
             rt = 0.5 if kind == "C" else 0.45 + R0 * 0.08
-            z, why = site_ok(P, x, y, rt * 1.3, ctx)
+            z, why = site_ok(P, x, y, rt * 1.3, ctx, prop_min=rt * 1.32 + PROP_GAP_TRUNK)
             if why is None and any(math.hypot(x - tx, y - ty) < tr + rt + 2.0 for tx, ty, tr in trunks):
                 why = "tronco vizinho"
             if why is None:
@@ -1056,7 +1157,7 @@ def densify(P, cells, trunks, make_adjust):
             rr = (R * r_.uniform(0.55, 0.85)) if kind != "C" else r_.uniform(2.6, 3.6)
             bx, by = x + math.cos(a) * rr, y + math.sin(a) * rr
             br = r_.uniform(1.5, 2.3)
-            zz, why = site_ok(P, bx, by, br, ctx, route_gap=4.0, ring=False)
+            zz, why = site_ok(P, bx, by, br, ctx, route_gap=4.0, ring=False, prop_min=br + PROP_GAP_BUSH)
             if why:
                 continue
             bush(cells.at(bx, by), P, bx, by, r_, r=br, m=(CEDAR if (j + k) % 3 == 0 else BROAD))
@@ -1225,7 +1326,7 @@ def wall_foot(P, cells, ctx, trunks, budget=40):
             continue
         if any(math.hypot(x - tx, y - ty) < tr + br * 0.5 for tx, ty, tr in trunks):
             continue
-        zz, why = site_ok(P, x, y, br, ctx, route_gap=4.2, ring=False)
+        zz, why = site_ok(P, x, y, br, ctx, route_gap=4.2, ring=False, prop_min=br + PROP_GAP_BUSH)
         if why:
             continue
         bush(cells.at(x, y), P, x, y, r_, r=br, m=(CEDAR if n % 3 == 0 else BROAD))
@@ -1341,7 +1442,7 @@ def grass(P, cells, rng, budget=280, avoid_pts=()):
     n = tris = 0
     for w, x, y, z, score in cand[:budget]:
         s = (0.75 + 0.75 * score) * rng.uniform(0.8, 1.1)
-        tris += tuft(cells.at(x, y), x, y, z, rng, s)
+        tris += tuft(cells.at(x, y), x, y, z, rng, s, P=P)
         n += 1
     return n, tris, len(cand)
 
@@ -1472,6 +1573,25 @@ def build():
     rng = random.Random(30303)
     tops = []
     trunks = []
+    KO = prop_keepout()
+    ROOT_KO[0] = KO
+    STATS["props_fixos"] = (len(KO[0]), len(KO[1]))
+
+    def fixed_spot(key, x, y, r):
+        """arvore de ponto FIXO da planta: se encosta num prop fixo, procura o ponto mais perto (NUDGE) com folga,
+        chao natural e longe da rota; senao fica e avisa"""
+        if prop_gap(x, y, KO) >= r + PROP_GAP_TRUNK:
+            return x, y
+        for ox, oy in NUDGE[1:]:
+            qx, qy = x + ox, y + oy
+            t = P.top(qx, qy)
+            if t is None or not t[1].startswith(P.NATURAL) or t[3] < 0.6 or P.route_dist(qx, qy) < 5.0 + r:
+                continue
+            if prop_gap(qx, qy, KO) >= r + PROP_GAP_TRUNK:
+                STATS.setdefault("fixa_deslocada", []).append((key, x, y, round(ox, 1), round(oy, 1)))
+                return qx, qy
+        print("AVISO ds_veg: %s em (%.1f, %.1f) a %.1f de um prop fixo" % (key, x, y, prop_gap(x, y, KO)))
+        return x, y
 
     def avoid_canal(x, y):
         return L.polyline_dist(x, y, L.CHANNEL) < 3.4 or L.point_in_poly(x, y, DL.offset_poly(L.POND, 1.6))
@@ -1496,6 +1616,7 @@ def build():
 
     # ---------------- arvores largas
     for key, x, y, kind, h, R, face in BROAD_TREES:
+        x, y = fixed_spot(key, x, y, 0.5 + R * 0.09)
         r_ = random.Random(zlib.crc32(key.encode()))
         mb = cells.at(x, y)
         zg = P.gz(x, y, T1)
@@ -1517,6 +1638,7 @@ def build():
         STATS["tree_" + key] = (round(zg, 1), round(info["top"], 1), info["pads"], info["roots"])
     # ---------------- pinheiros
     for key, x, y, h, az, lean, reach in PINES:
+        x, y = fixed_spot("pine" + key, x, y, 1.6)
         r_ = random.Random(zlib.crc32(("pine" + key).encode()))
         adj = make_adjust(reach)
         info = pine(cells.at(x, y), P, x, y, r_, h=h, lean_az=math.radians(az), lean=lean, reach=reach, adjust=adj)
@@ -1526,6 +1648,7 @@ def build():
     # ---------------- cedros
     for grp, lst in CEDARS:
         for i, (x, y, h, r) in enumerate(lst):
+            x, y = fixed_spot("cedar%s%d" % (grp, i), x, y, 0.4 + r * 0.12)
             r_ = random.Random(zlib.crc32(("cedar%s%d" % (grp, i)).encode()))
             if P.ground(x, y) is None:
                 STATS.setdefault("cedar_rejeitado", []).append((grp, x, y))
@@ -1564,6 +1687,8 @@ def build():
             why = "agua"
         elif not P.clear_of_built(Vector((x, y, t[0] + 0.8)), r + 0.4):
             why = "construido"
+        elif prop_gap(x, y, KO) < r + PROP_GAP_BUSH:
+            why = "prop"                        # ONDA 6b: (-38, 182) era o vagonete dos mineiros; 2 na cerca da Vila
         if why:
             STATS.setdefault("mato_rejeitado", []).append((x, y, why))
             continue
@@ -1587,10 +1712,16 @@ def build():
             why = "escada"
         elif not P.clear_of_built(Vector((x, y, t[0] + 0.8)), r + 0.6):
             why = "construido"
+        elif prop_gap(x, y, KO) < r + PROP_GAP_BUSH:
+            why = "prop"
         if why:
             STATS.setdefault("karikomi_rejeitado", []).append((x, y, why))
             continue
-        karikomi(cells.at(x, y), P, x, y, r_, r=r, lumps=1 + (i % 3 != 0) + (i % 4 == 0))
+        # ONDA 6b (item 48): o karikomi era Leaf_DS_Shrub (66/104/56), a 11 da grama B (76/108/58): sumia no chao sem
+        # textura. Agora no verde de copa (Broad 46/84/48) e, 1 em 3, no escuro (Cedar 34/66/46: o buxo/azaleia
+        # podado classico) - nenhum material novo (as celulas ja tem os dois: 0 MeshPart)
+        karikomi(cells.at(x, y), P, x, y, r_, r=r, lumps=1 + (i % 3 != 0) + (i % 4 == 0),
+                 m=CEDAR if i % 3 == 0 else BROAD)
         trunks.append((x, y, r + 0.6))
         nk += 1
     STATS["karikomi"] = nk
@@ -1614,6 +1745,80 @@ def build():
         print("DS_VEG obj %-22s tris=%6d mats=%d" % (o.name, t, len(o.data.materials)))
     print("DS_VEG ok: objetos=%d tris=%d %s" % (len(objs), tt, STATS))
     return objs
+
+
+# ================================================================== ONDA 6b (item 44): conferencia DEPOIS dos props
+SMALL_ISLAND = 4.6              # maior lado de uma ilha "pequena" (raiz, lamina de capim, broto, almofada de moita)
+
+
+def after_props():
+    """chamada pelo ds_lights (o ultimo do dressing), com os props JA montados: cada ilha de malha da vegetacao e
+    testada (BVH.overlap) contra as malhas DS_Prop_* e DS_Ent_Toro. Ilha PEQUENA (raiz, lamina de capim, broto,
+    almofada de moita: maior lado < SMALL_ISLAND) que atravessa um prop SAI - as lanternas de caminho do ds_props
+    escolhem o lugar depois da vegetacao e o raio lateral delas (a +1 do chao) nao ve raiz nem capim. Ilha grande
+    (tronco, copa) ou ilha alta (massa de copa encostando num poste) que atravessa prop = FALHA de colocacao: so
+    AVISO (resolver em prop_keepout/site_ok).
+    Devolve (ilhas removidas, ilhas grandes em conflito)."""
+    import bmesh
+    objs = [o for o in bpy.data.objects if o.type == "MESH" and not o.hide_render and
+            o.name.startswith(("DS_Prop_", "DS_Ent_Toro"))]
+    V, Pp = [], []
+    for o in objs:
+        mw = o.matrix_world
+        b = len(V)
+        V += [mw @ v.co for v in o.data.vertices]
+        Pp += [[b + i for i in p.vertices] for p in o.data.polygons]
+    if not Pp:
+        print("ds_veg after_props: sem props")
+        return 0, []
+    PB = BVHTree.FromPolygons(V, Pp)
+    removed, big = 0, []
+    for ob in [o for o in bpy.data.objects if o.type == "MESH" and o.name.startswith("DS_Veg_")]:
+        mw = ob.matrix_world
+        bm = bmesh.new()
+        bm.from_mesh(ob.data)
+        bm.verts.ensure_lookup_table()
+        seen = set()
+        kill = []
+        for v0 in bm.verts:
+            if v0.index in seen:
+                continue
+            isl, stack = [], [v0]
+            seen.add(v0.index)
+            while stack:
+                v = stack.pop()
+                isl.append(v)
+                for e in v.link_edges:
+                    w = e.other_vert(v)
+                    if w.index not in seen:
+                        seen.add(w.index)
+                        stack.append(w)
+            co = [mw @ v.co for v in isl]
+            lo = Vector((min(c.x for c in co), min(c.y for c in co), min(c.z for c in co)))
+            hi = Vector((max(c.x for c in co), max(c.y for c in co), max(c.z for c in co)))
+            c = (lo + hi) / 2
+            if PB.find_nearest(c, (hi - lo).length / 2 + 0.05)[0] is None:
+                continue
+            idx = {v.index: i for i, v in enumerate(isl)}
+            fs = {f for v in isl for f in v.link_faces}
+            tb = BVHTree.FromPolygons(co, [[idx[v.index] for v in f.verts] for f in fs])
+            if not tb.overlap(PB):
+                continue
+            zf = L.zone_of(c.x, c.y)
+            if max(hi - lo) < SMALL_ISLAND and lo.z < (lo.z if zf is None else zf) + 1.5:   # so o que nasce no chao
+                kill += isl
+                removed += 1
+            else:
+                big.append((ob.name, round(c.x, 1), round(c.y, 1), round(c.z, 1)))
+        if kill:
+            bmesh.ops.delete(bm, geom=kill, context="VERTS")
+            bm.to_mesh(ob.data)
+            ob.data.update()
+        bm.free()
+    print("ds_veg after_props: %d ilhas pequenas (raiz/capim/moita) que atravessavam props removidas" % removed)
+    for b_ in big:
+        print("AVISO ds_veg: tronco/copa atravessando prop: %s (%.1f, %.1f, %.1f)" % b_)
+    return removed, big
 
 
 # ================================================================== CAMERAS da zona (folhas da onda 3a)

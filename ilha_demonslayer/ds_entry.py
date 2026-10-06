@@ -121,8 +121,8 @@ TOR_NUKI = 14.0                        # base do nuki = vao livre de 14
 TOR_KL = 23.6                          # comprimento do kasagi
 
 
-def _sori(x, amp=1.05):
-    """curvatura (sori) do shimaki/kasagi: reto no meio, sobe para as pontas"""
+def _sori(x, amp=1.45):
+    """curvatura (sori) do shimaki/kasagi: reto no meio, sobe para as pontas (6b item 14: +0,4 nas pontas, era 1,05)"""
     t = max(0.0, (abs(x) - 2.0) / (TOR_KL / 2 - 2.0))
     return amp * t ** 2.1
 
@@ -147,16 +147,17 @@ def torii(name, x, y, z, ang, area, coll=C, seed=7):
         # hashira: tronco inclinado (16 lados) ate o topo (que acompanha o sori do shimaki)
         ztop = TOR_HP + _sori(TOR_PX1) + 0.15
         loft(mb, [ring_at(F, s * TOR_PX0, 0, 0.95, TOR_R0, 16), ring_at(F, s * TOR_PX1, 0, ztop, TOR_R1, 16)], LAC)
-        # nemaki (manga preta da base) com labio no topo
+        # nemaki (manga preta da base) com labio no topo. 6b (item 14): a cinta ficava a 0,098 da laca (z-fight em 70
+        # faces): agora 0,16 para fora (labio 0,23) e o daiwa 0,16
         xa, ra = pcx(0.95)
         xb, rb = pcx(2.75)
-        loft(mb, [ring_at(F, s * xa, 0, 0.9, ra + 0.1, 16), ring_at(F, s * xb, 0, 2.75, rb + 0.1, 16)], BLK)
+        loft(mb, [ring_at(F, s * xa, 0, 0.9, ra + 0.16, 16), ring_at(F, s * xb, 0, 2.75, rb + 0.16, 16)], BLK)
         xc, rc = pcx(2.85)
-        loft(mb, [ring_at(F, s * xb, 0, 2.72, rb + 0.17, 16), ring_at(F, s * xc, 0, 2.92, rc + 0.17, 16)], BLK)
+        loft(mb, [ring_at(F, s * xb, 0, 2.72, rb + 0.23, 16), ring_at(F, s * xc, 0, 2.92, rc + 0.23, 16)], BLK)
         # daiwa: anel preto no topo do pilar, logo abaixo do shimaki
         xd, rd = pcx(TOR_HP - 0.6)
-        loft(mb, [ring_at(F, s * xd, 0, TOR_HP - 0.62, rd + 0.11, 16),
-                  ring_at(F, s * TOR_PX1, 0, TOR_HP + _sori(TOR_PX1) + 0.02, TOR_R1 + 0.11, 16)], BLK)
+        loft(mb, [ring_at(F, s * xd, 0, TOR_HP - 0.62, rd + 0.16, 16),
+                  ring_at(F, s * TOR_PX1, 0, TOR_HP + _sori(TOR_PX1) + 0.02, TOR_R1 + 0.16, 16)], BLK)
         col_box(area, (2.3, 2.3, TOR_HP + 1.0), F.p(s * TOR_PX0, 0, (TOR_HP + 1.0) / 2), F.r())
     # nuki: atravessa os pilares e sai 1,7 de cada lado (espiga); cunhas (kusabi) por fora de cada pilar
     xn, rn = pcx(TOR_NUKI + 0.5)
@@ -303,13 +304,14 @@ def koran(mb, F, u0, u1, v, zf, nodes=(), step=3.4, top=3.66, node_top=4.35, pos
     for u in nodes:
         z = zf(u)
         fbox(mb, F, u - 0.42, v - 0.42, z + post_from - 0.2, u + 0.42, v + 0.42, z + node_top, WD, 0.06)
-        fbox(mb, F, u - 0.5, v - 0.5, z + node_top - 0.5, u + 0.5, v + 0.5, z + node_top - 0.3, BRZ, 0.03)
+        # 6b: colar de bronze 0,14 alem da face do poste (era 0,08: z-fight bronze x madeira nas 2 pontes)
+        fbox(mb, F, u - 0.56, v - 0.56, z + node_top - 0.5, u + 0.56, v + 0.56, z + node_top - 0.3, BRZ, 0.03)
         p = F.p(u, v, z + node_top)
         giboshi(mb, (p.x, p.y, p.z), 1.0, F.a)
     for i, u in enumerate(lanterns):
         z = zf(u)
         fbox(mb, F, u - 0.46, v - 0.46, z + post_from - 0.2, u + 0.46, v + 0.46, z + 5.1, WD, 0.06)
-        fbox(mb, F, u - 0.55, v - 0.55, z + 3.4, u + 0.55, v + 0.55, z + 3.62, BRZ, 0.03)
+        fbox(mb, F, u - 0.6, v - 0.6, z + 3.4, u + 0.6, v + 0.6, z + 3.62, BRZ, 0.03)
         Fl = Frame(*F.p(u, v, 0.0)[:2], 0.0, F.a)
         c, _ = K._box_lantern(mb, Fl, (0.0, 0.0, z + 5.24), 0.6, 0.6, 1.4)
         if i < len(lamp_names) and lamp_names[i]:
@@ -549,9 +551,11 @@ def arrival_bridge():
     # --- guarda-corpo: comeca no pilar-marco de pedra, poste-mestre com giboshi na ponta da ilha, postes-lanterna no
     #     patamar (os unicos nos com luz na ponte)
     names = {-1: "L_DSProp_Lamp_Bridge_R", 1: "L_DSProp_Lamp_Bridge_L"}
+    # 6b (item 13): a guarda era o mesmo painel 30 vezes: postes-mestre com giboshi a cada 25 (u 25 e 75) e mais 2
+    # lanternas penduradas sem luz propria (u 20 a esquerda de quem chega, u 80 a direita: y -80 e -20)
     for s in (-1, 1):
-        koran(mb, FA, SILL_U + 0.8, BL - 0.6, s * RAIL_V, zf, lanterns=(sum(REST_U) / 2,), lamp_names=(names[s],),
-              ends=(False, True))
+        koran(mb, FA, SILL_U + 0.8, BL - 0.6, s * RAIL_V, zf, nodes=(25.0, 75.0),
+              lanterns=(sum(REST_U) / 2, 20.0 if s > 0 else 80.0), lamp_names=(names[s],), ends=(False, True))
     # --- apoios: a rocha da soleira recebe a laje de pedra e as 2 primeiras travessas; a rocha do patamar tem cavalete
     #     + maos-francesas; o encontro de ishigaki recebe as longarinas no berco e lanca 2 maos-francesas
     for u in (SILL_U + 1.0, 15.0):
@@ -632,7 +636,13 @@ def court():
     # cerca baixa na borda sul do patio (asas da ponte) e na quina sudoeste (penhasco)
     _fence(mb, [(-10.6, 0.7), (-21.3, 0.7), (-24.0, 13.0)], T0)
     _fence(mb, [(10.6, 0.7), (21.3, 0.7)], T0)
-    DL.plan_stair(mb, "Trilha")
+    # 6b (item 12): a escada Trilha era a do BLOCKOUT (DL.plan_stair: laje de 12 x 1,82 por degrau, banzos em bloco).
+    # Agora e a escada de pedra do kit (K.stair_stone, a mesma das outras 6 escadas da ilha) no MESMO envelope do
+    # ds_col (largura, degraus, espelho 0,75, pisada), como o ds_village.plan_stair_kit; as faces laterais do entalhe
+    # sao o ishigaki das bochechas (ds_terrain.notch_cheeks)
+    foot, deg, w, ns, tread, g = L.stair_frame("Trilha")
+    K.stair_stone(mb, Frame(foot[0], foot[1], foot[2], math.radians(deg) - math.pi / 2), w, ns, L.stair_rise("Trilha"),
+                  tread, True)
     mb.finish()
     mt = MB("DS_Ent_Toro", C, random.Random(4202), detail="near")
     toro(mt, -12.0, 16.0, T0, 0.98, 0.0, "L_DSProp_Toro_In_L")
@@ -651,6 +661,10 @@ def vegetation():
         fern(mv, p.x, p.y, z, s, rng)
     for x, y, s in ((-23.2, 7.0, 1.0), (24.6, 6.0, 0.9), (-19.0, 36.0, 0.9), (-4.0, 40.8, 0.75), (26.0, 30.0, 1.0)):
         fern(mv, x, y, T0 + 0.1, s, rng)
+    # 6b (item 02): samambaias no talude plantado da vala ao lado da escada Trilha (leito do ds_terrain.vala_bed)
+    import ds_terrain as TR
+    for x, y, s in ((-1.4, 47.4, 1.0), (3.2, 49.4, 1.1), (6.8, 45.0, 0.85), (-3.6, 44.4, 0.8)):
+        fern(mv, x, y, TR.vala_z(x, y) - 0.05, s, rng)
     mv.finish()
 
 

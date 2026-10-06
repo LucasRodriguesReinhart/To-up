@@ -39,7 +39,8 @@ IRON, LIT, PAPER, LGLOW, CLOTH = K.IRON, K.LIT, K.PAPER, K.LGLOW, K.CLOTH
 TATAMI = "Bamboo_DS_Dry"          # palha do tatami (sem material novo)
 EMBER = "Ember_DS_Glow"
 WARM = K.WARM
-SLAB_TOP = 0.3                    # lajes acima do piso: >= 0,12 acima da grama do ds_terrain (0,18) onde encostam
+SLAB_TOP = 0.34                   # lajes acima do piso: >= 0,12 acima da grama do ds_terrain (0,18) onde encostam
+                                  # (6b, item 32: era 0,3 = 0,12 cravado da grama no largo da VilaClareira)
 DIRT_TOP = 0.04                   # terra batida da rua (cobre o leito; mesmo material da pele: sem z-fight de cor)
 DIRT_HW = 4.4                     # meia-largura da terra batida: o leito do ds_terrain e 3,7 do eixo MAS a pele dele
                                   # sai de marching squares em grade de 2,0 (a borda real varia ate ~1,2): 5,0 cobre
@@ -229,18 +230,12 @@ def ceiling(mb, Fb, W, D, z, lod=0):
 
 
 def chochin(mb, F, x, y, z, r=0.9, hgt=1.9, light_name=None, energy=60.0):
-    """lanterna de papel pendurada: aros escuros em cima/embaixo, gomos do papel (8 lados) e cordao; luz DENTRO"""
-    prof = [(r * 0.62, 0.0), (r * 0.9, hgt * 0.2), (r, hgt * 0.5), (r * 0.9, hgt * 0.8), (r * 0.62, hgt)]
-    lathe(mb, F, (x, y, z), prof, 8, LGLOW)
-    for zz, rr in ((0.0, r * 0.66), (hgt, r * 0.66)):
-        lathe(mb, F, (x, y, z + zz - 0.14), [(rr + 0.06, 0.0), (rr + 0.06, 0.28)], 8, WD)
-    for k in range(4):                                   # costelas (bambu) por fora do papel
-        a = math.pi / 4 + k * math.pi / 2
-        pts = [(x + (pr + 0.04) * math.cos(a), y + (pr + 0.04) * math.sin(a), z + pz) for pr, pz in prof]
-        K.sweep(mb, F, pts, [(-0.05, -0.05), (0.05, -0.05), (0.05, 0.05), (-0.05, 0.05)], WD)
-    mb.rod(F.p(x, y, z + hgt + 0.14), F.p(x, y, z + hgt + 1.2), 0.05, IRON, 6)
+    """lanterna de papel pendurada - 6b (item 31): o chochin do kit (8 lados, papel em 3 faixas: SO a do meio acesa,
+    aros 0,12 fora do papel, tampas de laca) + cordao de ferro ate o forro; luz DENTRO"""
+    c = K.chochin(mb, F, (x, y, z), r, hgt, WD)
+    mb.rod(F.p(x, y, z + hgt + 0.1), F.p(x, y, z + hgt + 1.2), 0.05, IRON, 6)
     if light_name:
-        light(light_name, "POINT", F.p(x, y, z + hgt * 0.5), energy, WARM, 0.3)
+        light(light_name, "POINT", F.p(*c), energy, WARM, 0.3)
 
 
 def andon(mb, F, x, y, z, light_name=None, energy=70.0):
@@ -279,8 +274,8 @@ def shelf_unit(mb, F, x0, x1, y0, y1, z0, levels, m=WD, board=WM):
     for x in (x0, x1 - 0.3):
         for y in (y0, y1 - 0.3):
             bb(mb, F, x, x + 0.3, y, y + 0.3, z0, z0 + levels[-1] + 0.3, m, 0.04)
-    for zz in levels:
-        bb(mb, F, x0 - 0.1, x1 + 0.1, y0, y1, z0 + zz, z0 + zz + 0.22, board, 0.03)
+    for zz in levels:                                    # 6b: tabua 0,14 atras da frente dos montantes (era rente)
+        bb(mb, F, x0 - 0.1, x1 + 0.1, y0, y1 - 0.14, z0 + zz, z0 + zz + 0.22, board, 0.03)
 
 
 def tansu(mb, F, x, y, z, w=4.0, d=1.6, steps=(3.2, 2.2, 1.2), along=1):
@@ -293,8 +288,8 @@ def tansu(mb, F, x, y, z, w=4.0, d=1.6, steps=(3.2, 2.2, 1.2), along=1):
         rows = max(1, int(round(hgt / 1.05)))
         for r in range(rows):
             za, zb_ = z + 0.12 + r * (hgt - 0.2) / rows, z + 0.12 + (r + 1) * (hgt - 0.2) / rows - 0.12
-            bb(mb, F, xa + 0.2, xa + seg - 0.2, y + d, y + d + 0.08, za, zb_, WM, 0.02)
-            bb(mb, F, xa + seg / 2 - 0.3, xa + seg / 2 + 0.3, y + d + 0.06, y + d + 0.16, (za + zb_) / 2 - 0.07,
+            bb(mb, F, xa + 0.2, xa + seg - 0.2, y + d, y + d + 0.13, za, zb_, WM, 0.02)       # 6b: frente 0,13 / puxador 0,14
+            bb(mb, F, xa + seg / 2 - 0.3, xa + seg / 2 + 0.3, y + d + 0.12, y + d + 0.27, (za + zb_) / 2 - 0.07,
                (za + zb_) / 2 + 0.07, IRON)
 
 
@@ -309,14 +304,21 @@ def interior_V1(mb, F, sp, Fb):
     bb(mb, Fb, x0, x1, yb, yb + 1.9, 0.66, 3.3, WD, 0.06)
     bb(mb, Fb, x0 - 0.1, x1 + 0.05, yb - 0.02, yb + 2.1, 3.3, 3.55, WM, 0.04)
     for x in K.even(x0 + 0.4, x1 - 0.4, 1.1)[1:-1]:
-        bb(mb, Fb, x - 0.07, x + 0.07, yb + 1.9, yb + 1.98, 0.9, 3.1, WM)
+        bb(mb, Fb, x - 0.07, x + 0.07, yb + 1.9, yb + 2.04, 0.9, 3.1, WM)           # 6b: ripas 0,14 a frente (era 0,08)
     # fogareiro de barro sobre o balcao + chaleira; estante de xicaras acima
     kx = x1 - 1.4
     lathe(mb, Fb, (kx, yb + 0.95, 3.55), [(0.82, 0.0), (0.9, 0.5), (0.82, 1.1), (0.55, 1.2)], 8, STD)
-    bb(mb, Fb, kx - 0.3, kx + 0.3, yb + 1.86, yb + 1.98, 3.78, 4.22, EMBER)          # boca do fogareiro (brasa)
+    # 6b (item 31): boca do fogareiro = fundo escuro + grelha de ferro + 6 brasas soltas (era uma placa Neon)
+    bb(mb, Fb, kx - 0.3, kx + 0.3, yb + 1.8, yb + 1.88, 3.78, 4.22, RR)                   # fundo da boca (fuligem)
     for x0_, x1_, z0_, z1_ in ((kx - 0.44, kx - 0.3, 3.66, 4.36), (kx + 0.3, kx + 0.44, 3.66, 4.36),
                                (kx - 0.44, kx + 0.44, 3.66, 3.78), (kx - 0.44, kx + 0.44, 4.22, 4.36)):
         bb(mb, Fb, x0_, x1_, yb + 1.84, yb + 2.04, z0_, z1_, IRON)                  # aro de ferro da boca
+    for xg in (-0.2, 0.0, 0.2):                                                     # grelha
+        bb(mb, Fb, kx + xg - 0.03, kx + xg + 0.03, yb + 1.86, yb + 2.0, 3.78, 3.86, IRON)
+    bb(mb, Fb, kx - 0.3, kx + 0.3, yb + 1.86, yb + 2.0, 3.84, 3.88, IRON)
+    for k, (dx, dz, s_) in enumerate(((-0.18, 0.0, 0.13), (-0.04, 0.02, 0.15), (0.12, 0.0, 0.12), (0.22, 0.03, 0.1),
+                                      (-0.1, 0.12, 0.11), (0.06, 0.13, 0.12))):
+        bx(mb, Fb, kx + dx, yb + 1.95, 3.88 + s_ * 0.4 + dz, s_ * 1.3, s_, s_ * 0.8, EMBER, 0.0, rz=0.5 * k)
     kettle(mb, Fb, kx, yb + 0.95, 4.75, 0.9)
     shelf_unit(mb, Fb, x0 + 0.2, x1 - 0.4, yb, yb + 1.0, 4.9, (0.0, 1.6))
     for i, x in enumerate(K.even(x0 + 0.6, kx - 1.5, 0.85)):
@@ -333,8 +335,11 @@ def interior_V1(mb, F, sp, Fb):
     pot(mb, Fb, -W / 2 + 2.3, 0.0, 2.64, 0.3, 0.5, STD, 8)
     for dy in (-0.25, 0.25):
         pot(mb, Fb, -W / 2 + 1.95, 0.0 + dy, 2.64, 0.12, 0.22, PL, 6)
-    # chochin no meio do vao (a luz da casa)
-    chochin(mb, Fb, 0.0, 0.2, h - 4.6, 0.9, 1.9, "L_DSVil_V1_Chochin", 90.0)
+    # 6b (item 31): 2 chochin de 1,2 nas laterais, base a piso + 6,9 (era 1 de 1,8 a 6,4 no meio do vao: a camera de
+    # 3a pessoa e a cabeca do avatar batiam nele); a luz da casa fica no meio, na mesma altura
+    for sx in (-1, 1):
+        chochin(mb, Fb, sx * (W / 2 - 2.6), 0.2, 0.66 + 6.9, 0.6, 1.3)
+    light("L_DSVil_V1_Chochin", "POINT", Fb.p(0.0, 0.2, 0.66 + 7.5), 90.0, WARM, 0.3)
 
 
 def interior_V1_col(area, Fb, sp):
@@ -388,29 +393,31 @@ def interior_V6(mb, F, sp, Fb):
     # vao do meio ABERTO (x -3,2..3,2) e 2 paineis empurrados para os lados
     yd = 0.5
     zk = 9.4
-    bb(mb, Fb, -xi, xi, yd - 0.3, yd + 0.3, fl, fl + 0.22, WD)
-    bb(mb, Fb, -xi, xi, yd - 0.3, yd + 0.3, zk, zk + 0.6, WD, 0.05)
-    bb(mb, Fb, -xi, xi, yd - 0.08, yd + 0.08, zk + 0.6, h - 1.2, PAPER)
+    # 6b (item 30): trilhos a +-0,2 (quadros de +-0,16 sem se tocar), papel e almofada 0,13 ATRAS da face do quadro
+    # (era 0,03: 144 faces cintilando no interior visitavel), puxador 0,14 a frente do papel, ranma com papel 0,14 atras
+    bb(mb, Fb, -xi, xi, yd - 0.42, yd + 0.42, fl, fl + 0.22, WD)
+    bb(mb, Fb, -xi, xi, yd - 0.42, yd + 0.42, zk, zk + 0.6, WD, 0.05)
+    bb(mb, Fb, -xi, xi, yd - 0.04, yd + 0.04, zk + 0.6, h - 1.2, PAPER)
     for x in K.even(-xi, xi, 1.2)[1:-1]:
         bb(mb, Fb, x - 0.07, x + 0.07, yd - 0.18, yd + 0.18, zk + 0.6, h - 1.2, WD)
-    bb(mb, Fb, -xi, xi, yd - 0.3, yd + 0.3, h - 1.45, h - 1.15, WD)
+    bb(mb, Fb, -xi, xi, yd - 0.42, yd + 0.42, h - 1.45, h - 1.15, WD)
     pe = edges(-xi, xi, 3.6)                           # 8 paineis em 2 trilhos alternados (sem interpenetrar)
     panels = list(zip(pe, pe[1:]))
     mid = len(panels) // 2
     for k, (a, b) in enumerate(panels):
-        yy = yd + (0.15 if k % 2 else -0.15)
+        yy = yd + (0.2 if k % 2 else -0.2)
         if k == mid - 1:                                  # os 2 do meio correm para os lados: vao de ~6,8
             a, b = a - 3.4, b - 3.4
         elif k == mid:
             a, b = a + 3.4, b + 3.4
         zp = fl + 2.1                                     # koshi-fusuma: almofada de tabua embaixo, papel em cima
-        bb(mb, Fb, a + 0.04, b - 0.04, yy - 0.09, yy + 0.09, fl + 0.22, zp, WM)
-        bb(mb, Fb, a + 0.04, b - 0.04, yy - 0.09, yy + 0.09, zp, zk, PAPER)
+        bb(mb, Fb, a + 0.34, b - 0.34, yy - 0.03, yy + 0.03, fl + 0.52, zp - 0.12, WM)       # entre as travessas
+        bb(mb, Fb, a + 0.34, b - 0.34, yy - 0.03, yy + 0.03, zp + 0.08, zk - 0.3, PAPER)
         for x in (a + 0.04, b - 0.34):
-            bb(mb, Fb, x, x + 0.3, yy - 0.12, yy + 0.12, fl + 0.22, zk, WD)
+            bb(mb, Fb, x, x + 0.3, yy - 0.16, yy + 0.16, fl + 0.22, zk, WD)
         for zz in (fl + 0.22, zp - 0.12, zp + (zk - zp) * 0.62, zk - 0.3):
-            bb(mb, Fb, a + 0.04, b - 0.04, yy - 0.12, yy + 0.12, zz, zz + (0.3 if zz in (fl + 0.22, zk - 0.3) else 0.2), WD)
-        bb(mb, Fb, b - 0.8, b - 0.5, yy - 0.13, yy + 0.13, fl + 4.2, fl + 4.6, IRON)      # puxador (hikite)
+            bb(mb, Fb, a + 0.34, b - 0.34, yy - 0.16, yy + 0.16, zz, zz + (0.3 if zz in (fl + 0.22, zk - 0.3) else 0.2), WD)
+        bb(mb, Fb, b - 0.8, b - 0.5, yy - 0.17, yy + 0.17, fl + 4.2, fl + 4.6, IRON)      # puxador (hikite)
     # ZASHIKI: estrado de tatami elevado 0,36 (piso sobre piso >= 0,3), rodeado de kamachi escuro
     zt = fl + 0.36
     y0, y1 = -yi, yd - 0.3
@@ -428,7 +435,7 @@ def interior_V6(mb, F, sp, Fb):
     # pergaminho (kakejiku) e vaso
     tx0, tx1 = -3.4, 3.4
     yb = -yi
-    bb(mb, Fb, tx0, tx1, yb, yb + 3.0, zt - 0.3, zt + 0.5, WM, 0.05)
+    bb(mb, Fb, tx0, tx1, yb, yb + 2.72, zt - 0.3, zt + 0.5, WM, 0.05)                 # 6b: atras do labio (era 0,05)
     bb(mb, Fb, tx0, tx1, yb + 2.7, yb + 3.05, zt - 0.3, zt + 0.52, WD, 0.04)
     for x in (tx0 - 0.3, tx1):
         bb(mb, Fb, x, x + 0.3 + 0.0, yb, yb + 3.05, zt, h - 1.2, WD, 0.05)
@@ -479,8 +486,8 @@ def interior_V6_col(area, Fb, sp):
     for x in (-xi + 0.3, xi - 0.3):
         cbox(area, Fb, x - 0.45, x + 0.45, 4.55, 5.45, fl, h - 2.2)                       # esteios da viga
     # divisoria: so as pontas de paineis (vao do meio de 6,4 livre)
-    cbox(area, Fb, -xi, -3.5, 0.2, 0.8, fl, h - 1.0)
-    cbox(area, Fb, 3.5, xi, 0.2, 0.8, fl, h - 1.0)
+    cbox(area, Fb, -xi, -3.5, 0.1, 0.9, fl, h - 1.0)                                    # (6b: trilhos +-0,4)
+    cbox(area, Fb, 3.5, xi, 0.1, 0.9, fl, h - 1.0)
     cbox(area, Fb, -xi, xi, -yi, 0.2, fl, fl + 0.36)                                     # estrado de tatami
     cbox(area, Fb, -3.7, 3.7 + 4.6, -yi, -yi + 3.05, fl + 0.36, fl + 0.36 + 0.5)         # tokonoma + chigaidana
     cbox(area, Fb, xi - 1.8, xi, 5.75, 9.05, fl, fl + 3.6)                               # tansu
@@ -847,10 +854,13 @@ def branch_paths(mb, names):
         pts = L.VILLAGE_STREET + [(-84.0, 216.0)] if z == T1 else L.VILLAGE_STREET_HIGH
         k = 0
         u = start
+        inner = ccw(DL.offset_poly(L.VILLAGE_HIGH, -2.2)) if z == T2 else None
         while k < 14:
             x, y = p0.x + dx * u, p0.y + dy * u
             if L.polyline_dist(x, y, pts) < 3.6:
                 break
+            if inner and not L.point_in_poly(x, y, inner):      # 6b (item 32): o ramal do V4 corria para o sul ate
+                break                                           # sair do terraco (lajes sobre o ishigaki em y 226)
             off = (0.55 if k % 2 else -0.55) * (0.6 + 0.5 * hh(nm, "o", k))
             cx, cy = x - dy * off, y + dx * off
             w_ = 2.0 + 0.6 * hh(nm, "w", k)
@@ -961,7 +971,7 @@ def yard_fences(mb, st):
 def edge_fence(mb):
     """cerca baixa na borda do T2 sobre a clareira, 0,7 para dentro da borda (a guarda invisivel do ds_col fica logo
     atras e e ela que segura o jogador: a cerca so a torna legivel); aberta no topo da VilaClareira"""
-    P = ccw(DL.offset_poly(L.VILLAGE_HIGH, -0.7))
+    P = ccw(DL.offset_poly(L.VILLAGE_HIGH, -1.25))          # 6b (item 32): era -0,7 (mourao rente a capa do ishigaki)
     pts = []
     for (x0, y0), (x1, y1) in zip(P, P[1:] + P[:1]):
         n = max(1, int(math.hypot(x1 - x0, y1 - y0) / 1.0))
@@ -1051,17 +1061,18 @@ def hokora(mb):
     for s in (-1, 1):
         bb(mb, F, s * 1.25 - 0.18, s * 1.25 + 0.18, 0.82, 1.18, 1.75, 4.3, WD, 0.03)
     for s in (-1, 1):                                   # portinhas de trelica com papel atras
-        bb(mb, F, s * 0.55 - 0.48, s * 0.55 + 0.48, 0.98, 1.02, 2.0, 3.8, PAPER)
+        # 6b: papel 0,1 a frente do corpo e 0,14 atras da trelica (era coplanar com o corpo e a 0,06 da trelica)
+        bb(mb, F, s * 0.55 - 0.48, s * 0.55 + 0.48, 1.1, 1.24, 2.0, 3.8, PAPER)
         for xx in K.even(s * 0.55 - 0.48, s * 0.55 + 0.48, 0.24):
-            bb(mb, F, xx - 0.03, xx + 0.03, 1.02, 1.08, 2.0, 3.8, WD)
+            bb(mb, F, xx - 0.03, xx + 0.03, 1.24, 1.38, 2.0, 3.8, WD)
         for zz in (2.0, 2.9, 3.8):
-            bb(mb, F, s * 0.55 - 0.5, s * 0.55 + 0.5, 1.02, 1.1, zz - 0.04, zz + 0.04, WD)
+            bb(mb, F, s * 0.55 - 0.5, s * 0.55 + 0.5, 1.24, 1.4, zz - 0.04, zz + 0.04, WD)
     K.roof_gable(mb, sub(F, 0.0, 0.25, 0.0, 0.0), 3.4, 3.2, 4.25, 0.7, 0.9, 0.5, 0.25, 0.22, 1, WD, "none", False, RT,
                  0.4, 0.9, 0.38)
     mb.rod(F.p(-1.4, 1.35, 3.95), F.p(1.4, 1.35, 3.95), 0.12, BAMBOO_ROPE, 8)          # shimenawa
     for xx in (-0.7, 0.7):
         ext(mb, F, [(xx - 0.15, 3.85), (xx + 0.12, 3.85), (xx + 0.0, 3.35), (xx + 0.2, 3.3), (xx - 0.05, 2.9),
-                    (xx - 0.2, 2.95)], "y", 1.4, 1.44, PAPER)
+                    (xx - 0.2, 2.95)], "y", 1.52, 1.56, PAPER)
     bb(mb, F, -0.9, 0.9, 1.8, 2.6, 0.7, 1.4, WD, 0.04)                                  # caixa de oferendas
     for xx in K.even(-0.8, 0.8, 0.22)[1:-1]:
         bb(mb, F, xx - 0.05, xx + 0.05, 1.85, 2.55, 1.38, 1.54, WM)

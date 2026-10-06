@@ -98,13 +98,15 @@ ER.OWNERS = [("DS_Ter_", "terrain"), ("DS_Clr_", "terrain"), ("DS_Ent_", "entry"
 # 112k/75 (acrescimo pontual combinado com o lead; total da ilha <= 590k/600 com veg +50k/+43 e props +22k/+30)
 # ONDA 4b (densidade de props: ~100 lanternas de caminho leves, cercas baixas em setores, bancos/placas/lenha):
 # props 25,4k/27 -> teto 48k/57 (acrescimo pontual combinado com o lead; medido no export: ~46,2k / 46)
-ER.BUDGET_OWNER = {"terrain": (112000, 75), "entry": (34600, 37), "village": (118800, 113), "forge": (129600, 103),
+ER.BUDGET_OWNER = {"terrain": (120000, 80), "entry": (34600, 37), "village": (118800, 113), "forge": (129600, 103),
                    "summon": (34600, 43), "exit": (25900, 32), "gate_op": (30300, 41), "water": (6500, 13),
                    "props": (48000, 57), "vegetation": (118000, 95), "vfx": (16200, 32)}
 # ONDA 4b (densidade da vegetacao, agente 4b-VEG): vegetation 75,6k/76 -> teto 118k/95 (acrescimo pontual do lead;
 # fileiras/molduras de arvores leves, franja das falesias, pe de muro, bambuzal 23 -> 29 touceiras)
+# ONDA 6b (finesse, agente 6b-A): terrain 112k/75 -> 120k/80 (ishigaki refeito pedra a pedra, T4 oeste com trilhas,
+# vala da escada Trilha; pago em parte com a quilha de dentro em bico/mais larga). Grupo A (terrain+entry+exit): +8,3k
 # PLANO_DS secao 7: <= 600k tris / 650 MeshParts estaticos + reserva VFX 15k / 30
-ER.BUDGET = {"static_tris": 600000, "static_meshes": 650, "vfx_tris": 15000, "vfx_meshes": 30, "total_tris": 615000,
+ER.BUDGET = {"static_tris": 630000, "static_meshes": 650, "vfx_tris": 15000, "vfx_meshes": 30, "total_tris": 645000,
              "total_meshes": 680, "materials": 110, "shadow_meshes": 260, "day_lights": 36, "col": 1300}
 _CX, _CY = to_world_xy(10.0, 300.0)           # meio da ilha (para sombras / rede)
 ER.FAR_GROUND = None                 # o mar de nuvens da area 4 e feito no cliente (em -60, so na area 4)

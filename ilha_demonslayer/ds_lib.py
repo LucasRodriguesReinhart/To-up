@@ -59,9 +59,9 @@ DSMATS = {
     "Cliff_DS_Moss":      (S(60, 86, 52), 0.9, 0.0, 0, None, 0.08),      # quina com musgo (topo dos estratos) (ONDA 4b: era 70,92,66)
     "Metal_DS_Iron":      (S(64, 62, 60), 0.5, 0.5, 0, None, 0.04),      # ferro envelhecido
     "Metal_DS_Rust":      (S(112, 66, 42), 0.85, 0.2, 0, None, 0.06),    # acento de ferrugem
-    "Glass_DS_Lantern":   (S(232, 146, 66), 0.4, 0.0, 1.2, S(255, 170, 90), 0.0),     # papel/vidro de lanterna aceso (Play 06/10: o (255,192,118) estourava branco no bloom)
+    "Glass_DS_Lantern":   (S(214, 144, 88), 0.4, 0.0, 1.2, S(236, 164, 104), 0.0),   # papel aceso (Play 06/10: (255,192,118) estourava branco; 6b item 55: 232,146,66 saturado demais - ~110 pontos competiam com a boca; menos saturado sem subir a luminancia)
     "Window_DS_Warm":     (S(255, 204, 140), 0.5, 0.0, 0.7, S(255, 180, 110), 0.0),   # shoji aceso, recuado
-    "Bamboo_DS":          (S(106, 136, 66), 0.7, 0.0, 0, None, 0.08),     # ONDA 4: era 118,150,72 (verde-limao, o verde
+    "Bamboo_DS":          (S(90, 116, 56), 0.7, 0.0, 0, None, 0.08),      # 6b (item 47): -15% (era 106,136,66); ONDA 4: era 118,150,72 (verde-limao, o verde
                                                                          # mais claro da ilha); segue o mais claro da vegetacao
     "Bamboo_DS_Dry":      (S(170, 160, 104), 0.7, 0.0, 0, None, 0.06),
     "Leaf_DS_Broad":      (S(46, 84, 48), 0.85, 0.0, 0, None, 0.06),
@@ -94,6 +94,8 @@ DSMATS = {
                                                                          # mesma familia do reboco da vila, ainda mais quente)
     "Cloth_DS_Linen":     (S(214, 206, 184), 0.9, 0.0, 0, None, 0.04),   # ds_props (3b): algodao cru (varal, tenugui, fitas)
     "Cloth_DS_Ai":        (S(52, 70, 108), 0.9, 0.0, 0, None, 0.04),     # ds_props (3b): azul aizome (yukata, guarda-sol)
+    "Stone_DS_Ishi":      (S(100, 98, 92), 0.85, 0.0, 0, None, 0.08),    # ds_terrain (6b item 08): pedra do ishigaki (abaixo do Stone_DS)
+    "Stone_DS_IshiD":     (S(86, 84, 80), 0.85, 0.0, 0, None, 0.06),     # ds_terrain (6b item 03/08): 1 pedra em 5 do ishigaki
     # so previa (00_REFERENCE): mar de nuvens, lua, vizinhos
     "Cloud_DS":           (S(60, 70, 104), 0.95, 0.0, 0.04, S(70, 82, 120), 0.0),
     "Cloud_DS_Shade":     (S(40, 48, 78), 0.95, 0.0, 0.02, S(48, 56, 90), 0.0),

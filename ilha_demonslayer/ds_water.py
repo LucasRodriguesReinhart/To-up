@@ -346,7 +346,8 @@ def extend_back(P, d):
 # ------------------------------------------------------------------ 1. calha do terraco da forja + labio da cascata
 def tailrace(mb):
     P = extend_back(TAIL, TAIL_HEAD)
-    nb = channel_walls(mb, P, BED_T4 - 0.1, COPE_T4, "tr", start_k=2, cut_x=TAIL_CUT_X,
+    # ONDA 6b (item 43): os blocos descem 0,25 (BED - 0,35): ficavam 0,2 acima do leito real do furo
+    nb = channel_walls(mb, P, BED_T4 - 0.35, COPE_T4, "tr", start_k=2, cut_x=TAIL_CUT_X,
                        outer_fn=_outer_fn(BED_T4, keep=lambda x, y: y < FACE_Y + 4.0 or x < TAIL_CUT_X + 3.0))
     # LABIO: 2 afloramentos da rocha do muro (topo com musgo, a face rente a face do muro e enterrados nele) sobem dos 2
     # lados da calha na borda: a agua so tem a fresta entre eles - por isso cai ali; a soleira de pedra escura molhada
@@ -359,13 +360,18 @@ def tailrace(mb):
     stone(mb, fx + 6.4, FACE_Y + 1.9, T4 + 0.9, T4 - 0.6, 1.1, 0.9, 0.6, "lipE2", m=CLIFF, n=5)
     # soleira: laje que assenta no leito da calha, passa sobre a pele do patio (80,2) e fica em balanco alem da face
     y0, y1 = TAIL[-1][1] - 0.1, LIP_EDGE[1]
-    q = [(fx - 1.75, y0), (fx + 1.75, y0), (fx + 1.25, y1), (fx - 1.25, y1)]
+    # ONDA 6b (item 42): a soleira ABRE para a borda (3,5 -> 3,8; era 3,5 -> 2,5) e a cortina sai larga
+    q = [(fx - 1.75, y0), (fx + 1.75, y0), (fx + 1.9, y1), (fx - 1.9, y1)]
     block(mb, ccw(q), LIP_TOP - 0.62, LIP_TOP, "lipslab", m=SDARK, ch=0.1)
+    # labio: 2 pedras salientes 0,4 alem da borda, nas pontas da soleira (a agua se abre entre elas)
+    for s in (-1, 1):
+        stone(mb, fx + s * 2.15, y1 + 0.05, LIP_TOP + 0.38, LIP_TOP - 0.9, 0.62, 0.5, 0.3 * s, ("lipnose", s), m=SDARK,
+              n=5, bottom=True, foot=0.95)
     # bochechas da bica (pedras baixas dos 2 lados da soleira, entre ela e as pedras-guarda)
     for s in (-1, 1):
         yb = TAIL[-1][1] - JOINT
-        q = [(fx + s * 1.8, yb), (fx + s * 2.55, yb), (fx + s * 2.2, FACE_Y - 0.55),
-             (fx + s * 1.4, FACE_Y - 0.55)]
+        q = [(fx + s * 1.8, yb), (fx + s * 2.55, yb), (fx + s * 2.75, FACE_Y - 0.55),
+             (fx + s * 1.95, FACE_Y - 0.55)]
         block(mb, ccw(q), LIP_TOP - 0.9, LIP_TOP + 0.62, ("lipcheek", s), m=SDARK, ch=0.12)
     return nb
 
@@ -486,7 +492,7 @@ def pond(mb):
 def channel(mb):
     # sob a pontezinha (y 293..307) a face externa fica no projeto (2,65): as vigas do arco passam >= 0,2 acima da capa
     # e o tabuleiro cobre a fresta do furo; na boca (lagoa) e na entrada da ravina o barranco/as pedras cobrem
-    nb = channel_walls(mb, CHAN, BED_T1 - 0.1, COPE, "ch",
+    nb = channel_walls(mb, CHAN, BED_T1 - 0.35, COPE, "ch",          # ONDA 6b (item 43): era BED - 0,1
                        outer_fn=_outer_fn(BED_T1, keep=lambda x, y: y > MOUTH_Y - 4.5,
                                           cap=lambda x, y: CH_OUT if 293.0 < y < 307.0 else (3.2 if y < 240.0 else None)))
     # cabeca do canal na lagoa: 2 pedras-cunha maiores onde o barranco encosta (a boca le como obra, nao como corte)
@@ -612,7 +618,7 @@ def _cascade_curtain():
     x = FALL_X
     return ([(x, LIP_EDGE[1], LIP_TOP + 0.14), (x, LIP_EDGE[1] - 0.25, 77.5), (x, 426.15, STEP[2] + 0.1),
              (x, STEP_FRONT - 0.05, STEP[2] - 0.2), (x, STEP_FRONT - 0.45, 66.0), (x, BASE[1], LEVEL)],
-            [2.6, 2.9, 3.3, 3.8, 4.3, 5.0])
+            [3.0, 3.6, 4.2, 4.6, 5.0, 5.6])     # ONDA 6b (item 42): era 2,6 .. 5,0
 
 
 def _spill_curtain():
@@ -663,16 +669,16 @@ def water_markers():
                                                          (FALL_X, LIP_EDGE[1], LIP_TOP + 0.14)]
     out = {
         "FX_Fall_1_Lip": ((FALL_X, LIP_EDGE[1], LIP_TOP), south, {
-            "fx": "nevoa_borda", "kind": "bica", "width": 2.6, "drop": round(LIP_TOP - LEVEL, 2),
+            "fx": "nevoa_borda", "kind": "bica", "width": 3.0, "drop": round(LIP_TOP - LEVEL, 2),
             "water_level_up": LEVEL_T4, "face_y_local": FACE_Y, "waypoints": _wp(cw),
             "widths": ",".join("%.1f" % w for w in cws),
             "note": "ponta da soleira de pedra escura (no nivel da PEDRA; a lamina de 0,28 corre por cima) entre as 2 "
                     "pedras-guarda do muro da forja; cortina medida: bica -> degrau de rocha (70,35) -> lagoa (60,32)"}),
         "FX_Fall_1_Step": ((FALL_X, STEP_FRONT, STEP[2]), south, {
-            "fx": "espuma_degrau", "width": 3.8, "jump": 1.3,
+            "fx": "espuma_degrau", "width": 4.6, "jump": 1.3,
             "note": "degrau de rocha no meio da queda: a cortina bate no topo e passa por cima da borda da frente"}),
         "FX_Fall_1_Base": ((BASE[0], BASE[1], LEVEL), south, {
-            "fx": "nevoa_base", "width": 5.5, "level": LEVEL,
+            "fx": "nevoa_base", "width": 6.5, "level": LEVEL,
             "note": "pe da cascata na lagoa, entre as pedras grandes N1/N2"}),
         "FX_Fall_2_Lip": ((SPILL_LIP[0], SPILL_LIP[1], SPILL_TOP), east, {
             "fx": "nevoa_borda", "kind": "bica", "width": 1.4, "drop": round(SPILL_TOP - SPILL_BASE_Z, 2),

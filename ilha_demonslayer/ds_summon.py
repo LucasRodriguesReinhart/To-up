@@ -96,7 +96,8 @@ TOWER_ALIAS = {
 DAIS = (14.6, -14.4, 9.6, 3.0, 0.7)      # degrau kidan: meia largura, v de tras, v da frente, chanfro, topo
 POD = (12.4, -12.2, 7.2)                 # podio: meia largura, v de tras, v da frente (linha da face do enxaimel)
 DECK = POD_TOP                           # tampo do podio (a torre nasce aqui)
-CORN = 3.42                              # topo do beiral-capa de madeira (0,12 acima do tampo: sem face coplanar)
+CORN = 3.5                               # topo do beiral-capa de madeira (ONDA 6b: 0,2 acima do tampo; com 0,12
+                                         # o tampo de pedra escura e a madeira ficavam no limite do z-fight)
 RECESS = 0.35                            # paineis de pedra recuados atras da face do enxaimel
 IN_LAMP = (9.6, 4.4)                     # toro do podio (u, v): o lugar dos pedestais internos da Ilha 1
 # entorno (mundo)
@@ -274,7 +275,9 @@ def tower_body(T, stone, gold):
     face_skin(stone, (hw - 0.6, v0 - 0.25), (-hw + 0.6, v0 - 0.25), z0, z1, rng, course=2.1, blk=(2.6, 4.2),
               thick=0.8, openings=[back_op])
     for s in (-1, 1):
-        lb(stone, (0.75, 0.9, L1_BWIN[1] - L1_BWIN[0]), s * (L1_BWIN[2] + 0.38), v0 - 0.5,
+        # ONDA 6b: 0,6 de largura (era 0,75) e o centro 0,075 para fora: a face de dentro fica 0,2 atras da
+        # cantoneira de ouro da janela (estava a 0,05: Metal_Gold x Stone_DS_Dark)
+        lb(stone, (0.6, 0.9, L1_BWIN[1] - L1_BWIN[0]), s * (L1_BWIN[2] + 0.455), v0 - 0.5,
            (L1_BWIN[0] + L1_BWIN[1]) / 2, "Summon_Stone", 0.0)
     for su in (-1, 1):
         for vv in (v0, BUT_V):
@@ -289,7 +292,8 @@ def tower_body(T, stone, gold):
             if zz1 <= zz0 + 0.1:
                 continue
             m = "Stone_SumBlock" if k % 2 == 0 else "Summon_Stone"
-            w = 2.3 if k % 2 == 0 else 2.0
+            w = 2.1 if k % 2 == 0 else 1.8      # ONDA 6b: 2,3/2,0 -> 2,1/1,8 (a fiada larga ficava 0,08 atras do
+            #                                     filete de ouro do frontispicio)
             lb(stone, (w, 2.9, zz1 - zz0 - 0.08), s * (PORT_HW + 1.1), 2.55, (zz0 + zz1) / 2, m, 0.14)
         lb2(stone, s * (PORT_HW + 0.35), v1, PORT_SPRING, s * 6.3, 3.3, 18.2, "Summon_Stone_Dark", 0.0)
     lb2(stone, -PORT_HW - 0.4, v1, PORT_SPRING + PORT_HW + 0.2, PORT_HW + 0.4, 3.3, 18.2, "Summon_Stone_Dark", 0.0)
@@ -302,7 +306,7 @@ def tower_body(T, stone, gold):
              "Summon_Stone_Dark")
     # --- cornija 1
     lb2(stone, -hw - 1.0, v0 - 1.0, z1, hw + 1.0, 2.4, z1 + 0.6, "Summon_Stone_Dark", 0.0)
-    lb2(gold, -hw - 1.3, v0 - 1.3, z1 + 0.6, hw + 1.3, 2.6, z1 + 1.3, "Metal_Gold", 0.0)
+    lb2(gold, -hw - 1.45, v0 - 1.3, z1 + 0.6, hw + 1.45, 2.6, z1 + 1.3, "Metal_Gold", 0.0)   # ONDA 6b: 1,3 -> 1,45
     # --- corpo L2
     hw2, w0, w1, y0, y1 = T.L2
     lb2(stone, -hw2, w0, y0, hw2, w1, y1, "Summon_Stone_Dark", 0.0)
@@ -358,9 +362,11 @@ def masts(T, stone, gold, glow, bn):
     for s in (-1, 1):
         u = s * MAST_U
         T._buttress(stone, gold, u, MAST_V, POD_TOP, 31.0, 2.0, rng, spire=3.0, course=2.0, edges=((s, 1), (s, -1)))
-        for zc in (13.0, 22.5):
+        # ONDA 6b: anel de 13,0 -> 13,18 (o topo dele ficava 0,01 do topo da fiada Cliff_DS do mastro) e o bloco
+        # de pedra entre o corpo e o mastro nasce 0,5 dentro do corpo (a ponta dele ficava a 0,1 da pele lateral)
+        for zc in (13.18, 22.5):
             T.lbox(gold, (2.4, 2.4, 0.5), u, MAST_V, zc, "Metal_Gold", 0.0)
-        T.lbox2(stone, s * (hw - 0.1), MAST_V - 0.95, POD_TOP, s * (MAST_U - 0.9), MAST_V + 0.95, 12.0,
+        T.lbox2(stone, s * (hw - 0.5), MAST_V - 0.95, POD_TOP, s * (MAST_U - 0.9), MAST_V + 0.95, 12.0,
                 "Summon_Stone", 0.0)
         T.lbox2(gold, s * (hw - 0.1), MAST_V - 1.15, 12.0, s * (MAST_U - 0.7), MAST_V + 1.15, 12.5, "Metal_Gold", 0.0)
         T.gold_star4(gold, s * ((hw + MAST_U) / 2 - 0.4), MAST_V + 0.95, 8.0, 0.75, "v+")
@@ -521,8 +527,9 @@ def podium(st, wd, mt, cl):
         st.prism(ccw(DL.offset_poly(poly, 0.12)), Z + dz - 0.24, Z + dz, "Stone_DS")
     # --- paineis de pedra (nucleo recuado) e tampo
     r = RECESS
-    pieces = [[(CORR, pvb + r), (pu - r, pvb + r), (pu - r, pvf - r), (CORR, pvf - r)],
-              [(-pu + r, pvb + r), (-CORR, pvb + r), (-CORR, pvf - r), (-pu + r, pvf - r)],
+    cr = CORR + 0.2                       # ONDA 6b: a face do painel do lado do corredor fica 0,2 atras da do pilar
+    pieces = [[(cr, pvb + r), (pu - r, pvb + r), (pu - r, pvf - r), (cr, pvf - r)],
+              [(-pu + r, pvb + r), (-cr, pvb + r), (-cr, pvf - r), (-pu + r, pvf - r)],
               [(-CORR, pvb + r), (CORR, pvb + r), (CORR, PV), (-CORR, PV)]]
     for pc in pieces:
         st.prism(ccw(local_poly(pc)), Z + dz - 0.05, Z + 3.05, "Stone_DS_B")
@@ -574,7 +581,7 @@ def podium(st, wd, mt, cl):
         if on_corner or abs(abs(pu_) - CORR) < 0.01 or abs(nv.y - 1.0) < 0.01:
             # kanamono: bracadeiras de ouro velho no pe e na cabeca do pilar (frente e quinas)
             for zc in (dz + 0.62, 2.5):
-                lbox(mt, (0.72, 0.72, 0.16), c.x, c.y, zc, GOLD, 0.0, rz)
+                lbox(mt, (0.86, 0.86, 0.16), c.x, c.y, zc, GOLD, 0.0, rz)     # ONDA 6b: 0,72 -> 0,86 (0,13 fora)
     # --- maku violeta na frente (2 festoes por vao, presos sob o beiral-capa, 0,1 a frente dos pilares)
     for s in (-1, 1):
         us = _bays(s * CORR, s * pu, 3.7)
@@ -671,7 +678,20 @@ def plan_stair(st):
         st.box((tread + 0.02, w - 0.06, hc + 0.5), Fs.p(tread * i + tread / 2 + 0.01, 0, (hc - 0.5) / 2), Fs.r(),
                "Stone_DS", 0.0)
         x0, x1 = tread * i - NOSE, tread * (i + 1) + 0.01
-        st.box((x1 - x0, w + 0.04, TH), Fs.p((x0 + x1) / 2, 0, ztop - TH / 2), Fs.r(), "Stone_DS_Path", 0.04)
+        # ONDA 6b (item 22): a pisada deixa de ser uma laje inteirica de 12: 3-4 pedras de 2,4-4,2 com a junta
+        # DESENCONTRADA de degrau a degrau (o lance nao le mais como rampa listrada)
+        ys = [-(w + 0.04) / 2]
+        k = 0
+        while ys[-1] < (w + 0.04) / 2 - 0.1:
+            hv = ((i * 7 + k * 13 + 5) * 2654435761 % 1000) / 1000.0
+            nxt = ys[-1] + (2.4 + 1.8 * hv) * (0.62 if (k == 0 and i % 2) else 1.0)
+            if (w + 0.04) / 2 - nxt < 2.0:
+                nxt = (w + 0.04) / 2
+            ys.append(nxt)
+            k += 1
+        for ya, yb_ in zip(ys, ys[1:]):
+            st.box((x1 - x0, yb_ - ya - 0.06, TH), Fs.p((x0 + x1) / 2, (ya + yb_) / 2, ztop - TH / 2), Fs.r(),
+                   "Stone_DS_Path", 0.04)
     zt = rise * n
     xe = tread * n + 0.4
     x_flat = tread * ((zt + 0.9 - 0.9) / rise - 1)
@@ -742,10 +762,12 @@ def footbridge(wd, st, mt):
         for x0, x1 in zip(pxs, pxs[1:]):
             wd.beam((x0, y, zd(x0) + H - TOP / 2), (x1, y, zd(x1) + H - TOP / 2), 0.46, TOP, "Wood_DS_Dark", 0.0)
             wd.beam((x0, y, zd(x0) + 1.15), (x1, y, zd(x1) + 1.15), 0.22, 0.22, "Wood_DS_Mid", 0.0)
-    # encontros de pedra nas cabeceiras (a tabua da ponta assenta neles)
-    for xe, sg in ((xa, -1), (xb, 1)):
-        st.box((1.7, w + 0.6, 0.52), (xe + sg * 0.45, yb, T1 - 0.24), (0, 0, 0), "Stone_DS_Dark", 0.0)
-        st.box((1.9, w + 0.8, 0.14), (xe + sg * 0.45, yb, T1 + 0.09), (0, 0, 0), "Stone_DS", 0.0)
+    # encontros de pedra nas cabeceiras: as vigas morrem neles. ONDA 6b (item 19): era uma capa de 0,14 a 60,36
+    # sobre base escura a 60,22 - coplanares (0,02) com a grama (60,38) e a terra (60,20) do pe da escada e da
+    # margem. Agora um bloco so, topo em T1 + 0,31 (0,13 acima da grama) com chanfro, fora das tabuas (a capa nao
+    # passa sob a tabua da ponta: sem face paralela a < 0,12 da madeira)
+    for xe, sg, ln_ in ((xa, -1, 1.9), (xb, 1, 1.15)):
+        st.box((ln_, w + 0.8, 1.0), (xe + sg * (0.05 + ln_ / 2), yb, T1 + 0.31 - 0.5), (0, 0, 0), "Stone_DS", 0.05)
     # colisao: o arco em 4 rampas (encostam no piso T1 nas pontas) + parapeitos
     A = "DS_SumBridge"
     pts = [(xa - 1.0, T1)] + [(x, zd(x)) for x in (xa + half * 0.5, mid, xb - half * 0.5)] + [(xb + 0.8, T1)]
@@ -1020,13 +1042,17 @@ def raceme(mb, top, vis, r0, rng, tones=WIS_TONES, step=0.6):
 
 
 def wisteria_tree(mb, x, y, z, rng, h=10.5, spread=6.4, face=0.0, n_br=4, bark="Bark_DS", leaf="Leaf_DS_Broad",
-                  tones=WIS_TONES, col_area=None):
+                  tones=WIS_TONES, col_area=None, min_bottom=None, r_cl=(0.3, 0.38), tuft_s=1.0):
     """GLICINIA (acento): tronco-lider retorcido em S com raiz alargada; no alto ele abre em n_br GALHOS em
     guarda-chuva (sobem, arqueiam e caem nas pontas). Folhagem em TUFOS irregulares (3 massas achatadas desencontradas
     por tufo, no meio e na ponta de cada galho, + 1 tufo sobre a forquilha), com massas de flor no tom fundo saindo de
     alguns tufos, e CACHOS PENDENTES esguios (raceme) pendurados de verdade: cortina longa embaixo dos tufos da ponta,
     cachos medios nos do meio e cachos curtos direto da face de baixo do galho nu. face = rumo (rad) para onde a copa
-    pende mais (o lado de quem olha). Devolve a lista das pontas dos cachos."""
+    pende mais (o lado de quem olha). Devolve a lista das pontas dos cachos.
+    ONDA 6b (opcionais, padrao = comportamento antigo): min_bottom(x, y) -> cota minima da PONTA do cacho naquele
+    ponto (o cacho encurta; abaixo de 0,9 visivel ele nao nasce); r_cl = faixa do raio do cacho; tuft_s = escala dos
+    tufos (copa mais densa). raceme() e _blob() NAO mudaram (assinatura e geometria: a pergola e o V6 do ds_veg
+    continuam iguais)."""
     base = Vector((x, y, z))
     ht = h * 0.6
     # tronco em S (2 curvas) + raiz
@@ -1044,6 +1070,11 @@ def wisteria_tree(mb, x, y, z, rng, h=10.5, spread=6.4, face=0.0, n_br=4, bark="
     used = []
 
     def hang(p, vis, r0):
+        if min_bottom is not None:
+            vis = min(vis, p.z - 0.35 - min_bottom(p.x, p.y))
+            if vis < 0.9:
+                return
+        r0 = r_cl[0] + (r0 - 0.3) / 0.08 * (r_cl[1] - r_cl[0]) if r0 > 0.3 else r_cl[0]
         for q in used:
             if (Vector((p.x, p.y)) - Vector((q.x, q.y))).length < 2.0 * r0 + 0.3:
                 return
@@ -1073,7 +1104,7 @@ def wisteria_tree(mb, x, y, z, rng, h=10.5, spread=6.4, face=0.0, n_br=4, bark="
               crown + dvec * Ln + ZZ * 1.1]
         PK.taper_tube(mb, br, [0.42, 0.34, 0.26, 0.18], bark, n=6)
         # tufos no meio e na ponta do galho (o galho atravessa o tufo) + cachos embaixo
-        for t, s_, ncl, vr in ((0.55, 1.05, 4, (1.7, 2.5)), (0.97, 1.25, 7, (2.3, 3.6))):
+        for t, s_, ncl, vr in ((0.55, 1.05 * tuft_s, 4, (1.7, 2.5)), (0.97, 1.25 * tuft_s, 7, (2.3, 3.6))):
             p = br[1].lerp(br[2], (t - 0.3) / 0.35) if t < 0.65 else br[2].lerp(br[3], (t - 0.65) / 0.35)
             c = p + ZZ * 0.25
             R = tuft(c, s_, a, t > 0.9 or k % 2 == 0)
@@ -1087,7 +1118,7 @@ def wisteria_tree(mb, x, y, z, rng, h=10.5, spread=6.4, face=0.0, n_br=4, bark="
             p = br[1].lerp(br[2], t)
             hang(p - ZZ * 0.18, rng.uniform(1.3, 2.0), 0.3)
     # tufo do alto sobre a forquilha
-    tuft(crown + ZZ * 1.7, 1.35, face, False)
+    tuft(crown + ZZ * 1.7, 1.35 * tuft_s, face, False)
     if col_area:
         col_box(col_area, (1.9, 1.9, ht), (x, y, z + ht / 2))
     return racemes
@@ -1100,7 +1131,17 @@ def wisterias(mb):
     for i, (x, y) in enumerate(L.WISTERIA[:2]):
         rng = random.Random(4100 + i)
         face = math.atan2(300.0 - y, -0.6 * abs(300.0 - y))      # para a torre e para o oeste
-        out += wisteria_tree(mb, x, y, Z, rng, h=10.5, spread=6.2, face=face, col_area="DS_SumWisteria")
+        # ONDA 6b (item 21): os cachos desciam ate 3,4 do piso e atravessavam o avatar/a camera em volta da torre.
+        # Agora a copa sobe (tronco 10,5 -> 12,5), os tufos ficam 15% maiores (copa mais densa) e os cachos, mais
+        # finos (raio 0,24-0,3), terminam >= piso + 7 do lado do caminho (metade voltada para o centro do plato) e
+        # >= piso + 5 do lado do mar: em cascata (curtos sobre o caminho, longos na borda). Mesma familia (raceme e
+        # _blob do ds_summon, os mesmos da pergola e do V6).
+        sgn = 1.0 if y < 300.0 else -1.0
+
+        def min_bottom(px, py, y0=y, sgn=sgn):
+            return Z + (7.25 if (py - y0) * sgn > -0.8 else 5.25)   # +0,25: o botao da ponta passa do eixo
+        out += wisteria_tree(mb, x, y, Z, rng, h=12.5, spread=6.4, face=face, col_area="DS_SumWisteria",
+                             min_bottom=min_bottom, r_cl=(0.24, 0.3), tuft_s=1.15)
     return out
 
 

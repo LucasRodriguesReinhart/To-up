@@ -261,7 +261,42 @@ CAMS = {
 }
 
 
+def neon_report():
+    """ONDA 6b (item 55): o campo de papel Neon (Glass_DS_Lantern: lanternas do kit e de caminho) contra o Neon da
+    boca (Fire_DS_Glow). No Play os ~110 papeis somados ao bloom competiam com a boca: a cor do papel baixou de
+    saturacao no ds_lib (232,146,66 -> 214,144,88) e a hierarquia continua nas PointLights (a boca e a unica com
+    Brightness > 1,5). Aqui so MEDE (area e cor), para a folha."""
+    area = {"Glass_DS_Lantern": 0.0, "Fire_DS_Glow": 0.0}
+    nobj = 0
+    for o in bpy.data.objects:
+        if o.type != "MESH" or o.hide_render or o.name.startswith(("COL_", "PREVIEW_", "SCALE_")):
+            continue
+        me = o.data
+        idx = {i: m.name for i, m in enumerate(me.materials) if m and m.name in area}
+        if not idx:
+            continue
+        nobj += 1
+        sc = o.matrix_world.to_scale()
+        k = abs(sc.x * sc.y * sc.z) ** (2.0 / 3.0)
+        for p in me.polygons:
+            if p.material_index in idx:
+                area[idx[p.material_index]] += p.area * k
+    c = DL.DSMATS.get("Glass_DS_Lantern", (None,))[0]
+    rgb = [int(round(v)) for v in DL.fm_lib.to_srgb(c)] if c else None
+    print("LUZES neon: papel %.0f studs2 (cor %s), boca/fogo %.0f studs2, %d objetos" % (
+        area["Glass_DS_Lantern"], rgb, area["Fire_DS_Glow"], nobj))
+    return area
+
+
 def build():
+    bpy.context.view_layer.update()
+    # ONDA 6b (item 44): o ds_lights e o ultimo do dressing - a conferencia da vegetacao contra os props (que nascem
+    # DEPOIS dela) roda aqui, com os dois ja montados (ds_veg.after_props: raiz/capim que atravessa prop sai)
+    try:
+        import ds_veg
+        ds_veg.after_props()
+    except Exception as e:
+        print("AVISO ds_lights: ds_veg.after_props falhou: %s" % e)
     bpy.context.view_layer.update()
     fixed = fix_positions()
     bpy.context.view_layer.update()
@@ -269,6 +304,7 @@ def build():
     table(rows)
     check(rows)
     moon_check()
+    neon_report()
     out = os.environ.get("DS_LUX_JSON")
     if out:
         json.dump({"lights": rows, "interior": [list(r) for r in XC["INTERIOR_LIGHTS"]], "fixed": fixed},

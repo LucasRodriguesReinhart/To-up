@@ -18,7 +18,8 @@
 #      coerencia e CONFERIDA e corrigida no build: rpm do eixo = rpm da roda; rate = rpm / 60 x ressaltos.
 #   3. PREVIA (so Blender, 00_REFERENCE / PREVIEW_VFX_*, fora do export): baforadas de fumaca, nevoa rasteira, espuma
 #      e algumas brasas, para as folhas noturnas lerem o efeito pretendido. DS_VFX_PREVIEW=0 desliga. A previa NAO
-#      esconde modelagem: fumaca fina e alta, nevoa < 2,5 de altura, sem cobrir fachada.
+#      esconde modelagem: fumaca fina e alta, nevoa < 2,5 de altura, sem cobrir fachada. ONDA 6b: materiais RBX_PREVIEW_
+#      VFX_* (transparentes; o apply_preview('roblox') do fm_lib nao os torna opacos - continuam lendo como particula).
 import os, math, random
 import bpy, bmesh
 from mathutils import Vector, Matrix
@@ -212,7 +213,14 @@ def movers():
 
 # ------------------------------------------------------------------ previa (so Blender)
 def _pmat(name, rgb, alpha, emit=0.0):
+    """material TRANSPARENTE da previa. ONDA 6b (item 56): o nome leva o prefixo RBX_ - o fm_lib.apply_preview('roblox')
+    (o que as folhas de QA rodam num .blend pronto) refaz OPACO todo material fora de MATS a partir da cor de viewport
+    (branca por padrao) e so pula 'RBX_*': a nevoa virava neve no chao e as brasas bolas brancas. A previa ja e a
+    leitura do jogo (particula translucida), entao fica igual nos 2 modos. diffuse_color = a cor (qualquer outro
+    caminho que leia a cor de viewport acha a certa, nao o branco)."""
+    name = "RBX_" + name
     mt = bpy.data.materials.get(name) or bpy.data.materials.new(name)
+    mt.diffuse_color = (*rgb, alpha)
     mt.use_nodes = True
     nd = next(n for n in mt.node_tree.nodes if n.type == "BSDF_PRINCIPLED")
     nd.inputs["Base Color"].default_value = (*rgb, 1.0)
@@ -257,6 +265,8 @@ def _puffs(name, items, mats):
 def preview():
     for o in [o for o in bpy.data.objects if o.name.startswith("PREVIEW_VFX_")]:
         bpy.data.objects.remove(o, do_unlink=True)
+    for m in [m for m in bpy.data.materials if m.name.startswith("PREVIEW_VFX_") and not m.users]:
+        bpy.data.materials.remove(m)            # nomes antigos (antes do prefixo RBX_)
     rng = random.Random(3303)
     smoke = [_pmat("PREVIEW_VFX_SmokeWarm", (0.20, 0.12, 0.08), 0.32, 0.06),
              _pmat("PREVIEW_VFX_Smoke_A", (0.11, 0.105, 0.10), 0.26), _pmat("PREVIEW_VFX_Smoke_B", (0.12, 0.12, 0.125), 0.17),
@@ -291,7 +301,7 @@ def preview():
     if items:
         _puffs("PREVIEW_VFX_Smoke", items, smoke)
     # nevoa rasteira: discos achatados sobrepostos (< 2,5 de altura)
-    mist = [_pmat("PREVIEW_VFX_Mist", (0.27, 0.29, 0.36), 0.075)]
+    mist = [_pmat("PREVIEW_VFX_Mist", (0.27, 0.29, 0.36), 0.06)]          # 6b: 0,075 -> 0,06 (veu perto da camera)
     items = []
     for nm, R, n in (("FX_Mist_Bamboo", 22.0, 14), ("FX_Mist_Ravine", 11.0, 7)):
         o = bpy.data.objects.get(nm)
@@ -321,7 +331,7 @@ def preview():
     if items:
         _puffs("PREVIEW_VFX_Foam", items, foam)
     # brasas: poucas fagulhas no alto do arco
-    ember = [_pmat("PREVIEW_VFX_Ember", (1.0, 0.36, 0.08), 1.0, 1.3)]
+    ember = [_pmat("PREVIEW_VFX_Ember", (1.0, 0.26, 0.045), 1.0, 0.9)]    # 6b: cor do emissor (255,140,60); 1,3 amarelava
     items = []
     o = bpy.data.objects.get("FX_Forge_Embers")
     if o is not None and o.get("vfx"):
