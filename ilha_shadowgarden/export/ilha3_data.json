@@ -2984,7 +2984,7 @@
    "group": "03_MINING_HALL",
    "obj": "SG_Hall_ThroneMov",
    "material": "Stone_SG_Obsidian",
-   "tris": 1282,
+   "tris": 1284,
    "center_rbx": [
     -1427.525,
     64.605,
@@ -3488,7 +3488,7 @@
    "group": "03_MINING_HALL",
    "obj": "SG_Hall_Walls",
    "material": "Stone_SG_TrimLow",
-   "tris": 2323,
+   "tris": 2324,
    "center_rbx": [
     -1235.869,
     85.904,
@@ -3509,7 +3509,7 @@
    "group": "03_MINING_HALL",
    "obj": "SG_Hall_Walls",
    "material": "Stone_SG_TrimLow",
-   "tris": 3369,
+   "tris": 3368,
    "center_rbx": [
     -1234.867,
     85.944,
@@ -4979,7 +4979,7 @@
    "group": "04_CASTLE",
    "obj": "SG_Cas_Muralha",
    "material": "Stone_SG_Block_B",
-   "tris": 3820,
+   "tris": 3819,
    "center_rbx": [
     -1130.369,
     67.045,
@@ -5000,7 +5000,7 @@
    "group": "04_CASTLE",
    "obj": "SG_Cas_Muralha",
    "material": "Stone_SG_Block_B",
-   "tris": 2036,
+   "tris": 2037,
    "center_rbx": [
     -1140.444,
     60.8,
@@ -5105,7 +5105,7 @@
    "group": "04_CASTLE",
    "obj": "SG_Cas_Muralha",
    "material": "Stone_SG_Obsidian",
-   "tris": 3720,
+   "tris": 3732,
    "center_rbx": [
     -1130.369,
     72.397,
@@ -5126,7 +5126,7 @@
    "group": "04_CASTLE",
    "obj": "SG_Cas_Muralha",
    "material": "Stone_SG_Obsidian",
-   "tris": 2944,
+   "tris": 2932,
    "center_rbx": [
     -1142.259,
     66.96,
@@ -5399,7 +5399,7 @@
    "group": "04_CASTLE",
    "obj": "SG_Cas_Nave",
    "material": "Stone_SG_Block_B",
-   "tris": 3348,
+   "tris": 3359,
    "center_rbx": [
     -1335.492,
     74.493,
@@ -5420,7 +5420,7 @@
    "group": "04_CASTLE",
    "obj": "SG_Cas_Nave",
    "material": "Stone_SG_Block_B",
-   "tris": 3284,
+   "tris": 3288,
    "center_rbx": [
     -1315.657,
     74.493,
@@ -5441,7 +5441,7 @@
    "group": "04_CASTLE",
    "obj": "SG_Cas_Nave",
    "material": "Stone_SG_Block_B",
-   "tris": 2610,
+   "tris": 2599,
    "center_rbx": [
     -1232.381,
     74.493,
@@ -5462,7 +5462,7 @@
    "group": "04_CASTLE",
    "obj": "SG_Cas_Nave",
    "material": "Stone_SG_Block_B",
-   "tris": 1590,
+   "tris": 1586,
    "center_rbx": [
     -1243.571,
     74.493,
@@ -5588,7 +5588,7 @@
    "group": "04_CASTLE",
    "obj": "SG_Cas_Nave",
    "material": "Stone_SG_Obsidian",
-   "tris": 1561,
+   "tris": 1567,
    "center_rbx": [
     -1288.096,
     119.85,
@@ -5609,7 +5609,7 @@
    "group": "04_CASTLE",
    "obj": "SG_Cas_Nave",
    "material": "Stone_SG_Obsidian",
-   "tris": 2134,
+   "tris": 2137,
    "center_rbx": [
     -1315.342,
     119.85,
@@ -5630,7 +5630,7 @@
    "group": "04_CASTLE",
    "obj": "SG_Cas_Nave",
    "material": "Stone_SG_Obsidian",
-   "tris": 1423,
+   "tris": 1417,
    "center_rbx": [
     -1286.987,
     119.85,
@@ -5651,16 +5651,16 @@
    "group": "04_CASTLE",
    "obj": "SG_Cas_Nave",
    "material": "Stone_SG_Obsidian",
-   "tris": 850,
+   "tris": 847,
    "center_rbx": [
     -1307.291,
     119.85,
-    680.019
+    680.266
    ],
    "size_rbx": [
     204.032,
     136.1,
-    90.494
+    90.002
    ],
    "owner": "castle",
    "shadow": true,
@@ -5672,7 +5672,7 @@
    "group": "04_CASTLE",
    "obj": "SG_Cas_Nave",
    "material": "Stone_SG_TrimLow",
-   "tris": 2634,
+   "tris": 2648,
    "center_rbx": [
     -1298.284,
     119.338,
@@ -5693,7 +5693,7 @@
    "group": "04_CASTLE",
    "obj": "SG_Cas_Nave",
    "material": "Stone_SG_TrimLow",
-   "tris": 3668,
+   "tris": 3689,
    "center_rbx": [
     -1316.635,
     119.338,
@@ -5714,7 +5714,7 @@
    "group": "04_CASTLE",
    "obj": "SG_Cas_Nave",
    "material": "Stone_SG_TrimLow",
-   "tris": 2862,
+   "tris": 2848,
    "center_rbx": [
     -1282.361,
     119.338,
@@ -5735,7 +5735,7 @@
    "group": "04_CASTLE",
    "obj": "SG_Cas_Nave",
    "material": "Stone_SG_TrimLow",
-   "tris": 1828,
+   "tris": 1807,
    "center_rbx": [
     -1243.582,
     119.338,
@@ -6155,7 +6155,7 @@
    "group": "04_CASTLE",
    "obj": "SG_Cas_Telhados",
    "material": "Metal_SG_BlackIron",
-   "tris": 1309,
+   "tris": 1313,
    "center_rbx": [
     -1301.199,
     270.355,
@@ -6176,7 +6176,7 @@
    "group": "04_CASTLE",
    "obj": "SG_Cas_Telhados",
    "material": "Metal_SG_BlackIron",
-   "tris": 823,
+   "tris": 819,
    "center_rbx": [
     -1301.185,
     242.8,
@@ -6638,16 +6638,16 @@
    "group": "04_CASTLE",
    "obj": "SG_Cas_Torres",
    "material": "Stone_SG_TrimLow",
-   "tris": 3873,
+   "tris": 3876,
    "center_rbx": [
     -1201.364,
     134.832,
-    754.246
+    754.377
    ],
    "size_rbx": [
     65.133,
     154.914,
-    229.184
+    228.922
    ],
    "owner": "castle",
    "shadow": true,
@@ -6659,7 +6659,7 @@
    "group": "04_CASTLE",
    "obj": "SG_Cas_Torres",
    "material": "Stone_SG_TrimLow",
-   "tris": 3871,
+   "tris": 3868,
    "center_rbx": [
     -1229.213,
     134.832,
@@ -16445,7 +16445,7 @@
    "group": "17_DUNGEON",
    "obj": "SG_Dun_Rooms_Kit",
    "material": "Stone_SGDunVault",
-   "tris": 643,
+   "tris": 637,
    "center_rbx": [
     -1424.24,
     -51.45,
@@ -16466,16 +16466,16 @@
    "group": "17_DUNGEON",
    "obj": "SG_Dun_Rooms_Kit",
    "material": "Stone_SGDunVault",
-   "tris": 651,
+   "tris": 663,
    "center_rbx": [
     -1344.855,
     -57.191,
-    794.999
+    794.985
    ],
    "size_rbx": [
     127.77,
     28.059,
-    54.953
+    54.979
    ],
    "owner": "dungeon",
    "shadow": true,
@@ -16487,7 +16487,7 @@
    "group": "17_DUNGEON",
    "obj": "SG_Dun_Rooms_Kit",
    "material": "Stone_SGDunVault",
-   "tris": 1338,
+   "tris": 1332,
    "center_rbx": [
     -1364.185,
     -51.45,
@@ -63653,13 +63653,13 @@
    "  summon            28632 (31500)    33 (38)",
    "  terrain           69654 (78000)    98 (124)",
    "  vegetation        47834 (63000)    52 (68)",
-   "  vfx                9928 (18000)    24 (50)",
+   "  vfx                9930 (18000)    24 (50)",
    "  village          109196 (118000)   107 (117)",
    "  water              1640 (4000)     6 (12)",
    "METAS GLOBAIS",
-   "  tris estaticos                          853117 / 860000 ",
+   "  tris estaticos                          853119 / 860000 ",
    "  MeshParts estaticas                        854 / 870    ",
-   "  tris total (+ reserva VFX 20000)        873117 / 880000 ",
+   "  tris total (+ reserva VFX 20000)        873119 / 880000 ",
    "  MeshParts total (+ reserva VFX 40)         894 / 910    ",
    "  materiais                                  107 / 130    ",
    "  MeshParts com sombra                       320 / 320    ",

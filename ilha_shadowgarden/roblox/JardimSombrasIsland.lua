@@ -377,8 +377,12 @@ function M.build(parent, area)
 	if st then parent:SetAttribute('CraftPosition', st) end
 	local dp = mpos(mk, 'DUNGEON_Entrance')
 	if dp then parent:SetAttribute('DungeonEntrance', dp) end
+	-- grama pintada da ilha (MaterialService.SG_GramaNoturna, textura propria; o Roblox multiplica pela Color calibrada
+	-- do montar) no lugar da Grass padrao do Roblox
+	local grama = game:GetService('MaterialService'):FindFirstChild('SG_GramaNoturna')
 	for _, d in ipairs(model:GetDescendants()) do
 		if d:IsA('BasePart') and string.match(d.Name, '^COL_') then d:SetAttribute('TravessiaKeep', true) end
+		if grama and d:IsA('BasePart') and d.Material == Enum.Material.Grass then d.MaterialVariant = grama.Name end
 	end
 
 	local gacha = invocacao(area, mk)

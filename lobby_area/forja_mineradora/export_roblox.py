@@ -421,6 +421,10 @@ def split_object(ob, fold=False, cells=False, cores=False, fold_log=None, remap=
     bm_all = bmesh.new()
     bm_all.from_mesh(me)
     bm_all.transform(mw)
+    # normais ANTES de triangular: transform() nao as atualiza e o triangulate projeta cada n-gono pela normal; com a
+    # normal velha (objeto girado, ex.: Rz(67) do encaixe da ilha) n-gonos concavos (arcos, molduras em U, rosaceas)
+    # ganhavam triangulos atravessando o vao (2026-10-06: 1271 faces na Ilha 3, portao da muralha fechado)
+    bm_all.normal_update()
     bmesh.ops.triangulate(bm_all, faces=bm_all.faces[:])
     bm_all.verts.index_update()
     bm_all.normal_update()
