@@ -8,19 +8,19 @@ TER AGULHAS colunas=21
 TER CRISTAIS aglomerados=3
 CAVE abobada: estratos 17, bolsas 5, estalactites 28
 CAVE torre: aberturas [(270.0, 6.3, 24.6), (190.0, 14.3, 32.4), (226.0, 11.8, 30.9), (321.0, 8.4, 24.3)] pedacos 217 tochas 9
-CAVE partes: 0_floor 4180, 1_bridge 1008, 2_nave 4874, 3_tower_and_spiral 7062, 4_tower_and_spiral 3942, 5_tower_and_spiral 2520, 6_gallery 7204, 7_grand_stair 2960, 8_walkways 6676, 9_portal 4182, 0_portal 232, 1_forge 4768, 2_maproom 5008, 3_dressing 3222, 4_crystals 628
-CAVE build: blocos de rocha 471, estalactites 28, lajes 135, cristais 4 (5.5s)
+CAVE partes: 0_floor 4180, 1_bridge 1008, 2_nave 4874, 3_tower_and_spiral 6246, 4_tower_and_spiral 3942, 5_tower_and_spiral 2520, 6_gallery 6988, 7_grand_stair 2960, 8_walkways 6676, 9_portal 4182, 0_portal 232, 1_forge 4768, 2_maproom 5008, 3_dressing 3222, 4_crystals 628
+CAVE build: blocos de rocha 854, estalactites 28, lajes 135, cristais 4 (6.4s)
 SUM ponte: faces da rocha medidas leste -171.37 oeste -177.6 -> arco de -177.60 a -171.37
 ZF alivio passe 1: 382 pecas ajustadas
 ZF alivio passe 2: 140 pecas ajustadas
 ZF alivio passe 3: 57 pecas ajustadas
 ZF alivio passe 4: 27 pecas ajustadas
 ZF alivio passe 5: 24 pecas ajustadas
-ZF alivio ('SG_Sum_', 'VFX_SGSUM'): 630 ajustes (7 vizinhos) 5.8s
+ZF alivio ('SG_Sum_', 'VFX_SGSUM'): 630 ajustes (7 vizinhos) 5.3s
 ZF alivio passe 1: 792 pecas ajustadas
 ZF alivio passe 2: 440 pecas ajustadas
 ZF alivio passe 3: 221 pecas ajustadas
-ZF alivio ('SG_Craft_', 'VFX_SGCRAFT'): 1453 ajustes (6 vizinhos) 17.2s
+ZF alivio ('SG_Craft_', 'VFX_SGCRAFT'): 1453 ajustes (6 vizinhos) 13.1s
 DUN faces degeneradas: nenhuma
 DUN folga dos minerios: OK (nenhuma colisao a menos de 5 de DUN_ORE_* ate piso+12)
 OK   DUN_NEXT_R2 parede 27x21x1 no vao (0.0, 197.0): livre (folga 0,5 nos lados, 1.0 em cima)
@@ -32,7 +32,7 @@ WATER medido WATER_CaveFall_Base: 23.14 da estimativa do sg_core (o marcador fic
 WATER AVISO WATER_Court_L: nenhuma pedra (('SG_Prop_', 'SG_Court', 'SG_Veg_', 'SG_Gar')) em volta
 WATER AVISO WATER_Court_R: nenhuma pedra (('SG_Prop_', 'SG_Court', 'SG_Veg_', 'SG_Gar')) em volta
 ZF alivio passe 1: 3 pecas ajustadas
-ZF alivio ('SG_Water_',): 3 ajustes (22 vizinhos) 3.1s
+ZF alivio ('SG_Water_',): 3 ajustes (22 vizinhos) 2.8s
 WATER West bancada labio=(-189.0, -60.0, 42.98) boca=(-180.9, -60.0, 43.1) corrida=8.5 pe=(-193.5, -60.0, -53.0) polys=1203 quebras=[(20.0, 1.2, 4.4)]
 WATER FALL_FX FX_Fall_1_Lip (-189.00, -60.00, 42.98) width=5.4
 WATER FALL_FX FX_Fall_1_Step (-191.80, -60.00, 20.00) width=6.37
@@ -45,7 +45,7 @@ WATER North bancada labio=(-60.52, 384.93, 50.98) boca=(-58.24, 376.43, 51.1) co
 WATER FALL_FX FX_Fall_3_Lip (-60.52, 384.93, 50.98) width=5.4
 WATER FALL_FX FX_Fall_3_Step (-61.23, 387.59, 20.00) width=6.6
 WATER FALL_FX FX_Fall_3_Base (-61.63, 389.10, -53.00) width=7.84
-WATER South fenda labio=(-29.66, -297.04, 29.9) boca=(-26.54, -295.9, 29.9) corrida=0.42 pe=(-32.8, -298.2, -53.0) polys=11583 quebras=[(20.0, 1.2, 3.3)]
+WATER South fenda labio=(-29.66, -297.04, 29.9) boca=(-26.54, -295.9, 29.9) corrida=0.42 pe=(-32.8, -298.2, -53.0) polys=11570 quebras=[(20.0, 1.2, 3.3)]
 WATER FALL_FX FX_Fall_4_Lip (-29.66, -297.04, 29.90) width=3.8
 WATER FALL_FX FX_Fall_4_Step (-31.75, -297.80, 20.00) width=4.38
 WATER FALL_FX FX_Fall_4_Base (-32.76, -298.17, -53.00) width=5.26
@@ -70,23 +70,23 @@ COURT chao=1595 trapezios; gramados=2 espelhos=2 estatuas=2 arvores-marco=2
 VEG arvores=72 (borda 17) colisoes_tronco=46 lod_mudado={(0, True): 6, (2, False): 4} saias_limitadas=0
 VEG grupos_incompletos=[]
 VEG recusas_borda=[('piso_proibido', 42), ('pe_degrau', 41), ('copa_no_terreno', 21), ('pe_fora_do_terreno', 14), ('arquitetura', 9), ('vizinha', 3)]
-GARDEN mascara 4.3s celulas_grama=195213 excluidas={'rua': 30157, 'praca': 4016, 'escada': 814, 'casa': 0, 'alquimia': 0, 'ponte': 306, 'agua': 74, 'solido': 5470}
-GARDEN tufos_campo=1513/8808 (fator 0.45) manchas=10 stats={'sebe_m': 256.8, 'buxo': 6, 'flor_lua': 282, 'flor_espiga': 123, 'flor_sino': 70, 'flor_ambar': 19, 'trepadeiras': 6, 'trepadeiras_muralha': 6, 'canteiros_casas': 0, 'floreiras_janela': 0, 'trepadeira_recusada': 3, 'trepadeiras_casas': 0, 'manchas': 66, 'touceiras': 1643}
-GARDEN tris por fase: {'casas': 0, 'manchas': 5425, 'canteiros_arvore': 2548, 'campo': 14356}
-GARDEN objetos (tris, materiais=MeshParts): {'SG_Veg_Gdn_B0': (6490, 6), 'SG_Veg_Gdn_B1': (9259, 7), 'SG_Veg_Gdn_B2': (6580, 6)} total_tris=22329 MeshParts=19
-GARDEN_QA itens=2143 fora_do_lugar={'rua': 0, 'praca': 0, 'escada': 0, 'rota': 0, 'piso': 0, 'salao': 0, 'dungeon': 0, 'casa': 0} OK []
+GARDEN mascara 4.1s celulas_grama=195253 excluidas={'rua': 30157, 'praca': 4016, 'escada': 814, 'casa': 0, 'alquimia': 0, 'ponte': 306, 'agua': 74, 'solido': 5430}
+GARDEN tufos_campo=1511/8823 (fator 0.44) manchas=10 stats={'sebe_m': 256.8, 'buxo': 6, 'flor_lua': 282, 'flor_espiga': 123, 'flor_sino': 70, 'flor_ambar': 19, 'trepadeiras': 6, 'trepadeiras_muralha': 6, 'canteiros_casas': 0, 'floreiras_janela': 0, 'trepadeira_recusada': 3, 'trepadeiras_casas': 0, 'manchas': 66, 'touceiras': 1641}
+GARDEN tris por fase: {'casas': 0, 'manchas': 5425, 'canteiros_arvore': 2548, 'campo': 14346}
+GARDEN objetos (tris, materiais=MeshParts): {'SG_Veg_Gdn_B0': (6462, 6), 'SG_Veg_Gdn_B1': (9285, 7), 'SG_Veg_Gdn_B2': (6572, 6)} total_tris=22319 MeshParts=19
+GARDEN_QA itens=2141 fora_do_lugar={'rua': 0, 'praca': 0, 'escada': 0, 'rota': 0, 'piso': 0, 'salao': 0, 'dungeon': 0, 'casa': 0} OK []
 GARDEN FIM 5.2s
 PROPS postes=11 bancos=4 acesos=7
 LIGHTS rua=8 (NightOnly) casas=8 (de dia)
-STUDIO modulo sg_village 18.8s
+STUDIO modulo sg_village 10.4s
 SCENE emissivos limitados: 38 materiais
-STUDIO METRICAS zona=village objetos=285 malhas=17
-STUDIO tris=120850/110000 ESTOUROU | MeshParts~107/108 OK | materiais_novos=9/11 OK ['Cloth_SGVilWine', 'Glass_SGVilPane', 'Plaster_SGVil', 'Roof_SGVilSlateB', 'SG_VilRoom_Glow', 'Stone_SGVilCobble', 'Wood_SGVilFloor', 'Wood_SGVilMid', 'Wood_SGVilNavy']
-STUDIO colisoes=254/230 ESTOUROU | luzes=14 (de dia <= 6)
-STUDIO maiores: [(35754, 'SG_Vil_Houses_P1'), (22764, 'SG_Vil_Houses_P2'), (8008, 'SG_Vil_Int_H1'), (6014, 'SG_Vil_Fountain'), (5988, 'SG_Vil_Int_H3'), (5670, 'SG_Vil_Int_H5')]
+STUDIO METRICAS zona=village objetos=259 malhas=17
+STUDIO tris=110222/110000 ESTOUROU | MeshParts~107/108 OK | materiais_novos=9/11 OK ['Cloth_SGVilWine', 'Glass_SGVilPane', 'Plaster_SGVil', 'Roof_SGVilSlateB', 'SG_VilRoom_Glow', 'Stone_SGVilCobble', 'Wood_SGVilFloor', 'Wood_SGVilMid', 'Wood_SGVilNavy']
+STUDIO colisoes=228/230 OK | luzes=14 (de dia <= 6)
+STUDIO maiores: [(33686, 'SG_Vil_Houses_P1'), (21600, 'SG_Vil_Houses_P2'), (6348, 'SG_Vil_Int_H1'), (5918, 'SG_Vil_Fountain'), (5162, 'SG_Vil_HouseDress'), (5136, 'SG_Vil_Int_H3')]
 STUDIO tecnico: nomes_ruins=[] prefixo_fora_do_padrao=[] sem_material=[] degeneradas=0
 STUDIO marcadores obrigatorios: 0/0 OK
-COL faces: 10140
+COL faces: 9984
 OK   ROTA DB_ANCORA->SG_ENTRADA
 OK   ROTA ENTRADA->CASTELO_MINING_HALL
 OK   ROTA PORTA->TRONO
@@ -203,6 +203,6 @@ OK   CAVE_LIVRE malhas de fora dentro da caixa do salao sombrio: nenhuma
 EGL Error (0x3009): EGL_BAD_MATCH: Arguments are inconsistent (for example, a valid context requires buffers not supplied by a valid surface).
 EGL Error (0x3009): EGL_BAD_MATCH: Arguments are inconsistent (for example, a valid context requires buffers not supplied by a valid surface).
 EGL Error (0x3009): EGL_BAD_MATCH: Arguments are inconsistent (for example, a valid context requires buffers not supplied by a valid surface).
-02:45.756  render           | Saved: '/home/user/To-up/ilha_shadowgarden/renders/finesse3/V/depois/CAM_A3_02_Praca_Piso.jpg'
+02:23.003  render           | Saved: '/home/user/To-up/ilha_shadowgarden/renders/finesse3/V/depois/CAM_A3_02_Praca_Piso.jpg'
 STUDIO RENDER /home/user/To-up/ilha_shadowgarden/renders/finesse3/V/depois/CAM_A3_02_Praca_Piso.jpg
-STUDIO FIM 165.2s
+STUDIO FIM 142.8s

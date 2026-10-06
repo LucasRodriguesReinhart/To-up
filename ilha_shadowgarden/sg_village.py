@@ -444,8 +444,6 @@ def window(mb, f, s, zlo, w, h, head="hood", shutters=False, planter=False, styl
         if lod < 2:
             f.box(mb, s, 0.0, zc, 0.1, 0.1, h, WOOD)                         # montante
         f.box(mb, s, 0.0, zs, w, 0.1, 0.12, WOOD)                            # travessa
-        if lod == 0:
-            f.box(mb, s, 0.0, zlo + h * 0.32, w, 0.08, 0.07, WOOD)           # pinazio (grade 2 x 3)
         if head in ("arch", "hood") and lod == 0:
             _hood(mb, f, s, zlo + h + 0.32, w)
         elif head == "lintel":
@@ -747,7 +745,7 @@ def quoins(mb, G, x0, x1, y0, y1, z0, z1, front="+y"):
             # ate a face interna da casca (T_EXT): o forro interno fica limpo
             ti = T_EXT - 0.03
             mb.box((ax + pq, pq + ti, h - 0.08), G.p(cx_ - sgx * (ax - pq) / 2, cy_ + sgy * (pq - ti) / 2,
-                                                          zz + h / 2), G.r(), M_DRESS, 0.04 if fr else 0.0)
+                                                          zz + h / 2), G.r(), M_DRESS, 0.0)
             mb.box((pq + ti, ay - T_EXT, h - 0.08), G.p(cx_ + sgx * (pq - ti) / 2, cy_ - sgy * (ay + T_EXT) / 2,
                                                              zz + h / 2), G.r(), M_DRESS, 0.0)
         zz += h
@@ -945,7 +943,7 @@ def chimney_breast(mb, f, s, wb, z0, z1):
     mb.beam(f.P(s, 0.6, z0 + 1.1), f.P(s, 0.42, z0 + 1.7), wb + 0.6, 0.2, M_CAP, 0.0)      # talude
     zz, k = z0 + 1.7, 0
     while zz < z1 - 0.2:
-        hh = min((1.1, 0.8)[k % 2], z1 - zz)
+        hh = min((1.6, 0.9)[k % 2], z1 - zz)
         ins = 0.0 if k % 2 == 0 else 0.1
         f.box(mb, s, 0.22, zz + hh / 2, wb - ins, 0.44, hh - 0.06, M_DRESS)
         zz += hh
@@ -964,7 +962,7 @@ def buttress(mb, f, s, z0, z1):
 
 def porch(mb, f, F, s0, s1, dep, zw, m_roof):
     """03.08 (ferreiro H2): ALPENDRE de madeira aberto ao lado da porta: 2 postes com base de pedra, frechais, maos-
-    francesas, 4 caibros e agua de ardosia (a forja de mao e do vestir, agente R). Colisao: so os postes."""
+    francesas, 4 caibros e agua de ardosia (a forja de mao e do vestir, agente R). Sem colisao (postes finos)."""
     t = math.radians(18.0)
     zf = zw - dep * math.tan(t)
     sc = (s0 + s1) / 2
@@ -972,9 +970,6 @@ def porch(mb, f, F, s0, s1, dep, zw, m_roof):
         f.box(mb, sp, dep - 0.25, 0.35, 0.62, 0.62, 0.7, M_DRESS)
         f.box(mb, sp, dep - 0.25, (0.7 + zf - 0.4) / 2, 0.36, 0.36, zf - 0.4 - 0.7, WOOD)
         mb.beam(f.P(sp, dep - 0.25, zf - 1.7), f.P(sp, dep - 1.1, zf - 0.55), 0.16, 0.22, WOOD, 0.0)
-        q = f.P(sp, dep - 0.25, 2.5)
-        wq = F.p(K * q.x, K * q.y, K * q.z)
-        col_box("SG_VilPorch", (0.8, 0.8, 10.0), (wq.x, wq.y, wq.z))
     f.box(mb, sc, dep - 0.25, zf - 0.22, s1 - s0 + 0.4, 0.3, 0.36, WOOD)                  # frechal da frente
     for k in (-1, 1):
         f.box(mb, sc + k * (s1 - s0) / 2, 0.3, zw - 0.75, 0.3, 0.5, 0.5, WOOD)             # misulas
@@ -1086,7 +1081,7 @@ def kit_house(mb, hrec, spec):
                                                                            % len(dress_seq)]]
                 window(mb, f, s, zl, ww, wh, head=(spec.get("stone_head", "lintel") if stone else "hood"),
                        shutters=shut, planter=bool(boxes) and (len(coords) <= 2 or wi in (0, len(coords) - 1)),
-                       style=wmode, dress=dr, stone=stone, lod=(0 if is_front else 1))
+                       style=wmode, dress=dr, stone=stone, lod=(0 if is_front else (2 if (wall == "back" or si > 0) else 1)))
                 holes.append((s - ww / 2, s + ww / 2, zl, zl + wh))
                 wins.append((s, ww))
                 info["windows"].append(dict(wall=wall, c=c, story=si, w=ww * K, z0=zl * K, z1=(zl + wh) * K))
@@ -1346,10 +1341,12 @@ def turret(mb, G, tur, x0, x1, y0, y1, ze, stories, rm=ROOF):
         slab_holes(mb, f, -fw / 2, fw / 2, zb0, zt1, -0.4, 0.0, holes, M_JNT)
         if abs(da) > 100.0:
             continue                                            # face dentro da casa: so o nucleo
-        # fiadas de 2 alturas em relevo 0,12: 2 blocos nas fiadas pares, 1 nas impares (juntas desencontradas)
+        # fiadas de 2 alturas em relevo 0,12: 2 blocos nas fiadas pares, 1 nas impares (juntas desencontradas);
+        # as 2 faces de lado (+-90) so ate o 1o cordao (faixa do jogador)
+        ztop = zt1 if abs(da) < 50.0 else ZC0 + stories[0][1]
         zz, kk = zb0 + 0.06, 0
-        while zz < zt1 - 0.5:
-            hh = min((1.0, 0.72)[kk % 2], zt1 - 0.45 - zz)
+        while zz < ztop - 0.5:
+            hh = min((1.0, 0.72)[kk % 2], ztop - 0.45 - zz)
             if hh < 0.3:
                 break
             segs = [(-fw / 2 + 0.03, fw / 2 - 0.03)] if kk % 2 else [(-fw / 2 + 0.03, -0.03), (0.03, fw / 2 - 0.03)]
@@ -1459,7 +1456,7 @@ SPECS = {
                lan_side=1, roof="B", door_style="label"),
     # casa da guarda: TODA de pedra, vergas com fecho, postigos, remates de ferro, chamine dupla (terrea)
     "H6": dict(ground="stone", rise=7.0, chimney=(-9.3, 1.0), chim_kind="twin", attic_all=True, win="cross",
-               dormers=[("+y", 0.0)], lan_pair=True, wins={0: {"back": [-6.0, 6.0], "right": [0.0]}},
+               dormers=[("+y", 0.0)], wins={0: {"back": [-6.0, 6.0], "right": [0.0]}},
                ridge="crest", stone_head="lintel", shutters=True, dress="obc", lan_side=1, roof="A"),
     # mestre de armas: balanco com chevron, 2 aguas-furtadas, 2 chamines, postigos, janela a janela
     "H7": dict(ground="stone", upper="timber", jetty=0.8, rise=8.2, dormers=[("+y", -3.8), ("+y", 3.8)],
@@ -1575,7 +1572,7 @@ def fountain(rng):
     for k in range(12):
         a = math.radians(rot + 30.0 * k)
         px, py = c[0] + 7.02 * math.cos(a), c[1] + 7.02 * math.sin(a)
-        mf.box((1.14, 1.14, 0.34), (px, py, z + 1.12), (0, 0, a), M_ASHLAR, 0.05)          # base
+        mf.box((1.14, 1.14, 0.34), (px, py, z + 1.12), (0, 0, a), M_ASHLAR, 0.0)           # base
         mf.box((0.9, 0.9, 1.34), (px, py, z + 1.95), (0, 0, a), M_ASHLAR, 0.0)             # fuste
         mf.box((1.02, 1.02, 0.12), (px, py, z + 2.68), (0, 0, a), M_CAP, 0.0)              # gola
         mf.box((1.22, 1.22, 0.26), (px, py, z + 2.87), (0, 0, a), M_CAP, 0.06)             # capitel
@@ -1628,8 +1625,7 @@ def fountain(rng):
     fountain_statue(mf, cx, cy, z + T2["floor"], -math.pi / 2, 0.88)
     mf.finish()
     # colisao propria dos 2 degraus (octogono: 4 caixas cada; a parede/bacia e o SG_Fountain do sg_col)
-    SL.ngon_col("SG_VilFountStep", cx, cy, 8, 9.55, z - 1.0, z + 0.55)
-    SL.ngon_col("SG_VilFountStep", cx, cy, 8, 8.45, z + 0.55, z + 0.95)
+    SL.ngon_col("SG_VilFountStep", cx, cy, 8, 9.2, z - 1.0, z + 0.75)
 
 
 # ------------------------------------------------------------------ ruas: lajes com junta, meio-fio, caminhos
@@ -1820,7 +1816,7 @@ def streets():
         mb.prism(base, z + PAVE - 0.3, z + PAVE - JOINT_D, M_JNT)
         hw = w / 2 - (1.15 if z != P3 else 0.1)
 
-        pave_strip(mb, pts, 2 * hw, z, row=(7.0 if z == P3 else 5.4), splits=(ROW_SPLITS_WIDE if z == P3 else
+        pave_strip(mb, pts, 2 * hw, z, row=(8.0 if z == P3 else 6.2), splits=(ROW_SPLITS_WIDE if z == P3 else
                                                                                ROW_SPLITS), skip=lambda mx, my, i=i: (
             math.hypot(mx - L.PLAZA_C[0], my - L.PLAZA_C[1]) < L.PLAZA_R + 0.4 or
             math.hypot(mx - L.CRAFT_C[0], my - L.CRAFT_C[1]) < L.CRAFT_R + 0.4 or
@@ -1864,7 +1860,7 @@ def streets():
     for (pa, pb, pw, z) in door_paths():
         mb = objs[z] if z in objs else objs[P1]
         mb.prism(SL.ccw(SL.ribbon_poly([pa, pb], pw / 2 - 0.05)), z + PAVE - 0.3, z + PAVE - JOINT_D, M_JNT)
-        pave_strip(mb, [pa, pb], pw - 0.2, z, row=3.4, tone=1)
+        pave_strip(mb, [pa, pb], pw - 0.2, z, row=4.4, tone=1)
         street_col([pa, pb], pw, z)
     for o in objs.values():
         o.finish()
@@ -1905,8 +1901,8 @@ def stair_banzo(mb, s):
             poly = [(ys0, c0), (yb, c0), (yb, c1), (ys1, c1)]
             if c0 < ta:
                 poly.append((ya, ta))
-        L0 = 2.6
-        off = (0.0, 1.3)[ci % 2]
+        L0 = 3.4
+        off = (0.0, 1.7)[ci % 2]
         cuts = [ya] + [ya + off + L0 * j for j in range(1, 9) if ya + off + L0 * j < yb - 0.8] + [yb]
         for u0, u1 in zip(cuts, cuts[1:]):
             bp = SE._dedupe(SE._clip_y(poly, u0 + 0.04, u1 - 0.04))

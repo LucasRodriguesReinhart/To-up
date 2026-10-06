@@ -90,3 +90,41 @@ cd /home/user/To-up/ilha_shadowgarden
 2. Métricas da zona ANTES → DEPOIS (tris, MeshParts, materiais novos, colisões, luzes) e BUILD OK + QA.
 3. Caminho da folha antes/depois e das pastas de render.
 4. `requests`: o que precisa de arquivo compartilhado ou de outro agente.
+
+## Fechamento da onda (2026-10-06)
+
+Os 8 agentes concluíram. Build completo OK com 869.129 tris (teto 870k), 1663 colisões, 2183 objetos.
+QA: ROTAS 27/27, ROTAS_ABERTAS 3/3, ROTAS_MODULOS 46/46, SONDAS 29/29, SALAO_LIVRE, DUNGEON_LIMPA, CAVE_LIVRE e TECH OK.
+Folhas antes/depois (prévia e roblox) em `renders/finesse3/<AGENTE>/folha*.jpg`.
+
+| Zona | Tris / orçamento | Itens parciais |
+|---|---|---|
+| terrain | 69.654 / 72.000 | 14.01 (quilha limitada pelo subsolo) |
+| entry | 39.812 / 40.000 | 01.10 sem bevel nas lajes (orçamento) |
+| village (V + I) | 109.948 / 110.000 | 02.02 (taças presas às cotas da água), 02.03 (figura com J), 14.04 (campanário não cabe) |
+| castle | 169.944 / 170.000 | 06.13 confirmar no Play |
+| hall | 87.926 / 88.000 | 08.05 bolso aberto não revisado (studio não move o trono) |
+| cave | 69.858 / 70.000 | 09.14 cristais sem luz própria (teto de 6 luzes) |
+| dungeon | 77.906 / 78.000 | — |
+
+Todas as zonas desta onda estão no teto: a próxima onda não tem folga nelas.
+
+### Pendências para as próximas ondas
+- **J (`sg_court.py`):**
+  - figura própria da fonte em `sg_village.fountain_figure(mb, F, s, z0)` (s 0,88, ~6,4 de altura, tom claro, ≤ 2k tris);
+  - figura dos guardas na escala 1,5 (`hooded_figure(..., kind="guard")`, ~11 de altura, seções de mais lados);
+  - tirar `statue()` dos pontos `STATUES` (±21; 34,5), que duplica os guardas no eixo;
+  - tirar o fio Neon do caminho nobre (05.01).
+- **G (vegetação):**
+  - floreiras da vila ficaram VAZIAS depois da troca das trepadeiras (H2, H7 e outras): plantar ou remover as caixas;
+  - touceiras contra os parapeitos (01.11), trepadeiras só nos tramos centrais do arrimo (03.05);
+  - sebes e trepadeiras no pé da muralha e da fachada cobrem a arcada nova do castelo.
+- **R (props):** pilha de lenha e banco nos panos laterais (03.09), forja de mão sob o alpendre do H2, quintais (03.01).
+- **Coordenação / arquivos compartilhados:**
+  - `studio_sg`: modo que põe `SG_Hall_ThroneMov` no `THRONE_Park` antes do render; ler o `CAMS` dos submódulos (`sg_village_int`) e criar as `CAM_A3_*` sem cópia nos módulos;
+  - decidir teto de luzes da zona cave (6 → 8 para os cristais);
+  - opcional: `Stone_SGEntPave` como alias sem variante de `Stone_Paving_SG`; `Window_Warm_SG` em `sg_lib`; `flame()` do `sg_cave` como chama do kit.
+- **Conferir no Play:**
+  - fresta de luz na base das casas (no Roblox a PointLight não faz sombra);
+  - vão do portão da muralha (06.13);
+  - escuridão do salão (`Stone_SG_MarbleBlack` pode precisar clarear em `sg_lib`).
