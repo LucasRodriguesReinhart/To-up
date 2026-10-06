@@ -47,8 +47,10 @@ import sg_emblem as EM
 S = fm_lib.S
 # ------------------------------------------------------------------ materiais novos da zona
 NEW_MATS = {
-    "Slate_SGHallVault": (S(58, 62, 94), 0.85, 0.0, 0, None, 0.0),        # panos da abobada: um valor acima do navy (F3 07.01)
-    "Slate_SGHallVaultJoint": (S(44, 48, 78), 0.85, 0.0, 0, None, 0.0),   # fiada alternada dos panos (2 valores, largas)
+    "Slate_SGHallVault": (S(88, 91, 104), 0.85, 0.0, 0, None, 0.06),      # fiada B dos panos = valor do Stone_SG_Block (a
+                                                                           # fiada A e o Stone_SG_Block_B): pedra, 1-2 valores
+                                                                           # abaixo das nervuras (revisao 07.01)
+    "Slate_SGHallVaultJoint": (S(64, 67, 84), 0.85, 0.0, 0, None, 0.06),  # PENUMBRA: so a faixa logo acima do arranque
     "Glass_SGHallNight": (S(58, 76, 138), 0.4, 0.0, 0.25, S(70, 95, 170), 0.0),    # 2a cor dos vitrais: azul-noite
     "Slate_SGHallNiche": (S(58, 50, 76), 0.8, 0.0, 0, None, 0.0),         # fundo dos nichos / galeria: pedra lisa escura
     "Wax_SGHallCandle": (S(212, 170, 116), 0.7, 0.0, 0, None, 0.0),       # cera CREME QUENTE
@@ -1165,6 +1167,11 @@ def bay_wall(mb, W, sa, sb, niches, top, iw, cord_cut=(), PL=4.4):
         if b - a > 0.3:
             ledge(mb, WT(W, PF), a, b, drip(Z + CORD, 0.36, 0.5), OBS)
     ledge(mb, W, sa, sb, plinth(Z - 0.05, Z + 0.95, PF + 0.3, PF + 0.12), OBS)
+    # 2o CORDAO (+17,6) acima dos nichos: parte o pano entre o cordao e a galeria em 2 registros (07.07)
+    if top - Z > 18.5:
+        zc_ = Z + 17.6
+        ledge(mb, WT(W, PF), sa, sb, [(-0.05, zc_ - 0.3), (0.32, zc_ - 0.18), (0.32, zc_ + 0.2), (-0.05, zc_ + 0.3)],
+              OBS)
     for cs, kind, dbl in niches:
         niche(mb, W, cs, kind, dbl, iw)
 
@@ -1476,16 +1483,27 @@ def rosette(mb, cx, cy, zt, R, dep, m, petals=8, n=24, flat=0.0):
     mb._post(allv, m, None, 0, 1)
 
 
-def _grid_rows(pv, xs, ys, fz, mats):
+def _grid_rows(pv, xs, ys, fz, mats, shade=None):
     """superficie em grade com FIADAS: cada linha (ys[j]..ys[j+1]) e uma tira com vertices proprios e o material
-    alternado (2 valores: fiadas largas que leem no Roblox sem textura)"""
+    alternado (2 valores proximos: fiadas largas que leem no Roblox sem textura). shade(x) = True: a coluna fica no
+    material de PENUMBRA (VJ), so a faixa junto do arranque; mesma malha (so muda o material das faces)"""
     bm = pv.bm
     for j in range(len(ys) - 1):
-        A = [bm.verts.new((x, ys[j], Z + fz(x, ys[j]))) for x in xs]
-        B = [bm.verts.new((x, ys[j + 1], Z + fz(x, ys[j + 1]))) for x in xs]
+        groups, cur = [], None
         for i in range(len(xs) - 1):
-            bm.faces.new((A[i], B[i], B[i + 1], A[i + 1]))
-        pv._post(A + B, mats[j % len(mats)], None, 0, 1)
+            dk = bool(shade and shade(0.5 * (xs[i] + xs[i + 1])))
+            if cur is None or cur[0] != dk:
+                cur = [dk, [i]]
+                groups.append(cur)
+            else:
+                cur[1].append(i)
+        for dk, cols in groups:
+            ii = cols + [cols[-1] + 1]
+            A = [bm.verts.new((xs[i], ys[j], Z + fz(xs[i], ys[j]))) for i in ii]
+            B = [bm.verts.new((xs[i], ys[j + 1], Z + fz(xs[i], ys[j + 1]))) for i in ii]
+            for k in range(len(ii) - 1):
+                bm.faces.new((A[k], B[k], B[k + 1], A[k + 1]))
+            pv._post(A + B, VJ if dk else mats[j % len(mats)], None, 0, 1)
 
 
 def _vault_ys(per=3.0):
@@ -1506,14 +1524,14 @@ def vault():
     K = 7
     half = [NHW * math.sin(0.5 * math.pi * k / K) for k in range(K + 1)]
     xs = sorted(set([-v for v in half] + half))
-    _grid_rows(pv, xs, ys, zv, (VA, VJ))
+    _grid_rows(pv, xs, ys, zv, (ASH, VA), shade=lambda x: abs(x) > NHW * 0.93)
     for s in (-1, 1):
         axs = sorted(s * (AIN + 6.0 * k) for k in range(5))
-        _grid_rows(pv, axs, ys, za, (VA, VJ))
+        _grid_rows(pv, axs, ys, za, (ASH, VA), shade=lambda x: abs(x) > X1 - 6.0)
     # presbiterio: canhao ogival com o perfil da ordem externa do arco triunfal
     cxs = [20.0 * (-1.0 + 2.0 * k / 16) for k in range(17)]
     cys = [CH_Y0 + (RY0 - CH_Y0) * k / 8.0 for k in range(9)]
-    _grid_rows(pv, cxs, cys, lambda x, y: chancel_z(x), (VA, VJ))
+    _grid_rows(pv, cxs, cys, lambda x, y: chancel_z(x), (ASH, VA), shade=lambda x: abs(x) > 17.6)
     for f in bm.faces:
         f.normal_update()
         if f.normal.z > 0:
@@ -1532,8 +1550,7 @@ PROF_DIA = [(-1.5, 0.12), (1.5, 0.12), (1.5, -0.55), (0.8, -0.55), (0.8, -1.1), 
 PROF_RIB = [(-0.75, 0.12), (0.75, 0.12), (0.75, -0.35), (0.55, -0.8), (0.0, -1.1), (-0.55, -0.8), (-0.75, -0.35)]
 PROF_RIB_S = [(-0.45, 0.12), (0.45, 0.12), (0.45, -0.3), (0.0, -0.72), (-0.45, -0.3)]      # naves laterais 0,9
 PROF_WALL = [(-0.5, 0.12), (0.5, 0.12), (0.5, -0.8), (-0.5, -0.8)]                          # formeiro
-TORO = [(0.5 * math.cos(2 * math.pi * i / 5 + math.pi / 2), -1.25 + 0.5 * math.sin(2 * math.pi * i / 5 + math.pi / 2))
-        for i in range(5)]
+TORO = [(0.5 * math.cos(2 * math.pi * i / 4), -1.25 + 0.5 * math.sin(2 * math.pi * i / 4)) for i in range(4)]
 
 
 def ribs():
@@ -1550,11 +1567,11 @@ def ribs():
                     [-x_end * math.sin(0.5 * math.pi * k / 5) for k in range(6)]))
     for y in VAULT_Y:
         if Y0 < y < Y1:
-            rib([(x, y) for x in tx], PROF_DIA, CS, zv)
-            rib([(x, y) for x in tx], TORO, CAPL, zv)
+            rib([(x, y) for x in tx], PROF_DIA, CAPL, zv)
+            rib([(x, y) for x in tx], TORO, TR, zv)
         else:
             yy = min(max(y, Y0 + 0.55), Y1 - 0.55)
-            rib([(x, yy) for x in tx], PROF_WALL, CS, zv)
+            rib([(x, yy) for x in tx], PROF_WALL, CAPL, zv)
     nd = 7
     for ya, yb in zip(VAULT_Y, VAULT_Y[1:]):
         if yb - ya < 15.0:
@@ -1566,15 +1583,15 @@ def ribs():
     rib([(0.0, Y0 + 0.55), (0.0, (Y0 + Y1) / 2.0), (0.0, Y1 - 0.55)], PROF_RIB, CAPL, zv)
     ys = _vault_ys(7.0)
     for s in (-1, 1):
-        rib([(s * (NHW - 0.42), y) for y in ys], PROF_WALL, CS, zv)
-        rib([(s * (AIN + 0.4), y) for y in ys], PROF_WALL, CS, za)
-        rib([(s * (X1 - 0.42), y) for y in ys], PROF_WALL, CS, za)
+        rib([(s * (NHW - 0.42), y) for y in ys], PROF_WALL, CAPL, zv)
+        rib([(s * (AIN + 0.4), y) for y in ys], PROF_WALL, CAPL, za)
+        rib([(s * (X1 - 0.42), y) for y in ys], PROF_WALL, CAPL, za)
     # NAVES LATERAIS: transversais e diagonais
     for s in (-1, 1):
         axs = [s * (AIN + 0.4 + (X1 - AIN - 0.8) * k / 6.0) for k in range(7)]
         for y in VAULT_Y:
             yy = min(max(y, Y0 + 0.55), Y1 - 0.55)
-            rib([(x, yy) for x in axs], PROF_RIB_S if Y0 < y < Y1 else PROF_WALL, CAPL if Y0 < y < Y1 else CS, za)
+            rib([(x, yy) for x in axs], PROF_RIB_S if Y0 < y < Y1 else PROF_WALL, CAPL, za)
     # CHAVES esculpidas: florao grande com pendente nas linhas dos pilares (diafragma x cumeeira), florao no meio de
     # cada tramo (cruzamento das diagonais) e nas naves laterais
     for y in AY:
@@ -2198,7 +2215,7 @@ def chandelier(mb, x, y, s=CH_S):
     h = Z + CHAND_H
     R, R2 = 4.4 * s, 2.6 * s
     h2 = h + 3.1 * s
-    for rr, hh, n, rt in ((R, h, 12, 0.14), (R2, h2, 8, 0.11)):
+    for rr, hh, n, rt in ((R, h, 10, 0.14), (R2, h2, 8, 0.11)):
         mb.tube([(x + rr * math.cos(2 * math.pi * k / n), y + rr * math.sin(2 * math.pi * k / n), hh) for k in
                  range(n + 1)], rt * s, IRONL, 5)
 
