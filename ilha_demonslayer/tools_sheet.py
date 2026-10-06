@@ -2,8 +2,9 @@
 # uso:
 #   python tools_sheet.py <pasta_A> <pasta_B> <saida.jpg> CAM_A,CAM_B,... ["rotulo A" "rotulo B"]
 #       a MESMA camera nas duas pastas (antes/depois, previa/roblox)
-#   python tools_sheet.py --ref <pasta_ref> <pasta_previa> <pasta_roblox> <saida.jpg> CAM_DS_Ref_01,...
-#       cada camera de referencia ao lado da imagem aprovada (ref_0n.jpg) - previa e roblox
+#   python tools_sheet.py --ref <pasta_ref> <pasta_previa> <pasta_roblox> <saida.jpg> CAM_DS_Ref_01,... ["estado"]
+#       cada camera de referencia ao lado da imagem aprovada (ref_0n.jpg) - previa e roblox. "estado" vai no rotulo
+#       (ex.: "BLOCKOUT", "ONDA 4"); sem ele o rotulo e so PREVIA/ROBLOX (ONDA 4: antes era sempre "BLOCKOUT")
 import os, sys
 from PIL import Image, ImageDraw, ImageFont
 
@@ -58,7 +59,8 @@ def sheet(dir_a, dir_b, out, cams, ta="PREVIA", tb="ROBLOX"):
     compose(rows, out)
 
 
-def ref_sheet(dir_ref, dir_prev, dir_rbx, out, cams):
+def ref_sheet(dir_ref, dir_prev, dir_rbx, out, cams, tag=""):
+    pre = (tag.strip() + " ") if tag and tag.strip() else ""
     rows = []
     for c in cams:
         k = c[-2:]
@@ -68,9 +70,9 @@ def ref_sheet(dir_ref, dir_prev, dir_rbx, out, cams):
             print("pulado (falta imagem):", c)
             continue
         h = round(W * 9 / 16)
-        row = [frame(r, "REFERENCIA ref_%s" % k, h), frame(p, "BLOCKOUT previa  %s" % c.replace("CAM_DS_", ""), h)]
+        row = [frame(r, "REFERENCIA ref_%s" % k, h), frame(p, "%sPREVIA  %s" % (pre, c.replace("CAM_DS_", "")), h)]
         if os.path.exists(b):
-            row.append(frame(b, "BLOCKOUT roblox  %s" % c.replace("CAM_DS_", ""), h))
+            row.append(frame(b, "%sROBLOX  %s" % (pre, c.replace("CAM_DS_", "")), h))
         rows.append(row)
     compose(rows, out)
 
@@ -78,6 +80,6 @@ def ref_sheet(dir_ref, dir_prev, dir_rbx, out, cams):
 if __name__ == "__main__":
     a = sys.argv[1:]
     if a and a[0] == "--ref":
-        ref_sheet(a[1], a[2], a[3], a[4], a[5].split(","))
+        ref_sheet(a[1], a[2], a[3], a[4], a[5].split(","), a[6] if len(a) > 6 else "")
     else:
         sheet(a[0], a[1], a[2], a[3].split(","), *(a[4:6] if len(a) >= 6 else ()))

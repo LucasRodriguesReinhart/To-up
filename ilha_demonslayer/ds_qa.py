@@ -101,6 +101,14 @@ def nav():
         ok += not f
         print(("OK   " if not f else "FAIL ") + "ROTA " + name + ("" if not f else "  " + str(f)))
     print("ROTAS %d/%d OK" % (ok, len(res)))
+    # ONDA 4: rotas INTERNAS das casas visitaveis (V1 chaya e V6 casa principal), do ds_village
+    try:
+        import ds_village
+        bad_v = ds_village.qa_run()
+        nv = len(ds_village.qa_routes())
+        print("ROTAS_VILA %d/%d OK" % (nv - len(bad_v), nv))
+    except Exception as e:
+        print("FAIL ROTAS_VILA nao rodaram: %s" % e)
     bvh2, _ = col_bvh(exclude=("COL_GateOnePieceLock",))
     f, zend = fm_qa.walk(bvh2, L.gate_open_route(), T4)
     print(("OK   " if not f else "FAIL ") + "ROTA PORTAO_OP_ABERTO->ANCORA" + ("" if not f else "  " + str(f)))
@@ -188,7 +196,7 @@ REQUIRED = ["WORLD_FROM_PREV", "WORLD_ENTRY_DemonSlayer", "PATH_ENTRY_CENTER", "
             "AUDIO_Forge", "AUDIO_Waterwheel", "AUDIO_Cascade", "AUDIO_Pond", "AUDIO_Bamboo", "AUDIO_Summon",
             "AUDIO_Clearing", "AUDIO_Village",
             "FX_Fall_1_Lip", "FX_Fall_1_Step", "FX_Fall_1_Base", "FX_Fall_2_Lip", "FX_Fall_2_Base", "FX_Forge_Smoke",
-            "FX_Forge_Embers", "FX_Mist_Bamboo", "FX_Mist_Ravine", "WATER_Pond", "WATER_Flume", "WATER_Tailrace",
+            "FX_Forge_Embers", "FX_Forge_Smoke_Vent", "FX_Mist_Bamboo", "FX_Mist_Ravine", "WATER_Pond", "WATER_Flume", "WATER_Tailrace",
             "WATER_Channel", "VFX_DS_Wheel"]
 REQUIRED_CAMS = list(L.cams().keys())
 

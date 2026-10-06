@@ -26,8 +26,8 @@
 # MATERIAIS: so os da paleta (Bark_DS, Leaf_DS_Broad/Cedar/Shrub, Bamboo_DS/_Dry, Wisteria_DS*). 3 tons de verde:
 # Cedar (escuro, coniferas e o fundo das copas), Broad (medio, arvores largas), Shrub (claro: momiji, karikomi, folha
 # de bambu e tufos de grama). Lilas so nas glicinias.
-# RAIZES: as raizes retas que o ds_terrain deixou para as 3 arvores da clareira (DS_Clr_Roots, a do nordeste dentro
-# do canal) saem no build daqui; cada arvore tem as suas (curvas, mergulhando no chao real, fora do canal).
+# RAIZES: cada arvore da clareira tem as suas (curvas, mergulhando no chao real, fora do canal). (ONDA 4: o ds_terrain
+# nao gera mais as raizes retas DS_Clr_Roots, entao o apagamento delas aqui saiu.)
 # OBJETOS: 1 por celula de 140 x 140 da planta (o export fatia > 160 em celulas e cada material vira 1 MeshPart);
 # bambuzal e glicinias em objetos proprios.
 import math, random, zlib
@@ -453,8 +453,12 @@ def culm(mb, p0, h, r, splay, bend, rng, collars=3):
 
 
 def collar(mb, p, d, r):
-    """anel do no: tubo curto ABERTO 1,22 x o raio (sem tampa: 10 tris), le como a listra do bambu"""
-    PK.loft(mb, [p - d * 0.1, p + d * 0.14], [PK.circ(r * 1.22, 5), PK.circ(r * 1.16, 5)], BAMB_DRY, caps=False)
+    """anel do no: tubo curto ABERTO (sem tampa: 10 tris), le como a listra do bambu.
+    ONDA 4 (z-fight): o pentagono do anel era PARALELO ao do colmo a 0,035-0,05 (16 touceiras, ~200 studs2 de pisca);
+    agora gira meio passo (36 graus): as faces do anel cruzam as do colmo em angulo e nenhuma fica paralela. Raio no
+    vertice 1,30 / 1,24 (no meio da face 1,05 / 1,00 x o raio: as quinas do colmo continuam cobertas)"""
+    PK.loft(mb, [p - d * 0.1, p + d * 0.14], [PK.circ(r * 1.30, 5, math.pi / 5), PK.circ(r * 1.24, 5, math.pi / 5)],
+            BAMB_DRY, caps=False)
 
 
 def leaf_fan(mb, p, rng, az0, n=4, Ln=2.0, up=-0.35, m="Leaf_DS_Bamboo"):
@@ -941,10 +945,8 @@ def bamboo_grove(P, mb, rng, wis_c):
 
 # ================================================================== BUILD
 def drop_blockout_veg():
-    """a vegetacao do blockout (e as colisoes dela) sai; as RAIZES das 3 arvores largas que o ds_terrain deixou
-    (DS_Clr_Roots: hastes retas, a do nordeste dentro do canal) sao trocadas pelas raizes de cada arvore daqui"""
-    for o in [o for o in bpy.data.objects if o.name.startswith(("DS_Veg_Blockout", "COL_DS_VegTrunk", "COL_DS_VegBamboo",
-                                                                  "DS_Clr_Roots"))]:
+    """a vegetacao do blockout (e as colisoes dela) sai"""
+    for o in [o for o in bpy.data.objects if o.name.startswith(("DS_Veg_Blockout", "COL_DS_VegTrunk", "COL_DS_VegBamboo"))]:
         bpy.data.objects.remove(o, do_unlink=True)
 
 

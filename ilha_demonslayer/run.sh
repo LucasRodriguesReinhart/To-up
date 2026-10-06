@@ -15,6 +15,6 @@ case "$1" in
   render)  shift; OUTD="$(mkdir -p "$1" && cd "$1" && pwd -W)"; shift
            "$BL" -b --factory-startup "${DS_BLEND:-ilha_demonslayer.blend}" --python ds_render.py -- "$OUTD" "$@" 2>&1 | grep -E "RENDER|Error|Traceback" ;;
   export)  shift; "$BL" -b --factory-startup ilha_demonslayer.blend --python export_ds.py -- "$@" 2>&1 | grep -E "EXPORT|CONEXAO|BUDGET|FALHOU|ESTOUROU|Error|Traceback|LUZ_DS|COL:|LUZES|SEGURANCA" ;;
-  qa)      shift; "$BL" -b --factory-startup ilha_demonslayer.blend --python ds_qa.py -- "$@" 2>&1 | grep -E "OK |FAIL|TECH|ROTA|MARKERS|SONDA|LARGURA|COL faces|BUDGET|GATE|AVISO|Error|Traceback|line " ;;
+  qa)      shift; "$BL" -b --factory-startup ilha_demonslayer.blend --python ds_qa.py -- "$@" 2>&1 | grep -E "OK |FAIL|TECH|ROTA|ZF|MARKERS|SONDA|LARGURA|COL faces|BUDGET|GATE|AVISO|Error|Traceback|line " ;;
   map)     python ds_map.py ;;
 esac

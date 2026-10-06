@@ -533,7 +533,9 @@ def roof_hip(mb, F, W, D, h, kind="irimoya", pitch=0.55, over=3.4, gable=0.68, g
             y1 = yb - (tv + 0.12) / pu
             if y1 > 0.4:
                 ys = [y1, y1 * 0.5, 0.0, -y1 * 0.5, -y1]
-                poly = [(-y1, zb - 0.18), (y1, zb - 0.18)] + [(y, top(y)) for y in ys]
+                # ONDA 4 (z-fight): a base do triangulo (zb - 0,18) ficava 0,04 acima da face de baixo da cumeeira do pe
+                # (zb - 0,22), as duas viradas para baixo; agora nasce em zb - 0,05 (0,17 dentro da cumeeira)
+                poly = [(-y1, zb - 0.05), (y1, zb - 0.05)] + [(y, top(y)) for y in ys]
                 ext(mb, Fk, poly, "x", xg - 0.45, xg - 0.25, gable_m)
                 _gable_timber(mb, Fk, xg - 0.27, xg - 0.05, zb, top, y1, gable_style)
             xh = xg + go - 0.3
@@ -1032,7 +1034,9 @@ def kura_body(mb, F, W, D, h, m=PLK, r=0.7, namako=3.4, belts=(), lod=0):
 
 def kura_window(mb, Ff, s, z, w, h, lit=True, shutters=True, hood=True, m=PLK):
     """janela de kura aplicada na face (y=0 = face do reboco): moldura em 2 degraus salientes, painel aceso/papel
-    RECUADO (0,12 da parede), grade de ferro, 2 portas grossas de reboco abertas contra a parede, capelo de telha"""
+    RECUADO (0,12 da parede), grade de ferro, 2 portas grossas de reboco abertas contra a parede, capelo de telha.
+    Devolve o ponto da luz em coordenadas do MUNDO (ONDA 4: antes devolvia o ponto LOCAL (s; 1,6; z) e a luz do V4 caia
+    embaixo da ponte de chegada): 1,0 para DENTRO do reboco, atras do painel aceso"""
     x0, x1 = s - w / 2, s + w / 2
     for o, d in ((0.8, 0.62), (0.4, 0.36)):
         oi = o - 0.4 if o > 0.5 else 0.0
@@ -1057,7 +1061,7 @@ def kura_window(mb, Ff, s, z, w, h, lit=True, shutters=True, hood=True, m=PLK):
     if hood:
         roof_pent(mb, sub(Ff, s, 0.0, 0.0), w + 3.4, 1.6, z + h + 1.75, 0.5, 0.3, 0.2, 1, "braces",
                   xs=[-(w / 2 + 0.9), w / 2 + 0.9], embed=0.6)
-    return (s, 1.6, z + h / 2)
+    return Ff.p(s, -1.0, z + h / 2)
 
 
 def kura_door(mb, Ff, s, w, h, z0=0.0, m=PLK, lit=False):

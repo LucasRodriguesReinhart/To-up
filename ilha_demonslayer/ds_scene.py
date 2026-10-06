@@ -126,8 +126,28 @@ def neighbors():
     mb.finish()
 
 
+# ONDA 4 (integracao): cameras novas das folhas finais - 360 (8 vistas em volta do meio da ilha, a partir do SUL local =
+# lado da chegada, no sentido anti-horario) e as 2 vistas da CONEXAO na cabeca da ponte de chegada (a SG aparece pelos
+# vizinhos de previa). Nao entram no QA (L.cams) nem no export (SKIP_PREFIX CAM_).
+ORBIT_C, ORBIT_R, ORBIT_Z = (15.0, 290.0, 66.0), 720.0, 300.0
+
+
+def extra_cams():
+    out = {}
+    for k in range(8):
+        a = math.radians(-90.0 + 45.0 * k)
+        out["CAM_DS_Orbit_%d" % k] = ((ORBIT_C[0] + math.cos(a) * ORBIT_R, ORBIT_C[1] + math.sin(a) * ORBIT_R, ORBIT_Z),
+                                      ORBIT_C, 30)
+    z = L.DECK + 8.0                     # camera de 3a pessoa do Roblox: ~2,5 acima do olho
+    out["CAM_DS_Conexao_OlhaSG"] = ((4.0, L.PREV_Y + 14.0, z), (-6.0, L.PREV_Y - 330.0, L.DECK - 4.0), 22)
+    out["CAM_DS_Conexao_OlhaIlha"] = ((-3.0, L.PREV_Y + 4.0, z), (0.0, 120.0, L.T1 + 6.0), 22)
+    return out
+
+
 def cameras():
     for n, (loc, tgt, lens) in L.cams().items():
+        camera(n, loc, tgt, lens)
+    for n, (loc, tgt, lens) in extra_cams().items():
         camera(n, loc, tgt, lens)
     bpy.context.scene.camera = bpy.data.objects["CAM_DS_Ref_01"]
 

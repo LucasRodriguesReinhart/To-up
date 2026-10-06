@@ -1170,7 +1170,19 @@ def yard(mg):
     sando no eixo ate a soleira da boca, calcada ao longo das fachadas, avental no topo da SubidaB"""
     x0, y0, x1, y1 = L.FORGE_YARD
     zt = T4 + 0.14
-    wbb(mg, x0 - 0.35, x1 + 0.35, y0 - 0.35, y1 + 0.35, T4 - 0.45, T4, DIRTD)
+    # ONDA 4 (z-fight): a ultima pisada da SubidaB (topo em T4, ate y 437,42) entrava 1,8 no patio e ficava COPLANAR
+    # com a terra (24 studs2 em (30; 436,5; 80,2)). A faixa da terra sobre a pisada desce 0,3 (piso sobre piso: o de
+    # baixo fica >= 0,3 abaixo); o resto do patio nao muda.
+    sf, sdeg, sw, sn, stread, _g = L.stair_frame("SubidaB")
+    sy1 = sf[1] + stread * sn + 0.02
+    sxa, sxb = sf[0] - sw / 2 - 0.02, sf[0] + sw / 2 + 0.02
+    if y0 - 0.35 < sy1 and x0 - 0.35 < sxa and sxb < x1 + 0.35:
+        wbb(mg, x0 - 0.35, x1 + 0.35, sy1, y1 + 0.35, T4 - 0.45, T4, DIRTD)
+        wbb(mg, x0 - 0.35, sxa, y0 - 0.35, sy1, T4 - 0.45, T4, DIRTD)
+        wbb(mg, sxb, x1 + 0.35, y0 - 0.35, sy1, T4 - 0.45, T4, DIRTD)
+        wbb(mg, sxa, sxb, y0 - 0.35, sy1, T4 - 0.75, T4 - 0.3, DIRTD)
+    else:
+        wbb(mg, x0 - 0.35, x1 + 0.35, y0 - 0.35, y1 + 0.35, T4 - 0.45, T4, DIRTD)
     sando = (-3.6, 3.6)
     y = y0 + 0.4                                               # sando: lajes grandes no eixo ate a soleira da boca
     while y < BFY - 1.2:

@@ -1,0 +1,237 @@
+{
+ "GATE_OnePiece": {
+  "name": "GATE_OnePiece",
+  "pos": [
+   -2044.067,
+   80.2,
+   1537.014
+  ],
+  "x": [
+   -0.819,
+   0.0,
+   -0.574
+  ],
+  "y": [
+   -0.574,
+   0.0,
+   0.819
+  ],
+  "props": {
+   "open_w": 16.0,
+   "open_h": 18.0,
+   "deck_w": 18.0,
+   "area_id": 5,
+   "key": "OnePiece",
+   "fwd_x": -0.5736,
+   "fwd_z": 0.8192
+  }
+ },
+ "ISLAND_EXIT_DemonSlayer": {
+  "name": "ISLAND_EXIT_DemonSlayer",
+  "pos": [
+   -2005.064,
+   80.2,
+   1481.312
+  ],
+  "x": [
+   -0.819,
+   0.0,
+   -0.574
+  ],
+  "y": [
+   -0.574,
+   0.0,
+   0.819
+  ],
+  "props": {
+   "width": 18.0,
+   "deck_z": 80.2,
+   "heading_deg": 125.0,
+   "note": "cabeca da ponte de saida (56, T4), depois do torii de saida",
+   "fwd_x": -0.5736,
+   "fwd_z": 0.8192,
+   "heading_deg_local": 105.0
+  }
+ },
+ "ISLAND_NEXT_ANCHOR_OnePiece": {
+  "name": "ISLAND_NEXT_ANCHOR_OnePiece",
+  "pos": [
+   -2054.391,
+   80.2,
+   1551.759
+  ],
+  "x": [
+   -0.819,
+   0.0,
+   -0.574
+  ],
+  "y": [
+   -0.574,
+   0.0,
+   0.819
+  ],
+  "props": {
+   "width": 18.0,
+   "deck_z": 80.2,
+   "clear_h": 22.0,
+   "heading_deg": 125.0,
+   "next_area": 5,
+   "next_key": "OnePiece",
+   "fwd_roblox": "-0.5736,0.0000,0.8192",
+   "pos_roblox": "-2054.39,80.20,1551.76",
+   "orientation_roblox": "0,145.0,0",
+   "guard": "PROVISORIO: COL_DSAnchorGuard_* + DS_Exit_AnchorGuard (next_island_guard=True)",
+   "guard_note": "a integracao da One Piece REMOVE a guarda quando a ponte seguinte encosta aqui",
+   "fwd_x": -0.5736,
+   "fwd_z": 0.8192,
+   "heading_deg_local": 105.0
+  }
+ },
+ "MiningZone_DemonSlayer": {
+  "name": "MiningZone_DemonSlayer",
+  "pos": [
+   -1835.365,
+   60.2,
+   1156.161
+  ],
+  "x": [
+   -0.643,
+   0.0,
+   -0.766
+  ],
+  "y": [
+   -0.766,
+   0.0,
+   0.643
+  ],
+  "props": {
+   "kind": "mining",
+   "floor": 60.2,
+   "sx": 112.0,
+   "sy": 150.0,
+   "open_sky": true,
+   "note": "clareira natural a CEU ABERTO (sem 'ceil': o script usa piso + 28); o jogo usa ORE_* + grade hexagonal + bloqueios GP_Block_*; frente = +Y local",
+   "fwd_x": -0.766,
+   "fwd_z": 0.6428
+  }
+ },
+ "SUMMON_Interact": {
+  "name": "SUMMON_Interact",
+  "pos": [
+   -1954.685,
+   70.2,
+   1083.968
+  ],
+  "x": [
+   -0.643,
+   0.0,
+   -0.766
+  ],
+  "y": [
+   -0.766,
+   0.0,
+   0.643
+  ],
+  "props": {
+   "note": "gabinete invisivel do Gacha_nichirin (prompt Invocar)",
+   "fwd_x": -0.766,
+   "fwd_z": 0.6428
+  }
+ },
+ "SUMMON_Main": {
+  "name": "SUMMON_Main",
+  "pos": [
+   -1959.184,
+   70.2,
+   1078.606
+  ],
+  "x": [
+   -0.766,
+   0.0,
+   0.643
+  ],
+  "y": [
+   0.643,
+   0.0,
+   0.766
+  ],
+  "props": {
+   "note": "torre de invocacao AMS (estrela + aneis + torre + nucleo, familia da Ilha 1), frente para -X local (oeste: clareira e entrada)",
+   "fwd_x": 0.6428,
+   "fwd_z": 0.766
+  }
+ },
+ "SUMMON_PlayerPosition": {
+  "name": "SUMMON_PlayerPosition",
+  "pos": [
+   -1948.9,
+   70.2,
+   1090.862
+  ],
+  "x": [
+   0.766,
+   0.0,
+   -0.643
+  ],
+  "y": [
+   -0.643,
+   0.0,
+   -0.766
+  ],
+  "props": {
+   "note": "onde o jogador fica olhando a torre (pad do gacha)",
+   "fwd_x": -0.6428,
+   "fwd_z": -0.766
+  }
+ },
+ "WORLD_ENTRY_DemonSlayer": {
+  "name": "WORLD_ENTRY_DemonSlayer",
+  "pos": [
+   -1627.951,
+   54.4,
+   1040.863
+  ],
+  "x": [
+   -0.643,
+   0.0,
+   -0.766
+  ],
+  "y": [
+   -0.766,
+   0.0,
+   0.643
+  ],
+  "props": {
+   "note": "chegada da ilha (patio do torii, olhando a escada da trilha e a clareira)",
+   "fwd_x": -0.766,
+   "fwd_z": 0.6428
+  }
+ },
+ "WORLD_FROM_PREV": {
+  "name": "WORLD_FROM_PREV",
+  "pos": [
+   -1534.493,
+   52.2,
+   962.443
+  ],
+  "x": [
+   -0.643,
+   0.0,
+   -0.766
+  ],
+  "y": [
+   -0.766,
+   0.0,
+   0.643
+  ],
+  "props": {
+   "width": 18.0,
+   "deck_z": 52.2,
+   "prev": "ISLAND_NEXT_ANCHOR_DemonSlayer (Ilha 3 Shadow Garden)",
+   "bridge_len": 100.0,
+   "note": "centro da borda do tabuleiro da ponte de chegada (reta de 100, sobe 2 ate o patio T0); avanco = frente; tem de cair EXATO na ancora da Ilha 3",
+   "fwd_x": -0.766,
+   "fwd_z": 0.6428
+  }
+ }
+}

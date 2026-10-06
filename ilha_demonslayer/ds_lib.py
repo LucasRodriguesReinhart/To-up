@@ -50,7 +50,9 @@ DSMATS = {
     "Roof_DS_Ridge":      (S(38, 42, 54), 0.7, 0.0, 0, None, 0.04),      # cumeeira e onigawara
     "Stone_DS":           (S(124, 120, 112), 0.85, 0.0, 0, None, 0.10),  # ishigaki, socos, escadas
     "Stone_DS_Path":      (S(156, 146, 128), 0.85, 0.0, 0, None, 0.10),  # lajes dos caminhos (as mais claras do chao)
-    "Stone_DS_Laje":      (S(128, 118, 104), 0.85, 0.0, 0, None, 0.08),  # lajes do patio/trilha (onda 1a): pedra quente media
+    "Stone_DS_Laje":      (S(136, 125, 108), 0.85, 0.0, 0, None, 0.08),  # lajes do patio/trilha (onda 1a): pedra quente media
+                                                                         # (ONDA 4: era 128,118,104 - mesmo valor do Stone_DS
+                                                                         # do arrimo ao lado; agora 1 degrau acima, abaixo do Path)
     "Stone_DS_Dark":      (S(72, 70, 70), 0.8, 0.0, 0, None, 0.08),      # base da forja, fornalha, podio do summon
     "Cliff_DS":           (S(86, 92, 104), 0.9, 0.0, 0, None, 0.12),     # penhasco em estratos, cinza-azulado
     "Cliff_DS_Dark":      (S(62, 66, 78), 0.9, 0.0, 0, None, 0.10),      # estrato escuro / quilha
@@ -59,12 +61,14 @@ DSMATS = {
     "Metal_DS_Rust":      (S(112, 66, 42), 0.85, 0.2, 0, None, 0.06),    # acento de ferrugem
     "Glass_DS_Lantern":   (S(255, 192, 118), 0.4, 0.0, 1.2, S(255, 170, 90), 0.0),    # papel/vidro de lanterna aceso
     "Window_DS_Warm":     (S(255, 204, 140), 0.5, 0.0, 0.7, S(255, 180, 110), 0.0),   # shoji aceso, recuado
-    "Bamboo_DS":          (S(118, 150, 72), 0.7, 0.0, 0, None, 0.08),
+    "Bamboo_DS":          (S(106, 136, 66), 0.7, 0.0, 0, None, 0.08),     # ONDA 4: era 118,150,72 (verde-limao, o verde
+                                                                         # mais claro da ilha); segue o mais claro da vegetacao
     "Bamboo_DS_Dry":      (S(170, 160, 104), 0.7, 0.0, 0, None, 0.06),
     "Leaf_DS_Broad":      (S(46, 84, 48), 0.85, 0.0, 0, None, 0.06),
     "Leaf_DS_Cedar":      (S(34, 66, 46), 0.85, 0.0, 0, None, 0.06),
     "Leaf_DS_Shrub":      (S(66, 104, 56), 0.85, 0.0, 0, None, 0.06),
-    "Leaf_DS_Bamboo":     (S(104, 142, 64), 0.85, 0.0, 0, None, 0.06),   # ds_veg (3a): folha do bambu (mais clara que o capim)
+    "Leaf_DS_Bamboo":     (S(94, 130, 60), 0.85, 0.0, 0, None, 0.06),    # ds_veg (3a): folha do bambu (mais clara que o capim)
+                                                                         # (ONDA 4: era 104,142,64)
     "Bark_DS":            (S(70, 52, 40), 0.9, 0.0, 0, None, 0.08),
     "Grass_DS":           (S(84, 118, 62), 0.9, 0.0, 0, None, 0.10),
     "Dirt_DS":            (S(132, 106, 76), 0.95, 0.0, 0, None, 0.10),   # chao da clareira (contraste com os minerios)
@@ -83,7 +87,9 @@ DSMATS = {
     "Lacquer_DS_Black":   (S(30, 28, 32), 0.45, 0.0, 0, None, 0.0),      # ds_forge (2b): saya, ito, suportes de laca
     "Rope_DS_Straw":      (S(186, 160, 106), 0.9, 0.0, 0, None, 0.06),   # ds_forge (2b): shimenawa e sacos de carvao
     "Water_DS_Trough":    (S(36, 50, 60), 0.15, 0.0, 0, None, 0.0),      # ds_forge (2b): agua parada do cocho de tempera
-    "Plaster_DS_Clay":    (S(190, 150, 108), 0.9, 0.0, 0, None, 0.05),   # ds_forge (2b): reboco de barro quente da forja
+    "Plaster_DS_Clay":    (S(184, 152, 120), 0.9, 0.0, 0, None, 0.05),   # ds_forge (2b): reboco de barro quente da forja
+                                                                         # (ONDA 4: era 190,150,108 - pessego; menos saturado,
+                                                                         # mesma familia do reboco da vila, ainda mais quente)
     "Cloth_DS_Linen":     (S(214, 206, 184), 0.9, 0.0, 0, None, 0.04),   # ds_props (3b): algodao cru (varal, tenugui, fitas)
     "Cloth_DS_Ai":        (S(52, 70, 108), 0.9, 0.0, 0, None, 0.04),     # ds_props (3b): azul aizome (yukata, guarda-sol)
     # so previa (00_REFERENCE): mar de nuvens, lua, vizinhos

@@ -136,6 +136,9 @@ class Grid:
         self.X, self.Y = np.meshgrid(xs, ys)
 
 
+DISSOLVE_ANG = float(__import__("os").environ.get("DS_DISSOLVE_ANG", "0.02"))   # rad (ONDA 4: era 0,15)
+
+
 def field_mesh(mb, G, F, zfun, m, top_off=0.0, skirt=0.5, flare=0.0, m_skirt=None, dissolve=True):
     """superficie da regiao F > 0 (marching squares sobre a grade G) no z = zfun(x, y) + top_off, com saia de
     'skirt' para baixo na borda (alargando 'flare' para fora: chanfro). Faces em ordem anti-horaria (normal +Z)."""
@@ -190,9 +193,16 @@ def field_mesh(mb, G, F, zfun, m, top_off=0.0, skirt=0.5, flare=0.0, m_skirt=Non
     if dissolve:
         for f in faces:
             f.normal_update()
-        edges = list({e for f in faces for e in f.edges})
-        # funde as faces coplanares e tira os vertices quase colineares do contorno (< ~6 graus)
-        bmesh.ops.dissolve_limit(bm, angle_limit=0.15, use_dissolve_boundaries=False, verts=verts, edges=edges,
+        # ONDA 4: ordem DETERMINISTICA (o set de BMEdge saia em ordem de memoria: o dissolve mudava de build para
+        # build) e limite de angulo ate DISSOLVE_ANG. Com 0,15 rad (8,6 graus) o dissolve juntava encostas suaves em
+        # ngons NAO planares de ate ~8000 studs2 (53 vertices) e cada camada (pele de terra x manchas de grama 0,15
+        # acima) triangulava a sua de um jeito: a grama afundava sob a terra em trechos inteiros (bambuzal, entrada).
+        bm.edges.index_update()
+        bm.verts.index_update()
+        edges = sorted({e for f in faces for e in f.edges}, key=lambda e: e.index)
+        verts.sort(key=lambda v: v.index if v.is_valid else -1)
+        # funde as faces coplanares e tira os vertices quase colineares do contorno
+        bmesh.ops.dissolve_limit(bm, angle_limit=DISSOLVE_ANG, use_dissolve_boundaries=False, verts=verts, edges=edges,
                                  delimit=set())
     verts = [v for v in verts if v.is_valid]
     vset = set(verts)
@@ -1180,9 +1190,9 @@ def paving(mb):
     return n
 
 
-def clearing_edges(mb, mb_root):
-    """borda da clareira: poucas pedras (com colisao, fora da zona + 8), fragmentos de pedra rentes ao chao e raizes
-    das 3 arvores largas (as arvores sao do ds_veg)"""
+def clearing_edges(mb):
+    """borda da clareira: poucas pedras (com colisao, fora da zona + 8) e fragmentos de pedra rentes ao chao.
+    (ONDA 4: as raizes retas das 3 arvores largas - DS_Clr_Roots - sairam daqui; cada arvore do ds_veg tem as suas)"""
     x0, y0, x1, y1 = L.MINE_RECT
     rocks = [(-38.0, 168.0, 2.4, 1.6), (-41.0, 262.0, 1.8, 1.2), (-42.0, 308.0, 2.8, 1.9), (113.0, 192.0, 2.2, 1.5),
              (114.0, 258.0, 1.7, 1.1), (-18.0, 364.0, 2.0, 1.3), (74.0, 374.0, 2.3, 1.4)]
@@ -1209,16 +1219,6 @@ def clearing_edges(mb, mb_root):
         r = 0.6 + 0.6 * hh(i, "fs")
         boulder(mb, cx, cy, T1 - 0.3, r, 0.46, ("fg", i), ang=t)
         frags += 1
-    # raizes: 5 por arvore, saem do pe do tronco e mergulham no chao (arco baixo)
-    for ti, (tx, ty, tr) in enumerate(L.CLEARING_TREES):
-        for k in range(5):
-            a = 2 * math.pi * k / 5 + hh(ti, k, "ra") * 0.8
-            L1 = 3.2 + 2.6 * hh(ti, k, "rl")
-            p0 = Vector((tx + math.cos(a) * 1.1, ty + math.sin(a) * 1.1, T1 + 1.0))
-            p1 = Vector((tx + math.cos(a) * (1.1 + L1 * 0.5), ty + math.sin(a) * (1.1 + L1 * 0.5), T1 + 0.55))
-            p2 = Vector((tx + math.cos(a + 0.25) * (1.1 + L1), ty + math.sin(a + 0.25) * (1.1 + L1), T1 - 0.15))
-            mb_root.rod(p0, p1, 0.55, m="Bark_DS", n=5)
-            mb_root.rod(p1, p2, 0.36, m="Bark_DS", n=5)
     return frags
 
 
@@ -1279,8 +1279,6 @@ def build():
     stats["lajes"] = paving(mp)
     mp.finish(recalc=False)
     me = MB("DS_Clr_EdgeRocks", "03_CLEARING", None, detail="far", floor=-999)
-    mro = MB("DS_Clr_Roots", "03_CLEARING", None, detail="far", floor=-999)
-    stats["fragmentos"] = clearing_edges(me, mro)
+    stats["fragmentos"] = clearing_edges(me)
     me.finish(recalc=False)
-    mro.finish()
     print("ds_terrain", stats)

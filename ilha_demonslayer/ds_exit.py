@@ -259,6 +259,30 @@ def _rects_hit(r, placed):
     return False
 
 
+def _skin_sampler():
+    """ONDA 4 (z-fight): material da pele REAL embaixo (DS_Ter_Ground / DS_Frg_Ground, topo no piso T4). O enchimento
+    encosta coplanar na pele onde o leito nao foi aberto; com o MESMO material a costura nao pisca (antes o enchimento
+    escolhia Dirt_DS_Dark pelo floor_name 'Forge' e a pele ali e Dirt_DS: ~14 studs2 coplanares em (-114; 533))"""
+    obs = [o for o in (bpy.data.objects.get("DS_Ter_Ground"), bpy.data.objects.get("DS_Frg_Ground")) if o]
+    trees = []
+    for o in obs:
+        mw = o.matrix_world
+        vs = [mw @ v.co for v in o.data.vertices]
+        ps = [list(p.vertices) for p in o.data.polygons]
+        trees.append((BVHTree.FromPolygons(vs, ps), o))
+
+    def sample(x, y, default):
+        best = None
+        for t, o in trees:
+            h = t.ray_cast(Vector((x, y, T4 + 2.0)), Vector((0.0, 0.0, -1.0)), 2.2)
+            if h[0] is not None and abs(h[0].z - T4) < 0.06 and (best is None or h[3] < best[0]):
+                m = o.data.materials[o.data.polygons[h[2]].material_index]
+                if m and m.name.startswith("Dirt_DS"):
+                    best = (h[3], m.name)
+        return best[1] if best else default
+    return sample
+
+
 def _corridor_fill(mb):
     """o ds_terrain (onda 1a) deixa SEM pele (leito 0,5 abaixo) a faixa de meia-largura 5,2 em volta de L.EXIT_PATH,
     para o caminho de saida. Aqui ela vira o CAMINHO DE TERRA batida: enchimento ate a cota do piso, no MESMO material
@@ -267,18 +291,28 @@ def _corridor_fill(mb):
     fr = _path_frames(L.EXIT_PATH, 1.0)
     hw = 5.25
     secs = []
+    skin = _skin_sampler()
     for s_, x, y, dx, dy in fr[::2] + [fr[-1]]:
         secs.append(((x - dy * hw, y + dx * hw), (x + dy * hw, y - dx * hw), (x, y)))
     for a, b in zip(secs, secs[1:]):
         cx, cy = (a[2][0] + b[2][0]) / 2, (a[2][1] + b[2][1]) / 2
         m = "Dirt_DS_Dark" if L.floor_name(cx, cy) == "Forge" else "Dirt_DS"
+        for ex, ey in (a[0], a[1], b[0], b[1]):                # a pele que encosta nas bordas do trecho manda
+            sm = skin(ex, ey, None)
+            if sm:
+                m = sm
+                break
         mb.prism(ccw([a[0], b[0], b[1], a[1]]), T4 - 0.62, T4, m, tint=0.0)
     for (s_, x, y, dx, dy), sg in ((fr[0], -1.0), (fr[-1], 1.0)):          # pontas redondas (o campo e uma capsula)
         a0 = math.atan2(dy, dx)
         pts = [(x, y)] + [(x + hw * math.cos(a0 + sg * (math.pi / 2 - math.pi * k / 8)),
                            y + hw * math.sin(a0 + sg * (math.pi / 2 - math.pi * k / 8))) for k in range(9)]
-        m = "Dirt_DS_Dark" if L.floor_name(x, y) == "Forge" else "Dirt_DS"
-        mb.prism(ccw(pts), T4 - 0.62, T4, m, tint=0.0)
+        m = skin(x + dx * sg * (hw + 0.6), y + dy * sg * (hw + 0.6),
+                 "Dirt_DS_Dark" if L.floor_name(x, y) == "Forge" else "Dirt_DS")
+        # ONDA 4 (z-fight): a ponta de FORA fica inteira embaixo do tabuleiro da ponte de saida (topo T4 + 0,1): era um
+        # piso 0,1 abaixo de outro (44 studs2 em (-95,6; 595,7)); desce 0,3 (piso sobre piso: >= 0,3)
+        ztop = T4 - 0.3 if sg > 0 else T4
+        mb.prism(ccw(pts), T4 - 0.62, ztop, m, tint=0.0)
 
 
 def exit_path():

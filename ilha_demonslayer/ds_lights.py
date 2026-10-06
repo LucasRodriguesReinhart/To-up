@@ -17,8 +17,9 @@
 # Energia do Blender -> Roblox (export_roblox.lights): R0 = min(60; 8 + 1,1 sqrt(E)), B0 = min(4; 0,6 + E/800);
 #   Range = min(20; 0,35 R0), Brightness = min(1,5; 0,5 B0); override (INTERIOR_LIGHTS, lido do export_ds.py por ast:
 #   uma fonte de verdade so): Range = min(regra; R0), Brightness = min(regra; INTERIOR_BR_K * B0).
-# Tambem corrige luz fora do lugar (ex.: a do armazem kura V4: ds_kit._kura_house usa o retorno LOCAL de kura_window e a
-#   luz caia em (0; 1,6; 13,3), embaixo da ponte de chegada) - a luz de janela volta para dentro da propria casa.
+# Tambem confere luz fora do lugar: luz de janela de casa fora da propria casa vira AVISO (ONDA 4: o caso que existia -
+#   o kura V4, que usava o retorno LOCAL de kura_window - foi corrigido na fonte, no ds_kit; o remendo que movia a luz
+#   saiu). A boca da fornalha continua reposta (RELOCATE: decisao de luz, nao conserto).
 # Contagem: ER.BUDGET day_lights 36 (meta ~16 de dia + ~24 NightOnly). Imprime a tabela (LUZ ...) e grava o JSON da
 # folha com DS_LUX_JSON=<arquivo>.
 import os, re, math, ast, json
@@ -141,9 +142,8 @@ RELOCATE = {"L_DSFrg_FurnaceMouth": _mouth_pos}
 
 
 def fix_positions():
-    """luz de janela de casa (L_DSVil_Win_<casa>) fora da propria casa -> centro da planta da casa, na cota media das
-    janelas acesas (dentro: no Roblox a PointLight sem sombra passa a parede e le pelas janelas). Outras luzes: so
-    avisa se cairem fora da ilha."""
+    """RELOCATE (boca da fornalha). Luz de janela de casa (L_DSVil_Win_<casa>) fora da propria casa: AVISO (o conserto e
+    na fonte, no ds_kit). Outras luzes: so avisa se cairem fora da ilha."""
     fixed = []
     for o in scene_lights():
         if o.name in RELOCATE:
@@ -160,12 +160,8 @@ def fix_positions():
                 lo, hi, zw = hb
                 p = o.matrix_world.translation
                 if not (lo.x - 1.0 <= p.x <= hi.x + 1.0 and lo.y - 1.0 <= p.y <= hi.y + 1.0 and lo.z - 1.0 <= p.z <= hi.z):
-                    new = Vector(((lo.x + hi.x) / 2, (lo.y + hi.y) / 2, zw))
-                    print("LUZ corrigida %-24s (%.1f, %.1f, %.1f) -> (%.1f, %.1f, %.1f): fora da casa %s" % (
-                        o.name, p.x, p.y, p.z, new.x, new.y, new.z, m.group(1)))
-                    o.parent = None
-                    o.location = new
-                    fixed.append(o.name)
+                    print("AVISO ds_lights: %s em (%.1f, %.1f, %.1f) fora da casa %s (corrigir no ds_kit/ds_village)" % (
+                        o.name, p.x, p.y, p.z, m.group(1)))
             continue
         p = o.matrix_world.translation
         if not (-260.0 < p.x < 300.0 and -140.0 < p.y < 720.0 and p.z > 30.0):
