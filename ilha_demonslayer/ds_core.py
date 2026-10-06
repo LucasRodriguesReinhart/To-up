@@ -196,6 +196,29 @@ def fx_markers():
     mk("WATER_Channel", (c[0][0], c[0][1], T1 - 0.6), (0, 0, 0), 2.0, "SINGLE_ARROW",
        props={"waypoints": _wp([(x, y, T1 - 0.6) for x, y in c]), "widths": ",".join("3.0" for _ in c),
               "note": "canal da lagoa pela margem leste da clareira (sob a pontezinha do summon) ate o sangradouro"})
+    _water_measured()
+
+
+def _water_measured():
+    """ACRESCIMO ONDA 2c (ds_water): os FX_Fall_1/2_*, FX_Mist_Ravine, WATER_Pond/_Tailrace/_Channel passam a ser os da
+    PEDRA do ds_water (ds_water.water_markers(): as mesmas constantes que desenham a pedra; o ds_water.build() ainda
+    confere por raios na cena). Posicao, rumo e props sao SUBSTITUIDOS. Sem o modulo ficam as estimativas acima.
+    WATER_Flume (aqueduto de madeira) nao e tocado: e do ds_forge (onda 2b)."""
+    try:
+        import ds_water
+    except ImportError:
+        return
+    import bpy
+    for nm, (loc, yaw, props) in ds_water.water_markers().items():
+        o = bpy.data.objects.get(nm)
+        if o is None:
+            continue
+        o.location = loc
+        o.rotation_euler = (0.0, 0.0, yaw)
+        for k in list(o.keys()):
+            del o[k]
+        for k, v in props.items():
+            o[k] = v
 
 
 def op_gate():
