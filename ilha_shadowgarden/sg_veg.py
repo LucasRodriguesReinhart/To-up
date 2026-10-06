@@ -28,6 +28,11 @@
 # trios no ombro sul; a borda (rim_pass) mais rala. LOD0 perto das rotas (< 15), LOD2 no fundo. Forma nova 'marco'
 # (teixo de copa ALTA das 2 arvores-marco do patio, sg_court: tronco livre ate ~7,5 para o banco embaixo da copa).
 # Objetos por FAIXA de 160 studs (1 MeshPart por material). Historico dos grupos da v3: git (commit 5329773).
+# FINESSE 3B (agente G, 2026-10-06; AUDITORIA3 16.04, 06.08, 13.03): abeto de perto (a < 30 de rota) = pine_near
+# (tronco aparente com raizes, 3-4 andares de saia lobada com vao, ramos-card caidos); afastamento >= copa + 3 de
+# qualquer parede (site_ok, raios horizontais); curadoria: 72 -> ~58 arvores (sairam os abetos ao pe do arrimo, o grupo
+# NE do terraco norte que cercava a coroa; o beco oeste plantado do lado de fora da rota); P1/P3 agora grama: sem
+# canteiro de cantaria no pe da arvore.
 import math, random
 import bpy
 import numpy as np
@@ -61,6 +66,24 @@ CAMS = {
     "CAM_SGVeg_PH_North": ((0.0, 336.0, P3 + 5.2), (-70.0, 362.0, P3 + 6.0), 22),
 }
 CAMS.update(GD.CAMS)                # cameras da jardinagem (renders/overhaul/13b_jardim)
+# FINESSE 3B (agente G): copias das CAM_A3_* da auditoria (sg_scene.a3_cams, olho a 5,5) que o studio nao cria
+CAMS.update({
+    "CAM_A3_03_H2_Frente": ((-114.4, -212.0, 41.7), (-98.0, -180.0, 45.2), 20),
+    "CAM_A3_03_H7_Frente": ((-76.4, -88.0, 49.7), (-60.0, -56.0, 53.2), 20),
+    "CAM_A3_03_H1_Frente": ((-74.9, -228.0, 41.7), (-94.0, -262.0, 45.2), 20),
+    "CAM_A3_03_H4_Frente": ((93.2, -209.0, 41.7), (106.0, -180.0, 45.2), 20),
+    "CAM_A3_03_H6_Frente": ((-132.8, -87.0, 49.7), (-120.0, -58.0, 53.2), 20),
+    "CAM_A3_03_Gramado_P2": ((30.0, -62.0, 49.7), (96.0, -126.0, 44.2), 22),
+    "CAM_A3_03_Arrimo_W": ((-62.0, -162.0, 41.7), (-20.0, -149.0, 41.2), 20),
+    "CAM_A3_03_Arrimo_Frente": ((-30.0, -200.0, 41.7), (-40.0, -148.0, 42.2), 20),
+    "CAM_A3_01_PatioBaixo": ((8.0, -331.0, 33.7), (0.0, -296.0, 46.2), 20),
+    "CAM_A3_05_Muralha_Dentro": ((-60.0, 4.0, 57.7), (-62.0, -23.0, 66.2), 20),
+    "CAM_A3_05_Patio_E": ((18.0, 8.0, 57.7), (92.0, 30.0, 56.2), 20),
+    "CAM_A3_06_Coroa_Norte": ((56.0, 368.0, 57.7), (0.0, 303.0, 132.2), 18),
+    "CAM_A3_06_Flanco_W": ((-132.0, 96.0, 57.7), (-104.0, 180.0, 82.2), 18),
+    "CAM_A3_13_Terraco_Norte": ((10.0, 358.0, 57.7), (-116.0, 342.0, 58.2), 20),
+    "CAM_A3_13_Beco_W2": ((-148.0, 96.0, 57.7), (-136.0, 200.0, 60.2), 20),
+})
 # rotas extras: a faixa do P1 ao pe do arrimo entre as casas e a escada (onde ha canteiros) continua livre
 EXTRA_ROUTES = {
     "VEG_P1_canteiros_O": ([(-14.0, -104.0), (-40.0, -106.0), (-56.0, -106.0)], P1),
@@ -125,6 +148,13 @@ class Scene:
         if loc is None:
             return None, None, None
         return loc.z, self.names[int(self.owner[idx])], nrm
+
+    def side(self, p, d, dist):
+        """raio horizontal: (distancia, nome) do 1o acerto ou None"""
+        loc, nrm, idx, dd = self.bvh.ray_cast(Vector(p), Vector(d), dist)
+        if loc is None:
+            return None
+        return dd, self.names[int(self.owner[idx])]
 
 
 def is_ter(nm):
@@ -203,6 +233,9 @@ def why(k):
 
 
 def crown_r(form, h):
+    if form in ("fir", "spire", "stout"):
+        # FINESSE 3B: o abeto de perto (pine_near) e um pouco mais largo e os ramos-card passam da saia
+        return h * max(FORMS[form]["r0"], NEAR_FORMS[form]["r0"]) * 1.12
     return h * (0.13 if form == "cypress" else FORMS[form]["r0"])
 
 
@@ -250,6 +283,92 @@ def pine(mb, x, y, z, h, rng, form="fir", lod=1, near=False, clear=None):
         VK.spike(mb, ap - Vector((0, 0, h * 0.05)), ap + Vector((tx * 0.8, ty * 0.8, h * 0.06)), h * 0.018, MOON, 3)
 
 
+# FINESSE 3B (16.04): o abeto de PERTO (grupos junto das rotas) deixa de ser cone liso empilhado. Forma nova:
+#   - tronco APARENTE: a copa comeca a ~0,2 h, com o pe alargado em 3 raizes curtas;
+#   - 3 a 4 ANDARES de saia em lobos fundos (lob 0,44, 7 lobos de perto) com as pontas CAIDAS (droop ~30) e um VAO
+#     entre andares (a saia de baixo nao encosta na de cima: le o sombreado escuro do fundo e o tronco);
+#   - 3 RAMOS-CARD caidos por andar (lamina dobrada de 2 tris, tom escuro) saindo alem da saia em rumos desencontrados:
+#     a silhueta quebra (nada de cone de papel);
+#   - so os 2 andares de cima recebem o luar (MOON); o fundo de cada saia e SHADE.
+# A pine() antiga fica (patio do sg_court, ilhotas do sg_scene, arvores de fundo e o avanco do rng dos grupos).
+NEAR_FORMS = {
+    "fir":   dict(T=4, r0=0.29, base=0.27, taper=0.70, th=0.28, tr=0.042, droop=28.0),
+    "spire": dict(T=4, r0=0.23, base=0.25, taper=0.74, th=0.26, tr=0.036, droop=30.0),
+    "stout": dict(T=3, r0=0.33, base=0.28, taper=0.62, th=0.34, tr=0.050, droop=24.0),
+}
+
+
+def _card(mb, root, tip, half_w, fold, m):
+    """ramo-card caido: losango dobrado na nervura (raiz -> ponta), 2 tris; fold = quanto a nervura sobe"""
+    bm = mb.bm
+    root, tip = Vector(root), Vector(tip)
+    d = tip - root
+    side = Vector((-d.y, d.x, 0.0))
+    if side.length < 1e-6:
+        return
+    side.normalize()
+    mid = root.lerp(tip, 0.45)
+    a = bm.verts.new(root)
+    b = bm.verts.new(tip)
+    l = bm.verts.new(mid + side * half_w - Vector((0, 0, fold)))
+    r = bm.verts.new(mid - side * half_w - Vector((0, 0, fold)))
+    out = []
+    VK._tri(mb, a, l, b, out)
+    VK._tri(mb, a, b, r, out)
+    VK._assign(mb, out, m)
+
+
+def pine_near(mb, x, y, z, h, form="fir", lobes=7):
+    """abeto de perto (16.04): tronco aparente, andares de saia lobada com vao, ramos-card caidos. rng proprio derivado
+    da posicao (deterministico). tris ~ 60 por andar + 30 do tronco"""
+    P = NEAR_FORMS.get(form, NEAR_FORMS["fir"])
+    g = random.Random((int(abs(x) * 173) * 31 + int(abs(y) * 97)) & 0xfffff)
+    T = P["T"]
+    r0 = h * P["r0"] * g.uniform(0.94, 1.06)
+    tr = h * P["tr"]
+    zb = z + h * P["base"] * g.uniform(0.92, 1.1)
+    zt = z + h
+    ta = g.uniform(0, math.tau)
+    tl = h * g.uniform(0.015, 0.035)
+    tx, ty = math.cos(ta) * tl, math.sin(ta) * tl
+    # tronco (6 lados de perto) + 3 raizes curtas no pe
+    VK.ttube(mb, [(x, y, z - 0.6), (x, y, z + h * 0.12), (x + tx * 0.4, y + ty * 0.4, z + h * 0.62)],
+             [tr * 1.55, tr * 1.05, tr * 0.55], BARK, n=6, cap1=False)
+    for k in range(3):
+        a = ta + 0.6 + k * math.tau / 3
+        VK.ttube(mb, [(x + math.cos(a) * tr * 0.5, y + math.sin(a) * tr * 0.5, z + tr * 1.6),
+                      (x + math.cos(a) * tr * 2.3, y + math.sin(a) * tr * 2.3, z - 0.3)], [tr * 0.55, tr * 0.18],
+                 BARK, n=4, cap1=False)
+    ch = zt - zb
+    rot0 = g.uniform(0, math.tau)
+    for k in range(T):
+        u = k / (T - 1)
+        top = k == T - 1
+        zc = zb + ch * 0.80 * (u ** 0.95)
+        r = r0 * (1.0 - P["taper"] * u) * g.uniform(0.93, 1.07)
+        th = (zt - zc) if top else ch * P["th"] * (1.0 - 0.25 * u)
+        cxy = (x + tx * u, y + ty * u)
+        lm = MOON if k >= T - 2 else None
+        dr = P["droop"] * (1.0 - 0.3 * u) * g.uniform(0.9, 1.1)
+        VK.skirt(mb, (cxy[0], cxy[1], zc), r, th, (lobes if k < T - 1 else 5), LEAF, g,
+                 rot=rot0 + k * 1.37, droop=dr, lob=0.44 if not top else 0.3, shoulder=0.52,
+                 under=0.18, under_m=SHADE, lean=((tx * 0.6, ty * 0.6) if top else (0.0, 0.0)), lit=lm,
+                 lit_k=(0.2 if top else 0.42), asym=0.08, wind=ta, jit=0.12)
+        if top:
+            continue
+        # ramos-card caidos alem da saia (3 por andar, rumos desencontrados entre andares)
+        for j in range(3):
+            a = rot0 + k * 2.1 + j * math.tau / 3 + g.uniform(-0.35, 0.35)
+            ca, sa = math.cos(a), math.sin(a)
+            rr = r * g.uniform(1.0, 1.18)
+            root = (cxy[0] + ca * r * 0.35, cxy[1] + sa * r * 0.35, zc + th * 0.12)
+            tip = (cxy[0] + ca * rr * 1.12, cxy[1] + sa * rr * 1.12,
+                   zc - rr * math.tan(math.radians(dr)) * 1.25)
+            _card(mb, root, tip, r * 0.2, r * 0.06, LEAF if k == 0 else SHADE)
+    ap = Vector((x + tx, y + ty, zt))
+    VK.spike(mb, ap - Vector((0, 0, h * 0.05)), ap + Vector((tx * 0.6, ty * 0.6, h * 0.07)), h * 0.018, MOON, 3)
+
+
 def cypress(mb, x, y, z, h, rng, lod=0):
     """cipreste fino (chama escura): 3 fusos lobados sobrepostos, quase sem queda, ombro alto"""
     r = h * 0.13 * rng.uniform(0.9, 1.08)
@@ -277,28 +396,33 @@ TALL_MIX = (("spire", 5), ("fir", 4), ("stout", 1))
 LOW_MIX = (("stout", 4), ("fir", 4), ("spire", 1))
 GROVES = [
     # P1 (calcado: a arvore nasce num canteiro de cantaria): 1 por canto, nunca na frente das casas
-    ("P1", (-52.0, -160.0), 5.0, 1, 15.0, 18.0, FIR_MIX, True, 0),
-    ("P1", (46.0, -158.0), 4.0, 1, 15.0, 18.0, FIR_MIX, True, 0),
+    # FINESSE 3B (06.08 / 13.03 / 16.04): curadoria com o abeto novo (mais caro e mais largo): menos arvores, grupos
+    # afastados das paredes (site_ok: copa + 3), o terraco norte em 2 grupos longe da torre-coroa (o grupo do canto NE
+    # que cercava a vista da coroa saiu). n = 0: grupo retirado (o indice fica: as sementes dos outros nao mudam).
+    # (os 2 abetos ao pe do arrimo sairam: tapavam a vista ao longo do muro, que agora tem as espaldeiras)
+    ("P1", (-54.0, -164.0), 5.0, 0, 15.0, 18.0, FIR_MIX, True, 0),
+    ("P1", (48.0, -164.0), 5.0, 0, 15.0, 18.0, FIR_MIX, True, 0),
     ("P1", (-142.0, -198.0), 5.0, 1, 13.0, 16.0, (("cypress", 1),), True, 0),
     ("P1", (140.0, -198.0), 6.0, 2, 14.0, 19.0, FIR_MIX, True, 0),
     ("P1", (-44.0, -260.0), 3.0, 1, 13.0, 16.0, (("cypress", 1),), True, 0),
     ("P1", (44.0, -260.0), 3.0, 1, 13.0, 16.0, (("cypress", 1),), True, 0),
     # P2 (gramado da vila alta): trios nos cantos, 1 cipreste de marco entre as casas
     ("P2", (-152.0, -120.0), 10.0, 3, 15.0, 22.0, TALL_MIX, True, 0),
-    ("P2", (-160.0, -40.0), 8.0, 3, 14.0, 20.0, FIR_MIX, True, 0),
+    ("P2", (-160.0, -40.0), 8.0, 2, 14.0, 20.0, FIR_MIX, True, 0),
     ("P2", (-95.0, -34.0), 3.0, 1, 14.0, 17.0, (("cypress", 1),), True, 0),
-    ("P2", (-26.0, -128.0), 5.0, 2, 14.0, 18.0, FIR_MIX, True, 0),
-    ("P2", (44.0, -128.0), 8.0, 3, 14.0, 20.0, FIR_MIX, True, 0),
+    ("P2", (-28.0, -126.0), 5.0, 1, 14.0, 18.0, FIR_MIX, True, 0),
+    ("P2", (44.0, -126.0), 8.0, 2, 14.0, 20.0, FIR_MIX, True, 0),
     ("P2", (60.0, -40.0), 6.0, 2, 15.0, 19.0, TALL_MIX, True, 0),
     ("P2", (98.0, -48.0), 4.0, 1, 13.0, 16.0, (("cypress", 1),), True, 0),
-    ("P2", (150.0, -128.0), 8.0, 3, 13.0, 19.0, FIR_MIX, True, 0),
+    ("P2", (150.0, -128.0), 8.0, 2, 13.0, 19.0, FIR_MIX, True, 0),
     ("P2", (170.0, -60.0), 5.0, 2, 13.0, 18.0, FIR_MIX, True, 0),
-    # P3: becos do castelo (entre a parede e a rota), terraco norte, jardim-mirante (3 pinheiros)
-    ("P3", (-124.0, 112.0), 7.0, 2, 18.0, 24.0, TALL_MIX, True, 0),
-    ("P3", (-124.0, 232.0), 7.0, 2, 17.0, 23.0, FIR_MIX, True, 0),
-    ("P3", (-50.0, 362.0), 9.0, 3, 14.0, 20.0, FIR_MIX, True, 0),
-    ("P3", (52.0, 358.0), 9.0, 3, 14.0, 20.0, FIR_MIX, True, 0),
-    ("P3", (102.0, 318.0), 7.0, 2, 15.0, 21.0, TALL_MIX, True, 0),
+    # P3: beco oeste (FINESSE 3B: do lado de FORA da rota, junto da borda: o pe do castelo fica livre), terraco norte,
+    # jardim-mirante (3 pinheiros)
+    ("P3", (-153.0, 150.0), 5.0, 2, 16.0, 22.0, TALL_MIX, True, 0),
+    ("P3", (-151.0, 238.0), 5.0, 2, 15.0, 21.0, FIR_MIX, True, 0),
+    ("P3", (-64.0, 352.0), 9.0, 3, 14.0, 20.0, FIR_MIX, True, 0),
+    ("P3", (52.0, 358.0), 9.0, 0, 14.0, 20.0, FIR_MIX, True, 0),
+    ("P3", (94.0, 326.0), 9.0, 3, 15.0, 21.0, TALL_MIX, True, 0),
     ("P3", (124.0, 14.0), 6.0, 2, 16.0, 21.0, TALL_MIX, True, 0),
     ("P3", (124.0, 250.0), 7.0, 2, 16.0, 22.0, FIR_MIX, True, 0),
     ("Mirante", (113.0, 199.0), 8.0, 2, 15.0, 19.0, FIR_MIX, True, 0),
@@ -320,7 +444,7 @@ def pick(rng, mix):
 
 
 # ------------------------------------------------------------------ regras de lugar
-PAVED = ("P1", "P3", "EntryHigh", "EntryLow")
+PAVED = ("EntryHigh", "EntryLow")   # FINESSE 3B: o P1 e o P3 agora sao grama (sg_terrain): sem canteiro de cantaria
 
 
 def forbidden_floor(x, y, fl):
@@ -416,6 +540,19 @@ def site_ok(S, x, y, h, form, floor_ok, routes, placed):
                 return why("copa_no_terreno")
     if void > 5:
         return why("copa_no_vazio")
+    # FINESSE 3B (06.08): afastamento >= raio da copa + 3 de QUALQUER parede (castelo, muralha, casa, arrimo), medido
+    # por raios horizontais em 3 alturas (a 3 do pe o parapeito baixo nao conta). Arvore do terreno bravo: so paredes
+    # que nao sao do terreno (a coluna de basalto e o penhasco ficam).
+    clear = rc + 3.0
+    for zz in (zg + 3.0, zg + h * 0.45, zg + h * 0.8):
+        for k in range(12):
+            a = k * math.tau / 12 + 0.13
+            hit = S.side((x, y, zz), (math.cos(a), math.sin(a), 0.0), clear)
+            if hit is None:
+                continue
+            if fl is None and is_ter(hit[1]):
+                continue
+            return why("parede_perto")
     return zg, fl
 
 
@@ -507,7 +644,15 @@ class Planter:
             # antes (a arvore original e sorteada num MB descartavel): nenhuma arvore muda de lugar.
             new_lod, near = self.lod_for(x, y, fl, lod)
             clr = edge_clear(x, y) if fl is None else None
-            if (new_lod, near) == (lod, False):
+            if form in NEAR_FORMS and (new_lod == 0 or route_dist(x, y, self.routes) < 30.0):
+                # FINESSE 3B (16.04): o abeto de perto e o pine_near (tronco aparente, andares lobados, ramos-card);
+                # o rng do grupo avanca como antes (a arvore antiga e sorteada num MB descartavel)
+                tmp = MB("SG_Veg_Tmp", COLL, random.Random(1), detail="near", floor=-999)
+                pine(tmp, x, y, zg, h, g, form, lod)
+                tmp.bm.free()
+                pine_near(mb, x, y, zg, h, form, lobes=7 if near else 6)
+                self.lods[("near", near)] = self.lods.get(("near", near), 0) + 1
+            elif (new_lod, near) == (lod, False):
                 pine(mb, x, y, zg, h, g, form, lod, clear=clr)
             else:
                 st = g.getstate()
