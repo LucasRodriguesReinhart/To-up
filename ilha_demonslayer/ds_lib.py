@@ -74,6 +74,15 @@ DSMATS = {
     "Ember_DS_Glow":      (S(255, 84, 24), 0.5, 0.0, 1.6, S(255, 84, 24), 0.0),     # brasas
     "Cloth_DS_Indigo":    (S(46, 40, 86), 0.85, 0.0, 0, None, 0.04),     # estandartes do summon (filete violeta escuro)
     "Cloth_DS_Red":       (S(150, 36, 30), 0.85, 0.0, 0, None, 0.04),    # noren da forja
+    "Stone_DS_Brick":     (S(150, 98, 72), 0.85, 0.0, 0, None, 0.06),    # ds_forge (2b): tijolo refratario da boca/fornalha
+    "Stone_DS_Soot":      (S(44, 40, 40), 0.9, 0.0, 0, None, 0.04),      # ds_forge (2b): fuligem, carvao, juntas fundas
+    "Metal_DS_Steel":     (S(150, 158, 170), 0.3, 0.8, 0, None, 0.0),    # ds_forge (2b): aco da lamina (ji)
+    "Metal_DS_Hamon":     (S(206, 212, 220), 0.25, 0.8, 0, None, 0.0),   # ds_forge (2b): fio temperado (hamon/boshi)
+    "Metal_DS_Brass":     (S(176, 138, 70), 0.4, 0.8, 0, None, 0.0),     # ds_forge (2b): habaki, fuchi, seppa
+    "Lacquer_DS_Black":   (S(30, 28, 32), 0.45, 0.0, 0, None, 0.0),      # ds_forge (2b): saya, ito, suportes de laca
+    "Rope_DS_Straw":      (S(186, 160, 106), 0.9, 0.0, 0, None, 0.06),   # ds_forge (2b): shimenawa e sacos de carvao
+    "Water_DS_Trough":    (S(36, 50, 60), 0.15, 0.0, 0, None, 0.0),      # ds_forge (2b): agua parada do cocho de tempera
+    "Plaster_DS_Clay":    (S(190, 150, 108), 0.9, 0.0, 0, None, 0.05),   # ds_forge (2b): reboco de barro quente da forja
     # so previa (00_REFERENCE): mar de nuvens, lua, vizinhos
     "Cloud_DS":           (S(60, 70, 104), 0.95, 0.0, 0.04, S(70, 82, 120), 0.0),
     "Cloud_DS_Shade":     (S(40, 48, 78), 0.95, 0.0, 0.02, S(48, 56, 90), 0.0),

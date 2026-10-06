@@ -81,6 +81,13 @@
 #   lantern_post(mb, F, h=8.6, arm=1.9, light_name=None, energy=40.0)   poste de madeira + braco + caixa de papel
 #   lantern_wall(mb, F, light_name=None, energy=30.0, out=1.3)           F na face da parede (+y fora), z = suporte
 #   toro(mb, F, style="kasuga"|"yukimi"|"oki", s=1.0, light_name=None, energy=35.0)   lanterna de pedra (pedestal)
+# MUDANCAS DA ONDA 2a (dono do kit = 2a; API intacta):
+#   - roof_hip: a tabeira (hafu) da empena irimoya termina acima da agua de topo medida na face INTERNA dela e acima dos
+#     canais (antes a ponta furava a telha perto do pe da empena: o "bloquinho" do close da cumeeira);
+#   - noren_cloth(mb, Ff, x0, x1, zt, ln, noren) extraido de door(); o vao "open" agora honra {"noren": True} (o preset
+#     V1 ja pedia e nao saia);
+#   - MIN_BEVEL / MIN_BEVEL_SIZE (padrao 0 = sem mudanca): opt-in de quem chama para zerar chanfros < MIN_BEVEL e de
+#     pecas com menor dimensao < MIN_BEVEL_SIZE (a vila usa 0,07 / 0,5 durante o build: ~-20% de tris na madeira).
 # ESTUDIO (folhas de close-up, fora do jogo):
 #   blender -b --factory-startup --python ds_kit.py -- <pasta_saida> [peca ...]   (previa + roblox, 960 x 540)
 import math, os, sys
@@ -117,9 +124,15 @@ def sub(F, x=0.0, y=0.0, z=0.0, ang=0.0):
     return Frame(p.x, p.y, p.z, F.a + ang)
 
 
+MIN_BEVEL = 0.0     # (2a) chanfro minimo: bev abaixo disto vira 0 (opt-in por quem chama; 0 = comportamento original)
+MIN_BEVEL_SIZE = 0.0  # (2a) e pecas cuja MENOR dimensao fica abaixo disto tambem saem sem chanfro
+
+
 def bx(mb, F, x, y, z, sx, sy, sz, m, bev=0.0, rx=0.0, ry=0.0, rz=0.0):
     if sx <= 1e-3 or sy <= 1e-3 or sz <= 1e-3:
         return
+    if bev and (bev < MIN_BEVEL or min(sx, sy, sz) < MIN_BEVEL_SIZE):
+        bev = 0.0
     mb.box((sx, sy, sz), F.p(x, y, z), F.r(rx, ry, rz), m, bev)
 
 
@@ -527,7 +540,9 @@ def roof_hip(mb, F, W, D, h, kind="irimoya", pitch=0.55, over=3.4, gable=0.68, g
             ye = 0.0
             for i in range(1, 200):
                 y = yb * i / 200
-                if S.zy(xh, y) - tv - 0.65 < S.zx(xh, y) + 0.1:
+                # (2a) a tabeira termina ACIMA da agua de topo medida na face de DENTRO dela (xh - 0,2) e acima dos
+                # canais (0,27): antes a ponta furava a telha perto do pe da empena ("bloquinho")
+                if S.zy(xh, y) - tv - 0.65 < S.zx(xh - 0.2, y) + 0.4:
                     break
                 ye = y
             if ye > 0.5:
@@ -759,18 +774,23 @@ def door(mb, Ff, s, w, h, kind="hikido", lit=False, noren=None, z0=SILL, lod=0):
         _leaf(mb, Ff, x0, x0 + lw, -0.66, -0.5, z0 + 0.04, z0 + h - 0.04, kind, lit, lod)
         _leaf(mb, Ff, x1 - lw, x1, -0.44, -0.28, z0 + 0.04, z0 + h - 0.04, kind, lit, lod)
     if noren:
-        nm = noren if isinstance(noren, str) else CLOTH
-        zt = z0 + h - 0.12
-        mb.rod(Ff.p(x0 - 0.45, 0.42, zt), Ff.p(x1 + 0.45, 0.42, zt), 0.08, WD, 6)
-        n = 3 if w > 4.5 else 2
-        g = 0.14
-        sw = (w + 0.4 - g * (n - 1)) / n
-        ln = min(3.6, h * 0.42)
-        for i in range(n):
-            xa = x0 - 0.2 + i * (sw + g)
-            bb(mb, Ff, xa, xa + sw, 0.3, 0.36, zt - ln, zt - 0.2, nm)
-            bb(mb, Ff, xa, xa + sw, 0.3, 0.54, zt - 0.3, zt + 0.12, nm)
+        noren_cloth(mb, Ff, x0, x1, z0 + h - 0.12, min(3.6, h * 0.42), noren)
     return dict(center=(s, 0.0, z0), glow=(s, 1.8, z0 + h * 0.62))
+
+
+def noren_cloth(mb, Ff, x0, x1, zt, ln, noren=True):
+    """noren (cortina em 2-3 panos num varao) na frente do vao x0..x1, topo do varao em zt, panos de comprimento ln
+    (2a: extraido de door() para o vao 'open' tambem poder levar noren)"""
+    nm = noren if isinstance(noren, str) else CLOTH
+    w = x1 - x0
+    mb.rod(Ff.p(x0 - 0.45, 0.42, zt), Ff.p(x1 + 0.45, 0.42, zt), 0.08, WD, 6)
+    n = 3 if w > 4.5 else 2
+    g = 0.14
+    sw = (w + 0.4 - g * (n - 1)) / n
+    for i in range(n):
+        xa = x0 - 0.2 + i * (sw + g)
+        bb(mb, Ff, xa, xa + sw, 0.3, 0.36, zt - ln, zt - 0.2, nm)
+        bb(mb, Ff, xa, xa + sw, 0.3, 0.54, zt - 0.3, zt + 0.12, nm)
 
 
 def _shop(mb, Ff, a, b, zn, lit=True, ground=0.0):
@@ -891,6 +911,8 @@ def _bay(mb, Ff, a, b, sp, h, zn, plaster, lit, lod, out, ground, noren, door_h)
     elif t == "open":
         if sp.get("rail"):
             bb(mb, Ff, a, b, -0.6, -0.2, 3.2, 3.5, WD, 0.03)
+        if sp.get("noren"):                                    # (2a) o preset V1 pedia noren no vao aberto
+            noren_cloth(mb, Ff, a + 0.25, b - 0.25, ztop - 0.25, min(3.4, ztop * 0.36), sp["noren"])
     # (open: so a estrutura - pavilhao)
 
 
