@@ -1447,7 +1447,7 @@ SPECS = {
     # oficina do minerador: empena gotica de frente, enxaimel inteiro com montantes cerrados, floreiras, chamine de
     # chapeu (forja pequena)
     "H4": dict(ground="timber", gable_front=True, rise=7.4, chimney=(-9.3, 1.0), chim_kind="hood", attic_all=True,
-               win="cross", frame="studs", side_frame="studs", ridge="roll", dress="ocb", planter=True, lan_side=-1,
+               win="cross", frame="studs", side_frame="studs", ridge="roll", dress="ocb", lan_side=-1,
                roof="B"),
     # cartografo: pingadeira gotica nas janelas de pedra, postigos, loja do lado do eixo, 2 aguas-furtadas, montantes
     "H5": dict(ground="stone", upper="timber", jetty=0.8, rise=8.8, shop=9.4, dormers=[("+y", -3.6), ("+y", 3.6)],
@@ -2064,10 +2064,17 @@ def lamps(mb=None):
 
 
 # ------------------------------------------------------------------ canteiros de pedra na frente das casas (vazios)
+# FINESSE 3B (03.07, pedido do agente G): canteiros e floreiras so em algumas casas, escolha dirigida. Canteiros de
+# chao: H1 (taverna), H4 (oficina do minerador) e H7 (mestre de armas); floreiras de janela (planter=True): H3 e H7.
+BED_HOUSES = ("H1", "H4", "H7")
+
+
 def front_beds(mb, hrec, spec):
     """2 canteiros baixos de cantaria ladeando o caminho da porta (terra solta; a grama e as flores sao da onda 2).
     O lado da loja fica sem canteiro (o balcao sai 2,0 da fachada)."""
     nm, tp, x, y, w, d, deg, z = hrec
+    if nm not in BED_HOUSES:
+        return
     F = lot_frame(hrec)
     v0, v1 = d / 2 + 1.3, d / 2 + 4.9
     if spec.get("jetty"):
