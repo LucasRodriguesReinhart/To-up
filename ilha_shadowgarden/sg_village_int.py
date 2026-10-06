@@ -18,8 +18,10 @@
 #     a luz real da casa passa a ter sombra (fm_lib desliga sombra em POINT < 500 W: era ela que vazava pela parede
 #     e acendia a face de cima do filete do soco).
 #   - FORRO DAS TERREAS FECHADO (04.09) com vigas mestras e tirantes; o peito da chamine sobe reto e atravessa o forro
-#     numa caixa de madeira (04.06). Lareiras com toras, brasa recuada e chama em laminas (04.04); velas em gota (04.11);
-#     postigos abertos na frente/direita com vidraca e caixilho (04.08); tapetes e cobertas com borda (04.10).
+#     numa caixa de madeira (04.06). Lareiras com toras, brasa recuada e chama em laminas (04.04); velas em gota
+#     (04.11); postigos abertos na frente/direita com vidraca e folhas (04.08); tapetes e cobertas com borda (04.10).
+#   - COLISAO so de moveis grandes no meio do comodo (mesa, balcao, cama, forja, estante alta, manequim); props de
+#     canto, de parede e sob a escada ficam sem colisao (orcamento de colisoes da zona village).
 import math, random
 from mathutils import Vector
 import sg_lib as SL
@@ -73,7 +75,8 @@ def _cams():
         if tp == "B":
             out[k + "Taverna"] = (P(iw / 2 - 4.0, idp / 2 - 3.0, e), P(-iw / 2 + 2.0, 0.0, 6.0), 16)
             out[k + "Escada"] = (P(iw / 2 - 6.0, -1.0, e), P(-iw / 2 + 6.0, -idp / 2 + 3.0, 10.0), 16)
-            out[k + "Mezanino"] = (P(iw / 2 - 5.0, idp / 2 - 6.0, zf + e), P(-iw / 2 + 6.0, 2.0, zf - 3.0), 16)
+            # (a da auditoria ficava em u = iw/2 - 5, hoje DENTRO da galeria de quartos: recua 3,5 para o corredor)
+            out[k + "Mezanino"] = (P(iw / 2 - 8.5, idp / 2 - 6.0, zf + e), P(-iw / 2 + 6.0, 2.0, zf - 3.0), 16)
             out[k + "Quarto"] = (P(-iw / 2 + 4.0, -idp / 2 + 9.0, zf + e), P(iw / 2 - 3.0, idp / 2 - 4.0, zf + 2.0), 16)
             out["CAM_SGVilInt_%s_Balcao" % nm] = (P(-6.0, 0.0, e), P(10.0, 9.0, 3.5), 18)
         elif tp == "A":
@@ -107,7 +110,10 @@ def make_cams():
 
 # ------------------------------------------------------------------ primitivas no referencial do lote (reais)
 def tb(mb, F, cx, cy, z0, sx, sy, sz, m, bevel=B, yaw=0.0):
-    """caixa pela BASE (z0) no lote"""
+    """caixa pela BASE (z0) no lote. Chanfro so em peca que o jogador le de perto (maior lado >= 2,5: tampos,
+    balcao, bau, cabeceira); peca pequena comum sai reta (AGENT_BRIEF 7: nada de chanfro em peca pequena)"""
+    if max(sx, sy, sz) < 3.2:
+        bevel = 0.0
     mb.box((sx, sy, sz), F.p(cx, cy, z0 + sz / 2), F.r(0, 0, yaw), m, bevel)
 
 
@@ -144,6 +150,8 @@ def sbox(mb, F, S, u, v, z0, sx, sy, sz, m, bevel=B):
 
 
 def lathe(mb, F, x, y, z, prof, m, n=6, closed=False, caps=(True, True)):
+    if max(r for r, h in prof) < 0.5:
+        n = min(n, 5)                                   # louca/frasco pequeno: 5 lados bastam a 5 studs
     p = F.p(x, y, z)
     V._lathe(mb, (p.x, p.y, p.z), prof, m, n, 0.0, closed, caps)
 
@@ -151,8 +159,7 @@ def lathe(mb, F, x, y, z, prof, m, n=6, closed=False, caps=(True, True)):
 # ------------------------------------------------------------------ chama do kit (04.04 / 04.11 / 15.06): gota <= 0,4
 def flame(mb, p, h=0.36):
     k = h / 0.36
-    V._lathe(mb, (p[0], p[1], p[2]), [(0.0, 0.0), (0.09 * k, 0.06 * k), (0.11 * k, 0.15 * k), (0.07 * k, 0.26 * k),
-                                      (0.0, h)], M_GLOW, 5)
+    V._lathe(mb, (p[0], p[1], p[2]), [(0.0, 0.0), (0.11 * k, 0.12 * k), (0.06 * k, 0.26 * k), (0.0, h)], M_GLOW, 5)
 
 
 def flame_blades(mb, F, cx, cy, z0, h=1.3, yaw=0.0, n=2):
@@ -170,7 +177,7 @@ def flame_blades(mb, F, cx, cy, z0, h=1.3, yaw=0.0, n=2):
 def candle(mi, F, x, y, z, s=1.0):
     """vela de cera (linho) com a chama do kit (brilho no objeto do exterior)"""
     p = F.p(x, y, z)
-    mi.cyl(0.2 * s, 0.6 * s, (p.x, p.y, p.z + 0.3 * s), m=M_LIN, n=6, bevel=0.0)
+    mi.cyl(0.2 * s, 0.6 * s, (p.x, p.y, p.z + 0.3 * s), m=M_LIN, n=5, bevel=0.0)
     flame(mx(), (p.x, p.y, p.z + 0.6 * s), 0.36)
 
 
@@ -178,13 +185,12 @@ def candle(mi, F, x, y, z, s=1.0):
 def table(mb, F, cx, cy, lx, ly, h=3.4, yaw=0.0, m=W_MID):
     S = Sub(cx, cy, yaw)
     sbox(mb, F, S, 0, 0, FLOOR + h - 0.32, lx, ly, 0.32, m, 0.08)                   # tampo
-    for k in (-1, 1):
-        sbox(mb, F, S, 0, k * (ly / 2 - 0.45), FLOOR + h - 0.8, lx - 1.0, 0.2, 0.48, m, 0.0)    # saia
+    for k in ((-1, 1) if lx >= 4.0 else ()):                                       # saia (so mesa grande)
+        sbox(mb, F, S, 0, k * (ly / 2 - 0.45), FLOOR + h - 0.8, lx - 1.0, 0.2, 0.48, m, 0.0)
     for ku in (-1, 1):
         for kv in (-1, 1):
             u, v = ku * (lx / 2 - 0.55), kv * (ly / 2 - 0.55)
             sbox(mb, F, S, u, v, FLOOR, 0.5, 0.5, h - 0.32, m, 0.0)                  # perna
-    sbox(mb, F, S, 0, 0, FLOOR + 0.7, lx - 1.1, 0.24, 0.24, m, 0.0)                  # travessa
 
 
 def chair(mb, F, cx, cy, yaw, back=True, m=W_MID, pad=None):
@@ -218,7 +224,6 @@ def bench(mb, F, cx, cy, ln, yaw=0.0, m=W_MID):
     sbox(mb, F, S, 0, 0, FLOOR + 1.8, ln, 1.3, 0.24, m, 0.06)
     for k in (-1, 1):
         sbox(mb, F, S, k * (ln / 2 - 0.7), 0, FLOOR, 0.3, 1.1, 1.8, m, 0.03)
-    sbox(mb, F, S, 0, 0, FLOOR + 0.5, ln - 1.6, 0.2, 0.2, m, 0.02)
 
 
 def rug(mb, F, cx, cy, lx, ly, yaw=0.0, m=M_NAVY, border=M_WINE):
@@ -250,8 +255,7 @@ def shelf(mb, F, cx, cy, yaw, wd, h, dp=1.5, items="books", z0=None, m=W_MID):
             continue
         zi = zz + 0.18
         if items == "books":
-            lots = ((-0.36, 0.22, 1.5), (0.0, 0.2, 1.25), (0.3, 0.16, 1.4)) if i % 2 == 0 else \
-                   ((-0.3, 0.26, 1.3), (0.08, 0.14, 1.55), (0.34, 0.12, 1.2))
+            lots = ((-0.3, 0.3, 1.5), (0.22, 0.24, 1.3)) if i % 2 == 0 else ((-0.24, 0.34, 1.35), (0.3, 0.16, 1.55))
             for j, (fu, fw, bh) in enumerate(lots):
                 sbox(mb, F, S, fu * wd, -0.05, zi, fw * wd, 1.0, bh, (M_NAVY, M_WINE, M_LIN)[(j + i) % 3], 0.0)
         elif items == "none":
@@ -274,7 +278,7 @@ def shelf(mb, F, cx, cy, yaw, wd, h, dp=1.5, items="books", z0=None, m=W_MID):
                 else:                                                      # garrafas
                     lathe(mb, F, x, y, zi, [(0.26, 0.0), (0.28, 0.7), (0.12, 0.95), (0.1, 1.3), (0.0, 1.3)],
                           M_NAVY if k % 2 else M_WINE, 5)
-                u += 1.3
+                u += 1.6
                 k += 1
 
 
@@ -290,13 +294,12 @@ def bed(mb, F, cx, cy, yaw, lx=5.2, ly=9.0, cover=M_NAVY, canopy=False, m=W_MID)
         sbox(mb, F, S, k * (lx / 2 - 0.2), ly / 2 - 0.2, FLOOR, 0.4, 0.4, pf, m, 0.05)
         sbox(mb, F, S, k * (lx / 2 - 0.12), 0, FLOOR + 0.8, 0.24, ly - 0.6, 0.8, m, 0.03)
         if not canopy:
-            lathe(mb, F, *S.xy(k * (lx / 2 - 0.2), -ly / 2 + 0.2), FLOOR + hb, [(0.24, 0.0), (0.3, 0.18), (0.0, 0.5)], m, 6)
+            sbox(mb, F, S, k * (lx / 2 - 0.2), -ly / 2 + 0.2, FLOOR + hb, 0.56, 0.56, 0.22, m, 0.0)   # remate
     sbox(mb, F, S, 0, -ly / 2 + 0.2, FLOOR + 2.2, lx - 0.8, 0.26, 2.6, m, 0.04)       # cabeceira
     sbox(mb, F, S, 0, ly / 2 - 0.2, FLOOR + 1.3, lx - 0.8, 0.22, 1.2, m, 0.04)        # pe
     sbox(mb, F, S, 0, 0, FLOOR + 1.3, lx - 0.5, ly - 0.7, 0.9, M_LIN, 0.12)           # colchao
     sbox(mb, F, S, 0, 0.9, FLOOR + 2.0, lx - 0.3, ly * 0.62, 0.36, cover, 0.12)       # coberta
     sbox(mb, F, S, 0, ly * 0.3 + 0.5, FLOOR + 2.0, lx - 0.2, 1.0, 0.42, M_WINE if cover == M_NAVY else M_NAVY, 0.1)  # barra
-    sbox(mb, F, S, 0, ly * 0.3 - 1.2, FLOOR + 2.34, lx - 0.3, 0.9, 0.24, M_LIN, 0.1)   # dobra do lencol
     sbox(mb, F, S, 0, -ly / 2 + 1.1, FLOOR + 2.1, lx - 1.2, 1.1, 0.5, M_LIN, 0.2)      # travesseiro
     if canopy:
         zt = FLOOR + ph
@@ -353,9 +356,8 @@ def crate(mb, F, cx, cy, z0=None, s=2.2, yaw=0.0, m=W_MID):
     z0 = FLOOR if z0 is None else z0
     S = Sub(cx, cy, yaw)
     sbox(mb, F, S, 0, 0, z0, s, s, s, m, 0.08)
-    for k in (-1, 1):
-        sbox(mb, F, S, 0, k * (s / 2 + 0.03), z0 + 0.15, s - 0.2, 0.08, 0.3, W_STR, 0.02)
-        sbox(mb, F, S, 0, k * (s / 2 + 0.03), z0 + s - 0.45, s - 0.2, 0.08, 0.3, W_STR, 0.02)
+    for zz in (z0 + 0.15, z0 + s - 0.45):                                      # 2 travessas na frente
+        sbox(mb, F, S, 0, -(s / 2 + 0.03), zz, s - 0.2, 0.08, 0.3, W_STR, 0.02)
 
 
 def book(mb, F, x, y, z, yaw=0.0, open_=False, m=M_WINE, s=1.0):
@@ -450,7 +452,7 @@ def fireplace(mi, F, x0, y0, y1, dep, zt, nm, big=False, upper=None, pot=False):
     wd = y1 - y0
     bw = 4.2 if big else 3.2
     bh = 3.9 if big else 3.3
-    hs = (2.2, 1.5)
+    hs = (2.6, 1.9)
     zz, k = 0.0, 0
     while zz < zt - 0.05:
         h = min(hs[k % 2], zt - zz)
@@ -468,7 +470,7 @@ def fireplace(mi, F, x0, y0, y1, dep, zt, nm, big=False, upper=None, pot=False):
     # boca: fundo de fuligem, teto e arco abatido de aduelas
     tb(ms, F, x0 + 0.3, yc, FLOOR, 0.6, bw, bh, M_DARK, 0.0)
     tb(ms, F, x0 + dep / 2, yc, FLOOR + bh - 0.3, dep - 0.2, bw, 0.3, M_DARK, 0.0)
-    n = 5
+    n = 3
     for i in range(n):
         a0 = math.pi * (0.15 + 0.7 * i / n)
         a1 = math.pi * (0.15 + 0.7 * (i + 1) / n)
@@ -505,7 +507,7 @@ def fireplace(mi, F, x0, y0, y1, dep, zt, nm, big=False, upper=None, pot=False):
         z0u, z1u, dxu, uy0, uy1 = upper
         zz, k = z0u, 0
         while zz < z1u - 0.05:
-            h = min((4.0, 3.0)[k % 2], z1u - zz)
+            h = min((4.6, 3.6)[k % 2], z1u - zz)
             ins = 0.0 if k % 2 == 0 else 0.1
             tb(ms, F, x0 + (dxu - ins) / 2, (uy0 + uy1) / 2, zz + 0.04, dxu - ins, (uy1 - uy0) - ins, h - 0.08,
                M_STONE, 0.0)
@@ -521,7 +523,7 @@ def forge(mi, F, x0, y0, y1, dep, zt, upper=None):
     xf = x0 + dep
     yc = (y0 + y1) / 2
     wd = y1 - y0
-    hs = (2.2, 1.5)
+    hs = (2.6, 1.9)
     zz, k = 0.0, 0
     while zz < zt - 0.05:
         h = min(hs[k % 2], zt - zz)
@@ -561,7 +563,7 @@ def forge(mi, F, x0, y0, y1, dep, zt, upper=None):
         z0u, z1u, dxu, uy0, uy1 = upper
         zz, k = z0u, 0
         while zz < z1u - 0.05:
-            h = min((4.0, 3.0)[k % 2], z1u - zz)
+            h = min((4.6, 3.6)[k % 2], z1u - zz)
             ins = 0.0 if k % 2 == 0 else 0.1
             tb(ms, F, x0 + (dxu - ins) / 2, (uy0 + uy1) / 2, zz + 0.04, dxu - ins, (uy1 - uy0) - ins, h - 0.08,
                M_STONE, 0.0)
@@ -619,7 +621,6 @@ def rail(mb, F, a, b, z, h=3.2, step=4.0, posts=True):
     if ln < 0.5:
         return
     ux, uy = (bx - ax) / ln, (by - ay) / ln
-    bm_(mb, F, (ax, ay, z + 0.18), (bx, by, z + 0.18), 0.3, 0.36)
     bm_(mb, F, (ax, ay, z + h), (bx, by, z + h), 0.4, 0.3)
     nn = max(1, int(ln / step))
     for j in range(1, nn):
@@ -699,17 +700,15 @@ def linings(mbx, mi, F, hrec, info, levels, two, stair_xe=None):
             if li == 0:
                 # lambril ate 3,0 (chega acima do piso: nada rente), cimalha e batentes a cada ~4,4
                 band(mi, f, -WALL - 0.18, -WALL + 0.02, z0 - 0.1, z0 + 3.0, W_STR, lim, gaps)
-                band(mi, f, -WALL - 0.34, -WALL, z0 + 3.0, z0 + 3.3, W_STR, lim, gaps, bevel=0.04)
-                nb = min(3, max(1, int((2 * lim - 1.0) / 7.0)))
+                band(mi, f, -WALL - 0.34, -WALL, z0 + 3.0, z0 + 3.3, W_STR, lim, gaps)
+                nb = 1 if side else min(3, max(1, int((2 * lim - 1.0) / 7.0)))     # batentes so nas paredes longas
                 for k in range(1, nb):
                     s = -lim + 0.5 + (2 * lim - 1.0) * k / nb
                     if any(g0 < s < g1 for g0, g1 in gaps) or abs(s) > lim - 0.4:
                         continue
                     f.box(mi, s, -WALL - 0.26, z0 + 1.45, 0.32, 0.16, 3.0, W_STR)
                 # frechal sob as vigas do teto (segura o vigamento) / sob o forro das terreas
-                if two:
-                    band(mi, f, -WALL - 0.34, -WALL, z1 - 1.0, z1 - 0.02, W_STR, lim, [])
-                else:
+                if not two:
                     band(mi, f, -WALL - 0.34, -WALL, z1 - 2.2, z1 - 1.9, W_STR, lim, [])
             else:
                 # enxaimel por dentro: soleira, frechal, montantes (nos vaos e no meio dos panos), maos-francesas
@@ -724,7 +723,7 @@ def linings(mbx, mi, F, hrec, info, levels, two, stair_xe=None):
                                [s_on(wall, wd["c"]) + k * (wd["w"] / 2 + 0.5) for wd in wins for k in (-1, 1)])
                 for a, b in zip(edges, edges[1:]):
                     mid = (a + b) / 2
-                    if b - a > 7.0 and not any(g0 < mid < g1 for g0, g1 in wgaps + gaps):
+                    if b - a > 9.0 and not any(g0 < mid < g1 for g0, g1 in wgaps + gaps):
                         posts.append(mid)
                 for s in posts:
                     if abs(s) > lim - 0.7 or any(g0 < s < g1 for g0, g1 in gaps):
@@ -745,15 +744,12 @@ def linings(mbx, mi, F, hrec, info, levels, two, stair_xe=None):
                 open_ = wall in ("front", "right") and not shop
                 if not open_:
                     f.box(mi, s, -WALL - 0.06, zc, ww, 0.12, h, M_NAVY)                          # postigos fechados
-                    f.box(mi, s, -WALL - 0.16, zc, 0.16, 0.08, h, W_STR)                         # junta das 2 folhas
                     continue
                 f.box(mi, s, -WALL - 0.05, zc, ww, 0.1, h, M_NAVY)                               # vidraca (noite)
-                for k in (-1, 1):
-                    f.box(mi, s + k * (ww / 2 - 0.11), -WALL - 0.12, zc, 0.22, 0.24, h, W_STR)   # ombreiras do caixilho
                 for k in (-1, 1):                                                                 # folhas abertas
                     f.box(mi, s + k * (ww * 0.75 + 0.14), -WALL - 0.08, zc, ww / 2, 0.14, h - 0.1, W_STR)
-        # prumos de canto do andar
-        for kx in (-1, 1):
+        # prumos de canto (so no andar de enxaimel: no terreo o lambril e a cimalha fecham o canto)
+        for kx in ((-1, 1) if li > 0 else ()):
             for ky in (-1, 1):
                 tb(mi, F, kx * (w / 2 - WALL - 0.25), ky * (d / 2 - WALL - 0.25), z0 - 0.05, 0.5, 0.5, z1 - z0 + 0.05,
                    W_STR, 0.0)
@@ -795,8 +791,8 @@ def floor_boards(ms, F, x0, x1, y0, y1, zt, m=W_FLR, pw=4.4, holes=(), lap=0.3):
         for j in range(n):
             c0 = b0 + (b1 - b0) * j / n + 0.04
             c1 = b0 + (b1 - b0) * (j + 1) / n - 0.04
-            sp = a0 + (a1 - a0) * (0.38 if j % 2 else 0.64)
-            for (e0, e1) in ((a0, sp - 0.04), (sp + 0.04, a1)):
+            sp = a0 + (a1 - a0) * (0.38 if j % 3 == 1 else 0.64)
+            for (e0, e1) in (((a0, sp - 0.04), (sp + 0.04, a1)) if j % 3 else ((a0, a1),)):
                 if e1 - e0 > 0.3:
                     tb(ms, F, (e0 + e1) / 2, (c0 + c1) / 2, zt - 0.18, e1 - e0, c1 - c0, 0.18, m, 0.0)
 
@@ -1020,8 +1016,6 @@ def interior(mbx, hrec, spec, info):
         forge(mi, F, xl, hy0, hy1, dep, zt_breast, upper=upper)
         lcol(area, F, xl + dep / 2 + 1.7, (hy0 + hy1) / 2 + 1.0, 0.0, dep + 3.4, hy1 - hy0, 3.2)
         lcol(area, F, xl + dep / 2, (hy0 + hy1) / 2, 0.0, dep, hy1 - hy0, h0)
-        lcol(area, F, xl + dep + 1.6, hy1 + 3.2, 0.0, 3.6, 2.2, 3.4)                      # fole
-        lcol(area, F, xl + dep + 5.2, hy1 + 4.6, 0.0, 4.2, 1.9, 2.0)                      # cocho
     else:
         fireplace(mi, F, xl, hy0, hy1, dep, zt_breast, nm, big=big, upper=upper, pot=(tp == "B"))
         lcol(area, F, xl + dep / 2, (hy0 + hy1) / 2, 0.0, dep, hy1 - hy0, (h0 if two else zch))
@@ -1110,8 +1104,6 @@ def wash_stand(mi, F, cx, cy, yaw, zf):
     S = Sub(cx, cy, yaw)
     _lift(table)(mi, F, cx, cy, 2.4, 2.4, 3.0, yaw, z=zf)
     lathe(mi, F, cx, cy, zf + 3.0, [(0.5, 0.0), (1.0, 0.3), (1.1, 0.5), (0.0, 0.5)], M_LIN, 8)        # bacia
-    lathe(mi, F, *S.xy(0.0, -0.7), zf + 3.5, [(0.3, 0.0), (0.42, 0.5), (0.2, 0.9), (0.26, 1.0), (0.0, 1.0)], M_NAVY, 6)   # jarro
-    sbox(mi, F, S, 0.8, 0.9, zf + 3.0, 0.8, 0.3, 0.9, M_LIN, 0.0)                                    # toalha
 
 
 def partition(mi, F, ctx, x_, y0, y1, zf, z1, door=None):
@@ -1140,7 +1132,7 @@ def furnish_smith(mi, F, ctx, spec, info):
     ms = mx()
     xl = -iw / 2
     # bigorna sobre cepo na frente da forja
-    ax, ay = xl + 8.5, 4.0                                    # fora do corredor porta -> escada
+    ax, ay = xl + 7.8, 6.2                                    # fora do corredor porta -> escada (>= 3,4 livre)
     p = F.p(ax, ay, FLOOR)
     mi.cyl(0.85, 2.1, (p.x, p.y, p.z + 1.05), m=W_MID, n=8, bevel=0.0)
     tb(ms, F, ax, ay, FLOOR + 2.1, 1.3, 0.9, 0.35, IRON, 0.03)
@@ -1199,7 +1191,6 @@ def furnish_smith(mi, F, ctx, spec, info):
     tb(ms, F, 6.0, -idp / 2 + 1.5, FLOOR + 2.4, 2.0, 2.0, 0.5, M_DARK, 0.3)
     crate(mi, F, 9.0, -idp / 2 + 1.4, s=2.0)
     barrel(mi, F, 11.8, -idp / 2 + 1.5)
-    lcol(area, F, 8.5, -idp / 2 + 1.5, 0.0, 8.0, 3.0, 3.0)
     # barras e pecas prontas encostadas na parede da direita (y -4..-1): ferraduras e laminas
     for j, yy in enumerate((-4.5, -3.6, -2.7)):
         rod(ms, F, (xr - 0.3, yy, FLOOR + 0.1), (xr - 0.9, yy, FLOOR + 5.2 + 0.5 * j), 0.1, IRON, 4)
@@ -1220,7 +1211,6 @@ def furnish_smith(mi, F, ctx, spec, info):
     S = Sub(-iw / 2 + 0.13, 9.0, -math.pi / 2)
     peg_rail(mi, F, S, 0.0, 0.0, zf + 7.0, 3.0, capes=(M_NAVY, M_WINE))
     _lift(wardrobe)(mi, F, -12.4, idp / 2 - 1.1, math.pi, z=zf, lx=4.0)
-    lcol(area, F, -12.4, idp / 2 - 1.1, zf, 4.0, 2.0, 8.0)
     _lift(rug)(mi, F, 2.0, 2.5, 9.0, 6.0, z=zf, m=M_WINE, border=M_NAVY)
 
 
@@ -1253,11 +1243,9 @@ def furnish_apothecary(mi, F, ctx, spec, info):
     shelf(mi, F, iw / 2 - 0.8, -3.0, math.pi / 2, 7.0, 7.4, 1.6, items="jars")
     lcol(area, F, iw / 2 - 0.8, -3.0, 0.0, 1.6, 7.0, 7.4)
     shelf(mi, F, iw / 2 - 0.8, 3.0, math.pi / 2, 4.6, 7.0, 1.6, items="jars")
-    lcol(area, F, iw / 2 - 0.8, 3.0, 0.0, 1.6, 4.6, 7.0)
     # mesa de trabalho a esquerda: pilao, alambique, frascos, caderno; cadeira
     tx, ty = -11.5, 7.8
     table(mi, F, tx, ty, 3.0, 6.0, 3.4)
-    lcol(area, F, tx, ty, 0.0, 3.0, 6.0, 3.4)
     chair(mi, F, tx + 2.6, ty - 0.5, math.pi / 2)
     lathe(ms, F, tx + 0.2, ty - 1.8, FLOOR + 3.4, [(0.45, 0.0), (0.5, 0.5), (0.4, 0.75), (0.0, 0.75)], M_STONE, 8)   # pilao
     rod(mi, F, (tx + 0.2, ty - 1.8, FLOOR + 3.7), (tx + 0.5, ty - 1.3, FLOOR + 4.8), 0.1, W_MID, 5)                # mao
@@ -1275,15 +1263,15 @@ def furnish_apothecary(mi, F, ctx, spec, info):
         rod(mi, F, (hx0, hy, zr), (hx1, hy, zr), 0.1, W_STR, 5)
         for k in range(nb):
             xx = hx0 + 0.9 + (hx1 - hx0 - 1.8) * k / max(1, nb - 1)
-            # molho de ervas secas: escuro e estreito (nada de faceta clara que leia como cristal), amarrado com cordel
-            rod(mi, F, (xx, hy, zr), (xx, hy, zr - 0.5), 0.04, M_LIN, 3)
-            p = F.p(xx, hy, zr - 1.45)
-            mi.ico(0.42, (p.x, p.y, p.z), W_STR, sub=0, scale=(0.8, 0.8, 2.1))
-            mi.cyl(0.2, 0.18, (p.x, p.y, p.z + 0.75), m=M_LIN, n=5, bevel=0.0)
+            # molho de ervas secas pendurado de cabeca para baixo: 4 hastes finas abertas em leque a partir do cordel
+            # (palito, nunca volume facetado: nada que leia como cristal)
+            rod(mi, F, (xx, hy, zr), (xx, hy, zr - 0.4), 0.04, M_LIN, 3)
+            for j, (du, dv) in enumerate(((-0.35, 0.1), (0.3, -0.15), (0.0, 0.35))):
+                bm_(mi, F, (xx, hy, zr - 0.35), (xx + du, hy + dv, zr - 1.9 + 0.2 * (j % 2)), 0.14, 0.14,
+                    (W_MID, W_STR)[(j + k) % 2])
     # caixotes e barril de raizes sob a escada, tapete vinho pequeno diante do balcao
     crate(mi, F, 6.5, -idp / 2 + 1.4, s=2.2)
     barrel(mi, F, 9.6, -idp / 2 + 1.4, r=1.0, h=2.5)
-    lcol(area, F, 8.0, -idp / 2 + 1.4, 0.0, 5.6, 2.6, 2.8)
     rug(mi, F, 4.0, 7.5, 5.0, 3.4, m=M_WINE, border=M_NAVY)
     S = Sub(-iw / 2, 8.0, -math.pi / 2)
     wall_shelf(mi, F, S, 0.0, 0.0, FLOOR + 6.4, 4.0, items="jars")
@@ -1292,9 +1280,7 @@ def furnish_apothecary(mi, F, ctx, spec, info):
     lcol(area, F, iw / 2 - 4.7, 5.0, zf, 9.0, 5.2, 2.2)
     desk(mi, F, -10.0, 5.5, math.pi / 2, zf=zf, books=1)
     lathe(mi, F, -10.3, 7.1, zf + 2.9, [(0.3, 0.0), (0.34, 0.9), (0.14, 1.1), (0.14, 1.5), (0.0, 1.5)], M_NAVY, 5)
-    lcol(area, F, -10.0, 5.5, zf, 2.2, 5.0, 2.9)
     _lift(wardrobe)(mi, F, -12.4, idp / 2 - 1.1, math.pi, z=zf, lx=4.0)
-    lcol(area, F, -12.4, idp / 2 - 1.1, zf, 4.0, 2.0, 8.0)
     _lift(chest)(mi, F, 4.0, idp / 2 - 1.1, 0.0, z=zf)
     _lift(rug)(mi, F, 1.0, 3.0, 8.0, 10.0, z=zf, yaw=math.pi / 2)
     S = Sub(0.0, -idp / 2 + 0.13, 0.0)
@@ -1374,17 +1360,14 @@ def furnish_cartographer(mi, F, ctx, spec, info):
     mi.box((4.6, 1.9, 0.26), (p.x, p.y, p.z), (0.32, 0.0, F.a), W_MID, 0.06)
     mi.box((3.0, 1.3, 0.06), (p.x, p.y + 0.0, p.z + 0.16), (0.32, 0.0, F.a), M_LIN, 0.0)
     sbox(mi, F, S, 0, -0.9, FLOOR + 2.85, 4.4, 0.2, 0.3, W_MID, 0.0)
-    lcol(area, F, dx, dy, 0.0, 4.6, 1.9, 3.8)
     stool(mi, F, dx, dy - 2.4)
     # estante de livros e atlas sob a escada (ponta alta) + barril de rolos
     shelf(mi, F, 8.5, -idp / 2 + 0.9, 0.0, 5.0, 6.0, 1.5, items="books")
-    lcol(area, F, 8.5, -idp / 2 + 0.9, 0.0, 5.0, 1.5, 6.0)
     barrel(mi, F, 12.6, -idp / 2 + 1.5, r=1.0, h=2.5)
     for k in range(4):
         a = 2 * math.pi * k / 4
         rod(mi, F, (12.6 + 0.4 * math.cos(a), -idp / 2 + 1.5 + 0.4 * math.sin(a), FLOOR + 1.0),
             (12.6 + 0.7 * math.cos(a), -idp / 2 + 1.5 + 0.7 * math.sin(a), FLOOR + 4.6), 0.22, M_LIN, 5)
-    lcol(area, F, 12.6, -idp / 2 + 1.5, 0.0, 2.4, 2.4, 2.8)
     # mapa emoldurado na parede da frente (direita da porta, sob a bandeira da loja) e na esquerda sobre o consolo
     for (S, u, z, wd, hh) in ((Sub(10.0, idp / 2, math.pi), 0.0, FLOOR + 5.2, 4.4, 3.0),
                               (Sub(-iw / 2, 8.0, -math.pi / 2), 0.0, FLOOR + 5.0, 3.6, 2.8)):
@@ -1406,7 +1389,6 @@ def furnish_cartographer(mi, F, ctx, spec, info):
     desk(mi, F, 10.0, idp / 2 - 3.2, 0.0, zf=zf, lx=5.6, ly=2.4, books=2)
     lcol(area, F, 10.0, idp / 2 - 3.2, zf, 5.6, 2.4, 2.9)
     shelf(mi, F, iw / 2 - 0.8, 1.5, math.pi / 2, 5.0, 7.0, 1.5, items="books", z0=zf)
-    lcol(area, F, iw / 2 - 0.8, 1.5, zf, 1.5, 5.0, 7.0)
     _lift(rug)(mi, F, 9.0, 1.5, 7.0, 5.0, z=zf)
     S = Sub(4.28, 7.0, -math.pi / 2)
     tapestry(mi, F, S, 0.0, 0.0, zf + 3.5, 4.0, 4.5, m=M_NAVY, band=M_WINE)
@@ -1448,9 +1430,8 @@ def furnish_arms(mi, F, ctx, spec, info):
     tb(mi, F, px, py, FLOOR, 1.6, 1.6, 0.4, W_STR, 0.04)
     tb(mi, F, px, py, FLOOR + 0.4, 0.5, 0.5, 8.2, W_STR, 0.0)
     tb(mi, F, px, py, FLOOR + 5.4, 3.6, 0.4, 0.4, W_STR, 0.0)
-    tb(mi, F, px, py, FLOOR + 3.6, 2.0, 1.4, 3.2, M_WINE, 0.3)
-    tb(ms, F, px, py, FLOOR + 3.4, 2.2, 1.6, 0.2, IRON, 0.0)
-    tb(ms, F, px, py, FLOOR + 5.0, 2.2, 1.6, 0.2, IRON, 0.0)
+    lathe(mi, F, px, py, FLOOR + 3.4, [(0.75, 0.0), (1.05, 0.9), (1.0, 2.4), (0.55, 3.3), (0.0, 3.4)], M_WINE, 6)   # saco acolchoado
+    lathe(ms, F, px, py, FLOOR + 4.15, [(1.07, 0.0), (1.07, 0.22)], IRON, 6, caps=(False, False))                 # cinta
     lathe(mi, F, px, py, FLOOR + 7.0, [(0.3, 0.0), (0.62, 0.4), (0.6, 1.1), (0.0, 1.4)], M_LIN, 6)
     lcol(area, F, px, py, 0.0, 2.2, 1.8, 8.6)
     # alvo de palha na parede da direita (ponta da escada) e estante de armas junto a porta
@@ -1486,9 +1467,7 @@ def furnish_arms(mi, F, ctx, spec, info):
         a = 2 * math.pi * k / 3 + 0.4
         rod(mi, F, (12.6 + 0.3 * math.cos(a), idp / 2 - 1.8 + 0.3 * math.sin(a), FLOOR + 1.0),
             (12.6 + 0.6 * math.cos(a), idp / 2 - 1.8 + 0.6 * math.sin(a), FLOOR + 7.4), 0.11, W_MID, 4)
-    lcol(area, F, 12.6, idp / 2 - 1.8, 0.0, 2.4, 2.4, 2.8)
     crate(mi, F, 8.5, -idp / 2 + 1.4, s=2.2)
-    lcol(area, F, 8.5, -idp / 2 + 1.4, 0.0, 2.4, 2.4, 2.4)
     # ANDAR: cama de casal entre as janelas da frente, catre do aprendiz, cabideiro, bau, estante de armas, tapete
     _lift(bed)(mi, F, -4.25, 6.2, math.pi, cover=M_WINE, z=zf)
     lcol(area, F, -4.25, 6.2, zf, 5.2, 9.0, 2.2)
@@ -1496,7 +1475,6 @@ def furnish_arms(mi, F, ctx, spec, info):
     lcol(area, F, iw / 2 - 3.9, 5.5, zf, 7.4, 3.6, 2.2)
     _lift(chest)(mi, F, -4.25, 0.6, 0.0, z=zf, lx=3.6)
     _lift(wardrobe)(mi, F, -14.0, -2.5, -math.pi / 2, z=zf, lx=4.0)
-    lcol(area, F, -14.0, -2.5, zf, 2.0, 4.0, 8.0)
     S = Sub(-iw / 2 + 0.13, 9.2, -math.pi / 2)
     peg_rail(mi, F, S, 0.0, 0.0, zf + 7.0, 3.0, capes=(M_WINE, M_NAVY))
     _lift(rug)(mi, F, 3.0, 4.0, 10.0, 6.0, z=zf, m=M_NAVY, border=M_WINE, yaw=math.pi / 2)
@@ -1520,7 +1498,7 @@ def furnish_tavern(mi, F, ctx, spec, info):
         tb(mi, F, bx - 5.0 + 2.0 * j, by - 1.08, FLOOR + 0.7, 1.5, 0.16, 2.2, W_MID, 0.05)       # almofadas
     tb(ms, F, bx, by - 1.1, FLOOR, 12.2, 0.3, 0.45, M_STONE, 0.03)                               # rodape de pedra
     lcol(area, F, bx, by, 0.0, 12.8, 3.0, 3.7)
-    for u in (-4.6, -3.8, 1.0, 4.4):
+    for u in (-4.6, 1.0):
         mug(mi, F, bx + u, by - 0.2, FLOOR + 3.64)
     lathe(mi, F, bx + 3.2, by + 0.3, FLOOR + 3.64, [(0.4, 0.0), (0.46, 1.1), (0.2, 1.4), (0.18, 1.9), (0.0, 1.9)], M_NAVY, 6)   # jarra
     # atras do balcao: estante de garrafas na parede da frente e barris deitados em berco
@@ -1554,13 +1532,12 @@ def furnish_tavern(mi, F, ctx, spec, info):
     sbox(ms, F, S, 0, -0.28, FLOOR + 1.8, 2.6, 0.06, 2.2, M_DARK, 0.0)
     for j in range(3):
         sbox(mi, F, S, -0.2 + 0.15 * j, -0.23, FLOOR + 2.2 + 0.55 * j, 1.8 - 0.4 * j, 0.04, 0.16, M_LIN, 0.0)
-    lcol(area, F, 3.5, 9.4, 0.0, 3.2, 1.0, 4.6)
     # lustre de ferro com velas (no vazio do mezanino)
     vx0, vy0, vx1, vy1 = spec["void"]
     lx, ly = (vx0 + vx1) / 2, (vy0 + vy1) / 2
     zl = zf + 4.0
     p = F.p(lx, ly, zl)
-    V._lathe(ms, (p.x, p.y, p.z), [(3.2, 0.0), (3.4, 0.2), (3.2, 0.4), (2.9, 0.2)], IRON, 12, closed=True)
+    V._lathe(ms, (p.x, p.y, p.z), [(3.2, 0.0), (3.4, 0.2), (3.2, 0.4), (2.9, 0.2)], IRON, 10, closed=True)
     for k in range(6):
         a = 2 * math.pi * k / 6
         cx, cy = lx + 3.2 * math.cos(a), ly + 3.2 * math.sin(a)
@@ -1651,13 +1628,11 @@ def furnish_miner(mi, F, ctx, spec, info):
         barrel(mi, F, cx, cy)
     crate(mi, F, 8.8, -3.4, s=2.2)
     crate(mi, F, 8.8, -3.4, z0=FLOOR + 2.2, s=1.8, yaw=0.3)
-    lcol(area, F, 8.8, -3.4, 0.0, 2.4, 2.4, 4.0)
     S = Sub(iw / 2, 3.5, math.pi / 2)
     wall_shelf(mi, F, S, 0.0, 0.0, FLOOR + 6.0, 3.6, items="pots")
     S = Sub(-iw / 2 + 0.13, 8.5, -math.pi / 2)
     peg_rail(mi, F, S, 0.0, 0.0, FLOOR + 7.2, 3.0, capes=(M_NAVY,))
     rug(mi, F, 0.0, 5.0, 5.0, 3.4, m=M_WINE, border=M_NAVY)
-    stool(mi, F, -8.5, 6.5)
 
 
 # ------------------------------------------------------------------ H6 CASA DA GUARDA (terrea)
@@ -1693,7 +1668,6 @@ def furnish_guard(mi, F, ctx, spec, info):
         ms.cyl(1.22, 0.12, (p.x, p.y, p.z), (0, math.pi / 2, F.a), IRON, n=10, r2=1.0, bevel=0.0)
     chest(mi, F, -2.5, -idp / 2 + 1.2, 0.0, 3.2, 1.8, 2.0)
     shelf(mi, F, iw / 2 - 0.8, 4.2, math.pi / 2, 4.2, 6.5, 1.4, items="pots")
-    lcol(area, F, iw / 2 - 0.8, 4.2, 0.0, 1.4, 4.2, 6.5)
     # ganchos com capas da guarda junto a porta (direita), quadro de avisos e chaves na esquerda
     S = Sub(1.5, -idp / 2 + 0.13, 0.0)
     peg_rail(mi, F, S, 0.0, 0.0, FLOOR + 7.0, 2.6, capes=(M_NAVY, M_NAVY))
@@ -1704,7 +1678,6 @@ def furnish_guard(mi, F, ctx, spec, info):
     rod(mi, F, (-iw / 2, -9.3, FLOOR + 6.4), (-iw / 2 + 0.6, -9.3, FLOOR + 6.4), 0.08, W_MID, 4)
     rod(ms, F, (-iw / 2 + 0.5, -9.3, FLOOR + 6.3), (-iw / 2 + 0.5, -9.3, FLOOR + 5.4), 0.12, IRON, 4)
     barrel(mi, F, -8.5, 7.5, r=1.0, h=2.5)
-    lcol(area, F, -8.5, 7.5, 0.0, 2.2, 2.2, 2.8)
 
 
 def pickaxe(mi, F, x, y, z, big=True):
