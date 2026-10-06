@@ -47,6 +47,7 @@ SLAB_H = 0.14               # lajes acima do piso
 STRATA = 45.0               # o estrato continuo da coroa
 ROCK, ROCKD, MOSS = "Cliff_DS", "Cliff_DS_Dark", "Cliff_DS_Moss"
 STONE, PATH, SDARK = "Stone_DS", "Stone_DS_Path", "Stone_DS_Dark"
+LAJE = "Stone_DS_Laje"      # lajes dos caminhos: cinza quente MEDIO (Path claro demais ao lado da madeira escura)
 DIRT, DIRTD, GRASS, GRASSB = "Dirt_DS", "Dirt_DS_Dark", "Grass_DS", "Grass_DS_B"
 
 # ------------------------------------------------------------------ cameras de revisao da zona
@@ -191,7 +192,7 @@ def field_mesh(mb, G, F, zfun, m, top_off=0.0, skirt=0.5, flare=0.0, m_skirt=Non
             f.normal_update()
         edges = list({e for f in faces for e in f.edges})
         # funde as faces coplanares e tira os vertices quase colineares do contorno (< ~6 graus)
-        bmesh.ops.dissolve_limit(bm, angle_limit=0.1, use_dissolve_boundaries=False, verts=verts, edges=edges,
+        bmesh.ops.dissolve_limit(bm, angle_limit=0.15, use_dissolve_boundaries=False, verts=verts, edges=edges,
                                  delimit=set())
     verts = [v for v in verts if v.is_valid]
     vset = set(verts)
@@ -228,7 +229,7 @@ def field_mesh(mb, G, F, zfun, m, top_off=0.0, skirt=0.5, flare=0.0, m_skirt=Non
 # ------------------------------------------------------------------ pecas de rocha
 def column(mb, cx, cy, a, b, ang, ztop, zbot, key, m=ROCK, cap=MOSS, strata=(), taper=0.55, tip=3.0, ch=0.7,
            n=6, mlow=ROCKD, ledge=None, bottom=True, flare=1.0, cap_top_only=False, block=False, top_s=0.80,
-           step_s=0.88):
+           step_s=0.88, tilt=None, drip=0.0):
     """COLUNA de rocha facetada: pegada de n lados (meia-largura a no rumo ang, meia-profundidade b), raios DIRIGIDOS
     pela chave; topo com chanfro (material cap); estratos: abaixo de cada cota a coluna recua 12% (ressalto 'ledge')
     e escurece (mlow); pe pendente: o ultimo trecho afina (taper) numa ponta 'tip' abaixo de zbot (tip <= 0 = pe reto;
@@ -251,6 +252,8 @@ def column(mb, cx, cy, a, b, ang, ztop, zbot, key, m=ROCK, cap=MOSS, strata=(), 
         base = [(u + v * sk, v) for u, v in base]
         n = len(base)
     else:
+        if n is None:                   # 5, 6 ou 7 faces (dirigido pela chave)
+            n = (5, 6, 7, 6)[int(hh(key, "n") * 4) % 4]
         rr = [0.78 + 0.40 * hh(key, k) for k in range(n)]
         rot0 = (hh(key, "r") - 0.5) * 0.5
         base = [(a * rr[k] * math.cos(rot0 + 2 * math.pi * k / n), b * rr[k] * math.sin(rot0 + 2 * math.pi * k / n))
@@ -258,29 +261,39 @@ def column(mb, cx, cy, a, b, ang, ztop, zbot, key, m=ROCK, cap=MOSS, strata=(), 
 
     def ring(s, z):
         out = []
-        for u, v in base:
+        for k, (u, v) in enumerate(base):
             u, v = u * s, v * s
-            out.append(bm.verts.new((cx + u * ca - v * sa, cy + u * sa + v * ca, z)))
+            out.append(bm.verts.new((cx + u * ca - v * sa, cy + u * sa + v * ca, z[k] if isinstance(z, list) else z)))
         return out
+
+    # topo inclinado (plano: cai 'slope' por stud no rumo (dx, dy)) - o ponto mais alto fica em ztop
+    if tilt:
+        tdx, tdy, slope = tilt
+        pr = [(u * ca - v * sa) * tdx + (u * sa + v * ca) * tdy for u, v in base]
+        pmin = min(pr)
+        ztops = [ztop - slope * (p - pmin) * top_s for p in pr]
+    else:
+        ztops = [ztop] * n
+    chs = [min(ch + drip * hh(key, k, "d"), (ztop - zbot) * 0.35) for k in range(n)]
+    zmid = [zt_ - c_ for zt_, c_ in zip(ztops, chs)]
 
     def band(lo, up):
         for k in range(n):
             j = (k + 1) % n
             bm.faces.new((lo[k], lo[j], up[j], up[k]))
 
-    cuts = [z for z in sorted(strata, reverse=True) if zbot + 2.0 < z < ztop - 2.0]
-    zc = ztop - min(ch, (ztop - zbot) * 0.3)
-    top, mid = ring(top_s, ztop), ring(1.0, zc)
+    cuts = [z for z in sorted(strata, reverse=True) if zbot + 2.0 < z < min(zmid) - 1.5]
+    top, mid = ring(top_s, ztops), ring(1.0, zmid)
     bm.faces.new(top)
-    if cap_top_only:                    # musgo SO no plano do topo; o chanfro e rocha (nada de "tampinha")
+    if cap_top_only and not drip:       # musgo SO no plano do topo; o chanfro e rocha (nada de "tampinha")
         mb._post(top, cap, None, 0, 1)
-        top2 = ring(top_s, ztop)
+        top2 = ring(top_s, ztops)
         band(mid, top2)
         mb._post(top2 + mid, m, None, 0, 1)
-    else:
+    else:                               # musgo no topo e escorrendo pela face (profundidade propria por face)
         band(mid, top)
         mb._post(top + mid, cap, None, 0, 1)
-    zs = [zc] + cuts + [zbot]
+    zs = [zmid] + cuts + [zbot]
     s = 1.0
     for k in range(len(zs) - 1):
         mm = m if k == 0 else mlow
@@ -308,13 +321,13 @@ def column(mb, cx, cy, a, b, ang, ztop, zbot, key, m=ROCK, cap=MOSS, strata=(), 
     return 1
 
 
-def boulder(mb, cx, cy, z0, r, hgt, key, m=STONE, cap=None, ang=0.0):
+def boulder(mb, cx, cy, z0, r, hgt, key, m=STONE, cap=None, ang=0.0, n=7):
     """pedra de borda: coluna baixa larga de 7 lados com topo chanfrado (a mesma lingua das falesias), meio enterrada"""
     column(mb, cx, cy, r, r * (0.72 + 0.2 * hh(key, "b")), ang, z0 + hgt, z0 - 0.6, key, m=m, cap=cap or m,
-           taper=0.95, tip=0.2, ch=min(0.6, hgt * 0.35), n=7, mlow=m)
+           taper=0.95, tip=0.0, ch=min(0.6, hgt * 0.35), n=n, mlow=m, bottom=False)
 
 
-def slab(mb, quad, zf, top, th=0.36, ch=0.09, m=PATH):
+def slab(mb, quad, zf, top, th=0.36, ch=0.09, m=LAJE):
     """laje: quad 2D (anti-horario), topo em zf(x, y) + top com chanfro, espessura th (sem fundo)"""
     bm = mb.bm
     if ch <= 0.0:
@@ -409,8 +422,10 @@ def region_top(x, y):
     return None
 
 
-BACK_PEAKS = [(-58.0, 556.0, 104.0), (-18.0, 566.0, 113.0), (24.0, 572.0, 106.0), (58.0, 556.0, 100.0),
-              (106.0, 552.0, 112.0), (-96.0, 552.0, 92.0)]
+# picos ENQUADRANDO a chamine (x 37): ombros altos a oeste (-24) e a leste (68), sela baixa bem atras dela
+# (a chamine, 152,2, segue >= 20 acima de tudo), nascente no pico leste (106)
+BACK_PEAKS = [(-62.0, 552.0, 108.0), (-24.0, 566.0, 126.0), (6.0, 580.0, 114.0), (40.0, 584.0, 104.0),
+              (68.0, 560.0, 121.0), (106.0, 552.0, 116.0), (-98.0, 552.0, 96.0), (86.0, 538.0, 104.0)]
 RAVINE = [(128.0, 236.0), (140.0, 231.5), (150.0, 227.5), (157.0, 231.0), (170.0, 234.0)]
 RAVINE_HW = 4.6
 
@@ -515,8 +530,9 @@ def crown(mb):
             if ds_col._in_rect_along(cx, cy, p0, p1, w / 2 + 3.0, pad=6.0):
                 zt = min(zt, p1[2] - 3.0)
         zb = cyc(bots, i) + (8.0 if zref > 76.0 else 0.0)
-        column(mb, cx, cy, a, b, ang, zt, zb, ("cr", i), strata=(STRATA, 66.0, 86.0), tip=2.0 + 4.0 * hh(i, "t"),
-               mlow=ROCK, ledge=ROCKD, cap_top_only=True, block=True, top_s=0.88, ch=0.45)
+        column(mb, cx, cy, a * 0.92, b, ang, zt, zb, ("cr", i), strata=(STRATA, 66.0, 86.0),
+               tip=2.0 + 4.0 * hh(i, "t"), mlow=ROCK, ledge=ROCKD, n=None, top_s=0.88, ch=0.4,
+               tilt=(nx_, ny_, 0.2), drip=0.3 + 1.1 * hh(i, "dr"))
         n += 1
     return n
 
@@ -525,8 +541,8 @@ def keel(mb):
     ctrl = L.RIM_CTRL
     n = 0
     for ring_i, (off, steps, ztop, bots, strata) in enumerate((
-            (-5.5, (10.0, 7.6, 12.4, 8.2, 9.6), 41.0, (14.0, 4.0, 20.0, 8.0, 17.0, 0.0, 11.0), ()),
-            (-16.0, (13.0, 10.0, 14.6, 11.2), 18.0, (-20.0, -32.0, -12.0, -26.0, -36.0, -16.0), ()))):
+            (-5.5, (11.6, 9.4, 13.6, 10.0, 11.2), 41.0, (14.0, 4.0, 20.0, 8.0, 17.0, 0.0, 11.0), ()),
+            (-16.0, (15.0, 12.4, 16.8, 13.6), 18.0, (-20.0, -32.0, -12.0, -26.0, -36.0, -16.0), ()))):
         poly = L.smooth_closed(DL.offset_poly(ctrl, off), 2)
         for i, (x, y, ang, st) in enumerate(tangent_frames(ccw(poly), steps)):
             nx_, ny_ = math.sin(ang), -math.cos(ang)
@@ -534,7 +550,7 @@ def keel(mb):
             b = 4.5 + 1.5 * hh(ring_i, i, "b")
             zt = ztop - 3.0 * hh(ring_i, i, "zt")
             column(mb, x + nx_ * 1.0, y + ny_ * 1.0, a, b, ang, zt, cyc(bots, i), ("kl", ring_i, i), m=ROCKD,
-                   cap=ROCKD, strata=strata, tip=3.0 + 6.0 * hh(ring_i, i, "tip"), taper=0.4, ch=0.4, block=True)
+                   cap=ROCKD, strata=strata, tip=3.0 + 6.0 * hh(ring_i, i, "tip"), taper=0.4, ch=0.4, n=5)
             n += 1
     # nucleos ocultos (fecham as frestas entre os aneis)
     for off, z0, z1 in ((-3.0, 34.0, BASE), (-11.0, 8.0, 36.0), (-23.0, -18.0, 12.0)):
@@ -628,7 +644,9 @@ LENS = (3.4, 2.1, 4.4, 2.7, 3.8, 1.8, 3.1, 4.8, 2.4)
 
 
 def ishigaki(mb, p0, p1, nrm, zt, zb, key, batter=0.16):
-    """muro de ISHIGAKI em talude: fundo escuro (junta) + fiadas de pedras com face em almofada saliente + capa"""
+    """muro de ISHIGAKI em talude: fundo escuro (junta) + fiadas de pedras com face em almofada saliente (altura
+    propria por pedra: a fiada ondula) + SANGI-ZUMI nas 2 pontas (pedras de quina longa/curta alternadas, mais
+    salientes e claras, nas MESMAS fiadas) + capa de pedra 0,3 acima do piso de cima"""
     nx_, ny_ = nrm
     ux, uy = p1[0] - p0[0], p1[1] - p0[1]
     ln = math.hypot(ux, uy)
@@ -639,46 +657,52 @@ def ishigaki(mb, p0, p1, nrm, zt, zb, key, batter=0.16):
     bm = mb.bm
 
     def P(u, v, w):
-        """u ao longo do muro, v = altura acima de zb, w = para fora a partir da face do talude"""
         off = 0.12 + batter * (H - v) + w
         return (p0[0] + ux * u + nx_ * off, p0[1] + uy * u + ny_ * off, zb + v)
-    # fundo (junta escura): plano do talude 0,05 atras da face
+
+    def stone(u0, u1, v0, v1, pr, ch, m):
+        back = [bm.verts.new(P(u0, v0, -0.04)), bm.verts.new(P(u1, v0, -0.04)),
+                bm.verts.new(P(u1, v1, -0.04)), bm.verts.new(P(u0, v1, -0.04))]
+        front = [bm.verts.new(P(u0 + ch, v0 + ch, pr)), bm.verts.new(P(u1 - ch, v0 + ch, pr)),
+                 bm.verts.new(P(u1 - ch, v1 - ch, pr)), bm.verts.new(P(u0 + ch, v1 - ch, pr))]
+        bm.faces.new(front)
+        for k in range(4):
+            j = (k + 1) % 4
+            bm.faces.new((back[k], back[j], front[j], front[k]))
+        mb._post(back + front, m, None, 0, 1)
     e0, e1 = -0.6, ln + 0.6
     q = [bm.verts.new(P(e0, 0, -0.05)), bm.verts.new(P(e1, 0, -0.05)), bm.verts.new(P(e1, H, -0.05)),
          bm.verts.new(P(e0, H, -0.05))]
     bm.faces.new(q)
     mb._post(q, SDARK, None, 0, 1)
-    v, ci = 0.0, 0
+    courses, v, ci = [], 0.0, 0
     while v < H - 0.35:
         hcr = min(cyc(COURSES, ci + int(hh(key, "c") * 5)), H - v)
         if H - v - hcr < 0.6:
             hcr = H - v
-        u = -0.6 + (cyc(LENS, ci * 3) * 0.5 if ci % 2 else 0.0) - 0.6
-        bi = 0
-        while u < ln + 0.6:
-            L_ = min(cyc(LENS, ci * 7 + bi + int(hh(key, "l") * 7)), ln + 0.6 - u)
-            if L_ > 0.5:
-                g = 0.11
-                pr = 0.12 + 0.16 * hh(key, ci, bi)
-                ch = 0.16
-                # pedra de altura propria: o topo de umas desce e a base de outras sobe (a fiada ondula)
-                dt = 0.0 if v + hcr >= H - 0.05 else 0.32 * hh(key, ci, bi, "dt")
-                db = 0.0 if v <= 0.05 else 0.22 * hh(key, ci, bi, "db")
-                u0, u1, v0, v1 = u + g, u + L_ - g, v + g + db, v + hcr - g - dt
-                back = [bm.verts.new(P(u0, v0, -0.04)), bm.verts.new(P(u1, v0, -0.04)),
-                        bm.verts.new(P(u1, v1, -0.04)), bm.verts.new(P(u0, v1, -0.04))]
-                front = [bm.verts.new(P(u0 + ch, v0 + ch, pr)), bm.verts.new(P(u1 - ch, v0 + ch, pr)),
-                         bm.verts.new(P(u1 - ch, v1 - ch, pr)), bm.verts.new(P(u0 + ch, v1 - ch, pr))]
-                bm.faces.new(front)
-                for k in range(4):
-                    j = (k + 1) % 4
-                    bm.faces.new((back[k], back[j], front[j], front[k]))
-                mb._post(back + front, STONE, None, 0, 1)
-            u += L_
-            bi += 1
+        courses.append((v, hcr))
         v += hcr
         ci += 1
-    # capa: pedras longas 0,3 acima do piso de cima (meio-fio), avancando 0,6 sobre a face
+    quoin = ln > 6.0
+    for ci, (v, hcr) in enumerate(courses):
+        top_c = v + hcr >= H - 0.05
+        qa = e0 + (2.5 if ci % 2 == 0 else 1.5) if quoin else e0
+        qb = e1 - (1.5 if ci % 2 == 0 else 2.5) if quoin else e1
+        if quoin:
+            stone(e0 + 0.08, qa - 0.08, v + 0.08, v + hcr - 0.08, 0.42, 0.18, PATH)
+            stone(qb + 0.08, e1 - 0.08, v + 0.08, v + hcr - 0.08, 0.42, 0.18, PATH)
+        u, bi = qa, 0
+        while u < qb - 0.3:
+            L_ = cyc(LENS, ci * 7 + bi + int(hh(key, "l") * 7))
+            if qb - u - L_ < 1.2:
+                L_ = qb - u
+            g = 0.11
+            pr = 0.12 + 0.16 * hh(key, ci, bi)
+            dt = 0.0 if top_c else 0.32 * hh(key, ci, bi, "dt")
+            db = 0.0 if v <= 0.05 else 0.22 * hh(key, ci, bi, "db")
+            stone(u + g, u + L_ - g, v + g + db, v + hcr - g - dt, pr, 0.16, STONE)
+            u += L_
+            bi += 1
     u, ci = -0.4, 0
     while u < ln + 0.4:
         L_ = min(cyc((3.0, 2.4, 3.4, 2.7), ci), ln + 0.4 - u)
@@ -687,8 +711,7 @@ def ishigaki(mb, p0, p1, nrm, zt, zb, key, batter=0.16):
             a1 = (p0[0] + ux * (u + L_ - 0.06) - nx_ * 0.9, p0[1] + uy * (u + L_ - 0.06) - ny_ * 0.9)
             b1 = (a1[0] + nx_ * 1.75, a1[1] + ny_ * 1.75)
             b0 = (a0[0] + nx_ * 1.75, a0[1] + ny_ * 1.75)
-            quad = ccw([a0, a1, b1, b0])
-            slab(mb, quad, lambda x, y: zt, 0.3, th=0.9, ch=0.0, m=PATH)
+            slab(mb, ccw([a0, a1, b1, b0]), lambda x, y: zt, 0.3, th=0.9, ch=0.0, m=PATH)
         u += L_
         ci += 1
 
@@ -720,15 +743,26 @@ def rock_wall(mb, mcol, p0, p1, nrm, zt, zb, key, recess=(), inward=False, colli
             b = 2.4 + o / 2
             cx, cy = x + nx_ * (o - b), y + ny_ * (o - b)
         top = zt - cyc((0.15, 0.15, 0.6, 0.15, 1.1, 0.15, 0.3), i + int(hh(key, "t") * 7))
-        aa = st * 0.6
+        aa = st * 0.54
         for sc in (1.0, 0.75, 0.5, 0.0):            # escada cortada no arrimo: o bloco nunca entra no lance
             if sc and not any(ds_col.opening(px, py) for px, py in foot(cx, cy, aa * sc, b * sc, ang, 1.0)):
                 break
         if sc:
             hgt = zt - zb
-            column(mb, cx, cy, aa * sc, b * sc, ang, top, zb - 1.0, (key, i), tip=0.0, ch=0.3, bottom=False,
-                   flare=1.04, cap_top_only=True, block=True, top_s=0.92, mlow=ROCK, ledge=MOSS, step_s=1.12,
+            fx, fy = (-nx_, -ny_) if inward else (nx_, ny_)
+            column(mb, cx, cy, aa * sc, b * sc, ang, top, zb - 1.0, (key, i), tip=0.0, ch=0.35, bottom=False,
+                   flare=1.05, n=None, top_s=0.9, mlow=ROCK, ledge=MOSS, step_s=1.08, tilt=(fx, fy, 0.16),
+                   drip=0.5 + 0.9 * hh(key, i, "dr"),
                    strata=(zb + hgt * (0.3 + 0.12 * hh(key, i, "st")),) if hgt > 5.0 else ())
+            # blocos caidos ao pe (dentro da faixa da colisao quando ha piso embaixo)
+            if hh(key, i, "tal") > 0.4:
+                r = 0.7 + 0.6 * hh(key, i, "tr")
+                dd = (o + 0.2 + r * 0.4) if not collide else min(o + 0.2, 1.9 - r * 0.3)
+                if inward:
+                    dd = 0.2 + r * 0.5
+                px, py = x + fx * dd + ux * (hh(key, i, "tu") - 0.5) * st * 0.6, y + fy * dd + uy * (hh(key, i, "tu") - 0.5) * st * 0.6
+                if not ds_col.opening(px, py):
+                    boulder(mb, px, py, zb, r, 0.6 + 1.0 * hh(key, i, "th"), (key, i, "tal"), m=ROCK, ang=ang, n=5)
         maxo = max(maxo, o)
         u += st
         i += 1
@@ -752,6 +786,42 @@ def wall_kind(up, low, zt, zb, p0):
     if up is None and low in ("Entry", "T1") and p0[1] < 140.0 and region_top(*p0) is None:
         return "ishi"
     return "ishi" if (low is not None and up is not None and zt - zb <= 7.0) else "rock"
+
+
+def notch_cheeks(mb):
+    """escada cortada no arrimo: as 2 faces laterais do entalhe (o corpo do patamar de cima) viram ISHIGAKI a prumo,
+    so no trecho DENTRO do patamar de cima (fora dele nao ha face a fechar); os banzos da escada ficam na frente"""
+    n = 0
+    for nm, up, rect, zf, zt in L.stair_notches():
+        if up is None:
+            continue
+        foot, deg, w, ns, tread, g = L.stair_frame(nm)
+        a = math.radians(deg)
+        ux, uy = round(math.cos(a)), round(math.sin(a))
+        top = L.stair_top(nm)
+        hw = w / 2 + 1.25
+        for s in (-1, 1):
+            vx, vy = -uy * s, ux * s                         # lado (para fora do lance)
+            pts = []
+            t, tmax = -tread, tread * ns + 0.5
+            while t <= tmax:
+                x = foot[0] + ux * t + vx * (hw + 0.3)
+                y = foot[1] + uy * t + vy * (hw + 0.3)
+                if L.floor_name(x, y) == up:
+                    pts.append((foot[0] + ux * t + vx * hw, foot[1] + uy * t + vy * hw))
+                t += 0.5
+            if len(pts) < 3:
+                continue
+            p0, p1 = pts[0], pts[-1]
+            # a face olha para o lance (-v); a linha recua 0,6 para dentro do patamar (nada invade os banzos)
+            q0 = (p0[0] + vx * 0.6, p0[1] + vy * 0.6)
+            q1 = (p1[0] + vx * 0.6, p1[1] + vy * 0.6)
+            ux2, uy2 = q1[0] - q0[0], q1[1] - q0[1]
+            if (uy2 * -vx - ux2 * -vy) < 0:                 # sentido tal que a direita do trecho = -v
+                q0, q1 = q1, q0
+            ishigaki(mb, q0, q1, (-vx, -vy), zt, zf - 0.5, ("ch", nm, s), batter=0.0)
+            n += 1
+    return n
 
 
 def walls(mb_i, mb_r):
@@ -786,10 +856,17 @@ def walls(mb_i, mb_r):
 
 # ------------------------------------------------------------------ 5. enchimento (o que nao e piso dentro do contorno)
 def fill(mb):
+    n = 0
+    for sp in (7.6, 9.0):
+        n += _fill_pass(mb, sp)
+    _fill_cores(mb)
+    return n
+
+
+def _fill_pass(mb, sp):
     rim = L.ISLAND_RIM
     xs = [p[0] for p in rim]
     ys = [p[1] for p in rim]
-    sp = 7.6
     n = 0
     j = 0
     y = min(ys) + 2.0
@@ -801,6 +878,8 @@ def fill(mb):
             cx, cy = x + jx, y + jy
             x += sp
             if not L.point_in_poly(cx, cy, rim) or L.poly_edge_dist(cx, cy, rim) < 2.5:
+                continue
+            if L.point_in_poly(cx, cy, L.BACK_ROCKS) != (sp < 8.0):
                 continue
             if zfloor(cx, cy) is not None or opening_any(cx, cy) or in_ravine(cx, cy, 0.5):
                 continue
@@ -817,18 +896,27 @@ def fill(mb):
             if ok is None:                      # nao coube acima do piso vizinho: afunda (borda rente), nunca buraco
                 ok = fit_top(foot(cx, cy, a, b, ang), rt, lower_only=True)
             zlow = min((zf if zf is not None else L.SHOULDER) - 2.0, ok - 6.0)
-            column(mb, cx, cy, a, b, ang, ok, zlow if ok < 76.0 else 74.0, ("fl", round(cx, 1), round(cy, 1)),
-                   strata=(86.0, 98.0) if ok > 90.0 else ((66.0,) if ok > 70.0 else ()), tip=0.0, bottom=False,
-                   cap_top_only=True, block=True, top_s=0.86, ch=0.5)
+            kk = ("fl", round(cx, 1), round(cy, 1))
+            back = L.point_in_poly(cx, cy, L.BACK_ROCKS)
+            if back:                    # montanha: colunas mais esguias, topo quebrado em degraus dirigidos
+                a, b = a * 0.8, b * 0.8
+                ok += cyc((0.0, 3.5, -2.0, 6.0, 1.0, -3.5, 4.5), int(hh(*kk) * 7))
+            column(mb, cx, cy, a, b, ang, ok, zlow if ok < 76.0 else 74.0, kk,
+                   strata=(86.0, 98.0, 110.0) if ok > 90.0 else ((66.0,) if ok > 70.0 else ()), tip=0.0, bottom=False,
+                   n=None, top_s=0.86, ch=0.45, drip=0.4 + 1.0 * hh(*kk, "dr"),
+                   tilt=(math.cos(ang * 3.1), math.sin(ang * 3.1), 0.22 if back else 0.12), ledge=MOSS, mlow=ROCK)
             n += 1
         y += sp * 0.866
         j += 1
+    return n
+
+
+def _fill_cores(mb):
     # nucleos ocultos das regioes altas (a fresta entre colunas mostra rocha escura, nao o vazio)
     for poly, zt in ((L.WEST_RIDGE, 62.5), (L.NE_BANK, 68.0), (L.BACK_ROCKS, 84.0)):
         DL.prism(mb, DL.offset_poly(poly, -1.2), BASE, zt, ROCKD, top_m=MOSS)
     # ombro oculto: onde nenhuma coluna coube, aparece rocha com musgo 1,6 abaixo do patio mais baixo (nunca o vazio)
     DL.prism(mb, DL.offset_poly(L.RIM_CTRL, -2.0), BASE, L.SHOULDER - 1.0, ROCKD)
-    return n
 
 
 # ------------------------------------------------------------------ 6. ravina leste (sangradouro)
@@ -976,8 +1064,11 @@ def ground(mb_skin, mb_grass, mb_clr):
             # a clareira tem pele propria (DS_Clr_): aqui so o resto do T1
             fo = np.minimum(f, -clr)
             fi = np.minimum(f, clr)
-            field_mesh(mb_skin, G, fo, zf, SKIN[nm], skirt=BEDD)
-            field_mesh(mb_clr, G, fi, zf, DIRT, skirt=BEDD)
+            tr = sdf_line(X, Y, TRAIL_PATH, TRAIL_HW + 0.5)       # junta das lajes da trilha: terra ESCURA
+            field_mesh(mb_skin, G, np.minimum(fo, -tr), zf, SKIN[nm], skirt=BEDD)
+            field_mesh(mb_skin, G, np.minimum(fo, tr), zf, DIRTD, skirt=BEDD)
+            field_mesh(mb_clr, G, np.minimum(fi, -tr), zf, DIRT, skirt=BEDD)
+            field_mesh(mb_clr, G, np.minimum(fi, tr), zf, DIRTD, skirt=BEDD)
         else:
             field_mesh(mb_skin, G, f, zf, SKIN[nm], skirt=BEDD)
         g = np.minimum(np.minimum(f - 0.9, grass_cover(nm, X, Y)), -(slabs_f + 0.4))
@@ -1007,7 +1098,7 @@ def clearing_relief(mb):
     field_mesh(mb, G, f, lambda x, y: T1, DIRT, top_off=0.26, skirt=0.4, flare=1.6, m_skirt=DIRT)
 
 
-def lay_slabs_rows(mb, origin, u, v, length, width, zf, key, depth_cyc, width_cyc, keep, gap=0.26, m=PATH, ch=0.09):
+def lay_slabs_rows(mb, origin, u, v, length, width, zf, key, depth_cyc, width_cyc, keep, gap=0.26, m=LAJE, ch=0.09):
     """lajes em fiadas: fiadas de profundidade DIRIGIDA ao longo de u, cada uma partida em pecas ao longo de v
     (larguras DIRIGIDAS, juntas desencontradas); keep(quad) decide se a peca entra"""
     s, r = 0.0, 0
@@ -1049,7 +1140,7 @@ def paving(mb):
     # lados do patio: pecas menores e irregulares, fiadas no outro rumo
     for sx in (-1, 1):
         n += lay_slabs_rows(mb, (sx * 7.3, -1.0), (0.0, 1.0), (sx * 1.0, 0.0), 46.0, 44.0, zc, ("pt", sx),
-                            (2.2, 1.8, 2.6, 2.0, 2.4), (2.6, 2.0, 3.1, 2.3, 2.8),
+                            (2.6, 2.2, 3.0, 2.4, 2.8), (3.2, 2.6, 3.8, 2.9, 3.4),
                             lambda q: inside(q) and all(abs(x) > 7.25 for x, y in q), ch=0.0)
     # trilha: lajes irregulares que se desfazem na chegada a clareira
     pts = TRAIL_PATH
@@ -1084,7 +1175,7 @@ def paving(mb):
              for sx, sy in ((-1, -1), (1, -1), (1, 1), (-1, 1))]
         if L.floor_name(cx, cy) != "Bamboo":
             continue
-        slab(mb, ccw(q), bz, SLAB_H, th=0.4, m=STONE)
+        slab(mb, ccw(q), bz, SLAB_H, th=0.4, m=LAJE)
         n += 1
     return n
 
@@ -1169,6 +1260,7 @@ def build():
     mi = MB("DS_Ter_Ishigaki", "02_TERRAIN", None, detail="far", floor=-999)
     mr = MB("DS_Ter_RockWalls", "02_TERRAIN", None, detail="far", floor=-999)
     stats["arrimos"] = walls(mi, mr)
+    stats["bochechas"] = notch_cheeks(mi)
     mi.finish(recalc=False)
     mr.finish(recalc=False)
     mf = MB("DS_Ter_Rocks", "02_TERRAIN", None, detail="far", floor=-999)

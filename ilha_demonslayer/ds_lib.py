@@ -43,10 +43,14 @@ DSMATS = {
     "Wood_DS_Lacquer":    (S(150, 38, 30), 0.55, 0.0, 0, None, 0.04),    # SO torii e noren da forja
     "Plaster_DS":         (S(228, 216, 192), 0.85, 0.0, 0, None, 0.05),  # reboco claro e quente
     "Plaster_DS_Kura":    (S(238, 234, 224), 0.85, 0.0, 0, None, 0.03),  # armazem branco
+    "Plaster_DS_Ochre":   (S(222, 204, 172), 0.85, 0.0, 0, None, 0.05),  # ds_kit (1b): reboco -6% quente, POR CASA
+    "Plaster_DS_Ash":     (S(214, 210, 198), 0.85, 0.0, 0, None, 0.05),  # ds_kit (1b): reboco -6% frio, POR CASA
+    "Plaster_DS_Shoji":   (S(204, 196, 176), 0.85, 0.0, 0, None, 0.02),  # ds_kit (1b): papel de shoji APAGADO
     "Roof_DS_Tile":       (S(52, 58, 72), 0.7, 0.0, 0, None, 0.06),      # telha escura azul-ardosia
     "Roof_DS_Ridge":      (S(38, 42, 54), 0.7, 0.0, 0, None, 0.04),      # cumeeira e onigawara
     "Stone_DS":           (S(124, 120, 112), 0.85, 0.0, 0, None, 0.10),  # ishigaki, socos, escadas
     "Stone_DS_Path":      (S(156, 146, 128), 0.85, 0.0, 0, None, 0.10),  # lajes dos caminhos (as mais claras do chao)
+    "Stone_DS_Laje":      (S(128, 118, 104), 0.85, 0.0, 0, None, 0.08),  # lajes do patio/trilha (onda 1a): pedra quente media
     "Stone_DS_Dark":      (S(72, 70, 70), 0.8, 0.0, 0, None, 0.08),      # base da forja, fornalha, podio do summon
     "Cliff_DS":           (S(86, 92, 104), 0.9, 0.0, 0, None, 0.12),     # penhasco em estratos, cinza-azulado
     "Cliff_DS_Dark":      (S(62, 66, 78), 0.9, 0.0, 0, None, 0.10),      # estrato escuro / quilha
