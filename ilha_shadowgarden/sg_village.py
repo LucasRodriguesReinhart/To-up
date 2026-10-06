@@ -1792,14 +1792,50 @@ def pave_strip(mb, pts, w, z, row=4.0, skip=None, tone=0, splits=ROW_SPLITS):
             sett(mb, SL.ccw(_row_poly(Lo[j], Lo[j + 1], Ro[j], Ro[j + 1], a, b, g / 2)), z + PAVE - JOINT_D, z + PAVE, m)
 
 
+CRAFT_COL_CUT = L.CRAFT_R - 2.4      # face interna do portico da alquimia (r 13,6): a rua nao entra na sala
+
+
+def _clip_out_of_craft(p, q, hw=0.0):
+    """recua o ponto q (na direcao de p) ate a caixa de meia-largura hw sair da sala da alquimia: o eixo E os 2
+    cantos da ponta ficam a >= CRAFT_COL_CUT do centro (a rua do leste chega em diagonal)"""
+    cx, cy = L.CRAFT_C
+    dx, dy = q[0] - p[0], q[1] - p[1]
+    ln = math.hypot(dx, dy)
+    if ln < 1e-6:
+        return q
+    nx, ny = -dy / ln * hw, dx / ln * hw
+
+    def out(t):
+        x, y = p[0] + dx * t, p[1] + dy * t
+        return min(math.hypot(x + sx * nx - cx, y + sx * ny - cy) for sx in (-1.0, 0.0, 1.0)) >= CRAFT_COL_CUT
+    if out(1.0) or not out(0.0):
+        return q
+    lo, hi = 0.0, 1.0
+    for _ in range(40):                  # bissecao: ultimo t com a ponta inteira fora do circulo
+        t = (lo + hi) / 2
+        if out(t):
+            lo = t
+        else:
+            hi = t
+    return (p[0] + dx * lo, p[1] + dy * lo)
+
+
 def street_col(pts, w, z):
+    """colisao do calcamento elevado (+0,3). FINESSE 3B (pedido do agente A): a caixa nao entra na sala da alquimia
+    (antes ia ate 3 studs dentro e o jogador flutuava 0,25 acima do piso entre r 12 e 13,3)"""
+    ext = w / 2 if len(pts) > 2 else 0.0
     for a, b in zip(pts, pts[1:]):
         ln = math.hypot(b[0] - a[0], b[1] - a[1])
         if ln < 0.5:
             continue
+        ux, uy = (b[0] - a[0]) / ln, (b[1] - a[1]) / ln
+        a2 = _clip_out_of_craft(b, (a[0] - ux * ext, a[1] - uy * ext), w / 2)
+        b2 = _clip_out_of_craft(a, (b[0] + ux * ext, b[1] + uy * ext), w / 2)
+        ln2 = math.hypot(b2[0] - a2[0], b2[1] - a2[1])
+        if ln2 < 0.5:
+            continue
         yaw = math.atan2(b[1] - a[1], b[0] - a[0])
-        col_box("SG_VilPave", (ln + (w if len(pts) > 2 else 0.0), w, 1.0), ((a[0] + b[0]) / 2, (a[1] + b[1]) / 2,
-                                                                            z + PAVE - 0.5), (0, 0, yaw))
+        col_box("SG_VilPave", (ln2, w, 1.0), ((a2[0] + b2[0]) / 2, (a2[1] + b2[1]) / 2, z + PAVE - 0.5), (0, 0, yaw))
 
 
 def streets():
