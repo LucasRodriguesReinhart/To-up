@@ -1,0 +1,38 @@
+STUDIO modulo sg_castle 7.2s
+STUDIO tris=169944/170000 OK | MeshParts~119/125 OK | materiais_novos=3/12 OK ['Glass_SGHallMoon', 'SG_VilRoom_Glow', 'Stone_SGCasInterior']
+STUDIO colisoes=121/260 OK | luzes=5 (de dia <= 5)
+OK   ROTA sg_castle:PATIO->PORCHE->PORTA
+OK   ROTA sg_castle:PATIO->PORCHE_LADO
+STUDIO RENDER /home/user/To-up/ilha_shadowgarden/renders/finesse3/K/depois/CAM_A3_06_Guardas.jpg
+STUDIO modulo sg_castle 7.0s
+STUDIO tris=169944/170000 OK | MeshParts~119/125 OK | materiais_novos=3/12 OK ['Glass_SGHallMoon', 'SG_VilRoom_Glow', 'Stone_SGCasInterior']
+STUDIO colisoes=121/260 OK | luzes=5 (de dia <= 5)
+OK   ROTA sg_castle:PATIO->PORCHE->PORTA
+OK   ROTA sg_castle:PATIO->PORCHE_LADO
+STUDIO RENDER /home/user/To-up/ilha_shadowgarden/renders/finesse3/K/depois_roblox/CAM_A3_06_Guardas.jpg
+STUDIO RENDER /home/user/To-up/ilha_shadowgarden/renders/finesse3/K/depois_roblox/CAM_A3_06_Porta.jpg
+STUDIO FIM 399.9s
+=== BUILD
+WATER AVISO WATER_Court_L: nenhuma pedra (('SG_Prop_', 'SG_Court', 'SG_Veg_', 'SG_Gar')) em volta
+WATER AVISO WATER_Court_R: nenhuma pedra (('SG_Prop_', 'SG_Court', 'SG_Veg_', 'SG_Gar')) em volta
+BUILD OK zonas_detalhadas=terrain,entry,village,castle,hall,cave,summon,craft,dungeon,water,exit,dressing objs=2209 tris=879765 col=1689 t=129.0s -> /home/user/To-up/ilha_shadowgarden/ilha_shadowgarden.blend
+=== QA
+OK   ROTA DUNGEON_SALAS_R1->R3
+OK   ROTA SALAO_SOMBRIO_PASSARELAS
+OK   ROTA SALAO_SOMBRIO_PISO
+ROTAS 27/27 OK
+OK   ROTA TRONO_ABERTO->ESCADA->SALAO_SOMBRIO->PORTAL
+OK   ROTA PORTAL->SALAO_SOMBRIO->ESCADA->TRONO (subida)
+ROTAS_ABERTAS 3/3 OK
+OK   ROTA sg_hall:SALAO_VOLTA
+ROTAS_MODULOS 46/46 OK
+SONDAS 29/29 OK
+LARGURA rotas com trecho < 3,4 de largura: ['ENTRADA->CRAFT', 'CASTELO->CRAFT', 'CASA_H1_ESCADA->ANDAR', 'CASA_H2_PORTA->DENTRO', 'CASA_H2_ESCADA->ANDAR', 'CASA_H3_ESCADA->ANDAR', 'CASA_H5_ESCADA->ANDAR', 'CASA_H7_ESCADA->ANDAR', 'SALAO_SOMBRIO_PISO']
+MARKERS faltando=0 []
+MARKERS minerio={'COMMON': 44, 'EPIC': 10, 'SUPERLEGENDARY': 2, 'UNCOMMON': 24} sobrepostos=0 dungeon=46 portao_DS_area=4
+OK   SALAO_LIVRE colisores na zona de minerio (piso+0,3..+12): nenhum
+OK   DUNGEON_LIMPA malhas de fora dentro da caixa das salas: nenhuma
+TECH nomes_genericos=0 duplicados=0 sem_material=0 transform_nao_aplicado=0 degeneradas=0
+TECH tris=879765 objetos=2209 malhas=1828 materiais=120 colisoes=1689 luzes=58
+TECH maiores: [(58466, 'SG_Cave_Build'), (41440, 'SG_Craft_Furnishings'), (39676, 'SG_Dun_Rooms_Kit'), (39338, 'SG_Cas_Nave'), (35754, 'SG_Vil_Houses_P1'), (34034, 'SG_Hall_Walls'), (30838, 'SG_Cas_Muralha'), (29000, 'SG_Cas_Torres')]
+CHAIN3_DONE

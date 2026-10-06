@@ -1,0 +1,2 @@
+/tmp/claude-0/-home-user-To-up/1f4fd017-283e-51a6-a93d-09fc804c759b/scratchpad/E/queue.sh: line 9: 18173 Killed                  FM_MAT_PREVIEW=roblox $BPY studio_sg.py -- entry $dir --all-detail --cams $cams --res 960x540 --samples 8 > $OUT/q_$tag.log 2>&1
+JOB j1 FAILED attempt 1

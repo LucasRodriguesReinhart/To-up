@@ -30,7 +30,7 @@
 import math, random, zlib
 import bmesh
 import bpy
-from mathutils import Vector
+from mathutils import Vector, Matrix, Euler
 import sg_lib as SL
 from sg_lib import MB, col_box, octo_col, ccw
 import fm_lib
@@ -63,6 +63,14 @@ REL_M = "Stone_SG_Block_B"          # relevo (lajes, plinto)
 COURSES13 = (2.2, 1.4)              # fiadas alternadas do arrimo
 LEN_TALL = (4.4, 3.6, 5.0, 3.9)     # comprimentos DIRIGIDOS dos blocos (fiada alta / baixa), ciclo fixo
 LEN_LOW = (2.9, 3.4, 2.5, 3.1)
+BED = "Stone_SG_Floor"              # leito escuro das juntas (sob as lajes do terreno)
+GRAVEL = "Dirt_SGGravel"            # faixa de cascalho (bordadura) ao pe de parapeitos e muros
+PAVE_B = "Stone_Paving_SG_B"        # 2o tom DIRIGIDO das lajes (fiadas alternadas)
+BED_D = 0.32                        # leito das lajes: 0,32 abaixo da cota (laje de 0,30 + 0,02 sem face de contato)
+GRV_D = 0.12                        # cascalho 0,12 abaixo da cota (o meio-fio mostra 0,12 de face)
+GW_E, CW = 1.3, 0.5                 # bordadura ao pe do parapeito (largura) e largura do meio-fio
+GW_F = 3.6                          # bordadura ao pe dos muros de arrimo (cobre o soco dos contrafortes, 2,8)
+APRON = 2.0                         # rodape de chao: calcada de lajes em volta dos predios (16.08) + meio-fio
 ZS_A, ZS_B = 20.0, 6.0              # os 2 estratos continuos da coroa (cota fixa na ilha inteira)
 # promontorios da coroa (x, y, meia-largura): O, NO, N, NE, L (jardim-mirante), SE, SO
 PROMS = [(-178.0, 40.0, 22.0), (-160.0, 296.0, 18.0), (16.0, 392.0, 22.0), (132.0, 334.0, 18.0),
@@ -89,7 +97,50 @@ CAMS = {
     "CAM_SGTer_PH_North": ((-10.0, 352.0, P3 + 5.2), (-66.0, 382.0, P3 + 0.5), 22),
     "CAM_SGTer_GrassP2": ((-30.0, -215.0, 150.0), (-20.0, -80.0, 44.0), 24),
     "CAM_SGTer_GrassP3": ((-270.0, 150.0, 150.0), (-128.0, 200.0, 52.0), 24),
+    # FINESSE 3: cameras da AUDITORIA 3 citadas nos itens do terreno (copia de sg_scene.a3_cams: o studio nao as cria)
+    "CAM_A3_01_Spawn_Volta": ((0.0, -270.0, P1 + 5.5), (0.0, -340.0, DECK + 2.0), 20),
+    "CAM_A3_01_PatioBaixo": ((8.0, -331.0, DECK + 5.5), (0.0, -296.0, P1 + 10.0), 20),
+    "CAM_A3_02_Praca_Chegada": ((0.0, -262.0, P1 + 5.5), (0.0, -222.0, P1 + 6.0), 20),
+    "CAM_A3_02_Praca_Alta": ((44.0, -284.0, P1 + 42.0), (0.0, -222.0, P1), 22),
+    "CAM_A3_03_EscP1P2_Topo": ((-4.0, -145.0, P2 + 5.5), (0.0, -200.0, P1 + 4.0), 20),
+    "CAM_A3_03_Arrimo_Frente": ((-30.0, -200.0, P1 + 5.5), (-40.0, -148.0, P1 + 6.0), 20),
+    "CAM_A3_03_Arrimo_E": ((62.0, -162.0, P1 + 5.5), (20.0, -149.0, P1 + 5.0), 20),
+    "CAM_A3_06_Fachada_Base": ((40.0, 50.0, P3 + 5.5), (62.0, 62.0, P3 + 9.0), 20),
+    "CAM_A3_06_Flanco_E": ((140.0, 116.0, P3 + 5.5), (104.0, 200.0, P3 + 30.0), 18),
+    "CAM_A3_13_Mirante": ((133.0, 142.0, P3 + 5.5), (136.0, 176.0, P3 + 3.5), 20),
+    "CAM_A3_14_Leste": ((820.0, 20.0, 220.0), (0.0, 20.0, 80.0), 24),
+    "CAM_A3_14_Oeste": ((-820.0, 20.0, 220.0), (0.0, 20.0, 80.0), 24),
+    "CAM_A3_14_Alto_34": ((560.0, -540.0, 520.0), (0.0, 0.0, 40.0), 24),
+    "CAM_A3_01_Ponte_Reta": (None, None, 20),          # preenchida abaixo (referencial da ponte)
+    "CAM_A3_01_Ponte_Encontro": (None, None, 20),
+    "CAM_A3_14_Ilha2_Perto": (None, None, 22),
 }
+# as 2 cameras da ponte: mesma conta do sg_scene (_bridge_at / _bcam) sem importar o sg_scene no build
+
+
+def _bridge_at(s, v=0.0):
+    pts = L.BRIDGE_PATH
+    acc = 0.0
+    n = len(pts)
+    for i in range(n - 1):
+        a, b = pts[i], pts[i + 1]
+        ln = math.hypot(b[0] - a[0], b[1] - a[1]) or 1e-9
+        if acc + ln >= s or i == n - 2:
+            t = max(0.0, min(1.0, (s - acc) / ln))
+            tx, ty = (b[0] - a[0]) / ln, (b[1] - a[1]) / ln
+            return (a[0] + (b[0] - a[0]) * t - ty * v, a[1] + (b[1] - a[1]) * t + tx * v)
+        acc += ln
+    return pts[-1]
+
+
+_b0, _b1 = L.BRIDGE_PATH[0], L.BRIDGE_PATH[1]
+_bl = math.hypot(_b1[0] - _b0[0], _b1[1] - _b0[1]) or 1.0
+_bu = ((_b1[0] - _b0[0]) / _bl, (_b1[1] - _b0[1]) / _bl)
+CAMS["CAM_A3_14_Ilha2_Perto"] = ((_b0[0] - _bu[0] * 20.0, _b0[1] - _bu[1] * 20.0, DECK + 5.5), (0.0, -60.0, 110.0), 22)
+_pa, _pb = _bridge_at(140.0, 0.0), _bridge_at(L.BRIDGE_LEN, 0.0)
+CAMS["CAM_A3_01_Ponte_Reta"] = ((_pa[0], _pa[1], DECK + 5.5), (_pb[0], _pb[1], DECK + 22.0), 20)
+_pa, _pb = _bridge_at(196.0, -42.0), _bridge_at(L.BRIDGE_LEN - 4.0, 0.0)
+CAMS["CAM_A3_01_Ponte_Encontro"] = ((_pa[0], _pa[1], DECK - 2.0), (_pb[0], _pb[1], DECK - 10.0), 20)
 
 # rotas extras: o pe do arrimo P1->P2 continua andavel com os contrafortes (colisao propria)
 EXTRA_ROUTES = {
@@ -621,69 +672,103 @@ def patch_polys():
 
 
 # ------------------------------------------------------------------ 1) topos dos patamares e do ombro
-def emit_top(mb, domain, z, cuts, recess, pave_zone, patches, base):
-    """topo em trapezios: cut = sem topo; recess = z - RECESS; pave_zone = calcamento; patch = 2o tom da grama.
-    Onde o topo desce (recess) sai o ESPELHO de 0,3 (face vertical virada para o rebaixo): nada de fresta para o oco."""
-    layers = [cuts, recess, pave_zone, patches]
+# FINESSE 3 (02.01 / 01.01 / 01.11 / 16.08 / 14.03): o topo deixa de ser um plano liso. Camadas, por prioridade:
+#   cut (sem topo) > recess (z-0,45: piso de OUTRO modulo) > hold (fica na cota: torres do castelo) > slab (LEITO escuro
+#   z-0,32: por cima vao as lajes do paving()) > gravel (cascalho z-0,12 ao pe de parapeitos e muros, com meio-fio) >
+#   pave_zone (calcamento) > patch (2o tom da grama) > base (grama / calcamento).
+def emit_top(mb, domain, z, cuts, recess, pave_zone, patches, base, slab=(), gravel=(), hold=()):
+    """topo em trapezios exatos; onde o topo desce sai o ESPELHO vertical (risers): nada de fresta para o oco"""
+    layers = [cuts, recess, hold, gravel, slab, pave_zone, patches]
     n = 0
     for fl, pts in scan_regions(domain, layers):
-        cut, rec, pav, pat = fl
+        cut, rec, hld, grv, slb, pav, pat = fl
         if cut:
             continue
-        m = PAVE if (pav or base == PAVE) else (GRASS2 if pat else GRASS)
-        flat_face(mb, pts, z - (RECESS if rec else 0.0), m)
+        if rec:
+            zz, m = z - RECESS, (BED if slb else (PAVE if (pav or base == PAVE) else GRASS))
+        elif hld:
+            zz, m = z, (PAVE if (pav or base == PAVE) else GRASS)
+        elif grv:
+            zz, m = z - GRV_D, GRAVEL
+        elif slb:
+            zz, m = z - BED_D, BED
+        else:
+            zz, m = z, (PAVE if (pav or base == PAVE) else (GRASS2 if pat else GRASS))
+        flat_face(mb, pts, zz, m)
         n += 1
-    if recess:
-        risers(mb, domain, cuts, recess, pave_zone, z, base)
+    if recess or slab or gravel:
+        risers(mb, domain, cuts, recess, pave_zone, z, base, slab=slab, gravel=gravel, hold=hold)
     return n
 
 
-def risers(mb, domain, cuts, recess, pave_zone, z, base, step=0.5):
+def risers(mb, domain, cuts, recess, pave_zone, z, base, step=0.5, slab=(), gravel=(), hold=()):
+    """espelhos verticais em toda divisa onde o topo muda de cota (recess / leito das lajes / cascalho), virados para
+    o lado mais BAIXO; material: leito escuro junto das lajes, cascalho junto do cascalho, senao o do piso de cima"""
     pip = L.point_in_poly
 
     def lvl(x, y):
         if not any(pip(x, y, p) for p in domain) or any(pip(x, y, p) for p in cuts):
-            return 0
-        return 2 if any(pip(x, y, p) for p in recess) else 1
+            return None
+        if any(pip(x, y, p) for p in recess):
+            return RECESS
+        if any(pip(x, y, p) for p in hold):
+            return 0.0
+        if any(pip(x, y, p) for p in gravel):
+            return GRV_D
+        if any(pip(x, y, p) for p in slab):
+            return BED_D
+        return 0.0
     bm = mb.bm
-    for poly in recess:
-        pts = clean(ccw(poly))
-        n = len(pts)
-        for i in range(n):
-            a, b = pts[i], pts[(i + 1) % n]
-            dx, dy = b[0] - a[0], b[1] - a[1]
-            ln = math.hypot(dx, dy)
-            if ln < 0.05:
-                continue
-            ux, uy = dx / ln, dy / ln
-            nx, ny = uy, -ux
-            ns = max(1, int(math.ceil(ln / step)))
-            keep = []
-            for k in range(ns):
-                t = (k + 0.5) * ln / ns
-                x, y = a[0] + ux * t, a[1] + uy * t
-                keep.append(lvl(x + nx * 0.06, y + ny * 0.06) == 1 and lvl(x - nx * 0.06, y - ny * 0.06) == 2)
-            k = 0
-            while k < ns:
-                if not keep[k]:
-                    k += 1
+    for polys in (recess, slab, gravel):
+        for poly in polys:
+            pts = clean(ccw(poly))
+            n = len(pts)
+            for i in range(n):
+                a, b = pts[i], pts[(i + 1) % n]
+                dx, dy = b[0] - a[0], b[1] - a[1]
+                ln = math.hypot(dx, dy)
+                if ln < 0.05:
                     continue
-                j = k
-                while j + 1 < ns and keep[j + 1]:
-                    j += 1
-                t0, t1 = k * ln / ns, (j + 1) * ln / ns
-                p0 = (a[0] + ux * t0, a[1] + uy * t0)
-                p1 = (a[0] + ux * t1, a[1] + uy * t1)
-                xm, ym = (p0[0] + p1[0]) / 2 + nx * 0.06, (p0[1] + p1[1]) / 2 + ny * 0.06
-                m = PAVE if base == PAVE or any(pip(xm, ym, p) for p in pave_zone) else GRASS
-                vs = [bm.verts.new((p1[0], p1[1], z - RECESS)), bm.verts.new((p0[0], p0[1], z - RECESS)),
-                      bm.verts.new((p0[0], p0[1], z)), bm.verts.new((p1[0], p1[1], z))]
-                f = bm.faces.new(vs)
-                f.material_index = mb._mi(m)
-                f[mb.tint] = 0.0
-                f.normal_update()
-                mb._uv([f], m)
-                k = j + 1
+                ux, uy = dx / ln, dy / ln
+                nx, ny = uy, -ux
+                ns = max(1, int(math.ceil(ln / step)))
+                keys = []
+                for k in range(ns):
+                    t = (k + 0.5) * ln / ns
+                    x, y = a[0] + ux * t, a[1] + uy * t
+                    lo, li = lvl(x + nx * 0.06, y + ny * 0.06), lvl(x - nx * 0.06, y - ny * 0.06)
+                    keys.append((lo, li) if (lo is not None and li is not None and abs(lo - li) > 1e-6) else None)
+                k = 0
+                while k < ns:
+                    key = keys[k]
+                    if key is None:
+                        k += 1
+                        continue
+                    j = k
+                    while j + 1 < ns and keys[j + 1] == key:
+                        j += 1
+                    lo, li = key
+                    t0, t1 = k * ln / ns, (j + 1) * ln / ns
+                    p0 = (a[0] + ux * t0, a[1] + uy * t0)
+                    p1 = (a[0] + ux * t1, a[1] + uy * t1)
+                    xm, ym = (p0[0] + p1[0]) / 2 + nx * 0.06, (p0[1] + p1[1]) / 2 + ny * 0.06
+                    if BED_D in (lo, li):
+                        m = BED
+                    elif GRV_D in (lo, li):
+                        m = GRAVEL
+                    else:
+                        m = PAVE if base == PAVE or any(pip(xm, ym, p) for p in pave_zone) else GRASS
+                    zl, zh = z - max(lo, li), z - min(lo, li)
+                    vs = [bm.verts.new((p1[0], p1[1], zl)), bm.verts.new((p0[0], p0[1], zl)),
+                          bm.verts.new((p0[0], p0[1], zh)), bm.verts.new((p1[0], p1[1], zh))]
+                    if lo > li:                      # o lado de FORA e o mais baixo: face virada para fora
+                        vs.reverse()
+                    f = bm.faces.new(vs)
+                    f.material_index = mb._mi(m)
+                    f[mb.tint] = 0.0
+                    f.normal_update()
+                    mb._uv([f], m)
+                    k = j + 1
 
 
 # ------------------------------------------------------------------ ONDA 2 (agente do jardim, 2026-09-30): recorte do
@@ -731,7 +816,10 @@ def tops():
     court_rec, court_cut = court_garden_areas()          # onda 2: patio-jardim (ver court_lawn_pits)
     pats = patch_polys()
     court = [rect(*L.CASTLE_FORECOURT)]
-    base = {"P1": PAVE, "P2": GRASS, "P3": GRASS, "EntryHigh": PAVE, "EntryLow": PAVE}
+    # FINESSE 3 (02.01 / 14.03): o P1 deixa de ser o plano claro de calcamento: grama escura com clareiras (as ruas e a
+    # praca do sg_village ficam 0,3 acima, como calcadas elevadas), lajes so na calcada alta e nos rodapes dos predios
+    base = {"P1": GRASS, "P2": GRASS, "P3": GRASS, "EntryHigh": PAVE, "EntryLow": PAVE}
+    slabs, gravels, holds = dress_polys()
     nf = 0
     for nm, poly, z, pr in fl:
         if nm == "Summon":
@@ -743,14 +831,339 @@ def tops():
             continue
         nf += emit_top(mb, [poly], z, higher + cut + (court_cut if nm == "P3" else []),
                        (rec + (court_rec if nm == "P3" else [])) if nm != "EntryHigh" else [],
-                       court if nm == "P3" else [], pats if base[nm] == GRASS else [], base[nm])
+                       court if nm == "P3" else [], pats if base[nm] == GRASS else [], base[nm],
+                       slab=slabs.get(nm, []), gravel=gravels.get(nm, []), hold=holds.get(nm, []))
         if nm == "P3":
             court_lawn_pits(mb)                          # onda 2: fundo dos gramados rebaixados
     # ombro (terreno bravo) ao norte do pescoco: contorno menos os patamares, em grama
     top = SL.clip(RIM, 0.0, -1.0, -CUT_Y)                # y >= -294
     ms = smb("SG_Ter_Shoulder")
-    nf += emit_top(ms, [top], SH, [p for n2, p, z2, pr2 in fl] + [L.summon_poly()], [], [], pats, GRASS)
+    nf += emit_top(ms, [top], SH, [p for n2, p, z2, pr2 in fl] + [L.summon_poly()], [], [], pats, GRASS,
+                   gravel=gravels.get("Shoulder", []))
     print("TER TOPO trapezios=%d" % nf)
+
+
+# ------------------------------------------------------------------ 1b) VESTIR O CHAO (FINESSE 3): bordaduras, rodapes
+# de predio, lajes da calcada alta e meio-fios. Tudo com o TOPO na cota do patamar (a colisao do sg_col nao muda):
+#   - bordadura (01.11 / 03.05): cascalho de 1,3 rebaixado 0,12 ao pe de todo parapeito, meio-fio chanfrado de 0,5 do
+#     lado da grama; ao pe dos muros de arrimo a faixa tem 3,6 (cobre o soco dos contrafortes) no patamar de baixo;
+#   - rodape de chao (16.08): calcada de 2,0 de lajes em volta de cada casa, dos flancos e fundo do castelo e da
+#     alquimia, com meio-fio para a grama; o leito escuro fica 0,32 abaixo e so aparece nas juntas (0,12);
+#   - calcada alta (01.01): lajes em fiadas transversais de 3 (e 4) com junta desencontrada, soleira de cantaria sob o
+#     portico B, meio-fio no contorno e disco de pedra (sem emblema) no spawn.
+_RUNS = {}
+CURBS = []          # (objeto, R, d_cascalho, d_grama, z) -> meio-fio em perfil (curbs())
+LVL_Z = {"P1": P1, "P2": P2, "P3": P3}
+
+
+def runs_of(nm):
+    if nm not in _RUNS:
+        _RUNS[nm] = [R for R in edge_runs(nm, SL.floor_poly(nm), LVL_Z[nm]) if not R["cas"]]
+    return _RUNS[nm]
+
+
+def strip_poly(R, t0, t1, d0, d1):
+    return ccw([_xy(R, t0, d0), _xy(R, t1, d0), _xy(R, t1, d1), _xy(R, t0, d1)])
+
+
+def house_frame(hrec):
+    """(centro, eixo da frente f, eixo lateral s): pegada = |s| <= w/2 (lateral), |t| <= d/2 (ao longo da frente)"""
+    nm, tp, x, y, w, d, deg, z = hrec
+    a = math.radians(deg)
+    return (x, y), (math.cos(a), math.sin(a)), (-math.sin(a), math.cos(a)), w, d, z
+
+
+def dress_polys():
+    """por patamar: zonas de LAJES (leito), faixas de CASCALHO e zonas 'hold'; preenche CURBS"""
+    slabs, gravel, hold = {}, {}, {}
+    CURBS.clear()
+    for nm in ("P1", "P2", "P3"):
+        z = LVL_Z[nm]
+        for R in runs_of(nm):
+            if R["open"] or R["br"] or R["t1"] - R["t0"] < 2.0:
+                continue
+            if R["cls"] == "wild":                                   # bordadura ao pe do parapeito (deste patamar)
+                gravel.setdefault(nm, []).append(strip_poly(R, R["t0"], R["t1"], -(GW_E + CW), 0.6))
+                CURBS.append(("SG_Ter_Wall_" + nm, R, -GW_E, -(GW_E + CW), z))
+            else:                                                    # pe do muro de arrimo: no patamar de BAIXO
+                x, y = _xy(R, (R["t0"] + R["t1"]) / 2, 2.0)
+                low = L.floor_name(x, y)
+                if low not in LVL_Z:
+                    continue
+                gravel.setdefault(low, []).append(strip_poly(R, R["t0"], R["t1"], -0.2, GW_F))
+                CURBS.append(("SG_Ter_Wall_" + nm, R, GW_F - CW, GW_F, R["zo"]))
+    # pe da calcada alta no ombro (01.11): dos 2 lados, de y -294 ate a entrada no P1
+    hx0, hy0, hx1, hy1 = L.ENTRY_HIGH
+    yend = max(hy0 + 1.0, -272.0)
+    for s_ in (-1, 1):
+        xe = hx1 if s_ > 0 else hx0
+        a = (xe, hy0) if s_ > 0 else (xe, yend)
+        u = (0.0, 1.0) if s_ > 0 else (0.0, -1.0)
+        R = dict(a=a, u=u, n=(u[1], -u[0]), t0=0.0, t1=yend - hy0, zo=SH, ln=yend - hy0, i=-1, cls="terrace",
+                 open=False, cas=False, br=False)
+        gravel.setdefault("Shoulder", []).append(strip_poly(R, 0.0, yend - hy0, -0.2, GW_F))
+        CURBS.append(("SG_Ter_Wall_P1", R, GW_F - CW, GW_F, SH))
+    # rodapes de chao (16.08)
+    A = APRON + CW
+    for hrec in L.HOUSES:
+        c, f, sv, w, d, z = house_frame(hrec)
+        lvl = "P1" if abs(z - P1) < 0.1 else "P2"
+        slabs.setdefault(lvl, []).append(rect_rot(c[0], c[1], w + 1.2 + 2 * A, d + 1.2 + 2 * A, hrec[6]))
+    hx0, hy0, hx1, hy1 = L.HALL_X0 - L.HALL_WALL, L.HALL_Y0 - L.HALL_WALL, L.HALL_X1 + L.HALL_WALL, L.HALL_Y1 + L.HALL_WALL
+    slabs.setdefault("P3", []).append(rect(hx0 - 0.3 - A, L.CASTLE_FORECOURT[3], hx1 + 0.3 + A, hy1 + 0.3 + A))
+    hold["P3"] = [circle((cx, cy), cr, 24) for cx, cy, cr in CAS_CIRCLES]
+    slabs.setdefault("P2", []).append(circle(L.CRAFT_C, L.CRAFT_R + 0.9 + A, 40))
+    slabs["EntryHigh"] = [rect(*L.ENTRY_HIGH)]
+    return slabs, gravel, hold
+
+
+_FLOOR_AREAS = []
+
+
+def in_recess(x, y):
+    if not _FLOOR_AREAS:
+        _FLOOR_AREAS.extend(floor_areas())
+    return any(L.point_in_poly(x, y, p) for p in _FLOOR_AREAS) or castle_hit(x, y, 0.3)
+
+
+def near_edge(x, y, d=GW_E + CW + 0.5):
+    """perto (< d) da borda do patamar onde (x, y) esta: ali manda a bordadura do parapeito, nao o rodape"""
+    nm = L.floor_name(x, y)
+    if nm not in LVL_Z:
+        return True
+    pts = SL.floor_poly(nm)
+    n = len(pts)
+    for i in range(n):
+        a, b = pts[i], pts[(i + 1) % n]
+        if L.seg_dist(x, y, a[0], a[1], b[0], b[1])[0] < d:
+            return True
+    return False
+
+
+def blocked_apron(x, y):
+    return in_recess(x, y) or near_edge(x, y)
+
+
+def pred_spans(R, t0, t1, d, pred, step=0.5):
+    """trechos de t0..t1 onde pred(x, y) e falso (meio-fios que saltam recortes / bordas)"""
+    out, cur = [], None
+    t = t0
+    while t <= t1 + 1e-6:
+        x, y = _xy(R, t, d)
+        ok = not pred(x, y)
+        if ok and cur is None:
+            cur = t
+        if not ok and cur is not None:
+            if t - step - cur > 0.6:
+                out.append((cur, t - step))
+            cur = None
+        t += step
+    if cur is not None and t1 - cur > 0.6:
+        out.append((cur, t1))
+    return out
+
+
+def slab(mb, cx, cy, sx, sy, ang, z, m, bevel=0.04, th=0.30):
+    """laje: caixa de 0,30 com o topo EXATO na cota, material exato (sem sorteio) e chanfro so nas arestas de cima"""
+    M = Matrix.LocRotScale(Vector((cx, cy, z - th / 2)), Euler((0.0, 0.0, ang)), Vector((sx, sy, th)))
+    r = bmesh.ops.create_cube(mb.bm, size=1.0, matrix=M)
+    fs = mb._post(r["verts"], m, 0.0, min(bevel, min(sx, sy) * 0.3), 1)
+    mi = mb._mi(m)
+    for f in fs:
+        f.material_index = mi
+
+
+def slab_poly(mb, pts, z, m, bevel=0.04, th=0.30):
+    """laje poligonal (topo na cota), material exato, chanfro nas arestas de cima"""
+    pts = clean(ccw(pts))
+    if len(pts) < 3:
+        return
+    bm = mb.bm
+    vb = [bm.verts.new((x, y, z - th)) for x, y in pts]
+    vt = [bm.verts.new((x, y, z)) for x, y in pts]
+    bm.faces.new(list(reversed(vb)))
+    bm.faces.new(vt)
+    n = len(pts)
+    for i in range(n):
+        j = (i + 1) % n
+        bm.faces.new((vb[i], vb[j], vt[j], vt[i]))
+    fs = mb._post(vb + vt, m, 0.0, bevel, 1, angle=0.6)
+    mi = mb._mi(m)
+    for f in fs:
+        f.material_index = mi
+
+
+APRON_LEN = (4.4, 5.4, 4.8, 6.0, 4.0)     # modulos DIRIGIDOS das lajes dos rodapes (ciclo fixo)
+
+
+def apron_band(mb, org, u, n, t0, t1, d0, d1, z, tone, k0=0):
+    """faixa de lajes ao longo de u (de t0 a t1), entre d0 e d1 (uma laje de largura), junta 0,12; tom por faixa"""
+    ux, uy = u
+    nx, ny = n
+    ang = math.atan2(uy, ux)
+    pos, k = t0, k0
+    dm = (d0 + d1) / 2
+    while pos < t1 - 0.3:
+        bl = APRON_LEN[k % 5]
+        k += 1
+        if t1 - (pos + bl) < 1.4:
+            bl = t1 - pos
+        pa, pb = pos + 0.06, pos + bl - 0.06
+        tm = (pa + pb) / 2
+        cx, cy = org[0] + ux * tm + nx * dm, org[1] + uy * tm + ny * dm
+        if not blocked_apron(cx, cy):
+            slab(mb, cx, cy, pb - pa, d1 - d0 - 0.12, ang, z, PAVE if (tone + k) % 2 else PAVE_B)
+        pos += bl
+    return k
+
+
+def curb_prof(dg, dgr, z):
+    """perfil do meio-fio no referencial do run: dg = lado do cascalho (chanfro, 0,12 de face), dgr = lado da grama"""
+    s = 1.0 if dgr > dg else -1.0
+    return [(dgr, z - 0.14), (dg, z - 0.14), (dg, z - 0.06), (dg + s * 0.06, z), (dgr, z)]
+
+
+def curbs():
+    """meio-fios das bordaduras (CURBS) nos objetos dos muros (detail near)"""
+    n = 0
+    for obj, R, dg, dgr, z in CURBS:
+        mb = smb(obj, detail="near")
+        for s0, s1 in free_spans(R, R["t0"], R["t1"], d=(dg + dgr) / 2, pad=0.3):
+            ledge(mb, _W(R), s0, s1, curb_prof(dg, dgr, z), CAPL)
+            n += 1
+    print("TER MEIO-FIOS trechos=%d" % n)
+
+
+def paving():
+    """lajes com o topo na cota: calcada alta (01.01), rodapes de chao (16.08) e anel da alquimia"""
+    mv = smb("SG_Ter_Paving_Vila", detail="near")
+    m3 = smb("SG_Ter_Paving_P3", detail="near")
+    A = APRON
+    # --- rodapes das casas: 4 faixas (as laterais levam os cantos) + meio-fio em volta
+    for hrec in L.HOUSES:
+        c, f, sv, w, d, z = house_frame(hrec)
+        mb = mv
+        hw, hd = w / 2 + 0.6, d / 2 + 0.6                     # borda do recorte (floor_areas: +0,6)
+        k = int(abs(c[0] * 3.0 + c[1] * 7.0)) % 5
+        for sgn in (-1, 1):
+            # faixa lateral (ao longo de f), com os cantos
+            org = (c[0] + sv[0] * sgn * hw, c[1] + sv[1] * sgn * hw)
+            nvec = (sv[0] * sgn, sv[1] * sgn)
+            k = apron_band(mb, org, f, nvec, -(hd + A), hd + A, 0.06, A, z, 0, k)
+            # faixa da frente / fundo (ao longo de sv), entre as laterais
+            org = (c[0] + f[0] * sgn * hd, c[1] + f[1] * sgn * hd)
+            nvec = (f[0] * sgn, f[1] * sgn)
+            k = apron_band(mb, org, sv, nvec, -hw, hw, 0.06, A, z, 1, k)
+        # meio-fio: 4 lados no contorno externo (de hw+A a hw+A+CW)
+        for sgn in (-1, 1):
+            for axis, lat, half in ((f, sv, hw), (sv, f, hd)):
+                # lado perpendicular a 'lat' deslocado sgn*(half + A) ao longo de lat; corre ao longo de 'axis'
+                org = (c[0] + lat[0] * sgn * (half + A), c[1] + lat[1] * sgn * (half + A))
+                nvec = (lat[0] * sgn, lat[1] * sgn)
+                other = (hd + A + CW) if axis is f else hw + A
+                R = dict(a=org, u=axis, n=nvec)
+                for s0, s1 in pred_spans(R, -other, other, CW / 2, blocked_apron):
+                    ledge(mb, _W(R), s0, s1, curb_prof(0.0, CW, z), CAPL)
+    # --- castelo: flancos e fundo do salao (as torres da fachada ficam de fora: castle_hit)
+    hx0, hy0, hx1, hy1 = L.HALL_X0 - L.HALL_WALL, L.HALL_Y0 - L.HALL_WALL, L.HALL_X1 + L.HALL_WALL, L.HALL_Y1 + L.HALL_WALL
+    y0 = L.CASTLE_FORECOURT[3]
+    k = 2
+    for sgn in (-1, 1):
+        xe = hx1 if sgn > 0 else hx0
+        k = apron_band(m3, (xe, y0), (0.0, 1.0), (sgn, 0.0), 0.0, hy1 - y0 + 0.3 + A, 0.36, 0.3 + A, P3, 0, k)
+        R = dict(a=(xe + sgn * (0.3 + A), y0), u=(0.0, 1.0), n=(sgn, 0.0))
+        for s0, s1 in pred_spans(R, 0.0, hy1 - y0 + 0.3 + A + CW, CW / 2, in_recess):
+            ledge(m3, _W(R), s0, s1, curb_prof(0.0, CW, P3), CAPL)
+    k = apron_band(m3, (hx0 - 0.3, hy1), (1.0, 0.0), (0.0, 1.0), 0.0, hx1 - hx0 + 0.6, 0.36, 0.3 + A, P3, 1, k)
+    R = dict(a=(hx0 - 0.3 - A, hy1 + 0.3 + A), u=(1.0, 0.0), n=(0.0, 1.0))
+    for s0, s1 in pred_spans(R, 0.0, hx1 - hx0 + 0.6 + 2 * A, CW / 2, in_recess):
+        ledge(m3, _W(R), s0, s1, curb_prof(0.0, CW, P3), CAPL)
+    # --- alquimia: anel de lajes em setores + meio-fio em 24 trechos
+    cx, cy = L.CRAFT_C
+    r0, r1 = L.CRAFT_R + 0.9 + 0.06, L.CRAFT_R + 0.9 + A
+    ns = 28
+    for q in range(ns):
+        a0, a1 = 2 * math.pi * q / ns, 2 * math.pi * (q + 1) / ns
+        g0, g1 = 0.06 / r0, 0.06 / r1
+        pts = [(cx + r0 * math.cos(a0 + g0), cy + r0 * math.sin(a0 + g0)),
+               (cx + r1 * math.cos(a0 + g1), cy + r1 * math.sin(a0 + g1)),
+               (cx + r1 * math.cos(a1 - g1), cy + r1 * math.sin(a1 - g1)),
+               (cx + r0 * math.cos(a1 - g0), cy + r0 * math.sin(a1 - g0))]
+        mx, my = cx + (r0 + r1) / 2 * math.cos((a0 + a1) / 2), cy + (r0 + r1) / 2 * math.sin((a0 + a1) / 2)
+        if not in_recess(mx, my):
+            slab_poly(mv, pts, P2, PAVE if q % 2 else PAVE_B)
+    rc = L.CRAFT_R + 0.9 + A
+    for q in range(24):
+        a0, a1 = 2 * math.pi * q / 24, 2 * math.pi * (q + 1) / 24
+        p0 = (cx + rc * math.cos(a0), cy + rc * math.sin(a0))
+        p1 = (cx + rc * math.cos(a1), cy + rc * math.sin(a1))
+        ux, uy = p1[0] - p0[0], p1[1] - p0[1]
+        ln = math.hypot(ux, uy)
+        ux, uy = ux / ln, uy / ln
+        R = dict(a=p0, u=(ux, uy), n=(uy, -ux))
+        if not in_recess(*_xy(R, ln / 2, 0.25)):
+            ledge(mv, _W(R), 0.0, ln, curb_prof(0.0, CW, P2), CAPL)
+    # --- calcada alta
+    entry_walk(mv)
+
+
+def entry_walk(mb):
+    """calcada alta (01.01): fiadas transversais de 3 lajes (e de 4, com a junta desencontrada), soleira de cantaria
+    de 1,4 sob o portico B, meio-fio de 0,7 no contorno, disco de pedra em moldura quadrada no spawn (sem emblema)"""
+    hx0, hy0, hx1, hy1 = L.ENTRY_HIGH
+    z = P1
+    xw = hx1 - 0.7                                              # lajes ate 11,3; meio-fio 11,3..12
+    sx, sy = L.ENTRY_SPAWN
+    SQ = 3.75                                                   # meia-moldura do disco do spawn
+    ysol0, ysol1 = L.PORTICO_B_Y - 0.7, L.PORTICO_B_Y + 0.7      # soleira
+    plinth = (L.PORTICO_B_Y - 5.4, L.PORTICO_B_Y + 3.2)          # plintos dos pilares (|x| > 9,4)
+    rows = []
+    for k in range(4):
+        rows.append((hy0 + 0.1 + 2.8 * k, hy0 + 0.1 + 2.8 * (k + 1)))
+    rows += [(ysol1, ysol1 + (sy - SQ - ysol1) / 2), (ysol1 + (sy - SQ - ysol1) / 2, sy - SQ)]
+    rows += [(sy - SQ, sy), (sy, sy + SQ), (sy + SQ, hy1)]
+    for i, (ya, yb) in enumerate(rows):
+        lim = 9.3 if (ya < plinth[1] and yb > plinth[0]) else xw
+        if yb <= sy + SQ and ya >= sy - SQ:                     # fiadas ao lado da moldura do disco
+            for s_ in (-1, 1):
+                xa, xb = SQ + 0.06, lim
+                slab(mb, s_ * (xa + xb) / 2, (ya + yb) / 2, xb - xa - 0.06, yb - ya - 0.12, 0.0, z,
+                     PAVE if i % 2 else PAVE_B)
+            continue
+        cuts = ([-lim, -lim / 3.0, lim / 3.0, lim] if i % 2 == 0 else [-lim, -lim * 0.66, 0.0, lim * 0.66, lim])
+        for xa, xb in zip(cuts, cuts[1:]):
+            xa2 = xa + (0.06 if xa > -lim + 1e-6 else 0.0)
+            xb2 = xb - (0.06 if xb < lim - 1e-6 else 0.0)
+            slab(mb, (xa2 + xb2) / 2, (ya + yb) / 2, xb2 - xa2, yb - ya - 0.12, 0.0, z, PAVE if i % 2 else PAVE_B)
+    # soleira (3 pecas de cantaria clara) entre os plintos
+    for xa, xb in ((-9.3, -3.1), (-3.1, 3.1), (3.1, 9.3)):
+        slab(mb, (xa + xb) / 2, L.PORTICO_B_Y, xb - xa - 0.1, ysol1 - ysol0 - 0.08, 0.0, z, CAPL, bevel=0.06)
+    # meio-fio dos 2 lados (fora da zona dos plintos), chanfro para dentro
+    for s_ in (-1, 1):
+        for ya, yb in ((hy0, plinth[0] - 0.1), (plinth[1] + 0.1, hy1)):
+            R = dict(a=(s_ * xw, ya), u=(0.0, 1.0), n=(s_, 0.0))
+            ledge(mb, _W(R), 0.0, yb - ya, curb_prof(0.0, 0.7, z), CAPL)
+    # disco do spawn: miolo octogonal claro, 8 cunhas, 4 cantos que fecham a moldura quadrada
+    oct_r = 3.55
+    g = 0.06
+    for q in range(8):
+        a0, a1 = math.pi / 4 * q + math.pi / 8, math.pi / 4 * (q + 1) + math.pi / 8
+        pts = [(sx + 1.62 * math.cos(a0) - g * math.sin(a0), sy + 1.62 * math.sin(a0) + g * math.cos(a0)),
+               (sx + oct_r * math.cos(a0) - g * math.sin(a0), sy + oct_r * math.sin(a0) + g * math.cos(a0)),
+               (sx + oct_r * math.cos(a1) + g * math.sin(a1), sy + oct_r * math.sin(a1) - g * math.cos(a1)),
+               (sx + 1.62 * math.cos(a1) + g * math.sin(a1), sy + 1.62 * math.sin(a1) - g * math.cos(a1))]
+        slab_poly(mb, pts, z, PAVE_B if q % 2 else PAVE)
+    slab_poly(mb, circle((sx, sy), 1.5, 8, math.pi / 8), z, CAPL, bevel=0.06)
+    ro = oct_r + 0.12                                           # octogono com a junta de 0,12
+    c8, s8 = ro * math.cos(math.pi / 8), ro * math.sin(math.pi / 8)
+    for q in range(4):
+        a = math.pi / 2 * q
+        ca, sa = math.cos(a), math.sin(a)
+        # canto (quadrante +x+y, girado q*90): do lado vertical do octogono ao canto do quadrado e de volta pelo lado
+        # de cima; as arestas em x = 0 / y = 0 ficam com a junta para a peca vizinha
+        loc = [(c8, g), (SQ, g), (SQ, SQ), (g, SQ), (g, c8), (s8, c8), (c8, s8)]
+        pts = [(sx + x * ca - y * sa, sy + x * sa + y * ca) for x, y in loc]
+        slab_poly(mb, pts, z, PAVE)
 
 
 # ------------------------------------------------------------------ 2) corpos (so as faces laterais: a ilha e oca)
@@ -866,13 +1279,20 @@ def course_heights(H, hs=COURSES13):
     return [h * sc for h in seq]
 
 
-def free_spans(R, t0, t1, d=0.3, pad=0.6, step=0.5):
-    """trechos de t0..t1 sem escada"""
+NICHE_POLYS = []    # pegadas dos nichos do arrimo (a alvenaria e o soco saltam; arremate e misulas continuam)
+
+
+def niche_hit(x, y):
+    return any(L.point_in_poly(x, y, p) for p in NICHE_POLYS)
+
+
+def free_spans(R, t0, t1, d=0.3, pad=0.6, step=0.5, niches=False):
+    """trechos de t0..t1 sem escada (e sem nicho, se niches)"""
     out, cur = [], None
     t = t0
     while t <= t1 + 1e-6:
         x, y = _xy(R, t, d)
-        ok = not stair_hit(x, y, pad=pad)
+        ok = not stair_hit(x, y, pad=pad) and not (niches and niche_hit(x, y))
         if ok and cur is None:
             cur = t
         if not ok and cur is not None:
@@ -899,7 +1319,7 @@ def masonry(mb, R, z0, z1, depth=0.45, m=BLOCK, t0=None, t1=None):
         tall = c % 2 == 0
         lens = LEN_TALL if tall else LEN_LOW
         dep = depth if tall else depth - 0.07
-        for s0, s1 in free_spans(R, t0, t1):
+        for s0, s1 in free_spans(R, t0, t1, niches=True):
             k = (c * 3 + int(s0)) % 4
             pos = s0 - (0.0 if tall else lens[k] * 0.45)
             while pos < s1 - 0.05:
@@ -950,8 +1370,8 @@ def parapet(mb, R, z, ext=(0.0, 0.0)):
     if t1 - t0 < 1.0:
         return
     W = _W(R)
-    body = [(-0.1, z - 0.05), (0.95, z - 0.05), (0.95, z + PAR_TOP), (0.05, z + PAR_TOP), (0.05, z + 0.6),
-            (-0.1, z + 0.44)]
+    body = [(-0.36, z - 0.2), (0.95, z - 0.2), (0.95, z + PAR_TOP), (0.05, z + PAR_TOP), (0.05, z + 0.6),
+            (-0.36, z + 0.44)]
     ledge(mb, W, t0 - ext[0], t1 + ext[1], body, PAR_M)
     k = int(abs(a[0] * 7.0 + a[1] * 3.0)) % 2
     pos = t0 + 0.12
@@ -999,44 +1419,138 @@ def corner_stone(mb, x, y, ang, z):
     mb.box((1.62, 1.62, 0.36), (x, y, z + PAR_TOP + 0.17 + 0.04), (0, 0, ang), CAPL, 0.06)
 
 
+# FINESSE 3 (03.05 / 02.06): ritmo A-B do arrimo P1->P2 em posicoes DIRIGIDAS (x): contraforte LARGO nos nos (flancos
+# da escada e meio dos tramos), ESTREITO nos tramos; 2 acontecimentos de cada lado da escada: nicho com banco (perto da
+# praca) e nicho-fonte (bebedouro de parede) no meio do tramo. Nos outros muros de arrimo (curtos) vale o passo generico.
+ARR_WIDE = (25.0, 124.0)
+ARR_NARROW = (50.0, 74.0, 98.0, 146.0, 166.0)
+ARR_NICHES = ((37.0, "bench"), (86.0, "trough"))
+
+
+def _is_arrimo(R):
+    return abs(R["u"][1]) < 0.05 and abs(R["a"][1] - L.P2_POLY[0][1]) < 0.3
+
+
 def buttress_ts(R, spacing=17.0):
+    """[(t, largo?)] dos contrafortes do run"""
     t0, t1 = R["t0"], R["t1"]
+    out = []
+
+    def ok(t, half):
+        for dt in (-half - 1.0, 0.0, half + 1.0):
+            for dd in (0.5, 2.6, 4.0):
+                x, y = _xy(R, t + dt, dd)
+                if stair_hit(x, y, pad=2.5) or water_gap(x, y) or castle_hit(x, y):
+                    return False
+        return True
+    if _is_arrimo(R):
+        ux = R["u"][0]
+        for xs, wide in ((ARR_WIDE, True), (ARR_NARROW, False)):
+            for x in xs:
+                for sgn in (-1, 1):
+                    t = (sgn * x - R["a"][0]) / ux
+                    half = 2.3 if wide else 1.2
+                    if t0 + half + 0.8 < t < t1 - half - 0.8 and ok(t, half):
+                        out.append((t, wide))
+        return sorted(out)
     L_ = t1 - t0
     nb = int(L_ / spacing)
-    out = []
     if nb < 1:
         return out
     sp = L_ / nb
     for k in range(nb):
         t = t0 + sp * (k + 0.5)
-        ok = True
-        for dt in (-3.0, 0.0, 3.0):
-            for dd in (0.5, 2.6, 4.0):
-                x, y = _xy(R, t + dt, dd)
-                if stair_hit(x, y, pad=2.5) or water_gap(x, y) or castle_hit(x, y):
-                    ok = False
-        if ok:
-            out.append(t)
+        if ok(t, 1.55):
+            out.append((t, k % 2 == 0))
     return out
 
 
 def buttresses(mb, R, z0, z1, ts=None):
-    """contrafortes com TALUDE (13.05): soco em perfil, corpo com o degrau inclinado e capa no talude; colisao propria"""
+    """contrafortes com TALUDE (13.05): soco em perfil, corpo com o degrau inclinado e capa no talude; colisao propria.
+    Largo (half 2,3; sai 2,45) nos nos, estreito (half 1,2; sai 1,9) nos tramos"""
     ts = buttress_ts(R) if ts is None else ts
     W = _W(R)
-    for t in ts:
+    for t, wide in ts:
+        half = 2.3 if wide else 1.2
+        dep = 2.45 if wide else 1.9
         h1 = (z1 - z0) - 1.9
-        zA = z0 + h1 - 1.2
-        body = [(-0.05, z0 + 0.5), (2.45, z0 + 0.5), (2.45, zA), (1.45, zA + 1.25), (1.45, z1), (-0.05, z1)]
-        ledge(mb, W, t - 1.55, t + 1.55, body, BLOCK)
-        cap = [(1.45, zA + 1.18), (2.62, zA - 0.2), (2.62, zA + 0.06), (1.45, zA + 1.5)]
-        ledge(mb, W, t - 1.66, t + 1.66, cap, CAPL)
-        soc = [(-0.05, z0 - 0.02), (2.8, z0 - 0.02), (2.8, z0 + 0.3), (2.55, z0 + 0.55), (-0.05, z0 + 0.55)]
-        ledge(mb, W, t - 1.75, t + 1.75, soc, CAPL)
-        cx, cy = _xy(R, t, 1.25)
-        col_box("SG_TerButtress", (3.2, 2.5, z1 - z0 + 0.05), (cx, cy, (z0 + z1) / 2),
+        zA = z0 + h1 - (1.2 if wide else 0.8)
+        body = [(-0.05, z0 + 0.5), (dep, z0 + 0.5), (dep, zA), (dep - 1.0, zA + 1.25), (dep - 1.0, z1), (-0.05, z1)]
+        ledge(mb, W, t - half, t + half, body, BLOCK)
+        cap = [(dep - 1.0, zA + 1.18), (dep + 0.17, zA - 0.2), (dep + 0.17, zA + 0.06), (dep - 1.0, zA + 1.5)]
+        ledge(mb, W, t - half - 0.11, t + half + 0.11, cap, CAPL)
+        soc = [(-0.05, z0 - 0.2), (dep + 0.35, z0 - 0.2), (dep + 0.35, z0 + 0.3), (dep + 0.1, z0 + 0.55),
+               (-0.05, z0 + 0.55)]
+        ledge(mb, W, t - half - 0.2, t + half + 0.2, soc, CAPL)
+        cx, cy = _xy(R, t, dep / 2)
+        col_box("SG_TerButtress", (2 * half + 0.6, dep, z1 - z0 + 0.05), (cx, cy, (z0 + z1) / 2),
                 (0, 0, math.atan2(R["u"][1], R["u"][0])))
     return ts
+
+
+def niche(mb, R, t, kind, z0, z1):
+    """nicho no arrimo (02.06 / 03.05): vao de 4,4 (banco) ou 3,6 (bebedouro) recuado 1,6 na parede, com ombreiras de
+    cantaria, arco de 2 centros (flecha 0,62 do vao, abaixo da mesa de misulas) com chave e piso de laje; dentro: banco
+    de pedra ou bacia de parede com bica em misula. O vao fica dentro da colisao do patamar (o jogador ve, nao entra)."""
+    W = _W(R)
+    wd = 4.4 if kind == "bench" else 3.6
+    dep = 1.6
+    ya, yb = t - wd / 2, t + wd / 2
+    zf = z0 + 0.1                                  # piso do nicho
+    zs = z0 + (1.5 if kind == "bench" else 2.0)    # nascenca do arco
+    rise = 0.62 * wd
+    zt = zs + rise
+    NICHE_POLYS.append(ccw([_xy(R, ya - 0.6, -dep - 0.3), _xy(R, yb + 0.6, -dep - 0.3), _xy(R, yb + 0.6, 0.9),
+                            _xy(R, ya - 0.6, 0.9)]))
+    bm = mb.bm
+    ang = math.atan2(W[1][1], W[1][0])
+
+    def V(u, d, z):
+        return bm.verts.new(_P(W, u, d, z))
+    # caixa do vao (fundo e 2 lados), faces viradas para DENTRO do nicho (para quem olha de fora)
+    fback = bm.faces.new([V(ya, -dep, zf), V(yb, -dep, zf), V(yb, -dep, zt + 0.7), V(ya, -dep, zt + 0.7)])
+    fa = bm.faces.new([V(ya, -dep, zf), V(ya, -dep, zt + 0.7), V(ya, 0.5, zt + 0.7), V(ya, 0.5, zf)])
+    fb = bm.faces.new([V(yb, -dep, zf), V(yb, 0.5, zf), V(yb, 0.5, zt + 0.7), V(yb, -dep, zt + 0.7)])
+    mb._post([v for f in (fback, fa, fb) for v in f.verts], REL_M, None, 0, 1)      # interior CLARO (le de longe)
+    for f, want in ((fback, (W[2][0], W[2][1])), (fa, (W[1][0], W[1][1])), (fb, (-W[1][0], -W[1][1]))):
+        f.normal_update()
+        if f.normal.x * want[0] + f.normal.y * want[1] < 0:
+            f.normal_flip()
+    # piso de laje clara, ombreiras e arco de 2 centros com espessura real (0,6) + chave
+    mb.box((wd + 0.3, dep + 0.9, 0.3), _P(W, t, -dep / 2 + 0.25, zf - 0.15), (0, 0, ang), CAPL, 0.05)
+    for u0, u1 in ((ya - 0.6, ya + 0.02), (yb - 0.02, yb + 0.6)):
+        block(mb, W, u0, u1, zf + 0.02, zs + 0.08, -0.1, 0.6, 0.08, CAPL)
+    c = (rise * rise - wd * wd / 4.0) / wd                     # centro de cada meio-arco: c alem do pe oposto
+    Rr = wd / 2 + c
+    nseg = 5
+    arc = []
+    aL = math.atan2(rise, -c)                                  # angulo do fecho visto do centro esquerdo (t + c)
+    for i in range(nseg + 1):                                  # meio-arco ESQUERDO: do pe esquerdo (pi) ao fecho
+        a = math.pi - (math.pi - aL) * i / nseg
+        arc.append((t + c + Rr * math.cos(a), zs + Rr * math.sin(a)))
+    aR = math.atan2(rise, c)                                   # fecho visto do centro direito (t - c)
+    for i in range(1, nseg + 1):                               # meio-arco DIREITO: do fecho ao pe direito (0)
+        a = aR * (1.0 - i / nseg)
+        arc.append((t - c + Rr * math.cos(a), zs + Rr * math.sin(a)))
+    arc = _dedupe(arc)
+    hi = [(u, zz + 0.6) for u, zz in arc]
+    hi[0] = (arc[0][0] - 0.6, hi[0][1])
+    hi[-1] = (arc[-1][0] + 0.6, hi[-1][1])
+    strip(mb, W, arc, hi, -0.1, 0.6, CAPL)
+    block(mb, W, t - 0.42, t + 0.42, zt + 0.45, zt + 1.3, -0.05, 0.7, 0.08, CAPL)
+    if kind == "bench":
+        # banco de pedra: assento chanfrado sobre 2 pes, encosto baixo no fundo
+        mb.box((wd - 0.6, 1.1, 0.3), _P(W, t, -dep + 0.7, zf + 1.5), (0, 0, ang), CAPL, 0.05)
+        for u in (t - wd / 2 + 0.7, t + wd / 2 - 0.7):
+            mb.box((0.5, 0.95, 1.34), _P(W, u, -dep + 0.7, zf + 0.67), (0, 0, ang), REL_M, 0.04)
+        mb.box((wd - 0.6, 0.3, 1.1), _P(W, t, -dep + 0.17, zf + 2.05), (0, 0, ang), CAPL, 0.05)
+    else:
+        # bebedouro de parede: bacia saindo do fundo com rebordo claro e lamina escura; bica de ferro numa misula
+        mb.box((wd - 0.8, 1.2, 1.45), _P(W, t, -dep + 0.65, zf + 0.725), (0, 0, ang), REL_M, 0.06)
+        mb.box((wd - 0.6, 1.4, 0.22), _P(W, t, -dep + 0.68, zf + 1.56), (0, 0, ang), CAPL, 0.05)
+        mb.box((wd - 1.2, 0.9, 0.1), _P(W, t, -dep + 0.68, zf + 1.52), (0, 0, ang), "Water_SG", 0.0)
+        mb.box((0.8, 0.6, 0.7), _P(W, t, -dep + 0.32, zf + 3.1), (0, 0, ang), CAPL, 0.06)
+        mb.cyl(0.11, 0.7, _P(W, t, -dep + 0.7, zf + 3.0), (math.pi / 2, 0, ang), "Metal_SG_Iron", 6, bevel=0.0)
 
 
 def corbels(mb, R, z, ts=(), half=1.75):
@@ -1045,7 +1559,8 @@ def corbels(mb, R, z, ts=(), half=1.75):
     zc = z - 0.7
     zb = zc - 1.3
     prof = [(0.0, zb), (0.6, zb), (0.6, zb + 0.28), (1.12, zb + 0.82), (1.12, zc), (0.0, zc)]
-    edges = [R["t0"] + 0.4] + [e for t in sorted(ts) for e in (t - half - 0.3, t + half + 0.3)] + [R["t1"] - 0.4]
+    edges = [R["t0"] + 0.4] + [e for t, wide in sorted(ts) for e in (t - (2.3 if wide else 1.2) - 0.3,
+                                                                     t + (2.3 if wide else 1.2) + 0.3)] + [R["t1"] - 0.4]
     for b0, b1 in zip(edges[0::2], edges[1::2]):
         L_ = b1 - b0
         if L_ < 1.2:
@@ -1061,7 +1576,7 @@ def corbels(mb, R, z, ts=(), half=1.75):
                 continue
             zs = zc - 0.95
             rise = min(0.62, (u1 - u0) * 0.4)
-            lo = [(u0 + (u1 - u0) * i / 4.0, zs + rise * math.sin(math.pi * i / 4.0)) for i in range(5)]
+            lo = [(u0 + (u1 - u0) * i / 3.0, zs + rise * math.sin(math.pi * i / 3.0)) for i in range(4)]
             hi = [(uu, zc) for uu, _ in lo]
             strip(mb, W, lo, hi, 0.84, 1.1, CAPL)
 
@@ -1203,16 +1718,22 @@ def terrace_edges():
             zo = R["zo"]
             if R["cls"] == "terrace":
                 top = z - 0.7
-                masonry(mb, R, zo + 0.55, top)
                 ts = buttress_ts(R)
+                if _is_arrimo(R):
+                    for x, kind in ARR_NICHES:
+                        for sgn in (-1, 1):
+                            t = (sgn * x - R["a"][0]) / R["u"][0]
+                            if R["t0"] + 4.0 < t < R["t1"] - 4.0 and not any(abs(t - tb) < 4.5 for tb, w_ in ts):
+                                niche(mb, R, t, kind, zo, top)
+                masonry(mb, R, zo + 0.55, top)
                 if not R["br"]:
                     coping(mb, R, z)
                 corbels(mb, R, z, ts)
                 if not R["open"]:
                     pars.append(R)
                 buttresses(mb, R, zo, top, ts=ts)
-                soc = [(-0.02, zo - 0.02), (0.75, zo - 0.02), (0.75, zo + 0.3), (0.55, zo + 0.55), (-0.02, zo + 0.55)]
-                for s0, s1 in free_spans(R, R["t0"], R["t1"], d=0.4, pad=0.3):
+                soc = [(-0.02, zo - 0.2), (0.75, zo - 0.2), (0.75, zo + 0.3), (0.55, zo + 0.55), (-0.02, zo + 0.55)]
+                for s0, s1 in free_spans(R, R["t0"], R["t1"], d=0.4, pad=0.3, niches=True):
                     ledge(mb, _W(R), s0, s1, soc, CAPL)
             else:
                 drop = z - zo
@@ -1222,7 +1743,11 @@ def terrace_edges():
                 else:                                # P2/P3: base de rocha + faixa de alvenaria
                     band = 7.6 if drop > 12.0 else 4.4
                     band_face(mb, R, z - band, ztb)
-                    rock_base(mr, R, zo, z - band + 1.2)
+                    # FINESSE 3 (14.01): onde a coroa do penhasco sobe ate perto do patamar, os macicos de basalto
+                    # ficariam enterrados nela: nao nascem (a rocha da coroa e a base)
+                    mx, my = _xy(R, (R["t0"] + R["t1"]) / 2, 3.0)
+                    if crown_design(mx, my) < z - band - 0.5:
+                        rock_base(mr, R, zo, z - band + 1.2)
                 if not R["br"]:
                     coping(mb, R, z)
                 if not R["open"]:
@@ -1346,54 +1871,160 @@ def mirante_w(x, y):
 RIM_FACE = {}
 
 
-def block_strata(mb, outer, onrm, inner, inrm, T, z0, apex, cap):
-    """bloco da coroa (13.01): face externa canelada; 2 ESTRATOS em cota fixa (ZS_A, ZS_B) com degrau ao luar; abaixo de
-    ZS_B a rocha escurece; o fundo fecha numa ponta (apex). As costas (dentro do contorno) nao tem face."""
-    pts0 = outer + inner[::-1]
-    nrm = onrm + inrm[::-1]
-    n = len(pts0)
-    if n < 3:
-        return
-    order = list(range(n)) if SL.area(pts0) > 0 else list(range(n))[::-1]
-    bm = mb.bm
-
-    def ring(ins, z):
-        return [bm.verts.new((pts0[k][0] - nrm[k][0] * ins, pts0[k][1] - nrm[k][1] * ins, z)) for k in order]
-    seq = [(ring(0.0, T), None)] + ([(ring(0.0, T - 1.0), TOP)] if cap != TOP else [])
-    ins = 0.0
-    if z0 + 1.0 < ZS_A < T - 2.5:
-        seq += [(ring(0.0, ZS_A), ROCK), (ring(0.9, ZS_A), TOP)]
-        ins = 0.9
-    if z0 + 1.0 < ZS_B < min(T - 2.5, ZS_A - 1.0):
-        seq += [(ring(ins, ZS_B), ROCK), (ring(ins + 0.9, ZS_B), TOP)]
-        ins += 0.9
-        seq.append((ring(ins, z0), DARK))
+def crown_design(x, y):
+    """FINESSE 3 (14.01): cota DESENHADA do topo da coroa num ponto do contorno: baixa sob a vila (P1), subindo nos
+    flancos (P2) e alta sob o castelo (ate P3 - 2,7): a ilha deixa de ler como prato com a falesia da mesma altura"""
+    base = wild_z(x, y)
+    if y < CUT_Y:
+        return base + 0.6
+    if y < -150.0:
+        h = 0.8
+    elif y < -18.0:
+        h = 0.8 + (y + 150.0) / 132.0 * 5.2                  # 0,8 -> 6,0 (T <= 41 < P2 - 2,8)
     else:
-        seq.append((ring(ins, z0), ROCK))
-    top = bm.faces.new(seq[0][0])
+        h = 6.0 + min(1.0, (y + 18.0) / 110.0) * 9.3         # 6 -> 15,3 (T = 49,5 = P3 - 2,7)
+    return base + h
+
+
+COL_W = (6.2, 4.2, 8.0, 5.0, 8.8, 3.8, 6.8)              # larguras DIRIGIDAS das colunas da coroa (ciclo 7)
+COL_D = (0.0, -1.2, 0.7, -0.5, 1.4, -0.9)                # recuo (-) / saliencia (+) por coluna (ciclo 6): >= 0,9 entre vizinhas
+COL_T = (0.0, -1.5, 0.9, -2.4, 0.4, -1.0, -0.6, 1.2)     # degrau do topo por coluna (ciclo 8)
+_KC = [0, 0, 0]
+
+
+def split_cols(W):
+    """larguras das colunas de um bloco de W studs (ciclo COL_W, escalado para fechar em W)"""
+    ws = []
+    while sum(ws) < W - 0.5:
+        ws.append(COL_W[_KC[0] % 7])
+        _KC[0] += 1
+    sc = W / sum(ws)
+    return [w * sc for w in ws]
+
+
+def block_cols(mb, cols, inner, T_in, z0, apex, cap, end_mat=ROCK):
+    """bloco da coroa (14.02) em GRUPO DE COLUNAS: cada coluna tem o seu recuo (retorno real na divisa) e o seu topo;
+    o topo e uma PRATELEIRA de 2,0 (cota da coluna) que desce/sobe em rampa ate a linha interna (T_in); face externa
+    com a faixa clara de topo (1,2), o ESTRATO de 20 (rebordo recuado 1,1 com a mesa clara) e o ESTRATO de 6 em
+    SALIENCIA (bojo de 1,3 com a mesa clara em cima e a barriga escura embaixo); fecha em ponta (apex). As costas
+    (lado da ilha) nao tem face. cols = [((xa, ya), (xb, yb), (nx, ny), T)], inner = [(x, y)] (len(cols) + 1)."""
+    bm = mb.bm
+    nc = len(cols)
+    if nc < 1:
+        return
+    # orientacao: o contorno O + [I_fim, I_inicio] tem de ser anti-horario (normais para fora)
+    O = [(c[0], c[1]) for c in cols]
+    poly = [p for pr in O for p in pr] + [inner[-1], inner[0]]
+    if SL.area(poly) < 0:
+        cols = [((c[1], c[0]), c[2], c[3]) for c in reversed(cols)]
+        cols = [(c[0][0], c[0][1], c[1], c[2]) for c in cols]
+        inner = list(reversed(inner))
+    Tmin = min(c[3] for c in cols)
+    # aneis de baixo: (inset, z (None = por coluna, T - 1,2), material da faixa ACIMA deste anel)
+    seq = [(0.0, None, TOP)]
+    ins = 0.0
+    if z0 + 1.0 < ZS_A < Tmin - 2.5:
+        seq += [(0.0, ZS_A, ROCK), (1.1, ZS_A, TOP)]
+        ins = 1.1
+    zlim = (ZS_A - 1.0) if ins > 0 else (Tmin - 2.5)
+    if z0 + 1.0 < ZS_B - 3.2 and ZS_B + 1.6 < zlim:
+        seq += [(ins, ZS_B + 1.6, ROCK), (ins - 1.3, ZS_B + 1.1, TOP), (ins + 0.2, ZS_B - 3.0, ROCK)]
+        ins += 0.2
+        seq.append((ins, z0, DARK))
+    else:
+        seq.append((ins, z0, ROCK))
     groups = {}
-    no = len(outer)
-    hidden = {k for k in range(n) if order[k] >= no and order[(k + 1) % n] >= no}
-    for (a, _), (b, mm) in zip(seq, seq[1:]):
-        for k in range(n):
-            if k in hidden:
-                continue
-            k2 = (k + 1) % n
-            groups.setdefault(mm, []).append(bm.faces.new((a[k2], a[k], b[k], b[k2])))
-    last = seq[-1][0]
-    av = bm.verts.new(apex)
-    for k in range(n):
-        if k in hidden:
+    allv = []
+
+    def V(x, y, z):
+        v = bm.verts.new((x, y, z))
+        allv.append(v)
+        return v
+
+    def q(f, m):
+        groups.setdefault(m, []).append(f)
+    # topo: anel externo e prateleira por coluna; linha interna
+    OT, ST = [], []
+    for (pa, pb, (nx, ny), T) in cols:
+        OT.append((V(pa[0], pa[1], T), V(pb[0], pb[1], T)))
+        ST.append((V(pa[0] - nx * 2.0, pa[1] - ny * 2.0, T), V(pb[0] - nx * 2.0, pb[1] - ny * 2.0, T)))
+    IT = [V(x, y, T_in) for x, y in inner]
+    for k in range(nc):
+        q(bm.faces.new((OT[k][0], OT[k][1], ST[k][1], ST[k][0])), cap)
+        q(bm.faces.new((ST[k][0], ST[k][1], IT[k + 1], IT[k])), cap)
+        if k + 1 < nc:
+            if abs(cols[k][3] - cols[k + 1][3]) > 0.05:                    # retorno no degrau do topo
+                q(bm.faces.new((OT[k][1], OT[k + 1][0], ST[k + 1][0], ST[k][1])), cap)
+            if (ST[k][1].co - ST[k + 1][0].co).length > 0.02:
+                q(bm.faces.new((ST[k][1], ST[k + 1][0], IT[k + 1])), cap)
+    # faces externas: faixas entre aneis (por segmento de coluna e retornos nas divisas)
+    rings = [[OT[k][j] for k in range(nc) for j in (0, 1)]]
+    zs_rings = [None]
+    for ins_j, zj, mj in seq:
+        rg = []
+        for (pa, pb, (nx, ny), T) in cols:
+            zz = (T - 1.2) if zj is None else zj
+            rg.append(V(pa[0] - nx * ins_j, pa[1] - ny * ins_j, zz))
+            rg.append(V(pb[0] - nx * ins_j, pb[1] - ny * ins_j, zz))
+        rings.append(rg)
+        zs_rings.append(zj)
+    mats = [m for _, _, m in seq]
+    n = 2 * nc
+    for (ra, rb), mm in zip(zip(rings, rings[1:]), mats):
+        for k in range(n - 1):
+            if (ra[k + 1].co - ra[k].co).length < 0.02 and (rb[k + 1].co - rb[k].co).length < 0.02:
+                continue                                                   # retorno nulo (bloco plano)
+            q(bm.faces.new((ra[k + 1], ra[k], rb[k], rb[k + 1])), mm)
+    # faces de TOPO (fim) do bloco: poligonos verticais no plano da normal, da prateleira ate o ultimo anel
+    for end, oi, ii, sgn in ((0, 0, 0, -1.0), (1, n - 1, nc, 1.0)):
+        c = cols[0] if end == 0 else cols[-1]
+        nx, ny = c[2]
+        T = c[3]
+        ix, iy = inner[ii]
+        pts = [rings[0][oi], ST[0][0] if end == 0 else ST[-1][1], IT[ii]]
+        zprev = T_in
+        inner_vs = []
+        for (ins_j, zj, mj), rg in zip(seq, rings[1:]):
+            zz = (T - 1.2) if zj is None else zj
+            zz = min(zz, zprev - 0.01)
+            inner_vs.append(V(ix, iy, zz))
+            zprev = zz
+        pts += inner_vs + [rings[j][oi] for j in range(len(rings) - 1, 0, -1)]
+        f = bm.faces.new(pts)
+        f.normal_update()
+        ux, uy = -ny * sgn, nx * sgn        # direcao do contorno (anti-horario) * sinal da ponta
+        if f.normal.x * ux + f.normal.y * uy < 0:
+            f.normal_flip()
+        q(f, end_mat)
+        if end == 0:
+            I0 = inner_vs[-1]
+        else:
+            I1 = inner_vs[-1]
+    # ponta: leque do ultimo anel (+ as 2 arestas das pontas) ate o apex; a aresta das costas fica aberta
+    last = rings[-1]
+    av = V(apex[0], apex[1], apex[2])
+    for k in range(n - 1):
+        if (last[k + 1].co - last[k].co).length < 0.02:
             continue
-        groups.setdefault(DARK, []).append(bm.faces.new((last[(k + 1) % n], last[k], av)))
-    allv = [v for rg, _ in seq for v in rg] + [av]
+        q(bm.faces.new((last[k + 1], last[k], av)), DARK)
+    q(bm.faces.new((I1, last[n - 1], av)), DARK)
+    q(bm.faces.new((last[0], I0, av)), DARK)
     mb._post(allv, ROCK, None, 0, 1)
-    top.material_index = mb._mi_for(cap)
     for mm, fs in groups.items():
         if mm != ROCK:
             mi = mb._mi_for(mm)
             for f in fs:
                 f.material_index = mi
+
+
+def zone_dist(x, y, nx, ny, lim=16.0):
+    """distancia, para dentro (-normal), ate entrar num patamar (None se nao entra em lim)"""
+    d = 0.5
+    while d <= lim:
+        if L.zone_of(x - nx * d, y - ny * d) is not None:
+            return d
+        d += 0.5
+    return None
 
 
 def rim_tags(smp):
@@ -1408,25 +2039,31 @@ def rim_tags(smp):
             along = (x - wx) * ux + (y - wy) * uy
             if lat < 6.5 and -9.0 < along < 9.0:
                 tag = ("W", wi)
+        # FINESSE 3 (pedido do E, 01.07): janela do ENCONTRO da ponte (alas do sg_entry, +-11,8 em y -341,5 abrindo
+        # para +-19,5 em y -330, z -13,4..25,7): a coroa nao poe dentes ali (apareciam pelo ultimo arco)
+        if y < -328.5 and abs(x) < 21.5:
+            tag = ("E", 0)
         tags.append(tag)
     return tags
 
 
-PAT_T = (0.8, -1.4, 1.6, -0.6, -5.0)
+PAT_T = (0.8, -1.4, 1.6, -0.6, -2.0)
 PAT_D = (0.4, -0.5, 0.9, -0.2, -0.9)
 PAT_W = (24, 18, 26, 20, 16)
 
 
 def rim_cliff():
-    """coroa do penhasco (13.01, Tier C): PROMONTORIOS (blocos largos que avancam, sobem e pendem em quilha funda) e,
-    entre eles, blocos calmos no ritmo PAT_*; 2 estratos continuos; pilar destacado so no miolo de cada promontorio.
+    """coroa do penhasco (14.01 / 14.02, Tier C/B): blocos em GRUPOS DE COLUNAS (larguras, recuos e topos dirigidos),
+    2 estratos (rebordo em 20, bojo em 6), cota do topo DESENHADA por setor (crown_design) + PROMONTORIOS (blocos largos
+    que avancam, sobem, descem em DEGRAU para o mar e pendem em quilha funda) com pilar destacado so no miolo.
     No JARDIM-MIRANTE o promontorio fica BAIXO no eixo da vista (a moldura sao os macicos de mirante_rock)."""
     RIM_FACE.clear()
+    _KC[0] = _KC[1] = _KC[2] = 0
     smp = resample_closed(RIM, 1.0)
     N = len(smp)
     tags = rim_tags(smp)
     i = 0
-    nblk = npil = 0
+    nblk = npil = nstep = 0
     prev_t = None
     while i < N - 3:
         pw0 = prom_w(smp[i][0], smp[i][1])
@@ -1436,7 +2073,7 @@ def rim_cliff():
         while j < min(N - 1, i + W) and tags[j + 1] == tag:
             j += 1
         W = j - i
-        if W < 3:
+        if W < 3 or (tag and tag[0] == "E"):
             i = j + 1
             continue
         mid = smp[i + W // 2]
@@ -1444,63 +2081,120 @@ def rim_cliff():
         pw = prom_w(mid[0], mid[1])
         mw = mirante_w(mid[0], mid[1])
         pat = nblk % 5
+        T = crown_design(mid[0], mid[1])
         if pw > 0.25:
-            T = base + 1.5 + 3.5 * pw
+            T += 1.0 + 3.5 * pw
             dout = 1.0 + 2.6 * pw
         else:
-            T = base + PAT_T[pat]
+            T += PAT_T[pat]
             dout = PAT_D[pat]
         if mw > 0.35:                                   # eixo da vista do mirante: coroa baixa, avancando (balcao)
             T = min(T, base - 2.0)
         if prev_t is not None and abs(T - prev_t) < 1.0:
             T += 1.2 if T >= prev_t else -1.2
+        flat = False
         if tag and tag[0] == "B":
             T = min(T, tag[1])
+            flat = True
         if tag and tag[0] == "W":
             # face 1,8 ATRAS do labio (a cortina do Roblox desce rente a rocha e bate no degrau), onde quer que o labio
             # esteja em relacao ao contorno
             wx, wy, wz, ux, uy = FALLS[tag[1]]
             T = min(T, wz - 0.5)
             dout = (wx - mid[0]) * mid[2] + (wy - mid[1]) * mid[3] - 1.8
+            flat = True
+        zd = zone_dist(mid[0], mid[1], mid[2], mid[3])
         depth = 6.5 + 1.0 * pw
-        outer, onrm = [], []
-        t = 0.0
-        k = 0
-        while t <= W + 0.01:
-            q = min(N - 1, i + int(round(t)))
-            x, y, nx, ny = smp[q]
-            d = dout + (0.5 if k % 2 == 0 else -0.7)
-            outer.append((x + nx * d, y + ny * d))
-            onrm.append((nx, ny))
-            t += 3.0
-            k += 1
-        inner, inrm = [], []
-        for q in (0, W // 2, W):
-            x, y, nx, ny = smp[i + q]
-            inner.append((x - nx * (depth - dout), y - ny * (depth - dout)))
-            inrm.append((nx, ny))
-        for px, py in outer + inner:
-            z = L.zone_of(px, py)
-            if z is not None:
-                T = min(T, z - 0.3)
+        if zd is not None and T > base + 3.0:            # coroa alta: o bloco entra no corpo do patamar (sem fresta)
+            depth = max(depth, min(14.0, zd + 1.5))
+        # colunas do bloco
+        cols = []
+        inner = []
+        pos = 0.0
+        for cw in split_cols(float(W)):
+            qa, qb = min(N - 1, i + int(round(pos))), min(N - 1, i + int(round(pos + cw)))
+            if qb <= qa:
+                pos += cw
+                continue
+            dk = dout + (0.0 if flat else COL_D[_KC[1] % 6])
+            tk = T + (0.0 if flat else COL_T[_KC[2] % 8])
+            _KC[1] += 1
+            _KC[2] += 1
+            xa, ya, nxa, nya = smp[qa]
+            xb, yb, nxb, nyb = smp[qb]
+            nx, ny = (nxa + nxb), (nya + nyb)
+            nl = math.hypot(nx, ny) or 1.0
+            nx, ny = nx / nl, ny / nl
+            pa = (xa + nxa * dk, ya + nya * dk)
+            pb = (xb + nxb * dk, yb + nyb * dk)
+            for px, py in (pa, pb):
+                z = L.zone_of(px, py)
+                if z is not None:
+                    tk = min(tk, z - 0.3)
+            if not inner:
+                inner.append((xa - nxa * (depth - dout), ya - nya * (depth - dout)))
+            inner.append((xb - nxb * (depth - dout), yb - nyb * (depth - dout)))
+            cols.append((pa, pb, (nx, ny), tk))
+            pos += cw
+        if len(cols) < 1:
+            i = j + 1
+            continue
+        Ts = [c[3] for c in cols]
+        imx = sum(p[0] for p in inner) / len(inner)
+        imy = sum(p[1] for p in inner) / len(inner)
+        zin = L.zone_of(imx, imy)
+        if zin is not None and max(Ts) > base + 3.0:
+            T_in = min(zin - 0.5, max(Ts) + 3.0)             # rampa de rocha subindo ate sob o muro do patamar
+        else:
+            T_in = min(wild_z(imx, imy) - 0.4, min(Ts) - 1.0)
         prev_t = T
         z0 = ZS_B - 5.0 - 9.0 * pw
         x, y, nx, ny = mid
         zap = -26.0 - 4.0 * (nblk % 3) - 44.0 * pw
         apex = (x - nx * (depth * 0.3 - dout), y - ny * (depth * 0.3 - dout), zap)
-        grass = T >= base - 0.9
-        gx = sum(p[0] for p in outer) / len(outer)
-        gy = sum(p[1] for p in outer) / len(outer)
-        block_strata(cliff_mb(gx, gy), outer, onrm, inner, inrm, T, z0, apex, GRASS if grass else TOP)
-        for q in range(i, i + W + 1):
-            RIM_FACE[q] = (dout, T)
+        grass = T_in >= base - 1.6 and T < base + 3.0
+        gx = sum(c[0][0] + c[1][0] for c in cols) / (2 * len(cols))
+        gy = sum(c[0][1] + c[1][1] for c in cols) / (2 * len(cols))
+        cmb = cliff_mb(gx, gy)
+        block_cols(cmb, cols, inner, T_in, z0, apex, GRASS if grass else TOP)
+        for qq in range(i, i + W + 1):
+            RIM_FACE[qq] = (dout, T)
         nblk += 1
+        # PROMONTORIO: degrau para o mar (bloco mais baixo, a frente, com 2-3 colunas) + pilar destacado
+        if not tag and pw > 0.6 and mw < 0.2:
+            cols2, inner2 = [], []
+            pos = 2.0
+            dout2 = dout + 4.6
+            for cw in split_cols(float(W - 4)):
+                qa, qb = min(N - 1, i + int(round(pos))), min(N - 1, i + int(round(pos + cw)))
+                if qb <= qa:
+                    pos += cw
+                    continue
+                dk = dout2 + COL_D[_KC[1] % 6] * 0.8
+                tk = T - 6.0 + COL_T[_KC[2] % 8] * 0.7
+                _KC[1] += 1
+                _KC[2] += 1
+                xa, ya, nxa, nya = smp[qa]
+                xb, yb, nxb, nyb = smp[qb]
+                nx2, ny2 = (nxa + nxb), (nya + nyb)
+                nl = math.hypot(nx2, ny2) or 1.0
+                pa = (xa + nxa * dk, ya + nya * dk)
+                pb = (xb + nxb * dk, yb + nyb * dk)
+                if not inner2:
+                    inner2.append((xa + nxa * (dout - 1.6), ya + nya * (dout - 1.6)))
+                inner2.append((xb + nxb * (dout - 1.6), yb + nyb * (dout - 1.6)))
+                cols2.append((pa, pb, (nx2 / nl, ny2 / nl), tk))
+                pos += cw
+            if cols2:
+                block_cols(cmb, cols2, inner2, T - 7.0, z0 + 7.0, (apex[0] + nx * 3.0, apex[1] + ny * 3.0, zap + 12.0),
+                           TOP)
+                nstep += 1
         if not tag and pw > 0.7 and mw < 0.2:
             x, y, nx, ny = smp[i + W // 2]
             r2 = 3.2
-            d2 = dout + 1.0 + r2 * 1.1
+            d2 = dout + 5.6 + r2 * 1.1
             px, py = x + nx * d2, y + ny * d2
-            zt2 = T - 9.0
+            zt2 = T - 11.0
             zb2 = zt2 - 40.0
             px, py, zt2 = water_fix(px, py, r2, zt2)
             zt2 = cap_top(px, py, r2, zt2)
@@ -1511,15 +2205,18 @@ def rim_cliff():
                 npil += 1
         gap = (1 if pw > 0.25 else 2) if (j + 1 < N and tags[min(N - 1, j + 1)] == tag) else 1
         i += W + gap
-    print("TER COROA blocos=%d pilares=%d" % (nblk, npil))
+    print("TER COROA blocos=%d degraus=%d pilares=%d" % (nblk, nstep, npil))
     return nblk
 
 
 # ------------------------------------------------------------------ 5) QUILHA (casca do subsolo) + quilhas dos promontorios
-K_RECT = (-68.0, -14.0, 68.0, 322.0)       # secao da quilha em z -80 (>= 120 x 320 pedido; salas x +-56, y 2..306)
-K_CORNER = 26.0
+# FINESSE 3 (14.01): a secao sul recua para y -60 (nada de subsolo ao sul de y 2): a proa da vila fecha mais depressa
+K_RECT = (-78.0, -60.0, 78.0, 344.0)       # secao da quilha em z -80 (>= 120 x 320 pedido; salas x +-56, y 2..306)
+K_CORNER = 30.0
 # (t para a secao K, cota, amplitude da flauta): cada nivel = faixa quase a prumo ate a cota seguinte + degrau
-KEEL = [(0.00, ZS_B - 2.0, 1.0), (0.12, -14.0, 1.3), (0.30, -32.0, 1.4), (0.50, -50.0, 1.3), (0.72, -66.0, 1.0),
+# FINESSE 3 (14.01): CONE invertido desde o pe da coroa (antes os 2 primeiros niveis eram quase a prumo e o fundo lia
+# como prato): t 0,17 ja em -14 e 0,42 em -32; a casca continua a envolver o Salao Sombrio (z >= -17) e as salas
+KEEL = [(0.00, ZS_B - 2.0, 1.0), (0.17, -14.0, 1.3), (0.42, -32.0, 1.4), (0.66, -50.0, 1.3), (0.84, -66.0, 1.0),
         (0.96, -80.0, 0.7)]
 KEEL_BOT = [(0.62, -94.0), (0.30, -102.0)]   # (escala em volta do centro de K, cota) e a ponta em -108
 KEEL_NU = 128
@@ -1603,12 +2300,13 @@ def keels():
         x, y, nx, ny = min(smp, key=lambda s: math.hypot(s[0] - px, s[1] - py))
         tx, ty = -ny, nx
         cx, cy = x - nx * 7.0, y - ny * 7.0
-        A, B = hw * 0.78, 9.5
+        big = idx in (0, 2, 5)                      # 14.01: 3 LOBULOS maiores (O, N, SE) na quilha
+        A, B = hw * (1.15 if big else 0.78), (15.0 if big else 9.5)
         kmb = cliff_mb(x, y)
         m = 14
         bm = kmb.bm
         krings = []
-        for sc, z in ((1.0, ZS_B - 2.0), (0.8, -26.0), (0.5, -52.0)):
+        for sc, z in ((1.0, ZS_B - 2.0), (0.8, -26.0), (0.5, -52.0 - (10.0 if big else 0.0))):
             rg = []
             for k in range(m):
                 a = 2 * math.pi * k / m
@@ -1618,7 +2316,7 @@ def keels():
             krings.append(rg)
         if tx * ny - ty * nx < 0:
             krings = [rg[::-1] for rg in krings]
-        zk = -88.0 - 8.0 * (idx % 2)
+        zk = -88.0 - 8.0 * (idx % 2) - (10.0 if big else 0.0)
         kap = bm.verts.new((cx + nx * 1.5, cy + ny * 1.5, zk))
         kf = [bm.faces.new(krings[0])]
         for r0, r1 in zip(krings, krings[1:]):
@@ -1675,27 +2373,52 @@ def verify_subsoil():
                                                  dims))
 
 
+# ------------------------------------------------------------------ raiz de rocha sob a ponte de chegada (14.01)
+def bridge_root():
+    """feixe de colunas de basalto pendentes sob o encontro da ponte com o patio baixo (abaixo do fundo do tabuleiro,
+    25,4): a ilha 'agarra' a ponte; sem colisao (fora de rota)"""
+    mb = cliff_mb(0.0, -340.0)
+    # so pendentes cujo topo fica DENTRO do encontro do sg_entry (planta +-11,8 em y -341,5; z ate 25,7): saem por baixo
+    for q, (cx, cy, r, zt, zb) in enumerate(((-8.0, -338.6, 3.2, 24.6, -24.0), (0.6, -339.8, 3.8, 24.2, -34.0),
+                                               (7.8, -338.2, 3.0, 23.6, -18.0))):
+        column(mb, cx, cy, r, zt, zb, 0.3 + 0.45 * q, m=ROCK, cap=DARK, strata=(ZS_B - 1.0 * q, 0.86, (0.0, -0.4)),
+               low=DARK, tip=r * 1.5)
+
+
 # ------------------------------------------------------------------ colunas altas da borda (silhueta)
 def spires():
+    """06.09: as colunas de rocha da planta (CLIFF_SPIRES) deixam de ser torres soltas junto das rotas: cada uma NASCE
+    DA FACE do penhasco (centro fora do contorno) como feixe de 3 colunas em degrau; as 2 atras do castelo (norte, longe
+    de toda rota) guardam a silhueta de longe (topo P3 + 28); as outras ficam na altura da coroa (topo = patamar + 6:
+    pinaculos da falesia, abaixo do olhar de quem anda junto ao parapeito)"""
+    smp = resample_closed(RIM, 1.0)
+    ncol = 0
     for x, y, r, top_z, kind in L.CLIFF_SPIRES:
-        mb = cliff_mb(x, y)
-        a0 = math.atan2(y - C[1], x - C[0])
-        cols = [(0.0, 0.0, 0.5, 0.0), (a0 + math.pi / 2, r * 0.5, 0.42, 5.0), (a0 - math.pi / 2, r * 0.5, 0.40, 8.0),
-                (a0 + 0.5, r * 0.66, 0.32, 16.0)]
-        for q, (a, d, fr, dz) in enumerate(cols):
+        rx, ry, nx, ny = min(smp, key=lambda s_: math.hypot(s_[0] - x, s_[1] - y))
+        zd = zone_dist(rx, ry, nx, ny, lim=30.0)
+        zp = L.zone_of(rx - nx * zd, ry - ny * zd) if zd is not None else SH
+        tall = y > 350.0
+        top = zp + (28.0 if tall else 6.0)
+        top = max(top, crown_design(rx, ry) + 3.0)
+        tx, ty = -ny, nx
+        mb = cliff_mb(rx, ry)
+        cx, cy = rx + nx * r * 0.7, ry + ny * r * 0.7
+        for q_, (lat, out, fr, dz) in enumerate(((0.0, 0.0, 0.5, 0.0), (0.58, 0.1, 0.38, 6.0), (-0.52, 0.35, 0.32, 11.0))):
             rc = r * fr
-            px, py = x + d * math.cos(a), y + d * math.sin(a)
-            zt = top_z - dz
-            zb = -30.0 - 3.0 * q
+            px, py = cx + tx * lat * r + nx * out * r, cy + ty * lat * r + ny * out * r
+            zt = top - dz
+            zb = -30.0 - 3.0 * q_
             px, py, zt = water_fix(px, py, rc, zt)
             zt = cap_top(px, py, rc, zt)
             if not dun_ok(px, py, rc, zb - rc * 1.5, zt):
                 continue
-            zs = zt - 14.0 - 1.5 * q
-            column(mb, px, py, rc, zt, zb, 0.25 * q, m=ROCK, cap=GRASS if dz < 10.0 else TOP,
-                   band=(1.2, TOP), strata=(zs, 0.86, (0.0, 0.0)), low=DARK, tip=rc * 1.6)
-        if L.point_in_poly(x, y, L.ISLAND_RIM):
-            octo_col("SG_TerSpire", x, y, r * 0.8, 32.5, 32.5 + 20.0)
+            zs = min(ZS_A, zt - 9.0 - 1.5 * q_)
+            column(mb, px, py, rc, zt, zb, 0.25 * q_ + 0.2, m=ROCK, cap=TOP, band=(1.2, TOP),
+                   strata=(zs, 0.86, (nx * 0.3, ny * 0.3)), low=DARK, tip=rc * 1.6)
+            ncol += 1
+            if q_ == 0 and L.point_in_poly(px, py, L.ISLAND_RIM):
+                octo_col("SG_TerSpire", px, py, rc * 0.8, zp - 3.7, zp + 20.0)
+    print("TER AGULHAS colunas=%d" % ncol)
 
 
 # ------------------------------------------------------------------ 8) jardim-mirante: moldura de rocha
@@ -1998,8 +2721,12 @@ def build():
     bodies()
     neck()
     terrace_edges()
+    curbs()
+    paving()
     rim_cliff()
     keel()
+    # (bridge_root() desligado a pedido do E, 01.07: os pendentes apareciam pelo ultimo arco; o encontro do sg_entry
+    #  ja faz a rocha sob a ponte)
     verify_subsoil()
     spires()
     mirante_rock()
@@ -2010,5 +2737,5 @@ def build():
     # as cascas ABERTAS (topos, faces laterais, casca da quilha, blocos da coroa) ja nascem com a normal certa; o
     # recalc global do MB viraria algumas para dentro. So os muros (so pecas fechadas) passam pelo recalc.
     for nm in sorted(_MB):
-        _MB[nm].finish(recalc=nm.startswith("SG_Ter_Wall_") or nm == "SG_Ter_Crystals")
+        _MB[nm].finish(recalc=nm.startswith(("SG_Ter_Wall_", "SG_Ter_Paving_")) or nm == "SG_Ter_Crystals")
     _MB.clear()

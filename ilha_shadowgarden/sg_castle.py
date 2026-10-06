@@ -66,7 +66,12 @@ CAPL = "Stone_SG_TrimLow"             # remate perto do jogador
 fm_lib.MATS.setdefault(CAPL, (fm_lib.S(132, 128, 134), 0.8, 0.0, 0, None, 0.06))
 TRIM = "Stone_SG_Trim"                # remate alto/longe
 NAVY = "Roof_SG_Navy"
+FLD = "Stone_SG_Floor"                # fundo dos nichos da arcada cega (um valor ABAIXO do corpo: le recuo sem textura)
 COURSES = (1.05, 0.78)
+# FINESSE 3 (06.01 / 05.05 / 06.12 / 16.01): a FAIXA DO JOGADOR (0..20) de toda face do castelo deixa de ser silhar
+# fino: soco em talude, fiada de PLINTO em blocos grandes (relevo 0,2), ARCADA CEGA em relevo 0,45 (pilastras + arcos
+# em silhar claro sobre fundo escuro), fiada alta e CORDAO com pingadeira a +20 (base_band). O silhar medio/grande
+# (coursed) so ACIMA do cordao. 05.08: aneis das agulhas, pinaculos e floroes em FERRO NEGRO (nao prata).
 
 WARM = (1.0, 0.72, 0.45)
 VIOLET = (0.62, 0.45, 1.0)
@@ -132,6 +137,24 @@ CAMS = {
     "CAM_SGCas_Janela_Acesa": ((109.0, 30.0, Z + 72.0), (116.0, 54.0, Z + 80.0), 26),
     "CAM_SGCas_Portao": ((-10.0, -58.0, P2 + 5.2), (0.0, -18.0, P3 + 20.0), 20),
     "CAM_SGCas_Muralha": ((-60.0, -44.0, P2 + 5.2), (-40.0, -20.0, P2 + 14.0), 20),
+    # FINESSE 3: as cameras da AUDITORIA 3 dos itens do castelo (= sg_scene.a3_cams, olho a 5,5; o studio nao as cria)
+    "CAM_A3_05_Muralha_P2": ((-44.0, -62.0, P2 + 5.5), (-14.0, -18.0, P2 + 18.0), 20),
+    "CAM_A3_05_Portao_Fora": ((6.0, -54.0, P2 + 5.5), (0.0, -18.0, P3 + 14.0), 20),
+    "CAM_A3_05_Patio_Eixo": ((0.0, -6.0, P3 + 5.5), (0.0, 61.0, P3 + 20.0), 18),
+    "CAM_A3_05_Patio_Caminho": ((3.0, 2.0, P3 + 5.5), (0.0, 30.0, P3), 22),
+    "CAM_A3_05_Patio_Volta": ((0.0, 50.0, P3 + 5.5), (0.0, -20.0, P3 + 12.0), 20),
+    "CAM_A3_05_Muralha_Dentro": ((-60.0, 4.0, P3 + 5.5), (-62.0, -23.0, P3 + 14.0), 20),
+    "CAM_A3_05_Passagem_Leste": ((150.0, -52.0, P2 + 5.5), (150.0, -10.0, P3 + 8.0), 20),
+    "CAM_A3_05_Patio_Alto": ((0.0, -76.0, P3 + 72.0), (0.0, 25.0, P3), 20),
+    "CAM_A3_06_Fachada_Patio": ((22.0, 8.0, P3 + 5.5), (0.0, 61.0, P3 + 26.0), 18),
+    "CAM_A3_06_Porta": ((6.0, 40.0, P3 + 5.5), (0.0, 61.0, P3 + 16.0), 18),
+    "CAM_A3_06_Porta_Folha": ((2.0, 57.0, P3 + 5.5), (-13.0, 68.0, P3 + 8.0), 18),
+    "CAM_A3_06_Guardas": ((16.0, 44.0, P3 + 5.5), (-20.0, 58.0, P3 + 8.0), 20),
+    "CAM_A3_06_Fachada_Base": ((40.0, 50.0, P3 + 5.5), (62.0, 62.0, P3 + 9.0), 20),
+    "CAM_A3_06_Torre_Pe": ((92.0, 44.0, P3 + 5.5), (116.0, 72.0, P3 + 30.0), 18),
+    "CAM_A3_06_Flanco_E": ((140.0, 116.0, P3 + 5.5), (104.0, 200.0, P3 + 30.0), 18),
+    "CAM_A3_06_Castelo_Vila": ((20.0, -110.0, P2 + 5.5), (0.0, 150.0, P3 + 120.0), 20),
+    "CAM_A3_03_EixoP2": ((0.0, -140.0, P2 + 5.5), (0.0, -40.0, P3 + 20.0), 20),
 }
 
 # rota extra: patio -> contorno da torre oeste da fachada -> beco oeste -> terraco norte (atras da coroa)
@@ -197,6 +220,18 @@ def panel(mb, W, poly, t0, t1, m, inner_m=None):
         fa.material_index = mb._mi_for(inner_m)
 
 
+def facet(mb, W, poly, t, m):
+    """UMA face (n-gono) no plano da parede W em t: fundo dos nichos (0,13 a frente da face: sem z-fight, 1/4 dos
+    triangulos de um prisma)"""
+    poly = _dedupe(poly)
+    if len(poly) < 3:
+        return
+    a = [mb.bm.verts.new(_P(W, u, t, z)) for u, z in poly]
+    f = mb.bm.faces.new(list(reversed(a)))              # mesma orientacao da face externa do panel()
+    mb._post(a, m, None, 0, 1)
+    f.normal_update()
+
+
 def rect(u0, u1, z0, z1):
     return [(u0, z0), (u1, z0), (u1, z1), (u0, z1)]
 
@@ -229,7 +264,7 @@ def opening(uc, a, zs, zr, rise, n=6):
     return [(uc - a, zs), (uc + a, zs)] + list(reversed(ogive(uc, a, zr, rise, n=n)))
 
 
-def wall_run(mb, W, u0, u1, zb, zt, t0, t1, opens, m, inner_m=None):
+def wall_run(mb, W, u0, u1, zb, zt, t0, t1, opens, m, inner_m=None, n=6):
     """parede de u0 a u1 com vaos: opens = [(uc, a, peitoril, nascenca, flecha)]; flecha 0 = verga reta em 'nascenca'"""
     cur = u0
     for uc, a, zs, zr, rise in sorted(opens):
@@ -242,7 +277,7 @@ def wall_run(mb, W, u0, u1, zb, zt, t0, t1, opens, m, inner_m=None):
             if zt - zr > 0.01:
                 panel(mb, W, rect(l, r, zr, zt), t0, t1, m, inner_m)
         else:
-            panel(mb, W, [(r, zt), (l, zt)] + ogive(uc, a, zr, rise), t0, t1, m, inner_m)
+            panel(mb, W, [(r, zt), (l, zt)] + ogive(uc, a, zr, rise, n=n), t0, t1, m, inner_m)
         cur = r
     if u1 - cur > 0.01:
         panel(mb, W, rect(cur, u1, zb, zt), t0, t1, m, inner_m)
@@ -271,7 +306,7 @@ def shaft(mb, cx, cy, r, n, z0, z1, m, rot0=None):
     mb.prism(ngon_pts(cx, cy, r, n, rot0), z0, z1, m)
 
 
-def spire(mb, cx, cy, r, n, z0, h, m, rot0=None, flare=0.1, rings=(0.36,), ring_m=SV):
+def spire(mb, cx, cy, r, n, z0, h, m, rot0=None, flare=0.1, rings=(0.36,), ring_m=BI):
     """agulha gotica: beiral levemente alargado + cone ingreme; aneis de prata no beiral e ao longo do cone.
     F2 (z-fight): o anel do beiral sobe ate z0+0,2 (0,16 acima do tampo do parapeito, que foi a z0+0,04)"""
     bm = mb.bm
@@ -347,10 +382,10 @@ def louvers(mb, W, u0, u1, z0, z1, t, m=None):
     """venezianas de madeira (campanario / quarto fechado): fundo escuro + palhetas inclinadas (t = plano do fundo)"""
     m = m or WD
     panel(mb, W, rect(u0, u1, z0, z1), t - 0.1, t + 0.04, OB)
-    n = max(2, int((z1 - z0) / 1.25))
+    n = max(2, int((z1 - z0) / 2.8))
     for k in range(n):
         zc = z0 + (k + 0.6) * (z1 - z0) / (n + 0.2)
-        panel(mb, W, [(u0, zc - 0.2), (u1, zc - 0.2), (u1, zc + 0.14), (u0, zc + 0.14)], t + 0.18, t + 0.38, m)
+        panel(mb, W, [(u0, zc - 0.3), (u1, zc - 0.3), (u1, zc + 0.2), (u0, zc + 0.2)], t + 0.18, t + 0.42, m)
 
 
 def arch_band(mb, W, uc, a, zs, zr, rise, fw, t0, t1, m, n=4):
@@ -385,7 +420,10 @@ def lancet_win(mb, W, uc, z0, h, w=1.0, t=0.0, glass="dark", frame_m=OB, dp=0.5,
         panel(mb, W, poly, t - 0.05, t + 0.14, OB)
         if glass == "dark":
             panel(mb, W, poly, t + 0.28, t + 0.34, MOON)
-    arch_band(mb, W, uc, a, z0, zr, rise, fw, t - 0.05, t + dp, frame_m, n=3)
+    if glass == "slit":
+        arch_band(mb, W, uc, a, z0, zr + rise * 0.6, 0.0, fw, t - 0.05, t + dp, frame_m)
+    else:
+        arch_band(mb, W, uc, a, z0, zr, rise, fw, t - 0.05, t + dp, frame_m, n=3)
     if sill:
         panel(mb, W, rect(uc - a - fw - 0.18, uc + a + fw + 0.18, z0 - 0.34, z0 + 0.02), t - 0.05, t + dp + 0.22,
               frame_m)
@@ -566,7 +604,7 @@ def ashlar(mb, W, u0, u1, z0, z1, t=0.0, excl=(), m=ASH, PL=3.1, dep=0.12, ch=0.
 # 3 escalas de silhar (ladrilhado pela geometria): 0 = zona do olho, 1 = medio, 2 = fiadas grandes (Tier B)
 TIERS = {0: dict(PL=4.2, hs=(1.5, 1.15), dep=0.13, ch=0.08, gap=0.09),
          1: dict(PL=6.4, hs=(2.2, 1.8), dep=0.15, ch=0.1, gap=0.11),
-         2: dict(PL=14.0, hs=(3.6, 3.0), dep=0.17, ch=0.13, gap=0.13)}
+         2: dict(PL=17.0, hs=(4.3, 3.5), dep=0.17, ch=0.13, gap=0.13)}
 
 
 def coursed(mb, W, u0, u1, z0, z1, excl=(), tier=0, phase=0.0, t=0.0, m=ASH):
@@ -601,17 +639,17 @@ def sq_ch(x, y, hw, c, rot=0.0):
     return [(x + px * ca - py * sa, y + px * sa + py * ca) for px, py in pts]
 
 
-def finial(mb, x, y, z, s=1.0, m=SV):
+def finial(mb, x, y, z, s=1.0, m=BI):
     """FLORAO de prata (torno de 6): colar, bulbo, gola e ponta, assentado em z"""
     prof = [(0.17, 0.0), (0.24, 0.1), (0.14, 0.22), (0.3, 0.46), (0.22, 0.68), (0.09, 0.84), (0.13, 0.96),
             (0.0, 1.45)]
-    if s < 1.2:
+    if s < 2.0:
         prof = [(0.2, 0.0), (0.14, 0.2), (0.3, 0.46), (0.1, 0.82), (0.0, 1.45)]
     EM._lathe(mb, (x, y, z), [(r * s, h * s) for r, h in prof], m, 6, math.pi / 6)
 
 
 def pinnacle(mb, x, y, z0, s=1.0, hb=3.0, hn=None, body_m=CM_, spire_m=NAVY, gab=True, crock=True, rot=0.0,
-             ring_m=SV, cap_m=OB):
+             ring_m=BI, cap_m=OB):
     """PINACULO do kit: corpo quadrado de quinas chanfradas com cornija e GABLETE nas 4 faces, agulha OCTOGONAL com
     colar, 1 anel de prata, crochés e florao. s = escala. Devolve o topo."""
     hn = 5.6 * s if hn is None else hn
@@ -620,7 +658,7 @@ def pinnacle(mb, x, y, z0, s=1.0, hb=3.0, hn=None, body_m=CM_, spire_m=NAVY, gab
     mb.prism(sq_ch(x, y, hw, 0.24 * s, rot), z0, zt, body_m)
     rr = hw * 1.08
     frustum(mb, x, y, rr + 0.1 * s, rr - 0.05 * s, 8, zt - 0.04, zt + 0.22 * s, cap_m, math.degrees(rot) + 22.5)
-    if gab and s >= 0.8:
+    if gab and s >= 1.2:
         bm = mb.bm
         for k in range(4):
             a = rot + k * math.pi / 2
@@ -663,7 +701,7 @@ def pinnacle(mb, x, y, z0, s=1.0, hb=3.0, hn=None, body_m=CM_, spire_m=NAVY, gab
             _faces_ok(mb, fs)
             mb._post(V, spire_m, None, 0, 1)
     top = zt + 0.2 * s + hn
-    if s >= 0.8:
+    if s >= 1.0:
         finial(mb, x, y, top - 0.45 * s, 0.9 * s)
     return top + 0.95 * s
 
@@ -690,20 +728,134 @@ def cornice(z, e=1.1, h=1.6, back=-0.2):
 SOC = Z + 2.6                           # topo do soco de obsidiana (cordao de prata logo acima)
 
 
-def wall_skin(mb, W, u0, u1, t=0.0, excl=(), zb=ZB, soc=True, tiers=((Z + 8.0, 0), (Z + 22.0, 1), (Z + 42.0, 2)),
-              phase=0.0, cords=True):
-    """o LADRILHADO de uma face do castelo (W em t = face, t cresce para fora): soco de obsidiana em talude + filete
-    de prata, silhar em 3 escalas ate o topo de cada faixa e cordao com pingadeira entre as faixas."""
+BAND_TOP = Z + 20.0                                     # cordao que fecha a faixa do jogador
+BAND_LV = (Z + 5.1, Z + 5.8, Z + 16.2, Z + 19.5)        # topo do plinto, arcada (de, ate), topo da fiada alta
+PLR = 7.0                                               # modulo dos blocos grandes da faixa do jogador
+
+
+def course_row(mb, W, u0, u1, z0, z1, t, PL, phase, m=ASH, dep=0.2, ch=0.12, gap=0.12, excl=()):
+    """UMA fiada de silhar GRANDE (blocos de ~PL, junta 'gap', relevo 'dep') com os vaos 'excl' recortados"""
+    if z1 - z0 < 0.4 or u1 - u0 < 0.5:
+        return
+    rects = [(u0, u1, z0 + gap / 2, z1 - gap / 2)]
+    for e in excl:
+        rects = _cut(rects, *e)
+    for a, b, ra, rb in rects:
+        cuts = [a] + [u0 + phase + PL * j for j in range(-1, int((u1 - u0) / PL) + 3)
+                      if a + 1.0 < u0 + phase + PL * j < b - 1.0] + [b]
+        for c0, c1 in zip(cuts, cuts[1:]):
+            p0 = c0 + (gap / 2 if c0 > a else 0.0)
+            p1 = c1 - (gap / 2 if c1 < b else 0.0)
+            if p1 - p0 > 0.3 and rb - ra > 0.3:
+                block(mb, W, p0, p1, ra, rb, t - 0.03, t + dep, ch, m)
+
+
+def _spans(u0, u1, excl, z0, z1, pad=0.3):
+    """trechos livres de u0..u1 descontando os 'excl' que cruzam a faixa z0..z1"""
+    out = [(u0, u1)]
+    for e0, e1, ez0, ez1 in excl:
+        if ez1 <= z0 or ez0 >= z1:
+            continue
+        nxt = []
+        for a, b in out:
+            if e1 + pad <= a or e0 - pad >= b:
+                nxt.append((a, b))
+                continue
+            if e0 - pad - a > 1.2:
+                nxt.append((a, e0 - pad))
+            if b - (e1 + pad) > 1.2:
+                nxt.append((e1 + pad, b))
+        out = nxt
+    return out
+
+
+def base_band(mb, W, u0, u1, t=0.0, excl=(), zb=ZB, soc=True, lv=None, top=None, tier="B", phase=0.0, bay_w=9.0,
+              bench=0, win=0, slits=None, arcade=True, pw=1.5, col_area=None):
+    """FAIXA DO JOGADOR de uma face (W em t = face, t para fora): soco em talude (obsidiana + filete), fiada de
+    PLINTO em blocos grandes, cordao, ARCADA CEGA em relevo 0,45 (pilastras + arcos ogivais em silhar claro ASH; fundo
+    dos nichos FLD, um valor abaixo do corpo), cordao, fiada alta e CORDAO/friso com pingadeira em 'top'.
+    lv = (topo do plinto, arcada de, arcada ate, topo da fiada alta). tier 'A': moldura CAPL em volta dos arcos.
+    bench: a cada 'bench' nichos, um banco de pedra (com colisao, col_area). win: a cada 'win' nichos, uma janela
+    baixa gradeada (escura) no nicho. slits = (z, h): seteira na fiada alta a cada 2 vaos. arcade=False: so fiadas.
+    Devolve o z de arranque do silhar acima do cordao."""
     Wt = (_P(W, 0.0, t, 0.0)[:2], W[1], W[2])
+    top = BAND_TOP if top is None else top
+    z_pl, z_a0, z_a1, z_c2 = lv or BAND_LV
     z0 = zb
     if soc:
-        ledge(mb, Wt, u0, u1, plinth(zb, SOC, 0.85, 0.42), OB)
-        ledge(mb, Wt, u0 - 0.02, u1 + 0.02, [(-0.1, SOC), (0.62, SOC), (0.62, SOC + 0.3), (-0.1, SOC + 0.3)], SV)
-        z0 = SOC + 0.34
-    for i, (ztop, tier) in enumerate(tiers):
-        coursed(mb, Wt, u0, u1, z0, ztop - 0.35, excl, tier, phase + 0.37 * i)
+        zs = SOC if zb < SOC - 0.5 else zb + 2.6
+        ledge(mb, Wt, u0, u1, plinth(zb, zs, 0.85, 0.42), OB)
+        ledge(mb, Wt, u0 - 0.02, u1 + 0.02, [(-0.1, zs), (0.62, zs), (0.62, zs + 0.3), (-0.1, zs + 0.3)], SV)
+        z0 = zs + 0.34
+    course_row(mb, Wt, u0, u1, z0, z_pl, 0.0, PLR, phase, excl=excl)
+    ledge(mb, Wt, u0, u1, drip(z_pl + 0.3, 0.4, 0.5), CAPL)
+    ang = math.atan2(W[1][1], W[1][0])
+    gi = 0                                                    # indice corrido dos nichos (bancos/janelas em ritmo)
+    if arcade:
+        for a, b in _spans(u0, u1, excl, z_a0, z_a1):
+            n = max(1, int(round((b - a) / bay_w)))
+            bw = (b - a) / n
+            opens = []
+            for k in range(n):
+                uc = a + (k + 0.5) * bw
+                ha = max(0.8, bw / 2 - pw)
+                rise = min(ha * 1.05, (z_a1 - z_a0) * 0.3)
+                zs_ = z_a0 + 0.5
+                opens.append((uc, ha, zs_, z_a1 - 1.0 - rise, rise))
+            wall_run(mb, Wt, a, b, z_a0, z_a1, -0.03, 0.45, opens, ASH, n=3)
+            for (uc, ha, zs_, zr, rise) in opens:
+                i = gi
+                gi += 1
+                facet(mb, Wt, opening(uc, ha, zs_, zr, rise, n=3), 0.13, FLD)
+                if tier == "A":
+                    arch_band(mb, Wt, uc, ha, zs_, zr, rise, 0.55, 0.42, 0.64, CAPL, n=3)
+                if win and i % win == win - 1 and ha > 1.8:
+                    lancet_win(mb, Wt, uc, zs_ + 1.4, min(5.0, zr - zs_ - 1.2), 2.2, 0.16, glass="dark", frame_m=ASH,
+                               dp=0.42, fw=0.3)
+                elif bench and i % bench == bench - 1 and ha > 1.6:
+                    # banco de pedra NO CHAO, sob o nicho (2 pes + tampo claro), encostado ao talude do soco
+                    hb = min(ha - 0.3, 1.9)
+                    for su in (-1, 1):
+                        panel(mb, Wt, rect(uc + su * hb - 0.3, uc + su * hb + 0.3, zb, zb + 1.1), 1.0, 1.95, CM_)
+                    panel(mb, Wt, rect(uc - hb - 0.2, uc + hb + 0.2, zb + 1.1, zb + 1.36), 0.9, 2.05, CAPL)
+                    if col_area:
+                        c = _P(Wt, uc, 1.45, zb + 0.7)
+                        col_box(col_area, (2 * hb + 0.4, 1.2, 1.4), c, (0, 0, ang))
+    else:
+        nr = max(1, int(round((z_a1 - z_a0) / 2.6)))
+        for k in range(nr):
+            course_row(mb, Wt, u0, u1, z_a0 + (z_a1 - z_a0) * k / nr, z_a0 + (z_a1 - z_a0) * (k + 1) / nr, 0.0, PLR,
+                       phase + 3.5 * (k % 2), excl=excl, dep=0.16)
+    ledge(mb, Wt, u0, u1, drip(z_a1 + 0.3, 0.45, 0.55), CAPL)
+    ex2 = list(excl)
+    if slits:
+        sz, sh = slits
+        for a, b in _spans(u0, u1, excl, z_a1 + 0.7, z_c2):
+            n = max(1, int(round((b - a) / bay_w)))
+            for k in range(1, n, 3):
+                uc = a + (k + 0.5) * (b - a) / n
+                ex2.append((uc - 1.0, uc + 1.0, sz - 0.8, sz + sh + 0.6))
+                lancet_win(mb, Wt, uc, sz, sh, 0.9, 0.02, glass="slit", frame_m=ASH, dp=0.36, fw=0.26)
+    nr = max(1, int(round((z_c2 - z_a1 - 0.7) / 3.6)))
+    for k in range(nr):
+        course_row(mb, Wt, u0, u1, z_a1 + 0.7 + (z_c2 - z_a1 - 0.7) * k / nr, z_a1 + 0.7 + (z_c2 - z_a1 - 0.7) * (k + 1) / nr,
+                   0.0, PLR, phase + 3.5 * ((k + 1) % 2), excl=ex2)
+    ledge(mb, Wt, u0, u1, drip(top, 0.62, 0.85), CAPL)
+    return top + 0.45
+
+
+def wall_skin(mb, W, u0, u1, t=0.0, excl=(), zb=ZB, soc=True, tiers=((Z + 42.0, 2),), phase=0.0, cords=True,
+              tier="B", bench=0, win=0, bay_w=9.0, col_area=None):
+    """o LADRILHADO de uma face do castelo (W em t = face, t cresce para fora): FAIXA DO JOGADOR (base_band: soco em
+    talude, plinto, arcada cega, fiada alta, cordao a +20) e, acima, silhar em escalas ate o topo de cada faixa com
+    cordao entre as faixas. Faixas abaixo do cordao da base sao ignoradas."""
+    Wt = (_P(W, 0.0, t, 0.0)[:2], W[1], W[2])
+    z0 = base_band(mb, W, u0, u1, t, excl, zb, soc, tier=tier, phase=phase, bench=bench, win=win, bay_w=bay_w,
+                   col_area=col_area)
+    for i, (ztop, tr) in enumerate([(zt, tr) for zt, tr in tiers if zt > BAND_TOP + 2.0]):
+        coursed(mb, Wt, u0, u1, z0, ztop - 0.35, excl, max(tr, 1), phase + 0.37 * i)
         if cords:
-            ledge(mb, Wt, u0, u1, drip(ztop, 0.5 if tier < 2 else 0.6), OB)
+            ledge(mb, Wt, u0, u1, drip(ztop, 0.5 if tr < 2 else 0.6), OB)
         z0 = ztop + 0.4
 
 
@@ -713,8 +865,8 @@ def parapet_ring(mb, cx, cy, r, n, z0, h, m, rot0=None, corbel_m=OB, merlons=Tru
     ap = r * math.cos(math.pi / n)
     side = 2 * r * math.sin(math.pi / n)
     rot0 = 180.0 / n if rot0 is None else rot0
-    nc = 3 if side > 12 else (2 if side > 5 else 1)
-    for k in range(n):
+    nc = 2 if side > 12 else 1
+    for k in range(n if r >= 5.0 else 0):
         phi = rot0 + 360.0 * k / n + 180.0 / n
         W = face_frame(cx, cy, ap, phi)
         for f in [((i + 0.5) / nc - 0.5) for i in range(nc)]:
@@ -769,13 +921,17 @@ def face_phi(n, rot, k):
     return (rot + 360.0 * k / n + 180.0 / n) % 360.0
 
 
-def tower_skin(mb, x, y, r, n, rot, zb, tiers, phis=None, soc=True, hide=None, phase=0.0, zmin_fn=None, excl=None):
-    """ladrilhado das faces de um fuste poligonal (soco em talude + silhar em escalas + cordoes)"""
+def tower_skin(mb, x, y, r, n, rot, zb, tiers, phis=None, soc=True, hide=None, phase=0.0, zmin_fn=None, excl=None,
+               band_lv=None, band_top=None, tier="B", arcade=True, face_soc=False):
+    """ladrilhado das faces de um fuste poligonal: soco em talude, FAIXA DO JOGADOR (base_band por face: plinto,
+    arcada cega de 1-2 arcos por face, fiada alta, cordao) e silhar em escalas acima, com cordoes nas faixas"""
     ap = r * math.cos(math.pi / n)
     side = 2 * r * math.sin(math.pi / n)
+    zsoc = SOC if zb < SOC - 0.5 else zb + 2.6
     if soc:
-        socle(mb, x, y, r, n, zb, SOC if zb < SOC - 0.5 else zb + 2.6, rot, e=0.9)
-    z_s = (SOC if zb < SOC - 0.5 else zb + 2.6) + 0.45
+        socle(mb, x, y, r, n, zb, zsoc, rot, e=0.9)
+    z_s = zsoc + 0.45 if soc else zb                  # sem soco proprio: a faixa comeca em zb
+    btop = BAND_TOP if band_top is None else band_top
     for k in range(n):
         phi = face_phi(n, rot, k)
         if phis is not None and not any(abs(((phi - p + 180.0) % 360.0) - 180.0) < 1.0 for p in phis):
@@ -784,15 +940,18 @@ def tower_skin(mb, x, y, r, n, rot, zb, tiers, phis=None, soc=True, hide=None, p
         cx_, cy_ = _P(W, 0.0, 0.6, 0.0)[:2]
         if hide and hide(cx_, cy_):
             continue
-        z0 = z_s if zmin_fn is None else max(z_s, zmin_fn(cx_, cy_))
-        for i, (ztop, tier) in enumerate(tiers):
+        ex = (excl or {}).get(int(round(phi)) % 360, ())
+        z0 = base_band(mb, W, -side / 2 + 0.04, side / 2 - 0.04, 0.0, ex, z_s, soc=face_soc, lv=band_lv, top=btop,
+                       tier=tier, phase=phase + 0.6 * (k % 2), bay_w=max(4.0, side / 2.0), arcade=arcade, pw=1.2)
+        if zmin_fn is not None:
+            z0 = max(z0, zmin_fn(cx_, cy_))
+        for i, (ztop, tr) in enumerate(tiers):
             if ztop - 0.35 > z0 + 0.5:
-                coursed(mb, W, -side / 2 + 0.04, side / 2 - 0.04, z0, ztop - 0.35,
-                        (excl or {}).get(int(round(phi)) % 360, ()), tier, phase + 0.6 * (k % 2) + 0.3 * i)
+                coursed(mb, W, -side / 2 + 0.04, side / 2 - 0.04, z0, ztop - 0.35, ex, max(tr, 1),
+                        phase + 0.6 * (k % 2) + 0.3 * i)
             z0 = max(z0, ztop + 0.4)
-    zc = z_s - 0.45
-    for ztop, tier in tiers:
-        if ztop > zc + 1.0:
+    for ztop, tr in tiers:
+        if ztop > btop + 1.0:
             band(mb, x, y, r, n, ztop - 0.25, rot, h=0.8, e=0.42)
 
 
@@ -930,14 +1089,14 @@ def stairs():
 # ------------------------------------------------------------------ 1. MURALHA, PORTAO 24 x 32, torres, passagem leste
 def _near_play(x):
     """trecho da muralha onde o jogador chega perto pelo lado do P2 (escadas do portao e da passagem leste)"""
-    return abs(x) < 50.0 or x > 118.0
+    return abs(x) < 50.0
 
 
 def machicolations(mb, Wo, a, b, zt, m=CM_):
     """MATA-CAES no topo de uma face (W com t para fora, face em t = 0): fundo escuro, misulas em 3 degraus, arquinhos
     entre elas, parapeito, capa chanfrada (acima do corpo: F4) e merloes em 2 larguras com seteira"""
     ledge(mb, Wo, a, b, [(-0.05, zt - 3.35), (0.14, zt - 3.35), (0.14, zt - 1.5), (-0.05, zt - 1.5)], OB)
-    n = max(1, int(round((b - a) / 4.2)))
+    n = max(1, int(round((b - a) / 6.0)))
     step = (b - a) / n
     cx = [a + (k + 0.5) * step for k in range(n)]
     for x in cx:
@@ -991,17 +1150,19 @@ def wall_tower(mb, x, y, r, top, sph, lit=False, banners=None, bw=3.8):
         shaft(mb, x, y, r, n, Z2 + 3.4, top, CM_, rot)
     s = 1 if x > 0 else -1
     out_phi = 0.0 if s > 0 else 180.0
-    slits = [(p % 360.0, zz, h, w) for p, zz, h, w in ((270.0, Z + 4.0, 4.2, 1.0), (270.0 + s * 45.0, Z + 11.0, 3.8, 0.9),
-                                                     (out_phi, Z + 20.0, 3.8, 0.9), (90.0, Z + 12.0, 3.6, 0.9))
+    # seteiras ACIMA da faixa do jogador (do P2 a faixa vai ate Z+12; do patio ate Z+20)
+    slits = [(p % 360.0, zz, h, w) for p, zz, h, w in ((270.0, Z + 13.6, 4.0, 1.0), (270.0 + s * 45.0, Z + 14.6, 3.6, 0.9),
+                                                     (out_phi, Z + 14.0, 3.8, 0.9))
              if top - zz >= 8.0]
     ex = {}
     for phi, zz, h, w in slits:
         ex.setdefault(int(round(phi)) % 360, []).append((-w / 2 - 0.8, w / 2 + 0.8, zz - 0.9, zz + h + 0.5))
-    tower_skin(mb, x, y, r, n, rot, Z2 - 0.6, ((Z2 + 10.0, 0), (Z + 14.0, 1)), soc=False, hide=in_wall,
-               phis=(225.0, 270.0, 315.0), excl=ex)
-    if abs(x) < 60.0:
-        tower_skin(mb, x, y, r, n, rot, Z - 0.3, ((Z + 8.0, 0 if abs(x) < 60 else 1),), soc=False, hide=in_wall,
-                   phis=(45.0, 90.0, 135.0), excl=ex)
+    # faces do P2 (fortaleza: plinto, fiadas grandes em relevo, cordao a +12 = 20 acima do P2) e silhar ate o cordao do passeio
+    tower_skin(mb, x, y, r, n, rot, Z2 + 3.85, ((Z + 22.0, 2),), soc=False, hide=in_wall, phis=(225.0, 270.0, 315.0),
+               excl=ex, band_lv=(Z2 + 6.2, Z2 + 6.9, Z2 + 14.8, Z2 + 19.2), band_top=Z2 + 20.0, arcade=False)
+    # faces do PATIO: soco em talude no P3 + faixa do jogador (arcada cega so nas torres do portao)
+    tower_skin(mb, x, y, r, n, rot, Z - 0.3, (), soc=False, face_soc=True, hide=in_wall, phis=(45.0, 90.0, 135.0),
+               excl=ex, tier="A" if abs(x) < 60.0 else "B", arcade=abs(x) < 60.0)
     band(mb, x, y, r, n, WALL_TOP - 1.4, rot, h=1.4, e=0.4)
     for phi, zz, h, w in slits:
         slit(mb, face_frame(x, y, ap, phi), zz, h, w)
@@ -1023,9 +1184,12 @@ def muralha(banners):
     Wo = ((0.0, WFRONT), (1.0, 0.0), (0.0, -1.0))
     Wi = ((0.0, wy1), (1.0, 0.0), (0.0, 1.0))
     towers = [(x, r) for x, y, r, t_, s_ in WALL_TOWERS] + [(x, 12.0) for x, y, r in L.GATEHOUSE_TOWERS]
+    E_HW, E_SPR = EG_W / 2, Z + 13.0                      # passagem leste: meia largura e nascenca do arco (05.06)
 
     def excl(z0, z1):
-        return [(x - r - 1.6, x + r + 1.6, z0 - 1.0, z1 + 1.0) for x, r in towers]
+        return [(x - r - 1.6, x + r + 1.6, z0 - 1.0, z1 + 1.0) for x, r in towers] + \
+               [(EG_X - E_HW - 2.75, EG_X - E_HW + 0.1, Z - 1.0, E_SPR - 1.0),
+                (EG_X + E_HW - 0.1, EG_X + E_HW + 2.75, Z - 1.0, E_SPR - 1.0)]        # cunhais da passagem
 
     def vis_spans(a, b):
         out = [(a, b)]
@@ -1056,25 +1220,81 @@ def muralha(banners):
                 fine = _near_play((c0 + c1) / 2)
                 coursed(mb, Wo, c0 + 0.05, c1 - 0.05, Z2 + 3.56, Z - 0.8, excl(Z2, Z), 0 if fine else 1, 0.3)
             ledge(mb, Wo, a, b, drip(Z - 0.3, 0.6, 0.9), OB)
-            coursed(mb, Wo, a + 0.05, b - 0.05, Z + 0.4, WALL_TOP - 3.7, excl(Z, WALL_TOP), 2, 1.1)
+            # 06.12 (muralha vista do P2): CONTRAFORTES EM TALUDE no pe a cada ~23, SETEIRAS em ritmo (perto do portao e
+            # da passagem leste) e CORDAO a +8 cortando as fiadas grandes
+            exo = excl(Z, WALL_TOP) + [(a, b, Z + 7.55, Z + 8.45)]
+            nb = max(1, int(round((b - a) / 23.0)))
+            for k in range(nb):
+                u = a + (k + 0.5) * (b - a) / nb
+                if nb > 1 or b - a > 14.0:
+                    ledge(mb, Wo, u - 1.8, u + 1.8, [(-0.05, Z2 - 0.6), (2.3, Z2 - 0.6), (2.3, Z2 + 1.8), (0.8, Z + 5.2),
+                                                     (0.8, Z + 7.3), (-0.05, Z + 7.9)], CM_)
+                    ledge(mb, Wo, u - 1.95, u + 1.95, [(-0.05, Z + 7.3), (0.95, Z + 7.3), (0.95, Z + 7.6),
+                                                       (-0.05, Z + 8.0)], CAPL)
+                if _near_play(u) and b - a > 10.0:
+                    exo.append((u - 1.0, u + 1.0, Z + 9.6, Z + 14.6))
+                    lancet_win(mb, Wo, u, Z + 10.4, 3.6, 0.9, 0.0, glass="slit", frame_m=ASH, dp=0.4, fw=0.28)
+            coursed(mb, Wo, a + 0.05, b - 0.05, Z + 0.4, WALL_TOP - 3.7, exo, 2, 1.1)
+            ledge(mb, Wo, a, b, drip(Z + 8.0, 0.5, 0.7), CAPL)
             machicolations(mb, Wo, a, b, WALL_TOP)
-            # face do PATIO: rodape em talude, silhar (fino perto do portao), cordao, fiadas grandes, parapeito do passeio
-            ledge(mb, Wi, a, b, plinth(Z - 0.3, Z + 1.25, 0.5, 0.22), OB)
-            cuts = sorted({a, b} | {c for c in (-60.0, 60.0) if a < c < b})
-            for c0, c1 in zip(cuts, cuts[1:]):
-                coursed(mb, Wi, c0 + 0.05, c1 - 0.05, Z + 1.3, Z + 7.7, excl(Z, Z + 8.0),
-                        0 if abs((c0 + c1) / 2) < 60 else 1, 1.4)
-            ledge(mb, Wi, a, b, drip(Z + 8.0, 0.45), OB)
-            if abs((a + b) / 2) < 100.0:
-                coursed(mb, Wi, max(a, -100.0) + 0.05, min(b, 100.0) - 0.05, Z + 8.4, WALL_TOP - 0.4,
-                        excl(Z, WALL_TOP), 2, 0.7)
+            # face do PATIO (05.05): FAIXA DO JOGADOR da muralha = soco em talude, plinto, ARCADA CEGA (arcos de ~8 com
+            # pilastras; bancos nos nichos perto do portao), cordao, fiada alta com SETEIRAS a cada 2 vaos e cordao a +22
+            near = abs((a + b) / 2) < 70.0
+            base_band(mb, Wi, a + 0.05, b - 0.05, 0.0, excl(Z, WALL_TOP), Z - 0.3, soc=True,
+                      lv=(Z + 5.0, Z + 5.6, Z + 14.8, Z + 20.6), top=Z + 22.2, tier="A" if near else "B", phase=1.4,
+                      bay_w=11.0, slits=(Z + 16.6, 3.4))
             mb.box2((a, wy1 - 0.8, WALL_TOP), (b, wy1, WALL_TOP + 1.1), CM_, 0.0)
             ledge(mb, Wi, a - 0.02, b + 0.02, [(-0.95, WALL_TOP + 0.8), (0.14, WALL_TOP + 0.8), (0.14, WALL_TOP + 1.16),
                                                (-0.2, WALL_TOP + 1.4), (-0.95, WALL_TOP + 1.4)], OB)
-    # testas da muralha na passagem leste (o jogador passa colado): silhar medio nas 2 faces do vao
-    for xe, sg in ((EG_X - EG_W / 2, 1.0), (EG_X + EG_W / 2, -1.0)):
+    # PASSAGEM LESTE (05.06): jambas com CUNHAIS (blocos longos/curtos alternados nas 4 quinas), silhar medio nas testas,
+    # ARCO APONTADO sobre o vao (nascenca Z+13, flecha 6: 6,5 livres acima do topo da escada) com aduelas nas 2 faces,
+    # impostas, parede acima ate o passeio com mata-caes (fora) e parapeito (patio), LANTERNA DE BRACO em cada jamba
+    hw = E_HW
+    ESPR, ERISE = E_SPR, 6.0
+    for xe, sg in ((EG_X - hw, 1.0), (EG_X + hw, -1.0)):
         We = ((xe, 0.0), (0.0, 1.0), (sg, 0.0))
-        coursed(mb, We, WFRONT + 0.1, wy1 - 0.1, Z - 0.3, WALL_TOP - 3.6, (), 1, 0.4)
+        qz = [(Z - 0.3 + 1.45 * k, Z - 0.3 + 1.45 * (k + 1) - 0.1) for k in range(int((ESPR - 1.4 - Z) / 1.45))]
+        for k, (q0, q1) in enumerate(qz):
+            lq, sq = (2.6, 1.5) if k % 2 == 0 else (1.5, 2.6)
+            a_, b_ = sorted((xe - sg * 0.06, xe - sg * sq))
+            block(mb, We, WFRONT + 0.08, WFRONT + lq, q0, q1, -0.03, 0.26, 0.1, ASH)      # quina da frente
+            block(mb, Wo, a_, b_, q0, q1, -0.03, 0.26, 0.1, ASH)
+            block(mb, We, wy1 - lq, wy1 - 0.08, q0, q1, -0.03, 0.26, 0.1, ASH)            # quina do patio
+            block(mb, Wi, a_, b_, q0, q1, -0.03, 0.26, 0.1, ASH)
+        coursed(mb, We, WFRONT + 2.8, wy1 - 2.8, Z - 0.3, ESPR - 1.5, (), 1, 0.4)
+        ledge(mb, We, WFRONT - 0.3, wy1 + 0.3, [(-0.1, ESPR - 1.3), (0.55, ESPR - 1.3), (0.55, ESPR - 0.9), (0.3, ESPR - 0.7),
+                                                 (-0.1, ESPR - 0.7)], CAPL)
+        # lanterna de braco (ferro negro) no meio da jamba, a 9 do piso
+        lx, ly, lz = xe + sg * 0.1, -18.0, Z + 9.4
+        mb.beam((lx, ly, lz - 1.6), (lx + sg * 1.5, ly, lz - 0.2), 0.16, 0.16, BI, 0.0)
+        mb.beam((lx, ly, lz + 0.35), (lx + sg * 1.9, ly, lz + 0.35), 0.2, 0.14, BI, 0.0)
+        EM.lantern_head(mb, mb, (lx + sg * 1.9, ly, lz + 0.3 + 1.14), 0.0 if sg > 0 else math.pi, 0.95)
+    Wge = ((EG_X, WFRONT), (1.0, 0.0), (0.0, -1.0))
+    Wgi = ((EG_X, wy1), (1.0, 0.0), (0.0, 1.0))
+    wall_run(mb, Wge, -hw, hw, ESPR - 2.0, WALL_TOP, -(wy1 - WFRONT), 0.0, [(0.0, hw, ESPR - 2.0, ESPR, ERISE)], CM_)
+    for Wf_, tdepth in ((Wge, 0.55), (Wgi, 0.45)):
+        nv = 11
+        arc_i = ogive(0.0, hw, ESPR, ERISE, n=11)
+        arc_o = ogive(0.0, hw, ESPR, ERISE, d=1.9, n=11)
+        per = (len(arc_i) - 1) / nv
+        for k in range(nv):
+            i0, i1 = int(round(k * per)), int(round((k + 1) * per))
+            key = k == nv // 2
+            panel(mb, Wf_, arc_i[i0:i1 + 1] + list(reversed(arc_o[i0:i1 + 1])), -0.05, tdepth + (0.25 if key else 0.0),
+                  CAPL if key else ASH)
+        for s_ in (-1, 1):
+            u0_, u1_ = sorted((s_ * (hw - 0.1), s_ * (hw + 2.3)))
+            panel(mb, Wf_, rect(u0_, u1_, ESPR - 1.0, ESPR), -0.05, tdepth + 0.2, OB)
+        h0 = ogive(0.0, hw, ESPR, ERISE, d=1.9, n=11)
+        h1 = ogive(0.0, hw, ESPR, ERISE, d=2.5, n=11)
+        panel(mb, Wf_, h0 + list(reversed(h1)), -0.05, tdepth + 0.3, OB)
+    coursed(mb, Wge, -hw + 0.1, hw - 0.1, ESPR + 7.2, WALL_TOP - 3.7, (), 2, 0.5)
+    machicolations(mb, Wge, -hw - 0.1, hw + 0.1, WALL_TOP)
+    mb.box2((EG_X - hw, wy1 - 0.8, WALL_TOP), (EG_X + hw, wy1, WALL_TOP + 1.1), CM_, 0.0)
+    ledge(mb, Wgi, -hw - 0.1, hw + 0.1, [(-0.95, WALL_TOP + 0.8), (0.14, WALL_TOP + 0.8), (0.14, WALL_TOP + 1.16),
+                                         (-0.2, WALL_TOP + 1.4), (-0.95, WALL_TOP + 1.4)], OB)
+    col_box2("SG_CasWall", (EG_X - hw, WFRONT, ESPR + ERISE - 0.5), (EG_X + hw, wy1, WALL_TOP))
+    light("L_SGCas_EastGate", "POINT", (EG_X, -18.0, Z + 9.8), 650.0, WARM, 0.6)
     # ---------------------------------------------------------------- PORTAO 24 x 32
     # anel da frente (0,6 saliente) com o vao ogival; portaria entre as torres ate Z+38; abobada da passagem (Z+27,
     # flecha 9) acima das folhas; aduelas alternando pedra violeta e obsidiana com fecho, arco-capa com pingadeira
@@ -1095,11 +1315,26 @@ def muralha(banners):
         lo = arc_i[i0:i1 + 1]
         hi = arc_o[i0:i1 + 1]
         key = k == nv // 2
-        panel(mb, Wg, lo + list(reversed(hi)), 0.62, 1.25 if key else 0.98, VI if (key or k % 2 == 0) else OB)
+        # 05.07: aduelas num tom so de pedra (silhar claro), fecho em cantaria mais clara e saliente; sem violeta
+        panel(mb, Wg, lo + list(reversed(hi)), 0.62, 1.3 if key else (1.02 if k % 2 == 0 else 0.94), CAPL if key else ASH)
     for s in (-1, 1):
         u0_, u1_ = sorted((s * GW / 2, s * (GW / 2 + 2.4)))
-        panel(mb, Wg, rect(u0_, u1_, Z - 1.0, GSPR), 0.62, 0.98, VI)
+        nq = int((GSPR - Z + 1.0) / 1.5)
+        for q in range(nq):                                                           # jambas em cunhais
+            q0 = Z - 1.0 + q * (GSPR - Z + 1.0) / nq
+            q1 = Z - 1.0 + (q + 1) * (GSPR - Z + 1.0) / nq - 0.1
+            lq = 2.4 if q % 2 == 0 else 1.6
+            a_, b_ = sorted((s * GW / 2, s * (GW / 2 + lq)))
+            block(mb, Wg, a_, b_, q0, q1, 0.62, 0.98, 0.1, ASH)
         panel(mb, Wg, rect(u0_ - 0.2, u1_ + 0.2, GSPR - 1.1, GSPR), 0.62, 1.3, OB)     # imposta
+        # 06.13: MOLDURA de ferro do vao (calhas da grade levadica nas jambas, ate a nascenca): a grade recolhida
+        # mostra os dentes sob o fecho; nada fecha o vao
+        xq = s * (GW / 2 - 0.16)
+        mb.box2((min(xq - 0.2, xq + 0.2), WFRONT + 0.82, Z - 0.3), (max(xq - 0.2, xq + 0.2), WFRONT + 1.18, GSPR + 1.5),
+                BI, 0.0)
+        for zz in (Z + 3.0, Z + 9.0, Z + 15.0):
+            mb.box2((min(xq - 0.3, xq + 0.3), WFRONT + 0.7, zz - 0.25), (max(xq - 0.3, xq + 0.3), WFRONT + 1.3, zz + 0.25),
+                    BI, 0.0)
     h0 = ogive(0.0, GW / 2, GSPR, GRISE, d=2.4, n=13)
     h1 = ogive(0.0, GW / 2, GSPR, GRISE, d=3.1, n=13)
     panel(mb, Wg, h0 + list(reversed(h1)), 0.55, 1.4, OB)
@@ -1109,8 +1344,33 @@ def muralha(banners):
     Wgb = ((0.0, wy1), (1.0, 0.0), (0.0, 1.0))
     ledge(mb, Wgb, -24.0, 24.0, [(-0.95, GH_TOP - 0.3), (0.3, GH_TOP - 0.3), (0.3, GH_TOP + 0.36),
                                  (-0.95, GH_TOP + 0.36)], OB)
-    # arco de tras (patio): moldura em U na face do patio
-    arch_band(mb, Wgb, 0.0, GPW, Z - 0.3, GVSPR, GVRISE, 1.6, -0.05, 0.6, VI, n=8)
+    # arco de tras (patio): moldura em U na face do patio (cantaria clara; 05.07: sem violeta) + capa-gota
+    arch_band(mb, Wgb, 0.0, GPW, Z - 0.3, GVSPR, GVRISE, 1.6, -0.05, 0.6, CAPL, n=8)
+    h0 = ogive(0.0, GPW, GVSPR, GVRISE, d=1.6, n=8)
+    h1 = ogive(0.0, GPW, GVSPR, GVRISE, d=2.2, n=8)
+    panel(mb, Wgb, h0 + list(reversed(h1)), -0.05, 0.85, OB)
+    # ESCADAS DE ADARVE (05.05, so visuais): 2 lances encostados na face do patio, x 100..131 (entre as torres de
+    # 92 e 136, fora das vistas do eixo), com corrimao de ferro no lado do patio
+    for sx in (-1, 1):
+        nst, rs, tr = 30, (WALL_TOP - Z) / 30.0, 1.03
+        xa = 100.0
+        for i in range(nst):
+            x0_ = sx * (xa + i * tr)
+            x1_ = sx * (xa + (i + 1) * tr + 0.03)
+            mb.box2((min(x0_, x1_), wy1, Z + rs * i), (max(x0_, x1_), wy1 + 3.4, Z + rs * (i + 1)),
+                    "Stone_Paving_SG" if i % 2 == 0 else "Stone_Paving_SG_B", 0.05)
+        # banzo inclinado (bloco cortado) e corrimao de ferro
+        xb0, xb1 = sx * xa, sx * (xa + nst * tr)
+        bm_ = mb.bm
+        pts = [(xb0, wy1 + 3.4, Z - 0.3), (xb1, wy1 + 3.4, Z - 0.3), (xb1, wy1 + 3.4, WALL_TOP + 0.6),
+               (xb0, wy1 + 3.4, Z + 0.9)]
+        V0 = [bm_.verts.new(p) for p in pts]
+        V1 = [bm_.verts.new((p[0], wy1 + 4.0, p[2])) for p in pts]
+        fs = [bm_.faces.new(V0), bm_.faces.new(list(reversed(V1)))] + \
+             [bm_.faces.new((V0[i], V0[(i + 1) % 4], V1[(i + 1) % 4], V1[i])) for i in range(4)]
+        _faces_ok(mb, fs)
+        mb._post(V0 + V1, CM_, None, 0, 1)
+        mb.rod((xb0, wy1 + 3.7, Z + 2.6), (xb1, wy1 + 3.7, WALL_TOP + 2.6), 0.09, BI, 4)
     # grade levadica recolhida: dentes a vista sob o fecho, no sulco do anel
     c_ = (GRISE * GRISE - (GW / 2) ** 2) / GW
     R_ = GW / 2 + c_
@@ -1165,9 +1425,10 @@ def lean_z(ax):
     return z0 + (x0 - ax) / (x0 - x1) * (z1 - z0)
 
 
-def nave_window(mb, W, uc):
+def nave_window(mb, W, uc, kind="A"):
     """janela alta da nave (10 x 34): vao de verdade na parede de 5, vidro de LUAR a 2 da face externa (o vitral do
-    salao fica do lado de dentro), 2 lancetas + oculo no rendilhado, moldura de cantaria com capa-gota"""
+    salao fica do lado de dentro), rendilhado de cantaria e moldura com capa-gota. kind 'A': mainel + 2 lancetas +
+    oculo; 'B' (tramos impares, ritmo A-B do 06.07): 2 maineis, 3 lancetas e oculo pequeno"""
     tf = TW
     poly = opening(uc, WIN_A, WIN_SILL, WIN_SPRING, WIN_RISE, n=4)
     tg = tf - 2.0
@@ -1176,17 +1437,29 @@ def nave_window(mb, W, uc):
     for k in range(1, nz + 1):
         zz = WIN_SILL + (WIN_SPRING - WIN_SILL) * k / (nz + 1)
         panel(mb, W, rect(uc - WIN_A, uc + WIN_A, zz - 0.07, zz + 0.07), tg + 0.14, tg + 0.24, BI)
-    # rendilhado de cantaria (mainel + 2 subarcos + oculo) na frente do vidro
-    panel(mb, W, rect(uc - 0.4, uc + 0.4, WIN_SILL, WIN_SPRING + 2.0), tg + 0.14, tg + 1.2, CAPL)
-    sub = (WIN_A - 0.4) / 2.0
-    for s in (-1, 1):
-        c_ = uc + s * (0.4 + sub)
-        i0 = ogive(c_, sub, WIN_SPRING - 0.4, sub * 1.6, n=3)
-        i1 = ogive(c_, sub, WIN_SPRING - 0.4, sub * 1.6, d=0.36, n=3)
-        panel(mb, W, i0 + list(reversed(i1)), tg + 0.14, tg + 1.0, CAPL)
     U, V, N = WUVN(W)
-    zc = WIN_SPRING + WIN_RISE * 0.6
-    ring(mb, _P(W, uc, 0.0, zc), U, V, N, 1.55, 1.95, tg + 0.14, tg + 1.0, CAPL, 10)
+    if kind == "A":
+        # rendilhado de cantaria (mainel + 2 subarcos + oculo) na frente do vidro
+        panel(mb, W, rect(uc - 0.4, uc + 0.4, WIN_SILL, WIN_SPRING + 2.0), tg + 0.14, tg + 1.2, CAPL)
+        sub = (WIN_A - 0.4) / 2.0
+        for s in (-1, 1):
+            c_ = uc + s * (0.4 + sub)
+            i0 = ogive(c_, sub, WIN_SPRING - 0.4, sub * 1.6, n=3)
+            i1 = ogive(c_, sub, WIN_SPRING - 0.4, sub * 1.6, d=0.36, n=3)
+            panel(mb, W, i0 + list(reversed(i1)), tg + 0.14, tg + 1.0, CAPL)
+        zc = WIN_SPRING + WIN_RISE * 0.6
+        ring(mb, _P(W, uc, 0.0, zc), U, V, N, 1.55, 1.95, tg + 0.14, tg + 1.0, CAPL, 10)
+    else:
+        mw = 0.36
+        lw = (2 * WIN_A - 4 * mw) / 3.0
+        for c_ in (uc - WIN_A + lw + mw, uc + WIN_A - lw - mw):
+            panel(mb, W, rect(c_ - mw, c_ + mw, WIN_SILL, WIN_SPRING + 1.4), tg + 0.14, tg + 1.2, CAPL)
+        for c_ in (uc - WIN_A + lw / 2, uc, uc + WIN_A - lw / 2):
+            i0 = ogive(c_, lw / 2, WIN_SPRING - 0.2, lw * 0.8, n=3)
+            i1 = ogive(c_, lw / 2, WIN_SPRING - 0.2, lw * 0.8, d=0.34, n=3)
+            panel(mb, W, i0 + list(reversed(i1)), tg + 0.14, tg + 1.0, CAPL)
+        zc = WIN_SPRING + WIN_RISE * 0.62
+        ring(mb, _P(W, uc, 0.0, zc), U, V, N, 1.0, 1.4, tg + 0.14, tg + 1.0, CAPL, 8)
     # ordens da moldura: capialco em 2 degraus (a face interna do vao) + moldura saliente + capa-gota
     arch_band(mb, W, uc, WIN_A, WIN_SILL, WIN_SPRING, WIN_RISE, 1.6, tf - 0.05, tf + 0.55, CAPL, n=4)
     h0 = ogive(uc, WIN_A, WIN_SPRING, WIN_RISE, d=1.6, n=4)
@@ -1198,43 +1471,54 @@ def nave_window(mb, W, uc):
     panel(mb, W, rect(uc - WIN_A - 2.0, uc + WIN_A + 2.0, WIN_SILL - 0.7, WIN_SILL), tf - 0.05, tf + 0.9, CAPL)
 
 
-def buttress(mb, s, y):
-    """CONTRAFORTE da nave: soco em talude, 1o lance (7 de saliencia) com silhar, ressalto em talude a Z+40, 2o lance
-    (4,6) ate acima da cornija, pinaculo do kit; ARCOBOTANTES DUPLOS por cima da meia-agua (pilar intermediario em
-    |x| 70 com pinaculo) ate o clerestorio"""
+def buttress(mb, s, y, flyers=True, tall=True):
+    """CONTRAFORTE da nave: soco em talude, LANCE BAIXO (8 de saliencia, ate Z+19,5) com fiadas grandes em relevo e
+    pingadeira, 1o lance (7) com silhar ate o ressalto em talude a Z+40, 2o lance (4,6) ate acima da cornija, pinaculo
+    do kit (2 alturas: 06.07); ARCOBOTANTES DUPLOS (so nos tramos pares, 06.07) por cima da meia-agua (pilar
+    intermediario em |x| 70 com pinaculo) ate o clerestorio"""
     xo = s * OX1
     bp, bp2, hw = 7.0, 4.6, 2.3
+    bp0, zl0 = 8.0, Z + 19.2                                     # lance baixo (faixa do jogador) e seu topo
     Wb = ((xo, 0.0), (0.0, 1.0), (float(s), 0.0))              # u = y, t = saliencia a partir da face da nave
-    ledge(mb, Wb, y - hw - 0.6, y + hw + 0.6, plinth(ZB, SOC, bp + 0.75, bp + 0.25), OB)
-    ledge(mb, Wb, y - hw - 0.3, y + hw + 0.3, [(-0.1, SOC), (bp + 0.2, SOC), (bp + 0.2, SOC + 0.3), (-0.1, SOC + 0.3)],
+    ledge(mb, Wb, y - hw - 0.6, y + hw + 0.6, plinth(ZB, SOC, bp0 + 0.75, bp0 + 0.25), OB)
+    ledge(mb, Wb, y - hw - 0.3, y + hw + 0.3, [(-0.1, SOC), (bp0 + 0.2, SOC), (bp0 + 0.2, SOC + 0.3), (-0.1, SOC + 0.3)],
           SV)
+    ledge(mb, Wb, y - hw, y + hw, [(-0.1, SOC), (bp0, SOC), (bp0, zl0 - 1.0), (bp - 0.05, zl0 + 0.05), (-0.1, zl0 + 0.05)],
+          CM_)
     z1 = Z + 40.0
-    ledge(mb, Wb, y - hw, y + hw, [(-0.1, SOC), (bp, SOC), (bp, z1), (bp2 - 0.05, z1 + bp - bp2 + 0.05),
+    ledge(mb, Wb, y - hw, y + hw, [(-0.1, zl0), (bp, zl0), (bp, z1), (bp2 - 0.05, z1 + bp - bp2 + 0.05),
                                    (-0.1, z1 + bp - bp2 + 0.05)], CM_)
     ledge(mb, Wb, y - hw - 0.12, y + hw + 0.12, [(bp - 0.2, z1 - 0.7), (bp + 0.26, z1 - 0.6), (bp + 0.26, z1 - 0.3),
                                                  (bp - 0.2, z1 - 0.05)], OB)
-    # ladrilhado nas 3 faces do 1o lance (fino ate +8, medio ate +26, grande ate o ressalto)
+    # lance baixo: fiadas grandes em relevo nas 3 faces (mesma linguagem da faixa do jogador), pingadeira no topo
+    Wf0 = ((xo + s * bp0, 0.0), (0.0, 1.0), (float(s), 0.0))
+    lvb = (SOC + 2.7, SOC + 3.4, Z + 13.2, Z + 17.3)
+    base_band(mb, Wf0, y - hw + 0.04, y + hw - 0.04, 0.0, (), SOC + 0.45, soc=False, arcade=False, lv=lvb,
+              top=zl0 - 1.3, phase=0.55 if s > 0 else 0.0)
+    for sy in (-1, 1):
+        Ws = ((0.0, y + sy * hw), (float(s), 0.0), (0.0, float(sy)))
+        base_band(mb, Ws, OX1 + 0.5, OX1 + bp0 - 0.04, 0.0, (), SOC + 0.45, soc=False, arcade=False, lv=lvb,
+                  top=zl0 - 1.3, phase=0.4)
+    # 1o lance: silhar medio ate +26 na frente
     Wf = ((xo + s * bp, 0.0), (0.0, 1.0), (float(s), 0.0))
-    for i, (z0_, z1_, tier) in enumerate(((SOC + 0.34, Z + 7.7, 0), (Z + 8.4, Z + 25.7, 1))):
-        coursed(mb, Wf, y - hw, y + hw, z0_, z1_, (), tier, 0.55 if s > 0 else 0.0)
-        if tier == 0:
-            for sy in (-1, 1):
-                Ws = ((0.0, y + sy * hw), (float(s), 0.0), (0.0, float(sy)))
-                coursed(mb, Ws, OX1 + 0.05, OX1 + bp - 0.02, z0_, z1_, (), tier, 0.4)
-    for zc_ in (Z + 8.0, Z + 26.0):
-        ledge(mb, Wf, y - hw - 0.55, y + hw + 0.55, drip(zc_, 0.5), OB)
-        for sy in (-1, 1):
-            Ws = ((0.0, y + sy * hw), (float(s), 0.0), (0.0, float(sy)))
-            ledge(mb, Ws, OX1 - 0.1, OX1 + bp + 0.5, drip(zc_, 0.5), OB)
-    # 2o lance ate acima da cornija da nave lateral + pinaculo
+    ledge(mb, Wf, y - hw - 0.55, y + hw + 0.55, drip(Z + 26.0, 0.5), OB)
+    for sy in (-1, 1):
+        Ws = ((0.0, y + sy * hw), (float(s), 0.0), (0.0, float(sy)))
+        ledge(mb, Ws, OX1 - 0.1, OX1 + bp + 0.5, drip(Z + 26.0, 0.5), OB)
+    # 2o lance ate acima da cornija da nave lateral + pinaculo (alto nos tramos pares, baixo nos impares)
     z2 = z1 + bp - bp2 + 0.05
-    ztop = EAVE + 14.0
+    ztop = EAVE + 14.0 if tall else EAVE + 9.0
     ledge(mb, Wb, y - hw + 0.3, y + hw - 0.3, [(-0.1, z2 - 0.1), (bp2, z2 - 0.1), (bp2, ztop), (-0.1, ztop)], CM_)
     for zc_ in (Z + 72.0, EAVE - 1.2):
         ledge(mb, Wb, y - hw, y + hw, [(bp2 - 0.1, zc_ - 0.3), (bp2 + 0.4, zc_ - 0.2), (bp2 + 0.4, zc_ + 0.3),
                                        (bp2 - 0.1, zc_ + 0.5)], OB)
-    # nicho cego com gablete na face do 2o lance (le "contraforte gotico" do beco)
-    pinnacle(mb, xo + s * bp2 / 2.0, y, ztop, 1.25, hb=6.5, hn=12.0)
+    if tall:
+        pinnacle(mb, xo + s * bp2 / 2.0, y, ztop, 1.25, hb=6.5, hn=12.0)
+    else:
+        pinnacle(mb, xo + s * bp2 / 2.0, y, ztop, 1.0, hb=4.0, hn=7.5, crock=False)
+    col_box2("SG_CasButtress", (min(xo, xo + s * bp0), y - hw, Z - 0.5), (max(xo, xo + s * bp0), y + hw, Z + 24.0))
+    if not flyers:
+        return
     # arcobotantes
     xm = 70.0
     zc, b = EAVE + 6.5, 9.0
@@ -1264,7 +1548,6 @@ def buttress(mb, s, y):
         hi.append((d, (zpt - 2.0) + (d_out2 - d) / (d_out2 - d_in2) * 4.0))
     strip(mb, Wfl, lo, hi, -0.7, 0.7, CM_)
     mb.beam((s * d_out2, y, hi[0][1] + 0.18), (s * d_in2, y, hi[-1][1] + 0.18), 1.7, 0.34, OB, 0.0)
-    col_box2("SG_CasButtress", (min(xo, xo + s * bp), y - hw, Z - 0.5), (max(xo, xo + s * bp), y + hw, Z + 24.0))
 
 
 def nave():
@@ -1277,11 +1560,13 @@ def nave():
         wall_run(mb, W, OY0, OY1, ZB, EAVE, 0.0, TW, opens, CM_, IM)
         # a torre da fachada encosta aqui: a parede engrossa 0,6 por baixo dela (sem fresta de luz)
         panel(mb, W, rect(OY0 + 0.3, 79.8, ZB, EAVE), TW - 0.1, TW + 0.62, CM_)
-        for y in WIN_OUT:
-            nave_window(mb, W, y)
+        for j, y in enumerate(WIN_OUT):
+            nave_window(mb, W, y, kind="A" if j % 2 == 0 else "B")
         excl = [(y - WIN_A - 2.6, y + WIN_A + 2.6, WIN_SILL - 1.2, Z + 80.0) for y in WIN_OUT]
-        excl += [(y - 2.9, y + 2.9, ZB, EAVE) for y in BUTT_Y]
-        wall_skin(mb, W, 80.6, OY1 - 0.4, t=TW, excl=excl, phase=0.3 if s > 0 else 0.0)
+        excl += [(y - 3.0, y + 3.0, ZB, EAVE) for y in BUTT_Y]
+        # faixa do jogador do flanco: 2 nichos por tramo; a cada 3 nichos uma janela baixa gradeada, a cada 3 um banco
+        wall_skin(mb, W, 80.6, OY1 - 0.4, t=TW, excl=excl, phase=0.3 if s > 0 else 0.0, bay_w=8.2, win=4, bench=3,
+                  col_area="SG_CasBench")
         # cordoes no peitoril e na nascenca das janelas + cornija + parapeito da nave lateral
         Wt = (_P(W, 0.0, TW, 0.0)[:2], W[1], W[2])
         for zc_ in (WIN_SILL - 1.5, Z + 80.0):
@@ -1290,8 +1575,8 @@ def nave():
         panel(mb, W, rect(OY0, OY1, EAVE, EAVE + 2.6), TW - 1.3, TW + 0.35, CM_)
         ledge(mb, Wt, OY0 - 0.5, OY1 + 1.0, [(-1.5, EAVE + 2.5), (0.55, EAVE + 2.5), (0.55, EAVE + 2.72),
                                              (0.1, EAVE + 3.0), (-1.5, EAVE + 3.0)], OB)
-        for y in BUTT_Y:
-            buttress(mb, s, y)
+        for i, y in enumerate(BUTT_Y):
+            buttress(mb, s, y, flyers=(i % 2 == 0), tall=(i % 2 == 0))
         # contraforte de quina (fundo), em diagonal
         a = math.radians(45.0 if s > 0 else 135.0)
         bx, by = s * (OX1 + 2.2), OY1 + 2.2
@@ -1304,7 +1589,7 @@ def nave():
     for s in (-1, 1):
         u0_, u1_ = sorted((s * 38.4, s * (OX1 - 0.4)))
         wall_skin(mb, W_N, u0_, u1_, t=TW, excl=[(s * AISLE_WX - 7.0, s * AISLE_WX + 7.0, Z + 28.0, Z + 72.0)],
-                  phase=0.8)
+                  phase=0.8, bay_w=9.6, bench=3, col_area="SG_CasBench")
         Wt = ((0.0, OY1), (1.0, 0.0), (0.0, 1.0))
         lancet_win(mb, Wt, s * AISLE_WX, Z + 30.0, 34.0, 8.0, 0.0, glass="dark", frame_m=CAPL, dp=0.6, fw=0.8)
         ledge(mb, Wt, u0_, u1_ + s * 0.6, cornice(EAVE, 1.3, 1.8), OB)
@@ -1326,7 +1611,8 @@ def nave():
              dp=0.55, mull=True, tracery=True, hood=True)
         a_, b_ = sorted((s * (CLR + 4.4), s * (OX1 - 0.3)))
         wall_skin(mb, W_S, a_, b_, t=TW, excl=[(s * AISLE_WX - WIN_A - 2.4, s * AISLE_WX + WIN_A + 2.4,
-                                                 WIN_SILL - 1.4, Z + 72.0)], phase=0.5)
+                                                 WIN_SILL - 1.4, Z + 72.0)], phase=0.5, tier="A", bay_w=9.6, bench=2,
+                  col_area="SG_CasBench")
         Wt = ((0.0, OY0), (1.0, 0.0), (0.0, -1.0))
         # oculo escuro acima da janela + cordoes + cornija + empena da meia-agua (tela inclinada com capa)
         lancet_win(mb, Wt, s * AISLE_WX, Z + 72.0, 12.0, 5.0, 0.0, glass="dark", frame_m=CAPL, dp=0.55, fw=0.6)
@@ -1399,7 +1685,7 @@ def roofs():
         bm.faces.new([V[n] for n in f])
     mb._post(list(V.values()), NAVY, None, 0, 1)
     Ls = math.hypot(x_e, RIDGE - z_e)
-    rows = int(Ls / 2.3)
+    rows = int(Ls / 3.0)
     for s in (-1, 1):
         slate_plane(mb, (s * x_e, yf, z_e), (s * x_e, yb, z_e), (0.0, yb, RIDGE), (0.0, yf, RIDGE), rows)
         # testeira de obsidiana no beiral
@@ -1435,7 +1721,7 @@ def roofs():
     finial(mb, 0.0, fy, RIDGE + 57.0, 1.8)
     # lucarnas escuras nas aguas da nave (venezianas): quebram a agua comprida
     k_ = (RIDGE - CLR_EAVE) / CLR
-    for yy in (100.0, 128.0, 200.0, 228.0):
+    for yy in (112.0, 216.0):
         for s in (-1, 1):
             xo = s * 30.0
             zr = CLR_EAVE + (CLR - 30.0) * k_
@@ -1449,7 +1735,7 @@ def roofs():
     for s in (-1, 1):
         xo, xi = s * (OX1 + 0.4), s * (CLR + 0.05)
         zo, zi = EAVE + 0.4, LEAN_HI
-        rows = int(math.hypot(xi - xo, zi - zo) / 2.3)
+        rows = int(math.hypot(xi - xo, zi - zo) / 3.0)
         slate_plane(mb, (xo, OY0 + 0.2, zo), (xo, OY1 - 0.2, zo), (xi, OY1 - 0.2, zi), (xi, OY0 + 0.2, zi), rows)
         mb.box2((min(xo, xi), OY0 + 0.3, zo - 1.2), (max(xo, xi), OY1 - 0.3, zo - 0.2), NAVY, 0.0)
     mb.finish()
@@ -1468,30 +1754,98 @@ def door_leaf(mb, s):
     """FOLHA da porta principal (14 x 34) aberta 90 graus e RECOLHIDA no rebaixo da parede da passagem: tabuas
     verticais com junta, 4 ferragens em T com cravos, dobradicas de pino na aresta do plano da porta, argola.
     A face a vista (lado da passagem) fica em |x| 14,1: o vao livre continua 28."""
-    xf, xb = s * (DW / 2 + 0.1), s * (DW / 2 + 0.1 + LEAF_T)
+    # FINESSE 3 (06.02): a folha ganha ESTRUTURA: alma de 0,5 + quadro de montantes/travessas saliente 0,25 (2 x 5
+    # ALMOFADAS com moldura e painel em relevo), 5 FAIXAS DE FERRO horizontais com cravos em grade, DOBRADICAS DE CINTA
+    # longas com nos na aresta do plano da porta, POSTIGO (porta de homem 4 x 7,6) com aldraba na folha esquerda,
+    # argola na direita. Face a vista em |x| 14,02 (o vao livre continua 28); fundo no rebaixo em |x| 14,8.
+
+    def bx(xa, xb_, ya, yb, za, zb_, m, bev=0.0):
+        mb.box2((min(xa, xb_), ya, za), (max(xa, xb_), yb, zb_), m, bev)
+    xa = s * (DW / 2 + 0.27)                          # face da alma
+    xp = s * (DW / 2 + 0.02)                          # face do quadro
+    xb = s * (DW / 2 + 0.78)                          # fundo da folha (no rebaixo)
     y0, y1 = YD + 0.15, YD + 13.95
     z0, z1 = Z + 0.2, Z + DH - 0.7
-    mb.box2((min(xf + s * 0.14, xb), y0, z0), (max(xf + s * 0.14, xb), y1, z1), WD, 0.0)      # alma
-    nb = 5
-    for i in range(nb):
-        ya = y0 + i * (y1 - y0) / nb + (0.04 if i else 0.0)
-        yb = y0 + (i + 1) * (y1 - y0) / nb - (0.04 if i < nb - 1 else 0.0)
-        mb.box2((min(xf, xf + s * 0.2), ya, z0 + 0.05), (max(xf, xf + s * 0.2), yb, z1 - 0.05), WD, 0.0)
-    xi = xf - s * 0.15
+    bx(xa, xb, y0, y1, z0, z1, WD)                                                    # alma
+    st, rl_b, rl_t, rl = 0.9, 1.2, 0.9, 0.7                                             # montantes, travessas
+    ym = (y0 + y1) / 2
+    rows = []                                                                           # (z_a, z_b) de cada fileira
+    zz = z0 + rl_b
+    hrow = (z1 - z0 - rl_b - rl_t - 4 * rl) / 5.0
+    for i in range(5):
+        rows.append((zz, zz + hrow))
+        zz += hrow + rl
+    cols = [(y0 + st, ym - 0.4), (ym + 0.4, y1 - st)]
+    wick = (s < 0)                                                                      # postigo na folha esquerda
+    wk = (cols[0][0] + 0.6, cols[0][0] + 4.6, z0 + rl_b, z0 + rl_b + 7.6)                # (ya, yb, za, zb)
+    bx(xp, xa + s * 0.02, y0, y0 + st, z0, z1, WD, 0.06)                                 # montantes
+    bx(xp, xa + s * 0.02, y1 - st, y1, z0, z1, WD, 0.06)
+    bx(xp, xa + s * 0.02, ym - 0.4, ym + 0.4, z0, z1, WD, 0.06)
+    bx(xp, xa + s * 0.02, y0, y1, z0, z0 + rl_b, WD, 0.06)                               # travessa de baixo e de cima
+    bx(xp, xa + s * 0.02, y0, y1, z1 - rl_t, z1, WD, 0.06)
+    for i in range(4):
+        za = rows[i][1]
+        if wick and za < wk[3] + 0.2:                                                   # a travessa para no postigo
+            bx(xp, xa + s * 0.02, wk[1] + 0.45, y1, za, za + rl, WD, 0.06)
+            bx(xp, xa + s * 0.02, y0, wk[0] - 0.45, za, za + rl, WD, 0.06)
+        else:
+            bx(xp, xa + s * 0.02, y0, y1, za, za + rl, WD, 0.06)
+    # almofadas: moldura chanfrada em volta e painel central em relevo (2 valores pela luz)
+    for ci, (ya, yb) in enumerate(cols):
+        for ri, (za, zb_) in enumerate(rows):
+            if wick and ci == 0 and za < wk[3] + 0.3:
+                za = wk[3] + 0.6                                                        # painel curto sobre o postigo
+                if zb_ - za < 1.6:
+                    continue
+            bx(xa - s * 0.06, xa + s * 0.02, ya + 0.25, yb - 0.25, za + 0.25, zb_ - 0.25, FLD, 0.0)       # fundo escuro
+            bx(xa - s * 0.3, xa - s * 0.04, ya + 0.7, yb - 0.7, za + 0.7, zb_ - 0.7, WD, 0.2)           # almofada chanfrada
+    # faixas de ferro horizontais com cravos em grade (sobre as travessas) + cintas das dobradicas
+    xi = xp - s * 0.1
     rs = (0, s * math.pi / 2, 0)
-    for zz in (z0 + 3.2, z0 + 12.5, z1 - 12.5, z1 - 3.2):
-        mb.box2((min(xi, xf), y0 + 0.3, zz - 0.3), (max(xi, xf), y1 - 1.2, zz + 0.3), BI, 0.0)
-        mb.box2((min(xi, xf), y1 - 1.9, zz - 1.1), (max(xi, xf), y1 - 1.2, zz + 1.1), BI, 0.0)   # travessa do T
-        for q in range(7):
-            yy = y0 + 0.9 + q * (y1 - y0 - 3.4) / 6.0
-            mb.cyl(0.1, 0.08, (xi - s * 0.04, yy, zz), rs, BI, n=6, r2=0.05, bevel=0.0)
-        mb.cyl(0.22, 1.6, (s * (DW / 2 + 0.2), y0 - 0.12, zz), (0, 0, 0), BI, n=8, bevel=0.0)          # pino
-    zr_ = Z + 6.5
-    mb.cyl(0.42, 0.08, (xi - s * 0.04, y1 - 3.0, zr_), rs, BI, n=10, bevel=0.0)
-    rp = [(xi - s * 0.16, y1 - 3.0 + 0.5 * math.sin(2 * math.pi * k / 12), zr_ - 0.5 + 0.5 * math.cos(2 * math.pi * k / 12))
-          for k in range(13)]
-    mb.tube(rp, 0.07, BI, 6)
-    col_box2("SG_CasDoorLeaf", (min(xf, xb), YD, Z - 0.5), (max(xf, xb), HY0, Z + DH))
+    for i in range(5):
+        zc = (z0 + rl_b / 2) if i == 0 else (rows[i - 1][1] + rl / 2)
+        yb_ = y1 - 0.25
+        ya_ = y0 + 0.2
+        if wick and wk[2] - 0.3 < zc < wk[3] + 0.2:
+            ya_ = wk[1] + 0.35
+        bx(xi, xp + s * 0.02, ya_, yb_, zc - 0.26, zc + 0.26, BI)
+        nq = int((yb_ - ya_) / 1.6)
+        for q in range(nq + 1):
+            yy = ya_ + 0.35 + q * (yb_ - ya_ - 0.7) / max(1, nq)
+            mb.cyl(0.13, 0.12, (xi - s * 0.05, yy, zc), rs, BI, n=4, r2=0.02, bevel=0.0)
+    for zc in (z0 + 2.6, (z0 + z1) / 2, z1 - 2.4):                                     # dobradicas de cinta
+        bx(xi, xp + s * 0.02, y0 + 0.1, y0 + 5.2, zc - 0.32, zc + 0.32, BI)
+        mb.cyl(0.19, 0.1, (xi - s * 0.05, y0 + 4.6, zc), rs, BI, n=4, r2=0.02, bevel=0.0)
+        mb.cyl(0.36, 2.4, (s * (DW / 2 + 0.3), y0 - 0.18, zc), (0, 0, 0), BI, n=8, bevel=0.0)      # no da dobradica
+    for q in range(1, 6):                                                               # cravos nos montantes
+        for yy in (y0 + st / 2, y1 - st / 2):
+            mb.cyl(0.12, 0.1, (xp - s * 0.04, yy, z0 + rl_b + q * (z1 - z0 - rl_b - rl_t) / 6.0), rs, BI, n=4, r2=0.02,
+                   bevel=0.0)
+    if wick:
+        wa, wb, wza, wzb = wk
+        bx(xp - s * 0.1, xa + s * 0.02, wa - 0.45, wa, wza - 0.1, wzb + 0.45, WD, 0.05)              # aro do postigo
+        bx(xp - s * 0.1, xa + s * 0.02, wb, wb + 0.45, wza - 0.1, wzb + 0.45, WD, 0.05)
+        bx(xp - s * 0.1, xa + s * 0.02, wa - 0.45, wb + 0.45, wzb, wzb + 0.45, WD, 0.05)
+        for k in range(3):                                                              # 3 tabuas verticais
+            ya_ = wa + k * (wb - wa) / 3.0 + 0.03
+            bx(xa - s * 0.12, xa + s * 0.02, ya_, ya_ + (wb - wa) / 3.0 - 0.06, wza, wzb, WD, 0.0)
+        for zc in (wza + 1.4, wzb - 1.4):
+            bx(xa - s * 0.2, xa - s * 0.1, wa + 0.15, wb - 0.15, zc - 0.2, zc + 0.2, BI)
+            for q in range(3):
+                mb.cyl(0.11, 0.1, (xa - s * 0.24, wa + 0.5 + q * (wb - wa - 1.0) / 2.0, zc), rs, BI, n=4, r2=0.02,
+                       bevel=0.0)
+        kz = wza + 4.2
+        mb.cyl(0.3, 0.1, (xa - s * 0.17, wb - 0.9, kz), rs, BI, n=8, bevel=0.0)         # aldraba
+        rp = [(xa - s * 0.3, wb - 0.9 + 0.42 * math.sin(2 * math.pi * k / 10), kz - 0.42 + 0.42 * math.cos(2 * math.pi * k / 10))
+              for k in range(11)]
+        mb.tube(rp, 0.06, BI, 6)
+    else:
+        zr_ = Z + 6.5
+        mb.cyl(0.42, 0.1, (xi - s * 0.05, y1 - 3.0, zr_), rs, BI, n=10, bevel=0.0)       # argola
+        rp = [(xi - s * 0.2, y1 - 3.0 + 0.5 * math.sin(2 * math.pi * k / 12), zr_ - 0.5 + 0.5 * math.cos(2 * math.pi * k / 12))
+              for k in range(13)]
+        mb.tube(rp, 0.07, BI, 6)
+    col_box2("SG_CasDoorLeaf", (min(s * DW / 2, xb), YD, Z - 0.5), (max(s * DW / 2, xb), HY0, Z + DH))
 
 
 def paving(mb, x0, x1, y0, y1, z, cw, cd, mats, gap=0.08, zb=None):
@@ -1507,6 +1861,24 @@ def paving(mb, x0, x1, y0, y1, z, cw, cd, mats, gap=0.08, zb=None):
             mb.box2((a, c, zb), (b, d, z), mats[(i + j) % len(mats)], 0.0)
 
 
+STAIR_RISER = SL.STAIR_RISER_M
+
+
+def paving_rows(mb, x0, x1, y0, y1, z, cw, cd, mats, gap=0.1, zb=None):
+    """lajes com junta em FAIXAS (o tom alterna por fileira, juntas desencontradas): nada de xadrez (06.06)"""
+    nx, ny = max(1, int(round((x1 - x0) / cw))), max(1, int(round((y1 - y0) / cd)))
+    zb = z - 0.4 if zb is None else zb
+    mb.box2((x0, y0, zb - 0.06), (x1, y1, z - 0.07), FLD, 0.0)                      # leito escuro das juntas
+    for j in range(ny):
+        c = y0 + (y1 - y0) * j / ny + (gap / 2 if j else 0.0)
+        d = y0 + (y1 - y0) * (j + 1) / ny - (gap / 2 if j < ny - 1 else 0.0)
+        off = (j % 2) * cw * 0.5
+        cuts = [x0] + [x0 + off + cw * i for i in range(0, nx + 2) if x0 + 0.8 < x0 + off + cw * i < x1 - 0.8] + [x1]
+        for a, b in zip(cuts, cuts[1:]):
+            mb.box2((a + (gap / 2 if a > x0 else 0.0), c, zb), (b - (gap / 2 if b < x1 else 0.0), d, z),
+                    mats[j % len(mats)], 0.0)
+
+
 def porch(mb):
     """PORCHE da porta: 4 ordens de 2,5 x 2 escalonadas (jamba + timpano de cada camada), rolo continuo (colunelo ->
     capitel -> arquivolta) em cada ordem, timpano ogival ate 46 com o medalhao da ordem, verga reta a 34, capa-gota
@@ -1515,18 +1887,36 @@ def porch(mb):
     zd = Z + DH
     arise = TYMP - DH                                   # 12: flecha do timpano (arco abatido apontado)
     ztop = Z + 60.0
-    # nartex (paredes, teto em caixotoes, massa acima)
+    # nartex (paredes, ABOBADA DE BERCO apontada em pedra com 3 arcos-diafragma [06.04], massa acima)
+    hp = DW / 2 + POCK
+    VR = 5.6                                            # flecha da abobada do nartex (nasce em Z+34 nas paredes)
     for s in (-1, 1):
-        a_, b_ = sorted((s * (DW / 2 + POCK), s * PX))
+        a_, b_ = sorted((s * hp, s * PX))
         mb.box2((a_, YD, ZB), (b_, FAC_Y + 0.1, ztop), CM_, 0.0)
-    mb.box2((-(DW / 2 + POCK), YD + 0.6, zd + 1.2), (DW / 2 + POCK, FAC_Y + 0.1, ztop), CM_, 0.0)
-    mb.box2((-(DW / 2 + POCK), YD + 0.6, zd - 0.15), (DW / 2 + POCK, HY0 - 0.3, zd + 1.2), OB, 0.0)
-    for yy in (YD + 4.2, YD + 8.4, YD + 12.6):
-        mb.box2((-(DW / 2 + POCK), yy - 0.35, zd - 0.6), (DW / 2 + POCK, yy + 0.35, zd - 0.1), CAPL, 0.0)
-    mb.box2((-0.35, YD + 0.6, zd - 0.6), (0.35, HY0 - 0.3, zd - 0.1), CAPL, 0.0)
-    # timpano (pedra violeta, 0,2 atras do plano da porta) + verga + medalhao da ordem
-    panel(mb, W_P, [(-DW / 2, zd + 0.6), (DW / 2, zd + 0.6)] + list(reversed(ogive(0.0, DW / 2, zd, arise, n=8)))[1:-1],
-          -0.6, -0.2, VI)
+    Wv = ((0.0, 0.0), (1.0, 0.0), (0.0, 1.0))           # u = x, t = y
+    panel(mb, Wv, [(hp + 0.02, zd + VR + 1.2), (-hp - 0.02, zd + VR + 1.2)] + ogive(0.0, hp + 0.02, zd - 0.05, VR, n=7),
+          YD + 0.3, HY0 - 0.2, CM_)
+    mb.box2((-hp, YD + 0.3, zd + VR + 1.15), (hp, FAC_Y + 0.1, ztop), CM_, 0.0)
+    for yy in (YD + 3.6, YD + 7.6, YD + 11.6):           # arcos-diafragma (silhar claro, 0,6 abaixo da abobada)
+        ri = ogive(0.0, hp, zd + 0.1, VR, d=-0.9, n=7)
+        ro = ogive(0.0, hp, zd + 0.1, VR, d=0.06, n=7)
+        panel(mb, Wv, ri + list(reversed(ro)), yy - 0.5, yy + 0.5, ASH)
+        for s in (-1, 1):                                # imposta de cada arco
+            mb.box2((min(s * (hp - 0.75), s * hp), yy - 0.7, zd - 0.6), (max(s * (hp - 0.75), s * hp), yy + 0.7, zd + 0.05),
+                    CAPL, 0.05)
+    # timpano em PEDRA (06.05): campo de silhar claro 0,2 atras do plano da porta, moldura interna em relevo e o
+    # medalhao da ordem (o unico crescente da fachada, 16.06); verga com friso de pontas de diamante
+    tp = [(-DW / 2, zd + 0.6), (DW / 2, zd + 0.6)] + list(reversed(ogive(0.0, DW / 2, zd, arise, n=8)))[1:-1]
+    panel(mb, W_P, tp, -0.6, -0.2, ASH)
+    ti = ogive(0.0, DW / 2, zd, arise, d=-1.4, n=8)
+    to = ogive(0.0, DW / 2, zd, arise, d=-0.7, n=8)
+    panel(mb, W_P, ti + list(reversed(to)), -0.2, 0.12, CAPL)
+    panel(mb, W_P, rect(-DW / 2 + 1.4, DW / 2 - 1.4, zd + 2.0, zd + 2.7), -0.2, 0.12, CAPL)
+    U, V, N = WUVN(W_P)
+    for sx_ in (-1, 1):                                  # 2 rosetas cegas ladeando o medalhao
+        Ck = _P(W_P, sx_ * 8.6, 0.0, zd + 5.2)
+        ring(mb, Ck, U, V, N, 1.3, 1.75, -0.2, 0.1, CAPL, 10)
+        disc(mb, Ck, U, V, N, 1.32, -0.2, -0.08, FLD, 10)
     mb.box2((-DW / 2, YD - 0.7, zd), (DW / 2, YD + 0.45, zd + 2.0), CAPL, 0.06)
     for k in range(7):                                   # friso de pontas de diamante na verga
         xk = -DW / 2 + 2.0 + k * (DW - 4.0) / 6.0
@@ -1543,21 +1933,23 @@ def porch(mb):
             panel(mb, W_P, rect(a_, b_, ZB, zd), t0, t1, CM_)
         arc = ogive(0.0, DW / 2, zd, arise, d=d, n=10)
         panel(mb, W_P, [(PX, zd), (PX, ztop), (-PX, ztop), (-PX, zd), (-xa, zd)] + arc[1:-1] + [(xa, zd)], t0, t1, CM_)
-        # rolo (colunelo + arquivolta) na aresta saliente da camada
-        tr = t1 - 0.36
-        path = [_P(W_P, -(xa + 0.42), tr, Z + 1.7)] + [_P(W_P, u, tr, zz) for u, zz in
-                                                      ogive(0.0, DW / 2, zd, arise, d=d + 0.42, n=14)] + \
-               [_P(W_P, xa + 0.42, tr, Z + 1.7)]
-        mb.tube(path, 0.5, VI if k % 2 else CAPL, 8)
-        rolls.append((xa + 0.42, tr))
+        # rolo (colunelo + arquivolta) na aresta saliente da camada: 06.05 - 2x mais grosso (r 0,9), em PEDRA
+        # (cantaria clara / silhar alternados, sem violeta nem Neon), com base e capitel proporcionais
+        tr = t1 - 0.55
+        rr = 0.9
+        path = [_P(W_P, -(xa + 0.7), tr, Z + 2.9)] + [_P(W_P, u, tr, zz) for u, zz in
+                                                     ogive(0.0, DW / 2, zd, arise, d=d + 0.7, n=14)] + \
+               [_P(W_P, xa + 0.7, tr, Z + 2.9)]
+        mb.tube(path, rr, ASH if k % 2 else CAPL, 8)
+        rolls.append((xa + 0.7, tr))
         # bases (plinto + toro) e capiteis (cesto + abaco) dos colunelos
         for s in (-1, 1):
-            cp = _P(W_P, s * (xa + 0.42), tr, 0.0)
-            mb.box((1.5, 1.5, 0.5), (cp[0], cp[1], Z + 0.25), (0, 0, 0), OB, 0.06)
-            EM._lathe(mb, (cp[0], cp[1], Z + 0.5), [(0.72, 0.0), (0.72, 0.14), (0.6, 0.3), (0.66, 0.46), (0.5, 0.62),
-                                                    (0.52, 1.2)], CAPL, 8, math.pi / 8)
-            EM._lathe(mb, (cp[0], cp[1], zd - 1.66), [(0.5, 0.0), (0.58, 0.16), (0.52, 0.34), (0.66, 0.9), (0.86, 1.3),
-                                                      (0.86, 1.6)], CAPL, 8, math.pi / 8)
+            cp = _P(W_P, s * (xa + 0.7), tr, 0.0)
+            mb.box((2.5, 2.5, 0.7), (cp[0], cp[1], Z + 0.35), (0, 0, 0), OB, 0.08)
+            EM._lathe(mb, (cp[0], cp[1], Z + 0.7), [(1.2, 0.0), (1.2, 0.25), (1.0, 0.5), (1.1, 0.75), (0.86, 1.05),
+                                                    (0.9, 2.2)], CAPL, 8, math.pi / 8)
+            EM._lathe(mb, (cp[0], cp[1], zd - 2.9), [(0.9, 0.0), (1.0, 0.3), (0.92, 0.6), (1.2, 1.6), (1.5, 2.3),
+                                                     (1.5, 2.8)], CAPL, 8, math.pi / 8)
     # friso de capiteis corrido nas frentes das camadas + soco de obsidiana nas jambas
     for k in range(1, NORD + 1):
         t1 = k * ORD_D
@@ -1565,7 +1957,7 @@ def porch(mb):
         xb = DW / 2 + k * ORD_W if k < NORD else PX
         for s in (-1, 1):
             a_, b_ = sorted((s * xa, s * xb))
-            panel(mb, W_P, rect(a_, b_, zd - 0.9, zd + 0.3), t1 - 0.3, t1 + 0.28, OB)
+            panel(mb, W_P, rect(a_, b_, zd - 1.2, zd + 0.3), t1 - 0.3, t1 + 0.28, OB)
             panel(mb, W_P, rect(a_, b_, ZB, Z + 1.4), t1 - 0.3, t1 + 0.18, OB)
     # capa-gota (label) em volta da ordem externa, com as mensulas
     tF = NORD * ORD_D
@@ -1635,14 +2027,19 @@ def porch(mb):
             mb.cyl(0.42, 1.1, p, (0, s * 0.45, 0), CAPL, n=4, r2=0.05, bevel=0.0)
     gp = _P(W_P, 0.0, tw1 - 0.4, 0.0)
     finial(mb, gp[0], gp[1], apex + 0.7, 2.6, CAPL)
-    # pisos: 2 degraus largos, estrado do porche, soleira e o nartex (lajes com junta, 2 tons)
-    paving(mb, -PX - 1.0, PX + 1.0, YP - 6.0, YP - 3.0, Z + 0.3, 4.0, 3.0, (CAPL, "Stone_SG_Floor"))
-    paving(mb, -PX - 1.0, PX + 1.0, YP - 3.0, YP, Z + 0.6, 4.0, 3.0, ("Stone_SG_Floor", CAPL))
-    paving(mb, -21.4, 21.4, YP, YD - 0.6, Z + 0.6, 3.6, 3.6, ("Stone_SG_MarbleBlack", "Stone_SG_Floor"))
+    # pisos (06.06: sem xadrez): 2 degraus largos em pedra clara com espelho escuro, estrado do porche em FAIXAS de
+    # lajes (2 tons proximos, por fileira) com borda escura, soleira e o nartex em faixas iguais
+    for yy0, yy1, zt in ((YP - 6.0, YP - 3.0, Z + 0.3), (YP - 3.0, YP, Z + 0.6)):
+        paving(mb, -PX - 1.0, PX + 1.0, yy0, yy1, zt, 4.0, 3.0, ("Stone_Paving_SG",), zb=zt - 0.28)
+        mb.box2((-PX - 1.0, yy0 + 0.12, zt - 0.9), (PX + 1.0, yy0 + 0.6, zt - 0.27), STAIR_RISER, 0.0)
+    paving_rows(mb, -21.4, 21.4, YP, YD - 0.6, Z + 0.6, 3.6, 3.0, ("Stone_Paving_SG", "Stone_Paving_SG_B"))
+    for s in (-1, 1):
+        a_, b_ = sorted((s * 21.4, s * 23.2))
+        mb.box2((a_, YP, Z + 0.1), (b_, YD - 0.6, Z + 0.58), "Stone_SG_MarbleBlack", 0.0)
     mb.box2((-DW / 2, YD - 0.6, Z - 0.3), (DW / 2, YD + 0.6, Z + 0.62), OB, 0.05)
     mb.box2((-DW / 2 + 0.3, YD - 0.72, Z + 0.3), (DW / 2 - 0.3, YD - 0.58, Z + 0.62), SV, 0.0)
-    paving(mb, -(DW / 2 + POCK), DW / 2 + POCK, YD + 0.6, HY0 - 0.05, Z + 0.14, 3.7, 3.4,
-           ("Stone_SG_MarbleBlack", "Stone_SG_Floor"))
+    paving_rows(mb, -(DW / 2 + POCK), DW / 2 + POCK, YD + 0.6, HY0 - 0.05, Z + 0.14, 3.7, 3.4,
+                ("Stone_Paving_SG", "Stone_Paving_SG_B"))
     for s in (-1, 1):
         door_leaf(mb, s)
     # colisao do porche (fora do vao), degraus, estrado e nartex
@@ -1660,28 +2057,39 @@ def porch(mb):
 def rose(mb):
     """ROSACEA R 17 do corpo central: recuo de 1,5 na pele, fundo de obsidiana, vitral violeta, rendilhado de
     cantaria (anel, 12 raios, 12 oculos) e o CRESCENTE DA ORDEM no medalhao central (o unico brilho do emblema)"""
+    # FINESSE 3 (06.11 / 16.06): rendilhado de pedra 2x mais grosso (raios 0,7, oculos 0,8, anel de 1,6), vidro
+    # escuro (Glass_SG_Rose: Glass 0,3 sobre fundo de obsidiana) e brilho SO no oculo central (SG_VioletSoft_Glow,
+    # Neon medio-escuro, R 3,6, atras de uma roseta de 6 raios); SEM crescente
     zc, R = ROSE_Z, ROSE_R
     tb = T_FC - 1.5
     U, V, N = WUVN(W_S)
     C = (0.0, HY0, zc)
     disc(mb, C, U, V, N, R, tb - 0.05, tb + 0.14, OB, 40)
     disc(mb, C, U, V, N, R, tb + 0.4, tb + 0.48, ROSE_G, 40)
-    ring(mb, C, U, V, N, R - 1.1, R + 0.02, tb + 0.14, T_FC - 0.15, CAPL, 40)
-    ring(mb, C, U, V, N, 4.6, 5.5, tb + 0.14, T_FC - 0.2, CAPL, 20)
+    ring(mb, C, U, V, N, R - 1.6, R + 0.02, tb + 0.14, T_FC - 0.15, CAPL, 40)
+    ring(mb, C, U, V, N, 4.2, 5.4, tb + 0.14, T_FC - 0.2, CAPL, 20)
     for k in range(12):
         a = 2 * math.pi * k / 12
         ca, sa = math.cos(a), math.sin(a)
-        r0, r1, w = 5.4, R - 1.0, 0.32
+        r0, r1, w = 5.2, R - 1.5, 0.7
         poly = [(ca * r0 - sa * w, zc + sa * r0 + ca * w), (ca * r1 - sa * w, zc + sa * r1 + ca * w),
                 (ca * r1 + sa * w, zc + sa * r1 - ca * w), (ca * r0 + sa * w, zc + sa * r0 - ca * w)]
         panel(mb, W_S, poly, tb + 0.14, T_FC - 0.35, CAPL)
         a2 = a + math.pi / 12
-        Ck = (11.2 * math.cos(a2), HY0, zc + 11.2 * math.sin(a2))
-        ring(mb, Ck, U, V, N, 1.9, 2.3, tb + 0.14, T_FC - 0.4, CAPL, 10)
-    disc(mb, C, U, V, N, 4.7, tb + 0.14, T_FC - 0.3, OB, 24)
-    EM.emblem(mb, mb, mb, _P(W_S, 0.0, T_FC - 0.3, zc), -math.pi / 2, 3.7, depth=0.9, monumental=True, glow=VG_EMB)
-    # molduras na face: anel de pedra violeta e anel de obsidiana
-    ring(mb, C, U, V, N, R, R + 1.2, T_FC - 0.05, T_FC + 0.65, VI, 40)
+        Ck = (10.4 * math.cos(a2), HY0, zc + 10.4 * math.sin(a2))
+        ring(mb, Ck, U, V, N, 1.6, 2.4, tb + 0.14, T_FC - 0.4, CAPL, 10)
+    # oculo central: disco Neon medio-escuro NA FRENTE do vidro, roseta de 6 raios e botao de pedra
+    disc(mb, C, U, V, N, 3.6, tb + 0.52, tb + 0.62, VS, 24)
+    for k in range(6):
+        a = math.pi / 6 + 2 * math.pi * k / 6
+        ca, sa = math.cos(a), math.sin(a)
+        r0, r1, w = 0.9, 3.9, 0.36
+        poly = [(ca * r0 - sa * w, zc + sa * r0 + ca * w), (ca * r1 - sa * w, zc + sa * r1 + ca * w),
+                (ca * r1 + sa * w, zc + sa * r1 - ca * w), (ca * r0 + sa * w, zc + sa * r0 - ca * w)]
+        panel(mb, W_S, poly, tb + 0.62, T_FC - 0.5, CAPL)
+    disc(mb, C, U, V, N, 1.0, tb + 0.62, T_FC - 0.45, OB, 12)
+    # molduras na face: anel de cantaria clara (chanfro) e anel de obsidiana
+    ring(mb, C, U, V, N, R, R + 1.2, T_FC - 0.05, T_FC + 0.65, CAPL, 40)
     ring(mb, C, U, V, N, R + 1.2, R + 2.4, T_FC - 0.05, T_FC + 0.4, OB, 40)
 
 
@@ -1693,7 +2101,7 @@ def central_body(mb):
     wall_run(mb, W_S, -CLR, CLR, ZB, Z + 62.0, T_SK, T_FC, [(0.0, DW / 2 + POCK, ZB, zd, 0.0)], CM_)
     for s in (-1, 1):
         a_, b_ = sorted((s * (PX + 0.2), s * (CLR - 4.3)))
-        wall_skin(mb, W_F, a_, b_, t=0.0, tiers=((Z + 8.0, 0), (Z + 26.0, 1), (Z + 60.0, 2)), phase=0.2,
+        wall_skin(mb, W_F, a_, b_, t=0.0, tiers=((Z + 60.0, 2),), phase=0.2, tier="A", bay_w=9.6,
                   excl=[(s * 35.2 - 2.9, s * 35.2 + 2.9, Z + 29.0, Z + 51.0)])
         lancet_win(mb, W_F, s * 35.2, Z + 30.0, 20.0, 3.2, 0.0, glass="dark", frame_m=CAPL, dp=0.55, fw=0.45)
     ledge(mb, W_F, -CLR + 4.0, CLR - 4.0, drip(Z + 62.0, 0.55), OB)
@@ -1767,9 +2175,10 @@ def fac_turret(mb, s):
     mb.box((hw * 2 + 1.8, hw * 2 + 1.8, SOC - ZB), (x, y, (ZB + SOC) / 2), (0, 0, 0), OB, 0.0)
     mb.prism(sq_ch(x, y, hw, 1.0), SOC, ztop, CM_)
     Wt = ((x, y - hw), (1.0, 0.0), (0.0, -1.0))
-    coursed(mb, Wt, -hw + 1.05, hw - 1.05, SOC + 0.34, Z + 7.7, (), 0, 0.2)
-    coursed(mb, Wt, -hw + 1.05, hw - 1.05, Z + 8.4, Z + 25.7, (), 1, 0.2)
-    for zz in (Z + 8.0, Z + 26.0, Z + 62.0, Z + 94.0, Z + 140.3, FAC_TOP):
+    z0_ = base_band(mb, Wt, -hw + 1.05, hw - 1.05, 0.0, (), SOC + 0.45, soc=False, tier="A", bay_w=6.0, pw=1.1,
+                    phase=0.2)
+    coursed(mb, Wt, -hw + 1.05, hw - 1.05, z0_, Z + 25.7, (), 1, 0.2)
+    for zz in (Z + 26.0, Z + 62.0, Z + 94.0, Z + 140.3, FAC_TOP):
         mb.prism(sq_ch(x, y, hw + 0.45, 1.2), zz - 0.35, zz + 0.35, OB)
     for zz, h in ((Z + 34.0, 12.0), (Z + 104.0, 20.0), (Z + 150.0, 12.0)):
         lancet_win(mb, Wt, 0.0, zz, h, 1.8, 0.0, glass="slit", frame_m=CAPL, dp=0.45, fw=0.3)
@@ -1787,6 +2196,38 @@ def fac_turret(mb, s):
     col_box("SG_CasFacTurret", (2 * hw, 2 * hw, 24.0), (x, y, Z + 11.5))
 
 
+def guards():
+    """GUARDAS DA PORTA (06.03): o guardiao de pedra de sg_court.hooded_figure (figura do agente J) na ESCALA NOVA
+    (s 1,5: ~11 de altura, proporcional ao vao 28 x 34) sobre pedestal moldurado de 5 (soco de obsidiana, talude,
+    dado com paineis rebaixados, cornija em cavete, plinto), ladeando as paredes do porche em x +-34,5, y 50 (os
+    postes do patio do sg_props ficam em +-35,5, 40,5: chao livre la). A estatua pequena de sg_court.statue (x +-21)
+    sai com o J."""
+    import sg_court as CT
+    mb = MB("SG_Cas_Guardas", "04_CASTLE", random.Random(5451), detail="hero")
+    for s in (-1, 1):
+        x, y = s * 34.5, YP + 6.0
+        yaw = -math.pi / 2 - math.copysign(math.radians(14.0), x)       # olha para o patio, um pouco para o eixo
+        F = SL.Frame(x, y, Z, yaw - math.pi / 2)
+        a = F.a
+        mb.box((5.2, 5.2, 0.7), F.p(0, 0, 0.35), F.r(), OB, 0.12)
+        FP.frustum(mb, tuple(F.p(0, 0, 0.7)), 5.2, 5.2, 4.1, 4.1, 0.55, OB, ang=a)
+        mb.box((3.9, 3.9, 2.6), F.p(0, 0, 1.25 + 1.3), F.r(), CM_, 0.1)
+        for k in range(4):                                              # paineis rebaixados com moldura clara
+            Fk = SL.Frame(x, y, Z, a + k * math.pi / 2)
+            for sg in (-1, 1):
+                mb.box((0.2, 0.14, 2.0), Fk.p(sg * 1.35, 2.0, 2.55), Fk.r(), CAPL, 0.0)
+            for zz in (1.65, 3.45):
+                mb.box((2.9, 0.14, 0.2), Fk.p(0.0, 2.0, zz), Fk.r(), CAPL, 0.0)
+            mb.box((2.5, 0.08, 1.6), Fk.p(0.0, 1.97, 2.55), Fk.r(), FLD, 0.0)
+        for zc_, w0_, w1_, hc_ in ((3.85, 3.92, 4.1, 0.2), (4.05, 4.1, 4.5, 0.16), (4.21, 4.5, 5.0, 0.14)):
+            FP.frustum(mb, tuple(F.p(0, 0, zc_)), w0_, w0_, w1_, w1_, hc_, CAPL, ang=a)
+        mb.box((5.0, 5.0, 0.2), F.p(0, 0, 4.45), F.r(), CAPL, 0.0)
+        mb.box((4.3, 4.3, 0.45), F.p(0, 0, 4.775), F.r(), OB, 0.08)
+        CT.hooded_figure(mb, F, 1.5, 5.0, CAPL, kind="guard")
+        col_box("SG_CasGuard", (5.2, 5.2, 16.5), (x, y, Z + 8.25), (0, 0, yaw))
+    _fin(mb)
+
+
 def facade(banners):
     rng = random.Random(5401)
     mb = MB("SG_Cas_Fachada", "04_CASTLE", rng, detail="near")
@@ -1797,6 +2238,7 @@ def facade(banners):
     mp = MB("SG_Cas_Porta", "04_CASTLE", random.Random(5402), detail="hero")
     porch(mp)
     _fin(mp)
+    guards()
     light("L_SGCas_Door", "POINT", (0.0, YP - 7.0, Z + 14.0), 900.0, WARM, 0.8)
     light("L_SGCas_Rose", "POINT", (0.0, FAC_Y - 16.0, ROSE_Z - 6.0), 900.0, VIOLET, 1.2)
 
@@ -1821,15 +2263,38 @@ def front_towers():
         socle(mb, x, y, r, n, ZB, SOC, rot, e=1.2)
         z1 = Z + 62.0
         shaft(mb, x, y, r, n, SOC, z1, CM_, rot)
-        slits = [(270.0, Z + 14.0, 5.0, 1.3), (out_phi, Z + 14.0, 5.0, 1.3), ((270.0 + s * 45.0) % 360, Z + 36.0, 6.0, 1.3),
-                 ((90.0 - s * 45.0) % 360, Z + 36.0, 6.0, 1.3), (90.0, Z + 20.0, 5.0, 1.3)]
+        # seteiras ACIMA da faixa do jogador (06.10: a base e arcada cega; as seteiras ficam no registro +24..+44)
+        slits = [(270.0, Z + 25.0, 6.0, 1.3), (out_phi, Z + 25.0, 6.0, 1.3), ((270.0 + s * 45.0) % 360, Z + 34.0, 6.0, 1.3),
+                 ((90.0 - s * 45.0) % 360, Z + 34.0, 6.0, 1.3), (90.0, Z + 26.0, 5.0, 1.3)]
         ex = {}
         for phi, zz, h, w in slits:
             ex.setdefault(int(round(phi)) % 360, []).append((-w / 2 - 0.9, w / 2 + 0.9, zz - 1.0, zz + h + 0.6))
-        tower_skin(mb, x, y, r, n, rot, ZB, ((Z + 8.0, 0), (Z + 22.0, 1), (Z + 44.0, 2)), soc=False, hide=hid,
-                   excl=ex)
+        tower_skin(mb, x, y, r, n, rot, SOC + 0.45, ((Z + 44.0, 2),), soc=False, hide=hid, excl=ex, tier="A")
         for phi, zz, h, w in slits:
             slit(mb, face_frame(x, y, ap, phi), zz, h, w)
+        # 06.10: CONTRAFORTES DE CANTO em 3 degraus nos vertices (ate +62), cordoes a cada 1/4 do fuste e janelas
+        # GEMINADAS escuras no registro +96..+112 das faces cardeais
+        for k in range(n):
+            a = math.radians(rot + 360.0 * k / n)
+            vx, vy = x + r * math.cos(a), y + r * math.sin(a)
+            if hid(vx, vy):
+                continue
+            for (za, zb_, hw_, off) in ((ZB, BAND_TOP - 0.2, 1.45, 0.55), (BAND_TOP + 0.2, Z + 43.6, 1.2, 0.25),
+                                        (Z + 44.0, z1 - 0.6, 0.95, 0.0)):
+                px, py = x + (r + off) * math.cos(a), y + (r + off) * math.sin(a)
+                mb.prism(sq_ch(px, py, hw_, 0.2, a), za, zb_, CM_)
+                frustum(mb, px, py, hw_ * 1.5, hw_ * 0.5, 4, zb_ - 0.05, zb_ + 1.1, OB, math.degrees(a) + 45.0)
+            px, py = x + (r + 0.55) * math.cos(a), y + (r + 0.55) * math.sin(a)
+            mb.prism(sq_ch(px, py, 1.85, 0.3, a), ZB, SOC + 0.2, OB)
+        band(mb, x, y, r, n, Z + 90.0, rot, h=1.0, e=0.5)
+        for phi in (0.0, 90.0, 180.0, 270.0):
+            W = face_frame(x, y, ap, phi)
+            cx_, cy_ = _P(W, 0.0, 0.6, 0.0)[:2]
+            if hid(cx_, cy_):
+                continue
+            for du in (-2.4, 2.4):
+                lancet_win(mb, W, du, Z + 96.0, 15.0, 2.6, 0.0, glass="dark", frame_m=CAPL, dp=0.55, fw=0.45)
+            panel(mb, W, rect(-4.4, 4.4, Z + 94.9, Z + 95.5), -0.05, 0.6, CAPL)
         band(mb, x, y, r, n, z1 - 0.2, rot, h=1.2, e=0.55)
         # 2o andar: janelas altas em vao (acesas: praca e fora; escuras nas diagonais)
         op = (0.0, 2.4, z1 + 8.0, z1 + 24.0, 4.4)
@@ -1908,7 +2373,7 @@ def crown():
         ex = [(u - 5.2, u + 5.2, Z + 28.0, Z + 70.0) for u in wins]
         if W is Wbe:
             ex.append((bay[0] - 0.6, bay[1] + 0.6, ZB, Z + 44.0))
-        wall_skin(mb, W, u0, u1, t=0.0, excl=ex, phase=0.6)
+        wall_skin(mb, W, u0, u1, t=0.0, excl=ex, phase=0.6, bay_w=12.0)
         for u in wins:
             lancet_win(mb, W, u, Z + 30.0, 38.0, 7.0, 0.0, glass="dark", frame_m=CAPL, dp=0.6, fw=0.9)
         for zz in (Z + 72.0, Z + 96.0):
@@ -1931,7 +2396,7 @@ def crown():
         bx, by = s * (bx1 + 1.6), by1 + 1.6
         mb.box((5.0, 4.6, BTOP - 2.0 - ZB), (bx, by, (ZB + BTOP - 2.0) / 2), (0, 0, a), CM_, 0.0)
         mb.box((6.4, 6.0, SOC - ZB + 0.4), (bx, by, (ZB + SOC + 0.4) / 2), (0, 0, a), OB, 0.0)
-        for zz in (Z + 8.0, Z + 40.0, Z + 72.0):
+        for zz in (BAND_TOP, Z + 40.0, Z + 72.0):
             mb.box((5.5, 5.1, 0.7), (bx, by, zz), (0, 0, a), OB, 0.0)
         pinnacle(mb, bx, by, BTOP - 2.0, 1.4, hb=6.0, hn=14.0, rot=a)
         col_box("SG_CasCrown", (5.0, 4.6, 24.0), (bx, by, Z + 11.5), (0, 0, a))

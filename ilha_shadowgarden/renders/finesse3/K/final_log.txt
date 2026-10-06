@@ -1,0 +1,44 @@
+STUDIO modulo sg_castle 7.0s
+STUDIO tris=169944/170000 OK | MeshParts~119/125 OK | materiais_novos=3/12 OK ['Glass_SGHallMoon', 'SG_VilRoom_Glow', 'Stone_SGCasInterior']
+STUDIO colisoes=121/260 OK | luzes=5 (de dia <= 5)
+OK   ROTA sg_castle:PATIO->PORCHE->PORTA
+OK   ROTA sg_castle:PATIO->PORCHE_LADO
+STUDIO modulo sg_castle 6.2s
+STUDIO tris=169944/170000 OK | MeshParts~119/125 OK | materiais_novos=3/12 OK ['Glass_SGHallMoon', 'SG_VilRoom_Glow', 'Stone_SGCasInterior']
+STUDIO colisoes=121/260 OK | luzes=5 (de dia <= 5)
+OK   ROTA sg_castle:PATIO->PORCHE->PORTA
+OK   ROTA sg_castle:PATIO->PORCHE_LADO
+STUDIO RENDER /home/user/To-up/ilha_shadowgarden/renders/finesse3/K/depois_roblox/CAM_A3_05_Patio_Alto.jpg
+STUDIO RENDER /home/user/To-up/ilha_shadowgarden/renders/finesse3/K/depois_roblox/CAM_A3_06_Castelo_Vila.jpg
+STUDIO FIM 228.6s
+=== BUILD
+WATER AVISO WATER_Court_L: nenhuma pedra (('SG_Prop_', 'SG_Court', 'SG_Veg_', 'SG_Gar')) em volta
+WATER AVISO WATER_Court_R: nenhuma pedra (('SG_Prop_', 'SG_Court', 'SG_Veg_', 'SG_Gar')) em volta
+PROPS AVISO: chao nao achado em (-35.5, 40.5) perto de 52.20; fica 52.20 [('SG_Cas_Guardas', 57.27), ('SG_Cas_Guardas', 57.2), ('SG_Cas_Guardas', 56.75), ('SG_Cas_Guardas', 56.55), ('SG_Cas_Guardas', 56.41)]
+PROPS AVISO: chao nao achado em (35.5, 40.5) perto de 52.20; fica 52.20 [('SG_Cas_Guardas', 57.29), ('SG_Cas_Guardas', 57.2)]
+BUILD OK zonas_detalhadas=terrain,entry,village,castle,hall,cave,summon,craft,dungeon,water,exit,dressing objs=2210 tris=889015 col=1690 t=89.6s -> /home/user/To-up/ilha_shadowgarden/ilha_shadowgarden.blend
+=== QA
+FAIL ROTA CASA_H1_PORTA->DENTRO  [('OBSTACULO', (-93.0, -252.8), 2.0, 'COL_SG_VilHouseH1_016')]
+FAIL ROTA CASA_H1_ESCADA->ANDAR  [('OBSTACULO', (-78.4, -266.4), 2.0, 'COL_SG_VilHouseH1_017')]
+FAIL ROTA CASA_H2_PORTA->DENTRO  [('OBSTACULO', (-96.0, -183.0), 2.0, 'COL_SG_VilHouseH2_013')]
+FAIL ROTA CASA_H2_ESCADA->ANDAR  [('OBSTACULO', (-92.5, -177.4), 2.0, 'COL_SG_VilHouseH2_001')]
+FAIL ROTA CASA_H5_ESCADA->ANDAR  [('OBSTACULO', (-62.0, -112.2), 2.0, 'COL_SG_VilHouseH5_016')]
+OK   ROTA DUNGEON_SALAS_R1->R3
+OK   ROTA SALAO_SOMBRIO_PASSARELAS
+OK   ROTA SALAO_SOMBRIO_PISO
+ROTAS 22/27 OK
+OK   ROTA TRONO_ABERTO->ESCADA->SALAO_SOMBRIO->PORTAL
+OK   ROTA PORTAL->SALAO_SOMBRIO->ESCADA->TRONO (subida)
+ROTAS_ABERTAS 3/3 OK
+OK   ROTA sg_hall:SALAO_VOLTA
+ROTAS_MODULOS 46/46 OK
+SONDAS 29/29 OK
+LARGURA rotas com trecho < 3,4 de largura: ['ENTRADA->CRAFT', 'CASTELO->CRAFT', 'CASA_H1_PORTA->DENTRO', 'CASA_H1_ESCADA->ANDAR', 'CASA_H2_PORTA->DENTRO', 'CASA_H2_ESCADA->ANDAR', 'CASA_H3_ESCADA->ANDAR', 'CASA_H5_ESCADA->ANDAR', 'CASA_H7_ESCADA->ANDAR', 'SALAO_SOMBRIO_PISO']
+MARKERS faltando=0 []
+MARKERS minerio={'COMMON': 44, 'EPIC': 10, 'SUPERLEGENDARY': 2, 'UNCOMMON': 24} sobrepostos=0 dungeon=46 portao_DS_area=4
+OK   SALAO_LIVRE colisores na zona de minerio (piso+0,3..+12): nenhum
+OK   DUNGEON_LIMPA malhas de fora dentro da caixa das salas: nenhuma
+TECH nomes_genericos=0 duplicados=0 sem_material=0 transform_nao_aplicado=0 degeneradas=0
+TECH tris=889015 objetos=2210 malhas=1829 materiais=119 colisoes=1690 luzes=58
+TECH maiores: [(58976, 'SG_Cave_Build'), (41440, 'SG_Craft_Furnishings'), (39676, 'SG_Dun_Rooms_Kit'), (39338, 'SG_Cas_Nave'), (37970, 'SG_Vil_Houses_P1'), (34034, 'SG_Hall_Walls'), (30838, 'SG_Cas_Muralha'), (29000, 'SG_Cas_Torres')]
+CHAIN2_DONE

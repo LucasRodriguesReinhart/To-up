@@ -1,0 +1,231 @@
+COMPOSITOR ok
+TER TOPO trapezios=1929
+TER BORDAS pilaretes=10 pedras_de_canto=36
+TER MEIO-FIOS trechos=48
+Traceback (most recent call last):
+  File "/home/user/To-up/ilha_shadowgarden/studio_sg.py", line 142, in main
+    B.run_module(m)
+  File "/home/user/To-up/ilha_shadowgarden/build_sg.py", line 63, in run_module
+    mod.build()
+  File "/home/user/To-up/ilha_shadowgarden/sg_terrain.py", line 2670, in build
+    paving()
+  File "/home/user/To-up/ilha_shadowgarden/sg_terrain.py", line 1007, in paving
+    k = apron_band(mb, org, f, nvec, -(hd + A), hd + A, 0.06, A, z, 0, k)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/user/To-up/ilha_shadowgarden/sg_terrain.py", line 962, in apron_band
+    bl = SLAB_LEN[k % 5]
+         ~~~~~~~~^^^^^^^
+IndexError: tuple index out of range
+STUDIO ERRO no modulo vizinho sg_terrain
+CAVE abobada: estratos 17, bolsas 5, estalactites 33
+CAVE torre: aberturas [(270.0, 6.3, 24.6), (190.0, 14.3, 32.4), (226.0, 11.8, 30.9), (321.0, 8.4, 24.3)] pedacos 217 tochas 9
+CAVE partes: 0_floor 5342, 1_bridge 988, 2_nave 4764, 3_tower_and_spiral 7398, 4_tower_and_spiral 4886, 5_tower_and_spiral 2550, 6_gallery 8388, 7_grand_stair 2920, 8_walkways 7988, 9_portal 4278, 0_portal 188, 1_forge 5354, 2_maproom 5672, 3_dressing 3372, 4_crystals 628
+CAVE build: blocos de rocha 621, estalactites 33, lajes 182, cristais 4 (4.4s)
+SUM ponte: faces da rocha medidas leste None oeste None -> arco de -177.60 a -169.00
+ZF alivio passe 1: 244 pecas ajustadas
+ZF alivio passe 2: 136 pecas ajustadas
+ZF alivio passe 3: 50 pecas ajustadas
+ZF alivio passe 4: 24 pecas ajustadas
+ZF alivio passe 5: 21 pecas ajustadas
+ZF alivio ('SG_Sum_', 'VFX_SGSUM'): 475 ajustes (1 vizinhos) 4.3s
+ZF alivio passe 1: 791 pecas ajustadas
+ZF alivio passe 2: 440 pecas ajustadas
+ZF alivio passe 3: 219 pecas ajustadas
+ZF alivio ('SG_Craft_', 'VFX_SGCRAFT'): 1450 ajustes (3 vizinhos) 16.3s
+DUN faces degeneradas: nenhuma
+DUN folga dos minerios: OK (nenhuma colisao a menos de 5 de DUN_ORE_* ate piso+12)
+OK   DUN_NEXT_R2 parede 27x21x1 no vao (0.0, 197.0): livre (folga 0,5 nos lados, 1.0 em cima)
+OK   DUN_NEXT_R3 parede 27x21x1 no vao (0.0, 303.0): livre (folga 0,5 nos lados, 1.0 em cima)
+WATER medido FX_Fall_1_Lip: 0.63 da estimativa do sg_core (o marcador fica no MEDIDO)
+WATER medido FX_Fall_1_Base: 2.12 da estimativa do sg_core (o marcador fica no MEDIDO)
+WATER medido FX_Fall_2_Lip: 0.82 da estimativa do sg_core (o marcador fica no MEDIDO)
+WATER medido FX_Fall_2_Base: 2.15 da estimativa do sg_core (o marcador fica no MEDIDO)
+WATER medido FX_Fall_3_Lip: 0.63 da estimativa do sg_core (o marcador fica no MEDIDO)
+WATER medido FX_Fall_3_Base: 1.89 da estimativa do sg_core (o marcador fica no MEDIDO)
+WATER medido FX_Fall_4_Lip: 0.42 da estimativa do sg_core (o marcador fica no MEDIDO)
+WATER medido FX_Fall_4_Base: 2.08 da estimativa do sg_core (o marcador fica no MEDIDO)
+WATER medido WATER_CaveFall_Base: 12.43 da estimativa do sg_core (o marcador fica no MEDIDO)
+WATER AVISO WATER_Court_L: nenhuma pedra (('SG_Prop_', 'SG_Court', 'SG_Veg_', 'SG_Gar')) em volta
+WATER AVISO WATER_Court_R: nenhuma pedra (('SG_Prop_', 'SG_Court', 'SG_Veg_', 'SG_Gar')) em volta
+ZF alivio passe 1: 7 pecas ajustadas
+ZF alivio ('SG_Water_',): 7 ajustes (17 vizinhos) 4.6s
+WATER West fenda labio=(-189.62, -60.0, 42.9) boca=(-186.3, -60.0, 42.9) corrida=0.0 pe=(-191.4, -60.0, -53.0) polys=0 quebras=[]
+WATER FALL_FX FX_Fall_1_Lip (-189.62, -60.00, 42.90) width=5.4
+WATER FALL_FX FX_Fall_1_Step (-191.80, -60.00, 20.00) width=None
+WATER FALL_FX FX_Fall_1_Base (-191.36, -60.00, -53.00) width=6.8
+WATER East fenda labio=(176.62, -200.0, 34.9) boca=(173.3, -200.0, 34.9) corrida=0.0 pe=(178.3, -200.0, -53.0) polys=0 quebras=[]
+WATER FALL_FX FX_Fall_2_Lip (176.62, -200.00, 34.90) width=5.4
+WATER FALL_FX FX_Fall_2_Step (178.67, -200.00, 20.00) width=None
+WATER FALL_FX FX_Fall_2_Base (178.30, -200.00, -53.00) width=6.6
+WATER North fenda labio=(-60.68, 385.53, 50.9) boca=(-59.82, 382.32, 50.9) corrida=0.0 pe=(-61.1, 387.3, -53.0) polys=0 quebras=[]
+WATER FALL_FX FX_Fall_3_Lip (-60.68, 385.53, 50.90) width=5.4
+WATER FALL_FX FX_Fall_3_Step (-61.23, 387.59, 20.00) width=None
+WATER FALL_FX FX_Fall_3_Base (-61.15, 387.28, -53.00) width=7.0
+WATER South fenda labio=(-29.26, -296.9, 29.9) boca=(-26.14, -295.76, 29.9) corrida=0.0 pe=(-30.8, -297.5, -53.0) polys=0 quebras=[]
+WATER FALL_FX FX_Fall_4_Lip (-29.26, -296.90, 29.90) width=3.8
+WATER FALL_FX FX_Fall_4_Step (-31.75, -297.80, 20.00) width=None
+WATER FALL_FX FX_Fall_4_Base (-30.80, -297.46, -53.00) width=4.7
+WATER ESPELHO WATER_CaveFall_Base (72.00, 205.21, -13.50) level=-13.5 width=4.57
+WATER ESPELHO WATER_CaveFall_Lip (72.00, 220.90, 35.00) width=2.8 drop=48.5
+WATER ESPELHO WATER_CavePool (0.00, 208.02, -13.50) shape=retangulo sx=170.2 sy=22.241 level=-13.5 floor=-15.0 rim=-11.286 depth=1.5 bridge_x0=-10.4 bridge_x1=10.4
+WATER ESPELHO WATER_Court_L (-58.00, 42.00, 52.80) shape=retangulo sx=32.0 sy=20.0 level=52.800000000000004 floor=52.300000000000004 depth=0.5
+WATER ESPELHO WATER_Court_R (58.00, 42.00, 52.80) shape=retangulo sx=32.0 sy=20.0 level=52.800000000000004 floor=52.300000000000004 depth=0.5
+WATER ESPELHO WATER_Fountain_Basin (0.00, -222.00, 38.25) shape=poligono radius=6.05 apothem=5.844 hole_r=1.583 level=38.25 floor=37.75 rim=39.02 depth=0.5
+WATER ESPELHO WATER_Fountain_Bowl_1 (0.00, -222.00, 42.15) shape=poligono radius=2.902 apothem=2.847 hole_r=0.62 level=42.153 floor=42.15 rim=42.353 depth=0.003
+WATER ESPELHO WATER_Fountain_Bowl_2 (0.00, -222.00, 45.20) shape=poligono radius=1.491 apothem=1.462 hole_r=1.083 level=45.2 floor=45.0 depth=0.2
+WATER ESPELHO WATER_Fountain_Spout_1 (2.05, -222.00, 45.20) drop=3.05 land_pos=(2.45, -222.0, 42.15)
+WATER ESPELHO WATER_Fountain_Spout_2 (0.00, -219.95, 45.20) drop=3.05 land_pos=(0.0, -219.55, 42.15)
+WATER ESPELHO WATER_Fountain_Spout_3 (-2.05, -222.00, 45.20) drop=3.05 land_pos=(-2.45, -222.0, 42.15)
+WATER ESPELHO WATER_Fountain_Spout_4 (-0.00, -224.05, 45.20) drop=3.05 land_pos=(-0.0, -224.45, 42.15)
+WATER ESPELHO WATER_Fountain_Spout_5 (2.55, -219.45, 42.44) drop=4.19 land_pos=(3.08, -218.92, 38.25)
+WATER ESPELHO WATER_Fountain_Spout_6 (-2.55, -219.45, 42.44) drop=4.19 land_pos=(-3.08, -218.92, 38.25)
+WATER ESPELHO WATER_Fountain_Spout_7 (-2.55, -224.55, 42.44) drop=4.19 land_pos=(-3.08, -225.08, 38.25)
+WATER ESPELHO WATER_Fountain_Spout_8 (2.55, -224.55, 42.44) drop=4.19 land_pos=(3.08, -225.08, 38.25)
+WATER CAVEFALL {'lip': (72.0, 220.9, 35.0), 'foot': (72.0, 205.21, -13.5), 'width': 2.8, 'throw': 3.08, 'enter': 1.7592525482177734}
+COURT chao=1595 trapezios; gramados=2 espelhos=2 estatuas=2 arvores-marco=2
+VEG arvores=3 (borda 0) colisoes_tronco=0 lod_mudado={} saias_limitadas=0
+VEG grupos_incompletos=["0:P1(0/1)[('rota', 35), ('pe_fora_do_terreno', 13)]", "1:P1(0/1)[('rota', 47), ('pe_fora_do_terreno', 1)]", "2:P1(0/1)[('pe_fora_do_terreno', 48)]", "3:P1(0/2)[('pe_fora_do_terreno', 96)]", "4:P1(0/1)[('pe_fora_do_terreno', 48)]", "5:P1(0/1)[('pe_fora_do_terreno', 48)]", "6:P2(0/3)[('pe_fora_do_terreno', 144)]", "7:P2(0/3)[('pe_fora_do_terreno', 144)]", "8:P2(0/1)[('pe_fora_do_terreno', 47), ('rota', 1)]", "9:P2(0/2)[('pe_fora_do_terreno', 96)]", "10:P2(0/3)[('pe_fora_do_terreno', 144)]", "11:P2(0/2)[('pe_fora_do_terreno', 96)]", "12:P2(0/1)[('pe_fora_do_terreno', 48)]", "13:P2(0/3)[('pe_fora_do_terreno', 144)]", "14:P2(0/2)[('pe_fora_do_terreno', 96)]", "15:P3(0/2)[('pe_fora_do_terreno', 96)]", "16:P3(0/2)[('pe_fora_do_terreno', 91), ('rota', 5)]", "17:P3(0/3)[('pe_fora_do_terreno', 144)]", "18:P3(0/3)[('pe_fora_do_terreno', 144)]", "19:P3(0/2)[('pe_fora_do_terreno', 96)]", "20:P3(0/2)[('pe_fora_do_terreno', 95), ('rota', 1)]", "21:P3(0/2)[('pe_fora_do_terreno', 96)]", "22:Mirante(0/2)[('pe_fora_do_terreno', 96)]", "23:Mirante(0/1)[('pe_fora_do_terreno', 48)]", "24:South(0/3)[('pe_fora_do_terreno', 140), ('arquitetura', 2), ('piso_proibido', 2)]", "25:South(0/3)[('pe_fora_do_terreno', 144)]"]
+VEG recusas_borda=[('pe_fora_do_terreno', 122), ('piso_proibido', 44), ('arquitetura', 11)]
+GARDEN mascara 3.0s celulas_grama=6913 excluidas={'rua': 198, 'praca': 0, 'escada': 0, 'casa': 0, 'alquimia': 0, 'ponte': 0, 'agua': 0, 'solido': 112}
+GARDEN tufos_campo=302/847 (fator 1.00) manchas=8 stats={'sebe_m': 372.5, 'buxo': 10, 'flor_lua': 143, 'flor_espiga': 110, 'flor_sino': 101, 'flor_ambar': 8, 'trepadeiras': 6, 'trepadeiras_muralha': 4, 'touceiras': 332, 'canteiros_casas': 9, 'floreiras_janela': 6, 'trepadeira_recusada': 1, 'trepadeiras_casas': 2, 'manchas': 17}
+GARDEN tris por fase: {'casas': 7546, 'manchas': 637, 'canteiros_arvore': 0, 'campo': 2828}
+GARDEN objetos (tris, materiais=MeshParts): {'SG_Veg_Gdn_B0': (4076, 8), 'SG_Veg_Gdn_B1': (6935, 9)} total_tris=11011 MeshParts=17
+GARDEN_QA itens=679 fora_do_lugar={'rua': 0, 'praca': 0, 'escada': 0, 'rota': 0, 'piso': 0, 'salao': 0, 'dungeon': 0, 'casa': 0} OK []
+GARDEN FIM 3.2s
+PROPS AVISO: chao nao achado em (-35.5, 40.5) perto de 52.20; fica 52.20 [('SG_Cas_Guardas', 57.27), ('SG_Cas_Guardas', 57.2), ('SG_Cas_Guardas', 56.75), ('SG_Cas_Guardas', 56.55), ('SG_Cas_Guardas', 56.41)]
+PROPS AVISO: chao nao achado em (35.5, 40.5) perto de 52.20; fica 52.20 [('SG_Cas_Guardas', 57.29), ('SG_Cas_Guardas', 57.2)]
+PROPS postes=11 bancos=4 acesos=7
+LIGHTS rua=8 (NightOnly) casas=8 (de dia)
+STUDIO modulo sg_entry 5.0s
+SCENE emissivos limitados: 38 materiais
+STUDIO METRICAS zona=entry objetos=12 malhas=3
+STUDIO tris=39812/40000 OK | MeshParts~32/38 OK | materiais_novos=1/4 OK ['Stone_SGEntPave']
+STUDIO colisoes=4/60 OK | luzes=5 (de dia <= 5)
+STUDIO maiores: [(25332, 'SG_Ent_Bridge'), (13104, 'SG_Ent_Porticos'), (1376, 'SG_Ent_StairWalls')]
+STUDIO tecnico: nomes_ruins=[] prefixo_fora_do_padrao=[] sem_material=[] degeneradas=0
+STUDIO marcadores obrigatorios: 0/0 OK
+COL faces: 9810
+OK   ROTA DB_ANCORA->SG_ENTRADA
+OK   ROTA ENTRADA->CASTELO_MINING_HALL
+OK   ROTA PORTA->TRONO
+OK   ROTA ENTRADA->SUMMON
+OK   ROTA ENTRADA->CRAFT
+OK   ROTA VILA->CASTELO
+OK   ROTA CASTELO->CRAFT
+OK   ROTA CASTELO->PORTAO_DS
+OK   ROTA CASTELO->JARDIM_MIRANTE
+OK   ROTA CRAFT->JARDIM_MIRANTE
+OK   ROTA PRACA_VOLTA
+OK   ROTA VILA_BAIXA_LESTE->PRACA
+OK   ROTA CASA_H1_PORTA->DENTRO
+FAIL ROTA CASA_H1_ESCADA->ANDAR  [('OBSTACULO', (-78.0, -266.7), 2.0, 'COL_SG_VilHouseH1_016')]
+FAIL ROTA CASA_H2_PORTA->DENTRO  [('OBSTACULO', (-96.0, -183.0), 2.0, 'COL_SG_VilHouseH2_013')]
+FAIL ROTA CASA_H2_ESCADA->ANDAR  [('OBSTACULO', (-93.8, -179.6), 2.0, 'COL_SG_VilHouseH2_004')]
+FAIL ROTA CASA_H3_PORTA->DENTRO  [('OBSTACULO', (92.9, -253.7), 2.0, 'COL_SG_VilHouseH3_013')]
+FAIL ROTA CASA_H3_ESCADA->ANDAR  [('OBSTACULO', (90.0, -258.0), 2.0, 'COL_SG_VilHouseH3_013')]
+OK   ROTA CASA_H4_PORTA->DENTRO
+OK   ROTA CASA_H5_PORTA->DENTRO
+FAIL ROTA CASA_H5_ESCADA->ANDAR  [('OBSTACULO', (-62.0, -112.2), 2.0, 'COL_SG_VilHouseH5_016')]
+OK   ROTA CASA_H6_PORTA->DENTRO
+OK   ROTA CASA_H7_PORTA->DENTRO
+OK   ROTA CASA_H7_ESCADA->ANDAR
+OK   ROTA DUNGEON_SALAS_R1->R3
+OK   ROTA SALAO_SOMBRIO_PASSARELAS
+OK   ROTA SALAO_SOMBRIO_PISO
+ROTAS 21/27 OK
+OK   ROTA PORTAO_DS_ABERTO->ANCORA
+OK   ROTA TRONO_ABERTO->ESCADA->SALAO_SOMBRIO->PORTAL
+OK   ROTA PORTAL->SALAO_SOMBRIO->ESCADA->TRONO (subida)
+ROTAS_ABERTAS 3/3 OK
+OK   ROTA sg_terrain:P1_pe_do_arrimo_O
+OK   ROTA sg_terrain:P1_pe_do_arrimo_L
+OK   ROTA sg_entry:CALCADA_PORTICO_B_LATERAL
+OK   ROTA sg_entry:PONTE_BEIRA_E
+OK   ROTA sg_entry:PONTE_BEIRA_W
+OK   ROTA sg_village:VIL_RUA_P1_OESTE
+OK   ROTA sg_village:VIL_RUA_P1_LESTE
+OK   ROTA sg_village:VIL_RUA_P2
+OK   ROTA sg_village:VIL_PRACA_ANEL
+OK   ROTA sg_castle:PATIO->PORCHE->PORTA
+OK   ROTA sg_castle:PATIO->PORCHE_LADO
+OK   ROTA sg_hall:SALAO_VOLTA
+OK   ROTA sg_hall:NAVE_LATERAL_O
+OK   ROTA sg_hall:NAVE_LATERAL_L
+OK   ROTA sg_summon:PAD->PATAMAR
+OK   ROTA sg_summon:ESCADA->LADO_NORTE
+OK   ROTA sg_summon:ESCADA->LADO_SUL
+OK   ROTA sg_craft:CRAFT_VOLTA_CALDEIRAO
+OK   ROTA sg_dungeon:SALA_R1_VOLTA
+OK   ROTA sg_dungeon:SALA_R2_VOLTA
+OK   ROTA sg_dungeon:SALA_R3_VOLTA
+OK   ROTA sg_dungeon:GRUPO_VAO_R1R2
+OK   ROTA sg_dungeon:GRUPO_VAO_R2R3
+OK   ROTA sg_dungeon:SPAWN_R1_ATE_SAIDA
+OK   ROTA sg_dungeon:SPAWN_R3_ATE_SAIDA
+OK   ROTA sg_dungeon:SALA_R3_ATE_O_NICHO
+OK   ROTA sg_water:WATER_mirante_oeste
+OK   ROTA sg_water:WATER_mirante_leste
+OK   ROTA sg_water:WATER_mirante_norte
+OK   ROTA sg_water:WATER_mirante_sul
+OK   ROTA sg_exit:CABECEIRA_ATRAS_DOS_PILARES
+OK   ROTA sg_exit:PONTE_BEIRA_S
+OK   ROTA sg_exit:PONTE_BEIRA_N
+OK   ROTA sg_court:COURT_ANEL_GRAMADO_L
+OK   ROTA sg_court:COURT_ANEL_GRAMADO_O
+OK   ROTA sg_court:COURT_DEGRAUS_L
+OK   ROTA sg_court:COURT_BANCO_L
+OK   ROTA sg_court:COURT_BANCO_O
+OK   ROTA sg_court:COURT_ESPELHO_L
+OK   ROTA sg_court:COURT_ESPELHO_O
+OK   ROTA sg_court:MIRANTE_TERRACO
+OK   ROTA sg_veg:VEG_P1_canteiros_O
+OK   ROTA sg_veg:VEG_P1_canteiros_L
+OK   ROTA sg_veg:VEG_P2_ciprestes
+OK   ROTA sg_props:PROP_PRACA_BORDA_N
+OK   ROTA sg_props:PROP_PRACA_BORDA_S
+ROTAS_MODULOS 46/46 OK
+OK   SONDA ANCORA_DS_borda
+OK   SONDA PONTE_SAIDA_lado_N
+OK   SONDA PONTE_SAIDA_lado_S
+OK   SONDA PONTE_CHEGADA_04_E
+OK   SONDA PONTE_CHEGADA_04_D
+OK   SONDA PONTE_CHEGADA_10_E
+OK   SONDA PONTE_CHEGADA_10_D
+OK   SONDA PONTE_CHEGADA_14_E
+OK   SONDA PONTE_CHEGADA_14_D
+OK   SONDA CALCADA_ALTA_O
+OK   SONDA CALCADA_ALTA_L
+OK   SONDA PATIO_BAIXO_O
+OK   SONDA SUMMON_borda_O
+OK   SONDA SUMMON_borda_N
+OK   SONDA PONTE_SUMMON_N
+OK   SONDA P2_borda_sul_O
+OK   SONDA P3_muralha_O
+OK   SONDA P2_borda_leste
+OK   SONDA TERRACO_NORTE_borda
+OK   SONDA GALERIA_borda_sul
+OK   SONDA PASSARELA_O_borda
+OK   SONDA PONTE_SUSPENSA_lado
+OK   SONDA RIO_borda_norte
+OK   SONDA ESCADA_CARACOL_guarda
+OK   SONDA TRONO_FECHADO_tapa_o_arco
+OK   SONDA CRAFT_estante_N
+OK   SONDA CRAFT_bancada_L
+OK   SONDA ILHOTA_borda_NE
+OK   SONDA ANCORA_lado_S
+SONDAS 29/29 OK
+LARGURA rotas com trecho < 3,4 de largura: ['ENTRADA->CRAFT', 'CASTELO->CRAFT', 'CASA_H1_ESCADA->ANDAR', 'CASA_H2_PORTA->DENTRO', 'CASA_H2_ESCADA->ANDAR', 'CASA_H3_PORTA->DENTRO', 'CASA_H3_ESCADA->ANDAR', 'CASA_H5_ESCADA->ANDAR', 'CASA_H7_ESCADA->ANDAR', 'SALAO_SOMBRIO_PISO']
+OK   SALAO_LIVRE colisores na zona de minerio (piso+0,3..+12): nenhum
+OK   DUNGEON_LIMPA malhas de fora dentro da caixa das salas: nenhuma
+OK   CAVE_LIVRE malhas de fora dentro da caixa do salao sombrio: nenhuma
+EGL Error (0x3009): EGL_BAD_MATCH: Arguments are inconsistent (for example, a valid context requires buffers not supplied by a valid surface).
+EGL Error (0x3009): EGL_BAD_MATCH: Arguments are inconsistent (for example, a valid context requires buffers not supplied by a valid surface).
+EGL Error (0x3009): EGL_BAD_MATCH: Arguments are inconsistent (for example, a valid context requires buffers not supplied by a valid surface).
+02:42.103  render           | Saved: '/home/user/To-up/ilha_shadowgarden/renders/finesse3/E/depois/CAM_A3_01_Ponte_Encontro.jpg'
+STUDIO RENDER /home/user/To-up/ilha_shadowgarden/renders/finesse3/E/depois/CAM_A3_01_Ponte_Encontro.jpg
+03:31.014  render           | Saved: '/home/user/To-up/ilha_shadowgarden/renders/finesse3/E/depois/CAM_A3_01_Ponte_Parapeito.jpg'
+STUDIO RENDER /home/user/To-up/ilha_shadowgarden/renders/finesse3/E/depois/CAM_A3_01_Ponte_Parapeito.jpg
+04:39.079  render           | Saved: '/home/user/To-up/ilha_shadowgarden/renders/finesse3/E/depois/CAM_A3_01_PatioBaixo.jpg'
+STUDIO RENDER /home/user/To-up/ilha_shadowgarden/renders/finesse3/E/depois/CAM_A3_01_PatioBaixo.jpg
+05:36.915  render           | Saved: '/home/user/To-up/ilha_shadowgarden/renders/finesse3/E/depois/CAM_A3_01_Spawn_Volta.jpg'
+STUDIO RENDER /home/user/To-up/ilha_shadowgarden/renders/finesse3/E/depois/CAM_A3_01_Spawn_Volta.jpg
