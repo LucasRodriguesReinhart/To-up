@@ -34,6 +34,12 @@
 # ONDA 2 / o2b (2026-10-01, planta v4): roda DIRETO na v4 (saiu do build_sg.LEGACY / sg_relocate): tudo sai de
 # SUMMON_C / SUMMON_TOWER / SUMMON_BRIDGE (cameras relativas ao centro); as faces de rocha do arco da ponte sao
 # MEDIDAS no terreno v4; rotas do QA so com o modulo construido (o FAIL PAD->PATAMAR era a colisao do blockout).
+# FINESSE 3B (2026-10-06, agente S): 12.01 esfera armilar de METAL (aneis de prata com nervura e abracadeiras, nucleo
+# pequeno em Neon medio/escuro num aro de prata; sairam a estrela de 6,6 e as 18 estrelinhas Neon) - armillary();
+# 12.02 veu do portal em camadas (fundo Neon escuro, 2 fios medios, moldura de pedra, filete recuado) - portal_veil();
+# 12.03 cabeceira da ponte (soleira, encontros de cantaria com meio-fio, pilares) - bridge_head(); 12.04 pedestal
+# moldurado (plinto, fuste chanfrado, capitel) - in_pedestal(); 12.05 2 bancos curvos (mirante) - benches(). Os 4 Neon
+# da zona perderam saturacao. Tris pagos pelo desenho radial do piso em trechos continuos (floor_inlay).
 import math, random, sys, importlib
 from contextlib import contextmanager
 from mathutils import Vector
@@ -57,12 +63,15 @@ _S = fm_lib.S
 # ACABAMENTO 2026-09-29 (brilho MODERADO): o portal e a estrela estouravam e achatavam o nicho/a esfera (o neon so
 # escondia a forma). Portal: indigo mais fundo e emissao 1,3 -> 0,7 (o arco e as aduelas voltam a ler); estrela:
 # lilas menos branco, 2,6 -> 1,5. As bordas azuis da Ilha 1 viram o violeta BAIXO (SG_VioletSoft_Glow).
-fm_lib.MATS.setdefault("SG_SumPortal_Glow", (_S(70, 54, 166), 0.3, 0.0, 0.7, _S(82, 62, 190), 0.0))   # nicho/janelas
+# FINESSE 3B (S, 12.01/12.02/15.03): os 4 Neon da invocacao descem um degrau de SATURACAO e de valor (a hierarquia pede
+# alquimia > invocacao; o indigo saturado e o lilas liam como placa). Portal/janelas: indigo acinzentado medio-escuro.
+fm_lib.MATS.setdefault("SG_SumPortal_Glow", (_S(70, 60, 128), 0.3, 0.0, 0.55, _S(76, 64, 140), 0.0))   # nicho/janelas
 # OVERHAUL 10 (2026-09-29, 10.06/15.06): a estrela lilas (206,180,250) em 1,5 estourava em BRANCO no Roblox (bloom) e
 # apagava a gaiola de prata. Agora violeta MEDIO saturado em 0,9 + um 2o tom FUNDO para as facetas alternadas da estrela
 # de cristal (antes SG_Violet_Glow 2,6, o mais forte da paleta): brilho moderado, a gaiola le na frente.
-fm_lib.MATS.setdefault("SG_SumStar_Glow", (_S(146, 104, 232), 0.2, 0.0, 0.9, _S(146, 104, 232), 0.0))
-fm_lib.MATS.setdefault("SG_SumStarDeep_Glow", (_S(96, 58, 188), 0.2, 0.0, 0.9, _S(96, 58, 188), 0.0))
+# FINESSE 3B: violeta medio (146,104,232) -> (122,98,186) e o fundo (96,58,188) -> (74,56,140): Neon MEDIO/ESCURO
+fm_lib.MATS.setdefault("SG_SumStar_Glow", (_S(122, 98, 186), 0.2, 0.0, 0.8, _S(122, 98, 186), 0.0))
+fm_lib.MATS.setdefault("SG_SumStarDeep_Glow", (_S(74, 56, 140), 0.2, 0.0, 0.8, _S(74, 56, 140), 0.0))
 for _k in ("SG_SumPortal_Glow", "SG_SumStar_Glow", "SG_SumStarDeep_Glow"):
     fm_lib.RBX_CAL.setdefault(_k, (None, [int(c) for c in fm_lib.to_srgb(fm_lib.MATS[_k][0])]))
 # remate de cantaria perto do jogador (o mesmo do setor 01/03: um valor abaixo do Stone_SG_Trim, auditoria 14.01)
@@ -168,6 +177,17 @@ CAMS = {
     # inspecao: pilar-portao do topo da escada (lanterna + banzo) e o fim da balaustrada no soco
     "CAM_SGSum_OV_GatePost": ((CX + 26.5, CY + 12.0, Z + 4.4), (CX + 19.9, CY + 7.2, Z + 2.2), 30),
     "CAM_SGSum_OV_RailEnd": ((CX - 7.5, CY + 19.0, Z + 4.8), (CX - 16.3, CY + 13.2, Z + 1.4), 28),
+    # FINESSE 3B (S): as cameras da AUDITORIA 3 (sg_scene.a3_cams, olho 5,5) que o estudio nao cria
+    "CAM_A3_12_Ponte": ((-150.0, -224.0, P1 + 5.5), (TX, TY, Z + 14.0), 20),
+    "CAM_A3_12_Ponte_Parapeito": ((-169.0, -218.0, P1 + 5.5), (-175.0, -228.5, P1 + 1.5), 22),
+    "CAM_A3_12_Plataforma": ((-194.0, -210.0, Z + 5.5), (TX, TY, Z + 10.0), 18),
+    "CAM_A3_12_Borda": ((-198.0, -236.0, Z + 5.5), (-226.0, -240.0, Z + 1.0), 20),
+    "CAM_A3_12_Torre_Cima": ((-198.0, -226.0, Z + 5.5), (TX, TY, Z + 34.0), 16),
+    "CAM_A3_12_Media": ((-120.0, -176.0, Z + 40.0), (-208.0, -222.0, Z + 10.0), 20),
+    # cabeceira da ponte vista do P1 (o encontro de cantaria com o ombro de grama, 12.03)
+    "CAM_SGSum_F3_BridgeHead": ((-150.0, -210.0, P1 + 5.5), (-168.0, -224.0, P1 + 1.0), 22),
+    "CAM_SGSum_F3_HeadTop": ((-150.0, -236.0, P1 + 26.0), (-170.0, -222.0, P1 - 1.0), 24),
+    "CAM_SGSum_F3_HeadSide": ((-160.0, -252.0, P1 + 3.0), (-170.0, -224.0, P1 - 2.0), 22),
 }
 
 # ------------------------------------------------------------------ rotas e sondas proprias (sg_qa)
@@ -486,23 +506,36 @@ LAMP_PED_S = 1.45        # lanterna da ordem sobre os pedestais internos (ladean
 
 
 def in_pedestal(T, stone, silver, u, v):
-    """PORTADO de il_summon.in_pedestal (overhaul 10): o dado 3 x 3 x 3 sem a estrela de 4 pontas e sem a bacia de
-    cristal; plinto escuro chanfrado, base moldurada, dado com PAINEL REBAIXADO entre 4 pilastras de quina e capitel em
-    2 degraus (pedra + prata). Devolve a cota (local) do topo."""
+    """PORTADO de il_summon.in_pedestal. FINESSE 3B (S, 12.04): o dado 3 x 3 x 3 com painel rebaixado ainda lia CAIXA
+    lisa com a lanterna em cima. Agora e um pedestal MOLDURADO em 3 partes, da mesma altura (a lanterna e a luz nao
+    mudam de lugar):
+      - PLINTO escuro chanfrado + base moldurada em 2 degraus (toro + filete);
+      - FUSTE de quinas chanfradas (octogono irregular de 2,0) mais estreito que o plinto, com ANEL de cintura;
+      - CAPITEL que abre em 3 degraus (colarinho, equino, abaco chanfrado) + prato de prata onde a lanterna assenta.
+    Devolve a cota (local) do topo."""
     side, hgt = T.IN_PED[2], T.IN_PED[3]
     z = POD_TOP
     lb = T.lbox
-    lb(stone, (side + 0.5, side + 0.5, 0.42), u, v, z + 0.21, "Summon_Stone_Dark", 0.08)
-    lb(stone, (side + 0.22, side + 0.22, 0.22), u, v, z + 0.53, "Summon_Stone", 0.06)
-    z0, z1 = z + 0.64, z + hgt - 0.5
-    lb(stone, (side - 0.36, side - 0.36, z1 - z0), u, v, (z0 + z1) / 2, "Stone_SumBlock", 0.0)
-    for du in (-1, 1):
-        for dv in (-1, 1):
-            lb(stone, (0.62, 0.62, z1 - z0), u + du * (side / 2 - 0.31), v + dv * (side / 2 - 0.31), (z0 + z1) / 2,
-               "Summon_Stone", 0.06)
-    lb(stone, (side + 0.12, side + 0.12, 0.2), u, v, z1 + 0.1, "Summon_Stone", 0.05)
-    lb(silver, (side + 0.42, side + 0.42, 0.28), u, v, z1 + 0.2 + 0.14, "Metal_Gold", 0.03)
-    return z1 + 0.48
+    lb(stone, (side + 0.5, side + 0.5, 0.42), u, v, z + 0.21, "Summon_Stone_Dark", 0.08)        # plinto
+    lb(stone, (side + 0.12, side + 0.12, 0.2), u, v, z + 0.52, "Summon_Stone", 0.0)             # toro
+    lb(stone, (side - 0.42, side - 0.42, 0.14), u, v, z + 0.69, "Summon_Stone", 0.0)            # filete
+    z0, z1 = z + 0.76, z + hgt - 0.62
+    w = P(u, v)
+    rz = YAW
+    ch = 0.34
+    hs = (side - 1.0) / 2
+    ca, sa = math.cos(rz), math.sin(rz)
+    poly = [(w.x + px * ca - py * sa, w.y + px * sa + py * ca) for px, py in
+            [(-hs + ch, -hs), (hs - ch, -hs), (hs, -hs + ch), (hs, hs - ch), (hs - ch, hs), (-hs + ch, hs), (-hs, hs - ch),
+             (-hs, -hs + ch)]]
+    stone.prism(SL.ccw(poly), Z + z0, Z + z1, "Stone_SumBlock")                                  # fuste
+    zm = (z0 + z1) / 2
+    lb(stone, (side - 0.78, side - 0.78, 0.16), u, v, zm, "Summon_Stone", 0.0)                  # anel de cintura
+    lb(stone, (side - 0.72, side - 0.72, 0.14), u, v, z1 + 0.07, "Summon_Stone", 0.0)          # colarinho
+    lb(stone, (side - 0.1, side - 0.1, 0.2), u, v, z1 + 0.24, "Summon_Stone", 0.0)             # equino
+    lb(stone, (side + 0.3, side + 0.3, 0.2), u, v, z1 + 0.44, "Summon_Stone_Dark", 0.05)       # abaco
+    lb(silver, (side - 0.2, side - 0.2, 0.08), u, v, z1 + 0.58, "Metal_Gold", 0.0)              # prato de prata
+    return z1 + 0.62
 
 
 def pedestal_lantern(metal, glow, base):
@@ -547,7 +580,7 @@ def portal_stars_only(T):
         K.star, PKm.plate, PKm.ring = orig_star, orig_plate, orig_ring
 
 
-fm_lib.MATS.setdefault("SG_SumPortalDeep_Glow", (_S(34, 24, 98), 0.3, 0.0, 0.45, _S(40, 28, 116), 0.0))
+fm_lib.MATS.setdefault("SG_SumPortalDeep_Glow", (_S(30, 26, 68), 0.3, 0.0, 0.4, _S(34, 28, 80), 0.0))
 fm_lib.RBX_CAL.setdefault("SG_SumPortalDeep_Glow",
                           (None, [int(c) for c in fm_lib.to_srgb(fm_lib.MATS["SG_SumPortalDeep_Glow"][0])]))
 
@@ -586,11 +619,15 @@ def _arch_band(mb, Q, hw_o, hw_i, z0, zs, d0, d1, m, n=12):
 
 
 def portal_veil(T, stone, silver, glow):
-    """REVISAO (coordenador): o portal deixa de ser um painel chapado de Neon com a estrela colada. Dentro do nicho, VEU
-    em 3 camadas RECUADAS que se fecham para o fundo (funil de arquivoltas, a linguagem do portal de aduelas da
-    dungeon): faixa da frente em violeta medio, moldura interna de pedra, faixa do meio indigo e o fundo quase
-    preto-violeta; a estrela (menor, em baixo relevo) fica NO fundo, cercada por um aro de prata - le como o nucleo do
-    portal, nao como adesivo. Soleira de pedra na base (o veu assenta nela). As 9 faiscas sairam."""
+    """REVISAO (coordenador): o portal deixa de ser um painel chapado de Neon com a estrela colada. Soleira de pedra na
+    base (o veu assenta nela).
+    FINESSE 3B (S, 12.02): o veu ainda lia como PLACA violeta (faixa indigo de ~1 de largura + faixa lilas da frente =
+    ~40 studs2 de Neon saturado). Agora e um VAO DE PEDRA com energia ESCURA dentro:
+      - fundo em Neon escuro (indigo acinzentado quase preto) no campo interno;
+      - 2 FIOS medios (0,12) concentricos sobre o fundo (ombreiras + meia-volta) e o nucleo pequeno (estrela de 0,95
+        com aro de prata) - le como energia em camadas, nao como chapa;
+      - MOLDURA DE PEDRA interna (0,5, sai 0,45 do fundo) e a arquivolta de pedra da frente no lugar da faixa lilas;
+      - o Neon claro fica so num FILETE recuado (0,12) entre as 2 pedras."""
     hw, zs = T.PORT_HW, T.PORT_SPRING
     zb = LAND_Z + 0.34                                   # topo da soleira
 
@@ -599,15 +636,18 @@ def portal_veil(T, stone, silver, glow):
     # soleira: 3 pedras chanfradas (a do meio mais larga) do fundo do nicho ate 1,15 dele
     for u0, u1 in ((-hw - 0.3, -1.6), (-1.56, 1.56), (1.6, hw + 0.3)):
         T.lbox(stone, (u1 - u0, 1.15, 0.36), (u0 + u1) / 2, PV + 0.575, LAND_Z + 0.16, "Summon_Stone", 0.06)
-    # fundo (mais escuro), faixa do meio (indigo), moldura interna (pedra), faixa da frente (violeta medio)
-    _arch_full(glow, Q, 2.35, zb, zs, 0.02, 0.16, "SG_SumPortalDeep_Glow")
-    _arch_band(glow, Q, 3.2, 2.25, zb, zs, 0.45, 0.6, "Crystal_SumPortal_Glow")
-    _arch_band(stone, Q, 3.42, 3.12, zb, zs, 0.3, 0.98, "Stone_SumBlock")
-    _arch_band(glow, Q, hw - 0.05, 3.36, zb, zs, 0.82, 0.95, "Crystal_SumStar_Glow")
-    # nucleo: estrela de 5 pontas em baixo relevo no fundo + aro de prata
-    zc = zb + (zs - zb) * 0.62
-    _STAR[0](glow, Q(0.0, 0.22, zc), XU, ZZ, 5, 1.25, 0.52, 0.12, "Crystal_SumStar_Glow", edge=0.1)
-    T.PK.ring(silver, Q(0.0, 0.2, zc), 1.62, XU, ZZ, 0.16, 0.2, "Metal_Gold", 0, 360, 24)
+    # fundo escuro (campo interno) + 2 fios medios sobre ele
+    _arch_full(glow, Q, 2.62, zb, zs, 0.02, 0.16, "SG_SumPortalDeep_Glow")
+    for r_ in (1.62, 2.2):
+        _arch_band(glow, Q, r_ + 0.06, r_ - 0.06, zb, zs, 0.16, 0.26, "Crystal_SumPortal_Glow", n=8)
+    # moldura de pedra interna, filete recuado e a arquivolta de pedra da frente
+    _arch_band(stone, Q, 3.1, 2.56, zb, zs, 0.0, 0.62, "Stone_SumBlock", n=10)
+    _arch_band(glow, Q, 3.24, 3.1, zb, zs, 0.32, 0.46, "Crystal_SumStar_Glow", n=8)
+    _arch_band(stone, Q, hw - 0.05, 3.24, zb, zs, 0.3, 0.98, "Summon_Stone", n=10)
+    # nucleo: estrela de 5 pontas pequena em baixo relevo no fundo + aro de prata
+    zc = zb + (zs - zb) * 0.66
+    _STAR[0](glow, Q(0.0, 0.24, zc), XU, ZZ, 5, 0.95, 0.42, 0.1, "Crystal_SumAmber_Glow", edge=0.1)
+    T.PK.ring(silver, Q(0.0, 0.22, zc), 1.22, XU, ZZ, 0.14, 0.2, "Metal_Gold", 0, 360, 20)
 
 
 def window_veil(T, glow):
@@ -656,6 +696,95 @@ def window_tracery(T, stone):
         side(su * (hw + 0.1), su, T.MAST_V, shw, zs0, zsp, False)
 
 
+def _obox(mb, p, ax, ay, az, hx, hy, hz, m):
+    """caixa orientada pela base (ax, ay, az) com meias-medidas (hx, hy, hz), centro p"""
+    import bmesh
+    bm = mb.bm
+    vs = []
+    for sx, sy, sz in ((-1, -1, -1), (1, -1, -1), (1, 1, -1), (-1, 1, -1), (-1, -1, 1), (1, -1, 1), (1, 1, 1),
+                       (-1, 1, 1)):
+        vs.append(bm.verts.new(p + ax * (sx * hx) + ay * (sy * hy) + az * (sz * hz)))
+    fs = [bm.faces.new([vs[i] for i in q]) for q in ((0, 3, 2, 1), (4, 5, 6, 7), (0, 1, 5, 4), (1, 2, 6, 5),
+                                                    (2, 3, 7, 6), (3, 0, 4, 7))]
+    bmesh.ops.recalc_face_normals(bm, faces=fs)
+    mb._post(vs, m, None, 0, 1)
+
+
+def armillary(T):
+    """PORTADO de il_summon.sphere (gaiola fixa + 3 aneis moveis + nucleo), FINESSE 3B (S, 12.01): a estrela de cristal
+    de 6,6 de raio (2 Neon, o 2o/3o ponto mais brilhante da ilha vista da vila) e as 18 estrelinhas Neon dos aneis
+    SAIRAM. A esfera vira um instrumento de METAL: aneis de prata com espessura (o maior com nervura central saliente),
+    ABRACADEIRAS de prata no lugar das estrelinhas e, no centro, um NUCLEO PEQUENO (estrela facetada de 2,3 em Neon
+    medio/escuro alternado por faceta) preso num aro de prata - o brilho fica no nucleo, nao no corpo da esfera.
+    Remate sem a gema Neon (so prata). Nomes, pivo, eixo e rpm dos VFX iguais aos da Ilha 1."""
+    K = T.K
+    CAGE_R = T.CAGE_R
+    c = P(0.0, AX, ZS)
+    fr = MB("SG_Sum_Sphere_Frame", COL, random.Random(671), detail="hero")
+    # gaiola fixa: 2 meridianos + equador (prata); as 4 estrelinhas de metal dos cruzamentos sairam (a estrela fica so
+    # no nucleo e no remate)
+    PK.ring(fr, c, CAGE_R, XU, ZZ, 0.62, 0.7, "Metal_Gold", 0, 360, 44)
+    PK.ring(fr, c, CAGE_R, YV, ZZ, 0.62, 0.7, "Metal_Gold", 0, 360, 44)
+    PK.ring(fr, c, CAGE_R, XU, YV, 0.55, 0.65, "Metal_Gold", 0, 360, 44)
+    top = c + ZZ * CAGE_R
+    fr.ico(0.65, top + ZZ * 0.5, "Metal_Gold", 1)
+    fr.rod(top + ZZ * 0.4, top + ZZ * 3.7, 0.24, "Metal_Gold", 6)
+    sc = top + ZZ * 2.1
+    K.star(fr, sc, XU, ZZ, 4, 1.75, 0.45, 0.42, "Metal_Gold", edge=0.3)
+    K.star(fr, sc, YV, ZZ, 4, 1.2, 0.35, 0.35, "Metal_Gold", edge=0.2)
+    K.spike(fr, top + ZZ * 3.7, top + ZZ * 4.9, 0.3, "Metal_Gold", 4)
+    fr.finish()
+    specs = [
+        # nome, raio, secao (w, h), eixo de inclinacao, graus, giro, rpm, abracadeiras, nervura
+        ("VFX_SGSUM_Ring_1", 11.4, (1.05, 0.8), XU, 16.0, "z", 2.0, 10, True),
+        ("VFX_SGSUM_Ring_2", 8.3, (0.78, 0.72), None, 90.0, "-z", 4.0, 4, False),
+        ("VFX_SGSUM_Ring_3", 7.35, (0.7, 0.66), (XU * math.cos(math.radians(120)) + YV * math.sin(math.radians(120))),
+         58.0, "normal", 6.0, 4, False),
+    ]
+    for name, rr, (w, h), tilt_ax, tilt, spin, rpm, nst, rib in specs:
+        mb = MB(name, "12_VFX_HELPERS", random.Random(len(name) * 13), detail="hero")
+        if tilt_ax is None:
+            ang = math.radians(30.0)
+            u = XU * math.cos(ang) + YV * math.sin(ang)
+            v = ZZ.copy()
+        else:
+            ta = Vector(tilt_ax).normalized()
+            other = ZZ.cross(ta).normalized()
+            u = ta
+            v = (other * math.cos(math.radians(tilt)) + ZZ * math.sin(math.radians(tilt))).normalized()
+        nrm = u.cross(v).normalized()
+        PK.ring(mb, c, rr, u, v, w, h, "Metal_Gold", 0, 360, 56 if rr > 10 else 40)
+        if rib:                      # nervura central: o aro le com espessura e perfil, nao como fita
+            PK.ring(mb, c, rr, u, v, w * 0.42, h + 0.36, "Metal_Gold", 0, 360, 56)
+        for k in range(nst):
+            a = 2 * math.pi * (k + 0.5) / nst
+            d = u * math.cos(a) + v * math.sin(a)
+            tng = (-u * math.sin(a) + v * math.cos(a)).normalized()
+            # abracadeira: cinta de prata em volta da secao do aro (folga radial: fica na casca do proprio aro)
+            _obox(mb, c + d * rr, tng, d, nrm, 0.3, w / 2 + 0.1, h / 2 + 0.12 + (0.18 if rib else 0.0),
+                  "Metal_Gold")
+        ob = mb.finish()
+        axis = (0.0, 0.0, 1.0) if spin == "z" else ((0.0, 0.0, -1.0) if spin == "-z" else tuple(round(x, 4) for x in nrm))
+        ob["pivot"] = [round(c.x, 3), round(c.y, 3), round(c.z, 3)]
+        ob["axis"] = [round(x, 4) for x in axis]
+        ob["rpm"] = rpm
+        ob["vfx"] = "anel de prata da esfera armilar (gira no eixo 'axis' passando por 'pivot')"
+    # nucleo pequeno: estrela facetada (Neon medio x escuro por faceta) num aro de prata, gira no eixo vertical
+    st = MB("VFX_SGSUM_Star", "12_VFX_HELPERS", random.Random(691), detail="hero")
+    K.star_duo(st, c, XU, ZZ, 5, 2.3, 1.0, 0.8, "Crystal_SumAmber_Glow", "Crystal_SumYellow_Glow", edge=0.35)
+    PK.ring(st, c, 2.95, XU, ZZ, 0.34, 0.42, "Metal_Gold", 0, 360, 20)
+    for k in range(5):                                   # 5 grampos do aro (entre as pontas)
+        a = 2 * math.pi * (k + 0.5) / 5 + math.pi / 2
+        d = XU * math.cos(a) + ZZ * math.sin(a)
+        st.beam(c + d * 1.15, c + d * 2.8, 0.16, 0.16, "Metal_Gold", 0.0)
+    ob = st.finish()
+    ob["pivot"] = [round(c.x, 3), round(c.y, 3), round(c.z, 3)]
+    ob["axis"] = [0.0, 0.0, 1.0]
+    ob["rpm"] = 5.0
+    ob["vfx"] = "nucleo da esfera armilar: estrela pequena de cristal (Neon medio/escuro) num aro de prata, gira devagar"
+    return c
+
+
 def tower_collision(T):
     """PORTADO de il_summon.tower_collision (so a torre; a base e de base_collision)"""
     A = "SG_SumTower"
@@ -695,7 +824,7 @@ def build_tower():
         for s in (-1, 1):
             zb = in_pedestal(T, stone, gold, s * IN_PED[0], IN_PED[1])
             lamp_c.append(pedestal_lantern(gold, glow, P(s * IN_PED[0], IN_PED[1], zb)))
-        c = T.sphere(gold, glow)
+        c = armillary(T)                          # FINESSE 3B (12.01): era T.sphere(gold, glow)
         stone.finish()
         gold.finish()
         glow.finish()
@@ -905,16 +1034,35 @@ def floor_inlay(inl):
     zt, zb = Z + 0.05, Z - 0.1
     px, py = P(0.0, PAD_V).xy
     ok = lambda x, y: (not in_base(x, y, 0.5)) and math.hypot(x - CX, y - CY) < R - 1.6
-    # aneis em volta do ponto do jogador (cortados pela base da torre e pela borda)
+    # aneis em volta do ponto do jogador (cortados pela base da torre e pela borda).
+    # FINESSE 3B (S): o desenho nao muda, mas cada trecho continuo vira UMA peca (antes: uma peca por 1,6 de arco, com 2
+    # faces de topo escondidas entre vizinhas - ~1,2k tris de faces internas que pagam a cabeceira, os bancos e o
+    # pedestal moldurado)
+    def runs(n, test):
+        good = [test(i) for i in range(n)]
+        if all(good):
+            return [(0, n)]
+        st = next(i for i in range(n) if not good[i])
+        out, cur = [], None
+        for j in range(1, n + 1):
+            i = (st + j) % n
+            if good[i]:
+                cur = (st + j, st + j + 1) if cur is None else (cur[0], st + j + 1)
+            elif cur is not None:
+                out.append(cur)
+                cur = None
+        if cur is not None:
+            out.append(cur)
+        return out
     for r0, r1, m in ((2.35, 2.7, "Stone_SG_Floor"), (6.3, 6.7, "Stone_SG_Floor"), (11.0, 11.45, "Stone_SG_Floor")):
         n = max(12, int(2 * math.pi * r1 / 1.6))
-        for i in range(n):
-            a0, a1 = 360.0 * i / n, 360.0 * (i + 1) / n
-            am = math.radians((a0 + a1) / 2)
-            rm = (r0 + r1) / 2
-            if not ok(px + rm * math.cos(am), py + rm * math.sin(am)):
-                continue
-            top_prism(inl, arc_piece(px, py, r0, r1, a0, a1, 6.0), zb, zt, m)
+        rm = (r0 + r1) / 2
+
+        def test(i, n=n, rm=rm):
+            am = math.radians(360.0 * (i + 0.5) / n)
+            return ok(px + rm * math.cos(am), py + rm * math.sin(am))
+        for i0, i1 in runs(n, test):
+            top_prism(inl, arc_piece(px, py, r0, r1, 360.0 * i0 / n, 360.0 * i1 / n, 7.5), zb, zt, m)
     # raios (12) entre os aneis
     for k in range(12):
         a = math.radians(15.0 + 30.0 * k)
@@ -947,14 +1095,14 @@ def floor_inlay(inl):
         top_prism(inl, [tuple((pa + nr).xy), tuple((pa - nr).xy), tuple((pb - nr).xy), tuple((pb + nr).xy)],
                   zb, zt + 0.01, CAPL)
     # faixa de borda (lajes escuras) por dentro da balaustrada, cortada na escada e na base da torre
-    for a0 in range(-180, 180, 6):
-        a1 = a0 + 6
-        am = math.radians(a0 + 3.0)
+    def band_ok(i):
+        am = math.radians(-180 + 6 * i + 3.0)
         rm = (RAIL_R - 1.3)
         x, y = CX + rm * math.cos(am), CY + rm * math.sin(am)
-        if in_base(x, y, 0.6) or abs(a0 + 3.0) < GATE_A + 1.0:
-            continue
-        top_prism(inl, arc_piece(CX, CY, RAIL_R - 1.9, RAIL_R - 0.55, a0, a1, 3.0), zb, zt, "Stone_SG_Block_B")
+        return not (in_base(x, y, 0.6) or abs(-180 + 6 * i + 3.0) < GATE_A + 1.0)
+    for i0, i1 in runs(60, band_ok):
+        top_prism(inl, arc_piece(CX, CY, RAIL_R - 1.9, RAIL_R - 0.55, -180 + 6 * i0, -180 + 6 * i1, 4.0), zb, zt,
+                  "Stone_SG_Block_B")
 
 
 # ------------------------------------------------------------------ balaustrada gotica baixa (borda, ponte)
@@ -990,7 +1138,7 @@ def rail_post(rl, p, rz, wp, hp, finial=True):
     return top
 
 
-def gothic_rail(rl, pts, z, post_every=7.5, end_posts=(True, True), post_big=()):
+def gothic_rail(rl, pts, z, post_every=7.5, end_posts=(True, True), post_big=(), lead=0.35):
     """balaustrada baixa sobre a polilinha 'pts' (2D) na cota z (topo do corrimao em z + 1,97). post_big: indices
     dos pilares-portao (sem remate: recebem a lanterna). Devolve [(topo, pe, rumo)] dos pilares-portao."""
     pts = [Vector((p[0], p[1], z)) for p in pts]
@@ -1022,7 +1170,7 @@ def gothic_rail(rl, pts, z, post_every=7.5, end_posts=(True, True), post_big=())
     # balaustres entre os pilares (passo ~1,1, fora do plinto dos pilares)
     step = 1.2
     for (s0, k0), (s1, k1) in zip([(0.0, -1)] + posts, posts + [(total, -2)]):
-        w0 = ((GATE_W if k0 in big else POST_W) + 0.32) / 2 + 0.3 if k0 >= 0 else 0.35
+        w0 = ((GATE_W if k0 in big else POST_W) + 0.32) / 2 + 0.3 if k0 >= 0 else lead
         w1 = ((GATE_W if k1 in big else POST_W) + 0.32) / 2 + 0.3 if k1 >= 0 else 0.35
         a_, b_ = s0 + w0, s1 - w1
         if b_ - a_ < 0.3:
@@ -1056,6 +1204,41 @@ def balustrade(rl):
                for a in [GATE_A + (a_end - GATE_A) * i / 20 for i in range(21)]]
         gates += gothic_rail(rl, pts, Z, post_every=9.0, post_big=(0,))
     return gates
+
+
+# ------------------------------------------------------------------ bancos do mirante (12.05)
+BENCH_A = (72.0, 12.0)            # (angulo do centro a partir de +X, meia abertura) - norte e sul, simetricos
+BENCH_R = (18.85, 20.35)          # face da frente / de tras (a balaustrada comeca em 20,7; a rota lateral passa em 17,4)
+BENCH_Z = 1.5                     # topo do assento
+
+
+def benches(rl):
+    """FINESSE 3B (S, 12.05): o anel de R 22 era so piso e balaustrada - nada onde esperar a invocacao nem motivo para ir
+    ate a borda. 2 BANCOS CURVOS de cantaria encostados na balaustrada, de frente para a torre (norte e sul, fora da
+    escada e da passagem lateral): assento de remate claro com o canto da frente chanfrado (pingadeira) e 3 apoios em
+    dado com base, sobre a faixa escura da borda. A plataforma vira mirante: senta-se de costas para o mar, olhando o
+    portal. Colisao: 1 caixa por banco na corda do arco (assento), fora das rotas."""
+    r0, r1 = BENCH_R
+    for sg in (1, -1):
+        ac, ah = BENCH_A
+        a0, a1 = sg * ac - ah, sg * ac + ah
+        # assento: laje em arco com o canto da frente chanfrado (perfil varrido no arco), topo em Z + BENCH_Z
+        pts = [Vector((CX + (r0 + r1) / 2 * math.cos(math.radians(a)), CY + (r0 + r1) / 2 * math.sin(math.radians(a)),
+                       Z + BENCH_Z)) for a in [a0 + (a1 - a0) * i / 8 for i in range(9)]]
+        hw_ = (r1 - r0) / 2
+        rl.sweep(pts, [(-hw_, -0.34), (hw_, -0.34), (hw_, 0.0), (-hw_ + 0.16, 0.0), (-hw_, -0.12)], CAPL, True)
+        # 3 apoios (dado + base) sob o assento
+        for t in (-0.78, 0.0, 0.78):
+            a = math.radians(sg * ac + t * ah)
+            rm = (r0 + r1) / 2 + 0.05
+            x, y = CX + rm * math.cos(a), CY + rm * math.sin(a)
+            rl.box((1.1, 0.62, BENCH_Z - 0.34 - 0.05), (x, y, Z + 0.05 + (BENCH_Z - 0.39) / 2), (0, 0, a), PAR_M, 0.0)
+            rl.box((1.3, 0.82, 0.16), (x, y, Z + 0.05 + 0.08), (0, 0, a), REL_M, 0.0)
+        am = math.radians(sg * ac)
+        chord = 2 * r1 * math.sin(math.radians(ah))
+        rm = (r0 + r1) / 2
+        col_box("SG_SumBench", (r1 - r0 + 0.2, chord, BENCH_Z), (CX + rm * math.cos(am), CY + rm * math.sin(am),
+                                                                 Z + BENCH_Z / 2), (0, 0, am))
 
 
 # ------------------------------------------------------------------ ponte curta (arco ogival) e escada da planta
@@ -1140,6 +1323,15 @@ def bridge(br, rl):
     ztop = P1 - 0.75                                # base da cornija
     # encontro leste: macico sobre o patamar do penhasco (topo 34,2), do tabuleiro ate a face da rocha
     br.box2((BR_FACE_E - 0.05, y - BR_TYMP, 33.7), (x0, y + BR_TYMP, ztop), "Stone_SG_Block", 0.0)
+    # FINESSE 3B (12.03): o encontro alarga ate passar da face de fora do parapeito (o ombro de grama nao encosta mais
+    # na balaustrada) e ganha um RODAPE de cantaria com capa de remate sobre o patamar do ombro: a grama do ombro
+    # termina num meio-fio, nao no plinto da balaustrada
+    for sy in (-1, 1):
+        ya, yb = sorted((y + sy * BR_TYMP, y + sy * (BR_Y + 0.75)))
+        br.box2((BR_FACE_E - 0.05, ya, 33.7), (x0 - 0.9, yb, ztop), "Stone_SG_Block", 0.0)
+        ya, yb = sorted((y + sy * (BR_Y + 0.75), y + sy * (BR_Y + 2.1)))
+        br.box2((BR_FACE_E + 0.1, ya, 33.6), (x0 - 1.0, yb, 34.42), "Stone_SG_Block", 0.0)
+        br.box2((BR_FACE_E, ya - 0.06, 34.42), (x0 - 0.9, yb + 0.06, 34.62), CAPL, 0.06)
     # intradorso ogival abatido entre as 2 faces de rocha
     arc = EN.pointed_arc(BR_FACE_W, BR_FACE_E, BR_SPRING, BR_CROWN - BR_SPRING, 4)
     # timpano (faixas convexas do intradorso ate a base da cornija)
@@ -1185,7 +1377,7 @@ def bridge(br, rl):
     br.box2((x1 - 0.05, y - hw - 0.15, ztop), (x0, y + hw + 0.15, P1 - 0.35), CAPL, 0.04)
     br.box2((x1, y - hw + 0.2, P1 - 0.4), (x0, y + hw - 0.2, P1 - 0.1), "Stone_SG_Floor", 0.0)   # leito (juntas)
     rows = 2.4
-    xr = x0
+    xr = x0 - HEAD_SILL                              # FINESSE 3B: a soleira da cabeceira ocupa a 1a faixa
     k = 0
     cyc = (3.0, 3.6, 2.4, 3.3)
     lim = BR_Y - 0.5
@@ -1205,7 +1397,66 @@ def bridge(br, rl):
         k += 1
     # parapeitos (a guarda invisivel do sg_col fica na mesma linha)
     for sy in (-1, 1):
-        gothic_rail(rl, [(x0 + 0.2, y + sy * BR_Y), (a1[0] - 0.3, y + sy * BR_Y)], P1, post_every=12.0)
+        # FINESSE 3B (12.03): sem o pilarete da ponta - o parapeito nasce do PILAR DA CABECEIRA (bridge_head)
+        gothic_rail(rl, [(x0 + 0.45, y + sy * BR_Y), (a1[0] - 0.3, y + sy * BR_Y)], P1, post_every=12.0,
+                    end_posts=(False, True), lead=0.85)
+    bridge_head(br, rl, x0, y)
+
+
+HEAD_SILL = 1.3                  # fundo da soleira da cabeceira (lajes da ponte comecam depois dela)
+HEAD_PAD = (4.4, 3.4)            # encontro de cada lado: comprimento ao longo da rua x largura (para fora da rua)
+HEAD_PIER = (1.75, 3.1)          # pilar da cabeceira: secao do fuste x altura do fuste
+
+
+def _street_top(x, y):
+    """topo da rua da vila (SG_Vil_Streets) em (x, y), ou None"""
+    from mathutils.bvhtree import BVHTree
+    for o in bpy.data.objects:
+        if o.type != "MESH" or not o.name.startswith("SG_Vil_Street"):
+            continue
+        M = o.matrix_world
+        t = BVHTree.FromPolygons([M @ v.co for v in o.data.vertices], [list(p.vertices) for p in o.data.polygons])
+        h = t.ray_cast(Vector((x, y, P1 + 3.0)), Vector((0.0, 0.0, -1.0)), 4.0)
+        if h[0] is not None:
+            return h[0].z
+    return None
+
+
+def bridge_head(br, rl, x0, y):
+    """FINESSE 3B (S, 12.03): a CABECEIRA da ponte do summon. Antes o parapeito nascia de um pilarete comum cravado na
+    grama do ombro (entre a rua da vila e o fim do muro da borda) e a rua caia 0,3 direto nas lajes. Agora:
+      - SOLEIRA de 5 pedras chanfradas no topo da rua (o degrau de 0,3 para o tabuleiro tem focinho);
+      - ENCONTRO de cantaria dos 2 lados da rua: soco de bloco com tampo de remate chanfrado (o meio-fio onde a grama
+        termina), do fim do muro da borda ate 4,4 para dentro da ilha;
+      - PILAR DA CABECEIRA em cada encontro (plinto, fuste chanfrado, capitel em 2 degraus e remate maior que o dos
+        pilaretes): o parapeito da ponte nasce dele e o muro da borda morre nele.
+    Colisao: so os 2 pilares (caixas fora da rua de 10)."""
+    import sg_entry as EN
+    zs = _street_top(x0 + 1.5, y)
+    zs = zs if (zs is not None and P1 + 0.05 < zs < P1 + 0.6) else P1 + 0.3
+    hw = BR_Y - 0.5
+    # soleira: 5 pedras com junta, do topo da rua ao tabuleiro (focinho chanfrado para o lado da ponte)
+    nb = 5
+    for k in range(nb):
+        ya = -hw + 2 * hw * k / nb + (0.04 if k else 0.0)
+        yb = -hw + 2 * hw * (k + 1) / nb - (0.04 if k < nb - 1 else 0.0)
+        br.box2((x0 - HEAD_SILL, y + ya, P1 - 0.4), (x0 + 0.02, y + yb, zs), CAPL, 0.07)
+    L_, W_ = HEAD_PAD
+    for sy in (-1, 1):
+        yi = y + sy * 5.35                       # face de dentro: logo depois do meio-fio da rua (rua de 10)
+        yo = y + sy * (5.35 + W_)
+        ya, yb = min(yi, yo), max(yi, yo)
+        # soco do encontro (desce abaixo da grama) e tampo de remate chanfrado (o meio-fio da grama)
+        br.box2((x0 - 0.05, ya, P1 - 0.9), (x0 + L_, yb, zs - 0.16), "Stone_SG_Block", 0.0)
+        for xa, xb in ((x0 - 0.05, x0 + 2.2), (x0 + 2.26, x0 + L_ + 0.08)):        # 2 lajes com junta
+            br.box2((xa, ya - 0.06, zs - 0.16), (xb, yb + 0.06, zs + 0.04), CAPL, 0.08)
+        # pilar da cabeceira sobre o encontro, no alinhamento do parapeito (BR_Y)
+        px, py = x0 + 0.93, y + sy * BR_Y
+        wp, hp = HEAD_PIER
+        top = rail_post(rl, Vector((px, py, zs + 0.04)), 0.0, wp, hp, finial=False)
+        rl.box((wp + 0.5, wp + 0.5, 0.14), (px, py, top + 0.07), (0, 0, 0), CAPL, 0.04)     # abaco do remate
+        EN.finial(rl, px, py, top + 0.14, 0.52, m=CAPL, n=8)
+        col_box("SG_SumHead", (wp + 0.4, wp + 0.4, hp + 1.0), (px, py, zs + (hp + 1.0) / 2), (0, 0, 0))
 
 
 def plan_stair(st):
@@ -1267,6 +1518,7 @@ def build():
     floor_inlay(inl)
     rl = MB("SG_Sum_Balustrade", COL, random.Random(7501), detail="near")
     gates = balustrade(rl)
+    benches(rl)
     br = MB("SG_Sum_Bridge", COL, random.Random(7601), detail="near")
     bridge(br, rl)
     plan_stair(br)
@@ -1276,6 +1528,6 @@ def build():
     import sg_water
     sg_water.zone_relief(("SG_Sum_", "VFX_SGSUM"))
     # luzes (3): nucleo violeta (esfera-estrela) + 2 quentes baixas (lanternas da ordem dos pedestais)
-    light("L_SGSum_Core", "POINT", c, 6000.0, VIOLET, 3.0)       # acabamento: 9000 -> 6000 (brilho moderado)
+    light("L_SGSum_Core", "POINT", c, 3600.0, VIOLET, 2.0)       # 9000 -> 6000 -> 3600 (12.01: nucleo pequeno)
     for n, p in zip(("L_SGSum_Lantern_S", "L_SGSum_Lantern_N"), lamp_c):
         light(n, "POINT", p, 380.0, WARM, 0.4)

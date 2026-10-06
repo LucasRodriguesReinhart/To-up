@@ -11,6 +11,11 @@
 #   sua base de familia sao do sg_core: aqui so o chao que os apoia) -> PLATAFORMA DA ANCORA (10 x 18) com a guarda
 #   PROVISORIA visual (SG_Exit_AnchorGuard, next_island_guard=True: sai quando a ilha Demon Slayer encostar).
 # Colisao: tabuleiro, ilhota, plataforma e guardas sao do sg_col (congelado). Aqui so os pilares-marco da cabeceira.
+# FINESSE 3B (2026-10-06, agente S): 13.02 harmonia do portao DS (asset intocado) pelo entorno - 2 pilares de cantaria
+# da ilha ladeando o portao (gate_pylon), patamar de lajes diante da base (islet) e 1 luz fria baixa (L_SGExit_GateWash);
+# 13.06 transicao cantaria x laca - rodape do parapeito gotico continuo sob a laca da ponte (ds_rail plinth=True), marco
+# com rodape e cunhal (ds_post) e soleira de pedras na troca de paleta (deck). Tris pagos pela guarda da ilhota em
+# trechos mais longos, mesa de cachorros a cada 3,0 e menos colunetas sob a quina.
 import math, random
 from mathutils import Vector
 import sg_lib as SL
@@ -60,6 +65,7 @@ PAVE_END = 58.0                               # fim das lajes da ponte = inicio 
 ANCHOR_U0 = UA - 10.0                         # 94: inicio da plataforma da ancora
 # base de familia do portao DS (referencial do portao: vao +-8, plintos ate +-18, de 10,2 antes a 7,8 depois do eixo)
 GATE_RECT = (UG - 10.8, UG + 8.6, 18.8)       # (u0, u1, meia-largura v) - nada meu acima do piso ali dentro
+LAND_U0, LAND_V = GATE_RECT[0] - 3.6, 12.6     # patamar diante do portao (13.02): inicio e meia-largura
 
 
 def _edge_u():
@@ -133,6 +139,13 @@ CAMS = {
     # onda 1: do terraco norte, atras da cabeceira, a ponte saindo para o CEU ABERTO; o portao DS com o ceu atras
     "CAM_SGExit_Out": _cam(-34.0, -6.0, Z + 7.0, UA + 40.0, 0.0, Z + 10.0, 20),
     "CAM_SGExit_GateSky": _cam(14.0, -7.0, Z + 4.6, UG, 0.0, Z + 15.0, 20),
+    # FINESSE 3B (S): as cameras da AUDITORIA 3 (sg_scene.a3_cams/_exit_cam, olho 5,5) que o estudio nao cria
+    "CAM_A3_13_PortaoDS": _cam(54.0, 5.0, Z + 5.5, 76.0, 0.0, Z + 14.0, 20),
+    "CAM_A3_13_Saida_Volta": _cam(70.0, 2.0, Z + 5.5, -40.0, 0.0, Z + 30.0, 20),
+    "CAM_A3_13_Saida_Lado": _cam(40.0, -80.0, Z + 14.0, 40.0, 0.0, Z - 6.0, 22),
+    "CAM_A3_13_Saida_Cabeceira": _cam(-16.0, 2.0, Z + 5.5, 70.0, 0.0, Z + 10.0, 20),
+    "CAM_A3_13_Saida_Ponte": _cam(28.0, -3.0, Z + 5.5, 76.0, 0.0, Z + 12.0, 20),
+    "CAM_A3_13_Beco_W3": ((-136.0, 240.0, Z + 5.5), (-118.0, 334.0, Z + 6.0), 20),
 }
 
 # rotas extras: o P2 continua andavel atras dos pilares-marco; a beira da ponte e a volta da ilhota ficam livres
@@ -284,7 +297,7 @@ def bridge(mb, rng):
         while u < 61.0:
             if all(abs(u - pc) > PIER_HU + 0.6 for pc in PIERS):
                 mb.box((0.8, 0.7, 1.0), P(u, s * (BODY + 0.2), SOFFIT), R0, TRIM, 0.0)
-            u += 2.4
+            u += 3.0                 # FINESSE 3B: 2,4 -> 3,0 (paga as pecas da transicao e do portal)
     # pilares com talha-mar: 3 estagios com ressalto (friso claro) e ponta escura pendendo para as nuvens
     for cu in PIERS:
         top = pier_poly(cu, 9.4, PIER_HU, 3.2)
@@ -353,7 +366,13 @@ def deck(mb, rng):
             bx(mb, u + 0.07, v0, Z - 0.5, ue - 0.07, v1, Z, CAPL, 0.04)
             u = ue
     mk0, mk1 = PIERS[1] - 0.6, PIERS[1] + 0.6          # faixa do marco (atravessada, rente)
-    bx(mb, mk0, -HW + CURB, Z - 0.5, mk1, HW - CURB, Z, CAPL)
+    # FINESSE 3B (13.06): a faixa rente virou a SOLEIRA da troca de paleta - 5 pedras chanfradas com junta, 0,1 acima
+    # das lajes, de meio-fio a meio-fio (o limite da area 4 se le no chao, entre os 2 marcos)
+    nb = 5
+    for k in range(nb):
+        va = -HW + CURB + (2 * (HW - CURB)) * k / nb + (0.04 if k else 0.0)
+        vb = -HW + CURB + (2 * (HW - CURB)) * (k + 1) / nb - (0.04 if k < nb - 1 else 0.0)
+        bx(mb, mk0, va, Z - 0.5, mk1, vb, Z + 0.1, CAPL, 0.05)
     row = 2.9
     u = U0
     k = 0
@@ -425,10 +444,11 @@ def _yz_up(mb, a, d, nrm, prof, w, m):
 
 
 KAS_Z, KAS_H, KAS_W = 3.05, 0.26, 0.44      # kasagi (corrimao) - centro relativo a z da guarda
+EN_PAR, EN_REL = "Stone_SG_Castle_B", "Stone_SG_Block_B"     # corpo / relevo da cantaria gotica (sg_entry PAR_M/REL_M)
 NUKI_Z = 2.2
 
 
-def ds_rail(mb, pts, z=PAR_Z, post_step=3.0, end_posts=(True, True), tips=(True, True)):
+def ds_rail(mb, pts, z=PAR_Z, post_step=3.0, end_posts=(True, True), tips=(True, True), plinth=False):
     """guarda-corpo Demon Slayer (so depois do MARCO): base de pedra com capa de cantaria, pilaretes de laca vermelha
     sob o kasagi, nuki passando pelos pilaretes e pilares de ponta mais altos com giboshi. pts [(u, v)] na linha da
     guarda invisivel. tips: pontas da corrida com pilar de ponta + kasagi curvado (False = a corrida continua noutra)."""
@@ -447,7 +467,14 @@ def ds_rail(mb, pts, z=PAR_Z, post_step=3.0, end_posts=(True, True), tips=(True,
         dn = d.normalized()
         ea = a - dn * (0.5 if i > 0 else 0.0)
         eb = b + dn * (0.5 if i < n - 2 else 0.0)
-        mb.beam((ea.x, ea.y, z + base_h / 2), (eb.x, eb.y, z + base_h / 2), 1.0, base_h, STONE, 0.08)
+        if plinth:
+            # FINESSE 3B (13.06): na ponte o embasamento da laca e a MESMA cantaria do parapeito gotico ate o marco -
+            # rodape (plinto 1,54 x 0,8 em Stone_SG_Block_B) + corpo de Castle_B + capa: a pedra continua, so a parte de
+            # cima troca de familia
+            mb.beam((ea.x, ea.y, z + 0.4), (eb.x, eb.y, z + 0.4), 1.54, 0.8, EN_REL, 0.06)
+            mb.beam((ea.x, ea.y, z + 0.95), (eb.x, eb.y, z + 0.95), 1.2, 0.3, EN_PAR, 0.0)
+        else:
+            mb.beam((ea.x, ea.y, z + base_h / 2), (eb.x, eb.y, z + base_h / 2), 1.0, base_h, STONE, 0.08)
         mb.beam((ea.x, ea.y, z + base_h + 0.1), (eb.x, eb.y, z + base_h + 0.1), 1.2, 0.2, CAPL, 0.04)
         ka = a - dn * (0.21 if i > 0 else 0.0)
         kb = b + dn * (0.21 if i < n - 2 else 0.0)
@@ -525,8 +552,23 @@ def ds_post(mb, u, v, sz=2.2, lantern_s=0, drop=None):
     drop: a base desce ate essa cota pela face do tabuleiro (pilastra sobre o pilar da ponte)"""
     if drop is not None:
         mb.box((sz + 0.4, sz + 0.4, PAR_Z - drop), P(u, v, (PAR_Z + drop) / 2), R0, STONE, 0.0)
-    mb.box((sz + 0.4, sz + 0.4, 0.6), P(u, v, PAR_Z + 0.3), R0, CAPL, 0.08)
-    mb.box((sz, sz, 2.6), P(u, v, PAR_Z + 0.6 + 1.3), R0, CASTLE, 0.12)
+    if drop is not None:
+        # FINESSE 3B (13.06): o MARCO e a peca de transicao. RODAPE na altura do plinto do parapeito gotico e do
+        # embasamento da laca (0,8, a mesma pedra: os dois rodapes morrem nele na mesma cota) e CUNHAL de pedras
+        # desencontradas (longa/curta, a linguagem da cantaria) nas 4 quinas do dado; a laca so comeca acima dele.
+        mb.box((sz + 0.56, sz + 0.56, 0.8), P(u, v, PAR_Z + 0.4), R0, EN_REL, 0.07)
+        mb.box((sz, sz, 2.6), P(u, v, PAR_Z + 0.6 + 1.3), R0, CASTLE, 0.12)
+        hq = sz / 2
+        for k in range(3):
+            z0q = PAR_Z + 0.8 + 0.04 + k * 0.8
+            for su in (-1, 1):
+                for sv in (-1, 1):
+                    lu, lv = (0.95, 0.5) if (k + (su * sv > 0)) % 2 == 0 else (0.5, 0.95)
+                    bx(mb, u + su * hq - su * lu + su * 0.06, v + sv * hq - sv * lv + sv * 0.06, z0q,
+                       u + su * hq + su * 0.06, v + sv * hq + sv * 0.06, z0q + 0.72, EN_REL)
+    else:
+        mb.box((sz + 0.4, sz + 0.4, 0.6), P(u, v, PAR_Z + 0.3), R0, CAPL, 0.08)
+        mb.box((sz, sz, 2.6), P(u, v, PAR_Z + 0.6 + 1.3), R0, CASTLE, 0.12)
     mb.box((sz + 0.3, sz + 0.3, 0.35), P(u, v, PAR_Z + 3.375), R0, CAPL, 0.06)
     z0 = PAR_Z + 3.55
     ro = sz * 0.4
@@ -577,7 +619,7 @@ def parapets(mb):
         # depois do marco: guarda Demon Slayer ate a junta com a ilhota (e segue pela ilhota, ver islet_rails): o
         # marco e a ponta de cá; a quina com a ilhota leva o pilar de ponta com giboshi
         ds_rail(mb, [(PIERS[1] + 1.0, s * (HW + 0.5)), (_islet_meet(), s * (HW + 0.5))], end_posts=(False, True),
-                tips=(False, True))
+                tips=(False, True), plinth=True)
     for s in (-1, 1):
         ds_post(mb, PIERS[1], s * (HW + 1.3), 2.2, lantern_s=s, drop=SOFFIT + 0.35)         # o MARCO da transicao
 
@@ -705,10 +747,50 @@ def finish_quiet(mb):
             fm_lib.MAT_ALIAS[EM.MOON] = saved
 
 
+# ------------------------------------------------------------------ portal da saida (13.02): o portao DS na pedra da ilha
+GP_U, GP_V = 77.0, 20.2                  # pilares de cantaria ao lado do portao (fora da base de familia: |v| > 18,8)
+GP_S, GP_H = 2.0, 13.6                   # secao e altura do fuste (a agulha chega logo abaixo do beiral do portao)
+
+
+def gate_pylon(mb, s):
+    """FINESSE 3B (S, 13.02): o portao Demon Slayer (asset aprovado, nao muda) era uma peca solta, vermelha e brilhante,
+    no fim da ilha. Harmonia pelo entorno: 2 PILARES DE CANTARIA da ilha (a familia dos pilares-marco da cabeceira, mais
+    simples: plinto com capa, fuste de quinas chanfradas em 2 tramos com friso, cornija, coroa e agulha navy com florao
+    de prata, janela cega ogival na face da chegada) ladeiam o portao na borda da ilhota - o portao passa a ler como a
+    PORTA de um portal de pedra da ilha. Ficam 1 atras do eixo do portao (ao lado dos pilares dele), fora da
+    base de familia e dentro do circulo da ilhota; a guarda laqueada da borda morre neles (islet_rails)."""
+    import sg_entry as EN
+    u, v = GP_U, s * GP_V
+    x, y = PW(u, v)
+    SH = "Stone_SG_Castle_B"
+    mb.box((GP_S + 0.4, GP_S + 0.4, 1.3), P(u, v, Z + 0.35), R0, STONE, 0.1)                 # plinto
+    mb.box((GP_S + 0.6, GP_S + 0.6, 0.24), P(u, v, Z + 1.12), R0, CAPL, 0.0)
+    z0, zt = Z + 1.24, Z + 1.24 + GP_H
+    zm = z0 + GP_H * 0.45
+    mb.prism(EN.chamfer_sq(x, y, GP_S / 2, 0.3), z0, zm, SH)
+    mb.prism(EN.chamfer_sq(x, y, GP_S / 2 - 0.08, 0.28), zm, zt, SH)
+    mb.box((GP_S + 0.36, GP_S + 0.36, 0.36), P(u, v, zm), R0, CAPL, 0.0)                       # friso
+    mb.box((GP_S + 0.8, GP_S + 0.8, 0.6), P(u, v, zt + 0.3), R0, CAPL, 0.1)                   # cornija
+    cs = GP_S - 0.3
+    mb.box((cs, cs, 1.0), P(u, v, zt + 1.1), R0, SH, 0.0)                                     # coroa
+    SL.spire(mb, (x, y), cs / 2 * 1.02, zt + 1.6, 3.6, "Roof_SG_Navy", n=8)
+    _lathe(mb, (x, y, zt + 1.6 + 3.6 - 0.2), [(r * 0.75, h * 0.75) for r, h in ((0.2, 0.0), (0.14, 0.2), (0.3, 0.46),
+                                                                               (0.1, 0.82), (0.0, 1.45))],
+           SILVER, 6, math.pi / 6)
+    # janela cega ogival na face voltada para a chegada (-u)
+    Fw = Frame(x, y, 0.0, ANG - math.pi / 2)
+    EN.lancet(mb, Fw, GP_S / 2, GP_S * 0.42, zm + 0.8, zt - 0.9 - 0.85 * GP_S * 0.42)
+    col_box("SG_ExitGatePylon", (GP_S + 0.4, GP_S + 0.4, zt - Z), tuple(P(u, v, Z + (zt - Z) / 2)), R0)
+
+
 def head():
     mb = MB("SG_Exit_Head", C, random.Random(3804), detail="hero")
     for s in (-1, 1):
         head_pylon(mb, s)
+    for s in (-1, 1):
+        gate_pylon(mb, s)
+    # 13.02 luz discreta: luar frio e baixo sobre o patamar e a base do portao (a pedra le em volta do Neon vermelho)
+    light("L_SGExit_GateWash", "POINT", tuple(P(GATE_RECT[0] - 4.0, 0.0, Z + 5.0)), 260.0, (0.66, 0.74, 1.0), 1.5)
     # ONDA 1: o ADRO de lajes (topo a Z+0,03 sobre o topo do terraco = z-fight F5) saiu; o chao da cabeceira e o do
     # terraco norte (terreno/vestir)
     return finish_quiet(mb)
@@ -852,7 +934,17 @@ def islet(mb, rng):
     # corredor do eixo (portao -> ancora): 2 frisos claros rentes que levam o olho ate a ancora
     for s in (-1, 1):
         bx(mb, GATE_RECT[1] + 0.2, s * 7.6 - 0.3, Z - 0.3, ANCHOR_U0 - 0.5, s * 7.6 + 0.3, Z + 0.12, CAPL)
-        bx(mb, PAVE_END + 1.15, s * 7.6 - 0.3, Z - 0.3, GATE_RECT[0] - 0.2, s * 7.6 + 0.3, Z + 0.12, CAPL)
+        bx(mb, PAVE_END + 1.15, s * 7.6 - 0.3, Z - 0.3, LAND_U0 - 0.06, s * 7.6 + 0.3, Z + 0.12, CAPL)
+    # FINESSE 3B (13.02): PATAMAR de cantaria da ilha diante da base do portao - 4 lajes claras com junta num quadro de
+    # remate (os frisos do corredor morrem nele), 0,12 acima do piso: a chegada ao portal e um lugar, nao o fim da laje
+    lu0, lu1, lv = LAND_U0, GATE_RECT[0] - 0.2, LAND_V
+    bx(mb, lu0, -lv, Z - 0.3, lu0 + 0.6, lv, Z + 0.12, CAPL, 0.05)                                 # degrau da frente
+    for s in (-1, 1):
+        bx(mb, lu0 + 0.64, s * (lv - 0.6), Z - 0.3, lu1, s * lv, Z + 0.12, CAPL, 0.05)              # quadro lateral
+    for k in range(4):
+        va = -lv + 0.64 + (2 * lv - 1.28) * k / 4 + (0.03 if k else 0.0)
+        vb = -lv + 0.64 + (2 * lv - 1.28) * (k + 1) / 4 - (0.03 if k < 3 else 0.0)
+        bx(mb, lu0 + 0.66, va, Z - 0.3, lu1, vb, Z + 0.1, PAVE, 0.05)
     # juntas das lajes em aneis e raios (faixas escuras rentes) dos 2 lados do corredor do eixo; o corredor
     # (entre os frisos claros), a base do portao e a plataforma da ancora ficam lisos
     def joint_ok(u, v):
@@ -945,7 +1037,7 @@ def islet(mb, rng):
             strata = (zt - rng.uniform(3.0, 6.0), 0.86) if rng.random() < 0.45 else None
             hexcol(mb, u, v, r, zt, zt - depth, rng, m=ROCK if rng.random() < 0.7 else DARK,
                    tip=rng.uniform(2.5, 6.0) if depth > 14.0 else rng.uniform(0.8, 2.0), strata=strata)
-    for k2 in range(14):
+    for k2 in range(7):              # FINESSE 3B: 14 -> 7 colunetas de quebra sob a quina (Tier C, so de baixo)
         th = rng.uniform(0, 2 * math.pi)
         Rl = islet_r(th)
         u, v = UC + (Rl - 1.6) * math.cos(th), (Rl - 1.6) * math.sin(th)
@@ -963,7 +1055,8 @@ def islet_rails(mb):
         th = 2 * math.pi * k / n
         u, v = UC + (RI - 0.5) * math.cos(th), (RI - 0.5) * math.sin(th)
         pts.append((u, v, col_keep(UC + RI * math.cos(th), RI * math.sin(th)) and not in_gate_rect(u, v, 0.4)
-                    and not (u > ANCHOR_U0 - 1.0 and abs(v) < HW + 1.2)))
+                    and not (u > ANCHOR_U0 - 1.0 and abs(v) < HW + 1.2)
+                    and min(math.hypot(u - GP_U, v - sg * GP_V) for sg in (-1, 1)) > GP_S / 2 + 0.25))
     runs, run = [], []
     for u, v, ok in pts:
         if ok:
@@ -976,11 +1069,25 @@ def islet_rails(mb):
         runs.append(run)
     # junta o ultimo com o primeiro se o corte cair no angulo 0
     corners = [Vector((_islet_meet(), s * (HW + 0.5))) for s in (-1, 1)]
+    pyl = [Vector((GP_U, sg * GP_V)) for sg in (-1, 1)]
     for run in runs:
-        simp = run[::6] + ([run[-1]] if (len(run) - 1) % 6 else [])
-        # a ponta que encosta na quina da ponte usa o pilar de ponta da guarda da ponte (nada de 2 pilares juntos)
-        ends = tuple(min((Vector(simp[i]) - c).length for c in corners) > 2.5 for i in (0, -1))
-        ds_rail(mb, simp, end_posts=ends, tips=ends)
+        # FINESSE 3B: passo 12 (era 6: ~4,5 de corda no raio 21,5, flecha 0,12) - os tris pagam o patamar,
+        # os pilares do portal e as pecas de transicao do marco
+        simp = run[::12] + ([run[-1]] if (len(run) - 1) % 12 else [])
+        # a ponta que encosta na quina da ponte usa o pilar de ponta da guarda da ponte (nada de 2 pilares juntos); a
+        # que encosta num pilar do portal morre na pedra dele (sem pilar de ponta nem kasagi curvado)
+        ends = tuple(min((Vector(simp[i]) - c).length for c in corners) > 2.5 and
+                     min((Vector(simp[i]) - c).length for c in pyl) > GP_S / 2 + 1.2 for i in (0, -1))
+        for i, j in ((0, 1), (-1, -2)):
+            pc = min(pyl, key=lambda c: (Vector(simp[i]) - c).length)
+            e = Vector(simp[i])
+            if (e - pc).length < GP_S / 2 + 1.2:          # a ponta anda na tangente ate encostar no fuste
+                d = (e - Vector(simp[j])).normalized()
+                t = 0.0
+                while (e + d * t - pc).length > GP_S / 2 + 0.02 and t < 2.0:
+                    t += 0.02
+                simp[i] = tuple(e + d * t)
+        ds_rail(mb, simp, end_posts=ends, tips=ends, post_step=3.3)
     # lados da plataforma da ancora (da borda do circulo ate a ponta) - pilaretes-ponta onde a ponte seguinte encosta
     for s in (-1, 1):
         u_c = UC + math.sqrt(max(0.0, (RI - 0.5) ** 2 - (HW + 0.5) ** 2))

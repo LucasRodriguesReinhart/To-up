@@ -33,6 +33,9 @@
 #       WATER_CavePool (rio do salao sombrio, sg_cave: + bridge_x0/x1 = corpo da ponte do eixo, que corta a lamina);
 #       WATER_CaveFall_Lip / _Base (queda da fenda NE: labio na borda da bica de pedra, waypoints/widths ate o rio);
 #       WATER_Court_L / _R (espelhos do patio; o sg_court, quando roda depois, sincroniza com a bacia dele).
+# FINESSE 3B (2026-10-06, agente S): 09.10 pedra das margens do rio + bica da queda (cave_river, objeto SG_Cave_ para
+# o Model SUBSOLO e o QA CAVE_LIVRE); a cortina da queda NE nao mede mais a abobada (o pe caia fora do rio); tampo das
+# pedras das bicas na propria face (stone); espelhos do patio esperam o sg_court (court_water, sem falso aviso).
 import math, random
 import numpy as np
 import bpy
@@ -88,6 +91,14 @@ def _cams():
     cams["CAM_SGWater_FountainPH"] = ((fx - 2.0, fy - 22.0, L.P1 + 5.2), (fx, fy, L.P1 + 3.6), 24)
     cams["CAM_SGWater_CaveRiver"] = ((44.0, 236.0, L.CAVE_FLOOR + 9.0), (66.0, 206.0, L.CAVE_FLOOR + 6.0), 18)
     cams["CAM_SGWater_Court"] = ((0.0, 4.0, L.P3 + 9.0), (52.0, 40.0, L.P3), 22)
+    # FINESSE 3B (S): as cameras da AUDITORIA 3 do rio (sg_scene.a3_cams, olho 5,5) que o estudio nao cria
+    fz = L.CAVE_FLOOR
+    cams["CAM_A3_09_Rio"] = ((-40.0, 228.0, fz + 5.5), (-62.0, 208.0, fz - 2.0), 20)
+    cams["CAM_A3_09_Ponte_De_Baixo"] = ((30.0, 232.0, fz + 5.5), (0.0, 200.0, L.CAVE_GALLERY_Z), 18)
+    # o rio de perto do lado leste (a queda da fenda NE e a cabeceira junto da parede)
+    cams["CAM_SGWater_F3_RiverEast"] = ((44.0, 229.0, fz + 5.5), (78.0, 210.0, fz - 1.0), 20)
+    cams["CAM_SGWater_F3_CaveFall"] = ((50.0, 200.0, fz + 5.5), (72.0, 221.0, 26.0), 22)
+    cams["CAM_SGWater_F3_RiverTop"] = ((60.0, 186.0, fz + 16.0), (74.0, 212.0, fz - 2.0), 24)
     return cams
 
 
@@ -108,10 +119,10 @@ PREFIX = ("SG_Ter_", "SG_Ent_", "SG_Exit_")      # o que a cortina tem de contor
 class Face:
     """BVH das malhas SG_Ter_* (poligonos a menos de R de (cx, cy)) + BVHs extras (as rochas desta zona)"""
 
-    def __init__(self, cx, cy, R, prefix=PREFIX):
+    def __init__(self, cx, cy, R, prefix=PREFIX, exclude=()):
         verts, polys = [], []
         for o in bpy.data.objects:
-            if o.type != "MESH" or not o.name.startswith(prefix):
+            if o.type != "MESH" or not o.name.startswith(prefix) or (exclude and o.name.startswith(tuple(exclude))):
                 continue
             me = o.data
             nv, npoly = len(me.vertices), len(me.polygons)
@@ -294,11 +305,21 @@ def _shrink(poly, f):
 
 
 def stone(mb, c, o, s, pts, z0, z1, cap=True):
-    """bloco de pedra (contorno no referencial da queda) com chanfro; cap = tampo claro ao luar (Cliff_Rock_SG_Top)"""
+    """bloco de pedra (contorno no referencial da queda) com chanfro; cap = tampo claro ao luar (Cliff_Rock_SG_Top).
+    FINESSE 3B (S): o tampo deixou de ser um 2o prisma de 6 lados 0,1 acima do bloco (20 tris por pedra, 37 pedras):
+    a FACE DE CIMA do proprio bloco (dentro do chanfro) recebe o Cliff_Rock_SG_Top - os 2 valores (corpo x topo ao
+    luar) continuam, sem o degrau de papel. Os tris liberados pagam a pedra das margens do rio (cave_river)."""
     poly = SL.ccw(poly_frame(c, o, s, pts))
+    before = set(mb.bm.faces) if cap else None
     mb.prism(poly, z0, z1, ROCK, bevel=0.1)
     if cap:
-        mb.prism(SL.ccw(_shrink(poly, 0.86)), z1 - 0.02, z1 + 0.1, TOP)
+        mi = mb._mi_for(TOP)
+        for f in mb.bm.faces:
+            if f in before:
+                continue
+            f.normal_update()
+            if f.normal.z > 0.97 and f.calc_center_median().z > z1 - 0.02:
+                f.material_index = mi
 
 
 def banks(mb, c, o, s, a0, a1, lin, zb, h0, h1, w=1.25, ph=0.0, zbot=None):
@@ -701,6 +722,124 @@ def _ray_enter(lu, lv, du, dv, x0, x1, y0, y1):
     return t0 if t0 <= t1 else None
 
 
+# ------------------------------------------------------------------ rio do salao sombrio: pedra das margens + bica
+# FINESSE 3B (S, auditoria 09.10): o canal lia "vala escura com borda de cantaria lisa". Sem mexer no sg_cave (agente C
+# concluido), este modulo poe so PEDRA: grupos de seixos de basalto encostados na face de dentro do meio-fio, meio
+# submersos (topo 0,2 a 0,65 acima da lamina), em ritmo DIRIGIDO (nada sorteado): o pe da queda NE (os 2 lados do ponto
+# de impacto, nunca embaixo dele), os cantos das cabeceiras, a montante/jusante da ponte (diagonal) e um par a meio de
+# cada margem; e a BICA da queda ganha forma: laje-pingadeira com nariz chanfrado e 2 bochechas, no prolongamento da
+# bica de caixa do sg_cave (o labio do WATER_CaveFall_Lip passa a ser a ponta dela).
+# O objeto tem o prefixo SG_Cave_ de proposito: tudo o que fica dentro do salao sombrio e do Model SUBSOLO (o cliente
+# esconde o subsolo de longe; export_sg.atomic) e o QA CAVE_LIVRE so aceita SG_Cave_ la dentro. Material: a rocha de
+# corpo da caverna (Cliff_Rock_SG, a mesma das bicas das quedas): 1 MeshPart, 0 materiais novos.
+RIVER_OB = "SG_Cave_WaterStones"
+# (x, lado, recuo da face, rx, ry, topo acima da lamina, giro) - lado +1 = margem norte, -1 = sul, 0 = cabeceira
+RIVER_STONES = [
+    # pe da queda NE (impacto em x 72): os 2 lados, o maior contra o meio-fio
+    (66.6, 1, 1.35, 1.92, 1.44, 1.29, 0.3), (69, 1, 1.04, 1.02, 0.84, 0.72, 1.1),
+    (75.8, 1, 1.41, 1.74, 1.38, 1.18, 2), (78.1, 1, 0.97, 0.96, 0.78, 0.65, 0.6), (76.9, 1, 3.04, 0.84, 0.72, 0.56, 1.7),
+    # canto SE da cabeceira leste
+    (83.4, -1, 1.41, 1.5, 1.2, 1.02, 0.9), (81, -1, 1.04, 0.9, 0.74, 0.62, 2.4),
+    # ponte: a jusante na margem sul, a montante na margem norte (diagonal)
+    (14.8, -1, 1.29, 1.44, 1.14, 0.94, 1.4), (17.1, -1, 0.97, 0.84, 0.72, 0.59, 0.2),
+    (-14.6, 1, 1.29, 1.5, 1.2, 0.97, 2.6), (-17, 1, 0.97, 0.86, 0.72, 0.62, 1),
+    # meio das margens (um par em cada, desencontrados)
+    (38.6, 1, 1.23, 1.32, 1.08, 0.88, 0.5), (40.8, 1, 0.95, 0.78, 0.66, 0.56, 1.9),
+    (-43.2, -1, 1.23, 1.38, 1.08, 0.91, 2.2), (-45.4, -1, 0.95, 0.84, 0.72, 0.59, 0.8),
+    # canto NO da cabeceira oeste
+    (-83.6, 1, 1.48, 1.56, 1.26, 1.07, 1.6), (-81.3, 1, 1.04, 0.86, 0.72, 0.62, 0.4), (-84.1, 1, 3.85, 1.08, 0.96, 0.68, 2.9),
+]
+_SEIXO_F = (1.0, 0.86, 0.95, 0.8, 0.97, 0.84, 0.92)     # raio por vertice (variacao dirigida, sem sorteio)
+
+
+def seixo(mb, x, y, zb, zt, rx, ry, rot, k, m=ROCK):
+    """seixo de basalto gasto: anel de base, ombro a 62% e topo recolhido (58%), contorno elitico com raios dirigidos
+    (_SEIXO_F girado por k) e topo levemente deslocado (a pedra 'deita'). Sem face de baixo (fica sob o leito)."""
+    n = 7 if rx > 1.0 else 6
+    bm = mb.bm
+    ca, sa = math.cos(rot), math.sin(rot)
+    rings = []
+    for zz, f, dx in ((zb, 1.0, 0.0), (zb + (zt - zb) * 0.62, 0.93, 0.04), (zt, 0.58, 0.12)):
+        ring = []
+        for i in range(n):
+            t = 2 * math.pi * i / n
+            r = _SEIXO_F[(i + k) % 7] * f
+            lx, ly = rx * r * math.cos(t) + dx * rx, ry * r * math.sin(t)
+            ring.append(bm.verts.new((x + lx * ca - ly * sa, y + lx * sa + ly * ca, zz)))
+        rings.append(ring)
+    for a, b in zip(rings, rings[1:]):
+        for i in range(n):
+            j = (i + 1) % n
+            bm.faces.new((a[i], a[j], b[j], b[i]))
+    bm.faces.new(rings[-1])
+    mb._post([v for rg in rings for v in rg], m, None, 0, 1)
+
+
+def _xprism(mb, P0, o, s, prof, a0, a1, m, axis="lat"):
+    """poligono CONVEXO extrudado no referencial da queda (P0, o = para fora, s = lateral). axis 'lat': prof = [(a, z)]
+    extrudado de lat a0 a a1; axis 'a': prof = [(lat, z)] extrudado de a = a0 a a1"""
+    import bmesh
+    bm = mb.bm
+
+    def W(a, lat, z):
+        return (P0.x + o.x * a + s.x * lat, P0.y + o.y * a + s.y * lat, z)
+    if axis == "lat":
+        va = [bm.verts.new(W(p, a0, z)) for p, z in prof]
+        vb = [bm.verts.new(W(p, a1, z)) for p, z in prof]
+    else:
+        va = [bm.verts.new(W(a0, p, z)) for p, z in prof]
+        vb = [bm.verts.new(W(a1, p, z)) for p, z in prof]
+    fs = [bm.faces.new(va), bm.faces.new(list(reversed(vb)))]
+    n = len(prof)
+    for i in range(n):
+        j = (i + 1) % n
+        fs.append(bm.faces.new((va[i], va[j], vb[j], vb[i])))
+    bmesh.ops.recalc_face_normals(bm, faces=fs)
+    mb._post(va + vb, m, None, 0, 1)
+
+
+def cave_river(pool, lip_ob):
+    """pedra das margens do rio + bica da queda (ver o bloco acima). pool = medida do basin_rect (faces de DENTRO do
+    meio-fio, nivel, fundo)."""
+    c, ux, uy = pool["c"], pool["ux"], pool["uy"]
+    lev = pool["level"]
+    zb = (pool["floor"] if pool.get("floor") is not None else lev - 1.5) - 0.2
+    mb = MB(RIVER_OB, "17_DUNGEON", random.Random(9101), detail="near", floor=-999)
+    for k, (x, side, back, rx, ry, top, rot) in enumerate(RIVER_STONES):
+        if side > 0:
+            lv = pool["y1"] - back
+        else:
+            lv = pool["y0"] + back
+        p = c + ux * (x - c.x) + uy * lv
+        if abs(x - c.x) > pool["x1"] - 0.6:              # nunca passa da cabeceira
+            continue
+        seixo(mb, p.x, p.y, zb, lev + top, rx, ry, rot, k)
+    # bica da queda: no prolongamento da bica de caixa do sg_cave, a partir do marcador (borda da laje dela)
+    if lip_ob is not None:
+        fw = lip_ob.matrix_world.to_3x3() @ Vector((0.0, 1.0, 0.0))
+        o = Vector((fw.x, fw.y, 0.0)).normalized()
+        s = Vector((-o.y, o.x, 0.0))
+        P0 = lip_ob.location.copy()
+        zt = P0.z
+        # laje-pingadeira (encosta na face da laje do sg_cave, topo no mesmo nivel): nariz chanfrado e pingadeira
+        _xprism(mb, P0, o, s, [(0.0, zt), (1.0, zt), (1.16, zt - 0.12), (1.16, zt - 0.38), (0.9, zt - 0.75),
+                               (0.0, zt - 0.75)], -2.3, 2.3, ROCK)
+        # bochechas: a partir da frente das bochechas do sg_cave (0,2 alem da laje), topo chanfrado para o canal
+        for sg in (-1, 1):
+            prof = [(1.45, zt), (2.3, zt), (2.3, zt + 0.62), (2.1, zt + 0.8), (1.62, zt + 0.8), (1.45, zt + 0.64)]
+            _xprism(mb, P0, o, s, [(sg * a_, z_) for a_, z_ in prof], 0.2, 0.98, ROCK, axis="a")
+    ob = mb.finish()
+    # so na PREVIA de revisao (SG_PREVIA_AGUA=1; PREVIEW_ nao exporta e o CAVE_LIVRE aceita): a lamina como o Roblox
+    # fara, para julgar as pedras na linha d'agua. Desligada por padrao: o estudio conta o objeto nas MeshParts da zona
+    import os
+    if os.environ.get("SG_PREVIA_AGUA"):
+        pv = MB("PREVIEW_CaveRiverWater", "00_REFERENCE", None, detail="far", floor=-999)
+        a, b = c + ux * pool["x0"] + uy * pool["y0"], c + ux * pool["x1"] + uy * pool["y1"]
+        pv.box2((min(a.x, b.x), min(a.y, b.y), lev - 0.02), (max(a.x, b.x), max(a.y, b.y), lev), "Water_SG", 0.0)
+        pv.finish()
+    return ob
+
+
 def cave_water():
     """rio escuro do salao sombrio (sg_cave) e a queda da fenda NE (labio na borda REAL da bica de pedra; a cortina
     passa por fora do meio-fio e cai DENTRO do rio)"""
@@ -716,6 +855,8 @@ def cave_water():
     pool = basin_rect("WATER_CavePool", ("SG_Cave_",), R=95.0,
                       samples=[(-40.0, 0.0), (40.0, 0.0), (-70.0, 0.0), (70.0, 0.0)], cut=(-30.0, 30.0))
     lip_ob, base_ob = bpy.data.objects.get("WATER_CaveFall_Lip"), bpy.data.objects.get("WATER_CaveFall_Base")
+    if pool is not None:
+        cave_river(pool, lip_ob)                     # FINESSE 3B: pedra das margens + bica (depois de medir o rio)
     if lip_ob is None or base_ob is None or pool is None:
         return pool
     fw = lip_ob.matrix_world.to_3x3() @ Vector((0.0, 1.0, 0.0))
@@ -743,7 +884,11 @@ def cave_water():
     rel = lip - c
     t_in = _ray_enter(rel.dot(ux), rel.dot(uy), o.dot(ux), o.dot(uy), pool["x0"], pool["x1"], pool["y0"], pool["y1"])
     need = max(1.0, (t_in if t_in is not None else 0.0) + 1.5)
-    F = Face(lip.x, lip.y, 30.0, prefix=("SG_Cave_",))
+    # FINESSE 3B (S): a cortina NAO mede a abobada (SG_Cave_Ceiling): a queda sai da FENDA, e a rocha da abobada ao sul
+    # dela (estrato 172-214, intradorso ~31) era lida como "rocha avancando alem do jato" e empurrava a lamina 26 para
+    # o sul - o pe caia FORA do rio (y 194,5, no piso da margem sul). A fenda e livre por construcao (sg_cave.ceil_zb:
+    # z >= 38 em x 64..80, y 204..226). As pedras do rio (ao lado do impacto) tambem ficam fora da medida.
+    F = Face(lip.x, lip.y, 30.0, prefix=("SG_Cave_",), exclude=("SG_Cave_Ceiling", RIVER_OB))
     drift = 0.004
     H = lip.z - pool["level"]
     lip_throw = max(1.0, need - drift * max(0.0, H - 3.0))
@@ -756,6 +901,9 @@ def cave_water():
         "waypoints": ";".join("%.2f,%.2f,%.2f" % tuple(p) for p in pts), "widths": ";".join("%.2f" % w for w in ws),
         "note": "queda da fenda NE do salao sombrio: borda da bica no nivel da pedra; agua do Roblox"})
     foot = cur.foot()
+    rf = foot - c
+    if not (pool["x0"] < rf.dot(ux) < pool["x1"] and pool["y0"] < rf.dot(uy) < pool["y1"]):
+        print("WATER AVISO WATER_CaveFall_Base: o pe da queda (%.2f, %.2f) cai FORA do rio" % (foot.x, foot.y))
     _set_marker("WATER_CaveFall_Base", foot, yaw, {"fx": "nevoa_base", "width": round(cur.width(cur.z_bot), 2),
                                                    "level": round(pool["level"], 3)})
     INFO["CaveFall"] = dict(lip=tuple(round(v, 2) for v in lip), foot=tuple(round(v, 2) for v in foot),
@@ -764,8 +912,17 @@ def cave_water():
 
 
 def court_water():
-    """espelhos do patio: mede a bacia que estiver na cena (blockout do vestir ou sg_court)"""
+    """espelhos do patio: mede a bacia que estiver na cena (blockout do vestir ou sg_court).
+    FINESSE 3B (S, aviso do build 'WATER_Court_L/R: nenhuma pedra em volta'): no build completo a agua roda ANTES do
+    vestir (build_sg.ZONE_MODULES: water -> ... -> dressing), entao a bacia do sg_court ainda nao existe aqui; quem
+    grava a bacia real nos marcadores e o sg_court.sync_water_markers, no fim do build dele. Sem nenhuma pedra do patio
+    na cena, os marcadores ficam com a estimativa do sg_core e o sg_court os sincroniza depois (nao e defeito)."""
     res = {}
+    if not any(o.type == "MESH" and o.name.startswith(("SG_Court", "SG_Prop_Court", "SG_Prop_Blockout"))
+               for o in bpy.data.objects):
+        print("WATER espelhos do patio: bacia do sg_court ainda nao construida (o vestir roda depois da agua) -> "
+              "WATER_Court_L/R sincronizados pelo sg_court.sync_water_markers")
+        return res
     for nm in ("L", "R"):
         res[nm] = basin_rect("WATER_Court_%s" % nm, ("SG_Prop_", "SG_Court", "SG_Veg_", "SG_Gar"), R=24.0,
                              samples=[(0.0, 0.0), (-4.0, -3.0), (4.0, 3.0)])
