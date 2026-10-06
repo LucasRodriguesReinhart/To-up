@@ -125,7 +125,14 @@ ER.FOLD_PROTECT = ER.FOLD_PROTECT + ("Fire_DS", "Ember_DS", "Glass_DS_Lantern", 
 # O export compartilhado corta toda PointLight para Range <= 20 / Brightness <= 1,5 (lanterna de rua). A boca da
 # fornalha e a luz principal da forja (PLANO secao 10: ~Range 28): override por prefixo, mesma leitura da energia
 # (R0 = min(60; 8 + 1,1 sqrt(E)), B0 = min(4; 0,6 + E / 800)), como o INTERIOR_LIGHTS da SG.
-INTERIOR_LIGHTS = (("L_DSFrg_Furnace", 28.0, 2.5),)
+# ACRESCIMO ONDA 3c (ds_lights, passe global de luz): a PRIMEIRA regra que casa vale, entao as especificas vem antes.
+#   - boca da fornalha (L_DSFrg_FurnaceMouth, que o prefixo L_DSFrg_Furnace ja pegava) com regra propria: Range 28,
+#     Brightness ate 2,0 (com E 2000 do ds_lights -> 2,0: a luz mais forte de FORA da ilha, o posto 1 do PLANO sec. 10);
+#   - interiores entraveis V6 (casa principal, irori + andon) e V1 (chaya): sem override o corte 0,35 / 0,5 deixa a luz
+#     do comodo em Range 7-8 / Brightness 0,4 (nao chega nas paredes de um comodo de 18-24); com override: Range 12-14,
+#     Brightness ~0,6-0,7 (E 140-240 do ds_lights), ainda abaixo das janelas da forja.
+INTERIOR_LIGHTS = (("L_DSFrg_FurnaceMouth", 28.0, 2.0), ("L_DSFrg_Furnace", 28.0, 2.5),
+                   ("L_DSVil_V6_", 14.0, 0.8), ("L_DSVil_V1_", 12.0, 0.8))
 INTERIOR_BR_K = 0.75
 _ER_LIGHTS = ER.lights
 

@@ -64,6 +64,7 @@ DSMATS = {
     "Leaf_DS_Broad":      (S(46, 84, 48), 0.85, 0.0, 0, None, 0.06),
     "Leaf_DS_Cedar":      (S(34, 66, 46), 0.85, 0.0, 0, None, 0.06),
     "Leaf_DS_Shrub":      (S(66, 104, 56), 0.85, 0.0, 0, None, 0.06),
+    "Leaf_DS_Bamboo":     (S(104, 142, 64), 0.85, 0.0, 0, None, 0.06),   # ds_veg (3a): folha do bambu (mais clara que o capim)
     "Bark_DS":            (S(70, 52, 40), 0.9, 0.0, 0, None, 0.08),
     "Grass_DS":           (S(84, 118, 62), 0.9, 0.0, 0, None, 0.10),
     "Dirt_DS":            (S(132, 106, 76), 0.95, 0.0, 0, None, 0.10),   # chao da clareira (contraste com os minerios)
@@ -83,6 +84,8 @@ DSMATS = {
     "Rope_DS_Straw":      (S(186, 160, 106), 0.9, 0.0, 0, None, 0.06),   # ds_forge (2b): shimenawa e sacos de carvao
     "Water_DS_Trough":    (S(36, 50, 60), 0.15, 0.0, 0, None, 0.0),      # ds_forge (2b): agua parada do cocho de tempera
     "Plaster_DS_Clay":    (S(190, 150, 108), 0.9, 0.0, 0, None, 0.05),   # ds_forge (2b): reboco de barro quente da forja
+    "Cloth_DS_Linen":     (S(214, 206, 184), 0.9, 0.0, 0, None, 0.04),   # ds_props (3b): algodao cru (varal, tenugui, fitas)
+    "Cloth_DS_Ai":        (S(52, 70, 108), 0.9, 0.0, 0, None, 0.04),     # ds_props (3b): azul aizome (yukata, guarda-sol)
     # so previa (00_REFERENCE): mar de nuvens, lua, vizinhos
     "Cloud_DS":           (S(60, 70, 104), 0.95, 0.0, 0.04, S(70, 82, 120), 0.0),
     "Cloud_DS_Shade":     (S(40, 48, 78), 0.95, 0.0, 0.02, S(48, 56, 90), 0.0),

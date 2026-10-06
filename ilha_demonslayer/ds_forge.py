@@ -3,6 +3,8 @@
 # Prefixo DS_Frg_ (dono "forge"), colecao 04_FORGE; peca movel VFX_DS_Wheel (12_VFX_HELPERS, pivot/axis/rpm ->
 # tag IlhaMovel no export). Usa o kit (ds_kit, SO LEITURA) para a arquitetura - a forja fala a lingua da vila - e um
 # kit PROPRIO de forja (fornalha, fole de caixa, bigorna, cocho, estantes, espadas, roda, aqueduto, pilao).
+# ONDA 3c (agente 3c): os piloes e o eixo do moinho tambem sao pecas moveis (VFX_DS_Kine_A/_B bob+rate,
+# VFX_DS_KineAxle girando com a roda) - ver mill(); o resto do modulo nao foi tocado.
 #
 # ANTI-COPIA da Forja do Ignis (lobby, PLANO 1.2): nada de alto-forno redondo, chapa rebitada, tubo ou coifa de ferro.
 #   Aqui: boca em ARCO de tijolo refratario num bloco de alvenaria escura (o calor fica DENTRO da moldura), salao de
@@ -76,6 +78,9 @@ TS1, TS2 = 16.8, 17.2                              # pisos de reboco (beiral em 
 WX, WY, WDIA, WWID = L.WHEEL                       # roda (92, 488), D 20, largura 4
 WAZ = L.WHEEL_AXLE_Z
 WR = WDIA / 2
+KINE_RPM = 3.0                                     # = rpm do VFX_DS_Wheel (o ds_vfx confere)
+KINE_LIFT = 1.6                                    # curso do pilao (bob do IlhaMovel)
+KINE_CAM0 = math.radians(50.0)                     # angulo do 1o ressalto do came (modelado)
 
 
 def _flume_pts():
@@ -986,25 +991,48 @@ def mill(mb, mr):
         wbb(mb, x - 0.6, x + 0.6, y + 0.75, y + 1.2, WAZ - 0.3, WAZ + 0.75, WD, 0.04)
     # eixo de madeira (oitavado) do mancal oeste do moinho ate o mancal leste da roda
     xa = L.FORGE["east"][2] + 2.6
-    mb.cyl(0.62, (xE + 0.6) - xa, ((xa + xE + 0.6) / 2, WY, WAZ), (0, math.pi / 2, 0), WD, 8, bevel=0.0)
+    # ONDA 3c (agente 3c / ds_vfx - unica parte do ds_forge editada por ele): o eixo com os cames e as cabecas, hastes
+    # e ressaltos dos 2 piloes viram PECAS MOVEIS (VFX_ -> tag IlhaMovel no export). O cliente ILHA_NARUTO_Movel ja tem o
+    # modo pilao (atributos bob + rate: sobe em 70% do ciclo e cai em 30%) e o giro (rpm em volta de pivot/axis):
+    #   VFX_DS_KineAxle gira com a roda (MESMO pivo, eixo e rpm do VFX_DS_Wheel);
+    #   VFX_DS_Kine_A (came de 2 ressaltos) e VFX_DS_Kine_B (came de 3): rate = rpm / 60 x ressaltos = 0,10 e 0,15
+    #   batida/s a 3 rpm -> os dois nao batem juntos (coincidem a cada 20 s), cada um no ritmo do proprio came.
+    # Os 2 sao modelados na posicao BAIXA (o bob do cliente vai de 0 a +KINE_LIFT); os cames ficam a 50 graus (o
+    # ressalto mais proximo ainda nao encosta no tucho). O ds_vfx confere rpm/rate pela roda no build.
+    ax_mb = MB("VFX_DS_KineAxle", "12_VFX_HELPERS", random.Random(2203), detail="near", floor=-999)
+    ax_mb.cyl(0.62, (xE + 0.6) - xa, ((xa + xE + 0.6) / 2, WY, WAZ), (0, math.pi / 2, 0), WD, 8, bevel=0.0)
     for x in (xa + 0.4, WX - 6.5):
-        mb.cyl(0.72, 0.3, (x, WY, WAZ), (0, math.pi / 2, 0), WM, 8, bevel=0.0)
-    # piloes (kine): 2 vigas verticais guiadas, ressalto (tappet) sobre o eixo, came no eixo; 1 erguido, 1 batendo
+        ax_mb.cyl(0.72, 0.3, (x, WY, WAZ), (0, math.pi / 2, 0), WM, 8, bevel=0.0)
+    # piloes (kine): 2 vigas verticais guiadas, ressalto (tappet) sobre o eixo, came no eixo
     sy = WY - 2.4
     zm = T4 + 1.7                                            # topo do almofariz
-    for i, (x, up) in enumerate(((xa + 3.9, False), (xa + 7.6, True))):
+    for nm, x, lobes in (("A", xa + 3.9, 2), ("B", xa + 7.6, 3)):
         rock_base(mb, W0, x, sy, T4, 1.5, 0.3)
         wbb(mr, x - 1.1, x + 1.1, sy - 1.1, sy + 1.1, T4 + 0.2, zm, ST, 0.08)                   # almofariz de pedra
         wbb(mr, x - 0.6, x + 0.6, sy - 0.6, sy + 0.6, zm - 0.5, zm - 0.12, SOOT)
-        lift = 1.6 if up else 0.0
-        zb_ = zm - 0.45 + lift
-        wbb(mb, x - 0.55, x + 0.55, sy - 0.55, sy + 0.55, zb_, zb_ + 1.5, WD, 0.06)            # cabeca
-        wbb(mb, x - 0.4, x + 0.4, sy - 0.4, sy + 0.4, zb_ + 1.45, WAZ + 5.6 + lift, WM, 0.05)  # haste
-        zt = WAZ + 1.7 if up else WAZ + 0.9
-        wbb(mb, x - 0.22, x + 0.22, sy + 0.3, WY + 0.7, zt, zt + 0.45, WD, 0.04)                # ressalto
-        for a in ((math.pi / 2, -math.pi / 2) if up else (math.radians(150), math.radians(-30))):
+        km = MB("VFX_DS_Kine_" + nm, "12_VFX_HELPERS", random.Random(2210 + lobes), detail="near", floor=-999)
+        zb_ = zm - 0.45
+        wbb(km, x - 0.55, x + 0.55, sy - 0.55, sy + 0.55, zb_, zb_ + 1.5, WD, 0.06)            # cabeca
+        wbb(km, x - 0.4, x + 0.4, sy - 0.4, sy + 0.4, zb_ + 1.45, WAZ + 5.6, WM, 0.05)         # haste
+        zt = WAZ + 0.9
+        wbb(km, x - 0.22, x + 0.22, sy + 0.3, WY + 0.7, zt, zt + 0.45, WD, 0.04)                # ressalto
+        for k in range(lobes):                                                                   # came (no eixo)
+            a = KINE_CAM0 + 2 * math.pi * k / lobes
             c = Vector((x, WY + 0.85 * math.cos(a), WAZ + 0.85 * math.sin(a)))
-            obox(mb, c, Vector((0.0, math.cos(a), math.sin(a))), Vector((1, 0, 0)), (1.6, 0.4, 0.42), WD, 0.03)
+            obox(ax_mb, c, Vector((0.0, math.cos(a), math.sin(a))), Vector((1, 0, 0)), (1.6, 0.4, 0.42), WD, 0.03)
+        ob = km.finish()
+        ob["pivot"] = (x, sy, zm)
+        ob["axis"] = (0.0, 0.0, 1.0)
+        ob["rpm"] = 0.0
+        ob["bob"] = KINE_LIFT
+        ob["lobes"] = lobes
+        ob["rate"] = round(KINE_RPM / 60.0 * lobes, 4)
+        ob["vfx_zone"] = "forge"
+    ob = ax_mb.finish()
+    ob["pivot"] = (WX, WY, WAZ)
+    ob["axis"] = (1.0, 0.0, 0.0)
+    ob["rpm"] = KINE_RPM
+    ob["vfx_zone"] = "forge"
     for x in (xa + 2.2, xa + 5.75, xa + 9.4):                # pilares das guias
         K.post(mb, W0, x, sy, T4, T4 + 17.4, 0.75, True)
     for z in (T4 + 5.2, T4 + 15.4):                          # guias (par de travessas)

@@ -72,8 +72,12 @@ STAR = "Summon_DSStar_Glow"       # ambar MEDIO (Neon pela palavra glow): estrel
 VIOLET = "Summon_DSViolet_Glow"   # violeta medio-escuro (Neon): os filetes violeta controlados
 WIS_DEEP = "Wisteria_DS_Deep"     # 3o tom da glicinia (alto dos cachos, massas de flor)
 fm_lib.MATS.setdefault(GOLD, (_S(158, 118, 56), 0.45, 0.7, 0, None, 0.04))
-fm_lib.MATS.setdefault(STAR, (_S(192, 114, 40), 0.3, 0.0, 0.6, _S(192, 114, 40), 0.0))
-fm_lib.MATS.setdefault(VIOLET, (_S(96, 68, 166), 0.3, 0.0, 0.55, _S(96, 68, 166), 0.0))
+# ONDA 3c (ds_lights, equilibrio de destaque pedido pela onda 2b: da clareira o dourado do summon competia com a forja).
+# SO os numeros de emissao/brilho (geometria, ouro da estrutura e o azul do portal intactos): estrela ambar 0,6 -> 0,32
+# e o Neon dela no Roblox um valor abaixo (192,114,40 -> 162,94,34); filetes violeta 0,55 -> 0,40. As luzes L_DSSum_*
+# (estrela 900 -> 160, nucleo 1200 -> 450) sao do passe global ds_lights (que roda depois e manda nas energias).
+fm_lib.MATS.setdefault(STAR, (_S(162, 94, 34), 0.3, 0.0, 0.32, _S(162, 94, 34), 0.0))
+fm_lib.MATS.setdefault(VIOLET, (_S(96, 68, 166), 0.3, 0.0, 0.40, _S(96, 68, 166), 0.0))
 fm_lib.MATS.setdefault(WIS_DEEP, (_S(112, 76, 170), 0.8, 0.0, 0, None, 0.04))
 for _k in (STAR, VIOLET):
     fm_lib.RBX_CAL.setdefault(_k, (None, [int(c) for c in fm_lib.to_srgb(fm_lib.MATS[_k][0])]))
@@ -1133,8 +1137,9 @@ def build():
         col_box("DSSumTower", (1.9, 1.9, 5.0), (x, y, Z + 2.5))
         light("L_DSProp_Lamp_SumTop_%d" % i, "POINT", tuple(cc), 120.0, WARM, 0.3)
     # luzes de dia (4): nucleo azul do portal, estrela (quente, contida), 2 toro do podio
-    light("L_DSSum_Core", "POINT", tuple(P(0.0, PV + 3.0, 9.0)), 1200.0, (0.36, 0.52, 1.0), 1.0)
-    light("L_DSSum_Star", "POINT", tuple(c), 900.0, (1.0, 0.70, 0.36), 2.0)
+    # ONDA 3c: nucleo 1200 -> 450 e estrela 900 -> 160 (os mesmos numeros do passe global ds_lights)
+    light("L_DSSum_Core", "POINT", tuple(P(0.0, PV + 3.0, 9.0)), 450.0, (0.36, 0.52, 1.0), 1.0)
+    light("L_DSSum_Star", "POINT", tuple(c), 160.0, (1.0, 0.70, 0.36), 1.2)
     for n, p in zip(("L_DSSum_Lamp_L", "L_DSSum_Lamp_R"), lamps):
         light(n, "POINT", tuple(p), 150.0, WARM, 0.3)
     print("DS_SUMMON ok: guarda-corpo %d pilares" % nposts)

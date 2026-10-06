@@ -27,7 +27,8 @@ ZONE_MODULES = {
     "summon": ["ds_summon"],          # onda 1d
     "water": ["ds_water"],            # onda 2c
     "exit": ["ds_exit"],              # onda 1c
-    "dressing": ["ds_veg", "ds_props", "ds_lights"],   # onda 3
+    "dressing": ["ds_veg", "ds_props", "ds_vfx", "ds_lights"],   # onda 3 (ds_vfx: acrescimo 3c; ds_lights por ultimo:
+                                                                 # passe GLOBAL sobre as luzes de todas as zonas)
 }
 
 

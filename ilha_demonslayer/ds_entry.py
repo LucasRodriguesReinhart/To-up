@@ -13,13 +13,15 @@
 # no penhasco da ilha (u 94..101) - com cavaletes de madeira e MAOS-FRANCESAS (escoras inclinadas) ate 13 de cada no.
 # Colisao: tabuleiro, guardas, patio e escada sao do ds_col (congelado). Aqui so torii e toro (os nos/postes ficam
 # dentro da faixa da guarda invisivel).
-# TODO(ds_kit): lanterna de poste, toro, cerca baixa e guarda-corpo sao pecas LOCAIS na linguagem do plano (secao 8);
-# trocar pelas do ds_kit (agente 1b) quando ele existir, mantendo as posicoes e os nomes das luzes.
+# ONDA 3b (ds_props): toro, cerca baixa, guarda-corpo e caixa de lanterna sao as do ds_kit (toro kasuga, railing,
+# _box_lantern), nas MESMAS posicoes e com os MESMOS nomes de luz; o koran so acrescenta ao railing do kit a inclinacao do
+# tabuleiro e os postes-mestre com giboshi (ornamento proprio de ponte, que o kit nao tem). andon() fica so por historico.
 import math, random
 from mathutils import Vector, Matrix
 import ds_lib as DL
 from ds_lib import MB, col_box, light, Frame, ccw
 import ds_layout as L
+import ds_kit as K
 
 T0, T1, T4 = L.T0, L.T1, L.T4
 C = "18_ENTRY"
@@ -227,42 +229,10 @@ def torii(name, x, y, z, ang, area, coll=C, seed=7):
 
 # ================================================================== toro (kasuga-doro) de pedra
 def toro(mb, x, y, z, s=1.0, ang=0.0, light_name=None, area="DS_EntToro"):
-    """lanterna de pedestal kasuga: kiso (base hexagonal chanfrada) -> sao (fuste redondo com fushi) -> chudai (prato
-    hexagonal que abre para cima) -> hibukuro (6 colunetas, rodape e verga de pedra, papel aceso RECUADO 0,28 dentro)
-    -> kasa (chapeu hexagonal com beiral fino e warabite nas quinas) -> ukebana + hoju"""
-    c = (x, y, z)
-    hx = ang + math.pi / 6
-    S = lambda prof: [(r * s, h * s) for r, h in prof]
-    lathe(mb, c, S([(1.55, -0.2), (1.55, 0.42), (1.32, 0.62), (0.66, 0.8)]), ST, 6, hx)
-    lathe(mb, c, S([(0.45, 0.75), (0.41, 3.2)]), ST, 10, ang)
-    lathe(mb, c, S([(0.53, 1.86), (0.53, 2.08)]), ST, 10, ang)
-    lathe(mb, c, S([(0.42, 3.12), (1.16, 3.5), (1.26, 3.54), (1.26, 3.8)]), ST, 6, hx)
-    # hibukuro: rodape, colunetas nas quinas, verga; papel aceso recuado
-    lathe(mb, c, S([(1.0, 3.78), (1.0, 4.14)]), ST, 6, hx)
-    lathe(mb, c, S([(1.0, 5.0), (1.0, 5.24)]), ST, 6, hx)
-    for i in range(6):
-        a = hx + 2 * math.pi * i / 6
-        mb.box((0.3 * s, 0.3 * s, 0.9 * s), (x + 0.86 * s * math.cos(a), y + 0.86 * s * math.sin(a), z + 4.57 * s),
-               (0, 0, a), ST, 0.0)
-    lathe(mb, c, S([(0.62, 4.12), (0.62, 5.02)]), GLOW, 6, hx)
-    # kasa: beiral fino com as QUINAS levantadas (warabite) na propria malha, agua concava, topo
-    prof = [(1.05, 5.22, 0.0, 0.866), (1.84, 5.38, 0.24, 0.83), (1.98, 5.55, 0.34, 0.83), (1.62, 5.66, 0.14, 0.85),
-            (0.95, 5.88, 0.0, 0.866), (0.62, 6.1, 0.0, 0.866), (0.42, 6.2, 0.0, 0.866)]
-    rings = []
-    for r, h, lift, mid in prof:
-        pts = []
-        for i in range(12):
-            a = hx + math.pi * i / 6
-            corner = i % 2 == 0
-            rr = r * s * (1.0 if corner else mid)
-            pts.append((x + rr * math.cos(a), y + rr * math.sin(a), z + (h + (lift if corner else 0.0)) * s))
-        rings.append(pts)
-    loft(mb, rings, ST)
-    lathe(mb, c, S([(0.3, 6.18), (0.46, 6.4), (0.4, 6.46)]), ST, 8, ang)
-    lathe(mb, c, S([(0.3, 6.44), (0.4, 6.62), (0.36, 6.8), (0.2, 6.98), (0.0, 7.16)]), ST, 8, ang)
+    """lanterna de pedestal kasuga DO KIT (ds_kit.toro: base, fuste com aneis, plataforma, camara com aberturas
+    recuadas e papel aceso dentro, chapeu com warabite, hoju) - mesma altura (~7) e mesma luz da peca local antiga"""
+    K.toro(mb, Frame(x, y, z, ang), "kasuga", s * 0.95, light_name, 160.0)
     col_box(area, (2.6 * s, 2.6 * s, 6.6 * s), (x, y, z + 3.3 * s))
-    if light_name:
-        light(light_name, "POINT", (x, y, z + 4.58 * s), 160.0, WARM, 0.3)
 
 
 # ================================================================== lanterna de no (andon) sobre poste
@@ -299,24 +269,36 @@ def giboshi(mb, c, s=1.0, rot=0.0):
 
 
 # ================================================================== guarda-corpo (koran) de ponte
+class _SlopeFrame:
+    """referencial do guarda-corpo do kit sobre o tabuleiro inclinado: x = u, y = 0 no eixo v, z somado ao piso zf(u)"""
+
+    def __init__(self, F, v, zf):
+        self.F, self.v, self.zf, self.a = F, v, zf, F.a
+
+    def p(self, x, y, z=0.0):
+        return self.F.p(x, y + self.v, z + self.zf(x))
+
+    def r(self, rx=0.0, ry=0.0, rz=0.0):
+        return self.F.r(rx, ry, rz)
+
+
 def koran(mb, F, u0, u1, v, zf, nodes=(), step=3.4, top=3.66, node_top=4.35, post_from=0.38, lanterns=(),
           lamp_names=(), ends=(True, True)):
-    """guarda-corpo de madeira no eixo v entre u0 e u1 (zf(u) = piso): montantes a cada ~step, corrimao (kasagi do
-    koran) por cima, nuki passante no meio e rodape baixo; postes-mestre (mais grossos, com giboshi) em 'nodes' e nas
-    pontas; postes-lanterna (andon) em 'lanterns'"""
+    """guarda-corpo de ponte = ds_kit.railing (pilaretes com capitel, kasagi que passa das pontas, travessa media e
+    baixa, montante curto no meio do vao) seguindo a inclinacao do tabuleiro (zf) em vaos de ~step; postes-mestre
+    (mais grossos, com giboshi) em 'nodes' e nas pontas; postes-lanterna com a caixa de lanterna do kit em 'lanterns'"""
     ln = u1 - u0
     k = max(1, int(round(ln / step)))
-    us = [u0 + ln * i / k for i in range(k + 1)]
-    special = set(round(u, 2) for u in nodes) | set(round(u, 2) for u in lanterns)
-    for i, u in enumerate(us):
-        if (i == 0 and ends[0]) or (i == k and ends[1]) or any(abs(u - q) < step * 0.5 for q in special):
-            continue
-        z = zf(u)
-        fbox(mb, F, u - 0.23, v - 0.23, z + post_from, u + 0.23, v + 0.23, z + top - 0.1, WD, 0.04)
-    za, zb = zf(u0), zf(u1)
-    fbeam(mb, F, (u0, v, za + top), (u1, v, zb + top), 0.56, 0.3, WD, 0.06)            # corrimao
-    fbeam(mb, F, (u0, v, za + 2.2), (u1, v, zb + 2.2), 0.22, 0.32, WM, 0.03)           # nuki
-    fbeam(mb, F, (u0, v, za + 0.78), (u1, v, zb + 0.78), 0.3, 0.3, WM, 0.03)           # rodape
+    flat = abs(zf(u0) - zf(u1)) < 0.02 and abs(zf((u0 + u1) / 2) - zf(u0)) < 0.02
+    # tabuleiro plano: 1 lance so (travessas inteiras, pilaretes a cada ~step); inclinado: 1 lance por vao (cada
+    # travessa segue a rampa; o degrau de 0,07 entre vaos fica sob o capitel do pilarete)
+    pts = [(u0, 0.0), (u1, 0.0)] if flat else [(u0 + ln * i / k, 0.0) for i in range(k + 1)]
+    old = (K.MIN_BEVEL, K.MIN_BEVEL_SIZE)
+    K.MIN_BEVEL, K.MIN_BEVEL_SIZE = 0.07, 0.5               # o mesmo opt-in da vila (chanfro < 0,07 sai)
+    try:
+        K.railing(mb, _SlopeFrame(F, v, zf), pts, top - post_from - 0.12, post_from, step + (0.5 if flat else 0.0))
+    finally:
+        K.MIN_BEVEL, K.MIN_BEVEL_SIZE = old
     nodes = list(nodes) + ([u0] if ends[0] else []) + ([u1] if ends[1] else [])
     for u in nodes:
         z = zf(u)
@@ -328,10 +310,10 @@ def koran(mb, F, u0, u1, v, zf, nodes=(), step=3.4, top=3.66, node_top=4.35, pos
         z = zf(u)
         fbox(mb, F, u - 0.46, v - 0.46, z + post_from - 0.2, u + 0.46, v + 0.46, z + 5.1, WD, 0.06)
         fbox(mb, F, u - 0.55, v - 0.55, z + 3.4, u + 0.55, v + 0.55, z + 3.62, BRZ, 0.03)
-        p = F.p(u, v, z + 5.1)
-        andon(mb, (p.x, p.y, p.z), F.a, 0.95)
+        Fl = Frame(*F.p(u, v, 0.0)[:2], 0.0, F.a)
+        c, _ = K._box_lantern(mb, Fl, (0.0, 0.0, z + 5.24), 0.6, 0.6, 1.4)
         if i < len(lamp_names) and lamp_names[i]:
-            light(lamp_names[i], "POINT", tuple(F.p(u, v, z + 5.95)), 160.0, WARM, 0.4)
+            light(lamp_names[i], "POINT", tuple(Fl.p(*c)), 160.0, WARM, 0.4)
 
 
 # ================================================================== rocha-pilar (coluna de estratos que sobe das nuvens)
@@ -630,22 +612,13 @@ def _court_paving(mb, rng):
 
 
 def _fence(mb, pts, z, h=2.6, step=2.7):
-    """cerca baixa de madeira (mourao com chapeu chanfrado, 2 travessas passantes) - TODO(ds_kit)"""
-    for a, b in zip(pts, pts[1:]):
-        a, b = Vector((a[0], a[1], z)), Vector((b[0], b[1], z))
-        d = b - a
-        ln = d.length
-        if ln < 0.5:
-            continue
-        rz = math.atan2(d.y, d.x)
-        k = max(1, int(round(ln / step)))
-        for i in range(k + 1):
-            p = a + d * (i / k)
-            mb.box((0.42, 0.42, h), (p.x, p.y, z + h / 2 - 0.1), (0, 0, rz), WD, 0.04)
-            lathe(mb, (p.x, p.y, z + h - 0.1), [(0.3, 0.0), (0.3, 0.06), (0.0, 0.3)], WD, 4, rz + math.pi / 4)
-        for zz, hh in ((h * 0.42, 0.26), (h * 0.82, 0.3)):
-            c = (a + b) / 2
-            mb.box((ln + 0.5, 0.2, hh), (c.x, c.y, z + zz), (0, 0, rz), WM, 0.03)
+    """cerca baixa de borda = guarda-corpo baixo do kit (ds_kit.railing), a mesma das bordas da clareira (ds_props)"""
+    old = (K.MIN_BEVEL, K.MIN_BEVEL_SIZE)
+    K.MIN_BEVEL, K.MIN_BEVEL_SIZE = 0.07, 0.5
+    try:
+        K.railing(mb, Frame(0.0, 0.0, z - 0.06, 0.0), pts, h, 0.0, step + 0.5)
+    finally:
+        K.MIN_BEVEL, K.MIN_BEVEL_SIZE = old
 
 
 def court():

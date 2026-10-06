@@ -14,7 +14,8 @@
 #   DS_Exit_AnchorGuard, next_island_guard=True; a colisao COL_DSAnchorGuard_* e do ds_col).
 # Colisao: caminho (piso T4), ponte, cabeceira, guardas e a guarda da ancora sao do ds_col (congelado). Aqui so o torii
 # e os postes-lanterna.
-# TODO(ds_kit): poste-lanterna, guarda-corpo e cerca sao pecas LOCAIS (ver ds_entry); trocar pelas do ds_kit.
+# ONDA 3b (ds_props): poste-lanterna = ds_kit.lantern_post; guarda-corpo = ds_entry.koran, que agora e o railing do
+# kit (com inclinacao, giboshi nos nos); mesmas posicoes, rotas e nomes de luz.
 import math, random
 from mathutils import Vector
 from mathutils.bvhtree import BVHTree
@@ -23,6 +24,7 @@ import ds_lib as DL
 from ds_lib import MB, col_box, light, Frame, ccw
 import ds_layout as L
 import ds_entry as E
+import ds_kit as K
 from ds_entry import fbox, fbeam, loft, lathe, WD, WM, ST, STD, STP, CLM, BRZ, FERN
 
 T4 = L.T4
@@ -329,19 +331,21 @@ def exit_path():
         _, x, y, dx, dy = fr[k]
         off = (_width(sl, total) + 2.2) * side
         lx, ly = x - dy * off, y + dx * off
-        lamp_post(mb, lx, ly, T4, math.atan2(dy, dx), "L_DSProp_Lamp_Exit_%d" % i)
+        lamp_post(mb, lx, ly, T4, math.atan2(dy, dx), "L_DSProp_Lamp_Exit_%d" % i, side)
     mb.finish()
 
 
-def lamp_post(mb, x, y, z, rot, light_name):
-    """poste-lanterna de caminho: sapata de pedra, poste de madeira escura com mao-francesa e a andon da ponte no topo
-    (TODO(ds_kit))"""
-    lathe(mb, (x, y, z), [(0.95, -0.3), (0.95, 0.35), (0.7, 0.55)], STD, 6, rot)
-    mb.box((0.56, 0.56, 5.0), (x, y, z + 0.5 + 2.5), (0, 0, rot), WD, 0.06)
-    mb.box((0.7, 0.7, 0.2), (x, y, z + 3.4), (0, 0, rot), BRZ, 0.03)
-    E.andon(mb, (x, y, z + 5.5), rot, 0.95)
-    col_box("DS_ExitLamp", (0.9, 0.9, 6.0), (x, y, z + 3.0))
-    light(light_name, "POINT", (x, y, z + 6.3), 140.0, E.WARM, 0.4)
+def lamp_post(mb, x, y, z, rot, light_name, side=1):
+    """poste-lanterna de caminho = ds_kit.lantern_post (pedra-base, poste chanfrado com chapeu, braco com mao-francesa
+    e caixa de papel pendurada), com o braco virado PARA o caminho (rot = rumo do caminho; side = lado do poste)"""
+    arm = rot + math.pi / 2 + (math.pi if side > 0 else 0.0)
+    old = (K.MIN_BEVEL, K.MIN_BEVEL_SIZE)
+    K.MIN_BEVEL, K.MIN_BEVEL_SIZE = 0.09, 0.5               # sem chanfro na pedra-base e no poste (orcamento)
+    try:
+        K.lantern_post(mb, Frame(x, y, z - 0.06, arm - math.pi / 2), 8.6, 1.9, light_name, 140.0)
+    finally:
+        K.MIN_BEVEL, K.MIN_BEVEL_SIZE = old
+    col_box("DS_ExitLamp", (0.9, 0.9, 8.6), (x, y, z + 4.3))
 
 
 def vegetation():
