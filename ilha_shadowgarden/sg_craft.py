@@ -44,6 +44,12 @@
 # ONDA 2 / o2b (2026-10-01, planta v4): roda DIRETO na v4 (saiu do build_sg.LEGACY / sg_relocate) em CRAFT_C
 # (112, -86), porta a oeste para a rua do P2; o pavilhao inteiro CRESCE 12% (SCALE, ver grow()) para nao ficar
 # pequeno ao lado do castelo 2x e das casas novas; cameras relativas ao centro; rotas/sondas so com o modulo construido.
+# FINESSE 3B (2026-10-06, AUDITORIA3 11.01-11.08): casca + domo num objeto e caldeirao dentro da mobilia (MeshParts
+# 75 -> 58); janelas de VIDRO ESCURO com chumbo e faixa quente recuada (11.01); caldeirao sem medalhao, borda em toro,
+# fogo em linguas, pocao com superficie (11.02); oculo com moldura e rendilhado nas 2 faces (11.03); circulo do piso em
+# filetes e runas de bronze embutidos, sem Neon (11.04); lanternas da porta com remate de ferro e as do circulo fora
+# (11.05); ADRO octogonal de lajes com meio-fio, patamar e degraus na porta (11.06); uma ESTACAO de destilacao com
+# fornalha no lugar dos 3 vasos soltos (11.07); moveis por funcao em ritmo baixo-alto-alto-baixo (11.08).
 import math, random
 import bmesh
 import bpy
@@ -96,8 +102,12 @@ LAN_R, LAN_Z0, LAN_Z1 = 3.1, 28.6, 32.2
 FLASK_ZC = LAN_Z1 + 0.6 + 4.6  # centro do bojo (37,4)
 IN_DOME_RISE = 8.6
 WIN_A = [22.5, 67.5, 112.5, 247.5, 292.5, 337.5]
-# acabamento: TODAS as janelas em luz quente (a magia fica no caldeirao, no circulo e no frasco do topo)
-WIN_M = {a: "Window_Warm" for a in WIN_A}
+# FINESSE 3B (11.01): as lancetas deixam de ser painel amarelo inteiro: VIDRO ESCURO (navy) em caixilho de chumbo,
+# luz quente so numa FAIXA BAIXA recuada atras do vidro (por fora); as 2 janelas que ladeiam o portico levam a cabeca do
+# arco em vitral violeta medio (Glass_SG_Rose) - 1 por lado da fachada
+WIN_M = {a: ("Glass_SG_Rose" if a in (112.5, 247.5) else "Roof_SG_Navy") for a in WIN_A}
+WIN_WARM_TOP = 10.55           # topo da faixa quente (por fora)
+WIN_CAMES = (11.55, 13.55)     # chumbos horizontais extras (alem da travessa 12,6..12,76)
 BUTT_A = [0.0, 45.0, 90.0, 135.0, 225.0, 270.0, 315.0]
 SHELF_A = [67.5, 82.5, 97.5, 112.5, 247.5, 262.5, 277.5, 292.5]
 SHELF_RUNS = [(60.0, 120.0), (240.0, 300.0)]  # as estantes ocupam essas faixas da parede (montantes nas bissetrizes)
@@ -123,8 +133,10 @@ VSTONE = "Stone_SG_Violet"
 SOCLE = 2.6                    # soco alto de obsidiana (v3)
 WIN_FOOT, WIN_SPRING, WIN_RISE, WIN_HW = 9.3, 14.4, 2.5, 1.35   # janelas ALTAS (v3: 9,3 -> 16,9)
 OCU_Z, OCU_R = 14.8, 1.7       # oculo sobre a porta (portico)
-POST_A = [150.0, 210.0]        # lanternas do circulo magico (ancoras dos raios)
-TANK_A = [45.0, 225.0, 315.0]         # camaras de vidro no pe dos contrafortes diagonais (135 ficaria na rota da dungeon)
+POST_A = [150.0, 210.0]        # lados da passadeira: sem glifo ali (as lanternas do circulo sairam, 11.05)
+TANK_A = [225.0]               # FINESSE 3B (11.07): UMA estacao de destilacao (vaso + fornalha + base) no contraforte SO,
+#                                o lado que a rua ve; os vasos soltos de 45 e 315 sairam (sem funcao no fundo)
+TANK_LIFT = 0.8                # o vaso sobe na fornalha (FINESSE 3B)
 TANK_Y = 19.45                 # centro radial dos tanques (face do contraforte em 17,5; soco do contraforte ate 17,75)
 CHAND_Z, CHAND_R = 12.6, 5.0   # lustre BAIXO (lido da camera da porta): aro, raio (ajuste 19: o cristal pendurado saiu)
 AMBER, SAGE, PALE, ROSE = "Glass_SGCraftAmber", "Glass_SGCraftSage", "Glass_SGCraftPale", "Glass_SG_Rose"
@@ -169,6 +181,22 @@ def _sc(p):
 
 # as cameras de dentro acompanham a escala (as de fora e as da altura do jogador ficam como estao)
 CAMS = {k: ((_sc(a), _sc(b), f) if k.startswith("CAM_SGCraft_In_") else (a, b, f)) for k, (a, b, f) in CAMS.items()}
+# FINESSE 3B: as cameras da AUDITORIA 3 (sg_scene.a3_cams, olho a 5,5; ja no mundo) para o antes/depois deste modulo
+_E3 = 5.5
+CAMS.update({
+    "CAM_A3_11_Rua": ((40.0, -89.0, P2 + _E3), (CX, CY, P2 + 17.0), 20),
+    "CAM_A3_11_Porta": ((CX - 30.0, CY + 2.0, P2 + _E3), (CX, CY, P2 + 10.0), 20),
+    "CAM_A3_11_Leste": ((150.0, -44.0, P2 + _E3), (CX, CY, P2 + 20.0), 20),
+    "CAM_A3_11_DoP1": ((60.0, -168.0, L.P1 + _E3), (CX, CY, P2 + 22.0), 20),
+    "CAM_A3_11_Fundo": ((CX + 30.0, CY - 30.0, P2 + _E3), (CX, CY, P2 + 16.0), 20),
+    "CAM_A3_11_In_Caldeirao": ((CX - 11.8, CY - 2.8, P2 + 6.2), (CX + 7.0, CY + 1.0, P2 + 5.0), 16),
+    "CAM_A3_11_In_Prateleiras": ((CX - 8.5, CY - 6.5, P2 + 6.0), (CX + 3.0, CY + 13.5, P2 + 6.0), 16),
+    "CAM_A3_11_In_Porta": ((CX + 9.0, CY - 1.0, P2 + 5.8), (CX - 14.0, CY, P2 + 7.0), 16),
+    "CAM_A3_11_In_Cima": ((CX - 9.4, CY, P2 + 3.2), (CX + 3.0, CY, P2 + 18.0), 14),
+    # adro e patamar da porta (11.06) e a estacao de destilacao (11.07), na altura do jogador
+    "CAM_SGCraft_Adro": ((CX - 31.0, CY - 15.0, P2 + 6.5), (CX - 15.0, CY - 3.0, P2 + 1.0), 22),
+    "CAM_SGCraft_Station": ((CX - 31.0, CY - 27.0, P2 + 5.5), (CX - 15.4, CY - 15.4, P2 + 3.0), 22),
+})
 
 
 class _OnlyBuilt(dict):
@@ -679,21 +707,44 @@ def face_span(phi):
 FACES = [(A0 + STEP * (k + 0.5)) % 360.0 for k in range(int(round((A1 - A0) / STEP)))]
 
 
+def lancet_glass(mb, F, y0, y1, foot, a, warm_top=None):
+    """vidraca da janela alta (11.01): vidro ESCURO (navy) do pe (ou do topo da faixa quente) ate a travessa; cabeca
+    do arco acima da travessa em navy ou em vitral violeta (WIN_M); se warm_top, a FAIXA QUENTE fica do pe ate ali,
+    0,1 ATRAS do plano do vidro (y0 - 0,1): a luz le recuada dentro da moldura"""
+    hw = WIN_HW
+    g0 = warm_top if warm_top else foot
+    if warm_top:
+        d = 0.1 if y1 > y0 else -0.1
+        fbox(mb, F, -hw, hw, y0 - d, y1 - d, foot, warm_top + 0.05, "Window_Warm")
+    fbox(mb, F, -hw, hw, y0, y1, g0, 12.68, "Roof_SG_Navy")
+    pslab(mb, F, [(-hw, 12.68)] + ogive(0.0, hw, WIN_RISE, WIN_SPRING, 4) + [(hw, 12.68)], min(y0, y1), max(y0, y1),
+          WIN_M[a])
+
+
+def lancet_cames(mb, F, y0, y1, foot, warm_top=None):
+    """CAIXILHO DE CHUMBO: mainel, travessa, chumbos horizontais e o chumbo do topo da faixa quente"""
+    lo, hi = min(y0, y1), max(y0, y1)
+    fbox(mb, F, -0.09, 0.09, lo, hi, foot, WIN_SPRING + WIN_RISE - 0.3, BIRON)
+    fbox(mb, F, -WIN_HW, WIN_HW, lo, hi, 12.6, 12.76, BIRON)
+    for v in WIN_CAMES + ((warm_top,) if warm_top else ()):
+        hw = WIN_HW if v < WIN_SPRING else WIN_HW - 0.35
+        fbox(mb, F, -hw, hw, lo + 0.02, hi - 0.02, v - 0.04, v + 0.04, BIRON)
+
+
 def window_out(mb, a):
-    """janela alta por fora em CAMADAS: vidraca quente -> 1a ordem (pedra violeta) -> 2a ordem (pedra do castelo,
-    mais saliente: o recuo le) -> pingadeira de obsidiana no arco com batentes; mainel e travessa de ferro; embaixo, o
-    AVENTAL rebaixado entre 2 montantes que descem ate o cordao"""
+    """janela alta por fora em CAMADAS: vidro escuro com faixa quente recuada -> 1a ordem (pedra violeta) -> 2a ordem
+    (pedra do castelo, mais saliente: o recuo le) -> pingadeira de obsidiana no arco com batentes; caixilho de chumbo;
+    embaixo, o AVENTAL rebaixado entre 2 montantes que descem ate o cordao"""
     F = fr(a)
     y = AP_O
-    arch_panel(mb, F, WIN_HW, WIN_RISE, WIN_SPRING, WIN_FOOT, y - 0.05, y + 0.06, WIN_M[a], n=4)
+    lancet_glass(mb, F, y + 0.08, y + 0.14, WIN_FOOT, a, WIN_WARM_TOP)
+    lancet_cames(mb, F, y + 0.13, y + 0.24, WIN_FOOT, WIN_WARM_TOP)
     arch_band(mb, F, WIN_HW, WIN_RISE, WIN_SPRING, WIN_FOOT, 0.2, y - 0.05, y + 0.3, VSTONE, n=4)
     arch_band(mb, F, WIN_HW + 0.2, WIN_RISE + 0.2, WIN_SPRING, WIN_FOOT, 0.28, y - 0.05, y + 0.5, CASTLE, n=4)
     arch_band(mb, F, WIN_HW + 0.48, WIN_RISE + 0.48, WIN_SPRING, WIN_SPRING - 0.5, 0.13, y - 0.05, y + 0.64, OBS, n=4)
     for s in (-1, 1):
         fbox(mb, F, s * (WIN_HW + 0.46), s * (WIN_HW + 0.72), y - 0.05, y + 0.66, WIN_SPRING - 0.78, WIN_SPRING - 0.5,
              OBS, 0.03)                                                                  # batente da pingadeira
-    fbox(mb, F, -0.09, 0.09, y, y + 0.2, WIN_FOOT, WIN_SPRING + WIN_RISE - 0.3, BIRON)
-    fbox(mb, F, -WIN_HW, WIN_HW, y, y + 0.2, 12.6, 12.76, BIRON)
     # avental: montantes (continuam a 2a ordem) e painel escuro rebaixado; o respiro do porao fica na cantaria
     for s in (-1, 1):
         fbox(mb, F, s * (WIN_HW + 0.2), s * (WIN_HW + 0.48), y - 0.05, y + 0.22, CRD_TOP - 0.02, SILL_TOP - 0.44,
@@ -747,9 +798,9 @@ def buttress(mb, a):
     urn(mb, c[0], c[1], Z + top, 1.0)
 
 
-def shell():
-    mb = MB("SG_Craft_Shell", "16_CRAFT", random.Random(8101), detail="near")
-    ring_band(mb, R_IN, R_OUT, -0.3, H, WALL, A0, A1)                    # nucleo da parede (24-gono sem a porta)
+def shell(mb):
+    """casca (FINESSE 3B: o domo, o frasco e o icone entram no MESMO objeto - 1 MeshPart por material na casca toda)"""
+    ring_band(mb, R_IN, R_OUT, -0.3, H, WALL, A0, A1)                  # nucleo da parede (24-gono sem a porta)
     # EMBASAMENTO (06.01 / 14.07): soco de obsidiana em talude, cantaria em fiadas ate +4,35, cordao de pedra violeta
     poly_ring(mb, PROF_PLINTH, A0, A1, OBS)
     for k, phi in enumerate(FACES):
@@ -779,7 +830,8 @@ def shell():
         buttress(mb, a)
     portal(mb)
     lab_tanks(mb)
-    mb.finish()
+    windows_in(mb)            # FINESSE 3B: o lado de dentro das janelas sai com a casca (mesmos materiais do lado de fora)
+    adro(mb)
     # colisao: anel refeito para o raio novo (20 caixas, mesmo padrao), contrafortes
     rm = (R_IN + R_OUT) / 2.0
     chord = 2.0 * R_OUT * math.sin(math.radians(STEP / 2.0)) + 0.1
@@ -804,8 +856,7 @@ def _vr(v):
 
 
 def lab_tanks(mb):
-    """os 3 'jarros cinza' viram VASOS DE LABORATORIO de verdade (no pe dos contrafortes diagonais; o do noroeste fica
-    livre: rota da dungeon): soco octogonal de obsidiana, SUPORTE de ferro (anel sob o bojo + 4 pernas com sapata),
+    """ESTACAO DE DESTILACAO (11.07): base de pedra ligada ao contraforte, FORNALHA de cantaria com boca acesa sob o vaso,
     corpo de BRONZE torneado (normais lisas), 2 CINTAS de ferro rebitadas, FLANGE e TAMPA aparafusadas, VISOR redondo
     de moldura aparafusada (o liquido aparece so ali, em cor solida, com o nivel), VALVULA de volante no tubo e o tubo
     -> flange -> contraforte."""
@@ -813,34 +864,42 @@ def lab_tanks(mb):
         F = fr(a)
         c = F.p(0.0, TANK_Y, 0.0)
         x, y = c[0], c[1]
-        liq = POT_W if a == 225.0 else POT_T
+        liq = POT_W
+        # BASE de pedra: soco octogonal ligado ao contraforte por um lance de cantaria (a estacao nasce do predio)
         lathe(mb, x, y, Z, [(0.0, -0.3), (1.5, -0.3), (1.5, 0.3), (1.38, 0.42), (0.0, 0.42)], OBS, n=8, rot=math.pi / 8)
-        # suporte de ferro: anel sob o bojo e 4 pernas em arco ate a sapata no soco
-        revolve(mb, (x, y, Z), [(1.22, 1.5), (1.4, 1.5), (1.4, 1.66), (1.22, 1.66)], BIRON, n=12, smooth_edges={1})
-        for k in range(4):
-            b = F.a + math.pi / 4 + k * math.pi / 2
-            ca, sa = math.cos(b), math.sin(b)
-            pts = [(x + r * ca, y + r * sa, Z + v) for r, v in ((1.36, 1.6), (1.5, 1.25), (1.49, 0.85), (1.3, 0.5))]
-            mb.sweep(pts, [(-0.09, -0.08), (0.09, -0.08), (0.09, 0.08), (-0.09, 0.08)], BIRON, True, None,
-                     up=(ca, sa, 0.0))
-            mb.box((0.34, 0.26, 0.1), (x + 1.28 * ca, y + 1.28 * sa, Z + 0.47), (0, 0, b), BIRON, 0.03)
-        lathe(mb, x, y, Z, VESSEL, BRONZE, n=10, sm={1, 2, 3, 4, 5, 6, 7, 8})
-        lathe(mb, x, y, Z, VESSEL_LID, BRONZE, n=10, sm={3, 4, 5})
+        fbox(mb, F, -0.95, 0.95, 17.7, TANK_Y - 1.0, -0.3, 0.42, OBS, 0.04)
+        # FORNALHA (atanor) de cantaria sob o vaso: tambor octogonal ALTO (o vaso sobe TANK_LIFT), capa de pedra violeta
+        # onde o bojo assenta, BOCA em arco na face da rua com grelha de ferro e brasa quente RECUADA (Neon ambar escuro
+        # so dentro da moldura)
+        lv = TANK_LIFT
+        lathe(mb, x, y, Z, [(0.0, 0.42), (1.32, 0.42), (1.32, 1.18 + lv), (0.0, 1.18 + lv)], CA.ASH, n=8, rot=math.pi / 8)
+        lathe(mb, x, y, Z, [(0.7, 1.18 + lv), (1.44, 1.18 + lv), (1.44, 1.3 + lv), (1.3, 1.38 + lv), (0.7, 1.38 + lv)],
+              VSTONE, n=8, rot=math.pi / 8)
+        Fm = Frame(x, y, Z, math.pi / 2)                            # +y local = OESTE: a boca olha para a rua
+        ym = 1.32 * math.cos(math.pi / 8)
+        arch_panel(mb, Fm, 0.44, 0.34, 1.12, 0.5, ym - 0.02, ym + 0.01, "SG_LampCore_Glow", n=3)
+        arch_band(mb, Fm, 0.44, 0.34, 1.12, 0.48, 0.15, ym - 0.12, ym + 0.13, VSTONE, n=3)
+        for k in range(3):
+            fbox(mb, Fm, -0.3 + 0.3 * k - 0.035, -0.3 + 0.3 * k + 0.035, ym + 0.02, ym + 0.08, 0.5, 1.36, BIRON)
+        fbox(mb, Fm, -0.44, 0.44, ym + 0.02, ym + 0.08, 0.9, 0.96, BIRON)
+        Zv = Z + lv
+        lathe(mb, x, y, Zv, VESSEL, BRONZE, n=10, sm={1, 2, 3, 4, 5, 6, 7, 8})
+        lathe(mb, x, y, Zv, VESSEL_LID, BRONZE, n=10, sm={3, 4, 5})
         for k in range(6):                                                # parafusos da flange
             b = F.a + math.pi / 6 + k * math.pi / 3
-            mb.box((0.11, 0.11, 0.08), (x + 0.73 * math.cos(b), y + 0.73 * math.sin(b), Z + 4.66), (0, 0, b), BIRON, 0.0)
+            mb.box((0.11, 0.11, 0.08), (x + 0.73 * math.cos(b), y + 0.73 * math.sin(b), Zv + 4.66), (0, 0, b), BIRON, 0.0)
         for vb in (1.85, 3.1):                                            # cintas rebitadas
             r0, r1 = _vr(vb - 0.13), _vr(vb + 0.13)
-            revolve(mb, (x, y, Z), [(r0 - 0.03, vb - 0.13), (r0 + 0.07, vb - 0.11), (r1 + 0.07, vb + 0.11),
-                                    (r1 - 0.03, vb + 0.13)], BIRON, n=10, smooth_edges={1})
+            revolve(mb, (x, y, Zv), [(r0 - 0.03, vb - 0.13), (r0 + 0.07, vb - 0.11), (r1 + 0.07, vb + 0.11),
+                                     (r1 - 0.03, vb + 0.13)], BIRON, n=10, smooth_edges={1})
             for b in (F.a + math.pi / 2 - 0.75, F.a + math.pi / 2 + 0.75, F.a - math.pi / 2):   # rebites (lado visto)
                 rr = _vr(vb) + 0.09
-                mb.box((0.07, 0.09, 0.09), (x + rr * math.cos(b), y + rr * math.sin(b), Z + vb), (0, 0, b), IRON, 0.0)
+                mb.box((0.07, 0.09, 0.09), (x + rr * math.cos(b), y + rr * math.sin(b), Zv + vb), (0, 0, b), IRON, 0.0)
         # VISOR na face de fora (o que o jogador ve da rua)
         ax = Vector((math.cos(F.a + math.pi / 2), math.sin(F.a + math.pi / 2), 0.0))
         tg = Vector((-ax.y, ax.x, 0.0))
         vz = 2.5
-        o = Vector((x, y, Z + vz)) + ax * (_vr(vz) - 0.06)
+        o = Vector((x, y, Zv + vz)) + ax * (_vr(vz) - 0.06)
         ring_ax(mb, o, ax, [(0.27, -0.02), (0.44, -0.02), (0.44, 0.1), (0.36, 0.15), (0.27, 0.12)], BRONZE, n=12)
         for k in range(4):
             t = math.pi / 4 + k * math.pi / 2
@@ -855,21 +914,21 @@ def lab_tanks(mb):
         ext_poly(mb, [(-hw_l, lvl)] + low + [(hw_l, lvl)], P, -0.04, 0.06, liq)
         hi = sorted([p for p in circ if p[1] > lvl], key=lambda p: math.atan2(p[1], p[0]))
         ext_poly(mb, [(hw_l, lvl)] + hi + [(-hw_l, lvl)], P, -0.04, 0.05, OBS)
-        # tubo: sobe da gola, VALVULA, curva e entra no contraforte (face em y = 17,5)
-        zp = 7.0
-        pts = [F.p(0.0, TANK_Y, 5.8), F.p(0.0, TANK_Y, zp - 0.5), F.p(0.0, TANK_Y - 0.12, zp - 0.24),
-               F.p(0.0, TANK_Y - 0.4, zp - 0.06), F.p(0.0, TANK_Y - 0.75, zp), F.p(0.0, 17.45, zp)]
+        # tubo: sobe da gola, curva e entra no contraforte (face em y = 17,5, abaixo do talude de 7,4) com VALVULA de
+        # globo no trecho horizontal (castelo e volante deitado em cima)
+        zp = 7.12
+        z0 = 5.8 + lv
+        pts = [F.p(0.0, TANK_Y, z0 - 0.1), F.p(0.0, TANK_Y, zp - 0.3), F.p(0.0, TANK_Y - 0.1, zp - 0.1),
+               F.p(0.0, TANK_Y - 0.35, zp), F.p(0.0, 17.45, zp)]
         mb.tube(pts, 0.15, BRASS, 8)
-        vc = F.p(0.0, TANK_Y, 6.2)
-        lathe(mb, vc[0], vc[1], vc[2], [(0.0, -0.2), (0.24, -0.2), (0.27, -0.1), (0.27, 0.1), (0.24, 0.2), (0.0, 0.2)],
-              BRONZE, n=8)
-        tax = Vector((math.cos(F.a), math.sin(F.a), 0.0))          # eixo do volante (tangente)
-        mb.rod(tuple(Vector(vc)), tuple(Vector(vc) + tax * 0.5), 0.05, IRON, 6)
-        wc = Vector(vc) + tax * 0.5
-        ring_ax(mb, wc, tax, [(0.24, -0.04), (0.31, -0.04), (0.31, 0.04), (0.24, 0.04)], BIRON, n=8)
+        vc = F.p(0.0, TANK_Y - 0.95, zp)
+        lathe(mb, vc[0], vc[1], vc[2], [(0.0, -0.24), (0.2, -0.22), (0.27, -0.08), (0.27, 0.08), (0.2, 0.22), (0.12, 0.26),
+                                        (0.1, 0.62), (0.0, 0.62)], BRONZE, n=8)
+        wc = Vector(vc) + Vector((0.0, 0.0, 0.62))
+        ring_ax(mb, wc, (0.0, 0.0, 1.0), [(0.24, -0.04), (0.31, -0.04), (0.31, 0.04), (0.24, 0.04)], BIRON, n=8)
         for q in range(2):
-            t = q * math.pi / 2
-            d = Vector((0, 0, 1)) * math.cos(t) + Vector((-tax.y, tax.x, 0)) * math.sin(t)
+            t = q * math.pi / 2 + F.a
+            d = Vector((math.cos(t), math.sin(t), 0.0))
             mb.rod(tuple(wc - d * 0.26), tuple(wc + d * 0.26), 0.035, BIRON, 4)
         # flange na face do contraforte (4 parafusos) + colar no tubo
         mb.cyl(0.38, 0.12, F.p(0.0, 17.56, zp), F.r(math.pi / 2, 0.0, 0.0), BRASS, n=10, bevel=0.0)
@@ -877,7 +936,317 @@ def lab_tanks(mb):
             b = math.pi / 4 + k * math.pi / 2
             mb.box((0.08, 0.06, 0.08), F.p(0.27 * math.cos(b), 17.64, zp + 0.27 * math.sin(b)), F.r(), BIRON, 0.0)
         mb.cyl(0.21, 0.14, F.p(0.0, 18.0, zp), F.r(math.pi / 2, 0.0, 0.0), BRASS, n=8, bevel=0.0)
-        col_box("SG_CraftTank", (2.8, 2.8, 6.6), (x, y, Z + 3.0), (0, 0, F.a))
+        col_box("SG_CraftTank", (2.8, 2.8, 6.6 + TANK_LIFT), (x, y, Z + 3.0 + TANK_LIFT / 2.0), (0, 0, F.a))
+
+
+# ------------------------------------------------------------------ LANTERNA da porta (11.05)
+# o desenho do kit (sg_emblem.lantern_post / lantern_head) com o REMATE de ferro: colar, bola e ponta curta de ferro
+# (a piramide dourada e a cinta de ouro sairam - o ouro saturado nao existe na alquimia); mesmas cotas do kit, a luz
+# L_SGCraft_DoorLantern continua dentro do vidro
+LAMP_FINIAL = [(0.12, 1.94), (0.17, 2.0), (0.1, 2.05), (0.15, 2.1), (0.17, 2.17), (0.14, 2.25), (0.06, 2.29),
+               (0.04, 2.42), (0.0, 2.47)]
+
+
+def lantern_head(mb, c, yaw=0.0, s=1.0):
+    x, y, z = c
+    b = z - EM.LH_BASE * s
+    rot = yaw + math.pi / 6.0
+
+    def P(pr):
+        return [(r * s, h * s) for r, h in pr]
+    EM._lathe(mb, (x, y, b), P([(0.30, 0.0), (0.55, 0.13), (0.47, 0.25)]), EM.L_IRON, 6, rot, caps=(False, True))
+    fx_, fy_ = math.cos(yaw), math.sin(yaw)
+    EM._lathe(mb, (x - fx_ * 0.15 * s, y - fy_ * 0.15 * s, b), P([(0.21, 0.26), (0.21, 1.11)]), EM.L_CORE, 6, rot,
+              caps=(False, True))
+    vx_, vy_ = x + fx_ * 0.12 * s, y + fy_ * 0.12 * s
+    EM._lathe(mb, (vx_, vy_, b + 0.24 * s), P([(0.08, 0.0), (0.08, 0.40), (0.0, 0.42)]), EM.L_WAX, 4, rot,
+              caps=(False, False))
+    EM._lathe(mb, (vx_, vy_, b + 0.63 * s), P([(0.0, 0.0), (0.12, 0.15), (0.065, 0.31), (0.0, 0.48)]), EM.L_GLOW, 5,
+              rot)
+    EM._lathe(mb, (x, y, b), P([(0.40, 0.24), (0.40, 1.46)]), EM.L_GLASS, 6, rot, caps=(False, False))
+    bm = mb.bm
+    for k in range(6):
+        a = rot + k * math.pi / 3.0
+        ca, sa = math.cos(a), math.sin(a)
+        sec = [(0.37, -0.06), (0.48, -0.035), (0.48, 0.035), (0.37, 0.06)]
+        vs = []
+        for zz in (0.22, 1.48):
+            vs.append([bm.verts.new((x + (r * ca - t * sa) * s, y + (r * sa + t * ca) * s, b + zz * s))
+                       for r, t in sec])
+        fs = [bm.faces.new((vs[0][i], vs[0][(i + 1) % 4], vs[1][(i + 1) % 4], vs[1][i])) for i in range(4)]
+        bmesh.ops.recalc_face_normals(bm, faces=fs)
+        mb._post(vs[0] + vs[1], EM.L_IRON, None, 0, 1)
+    EM._lathe(mb, (x, y, b), P([(0.46, 1.14), (0.46, 1.21)]), EM.L_IRON, 6, rot, caps=(False, False))
+    EM._lathe(mb, (x, y, b), P([(0.36, 1.44), (0.50, 1.47), (0.62, 1.58), (0.32, 1.80), (0.15, 1.96)]), EM.L_IRON,
+              6, rot, caps=(True, False))
+    EM._lathe(mb, (x, y, b), P(LAMP_FINIAL), EM.L_IRON, 6, rot, caps=(False, True))
+
+
+def lantern_post(mb, base, yaw=0.0, h=7.0, s=1.0):
+    """poste da ordem (o do kit, cotas iguais) com a lanterna de remate de ferro"""
+    x, y, z = base
+    zb = z + h - 0.24 * s
+    mb.box((1.2 * s, 1.2 * s, 0.3 * s), (x, y, z + 0.15 * s), (0, 0, yaw), EM.SHADOW, 0.05 * s)
+    z0 = z + 0.3 * s
+    zc = zb - 0.40 * s
+    Lp = zc - z0
+    h1 = 0.95 * s + (Lp - 0.95 * s) * 0.34
+    rot = yaw + math.pi / 6.0
+    prof = [(r * s, hh * s) for r, hh in [(0.48, 0.0), (0.48, 0.10), (0.40, 0.15), (0.43, 0.24), (0.28, 0.36),
+                                           (0.18, 0.95)]]
+    prof += [(0.165 * s, h1 - 0.10 * s), (0.22 * s, h1 - 0.05 * s), (0.22 * s, h1 + 0.05 * s),
+             (0.155 * s, h1 + 0.10 * s), (0.13 * s, Lp - 0.18 * s), (0.19 * s, Lp - 0.12 * s), (0.13 * s, Lp)]
+    EM._lathe(mb, (x, y, z0), prof, EM.L_IRON, 6, rot, caps=(False, True))
+    EM._lathe(mb, (x, y, zc), [(0.13 * s, 0.0), (0.20 * s, 0.12 * s), (0.30 * s, 0.26 * s), (0.52 * s, 0.33 * s),
+                               (0.56 * s, 0.38 * s), (0.48 * s, 0.40 * s)], EM.L_IRON, 6, rot, caps=(False, True))
+    prof_c = [(-0.035 * s, -0.05 * s), (0.035 * s, -0.05 * s), (0.035 * s, 0.05 * s), (-0.035 * s, 0.05 * s)]
+    for k in range(4):
+        a = yaw + math.pi / 4.0 + k * math.pi / 2.0
+        ca, sa = math.cos(a), math.sin(a)
+        pts = []
+        p0, p1, p2, p3 = (0.14, -0.62), (0.16, -0.18), (0.50, -0.30), (0.50, 0.30)
+        for i in range(4):
+            t = i / 3.0
+            u = 1 - t
+            r = u ** 3 * p0[0] + 3 * u * u * t * p1[0] + 3 * u * t * t * p2[0] + t ** 3 * p3[0]
+            hh = u ** 3 * p0[1] + 3 * u * u * t * p1[1] + 3 * u * t * t * p2[1] + t ** 3 * p3[1]
+            pts.append((x + ca * r * s, y + sa * r * s, zc + hh * s))
+        mb.sweep(pts, prof_c, EM.L_IRON, True, None, up=(-sa, ca, 0.0))
+    lantern_head(mb, (x, y, zb + EM.LH_BASE * s), yaw, s)
+
+
+# ------------------------------------------------------------------ ADRO (11.06): calcada de lajes em volta
+# Medidas em studs do MUNDO (o build desenha na medida antiga e cresce SCALE: _w2p converte). O adro e um OCTOGONO
+# (vertices nos rumos dos contrafortes, 0/45/.../315; a porta a 180 cai num vertice) de lajes com o topo na cota das
+# ruas (+0,30), em 2 fiadas desencontradas (a de dentro um tom abaixo), leito escuro nas juntas, MEIO-FIO de cantaria
+# clara chanfrada (+0,42) no contorno; as ruas do P2 entram nele pelos proprios calcamentos (o adro abre onde elas
+# passam). Na porta: PATAMAR de chegada um degrau acima (+0,58, focinho chanfrado, espelho recuado) e, dentro do
+# portico, 2 degraus descendo ate o piso da sala. Colisao: 8 caixas (uma por lado, inner fora da sala) + o patamar.
+ADRO_A = 22.0                  # apotema externo (face de fora do meio-fio); vertices em 23,8 (o sg_veg livra R 24)
+ADRO_CURB = 0.55               # largura do meio-fio
+ADRO_Z, ADRO_CURB_Z = 0.30, 0.42
+ADRO_COURSES = ((17.6, 19.62, "Stone_Paving_SG_B"), (19.62, ADRO_A - ADRO_CURB - 0.06, "Stone_Paving_SG"))
+ADRO_MOD = (2.6, 3.1, 2.3, 2.9, 2.5, 2.75)     # modulos DIRIGIDOS das lajes (ciclo fixo, fiadas desencontradas)
+ADRO_GAP = 0.06                                # meia junta
+LAND_R0, LAND_R1, LAND_HW, LAND_Z = 15.6, 20.92, 5.9, 0.58   # patamar da porta (radial a oeste, mundo)
+
+
+def _w2p(x, y, zw):
+    """mundo (x, y, altura sobre o P2) -> medida antiga (o grow() devolve ao mundo)"""
+    return (CX + (x - CX) / SCALE, CY + (y - CY) / SCALE, Z + zw / SCALE)
+
+
+def _clip(poly, nx, ny, c):
+    """Sutherland-Hodgman: parte do poligono convexo com nx*x + ny*y >= c"""
+    out = []
+    n = len(poly)
+    for i in range(n):
+        p, q = poly[i], poly[(i + 1) % n]
+        fp, fq = nx * p[0] + ny * p[1] - c, nx * q[0] + ny * q[1] - c
+        if fp >= 0:
+            out.append(p)
+        if (fp >= 0) != (fq >= 0):
+            t = fp / (fp - fq)
+            out.append((p[0] + (q[0] - p[0]) * t, p[1] + (q[1] - p[1]) * t))
+    return out
+
+
+def _area(poly):
+    return 0.5 * sum(poly[i][0] * poly[(i + 1) % len(poly)][1] - poly[(i + 1) % len(poly)][0] * poly[i][1]
+                     for i in range(len(poly)))
+
+
+def _street_bands():
+    """faixas das ruas que entram no adro: (origem, direcao, normal, comprimento, meia largura + folga)"""
+    out = []
+    for pts, w, zz in L.STREETS:
+        if abs(zz - L.P2) > 0.1:
+            continue
+        for a, b in zip(pts, pts[1:]):
+            dx, dy = b[0] - a[0], b[1] - a[1]
+            ln = math.hypot(dx, dy)
+            ux, uy = dx / ln, dy / ln
+            t = max(0.0, min(ln, (CX - a[0]) * ux + (CY - a[1]) * uy))
+            if math.hypot(a[0] + ux * t - CX, a[1] + uy * t - CY) < 32.0:
+                out.append((a, (ux, uy), (-uy, ux), ln, w / 2.0 + 0.08))
+    return out
+
+
+def _minus_bands(poly, bands):
+    """poligono convexo MENOS as faixas das ruas (pecas convexas)"""
+    pieces = [poly]
+    for a, (ux, uy), (nx, ny), ln, hw in bands:
+        nxt = []
+        c0 = nx * a[0] + ny * a[1]
+        t0 = ux * a[0] + uy * a[1]
+        for P in pieces:
+            for q in (_clip(P, nx, ny, c0 + hw), _clip(P, -nx, -ny, -(c0 - hw))):
+                if len(q) >= 3:
+                    nxt.append(q)
+            mid = _clip(_clip(P, nx, ny, c0 - hw), -nx, -ny, -(c0 + hw))
+            if len(mid) >= 3:
+                for q in (_clip(mid, -ux, -uy, -t0), _clip(mid, ux, uy, t0 + ln)):
+                    if len(q) >= 3:
+                        nxt.append(q)
+        pieces = [q for q in nxt if abs(_area(q)) > 0.05]
+    return pieces
+
+
+def _inset(poly, c):
+    """poligono convexo (anti-horario) recuado 'c' para dentro (None se degenerar)"""
+    n = len(poly)
+    lines = []
+    for i in range(n):
+        p, q = poly[i], poly[(i + 1) % n]
+        dx, dy = q[0] - p[0], q[1] - p[1]
+        ln = math.hypot(dx, dy)
+        if ln < 1e-6:
+            return None
+        nx, ny = -dy / ln, dx / ln
+        lines.append((p[0] + nx * c, p[1] + ny * c, dx / ln, dy / ln))
+    out = []
+    for i in range(n):
+        x1, y1, d1x, d1y = lines[i - 1]
+        x2, y2, d2x, d2y = lines[i]
+        den = d1x * d2y - d1y * d2x
+        if abs(den) < 1e-6:
+            out.append((x2, y2))
+            continue
+        t = ((x2 - x1) * d2y - (y2 - y1) * d2x) / den
+        out.append((x1 + d1x * t, y1 + d1y * t))
+    if _area(out) < 0.3 * _area(poly):
+        return None
+    return out
+
+
+def stone(mb, poly, zt, zb, m, ch=0.06):
+    """laje/peca de cantaria em MUNDO: poligono convexo, topo zt com CHANFRO ch nas arestas de cima, lados ate zb (sem
+    fundo: assenta no chao); material EXATO (sem sorteio de variante)"""
+    poly = [p for p in poly]
+    if _area(poly) < 0:
+        poly.reverse()
+    ins = _inset(poly, ch) if ch > 0 else None
+    bm = mb.bm
+    vb = [bm.verts.new(_w2p(x, y, zb)) for x, y in poly]
+    if ins:
+        vm = [bm.verts.new(_w2p(x, y, zt - ch)) for x, y in poly]
+        vt = [bm.verts.new(_w2p(x, y, zt)) for x, y in ins]
+    else:
+        vm = [bm.verts.new(_w2p(x, y, zt)) for x, y in poly]
+        vt = None
+    n = len(poly)
+    fs = []
+    for i in range(n):
+        j = (i + 1) % n
+        fs.append(bm.faces.new((vb[i], vb[j], vm[j], vm[i])))
+        if vt:
+            fs.append(bm.faces.new((vm[i], vm[j], vt[j], vt[i])))
+    fs.append(bm.faces.new(vt if vt else vm))
+    allv = vb + vm + (vt or [])
+    mb._post(allv, m, None, 0, 1)
+    mi = mb._mi(m)
+    for f in fs:
+        f.material_index = mi
+
+
+def _side(k):
+    """lado k do octogono do adro: normal (rumo 22,5 + 45 k) e tangente"""
+    a = math.radians(22.5 + 45.0 * k)
+    return (math.cos(a), math.sin(a)), (-math.sin(a), math.cos(a))
+
+
+def _oct_pt(k, ap, t):
+    (nx, ny), (tx, ty) = _side(k)
+    return (CX + nx * ap + tx * t, CY + ny * ap + ty * t)
+
+
+def adro(mb):
+    bands = _street_bands()
+    T = math.tan(math.radians(22.5))
+    kk = 0
+    for k in range(8):
+        # leito escuro das juntas (trapezio do lado k, do pe do predio ate o meio-fio)
+        a0, a1 = ADRO_COURSES[0][0], ADRO_A - ADRO_CURB + 0.02
+        stone(mb, [_oct_pt(k, a0, -a0 * T), _oct_pt(k, a1, -a1 * T), _oct_pt(k, a1, a1 * T), _oct_pt(k, a0, a0 * T)],
+              ADRO_Z - 0.12, -0.5, "Stone_SG_Floor", 0.0)
+        for ci, (r0, r1, m) in enumerate(ADRO_COURSES):
+            # lajes da fiada: modulos dirigidos ao longo do lado, pontas em esquadria nas bissetrizes
+            L0 = -r1 * T
+            Lh = r1 * T
+            cuts, pos = [L0], L0
+            while True:
+                bl = ADRO_MOD[kk % len(ADRO_MOD)]
+                if len(cuts) == 1 and ci == 1:
+                    bl = bl * 0.5 + 0.6                      # fiada de fora comeca com meio modulo: juntas desencontradas
+                kk += 1
+                if pos + bl > Lh - 1.2:
+                    break
+                pos += bl
+                cuts.append(pos)
+            cuts.append(Lh)
+            for ta, tb in zip(cuts, cuts[1:]):
+                q0, q1 = r0 + ADRO_GAP, r1 - ADRO_GAP
+                # recorte na esquadria: |t| <= ap * tan(22,5) - meia junta
+                def tl(ap, t):
+                    lim = ap * T - ADRO_GAP * 1.1
+                    return max(-lim, min(lim, t))
+                pa, pb = ta + ADRO_GAP, tb - ADRO_GAP
+                quad = [_oct_pt(k, q0, tl(q0, pa)), _oct_pt(k, q1, tl(q1, pa)), _oct_pt(k, q1, tl(q1, pb)),
+                        _oct_pt(k, q0, tl(q0, pb))]
+                for piece in _minus_bands(quad, bands):
+                    stone(mb, piece, ADRO_Z, -0.1, m, 0.06)
+        # MEIO-FIO: 3 pecas por lado (esquadria nos vertices), chanfro largo voltado para fora
+        c0, c1 = ADRO_A - ADRO_CURB, ADRO_A
+        ts = [-c1 * T, -c1 * T / 3.0 + 0.4 * ((k % 3) - 1), c1 * T / 3.0 + 0.3 * ((k % 2) * 2 - 1), c1 * T]
+        for ta, tb in zip(ts, ts[1:]):
+            ga = 0.05 if ta > -c1 * T + 1e-6 else 0.0
+            gb = 0.05 if tb < c1 * T - 1e-6 else 0.0
+
+            def tc(ap, t):
+                return max(-ap * T, min(ap * T, t))
+            quad = [_oct_pt(k, c0, tc(c0, ta + ga)), _oct_pt(k, c1, tc(c1, ta + ga)), _oct_pt(k, c1, tc(c1, tb - gb)),
+                    _oct_pt(k, c0, tc(c0, tb - gb))]
+            for piece in _minus_bands(quad, bands):
+                stone(mb, piece, ADRO_CURB_Z, -0.12, "Stone_SG_TrimLow", 0.09)
+    # PATAMAR da porta (a oeste): 3 lajes, FOCINHO de cantaria clara chanfrado e espelho recuado um tom abaixo
+    ux, uy = math.cos(math.radians(DOOR)), math.sin(math.radians(DOOR))
+    tx, ty = -uy, ux
+
+    def P(r, t):
+        return (CX + ux * r + tx * t, CY + uy * r + ty * t)
+    rf = LAND_R1 - 0.52
+    for t0, t1 in ((-LAND_HW, -2.2), (-2.2, 2.2), (2.2, LAND_HW)):
+        stone(mb, [P(18.3, t0 + 0.06), P(rf - 0.06, t0 + 0.06), P(rf - 0.06, t1 - 0.06), P(18.3, t1 - 0.06)], LAND_Z, 0.18,
+              "Stone_Paving_SG", 0.06)
+    stone(mb, [P(rf - 0.06, -LAND_HW), P(rf - 0.06, LAND_HW), P(18.3, LAND_HW), P(18.3, -LAND_HW)], LAND_Z - 0.1, 0.18,
+          "Stone_SG_Floor", 0.0)
+    stone(mb, [P(rf, -LAND_HW - 0.1), P(LAND_R1, -LAND_HW - 0.1), P(LAND_R1, LAND_HW + 0.1), P(rf, LAND_HW + 0.1)],
+          LAND_Z, ADRO_Z + 0.1, "Stone_SG_TrimLow", 0.09)
+    stone(mb, [P(rf - 0.1, -LAND_HW), P(LAND_R1 - 0.12, -LAND_HW), P(LAND_R1 - 0.12, LAND_HW), P(rf - 0.1, LAND_HW)],
+          ADRO_Z + 0.12, ADRO_Z - 0.1, "Stone_Paving_SG_B", 0.0)
+    for s_ in (-1, 1):                                               # cabeceiras do patamar
+        stone(mb, [P(18.3, s_ * LAND_HW), P(LAND_R1, s_ * LAND_HW), P(LAND_R1, s_ * (LAND_HW + 0.5)),
+                   P(18.3, s_ * (LAND_HW + 0.5))], LAND_Z + 0.04, ADRO_Z - 0.1, "Stone_SG_TrimLow", 0.09)
+    # SOLEIRA e 2 DEGRAUS dentro do portico (vao 9 x 12,3): +0,58 ate 15,6 -> +0,32 ate 13,3 -> piso da sala
+    dw = DW * SCALE
+    for r0, r1, zt in ((15.6, 18.62, LAND_Z), (13.3, 15.6, 0.32)):
+        stone(mb, [P(r0, -dw), P(r1, -dw), P(r1, dw), P(r0, dw)], zt, -0.35, OBS, 0.05)
+
+
+def adro_cols():
+    """colisao do adro (MUNDO, depois do grow): 8 caixas (uma por lado do octogono, da face de fora do meio-fio ate o
+    apotema 15,3 - nunca entra na sala, R 15,1) com o topo nas lajes, e o patamar da porta"""
+    T = math.tan(math.radians(22.5))
+    ai = 15.3
+    for k in range(8):
+        (nx, ny), _ = _side(k)
+        am = (ai + ADRO_A) / 2.0
+        col_box("SG_CraftAdro", (ADRO_A - ai, 2.0 * ADRO_A * T + 0.05, 1.0),
+                (CX + nx * am, CY + ny * am, Z + ADRO_Z - 0.5), (0, 0, math.atan2(ny, nx)))
+    ux, uy = math.cos(math.radians(DOOR)), math.sin(math.radians(DOOR))
+    rm = (LAND_R0 + LAND_R1) / 2.0
+    col_box("SG_CraftAdro", (LAND_R1 - LAND_R0, 2.0 * LAND_HW, 1.0), (CX + ux * rm, CY + uy * rm, Z + LAND_Z - 0.5),
+            (0, 0, math.radians(DOOR)))
 
 
 # ------------------------------------------------------------------ PORTICO (06.02 / 06.03 / 06.07 / 06.08)
@@ -1156,9 +1525,14 @@ def portal(mb):
     o = Vector(F.p(0.0, 0.0, OCU_Z))
     ring_ax(mb, o, ax, [(OCU_R - 0.06, y1 - 0.05), (OCU_R + 0.5, y1 - 0.05), (OCU_R + 0.5, y1 + 0.2),
                         (OCU_R + 0.32, y1 + 0.42), (OCU_R + 0.1, y1 + 0.42), (OCU_R - 0.06, y1 + 0.24)], VSTONE, n=16)
-    fbox(mb, F, -0.09, 0.09, y1, y1 + 0.2, OCU_Z - OCU_R, OCU_Z + OCU_R, BIRON)
-    fbox(mb, F, -OCU_R, OCU_R, y1, y1 + 0.2, OCU_Z - 0.09, OCU_Z + 0.09, BIRON)
-    disc_ax(mb, Vector(F.p(0.0, 0.0, OCU_Z)), ax, 0.2, y1 + 0.18, y1 + 0.3, BRONZE, n=8)
+    oculus_tracery(mb, F, o, ax, y1)                                  # rendilhado de fora (a cruz de ferro saiu)
+    # 11.03: POR DENTRO o vitral deixa de ser disco chapado na parede: moldura de torno (a mesma de fora, virada
+    # para a sala) e o mesmo rendilhado de pedra; sem Neon
+    axi = -ax
+    d0 = -(y0 + 0.05)
+    ring_ax(mb, o, axi, [(OCU_R - 0.06, d0), (OCU_R + 0.45, d0), (OCU_R + 0.45, d0 + 0.18), (OCU_R + 0.3, d0 + 0.38),
+                         (OCU_R + 0.1, d0 + 0.38), (OCU_R - 0.06, d0 + 0.22)], VSTONE, n=16)
+    oculus_tracery(mb, F, o, axi, -y0)
     # EMPENA: tambor triangular, CIMALHA em perfil correndo as 2 aguas (esquadria no apice), acroterio com florao
     pslab(mb, F, [(-P_FRONT, H), (P_FRONT, H), (0.0, H + GH)], y1 - 0.9, y1, WALL)
     rake = [(-P_FRONT - 0.35, H - 0.35), (0.0, H + GH), (P_FRONT + 0.35, H - 0.35)]
@@ -1207,12 +1581,11 @@ def portal(mb):
     mb.sweep([F.p(0.0, y1 - 0.4, H + GH + 0.24), F.p(0.0, ridge_end, H + GH + 0.24)],
              [(0.2 * math.cos(2 * math.pi * k / 6), 0.2 * math.sin(2 * math.pi * k / 6)) for k in range(6)], SILVER,
              True, None, up=(0.0, 0.0, 1.0))
-    # soleira de obsidiana (topo 0,05 acima do piso, como o calcamento das ruas)
-    fbox(mb, F, -DW, DW, y0 - 0.2, y1 + 0.5, -0.3, 0.05, OBS)
+    # (FINESSE 3B: a soleira virou DEGRAU - patamar de chegada + 2 degraus para dentro, em adro())
     # POSTES DE LANTERNA (kit definitivo) na frente da porta
     for s in (-1, 1):
-        p = F.p(s * 6.4, y1 + 2.2, 0.0)
-        EM.lantern_post(mb, mb, (p[0], p[1], p[2]), math.radians(DOOR), h=6.6, s=1.0)
+        p = F.p(s * 6.4, y1 + 2.2, ADRO_Z / SCALE)                    # assenta no adro (11.06)
+        lantern_post(mb, (p[0], p[1], p[2]), math.radians(DOOR), h=6.6, s=1.0)
         col_box("SG_CraftLanternPost", (1.2, 1.2, 7.2), (p[0], p[1], p[2] + 3.4), (0, 0, math.radians(DOOR)))
     # colisao do portico: ombreiras + verga em degraus que acompanha a ogiva (o vao fica 8 x 7 reto + arco ate 11)
     for s in (-1, 1):
@@ -1228,6 +1601,35 @@ def portal(mb):
         ang = math.atan2(yb - ya, s * (ub - ua))
         p = F.p(cu, cyy, (H - 0.5) / 2.0)
         col_box("SG_CraftPortal", (ln, 1.0, H + 0.5), (p[0], p[1], p[2]), (0, 0, F.a + ang))
+
+
+def oculus_tracery(mb, F, o, ax, yf):
+    """RENDILHADO do oculo (11.03): anel interno, 6 raios de pedra e botao de bronze no centro, saindo do plano do vitral
+    (yf = face do vidro medida ao longo de ax). Funciona nas 2 faces (ax para fora ou para a sala)."""
+    ring_ax(mb, o, ax, [(0.5, yf - 0.02), (0.66, yf - 0.02), (0.66, yf + 0.13), (0.58, yf + 0.17), (0.5, yf + 0.13)],
+            CA.ASH, n=12)
+    ax = Vector(ax).normalized()
+    up = Vector((0.0, 0.0, 1.0))
+    side = ax.cross(up).normalized()
+    bm = mb.bm
+    for k in range(6):
+        t = math.pi / 2 + k * math.pi / 3
+        dr = side * math.cos(t) + up * math.sin(t)
+        tn = side * -math.sin(t) + up * math.cos(t)
+        pts = []
+        for r_, w_ in ((0.62, 0.075), (OCU_R - 0.02, 0.05)):
+            for sg in (-1, 1):
+                pts.append(o + dr * r_ + tn * (sg * w_))
+        quad = [pts[0], pts[2], pts[3], pts[1]]
+        A = [bm.verts.new(p + ax * (yf - 0.02)) for p in quad]
+        B = [bm.verts.new(p + ax * (yf + 0.12)) for p in quad]
+        fs = [bm.faces.new(A), bm.faces.new(list(reversed(B)))]
+        for i in range(4):
+            j = (i + 1) % 4
+            fs.append(bm.faces.new((A[i], A[j], B[j], B[i])))
+        bmesh.ops.recalc_face_normals(bm, faces=fs)
+        mb._post(A + B, CA.ASH, None, 0, 1)
+    disc_ax(mb, o, ax, 0.24, yf - 0.02, yf + 0.2, BRONZE, n=8)
 
 
 # ------------------------------------------------------------------ domo em FIADAS DE ESCAMAS, nervuras, lanternim
@@ -1294,8 +1696,7 @@ def lanternim(mb):
                           (3.9, LAN_Z1 + 0.4), (0.0, LAN_Z1 + 0.4)], VSTONE, n=8, rot=rot)
 
 
-def dome():
-    mb = MB("SG_Craft_Dome", "16_CRAFT", random.Random(8102), detail="near")
+def dome(mb):
     dome_scales(mb)
     # nervuras de prata de secao REDONDA assentadas sobre as escamas, com pe no anel de apoio
     for a in DOME_RIB_A:
@@ -1315,9 +1716,9 @@ def dome():
     # icone da empena (ajuste 19) neste MB: bronze, ambar (Window_Warm) e branco (Flower_White) ja estao aqui - so o
     # vidro do icone e MeshPart nova (compensada no caldeirao: crescente da placa no violeta da pocao)
     alchemy_icon(mb, FD, PORT_Y1 + 0.12, H + 2.55)
-    mb.finish()
     # cobertura (colisao): octogono no topo da parede
-    ngon_col("SG_CraftRoof", CX, CY, 8, R_OUT + 0.8, Z + H, Z + DOME_Z + 1.0)
+    ngon_col("SG_CraftRoof", CX, CY, 6, (R_OUT + 0.8) * math.cos(math.radians(22.5)) / math.cos(math.radians(30.0)),
+             Z + H, Z + DOME_Z + 1.0)          # FINESSE 3B: 6-gono (3 caixas) com o mesmo apotema do 8-gono antigo
 
 
 # ------------------------------------------------------------------ o FRASCO GIGANTE (07.01)
@@ -1504,27 +1905,27 @@ def flat_stroke(mb, pts, w, z0, z1, m):
                  z0, z1, m)
 
 
-def floor_glyph(mb, c, ang, k, sc=1.55, m=VSOFT):
+def floor_glyph(mb, c, ang, k, sc=1.35, m=GOLD, wd=0.12):
     """runa k do ALFABETO UNICO da ilha (sg_court.RUNE_SEGS: haste + ramos diagonais, angular) deitada e EMBUTIDA
-    no marmore (sobe 0,07 acima do piso); c = centro (x, y), ang = rumo do 'alto' do glifo"""
+    no marmore (sobe 0,07 acima do piso); c = centro (x, y), ang = rumo do 'alto' do glifo. FINESSE 3B (11.04): so
+    RELEVO incrustado em BRONZE, o mesmo metal do filete de fora (sem Neon: as runas acesas liam confete no chao)"""
     ex, ey = math.cos(ang), math.sin(ang)          # alto do glifo
     tx, ty = -ey, ex                               # lateral
 
     def P(u, w):
         return (c[0] + (tx * u + ex * w) * sc, c[1] + (ty * u + ey * w) * sc)
     z0, z1 = Z + 0.0, Z + 0.12              # ONDA 3: 0,07 acima do piso nobre (+0,05)
-    wd = 0.14
     for (a0, b0), (a1, b1) in RUNE_SEGS[k % len(RUNE_SEGS)]:
         flat_stroke(mb, [P(a0, b0), P(a1, b1)], wd, z0, z1, m)
 
 
 def magic_circle(mb):
-    """CIRCULO MAGICO no piso em volta do estrado (07.07): anel fino de energia (Neon ESCURO) rente, anel de bronze
-    embutido como moldura e 10 GLIFOS do alfabeto unico (sg_court.RUNE_SEGS) EMBUTIDOS, em sequencia fixa; as 2 lanternas
-    da porta (POST_A) sao as ancoras do circulo (sem glifo embaixo delas)"""
+    """CIRCULO MAGICO no piso em volta do estrado (11.04, FINESSE 3B: discreto, INCRUSTADO na pedra): 2 FILETES de metal
+    embutidos (bronze fora, ferro dentro, 0,15 de largura, sem brilho) e 8 GLIFOS do alfabeto unico em RELEVO de
+    bronze embutido - sem Neon no piso: a pocao e o fogo do caldeirao voltam a ser o foco da sala. Nada sob a passadeira."""
     # ONDA 3 (z-fight): aneis e glifos sobem 0,07 acima do piso nobre (topo do piso em +0,05; antes 0,02 = tremia)
     # os 2 aneis ABREM onde passa a passadeira (oeste, |y| <= 2,2): as pontas ficam fora dela, nada sob o pano
-    ring_band(mb, 8.82, 9.0, 0.03, 0.12, VSOFT, 195.0, 525.0, 10.0)
+    ring_band(mb, 8.85, 9.0, 0.03, 0.12, GOLD, 195.0, 525.0, 10.0)
     ring_band(mb, 7.1, 7.25, 0.03, 0.12, IRON, 199.0, 521.0, 10.0)
     i = 0
     for k in range(12):
@@ -1650,11 +2051,15 @@ def interior(mb):
 CAUL = [(0.0, 2.55), (0.9, 2.58), (1.7, 2.76), (2.35, 3.06), (2.8, 3.46), (3.04, 3.86), (3.12, 4.22), (3.06, 4.6),
         (2.88, 4.98), (2.64, 5.3), (2.5, 5.52)]
 # BOCA enrolada (latao): sai do pescoco, rola para fora (3,0) e volta por dentro ate abaixo do nivel da pocao
-LIP = [(2.5, 5.52), (2.58, 5.66), (2.8, 5.78), (2.96, 5.92), (3.0, 6.06), (2.94, 6.18), (2.78, 6.25), (2.6, 6.25),
-       (2.46, 6.16), (2.4, 5.95), (2.36, 5.72), (0.0, 5.66)]
+# FINESSE 3B (11.02): BORDA EM TORO - o bojo sobe pelo pescoco e ENROLA num toro de bronze de secao redonda (r 0,24),
+# que volta por dentro ate abaixo da pocao (a aba larga de bronze lia "prato" e o medalhao lia escotilha: sairam)
+_LB_C, _LB_R = (2.6, 5.86), 0.24
+LIP = [(2.5, 5.52)] + [(_LB_C[0] + _LB_R * math.cos(math.radians(t)), _LB_C[1] + _LB_R * math.sin(math.radians(t)))
+                       for t in (-112.0, -80.0, -45.0, -10.0, 25.0, 60.0, 95.0, 130.0, 165.0, 200.0)] + \
+      [(2.36, 5.66), (0.0, 5.62)]
 HEARTH_Z0, HEARTH_Z1 = DAIS_H2, 1.95            # lareira: do tampo do estrado ate 1,95 (+ capa ate 2,05)
 LIQ_Z = 5.84                                   # superficie da pocao
-BELLY_Z = 4.22                                 # altura do medalhao (a camera CU_Emblem mira em 4,0)
+BELLY_Z = 4.22                                 # eixo da cinta rebitada (barriga do bojo)
 
 
 def caul_r(h):
@@ -1673,50 +2078,6 @@ def hug(h0, h1, t, steps=4):
         pts.append((caul_r(h) + t, h))
     pts += [(caul_r(h1 - 0.03) + t * 0.7, h1 - 0.03), (caul_r(h1) - 0.02, h1)]
     return pts
-
-
-MED_Z, MED_R, MED_CD = 4.28, 0.62, 0.02       # medalhao: altura do centro, raio do emblema, frente do disco
-MED_RI, MED_RO = 0.64, 0.86                    # espelho: labio (cobre a borda do disco, R 0,69) / pe
-
-
-def medal_bezel(mb, O, f, n=24):
-    """espelho de latao do medalhao: para cada angulo em volta do eixo f, perfil fechado cujo PE fica 0,04 dentro do
-    bojo e 0,09 fora dele (segue a curvatura real: sela), rampa ate o labio plano na frente do disco. Cobre tambem a
-    cinta de ferro que passa por baixo."""
-    bm = mb.bm
-    side = Vector((-f.y, f.x, 0.0))
-    up = Vector((0.0, 0.0, 1.0))
-    R0 = caul_r(MED_Z)
-
-    def sdep(rho, th):
-        a, b = rho * math.cos(th), rho * math.sin(th)
-        R = caul_r(MED_Z + b)
-        return math.sqrt(max(R * R - a * a, 0.0)) - R0
-
-    def P(rho, th, d):
-        return O + f * d + side * (rho * math.cos(th)) + up * (rho * math.sin(th))
-    lip = MED_CD + 0.08
-    loops = []
-    rivets = []
-    for i in range(n):
-        th = 2 * math.pi * i / n
-        so, sm, si = sdep(MED_RO, th), sdep(MED_RO - 0.05, th), sdep(MED_RI, th)
-        prof = [(MED_RO, so - 0.04), (MED_RO, so + 0.06), (MED_RO - 0.05, sm + 0.09), (MED_RI + 0.06, lip),
-                (MED_RI, lip), (MED_RI - 0.01, MED_CD + 0.012), (MED_RI, si - 0.12)]
-        loops.append([bm.verts.new(P(r, th, d)) for r, d in prof])
-    K = len(loops[0])
-    for i in range(n):
-        A, B = loops[i], loops[(i + 1) % n]
-        for k in range(K):
-            k2 = (k + 1) % K
-            bm.faces.new((A[k], A[k2], B[k2], B[k]))
-    mb._post([v for L_ in loops for v in L_], GOLD, None, 0, 1)
-    for q in range(4):
-        th = math.pi / 4 + q * math.pi / 2
-        rho = 0.76
-        sm = sdep(MED_RO - 0.05, th) + 0.09
-        t = (MED_RO - 0.05 - rho) / (MED_RO - 0.05 - MED_RI - 0.06)
-        mb.ico(0.05, tuple(P(rho, th, sm + (lip - sm) * t + 0.015)), BIRON, 1)
 
 
 def _ring_ok(pin, R, tr, phi):
@@ -1765,19 +2126,56 @@ def ear_lug(mb, ang, pin):
         pside(mb, F, pts, u0, u1, IRON)
 
 
+FLAME_R = [(0.0, 0.24), (0.16, 0.34), (0.36, 0.3), (0.58, 0.19), (0.8, 0.08), (1.0, 0.0)]   # (t, raio/altura): gota
+
+
+def flame_tongue(mb, base, h, lean, ang, m, n=6, curl=0.0):
+    """LINGUA DE FOGO (11.02 / 15.06: nada de cone): espinha CURVA (sobe e inclina 'lean' para fora no rumo ang, com
+    a ponta voltando 'curl'), secao ACHATADA (0,6 na direcao radial), barriga baixa, ponta fina, normais LISAS"""
+    ox, oy = math.cos(ang), math.sin(ang)
+    tx, ty = -oy, ox
+    bm = mb.bm
+    rows = []
+    for t, rr in FLAME_R:
+        c = Vector(base) + Vector((ox, oy, 0.0)) * (h * (lean * t * t - curl * t ** 3)) + Vector((0, 0, h * t))
+        r = rr * h
+        if r < 1e-4:
+            rows.append([bm.verts.new(c)])
+            continue
+        rows.append([bm.verts.new(c + Vector((tx, ty, 0.0)) * (r * math.cos(2 * math.pi * i / n)) +
+                                  Vector((ox, oy, 0.0)) * (0.6 * r * math.sin(2 * math.pi * i / n))) for i in range(n)])
+    fs = [bm.faces.new(list(reversed(rows[0])))]
+    for A, B in zip(rows, rows[1:]):
+        for i in range(n):
+            j = (i + 1) % n
+            if len(B) == 1:
+                fs.append(bm.faces.new((A[i], A[j], B[0])))
+            else:
+                fs.append(bm.faces.new((A[i], A[j], B[j], B[i])))
+    bmesh.ops.recalc_face_normals(bm, faces=fs)
+    mb._post([v for r_ in rows for v in r_], m, None, 0, 1)
+    smooth(fs[1:])
+
+
 def hearth_embers(mb, x, y):
-    """BRASA (07.04): leito de brasa violeta ESCURA, 7 CARVOES facetados em volta de 1 central cobrindo o leito (so as
-    frestas brilham) e GRELHA de ferro de 4 barras apoiada no anel da lareira, sob o fundo do bojo"""
+    """BRASA E FOGO (11.02): bacia de ferro, 8 CARVOES facetados e, entre eles, LINGUAS DE FOGO em gota (violeta
+    ESCURO, Neon so nelas) lambendo o fundo do bojo; GRELHA de ferro de 4 barras apoiada no anel da lareira. O disco
+    chapado do leito saiu (lia tampa clara sob o caldeirao)."""
     lathe(mb, x, y, Z, [(0.0, HEARTH_Z0), (2.3, HEARTH_Z0), (2.3, 1.5), (0.0, 1.5)], BIRON, n=16)
-    lathe(mb, x, y, Z, [(0.0, 1.5), (1.3, 1.5), (1.25, 1.56), (0.0, 1.57)], VSOFT, n=10)
-    coals = [(0.0, 0.0, 0.44, 0.0), (0.82, 20.0, 0.44, 40.0), (0.86, 95.0, 0.42, 10.0), (0.8, 165.0, 0.44, 70.0),
-             (0.85, 240.0, 0.43, 25.0), (0.82, 310.0, 0.42, 55.0),
-             (1.56, 0.0, 0.42, 5.0), (1.6, 50.0, 0.4, 80.0), (1.55, 102.0, 0.42, 30.0), (1.6, 150.0, 0.4, 60.0),
-             (1.57, 205.0, 0.42, 15.0), (1.6, 258.0, 0.4, 45.0), (1.55, 308.0, 0.41, 75.0)]
+    coals = [(0.0, 0.0, 0.46, 0.0), (0.9, 30.0, 0.44, 40.0), (0.92, 150.0, 0.43, 10.0), (0.9, 270.0, 0.44, 70.0),
+             (1.6, 0.0, 0.42, 5.0), (1.62, 90.0, 0.4, 80.0), (1.58, 180.0, 0.42, 30.0), (1.6, 270.0, 0.41, 60.0)]
     for r, a, s, rot in coals:
         ar = math.radians(a)
         mb.ico(s, (x + r * math.cos(ar), y + r * math.sin(ar), Z + 1.46 + s * 0.3), OBS, 1,
                scale=(1.15, 0.9, 0.55), rot=(0.25, 0.1, math.radians(rot)))
+    # fogo: 6 linguas nas frestas (altura dirigida, a maior na frente da porta), 0,7..1,05 - sobem ate o fundo do bojo
+    for r, a, h in ((1.05, 90.0, 0.95), (1.1, 210.0, 1.05), (1.05, 330.0, 0.9), (1.55, 150.0, 0.8), (0.45, 180.0, 1.0)):
+        ar = math.radians(a)
+        flame_tongue(mb, (x + r * math.cos(ar), y + r * math.sin(ar), Z + 1.38), h, 0.3, ar, VSOFT, curl=0.22)
+    # nucleo: 3 linguas BAIXAS em violeta mais vivo nas frestas entre as grandes (2 tons de fogo)
+    for r, a, h in ((0.8, 150.0, 0.55), (0.85, 270.0, 0.5), (0.8, 30.0, 0.48)):
+        ar = math.radians(a)
+        flame_tongue(mb, (x + r * math.cos(ar), y + r * math.sin(ar), Z + 1.42), h, 0.2, ar, VDEEP, curl=0.1)
     for k in range(4):
         yy = -1.2 + 0.8 * k
         hl = math.sqrt(max(0.0, 2.32 ** 2 - yy * yy))
@@ -1785,40 +2183,30 @@ def hearth_embers(mb, x, y):
     mb.box((0.12, 4.62, 0.1), (x, y, Z + HEARTH_Z1 - 0.02), (0, 0, 0), BIRON, 0.0)
 
 
-def cauldron():
-    mb = MB("SG_Craft_Cauldron", "16_CRAFT", random.Random(8105), detail="hero")
+def cauldron(mb):
+    """CALDEIRAO (hero, 11.02): lareira de obsidiana, fogo em linguas, 4 PATAS de ferro fundido, BOJO de perfil
+    continuo (fundo, barriga, ombro, pescoco) que enrola na BORDA EM TORO de bronze, CINTA de ferro com rebites em
+    volta toda, ORELHAS com ARGOLA, POCAO com superficie (ondas concentricas rasas + bolhas em 2 tons) e colher de pau.
+    O medalhao do crescente (escotilha) saiu (11.02 / 16.06)."""
     x, y = CX, CY
     # LAREIRA: anel de obsidiana com 4 bocas de ventilacao estreitas (0/90/180/270) sob uma CAPA continua de pedra
-    # violeta (a capa passa por cima das bocas como verga); dentro, carvoes sobre o leito e a grelha
+    # violeta (a capa passa por cima das bocas como verga); dentro, carvoes, fogo e grelha
     for a0 in (10.0, 100.0, 190.0, 280.0):
         ring_band(mb, 2.25, 3.4, HEARTH_Z0, HEARTH_Z1, OBS, a0, a0 + 70.0, 7.0)
     ring_band(mb, 2.16, 3.5, HEARTH_Z1, HEARTH_Z1 + 0.1, VSTONE, 0.0, 360.0, 7.5)
     hearth_embers(mb, x, y)
-    # 4 PATAS de ferro fundido (diagonais: o medalhao da porta e as argolas ficam livres)
     for k in range(4):
         paw_leg(mb, math.radians(45.0 + 90.0 * k))
-    # BOJO (ferro, normais lisas) + BOCA enrolada de BRONZE envelhecido - uma so silhueta, transicao no pescoco
+    # BOJO (ferro, normais lisas) + BORDA EM TORO de bronze - uma silhueta so, transicao no pescoco
     lathe(mb, x, y, Z, CAUL, IRON, n=24, cap1=False, sm=set(range(1, len(CAUL) - 1)))
-    lathe(mb, x, y, Z, LIP, GOLD, n=24, cap0=False, sm={0, 1, 2, 3, 4, 5, 6, 7, 8})
-    # CINTA de ferro negro abracando a barriga (o medalhao e rebitado nela) + rebites de ferro rentes
+    lathe(mb, x, y, Z, LIP, GOLD, n=24, cap0=False, sm=set(range(0, len(LIP) - 2)))
+    # CINTA de ferro negro abracando a barriga + rebites em volta toda (passo de 30 graus)
     lathe(mb, x, y, Z, hug(BELLY_Z - 0.26, BELLY_Z + 0.26, 0.08), BIRON, n=24, cap0=False, cap1=False, sm="all")
     for k in range(12):
-        a = 15.0 + 30.0 * k
-        if min(abs(a - 180.0), abs(a), abs(a - 360.0)) < 25.0:
-            continue
-        ar = math.radians(a)
+        ar = math.radians(15.0 + 30.0 * k)
         rr = caul_r(BELLY_Z) + 0.1
-        mb.cyl(0.05, 0.05, (x + rr * math.cos(ar), y + rr * math.sin(ar), Z + BELLY_Z), (math.pi / 2, 0.0, ar + math.pi / 2),
+        mb.cyl(0.06, 0.05, (x + rr * math.cos(ar), y + rr * math.sin(ar), Z + BELLY_Z), (math.pi / 2, 0.0, ar + math.pi / 2),
                IRON, n=6, bevel=0.0)
-    # MEDALHAO DA ORDEM (porta e alquimista): disco de obsidiana (sg_emblem.plaque) rente ao ferro, preso por um
-    # ESPELHO que ABRACA o bojo
-    for ang in (math.pi, 0.0):
-        f = Vector((math.cos(ang), math.sin(ang), 0.0))
-        O = Vector((x, y, Z + MED_Z)) + f * caul_r(MED_Z)
-        medal_bezel(mb, O, f)
-        # ov12: crescente aceso SO aqui; ajuste 19: no violeta da POCAO (VDEEP, o foco da sala) em vez da lavanda
-        # SG_Rune_Glow - uma MeshPart a menos no caldeirao (paga o vidro do icone da empena)
-        EM.plaque(mb, mb, mb, mb, tuple(O + f * MED_CD), ang, MED_R, glow=VDEEP)
     # ORELHAS fundidas com ARGOLA (norte e sul)
     pin = (3.3, 5.02)
     Rr, tr = 0.42, 0.075
@@ -1833,20 +2221,27 @@ def cauldron():
         pts = [(x + (cr + Rr * math.cos(2 * math.pi * j / 16)) * ca, y + (cr + Rr * math.cos(2 * math.pi * j / 16)) * sa,
                 Z + ch + Rr * math.sin(2 * math.pi * j / 16)) for j in range(17)]
         mb.tube(pts, tr, GOLD, 6)
-    # POCAO violeta: o UNICO foco violeta da sala (15.02) + 3 bolhas + colher de pau apoiada no labio
-    mb.cyl(2.39, 0.1, (x, y, Z + LIQ_Z - 0.05), (0, 0, 0), VDEEP, n=24, bevel=0.0)
-    for (dx, dy, r) in ((-0.78, 0.65, 0.26), (0.26, -1.04, 0.2), (1.05, 0.3, 0.14)):
-        mb.ico(r, (x + dx, y + dy, Z + LIQ_Z), VDEEP, 1, scale=(1, 1, 0.55))
+    # POCAO (o UNICO foco violeta da sala): superficie com 2 ondas concentricas rasas (normais lisas), que mergulha
+    # sob o toro; bolhas em 2 tons (violeta da pocao + violeta escuro) e um anel de onda em volta da maior
+    rl = 2.4
+    lathe(mb, x, y, Z, [(0.0, LIQ_Z + 0.07), (0.45, LIQ_Z + 0.05), (0.85, LIQ_Z), (1.25, LIQ_Z + 0.04), (1.7, LIQ_Z - 0.01),
+                        (2.1, LIQ_Z + 0.02), (rl, LIQ_Z - 0.02), (rl, LIQ_Z - 0.2)], VDEEP, n=24, cap1=False,
+          sm={0, 1, 2, 3, 4, 5})
+    for (dx, dy, r, m) in ((-0.78, 0.65, 0.26, VSOFT), (0.26, -1.04, 0.2, VDEEP), (1.05, 0.3, 0.14, VSOFT),
+                           (-0.2, -0.3, 0.11, VSOFT)):
+        mb.ico(r, (x + dx, y + dy, Z + LIQ_Z + 0.02), m, 1, scale=(1, 1, 0.55))
+    revolve(mb, (x - 0.78, y + 0.65, Z + LIQ_Z), [(0.36, 0.0), (0.46, 0.05), (0.56, 0.0), (0.46, 0.02)], VSOFT, n=12,
+            smooth_edges={0, 1})
+    # colher de pau apoiada na quina de dentro do toro
     a = math.radians(40.0)
-    d0, d1 = (1.3, 5.55), (2.6, 6.25 + 0.1)             # apoia na quina de DENTRO do labio
+    d0, d1 = (1.3, 5.62), (2.42, 6.1 + 0.1)
     sl = (d1[1] - d0[1]) / (d1[0] - d0[0])
-    e = (3.85, d0[1] + (3.85 - d0[0]) * sl)
+    e = (3.7, d0[1] + (3.7 - d0[0]) * sl)
     mb.rod((x + d0[0] * math.cos(a), y + d0[0] * math.sin(a), Z + d0[1]),
            (x + e[0] * math.cos(a), y + e[0] * math.sin(a), Z + e[1]), 0.09, WOOD, 6)
     mb.ico(0.13, (x + e[0] * math.cos(a), y + e[0] * math.sin(a), Z + e[1]), WOOD, 1)
-    # (ajuste 19: o FIO DE ENERGIA que subia da pocao ate o cristal do lustre saiu junto com o cristal)
-    mb.finish()
-    ngon_col("SG_CraftCauldron", x, y, 8, 3.5, Z + DAIS_H2 - 0.1, Z + DAIS_H2 + 4.9, rot0=22.5)
+    # colisao (FINESSE 3B: 6-gono = 3 caixas; o 8-gono gastava 4)
+    ngon_col("SG_CraftCauldron", x, y, 6, 3.7, Z + DAIS_H2 - 0.1, Z + DAIS_H2 + 4.9, rot0=30.0)
 
 
 # ------------------------------------------------------------------ KIT de livros e frascos (composicao por prateleira)
@@ -2101,17 +2496,32 @@ COMP = {
     "L": [("stack", "TQ", "kw"), ("gap", 0.5), ("jar", SAGE)],
     "M": [("v", "NQQF", "pbwn"), ("gap", 0.9), ("flask", "square", AMBER, None, 1.0, "cap")],
 }
-# por estante, de baixo para cima: (composicao, espelhada?) - cada estante diferente, ritmo de frascos na altura dos
-# olhos (3o nivel) sem repetir a mesma fileira
+# FINESSE 3B (11.08): mais 4 composicoes para os moveis baixos e a vitrine (ingredientes, frascos de exposicao)
+COMP.update({
+    "P": [("jar", AMBER), ("jar", SAGE), ("gap", 0.12), ("jar", AMBER), ("flask", "square", SAGE, None, 0.9, "cap")],
+    "Q": [("flask", "square", AMBER, None, 1.0, "cap"), ("gap", 0.15), ("jar", SAGE), ("scrolls",)],
+    "R": [("jar", SAGE), ("gap", 0.1), ("stack", "TQ", "kw"), ("jar", AMBER)],
+    "S": [("flask", "potion", PALE, "wine", 0.72, "glass"), ("flask", "round", PALE, "teal", 0.9, "cork"),
+          ("flask", "potion", PALE, "teal", 0.7, "glass")],
+    "U": [("flask", "round", PALE, "lit_v", 1.0, "cork"), ("gap", 0.2), ("jar", SAGE), ("jar", AMBER)],
+})
+# MOVEIS por FUNCAO (11.08), ritmo BAIXO-ALTO-ALTO-BAIXO de cada lado (o par alto no meio, com frontao; os baixos sob
+# as janelas): N (oeste -> leste) armario de ingredientes, VITRINE de frascos, livros, gaveteiro de botica; S espelha
+# com livros + ESCADA de biblioteca no lugar da vitrine
+CASE_KIND = {112.5: "cupboard", 97.5: "vitrine", 82.5: "books", 67.5: "drawers",
+             247.5: "cupboard", 262.5: "ladder", 277.5: "books", 292.5: "drawers"}
+CASE_POST = {"books": 8.6, "vitrine": 8.6, "ladder": 8.6, "cupboard": 5.4, "drawers": 4.45}
+# por movel, de baixo para cima: (composicao, espelhada?) - nos altos, 5 niveis; no armario, bancada + prateleira; no
+# gaveteiro, so o tampo
 SHELF_LAYOUT = {
-    67.5: [("H", 0), ("A", 0), ("E", 0), ("J", 0), ("L", 0)],
-    82.5: [("B", 0), ("G", 0), ("F", 0), ("M", 1), ("D", 0)],
-    97.5: [("K", 0), ("C", 1), ("I", 0), ("B", 1), ("J", 1)],
-    112.5: [("L", 1), ("D", 0), ("E", 1), ("G", 1), ("A", 0)],
-    247.5: [("B", 1), ("J", 0), ("F", 1), ("K", 0), ("C", 1)],
-    262.5: [("H", 1), ("A", 1), ("I", 1), ("D", 1), ("L", 0)],
-    277.5: [("K", 1), ("M", 0), ("E", 0), ("C", 0), ("J", 0)],
-    292.5: [("B", 0), ("D", 1), ("F2", 0), ("A", 1), ("K", 0)],
+    67.5: [("U", 0)],
+    82.5: [("B", 0), ("G", 0), ("A", 0), ("M", 1), ("D", 0)],
+    97.5: [("H", 0), ("E", 0), ("F2", 0), ("I", 0), ("S", 0)],
+    112.5: [("P", 0), ("Q", 1)],
+    247.5: [("Q", 0), ("P", 1)],
+    262.5: [("H", 1), ("A", 1), ("C", 1), ("D", 1), ("L", 0)],
+    277.5: [("K", 1), ("M", 0), ("J", 1), ("C", 0), ("J", 0)],
+    292.5: [("R", 0)],
 }
 SHELF_V = [0.5, 2.16, 3.82, 5.48, 7.14]      # tampos (o 1o e o fundo da caixa, sobre o rodape)
 SHELF_BACK = "Roof_SG_Slate"                 # fundo 2 valores abaixo da madeira (08.02): livros recortam contra ele
@@ -2126,47 +2536,131 @@ def _uin(y):
     return y * TAN - POST_K
 
 
+def case_box(mb, F, a, top):
+    """caixa comum dos moveis: rodape (esquadria nas bissetrizes) e fundo escuro ate 'top'"""
+    wl = YB_IN * TAN
+    fprism(mb, F, [(-11.96 * TAN, 11.96), (11.96 * TAN, 11.96), (wl, YB_IN), (-wl, YB_IN)], 0.0, 0.42, WOOD, 0.03)
+    fprism(mb, F, [(-13.1 * TAN, 13.1), (13.1 * TAN, 13.1), (wl, YB_IN), (-wl, YB_IN)], 0.42, top, SHELF_BACK)
+
+
+def case_shelf(mb, F, v, gold=False):
+    t = 0.08 if v == SHELF_V[0] else 0.14
+    fprism(mb, F, [(-_uin(12.06), 12.06), (_uin(12.06), 12.06), (_uin(13.1), 13.1), (-_uin(13.1), 13.1)], v - t, v,
+           WOOD)
+    fbox(mb, F, -_uin(11.98), _uin(11.98), 11.98, 12.06, v - 0.2, v + 0.03, WOOD, 0.02)
+    if gold:
+        fbox(mb, F, -_uin(11.95), _uin(11.95), 11.94, 11.99, v - 0.1, v - 0.05, GOLD)     # filete de bronze
+
+
+def case_cornice(mb, F, v0):
+    """friso e cornija (esquadria nas bissetrizes, cornija com balanco) a partir de v0"""
+    wl = YB_IN * TAN
+    fprism(mb, F, [(-11.9 * TAN, 11.9), (11.9 * TAN, 11.9), (wl, YB_IN), (-wl, YB_IN)], v0, v0 + 0.3, WOOD)
+    fprism(mb, F, [(-11.7 * TAN, 11.7), (11.7 * TAN, 11.7), (wl, YB_IN), (-wl, YB_IN)], v0 + 0.3, v0 + 0.5, WOOD,
+           0.04)
+
+
+def panel_door(mb, F, u0, u1, v0, v1, y=11.86, pull=None):
+    """porta/frente de gaveta almofadada: quadro rente, almofada saliente, puxador de bronze (u do puxador)"""
+    fbox(mb, F, u0, u1, y, y + 0.1, v0, v1, WOOD, 0.03)
+    fbox(mb, F, u0 + 0.14, u1 - 0.14, y - 0.06, y, v0 + 0.14, v1 - 0.14, WOOD, 0.03)
+    if pull is not None:
+        fbox(mb, F, pull - 0.09, pull + 0.09, y - 0.14, y - 0.06, (v0 + v1) / 2 - 0.05, (v0 + v1) / 2 + 0.05, GOLD)
+
+
 def bookcases(mb):
-    """ESTANTES: o movel acompanha a parede de 24 faces - montantes nas BISSETRIZES (juntas das faces), rodape e
-    cornija em esquadria continua, prateleiras em trapezio entre os montantes (nada atravessa o vizinho), testeira nas
-    prateleiras, fundo, frontao nas estantes sem janela"""
+    """MOVEIS DA SALA (11.08): o mesmo esqueleto (montantes nas BISSETRIZES, rodape e cornija em esquadria, fundo
+    escuro) com 4 FUNCOES e 2 ALTURAS em ritmo dirigido: ESTANTE de livros alta (frontao), VITRINE de frascos alta
+    (portas de caixilho), ARMARIO de ingredientes baixo (portas almofadadas, bancada com potes, 1 prateleira) e
+    GAVETEIRO de botica baixo (12 gavetas com puxador, tampo com potes); ESCADA de biblioteca no varao de bronze."""
     posts = sorted({a0 + STEP * k for a0, a1 in SHELF_RUNS for k in range(int(round((a1 - a0) / STEP)) + 1)})
     for b in posts:
         F = fr(b)
+        pt = max(CASE_POST[CASE_KIND[f]] for f in (b - 7.5, b + 7.5) if f in CASE_KIND)
         yb = (YB_IN - POST_HW * math.sin(math.radians(STEP / 2.0))) / math.cos(math.radians(STEP / 2.0))
-        fbox(mb, F, -POST_HW, POST_HW, 11.92, yb, 0.42, 8.6, WOOD)                       # montante
-        fbox(mb, F, -0.23, 0.23, 11.84, 11.96, 0.5, 8.36, WOOD, 0.03)                    # pilastra da frente
+        fbox(mb, F, -POST_HW, POST_HW, 11.92, yb, 0.42, pt, WOOD)                        # montante
+        fbox(mb, F, -0.23, 0.23, 11.84, 11.96, 0.5, pt - 0.24, WOOD, 0.03)               # pilastra da frente
         fbox(mb, F, -0.27, 0.27, 11.8, 12.3, 0.0, 0.62, WOOD, 0.04)                      # base da pilastra
-        fbox(mb, F, -0.27, 0.27, 11.8, 12.2, 8.3, 8.6, WOOD, 0.03)                       # capitel
+        if pt > 5.0:
+            fbox(mb, F, -0.27, 0.27, 11.8, 12.2, pt - 0.3, pt, WOOD, 0.03)               # capitel
     for a in SHELF_A:
         F = fr(a)
-        wl = YB_IN * TAN
-        # rodape (esquadria nas bissetrizes) e fundo
-        fprism(mb, F, [(-11.96 * TAN, 11.96), (11.96 * TAN, 11.96), (wl, YB_IN), (-wl, YB_IN)], 0.0, 0.42, WOOD, 0.03)
-        fprism(mb, F, [(-13.1 * TAN, 13.1), (13.1 * TAN, 13.1), (wl, YB_IN), (-wl, YB_IN)], 0.42, 8.6, SHELF_BACK)
-        # prateleiras (trapezio entre os montantes) com testeira mais alta na frente
-        for v in SHELF_V:
-            t = 0.08 if v == SHELF_V[0] else 0.14
-            fprism(mb, F, [(-_uin(12.06), 12.06), (_uin(12.06), 12.06), (_uin(13.1), 13.1), (-_uin(13.1), 13.1)], v - t, v,
-                   WOOD)
-            fbox(mb, F, -_uin(11.98), _uin(11.98), 11.98, 12.06, v - 0.2, v + 0.03, WOOD, 0.02)
-            if v == SHELF_V[2]:
-                fbox(mb, F, -_uin(11.95), _uin(11.95), 11.94, 11.99, v - 0.1, v - 0.05, GOLD)     # filete de bronze
-        # friso e cornija (esquadria nas bissetrizes, cornija com balanco)
-        fprism(mb, F, [(-11.9 * TAN, 11.9), (11.9 * TAN, 11.9), (wl, YB_IN), (-wl, YB_IN)], 8.6, 8.9, WOOD)
-        fprism(mb, F, [(-11.7 * TAN, 11.7), (11.7 * TAN, 11.7), (wl, YB_IN), (-wl, YB_IN)], 8.9, 9.1, WOOD, 0.04)
-        if a not in WIN_M:
-            # frontao (so nas estantes sem janela acima): timpano + cimalhas inclinadas + medalhao de obsidiana + remate
+        kind = CASE_KIND[a]
+        top = CASE_POST[kind]
+        case_box(mb, F, a, top)
+        lay = SHELF_LAYOUT[a]
+        if kind in ("books", "vitrine", "ladder"):
+            for v in SHELF_V:
+                case_shelf(mb, F, v, gold=(v == SHELF_V[2] and kind != "vitrine"))
+            case_cornice(mb, F, 8.6)
+            # frontao: timpano + cimalhas inclinadas + medalhao de obsidiana + remate
             pslab(mb, F, [(-1.42, 9.1), (1.42, 9.1), (0.0, 10.42)], 11.92, 12.5, WOOD)
-            for s in (-1, 1):
-                mb.beam(F.p(s * 1.62, 12.17, 9.12), F.p(0.0, 12.17, 10.64), 0.74, 0.2, WOOD, 0.03)
+            for s_ in (-1, 1):
+                mb.beam(F.p(s_ * 1.62, 12.17, 9.12), F.p(0.0, 12.17, 10.64), 0.74, 0.2, WOOD, 0.03)
             c = F.p(0.0, 11.91, 9.62)
             mb.cyl(0.26, 0.06, c, F.r(math.pi / 2, 0.0, 0.0), OBS, n=10, bevel=0.0)
-            lathe(mb, *F.p(0.0, 12.17, 10.6), [(0.0, 0.0), (0.13, 0.0), (0.16, 0.12), (0.08, 0.26), (0.1, 0.34), (0.0, 0.42)],
-                  WOOD, n=6)
-        for i, (key, mir) in enumerate(SHELF_LAYOUT[a]):
-            build_row(COMP[key]).emit(mb, F, CASE_Y0, SHELF_V[i], bool(mir))
-        fcol("SG_CraftShelf", F, -1.73, 1.73, SH_F - 0.05, YB_IN + 0.05, -0.5, SHELF_TOP + 0.34)
+            lathe(mb, *F.p(0.0, 12.17, 10.6), [(0.0, 0.0), (0.13, 0.0), (0.16, 0.12), (0.08, 0.26), (0.1, 0.34),
+                                               (0.0, 0.42)], WOOD, n=6)
+            for i, (key, mir) in enumerate(lay):
+                build_row(COMP[key]).emit(mb, F, CASE_Y0, SHELF_V[i], bool(mir))
+            if kind == "vitrine":
+                # 2 PORTAS de caixilho (quadro + 3 travessas finas + mainel): le vitrine sem depender de vidro
+                hw = _uin(11.8)
+                for s_ in (-1, 1):
+                    u0, u1 = sorted((s_ * 0.03, s_ * hw))
+                    for uu in (u0, u1 - 0.12):
+                        fbox(mb, F, uu, uu + 0.12, 11.74, 11.84, 0.62, 8.24, WOOD, 0.02)
+                    for vv in (0.62, 2.26, 3.92, 5.58, 8.12):
+                        fbox(mb, F, u0, u1, 11.74, 11.84, vv, vv + 0.12, WOOD, 0.02)
+                    fbox(mb, F, (u0 + u1) / 2 - 0.03, (u0 + u1) / 2 + 0.03, 11.76, 11.82, 0.7, 8.16, WOOD)
+                    pu = s_ * 0.2
+                    fbox(mb, F, pu - 0.04, pu + 0.04, 11.66, 11.74, 4.0, 4.5, GOLD)
+            if kind == "ladder":
+                # VARAO de bronze com 2 suportes + ESCADA de biblioteca encostada, pendurada no varao
+                fbox(mb, F, -1.55, 1.55, 11.66, 11.72, 7.7, 7.76, GOLD)
+                for s_ in (-1, 1):
+                    fbox(mb, F, s_ * 1.5 - 0.05, s_ * 1.5 + 0.05, 11.66, 11.9, 7.62, 7.84, GOLD)
+                yb0, yt = 10.55, 11.6
+                for s_ in (-1, 1):
+                    mb.beam(F.p(0.3 + s_ * 0.48, yb0, 0.0), F.p(0.3 + s_ * 0.48, yt, 7.82), 0.12, 0.08, WOOD, 0.0)
+                for k in range(10):
+                    t = (k + 0.6) / 10.6
+                    mb.rod(F.p(-0.18, yb0 + (yt - yb0) * t, 7.82 * t), F.p(0.78, yb0 + (yt - yb0) * t, 7.82 * t), 0.045,
+                           WOOD, 5)
+                for s_ in (-1, 1):
+                    fbox(mb, F, 0.3 + s_ * 0.48 - 0.05, 0.3 + s_ * 0.48 + 0.05, 11.6, 11.78, 7.66, 7.92, BIRON)
+        elif kind == "cupboard":
+            # ARMARIO de ingredientes: 2 portas almofadadas ate a bancada, bancada com balanco, 1 prateleira aberta
+            hw = _uin(11.9)
+            case_shelf(mb, F, SHELF_V[0])
+            for s_ in (-1, 1):
+                u0, u1 = sorted((s_ * 0.02, s_ * hw))
+                panel_door(mb, F, u0, u1, 0.52, 2.78, pull=s_ * 0.22)
+            fprism(mb, F, [(-_uin(11.7), 11.7), (_uin(11.7), 11.7), (_uin(13.1), 13.1), (-_uin(13.1), 13.1)], 2.78, 2.98,
+                   WOOD, 0.04)
+            case_shelf(mb, F, 4.2)
+            case_cornice(mb, F, top)
+            build_row(COMP[lay[0][0]]).emit(mb, F, CASE_Y0, 2.98, bool(lay[0][1]))
+            build_row(COMP[lay[1][0]]).emit(mb, F, CASE_Y0, 4.2, bool(lay[1][1]))
+        else:
+            # GAVETEIRO de botica: 4 fiadas x 3 gavetas (as de baixo mais altas), tampo com balanco e potes em cima
+            hw = _uin(11.9)
+            rows = [(0.52, 1.5), (1.5, 2.36), (2.36, 3.18), (3.18, 4.0)]
+            for v0, v1 in rows:
+                for k in range(3):
+                    u0 = -hw + 2 * hw * k / 3.0
+                    u1 = -hw + 2 * hw * (k + 1) / 3.0
+                    panel_door(mb, F, u0 + 0.02, u1 - 0.02, v0 + 0.02, v1 - 0.02, pull=(u0 + u1) / 2)
+            fbox(mb, F, -hw, hw, 11.9, 12.1, 4.0, top - 0.2, WOOD, 0.03)
+            fprism(mb, F, [(-_uin(11.7), 11.7), (_uin(11.7), 11.7), (_uin(13.1), 13.1), (-_uin(13.1), 13.1)], top - 0.2,
+                   top, WOOD, 0.04)
+            build_row(COMP[lay[0][0]]).emit(mb, F, CASE_Y0, top, bool(lay[0][1]))
+        if kind in ("cupboard", "drawers"):
+            fcol("SG_CraftShelf", F, -1.73, 1.73, SH_F - 0.05, YB_IN + 0.05, -0.5, top + 0.3)
+    # colisao do PAR ALTO de cada lado numa caixa so (corda das 2 faces; a frente fica a +-0,2 da frente dos moveis)
+    for b in (90.0, 270.0):
+        fcol("SG_CraftShelf", fr(b), -3.15, 3.15, 11.93, YB_IN / math.cos(math.radians(STEP)) + 0.05, -0.5,
+             SHELF_TOP + 0.34)
 
 
 def open_book(mb, F, u, y, v, m, ang=0.0):
@@ -2396,16 +2890,6 @@ def banners(mb):
             fbox(mb, F, u - 0.16, u + 0.16, YB_IN - 0.12, YB_IN + 0.02, 14.5, 15.1, BIRON)
 
 
-def circle_lanterns(mb):
-    """2 POSTES DE LANTERNA ancorando o circulo magico dos dois lados da passadeira (07.06): o KIT DEFINITIVO
-    (lanterna hexagonal da ordem), BAIXO (poste 3,3, escala 0,65: a lanterna fica abaixo do olho e nao tapa o
-    caldeirao da porta); colisao fina propria, fora da volta do caldeirao (raio 5,2) e da passadeira"""
-    for a in POST_A:
-        b = pol(8.05, a, 0.05)
-        EM.lantern_post(mb, mb, b, math.radians(a), h=3.3, s=0.65)
-        col_box("SG_CraftLanternPost", (0.9, 0.9, 4.6), (b[0], b[1], b[2] + 2.2), (0, 0, math.radians(a)))
-
-
 def lectern(mb):
     """ATRIL com o livro de receitas (perto da porta, lado sul) (08.04): pes em CRUZ de madeira com sapatas, COLUNA
     TORNEADA, capitel, tampo inclinado com BORDA e TRAVE de apoio do livro, livro aberto"""
@@ -2503,14 +2987,14 @@ def rug(mb):
 
 
 def windows_in(mb):
-    """o lado de dentro das janelas: vidraca quente, moldura de pedra violeta, mainel e travessa de ferro"""
+    """o lado de dentro das janelas (11.01): vidro ESCURO de noite (sem luz quente por dentro), cabeca em vitral nas 2
+    janelas da frente, caixilho de chumbo, moldura de pedra violeta"""
     for a in WIN_A:
         F = fr(a)
         y = YB_IN
-        arch_panel(mb, F, WIN_HW, WIN_RISE, WIN_SPRING, 9.4, y - 0.11, y + 0.05, WIN_M[a], n=4)
+        lancet_glass(mb, F, y - 0.11, y - 0.05, 9.4, a)
+        lancet_cames(mb, F, y - 0.1, y - 0.2, 9.4)
         arch_band(mb, F, WIN_HW, WIN_RISE, WIN_SPRING, 9.4, 0.3, y - 0.3, y + 0.05, VSTONE, n=4)
-        fbox(mb, F, -0.1, 0.1, y - 0.2, y - 0.09, 9.4, WIN_SPRING + WIN_RISE - 0.3, BIRON)
-        fbox(mb, F, -WIN_HW, WIN_HW, y - 0.2, y - 0.09, 12.6, 12.8, BIRON)
 
 
 def chandelier(mb):
@@ -2554,9 +3038,10 @@ def chandelier(mb):
     mb.rod((x, y, zr + 1.9), (x, y, Z + H + IN_DOME_RISE - 0.6), 0.09, BIRON, 5)
 
 
-def furnishings():
+def furnishings(mb):
+    """mobilia, piso, abobada e o CALDEIRAO num objeto so (FINESSE 3B: o caldeirao usa so materiais que a sala ja tem
+    menos a pocao - 8 MeshParts a menos que o objeto separado)"""
     rng = random.Random(8106)
-    mb = MB("SG_Craft_Furnishings", "16_CRAFT", rng, detail="near")
     interior(mb)
     bookcases(mb)
     bench(mb, rng)
@@ -2566,10 +3051,9 @@ def furnishings():
     lectern(mb)
     chest(mb)
     rug(mb)
-    circle_lanterns(mb)
-    windows_in(mb)
     chandelier(mb)
-    mb.finish()
+    cauldron(mb)
+    # (11.05: os 2 postes de lanterna do circulo, com remate em piramide dourada, sairam: o circulo nao precisa de ancora)
 
 
 def lights():
@@ -2607,12 +3091,16 @@ def grow(made):
 
 def build():
     before = {o.name for o in bpy.data.objects}
-    shell()
-    dome()
+    mb = MB("SG_Craft_Shell", "16_CRAFT", random.Random(8101), detail="near")
+    shell(mb)
+    dome(mb)
+    mb.finish()
     energy_rings()
-    cauldron()
-    furnishings()
+    mb = MB("SG_Craft_Furnishings", "16_CRAFT", random.Random(8106), detail="near")
+    furnishings(mb)
+    mb.finish()
     lights()
     grow([o for o in bpy.data.objects if o.name not in before])
+    adro_cols()
     import sg_water
     sg_water.zone_relief(("SG_Craft_", "VFX_SGCRAFT"), passes=3)
