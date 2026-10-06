@@ -76,7 +76,8 @@ OB, MBK, BI, WD = "Stone_SG_Obsidian", "Stone_SG_MarbleBlack", "Metal_SG_BlackIr
 CL, PALE, GLW, CORE = "Cloth_SG_Purple", "Stone_SG_MoonPale", "Lantern_Glow", "SG_LampCore_Glow"
 VG, VGM, VOID, CRY, CRYG = ("SG_VioletDeep_Glow", "SG_VioletSoft_Glow", "SG_CaveVoid_Glow", "Crystal_SGCave",
                             "SG_VioletSoft_Glow")                           # Neon medio/escuro (nada claro: bloom)
-STRAW = "Plaster_SG"                                                        # palha dos bonecos de treino
+STRAW = "Dirt_SGGravel"                                                     # palha dos bonecos de treino (medio quente)
+PARCH = "Plaster_SG"                                                        # pergaminho dos rolos
 
 X0, Y0, X1, Y1 = L.CAVE
 ZF, ZT = L.CAVE_FLOOR, L.CAVE_TOP
@@ -416,7 +417,7 @@ WALLS = {"W": ((X0, Y0), (0.0, 1.0), (1.0, 0.0), Y1 - Y0), "E": ((X1, Y1), (0.0,
          "S": ((X1, Y0), (-1.0, 0.0), (0.0, 1.0), X1 - X0), "N": ((X0, Y1), (1.0, 0.0), (0.0, -1.0), X1 - X0)}
 BUNDLE_W = (12.4, 9.6, 14.8, 11.2, 16.0, 10.4, 13.6)   # feixes (ritmo dirigido)
 COL_W = (5.2, 3.4, 4.6, 2.9, 4.1, 3.6)                 # colunas dentro do feixe (larguras bem diferentes)
-COLW = (22.0, 29.6, 18.4, 26.0, 32.8, 20.2)            # massas altas
+COLW = (28.6, 38.5, 24.0, 33.8, 42.6, 26.3)            # massas altas (longe: poucas e grandes)
 ROW_HIGH = (13.4, 16.8, 14.6)
 Z_LOW, Z_HIGH, Z_ROCK_TOP = -13.5, 21.5, 43.4
 BACK = -3.4                                      # plano de fundo das fendas (atras da face da parede)
@@ -544,67 +545,108 @@ def col_prism(mb, side, a, b, pf, ridge, z0, z1, fm, tilt=0.0, pf_top=None):
     return 1
 
 
+# FAIXA DO JOGADOR (piso ate ~8, FINESSE 3 09.04 revisao): PRISMAS PENTAGONAIS de basalto encostados (aresta viva
+# para o salao: 2 faces de frente com luz diferente), diametros em MODULOS DIRIGIDOS de 1,2 a 2,4, topos em DEGRAUS de
+# 0,6 a 1,8 com a face de topo em Cliff_Rock_SG_Top (um valor acima do fuste) e algumas colunas RECUADAS 0,2 a 0,4: a
+# face lateral delas (Cliff_Rock_SG_Dark) e o V entre vizinhas fazem a junta escura. Sem bevel.
+DIAM = (1.9, 1.4, 2.3, 1.7, 2.1, 1.3, 2.4, 1.6, 2.0, 1.5, 2.2)
+HOFF = (0.0, 1.2, 0.3, 1.8, 0.6, 1.5, 0.0, 0.9, 1.7, 0.4, 1.1)     # degrau do topo (vizinhas diferem 0,6 a 1,8)
+REC = (0.0, 0.3, 0.0, 0.0, 0.4, 0.1, 0.0, 0.2, 0.0, 0.35, 0.0, 0.25, 0.0)   # recuo dirigido (junta escura)
+
+
+def pent_col(mb, side, sc, r, pf, z0, z1, fm, tilt=0.06):
+    """prisma PENTAGONAL de basalto com a aresta da frente em pf (para o salao), raio r, de z0 a z1 (topo inclinado
+    'tilt' para o fundo: a face de topo segue em Cliff_Rock_SG_Top)"""
+    if z1 - z0 < 0.6:
+        return 0
+    pc = pf - r
+    pts = []
+    for k in range(5):
+        a = 2.0 * math.pi * k / 5
+        s_, p_ = sc + r * math.sin(a), pc + r * math.cos(a)
+        pts.append(wall_pt(side, s_, p_, z0))
+        pts.append(wall_pt(side, s_, p_, z1 - tilt * (pf - p_)))
+    hull(mb, pts, RKD, fm)
+    return 1
+
+
+def pent_row(mb, side, s0, s1, k0, front, ztop, fm, z0=ZF - 0.3, rmax=9.0):
+    """fileira de prismas pentagonais encostados de s0 a s1; front(i, e) = aresta da frente, ztop(i, e) = topo
+    (e = 0..1, envelope do feixe); k0 = indice dirigido dos modulos"""
+    cols, s, k = [], s0, k0
+    while s < s1 - 0.6:
+        d = DIAM[k % len(DIAM)]
+        if s + d > s1:
+            d = s1 - s
+        cols.append((s + d / 2, d, k))
+        s, k = s + d, k + 1
+    n, nc = 0, len(cols)
+    for i, (sc, d, k) in enumerate(cols):
+        t = (i + 0.5) / nc * 2.0 - 1.0
+        e = 1.0 - abs(t) ** 1.6
+        r = min(d / 1.902, rmax)                      # o pentagono regular cobre d na tangente
+        n += pent_col(mb, side, sc, r, front(k, e), z0, ztop(k, e), fm)
+    return n
+
+
 def basalt_bundle(mb, side, bi, s0, s1, fm):
-    """FEIXE convexo de colunas: as do meio avancam ate a face de colisao, as pontas recuam 1,3; topos em degraus que
-    sobem para o meio; UMA diaclase (junta 0,4) continua no feixe, escalonada de feixe para feixe"""
+    """FEIXE: faixa baixa em prismas pentagonais encostados (ate a diaclase, ~ZF+5 a ZF+9,5) e, acima da diaclase,
+    colunas largas que sobem em degraus para o meio do feixe e se debrucam no alto"""
     if _skip(side, s0, s1):
         return 0
     ends = [wall_pt(side, s, 0.0, 0.0) for s in (s0, s1)]
     allow = min(p_allow(side, e.x, e.y, ZF + 1.0) for e in ends)      # na faixa do jogador
     zt_b = Z_HIGH - 1.0 + 4.0 * (_h(bi, 5, ord(side)) - 0.5)       # altura do feixe (18,5 .. 22,5)
     zj = ZF + 6.5 + 3.0 * _h(bi, 6, ord(side))                     # cota da diaclase
+    k0 = bi * 5 + ord(side)
+    mid = wall_pt(side, (s0 + s1) / 2, 0.0, 0.0)
+    if side in ("W", "E") and 131.0 < mid.y < 191.0:      # atras da fornalha/bancada e das estantes: so o fundo
+        hull(mb, [wall_pt(side, s, p_, z) for s in (s0, s1) for p_ in (BACK - 0.6, -0.4) for z in (ZF - 0.3, zj - 0.2)],
+             RKD, fm)
+        n = 1
+    else:
+        n = pent_row(mb, side, s0, s1, k0, lambda k, e: min(allow, 0.5) - 0.35 * (1.0 - e) - REC[k % len(REC)],
+                     lambda k, e: zj - 0.2 - HOFF[k % len(HOFF)], fm)
     cols, s, ci = [], s0, 0
     while s < s1 - 0.5:
-        w = COL_W[(ci + bi) % len(COL_W)]
+        w = COL_W[(ci + bi) % len(COL_W)] * 2.2                     # acima da diaclase: colunas largas (longe/alto)
+        if s1 - (s + w) < 2.0:
+            w = s1 - s
         cols.append((s, min(s1, s + w)))
         s, ci = s + w, ci + 1
-    n = 0
     nc = len(cols)
-    low = []
     for ci, (a, b) in enumerate(cols):
         t = (ci + 0.5) / nc * 2.0 - 1.0
         e = 1.0 - abs(t) ** 1.6
         pf = allow - 2.0 + 1.3 * e + 0.5 * (_h(ci, bi, 13) - 0.5)       # feixe convexo + saliencia propria
         ztop = zt_b + 2.6 * e + 0.9 * (_h(ci, bi, ord(side)) - 0.5)
         tilt = 0.12 + 0.1 * _h(ci, bi, 9)
-        for s, pp in ((a + 0.05, BACK - 0.6), (a + 0.05, pf + 0.3), ((a + b) / 2, pf + 0.75), (b - 0.05, pf + 0.3)):
-            low += [wall_pt(side, s, pp, ZF - 0.3), wall_pt(side, s, pp, zj - 0.2)]
-        a_top = min(p_allow(side, e.x, e.y, ztop) for e in ends) - 0.45     # a coluna se debruca onde a parede pode
-        n += col_prism(mb, side, a, b, pf - 0.3, 0.45, zj + 0.2, ztop, fm, tilt, min(a_top, pf + 5.5))
-    # BANCO macico sob a diaclase (um casco convexo por feixe, 0,3 mais saliente que as colunas, labio quebrado)
-    (ox, oy), tv, nv, ln = WALLS[side]
-    low = cut(low, Vector((nv[0], nv[1], 0.0)) + UPZ * 0.9, 0.7)
-    hull(mb, low, RKD, fm)
-    return n + 1
+        a_top = min(p_allow(side, e_.x, e_.y, ztop) for e_ in ends) - 0.45   # a coluna se debruca onde a parede pode
+        n += col_prism(mb, side, a, b, pf - 0.3, 0.9, zj + 0.2, ztop, fm, tilt, min(a_top, pf + 5.5))
+    return n
 
 
-# ORGAO DE BASALTO (a assinatura da ilha): 2 ordens de colunas NA FRENTE do feixe, descendo em degraus para o salao
-# (escada natural), onde o piso e livre. (lado, s0, s1, avanco maximo, altura)
+# ORGAO DE BASALTO (a assinatura da ilha): 2 fileiras de prismas pentagonais NA FRENTE da faixa, descendo em degraus
+# para o salao (escada natural), onde o piso e livre. (lado, s0, s1, avanco maximo, altura)
 ORGANS = [("S", 12.0, 32.0, 4.4, 10.5), ("S", 148.0, 168.0, 4.4, 9.5), ("N", 6.0, 40.0, 5.0, 12.0),
           ("N", 138.0, 172.0, 5.0, 11.0), ("W", 136.0, 178.0, 4.2, 9.0), ("E", 68.0, 110.0, 4.2, 9.0)]
 
 
 def basalt_organ(mb, side, s0, s1, pmax, hmax, gi, fm):
     n = 0
-    for r in (1, 2):
-        pf = 0.5 + 1.7 * r - 1.2
-        if pf + 0.45 > pmax:
-            continue
-        cols, s, ci = [], s0 + 0.9 * r, 0
-        while s < s1 - 0.9 * r - 0.5:
-            w = COL_W[(ci + gi + r) % len(COL_W)] * 0.92
-            cols.append((s, min(s1 - 0.9 * r, s + w)))
-            s, ci = s + w, ci + 1
-        nc = len(cols)
-        for ci, (a, b) in enumerate(cols):
-            t = (ci + 0.5) / nc * 2.0 - 1.0
-            e = 1.0 - abs(t) ** 1.5
-            h = hmax * (1.0 - 0.32 * r) * (0.55 + 0.45 * e) + 0.9 * (_h(ci, gi, r) - 0.5)
-            if h < 1.4:
-                continue
-            n += col_prism(mb, side, a, b, pf, 0.45, ZF - 0.3, ZF + h, fm, 0.1 + 0.08 * _h(ci, gi, 4))
+    # fileira 1: encostada na faixa (fundo do pentagono em 0,4), topos a ~0,62 da altura do orgao, em degraus
+    n += pent_row(mb, side, s0 + 0.6, s1 - 0.6, gi * 7 + 3,
+                  lambda k, e: 0.4 + 1.81 * DIAM[k % len(DIAM)] / 1.902 - 0.5 * REC[k % len(REC)],
+                  lambda k, e: ZF + hmax * (0.42 + 0.26 * e) - 0.8 * HOFF[k % len(HOFF)], fm)
+    # fileira 2: na frente da 1 (fundo em 2,5, mais baixa), sem passar do avanco maximo
+    rm = (pmax - 2.6) / 1.81
+    if pmax < 4.3:                                   # orgaos estreitos (W/E): so a fileira 1
+        rm = 0.0
+    n += 0 if rm <= 0.0 else pent_row(mb, side, s0 + 2.4, s1 - 2.4, gi * 7 + 8,
+                  lambda k, e: 2.5 + 1.81 * min(DIAM[k % len(DIAM)] / 1.902, rm) - 0.6 * REC[k % len(REC)],
+                  lambda k, e: ZF + hmax * (0.2 + 0.16 * e) - 0.5 * HOFF[k % len(HOFF)], fm, rmax=rm)
     a, b = wall_pt(side, s0, -1.0, 0.0), wall_pt(side, s1, pmax, 0.0)
-    col_box2("SG_CaveOrgan", (min(a.x, b.x), min(a.y, b.y), ZF), (max(a.x, b.x), max(a.y, b.y), ZF + hmax))
+    col_box2("SG_CaveOrgan", (min(a.x, b.x), min(a.y, b.y), ZF), (max(a.x, b.x), max(a.y, b.y), ZF + hmax * 0.7))
     return n
 
 
@@ -653,8 +695,8 @@ STRATA = [(Y0 - 6.0, 128.0, 33.5, 1.0), (128.0, 172.0, 37.0, -1.0), (172.0, 214.
           (214.0, 262.0, 36.0, -1.0), (262.0, Y1 + 6.0, 31.5, 1.0)]    # (y0, y1, cota da quilha, sinal do tombo)
 POCKETS = [(-52.0, 150.0, 15.0, 10.0, 3.6), (46.0, 236.0, 14.0, 11.0, 3.2), (-28.0, 246.0, 12.0, 9.0, 2.8),
            (24.0, 206.0, 16.0, 9.0, 4.2), (-10.0, 290.0, 13.0, 8.0, 3.0)]   # (x, y, lx, ly, profundidade)
-STAL = [(-52.0, 150.0, 4, 1.15), (46.0, 236.0, 4, 1.2), (-28.0, 246.0, 3, 1.0), (24.0, 206.0, 5, 1.25),
-        (-10.0, 290.0, 3, 0.95), (-40.0, 210.0, 3, 1.1), (60.0, 112.0, 3, 1.0), (-66.0, 108.0, 3, 1.05)]
+STAL = [(-52.0, 150.0, 3, 1.15), (46.0, 236.0, 3, 1.2), (-28.0, 246.0, 2, 1.0), (24.0, 206.0, 4, 1.25),
+        (-10.0, 290.0, 2, 0.95), (-40.0, 210.0, 3, 1.1), (60.0, 112.0, 2, 1.0), (-66.0, 108.0, 2, 1.05)]
 
 
 def _strat(y):
@@ -765,8 +807,7 @@ def ceiling():
             ring = lambda rad, z: [Vector((x + rad * math.cos(ph + q * math.pi / 3), y + rad * math.sin(ph + q * math.pi / 3), z))
                                    for q in range(6)]
             tip = Vector((x + 0.25 * r, y - 0.2 * r, z0 - Ls))
-            hull(mb, ring(r, z0 + 1.2) + ring(r * 0.62, z0 - Ls * 0.38), RKD, fm)
-            hull(mb, ring(r * 0.64, z0 - Ls * 0.36) + [tip], RKD)
+            hull(mb, ring(r, z0 + 1.2) + ring(r * 0.62, z0 - Ls * 0.38) + [tip], RKD, fm)
             ns += 1
     mb.finish()
     print("CAVE abobada: estratos %d, bolsas %d, estalactites %d" % (npc, len(POCKETS), ns))
@@ -856,8 +897,8 @@ def floor():
                    ((X0 - 2, PY0), (PX0, PY1)), ((PX1, PY0), (X1 + 2, PY1))):
         abox(mb, (p0[0], p0[1], ZF - 1.2), (p1[0], p1[1], ZF - 0.35), RK, 0.0)
     # lajes de rocha em fiadas irregulares (juntas desencontradas)
-    DEP = (16.0, 20.0, 14.5, 18.5, 22.0, 17.0)
-    WID = (17.0, 23.0, 15.0, 20.5, 25.0, 15.5, 19.5)
+    DEP = (19.0, 24.0, 17.5, 22.0, 26.0, 20.5)
+    WID = (20.5, 27.5, 18.0, 24.5, 30.0, 18.5, 23.5)
     y, r = Y0 - 1.0, 0
     npl = 0
     while y < Y1 + 1.0:
@@ -1170,16 +1211,16 @@ def tower(mb, ops):
         for ci, (z0, z1) in enumerate(zip(CZ, CZ[1:])):
             chb, cht = 0 < ci < 5, z1 < 43.9 and ci < 5
             if not o:
-                tower_piece(mb, a0, a1, z0, z0, z1, z1, chb, cht, vis)
+                tower_piece(mb, a0, a1, z0, z0, z1, z1, chb, cht, False)
                 npc += 1
                 continue
             c, h, sill, spring, rise, kind = o
             if sill > z0 + 0.05:
-                tower_piece(mb, a0, a1, z0, z0, min(z1, sill), min(z1, sill), chb, cht and sill >= z1, vis)
+                tower_piece(mb, a0, a1, z0, z0, min(z1, sill), min(z1, sill), chb, cht and sill >= z1, False)
                 npc += 1
             t0, t1 = _op_top(o, a0), _op_top(o, a1)
             if min(t0, t1) < z1 - 0.05:
-                tower_piece(mb, a0, a1, max(z0, t0), max(z0, t1), z1, z1, chb and max(t0, t1) <= z0, cht, vis)
+                tower_piece(mb, a0, a1, max(z0, t0), max(z0, t1), z1, z1, chb and max(t0, t1) <= z0, cht, False)
                 npc += 1
     # ---- molduras das aberturas (aduelas, ombreiras em cunhal e peitoril; 0,3 salientes e 0,15 para dentro do vao)
     for o in ops:
@@ -1307,14 +1348,14 @@ def spiral_stairs(ms, mi, ops):
         zb_ += 12.0
     prof += [(3.0, z_top - 2.8), (3.5, z_top - 2.2), (4.3, z_top - 1.0), (4.3, z_top), (0.0, z_top)]
     EM._lathe(ms, (TC[0], TC[1], 0.0), prof, RUIN, 8, math.pi / 8, caps=(True, False))
-    samples = [A0 + DA * 0.5 + (A1 - A0 - DA) * i / 64 for i in range(65)]
+    samples = [A0 + DA * 0.5 + (A1 - A0 - DA) * i / 48 for i in range(49)]
     band = [tp(a, 3.28, zr(a) + 2.9) for a in samples]
     ms.sweep(band, [(-0.22, -0.28), (0.22, -0.28), (0.22, 0.28), (-0.22, 0.28)], TRIM, True, None)
     # CORRIMAO de madeira no lado da parede sobre misulas de ferro (para antes do arco de saida; nas janelas vira guarda)
     rail_s = [a for a in samples if a <= 600.0]
     rail = [tp(a, 13.6, zr(a) + 3.1) for a in rail_s]
     mi.sweep(rail, [(-0.24, -0.14), (0.24, -0.14), (0.24, 0.14), (-0.24, 0.14)], WD, True, None)
-    for a in rail_s[::4]:
+    for a in rail_s[::3]:
         th = a % 360.0
         z = zr(a)
         o = _op_at(ops, th)
@@ -1539,8 +1580,8 @@ def gallery():
         for k in range(nv):
             pts, (xc, zc, R) = seg_arch_pts(xa, xb, -1.5, rise, 1.3, ya, yb, k, nv)
             hull(mg, pts, TRIM if k == nv // 2 else RUIN)
-        for k in range(5):                                                        # timpano ate a laje
-            x0_, x1_ = xa + span * k / 5, xa + span * (k + 1) / 5
+        for k in range(3):                                                        # timpano ate a laje
+            x0_, x1_ = xa + span * k / 3, xa + span * (k + 1) / 3
             zz = [zc + math.sqrt(max(0.0, (R + 1.3) ** 2 - (xx - xc) ** 2)) - 0.2 for xx in (x0_, x1_)]
             if min(zz) >= zb - 0.05:
                 continue
@@ -1619,9 +1660,9 @@ def grand_stair():
 def cloth_banner(mc, mp, x, y, ztop, w=5.0, h=12.5, seed=0):
     """estandarte RASGADO da ordem (so o crescente): pano ondulado com espessura, barra de baixo rasgada em pontas de
     comprimentos diferentes e um rasgo lateral; crescente palido (sem brilho) no terco de cima; verga de ferro"""
-    nx, nz = 5, 7
+    nx, nz = 4, 5
     th = 0.12
-    tear = [0.86, 0.97, 0.78, 1.0, 0.9, 0.83]            # comprimento de cada coluna (rasgado)
+    tear = [0.86, 0.97, 0.78, 1.0, 0.9]                  # comprimento de cada coluna (rasgado)
     tear = tear[seed % 2:] + tear[:seed % 2]
     F, Bk = [], []
     bm = mc.bm
@@ -1673,7 +1714,7 @@ def walkways():
                 abox(mw, (xa + 0.1, y + 0.08, zg - 0.78), (xb - 0.1, y2 - 0.08, zg), PAV if k % 2 else PAVB, 0.0,
                      cuts=[((-s, 0, 1), 0.1)])
             # misula de ferro (juntas alternadas): viga sob a laje + escora diagonal ate a rocha
-            if k % 2:
+            if k % 3:
                 y, k = y2, k + 1
                 continue
             obox3(mw, Vector(((xw + xi) / 2, y, zg - 0.95)), Vector((1, 0, 0)), Vector((0, 1, 0)), UPZ, 10.0, 0.45,
@@ -2064,7 +2105,7 @@ def forge():
 # ==================================================================== SALA DO MAPA (leste)
 def scroll(mb, c, ax, ln, r=0.36):
     """rolo de pergaminho com as pontas em cone (nada de bolota)"""
-    lathe_ax(mb, c, ax, [(0.0, 0.0), (r, 0.18), (r, ln - 0.18), (0.0, ln)], PALE, 5)
+    lathe_ax(mb, c, ax, [(0.0, 0.0), (r, 0.18), (r, ln - 0.18), (0.0, ln)], PARCH, 5)
 
 
 def map_relief(mb, cx, cy, ztop, s):
@@ -2390,7 +2431,7 @@ CAMS = {
     "CAM_SGCave_Overview": ((50.0, 294.0, 24.0), (-12.0, 150.0, -6.0), 13),
     "CAM_SGCave_TowerFromFloor": ((34.0, 262.0, ZF + 5.2), (0.0, 318.0, 14.0), 14),
     # FINESSE 3: vistas das cenas novas (olho a 5,5)
-    "CAM_SGCave_Treino": ((-22.0, 240.0, ZF + 5.5), (-42.0, 258.0, ZF + 3.0), 20),
+    "CAM_SGCave_Treino": ((-56.0, 236.0, ZF + 5.5), (-36.0, 258.0, ZF + 3.0), 20),
     "CAM_SGCave_Armaria": ((-20.0, 306.0, ZF + 5.5), (-36.0, 326.0, ZF + 3.0), 20),
     "CAM_SGCave_Conselho": ((24.0, 244.0, ZF + 5.5), (40.0, 257.0, ZF + 2.5), 20),
 }
