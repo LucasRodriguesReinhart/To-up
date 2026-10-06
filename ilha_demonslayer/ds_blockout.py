@@ -771,12 +771,14 @@ def water():
             n = len(pts)
             side = off[:n] if s > 0 else list(reversed(off[n:]))
             DL.wall_ribbon(mb, side, zz - 0.6, zz + 0.4, 0.8, "Stone_DS", side=s)
-    # pontezinha de madeira sobre o canal (acesso a escada do summon)
+    # pontezinha de madeira sobre o canal (acesso a escada do summon). ONDA 1 (1d): com a zona summon em detalhe a
+    # pontezinha e do ds_summon (arqueada, com guarda-corpo e colisao propria) -> o blockout nao a desenha
     a0, a1, w = L.FOOTBRIDGE
-    mb.box((a1[0] - a0[0], w, 0.6), ((a0[0] + a1[0]) / 2, a0[1], T1 + 0.4), (0, 0, 0), "Wood_DS_Mid", 0.0)
-    for s in (-1, 1):
-        mb.box((a1[0] - a0[0], 0.4, 1.2), ((a0[0] + a1[0]) / 2, a0[1] + s * (w / 2 - 0.2), T1 + 1.3), (0, 0, 0),
-               "Wood_DS_Dark", 0.0)
+    if "summon" not in DETAILED:
+        mb.box((a1[0] - a0[0], w, 0.6), ((a0[0] + a1[0]) / 2, a0[1], T1 + 0.4), (0, 0, 0), "Wood_DS_Mid", 0.0)
+        for s in (-1, 1):
+            mb.box((a1[0] - a0[0], 0.4, 1.2), ((a0[0] + a1[0]) / 2, a0[1] + s * (w / 2 - 0.2), T1 + 1.3), (0, 0, 0),
+                   "Wood_DS_Dark", 0.0)
     mb.finish()
     # PREVIA da agua (00_REFERENCE: fora do export) para ler a composicao nos renders do blockout
     pw = MB("PREVIEW_Water", "00_REFERENCE", rng, detail="far", floor=-999)
@@ -875,6 +877,8 @@ def dressing():
     col_box("DS_VegTrunk", (1.6, 1.6, 8.0), (-8.0, 410.0, T3 + 4.0))
     # 4 glicinias (ACENTO): 2 no plato do summon, 1 no jardim da casa principal (trelica), 1 pergola do bambuzal
     for x, y in L.WISTERIA[:2]:
+        if "summon" in DETAILED:      # ONDA 1 (1d): as 2 glicinias do plato sao do ds_summon (wisteria_tree)
+            continue
         wisteria(mv, x, y, T3, 10.0, 5.5)
     wx, wy = L.WISTERIA[2]
     wisteria(mv, wx, wy, T2, 9.0, 5.0)
@@ -897,7 +901,12 @@ def dressing():
     mp.finish()
 
 
+DETAILED = set()      # ONDA 1 (1d): zonas que estao em detalhe nesta montagem (o build/estudio passam em skip)
+
+
 def build(skip=(), ore_proxies=False):
+    DETAILED.clear()
+    DETAILED.update(skip)
     fns = {"terrain": terrain, "entry": entry, "village": village, "clearing": lambda: clearing(ore_proxies),
            "forge": forge, "summon": summon, "water": water, "exit": exit_, "dressing": dressing}
     for z in ZONES:
