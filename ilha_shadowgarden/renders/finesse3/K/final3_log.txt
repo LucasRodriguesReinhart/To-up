@@ -1,0 +1,15 @@
+STUDIO modulo sg_castle 4.2s
+STUDIO tris=169944/170000 OK | MeshParts~119/125 OK | materiais_novos=3/12 OK ['Glass_SGHallMoon', 'SG_VilRoom_Glow', 'Stone_SGCasInterior']
+OK   ROTA sg_castle:PATIO->PORCHE->PORTA
+OK   ROTA sg_castle:PATIO->PORCHE_LADO
+STUDIO RENDER /home/user/To-up/ilha_shadowgarden/renders/finesse3/K/depois/CAM_A3_06_Fachada_Patio.jpg
+STUDIO RENDER /home/user/To-up/ilha_shadowgarden/renders/finesse3/K/depois/CAM_A3_05_Patio_Eixo.jpg
+STUDIO FIM 231.6s
+STUDIO modulo sg_castle 5.6s
+STUDIO tris=169944/170000 OK | MeshParts~119/125 OK | materiais_novos=3/12 OK ['Glass_SGHallMoon', 'SG_VilRoom_Glow', 'Stone_SGCasInterior']
+OK   ROTA sg_castle:PATIO->PORCHE->PORTA
+OK   ROTA sg_castle:PATIO->PORCHE_LADO
+STUDIO RENDER /home/user/To-up/ilha_shadowgarden/renders/finesse3/K/depois_roblox/CAM_A3_06_Fachada_Patio.jpg
+STUDIO RENDER /home/user/To-up/ilha_shadowgarden/renders/finesse3/K/depois_roblox/CAM_A3_05_Patio_Eixo.jpg
+STUDIO FIM 263.7s
+CHAIN4_DONE
