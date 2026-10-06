@@ -1502,7 +1502,7 @@ def fountain_figure(mb, F, s, z0):
     Enquanto isso (variante minima desta onda): o hooded_figure 'hood' em pedra CLARA (TrimLow) com o vazio do
     capuz em obsidiana, contra os guardioes ESCUROS da porta (nao repete o mesmo hero no eixo da chegada)."""
     import sg_court as CT
-    CT.hooded_figure(mb, F, s, z0, "Stone_SG_TrimLow", OBS, kind="hood")
+    CT.fountain_figure(mb, F, s, z0)      # FINESSE 3B: figura propria do agente J (moca com veu e cantaro)
 
 
 def fountain_statue(mb, x, y, zb, yaw, s=0.88):
