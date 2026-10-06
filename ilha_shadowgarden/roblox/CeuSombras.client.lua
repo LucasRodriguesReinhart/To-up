@@ -245,8 +245,9 @@ end)
 --  * Luzes NightOnly da ilha (postes, lanternas da praca, do patio e da saida): a area 3 e noite eterna e nada as
 --    ligava (o export as grava desligadas para um ciclo dia/noite que a area nao tem).
 local C = Color3.fromRGB
-local SUB_AMBIENT = C(70, 62, 96)      -- offset somado ao Ambient (interior, sem ceu)
-local SUB_OUTDOOR = C(35, 31, 48)      -- metade no OutdoorAmbient (o poco e as frestas veem o ceu)
+local SUB_AMBIENT = C(36, 32, 50)      -- offset somado ao Ambient (interior, sem ceu); metade desde a noite azul de
+                                      -- 2026-10-06 (base mais clara + luzes de Range 60: o salao lavava de lilas)
+local SUB_OUTDOOR = C(18, 16, 24)      -- metade no OutdoorAmbient (o poco e as frestas veem o ceu)
 local SUB_CC = { Contrast = 0.08, Brightness = 0.02 }
 local SUB_TWEEN = 1.4
 local SUB_ESPERA = 2.0                 -- s depois do ShadowGardenMood ligar (tween do AreaAtmosphere: 1,6 s)

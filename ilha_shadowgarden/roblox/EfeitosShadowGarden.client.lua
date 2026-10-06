@@ -405,6 +405,7 @@ local function montarPortal()
 	end
 	P.luz = luzDaIlha('L_SGCave_Portal')
 	P.luz0 = P.luz and P.luz.Brightness or 1.5
+	P.alcance0 = P.luz and P.luz.Range or 20
 	Portal = P
 	return true
 end
@@ -438,7 +439,12 @@ local function portalLigar(P, on)
 	P.sg.Enabled = on
 	for _, e in ipairs(P.emissores) do e.Enabled = on end
 	for d, cor in pairs(P.malha) do if d.Parent then d.Color = on and VIOLETA_FUNDO:Lerp(Color3.new(0, 0, 0), 0.35) or cor end end
-	if not on and P.luz and P.luz.Parent then P.luz.Brightness = P.luz0 end
+	-- o export da Range 60 a esta luz (camada do salao): com ela o portal lavava a caverna inteira de lilas; perto do
+	-- portal ela fica curta (banha a moldura e o piso da frente) e o resto do salao volta ao escuro
+	if P.luz and P.luz.Parent then
+		P.luz.Range = on and math.min(P.alcance0, 26) or P.alcance0
+		if not on then P.luz.Brightness = P.luz0 end
+	end
 end
 
 -- ================================================================== PORTAIS DAS SALAS (MasmorraProxima_*)

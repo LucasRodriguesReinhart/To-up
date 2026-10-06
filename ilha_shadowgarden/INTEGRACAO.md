@@ -204,6 +204,21 @@ estão dentro, mas 4 limites por dono estouraram:
 - props: 37,5k/30k tris e 51/50 MeshParts;
 - luzes de dia: 49/48.
 
-**PENDENTE:** importar os FBX `ILHA3_*_7fc3e9` + montar. Isso exige a interface do Studio
-(File > Import; o ribbon está recolhido nesta versão). Não foi feito porque o usuário estava usando o PC.
-Depois: salvar o place.
+**Importado e montado (mesmo dia, com o PC liberado):** 14/14 FBX e 854/854 MeshParts. O montar alinhou o giro de
+180° (escala 1,000). Foram renomeados 2 nomes truncados (`GATE_DemonSlayer_Barrier/Lock__Energy_Core_DemonSlayer_Glow`).
+A fonte ativa passou a ser `ServerStorage.IlhaShadowGarden` (7fc3e990); a anterior ficou em
+`ServerStorage.IlhaShadowGarden_b4d23c3b`.
+- **Como importar nesta versão do Studio:**
+  - Ctrl+M abre o "Open 3D File", que é um diálogo nativo dentro de uma janela Qt.
+  - Preencha o Edit id 1148 por WM_SETTEXT: primeiro a pasta, IDOK; depois os 14 nomes entre aspas, IDOK.
+  - Os arquivos caem no **Import Queue**. Depois do "Parsing", clique em "Start Import".
+  - Os modelos entram no workspace só no fim da fila.
+- **NUNCA usar SendKeys:** o app do Claude vem para a frente e o texto vai parar no chat.
+- **Malhas recém-subidas** ficam invisíveis no Play por cerca de 2 min, enquanto o Roblox processa.
+- **Ajustes com o export novo:** as luzes da caverna passaram a Range 60.
+  - O cliente encurta a `L_SGCave_Portal` para 26 enquanto o efeito do portal está ligado.
+  - O offset de ambiente do subsolo (`CeuSombras`) caiu pela metade, (36,32,50) e (18,16,24); o Salão Sombrio
+    lavava de lilás.
+- **Aberto para o usuário:** as salas da masmorra ficaram claras com os lustres `L_SGDun_*` em Range 60 e Brightness 3
+  (decisão da onda L). Captura em `renders/efeitos_20261006/10_sala_masmorra_7fc3e9.jpg`.
+- **PENDENTE:** salvar o place.
