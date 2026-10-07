@@ -1,0 +1,65 @@
+{
+  "version": "reference-aligned-ui-v2",
+  "placeId": "101959830085647",
+  "createdUtc": "2026-09-17T03:58:21.8956079Z",
+  "sourceCount": 10,
+  "liveNormalizedSourcesVerified": true,
+  "savedToRoblox": "2026-09-17 00:56:06.333 America/Sao_Paulo",
+  "audioDependencies": [
+    "ReplicatedStorage.AudioCatalog",
+    "ReplicatedStorage.AudioPreferences",
+    "ReplicatedStorage.SomJogo"
+  ],
+  "sources": [
+    {
+      "path": "ReplicatedStorage/ExpeditionUI/Inventory.lua",
+      "bytes": 42780,
+      "sha256": "52CD9AA92732225ED546A62BE1376F587F6DD830CE08E93716F63DFD86514898"
+    },
+    {
+      "path": "ReplicatedStorage/ExpeditionUI/Menus.lua",
+      "bytes": 57136,
+      "sha256": "9312E0779DFED1D8CFEBE944B6F4131F0EC0708110DE9A081F9C2AFB5097A3E0"
+    },
+    {
+      "path": "ReplicatedStorage/ExpeditionUI/Notify.lua",
+      "bytes": 18712,
+      "sha256": "183C711C992A50CEEC26446AD47FF4169E5D17C5BC5F9381E4061B5293FEF12C"
+    },
+    {
+      "path": "ReplicatedStorage/ExpeditionUI/Theme.lua",
+      "bytes": 49654,
+      "sha256": "48C8EF7A096729CAFF3D00069D09AA9838085ADB8C2F1D218711CD705F0718F4"
+    },
+    {
+      "path": "ServerScriptService/Core/AreaBuilder.lua",
+      "bytes": 19692,
+      "sha256": "687D71E9A0B56E1DC4CBAE1DFD1D8C12F22CAA2E14108BC79160C07C52904FF1"
+    },
+    {
+      "path": "StarterPlayer/StarterPlayerScripts/AutoMinerar.lua",
+      "bytes": 14609,
+      "sha256": "0FEE5174951F9193B39AA8B1F0C1CD7458739AE759E30B59F671BDCF3E90A6AD"
+    },
+    {
+      "path": "StarterPlayer/StarterPlayerScripts/ExpeditionClient.lua",
+      "bytes": 69830,
+      "sha256": "F267ABEA859F112B2EEE66D72B132B87089040277D8E4EE5C611FF3FD30D479D"
+    },
+    {
+      "path": "StarterPlayer/StarterPlayerScripts/IslandTransition.lua",
+      "bytes": 5489,
+      "sha256": "DD5D98F55291ED21C2B7098B3661DFEC356897D34D5FB99A49B6A9D1C0E8BC37"
+    },
+    {
+      "path": "StarterPlayer/StarterPlayerScripts/MineracaoVisual.lua",
+      "bytes": 17781,
+      "sha256": "219E06C74B33D6BECB651BFB65E1B746E2C9BB5BB2141CEF9BB642FB943E36FD"
+    },
+    {
+      "path": "StarterPlayer/StarterPlayerScripts/PetsSeguidores.lua",
+      "bytes": 11054,
+      "sha256": "EB9688F24E4241E62FD91BF92ED0A4D7395FAC7069FC593C978B40C6DCD3F35D"
+    }
+  ]
+}

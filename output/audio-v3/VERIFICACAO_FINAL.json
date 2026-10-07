@@ -1,0 +1,183 @@
+{
+  "temporaryScripts": [],
+  "mode": "Edit",
+  "backup": true,
+  "sources": [
+    {
+      "bytes": 6375,
+      "path": "ReplicatedStorage.AudioCatalog",
+      "exists": true,
+      "matching": true,
+      "compiled": true,
+      "sha256": "B3943514E40231E0FC36105D103CF8826AB23D9ADFF5A0411B23AB04CECA1AE3"
+    },
+    {
+      "bytes": 1418,
+      "path": "ReplicatedStorage.AudioPreferences",
+      "exists": true,
+      "matching": true,
+      "compiled": true,
+      "sha256": "612AAB16A926EFFC2661B2BB709CC650939FF7062D68F85517C6B7037DCA919A"
+    },
+    {
+      "bytes": 3071,
+      "path": "ReplicatedStorage.MiningSwing",
+      "exists": true,
+      "matching": true,
+      "compiled": true,
+      "sha256": "4A341CFFE15A9B3C6096E1D9A5418C0ECA807B055219F308852F38D7A7273570"
+    },
+    {
+      "bytes": 18927,
+      "path": "ReplicatedStorage.SomJogo",
+      "exists": true,
+      "matching": true,
+      "compiled": true,
+      "sha256": "65FA22D7ECBD6C90AC401B77CF4B566F7CA491A1B8593048B54078D6E3B66B09"
+    },
+    {
+      "bytes": 57137,
+      "path": "ReplicatedStorage.ExpeditionUI.Menus",
+      "exists": true,
+      "matching": true,
+      "compiled": true,
+      "sha256": "9312E0779DFED1D8CFEBE944B6F4131F0EC0708110DE9A081F9C2AFB5097A3E0"
+    },
+    {
+      "bytes": 2851,
+      "path": "ServerScriptService.Core.Codigos",
+      "exists": true,
+      "matching": true,
+      "compiled": true,
+      "sha256": "C2F0209177C5D41FF19851F85DB46761F41148C362BCEB9C6156CDE75B70C1F3"
+    },
+    {
+      "bytes": 8698,
+      "path": "ServerScriptService.Core.IgnisService",
+      "exists": true,
+      "matching": true,
+      "compiled": true,
+      "sha256": "2086AF2D7BD1E052D67510049C7ED222F2D338400D4D52F31C12F671DDD996EE"
+    },
+    {
+      "bytes": 19423,
+      "path": "ServerScriptService.Core.Main",
+      "exists": true,
+      "matching": true,
+      "compiled": true,
+      "sha256": "6EB02483B7C87AF0067B5EC542C928C82912F96B292A215DD364A0C75BED9178"
+    },
+    {
+      "bytes": 15116,
+      "path": "ServerScriptService.Core.Mineracao",
+      "exists": true,
+      "matching": true,
+      "compiled": true,
+      "sha256": "460A8585191F33AA1CD55375E24F59AD1EA0FD8ACB39C325468991969E5BA509"
+    },
+    {
+      "bytes": 21224,
+      "path": "ServerScriptService.Core.PlayerData",
+      "exists": true,
+      "matching": true,
+      "compiled": true,
+      "sha256": "6DA2C8E5F12B320A862A7F3EAD088DEF84DE2ACB91642A75268FFF3CD2A7DCC7"
+    },
+    {
+      "bytes": 5090,
+      "path": "ServerScriptService.Core.Recompensas",
+      "exists": true,
+      "matching": true,
+      "compiled": true,
+      "sha256": "2AF4D5711B6CE91EE5564DF0F97B41027B9198400B50CF4FF29A61BF402AE69A"
+    },
+    {
+      "bytes": 3567,
+      "path": "ServerScriptService.Core.Retencao",
+      "exists": true,
+      "matching": true,
+      "compiled": true,
+      "sha256": "048C613E7372205BF5BE60F52591F61FC77FF896B36A22AF935C034016ED7324"
+    },
+    {
+      "bytes": 3180,
+      "path": "StarterPlayer.StarterPlayerScripts.AreaAtmosphere",
+      "exists": true,
+      "matching": true,
+      "compiled": true,
+      "sha256": "788F17226A1E89BCE86D70579C343B08DA59C3D489C952F88D036C9106DF2093"
+    },
+    {
+      "bytes": 3473,
+      "path": "StarterPlayer.StarterPlayerScripts.AudioWorld",
+      "exists": true,
+      "matching": true,
+      "compiled": true,
+      "sha256": "223310538E5D28A18F705F47DCA566B555B96BCC95AE70BF894E972C5B2E2975"
+    },
+    {
+      "bytes": 68415,
+      "path": "StarterPlayer.StarterPlayerScripts.ExpeditionClient",
+      "exists": true,
+      "matching": true,
+      "compiled": true,
+      "sha256": "F267ABEA859F112B2EEE66D72B132B87089040277D8E4EE5C611FF3FD30D479D"
+    },
+    {
+      "bytes": 5488,
+      "path": "StarterPlayer.StarterPlayerScripts.IslandTransition",
+      "exists": true,
+      "matching": true,
+      "compiled": true,
+      "sha256": "DD5D98F55291ED21C2B7098B3661DFEC356897D34D5FB99A49B6A9D1C0E8BC37"
+    },
+    {
+      "bytes": 18329,
+      "path": "StarterPlayer.StarterPlayerScripts.LocomocaoBigAxe",
+      "exists": true,
+      "matching": true,
+      "compiled": true,
+      "sha256": "F136A9551C427850A962B05E2E79A94E3771558EEC2081C412EB251957A9DC92"
+    },
+    {
+      "bytes": 17780,
+      "path": "StarterPlayer.StarterPlayerScripts.MineracaoVisual",
+      "exists": true,
+      "matching": true,
+      "compiled": true,
+      "sha256": "219E06C74B33D6BECB651BFB65E1B746E2C9BB5BB2141CEF9BB642FB943E36FD"
+    },
+    {
+      "bytes": 1992,
+      "path": "Workspace.NPCs.Ignis.IgnisForjando",
+      "exists": true,
+      "matching": true,
+      "compiled": true,
+      "sha256": "466AA072BC492344958255C115BBE49FAF4E350E0469F775E0F0332A1B99C6FD"
+    }
+  ],
+  "date": "2026-09-17",
+  "studioId": "11355a9e-8046-4018-8a69-b1f9c215d6e2",
+  "placeId": 101959830085647,
+  "all19SourcesMatch": true,
+  "all19Compile": true,
+  "finalSmoke": "qa/FINAL_SMOKE_UI_SESSION.json",
+  "repetitionAndStress": "qa/FINAL_QA_UI_SESSION.json",
+  "rewardFixtures": "final-fixes/LOCAL_FIXTURE_QA.json",
+  "auditoryApproval": false,
+  "realMultiplayer": false,
+  "save": {
+    "status": "saved_to_roblox",
+    "published": false,
+    "localPlaceFileVerified": false,
+    "evidence": {
+      "kind": "native_studio_output_via_coordinated_ui_task",
+      "artifact": "../ui-v2/qa/SAVE_CONFIRMED.json",
+      "threadId": "01a0ad30-4759-7d70-92e6-7cbad21b7d5a",
+      "localTime": "2026-09-17 00:56:06.333",
+      "message": "Saved new changes in \"Anime Mining Simulator\" to Roblox.",
+      "action": "Ctrl+S"
+    },
+    "note": "Cloud save was confirmed by the task operating native Studio UI. MCP console does not include this native output entry. No API publishing fallback was executed."
+  }
+}

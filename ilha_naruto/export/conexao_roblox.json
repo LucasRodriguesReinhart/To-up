@@ -1,0 +1,166 @@
+{
+ "GATE_DB": {
+  "name": "GATE_DB",
+  "pos": [
+   -172.368,
+   16.2,
+   592.368
+  ],
+  "x": [
+   -0.707,
+   0.0,
+   -0.707
+  ],
+  "y": [
+   -0.707,
+   0.0,
+   0.707
+  ],
+  "props": {
+   "open_w": 16.0,
+   "open_h": 18.0,
+   "deck_w": 18.0,
+   "area_id": 2,
+   "key": "DB",
+   "fwd_x": -0.7071,
+   "fwd_z": 0.7071
+  }
+ },
+ "ISLAND_EXIT_Naruto": {
+  "name": "ISLAND_EXIT_Naruto",
+  "pos": [
+   -96.0,
+   16.2,
+   516.0
+  ],
+  "x": [
+   -0.707,
+   0.0,
+   -0.707
+  ],
+  "y": [
+   -0.707,
+   0.0,
+   0.707
+  ],
+  "props": {
+   "width": 18.0,
+   "deck_z": 16.2,
+   "heading_deg": 135.0,
+   "fwd_x": -0.7071,
+   "fwd_z": 0.7071,
+   "heading_deg_local": 45.0
+  }
+ },
+ "ISLAND_NEXT_ANCHOR": {
+  "name": "ISLAND_NEXT_ANCHOR",
+  "pos": [
+   -192.167,
+   16.2,
+   612.167
+  ],
+  "x": [
+   -0.707,
+   0.0,
+   -0.707
+  ],
+  "y": [
+   -0.707,
+   0.0,
+   0.707
+  ],
+  "props": {
+   "width": 18.0,
+   "deck_z": 16.2,
+   "clear_h": 22.0,
+   "heading_deg": 135.0,
+   "next_area": 2,
+   "guard": "PROVISORIO: EXIT_AnchorGuard (visual) + COL_ExitAnchorGuard_* (COL), next_island_guard=True",
+   "guard_note": "a integracao da Ilha 2 REMOVE o guarda (visual + COL) quando a ponte seguinte encosta aqui",
+   "fwd_x": -0.7071,
+   "fwd_z": 0.7071,
+   "heading_deg_local": 45.0
+  }
+ },
+ "SUMMON_Main": {
+  "name": "SUMMON_Main",
+  "pos": [
+   133.0,
+   16.2,
+   456.0
+  ],
+  "x": [
+   0.574,
+   0.0,
+   -0.819
+  ],
+  "y": [
+   -0.819,
+   0.0,
+   -0.574
+  ],
+  "props": {
+   "face_deg": -35.0,
+   "height": 60.1,
+   "free_zone_v": [
+    13.6,
+    27.6
+   ],
+   "free_zone_w": 14.0,
+   "note": "raiz da torre de invocacao (+Y local = frente); zona livre na frente: v local em free_zone_v",
+   "star_pivot_x": 135.457,
+   "star_pivot_y": 62.2,
+   "star_pivot_z": 457.721,
+   "fwd_x": -0.8192,
+   "fwd_z": -0.5736
+  }
+ },
+ "WORLD_ENTRY_Naruto": {
+  "name": "WORLD_ENTRY_Naruto",
+  "pos": [
+   0.0,
+   6.4,
+   320.0
+  ],
+  "x": [
+   -1.0,
+   0.0,
+   -0.0
+  ],
+  "y": [
+   -0.0,
+   0.0,
+   1.0
+  ],
+  "props": {
+   "note": "chegada da ilha (logo depois do portao, olhando o fosso)",
+   "fwd_x": -0.0,
+   "fwd_z": 1.0
+  }
+ },
+ "WORLD_FROM_LOBBY": {
+  "name": "WORLD_FROM_LOBBY",
+  "pos": [
+   0.0,
+   6.2,
+   222.0
+  ],
+  "x": [
+   -1.0,
+   0.0,
+   -0.0
+  ],
+  "y": [
+   -0.0,
+   0.0,
+   1.0
+  ],
+  "props": {
+   "width": 24.0,
+   "deck_z": 6.2,
+   "note": "ponta do patamar da ponte do lobby (Roblox z 222)",
+   "fwd_x": -0.0,
+   "fwd_z": 1.0
+  }
+ }
+}

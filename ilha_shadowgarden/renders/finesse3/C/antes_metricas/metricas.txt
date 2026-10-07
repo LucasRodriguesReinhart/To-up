@@ -1,0 +1,25 @@
+CAVE torre: aberturas [(270.0, 6.3, 24.6), (190.0, 14.3, 32.4), (226.0, 11.8, 30.9), (321.0, 8.4, 24.3)] pedacos 217 tochas 7
+CAVE partes: 0_floor 6090, 1_bridge 968, 2_nave 3744, 3_tower_and_spiral 7398, 4_tower_and_spiral 2556, 5_tower_and_spiral 2060, 6_gallery 5678, 7_grand_stair 2420, 8_walkways 5764, 9_portal 3540, 0_portal 188, 1_forge 3976, 2_maproom 3644, 3_crystals 1434
+CAVE build: blocos de rocha 797, estalactites 52, lajes 182, cristais 12 (4.6s)
+STUDIO modulo sg_cave 4.6s
+STUDIO METRICAS zona=cave objetos=86 malhas=7
+STUDIO tris=69000/70000 OK | MeshParts~44/60 OK | materiais_novos=1/6 OK ['Stone_SGDunRuin']
+STUDIO colisoes=73/260 OK | luzes=6 (de dia <= 6)
+STUDIO maiores: [(49460, 'SG_Cave_Build'), (4406, 'SG_Cave_Rock_W'), (4266, 'SG_Cave_Rock_E'), (3828, 'SG_Cave_Rock_N'), (3402, 'SG_Cave_Ceiling'), (2802, 'SG_Cave_Rock_S')]
+STUDIO tecnico: nomes_ruins=[] prefixo_fora_do_padrao=[] sem_material=[] degeneradas=0
+STUDIO marcadores obrigatorios: 6/6 OK
+OK   ROTA DUNGEON_SALAS_R1->R3
+OK   ROTA SALAO_SOMBRIO_PASSARELAS
+OK   ROTA SALAO_SOMBRIO_PISO
+ROTAS 27/27 OK
+OK   ROTA TRONO_ABERTO->ESCADA->SALAO_SOMBRIO->PORTAL
+OK   ROTA PORTAL->SALAO_SOMBRIO->ESCADA->TRONO (subida)
+ROTAS_ABERTAS 3/3 OK
+OK   ROTA sg_hall:SALAO_VOLTA
+ROTAS_MODULOS 46/46 OK
+SONDAS 29/29 OK
+LARGURA rotas com trecho < 3,4 de largura: ['ENTRADA->CRAFT', 'CASTELO->CRAFT', 'CASA_H1_ESCADA->ANDAR', 'CASA_H2_ESCADA->ANDAR', 'CASA_H3_ESCADA->ANDAR', 'CASA_H5_ESCADA->ANDAR', 'CASA_H7_ESCADA->ANDAR', 'SALAO_SOMBRIO_PISO']
+OK   SALAO_LIVRE colisores na zona de minerio (piso+0,3..+12): nenhum
+OK   DUNGEON_LIMPA malhas de fora dentro da caixa das salas: nenhuma
+OK   CAVE_LIVRE malhas de fora dentro da caixa do salao sombrio: nenhuma
+STUDIO FIM 122.7s

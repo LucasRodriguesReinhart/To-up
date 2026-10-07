@@ -1,0 +1,16 @@
+APRESENTAÇÃO E QUESTIONÁRIO — ANIME MINING SIMULATOR
+
+1. Abra Questionario-UI.html no navegador.
+2. Assista ao vídeo ou escolha um dos 28 capítulos.
+3. Avalie as telas que quiser: Manter, Ajustar ou Refazer.
+4. Marque o que mudaria e deixe um comentário por tela.
+5. Clique em Baixar respostas e envie o arquivo nesta conversa.
+
+As respostas ficam no navegador. Nada é enviado automaticamente.
+Ao usar o arquivo HTML local, mantenha o vídeo e a pasta captures juntos.
+Alguns navegadores bloqueiam legendas externas em arquivos locais; o vídeo possui narração em português e títulos visíveis.
+
+O vídeo é uma apresentação editada de capturas reais da UI atual do Roblox Studio, com narração sintética em português. Não é uma gravação contínua de gameplay.
+As telas de transição, avisos, conquista e revelação são prévias visuais identificadas, sem concessão de recompensas.
+Nenhuma compra, invocação, alimentação, venda ou retirada de recompensa foi realizada para montar a apresentação.
+Os scripts temporários de demonstração foram removidos. Studio voltou ao modo Edit.

@@ -1,0 +1,321 @@
+{
+  "auditoryApproval": false,
+  "assets": {
+    "1835322563": {
+      "loaded": true,
+      "length": 146.24292517006802
+    },
+    "1845421369": {
+      "loaded": true,
+      "length": 163.13172335600908
+    },
+    "1845676363": {
+      "loaded": true,
+      "length": 63.608163265306125
+    },
+    "9119717529": {
+      "loaded": true,
+      "length": 0.23179166666666667
+    },
+    "9112855484": {
+      "loaded": true,
+      "length": 36.00989583333333
+    },
+    "9118612665": {
+      "loaded": true,
+      "length": 2.144
+    },
+    "9125509503": {
+      "loaded": true,
+      "length": 1.371375
+    },
+    "9120972444": {
+      "loaded": true,
+      "length": 0.6512916666666667
+    },
+    "9118598279": {
+      "loaded": true,
+      "length": 0.37525
+    },
+    "131334832939011": {
+      "loaded": true,
+      "length": 194.52
+    },
+    "9125869797": {
+      "loaded": true,
+      "length": 1.0836666666666666
+    },
+    "9116651255": {
+      "loaded": true,
+      "length": 1.2554791666666667
+    },
+    "9125444889": {
+      "loaded": true,
+      "length": 1.3441458333333334
+    },
+    "9118598240": {
+      "loaded": true,
+      "length": 0.664375
+    },
+    "9118617342": {
+      "loaded": true,
+      "length": 0.8640208333333333
+    },
+    "9125515917": {
+      "loaded": true,
+      "length": 36.010666666666665
+    },
+    "9118598729": {
+      "loaded": true,
+      "length": 0.34597916666666667
+    },
+    "9114619221": {
+      "loaded": true,
+      "length": 2.7306666666666666
+    },
+    "9118690959": {
+      "loaded": true,
+      "length": 3.296
+    },
+    "9118598469": {
+      "loaded": true,
+      "length": 0.43472916666666667
+    },
+    "9116258071": {
+      "loaded": true,
+      "length": 75.77327083333333
+    },
+    "9120972321": {
+      "loaded": true,
+      "length": 0.5609583333333333
+    },
+    "9119717523": {
+      "loaded": true,
+      "length": 0.231625
+    },
+    "112898538778548": {
+      "loaded": true,
+      "length": 96.02612244897959
+    },
+    "9112780438": {
+      "loaded": true,
+      "length": 36.0105625
+    },
+    "9116652339": {
+      "loaded": true,
+      "length": 2.6186666666666665
+    },
+    "82061470648013": {
+      "loaded": true,
+      "length": 233.32
+    },
+    "9125531715": {
+      "loaded": true,
+      "length": 0.6578333333333334
+    },
+    "9118598470": {
+      "loaded": true,
+      "length": 0.3500625
+    },
+    "9120972323": {
+      "loaded": true,
+      "length": 0.5951041666666667
+    },
+    "9048681794": {
+      "loaded": true,
+      "length": 205.00897959183675
+    }
+  },
+  "errors": [],
+  "preferenceSchema": true,
+  "phases": {
+    "markers": [
+      "SwingStart",
+      "Hit",
+      "SwingEnd",
+      "Cancelled"
+    ],
+    "chaos": {
+      "created": 24,
+      "dropped": 2351,
+      "activeAfter": 0,
+      "stolen": 73,
+      "peak": 20,
+      "queuedAfter": 0
+    },
+    "pickups": {
+      "activeAfter": 0,
+      "regularVoices": 100,
+      "burstVoices": 1,
+      "requested": 200
+    },
+    "hits": {
+      "created": 24,
+      "uniqueStone": 5,
+      "adjacentRepeat": 0,
+      "activeAfter": 0,
+      "voicesPlayed": 183,
+      "elapsed": 14.841437000000042,
+      "peak": 6,
+      "requests": 100
+    }
+  },
+  "realMultiplayer": false,
+  "final": {
+    "assets": {
+      "1835322563": {
+        "loaded": true,
+        "length": 146.24292517006802
+      },
+      "1845421369": {
+        "loaded": true,
+        "length": 163.13172335600908
+      },
+      "1845676363": {
+        "loaded": true,
+        "length": 63.608163265306125
+      },
+      "9119717529": {
+        "loaded": true,
+        "length": 0.23179166666666667
+      },
+      "9112855484": {
+        "loaded": true,
+        "length": 36.00989583333333
+      },
+      "9118612665": {
+        "loaded": true,
+        "length": 2.144
+      },
+      "9125509503": {
+        "loaded": true,
+        "length": 1.371375
+      },
+      "9120972444": {
+        "loaded": true,
+        "length": 0.6512916666666667
+      },
+      "9118598279": {
+        "loaded": true,
+        "length": 0.37525
+      },
+      "131334832939011": {
+        "loaded": true,
+        "length": 194.52
+      },
+      "9125869797": {
+        "loaded": true,
+        "length": 1.0836666666666666
+      },
+      "9116651255": {
+        "loaded": true,
+        "length": 1.2554791666666667
+      },
+      "9125444889": {
+        "loaded": true,
+        "length": 1.3441458333333334
+      },
+      "9118598240": {
+        "loaded": true,
+        "length": 0.664375
+      },
+      "9118617342": {
+        "loaded": true,
+        "length": 0.8640208333333333
+      },
+      "9125515917": {
+        "loaded": true,
+        "length": 36.010666666666665
+      },
+      "9118598729": {
+        "loaded": true,
+        "length": 0.34597916666666667
+      },
+      "9114619221": {
+        "loaded": true,
+        "length": 2.7306666666666666
+      },
+      "9118690959": {
+        "loaded": true,
+        "length": 3.296
+      },
+      "9118598469": {
+        "loaded": true,
+        "length": 0.43472916666666667
+      },
+      "9116258071": {
+        "loaded": true,
+        "length": 75.77327083333333
+      },
+      "9120972321": {
+        "loaded": true,
+        "length": 0.5609583333333333
+      },
+      "9119717523": {
+        "loaded": true,
+        "length": 0.231625
+      },
+      "112898538778548": {
+        "loaded": true,
+        "length": 96.02612244897959
+      },
+      "9112780438": {
+        "loaded": true,
+        "length": 36.0105625
+      },
+      "9116652339": {
+        "loaded": true,
+        "length": 2.6186666666666665
+      },
+      "82061470648013": {
+        "loaded": true,
+        "length": 233.32
+      },
+      "9125531715": {
+        "loaded": true,
+        "length": 0.6578333333333334
+      },
+      "9118598470": {
+        "loaded": true,
+        "length": 0.3500625
+      },
+      "9120972323": {
+        "loaded": true,
+        "length": 0.5951041666666667
+      },
+      "9048681794": {
+        "loaded": true,
+        "length": 205.00897959183675
+      }
+    },
+    "active": 0,
+    "requests": 2846,
+    "remoteActive": 0,
+    "failed": [],
+    "created": 24,
+    "dropped": 2355,
+    "musicArea": 0,
+    "pending": 0,
+    "peak": 20,
+    "queue": 0,
+    "loops": 1,
+    "version": 3,
+    "events": {
+      "venda_enorme": 35,
+      "drop_mitico": 28,
+      "ui_equipar": 1,
+      "hit": 406,
+      "ui_click": 75,
+      "ui_abrir": 2,
+      "ui_desequipar": 1,
+      "coleta": 150
+    },
+    "stolen": 73,
+    "played": 698
+  },
+  "preloadPending": 0,
+  "status": "passed",
+  "musicPlayers": 1,
+  "failed": [],
+  "saleTiers": true
+}

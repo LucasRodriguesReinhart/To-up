@@ -1,0 +1,76 @@
+{
+  "areas": [
+    {
+      "paths": {
+        "corredor": "Success",
+        "lateral": "Success",
+        "praca": "Success",
+        "terraco": "Success",
+        "portal": "Success",
+        "gacha": "Success",
+        "mina": "Success"
+      },
+      "oreAccess": {
+        "total": 24,
+        "success": 24,
+        "failed": []
+      },
+      "portal": {
+        "NextAreaId": 4
+      },
+      "area": 3
+    },
+    {
+      "paths": {
+        "corredor": "Success",
+        "lateral": "Success",
+        "praca": "Success",
+        "terraco": "Success",
+        "portal": "Success",
+        "gacha": "Success",
+        "mina": "Success"
+      },
+      "oreAccess": {
+        "total": 24,
+        "success": 24,
+        "failed": []
+      },
+      "portal": {
+        "NextAreaId": 6
+      },
+      "area": 5
+    },
+    {
+      "paths": {
+        "corredor": "Success",
+        "lateral": "Success",
+        "praca": "Success",
+        "terraco": "Success",
+        "portal": "Success",
+        "gacha": "Success",
+        "mina": "Success"
+      },
+      "oreAccess": {
+        "total": 24,
+        "success": 24,
+        "failed": []
+      },
+      "portal": {
+        "Destino": "lobby"
+      },
+      "area": 6
+    }
+  ],
+  "gachas": {
+    "3": "MONTE NATAGUMO",
+    "5": "GRAND LINE",
+    "6": "CIDADE Z"
+  },
+  "travel": {
+    "3": 4,
+    "5": 6,
+    "6": "lobby"
+  },
+  "lobbyMoodRestored": true,
+  "consoleErrors": 0
+}

@@ -1,0 +1,1416 @@
+{
+  "version": 3,
+  "date": "2026-09-17",
+  "scope": "Final configured asset set, derived locally from current source and saved QA. Not a candidate shortlist. No Studio calls made for this document.",
+  "sourceFiles": [
+    {
+      "path": "src/ReplicatedStorage/AudioCatalog.lua",
+      "sha256": "b3943514e40231e0fc36105d103cf8826ab23d9adff5a0411b23ab04ceca1ae3"
+    },
+    {
+      "path": "src/ReplicatedStorage/SomJogo.lua",
+      "sha256": "65fa22d7ecbd6c90ac401b77cf4b566f7ca491a1b8593048b54078d6e3b66b09"
+    },
+    {
+      "path": "src/StarterPlayer/StarterPlayerScripts/AudioWorld.lua",
+      "sha256": "223310538e5d28a18f705f47dca566b555b96bcc95ae70bf894e972c5b2e2975"
+    },
+    {
+      "path": "ASSET_CANDIDATES.json",
+      "sha256": "bfdc414ce90294c55e6944d93ffad96647a0f09821e4e1b0ede419843e51d3e0"
+    },
+    {
+      "path": "qa/FINAL_QA_UI_SESSION.json",
+      "sha256": "a0eae5230a1b27da971a327774ad08581229ac5109ecd19bd40d304de5b11853"
+    },
+    {
+      "path": "qa/polish-runtime-v1.json",
+      "sha256": "97e9f33f8aab4142af352747e61d60a62150cfb4f43dee467bbbb8f8fa99fca6"
+    }
+  ],
+  "counts": {
+    "assets": 31,
+    "sfxAndAmbience": 24,
+    "music": 7,
+    "loaded": 31,
+    "loadFailures": 0
+  },
+  "validation": {
+    "qaStatus": "passed",
+    "errors": [],
+    "preloadPending": 0,
+    "auditoryApproval": false,
+    "realMultiplayer": false,
+    "claimLimit": "Loaded confirms access/decode in the saved test, not future availability, rights clearance, perceived loudness, fatigue or listening approval."
+  },
+  "sourcePolicy": {
+    "officialDocumentation": [
+      "https://create.roblox.com/docs/audio/assets",
+      "https://create.roblox.com/docs/production/creator-store"
+    ],
+    "summary": "Roblox describes Creator Store audio for use within Roblox experiences. Partner/distributor metadata was recorded without assuming availability alone proves every right. No anime/game IP rip was selected; no license for off-platform extraction or redistribution is claimed."
+  },
+  "mix": {
+    "defaults": {
+      "Master": 0.8,
+      "Music": 0.6,
+      "SFX": 0.85,
+      "UI": 0.65,
+      "Ambience": 0.55
+    },
+    "defaultBusVolumeProducts": {
+      "Mining": 0.68,
+      "Rewards": 0.612,
+      "World": 0.51,
+      "UI": 0.442,
+      "Music": 0.48,
+      "Ambience": 0.44
+    },
+    "sfxVolumeFormula": "layer.volume * trim.gain * random(0.96,1.04) * options.volume * (remote ? 0.36 : 1) * (auto ? 0.82 : 1), then group chain, effects and distance attenuation",
+    "durationFormula": "min(requested layer duration, max(0.03, (TimeLength - offset) / clamped PlaybackSpeed))",
+    "transientFadeOutSeconds": 0.035,
+    "ambienceSeamRampSeconds": 0.22,
+    "notes": "Linear volume products are configuration factors, not LUFS, dBFS or a perceptual normalization guarantee. Music duck and compressor/EQ affect the resulting signal."
+  },
+  "review": [
+    {
+      "severity": "info",
+      "finding": "All 31 configured IDs match final saved QA and report loaded=true. All configured offsets are inside runtime file lengths."
+    },
+    {
+      "severity": "note",
+      "finding": "New tone is 9125531715; previous tonal glass 9114619221 remains only in glass impact family. Older shortlist recommendations are not all installed."
+    },
+    {
+      "severity": "note",
+      "finding": "Tone length 0.657833333 s minus 0.200 s trim leaves 0.457833333 s at 1x. Long rarity windows are source-capped: Secret final note at 2.5x plays at most about 0.183133333 s, despite requested 0.75 s. Bounds-safe; perceived sustain still requires listening approval."
+    },
+    {
+      "severity": "note",
+      "finding": "Saved waveform JSON contains prior glass/stone/coin/swing onset measurements, but no new tone 9125531715 entry. Its offset/gain are confirmed configuration, not independently remeasured for this manifest."
+    },
+    {
+      "severity": "note",
+      "finding": "Music metadata confirms four APMOfficial and three DistrokidOfficial creators; three distributor tracks have empty descriptions and no separately captured per-track license terms."
+    },
+    {
+      "severity": "note",
+      "finding": "Regional energy/wind loops use endpoint volume ramps; this is not an equal-power seam crossfade and cannot establish an inaudible seam without listening."
+    },
+    {
+      "severity": "note",
+      "finding": "Creator Store source durations differ from runtime lengths; both are preserved and TimeLength controls playback bounds."
+    }
+  ],
+  "assets": [
+    {
+      "id": 9118598279,
+      "uri": "rbxassetid://9118598279",
+      "kind": "sfx",
+      "family": "stone",
+      "name": "Rock Hit Dirt Impact 14 (SFX)",
+      "creator": "ProSoundEffects",
+      "creatorStoreUrl": "https://create.roblox.com/store/asset/9118598279",
+      "roles": [
+        "Mining hit; stone body in metal/crystal/magic/lava variants"
+      ],
+      "provenance": {
+        "type": "PSE partner attribution in Creator Store/Marketplace metadata",
+        "description": "Rock Hit Dirt, CU Deep Thunking Impacts with Crackling Debris\n\nDuration: 0.4 seconds\nCategory: Rocks - Hits\nAsset Type: Sound Effect\n\nCourtesy of Pro Sound Effects.",
+        "metadataEvidence": [
+          "ASSET_CANDIDATES.json:candidates",
+          "ASSET_CANDIDATES.json:existingMetadata (MarketplaceService GetProductInfo)",
+          "ASSET_CANDIDATES.json:rawSearches/stone_hit"
+        ],
+        "freeInDiscovery": true,
+        "rightsAssessment": "Clear partner provenance; use relies on Roblox Creator Store terms. Not an independent legal clearance or permission for off-platform reuse."
+      },
+      "sourceDurationSeconds": 0.4,
+      "runtime": {
+        "loaded": true,
+        "lengthSeconds": 0.37525,
+        "evidence": "qa/FINAL_QA_UI_SESSION.json:assets/9118598279"
+      },
+      "trim": {
+        "offsetSeconds": 0.0,
+        "sourceGain": 1.0,
+        "configuredInCatalog": true,
+        "application": "PlaybackRegion begins at offset; event duration is capped by remaining source duration / PlaybackSpeed."
+      },
+      "sourceRemainingAt1xSeconds": 0.37525,
+      "auditoryApproval": false,
+      "requestedEventWindowSeconds": {
+        "min": 0.24,
+        "max": 0.32
+      },
+      "savedWaveformMeasurement": {
+        "onsetSeconds": 0.002501666666666667,
+        "samples": 1500,
+        "evidence": "qa/polish-runtime-v1.json:waveforms/9118598279"
+      }
+    },
+    {
+      "id": 9118598469,
+      "uri": "rbxassetid://9118598469",
+      "kind": "sfx",
+      "family": "stone",
+      "name": "Rock Hit Dirt Impact 15 (SFX)",
+      "creator": "ProSoundEffects",
+      "creatorStoreUrl": "https://create.roblox.com/store/asset/9118598469",
+      "roles": [
+        "Mining hit; stone body in metal/crystal/magic/lava variants"
+      ],
+      "provenance": {
+        "type": "PSE partner attribution in Creator Store/Marketplace metadata",
+        "description": "Rock Hit Dirt, CU Deep Thunking Impacts with Crackling Debris\n\nDuration: 0.5 seconds\nCategory: Rocks - Hits\nAsset Type: Sound Effect\n\nCourtesy of Pro Sound Effects.",
+        "metadataEvidence": [
+          "ASSET_CANDIDATES.json:candidates",
+          "ASSET_CANDIDATES.json:existingMetadata (MarketplaceService GetProductInfo)",
+          "ASSET_CANDIDATES.json:rawSearches/stone_hit"
+        ],
+        "freeInDiscovery": true,
+        "rightsAssessment": "Clear partner provenance; use relies on Roblox Creator Store terms. Not an independent legal clearance or permission for off-platform reuse."
+      },
+      "sourceDurationSeconds": 0.5,
+      "runtime": {
+        "loaded": true,
+        "lengthSeconds": 0.43472916666666667,
+        "evidence": "qa/FINAL_QA_UI_SESSION.json:assets/9118598469"
+      },
+      "trim": {
+        "offsetSeconds": 0.0,
+        "sourceGain": 1.0,
+        "configuredInCatalog": true,
+        "application": "PlaybackRegion begins at offset; event duration is capped by remaining source duration / PlaybackSpeed."
+      },
+      "sourceRemainingAt1xSeconds": 0.43472916666666667,
+      "auditoryApproval": false,
+      "requestedEventWindowSeconds": {
+        "min": 0.24,
+        "max": 0.32
+      },
+      "savedWaveformMeasurement": {
+        "onsetSeconds": 0.0028981944444444446,
+        "samples": 1500,
+        "evidence": "qa/polish-runtime-v1.json:waveforms/9118598469"
+      }
+    },
+    {
+      "id": 9118598729,
+      "uri": "rbxassetid://9118598729",
+      "kind": "sfx",
+      "family": "stone",
+      "name": "Rock Hit Dirt Impact 20 (SFX)",
+      "creator": "ProSoundEffects",
+      "creatorStoreUrl": "https://create.roblox.com/store/asset/9118598729",
+      "roles": [
+        "Mining hit; stone body in metal/crystal/magic/lava variants"
+      ],
+      "provenance": {
+        "type": "PSE partner attribution in Creator Store/Marketplace metadata",
+        "description": "Rock Hit Dirt, CU Deep Thunking Impacts with Crackling Debris\n\nDuration: 0.4 seconds\nCategory: Rocks - Hits\nAsset Type: Sound Effect\n\nCourtesy of Pro Sound Effects.",
+        "metadataEvidence": [
+          "ASSET_CANDIDATES.json:candidates",
+          "ASSET_CANDIDATES.json:rawSearches/stone_hit"
+        ],
+        "freeInDiscovery": true,
+        "rightsAssessment": "Clear partner provenance; use relies on Roblox Creator Store terms. Not an independent legal clearance or permission for off-platform reuse."
+      },
+      "sourceDurationSeconds": 0.4,
+      "runtime": {
+        "loaded": true,
+        "lengthSeconds": 0.34597916666666667,
+        "evidence": "qa/FINAL_QA_UI_SESSION.json:assets/9118598729"
+      },
+      "trim": {
+        "offsetSeconds": 0.0,
+        "sourceGain": 0.9,
+        "configuredInCatalog": true,
+        "application": "PlaybackRegion begins at offset; event duration is capped by remaining source duration / PlaybackSpeed."
+      },
+      "sourceRemainingAt1xSeconds": 0.34597916666666667,
+      "auditoryApproval": false,
+      "requestedEventWindowSeconds": {
+        "min": 0.24,
+        "max": 0.32
+      },
+      "savedWaveformMeasurement": {
+        "onsetSeconds": 0.003229138888888889,
+        "samples": 1500,
+        "evidence": "qa/polish-runtime-v1.json:waveforms/9118598729"
+      }
+    },
+    {
+      "id": 9118598470,
+      "uri": "rbxassetid://9118598470",
+      "kind": "sfx",
+      "family": "stone",
+      "name": "Rock Hit Dirt Impact 16 (SFX)",
+      "creator": "ProSoundEffects",
+      "creatorStoreUrl": "https://create.roblox.com/store/asset/9118598470",
+      "roles": [
+        "Mining hit; stone body in metal/crystal/magic/lava variants"
+      ],
+      "provenance": {
+        "type": "PSE partner attribution in Creator Store/Marketplace metadata",
+        "description": "Rock Hit Dirt, CU Deep Thunking Impacts with Crackling Debris\n\nDuration: 0.4 seconds\nCategory: Rocks - Hits\nAsset Type: Sound Effect\n\nCourtesy of Pro Sound Effects.",
+        "metadataEvidence": [
+          "ASSET_CANDIDATES.json:candidates",
+          "ASSET_CANDIDATES.json:rawSearches/stone_hit"
+        ],
+        "freeInDiscovery": true,
+        "rightsAssessment": "Clear partner provenance; use relies on Roblox Creator Store terms. Not an independent legal clearance or permission for off-platform reuse."
+      },
+      "sourceDurationSeconds": 0.4,
+      "runtime": {
+        "loaded": true,
+        "lengthSeconds": 0.3500625,
+        "evidence": "qa/FINAL_QA_UI_SESSION.json:assets/9118598470"
+      },
+      "trim": {
+        "offsetSeconds": 0.0,
+        "sourceGain": 1.12,
+        "configuredInCatalog": true,
+        "application": "PlaybackRegion begins at offset; event duration is capped by remaining source duration / PlaybackSpeed."
+      },
+      "sourceRemainingAt1xSeconds": 0.3500625,
+      "auditoryApproval": false,
+      "requestedEventWindowSeconds": {
+        "min": 0.24,
+        "max": 0.32
+      },
+      "savedWaveformMeasurement": {
+        "onsetSeconds": 0.003967375,
+        "samples": 1500,
+        "evidence": "qa/polish-runtime-v1.json:waveforms/9118598470"
+      }
+    },
+    {
+      "id": 9118598240,
+      "uri": "rbxassetid://9118598240",
+      "kind": "sfx",
+      "family": "stone",
+      "name": "Rock Hit Dirt Impact 12 (SFX)",
+      "creator": "ProSoundEffects",
+      "creatorStoreUrl": "https://create.roblox.com/store/asset/9118598240",
+      "roles": [
+        "Mining hit; stone body in metal/crystal/magic/lava variants"
+      ],
+      "provenance": {
+        "type": "PSE partner attribution in Creator Store/Marketplace metadata",
+        "description": "Rock Hit Dirt, CU Deep Thunking Impacts with Crackling Debris\n\nDuration: 0.8 seconds\nCategory: Rocks - Hits\nAsset Type: Sound Effect\n\nCourtesy of Pro Sound Effects.",
+        "metadataEvidence": [
+          "ASSET_CANDIDATES.json:candidates",
+          "ASSET_CANDIDATES.json:rawSearches/stone_hit"
+        ],
+        "freeInDiscovery": true,
+        "rightsAssessment": "Clear partner provenance; use relies on Roblox Creator Store terms. Not an independent legal clearance or permission for off-platform reuse."
+      },
+      "sourceDurationSeconds": 0.8,
+      "runtime": {
+        "loaded": true,
+        "lengthSeconds": 0.664375,
+        "evidence": "qa/FINAL_QA_UI_SESSION.json:assets/9118598240"
+      },
+      "trim": {
+        "offsetSeconds": 0.002,
+        "sourceGain": 0.9,
+        "configuredInCatalog": true,
+        "application": "PlaybackRegion begins at offset; event duration is capped by remaining source duration / PlaybackSpeed."
+      },
+      "sourceRemainingAt1xSeconds": 0.662375,
+      "auditoryApproval": false,
+      "requestedEventWindowSeconds": {
+        "min": 0.24,
+        "max": 0.32
+      },
+      "savedWaveformMeasurement": {
+        "onsetSeconds": 0.005757916666666667,
+        "samples": 1500,
+        "evidence": "qa/polish-runtime-v1.json:waveforms/9118598240"
+      }
+    },
+    {
+      "id": 9116651255,
+      "uri": "rbxassetid://9116651255",
+      "kind": "sfx",
+      "family": "metal",
+      "name": "Metal Hits 2 (SFX)",
+      "creator": "ProSoundEffects",
+      "creatorStoreUrl": "https://create.roblox.com/store/asset/9116651255",
+      "roles": [
+        "Pickaxe metal layer",
+        "Critical hit",
+        "Equip/unequip",
+        "Forge interaction/hammer"
+      ],
+      "provenance": {
+        "type": "PSE partner attribution in Creator Store/Marketplace metadata",
+        "description": "Metal Hits, With Hammer, Mostly Light Tapes, Various Ringy Metals, Some Rattle\n\nDuration: 1.7 seconds\nCategory: Metal - Hits\nAsset Type: Sound Effect\n\nCourtesy of Pro Sound Effects.",
+        "metadataEvidence": [
+          "ASSET_CANDIDATES.json:candidates",
+          "ASSET_CANDIDATES.json:existingMetadata (MarketplaceService GetProductInfo)"
+        ],
+        "freeInDiscovery": null,
+        "rightsAssessment": "Clear partner provenance; use relies on Roblox Creator Store terms. Not an independent legal clearance or permission for off-platform reuse."
+      },
+      "sourceDurationSeconds": 1.7,
+      "runtime": {
+        "loaded": true,
+        "lengthSeconds": 1.2554791666666667,
+        "evidence": "qa/FINAL_QA_UI_SESSION.json:assets/9116651255"
+      },
+      "trim": {
+        "offsetSeconds": 0.0,
+        "sourceGain": 1.0,
+        "configuredInCatalog": false,
+        "application": "PlaybackRegion begins at offset; event duration is capped by remaining source duration / PlaybackSpeed."
+      },
+      "sourceRemainingAt1xSeconds": 1.2554791666666667,
+      "auditoryApproval": false,
+      "requestedEventWindowSeconds": {
+        "min": 0.13,
+        "max": 0.27
+      },
+      "savedWaveformMeasurement": {
+        "onsetSeconds": 0.0025109583333333334,
+        "samples": 1500,
+        "evidence": "qa/polish-runtime-v1.json:waveforms/9116651255"
+      }
+    },
+    {
+      "id": 9116652339,
+      "uri": "rbxassetid://9116652339",
+      "kind": "sfx",
+      "family": "metal",
+      "name": "Metal Hits 13 (SFX)",
+      "creator": "ProSoundEffects",
+      "creatorStoreUrl": "https://create.roblox.com/store/asset/9116652339",
+      "roles": [
+        "Pickaxe metal layer",
+        "Critical hit",
+        "Equip/unequip",
+        "Forge interaction/hammer"
+      ],
+      "provenance": {
+        "type": "PSE partner attribution in Creator Store/Marketplace metadata",
+        "description": "Metal Hits, With Hammer, Mostly Light Tapes, Various Ringy Metals, Some Rattle\n\nDuration: 2.9 seconds\nCategory: Metal - Hits\nAsset Type: Sound Effect\n\nCourtesy of Pro Sound Effects.",
+        "metadataEvidence": [
+          "ASSET_CANDIDATES.json:candidates",
+          "ASSET_CANDIDATES.json:existingMetadata (MarketplaceService GetProductInfo)"
+        ],
+        "freeInDiscovery": null,
+        "rightsAssessment": "Clear partner provenance; use relies on Roblox Creator Store terms. Not an independent legal clearance or permission for off-platform reuse."
+      },
+      "sourceDurationSeconds": 2.9,
+      "runtime": {
+        "loaded": true,
+        "lengthSeconds": 2.6186666666666665,
+        "evidence": "qa/FINAL_QA_UI_SESSION.json:assets/9116652339"
+      },
+      "trim": {
+        "offsetSeconds": 0.0,
+        "sourceGain": 1.0,
+        "configuredInCatalog": false,
+        "application": "PlaybackRegion begins at offset; event duration is capped by remaining source duration / PlaybackSpeed."
+      },
+      "sourceRemainingAt1xSeconds": 2.6186666666666665,
+      "auditoryApproval": false,
+      "requestedEventWindowSeconds": {
+        "min": 0.13,
+        "max": 0.27
+      },
+      "savedWaveformMeasurement": {
+        "onsetSeconds": 0.003491555555555555,
+        "samples": 1500,
+        "evidence": "qa/polish-runtime-v1.json:waveforms/9116652339"
+      }
+    },
+    {
+      "id": 9118617342,
+      "uri": "rbxassetid://9118617342",
+      "kind": "sfx",
+      "family": "heavy",
+      "name": "Rock Impact Large Hit Scrape 1 (SFX)",
+      "creator": "ProSoundEffects",
+      "creatorStoreUrl": "https://create.roblox.com/store/asset/9118617342",
+      "roles": [
+        "Heavy/lava impact",
+        "Forge body",
+        "Jackpot/secret reveal accent"
+      ],
+      "provenance": {
+        "type": "PSE partner attribution in Creator Store/Marketplace metadata",
+        "description": "Rock Impact, Large Hit and Scrape\n\nDuration: 0.9 seconds\nCategory: Rocks - Hits\nAsset Type: Sound Effect\n\nCourtesy of Pro Sound Effects.",
+        "metadataEvidence": [
+          "ASSET_CANDIDATES.json:candidates",
+          "ASSET_CANDIDATES.json:existingMetadata (MarketplaceService GetProductInfo)"
+        ],
+        "freeInDiscovery": null,
+        "rightsAssessment": "Clear partner provenance; use relies on Roblox Creator Store terms. Not an independent legal clearance or permission for off-platform reuse."
+      },
+      "sourceDurationSeconds": 0.9,
+      "runtime": {
+        "loaded": true,
+        "lengthSeconds": 0.8640208333333333,
+        "evidence": "qa/FINAL_QA_UI_SESSION.json:assets/9118617342"
+      },
+      "trim": {
+        "offsetSeconds": 0.0,
+        "sourceGain": 1.0,
+        "configuredInCatalog": false,
+        "application": "PlaybackRegion begins at offset; event duration is capped by remaining source duration / PlaybackSpeed."
+      },
+      "sourceRemainingAt1xSeconds": 0.8640208333333333,
+      "auditoryApproval": false,
+      "requestedEventWindowSeconds": {
+        "min": 0.2,
+        "max": 0.32
+      },
+      "savedWaveformMeasurement": null
+    },
+    {
+      "id": 9118612665,
+      "uri": "rbxassetid://9118612665",
+      "kind": "sfx",
+      "family": "crack",
+      "name": "Rock Impact 7 (SFX)",
+      "creator": "ProSoundEffects",
+      "creatorStoreUrl": "https://create.roblox.com/store/asset/9118612665",
+      "roles": [
+        "Low HP cracks",
+        "Rock break by rarity"
+      ],
+      "provenance": {
+        "type": "PSE partner attribution in Creator Store/Marketplace metadata",
+        "description": "Rock Impact, Short Bursts, Huge Crunchy Hits, Debris Rolling, Cracking, Rumbling\n\nDuration: 2.1 seconds\nCategory: Rocks - Misc\nAsset Type: Sound Effect\n\nCourtesy of Pro Sound Effects.",
+        "metadataEvidence": [
+          "ASSET_CANDIDATES.json:candidates",
+          "ASSET_CANDIDATES.json:existingMetadata (MarketplaceService GetProductInfo)"
+        ],
+        "freeInDiscovery": null,
+        "rightsAssessment": "Clear partner provenance; use relies on Roblox Creator Store terms. Not an independent legal clearance or permission for off-platform reuse."
+      },
+      "sourceDurationSeconds": 2.1,
+      "runtime": {
+        "loaded": true,
+        "lengthSeconds": 2.144,
+        "evidence": "qa/FINAL_QA_UI_SESSION.json:assets/9118612665"
+      },
+      "trim": {
+        "offsetSeconds": 0.0,
+        "sourceGain": 1.0,
+        "configuredInCatalog": false,
+        "application": "PlaybackRegion begins at offset; event duration is capped by remaining source duration / PlaybackSpeed."
+      },
+      "sourceRemainingAt1xSeconds": 2.144,
+      "auditoryApproval": false,
+      "requestedEventWindowSeconds": {
+        "min": 0.24,
+        "max": 0.655
+      },
+      "savedWaveformMeasurement": null
+    },
+    {
+      "id": 9125869797,
+      "uri": "rbxassetid://9125869797",
+      "kind": "sfx",
+      "family": "crack",
+      "name": "Rock Drops Smashes Impacts Hits Some Rocking (SFX)",
+      "creator": "ProSoundEffects",
+      "creatorStoreUrl": "https://create.roblox.com/store/asset/9125869797",
+      "roles": [
+        "Low HP cracks",
+        "Rock break by rarity"
+      ],
+      "provenance": {
+        "type": "PSE partner attribution in Creator Store/Marketplace metadata",
+        "description": "Rock Drops, Smashes, Impacts, Hits, Some Rocking, Break Apart, Cinder Block\n\nFull Name: Rock Drops Smashes Impacts Hits Some Rocking 7\nDuration: 1.5 seconds\nCategory: Rocks - Hits\nAsset Type: Sound Effect\n\nCourtesy of Pro Sound Effects.",
+        "metadataEvidence": [
+          "ASSET_CANDIDATES.json:candidates",
+          "ASSET_CANDIDATES.json:existingMetadata (MarketplaceService GetProductInfo)"
+        ],
+        "freeInDiscovery": null,
+        "rightsAssessment": "Clear partner provenance; use relies on Roblox Creator Store terms. Not an independent legal clearance or permission for off-platform reuse."
+      },
+      "sourceDurationSeconds": 1.5,
+      "runtime": {
+        "loaded": true,
+        "lengthSeconds": 1.0836666666666666,
+        "evidence": "qa/FINAL_QA_UI_SESSION.json:assets/9125869797"
+      },
+      "trim": {
+        "offsetSeconds": 0.0,
+        "sourceGain": 1.0,
+        "configuredInCatalog": false,
+        "application": "PlaybackRegion begins at offset; event duration is capped by remaining source duration / PlaybackSpeed."
+      },
+      "sourceRemainingAt1xSeconds": 1.0836666666666666,
+      "auditoryApproval": false,
+      "requestedEventWindowSeconds": {
+        "min": 0.24,
+        "max": 0.655
+      },
+      "savedWaveformMeasurement": null
+    },
+    {
+      "id": 9118690959,
+      "uri": "rbxassetid://9118690959",
+      "kind": "sfx",
+      "family": "debris",
+      "name": "Rocks Movement 1 (SFX)",
+      "creator": "ProSoundEffects",
+      "creatorStoreUrl": "https://create.roblox.com/store/asset/9118690959",
+      "roles": [
+        "Delayed debris after rock break"
+      ],
+      "provenance": {
+        "type": "PSE partner attribution in Creator Store/Marketplace metadata",
+        "description": "Rocks Movement, Sharp, Shale Slide, Collide, Fall, Pushed into Dirt and Debris\n\nDuration: 3.3 seconds\nCategory: Rocks - Misc\nAsset Type: Sound Effect\n\nCourtesy of Pro Sound Effects.",
+        "metadataEvidence": [
+          "ASSET_CANDIDATES.json:existingMetadata (MarketplaceService GetProductInfo)"
+        ],
+        "freeInDiscovery": null,
+        "rightsAssessment": "Clear partner provenance; use relies on Roblox Creator Store terms. Not an independent legal clearance or permission for off-platform reuse."
+      },
+      "sourceDurationSeconds": 3.3,
+      "runtime": {
+        "loaded": true,
+        "lengthSeconds": 3.296,
+        "evidence": "qa/FINAL_QA_UI_SESSION.json:assets/9118690959"
+      },
+      "trim": {
+        "offsetSeconds": 0.0,
+        "sourceGain": 1.0,
+        "configuredInCatalog": false,
+        "application": "PlaybackRegion begins at offset; event duration is capped by remaining source duration / PlaybackSpeed."
+      },
+      "sourceRemainingAt1xSeconds": 3.296,
+      "auditoryApproval": false,
+      "requestedEventWindowSeconds": {
+        "min": 0.35,
+        "max": 0.35
+      },
+      "savedWaveformMeasurement": null
+    },
+    {
+      "id": 9120972321,
+      "uri": "rbxassetid://9120972321",
+      "kind": "sfx",
+      "family": "swing",
+      "name": "Wood Whoosh Slicing Air Quick Swings 4 (SFX)",
+      "creator": "ProSoundEffects",
+      "creatorStoreUrl": "https://create.roblox.com/store/asset/9120972321",
+      "roles": [
+        "Pickaxe swing",
+        "Menu open/close/popups",
+        "Equip",
+        "Summon anticipation",
+        "Portal departure/arrival",
+        "Secret anticipation"
+      ],
+      "provenance": {
+        "type": "PSE partner attribution in Creator Store/Marketplace metadata",
+        "description": "Wood Whoosh, Slicing Air, Quick Swing\n\nDuration: 0.8 seconds\nCategory: Whooshes - Misc\nAsset Type: Sound Effect\n\nCourtesy of Pro Sound Effects.",
+        "metadataEvidence": [
+          "ASSET_CANDIDATES.json:candidates",
+          "ASSET_CANDIDATES.json:existingMetadata (MarketplaceService GetProductInfo)"
+        ],
+        "freeInDiscovery": null,
+        "rightsAssessment": "Clear partner provenance; use relies on Roblox Creator Store terms. Not an independent legal clearance or permission for off-platform reuse."
+      },
+      "sourceDurationSeconds": 0.8,
+      "runtime": {
+        "loaded": true,
+        "lengthSeconds": 0.5609583333333333,
+        "evidence": "qa/FINAL_QA_UI_SESSION.json:assets/9120972321"
+      },
+      "trim": {
+        "offsetSeconds": 0.065,
+        "sourceGain": 0.9,
+        "configuredInCatalog": true,
+        "application": "PlaybackRegion begins at offset; event duration is capped by remaining source duration / PlaybackSpeed."
+      },
+      "sourceRemainingAt1xSeconds": 0.49595833333333333,
+      "auditoryApproval": false,
+      "requestedEventWindowSeconds": {
+        "min": 0.12,
+        "max": 0.4
+      },
+      "savedWaveformMeasurement": {
+        "onsetSeconds": 0.07180266666666667,
+        "samples": 1500,
+        "evidence": "qa/polish-runtime-v1.json:waveforms/9120972321"
+      }
+    },
+    {
+      "id": 9120972444,
+      "uri": "rbxassetid://9120972444",
+      "kind": "sfx",
+      "family": "swing",
+      "name": "Wood Whoosh Slicing Air Quick Swings 1 (SFX)",
+      "creator": "ProSoundEffects",
+      "creatorStoreUrl": "https://create.roblox.com/store/asset/9120972444",
+      "roles": [
+        "Pickaxe swing",
+        "Menu open/close/popups",
+        "Equip",
+        "Summon anticipation",
+        "Portal departure/arrival",
+        "Secret anticipation"
+      ],
+      "provenance": {
+        "type": "PSE partner attribution in Creator Store/Marketplace metadata",
+        "description": "Wood Whoosh, Slicing Air, Quick Swing\n\nDuration: 0.8 seconds\nCategory: Whooshes - Misc\nAsset Type: Sound Effect\n\nCourtesy of Pro Sound Effects.",
+        "metadataEvidence": [
+          "ASSET_CANDIDATES.json:candidates",
+          "ASSET_CANDIDATES.json:existingMetadata (MarketplaceService GetProductInfo)"
+        ],
+        "freeInDiscovery": null,
+        "rightsAssessment": "Clear partner provenance; use relies on Roblox Creator Store terms. Not an independent legal clearance or permission for off-platform reuse."
+      },
+      "sourceDurationSeconds": 0.8,
+      "runtime": {
+        "loaded": true,
+        "lengthSeconds": 0.6512916666666667,
+        "evidence": "qa/FINAL_QA_UI_SESSION.json:assets/9120972444"
+      },
+      "trim": {
+        "offsetSeconds": 0.016,
+        "sourceGain": 1.55,
+        "configuredInCatalog": true,
+        "application": "PlaybackRegion begins at offset; event duration is capped by remaining source duration / PlaybackSpeed."
+      },
+      "sourceRemainingAt1xSeconds": 0.6352916666666667,
+      "auditoryApproval": false,
+      "requestedEventWindowSeconds": {
+        "min": 0.12,
+        "max": 0.4
+      },
+      "savedWaveformMeasurement": {
+        "onsetSeconds": 0.01953875,
+        "samples": 1500,
+        "evidence": "qa/polish-runtime-v1.json:waveforms/9120972444"
+      }
+    },
+    {
+      "id": 9120972323,
+      "uri": "rbxassetid://9120972323",
+      "kind": "sfx",
+      "family": "swing",
+      "name": "Wood Whoosh Slicing Air Quick Swings 3 (SFX)",
+      "creator": "ProSoundEffects",
+      "creatorStoreUrl": "https://create.roblox.com/store/asset/9120972323",
+      "roles": [
+        "Pickaxe swing",
+        "Menu open/close/popups",
+        "Equip",
+        "Summon anticipation",
+        "Portal departure/arrival",
+        "Secret anticipation"
+      ],
+      "provenance": {
+        "type": "PSE partner attribution in Creator Store/Marketplace metadata",
+        "description": "Wood Whoosh, Slicing Air, Quick Swing\n\nDuration: 0.9 seconds\nCategory: Whooshes - Misc\nAsset Type: Sound Effect\n\nCourtesy of Pro Sound Effects.",
+        "metadataEvidence": [
+          "ASSET_CANDIDATES.json:candidates",
+          "ASSET_CANDIDATES.json:existingMetadata (MarketplaceService GetProductInfo)"
+        ],
+        "freeInDiscovery": null,
+        "rightsAssessment": "Clear partner provenance; use relies on Roblox Creator Store terms. Not an independent legal clearance or permission for off-platform reuse."
+      },
+      "sourceDurationSeconds": 0.9,
+      "runtime": {
+        "loaded": true,
+        "lengthSeconds": 0.5951041666666667,
+        "evidence": "qa/FINAL_QA_UI_SESSION.json:assets/9120972323"
+      },
+      "trim": {
+        "offsetSeconds": 0.056,
+        "sourceGain": 1.15,
+        "configuredInCatalog": true,
+        "application": "PlaybackRegion begins at offset; event duration is capped by remaining source duration / PlaybackSpeed."
+      },
+      "sourceRemainingAt1xSeconds": 0.5391041666666666,
+      "auditoryApproval": false,
+      "requestedEventWindowSeconds": {
+        "min": 0.12,
+        "max": 0.4
+      },
+      "savedWaveformMeasurement": {
+        "onsetSeconds": 0.06149409722222222,
+        "samples": 1500,
+        "evidence": "qa/polish-runtime-v1.json:waveforms/9120972323"
+      }
+    },
+    {
+      "id": 9119717523,
+      "uri": "rbxassetid://9119717523",
+      "kind": "sfx",
+      "family": "click",
+      "name": "Switch Click On Or Off Toggle Button 2 (SFX)",
+      "creator": "ProSoundEffects",
+      "creatorStoreUrl": "https://create.roblox.com/store/asset/9119717523",
+      "roles": [
+        "UI click/hover/tab/toggle/cancel/error",
+        "Menu accent",
+        "Purchase/sale confirmation"
+      ],
+      "provenance": {
+        "type": "PSE partner attribution in Creator Store/Marketplace metadata",
+        "description": "Switch, Click On or Off, Toggle Button\n\nDuration: 0.4 seconds\nCategory: Switches\nAsset Type: Sound Effect\n\nCourtesy of Pro Sound Effects.",
+        "metadataEvidence": [
+          "ASSET_CANDIDATES.json:candidates",
+          "ASSET_CANDIDATES.json:rawSearches/ui_click_refined",
+          "ASSET_CANDIDATES.json:rawSearches/ui_click_mechanical"
+        ],
+        "freeInDiscovery": true,
+        "rightsAssessment": "Clear partner provenance; use relies on Roblox Creator Store terms. Not an independent legal clearance or permission for off-platform reuse."
+      },
+      "sourceDurationSeconds": 0.4,
+      "runtime": {
+        "loaded": true,
+        "lengthSeconds": 0.231625,
+        "evidence": "qa/FINAL_QA_UI_SESSION.json:assets/9119717523"
+      },
+      "trim": {
+        "offsetSeconds": 0.0,
+        "sourceGain": 1.0,
+        "configuredInCatalog": false,
+        "application": "PlaybackRegion begins at offset; event duration is capped by remaining source duration / PlaybackSpeed."
+      },
+      "sourceRemainingAt1xSeconds": 0.231625,
+      "auditoryApproval": false,
+      "requestedEventWindowSeconds": {
+        "min": 0.04,
+        "max": 0.12
+      },
+      "savedWaveformMeasurement": {
+        "onsetSeconds": 0.0046325,
+        "samples": 1500,
+        "evidence": "qa/polish-runtime-v1.json:waveforms/9119717523"
+      }
+    },
+    {
+      "id": 9119717529,
+      "uri": "rbxassetid://9119717529",
+      "kind": "sfx",
+      "family": "click",
+      "name": "Switch Click On Or Off Toggle Button 1 (SFX)",
+      "creator": "ProSoundEffects",
+      "creatorStoreUrl": "https://create.roblox.com/store/asset/9119717529",
+      "roles": [
+        "UI click/hover/tab/toggle/cancel/error",
+        "Menu accent",
+        "Purchase/sale confirmation"
+      ],
+      "provenance": {
+        "type": "PSE partner attribution in Creator Store/Marketplace metadata",
+        "description": "Switch, Click On or Off, Toggle Button\n\nDuration: 0.5 seconds\nCategory: Switches\nAsset Type: Sound Effect\n\nCourtesy of Pro Sound Effects.",
+        "metadataEvidence": [
+          "ASSET_CANDIDATES.json:candidates",
+          "ASSET_CANDIDATES.json:rawSearches/ui_click_mechanical"
+        ],
+        "freeInDiscovery": true,
+        "rightsAssessment": "Clear partner provenance; use relies on Roblox Creator Store terms. Not an independent legal clearance or permission for off-platform reuse."
+      },
+      "sourceDurationSeconds": 0.5,
+      "runtime": {
+        "loaded": true,
+        "lengthSeconds": 0.23179166666666667,
+        "evidence": "qa/FINAL_QA_UI_SESSION.json:assets/9119717529"
+      },
+      "trim": {
+        "offsetSeconds": 0.0,
+        "sourceGain": 1.0,
+        "configuredInCatalog": false,
+        "application": "PlaybackRegion begins at offset; event duration is capped by remaining source duration / PlaybackSpeed."
+      },
+      "sourceRemainingAt1xSeconds": 0.23179166666666667,
+      "auditoryApproval": false,
+      "requestedEventWindowSeconds": {
+        "min": 0.04,
+        "max": 0.12
+      },
+      "savedWaveformMeasurement": {
+        "onsetSeconds": 0.004635833333333334,
+        "samples": 1500,
+        "evidence": "qa/polish-runtime-v1.json:waveforms/9119717529"
+      }
+    },
+    {
+      "id": 9125531715,
+      "uri": "rbxassetid://9125531715",
+      "kind": "sfx",
+      "family": "tone",
+      "name": "Electronic Blips Sharp Crystalline Beeps Gat (SFX)",
+      "creator": "ProSoundEffects",
+      "creatorStoreUrl": "https://create.roblox.com/store/asset/9125531715",
+      "roles": [
+        "Ore appearance/pickup combo",
+        "Progression and reward motifs",
+        "Rarity stings",
+        "UI confirmation/notification",
+        "Magical hit",
+        "Portal/reveal accents"
+      ],
+      "provenance": {
+        "type": "PSE partner attribution in Creator Store/Marketplace metadata",
+        "description": "Electronic Blip, Sharp, Crystalline Beep, Gated\n\nFull Name: Electronic Blips Sharp Crystalline Beeps Gated 7\nDuration: 0.7 seconds\nCategory: Beeps\nAsset Type: Sound Effect\n\nCourtesy of Pro Sound Effects.",
+        "metadataEvidence": [
+          "ASSET_CANDIDATES.json:candidates",
+          "ASSET_CANDIDATES.json:rawSearches/ui_beep"
+        ],
+        "freeInDiscovery": true,
+        "rightsAssessment": "Clear partner provenance; use relies on Roblox Creator Store terms. Not an independent legal clearance or permission for off-platform reuse."
+      },
+      "sourceDurationSeconds": 0.7,
+      "runtime": {
+        "loaded": true,
+        "lengthSeconds": 0.6578333333333334,
+        "evidence": "qa/FINAL_QA_UI_SESSION.json:assets/9125531715"
+      },
+      "trim": {
+        "offsetSeconds": 0.2,
+        "sourceGain": 2.0,
+        "configuredInCatalog": true,
+        "application": "PlaybackRegion begins at offset; event duration is capped by remaining source duration / PlaybackSpeed."
+      },
+      "sourceRemainingAt1xSeconds": 0.45783333333333337,
+      "auditoryApproval": false,
+      "requestedEventWindowSeconds": {
+        "min": 0.13,
+        "max": 0.75
+      },
+      "savedWaveformMeasurement": null
+    },
+    {
+      "id": 9114619221,
+      "uri": "rbxassetid://9114619221",
+      "kind": "sfx",
+      "family": "glass",
+      "name": "Glass Tinks 3 (SFX)",
+      "creator": "ProSoundEffects",
+      "creatorStoreUrl": "https://create.roblox.com/store/asset/9114619221",
+      "roles": [
+        "Physical crystal ore impact only"
+      ],
+      "provenance": {
+        "type": "PSE partner attribution in Creator Store/Marketplace metadata",
+        "description": "Glass Tinks, Tonal Varieties, CU\n\nDuration: 2.7 seconds\nCategory: Glass - Misc\nAsset Type: Sound Effect\n\nCourtesy of Pro Sound Effects.",
+        "metadataEvidence": [
+          "ASSET_CANDIDATES.json:candidates",
+          "ASSET_CANDIDATES.json:rawSearches/crystal_refined"
+        ],
+        "freeInDiscovery": true,
+        "rightsAssessment": "Clear partner provenance; use relies on Roblox Creator Store terms. Not an independent legal clearance or permission for off-platform reuse."
+      },
+      "sourceDurationSeconds": 2.7,
+      "runtime": {
+        "loaded": true,
+        "lengthSeconds": 2.7306666666666666,
+        "evidence": "qa/FINAL_QA_UI_SESSION.json:assets/9114619221"
+      },
+      "trim": {
+        "offsetSeconds": 0.108,
+        "sourceGain": 2.4,
+        "configuredInCatalog": true,
+        "application": "PlaybackRegion begins at offset; event duration is capped by remaining source duration / PlaybackSpeed."
+      },
+      "sourceRemainingAt1xSeconds": 2.6226666666666665,
+      "auditoryApproval": false,
+      "requestedEventWindowSeconds": {
+        "min": 0.26,
+        "max": 0.26
+      },
+      "savedWaveformMeasurement": {
+        "onsetSeconds": 0.114688,
+        "samples": 1500,
+        "evidence": "qa/polish-runtime-v1.json:waveforms/9114619221"
+      }
+    },
+    {
+      "id": 9125509503,
+      "uri": "rbxassetid://9125509503",
+      "kind": "sfx",
+      "family": "coin",
+      "name": "Drop Bronze Gear Giant Coin Dropped To Concr (SFX)",
+      "creator": "ProSoundEffects",
+      "creatorStoreUrl": "https://create.roblox.com/store/asset/9125509503",
+      "roles": [
+        "Coin ticks",
+        "Sale clusters"
+      ],
+      "provenance": {
+        "type": "PSE partner attribution in Creator Store/Marketplace metadata",
+        "description": "Drop Bronze Gear, Giant Coin, Dropped to Concrete, Metal Hit\n\nFull Name: Drop Bronze Gear Giant Coin Dropped To Concrete 21\nDuration: 1.4 seconds\nCategory: Metal - Misc\nAsset Type: Sound Effect\n\nCourtesy of Pro Sound Effects.",
+        "metadataEvidence": [
+          "ASSET_CANDIDATES.json:candidates",
+          "ASSET_CANDIDATES.json:rawSearches/coin_refined"
+        ],
+        "freeInDiscovery": true,
+        "rightsAssessment": "Clear partner provenance; use relies on Roblox Creator Store terms. Not an independent legal clearance or permission for off-platform reuse."
+      },
+      "sourceDurationSeconds": 1.4,
+      "runtime": {
+        "loaded": true,
+        "lengthSeconds": 1.371375,
+        "evidence": "qa/FINAL_QA_UI_SESSION.json:assets/9125509503"
+      },
+      "trim": {
+        "offsetSeconds": 0.344,
+        "sourceGain": 1.25,
+        "configuredInCatalog": true,
+        "application": "PlaybackRegion begins at offset; event duration is capped by remaining source duration / PlaybackSpeed."
+      },
+      "sourceRemainingAt1xSeconds": 1.0273750000000001,
+      "auditoryApproval": false,
+      "requestedEventWindowSeconds": {
+        "min": 0.12,
+        "max": 0.2
+      },
+      "savedWaveformMeasurement": {
+        "onsetSeconds": 0.3492435,
+        "samples": 1500,
+        "evidence": "qa/polish-runtime-v1.json:waveforms/9125509503"
+      }
+    },
+    {
+      "id": 9125444889,
+      "uri": "rbxassetid://9125444889",
+      "kind": "sfx",
+      "family": "coin",
+      "name": "Coins Drop 3 Inch Medallions Metal Hits To W (SFX)",
+      "creator": "ProSoundEffects",
+      "creatorStoreUrl": "https://create.roblox.com/store/asset/9125444889",
+      "roles": [
+        "Coin ticks",
+        "Sale clusters"
+      ],
+      "provenance": {
+        "type": "PSE partner attribution in Creator Store/Marketplace metadata",
+        "description": "Coins Drop, 3 Inch Medallion, Metal Hit to Wood\n\nFull Name: Coins Drop 3 Inch Medallions Metal Hits To Wood 9\nDuration: 1.6 seconds\nCategory: Metal - Misc\nAsset Type: Sound Effect\n\nCourtesy of Pro Sound Effects.",
+        "metadataEvidence": [
+          "ASSET_CANDIDATES.json:candidates",
+          "ASSET_CANDIDATES.json:rawSearches/coin_refined"
+        ],
+        "freeInDiscovery": true,
+        "rightsAssessment": "Clear partner provenance; use relies on Roblox Creator Store terms. Not an independent legal clearance or permission for off-platform reuse."
+      },
+      "sourceDurationSeconds": 1.6,
+      "runtime": {
+        "loaded": true,
+        "lengthSeconds": 1.3441458333333334,
+        "evidence": "qa/FINAL_QA_UI_SESSION.json:assets/9125444889"
+      },
+      "trim": {
+        "offsetSeconds": 0.0,
+        "sourceGain": 0.95,
+        "configuredInCatalog": true,
+        "application": "PlaybackRegion begins at offset; event duration is capped by remaining source duration / PlaybackSpeed."
+      },
+      "sourceRemainingAt1xSeconds": 1.3441458333333334,
+      "auditoryApproval": false,
+      "requestedEventWindowSeconds": {
+        "min": 0.12,
+        "max": 0.2
+      },
+      "savedWaveformMeasurement": {
+        "onsetSeconds": 0.002688291666666667,
+        "samples": 1500,
+        "evidence": "qa/polish-runtime-v1.json:waveforms/9125444889"
+      }
+    },
+    {
+      "id": 9112780438,
+      "uri": "rbxassetid://9112780438",
+      "kind": "ambience",
+      "family": "fire",
+      "name": "Fireplace Constant Burning Flame 2 (SFX)",
+      "creator": "ProSoundEffects",
+      "creatorStoreUrl": "https://create.roblox.com/store/asset/9112780438",
+      "roles": [
+        "Ignis hot billet and forge chimney"
+      ],
+      "provenance": {
+        "type": "PSE partner attribution in Creator Store/Marketplace metadata",
+        "description": "Fireplace, Crackly, Constant Burning Flame, Loop\n\nDuration: 36.0 seconds\nCategory: Fire - Burning\nAsset Type: Sound Effect\n\nCourtesy of Pro Sound Effects.",
+        "metadataEvidence": [
+          "ASSET_CANDIDATES.json:candidates",
+          "ASSET_CANDIDATES.json:rawSearches/fire_final"
+        ],
+        "freeInDiscovery": true,
+        "rightsAssessment": "Clear partner provenance; use relies on Roblox Creator Store terms. Not an independent legal clearance or permission for off-platform reuse."
+      },
+      "sourceDurationSeconds": 36.0,
+      "runtime": {
+        "loaded": true,
+        "lengthSeconds": 36.0105625,
+        "evidence": "qa/FINAL_QA_UI_SESSION.json:assets/9112780438"
+      },
+      "trim": {
+        "offsetSeconds": 0.0,
+        "sourceGain": 1.0,
+        "configuredInCatalog": false,
+        "application": "Runtime loops use entire file and random starting position."
+      },
+      "sourceRemainingAt1xSeconds": 36.0105625,
+      "auditoryApproval": false,
+      "loopMetadataClaim": true,
+      "savedWaveformMeasurement": null
+    },
+    {
+      "id": 9116258071,
+      "uri": "rbxassetid://9116258071",
+      "kind": "ambience",
+      "family": "wind",
+      "name": "Leaves Rustle Wind Blowing Through Trees 1 (SFX)",
+      "creator": "ProSoundEffects",
+      "creatorStoreUrl": "https://create.roblox.com/store/asset/9116258071",
+      "roles": [
+        "Regional background except area 4"
+      ],
+      "provenance": {
+        "type": "PSE partner attribution in Creator Store/Marketplace metadata",
+        "description": "Leaves Rustle, Wind Blowing through Trees, Soft Crackling, Gusts Swelling, Some Birds\n\nDuration: 75.8 seconds\nCategory: Winds\nAsset Type: Sound Effect\n\nCourtesy of Pro Sound Effects.",
+        "metadataEvidence": [
+          "ASSET_CANDIDATES.json:candidates",
+          "ASSET_CANDIDATES.json:rawSearches/wind_natural"
+        ],
+        "freeInDiscovery": true,
+        "rightsAssessment": "Clear partner provenance; use relies on Roblox Creator Store terms. Not an independent legal clearance or permission for off-platform reuse."
+      },
+      "sourceDurationSeconds": 75.8,
+      "runtime": {
+        "loaded": true,
+        "lengthSeconds": 75.77327083333333,
+        "evidence": "qa/FINAL_QA_UI_SESSION.json:assets/9116258071"
+      },
+      "trim": {
+        "offsetSeconds": 0.0,
+        "sourceGain": 1.0,
+        "configuredInCatalog": false,
+        "application": "Runtime loops use entire file and random starting position."
+      },
+      "sourceRemainingAt1xSeconds": 75.77327083333333,
+      "auditoryApproval": false,
+      "loopMetadataClaim": false,
+      "savedWaveformMeasurement": null
+    },
+    {
+      "id": 9112855484,
+      "uri": "rbxassetid://9112855484",
+      "kind": "ambience",
+      "family": "water",
+      "name": "Rain On Water 1 (SFX)",
+      "creator": "ProSoundEffects",
+      "creatorStoreUrl": "https://create.roblox.com/store/asset/9112855484",
+      "roles": [
+        "Waterfall carriers named FluxoCachoeira"
+      ],
+      "provenance": {
+        "type": "PSE partner attribution in Creator Store/Marketplace metadata",
+        "description": "Rain on Water, Constant, Distant, Muffled, Washing Over, Airy, Soft, Loop\n\nDuration: 36.0 seconds\nCategory: Rain\nAsset Type: Sound Effect\n\nCourtesy of Pro Sound Effects.",
+        "metadataEvidence": [
+          "ASSET_CANDIDATES.json:candidates",
+          "ASSET_CANDIDATES.json:rawSearches/wind_refined"
+        ],
+        "freeInDiscovery": true,
+        "rightsAssessment": "Clear partner provenance; use relies on Roblox Creator Store terms. Not an independent legal clearance or permission for off-platform reuse."
+      },
+      "sourceDurationSeconds": 36.0,
+      "runtime": {
+        "loaded": true,
+        "lengthSeconds": 36.00989583333333,
+        "evidence": "qa/FINAL_QA_UI_SESSION.json:assets/9112855484"
+      },
+      "trim": {
+        "offsetSeconds": 0.0,
+        "sourceGain": 1.0,
+        "configuredInCatalog": false,
+        "application": "Runtime loops use entire file and random starting position."
+      },
+      "sourceRemainingAt1xSeconds": 36.00989583333333,
+      "auditoryApproval": false,
+      "loopMetadataClaim": true,
+      "savedWaveformMeasurement": null
+    },
+    {
+      "id": 9125515917,
+      "uri": "rbxassetid://9125515917",
+      "kind": "ambience",
+      "family": "energy",
+      "name": "Eastern Wind Constant Resonant Humming Ambie (SFX)",
+      "creator": "ProSoundEffects",
+      "creatorStoreUrl": "https://create.roblox.com/store/asset/9125515917",
+      "roles": [
+        "Portals",
+        "Area 4 regional background"
+      ],
+      "provenance": {
+        "type": "PSE partner attribution in Creator Store/Marketplace metadata",
+        "description": "Eastern Wind, Constant, Resonant Humming Ambience, Chimes Clink and Ring, Some Distant Movement, Glowing Hum, Deep Swells\n\nFull Name: Eastern Wind Constant Resonant Humming Ambience 1\nDuration: 36.0 seconds\nCategory: Spaceships\nAsset Type: Sound Effect\n\nCourtesy of Pro Sound Effects.",
+        "metadataEvidence": [
+          "ASSET_CANDIDATES.json:candidates",
+          "ASSET_CANDIDATES.json:rawSearches/wind_refined"
+        ],
+        "freeInDiscovery": true,
+        "rightsAssessment": "Clear partner provenance; use relies on Roblox Creator Store terms. Not an independent legal clearance or permission for off-platform reuse."
+      },
+      "sourceDurationSeconds": 36.0,
+      "runtime": {
+        "loaded": true,
+        "lengthSeconds": 36.010666666666665,
+        "evidence": "qa/FINAL_QA_UI_SESSION.json:assets/9125515917"
+      },
+      "trim": {
+        "offsetSeconds": 0.0,
+        "sourceGain": 1.0,
+        "configuredInCatalog": false,
+        "application": "Runtime loops use entire file and random starting position."
+      },
+      "sourceRemainingAt1xSeconds": 36.010666666666665,
+      "auditoryApproval": false,
+      "loopMetadataClaim": false,
+      "savedWaveformMeasurement": null
+    },
+    {
+      "id": 112898538778548,
+      "uri": "rbxassetid://112898538778548",
+      "kind": "music",
+      "areaId": 0,
+      "displayName": "Lobby",
+      "name": "Woodle Caves",
+      "creator": "DistrokidOfficial",
+      "creatorStoreUrl": "https://create.roblox.com/store/asset/112898538778548",
+      "roles": [
+        "Area music; two-player crossfade; full-track loop"
+      ],
+      "provenance": {
+        "type": "Creator identity confirmed by MarketplaceService GetProductInfo",
+        "metadataEvidence": [
+          "ASSET_CANDIDATES.json:existingMetadata (MarketplaceService GetProductInfo)"
+        ],
+        "description": "",
+        "rightsAssessment": "DistrokidOfficial distributor identity; per-track license terms and underlying ownership were not separately established by this audit."
+      },
+      "runtime": {
+        "loaded": true,
+        "lengthSeconds": 96.02612244897959,
+        "evidence": "qa/FINAL_QA_UI_SESSION.json:assets/112898538778548"
+      },
+      "trim": {
+        "offsetSeconds": 0,
+        "sourceGain": 1,
+        "configuredInCatalog": false
+      },
+      "sourceVolume": 0.23,
+      "defaultUnduckedLinearVolumeProduct": 0.1104,
+      "auditoryApproval": false
+    },
+    {
+      "id": 82061470648013,
+      "uri": "rbxassetid://82061470648013",
+      "kind": "music",
+      "areaId": 1,
+      "displayName": "Hidden Lotus Pond",
+      "name": "Hidden Lotus Pond",
+      "creator": "DistrokidOfficial",
+      "creatorStoreUrl": "https://create.roblox.com/store/asset/82061470648013",
+      "roles": [
+        "Area music; two-player crossfade; full-track loop"
+      ],
+      "provenance": {
+        "type": "Creator identity confirmed by MarketplaceService GetProductInfo",
+        "metadataEvidence": [
+          "ASSET_CANDIDATES.json:existingMetadata (MarketplaceService GetProductInfo)"
+        ],
+        "description": "",
+        "rightsAssessment": "DistrokidOfficial distributor identity; per-track license terms and underlying ownership were not separately established by this audit."
+      },
+      "runtime": {
+        "loaded": true,
+        "lengthSeconds": 233.32,
+        "evidence": "qa/FINAL_QA_UI_SESSION.json:assets/82061470648013"
+      },
+      "trim": {
+        "offsetSeconds": 0,
+        "sourceGain": 1,
+        "configuredInCatalog": false
+      },
+      "sourceVolume": 0.22,
+      "defaultUnduckedLinearVolumeProduct": 0.1056,
+      "auditoryApproval": false
+    },
+    {
+      "id": 1845421369,
+      "uri": "rbxassetid://1845421369",
+      "kind": "music",
+      "areaId": 2,
+      "displayName": "Space Atmosphere",
+      "name": "Space Atmosphere",
+      "creator": "APMOfficial",
+      "creatorStoreUrl": "https://create.roblox.com/store/asset/1845421369",
+      "roles": [
+        "Area music; two-player crossfade; full-track loop"
+      ],
+      "provenance": {
+        "type": "Creator identity confirmed by MarketplaceService GetProductInfo",
+        "metadataEvidence": [
+          "ASSET_CANDIDATES.json:existingMetadata (MarketplaceService GetProductInfo)"
+        ],
+        "description": "",
+        "rightsAssessment": "APMOfficial partner identity; not an independent legal clearance."
+      },
+      "runtime": {
+        "loaded": true,
+        "lengthSeconds": 163.13172335600908,
+        "evidence": "qa/FINAL_QA_UI_SESSION.json:assets/1845421369"
+      },
+      "trim": {
+        "offsetSeconds": 0,
+        "sourceGain": 1,
+        "configuredInCatalog": false
+      },
+      "sourceVolume": 0.23,
+      "defaultUnduckedLinearVolumeProduct": 0.1104,
+      "auditoryApproval": false
+    },
+    {
+      "id": 9048681794,
+      "uri": "rbxassetid://9048681794",
+      "kind": "music",
+      "areaId": 3,
+      "displayName": "Mysterious Forest",
+      "name": "Mysterious Forest",
+      "creator": "APMOfficial",
+      "creatorStoreUrl": "https://create.roblox.com/store/asset/9048681794",
+      "roles": [
+        "Area music; two-player crossfade; full-track loop"
+      ],
+      "provenance": {
+        "type": "Creator identity confirmed by MarketplaceService GetProductInfo",
+        "metadataEvidence": [
+          "ASSET_CANDIDATES.json:existingMetadata (MarketplaceService GetProductInfo)"
+        ],
+        "description": "",
+        "rightsAssessment": "APMOfficial partner identity; not an independent legal clearance."
+      },
+      "runtime": {
+        "loaded": true,
+        "lengthSeconds": 205.00897959183675,
+        "evidence": "qa/FINAL_QA_UI_SESSION.json:assets/9048681794"
+      },
+      "trim": {
+        "offsetSeconds": 0,
+        "sourceGain": 1,
+        "configuredInCatalog": false
+      },
+      "sourceVolume": 0.2,
+      "defaultUnduckedLinearVolumeProduct": 0.096,
+      "auditoryApproval": false
+    },
+    {
+      "id": 131334832939011,
+      "uri": "rbxassetid://131334832939011",
+      "kind": "music",
+      "areaId": 4,
+      "displayName": "The Forgotten Crypt",
+      "name": "The Forgotten Crypt (Dark Fantasy Ambient Music)",
+      "creator": "DistrokidOfficial",
+      "creatorStoreUrl": "https://create.roblox.com/store/asset/131334832939011",
+      "roles": [
+        "Area music; two-player crossfade; full-track loop"
+      ],
+      "provenance": {
+        "type": "Creator identity confirmed by MarketplaceService GetProductInfo",
+        "metadataEvidence": [
+          "ASSET_CANDIDATES.json:existingMetadata (MarketplaceService GetProductInfo)"
+        ],
+        "description": "",
+        "rightsAssessment": "DistrokidOfficial distributor identity; per-track license terms and underlying ownership were not separately established by this audit."
+      },
+      "runtime": {
+        "loaded": true,
+        "lengthSeconds": 194.52,
+        "evidence": "qa/FINAL_QA_UI_SESSION.json:assets/131334832939011"
+      },
+      "trim": {
+        "offsetSeconds": 0,
+        "sourceGain": 1,
+        "configuredInCatalog": false
+      },
+      "sourceVolume": 0.2,
+      "defaultUnduckedLinearVolumeProduct": 0.096,
+      "auditoryApproval": false
+    },
+    {
+      "id": 1835322563,
+      "uri": "rbxassetid://1835322563",
+      "kind": "music",
+      "areaId": 5,
+      "displayName": "Pirate King",
+      "name": "Pirate King",
+      "creator": "APMOfficial",
+      "creatorStoreUrl": "https://create.roblox.com/store/asset/1835322563",
+      "roles": [
+        "Area music; two-player crossfade; full-track loop"
+      ],
+      "provenance": {
+        "type": "Creator identity confirmed by MarketplaceService GetProductInfo",
+        "metadataEvidence": [
+          "ASSET_CANDIDATES.json:existingMetadata (MarketplaceService GetProductInfo)"
+        ],
+        "description": "",
+        "rightsAssessment": "APMOfficial partner identity; not an independent legal clearance."
+      },
+      "runtime": {
+        "loaded": true,
+        "lengthSeconds": 146.24292517006802,
+        "evidence": "qa/FINAL_QA_UI_SESSION.json:assets/1835322563"
+      },
+      "trim": {
+        "offsetSeconds": 0,
+        "sourceGain": 1,
+        "configuredInCatalog": false
+      },
+      "sourceVolume": 0.2,
+      "defaultUnduckedLinearVolumeProduct": 0.096,
+      "auditoryApproval": false
+    },
+    {
+      "id": 1845676363,
+      "uri": "rbxassetid://1845676363",
+      "kind": "music",
+      "areaId": 6,
+      "displayName": "Home Bound",
+      "name": "Home Bound",
+      "creator": "APMOfficial",
+      "creatorStoreUrl": "https://create.roblox.com/store/asset/1845676363",
+      "roles": [
+        "Area music; two-player crossfade; full-track loop"
+      ],
+      "provenance": {
+        "type": "Creator identity confirmed by MarketplaceService GetProductInfo",
+        "metadataEvidence": [
+          "ASSET_CANDIDATES.json:existingMetadata (MarketplaceService GetProductInfo)"
+        ],
+        "description": "",
+        "rightsAssessment": "APMOfficial partner identity; not an independent legal clearance."
+      },
+      "runtime": {
+        "loaded": true,
+        "lengthSeconds": 63.608163265306125,
+        "evidence": "qa/FINAL_QA_UI_SESSION.json:assets/1845676363"
+      },
+      "trim": {
+        "offsetSeconds": 0,
+        "sourceGain": 1,
+        "configuredInCatalog": false
+      },
+      "sourceVolume": 0.21,
+      "defaultUnduckedLinearVolumeProduct": 0.1008,
+      "auditoryApproval": false
+    }
+  ]
+}

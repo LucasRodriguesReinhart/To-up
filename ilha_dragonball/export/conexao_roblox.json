@@ -1,0 +1,197 @@
+{
+ "GATE_ShadowGarden": {
+  "name": "GATE_ShadowGarden",
+  "pos": [
+   -553.453,
+   28.2,
+   661.667
+  ],
+  "x": [
+   0.391,
+   0.0,
+   -0.921
+  ],
+  "y": [
+   -0.921,
+   0.0,
+   -0.391
+  ],
+  "props": {
+   "open_w": 16.0,
+   "open_h": 18.0,
+   "deck_w": 18.0,
+   "area_id": 4,
+   "key": "ShadowGarden",
+   "fwd_x": -0.9205,
+   "fwd_z": -0.3907
+  }
+ },
+ "ISLAND_EXIT_DragonBall": {
+  "name": "ISLAND_EXIT_DragonBall",
+  "pos": [
+   -483.495,
+   28.2,
+   691.363
+  ],
+  "x": [
+   0.391,
+   0.0,
+   -0.921
+  ],
+  "y": [
+   -0.921,
+   0.0,
+   -0.391
+  ],
+  "props": {
+   "width": 18.0,
+   "deck_z": 28.2,
+   "heading_deg": -157.0,
+   "fwd_x": -0.9205,
+   "fwd_z": -0.3907,
+   "heading_deg_local": 22.0
+  }
+ },
+ "ISLAND_NEXT_ANCHOR_ShadowGarden": {
+  "name": "ISLAND_NEXT_ANCHOR_ShadowGarden",
+  "pos": [
+   -579.227,
+   28.2,
+   650.727
+  ],
+  "x": [
+   0.391,
+   0.0,
+   -0.921
+  ],
+  "y": [
+   -0.921,
+   0.0,
+   -0.391
+  ],
+  "props": {
+   "width": 18.0,
+   "deck_z": 28.2,
+   "clear_h": 22.0,
+   "heading_deg": -157.0,
+   "next_area": 4,
+   "next_key": "ShadowGarden",
+   "guard": "PROVISORIO: DB_Exit_AnchorGuard (visual) + COL_DBAnchorGuard_* e COL_DB_ExitAnchorPylon_* (COL), next_island_guard=True",
+   "guard_note": "a integracao da Ilha 3 REMOVE o guarda quando a ponte seguinte encosta aqui",
+   "fwd_x": -0.9205,
+   "fwd_z": -0.3907,
+   "heading_deg_local": 22.0
+  }
+ },
+ "MiningZone_DragonBall": {
+  "name": "MiningZone_DragonBall",
+  "pos": [
+   -323.689,
+   20.2,
+   743.689
+  ],
+  "x": [
+   -0.707,
+   0.0,
+   -0.707
+  ],
+  "y": [
+   -0.707,
+   0.0,
+   0.707
+  ],
+  "props": {
+   "kind": "mining",
+   "floor": 20.2,
+   "rx": 66.0,
+   "ry": 56.0,
+   "rim_clear": 5.0,
+   "note": "arena oval; o jogo usa os ORE_* + zona retangular com bloqueios",
+   "fwd_x": -0.7071,
+   "fwd_z": 0.7071
+  }
+ },
+ "SUMMON_Main": {
+  "name": "SUMMON_Main",
+  "pos": [
+   -225.401,
+   30.2,
+   844.805
+  ],
+  "x": [
+   0.839,
+   0.0,
+   -0.545
+  ],
+  "y": [
+   -0.545,
+   0.0,
+   -0.839
+  ],
+  "props": {
+   "face_deg": -12.0,
+   "height": 60.1,
+   "free_zone_v": [
+    13.6,
+    27.6
+   ],
+   "free_zone_w": 14.0,
+   "floor": 30.2,
+   "note": "raiz da torre de invocacao (+Y local = frente); zona livre na frente: v local em free_zone_v",
+   "star_pivot_x": -223.768,
+   "star_pivot_y": 76.2,
+   "star_pivot_z": 847.321,
+   "fwd_x": -0.5446,
+   "fwd_z": -0.8387
+  }
+ },
+ "WORLD_ENTRY_DragonBall": {
+  "name": "WORLD_ENTRY_DragonBall",
+  "pos": [
+   -258.635,
+   24.4,
+   678.635
+  ],
+  "x": [
+   -0.707,
+   0.0,
+   -0.707
+  ],
+  "y": [
+   -0.707,
+   0.0,
+   0.707
+  ],
+  "props": {
+   "note": "chegada da ilha (depois do portal de entrada, olhando a arena)",
+   "fwd_x": -0.7071,
+   "fwd_z": 0.7071
+  }
+ },
+ "WORLD_FROM_PREV": {
+  "name": "WORLD_FROM_PREV",
+  "pos": [
+   -192.167,
+   16.2,
+   612.167
+  ],
+  "x": [
+   -0.707,
+   0.0,
+   -0.707
+  ],
+  "y": [
+   -0.707,
+   0.0,
+   0.707
+  ],
+  "props": {
+   "width": 18.0,
+   "deck_z": 16.2,
+   "prev": "ISLAND_NEXT_ANCHOR (Ilha 1 Naruto)",
+   "note": "centro da borda do tabuleiro da ponte de chegada; avanco +Y (para dentro da ilha)",
+   "fwd_x": -0.7071,
+   "fwd_z": 0.7071
+  }
+ }
+}

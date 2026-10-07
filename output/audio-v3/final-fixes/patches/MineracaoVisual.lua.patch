@@ -1,0 +1,11 @@
+--- a/StarterPlayer/StarterPlayerScripts/MineracaoVisual.lua
++++ b/StarterPlayer/StarterPlayerScripts/MineracaoVisual.lua
+@@ -326,7 +326,7 @@
+   if not info.chefe then Som.coleta(info.pos) end
+   tremerCamera(tier.shake*1.6)
+  elseif info.tipo=="hat" then
+-  Som.drop(info.raridade)
++  if info.audioContext~="daily" and info.audioContext~="code" then Som.drop(info.raridade) end
+  elseif info.tipo=="cheia" or info.tipo=="bloqueada" then
+   Som.tocar("ui_erro")
+  end

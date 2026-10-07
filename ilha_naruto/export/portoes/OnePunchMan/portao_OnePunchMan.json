@@ -1,0 +1,1402 @@
+{
+ "mapping": "Roblox = (x_blender, z_blender, -y_blender); 1 BU = 1 stud; malha: origem = centro do bbox",
+ "export_id": "051caef9",
+ "fbx": {
+  "08_PURCHASE_GATES": "PORTAO_OnePunchMan_08_PURCHASE_GATES_051cae.fbx",
+  "12_VFX_HELPERS": "PORTAO_OnePunchMan_12_VFX_HELPERS_051cae.fbx"
+ },
+ "meshes": [
+  {
+   "name": "GATE_OnePunchMan_Barrier__Energy_Core_OnePunchMan_Glow",
+   "group": "08_PURCHASE_GATES",
+   "obj": "GATE_OnePunchMan_Barrier",
+   "material": "Energy_Core_OnePunchMan_Glow",
+   "tris": 768,
+   "center_rbx": [
+    0.0,
+    9.042,
+    0.0
+   ],
+   "size_rbx": [
+    12.962,
+    13.312,
+    1.4
+   ],
+   "owner": "portao",
+   "shadow": false,
+   "flags": "",
+   "model": "PORTAO"
+  },
+  {
+   "name": "GATE_OnePunchMan_Barrier__P_Gold_Glow",
+   "group": "08_PURCHASE_GATES",
+   "obj": "GATE_OnePunchMan_Barrier",
+   "material": "P_Gold_Glow",
+   "tris": 12,
+   "center_rbx": [
+    0.0,
+    9.0,
+    0.0
+   ],
+   "size_rbx": [
+    16.0,
+    18.0,
+    0.5
+   ],
+   "owner": "portao",
+   "shadow": false,
+   "flags": "",
+   "model": "PORTAO"
+  },
+  {
+   "name": "GATE_OnePunchMan_Frame__Metal_Brass",
+   "group": "08_PURCHASE_GATES",
+   "obj": "GATE_OnePunchMan_Frame",
+   "material": "Metal_Brass",
+   "tris": 464,
+   "center_rbx": [
+    0.0,
+    5.3,
+    4.51
+   ],
+   "size_rbx": [
+    32.8,
+    9.7,
+    3.62
+   ],
+   "owner": "portao",
+   "shadow": true,
+   "flags": "",
+   "model": "PORTAO"
+  },
+  {
+   "name": "GATE_OnePunchMan_Frame__Metal_Dark",
+   "group": "08_PURCHASE_GATES",
+   "obj": "GATE_OnePunchMan_Frame",
+   "material": "Metal_Dark",
+   "tris": 2128,
+   "center_rbx": [
+    0.28,
+    15.0,
+    1.38
+   ],
+   "size_rbx": [
+    34.04,
+    30.0,
+    17.44
+   ],
+   "owner": "portao",
+   "shadow": true,
+   "flags": "",
+   "model": "PORTAO"
+  },
+  {
+   "name": "GATE_OnePunchMan_Frame__Metal_GateOPM_Red",
+   "group": "08_PURCHASE_GATES",
+   "obj": "GATE_OnePunchMan_Frame",
+   "material": "Metal_GateOPM_Red",
+   "tris": 524,
+   "center_rbx": [
+    0.125,
+    11.95,
+    3.475
+   ],
+   "size_rbx": [
+    34.15,
+    23.9,
+    13.05
+   ],
+   "owner": "portao",
+   "shadow": true,
+   "flags": "",
+   "model": "PORTAO"
+  },
+  {
+   "name": "GATE_OnePunchMan_Frame__Metal_Gold",
+   "group": "08_PURCHASE_GATES",
+   "obj": "GATE_OnePunchMan_Frame",
+   "material": "Metal_Gold",
+   "tris": 732,
+   "center_rbx": [
+    0.0,
+    14.042,
+    0.845
+   ],
+   "size_rbx": [
+    33.0,
+    23.584,
+    15.889
+   ],
+   "owner": "portao",
+   "shadow": true,
+   "flags": "",
+   "model": "PORTAO"
+  },
+  {
+   "name": "GATE_OnePunchMan_Frame__P_Gold_Glow",
+   "group": "08_PURCHASE_GATES",
+   "obj": "GATE_OnePunchMan_Frame",
+   "material": "P_Gold_Glow",
+   "tris": 300,
+   "center_rbx": [
+    0.0,
+    11.75,
+    0.925
+   ],
+   "size_rbx": [
+    33.4,
+    19.5,
+    16.45
+   ],
+   "owner": "portao",
+   "shadow": false,
+   "flags": "",
+   "model": "PORTAO"
+  },
+  {
+   "name": "GATE_OnePunchMan_Frame__P_OPM_DarkGlass",
+   "group": "08_PURCHASE_GATES",
+   "obj": "GATE_OnePunchMan_Frame",
+   "material": "P_OPM_DarkGlass",
+   "tris": 288,
+   "center_rbx": [
+    0.0,
+    13.75,
+    -2.32
+   ],
+   "size_rbx": [
+    33.2,
+    23.5,
+    9.76
+   ],
+   "owner": "portao",
+   "shadow": true,
+   "flags": "",
+   "model": "PORTAO"
+  },
+  {
+   "name": "GATE_OnePunchMan_Frame__P_Red_Glow",
+   "group": "08_PURCHASE_GATES",
+   "obj": "GATE_OnePunchMan_Frame",
+   "material": "P_Red_Glow",
+   "tris": 60,
+   "center_rbx": [
+    1.421,
+    21.935,
+    -0.849
+   ],
+   "size_rbx": [
+    23.458,
+    17.33,
+    2.378
+   ],
+   "owner": "portao",
+   "shadow": false,
+   "flags": "",
+   "model": "PORTAO"
+  },
+  {
+   "name": "GATE_OnePunchMan_Frame__Stone_Dark",
+   "group": "08_PURCHASE_GATES",
+   "obj": "GATE_OnePunchMan_Frame",
+   "material": "Stone_Dark",
+   "tris": 344,
+   "center_rbx": [
+    0.0,
+    2.825,
+    3.4
+   ],
+   "size_rbx": [
+    34.2,
+    5.65,
+    12.2
+   ],
+   "owner": "portao",
+   "shadow": true,
+   "flags": "",
+   "model": "PORTAO"
+  },
+  {
+   "name": "GATE_OnePunchMan_Frame__Stone_Wall_Dark",
+   "group": "08_PURCHASE_GATES",
+   "obj": "GATE_OnePunchMan_Frame",
+   "material": "Stone_Wall_Dark",
+   "tris": 200,
+   "center_rbx": [
+    0.0,
+    0.0,
+    2.6
+   ],
+   "size_rbx": [
+    36.0,
+    1.2,
+    15.2
+   ],
+   "owner": "portao",
+   "shadow": true,
+   "flags": "",
+   "model": "PORTAO"
+  },
+  {
+   "name": "GATE_OnePunchMan_Frame__Stone_Wall_Light",
+   "group": "08_PURCHASE_GATES",
+   "obj": "GATE_OnePunchMan_Frame",
+   "material": "Stone_Wall_Light",
+   "tris": 1248,
+   "center_rbx": [
+    -0.0,
+    12.85,
+    1.45
+   ],
+   "size_rbx": [
+    35.4,
+    26.9,
+    16.9
+   ],
+   "owner": "portao",
+   "shadow": true,
+   "flags": "",
+   "model": "PORTAO"
+  },
+  {
+   "name": "GATE_OnePunchMan_Lock__Energy_Core_OnePunchMan_Glow",
+   "group": "08_PURCHASE_GATES",
+   "obj": "GATE_OnePunchMan_Lock",
+   "material": "Energy_Core_OnePunchMan_Glow",
+   "tris": 24,
+   "center_rbx": [
+    0.0,
+    8.28,
+    0.0
+   ],
+   "size_rbx": [
+    3.9,
+    3.4,
+    1.2
+   ],
+   "owner": "portao",
+   "shadow": false,
+   "flags": "",
+   "model": "PORTAO"
+  },
+  {
+   "name": "GATE_OnePunchMan_Lock__Metal_Dark",
+   "group": "08_PURCHASE_GATES",
+   "obj": "GATE_OnePunchMan_Lock",
+   "material": "Metal_Dark",
+   "tris": 24,
+   "center_rbx": [
+    0.0,
+    8.08,
+    0.0
+   ],
+   "size_rbx": [
+    0.5,
+    1.0,
+    2.6
+   ],
+   "owner": "portao",
+   "shadow": false,
+   "flags": "",
+   "model": "PORTAO"
+  },
+  {
+   "name": "GATE_OnePunchMan_Lock__Metal_Gold",
+   "group": "08_PURCHASE_GATES",
+   "obj": "GATE_OnePunchMan_Lock",
+   "material": "Metal_Gold",
+   "tris": 96,
+   "center_rbx": [
+    0.0,
+    9.243,
+    0.0
+   ],
+   "size_rbx": [
+    3.2,
+    4.625,
+    2.3
+   ],
+   "owner": "portao",
+   "shadow": false,
+   "flags": "",
+   "model": "PORTAO"
+  },
+  {
+   "name": "VFX_GATE_OnePunchMan_Star_1__Metal_Gold",
+   "group": "12_VFX_HELPERS",
+   "obj": "VFX_GATE_OnePunchMan_Star_1",
+   "material": "Metal_Gold",
+   "tris": 60,
+   "center_rbx": [
+    -13.0,
+    15.6,
+    4.3
+   ],
+   "size_rbx": [
+    3.1,
+    3.1,
+    0.36
+   ],
+   "owner": "vfx",
+   "shadow": false,
+   "flags": "",
+   "model": "PORTAO"
+  },
+  {
+   "name": "VFX_GATE_OnePunchMan_Star_1__P_Red_Glow",
+   "group": "12_VFX_HELPERS",
+   "obj": "VFX_GATE_OnePunchMan_Star_1",
+   "material": "P_Red_Glow",
+   "tris": 60,
+   "center_rbx": [
+    -13.0,
+    15.6,
+    4.3
+   ],
+   "size_rbx": [
+    1.8,
+    1.8,
+    0.58
+   ],
+   "owner": "vfx",
+   "shadow": false,
+   "flags": "",
+   "model": "PORTAO"
+  },
+  {
+   "name": "VFX_GATE_OnePunchMan_Star_2__Metal_Gold",
+   "group": "12_VFX_HELPERS",
+   "obj": "VFX_GATE_OnePunchMan_Star_2",
+   "material": "Metal_Gold",
+   "tris": 60,
+   "center_rbx": [
+    -12.4,
+    10.8,
+    8.5
+   ],
+   "size_rbx": [
+    3.1,
+    3.1,
+    0.36
+   ],
+   "owner": "vfx",
+   "shadow": false,
+   "flags": "",
+   "model": "PORTAO"
+  },
+  {
+   "name": "VFX_GATE_OnePunchMan_Star_2__P_Red_Glow",
+   "group": "12_VFX_HELPERS",
+   "obj": "VFX_GATE_OnePunchMan_Star_2",
+   "material": "P_Red_Glow",
+   "tris": 60,
+   "center_rbx": [
+    -12.4,
+    10.8,
+    8.5
+   ],
+   "size_rbx": [
+    1.8,
+    1.8,
+    0.58
+   ],
+   "owner": "vfx",
+   "shadow": false,
+   "flags": "",
+   "model": "PORTAO"
+  },
+  {
+   "name": "VFX_GATE_OnePunchMan_Star_3__Metal_Gold",
+   "group": "12_VFX_HELPERS",
+   "obj": "VFX_GATE_OnePunchMan_Star_3",
+   "material": "Metal_Gold",
+   "tris": 60,
+   "center_rbx": [
+    12.4,
+    11.1,
+    8.5
+   ],
+   "size_rbx": [
+    3.1,
+    3.1,
+    0.36
+   ],
+   "owner": "vfx",
+   "shadow": false,
+   "flags": "",
+   "model": "PORTAO"
+  },
+  {
+   "name": "VFX_GATE_OnePunchMan_Star_3__P_Red_Glow",
+   "group": "12_VFX_HELPERS",
+   "obj": "VFX_GATE_OnePunchMan_Star_3",
+   "material": "P_Red_Glow",
+   "tris": 60,
+   "center_rbx": [
+    12.4,
+    11.1,
+    8.5
+   ],
+   "size_rbx": [
+    1.8,
+    1.8,
+    0.58
+   ],
+   "owner": "vfx",
+   "shadow": false,
+   "flags": "",
+   "model": "PORTAO"
+  },
+  {
+   "name": "VFX_GATE_OnePunchMan_Star_4__Metal_Gold",
+   "group": "12_VFX_HELPERS",
+   "obj": "VFX_GATE_OnePunchMan_Star_4",
+   "material": "Metal_Gold",
+   "tris": 60,
+   "center_rbx": [
+    13.0,
+    15.9,
+    4.3
+   ],
+   "size_rbx": [
+    3.1,
+    3.1,
+    0.36
+   ],
+   "owner": "vfx",
+   "shadow": false,
+   "flags": "",
+   "model": "PORTAO"
+  },
+  {
+   "name": "VFX_GATE_OnePunchMan_Star_4__P_Red_Glow",
+   "group": "12_VFX_HELPERS",
+   "obj": "VFX_GATE_OnePunchMan_Star_4",
+   "material": "P_Red_Glow",
+   "tris": 60,
+   "center_rbx": [
+    13.0,
+    15.9,
+    4.3
+   ],
+   "size_rbx": [
+    1.8,
+    1.8,
+    0.58
+   ],
+   "owner": "vfx",
+   "shadow": false,
+   "flags": "",
+   "model": "PORTAO"
+  }
+ ],
+ "materials": {
+  "Energy_Core_OnePunchMan_Glow": {
+   "color": [
+    255,
+    226,
+    140
+   ],
+   "material": "Neon",
+   "transparency": 0.0,
+   "shadow": false,
+   "family": "Energy_Core_OnePunchMan_Glow",
+   "tex": null,
+   "swirl": null,
+   "meshes": 2
+  },
+  "Metal_Brass": {
+   "color": [
+    186,
+    148,
+    90
+   ],
+   "material": "Metal",
+   "transparency": 0.0,
+   "shadow": true,
+   "family": "Metal_Brass",
+   "tex": null,
+   "swirl": null,
+   "meshes": 1
+  },
+  "Metal_Dark": {
+   "color": [
+    78,
+    76,
+    76
+   ],
+   "material": "Metal",
+   "transparency": 0.0,
+   "shadow": true,
+   "family": "Metal_Dark",
+   "tex": null,
+   "swirl": null,
+   "meshes": 2
+  },
+  "Metal_GateOPM_Red": {
+   "color": [
+    208,
+    36,
+    30
+   ],
+   "material": "Metal",
+   "transparency": 0.0,
+   "shadow": true,
+   "family": "Metal_GateOPM_Red",
+   "tex": null,
+   "swirl": null,
+   "meshes": 1
+  },
+  "Metal_Gold": {
+   "color": [
+    222,
+    170,
+    70
+   ],
+   "material": "Metal",
+   "transparency": 0.0,
+   "shadow": true,
+   "family": "Metal_Gold",
+   "tex": null,
+   "swirl": null,
+   "meshes": 6
+  },
+  "P_Gold_Glow": {
+   "color": [
+    255,
+    195,
+    30
+   ],
+   "material": "Neon",
+   "transparency": 0.0,
+   "shadow": false,
+   "family": "P_Gold_Glow",
+   "tex": null,
+   "swirl": null,
+   "meshes": 2
+  },
+  "P_OPM_DarkGlass": {
+   "color": [
+    22,
+    34,
+    62
+   ],
+   "material": "Glass",
+   "transparency": 0.0,
+   "shadow": true,
+   "family": "P_OPM_DarkGlass",
+   "tex": null,
+   "swirl": null,
+   "meshes": 1
+  },
+  "P_Red_Glow": {
+   "color": [
+    185,
+    12,
+    22
+   ],
+   "material": "Neon",
+   "transparency": 0.0,
+   "shadow": false,
+   "family": "P_Red_Glow",
+   "tex": null,
+   "swirl": null,
+   "meshes": 5
+  },
+  "Stone_Dark": {
+   "color": [
+    102,
+    95,
+    88
+   ],
+   "material": "SmoothPlastic",
+   "transparency": 0.0,
+   "shadow": true,
+   "family": "Stone_Dark",
+   "tex": "stone",
+   "swirl": null,
+   "meshes": 1
+  },
+  "Stone_Wall_Dark": {
+   "color": [
+    128,
+    120,
+    110
+   ],
+   "material": "SmoothPlastic",
+   "transparency": 0.0,
+   "shadow": true,
+   "family": "Stone_Wall_Dark",
+   "tex": "stone",
+   "swirl": null,
+   "meshes": 1
+  },
+  "Stone_Wall_Light": {
+   "color": [
+    178,
+    170,
+    156
+   ],
+   "material": "SmoothPlastic",
+   "transparency": 0.0,
+   "shadow": true,
+   "family": "Stone_Wall_Light",
+   "tex": "stone",
+   "swirl": null,
+   "meshes": 1
+  }
+ },
+ "textures": {
+  "dirt": {
+   "file": "textures/T_dirt_v3.png",
+   "studs_per_tile": 10.0
+  },
+  "grass": {
+   "file": "textures/T_grass_v3.png",
+   "studs_per_tile": 14.0
+  },
+  "plaster": {
+   "file": "textures/T_plaster_v3.png",
+   "studs_per_tile": 8.0
+  },
+  "rock": {
+   "file": "textures/T_rock_v3.png",
+   "studs_per_tile": 18.0
+  },
+  "roof": {
+   "file": "textures/T_roof_v3.png",
+   "studs_per_tile": 5.0
+  },
+  "stone": {
+   "file": "textures/T_stone_v3.png",
+   "studs_per_tile": 6.0
+  },
+  "wood": {
+   "file": "textures/T_wood_v3.png",
+   "studs_per_tile": 5.0
+  },
+  "P_DB_Swirl": {
+   "file": "textures/T_swirl_db_v6.png",
+   "uv": "disco 0..1",
+   "portal": "DragonBall",
+   "arm": [
+    150,
+    235,
+    255
+   ],
+   "core": [
+    255,
+    255,
+    255
+   ]
+  },
+  "P_DS_Swirl": {
+   "file": "textures/T_swirl_ds_v5.png",
+   "uv": "disco 0..1",
+   "portal": "DemonSlayer",
+   "arm": [
+    236,
+    26,
+    20
+   ],
+   "core": [
+    255,
+    178,
+    110
+   ]
+  },
+  "P_Naruto_Swirl": {
+   "file": "textures/T_swirl_naruto_v5.png",
+   "uv": "disco 0..1",
+   "portal": "Naruto",
+   "arm": [
+    255,
+    150,
+    14
+   ],
+   "core": [
+    255,
+    244,
+    200
+   ]
+  },
+  "P_OPM_Swirl": {
+   "file": "textures/T_swirl_opm_v6.png",
+   "uv": "disco 0..1",
+   "portal": "OnePunchMan",
+   "arm": [
+    255,
+    244,
+    120
+   ],
+   "core": [
+    255,
+    252,
+    232
+   ]
+  },
+  "P_OP_Swirl": {
+   "file": "textures/T_swirl_op_v4.png",
+   "uv": "disco 0..1",
+   "portal": "OnePiece",
+   "arm": [
+    25,
+    105,
+    255
+   ],
+   "core": [
+    150,
+    215,
+    255
+   ]
+  },
+  "P_Shadow_Swirl": {
+   "file": "textures/T_swirl_shadow_v4.png",
+   "uv": "disco 0..1",
+   "portal": "ShadowGarden",
+   "arm": [
+    150,
+    60,
+    255
+   ],
+   "core": [
+    220,
+    170,
+    255
+   ]
+  }
+ },
+ "collisions": [
+  {
+   "name": "COL_GateOnePunchManLock_001",
+   "kind": "GateLock",
+   "pos": [
+    0.0,
+    9.0,
+    0.0
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    16.6,
+    1.4,
+    18.0
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_GateOnePunchMan_001",
+   "kind": "Block",
+   "pos": [
+    -10.15,
+    13.35,
+    0.0
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    4.3,
+    6.1,
+    26.7
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_GateOnePunchMan_002",
+   "kind": "Block",
+   "pos": [
+    -14.4,
+    7.4,
+    -0.375
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    4.2,
+    4.35,
+    14.8
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_GateOnePunchMan_003",
+   "kind": "Block",
+   "pos": [
+    -10.75,
+    7.0,
+    -4.7
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    2.3,
+    4.6,
+    15.2
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_GateOnePunchMan_004",
+   "kind": "Block",
+   "pos": [
+    10.15,
+    13.35,
+    0.0
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    4.3,
+    6.1,
+    26.7
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_GateOnePunchMan_005",
+   "kind": "Block",
+   "pos": [
+    14.4,
+    5.6,
+    -0.375
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    4.2,
+    4.35,
+    11.2
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_GateOnePunchMan_006",
+   "kind": "Block",
+   "pos": [
+    10.75,
+    7.0,
+    -4.7
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    2.3,
+    4.6,
+    15.2
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_GateOnePunchMan_007",
+   "kind": "Block",
+   "pos": [
+    0.0,
+    -0.225,
+    0.0
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    22.0,
+    10.0,
+    0.75
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_GateOnePunchMan_008",
+   "kind": "Block",
+   "pos": [
+    -14.5,
+    0.0,
+    3.65
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    7.0,
+    13.1,
+    1.2
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_GateOnePunchMan_009",
+   "kind": "Block",
+   "pos": [
+    -15.1,
+    0.85,
+    4.7
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    5.2,
+    5.2,
+    0.5
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_GateOnePunchMan_010",
+   "kind": "Block",
+   "pos": [
+    -15.1,
+    5.4,
+    4.7
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    4.0,
+    4.0,
+    9.6
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_GateOnePunchMan_011",
+   "kind": "Block",
+   "pos": [
+    -12.4,
+    3.85,
+    8.5
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    2.0,
+    2.0,
+    6.5
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_GateOnePunchMan_012",
+   "kind": "Block",
+   "pos": [
+    14.5,
+    0.0,
+    3.65
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    7.0,
+    13.1,
+    1.2
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_GateOnePunchMan_013",
+   "kind": "Block",
+   "pos": [
+    15.1,
+    0.85,
+    4.7
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    5.2,
+    5.2,
+    0.5
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_GateOnePunchMan_014",
+   "kind": "Block",
+   "pos": [
+    15.1,
+    5.4,
+    4.7
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    4.0,
+    4.0,
+    9.6
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_GateOnePunchMan_015",
+   "kind": "Block",
+   "pos": [
+    12.4,
+    3.85,
+    8.5
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    2.0,
+    2.0,
+    6.5
+   ],
+   "cam": false
+  }
+ ],
+ "markers": [
+  {
+   "name": "GATE_OnePunchMan",
+   "pos": [
+    0.0,
+    0.0,
+    0.0
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "props": {
+    "open_w": 16.0,
+    "open_h": 18.0,
+    "deck_w": 18.0,
+    "area_id": 6,
+    "key": "OnePunchMan"
+   }
+  },
+  {
+   "name": "GATE_OnePunchMan_EXIT",
+   "pos": [
+    0.0,
+    0.2,
+    -12.0
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "props": {
+    "gate": "OnePunchMan"
+   }
+  },
+  {
+   "name": "GATE_OnePunchMan_INTERACT",
+   "pos": [
+    0.0,
+    0.2,
+    7.0
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "props": {
+    "gate": "OnePunchMan",
+    "radius": 10.0
+   }
+  },
+  {
+   "name": "GATE_OnePunchMan_LOCKED",
+   "pos": [
+    0.0,
+    9.0,
+    0.0
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "props": {
+    "gate": "OnePunchMan",
+    "state_default": "locked"
+   }
+  },
+  {
+   "name": "GATE_OnePunchMan_OpenFX",
+   "pos": [
+    0.0,
+    9.0,
+    0.0
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "props": {
+    "gate": "OnePunchMan",
+    "state": "unlocked",
+    "fx": "abertura"
+   }
+  },
+  {
+   "name": "PURCHASE_UI_ANCHOR_OnePunchMan",
+   "pos": [
+    0.0,
+    14.0,
+    2.5
+   ],
+   "x": [
+    -1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    1.0
+   ],
+   "props": {
+    "gate": "OnePunchMan",
+    "faces": "approach",
+    "ui": "BillboardGui preco/requisito"
+   }
+  }
+ ],
+ "lights": [],
+ "far_ground": null,
+ "void_catch": {
+  "size": [
+   1,
+   1,
+   1
+  ],
+  "pos": [
+   0.0,
+   -9999.0,
+   -0.0
+  ]
+ },
+ "safe_points": [],
+ "sun_rbx": [
+  -0.421,
+  0.6611,
+  0.6211
+ ],
+ "lighting_lobby": {
+  "Lighting": {
+   "GeographicLatitude": 61.894,
+   "ClockTime": 14.166,
+   "EnvironmentDiffuseScale": 0.4,
+   "EnvironmentSpecularScale": 0.5,
+   "Brightness": 2.5,
+   "ExposureCompensation": 0.0,
+   "ShadowSoftness": 0.2,
+   "OutdoorAmbient": [
+    118,
+    128,
+    152
+   ],
+   "Ambient": [
+    90,
+    92,
+    104
+   ],
+   "ColorShift_Top": [
+    255,
+    236,
+    210
+   ]
+  },
+  "ColorCorrectionEffect": {
+   "Saturation": 0.15,
+   "Contrast": 0.12,
+   "TintColor": [
+    255,
+    246,
+    236
+   ]
+  },
+  "BloomEffect": {
+   "Threshold": 1.3,
+   "Intensity": 0.6,
+   "Size": 28
+  },
+  "Atmosphere": {
+   "Density": 0.34,
+   "Offset": 0.05,
+   "Haze": 1.8,
+   "Glare": 0.1,
+   "Color": [
+    199,
+    214,
+    235
+   ],
+   "Decay": [
+    106,
+    128,
+    168
+   ]
+  }
+ },
+ "budget": {
+  "lines": [
+   "ORCAMENTO por dono (tris / MeshParts; limite entre parenteses)",
+   "  portao             7212 (26000)    15 (36)",
+   "  vfx                 480 (6000)     8 (12)",
+   "METAS GLOBAIS",
+   "  tris estaticos                            7692 / 32000  ",
+   "  MeshParts estaticas                         23 / 48     ",
+   "  tris total (+ reserva VFX 0)              7692 / 32000  ",
+   "  MeshParts total (+ reserva VFX 0)           23 / 48     ",
+   "  materiais                                   11 / 40     ",
+   "  MeshParts com sombra                         8 / 30     ",
+   "  luzes ativas de dia                          0 / 4      ",
+   "  COL                                         16 / 60     "
+  ],
+  "over": []
+ }
+}

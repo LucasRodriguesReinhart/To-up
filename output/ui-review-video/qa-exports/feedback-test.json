@@ -1,0 +1,184 @@
+{
+  "project": "Anime Mining Simulator",
+  "uiVersion": "2026-09-17",
+  "createdAt": "2026-09-17T12:53:51.436Z",
+  "general": {},
+  "reviewed": 1,
+  "total": 28,
+  "screens": [
+    {
+      "id": "01_hud",
+      "title": "HUD e navegação",
+      "videoTime": "0:00",
+      "question": "Os atalhos, moedas, equipe e mochila estão bem posicionados? O que você moveria ou redimensionaria?",
+      "decision": "Ajustar",
+      "rating": "",
+      "changes": [
+        "Botões"
+      ],
+      "feedback": "TESTE TEMPORÁRIO: validar salvamento e exportação."
+    },
+    {
+      "id": "02_inventory",
+      "title": "Inventário de unidades",
+      "videoTime": "0:13",
+      "question": "Como você mudaria a grade, o personagem central, os atributos e as ações para ficar mais próximo das referências?"
+    },
+    {
+      "id": "03_filters",
+      "title": "Busca e filtros",
+      "videoTime": "0:27",
+      "question": "A busca e os filtros são claros? Você prefere esse painel ou filtros visíveis junto da grade?"
+    },
+    {
+      "id": "04_feed",
+      "title": "Alimentar e evoluir",
+      "videoTime": "0:40",
+      "question": "A seleção dos materiais, o ganho de XP e a revisão estão claros? O que mudaria no visual ou na organização?"
+    },
+    {
+      "id": "05_rename",
+      "title": "Renomear unidade",
+      "videoTime": "0:54",
+      "question": "Você mudaria o tamanho da janela, o campo de nome, os textos ou os botões?"
+    },
+    {
+      "id": "06_items",
+      "title": "Itens e acessórios",
+      "videoTime": "1:06",
+      "question": "Como deveriam aparecer os acessórios, seus atributos e as ações? O visual deve acompanhar o inventário de unidades?"
+    },
+    {
+      "id": "07_store_pickaxes",
+      "title": "Loja de picaretas",
+      "videoTime": "1:16",
+      "question": "Os modelos, atributos e preços estão claros? Como você gostaria que os cards e botões de compra fossem?"
+    },
+    {
+      "id": "08_store_bags",
+      "title": "Loja de mochilas",
+      "videoTime": "1:31",
+      "question": "A capacidade e a progressão entre mochilas são fáceis de comparar? O que mudaria nas artes ou nos cards?"
+    },
+    {
+      "id": "09_store_passes",
+      "title": "Passes",
+      "videoTime": "1:44",
+      "question": "Os benefícios estão claros? Você prefere cards mais ilustrados, compactos ou com outra hierarquia?"
+    },
+    {
+      "id": "19_boosts",
+      "title": "Boosts e pacotes",
+      "videoTime": "1:59",
+      "question": "Como você mudaria os ícones, benefícios, duração e destaque das ofertas?"
+    },
+    {
+      "id": "10b_summon_ready",
+      "title": "Invocações",
+      "videoTime": "2:14",
+      "question": "Os personagens, banners, botões e barras de garantia têm o tamanho certo? O que ainda está distante de Anime Vanguards ou Anime Expeditions?"
+    },
+    {
+      "id": "11_chances",
+      "title": "Chances de invocação",
+      "videoTime": "2:29",
+      "question": "As raridades e porcentagens estão legíveis? Você mudaria cores, ordem, tamanho ou localização desse painel?"
+    },
+    {
+      "id": "12_areas",
+      "title": "Áreas e viagens",
+      "videoTime": "2:44",
+      "question": "As artes estão bem enquadradas? Você prefere essa grade, uma lista de banners ou outra forma de escolher as ilhas?"
+    },
+    {
+      "id": "28b_transition_preview",
+      "title": "Transição entre ilhas",
+      "videoTime": "2:58",
+      "question": "O carregamento deveria ser mais cinematográfico, discreto ou informativo? Descreva o que mudaria."
+    },
+    {
+      "id": "13_quests",
+      "title": "Missões",
+      "videoTime": "3:11",
+      "question": "Os objetivos, progressos e recompensas estão claros? Como você gostaria que fossem os cards de missão?"
+    },
+    {
+      "id": "14_forge",
+      "title": "Forja e venda de minérios",
+      "videoTime": "3:24",
+      "question": "O total e os bônus estão claros? Você quer mais presença visual do Ignis ou outra organização para vender minérios?"
+    },
+    {
+      "id": "15_daily",
+      "title": "Recompensas diárias",
+      "videoTime": "3:37",
+      "question": "A grade, as recompensas, os textos e os estados resgatado e bloqueado estão como você quer? O que mudaria?"
+    },
+    {
+      "id": "16_index",
+      "title": "Index da coleção",
+      "videoTime": "3:50",
+      "question": "Como você prefere visualizar descobertos e bloqueados? O progresso, os cards e a navegação precisam mudar?"
+    },
+    {
+      "id": "17_settings",
+      "title": "Áudio, códigos e atalhos",
+      "videoTime": "4:05",
+      "question": "Você prefere abas para áudio, códigos e atalhos? Os controles de volume, textos e espaçamentos estão bons?"
+    },
+    {
+      "id": "18b_effects",
+      "title": "Efeitos e acessibilidade",
+      "videoTime": "4:20",
+      "question": "Os interruptores e descrições são claros? Você mudaria a ordem, os grupos ou a aparência dessas opções?"
+    },
+    {
+      "id": "25_notifications",
+      "title": "Avisos e coleta",
+      "videoTime": "4:32",
+      "question": "Os avisos atrapalham o jogo? Você mudaria posição, tamanho, cor, texto ou destaque do indicador de coleta?"
+    },
+    {
+      "id": "26_celebration",
+      "title": "Celebrações de conquista",
+      "videoTime": "4:47",
+      "question": "Como deveria ser a celebração de uma conquista: mais destaque, outra composição, arte ou efeitos?"
+    },
+    {
+      "id": "27b_reveal",
+      "title": "Revelação de unidade rara",
+      "videoTime": "5:01",
+      "question": "A revelação tem o impacto que você quer? Como mudaria o personagem, o fundo, os efeitos, os textos e o botão?"
+    },
+    {
+      "id": "20_mobile_hud",
+      "title": "Celular: HUD",
+      "videoTime": "5:16",
+      "question": "O HUD deixa espaço suficiente para jogar? Quais controles você moveria, reduziria ou aumentaria no celular?"
+    },
+    {
+      "id": "21_mobile_inventory",
+      "title": "Celular: inventário",
+      "videoTime": "5:31",
+      "question": "Os cards e os alvos de toque parecem confortáveis? O que mudaria na grade, filtros e navegação?"
+    },
+    {
+      "id": "22_mobile_detail",
+      "title": "Celular: detalhes da unidade",
+      "videoTime": "5:44",
+      "question": "Você gosta de abrir os detalhes separadamente? Mudaria a prévia, os atributos, a rolagem ou os botões fixos?"
+    },
+    {
+      "id": "23_mobile_summon",
+      "title": "Celular: invocações",
+      "videoTime": "5:56",
+      "question": "A versão vertical de invocar está clara? Como você mudaria o personagem, o seletor de banner, o catálogo e os botões?"
+    },
+    {
+      "id": "24_mobile_daily",
+      "title": "Celular: recompensas diárias",
+      "videoTime": "6:09",
+      "question": "As duas colunas funcionam? Você mudaria o tamanho dos cards, os estados, os ícones ou o resgate?"
+    }
+  ]
+}

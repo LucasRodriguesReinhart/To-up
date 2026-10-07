@@ -1,0 +1,11 @@
+JOB j1 OK (attempt 1)
+JOB j3 OK (attempt 1)
+JOB j4 OK (attempt 1)
+JOB j5 OK (attempt 1)
+/tmp/claude-0/-home-user-To-up/1f4fd017-283e-51a6-a93d-09fc804c759b/scratchpad/E/queue2.sh: line 9: 22509 Killed                  $BPY studio_sg.py -- entry $dir $det --cams $cams --res 960x540 --samples 8 > $OUT/q_$tag.log 2>&1
+JOB j6 FAILED attempt 1
+/tmp/claude-0/-home-user-To-up/1f4fd017-283e-51a6-a93d-09fc804c759b/scratchpad/E/queue2.sh: line 9: 24428 Killed                  $BPY studio_sg.py -- entry $dir $det --cams $cams --res 960x540 --samples 8 > $OUT/q_$tag.log 2>&1
+JOB j6 FAILED attempt 2
+JOB j6 OK (attempt 3)
+JOB j7 OK (attempt 1)
+QUEUE DONE

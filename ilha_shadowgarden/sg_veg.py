@@ -1,0 +1,788 @@
+# sg_veg - VESTIR / VEGETACAO da Ilha 3 (Shadow Garden). Junto com sg_props e sg_lights substitui sg_blockout.dressing.
+# Prefixo SG_Veg_, colecao 10_VEGETATION. Sem luzes (sg_lights).
+#   1. pinheiros/abetos escuros estilizados (camadas conicas escalonadas de saia caida, fundo escuro, topo raspado de
+#      luar vindo de noroeste) em GRUPOS que emolduram: borda sul da praca, pescoco da entrada, terreno bravo oeste e
+#      noroeste do castelo, norte atras da torre-coroa, nordeste junto aos montes de basalto, beira leste;
+#   2. poucos pinheiros e ciprestes finos no P2 (grama) entre as casas e atras delas; no piso calcado (P1/P3) a arvore
+#      nasce num canteiro de cantaria (le como plantada, nao como enfeite solto);
+#   3. arbustos baixos e tufos de grama fria SO na base de algumas arvores.
+# Tudo assentado no chao REAL: raio de cima para baixo contra as malhas ja montadas (terreno e zonas). O pe precisa cair
+# em SG_Ter_*; a copa nao pode encostar em predio, muro, ponte, rua, escada, agua; nada em rua/escada/ponte/praca/patio
+# do castelo/salao/summon/craft/portaria/ilhota. Arvore em piso andavel: colisao so no tronco (caixa fina) e copa longe
+# das rotas do QA; no terreno bravo (fora de piso: nao alcancavel, guarda invisivel na borda) sem colisao.
+# ACABAMENTO 2026-09-29 (nenhuma arvore nova): sairam os pinheiros do pescoco da entrada (na frente da escadaria vista
+# da ponte) e os ciprestes soltos salpicados no gramado do P2 (ficam os grupos deliberados); regra arch_clash: copa
+# nunca sobre a ponte/patio/escadaria/calcada da entrada nem sobre o volume das casas (vale mesmo quando a zona e
+# montada depois do vestir, como no estudio).
+# OVERHAUL 02 (vila, 2026-09-29, curadoria sem arvore nova): os grupos da vila viram pares/trios DELIBERADOS - sairam
+# o 2o abeto do par a leste da calcada alta (o oeste tem 1: a moldura do eixo fica simetrica), o cipreste gemeo entre as
+# casas do oeste do P2 (fica 1 atras do poste) e o 2o abeto identico do grupo da rua da saida.
+# OVERHAUL 13 (terreno e fundo, 2026-09-29, nenhuma arvore nova): LOD pela distancia da ROTA - a menos de 15 o abeto
+# vira LOD0 com a saia de baixo em 8 lobos (de perto nao faceta); no terreno bravo longe de rota e de piso, LOD2 e sem
+# arbusto/tufo no pe (fundo); o rng de cada grupo avanca igual (a arvore antiga e sorteada num MB descartavel: nenhuma
+# muda de lugar); cipreste com 4o fuso estreito e torto no topo; mancha da borda um pouco mais rala (a coroa nova do
+# terreno tem mais topo plano e o limiar antigo acrescentava arvores).
+# ONDA 2 (planta v4, agente do jardim, 2026-09-30): CURADORIA para a ilha nova (2,4x a area): poucos grupos e bem
+# colocados - pares/trios nos cantos do gramado da vila alta, 1 cipreste de marco por canto de casa, abetos nos becos
+# do castelo entre a parede e a rota, trios no terraco norte, os 3 pinheiros do jardim-mirante (grupo Mirante) e 2
+# trios no ombro sul; a borda (rim_pass) mais rala. LOD0 perto das rotas (< 15), LOD2 no fundo. Forma nova 'marco'
+# (teixo de copa ALTA das 2 arvores-marco do patio, sg_court: tronco livre ate ~7,5 para o banco embaixo da copa).
+# Objetos por FAIXA de 160 studs (1 MeshPart por material). Historico dos grupos da v3: git (commit 5329773).
+# FINESSE 3B (agente G, 2026-10-06; AUDITORIA3 16.04, 06.08, 13.03): abeto de perto (a < 30 de rota) = pine_near
+# (tronco aparente com raizes, 3-4 andares de saia lobada com vao, ramos-card caidos); afastamento >= copa + 3 de
+# qualquer parede (site_ok, raios horizontais); curadoria: 72 -> ~58 arvores (sairam os abetos ao pe do arrimo, o grupo
+# NE do terraco norte que cercava a coroa; o beco oeste plantado do lado de fora da rota); P1/P3 agora grama: sem
+# canteiro de cantaria no pe da arvore.
+import math, random
+import bpy
+import numpy as np
+from mathutils import Vector
+from mathutils.bvhtree import BVHTree
+import sg_lib as SL
+from sg_lib import MB, col_box, fm_lib
+import sg_layout as L
+import fm_veg_kit as VK
+import sg_garden as GD             # jardinagem (2026-09-29): o campo de grama/flores roda no fim deste build
+
+P1, P2, P3, SUM = L.P1, L.P2, L.P3, L.SUM
+COLL = "10_VEGETATION"
+LEAF = "Leaf_SG_Pine"
+BARK = "Wood_SG_Dark"
+GRASS = "Grass_SG"
+TRIM = "Stone_SG_Trim"
+# materiais novos da zona (2 de 4): topo de agulhas raspado pelo luar (azul-esverdeado frio) e fundo das saias
+MOON = "Leaf_SGVegMoon"
+SHADE = "Leaf_SGVegShade"
+fm_lib.MATS.setdefault(MOON, (fm_lib.S(66, 96, 104), 0.85, 0.0, 0, None, 0.08))
+fm_lib.MATS.setdefault(SHADE, (fm_lib.S(16, 24, 30), 0.9, 0.0, 0, None, 0.06))
+MOON_DIR = Vector((-0.45, 0.55, 0.70)).normalized()      # = sg_scene.MOON_DIR (luar de noroeste)
+
+CAMS = {
+    # onda 2 (v4): 360 da ilha nova + altura do jogador no terraco norte e no beco oeste
+    "CAM_SGVeg_Front": ((0.0, -470.0, 140.0), (0.0, -40.0, 40.0), 24),
+    "CAM_SGVeg_Back": ((60.0, 520.0, 170.0), (0.0, 120.0, 60.0), 24),
+    "CAM_SGVeg_West": ((-360.0, 40.0, 120.0), (-60.0, 40.0, 48.0), 24),
+    "CAM_SGVeg_East": ((360.0, 40.0, 120.0), (60.0, 40.0, 48.0), 24),
+    "CAM_SGVeg_PH_North": ((0.0, 336.0, P3 + 5.2), (-70.0, 362.0, P3 + 6.0), 22),
+}
+CAMS.update(GD.CAMS)                # cameras da jardinagem (renders/overhaul/13b_jardim)
+# FINESSE 3B (agente G): copias das CAM_A3_* da auditoria (sg_scene.a3_cams, olho a 5,5) que o studio nao cria
+CAMS.update({
+    "CAM_A3_03_H2_Frente": ((-114.4, -212.0, 41.7), (-98.0, -180.0, 45.2), 20),
+    "CAM_A3_03_H7_Frente": ((-76.4, -88.0, 49.7), (-60.0, -56.0, 53.2), 20),
+    "CAM_A3_03_H1_Frente": ((-74.9, -228.0, 41.7), (-94.0, -262.0, 45.2), 20),
+    "CAM_A3_03_H4_Frente": ((93.2, -209.0, 41.7), (106.0, -180.0, 45.2), 20),
+    "CAM_A3_03_H6_Frente": ((-132.8, -87.0, 49.7), (-120.0, -58.0, 53.2), 20),
+    "CAM_A3_03_Gramado_P2": ((30.0, -62.0, 49.7), (96.0, -126.0, 44.2), 22),
+    "CAM_A3_03_Arrimo_W": ((-62.0, -162.0, 41.7), (-20.0, -149.0, 41.2), 20),
+    "CAM_A3_03_Arrimo_Frente": ((-30.0, -200.0, 41.7), (-40.0, -148.0, 42.2), 20),
+    "CAM_A3_01_PatioBaixo": ((8.0, -331.0, 33.7), (0.0, -296.0, 46.2), 20),
+    "CAM_A3_05_Muralha_Dentro": ((-60.0, 4.0, 57.7), (-62.0, -23.0, 66.2), 20),
+    "CAM_A3_05_Patio_E": ((18.0, 8.0, 57.7), (92.0, 30.0, 56.2), 20),
+    "CAM_A3_06_Coroa_Norte": ((56.0, 368.0, 57.7), (0.0, 303.0, 132.2), 18),
+    "CAM_A3_06_Flanco_W": ((-132.0, 96.0, 57.7), (-104.0, 180.0, 82.2), 18),
+    "CAM_A3_13_Terraco_Norte": ((10.0, 358.0, 57.7), (-116.0, 342.0, 58.2), 20),
+    "CAM_A3_13_Beco_W2": ((-148.0, 96.0, 57.7), (-136.0, 200.0, 60.2), 20),
+})
+# rotas extras: a faixa do P1 ao pe do arrimo entre as casas e a escada (onde ha canteiros) continua livre
+EXTRA_ROUTES = {
+    "VEG_P1_canteiros_O": ([(-14.0, -104.0), (-40.0, -106.0), (-56.0, -106.0)], P1),
+    "VEG_P1_canteiros_L": ([(14.0, -104.0), (40.0, -106.0), (56.0, -106.0)], P1),
+    "VEG_P2_ciprestes": ([(-100.0, -40.0), (-76.0, -40.0), (-76.0, -30.0), (-40.0, -34.0)], P2),
+}
+EXTRA_PROBES = []
+
+# arvores ja plantadas (x, y, z_pe, raio_copa, altura) - os props consultam
+PLACED = []
+CLAMPED = []        # overhaul 13: saias limitadas pelo parapeito vizinho
+
+
+def edge_clear(x, y):
+    """arvore do terreno bravo: (raio livre ate a face de fora do parapeito da borda mais proxima, topo do
+    parapeito) ou None se nenhum piso esta a menos de 14"""
+    best = None
+    for nm, poly, z, pr in L.floors():
+        d = L.polyline_dist(x, y, list(poly) + [poly[0]])
+        if best is None or d < best[0]:
+            best = (d, z)
+    if best is None or best[0] > 14.0:
+        return None
+    return best[0] - 1.35, best[1] + 2.3
+
+
+# ------------------------------------------------------------------ o chao real (raios contra as malhas montadas)
+class Scene:
+    SKIP = ("COL_", "SG_Sky_", "PREVIEW_", "SCALE_", "SG_Veg_", "SG_Prop_", "CAM_", "L_")
+
+    def __init__(self):
+        vs, tris, owner, self.names = [], [], [], []
+        base = 0
+        for o in bpy.data.objects:
+            if o.type != "MESH" or o.name.startswith(self.SKIP) or o.hide_render:
+                continue
+            me = o.data
+            if not me.polygons:
+                continue
+            me.calc_loop_triangles()
+            nv = len(me.vertices)
+            co = np.empty(nv * 3, dtype=np.float64)
+            me.vertices.foreach_get("co", co)
+            co = co.reshape(nv, 3)
+            M = np.array(o.matrix_world)
+            co = co @ M[:3, :3].T + M[:3, 3]
+            nt = len(me.loop_triangles)
+            tv = np.empty(nt * 3, dtype=np.int64)
+            me.loop_triangles.foreach_get("vertices", tv)
+            tris.append(tv.reshape(nt, 3) + base)
+            vs.append(co)
+            owner.append(np.full(nt, len(self.names), dtype=np.int32))
+            self.names.append(o.name)
+            base += nv
+        V = np.concatenate(vs)
+        T = np.concatenate(tris)
+        self.owner = np.concatenate(owner)
+        self.bvh = BVHTree.FromPolygons(V.tolist(), T.tolist(), all_triangles=True)
+
+    def hit(self, x, y, z0=420.0):
+        loc, nrm, idx, d = self.bvh.ray_cast(Vector((x, y, z0)), Vector((0.0, 0.0, -1.0)), 700.0)
+        if loc is None:
+            return None, None, None
+        return loc.z, self.names[int(self.owner[idx])], nrm
+
+    def side(self, p, d, dist):
+        """raio horizontal: (distancia, nome) do 1o acerto ou None"""
+        loc, nrm, idx, dd = self.bvh.ray_cast(Vector(p), Vector(d), dist)
+        if loc is None:
+            return None
+        return dd, self.names[int(self.owner[idx])]
+
+
+def is_ter(nm):
+    return nm is not None and nm.startswith("SG_Ter_")
+
+
+# ------------------------------------------------------------------ rotas do QA (a copa e o tronco ficam longe delas)
+def route_lines():
+    import sys
+    out = []
+    try:
+        import sg_qa
+        for v in list(sg_qa.routes().values()) + list(sg_qa.open_routes().values()):
+            out.append((list(v[0]), v[1]))
+    except Exception as ex:
+        print("VEG AVISO rotas do sg_qa indisponiveis (%s)" % ex)
+    try:
+        import build_sg
+        for mods in build_sg.ZONE_MODULES.values():
+            for m in mods:
+                mod = sys.modules.get(m)
+                if mod is None or m == __name__:
+                    continue
+                for pts, z in getattr(mod, "EXTRA_ROUTES", {}).values():
+                    out.append((list(pts), z))
+    except Exception as ex:
+        print("VEG AVISO rotas dos modulos indisponiveis (%s)" % ex)
+    for pts, z in EXTRA_ROUTES.values():
+        out.append((list(pts), z))
+    return out
+
+
+_PROPS = []
+
+
+def prop_spots():
+    """postes e bancos do sg_props (a copa nao engole a lanterna nem o banco)"""
+    if not _PROPS:
+        try:
+            import sg_props as PR
+            _PROPS.extend((x, y, 1.5) for n, x, y, z, lit in PR.LAMPS)
+            for a in PR.BENCH_A:
+                r = math.radians(a)
+                _PROPS.append((L.PLAZA_C[0] + PR.BENCH_R * math.cos(r), L.PLAZA_C[1] + PR.BENCH_R * math.sin(r), 3.0))
+        except Exception as ex:
+            print("VEG AVISO sg_props indisponivel (%s)" % ex)
+            _PROPS.append((1e6, 1e6, 0.0))
+    return _PROPS
+
+
+def route_dist(x, y, routes, zmin=20.0):
+    best = 1e9
+    for pts, z in routes:
+        if z < zmin or len(pts) < 2:
+            continue
+        best = min(best, L.polyline_dist(x, y, pts))
+    return best
+
+
+# ------------------------------------------------------------------ especies (forma estilizada da concept)
+# T camadas, r0 raio da saia de baixo (x h), droop queda das pontas (graus), base inicio da copa (x h), taper reducao
+# do raio ate o topo, span fracao da copa ocupada pelas bases, th altura da camada (x copa), sh ombro, tr raio do tronco
+FORMS = {
+    "fir":   dict(T=4, r0=0.28, droop=22.0, base=0.12, taper=0.72, span=0.74, th=0.40, sh=0.5, tr=0.040),
+    "spire": dict(T=5, r0=0.22, droop=26.0, base=0.09, taper=0.78, span=0.82, th=0.30, sh=0.55, tr=0.034),
+    "stout": dict(T=3, r0=0.33, droop=18.0, base=0.10, taper=0.64, span=0.64, th=0.50, sh=0.5, tr=0.048),
+    "marco": dict(T=5, r0=0.30, droop=12.0, base=0.22, taper=0.70, span=0.76, th=0.34, sh=0.55, tr=0.036),
+}
+LOBES = (6, 6, 4)
+WHY = {}
+
+
+def why(k):
+    WHY[k] = WHY.get(k, 0) + 1
+    return None
+
+
+def crown_r(form, h):
+    if form in ("fir", "spire", "stout"):
+        # FINESSE 3B: o abeto de perto (pine_near) e um pouco mais largo e os ramos-card passam da saia
+        return h * max(FORMS[form]["r0"], NEAR_FORMS[form]["r0"]) * 1.12
+    return h * (0.13 if form == "cypress" else FORMS[form]["r0"])
+
+
+def pine(mb, x, y, z, h, rng, form="fir", lod=1, near=False, clear=None):
+    """abeto escuro estilizado: camadas conicas escalonadas com saia caida (pontas pendentes, vaos recolhidos), fundo
+    escuro (SHADE), faces de cima voltadas para a lua em MOON (so nas 2 camadas de cima), topo levemente torto.
+    near (overhaul 13.08: arvore a menos de 15 da rota): a saia de BAIXO ganha 8 lobos (de perto nao faceta).
+    clear = (raio livre, cota): saia cujas pontas descem abaixo da cota (topo do parapeito da borda vizinha) nao passa
+    do raio livre (a copa nao atravessa o parapeito; so limita o raio, nao consome o rng)"""
+    P = FORMS[form]
+    T = P["T"] - (1 if lod == 2 else 0)
+    lobes = LOBES[lod]
+    r0 = h * P["r0"] * rng.uniform(0.92, 1.08)
+    droop = P["droop"] * rng.uniform(0.85, 1.15)
+    tr = h * P["tr"]
+    zb = z + h * P["base"] * rng.uniform(0.9, 1.25)
+    zt = z + h
+    ch = zt - zb
+    ta = rng.uniform(0, math.tau)
+    tl = h * rng.uniform(0.02, 0.05)
+    tx, ty = math.cos(ta) * tl, math.sin(ta) * tl
+    VK.ttube(mb, [(x, y, z - 0.6), (x + tx * 0.2, y + ty * 0.2, z + h * 0.45)], [tr * 1.35, tr * 0.7], BARK,
+             n=(6, 5, 4)[lod], cap1=False)
+    rot0 = rng.uniform(0, math.tau)
+    for k in range(T):
+        u = k / (T - 1)
+        zc = zb + ch * P["span"] * (u ** 0.92)
+        r = r0 * (1.0 - P["taper"] * u) * rng.uniform(0.9, 1.1)
+        if clear and zc - r * math.tan(math.radians(droop)) < clear[1] and r > clear[0]:
+            r = max(clear[0], 0.45 * r)
+            CLAMPED.append((round(x, 1), round(y, 1), k))
+        top = k == T - 1
+        th = (zt - zc) if top else ch * P["th"] * (1.0 - 0.3 * u) * rng.uniform(0.92, 1.08)
+        cxy = (x + tx * u * 0.5, y + ty * u * 0.5)
+        lean = (tx, ty) if top else (tx * 0.2, ty * 0.2)
+        shoulder = P["sh"] if ((lod == 0 and k < T - 2) or (lod == 1 and k == 0)) else None
+        under = 0.14 if (lod < 2 or k == 0) else None
+        lm = MOON if (lod < 2 and k >= T - 2) else None
+        VK.skirt(mb, (cxy[0], cxy[1], zc), r, th, 8 if (near and k == 0) else lobes, LEAF, rng,
+                 rot=rot0 + k * 0.9 + rng.uniform(-0.3, 0.3),
+                 droop=droop * (1.0 - 0.25 * u), lob=0.3 if lod < 2 else 0.22, shoulder=shoulder, under=under,
+                 under_m=SHADE, lean=lean, lit=lm, lit_k=(0.2 if top else 0.45), asym=0.06, wind=ta)
+    if lod < 2:
+        ap = Vector((x + tx, y + ty, zt))
+        VK.spike(mb, ap - Vector((0, 0, h * 0.05)), ap + Vector((tx * 0.8, ty * 0.8, h * 0.06)), h * 0.018, MOON, 3)
+
+
+# FINESSE 3B (16.04): o abeto de PERTO (grupos junto das rotas) deixa de ser cone liso empilhado. Forma nova:
+#   - tronco APARENTE: a copa comeca a ~0,2 h, com o pe alargado em 3 raizes curtas;
+#   - 3 a 4 ANDARES de saia em lobos fundos (lob 0,44, 7 lobos de perto) com as pontas CAIDAS (droop ~30) e um VAO
+#     entre andares (a saia de baixo nao encosta na de cima: le o sombreado escuro do fundo e o tronco);
+#   - 3 RAMOS-CARD caidos por andar (lamina dobrada de 2 tris, tom escuro) saindo alem da saia em rumos desencontrados:
+#     a silhueta quebra (nada de cone de papel);
+#   - so os 2 andares de cima recebem o luar (MOON); o fundo de cada saia e SHADE.
+# A pine() antiga fica (patio do sg_court, ilhotas do sg_scene, arvores de fundo e o avanco do rng dos grupos).
+NEAR_FORMS = {
+    "fir":   dict(T=4, r0=0.29, base=0.27, taper=0.70, th=0.28, tr=0.042, droop=28.0),
+    "spire": dict(T=4, r0=0.23, base=0.25, taper=0.74, th=0.26, tr=0.036, droop=30.0),
+    "stout": dict(T=3, r0=0.33, base=0.28, taper=0.62, th=0.34, tr=0.050, droop=24.0),
+}
+
+
+def _card(mb, root, tip, half_w, fold, m):
+    """ramo-card caido: losango dobrado na nervura (raiz -> ponta), 2 tris; fold = quanto a nervura sobe"""
+    bm = mb.bm
+    root, tip = Vector(root), Vector(tip)
+    d = tip - root
+    side = Vector((-d.y, d.x, 0.0))
+    if side.length < 1e-6:
+        return
+    side.normalize()
+    mid = root.lerp(tip, 0.45)
+    a = bm.verts.new(root)
+    b = bm.verts.new(tip)
+    l = bm.verts.new(mid + side * half_w - Vector((0, 0, fold)))
+    r = bm.verts.new(mid - side * half_w - Vector((0, 0, fold)))
+    out = []
+    VK._tri(mb, a, l, b, out)
+    VK._tri(mb, a, b, r, out)
+    VK._assign(mb, out, m)
+
+
+def pine_near(mb, x, y, z, h, form="fir", lobes=7):
+    """abeto de perto (16.04): tronco aparente, andares de saia lobada com vao, ramos-card caidos. rng proprio derivado
+    da posicao (deterministico). tris ~ 60 por andar + 30 do tronco"""
+    P = NEAR_FORMS.get(form, NEAR_FORMS["fir"])
+    g = random.Random((int(abs(x) * 173) * 31 + int(abs(y) * 97)) & 0xfffff)
+    T = P["T"]
+    r0 = h * P["r0"] * g.uniform(0.94, 1.06)
+    tr = h * P["tr"]
+    zb = z + h * P["base"] * g.uniform(0.92, 1.1)
+    zt = z + h
+    ta = g.uniform(0, math.tau)
+    tl = h * g.uniform(0.015, 0.035)
+    tx, ty = math.cos(ta) * tl, math.sin(ta) * tl
+    # tronco (6 lados de perto) + 3 raizes curtas no pe
+    VK.ttube(mb, [(x, y, z - 0.6), (x, y, z + h * 0.12), (x + tx * 0.4, y + ty * 0.4, z + h * 0.62)],
+             [tr * 1.55, tr * 1.05, tr * 0.55], BARK, n=6, cap1=False)
+    for k in range(3):
+        a = ta + 0.6 + k * math.tau / 3
+        VK.ttube(mb, [(x + math.cos(a) * tr * 0.5, y + math.sin(a) * tr * 0.5, z + tr * 1.6),
+                      (x + math.cos(a) * tr * 2.3, y + math.sin(a) * tr * 2.3, z - 0.3)], [tr * 0.55, tr * 0.18],
+                 BARK, n=4, cap1=False)
+    ch = zt - zb
+    rot0 = g.uniform(0, math.tau)
+    for k in range(T):
+        u = k / (T - 1)
+        top = k == T - 1
+        zc = zb + ch * 0.80 * (u ** 0.95)
+        r = r0 * (1.0 - P["taper"] * u) * g.uniform(0.93, 1.07)
+        th = (zt - zc) if top else ch * P["th"] * (1.0 - 0.25 * u)
+        cxy = (x + tx * u, y + ty * u)
+        lm = MOON if k >= T - 2 else None
+        dr = P["droop"] * (1.0 - 0.3 * u) * g.uniform(0.9, 1.1)
+        VK.skirt(mb, (cxy[0], cxy[1], zc), r, th, (lobes if k < T - 1 else 5), LEAF, g,
+                 rot=rot0 + k * 1.37, droop=dr, lob=0.44 if not top else 0.3, shoulder=0.52,
+                 under=0.18, under_m=SHADE, lean=((tx * 0.6, ty * 0.6) if top else (0.0, 0.0)), lit=lm,
+                 lit_k=(0.2 if top else 0.42), asym=0.08, wind=ta, jit=0.12)
+        if top:
+            continue
+        # ramos-card caidos alem da saia (3 por andar, rumos desencontrados entre andares)
+        for j in range(3):
+            a = rot0 + k * 2.1 + j * math.tau / 3 + g.uniform(-0.35, 0.35)
+            ca, sa = math.cos(a), math.sin(a)
+            rr = r * g.uniform(1.0, 1.18)
+            root = (cxy[0] + ca * r * 0.35, cxy[1] + sa * r * 0.35, zc + th * 0.12)
+            tip = (cxy[0] + ca * rr * 1.12, cxy[1] + sa * rr * 1.12,
+                   zc - rr * math.tan(math.radians(dr)) * 1.25)
+            _card(mb, root, tip, r * 0.2, r * 0.06, LEAF if k == 0 else SHADE)
+    ap = Vector((x + tx, y + ty, zt))
+    VK.spike(mb, ap - Vector((0, 0, h * 0.05)), ap + Vector((tx * 0.6, ty * 0.6, h * 0.07)), h * 0.018, MOON, 3)
+
+
+def cypress(mb, x, y, z, h, rng, lod=0):
+    """cipreste fino (chama escura): 3 fusos lobados sobrepostos, quase sem queda, ombro alto"""
+    r = h * 0.13 * rng.uniform(0.9, 1.08)
+    VK.ttube(mb, [(x, y, z - 0.6), (x, y, z + h * 0.3)], [h * 0.035, h * 0.02], BARK, n=5, cap1=False)
+    rot0 = rng.uniform(0, math.tau)
+    parts = ((0.07, 1.0, 0.50), (0.30, 0.9, 0.46), (0.54, 0.66, 0.46))
+    for k, (zb, rr, th) in enumerate(parts):
+        VK.skirt(mb, (x, y, z + h * zb), r * rr, h * th, 5 if lod < 2 else 4, LEAF, rng, rot=rot0 + k * 1.1,
+                 droop=8.0, lob=0.18, shoulder=0.82, under=0.1, under_m=SHADE, lit=MOON if k >= 1 else None,
+                 lit_k=0.4, jit=0.08)
+    # overhaul 13.08: 4o fuso, estreito e TORTO no topo (o cipreste deixa de ler cone escuro); rng proprio derivado
+    # da posicao (nao consome o rng do grupo: as outras arvores ficam onde estao)
+    r4 = random.Random(int(abs(x) * 131 + abs(y) * 71) & 0xffff)
+    lean = (math.cos(rot0 + 2.0) * h * 0.035, math.sin(rot0 + 2.0) * h * 0.035)
+    VK.skirt(mb, (x + lean[0] * 0.3, y + lean[1] * 0.3, z + h * 0.74), r * 0.4, h * 0.3, 4, LEAF, r4,
+             rot=rot0 + 3.3, droop=6.0, lob=0.16, shoulder=0.8, under=None, lean=lean, lit=MOON, lit_k=0.45,
+             jit=0.06)
+
+
+# ------------------------------------------------------------------ grupos (a planta PINE_GROVES + moldura)
+# (grupo, centro, raio, n, h_min, h_max, formas, piso_ok, lod)
+# grupo: so rotulo de leitura; o objeto de destino sai de region(x, y) (cada objeto < ~160 studs: 1 MeshPart/material)
+FIR_MIX = (("fir", 5), ("spire", 3), ("stout", 2))
+TALL_MIX = (("spire", 5), ("fir", 4), ("stout", 1))
+LOW_MIX = (("stout", 4), ("fir", 4), ("spire", 1))
+GROVES = [
+    # P1 (calcado: a arvore nasce num canteiro de cantaria): 1 por canto, nunca na frente das casas
+    # FINESSE 3B (06.08 / 13.03 / 16.04): curadoria com o abeto novo (mais caro e mais largo): menos arvores, grupos
+    # afastados das paredes (site_ok: copa + 3), o terraco norte em 2 grupos longe da torre-coroa (o grupo do canto NE
+    # que cercava a vista da coroa saiu). n = 0: grupo retirado (o indice fica: as sementes dos outros nao mudam).
+    # (os 2 abetos ao pe do arrimo sairam: tapavam a vista ao longo do muro, que agora tem as espaldeiras)
+    ("P1", (-54.0, -164.0), 5.0, 0, 15.0, 18.0, FIR_MIX, True, 0),
+    ("P1", (48.0, -164.0), 5.0, 0, 15.0, 18.0, FIR_MIX, True, 0),
+    ("P1", (-142.0, -198.0), 5.0, 1, 13.0, 16.0, (("cypress", 1),), True, 0),
+    ("P1", (140.0, -198.0), 6.0, 2, 14.0, 19.0, FIR_MIX, True, 0),
+    ("P1", (-44.0, -260.0), 3.0, 1, 13.0, 16.0, (("cypress", 1),), True, 0),
+    ("P1", (44.0, -260.0), 3.0, 1, 13.0, 16.0, (("cypress", 1),), True, 0),
+    # P2 (gramado da vila alta): trios nos cantos, 1 cipreste de marco entre as casas
+    ("P2", (-152.0, -120.0), 10.0, 3, 15.0, 22.0, TALL_MIX, True, 0),
+    ("P2", (-160.0, -40.0), 8.0, 2, 14.0, 20.0, FIR_MIX, True, 0),
+    ("P2", (-95.0, -34.0), 3.0, 1, 14.0, 17.0, (("cypress", 1),), True, 0),
+    ("P2", (-28.0, -126.0), 5.0, 1, 14.0, 18.0, FIR_MIX, True, 0),
+    ("P2", (44.0, -126.0), 8.0, 2, 14.0, 20.0, FIR_MIX, True, 0),
+    ("P2", (60.0, -40.0), 6.0, 2, 15.0, 19.0, TALL_MIX, True, 0),
+    ("P2", (98.0, -48.0), 4.0, 1, 13.0, 16.0, (("cypress", 1),), True, 0),
+    ("P2", (150.0, -128.0), 8.0, 2, 13.0, 19.0, FIR_MIX, True, 0),
+    ("P2", (170.0, -60.0), 5.0, 2, 13.0, 18.0, FIR_MIX, True, 0),
+    # P3: beco oeste (FINESSE 3B: do lado de FORA da rota, junto da borda: o pe do castelo fica livre), terraco norte,
+    # jardim-mirante (3 pinheiros)
+    ("P3", (-153.0, 150.0), 5.0, 2, 16.0, 22.0, TALL_MIX, True, 0),
+    ("P3", (-151.0, 238.0), 5.0, 2, 15.0, 21.0, FIR_MIX, True, 0),
+    ("P3", (-64.0, 352.0), 9.0, 3, 14.0, 20.0, FIR_MIX, True, 0),
+    ("P3", (52.0, 358.0), 9.0, 0, 14.0, 20.0, FIR_MIX, True, 0),
+    ("P3", (94.0, 326.0), 9.0, 3, 15.0, 21.0, TALL_MIX, True, 0),
+    ("P3", (124.0, 14.0), 6.0, 2, 16.0, 21.0, TALL_MIX, True, 0),
+    ("P3", (124.0, 250.0), 7.0, 2, 16.0, 22.0, FIR_MIX, True, 0),
+    ("Mirante", (113.0, 199.0), 8.0, 2, 15.0, 19.0, FIR_MIX, True, 0),
+    ("Mirante", (112.0, 146.0), 3.0, 1, 14.0, 17.0, FIR_MIX, True, 0),
+    # ombro sul (terreno bravo, fundo): 2 trios que emolduram a chegada
+    ("South", (-120.0, -288.0), 10.0, 3, 11.0, 16.0, LOW_MIX, False, 1),
+    ("South", (100.0, -290.0), 10.0, 3, 11.0, 16.0, LOW_MIX, False, 1),
+]
+
+
+def pick(rng, mix):
+    tot = sum(w for _, w in mix)
+    x = rng.uniform(0, tot)
+    for f, w in mix:
+        x -= w
+        if x <= 0:
+            return f
+    return mix[-1][0]
+
+
+# ------------------------------------------------------------------ regras de lugar
+PAVED = ("EntryHigh", "EntryLow")   # FINESSE 3B: o P1 e o P3 agora sao grama (sg_terrain): sem canteiro de cantaria
+
+
+def forbidden_floor(x, y, fl):
+    """areas de piso onde NUNCA vai arvore (alem do que os raios ja pegam: ruas, praca, escadas, predios)"""
+    if fl == "Summon":
+        return True
+    fx0, fy0, fx1, fy1 = L.CASTLE_FORECOURT
+    if fx0 - 6.0 < x < fx1 + 6.0 and fy0 - 2.0 < y < fy1 + 4.0:
+        return True
+    if math.hypot(x - L.CRAFT_C[0], y - L.CRAFT_C[1]) < L.CRAFT_R + 8.0:
+        return True
+    mx, my, mr = L.MIRANTE_E                       # terraco do jardim-mirante (a arvore da lua e do sg_court)
+    if math.hypot(x - mx, y - my) < mr + 3.0:
+        return True
+    if math.hypot(x - L.PLAZA_C[0], y - L.PLAZA_C[1]) < L.PLAZA_R + 5.0:
+        return True
+    return False
+
+
+def arch_clash(x, y, rc):
+    """copa sobre ARQUITETURA conhecida da planta, independente da ordem de montagem (no estudio de uma zona ela e
+    montada DEPOIS do vestir e o raio nao a ve): ponte + patio baixo + escadaria + calcada alta da entrada (parapeitos
+    ate |x| 14,2) e o volume das casas da vila (lote + balanco + beiral + 1,5 de folga)"""
+    if abs(x) < 14.6 + rc and L.BRIDGE_Y0 - 2.0 < y < L.ENTRY_HIGH[1] + 2.0:
+        return True
+    for hx, hy, w, d, deg, z in L.HOUSE_LOTS:
+        a = math.radians(deg)
+        dx, dy = x - hx, y - hy
+        u = dx * math.cos(a) + dy * math.sin(a)          # ao longo da frente (fundo -> fachada)
+        v = -dx * math.sin(a) + dy * math.cos(a)         # ao longo da largura
+        if abs(u) < d / 2 + 2.6 + rc and abs(v) < w / 2 + 2.6 + rc:
+            return True
+    return False
+
+
+def site_ok(S, x, y, h, form, floor_ok, routes, placed):
+    """(z_pe, piso) se a arvore cabe em (x, y); None se nao"""
+    rc = crown_r(form, h)
+    if arch_clash(x, y, rc):
+        return why("arquitetura")
+    for ox, oy, orr in prop_spots():
+        if math.hypot(x - ox, y - oy) < rc + orr:
+            return why("prop")
+    for px, py, pz, pr, ph in placed:
+        if math.hypot(x - px, y - py) < 0.52 * (rc + pr) + 0.5:
+            return why("vizinha")
+    fl = L.floor_name(x, y)
+    if fl is not None:
+        if not floor_ok or forbidden_floor(x, y, fl):
+            return why("piso_proibido")
+        if route_dist(x, y, routes) < rc + 1.6:
+            return why("rota")
+    else:
+        # terreno bravo: a copa nao pode avancar sobre um piso andavel perto de rota (folha no meio do caminho)
+        for k in range(8):
+            a = k * math.tau / 8
+            if L.zone_of(x + math.cos(a) * rc * 0.8, y + math.sin(a) * rc * 0.8) is not None and \
+                    route_dist(x, y, routes) < rc + 1.6:
+                return why("rota_bravo")
+    zc, nm, nrm = S.hit(x, y)
+    if not is_ter(nm) or zc < 20.0 or nrm.z < 0.8:
+        return why("pe_fora_do_terreno")
+    # pe: 6 raios em volta do tronco (o pe senta no mais baixo; nada de degrau no meio do tronco)
+    zs = [zc]
+    for k in range(6):
+        a = k * math.tau / 6
+        z1, n1, _ = S.hit(x + math.cos(a) * 1.1, y + math.sin(a) * 1.1)
+        if not is_ter(n1):
+            return why("pe_borda")
+        zs.append(z1)
+    if max(zs) - min(zs) > 1.6:
+        return why("pe_degrau")
+    zg = min(zs)
+    if fl is not None and abs(zg - L.zone_of(x, y)) > 0.6:
+        return why("pe_cota")
+    base = zg + h * 0.10
+    void = 0
+    # copa: 2 aneis de raios; qualquer outra malha (predio, muro, ponte, rua, agua) no alcance da copa = nao cabe;
+    # terreno que sobe acima do pe da copa (arrimo, monte, coluna) = nao cabe; vazio (copa sobre a beira do penhasco)
+    # = ate metade do anel de fora (pinheiro no topo da coluna da borda, como na concept)
+    for rr, n in ((rc * 0.5, 6), (rc * 1.0, 10)):
+        for k in range(n):
+            a = k * math.tau / n + 0.3
+            z1, n1, _ = S.hit(x + math.cos(a) * rr, y + math.sin(a) * rr)
+            if n1 is None:
+                void += 1 if rr > rc * 0.7 else 3
+                continue
+            if not is_ter(n1):
+                if z1 > zg - 3.0:
+                    return why("copa_em_" + n1.split("_")[1])
+                continue
+            if z1 > base + (1.2 if rr > rc * 0.7 else 0.0):
+                return why("copa_no_terreno")
+    if void > 5:
+        return why("copa_no_vazio")
+    # FINESSE 3B (06.08): afastamento >= raio da copa + 3 de QUALQUER parede (castelo, muralha, casa, arrimo), medido
+    # por raios horizontais em 3 alturas (a 3 do pe o parapeito baixo nao conta). Arvore do terreno bravo: so paredes
+    # que nao sao do terreno (a coluna de basalto e o penhasco ficam).
+    clear = rc + 3.0
+    for zz in (zg + 3.0, zg + h * 0.45, zg + h * 0.8):
+        for k in range(12):
+            a = k * math.tau / 12 + 0.13
+            hit = S.side((x, y, zz), (math.cos(a), math.sin(a), 0.0), clear)
+            if hit is None:
+                continue
+            if fl is None and is_ter(hit[1]):
+                continue
+            return why("parede_perto")
+    return zg, fl
+
+
+# ------------------------------------------------------------------ build
+PIT_M = "Stone_SG_TrimLow"    # overhaul 03 (14.01): cantaria de remate um valor abaixo do Stone_SG_Trim (o mesmo do kit)
+fm_lib.MATS.setdefault(PIT_M, (fm_lib.S(132, 128, 134), 0.8, 0.0, 0, None, 0.06))
+
+
+def tree_pit(mb, x, y, z, rng):
+    """canteiro de cantaria (octogono baixo) + terra: arvore no piso calcado. Overhaul 03: pedra de remate
+    (TrimLow, nao o Trim quase branco) com a aresta de cima chanfrada. Jardinagem 2026-09-29: o disco de grama chapada
+    vira TERRA e o sg_garden planta o anel de tufos e as flores-da-lua (GD.PITS)"""
+    r = 1.9
+    mb.cyl(r, 0.42, (x, y, z + 0.13), (0, 0, math.pi / 8), PIT_M, n=8, bevel=0.06)
+    mb.cyl(r - 0.38, 0.16, (x, y, z + 0.38), (0, 0, math.pi / 8), GD.SOIL, n=8, bevel=0.0)   # topo 0,12 acima da cantaria
+    GD.PITS.append((x, y, z + 0.46))
+
+
+def base_dressing(mb, S, x, y, zg, h, rng, wild):
+    """1 arbusto baixo e/ou 1-2 tufos de grama fria no pe (so em parte das arvores: nada de tapete)"""
+    if wild and rng.random() < 0.55:
+        a = rng.uniform(0, math.tau)
+        d = rng.uniform(1.4, 2.6)
+        bx, by = x + math.cos(a) * d, y + math.sin(a) * d
+        z1, n1, _ = S.hit(bx, by)
+        if is_ter(n1) and abs(z1 - zg) < 1.2:
+            s = rng.uniform(1.1, 1.8)
+            VK.puff(mb, (bx, by, z1 - 0.1), s, LEAF, rng, 1, rng.uniform(0.7, 0.95))
+    # jardinagem 2026-09-29: os 1-2 tufos de espeto (Grass_SG = material Grass do Roblox) sairam: no gramado o campo do
+    # sg_garden adensa o pe das arvores; no terreno bravo (fundo) nada. O rng avanca IGUAL (tufo num MB descartavel):
+    # nenhuma arvore muda de lugar.
+    tmp = None
+    for k in range(rng.choice((0, 1, 1, 2))):
+        a = rng.uniform(0, math.tau)
+        d = rng.uniform(1.0, 2.4)
+        bx, by = x + math.cos(a) * d, y + math.sin(a) * d
+        z1, n1, _ = S.hit(bx, by)
+        if is_ter(n1) and abs(z1 - zg) < 1.0:
+            tmp = tmp or MB("SG_Veg_Tmp", COLL, random.Random(1), detail="near", floor=-999)
+            VK.grass_tuft(tmp, (bx, by, z1), rng.uniform(0.7, 1.1), rng, m=GRASS, n=rng.randint(3, 4))
+    if tmp is not None:
+        tmp.bm.free()
+
+
+def build():
+    # as arvores do sg_court (marco do patio, arvore da lua do mirante) ja estao plantadas: ficam no registro
+    PLACED[:] = [p for p in PLACED if p[5] in ("marco", "moon")]
+    CLAMPED.clear()
+    WHY.clear()
+    GD.PITS.clear()
+    old_sun = VK.SUN
+    VK.SUN = MOON_DIR
+    try:
+        _build()
+    finally:
+        VK.SUN = old_sun
+
+
+def region(x, y, fl):
+    """objeto de destino: 3 faixas de 240 em y (a MeshPart conta por MATERIAL: menos objetos = menos MeshParts)"""
+    band = min(2, int(max(0.0, y + 340.0) // 240.0))
+    return "B%d" % band
+
+
+class Planter:
+    def __init__(self, S, routes):
+        self.S, self.routes = S, routes
+        self.mbs = {}
+        self.placed = []
+        self.ncol = 0
+        self.lods = {}
+
+    def mb(self, key):
+        mb = self.mbs.get(key)
+        if mb is None:
+            mb = self.mbs[key] = MB("SG_Veg_Pines_%s" % key, COLL, random.Random(331 + len(self.mbs)), detail="near",
+                                    floor=-999)
+        return mb
+
+    def plant(self, x, y, zg, fl, h, form, lod, g, dress=True):
+        mb = self.mb(region(x, y, fl))
+        if fl in PAVED:
+            tree_pit(mb, x, y, zg, g)
+        if form == "cypress":
+            cypress(mb, x, y, zg, h, g, lod)
+        else:
+            # overhaul 13.08: LOD pela distancia da ROTA - a menos de 15: LOD0 com a saia de baixo em 8 lobos; no
+            # terreno bravo longe de rota e de piso andavel: LOD2 (fundo, so silhueta). O rng do grupo avanca como
+            # antes (a arvore original e sorteada num MB descartavel): nenhuma arvore muda de lugar.
+            new_lod, near = self.lod_for(x, y, fl, lod)
+            clr = edge_clear(x, y) if fl is None else None
+            if form in NEAR_FORMS and (new_lod == 0 or route_dist(x, y, self.routes) < 30.0):
+                # FINESSE 3B (16.04): o abeto de perto e o pine_near (tronco aparente, andares lobados, ramos-card);
+                # o rng do grupo avanca como antes (a arvore antiga e sorteada num MB descartavel)
+                tmp = MB("SG_Veg_Tmp", COLL, random.Random(1), detail="near", floor=-999)
+                pine(tmp, x, y, zg, h, g, form, lod)
+                tmp.bm.free()
+                pine_near(mb, x, y, zg, h, form, lobes=7 if near else 6)
+                self.lods[("near", near)] = self.lods.get(("near", near), 0) + 1
+            elif (new_lod, near) == (lod, False):
+                pine(mb, x, y, zg, h, g, form, lod, clear=clr)
+            else:
+                st = g.getstate()
+                tmp = MB("SG_Veg_Tmp", COLL, random.Random(1), detail="near", floor=-999)
+                pine(tmp, x, y, zg, h, g, form, lod)
+                tmp.bm.free()
+                end = g.getstate()
+                g.setstate(st)
+                pine(mb, x, y, zg, h, g, form, new_lod, near=near, clear=clr)
+                g.setstate(end)
+                self.lods[(new_lod, near)] = self.lods.get((new_lod, near), 0) + 1
+        if dress and (form == "cypress" or self.lod_for(x, y, fl, lod)[0] < 2):
+            base_dressing(mb, self.S, x, y, zg, h, g, wild=fl is None)
+        elif dress:
+            # overhaul 13: arvore de FUNDO (LOD2) sem arbusto/tufo no pe (nao se ve de longe); o rng avanca igual
+            tmp = MB("SG_Veg_Tmp", COLL, random.Random(1), detail="near", floor=-999)
+            base_dressing(tmp, self.S, x, y, zg, h, g, wild=fl is None)
+            tmp.bm.free()
+        if fl is not None:
+            tr = h * (0.035 if form == "cypress" else FORMS[form]["tr"]) * 1.35
+            w = max(0.9, tr * 2.0)
+            col_box("SG_VegTrunk", (w, w, 7.0), (x, y, zg + 3.5))
+            self.ncol += 1
+        self.placed.append((x, y, zg, crown_r(form, h), h))
+        PLACED.append((x, y, zg, crown_r(form, h), h, form))
+
+    def lod_for(self, x, y, fl, lod):
+        d = route_dist(x, y, self.routes)
+        if d < 15.0:
+            return 0, True
+        if fl is None and d > 24.0 and lod >= 1:
+            for k in range(8):
+                a = k * math.tau / 8
+                if L.zone_of(x + math.cos(a) * 12.0, y + math.sin(a) * 12.0) is not None:
+                    return lod, False
+            return 2, False
+        return lod, False
+
+    def finish(self):
+        for mb in self.mbs.values():
+            mb.finish()
+
+
+def groves(P):
+    stats = {}
+    for gi, (grp, c, R, n, hmin, hmax, mix, floor_ok, lod) in enumerate(GROVES):
+        if n <= 0:
+            continue            # grupo retirado no acabamento (o indice fica: as sementes dos outros nao mudam)
+        g = random.Random(3310 + gi * 97)
+        WHY.clear()
+        # alturas do grupo: a mais alta no miolo, as outras caem (composicao, nao fila)
+        hs = sorted([g.uniform(hmin, hmax) for _ in range(n)], reverse=True)
+        hs[0] = max(hs[0], hmin + (hmax - hmin) * 0.8)
+        got = 0
+        for i, h in enumerate(hs):
+            form = pick(g, mix)
+            ok = None
+            for t in range(48):
+                rr = R * math.sqrt(g.random()) * (0.35 if i == 0 and t < 12 else 1.0)
+                a = g.uniform(0, math.tau)
+                x, y = c[0] + math.cos(a) * rr, c[1] + math.sin(a) * rr
+                hh = h if t < 24 else max(8.0, h * 0.8)
+                ok = site_ok(P.S, x, y, hh, form, floor_ok, P.routes, P.placed)
+                if ok is not None:
+                    h = hh
+                    break
+            if ok is None:
+                continue
+            zg, fl = ok
+            P.plant(x, y, zg, fl, h, form, lod, g)
+            got += 1
+        stats[gi] = (got, n, dict(WHY))
+    return stats
+
+
+def rim_pass(P):
+    """pinheiros no TOPO das colunas da borda (a concept: penhascos escuros com pinheiros no topo), em manchas (ruido
+    ao longo da borda, nunca em fila): a cada passo, se a mancha esta 'ligada', tenta recuar 2..10 para dentro"""
+    g = random.Random(3377)
+    rim = SL.rim()
+    n = len(rim)
+    per = sum(math.hypot(rim[(i + 1) % n][0] - rim[i][0], rim[(i + 1) % n][1] - rim[i][1]) for i in range(n))
+    step = 6.0
+    s = 0.0
+    i = 0
+    acc = 0.0
+    got = 0
+    WHY.clear()
+    while s < per:
+        a, b = rim[i % n], rim[(i + 1) % n]
+        seg = math.hypot(b[0] - a[0], b[1] - a[1]) or 1e-6
+        while acc <= seg and s < per:
+            t = acc / seg
+            px, py = a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t
+            ux, uy = (b[0] - a[0]) / seg, (b[1] - a[1]) / seg
+            nx, ny = -uy, ux                                        # para dentro (contorno anti-horario)
+            m = math.sin(s / 31.0 + 0.7) + 0.75 * math.sin(s / 11.7 + 2.1) + 0.35 * math.sin(s / 5.3)
+            # overhaul 13: mancha um pouco mais rala (0,25 -> 0,42): a coroa nova tem mais topo plano e o
+            # limiar antigo PLANTAVA mais arvores na borda (a regra e nao acrescentar vegetacao)
+            if m > 0.95:
+                h = g.uniform(9.0, 15.0) + (3.0 if m > 1.3 else 0.0)
+                form = pick(g, LOW_MIX if h < 12.0 else FIR_MIX)
+                for d in (g.uniform(2.0, 4.0), g.uniform(4.0, 7.0), g.uniform(7.0, 10.0)):
+                    j = g.uniform(-1.8, 1.8)
+                    x, y = px + nx * d + ux * j, py + ny * d + uy * j
+                    ok = site_ok(P.S, x, y, h, form, False, P.routes, P.placed)
+                    if ok is not None:
+                        zg, fl = ok
+                        P.plant(x, y, zg, fl, h, form, 1, g, dress=g.random() < 0.5)
+                        got += 1
+                        break
+            s += step
+            acc += step
+        acc -= seg
+        i += 1
+    return got, dict(WHY)
+
+
+def _build():
+    S = Scene()
+    P = Planter(S, route_lines())
+    stats = groves(P)
+    nrim, why_rim = rim_pass(P)
+    P.finish()
+    miss = ["%d:%s(%d/%d)%s" % (gi, GROVES[gi][0], a, b, sorted(w.items(), key=lambda t: -t[1])[:3])
+            for gi, (a, b, w) in stats.items() if a < b]
+    print("VEG arvores=%d (borda %d) colisoes_tronco=%d lod_mudado=%s saias_limitadas=%d" % (
+        len(PLACED), nrim, P.ncol, P.lods, len(CLAMPED)))
+    print("VEG grupos_incompletos=%s" % miss)
+    print("VEG recusas_borda=%s" % sorted(why_rim.items(), key=lambda t: -t[1])[:6])
+    # JARDINAGEM (2026-09-29): campo de grama alta + flores em manchas no gramado, canteiros das arvores, jardins das
+    # casas (sg_garden). Roda aqui porque precisa das arvores (PLACED) e das rotas; as zonas ja estao montadas.
+    GD.build(trees=[(x, y, z, r, h) for x, y, z, r, h, f in PLACED], routes=P.routes)

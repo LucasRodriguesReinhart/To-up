@@ -1,0 +1,590 @@
+ReplicatedStorage [ReplicatedStorage] ch=24
+  Remotes [Folder] ch=27
+    AtualizarDados [RemoteEvent] ch=0
+    AbrirIgnis [RemoteEvent] ch=0
+    FeedbackMina [RemoteEvent] ch=0
+    Vender [RemoteFunction] ch=0
+    ComprarPicareta [RemoteFunction] ch=0
+    EquiparHat [RemoteFunction] ch=0
+    PedirDados [RemoteFunction] ch=0
+    ComprarMochila [RemoteFunction] ch=0
+    FundirHat [RemoteFunction] ch=0
+    EquiparMelhores [RemoteFunction] ch=0
+    DesequiparTodos [RemoteFunction] ch=0
+    AbrirLoja [RemoteEvent] ch=0
+    AbrirGacha [RemoteEvent] ch=0
+    RolarGacha [RemoteFunction] ch=0
+    EquiparPet [RemoteFunction] ch=0
+    FundirPet [RemoteFunction] ch=0
+    EquiparMelhoresPets [RemoteFunction] ch=0
+    DesequiparPets [RemoteFunction] ch=0
+    Balancar [RemoteEvent] ch=0
+    Golpear [RemoteEvent] ch=0
+    AnimarPicareta [RemoteEvent] ch=0
+    EquiparPicareta [RemoteFunction] ch=0
+    AlimentarPet [RemoteFunction] ch=0
+    RenomearPet [RemoteFunction] ch=0
+    ResgatarMissao [RemoteFunction] ch=0
+    ComprarArea [RemoteFunction] ch=0
+    ResgatarCodigo [RemoteFunction] ch=0
+  Config [ModuleScript] ch=0 {BackupAntesV31=local Config = {}
+
+-- ---------- TEMAS / MINERIOS ----------
+-- um tema por area. cada tema tem 3 variantes mineraveis + chefe.
+-- BALANCEAMENTO (planilha Balanceamento_AnimeMining.xlsx / balance.py):
+--   HP = golpes-alvo (4/7/14/120) x poder da 1a picareta do mundo x mult. medio de }
+  Sons [Folder] ch=9
+    Quebra [Sound] ch=0
+    GolpeAlt [Sound] ch=0
+    Detrito [Sound] ch=0
+    Premio [Sound] ch=0
+    Golpe [Sound] ch=0
+    Erro [Sound] ch=0
+    Ovo [Sound] ch=0
+    Compra [Sound] ch=0
+    Moeda [Sound] ch=0
+  Gamepasses [Folder] ch=2
+    LojaRemota [IntValue] ch=0
+    ForjaRemota [IntValue] ch=0
+  MiningSwing [ModuleScript] ch=1 {BackupAntesAnimV2=-- Timing authority for the mining strike. The poses live in MiningAnimations (combo authored in code);
+-- LocomocaoBigAxe samples them off this timestamp so the contact frame lands on the instant the server
+-- used for damage. A new strike may replace the previous one once it is p}
+    Swing [KeyframeSequence] ch=7
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      RigAnimationRigData [AnimationRigData] ch=0
+  BigAxeKeyframes [Folder] ch=9 {BundleId=272148363726799, BundleName=Big Axe Stance Bundle, Creator=Lotucupi}
+    run [KeyframeSequence] ch=27
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Big Axe StanceAnimationRigData [AnimationRigData] ch=0
+    walk [KeyframeSequence] ch=32
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Big Axe StanceAnimationRigData [AnimationRigData] ch=0
+    swim [KeyframeSequence] ch=27
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Big Axe StanceAnimationRigData [AnimationRigData] ch=0
+    fall [KeyframeSequence] ch=17
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Big Axe StanceAnimationRigData [AnimationRigData] ch=0
+    climb [KeyframeSequence] ch=27
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Big Axe StanceAnimationRigData [AnimationRigData] ch=0
+    jump [KeyframeSequence] ch=17
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Big Axe StanceAnimationRigData [AnimationRigData] ch=0
+    mine [KeyframeSequence] ch=16
+      kf1 [Keyframe] ch=15
+      kf2 [Keyframe] ch=15
+      kf3 [Keyframe] ch=15
+      kf4 [Keyframe] ch=15
+      kf5 [Keyframe] ch=15
+      kf6 [Keyframe] ch=15
+      kf7 [Keyframe] ch=15
+      kf8 [Keyframe] ch=15
+      kf9 [Keyframe] ch=15
+      kf10 [Keyframe] ch=15
+      kf11 [Keyframe] ch=15
+      kf12 [Keyframe] ch=15
+      kf13 [Keyframe] ch=15
+      kf14 [Keyframe] ch=15
+      kf15 [Keyframe] ch=15
+      kf16 [Keyframe] ch=15
+    idle [KeyframeSequence] ch=62
+      ... 62 filhos
+    swimidle [KeyframeSequence] ch=40
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      Keyframe [Keyframe] ch=1
+      R15AnimationRigData [AnimationRigData] ch=0
+  MiningGeometry [ModuleScript] ch=0 {BackupAntesAnimV2=-- Shared contact geometry: one reach rule for automatic movement and the server.
+local M = {StandOff = 2.0, ClientReach = 2.85, Reach = 3.35, ImpactTime = .28, Duration = .6}
+function M.surface(hit, position)
+ local p = hit.CFrame:PointToObjectSpace(position)
+ local half = hit.Siz}
+  BannersConfig [ModuleScript] ch=0
+  PreviewModelos [Folder] ch=7
+    Gacha_nichirin [Model] ch=25 bbox_c=(-70,18,716) size=(8,16,8)
+      base_collar_Node [Model] ch=1 bbox_c=(-70,10,716) size=(8,1,8)
+      display_capsule_5_Node [Model] ch=1 bbox_c=(-71,17,712) size=(0,0,0)
+      dome_cap_Node [Model] ch=1 bbox_c=(-70,24,716) size=(7,3,7)
+      prize_chute_Node [Model] ch=1 bbox_c=(-70,11,713) size=(3,1,0)
+      display_capsule_6_Node [Model] ch=1 bbox_c=(-71,17,712) size=(0,0,0)
+      dome_wall_Node [Model] ch=1 bbox_c=(-70,20,716) size=(7,4,7)
+      display_capsule_3_Node [Model] ch=1 bbox_c=(-70,17,712) size=(0,0,0)
+      prize_chute_frame_Node [Model] ch=1 bbox_c=(-70,11,713) size=(3,1,0)
+      turn_knob_grip_Node [Model] ch=1 bbox_c=(-71,14,712) size=(0,0,0)
+      coin_slot_plate_Node [Model] ch=1 bbox_c=(-69,15,712) size=(0,1,0)
+      display_capsule_2_Node [Model] ch=1 bbox_c=(-69,17,712) size=(0,0,0)
+      service_door_Node [Model] ch=1 bbox_c=(-70,15,712) size=(4,3,0)
+      display_capsule_1_Node [Model] ch=1 bbox_c=(-69,17,712) size=(0,0,0)
+      service_door_frame_Node [Model] ch=1 bbox_c=(-70,15,713) size=(4,3,0)
+      coin_slot_Node [Model] ch=1 bbox_c=(-69,15,712) size=(0,0,0)
+      turn_knob_Node [Model] ch=1 bbox_c=(-71,14,712) size=(1,1,0)
+      shoulder_trim_Node [Model] ch=1 bbox_c=(-70,18,716) size=(8,0,8)
+      display_capsule_4_Node [Model] ch=1 bbox_c=(-70,17,712) size=(0,0,0)
+      display_strip_Node [Model] ch=1 bbox_c=(-70,17,713) size=(4,1,0)
+      dome_base_ring_Node [Model] ch=1 bbox_c=(-70,18,716) size=(7,0,7)
+      cabinet_shoulder_Node [Model] ch=1 bbox_c=(-70,18,716) size=(8,0,8)
+      turn_knob_ring_Node [Model] ch=1 bbox_c=(-71,14,712) size=(1,1,0)
+      cabinet_body_Node [Model] ch=1 bbox_c=(-70,14,716) size=(8,7,8)
+      dome_finial_Node [Model] ch=1 bbox_c=(-70,25,716) size=(2,1,2)
+      base_plinth_Node [Model] ch=1 bbox_c=(-70,10,716) size=(8,1,8)
+    Gacha_sombra [Model] ch=25 bbox_c=(-70,18,996) size=(8,16,8)
+      display_capsule_6_Node [Model] ch=1 bbox_c=(-71,17,992) size=(0,0,0)
+      prize_chute_Node [Model] ch=1 bbox_c=(-70,11,993) size=(3,1,0)
+      dome_base_ring_Node [Model] ch=1 bbox_c=(-70,18,996) size=(7,0,7)
+      dome_finial_Node [Model] ch=1 bbox_c=(-70,25,996) size=(2,1,2)
+      prize_chute_frame_Node [Model] ch=1 bbox_c=(-70,11,993) size=(3,1,0)
+      service_door_frame_Node [Model] ch=1 bbox_c=(-70,15,993) size=(4,3,0)
+      base_plinth_Node [Model] ch=1 bbox_c=(-70,10,996) size=(8,1,8)
+      turn_knob_Node [Model] ch=1 bbox_c=(-71,14,992) size=(1,1,0)
+      turn_knob_grip_Node [Model] ch=1 bbox_c=(-71,14,992) size=(0,0,0)
+      service_door_Node [Model] ch=1 bbox_c=(-70,15,992) size=(4,3,0)
+      turn_knob_ring_Node [Model] ch=1 bbox_c=(-71,14,992) size=(1,1,0)
+      display_capsule_4_Node [Model] ch=1 bbox_c=(-70,17,992) size=(0,0,0)
+      base_collar_Node [Model] ch=1 bbox_c=(-70,10,996) size=(8,1,8)
+      shoulder_trim_Node [Model] ch=1 bbox_c=(-70,18,996) size=(8,0,8)
+      dome_wall_Node [Model] ch=1 bbox_c=(-70,20,996) size=(7,4,7)
+      dome_cap_Node [Model] ch=1 bbox_c=(-70,24,996) size=(7,3,7)
+      coin_slot_plate_Node [Model] ch=1 bbox_c=(-69,15,992) size=(0,1,0)
+      coin_slot_Node [Model] ch=1 bbox_c=(-69,15,992) size=(0,0,0)
+      display_strip_Node [Model] ch=1 bbox_c=(-70,17,993) size=(4,1,0)
+      display_capsule_1_Node [Model] ch=1 bbox_c=(-69,17,992) size=(0,0,0)
+      display_capsule_2_Node [Model] ch=1 bbox_c=(-69,17,992) size=(0,0,0)
+      display_capsule_3_Node [Model] ch=1 bbox_c=(-70,17,992) size=(0,0,0)
+      cabinet_shoulder_Node [Model] ch=1 bbox_c=(-70,18,996) size=(8,0,8)
+      cabinet_body_Node [Model] ch=1 bbox_c=(-70,14,996) size=(8,7,8)
+      display_capsule_5_Node [Model] ch=1 bbox_c=(-71,17,992) size=(0,0,0)
+    Gacha_ki [Model] ch=25 bbox_c=(-70,18,436) size=(8,16,8)
+      turn_knob_Node [Model] ch=1 bbox_c=(-71,14,432) size=(1,1,0)
+      service_door_Node [Model] ch=1 bbox_c=(-70,15,432) size=(4,3,0)
+      dome_base_ring_Node [Model] ch=1 bbox_c=(-70,18,436) size=(7,0,7)
+      dome_cap_Node [Model] ch=1 bbox_c=(-70,24,436) size=(7,3,7)
+      dome_finial_Node [Model] ch=1 bbox_c=(-70,25,436) size=(2,1,2)
+      service_door_frame_Node [Model] ch=1 bbox_c=(-70,15,433) size=(4,3,0)
+      cabinet_shoulder_Node [Model] ch=1 bbox_c=(-70,18,436) size=(8,0,8)
+      shoulder_trim_Node [Model] ch=1 bbox_c=(-70,18,436) size=(8,0,8)
+      prize_chute_frame_Node [Model] ch=1 bbox_c=(-70,11,433) size=(3,1,0)
+      dome_wall_Node [Model] ch=1 bbox_c=(-70,20,436) size=(7,4,7)
+      base_collar_Node [Model] ch=1 bbox_c=(-70,10,436) size=(8,1,8)
+      base_plinth_Node [Model] ch=1 bbox_c=(-70,10,436) size=(8,1,8)
+      cabinet_body_Node [Model] ch=1 bbox_c=(-70,14,436) size=(8,7,8)
+      display_strip_Node [Model] ch=1 bbox_c=(-70,17,433) size=(4,1,0)
+      coin_slot_Node [Model] ch=1 bbox_c=(-69,15,432) size=(0,0,0)
+      coin_slot_plate_Node [Model] ch=1 bbox_c=(-69,15,432) size=(0,1,0)
+      turn_knob_grip_Node [Model] ch=1 bbox_c=(-71,14,432) size=(0,0,0)
+      display_capsule_3_Node [Model] ch=1 bbox_c=(-70,17,432) size=(0,0,0)
+      display_capsule_2_Node [Model] ch=1 bbox_c=(-69,17,432) size=(0,0,0)
+      display_capsule_1_Node [Model] ch=1 bbox_c=(-69,17,432) size=(0,0,0)
+      display_capsule_6_Node [Model] ch=1 bbox_c=(-71,17,432) size=(0,0,0)
+      display_capsule_5_Node [Model] ch=1 bbox_c=(-71,17,432) size=(0,0,0)
+      display_capsule_4_Node [Model] ch=1 bbox_c=(-70,17,432) size=(0,0,0)
+      prize_chute_Node [Model] ch=1 bbox_c=(-70,11,433) size=(3,1,0)
+      turn_knob_ring_Node [Model] ch=1 bbox_c=(-71,14,432) size=(1,1,0)
+    Gacha_serio [Model] ch=25 bbox_c=(-70,18,1556) size=(8,16,8)
+      turn_knob_Node [Model] ch=1 bbox_c=(-71,14,1552) size=(1,1,0)
+      dome_cap_Node [Model] ch=1 bbox_c=(-70,24,1556) size=(7,3,7)
+      shoulder_trim_Node [Model] ch=1 bbox_c=(-70,18,1556) size=(8,0,8)
+      dome_base_ring_Node [Model] ch=1 bbox_c=(-70,18,1556) size=(7,0,7)
+      dome_finial_Node [Model] ch=1 bbox_c=(-70,25,1556) size=(2,1,2)
+      cabinet_shoulder_Node [Model] ch=1 bbox_c=(-70,18,1556) size=(8,0,8)
+      base_plinth_Node [Model] ch=1 bbox_c=(-70,10,1556) size=(8,1,8)
+      base_collar_Node [Model] ch=1 bbox_c=(-70,10,1556) size=(8,1,8)
+      turn_knob_grip_Node [Model] ch=1 bbox_c=(-71,14,1552) size=(0,0,0)
+      cabinet_body_Node [Model] ch=1 bbox_c=(-70,14,1556) size=(8,7,8)
+      coin_slot_plate_Node [Model] ch=1 bbox_c=(-69,15,1552) size=(0,1,0)
+      display_capsule_6_Node [Model] ch=1 bbox_c=(-71,17,1552) size=(0,0,0)
+      display_capsule_5_Node [Model] ch=1 bbox_c=(-71,17,1552) size=(0,0,0)
+      display_capsule_3_Node [Model] ch=1 bbox_c=(-70,17,1552) size=(0,0,0)
+      display_capsule_1_Node [Model] ch=1 bbox_c=(-69,17,1552) size=(0,0,0)
+      prize_chute_frame_Node [Model] ch=1 bbox_c=(-70,11,1553) size=(3,1,0)
+      display_capsule_2_Node [Model] ch=1 bbox_c=(-69,17,1552) size=(0,0,0)
+      display_strip_Node [Model] ch=1 bbox_c=(-70,17,1553) size=(4,1,0)
+      display_capsule_4_Node [Model] ch=1 bbox_c=(-70,17,1552) size=(0,0,0)
+      coin_slot_Node [Model] ch=1 bbox_c=(-69,15,1552) size=(0,0,0)
+      dome_wall_Node [Model] ch=1 bbox_c=(-70,20,1556) size=(7,4,7)
+      turn_knob_ring_Node [Model] ch=1 bbox_c=(-71,14,1552) size=(1,1,0)
+      prize_chute_Node [Model] ch=1 bbox_c=(-70,11,1553) size=(3,1,0)
+      service_door_Node [Model] ch=1 bbox_c=(-70,15,1552) size=(4,3,0)
+      service_door_frame_Node [Model] ch=1 bbox_c=(-70,15,1553) size=(4,3,0)
+    Gacha_chakra [Model] ch=25 bbox_c=(80,8,156) size=(8,16,8)
+      display_capsule_1_Node [Model] ch=1 bbox_c=(81,7,152) size=(0,0,0)
+      prize_chute_frame_Node [Model] ch=1 bbox_c=(80,2,153) size=(3,1,0)
+      display_capsule_2_Node [Model] ch=1 bbox_c=(81,7,152) size=(0,0,0)
+      display_capsule_4_Node [Model] ch=1 bbox_c=(80,7,152) size=(0,0,0)
+      dome_finial_Node [Model] ch=1 bbox_c=(80,15,156) size=(2,1,2)
+      service_door_frame_Node [Model] ch=1 bbox_c=(80,5,153) size=(4,3,0)
+      cabinet_body_Node [Model] ch=1 bbox_c=(80,5,156) size=(8,7,8)
+      shoulder_trim_Node [Model] ch=1 bbox_c=(80,9,156) size=(8,0,8)
+      turn_knob_Node [Model] ch=1 bbox_c=(79,5,152) size=(1,1,0)
+      service_door_Node [Model] ch=1 bbox_c=(80,5,152) size=(4,3,0)
+      cabinet_shoulder_Node [Model] ch=1 bbox_c=(80,9,156) size=(8,0,8)
+      base_collar_Node [Model] ch=1 bbox_c=(80,1,156) size=(8,1,8)
+      coin_slot_plate_Node [Model] ch=1 bbox_c=(81,6,152) size=(0,1,0)
+      turn_knob_grip_Node [Model] ch=1 bbox_c=(79,5,152) size=(0,0,0)
+      base_plinth_Node [Model] ch=1 bbox_c=(80,0,156) size=(8,1,8)
+      dome_cap_Node [Model] ch=1 bbox_c=(80,15,156) size=(7,3,7)
+      turn_knob_ring_Node [Model] ch=1 bbox_c=(79,5,152) size=(1,1,0)
+      display_capsule_3_Node [Model] ch=1 bbox_c=(80,7,152) size=(0,0,0)
+      dome_wall_Node [Model] ch=1 bbox_c=(80,11,156) size=(7,4,7)
+      display_capsule_5_Node [Model] ch=1 bbox_c=(79,7,152) size=(0,0,0)
+      dome_base_ring_Node [Model] ch=1 bbox_c=(80,9,156) size=(7,0,7)
+      coin_slot_Node [Model] ch=1 bbox_c=(81,6,152) size=(0,0,0)
+      display_capsule_6_Node [Model] ch=1 bbox_c=(79,7,152) size=(0,0,0)
+      display_strip_Node [Model] ch=1 bbox_c=(80,7,153) size=(4,1,0)
+      prize_chute_Node [Model] ch=1 bbox_c=(80,2,153) size=(3,1,0)
+    Gacha_mare [Model] ch=25 bbox_c=(-70,18,1276) size=(8,16,8)
+      dome_cap_Node [Model] ch=1 bbox_c=(-70,24,1276) size=(7,3,7)
+      turn_knob_grip_Node [Model] ch=1 bbox_c=(-71,14,1272) size=(0,0,0)
+      dome_finial_Node [Model] ch=1 bbox_c=(-70,25,1276) size=(2,1,2)
+      display_capsule_1_Node [Model] ch=1 bbox_c=(-69,17,1272) size=(0,0,0)
+      shoulder_trim_Node [Model] ch=1 bbox_c=(-70,18,1276) size=(8,0,8)
+      cabinet_shoulder_Node [Model] ch=1 bbox_c=(-70,18,1276) size=(8,0,8)
+      service_door_Node [Model] ch=1 bbox_c=(-70,15,1272) size=(4,3,0)
+      turn_knob_Node [Model] ch=1 bbox_c=(-71,14,1272) size=(1,1,0)
+      service_door_frame_Node [Model] ch=1 bbox_c=(-70,15,1273) size=(4,3,0)
+      turn_knob_ring_Node [Model] ch=1 bbox_c=(-71,14,1272) size=(1,1,0)
+      base_collar_Node [Model] ch=1 bbox_c=(-70,10,1276) size=(8,1,8)
+      base_plinth_Node [Model] ch=1 bbox_c=(-70,10,1276) size=(8,1,8)
+      cabinet_body_Node [Model] ch=1 bbox_c=(-70,14,1276) size=(8,7,8)
+      coin_slot_plate_Node [Model] ch=1 bbox_c=(-69,15,1272) size=(0,1,0)
+      coin_slot_Node [Model] ch=1 bbox_c=(-69,15,1272) size=(0,0,0)
+      display_capsule_5_Node [Model] ch=1 bbox_c=(-71,17,1272) size=(0,0,0)
+      prize_chute_frame_Node [Model] ch=1 bbox_c=(-70,11,1273) size=(3,1,0)
+      display_capsule_6_Node [Model] ch=1 bbox_c=(-71,17,1272) size=(0,0,0)
+      display_capsule_4_Node [Model] ch=1 bbox_c=(-70,17,1272) size=(0,0,0)
+      display_capsule_2_Node [Model] ch=1 bbox_c=(-69,17,1272) size=(0,0,0)
+      dome_wall_Node [Model] ch=1 bbox_c=(-70,20,1276) size=(7,4,7)
+      display_capsule_3_Node [Model] ch=1 bbox_c=(-70,17,1272) size=(0,0,0)
+      prize_chute_Node [Model] ch=1 bbox_c=(-70,11,1273) size=(3,1,0)
+      display_strip_Node [Model] ch=1 bbox_c=(-70,17,1273) size=(4,1,0)
+      dome_base_ring_Node [Model] ch=1 bbox_c=(-70,18,1276) size=(7,0,7)
+    Pets [Folder] ch=32
+      saitama [Model] ch=20 bbox_c=(0,-0,-0) size=(4,5,2)
+      boros [Model] ch=22 bbox_c=(42,2,-80) size=(88,10,161)
+      metal_bat [Model] ch=22 bbox_c=(42,1,-79) size=(88,9,161)
+      tatsumaki [Model] ch=22 bbox_c=(0,-0,0) size=(4,6,2)
+      atomic_samurai [Model] ch=23 bbox_c=(0,0,0) size=(4,7,5)
+      suiryu [Model] ch=23 bbox_c=(42,2,-80) size=(88,9,161)
+      mihawk [Model] ch=21 bbox_c=(-0,0,0) size=(4,6,3)
+      luffy [Model] ch=21 bbox_c=(0,-0,0) size=(4,6,2)
+      zoro [Model] ch=20 bbox_c=(0,-0,-1) size=(4,6,5)
+      nami [Model] ch=20 bbox_c=(0,-0,0) size=(4,5,3)
+      sanji [Model] ch=21 bbox_c=(0,-0,-0) size=(4,6,2)
+      usopp [Model] ch=21 bbox_c=(0,-0,0) size=(4,6,2)
+      goku [Model] ch=20 bbox_c=(-0,0,-0) size=(4,6,2)
+      naruto [Model] ch=20 bbox_c=(-0,0,0) size=(4,6,3)
+      sakura [Model] ch=21 bbox_c=(0,-0,0) size=(4,5,2)
+      rock_lee [Model] ch=20 bbox_c=(0,-0,-0) size=(5,6,2)
+      itachi [Model] ch=20 bbox_c=(0,-0,-0) size=(5,6,2)
+      kakashi [Model] ch=20 bbox_c=(0,0,-0) size=(4,6,2)
+      madara [Model] ch=20 bbox_c=(-0,0,0) size=(5,6,4)
+      sasuke [Model] ch=22 bbox_c=(0,-0,0) size=(4,6,2)
+      goten [Model] ch=21 bbox_c=(0,0,0) size=(4,6,3)
+      piccolo [Model] ch=22 bbox_c=(-0,-1,1) size=(5,6,3)
+      kuririn [Model] ch=21 bbox_c=(16,2,54) size=(36,9,109)
+      majin_boo [Model] ch=21 bbox_c=(0,-0,0) size=(4,6,2)
+      vegeta [Model] ch=23 bbox_c=(-0,0,1) size=(5,7,3)
+      goku_ssj_god [Model] ch=22 bbox_c=(0,0,0) size=(4,6,3)
+      tanjiro [Model] ch=20 bbox_c=(0,-0,-0) size=(6,6,3)
+      zenitsu [Model] ch=21 bbox_c=(-0,-0,0) size=(5,6,5)
+      inosuke [Model] ch=21 bbox_c=(-0,-0,1) size=(4,6,5)
+      tomioka [Model] ch=21 bbox_c=(-0,-0,0) size=(5,6,5)
+      muzan [Model] ch=21 bbox_c=(-0,-0,0) size=(5,6,2)
+      yoriichi [Model] ch=21 bbox_c=(-0,-0,0) size=(5,6,5)
+  AreaMusicAssets [Folder] ch=6
+    Hidden Lotus Pond [Sound] ch=0
+    Space Atmosphere [Sound] ch=0
+    Mysterious Forest [Sound] ch=0
+    The Forgotten Crypt [Sound] ch=0
+    Pirate King [Sound] ch=0
+    Home Bound [Sound] ch=0
+  ExpeditionPreviews [Folder] ch=1
+    Pickaxes [Folder] ch=8
+      enferrujada [Model] ch=5 bbox_c=(0,0,0) size=(3,3,0) {ImportValidated=true, VisualVersion=BlenderArsenalV1}
+      ferro [Model] ch=5 bbox_c=(0,0,0) size=(3,3,0) {ImportValidated=true, VisualVersion=BlenderArsenalV1}
+      aco [Model] ch=5 bbox_c=(0,0,0) size=(3,3,0) {ImportValidated=true, VisualVersion=BlenderArsenalV1}
+      rubi [Model] ch=6 bbox_c=(0,1,0) size=(3,4,1) {ImportValidated=true, VisualVersion=BlenderArsenalV1}
+      obsidiana [Model] ch=6 bbox_c=(0,1,0) size=(4,4,1) {ImportValidated=true, VisualVersion=BlenderArsenalV1}
+      runica [Model] ch=5 bbox_c=(0,1,0) size=(4,4,1) {ImportValidated=true, VisualVersion=BlenderArsenalV1}
+      estelar [Model] ch=5 bbox_c=(0,1,0) size=(4,4,1) {ImportValidated=true, VisualVersion=BlenderArsenalV1}
+      ignis [Model] ch=6 bbox_c=(0,1,0) size=(4,4,1) {ImportValidated=true, VisualVersion=BlenderArsenalV1}
+  ExpeditionUI [Folder] ch=4
+    Theme [ModuleScript] ch=0 {BackupAntesV31=local T = {}
+local Tween = game:GetService("TweenService")
+local Run = game:GetService("RunService")
+local RS = game:GetService("ReplicatedStorage")
+T.C = {
+    black=Color3.fromRGB(5,5,7), panel=Color3.fromRGB(12,12,14), gray=Color3.fromRGB(77,77,80),
+    white=Color3.fromRGB(255,255}
+    Menus [ModuleScript] ch=0 {BackupAntesV31=local T=require(script.Parent.Theme)
+local Config=require(game.ReplicatedStorage.Config)
+local Players=game:GetService("Players")
+local Market=game:GetService("MarketplaceService")
+local M={}
+local C=T.C
+local function hasArea(ctx,id) return ctx.data and ctx.data.areas and ctx.data.ar}
+    Inventory [ModuleScript] ch=0 {BackupAntesV31=local T = require(script.Parent.Theme)
+local Config = require(game.ReplicatedStorage.Config)
+local TweenService = game:GetService("TweenService")
+
+local M = {}
+local states = setmetatable({}, { __mode = "k" })
+local CENTER = Enum.TextXAlignment.Center
+local RIGHT = Enum.TextXAlignment}
+    Notify [ModuleScript] ch=0
+  OreVFX [ModuleScript] ch=0
+  EconomiaV31 [ModuleScript] ch=0
+  MonetizacaoConfig [ModuleScript] ch=0
+  MiningAnimations [ModuleScript] ch=0 {BackupAntesAnimV2=-- MiningAnimations: poses e combo da mineracao, autorados em codigo (pose-to-pose) sobre o rig R15.
+-- Mesmo espaco dos KeyframeSequences do Big Axe (Pose.CFrame = Motor6D.Transform): angulos XYZ em graus
+-- e, quando precisa, deslocamento. O LocomocaoBigAxe amostra estes dados no}
+  SomJogo [ModuleScript] ch=0
+  CharacterRig [ModuleScript] ch=0 {BackupAntesPoseOmbro=-- CharacterRig: pose do personagem R15 por PARAMETROS + IK analitico.
+-- Todos os estados (idle, andar, correr, postura, golpe) produzem o mesmo conjunto de parametros; o blend entre
+-- estados e feito nesses numeros (angulos, alturas, pontos das maos e dos pes) e o IK roda UMA}
+  AudioCatalog [ModuleScript] ch=0
+  AudioPreferences [ModuleScript] ch=0
+  UIPreferences [ModuleScript] ch=0
+  AnimacoesGuardadas [Folder] ch=1
+    idle_custom_IDLE_rbxanim [KeyframeSequence] ch=58
+      Keyframe [Keyframe] ch=15
+      Keyframe [Keyframe] ch=6
+      Keyframe [Keyframe] ch=6
+      Keyframe [Keyframe] ch=6
+      Keyframe [Keyframe] ch=6
+      Keyframe [Keyframe] ch=6
+      Keyframe [Keyframe] ch=6
+      Keyframe [Keyframe] ch=6
+      Keyframe [Keyframe] ch=6
+      Keyframe [Keyframe] ch=6
+      Keyframe [Keyframe] ch=6
+      Keyframe [Keyframe] ch=6
+      Keyframe [Keyframe] ch=6
+      Keyframe [Keyframe] ch=6
+      Keyframe [Keyframe] ch=6
+      Keyframe [Keyframe] ch=6
+      Keyframe [Keyframe] ch=6
+      Keyframe [Keyframe] ch=6
+      Keyframe [Keyframe] ch=6
+      Keyframe [Keyframe] ch=6
+      Keyframe [Keyframe] ch=6
+      Keyframe [Keyframe] ch=6
+      Keyframe [Keyframe] ch=6
+      Keyframe [Keyframe] ch=6
+      Keyframe [Keyframe] ch=6
+      Keyframe [Keyframe] ch=6
+      Keyframe [Keyframe] ch=6
+      Keyframe [Keyframe] ch=6
+      Keyframe [Keyframe] ch=6
+      Keyframe [Keyframe] ch=6
+      Keyframe [Keyframe] ch=6
+      Keyframe [Keyframe] ch=6
+      Keyframe [Keyframe] ch=6
+      Keyframe [Keyframe] ch=6
+      Keyframe [Keyframe] ch=6
+      Keyframe [Keyframe] ch=6
+      Keyframe [Keyframe] ch=6
+      Keyframe [Keyframe] ch=6
+      Keyframe [Keyframe] ch=6
+      Keyframe [Keyframe] ch=6
+      Keyframe [Keyframe] ch=6
+      Keyframe [Keyframe] ch=6
+      Keyframe [Keyframe] ch=5
+      Keyframe [Keyframe] ch=5
+      Keyframe [Keyframe] ch=5
+      Keyframe [Keyframe] ch=5
+      Keyframe [Keyframe] ch=5
+      Keyframe [Keyframe] ch=5
+      Keyframe [Keyframe] ch=5
+      Keyframe [Keyframe] ch=5
+      Keyframe [Keyframe] ch=5
+      Keyframe [Keyframe] ch=4
+      Keyframe [Keyframe] ch=4
+      Keyframe [Keyframe] ch=4
+      Keyframe [Keyframe] ch=4
+      Keyframe [Keyframe] ch=4
+      Keyframe [Keyframe] ch=4
+      Keyframe [Keyframe] ch=6
+  LOBBY_FORJA_VFX [Folder] ch=2 {VFX_ExportId=87a2cf9c, VFX_Ready=true, VFX_Version=vfx-forja-2, VFX_RootCF=0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, VFX_Root=Workspace.LOBBY_FORJA}
+    Evento [BindableEvent] ch=0
+    MineCart [Model] ch=3 bbox_c=(-57,7,28) size=(5,6,5) {VFX_RestCF=-56.5789986, 4.30000019, 28.2880001, 0.320063323, 0, 0.947396159, 0, 1, 0, -0.947396159, 0, 0.320063323}
+      VFX_Carrinho__Metal_Dark [MeshPart] ch=0 pos=(-57,6,28) size=(4,3,4) {VFX_Load=false}
+      VFX_Carrinho__Metal_Rust [MeshPart] ch=0 pos=(-57,6,28) size=(4,3,4) {VFX_Load=false}
+      VFX_CarrinhoCarga__Crystal_Blue [MeshPart] ch=0 pos=(-56,9,28) size=(3,3,2) {VFX_Load=true}
+  PortoesCompra [ModuleScript] ch=0

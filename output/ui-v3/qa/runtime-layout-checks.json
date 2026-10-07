@@ -1,0 +1,83 @@
+{
+  "qaInventoryHD": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"overflows\":[],\"buttons\":[{\"name\":\"Close\",\"size\":\"63.5911102, 63.5911102\"},{\"name\":\"Tab_pet\",\"size\":\"154.435547, 54.5066643\"},{\"name\":\"Tab_hat\",\"size\":\"154.435547, 54.5066643\"},{\"name\":\"InventoryFilters\",\"size\":\"88.5733261, 49.9644432\"},{\"name\":\"Item_p49\",\"size\":\"116.962219, 130.588882\"},{\"name\":\"Item_p168\",\"size\":\"116.962219, 130.588882\"},{\"name\":\"Item_p318\",\"size\":\"116.962219, 130.588882\"},{\"name\":\"Item_p406\",\"size\":\"116.962219, 130.588882\"},{\"disabled\":false,\"name\":\"EquipBest\",\"size\":\"255.499985, 43.1511078\"},{\"disabled\":false,\"name\":\"UnequipAll\",\"size\":\"255.499985, 43.1511078\"},{\"name\":\"Equipped_p49\",\"size\":\"79.488884, 79.488884\"},{\"name\":\"Equipped_p168\",\"size\":\"79.488884, 79.488884\"},{\"name\":\"Equipped_p318\",\"size\":\"79.488884, 79.488884\"},{\"disabled\":false,\"name\":\"EquipSelected\",\"size\":\"381.546661, 47.6933327\"},{\"disabled\":false,\"name\":\"UpgradeSelected\",\"size\":\"381.546661, 47.6933327\"},{\"name\":\"FavoriteToggle\",\"size\":\"381.546661, 47.6933327\"},{\"name\":\"LockToggle\",\"size\":\"381.546661, 47.6933327\"},{\"name\":\"RenameSelected\",\"size\":\"381.546661, 47.6933327\"}],\"viewports\":[{\"id\":\"muzan\",\"size\":\"924.342163, 567.777771\"}],\"page\":\"Inventory\",\"size\":\"1919, 1022\"}"
+      }
+    ],
+    "isError": false
+  },
+  "qaSummonHD": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"overflows\":[],\"buttons\":[{\"name\":\"Tracker\",\"size\":\"363.377747, 102.199997\"},{\"name\":\"Store\",\"size\":\"88.5733261, 93.1155548\"},{\"name\":\"Inventory\",\"size\":\"88.5733261, 93.1155548\"},{\"name\":\"Items\",\"size\":\"88.5733261, 93.1155548\"},{\"name\":\"Summon\",\"size\":\"88.5733261, 93.1155548\"},{\"name\":\"Areas\",\"size\":\"88.5733261, 93.1155548\"},{\"name\":\"Quests\",\"size\":\"88.5733261, 93.1155548\"},{\"name\":\"Events\",\"size\":\"88.5733261, 93.1155548\"},{\"name\":\"Settings\",\"size\":\"88.5733261, 93.1155548\"},{\"name\":\"Slot1\",\"size\":\"97.6577759, 97.6577759\"},{\"name\":\"Slot2\",\"size\":\"97.6577759, 97.6577759\"},{\"name\":\"Slot3\",\"size\":\"97.6577759, 97.6577759\"},{\"name\":\"SellShortcut\",\"size\":\"95.3866653, 31.7955551\"},{\"name\":\"Close\",\"size\":\"63.5911102, 63.5911102\"},{\"name\":\"Banner_1\",\"size\":\"303.193329, 96.5222168\"},{\"name\":\"Banner_2\",\"size\":\"303.193329, 96.5222168\"},{\"name\":\"Banner_3\",\"size\":\"303.193329, 96.5222168\"},{\"name\":\"Banner_5\",\"size\":\"303.193329, 96.5222168\"},{\"name\":\"Banner_6\",\"size\":\"303.193329, 96.5222168\"},{\"disabled\":false,\"name\":\"Summon1\",\"size\":\"430.375549, 59.0488853\"},{\"disabled\":false,\"name\":\"Summon10\",\"size\":\"430.375549, 59.0488853\"},{\"disabled\":true,\"name\":\"GoBanner\",\"size\":\"303.193329, 49.9644432\"},{\"name\":\"Rates\",\"size\":\"342.937775, 49.9644432\"}],\"viewports\":[{\"id\":\"kakashi,madara,itachi\",\"size\":\"889.139954, 595.031067\"}],\"page\":\"Summon\",\"size\":\"1919, 1022\"}"
+      }
+    ],
+    "isError": false
+  },
+  "qaDailyHD": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"overflows\":[],\"buttons\":[{\"name\":\"Tracker\",\"size\":\"363.377747, 102.199997\"},{\"name\":\"Store\",\"size\":\"88.5733261, 93.1155548\"},{\"name\":\"Inventory\",\"size\":\"88.5733261, 93.1155548\"},{\"name\":\"Items\",\"size\":\"88.5733261, 93.1155548\"},{\"name\":\"Summon\",\"size\":\"88.5733261, 93.1155548\"},{\"name\":\"Areas\",\"size\":\"88.5733261, 93.1155548\"},{\"name\":\"Quests\",\"size\":\"88.5733261, 93.1155548\"},{\"name\":\"Events\",\"size\":\"88.5733261, 93.1155548\"},{\"name\":\"Settings\",\"size\":\"88.5733261, 93.1155548\"},{\"name\":\"Slot1\",\"size\":\"97.6577759, 97.6577759\"},{\"name\":\"Slot2\",\"size\":\"97.6577759, 97.6577759\"},{\"name\":\"Slot3\",\"size\":\"97.6577759, 97.6577759\"},{\"name\":\"SellShortcut\",\"size\":\"95.3866653, 31.7955551\"},{\"name\":\"Close\",\"size\":\"63.5911102, 63.5911102\"},{\"name\":\"Tab_Diario\",\"size\":\"154.435547, 54.5066643\"},{\"name\":\"Tab_Index\",\"size\":\"154.435547, 54.5066643\"},{\"disabled\":true,\"name\":\"DailyClaim\",\"size\":\"174.875549, 49.9644432\"}],\"viewports\":[],\"page\":\"Events\",\"size\":\"1919, 1022\"}"
+      }
+    ],
+    "isError": false
+  },
+  "qaPageStore": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"overflows\":[],\"buttons\":[{\"name\":\"Tracker\",\"size\":\"363.377747, 102.199997\"},{\"name\":\"Store\",\"size\":\"89.9019318, 94.5122833\"},{\"name\":\"Inventory\",\"size\":\"88.5733261, 93.1155548\"},{\"name\":\"Items\",\"size\":\"88.5733261, 93.1155548\"},{\"name\":\"Summon\",\"size\":\"88.5733261, 93.1155548\"},{\"name\":\"Areas\",\"size\":\"88.5733261, 93.1155548\"},{\"name\":\"Quests\",\"size\":\"88.5733261, 93.1155548\"},{\"name\":\"Events\",\"size\":\"88.5733261, 93.1155548\"},{\"name\":\"Settings\",\"size\":\"88.5733261, 93.1155548\"},{\"name\":\"Slot1\",\"size\":\"97.6577759, 97.6577759\"},{\"name\":\"Slot2\",\"size\":\"97.6577759, 97.6577759\"},{\"name\":\"Slot3\",\"size\":\"97.6577759, 97.6577759\"},{\"name\":\"SellShortcut\",\"size\":\"95.3866653, 31.7955551\"},{\"name\":\"Close\",\"size\":\"63.5911102, 63.5911102\"},{\"name\":\"Tab_Picaretas\",\"size\":\"152.164444, 54.5066643\"},{\"name\":\"Tab_Mochilas\",\"size\":\"152.164444, 54.5066643\"},{\"name\":\"Tab_Passes\",\"size\":\"152.164444, 54.5066643\"},{\"disabled\":true,\"name\":\"BuyNext\",\"size\":\"204.399994, 59.0488853\"},{\"disabled\":false,\"name\":\"Equip_enferrujada\",\"size\":\"199.857773, 59.0488853\"},{\"disabled\":false,\"name\":\"Equip_ferro\",\"size\":\"199.857773, 59.0488853\"},{\"disabled\":false,\"name\":\"Equip_kunai\",\"size\":\"199.857773, 59.0488853\"},{\"disabled\":false,\"name\":\"Equip_aco\",\"size\":\"199.857773, 59.0488853\"}],\"viewports\":[{\"size\":\"113.55555, 113.55555\"},{\"size\":\"88.5733261, 93.1155548\"},{\"size\":\"88.5733261, 93.1155548\"},{\"size\":\"88.5733261, 93.1155548\"},{\"size\":\"88.5733261, 93.1155548\"}],\"page\":\"Store\",\"size\":\"1919, 1022\"}"
+      }
+    ],
+    "isError": false
+  },
+  "qaPageAreas": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"overflows\":[],\"buttons\":[{\"name\":\"Tracker\",\"size\":\"363.377747, 102.199997\"},{\"name\":\"Store\",\"size\":\"88.5733261, 93.1155548\"},{\"name\":\"Inventory\",\"size\":\"88.5733261, 93.1155548\"},{\"name\":\"Items\",\"size\":\"88.5733261, 93.1155548\"},{\"name\":\"Summon\",\"size\":\"88.5733261, 93.1155548\"},{\"name\":\"Areas\",\"size\":\"89.9019318, 94.5122833\"},{\"name\":\"Quests\",\"size\":\"88.5733261, 93.1155548\"},{\"name\":\"Events\",\"size\":\"88.5733261, 93.1155548\"},{\"name\":\"Settings\",\"size\":\"88.5733261, 93.1155548\"},{\"name\":\"Slot1\",\"size\":\"97.6577759, 97.6577759\"},{\"name\":\"Slot2\",\"size\":\"97.6577759, 97.6577759\"},{\"name\":\"Slot3\",\"size\":\"97.6577759, 97.6577759\"},{\"name\":\"SellShortcut\",\"size\":\"95.3866653, 31.7955551\"},{\"name\":\"Close\",\"size\":\"63.5911102, 63.5911102\"},{\"disabled\":false,\"name\":\"Quick_Lobby\",\"size\":\"454.222198, 59.0488853\"},{\"disabled\":false,\"name\":\"Quick_Forge\",\"size\":\"454.222198, 59.0488853\"},{\"disabled\":false,\"name\":\"Quick_Equipment\",\"size\":\"454.222198, 59.0488853\"},{\"disabled\":true,\"name\":\"Travel_1\",\"size\":\"422.426636, 59.0488853\"},{\"disabled\":false,\"name\":\"Travel_2\",\"size\":\"422.426636, 59.0488853\"},{\"disabled\":false,\"name\":\"Travel_3\",\"size\":\"422.426636, 59.0488853\"},{\"disabled\":false,\"name\":\"Travel_4\",\"size\":\"422.426636, 59.0488853\"},{\"disabled\":false,\"name\":\"Travel_5\",\"size\":\"422.426636, 59.0488853\"},{\"disabled\":false,\"name\":\"Travel_6\",\"size\":\"422.426636, 59.0488853\"}],\"viewports\":[],\"page\":\"Areas\",\"size\":\"1919, 1022\"}"
+      }
+    ],
+    "isError": false
+  },
+  "qaPageQuests": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"overflows\":[],\"buttons\":[{\"name\":\"Tracker\",\"size\":\"363.377747, 102.199997\"},{\"name\":\"Store\",\"size\":\"88.5733261, 93.1155548\"},{\"name\":\"Inventory\",\"size\":\"88.5733261, 93.1155548\"},{\"name\":\"Items\",\"size\":\"88.5733261, 93.1155548\"},{\"name\":\"Summon\",\"size\":\"88.5733261, 93.1155548\"},{\"name\":\"Areas\",\"size\":\"88.5733261, 93.1155548\"},{\"name\":\"Quests\",\"size\":\"89.9019318, 94.5122833\"},{\"name\":\"Events\",\"size\":\"88.5733261, 93.1155548\"},{\"name\":\"Settings\",\"size\":\"88.5733261, 93.1155548\"},{\"name\":\"Slot1\",\"size\":\"97.6577759, 97.6577759\"},{\"name\":\"Slot2\",\"size\":\"97.6577759, 97.6577759\"},{\"name\":\"Slot3\",\"size\":\"97.6577759, 97.6577759\"},{\"name\":\"SellShortcut\",\"size\":\"95.3866653, 31.7955551\"},{\"name\":\"Close\",\"size\":\"63.5911102, 63.5911102\"},{\"name\":\"QuestArea\",\"size\":\"386.088867, 59.0488853\"},{\"disabled\":true,\"name\":\"ClaimAll\",\"size\":\"249.822205, 59.0488853\"}],\"viewports\":[],\"page\":\"Quests\",\"size\":\"1919, 1022\"}"
+      }
+    ],
+    "isError": false
+  },
+  "qaPageSettings": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"overflows\":[],\"buttons\":[{\"name\":\"Tracker\",\"size\":\"363.377747, 102.199997\"},{\"name\":\"Store\",\"size\":\"88.5733261, 93.1155548\"},{\"name\":\"Inventory\",\"size\":\"88.5733261, 93.1155548\"},{\"name\":\"Items\",\"size\":\"88.5733261, 93.1155548\"},{\"name\":\"Summon\",\"size\":\"88.5733261, 93.1155548\"},{\"name\":\"Areas\",\"size\":\"88.5733261, 93.1155548\"},{\"name\":\"Quests\",\"size\":\"88.5733261, 93.1155548\"},{\"name\":\"Events\",\"size\":\"88.5733261, 93.1155548\"},{\"name\":\"Settings\",\"size\":\"89.9019318, 94.5122833\"},{\"name\":\"Slot1\",\"size\":\"97.6577759, 97.6577759\"},{\"name\":\"Slot2\",\"size\":\"97.6577759, 97.6577759\"},{\"name\":\"Slot3\",\"size\":\"97.6577759, 97.6577759\"},{\"name\":\"SellShortcut\",\"size\":\"95.3866653, 31.7955551\"},{\"name\":\"Close\",\"size\":\"63.5911102, 63.5911102\"},{\"disabled\":false,\"name\":\"Decrease\",\"size\":\"59.0488853, 59.0488853\"},{\"disabled\":false,\"name\":\"Increase\",\"size\":\"59.0488853, 59.0488853\"},{\"disabled\":false,\"name\":\"Decrease\",\"size\":\"59.0488853, 59.0488853\"},{\"disabled\":false,\"name\":\"Increase\",\"size\":\"59.0488853, 59.0488853\"},{\"disabled\":false,\"name\":\"Decrease\",\"size\":\"59.0488853, 59.0488853\"},{\"disabled\":false,\"name\":\"Increase\",\"size\":\"59.0488853, 59.0488853\"},{\"disabled\":false,\"name\":\"Decrease\",\"size\":\"59.0488853, 59.0488853\"},{\"disabled\":false,\"name\":\"Increase\",\"size\":\"59.0488853, 59.0488853\"},{\"disabled\":false,\"name\":\"Decrease\",\"size\":\"59.0488853, 59.0488853\"},{\"disabled\":false,\"name\":\"Increase\",\"size\":\"59.0488853, 59.0488853\"},{\"disabled\":true,\"name\":\"RedeemCode\",\"size\":\"646.131104, 59.0488853\"}],\"viewports\":[],\"page\":\"Settings\",\"size\":\"1919, 1022\"}"
+      }
+    ],
+    "isError": false
+  },
+  "qaPageItems": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"overflows\":[],\"buttons\":[{\"name\":\"Close\",\"size\":\"63.5911102, 63.5911102\"},{\"name\":\"Tab_pet\",\"size\":\"154.435547, 54.5066643\"},{\"name\":\"Tab_hat\",\"size\":\"154.435547, 54.5066643\"},{\"name\":\"InventoryFilters\",\"size\":\"88.5733261, 49.9644432\"},{\"name\":\"Item_h321\",\"size\":\"116.962219, 130.588882\"},{\"name\":\"Item_h326\",\"size\":\"116.962219, 130.588882\"},{\"name\":\"Item_h294\",\"size\":\"116.962219, 130.588882\"},{\"name\":\"Item_h303\",\"size\":\"116.962219, 130.588882\"},{\"name\":\"Item_h302\",\"size\":\"116.962219, 130.588882\"},{\"name\":\"Item_h336\",\"size\":\"116.962219, 130.588882\"},{\"name\":\"Item_h376\",\"size\":\"116.962219, 130.588882\"},{\"name\":\"Item_h372\",\"size\":\"116.962219, 130.588882\"},{\"name\":\"Item_h375\",\"size\":\"116.962219, 130.588882\"},{\"name\":\"Item_h386\",\"size\":\"116.962219, 130.588882\"},{\"name\":\"Item_h390\",\"size\":\"116.962219, 130.588882\"},{\"name\":\"Item_h367\",\"size\":\"116.962219, 130.588882\"},{\"name\":\"Item_h368\",\"size\":\"116.962219, 130.588882\"},{\"name\":\"Item_h370\",\"size\":\"116.962219, 130.588882\"},{\"name\":\"Item_h394\",\"size\":\"116.962219, 130.588882\"},{\"name\":\"Item_h396\",\"size\":\"116.962219, 130.588882\"},{\"name\":\"Item_h395\",\"size\":\"116.962219, 130.588882\"},{\"name\":\"Item_h384\",\"size\":\"116.962219, 130.588882\"},{\"name\":\"Item_h380\",\"size\":\"116.962219, 130.588882\"},{\"name\":\"Item_h393\",\"size\":\"116.962219, 130.588882\"},{\"name\":\"Item_h385\",\"size\":\"116.962219, 130.588882\"},{\"name\":\"Item_h388\",\"size\":\"116.962219, 130.588882\"},{\"name\":\"Item_h378\",\"size\":\"116.962219, 130.588882\"},{\"name\":\"Item_h371\",\"size\":\"116.962219, 130.588882\"},{\"disabled\":false,\"name\":\"EquipBest\",\"size\":\"255.499985, 43.1511078\"},{\"disabled\":false,\"name\":\"UnequipAll\",\"size\":\"255.499985, 43.1511078\"},{\"name\":\"Equipped_h321\",\"size\":\"79.488884, 79.488884\"},{\"name\":\"Equipped_h326\",\"size\":\"79.488884, 79.488884\"},{\"name\":\"Equipped_h294\",\"size\":\"79.488884, 79.488884\"},{\"name\":\"Equipped_h303\",\"size\":\"79.488884, 79.488884\"},{\"name\":\"Equipped_h302\",\"size\":\"79.488884, 79.488884\"},{\"name\":\"Equipped_h336\",\"size\":\"79.488884, 79.488884\"},{\"disabled\":false,\"name\":\"EquipSelected\",\"size\":\"381.546661, 47.6933327\"},{\"disabled\":false,\"name\":\"UpgradeSelected\",\"size\":\"381.546661, 47.6933327\"},{\"name\":\"FavoriteToggle\",\"size\":\"381.546661, 47.6933327\"},{\"name\":\"LockToggle\",\"size\":\"381.546661, 47.6933327\"}],\"viewports\":[],\"page\":\"Inventory\",\"size\":\"1919, 1022\"}"
+      }
+    ],
+    "isError": false
+  },
+  "qaRevealLandscape": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"overflows\":[{\"abs\":\"58, 23\",\"path\":\"Players.lucas94292.PlayerGui.ExpeditionUI.Canvas.HUD.Navigation.Inventory.Label\",\"text\":\"Unidades\",\"size\":17}],\"buttons\":[{\"name\":\"Tracker\",\"size\":\"270, 90\"},{\"name\":\"Store\",\"size\":\"62, 66\"},{\"name\":\"Inventory\",\"size\":\"62, 66\"},{\"name\":\"Items\",\"size\":\"62, 66\"},{\"name\":\"Summon\",\"size\":\"62, 66\"},{\"name\":\"Areas\",\"size\":\"62, 66\"},{\"name\":\"Quests\",\"size\":\"62, 66\"},{\"name\":\"Events\",\"size\":\"62, 66\"},{\"name\":\"Settings\",\"size\":\"62, 66\"},{\"name\":\"Slot1\",\"size\":\"52, 52\"},{\"name\":\"Slot2\",\"size\":\"52, 52\"},{\"name\":\"Slot3\",\"size\":\"52, 52\"},{\"name\":\"SellShortcut\",\"size\":\"84, 28\"},{\"name\":\"Shield\",\"size\":\"843, 332\"},{\"name\":\"Claim\",\"size\":\"648, 52\"}],\"viewports\":[{\"id\":\"muzan\",\"size\":\"224, 188\"}],\"page\":\"\",\"size\":\"843, 332\"}"
+      }
+    ],
+    "isError": false
+  }
+}

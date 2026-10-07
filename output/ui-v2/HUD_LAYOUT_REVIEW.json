@@ -1,0 +1,230 @@
+[
+  {
+    "virtual": [
+      900,
+      400
+    ],
+    "scale": 0.85,
+    "touchOnly": false,
+    "rectangles": {
+      "Currency": [
+        24,
+        14,
+        340,
+        60
+      ],
+      "Tracker": [
+        586,
+        14,
+        290,
+        100
+      ],
+      "TeamLabel": [
+        24,
+        169,
+        130,
+        17
+      ],
+      "Hotbar": [
+        24,
+        190,
+        304,
+        44
+      ],
+      "Bag": [
+        261.0,
+        248,
+        378.0,
+        52
+      ],
+      "Navigation": [
+        141.0,
+        312,
+        618,
+        74
+      ],
+      "Hold": [
+        643.8117647058824,
+        162.16470588235296,
+        232.65882352941176,
+        51.95294117647059
+      ]
+    },
+    "overlaps": [],
+    "excludedDynamicContent": [
+      "Buff chips depend on active bonuses/text measurement",
+      "CoreGui thumbstick/jump bounds require runtime"
+    ]
+  },
+  {
+    "virtual": [
+      900,
+      400
+    ],
+    "scale": 0.85,
+    "touchOnly": true,
+    "rectangles": {
+      "Currency": [
+        24,
+        14,
+        340,
+        60
+      ],
+      "Tracker": [
+        586,
+        14,
+        290,
+        100
+      ],
+      "TeamLabel": [
+        24,
+        169,
+        130,
+        17
+      ],
+      "Hotbar": [
+        24,
+        190,
+        304,
+        44
+      ],
+      "Bag": [
+        261.0,
+        248,
+        378.0,
+        52
+      ],
+      "Navigation": [
+        141.0,
+        312,
+        618,
+        74
+      ],
+      "Hold": [
+        643.8117647058824,
+        162.16470588235296,
+        232.65882352941176,
+        51.95294117647059
+      ]
+    },
+    "overlaps": [],
+    "excludedDynamicContent": [
+      "Buff chips depend on active bonuses/text measurement",
+      "CoreGui thumbstick/jump bounds require runtime"
+    ]
+  },
+  {
+    "virtual": [
+      472,
+      845
+    ],
+    "scale": 0.85,
+    "touchOnly": false,
+    "rectangles": {
+      "Currency": [
+        16,
+        14,
+        340,
+        60
+      ],
+      "Tracker": [
+        16,
+        126,
+        420,
+        100
+      ],
+      "TeamLabel": [
+        16,
+        562,
+        130,
+        17
+      ],
+      "Hotbar": [
+        16,
+        583,
+        292,
+        42
+      ],
+      "Bag": [
+        16.0,
+        641,
+        440,
+        52
+      ],
+      "Navigation": [
+        13.0,
+        705,
+        446,
+        126
+      ],
+      "Hold": [
+        215.81176470588238,
+        510.6941176470588,
+        232.65882352941176,
+        51.95294117647059
+      ]
+    },
+    "overlaps": [],
+    "excludedDynamicContent": [
+      "Buff chips depend on active bonuses/text measurement",
+      "CoreGui thumbstick/jump bounds require runtime"
+    ]
+  },
+  {
+    "virtual": [
+      472,
+      845
+    ],
+    "scale": 0.85,
+    "touchOnly": true,
+    "rectangles": {
+      "Currency": [
+        16,
+        14,
+        340,
+        60
+      ],
+      "Tracker": [
+        16,
+        126,
+        420,
+        100
+      ],
+      "TeamLabel": [
+        16,
+        562,
+        130,
+        17
+      ],
+      "Hotbar": [
+        16,
+        583,
+        292,
+        42
+      ],
+      "Bag": [
+        16.0,
+        641,
+        440,
+        52
+      ],
+      "Navigation": [
+        13.0,
+        705,
+        446,
+        126
+      ],
+      "Hold": [
+        215.81176470588238,
+        510.6941176470588,
+        232.65882352941176,
+        51.95294117647059
+      ]
+    },
+    "overlaps": [],
+    "excludedDynamicContent": [
+      "Buff chips depend on active bonuses/text measurement",
+      "CoreGui thumbstick/jump bounds require runtime"
+    ]
+  }
+]

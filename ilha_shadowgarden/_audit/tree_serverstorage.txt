@@ -1,0 +1,968 @@
+Brushtool2_Plugin_Storage [Folder] ch=4
+  SOLO_BrushtoolBrushObjects [Folder] ch=2
+  SOLO_BrushtoolStampObjects [Folder] ch=1
+  SOLO_BrushtoolReferences [Folder] ch=2
+  SOLO_BrushtoolTable [Folder] ch=5
+Ignis_BACKUP [Model] ch=1 bbox_c=(32,48,35) size=(103,94,97)
+  default [MeshPart] ch=1 pos=(32,48,35) size=(103,94,97)
+Modelos [Folder] ch=34
+  ovo_shuriken [Model] ch=5 bbox_c=(-70,-100,-39) size=(0,0,0)
+  minerio_chakra_comum [Model] ch=1 bbox_c=(-0,0,-0) size=(1,1,1) {Rarity=Common, CoresProprias=true, OreType=NinjaChakra}
+  ovo_hat [Model] ch=5 bbox_c=(-70,-98,-39) size=(0,0,0)
+  minerio_chakra_chefe [Model] ch=1 bbox_c=(-0,1,0) size=(4,2,2) {Rarity=SuperLegendary, CoresProprias=true, OreType=NinjaChakra}
+  minerio_nichirin_incomum [Model] ch=1 bbox_c=(0,0,0) size=(1,1,1) {Rarity=Uncommon, CoresProprias=true, OreType=DemonSlayer}
+  minerio_ki_incomum [Model] ch=1 bbox_c=(0,0,-0) size=(1,1,1) {Rarity=Uncommon, CoresProprias=true, OreType=DragonBall}
+  minerio_chakra_epica [Model] ch=1 bbox_c=(0,1,-10) size=(2,2,21) {Rarity=Epic, CoresProprias=true, OreType=NinjaChakra}
+  gacha_machine [Model] ch=26 bbox_c=(-70,-91,-39) size=(1,2,1)
+  minerio_serio_comum [Model] ch=1 bbox_c=(-0,0,0) size=(1,1,1) {Rarity=Common, CoresProprias=true, OreType=HeroImpact}
+  minerio_serio_epica [Model] ch=1 bbox_c=(-0,1,-0) size=(3,1,3) {Rarity=Epic, CoresProprias=true, OreType=HeroImpact}
+  minerio_nichirin_comum [Model] ch=1 bbox_c=(-0,0,0) size=(1,1,1) {Rarity=Common, CoresProprias=true, OreType=DemonSlayer}
+  ovo_burst [Model] ch=5 bbox_c=(-70,-81,-39) size=(0,0,0)
+  ovo_sigil [Model] ch=5 bbox_c=(-70,-81,-39) size=(0,0,0)
+  ovo_checker_tile_1 [Model] ch=6 bbox_c=(-70,-81,-39) size=(0,0,0)
+  minerio_serio_chefe [Model] ch=1 bbox_c=(-0,0,-0) size=(4,2,4) {Rarity=SuperLegendary, CoresProprias=true, OreType=HeroImpact}
+  minerio_sombra_comum [Model] ch=1 bbox_c=(0,0,-0) size=(1,1,1) {Rarity=Common, CoresProprias=true, OreType=ShadowMana}
+  minerio_nichirin_epica [Model] ch=1 bbox_c=(-0,1,0) size=(2,2,1) {Rarity=Epic, CoresProprias=true, OreType=DemonSlayer}
+  minerio_ki_chefe [Model] ch=1 bbox_c=(0,1,-0) size=(3,2,2) {Rarity=SuperLegendary, CoresProprias=true, OreType=DragonBall}
+  minerio_mare_comum [Model] ch=1 bbox_c=(-0,0,-0) size=(1,1,1) {Rarity=Common, CoresProprias=true, OreType=OceanTreasure}
+  minerio_sombra_incomum [Model] ch=1 bbox_c=(0,0,0) size=(2,1,2) {Rarity=Uncommon, CoresProprias=true, OreType=ShadowMana}
+  minerio_chakra_incomum [Model] ch=1 bbox_c=(-1,1,-8) size=(3,1,17) {Rarity=Uncommon, CoresProprias=true, OreType=NinjaChakra}
+  minerio_sombra_epica [Model] ch=1 bbox_c=(-0,1,0) size=(3,2,3) {Rarity=Epic, CoresProprias=true, OreType=ShadowMana}
+  minerio_mare_incomum [Model] ch=1 bbox_c=(0,0,-0) size=(1,1,1) {Rarity=Uncommon, CoresProprias=true, OreType=OceanTreasure}
+  minerio_nichirin_chefe [Model] ch=1 bbox_c=(-0,1,0) size=(2,2,2) {Rarity=SuperLegendary, CoresProprias=true, OreType=DemonSlayer}
+  minerio_mare_chefe [Model] ch=1 bbox_c=(-0,1,-0) size=(3,2,2) {Rarity=SuperLegendary, CoresProprias=true, OreType=OceanTreasure}
+  minerio_ki_epica [Model] ch=1 bbox_c=(-0,1,-0) size=(2,1,2) {Rarity=Epic, CoresProprias=true, OreType=DragonBall}
+  minerio_serio_incomum [Model] ch=1 bbox_c=(-0,0,0) size=(1,1,1) {Rarity=Uncommon, CoresProprias=true, OreType=HeroImpact}
+  minerio_ki_comum [Model] ch=1 bbox_c=(-0,0,-0) size=(1,1,1) {Rarity=Common, CoresProprias=true, OreType=DragonBall}
+  minerio_sombra_chefe [Model] ch=1 bbox_c=(0,1,0) size=(4,2,4) {Rarity=SuperLegendary, CoresProprias=true, OreType=ShadowMana}
+  minerio_mare_epica [Model] ch=1 bbox_c=(-0,0,-0) size=(2,1,2) {Rarity=Epic, CoresProprias=true, OreType=OceanTreasure}
+  roblox_forge_lobby [Model] ch=26 bbox_c=(19,52,140) size=(47,16,42)
+  arvore_low_poly [Model] ch=19 bbox_c=(108,4,27) size=(4,7,4)
+  poste_luz_low_poly [Model] ch=13 bbox_c=(98,3,28) size=(3,6,2)
+  portal_low_poly [Model] ch=44 bbox_c=(106,3,35) size=(6,6,6)
+UIBackup_1788831773 [Folder] ch=1
+  ClienteMina [LocalScript] ch=0
+ClienteMina_AntesGamepasses_1788831978 [LocalScript] ch=0
+LobbyBackup_1788832247 [Folder] ch=15
+  NPCs [Folder] ch=1
+  Santuario [Folder] ch=32
+  backpack shop [Model] ch=3 bbox_c=(-61,13,2) size=(43,26,52) {RBX_ReimportId=dd2722dc-41f1-4566-a13e-5d53c6720ba5}
+  Mystical Spawn Point [Model] ch=1 bbox_c=(-1,1,1) size=(27,2,27)
+  Chao [Folder] ch=145
+  Rochedos [Folder] ch=1
+  Mata [Folder] ch=23
+  Montanhas [Folder] ch=474
+  Caminhos [Folder] ch=33
+  Praca [Folder] ch=21
+  Lanternas [Folder] ch=4
+  Estrada [Folder] ch=6
+  Main [Script] ch=0
+  Lobby [ProceduralModel] ch=2 bbox_c=(-26,22,92) size=(100,40,100) {RBX_AI_GENERATED=true, RBX_AI_GENERATION_ID=822ec434-4044-4eec-8375-540f07053cdc, RBX_AI_MODEL_FLOW=procedural}
+  OriginalsReplaced [Folder] ch=15
+LobbyRevision2Backup [Folder] ch=2
+  LobbyRenovado [Model] ch=21 bbox_c=(-0,29,-4) size=(262,68,248)
+  LojaMochilas [Model] ch=1 bbox_c=(72,1,51) size=(28,0,10)
+LobbyArtBuilderV2 [ModuleScript] ch=0
+LobbyAntesAmbientacao_1788833472 [Folder] ch=2
+  LobbyRenovado [Model] ch=4 bbox_c=(-3,40,-2) size=(395,88,394)
+  ChaoRecortado [Folder] ch=48
+AntesAnimacaoToolbox_1788899596 [Folder] ch=2
+  MineracaoVisual [LocalScript] ch=0
+  Mineracao [ModuleScript] ch=0
+ClienteMina_AntesIcones_1788899792 [LocalScript] ch=0
+ToolboxAnimationSources [Folder] ch=6
+  Toolbox_Pickaxe_Animation_Review [Folder] ch=2
+  Toolbox_R15_Pickaxe_Animations [Model] ch=1 bbox_c=(7,-35,-222) size=(4,5,3)
+  Toolbox_WorkingPickaxe [Model] ch=1 bbox_c=(7,-37,-222) size=(0,0,2)
+  Toolbox_Pickaxe_FIN [Model] ch=1 bbox_c=(7,-34,-222) size=(6,6,6)
+  Toolbox_Pickaxe_Keyframes [Model] ch=1 bbox_c=(-1,2,-76) size=(3,5,4)
+  Toolbox_PickaxeSwing [Model] ch=1 bbox_c=(-1,3,-76) size=(3,5,4)
+BigAxeLocomotionSources [Folder] ch=7
+  idle [Model] ch=1 bbox_c=(0,0,0) size=(0,0,0)
+  run [Model] ch=1 bbox_c=(0,0,0) size=(0,0,0)
+  walk [Model] ch=1 bbox_c=(0,0,0) size=(0,0,0)
+  swim [Model] ch=1 bbox_c=(0,0,0) size=(0,0,0)
+  fall [Model] ch=1 bbox_c=(0,0,0) size=(0,0,0)
+  climb [Model] ch=1 bbox_c=(0,0,0) size=(0,0,0)
+  jump [Model] ch=1 bbox_c=(0,0,0) size=(0,0,0)
+BeforeBigAxeLocomotion_1788918972 [Folder] ch=2
+  LocomocaoPadrao [LocalScript] ch=0
+  CharacterAnimations [Folder] ch=1
+BeforeFolhaMining_1788919666 [Folder] ch=10
+  AreaBuilder [ModuleScript] ch=0
+  Mineracao [ModuleScript] ch=0
+  AutoMinerar [LocalScript] ch=0
+  MineracaoVisual [LocalScript] ch=0
+  MiningSwing [ModuleScript] ch=1
+  CliffsAtOldAreaEntrance [Folder] ch=42
+  GachaChakraBeforePosition [Model] ch=28 bbox_c=(-70,23,167) size=(20,26,30)
+  Baseplate [Part] ch=0 pos=(0,-10,900) size=(2048,20,2048)
+  MainBeforeArrivalFacing [Script] ch=0
+  PicaretaToolBeforeEquipGuard [Script] ch=0
+RevisionWorldPets_1788982751 [Folder] ch=0
+RevisionWorldPets_1788982774 [Folder] ch=6
+  StarterPlayerScripts [Folder] ch=6
+  Core [Folder] ch=11
+  StarterGui [Folder] ch=1
+  MiningGeometry [ModuleScript] ch=0
+  MiningSwing [ModuleScript] ch=1
+  Config [ModuleScript] ch=0
+BeforeRemainingIslands_1789006688 [Folder] ch=6
+  AreaBuilder [ModuleScript] ch=0
+  Main [Script] ch=0
+  AreaAtmosphere [LocalScript] ch=0
+  Gacha_nichirin [Model] ch=28 bbox_c=(-70,23,727) size=(20,26,30)
+  Gacha_mare [Model] ch=28 bbox_c=(-70,23,1287) size=(20,26,30)
+  Gacha_serio [Model] ch=28 bbox_c=(-70,23,1567) size=(20,26,30)
+BeforeIslandFinish_1789008574 [Folder] ch=9
+  Areas [Folder] ch=6
+  Gachas [Folder] ch=6
+  Config [ModuleScript] ch=0
+  Main [Script] ch=0
+  AreaBuilder [ModuleScript] ch=0
+  AreaAtmosphere [LocalScript] ch=0
+  ClienteMina [LocalScript] ch=0
+  OST [Sound] ch=0
+  AutoMinerar [LocalScript] ch=0
+BeforeGuiEditable_1789069762 [Folder] ch=0
+BeforeGuiEditable_1789069773 [Folder] ch=6
+  StarterGui [Folder] ch=1
+  ClienteMina [LocalScript] ch=0
+  IslandTransition [LocalScript] ch=0
+  AreaBuilder [ModuleScript] ch=0
+  IslandArt [ModuleScript] ch=0
+  IslandWorld [ModuleScript] ch=0
+BeforeUndoGuiMigration_1789079096 [Folder] ch=2 {RestauradoDe=BeforeGuiEditable_1789069773}
+  StarterGui [Folder] ch=5
+  ScriptsMigrados [Folder] ch=4
+PicaretasBlender_Previous_1789088382 [Folder] ch=1
+  enferrujada [Model] ch=0 bbox_c=(0,0,0) size=(0,0,0)
+BeforeBlenderPickaxes_1789088127 [Folder] ch=1
+  PicaretaTool [Script] ch=0
+FinalizePickaxeImport [ModuleScript] ch=0
+PicaretasBlender [Folder] ch=8
+  enferrujada [Model] ch=5 bbox_c=(0,0,0) size=(3,3,0) {ImportValidated=true, VisualVersion=BlenderArsenalV1}
+  ferro [Model] ch=5 bbox_c=(0,0,0) size=(3,3,0) {ImportValidated=true, VisualVersion=BlenderArsenalV1}
+  aco [Model] ch=5 bbox_c=(0,0,0) size=(3,3,0) {ImportValidated=true, VisualVersion=BlenderArsenalV1}
+  rubi [Model] ch=6 bbox_c=(0,1,0) size=(3,4,1) {ImportValidated=true, VisualVersion=BlenderArsenalV1}
+  obsidiana [Model] ch=6 bbox_c=(0,1,0) size=(4,4,1) {ImportValidated=true, VisualVersion=BlenderArsenalV1}
+  runica [Model] ch=5 bbox_c=(0,1,0) size=(4,4,1) {ImportValidated=true, VisualVersion=BlenderArsenalV1}
+  estelar [Model] ch=5 bbox_c=(0,1,0) size=(4,4,1) {ImportValidated=true, VisualVersion=BlenderArsenalV1}
+  ignis [Model] ch=6 bbox_c=(0,1,0) size=(4,4,1) {ImportValidated=true, VisualVersion=BlenderArsenalV1}
+BlenderImportSources_1789088382 [Folder] ch=43
+  ferro__Leather_wrap.001 [MeshPart] ch=0 pos=(-466,399,-13) size=(29,135,29)
+  aco__Leather.001 [MeshPart] ch=0 pos=(-966,427,-13) size=(26,233,26)
+  enferrujada__Rust.001 [MeshPart] ch=0 pos=(9,559,-13) size=(278,79,24)
+  ferro__Steel_edge.001 [MeshPart] ch=0 pos=(-466,585,-13) size=(201,12,46)
+  rubi__Steel_edge.001 [MeshPart] ch=0 pos=(-1466,568,-13) size=(345,54,27)
+  enferrujada__Blackened_metal.001 [MeshPart] ch=0 pos=(34,436,-13) size=(19,275,19)
+  ferro__Walnut.001 [MeshPart] ch=0 pos=(-466,427,-13) size=(26,233,26)
+  aco__Steel_edge.001 [MeshPart] ch=0 pos=(-966,453,-13) size=(319,318,46)
+  obsidiana__Amethyst_metal.001 [MeshPart] ch=0 pos=(-1966,453,-13) size=(52,318,44)
+  ignis__Molten_orange.001 [MeshPart] ch=0 pos=(-3466,478,-13) size=(409,372,74)
+  rubi__Royal_gold.001 [MeshPart] ch=0 pos=(-1466,453,-13) size=(52,318,53)
+  enferrujada__Walnut.001 [MeshPart] ch=0 pos=(34,427,-13) size=(26,233,26)
+  ignis__Leather.001 [MeshPart] ch=0 pos=(-3466,427,-13) size=(26,233,26)
+  rubi__Leather_wrap.001 [MeshPart] ch=0 pos=(-1466,409,-13) size=(29,155,29)
+  runica__Arcane_violet.001 [MeshPart] ch=0 pos=(-2466,476,-13) size=(277,367,74)
+  ignis__Volcanic_armor.001 [MeshPart] ch=0 pos=(-3466,588,-13) size=(409,126,25)
+  estelar__Starlight.001 [MeshPart] ch=0 pos=(-2966,470,-13) size=(277,357,74)
+  rubi__Ruby_crystal.001 [MeshPart] ch=0 pos=(-1466,471,-13) size=(277,358,74)
+  rubi__Leather.001 [MeshPart] ch=0 pos=(-1466,427,-13) size=(26,233,26)
+  ferro__Iron.001 [MeshPart] ch=0 pos=(-491,463,-13) size=(277,297,44)
+  ignis__White_hot_core.001 [MeshPart] ch=0 pos=(-3466,597,-24) size=(149,62,51)
+  runica__Amethyst_metal.001 [MeshPart] ch=0 pos=(-2466,578,-13) size=(364,73,25)
+  ignis__Royal_gold.001 [MeshPart] ch=0 pos=(-3466,480,-13) size=(97,371,53)
+  obsidiana__Leather.001 [MeshPart] ch=0 pos=(-1966,427,-13) size=(26,233,26)
+  estelar__Royal_gold.001 [MeshPart] ch=0 pos=(-2966,481,-13) size=(379,374,53)
+  obsidiana__Steel_edge.001 [MeshPart] ch=0 pos=(-1966,584,-13) size=(38,38,53)
+  estelar__Leather.001 [MeshPart] ch=0 pos=(-2966,427,-13) size=(26,233,26)
+  enferrujada__Iron.001 [MeshPart] ch=0 pos=(34,463,-13) size=(201,297,46)
+  rubi__Blackened_metal.001 [MeshPart] ch=0 pos=(-1466,457,-13) size=(345,316,21)
+  obsidiana__Obsidian_glass.001 [MeshPart] ch=0 pos=(-1966,589,-12) size=(390,108,28)
+  runica__Leather.001 [MeshPart] ch=0 pos=(-2466,427,-13) size=(26,233,26)
+  runica__Steel_edge.001 [MeshPart] ch=0 pos=(-2466,469,-13) size=(365,349,53)
+  aco__Iron.001 [MeshPart] ch=0 pos=(-966,578,-13) size=(319,73,21)
+  runica__Blackened_metal.001 [MeshPart] ch=0 pos=(-2466,436,-13) size=(29,275,29)
+  aco__Leather_wrap.001 [MeshPart] ch=0 pos=(-966,409,-13) size=(29,155,29)
+  obsidiana__Blackened_metal.001 [MeshPart] ch=0 pos=(-1966,436,-13) size=(29,275,29)
+  obsidiana__Arcane_violet.001 [MeshPart] ch=0 pos=(-1966,474,-13) size=(277,365,74)
+  enferrujada__Leather_wrap.001 [MeshPart] ch=0 pos=(34,399,-13) size=(29,135,29)
+  ferro__Blackened_metal.001 [MeshPart] ch=0 pos=(-466,436,-13) size=(19,275,19)
+  ignis__Blackened_metal.001 [MeshPart] ch=0 pos=(-3466,436,-13) size=(29,275,29)
+  estelar__Blackened_metal.001 [MeshPart] ch=0 pos=(-2966,436,-13) size=(29,275,29)
+  estelar__Celestial_blue.001 [MeshPart] ch=0 pos=(-2966,578,-13) size=(378,73,25)
+  aco__Blackened_metal.001 [MeshPart] ch=0 pos=(-966,436,-13) size=(19,275,19)
+BlenderImportHierarchy [Model] ch=8 bbox_c=(34,407,-13) size=(0,0,0) {RBX_ReimportId=7a19d352-7e2f-430b-86b0-10f9e8511e0b}
+  aco [Model] ch=0 bbox_c=(34,407,-13) size=(0,0,0)
+  enferrujada [Model] ch=0 bbox_c=(34,407,-13) size=(0,0,0)
+  estelar [Model] ch=0 bbox_c=(34,407,-13) size=(0,0,0)
+  ferro [Model] ch=0 bbox_c=(34,407,-13) size=(0,0,0)
+  ignis [Model] ch=0 bbox_c=(34,407,-13) size=(0,0,0)
+  obsidiana [Model] ch=0 bbox_c=(34,407,-13) size=(0,0,0)
+  rubi [Model] ch=0 bbox_c=(34,407,-13) size=(0,0,0)
+  runica [Model] ch=0 bbox_c=(34,407,-13) size=(0,0,0)
+ExpeditionUI_Backup_1789224024 [Folder] ch=2
+  ClienteMina [LocalScript] ch=0
+  SummonGui [ScreenGui] ch=3
+ExpeditionUI_BeforeInstall_1789247090 [Folder] ch=2
+  ClienteMina [LocalScript] ch=0
+  SummonGui [ScreenGui] ch=3
+BeforeAnimeOres_1789257808 [Folder] ch=3
+  Modelos [Folder] ch=34
+  AreaBuilder [ModuleScript] ch=0
+  Mineracao [ModuleScript] ch=0
+BeforeLobbyRevamp_20260913 [Folder] ch=4
+  WorkspaceBackup [Folder] ch=7
+  Scripts [Folder] ch=3
+  LightingBackup [Folder] ch=6 {ClockTime=14.600000381469727, ShadowSoftness=0.3499999940395355, Ambient=0.345098, 0.376471, 0.439216, OutdoorAmbient=0.494118, 0.54902, 0.635294, ExposureCompensation=0.15000000596046448, Brightness=2.200000047683716, EnvironmentDiffuseScale=0.44999998807907104, EnvironmentSpecularScale=0.550000011}
+  ReplacedOriginals [Folder] ch=5
+SakuraPetalTexture [Decal] ch=0
+PortalVortexTexture [Decal] ch=0
+BeforeSakuraPolish_20260913 [Folder] ch=6
+  LobbyRenovado [Model] ch=31 bbox_c=(-0,5,-0) size=(231,52,208) {RBX_ReimportId=53b72180-ebb2-4bcb-ba94-322620c5f1e3, BlenderSource=ExpeditionLobby.blend, TriangleCount=77101, RevampVersion=2026-09-13}
+  Santuario [Folder] ch=7
+  LojaMochilas [Model] ch=1 bbox_c=(45,1,13) size=(0,0,9) {RBX_ReimportId=dd2722dc-41f1-4566-a13e-5d53c6720ba5}
+  NPCs [Folder] ch=1
+  Lighting [Folder] ch=6
+  Replaced [Folder] ch=70
+SakuraRevampAssets [Folder] ch=12
+  Bridge [Model] ch=3 bbox_c=(245,20,34) size=(16,6,10) {RBX_AI_GENERATED=true, RBX_AI_GENERATION_TYPE=GenerateMesh, RBX_AI_GENERATION_ID=de2d4001-0052-46a6-ad03-319808a62cc0, RBX_AI_MODEL_FLOW=mesh}
+  SakuraMasterV2 [Model] ch=3 bbox_c=(305,12,0) size=(22,23,17) {RBX_AI_GENERATED=true, RBX_AI_GENERATION_ID=5f17f4ef-bde6-4c7b-8938-fb6e44eac2b5, RBX_AI_GENERATION_TYPE=TextureGen}
+  Sakura [Model] ch=1 bbox_c=(270,12,-0) size=(24,23,20)
+  GardenRocks [Folder] ch=17
+  Folha [Model] ch=3 bbox_c=(248,12,-55) size=(24,23,8) {RBX_AI_GENERATED=true, RBX_AI_GENERATION_TYPE=GenerateMesh, RBX_AI_GENERATION_ID=4c2f121a-48a6-4029-945a-152cafbd2f10, RBX_AI_MODEL_FLOW=mesh}
+  Namek [Model] ch=3 bbox_c=(276,12,-55) size=(18,23,5) {RBX_AI_GENERATED=true, RBX_AI_GENERATION_TYPE=GenerateMesh, RBX_AI_GENERATION_ID=8f1cb317-560d-4741-90be-504d44ec78de, RBX_AI_MODEL_FLOW=mesh}
+  Natagumo [Model] ch=3 bbox_c=(304,12,-55) size=(22,23,8) {RBX_AI_GENERATED=true, RBX_AI_GENERATION_TYPE=GenerateMesh, RBX_AI_GENERATION_ID=72811179-e0ca-48be-aa09-9e197da623fb, RBX_AI_MODEL_FLOW=mesh}
+  Shadow [Model] ch=3 bbox_c=(332,12,-55) size=(19,23,8) {RBX_AI_GENERATED=true, RBX_AI_GENERATION_TYPE=GenerateMesh, RBX_AI_GENERATION_ID=5c78de69-66cf-4a6b-bda2-b4322d6c606c, RBX_AI_MODEL_FLOW=mesh}
+  GrandLine [Model] ch=3 bbox_c=(360,12,-55) size=(20,23,10) {RBX_AI_GENERATED=true, RBX_AI_GENERATION_TYPE=GenerateMesh, RBX_AI_GENERATION_ID=2204cf42-c628-4d0c-b7ca-d13979e12f45, RBX_AI_MODEL_FLOW=mesh}
+  CidadeZ [Model] ch=3 bbox_c=(388,12,-55) size=(23,23,10) {RBX_AI_GENERATED=true, RBX_AI_GENERATION_TYPE=GenerateMesh, RBX_AI_GENERATION_ID=88a0aa97-891f-4988-8c18-ac3e5e656a64, RBX_AI_MODEL_FLOW=mesh}
+  Forge [Model] ch=4 bbox_c=(315,14,10) size=(35,29,28) {RBX_AI_GENERATED=true, RBX_AI_GENERATION_TYPE=GenerateMesh, RBX_AI_GENERATION_ID=7550f4d5-6ef4-4b44-b1a6-1423254baa54, RBX_AI_MODEL_FLOW=mesh}
+  Shop [Model] ch=4 bbox_c=(260,11,-106) size=(24,22,20) {RBX_AI_GENERATED=true, RBX_AI_GENERATION_TYPE=GenerateMesh, RBX_AI_GENERATION_ID=051a184f-9659-438a-b71e-fd2ab37d1b85, RBX_AI_MODEL_FLOW=mesh}
+PetsAntigos_Backup [Folder] ch=12
+  dragao [Model] ch=1 bbox_c=(-483,2,1060) size=(5,5,4) {RBX_AI_GENERATED=true, RBX_AI_GENERATION_TYPE=GenerateMesh, RBX_AI_GENERATION_ID=13c0ae3f-fdad-408c-9258-086a913bfbc2, RBX_AI_MODEL_FLOW=mesh}
+  fenix [Model] ch=1 bbox_c=(-483,3,1060) size=(7,7,4) {RBX_AI_GENERATED=true, RBX_AI_GENERATION_TYPE=GenerateMesh, RBX_AI_GENERATION_ID=c9959e6d-c7c1-4c1a-800c-34444324c058, RBX_AI_MODEL_FLOW=mesh}
+  kitsune [Model] ch=1 bbox_c=(-483,3,1060) size=(8,7,4) {RBX_AI_GENERATED=true, RBX_AI_GENERATION_TYPE=GenerateMesh, RBX_AI_GENERATION_ID=e3b327ce-f153-44fd-bc66-a1bba95be086, RBX_AI_MODEL_FLOW=mesh}
+  lobo [Model] ch=1 bbox_c=(-483,2,1060) size=(4,5,4) {RBX_AI_GENERATED=true, RBX_AI_GENERATION_TYPE=GenerateMesh, RBX_AI_GENERATION_ID=fc25ce7a-72fb-4969-8c59-3273ab41d62a, RBX_AI_MODEL_FLOW=mesh}
+  raposa [Model] ch=1 bbox_c=(-483,3,1060) size=(4,6,5) {RBX_AI_GENERATED=true, RBX_AI_GENERATION_TYPE=GenerateMesh, RBX_AI_GENERATION_ID=32d0370e-a990-4edd-babc-7a484463373f, RBX_AI_MODEL_FLOW=mesh}
+  golem_mini [Model] ch=1 bbox_c=(-483,5,1060) size=(8,11,4) {RBX_AI_GENERATED=true, RBX_AI_GENERATION_TYPE=GenerateMesh, RBX_AI_GENERATION_ID=24bc811c-b1bf-48c2-9e8f-f0355d1d3e49, RBX_AI_MODEL_FLOW=mesh}
+  leviata [Model] ch=1 bbox_c=(-483,3,1060) size=(4,6,7) {RBX_AI_GENERATED=true, RBX_AI_GENERATION_TYPE=GenerateMesh, RBX_AI_GENERATION_ID=42eb18a9-fc17-45b0-a531-316e3f2b55b9, RBX_AI_MODEL_FLOW=mesh}
+  coruja [Model] ch=1 bbox_c=(-483,3,1060) size=(4,5,4) {RBX_AI_GENERATED=true, RBX_AI_GENERATION_TYPE=GenerateMesh, RBX_AI_GENERATION_ID=723dde28-bd52-4736-9dd6-da893c5bf023, RBX_AI_MODEL_FLOW=mesh}
+  morcego [Model] ch=1 bbox_c=(-483,3,1060) size=(7,6,4) {RBX_AI_GENERATED=true, RBX_AI_GENERATION_TYPE=GenerateMesh, RBX_AI_GENERATION_ID=68b85257-ab99-4275-80ec-fda68b8dd5be, RBX_AI_MODEL_FLOW=mesh}
+  vagalume [Model] ch=1 bbox_c=(-483,3,1060) size=(5,6,4) {RBX_AI_GENERATED=true, RBX_AI_GENERATION_TYPE=GenerateMesh, RBX_AI_GENERATION_ID=33eb93e7-d324-4f07-adf6-a3c9b26d57d0, RBX_AI_MODEL_FLOW=mesh}
+  pedrinha [Model] ch=1 bbox_c=(-483,3,1060) size=(4,5,4) {RBX_AI_GENERATED=true, RBX_AI_GENERATION_TYPE=GenerateMesh, RBX_AI_GENERATION_ID=0330719d-042c-474c-97a8-a2d8c8361843, RBX_AI_MODEL_FLOW=mesh}
+  ignis_pet [Model] ch=1 bbox_c=(-483,4,1060) size=(6,8,4) {RBX_AI_GENERATED=true, RBX_AI_GENERATION_TYPE=GenerateMesh, RBX_AI_GENERATION_ID=9dde3b44-b23c-4548-af53-797f2304351a, RBX_AI_MODEL_FLOW=mesh}
+GachaSombra_Backup [Folder] ch=2
+  Gacha_sombra [Model] ch=28 bbox_c=(-43,113,1515) size=(6,23,14) {IslandResizeV3=true}
+  AlcovaDeInvocacao [Model] ch=100 bbox_c=(-43,114,1524) size=(23,16,21)
+BeforeGuildLayoutV3_20260913 [Folder] ch=7
+  LobbyRenovado [Model] ch=5 bbox_c=(-0,4,-2) size=(236,51,215) {TriangleCount=77101, BlenderSource=ExpeditionLobby.blend, ArtRevision=SakuraPolish-20260913, RBX_ReimportId=53b72180-ebb2-4bcb-ba94-322620c5f1e3, RevampVersion=2026-09-13}
+  Santuario [Folder] ch=7
+  NPCs [Folder] ch=1
+  LojaMochilas [Model] ch=1 bbox_c=(45,1,13) size=(0,0,9) {RBX_ReimportId=dd2722dc-41f1-4566-a13e-5d53c6720ba5}
+  ExpeditionTravel [Script] ch=0
+  SakuraEffects [LocalScript] ch=0
+  Replaced [Folder] ch=185
+BeforeApprovedConcept_20260913 [Folder] ch=4
+  LobbyRenovado [Model] ch=6 bbox_c=(-0,8,-4) size=(236,58,219) {TriangleCount=77101, BlenderSource=ExpeditionLobby.blend, ArtRevision=GuildLayoutV3-Composition, RBX_ReimportId=53b72180-ebb2-4bcb-ba94-322620c5f1e3, RevampVersion=2026-09-13}
+  ExpeditionTravel [Script] ch=0
+  IslandTravel [ModuleScript] ch=0
+  Retired [Folder] ch=112
+BeforeUIV2_20260915 [Folder] ch=13
+  ExpeditionUI_Theme [ModuleScript] ch=0
+  ExpeditionUI_Menus [ModuleScript] ch=0
+  ExpeditionUI_Inventory [ModuleScript] ch=0
+  ExpeditionClient [ModuleScript] ch=0
+  AutoMinerar [ModuleScript] ch=0
+  IslandTransition [ModuleScript] ch=0
+  PetsSeguidores [ModuleScript] ch=0
+  SomJogo [ModuleScript] ch=0
+  AreaBuilder [ModuleScript] ch=0
+  Legacy_ClienteMina [ModuleScript] ch=0
+  Legacy_SummonController [ModuleScript] ch=0
+  MineracaoVisual [ModuleScript] ch=0
+  Legacy_SummonGui [ScreenGui] ch=2
+KonohaArea [Model] ch=7 bbox_c=(0,12,-1) size=(392,232,395)
+  Gameplay [Folder] ch=96
+  KONOHA_BUILDINGS [Folder] ch=3
+  KONOHA_LANDMARKS [Folder] ch=4
+  KONOHA_MINING [Folder] ch=3
+  KONOHA_DECORATION [Folder] ch=3
+  KONOHA_NATURE [Folder] ch=2
+  KONOHA_TERRAIN [Folder] ch=5
+DragonBallMeshes [Folder] ch=2
+  dragonball_map [Model] ch=10 bbox_c=(19,286,-98) size=(393,155,409) {RBX_ReimportId=4a580bb7-9fe9-4fa4-b05e-b495abf99f61}
+  dragonball_kit [Model] ch=66 bbox_c=(19,152,-91) size=(112,145,88) {RBX_ReimportId=90cc9e99-a45b-43dd-a56f-2ba137546c5f}
+DragonBallKit [Folder] ch=66
+  ... 66 filhos
+DragonBallArea [Model] ch=8 bbox_c=(-12,13,-2) size=(680,278,724)
+  DRAGONBALL_TERRAIN [Folder] ch=6
+  DRAGONBALL_BUILDINGS [Folder] ch=2
+  DRAGONBALL_LANDMARKS [Folder] ch=2
+  DRAGONBALL_MINING [Folder] ch=4
+  DRAGONBALL_ROCKS [Folder] ch=3
+  DRAGONBALL_NATURE [Folder] ch=3
+  DRAGONBALL_DECORATION [Folder] ch=2
+  Gameplay [Folder] ch=108
+BeforeUIV2_20260917_Expedition [Folder] ch=4 {Purpose=Source snapshot before UI V2; inert source values, CreatedUTC=2026-09-17T02:35:38Z}
+  StarterGui [Folder] ch=0
+  StarterPlayer [Folder] ch=12
+  ReplicatedStorage [Folder] ch=14
+  ServerScriptService [Folder] ch=36
+BeforeAudioV3_20260917 [Folder] ch=6
+  ReplicatedStorage [Folder] ch=14
+  ServerScriptService [Folder] ch=36
+  StarterPlayer [Folder] ch=12
+  StarterGui [Folder] ch=0
+  SoundService [Folder] ch=2
+  IgnisForjando [StringValue] ch=0 {OriginalPath=Workspace.NPCs.Ignis.IgnisForjando}
+BeforeUIV3_20260917_References [Folder] ch=10
+  Theme [StringValue] ch=0 {OriginalPath=ReplicatedStorage.ExpeditionUI.Theme}
+  Inventory [StringValue] ch=0 {OriginalPath=ReplicatedStorage.ExpeditionUI.Inventory}
+  Menus [StringValue] ch=0 {OriginalPath=ReplicatedStorage.ExpeditionUI.Menus}
+  Notify [StringValue] ch=0 {OriginalPath=ReplicatedStorage.ExpeditionUI.Notify}
+  ExpeditionClient [StringValue] ch=0 {OriginalPath=StarterPlayer.StarterPlayerScripts.ExpeditionClient}
+  AutoMinerar [StringValue] ch=0 {OriginalPath=StarterPlayer.StarterPlayerScripts.AutoMinerar}
+  IslandTransition [StringValue] ch=0 {OriginalPath=StarterPlayer.StarterPlayerScripts.IslandTransition}
+  MineracaoVisual [StringValue] ch=0 {OriginalPath=StarterPlayer.StarterPlayerScripts.MineracaoVisual}
+  PetsSeguidores [StringValue] ch=0 {OriginalPath=StarterPlayer.StarterPlayerScripts.PetsSeguidores}
+  AreaBuilder [StringValue] ch=0 {OriginalPath=ServerScriptService.Core.AreaBuilder}
+BeforeShadowGarden_20260917 [Model] ch=10 bbox_c=(1,182,1603) size=(331,220,327) {EntryPosition=0, 109.5, 1515, WorldRevision=5, SafePosition=0, 109.5, 1527, BoundsHalfSize=146, 120, 146, GachaPosition=-43, 106.3499984741211, 1521, AreaId=4}
+  01_Relevo [Model] ch=62 bbox_c=(1,131,1603) size=(331,76,327)
+  02_Arquitetura [Model] ch=9 bbox_c=(0,156,1615) size=(247,102,245)
+  03_Circulacao [Model] ch=829 bbox_c=(0,108,1605) size=(5,237,222)
+  04_Vegetacao [Model] ch=500 bbox_c=(-4,145,1608) size=(352,79,347)
+  05_Detalhes [Model] ch=388 bbox_c=(0,112,1601) size=(195,12,225)
+  06_AguaEVFX [Model] ch=39 bbox_c=(0,126,1600) size=(192,48,228)
+  LimitesDaArea [Model] ch=5 bbox_c=(0,182,1600) size=(304,220,304)
+  Rochas [Folder] ch=22
+  PedraChefe [Model] ch=2 bbox_c=(-37,112,1676) size=(23,11,23)
+  VoltarLobby [Part] ch=1 pos=(43,106,1513) size=(6,0,6) {Destino=lobby}
+ShadowGardenPreviewKit [Folder] ch=61 {PreviewOnly=true}
+  ... 61 filhos
+BeforeUIV4_Feedback_20260917 [Folder] ch=7
+  Theme [StringValue] ch=0 {OriginalPath=ReplicatedStorage.ExpeditionUI.Theme}
+  Inventory [StringValue] ch=0 {OriginalPath=ReplicatedStorage.ExpeditionUI.Inventory}
+  Menus [StringValue] ch=0 {OriginalPath=ReplicatedStorage.ExpeditionUI.Menus}
+  Notify [StringValue] ch=0 {OriginalPath=ReplicatedStorage.ExpeditionUI.Notify}
+  ExpeditionClient [StringValue] ch=0 {OriginalPath=StarterPlayer.StarterPlayerScripts.ExpeditionClient}
+  AutoMinerar [StringValue] ch=0 {OriginalPath=StarterPlayer.StarterPlayerScripts.AutoMinerar}
+  IslandTransition [StringValue] ch=0 {OriginalPath=StarterPlayer.StarterPlayerScripts.IslandTransition}
+BeforeUIV5_AnimeExpeditions_20260917_1789674149 [Folder] ch=7
+  Theme [StringValue] ch=0 {OriginalPath=ReplicatedStorage.ExpeditionUI.Theme}
+  Inventory [StringValue] ch=0 {OriginalPath=ReplicatedStorage.ExpeditionUI.Inventory}
+  Menus [StringValue] ch=0 {OriginalPath=ReplicatedStorage.ExpeditionUI.Menus}
+  Notify [StringValue] ch=0 {OriginalPath=ReplicatedStorage.ExpeditionUI.Notify}
+  ExpeditionClient [StringValue] ch=0 {OriginalPath=StarterPlayer.StarterPlayerScripts.ExpeditionClient}
+  AutoMinerar [StringValue] ch=0 {OriginalPath=StarterPlayer.StarterPlayerScripts.AutoMinerar}
+  IslandTransition [StringValue] ch=0 {OriginalPath=StarterPlayer.StarterPlayerScripts.IslandTransition}
+BeforeUIV6_1789676670 [Folder] ch=18
+  Theme [StringValue] ch=0 {OriginalPath=ReplicatedStorage.ExpeditionUI.Theme}
+  Inventory [StringValue] ch=0 {OriginalPath=ReplicatedStorage.ExpeditionUI.Inventory}
+  Menus [StringValue] ch=0 {OriginalPath=ReplicatedStorage.ExpeditionUI.Menus}
+  Notify [StringValue] ch=0 {OriginalPath=ReplicatedStorage.ExpeditionUI.Notify}
+  ExpeditionClient [StringValue] ch=0 {OriginalPath=StarterPlayer.StarterPlayerScripts.ExpeditionClient}
+  AutoMinerar [StringValue] ch=0 {OriginalPath=StarterPlayer.StarterPlayerScripts.AutoMinerar}
+  IslandTransition [StringValue] ch=0 {OriginalPath=StarterPlayer.StarterPlayerScripts.IslandTransition}
+  MonetizacaoConfig [StringValue] ch=0 {OriginalPath=ReplicatedStorage.MonetizacaoConfig}
+  Passes [StringValue] ch=0 {OriginalPath=ServerScriptService.Core.Passes}
+  IgnisService [StringValue] ch=0 {OriginalPath=ServerScriptService.Core.IgnisService}
+  PlayerData [StringValue] ch=0 {OriginalPath=ServerScriptService.Core.PlayerData}
+  Main [StringValue] ch=0 {OriginalPath=ServerScriptService.Core.Main}
+  PetService [StringValue] ch=0 {OriginalPath=ServerScriptService.Core.PetService}
+  CharacterRig [StringValue] ch=0 {OriginalPath=ReplicatedStorage.CharacterRig}
+  Economia [StringValue] ch=0 {OriginalPath=ServerScriptService.Core.Economia}
+  Ofertas [StringValue] ch=0 {OriginalPath=ServerScriptService.Core.Ofertas}
+  Produtos [StringValue] ch=0 {OriginalPath=ServerScriptService.Core.Produtos}
+  Mineracao [StringValue] ch=0 {OriginalPath=ServerScriptService.Core.Mineracao}
+LobbyV1_Backup_20260917 [Folder] ch=7
+  SakuraPolish [Folder] ch=8
+  GameIntegration [Folder] ch=57
+  IslandBase [MeshPart] ch=0 pos=(-0,-10,-0) size=(231,22,208)
+  ApprovedGuild [Model] ch=3651 bbox_c=(-1,51,-30) size=(305,118,295)
+  Santuario_ORIGINAL [Folder] ch=7
+  Mystical Spawn Point_ORIGINAL [Model] ch=2 bbox_c=(0,1,58) size=(27,2,27)
+  Construcoes_ORIGINAL [Folder] ch=0
+LobbyV2 [Folder] ch=19
+  Config [ModuleScript] ch=0
+  Lib [ModuleScript] ch=0
+  LightingPass [ModuleScript] ch=0
+  TerrainPass [ModuleScript] ch=0
+  GroundPass [ModuleScript] ch=0
+  Views [ModuleScript] ch=0
+  ForgePass [ModuleScript] ch=0
+  PortalsPass [ModuleScript] ch=0
+  ArchPass [ModuleScript] ch=0
+  PropsPass [ModuleScript] ch=0
+  VfxPass [ModuleScript] ch=0
+  WayfindingPass [ModuleScript] ch=0
+  IntegrateV3 [ModuleScript] ch=0
+  TerrainV7 [ModuleScript] ch=0
+  IntegratePraca [ModuleScript] ch=0
+  Plantar [ModuleScript] ch=0
+  Corredores [ModuleScript] ch=0
+  Chao [ModuleScript] ch=0
+  Muralha [ModuleScript] ch=0
+LobbyV2_Caixas_Arquivado [Model] ch=7 bbox_c=(-2,-499871,3) size=(359,1000261,407)
+  Terreno [Folder] ch=29
+  RefinariaIgnis [Model] ch=13 bbox_c=(-24,81,-12) size=(148,183,154)
+  CumeDasExpedicoes [Model] ch=14 bbox_c=(97,79,-87) size=(57,128,95)
+  Cidade [Model] ch=7 bbox_c=(-13,46,-33) size=(384,159,347)
+  Props [Model] ch=7 bbox_c=(24,-499966,8) size=(255,1000071,309)
+  VFX [Model] ch=42 bbox_c=(10,65,30) size=(273,136,329)
+  Orientacao [Model] ch=5 bbox_c=(27,121,47) size=(221,285,229)
+BeforeLobbyV9_1789774683 [Folder] ch=2
+  Muralha [Folder] ch=1
+  CeuMineral [Sky] ch=0
+BeforeLobbyV10_1789783723 [Folder] ch=12
+  LV_PISO [Model] ch=10 bbox_c=(0,5,16) size=(306,23,342) {RBX_ReimportId=fd9e5e96-1c8f-45e2-b61e-8b6769f41ab2}
+  LV_FORJA [Model] ch=11 bbox_c=(-0,54,-124) size=(125,92,51) {RBX_ReimportId=a4c092f1-4c46-475b-a974-d9db1452d2e2}
+  LV_PRACA [Model] ch=10 bbox_c=(-0,14,30) size=(195,20,239) {RBX_ReimportId=784c82d6-52be-4799-9def-35ff12fc7cd2}
+  LV_PORTAO [Model] ch=7 bbox_c=(0,24,150) size=(58,38,12) {RBX_ReimportId=14141e01-2f1a-487e-be18-10dd25ab4290}
+  LV_LATERAIS [Model] ch=15 bbox_c=(0,24,0) size=(317,42,318) {RBX_ReimportId=d0557fc8-808b-43a6-9067-f57a4b0fae7c}
+  LV_KITVEG [Model] ch=22 bbox_c=(-109,-493,-70) size=(226,15,14) {RBX_ReimportId=04304a8f-8f11-46ba-8338-433843d60721}
+  Vegetacao [Folder] ch=170
+  Mystical Spawn Point [Model] ch=1 bbox_c=(-0,5,-66) size=(10,0,10)
+  LojaMochilas [Model] ch=1 bbox_c=(-116,8,0) size=(9,0,9)
+  MailBox [Model] ch=4 bbox_c=(-116,11,-18) size=(3,7,2)
+  Santuario [Folder] ch=6
+  NPC_Ignis [Model] ch=55 bbox_c=(2,20,-111) size=(19,23,19)
+LV9_Guardado [Folder] ch=10
+  LV_FORJA [Model] ch=11 bbox_c=(-0,54,-124) size=(125,92,51) {RBX_ReimportId=a4c092f1-4c46-475b-a974-d9db1452d2e2}
+  LV_PISO [Model] ch=10 bbox_c=(0,5,16) size=(306,23,342) {RBX_ReimportId=fd9e5e96-1c8f-45e2-b61e-8b6769f41ab2}
+  Vegetacao_zonaNorte [Folder] ch=169
+  LV_LATERAIS [Model] ch=15 bbox_c=(0,24,0) size=(317,42,318) {RBX_ReimportId=d0557fc8-808b-43a6-9067-f57a4b0fae7c}
+  VegetacaoAlta_zonaNorte [Folder] ch=0
+  Construcoes_zonaNorte [Folder] ch=0
+  LV_PRACA [Model] ch=10 bbox_c=(-0,14,30) size=(195,20,239) {RBX_ReimportId=784c82d6-52be-4799-9def-35ff12fc7cd2}
+  LV_KITVEG [Model] ch=22 bbox_c=(-109,-493,-70) size=(226,15,14) {RBX_ReimportId=04304a8f-8f11-46ba-8338-433843d60721}
+  LV_PORTAO [Model] ch=7 bbox_c=(0,24,150) size=(58,38,12) {RBX_ReimportId=14141e01-2f1a-487e-be18-10dd25ab4290}
+  VegArbustoFlor [Model] ch=2 bbox_c=(-81,6,-10) size=(4,3,4)
+LV10_SECAO_old [Model] ch=40 bbox_c=(-0,58,-88) size=(219,124,176) {RBX_ReimportId=8933b0c7-aa54-4a8b-8431-e81f70dad762}
+  ASH__agua [MeshPart] ch=1 pos=(0,1,-80) size=(129,4,49)
+  ASH__piso [MeshPart] ch=1 pos=(0,6,-84) size=(124,8,57)
+  DRK__alas [MeshPart] ch=0 pos=(0,23,-113) size=(101,26,4)
+  DRK__torre [MeshPart] ch=0 pos=(0,44,-120) size=(35,68,9)
+  EMB__torre [MeshPart] ch=0 pos=(0,14,-116) size=(23,8,16)
+  FLL__piso [MeshPart] ch=1 pos=(0,6,-82) size=(124,8,60)
+  FLL__torre [MeshPart] ch=1 pos=(0,10,-118) size=(14,0,12)
+  FLR__agua [MeshPart] ch=1 pos=(0,2,-68) size=(157,1,75)
+  FLW__piso [MeshPart] ch=0 pos=(-0,7,-99) size=(43,1,3)
+  FRG__torre [MeshPart] ch=0 pos=(0,35,-115) size=(36,50,1)
+  GLD__agua [MeshPart] ch=1 pos=(0,4,-67) size=(129,3,74)
+  GLD__alas [MeshPart] ch=1 pos=(0,30,-116) size=(110,40,10)
+  GLD__piso [MeshPart] ch=1 pos=(0,13,-82) size=(124,19,50)
+  GLD__torre_a_a [MeshPart] ch=1 pos=(12,23,-111) size=(19,26,7)
+  GLD__torre_a_b [MeshPart] ch=1 pos=(0,23,-111) size=(43,26,7)
+  GLD__torre_b_a [MeshPart] ch=1 pos=(0,37,-112) size=(40,3,3)
+  GLD__torre_b_b [MeshPart] ch=1 pos=(0,71,-126) size=(42,72,32)
+  GLS__alas [MeshPart] ch=0 pos=(0,46,-116) size=(110,5,10)
+  GLS__torre [MeshPart] ch=0 pos=(0,96,-130) size=(26,10,26)
+  GRS__piso [MeshPart] ch=0 pos=(0,5,-97) size=(57,1,11)
+  LFG2__piso [MeshPart] ch=0 pos=(0,19,-97) size=(53,24,8)
+  LFG__piso [MeshPart] ch=0 pos=(0,19,-100) size=(55,27,15)
+  LFV__agua [MeshPart] ch=0 pos=(-0,18,-123) size=(186,32,53)
+  LFV__piso [MeshPart] ch=0 pos=(-0,7,-99) size=(43,2,4)
+  LPS__agua [MeshPart] ch=0 pos=(0,2,-43) size=(3,0,26)
+  LPS__piso [MeshPart] ch=0 pos=(0,8,-82) size=(13,5,45)
+  MLK__piso [MeshPart] ch=0 pos=(0,18,-80) size=(47,4,17)
+  RCK__agua [MeshPart] ch=1 pos=(-0,11,-116) size=(219,30,120)
+  SDK__alas [MeshPart] ch=1 pos=(0,26,-124) size=(109,32,25)
+  SDK__torre [MeshPart] ch=1 pos=(0,47,-125) size=(40,73,33)
+  SLA__alas [MeshPart] ch=0 pos=(0,41,-125) size=(92,1,21)
+  SLT__agua [MeshPart] ch=1 pos=(0,5,-80) size=(130,6,50)
+  SLT__alas [MeshPart] ch=1 pos=(0,27,-116) size=(110,33,11)
+  SLT__piso [MeshPart] ch=1 pos=(0,9,-82) size=(125,12,52)
+  SLT__torre [MeshPart] ch=1 pos=(0,50,-125) size=(43,80,35)
+  TRK__agua [MeshPart] ch=0 pos=(0,17,-123) size=(181,29,47)
+  TRK__piso [MeshPart] ch=0 pos=(0,18,-98) size=(52,24,5)
+  WHT__piso [MeshPart] ch=0 pos=(0,14,-80) size=(49,13,18)
+  WTR__agua [MeshPart] ch=0 pos=(0,4,-103) size=(95,6,0)
+  _ORIGEM [MeshPart] ch=0 pos=(0,120,0) size=(1,1,1)
+LV10_Arquivo [Folder] ch=5
+  LV10_SECAO_v1 [Model] ch=41 bbox_c=(-0,58,-88) size=(219,124,176) {RBX_ReimportId=c6c02f0e-7c25-46df-9252-b4dc22da4063}
+  LV10_SECAO_v2a [Model] ch=50 bbox_c=(-1,58,-91) size=(220,124,182) {RBX_ReimportId=0810ee01-7997-4ac1-bc1e-a60309d8419e}
+  LV10_SECAO_v2b [Model] ch=49 bbox_c=(-1,58,-91) size=(220,124,182) {RBX_ReimportId=712c7169-ebfb-4b90-86c0-aa3e06a3ec33}
+  LV10_SECAO_v3a [Model] ch=53 bbox_c=(1,38,-94) size=(218,165,204) {RBX_ReimportId=6407fd56-d895-4ce8-8690-f0db2686112a}
+  LV10_SECAO_v3_final [Model] ch=54 bbox_c=(1,38,-94) size=(218,165,204) {RBX_ReimportId=cc9c9622-6de3-441c-84aa-b52e26d48fed}
+ParedesDeCusto_EditStale [Folder] ch=5
+  Parede2 [Model] ch=13 bbox_c=(0,59,-614) size=(246,118,63) {Custo=1400, AreaId=2}
+  Parede3 [Model] ch=13 bbox_c=(0,59,-1034) size=(246,118,63) {Custo=52000, AreaId=3}
+  Parede4 [Model] ch=13 bbox_c=(0,59,-1454) size=(246,118,63) {Custo=2500000, AreaId=4}
+  Parede5 [Model] ch=13 bbox_c=(0,59,-1874) size=(246,118,63) {Custo=150000000, AreaId=5}
+  Parede6 [Model] ch=13 bbox_c=(0,59,-2294) size=(246,118,63) {Custo=4600000000, AreaId=6}
+VFX_Guardado_Lobby [Folder] ch=8
+  vfx pack [Model] ch=4 bbox_c=(505,312,-802) size=(74,18,78)
+  Particle Storage [Model] ch=35 bbox_c=(656,305,-707) size=(364,19,60)
+  Big [Model] ch=5 bbox_c=(566,304,-705) size=(152,15,12)
+  Anime [Model] ch=36 bbox_c=(658,298,-727) size=(351,4,8)
+  Heads [Model] ch=6 bbox_c=(673,299,-719) size=(12,1,1)
+  Beams [Model] ch=3 bbox_c=(685,303,-686) size=(1,1,9)
+  Auras [Model] ch=5 bbox_c=(673,299,-693) size=(10,5,23)
+  PartsSoltas [Folder] ch=81
+TRECHO_AMOSTRA_v0 [Model] ch=226 bbox_c=(0,58,-89) size=(56,125,58) {RBX_ReimportId=ee859134-a66b-4806-baf6-158e67094267}
+  ... 226 filhos
+TRECHO_AMOSTRA_final [Model] ch=230 bbox_c=(0,58,-89) size=(56,125,58) {RBX_ReimportId=30022026-5065-4156-98a1-b24027a1ef40}
+  ... 230 filhos
+IslandTravel_BACKUP_antes_orientacao_spawn_20260919 [ModuleScript] ch=0 {BackupAntesV31=-- Server-owned area membership and recovery. No position or area supplied by a client is trusted.
+local Players=game:GetService('Players')
+local RunService=game:GetService('RunService')
+local Config=require(game.ReplicatedStorage.Config)
+local PlayerData=require(script.Parent.PlayerD}
+MURIM_BLOCKOUT_Guardado [Folder] ch=1
+  MURIM_BLOCKOUT [Folder] ch=8
+KITS_IMPORTADOS_ANTIGOS [Folder] ch=6
+  LOBBY_FORJA_CELESTE [Model] ch=79 bbox_c=(434,45,-9) size=(87,55,56) {RBX_ReimportId=425151bd-24ea-45f7-92bf-9f21575a10c4}
+  KIT_FORJA_CELESTE [Model] ch=46 bbox_c=(28,64,142) size=(41,45,35) {RBX_ReimportId=9cb99d82-61e5-4b94-8362-ee4a5b5ff5ed}
+  KIT_FORJA_CELESTE_v3 [Model] ch=52 bbox_c=(-7,53,-1) size=(41,45,35) {RBX_ReimportId=b69f6667-ac28-4791-ae0f-4cf97e571374}
+  LOBBY_FORJA_CELESTE_pre20set_0 [Model] ch=108 bbox_c=(434,109,-15) size=(373,76,421) {RBX_ReimportId=4801d316-34e6-4581-bd41-8074732b5d17}
+  PAVILHAO_MODELO_G1_pre20set_1 [Model] ch=310 bbox_c=(408,22,-5) size=(115,44,57)
+  LOBBY_FORJA_CELESTE_pre20set_2 [Model] ch=108 bbox_c=(434,183,-15) size=(373,76,421) {RBX_ReimportId=8e00574e-87eb-4ba1-ab8e-5c73d8a4503b}
+LOBBY_FORJA_CELESTE [Model] ch=154 bbox_c=(0,96,-132) size=(373,76,421) {RBX_ReimportId=dabb8291-fcee-48b2-a0cf-22bba2bda8bb}
+  ... 154 filhos
+PORTAIS_PROCEDURAIS_ANTIGOS [Folder] ch=6
+  Portal1 [Folder] ch=44
+  Portal2 [Folder] ch=44
+  Portal3 [Folder] ch=44
+  Portal4 [Folder] ch=44
+  Portal5 [Folder] ch=44
+  Portal6 [Folder] ch=44
+LOBBY_FORJA_CELESTE [Model] ch=153 bbox_c=(-6,70,67) size=(360,55,415) {RBX_ReimportId=f3e70cbf-0c7f-4c6b-bcc2-d6492b2c5cba}
+  ... 153 filhos
+LOBBY_FORJA_CELESTE [Model] ch=157 bbox_c=(-84,70,64) size=(383,55,435) {RBX_ReimportId=caa8d1f9-9216-4f47-8030-10429596aa34}
+  ... 157 filhos
+LOBBY_FORJA_CELESTE [Model] ch=169 bbox_c=(-89,71,6) size=(360,138,415) {RBX_ReimportId=c004e5e4-0250-4b28-999c-08a5cf8f37f1}
+  ... 169 filhos
+BACKUP_LOBBY [Folder] ch=1
+  LOBBY_MURIM_pre_relevo [Model] ch=9 bbox_c=(178,6,64) size=(2167,168,2519)
+LOBBY_FORJA_CELESTE [Model] ch=169 bbox_c=(-5,85,-100) size=(360,150,415) {RBX_ReimportId=72ae4c76-d64f-4c45-917b-e7a33093cf9e}
+  ... 169 filhos
+LOBBY_FORJA_CELESTE [Model] ch=168 bbox_c=(-57,78,-15) size=(360,150,415) {RBX_ReimportId=19d186b3-d999-4277-a048-16b7735b9920}
+  ... 168 filhos
+LOBBY_FORJA_CELESTE [Model] ch=189 bbox_c=(0,223,-128) size=(1637,422,1679) {RBX_ReimportId=b2eb2d7b-e2bd-4add-acb8-297a1e222bd3}
+  ... 189 filhos
+BIBLIOTECA_MURIM [Folder] ch=18
+  TEL [Folder] ch=27
+  LOB [Folder] ch=25
+  KIT [Folder] ch=32
+  PATIO [Folder] ch=13
+  PODIO [Folder] ch=3
+  NUC [Folder] ch=3
+  FORJA [Folder] ch=1
+  ESCADA [Folder] ch=3
+  LOJA [Folder] ch=1
+  OESTE [Folder] ch=1
+  VIA [Folder] ch=2
+  PORTAO [Folder] ch=2
+  POR [Folder] ch=24
+  LAGO [Folder] ch=3
+  SANT [Folder] ch=2
+  TREINO [Folder] ch=1
+  JAR [Folder] ch=10
+  VIL [Folder] ch=10
+LOBBY_FORJA_CELESTE [Model] ch=165 bbox_c=(68,50,-107) size=(360,96,415) {RBX_ReimportId=bf657981-c06c-42cc-b5d5-a4c9bb9cf71f}
+  ... 165 filhos
+LOBBY_REMOVIDOS_HEX [Folder] ch=14
+  F1_R01_dragoes [Folder] ch=110
+  F1_R02_telhado_galeria [Folder] ch=17
+  F1_R03_vegetacao [Folder] ch=151
+  F1_R04_entulho [Folder] ch=26
+  F1_R05_rio [Folder] ch=73
+  F1_R06_patio_retangulo [Folder] ch=31
+  F1_R07_muralha_ret [Folder] ch=133
+  F1_R08_forja [Folder] ch=12
+  F1_R09a_degraus_forja [Folder] ch=12
+  F1_R12_temp [Folder] ch=1
+  F1_R13_estandartes [Folder] ch=8
+  F3_R09b_R14 [Folder] ch=12
+  F4_R10 [Folder] ch=50
+  F7_R11 [Folder] ch=31
+BACKUP_LOBBY_PRE_HEX [Folder] ch=10
+  LOBBY_MURIM [Model] ch=11 bbox_c=(0,-15,-9) size=(477,169,532) {BackupOrigem=Workspace.LOBBY_MURIM}
+  Santuario [Folder] ch=6 {BackupOrigem=Workspace.Santuario}
+  LojaMochilas [Model] ch=1 bbox_c=(-116,8,0) size=(9,0,9) {BackupOrigem=Workspace.LojaMochilas}
+  MailBox [Model] ch=4 bbox_c=(-116,11,-18) size=(3,7,2) {BackupOrigem=Workspace.MailBox}
+  Lobby_Area1 [Folder] ch=34 {BackupOrigem=Workspace.Corredores.Lobby_Area1}
+  LV10_TempContexto [Folder] ch=5 {BackupOrigem=Workspace.LV10_TempContexto}
+  Ignis [Model] ch=55 bbox_c=(-0,17,-108) size=(12,15,12) {BackupOrigem=Workspace.NPCs.Ignis, EscalaOriginal=8.110092163085938}
+  ExpeditionTravel [Script] ch=0 {BackupOrigem=ServerScriptService.Core.ExpeditionTravel, BackupAntesV31=--!strict
+-- Deploy as a Script under ServerScriptService.Core.
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local Config = require(ReplicatedStorage:WaitForChild("Con}
+  IslandTravel [ModuleScript] ch=0 {BackupOrigem=ServerScriptService.Core.IslandTravel, BackupAntesV31=-- Server-owned area membership and recovery. No position or area supplied by a client is trusted.
+local Players=game:GetService('Players')
+local RunService=game:GetService('RunService')
+local Config=require(game.ReplicatedStorage.Co}
+  PortaisAmbiente [LocalScript] ch=0 {BackupOrigem=StarterPlayer.StarterPlayerScripts.PortaisAmbiente}
+LIB_USUARIO [Folder] ch=5
+  ARVORE_VERDE [Model] ch=2 bbox_c=(-61,22,131) size=(28,44,29)
+  SAKURA [Model] ch=7 bbox_c=(-53,5,139) size=(14,11,13)
+  LANTERNA_PAGODE [Model] ch=3 bbox_c=(-38,4,118) size=(6,9,6)
+  VASO [Model] ch=12 bbox_c=(-60,5,148) size=(6,8,5)
+  VASO_CORRIGIDO [Model] ch=12 bbox_c=(-60,5,148) size=(6,8,5)
+LOBBY_BACKUP_F14 [Model] ch=24 bbox_c=(0,-16,-9) size=(477,167,532) {HEX_F0_OK=true, HEX_F7_OK=true, HEX_F2_OK=true, HEX_P2_OK=true, HEX_P1_OK=true, HEX_F5_OK=true, HEX_F13_OK=true, HEX_P0_OK=true, HEX_F8_OK=true, HEX_F6_OK=true, HEX_F4_OK=true, HEX_F1_OK=true, HEX_F3_OK=true}
+  Forja [Folder] ch=74
+  Patio [Folder] ch=1344
+  Portao [Folder] ch=7
+  Leste [Folder] ch=32
+  Oeste [Folder] ch=13
+  Veg [Folder] ch=0
+  Props [Folder] ch=35
+  Chao [Folder] ch=0
+  Colisao [Folder] ch=366
+  AGUA [Folder] ch=6
+  ChaoSimples [Folder] ch=1
+  HEX_Chao [Folder] ch=5 {PavingMaterial=Pavement, SecondaryRings=false}
+  HEX_Muralha [Folder] ch=12
+  HEX_Monumento [Folder] ch=32
+  HEX_Lagos [Folder] ch=57
+  HEX_Canteiros [Folder] ch=32
+  HEX_Loja [Folder] ch=84
+  HEX_Galeria [Folder] ch=3
+  HEX_Treino [Folder] ch=57
+  HEX_PonteSaida [Folder] ch=160
+  HEX_Detalhes [Folder] ch=11
+  HEX_P1 [Folder] ch=31
+  HEX_P2 [Folder] ch=60
+  HEX_F13 [Folder] ch=207
+Santuario_BACKUP_F14 [Folder] ch=6
+  Portal1 [Model] ch=2 bbox_c=(98,10,-80) size=(4,6,6) {CF0=124.5, 9.55000019, 32.4999886, 4.37113883e-08, 1, -8.74227766e-08, 1, -4.37113883e-08, 0, -3.82137093e-15, -8.74227766e-08, -1, HEX_GRUPO=GALERIA}
+  Portal2 [Model] ch=2 bbox_c=(104,10,-69) size=(4,6,6) {CF0=124.5, 9.55000019, 19.4999886, 4.37113883e-08, 1, -8.74227766e-08, 1, -4.37113883e-08, 0, -3.82137093e-15, -8.74227766e-08, -1, HEX_GRUPO=GALERIA}
+  Portal3 [Model] ch=2 bbox_c=(111,10,-58) size=(4,6,6) {CF0=124.5, 9.55000019, 6.49998903, 4.37113883e-08, 1, -8.74227766e-08, 1, -4.37113883e-08, 0, -3.82137093e-15, -8.74227766e-08, -1, HEX_GRUPO=GALERIA}
+  Portal4 [Model] ch=2 bbox_c=(117,10,-46) size=(4,6,6) {CF0=124.5, 9.55000019, -6.50001097, 4.37113883e-08, 1, -8.74227766e-08, 1, -4.37113883e-08, 0, -3.82137093e-15, -8.74227766e-08, -1, HEX_GRUPO=GALERIA}
+  Portal5 [Model] ch=2 bbox_c=(124,10,-35) size=(4,6,6) {CF0=124.5, 9.55000019, -19.5000114, 4.37113883e-08, 1, -8.74227766e-08, 1, -4.37113883e-08, 0, -3.82137093e-15, -8.74227766e-08, -1, HEX_GRUPO=GALERIA}
+  Portal6 [Model] ch=2 bbox_c=(130,10,-24) size=(4,6,6) {CF0=124.5, 9.55000019, -32.5000114, 4.37113883e-08, 1, -8.74227766e-08, 1, -4.37113883e-08, 0, -3.82137093e-15, -8.74227766e-08, -1, HEX_GRUPO=GALERIA}
+LojaMochilas_BACKUP_F14 [Model] ch=1 bbox_c=(-105,8,-47) size=(9,0,9)
+  PadLoja [Part] ch=0 pos=(-105,8,-47) size=(9,0,9) {CF0=-116, 8.25, 1.01410424e-05, -1, 0, -8.74227766e-08, 0, 1, 0, 8.74227766e-08, 0, -1, S0=9, 0.4000000059604645, 9, HEX_GRUPO=LOJA}
+F14_REMOVIDOS [Folder] ch=72
+  ... 72 filhos
+F22_REMOVIDOS [Folder] ch=4
+  LagoFR [Folder] ch=102
+  LagoFL_retas [Folder] ch=54
+  LojaPredio [Folder] ch=68
+  LojaPortico [Folder] ch=18
+F24_REMOVIDOS [Folder] ch=7
+  PonteFL [Folder] ch=21
+  Bancos [Folder] ch=12
+  GateAntigo [Folder] ch=38
+  LojaTemplo [Folder] ch=80
+  RochasOrfas [Folder] ch=22
+  LagoRetangularAntigo [Folder] ch=7
+  LeaderboardAntigo [Folder] ch=36
+GALERIA_E_PORTAIS_REMOVIDOS [Folder] ch=2
+  Portais [Folder] ch=1
+  Galeria [Folder] ch=337
+F29_EXCEDENTE [Folder] ch=0
+BeforeForjaAtiva_20260924 [Folder] ch=9
+  IslandTravel [ModuleScript] ch=0 {BackupAntesV31=-- Server-owned area membership and recovery. No position or area supplied by a client is trusted.
+local Players=game:GetService('Players')
+local RunService=game:GetService('RunService')
+local Config=require(game.ReplicatedStorage.Config)
+local PlayerData=require(script.Parent.PlayerD}
+  Main [Script] ch=0 {BackupAntesV31=local RS = game:GetService("ReplicatedStorage")
+local Players = game:GetService("Players")
+
+local Config       = require(RS.Config)
+local PlayerData   = require(script.Parent.PlayerData)
+local AreaBuilder  = require(script.Parent.AreaBuilder)
+local Mineracao    = require(script.Parent}
+  ExpeditionTravel [Script] ch=0 {BackupAntesV31=--!strict
+-- Deploy as a Script under ServerScriptService.Core.
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local Config = require(ReplicatedStorage:WaitForChild("Config"))
+local PlayerData = require(script.Parent:WaitForC}
+  LOBBY_MURIM [Model] ch=37 bbox_c=(0,-18,-9) size=(477,164,532) {F28_LagoMovido=true, F28_LojaMovida=true, F22_LojaCF=-91.8698883, 13.2799997, -42.0722084, 0.866025388, 0, -0.5, 0, 1, 0, 0.5, 0, 0.866025388, HEX_F14B_OK=true, HEX_F18_OK=true, HEX_F27_OK=true, HEX_P0_OK=true, HEX_F14D_OK=true, HEX_F7_OK=true, HEX_F14E_OK=true, HEX_F0_OK=true, HEX_F16_OK=true, HEX_}
+  Grass [MeshPart] ch=0 pos=(-62,0,145) size=(6,5,7)
+  chinese imperial lion statue [MeshPart] ch=0 pos=(-56,4,123) size=(4,8,6) {RBX_AI_GENERATED=true, RBX_AI_GENERATION_ID=4d817122-09a2-4d4b-b383-ce10694f910b, RBX_AI_GENERATION_TYPE=GenerateMesh}
+  BonsaiTree [MeshPart] ch=0 pos=(-53,2,124) size=(2,2,2)
+  Handle [Part] ch=3 pos=(-43,6,118) size=(4,6,4)
+  ForjaOcultos [Folder] ch=3
+LOBBY_FORJA_VFX_ORIGINAIS [Folder] ch=12
+  WATER_Waterwheel__Metal_Dark [MeshPart] ch=0 pos=(62,11,-20) size=(5,3,3)
+  WATER_Waterwheel__Metal_Rust [MeshPart] ch=0 pos=(52,11,-20) size=(35,18,18)
+  WATER_Waterwheel__Wood_Dark_B [MeshPart] ch=0 pos=(51,11,-20) size=(35,19,19)
+  WATER_Waterwheel__Wood_Light [MeshPart] ch=0 pos=(62,11,-20) size=(4,17,17)
+  WATER_Waterwheel__Wood_Plank_B [MeshPart] ch=0 pos=(62,10,-20) size=(6,18,24)
+  BLD_WheelHouse__Metal_Dark [MeshPart] ch=0 pos=(48,13,-15) size=(13,15,14)
+  BLD_WheelHouse__Metal_Iron [MeshPart] ch=0 pos=(48,11,-20) size=(12,13,10)
+  BLD_WheelHouse__Wood_Dark [MeshPart] ch=0 pos=(49,15,-19) size=(19,23,22)
+  BLD_WheelHouse__Wood_Light [MeshPart] ch=0 pos=(46,14,-16) size=(4,12,14)
+  FORGE_Bellows_Top__Leather_Bellows [MeshPart] ch=0 pos=(35,8,-15) size=(3,4,10)
+  FORGE_Bellows_Top__Metal_Dark [MeshPart] ch=0 pos=(35,9,-16) size=(3,3,7)
+  FORGE_Bellows_Top__Wood_Plank_C [MeshPart] ch=0 pos=(35,8,-15) size=(3,4,10)
+BeforeIlhaNaruto_20260925 [Folder] ch=8 {Lighting=Ambient=0.439216, 0.403922, 0.372549; OutdoorAmbient=0.596078, 0.545098, 0.478431; Brightness=2.9000000953674316; ClockTime=15.399999618530273; ExposureCompensation=0.11999999731779099; EnvironmentDiffuseScale=1; EnvironmentSpecularScale=1; GlobalShadows=true; FogStart=0; FogEnd=100000; Fog}
+  Core [Folder] ch=40
+  Config [ModuleScript] ch=0 {BackupAntesV31=local Config = {}
+
+-- ---------- TEMAS / MINERIOS ----------
+-- um tema por area. cada tema tem 3 variantes mineraveis + chefe.
+-- BALANCEAMENTO (planilha Balanceamento_AnimeMining.xlsx / balance.py):
+--   HP = golpes-alvo (4/7/14/120) x poder da 1a picareta do mundo x mult. medio de }
+  BannersConfig [ModuleScript] ch=0
+  MonetizacaoConfig [ModuleScript] ch=0
+  Gachas [Folder] ch=5
+  ExpeditionClient [LocalScript] ch=0 {BackupAntesV31=local Players=game:GetService("Players")
+local RS=game:GetService("ReplicatedStorage")
+local Tween=game:GetService("TweenService")
+local Input=game:GetService("UserInputService")
+local Lighting=game:GetService("Lighting")
+local player=Players.LocalPlayer
+local pg=player:WaitForChild("}
+  ParedesClient [LocalScript] ch=0
+  LightingChildren [Folder] ch=5
+ILHA_NARUTO_import_203d27_Arquivo [Folder] ch=10
+  ILHA1_09_PROPS_203d27 [Model] ch=13 bbox_c=(-16,38,-482) size=(210,35,233) {RBX_ReimportId=0861f03d-1ece-4c20-94fc-95d93ef18b9a}
+  ILHA1_12_VFX_HELPERS_203d27 [Model] ch=23 bbox_c=(-0,62,-532) size=(329,67,181) {RBX_ReimportId=afec1c95-9131-4964-930d-4c8a74ff9388}
+  ILHA1_07_NEXT_ISLAND_203d27 [Model] ch=26 bbox_c=(106,-2,-573) size=(162,109,146) {RBX_ReimportId=b91490d1-df64-424c-b645-c22923a6c744}
+  ILHA1_06_WATER_203d27 [Model] ch=34 bbox_c=(-40,27,-493) size=(325,187,298) {RBX_ReimportId=674a2031-67c7-44c8-bf5e-93a323ed16e9}
+  ILHA1_08_PURCHASE_GATES_203d27 [Model] ch=23 bbox_c=(155,76,-613) size=(42,37,42) {RBX_ReimportId=4b05660e-7920-4a11-93f9-ee61c5ebef7f}
+  ILHA1_05_SUMMON_203d27 [Model] ch=25 bbox_c=(-147,125,-468) size=(74,61,66) {RBX_ReimportId=c325495d-db92-43e8-98e3-e702a3526659}
+  ILHA1_03_MINING_203d27 [Model] ch=33 bbox_c=(-18,34,-441) size=(159,15,159) {RBX_ReimportId=3b01e1ef-3f95-4628-9ea1-5bcb10167721}
+  ILHA1_10_VEGETATION_203d27 [Model] ch=51 bbox_c=(-28,82,-479) size=(338,140,333) {RBX_ReimportId=bac921aa-91b2-4fb7-b5ca-00ad05d1bff3}
+  ILHA1_02_TERRAIN_203d27 [Model] ch=99 bbox_c=(-21,252,-559) size=(963,200,732) {RBX_ReimportId=32cd88db-1662-4349-b8b4-547c4301282d}
+  ILHA1_04_VILLAGE_203d27 [Model] ch=145 bbox_c=(-13,82,-488) size=(281,95,335) {RBX_ReimportId=c77ee80e-b447-4cc0-bf6b-882ca229d163}
+ILHA_NARUTO_pendente_reimport [Folder] ch=1
+  MINE_Props__Crystal_Blue [MeshPart] ch=0 pos=(31,6,377) size=(92,3,87)
+IlhaNaruto_anterior [Model] ch=36 bbox_c=(0,-10,420) size=(2048,208,2048) {EXPORT_ID=1c2e6437, PendenteReimport=36 malhas do export 1c2e64 ainda com geometria do 203d27 (terreno fundo/mineracao/agua/vegetacao); 5 faltando; ver ServerStorage.ILHA_NARUTO_pendente_reimport, RICO=false}
+  ILHA1_09_PROPS [Folder] ch=13
+  ILHA1_12_VFX_HELPERS [Folder] ch=23
+  ILHA1_07_NEXT_ISLAND [Folder] ch=24
+  ILHA1_06_WATER [Folder] ch=34
+  ILHA1_08_PURCHASE_GATES [Folder] ch=0
+  ILHA1_05_SUMMON [Folder] ch=17
+  ILHA1_03_MINING [Folder] ch=29
+  ILHA1_10_VEGETATION [Folder] ch=51
+  ILHA1_02_TERRAIN [Folder] ch=91
+  ILHA1_04_VILLAGE [Folder] ch=9
+  COLLISION [Folder] ch=1108
+  GAMEPLAY_MARKERS [Folder] ch=82
+  LIGHTS [Folder] ch=34
+  EXIT_AnchorGuard [Model] ch=2 bbox_c=(-192,19,612) size=(14,3,14) {next_island_guard=true, removed_by=integracao da Ilha 2 (ponte seguinte encosta em ISLAND_NEXT_ANCHOR)}
+  GATE_DB [Model] ch=24 bbox_c=(-172,35,592) size=(42,37,42)
+  SUM_Tower [Model] ch=8 bbox_c=(134,36,457) size=(41,41,46)
+  SKYLINE [Model] ch=7 bbox_c=(0,-15,420) size=(2048,194,2048)
+  ENT_Gate [Model] ch=13 bbox_c=(0,26,310) size=(62,40,20)
+  VIL_House_East_01 [Model] ch=6 bbox_c=(-134,9,394) size=(20,27,18)
+  VIL_House_East_02 [Model] ch=5 bbox_c=(-136,13,456) size=(19,15,18)
+  VIL_House_T1_01 [Model] ch=5 bbox_c=(-37,23,527) size=(20,15,18)
+  VIL_House_T1_02 [Model] ch=5 bbox_c=(84,23,530) size=(22,15,19)
+  VIL_House_T1_03 [Model] ch=5 bbox_c=(-83,23,528) size=(19,15,19)
+  VIL_House_T1_04 [Model] ch=5 bbox_c=(112,23,504) size=(20,15,18)
+  VIL_House_T2_01 [Model] ch=5 bbox_c=(98,32,580) size=(22,21,20)
+  VIL_House_T2_02 [Model] ch=5 bbox_c=(-96,29,570) size=(19,15,18)
+  VIL_House_T2_03 [Model] ch=5 bbox_c=(126,29,556) size=(19,15,18)
+  VIL_House_Upper_01 [Model] ch=3 bbox_c=(64,77,622) size=(14,12,13)
+  VIL_House_Upper_02 [Model] ch=3 bbox_c=(52,77,628) size=(13,11,12)
+  VIL_House_Upper_03 [Model] ch=3 bbox_c=(-55,80,625) size=(12,19,12)
+  VIL_MainHall [Model] ch=16 bbox_c=(0,43,580) size=(52,44,52)
+  VIL_Mill [Model] ch=8 bbox_c=(-100,19,432) size=(20,27,31)
+  VIL_Ramen [Model] ch=14 bbox_c=(38,25,527) size=(23,20,17)
+  VIL_WaterTower [Model] ch=12 bbox_c=(-58,36,578) size=(32,30,39)
+  VIL_WeaponShop [Model] ch=16 bbox_c=(58,36,574) size=(32,30,32)
+  VOID_CATCH [Part] ch=12 pos=(0,-40,430) size=(420,4,440)
+ILHA_NARUTO_substituidos [Folder] ch=2
+  Lobby_Area1 [Folder] ch=3
+  Area1_Area2 [Folder] ch=30
+AfterIlhaNaruto_20260925 [Folder] ch=9
+  ServerScriptService__Core__NarutoIsland [ModuleScript] ch=0
+  ServerScriptService__Core__IslandWorld [ModuleScript] ch=0 {BackupAntesV31=-- Six authored teleport destinations. All mandatory interaction routes share one ground level.
+local Art=require(script.Parent.IslandArt)
+local M={}
+local V=Vector3.new local C=Color3.fromRGB local pi=math.pi
+local palettes={
+ {rock=C(156,117,75),soil=C(206,179,128),grass=C(99,161,52}
+  ServerScriptService__Core__TravessiaCorredores [ModuleScript] ch=0
+  ServerScriptService__Core__Paredes [ModuleScript] ch=0
+  StarterPlayer__StarterPlayerScripts__ILHA_NARUTO_Cliente [LocalScript] ch=0
+  StarterPlayer__StarterPlayerScripts__ILHA_NARUTO_Movel [LocalScript] ch=0
+  ReplicatedStorage__PortoesCompra [ModuleScript] ch=0
+  ServerScriptService__ILHA_NARUTO_Servidor [Script] ch=0 {Motivo=desligado na integracao: sem cascas SoVisual neste export; grupo Personagens colidiria com PetsVisuais; quedas = IslandTravel}
+  LEIA [StringValue] ch=0
+IlhaNaruto [Model] ch=36 bbox_c=(0,-9,420) size=(2048,211,2048) {EXPORT_ID=1c2e6437, RICO=false}
+  ILHA1_02_TERRAIN_1c2e64 [Model] ch=94 bbox_c=(8,-9,433) size=(351,211,429) {RBX_ReimportId=11c11e77-564b-4767-8a60-b0d2e40ab87d}
+  ILHA1_03_MINING_1c2e64 [Model] ch=32 bbox_c=(0,10,420) size=(159,15,159) {RBX_ReimportId=4ca7db5b-f6c8-461a-8ccc-727429ce6e0a}
+  ILHA1_04_VILLAGE_1c2e64 [Model] ch=9 bbox_c=(0,17,411) size=(45,21,219) {RBX_ReimportId=c5488619-d975-434c-b1a4-2d49808d1d0f}
+  ILHA1_05_SUMMON_1c2e64 [Model] ch=17 bbox_c=(129,46,444) size=(74,60,60) {RBX_ReimportId=c4cdadf4-3436-47b0-a20a-bc9ce31bf15f}
+  ILHA1_06_WATER_1c2e64 [Model] ch=34 bbox_c=(22,-19,472) size=(325,187,297) {RBX_ReimportId=bef60255-ecd3-47e8-b040-ce69559ff0f7}
+  ILHA1_07_NEXT_ISLAND_1c2e64 [Model] ch=24 bbox_c=(-124,-26,552) size=(162,109,146) {RBX_ReimportId=fda203b9-81c2-4a5a-8fb5-2c0762ee39ed}
+  ILHA1_08_PURCHASE_GATES_1c2e64 [Model] ch=0 bbox_c=(0,-43,-1) size=(0,0,0) {RBX_ReimportId=3409fac4-ddaa-49c7-b112-52a31d23ce60}
+  ILHA1_09_PROPS_1c2e64 [Model] ch=13 bbox_c=(-1,14,462) size=(210,35,233) {RBX_ReimportId=03497c5b-6bf3-476b-ac1f-abf2e32d53a2}
+  ILHA1_10_VEGETATION_1c2e64 [Model] ch=51 bbox_c=(10,24,458) size=(338,129,333) {RBX_ReimportId=85009e98-1cf5-4deb-afb6-e5ddda8e87a6}
+  ILHA1_12_VFX_HELPERS_1c2e64 [Model] ch=23 bbox_c=(-18,38,512) size=(329,67,181) {RBX_ReimportId=3179e630-4b5e-44c0-a22a-af6b08c98e57}
+  COLLISION [Folder] ch=1108
+  GAMEPLAY_MARKERS [Folder] ch=82
+  LIGHTS [Folder] ch=34
+  SKYLINE [Model] ch=7 bbox_c=(0,-15,420) size=(2048,194,2048)
+  ENT_Gate [Model] ch=13 bbox_c=(0,26,310) size=(62,40,20)
+  VIL_House_East_01 [Model] ch=6 bbox_c=(-134,9,394) size=(20,27,18)
+  VIL_House_East_02 [Model] ch=5 bbox_c=(-136,13,456) size=(19,15,18)
+  VIL_House_T1_01 [Model] ch=5 bbox_c=(-37,23,527) size=(20,15,18)
+  VIL_House_T1_02 [Model] ch=5 bbox_c=(84,23,530) size=(22,15,19)
+  VIL_House_T1_03 [Model] ch=5 bbox_c=(-83,23,528) size=(19,15,19)
+  VIL_House_T1_04 [Model] ch=5 bbox_c=(112,23,504) size=(20,15,18)
+  VIL_House_T2_01 [Model] ch=5 bbox_c=(98,32,580) size=(22,21,20)
+  VIL_House_T2_02 [Model] ch=5 bbox_c=(-96,29,570) size=(19,15,18)
+  VIL_House_T2_03 [Model] ch=5 bbox_c=(126,29,556) size=(19,15,18)
+  VIL_House_Upper_01 [Model] ch=3 bbox_c=(64,77,622) size=(14,12,13)
+  VIL_House_Upper_02 [Model] ch=3 bbox_c=(52,77,628) size=(13,11,12)
+  VIL_House_Upper_03 [Model] ch=3 bbox_c=(-55,80,625) size=(12,19,12)
+  VIL_MainHall [Model] ch=16 bbox_c=(0,43,580) size=(52,44,52)
+  VIL_Mill [Model] ch=8 bbox_c=(-100,19,432) size=(20,27,31)
+  VIL_Ramen [Model] ch=14 bbox_c=(38,25,527) size=(23,20,17)
+  VIL_WaterTower [Model] ch=12 bbox_c=(-58,36,578) size=(32,30,39)
+  VIL_WeaponShop [Model] ch=16 bbox_c=(58,36,574) size=(32,30,32)
+  SUM_Tower [Model] ch=8 bbox_c=(134,36,457) size=(41,41,46)
+  EXIT_AnchorGuard [Model] ch=2 bbox_c=(-192,19,612) size=(14,3,14) {next_island_guard=true, removed_by=integracao da Ilha 2 (ponte seguinte encosta em ISLAND_NEXT_ANCHOR)}
+  GATE_DB [Model] ch=24 bbox_c=(-172,35,592) size=(42,37,42)
+  VOID_CATCH [Part] ch=12 pos=(0,-40,430) size=(420,4,440)
+BeforeIlhaDragonBall_20260925 [Folder] ch=5
+  Core__IslandWorld [ModuleScript] ch=0 {BackupAntesV31=-- Six authored teleport destinations. All mandatory interaction routes share one ground level.
+local Art=require(script.Parent.IslandArt)
+local M={}
+local V=Vector3.new local C=Color3.fromRGB local pi=math.pi
+local palettes={
+ {rock=C(156,117,75),soil=C(206,179,128),grass=C(99,161,52}
+  Core__IslandTravel [ModuleScript] ch=0 {BackupAntesV31=-- Server-owned area membership and recovery. No position or area supplied by a client is trusted.
+local Players=game:GetService('Players')
+local RunService=game:GetService('RunService')
+local Config=require(game.ReplicatedStorage.Config)
+local PlayerData=require(script.Parent.PlayerD}
+  StarterPlayerScripts__ILHA_NARUTO_Cliente [LocalScript] ch=0
+  Core__NarutoIsland [ModuleScript] ch=0
+  StarterPlayerScripts__IslandVisibility [LocalScript] ch=0 {BackupAntesV31=-- Hide distant destinations so their silhouettes do not appear outside the current scenery.
+local player=game.Players.LocalPlayer
+local known={}
+local current=player:GetAttribute('CurrentAreaId') or 0
+local function areaId(instance)
+ local areas=workspace:FindFirstChild('Areas') if n}
+IlhaDragonBall_anterior [Model] ch=32 bbox_c=(-383,2,811) size=(800,221,792) {EXPORT_ID=1d00de62, RICO=false}
+  ILHA2_02_TERRAIN_1d00de [Model] ch=121 bbox_c=(-346,-4,785) size=(413,208,374) {RBX_ReimportId=ea680c08-39e5-4f48-9146-82a8f13de196}
+  ILHA2_03_MINING_ZONE_1d00de [Model] ch=38 bbox_c=(-323,24,740) size=(152,20,153) {RBX_ReimportId=f614b9f9-6ba7-4f72-95cd-e87ff4d7243b}
+  ILHA2_04_CAPSULE_LANDMARK_1d00de [Model] ch=0 bbox_c=(13,-49,-117) size=(0,0,0) {RBX_ReimportId=044cfd4b-0bfe-45c7-ae26-2e0a52456d40}
+  ILHA2_05_TECH_VILLAGE_1d00de [Model] ch=27 bbox_c=(-349,31,786) size=(273,15,306) {RBX_ReimportId=69a8cb64-6dfc-4ca9-aea5-355796ae2f2b}
+  ILHA2_07_WATER_1d00de [Model] ch=23 bbox_c=(-304,2,755) size=(293,137,331) {RBX_ReimportId=0d7c9de0-172c-41e5-9fd8-93369d659495}
+  ILHA2_08_NEXT_ISLAND_1d00de [Model] ch=27 bbox_c=(-489,15,686) size=(191,104,100) {RBX_ReimportId=45f0fd3b-8d0a-41bd-8645-b34d3dbcf051}
+  ILHA2_08_PURCHASE_GATES_1d00de [Model] ch=0 bbox_c=(13,-5,-117) size=(0,0,0) {RBX_ReimportId=2c3a8031-03e3-4d71-a829-10b972156c51}
+  ILHA2_09_PROPS_1d00de [Model] ch=31 bbox_c=(-325,50,749) size=(288,52,251) {RBX_ReimportId=6857a216-da64-45ae-a1e4-f0942d7c5f90}
+  ILHA2_10_VEGETATION_1d00de [Model] ch=34 bbox_c=(-345,61,786) size=(411,103,370) {RBX_ReimportId=87ce2eea-6fc7-4c65-8ed5-80497901587f}
+  ILHA2_12_VFX_HELPERS_1d00de [Model] ch=34 bbox_c=(-383,60,788) size=(345,64,275) {RBX_ReimportId=dfcb4630-600d-4e09-8c35-83a1f4a40ff3}
+  ILHA2_06_SUMMON_1d00de [Model] ch=0 bbox_c=(13,-49,-117) size=(0,0,0) {RBX_ReimportId=d3fcb7a9-343f-4e50-9e16-6d757ed1c9c8}
+  COLLISION [Folder] ch=1516
+  GAMEPLAY_MARKERS [Folder] ch=169
+  LIGHTS [Folder] ch=33
+  DB_Ent_Gate [Model] ch=4 bbox_c=(-250,40,670) size=(23,32,23)
+  SKYLINE [Model] ch=7 bbox_c=(-383,41,811) size=(800,126,792)
+  DB_Cap [Model] ch=54 bbox_c=(-436,59,856) size=(140,63,140)
+  DB_Hub_Dojo [Model] ch=12 bbox_c=(-399,35,649) size=(40,21,40)
+  DB_Hub_HouseA [Model] ch=7 bbox_c=(-353,41,856) size=(22,26,24)
+  DB_Hub_HouseB [Model] ch=7 bbox_c=(-437,38,769) size=(19,19,15)
+  DB_Hub_Market [Model] ch=12 bbox_c=(-353,36,895) size=(39,17,39)
+  DB_Hub_Workshop [Model] ch=12 bbox_c=(-430,40,802) size=(29,24,29)
+  DB_Twr_Comm [Model] ch=6 bbox_c=(-377,61,918) size=(54,68,23)
+  DB_Twr_Energy [Model] ch=7 bbox_c=(-459,44,775) size=(12,32,12)
+  DB_Twr_LandingPad [Model] ch=6 bbox_c=(-265,29,884) size=(26,10,26)
+  DB_Twr_Lookout [Model] ch=6 bbox_c=(-493,60,792) size=(22,65,59)
+  DB_Twr_SatSE [Model] ch=12 bbox_c=(-369,16,602) size=(22,107,50)
+  DB_Twr_SatSW [Model] ch=12 bbox_c=(-161,16,779) size=(52,107,22)
+  DB_Exit_AnchorGuard [Model] ch=4 bbox_c=(-578,32,651) size=(12,7,24) {next_island_guard=true, removed_by=integracao da Ilha 3 (ponte seguinte encosta em ISLAND_NEXT_ANCHOR_ShadowGarden)}
+  GATE_ShadowGarden [Model] ch=17 bbox_c=(-551,44,663) size=(28,32,38)
+  DB_Sum [Model] ch=33 bbox_c=(-230,57,835) size=(72,67,73)
+  VOID_CATCH [Part] ch=11 pos=(-324,-40,744) size=(440,4,460)
+IlhaDragonBall [Model] ch=32 bbox_c=(-383,2,811) size=(800,221,792) {EXPORT_ID=94f9d473, RICO=false}
+  VOID_CATCH [Part] ch=11 pos=(-324,-40,744) size=(440,4,460)
+  ILHA2_03_MINING_ZONE_94f9d4 [Model] ch=38 bbox_c=(-323,24,740) size=(152,20,153) {RBX_ReimportId=f614b9f9-6ba7-4f72-95cd-e87ff4d7243b}
+  ILHA2_04_CAPSULE_LANDMARK_94f9d4 [Model] ch=0 bbox_c=(13,-49,-117) size=(0,0,0) {RBX_ReimportId=044cfd4b-0bfe-45c7-ae26-2e0a52456d40}
+  ILHA2_05_TECH_VILLAGE_94f9d4 [Model] ch=27 bbox_c=(-349,31,786) size=(273,15,306) {RBX_ReimportId=69a8cb64-6dfc-4ca9-aea5-355796ae2f2b}
+  DB_Exit_AnchorGuard [Model] ch=4 bbox_c=(-578,32,651) size=(12,7,24) {next_island_guard=true, removed_by=integracao da Ilha 3 (ponte seguinte encosta em ISLAND_NEXT_ANCHOR_ShadowGarden)}
+  DB_Sum [Model] ch=33 bbox_c=(-230,57,835) size=(72,67,73)
+  ILHA2_08_PURCHASE_GATES_94f9d4 [Model] ch=0 bbox_c=(13,-5,-117) size=(0,0,0) {RBX_ReimportId=2c3a8031-03e3-4d71-a829-10b972156c51}
+  SKYLINE [Model] ch=7 bbox_c=(-383,42,811) size=(800,125,792)
+  GATE_ShadowGarden [Model] ch=19 bbox_c=(-551,44,663) size=(28,32,38)
+  ILHA2_12_VFX_HELPERS_94f9d4 [Model] ch=34 bbox_c=(-383,60,788) size=(345,64,275) {RBX_ReimportId=dfcb4630-600d-4e09-8c35-83a1f4a40ff3}
+  ILHA2_06_SUMMON_94f9d4 [Model] ch=0 bbox_c=(13,-49,-117) size=(0,0,0) {RBX_ReimportId=d3fcb7a9-343f-4e50-9e16-6d757ed1c9c8}
+  COLLISION [Folder] ch=1520
+  GAMEPLAY_MARKERS [Folder] ch=169
+  LIGHTS [Folder] ch=33
+  DB_Twr_SatSE [Model] ch=12 bbox_c=(-369,16,602) size=(22,107,50)
+  DB_Twr_SatSW [Model] ch=12 bbox_c=(-161,16,779) size=(52,107,22)
+  DB_Cap [Model] ch=54 bbox_c=(-436,59,856) size=(140,63,140)
+  DB_Hub_Dojo [Model] ch=12 bbox_c=(-399,35,649) size=(40,21,40)
+  DB_Hub_HouseA [Model] ch=7 bbox_c=(-353,41,856) size=(22,26,24)
+  DB_Hub_HouseB [Model] ch=7 bbox_c=(-437,38,769) size=(19,19,15)
+  DB_Hub_Market [Model] ch=12 bbox_c=(-353,36,895) size=(39,17,39)
+  DB_Hub_Workshop [Model] ch=12 bbox_c=(-430,40,802) size=(29,24,29)
+  DB_Twr_Comm [Model] ch=6 bbox_c=(-377,61,918) size=(54,68,23)
+  DB_Twr_Energy [Model] ch=7 bbox_c=(-459,44,775) size=(12,32,12)
+  DB_Twr_LandingPad [Model] ch=6 bbox_c=(-265,29,884) size=(26,10,26)
+  DB_Twr_Lookout [Model] ch=6 bbox_c=(-493,60,792) size=(22,65,59)
+  ILHA2_02_TERRAIN_94f9d4 [Model] ch=122 bbox_c=(-346,-4,785) size=(413,208,374) {RBX_ReimportId=14dfb540-5273-41a0-a72f-7b3f3322399f}
+  ILHA2_08_NEXT_ISLAND_94f9d4 [Model] ch=26 bbox_c=(-489,12,685) size=(191,109,100) {RBX_ReimportId=97fd9952-51c1-4c6a-97d8-fb4452ed615a}
+  ILHA2_10_VEGETATION_94f9d4 [Model] ch=36 bbox_c=(-345,61,786) size=(411,103,370) {RBX_ReimportId=0866793c-940c-4b7f-9fda-60eaf8880ff0}
+  DB_Ent_Gate [Model] ch=4 bbox_c=(-250,40,670) size=(23,32,23)
+  ILHA2_09_PROPS_94f9d4 [Model] ch=31 bbox_c=(-325,50,749) size=(288,52,251) {RBX_ReimportId=8a24d2cd-6eaa-4f40-b25c-84aad16a5f28}
+  ILHA2_07_WATER_94f9d4 [Model] ch=23 bbox_c=(-304,2,755) size=(294,137,330) {RBX_ReimportId=a07243e5-ff07-4126-8804-31f68c48fc36}
+BeforeShadowGardenProduction_20260926 [Folder] ch=5 {CreatedAt=1790437639, Verified=true, PlaceId=101959830085647}
+  ServerScriptService__Core [Folder] ch=42
+  ReplicatedStorage__Config [ModuleScript] ch=0 {BackupAntesV31=local Config = {}
+
+-- ---------- TEMAS / MINERIOS ----------
+-- um tema por area. cada tema tem 3 variantes mineraveis + chefe.
+-- BALANCEAMENTO (planilha Balanceamento_AnimeMining.xlsx / balance.py):
+--   HP = golpes-alvo (4/7/14/120) x poder da 1a picareta do mundo x mult. medio de }
+  ReplicatedStorage__PortoesCompra [ModuleScript] ch=0
+  StarterPlayerScripts [Folder] ch=21
+  ShadowGarden_Review [Model] ch=2 bbox_c=(-3,120,4993) size=(364,209,394) {PreviewOnly=true}
+RevertedShadowGardenProduction_20260926 [Folder] ch=2 {RollbackVerified=true, ActiveChangesRemoved=true, RevertedAt=1790440217, Reason=User requested full undo}
+  ModifiedCore [Folder] ch=7
+  RemovedAdditions [Folder] ch=9
+BeforeEquipmentCollection_20260926 [Folder] ch=6 {Purpose=Equipment production recovery; existing systems unchanged}
+  Config [ModuleScript] ch=0 {BackupAntesV31=local Config = {}
+
+-- ---------- TEMAS / MINERIOS ----------
+-- um tema por area. cada tema tem 3 variantes mineraveis + chefe.
+-- BALANCEAMENTO (planilha Balanceamento_AnimeMining.xlsx / balance.py):
+--   HP = golpes-alvo (4/7/14/120) x poder da 1a picareta do mundo x mult. medio de }
+  MiningSwing [ModuleScript] ch=1 {BackupAntesAnimV2=-- Timing authority for the mining strike. The poses live in MiningAnimations (combo authored in code);
+-- LocomocaoBigAxe samples them off this timestamp so the contact frame lands on the instant the server
+-- used for damage. A new strike may replace the previous one once it is p}
+  MiningAnimations [ModuleScript] ch=0 {BackupAntesAnimV2=-- MiningAnimations: poses e combo da mineracao, autorados em codigo (pose-to-pose) sobre o rig R15.
+-- Mesmo espaco dos KeyframeSequences do Big Axe (Pose.CFrame = Motor6D.Transform): angulos XYZ em graus
+-- e, quando precisa, deslocamento. O LocomocaoBigAxe amostra estes dados no}
+  PicaretaTool [Script] ch=0 {BackupAntesAnimV2=-- Creates the physical pickaxe. MiningSwing controls the game-owned arm strike.
+local Players = game:GetService("Players")
+local RS = game:GetService("ReplicatedStorage")
+local Config = require(RS.Config)
+local PlayerData = require(script.Parent.PlayerData)
+
+local PickaxeModels = }
+  PickaxeModels [ModuleScript] ch=0 {BackupAntesAnimV2=-- Clones the imported Blender templates. Damage and purchases remain in Config.
+local ServerStorage=game:GetService('ServerStorage')
+local Models={}
+-- Solved in Blender against the real R15 idle pose. Mirror of PicaretaTool.
+local GRIP=CFrame.new(0,1,0,0.537353933,0.0159172602,0.}
+  PicaretasBlender [Folder] ch=8
+EquipmentDevelopment_20260926 [Folder] ch=5 {Status=EDIT PREVIEW ONLY - Native FBX import and Play validation pending}
+  PreviewSamples [ModuleScript] ch=0
+  Recovery [Folder] ch=8
+  ImportStaging [Folder] ch=4
+  ImportExactMesh [ModuleScript] ch=0
+  EditPreviewStage [Folder] ch=6 {PreviousCamera=-7.60517168, 56.8378792, 105.21035, -0.999257445, 0.000341877894, 0.0385286845, -5.8207654e-11, 0.999960661, -0.00887298677, -0.0385302007, -0.00886639766, -0.999218106}
+EquipmentReferenceRevision_20260926 [Folder] ch=2 {SourceTutorial=https://www.youtube.com/watch?v=bNJKRWqvZyo, DevelopmentOnly=true}
+  MilkCup_SlashTutorial_Reference [Model] ch=1 bbox_c=(-46,4,551) size=(64,8,58)
+  AMOSTRA_REFERENCIAS_V3 [Model] ch=6 bbox_c=(14,7,4) size=(24,4,2) {RBX_ReimportId=e777787d-8fcf-489c-8cc7-cddf69c686c2}
+BeforeMiningAnimationFix_20260927 [Folder] ch=3
+  MiningAnimations [ModuleScript] ch=0 {BackupAntesAnimV2=-- MiningAnimations: poses e combo da mineracao, autorados em codigo (pose-to-pose) sobre o rig R15.
+-- Mesmo espaco dos KeyframeSequences do Big Axe (Pose.CFrame = Motor6D.Transform): angulos XYZ em graus
+-- e, quando precisa, deslocamento. O LocomocaoBigAxe amostra estes dados no}
+  LocomocaoBigAxe [LocalScript] ch=0 {BackupAntesAnimV2=-- Big Axe Stance Bundle by Lotucupi, bundle 272148363726799.
+-- Uses the imported KeyframeSequences locally for every player character.
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local ReplicatedStorage = game:GetService("Replicated}
+  MiningSwing [ModuleScript] ch=1 {BackupAntesAnimV2=-- Timing authority for the mining strike. The poses live in MiningAnimations (combo authored in code);
+-- LocomocaoBigAxe samples them off this timestamp so the contact frame lands on the instant the server
+-- used for damage. A new strike may replace the previous one once it is p}
