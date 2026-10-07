@@ -365,12 +365,24 @@ function S.entrar(player)
 	corrida.participantes[player] = true
 	player:SetAttribute("DungeonRun", corrida.id)
 	if not corrida.nasceu then iniciarSala(1) end
-	-- sala 1: chega pela R1 (a chegada) e anda ate a R2; depois dela: direto no spawn da sala atual
-	local destino = corrida.sala <= 1 and posMarcador("DUNGEON_Spawn") or spawnDaSala(salaFisica(corrida.sala))
-	teleportar(player, posGrupo(destino, contar(corrida.participantes)))
-	avisar(player, "Masmorra das Sombras: limpe cada sala antes do tempo acabar! Sala " .. corrida.sala
-		.. " (Nivel " .. corrida.nivel .. ")")
+	-- CINEMATICA de entrada (2026-10-06): o cliente (EfeitosShadowGarden) mostra o jogador sendo sugado pelo vortice;
+	-- o teleporte espera o fim dela. A vaga ja esta garantida acima (participantes/DungeonRun), so a chegada atrasa.
+	local cin = RS.Remotes:FindFirstChild("MasmorraCinematica")
+	if not cin then
+		cin = Instance.new("RemoteEvent"); cin.Name = "MasmorraCinematica"; cin.Parent = RS.Remotes
+	end
+	local espera = D.CINEMATICA or 2.6
+	cin:FireClient(player, espera)
 	publicar()
+	task.delay(espera, function()
+		if not corrida or not corrida.participantes[player] or not player.Parent then return end
+		-- sala 1: chega pela R1 (a chegada) e anda ate a R2; depois dela: direto no spawn da sala atual
+		local destino = corrida.sala <= 1 and posMarcador("DUNGEON_Spawn") or spawnDaSala(salaFisica(corrida.sala))
+		teleportar(player, posGrupo(destino, contar(corrida.participantes)))
+		cin:FireClient(player, "chegou")       -- a cinematica abre a chegada na hora (sem esperar o tempo-limite)
+		avisar(player, "Masmorra das Sombras: limpe cada sala antes do tempo acabar! Sala " .. corrida.sala
+			.. " (Nivel " .. corrida.nivel .. ")")
+	end)
 	return { ok = true }
 end
 
@@ -576,6 +588,10 @@ function S.iniciar()
 	end
 	local np = lerPontos()
 	if np == 0 then warn("[DungeonService] nenhum marcador DUN_ORE_* encontrado") end
+	-- remote da cinematica de entrada (S.entrar dispara; o cliente toca e o teleporte espera)
+	if not RS.Remotes:FindFirstChild("MasmorraCinematica") then
+		local cin = Instance.new("RemoteEvent"); cin.Name = "MasmorraCinematica"; cin.Parent = RS.Remotes
+	end
 	-- prompt de entrada no portal da caverna (so habilitado em ENTRY_OPEN)
 	local ent = marcador("DUNGEON_Entrance")
 	local ancora = Instance.new("Part")
@@ -649,6 +665,12 @@ function S.iniciar()
 			if acao == "pularSala" then return S.debugPularSala(a) end
 			if acao == "fimSala" then return S.debugFimSala() end
 			if acao == "limparSala" then return S.debugLimparSala() end
+			-- perfil de teste local nao tem a area: libera para testar a entrada/cinematica (so Studio)
+			if acao == "liberarArea" then
+				local pf = a and PlayerData.get(a)
+				if pf then pf.areas[area.id] = true end
+				return pf ~= nil
+			end
 			return S.debugEstado()
 		end
 		bf.Parent = game:GetService("ServerStorage")
