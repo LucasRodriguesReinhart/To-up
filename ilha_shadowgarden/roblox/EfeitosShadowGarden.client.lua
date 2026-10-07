@@ -516,6 +516,24 @@ local function salaLigar(S, on)
 	if not on then S.succao.Enabled = false end
 end
 
+-- ================================================================== PORTAO DEMON SLAYER (harmonizar com o bloom)
+-- o painel neon da barreira (asset aprovado) estourava em branco com o bloom da noite e escondia o desenho e o preco:
+-- neste cliente as pecas Neon do portao ficam a metade da cor (o vermelho le como vermelho). Pecas que chegam depois
+-- pela tag PortaoCompra tambem.
+local CS = game:GetService('CollectionService')
+local tomPortao = {}
+local function tonarPortao(d)
+	if tomPortao[d] or not d:IsA('BasePart') or d.Material ~= Enum.Material.Neon then return end
+	local areas = workspace:FindFirstChild('Areas')
+	local a3 = areas and areas:FindFirstChild('Area3')
+	if not (a3 and d:IsDescendantOf(a3)) then return end
+	local c = d.Color
+	tomPortao[d] = true
+	d.Color = Color3.new(c.R * 0.5, c.G * 0.5, c.B * 0.5)
+end
+for _, d in ipairs(CS:GetTagged('PortaoCompra')) do tonarPortao(d) end
+CS:GetInstanceAddedSignal('PortaoCompra'):Connect(tonarPortao)
+
 -- ------------------------------------------------------------------ registro e laco
 local function registrarSala(d)
 	if d:IsA('BasePart') and string.match(d.Name, '^MasmorraProxima_') then montarSala(d) end

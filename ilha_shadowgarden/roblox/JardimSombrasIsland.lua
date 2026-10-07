@@ -382,7 +382,13 @@ function M.build(parent, area)
 	local grama = game:GetService('MaterialService'):FindFirstChild('SG_GramaNoturna')
 	for _, d in ipairs(model:GetDescendants()) do
 		if d:IsA('BasePart') and string.match(d.Name, '^COL_') then d:SetAttribute('TravessiaKeep', true) end
-		if grama and d:IsA('BasePart') and d.Material == Enum.Material.Grass then d.MaterialVariant = grama.Name end
+		if grama and d:IsA('BasePart') and d.Material == Enum.Material.Grass then
+			d.MaterialVariant = grama.Name
+			-- a Color do montar foi calibrada para a Grass padrao (textura clara); com o ColorMap proprio, +45% para a grama
+			-- na sombra do luar nao virar preto (conferido no jogo)
+			local c = d.Color
+			d.Color = Color3.new(math.min(1, c.R * 1.45), math.min(1, c.G * 1.45), math.min(1, c.B * 1.45))
+		end
 	end
 
 	local gacha = invocacao(area, mk)
