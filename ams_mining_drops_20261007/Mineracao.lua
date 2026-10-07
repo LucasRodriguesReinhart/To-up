@@ -33,6 +33,7 @@ local pending = {}
 local dropsPendentes = {} -- [player] = { drops = {}, espaco = 0, hats = 0 }
 local proximoDropId = 0
 local TEMPO_COLETA = 5
+local QUANTIDADE_DROP = { comum = 2, incomum = 3, raro = 3, epica = 4, lendaria = 4 }
 local proximoGolpe = {}  -- [player] = deadline monotono, sem acelerar por spam de remotes
 local golpesNaRocha = setmetatable({}, { __mode = "k" }) -- [rocha] = { [player] = golpes }
 local TOLERANCIA = 0.025 -- absorve jitter de 30 FPS; deadline com divida impede ganho sustentado
@@ -73,22 +74,31 @@ local function mochilaCheiaComPendentes(player, perfil, idMin)
  return PlayerData.itensNaMochila(perfil) + reservado + Config.espacoMinerio(idMin) > PlayerData.capacidade(perfil)
 end
 
+local function quantidadeParaDrop(player, perfil, idMin, varianteId)
+ local base = QUANTIDADE_DROP[varianteId] or 2
+ if PlayerData.mochilaInfinita(perfil) then return base end
+ local reservado = dropsPendentes[player] and dropsPendentes[player].espaco or 0
+ local livre = PlayerData.capacidade(perfil) - PlayerData.itensNaMochila(perfil) - reservado
+ return math.max(0, math.min(base, math.floor(livre / Config.espacoMinerio(idMin))))
+end
+
 local function concluirDrop(player, drop, forcar)
  local fila = dropsPendentes[player]
  if not fila or fila.drops[drop.id] ~= drop then return false end
  local perfil = PlayerData.get(player)
  if not perfil then return false end
- if not forcar and (PlayerData.mochilaCheia(perfil, drop.minerioId)
+ if not forcar and ((not PlayerData.mochilaInfinita(perfil) and
+  PlayerData.itensNaMochila(perfil) + drop.espaco > PlayerData.capacidade(perfil))
   or (drop.hat and PlayerData.totalHats(perfil) >= PlayerData.capacidadeHats(perfil))) then
   return false
  end
  fila.drops[drop.id] = nil
- fila.espaco -= Config.espacoMinerio(drop.minerioId)
+ fila.espaco -= drop.espaco
  fila.count -= 1
  if drop.hat then fila.hats -= 1 end
  if drop.garantidoConta then fila.contaGarantida = false end
  if drop.garantidoArea then fila.areasGarantidas[drop.areaId] = nil end
- perfil.mochila[drop.minerioId] = (perfil.mochila[drop.minerioId] or 0) + 1
+ perfil.mochila[drop.minerioId] = (perfil.mochila[drop.minerioId] or 0) + drop.quantidade
  perfil.minerados = (perfil.minerados or 0) + 1
  Telemetria.marco(player, perfil, "FirstOreMined", { mundo = drop.areaId })
  if drop.hat then
@@ -111,6 +121,7 @@ local function concluirDrop(player, drop, forcar)
   RS.Remotes.FeedbackMina:FireClient(player, {
    tipo = "dropColetado", id = drop.id,
    variante = drop.varianteId, nome = infoMinerio and infoMinerio.nome,
+   quantidade = drop.quantidade,
   })
   PlayerData.sincronizar(player)
  end
@@ -124,7 +135,7 @@ function Mineracao.concluirDropsPendentes(player)
  dropsPendentes[player] = nil
 end
 
-local function criarDrop(player, perfil, rocha, areaId, varianteId, minerioId, hat, garantidoConta, garantidoArea)
+local function criarDrop(player, perfil, rocha, areaId, varianteId, minerioId, quantidade, hat, garantidoConta, garantidoArea)
  local fila = dropsPendentes[player]
  if not fila then
   fila = { drops = {}, espaco = 0, hats = 0, count = 0, areasGarantidas = {} }
@@ -133,20 +144,21 @@ local function criarDrop(player, perfil, rocha, areaId, varianteId, minerioId, h
  proximoDropId += 1
  local drop = {
   id = proximoDropId, minerioId = minerioId, areaId = areaId, varianteId = varianteId,
+  quantidade = quantidade, espaco = quantidade * Config.espacoMinerio(minerioId),
   hat = hat, garantidoConta = garantidoConta, garantidoArea = garantidoArea,
  }
  fila.drops[drop.id] = drop
- fila.espaco += Config.espacoMinerio(minerioId)
+ fila.espaco += drop.espaco
  fila.count += 1
  if hat then fila.hats += 1 end
  if drop.garantidoConta then fila.contaGarantida = true end
  if drop.garantidoArea then fila.areasGarantidas[areaId] = true end
  RS.Remotes.FeedbackMina:FireClient(player, {
   tipo = "dropMinerio", id = drop.id, pos = rocha.Position,
+  quantidade = quantidade,
   tema = rocha:GetAttribute("Tema"), variante = varianteId,
-  hatId = hat and hat.id, hatNome = hat and hat.nome,
+  hatId = hat and hat.id,
   hatRaridade = hat and hat.raridade,
-  hatAssetId = hat and (Config.HatAssets[hat.id] or hat.assetId),
   coletaEm = workspace:GetServerTimeNow() + TEMPO_COLETA,
  })
  task.delay(TEMPO_COLETA, function()
@@ -301,7 +313,9 @@ local function premiarNormal(rocha, player, golpes, areaId, varianteId, variante
   hat = lista[rnd:NextInteger(1, math.max(1, #lista))]
  end
 
- criarDrop(player, perfil, rocha, areaId, varianteId, minerioId, hat,
+ local quantidade = quantidadeParaDrop(player, perfil, minerioId, varianteId)
+ if quantidade <= 0 then return false end
+ criarDrop(player, perfil, rocha, areaId, varianteId, minerioId, quantidade, hat,
   hat and garantidoConta, hat and garantidoArea)
 
 	local info = Config.infoMinerio(minerioId)

@@ -383,7 +383,7 @@ State.on("FeedbackMina", function(info)
 		local r = Theme.rarity(VARIANT_RAR[info.variante] or "comum")
 		local nome = info.nome or oreName(info.variante)
 		Audio.play("collect", { pitch = 1 + (r.ordem - 1) * 0.04 })
-		Toast.feed("+1 " .. nome, Theme.lighten(r.color, 0.35))
+		Toast.feed("+" .. tostring(info.quantidade or 1) .. " " .. nome, Theme.lighten(r.color, 0.35))
 		if r.ordem >= 5 then
 			Audio.play("rareDrop")
 			Toast.banner("MINÉRIO " .. r.nome:upper() .. "!", nome, nil, VARIANT_RAR[info.variante])

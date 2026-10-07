@@ -381,15 +381,22 @@ local function prepararPeca(peca)
  peca.CastShadow = false
 end
 
-local function posicaoNoChao(origem, deslocamento)
+local function posicaoNoChao(origem, deslocamento, altura)
  local pos = origem + deslocamento
  local params = RaycastParams.new()
  params.FilterType = Enum.RaycastFilterType.Exclude
  local ignorar = { player.Character }
  if workspace:FindFirstChild("MiningDropsLocal") then table.insert(ignorar, workspace.MiningDropsLocal) end
+ local areas = workspace:FindFirstChild("Areas")
+ if areas then
+  for _, area in ipairs(areas:GetChildren()) do
+   local rochas = area:FindFirstChild("Rochas")
+   if rochas then table.insert(ignorar, rochas) end
+  end
+ end
  params.FilterDescendantsInstances = ignorar
  local hit = workspace:Raycast(pos + Vector3.new(0, 4, 0), Vector3.new(0, -24, 0), params)
- return Vector3.new(pos.X, hit and hit.Position.Y + .75 or pos.Y - 1, pos.Z)
+ return Vector3.new(pos.X, hit and hit.Position.Y + altura or pos.Y - 1, pos.Z)
 end
 
 local function criarMiniMinerio(info, parent)
@@ -399,78 +406,107 @@ local function criarMiniMinerio(info, parent)
  local nome = "minerio_" .. tostring(info.tema) .. "_" .. tostring(variante)
  local modelo = modelos and (modelos:FindFirstChild(nome)
   or modelos:FindFirstChild("minerio_" .. tostring(info.tema) .. "_comum"))
- local objeto
- if modelo then
-  objeto = modelo:Clone()
-  for _, d in ipairs(objeto:GetDescendants()) do
-   if d:IsA("BasePart") then
-    if d.Size.Magnitude > 7 then d:Destroy() else prepararPeca(d) end
-   elseif d:IsA("Script") or d:IsA("LocalScript") then d:Destroy() end
+ local grupo = Instance.new("Model")
+ grupo.Name = "MineriosDrop"
+ grupo.WorldPivot = CFrame.new(0, 0, 0)
+ local quantidade = math.clamp(tonumber(info.quantidade) or 2, 1, 5)
+ for i = 1, quantidade do
+  local mini
+  if modelo then
+   mini = modelo:Clone()
+   for _, d in ipairs(mini:GetDescendants()) do
+    if d:IsA("BasePart") then
+     if d.Size.Magnitude > 7 then d:Destroy() else prepararPeca(d) end
+    elseif d:IsA("LuaSourceContainer") then d:Destroy() end
+   end
+   mini:ScaleTo(.95 + (i % 3) * .15)
+  else
+   mini = Instance.new("Part")
+   mini.Shape = Enum.PartType.Ball
+   mini.Size = Vector3.new(.7, .6, .7)
+   mini.Material = Enum.Material.SmoothPlastic
+   mini.Color = (TIER[info.variante] or TIER.comum).cor
+   prepararPeca(mini)
   end
-  objeto:ScaleTo(.75)
- else
-  objeto = Instance.new("Part")
-  objeto.Shape = Enum.PartType.Ball
-  objeto.Size = Vector3.new(1.1, .85, 1.1)
-  objeto.Material = Enum.Material.Neon
-  objeto.Color = (TIER[info.variante] or TIER.comum).cor
-  prepararPeca(objeto)
+  mini.Name = "Minerio_" .. i
+  mini.Parent = grupo
+  local angulo = i * 2.39996 + info.id * .7
+  local raio = i == 1 and .1 or .8 + (i % 2) * .45
+  local localPos = Vector3.new(math.cos(angulo) * raio, .1 + (i % 2) * .04, math.sin(angulo) * raio)
+  local cf = CFrame.new(localPos) * CFrame.Angles(0, angulo, 0)
+  if mini:IsA("Model") then mini:PivotTo(cf) else mini.CFrame = cf end
  end
- objeto.Name = "MinerioDrop"
- objeto.Parent = parent
- return objeto
+ local contornos = parent:FindFirstChild("ContornoMinerios")
+ if not contornos then
+  contornos = Instance.new("Model")
+  contornos.Name = "ContornoMinerios"
+  contornos.Parent = parent
+  local borda = Instance.new("Highlight")
+  borda.Name = "Borda"
+  borda.Adornee = contornos
+  borda.FillTransparency = .97
+  borda.OutlineColor = Color3.fromRGB(16, 27, 48)
+  borda.OutlineTransparency = .05
+  borda.DepthMode = Enum.HighlightDepthMode.Occluded
+  borda.Parent = contornos
+ end
+ grupo.Parent = contornos
+ return grupo
 end
 
 local function criarMiniHat(info, parent)
  local cor = coresHat[info.hatRaridade] or Color3.fromRGB(255, 198, 85)
- local base = Instance.new("Part")
- base.Name = "HatDrop"
- base.Shape = Enum.PartType.Ball
- base.Size = Vector3.new(.95, .95, .95)
- base.Material = Enum.Material.Neon
- base.Color = cor
- base.Transparency = .25
- prepararPeca(base)
- base.Parent = parent
- local luz = Instance.new("PointLight")
- luz.Color = cor
- luz.Brightness = 1
- luz.Range = 5
- luz.Parent = base
- local placa = Instance.new("BillboardGui")
- placa.Size = UDim2.fromOffset(94, 94)
- placa.StudsOffsetWorldSpace = Vector3.new(0, .3, 0)
- placa.AlwaysOnTop = true
- placa.Parent = base
- local icone = Instance.new("ImageLabel")
- icone.BackgroundTransparency = 1
- icone.Size = UDim2.fromScale(1, 1)
- icone.Image = info.hatAssetId and ("rbxthumb://type=Asset&id=" .. tostring(info.hatAssetId) .. "&w=150&h=150") or ""
- icone.Parent = placa
- local canto = Instance.new("UICorner")
- canto.CornerRadius = UDim.new(1, 0)
- canto.Parent = icone
- local nome = Instance.new("TextLabel")
- nome.BackgroundColor3 = Color3.fromRGB(20, 20, 30)
- nome.BackgroundTransparency = .18
- nome.BorderSizePixel = 0
- nome.Position = UDim2.fromScale(-.2, .78)
- nome.Size = UDim2.fromScale(1.4, .24)
- nome.Text = tostring(info.hatNome or "HAT")
- nome.TextColor3 = Color3.new(1, 1, 1)
- nome.TextStrokeTransparency = .35
- nome.TextScaled = true
- nome.Font = Enum.Font.GothamBold
- nome.Parent = placa
- local nomeCanto = Instance.new("UICorner")
- nomeCanto.CornerRadius = UDim.new(0, 5)
- nomeCanto.Parent = nome
- return base
+ local folder = RS:FindFirstChild("MiningDropHats")
+ local template = folder and folder:FindFirstChild(tostring(info.hatId))
+ local objeto
+ if template and template:IsA("BasePart") then
+  objeto = template:Clone()
+  local maior = math.max(objeto.Size.X, objeto.Size.Y, objeto.Size.Z)
+  local escala = 1.3 / math.max(maior, .01)
+  objeto.Size *= escala
+  for _, d in ipairs(objeto:GetDescendants()) do
+   if d:IsA("SpecialMesh") then d.Scale *= escala end
+  end
+  prepararPeca(objeto)
+ else
+  -- Fallback somente se um asset nao estiver disponivel no cliente.
+  objeto = Instance.new("Model")
+  local topo = Instance.new("Part")
+  topo.Name = "Copa"
+  topo.Shape = Enum.PartType.Ball
+  topo.Size = Vector3.new(.9, .65, .9)
+  topo.Color = cor
+  topo.Material = Enum.Material.SmoothPlastic
+  prepararPeca(topo)
+  topo.CFrame = CFrame.new(0, .3, 0)
+  topo.Parent = objeto
+  local aba = Instance.new("Part")
+  aba.Name = "Aba"
+  aba.Shape = Enum.PartType.Cylinder
+  aba.Size = Vector3.new(.14, 1.2, 1.2)
+  aba.Color = cor
+  aba.Material = Enum.Material.SmoothPlastic
+  prepararPeca(aba)
+  aba.CFrame = CFrame.new(0, .05, -.15) * CFrame.Angles(0, 0, math.pi / 2)
+  aba.Parent = objeto
+ end
+ objeto.Name = "HatDrop"
+ local contorno = Instance.new("Highlight")
+ contorno.Adornee = objeto
+ contorno.FillTransparency = .94
+ contorno.FillColor = cor
+ contorno.OutlineColor = Color3.fromRGB(20, 22, 34)
+ contorno.OutlineTransparency = 0
+ contorno.DepthMode = Enum.HighlightDepthMode.Occluded
+ contorno.Parent = objeto
+ objeto.Parent = parent
+ return objeto
 end
 
-local function moverDrop(objeto, pos)
+local function moverDrop(objeto, pos, angulo)
  if not objeto or not objeto.Parent then return end
- if objeto:IsA("Model") then objeto:PivotTo(CFrame.new(pos)) else objeto.CFrame = CFrame.new(pos) end
+ local cf = CFrame.new(pos) * CFrame.Angles(0, angulo or 0, 0)
+ if objeto:IsA("Model") then objeto:PivotTo(cf) else objeto.CFrame = cf end
 end
 
 local function mostrarDrop(info)
@@ -483,14 +519,14 @@ local function mostrarDrop(info)
  end
  local angulo = (info.id * 2.39996) % (math.pi * 2)
  local raio = 1.2 + (info.id % 3) * .38
- local base = posicaoNoChao(info.pos, Vector3.new(math.cos(angulo) * raio, 0, math.sin(angulo) * raio))
+ local base = posicaoNoChao(info.pos, Vector3.new(math.cos(angulo) * raio, 0, math.sin(angulo) * raio), .44)
  local lista = { { objeto = criarMiniMinerio(info, pasta), pos = base } }
  if info.hatId then
   local angHat = angulo + 2.2
-  local posHat = posicaoNoChao(info.pos, Vector3.new(math.cos(angHat) * (raio + .45), 0, math.sin(angHat) * (raio + .45)))
-  table.insert(lista, { objeto = criarMiniHat(info, pasta), pos = posHat })
+  local posHat = posicaoNoChao(info.pos, Vector3.new(math.cos(angHat) * (raio + 1), 0, math.sin(angHat) * (raio + 1)), .7)
+  table.insert(lista, { objeto = criarMiniHat(info, pasta), pos = posHat, angulo = angHat })
  end
- for _, item in ipairs(lista) do moverDrop(item.objeto, item.pos) end
+ for _, item in ipairs(lista) do moverDrop(item.objeto, item.pos, item.angulo) end
  dropsVisuais[info.id] = { itens = lista, criado = os.clock(), coletando = false }
 end
 
@@ -519,7 +555,7 @@ RunService.RenderStepped:Connect(function()
     else
      pos = item.pos + Vector3.new(0, math.sin((agora - drop.criado) * 3 + j) * .12, 0)
     end
-    moverDrop(item.objeto, pos)
+    moverDrop(item.objeto, pos, item.angulo)
    end
    if drop.coletando and t >= 1 then
     for _, item in ipairs(drop.itens) do item.objeto:Destroy() end
