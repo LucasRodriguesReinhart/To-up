@@ -147,14 +147,11 @@ local function luzDaIlha(nome)
 end
 
 local function corRaridade(key)
-	local ok, T = pcall(function() return require(RS:WaitForChild('ExpeditionUI', 5):WaitForChild('Theme', 5)) end)
-	if ok and T and T.rar then
-		local ok2, r = pcall(T.rar, key)
-		if ok2 and r and typeof(r.cor) == 'Color3' then return r.cor end
-	end
-	local tab = { comum = C(205, 205, 215), incomum = C(120, 220, 140), raro = C(90, 160, 255), epico = C(190, 110, 255),
-		lendario = C(255, 200, 80), mitico = C(255, 90, 90), secreto = C(255, 255, 255) }
-	return tab[key] or VIOLETA
+	-- cores oficiais em Config.Raridades (a UI antiga ExpeditionUI saiu; WaitForChild nela travava 5 s)
+	local ok, Config = pcall(require, RS:FindFirstChild('Config'))
+	local r = ok and Config and Config.Raridades and Config.Raridades[key]
+	if r and typeof(r.cor) == 'Color3' then return r.cor end
+	return C(190, 110, 255)
 end
 
 -- ------------------------------------------------------------------ efeitos registrados
@@ -614,6 +611,9 @@ task.spawn(function()
 			task.spawn(function()
 				local t0 = os.clock()
 				repeat task.wait(0.1) until player:GetAttribute('RevealOpen') ~= true or os.clock() - t0 > 20
+				-- mitico/secreto ja tiveram a cinematica completa (CinematicaInvocacao): sem repetir a coluna
+				local cin = player:GetAttribute('CinematicaInvocacaoEm')
+				if cin and os.clock() - cin < 30 then return end
 				invocacaoAto(I, cor, false)
 			end)
 		elseif (I.pos - workspace.CurrentCamera.CFrame.Position).Magnitude < I.dist then
