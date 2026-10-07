@@ -900,6 +900,10 @@ def node_lamps(mb):
 # achar chao livre (grama/terra, sem tronco/casa/prop/colisao), fora das rotas do QA (ROUTE_CLR), da MiningZone (+6),
 # das escadas e do cone da PlayerHeight da forja. Colisao so no poste/pedestal (DS_PropPath) e nas cercas (DS_PropFence).
 import ds_terrain as _TR
+import ds_forge as _FRG
+# trilha do patio da forja ate o caminho de saida: TRAIL_W (lajes do ds_forge, de leste para oeste) + a trilha 'Patio'
+# do ds_terrain (que continua dela para oeste)
+_FRG_PATIO = list(reversed(_FRG.TRAIL_W)) + [p for p in _TR.T4_TRAILS["Patio"][0] if p[0] < _FRG.TRAIL_W[0][0] - 1.0]
 
 ROUTE_CLR = 3.3          # folga das polilinhas de rota do QA (corpo 1,1 + a largura 3,4 do teste de largura)
 LAMP_GAP = 6.5           # distancia minima entre lanternas (novas e as que ja existem: luzes L_*)
@@ -928,14 +932,17 @@ PATHS = [
                           (108.0, 350.0), (100.0, 366.0)], 0.0, ("toro", "andon"), -1, "on", 4.0, None, 0.0),
     ("ClrN", "Clareira", [(-20.0, 362.0), (2.0, 366.0), (30.0, 368.0), (52.0, 370.0), (74.0, 372.0), (90.0, 376.0)],
      0.0, ("andon", "toro"), 1, "on", 2.0, None, 0.0),
-    ("FrgPatio", "Forja", [(-12.0, 447.0), (-40.0, 446.0), (-70.0, 449.0), (-100.0, 452.0)], 3.0, ("andon", "tsuri"),
-     1, "alt", 4.0, None, 1.2),
-    ("Carvao", "Forja", [(-66.0, 377.0), (-62.0, 396.0), (-55.0, 416.0), (-38.0, 438.0)], 3.0, ("tsuri", "andon"),
-     -1, "alt", 6.0, None, 1.2),
+    # 6c (integracao): o T4 oeste ganhou TRILHAS na 6b (ds_forge.TRAIL_W de lajes no patio + ds_terrain.T4_TRAILS
+    # 'Patio' e 'Carvao'); as lanternas seguem a BORDA delas (meia-largura da trilha + folga), nao mais a linha antiga
+    # que cortava o patio e caia sobre as manchas de pisoteio do ds_forge
+    ("FrgPatio", "Forja", _FRG_PATIO, 1.5, ("andon", "tsuri"), 1, "alt", 4.0, None, 1.2),
+    ("Carvao", "Forja", _TR.T4_TRAILS["Carvao"][0], _TR.T4_TRAILS["Carvao"][1], ("tsuri", "andon"), -1, "alt", 6.0,
+     None, 1.2),
     ("Saida", "Forja", L.EXIT_PATH, 3.4, ("toro", "tsuri"), 1, "alt", 10.0, None, 1.4),
 ]
 # as <= 12 PointLights novas (NightOnly): ancora (x, y) -> a lanterna nova mais proxima (<= 10) ganha a luz
-PATH_LIT = [("Trilha", -6.0, 96.0), ("Bambu", 54.0, 98.0), ("VilRua", -72.0, 186.0), ("VilAlta", -80.0, 300.0),
+PATH_LIT = [("TrilhaMeio", -6.0, 96.0),     # 6c: era "Trilha" = mesmo nome da lanterna de no (Lamp_Trilha.001)
+            ("Bambu", 54.0, 98.0), ("VilRua", -72.0, 186.0), ("VilAlta", -80.0, 300.0),
             ("ClrSO", 2.0, 154.0), ("ClrO", -37.0, 250.0), ("ClrNO", -26.0, 356.0), ("ClrN", 60.0, 371.0),
             ("ClrL", 110.0, 250.0), ("ClrSE", 92.0, 172.0), ("FrgOeste", -55.0, 448.0), ("Carvao", -60.0, 400.0)]
 LIT_E = {"andon": 120.0, "tsuri": 120.0, "toro": 70.0}
@@ -1063,6 +1070,8 @@ def _spot(x, y, r=0.8, h=4.5):
             return None
         nm, mt, z, nz = t
         if not nm.startswith(GROUND_OK) or abs(z - zexp) > 1.0 or nz < 0.75:
+            return None
+        if nm.startswith("DS_Frg_") and z > zexp + 0.08:     # 6c: no chao da forja so na terra nua (nao em mancha/laje)
             return None
         if k == 0 and (nm.startswith(PATH_SURF) or mt in PATH_MATS):
             on = True
@@ -1382,12 +1391,17 @@ def path_lamps(plan):
     lit_of = {j: n for n, j in lit.items()}
     # 6b: 2 objetos em vez de 4 (Sul+Clareira | Vila+Forja): o papel quente fosco (Window_DS_Warm) e 1 material a mais
     # por objeto - a juncao devolve as MeshParts
-    REG = {"Sul": "SulClareira", "Clareira": "SulClareira", "Vila": "VilaForja", "Forja": "VilaForja"}
+    # 6c: "SulClareira" -> "SulClr": com o sufixo do export (__Stone_DS_Path_g1_7) o nome chegava a 49 caracteres (o
+    # importador do Studio trunca perto de 50). A semente do MB continua a do nome antigo (mesmo sorteio)
+    REG = {"Sul": "SulClr", "Clareira": "SulClr", "Vila": "VilaForja", "Forja": "VilaForja"}
+    SEED = {"SulClr": "DS_Prop_PathLamps_SulClareira"}
     mbs = {}
     for r in sorted({q[0] for q in plan}):
         g = REG.get(r, r)
         if g not in mbs:
-            mbs[g] = MB("DS_Prop_PathLamps_%s" % g, C, None, detail="hero")
+            import random as _rnd
+            nm0 = SEED.get(g, "DS_Prop_PathLamps_%s" % g)
+            mbs[g] = MB("DS_Prop_PathLamps_%s" % g, C, _rnd.Random(zlib.crc32(nm0.encode("utf-8")) & 0xffff), detail="hero")
         mbs[r] = mbs[g]
     lights, dims = [], []
     for j, (reg, kind, x, y, z, yaw, nm, i, fen) in enumerate(plan):

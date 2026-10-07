@@ -46,6 +46,10 @@ def run_module(m):
 def build(blockout=False, skip_zones=(), studio_zone=None, res=(1600, 900), samples=24, ore_proxies=False):
     """monta a cena inteira. studio_zone: so essa zona usa o modulo de detalhe (as outras ficam em blockout)"""
     t0 = time.time()
+    # 6c: o mathutils.noise do Blender 5.2 sorteia a tabela a cada processo (noise_vector muda entre 2 execucoes): o
+    # MB.rock (montes de carvao da fornalha) saia diferente a cada build. Semente fixa -> build reprodutivel
+    from mathutils import noise as _noise
+    _noise.seed_set(4402)
     DL.reset_scene()
     fm_lib.make_materials()
     ds_scene.setup(res=res, samples=samples)

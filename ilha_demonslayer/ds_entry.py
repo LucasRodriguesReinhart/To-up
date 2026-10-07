@@ -641,8 +641,10 @@ def court():
     # ds_col (largura, degraus, espelho 0,75, pisada), como o ds_village.plan_stair_kit; as faces laterais do entalhe
     # sao o ishigaki das bochechas (ds_terrain.notch_cheeks)
     foot, deg, w, ns, tread, g = L.stair_frame("Trilha")
+    # 6c: a borda do patio T0 (ENTRY_COURT, y 42 -> face em 41,94) morre embaixo do 1o degrau: o miolo dele passa 0,3
+    # para tras e enterra a face (antes ficava paralela a 0,12 do miolo, em (-8,5; 41,9))
     K.stair_stone(mb, Frame(foot[0], foot[1], foot[2], math.radians(deg) - math.pi / 2), w, ns, L.stair_rise("Trilha"),
-                  tread, True)
+                  tread, True, foot_back=0.3)
     mb.finish()
     mt = MB("DS_Ent_Toro", C, random.Random(4202), detail="near")
     toro(mt, -12.0, 16.0, T0, 0.98, 0.0, "L_DSProp_Toro_In_L")

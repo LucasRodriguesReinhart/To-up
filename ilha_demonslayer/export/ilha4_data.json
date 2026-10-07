@@ -1,19 +1,19 @@
 {
  "mapping": "Roblox = (x_blender, z_blender, -y_blender); 1 BU = 1 stud; malha: origem = centro do bbox",
- "export_id": "ef639523",
+ "export_id": "9cc4bef4",
  "fbx": {
-  "02_TERRAIN": "ILHA4_02_TERRAIN_ef6395.fbx",
-  "03_CLEARING": "ILHA4_03_CLEARING_ef6395.fbx",
-  "04_FORGE": "ILHA4_04_FORGE_ef6395.fbx",
-  "05_VILLAGE": "ILHA4_05_VILLAGE_ef6395.fbx",
-  "06_SUMMON": "ILHA4_06_SUMMON_ef6395.fbx",
-  "07_WATER": "ILHA4_07_WATER_ef6395.fbx",
-  "08_NEXT_ISLAND": "ILHA4_08_NEXT_ISLAND_ef6395.fbx",
-  "08_PURCHASE_GATES": "ILHA4_08_PURCHASE_GATES_ef6395.fbx",
-  "09_PROPS": "ILHA4_09_PROPS_ef6395.fbx",
-  "10_VEGETATION": "ILHA4_10_VEGETATION_ef6395.fbx",
-  "12_VFX_HELPERS": "ILHA4_12_VFX_HELPERS_ef6395.fbx",
-  "18_ENTRY": "ILHA4_18_ENTRY_ef6395.fbx"
+  "02_TERRAIN": "ILHA4_02_TERRAIN_9cc4be.fbx",
+  "03_CLEARING": "ILHA4_03_CLEARING_9cc4be.fbx",
+  "04_FORGE": "ILHA4_04_FORGE_9cc4be.fbx",
+  "05_VILLAGE": "ILHA4_05_VILLAGE_9cc4be.fbx",
+  "06_SUMMON": "ILHA4_06_SUMMON_9cc4be.fbx",
+  "07_WATER": "ILHA4_07_WATER_9cc4be.fbx",
+  "08_NEXT_ISLAND": "ILHA4_08_NEXT_ISLAND_9cc4be.fbx",
+  "08_PURCHASE_GATES": "ILHA4_08_PURCHASE_GATES_9cc4be.fbx",
+  "09_PROPS": "ILHA4_09_PROPS_9cc4be.fbx",
+  "10_VEGETATION": "ILHA4_10_VEGETATION_9cc4be.fbx",
+  "12_VFX_HELPERS": "ILHA4_12_VFX_HELPERS_9cc4be.fbx",
+  "18_ENTRY": "ILHA4_18_ENTRY_9cc4be.fbx"
  },
  "meshes": [
   {
@@ -21,7 +21,7 @@
    "group": "02_TERRAIN",
    "obj": "DS_Ter_Bodies",
    "material": "Cliff_DS_Dark",
-   "tris": 684,
+   "tris": 704,
    "center_rbx": [
     -1838.059,
     61.7,
@@ -42,7 +42,7 @@
    "group": "02_TERRAIN",
    "obj": "DS_Ter_Bodies",
    "material": "Dirt_DS_Dark",
-   "tris": 592,
+   "tris": 612,
    "center_rbx": [
     -1838.059,
     66.55,
@@ -63,16 +63,16 @@
    "group": "02_TERRAIN",
    "obj": "DS_Ter_Cliff",
    "material": "Cliff_DS",
-   "tris": 3400,
+   "tris": 3373,
    "center_rbx": [
-    -1848.131,
+    -1847.407,
     64.631,
-    1244.328
+    1244.009
    ],
    "size_rbx": [
-    520.234,
+    521.682,
     95.105,
-    504.204
+    503.565
    ],
    "owner": "terrain",
    "shadow": true,
@@ -84,16 +84,16 @@
    "group": "02_TERRAIN",
    "obj": "DS_Ter_Cliff",
    "material": "Cliff_DS_B",
-   "tris": 3104,
+   "tris": 3155,
    "center_rbx": [
     -1846.83,
-    68.191,
-    1243.947
+    67.244,
+    1244.095
    ],
    "size_rbx": [
     521.552,
-    94.596,
-    504.373
+    96.491,
+    504.669
    ],
    "owner": "terrain",
    "shadow": true,
@@ -108,12 +108,12 @@
    "tris": 2093,
    "center_rbx": [
     -2046.756,
-    52.202,
+    52.112,
     1286.565
    ],
    "size_rbx": [
     122.984,
-    67.595,
+    67.415,
     270.561
    ],
    "owner": "terrain",
@@ -126,15 +126,15 @@
    "group": "02_TERRAIN",
    "obj": "DS_Ter_Cliff",
    "material": "Cliff_DS_Dark",
-   "tris": 1633,
+   "tris": 1657,
    "center_rbx": [
     -1817.315,
-    52.595,
+    52.505,
     1263.38
    ],
    "size_rbx": [
     462.521,
-    66.811,
+    66.631,
     466.1
    ],
    "owner": "terrain",
@@ -150,12 +150,12 @@
    "tris": 1852,
    "center_rbx": [
     -1806.672,
-    41.802,
+    41.712,
     1071.94
    ],
    "size_rbx": [
     386.734,
-    48.396,
+    48.216,
     160.359
    ],
    "owner": "terrain",
@@ -171,12 +171,12 @@
    "tris": 1643,
    "center_rbx": [
     -1771.192,
-    41.431,
+    41.341,
     1310.313
    ],
    "size_rbx": [
     300.509,
-    49.137,
+    48.957,
     318.622
    ],
    "owner": "terrain",
@@ -231,7 +231,7 @@
    "group": "02_TERRAIN",
    "obj": "DS_Ter_Grass",
    "material": "Grass_DS",
-   "tris": 2026,
+   "tris": 2349,
    "center_rbx": [
     -1930.908,
     70.38,
@@ -252,7 +252,7 @@
    "group": "02_TERRAIN",
    "obj": "DS_Ter_Grass",
    "material": "Grass_DS",
-   "tris": 2465,
+   "tris": 2458,
    "center_rbx": [
     -1809.029,
     62.495,
@@ -273,16 +273,16 @@
    "group": "02_TERRAIN",
    "obj": "DS_Ter_Grass",
    "material": "Grass_DS",
-   "tris": 861,
+   "tris": 847,
    "center_rbx": [
     -1711.019,
     57.38,
-    1078.297
+    1075.663
    ],
    "size_rbx": [
     160.572,
     6.0,
-    158.506
+    153.237
    ],
    "owner": "terrain",
    "shadow": false,
@@ -294,16 +294,16 @@
    "group": "02_TERRAIN",
    "obj": "DS_Ter_Grass",
    "material": "Grass_DS_B",
-   "tris": 785,
+   "tris": 1069,
    "center_rbx": [
-    -1998.094,
+    -1996.918,
     75.23,
-    1334.374
+    1334.356
    ],
    "size_rbx": [
-    154.927,
+    157.279,
     10.3,
-    148.54
+    148.504
    ],
    "owner": "terrain",
    "shadow": false,
@@ -315,16 +315,16 @@
    "group": "02_TERRAIN",
    "obj": "DS_Ter_Grass",
    "material": "Grass_DS_B",
-   "tris": 1925,
+   "tris": 3650,
    "center_rbx": [
     -1919.739,
     70.23,
-    1317.848
+    1268.013
    ],
    "size_rbx": [
     258.391,
     20.3,
-    334.016
+    433.685
    ],
    "owner": "terrain",
    "shadow": false,
@@ -336,7 +336,7 @@
    "group": "02_TERRAIN",
    "obj": "DS_Ter_Grass",
    "material": "Grass_DS_B",
-   "tris": 668,
+   "tris": 666,
    "center_rbx": [
     -1739.249,
     63.23,
@@ -357,16 +357,16 @@
    "group": "02_TERRAIN",
    "obj": "DS_Ter_Grass",
    "material": "Grass_DS_B",
-   "tris": 2729,
+   "tris": 2141,
    "center_rbx": [
-    -1808.735,
+    -1777.618,
     62.403,
-    1154.156
+    1154.111
    ],
    "size_rbx": [
-    355.168,
+    292.933,
     15.954,
-    253.982
+    253.891
    ],
    "owner": "terrain",
    "shadow": false,
@@ -378,7 +378,7 @@
    "group": "02_TERRAIN",
    "obj": "DS_Ter_Grass",
    "material": "Grass_DS_B",
-   "tris": 993,
+   "tris": 983,
    "center_rbx": [
     -1709.703,
     57.23,
@@ -399,16 +399,37 @@
    "group": "02_TERRAIN",
    "obj": "DS_Ter_Grass",
    "material": "Grass_DS_Deep",
-   "tris": 1151,
+   "tris": 1102,
    "center_rbx": [
     -1839.459,
-    67.38,
+    66.49,
     1240.829
    ],
    "size_rbx": [
     423.03,
-    26.0,
+    27.78,
     478.396
+   ],
+   "owner": "terrain",
+   "shadow": false,
+   "flags": "",
+   "model": ""
+  },
+  {
+   "name": "DS_Ter_Grass__Grass_DS_Dry",
+   "group": "02_TERRAIN",
+   "obj": "DS_Ter_Grass",
+   "material": "Grass_DS_Dry",
+   "tris": 360,
+   "center_rbx": [
+    -1902.392,
+    75.38,
+    1269.91
+   ],
+   "size_rbx": [
+    185.907,
+    10.0,
+    370.655
    ],
    "owner": "terrain",
    "shadow": false,
@@ -420,16 +441,16 @@
    "group": "02_TERRAIN",
    "obj": "DS_Ter_Ground",
    "material": "Dirt_DS",
-   "tris": 2134,
+   "tris": 2801,
    "center_rbx": [
     -1823.535,
     66.95,
-    1241.8
+    1240.476
    ],
    "size_rbx": [
     392.751,
     26.5,
-    487.593
+    484.946
    ],
    "owner": "terrain",
    "shadow": false,
@@ -441,16 +462,16 @@
    "group": "02_TERRAIN",
    "obj": "DS_Ter_Ground",
    "material": "Dirt_DS_Dark",
-   "tris": 691,
+   "tris": 1979,
    "center_rbx": [
     -1838.063,
     66.95,
-    1233.188
+    1247.752
    ],
    "size_rbx": [
     482.12,
     26.5,
-    446.561
+    475.689
    ],
    "owner": "terrain",
    "shadow": false,
@@ -458,146 +479,20 @@
    "model": ""
   },
   {
-   "name": "DS_Ter_Ishigaki__Stone_DS_g0_5",
+   "name": "DS_Ter_Ishigaki__Stone_DS",
    "group": "02_TERRAIN",
    "obj": "DS_Ter_Ishigaki",
    "material": "Stone_DS",
-   "tris": 708,
+   "tris": 1520,
    "center_rbx": [
-    -1938.901,
-    74.95,
-    1304.464
+    -1807.308,
+    66.95,
+    1219.425
    ],
    "size_rbx": [
-    43.184,
-    10.28,
-    33.931
-   ],
-   "owner": "terrain",
-   "shadow": true,
-   "flags": "",
-   "model": ""
-  },
-  {
-   "name": "DS_Ter_Ishigaki__Stone_DS_g0_6",
-   "group": "02_TERRAIN",
-   "obj": "DS_Ter_Ishigaki",
-   "material": "Stone_DS",
-   "tris": 1259,
-   "center_rbx": [
-    -1961.349,
-    69.95,
-    1188.594
-   ],
-   "size_rbx": [
-    87.615,
-    20.28,
-    180.541
-   ],
-   "owner": "terrain",
-   "shadow": true,
-   "flags": "",
-   "model": ""
-  },
-  {
-   "name": "DS_Ter_Ishigaki__Stone_DS_g1_5",
-   "group": "02_TERRAIN",
-   "obj": "DS_Ter_Ishigaki",
-   "material": "Stone_DS",
-   "tris": 2456,
-   "center_rbx": [
-    -1805.991,
-    69.95,
-    1331.226
-   ],
-   "size_rbx": [
-    231.158,
-    20.28,
-    104.238
-   ],
-   "owner": "terrain",
-   "shadow": true,
-   "flags": "",
-   "model": ""
-  },
-  {
-   "name": "DS_Ter_Ishigaki__Stone_DS_g1_6",
-   "group": "02_TERRAIN",
-   "obj": "DS_Ter_Ishigaki",
-   "material": "Stone_DS",
-   "tris": 623,
-   "center_rbx": [
-    -1858.619,
-    64.95,
-    1265.452
-   ],
-   "size_rbx": [
-    125.327,
-    10.28,
-    28.796
-   ],
-   "owner": "terrain",
-   "shadow": true,
-   "flags": "",
-   "model": ""
-  },
-  {
-   "name": "DS_Ter_Ishigaki__Stone_DS_g2_6",
-   "group": "02_TERRAIN",
-   "obj": "DS_Ter_Ishigaki",
-   "material": "Stone_DS",
-   "tris": 1240,
-   "center_rbx": [
-    -1727.644,
-    60.69,
-    1169.271
-   ],
-   "size_rbx": [
-    128.061,
-    10.801,
-    223.816
-   ],
-   "owner": "terrain",
-   "shadow": true,
-   "flags": "",
-   "model": ""
-  },
-  {
-   "name": "DS_Ter_Ishigaki__Stone_DS_g3_7",
-   "group": "02_TERRAIN",
-   "obj": "DS_Ter_Ishigaki",
-   "material": "Stone_DS",
-   "tris": 994,
-   "center_rbx": [
-    -1637.064,
-    61.33,
-    1096.969
-   ],
-   "size_rbx": [
-    53.92,
-    15.04,
-    83.226
-   ],
-   "owner": "terrain",
-   "shadow": false,
-   "flags": "",
-   "model": ""
-  },
-  {
-   "name": "DS_Ter_Ishigaki__Stone_DS_B_g0_6",
-   "group": "02_TERRAIN",
-   "obj": "DS_Ter_Ishigaki",
-   "material": "Stone_DS_B",
-   "tris": 757,
-   "center_rbx": [
-    -1960.796,
-    69.95,
-    1193.547
-   ],
-   "size_rbx": [
-    86.505,
-    20.28,
-    170.635
+    397.408,
+    26.32,
+    330.512
    ],
    "owner": "terrain",
    "shadow": true,
@@ -609,37 +504,16 @@
    "group": "02_TERRAIN",
    "obj": "DS_Ter_Ishigaki",
    "material": "Stone_DS_B",
-   "tris": 2325,
+   "tris": 3472,
    "center_rbx": [
-    -1825.674,
-    69.95,
-    1317.045
+    -1847.915,
+    70.332,
+    1327.108
    ],
    "size_rbx": [
-    269.638,
-    20.28,
-    131.984
-   ],
-   "owner": "terrain",
-   "shadow": true,
-   "flags": "",
-   "model": ""
-  },
-  {
-   "name": "DS_Ter_Ishigaki__Stone_DS_B_g2_6",
-   "group": "02_TERRAIN",
-   "obj": "DS_Ter_Ishigaki",
-   "material": "Stone_DS_B",
-   "tris": 618,
-   "center_rbx": [
-    -1742.962,
-    62.95,
-    1254.036
-   ],
-   "size_rbx": [
-    96.769,
-    6.28,
-    52.71
+    315.788,
+    21.337,
+    209.719
    ],
    "owner": "terrain",
    "shadow": true,
@@ -651,16 +525,16 @@
    "group": "02_TERRAIN",
    "obj": "DS_Ter_Ishigaki",
    "material": "Stone_DS_B",
-   "tris": 820,
+   "tris": 708,
    "center_rbx": [
-    -1655.355,
-    61.33,
-    1096.259
+    -1656.335,
+    61.326,
+    1094.097
    ],
    "size_rbx": [
-    89.856,
-    15.04,
-    82.162
+    95.285,
+    15.251,
+    90.872
    ],
    "owner": "terrain",
    "shadow": false,
@@ -672,16 +546,16 @@
    "group": "02_TERRAIN",
    "obj": "DS_Ter_Ishigaki",
    "material": "Stone_DS_Dark",
-   "tris": 66,
+   "tris": 250,
    "center_rbx": [
-    -1807.361,
+    -1807.296,
     66.95,
-    1219.531
+    1219.562
    ],
    "size_rbx": [
-    397.559,
+    397.561,
     26.5,
-    330.555
+    330.401
    ],
    "owner": "terrain",
    "shadow": true,
@@ -689,20 +563,20 @@
    "model": ""
   },
   {
-   "name": "DS_Ter_Ishigaki__Stone_DS_Path_g1_5",
+   "name": "DS_Ter_Ishigaki__Stone_DS_Ishi_g0_5",
    "group": "02_TERRAIN",
    "obj": "DS_Ter_Ishigaki",
-   "material": "Stone_DS_Path",
-   "tris": 2319,
+   "material": "Stone_DS_Ishi",
+   "tris": 997,
    "center_rbx": [
-    -1848.025,
-    70.14,
-    1303.533
+    -1939.692,
+    74.949,
+    1305.096
    ],
    "size_rbx": [
-    317.476,
-    20.72,
-    163.231
+    42.463,
+    10.562,
+    33.487
    ],
    "owner": "terrain",
    "shadow": true,
@@ -710,20 +584,20 @@
    "model": ""
   },
   {
-   "name": "DS_Ter_Ishigaki__Stone_DS_Path_g1_6",
+   "name": "DS_Ter_Ishigaki__Stone_DS_Ishi_g0_6",
    "group": "02_TERRAIN",
    "obj": "DS_Ter_Ishigaki",
-   "material": "Stone_DS_Path",
-   "tris": 633,
+   "material": "Stone_DS_Ishi",
+   "tris": 1442,
    "center_rbx": [
-    -1867.874,
-    65.14,
-    1189.312
+    -1961.599,
+    69.932,
+    1188.911
    ],
    "size_rbx": [
-    154.361,
-    10.72,
-    183.006
+    86.092,
+    20.61,
+    180.777
    ],
    "owner": "terrain",
    "shadow": true,
@@ -731,20 +605,20 @@
    "model": ""
   },
   {
-   "name": "DS_Ter_Ishigaki__Stone_DS_Path_g2_6",
+   "name": "DS_Ter_Ishigaki__Stone_DS_Ishi_g1_5",
    "group": "02_TERRAIN",
    "obj": "DS_Ter_Ishigaki",
-   "material": "Stone_DS_Path",
-   "tris": 668,
+   "material": "Stone_DS_Ishi",
+   "tris": 3320,
    "center_rbx": [
-    -1743.3,
-    63.14,
-    1254.251
+    -1805.659,
+    70.399,
+    1351.754
    ],
    "size_rbx": [
-    99.146,
-    6.72,
-    54.253
+    231.216,
+    21.402,
+    146.202
    ],
    "owner": "terrain",
    "shadow": true,
@@ -752,20 +626,62 @@
    "model": ""
   },
   {
-   "name": "DS_Ter_Ishigaki__Stone_DS_Path_g3_7",
+   "name": "DS_Ter_Ishigaki__Stone_DS_Ishi_g1_6",
    "group": "02_TERRAIN",
    "obj": "DS_Ter_Ishigaki",
-   "material": "Stone_DS_Path",
-   "tris": 1270,
+   "material": "Stone_DS_Ishi",
+   "tris": 645,
    "center_rbx": [
-    -1657.34,
-    61.52,
-    1096.993
+    -1858.201,
+    64.977,
+    1266.284
    ],
    "size_rbx": [
-    97.692,
-    15.48,
-    86.007
+    126.072,
+    10.563,
+    30.461
+   ],
+   "owner": "terrain",
+   "shadow": true,
+   "flags": "",
+   "model": ""
+  },
+  {
+   "name": "DS_Ter_Ishigaki__Stone_DS_Ishi_g2_6",
+   "group": "02_TERRAIN",
+   "obj": "DS_Ter_Ishigaki",
+   "material": "Stone_DS_Ishi",
+   "tris": 1223,
+   "center_rbx": [
+    -1742.349,
+    62.947,
+    1254.346
+   ],
+   "size_rbx": [
+    97.859,
+    6.592,
+    53.838
+   ],
+   "owner": "terrain",
+   "shadow": true,
+   "flags": "",
+   "model": ""
+  },
+  {
+   "name": "DS_Ter_Ishigaki__Stone_DS_Ishi_g3_7",
+   "group": "02_TERRAIN",
+   "obj": "DS_Ter_Ishigaki",
+   "material": "Stone_DS_Ishi",
+   "tris": 2101,
+   "center_rbx": [
+    -1657.79,
+    61.325,
+    1093.416
+   ],
+   "size_rbx": [
+    96.391,
+    15.325,
+    91.109
    ],
    "owner": "terrain",
    "shadow": false,
@@ -773,41 +689,20 @@
    "model": ""
   },
   {
-   "name": "DS_Ter_Keel__Cliff_DS_Dark_g-1_5",
+   "name": "DS_Ter_Ishigaki__Stone_DS_IshiD",
    "group": "02_TERRAIN",
-   "obj": "DS_Ter_Keel",
-   "material": "Cliff_DS_Dark",
-   "tris": 793,
+   "obj": "DS_Ter_Ishigaki",
+   "material": "Stone_DS_IshiD",
+   "tris": 2411,
    "center_rbx": [
-    -2062.643,
-    2.123,
-    1335.338
+    -1808.222,
+    67.5,
+    1224.071
    ],
    "size_rbx": [
-    78.642,
-    83.754,
-    191.589
-   ],
-   "owner": "terrain",
-   "shadow": false,
-   "flags": "",
-   "model": ""
-  },
-  {
-   "name": "DS_Ter_Keel__Cliff_DS_Dark_g0_4",
-   "group": "02_TERRAIN",
-   "obj": "DS_Ter_Keel",
-   "material": "Cliff_DS_Dark",
-   "tris": 2050,
-   "center_rbx": [
-    -1905.064,
-    0.546,
-    1331.603
-   ],
-   "size_rbx": [
-    355.709,
-    86.907,
-    319.859
+    393.581,
+    27.6,
+    349.893
    ],
    "owner": "terrain",
    "shadow": true,
@@ -815,20 +710,20 @@
    "model": ""
   },
   {
-   "name": "DS_Ter_Keel__Cliff_DS_Dark_g0_6",
+   "name": "DS_Ter_Ishigaki__Stone_DS_Path",
    "group": "02_TERRAIN",
-   "obj": "DS_Ter_Keel",
-   "material": "Cliff_DS_Dark",
-   "tris": 611,
+   "obj": "DS_Ter_Ishigaki",
+   "material": "Stone_DS_Path",
+   "tris": 2980,
    "center_rbx": [
-    -1942.196,
-    0.444,
-    1278.958
+    -1807.587,
+    70.25,
+    1219.792
    ],
    "size_rbx": [
-    252.814,
-    87.112,
-    296.059
+    398.302,
+    20.579,
+    330.648
    ],
    "owner": "terrain",
    "shadow": true,
@@ -836,104 +731,20 @@
    "model": ""
   },
   {
-   "name": "DS_Ter_Keel__Cliff_DS_Dark_g0_7",
+   "name": "DS_Ter_Keel__Cliff_DS_Dark",
    "group": "02_TERRAIN",
    "obj": "DS_Ter_Keel",
    "material": "Cliff_DS_Dark",
-   "tris": 1374,
+   "tris": 6172,
    "center_rbx": [
-    -1943.797,
-    1.641,
-    1158.091
-   ],
-   "size_rbx": [
-    306.755,
-    84.717,
-    282.951
-   ],
-   "owner": "terrain",
-   "shadow": true,
-   "flags": "",
-   "model": ""
-  },
-  {
-   "name": "DS_Ter_Keel__Cliff_DS_Dark_g1_7",
-   "group": "02_TERRAIN",
-   "obj": "DS_Ter_Keel",
-   "material": "Cliff_DS_Dark",
-   "tris": 771,
-   "center_rbx": [
-    -1803.815,
-    1.177,
-    1156.957
-   ],
-   "size_rbx": [
-    270.761,
-    85.646,
-    276.326
-   ],
-   "owner": "terrain",
-   "shadow": true,
-   "flags": "",
-   "model": ""
-  },
-  {
-   "name": "DS_Ter_Keel__Cliff_DS_Dark_g2_5",
-   "group": "02_TERRAIN",
-   "obj": "DS_Ter_Keel",
-   "material": "Cliff_DS_Dark",
-   "tris": 1121,
-   "center_rbx": [
-    -1822.755,
-    -0.229,
-    1223.575
-   ],
-   "size_rbx": [
-    354.85,
-    88.458,
-    351.386
-   ],
-   "owner": "terrain",
-   "shadow": true,
-   "flags": "",
-   "model": ""
-  },
-  {
-   "name": "DS_Ter_Keel__Cliff_DS_Dark_g3_6",
-   "group": "02_TERRAIN",
-   "obj": "DS_Ter_Keel",
-   "material": "Cliff_DS_Dark",
-   "tris": 661,
-   "center_rbx": [
-    -1655.024,
-    -0.201,
-    1198.234
-   ],
-   "size_rbx": [
-    57.807,
-    88.401,
-    137.513
-   ],
-   "owner": "terrain",
-   "shadow": true,
-   "flags": "",
-   "model": ""
-  },
-  {
-   "name": "DS_Ter_Keel__Cliff_DS_Dark_g3_7",
-   "group": "02_TERRAIN",
-   "obj": "DS_Ter_Keel",
-   "material": "Cliff_DS_Dark",
-   "tris": 2003,
-   "center_rbx": [
-    -1723.529,
+    -1846.282,
     -0.496,
-    1130.62
+    1244.295
    ],
    "size_rbx": [
-    265.858,
+    511.364,
     88.991,
-    267.124
+    494.474
    ],
    "owner": "terrain",
    "shadow": true,
@@ -945,7 +756,7 @@
    "group": "02_TERRAIN",
    "obj": "DS_Ter_Moss",
    "material": "Cliff_DS_Moss",
-   "tris": 3460,
+   "tris": 3450,
    "center_rbx": [
     -1847.896,
     75.78,
@@ -983,6 +794,27 @@
    "model": ""
   },
   {
+   "name": "DS_Ter_Paving__Stone_DS_Laje_g1_5",
+   "group": "02_TERRAIN",
+   "obj": "DS_Ter_Paving",
+   "material": "Stone_DS_Laje",
+   "tris": 1452,
+   "center_rbx": [
+    -1878.68,
+    80.155,
+    1356.32
+   ],
+   "size_rbx": [
+    76.467,
+    0.45,
+    78.178
+   ],
+   "owner": "terrain",
+   "shadow": true,
+   "flags": "",
+   "model": ""
+  },
+  {
    "name": "DS_Ter_Paving__Stone_DS_Laje_g2_7",
    "group": "02_TERRAIN",
    "obj": "DS_Ter_Paving",
@@ -1008,16 +840,16 @@
    "group": "02_TERRAIN",
    "obj": "DS_Ter_Paving",
    "material": "Stone_DS_Laje",
-   "tris": 2926,
+   "tris": 2236,
    "center_rbx": [
     -1632.299,
     57.16,
-    1049.426
+    1050.652
    ],
    "size_rbx": [
     64.485,
     6.36,
-    77.281
+    74.828
    ],
    "owner": "terrain",
    "shadow": false,
@@ -1113,16 +945,16 @@
    "group": "02_TERRAIN",
    "obj": "DS_Ter_Rocks",
    "material": "Cliff_DS",
-   "tris": 2281,
+   "tris": 2223,
    "center_rbx": [
-    -1946.497,
+    -1947.286,
     83.983,
-    1218.881
+    1219.539
    ],
    "size_rbx": [
-    309.036,
+    307.458,
     77.966,
-    398.406
+    397.09
    ],
    "owner": "terrain",
    "shadow": true,
@@ -1134,7 +966,7 @@
    "group": "02_TERRAIN",
    "obj": "DS_Ter_Rocks",
    "material": "Cliff_DS",
-   "tris": 1444,
+   "tris": 1490,
    "center_rbx": [
     -1821.548,
     86.957,
@@ -1176,7 +1008,7 @@
    "group": "02_TERRAIN",
    "obj": "DS_Ter_Rocks",
    "material": "Cliff_DS_B",
-   "tris": 2407,
+   "tris": 2465,
    "center_rbx": [
     -1946.559,
     81.507,
@@ -1197,7 +1029,7 @@
    "group": "02_TERRAIN",
    "obj": "DS_Ter_Rocks",
    "material": "Cliff_DS_B",
-   "tris": 665,
+   "tris": 651,
    "center_rbx": [
     -1983.699,
     99.843,
@@ -1218,7 +1050,7 @@
    "group": "02_TERRAIN",
    "obj": "DS_Ter_Rocks",
    "material": "Cliff_DS_B",
-   "tris": 1670,
+   "tris": 1602,
    "center_rbx": [
     -1823.938,
     86.743,
@@ -1323,7 +1155,7 @@
    "group": "02_TERRAIN",
    "obj": "DS_Ter_Rocks",
    "material": "Cliff_DS_Moss",
-   "tris": 1731,
+   "tris": 1683,
    "center_rbx": [
     -1796.861,
     61.609,
@@ -1424,20 +1256,41 @@
    "model": ""
   },
   {
-   "name": "DS_Clr_Floor__Dirt_DS",
+   "name": "DS_Clr_Floor__Dirt_DS_g1_6",
    "group": "03_CLEARING",
    "obj": "DS_Clr_Floor",
    "material": "Dirt_DS",
-   "tris": 2552,
+   "tris": 2183,
    "center_rbx": [
-    -1839.258,
+    -1843.182,
     60.08,
     1165.385
    ],
    "size_rbx": [
-    296.611,
+    288.764,
     0.76,
     229.417
+   ],
+   "owner": "terrain",
+   "shadow": false,
+   "flags": "",
+   "model": ""
+  },
+  {
+   "name": "DS_Clr_Floor__Dirt_DS_g2_7",
+   "group": "03_CLEARING",
+   "obj": "DS_Clr_Floor",
+   "material": "Dirt_DS",
+   "tris": 610,
+   "center_rbx": [
+    -1743.629,
+    60.08,
+    1109.086
+   ],
+   "size_rbx": [
+    105.353,
+    0.76,
+    116.818
    ],
    "owner": "terrain",
    "shadow": false,
@@ -1449,7 +1302,7 @@
    "group": "03_CLEARING",
    "obj": "DS_Clr_Floor",
    "material": "Dirt_DS_Dark",
-   "tris": 1441,
+   "tris": 1648,
    "center_rbx": [
     -1832.616,
     59.95,
@@ -1470,7 +1323,7 @@
    "group": "03_CLEARING",
    "obj": "DS_Clr_Floor",
    "material": "Grass_DS",
-   "tris": 1036,
+   "tris": 1030,
    "center_rbx": [
     -1836.729,
     60.38,
@@ -1491,7 +1344,7 @@
    "group": "03_CLEARING",
    "obj": "DS_Clr_Floor",
    "material": "Grass_DS_B",
-   "tris": 2150,
+   "tris": 2134,
    "center_rbx": [
     -1839.243,
     60.23,
@@ -1512,7 +1365,7 @@
    "group": "03_CLEARING",
    "obj": "DS_Clr_Floor",
    "material": "Grass_DS_Deep",
-   "tris": 413,
+   "tris": 411,
    "center_rbx": [
     -1832.37,
     60.38,
@@ -1533,7 +1386,7 @@
    "group": "03_CLEARING",
    "obj": "DS_Clr_Floor",
    "material": "Grass_DS_Dry",
-   "tris": 527,
+   "tris": 515,
    "center_rbx": [
     -1837.877,
     60.38,
@@ -1557,13 +1410,13 @@
    "tris": 12,
    "center_rbx": [
     -1864.661,
-    85.39,
+    85.425,
     1359.584
    ],
    "size_rbx": [
-    1.127,
-    1.18,
-    1.127
+    1.042,
+    0.515,
+    1.042
    ],
    "owner": "forge",
    "shadow": false,
@@ -1575,19 +1428,19 @@
    "group": "04_FORGE",
    "obj": "DS_Frg_Coal",
    "material": "Metal_DS_Iron",
-   "tris": 76,
+   "tris": 144,
    "center_rbx": [
-    -1864.661,
-    86.931,
-    1359.583
+    -1855.885,
+    84.095,
+    1371.37
    ],
    "size_rbx": [
-    0.394,
-    0.737,
-    0.376
+    17.945,
+    6.41,
+    38.54
    ],
    "owner": "forge",
-   "shadow": false,
+   "shadow": true,
    "flags": "",
    "model": "DS_Frg"
   },
@@ -1596,15 +1449,15 @@
    "group": "04_FORGE",
    "obj": "DS_Frg_Coal",
    "material": "Plaster_DS_Clay",
-   "tris": 452,
+   "tris": 588,
    "center_rbx": [
     -1850.466,
-    82.525,
+    81.87,
     1369.947
    ],
    "size_rbx": [
     32.945,
-    4.95,
+    3.64,
     23.966
    ],
    "owner": "forge",
@@ -1638,16 +1491,16 @@
    "group": "04_FORGE",
    "obj": "DS_Frg_Coal",
    "material": "Roof_DS_Tile",
-   "tris": 1280,
+   "tris": 1831,
    "center_rbx": [
     -1849.346,
-    87.441,
-    1369.955
+    87.536,
+    1365.709
    ],
    "size_rbx": [
     35.078,
-    14.682,
-    28.014
+    14.492,
+    36.506
    ],
    "owner": "forge",
    "shadow": true,
@@ -1659,16 +1512,79 @@
    "group": "04_FORGE",
    "obj": "DS_Frg_Coal",
    "material": "Rope_DS_Straw",
-   "tris": 504,
+   "tris": 724,
    "center_rbx": [
-    -1845.201,
-    81.65,
-    1351.349
+    -1849.265,
+    81.588,
+    1357.995
    ],
    "size_rbx": [
-    4.109,
-    3.0,
-    4.626
+    31.416,
+    2.776,
+    21.127
+   ],
+   "owner": "forge",
+   "shadow": false,
+   "flags": "",
+   "model": "DS_Frg"
+  },
+  {
+   "name": "DS_Frg_Coal__Stone_DS_Brick",
+   "group": "04_FORGE",
+   "obj": "DS_Frg_Coal",
+   "material": "Stone_DS_Brick",
+   "tris": 312,
+   "center_rbx": [
+    -1845.402,
+    82.31,
+    1369.146
+   ],
+   "size_rbx": [
+    11.556,
+    4.42,
+    10.822
+   ],
+   "owner": "forge",
+   "shadow": true,
+   "flags": "",
+   "model": "DS_Frg"
+  },
+  {
+   "name": "DS_Frg_Coal__Stone_DS_Dark",
+   "group": "04_FORGE",
+   "obj": "DS_Frg_Coal",
+   "material": "Stone_DS_Dark",
+   "tris": 140,
+   "center_rbx": [
+    -1845.546,
+    82.45,
+    1369.634
+   ],
+   "size_rbx": [
+    11.494,
+    4.7,
+    11.23
+   ],
+   "owner": "forge",
+   "shadow": false,
+   "flags": "",
+   "model": "DS_Frg"
+  },
+  {
+   "name": "DS_Frg_Coal__Window_DS_Warm",
+   "group": "04_FORGE",
+   "obj": "DS_Frg_Coal",
+   "material": "Window_DS_Warm",
+   "tris": 24,
+   "center_rbx": [
+    -1864.661,
+    85.425,
+    1359.584
+   ],
+   "size_rbx": [
+    1.042,
+    1.03,
+    1.042
    ],
    "owner": "forge",
    "shadow": false,
@@ -1680,16 +1596,16 @@
    "group": "04_FORGE",
    "obj": "DS_Frg_Coal",
    "material": "Wood_DS_Dark",
-   "tris": 1600,
+   "tris": 1980,
    "center_rbx": [
-    -1849.219,
-    87.322,
-    1380.694
+    -1851.655,
+    87.272,
+    1378.389
    ],
    "size_rbx": [
-    34.824,
-    14.243,
-    49.492
+    48.038,
+    14.343,
+    53.161
    ],
    "owner": "forge",
    "shadow": true,
@@ -1701,16 +1617,37 @@
    "group": "04_FORGE",
    "obj": "DS_Frg_Coal",
    "material": "Wood_DS_Mid",
-   "tris": 680,
+   "tris": 1692,
    "center_rbx": [
-    -1851.047,
-    81.85,
-    1400.401
+    -1851.601,
+    81.466,
+    1378.118
    ],
    "size_rbx": [
-    4.478,
-    3.24,
-    8.377
+    46.674,
+    2.568,
+    52.248
+   ],
+   "owner": "forge",
+   "shadow": true,
+   "flags": "",
+   "model": "DS_Frg"
+  },
+  {
+   "name": "DS_Frg_Ground__Dirt_DS",
+   "group": "04_FORGE",
+   "obj": "DS_Frg_Ground",
+   "material": "Dirt_DS",
+   "tris": 1272,
+   "center_rbx": [
+    -1954.336,
+    80.23,
+    1310.056
+   ],
+   "size_rbx": [
+    81.687,
+    0.22,
+    89.312
    ],
    "owner": "forge",
    "shadow": false,
@@ -1745,14 +1682,14 @@
    "material": "Glass_DS_Lantern",
    "tris": 44,
    "center_rbx": [
-    -1945.463,
-    80.165,
-    1289.599
+    -1945.442,
+    80.016,
+    1289.62
    ],
    "size_rbx": [
-    53.866,
-    12.83,
-    22.014
+    53.824,
+    12.532,
+    21.971
    ],
    "owner": "forge",
    "shadow": false,
@@ -1785,16 +1722,16 @@
    "group": "04_FORGE",
    "obj": "DS_Frg_Ground",
    "material": "Stone_DS",
-   "tris": 1332,
+   "tris": 1720,
    "center_rbx": [
-    -1939.175,
+    -1961.185,
     70.675,
-    1285.481
+    1303.614
    ],
    "size_rbx": [
-    69.613,
+    113.543,
     21.55,
-    68.871
+    125.068
    ],
    "owner": "forge",
    "shadow": true,
@@ -1806,16 +1743,16 @@
    "group": "04_FORGE",
    "obj": "DS_Frg_Ground",
    "material": "Stone_DS_B",
-   "tris": 720,
+   "tris": 1060,
    "center_rbx": [
-    -1937.44,
+    -1959.931,
     70.675,
-    1282.376
+    1301.629
    ],
    "size_rbx": [
-    63.386,
+    111.214,
     21.55,
-    64.975
+    124.861
    ],
    "owner": "forge",
    "shadow": true,
@@ -1827,16 +1764,16 @@
    "group": "04_FORGE",
    "obj": "DS_Frg_Ground",
    "material": "Stone_DS_Dark",
-   "tris": 1344,
+   "tris": 1500,
    "center_rbx": [
-    -1939.482,
+    -1961.73,
     74.64,
-    1290.006
+    1304.77
    ],
    "size_rbx": [
-    68.834,
+    113.331,
     29.48,
-    78.616
+    123.513
    ],
    "owner": "forge",
    "shadow": true,
@@ -1848,15 +1785,15 @@
    "group": "04_FORGE",
    "obj": "DS_Frg_Ground",
    "material": "Stone_DS_Laje",
-   "tris": 4200,
+   "tris": 5066,
    "center_rbx": [
     -1966.549,
-    75.09,
+    75.117,
     1311.374
    ],
    "size_rbx": [
     114.654,
-    10.5,
+    10.555,
     124.228
    ],
    "owner": "forge",
@@ -1869,16 +1806,16 @@
    "group": "04_FORGE",
    "obj": "DS_Frg_Ground",
    "material": "Stone_DS_Path",
-   "tris": 780,
+   "tris": 2494,
    "center_rbx": [
-    -1937.561,
+    -1937.577,
     70.535,
-    1289.714
+    1289.728
    ],
    "size_rbx": [
-    65.334,
+    65.301,
     19.731,
-    78.338
+    78.31
    ],
    "owner": "forge",
    "shadow": true,
@@ -1886,41 +1823,41 @@
    "model": "DS_Frg"
   },
   {
-   "name": "DS_Frg_Ground__Wood_DS_Dark_g0_6",
+   "name": "DS_Frg_Ground__Window_DS_Warm",
+   "group": "04_FORGE",
+   "obj": "DS_Frg_Ground",
+   "material": "Window_DS_Warm",
+   "tris": 48,
+   "center_rbx": [
+    -1965.526,
+    86.025,
+    1284.96
+   ],
+   "size_rbx": [
+    13.655,
+    1.03,
+    12.651
+   ],
+   "owner": "forge",
+   "shadow": false,
+   "flags": "",
+   "model": "DS_Frg"
+  },
+  {
+   "name": "DS_Frg_Ground__Wood_DS_Dark",
    "group": "04_FORGE",
    "obj": "DS_Frg_Ground",
    "material": "Wood_DS_Dark",
-   "tris": 1557,
+   "tris": 1492,
    "center_rbx": [
-    -1997.194,
+    -1941.255,
     79.58,
-    1270.227
+    1300.69
    ],
    "size_rbx": [
-    154.957,
+    266.835,
     18.76,
-    106.697
-   ],
-   "owner": "forge",
-   "shadow": true,
-   "flags": "",
-   "model": "DS_Frg"
-  },
-  {
-   "name": "DS_Frg_Ground__Wood_DS_Dark_g1_5",
-   "group": "04_FORGE",
-   "obj": "DS_Frg_Ground",
-   "material": "Wood_DS_Dark",
-   "tris": 655,
-   "center_rbx": [
-    -1863.992,
-    81.59,
-    1345.652
-   ],
-   "size_rbx": [
-    112.31,
-    2.9,
-    77.699
+    167.624
    ],
    "owner": "forge",
    "shadow": true,
@@ -1932,16 +1869,16 @@
    "group": "04_FORGE",
    "obj": "DS_Frg_Ground",
    "material": "Wood_DS_Mid",
-   "tris": 340,
+   "tris": 284,
    "center_rbx": [
     -1941.255,
-    77.342,
-    1300.692
+    77.34,
+    1300.7
    ],
    "size_rbx": [
-    266.579,
-    11.284,
-    167.373
+    267.319,
+    11.28,
+    168.116
    ],
    "owner": "forge",
    "shadow": true,
@@ -1955,14 +1892,14 @@
    "material": "Metal_DS_Iron",
    "tris": 24,
    "center_rbx": [
-    -1996.647,
+    -1996.672,
     86.29,
-    1321.947
+    1321.917
    ],
    "size_rbx": [
-    2.154,
+    2.206,
     0.7,
-    2.113
+    2.174
    ],
    "owner": "forge",
    "shadow": false,
@@ -1997,14 +1934,14 @@
    "material": "Plaster_DS_Shoji",
    "tris": 240,
    "center_rbx": [
-    -1984.43,
+    -1984.384,
     97.937,
-    1340.919
+    1340.88
    ],
    "size_rbx": [
-    38.576,
+    38.484,
     27.374,
-    36.524
+    36.447
    ],
    "owner": "forge",
    "shadow": true,
@@ -2079,7 +2016,7 @@
    "group": "04_FORGE",
    "obj": "DS_Frg_Hall",
    "material": "Stone_DS",
-   "tris": 20,
+   "tris": 18,
    "center_rbx": [
     -1970.105,
     80.25,
@@ -2121,7 +2058,7 @@
    "group": "04_FORGE",
    "obj": "DS_Frg_Hall",
    "material": "Stone_DS_Dark",
-   "tris": 3272,
+   "tris": 2970,
    "center_rbx": [
     -1983.396,
     89.93,
@@ -2142,7 +2079,7 @@
    "group": "04_FORGE",
    "obj": "DS_Frg_Hall",
    "material": "Stone_DS_Soot",
-   "tris": 644,
+   "tris": 616,
    "center_rbx": [
     -1983.396,
     95.862,
@@ -2165,14 +2102,14 @@
    "material": "Window_DS_Warm",
    "tris": 72,
    "center_rbx": [
-    -1982.793,
+    -1982.8,
     86.45,
     1339.049
    ],
    "size_rbx": [
-    41.668,
+    41.499,
     4.4,
-    43.51
+    43.326
    ],
    "owner": "forge",
    "shadow": false,
@@ -2212,9 +2149,9 @@
     1339.116
    ],
    "size_rbx": [
-    51.296,
+    51.235,
     8.56,
-    52.775
+    52.714
    ],
    "owner": "forge",
    "shadow": true,
@@ -2233,9 +2170,9 @@
     1373.217
    ],
    "size_rbx": [
-    11.711,
+    11.834,
     3.648,
-    13.892
+    13.995
    ],
    "owner": "forge",
    "shadow": false,
@@ -2249,14 +2186,14 @@
    "material": "Metal_DS_Iron",
    "tris": 48,
    "center_rbx": [
-    -1942.908,
+    -1942.915,
     86.29,
-    1374.735
+    1374.649
    ],
    "size_rbx": [
-    9.698,
+    9.749,
     0.5,
-    11.199
+    11.233
    ],
    "owner": "forge",
    "shadow": false,
@@ -2415,16 +2352,16 @@
    "group": "04_FORGE",
    "obj": "DS_Frg_Houses",
    "material": "Stone_DS_Path",
-   "tris": 336,
+   "tris": 384,
    "center_rbx": [
-    -1941.344,
-    80.99,
-    1371.798
+    -1941.515,
+    81.0,
+    1371.996
    ],
    "size_rbx": [
-    14.282,
-    2.08,
-    16.17
+    11.885,
+    2.1,
+    13.715
    ],
    "owner": "forge",
    "shadow": true,
@@ -2459,14 +2396,14 @@
    "material": "Window_DS_Warm",
    "tris": 288,
    "center_rbx": [
-    -1978.143,
+    -1978.113,
     103.125,
     1349.865
    ],
    "size_rbx": [
-    79.624,
+    79.502,
     37.75,
-    85.18
+    85.026
    ],
    "owner": "forge",
    "shadow": false,
@@ -2501,14 +2438,14 @@
    "material": "Wood_DS_Mid",
    "tris": 808,
    "center_rbx": [
-    -1975.765,
+    -1975.75,
     98.7,
     1351.943
    ],
    "size_rbx": [
-    86.29,
+    86.26,
     33.8,
-    91.354
+    91.302
    ],
    "owner": "forge",
    "shadow": true,
@@ -2524,12 +2461,12 @@
    "center_rbx": [
     -2013.612,
     88.594,
-    1288.762
+    1288.792
    ],
    "size_rbx": [
     8.82,
     5.709,
-    22.5
+    22.562
    ],
    "owner": "forge",
    "shadow": false,
@@ -2688,16 +2625,16 @@
    "group": "04_FORGE",
    "obj": "DS_Frg_Mill",
    "material": "Stone_DS_Path",
-   "tris": 168,
+   "tris": 156,
    "center_rbx": [
-    -2014.366,
-    80.89,
-    1300.755
+    -2014.445,
+    80.9,
+    1301.007
    ],
    "size_rbx": [
-    7.029,
-    1.88,
-    6.611
+    4.453,
+    1.9,
+    5.175
    ],
    "owner": "forge",
    "shadow": false,
@@ -2711,14 +2648,14 @@
    "material": "Window_DS_Warm",
    "tris": 60,
    "center_rbx": [
-    -2024.615,
+    -2024.568,
     85.175,
-    1292.382
+    1292.389
    ],
    "size_rbx": [
-    18.349,
+    18.258,
     6.55,
-    23.438
+    23.269
    ],
    "owner": "forge",
    "shadow": false,
@@ -2753,14 +2690,14 @@
    "material": "Wood_DS_Mid",
    "tris": 360,
    "center_rbx": [
-    -2052.293,
+    -2052.306,
     92.778,
-    1288.019
+    1288.004
    ],
    "size_rbx": [
-    87.618,
+    87.593,
     22.356,
-    33.881
+    33.851
    ],
    "owner": "forge",
    "shadow": true,
@@ -2775,7 +2712,7 @@
    "tris": 912,
    "center_rbx": [
     -1969.926,
-    82.172,
+    82.592,
     1327.333
    ],
    "size_rbx": [
@@ -2796,12 +2733,12 @@
    "tris": 1104,
    "center_rbx": [
     -1969.926,
-    83.241,
+    83.451,
     1332.819
    ],
    "size_rbx": [
     27.432,
-    4.064,
+    3.644,
     35.407
    ],
    "owner": "forge",
@@ -2814,16 +2751,16 @@
    "group": "04_FORGE",
    "obj": "DS_Frg_Smithy",
    "material": "Dirt_DS_Dark",
-   "tris": 12,
+   "tris": 58,
    "center_rbx": [
-    -1983.568,
-    80.3,
-    1339.261
+    -1925.521,
+    82.12,
+    1343.088
    ],
    "size_rbx": [
-    49.916,
-    0.6,
-    51.45
+    166.009,
+    4.24,
+    59.104
    ],
    "owner": "forge",
    "shadow": false,
@@ -2837,14 +2774,14 @@
    "material": "Ember_DS_Glow",
    "tris": 238,
    "center_rbx": [
-    -1923.938,
+    -1924.099,
     81.475,
-    1338.162
+    1338.148
    ],
    "size_rbx": [
-    165.469,
+    165.146,
     2.55,
-    58.561
+    58.532
    ],
    "owner": "forge",
    "shadow": false,
@@ -2877,16 +2814,16 @@
    "group": "04_FORGE",
    "obj": "DS_Frg_Smithy",
    "material": "Glass_DS_Lantern",
-   "tris": 24,
+   "tris": 88,
    "center_rbx": [
     -1967.921,
-    88.38,
+    88.5,
     1326.132
    ],
    "size_rbx": [
-    11.503,
-    0.78,
-    13.574
+    11.6,
+    0.293,
+    13.671
    ],
    "owner": "forge",
    "shadow": false,
@@ -2901,12 +2838,12 @@
    "tris": 1140,
    "center_rbx": [
     -1970.494,
-    83.296,
+    83.506,
     1332.533
    ],
    "size_rbx": [
     27.119,
-    4.473,
+    4.053,
     41.915
    ],
    "owner": "forge",
@@ -2919,15 +2856,15 @@
    "group": "04_FORGE",
    "obj": "DS_Frg_Smithy",
    "material": "Metal_DS_Iron",
-   "tris": 1664,
+   "tris": 1444,
    "center_rbx": [
-    -1971.479,
-    85.425,
+    -1971.374,
+    84.812,
     1332.821
    ],
    "size_rbx": [
-    57.75,
-    8.73,
+    57.96,
+    9.215,
     36.051
    ],
    "owner": "forge",
@@ -2940,16 +2877,16 @@
    "group": "04_FORGE",
    "obj": "DS_Frg_Smithy",
    "material": "Metal_DS_Steel",
-   "tris": 1330,
+   "tris": 1342,
    "center_rbx": [
-    -1972.28,
-    82.33,
-    1324.986
+    -1964.959,
+    82.46,
+    1328.602
    ],
    "size_rbx": [
-    29.728,
-    2.088,
-    26.309
+    44.371,
+    1.828,
+    33.541
    ],
    "owner": "forge",
    "shadow": true,
@@ -2985,12 +2922,12 @@
    "tris": 768,
    "center_rbx": [
     -1971.664,
-    84.508,
+    84.638,
     1332.821
    ],
    "size_rbx": [
     30.82,
-    6.536,
+    6.276,
     35.34
    ],
    "owner": "forge",
@@ -3005,14 +2942,14 @@
    "material": "Rope_DS_Straw",
    "tris": 632,
    "center_rbx": [
-    -1971.686,
+    -1972.183,
     84.363,
-    1343.325
+    1343.743
    ],
    "size_rbx": [
-    61.089,
+    60.093,
     8.146,
-    17.257
+    18.093
    ],
    "owner": "forge",
    "shadow": false,
@@ -3024,14 +2961,14 @@
    "group": "04_FORGE",
    "obj": "DS_Frg_Smithy",
    "material": "Stone_DS_Brick",
-   "tris": 1176,
+   "tris": 1132,
    "center_rbx": [
-    -1975.029,
+    -1990.177,
     84.45,
     1318.264
    ],
    "size_rbx": [
-    66.033,
+    35.738,
     8.7,
     67.17
    ],
@@ -3066,16 +3003,16 @@
    "group": "04_FORGE",
    "obj": "DS_Frg_Smithy",
    "material": "Stone_DS_Soot",
-   "tris": 3108,
+   "tris": 3078,
    "center_rbx": [
-    -1924.296,
+    -1974.701,
     88.3,
-    1338.428
+    1330.619
    ],
    "size_rbx": [
-    165.93,
+    65.119,
     16.4,
-    59.211
+    45.699
    ],
    "owner": "forge",
    "shadow": true,
@@ -3087,16 +3024,37 @@
    "group": "04_FORGE",
    "obj": "DS_Frg_Smithy",
    "material": "Water_DS_Trough",
-   "tris": 48,
+   "tris": 272,
    "center_rbx": [
-    -1995.889,
-    81.175,
-    1310.621
+    -1972.929,
+    80.885,
+    1316.735
    ],
    "size_rbx": [
-    21.267,
-    0.95,
-    50.151
+    67.187,
+    1.53,
+    62.378
+   ],
+   "owner": "forge",
+   "shadow": false,
+   "flags": "",
+   "model": "DS_Frg"
+  },
+  {
+   "name": "DS_Frg_Smithy__Window_DS_Warm",
+   "group": "04_FORGE",
+   "obj": "DS_Frg_Smithy",
+   "material": "Window_DS_Warm",
+   "tris": 176,
+   "center_rbx": [
+    -1967.921,
+    88.5,
+    1326.132
+   ],
+   "size_rbx": [
+    11.57,
+    0.88,
+    13.641
    ],
    "owner": "forge",
    "shadow": false,
@@ -3108,15 +3066,15 @@
    "group": "04_FORGE",
    "obj": "DS_Frg_Smithy",
    "material": "Wood_DS_Dark",
-   "tris": 3700,
+   "tris": 3832,
    "center_rbx": [
-    -1983.155,
-    93.171,
+    -1975.3,
+    93.086,
     1320.447
    ],
    "size_rbx": [
-    52.932,
-    25.761,
+    68.642,
+    25.931,
     74.883
    ],
    "owner": "forge",
@@ -3129,15 +3087,15 @@
    "group": "04_FORGE",
    "obj": "DS_Frg_Smithy",
    "material": "Wood_DS_Mid",
-   "tris": 356,
+   "tris": 600,
    "center_rbx": [
-    -1994.255,
-    83.345,
+    -1975.358,
+    83.272,
     1316.541
    ],
    "size_rbx": [
-    31.018,
-    6.01,
+    68.813,
+    6.156,
     67.358
    ],
    "owner": "forge",
@@ -3152,14 +3110,14 @@
    "material": "Cloth_DS_Indigo",
    "tris": 96,
    "center_rbx": [
-    -1667.625,
+    -1667.658,
     67.24,
-    1159.655
+    1159.632
    ],
    "size_rbx": [
-    12.616,
+    12.681,
     7.36,
-    12.099
+    12.145
    ],
    "owner": "village",
    "shadow": false,
@@ -3171,16 +3129,16 @@
    "group": "05_VILLAGE",
    "obj": "DS_Vil_HouseV1",
    "material": "Ember_DS_Glow",
-   "tris": 12,
+   "tris": 72,
    "center_rbx": [
-    -1664.598,
-    65.2,
-    1158.239
+    -1664.621,
+    65.193,
+    1158.218
    ],
    "size_rbx": [
-    0.442,
-    0.44,
-    0.56
+    0.413,
+    0.226,
+    0.514
    ],
    "owner": "village",
    "shadow": false,
@@ -3192,16 +3150,16 @@
    "group": "05_VILLAGE",
    "obj": "DS_Vil_HouseV1",
    "material": "Glass_DS_Lantern",
-   "tris": 76,
+   "tris": 88,
    "center_rbx": [
     -1667.982,
-    68.35,
+    69.41,
     1158.921
    ],
    "size_rbx": [
-    1.773,
-    1.9,
-    1.773
+    6.219,
+    0.327,
+    8.38
    ],
    "owner": "village",
    "shadow": false,
@@ -3213,19 +3171,19 @@
    "group": "05_VILLAGE",
    "obj": "DS_Vil_HouseV1",
    "material": "Metal_DS_Iron",
-   "tris": 244,
+   "tris": 312,
    "center_rbx": [
-    -1665.632,
-    67.68,
-    1158.599
+    -1666.894,
+    68.06,
+    1158.921
    ],
    "size_rbx": [
-    4.793,
-    5.64,
-    1.579
+    7.317,
+    6.4,
+    7.307
    ],
    "owner": "village",
-   "shadow": false,
+   "shadow": true,
    "flags": "",
    "model": "DS_Vil_HouseV1"
   },
@@ -3234,16 +3192,16 @@
    "group": "05_VILLAGE",
    "obj": "DS_Vil_HouseV1",
    "material": "Plaster_DS_Ochre",
-   "tris": 768,
+   "tris": 640,
    "center_rbx": [
-    -1668.162,
+    -1668.353,
     67.788,
-    1158.03
+    1158.255
    ],
    "size_rbx": [
-    15.403,
+    15.784,
     15.675,
-    17.709
+    17.259
    ],
    "owner": "village",
    "shadow": true,
@@ -3255,15 +3213,15 @@
    "group": "05_VILLAGE",
    "obj": "DS_Vil_HouseV1",
    "material": "Roof_DS_Ridge",
-   "tris": 924,
+   "tris": 936,
    "center_rbx": [
     -1667.818,
-    75.425,
+    71.799,
     1159.036
    ],
    "size_rbx": [
     27.503,
-    6.388,
+    13.639,
     28.486
    ],
    "owner": "village",
@@ -3360,16 +3318,16 @@
    "group": "05_VILLAGE",
    "obj": "DS_Vil_HouseV1",
    "material": "Window_DS_Warm",
-   "tris": 12,
+   "tris": 188,
    "center_rbx": [
-    -1664.263,
-    66.25,
-    1161.525
+    -1667.368,
+    66.975,
+    1158.921
    ],
    "size_rbx": [
-    1.389,
-    4.4,
-    1.935
+    7.402,
+    5.85,
+    8.336
    ],
    "owner": "village",
    "shadow": false,
@@ -3381,7 +3339,7 @@
    "group": "05_VILLAGE",
    "obj": "DS_Vil_HouseV1",
    "material": "Wood_DS_Dark",
-   "tris": 3632,
+   "tris": 3720,
    "center_rbx": [
     -1667.818,
     68.21,
@@ -3404,14 +3362,14 @@
    "material": "Wood_DS_Mid",
    "tris": 252,
    "center_rbx": [
-    -1669.21,
+    -1669.227,
     66.275,
-    1157.852
+    1157.841
    ],
    "size_rbx": [
-    17.63,
+    17.598,
     9.89,
-    17.773
+    17.75
    ],
    "owner": "village",
    "shadow": true,
@@ -3430,9 +3388,9 @@
     1188.452
    ],
    "size_rbx": [
-    3.208,
+    3.346,
     3.648,
-    5.316
+    5.396
    ],
    "owner": "village",
    "shadow": false,
@@ -3446,14 +3404,14 @@
    "material": "Metal_DS_Iron",
    "tris": 24,
    "center_rbx": [
-    -1685.395,
+    -1685.474,
     66.69,
-    1187.717
+    1187.753
    ],
    "size_rbx": [
-    1.271,
+    1.338,
     0.5,
-    2.582
+    2.598
    ],
    "owner": "village",
    "shadow": false,
@@ -3591,16 +3549,16 @@
    "group": "05_VILLAGE",
    "obj": "DS_Vil_HouseV2",
    "material": "Stone_DS_Path",
-   "tris": 476,
+   "tris": 292,
    "center_rbx": [
-    -1680.07,
-    61.19,
-    1185.887
+    -1679.276,
+    61.2,
+    1185.278
    ],
    "size_rbx": [
-    23.22,
-    2.48,
-    9.97
+    23.017,
+    2.5,
+    8.831
    ],
    "owner": "village",
    "shadow": true,
@@ -3616,12 +3574,12 @@
    "center_rbx": [
     -1678.253,
     67.705,
-    1192.988
+    1192.966
    ],
    "size_rbx": [
-    22.599,
+    22.391,
     6.11,
-    20.883
+    20.719
    ],
    "owner": "village",
    "shadow": false,
@@ -3656,14 +3614,14 @@
    "material": "Wood_DS_Mid",
    "tris": 288,
    "center_rbx": [
-    -1675.803,
+    -1675.785,
     66.495,
-    1192.412
+    1192.402
    ],
    "size_rbx": [
-    28.911,
+    28.877,
     9.13,
-    28.216
+    28.196
    ],
    "owner": "village",
    "shadow": true,
@@ -3677,14 +3635,14 @@
    "material": "Metal_DS_Iron",
    "tris": 104,
    "center_rbx": [
-    -1703.323,
+    -1703.305,
     68.794,
-    1222.097
+    1222.061
    ],
    "size_rbx": [
-    16.955,
+    16.991,
     5.709,
-    7.795
+    7.866
    ],
    "owner": "village",
    "shadow": false,
@@ -3780,16 +3738,16 @@
    "group": "05_VILLAGE",
    "obj": "DS_Vil_HouseV3",
    "material": "Stone_DS",
-   "tris": 540,
+   "tris": 720,
    "center_rbx": [
     -1700.944,
-    60.63,
-    1226.316
+    60.955,
+    1225.58
    ],
    "size_rbx": [
     22.573,
-    1.54,
-    23.446
+    2.19,
+    24.919
    ],
    "owner": "village",
    "shadow": true,
@@ -3839,41 +3797,20 @@
    "model": "DS_Vil_HouseV3"
   },
   {
-   "name": "DS_Vil_HouseV3__Stone_DS_Path",
-   "group": "05_VILLAGE",
-   "obj": "DS_Vil_HouseV3",
-   "material": "Stone_DS_Path",
-   "tris": 276,
-   "center_rbx": [
-    -1695.682,
-    60.99,
-    1215.66
-   ],
-   "size_rbx": [
-    7.061,
-    2.08,
-    5.649
-   ],
-   "owner": "village",
-   "shadow": false,
-   "flags": "",
-   "model": "DS_Vil_HouseV3"
-  },
-  {
    "name": "DS_Vil_HouseV3__Window_DS_Warm",
    "group": "05_VILLAGE",
    "obj": "DS_Vil_HouseV3",
    "material": "Window_DS_Warm",
    "tris": 48,
    "center_rbx": [
-    -1699.69,
+    -1699.743,
     65.75,
-    1228.902
+    1228.849
    ],
    "size_rbx": [
-    10.514,
+    10.407,
     7.3,
-    14.119
+    14.012
    ],
    "owner": "village",
    "shadow": false,
@@ -3908,14 +3845,14 @@
    "material": "Wood_DS_Mid",
    "tris": 168,
    "center_rbx": [
-    -1701.623,
+    -1701.641,
     66.365,
-    1226.313
+    1226.304
    ],
    "size_rbx": [
-    20.847,
+    20.811,
     9.129,
-    20.861
+    20.807
    ],
    "owner": "village",
    "shadow": true,
@@ -3929,14 +3866,14 @@
    "material": "Metal_DS_Iron",
    "tris": 860,
    "center_rbx": [
-    -1736.599,
+    -1736.591,
     75.985,
     1269.139
    ],
    "size_rbx": [
-    13.318,
+    13.374,
     14.67,
-    14.564
+    14.635
    ],
    "owner": "village",
    "shadow": true,
@@ -3948,7 +3885,7 @@
    "group": "05_VILLAGE",
    "obj": "DS_Vil_HouseV4",
    "material": "Plaster_DS_Kura",
-   "tris": 2040,
+   "tris": 2856,
    "center_rbx": [
     -1736.648,
     80.086,
@@ -3969,16 +3906,16 @@
    "group": "05_VILLAGE",
    "obj": "DS_Vil_HouseV4",
    "material": "Roof_DS_Ridge",
-   "tris": 940,
+   "tris": 892,
    "center_rbx": [
     -1736.648,
-    81.788,
+    81.815,
     1269.139
    ],
    "size_rbx": [
-    18.222,
-    25.296,
-    18.468
+    17.692,
+    25.243,
+    17.939
    ],
    "owner": "village",
    "shadow": true,
@@ -4074,16 +4011,16 @@
    "group": "05_VILLAGE",
    "obj": "DS_Vil_HouseV4",
    "material": "Stone_DS_Path",
-   "tris": 276,
+   "tris": 180,
    "center_rbx": [
-    -1729.277,
-    67.04,
-    1263.02
+    -1729.171,
+    67.05,
+    1263.185
    ],
    "size_rbx": [
-    5.81,
-    2.18,
-    6.009
+    4.768,
+    2.2,
+    4.224
    ],
    "owner": "village",
    "shadow": false,
@@ -4144,9 +4081,9 @@
     1281.715
    ],
    "size_rbx": [
-    5.108,
+    5.198,
     3.648,
-    3.554
+    3.687
    ],
    "owner": "village",
    "shadow": false,
@@ -4160,14 +4097,14 @@
    "material": "Metal_DS_Iron",
    "tris": 24,
    "center_rbx": [
-    -1767.797,
+    -1767.883,
     72.89,
-    1281.646
+    1281.643
    ],
    "size_rbx": [
-    2.248,
+    2.271,
     0.5,
-    1.809
+    1.87
    ],
    "owner": "village",
    "shadow": false,
@@ -4305,16 +4242,16 @@
    "group": "05_VILLAGE",
    "obj": "DS_Vil_HouseV5",
    "material": "Stone_DS_Path",
-   "tris": 368,
+   "tris": 240,
    "center_rbx": [
-    -1770.81,
-    67.29,
-    1279.338
+    -1770.686,
+    67.3,
+    1279.123
    ],
    "size_rbx": [
-    7.63,
-    2.68,
-    7.101
+    5.503,
+    2.7,
+    6.574
    ],
    "owner": "village",
    "shadow": false,
@@ -4333,9 +4270,9 @@
     1288.122
    ],
    "size_rbx": [
-    21.261,
+    21.127,
     18.65,
-    18.103
+    17.904
    ],
    "owner": "village",
    "shadow": false,
@@ -4370,14 +4307,14 @@
    "material": "Wood_DS_Mid",
    "tris": 372,
    "center_rbx": [
-    -1765.297,
+    -1765.308,
     75.4,
-    1287.628
+    1287.611
    ],
    "size_rbx": [
-    26.721,
+    26.698,
     14.0,
-    26.351
+    26.318
    ],
    "owner": "village",
    "shadow": true,
@@ -4475,14 +4412,14 @@
    "material": "Metal_DS_Iron",
    "tris": 540,
    "center_rbx": [
-    -1800.126,
+    -1800.163,
     70.37,
-    1325.422
+    1325.428
    ],
    "size_rbx": [
-    39.79,
+    39.85,
     6.18,
-    41.389
+    41.516
    ],
    "owner": "village",
    "shadow": true,
@@ -4522,9 +4459,9 @@
     1338.59
    ],
    "size_rbx": [
-    21.705,
+    21.654,
     10.18,
-    18.443
+    18.188
    ],
    "owner": "village",
    "shadow": true,
@@ -4641,16 +4578,16 @@
    "group": "05_VILLAGE",
    "obj": "DS_Vil_HouseV6",
    "material": "Stone_DS_Path",
-   "tris": 928,
+   "tris": 680,
    "center_rbx": [
-    -1794.209,
-    66.865,
-    1318.804
+    -1794.01,
+    66.875,
+    1318.836
    ],
    "size_rbx": [
-    43.197,
-    1.83,
-    21.234
+    43.594,
+    1.85,
+    21.297
    ],
    "owner": "village",
    "shadow": true,
@@ -4664,14 +4601,14 @@
    "material": "Window_DS_Warm",
    "tris": 96,
    "center_rbx": [
-    -1789.018,
+    -1789.025,
     74.625,
     1340.012
    ],
    "size_rbx": [
-    30.261,
+    30.092,
     10.95,
-    29.545
+    29.361
    ],
    "owner": "village",
    "shadow": false,
@@ -4708,12 +4645,12 @@
    "center_rbx": [
     -1795.765,
     73.96,
-    1329.165
+    1329.15
    ],
    "size_rbx": [
     51.578,
     14.92,
-    52.721
+    52.69
    ],
    "owner": "village",
    "shadow": true,
@@ -4749,13 +4686,13 @@
    "tris": 48,
    "center_rbx": [
     -1779.669,
-    71.99,
+    72.025,
     1276.384
    ],
    "size_rbx": [
-    93.582,
-    1.18,
-    62.318
+    93.499,
+    0.515,
+    62.236
    ],
    "owner": "village",
    "shadow": false,
@@ -4784,20 +4721,41 @@
    "model": ""
   },
   {
+   "name": "DS_Vil_StreetHigh__Roof_DS_Tile",
+   "group": "05_VILLAGE",
+   "obj": "DS_Vil_StreetHigh",
+   "material": "Roof_DS_Tile",
+   "tris": 768,
+   "center_rbx": [
+    -1779.182,
+    73.953,
+    1276.889
+   ],
+   "size_rbx": [
+    96.313,
+    2.853,
+    65.106
+   ],
+   "owner": "village",
+   "shadow": true,
+   "flags": "",
+   "model": ""
+  },
+  {
    "name": "DS_Vil_StreetHigh__Stone_DS",
    "group": "05_VILLAGE",
    "obj": "DS_Vil_StreetHigh",
    "material": "Stone_DS",
    "tris": 568,
    "center_rbx": [
-    -1794.81,
+    -1794.833,
     73.325,
-    1283.955
+    1283.982
    ],
    "size_rbx": [
-    127.731,
+    127.776,
     14.85,
-    76.032
+    76.085
    ],
    "owner": "village",
    "shadow": true,
@@ -4811,14 +4769,14 @@
    "material": "Stone_DS_B",
    "tris": 328,
    "center_rbx": [
-    -1817.181,
-    72.936,
-    1286.467
+    -1817.204,
+    71.769,
+    1287.048
    ],
    "size_rbx": [
-    72.05,
-    14.072,
-    68.578
+    72.095,
+    11.739,
+    69.739
    ],
    "owner": "village",
    "shadow": true,
@@ -4830,16 +4788,16 @@
    "group": "05_VILLAGE",
    "obj": "DS_Vil_StreetHigh",
    "material": "Stone_DS_Dark",
-   "tris": 984,
+   "tris": 216,
    "center_rbx": [
-    -1794.51,
+    -1842.734,
     72.89,
-    1282.845
+    1307.244
    ],
    "size_rbx": [
-    126.969,
+    30.522,
     13.98,
-    76.658
+    27.86
    ],
    "owner": "village",
    "shadow": true,
@@ -4854,7 +4812,7 @@
    "tris": 1710,
    "center_rbx": [
     -1781.956,
-    66.275,
+    66.315,
     1272.627
    ],
    "size_rbx": [
@@ -4872,14 +4830,14 @@
    "group": "05_VILLAGE",
    "obj": "DS_Vil_StreetHigh",
    "material": "Stone_DS_Path",
-   "tris": 1552,
+   "tris": 1944,
    "center_rbx": [
-    -1779.768,
+    -1787.969,
     73.075,
     1279.976
    ],
    "size_rbx": [
-    156.505,
+    140.104,
     14.25,
     82.458
    ],
@@ -4889,20 +4847,41 @@
    "model": ""
   },
   {
+   "name": "DS_Vil_StreetHigh__Window_DS_Warm",
+   "group": "05_VILLAGE",
+   "obj": "DS_Vil_StreetHigh",
+   "material": "Window_DS_Warm",
+   "tris": 96,
+   "center_rbx": [
+    -1779.669,
+    72.025,
+    1276.384
+   ],
+   "size_rbx": [
+    93.499,
+    1.03,
+    62.236
+   ],
+   "owner": "village",
+   "shadow": false,
+   "flags": "",
+   "model": ""
+  },
+  {
    "name": "DS_Vil_StreetHigh__Wood_DS_Dark",
    "group": "05_VILLAGE",
    "obj": "DS_Vil_StreetHigh",
    "material": "Wood_DS_Dark",
-   "tris": 2192,
+   "tris": 2048,
    "center_rbx": [
-    -1784.095,
+    -1783.858,
     70.467,
-    1269.245
+    1269.526
    ],
    "size_rbx": [
-    105.64,
+    105.165,
     8.985,
-    79.899
+    79.337
    ],
    "owner": "village",
    "shadow": true,
@@ -4916,14 +4895,14 @@
    "material": "Wood_DS_Mid",
    "tris": 648,
    "center_rbx": [
-    -1788.275,
+    -1788.142,
     67.89,
-    1258.28
+    1258.713
    ],
    "size_rbx": [
-    97.112,
+    96.429,
     1.4,
-    57.645
+    57.385
    ],
    "owner": "village",
    "shadow": true,
@@ -4979,14 +4958,14 @@
    "material": "Glass_DS_Lantern",
    "tris": 72,
    "center_rbx": [
-    -1707.243,
-    64.488,
-    1181.171
+    -1707.262,
+    64.34,
+    1181.17
    ],
    "size_rbx": [
-    71.069,
-    7.783,
-    104.795
+    71.031,
+    7.485,
+    104.717
    ],
    "owner": "village",
    "shadow": false,
@@ -5022,12 +5001,12 @@
    "tris": 520,
    "center_rbx": [
     -1736.613,
-    68.21,
+    68.285,
     1188.31
    ],
    "size_rbx": [
     9.414,
-    5.541,
+    5.391,
     18.035
    ],
    "owner": "village",
@@ -5063,14 +5042,14 @@
    "material": "Stone_DS",
    "tris": 1460,
    "center_rbx": [
-    -1733.652,
+    -1734.257,
     63.325,
-    1191.77
+    1192.536
    ],
    "size_rbx": [
-    138.812,
+    140.023,
     6.85,
-    127.991
+    129.522
    ],
    "owner": "village",
    "shadow": true,
@@ -5084,14 +5063,14 @@
    "material": "Stone_DS_B",
    "tris": 532,
    "center_rbx": [
-    -1734.492,
+    -1734.465,
     63.325,
-    1194.126
+    1194.104
    ],
    "size_rbx": [
-    139.446,
+    139.393,
     6.85,
-    126.251
+    126.206
    ],
    "owner": "village",
    "shadow": true,
@@ -5127,7 +5106,7 @@
    "tris": 1314,
    "center_rbx": [
     -1704.647,
-    60.285,
+    60.305,
     1173.297
    ],
    "size_rbx": [
@@ -5145,14 +5124,14 @@
    "group": "05_VILLAGE",
    "obj": "DS_Vil_StreetLow",
    "material": "Stone_DS_Path",
-   "tris": 1244,
+   "tris": 1804,
    "center_rbx": [
-    -1737.047,
+    -1737.031,
     63.075,
     1184.668
    ],
    "size_rbx": [
-    133.023,
+    132.993,
     6.25,
     143.857
    ],
@@ -5162,11 +5141,32 @@
    "model": ""
   },
   {
+   "name": "DS_Vil_StreetLow__Window_DS_Warm",
+   "group": "05_VILLAGE",
+   "obj": "DS_Vil_StreetLow",
+   "material": "Window_DS_Warm",
+   "tris": 96,
+   "center_rbx": [
+    -1694.88,
+    66.925,
+    1181.17
+   ],
+   "size_rbx": [
+    46.267,
+    2.83,
+    104.717
+   ],
+   "owner": "village",
+   "shadow": false,
+   "flags": "",
+   "model": ""
+  },
+  {
    "name": "DS_Vil_StreetLow__Wood_DS_Dark",
    "group": "05_VILLAGE",
    "obj": "DS_Vil_StreetLow",
    "material": "Wood_DS_Dark",
-   "tris": 2168,
+   "tris": 2024,
    "center_rbx": [
     -1705.996,
     65.368,
@@ -5359,12 +5359,12 @@
    "center_rbx": [
     -1949.86,
     87.087,
-    1096.765
+    1096.716
    ],
    "size_rbx": [
     73.938,
     46.406,
-    71.205
+    71.304
    ],
    "owner": "summon",
    "shadow": true,
@@ -5439,16 +5439,16 @@
    "group": "06_SUMMON",
    "obj": "DS_Sum_Stone",
    "material": "Stone_DS",
-   "tris": 740,
+   "tris": 748,
    "center_rbx": [
-    -1943.936,
-    68.939,
-    1097.847
+    -1943.76,
+    68.844,
+    1098.058
    ],
    "size_rbx": [
-    67.768,
-    18.479,
-    75.705
+    68.121,
+    18.669,
+    76.127
    ],
    "owner": "summon",
    "shadow": true,
@@ -5460,16 +5460,16 @@
    "group": "06_SUMMON",
    "obj": "DS_Sum_Stone",
    "material": "Stone_DS_B",
-   "tris": 480,
+   "tris": 488,
    "center_rbx": [
-    -1946.995,
-    68.69,
-    1094.03
+    -1947.172,
+    68.595,
+    1093.819
    ],
    "size_rbx": [
-    58.073,
-    17.98,
-    64.495
+    57.72,
+    18.17,
+    64.074
    ],
    "owner": "summon",
    "shadow": true,
@@ -5481,16 +5481,16 @@
    "group": "06_SUMMON",
    "obj": "DS_Sum_Stone",
    "material": "Stone_DS_Dark",
-   "tris": 3344,
+   "tris": 3320,
    "center_rbx": [
-    -1948.318,
+    -1951.279,
     83.53,
-    1097.839
+    1094.016
    ],
    "size_rbx": [
-    76.249,
+    70.326,
     47.86,
-    75.441
+    67.796
    ],
    "owner": "summon",
    "shadow": true,
@@ -5502,16 +5502,16 @@
    "group": "06_SUMMON",
    "obj": "DS_Sum_Stone",
    "material": "Stone_DS_Path",
-   "tris": 352,
+   "tris": 1052,
    "center_rbx": [
-    -1941.207,
+    -1941.218,
     67.435,
-    1099.893
+    1099.883
    ],
    "size_rbx": [
-    45.415,
+    45.392,
     13.531,
-    51.146
+    51.127
    ],
    "owner": "summon",
    "shadow": true,
@@ -5525,14 +5525,14 @@
    "material": "Bark_DS",
    "tris": 656,
    "center_rbx": [
-    -1954.371,
-    74.217,
-    1084.883
+    -1954.107,
+    74.827,
+    1084.955
    ],
    "size_rbx": [
-    56.158,
-    8.884,
-    50.171
+    55.754,
+    10.065,
+    49.348
    ],
    "owner": "summon",
    "shadow": true,
@@ -5546,14 +5546,14 @@
    "material": "Leaf_DS_Broad",
    "tris": 1728,
    "center_rbx": [
-    -1954.359,
-    78.252,
-    1084.768
+    -1954.126,
+    79.448,
+    1085.079
    ],
    "size_rbx": [
-    59.362,
-    2.186,
-    53.33
+    59.305,
+    2.379,
+    53.063
    ],
    "owner": "summon",
    "shadow": false,
@@ -5565,16 +5565,16 @@
    "group": "06_SUMMON",
    "obj": "DS_Sum_Wisteria",
    "material": "Wisteria_DS",
-   "tris": 858,
+   "tris": 1066,
    "center_rbx": [
-    -1954.306,
-    76.451,
-    1084.733
+    -1953.959,
+    77.746,
+    1085.06
    ],
    "size_rbx": [
-    58.306,
-    2.597,
-    52.584
+    57.817,
+    2.286,
+    51.116
    ],
    "owner": "summon",
    "shadow": false,
@@ -5586,16 +5586,16 @@
    "group": "06_SUMMON",
    "obj": "DS_Sum_Wisteria",
    "material": "Wisteria_DS_Deep",
-   "tris": 1489,
+   "tris": 1705,
    "center_rbx": [
-    -1954.506,
-    77.329,
-    1084.89
+    -1954.116,
+    78.617,
+    1084.885
    ],
    "size_rbx": [
-    59.482,
-    2.918,
-    53.77
+    59.699,
+    2.817,
+    53.253
    ],
    "owner": "summon",
    "shadow": false,
@@ -5607,16 +5607,16 @@
    "group": "06_SUMMON",
    "obj": "DS_Sum_Wisteria",
    "material": "Wisteria_DS_Light",
-   "tris": 1625,
+   "tris": 2041,
    "center_rbx": [
-    -1954.31,
-    75.393,
-    1084.669
+    -1953.908,
+    76.805,
+    1085.189
    ],
    "size_rbx": [
-    58.057,
-    3.489,
-    52.744
+    57.915,
+    2.932,
+    51.13
    ],
    "owner": "summon",
    "shadow": false,
@@ -5733,16 +5733,16 @@
    "group": "07_WATER",
    "obj": "DS_Water_Stone",
    "material": "Cliff_DS",
-   "tris": 292,
+   "tris": 315,
    "center_rbx": [
-    -1963.364,
+    -1963.335,
     70.275,
-    1170.277
+    1170.177
    ],
    "size_rbx": [
-    113.585,
+    113.7,
     21.65,
-    94.457
+    94.092
    ],
    "owner": "water",
    "shadow": true,
@@ -5754,16 +5754,16 @@
    "group": "07_WATER",
    "obj": "DS_Water_Stone",
    "material": "Cliff_DS_B",
-   "tris": 354,
+   "tris": 331,
    "center_rbx": [
-    -1961.07,
+    -1961.298,
     70.371,
-    1171.154
+    1171.23
    ],
    "size_rbx": [
-    108.656,
+    108.958,
     21.842,
-    96.339
+    96.543
    ],
    "owner": "water",
    "shadow": true,
@@ -5777,14 +5777,14 @@
    "material": "Cliff_DS_Moss",
    "tris": 311,
    "center_rbx": [
-    -1946.116,
-    67.942,
-    1134.765
+    -1946.002,
+    68.062,
+    1134.913
    ],
    "size_rbx": [
-    146.303,
-    27.717,
-    168.913
+    146.233,
+    27.476,
+    168.954
    ],
    "owner": "water",
    "shadow": true,
@@ -5796,16 +5796,16 @@
    "group": "07_WATER",
    "obj": "DS_Water_Stone",
    "material": "Dirt_DS",
-   "tris": 60,
+   "tris": 62,
    "center_rbx": [
-    -1992.472,
+    -1992.44,
     60.542,
-    1199.927
+    1199.907
    ],
    "size_rbx": [
-    52.578,
+    52.586,
     0.923,
-    39.74
+    39.78
    ],
    "owner": "water",
    "shadow": false,
@@ -5819,14 +5819,14 @@
    "material": "Dirt_DS_Dark",
    "tris": 88,
    "center_rbx": [
-    -1991.865,
-    60.485,
-    1196.681
+    -1991.814,
+    60.487,
+    1196.732
    ],
    "size_rbx": [
-    50.876,
-    1.049,
-    43.144
+    50.922,
+    1.054,
+    43.128
    ],
    "owner": "water",
    "shadow": false,
@@ -5838,16 +5838,16 @@
    "group": "07_WATER",
    "obj": "DS_Water_Stone",
    "material": "Grass_DS_B",
-   "tris": 28,
+   "tris": 26,
    "center_rbx": [
-    -1980.764,
-    60.545,
-    1190.934
+    -1980.74,
+    60.547,
+    1188.572
    ],
    "size_rbx": [
-    32.304,
-    0.929,
-    35.762
+    32.404,
+    0.934,
+    30.919
    ],
    "owner": "water",
    "shadow": false,
@@ -5859,16 +5859,16 @@
    "group": "07_WATER",
    "obj": "DS_Water_Stone",
    "material": "Stone_DS",
-   "tris": 1012,
+   "tris": 1013,
    "center_rbx": [
-    -1982.161,
-    70.244,
-    1193.316
+    -1982.122,
+    70.161,
+    1193.396
    ],
    "size_rbx": [
-    125.217,
-    21.487,
-    137.102
+    125.394,
+    21.622,
+    136.94
    ],
    "owner": "water",
    "shadow": true,
@@ -5880,16 +5880,16 @@
    "group": "07_WATER",
    "obj": "DS_Water_Stone",
    "material": "Stone_DS",
-   "tris": 646,
+   "tris": 617,
    "center_rbx": [
-    -1895.524,
-    60.178,
-    1103.167
+    -1896.294,
+    60.053,
+    1102.612
    ],
    "size_rbx": [
-    49.741,
-    1.156,
-    55.375
+    48.41,
+    1.407,
+    56.737
    ],
    "owner": "water",
    "shadow": true,
@@ -5901,16 +5901,16 @@
    "group": "07_WATER",
    "obj": "DS_Water_Stone",
    "material": "Stone_DS_B",
-   "tris": 918,
+   "tris": 946,
    "center_rbx": [
-    -1957.937,
-    70.294,
-    1169.812
+    -1957.756,
+    70.169,
+    1170.873
    ],
    "size_rbx": [
-    173.745,
-    21.388,
-    191.136
+    174.206,
+    21.638,
+    189.015
    ],
    "owner": "water",
    "shadow": true,
@@ -5922,15 +5922,15 @@
    "group": "07_WATER",
    "obj": "DS_Water_Stone",
    "material": "Stone_DS_Dark",
-   "tris": 771,
+   "tris": 823,
    "center_rbx": [
-    -1945.248,
-    66.897,
+    -1945.206,
+    66.902,
     1133.521
    ],
    "size_rbx": [
-    144.681,
-    28.195,
+    144.764,
+    28.203,
     166.875
    ],
    "owner": "water",
@@ -5992,9 +5992,9 @@
     1518.399
    ],
    "size_rbx": [
-    70.593,
+    70.76,
     1.8,
-    85.254
+    85.421
    ],
    "owner": "exit",
    "shadow": false,
@@ -6149,62 +6149,20 @@
    "model": ""
   },
   {
-   "name": "DS_Exit_Path__Dirt_DS",
-   "group": "08_NEXT_ISLAND",
-   "obj": "DS_Exit_Path",
-   "material": "Dirt_DS",
-   "tris": 422,
-   "center_rbx": [
-    -1976.967,
-    79.89,
-    1467.583
-   ],
-   "size_rbx": [
-    66.657,
-    0.62,
-    37.921
-   ],
-   "owner": "exit",
-   "shadow": false,
-   "flags": "",
-   "model": ""
-  },
-  {
-   "name": "DS_Exit_Path__Dirt_DS_Dark",
-   "group": "08_NEXT_ISLAND",
-   "obj": "DS_Exit_Path",
-   "material": "Dirt_DS_Dark",
-   "tris": 516,
-   "center_rbx": [
-    -1917.975,
-    79.89,
-    1425.5
-   ],
-   "size_rbx": [
-    63.313,
-    0.62,
-    63.488
-   ],
-   "owner": "exit",
-   "shadow": false,
-   "flags": "",
-   "model": ""
-  },
-  {
    "name": "DS_Exit_Path__Glass_DS_Lantern",
    "group": "08_NEXT_ISLAND",
    "obj": "DS_Exit_Path",
    "material": "Glass_DS_Lantern",
    "tris": 36,
    "center_rbx": [
-    -1939.014,
-    85.93,
-    1435.674
+    -1939.016,
+    85.965,
+    1435.677
    ],
    "size_rbx": [
-    88.203,
-    1.18,
-    51.662
+    88.125,
+    0.515,
+    51.584
    ],
    "owner": "exit",
    "shadow": false,
@@ -6233,20 +6191,20 @@
    "model": ""
   },
   {
-   "name": "DS_Exit_Path__Roof_DS_Tile",
+   "name": "DS_Exit_Path__Stone_DS_B",
    "group": "08_NEXT_ISLAND",
    "obj": "DS_Exit_Path",
-   "material": "Roof_DS_Tile",
-   "tris": 576,
+   "material": "Stone_DS_B",
+   "tris": 636,
    "center_rbx": [
-    -1938.435,
-    87.918,
-    1435.635
+    -1951.753,
+    84.55,
+    1446.919
    ],
    "size_rbx": [
-    90.822,
-    2.803,
-    52.988
+    117.458,
+    9.54,
+    75.915
    ],
    "owner": "exit",
    "shadow": false,
@@ -6258,16 +6216,37 @@
    "group": "08_NEXT_ISLAND",
    "obj": "DS_Exit_Path",
    "material": "Stone_DS_Path",
-   "tris": 2184,
+   "tris": 2136,
    "center_rbx": [
-    -1948.083,
-    80.29,
-    1439.877
+    -1947.612,
+    80.35,
+    1438.498
    ],
    "size_rbx": [
-    118.814,
-    0.7,
-    87.529
+    117.872,
+    0.82,
+    84.771
+   ],
+   "owner": "exit",
+   "shadow": false,
+   "flags": "",
+   "model": ""
+  },
+  {
+   "name": "DS_Exit_Path__Window_DS_Warm",
+   "group": "08_NEXT_ISLAND",
+   "obj": "DS_Exit_Path",
+   "material": "Window_DS_Warm",
+   "tris": 72,
+   "center_rbx": [
+    -1939.016,
+    85.965,
+    1435.677
+   ],
+   "size_rbx": [
+    88.125,
+    1.03,
+    51.584
    ],
    "owner": "exit",
    "shadow": false,
@@ -6279,7 +6258,7 @@
    "group": "08_NEXT_ISLAND",
    "obj": "DS_Exit_Path",
    "material": "Wood_DS_Dark",
-   "tris": 648,
+   "tris": 540,
    "center_rbx": [
     -1938.449,
     84.67,
@@ -6450,12 +6429,12 @@
    "tris": 580,
    "center_rbx": [
     -1999.578,
-    90.625,
+    90.825,
     1475.403
    ],
    "size_rbx": [
     20.261,
-    19.05,
+    19.45,
     14.863
    ],
    "owner": "exit",
@@ -6471,12 +6450,12 @@
    "tris": 1256,
    "center_rbx": [
     -1999.578,
-    100.23,
+    100.43,
     1475.403
    ],
    "size_rbx": [
     21.37,
-    2.781,
+    3.181,
     16.15
    ],
    "owner": "exit",
@@ -6513,12 +6492,12 @@
    "tris": 412,
    "center_rbx": [
     -1999.578,
-    89.932,
+    90.056,
     1475.403
    ],
    "size_rbx": [
     16.639,
-    17.564,
+    17.813,
     12.051
    ],
    "owner": "exit",
@@ -6911,14 +6890,14 @@
    "material": "Bamboo_DS_Dry",
    "tris": 284,
    "center_rbx": [
-    -1727.648,
+    -1727.683,
     61.049,
-    1173.915
+    1173.88
    ],
    "size_rbx": [
-    2.461,
+    2.531,
     1.458,
-    2.692
+    2.76
    ],
    "owner": "props",
    "shadow": false,
@@ -7058,14 +7037,14 @@
    "material": "Bamboo_DS_Dry",
    "tris": 308,
    "center_rbx": [
-    -1997.311,
+    -1997.346,
     81.63,
-    1268.479
+    1268.514
    ],
    "size_rbx": [
-    26.323,
+    26.393,
     2.602,
-    9.053
+    9.123
    ],
    "owner": "props",
    "shadow": true,
@@ -7100,14 +7079,14 @@
    "material": "Rope_DS_Straw",
    "tris": 3364,
    "center_rbx": [
-    -1965.614,
+    -1965.616,
     81.759,
-    1313.427
+    1313.432
    ],
    "size_rbx": [
-    79.76,
+    79.789,
     4.218,
-    110.319
+    110.341
    ],
    "owner": "props",
    "shadow": false,
@@ -7121,14 +7100,14 @@
    "material": "Stone_DS_Soot",
    "tris": 976,
    "center_rbx": [
-    -1967.412,
+    -1967.365,
     81.745,
-    1313.472
+    1313.513
    ],
    "size_rbx": [
-    83.069,
+    83.162,
     3.598,
-    110.039
+    110.19
    ],
    "owner": "props",
    "shadow": true,
@@ -7205,14 +7184,14 @@
    "material": "Glass_DS_Lantern",
    "tris": 60,
    "center_rbx": [
-    -1780.815,
-    63.572,
-    1142.455
+    -1780.495,
+    63.607,
+    1142.457
    ],
    "size_rbx": [
-    274.613,
-    6.257,
-    236.145
+    273.89,
+    5.592,
+    236.065
    ],
    "owner": "props",
    "shadow": false,
@@ -7226,12 +7205,12 @@
    "material": "Metal_DS_Iron",
    "tris": 380,
    "center_rbx": [
-    -1780.845,
+    -1780.523,
     65.113,
     1142.484
    ],
    "size_rbx": [
-    273.922,
+    273.279,
     5.814,
     235.456
    ],
@@ -7247,12 +7226,12 @@
    "material": "Roof_DS_Tile",
    "tris": 1420,
    "center_rbx": [
-    -1780.36,
+    -1780.122,
     62.297,
     1142.908
    ],
    "size_rbx": [
-    276.83,
+    276.354,
     14.407,
     239.59
    ],
@@ -7262,18 +7241,39 @@
    "model": ""
   },
   {
+   "name": "DS_Prop_Lamps__Window_DS_Warm",
+   "group": "09_PROPS",
+   "obj": "DS_Prop_Lamps",
+   "material": "Window_DS_Warm",
+   "tris": 120,
+   "center_rbx": [
+    -1780.495,
+    63.607,
+    1142.457
+   ],
+   "size_rbx": [
+    273.89,
+    6.107,
+    236.065
+   ],
+   "owner": "props",
+   "shadow": false,
+   "flags": "",
+   "model": ""
+  },
+  {
    "name": "DS_Prop_Lamps__Wood_DS_Dark",
    "group": "09_PROPS",
    "obj": "DS_Prop_Lamps",
    "material": "Wood_DS_Dark",
-   "tris": 1080,
+   "tris": 900,
    "center_rbx": [
-    -1780.338,
+    -1780.016,
     62.312,
     1142.872
    ],
    "size_rbx": [
-    276.157,
+    275.515,
     13.537,
     238.933
    ],
@@ -7287,16 +7287,37 @@
    "group": "09_PROPS",
    "obj": "DS_Prop_PathFences",
    "material": "Wood_DS_Dark",
-   "tris": 2700,
+   "tris": 2112,
    "center_rbx": [
-    -1881.927,
+    -1902.098,
     66.39,
-    1187.194
+    1186.988
    ],
    "size_rbx": [
-    177.881,
+    137.539,
     12.5,
-    228.233
+    228.645
+   ],
+   "owner": "props",
+   "shadow": true,
+   "flags": "",
+   "model": ""
+  },
+  {
+   "name": "DS_Prop_PathFences__Wood_DS_Dark_g1_6",
+   "group": "09_PROPS",
+   "obj": "DS_Prop_PathFences",
+   "material": "Wood_DS_Dark",
+   "tris": 720,
+   "center_rbx": [
+    -1848.407,
+    66.39,
+    1255.609
+   ],
+   "size_rbx": [
+    106.246,
+    12.5,
+    52.15
    ],
    "owner": "props",
    "shadow": true,
@@ -7308,16 +7329,16 @@
    "group": "09_PROPS",
    "obj": "DS_Prop_PathFences",
    "material": "Wood_DS_Dark",
-   "tris": 1848,
+   "tris": 1944,
    "center_rbx": [
-    -1697.872,
+    -1699.744,
     58.789,
-    1101.263
+    1102.286
    ],
    "size_rbx": [
-    88.249,
+    91.994,
     8.062,
-    150.145
+    152.191
    ],
    "owner": "props",
    "shadow": true,
@@ -7325,20 +7346,20 @@
    "model": ""
   },
   {
-   "name": "DS_Prop_PathLamps_Clareira__Glass_DS_Lantern",
+   "name": "DS_Prop_PathLamps_SulClr__Glass_DS_Lantern",
    "group": "09_PROPS",
-   "obj": "DS_Prop_PathLamps_Clareira",
+   "obj": "DS_Prop_PathLamps_SulClr",
    "material": "Glass_DS_Lantern",
-   "tris": 408,
+   "tris": 552,
    "center_rbx": [
-    -1834.327,
-    63.24,
-    1173.058
+    -1803.189,
+    60.805,
+    1152.288
    ],
    "size_rbx": [
-    236.855,
-    4.131,
-    201.815
+    302.647,
+    8.211,
+    245.507
    ],
    "owner": "props",
    "shadow": false,
@@ -7346,20 +7367,20 @@
    "model": ""
   },
   {
-   "name": "DS_Prop_PathLamps_Clareira__Stone_DS_Path_g1_6",
+   "name": "DS_Prop_PathLamps_SulClr__Stone_DS_Path_g1_7",
    "group": "09_PROPS",
-   "obj": "DS_Prop_PathLamps_Clareira",
+   "obj": "DS_Prop_PathLamps_SulClr",
    "material": "Stone_DS_Path",
-   "tris": 1788,
+   "tris": 1448,
    "center_rbx": [
-    -1834.655,
-    61.91,
-    1209.801
+    -1877.705,
+    61.857,
+    1151.277
    ],
    "size_rbx": [
-    237.706,
-    4.94,
-    129.785
+    155.042,
+    5.035,
+    164.44
    ],
    "owner": "props",
    "shadow": true,
@@ -7367,20 +7388,20 @@
    "model": ""
   },
   {
-   "name": "DS_Prop_PathLamps_Clareira__Stone_DS_Path_g1_7",
+   "name": "DS_Prop_PathLamps_SulClr__Stone_DS_Path_g2_7",
    "group": "09_PROPS",
-   "obj": "DS_Prop_PathLamps_Clareira",
+   "obj": "DS_Prop_PathLamps_SulClr",
    "material": "Stone_DS_Path",
-   "tris": 728,
+   "tris": 2612,
    "center_rbx": [
-    -1873.573,
-    61.852,
-    1105.38
+    -1779.495,
+    59.498,
+    1151.499
    ],
    "size_rbx": [
-    83.328,
-    4.824,
-    67.909
+    255.546,
+    9.658,
+    247.433
    ],
    "owner": "props",
    "shadow": true,
@@ -7388,41 +7409,20 @@
    "model": ""
   },
   {
-   "name": "DS_Prop_PathLamps_Clareira__Wood_DS_Dark",
+   "name": "DS_Prop_PathLamps_SulClr__Window_DS_Warm",
    "group": "09_PROPS",
-   "obj": "DS_Prop_PathLamps_Clareira",
-   "material": "Wood_DS_Dark",
-   "tris": 2108,
+   "obj": "DS_Prop_PathLamps_SulClr",
+   "material": "Window_DS_Warm",
+   "tris": 1104,
    "center_rbx": [
-    -1832.212,
-    63.007,
-    1174.237
+    -1803.189,
+    60.781,
+    1152.288
    ],
    "size_rbx": [
-    233.615,
-    6.135,
-    199.122
-   ],
-   "owner": "props",
-   "shadow": true,
-   "flags": "",
-   "model": ""
-  },
-  {
-   "name": "DS_Prop_PathLamps_Forja__Glass_DS_Lantern",
-   "group": "09_PROPS",
-   "obj": "DS_Prop_PathLamps_Forja",
-   "material": "Glass_DS_Lantern",
-   "tris": 240,
-   "center_rbx": [
-    -1928.491,
-    83.105,
-    1397.663
-   ],
-   "size_rbx": [
-    130.065,
-    3.784,
-    156.234
+    302.647,
+    8.844,
+    245.507
    ],
    "owner": "props",
    "shadow": false,
@@ -7430,41 +7430,20 @@
    "model": ""
   },
   {
-   "name": "DS_Prop_PathLamps_Forja__Stone_DS_Path",
+   "name": "DS_Prop_PathLamps_SulClr__Wood_DS_Dark_g1_6",
    "group": "09_PROPS",
-   "obj": "DS_Prop_PathLamps_Forja",
-   "material": "Stone_DS_Path",
-   "tris": 860,
-   "center_rbx": [
-    -1929.205,
-    81.855,
-    1397.194
-   ],
-   "size_rbx": [
-    130.588,
-    4.829,
-    158.585
-   ],
-   "owner": "props",
-   "shadow": true,
-   "flags": "",
-   "model": ""
-  },
-  {
-   "name": "DS_Prop_PathLamps_Forja__Wood_DS_Dark",
-   "group": "09_PROPS",
-   "obj": "DS_Prop_PathLamps_Forja",
+   "obj": "DS_Prop_PathLamps_SulClr",
    "material": "Wood_DS_Dark",
-   "tris": 2220,
+   "tris": 1440,
    "center_rbx": [
-    -1928.49,
-    83.241,
-    1395.436
+    -1868.659,
+    63.247,
+    1218.775
    ],
    "size_rbx": [
-    131.01,
-    6.603,
-    154.065
+    151.181,
+    5.613,
+    113.853
    ],
    "owner": "props",
    "shadow": true,
@@ -7472,20 +7451,62 @@
    "model": ""
   },
   {
-   "name": "DS_Prop_PathLamps_Sul__Glass_DS_Lantern",
+   "name": "DS_Prop_PathLamps_SulClr__Wood_DS_Dark_g2_6",
    "group": "09_PROPS",
-   "obj": "DS_Prop_PathLamps_Sul",
-   "material": "Glass_DS_Lantern",
-   "tris": 288,
+   "obj": "DS_Prop_PathLamps_SulClr",
+   "material": "Wood_DS_Dark",
+   "tris": 640,
    "center_rbx": [
-    -1727.26,
-    60.784,
-    1078.512
+    -1743.925,
+    63.292,
+    1183.734
    ],
    "size_rbx": [
-    150.844,
-    8.85,
-    100.938
+    57.465,
+    5.344,
+    52.058
+   ],
+   "owner": "props",
+   "shadow": true,
+   "flags": "",
+   "model": ""
+  },
+  {
+   "name": "DS_Prop_PathLamps_SulClr__Wood_DS_Dark_g2_7",
+   "group": "09_PROPS",
+   "obj": "DS_Prop_PathLamps_SulClr",
+   "material": "Wood_DS_Dark",
+   "tris": 1992,
+   "center_rbx": [
+    -1776.71,
+    60.831,
+    1077.512
+   ],
+   "size_rbx": [
+    251.143,
+    9.908,
+    98.802
+   ],
+   "owner": "props",
+   "shadow": true,
+   "flags": "",
+   "model": ""
+  },
+  {
+   "name": "DS_Prop_PathLamps_VilaForja__Glass_DS_Lantern",
+   "group": "09_PROPS",
+   "obj": "DS_Prop_PathLamps_VilaForja",
+   "material": "Glass_DS_Lantern",
+   "tris": 336,
+   "center_rbx": [
+    -1831.303,
+    74.18,
+    1296.099
+   ],
+   "size_rbx": [
+    325.396,
+    20.769,
+    346.156
    ],
    "owner": "props",
    "shadow": false,
@@ -7493,20 +7514,20 @@
    "model": ""
   },
   {
-   "name": "DS_Prop_PathLamps_Sul__Stone_DS_Path",
+   "name": "DS_Prop_PathLamps_VilaForja__Stone_DS_Path",
    "group": "09_PROPS",
-   "obj": "DS_Prop_PathLamps_Sul",
+   "obj": "DS_Prop_PathLamps_VilaForja",
    "material": "Stone_DS_Path",
-   "tris": 1652,
+   "tris": 1444,
    "center_rbx": [
-    -1727.558,
-    59.437,
-    1077.98
+    -1830.793,
+    72.055,
+    1296.726
    ],
    "size_rbx": [
-    151.626,
-    9.538,
-    103.495
+    327.907,
+    24.429,
+    346.987
    ],
    "owner": "props",
    "shadow": true,
@@ -7514,41 +7535,20 @@
    "model": ""
   },
   {
-   "name": "DS_Prop_PathLamps_Sul__Wood_DS_Dark",
+   "name": "DS_Prop_PathLamps_VilaForja__Window_DS_Warm",
    "group": "09_PROPS",
-   "obj": "DS_Prop_PathLamps_Sul",
-   "material": "Wood_DS_Dark",
-   "tris": 1720,
+   "obj": "DS_Prop_PathLamps_VilaForja",
+   "material": "Window_DS_Warm",
+   "tris": 672,
    "center_rbx": [
-    -1720.231,
-    60.607,
-    1072.098
+    -1831.303,
+    74.214,
+    1296.099
    ],
    "size_rbx": [
-    137.766,
-    10.744,
-    90.915
-   ],
-   "owner": "props",
-   "shadow": true,
-   "flags": "",
-   "model": ""
-  },
-  {
-   "name": "DS_Prop_PathLamps_Vila__Glass_DS_Lantern",
-   "group": "09_PROPS",
-   "obj": "DS_Prop_PathLamps_Vila",
-   "material": "Glass_DS_Lantern",
-   "tris": 228,
-   "center_rbx": [
-    -1747.044,
-    67.148,
-    1207.363
-   ],
-   "size_rbx": [
-    156.927,
-    7.741,
-    168.733
+    325.396,
+    21.287,
+    346.156
    ],
    "owner": "props",
    "shadow": false,
@@ -7556,20 +7556,20 @@
    "model": ""
   },
   {
-   "name": "DS_Prop_PathLamps_Vila__Stone_DS_Path",
+   "name": "DS_Prop_PathLamps_VilaForja__Wood_DS_Dark_g1_5",
    "group": "09_PROPS",
-   "obj": "DS_Prop_PathLamps_Vila",
-   "material": "Stone_DS_Path",
-   "tris": 228,
+   "obj": "DS_Prop_PathLamps_VilaForja",
+   "material": "Wood_DS_Dark",
+   "tris": 2172,
    "center_rbx": [
-    -1746.544,
-    63.3,
-    1207.483
+    -1880.636,
+    76.563,
+    1376.398
    ],
    "size_rbx": [
-    159.452,
-    6.72,
-    168.653
+    179.443,
+    19.886,
+    186.562
    ],
    "owner": "props",
    "shadow": true,
@@ -7577,20 +7577,20 @@
    "model": ""
   },
   {
-   "name": "DS_Prop_PathLamps_Vila__Wood_DS_Dark",
+   "name": "DS_Prop_PathLamps_VilaForja__Wood_DS_Dark_g2_6",
    "group": "09_PROPS",
-   "obj": "DS_Prop_PathLamps_Vila",
+   "obj": "DS_Prop_PathLamps_VilaForja",
    "material": "Wood_DS_Dark",
-   "tris": 2716,
+   "tris": 1976,
    "center_rbx": [
-    -1746.618,
-    66.569,
-    1207.383
+    -1726.151,
+    66.442,
+    1201.283
    ],
    "size_rbx": [
-    158.688,
-    12.258,
-    169.642
+    117.755,
+    12.005,
+    157.815
    ],
    "owner": "props",
    "shadow": true,
@@ -7604,14 +7604,14 @@
    "material": "Bamboo_DS_Dry",
    "tris": 60,
    "center_rbx": [
-    -1797.701,
+    -1798.183,
     70.446,
-    1265.685
+    1265.111
    ],
    "size_rbx": [
-    151.156,
+    152.12,
     20.117,
-    156.446
+    155.296
    ],
    "owner": "props",
    "shadow": true,
@@ -7625,14 +7625,14 @@
    "material": "Stone_DS_Path",
    "tris": 36,
    "center_rbx": [
-    -1780.001,
+    -1780.748,
     70.03,
-    1231.442
+    1230.867
    ],
    "size_rbx": [
-    268.47,
+    269.964,
     19.82,
-    304.547
+    303.398
    ],
    "owner": "props",
    "shadow": true,
@@ -7646,14 +7646,14 @@
    "material": "Wood_DS_Dark",
    "tris": 420,
    "center_rbx": [
-    -1792.165,
+    -1792.647,
     71.395,
-    1246.013
+    1245.438
    ],
    "size_rbx": [
-    292.357,
+    293.321,
     27.989,
-    434.115
+    432.965
    ],
    "owner": "props",
    "shadow": true,
@@ -7667,14 +7667,14 @@
    "material": "Wood_DS_Mid",
    "tris": 552,
    "center_rbx": [
-    -1791.433,
+    -1791.915,
     71.79,
-    1246.013
+    1245.438
    ],
    "size_rbx": [
-    294.051,
+    295.016,
     25.779,
-    434.363
+    433.214
    ],
    "owner": "props",
    "shadow": true,
@@ -7688,12 +7688,12 @@
    "material": "Bamboo_DS_Dry",
    "tris": 2884,
    "center_rbx": [
-    -1709.939,
+    -1709.904,
     65.855,
     1237.161
    ],
    "size_rbx": [
-    127.828,
+    127.898,
     11.335,
     158.826
    ],
@@ -7730,14 +7730,14 @@
    "material": "Dirt_DS_Dark",
    "tris": 96,
    "center_rbx": [
-    -1711.414,
+    -1711.554,
     63.68,
-    1236.792
+    1236.585
    ],
    "size_rbx": [
-    128.133,
+    128.413,
     6.92,
-    96.527
+    96.112
    ],
    "owner": "props",
    "shadow": false,
@@ -7772,12 +7772,12 @@
    "material": "Rope_DS_Straw",
    "tris": 1520,
    "center_rbx": [
-    -1723.408,
+    -1723.444,
     66.033,
     1248.584
    ],
    "size_rbx": [
-    102.477,
+    102.549,
     10.634,
     134.404
    ],
@@ -7814,14 +7814,14 @@
    "material": "Water_DS_Trough",
    "tris": 220,
    "center_rbx": [
-    -1706.084,
+    -1706.224,
     64.137,
-    1235.602
+    1235.395
    ],
    "size_rbx": [
-    119.967,
+    120.247,
     7.634,
-    86.012
+    85.598
    ],
    "owner": "props",
    "shadow": false,
@@ -7835,14 +7835,14 @@
    "material": "Wood_DS_Dark",
    "tris": 924,
    "center_rbx": [
-    -1739.66,
-    64.434,
-    1219.967
+    -1739.785,
+    64.494,
+    1219.76
    ],
    "size_rbx": [
-    128.141,
-    8.427,
-    131.775
+    127.891,
+    8.549,
+    131.361
    ],
    "owner": "props",
    "shadow": true,
@@ -7857,13 +7857,13 @@
    "tris": 2480,
    "center_rbx": [
     -1724.962,
-    64.423,
-    1220.168
+    64.483,
+    1219.961
    ],
    "size_rbx": [
     157.784,
-    8.446,
-    132.432
+    8.567,
+    132.017
    ],
    "owner": "props",
    "shadow": true,
@@ -7871,23 +7871,44 @@
    "model": ""
   },
   {
-   "name": "DS_Veg_Bamboo__Bamboo_DS",
+   "name": "DS_Veg_Bamboo__Bamboo_DS_0",
    "group": "10_VEGETATION",
    "obj": "DS_Veg_Bamboo",
    "material": "Bamboo_DS",
-   "tris": 12146,
+   "tris": 9108,
    "center_rbx": [
-    -1729.143,
-    68.935,
-    1051.41
+    -1749.332,
+    69.952,
+    1057.562
    ],
    "size_rbx": [
-    114.076,
-    28.156,
-    77.246
+    73.7,
+    26.122,
+    63.686
    ],
    "owner": "vegetation",
    "shadow": true,
+   "flags": "",
+   "model": ""
+  },
+  {
+   "name": "DS_Veg_Bamboo__Bamboo_DS_1",
+   "group": "10_VEGETATION",
+   "obj": "DS_Veg_Bamboo",
+   "material": "Bamboo_DS",
+   "tris": 9108,
+   "center_rbx": [
+    -1692.776,
+    68.446,
+    1051.409
+   ],
+   "size_rbx": [
+    41.342,
+    27.175,
+    77.247
+   ],
+   "owner": "vegetation",
+   "shadow": false,
    "flags": "",
    "model": ""
   },
@@ -7896,16 +7917,16 @@
    "group": "10_VEGETATION",
    "obj": "DS_Veg_Bamboo",
    "material": "Bamboo_DS_Dry",
-   "tris": 4990,
+   "tris": 760,
    "center_rbx": [
-    -1728.65,
-    62.103,
-    1051.667
+    -1728.086,
+    62.047,
+    1052.068
    ],
    "size_rbx": [
-    110.788,
-    14.115,
-    74.242
+    108.601,
+    14.228,
+    72.635
    ],
    "owner": "vegetation",
    "shadow": true,
@@ -7920,12 +7941,12 @@
    "tris": 7332,
    "center_rbx": [
     -1728.945,
-    72.73,
+    72.734,
     1051.387
    ],
    "size_rbx": [
     119.276,
-    23.228,
+    23.219,
     82.953
    ],
    "owner": "vegetation",
@@ -7938,15 +7959,15 @@
    "group": "10_VEGETATION",
    "obj": "DS_Veg_Carvao",
    "material": "Bark_DS",
-   "tris": 1276,
+   "tris": 1246,
    "center_rbx": [
-    -1915.92,
-    79.324,
+    -1915.796,
+    91.442,
     1422.962
    ],
    "size_rbx": [
-    153.247,
-    54.493,
+    152.999,
+    26.047,
     57.79
    ],
    "owner": "vegetation",
@@ -7959,16 +7980,16 @@
    "group": "10_VEGETATION",
    "obj": "DS_Veg_Carvao",
    "material": "Leaf_DS_Broad",
-   "tris": 744,
+   "tris": 617,
    "center_rbx": [
-    -1958.201,
-    94.269,
-    1433.418
+    -1958.645,
+    98.438,
+    1427.4
    ],
    "size_rbx": [
-    79.519,
-    30.659,
-    55.157
+    80.407,
+    22.46,
+    46.486
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -7980,16 +8001,16 @@
    "group": "10_VEGETATION",
    "obj": "DS_Veg_Carvao",
    "material": "Leaf_DS_Broad",
-   "tris": 826,
+   "tris": 821,
    "center_rbx": [
     -1865.932,
-    75.096,
-    1430.723
+    83.171,
+    1430.164
    ],
    "size_rbx": [
     110.312,
-    45.712,
-    47.48
+    29.562,
+    46.361
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -8001,16 +8022,16 @@
    "group": "10_VEGETATION",
    "obj": "DS_Veg_Carvao",
    "material": "Leaf_DS_Broad",
-   "tris": 1322,
+   "tris": 1130,
    "center_rbx": [
-    -1903.957,
-    88.478,
-    1400.621
+    -1904.001,
+    88.078,
+    1400.805
    ],
    "size_rbx": [
-    186.361,
-    40.011,
-    20.594
+    186.45,
+    39.21,
+    20.964
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -8022,16 +8043,16 @@
    "group": "10_VEGETATION",
    "obj": "DS_Veg_Carvao",
    "material": "Leaf_DS_Cedar",
-   "tris": 789,
+   "tris": 809,
    "center_rbx": [
-    -1965.615,
-    92.86,
-    1421.027
+    -1956.038,
+    90.809,
+    1430.284
    ],
    "size_rbx": [
-    58.218,
-    19.587,
-    29.258
+    73.485,
+    23.689,
+    47.758
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -8043,16 +8064,16 @@
    "group": "10_VEGETATION",
    "obj": "DS_Veg_Carvao",
    "material": "Leaf_DS_Cedar",
-   "tris": 1461,
+   "tris": 1657,
    "center_rbx": [
-    -1910.218,
-    82.798,
-    1422.709
+    -1908.921,
+    78.314,
+    1424.186
    ],
    "size_rbx": [
-    167.478,
-    43.165,
-    60.94
+    164.885,
+    52.133,
+    59.953
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -8106,15 +8127,15 @@
    "group": "10_VEGETATION",
    "obj": "DS_Veg_Clareira",
    "material": "Leaf_DS_Broad",
-   "tris": 1000,
+   "tris": 892,
    "center_rbx": [
     -1738.167,
-    72.686,
+    72.701,
     1183.297
    ],
    "size_rbx": [
     88.189,
-    25.757,
+    25.726,
     67.39
    ],
    "owner": "vegetation",
@@ -8127,15 +8148,15 @@
    "group": "10_VEGETATION",
    "obj": "DS_Veg_Clareira",
    "material": "Leaf_DS_Broad",
-   "tris": 1592,
+   "tris": 1556,
    "center_rbx": [
-    -1738.844,
-    73.173,
+    -1738.643,
+    73.257,
     1101.104
    ],
    "size_rbx": [
-    92.652,
-    26.623,
+    92.25,
+    26.455,
     108.03
    ],
    "owner": "vegetation",
@@ -8148,16 +8169,16 @@
    "group": "10_VEGETATION",
    "obj": "DS_Veg_Clareira",
    "material": "Leaf_DS_Cedar",
-   "tris": 540,
+   "tris": 396,
    "center_rbx": [
-    -1739.152,
-    69.634,
-    1129.691
+    -1742.711,
+    69.331,
+    1131.949
    ],
    "size_rbx": [
-    81.214,
-    19.283,
-    165.527
+    88.331,
+    19.889,
+    161.011
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -8169,16 +8190,16 @@
    "group": "10_VEGETATION",
    "obj": "DS_Veg_Clareira",
    "material": "Leaf_DS_Shrub",
-   "tris": 2448,
+   "tris": 2464,
    "center_rbx": [
-    -1726.587,
-    67.319,
-    1121.365
+    -1726.459,
+    66.979,
+    1122.024
    ],
    "size_rbx": [
-    74.779,
-    14.319,
-    102.988
+    74.959,
+    14.999,
+    103.982
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -8211,15 +8232,15 @@
    "group": "10_VEGETATION",
    "obj": "DS_Veg_ClareiraL",
    "material": "Leaf_DS_Broad",
-   "tris": 1884,
+   "tris": 1776,
    "center_rbx": [
     -1858.14,
-    68.616,
+    68.116,
     1054.153
    ],
    "size_rbx": [
     154.167,
-    36.664,
+    37.664,
     70.109
    ],
    "owner": "vegetation",
@@ -8232,7 +8253,7 @@
    "group": "10_VEGETATION",
    "obj": "DS_Veg_ClareiraL",
    "material": "Leaf_DS_Cedar",
-   "tris": 990,
+   "tris": 1062,
    "center_rbx": [
     -1847.876,
     63.57,
@@ -8253,16 +8274,16 @@
    "group": "10_VEGETATION",
    "obj": "DS_Veg_ClareiraL",
    "material": "Leaf_DS_Shrub",
-   "tris": 1864,
+   "tris": 1868,
    "center_rbx": [
-    -1867.088,
+    -1866.829,
     65.361,
-    1050.569
+    1050.518
    ],
    "size_rbx": [
-    147.657,
+    148.176,
     23.093,
-    52.64
+    52.537
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -8276,12 +8297,12 @@
    "material": "Bark_DS",
    "tris": 1250,
    "center_rbx": [
-    -1889.907,
+    -1890.711,
     70.149,
     1246.249
    ],
    "size_rbx": [
-    124.012,
+    122.405,
     22.168,
     110.431
    ],
@@ -8295,16 +8316,16 @@
    "group": "10_VEGETATION",
    "obj": "DS_Veg_ClareiraN",
    "material": "Leaf_DS_Broad",
-   "tris": 2916,
+   "tris": 3330,
    "center_rbx": [
-    -1890.208,
+    -1892.664,
     73.484,
-    1248.888
+    1248.457
    ],
    "size_rbx": [
-    121.057,
+    122.755,
     27.343,
-    116.296
+    116.979
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -8316,16 +8337,16 @@
    "group": "10_VEGETATION",
    "obj": "DS_Veg_ClareiraN",
    "material": "Leaf_DS_Cedar",
-   "tris": 1356,
+   "tris": 1302,
    "center_rbx": [
-    -1901.006,
-    71.583,
-    1249.072
+    -1892.92,
+    71.362,
+    1254.855
    ],
    "size_rbx": [
-    107.94,
-    23.434,
-    113.612
+    112.515,
+    23.875,
+    102.045
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -8337,16 +8358,16 @@
    "group": "10_VEGETATION",
    "obj": "DS_Veg_ClareiraN",
    "material": "Leaf_DS_Shrub",
-   "tris": 1046,
+   "tris": 868,
    "center_rbx": [
-    -1947.366,
+    -1954.616,
     66.65,
-    1212.926
+    1208.823
    ],
    "size_rbx": [
-    54.362,
+    40.377,
     14.339,
-    48.942
+    40.736
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -8358,16 +8379,16 @@
    "group": "10_VEGETATION",
    "obj": "DS_Veg_ClareiraN",
    "material": "Leaf_DS_Shrub",
-   "tris": 1818,
+   "tris": 1660,
    "center_rbx": [
-    -1846.156,
-    67.721,
-    1259.299
+    -1845.358,
+    67.748,
+    1255.896
    ],
    "size_rbx": [
-    124.491,
-    15.591,
-    71.293
+    122.895,
+    15.536,
+    63.991
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -8379,16 +8400,16 @@
    "group": "10_VEGETATION",
    "obj": "DS_Veg_Entrada",
    "material": "Bark_DS",
-   "tris": 510,
+   "tris": 480,
    "center_rbx": [
     -1667.713,
     66.661,
-    1047.729
+    1047.24
    ],
    "size_rbx": [
     110.171,
     28.637,
-    106.638
+    105.661
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -8400,16 +8421,16 @@
    "group": "10_VEGETATION",
    "obj": "DS_Veg_Entrada",
    "material": "Leaf_DS_Broad",
-   "tris": 438,
+   "tris": 672,
    "center_rbx": [
-    -1673.353,
+    -1671.793,
     60.031,
-    1044.609
+    1044.757
    ],
    "size_rbx": [
-    82.36,
+    85.48,
     35.824,
-    108.807
+    109.105
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -8421,7 +8442,7 @@
    "group": "10_VEGETATION",
    "obj": "DS_Veg_Entrada",
    "material": "Leaf_DS_Cedar",
-   "tris": 1398,
+   "tris": 1380,
    "center_rbx": [
     -1671.148,
     64.463,
@@ -8442,14 +8463,14 @@
    "group": "10_VEGETATION",
    "obj": "DS_Veg_Entrada",
    "material": "Leaf_DS_Shrub",
-   "tris": 1300,
+   "tris": 1052,
    "center_rbx": [
-    -1678.922,
+    -1678.763,
     64.551,
     1069.825
    ],
    "size_rbx": [
-    101.507,
+    101.825,
     35.1,
     108.46
    ],
@@ -8463,16 +8484,16 @@
    "group": "10_VEGETATION",
    "obj": "DS_Veg_Forja",
    "material": "Bark_DS",
-   "tris": 918,
+   "tris": 888,
    "center_rbx": [
-    -2018.066,
-    90.322,
-    1274.211
+    -2018.122,
+    85.772,
+    1274.299
    ],
    "size_rbx": [
-    108.969,
-    41.326,
-    98.747
+    109.08,
+    32.224,
+    98.924
    ],
    "owner": "vegetation",
    "shadow": true,
@@ -8486,14 +8507,14 @@
    "material": "Leaf_DS_Broad",
    "tris": 1440,
    "center_rbx": [
-    -1995.403,
-    84.61,
-    1276.184
+    -2010.682,
+    84.751,
+    1272.128
    ],
    "size_rbx": [
-    149.983,
-    29.239,
-    103.765
+    126.538,
+    29.779,
+    99.892
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -8505,16 +8526,16 @@
    "group": "10_VEGETATION",
    "obj": "DS_Veg_Forja",
    "material": "Leaf_DS_Cedar",
-   "tris": 396,
+   "tris": 540,
    "center_rbx": [
-    -1961.533,
-    76.29,
-    1264.591
+    -1979.935,
+    76.296,
+    1283.629
    ],
    "size_rbx": [
-    45.421,
-    12.54,
-    83.26
+    119.047,
+    12.575,
+    88.874
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -8522,41 +8543,20 @@
    "model": ""
   },
   {
-   "name": "DS_Veg_Forja__Leaf_DS_Shrub_g-1_5",
+   "name": "DS_Veg_Forja__Leaf_DS_Shrub",
    "group": "10_VEGETATION",
    "obj": "DS_Veg_Forja",
    "material": "Leaf_DS_Shrub",
-   "tris": 936,
+   "tris": 1596,
    "center_rbx": [
-    -2065.183,
-    99.185,
-    1316.543
+    -1988.306,
+    87.812,
+    1274.926
    ],
    "size_rbx": [
-    24.153,
-    12.559,
-    24.671
-   ],
-   "owner": "vegetation",
-   "shadow": false,
-   "flags": "",
-   "model": ""
-  },
-  {
-   "name": "DS_Veg_Forja__Leaf_DS_Shrub_g0_6",
-   "group": "10_VEGETATION",
-   "obj": "DS_Veg_Forja",
-   "material": "Leaf_DS_Shrub",
-   "tris": 664,
-   "center_rbx": [
-    -1944.244,
-    77.005,
-    1265.984
-   ],
-   "size_rbx": [
-    88.933,
-    13.691,
-    88.583
+    178.292,
+    35.664,
+    106.466
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -8592,12 +8592,12 @@
    "tris": 1020,
    "center_rbx": [
     -2055.429,
-    86.759,
+    86.187,
     1225.359
    ],
    "size_rbx": [
     87.406,
-    33.274,
+    34.006,
     116.907
    ],
    "owner": "vegetation",
@@ -8634,12 +8634,12 @@
    "tris": 180,
    "center_rbx": [
     -2043.656,
-    74.308,
+    74.218,
     1201.511
    ],
    "size_rbx": [
     66.186,
-    13.09,
+    12.909,
     64.225
    ],
    "owner": "vegetation",
@@ -8652,16 +8652,16 @@
    "group": "10_VEGETATION",
    "obj": "DS_Veg_Fundo",
    "material": "Bark_DS",
-   "tris": 758,
+   "tris": 668,
    "center_rbx": [
-    -2054.536,
-    91.097,
-    1361.838
+    -2055.199,
+    106.773,
+    1361.98
    ],
    "size_rbx": [
-    90.125,
-    77.9,
-    100.287
+    91.451,
+    46.547,
+    100.004
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -8675,14 +8675,14 @@
    "material": "Leaf_DS_Broad",
    "tris": 1626,
    "center_rbx": [
-    -2063.122,
-    116.091,
-    1362.932
+    -2064.593,
+    115.993,
+    1363.286
    ],
    "size_rbx": [
-    81.272,
-    25.645,
-    110.593
+    80.039,
+    25.839,
+    109.885
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -8698,12 +8698,12 @@
    "center_rbx": [
     -2053.848,
     108.602,
-    1367.349
+    1367.042
    ],
    "size_rbx": [
     94.727,
     43.197,
-    110.46
+    111.075
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -8718,12 +8718,12 @@
    "tris": 120,
    "center_rbx": [
     -2093.314,
-    105.956,
+    105.374,
     1355.73
    ],
    "size_rbx": [
     12.721,
-    12.744,
+    13.579,
     28.639
    ],
    "owner": "vegetation",
@@ -8757,16 +8757,16 @@
    "group": "10_VEGETATION",
    "obj": "DS_Veg_FundoL",
    "material": "Leaf_DS_Broad",
-   "tris": 228,
+   "tris": 120,
    "center_rbx": [
-    -2100.933,
-    106.649,
-    1300.754
+    -2100.034,
+    107.489,
+    1291.257
    ],
    "size_rbx": [
-    8.068,
-    9.629,
-    31.143
+    6.271,
+    7.528,
+    12.149
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -8802,12 +8802,12 @@
    "tris": 120,
    "center_rbx": [
     -1763.556,
-    49.917,
+    49.839,
     1028.001
    ],
    "size_rbx": [
     5.66,
-    17.115,
+    16.959,
     7.26
    ],
    "owner": "vegetation",
@@ -8844,12 +8844,12 @@
    "tris": 894,
    "center_rbx": [
     -1624.121,
-    73.198,
+    73.09,
     1142.178
    ],
    "size_rbx": [
     31.89,
-    29.691,
+    29.906,
     94.225
    ],
    "owner": "vegetation",
@@ -8865,12 +8865,12 @@
    "tris": 1188,
    "center_rbx": [
     -1636.031,
-    75.731,
+    75.249,
     1143.058
    ],
    "size_rbx": [
     26.321,
-    39.934,
+    40.898,
     84.297
    ],
    "owner": "vegetation",
@@ -8883,16 +8883,16 @@
    "group": "10_VEGETATION",
    "obj": "DS_Veg_SW",
    "material": "Leaf_DS_Shrub",
-   "tris": 242,
+   "tris": 262,
    "center_rbx": [
-    -1634.674,
-    62.604,
-    1168.187
+    -1635.89,
+    62.104,
+    1164.746
    ],
    "size_rbx": [
-    32.013,
-    8.212,
-    62.81
+    34.446,
+    9.212,
+    69.691
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -8925,7 +8925,7 @@
    "group": "10_VEGETATION",
    "obj": "DS_Veg_Saida",
    "material": "Leaf_DS_Broad",
-   "tris": 498,
+   "tris": 390,
    "center_rbx": [
     -1963.278,
     75.552,
@@ -8970,12 +8970,12 @@
    "tris": 636,
    "center_rbx": [
     -1964.653,
-    85.179,
+    85.072,
     1477.717
    ],
    "size_rbx": [
     30.621,
-    16.586,
+    16.8,
     28.744
    ],
    "owner": "vegetation",
@@ -8988,14 +8988,14 @@
    "group": "10_VEGETATION",
    "obj": "DS_Veg_Summon",
    "material": "Bark_DS",
-   "tris": 2174,
+   "tris": 2114,
    "center_rbx": [
-    -1959.114,
+    -1958.599,
     69.597,
     1106.615
    ],
    "size_rbx": [
-    90.634,
+    89.604,
     35.446,
     137.671
    ],
@@ -9009,7 +9009,7 @@
    "group": "10_VEGETATION",
    "obj": "DS_Veg_Summon",
    "material": "Leaf_DS_Broad",
-   "tris": 3762,
+   "tris": 3870,
    "center_rbx": [
     -1959.281,
     71.469,
@@ -9030,14 +9030,14 @@
    "group": "10_VEGETATION",
    "obj": "DS_Veg_Summon",
    "material": "Leaf_DS_Cedar",
-   "tris": 1890,
+   "tris": 2052,
    "center_rbx": [
-    -1957.599,
+    -1959.922,
     72.94,
     1104.585
    ],
    "size_rbx": [
-    97.021,
+    92.376,
     36.121,
     140.137
    ],
@@ -9051,14 +9051,14 @@
    "group": "10_VEGETATION",
    "obj": "DS_Veg_Summon",
    "material": "Leaf_DS_Shrub",
-   "tris": 3162,
+   "tris": 3024,
    "center_rbx": [
-    -1953.043,
+    -1953.285,
     71.981,
     1120.309
    ],
    "size_rbx": [
-    86.239,
+    85.754,
     27.604,
     111.46
    ],
@@ -9072,15 +9072,15 @@
    "group": "10_VEGETATION",
    "obj": "DS_Veg_VilaAlta",
    "material": "Bark_DS",
-   "tris": 2126,
+   "tris": 1950,
    "center_rbx": [
-    -1780.961,
-    80.608,
+    -1782.722,
+    80.698,
     1315.452
    ],
    "size_rbx": [
-    124.939,
-    36.144,
+    128.461,
+    36.324,
     142.585
    ],
    "owner": "vegetation",
@@ -9093,15 +9093,15 @@
    "group": "10_VEGETATION",
    "obj": "DS_Veg_VilaAlta",
    "material": "Leaf_DS_Broad",
-   "tris": 2772,
+   "tris": 3258,
    "center_rbx": [
-    -1784.595,
-    76.046,
+    -1784.61,
+    76.008,
     1334.138
    ],
    "size_rbx": [
-    125.668,
-    32.168,
+    125.697,
+    32.246,
     143.066
    ],
    "owner": "vegetation",
@@ -9114,15 +9114,15 @@
    "group": "10_VEGETATION",
    "obj": "DS_Veg_VilaAlta",
    "material": "Leaf_DS_Cedar",
-   "tris": 912,
+   "tris": 840,
    "center_rbx": [
-    -1821.688,
-    81.1,
+    -1817.804,
+    81.19,
     1343.48
    ],
    "size_rbx": [
-    59.555,
-    42.201,
+    51.788,
+    42.381,
     127.833
    ],
    "owner": "vegetation",
@@ -9135,14 +9135,14 @@
    "group": "10_VEGETATION",
    "obj": "DS_Veg_VilaAlta",
    "material": "Leaf_DS_Cedar",
-   "tris": 1740,
+   "tris": 1686,
    "center_rbx": [
-    -1767.944,
+    -1766.026,
     70.226,
     1309.319
    ],
    "size_rbx": [
-    105.779,
+    101.942,
     34.308,
     161.191
    ],
@@ -9156,16 +9156,16 @@
    "group": "10_VEGETATION",
    "obj": "DS_Veg_VilaAlta",
    "material": "Leaf_DS_Shrub",
-   "tris": 2603,
+   "tris": 1304,
    "center_rbx": [
-    -1811.223,
+    -1828.607,
     77.229,
-    1322.106
+    1343.701
    ],
    "size_rbx": [
-    108.632,
+    73.672,
     34.139,
-    160.993
+    117.802
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -9177,16 +9177,16 @@
    "group": "10_VEGETATION",
    "obj": "DS_Veg_VilaAlta",
    "material": "Leaf_DS_Shrub",
-   "tris": 1645,
+   "tris": 1632,
    "center_rbx": [
-    -1753.129,
+    -1764.651,
     68.406,
-    1314.03
+    1294.362
    ],
    "size_rbx": [
-    78.147,
+    101.95,
     31.7,
-    66.169
+    105.505
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -9200,12 +9200,12 @@
    "material": "Bark_DS",
    "tris": 1912,
    "center_rbx": [
-    -1699.082,
+    -1698.233,
     73.22,
     1237.311
    ],
    "size_rbx": [
-    136.413,
+    134.716,
     30.001,
     139.122
    ],
@@ -9219,14 +9219,14 @@
    "group": "10_VEGETATION",
    "obj": "DS_Veg_VilaBaixa",
    "material": "Leaf_DS_Broad",
-   "tris": 3342,
+   "tris": 3396,
    "center_rbx": [
-    -1699.25,
+    -1697.375,
     67.498,
     1243.68
    ],
    "size_rbx": [
-    148.559,
+    144.807,
     35.545,
     153.016
    ],
@@ -9240,16 +9240,16 @@
    "group": "10_VEGETATION",
    "obj": "DS_Veg_VilaBaixa",
    "material": "Leaf_DS_Cedar",
-   "tris": 2424,
+   "tris": 2586,
    "center_rbx": [
-    -1694.551,
+    -1693.703,
     67.106,
-    1246.244
+    1246.353
    ],
    "size_rbx": [
-    147.918,
+    146.221,
     50.549,
-    125.349
+    125.131
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -9261,14 +9261,14 @@
    "group": "10_VEGETATION",
    "obj": "DS_Veg_VilaBaixa",
    "material": "Leaf_DS_Shrub",
-   "tris": 3050,
+   "tris": 2578,
    "center_rbx": [
-    -1689.698,
+    -1689.688,
     63.563,
     1237.735
    ],
    "size_rbx": [
-    133.243,
+    133.223,
     29.918,
     147.864
    ],
@@ -9284,14 +9284,14 @@
    "material": "Bark_DS",
    "tris": 496,
    "center_rbx": [
-    -1773.768,
+    -1773.397,
     67.223,
-    1191.88
+    1192.352
    ],
    "size_rbx": [
-    89.188,
+    88.447,
     17.024,
-    287.633
+    288.576
    ],
    "owner": "vegetation",
    "shadow": true,
@@ -9341,20 +9341,41 @@
    "model": ""
   },
   {
-   "name": "DS_Veg_Wisteria__Wisteria_DS",
+   "name": "DS_Veg_Wisteria__Wisteria_DS_g1_5",
    "group": "10_VEGETATION",
    "obj": "DS_Veg_Wisteria",
    "material": "Wisteria_DS",
-   "tris": 1456,
+   "tris": 767,
    "center_rbx": [
-    -1774.133,
-    70.744,
-    1191.338
+    -1813.633,
+    73.514,
+    1331.923
    ],
    "size_rbx": [
-    92.661,
-    7.374,
-    292.667
+    13.66,
+    1.833,
+    11.497
+   ],
+   "owner": "vegetation",
+   "shadow": false,
+   "flags": "",
+   "model": ""
+  },
+  {
+   "name": "DS_Veg_Wisteria__Wisteria_DS_g2_7",
+   "group": "10_VEGETATION",
+   "obj": "DS_Veg_Wisteria",
+   "material": "Wisteria_DS",
+   "tris": 871,
+   "center_rbx": [
+    -1733.202,
+    68.09,
+    1052.382
+   ],
+   "size_rbx": [
+    10.799,
+    2.066,
+    14.755
    ],
    "owner": "vegetation",
    "shadow": false,
@@ -9387,7 +9408,7 @@
    "group": "10_VEGETATION",
    "obj": "DS_Veg_Wisteria",
    "material": "Wisteria_DS_Deep",
-   "tris": 1319,
+   "tris": 1137,
    "center_rbx": [
     -1733.108,
     69.261,
@@ -9429,15 +9450,15 @@
    "group": "10_VEGETATION",
    "obj": "DS_Veg_Wisteria",
    "material": "Wisteria_DS_Light",
-   "tris": 1599,
+   "tris": 1417,
    "center_rbx": [
     -1733.243,
-    66.751,
+    66.745,
     1052.317
    ],
    "size_rbx": [
     10.867,
-    2.484,
+    2.471,
     14.628
    ],
    "owner": "vegetation",
@@ -9975,16 +9996,16 @@
    "group": "18_ENTRY",
    "obj": "DS_Ent_Bridge",
    "material": "Glass_DS_Lantern",
-   "tris": 24,
+   "tris": 48,
    "center_rbx": [
     -1572.796,
-    59.165,
+    59.2,
     994.582
    ],
    "size_rbx": [
-    13.224,
-    1.23,
-    15.516
+    59.102,
+    1.74,
+    25.502
    ],
    "owner": "entry",
    "shadow": false,
@@ -9996,16 +10017,16 @@
    "group": "18_ENTRY",
    "obj": "DS_Ent_Bridge",
    "material": "Metal_DS_Rust",
-   "tris": 508,
+   "tris": 1372,
    "center_rbx": [
-    -1591.682,
+    -1580.198,
     58.805,
-    1010.424
+    1002.424
    ],
    "size_rbx": [
-    51.278,
-    4.29,
-    47.481
+    74.414,
+    5.49,
+    63.65
    ],
    "owner": "entry",
    "shadow": false,
@@ -10038,16 +10059,37 @@
    "group": "18_ENTRY",
    "obj": "DS_Ent_Bridge",
    "material": "Stone_DS_Dark",
-   "tris": 472,
+   "tris": 664,
    "center_rbx": [
-    -1553.955,
-    55.205,
-    978.78
+    -1565.537,
+    55.505,
+    981.389
    ],
    "size_rbx": [
-    52.342,
-    10.49,
-    48.558
+    75.507,
+    11.09,
+    53.777
+   ],
+   "owner": "entry",
+   "shadow": false,
+   "flags": "",
+   "model": "DS_Ent"
+  },
+  {
+   "name": "DS_Ent_Bridge__Window_DS_Warm",
+   "group": "18_ENTRY",
+   "obj": "DS_Ent_Bridge",
+   "material": "Window_DS_Warm",
+   "tris": 96,
+   "center_rbx": [
+    -1572.796,
+    59.2,
+    994.582
+   ],
+   "size_rbx": [
+    59.102,
+    2.28,
+    25.502
    ],
    "owner": "entry",
    "shadow": false,
@@ -10059,15 +10101,15 @@
    "group": "18_ENTRY",
    "obj": "DS_Ent_Bridge",
    "material": "Wood_DS_Dark",
-   "tris": 6512,
+   "tris": 6840,
    "center_rbx": [
     -1576.585,
-    51.13,
+    51.43,
     997.637
    ],
    "size_rbx": [
     81.852,
-    17.54,
+    18.14,
     73.284
    ],
    "owner": "entry",
@@ -10244,20 +10286,20 @@
    "model": "DS_Ent"
   },
   {
-   "name": "DS_Ent_Court__Stone_DS",
+   "name": "DS_Ent_Court__Stone_DS_B",
    "group": "18_ENTRY",
    "obj": "DS_Ent_Court",
-   "material": "Stone_DS",
-   "tris": 180,
+   "material": "Stone_DS_B",
+   "tris": 320,
    "center_rbx": [
-    -1639.947,
-    57.7,
-    1065.781
+    -1639.542,
+    57.325,
+    1066.254
    ],
    "size_rbx": [
-    19.516,
-    7.0,
-    19.374
+    20.175,
+    6.85,
+    20.114
    ],
    "owner": "entry",
    "shadow": false,
@@ -10265,20 +10307,20 @@
    "model": "DS_Ent"
   },
   {
-   "name": "DS_Ent_Court__Stone_DS_B",
+   "name": "DS_Ent_Court__Stone_DS_Dark",
    "group": "18_ENTRY",
    "obj": "DS_Ent_Court",
-   "material": "Stone_DS_B",
-   "tris": 108,
+   "material": "Stone_DS_Dark",
+   "tris": 96,
    "center_rbx": [
-    -1638.852,
-    57.7,
-    1066.832
+    -1639.549,
+    56.89,
+    1066.26
    ],
    "size_rbx": [
-    18.947,
-    7.0,
-    19.162
+    18.708,
+    5.98,
+    18.4
    ],
    "owner": "entry",
    "shadow": false,
@@ -10290,16 +10332,16 @@
    "group": "18_ENTRY",
    "obj": "DS_Ent_Court",
    "material": "Stone_DS_Path",
-   "tris": 160,
+   "tris": 600,
    "center_rbx": [
-    -1639.5,
-    57.445,
-    1066.218
+    -1639.49,
+    57.425,
+    1066.21
    ],
    "size_rbx": [
-    18.844,
-    5.51,
-    18.532
+    18.88,
+    5.55,
+    18.562
    ],
    "owner": "entry",
    "shadow": false,
@@ -10332,15 +10374,15 @@
    "group": "18_ENTRY",
    "obj": "DS_Ent_Ferns",
    "material": "Leaf_DS_Shrub",
-   "tris": 2144,
+   "tris": 3104,
    "center_rbx": [
-    -1607.656,
-    48.816,
+    -1607.933,
+    49.5,
     1026.299
    ],
    "size_rbx": [
-    89.899,
-    12.332,
+    90.451,
+    13.699,
     80.34
    ],
    "owner": "entry",
@@ -10356,12 +10398,12 @@
    "tris": 580,
    "center_rbx": [
     -1617.226,
-    64.625,
+    64.825,
     1031.864
    ],
    "size_rbx": [
     16.411,
-    19.05,
+    19.45,
     19.12
    ],
    "owner": "entry",
@@ -10377,12 +10419,12 @@
    "tris": 1256,
    "center_rbx": [
     -1617.226,
-    74.23,
+    74.43,
     1031.864
    ],
    "size_rbx": [
     17.667,
-    2.781,
+    3.181,
     20.287
    ],
    "owner": "entry",
@@ -10419,12 +10461,12 @@
    "tris": 412,
    "center_rbx": [
     -1617.226,
-    63.932,
+    64.056,
     1031.864
    ],
    "size_rbx": [
     13.36,
-    17.564,
+    17.813,
     15.662
    ],
    "owner": "entry",
@@ -10478,9 +10520,9 @@
  "materials": {
   "Bamboo_DS": {
    "color": [
-    106,
-    136,
-    66
+    90,
+    116,
+    56
    ],
    "material": "Wood",
    "transparency": 0.0,
@@ -10488,7 +10530,7 @@
    "family": "Bamboo_DS",
    "tex": null,
    "swirl": null,
-   "meshes": 1
+   "meshes": 2
   },
   "Bamboo_DS_Dry": {
    "color": [
@@ -10558,7 +10600,7 @@
    "family": "Cliff_DS_Dark",
    "tex": null,
    "swirl": null,
-   "meshes": 16
+   "meshes": 9
   },
   "Cliff_DS_Moss": {
    "color": [
@@ -10684,7 +10726,7 @@
    "family": "Dirt_DS",
    "tex": null,
    "swirl": null,
-   "meshes": 6
+   "meshes": 7
   },
   "Dirt_DS_Dark": {
    "color": [
@@ -10698,7 +10740,7 @@
    "family": "Dirt_DS_Dark",
    "tex": null,
    "swirl": null,
-   "meshes": 8
+   "meshes": 7
   },
   "Ember_DS_Glow": {
    "color": [
@@ -10758,9 +10800,9 @@
   },
   "Glass_DS_Lantern": {
    "color": [
-    255,
-    192,
-    118
+    214,
+    144,
+    88
    ],
    "material": "Neon",
    "transparency": 0.0,
@@ -10768,7 +10810,7 @@
    "family": "Glass_DS_Lantern",
    "tex": null,
    "swirl": null,
-   "meshes": 16
+   "meshes": 14
   },
   "Grass_DS": {
    "color": [
@@ -10824,7 +10866,7 @@
    "family": "Grass_DS_Dry",
    "tex": null,
    "swirl": null,
-   "meshes": 1
+   "meshes": 2
   },
   "Leaf_DS_Bamboo": {
    "color": [
@@ -10880,7 +10922,7 @@
    "family": "Leaf_DS_Shrub",
    "tex": null,
    "swirl": null,
-   "meshes": 18
+   "meshes": 17
   },
   "Metal_Brass": {
    "color": [
@@ -11188,7 +11230,7 @@
    "family": "Stone_DS",
    "tex": null,
    "swirl": null,
-   "meshes": 28
+   "meshes": 22
   },
   "Stone_DS_B": {
    "color": [
@@ -11202,7 +11244,7 @@
    "family": "Stone_DS",
    "tex": null,
    "swirl": null,
-   "meshes": 23
+   "meshes": 22
   },
   "Stone_DS_Brick": {
    "color": [
@@ -11216,7 +11258,7 @@
    "family": "Stone_DS_Brick",
    "tex": null,
    "swirl": null,
-   "meshes": 2
+   "meshes": 3
   },
   "Stone_DS_Dark": {
    "color": [
@@ -11230,7 +11272,35 @@
    "family": "Stone_DS_Dark",
    "tex": null,
    "swirl": null,
-   "meshes": 23
+   "meshes": 25
+  },
+  "Stone_DS_Ishi": {
+   "color": [
+    100,
+    98,
+    92
+   ],
+   "material": "SmoothPlastic",
+   "transparency": 0.0,
+   "shadow": true,
+   "family": "Stone_DS_Ishi",
+   "tex": null,
+   "swirl": null,
+   "meshes": 6
+  },
+  "Stone_DS_IshiD": {
+   "color": [
+    86,
+    84,
+    80
+   ],
+   "material": "SmoothPlastic",
+   "transparency": 0.0,
+   "shadow": true,
+   "family": "Stone_DS_IshiD",
+   "tex": null,
+   "swirl": null,
+   "meshes": 1
   },
   "Stone_DS_Laje": {
    "color": [
@@ -11244,7 +11314,7 @@
    "family": "Stone_DS_Laje",
    "tex": null,
    "swirl": null,
-   "meshes": 5
+   "meshes": 6
   },
   "Stone_DS_Path": {
    "color": [
@@ -11258,7 +11328,7 @@
    "family": "Stone_DS_Path",
    "tex": null,
    "swirl": null,
-   "meshes": 24
+   "meshes": 18
   },
   "Stone_DS_Soot": {
    "color": [
@@ -11356,7 +11426,7 @@
    "family": "Window_DS_Warm",
    "tex": null,
    "swirl": null,
-   "meshes": 9
+   "meshes": 19
   },
   "Wisteria_DS": {
    "color": [
@@ -11370,7 +11440,7 @@
    "family": "Wisteria_DS",
    "tex": null,
    "swirl": null,
-   "meshes": 2
+   "meshes": 3
   },
   "Wisteria_DS_Deep": {
    "color": [
@@ -11412,7 +11482,7 @@
    "family": "Wood_DS_Dark",
    "tex": null,
    "swirl": null,
-   "meshes": 37
+   "meshes": 38
   },
   "Wood_DS_Lacquer": {
    "color": [
@@ -12061,7 +12131,7 @@
    "kind": "Block",
    "pos": [
     -1953.992,
-    71.61,
+    71.65,
     1070.986
    ],
    "x": [
@@ -12077,7 +12147,7 @@
    "size": [
     7.75,
     20.1,
-    4.02
+    4.1
    ],
    "cam": true
   },
@@ -12136,7 +12206,7 @@
    "kind": "Block",
    "pos": [
     -1967.59,
-    71.61,
+    71.65,
     1082.395
    ],
    "x": [
@@ -12152,7 +12222,7 @@
    "size": [
     7.75,
     20.1,
-    4.02
+    4.1
    ],
    "cam": true
   },
@@ -12860,6 +12930,31 @@
    "name": "COL_DS_FrgCoal_002",
    "kind": "Block",
    "pos": [
+    -1841.578,
+    82.0,
+    1366.323
+   ],
+   "x": [
+    -0.643,
+    0.0,
+    -0.766
+   ],
+   "y": [
+    -0.766,
+    0.0,
+    0.643
+   ],
+   "size": [
+    3.6,
+    1.2,
+    3.6
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_DS_FrgCoal_003",
+   "kind": "Block",
+   "pos": [
     -1834.636,
     84.9,
     1370.941
@@ -12882,7 +12977,7 @@
    "cam": false
   },
   {
-   "name": "COL_DS_FrgCoal_003",
+   "name": "COL_DS_FrgCoal_004",
    "kind": "Block",
    "pos": [
     -1846.893,
@@ -12907,7 +13002,7 @@
    "cam": false
   },
   {
-   "name": "COL_DS_FrgCoal_004",
+   "name": "COL_DS_FrgCoal_005",
    "kind": "Block",
    "pos": [
     -1844.921,
@@ -12932,7 +13027,7 @@
    "cam": false
   },
   {
-   "name": "COL_DS_FrgCoal_005",
+   "name": "COL_DS_FrgCoal_006",
    "kind": "Block",
    "pos": [
     -1857.177,
@@ -12957,11 +13052,11 @@
    "cam": false
   },
   {
-   "name": "COL_DS_FrgCoal_006",
+   "name": "COL_DS_FrgCoal_007",
    "kind": "Block",
    "pos": [
     -1851.053,
-    82.4,
+    81.82,
     1400.381
    ],
    "x": [
@@ -12975,19 +13070,69 @@
     0.294
    ],
    "size": [
-    9.0,
-    2.6,
-    4.4
+    8.8,
+    2.4,
+    3.24
    ],
    "cam": false
   },
   {
-   "name": "COL_DS_FrgCoal_007",
+   "name": "COL_DS_FrgCoal_008",
    "kind": "Block",
    "pos": [
-    -1845.201,
-    81.6,
-    1351.349
+    -1831.613,
+    81.49,
+    1393.99
+   ],
+   "x": [
+    -0.766,
+    0.0,
+    0.643
+   ],
+   "y": [
+    0.643,
+    0.0,
+    0.766
+   ],
+   "size": [
+    8.2,
+    2.4,
+    2.58
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_DS_FrgCoal_009",
+   "kind": "Block",
+   "pos": [
+    -1871.992,
+    81.49,
+    1380.094
+   ],
+   "x": [
+    -0.812,
+    0.0,
+    -0.583
+   ],
+   "y": [
+    -0.583,
+    0.0,
+    0.812
+   ],
+   "size": [
+    7.2,
+    2.4,
+    2.58
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_DS_FrgCoal_010",
+   "kind": "Block",
+   "pos": [
+    -1846.989,
+    80.8,
+    1390.445
    ],
    "x": [
     -0.643,
@@ -13000,14 +13145,114 @@
     0.643
    ],
    "size": [
-    5.6,
-    1.6,
-    2.8
+    1.4,
+    1.4,
+    1.2
    ],
    "cam": false
   },
   {
-   "name": "COL_DS_FrgCoal_008",
+   "name": "COL_DS_FrgCoal_011",
+   "kind": "Block",
+   "pos": [
+    -1853.032,
+    81.55,
+    1349.173
+   ],
+   "x": [
+    -0.643,
+    0.0,
+    -0.766
+   ],
+   "y": [
+    -0.766,
+    0.0,
+    0.643
+   ],
+   "size": [
+    3.4,
+    1.8,
+    2.7
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_DS_FrgCoal_012",
+   "kind": "Block",
+   "pos": [
+    -1834.774,
+    81.55,
+    1360.353
+   ],
+   "x": [
+    -0.643,
+    0.0,
+    -0.766
+   ],
+   "y": [
+    -0.766,
+    0.0,
+    0.643
+   ],
+   "size": [
+    3.4,
+    1.8,
+    2.7
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_DS_FrgCoal_013",
+   "kind": "Block",
+   "pos": [
+    -1854.691,
+    80.9,
+    1358.397
+   ],
+   "x": [
+    -0.643,
+    0.0,
+    -0.766
+   ],
+   "y": [
+    -0.766,
+    0.0,
+    0.643
+   ],
+   "size": [
+    3.2,
+    1.2,
+    1.4
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_DS_FrgCoal_014",
+   "kind": "Block",
+   "pos": [
+    -1864.595,
+    81.4,
+    1353.229
+   ],
+   "x": [
+    -0.963,
+    0.0,
+    -0.269
+   ],
+   "y": [
+    -0.269,
+    0.0,
+    0.963
+   ],
+   "size": [
+    4.4,
+    2.6,
+    2.4
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_DS_FrgCoal_015",
    "kind": "Block",
    "pos": [
     -1866.04,
@@ -13786,7 +14031,7 @@
    "kind": "Block",
    "pos": [
     -1958.381,
-    81.8,
+    82.0,
     1337.969
    ],
    "x": [
@@ -13800,9 +14045,9 @@
     0.643
    ],
    "size": [
-    3.0,
-    2.2,
-    3.2
+    6.2,
+    3.2,
+    3.6
    ],
    "cam": false
   },
@@ -13811,7 +14056,7 @@
    "kind": "Block",
    "pos": [
     -1977.922,
-    81.8,
+    82.0,
     1314.681
    ],
    "x": [
@@ -13825,9 +14070,9 @@
     0.643
    ],
    "size": [
-    3.0,
-    2.2,
-    3.2
+    6.2,
+    3.2,
+    3.6
    ],
    "cam": false
   },
@@ -13861,7 +14106,7 @@
    "kind": "Block",
    "pos": [
     -1943.429,
-    81.2,
+    81.1,
     1344.742
    ],
    "x": [
@@ -13875,9 +14120,9 @@
     0.643
    ],
    "size": [
-    2.6,
-    2.0,
-    2.0
+    1.9,
+    1.9,
+    1.8
    ],
    "cam": false
   },
@@ -13885,9 +14130,34 @@
    "name": "COL_DS_FrgProp_005",
    "kind": "Block",
    "pos": [
-    -1942.654,
+    -1941.801,
+    80.6,
+    1345.845
+   ],
+   "x": [
+    0.75,
+    0.0,
+    0.661
+   ],
+   "y": [
+    0.661,
+    0.0,
+    -0.75
+   ],
+   "size": [
+    1.7,
+    1.0,
+    0.8
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_DS_FrgProp_006",
+   "kind": "Block",
+   "pos": [
+    -1943.65,
     81.2,
-    1350.489
+    1351.324
    ],
    "x": [
     -0.643,
@@ -13907,7 +14177,7 @@
    "cam": false
   },
   {
-   "name": "COL_DS_FrgProp_006",
+   "name": "COL_DS_FrgProp_007",
    "kind": "Block",
    "pos": [
     -1919.01,
@@ -13932,7 +14202,7 @@
    "cam": false
   },
   {
-   "name": "COL_DS_FrgProp_007",
+   "name": "COL_DS_FrgProp_008",
    "kind": "Block",
    "pos": [
     -1924.978,
@@ -13957,7 +14227,7 @@
    "cam": false
   },
   {
-   "name": "COL_DS_FrgProp_008",
+   "name": "COL_DS_FrgProp_009",
    "kind": "Block",
    "pos": [
     -1957.998,
@@ -13982,7 +14252,7 @@
    "cam": false
   },
   {
-   "name": "COL_DS_FrgProp_009",
+   "name": "COL_DS_FrgProp_010",
    "kind": "Block",
    "pos": [
     -1973.054,
@@ -16810,22 +17080,22 @@
    "name": "COL_DS_PropFence_001",
    "kind": "Block",
    "pos": [
-    -1661.822,
+    -1661.398,
     61.64,
-    1076.626
+    1076.36
    ],
    "x": [
-    -0.83,
+    -0.829,
     0.0,
-    0.558
+    0.559
    ],
    "y": [
-    0.558,
+    0.559,
     0.0,
-    0.83
+    0.829
    ],
    "size": [
-    19.016,
+    18.017,
     0.5,
     3.0
    ],
@@ -16835,22 +17105,22 @@
    "name": "COL_DS_PropFence_002",
    "kind": "Block",
    "pos": [
-    -1677.092,
+    -1677.516,
     61.64,
-    1086.203
+    1086.469
    ],
    "x": [
-    -0.887,
+    -0.892,
     0.0,
-    0.463
+    0.452
    ],
    "y": [
-    0.463,
+    0.452,
     0.0,
-    0.887
+    0.892
    ],
    "size": [
-    7.867,
+    6.871,
     0.5,
     3.0
    ],
@@ -17210,9 +17480,9 @@
    "name": "COL_DS_PropFence_017",
    "kind": "Block",
    "pos": [
-    -1826.246,
+    -1836.211,
     61.82,
-    1254.807
+    1262.353
    ],
    "x": [
     -0.797,
@@ -17225,7 +17495,7 @@
     0.797
    ],
    "size": [
-    7.4,
+    32.4,
     0.5,
     3.0
    ],
@@ -17233,31 +17503,6 @@
   },
   {
    "name": "COL_DS_PropFence_018",
-   "kind": "Block",
-   "pos": [
-    -1839.798,
-    61.82,
-    1265.07
-   ],
-   "x": [
-    -0.797,
-    0.0,
-    0.604
-   ],
-   "y": [
-    0.604,
-    0.0,
-    0.797
-   ],
-   "size": [
-    23.4,
-    0.5,
-    3.0
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_DS_PropFence_019",
    "kind": "Block",
    "pos": [
     -1836.248,
@@ -17282,12 +17527,12 @@
    "cam": false
   },
   {
-   "name": "COL_DS_PropFence_020",
+   "name": "COL_DS_PropFence_019",
    "kind": "Block",
    "pos": [
-    -1841.037,
+    -1841.838,
     61.64,
-    1077.11
+    1077.708
    ],
    "x": [
     -0.801,
@@ -17300,7 +17545,32 @@
     0.801
    ],
    "size": [
-    1.4,
+    3.4,
+    0.5,
+    3.0
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_DS_PropFence_020",
+   "kind": "Block",
+   "pos": [
+    -1877.121,
+    61.64,
+    1105.581
+   ],
+   "x": [
+    -0.747,
+    0.0,
+    0.664
+   ],
+   "y": [
+    0.664,
+    0.0,
+    0.747
+   ],
+   "size": [
+    15.4,
     0.5,
     3.0
    ],
@@ -17308,56 +17578,6 @@
   },
   {
    "name": "COL_DS_PropFence_021",
-   "kind": "Block",
-   "pos": [
-    -1873.384,
-    61.64,
-    1102.259
-   ],
-   "x": [
-    -0.747,
-    0.0,
-    0.664
-   ],
-   "y": [
-    0.664,
-    0.0,
-    0.747
-   ],
-   "size": [
-    11.4,
-    0.5,
-    3.0
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_DS_PropFence_022",
-   "kind": "Block",
-   "pos": [
-    -1883.847,
-    61.64,
-    1111.561
-   ],
-   "x": [
-    -0.747,
-    0.0,
-    0.664
-   ],
-   "y": [
-    0.664,
-    0.0,
-    0.747
-   ],
-   "size": [
-    11.4,
-    0.5,
-    3.0
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_DS_PropFence_023",
    "kind": "Block",
    "pos": [
     -1939.758,
@@ -17382,7 +17602,7 @@
    "cam": false
   },
   {
-   "name": "COL_DS_PropFence_024",
+   "name": "COL_DS_PropFence_022",
    "kind": "Block",
    "pos": [
     -1950.583,
@@ -17407,7 +17627,7 @@
    "cam": false
   },
   {
-   "name": "COL_DS_PropFence_025",
+   "name": "COL_DS_PropFence_023",
    "kind": "Block",
    "pos": [
     -1935.748,
@@ -17432,7 +17652,7 @@
    "cam": false
   },
   {
-   "name": "COL_DS_PropFence_026",
+   "name": "COL_DS_PropFence_024",
    "kind": "Block",
    "pos": [
     -1951.635,
@@ -17457,7 +17677,7 @@
    "cam": false
   },
   {
-   "name": "COL_DS_PropFence_027",
+   "name": "COL_DS_PropFence_025",
    "kind": "Block",
    "pos": [
     -1876.172,
@@ -17482,12 +17702,12 @@
    "cam": false
   },
   {
-   "name": "COL_DS_PropFence_028",
+   "name": "COL_DS_PropFence_026",
    "kind": "Block",
    "pos": [
-    -1887.252,
+    -1892.028,
     71.64,
-    1278.677
+    1274.852
    ],
    "x": [
     -0.781,
@@ -17500,89 +17720,39 @@
     0.781
    ],
    "size": [
-    11.618,
+    23.855,
     0.5,
     3.0
    ],
    "cam": false
   },
   {
-   "name": "COL_DS_PropFence_029",
+   "name": "COL_DS_PropFence_027",
    "kind": "Block",
    "pos": [
-    -1922.564,
-    71.64,
-    1246.299
+    -1936.834,
+    71.558,
+    1232.165
    ],
    "x": [
-    -0.705,
+    -0.71,
     0.0,
-    -0.709
+    -0.704
    ],
    "y": [
-    -0.709,
+    -0.704,
     0.0,
-    0.705
+    0.71
    ],
    "size": [
-    8.429,
+    44.584,
     0.5,
     3.0
    ],
    "cam": false
   },
   {
-   "name": "COL_DS_PropFence_030",
-   "kind": "Block",
-   "pos": [
-    -1930.347,
-    71.14,
-    1238.471
-   ],
-   "x": [
-    -0.705,
-    0.0,
-    -0.709
-   ],
-   "y": [
-    -0.709,
-    0.0,
-    0.705
-   ],
-   "size": [
-    12.443,
-    0.5,
-    3.0
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_DS_PropFence_031",
-   "kind": "Block",
-   "pos": [
-    -1942.117,
-    71.64,
-    1226.808
-   ],
-   "x": [
-    -0.713,
-    0.0,
-    -0.701
-   ],
-   "y": [
-    -0.701,
-    0.0,
-    0.713
-   ],
-   "size": [
-    21.497,
-    0.5,
-    3.0
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_DS_PropFence_032",
+   "name": "COL_DS_PropFence_028",
    "kind": "Block",
    "pos": [
     -1961.532,
@@ -17610,56 +17780,6 @@
    "name": "COL_DS_PropPath_001",
    "kind": "Block",
    "pos": [
-    -1682.797,
-    62.153,
-    1088.874
-   ],
-   "x": [
-    -0.899,
-    0.0,
-    0.438
-   ],
-   "y": [
-    0.438,
-    0.0,
-    0.899
-   ],
-   "size": [
-    1.44,
-    1.44,
-    3.907
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_DS_PropPath_002",
-   "kind": "Block",
-   "pos": [
-    -1731.672,
-    62.233,
-    1107.157
-   ],
-   "x": [
-    -0.954,
-    0.0,
-    0.299
-   ],
-   "y": [
-    0.299,
-    0.0,
-    0.954
-   ],
-   "size": [
-    1.44,
-    1.44,
-    4.066
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_DS_PropPath_003",
-   "kind": "Block",
-   "pos": [
     -1654.34,
     56.779,
     1035.015
@@ -17682,12 +17802,12 @@
    "cam": false
   },
   {
-   "name": "COL_DS_PropPath_004",
+   "name": "COL_DS_PropPath_002",
    "kind": "Block",
    "pos": [
-    -1693.295,
-    58.341,
-    1033.643
+    -1709.788,
+    59.426,
+    1039.878
    ],
    "x": [
     -0.935,
@@ -17707,22 +17827,22 @@
    "cam": false
   },
   {
-   "name": "COL_DS_PropPath_005",
+   "name": "COL_DS_PropPath_003",
    "kind": "Block",
    "pos": [
-    -1727.331,
-    60.747,
-    1055.681
+    -1754.328,
+    62.026,
+    1066.084
    ],
    "x": [
-    0.936,
+    0.877,
     0.0,
-    -0.351
+    -0.48
    ],
    "y": [
-    -0.351,
+    -0.48,
     0.0,
-    -0.936
+    -0.877
    ],
    "size": [
     1.44,
@@ -17732,7 +17852,7 @@
    "cam": false
   },
   {
-   "name": "COL_DS_PropPath_006",
+   "name": "COL_DS_PropPath_004",
    "kind": "Block",
    "pos": [
     -1725.684,
@@ -17757,12 +17877,12 @@
    "cam": false
   },
   {
-   "name": "COL_DS_PropPath_007",
+   "name": "COL_DS_PropPath_005",
    "kind": "Block",
    "pos": [
-    -1750.063,
-    61.65,
-    1106.007
+    -1733.257,
+    62.15,
+    1123.794
    ],
    "x": [
     0.738,
@@ -17782,12 +17902,37 @@
    "cam": false
   },
   {
-   "name": "COL_DS_PropPath_008",
+   "name": "COL_DS_PropPath_006",
    "kind": "Block",
    "pos": [
-    -1778.778,
-    62.175,
-    1081.994
+    -1765.168,
+    61.675,
+    1092.723
+   ],
+   "x": [
+    0.752,
+    0.0,
+    0.659
+   ],
+   "y": [
+    0.659,
+    0.0,
+    -0.752
+   ],
+   "size": [
+    1.44,
+    1.44,
+    3.949
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_DS_PropPath_007",
+   "kind": "Block",
+   "pos": [
+    -1781.46,
+    62.024,
+    1078.565
    ],
    "x": [
     0.809,
@@ -17802,42 +17947,17 @@
    "size": [
     1.44,
     1.44,
-    3.949
+    3.648
    ],
    "cam": false
   },
   {
-   "name": "COL_DS_PropPath_009",
+   "name": "COL_DS_PropPath_008",
    "kind": "Block",
    "pos": [
-    -1802.12,
-    61.537,
-    1068.714
-   ],
-   "x": [
-    0.908,
-    0.0,
-    0.419
-   ],
-   "y": [
-    0.419,
-    0.0,
-    -0.908
-   ],
-   "size": [
-    1.44,
-    1.44,
-    3.673
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_DS_PropPath_010",
-   "kind": "Block",
-   "pos": [
-    -1746.972,
-    62.018,
-    1188.726
+    -1744.7,
+    62.363,
+    1185.148
    ],
    "x": [
     0.753,
@@ -17852,17 +17972,17 @@
    "size": [
     1.44,
     1.44,
-    3.636
+    3.967
    ],
    "cam": false
   },
   {
-   "name": "COL_DS_PropPath_011",
+   "name": "COL_DS_PropPath_009",
    "kind": "Block",
    "pos": [
-    -1768.136,
+    -1777.642,
     62.224,
-    1207.219
+    1217.118
    ],
    "x": [
     0.753,
@@ -17882,87 +18002,37 @@
    "cam": false
   },
   {
-   "name": "COL_DS_PropPath_012",
+   "name": "COL_DS_PropPath_010",
    "kind": "Block",
    "pos": [
-    -1789.859,
-    62.319,
-    1225.02
+    -1823.167,
+    62.383,
+    1251.722
    ],
    "x": [
-    0.766,
+    0.797,
     0.0,
-    -0.643
+    -0.604
    ],
    "y": [
-    -0.643,
+    -0.604,
     0.0,
-    -0.766
+    -0.797
    ],
    "size": [
     1.44,
     1.44,
-    3.879
+    4.007
    ],
    "cam": false
   },
   {
-   "name": "COL_DS_PropPath_013",
+   "name": "COL_DS_PropPath_011",
    "kind": "Block",
    "pos": [
-    -1811.073,
-    62.291,
-    1243.604
-   ],
-   "x": [
-    0.766,
-    0.0,
-    -0.643
-   ],
-   "y": [
-    -0.643,
-    0.0,
-    -0.766
-   ],
-   "size": [
-    1.44,
-    1.44,
-    3.822
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_DS_PropPath_014",
-   "kind": "Block",
-   "pos": [
-    -1854.727,
-    62.41,
-    1273.373
-   ],
-   "x": [
-    0.947,
-    0.0,
-    -0.321
-   ],
-   "y": [
-    -0.321,
-    0.0,
-    -0.947
-   ],
-   "size": [
-    1.44,
-    1.44,
-    4.06
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_DS_PropPath_015",
-   "kind": "Block",
-   "pos": [
-    -1850.815,
-    62.352,
-    1085.155
+    -1847.436,
+    62.215,
+    1081.137
    ],
    "x": [
     0.801,
@@ -17977,17 +18047,17 @@
    "size": [
     1.44,
     1.44,
-    3.944
+    3.671
    ],
    "cam": false
   },
   {
-   "name": "COL_DS_PropPath_016",
+   "name": "COL_DS_PropPath_012",
    "kind": "Block",
    "pos": [
-    -1891.019,
-    61.72,
-    1118.739
+    -1886.707,
+    62.02,
+    1114.103
    ],
    "x": [
     0.747,
@@ -18002,17 +18072,17 @@
    "size": [
     1.44,
     1.44,
-    4.039
+    3.64
    ],
    "cam": false
   },
   {
-   "name": "COL_DS_PropPath_017",
+   "name": "COL_DS_PropPath_013",
    "kind": "Block",
    "pos": [
-    -1913.861,
-    62.284,
-    1137.959
+    -1913.987,
+    62.4,
+    1138.064
    ],
    "x": [
     0.766,
@@ -18027,17 +18097,42 @@
    "size": [
     1.44,
     1.44,
-    3.807
+    4.039
    ],
    "cam": false
   },
   {
-   "name": "COL_DS_PropPath_018",
+   "name": "COL_DS_PropPath_014",
    "kind": "Block",
    "pos": [
-    -1952.141,
-    62.226,
-    1178.562
+    -1928.684,
+    62.391,
+    1148.991
+   ],
+   "x": [
+    0.722,
+    0.0,
+    -0.692
+   ],
+   "y": [
+    -0.692,
+    0.0,
+    -0.722
+   ],
+   "size": [
+    1.44,
+    1.44,
+    4.023
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_DS_PropPath_015",
+   "kind": "Block",
+   "pos": [
+    -1953.932,
+    62.116,
+    1179.677
    ],
    "x": [
     0.398,
@@ -18052,62 +18147,37 @@
    "size": [
     1.44,
     1.44,
-    4.052
+    3.833
    ],
    "cam": false
   },
   {
-   "name": "COL_DS_PropPath_019",
+   "name": "COL_DS_PropPath_016",
    "kind": "Block",
    "pos": [
-    -1888.952,
-    61.603,
-    1264.387
+    -1905.879,
+    62.295,
+    1246.039
    ],
    "x": [
-    0.769,
+    0.696,
     0.0,
-    0.639
+    0.718
    ],
    "y": [
-    0.639,
+    0.718,
     0.0,
-    -0.769
+    -0.696
    ],
    "size": [
     1.44,
     1.44,
-    3.806
+    3.83
    ],
    "cam": false
   },
   {
-   "name": "COL_DS_PropPath_020",
-   "kind": "Block",
-   "pos": [
-    -1915.814,
-    62.407,
-    1237.628
-   ],
-   "x": [
-    0.71,
-    0.0,
-    0.705
-   ],
-   "y": [
-    0.705,
-    0.0,
-    -0.71
-   ],
-   "size": [
-    1.44,
-    1.44,
-    4.055
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_DS_PropPath_021",
+   "name": "COL_DS_PropPath_017",
    "kind": "Block",
    "pos": [
     -1890.908,
@@ -18132,37 +18202,62 @@
    "cam": false
   },
   {
-   "name": "COL_DS_PropPath_022",
+   "name": "COL_DS_PropPath_018",
    "kind": "Block",
    "pos": [
-    -1908.805,
-    81.65,
-    1428.99
+    -1911.981,
+    82.314,
+    1417.295
    ],
    "x": [
-    0.605,
+    -0.605,
     0.0,
-    -0.797
+    0.797
    ],
    "y": [
-    -0.797,
+    0.797,
     0.0,
-    -0.605
+    0.605
    ],
    "size": [
     1.44,
     1.44,
-    3.9
+    3.867
    ],
    "cam": false
   },
   {
-   "name": "COL_DS_PropPath_023",
+   "name": "COL_DS_PropPath_019",
    "kind": "Block",
    "pos": [
-    -1927.607,
+    -1936.883,
+    82.237,
+    1439.578
+   ],
+   "x": [
+    -0.821,
+    0.0,
+    0.571
+   ],
+   "y": [
+    0.571,
+    0.0,
+    0.821
+   ],
+   "size": [
+    1.44,
+    1.44,
+    3.714
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_DS_PropPath_020",
+   "kind": "Block",
+   "pos": [
+    -1946.856,
     82.355,
-    1447.013
+    1458.933
    ],
    "x": [
     0.821,
@@ -18182,57 +18277,32 @@
    "cam": false
   },
   {
-   "name": "COL_DS_PropPath_024",
+   "name": "COL_DS_PropPath_021",
    "kind": "Block",
    "pos": [
-    -1950.092,
-    82.217,
-    1461.182
+    -1993.394,
+    81.658,
+    1468.57
    ],
    "x": [
-    0.821,
+    -0.889,
     0.0,
-    -0.571
+    0.457
    ],
    "y": [
-    -0.571,
+    0.457,
     0.0,
-    -0.821
+    0.889
    ],
    "size": [
     1.44,
     1.44,
-    3.674
+    3.916
    ],
    "cam": false
   },
   {
-   "name": "COL_DS_PropPath_025",
-   "kind": "Block",
-   "pos": [
-    -1982.607,
-    82.29,
-    1475.204
-   ],
-   "x": [
-    0.923,
-    0.0,
-    -0.385
-   ],
-   "y": [
-    -0.385,
-    0.0,
-    -0.923
-   ],
-   "size": [
-    1.44,
-    1.44,
-    3.82
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_DS_PropPath_026",
+   "name": "COL_DS_PropPath_022",
    "kind": "Block",
    "pos": [
     -1789.401,
@@ -18257,7 +18327,7 @@
    "cam": false
   },
   {
-   "name": "COL_DS_PropPath_027",
+   "name": "COL_DS_PropPath_023",
    "kind": "Block",
    "pos": [
     -1716.905,
@@ -18282,12 +18352,12 @@
    "cam": false
   },
   {
-   "name": "COL_DS_PropPath_028",
+   "name": "COL_DS_PropPath_024",
    "kind": "Block",
    "pos": [
-    -1936.185,
-    81.28,
-    1460.72
+    -1937.149,
+    81.1,
+    1459.571
    ],
    "x": [
     -0.643,
@@ -18307,7 +18377,7 @@
    "cam": false
   },
   {
-   "name": "COL_DS_PropPath_029",
+   "name": "COL_DS_PropPath_025",
    "kind": "Block",
    "pos": [
     -1646.64,
@@ -18332,12 +18402,12 @@
    "cam": false
   },
   {
-   "name": "COL_DS_PropPath_030",
+   "name": "COL_DS_PropPath_026",
    "kind": "Block",
    "pos": [
-    -1913.363,
+    -1914.857,
     63.18,
-    1237.353
+    1237.222
    ],
    "x": [
     -0.643,
@@ -18357,12 +18427,12 @@
    "cam": false
   },
   {
-   "name": "COL_DS_PropPath_031",
+   "name": "COL_DS_PropPath_027",
    "kind": "Block",
    "pos": [
-    -1889.268,
+    -1890.232,
     82.5,
-    1382.842
+    1381.693
    ],
    "x": [
     -0.643,
@@ -18382,7 +18452,7 @@
    "cam": false
   },
   {
-   "name": "COL_DS_PropPath_032",
+   "name": "COL_DS_PropPath_028",
    "kind": "Block",
    "pos": [
     -1723.221,
@@ -18407,7 +18477,7 @@
    "cam": false
   },
   {
-   "name": "COL_DS_PropPath_033",
+   "name": "COL_DS_PropPath_029",
    "kind": "Block",
    "pos": [
     -1814.847,
@@ -18432,12 +18502,12 @@
    "cam": false
   },
   {
-   "name": "COL_DS_PropPath_034",
+   "name": "COL_DS_PropPath_030",
    "kind": "Block",
    "pos": [
-    -1873.014,
+    -1873.978,
     80.8,
-    1343.095
+    1341.946
    ],
    "x": [
     -0.866,
@@ -18460,9 +18530,9 @@
    "name": "COL_DS_Prop_001",
    "kind": "Block",
    "pos": [
-    -1679.505,
+    -1679.755,
     62.32,
-    1204.755
+    1205.188
    ],
    "x": [
     -0.866,
@@ -18660,9 +18730,9 @@
    "name": "COL_DS_Prop_009",
    "kind": "Block",
    "pos": [
-    -1776.733,
-    67.42,
-    1285.405
+    -1777.012,
+    66.74,
+    1284.99
    ],
    "x": [
     -0.643,
@@ -19135,9 +19205,9 @@
    "name": "COL_DS_Prop_028",
    "kind": "Block",
    "pos": [
-    -1915.823,
-    64.68,
-    1118.458
+    -1915.181,
+    64.5,
+    1119.224
    ],
    "x": [
     -0.643,
@@ -20436,7 +20506,7 @@
    "kind": "Block",
    "pos": [
     -1931.061,
-    73.35,
+    73.95,
     1065.45
    ],
    "x": [
@@ -20452,7 +20522,7 @@
    "size": [
     1.9,
     1.9,
-    6.3
+    7.5
    ],
    "cam": false
   },
@@ -20461,7 +20531,7 @@
    "kind": "Block",
    "pos": [
     -1977.023,
-    73.35,
+    73.95,
     1104.018
    ],
    "x": [
@@ -20477,7 +20547,7 @@
    "size": [
     1.9,
     1.9,
-    6.3
+    7.5
    ],
    "cam": false
   },
@@ -30335,9 +30405,9 @@
    "name": "COL_DS_VegTrunk_027",
    "kind": "Block",
    "pos": [
-    -1810.328,
+    -1813.86,
     69.2,
-    1333.248
+    1335.494
    ],
    "x": [
     -0.643,
@@ -30360,9 +30430,9 @@
    "name": "COL_DS_VegTrunk_028",
    "kind": "Block",
    "pos": [
-    -1720.157,
+    -1717.667,
     63.7,
-    1186.115
+    1186.332
    ],
    "x": [
     -0.643,
@@ -30385,9 +30455,9 @@
    "name": "COL_DS_VegTrunk_029",
    "kind": "Block",
    "pos": [
-    -1763.139,
+    -1761.442,
     69.7,
-    1235.235
+    1236.118
    ],
    "x": [
     -0.643,
@@ -30460,31 +30530,6 @@
    "name": "COL_DS_VegTrunk_032",
    "kind": "Block",
    "pos": [
-    -1826.932,
-    69.7,
-    1282.889
-   ],
-   "x": [
-    -0.643,
-    0.0,
-    -0.766
-   ],
-   "y": [
-    -0.766,
-    0.0,
-    0.643
-   ],
-   "size": [
-    2.02,
-    2.02,
-    7.0
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_DS_VegTrunk_033",
-   "kind": "Block",
-   "pos": [
     -1836.191,
     69.807,
     1327.862
@@ -30507,7 +30552,7 @@
    "cam": false
   },
   {
-   "name": "COL_DS_VegTrunk_034",
+   "name": "COL_DS_VegTrunk_033",
    "kind": "Block",
    "pos": [
     -1726.392,
@@ -30532,7 +30577,7 @@
    "cam": false
   },
   {
-   "name": "COL_DS_VegTrunk_035",
+   "name": "COL_DS_VegTrunk_034",
    "kind": "Block",
    "pos": [
     -1777.69,
@@ -30557,12 +30602,12 @@
    "cam": false
   },
   {
-   "name": "COL_DS_VegTrunk_036",
+   "name": "COL_DS_VegTrunk_035",
    "kind": "Block",
    "pos": [
-    -1831.313,
+    -1832.92,
     63.88,
-    1255.888
+    1253.973
    ],
    "x": [
     -0.643,
@@ -30582,7 +30627,7 @@
    "cam": false
   },
   {
-   "name": "COL_DS_VegTrunk_037",
+   "name": "COL_DS_VegTrunk_036",
    "kind": "Block",
    "pos": [
     -1852.269,
@@ -30607,7 +30652,7 @@
    "cam": false
   },
   {
-   "name": "COL_DS_VegTrunk_038",
+   "name": "COL_DS_VegTrunk_037",
    "kind": "Block",
    "pos": [
     -1776.935,
@@ -30632,7 +30677,7 @@
    "cam": false
   },
   {
-   "name": "COL_DS_VegTrunk_039",
+   "name": "COL_DS_VegTrunk_038",
    "kind": "Block",
    "pos": [
     -1917.434,
@@ -30657,7 +30702,7 @@
    "cam": false
   },
   {
-   "name": "COL_DS_VegTrunk_040",
+   "name": "COL_DS_VegTrunk_039",
    "kind": "Block",
    "pos": [
     -1945.183,
@@ -30682,12 +30727,12 @@
    "cam": false
   },
   {
-   "name": "COL_DS_VegTrunk_041",
+   "name": "COL_DS_VegTrunk_040",
    "kind": "Block",
    "pos": [
-    -1732.239,
+    -1742.047,
     63.88,
-    1097.041
+    1091.215
    ],
    "x": [
     -0.643,
@@ -30700,39 +30745,39 @@
     0.643
    ],
    "size": [
-    2.42,
-    2.42,
+    2.1,
+    2.1,
+    7.0
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_DS_VegTrunk_041",
+   "kind": "Block",
+   "pos": [
+    -1751.743,
+    63.88,
+    1084.688
+   ],
+   "x": [
+    -0.643,
+    0.0,
+    -0.766
+   ],
+   "y": [
+    -0.766,
+    0.0,
+    0.643
+   ],
+   "size": [
+    2.02,
+    2.02,
     7.0
    ],
    "cam": false
   },
   {
    "name": "COL_DS_VegTrunk_042",
-   "kind": "Block",
-   "pos": [
-    -1747.912,
-    63.88,
-    1081.474
-   ],
-   "x": [
-    -0.643,
-    0.0,
-    -0.766
-   ],
-   "y": [
-    -0.766,
-    0.0,
-    0.643
-   ],
-   "size": [
-    2.02,
-    2.02,
-    7.0
-   ],
-   "cam": false
-  },
-  {
-   "name": "COL_DS_VegTrunk_043",
    "kind": "Block",
    "pos": [
     -1912.832,
@@ -30757,7 +30802,7 @@
    "cam": false
   },
   {
-   "name": "COL_DS_VegTrunk_044",
+   "name": "COL_DS_VegTrunk_043",
    "kind": "Block",
    "pos": [
     -1925.195,
@@ -30782,7 +30827,7 @@
    "cam": false
   },
   {
-   "name": "COL_DS_VegTrunk_045",
+   "name": "COL_DS_VegTrunk_044",
    "kind": "Block",
    "pos": [
     -1948.036,
@@ -30807,7 +30852,7 @@
    "cam": false
   },
   {
-   "name": "COL_DS_VegTrunk_046",
+   "name": "COL_DS_VegTrunk_045",
    "kind": "Block",
    "pos": [
     -1895.96,
@@ -30832,7 +30877,7 @@
    "cam": false
   },
   {
-   "name": "COL_DS_VegTrunk_047",
+   "name": "COL_DS_VegTrunk_046",
    "kind": "Block",
    "pos": [
     -1920.543,
@@ -30857,7 +30902,7 @@
    "cam": false
   },
   {
-   "name": "COL_DS_VegTrunk_048",
+   "name": "COL_DS_VegTrunk_047",
    "kind": "Block",
    "pos": [
     -1955.041,
@@ -30882,7 +30927,7 @@
    "cam": false
   },
   {
-   "name": "COL_DS_VegTrunk_049",
+   "name": "COL_DS_VegTrunk_048",
    "kind": "Block",
    "pos": [
     -1917.638,
@@ -32326,7 +32371,7 @@
    ],
    "size": [
     10.6,
-    0.6,
+    0.8,
     12.34
    ],
    "cam": true
@@ -32351,7 +32396,7 @@
    ],
    "size": [
     10.6,
-    0.6,
+    0.8,
     12.34
    ],
    "cam": true
@@ -33420,11 +33465,11 @@
    ],
    "props": {
     "fx": "nevoa_base",
-    "width": 5.5,
+    "width": 6.5,
     "level": 60.32,
     "note": "pe da cascata na lagoa, entre as pedras grandes N1/N2",
     "cor": "214,228,248",
-    "tam": 8.8,
+    "tam": 10.4,
     "vida": 2.6,
     "vel": 2.5,
     "transp": 0.55,
@@ -33458,15 +33503,15 @@
    "props": {
     "fx": "nevoa_borda",
     "kind": "bica",
-    "width": 2.6,
+    "width": 3.0,
     "drop": 20.04,
     "water_level_up": 80.64,
     "face_y_local": 428.1,
     "waypoints": "-2012.69,80.50,1212.27;-2012.49,77.50,1212.11;-2012.11,70.45,1211.78;-2011.19,70.15,1211.01;-2010.88,66.00,1210.76;-2010.77,60.32,1210.66",
-    "widths": "2.6,2.9,3.3,3.8,4.3,5.0",
+    "widths": "3.0,3.6,4.2,4.6,5.0,5.6",
     "note": "ponta da soleira de pedra escura (no nivel da PEDRA; a lamina de 0,28 corre por cima) entre as 2 pedras-guarda do muro da forja; cortina medida: bica -> degrau de rocha (70,35) -> lagoa (60,32)",
     "cor": "214,228,248",
-    "tam": 1.3,
+    "tam": 1.5,
     "vida": 2.6,
     "vel": 2.5,
     "transp": 0.55,
@@ -33499,11 +33544,11 @@
    ],
    "props": {
     "fx": "espuma_degrau",
-    "width": 3.8,
+    "width": 4.6,
     "jump": 1.3,
     "note": "degrau de rocha no meio da queda: a cortina bate no topo e passa por cima da borda da frente",
     "cor": "214,228,248",
-    "tam": 3.04,
+    "tam": 3.68,
     "vida": 2.6,
     "vel": 2.5,
     "transp": 0.55,
@@ -38714,9 +38759,9 @@
    "name": "L_DSProp_Lamp_Bambu",
    "type": "POINT",
    "pos": [
-    -1718.088,
-    62.18,
-    1042.696
+    -1720.014,
+    62.033,
+    1050.64
    ],
    "color": [
     255,
@@ -38786,9 +38831,9 @@
    "name": "L_DSProp_Lamp_Carvao",
    "type": "POINT",
    "pos": [
-    -1883.88,
-    83.585,
-    1329.436
+    -1875.558,
+    83.611,
+    1331.849
    ],
    "color": [
     255,
@@ -38804,9 +38849,9 @@
    "name": "L_DSProp_Lamp_ClrLToro",
    "type": "POINT",
    "pos": [
-    -1871.76,
-    62.236,
-    1100.815
+    -1873.201,
+    62.425,
+    1102.096
    ],
    "color": [
     255,
@@ -38815,6 +38860,24 @@
    ],
    "range": 6.0,
    "brightness": 0.34,
+   "shadows": false,
+   "night": true
+  },
+  {
+   "name": "L_DSProp_Lamp_ClrN",
+   "type": "POINT",
+   "pos": [
+    -1934.415,
+    64.606,
+    1218.306
+   ],
+   "color": [
+    255,
+    209,
+    158
+   ],
+   "range": 7.0,
+   "brightness": 0.38,
    "shadows": false,
    "night": true
   },
@@ -38837,12 +38900,12 @@
    "night": true
   },
   {
-   "name": "L_DSProp_Lamp_ClrNToro",
+   "name": "L_DSProp_Lamp_ClrOToro",
    "type": "POINT",
    "pos": [
-    -1936.615,
-    62.484,
-    1216.122
+    -1777.642,
+    62.444,
+    1217.118
    ],
    "color": [
     255,
@@ -38855,12 +38918,12 @@
    "night": true
   },
   {
-   "name": "L_DSProp_Lamp_ClrO",
+   "name": "L_DSProp_Lamp_ClrSE",
    "type": "POINT",
    "pos": [
-    -1781.779,
-    64.383,
-    1217.457
+    -1801.098,
+    63.837,
+    1069.847
    ],
    "color": [
     255,
@@ -38873,12 +38936,12 @@
    "night": true
   },
   {
-   "name": "L_DSProp_Lamp_ClrSEToro",
+   "name": "L_DSProp_Lamp_ClrSOToro",
    "type": "POINT",
    "pos": [
-    -1802.12,
-    61.756,
-    1068.714
+    -1733.257,
+    62.386,
+    1123.794
    ],
    "color": [
     255,
@@ -38887,24 +38950,6 @@
    ],
    "range": 6.0,
    "brightness": 0.34,
-   "shadows": false,
-   "night": true
-  },
-  {
-   "name": "L_DSProp_Lamp_ClrSO",
-   "type": "POINT",
-   "pos": [
-    -1737.031,
-    64.183,
-    1116.284
-   ],
-   "color": [
-    255,
-    209,
-    158
-   ],
-   "range": 7.0,
-   "brightness": 0.38,
    "shadows": false,
    "night": true
   },
@@ -38985,7 +39030,7 @@
    "type": "POINT",
    "pos": [
     -1962.522,
-    88.415,
+    88.5,
     1332.567
    ],
    "color": [
@@ -39003,7 +39048,7 @@
    "type": "POINT",
    "pos": [
     -1973.321,
-    88.415,
+    88.5,
     1319.697
    ],
    "color": [
@@ -39020,9 +39065,9 @@
    "name": "L_DSProp_Lamp_FrgOeste",
    "type": "POINT",
    "pos": [
-    -1911.537,
-    84.208,
-    1358.265
+    -1911.932,
+    83.864,
+    1358.731
    ],
    "color": [
     255,
@@ -39164,9 +39209,9 @@
    "name": "L_DSProp_Lamp_SummonFoot",
    "type": "POINT",
    "pos": [
-    -1917.609,
-    66.145,
-    1119.107
+    -1916.966,
+    65.965,
+    1119.873
    ],
    "color": [
     255,
@@ -39197,20 +39242,20 @@
    "night": true
   },
   {
-   "name": "L_DSProp_Lamp_TrilhaToro",
+   "name": "L_DSProp_Lamp_TrilhaMeio",
    "type": "POINT",
    "pos": [
-    -1682.797,
-    62.39,
-    1088.874
+    -1678.478,
+    64.33,
+    1098.116
    ],
    "color": [
     255,
     209,
     158
    ],
-   "range": 6.0,
-   "brightness": 0.34,
+   "range": 7.0,
+   "brightness": 0.38,
    "shadows": false,
    "night": true
   },
@@ -39218,9 +39263,9 @@
    "name": "L_DSProp_Lamp_VilAlta",
    "type": "POINT",
    "pos": [
-    -1791.139,
-    69.843,
-    1282.119
+    -1792.34,
+    70.353,
+    1284.542
    ],
    "color": [
     255,
@@ -39236,9 +39281,9 @@
    "name": "L_DSProp_Lamp_VilRua",
    "type": "POINT",
    "pos": [
-    -1705.937,
-    63.907,
-    1206.829
+    -1711.759,
+    64.445,
+    1197.395
    ],
    "color": [
     255,
@@ -39507,7 +39552,7 @@
    "type": "POINT",
    "pos": [
     -1667.982,
-    68.35,
+    69.36,
     1158.921
    ],
    "color": [
@@ -39812,26 +39857,26 @@
  "budget": {
   "lines": [
    "ORCAMENTO por dono (tris / MeshParts; limite entre parenteses)",
-   "  entry             19688 (34600)    24 (37)",
-   "  exit              23986 (25900)    28 (32)",
-   "  forge            110566 (129600)    76 (103)",
+   "  entry             22720 (34600)    25 (37)",
+   "  exit              23024 (25900)    27 (32)",
+   "  forge            117725 (129600)    81 (103)",
    "  gate_op           12668 (30300)    18 (41)",
-   "  props             46177 (48000)    46 (57)",
-   "  summon            26564 (34600)    24 (43)",
-   "  terrain          109926 (112000)    73 (75)",
-   "  vegetation       115546 (118000)    75 (95)",
+   "  props             47549 (48000)    47 (57)",
+   "  summon            28096 (34600)    24 (43)",
+   "  terrain          116172 (120000)    66 (80)",
+   "  vegetation       115236 (118000)    76 (95)",
    "  vfx                4648 (16200)    25 (32)",
-   "  village          105966 (118800)    98 (113)",
-   "  water              4588 (6500)    11 (13)",
+   "  village          107126 (118800)   100 (113)",
+   "  water              4640 (6500)    11 (13)",
    "METAS GLOBAIS",
-   "  tris estaticos                          580323 / 600000 ",
-   "  MeshParts estaticas                        498 / 650    ",
-   "  tris total (+ reserva VFX 15000)        595323 / 615000 ",
-   "  MeshParts total (+ reserva VFX 30)         528 / 680    ",
-   "  materiais                                   72 / 110    ",
-   "  MeshParts com sombra                       234 / 260    ",
+   "  tris estaticos                          599604 / 630000 ",
+   "  MeshParts estaticas                        500 / 650    ",
+   "  tris total (+ reserva VFX 15000)        614604 / 645000 ",
+   "  MeshParts total (+ reserva VFX 30)         530 / 680    ",
+   "  materiais                                   74 / 110    ",
+   "  MeshParts com sombra                       231 / 260    ",
    "  luzes ativas de dia                         17 / 36     ",
-   "  COL                                        864 / 1300   "
+   "  COL                                        863 / 1300   "
   ],
   "over": []
  }

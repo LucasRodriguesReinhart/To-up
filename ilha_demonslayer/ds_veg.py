@@ -822,7 +822,9 @@ DEN_TREES = [
     (84.0, 146.0, "K", 18.0, 9.5, "ClareiraSE"), (124.0, 194.0, "M", 15.0, 8.0, "ClareiraSE"),
     (138.0, 252.0, "C", 19.0, 3.5, "ClareiraL"), (138.0, 282.0, "K", 16.0, 8.0, "ClareiraL"),
     (136.0, 322.0, "M", 14.0, 7.0, "ClareiraL"),
-    (24.0, 138.0, "K", 18.0, 9.5, "ClareiraS"), (46.0, 140.0, "M", 14.0, 7.0, "ClareiraS"),
+    # 6c: a keyaki do antecampo era (24; 138) R 9,5 = em cima da lanterna de no Antecampo (22; 138): o NUDGE tirava o
+    # tronco, mas a copa ficava a 0,5 do chapeu dela. Agora 11 a leste e copa 7,5 (folga >= 2,5 da lanterna)
+    (33.0, 140.0, "K", 17.0, 7.5, "ClareiraS"), (46.0, 140.0, "M", 14.0, 7.0, "ClareiraS"),
     (38.0, 362.0, "K", 17.0, 8.5, "ClareiraN"), (62.0, 358.0, "K", 18.0, 9.0, "ClareiraN"),
     (88.0, 366.0, "M", 13.0, 6.5, "ClareiraN"),
     # BARRANCO NE (topo da falesia sobre a lagoa)

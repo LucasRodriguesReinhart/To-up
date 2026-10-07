@@ -1203,12 +1203,15 @@ def _tread_cuts(w, k, key, prev, tries=8):
     return best[1]
 
 
-def stair_stone(mb, F, w, n, rise=0.75, tread=1.9, cheeks=True, m=STP, riser_m=STD, cheek_m=ST, z_floor=None, seed=None):
+def stair_stone(mb, F, w, n, rise=0.75, tread=1.9, cheeks=True, m=STP, riser_m=STD, cheek_m=ST, z_floor=None, seed=None,
+                foot_back=0.02):
     """escada de pedra - 6b (item 24): cada degrau em 3-5 PEDRAS (2,2..4,6 de largura, juntas desencontradas de degrau a
     degrau), focinho 0,1 com chanfro 0,05, espelho escuro recuado 0,1 (bloco por baixo da pisada), 1 degrau em 5 com a
     pedra do meio gasta (topo 0,04 mais baixo), arranque e chegada em lajes maiores; banzos em pedras de 2 fiadas que
     vencem 2 degraus (nao um bloco por degrau). A variacao vem do seed (padrao: posicao/rumo de F + w + n), entao cada
-    escada da ilha sai diferente. F no pe do 1o espelho (centro), sobe para +y. Mesma API/retorno da onda 1b"""
+    escada da ilha sai diferente. F no pe do 1o espelho (centro), sobe para +y. Mesma API/retorno da onda 1b.
+    6c: foot_back = quanto o miolo do 1o degrau passa para tras da pisada (padrao 0,02): onde a borda do piso de baixo
+    morre embaixo da escada, o miolo cobre a face dela com folga (enterra o pe) em vez de ficar paralelo a 0,12"""
     TH, NOSE, G = 0.3, 0.1, 0.05
     zf = -0.3 if z_floor is None else z_floor
     key = seed if seed is not None else (round(F.o.x, 1), round(F.o.y, 1), round(F.a, 2), round(w, 1), n)
@@ -1218,7 +1221,7 @@ def stair_stone(mb, F, w, n, rise=0.75, tread=1.9, cheeks=True, m=STP, riser_m=S
     for i in range(n):
         zt = rise * (i + 1)
         y0, y1 = tread * i, tread * (i + 1)
-        bb(mb, F, -w / 2 + 0.04, w / 2 - 0.04, y0, y1 + 0.02, zf, zt - TH - 0.02, riser_m)          # espelho / miolo
+        bb(mb, F, -w / 2 + 0.04, w / 2 - 0.04, y0, y1 + (foot_back if i == 0 else 0.02), zf, zt - TH - 0.02, riser_m)
         k = kk - 1 if i in (0, n - 1) else kk
         cuts = _tread_cuts(w, max(2, k), (key, i), prev)
         prev = cuts[1:-1]

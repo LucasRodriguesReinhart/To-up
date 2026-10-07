@@ -107,7 +107,16 @@ CAMS = {
 # ------------------------------------------------------------------ variacao DIRIGIDA (hash estavel)
 def hh(*a):
     s = "|".join("%.2f" % v if isinstance(v, float) else str(v) for v in a)
-    return (zlib.crc32(s.encode("utf-8")) & 0xffffffff) / 4294967296.0
+    h = zlib.crc32(s.encode("utf-8")) & 0xffffffff
+    # 6c: o crc32 e LINEAR (chaves vizinhas -> valores correlacionados: pedras vizinhas do canal/ravina saiam parecidas);
+    # finalizador do murmur3 espalha os bits (o mesmo do ds_forge._hh). Os marcadores FX_*/WATER_* nao usam o hash
+    # (saem das constantes em water_markers) e as caixas de colisao das pedras da lagoa saem de POND_STONES
+    h ^= h >> 16
+    h = (h * 0x85EBCA6B) & 0xffffffff
+    h ^= h >> 13
+    h = (h * 0xC2B2AE35) & 0xffffffff
+    h ^= h >> 16
+    return h / 4294967296.0
 
 
 def cyc(seq, i):

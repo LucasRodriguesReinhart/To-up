@@ -1440,8 +1440,13 @@ def yard_dressing(mg, mi):
             PAVED.append([(xa_, g0), (xb_, g0), (xb_, g1), (xa_, g1)])
     # --- manchas (claras na terra pisada; cinza e respingo da tempera em Stone_DS_Soot, no objeto que ja tem fuligem)
     zp = T4 + 0.14
-    for k, (x, y, r, sx, rot) in enumerate(((15.5, 448.5, 2.9, 1.6, -0.6), (7.0, 441.8, 1.8, 1.7, 0.1),
-                                            (44.0, 447.0, 2.3, 1.5, 0.35), (-22.5, 448.6, 1.9, 1.5, 0.4),
+    # 6c (integracao): a mancha grande na frente da boca (15,5; 448,5; r 2,9 x 1,6) e a de (7; 441,8) liam "adesivo" de
+    # perto: viraram grupos de 2-3 manchas menores, deslocadas e com rumos diferentes (terra pisada em retalhos)
+    for k, (x, y, r, sx, rot) in enumerate(((12.9, 447.7, 1.25, 1.45, -0.5), (16.6, 449.9, 1.0, 1.6, 0.45),
+                                            (19.0, 447.0, 0.8, 1.3, 1.15), (6.2, 442.7, 1.0, 1.4, 0.3),
+                                            (8.6, 440.8, 0.75, 1.5, -0.7),
+                                            (42.6, 446.3, 1.35, 1.4, 0.35), (46.4, 448.2, 0.95, 1.5, -0.45),
+                                            (-22.5, 448.6, 1.9, 1.5, 0.4),
                                             (-45.0, 452.9, 2.0, 1.4, 0.1), (-52.0, 441.0, 2.2, 1.6, -0.2),
                                             (61.5, 447.5, 1.7, 1.5, 0.2), (38.0, 456.5, 1.8, 1.3, 0.9))):
         patch(mg, x, y, r * 0.78, zp, "pisada%d" % k, "Dirt_DS", sx, rot)

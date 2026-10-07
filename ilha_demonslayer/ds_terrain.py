@@ -1078,7 +1078,10 @@ def notch_cheeks(mb):
             while t <= tmax:
                 x = foot[0] + ux * t + vx * (hw + 0.3)
                 y = foot[1] + uy * t + vy * (hw + 0.3)
-                if L.floor_name(x, y) == up:
+                # 6b: tambem onde o lado do lance e ENCHIMENTO (ex.: crista oeste ao lado da escada Trilha): o arrimo
+                # diagonal da crista agora fica fora da largura da escada e a face do entalhe precisa da bochecha
+                fl = L.floor_name(x, y)
+                if fl == up or (fl is None and L.point_in_poly(x, y, L.ISLAND_RIM) and t > tread):
                     pts.append((foot[0] + ux * t + vx * hw, foot[1] + uy * t + vy * hw))
                 t += 0.5
             if len(pts) < 3:
@@ -1092,8 +1095,11 @@ def notch_cheeks(mb):
             ux2, uy2 = q1[0] - q0[0], q1[1] - q0[1]
             if (uy2 * -vx - ux2 * -vy) < 0:                 # sentido tal que a direita do trecho = -v
                 q0, q1 = q1, q0
+            # 6c: capa RECUADA 0,15 atras da linha (era 0,0: a face da capa ficava NO plano da borda da pele do patamar,
+            # Dirt_DS x Stone_DS_Path a 0,0-0,02 no topo das bochechas, ex. SubidaA (6,75; 388; 70,1)). Para a frente
+            # nao da: a fiada de cima sai 0,19-0,24 (a capa ficaria a < 0,12 dela) e o banzo esta a 0,18-0,32
             ishigaki(mb, q0, q1, (-vx, -vy), zt, zf - 0.5, ("ch", nm, s), batter=0.0, base=0.0, prs=(0.19, 0.04, 0.02),
-                     cap_out=0.0, backing=False, g=0.06, chf=0.08)
+                     cap_out=-0.15, backing=False, g=0.06, chf=0.08)
             n += 1
     return n
 
