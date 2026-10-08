@@ -888,13 +888,12 @@ def adro(mb):
             t0 = (338.6 - a[1]) / (b[1] - a[1])
             t1 = (345.6 - a[1]) / (b[1] - a[1])
             lerp = lambda t: (a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t)
-            pts = [a, lerp(t0)] if b[1] > a[1] else [lerp(t1), b]
-            if a[1] > b[1]:
-                pts = [a, lerp(t1)]
-            if a[1] < b[1] and 0.0 < t0 < 1.0:
-                pts = [a, lerp(t0)]
-            elif a[1] > b[1] and 0.0 < t1 < 1.0:
-                pts = [a, lerp(t1)]
+            # recorta o intervalo do vao no parametro t do segmento e fica com o pedaco mais longo fora dele
+            # (a versao anterior usava lerp(t0) com t0 < 0 na aresta NE e criava uma peca falsa sobre a boca)
+            g0, g1 = sorted((t0, t1))
+            antes, depois = (0.0, min(max(g0, 0.0), 1.0)), (max(min(g1, 1.0), 0.0), 1.0)
+            ta, tb = antes if (antes[1] - antes[0]) >= (depois[1] - depois[0]) else depois
+            pts = [lerp(ta), lerp(tb)]
         a, b = pts
         dx, dy = b[0] - a[0], b[1] - a[1]
         ln = math.hypot(dx, dy)

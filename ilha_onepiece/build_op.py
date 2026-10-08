@@ -21,14 +21,14 @@ import op_blockout
 ZONE_MODULES = {
     "terrain": ["op_terrain"],  # M4 op_terrain (agente do terreno: falesias em massas, rochedo do castelo, arrimos, pele)
     "entry": ["op_entry"],      # M2 op_entry (agente entrada+summon: ponte 120 em arcos, grande torii, patio, escada)
-    "capital": ["op_m2_trecho"],  # M2 agente do trecho: rua de chegada + C1/C2/C5/C6 (op_kit) + escadaria; resto blockout -> M4 op_capital
-    "plaza": ["op_m2_praca"],     # M2 agente do trecho: faixa sul + emblema + borda; resto piso provisorio -> M4 op_plaza
+    "capital": ["op_capital"],  # M4 op_capital (agente da capital): chama o trecho M2 (op_m2_trecho, intacto) + capital inteira
+    "plaza": ["op_m2_praca", "op_plaza"],  # M2 faixa sul + emblema (op_m2_praca, intacto) + M4 op_plaza (agente da praca: resto do piso em aneis/eixo/campos + borda; remove o piso provisorio)
     "castle": ["op_castle"],  # M3 op_castle (agente do castelo: torre 4 andares 360, salao acessivel, patio, adro, portoes, estandartes)
     "tree": ["op_tree"],  # M3 op_tree (arvore monumental arqueada; acrescimo do agente da arvore)
     "summon": ["op_summon"],    # M2 op_summon (torre AMS por alias como o ds_summon + base Wano no terraco leste)
     "harbor": ["op_harbor"],  # M3 op_harbor (agente porto+navio: pier/palafita/armazens/escadas PortoA-B/barcos)
     "ship": ["op_ship"],      # M3 op_ship (agente porto+navio: casco, mastros, velas, prancha, castelo de popa)
-    "water": [],          # M4 op_water
+    "water": ["op_water"],  # M4 op_water (agente da agua: cantaria dos canais/bacia, degraus, bicas, roda d'agua VFX_OP_Wheel, pedras de base; mede e corrige FX_*/WATER_* via op_core._water_measured)
     "exit": ["op_exit"],  # M4 op_exit (agente saida+marcos: ponte vermelha em arco, promontorio, cabeca de ponte da ancora + guarda provisoria)
     "landmarks": ["op_landmarks"],  # M4 op_landmarks (agente saida+marcos: caveira esculpida na rocha, espada, pagode)
     "dressing": [],       # M4/M6 op_veg, op_props, op_vfx, op_lights

@@ -189,6 +189,30 @@ def fx_markers():
     sx, sy, sz = L.SPRING_W
     mk("FX_Spring_W", (sx, sy, sz), (0, 0, south), 2.0, "SINGLE_ARROW",
        props={"fx": "bica", "note": "nascente do canal oeste: bica no arrimo do terraco alto"})
+    _water_measured()
+
+
+def _water_measured():
+    """ACRESCIMO M4 (op_water, como o ds_core._water_measured da Ilha 4): os FX_Fall_*/FX_Weir_*/FX_Spring_W/
+    FX_Mist_CastleFall/WATER_* passam a ser os da PEDRA do op_water (op_water.water_markers(): as mesmas constantes que
+    desenham a pedra; o op_water.build() ainda confere por raios). Posicao, rumo e props sao SUBSTITUIDOS; o que nao
+    existe e criado (FX_Fall_Castle_Step). Sem o modulo ficam as estimativas do M1 acima."""
+    try:
+        import op_water
+    except ImportError:
+        return
+    import bpy
+    for nm, (loc, yaw, props) in op_water.water_markers().items():
+        o = bpy.data.objects.get(nm)
+        if o is None:
+            o = mk(nm, loc, (0, 0, yaw), 2.0, "SINGLE_ARROW", props=props)
+            continue
+        o.location = loc
+        o.rotation_euler = (0.0, 0.0, yaw)
+        for k in list(o.keys()):
+            del o[k]
+        for k, v in props.items():
+            o[k] = v
 
 
 def opm_gate():
