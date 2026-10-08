@@ -12,7 +12,7 @@ public class W8 {
 "@
 # com mais de um Studio aberto, prefere o place do jogo (titulo "Anime Mining Simulator")
 $all = @(Get-Process RobloxStudioBeta -ErrorAction SilentlyContinue | Where-Object { $_.MainWindowTitle -ne '' })
-$proc = $all | Where-Object { $_.MainWindowTitle -like 'Anime Mining Simulator*' } | Select-Object -First 1
+$proc = $all | Where-Object { $_.MainWindowTitle -like $(if ($env:STUDIO_TITLE) { $env:STUDIO_TITLE } else { 'Anime Mining Simulator*' }) } | Select-Object -First 1
 if (-not $proc) { $proc = $all | Select-Object -First 1 }
 if (-not $proc) { "ERRO: Studio nao encontrado"; exit 1 }
 $h = $proc.MainWindowHandle

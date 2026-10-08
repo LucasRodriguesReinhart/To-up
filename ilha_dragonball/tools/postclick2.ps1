@@ -12,7 +12,10 @@ public class PM2 {
   [DllImport("user32.dll")] public static extern int GetClassName(IntPtr h, StringBuilder s, int n);
 }
 "@
-$proc = Get-Process RobloxStudioBeta -ErrorAction SilentlyContinue | Where-Object { $_.MainWindowTitle -ne '' } | Select-Object -First 1
+$all = @(Get-Process RobloxStudioBeta -ErrorAction SilentlyContinue | Where-Object { $_.MainWindowTitle -ne '' })
+# com mais de um Studio aberto, prefere o place do jogo (titulo "Anime Mining Simulator")
+$proc = $all | Where-Object { $_.MainWindowTitle -like $(if ($env:STUDIO_TITLE) { $env:STUDIO_TITLE } else { 'Anime Mining Simulator*' }) } | Select-Object -First 1
+if (-not $proc) { $proc = $all | Select-Object -First 1 }
 if (-not $proc) { "ERRO: Studio nao encontrado"; exit 1 }
 $h = $proc.MainWindowHandle
 for ($i = 0; $i -lt 8; $i++) {

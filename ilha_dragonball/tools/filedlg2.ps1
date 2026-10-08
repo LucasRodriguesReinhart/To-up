@@ -12,7 +12,7 @@ public class FD {
 $A = [System.Windows.Automation.AutomationElement]
 $T = [System.Windows.Automation.TreeScope]
 $all = @(Get-Process RobloxStudioBeta | Where-Object { $_.MainWindowTitle -ne '' })
-$sp = $all | Where-Object { $_.MainWindowTitle -like 'Anime Mining Simulator*' } | Select-Object -First 1
+$sp = $all | Where-Object { $_.MainWindowTitle -like $(if ($env:STUDIO_TITLE) { $env:STUDIO_TITLE } else { 'Anime Mining Simulator*' }) } | Select-Object -First 1
 if (-not $sp) { $sp = $all | Select-Object -First 1 }
 $studio = $sp.Id
 $main = $A::FromHandle((Get-Process -Id $studio).MainWindowHandle)
