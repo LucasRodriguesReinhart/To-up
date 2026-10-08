@@ -129,9 +129,59 @@ def v1_grid(d, cams, out, title, prefix="ROBLOX  ", w=640, per=3):
     compose(rows, out, title)
 
 
+# ------------------------------------------------------------------ V2b (a vila: vm_town)
+V2_SHEETS = [
+    ("FOLHA_spawn_praca_forja.jpg", ["CAM_VM_V2_SpawnPraca", "CAM_VM_V2_PracaForja", "CAM_VM_V2_RuaForja"],
+     "spawn -> praca -> forja (eixo norte)"),
+    ("FOLHA_loja.jpg", ["CAM_VM_V2_LojaFora", "CAM_VM_V2_LojaDentro"], "loja de mochilas: fora e dentro (vendedor = boneco)"),
+    ("FOLHA_ranking.jpg", ["CAM_VM_V2_Ranking"], "ranking Top 100: palco, adro e salao (quadros = previa do script)"),
+    ("FOLHA_portais.jpg", ["CAM_VM_V2_Portais", "CAM_VM_V2_PortaisDentro"], "patio dos portais (6 portais aprovados)"),
+    ("FOLHA_saida_ponte.jpg", ["CAM_VM_V2_RuaSaida", "CAM_VM_V2_Portao", "CAM_VM_V2_Ponte"],
+     "rua de saida, portao e ponte da Ilha 1"),
+    ("FOLHA_canal.jpg", ["CAM_VM_V2_Canal", "CAM_VM_V2_CanalOeste"], "canal: muros e pontezinhas"),
+]
+
+
+def v2_sheets(dp, dr, outdir):
+    os.makedirs(outdir, exist_ok=True)
+    for fn, cams, t in V2_SHEETS:
+        rows = []
+        for c in cams:
+            n = c.replace("CAM_VM_V2_", "")
+            rows.append([label(fit(os.path.join(dp, c + ".jpg"), W, 540), "PREVIA  " + n),
+                         label(fit(os.path.join(dr, c + ".jpg"), W, 540), "ROBLOX  " + n)])
+        compose(rows, os.path.join(outdir, fn), "Lobby Vila Medieval V2b - " + t)
+    # praca 360 na altura do jogador (roblox em cima, previa embaixo)
+    cams = ["CAM_VM_V2_Praca360_%d" % k for k in range(4)]
+    rows = [[label(fit(os.path.join(d, c + ".jpg"), 640, 360), "%s  %s" % (m, ("leste", "sul", "oeste", "norte")[i]), 18)
+             for i, c in enumerate(cams)] for d, m in ((dr, "ROBLOX"), (dp, "PREVIA"))]
+    compose(rows, os.path.join(outdir, "FOLHA_praca360.jpg"),
+            "Lobby Vila Medieval V2b - praca 360 na altura do jogador (do medalhao para leste, sul, oeste, norte)")
+    # aerea x planta aprovada
+    pl = Image.open(os.path.join(REF, "planta_aprovada_v1.png")).convert("RGB")
+    top = Image.open(os.path.join(dr, "CAM_VM_Plan.jpg")).convert("RGB").resize(pl.size, Image.LANCZOS)
+    over = Image.blend(top, pl, 0.42)
+    s = 0.62
+    sz = (round(pl.width * s), round(pl.height * s))
+    rows = [[label(pl.resize(sz), "PLANTA APROVADA v1"), label(top.resize(sz), "V2b vista de cima (ROBLOX)"),
+             label(over.resize(sz), "SOBREPOSICAO (planta 42%)")],
+            [label(fit(os.path.join(dr, "CAM_VM_V2_Air_SE.jpg"), 1110, 624), "ROBLOX  aerea sudeste"),
+             label(fit(os.path.join(dr, "CAM_VM_V2_Air_W.jpg"), 1110, 624), "ROBLOX  aerea oeste")]]
+    compose(rows, os.path.join(outdir, "FOLHA_aerea.jpg"), "Lobby Vila Medieval V2b - aerea x planta aprovada")
+    # ref_01 lado a lado
+    h = 540
+    rows = [[label(fit(os.path.join(REF, "ref_01_estilo_vila.jpg"), W, h), "REFERENCIA ref_01"),
+             label(fit(os.path.join(dr, "CAM_VM_V2_Ref01.jpg"), W, h), "V2b ROBLOX  rua curva de saida")],
+            [label(fit(os.path.join(dp, "CAM_VM_V2_Ref01.jpg"), W, h), "V2b PREVIA  rua curva de saida"),
+             label(fit(os.path.join(dr, "CAM_VM_V2_Praca360_0.jpg"), W, h), "V2b ROBLOX  praca -> rua da loja")]]
+    compose(rows, os.path.join(outdir, "FOLHA_ref01.jpg"), "Lobby Vila Medieval V2b - ref_01 x vila")
+
+
 if __name__ == "__main__":
     a = sys.argv[1:]
-    if a[0] == "ref":
+    if a[0] == "v2vila":                          # <pasta_previa> <pasta_roblox> <pasta_saida>
+        v2_sheets(a[1], a[2], a[3])
+    elif a[0] == "ref":
         ref_sheet(a[1], a[2], a[3])
     elif a[0] == "plan":
         plan_sheet(a[1], a[2])

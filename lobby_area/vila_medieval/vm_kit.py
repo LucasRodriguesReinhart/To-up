@@ -55,21 +55,22 @@ from fm_lib import MB, S, MATS, col_box
 from fm_parts import Frame
 
 # ------------------------------------------------------------------ materiais novos do kit (cor = cor do Roblox)
+# V2b: os tons de pedra/paralelepipedo foram esquentados no vm_lib.VMMATS (que vence este setdefault); numeros iguais aqui
 KITMATS = {
-    "Stone_VM_Mortar":       (S(70, 72, 84), 0.9, 0.0, 0, None, 0.0),     # junta recuada + vidraca (escuro azulado)
-    "Stone_VM_Warm":         (S(132, 126, 120), 0.85, 0.0, 0, None, 0.0),  # pedra cinza quente (2o tom)
-    "Stone_VM_Grey":         (S(120, 123, 130), 0.85, 0.0, 0, None, 0.0),  # pedra cinza neutra-azulada (3o tom)
+    "Stone_VM_Mortar":       (S(72, 68, 66), 0.9, 0.0, 0, None, 0.0),     # junta recuada + vidraca (escuro azulado)
+    "Stone_VM_Warm":         (S(160, 148, 130), 0.85, 0.0, 0, None, 0.0),  # pedra cinza quente (2o tom)
+    "Stone_VM_Grey":         (S(140, 136, 128), 0.85, 0.0, 0, None, 0.0),  # pedra cinza neutra-azulada (3o tom)
     "Roof_VM_Terracotta_C":  (S(214, 126, 72), 0.75, 0.0, 0, None, 0.0),  # telha clara (3o tom)
     "Stone_Paving_VM_B":     (S(162, 150, 132), 0.85, 0.0, 0, None, 0.0), # paralelepipedo 2o tom
-    "Stone_Paving_VM_Joint": (S(108, 100, 90), 0.9, 0.0, 0, None, 0.0),   # areia/junta da rua (quente)
+    "Stone_Paving_VM_Joint": (S(112, 100, 86), 0.9, 0.0, 0, None, 0.0),   # areia/junta da rua (quente)
     "Leaf_VM_Tuft":          (S(92, 168, 56), 0.85, 0.0, 0, None, 0.0),   # grama alta / folhas das floreiras
     "Flower_VM_Red":         (S(214, 62, 58), 0.6, 0.0, 0, None, 0.0),
     "Flower_VM_Yellow":      (S(240, 196, 72), 0.6, 0.0, 0, None, 0.0),
     "Flower_VM_Pink":        (S(232, 128, 168), 0.6, 0.0, 0, None, 0.0),
     "Cloth_VM_Cream":        (S(232, 220, 196), 0.85, 0.0, 0, None, 0.0), # listra do toldo
     "Window_VM_Lamp":        (S(238, 204, 146), 0.4, 0.0, 0, None, 0.0),  # vidro da lanterna de dia (a luz e NightOnly)
-    "Stone_Paving_VM_Cob":   (S(190, 172, 144), 0.85, 0.0, 0, None, 0.0), # paralelepipedo bege quente (ref_01)
-    "Stone_Paving_VM_CobB":  (S(166, 150, 126), 0.85, 0.0, 0, None, 0.0), # 2o tom
+    "Stone_Paving_VM_Cob":   (S(198, 180, 150), 0.85, 0.0, 0, None, 0.0), # paralelepipedo bege quente (ref_01)
+    "Stone_Paving_VM_CobB":  (S(174, 158, 132), 0.85, 0.0, 0, None, 0.0), # 2o tom
 }
 for _k, _v in KITMATS.items():
     MATS.setdefault(_k, _v)

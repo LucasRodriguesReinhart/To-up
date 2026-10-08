@@ -1,0 +1,65 @@
+{
+ "objetos": {
+  "VM_Frg_Hall": {
+   "tris": 43774,
+   "materiais": 10,
+   "lista": [
+    "Forge_Glow_VM",
+    "Metal_VM_Iron",
+    "Plaster_VM_Cream",
+    "Roof_VM_Terracotta",
+    "Roof_VM_Terracotta_B",
+    "Stone_VM_Grey",
+    "Stone_VM_Mortar",
+    "Stone_VM_Warm",
+    "Wood_VM_Plank",
+    "Wood_VM_Timber"
+   ]
+  },
+  "VM_Frg_Props": {
+   "tris": 13152,
+   "materiais": 15,
+   "lista": [
+    "Cloth_VM_Cream",
+    "Cloth_VM_Red",
+    "Metal_VM_Bronze",
+    "Metal_VM_Iron",
+    "Metal_VM_Steel",
+    "Stone_Paving_VM_Cob",
+    "Stone_Paving_VM_CobB",
+    "Stone_Paving_VM_Edge",
+    "Stone_Paving_VM_Joint",
+    "Stone_VM_Grey",
+    "Stone_VM_Mortar",
+    "Water_VM",
+    "Window_VM_Lamp",
+    "Wood_VM_Plank",
+    "Wood_VM_Timber"
+   ]
+  },
+  "VM_Frg_TripHammer": {
+   "tris": 72,
+   "materiais": 2,
+   "lista": [
+    "Metal_VM_Iron",
+    "Wood_VM_Timber"
+   ]
+  },
+  "VM_Frg_Wheel": {
+   "tris": 1140,
+   "materiais": 3,
+   "lista": [
+    "Metal_VM_Iron",
+    "Wood_VM_Plank",
+    "Wood_VM_Timber"
+   ]
+  }
+ },
+ "tris": 58138,
+ "meshparts_est": 30,
+ "col": 32,
+ "teto": [
+  70000,
+  45
+ ]
+}

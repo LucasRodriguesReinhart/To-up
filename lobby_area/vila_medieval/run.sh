@@ -12,13 +12,18 @@
 #   ./run.sh trecho-zfight [json]      faces paralelas < 0,12 de materiais distintos, expostas (candidatas a z-fight)
 #   ./run.sh studio <pasta> [--roblox] estudio do kit (presets + pecas com boneco 5,2), renders 960x540
 #   ./run.sh sheets1 <prev> <rbx> <studio_prev> <studio_rbx>   folhas em renders/v1
+# V2b (a vila; vm_town.py):
+#   ./run.sh town-report [json]        tris / materiais por objeto e por dono da vila (casas, praca, ruas, loja...)
+#   ./run.sh sheets2 <prev> <rbx>      folhas em renders/v2/vila (aerea x planta, spawn->forja, praca 360, loja...)
 set -e
 HERE="$(cd "$(dirname "$0")" && pwd)"
 BL="/c/Program Files/Blender Foundation/Blender 5.2/blender.exe"
 cd "$HERE"
 win() { mkdir -p "$1" && (cd "$1" && pwd -W); }
 case "$1" in
-  build)  "$BL" -b --factory-startup --python build_vm.py 2>&1 | grep -E "BUILD|COL:|CASAS|PORTAL|VEGETACAO|TRECHO|   casa|   VM_|Error|Traceback|line [0-9]" ;;
+  build)  "$BL" -b --factory-startup --python build_vm.py 2>&1 | grep -E "BUILD|COL:|CASAS|PORTAL|VEGETACAO|TRECHO|FORJA|TOWN (dono|stats)|   casa|   VM_|Error|Traceback|line [0-9]" ;;
+  town-report) shift; "$BL" -b --factory-startup lobby_vila_medieval.blend --python vm_town.py -- report ${1:+"$1"} 2>&1 | grep -E "TOWN|   VM_|Error|Traceback" ;;
+  sheets2) python -B vm_sheet.py v2vila "$2" "$3" renders/v2/vila ;;
   trecho-export) shift; OUTX="${1:-$HERE/export_trecho}"
           "$BL" -b --factory-startup lobby_vila_medieval.blend --python vm_trecho.py -- export "$OUTX" 2>&1 | grep -E "EXPORT|FBX |ORCAMENTO|COL:|LUZES|Error|Traceback" ;;
   trecho-report) shift; "$BL" -b --factory-startup lobby_vila_medieval.blend --python vm_trecho.py -- report ${1:+"$1"} 2>&1 | grep -E "TRECHO|   casa|   VM_|Error|Traceback" ;;

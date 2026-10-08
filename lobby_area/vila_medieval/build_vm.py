@@ -31,10 +31,23 @@ def build():
     # arvores) e constroi as pecas finais no lugar; cameras CAM_VM_T_* depois das do V0.
     import vm_trecho
     vm_trecho.build()
+    # V2a (acrescimo pontual): FORJA DO IGNIS (vm_forge). Apaga o volume de blockout da forja do V0 (VM_Frg_*,
+    # COL_Forge_*) e a laje lisa do largo, constroi a forja final + o largo (envoltoria do Ignis livre, chao plano em 7),
+    # MOVE os marcadores da forja do vm_core e cria os VFX_* do lobby atual; cameras CAM_VM_F_* no fim.
+    import vm_forge
+    vm_forge.build()
+    # V2b (acrescimo pontual): A VILA (vm_town) em volta do trecho: praca em aneis, terraco do spawn, casas do kit por
+    # quadra, ruas, loja, ranking, patio dos portais, portao + ponte da Ilha 1, canal. Apaga os volumes do blockout que
+    # substitui (casas, praca, spawn, loja, palco/salao, patio, portao, ponte, ruas fora do largo, COL_Canal refeitos);
+    # junta as cores de flor dos enfeites do trecho; cameras CAM_VM_V2_* no fim.
+    import vm_town
+    vm_town.build()
     fm_lib.make_materials()          # materiais registrados depois do primeiro make (portais)
     vm_scene.clouds()
     vm_scene.cameras()
     vm_trecho.cameras()
+    vm_forge.cameras()               # V2a
+    vm_town.cameras()                # V2b
     vm_scene.scale_reference(visible=True)
     bpy.context.view_layer.update()
     return rep, time.time() - t0

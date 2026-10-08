@@ -220,7 +220,10 @@ def plan_px(x, z):
 
 
 # ------------------------------------------------------------------ orcamento (PLANO_VM secao 7)
-BUDGET_OWNER = {"terrain": (40000, 60), "backdrop": (12000, 6), "town": (40000, 50), "houses": (90000, 180),
+# V2b (acrescimo pontual, documentado no PLANO_VM 5): houses 90k -> 160k (6 casas do trecho V1 = 50k + 18 casas do kit
+# lod 1 + 11 casas de fundo, juntadas por quadra, faces ocultas nas paredes-meias apagadas); town 40k -> 80k (trecho 25k +
+# praca em aneis, terraco do spawn, ruas, postes, enfeites). O teto da ILHA (450k / 600) continua o mesmo.
+BUDGET_OWNER = {"terrain": (40000, 60), "backdrop": (12000, 6), "town": (80000, 110), "houses": (160000, 140),
                 "forge": (60000, 60), "services": (40000, 50), "portals": (110000, 160), "exit": (18000, 24),
                 "water": (6000, 12), "vegetation": (40000, 50)}
 BUDGET = {"static_tris": 450000, "static_meshes": 600, "vfx_tris": 12000, "vfx_meshes": 24, "total_tris": 462000,

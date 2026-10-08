@@ -45,17 +45,26 @@ VMMATS = {
     "Plaster_VM_Peach":     (S(232, 210, 186), 0.9, 0.0, 0, None, 0.0),    # reboco pessego claro (por casa)
     "Wood_VM_Timber":       (S(74, 50, 36), 0.8, 0.0, 0, None, 0.0),       # vigas do enxaimel (marrom escuro)
     "Wood_VM_Plank":        (S(128, 88, 58), 0.8, 0.0, 0, None, 0.0),      # portas, tabuas, carroca
-    "Stone_VM_Base":        (S(124, 130, 142), 0.85, 0.0, 0, None, 0.0),   # pedra cinza-azulada (terreo, muretas)
-    "Stone_VM_Dark":        (S(96, 100, 112), 0.85, 0.0, 0, None, 0.0),    # soco, capas, chamine da forja
-    "Stone_VM_Trim":        (S(160, 158, 150), 0.85, 0.0, 0, None, 0.0),   # cantaria clara (quinas, escadas)
-    "Stone_Paving_VM":      (S(178, 166, 146), 0.85, 0.0, 0, None, 0.0),   # paralelepipedo bege-cinza
-    "Stone_Paving_VM_Edge": (S(140, 132, 120), 0.85, 0.0, 0, None, 0.0),   # meio-fio / anel do medalhao
+    # V2b (08/10): a validacao do V1 no Roblox mostrou a pedra FRIA/azulada (o ceu do Roblox ainda puxa para o azul);
+    # a ref_01 tem pedra cinza QUENTE bege-acinzentada -> todos os tons de pedra/paralelepipedo foram esquentados aqui
+    # (so numeros de cor; os tons do kit - Warm/Grey/Mortar/Cob - tambem moram aqui e vencem o setdefault do vm_kit)
+    "Stone_VM_Base":        (S(150, 143, 132), 0.85, 0.0, 0, None, 0.0),   # pedra cinza quente (terreo, muretas)
+    "Stone_VM_Dark":        (S(108, 102, 96), 0.85, 0.0, 0, None, 0.0),    # soco, capas, chamine da forja
+    "Stone_VM_Trim":        (S(178, 170, 154), 0.85, 0.0, 0, None, 0.0),   # cantaria clara (quinas, escadas)
+    "Stone_VM_Warm":        (S(160, 148, 130), 0.85, 0.0, 0, None, 0.0),   # kit: pedra bege-acinzentada (2o tom)
+    "Stone_VM_Grey":        (S(140, 136, 128), 0.85, 0.0, 0, None, 0.0),   # kit: pedra cinza neutra-quente (3o tom)
+    "Stone_VM_Mortar":      (S(72, 68, 66), 0.9, 0.0, 0, None, 0.0),       # kit: junta recuada + vidraca (escuro)
+    "Stone_Paving_VM":      (S(186, 172, 148), 0.85, 0.0, 0, None, 0.0),   # paralelepipedo bege-cinza
+    "Stone_Paving_VM_Edge": (S(152, 140, 122), 0.85, 0.0, 0, None, 0.0),   # meio-fio / anel do medalhao
+    "Stone_Paving_VM_Cob":  (S(198, 180, 150), 0.85, 0.0, 0, None, 0.0),   # kit: paralelepipedo bege quente
+    "Stone_Paving_VM_CobB": (S(174, 158, 132), 0.85, 0.0, 0, None, 0.0),   # kit: 2o tom
+    "Stone_Paving_VM_Joint": (S(112, 100, 86), 0.9, 0.0, 0, None, 0.0),   # kit: areia/junta da rua
     "Metal_VM_Bronze":      (S(176, 138, 70), 0.4, 0.8, 0, None, 0.0),     # medalhao (picareta + bigorna)
     "Metal_VM_Iron":        (S(70, 70, 76), 0.5, 0.6, 0, None, 0.0),       # ferragens, bigorna, roda
     "Grass_VM":             (S(98, 168, 62), 0.9, 0.0, 0, None, 0.0),      # grama verde saturada
     "Grass_VM_Hill":        (S(112, 160, 72), 0.9, 0.0, 0, None, 0.0),     # colinas (um tom mais claro e frio)
     "Dirt_VM":              (S(150, 122, 88), 0.95, 0.0, 0, None, 0.0),    # terra batida (bordas, quintais)
-    "Cliff_VM_Rock":        (S(122, 124, 132), 0.9, 0.0, 0, None, 0.0),    # rocha do plato (vira Slate)
+    "Cliff_VM_Rock":        (S(134, 128, 122), 0.9, 0.0, 0, None, 0.0),    # rocha do plato (vira Slate; V2b: quente)
     "Cliff_VM_Far":         (S(150, 166, 192), 0.95, 0.0, 0, None, 0.0),   # montanhas distantes (perspectiva aerea)
     "Cliff_VM_FarSnow":     (S(226, 232, 240), 0.95, 0.0, 0, None, 0.0),   # neve das montanhas (nao branco puro)
     "Leaf_VM_Pine":         (S(46, 104, 60), 0.85, 0.0, 0, None, 0.0),     # pinheiro estilizado

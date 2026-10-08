@@ -116,8 +116,8 @@ return table.freeze({
 |---|---|
 | terrain | 40k / 60 |
 | backdrop | 12k / 6 |
-| town | 40k / 50 |
-| houses | 90k / 180 |
+| town | 80k / 110 (V2b; era 40k / 50) |
+| houses | 160k / 140 (V2b; era 90k / 180) |
 | forge | 60k / 60 |
 | services | 40k / 50 |
 | portals | 110k / 160 |
@@ -136,6 +136,10 @@ return table.freeze({
 | MeshParts com sombra | 164 |
 
 **Portais:** os 6 aprovados já custam 71 MeshParts e 51,8k tris.
+
+**V2b (a vila, `vm_town.py`), export de teste `2eb1e8b9` (com a forja do V2a):** 392 MeshParts / 600, 434k tris / 450k, 100 materiais / 110, 254 com sombra, 19 luzes de dia. Por dono: houses 155k / 103 MP, town 77k / 90 MP, services 31k, exit 13k, portals 63k (portais 52k + pátio 11k), terrain 23k. A subida de houses (90k → 160k) e town (40k → 80k) é acréscimo pontual: 6 casas do trecho V1 (50k) + 18 casas do kit lod 1 + 11 casas de fundo baratas (~1,5k), juntadas por quadra (`VM_House_Q<quadra>`, ≤ 10 materiais) e com as faces das paredes-meias apagadas (ficam dentro da vizinha). O teto da ilha não mudou; sobram ~16k tris para o V3.
+
+**V2b, desvios conscientes:** escadaria do spawn alargada de x ±10 para x ±13 (colisão refeita: rampa + meia pisada + banzos); barreiras `COL_Canal` refeitas com as 2 pontezinhas andáveis (x −116 e x 100); a ponta oeste da envoltória do GlobalTop100 entra no disco do pátio (−72° a −40°): ali não há mureta.
 
 **Casas:** cada casa sai com cerca de 9 materiais, o que dá 162 MeshParts para 19 casas. No kit final, os materiais por casa ficam limitados a 6. As casas de fundo se juntam por quadra (um objeto por quadra) para não estourar as 600.
 
@@ -166,8 +170,8 @@ Peças por medida de avatar (5,2):
 | Reboco | 235,225,200 (teto de valor, nunca branco); 226,208,176; 232,210,186 |
 | Viga | 74,50,36 |
 | Tábua | 128,88,58 |
-| Pedra | 124,130,142 / 96,100,112; cantaria 160,158,150 |
-| Paralelepípedo | 178,166,146; meio-fio 140,132,120 |
+| Pedra (V2b: esquentada, a validação do V1 no Roblox saiu fria/azulada) | 150,143,132 / 108,102,96; cantaria 178,170,154; kit 160,148,130 / 140,136,128 |
+| Paralelepípedo (V2b) | 198,180,150 / 174,158,132; meio-fio 152,140,122; junta 112,100,86 |
 | Grama | 98,168,62 |
 | Água | 64,150,190 |
 | Bronze | 176,138,70 |
