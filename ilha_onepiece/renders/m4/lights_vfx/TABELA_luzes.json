@@ -1,0 +1,1498 @@
+{
+ "lights": [
+  {
+   "name": "L_OPCap_Int_Cha",
+   "type": "POINT",
+   "class": "casa de cha (interior)",
+   "rank": 2,
+   "E0": 260.0,
+   "E": 260.0,
+   "range": 14.0,
+   "brightness": 0.6,
+   "override": true,
+   "night": false,
+   "day_ok": true,
+   "pos": [
+    -139.0,
+    249.0,
+    99.7
+   ],
+   "color": [
+    1.0,
+    0.64,
+    0.36
+   ]
+  },
+  {
+   "name": "L_OPCap_Win_Cha",
+   "type": "POINT",
+   "class": "janela acesa",
+   "rank": 3,
+   "E0": 60.0,
+   "E": 90.0,
+   "range": 6.5,
+   "brightness": 0.36,
+   "override": false,
+   "night": true,
+   "day_ok": false,
+   "pos": [
+    -138.0,
+    238.4,
+    98.1
+   ],
+   "color": [
+    1.0,
+    0.64,
+    0.36
+   ]
+  },
+  {
+   "name": "L_OPCap_Win_M2C1",
+   "type": "POINT",
+   "class": "janela acesa",
+   "rank": 3,
+   "E0": 70.0,
+   "E": 90.0,
+   "range": 6.5,
+   "brightness": 0.36,
+   "override": false,
+   "night": true,
+   "day_ok": false,
+   "pos": [
+    -27.0,
+    45.4,
+    95.8
+   ],
+   "color": [
+    1.0,
+    0.64,
+    0.36
+   ]
+  },
+  {
+   "name": "L_OPCap_Win_M2C2",
+   "type": "POINT",
+   "class": "janela acesa",
+   "rank": 3,
+   "E0": 70.0,
+   "E": 90.0,
+   "range": 6.5,
+   "brightness": 0.36,
+   "override": false,
+   "night": true,
+   "day_ok": false,
+   "pos": [
+    -15.4,
+    68.05,
+    93.85
+   ],
+   "color": [
+    1.0,
+    0.64,
+    0.36
+   ]
+  },
+  {
+   "name": "L_OPCap_Win_M2C5",
+   "type": "POINT",
+   "class": "janela acesa",
+   "rank": 3,
+   "E0": 70.0,
+   "E": 90.0,
+   "range": 6.5,
+   "brightness": 0.36,
+   "override": false,
+   "night": true,
+   "day_ok": false,
+   "pos": [
+    21.3,
+    61.6,
+    95.8
+   ],
+   "color": [
+    1.0,
+    0.64,
+    0.36
+   ]
+  },
+  {
+   "name": "L_OPCap_Win_M2C6",
+   "type": "POINT",
+   "class": "janela acesa",
+   "rank": 3,
+   "E0": 70.0,
+   "E": 90.0,
+   "range": 6.5,
+   "brightness": 0.36,
+   "override": false,
+   "night": true,
+   "day_ok": false,
+   "pos": [
+    26.65,
+    82.6,
+    95.9
+   ],
+   "color": [
+    1.0,
+    0.64,
+    0.36
+   ]
+  },
+  {
+   "name": "L_OPCap_Win_M4C7",
+   "type": "POINT",
+   "class": "janela acesa",
+   "rank": 3,
+   "E0": 60.0,
+   "E": 90.0,
+   "range": 6.5,
+   "brightness": 0.36,
+   "override": false,
+   "night": true,
+   "day_ok": false,
+   "pos": [
+    17.0,
+    93.0,
+    103.4
+   ],
+   "color": [
+    1.0,
+    0.64,
+    0.36
+   ]
+  },
+  {
+   "name": "L_OPCas_Hall_1",
+   "type": "POINT",
+   "class": "salao do castelo (interior)",
+   "rank": 2,
+   "E0": 260.0,
+   "E": 260.0,
+   "range": 18.0,
+   "brightness": 0.69,
+   "override": true,
+   "night": false,
+   "day_ok": true,
+   "pos": [
+    -0.0,
+    395.0,
+    143.6
+   ],
+   "color": [
+    1.0,
+    0.68,
+    0.42
+   ]
+  },
+  {
+   "name": "L_OPCas_Hall_2",
+   "type": "POINT",
+   "class": "salao do castelo (interior)",
+   "rank": 2,
+   "E0": 260.0,
+   "E": 260.0,
+   "range": 18.0,
+   "brightness": 0.69,
+   "override": true,
+   "night": false,
+   "day_ok": true,
+   "pos": [
+    12.0,
+    410.0,
+    143.6
+   ],
+   "color": [
+    1.0,
+    0.68,
+    0.42
+   ]
+  },
+  {
+   "name": "L_OPCas_Hall_3",
+   "type": "POINT",
+   "class": "salao do castelo (interior)",
+   "rank": 2,
+   "E0": 260.0,
+   "E": 260.0,
+   "range": 18.0,
+   "brightness": 0.69,
+   "override": true,
+   "night": false,
+   "day_ok": true,
+   "pos": [
+    -12.0,
+    410.0,
+    143.6
+   ],
+   "color": [
+    1.0,
+    0.68,
+    0.42
+   ]
+  },
+  {
+   "name": "L_OPProp_Lamp_Alem",
+   "type": "POINT",
+   "class": "lanterna de caminho",
+   "rank": 4,
+   "E0": 35.0,
+   "E": 40.0,
+   "range": 5.2,
+   "brightness": 0.33,
+   "override": false,
+   "night": true,
+   "day_ok": false,
+   "pos": [
+    -191.0,
+    216.3,
+    98.9
+   ],
+   "color": [
+    1.0,
+    0.64,
+    0.36
+   ]
+  },
+  {
+   "name": "L_OPProp_Lamp_BridgeHead_L",
+   "type": "POINT",
+   "class": "lanterna de caminho",
+   "rank": 4,
+   "E0": 140.0,
+   "E": 80.0,
+   "range": 6.2,
+   "brightness": 0.35,
+   "override": false,
+   "night": true,
+   "day_ok": false,
+   "pos": [
+    -9.82,
+    -0.6,
+    89.0
+   ],
+   "color": [
+    1.0,
+    0.64,
+    0.36
+   ]
+  },
+  {
+   "name": "L_OPProp_Lamp_BridgeHead_R",
+   "type": "POINT",
+   "class": "lanterna de caminho",
+   "rank": 4,
+   "E0": 140.0,
+   "E": 80.0,
+   "range": 6.2,
+   "brightness": 0.35,
+   "override": false,
+   "night": true,
+   "day_ok": false,
+   "pos": [
+    9.82,
+    -0.6,
+    89.0
+   ],
+   "color": [
+    1.0,
+    0.64,
+    0.36
+   ]
+  },
+  {
+   "name": "L_OPProp_Lamp_Bridge_L",
+   "type": "POINT",
+   "class": "lanterna de caminho",
+   "rank": 4,
+   "E0": 140.0,
+   "E": 80.0,
+   "range": 6.2,
+   "brightness": 0.35,
+   "override": false,
+   "night": true,
+   "day_ok": false,
+   "pos": [
+    -9.82,
+    -70.39,
+    86.68
+   ],
+   "color": [
+    1.0,
+    0.64,
+    0.36
+   ]
+  },
+  {
+   "name": "L_OPProp_Lamp_Bridge_R",
+   "type": "POINT",
+   "class": "lanterna de caminho",
+   "rank": 4,
+   "E0": 140.0,
+   "E": 80.0,
+   "range": 6.2,
+   "brightness": 0.35,
+   "override": false,
+   "night": true,
+   "day_ok": false,
+   "pos": [
+    9.82,
+    -70.39,
+    86.68
+   ],
+   "color": [
+    1.0,
+    0.64,
+    0.36
+   ]
+  },
+  {
+   "name": "L_OPProp_Lamp_Cais",
+   "type": "POINT",
+   "class": "lanterna de caminho",
+   "rank": 4,
+   "E0": 35.0,
+   "E": 40.0,
+   "range": 5.2,
+   "brightness": 0.33,
+   "override": false,
+   "night": true,
+   "day_ok": false,
+   "pos": [
+    -156.8,
+    196.6,
+    98.9
+   ],
+   "color": [
+    1.0,
+    0.64,
+    0.36
+   ]
+  },
+  {
+   "name": "L_OPProp_Lamp_Cap_Bairro",
+   "type": "POINT",
+   "class": "lanterna de caminho",
+   "rank": 4,
+   "E0": 40.0,
+   "E": 40.0,
+   "range": 5.2,
+   "brightness": 0.33,
+   "override": false,
+   "night": true,
+   "day_ok": false,
+   "pos": [
+    -133.0,
+    66.6,
+    94.32
+   ],
+   "color": [
+    1.0,
+    0.64,
+    0.36
+   ]
+  },
+  {
+   "name": "L_OPProp_Lamp_Cap_Oeste",
+   "type": "POINT",
+   "class": "lanterna de caminho",
+   "rank": 4,
+   "E0": 40.0,
+   "E": 40.0,
+   "range": 5.2,
+   "brightness": 0.33,
+   "override": false,
+   "night": true,
+   "day_ok": false,
+   "pos": [
+    -124.2,
+    155.0,
+    98.52
+   ],
+   "color": [
+    1.0,
+    0.64,
+    0.36
+   ]
+  },
+  {
+   "name": "L_OPProp_Lamp_Cap_Porto",
+   "type": "POINT",
+   "class": "lanterna de caminho",
+   "rank": 4,
+   "E0": 40.0,
+   "E": 40.0,
+   "range": 5.2,
+   "brightness": 0.33,
+   "override": false,
+   "night": true,
+   "day_ok": false,
+   "pos": [
+    114.5,
+    78.8,
+    94.32
+   ],
+   "color": [
+    1.0,
+    0.64,
+    0.36
+   ]
+  },
+  {
+   "name": "L_OPProp_Lamp_Cap_Terraco",
+   "type": "POINT",
+   "class": "lanterna de caminho",
+   "rank": 4,
+   "E0": 40.0,
+   "E": 40.0,
+   "range": 5.2,
+   "brightness": 0.33,
+   "override": false,
+   "night": true,
+   "day_ok": false,
+   "pos": [
+    -127.5,
+    357.0,
+    106.32
+   ],
+   "color": [
+    1.0,
+    0.64,
+    0.36
+   ]
+  },
+  {
+   "name": "L_OPProp_Lamp_Cas_Adro_0",
+   "type": "POINT",
+   "class": "lanterna de caminho",
+   "rank": 4,
+   "E0": 40.0,
+   "E": 40.0,
+   "range": 5.2,
+   "brightness": 0.33,
+   "override": false,
+   "night": true,
+   "day_ok": false,
+   "pos": [
+    -25.5,
+    320.0,
+    104.8
+   ],
+   "color": [
+    1.0,
+    0.64,
+    0.36
+   ]
+  },
+  {
+   "name": "L_OPProp_Lamp_Cas_Adro_1",
+   "type": "POINT",
+   "class": "lanterna de caminho",
+   "rank": 4,
+   "E0": 40.0,
+   "E": 40.0,
+   "range": 5.2,
+   "brightness": 0.33,
+   "override": false,
+   "night": true,
+   "day_ok": false,
+   "pos": [
+    25.5,
+    320.0,
+    104.8
+   ],
+   "color": [
+    1.0,
+    0.64,
+    0.36
+   ]
+  },
+  {
+   "name": "L_OPProp_Lamp_Cas_Patamar",
+   "type": "POINT",
+   "class": "lanterna de caminho",
+   "rank": 4,
+   "E0": 30.0,
+   "E": 40.0,
+   "range": 5.2,
+   "brightness": 0.33,
+   "override": false,
+   "night": true,
+   "day_ok": false,
+   "pos": [
+    -77.0,
+    388.0,
+    121.41
+   ],
+   "color": [
+    1.0,
+    0.64,
+    0.36
+   ]
+  },
+  {
+   "name": "L_OPProp_Lamp_Cas_Toro_0",
+   "type": "POINT",
+   "class": "toro",
+   "rank": 5,
+   "E0": 35.0,
+   "E": 35.0,
+   "range": 5.1,
+   "brightness": 0.32,
+   "override": false,
+   "night": true,
+   "day_ok": false,
+   "pos": [
+    -12.0,
+    375.0,
+    141.11
+   ],
+   "color": [
+    1.0,
+    0.64,
+    0.36
+   ]
+  },
+  {
+   "name": "L_OPProp_Lamp_Cas_Toro_1",
+   "type": "POINT",
+   "class": "toro",
+   "rank": 5,
+   "E0": 35.0,
+   "E": 35.0,
+   "range": 5.1,
+   "brightness": 0.32,
+   "override": false,
+   "night": true,
+   "day_ok": false,
+   "pos": [
+    12.0,
+    375.0,
+    141.11
+   ],
+   "color": [
+    1.0,
+    0.64,
+    0.36
+   ]
+  },
+  {
+   "name": "L_OPProp_Lamp_M2Esc_0",
+   "type": "POINT",
+   "class": "lanterna de caminho",
+   "rank": 4,
+   "E0": 35.0,
+   "E": 40.0,
+   "range": 5.2,
+   "brightness": 0.33,
+   "override": false,
+   "night": true,
+   "day_ok": false,
+   "pos": [
+    -14.6,
+    108.45,
+    91.44
+   ],
+   "color": [
+    1.0,
+    0.64,
+    0.36
+   ]
+  },
+  {
+   "name": "L_OPProp_Lamp_M2Esc_1",
+   "type": "POINT",
+   "class": "lanterna de caminho",
+   "rank": 4,
+   "E0": 35.0,
+   "E": 40.0,
+   "range": 5.2,
+   "brightness": 0.33,
+   "override": false,
+   "night": true,
+   "day_ok": false,
+   "pos": [
+    14.6,
+    108.45,
+    91.44
+   ],
+   "color": [
+    1.0,
+    0.64,
+    0.36
+   ]
+  },
+  {
+   "name": "L_OPProp_Lamp_M2Rua_0",
+   "type": "POINT",
+   "class": "lanterna de caminho",
+   "rank": 4,
+   "E0": 40.0,
+   "E": 40.0,
+   "range": 5.2,
+   "brightness": 0.33,
+   "override": false,
+   "night": true,
+   "day_ok": false,
+   "pos": [
+    -8.0,
+    54.0,
+    94.95
+   ],
+   "color": [
+    1.0,
+    0.64,
+    0.36
+   ]
+  },
+  {
+   "name": "L_OPProp_Lamp_M2Rua_1",
+   "type": "POINT",
+   "class": "lanterna de caminho",
+   "rank": 4,
+   "E0": 40.0,
+   "E": 40.0,
+   "range": 5.2,
+   "brightness": 0.33,
+   "override": false,
+   "night": true,
+   "day_ok": false,
+   "pos": [
+    8.0,
+    66.0,
+    94.95
+   ],
+   "color": [
+    1.0,
+    0.64,
+    0.36
+   ]
+  },
+  {
+   "name": "L_OPProp_Lamp_M2Rua_2",
+   "type": "POINT",
+   "class": "lanterna de caminho",
+   "rank": 4,
+   "E0": 40.0,
+   "E": 40.0,
+   "range": 5.2,
+   "brightness": 0.33,
+   "override": false,
+   "night": true,
+   "day_ok": false,
+   "pos": [
+    -8.0,
+    77.0,
+    94.95
+   ],
+   "color": [
+    1.0,
+    0.64,
+    0.36
+   ]
+  },
+  {
+   "name": "L_OPProp_Lamp_M2Rua_3",
+   "type": "POINT",
+   "class": "lanterna de caminho",
+   "rank": 4,
+   "E0": 40.0,
+   "E": 40.0,
+   "range": 5.2,
+   "brightness": 0.33,
+   "override": false,
+   "night": true,
+   "day_ok": false,
+   "pos": [
+    8.0,
+    90.0,
+    94.95
+   ],
+   "color": [
+    1.0,
+    0.64,
+    0.36
+   ]
+  },
+  {
+   "name": "L_OPProp_Lamp_Mercado",
+   "type": "POINT",
+   "class": "lanterna de caminho",
+   "rank": 4,
+   "E0": 40.0,
+   "E": 40.0,
+   "range": 5.2,
+   "brightness": 0.33,
+   "override": false,
+   "night": true,
+   "day_ok": false,
+   "pos": [
+    -88.0,
+    84.8,
+    94.26
+   ],
+   "color": [
+    1.0,
+    0.64,
+    0.36
+   ]
+  },
+  {
+   "name": "L_OPProp_Lamp_Plz_0",
+   "type": "POINT",
+   "class": "lanterna de caminho",
+   "rank": 4,
+   "E0": 35.0,
+   "E": 40.0,
+   "range": 5.2,
+   "brightness": 0.33,
+   "override": false,
+   "night": true,
+   "day_ok": false,
+   "pos": [
+    111.6,
+    186.0,
+    98.94
+   ],
+   "color": [
+    1.0,
+    0.64,
+    0.36
+   ]
+  },
+  {
+   "name": "L_OPProp_Lamp_Plz_1",
+   "type": "POINT",
+   "class": "lanterna de caminho",
+   "rank": 4,
+   "E0": 35.0,
+   "E": 40.0,
+   "range": 5.2,
+   "brightness": 0.33,
+   "override": false,
+   "night": true,
+   "day_ok": false,
+   "pos": [
+    111.6,
+    246.0,
+    98.94
+   ],
+   "color": [
+    1.0,
+    0.64,
+    0.36
+   ]
+  },
+  {
+   "name": "L_OPProp_Lamp_Plz_2",
+   "type": "POINT",
+   "class": "lanterna de caminho",
+   "rank": 4,
+   "E0": 35.0,
+   "E": 40.0,
+   "range": 5.2,
+   "brightness": 0.33,
+   "override": false,
+   "night": true,
+   "day_ok": false,
+   "pos": [
+    -112.4,
+    181.0,
+    98.94
+   ],
+   "color": [
+    1.0,
+    0.64,
+    0.36
+   ]
+  },
+  {
+   "name": "L_OPProp_Lamp_Plz_3",
+   "type": "POINT",
+   "class": "lanterna de caminho",
+   "rank": 4,
+   "E0": 35.0,
+   "E": 40.0,
+   "range": 5.2,
+   "brightness": 0.33,
+   "override": false,
+   "night": true,
+   "day_ok": false,
+   "pos": [
+    -112.4,
+    243.0,
+    98.94
+   ],
+   "color": [
+    1.0,
+    0.64,
+    0.36
+   ]
+  },
+  {
+   "name": "L_OPProp_Lamp_Plz_4",
+   "type": "POINT",
+   "class": "lanterna de caminho",
+   "rank": 4,
+   "E0": 35.0,
+   "E": 40.0,
+   "range": 5.2,
+   "brightness": 0.33,
+   "override": false,
+   "night": true,
+   "day_ok": false,
+   "pos": [
+    108.0,
+    270.0,
+    98.94
+   ],
+   "color": [
+    1.0,
+    0.64,
+    0.36
+   ]
+  },
+  {
+   "name": "L_OPProp_Lamp_Plz_5",
+   "type": "POINT",
+   "class": "lanterna de caminho",
+   "rank": 4,
+   "E0": 35.0,
+   "E": 40.0,
+   "range": 5.2,
+   "brightness": 0.33,
+   "override": false,
+   "night": true,
+   "day_ok": false,
+   "pos": [
+    -106.0,
+    258.0,
+    98.94
+   ],
+   "color": [
+    1.0,
+    0.64,
+    0.36
+   ]
+  },
+  {
+   "name": "L_OPProp_Lamp_Plz_6",
+   "type": "POINT",
+   "class": "lanterna de caminho",
+   "rank": 4,
+   "E0": 35.0,
+   "E": 40.0,
+   "range": 5.2,
+   "brightness": 0.33,
+   "override": false,
+   "night": true,
+   "day_ok": false,
+   "pos": [
+    -48.0,
+    311.2,
+    98.94
+   ],
+   "color": [
+    1.0,
+    0.64,
+    0.36
+   ]
+  },
+  {
+   "name": "L_OPProp_Lamp_Plz_7",
+   "type": "POINT",
+   "class": "lanterna de caminho",
+   "rank": 4,
+   "E0": 35.0,
+   "E": 40.0,
+   "range": 5.2,
+   "brightness": 0.33,
+   "override": false,
+   "night": true,
+   "day_ok": false,
+   "pos": [
+    48.0,
+    311.2,
+    98.94
+   ],
+   "color": [
+    1.0,
+    0.64,
+    0.36
+   ]
+  },
+  {
+   "name": "L_OPProp_Lamp_PortoEscB_0",
+   "type": "POINT",
+   "class": "lanterna de caminho",
+   "rank": 4,
+   "E0": 35.0,
+   "E": 40.0,
+   "range": 5.2,
+   "brightness": 0.33,
+   "override": false,
+   "night": true,
+   "day_ok": false,
+   "pos": [
+    153.4,
+    45.45,
+    45.29
+   ],
+   "color": [
+    1.0,
+    0.64,
+    0.36
+   ]
+  },
+  {
+   "name": "L_OPProp_Lamp_PortoEscB_1",
+   "type": "POINT",
+   "class": "lanterna de caminho",
+   "rank": 4,
+   "E0": 35.0,
+   "E": 40.0,
+   "range": 5.2,
+   "brightness": 0.33,
+   "override": false,
+   "night": true,
+   "day_ok": false,
+   "pos": [
+    166.6,
+    45.45,
+    45.29
+   ],
+   "color": [
+    1.0,
+    0.64,
+    0.36
+   ]
+  },
+  {
+   "name": "L_OPProp_Lamp_Porto_0",
+   "type": "POINT",
+   "class": "lanterna de caminho",
+   "rank": 4,
+   "E0": 40.0,
+   "E": 40.0,
+   "range": 5.2,
+   "brightness": 0.33,
+   "override": false,
+   "night": true,
+   "day_ok": false,
+   "pos": [
+    225.0,
+    113.0,
+    48.4
+   ],
+   "color": [
+    1.0,
+    0.64,
+    0.36
+   ]
+  },
+  {
+   "name": "L_OPProp_Lamp_Porto_1",
+   "type": "POINT",
+   "class": "lanterna de caminho",
+   "rank": 4,
+   "E0": 35.0,
+   "E": 40.0,
+   "range": 5.2,
+   "brightness": 0.33,
+   "override": false,
+   "night": true,
+   "day_ok": false,
+   "pos": [
+    225.0,
+    73.0,
+    48.84
+   ],
+   "color": [
+    1.0,
+    0.64,
+    0.36
+   ]
+  },
+  {
+   "name": "L_OPProp_Lamp_PracaN_0",
+   "type": "POINT",
+   "class": "lanterna de caminho",
+   "rank": 4,
+   "E0": 35.0,
+   "E": 40.0,
+   "range": 5.2,
+   "brightness": 0.33,
+   "override": false,
+   "night": true,
+   "day_ok": false,
+   "pos": [
+    -21.25,
+    306.0,
+    98.94
+   ],
+   "color": [
+    1.0,
+    0.64,
+    0.36
+   ]
+  },
+  {
+   "name": "L_OPProp_Lamp_PracaN_1",
+   "type": "POINT",
+   "class": "lanterna de caminho",
+   "rank": 4,
+   "E0": 35.0,
+   "E": 40.0,
+   "range": 5.2,
+   "brightness": 0.33,
+   "override": false,
+   "night": true,
+   "day_ok": false,
+   "pos": [
+    21.25,
+    306.0,
+    98.94
+   ],
+   "color": [
+    1.0,
+    0.64,
+    0.36
+   ]
+  },
+  {
+   "name": "L_OPProp_Lamp_Saida_0",
+   "type": "POINT",
+   "class": "lanterna de caminho",
+   "rank": 4,
+   "E0": 130.0,
+   "E": 80.0,
+   "range": 6.2,
+   "brightness": 0.35,
+   "override": false,
+   "night": true,
+   "day_ok": false,
+   "pos": [
+    205.5,
+    225.7,
+    93.02
+   ],
+   "color": [
+    1.0,
+    0.64,
+    0.36
+   ]
+  },
+  {
+   "name": "L_OPProp_Lamp_Saida_1",
+   "type": "POINT",
+   "class": "lanterna de caminho",
+   "rank": 4,
+   "E0": 130.0,
+   "E": 80.0,
+   "range": 6.2,
+   "brightness": 0.35,
+   "override": false,
+   "night": true,
+   "day_ok": false,
+   "pos": [
+    291.22,
+    248.67,
+    93.02
+   ],
+   "color": [
+    1.0,
+    0.64,
+    0.36
+   ]
+  },
+  {
+   "name": "L_OPProp_Lamp_Saida_2",
+   "type": "POINT",
+   "class": "lanterna de caminho",
+   "rank": 4,
+   "E0": 130.0,
+   "E": 80.0,
+   "range": 6.2,
+   "brightness": 0.35,
+   "override": false,
+   "night": true,
+   "day_ok": false,
+   "pos": [
+    205.5,
+    246.03,
+    93.02
+   ],
+   "color": [
+    1.0,
+    0.64,
+    0.36
+   ]
+  },
+  {
+   "name": "L_OPProp_Lamp_Saida_3",
+   "type": "POINT",
+   "class": "lanterna de caminho",
+   "rank": 4,
+   "E0": 130.0,
+   "E": 80.0,
+   "range": 6.2,
+   "brightness": 0.35,
+   "override": false,
+   "night": true,
+   "day_ok": false,
+   "pos": [
+    286.14,
+    267.64,
+    93.02
+   ],
+   "color": [
+    1.0,
+    0.64,
+    0.36
+   ]
+  },
+  {
+   "name": "L_OPProp_Lamp_Saida_Toro_0",
+   "type": "POINT",
+   "class": "toro",
+   "rank": 5,
+   "E0": 30.0,
+   "E": 30.0,
+   "range": 4.9,
+   "brightness": 0.32,
+   "override": false,
+   "night": true,
+   "day_ok": false,
+   "pos": [
+    332.3,
+    255.35,
+    93.01
+   ],
+   "color": [
+    1.0,
+    0.64,
+    0.36
+   ]
+  },
+  {
+   "name": "L_OPProp_Lamp_Saida_Toro_1",
+   "type": "POINT",
+   "class": "toro",
+   "rank": 5,
+   "E0": 30.0,
+   "E": 30.0,
+   "range": 4.9,
+   "brightness": 0.32,
+   "override": false,
+   "night": true,
+   "day_ok": false,
+   "pos": [
+    325.05,
+    282.39,
+    93.01
+   ],
+   "color": [
+    1.0,
+    0.64,
+    0.36
+   ]
+  },
+  {
+   "name": "L_OPProp_Lamp_Sum_0",
+   "type": "POINT",
+   "class": "lanterna de caminho",
+   "rank": 4,
+   "E0": 120.0,
+   "E": 80.0,
+   "range": 6.2,
+   "brightness": 0.35,
+   "override": false,
+   "night": true,
+   "day_ok": false,
+   "pos": [
+    134.5,
+    199.6,
+    93.35
+   ],
+   "color": [
+    1.0,
+    0.64,
+    0.36
+   ]
+  },
+  {
+   "name": "L_OPProp_Lamp_Sum_1",
+   "type": "POINT",
+   "class": "lanterna de caminho",
+   "rank": 4,
+   "E0": 120.0,
+   "E": 80.0,
+   "range": 6.2,
+   "brightness": 0.35,
+   "override": false,
+   "night": true,
+   "day_ok": false,
+   "pos": [
+    140.0,
+    228.8,
+    93.35
+   ],
+   "color": [
+    1.0,
+    0.64,
+    0.36
+   ]
+  },
+  {
+   "name": "L_OPProp_Lamp_Travessa",
+   "type": "POINT",
+   "class": "lanterna de caminho",
+   "rank": 4,
+   "E0": 35.0,
+   "E": 40.0,
+   "range": 5.2,
+   "brightness": 0.33,
+   "override": false,
+   "night": true,
+   "day_ok": false,
+   "pos": [
+    70.5,
+    79.6,
+    94.9
+   ],
+   "color": [
+    1.0,
+    0.64,
+    0.36
+   ]
+  },
+  {
+   "name": "L_OPProp_Toro_Cap_NE",
+   "type": "POINT",
+   "class": "toro",
+   "rank": 5,
+   "E0": 30.0,
+   "E": 30.0,
+   "range": 4.9,
+   "brightness": 0.32,
+   "override": false,
+   "night": true,
+   "day_ok": false,
+   "pos": [
+    137.0,
+    311.6,
+    96.56
+   ],
+   "color": [
+    1.0,
+    0.64,
+    0.36
+   ]
+  },
+  {
+   "name": "L_OPProp_Toro_In_L",
+   "type": "POINT",
+   "class": "toro",
+   "rank": 5,
+   "E0": 60.0,
+   "E": 45.0,
+   "range": 5.4,
+   "brightness": 0.33,
+   "override": false,
+   "night": true,
+   "day_ok": false,
+   "pos": [
+    -15.6,
+    3.6,
+    89.68
+   ],
+   "color": [
+    1.0,
+    0.64,
+    0.36
+   ]
+  },
+  {
+   "name": "L_OPProp_Toro_In_R",
+   "type": "POINT",
+   "class": "toro",
+   "rank": 5,
+   "E0": 60.0,
+   "E": 45.0,
+   "range": 5.4,
+   "brightness": 0.33,
+   "override": false,
+   "night": true,
+   "day_ok": false,
+   "pos": [
+    15.6,
+    3.6,
+    89.68
+   ],
+   "color": [
+    1.0,
+    0.64,
+    0.36
+   ]
+  },
+  {
+   "name": "L_OPProp_Toro_M2_0",
+   "type": "POINT",
+   "class": "toro",
+   "rank": 5,
+   "E0": 35.0,
+   "E": 35.0,
+   "range": 5.1,
+   "brightness": 0.32,
+   "override": false,
+   "night": true,
+   "day_ok": false,
+   "pos": [
+    -19.5,
+    122.6,
+    96.98
+   ],
+   "color": [
+    1.0,
+    0.64,
+    0.36
+   ]
+  },
+  {
+   "name": "L_OPProp_Toro_M2_1",
+   "type": "POINT",
+   "class": "toro",
+   "rank": 5,
+   "E0": 35.0,
+   "E": 35.0,
+   "range": 5.1,
+   "brightness": 0.32,
+   "override": false,
+   "night": true,
+   "day_ok": false,
+   "pos": [
+    19.5,
+    122.6,
+    96.98
+   ],
+   "color": [
+    1.0,
+    0.64,
+    0.36
+   ]
+  },
+  {
+   "name": "L_OPSum_Core",
+   "type": "POINT",
+   "class": "summon nucleo",
+   "rank": 1,
+   "E0": 650.0,
+   "E": 650.0,
+   "range": 12.6,
+   "brightness": 0.71,
+   "override": false,
+   "night": false,
+   "day_ok": true,
+   "pos": [
+    168.4,
+    214.0,
+    97.2
+   ],
+   "color": [
+    0.36,
+    0.52,
+    1.0
+   ]
+  },
+  {
+   "name": "L_OPSum_Lamp_L",
+   "type": "POINT",
+   "class": "summon lanterna",
+   "rank": 1,
+   "E0": 130.0,
+   "E": 130.0,
+   "range": 7.2,
+   "brightness": 0.38,
+   "override": false,
+   "night": false,
+   "day_ok": true,
+   "pos": [
+    165.7,
+    204.6,
+    95.34
+   ],
+   "color": [
+    1.0,
+    0.64,
+    0.36
+   ]
+  },
+  {
+   "name": "L_OPSum_Lamp_R",
+   "type": "POINT",
+   "class": "summon lanterna",
+   "rank": 1,
+   "E0": 130.0,
+   "E": 130.0,
+   "range": 7.2,
+   "brightness": 0.38,
+   "override": false,
+   "night": false,
+   "day_ok": true,
+   "pos": [
+    165.7,
+    223.4,
+    95.34
+   ],
+   "color": [
+    1.0,
+    0.64,
+    0.36
+   ]
+  },
+  {
+   "name": "L_OPSum_Star",
+   "type": "POINT",
+   "class": "summon estrela",
+   "rank": 1,
+   "E0": 420.0,
+   "E": 420.0,
+   "range": 10.7,
+   "brightness": 0.56,
+   "override": false,
+   "night": false,
+   "day_ok": true,
+   "pos": [
+    173.0,
+    214.0,
+    134.2
+   ],
+   "color": [
+    1.0,
+    0.72,
+    0.36
+   ]
+  }
+ ],
+ "interior": [
+  [
+   "L_OPCas_Hall_",
+   18.0,
+   0.8
+  ],
+  [
+   "L_OPCap_Int_",
+   14.0,
+   0.6
+  ]
+ ],
+ "neon": {
+  "P_Gold_Glow": 823.5173391401768,
+  "Energy_Core_OnePunchMan_Glow": 280.03214330226183,
+  "P_Red_Glow": 32.758979097008705,
+  "Window_OP_Warm": 5017.883922547102,
+  "Glass_OP_Lantern": 452.23648561537266,
+  "Crystal_SumPortal_Glow": 588.2838589698076,
+  "Summon_OPStar_Glow": 232.3024230748415,
+  "Summon_Blue_Glow": 46.61037194728851
+ }
+}

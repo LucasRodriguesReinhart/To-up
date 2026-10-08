@@ -149,7 +149,9 @@ ER.FOLD_PROTECT = ER.FOLD_PROTECT + ("Glass_OP_Lantern", "Window_OP", "Flower_OP
 # ------------------------------------------------------------------ luzes de interior (override so desta ilha)
 # O export compartilhado corta toda PointLight para Range <= 20 / Brightness <= 1,5 (lanterna de rua). O salao do
 # terreo da torre (acessivel) precisa de luz que chegue nas paredes de um comodo de 50 x 42: override por prefixo.
-INTERIOR_LIGHTS = (("L_OPCas_Hall_", 18.0, 0.8),)
+# M4 op_lights (acrescimo pontual): a casa de cha (op_capital, interior acessivel 16 x 20, pe-direito 11) com o corte
+# comum ficava com Range 9,0 / Brightness 0,46 para uma luz no meio do salao (as paredes do fundo a 10-11): Range 14.
+INTERIOR_LIGHTS = (("L_OPCas_Hall_", 18.0, 0.8), ("L_OPCap_Int_", 14.0, 0.6))
 INTERIOR_BR_K = 0.75
 _ER_LIGHTS = ER.lights
 
