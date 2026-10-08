@@ -42,12 +42,27 @@ def build():
     # junta as cores de flor dos enfeites do trecho; cameras CAM_VM_V2_* no fim.
     import vm_town
     vm_town.build()
+    # V3a (acrescimo pontual): VEGETACAO + PROPS, antes da luz. vm_veg apaga a vegetacao do blockout (VM_Veg_Trees_*)
+    # e do V2b (VM_Veg_Court) e planta arvores (heroi + campo dirigido) e hera; vm_props poe os props (sondados contra
+    # o construido, rotas, portas e troncos); vm_veg.after_props poe o chao (tufos, flores, moitas, sebes) fora das
+    # pegadas dos props. Cameras CAM_VM_V3_* no fim.
+    import vm_veg, vm_props
+    vm_veg.build()
+    vm_props.build()
+    vm_veg.after_props(vm_props.FOOT)
+    # V3b (acrescimo pontual): LUZ + VFX (vm_lights) POR ULTIMO: sombra suave, boca da fornalha como luz mais forte,
+    # janelas e camara da chamine NightOnly, nomes de luz unicos, proxies PREVIEW_VFX_* (so render); cameras CAM_VM_L_*.
+    # O movimento/particulas do Roblox saem no export (export_vm -> export_vm_vfx).
+    import vm_lights
+    vm_lights.build()
     fm_lib.make_materials()          # materiais registrados depois do primeiro make (portais)
     vm_scene.clouds()
     vm_scene.cameras()
     vm_trecho.cameras()
     vm_forge.cameras()               # V2a
     vm_town.cameras()                # V2b
+    vm_lights.cameras()              # V3b
+    vm_veg.cameras()                 # V3a
     vm_scene.scale_reference(visible=True)
     bpy.context.view_layer.update()
     return rep, time.time() - t0

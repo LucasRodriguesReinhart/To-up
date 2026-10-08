@@ -1,0 +1,240 @@
+{
+ "objetos": {
+  "VM_Prop_CN": {
+   "dono": "props",
+   "tris": 3928,
+   "materiais": 5,
+   "mats": [
+    "Cloth_VM_Cream",
+    "Roof_VM_Terracotta",
+    "Stone_VM_Grey",
+    "Wood_VM_Plank",
+    "Wood_VM_Timber"
+   ],
+   "extensao": [
+    136.1,
+    99.5
+   ]
+  },
+  "VM_Prop_CS": {
+   "dono": "props",
+   "tris": 9660,
+   "materiais": 6,
+   "mats": [
+    "Cloth_VM_Cream",
+    "Cloth_VM_Red",
+    "Roof_VM_Terracotta",
+    "Stone_VM_Grey",
+    "Wood_VM_Plank",
+    "Wood_VM_Timber"
+   ],
+   "extensao": [
+    127.8,
+    133.0
+   ]
+  },
+  "VM_Prop_EN": {
+   "dono": "props",
+   "tris": 1900,
+   "materiais": 5,
+   "mats": [
+    "Cloth_VM_Blue",
+    "Cloth_VM_Cream",
+    "Stone_VM_Grey",
+    "Wood_VM_Plank",
+    "Wood_VM_Timber"
+   ],
+   "extensao": [
+    45.4,
+    47.7
+   ]
+  },
+  "VM_Prop_ES": {
+   "dono": "props",
+   "tris": 6400,
+   "materiais": 5,
+   "mats": [
+    "Cloth_VM_Cream",
+    "Roof_VM_Terracotta",
+    "Stone_VM_Grey",
+    "Wood_VM_Plank",
+    "Wood_VM_Timber"
+   ],
+   "extensao": [
+    106.3,
+    131.0
+   ]
+  },
+  "VM_Prop_WS": {
+   "dono": "props",
+   "tris": 1460,
+   "materiais": 3,
+   "mats": [
+    "Stone_VM_Grey",
+    "Wood_VM_Plank",
+    "Wood_VM_Timber"
+   ],
+   "extensao": [
+    22.1,
+    106.8
+   ]
+  },
+  "VM_Veg_CN": {
+   "dono": "vegetation",
+   "tris": 7849,
+   "materiais": 5,
+   "mats": [
+    "Bark_VM",
+    "Flower_VM_Yellow",
+    "Leaf_VM_Light",
+    "Leaf_VM_Pine",
+    "Leaf_VM_Round"
+   ],
+   "extensao": [
+    143.8,
+    127.9
+   ]
+  },
+  "VM_Veg_CS": {
+   "dono": "vegetation",
+   "tris": 13077,
+   "materiais": 5,
+   "mats": [
+    "Bark_VM",
+    "Flower_VM_Red",
+    "Leaf_VM_Light",
+    "Leaf_VM_Pine",
+    "Leaf_VM_Round"
+   ],
+   "extensao": [
+    141.6,
+    119.3
+   ]
+  },
+  "VM_Veg_EN": {
+   "dono": "vegetation",
+   "tris": 8598,
+   "materiais": 5,
+   "mats": [
+    "Bark_VM",
+    "Flower_VM_Pink",
+    "Leaf_VM_Light",
+    "Leaf_VM_Pine",
+    "Leaf_VM_Round"
+   ],
+   "extensao": [
+    125.8,
+    119.8
+   ]
+  },
+  "VM_Veg_ES": {
+   "dono": "vegetation",
+   "tris": 12271,
+   "materiais": 5,
+   "mats": [
+    "Bark_VM",
+    "Flower_VM_Yellow",
+    "Leaf_VM_Light",
+    "Leaf_VM_Pine",
+    "Leaf_VM_Round"
+   ],
+   "extensao": [
+    119.2,
+    149.0
+   ]
+  },
+  "VM_Veg_WN": {
+   "dono": "vegetation",
+   "tris": 4218,
+   "materiais": 5,
+   "mats": [
+    "Bark_VM",
+    "Flower_VM_Yellow",
+    "Leaf_VM_Light",
+    "Leaf_VM_Pine",
+    "Leaf_VM_Round"
+   ],
+   "extensao": [
+    87.8,
+    126.0
+   ]
+  },
+  "VM_Veg_WS": {
+   "dono": "vegetation",
+   "tris": 7594,
+   "materiais": 5,
+   "mats": [
+    "Bark_VM",
+    "Flower_VM_Pink",
+    "Leaf_VM_Light",
+    "Leaf_VM_Pine",
+    "Leaf_VM_Round"
+   ],
+   "extensao": [
+    135.9,
+    144.6
+   ]
+  }
+ },
+ "por_dono": {
+  "props": [
+   23348,
+   24
+  ],
+  "vegetation": [
+   53607,
+   30
+  ]
+ },
+ "stats": {},
+ "col": {
+  "VegTrunk": 180,
+  "Prop": 42
+ },
+ "isect": {
+  "VM_Prop_CN": {
+   "pares": 0,
+   "onde": {}
+  },
+  "VM_Prop_CS": {
+   "pares": 0,
+   "onde": {}
+  },
+  "VM_Prop_EN": {
+   "pares": 0,
+   "onde": {}
+  },
+  "VM_Prop_ES": {
+   "pares": 0,
+   "onde": {}
+  },
+  "VM_Prop_WS": {
+   "pares": 0,
+   "onde": {}
+  },
+  "VM_Veg_CN": {
+   "pares": 0,
+   "onde": {}
+  },
+  "VM_Veg_CS": {
+   "pares": 0,
+   "onde": {}
+  },
+  "VM_Veg_EN": {
+   "pares": 0,
+   "onde": {}
+  },
+  "VM_Veg_ES": {
+   "pares": 0,
+   "onde": {}
+  },
+  "VM_Veg_WN": {
+   "pares": 0,
+   "onde": {}
+  },
+  "VM_Veg_WS": {
+   "pares": 0,
+   "onde": {}
+  }
+ }
+}

@@ -1,0 +1,316 @@
+{
+ "nav": {
+  "SPAWN->IGNIS": {
+   "ok": true,
+   "len": 138.1,
+   "s": 8.6,
+   "fail": [],
+   "y_end": 7.0
+  },
+  "SPAWN->LOJA": {
+   "ok": true,
+   "len": 97.3,
+   "s": 6.1,
+   "fail": [],
+   "y_end": 6.4
+  },
+  "SPAWN->RANKING": {
+   "ok": true,
+   "len": 106.0,
+   "s": 6.6,
+   "fail": [],
+   "y_end": 6.4
+  },
+  "SPAWN->CORREIO": {
+   "ok": true,
+   "len": 12.6,
+   "s": 0.8,
+   "fail": [],
+   "y_end": 9.6
+  },
+  "SPAWN->PORTAL1_Naruto": {
+   "ok": true,
+   "len": 202.4,
+   "s": 12.6,
+   "fail": [],
+   "y_end": 9.65
+  },
+  "SPAWN->PORTAL2_DragonBall": {
+   "ok": true,
+   "len": 205.6,
+   "s": 12.9,
+   "fail": [],
+   "y_end": 9.0
+  },
+  "SPAWN->PORTAL3_ShadowGarden": {
+   "ok": true,
+   "len": 207.3,
+   "s": 13.0,
+   "fail": [],
+   "y_end": 8.75
+  },
+  "SPAWN->PORTAL4_DemonSlayer": {
+   "ok": true,
+   "len": 207.3,
+   "s": 13.0,
+   "fail": [],
+   "y_end": 10.2
+  },
+  "SPAWN->PORTAL5_OnePiece": {
+   "ok": true,
+   "len": 205.6,
+   "s": 12.9,
+   "fail": [],
+   "y_end": 9.6
+  },
+  "SPAWN->PORTAL6_OnePunchMan": {
+   "ok": true,
+   "len": 202.4,
+   "s": 12.6,
+   "fail": [],
+   "y_end": 9.6
+  },
+  "SPAWN->ILHA1": {
+   "ok": true,
+   "len": 221.5,
+   "s": 13.8,
+   "fail": [],
+   "y_end": 6.0
+  }
+ },
+ "env": {
+  "QA_Env_Ignis": {
+   "ok": true,
+   "hits": []
+  },
+  "QA_Env_Top100": {
+   "ok": true,
+   "hits": []
+  },
+  "QA_Free_IgnisFront": {
+   "ok": true,
+   "piso_fora_de_7": [],
+   "amostras": 192,
+   "hits": []
+  }
+ },
+ "link": {
+  "alvo": [
+   0.0,
+   6.0,
+   222.0
+  ],
+  "patamar_col": {
+   "col": "COL_IsleLanding_001",
+   "top_y": 6.0,
+   "borda_z": 222.5,
+   "x": [
+    -12.0,
+    12.0
+   ]
+  },
+  "malha_borda_z": 222.0,
+  "distancia_col": 0.5
+ },
+ "markers": {
+  "faltam": [],
+  "pos": {
+   "SPAWN_Lobby": [
+    0.0,
+    9.6,
+    94.0
+   ],
+   "SPAWNLOBBY_Part": [
+    0.0,
+    9.7,
+    94.0
+   ],
+   "LAYOUT_Spawn": [
+    0.0,
+    12.9,
+    94.0
+   ],
+   "LAYOUT_Shop": [
+    69.0,
+    9.9,
+    43.0
+   ],
+   "LAYOUT_ShopFacing": [
+    78.0,
+    9.9,
+    43.0
+   ],
+   "LAYOUT_Ignis": [
+    -0.9,
+    10.5,
+    -46.0
+   ],
+   "LAYOUT_PortalIsland": [
+    -112.0,
+    9.5,
+    72.0
+   ],
+   "MAILBOX_Correio": [
+    -14.0,
+    9.6,
+    100.0
+   ],
+   "NPC_Ignis": [
+    -0.9,
+    7.0,
+    -60.7
+   ],
+   "INTERACT_Ignis": [
+    -0.9,
+    13.79,
+    -60.2
+   ],
+   "PLAYER_INTERACT_Ignis": [
+    -0.9,
+    7.0,
+    -44.0
+   ],
+   "IGNIS_Anvil": [
+    -0.9,
+    7.0,
+    -55.7
+   ],
+   "LETREIRO_Ignis": [
+    -0.9,
+    20.0,
+    -60.7
+   ],
+   "NPC_Shop": [
+    78.0,
+    6.4,
+    43.0
+   ],
+   "INTERACT_Shop": [
+    78.0,
+    9.6,
+    43.0
+   ],
+   "PLAYER_INTERACT_Shop": [
+    69.0,
+    6.4,
+    43.0
+   ],
+   "PADLOJA_Shop": [
+    69.0,
+    6.45,
+    43.0
+   ],
+   "DOOR_Shop": [
+    62.0,
+    6.4,
+    43.0
+   ],
+   "TOP100_Origin": [
+    -84.0,
+    6.4,
+    20.0
+   ],
+   "LOBBY_GATE_Ilha1": [
+    50.0,
+    6.0,
+    148.0
+   ],
+   "ISLE_LINK_Area1": [
+    0.0,
+    6.0,
+    222.0
+   ],
+   "ForgeChimney": [
+    0.0,
+    94.7,
+    -86.0
+   ],
+   "PORTAL_Naruto": [
+    -139.99,
+    18.4,
+    126.09
+   ],
+   "PORTAL_DragonBall": [
+    -166.13,
+    18.4,
+    112.19
+   ],
+   "PORTAL_ShadowGarden": [
+    -181.39,
+    18.4,
+    86.81
+   ],
+   "PORTAL_DemonSlayer": [
+    -181.39,
+    18.4,
+    57.19
+   ],
+   "PORTAL_OnePiece": [
+    -166.13,
+    18.4,
+    31.81
+   ],
+   "PORTAL_OnePunchMan": [
+    -139.99,
+    18.4,
+    17.91
+   ]
+  }
+ },
+ "budget": {
+  "por_dono": {
+   "terrain": [
+    23394,
+    40
+   ],
+   "backdrop": [
+    816,
+    2
+   ],
+   "houses": [
+    155171,
+    113
+   ],
+   "town": [
+    77241,
+    105
+   ],
+   "props": [
+    23348,
+    24
+   ],
+   "forge": [
+    58138,
+    30
+   ],
+   "services": [
+    31488,
+    33
+   ],
+   "portals": [
+    63486,
+    89
+   ],
+   "exit": [
+    12924,
+    20
+   ],
+   "water": [
+    48,
+    1
+   ],
+   "vegetation": [
+    53607,
+    30
+   ]
+  },
+  "tris": 499661,
+  "meshparts_est": 487,
+  "col": 763
+ },
+ "tech": {
+  "genericos": [],
+  "sem_material": [],
+  "degeneradas": 0
+ }
+}

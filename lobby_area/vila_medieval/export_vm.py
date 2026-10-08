@@ -6,6 +6,10 @@
 # scripts do jogo procuram esse nome) + bloco de CONTRATO (Santuario.Portal1..6 com Disco/AreaId, LobbyRevision,
 # GlobalTop100 levado para a origem nova, VOID_CATCH com pontos seguros da vila, Script LOBBY_FORJA_Servidor).
 # Volumes de QA (QA_*), previas (PREVIEW_*), bonecos (SCALE_*) e cameras NUNCA entram.
+# V3b: no MESMO passe (como o export_all do lobby atual) sai o VFX pelo export_vm_vfx: LOBBY_VFX_MOVING_<ID6>.fbx (roda +
+# martelo-pilao), vfx_lobby_vila_medieval.lua (montagem) e vfx_lobby_vila_medieval_client.lua (LocalScript); luzes com
+# alcance/brilho do vm_lights (boca da fornalha a mais forte, janelas/chamine NightOnly) e o perfil de dia no
+# APLICAR_LIGHTING do montar.
 import sys, os, math, re, json
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
@@ -50,6 +54,24 @@ ER.CAM_COL_AREAS = {"Shop": 5.0, "Forge": 5.0, "House": 5.0, "RankHall": 5.0}
 ER.NIGHT_ONLY = ER.NIGHT_ONLY + ("L_VM_Lamp",)
 ER.FOLD_PROTECT = ER.FOLD_PROTECT + ("Forge_Glow_VM", "Metal_VM_Bronze", "Cloth_VM", "Window_VM")
 ER.SAFE_CANDIDATES = vm_core.safe_candidates
+
+# V3b (luz + VFX, vm_lights / export_vm_vfx): janelas e chamine NightOnly, alcance/brilho do Roblox por luz (a boca da
+# fornalha e a mais forte), perfil de DIA do lobby no APLICAR_LIGHTING, fontes do VFX sem fundir material
+import vm_lights
+import export_vm_vfx as VX
+VX.configure(ER)
+ER.NIGHT_ONLY = ER.NIGHT_ONLY + (vm_lights.NIGHT,)
+ER.lighting_cfg = vm_lights.lighting_cfg
+_lights_er = ER.lights
+
+
+def _lights_vm():
+    out, demoted = _lights_er()
+    vm_lights.apply_rbx(out)
+    return out, demoted
+
+
+ER.lights = _lights_vm
 
 
 def atomic(name):
@@ -132,14 +154,22 @@ def main():
         bpy.data.objects.remove(o, do_unlink=True)
     print("EXPORT_VM: %d volumes de QA / previas / bonecos fora do export" % len(gone))
     ER.EXTRA_LUA = contract_lua()
+    import glob
+    os.makedirs(OUT, exist_ok=True)
+    for old in glob.glob(os.path.join(OUT, "LOBBY_VFX_MOVING*.fbx")):
+        os.remove(old)          # nunca um FBX de movimento de outro passe ao lado do estatico novo (como o export_all)
     ER.main()
+    eid = None
     try:
         data = json.load(open(os.path.join(OUT, ER.DATA_FILE), encoding="utf-8"))
+        eid = data["export_id"]
         print("EXPORT_VM: %d malhas, %d tris, %d COL, %d marcadores, %d luzes; id %s" % (
             len(data["meshes"]), sum(m["tris"] for m in data["meshes"]), len(data["collisions"]), len(data["markers"]),
             len(data["lights"]), data["export_id"]))
     except Exception as e:
         print("EXPORT_VM: resumo falhou:", e)
+    # V3b: VFX e movimento no MESMO passe (EXPORT_ID confere na montagem), como o export_all do lobby atual
+    VX.main(OUT, eid)
 
 
 main()

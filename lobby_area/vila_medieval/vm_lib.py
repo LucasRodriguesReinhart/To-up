@@ -103,7 +103,7 @@ for _p in ("Roof_VM", "Plaster_VM", "Wood_VM", "Stone_VM", "Stone_Paving_VM", "G
 OWNER_PREFIX = [("VM_Ter_", "terrain"), ("VM_Bg_", "backdrop"), ("VM_Town_", "town"), ("VM_House_", "houses"),
                 ("VM_Frg_", "forge"), ("VM_Shop_", "services"), ("VM_Rank_", "services"), ("VM_Mail_", "services"),
                 ("PORTAL_", "portals"), ("VM_Court_", "portals"), ("VM_Exit_", "exit"), ("VM_Water_", "water"),
-                ("VM_Veg_", "vegetation")]
+                ("VM_Veg_", "vegetation"), ("VM_Prop_", "props")]      # V3a: props (vm_props)
 
 
 # ------------------------------------------------------------------ Roblox <-> Blender

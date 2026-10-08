@@ -1,0 +1,47 @@
+{
+ "dia": 19,
+ "noite": 65,
+ "lista_dia": [
+  "L_Hearth_Fire_VM",
+  "L_P_DemonSlayer_Lamp_1",
+  "L_P_DemonSlayer_Lamp_2",
+  "L_P_DemonSlayer_Pad",
+  "L_P_DragonBall_Pad",
+  "L_P_Naruto_Pad",
+  "L_P_OnePiece_Pad",
+  "L_P_OnePunchMan_Pad",
+  "L_P_ShadowGarden_Candles",
+  "L_P_ShadowGarden_Moon",
+  "L_P_ShadowGarden_Pad",
+  "L_Portal_DemonSlayer",
+  "L_Portal_DragonBall",
+  "L_Portal_Naruto",
+  "L_Portal_OnePiece",
+  "L_Portal_OnePunchMan",
+  "L_Portal_ShadowGarden",
+  "L_VM_ShopIn_A",
+  "L_VM_ShopIn_B"
+ ],
+ "lanternas": 34,
+ "janelas_n": 30,
+ "sol": [
+  13.929,
+  53.448,
+  [
+   -0.419,
+   0.758,
+   0.499
+  ]
+ ],
+ "proxies": [
+  "PREVIEW_VFX_Anvil_Sparks",
+  "PREVIEW_VFX_ChimneyEmbers",
+  "PREVIEW_VFX_ChimneySmoke",
+  "PREVIEW_VFX_ChimneySmokeTop",
+  "PREVIEW_VFX_Forge_Sparks",
+  "PREVIEW_VFX_HearthFlames",
+  "PREVIEW_VFX_QuenchSteam",
+  "PREVIEW_VFX_WheelSplash"
+ ],
+ "ok": true
+}

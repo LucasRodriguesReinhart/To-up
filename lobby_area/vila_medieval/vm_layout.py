@@ -223,8 +223,10 @@ def plan_px(x, z):
 # V2b (acrescimo pontual, documentado no PLANO_VM 5): houses 90k -> 160k (6 casas do trecho V1 = 50k + 18 casas do kit
 # lod 1 + 11 casas de fundo, juntadas por quadra, faces ocultas nas paredes-meias apagadas); town 40k -> 80k (trecho 25k +
 # praca em aneis, terraco do spawn, ruas, postes, enfeites). O teto da ILHA (450k / 600) continua o mesmo.
+# V3a (acrescimo pontual autorizado pelo lead, documentado no PLANO_VM 5): teto da ILHA 450k -> 520k tris (600 MeshParts
+# mantidas); donos novos/refeitos: vegetation (vm_veg, VM_Veg_*) <= 55k / 40 e props (vm_props, VM_Prop_*) <= 25k / 25.
 BUDGET_OWNER = {"terrain": (40000, 60), "backdrop": (12000, 6), "town": (80000, 110), "houses": (160000, 140),
                 "forge": (60000, 60), "services": (40000, 50), "portals": (110000, 160), "exit": (18000, 24),
-                "water": (6000, 12), "vegetation": (40000, 50)}
-BUDGET = {"static_tris": 450000, "static_meshes": 600, "vfx_tris": 12000, "vfx_meshes": 24, "total_tris": 462000,
+                "water": (6000, 12), "vegetation": (55000, 40), "props": (25000, 25)}
+BUDGET = {"static_tris": 520000, "static_meshes": 600, "vfx_tris": 12000, "vfx_meshes": 24, "total_tris": 532000,
           "total_meshes": 624, "materials": 110, "shadow_meshes": 300, "day_lights": 30, "col": 900}

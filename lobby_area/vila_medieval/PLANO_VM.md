@@ -139,6 +139,8 @@ return table.freeze({
 
 **V2b (a vila, `vm_town.py`), export de teste `2eb1e8b9` (com a forja do V2a):** 392 MeshParts / 600, 434k tris / 450k, 100 materiais / 110, 254 com sombra, 19 luzes de dia. Por dono: houses 155k / 103 MP, town 77k / 90 MP, services 31k, exit 13k, portals 63k (portais 52k + pátio 11k), terrain 23k. A subida de houses (90k → 160k) e town (40k → 80k) é acréscimo pontual: 6 casas do trecho V1 (50k) + 18 casas do kit lod 1 + 11 casas de fundo baratas (~1,5k), juntadas por quadra (`VM_House_Q<quadra>`, ≤ 10 materiais) e com as faces das paredes-meias apagadas (ficam dentro da vizinha). O teto da ilha não mudou; sobram ~16k tris para o V3.
 
+**V3a (vegetação + props, `vm_veg.py` / `vm_props.py`):** o lead autorizou subir o teto da ilha para 520k tris / 600 MeshParts e criou os donos `vegetation` (≤ 55k / 40) e `props` (≤ 25k / 25) em `vm_layout.BUDGET_OWNER`; prefixo `VM_Prop_` → `props` no `vm_lib.OWNER_PREFIX`. Export de teste `6c3d0295`: 427 MeshParts, ~500k tris, 101 materiais (+1: `Leaf_VM_Light`), 271 com sombra; vegetation 53,6k / 30 MP, props 23,3k / 20 MP. Substitui a vegetação do blockout (`VM_Veg_Trees_*`) e do V2b (`VM_Veg_Court`). Fica fora da levada, da roda, da pluma da chaminé, das quedas do canal, do largo e das envoltórias (caixas de exclusão do `vm_veg.Probe`).
+
 **V2b, desvios conscientes:** escadaria do spawn alargada de x ±10 para x ±13 (colisão refeita: rampa + meia pisada + banzos); barreiras `COL_Canal` refeitas com as 2 pontezinhas andáveis (x −116 e x 100); a ponta oeste da envoltória do GlobalTop100 entra no disco do pátio (−72° a −40°): ali não há mureta.
 
 **Casas:** cada casa sai com cerca de 9 materiais, o que dá 162 MeshParts para 19 casas. No kit final, os materiais por casa ficam limitados a 6. As casas de fundo se juntam por quadra (um objeto por quadra) para não estourar as 600.
@@ -215,3 +217,56 @@ Atalhos em `run.sh` (build, qa, render, export, sheets, all).
 | V3 | Vegetação final, props, luz do dia no `AreaAtmosphere` e efeitos: fumaça e brasa da chaminé, roda e martelo-pilão, lanternas NightOnly. |
 | V4 | Integração. Export, import na cópia (backup do `LOBBY_FORJA` em ServerStorage), `LobbyLayout` e objetos soltos, `CircularGeometry`, `PetsSeguidores`, caixas do `IslandTravel`/`IslandVisibility`. Depois, Play com rotas, prompts, os 6 portais, travessia até a Área 1, quedas e FPS. |
 | V5 | Auditoria na altura do jogador e finesse. |
+
+## 11. Luz e VFX (V3b)
+
+Arquivos: `vm_lights.py` (luzes, sol da prévia, proxies `PREVIEW_VFX_*`, câmeras `CAM_VM_L_*`) e `export_vm_vfx.py` (peças móveis e partículas). O `build_vm` chama o `vm_lights` por último; o `export_vm` gera o VFX no mesmo passe, como o `export_all` do lobby atual. Folhas em `renders/v3/luz_vfx/` (`./run.sh luz <pasta_tmp>`; contagem em `./run.sh luz-qa`).
+
+### 11.1 Perfil de dia do lobby (área 0) para o lead
+
+O `AreaAtmosphere` usa o Lighting do Edit como base do lobby. Então estes valores vão **no Lighting do Edit** (ou rode o `montar` com `APLICAR_LIGHTING = true`, que grava os mesmos números). O sol é o `SUN_Key` das folhas: sudoeste, alto (~50°), e `GetSunDirection()` ≈ (−0,42; 0,76; 0,50). Quem sai do spawn olhando a forja tem o sol atrás e à esquerda, então a fachada da forja e a rua norte ficam iluminadas.
+
+| Classe | Propriedade | Valor |
+|---|---|---|
+| Lighting | ClockTime / GeographicLatitude | **13,929 / 53,448** |
+| Lighting | Brightness / ExposureCompensation | 2,3 / −0,05 |
+| Lighting | Ambient / OutdoorAmbient | (104, 100, 98) / (150, 158, 178) — sombra fria e suave; o interior da forja fica escuro e a fornalha manda |
+| Lighting | ColorShift_Top / ColorShift_Bottom | (255, 238, 214) sol quente / (0, 0, 0) |
+| Lighting | EnvironmentDiffuseScale / EnvironmentSpecularScale | 0,5 / 0,3 |
+| Lighting | ShadowSoftness | 0,35 (sombra suave) |
+| Atmosphere | Density / Offset / Haze / Glare | 0,26 / 0,12 / 0,9 / 0,1 |
+| Atmosphere | Color / Decay | (196, 218, 244) / (116, 150, 198) — céu azul; as montanhas (560–860) ganham profundidade sem véu branco |
+| Sky | CelestialBodiesShown / SunAngularSize / MoonAngularSize / StarCount | true / 14 / 11 / 0 (céu padrão do Roblox; nada de skybox escuro) |
+| Bloom (o filho `Bloom`) | Intensity / Size / Threshold | 0,22 (o `LobbyBloom` força) / 24 / 1,6 — o reboco creme (235, 225, 200) não estoura |
+| SunRays | Intensity / Spread | 0,03 / 0,12 |
+| ColorCorrection (base, no Edit) | Brightness / Contrast / Saturation / TintColor | 0 / 0,06 / 0,08 / (255, 250, 242). O `IslandAtmosphere` do `AreaAtmosphere` fica neutro no lobby e estes valores somam com ele. |
+| Terrain.Clouds (opcional) | Cover / Density / Color | 0,45 / 0,55 / branco (as nuvens da ref_01) |
+
+Nas ilhas, o `AreaAtmosphere` troca `ClockTime`, `Brightness` e os ambientes por perfil. Latitude, EDS/ESS e ColorShift_Bottom só são trocados pelos perfis com as chaves `[OP]` (`lat`, `eds`, `ess`, `csb`). Se uma ilha sem essas chaves ficar com a luz estranha depois da troca do Edit, devolva `GeographicLatitude = 22` nela (o próprio `montar` lembra disso).
+
+### 11.2 Luzes
+
+| Grupo | Nomes | Roblox (alcance / brilho) | Dia |
+|---|---|---|---|
+| Boca da fornalha (**a mais forte**) | `L_Hearth_Fire_VM` | 24 / 2,2, com sombra, (255, 122, 41) | sim |
+| Portais e pads (sem mudança) | `L_Portal_*`, `L_P_*` | 14 / 1,0 e 12,6 / 0,71 | sim |
+| Loja por dentro | `L_VM_ShopIn_A/B` | da energia | sim |
+| Lanternas dos postes (kit) | `L_VM_Lamp_*` (34) | 14 / 0,8: poça de luz no chão, sem estourar | NightOnly |
+| Janelas acesas | `L_VM_Night_Win_*` (30) | 7 / 0,9, (255, 178, 98): a luz fica 1 stud à frente da vidraça e a face do vidro acende | NightOnly |
+| Câmara de fogo da chaminé | `L_VM_Night_Chimney` | 18 / 1,2 | NightOnly |
+
+São **19 luzes de dia** (teto 30) e 65 NightOnly. Os overrides ficam em `vm_lights.RBX`, e o `export_vm` os aplica por cima da conta de energia do `export_roblox`. Como o lobby é de dia fixo, as NightOnly só acendem se algum ciclo/céu ligar o atributo `NightOnly`, como o `CeuNatagumo` faz nas ilhas.
+
+As janelas escolhidas são vidraças do kit voltadas para as rotas (spawn, praça, ruas sul/norte/oeste, rua curva, loja), a pelo menos 10 studs umas das outras. Não há material novo: a vidraça é a junta escura `Stone_VM_Mortar`.
+
+### 11.3 VFX (mesmo mecanismo do lobby atual)
+
+O `export_vm_vfx.py` importa o `export_vfx.py` compartilhado (só leitura) e reaproveita a separação por ilhas, as peças móveis com 1 material, o orçamento, o FBX, o `SETUP_LUA` e o `CLIENT_LUA`. Ele troca:
+- **as fontes:** `VM_Frg_Wheel` (roda + eixo + 3 cames, gira em +X no pivô (36; 9,4; −66), 6 rpm) e `VM_Frg_TripHammer` (pivô (24,5; 12,2; −73,5); o ângulo positivo sobe a cabeça 2,6 studs; 3 golpes por volta da roda). Os dois são objetos próprios do `vm_forge`, então a cópia fixa não existe;
+- **a fase dos cames:** medida na geometria (30°/150°/270°). O came passa da vertical (95°) no instante em que o martelo cai. Folga cabo/came em repouso: 0,02 stud;
+- **os efeitos:** saem dos marcadores do `vm_forge`: fogo da boca, pluma da chaminé (raio 3,6, Y 96,7), faíscas da bigorna do Ignis (evento `ignis` = `IgnisImpact` do golem) e do pilão (evento `martinete`), vapor da têmpera, respingos da roda (a levada corre para o norte), as 2 cachoeiras das pontas do canal, as correntes (canal para as pontas e levada para o norte) e os 6 portais (espiral em SurfaceGui virada para o centro do pátio, partículas sugadas, aro Neon);
+- **o que sai:** o carrinho de mina (a montagem apaga o molde `MineCart`), os respiros e a fumaça das casas (sem marcadores).
+
+Arquivos do export: `LOBBY_VFX_MOVING_<ID6>.fbx` (5 malhas, 1,2k tris; teto 24 / 12k), `vfx_lobby_vila_medieval.lua` (montagem) e `vfx_lobby_vila_medieval_client.lua` (o LocalScript `VFX_Lobby_Forja_Client` com os dados da vila e o gancho `IgnisImpact`).
+
+Tags e atributos são os de hoje: `FORJA_Spin/Hammer/Pump/Swirl/Pulse/Flicker/Burst/Emitter` e `VFX_Home/Pivot/Axis/Speed/Phase/CamPhase/Cams/Rest/Lift/Event/Base/BaseColor/MaxDist`. `ReplicatedStorage.LOBBY_FORJA_VFX` mantém o `Evento` e o `IgnisImpact`, e a montagem não apaga a pasta. A versão do protocolo continua `vfx-forja-2`; o atributo `VFX_Lobby = "VilaMedieval"` marca a vila.
