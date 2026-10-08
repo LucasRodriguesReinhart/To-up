@@ -52,7 +52,8 @@ BED_D = 2.2                  # leito do op_terrain (agua - 2,2)
 FREE = 0.9                   # capa = agua + 0,9
 IN = 0.25                    # frente da cantaria: 0,25 para DENTRO da borda do buraco (junta/corpo a 0,15: as faces
 JNT = 0.10                   #   laterais dos corpos do terreno ficam na borda -> folga >= 0,12, sem z-fight)
-CAP_T, CAP_OV = 0.45, 0.12   # capa: espessura, pingadeira sobre a agua
+CAP_T, CAP_OV = 0.45, 0.22   # capa: espessura, pingadeira sobre a agua (M6b: 0,12 a frente das pedras, que avancaram)
+STONE_FWD = 0.10             # M6b (item 43): pedras 0,10 a frente de d_in -> miolo escuro 0,20 atras (era 0,10)
 CAP_MAX = 4.6                # alcance maximo da capa para fora (fecha a fresta ate o piso vizinho)
 
 # ------------------------------------------------------------------ canais (eixo da PEDRA = eixo da planta)
@@ -330,6 +331,23 @@ def canal_walls(mb, name):
             p, q = out[k], out[k + 1]
             if p[0] != q[0] and ax.mit[q[0]] is not None:
                 p[3] = q[3] = max(p[3], q[3])
+        # M6b: a capa nao pode deitar RENTE (+-0,12) sobre um piso vizinho da mesma cota (quintal de terra do bairro a
+        # 88,5 = capa: z-fight 0,0) -> recua o alcance ate a borda desse piso
+        for p in out:
+            i, s0, s1 = p[0], p[1], p[2]
+            a_, b_, u_, n_, ln_ = ax.seg[i]
+            nn_ = n_ * side
+            while p[3] > hw + 0.5:
+                hit = False
+                for f in (0.1, 0.5, 0.9):
+                    base = a_ + u_ * (s0 + (s1 - s0) * f)
+                    for o in (p[3] - 0.1, p[3] - 0.45):
+                        z = GROUND.down(base.x + nn_.x * o, base.y + nn_.y * o, p[4] + 0.6, 1.2)
+                        if z is not None and abs(z - p[4]) < 0.12:
+                            hit = True
+                if not hit:
+                    break
+                p[3] -= 0.25
         runs[side] = out
     n_st = 0
     for side, out in runs.items():
@@ -352,8 +370,16 @@ def stone_piece(mb, ax, name, side, i, s0, s1, d_in, o_out, top, zg, lv, prev, n
     P_ = lambda s, o, z: ax.pt(i, s, o * side, z)
     oj = d_in + JNT
     oc = d_in - CAP_OV
-    # corpo / junta (plano escuro molhado): do leito ate a capa
-    face(mb, [P_(s0, oj, zb), P_(s1, oj, zb), P_(s1, oj, zc0), P_(s0, oj, zc0)], WET, win)
+    # corpo / junta (plano escuro molhado): do leito ate a capa. M6b: onde a face do terreno ja esta a < 0,15 do plano
+    # da junta (canal leste x 39..45: 0,025), ela e o fundo da junta -> sem o plano escuro (z-fight)
+    near = False
+    for f in (0.15, 0.5, 0.85):
+        q = Vector(P_(s0 + (s1 - s0) * f, 0.0, lv + 0.4))
+        dd = GROUND.dist(q, wout, d_in + 2.0)
+        if dd is not None and oj - 0.25 < dd < oj + 0.12:
+            near = True
+    if not near:
+        face(mb, [P_(s0, oj, zb), P_(s1, oj, zb), P_(s1, oj, zc0), P_(s0, oj, zc0)], WET, win)
     # fiadas de pedra aparelhada acima da agua (da linha d'agua - 0,25 ate a capa)
     za = lv - 0.25
     if zc0 - za > 0.3:
@@ -373,7 +399,7 @@ def stone_piece(mb, ax, name, side, i, s0, s1, d_in, o_out, top, zg, lv, prev, n
                 sa = max(s, s0) + (0.07 if s > s0 + 0.01 or prev is not None else 0.0)
                 sb = e - (0.07 if e < s1 - 0.01 or nxt is not None else 0.0)
                 if sb - sa > 0.3:
-                    oz = d_in + 0.03 * (hh(name, side, i, round(s0, 1), r, q, "f") - 0.5)
+                    oz = d_in - STONE_FWD + 0.03 * (hh(name, side, i, round(s0, 1), r, q, "f") - 0.5)
                     za_, zz = z + (0.06 if r > 0 else 0.0), z1 - 0.05
                     face(mb, [P_(sa, oz, za_), P_(sb, oz, za_), P_(sb, oz, zz), P_(sa, oz, zz)], WALL, win)
                     ud = (u.x, u.y, 0.0)
@@ -429,7 +455,7 @@ def lips(mb):
     box(mb, -174.0 - hw - 0.04, -174.0 + hw + 0.04, LIP_W_Y, FACE_W_Y + 4.6, LV_T1 - BED_D - 0.3, LV_T1 - 0.3, WET,
         bottom=True)
     for s in (-1, 1):
-        xa = -174.0 + s * (hw - 0.05)
+        xa = -174.0 + s * (hw - 0.25)      # M6b: bochecha 0,13 a frente da pingadeira da capa (era 0,07 atras: z-fight)
         xb = -174.0 + s * (hw + 1.7)
         box(mb, min(xa, xb), max(xa, xb), LIP_W_Y - 0.1, FACE_W_Y + 1.8, LV_T1 - BED_D - 0.6, LV_T1 + FREE + 0.2, WALL,
             top=CAP, bottom=True)
@@ -438,7 +464,7 @@ def lips(mb):
     box(mb, 248.5 - hw - 0.04, 248.5 + hw + 0.04, LIP_E_Y, FACE_E_Y + 4.0, LV_P - BED_D - 0.3, LV_P - 0.3, WET,
         bottom=True)
     for s in (-1, 1):
-        xa = 248.5 + s * (hw - 0.05)
+        xa = 248.5 + s * (hw - 0.25)       # M6b: idem (bochecha a frente da capa)
         xb = 248.5 + s * (hw + 1.6)
         box(mb, min(xa, xb), max(xa, xb), LIP_E_Y - 0.1, FACE_E_Y + 1.6, LV_P - BED_D - 0.6, LV_P + FREE + 0.2, WALL,
             top=CAP, bottom=True)
@@ -459,8 +485,8 @@ def spring(mb):
     yf = HEAD_W_Y - 0.05           # face do arrimo
     # moldura (0,4 a frente da face) e nicho escuro recuado 0,2 dentro dela
     box(mb, x - 1.7, x + 1.7, yf - 0.4, yf + 0.25, z - 1.1, z + 1.9, CAP)
-    face(mb, [(x - 1.05, yf - 0.42, z - 0.25), (x + 1.05, yf - 0.42, z - 0.25), (x + 1.05, yf - 0.42, z + 1.25),
-              (x - 1.05, yf - 0.42, z + 1.25)], RDARK, (0, -1, 0))
+    face(mb, [(x - 1.05, yf - 0.53, z - 0.25), (x + 1.05, yf - 0.53, z - 0.25), (x + 1.05, yf - 0.53, z + 1.25),
+              (x - 1.05, yf - 0.53, z + 1.25)], RDARK, (0, -1, 0))     # M6b: 0,13 a frente da moldura (era 0,02)
     # testeira da moldura (verga) mais saliente
     box(mb, x - 2.0, x + 2.0, yf - 0.6, yf + 0.2, z + 1.9, z + 2.35, CAP)
     # bica: calha de pedra em balanco (fundo + 2 abas), sai do nicho
@@ -500,7 +526,7 @@ def basin(mb):
             P_ = lambda s, o, z: tuple(a + u * s + no * o) [:2] + (z,)
             wi = (-no.x, -no.y, 0.0)
             # corpo/junta e fiada (frente 0,25 dentro do buraco), capa = a mureta do castelo
-            oj, oz = -IN + JNT, -IN
+            oj, oz = -IN + JNT, -IN - STONE_FWD        # M6b (item 43): pedras 0,20 a frente do miolo
             face(mb, [P_(s0, oj, zb), P_(s1, oj, zb), P_(s1, oj, TOPL), P_(s0, oj, TOPL)], WET, wi)
             s = s0
             q = 0
@@ -519,8 +545,9 @@ def basin(mb):
                 s = e
                 q += 1
             # tampo escondido sob o piso/mureta: fecha as frestas do terreno ate +1,3 para fora
-            face(mb, [P_(s0, oj, TOPL), P_(s1, oj, TOPL), P_(s1, 1.3, TOPL), P_(s0, 1.3, TOPL)], WALL, (0, 0, 1))
-            face(mb, [P_(s0, 1.3, zb), P_(s1, 1.3, zb), P_(s1, 1.3, TOPL), P_(s0, 1.3, TOPL)], WALL, tuple(no))
+            # M6b: ate +1,1 (a face de fora em +1,3 ficava 0,1 da face da mureta nova do adro, op_castle)
+            face(mb, [P_(s0, oj, TOPL), P_(s1, oj, TOPL), P_(s1, 1.1, TOPL), P_(s0, 1.1, TOPL)], WALL, (0, 0, 1))
+            face(mb, [P_(s0, 1.1, zb), P_(s1, 1.1, zb), P_(s1, 1.1, TOPL), P_(s0, 1.1, TOPL)], WALL, tuple(no))
             nl += 1
     # APRON submerso no fundo (fecha a fresta 350..351,3 entre o buraco e a rocha) - topo 0,7 abaixo da agua
     ap = [(-13.6, 348.9), (13.6, 348.9), (13.0, 351.9), (-13.0, 351.9)]
@@ -549,7 +576,7 @@ def rocks(mb):
         (259.6, 297.0, 2.6, 2.3, 30.0, 41.0, RCOOL, "e5"),
         (-9.8, 348.6, 2.2, 1.7, LV_B - 2.4, LV_B + 1.15, RDARK, "c1"), (10.4, 349.0, 2.0, 1.6, LV_B - 2.4, LV_B + 0.85,
                                                                            RDARK, "c2"),
-        (-6.6, 345.2, 1.1, 0.9, LV_B - 1.8, LV_B + 0.22, RDARK, "c3"),
+        (-6.6, 345.2, 1.1, 0.9, LV_B - 2.4, LV_B + 0.22, RDARK, "c3"),     # M6b (item 44): pe 0,2 enterrado no leito
     ]
     for x, y, rx, ry, z0, z1, m, key in sets:
         rock(mb, x, y, rx, ry, z0, z1, m, key)

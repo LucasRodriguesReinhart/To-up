@@ -304,6 +304,8 @@ def _petal_cloud(name, markers, mats, rng):
     bm = bmesh.new()
     wx, wy = WIND
     n_tot = 0
+    gb = _ground_bvh()            # M6b (item 49): petala a menos de 0,6 do chao REAL (colisao) ja pousou -> fora
+    n_chao = 0
     for o in markers:
         x0, x1, y0, y1, z0, z1 = BOX[o.name]
         n = int(o["rate"] * o["vida"] * 0.6)
@@ -315,6 +317,11 @@ def _petal_cloud(name, markers, mats, rng):
             c = Vector((rng.uniform(x0, x1) + wx * drift, rng.uniform(y0, y1) + wy * drift, rng.uniform(z0, z1) + fall))
             if c.z < FLOOR.get(o.name, -1e9) + 0.3:
                 continue                         # ja pousou / passou do piso: no jogo some na transparencia
+            if gb is not None:
+                h = gb.ray_cast(c, Vector((0.0, 0.0, -1.0)), 0.6)
+                if h[0] is not None:
+                    n_chao += 1
+                    continue
             s = float(o["tam"]) * PREVIEW_K * rng.uniform(0.75, 1.0)
             R = Matrix.Rotation(rng.uniform(0, 6.283), 4, "Z") @ Matrix.Rotation(rng.uniform(-1.2, 1.2), 4, "X")
             vs = [bm.verts.new(c + (R @ Vector(p)).to_3d()) for p in
@@ -327,7 +334,8 @@ def _petal_cloud(name, markers, mats, rng):
     bm.free()
     for mt in mats:
         me.materials.append(mt)
-    print("VFX previa petalas: %d quads (%s)" % (n_tot, ", ".join(o.name for o in markers)))
+    print("VFX previa petalas: %d quads (%s); %d no chao descartadas" % (n_tot, ", ".join(o.name for o in markers),
+                                                                        n_chao))
     return _link(bpy.data.objects.new(name, me))
 
 
@@ -386,6 +394,25 @@ def cams():
     }
 
 
+def roblox_hide(*_a):
+    """M6b (item 49): no modo roblox (FM_MAT_PREVIEW=roblox no build OU fm_lib.apply_preview('roblox') num .blend
+    pronto, como fazem os runners da auditoria) a previa das PETALAS sai do render: o que o Roblox mostra e a particula
+    de 0,36 transparente, nao os quads 1,6x da folha. Espuma/nevoa continuam (leem como agua nos 2 modos)"""
+    try:
+        import fm_lib
+        rb = (str(getattr(fm_lib, "PREVIEW", "")).lower() == "roblox" or
+              os.environ.get("FM_MAT_PREVIEW", "").lower() == "roblox")
+    except Exception:
+        rb = os.environ.get("FM_MAT_PREVIEW", "").lower() == "roblox"
+    o = bpy.data.objects.get("PREVIEW_VFX_Petals")
+    if o is not None and o.hide_render != rb:
+        o.hide_render = rb
+
+
+if not any(getattr(f, "__name__", "") == "roblox_hide" for f in bpy.app.handlers.render_pre):
+    bpy.app.handlers.render_pre.append(roblox_hide)
+
+
 def build():
     bpy.context.view_layer.update()
     BOX.clear()
@@ -393,6 +420,7 @@ def build():
     ok = movers()
     if os.environ.get("OP_VFX_PREVIEW", "1") != "0":
         preview()
+        roblox_hide()
     for n, (loc, tgt, lens) in cams().items():
         camera(n, loc, tgt, lens)
     print("op_vfx emissores=%d (%s) moveis=%s" % (len(em), ",".join(em), "OK" if ok else "FAIL"))

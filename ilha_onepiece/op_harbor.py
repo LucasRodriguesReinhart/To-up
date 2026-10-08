@@ -66,7 +66,8 @@ def bframe(nm):
 
 # ================================================================== PIERS (pier do navio + palafita)
 def pile(mb, x, y, z_top, r=0.5, m=WD, moss=False):
-    mb.cyl(r, z_top - 29.0, (x, y, (z_top + 29.0) / 2.0), m=m, n=6, bevel=0.0)
+    # M6b: sem tampas (a de cima encosta no cabecote, a de baixo fica no fundo do mar) - paga a muralha das escadas
+    mb.cyl(r, z_top - 29.0, (x, y, (z_top + 29.0) / 2.0), m=m, n=6, bevel=0.0, caps=False)
     if moss:
         mb.cyl(r + 0.15, 1.5, (x, y, SEA + 0.35), m=MOSS, n=6, bevel=0.0, caps=False)
 
@@ -167,6 +168,8 @@ def palafita(mb):
     for y in ys:                                                                    # longarinas (ao longo de x)
         mb.box((x1 - x0 - 0.4, 0.55, 0.7), ((x0 + x1) / 2 + 0.2, y, H - 0.65), (0, 0, 0), WD, 0.0)
     for x in xs:                                                                    # cabecotes
+        if x < 224.0:
+            continue            # M6b: a 1a fileira (x 223,6: cabecote + estacas) fica DENTRO do muro do cais
         mb.box((0.9, y1 - y0 + 0.3, 0.8), (x, (y0 + y1) / 2, H - 1.4), (0, 0, 0), WD, 0.0)
         for y in ys:
             per = x > 245 or y < 41 or y > 75
@@ -225,19 +228,127 @@ def stair_rail(mb, F, x, n, rise, tread, cheek_h, h=2.3, step=4.6):
     mb.box((0.5, 0.5, 0.16), F.p(x, ys[0], ztl(ys[0]) + h + 0.08), F.r(), LAC, 0.0)
 
 
+SWALL_T = 1.2                   # espessura da muralha lateral no topo (= banzo do kit: o corrimao e a guarda do op_col
+SWALL_M, SWALL_D, SWALL_CAP = "Stone_OP_Wall", "Stone_OP_Dark", "Stone_OP_Path"   # ficam no meio dela)
+# talude (graus) da face de fora por lado (s = -1, +1 no referencial da escada). PortoA +1 = norte, encostado no arrimo
+# do T1 (y 150): sem talude (nao invade o arrimo)
+SWALL_BATTER = {"PortoA": (5.0, 0.0), "PortoB": (5.0, 5.0)}
+
+
+def _q4(mb, Fs, pts, m, want):
+    """quad com a normal virada para 'want' (local Fs); so as faces que se veem (economia de tris)"""
+    W = [Fs.p(*p) for p in pts]
+    nrm = (W[1] - W[0]).cross(W[2] - W[0]) + (W[2] - W[0]).cross(W[3] - W[0])
+    if nrm.dot(Fs.p(*want) - Fs.p(0.0, 0.0, 0.0)) < 0:
+        W.reverse()
+    mb.quad(*W, m)
+
+
+def stair_wall(mb, Fs, s, w, n, rise, tread, cheek_h, zf, batter, key):
+    """M6b (item 37): MURALHA lateral da escada (no lugar dos banzos do kit, que nas escadas de 23 viravam paineis lisos
+    de 3,6 x 23): fiadas horizontais de 1,4..2,3 em pedras de 3,6..6,4 com juntas desencontradas (0,06) sobre miolo
+    escuro rebaixado 0,22, 1 pedra em 6 em outro tom, face com recuo +-0,05 por pedra e TALUDE (face sai para baixo),
+    topo das fiadas cortado pela linha da escada (trapezios sob a capa) e CAPA clara inclinada em lajes com pingadeira
+    0,15 - a mesma linguagem de cantaria do muro do cais. Cada pedra so com a FRENTE (2 tris; pontas so nas 2
+    extremidades da muralha): a junta de 0,06 deixa ver o miolo escuro 0,22 atras. Referencial Fs da escada (x
+    atravessado, +y sobe), lado s."""
+    t = math.tan(math.radians(batter))
+    ztl = lambda y: rise * (y / tread + 1.0) + cheek_h          # linha do banzo (o corrimao pousa na capa: ztl + 0,26)
+    zt = lambda y: ztl(y) - 0.1                                 # pe da capa = topo das pedras
+    yat = lambda z: (z + 0.1 - cheek_h) / rise * tread - tread  # y em que zt(y) = z
+    Y0, Y1 = 0.03, tread * n - 0.03
+    u_in = w / 2 - 0.1                                          # costas dentro dos blocos dos espelhos (escondidas)
+    face = lambda y, z: w / 2 + SWALL_T + t * max(0.0, zt(y) - z)
+    P = lambda u, y, z: (s * u, y, z)
+    OUT, UP, BK, FW = (s, 0.0, 0.0), (0.0, 0.0, 1.0), (0.0, -1.0, 0.0), (0.0, 1.0, 0.0)
+    # miolo escuro (aparece so nas juntas), 0,22 atras da face: so a face
+    _q4(mb, Fs, [P(face(Y0, zf) - 0.22, Y0, zf), P(face(Y1, zf) - 0.22, Y1, zf), P(face(Y1, zt(Y1)) - 0.22, Y1, zt(Y1)),
+                 P(face(Y0, zt(Y0)) - 0.22, Y0, zt(Y0))], SWALL_D, OUT)
+    z, c, n_st = zf, 0, 0
+    while True:
+        hc = 1.4 + 0.9 * K._h01(key, s, "c", c)
+        z2 = z + hc
+        y_lo = max(Y0, yat(z + 0.3))
+        if y_lo > Y1 - 0.6:
+            break
+        y_t = yat(z2 + 0.25)                                    # dali para cima a fiada tem a altura cheia
+        cuts = [y_lo]
+        yy = y_lo + (0.0 if c % 2 else 1.6 * K._h01(key, s, "o", c))
+        k = 0
+        while True:
+            yy += 3.6 + 2.8 * K._h01(key, s, c, k)
+            k += 1
+            if yy >= Y1 - 1.2:
+                break
+            cuts.append(yy)
+        if y_lo + 0.6 < y_t < Y1 - 0.6:
+            cuts = sorted([q for q in cuts if abs(q - y_t) > 1.0] + [y_t])
+        cuts.append(Y1)
+        for j, (ya, yb) in enumerate(zip(cuts, cuts[1:])):
+            if yb - ya < 0.3:
+                continue
+            ya2, yb2 = ya + (0.03 if ya > Y0 + 1e-3 else 0.0), yb - (0.03 if yb < Y1 - 1e-3 else 0.0)
+            ta = (zt(ya2) if ya2 <= y_t + 1e-6 else z2) - 0.03
+            tb = (zt(yb2) if yb2 <= y_t + 1e-6 else z2) - 0.03
+            za = z + (0.03 if c else 0.0)
+            df = 0.1 * (K._h01(key, s, c, j, "d") - 0.5)
+            m = SWALL_M if K._h01(key, s, c, j, "m") > 0.16 else "Stone_OP"
+            fa0, fa1, fb0, fb1 = face(ya2, za) + df, face(ya2, ta) + df, face(yb2, za) + df, face(yb2, tb) + df
+            _q4(mb, Fs, [P(fa0, ya2, za), P(fb0, yb2, za), P(fb1, yb2, tb), P(fa1, ya2, ta)], m, OUT)
+            # (sem topo: sob a capa nao aparece e nas juntas a fresta mostra o miolo escuro, que e a leitura da junta)
+            # pontas so nas 2 extremidades da muralha; entre pedras a junta de 0,06 mostra o miolo escuro (a junta)
+            if ya2 <= Y0 + 1e-3:
+                _q4(mb, Fs, [P(u_in, ya2, za), P(fa0, ya2, za), P(fa1, ya2, ta), P(u_in, ya2, ta)], m, BK)
+            if yb2 >= Y1 - 1e-3:
+                _q4(mb, Fs, [P(u_in, yb2, za), P(fb0, yb2, za), P(fb1, yb2, tb), P(u_in, yb2, tb)], m, FW)
+            n_st += 1
+        z = z2
+        c += 1
+    # capa clara inclinada em lajes (junta 0,06), pingadeira 0,15 dos 2 lados
+    xa, xb = w / 2 - 0.15, w / 2 + SWALL_T + 0.15
+    cp = lambda y: [P(xa, y, ztl(y) - 0.1), P(xb, y, ztl(y) - 0.1), P(xb, y, ztl(y) + 0.26), P(xa, y, ztl(y) + 0.26)]
+    y, k = 0.05, 0
+    while y < Y1 - 0.2:
+        y2 = min(Y1, y + 4.2 + 1.8 * K._h01(key, s, "cap", k))
+        if Y1 - y2 < 1.0:
+            y2 = Y1
+        K.loft(mb, Fs, [cp(y + (0.03 if k else 0.0)), cp(y2 - (0.03 if y2 < Y1 else 0.0))], SWALL_CAP)
+        y, k = y2, k + 1
+    return n_st
+
+
+def newels(mb, Fs, s, w, n, rise, tread, cheek_h, zf, lamp):
+    """pilaretes de arranque/chegada sobre a muralha (os do kit vinham junto com os banzos): o de arranque com ANDON
+    quando 'lamp' (mesma luz L_OPProp_Lamp_PortoEscB_0/1 do kit), o de chegada com tampa piramidal"""
+    xa, xb = (w / 2, w / 2 + SWALL_T) if s > 0 else (-w / 2 - SWALL_T, -w / 2)
+    for yc, ztp in ((-0.55, cheek_h + 0.75), (tread * n - 0.45, rise * n + cheek_h + 0.75)):
+        K.bb(mb, Fs, xa - 0.2, xb + 0.2, yc - 0.65, yc + 0.65, zf, ztp - 0.3, SWALL_M)
+        if lamp and yc < 0:
+            xm = (xa + xb) / 2
+            K.bb(mb, Fs, xm - 0.95, xm + 0.95, yc - 0.85, yc + 0.85, ztp - 0.3, ztp - 0.06, SWALL_CAP)
+            K.bb(mb, Fs, xm - 0.32, xm + 0.32, yc - 0.32, yc + 0.32, ztp - 0.06, ztp + 0.5, WD)
+            c = K._box_lantern(mb, Fs, (xm, yc, ztp + 0.64), 0.55, 0.55, 1.4)
+            DL.light("%s_%d" % (lamp, 0 if s < 0 else 1), "POINT", Fs.p(*c), 35.0, K.WARM, 0.2)
+        else:
+            K.lathe(mb, Fs, ((xa + xb) / 2, yc, ztp - 0.3), [(0.95, 0.0), (0.95, 0.16), (0.3, 0.42), (0.1, 0.5)], 4,
+                    SWALL_CAP, math.pi / 4)
+
+
+_WMB = [None]          # MB proprio da muralha das escadas (pedras com so as faces visiveis: fecha com recalc=False)
+
+
 def stairs(mb):
+    wm = _WMB[0] or mb
     for nm, lamp in (("PortoA", None), ("PortoB", "L_OPProp_Lamp_PortoEscB")):     # andon so no pe do cais
         foot, deg, w, n, tread, g = L.stair_frame(nm)
         rise = L.stair_rise(nm)
         Fs = Frame(foot[0], foot[1], foot[2], math.radians(deg) - math.pi / 2)
-        K.stair_stone(mb, Fs, w, n, rise=rise, tread=tread, z_floor=-0.3, cheek_h=1.0, newels=True, newel_lamp=lamp)
-        for s in (-1, 1):
+        # M6b: degraus do kit SEM banzos (cheeks=False): as laterais sao a muralha de cantaria (stair_wall)
+        K.stair_stone(mb, Fs, w, n, rise=rise, tread=tread, z_floor=-0.3, cheek_h=1.0, cheeks=False)
+        for i, s in enumerate((-1, 1)):
+            stair_wall(wm, Fs, s, w, n, rise, tread, 1.0, -0.3, SWALL_BATTER[nm][i], "sw" + nm)
+            newels(mb, Fs, s, w, n, rise, tread, 1.0, -0.3, lamp)
             stair_rail(mb, Fs, s * (w / 2 + 0.6), n, rise, tread, 1.0)
-            # soco escuro corrido no pe do banzo (le como base de cantaria; o banzo alto nao fica um plano unico)
-            c = Fs.p(s * (w / 2 + 1.25), tread * n / 2, 0.45)
-            mb.box((0.4, tread * n + 0.6, 1.2), c, Fs.r(), "Stone_OP_Dark", 0.0)
-            c = Fs.p(s * (w / 2 + 1.22), tread * n / 2 + 0.3, 1.25)
-            mb.box((0.3, tread * n - 0.6, 0.3), c, Fs.r(), "Stone_OP_Dark", 0.0)
             c = Fs.p(s * (w / 2 + 0.6), -0.55, 0.0)
             col_box("OP_PortProp", (2.0, 1.7, 4.4), (c.x, c.y, foot[2] + 2.2), Fs.r())
 
@@ -448,6 +559,8 @@ def boat(mb, cx, cy, ang, Lb=11.0, Bb=3.4, roof=False, z_g=None):
         K.bb(mb, F, -hb, hb, y0 - 0.1, y1 + 0.1, zg0 - 0.35, zg0 - 0.1, WM)          # estrado
         for yy in (y0 + 0.4, y1 - 0.4):                                              # noren/sudare de bambu nas pontas
             K.bb(mb, F, -hb + 0.2, hb - 0.2, yy - 0.06, yy + 0.06, zt - 1.6, zt - 0.35, "Cloth_OP_Indigo")
+            # M6b (item 40): verga de onde o noren pende (antes ele flutuava entre os esteios, sem apoio)
+            K.bb(mb, F, -hb - 0.1, hb + 0.1, yy - 0.14, yy + 0.14, zt - 0.35, zt - 0.08, WD)
         # ro (remo de popa)
         mb.beam(F.p(0.2, -Lb / 2 + 0.3, zg0 + 0.9), F.p(0.4, -Lb / 2 - 3.6, SEA + 0.2), 0.18, 0.12, WD, 0.0)
     else:                                                # 2 remos atravessados nos bancos
@@ -479,6 +592,21 @@ def ship_lines(mb):
         z = SH.zb(ys, -1)
         a = Vector((SH.SX - SH.wid(ys, z) - 0.1, ys, z + 0.25))
         SH.rope_sag(mb, a, pts[yb], 1.3, 0.13, 8)
+
+
+ARGOLAS = [80.0, 88.0, 96.0, 104.0]           # M6b (item 38): argolas de amarracao na beira do cais (x 222)
+
+
+def argolas(mb):
+    """argola de ferro deitada no lajeado, presa numa chapa com olhal, junto a beira d'agua do cais (x 222, y 76..110)"""
+    for y in ARGOLAS:
+        x = 221.15
+        mb.box((0.9, 0.7, 0.1), (x, y, H + 0.05), (0, 0, 0), IRON, 0.0)                     # chapa
+        mb.box((0.26, 0.3, 0.34), (x + 0.12, y, H + 0.27), (0, 0, 0), IRON, 0.0)            # olhal
+        c = Vector((x - 0.42, y, H + 0.1))
+        ring = [c + Vector((0.5 * math.cos(2 * math.pi * k / 7), 0.42 * math.sin(2 * math.pi * k / 7), 0.0))
+                for k in range(8)]
+        mb.tube(ring, 0.07, IRON, n=3)
 
 
 LAMPS = [(225.0, 113.0), (225.0, 73.0)]
@@ -528,19 +656,22 @@ def build():
     rnd = random.Random(8201)
     mp = MB("OP_Port_Piers", COLL, rnd, detail="far", floor=None)        # madeira: pier, palafita, barcos, amarras
     mbd = MB("OP_Port_Built", COLL, random.Random(8202), detail="far", floor=None)   # pedra/reboco: escadas, armazens
+    _WMB[0] = MB("OP_Port_Muralha", COLL, random.Random(8203), detail="far", floor=None)  # M6b: muralha das escadas
     parts = []
 
     def tri(m):
         return sum(len(f.verts) - 2 for f in m.bm.faces)
     for fn, m in ((pier_a, mp), (palafita, mp), (boats, mp), (ship_lines, mp), (lamps, mbd), (stairs, mbd),
-                  (warehouses, mbd), (cargo, mbd)):
-        t0 = tri(m)
+                  (warehouses, mbd), (cargo, mbd), (argolas, mbd)):
+        t0 = tri(m) + (tri(_WMB[0]) if fn is stairs else 0)
         fn(m)
-        parts.append("%s %d" % (fn.__name__, tri(m) - t0))
+        parts.append("%s %d" % (fn.__name__, tri(m) + (tri(_WMB[0]) if fn is stairs else 0) - t0))
     print("op_harbor: tris por parte: " + ", ".join(parts))
     o1 = mp.finish()
     o2 = mbd.finish()
+    o3 = _WMB[0].finish(recalc=False)      # orientacao das faces calculada uma a uma (_q4): sem recalc
+    _WMB[0] = None
     cams()
-    tris = sum(sum(len(p.vertices) - 2 for p in o.data.polygons) for o in (o1, o2) if o)
+    tris = sum(sum(len(p.vertices) - 2 for p in o.data.polygons) for o in (o1, o2, o3) if o)
     print("op_harbor: %d tris (pier+palafita+barcos %d mat, construido %d mat); OP_Ter_Piers removido=%s" % (
         tris, len(o1.data.materials), len(o2.data.materials), removed))

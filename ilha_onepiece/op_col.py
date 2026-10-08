@@ -175,12 +175,12 @@ def edge_guards():
 
 
 # ------------------------------------------------------------------ chao
-def strips(area, poly, z0, z1, step, mode="inter"):
+def strips(area, poly, z0, z1, step, mode="inter", breaks=()):
     ys = [p[1] for p in poly]
     y = min(ys)
     n = 0
     while y < max(ys) - 1e-6:
-        yb = min(y + step, max(ys))
+        yb = min([y + step, max(ys)] + [b for b in breaks if b > y + 1e-6])
         ya = y
         ivs = None
         for sm in (ya + 0.05, (ya + yb) / 2, yb - 0.05):
@@ -200,7 +200,12 @@ def floors():
     for nm, poly, z, pr in L.floors():
         bot = z - 2.0 if nm == "ShipDeck" else L.FLOOR_BOT
         for piece in L.floor_pieces(nm):
-            strips(A, ccw(piece), bot, z, 8.0, mode="union")
+            # M6b-D (item 36, acrescimo pontual): no cais a faixa 'union' nao pode atravessar uma aresta horizontal do
+            # poligono (y 76 e 110: a faixa 72..80 e a 104..112 viravam piso INVISIVEL sobre o mar ao lado da palafita
+            # e na raiz do pier) -> a faixa quebra nessas cotas
+            brk = (sorted({a[1] for a, b in zip(piece, piece[1:] + piece[:1]) if abs(a[1] - b[1]) < 1e-6})
+                   if nm == "Harbor" else ())
+            strips(A, ccw(piece), bot, z, 8.0, mode="union", breaks=brk)
     for nm, up, rect, zf, zt in L.stair_notches():
         if up is None:
             continue

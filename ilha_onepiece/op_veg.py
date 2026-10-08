@@ -817,6 +817,7 @@ HERO_PINES = [
     (-20.0, 486.0, 16.0, 100.0, "fundo norte"),
     (40.0, 484.0, 15.0, 80.0, "fundo norte"),
     (325.0, 236.0, 11.0, -40.0, "promontorio, borda sul (sobre a caveira)"),
+    (210.0, 19.0, 12.0, -60.0, "ponta SE do cais (M6b item 48: o canto do cais respira, so 1 pinheiro na ponta)"),
     (215.0, 505.0, 12.0, 60.0, "raiz do esporao"),
     (226.0, 528.0, 11.0, 40.0, "esporao"),
     (262.0, 572.0, 11.0, 40.0, "esporao, perto da espada"),
@@ -838,6 +839,57 @@ FOREST = [
 
 
 SUMMON_KO = (110.0, 144.0, 212.0, 270.0)      # terraco do summon: o jardim e do op_summon (pinheiros, canteiros)
+
+
+# M6b (pedido do grupo B / item 25 da auditoria): 2 KUROMATSU no CASCALHO do patio do castelo (cota 136,2), em par
+# dos 2 lados do eixo porta -> mirante, entre o mirante e a faixa de lajes da torre (fora das lajes, do eixo, da rota
+# do salao e do TREE_KEEPOUT); debrucados para fora do eixo (moldura da porta vista do mirante)
+COURT_PINES = [(-25.0, 362.5, 13.0, 180.0, "patio do castelo, cascalho oeste do eixo"),
+               (25.0, 362.5, 13.0, 0.0, "patio do castelo, cascalho leste do eixo")]
+
+
+def court_pines(pc):
+    """pinheiros no cascalho (Stone_OP_Court do op_castle): o chao 'natural' da regra geral nao vale aqui"""
+    kx, ky = L.KEEP_C
+    tb = math.tan(math.radians(20.0))                      # pe da base da torre em talude (= op_castle.court_floor)
+    hx, hy = L.KEEP_TIERS[0][0] + 0.8 + 4.7 * tb, L.KEEP_TIERS[0][1] + 0.8 + 4.7 * tb
+    band = (kx - hx - 9.0, ky - hy - 9.0, kx + hx + 9.0, ky + hy + 9.0)        # faixa de lajes + borda + 0,5
+    n = 0
+    for x, y, h, lean, note in COURT_PINES:
+        rng = rng_at("cpine", x, y)
+        s_ = h / 12.0
+        r = 0.85 * s_
+        done = False
+        for dx, dy in NUDGE[:17]:
+            xx, yy = x + dx, y + dy
+            if band[0] < xx < band[2] and band[1] < yy < band[3]:
+                continue
+            if abs(xx) < 4.5 + 2.0 + r or plan_reject(xx, yy, r, 4.6 * s_):
+                continue
+            if pc.P.route_dist(xx, yy) < 3.0 + r:
+                continue
+            t = pc.P.top(xx, yy)
+            if t is None or not t[1].startswith("OP_Cas_") or not t[2].startswith("Stone_OP_Court") or t[3] < 0.9:
+                continue
+            if abs(t[0] - (L.CC + 0.14)) > 0.6:
+                continue
+            z = t[0]
+            pl = pine_plan(xx, yy, z, h, math.radians(lean), rng_at("cpplan", x, y), 1)
+            if pc.crown_ok(pl["spheres"]) is None:
+                continue
+            tt = add_item(xx, yy, 7.0 * s_, lambda mb: pine(mb, pl, rng_at("cpgen", x, y), 1), zroot=z)
+            if tt is None:
+                continue
+            pc.tris += tt
+            pc.commit("pine", xx, yy, z, r, 4.6 * s_)
+            STATS["pine"] = STATS.get("pine", 0) + 1
+            STATS.setdefault("patio_xy", []).append((round(xx, 1), round(yy, 1), round(z, 2)))
+            n += 1
+            done = True
+            break
+        if not done:
+            print("op_veg: AVISO pinheiro do patio nao nasceu (%.0f, %.0f) %s" % (x, y, note))
+    return n
 
 
 def city_yards(pc, budget, step=10.0):
@@ -961,6 +1013,12 @@ def rim_skip(x, y):
     return 118.0 <= x and y <= 268.0 and (y < 12.0 or x > 214.0)
 
 
+def harbor_corner(x, y):
+    """M6b (item 48): canto sul do cais (x 124..214, y < 34) sem a faixa de arvores largas da borda (eram 5 'brocolis'
+    em fila fechando a vista do cais para o mar): fica a cerejeira-heroi (170, 22) + 1 pinheiro na ponta (HERO_PINES)"""
+    return 124.0 <= x <= 214.0 and y < 34.0
+
+
 def rim_band(pc, budget):
     """faixa da borda: 3 fileiras para dentro da crista; densidade por setor (ruido dirigido de baixa frequencia,
     massas e vazios ao longo do contorno) e maior na fileira de fora"""
@@ -969,7 +1027,7 @@ def rim_band(pc, budget):
         for x, y, ang, d in rim_samples(step, inset):
             if pc.tris > budget:
                 return n
-            if rim_skip(x, y):
+            if rim_skip(x, y) or harbor_corner(x, y):
                 continue
             sector = 0.5 + 0.5 * math.sin(d / 61.0 + 1.3) * math.cos(d / 23.0 + 0.4)
             dens = base * (0.6 + 0.6 * sector)
@@ -1038,6 +1096,33 @@ def _crest(pc, x, y, ang):
     return zt, h[0], h[1]
 
 
+def _anchor(pc, c, rn, half_n, hgt, waist=0.45, max_drop=3.0):
+    """M6b (item 46): ANCORA uma almofada de face/crista. c = centro do FUNDO, rn = normal horizontal para FORA da
+    face, half_n = meia largura da almofada na direcao rn, hgt = altura. (1) prateleira/ombro de rocha ate max_drop
+    abaixo do fundo: desce ate enterrar 0,1 (nada de tufo pairando 1..3 acima do apoio); (2) a face na altura da cintura:
+    encosta ate a almofada entrar >= 0,35 nela (tufo colado, nao pendurado no ar). Devolve o novo c"""
+    c = Vector(c)
+    rn = Vector((rn.x, rn.y, 0.0))
+    if rn.length < 1e-6:
+        return c
+    rn.normalize()
+    q = c - rn * min(half_n * 0.4, 1.2) + ZZ * 0.05
+    h = pc.P.bvh.ray_cast(q, -ZZ, max_drop + 0.05)
+    if h[0] is not None and pc.P.own[h[2]].startswith(("OP_Ter_", "OP_Lmk_")) and c.z - h[0].z > 0.1:
+        c.z = h[0].z - 0.1
+        STATS["ancora_desceu"] = STATS.get("ancora_desceu", 0) + 1
+    zc = c.z + hgt * waist
+    m = Vector((c.x, c.y, zc))
+    h = pc.P.bvh.ray_cast(m + rn * (half_n + 3.0), -rn, half_n + 9.0)
+    if h[0] is not None and pc.P.own[h[2]].startswith(("OP_Ter_", "OP_Lmk_")):
+        d = (m - h[0]).dot(rn)
+        want = half_n - 0.35
+        if d > want:
+            c -= rn * (d - want)
+            STATS["ancora_encostou"] = STATS.get("ancora_encostou", 0) + 1
+    return c
+
+
 def cliff_greens(pc, budget, step=8.5):
     """o VERDE QUE ESCORRE da concept: na crista do contorno, (a) moita de beira (almofada no labio, meio para fora,
     + 1 almofada que desce colada na face) e (b) arvorezinha AGARRADA que se debruca para o vazio (tronco que sai
@@ -1085,6 +1170,7 @@ def cliff_greens(pc, budget, step=8.5):
             c1 = lip + o * r * 0.25 - ZZ * r * 0.55
             drop = 2.0 + 3.0 * hh("cgd", key)
             c2 = Vector((fp.x, fp.y, zt - drop - r * 0.8)) + o * r * 0.3
+            c2 = _anchor(pc, c2, o, r * 0.6 * 1.15, r * 1.1, 0.5)          # M6b (item 46)
             m1 = LEAF if hh("cgm", key) > 0.3 else PINE
             rng_k = ("cgbush", key)
 
@@ -1130,6 +1216,7 @@ def face_clumps(pc, budget, step=11.0):
                 nr = -nr
             r = 2.6 + 2.0 * hh("fcr", key, j)
             c = h[0] + nr * r * 0.2 - ZZ * r * 0.7
+            c = _anchor(pc, c, nr, r * 0.75 * 1.12, r * 1.15)               # M6b (item 46)
             a = math.atan2(nr.y, nr.x) + math.pi / 2
             m = LEAF if hh("fcm", key, j) > 0.4 else PINE
             rng_k = ("fc", key, j)
@@ -1266,6 +1353,7 @@ def build():
     out["t_cerejeiras"] = pc.tris
     for x, y, h, lean, note in HERO_PINES:
         place_pine(pc, x, y, h, note, lean=lean, lod=1 if any(w in note for w in ("entrada", "contraforte")) else 0)
+    out["patio"] = court_pines(pc)                                   # M6b: 2 kuromatsu no cascalho do patio
     out["t_hero"] = pc.tris
     out["quintais"] = city_yards(pc, BUDGET_TRIS * 0.53)
     out["t_quintais"] = pc.tris
@@ -1294,14 +1382,16 @@ def build():
     print("op_veg: %d tris, MeshParts~ %d, %d objetos, colisao %d | cerejeiras %d pinheiros %d largas %d moitas %d | %s"
           % (tris, mp, len(objs), pc.ncol, STATS.get("cherry", 0), STATS.get("pine", 0), STATS.get("broad", 0),
              STATS.get("bush", 0), out))
-    print("op_veg: rejeicoes %s | sem espaco no setor %d | atravessaria o construido %d" % (
-        sorted(pc.rej.items(), key=lambda a: -a[1]), STATS.get("sem_espaco", 0), STATS.get("intersecao", 0)))
+    print("op_veg: rejeicoes %s | sem espaco no setor %d | atravessaria o construido %d | ancora: desceu %d encostou %d" % (
+        sorted(pc.rej.items(), key=lambda a: -a[1]), STATS.get("sem_espaco", 0), STATS.get("intersecao", 0),
+        STATS.get("ancora_desceu", 0), STATS.get("ancora_encostou", 0)))
     print("op_veg: setores %s" % ", ".join("%s %s" % (nm, sorted(sc.cnt.items())) for nm, sc in sorted(_SEC.items())))
     print("op_veg: cerejeiras %s" % " ".join("(%.0f,%.0f,%.1f R%.1f)" % (t[0], t[1], t[2], t[4]) for t in TRUNKS
                                              if t[5] == "cherry"))
     print("op_veg: pinheiros-marco %s" % " ".join("(%.0f,%.0f,%.1f)" % (t[0], t[1], t[2]) for t in TRUNKS
                                                   if t[5] == "pine")[:600])
     print("op_veg: moitas de pe de muro %s" % STATS.get("pe_muro_xy", [])[:20])
+    print("op_veg: pinheiros do patio do castelo %s" % STATS.get("patio_xy", []))
     print("op_veg: altas (pe > 140) %s" % " ".join("%s(%.0f,%.0f,%.1f)" % (t[5], t[0], t[1], t[2]) for t in TRUNKS
                                                    if t[2] > 140.0))
     for f in STATS.get("falhou", []):

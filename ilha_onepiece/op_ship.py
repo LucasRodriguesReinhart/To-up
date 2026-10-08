@@ -291,10 +291,11 @@ def rect_prof(w, h, cx=0.0, cy=0.0):
     return [(cx - w / 2, cy - h / 2), (cx + w / 2, cy - h / 2), (cx + w / 2, cy + h / 2), (cx - w / 2, cy + h / 2)]
 
 
-def fan(mb, pts, m, normal_hint):
-    """poligono convexo em leque (centro + anel) com a normal virada para normal_hint"""
+def fan(mb, pts, m, normal_hint, center=None):
+    """poligono convexo em leque (centro + anel) com a normal virada para normal_hint; center = centro do leque (na
+    superficie curva: a media do anel afunda/sobe a flecha da vela e encostava camadas vizinhas)"""
     bm = mb.bm
-    c = sum((Vector(p) for p in pts), Vector()) / len(pts)
+    c = Vector(center) if center is not None else sum((Vector(p) for p in pts), Vector()) / len(pts)
     vc = bm.verts.new(c)
     vs = [bm.verts.new(p) for p in pts]
     hint = Vector(normal_hint)
@@ -501,10 +502,10 @@ def cabin(mb):
     # porta FECHADA de 2 folhas almofadadas, recuada 0,25 na moldura
     dz = DECK + 5.4
     mb.box((3.4, 0.2, dz - DECK), (SX, yf + 0.3, (DECK + dz) / 2), (0, 0, 0), WM, 0.0)
-    mb.box((0.14, 0.12, dz - DECK - 0.2), (SX, yf + 0.16, (DECK + dz) / 2), (0, 0, 0), WD, 0.0)
+    mb.box((0.14, 0.12, dz - DECK - 0.2), (SX, yf + 0.12, (DECK + dz) / 2), (0, 0, 0), WD, 0.0)    # M6b: 0,14 a frente
     for xx in (-0.85, 0.85):
         for zz in (DECK + 1.5, DECK + 3.9):
-            mb.box((1.2, 0.12, 1.9), (SX + xx, yf + 0.17, zz), (0, 0, 0), HULL, 0.0)
+            mb.box((1.2, 0.12, 1.9), (SX + xx, yf + 0.13, zz), (0, 0, 0), HULL, 0.0)           # M6b: 0,13 a frente
     mb.box((3.9, 0.45, 0.4), (SX, yf - 0.05, dz + 0.2), (0, 0, 0), WD, 0.0)
     mb.box((3.9, 0.6, 0.18), (SX, yf - 0.1, DECK + 0.09), (0, 0, 0), WD, 0.0)            # soleira baixa
     for x in (-2.75, 2.75):                                 # chochin ao lado da porta
@@ -560,7 +561,9 @@ def cabin(mb):
         mb.rod(Vector((x, yb, POOP + 1.4)), Vector((x, yb + 1.25, POOP + 2.6)), 0.08, IRON, 4)
         mb.rod(Vector((x, yb + 1.35, POOP + 2.6)), Vector((x, yb + 1.35, POOP + 2.2)), 0.05, IRON, 4)
         K.chochin(mb, F0, (x, yb + 1.35, POOP + 0.6), 0.5, 1.6)
-    col_box("OP_ShipCabin", (2 * hw + 0.4, Y_STERN - Y_CAB + 0.8, 10.2), (SX, (Y_CAB + Y_STERN) / 2.0 - 0.2, DECK + 5.1))
+    # M6b (item 41): topo da colisao = TOMBADILHO (POOP), nao 2,6 acima dele (o jogador que subisse flutuava)
+    col_box("OP_ShipCabin", (2 * hw + 0.4, Y_STERN - Y_CAB + 0.8, POOP - DECK), (SX, (Y_CAB + Y_STERN) / 2.0 - 0.2,
+                                                                                 (DECK + POOP) / 2.0))
 
 
 def rudder(mb):
@@ -574,7 +577,8 @@ def rudder(mb):
     for z in (35.2, 39.2, 43.2):
         mb.box((0.95, 2.4, 0.35), (SX, y0 + 0.9, z), (0, 0, 0), IRON, 0.0)
     # cadaste
-    sweep_x(mb, [(SX, y0 - 0.2, KEEL - 0.3), (SX, y0 - 0.2, DECK - 0.5)], rect_prof(0.7, 0.6), WD)
+    # M6b: cadaste 0,22 fora do painel de popa (era 0,10)
+    sweep_x(mb, [(SX, y0 - 0.08, KEEL - 0.3), (SX, y0 - 0.08, DECK - 0.5)], rect_prof(0.7, 0.6), WD)
 
 
 def stem(mb):
@@ -640,16 +644,14 @@ def mast(mb, d):
     spar(mb, (SX, y, DECK), (SX, y, zl), 0.95, 0.74, WD, 12)
     for k in range(1, int(d["low"] / 6.0)):
         z = DECK + k * 6.0
-        r = 0.95 - (0.21 * (z - DECK) / d["low"]) + 0.09
+        r = 0.95 - (0.21 * (z - DECK) / d["low"]) + 0.15        # M6b: aro 0,15 fora do mastro (era 0,09: z-fight)
         K.lathe(mb, F0, (SX, y, z - 0.2), [(r, 0.0), (r, 0.4)], 12, IRON, caps=(False, False))
     # cesto da gavea (grande) ou plataforma (traquete) logo abaixo do topo do mastro real
     if d["nest"]:
         zn = zl - 1.8
         K.lathe(mb, F0, (SX, y, zn), [(1.2, -0.5), (2.05, 0.0), (2.15, 0.1), (2.15, 2.0), (2.25, 2.1), (2.25, 2.3),
                                      (1.95, 2.3), (1.95, 0.35), (0.8, 0.35)], 14, WM)
-        for k in range(7):
-            a = k * 2 * math.pi / 7 + 0.2
-            mb.box((0.18, 0.18, 2.3), (SX + 2.2 * math.cos(a), y + 2.2 * math.sin(a), zn + 1.15), (0, 0, 0), WD, 0.0)
+        # (M6b: sem os 7 balaustres de 0,18 que ficavam DENTRO do aro de 0,3 e so vazavam 0,04 - z-fight com o aro)
         top_z = zn + 2.3
     else:
         zn = zl - 1.6
@@ -659,7 +661,8 @@ def mast(mb, d):
             mb.box((0.2, 0.2, 1.4), (SX + 2.15 * math.cos(a), y + 2.15 * math.sin(a), zn + 1.0), (0, 0, 0), WD, 0.0)
         K.lathe(mb, F0, (SX, y, zn + 1.6), [(2.2, 0.0), (2.2, 0.18)], 12, WD)
         top_z = zn + 1.8
-    mb.box((1.7, 3.2, 0.9), (SX, y - 0.55, zl + 0.2), (0, 0, 0), WD, 0.0)                  # pega (cap)
+    # pega (cap); M6b: 2,8 de comprimento (com 3,2 a frente ficava 0,05 do aro do cesto)
+    mb.box((1.7, 2.8, 0.9), (SX, y - 0.55, zl + 0.2), (0, 0, 0), WD, 0.0)
     spar(mb, (SX, y - 0.9, zl - 2.2), (SX, y - 0.9, zt), 0.55, 0.33, WD, 10)               # mastareu (avante)
     K.lathe(mb, F0, (SX, y - 0.9, zt), [(0.45, 0.0), (0.5, 0.25), (0.3, 0.55)], 8, WD)    # topo (calcez)
     col_box("OP_ShipMast", (2.2, 2.2, 9.0), (SX, y, DECK + 4.5))
@@ -791,20 +794,39 @@ def emblem_shapes(k=1.0):
 def jolly_roger(mb, S, cx, z_top, H, Wt, Wb, t, k=None, vc=0.5):
     k = k or H / 14.5
     zc = z_top - vc * H
-    gap = 0.12
+    gap = 0.2           # M6b (item 42): 0,12 no eixo y virava 0,08..0,116 na normal da vela curva -> >= 0,12 medido
+
+    def on_sail(ex, ez, side, layer):
+        exs = ex * side                                # verso: espelhado (le certo de tras)
+        z = zc + ez
+        v = (z_top - z) / H
+        W = Wt + (Wb - Wt) * v
+        p = S(exs / (W / 2.0), v)
+        p.y -= side * (t / 2.0 + gap * layer)
+        return p
+
+    def pieces(poly):
+        """barra longa (4 pontos) em pedacos de <= 1,6: a corda reta de um osso de 13 cortava a curva da vela 0,2 e
+        encostava as camadas vizinhas no verso"""
+        if len(poly) != 4:
+            return [poly]
+        a, b, c, d = [Vector((x, z, 0.0)) for x, z in poly]
+        ln = (b - a).length
+        n = int(math.ceil(ln / (1.6 * k)))
+        if n <= 1:
+            return [poly]
+        out = []
+        for i in range(n):
+            t0, t1 = i / n, (i + 1) / n
+            q = [a.lerp(b, t0), a.lerp(b, t1), d.lerp(c, t1), d.lerp(c, t0)]
+            out.append([(v.x, v.y) for v in q])
+        return out
     for side in (1, -1):
-        for layer, m, poly in emblem_shapes(k):
-            pts = []
-            for ex, ez in poly:
-                exs = ex * side                        # verso: espelhado (le certo de tras)
-                z = zc + ez
-                v = (z_top - z) / H
-                W = Wt + (Wb - Wt) * v
-                u = (exs) / (W / 2.0)
-                p = S(u, v)
-                p.y -= side * (t / 2.0 + gap * layer)
-                pts.append(p)
-            fan(mb, pts, m, (0.0, -side, 0.0))
+        for layer, m, poly0 in emblem_shapes(k):
+            for poly in pieces(poly0):
+                pts = [on_sail(ex, ez, side, layer) for ex, ez in poly]
+                ce = (sum(q[0] for q in poly) / len(poly), sum(q[1] for q in poly) / len(poly))
+                fan(mb, pts, m, (0.0, -side, 0.0), on_sail(ce[0], ce[1], side, layer))   # M6b: centro NA vela
 
 
 def flag(mb, x, y, z, w, h, cloth, waves=3, amp=0.45, emblem=False, pennant=False):
