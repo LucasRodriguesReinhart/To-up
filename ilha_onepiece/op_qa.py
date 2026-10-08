@@ -364,7 +364,7 @@ def gate():
         max(lx) - min(lx), max(ly) - min(ly), L.area(L.ISLAND_RIM), L.area(L.PLAZA), L.MINE_RECT[2] - L.MINE_RECT[0],
         L.MINE_RECT[3] - L.MINE_RECT[1]))
     zt, nt = _zmax(("OP_Tree_",))
-    zk, nk = _zmax(("OP_Cas_Blockout",))
+    zk, nk = _zmax(("OP_Cas_Blockout", "OP_Cas_Keep"))   # M3 op_castle (acrescimo pontual): torre do modulo de detalhe
     zo, no = _zmax(None, exclude=("OP_Tree_", "OP_Cas_", "OP_Lmk_"))
     zs, ns = _zmax(("OP_Sum_", "VFX_OPSUM_"))
     zw, nw = _zmax(("OP_Lmk_",))

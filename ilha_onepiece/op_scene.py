@@ -123,6 +123,13 @@ def extra_cams():
         out.update(op_tree.cams())
     except ImportError:
         pass
+    # M3 op_castle (acrescimo pontual, so cameras novas): 360 do castelo, altura do jogador no adro/subida/patio/salao,
+    # closes de telhado/varanda/shachihoko/estandartes/portoes (CAM_OP_Cas_*)
+    try:
+        import op_castle
+        out.update(op_castle.cams())
+    except ImportError:
+        pass
     return out
 
 
