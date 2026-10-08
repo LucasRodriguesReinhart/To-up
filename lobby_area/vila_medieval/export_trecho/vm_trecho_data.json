@@ -1,0 +1,2916 @@
+{
+ "mapping": "Roblox = (x_blender, z_blender, -y_blender); 1 BU = 1 stud; malha: origem = centro do bbox",
+ "export_id": "ad92449f",
+ "fbx": {
+  "02_TERRAIN": "VM_TRECHO_02_TERRAIN_ad9244.fbx",
+  "03_TOWN": "VM_TRECHO_03_TOWN_ad9244.fbx",
+  "08_WATER": "VM_TRECHO_08_WATER_ad9244.fbx"
+ },
+ "meshes": [
+  {
+   "name": "VM_Ter_TCanal__Stone_VM_Grey",
+   "group": "02_TERRAIN",
+   "obj": "VM_Ter_TCanal",
+   "material": "Stone_VM_Grey",
+   "tris": 5332,
+   "center_rbx": [
+    0.011,
+    4.963,
+    -12.0
+   ],
+   "size_rbx": [
+    59.992,
+    5.786,
+    14.118
+   ],
+   "owner": "terrain",
+   "shadow": true,
+   "flags": "",
+   "model": ""
+  },
+  {
+   "name": "VM_Ter_TCanal__Stone_VM_Mortar",
+   "group": "02_TERRAIN",
+   "obj": "VM_Ter_TCanal",
+   "material": "Stone_VM_Mortar",
+   "tris": 96,
+   "center_rbx": [
+    0.0,
+    4.265,
+    -12.0
+   ],
+   "size_rbx": [
+    60.0,
+    7.33,
+    14.0
+   ],
+   "owner": "terrain",
+   "shadow": true,
+   "flags": "",
+   "model": ""
+  },
+  {
+   "name": "VM_Ter_TCanal__Stone_VM_Trim",
+   "group": "02_TERRAIN",
+   "obj": "VM_Ter_TCanal",
+   "material": "Stone_VM_Trim",
+   "tris": 896,
+   "center_rbx": [
+    0.0,
+    7.52,
+    -12.0
+   ],
+   "size_rbx": [
+    60.12,
+    1.4,
+    14.28
+   ],
+   "owner": "terrain",
+   "shadow": true,
+   "flags": "",
+   "model": ""
+  },
+  {
+   "name": "VM_Ter_TCanal__Stone_VM_Warm",
+   "group": "02_TERRAIN",
+   "obj": "VM_Ter_TCanal",
+   "material": "Stone_VM_Warm",
+   "tris": 1116,
+   "center_rbx": [
+    0.569,
+    4.482,
+    -12.0
+   ],
+   "size_rbx": [
+    58.723,
+    4.82,
+    13.24
+   ],
+   "owner": "terrain",
+   "shadow": true,
+   "flags": "",
+   "model": ""
+  },
+  {
+   "name": "VM_Ter_TGround__Grass_VM",
+   "group": "02_TERRAIN",
+   "obj": "VM_Ter_TGround",
+   "material": "Grass_VM",
+   "tris": 24,
+   "center_rbx": [
+    0.0,
+    5.8,
+    0.0
+   ],
+   "size_rbx": [
+    88.0,
+    2.0,
+    80.0
+   ],
+   "owner": "terrain",
+   "shadow": false,
+   "flags": "",
+   "model": ""
+  },
+  {
+   "name": "VM_Ter_TGround__Stone_Paving_VM",
+   "group": "02_TERRAIN",
+   "obj": "VM_Ter_TGround",
+   "material": "Stone_Paving_VM",
+   "tris": 24,
+   "center_rbx": [
+    0.0,
+    6.33,
+    0.0
+   ],
+   "size_rbx": [
+    56.0,
+    1.339,
+    80.0
+   ],
+   "owner": "terrain",
+   "shadow": false,
+   "flags": "",
+   "model": ""
+  },
+  {
+   "name": "VM_Ter_TGround__Stone_VM_Dark",
+   "group": "02_TERRAIN",
+   "obj": "VM_Ter_TGround",
+   "material": "Stone_VM_Dark",
+   "tris": 12,
+   "center_rbx": [
+    0.0,
+    0.3,
+    -12.0
+   ],
+   "size_rbx": [
+    88.0,
+    0.6,
+    14.0
+   ],
+   "owner": "terrain",
+   "shadow": true,
+   "flags": "",
+   "model": ""
+  },
+  {
+   "name": "VM_House_PNE__Plaster_VM_Peach",
+   "group": "03_TOWN",
+   "obj": "VM_House_PNE",
+   "material": "Plaster_VM_Peach",
+   "tris": 396,
+   "center_rbx": [
+    30.25,
+    20.616,
+    12.5
+   ],
+   "size_rbx": [
+    13.5,
+    13.232,
+    11.8
+   ],
+   "owner": "houses",
+   "shadow": true,
+   "flags": "",
+   "model": "VM_House_PNE"
+  },
+  {
+   "name": "VM_House_PNE__Roof_VM_Terracotta_B",
+   "group": "03_TOWN",
+   "obj": "VM_House_PNE",
+   "material": "Roof_VM_Terracotta_B",
+   "tris": 792,
+   "center_rbx": [
+    30.66,
+    23.481,
+    12.457
+   ],
+   "size_rbx": [
+    14.98,
+    10.176,
+    15.505
+   ],
+   "owner": "houses",
+   "shadow": true,
+   "flags": "",
+   "model": "VM_House_PNE"
+  },
+  {
+   "name": "VM_House_PNE__Roof_VM_Terracotta_C",
+   "group": "03_TOWN",
+   "obj": "VM_House_PNE",
+   "material": "Roof_VM_Terracotta_C",
+   "tris": 768,
+   "center_rbx": [
+    30.675,
+    23.163,
+    12.475
+   ],
+   "size_rbx": [
+    14.65,
+    9.557,
+    15.577
+   ],
+   "owner": "houses",
+   "shadow": true,
+   "flags": "",
+   "model": "VM_House_PNE"
+  },
+  {
+   "name": "VM_House_PNE__Stone_VM_Grey",
+   "group": "03_TOWN",
+   "obj": "VM_House_PNE",
+   "material": "Stone_VM_Grey",
+   "tris": 4088,
+   "center_rbx": [
+    30.383,
+    17.477,
+    12.47
+   ],
+   "size_rbx": [
+    13.955,
+    23.554,
+    12.46
+   ],
+   "owner": "houses",
+   "shadow": true,
+   "flags": "",
+   "model": "VM_House_PNE"
+  },
+  {
+   "name": "VM_House_PNE__Stone_VM_Mortar",
+   "group": "03_TOWN",
+   "obj": "VM_House_PNE",
+   "material": "Stone_VM_Mortar",
+   "tris": 144,
+   "center_rbx": [
+    30.325,
+    17.737,
+    12.5
+   ],
+   "size_rbx": [
+    12.81,
+    24.074,
+    11.26
+   ],
+   "owner": "houses",
+   "shadow": false,
+   "flags": "",
+   "model": "VM_House_PNE"
+  },
+  {
+   "name": "VM_House_PNE__Wood_VM_Timber",
+   "group": "03_TOWN",
+   "obj": "VM_House_PNE",
+   "material": "Wood_VM_Timber",
+   "tris": 2644,
+   "center_rbx": [
+    30.675,
+    16.982,
+    12.5
+   ],
+   "size_rbx": [
+    15.17,
+    22.065,
+    15.632
+   ],
+   "owner": "houses",
+   "shadow": true,
+   "flags": "",
+   "model": "VM_House_PNE"
+  },
+  {
+   "name": "VM_House_PNW__Plaster_VM_Peach",
+   "group": "03_TOWN",
+   "obj": "VM_House_PNW",
+   "material": "Plaster_VM_Peach",
+   "tris": 344,
+   "center_rbx": [
+    -28.95,
+    21.124,
+    13.4
+   ],
+   "size_rbx": [
+    12.0,
+    14.249,
+    11.8
+   ],
+   "owner": "houses",
+   "shadow": true,
+   "flags": "",
+   "model": "VM_House_PNW"
+  },
+  {
+   "name": "VM_House_PNW__Roof_VM_Terracotta",
+   "group": "03_TOWN",
+   "obj": "VM_House_PNW",
+   "material": "Roof_VM_Terracotta",
+   "tris": 552,
+   "center_rbx": [
+    -29.259,
+    23.924,
+    13.415
+   ],
+   "size_rbx": [
+    15.084,
+    11.387,
+    14.13
+   ],
+   "owner": "houses",
+   "shadow": true,
+   "flags": "",
+   "model": "VM_House_PNW"
+  },
+  {
+   "name": "VM_House_PNW__Roof_VM_Terracotta_C",
+   "group": "03_TOWN",
+   "obj": "VM_House_PNW",
+   "material": "Roof_VM_Terracotta_C",
+   "tris": 768,
+   "center_rbx": [
+    -28.928,
+    23.558,
+    13.4
+   ],
+   "size_rbx": [
+    15.856,
+    10.784,
+    13.8
+   ],
+   "owner": "houses",
+   "shadow": true,
+   "flags": "",
+   "model": "VM_House_PNW"
+  },
+  {
+   "name": "VM_House_PNW__Stone_VM_Mortar",
+   "group": "03_TOWN",
+   "obj": "VM_House_PNW",
+   "material": "Stone_VM_Mortar",
+   "tris": 144,
+   "center_rbx": [
+    -29.025,
+    18.261,
+    13.4
+   ],
+   "size_rbx": [
+    11.31,
+    25.122,
+    11.26
+   ],
+   "owner": "houses",
+   "shadow": false,
+   "flags": "",
+   "model": "VM_House_PNW"
+  },
+  {
+   "name": "VM_House_PNW__Stone_VM_Warm",
+   "group": "03_TOWN",
+   "obj": "VM_House_PNW",
+   "material": "Stone_VM_Warm",
+   "tris": 3790,
+   "center_rbx": [
+    -29.091,
+    18.001,
+    13.37
+   ],
+   "size_rbx": [
+    12.439,
+    24.602,
+    12.46
+   ],
+   "owner": "houses",
+   "shadow": true,
+   "flags": "",
+   "model": "VM_House_PNW"
+  },
+  {
+   "name": "VM_House_PNW__Wood_VM_Timber",
+   "group": "03_TOWN",
+   "obj": "VM_House_PNW",
+   "material": "Wood_VM_Timber",
+   "tris": 2512,
+   "center_rbx": [
+    -28.95,
+    17.477,
+    13.4
+   ],
+   "size_rbx": [
+    15.865,
+    23.054,
+    14.32
+   ],
+   "owner": "houses",
+   "shadow": true,
+   "flags": "",
+   "model": "VM_House_PNW"
+  },
+  {
+   "name": "VM_House_S0E__Plaster_VM_Cream",
+   "group": "03_TOWN",
+   "obj": "VM_House_S0E",
+   "material": "Plaster_VM_Cream",
+   "tris": 636,
+   "center_rbx": [
+    16.6,
+    24.065,
+    -0.75
+   ],
+   "size_rbx": [
+    11.4,
+    20.131,
+    9.5
+   ],
+   "owner": "houses",
+   "shadow": true,
+   "flags": "",
+   "model": "VM_House_S0E"
+  },
+  {
+   "name": "VM_House_S0E__Roof_VM_Terracotta",
+   "group": "03_TOWN",
+   "obj": "VM_House_S0E",
+   "material": "Roof_VM_Terracotta",
+   "tris": 576,
+   "center_rbx": [
+    16.657,
+    29.463,
+    -1.175
+   ],
+   "size_rbx": [
+    15.188,
+    10.716,
+    10.65
+   ],
+   "owner": "houses",
+   "shadow": true,
+   "flags": "",
+   "model": "VM_House_S0E"
+  },
+  {
+   "name": "VM_House_S0E__Roof_VM_Terracotta_C",
+   "group": "03_TOWN",
+   "obj": "VM_House_S0E",
+   "material": "Roof_VM_Terracotta_C",
+   "tris": 588,
+   "center_rbx": [
+    16.245,
+    29.802,
+    -1.19
+   ],
+   "size_rbx": [
+    14.539,
+    11.417,
+    10.98
+   ],
+   "owner": "houses",
+   "shadow": true,
+   "flags": "",
+   "model": "VM_House_S0E"
+  },
+  {
+   "name": "VM_House_S0E__Stone_VM_Mortar",
+   "group": "03_TOWN",
+   "obj": "VM_House_S0E",
+   "material": "Stone_VM_Mortar",
+   "tris": 204,
+   "center_rbx": [
+    16.6,
+    21.208,
+    -0.825
+   ],
+   "size_rbx": [
+    10.86,
+    31.016,
+    8.81
+   ],
+   "owner": "houses",
+   "shadow": true,
+   "flags": "",
+   "model": "VM_House_S0E"
+  },
+  {
+   "name": "VM_House_S0E__Stone_VM_Warm",
+   "group": "03_TOWN",
+   "obj": "VM_House_S0E",
+   "material": "Stone_VM_Warm",
+   "tris": 2874,
+   "center_rbx": [
+    16.93,
+    20.948,
+    -0.58
+   ],
+   "size_rbx": [
+    11.46,
+    30.496,
+    10.56
+   ],
+   "owner": "houses",
+   "shadow": true,
+   "flags": "",
+   "model": "VM_House_S0E"
+  },
+  {
+   "name": "VM_House_S0E__Wood_VM_Timber",
+   "group": "03_TOWN",
+   "obj": "VM_House_S0E",
+   "material": "Wood_VM_Timber",
+   "tris": 4120,
+   "center_rbx": [
+    16.6,
+    20.413,
+    -1.062
+   ],
+   "size_rbx": [
+    15.275,
+    28.927,
+    11.397
+   ],
+   "owner": "houses",
+   "shadow": true,
+   "flags": "",
+   "model": "VM_House_S0E"
+  },
+  {
+   "name": "VM_House_S0W__Plaster_VM_Peach",
+   "group": "03_TOWN",
+   "obj": "VM_House_S0W",
+   "material": "Plaster_VM_Peach",
+   "tris": 344,
+   "center_rbx": [
+    -17.0,
+    20.281,
+    -1.2
+   ],
+   "size_rbx": [
+    10.8,
+    12.561,
+    8.6
+   ],
+   "owner": "houses",
+   "shadow": true,
+   "flags": "",
+   "model": "VM_House_S0W"
+  },
+  {
+   "name": "VM_House_S0W__Roof_VM_Terracotta",
+   "group": "03_TOWN",
+   "obj": "VM_House_S0W",
+   "material": "Roof_VM_Terracotta",
+   "tris": 456,
+   "center_rbx": [
+    -17.01,
+    22.991,
+    -0.658
+   ],
+   "size_rbx": [
+    13.08,
+    9.953,
+    11.151
+   ],
+   "owner": "houses",
+   "shadow": true,
+   "flags": "",
+   "model": "VM_House_S0W"
+  },
+  {
+   "name": "VM_House_S0W__Roof_VM_Terracotta_C",
+   "group": "03_TOWN",
+   "obj": "VM_House_S0W",
+   "material": "Roof_VM_Terracotta_C",
+   "tris": 600,
+   "center_rbx": [
+    -17.0,
+    22.594,
+    -1.233
+   ],
+   "size_rbx": [
+    12.8,
+    9.316,
+    12.402
+   ],
+   "owner": "houses",
+   "shadow": true,
+   "flags": "",
+   "model": "VM_House_S0W"
+  },
+  {
+   "name": "VM_House_S0W__Stone_VM_Base",
+   "group": "03_TOWN",
+   "obj": "VM_House_S0W",
+   "material": "Stone_VM_Base",
+   "tris": 2911,
+   "center_rbx": [
+    -17.03,
+    9.8,
+    -1.353
+   ],
+   "size_rbx": [
+    11.46,
+    8.2,
+    9.013
+   ],
+   "owner": "houses",
+   "shadow": true,
+   "flags": "",
+   "model": "VM_House_S0W"
+  },
+  {
+   "name": "VM_House_S0W__Stone_VM_Mortar",
+   "group": "03_TOWN",
+   "obj": "VM_House_S0W",
+   "material": "Stone_VM_Mortar",
+   "tris": 120,
+   "center_rbx": [
+    -17.0,
+    14.391,
+    -1.275
+   ],
+   "size_rbx": [
+    10.26,
+    17.381,
+    7.91
+   ],
+   "owner": "houses",
+   "shadow": false,
+   "flags": "",
+   "model": "VM_House_S0W"
+  },
+  {
+   "name": "VM_House_S0W__Wood_VM_Timber",
+   "group": "03_TOWN",
+   "obj": "VM_House_S0W",
+   "material": "Wood_VM_Timber",
+   "tris": 2404,
+   "center_rbx": [
+    -17.0,
+    16.619,
+    -1.2
+   ],
+   "size_rbx": [
+    13.32,
+    21.338,
+    12.494
+   ],
+   "owner": "houses",
+   "shadow": true,
+   "flags": "",
+   "model": "VM_House_S0W"
+  },
+  {
+   "name": "VM_House_S1E__Plaster_VM_Ochre",
+   "group": "03_TOWN",
+   "obj": "VM_House_S1E",
+   "material": "Plaster_VM_Ochre",
+   "tris": 236,
+   "center_rbx": [
+    17.65,
+    21.288,
+    9.9
+   ],
+   "size_rbx": [
+    11.9,
+    14.575,
+    12.0
+   ],
+   "owner": "houses",
+   "shadow": true,
+   "flags": "",
+   "model": "VM_House_S1E"
+  },
+  {
+   "name": "VM_House_S1E__Roof_VM_Terracotta",
+   "group": "03_TOWN",
+   "obj": "VM_House_S1E",
+   "material": "Roof_VM_Terracotta",
+   "tris": 528,
+   "center_rbx": [
+    17.21,
+    24.036,
+    9.898
+   ],
+   "size_rbx": [
+    13.38,
+    11.84,
+    15.674
+   ],
+   "owner": "houses",
+   "shadow": true,
+   "flags": "",
+   "model": "VM_House_S1E"
+  },
+  {
+   "name": "VM_House_S1E__Roof_VM_Terracotta_B",
+   "group": "03_TOWN",
+   "obj": "VM_House_S1E",
+   "material": "Roof_VM_Terracotta_B",
+   "tris": 708,
+   "center_rbx": [
+    17.225,
+    23.668,
+    9.908
+   ],
+   "size_rbx": [
+    13.05,
+    11.192,
+    15.777
+   ],
+   "owner": "houses",
+   "shadow": true,
+   "flags": "",
+   "model": "VM_House_S1E"
+  },
+  {
+   "name": "VM_House_S1E__Stone_VM_Mortar",
+   "group": "03_TOWN",
+   "obj": "VM_House_S1E",
+   "material": "Stone_VM_Mortar",
+   "tris": 96,
+   "center_rbx": [
+    17.575,
+    18.43,
+    9.975
+   ],
+   "size_rbx": [
+    11.21,
+    25.46,
+    11.31
+   ],
+   "owner": "houses",
+   "shadow": true,
+   "flags": "",
+   "model": "VM_House_S1E"
+  },
+  {
+   "name": "VM_House_S1E__Stone_VM_Warm",
+   "group": "03_TOWN",
+   "obj": "VM_House_S1E",
+   "material": "Stone_VM_Warm",
+   "tris": 3165,
+   "center_rbx": [
+    17.598,
+    18.17,
+    10.035
+   ],
+   "size_rbx": [
+    12.196,
+    24.94,
+    12.45
+   ],
+   "owner": "houses",
+   "shadow": true,
+   "flags": "",
+   "model": "VM_House_S1E"
+  },
+  {
+   "name": "VM_House_S1E__Wood_VM_Timber",
+   "group": "03_TOWN",
+   "obj": "VM_House_S1E",
+   "material": "Wood_VM_Timber",
+   "tris": 2572,
+   "center_rbx": [
+    16.88,
+    17.636,
+    9.9
+   ],
+   "size_rbx": [
+    14.26,
+    23.372,
+    15.875
+   ],
+   "owner": "houses",
+   "shadow": true,
+   "flags": "",
+   "model": "VM_House_S1E"
+  },
+  {
+   "name": "VM_House_S1W__Plaster_VM_Cream",
+   "group": "03_TOWN",
+   "obj": "VM_House_S1W",
+   "material": "Plaster_VM_Cream",
+   "tris": 580,
+   "center_rbx": [
+    -16.8,
+    24.267,
+    9.5
+   ],
+   "size_rbx": [
+    12.4,
+    20.535,
+    13.0
+   ],
+   "owner": "houses",
+   "shadow": true,
+   "flags": "",
+   "model": "VM_House_S1W"
+  },
+  {
+   "name": "VM_House_S1W__Roof_VM_Terracotta",
+   "group": "03_TOWN",
+   "obj": "VM_House_S1W",
+   "material": "Roof_VM_Terracotta",
+   "tris": 924,
+   "center_rbx": [
+    -16.821,
+    29.693,
+    9.925
+   ],
+   "size_rbx": [
+    16.201,
+    11.082,
+    14.15
+   ],
+   "owner": "houses",
+   "shadow": true,
+   "flags": "",
+   "model": "VM_House_S1W"
+  },
+  {
+   "name": "VM_House_S1W__Roof_VM_Terracotta_B",
+   "group": "03_TOWN",
+   "obj": "VM_House_S1W",
+   "material": "Roof_VM_Terracotta_B",
+   "tris": 792,
+   "center_rbx": [
+    -17.156,
+    30.043,
+    9.94
+   ],
+   "size_rbx": [
+    15.472,
+    11.719,
+    14.48
+   ],
+   "owner": "houses",
+   "shadow": true,
+   "flags": "",
+   "model": "VM_House_S1W"
+  },
+  {
+   "name": "VM_House_S1W__Stone_VM_Grey",
+   "group": "03_TOWN",
+   "obj": "VM_House_S1W",
+   "material": "Stone_VM_Grey",
+   "tris": 3330,
+   "center_rbx": [
+    -16.976,
+    21.144,
+    9.631
+   ],
+   "size_rbx": [
+    12.153,
+    30.888,
+    13.457
+   ],
+   "owner": "houses",
+   "shadow": true,
+   "flags": "",
+   "model": "VM_House_S1W"
+  },
+  {
+   "name": "VM_House_S1W__Stone_VM_Mortar",
+   "group": "03_TOWN",
+   "obj": "VM_House_S1W",
+   "material": "Stone_VM_Mortar",
+   "tris": 156,
+   "center_rbx": [
+    -16.725,
+    21.404,
+    9.575
+   ],
+   "size_rbx": [
+    11.71,
+    31.408,
+    12.31
+   ],
+   "owner": "houses",
+   "shadow": true,
+   "flags": "",
+   "model": "VM_House_S1W"
+  },
+  {
+   "name": "VM_House_S1W__Wood_VM_Timber",
+   "group": "03_TOWN",
+   "obj": "VM_House_S1W",
+   "material": "Wood_VM_Timber",
+   "tris": 4108,
+   "center_rbx": [
+    -16.8,
+    20.62,
+    9.925
+   ],
+   "size_rbx": [
+    16.265,
+    29.34,
+    14.67
+   ],
+   "owner": "houses",
+   "shadow": true,
+   "flags": "",
+   "model": "VM_House_S1W"
+  },
+  {
+   "name": "VM_Town_Medallion__Metal_VM_Bronze",
+   "group": "03_TOWN",
+   "obj": "VM_Town_Medallion",
+   "material": "Metal_VM_Bronze",
+   "tris": 792,
+   "center_rbx": [
+    0.0,
+    5.695,
+    50.0
+   ],
+   "size_rbx": [
+    17.6,
+    0.71,
+    17.6
+   ],
+   "owner": "town",
+   "shadow": true,
+   "flags": "",
+   "model": ""
+  },
+  {
+   "name": "VM_Town_Medallion__Metal_VM_Iron",
+   "group": "03_TOWN",
+   "obj": "VM_Town_Medallion",
+   "material": "Metal_VM_Iron",
+   "tris": 60,
+   "center_rbx": [
+    -0.65,
+    5.735,
+    50.175
+   ],
+   "size_rbx": [
+    8.34,
+    0.39,
+    4.59
+   ],
+   "owner": "town",
+   "shadow": false,
+   "flags": "",
+   "model": ""
+  },
+  {
+   "name": "VM_Town_Medallion__Stone_Paving_VM_Edge",
+   "group": "03_TOWN",
+   "obj": "VM_Town_Medallion",
+   "material": "Stone_Paving_VM_Edge",
+   "tris": 168,
+   "center_rbx": [
+    0.0,
+    5.625,
+    50.0
+   ],
+   "size_rbx": [
+    18.0,
+    0.57,
+    18.0
+   ],
+   "owner": "town",
+   "shadow": false,
+   "flags": "",
+   "model": ""
+  },
+  {
+   "name": "VM_Town_Medallion__Stone_Paving_VM_Joint",
+   "group": "03_TOWN",
+   "obj": "VM_Town_Medallion",
+   "material": "Stone_Paving_VM_Joint",
+   "tris": 156,
+   "center_rbx": [
+    0.0,
+    5.115,
+    50.0
+   ],
+   "size_rbx": [
+    17.964,
+    0.85,
+    17.964
+   ],
+   "owner": "town",
+   "shadow": false,
+   "flags": "",
+   "model": ""
+  },
+  {
+   "name": "VM_Town_Medallion__Stone_VM_Base",
+   "group": "03_TOWN",
+   "obj": "VM_Town_Medallion",
+   "material": "Stone_VM_Base",
+   "tris": 168,
+   "center_rbx": [
+    0.0,
+    5.61,
+    50.0
+   ],
+   "size_rbx": [
+    18.0,
+    0.54,
+    18.0
+   ],
+   "owner": "town",
+   "shadow": false,
+   "flags": "",
+   "model": ""
+  },
+  {
+   "name": "VM_Town_Medallion__Stone_VM_Trim",
+   "group": "03_TOWN",
+   "obj": "VM_Town_Medallion",
+   "material": "Stone_VM_Trim",
+   "tris": 192,
+   "center_rbx": [
+    0.0,
+    5.455,
+    50.0
+   ],
+   "size_rbx": [
+    14.159,
+    0.43,
+    14.159
+   ],
+   "owner": "town",
+   "shadow": false,
+   "flags": "",
+   "model": ""
+  },
+  {
+   "name": "VM_Town_TBridge__Metal_VM_Iron",
+   "group": "03_TOWN",
+   "obj": "VM_Town_TBridge",
+   "material": "Metal_VM_Iron",
+   "tris": 472,
+   "center_rbx": [
+    0.0,
+    10.17,
+    1.2
+   ],
+   "size_rbx": [
+    21.572,
+    2.76,
+    1.372
+   ],
+   "owner": "town",
+   "shadow": true,
+   "flags": "",
+   "model": ""
+  },
+  {
+   "name": "VM_Town_TBridge__Stone_VM_Dark",
+   "group": "03_TOWN",
+   "obj": "VM_Town_TBridge",
+   "material": "Stone_VM_Dark",
+   "tris": 288,
+   "center_rbx": [
+    0.0,
+    4.625,
+    -12.0
+   ],
+   "size_rbx": [
+    20.3,
+    3.25,
+    13.008
+   ],
+   "owner": "town",
+   "shadow": true,
+   "flags": "",
+   "model": ""
+  },
+  {
+   "name": "VM_Town_TBridge__Stone_VM_Grey",
+   "group": "03_TOWN",
+   "obj": "VM_Town_TBridge",
+   "material": "Stone_VM_Grey",
+   "tris": 2192,
+   "center_rbx": [
+    0.0,
+    7.133,
+    -10.0
+   ],
+   "size_rbx": [
+    23.3,
+    4.494,
+    25.5
+   ],
+   "owner": "town",
+   "shadow": true,
+   "flags": "",
+   "model": ""
+  },
+  {
+   "name": "VM_Town_TBridge__Stone_VM_Mortar",
+   "group": "03_TOWN",
+   "obj": "VM_Town_TBridge",
+   "material": "Stone_VM_Mortar",
+   "tris": 432,
+   "center_rbx": [
+    0.0,
+    5.0,
+    -10.405
+   ],
+   "size_rbx": [
+    22.18,
+    8.8,
+    25.19
+   ],
+   "owner": "town",
+   "shadow": true,
+   "flags": "",
+   "model": ""
+  },
+  {
+   "name": "VM_Town_TBridge__Stone_VM_Trim",
+   "group": "03_TOWN",
+   "obj": "VM_Town_TBridge",
+   "material": "Stone_VM_Trim",
+   "tris": 1184,
+   "center_rbx": [
+    0.0,
+    6.474,
+    -10.0
+   ],
+   "size_rbx": [
+    22.48,
+    6.852,
+    24.4
+   ],
+   "owner": "town",
+   "shadow": true,
+   "flags": "",
+   "model": ""
+  },
+  {
+   "name": "VM_Town_TBridge__Window_VM_Lamp",
+   "group": "03_TOWN",
+   "obj": "VM_Town_TBridge",
+   "material": "Window_VM_Lamp",
+   "tris": 24,
+   "center_rbx": [
+    0.0,
+    9.6,
+    1.2
+   ],
+   "size_rbx": [
+    21.04,
+    1.2,
+    0.84
+   ],
+   "owner": "town",
+   "shadow": false,
+   "flags": "",
+   "model": ""
+  },
+  {
+   "name": "VM_Town_TDress__Cloth_VM_Cream",
+   "group": "03_TOWN",
+   "obj": "VM_Town_TDress",
+   "material": "Cloth_VM_Cream",
+   "tris": 112,
+   "center_rbx": [
+    11.177,
+    13.703,
+    -0.75
+   ],
+   "size_rbx": [
+    2.294,
+    1.805,
+    6.31
+   ],
+   "owner": "town",
+   "shadow": false,
+   "flags": "",
+   "model": ""
+  },
+  {
+   "name": "VM_Town_TDress__Cloth_VM_Red",
+   "group": "03_TOWN",
+   "obj": "VM_Town_TDress",
+   "material": "Cloth_VM_Red",
+   "tris": 140,
+   "center_rbx": [
+    11.177,
+    13.703,
+    -0.75
+   ],
+   "size_rbx": [
+    2.294,
+    1.805,
+    8.11
+   ],
+   "owner": "town",
+   "shadow": false,
+   "flags": "",
+   "model": ""
+  },
+  {
+   "name": "VM_Town_TDress__Flower_VM_Pink",
+   "group": "03_TOWN",
+   "obj": "VM_Town_TDress",
+   "material": "Flower_VM_Pink",
+   "tris": 620,
+   "center_rbx": [
+    1.009,
+    12.166,
+    6.939
+   ],
+   "size_rbx": [
+    73.538,
+    11.659,
+    26.231
+   ],
+   "owner": "town",
+   "shadow": false,
+   "flags": "",
+   "model": ""
+  },
+  {
+   "name": "VM_Town_TDress__Flower_VM_Red",
+   "group": "03_TOWN",
+   "obj": "VM_Town_TDress",
+   "material": "Flower_VM_Red",
+   "tris": 1400,
+   "center_rbx": [
+    -0.698,
+    17.324,
+    5.232
+   ],
+   "size_rbx": [
+    38.061,
+    22.256,
+    23.159
+   ],
+   "owner": "town",
+   "shadow": false,
+   "flags": "",
+   "model": ""
+  },
+  {
+   "name": "VM_Town_TDress__Flower_VM_Yellow",
+   "group": "03_TOWN",
+   "obj": "VM_Town_TDress",
+   "material": "Flower_VM_Yellow",
+   "tris": 980,
+   "center_rbx": [
+    1.022,
+    17.333,
+    6.915
+   ],
+   "size_rbx": [
+    73.481,
+    22.157,
+    26.324
+   ],
+   "owner": "town",
+   "shadow": false,
+   "flags": "",
+   "model": ""
+  },
+  {
+   "name": "VM_Town_TDress__Leaf_VM_Tuft",
+   "group": "03_TOWN",
+   "obj": "VM_Town_TDress",
+   "material": "Leaf_VM_Tuft",
+   "tris": 1580,
+   "center_rbx": [
+    1.028,
+    21.617,
+    6.873
+   ],
+   "size_rbx": [
+    73.348,
+    13.119,
+    26.337
+   ],
+   "owner": "town",
+   "shadow": false,
+   "flags": "",
+   "model": ""
+  },
+  {
+   "name": "VM_Town_TDress__Metal_VM_Bronze",
+   "group": "03_TOWN",
+   "obj": "VM_Town_TDress",
+   "material": "Metal_VM_Bronze",
+   "tris": 56,
+   "center_rbx": [
+    9.945,
+    14.4,
+    -4.6
+   ],
+   "size_rbx": [
+    1.119,
+    0.999,
+    0.34
+   ],
+   "owner": "town",
+   "shadow": false,
+   "flags": "",
+   "model": ""
+  },
+  {
+   "name": "VM_Town_TDress__Metal_VM_Iron",
+   "group": "03_TOWN",
+   "obj": "VM_Town_TDress",
+   "material": "Metal_VM_Iron",
+   "tris": 368,
+   "center_rbx": [
+    -0.615,
+    12.235,
+    6.865
+   ],
+   "size_rbx": [
+    59.84,
+    7.11,
+    23.151
+   ],
+   "owner": "town",
+   "shadow": true,
+   "flags": "",
+   "model": ""
+  },
+  {
+   "name": "VM_Town_TDress__Wood_VM_Plank",
+   "group": "03_TOWN",
+   "obj": "VM_Town_TDress",
+   "material": "Wood_VM_Plank",
+   "tris": 36,
+   "center_rbx": [
+    9.885,
+    14.39,
+    -4.6
+   ],
+   "size_rbx": [
+    1.89,
+    1.72,
+    0.48
+   ],
+   "owner": "town",
+   "shadow": false,
+   "flags": "",
+   "model": ""
+  },
+  {
+   "name": "VM_Town_TEdges__Leaf_VM_Tuft",
+   "group": "03_TOWN",
+   "obj": "VM_Town_TEdges",
+   "material": "Leaf_VM_Tuft",
+   "tris": 1472,
+   "center_rbx": [
+    0.397,
+    6.462,
+    7.549
+   ],
+   "size_rbx": [
+    69.127,
+    1.724,
+    25.043
+   ],
+   "owner": "town",
+   "shadow": false,
+   "flags": "",
+   "model": ""
+  },
+  {
+   "name": "VM_Town_TProps__Metal_VM_Iron",
+   "group": "03_TOWN",
+   "obj": "VM_Town_TProps",
+   "material": "Metal_VM_Iron",
+   "tris": 2016,
+   "center_rbx": [
+    0.0,
+    11.795,
+    17.831
+   ],
+   "size_rbx": [
+    55.485,
+    11.83,
+    27.822
+   ],
+   "owner": "town",
+   "shadow": true,
+   "flags": "",
+   "model": ""
+  },
+  {
+   "name": "VM_Town_TProps__Stone_VM_Warm",
+   "group": "03_TOWN",
+   "obj": "VM_Town_TProps",
+   "material": "Stone_VM_Warm",
+   "tris": 112,
+   "center_rbx": [
+    0.0,
+    6.21,
+    24.4
+   ],
+   "size_rbx": [
+    55.5,
+    0.8,
+    14.7
+   ],
+   "owner": "town",
+   "shadow": true,
+   "flags": "",
+   "model": ""
+  },
+  {
+   "name": "VM_Town_TProps__Window_VM_Lamp",
+   "group": "03_TOWN",
+   "obj": "VM_Town_TProps",
+   "material": "Window_VM_Lamp",
+   "tris": 48,
+   "center_rbx": [
+    0.0,
+    15.56,
+    24.4
+   ],
+   "size_rbx": [
+    55.0,
+    1.6,
+    14.2
+   ],
+   "owner": "town",
+   "shadow": true,
+   "flags": "",
+   "model": ""
+  },
+  {
+   "name": "VM_Town_TProps__Wood_VM_Plank",
+   "group": "03_TOWN",
+   "obj": "VM_Town_TProps",
+   "material": "Wood_VM_Plank",
+   "tris": 588,
+   "center_rbx": [
+    -11.278,
+    7.86,
+    13.586
+   ],
+   "size_rbx": [
+    47.173,
+    4.22,
+    22.549
+   ],
+   "owner": "town",
+   "shadow": true,
+   "flags": "",
+   "model": ""
+  },
+  {
+   "name": "VM_Town_TProps__Wood_VM_Timber",
+   "group": "03_TOWN",
+   "obj": "VM_Town_TProps",
+   "material": "Wood_VM_Timber",
+   "tris": 1676,
+   "center_rbx": [
+    -11.511,
+    7.92,
+    13.595
+   ],
+   "size_rbx": [
+    47.187,
+    4.34,
+    22.917
+   ],
+   "owner": "town",
+   "shadow": true,
+   "flags": "",
+   "model": ""
+  },
+  {
+   "name": "VM_Town_TStreet__Stone_Paving_VM_Cob",
+   "group": "03_TOWN",
+   "obj": "VM_Town_TStreet",
+   "material": "Stone_Paving_VM_Cob",
+   "tris": 4400,
+   "center_rbx": [
+    0.646,
+    6.608,
+    4.536
+   ],
+   "size_rbx": [
+    62.589,
+    1.676,
+    51.037
+   ],
+   "owner": "town",
+   "shadow": false,
+   "flags": "",
+   "model": ""
+  },
+  {
+   "name": "VM_Town_TStreet__Stone_Paving_VM_CobB",
+   "group": "03_TOWN",
+   "obj": "VM_Town_TStreet",
+   "material": "Stone_Paving_VM_CobB",
+   "tris": 2640,
+   "center_rbx": [
+    0.654,
+    6.599,
+    5.193
+   ],
+   "size_rbx": [
+    62.561,
+    1.656,
+    52.36
+   ],
+   "owner": "town",
+   "shadow": false,
+   "flags": "",
+   "model": ""
+  },
+  {
+   "name": "VM_Town_TStreet__Stone_Paving_VM_Edge",
+   "group": "03_TOWN",
+   "obj": "VM_Town_TStreet",
+   "material": "Stone_Paving_VM_Edge",
+   "tris": 400,
+   "center_rbx": [
+    0.1,
+    5.835,
+    5.943
+   ],
+   "size_rbx": [
+    22.78,
+    0.57,
+    18.215
+   ],
+   "owner": "town",
+   "shadow": false,
+   "flags": "",
+   "model": ""
+  },
+  {
+   "name": "VM_Town_TStreet__Stone_Paving_VM_Joint",
+   "group": "03_TOWN",
+   "obj": "VM_Town_TStreet",
+   "material": "Stone_Paving_VM_Joint",
+   "tris": 60,
+   "center_rbx": [
+    0.65,
+    6.39,
+    5.2
+   ],
+   "size_rbx": [
+    62.6,
+    1.68,
+    52.4
+   ],
+   "owner": "town",
+   "shadow": false,
+   "flags": "",
+   "model": ""
+  },
+  {
+   "name": "VM_Water_TCanal__Water_VM",
+   "group": "08_WATER",
+   "obj": "VM_Water_TCanal",
+   "material": "Water_VM",
+   "tris": 12,
+   "center_rbx": [
+    0.0,
+    1.6,
+    -12.0
+   ],
+   "size_rbx": [
+    88.0,
+    2.0,
+    12.0
+   ],
+   "owner": "water",
+   "shadow": false,
+   "flags": "",
+   "model": ""
+  }
+ ],
+ "materials": {
+  "Cloth_VM_Cream": {
+   "color": [
+    232,
+    220,
+    196
+   ],
+   "material": "Fabric",
+   "transparency": 0.0,
+   "shadow": true,
+   "family": "Cloth_VM_Cream",
+   "tex": null,
+   "swirl": null,
+   "meshes": 1
+  },
+  "Cloth_VM_Red": {
+   "color": [
+    176,
+    54,
+    44
+   ],
+   "material": "Fabric",
+   "transparency": 0.0,
+   "shadow": true,
+   "family": "Cloth_VM_Red",
+   "tex": null,
+   "swirl": null,
+   "meshes": 1
+  },
+  "Flower_VM_Pink": {
+   "color": [
+    232,
+    128,
+    168
+   ],
+   "material": "SmoothPlastic",
+   "transparency": 0.0,
+   "shadow": false,
+   "family": "Flower_VM_Pink",
+   "tex": null,
+   "swirl": null,
+   "meshes": 1
+  },
+  "Flower_VM_Red": {
+   "color": [
+    214,
+    62,
+    58
+   ],
+   "material": "SmoothPlastic",
+   "transparency": 0.0,
+   "shadow": false,
+   "family": "Flower_VM_Red",
+   "tex": null,
+   "swirl": null,
+   "meshes": 1
+  },
+  "Flower_VM_Yellow": {
+   "color": [
+    240,
+    196,
+    72
+   ],
+   "material": "SmoothPlastic",
+   "transparency": 0.0,
+   "shadow": false,
+   "family": "Flower_VM_Yellow",
+   "tex": null,
+   "swirl": null,
+   "meshes": 1
+  },
+  "Grass_VM": {
+   "color": [
+    98,
+    168,
+    62
+   ],
+   "material": "Grass",
+   "transparency": 0.0,
+   "shadow": false,
+   "family": "Grass_VM",
+   "tex": null,
+   "swirl": null,
+   "meshes": 1
+  },
+  "Leaf_VM_Tuft": {
+   "color": [
+    92,
+    168,
+    56
+   ],
+   "material": "SmoothPlastic",
+   "transparency": 0.0,
+   "shadow": false,
+   "family": "Leaf_VM_Tuft",
+   "tex": null,
+   "swirl": null,
+   "meshes": 2
+  },
+  "Metal_VM_Bronze": {
+   "color": [
+    176,
+    138,
+    70
+   ],
+   "material": "Metal",
+   "transparency": 0.0,
+   "shadow": true,
+   "family": "Metal_VM_Bronze",
+   "tex": null,
+   "swirl": null,
+   "meshes": 2
+  },
+  "Metal_VM_Iron": {
+   "color": [
+    70,
+    70,
+    76
+   ],
+   "material": "Metal",
+   "transparency": 0.0,
+   "shadow": true,
+   "family": "Metal_VM_Iron",
+   "tex": null,
+   "swirl": null,
+   "meshes": 4
+  },
+  "Plaster_VM_Cream": {
+   "color": [
+    235,
+    225,
+    200
+   ],
+   "material": "SmoothPlastic",
+   "transparency": 0.0,
+   "shadow": true,
+   "family": "Plaster_VM_Cream",
+   "tex": null,
+   "swirl": null,
+   "meshes": 2
+  },
+  "Plaster_VM_Ochre": {
+   "color": [
+    226,
+    208,
+    176
+   ],
+   "material": "SmoothPlastic",
+   "transparency": 0.0,
+   "shadow": true,
+   "family": "Plaster_VM_Ochre",
+   "tex": null,
+   "swirl": null,
+   "meshes": 1
+  },
+  "Plaster_VM_Peach": {
+   "color": [
+    232,
+    210,
+    186
+   ],
+   "material": "SmoothPlastic",
+   "transparency": 0.0,
+   "shadow": true,
+   "family": "Plaster_VM_Peach",
+   "tex": null,
+   "swirl": null,
+   "meshes": 3
+  },
+  "Roof_VM_Terracotta": {
+   "color": [
+    200,
+    110,
+    60
+   ],
+   "material": "SmoothPlastic",
+   "transparency": 0.0,
+   "shadow": true,
+   "family": "Roof_VM_Terracotta",
+   "tex": null,
+   "swirl": null,
+   "meshes": 5
+  },
+  "Roof_VM_Terracotta_B": {
+   "color": [
+    182,
+    96,
+    54
+   ],
+   "material": "SmoothPlastic",
+   "transparency": 0.0,
+   "shadow": true,
+   "family": "Roof_VM_Terracotta_B",
+   "tex": null,
+   "swirl": null,
+   "meshes": 3
+  },
+  "Roof_VM_Terracotta_C": {
+   "color": [
+    214,
+    126,
+    72
+   ],
+   "material": "SmoothPlastic",
+   "transparency": 0.0,
+   "shadow": true,
+   "family": "Roof_VM_Terracotta_C",
+   "tex": null,
+   "swirl": null,
+   "meshes": 4
+  },
+  "Stone_Paving_VM": {
+   "color": [
+    178,
+    166,
+    146
+   ],
+   "material": "SmoothPlastic",
+   "transparency": 0.0,
+   "shadow": false,
+   "family": "Stone_Paving_VM",
+   "tex": null,
+   "swirl": null,
+   "meshes": 1
+  },
+  "Stone_Paving_VM_Cob": {
+   "color": [
+    190,
+    172,
+    144
+   ],
+   "material": "SmoothPlastic",
+   "transparency": 0.0,
+   "shadow": false,
+   "family": "Stone_Paving_VM_Cob",
+   "tex": null,
+   "swirl": null,
+   "meshes": 1
+  },
+  "Stone_Paving_VM_CobB": {
+   "color": [
+    166,
+    150,
+    126
+   ],
+   "material": "SmoothPlastic",
+   "transparency": 0.0,
+   "shadow": false,
+   "family": "Stone_Paving_VM_CobB",
+   "tex": null,
+   "swirl": null,
+   "meshes": 1
+  },
+  "Stone_Paving_VM_Edge": {
+   "color": [
+    140,
+    132,
+    120
+   ],
+   "material": "SmoothPlastic",
+   "transparency": 0.0,
+   "shadow": false,
+   "family": "Stone_Paving_VM_Edge",
+   "tex": null,
+   "swirl": null,
+   "meshes": 2
+  },
+  "Stone_Paving_VM_Joint": {
+   "color": [
+    108,
+    100,
+    90
+   ],
+   "material": "SmoothPlastic",
+   "transparency": 0.0,
+   "shadow": false,
+   "family": "Stone_Paving_VM_Joint",
+   "tex": null,
+   "swirl": null,
+   "meshes": 2
+  },
+  "Stone_VM_Base": {
+   "color": [
+    124,
+    130,
+    142
+   ],
+   "material": "SmoothPlastic",
+   "transparency": 0.0,
+   "shadow": true,
+   "family": "Stone_VM_Base",
+   "tex": null,
+   "swirl": null,
+   "meshes": 2
+  },
+  "Stone_VM_Dark": {
+   "color": [
+    96,
+    100,
+    112
+   ],
+   "material": "SmoothPlastic",
+   "transparency": 0.0,
+   "shadow": true,
+   "family": "Stone_VM_Dark",
+   "tex": null,
+   "swirl": null,
+   "meshes": 2
+  },
+  "Stone_VM_Grey": {
+   "color": [
+    120,
+    123,
+    130
+   ],
+   "material": "SmoothPlastic",
+   "transparency": 0.0,
+   "shadow": true,
+   "family": "Stone_VM_Grey",
+   "tex": null,
+   "swirl": null,
+   "meshes": 4
+  },
+  "Stone_VM_Mortar": {
+   "color": [
+    70,
+    72,
+    84
+   ],
+   "material": "SmoothPlastic",
+   "transparency": 0.0,
+   "shadow": true,
+   "family": "Stone_VM_Mortar",
+   "tex": null,
+   "swirl": null,
+   "meshes": 8
+  },
+  "Stone_VM_Trim": {
+   "color": [
+    160,
+    158,
+    150
+   ],
+   "material": "SmoothPlastic",
+   "transparency": 0.0,
+   "shadow": true,
+   "family": "Stone_VM_Trim",
+   "tex": null,
+   "swirl": null,
+   "meshes": 3
+  },
+  "Stone_VM_Warm": {
+   "color": [
+    132,
+    126,
+    120
+   ],
+   "material": "SmoothPlastic",
+   "transparency": 0.0,
+   "shadow": true,
+   "family": "Stone_VM_Warm",
+   "tex": null,
+   "swirl": null,
+   "meshes": 5
+  },
+  "Water_VM": {
+   "color": [
+    64,
+    150,
+    190
+   ],
+   "material": "SmoothPlastic",
+   "transparency": 0.0,
+   "shadow": false,
+   "family": "Water_VM",
+   "tex": null,
+   "swirl": null,
+   "meshes": 1
+  },
+  "Window_VM_Lamp": {
+   "color": [
+    238,
+    204,
+    146
+   ],
+   "material": "SmoothPlastic",
+   "transparency": 0.0,
+   "shadow": true,
+   "family": "Window_VM_Lamp",
+   "tex": null,
+   "swirl": null,
+   "meshes": 2
+  },
+  "Wood_VM_Plank": {
+   "color": [
+    128,
+    88,
+    58
+   ],
+   "material": "Wood",
+   "transparency": 0.0,
+   "shadow": true,
+   "family": "Wood_VM_Plank",
+   "tex": null,
+   "swirl": null,
+   "meshes": 2
+  },
+  "Wood_VM_Timber": {
+   "color": [
+    74,
+    50,
+    36
+   ],
+   "material": "Wood",
+   "transparency": 0.0,
+   "shadow": true,
+   "family": "Wood_VM_Timber",
+   "tex": null,
+   "swirl": null,
+   "meshes": 7
+  }
+ },
+ "textures": {
+  "dirt": {
+   "file": "textures/T_dirt_v3.png",
+   "studs_per_tile": 10.0
+  },
+  "grass": {
+   "file": "textures/T_grass_v3.png",
+   "studs_per_tile": 14.0
+  },
+  "plaster": {
+   "file": "textures/T_plaster_v3.png",
+   "studs_per_tile": 8.0
+  },
+  "rock": {
+   "file": "textures/T_rock_v3.png",
+   "studs_per_tile": 18.0
+  },
+  "roof": {
+   "file": "textures/T_roof_v3.png",
+   "studs_per_tile": 5.0
+  },
+  "stone": {
+   "file": "textures/T_stone_v3.png",
+   "studs_per_tile": 6.0
+  },
+  "wood": {
+   "file": "textures/T_wood_v3.png",
+   "studs_per_tile": 5.0
+  },
+  "P_DB_Swirl": {
+   "file": "textures/T_swirl_db_v6.png",
+   "uv": "disco 0..1",
+   "portal": "DragonBall",
+   "arm": [
+    150,
+    235,
+    255
+   ],
+   "core": [
+    255,
+    255,
+    255
+   ]
+  },
+  "P_DS_Swirl": {
+   "file": "textures/T_swirl_ds_v5.png",
+   "uv": "disco 0..1",
+   "portal": "DemonSlayer",
+   "arm": [
+    236,
+    26,
+    20
+   ],
+   "core": [
+    255,
+    178,
+    110
+   ]
+  },
+  "P_Naruto_Swirl": {
+   "file": "textures/T_swirl_naruto_v5.png",
+   "uv": "disco 0..1",
+   "portal": "Naruto",
+   "arm": [
+    255,
+    150,
+    14
+   ],
+   "core": [
+    255,
+    244,
+    200
+   ]
+  },
+  "P_OPM_Swirl": {
+   "file": "textures/T_swirl_opm_v6.png",
+   "uv": "disco 0..1",
+   "portal": "OnePunchMan",
+   "arm": [
+    255,
+    244,
+    120
+   ],
+   "core": [
+    255,
+    252,
+    232
+   ]
+  },
+  "P_OP_Swirl": {
+   "file": "textures/T_swirl_op_v4.png",
+   "uv": "disco 0..1",
+   "portal": "OnePiece",
+   "arm": [
+    25,
+    105,
+    255
+   ],
+   "core": [
+    150,
+    215,
+    255
+   ]
+  },
+  "P_Shadow_Swirl": {
+   "file": "textures/T_swirl_shadow_v4.png",
+   "uv": "disco 0..1",
+   "portal": "ShadowGarden",
+   "arm": [
+    150,
+    60,
+    255
+   ],
+   "core": [
+    220,
+    170,
+    255
+   ]
+  }
+ },
+ "collisions": [
+  {
+   "name": "COL_Bridge_001",
+   "kind": "Ramp",
+   "pos": [
+    0.0,
+    6.204,
+    -4.563
+   ],
+   "x": [
+    -0.0,
+    0.126,
+    -0.992
+   ],
+   "y": [
+    -1.0,
+    0.0,
+    0.0
+   ],
+   "size": [
+    11.089,
+    18.0,
+    1.0
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Bridge_002",
+   "kind": "Ramp",
+   "pos": [
+    -0.0,
+    6.7,
+    -15.482
+   ],
+   "x": [
+    -0.0,
+    -0.036,
+    -0.999
+   ],
+   "y": [
+    -1.0,
+    0.0,
+    0.0
+   ],
+   "size": [
+    11.007,
+    18.0,
+    1.0
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Bridge_003",
+   "kind": "Block",
+   "pos": [
+    -10.0,
+    9.7,
+    -10.0
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    2.0,
+    22.0,
+    7.4
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Bridge_004",
+   "kind": "Block",
+   "pos": [
+    10.0,
+    9.7,
+    -10.0
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    2.0,
+    22.0,
+    7.4
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Canal_001",
+   "kind": "Block",
+   "pos": [
+    -70.0,
+    9.0,
+    -5.5
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    118.0,
+    1.0,
+    6.0
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Canal_002",
+   "kind": "Block",
+   "pos": [
+    -70.0,
+    10.0,
+    -18.5
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    118.0,
+    1.0,
+    6.0
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Canal_003",
+   "kind": "Block",
+   "pos": [
+    88.5,
+    9.0,
+    -5.5
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    155.0,
+    1.0,
+    6.0
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_Canal_004",
+   "kind": "Block",
+   "pos": [
+    88.5,
+    10.0,
+    -18.5
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    155.0,
+    1.0,
+    6.0
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_House_019",
+   "kind": "Block",
+   "pos": [
+    -17.0,
+    13.6,
+    -1.2
+   ],
+   "x": [
+    -0.0,
+    0.0,
+    1.0
+   ],
+   "y": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "size": [
+    8.8,
+    11.0,
+    15.8
+   ],
+   "cam": true
+  },
+  {
+   "name": "COL_House_020",
+   "kind": "Block",
+   "pos": [
+    -16.8,
+    16.6,
+    9.5
+   ],
+   "x": [
+    -0.0,
+    0.0,
+    1.0
+   ],
+   "y": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "size": [
+    13.2,
+    12.6,
+    21.8
+   ],
+   "cam": true
+  },
+  {
+   "name": "COL_House_021",
+   "kind": "Block",
+   "pos": [
+    -28.95,
+    13.6,
+    13.4
+   ],
+   "x": [
+    -1.0,
+    0.0,
+    -0.0
+   ],
+   "y": [
+    -0.0,
+    0.0,
+    1.0
+   ],
+   "size": [
+    12.2,
+    12.0,
+    15.8
+   ],
+   "cam": true
+  },
+  {
+   "name": "COL_House_022",
+   "kind": "Block",
+   "pos": [
+    16.6,
+    16.6,
+    -0.75
+   ],
+   "x": [
+    -0.0,
+    0.0,
+    -1.0
+   ],
+   "y": [
+    -1.0,
+    0.0,
+    0.0
+   ],
+   "size": [
+    9.7,
+    11.6,
+    21.8
+   ],
+   "cam": true
+  },
+  {
+   "name": "COL_House_023",
+   "kind": "Block",
+   "pos": [
+    17.65,
+    13.6,
+    9.9
+   ],
+   "x": [
+    -0.0,
+    0.0,
+    -1.0
+   ],
+   "y": [
+    -1.0,
+    0.0,
+    0.0
+   ],
+   "size": [
+    12.2,
+    12.1,
+    15.8
+   ],
+   "cam": true
+  },
+  {
+   "name": "COL_House_024",
+   "kind": "Block",
+   "pos": [
+    30.25,
+    13.6,
+    12.5
+   ],
+   "x": [
+    -1.0,
+    0.0,
+    -0.0
+   ],
+   "y": [
+    -0.0,
+    0.0,
+    1.0
+   ],
+   "size": [
+    13.7,
+    12.0,
+    15.8
+   ],
+   "cam": true
+  },
+  {
+   "name": "COL_TGround_001",
+   "kind": "Block",
+   "pos": [
+    0.0,
+    4.0,
+    17.5
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    88.0,
+    45.0,
+    4.0
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_TGround_002",
+   "kind": "Block",
+   "pos": [
+    0.0,
+    5.0,
+    -29.5
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    88.0,
+    21.0,
+    4.0
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_TProps_001",
+   "kind": "Block",
+   "pos": [
+    -10.6,
+    10.5,
+    17.8
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    0.9,
+    0.9,
+    9.0
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_TProps_002",
+   "kind": "Block",
+   "pos": [
+    10.6,
+    10.5,
+    17.8
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    0.9,
+    0.9,
+    9.0
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_TProps_003",
+   "kind": "Block",
+   "pos": [
+    -27.0,
+    10.5,
+    31.0
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    0.9,
+    0.9,
+    9.0
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_TProps_004",
+   "kind": "Block",
+   "pos": [
+    27.0,
+    10.5,
+    31.0
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    0.9,
+    0.9,
+    9.0
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_TProps_005",
+   "kind": "Block",
+   "pos": [
+    11.2,
+    7.15,
+    4.95
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    2.4,
+    5.3,
+    2.3
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_TProps_006",
+   "kind": "Block",
+   "pos": [
+    -20.6,
+    7.7,
+    22.0
+   ],
+   "x": [
+    -0.482,
+    0.0,
+    -0.876
+   ],
+   "y": [
+    -0.876,
+    0.0,
+    0.482
+   ],
+   "size": [
+    7.0,
+    4.6,
+    3.4
+   ],
+   "cam": false
+  },
+  {
+   "name": "COL_TProps_007",
+   "kind": "Block",
+   "pos": [
+    -25.05,
+    7.15,
+    21.0
+   ],
+   "x": [
+    1.0,
+    0.0,
+    0.0
+   ],
+   "y": [
+    0.0,
+    0.0,
+    -1.0
+   ],
+   "size": [
+    3.1,
+    2.8,
+    2.3
+   ],
+   "cam": false
+  }
+ ],
+ "markers": [],
+ "lights": [
+  {
+   "name": "L_VM_Lamp_P1",
+   "type": "POINT",
+   "pos": [
+    -10.1,
+    9.65,
+    1.2
+   ],
+   "color": [
+    255,
+    223,
+    173
+   ],
+   "range": 5.8,
+   "brightness": 0.34,
+   "shadows": false,
+   "night": true
+  },
+  {
+   "name": "L_VM_Lamp_P2",
+   "type": "POINT",
+   "pos": [
+    10.1,
+    9.65,
+    1.2
+   ],
+   "color": [
+    255,
+    223,
+    173
+   ],
+   "range": 5.8,
+   "brightness": 0.34,
+   "shadows": false,
+   "night": true
+  },
+  {
+   "name": "L_VM_Lamp_T1",
+   "type": "POINT",
+   "pos": [
+    -10.6,
+    15.61,
+    17.8
+   ],
+   "color": [
+    255,
+    223,
+    173
+   ],
+   "range": 5.8,
+   "brightness": 0.34,
+   "shadows": false,
+   "night": true
+  },
+  {
+   "name": "L_VM_Lamp_T2",
+   "type": "POINT",
+   "pos": [
+    10.6,
+    15.61,
+    17.8
+   ],
+   "color": [
+    255,
+    223,
+    173
+   ],
+   "range": 5.8,
+   "brightness": 0.34,
+   "shadows": false,
+   "night": true
+  },
+  {
+   "name": "L_VM_Lamp_T3",
+   "type": "POINT",
+   "pos": [
+    -27.0,
+    15.61,
+    31.0
+   ],
+   "color": [
+    255,
+    223,
+    173
+   ],
+   "range": 5.8,
+   "brightness": 0.34,
+   "shadows": false,
+   "night": true
+  },
+  {
+   "name": "L_VM_Lamp_T4",
+   "type": "POINT",
+   "pos": [
+    27.0,
+    15.61,
+    31.0
+   ],
+   "color": [
+    255,
+    223,
+    173
+   ],
+   "range": 5.8,
+   "brightness": 0.34,
+   "shadows": false,
+   "night": true
+  }
+ ],
+ "far_ground": null,
+ "void_catch": {
+  "size": [
+   660,
+   4,
+   455
+  ],
+  "pos": [
+   0.0,
+   -25.0,
+   -102.5
+  ]
+ },
+ "safe_points": [],
+ "sun_rbx": [
+  -0.7658,
+  0.4973,
+  0.4078
+ ],
+ "lighting_lobby": {
+  "Lighting": {
+   "GeographicLatitude": 47.564,
+   "ClockTime": 15.8,
+   "EnvironmentDiffuseScale": 0.4,
+   "EnvironmentSpecularScale": 0.5,
+   "Brightness": 2.5,
+   "ExposureCompensation": 0.0,
+   "ShadowSoftness": 0.2,
+   "OutdoorAmbient": [
+    118,
+    128,
+    152
+   ],
+   "Ambient": [
+    90,
+    92,
+    104
+   ],
+   "ColorShift_Top": [
+    255,
+    236,
+    210
+   ]
+  },
+  "ColorCorrectionEffect": {
+   "Saturation": 0.15,
+   "Contrast": 0.12,
+   "TintColor": [
+    255,
+    246,
+    236
+   ]
+  },
+  "BloomEffect": {
+   "Threshold": 1.3,
+   "Intensity": 0.6,
+   "Size": 28
+  },
+  "Atmosphere": {
+   "Density": 0.34,
+   "Offset": 0.05,
+   "Haze": 1.8,
+   "Glare": 0.1,
+   "Color": [
+    199,
+    214,
+    235
+   ],
+   "Decay": [
+    106,
+    128,
+    168
+   ]
+  }
+ },
+ "budget": {
+  "lines": [
+   "ORCAMENTO por dono (tris / MeshParts; limite entre parenteses)",
+   "  backdrop              0 (12000)     0 (6)",
+   "  exit                  0 (18000)     0 (24)",
+   "  forge                 0 (60000)     0 (60)",
+   "  houses            49970 (90000)    36 (180)",
+   "  portals               0 (110000)     0 (160)",
+   "  services              0 (40000)     0 (50)",
+   "  terrain            7500 (40000)     7 (60)",
+   "  town              24832 (40000)    31 (50)",
+   "  vegetation            0 (40000)     0 (50)",
+   "  water                12 (6000)     1 (12)",
+   "METAS GLOBAIS",
+   "  tris estaticos                           82314 / 450000 ",
+   "  MeshParts estaticas                         75 / 600    ",
+   "  tris total (+ reserva VFX 12000)         94314 / 462000 ",
+   "  MeshParts total (+ reserva VFX 24)          99 / 624    ",
+   "  materiais                                   30 / 110    ",
+   "  MeshParts com sombra                        50 / 300    ",
+   "  luzes ativas de dia                          0 / 30     ",
+   "  COL                                         23 / 900    "
+  ],
+  "over": []
+ }
+}

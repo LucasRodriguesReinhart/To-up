@@ -97,6 +97,38 @@ def pair_sheet(dp, dr, out, cams, title):
     compose(rows2, out, title)
 
 
+# ------------------------------------------------------------------ V1 (trecho praca -> ponte + kit)
+T_CLOSES = ["CAM_VM_T_C_Fachada", "CAM_VM_T_C_Porta", "CAM_VM_T_C_Janela", "CAM_VM_T_C_Telhado", "CAM_VM_T_C_Loja",
+            "CAM_VM_T_C_Rua", "CAM_VM_T_C_Ponte", "CAM_VM_T_C_Canal", "CAM_VM_T_C_Praca", "CAM_VM_T_C_Poste"]
+
+
+def v1_jogador(dp, dr, out):
+    rows = []
+    for c, t in (("CAM_VM_T_PracaPonte", "praca -> ponte"), ("CAM_VM_T_PontePraca", "ponte -> praca")):
+        rows.append([label(fit(os.path.join(dp, c + ".jpg"), W, 540), "PREVIA  " + t),
+                     label(fit(os.path.join(dr, c + ".jpg"), W, 540), "ROBLOX  " + t)])
+    compose(rows, out, "Lobby Vila Medieval V1 - trecho na altura do jogador (olho a +6,5; boneco 5,2)")
+
+
+def v1_ref(dp, dr, out):
+    h = 540
+    rows = [[label(fit(os.path.join(REF, "ref_01_estilo_vila.jpg"), W, h), "REFERENCIA ref_01"),
+             label(fit(os.path.join(dr, "CAM_VM_T_Ref.jpg"), W, h), "V1 ROBLOX  CAM_VM_T_Ref (camera equivalente)")],
+            [label(fit(os.path.join(dp, "CAM_VM_T_Ref.jpg"), W, h), "V1 PREVIA  CAM_VM_T_Ref"),
+             label(fit(os.path.join(dr, "CAM_VM_T_C_Praca.jpg"), W, h), "V1 ROBLOX  esquina da praca (carroca)")]]
+    compose(rows, out, "Lobby Vila Medieval V1 - ref_01 x trecho final (rua do eixo, praca -> ponte)")
+
+
+def v1_grid(d, cams, out, title, prefix="ROBLOX  ", w=640, per=3):
+    tiles = []
+    for c in cams:
+        f = os.path.join(d, c + ".jpg")
+        if os.path.exists(f):
+            tiles.append(label(fit(f, w, round(w * 9 / 16)), prefix + c.replace("CAM_VM_T_", "").replace("CAM_", ""), 18))
+    rows = [tiles[i:i + per] for i in range(0, len(tiles), per)]
+    compose(rows, out, title)
+
+
 if __name__ == "__main__":
     a = sys.argv[1:]
     if a[0] == "ref":
@@ -107,3 +139,17 @@ if __name__ == "__main__":
         pair_sheet(a[1], a[2], a[3], PLAYER, "Lobby Vila Medieval V0 - altura do jogador (boneco R15 5,2 studs)")
     elif a[0] == "aereo":
         pair_sheet(a[1], a[2], a[3], AIR, "Lobby Vila Medieval V0 - vistas aereas")
+    elif a[0] == "v1jogador":
+        v1_jogador(a[1], a[2], a[3])
+    elif a[0] == "v1ref":
+        v1_ref(a[1], a[2], a[3])
+    elif a[0] == "v1closes":                     # <pasta> <saida> [rotulo]
+        v1_grid(a[1], T_CLOSES, a[2], "Lobby Vila Medieval V1 - closes na altura do jogador (%s, boneco 5,2)" % (
+            a[3] if len(a) > 3 else "ROBLOX"), prefix=(a[3] if len(a) > 3 else "ROBLOX") + "  ")
+    elif a[0] == "v1medal":
+        v1_grid(a[1], ["CAM_VM_T_MedalTop", "CAM_VM_T_MedalSpawn"], a[2],
+                "Lobby Vila Medieval V1 - medalhao da praca (picareta + bigorna, rebaixado, sem colisao)", w=960, per=2)
+    elif a[0] == "v1kit":                         # <pasta_estudio> <saida> [rotulo]
+        cams = sorted(f[:-4] for f in os.listdir(a[1]) if f.startswith("CAM_ST_") and f.endswith(".jpg"))
+        v1_grid(a[1], cams, a[2], "Lobby Vila Medieval V1 - kit da vila: presets e pecas (%s, boneco 5,2)" % (
+            a[3] if len(a) > 3 else "ROBLOX"), prefix=(a[3] if len(a) > 3 else "ROBLOX") + "  ")

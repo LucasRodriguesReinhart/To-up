@@ -1,0 +1,198 @@
+{
+ "casas": {
+  "S0W": {
+   "preset": "C2",
+   "materiais": 6,
+   "meshparts": 6,
+   "tris": 6835,
+   "lista": [
+    "Plaster_VM_Peach",
+    "Roof_VM_Terracotta",
+    "Roof_VM_Terracotta_C",
+    "Stone_VM_Base",
+    "Stone_VM_Mortar",
+    "Wood_VM_Timber"
+   ]
+  },
+  "S1W": {
+   "preset": "A3",
+   "materiais": 6,
+   "meshparts": 6,
+   "tris": 9890,
+   "lista": [
+    "Plaster_VM_Cream",
+    "Roof_VM_Terracotta",
+    "Roof_VM_Terracotta_B",
+    "Stone_VM_Grey",
+    "Stone_VM_Mortar",
+    "Wood_VM_Timber"
+   ]
+  },
+  "PNW": {
+   "preset": "F2",
+   "materiais": 6,
+   "meshparts": 6,
+   "tris": 8110,
+   "lista": [
+    "Plaster_VM_Peach",
+    "Roof_VM_Terracotta",
+    "Roof_VM_Terracotta_C",
+    "Stone_VM_Mortar",
+    "Stone_VM_Warm",
+    "Wood_VM_Timber"
+   ]
+  },
+  "S0E": {
+   "preset": "D3",
+   "materiais": 6,
+   "meshparts": 6,
+   "tris": 8998,
+   "lista": [
+    "Plaster_VM_Cream",
+    "Roof_VM_Terracotta",
+    "Roof_VM_Terracotta_C",
+    "Stone_VM_Mortar",
+    "Stone_VM_Warm",
+    "Wood_VM_Timber"
+   ]
+  },
+  "S1E": {
+   "preset": "B2",
+   "materiais": 6,
+   "meshparts": 6,
+   "tris": 7305,
+   "lista": [
+    "Plaster_VM_Ochre",
+    "Roof_VM_Terracotta",
+    "Roof_VM_Terracotta_B",
+    "Stone_VM_Mortar",
+    "Stone_VM_Warm",
+    "Wood_VM_Timber"
+   ]
+  },
+  "PNE": {
+   "preset": "E2",
+   "materiais": 6,
+   "meshparts": 6,
+   "tris": 8832,
+   "lista": [
+    "Plaster_VM_Peach",
+    "Roof_VM_Terracotta_B",
+    "Roof_VM_Terracotta_C",
+    "Stone_VM_Grey",
+    "Stone_VM_Mortar",
+    "Wood_VM_Timber"
+   ]
+  }
+ },
+ "outros": {
+  "VM_Ter_TCanal": {
+   "materiais": 4,
+   "tris": 7440,
+   "lista": [
+    "Stone_VM_Grey",
+    "Stone_VM_Mortar",
+    "Stone_VM_Trim",
+    "Stone_VM_Warm"
+   ]
+  },
+  "VM_Town_Medallion": {
+   "materiais": 6,
+   "tris": 1536,
+   "lista": [
+    "Metal_VM_Bronze",
+    "Metal_VM_Iron",
+    "Stone_Paving_VM_Edge",
+    "Stone_Paving_VM_Joint",
+    "Stone_VM_Base",
+    "Stone_VM_Trim"
+   ]
+  },
+  "VM_Town_TBridge": {
+   "materiais": 6,
+   "tris": 4592,
+   "lista": [
+    "Metal_VM_Iron",
+    "Stone_VM_Dark",
+    "Stone_VM_Grey",
+    "Stone_VM_Mortar",
+    "Stone_VM_Trim",
+    "Window_VM_Lamp"
+   ]
+  },
+  "VM_Town_TDress": {
+   "materiais": 10,
+   "tris": 5292,
+   "lista": [
+    "Cloth_VM_Cream",
+    "Cloth_VM_Red",
+    "Flower_VM_Pink",
+    "Flower_VM_Red",
+    "Flower_VM_Yellow",
+    "Leaf_VM_Tuft",
+    "Metal_VM_Bronze",
+    "Metal_VM_Iron",
+    "Wood_VM_Plank",
+    "Wood_VM_Timber"
+   ]
+  },
+  "VM_Town_TEdges": {
+   "materiais": 3,
+   "tris": 1472,
+   "lista": [
+    "Leaf_VM_Tuft",
+    "Stone_VM_Grey",
+    "Stone_VM_Warm"
+   ]
+  },
+  "VM_Town_TProps": {
+   "materiais": 5,
+   "tris": 4440,
+   "lista": [
+    "Metal_VM_Iron",
+    "Stone_VM_Warm",
+    "Window_VM_Lamp",
+    "Wood_VM_Plank",
+    "Wood_VM_Timber"
+   ]
+  },
+  "VM_Town_TStreet": {
+   "materiais": 4,
+   "tris": 7500,
+   "lista": [
+    "Stone_Paving_VM_Cob",
+    "Stone_Paving_VM_CobB",
+    "Stone_Paving_VM_Edge",
+    "Stone_Paving_VM_Joint"
+   ]
+  }
+ },
+ "total_tris": 82242,
+ "total_meshparts_est": 74,
+ "lod1_geminada_LB": {
+  "A3": {
+   "tris": 7574,
+   "materiais": 6
+  },
+  "B2": {
+   "tris": 5568,
+   "materiais": 6
+  },
+  "C2": {
+   "tris": 4144,
+   "materiais": 6
+  },
+  "D3": {
+   "tris": 5836,
+   "materiais": 6
+  },
+  "E2": {
+   "tris": 5896,
+   "materiais": 6
+  },
+  "F2": {
+   "tris": 5150,
+   "materiais": 6
+  }
+ }
+}

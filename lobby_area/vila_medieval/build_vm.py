@@ -26,9 +26,15 @@ def build():
     vm_col.build()
     vm_core.build()
     rep = vm_blockout.build()
+    # V1 (acrescimo pontual): TRECHO DE QUALIDADE FINAL praca -> ponte com o kit (vm_kit). O vm_trecho recorta do
+    # blockout o que cai na regiao (casas S1W/S1E/PNW/PNE, medalhao, ponte, rua sul, muros do canal x -30..30, props e
+    # arvores) e constroi as pecas finais no lugar; cameras CAM_VM_T_* depois das do V0.
+    import vm_trecho
+    vm_trecho.build()
     fm_lib.make_materials()          # materiais registrados depois do primeiro make (portais)
     vm_scene.clouds()
     vm_scene.cameras()
+    vm_trecho.cameras()
     vm_scene.scale_reference(visible=True)
     bpy.context.view_layer.update()
     return rep, time.time() - t0
