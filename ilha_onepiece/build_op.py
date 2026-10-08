@@ -23,14 +23,14 @@ ZONE_MODULES = {
     "entry": ["op_entry"],      # M2 op_entry (agente entrada+summon: ponte 120 em arcos, grande torii, patio, escada)
     "capital": ["op_m2_trecho"],  # M2 agente do trecho: rua de chegada + C1/C2/C5/C6 (op_kit) + escadaria; resto blockout -> M4 op_capital
     "plaza": ["op_m2_praca"],     # M2 agente do trecho: faixa sul + emblema + borda; resto piso provisorio -> M4 op_plaza
-    "castle": [],         # M3 op_castle
+    "castle": ["op_castle"],  # M3 op_castle (agente do castelo: torre 4 andares 360, salao acessivel, patio, adro, portoes, estandartes)
     "tree": ["op_tree"],  # M3 op_tree (arvore monumental arqueada; acrescimo do agente da arvore)
     "summon": ["op_summon"],    # M2 op_summon (torre AMS por alias como o ds_summon + base Wano no terraco leste)
-    "harbor": [],         # M3 op_harbor
-    "ship": [],           # M3 op_ship
+    "harbor": ["op_harbor"],  # M3 op_harbor (agente porto+navio: pier/palafita/armazens/escadas PortoA-B/barcos)
+    "ship": ["op_ship"],      # M3 op_ship (agente porto+navio: casco, mastros, velas, prancha, castelo de popa)
     "water": [],          # M4 op_water
-    "exit": [],           # M4 op_exit
-    "landmarks": [],      # M4 op_landmarks
+    "exit": ["op_exit"],  # M4 op_exit (agente saida+marcos: ponte vermelha em arco, promontorio, cabeca de ponte da ancora + guarda provisoria)
+    "landmarks": ["op_landmarks"],  # M4 op_landmarks (agente saida+marcos: caveira esculpida na rocha, espada, pagode)
     "dressing": [],       # M4/M6 op_veg, op_props, op_vfx, op_lights
 }
 

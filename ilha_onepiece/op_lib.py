@@ -82,6 +82,8 @@ OPMATS = {
     "Cloth_OP_Indigo":    (S(44, 52, 96), 0.85, 0.0, 0, None, 0.03),     # noren, faixa dos estandartes
     "Cloth_OP_Red":       (S(176, 40, 34), 0.85, 0.0, 0, None, 0.03),
     "Cloth_OP_Sail":      (S(236, 226, 200), 0.85, 0.0, 0, None, 0.03),
+    "Cloth_OP_Black":     (S(34, 32, 38), 0.85, 0.0, 0, None, 0.02),     # M3 op_ship: contorno/olhos do Jolly Roger, bandeira
+    "Cloth_OP_Straw":     (S(226, 184, 86), 0.85, 0.0, 0, None, 0.04),   # M3 op_ship/op_harbor: chapeu de palha, fardos de arroz
     "Glass_OP_Lantern":   (S(232, 160, 96), 0.4, 0.0, 1.0, S(240, 170, 110), 0.0),   # papel aceso DENTRO da armacao
     "Window_OP_Warm":     (S(250, 212, 160), 0.5, 0.0, 0.5, S(255, 190, 120), 0.0),  # shoji aceso, recuado
     "Water_OP_Basin":     (S(36, 120, 130), 0.15, 0.0, 0, None, 0.0),    # so previa (a agua e do Roblox)
