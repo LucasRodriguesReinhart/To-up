@@ -43,11 +43,13 @@ ZONE_MARKERS = {
 # luzes de dia <= 36 (+ NightOnly)
 BUDGET = {
     "terrain": (100000, 75, 8, 820, 0), "entry": (30000, 32, 4, 30, 2), "capital": (130000, 130, 10, 120, 12),
-    "plaza": (20000, 24, 3, 20, 0), "castle": (70000, 55, 8, 60, 4), "tree": (40000, 30, 4, 6, 0),
+    "plaza": (31500, 33, 3, 50, 0), "castle": (70000, 55, 8, 60, 4), "tree": (40000, 30, 4, 6, 0),
     "summon": (34000, 40, 5, 60, 4), "harbor": (35000, 40, 5, 40, 2), "ship": (18000, 16, 4, 10, 0),
     "water": (10000, 16, 3, 10, 0), "exit": (18000, 24, 3, 30, 2), "landmarks": (14000, 14, 4, 6, 0),
     "dressing": (70000, 80, 8, 80, 12),
 }
+# M4 op_plaza (acrescimo pontual): plaza 20k/24 -> 31,5k/33 (= teto do lead 34k / 36 MeshParts no export, sem os 8%) e
+# colisoes 20 -> 50 (mureta + COL_OP_Prop* da borda: postes, estandartes, bancos, toro)
 # donos do export (prefixo -> dono), iguais ao export_op.ER.OWNERS
 OWNERS = [("OP_Ter_", "terrain"), ("OP_Ent_", "entry"), ("OP_Cap_", "capital"), ("OP_Plz_", "plaza"),
           ("OP_Cas_", "castle"), ("OP_Tree_", "tree"), ("OP_Port_", "harbor"), ("OP_Ship_", "ship"),

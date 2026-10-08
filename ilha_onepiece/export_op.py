@@ -112,7 +112,10 @@ ER.OWNERS = [("OP_Ter_", "terrain"), ("OP_Ent_", "entry"), ("OP_Cap_", "capital"
              ("OP_Sum_", "summon"), ("OP_Exit_", "exit"), ("GATE_", "gate_opm"), ("OP_Lmk_", "landmarks"),
              ("OP_Water_", "water"), ("VFX_", "vfx"), ("OP_Veg_", "vegetation"), ("OP_Prop_", "props")]
 # tetos por dono = PLANO_OP secao 9 + ~8% de folga do export (fatias por material/celula), como na DS
-ER.BUDGET_OWNER = {"terrain": (108000, 81), "entry": (32400, 35), "capital": (140400, 140), "plaza": (21600, 26),
+# M4 op_plaza (acrescimo pontual): teto do plaza 21,6k -> 34k tris por decisao do lead (faixa sul do M2 ja gastava
+# 17,9k; o resto do piso em aneis/eixo/campos + mureta leva a 32,5k) e 26 -> 36 MeshParts (piso de 232 x 194 fatiado
+# em celulas de 128 x 4 tons de pedra; medido 30). Estandartes/postes/bancos da borda contam no dono props (OP_Prop_Plz_).
+ER.BUDGET_OWNER = {"terrain": (108000, 81), "entry": (32400, 35), "capital": (140400, 140), "plaza": (34000, 36),
                    "castle": (75600, 59), "tree": (43200, 32), "harbor": (37800, 43), "ship": (19400, 17),
                    "summon": (36700, 43), "exit": (19400, 26), "gate_opm": (30300, 41), "landmarks": (15100, 15),
                    "water": (10800, 17), "props": (27000, 38), "vegetation": (48600, 49), "vfx": (16200, 32)}
