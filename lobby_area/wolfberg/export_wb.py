@@ -50,7 +50,7 @@ ER.BUDGET_OWNER = dict(L.BUDGET_OWNER)
 ER.BUDGET = dict(L.BUDGET)
 ER.FAR_GROUND = None
 # rede de quedas: plato (x -218..134, z -136..154) + ponte ate z 222; topo em -23
-ER.VOID_CATCH = {"size": [400, 4, 400], "y": -25.0, "center": (-42.0, -43.0)}      # center = (x, y) Blender
+ER.VOID_CATCH = {"size": [420, 4, 400], "y": -25.0, "center": (-49.0, -43.0)}      # center = (x, y) Blender
 ER.SKYLINE_WHOLE = ("WB_Bg_",)
 ER.SKYLINE_MODEL = ("WB_Bg_",)
 ER.BACKGROUND = ("WB_Bg_",)
@@ -76,7 +76,7 @@ ER.lights = _lights_wb
 def safe_candidates():
     pts = [("SAFE_Spawn", (0, 32), L.Y_PAVE), ("SAFE_Praca", (0, 0), L.Y_PAVE), ("SAFE_PracaNW", (-20, -30), L.Y_PAVE),
            ("SAFE_Loja", (48, -9), L.Y_PAVE), ("SAFE_Mural", (-30, -11), L.Y_PAVE), ("SAFE_RuaOeste", (-66, 44), L.Y_PAVE),
-           ("SAFE_PatioEntrada", (-100, 58), L.Y_PAVE), ("SAFE_Patio", (-134, 62), L.Y_PAVE),
+           ("SAFE_PatioEntrada", (-104, 62), L.Y_PAVE), ("SAFE_Patio", (-134, 62), L.Y_PAVE),
            ("SAFE_RuaSul1", (0, 80), L.Y_PAVE), ("SAFE_RuaSul2", (0, 120), L.Y_PAVE), ("SAFE_Portao", (0, 150), L.Y_PAVE),
            ("SAFE_Ponte1", (0, 185), L.Y_PAVE - 0.5), ("SAFE_Ponte2", (0, 210), L.Y_ISLE + 0.2),
            ("SAFE_Forja", (0, -44), L.Y_PAVE)]
@@ -175,7 +175,34 @@ def contract_lua():
     A("end")
     A("print(string.format('CONTRATO: Santuario com %d portais, LobbyRevision %s', #PORTAIS, EXPORT_ID))")
     A(wb_lights.vfx_lua())
+    A(LETREIRO_LUA)
     return "\n".join(s) + "\n"
+
+LETREIRO_LUA = r"""
+-- ================= placas flutuantes das estacoes (marcadores LETREIRO_* com atributo 'texto') =================
+do
+  local n = 0
+  for _, mk in ipairs(MKF:GetChildren()) do
+    local txt = mk:GetAttribute('texto')
+    if txt and string.sub(mk.Name, 1, 9) == 'LETREIRO_' then
+      local old = mk:FindFirstChildOfClass('BillboardGui'); if old then old:Destroy() end
+      local bg = Instance.new('BillboardGui'); bg.Name = 'Letreiro'; bg.Size = UDim2.new(0, 18 + 11 * #txt, 0, 44)
+      bg.MaxDistance = mk:GetAttribute('alcance') or 170; bg.AlwaysOnTop = false; bg.LightInfluence = 0.3
+      local fr = Instance.new('Frame'); fr.Size = UDim2.fromScale(1, 1); fr.BackgroundColor3 = Color3.fromRGB(74, 48, 30)
+      fr.BackgroundTransparency = 0.08; fr.BorderSizePixel = 0; fr.Parent = bg
+      local uc = Instance.new('UICorner'); uc.CornerRadius = UDim.new(0, 10); uc.Parent = fr
+      local st = Instance.new('UIStroke'); st.Color = Color3.fromRGB(236, 200, 120); st.Thickness = 2.5; st.Parent = fr
+      local tl = Instance.new('TextLabel'); tl.Size = UDim2.new(1, -16, 1, -8); tl.Position = UDim2.new(0, 8, 0, 4)
+      tl.BackgroundTransparency = 1; tl.Text = txt; tl.TextColor3 = Color3.fromRGB(246, 226, 176); tl.TextScaled = true
+      tl.Font = Enum.Font.FredokaOne; tl.TextStrokeTransparency = 0.4; tl.TextStrokeColor3 = Color3.fromRGB(30, 18, 10)
+      tl.Parent = fr
+      bg.Parent = mk; n += 1
+    end
+  end
+  print(string.format('Letreiros das estacoes: %d', n))
+end
+"""
+
 
 
 def main():

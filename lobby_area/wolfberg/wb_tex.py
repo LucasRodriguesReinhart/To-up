@@ -37,6 +37,7 @@ TEXTURES = {
     "wb_crop": ("WB_crop_v%d.png" % VERSION, 12.0),
     "wb_roof_dark": ("WB_roof_dark_v%d.png" % VERSION, 4.0),
     "wb_plaster_ochre": ("WB_plaster_ochre_v%d.png" % VERSION, 8.0),
+    "wb_flag": ("WB_flag_v%d.png" % VERSION, 8.0),
 }
 
 
@@ -420,6 +421,23 @@ def tex_crop(rng):
     return rgba(img)
 
 
+def tex_flag(rng):
+    """lajeado de pedras GRANDES (3-4 por tile de 8 studs) com juntas de musgo/terra: o eixo principal da vila"""
+    inside, shade, ids = stones(rng, 4, 3, jitter=0.3, round_k=0.2, gap=0.05, rect=True)
+    base = rgb((178, 166, 146))
+    var = id_variation(ids, rng, 0.14)
+    warm = rng.uniform(-0.04, 0.04, ids.max() + 1)
+    tint = np.stack([1 + warm, 1 + warm * 0.4, 1 - warm * 0.6], axis=1)
+    col = base[None, None, :] * tint[ids] * var[:, :, None]
+    fine = fbm(rng, 40, 3)
+    img = col * (0.9 + 0.2 * fine[:, :, None]) * (0.75 + 0.35 * shade[:, :, None])
+    joint = rgb((96, 108, 70))                        # musgo/terra nas juntas
+    img = mix(img, joint, (1 - inside) * 0.85)
+    cracks = smoothstep(0.3, 0.24, fbm(rng, 10, 3))
+    img = mix(img, rgb((120, 110, 96)), cracks * inside * 0.5)
+    return rgba(img)
+
+
 def tex_roof_dark(rng):
     img = tex_roof(rng)
     img[:, :, :3] = img[:, :, :3] * np.array([0.78, 0.74, 0.8])[None, None, :]
@@ -436,7 +454,8 @@ GEN = {"wb_cobble": tex_cobble, "wb_stone": tex_stone, "wb_stone_dark": tex_ston
        "wb_timber": tex_timber, "wb_plank": tex_plank, "wb_roof": tex_roof, "wb_canvas_red": tex_canvas_red,
        "wb_canvas_blue": tex_canvas_blue, "wb_canvas_green": tex_canvas_green, "wb_iron": tex_iron,
        "wb_grass": tex_grass, "wb_dirt": tex_dirt, "wb_bark": tex_bark, "wb_leaf": tex_leaf, "wb_rock": tex_rock,
-       "wb_pine": tex_pine, "wb_crop": tex_crop, "wb_roof_dark": tex_roof_dark, "wb_plaster_ochre": tex_plaster_ochre}
+       "wb_pine": tex_pine, "wb_crop": tex_crop, "wb_roof_dark": tex_roof_dark, "wb_plaster_ochre": tex_plaster_ochre,
+       "wb_flag": tex_flag}
 
 
 def path(key):

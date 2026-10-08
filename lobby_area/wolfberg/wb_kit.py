@@ -384,22 +384,38 @@ def house(spec, coll="03_TOWN", seed=None):
     pl, rf = spec.get("plaster", PL), spec.get("roof", RF)
     rfd = RFD
     jet = JET if spec.get("jetty", True) else 0.0
-    # soco + terreo de pedra
+    # soco + terreo: estilo A = pedra inteira; estilo B = base de pedra ate 3,2 e enxaimel por cima (variedade por casa)
+    style = spec.get("style", "B" if h01("style", sid) < 0.45 else "A")
     bb(b, F, -w / 2 - 0.4, w / 2 + 0.4, -d / 2 - 0.4, d / 2 + 0.4, -0.5, 0.9, STD)
-    bb(b, F, -w / 2, w / 2, -d / 2, d / 2, 0.8, GH, ST)
-    # porta na frente + janelas do terreo (frente e lados)
     Ff = F.face("F", w, d)
     door_x = spec.get("door_x", -w / 4 if w > 16 else 0.0)
+    if style == "A":
+        bb(b, F, -w / 2, w / 2, -d / 2, d / 2, 0.8, GH, ST)
+    else:
+        bb(b, F, -w / 2, w / 2, -d / 2, d / 2, 0.8, 3.2, ST)
+        bb(b, F, -w / 2, w / 2, -d / 2, d / 2, 3.1, GH, pl)
+        for side in ("F", "B", "R", "L"):
+            Fs = F.face(side, w, d)
+            ln = w if side in ("F", "B") else d
+            n = max(2, int(round(ln / 3.6)))
+            bays = [-ln / 2 + ln * k / n for k in range(n + 1)]
+            skip = set()
+            if side == "F":
+                # no Ff, +x local = -x de F: a porta fica em -door_x
+                skip = {k for k in range(n) if bays[k] - 0.4 <= -door_x + DOOR_W / 2 and bays[k + 1] + 0.4 >= -door_x - DOOR_W / 2}
+            timber_face(b, Fs, -ln / 2, ln / 2, 3.2, GH, bays=bays, skip=skip, braces=True, mid=False)
     door(b, Ff, door_x, lamp=True)
     gw = [x for x in (-w / 2 + w * 0.25, w / 2 - w * 0.25, 0.0) if abs(x - door_x) > 4.2]
     for x in gw[:2]:
-        window(b, Ff, x, 4.6, 2.4, 2.8, shutters=True, flowers=None, box=False, seed=sid)
-        bb(b, Ff, x - 1.6, x + 1.6, 0.0, 0.5, 2.9, 3.25, STD)       # peitoril de pedra
+        window(b, Ff, x, 5.0, 2.4, 2.8, shutters=True, flowers=(None if style == "A" else "WB_FlowerRed"), box=(style == "B"), seed=sid)
+        if style == "A":
+            bb(b, Ff, x - 1.6, x + 1.6, 0.0, 0.5, 3.3, 3.65, STD)       # peitoril de pedra
     for side in ("R", "L"):
         Fs = F.face(side, w, d)
         for x in (-d / 4, d / 4):
-            window(b, Fs, x, 4.6, 2.0, 2.6, shutters=True, flowers=None, box=False, seed=sid)
-            bb(b, Fs, x - 1.4, x + 1.4, 0.0, 0.5, 3.0, 3.35, STD)
+            window(b, Fs, x, 5.0, 2.0, 2.6, shutters=True, flowers=None, box=False, seed=sid)
+            if style == "A":
+                bb(b, Fs, x - 1.4, x + 1.4, 0.0, 0.5, 3.4, 3.75, STD)
     # andares em balanco com vigas
     zb = GH
     Wj, Dj = w, d
@@ -436,12 +452,13 @@ def house(spec, coll="03_TOWN", seed=None):
     # telhado
     ridge = spec.get("ridge", "x")
     nd = 2 if spec.get("dormer") and ridge == "x" and Wj > 16 else (1 if spec.get("dormer") and ridge == "x" else 0)
+    pitch = spec.get("pitch", 46.0 + 10.0 * h01("pitch", sid))
     if ridge == "x":
-        zr = roof(b, F, Wj, Dj, zb, 50.0, over=1.4, m=rf, mr=rfd, pl=pl, dormers=nd, seed=sid)
+        zr = roof(b, F, Wj, Dj, zb, pitch, over=1.4, m=rf, mr=rfd, pl=pl, dormers=nd, seed=sid)
         cx = spec.get("chimney", 1) * (Wj / 2 - 2.6)
         cy = -Dj / 4
     else:
-        zr = roof(b, F.sub(0, 0, 0, 90), Dj, Wj, zb, 50.0, over=1.4, m=rf, mr=rfd, pl=pl, seed=sid)
+        zr = roof(b, F.sub(0, 0, 0, 90), Dj, Wj, zb, pitch, over=1.4, m=rf, mr=rfd, pl=pl, seed=sid)
         cx = spec.get("chimney", 1) * 1.8
         cy = -Dj / 2 + 2.6
     if spec.get("chimney", 1):
@@ -720,8 +737,8 @@ def banner(b, F, x, y, z_top, color="WB_Cloth_Red", w=2.6, h=7.0, pole=False, em
     bmesh.ops.recalc_face_normals(bm, faces=bm.faces[:])
     b.mesh(bm, color)
     if emblem:
-        for yy in (y - 0.2, y + 0.2):
-            b.sphere(F.p(x, yy, z_top - h * 0.45), w * 0.26, "WB_Cloth_Gold", seg=8, scale=(1, 0.3, 1))
+        # disco no plano do pano (ao longo da normal do frame), nunca em eixos de mundo
+        cyl(b, F, (x, y - 0.16, z_top - h * 0.45), (x, y + 0.16, z_top - h * 0.45), w * 0.26, "WB_Cloth_Gold", seg=10)
     if pole:
         bb(b, F, x - 0.25, x + 0.25, y - 0.25, y + 0.25, -0.3, z_top + 0.6, TB)
 

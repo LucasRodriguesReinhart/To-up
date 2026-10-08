@@ -84,6 +84,49 @@ def blob(cx, cz, rx, rz, seed, n=14):
     return out
 
 
+# tapetes circulares de bronze onde o jogador para em cada estacao (Roblox x, z)
+STATION_PADS = [(-0.9, -45.0), (48.0, -9.0), (-36.0, -24.0), (-11.5, 35.5), (-104.0, 62.0)]
+
+
+def ring(b, cx, cz, r0, r1, y, h, mat, n=32):
+    import bmesh
+    bm = bmesh.new()
+    outer = [bm.verts.new(RB(cx + r1 * math.cos(2 * math.pi * k / n), cz + r1 * math.sin(2 * math.pi * k / n), y)) for k in range(n)]
+    inner = [bm.verts.new(RB(cx + r0 * math.cos(2 * math.pi * k / n), cz + r0 * math.sin(2 * math.pi * k / n), y)) for k in range(n)]
+    outer2 = [bm.verts.new(RB(cx + r1 * math.cos(2 * math.pi * k / n), cz + r1 * math.sin(2 * math.pi * k / n), y + h)) for k in range(n)]
+    inner2 = [bm.verts.new(RB(cx + r0 * math.cos(2 * math.pi * k / n), cz + r0 * math.sin(2 * math.pi * k / n), y + h)) for k in range(n)]
+    for k in range(n):
+        j = (k + 1) % n
+        bm.faces.new((outer2[k], outer2[j], inner2[j], inner2[k]))
+        bm.faces.new((outer[k], inner[k], inner[j], outer[j]))
+        bm.faces.new((outer[k], outer[j], outer2[j], outer2[k]))
+        bm.faces.new((inner[j], inner[k], inner2[k], inner2[j]))
+    bmesh.ops.recalc_face_normals(bm, faces=bm.faces[:])
+    b.mesh(bm, mat)
+
+
+def medallion(b, cx, cz, r):
+    """medalhao da praca: anel externo de bronze, disco de pedra escura, anel interno, 4 raios e bigorna de bronze"""
+    y = L.Y_PAVE + 0.08
+    ring(b, cx, cz, r - 0.7, r, y, 0.1, "WB_Brass", 40)
+    b.cyl(RB(cx, cz, y - 0.3), RB(cx, cz, y + 0.06), r - 0.7, "WB_Stone_Dark", seg=40)
+    ring(b, cx, cz, r * 0.42, r * 0.42 + 0.5, y, 0.1, "WB_Brass", 32)
+    for k in range(4):
+        a = k * math.pi / 2 + math.pi / 4
+        b.beam(RB(cx + (r * 0.42 + 0.5) * math.cos(a), cz + (r * 0.42 + 0.5) * math.sin(a), y + 0.05),
+               RB(cx + (r - 0.7) * math.cos(a), cz + (r - 0.7) * math.sin(a), y + 0.05), 0.5, 0.1, "WB_Brass")
+    # bigorna estilizada (silhueta chata) no centro
+    b.box(RB(cx, cz, y + 0.08), (4.2, 1.6, 0.12), "WB_Brass")
+    b.box(RB(cx, cz, y + 0.08), (1.8, 2.6, 0.12), "WB_Brass")
+    b.cyl(RB(cx + 2.6, cz, y + 0.02), RB(cx + 2.6, cz, y + 0.14), 0.8, "WB_Brass", seg=10)
+
+
+def pad(b, cx, cz, r):
+    y = L.Y_PAVE + 0.08
+    ring(b, cx, cz, r - 0.5, r, y, 0.08, "WB_Brass", 28)
+    ring(b, cx, cz, r - 0.9, r - 0.6, y, 0.06, "WB_LampGlow", 28)
+
+
 def paved(b, poly_r, y_top, mat="WB_Cobble", curb=True, thick=0.7):
     """laje de paralelepipedo (poligono Roblox) com meio-fio de pedra escura"""
     pts = bpoly(poly_r)
@@ -103,6 +146,21 @@ def plateau(b):
     b.prism(grow, L.Y_GRASS - 0.6, L.Y_GRASS, "WB_Grass")
     # lago
     b.cyl((0, 0, L.Y_WATER - 1.0), (0, 0, L.Y_WATER), L.LAKE_R, "WB_Water", seg=48)
+    # penhascos de rocha na borda norte/noroeste do plato (atras da forja): escala e enquadramento
+    rc = random.Random(9)
+    n = len(L.PLATEAU)
+    for i in range(n):
+        (x0, z0), (x1, z1) = L.PLATEAU[i], L.PLATEAU[(i + 1) % n]
+        if (z0 + z1) / 2 > -60:
+            continue
+        seg = math.hypot(x1 - x0, z1 - z0)
+        for k in range(int(seg / 12)):
+            t = (k + rc.random()) / max(1, int(seg / 12))
+            x, z = x0 + (x1 - x0) * t, z0 + (z1 - z0) * t
+            cx, cz = x * 0.97 + rc.uniform(-4, 4), z * 0.97 + rc.uniform(-4, 4)
+            h = rc.uniform(14, 30)
+            b.sphere(RB(cx, cz, L.Y_GRASS + h * 0.25), 1.0, "WB_Rock", seg=8,
+                     scale=(rc.uniform(7, 12), rc.uniform(6, 10), h))
     # pedras na margem
     r = random.Random(5)
     n = len(L.PLATEAU)
@@ -128,6 +186,16 @@ def ground(coll="02_TERRAIN"):
     sw = L.SOUTH_ROAD_W / 2
     paved(b, [(-sw, L.SOUTH_ROAD[0][1]), (sw, L.SOUTH_ROAD[0][1]), (sw, L.SOUTH_ROAD[1][1]), (-sw, L.SOUTH_ROAD[1][1])],
           L.Y_PAVE, curb=False)
+    # EIXO principal (linguagem de piso): faixa de lajeado grande e claro, 0,08 acima, com borda de pedra escura,
+    # do portao ate a soleira da forja; medalhao de bronze no centro da praca; tapetes de bronze nas estacoes
+    AX = 9.0
+    axis = [(-AX, L.GATE[1] - 2.0), (AX, L.GATE[1] - 2.0), (AX, -38.0), (-AX, -38.0)]
+    b.prism(bpoly(axis), L.Y_PAVE - 0.3, L.Y_PAVE + 0.08, "WB_Flag")
+    for x in (-AX, AX):
+        b.beam(RB(x, L.GATE[1] - 2.0, L.Y_PAVE + 0.14), RB(x, -38.0, L.Y_PAVE + 0.14), 0.8, 0.5, STD)
+    medallion(b, 0.0, 0.0, 9.0)
+    for (px, pz) in STATION_PADS:
+        pad(b, px, pz, 3.4)
     paved(b, [(-14, 88), (14, 88), (14, 104), (-14, 104)], L.Y_PAVE, curb=True)
     # ilhas de grama dentro da praca (como na referencia: cantos e bordas, nunca no eixo nem nas rotas)
     for (cx, cz, rx, rz, seed) in PLAZA_GRASS:
@@ -156,8 +224,23 @@ def ground(coll="02_TERRAIN"):
                        ("Court", circle_r(L.COURT_C[0], L.COURT_C[1], L.COURT_R, 24)), ("Forge", L.FORGE_FLOOR)):
         col_poly_strips(name, poly, L.Y_PAVE, 3.0, 10.0)
     col_poly_strips("Grass", L.PLATEAU, L.Y_GRASS, 4.0, 16.0)
-    col_poly_strips("CourtRing", bpoly_r(ring), L.Y_PORTAL, 3.0, 8.0)
+    col_ring_sectors("CourtRing", L.COURT_C[0], L.COURT_C[1], r0 - 0.5, r1, a0, a1, L.Y_PORTAL, 3.0, 5.0)
     return objs
+
+
+def col_ring_sectors(area, cx, cz, r0, r1, a0, a1, y_top, thick=3.0, step_deg=5.0):
+    """colisao de um setor de anel por caixas giradas (segue o circulo; faixas em X deixam buracos no anel interno)"""
+    n = max(1, int(round((a1 - a0) / step_deg)))
+    rm = (r0 + r1) / 2
+    for k in range(n):
+        am = a0 + (a1 - a0) * (k + 0.5) / n
+        half = (a1 - a0) / n / 2
+        w = 2 * r1 * math.sin(math.radians(half)) + 0.6          # largura tangencial com sobreposicao
+        x, z = cx + rm * math.cos(math.radians(am)), cz + rm * math.sin(math.radians(am))
+        # eixo X local da caixa = radial (Roblox: (cos, sin) -> Blender (cos, -sin))
+        yaw = math.atan2(-math.sin(math.radians(am)), math.cos(math.radians(am)))
+        fm_lib.col_box(area, (r1 - r0, w, thick), RB(x, z, y_top - thick / 2), (0, 0, yaw))
+    return n
 
 
 def bpoly_r(poly_r):
@@ -273,10 +356,10 @@ def backdrop(coll="02_TERRAIN"):
     b = W.Build("WB_Bg_Mountains", coll)
     for i in range(9):
         a = i * 360 / 9 + r.uniform(-8, 8)
-        d = r.uniform(760, 900)
-        cx, cz = d * math.cos(math.radians(a)), d * math.sin(math.radians(a))
         north = max(0.0, -math.sin(math.radians(a)))
-        ridge(b, cx, cz, r.uniform(380, 560), a + 90 + r.uniform(-15, 15), r.uniform(180, 250) + 120 * north,
+        d = r.uniform(700, 820) - 90 * north
+        cx, cz = d * math.cos(math.radians(a)), d * math.sin(math.radians(a))
+        ridge(b, cx, cz, r.uniform(380, 560), a + 90 + r.uniform(-15, 15), r.uniform(190, 260) + 150 * north,
               r.uniform(180, 240), "WB_Rock", snow=0.66, seed=100 + i, n=22)
     for i in range(7):
         a = i * 360 / 7 + 20 + r.uniform(-8, 8)
@@ -325,8 +408,9 @@ def vegetation(coll="09_VEGETATION", oaks=True, pines=True, tufts=True):
                     continue
                 if math.hypot(cx - L.COURT_C[0], cz - L.COURT_C[1]) < L.COURT_RING[1] + 6:
                     continue
+                big = 1.45 if cz < -60 else 1.0          # pinheiros gigantes atras da forja
                 if r.random() < 0.7:
-                    pine(b, Fr(RB(cx, cz, L.Y_GRASS), (0, 1)), 0, 0, r.uniform(20, 30), seed=i * 10 + k)
+                    pine(b, Fr(RB(cx, cz, L.Y_GRASS), (0, 1)), 0, 0, r.uniform(20, 30) * big, seed=i * 10 + k)
                 else:
                     oak(b, Fr(RB(cx, cz, L.Y_GRASS), (0, 1)), 0, 0, r.uniform(14, 18), seed=i * 10 + k)
     objs = b.finish()
@@ -334,7 +418,8 @@ def vegetation(coll="09_VEGETATION", oaks=True, pines=True, tufts=True):
         b = W.Build("WB_Veg_Tufts", coll)
         F0 = Fr(RB(0, 0, L.Y_GRASS), (0, 1))
         # faixa de grama em volta da praca (fora do meio-fio) e ao longo da rua sul
-        bands = [[(-70, -40), (-42, -40), (-42, 44), (-70, 44)], [(56, -36), (76, -36), (76, 44), (56, 44)],
+        bands = [[(-72, 24), (-42, 24), (-42, 44), (-72, 44)], [(-72, -62), (-42, -62), (-42, -46), (-72, -46)],
+                 [(56, 6), (76, 6), (76, 44), (56, 44)], [(56, -40), (76, -40), (76, -24), (56, -24)],
                  [(-50, 42), (-10, 42), (-10, 60), (-50, 60)], [(10, 42), (52, 42), (52, 60), (10, 60)],
                  [(-16, 60), (-9, 60), (-9, 140), (-16, 140)], [(9, 60), (16, 60), (16, 140), (9, 140)]]
         for i, band in enumerate(bands):

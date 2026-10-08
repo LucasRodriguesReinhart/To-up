@@ -80,3 +80,19 @@ designer de interiores."
 3. Export (`export_wb.py`) + import na copia AMS_Lobby_Champions_Avaliacao + montagem + Play + capturas.
 Regras: nunca salvar o place; nao editar `forja_mineradora/`, as ilhas, nem `vila_medieval/`; avisar as sessoes
 antes do Studio; subagentes sem Studio/computer-use.
+
+## 7. Licoes do video de referencia do usuario (08/10, `ref/video/_contato.jpg`: lobby de ruinas com atmosfera verde)
+O que faz aquele lobby parecer "bom" e o que vira regra aqui (traduzido para o tema medieval, sem copiar o tema):
+- **Atmosfera unica e forte**: neblina, degrade de cor e bloom afinados num SO clima. Aqui: fim de manha dourado,
+  neblina quente leve, raios de sol, bloom so no fogo/lanternas (wb_lights.LOBBY_PROFILE).
+- **Escala dramatica ao fundo**: ossos/arcos gigantes enquadram o hub. Aqui: cordilheira mais perto e mais alta,
+  penhascos de rocha na borda do plato, pinheiros gigantes, chamines altas da forja, fumaca.
+- **Linguagem de piso**: lajes grandes com juntas e musgo, aneis concentricos no centro, linhas que levam as estacoes.
+  Aqui: EIXO principal em lajeado claro de pedras grandes (textura wb_flag) com borda escura, medalhao circular no
+  centro da praca (anel de bronze + bigorna), "tapetes" circulares de bronze diante de cada estacao.
+- **Estacoes sinalizadas**: cada funcao tem placa flutuante com icone e um anel no chao onde o jogador para. Aqui:
+  BillboardGui "LOJA DE MOCHILAS / CAMPEOES / CAMINHO DOS MUNDOS / CORREIO" (montar, marcadores LETREIRO_*) + o
+  LetreiroIgnis que o jogo ja tem + anel de bronze no PLAYER_INTERACT de cada estacao.
+- **Props agrupados nas estacoes** (caixotes, barris, ferramentas) e nunca soltos no meio do caminho.
+- **Relevo**: plataformas com degraus e rampas. Aqui: palco do Mural (+0,6), terraco dos portais (+1,2), soleira da
+  loja (+0,4), ponte descendo ate a ilha; o chao diante do Ignis segue plano na cota 7 (contrato).

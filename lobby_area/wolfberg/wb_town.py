@@ -82,6 +82,13 @@ def plaza_furniture(coll="03_TOWN"):
     # poco do largo sul
     well(b, Fr.rbx(L.WELL[0], L.WELL[1], Y, 1, 0))
     objs = b.finish()
+    # placas flutuantes (BillboardGui pelo montar): LETREIRO_* com atributo texto/icone
+    for (name, x, y, z, txt, icon) in (("LETREIRO_Loja", 54.0, Y + 17.0, -9.0, "LOJA DE MOCHILAS", "mochila"),
+                                       ("LETREIRO_Mural", -50.0, L.Y_RANK + 36.0, -11.0, "CAMPEOES", "trofeu"),
+                                       ("LETREIRO_Mundos", -93.0, Y + 18.0, 62.0, "CAMINHO DOS MUNDOS", "portal"),
+                                       ("LETREIRO_Correio", L.MAILBOX[0], Y + 8.0, L.MAILBOX[1], "CORREIO", "carta")):
+        fm_lib.marker(name, RB(x, z, y), (0, 0, 0), 2.0, "PLAIN_AXES", "15_GAMEPLAY_MARKERS",
+                      {"texto": txt, "icone": icon, "alcance": 170})
     # marcadores de spawn/layout
     sx, sz = L.SPAWN
     fm_lib.marker("SPAWN_Lobby", RB(sx, sz, Y), (0, 0, 0), 2.0, "PLAIN_AXES", "15_GAMEPLAY_MARKERS",

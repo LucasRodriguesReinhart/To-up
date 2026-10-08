@@ -22,13 +22,49 @@ OUT = {}
 FAIL = []
 
 
+def walk(bvh, pts, z0):
+    """andador do fm_qa com o raio do teto saindo de z + 0,7 (degraus de 0,4 encostados nao contam como teto)"""
+    fails = []
+    z = z0
+    samples = []
+    for a, b in zip(pts, pts[1:]):
+        a, b = Vector((a[0], a[1], 0)), Vector((b[0], b[1], 0))
+        n = max(1, int((b - a).length / 0.5))
+        for i in range(n + 1):
+            samples.append(a + (b - a) * (i / n))
+    for p in samples:
+        g = fm_qa.ground(bvh, p.x, p.y, z)
+        if g is None:
+            fails.append(("VAZIO", tuple(round(c, 1) for c in p.xy), round(z, 1)))
+            break
+        if g - z > fm_qa.STEP_UP:
+            fails.append(("DEGRAU_ALTO", tuple(round(c, 1) for c in p.xy), round(g - z, 2)))
+            break
+        if z - g > fm_qa.DROP:
+            fails.append(("QUEDA", tuple(round(c, 1) for c in p.xy), round(z - g, 2)))
+            break
+        z = g
+        h = bvh.ray_cast(Vector((p.x, p.y, z + 0.7)), Vector((0, 0, 1)), fm_qa.HEAD - 0.7)
+        if h[0] is not None:
+            fails.append(("TETO_BAIXO", tuple(round(c, 1) for c in p.xy), round(h[0].z - z, 2)))
+            break
+        for hz in (2.0, 3.6, 5.0):
+            nn = bvh.find_nearest(Vector((p.x, p.y, z + hz)), fm_qa.BODY_R * 0.9)
+            if nn[0] is not None:
+                fails.append(("OBSTACULO", tuple(round(c, 1) for c in p.xy), round(hz, 1), fm_qa.OWNER[nn[2]]))
+                break
+        if fails:
+            break
+    return fails, z
+
+
 def nav():
     bvh, n = fm_qa.col_bvh()
     res = {}
     print("COL faces:", n)
     for name, (pts, y0) in L.routes().items():
         bp = [(x, -z) for x, z in pts]
-        f, zend = fm_qa.walk(bvh, bp, y0)
+        f, zend = walk(bvh, bp, y0)
         ln = sum(math.hypot(b[0] - a[0], b[1] - a[1]) for a, b in zip(pts, pts[1:]))
         t = ln / L.WALK
         ok = not f

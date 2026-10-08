@@ -37,6 +37,7 @@ RAD = math.radians
 WBMATS = {
     "WB_Cobble":        ((160, 146, 128), 0.9, 0.0, 0, None, 0.0),
     "WB_Cobble_Dark":   ((124, 112, 98), 0.9, 0.0, 0, None, 0.0),
+    "WB_Flag":          ((178, 166, 146), 0.9, 0.0, 0, None, 0.0),
     "WB_Stone":         ((152, 144, 132), 0.9, 0.0, 0, None, 0.0),
     "WB_Stone_Dark":    ((108, 102, 98), 0.9, 0.0, 0, None, 0.0),
     "WB_Plaster":       ((222, 204, 170), 0.9, 0.0, 0, None, 0.0),
@@ -90,7 +91,7 @@ WBMATS = {
     "WB_FarMountain":   ((108, 128, 168), 0.95, 0.0, 0, None, 0.0),
 }
 # prefixo do material -> familia de textura (wb_tex.TEXTURES)
-WB_TEX_RULES = [("WB_Cobble", "wb_cobble"), ("WB_Stone_Dark", "wb_stone_dark"), ("WB_Stone", "wb_stone"),
+WB_TEX_RULES = [("WB_Flag", "wb_flag"), ("WB_Cobble", "wb_cobble"), ("WB_Stone_Dark", "wb_stone_dark"), ("WB_Stone", "wb_stone"),
                 ("WB_Plaster", "wb_plaster"), ("WB_Timber", "wb_timber"), ("WB_Plank", "wb_plank"),
                 ("WB_Roof_Dark", "wb_roof_dark"), ("WB_Roof", "wb_roof"), ("WB_Plaster_Ochre", "wb_plaster_ochre"), ("WB_CanvasRed", "wb_canvas_red"), ("WB_CanvasBlue", "wb_canvas_blue"),
                 ("WB_CanvasGreen", "wb_canvas_green"), ("WB_Iron", "wb_iron"), ("WB_Grass", "wb_grass"),

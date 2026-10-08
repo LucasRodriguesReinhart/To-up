@@ -23,8 +23,8 @@ WALK = 16.0
 
 # ------------------------------------------------------------------ plato (ilha da vila; contorno andavel)
 PLATEAU = [(-76, -132), (40, -136), (96, -120), (126, -84), (134, -30), (130, 40), (118, 96), (86, 136), (40, 152),
-           (-30, 154), (-80, 144), (-130, 128), (-190, 104), (-218, 64), (-214, 10), (-180, -34), (-130, -72),
-           (-100, -112)]
+           (-30, 154), (-80, 148), (-120, 156), (-175, 148), (-214, 114), (-232, 64), (-226, 10), (-190, -34),
+           (-136, -72), (-100, -112)]      # sudoeste alargado: o patio dos portais (r 74 de (-134, 62)) cabe inteiro
 PLATEAU_BOTTOM = -40.0
 LAKE_R = 420.0                       # borda externa do lago (depois vem a margem distante / colinas)
 
@@ -96,7 +96,7 @@ RANK_ROOF = dict(x0=-66.0, x1=-40.0, z0=-44.0, z1=22.0, eave=Y_RANK + 32.0, ridg
 RANK_BOX = [(-66, -44), (-40, -44), (-40, 22), (-66, 22)]                    # pegada total (checagem)
 
 # ------------------------------------------------------------------ SUDOESTE: Caminho dos Mundos (portais aprovados)
-WEST_ROAD = [(-40.0, 34.0), (-66.0, 44.0), (-86.0, 52.0), (-96.0, 56.0)]
+WEST_ROAD = [(-40.0, 34.0), (-66.0, 44.0), (-86.0, 54.0), (-100.0, 62.0)]   # termina no vao do portico (z 62)
 ROAD_W = 14.0
 COURT_C = (-134.0, 62.0)
 COURT_R = 40.0
@@ -171,7 +171,7 @@ LOBBY_LAYOUT = {
     "Shop": (SHOP_PLAYER[0], round(Y_SHOP + 3.5, 2), SHOP_PLAYER[1]),
     "ShopFacing": (SHOP_NPC[0], round(Y_SHOP + 3.5, 2), SHOP_NPC[1]),
     "Ignis": (-0.9, round(Y_PAVE + 3.5, 2), -46.0),
-    "PortalIsland": (-100.0, round(Y_PAVE + 3.5, 2), 58.0),
+    "PortalIsland": (-104.0, round(Y_PAVE + 3.5, 2), 62.0),
 }
 SPAWN_LOBBY_PART = (SPAWN[0], round(Y_PAVE + 0.1, 2), SPAWN[1])
 MAILBOX_POS = (MAILBOX[0], Y_PAVE, MAILBOX[1])
@@ -183,7 +183,7 @@ def routes():
     r = {}
     r["SPAWN->IGNIS"] = ([(0, 32), (0, 10), (0, -20), (0, -40), (-0.9, -46.0)], Y_PAVE)
     r["SPAWN->LOJA"] = ([(0, 32), (20, 10), (40, -6), (52, -9), (56, -9), (SHOP_PLAYER[0], -9)], Y_PAVE)
-    r["SPAWN->CAMPEOES"] = ([(0, 32), (-12, 22), (-14, -6), (-36, -10), (-44, -11)], Y_PAVE)
+    r["SPAWN->CAMPEOES"] = ([(0, 32), (-12, 22), (-14, -6), (-30, -20), (-38, -24), (-48, -24)], Y_PAVE)   # vao sul da loggia (quadro FORCA)
     r["SPAWN->CORREIO"] = ([(0, 32), (-8, 34), (-12.0, 36.0)], Y_PAVE)
     for i, (k, aid) in enumerate(PORTALS):
         (px, pz), (fx, fz) = portal_pos(i)
