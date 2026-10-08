@@ -199,7 +199,7 @@ def gate_wall(b, F):
         ya, yb = sorted((y_face - s * 0.05, y_face + s * 0.35))
         arch_ring(b, F, "xz", 0.0, SPRING, HW, HW + 1.4, ya, yb, 13, STD)
         ka, kb = sorted((y_face - s * 0.05, y_face + s * 0.55))
-        bb(b, F, -1.1, 1.1, ka, kb, SPRING + HW - 1.0, SPRING + HW + 1.5, STD, bevel=0.06)   # fecho (keystone)
+        bb(b, F, -1.1, 1.1, ka, kb, SPRING + HW - 0.45, SPRING + HW + 1.5, STD, bevel=0.06)  # fecho (keystone)
         for sx in (-1, 1):
             bb(b, F, min(sx * HW, sx * (HW + 1.4)), max(sx * HW, sx * (HW + 1.4)), ya, yb, -0.3, SPRING + 0.3, STD)
         ca, cb = sorted((y_face, y_face + s * 0.3))
@@ -330,9 +330,10 @@ def bridge(coll=COLL):
     z_mid = lambda y: zdeck(y) - COB_T - SLAB_T / 2.0                                            # meio da laje
     # ---------------------------------------------------------------- parapeitos (3 trechos por lado) + capeamento
     for sx in (-1, 1):
-        segs = [[(BH, 0.0), (BH + PAR_W, 0.0), (BH + PAR_W, FLARE0), (BH, FLARE0)],
+        PEND = BL - 1.0                                   # parapeito termina DENTRO do pilarete grande (72,2..74)
+        segs = [[(BH, -0.6), (BH + PAR_W, -0.6), (BH + PAR_W, FLARE0), (BH, FLARE0)],
                 [(BH, FLARE0), (BH + PAR_W, FLARE0), (LH + PAR_W, FLARE1), (LH, FLARE1)],
-                [(LH, FLARE1), (LH + PAR_W, FLARE1), (LH + PAR_W, LEND), (LH, LEND)]]
+                [(LH, FLARE1), (LH + PAR_W, FLARE1), (LH + PAR_W, PEND), (LH, PEND)]]
         for seg in segs:
             poly = [(sx * x, y) for (x, y) in seg]
             prism_fn(b, F, poly, lambda y: zdeck(y) + PAR_H - 0.25, PAR_H - 0.25 + 0.7, ST)
@@ -340,18 +341,19 @@ def bridge(coll=COLL):
             prism_fn(b, F, cop, lambda y: zdeck(y) + PAR_H, 0.3, STD)
         xc = sx * (BH + PAR_W / 2.0)
         xl = sx * (LH + PAR_W / 2.0)
-        for y in (0.65, 12.0, 24.0, 36.0, 48.0, FLARE0):
+        for y in (0.05, 12.0, 24.0, 36.0, 48.0, FLARE0):
             top = pilaret(b, F, xc, y)
             if not ((y == 12.0 and sx > 0) or (y == 36.0 and sx < 0) or (y == FLARE0 and sx > 0)):
                 pyramid(b, F, xc, y, top, top + 0.55, 0.75, STD)
         top = pilaret(b, F, xl, FLARE1)
         pyramid(b, F, xl, FLARE1, top, top + 0.55, 0.75, STD)
         # colisao dos parapeitos (rampas finas sobre os 3 trechos)
-        for (x0, y0, x1, y1) in ((xc, 0.0, xc, FLARE0), (xc, FLARE0, xl, FLARE1), (xl, FLARE1, xl, LEND)):
+        for (x0, y0, x1, y1) in ((xc, -0.6, xc, FLARE0), (xc, FLARE0, xl, FLARE1), (xl, FLARE1, xl, PEND)):
             fm_lib.col_ramp("Exit", F.p(x0, y0, zdeck(y0) + PAR_H), F.p(x1, y1, zdeck(y1) + PAR_H), PAR_W + 0.2, 3.1)
+        fm_lib.col_box("Exit", (2.0, 2.0, 4.6), F.p(xl, BL - 0.9, zdeck(BL - 0.9) + 1.6), (0, 0, F.yaw()))   # pilarete grande
     # postes de lanterna sobre pilaretes a cada 24, alternando lados; pilaretes grandes com lanterna no fim
     k = 0
-    for (y, sx, big) in ((12.0, 1, False), (36.0, -1, False), (FLARE0, 1, False), (BL - 1.1, -1, True), (BL - 1.1, 1, True)):
+    for (y, sx, big) in ((12.0, 1, False), (36.0, -1, False), (FLARE0, 1, False), (BL - 0.9, -1, True), (BL - 0.9, 1, True)):
         x = sx * ((LH if big else BH) + PAR_W / 2.0)
         top = pilaret(b, F, x, y, big=big) if big else zdeck(y) + 3.2
         Fp = Fr(F.p(x, y, top), (F.p(0, y, top) - F.p(x, y, top)).xy)      # braco virado para o eixo da ponte

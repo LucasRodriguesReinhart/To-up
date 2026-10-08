@@ -212,7 +212,7 @@ def cams():
     c["CAM_WB_P_Forja"] = ((8.0, Y_PAVE + EYE, -28.0), (-2.0, Y_PAVE + 16.0, -62.0), 20)
     c["CAM_WB_P_Loja"] = ((36.0, Y_PAVE + EYE, 0.0), (66.0, Y_PAVE + 10.0, -9.0), 22)
     c["CAM_WB_I_Loja"] = ((57.0, Y_SHOP + 5.0, -9.0), (74.0, Y_SHOP + 4.5, -9.0), 20)       # dentro da loja
-    c["CAM_WB_P_Campeoes"] = ((-26.0, Y_PAVE + EYE, 0.0), (-58.0, Y_PAVE + 14.0, -9.0), 22)
+    c["CAM_WB_P_Campeoes"] = ((-10.0, Y_PAVE + 9.0, 6.0), (-58.0, Y_PAVE + 18.0, -11.0), 24)
     c["CAM_WB_P_Mundos"] = ((-96.0, Y_PAVE + EYE, 56.0), (-150.0, Y_PAVE + 14.0, 62.0), 18)
     c["CAM_WB_P_RuaSul"] = ((4.0, Y_PAVE + EYE, 50.0), (0.0, Y_PAVE + 10.0, 150.0), 24)
     c["CAM_WB_P_Portao"] = ((0.0, Y_PAVE + EYE, 170.0), (0.0, Y_PAVE + 14.0, 100.0), 24)     # da ponte, olhando a vila
