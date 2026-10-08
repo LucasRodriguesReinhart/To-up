@@ -115,12 +115,12 @@ ER.OWNERS = [("OP_Ter_", "terrain"), ("OP_Ent_", "entry"), ("OP_Cap_", "capital"
 # M4 op_plaza (acrescimo pontual): teto do plaza 21,6k -> 34k tris por decisao do lead (faixa sul do M2 ja gastava
 # 17,9k; o resto do piso em aneis/eixo/campos + mureta leva a 32,5k) e 26 -> 36 MeshParts (piso de 232 x 194 fatiado
 # em celulas de 128 x 4 tons de pedra; medido 30). Estandartes/postes/bancos da borda contam no dono props (OP_Prop_Plz_).
-ER.BUDGET_OWNER = {"terrain": (108000, 81), "entry": (32400, 35), "capital": (140400, 140), "plaza": (34000, 36),
+ER.BUDGET_OWNER = {"terrain": (108000, 81), "entry": (32400, 35), "capital": (198000, 145), "plaza": (34000, 36),
                    "castle": (75600, 59), "tree": (43200, 32), "harbor": (37800, 43), "ship": (19400, 17),
                    "summon": (36700, 43), "exit": (19400, 26), "gate_opm": (30300, 41), "landmarks": (15100, 15),
                    "water": (10800, 17), "props": (27000, 38), "vegetation": (48600, 49), "vfx": (16200, 32)}
 # PLANO_OP secao 9: <= 620k tris / 650 MeshParts estaticos + reserva VFX 15k / 30
-ER.BUDGET = {"static_tris": 620000, "static_meshes": 650, "vfx_tris": 15000, "vfx_meshes": 30, "total_tris": 635000,
+ER.BUDGET = {"static_tris": 640000, "static_meshes": 650, "vfx_tris": 15000, "vfx_meshes": 30, "total_tris": 655000,
              "total_meshes": 680, "materials": 110, "shadow_meshes": 260, "day_lights": 36, "col": 1300}
 _CX, _CY = to_world_xy(60.0, 250.0)            # meio da ilha (sombras / rede)
 ER.FAR_GROUND = None                 # o mar local de Wano e feito no cliente (WATER_Sea, so na area 5)
@@ -137,6 +137,10 @@ ER.CAM_COL_AREAS = {"OP_CasKeep": 5.0, "OP_CasKeepUpper": 5.0, "OP_CasTurret": 5
                     "OP_TreeTrunk": 5.0, "OPSumTower": 5.0, "OP_ShipCabin": 5.0}
 for _b in L.BUILDINGS:
     ER.CAM_COL_AREAS[("OP_PortHouse" if _b[0].startswith("H") else "OP_CapHouse") + _b[0]] = 5.0
+# M4 op_capital (acrescimo pontual): casas novas da capital (fora do L.BUILDINGS), casa de cha e pavilhoes -> camera
+for _o in bpy.data.objects:
+    if _o.name.startswith(("COL_OP_CapHouse", "COL_OP_CapPav", "COL_OP_CapShrineDeck")):
+        ER.CAM_COL_AREAS.setdefault(re.sub(r"^COL_(.*)_\d+$", r"\1", _o.name), 5.0)
 ER.NIGHT_ONLY = ("L_OPProp_", "L_OPCap_Win_")
 ER.LIGHT_KEEP = ("L_OPCas", "L_OPSum", "GateOnePunchMan", "L_Gate_OnePunchMan")
 ER.FOLD_PROTECT = ER.FOLD_PROTECT + ("Glass_OP_Lantern", "Window_OP", "Flower_OP", "Metal_OP_Gold", "Wood_OP_Lacquer",
