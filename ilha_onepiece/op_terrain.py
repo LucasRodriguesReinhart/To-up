@@ -500,6 +500,57 @@ FLOOR_TOP = {"Court": "path", "CastleLanding": "path", "Forecourt": "path", "Ent
              "Harbor": "quay", "W3": "grass", "Plaza": "grass", "W2b": "grass", "ExitLand": "grass", "T1": "grass"}
 
 
+def quay_slabs(mb, nm, pl, z0, col=3.0, edge=1.2, x_edge=222.4):
+    """M6c (item 38): LAJEADO do cais (antes uma pele lisa de Stone_OP): fiadas de 3 em x (a ultima, junto da agua em
+    x 222,4, e a FAIXA CLARA de 1,2 em Stone_OP_Path), lajes de 4,5..6,5 em y com juntas desencontradas, topo z0 + 0,12
+    (a colisao do op_col fica em z0: pe 0,12 'dentro' da laje, como nas ruas), fundo z0 - 0,3, junta em V (chanfro 0,07
+    do K.slab_poly). So lajes INTEIRAS desta placa (centro e cantos na placa 'nm'); laje recortada na borda leva os lados
+    (a do miolo nao: as vizinhas escondem). Orientacao conferida aqui (o MB da pele fecha com recalc=False)."""
+    import op_kit as K
+    bm = mb.bm
+    zt, zb = z0 + 0.12, z0 - 0.3
+    reg = ccw(pl)
+    reg_out = ccw(DL.offset_poly(reg, 0.15))      # a laje da borda passa 0,15 da saia do leito (lados nao coplanares)
+    xs_ = [p[0] for p in reg]
+    ys_ = [p[1] for p in reg]
+    x_lo, y_lo, y_hi = min(xs_), min(ys_), max(ys_)
+    bands = [(x_edge - edge, x_edge, True)]
+    x = x_edge - edge
+    while x > x_lo + 0.3:
+        bands.append((max(x_lo, x - col), x, False))
+        x -= col
+    n = 0
+    for bi, (xa, xb, is_edge) in enumerate(bands):
+        y = y_lo - 6.5 * hh("quay", bi, "o")
+        k = 0
+        while y < y_hi:
+            ya, yb_ = y, y + 4.5 + 2.0 * hh("quay", bi, k)
+            y, k = yb_, k + 1
+            pin = L.clip_rect(reg, (xa, ya, xb, yb_))              # dono conferido na laje SEM o transbordo
+            pc = [q for q in L.clip_rect(reg_out, (xa, ya, xb + (0.15 if is_edge else 0.0), yb_))]
+            if len(pin) < 3 or abs(_area(pin)) < 0.6 or len(pc) < 3:
+                continue
+            cx = sum(p[0] for p in pin) / len(pin)
+            cy = sum(p[1] for p in pin) / len(pin)
+            probe = [(cx, cy)] + [(cx + (p[0] - cx) * 0.9, cy + (p[1] - cy) * 0.9) for p in pin]
+            if any((plate_at(px, py) or ("",))[0] != nm for px, py in probe):
+                continue
+            full = abs(abs(_area(pc)) - (xb - xa) * (yb_ - ya)) < 1e-3 and not is_edge
+            f0 = len(bm.faces)
+            K.slab_poly(mb, ccw(pc), zb, zt, 0.07, PATH if is_edge else STONE, sides=not full)
+            bm.faces.ensure_lookup_table()
+            for i in range(f0, len(bm.faces)):
+                f_ = bm.faces[i]
+                f_.normal_update()
+                c_ = f_.calc_center_median()
+                ref = Vector((0.0, 0.0, 1.0)) if abs(f_.normal.z) > 0.3 else Vector((c_.x - cx, c_.y - cy, 0.0))
+                if f_.normal.dot(ref) < 0:
+                    f_.normal_flip()
+            n += 1
+    print("op_terrain: lajeado do cais %d lajes" % n)
+    return n
+
+
 def build_ground():
     G = S_.G
     X, Y = G.X, G.Y
@@ -526,6 +577,13 @@ def build_ground():
             continue
         kind = FLOOR_TOP[nm]
         skin = np.minimum(own, -bed)
+        if kind == "quay":
+            # M6c (item 38): o piso do cais e LAJEADO (quay_slabs: lajes 3 x 4,5..6,5 de topo +0,12, fundo -0,3, junta
+            # rebaixada, faixa clara de 1,2 na beira d'agua). A pele inteira da placa vira o LEITO de terra a -0,15
+            # (dentro das lajes; aparece so onde nao cabe laje, junto das escadas): piso sobre piso sem coplanar
+            field_mesh(mg, G, own, _const(z0 - 0.15), DIRT, skirt=0.6, inner=own)
+            quay_slabs(mg, nm, pl, z0)
+            continue
         if kind in ("path", "quay"):
             # LEITO de terra a piso - 0,15 nas faixas BED: onde a laje do dono (topo +0,12..+0,15, fundo -0,3) cobre,
             # fica dentro dela (folga 0,3); onde ela nao chega, le terra batida quase rente
@@ -554,6 +612,12 @@ def build_ground():
     # vertical: e ROCHA (sombra), nao capa verde em pe
     steep = [f for f in fb if f.is_valid and max(v.co.z for v in f.verts) - min(v.co.z for v in f.verts) > 1.5]
     assign(mg, steep, ROCKC)
+    # M6c (item 47): a berma verde (barrancos entre a viela leste e os terracos) em facetas chapadas grandes lia papel
+    # amassado na altura do jogador: sombreamento SUAVE so nela (a rocha ingreme continua chapada)
+    st_ = set(steep)
+    for f in fb:
+        if f.is_valid and f not in st_:
+            f.smooth = True
     # corpos: prisma de cada placa (no MESMO objeto da pele: menos MeshParts estimadas, nada muda no visual).
     # M6b (item 01): o topo do corpo era piso - 0,5 em Dirt_OP_Dark e aparecia como valeta escura em toda fresta da
     # pele. Agora e a SUBCAMADA de seguranca: piso - 0,3 (folga >= 0,3 da pele e das lajes dos outros modulos, cujo fundo
@@ -913,6 +977,12 @@ def edge_runs():
                         else:
                             kind = "rock"
                         smp = (x, y, nx, ny, zt, zn, walk)
+                        if nb is not None and nb[1] == "water" and kind == "rock":
+                            # M6c: borda de ROCHA sobre CANAL/BACIA: a cantaria do op_water reveste a parede do canal; a
+                            # face de rocha daqui avancava ate 2,7 para dentro do canal e ficava a 0,004..0,11 das pedras
+                            # (z-fight em x 39..45, 110, 216..228; y 340..345). Sem face aqui: atras da cantaria fica o
+                            # lado do corpo da placa (rocha Cliff_OP_Shade, 0,3 para dentro) e a saia da pele
+                            kind = "rockw"
                 if kind != kind_c and cur:
                     runs.append((kind_c, nm, cur))
                     cur = []
@@ -924,8 +994,10 @@ def edge_runs():
     return [r for r in runs if len(r[2]) >= 2]
 
 
-def wall_run(mb, smp, big=False, key="w"):
-    """ARRIMO Wano: pedra aparelhada (kirikomi) em fiadas de altura variada, junta escura rebaixada, capa clara, soco"""
+def wall_run(mb, smp, big=False, key="w", back=False):
+    """ARRIMO Wano: pedra aparelhada (kirikomi) em fiadas de altura variada, junta escura rebaixada, capa clara, soco.
+    M6c: back=True fecha o TARDOZ (plano liso de pedra sob a capa, virado para tras) onde o muro fica solto e se ve
+    por tras (muralha do castelo vista do adro/praca)"""
     a, b = smp[0], smp[-1]
     nx, ny = a[2], a[3]
     ux, uy = b[0] - a[0], b[1] - a[1]
@@ -940,11 +1012,20 @@ def wall_run(mb, smp, big=False, key="w"):
     def Pt(s, o, z):
         return Vector((a[0] + ux * s + nx * o, a[1] + uy * s + ny * o, z))
 
-    def quad(lst, p0, p1, p2, p3):
+    NV, UV, ZV = Vector((nx, ny, 0.0)), Vector((ux, uy, 0.0)), Vector((0.0, 0.0, 1.0))
+
+    def quad(lst, p0, p1, p2, p3, ref=None):
+        # M6c: cada pedra e um quad SOLTO (verts proprios): o recalc do finish decidia o lado no chute e ~40% das
+        # pedras/juntas/capas saiam de costas (o Roblox nao desenha: via-se atraves da muralha). Orientacao explicita
+        # pelo lado que o jogador ve (ref) e o MB fecha com recalc=False.
         try:
-            lst.append(bm.faces.new([bm.verts.new(p) for p in (p0, p1, p2, p3)]))
+            f_ = bm.faces.new([bm.verts.new(p) for p in (p0, p1, p2, p3)])
         except ValueError:
-            pass
+            return
+        f_.normal_update()
+        if ref is not None and f_.normal.dot(ref) < 0:
+            f_.normal_flip()
+        lst.append(f_)
 
     def zb_at(s):
         t = s / ln * (len(smp) - 1)
@@ -955,13 +1036,18 @@ def wall_run(mb, smp, big=False, key="w"):
     # pedacos de ate 6 com o pe proprio (pe inclinado junto das escadas)
     seg = max(1, int(math.ceil(ln / 6.0)))
     cap_h = 0.55
+    # M6c: na borda do PATIO do castelo o piso do op_castle tem o cascalho a +0,14 e as lajes a +0,33: a capa a +0,22
+    # ficava 0,08..0,11 deles (faixa de 0,9 quase coplanar, 80 studs2). Ali a capa desce para +0,0 (>= 0,14 abaixo
+    # do piso do patio: o piso cobre a parte de dentro e a pingadeira fica sob a borda dele)
+    cz = 0.0 if key.startswith(("Court", "castlewall")) else 0.22
     ch_seq = (1.1, 2.2, 1.6, 1.3, 2.0) if big else (1.05, 1.35, 0.9, 1.2, 1.5)
     bl_lo, bl_hi = (3.0, 5.4) if big else (1.6, 3.6)
     for g in range(seg):
         s0, s1 = ln * g / seg, ln * (g + 1) / seg
         zb = min(zb_at(s0), zb_at(s1)) - 0.4
         # fundo escuro (a junta) a 0,12 da borda
-        quad(jf, Pt(s0, 0.12, zb), Pt(s1, 0.12, zb), Pt(s1, 0.12, zt - cap_h + 0.05), Pt(s0, 0.12, zt - cap_h + 0.05))
+        # (M6c: a junta sobe ate dentro da capa: antes parava 0,17..0,29 abaixo dela e deixava uma fresta aberta)
+        quad(jf, Pt(s0, 0.12, zb), Pt(s1, 0.12, zb), Pt(s1, 0.12, zt - cap_h + cz + 0.05), Pt(s0, 0.12, zt - cap_h + cz + 0.05), NV)
         # fiadas do pedaco (z de baixo, z de cima)
         z = zb + 0.4 - 0.05
         row = 0
@@ -1008,37 +1094,33 @@ def wall_run(mb, smp, big=False, key="w"):
                         busy.setdefault(row + 1, []).append((sa, sb))
                     o = (0.26 + 0.16 * hh(key, g, row, q, "o")) if big else (0.26 + 0.12 * hh(key, g, row, q, "o"))
                     # frente, topo, laterais (o fundo e a junta): 4 quads
-                    quad(bf, Pt(sa, o, za), Pt(sb, o, za), Pt(sb, o, zz), Pt(sa, o, zz))
-                    quad(bf, Pt(sa, o, zz), Pt(sb, o, zz), Pt(sb, 0.12, zz), Pt(sa, 0.12, zz))
-                    quad(bf, Pt(sb, o, za), Pt(sb, 0.12, za), Pt(sb, 0.12, zz), Pt(sb, o, zz))
-                    quad(bf, Pt(sa, 0.12, za), Pt(sa, o, za), Pt(sa, o, zz), Pt(sa, 0.12, zz))
+                    quad(bf, Pt(sa, o, za), Pt(sb, o, za), Pt(sb, o, zz), Pt(sa, o, zz), NV)
+                    quad(bf, Pt(sa, o, zz), Pt(sb, o, zz), Pt(sb, 0.12, zz), Pt(sa, 0.12, zz), ZV)
+                    quad(bf, Pt(sb, o, za), Pt(sb, 0.12, za), Pt(sb, 0.12, zz), Pt(sb, o, zz), UV)
+                    quad(bf, Pt(sa, 0.12, za), Pt(sa, o, za), Pt(sa, o, zz), Pt(sa, 0.12, zz), -UV)
+                    quad(bf, Pt(sa, 0.12, za), Pt(sb, 0.12, za), Pt(sb, o, za), Pt(sa, o, za), -ZV)   # M6c: fundo da pedra
+                    #   (visto de baixo na escada: sem ele via-se o avesso da frente)
                 s = e
                 q += 1
         # soco escuro no pe (so onde o vizinho de baixo anda)
         if smp[0][6] or smp[-1][6]:
             zf_ = min(zb_at(s0), zb_at(s1))
-            quad(sf, Pt(s0, 0.62, zf_ - 0.3), Pt(s1, 0.62, zf_ - 0.3), Pt(s1, 0.62, zf_ + 0.32), Pt(s0, 0.62, zf_ + 0.32))
-            quad(sf, Pt(s0, 0.62, zf_ + 0.32), Pt(s1, 0.62, zf_ + 0.32), Pt(s1, 0.3, zf_ + 0.32), Pt(s0, 0.3, zf_ + 0.32))
+            quad(sf, Pt(s0, 0.62, zf_ - 0.3), Pt(s1, 0.62, zf_ - 0.3), Pt(s1, 0.62, zf_ + 0.32), Pt(s0, 0.62, zf_ + 0.32), NV)
+            quad(sf, Pt(s0, 0.62, zf_ + 0.32), Pt(s1, 0.62, zf_ + 0.32), Pt(s1, 0.3, zf_ + 0.32), Pt(s0, 0.3, zf_ + 0.32), ZV)
     # capa clara continua: topo 0,22 acima do piso, balanco 0,4, entra 0,9 no piso
-    z0, z1 = zt - cap_h + 0.22, zt + 0.22
+    z0, z1 = zt - cap_h + cz, zt + cz
     e0, e1 = -0.08 if True else 0.0, ln + 0.08
-    quad(cf, Pt(e0, 0.5, z0), Pt(e1, 0.5, z0), Pt(e1, 0.5, z1), Pt(e0, 0.5, z1))
-    quad(cf, Pt(e0, 0.5, z1), Pt(e1, 0.5, z1), Pt(e1, -0.9, z1), Pt(e0, -0.9, z1))
-    quad(cf, Pt(e0, 0.12, z0), Pt(e1, 0.12, z0), Pt(e1, 0.5, z0), Pt(e0, 0.5, z0))
+    quad(cf, Pt(e0, 0.5, z0), Pt(e1, 0.5, z0), Pt(e1, 0.5, z1), Pt(e0, 0.5, z1), NV)
+    quad(cf, Pt(e0, 0.5, z1), Pt(e1, 0.5, z1), Pt(e1, -0.9, z1), Pt(e0, -0.9, z1), ZV)
+    quad(cf, Pt(e0, 0.12, z0), Pt(e1, 0.12, z0), Pt(e1, 0.5, z0), Pt(e0, 0.5, z0), -ZV)      # pingadeira (de baixo)
     for s_, sg in ((e0, -1), (e1, 1)):
         p = [Pt(s_, 0.5, z0), Pt(s_, 0.5, z1), Pt(s_, -0.9, z1), Pt(s_, -0.9, z0)]
-        quad(cf, *(p if sg > 0 else p[::-1]))
-    for lst in (jf, bf, cf, sf):
-        for f in lst:
-            f.normal_update()
-    # orienta: tudo para fora (+n) / para cima
-    for f in jf + bf + cf + sf:
-        c = f.calc_center_median()
-        if abs(f.normal.z) > 0.7:
-            if f.normal.z < 0 and f in cf[1:2]:
-                f.normal_flip()
-            elif f.normal.z < 0 and f not in cf[2:3]:
-                f.normal_flip()
+        quad(cf, *p, ref=UV * sg)
+    if back:
+        zb0 = min(s_[5] for s_ in smp) - 0.4
+        quad(jf, Pt(e0, -0.9, zb0), Pt(e1, -0.9, zb0), Pt(e1, -0.9, z1), Pt(e0, -0.9, z1), -NV)
+        for s_, sg in ((e0, -1), (e1, 1)):      # cabecas do corpo (do tardoz ate a junta, sob a capa)
+            quad(jf, Pt(s_, -0.9, zb0), Pt(s_, 0.12, zb0), Pt(s_, 0.12, z0), Pt(s_, -0.9, z0), UV * sg)
     assign(mb, jf, JOINT)
     assign(mb, bf, WALL)
     assign(mb, cf, PATH)
@@ -1135,7 +1217,25 @@ def rock_run(mb, smp, key):
             rows[k_].append(r[k_])
         for k_ in range(R - 1):
             mats[k_].append(mm[k_])
+    bm = mb.bm
+    n0 = len(bm.faces)
     loft_rows(mb, rows, mats, False)
+    # M6c: o loft sai com a normal a DIREITA do percurso; o finish do OP_Ter_Walls agora e recalc=False (as pedras dos
+    # arrimos tem orientacao propria), entao a face de rocha confere o lado aqui: voto das faces em pe contra a normal
+    # de fora (+n) de cada no; percurso ao contrario -> vira a corrida inteira (coerente, sem remendo por face)
+    bm.faces.ensure_lookup_table()
+    new = [bm.faces[i] for i in range(n0, len(bm.faces))]
+    vote = 0.0
+    for f_ in new:
+        f_.normal_update()
+        if abs(f_.normal.z) > 0.6:
+            continue
+        c = f_.calc_center_median()
+        k_ = min(range(n), key=lambda i: (nodes[i][0] - c.x) ** 2 + (nodes[i][1] - c.y) ** 2)
+        vote += f_.normal.x * nrm[k_][0] + f_.normal.y * nrm[k_][1]
+    if vote < 0:
+        for f_ in new:
+            f_.normal_flip()
 
 
 def build_edges():
@@ -1147,9 +1247,9 @@ def build_edges():
             wall_run(mw, smp, False, key)
         elif kind == "bigwall":
             wall_run(mw, smp, True, key)
-        else:
+        elif kind == "rock":
             rock_run(mr, smp, key)
-    mw.finish()
+    mw.finish(recalc=False)        # M6c: pedras orientadas no wall_run, rocha no rock_run (recalc virava quads soltos)
 
 
 # ------------------------------------------------------------------ massas soltas: rochedos, agulhas, crista
@@ -1482,8 +1582,8 @@ def build_castle_rock():
         # topo por trecho (o mais alto), pe por amostra
         tz = max(s[4] for s in smp)
         smp = [(s[0], s[1], s[2], s[3], tz, s[5], s[6]) for s in smp]
-        wall_run(mw, smp, True, "castlewall%d" % int(y0))
-    mw.finish()
+        wall_run(mw, smp, True, "castlewall%d" % int(y0), back=True)
+    mw.finish(recalc=False)        # M6c: orientacao explicita no wall_run (o recalc deixava a muralha de costas)
 
 
 def remove_blockout_castle_cliff():

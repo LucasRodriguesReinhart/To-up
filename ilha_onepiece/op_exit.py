@@ -184,8 +184,11 @@ def west_head(mb):
     # 0,14 acima do fundo das transversinas/vigas, antes coplanar ao topo das vigas vermelhas)
     mb.box((x1 - x0 + 0.35, y1 - y0 + 0.6, 0.8), ((x0 + 0.25 + x1 + 0.6) / 2, (y0 + y1) / 2, TR_B - 0.26), (0, 0, 0),
            STD, 0.0)
-    col_box("OP_ExitAbut", (x1 - x0 + 1.8, y1 - y0 + 1.8, T1 - L.HARBOR), ((x0 + x1) / 2 + 0.9, (y0 + y1) / 2,
-                                                                           (L.HARBOR + T1) / 2 - 1.0))
+    # M6c: topo da colisao = topo do coxim (TR_B + 0,14); era T1 - 1,0, 0,8 ACIMA da pedra em (208, 224) (pe flutuando
+    # na beira do bloco, fora do tabuleiro). Mesma planta
+    zc_top = TR_B + 0.14
+    col_box("OP_ExitAbut", (x1 - x0 + 1.8, y1 - y0 + 1.8, zc_top - L.HARBOR), ((x0 + x1) / 2 + 0.9, (y0 + y1) / 2,
+                                                                                (L.HARBOR + zc_top) / 2))
 
 
 def east_head(mb):
@@ -403,8 +406,8 @@ def build():
     headland(st, br)
     K.cull_hidden(st)                                       # M6b: faces que ninguem ve (orcamento)
     K.cull_hidden(br)
-    st.finish()
-    br.finish()
+    st.finish(recalc=False)                                 # M6c: sem recalc depois do corte (casca aberta virava)
+    br.finish(recalc=False)
     for i, c in enumerate(lamps):
         light("L_OPProp_Lamp_Saida_%d" % i, "POINT", tuple(c), 130.0, WARM, 0.35)
     anchor_guard()

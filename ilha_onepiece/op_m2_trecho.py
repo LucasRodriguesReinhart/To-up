@@ -101,7 +101,7 @@ def _shops():
         out[nm] = K.house(mb, F, sp, "L_OPCap_Win_M2%s" % nm, 70.0)
         K.house_cols("OP_CapHouse" + nm, F, sp)
     K.cull_hidden(mb)                                        # M6b: faces que ninguem ve (orcamento)
-    mb.finish()
+    mb.finish(recalc=False)                                  # M6c: sem recalc depois do corte (casca aberta virava)
     return out
 
 
@@ -124,7 +124,7 @@ def _lamps_and_stair():
     K.bench(ml, Frame(0.0, 0.0, 0.0, 0.0), -27.0, 91.6, 6.0, 1.8, 1.7, 0.0, T1)     # recanto da viela do canal
     col_box("OP_CapBench", (6.0, 1.8, 1.7), (-27.0, 91.6, T1 + 0.85))
     K.cull_hidden(mb)                                        # M6b
-    mb.finish()
+    mb.finish(recalc=False)                                  # M6c
 
 
 def _blockout_rest():
@@ -354,6 +354,6 @@ def build_praca():
     mp = MB("OP_Plz_M2_Borda", "03_PLAZA", random.Random(304), detail="hero")
     _praca_props(mp)
     K.cull_hidden(mp)                                        # M6b
-    mp.finish()
+    mp.finish(recalc=False)                                  # M6c
     _fallback_north()
     print("op_m2_praca: faixa sul %d lajes + emblema + borda" % n)

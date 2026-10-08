@@ -1258,7 +1258,8 @@ def build():
     cut = 0
     for mb in {id(m): m for m in mbs.values()}.values():
         cut += K.cull_hidden(mb)                        # M6b: faces que ninguem ve (paga rodape/janelas/quintal)
-        mb.finish()
+        mb.finish(recalc=False)                         # M6c: o cull_hidden ja orientou o bmesh FECHADO; recalcular
+        #   depois do corte (cascas abertas) virava paredes, janelas e telhados para dentro (invisiveis no Roblox)
     _cams()
     print("op_capital: %d casas leves, ruas %d lajes, quintais %d pecas, %d tris escondidos cortados, CAM_AREAS %d" % (
         sum(len(v) for v in SECTORS.values()), n, ny, cut, len(CAM_AREAS)))

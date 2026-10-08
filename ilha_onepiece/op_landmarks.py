@@ -35,7 +35,8 @@ from op_terrain import crag, assign
 
 C = "17_LANDMARKS"
 DARK, VOID, MOSS, GLOW = "Cliff_OP_Dark", "Cliff_OP_Void", "Cliff_OP_Moss", "Glass_OP_Lantern"
-ROCK = "Cliff_OP_Warm"
+ROCK = "Cliff_OP_Face"            # M6c: paleta nova das falesias (item 51; era Cliff_OP_Warm, bege claro)
+ROCKS = "Cliff_OP_Shade"          # M6c: estrato de baixo / sombra (como o mlow do op_terrain.crag)
 STEEL, GOLD, WD = "Metal_OP_Steel", "Metal_OP_Gold", "Wood_OP_Dark"
 LAC, RB = "Wood_OP_Lacquer", "Roof_OP_Blue"
 EYE = L.EYE
@@ -231,7 +232,11 @@ def teeth(mb, base_front):
             _skin(mb, rings, DARK)
 
 
-def _skin(mb, rings, m, caps=True):
+_ORIENT = []        # M6c: (centro, normal esperada) das folhas abertas do pagode, conferidas depois do finish
+
+
+def _skin(mb, rings, m, caps=True, ref=None):
+    """pele entre aneis; ref = funcao(centro) -> lado que se ve (M6c: folha ABERTA, o recalc do finish chuta o lado)"""
     bm = mb.bm
     V = [[bm.verts.new(Vector(p)) for p in r] for r in rings]
     out = []
@@ -251,6 +256,9 @@ def _skin(mb, rings, m, caps=True):
                 pass
     for f in out:
         f.normal_update()
+        if ref is not None:
+            c_ = f.calc_center_median()
+            _ORIENT.append((c_.copy(), ref(c_)))
     assign(mb, out, m)
     return out
 
@@ -433,15 +441,20 @@ def pagoda_roof(mb, c, hw_lo, hw_hi, z_eave, over, rise, top=None):
     outer_top = edge(E, z_eave, lift)
     outer_bot = edge(E - 0.15, z_eave - 0.75, lift)
     soffit_in = edge(hw_lo + 0.3, z_eave - 0.2 + 0.0, 0.0)
+    # M6c: lado visivel de cada folha (agua e testeira para fora/cima, forro para baixo)
+    out_ = lambda p: Vector((p.x - cx, p.y - cy, 0.0)).normalized()
+    up_ = lambda p: out_(p) * 0.3 + Vector((0.0, 0.0, 1.0))
+    dn_ = lambda p: Vector((0.0, 0.0, -1.0))
     if top is None:
         inner = edge(hw_hi + 0.25, z_eave + rise, 0.0)
-        _skin(mb, [outer_top, inner], RB, caps=False)
+        _skin(mb, [outer_top, inner], RB, caps=False, ref=up_)
         # rufo escuro contra o corpo de cima
-        _skin(mb, [edge(hw_hi + 0.3, z_eave + rise - 0.05, 0.0), edge(hw_hi + 0.3, z_eave + rise + 0.35, 0.0)], WD, caps=False)
+        _skin(mb, [edge(hw_hi + 0.3, z_eave + rise - 0.05, 0.0), edge(hw_hi + 0.3, z_eave + rise + 0.35, 0.0)], WD, caps=False,
+              ref=out_)
     else:
-        _skin(mb, [outer_top, edge(0.6, top, 0.0)], RB, caps=False)
-    _skin(mb, [outer_bot, outer_top], WD, caps=False)              # testeira
-    _skin(mb, [soffit_in, outer_bot], WD, caps=False)              # forro do beiral
+        _skin(mb, [outer_top, edge(0.6, top, 0.0)], RB, caps=False, ref=up_)
+    _skin(mb, [outer_bot, outer_top], WD, caps=False, ref=out_)    # testeira
+    _skin(mb, [soffit_in, outer_bot], WD, caps=False, ref=dn_)     # forro do beiral
     # espigoes (capas nas 4 diagonais)
     zt = (z_eave + rise) if top is None else top
     hi = (hw_hi + 0.25) if top is None else 0.6
@@ -457,9 +470,9 @@ def pagoda(mb):
     px, py, pr, ptop = L.WEST_SPIRE
     # pinaculo de rocha (mesma familia das agulhas do op_terrain), preso a falesia do terraco alto
     crag(mb, px, py, 22.0, 26.0, ptop - 2.0, "pagspire", n=7, steps=4, top_tilt=0.0, drape=1.2, cap=MOSS, m=ROCK,
-         mlow=ROCK, taper=0.88, lean=(0.02, 0.0))
+         mlow=ROCKS, taper=0.88, lean=(0.02, 0.0))
     crag(mb, px + 9.0, py - 16.0, 11.0, 26.0, 104.0, "pagspire_b", steps=3, top_tilt=0.15, drape=1.5, cap=MOSS, m=ROCK,
-         mlow=ROCK, taper=0.84)
+         mlow=ROCKS, taper=0.84)
     # embasamento (kidan) de pedra em 2 degraus
     z = ptop - 1.2
     for hw, h in ((8.6, 1.4), (7.4, 1.1)):
@@ -500,8 +513,25 @@ def pagoda(mb):
 
 def build_pagoda():
     mb = MB("OP_Lmk_Pagoda", C, random.Random(1303), detail="far", floor=-999)
+    _ORIENT.clear()
     pagoda(mb)
-    mb.finish()
+    ob = mb.finish()
+    # M6c: as aguas, testeiras e forros sao folhas abertas: o recalc do finish virava parte delas (vistas de cima
+    # sumiam no Roblox). Confere cada uma pelo lado registrado no _skin
+    if ob is not None and _ORIENT:
+        from mathutils.kdtree import KDTree
+        kd = KDTree(len(ob.data.polygons))
+        for p in ob.data.polygons:
+            kd.insert(p.center, p.index)
+        kd.balance()
+        nf = 0
+        for c_, r_ in _ORIENT:
+            co, i_, d_ = kd.find(c_)
+            if i_ is not None and d_ < 1e-3 and ob.data.polygons[i_].normal.dot(r_) < 0:
+                ob.data.polygons[i_].flip()
+                nf += 1
+        ob.data.update()
+        print("op_landmarks: folhas do pagode viradas para o lado visivel: %d" % nf)
 
 
 # ------------------------------------------------------------------ cameras de revisao

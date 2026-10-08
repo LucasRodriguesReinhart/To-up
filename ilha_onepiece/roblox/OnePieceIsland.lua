@@ -54,8 +54,9 @@ end
 
 -- ------------------------------------------------------------------ leitura dos atributos dos marcadores
 -- o export grava cores como "r,g,b" (0-255), pares como "a,b", listas de pontos como "x,y,z;x,y,z" (ja no mundo);
--- trios *_pos/pivot/center viram 3 atributos <chave>_x/_y/_z JA no mundo (export_op.to_world). 'spout_waypoints' NAO e
--- convertido pelo export (so 'waypoints' e): fica no referencial LOCAL e e convertido aqui pelo WORLD_FROM_PREV.
+-- trios *_pos/pivot/center viram 3 atributos <chave>_x/_y/_z JA no mundo (export_op.to_world). 'spout_waypoints' fica
+-- no referencial LOCAL; desde a M6c o export grava TAMBEM 'spout_waypoints_world' (ja no mundo). Usa a '_world' quando
+-- existe; so converte a local pelo WORLD_FROM_PREV num export antigo (sem conversao dupla nos dois casos).
 local function numeros(s)
 	local t = {}
 	for n in string.gmatch(tostring(s or ''), '[%-%d%.]+') do
@@ -542,12 +543,16 @@ local function agua(model, mk, L2W)
 		local lip = mk['FX_Fall_' .. k .. '_Lip']
 		local q, n = cortina(pasta, lip, mk, k)
 		-- bica do labio (so a cachoeira do castelo): lamina DEITADA da boca escura da nascente ate a frente do labio.
-		-- spout_waypoints vem em coordenada LOCAL (o export nao converte): converte pelo WORLD_FROM_PREV
+		-- M6c: 'spout_waypoints_world' (export novo) ja vem no mundo; 'spout_waypoints' (local) so num export antigo
+		local spw = pontos(lip:GetAttribute('spout_waypoints_world'))
 		local sp = pontos(lip:GetAttribute('spout_waypoints'))
-		if #sp >= 2 then
-			if L2W then
-				local w = {}
-				for i, p in ipairs(sp) do w[i] = L2W(p.X, p.Y, p.Z) end
+		if #spw >= 2 or #sp >= 2 then
+			if #spw >= 2 or L2W then
+				local w = spw
+				if #spw < 2 then
+					w = {}
+					for i, p in ipairs(sp) do w[i] = L2W(p.X, p.Y, p.Z) end
+				end
 				local sw = lip:GetAttribute('spout_width') or 5
 				fita(q, 'Bica', w, { sw, sw }, 5, false)
 				table.insert(rel, ('queda %s: %d pontos + bica do labio'):format(k, n))

@@ -1077,6 +1077,12 @@ def build():
         fn(mb)
         parts.append("%s %d" % (fn.__name__, tri() - t0))
     print("op_ship: tris por parte: " + ", ".join(parts))
+    # M6b: os CABOS (tubos varridos) saiam com a normal para DENTRO em parte do cordame (o Roblox so desenha a frente):
+    # normais recalculadas SO nos tubos de cabo (ilhas fechadas no perimetro); o resto segue com orientacao calculada
+    ri = {i for i, k in enumerate(mb.mats) if (k[1] if isinstance(k, tuple) else k) == ROPE}
+    rf = [f for f in mb.bm.faces if f.material_index in ri]
+    if rf:
+        bmesh.ops.recalc_face_normals(mb.bm, faces=rf)
     ob = mb.finish(recalc=False)
     cams()
     bad = HULL_BAD[0]

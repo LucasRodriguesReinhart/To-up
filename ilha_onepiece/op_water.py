@@ -43,7 +43,7 @@ import op_layout as L
 C = "07_WATER"
 T1, P, CF, CC, SEA = L.T1, L.P, L.CF, L.CC, L.SEA
 WALL, CAP, WET = "Stone_OP_Wall", "Stone_OP_Path", "Stone_OP_Dark"
-RDARK, RCOOL, MOSS = "Cliff_OP_Dark", "Cliff_OP_Cool", "Cliff_OP_Moss"
+RDARK, RCOOL, MOSS = "Cliff_OP_Dark", "Cliff_OP_Shade", "Cliff_OP_Moss"   # M6b: Cool -> Shade (paleta nova)
 WOODD, WOOD, IRON = "Wood_OP_Dark", "Wood_OP_Mid", "Metal_OP_Iron"
 
 # ------------------------------------------------------------------ cotas

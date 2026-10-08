@@ -433,7 +433,9 @@ def _fascia(mb, Fk, pts_fn, n, side, zf, tv, depth=0.6, d2=0.42, lod=0):
     lod 1 (fundo): so a testeira, com menos pontos"""
     ts = (0.0, 0.06, 0.18, 0.35, 0.5, 0.65, 0.82, 0.94, 1.0) if lod == 0 else (0.0, 0.1, 0.5, 0.9, 1.0)
     P = [pts_fn(t) for t in ts]                           # n ignorado: mais pontos nas pontas (sori)
-    strip(mb, Fk, [(x, y, zf(x, y) - tv) for x, y in P], side, -0.18, 0.18, -depth, 0.06, WD)
+    # M6c: topo da testeira RENTE ao forro (era +0,06: a faixa de 0,06 da testeira ficava 0,12 atras da borda da
+    # placa de telha = par telha x madeira a 0,12 em todo beiral do kit)
+    strip(mb, Fk, [(x, y, zf(x, y) - tv) for x, y in P], side, -0.18, 0.18, -depth, 0.0, WD)
     if lod:
         return
     sx, sy = side[0], side[1]
@@ -834,7 +836,8 @@ def window(mb, Ff, s, z, w, h, kind="koshi", lit=True, hood=False, sill=True, he
         bb(mb, Ff, x0 - j - 0.1, x1 + j + 0.1, -0.86, 0.1, z - 0.3, z, WD)
     if kind == "mushiko":
         # barras de reboco (mushiko) 0,17 a frente da parede, papel/fundo escuro 0,5 atras delas
-        bb(mb, Ff, x0 - 0.02, x1 + 0.02, -0.98, -0.94, z, z + h, LIT if lit else WD)
+        # M6c: fundo de 0,20 encostado no tardoz das ombreiras (-0,86); era uma placa de 0,04 solta a -0,94
+        bb(mb, Ff, x0 - 0.02, x1 + 0.02, -1.06, -0.86, z, z + h, LIT if lit else WD)
         nb = max(3, int(round(w / 0.62)))
         for i in range(1, nb):
             xx = x0 + w * i / nb
@@ -1707,7 +1710,8 @@ def pavilion(mb, F, W, D, h=8.0, kind="irimoya", red=True, roof_m=RB, open_side=
     for x in xs:
         for y in ys:
             rock_base(mb, F, x, y, 0.0, 0.85, 0.45)
-            bb(mb, F, x - 0.45, x + 0.45, y - 0.45, y + 0.45, 0.4, deck + h, pm, B)
+            # M6c: o pilar morre 0,15 dentro da keta (topos eram coplanares)
+            bb(mb, F, x - 0.45, x + 0.45, y - 0.45, y + 0.45, 0.4, deck + h - 0.15, pm, B)
     nb = max(3, int(round(W / 0.9)))
     for i in range(nb):
         x0 = -W / 2 + 0.2 + (W - 0.4) * i / nb
@@ -1719,10 +1723,12 @@ def pavilion(mb, F, W, D, h=8.0, kind="irimoya", red=True, roof_m=RB, open_side=
     for sy in (-1, 1):
         bb(mb, F, -W / 2 - 0.6, W / 2 + 0.6, sy * (D / 2 - 0.5) - 0.3, sy * (D / 2 - 0.5) + 0.3, deck + h - 2.4,
            deck + h - 1.8, pm)
-        bb(mb, F, -W / 2 - 0.9, W / 2 + 0.9, sy * (D / 2 - 0.5) - 0.42, sy * (D / 2 - 0.5) + 0.42, deck + h - 0.9,
+        # M6c: keta 0,12 MAIS LARGA que o pilar (+-0,57 x +-0,45; era +-0,42: a face do pilar laqueado ficava 0,03
+        # a frente da keta escura = z-fight laca x madeira)
+        bb(mb, F, -W / 2 - 0.9, W / 2 + 0.9, sy * (D / 2 - 0.5) - 0.57, sy * (D / 2 - 0.5) + 0.57, deck + h - 0.9,
            deck + h, WD)
     for sx in (-1, 1):
-        bb(mb, F, sx * (W / 2 - 0.5) - 0.42, sx * (W / 2 - 0.5) + 0.42, -D / 2 - 0.9, D / 2 + 0.9, deck + h - 0.9,
+        bb(mb, F, sx * (W / 2 - 0.5) - 0.57, sx * (W / 2 - 0.5) + 0.57, -D / 2 - 0.9, D / 2 + 0.9, deck + h - 0.9,
            deck + h - 0.02, WD)
     rh = 3.0
     if open_side != "R":
@@ -1945,7 +1951,23 @@ def cull_hidden(mb, dmax=2.5, eps=0.004, frac=0.94):
     bmesh.ops.recalc_face_normals(bm, faces=bm.faces[:])
     bm.normal_update()
     bm.faces.ensure_lookup_table()
-    tree = BVHTree.FromBMesh(bm)
+    # M6c (determinismo): a ORDEM das faces no bmesh muda de um build para outro (mesma geometria, mesmas normais) e a
+    # BVH desempata pela ordem -> 2 builds iguais cortavam 1..11 faces diferentes. A arvore agora e montada com as
+    # faces em ordem GEOMETRICA (centro, normal) e cada poligono comecando no menor vertice (mesmo sentido)
+    def _gkey(f):
+        c = f.calc_center_median()
+        return (round(c.x, 4), round(c.y, 4), round(c.z, 4), round(f.normal.x, 3), round(f.normal.y, 3),
+                round(f.normal.z, 3), len(f.verts))
+    order = sorted(bm.faces, key=_gkey)
+    tv, tp, t2f = [], [], []
+    for f in order:
+        cs = [v.co.copy() for v in f.verts]
+        k0 = min(range(len(cs)), key=lambda i: (round(cs[i].x, 4), round(cs[i].y, 4), round(cs[i].z, 4)))
+        cs = cs[k0:] + cs[:k0]
+        tp.append(list(range(len(tv), len(tv) + len(cs))))
+        tv += cs
+        t2f.append(f.index)
+    tree = BVHTree.FromPolygons(tv, tp)
     kill = []
     for f in bm.faces:
         n = f.normal
@@ -1953,10 +1975,24 @@ def cull_hidden(mb, dmax=2.5, eps=0.004, frac=0.94):
             continue
         c = f.calc_center_median()
         pts = [c] + [c + (v.co - c) * frac for v in f.verts]
+        # M6c: + meios das arestas e meio caminho centro-vertice: com so centro + vertices a empena atras das ripas
+        # (kitsure/trelica) caia inteira 'dentro' das ripas e era cortada -> via-se o avesso do timpano entre as ripas
+        vs_ = [v.co for v in f.verts]
+        pts += [c + ((vs_[i] + vs_[(i + 1) % len(vs_)]) / 2 - c) * frac for i in range(len(vs_))]
+        pts += [c + (v_ - c) * 0.5 for v_ in vs_]
+        # M6c (determinismo): desvio fixo e minusculo no plano da face (da propria geometria, nao do indice): o raio
+        # nunca passa exatamente numa aresta/vertice de outra face. Antes o empate entre 2 faces na mesma distancia era
+        # decidido pela ordem das faces na BVH e 2 builds iguais cortavam 1..11 faces diferentes
+        t1 = (vs_[1] - vs_[0])
+        if t1.length > 1e-6:
+            t1 = t1.normalized()
+            t2 = n.cross(t1)
+            dj = t1 * 0.00131 + t2 * 0.00217
+            pts = [p + dj for p in pts]
         ok = True
         for p in pts:
             hit = tree.ray_cast(p + n * eps, n, dmax)
-            if hit[0] is None or hit[2] == f.index:
+            if hit[0] is None or t2f[hit[2]] == f.index:
                 ok = False
                 break
             if hit[1].dot(n) < 0.0 and hit[3] > 2 * eps:

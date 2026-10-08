@@ -424,7 +424,16 @@ def build_floor():
         fn(pv)
         rep.append("%s %d lajes %d tris" % (nm, pv.n - n0, tri() - t0))
     print("op_plaza piso: " + " | ".join(rep))
-    mb.finish()
+    # M6c: laje sem fundo (e sem lados no miolo) e casca ABERTA: o recalc do finish virava lajes inteiras para baixo
+    # (o Roblox nao desenha: buraco no piso visto de cima). Topo e chanfro sempre para cima; lados como o loft fez.
+    nf = 0
+    for f_ in mb.bm.faces:
+        f_.normal_update()
+        if f_.normal.z < -0.05:
+            f_.normal_flip()
+            nf += 1
+    mb.finish(recalc=False)
+    print("op_plaza piso: %d faces viradas para cima" % nf)
     return pv.n
 
 
@@ -463,7 +472,7 @@ def build_border():
     for i, (a, b) in enumerate(WEST_SECT):
         _mureta(mw, WEST_X, a, b, 1.5, 1.1, "plzW%d" % i)
     K.cull_hidden(mw)                                        # M6b: faces que ninguem ve (orcamento)
-    mw.finish()
+    mw.finish(recalc=False)                                  # M6c: sem recalc depois do corte (casca aberta virava)
     mp = MB("OP_Prop_Plz_Borda", "09_PROPS", random.Random(403), detail="hero")
     F0 = Frame(0.0, 0.0, 0.0, 0.0)
     for i, (x, y) in enumerate(BANNERS_E):
@@ -477,7 +486,7 @@ def build_border():
         K.bench(mp, F0, x, y, ln, 1.8, 1.7, ang, ZT - 0.05)
         col_box("OP_PropBench", (ln, 1.8, 1.7), (x, y, P + 0.85), (0.0, 0.0, ang))
     K.cull_hidden(mp)                                        # M6b
-    mp.finish()
+    mp.finish(recalc=False)                                  # M6c
 
 
 # ------------------------------------------------------------------ cameras

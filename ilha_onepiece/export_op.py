@@ -63,6 +63,17 @@ def to_world():
                     x, y, z = (float(v) for v in t.split(","))
                     pts.append("%.2f,%.2f,%.2f" % tuple(ER.to_rbx(WORLD @ Vector((x, y, z)))))
                 o["waypoints"] = ";".join(pts)
+            # M6c: outras listas de pontos '<algo>_waypoints' (hoje so a 'spout_waypoints' da cachoeira do castelo)
+            # ficavam no referencial LOCAL e o roblox/OnePieceIsland.lua convertia sozinho. Agora o export grava TAMBEM
+            # '<chave>_world' ja no mundo do Roblox; a chave local fica como estava (um OnePieceIsland antigo no Studio
+            # continua certo: nao ha conversao dupla). O OnePieceIsland novo prefere a '_world' e so converte se ela
+            # faltar.
+            for k in [k for k in o.keys() if k.endswith("_waypoints") and isinstance(o[k], str)]:
+                pts = []
+                for t in str(o[k]).split(";"):
+                    x, y, z = (float(v) for v in t.split(","))
+                    pts.append("%.2f,%.2f,%.2f" % tuple(ER.to_rbx(WORLD @ Vector((x, y, z)))))
+                o[k + "_world"] = ";".join(pts)
             for k in list(o.keys()):
                 v = o[k]
                 if hasattr(v, "__len__") and not isinstance(v, str) and len(v) == 3:
@@ -115,8 +126,11 @@ ER.OWNERS = [("OP_Ter_", "terrain"), ("OP_Ent_", "entry"), ("OP_Cap_", "capital"
 # M4 op_plaza (acrescimo pontual): teto do plaza 21,6k -> 34k tris por decisao do lead (faixa sul do M2 ja gastava
 # 17,9k; o resto do piso em aneis/eixo/campos + mureta leva a 32,5k) e 26 -> 36 MeshParts (piso de 232 x 194 fatiado
 # em celulas de 128 x 4 tons de pedra; medido 30). Estandartes/postes/bancos da borda contam no dono props (OP_Prop_Plz_).
-ER.BUDGET_OWNER = {"terrain": (108000, 81), "entry": (32400, 35), "capital": (198000, 145), "plaza": (34000, 36),
-                   "castle": (75600, 59), "tree": (43200, 32), "harbor": (37800, 43), "ship": (19400, 17),
+# M6c (integracao): a M6b do castelo (patio em lajes + cascalho, guardas de pedra nas subidas, torreoes e base em
+# fiadas, itens 24-30 da auditoria) levou o castelo a 82,0k: teto 75,6k -> 84k, pago pela folga da capital
+# (198k -> 189,6k; usa 178,3k depois do K.cull_hidden). Soma dos tetos e teto global (640k) inalterados.
+ER.BUDGET_OWNER = {"terrain": (108000, 81), "entry": (32400, 35), "capital": (189600, 145), "plaza": (34000, 36),
+                   "castle": (84000, 59), "tree": (43200, 32), "harbor": (37800, 43), "ship": (19400, 17),
                    "summon": (36700, 43), "exit": (19400, 26), "gate_opm": (30300, 41), "landmarks": (15100, 15),
                    "water": (10800, 17), "props": (27000, 38), "vegetation": (48600, 49), "vfx": (16200, 32)}
 # PLANO_OP secao 9: <= 620k tris / 650 MeshParts estaticos + reserva VFX 15k / 30
@@ -144,7 +158,7 @@ for _o in bpy.data.objects:
 ER.NIGHT_ONLY = ("L_OPProp_", "L_OPCap_Win_")
 ER.LIGHT_KEEP = ("L_OPCas", "L_OPSum", "GateOnePunchMan", "L_Gate_OnePunchMan")
 ER.FOLD_PROTECT = ER.FOLD_PROTECT + ("Glass_OP_Lantern", "Window_OP", "Flower_OP", "Metal_OP_Gold", "Wood_OP_Lacquer",
-                                     "Metal_Gold", "Crystal_Sum", "Energy_Core", "Cloth_OP_Red", "P_OPM_", "P_Gold_")
+                                     "Metal_Gold", "Crystal_Sum", "Energy_Core", "Energy_OPM", "Cloth_OP_Red", "P_OPM_", "P_Gold_")
 
 # ------------------------------------------------------------------ luzes de interior (override so desta ilha)
 # O export compartilhado corta toda PointLight para Range <= 20 / Brightness <= 1,5 (lanterna de rua). O salao do
@@ -251,7 +265,30 @@ def extra_lua(vfx):
     return s
 
 
+# M6c: nomes de malha <= 48 (o importador trunca com '...' acima de ~50 e o montar procura o nome exato). So o portao One
+# Punch Man passava: 'GATE_OnePunchMan_Barrier__Energy_Core_OnePunchMan_Glow' (54) e '..._Lock__...' (51). O objeto
+# nao muda (o montar casa '^GATE_(%w+)_(%a+)' e a chave OnePunchMan); o MATERIAL ganha um nome curto SO no export, com a
+# mesma cor/regra (MATS, RBX_CAL, variante) - o asset da galeria e o Neon dele (item 50) ficam como estao.
+MAT_SHORT = {"Energy_Core_OnePunchMan_Glow": "Energy_OPM_Glow"}
+
+
+def short_materials():
+    import fm_lib
+    n = 0
+    for old, new in MAT_SHORT.items():
+        m = bpy.data.materials.get(old)
+        if m is None:
+            continue
+        for tab in (fm_lib.MATS, fm_lib.RBX_CAL, getattr(fm_lib, "VARIANT_OF", {})):
+            if old in tab:
+                tab[new] = tab[old]
+        m.name = new
+        n += 1
+    return n
+
+
 def main():
+    print("EXPORT_OP: %d materiais com nome curto (nomes de malha <= 48)" % short_materials())
     print("EXPORT_OP: %d materiais Glow -> Neon" % XL.neon_rules())
     gone = [o for o in bpy.data.objects if o.name.startswith(("OP_Plz_OreProxy", "COL_QA_"))]
     for o in gone:
