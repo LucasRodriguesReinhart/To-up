@@ -1,0 +1,266 @@
+{
+ "GATE_OnePunchMan": {
+  "name": "GATE_OnePunchMan",
+  "pos": [
+   -2530.696,
+   88.2,
+   1687.598
+  ],
+  "x": [
+   0.342,
+   0.0,
+   -0.94
+  ],
+  "y": [
+   -0.94,
+   0.0,
+   -0.342
+  ],
+  "props": {
+   "open_w": 16.0,
+   "open_h": 18.0,
+   "deck_w": 18.0,
+   "area_id": 6,
+   "key": "OnePunchMan",
+   "fwd_x": -0.9397,
+   "fwd_z": -0.342
+  }
+ },
+ "ISLAND_EXIT_OnePiece": {
+  "name": "ISLAND_EXIT_OnePiece",
+  "pos": [
+   -2427.33,
+   88.2,
+   1725.22
+  ],
+  "x": [
+   0.342,
+   0.0,
+   -0.94
+  ],
+  "y": [
+   -0.94,
+   0.0,
+   -0.342
+  ],
+  "props": {
+   "width": 18.0,
+   "deck_z": 88.2,
+   "heading_deg": -160.0,
+   "note": "cabeca da ponte vermelha de saida (88, T1) na borda leste do terraco do summon",
+   "fwd_x": -0.9397,
+   "fwd_z": -0.342,
+   "heading_deg_local": 15.0
+  }
+ },
+ "ISLAND_NEXT_ANCHOR_OnePunchMan": {
+  "name": "ISLAND_NEXT_ANCHOR_OnePunchMan",
+  "pos": [
+   -2553.248,
+   88.2,
+   1679.39
+  ],
+  "x": [
+   0.342,
+   0.0,
+   -0.94
+  ],
+  "y": [
+   -0.94,
+   0.0,
+   -0.342
+  ],
+  "props": {
+   "width": 18.0,
+   "deck_z": 88.2,
+   "clear_h": 22.0,
+   "heading_deg": -160.0,
+   "next_area": 6,
+   "next_key": "OnePunchMan",
+   "fwd_roblox": "-0.9397,0.0000,-0.3420",
+   "pos_roblox": "-2553.25,88.20,1679.39",
+   "orientation_roblox": "0,70.0,0",
+   "guard": "PROVISORIO: COL_OPAnchorGuard_* + OP_Exit_AnchorGuard (next_island_guard=True)",
+   "guard_note": "One Punch Man (area 6) ainda nao existe: termino SEGURO. A integracao da area 6 REMOVE a guarda quando a ponte seguinte encosta aqui (nao ha passagem que leva a queda)",
+   "fwd_x": -0.9397,
+   "fwd_z": -0.342,
+   "heading_deg_local": 15.0
+  }
+ },
+ "MiningZone_OnePiece": {
+  "name": "MiningZone_OnePiece",
+  "pos": [
+   -2247.113,
+   92.2,
+   1826.994
+  ],
+  "x": [
+   -0.819,
+   0.0,
+   -0.574
+  ],
+  "y": [
+   -0.574,
+   0.0,
+   0.819
+  ],
+  "props": {
+   "kind": "mining",
+   "floor": 92.2,
+   "sx": 152.0,
+   "sy": 120.0,
+   "open_sky": true,
+   "note": "PRACA central a CEU ABERTO (sem 'ceil': o script usa piso + 28); o jogo usa ORE_* + grade hexagonal + bloqueios GP_Block_*; frente = +Y local (castelo); emblema de chao RENTE no centro (sem colisao)",
+   "fwd_x": -0.5736,
+   "fwd_z": 0.8192
+  }
+ },
+ "SUMMON_Interact": {
+  "name": "SUMMON_Interact",
+  "pos": [
+   -2379.487,
+   88.2,
+   1731.863
+  ],
+  "x": [
+   -0.819,
+   0.0,
+   -0.574
+  ],
+  "y": [
+   -0.574,
+   0.0,
+   0.819
+  ],
+  "props": {
+   "note": "gabinete invisivel do Gacha_mare (prompt Invocar)",
+   "fwd_x": -0.5736,
+   "fwd_z": 0.8192
+  }
+ },
+ "SUMMON_Main": {
+  "name": "SUMMON_Main",
+  "pos": [
+   -2385.221,
+   88.2,
+   1727.848
+  ],
+  "x": [
+   -0.574,
+   0.0,
+   0.819
+  ],
+  "y": [
+   0.819,
+   0.0,
+   0.574
+  ],
+  "props": {
+   "note": "torre de invocacao AMS (estrela + aneis + torre + nucleo, familia da Ilha 1), frente para -X local (oeste: praca); terraco lateral na transicao para o porto",
+   "fwd_x": 0.8192,
+   "fwd_z": 0.5736
+  }
+ },
+ "SUMMON_PlayerPosition": {
+  "name": "SUMMON_PlayerPosition",
+  "pos": [
+   -2372.115,
+   88.2,
+   1737.025
+  ],
+  "x": [
+   0.574,
+   0.0,
+   -0.819
+  ],
+  "y": [
+   -0.819,
+   0.0,
+   -0.574
+  ],
+  "props": {
+   "note": "onde o jogador fica olhando a torre (pad do gacha)",
+   "fwd_x": -0.8192,
+   "fwd_z": -0.5736
+  }
+ },
+ "WATER_Sea": {
+  "name": "WATER_Sea",
+  "pos": [
+   -2321.499,
+   36.0,
+   1828.622
+  ],
+  "x": [
+   -0.819,
+   0.0,
+   -0.574
+  ],
+  "y": [
+   -0.574,
+   0.0,
+   0.819
+  ],
+  "props": {
+   "shape": "quadrado",
+   "level": 36.0,
+   "size": 2200.0,
+   "client_only": true,
+   "area": 5,
+   "color": "48,176,196",
+   "note": "mar LOCAL turquesa de Wano: so no cliente e so com o jogador na area 5 (como o mar de nuvens da DS); esconde a quilha; vista de Wano, a DS aparece como ilha saindo do mar (topo da quilha DS 53,6 > 46)",
+   "fwd_x": -0.5736,
+   "fwd_z": 0.8192
+  }
+ },
+ "WORLD_ENTRY_OnePiece": {
+  "name": "WORLD_ENTRY_OnePiece",
+  "pos": [
+   -2136.986,
+   84.4,
+   1669.717
+  ],
+  "x": [
+   -0.819,
+   0.0,
+   -0.574
+  ],
+  "y": [
+   -0.574,
+   0.0,
+   0.819
+  ],
+  "props": {
+   "note": "chegada da ilha (patio do grande torii, olhando a rua de chegada e o castelo)",
+   "fwd_x": -0.5736,
+   "fwd_z": 0.8192
+  }
+ },
+ "WORLD_FROM_PREV": {
+  "name": "WORLD_FROM_PREV",
+  "pos": [
+   -2054.391,
+   80.2,
+   1551.759
+  ],
+  "x": [
+   -0.819,
+   0.0,
+   -0.574
+  ],
+  "y": [
+   -0.574,
+   0.0,
+   0.819
+  ],
+  "props": {
+   "width": 18.0,
+   "deck_z": 80.2,
+   "prev": "ISLAND_NEXT_ANCHOR_OnePiece (Ilha 4 Demon Slayer, 9cc4bef4)",
+   "bridge_len": 120.0,
+   "note": "centro da borda do tabuleiro da ponte de chegada (reta de 120, sobe 4 ate o patio do torii); avanco = frente; tem de cair EXATO na ancora da Ilha 4",
+   "fwd_x": -0.5736,
+   "fwd_z": 0.8192
+  }
+ }
+}

@@ -65,12 +65,18 @@ OPMATS = {
     "Cliff_OP_Moss":      (S(90, 128, 70), 0.9, 0.0, 0, None, 0.08),     # topo das falesias com musgo
     "Cliff_OP_Void":      (S(38, 40, 48), 0.95, 0.0, 0, None, 0.0),      # cavidades da caveira (orbitas, nariz, boca)
     "Cliff_OP_Horn":      (S(58, 56, 62), 0.8, 0.0, 0, None, 0.04),      # chifres da caveira (rocha escura polida)
+    "Cliff_OP_Warm":      (S(178, 170, 156), 0.9, 0.0, 0, None, 0.08),   # M4 op_terrain: face clara-quente das falesias
+    "Cliff_OP_Cool":      (S(136, 138, 146), 0.9, 0.0, 0, None, 0.08),   # M4 op_terrain: estrato de baixo / massas de sombra
+    "Grass_OP_Deep":      (S(72, 120, 56), 0.9, 0.0, 0, None, 0.08),     # M4 op_terrain: berma verde e capa que cai na falesia
+    "Stone_OP_Wall":      (S(182, 174, 158), 0.85, 0.0, 0, None, 0.06),  # M4 op_terrain: pedra aparelhada dos arrimos
+    "Dirt_OP_Dark":       (S(112, 92, 70), 0.95, 0.0, 0, None, 0.06),    # M4 op_terrain: leito, saia da pele, fundo dos canais
     "Grass_OP":           (S(108, 156, 74), 0.9, 0.0, 0, None, 0.10),    # grama diurna
     "Dirt_OP":            (S(168, 140, 104), 0.95, 0.0, 0, None, 0.08),
     "Leaf_OP":            (S(66, 122, 62), 0.85, 0.0, 0, None, 0.06),
     "Leaf_OP_Pine":       (S(44, 94, 62), 0.85, 0.0, 0, None, 0.06),
     "Flower_OP_Blossom":  (S(240, 150, 198), 0.8, 0.0, 0, None, 0.04),   # flor de cerejeira (acento + arvore monumental)
     "Flower_OP_Light":    (S(250, 196, 224), 0.8, 0.0, 0, None, 0.03),
+    "Flower_OP_Deep":     (S(206, 108, 164), 0.85, 0.0, 0, None, 0.03),  # M3 op_tree: face de baixo das massas da copa
     "Bark_OP":            (S(98, 74, 56), 0.9, 0.0, 0, None, 0.08),      # casca (arvore monumental e cerejeiras)
     "Cloth_OP_White":     (S(236, 232, 222), 0.85, 0.0, 0, None, 0.03),  # estandartes, velas
     "Cloth_OP_Indigo":    (S(44, 52, 96), 0.85, 0.0, 0, None, 0.03),     # noren, faixa dos estandartes

@@ -116,6 +116,13 @@ def extra_cams():
     z = L.DECK + 8.0
     out["CAM_OP_Conexao_OlhaDS"] = ((4.0, L.PREV_Y + 70.0, z), (-6.0, L.PREV_Y - 360.0, L.DECK - 4.0), 22)
     out["CAM_OP_Conexao_OlhaIlha"] = ((-3.0, L.PREV_Y + 4.0, z), (0.0, 160.0, L.T1 + 16.0), 22)
+    # M3 op_tree (acrescimo pontual, so cameras novas): arvore vista da ponte/torii/praca/patio na altura do jogador,
+    # closes de raizes e casca, copa de baixo, lado e tras (CAM_OP_Tree_*)
+    try:
+        import op_tree
+        out.update(op_tree.cams())
+    except ImportError:
+        pass
     return out
 
 

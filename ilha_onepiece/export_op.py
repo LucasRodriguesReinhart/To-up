@@ -12,6 +12,12 @@
 #      pecas moveis VFX_* -> tag IlhaMovel; portao One Punch Man -> tag PortaoCompra; guarda provisoria da ancora One
 #      Punch Man (OP_Exit_AnchorGuard + COL_OPAnchorGuard_*) -> tag GuardaProximaIlha.
 #   Proxies de minerio do blockout (OP_Plz_OreProxy) e stubs do QA NUNCA entram.
+# ACRESCIMO M2 (agente do trecho, pontual): export SO DE UM TRECHO para validar no Studio sem a ilha inteira.
+#   OP_EXPORT_ONLY=<prefixo,prefixo,...>  so as MALHAS e LUZES cujo nome comeca com um dos prefixos sao exportadas;
+#                 colisoes COL_* e marcadores ficam TODOS (piso, escadas, guardas, portao e rotas funcionam no Play).
+#   OP_EXPORT_TAG=<sufixo>  muda a identidade para nao colidir com a ilha: ILHA5<sufixo>_*.fbx, Model
+#                 workspace.ILHA_ONEPIECE_<sufixo>, ilha5_<sufixo>_data.json, montar_ilha_onepiece_<sufixo>.lua.
+#   ex.: OP_EXPORT_ONLY=OP_Cap_M2,OP_Plz_M2,OP_Ter_ OP_EXPORT_TAG=M2 ./run.sh export export_m2
 import sys, os, math, re, json
 HERE = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, HERE)
@@ -87,6 +93,15 @@ ER.SERVER_SCRIPT = "ILHA_ONEPIECE_Servidor"
 ER.MARKER_COLL = "14_GAMEPLAY_MARKERS"
 ER.SPAWN_FALLBACK = False
 ER.TITLE = "ilha5"
+_TAG = os.environ.get("OP_EXPORT_TAG", "").strip()
+if _TAG:                                       # (M2) identidade separada para o export de um trecho
+    ER.FBX_PREFIX = "ILHA5" + _TAG
+    ER.ROOT_NAME = "ILHA_ONEPIECE_" + _TAG
+    ER.DATA_FILE = "ilha5_%s_data.json" % _TAG.lower()
+    ER.LUA_FILE = "montar_ilha_onepiece_%s.lua" % _TAG.lower()
+    ER.SERVER_SCRIPT = "ILHA_ONEPIECE_%s_Servidor" % _TAG
+    ER.TITLE = "ilha5_" + _TAG.lower()
+_ONLY = tuple(p.strip() for p in os.environ.get("OP_EXPORT_ONLY", "").split(",") if p.strip())
 ER.GROUPS = ["02_TERRAIN", "03_PLAZA", "04_CASTLE", "05_CAPITAL", "06_SUMMON", "07_WATER", "08_NEXT_ISLAND",
              "08_PURCHASE_GATES", "09_PROPS", "10_VEGETATION", "12_VFX_HELPERS", "16_HARBOR", "17_LANDMARKS",
              "18_ENTRY"]
@@ -233,6 +248,12 @@ def main():
     for o in gone:
         bpy.data.objects.remove(o, do_unlink=True)
     print("EXPORT_OP: %d proxies de minerio / stubs de QA removidos" % len(gone))
+    if _ONLY:                                  # (M2) export so do trecho: malhas/luzes fora dos prefixos saem
+        gone = [o for o in bpy.data.objects if o.type in ("MESH", "LIGHT", "CURVE") and not o.name.startswith("COL_")
+                and not o.name.startswith(_ONLY)]
+        for o in gone:
+            bpy.data.objects.remove(o, do_unlink=True)
+        print("EXPORT_OP: OP_EXPORT_ONLY=%s -> %d malhas/luzes fora do trecho removidas" % (",".join(_ONLY), len(gone)))
     n_w = to_world()
     vfx = XL.vfx_list(ER)
     ER.EXTRA_LUA = extra_lua(vfx)

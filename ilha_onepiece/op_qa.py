@@ -390,6 +390,8 @@ def gate():
         d = tgt - eye
         hit = bvh.ray_cast(eye, d.normalized(), d.length)
         ok = hit[0] is None or (hit[0] - eye).length >= d.length - tol
+        if not ok and tgt is tree_top and VIS_OWNER[hit[2]].startswith("OP_Tree_"):
+            ok = True          # M3 op_tree (acrescimo pontual): o raio bate na PROPRIA arvore = arvore visivel
         if not ok:
             blocker["last"] = "%s a %.0f" % (VIS_OWNER[hit[2]], (hit[0] - eye).length)
         return ok
