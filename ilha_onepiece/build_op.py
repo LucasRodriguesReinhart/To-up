@@ -31,7 +31,15 @@ ZONE_MODULES = {
     "water": ["op_water"],  # M4 op_water (agente da agua: cantaria dos canais/bacia, degraus, bicas, roda d'agua VFX_OP_Wheel, pedras de base; mede e corrige FX_*/WATER_* via op_core._water_measured)
     "exit": ["op_exit"],  # M4 op_exit (agente saida+marcos: ponte vermelha em arco, promontorio, cabeca de ponte da ancora + guarda provisoria)
     "landmarks": ["op_landmarks"],  # M4 op_landmarks (agente saida+marcos: caveira esculpida na rocha, espada, pagode)
-    "dressing": [],       # M4/M6 op_veg, op_props, op_vfx, op_lights
+    "dressing": ["op_props", "op_veg", "op_vfx", "op_lights"],
+                             # M4/M6 op_veg, op_props, op_vfx, op_lights. M4 op_veg (acrescimo pontual do agente da
+                             # vegetacao): deve ficar por ULTIMO na lista (a vegetacao desvia do que ja foi montado,
+                             # inclusive props); expoe op_veg.TRUNKS para quem precisar desviar dos troncos
+                             # M4 op_vfx/op_lights (acrescimo pontual do agente de luz/VFX): op_veg e o ULTIMO que faz
+                             # GEOMETRIA; depois dele so o op_vfx (marcadores FX_* + previa PREVIEW_VFX_* em 00_REFERENCE,
+                             # que a vegetacao nao deve ver) e o op_lights por ultimo (so audita/hierarquiza luzes)
+                             # M4 op_props (acrescimo pontual do agente de props): PRIMEIRO do dressing - assenta cada
+                             # peca por raio no chao ja construido; a vegetacao desvia das pecas e colisoes dele
 }
 
 

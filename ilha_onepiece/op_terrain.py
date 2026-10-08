@@ -34,6 +34,11 @@
 #   - Arvore (op_tree): ancoras do rochedo em CASTLE_ROCK_ANCHORS / castle_rock_z() (abaixo); a arvore faz raycast no
 #     que ja existe, e o terreno roda antes dela.
 #   - Remove OP_Cas_Cliff (colunas do blockout do castelo): o rochedo do castelo agora e do terreno.
+# AJUSTES M4 (agente da vegetacao, dono temporario do terreno para 2 pedidos, documentados):
+#   - SAIU o build_piers() (OP_Ter_Piers, tampo liso do pier/palafita): o op_harbor apagava o objeto em runtime; o pier
+#     e a palafita sao do op_harbor (OP_Port_Piers). Resultado final da cena igual (o objeto ja nao chegava ao export).
+#   - ENTALHE DA CABECA LESTE DA PONTE DE SAIDA (EXIT_NOTCH / exit_head_notch, abaixo): era o op_exit.terrain_notch()
+#     em runtime (31 vertices); agora e do terreno, como o FALL_NOTCH das quedas. Mesma pegada e mesma cota.
 import math, zlib, os
 import numpy as np
 import bmesh
@@ -1179,23 +1184,37 @@ def remove_blockout_castle_cliff():
         bpy.data.objects.remove(ob, do_unlink=True)
 
 
-# ------------------------------------------------------------------ cais de madeira (pier e palafita sobre estacas)
-def build_piers():
-    mb = MB("OP_Ter_Piers", C, None, detail="far", floor=-999)
-    for (x0, y0, x1, y1) in ((222.2, 110.0, 234.0, 200.0), (222.2, 40.0, 246.0, 76.0)):
-        mb.box((x1 - x0, y1 - y0, 0.9), ((x0 + x1) / 2, (y0 + y1) / 2, L.HARBOR - 0.45), (0, 0, 0), WOOD, 0.0)
-        # testeira escura
-        for (a, b) in (((x0, y0), (x1, y0)), ((x1, y0), (x1, y1)), ((x1, y1), (x0, y1))):
-            dx, dy = b[0] - a[0], b[1] - a[1]
-            ln = math.hypot(dx, dy)
-            mb.box((ln + 0.5, 0.4, 1.3), ((a[0] + b[0]) / 2 + dy / ln * 0.18, (a[1] + b[1]) / 2 - dx / ln * 0.18,
-                                          L.HARBOR - 0.75), (0, 0, math.atan2(dy, dx)), WOODD, 0.0)
-        # juntas das tabuas (frisos escuros rebaixados 0,03 nao: faixas finas 0,02 acima seriam z-fight) -> vigas por baixo
-        y = y0 + 3.0
-        while y < y1 - 1.0:
-            mb.box((x1 - x0 - 0.4, 0.6, 0.8), ((x0 + x1) / 2, y, L.HARBOR - 1.3), (0, 0, 0), WOODD, 0.0)
-            y += 6.0
-    mb.finish()
+# ------------------------------------------------------------------ entalhe da cabeca leste da ponte de saida
+# O anel da falesia passa reto pela cabeca da ponte de saida (op_exit) e o labio verde (89..90) cobriria o fim do
+# tabuado (88,26). Na pegada do encontro leste (d 77..88,4 ao longo da ponte a partir de L.EXIT_START, |v| <= 10,5) os
+# vertices do anel e da pele que ficam acima do berco descem para baixo dele (sob a soleira e o encontro de pedra do
+# op_exit), mantendo a ordem vertical (sem face degenerada). Cota do berco = fundo das transversinas do op_exit - 0,1
+# (topo das tabuas T1 + 0,06 - tabua 0,3 - longarina 0,9 - transversina 0,8 - 0,1), na mesma sequencia de contas.
+EXIT_NOTCH = (77.0, 88.4, 10.5, T1 + 0.06 - 0.3 - 0.9 - 0.8 - 0.1)    # d0, d1, meia largura, cota do berco
+
+
+def exit_head_notch():
+    d0, d1, hw, zc = EXIT_NOTCH
+    ux, uy = L.exit_dir()
+    sx, sy = L.EXIT_START
+    n = 0
+    for nm in ("OP_Ter_Cliff", "OP_Ter_Ground"):
+        ob = bpy.data.objects.get(nm)
+        if not ob or ob.type != "MESH":
+            continue
+        M = ob.matrix_world
+        Mi = M.inverted()
+        for v in ob.data.vertices:
+            w = M @ v.co
+            dx, dy = w.x - sx, w.y - sy
+            d = dx * ux + dy * uy
+            vv = -dx * uy + dy * ux
+            if d0 <= d <= d1 and abs(vv) <= hw and w.z > zc:
+                w.z = zc + (w.z - zc) * 0.01
+                v.co = Mi @ w
+                n += 1
+        ob.data.update()
+    return n
 
 
 # ------------------------------------------------------------------ cameras de revisao da zona
@@ -1231,5 +1250,6 @@ def build():
     build_edges()
     build_castle_rock()
     build_masses()
-    build_piers()
+    n = exit_head_notch()
+    print("op_terrain: entalhe da cabeca leste da ponte de saida: %d vertices" % n)
     cams()

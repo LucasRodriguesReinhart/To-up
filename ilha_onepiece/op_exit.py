@@ -24,6 +24,9 @@
 #   pilares-mestre (2 cavaletes em X + 3 travessas), a colisao e a COL_OPAnchorGuard_001 do op_col. Nao ha passagem que
 #   leva a queda nem promessa falsa: sem ponte comecada para o vazio. A integracao da area 6 apaga a barreira.
 # Orcamento (PLANO_OP secao 9): exit 18k tris / 24 MeshParts; colisoes proprias: encontro oeste (no cais) e 2 toro.
+# M4 (agente da vegetacao, dono temporario do terreno): SAIU a terrain_notch() (entalhe PROVISORIO que baixava em runtime
+#   31 vertices do OP_Ter_Cliff/OP_Ter_Ground na pegada do encontro leste). O entalhe agora e do proprio terreno
+#   (op_terrain.EXIT_NOTCH / exit_head_notch: mesma pegada d 77..88,4, |v| <= 10,5, mesma cota TR_B - 0,1).
 import math, random
 from mathutils import Vector
 import op_lib as DL
@@ -361,39 +364,6 @@ def anchor_guard():
     return ob
 
 
-# ================================================================== encaixe com a falesia (PROVISORIO, ver relatorio)
-NOTCH = (77.0, 88.4, 10.5)          # d0, d1, meia largura: cabeca leste da ponte
-
-
-def terrain_notch():
-    """ENTALHE DA CABECA LESTE (acrescimo pontual de encaixe, documentado): o anel da falesia do op_terrain (aprovado)
-    passa RETO pela cabeca da ponte de saida e o labio verde (89..90) cobre o fim do tabuado (88,26). Aqui so os
-    vertices do OP_Ter_Cliff / OP_Ter_Ground DENTRO da pegada do encontro leste e acima do berco descem para baixo dele
-    (sob a soleira e o encontro de pedra). PEDIDO ao dono do terreno: entalhe proprio na cabeca da ponte (como o
-    FALL_NOTCH das quedas); quando existir, apagar esta funcao."""
-    import bpy
-    d0, d1, hw = NOTCH
-    zc = TR_B - 0.1
-    n = 0
-    for nm in ("OP_Ter_Cliff", "OP_Ter_Ground"):
-        ob = bpy.data.objects.get(nm)
-        if not ob or ob.type != "MESH":
-            continue
-        M = ob.matrix_world
-        Mi = M.inverted()
-        for v in ob.data.vertices:
-            w = M @ v.co
-            dx, dy = w.x - L.EXIT_START[0], w.y - L.EXIT_START[1]
-            d = dx * UX + dy * UY
-            vv = -dx * UY + dy * UX
-            if d0 <= d <= d1 and abs(vv) <= hw and w.z > zc:
-                w.z = zc + (w.z - zc) * 0.01          # mantem a ordem vertical (sem face degenerada)
-                v.co = Mi @ w
-                n += 1
-        ob.data.update()
-    return n
-
-
 # ================================================================== cameras de revisao
 def cams():
     g = L.gate_opm_pos()
@@ -431,6 +401,5 @@ def build():
     for i, c in enumerate(lamps):
         light("L_OPProp_Lamp_Saida_%d" % i, "POINT", tuple(c), 130.0, WARM, 0.35)
     anchor_guard()
-    nn = terrain_notch()
     cams()
-    print("OP_EXIT ok (entalhe leste: %d vertices do terreno baixados)" % nn)
+    print("OP_EXIT ok")
