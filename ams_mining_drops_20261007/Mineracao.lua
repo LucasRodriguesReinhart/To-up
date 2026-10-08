@@ -1,5 +1,6 @@
 local RS = game:GetService("ReplicatedStorage")
 local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
 local Config = require(RS.Config)
 local Geometry = require(RS.MiningGeometry)
 local PlayerData = require(script.Parent.PlayerData)
@@ -33,6 +34,8 @@ local pending = {}
 local dropsPendentes = {} -- [player] = { drops = {}, espaco = 0, hats = 0 }
 local proximoDropId = 0
 local TEMPO_COLETA = 5
+local RAIO_COLETA = 1.65
+local ALTURA_COLETA = 4.5
 local QUANTIDADE_DROP = { comum = 2, incomum = 3, raro = 3, epica = 4, lendaria = 4 }
 local proximoGolpe = {}  -- [player] = deadline monotono, sem acelerar por spam de remotes
 local golpesNaRocha = setmetatable({}, { __mode = "k" }) -- [rocha] = { [player] = golpes }
@@ -82,33 +85,77 @@ local function quantidadeParaDrop(player, perfil, idMin, varianteId)
  return math.max(0, math.min(base, math.floor(livre / Config.espacoMinerio(idMin))))
 end
 
-local function concluirDrop(player, drop, forcar)
+local function concluirDrop(player, drop, forcar, indicesMinerio, coletarHat)
  local fila = dropsPendentes[player]
  if not fila or fila.drops[drop.id] ~= drop then return false end
  local perfil = PlayerData.get(player)
  if not perfil then return false end
- if not forcar and ((not PlayerData.mochilaInfinita(perfil) and
-  PlayerData.itensNaMochila(perfil) + drop.espaco > PlayerData.capacidade(perfil))
-  or (drop.hat and PlayerData.totalHats(perfil) >= PlayerData.capacidadeHats(perfil))) then
-  return false
+ local espacoUnitario = Config.espacoMinerio(drop.minerioId)
+ -- Consultas de passes podem aguardar HTTP. Revalida antes de consumir qualquer item.
+ if drop.consultando then return false end
+ drop.consultando = true
+ local okConsulta, infinita, capacidadeHats = pcall(function()
+  return forcar or PlayerData.mochilaInfinita(perfil),
+   (coletarHat ~= false and drop.hat and not drop.hatEmEntrega) and PlayerData.capacidadeHats(perfil) or math.huge
+ end)
+ drop.consultando = nil
+ if not okConsulta then
+  warn("[Mineracao] consulta do drop: " .. tostring(infinita))
+  if not forcar then return false end
+  infinita, capacidadeHats = true, math.huge
  end
- fila.drops[drop.id] = nil
- fila.espaco -= drop.espaco
- fila.count -= 1
- if drop.hat then fila.hats -= 1 end
- if drop.garantidoConta then fila.contaGarantida = false end
- if drop.garantidoArea then fila.areasGarantidas[drop.areaId] = nil end
- perfil.mochila[drop.minerioId] = (perfil.mochila[drop.minerioId] or 0) + drop.quantidade
- perfil.minerados = (perfil.minerados or 0) + 1
- Telemetria.marco(player, perfil, "FirstOreMined", { mundo = drop.areaId })
- if drop.hat then
-  local uid
-  if forcar and PlayerData.totalHats(perfil) >= PlayerData.capacidadeHats(perfil) then
-   uid = PlayerData.novoHat(perfil, drop.hat.id, Recompensas.nivelDrop(perfil))
-  else
-   uid = Recompensas.darHat(player, perfil, drop.hat, "minerio")
+ if dropsPendentes[player] ~= fila or fila.drops[drop.id] ~= drop or PlayerData.get(player) ~= perfil then return false end
+ local limite = math.huge
+ if not infinita then
+  limite = math.max(0, math.floor((PlayerData.capacidade(perfil) - PlayerData.itensNaMochila(perfil)) / espacoUnitario))
+ end
+ local coletados = {}
+ for i in pairs(drop.mineriosPendentes) do
+  if #coletados < limite and (not indicesMinerio or indicesMinerio[i]) then
+   drop.mineriosPendentes[i] = nil
+   table.insert(coletados, i)
   end
+ end
+ local quantidade = #coletados
+ local hat
+ if coletarHat ~= false and not drop.hatEmEntrega then hat = drop.hat end
+ if hat and not forcar and PlayerData.totalHats(perfil) >= capacidadeHats then hat = nil end
+ if quantidade == 0 and not hat then return false end
+ if hat then drop.hatEmEntrega = true end
+ -- Consome cada item antes de entregar: contato, timer e saida nao podem repeti-lo.
+ if quantidade > 0 then
+  local espaco = quantidade * espacoUnitario
+  drop.espaco -= espaco
+  fila.espaco -= espaco
+  perfil.mochila[drop.minerioId] = (perfil.mochila[drop.minerioId] or 0) + quantidade
+  if not drop.contabilizado then
+   drop.contabilizado = true
+   fila.count -= 1
+   perfil.minerados = (perfil.minerados or 0) + 1
+   Telemetria.marco(player, perfil, "FirstOreMined", { mundo = drop.areaId })
+  end
+ end
+ local hatColetado = false
+ if hat then
+  local uid
+  local okEntrega, erro = pcall(function()
+   if forcar and PlayerData.totalHats(perfil) >= capacidadeHats then
+    uid = PlayerData.novoHat(perfil, hat.id, Recompensas.nivelDrop(perfil))
+   else
+    local entregue = Recompensas.darHat(player, perfil, hat, "minerio", function(criado) uid = criado end)
+    uid = uid or entregue
+   end
+  end)
+  -- Mesmo uma falha anterior ao uid nao pode descartar o premio durante a saida.
+  if forcar and not uid then uid = PlayerData.novoHat(perfil, hat.id, Recompensas.nivelDrop(perfil)) end
+  drop.hatEmEntrega = nil
+  if not okEntrega then warn("[Mineracao] entrega do hat: " .. tostring(erro)) end
   if uid then
+   hatColetado = true
+   drop.hat = nil
+   fila.hats -= 1
+   if drop.garantidoConta then fila.contaGarantida = false end
+   if drop.garantidoArea then fila.areasGarantidas[drop.areaId] = nil end
    if drop.garantidoConta then perfil.tel.HatGarantido = os.time() end
    if drop.garantidoArea then
     perfil.tel["PrimeiroMinerioHat_" .. drop.areaId] = os.time()
@@ -116,23 +163,91 @@ local function concluirDrop(player, drop, forcar)
    end
   end
  end
+ if not next(drop.mineriosPendentes) and not drop.hat then fila.drops[drop.id] = nil end
+ if quantidade == 0 and not hatColetado then return false end
  if not forcar then
   local infoMinerio = Config.infoMinerio(drop.minerioId)
   RS.Remotes.FeedbackMina:FireClient(player, {
    tipo = "dropColetado", id = drop.id,
    variante = drop.varianteId, nome = infoMinerio and infoMinerio.nome,
-   quantidade = drop.quantidade,
+   quantidade = quantidade, indicesMinerio = coletados, hatColetado = hatColetado,
   })
   PlayerData.sincronizar(player)
  end
  return true
 end
 
+local function posicaoDropNoChao(origem, deslocamento, altura, params)
+ local pos = origem + deslocamento
+ local hit = workspace:Raycast(pos + Vector3.new(0, 4, 0), Vector3.new(0, -24, 0), params)
+ return Vector3.new(pos.X, hit and hit.Position.Y + altura or pos.Y - 1, pos.Z)
+end
+
+local function posicionarDrop(drop, origem)
+ local params = RaycastParams.new()
+ params.FilterType = Enum.RaycastFilterType.Exclude
+ params.RespectCanCollide = true
+ local ignorar = {}
+ for _, p in ipairs(Players:GetPlayers()) do
+  if p.Character then table.insert(ignorar, p.Character) end
+ end
+ local areas = workspace:FindFirstChild("Areas")
+ if areas then
+  for _, area in ipairs(areas:GetChildren()) do
+   if area:FindFirstChild("Rochas") then table.insert(ignorar, area.Rochas) end
+  end
+ end
+ params.FilterDescendantsInstances = ignorar
+ local angulo = (drop.id * 2.39996) % (math.pi * 2)
+ local raio = 1.2 + (drop.id % 3) * .38
+ local centro = Vector3.new(math.cos(angulo) * raio, 0, math.sin(angulo) * raio)
+ drop.posicoesMinerio = {}
+ drop.mineriosPendentes = {}
+ for i = 1, drop.quantidade do
+  local a = i * 2.39996 + drop.id * .7
+  local r = i == 1 and .1 or .8 + (i % 2) * .45
+  drop.posicoesMinerio[i] = posicaoDropNoChao(origem, centro + Vector3.new(math.cos(a) * r, 0, math.sin(a) * r), .54, params)
+  drop.mineriosPendentes[i] = true
+ end
+ if drop.hat then
+  local a = angulo + 2.2
+  drop.posHat = posicaoDropNoChao(origem, Vector3.new(math.cos(a) * (raio + 1), 0, math.sin(a) * (raio + 1)), .7, params)
+ end
+end
+
+local function emContato(raiz, pos)
+ local delta = raiz.Position - pos
+ return delta.X * delta.X + delta.Z * delta.Z <= RAIO_COLETA * RAIO_COLETA
+  and delta.Y >= -.75 and delta.Y <= ALTURA_COLETA
+end
+
+local function coletarPorContato()
+ for player, fila in pairs(dropsPendentes) do
+  local char = player.Character
+  local raiz = char and char:FindFirstChild("HumanoidRootPart")
+  local humanoid = char and char:FindFirstChildOfClass("Humanoid")
+  if raiz and humanoid and humanoid.Health > 0 then
+   for _, drop in pairs(fila.drops) do
+    local indices = {}
+    for i in pairs(drop.mineriosPendentes) do
+     if emContato(raiz, drop.posicoesMinerio[i]) then indices[i] = true end
+    end
+    local hat = drop.hat and emContato(raiz, drop.posHat) or false
+    if next(indices) or hat then concluirDrop(player, drop, false, indices, hat) end
+   end
+  end
+ end
+end
+
 function Mineracao.concluirDropsPendentes(player)
  local fila = dropsPendentes[player]
  if not fila then return end
- for _, drop in pairs(fila.drops) do concluirDrop(player, drop, true) end
- dropsPendentes[player] = nil
+ for _, drop in pairs(fila.drops) do
+  -- A saida so salva depois de uma entrega de hat que ja esteja em andamento.
+  while drop.consultando or drop.hatEmEntrega do task.wait() end
+  concluirDrop(player, drop, true)
+ end
+ if not next(fila.drops) then dropsPendentes[player] = nil end
 end
 
 local function criarDrop(player, perfil, rocha, areaId, varianteId, minerioId, quantidade, hat, garantidoConta, garantidoArea)
@@ -147,6 +262,7 @@ local function criarDrop(player, perfil, rocha, areaId, varianteId, minerioId, q
   quantidade = quantidade, espaco = quantidade * Config.espacoMinerio(minerioId),
   hat = hat, garantidoConta = garantidoConta, garantidoArea = garantidoArea,
  }
+ posicionarDrop(drop, rocha.Position)
  fila.drops[drop.id] = drop
  fila.espaco += drop.espaco
  fila.count += 1
@@ -159,17 +275,19 @@ local function criarDrop(player, perfil, rocha, areaId, varianteId, minerioId, q
   tema = rocha:GetAttribute("Tema"), variante = varianteId,
   hatId = hat and hat.id,
   hatRaridade = hat and hat.raridade,
+  posicoesMinerio = drop.posicoesMinerio, posHat = drop.posHat,
   coletaEm = workspace:GetServerTimeNow() + TEMPO_COLETA,
  })
  task.delay(TEMPO_COLETA, function()
   if not dropsPendentes[player] or dropsPendentes[player].drops[drop.id] ~= drop then return end
-  if concluirDrop(player, drop, false) then return end
+  concluirDrop(player, drop, false)
+  if not dropsPendentes[player] or dropsPendentes[player].drops[drop.id] ~= drop then return end
   -- Outra recompensa pode ocupar a mochila enquanto o drop aguarda. Ele permanece
   -- no chao e e entregue assim que houver espaco, sem apagar o item sorteado.
   task.spawn(function()
    while dropsPendentes[player] and dropsPendentes[player].drops[drop.id] == drop do
     task.wait(2)
-    if concluirDrop(player, drop, false) then break end
+    concluirDrop(player, drop, false)
    end
   end)
  end)
@@ -622,6 +740,13 @@ end
 
 function Mineracao.iniciar(ignis)
 	IgnisService = ignis
+ local acumulado = 0
+ RunService.Heartbeat:Connect(function(dt)
+  acumulado += dt
+  if acumulado < .1 then return end
+  acumulado = 0
+  coletarPorContato()
+ end)
 	local areas = workspace:WaitForChild("Areas")
 	for _, d in ipairs(areas:GetDescendants()) do
 		if d:IsA("BasePart") and d:GetAttribute("HPMax") then

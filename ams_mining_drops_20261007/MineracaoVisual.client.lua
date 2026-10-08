@@ -364,14 +364,36 @@ R:WaitForChild("AnimarPicareta").OnClientEvent:Connect(function(miner,rock,start
  end
 end)
 
--- Drops locais: a recompensa e mantida no servidor ate a coleta automatica.
+-- Drops locais: o servidor confirma contato ou coleta automatica antes da entrega.
 -- Os modelos sao apenas visuais para o dono, sem colisao nem simulacao fisica.
 local dropsVisuais = {}
-local coresHat = {
+local coresRaridade = {
  comum = Color3.fromRGB(190, 205, 220), incomum = Color3.fromRGB(95, 222, 130),
  raro = Color3.fromRGB(90, 165, 255), epico = Color3.fromRGB(185, 105, 255),
  lendario = Color3.fromRGB(255, 194, 70), mitico = Color3.fromRGB(255, 85, 155),
+ secreto = Color3.fromRGB(65, 235, 235),
 }
+local raridadeMinerio = { epica = "epico", lendaria = "lendario" }
+
+local function grupoContorno(parent, raridade)
+ raridade = coresRaridade[raridade] and raridade or "comum"
+ local nome = "ContornoDrops_" .. raridade
+ local grupo = parent:FindFirstChild(nome)
+ if grupo then return grupo end
+ grupo = Instance.new("Model")
+ grupo.Name = nome
+ grupo.Parent = parent
+ local borda = Instance.new("Highlight")
+ borda.Name = "Borda"
+ borda.Adornee = grupo
+ borda.FillColor = coresRaridade[raridade]
+ borda.FillTransparency = .97
+ borda.OutlineColor = coresRaridade[raridade]
+ borda.OutlineTransparency = 0
+ borda.DepthMode = Enum.HighlightDepthMode.Occluded
+ borda.Parent = grupo
+ return grupo
+end
 
 local function prepararPeca(peca)
  peca.Anchored = true
@@ -406,9 +428,9 @@ local function criarMiniMinerio(info, parent)
  local nome = "minerio_" .. tostring(info.tema) .. "_" .. tostring(variante)
  local modelo = modelos and (modelos:FindFirstChild(nome)
   or modelos:FindFirstChild("minerio_" .. tostring(info.tema) .. "_comum"))
- local grupo = Instance.new("Model")
- grupo.Name = "MineriosDrop"
- grupo.WorldPivot = CFrame.new(0, 0, 0)
+ local raridade = raridadeMinerio[info.variante] or info.variante
+ local grupo = grupoContorno(parent, raridade)
+ local lista = {}
  local quantidade = math.clamp(tonumber(info.quantidade) or 2, 1, 5)
  for i = 1, quantidade do
   local mini
@@ -429,33 +451,27 @@ local function criarMiniMinerio(info, parent)
    prepararPeca(mini)
   end
   mini.Name = "Minerio_" .. i
+  mini:SetAttribute("DropId", info.id)
+  mini:SetAttribute("DropIndice", i)
+  mini:SetAttribute("Raridade", raridade)
   mini.Parent = grupo
   local angulo = i * 2.39996 + info.id * .7
   local raio = i == 1 and .1 or .8 + (i % 2) * .45
-  local localPos = Vector3.new(math.cos(angulo) * raio, .1 + (i % 2) * .04, math.sin(angulo) * raio)
-  local cf = CFrame.new(localPos) * CFrame.Angles(0, angulo, 0)
+  local deslocamento = Vector3.new(math.cos(angulo) * raio, 0, math.sin(angulo) * raio)
+  local baseAngulo = (info.id * 2.39996) % (math.pi * 2)
+  local baseRaio = 1.2 + (info.id % 3) * .38
+  local base = Vector3.new(math.cos(baseAngulo) * baseRaio, 0, math.sin(baseAngulo) * baseRaio)
+  local pos = info.posicoesMinerio and info.posicoesMinerio[i]
+   or posicaoNoChao(info.pos, base + deslocamento, .54)
+  local cf = CFrame.new(pos) * CFrame.Angles(0, angulo, 0)
   if mini:IsA("Model") then mini:PivotTo(cf) else mini.CFrame = cf end
+  table.insert(lista, { objeto = mini, pos = pos, angulo = angulo, indice = i })
  end
- local contornos = parent:FindFirstChild("ContornoMinerios")
- if not contornos then
-  contornos = Instance.new("Model")
-  contornos.Name = "ContornoMinerios"
-  contornos.Parent = parent
-  local borda = Instance.new("Highlight")
-  borda.Name = "Borda"
-  borda.Adornee = contornos
-  borda.FillTransparency = .97
-  borda.OutlineColor = Color3.fromRGB(16, 27, 48)
-  borda.OutlineTransparency = .05
-  borda.DepthMode = Enum.HighlightDepthMode.Occluded
-  borda.Parent = contornos
- end
- grupo.Parent = contornos
- return grupo
+ return lista
 end
 
 local function criarMiniHat(info, parent)
- local cor = coresHat[info.hatRaridade] or Color3.fromRGB(255, 198, 85)
+ local cor = coresRaridade[info.hatRaridade] or coresRaridade.comum
  local folder = RS:FindFirstChild("MiningDropHats")
  local template = folder and folder:FindFirstChild(tostring(info.hatId))
  local objeto
@@ -491,15 +507,9 @@ local function criarMiniHat(info, parent)
   aba.Parent = objeto
  end
  objeto.Name = "HatDrop"
- local contorno = Instance.new("Highlight")
- contorno.Adornee = objeto
- contorno.FillTransparency = .94
- contorno.FillColor = cor
- contorno.OutlineColor = Color3.fromRGB(20, 22, 34)
- contorno.OutlineTransparency = 0
- contorno.DepthMode = Enum.HighlightDepthMode.Occluded
- contorno.Parent = objeto
- objeto.Parent = parent
+ objeto:SetAttribute("DropId", info.id)
+ objeto:SetAttribute("Raridade", info.hatRaridade or "comum")
+ objeto.Parent = grupoContorno(parent, info.hatRaridade)
  return objeto
 end
 
@@ -519,49 +529,53 @@ local function mostrarDrop(info)
  end
  local angulo = (info.id * 2.39996) % (math.pi * 2)
  local raio = 1.2 + (info.id % 3) * .38
- local base = posicaoNoChao(info.pos, Vector3.new(math.cos(angulo) * raio, 0, math.sin(angulo) * raio), .44)
- local lista = { { objeto = criarMiniMinerio(info, pasta), pos = base } }
+ local lista = criarMiniMinerio(info, pasta)
  if info.hatId then
   local angHat = angulo + 2.2
-  local posHat = posicaoNoChao(info.pos, Vector3.new(math.cos(angHat) * (raio + 1), 0, math.sin(angHat) * (raio + 1)), .7)
-  table.insert(lista, { objeto = criarMiniHat(info, pasta), pos = posHat, angulo = angHat })
+  local posHat = info.posHat or posicaoNoChao(info.pos, Vector3.new(math.cos(angHat) * (raio + 1), 0, math.sin(angHat) * (raio + 1)), .7)
+  table.insert(lista, { objeto = criarMiniHat(info, pasta), pos = posHat, angulo = angHat, hat = true })
  end
  for _, item in ipairs(lista) do moverDrop(item.objeto, item.pos, item.angulo) end
- dropsVisuais[info.id] = { itens = lista, criado = os.clock(), coletando = false }
+ dropsVisuais[info.id] = { itens = lista, criado = os.clock() }
 end
 
-local function coletarDrop(id)
- local drop = dropsVisuais[id]
+local function coletarDrop(info)
+ local drop = dropsVisuais[info.id]
  if not drop then return end
- drop.coletando = true
- drop.inicioColeta = os.clock()
- for _, item in ipairs(drop.itens) do item.inicio = item.pos end
+ local indices = {}
+ for _, i in ipairs(info.indicesMinerio or {}) do indices[i] = true end
+ for _, item in ipairs(drop.itens) do
+  local coletado = item.hat and info.hatColetado ~= false
+   or item.indice and (info.indicesMinerio == nil or indices[item.indice])
+  if coletado and not item.coletando then
+   item.coletando = true
+   item.inicioColeta = os.clock()
+   item.inicio = item.pos
+  end
+ end
 end
 
 RunService.RenderStepped:Connect(function()
  local agora = os.clock()
  local raiz = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
  for id, drop in pairs(dropsVisuais) do
-  if agora - drop.criado > 120 then
-   for _, item in ipairs(drop.itens) do item.objeto:Destroy() end
-   dropsVisuais[id] = nil
-  else
-   local t = drop.coletando and math.clamp((agora - drop.inicioColeta) / .42, 0, 1) or 0
-   for j, item in ipairs(drop.itens) do
+   for j = #drop.itens, 1, -1 do
+    local item = drop.itens[j]
+    local t = item.coletando and math.clamp((agora - item.inicioColeta) / .42, 0, 1) or 0
     local pos
-    if drop.coletando and raiz then
+    if item.coletando and raiz then
      local alvo = raiz.Position + Vector3.new(0, 1.2, 0)
      pos = item.inicio:Lerp(alvo, t * t * (3 - 2 * t)) + Vector3.new(0, math.sin(t * math.pi) * 1.15, 0)
     else
      pos = item.pos + Vector3.new(0, math.sin((agora - drop.criado) * 3 + j) * .12, 0)
     end
     moverDrop(item.objeto, pos, item.angulo)
+    if item.coletando and t >= 1 then
+     item.objeto:Destroy()
+     table.remove(drop.itens, j)
+    end
    end
-   if drop.coletando and t >= 1 then
-    for _, item in ipairs(drop.itens) do item.objeto:Destroy() end
-    dropsVisuais[id] = nil
-   end
-  end
+   if #drop.itens == 0 then dropsVisuais[id] = nil end
  end
 end)
 
@@ -570,7 +584,7 @@ R.FeedbackMina.OnClientEvent:Connect(function(info)
  if info.tipo=="dropMinerio" then
   mostrarDrop(info)
  elseif info.tipo=="dropColetado" then
-  coletarDrop(info.id)
+  coletarDrop(info)
  elseif info.tipo=="golpe" then
   if info.pos then numero(info.pos,info.dano or 0,TIER[info.chefe and "chefe" or info.variante or "comum"] or TIER.comum,info.quebrou) end
  elseif info.tipo=="quebrou" then

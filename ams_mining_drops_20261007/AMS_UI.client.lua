@@ -380,6 +380,7 @@ State.on("FeedbackMina", function(info)
 			Toast.banner("CHEFE DERROTADO!", "Recompensa para todos que ajudaram", C.danger)
 		end
 	elseif t == "dropColetado" then
+		if (info.quantidade or 0) <= 0 then return end
 		local r = Theme.rarity(VARIANT_RAR[info.variante] or "comum")
 		local nome = info.nome or oreName(info.variante)
 		Audio.play("collect", { pitch = 1 + (r.ordem - 1) * 0.04 })
