@@ -1029,7 +1029,7 @@ def shop_front(mb, Ff, a, b, zn, lit=True, seed=0, noren=True, lod=0):
             bolts(mb, Ff, xx, -0.95, hz, 3, (CRED, INDIGO, CWHITE)[int(r * 10) % 3:] + (CRED, INDIGO), 0.26, 1.2)
         elif r < 0.8:
             crate(mb, Ff, xx, -0.95, hz, 1.2, 0.9, 0.7, 0.05)
-            jar(mb, Ff, xx, -0.95, hz + 0.7, 0.22, 0.4, ST)
+            jar(mb, Ff, xx, -0.95, hz + 0.48, 0.22, 0.4, ST)       # M6b: pousado na tampa recuada (0,5), nao a 0,2 dela
         else:
             barrel(mb, Ff, xx, -0.95, hz, 0.5, 1.0)
     if noren:
@@ -1433,16 +1433,19 @@ def parapet(mb, F, L, h=2.4, th=1.3, m="Stone_OP_Wall", cap_m=STP, post_every=12
         _xblock(mb, F, x + 0.03, x2 - 0.03, body, m if _h01(key, "m", F.o.x, k) > 0.15 else ST)
         x = x2
         k += 1
-    bb(mb, F, -L / 2 + 0.03, L / 2 - 0.03, -th / 2 + 0.12, th / 2 - 0.12, -0.3, zc - 0.05, STD)      # junta escura
+    # junta escura (M6b: miolo 0,2 atras da face dos blocos e 0,3 para dentro das pontas: nada coplanar com o bloco
+    # da ponta nem a 0,12 da face)
+    bb(mb, F, -L / 2 + 0.3, L / 2 - 0.3, -th / 2 + 0.2, th / 2 - 0.2, -0.22, zc - 0.05, STD)
     o = 0.15
     cap = [(-th / 2 - o, zc - 0.04), (th / 2 + o, zc - 0.04), (th / 2 + o, zc + 0.22), (th / 2 + o - 0.12, zc + 0.36),
            (-th / 2 - o + 0.12, zc + 0.36), (-th / 2 - o, zc + 0.22)]
-    x = -L / 2 - 0.1
+    ce = -0.2 if posts else 0.1                      # M6b: com pilaretes a capa morre DENTRO deles (pontas a 0,07 eram z-fight)
+    x = -L / 2 - ce
     k = 0
-    while x < L / 2 + 0.1 - 0.3:
-        x2 = min(L / 2 + 0.1, x + 2.6 + 1.4 * _h01(key, "cap", F.o.x, k))
-        if L / 2 + 0.1 - x2 < 1.0:
-            x2 = L / 2 + 0.1
+    while x < L / 2 + ce - 0.3:
+        x2 = min(L / 2 + ce, x + 2.6 + 1.4 * _h01(key, "cap", F.o.x, k))
+        if L / 2 + ce - x2 < 1.0:
+            x2 = L / 2 + ce
         _xblock(mb, F, x + 0.03, x2 - 0.03, cap, cap_m)
         x = x2
         k += 1
@@ -1456,7 +1459,7 @@ def parapet(mb, F, L, h=2.4, th=1.3, m="Stone_OP_Wall", cap_m=STP, post_every=12
 
 
 def retaining_wall(mb, F, L, h, batter=6.0, m="Stone_OP_Wall", cap_m=STP, key="rw", cap=True, z0=-0.4, top=0.0,
-                   face_off=0.0):
+                   face_off=0.0, core_lift=0.0):
     """ARRIMO de pedra aparelhada (kirikomi) ao longo de x, face para +y em y=0 no TOPO (talude 'batter' graus para
     fora embaixo): fiadas de altura variada (1,3..2,1), blocos de 2,6..4,6 com face chanfrada e juntas desencontradas
     sobre miolo escuro (junta rebaixada 0,06), 1 bloco em 6 em pedra escura, capa de lajes rente ao piso de cima.
@@ -1468,7 +1471,7 @@ def retaining_wall(mb, F, L, h, batter=6.0, m="Stone_OP_Wall", cap_m=STP, key="r
     capt = 0.4 if cap else 0.0
     zt = top - capt
     zb = -h + z0
-    bb(mb, F, -L / 2 + 0.15, L / 2 - 0.15, -1.6, -0.25 + face_off, zb + 0.15, zt - 0.05, STD)                                          # miolo (juntas)
+    bb(mb, F, -L / 2 + 0.15, L / 2 - 0.15, -1.6, -0.25 + face_off, zb + 0.15 + core_lift, zt - 0.05, STD)                                          # miolo (juntas); core_lift (M6b): fundo do miolo longe do fundo das pedras
     z = zb
     c = 0
     while z < zt - 0.3:
@@ -1927,6 +1930,44 @@ def house_cols(area, F, spec):
         cy = (sbk - sf) / 2
         col_box(area, (Wk, Dk, fl["h"]), F.p(0, cy, z + fl["h"] / 2), F.r())
         z += fl["h"]
+
+
+# ================================================================== CORTE DE FACES ESCONDIDAS (M6b, orcamento)
+def cull_hidden(mb, dmax=2.5, eps=0.004, frac=0.94):
+    """apaga do bmesh do MB (ANTES do finish) as faces que NINGUEM ve: (a) face encostada (< 2 eps) numa face voltada
+    para ela (fundo de pilar sobre a soleira, pontas de lajes/blocos colados) ou (b) face DENTRO de outro volume do
+    mesmo objeto (o raio pela normal sai do volume por uma face de mesma orientacao a <= dmax: fundo do pilar dentro
+    do reboco). Testa o centro e os vertices puxados 'frac' para o centro: so apaga se TODOS os raios confirmam (face
+    parcialmente coberta fica). Frestas (face voltada para nos a mais de 2 eps) nunca sao apagadas. Devolve os tris
+    cortados. Nao muda nada que apareca: so 'pagar com cortes onde nao se ve' (FINESSE_BRIEF)."""
+    from mathutils.bvhtree import BVHTree
+    bm = mb.bm
+    bmesh.ops.recalc_face_normals(bm, faces=bm.faces[:])
+    bm.normal_update()
+    bm.faces.ensure_lookup_table()
+    tree = BVHTree.FromBMesh(bm)
+    kill = []
+    for f in bm.faces:
+        n = f.normal
+        if n.length < 0.5:
+            continue
+        c = f.calc_center_median()
+        pts = [c] + [c + (v.co - c) * frac for v in f.verts]
+        ok = True
+        for p in pts:
+            hit = tree.ray_cast(p + n * eps, n, dmax)
+            if hit[0] is None or hit[2] == f.index:
+                ok = False
+                break
+            if hit[1].dot(n) < 0.0 and hit[3] > 2 * eps:
+                ok = False
+                break
+        if ok:
+            kill.append(f)
+    tris = sum(len(f.verts) - 2 for f in kill)
+    if kill:
+        bmesh.ops.delete(bm, geom=kill, context="FACES")
+    return tris
 
 
 # ================================================================== ESTUDIO (folhas de close-up; fora do jogo)

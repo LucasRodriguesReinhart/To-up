@@ -421,7 +421,7 @@ def podium(st, rl):
         st.prism(ccw(DL.offset_poly(ccw(poly), grow)), Z + COPE, Z + DECK, STD)
     # --- patamar do portal: pedra escura + laje de caminho com focinho
     lbox2(st, -CORR, PV, dz - 0.05, CORR, pvf, LAND_Z - 0.3, STD)
-    lbox2(st, -CORR, PV, LAND_Z - 0.3, CORR, pvf + 0.12, LAND_Z, STP)
+    lbox2(st, -CORR, PV, LAND_Z - 0.3, CORR, pvf + 0.12, LAND_Z + 0.025, STP)    # M6b: 0,125 acima do ouro e abaixo do portal (era 0,10)
     # --- guarda-corpo vermelho do podio (recuado RAIL_IN), aberto no corredor da escada; postes-mestre nas quinas
     ri = RAIL_IN
     path_l = [(-CORR - 0.45, pvf - ri), (-pu + ri, pvf - ri), (-pu + ri, pvb + ri), (pu - ri, pvb + ri),
@@ -468,9 +468,10 @@ def podium_lamps(st):
 
 
 # ------------------------------------------------------------------ terraco: pavimento, guarda-corpo, paisagismo
-def _flags(mb, x0, y0, x1, y1, z, seed, m=ST, along="x", lw=(1.8, 3.2), lh=(1.7, 2.3), skip=None, edge=None):
+def _flags(mb, x0, y0, x1, y1, z, seed, m=ST, along="x", lw=(1.8, 3.2), lh=(1.7, 2.3), skip=None, edge=None, cells=None):
     """lajeado retangular em fiadas desencontradas (juntas 0,16; topo z; sem chanfro: o orcamento vai para a junta).
-    'skip(x, y)' -> True: sem laje ali; 'edge(x, y)' -> material da laje."""
+    'skip(x, y)' -> True: sem laje ali; 'edge(x, y)' -> material da laje. cells (M6b): lista que recebe o retangulo
+    (x0, y0, x1, y1) de cada laje posta (com a junta) - quem preenche em volta recorta por eles."""
     if along == "x":
         a0, a1, b0, b1 = y0, y1, x0, x1
     else:
@@ -494,6 +495,8 @@ def _flags(mb, x0, y0, x1, y1, z, seed, m=ST, along="x", lw=(1.8, 3.2), lh=(1.7,
             else:
                 cx, cy, sx, sy = a + h / 2, b + w / 2, h, w
             if not (skip and skip(cx, cy)):
+                if cells is not None:
+                    cells.append((cx - sx / 2, cy - sy / 2, cx + sx / 2, cy + sy / 2))
                 mm = edge(cx, cy) if edge else m
                 mb.box((sx - 0.16, sy - 0.16, 0.34), (cx, cy, z - 0.17), (0, 0, (E.hsh(seed, row, j, 5) - 0.5) * 0.02),
                        mm, 0.0)
@@ -508,6 +511,20 @@ def _in_dais(x, y, pad=0.0):
     u = (y - TY)
     v = -(x - TX)
     return -du - pad <= u <= du + pad and dvb - pad <= v <= dvf + pad
+
+
+def _exit_rail_ends():
+    """M6b item 14: y onde o guarda-corpo do terraco termina (sul) e recomeca (norte) junto a ponte de saida: 0,6 livre
+    antes do 1o poste-mestre da ponte (op_exit.rails: eixo v = +-9,82, comeca na borda x 205,45 + 0,05; poste 0,8 + cinta
+    0,13) e do nosso poste-mestre final (0,7 + cinta 0,13). Antes os 2 postes-mestre caiam um dentro do outro."""
+    ux, uy = L.exit_dir()
+    sx, sy = L.EXIT_START
+    out = []
+    for v in (-9.82, 9.82):
+        d = (205.45 - sx + uy * v) / ux + 0.05
+        out.append(sy + uy * d + ux * v)
+    gap = (0.8 / 2 + 0.13) + 0.6 + (0.7 / 2 + 0.13)
+    return out[0] - gap, out[1] + gap
 
 
 def terrace(st, pv, rl, gr):
@@ -531,7 +548,8 @@ def terrace(st, pv, rl, gr):
 
     def in_ring(cx, cy):
         return math.hypot(cx - pp.x, cy - pp.y) < RING_R[1] + 1.4
-    _flags(pv, x0, y0, x1, y1, zt, 31, along="y", lw=(2.2, 3.4), lh=(1.9, 2.5), edge=fore_m, skip=in_ring)
+    cells = []
+    _flags(pv, x0, y0, x1, y1, zt, 31, along="y", lw=(2.2, 3.4), lh=(1.9, 2.5), edge=fore_m, skip=in_ring, cells=cells)
     nr = 20
     for i in range(nr):
         a0, a1 = 2 * math.pi * i / nr + 0.02, 2 * math.pi * (i + 1) / nr - 0.02
@@ -545,14 +563,25 @@ def terrace(st, pv, rl, gr):
         pts = [(pp.x, pp.y)] + [(pp.x + (RING_R[0] - 0.12) * math.cos(a0 + (a1 - a0) * k / 3),
                                  pp.y + (RING_R[0] - 0.12) * math.sin(a0 + (a1 - a0) * k / 3)) for k in range(4)]
         pv.prism(ccw(pts), T1 - 0.02, zt, STP)
-    # lajes livres entre o adro e o anel (o anel tira um furo redondo do adro: preenche com lajes radiais curtas)
+    # lajes livres entre o adro e o anel (o anel tira um furo redondo do adro: preenche com lajes radiais curtas).
+    # M6b item 16: as radiais eram coplanares as lajes do adro onde se cruzavam (mesma cota, materiais diferentes):
+    # agora cada radial e RECORTADA pelas celulas das lajes do adro (so uma superficie em cada ponto)
     for i in range(12):
         a0, a1 = 2 * math.pi * i / 12 + 0.03, 2 * math.pi * (i + 1) / 12 - 0.03
-        r0, r1 = RING_R[1] + 0.08, RING_R[1] + 1.4 + 1.2
+        r0, r1 = RING_R[1] + 0.08, RING_R[1] + 1.4 + 2.6     # ate 8: cobre o vao das lajes puladas (centro < 5,4)
+        am = (a0 + a1) / 2
+        rm = r1 / math.cos((a1 - a0) / 2)
         pts = [(pp.x + r0 * math.cos(a0), pp.y + r0 * math.sin(a0)), (pp.x + r0 * math.cos(a1), pp.y + r0 * math.sin(a1)),
-               (pp.x + r1 * math.cos(a1), pp.y + r1 * math.sin(a1)), (pp.x + r1 * math.cos(a0), pp.y + r1 * math.sin(a0))]
-        pts = [(min(max(px, x0 + 0.1), x1 - 0.1), min(max(py, y0 + 0.1), y1 - 0.1)) for px, py in pts]
-        pv.prism(ccw(pts), T1 - 0.02, zt, ST)
+               (pp.x + r1 * math.cos(a1), pp.y + r1 * math.sin(a1)), (pp.x + rm * math.cos(am), pp.y + rm * math.sin(am)),
+               (pp.x + r1 * math.cos(a0), pp.y + r1 * math.sin(a0))]
+        pieces = [L.clip_rect(ccw(pts), (x0 + 0.1, y0 + 0.1, x1 - 0.1, y1 - 0.1))]
+        for c in cells:
+            if c[2] < pp.x - r1 - 1 or c[0] > pp.x + r1 + 1 or c[3] < pp.y - r1 - 1 or c[1] > pp.y + r1 + 1:
+                continue
+            pieces = [q for p_ in pieces if len(p_) >= 3 for q in L.subtract_rect(ccw(p_), c)]
+        for p_ in pieces:
+            if len(p_) >= 3 and L.area(p_) > 0.2:
+                pv.prism(ccw(p_), T1 - 0.02, zt, ST)
     # faixa lajeada em volta do degrau do podio (3 de largura), fora do corredor da escada da torre
     du, dvb, dvf, ch, dz = DAIS
     ring_x0, ring_x1 = TX - dvf - 0.2, TX - dvb + 3.0
@@ -569,11 +598,13 @@ def terrace(st, pv, rl, gr):
     _flags(pv, 192.0, 226.6, 205.4, 233.6, zt, 47, along="y", lw=(1.8, 2.6), m=STP)     # boca da ponte de saida
     # meio-fio de pedra escura nas bordas longas do adro (separa o lajeado claro da grama)
     for (a_, b_) in (((x0, y0 - 0.35), (x1, y0 - 0.35)), ((x0, y1 + 0.35), (x1, y1 + 0.35))):
-        st.box((b_[0] - a_[0], 0.5, 0.6), ((a_[0] + b_[0]) / 2, a_[1], T1 + 0.1), (0, 0, 0), STD, 0.0)
+        yy = a_[1] - 0.15 if a_[1] < TY else a_[1] + 0.15                     # M6b: 0,15 para fora (lado a 0,016 da laje)
+        st.box((b_[0] - a_[0], 0.5, 0.68), ((a_[0] + b_[0]) / 2, yy, T1 + 0.1), (0, 0, 0), STD, 0.0)   # topo 0,14 acima das lajes
     # guarda-corpo vermelho nas bordas que dao para o porto (aberto na cabeca da ponte de saida e nas escadas)
+    ys, yn = _exit_rail_ends()
     for a_, b_, nodes in (((149.0, 150.75), (205.25, 150.75), (0.0, 0.5, 1.0)),
-                          ((205.25, 151.2), (205.25, 225.6), (0.0, 0.5, 1.0)),
-                          ((205.25, 246.4), (205.25, 256.0), (0.0, 1.0)),
+                          ((205.25, 151.2), (205.25, ys), (0.0, 0.5, 1.0)),
+                          ((205.25, yn), (205.25, 256.0), (0.0, 1.0)),
                           ((205.25, 256.0), (199.6, 263.4), (1.0,))):
         E.rail_run(rl, (a_[0], a_[1], T1), (b_[0], b_[1], T1), h=2.4, step=4.6, nodes=nodes, node_up=0.7, post=0.44,
                    node_post=0.7, top_w=0.66, gold=GOLD)
@@ -585,9 +616,16 @@ def terrace(st, pv, rl, gr):
     # canteiros: meio-fio de pedra, terra, pinheiro de Wano (copa em nuvens), arbustos podados e pedras
     for i, (px, py, h) in enumerate(PINES):
         bed = DL.blob_poly(px, py, 6.2, 10, random.Random(950 + i), 0.12, sx=1.25)
-        st.prism(ccw(bed), T1 - 0.2, T1 + 0.38, STD)
-        gr.prism(ccw(DL.offset_poly(ccw(bed), -0.55)), T1 + 0.2, T1 + 0.52, "Dirt_OP")
-        wano_pine(gr, px, py, T1 + 0.52, h, random.Random(960 + i))
+        # M6b item 16: meio-fio em ANEL (0,55 de largura: parede de fora, capa, parede de dentro) e a terra 0,15 ABAIXO
+        # da capa, com a borda 0,05 dentro do anel (antes: terra +0,14 acima do meio-fio e atravessando-o nas
+        # reentrancias do contorno)
+        outer = ccw(bed)
+        inner = ccw(DL.offset_poly(outer, -0.55))
+        K.loft(st, Frame(0.0, 0.0, 0.0, 0.0), [[(x, y, T1 - 0.2) for x, y in outer], [(x, y, T1 + 0.38) for x, y in outer],
+                                               [(x, y, T1 + 0.38) for x, y in inner], [(x, y, T1 + 0.05) for x, y in inner]],
+               STD, caps=(False, False))
+        gr.prism(ccw(DL.offset_poly(outer, -0.5)), T1 - 0.1, T1 + 0.23, "Dirt_OP")
+        wano_pine(gr, px, py, T1 + 0.23, h, random.Random(960 + i))
         col_box("OPSumPine", (1.8, 1.8, h * 0.6), (px, py, T1 + h * 0.3))
         for k in range(3):
             aa = 2.1 + k * 1.9 + i

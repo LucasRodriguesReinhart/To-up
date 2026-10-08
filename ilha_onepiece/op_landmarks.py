@@ -288,7 +288,8 @@ def eyes(mb, base_front):
     F = skf()
     ox, oz, rx, rz, D = ORB
     for s in (-1, 1):
-        y = face_y(base_front, s * ox, oz) - D + 2.4
+        # M6b item 45: o olho estava 0,9 a frente do fundo da orbita (solto): recua 1,05 e encosta (entra ~0,15)
+        y = face_y(base_front, s * ox, oz) - D + 2.4 - 1.05
         mb.ico(1.55, tuple(F.p(s * ox * 0.98, y - 0.6, SK_Z + oz - 0.5)), GLOW, 2, scale=(1.2, 0.7, 1.0), rot=(0, 0, F.a))
 
 
@@ -466,10 +467,13 @@ def pagoda(mb):
         z += h
     for i, (hw, h) in enumerate(PG_TIERS):
         # corpo: parede laqueada, pilares de canto escuros, faixa escura de consolos (tokyo) no alto
-        mb.box((2 * hw, 2 * hw, h), (px, py, z + h / 2), (0, 0, 0), LAC, 0.0)
+        # M6b item 45: corpo e pilares de canto morrem 0,3 DENTRO da faixa escura do alto (os topos eram coplanares
+        # ao topo da faixa: 365 studs2 de z-fight laca x madeira)
+        mb.box((2 * hw, 2 * hw, h - 0.3), (px, py, z + (h - 0.3) / 2), (0, 0, 0), LAC, 0.0)
         for sx in (-1, 1):
             for sy in (-1, 1):
-                mb.box((0.55, 0.55, h), (px + sx * (hw - 0.12), py + sy * (hw - 0.12), z + h / 2), (0, 0, 0), WD, 0.0)
+                mb.box((0.55, 0.55, h - 0.3), (px + sx * (hw - 0.12), py + sy * (hw - 0.12), z + (h - 0.3) / 2),
+                       (0, 0, 0), WD, 0.0)
         mb.box((2 * hw + 0.7, 2 * hw + 0.7, 0.9), (px, py, z + h - 0.45), (0, 0, 0), WD, 0.0)
         if i == 0:                                         # portas (painel escuro 0,15 a frente da parede)
             for k in range(4):

@@ -77,28 +77,39 @@ def bb(mb, F, x0, x1, y0, y1, z0, z1, m, bev=0.0):
 SHIELD = [(-1.2, -0.7), (1.2, -0.7), (1.25, 0.6), (0.7, 1.6), (0.0, 1.95), (-0.7, 1.6), (-1.25, 0.6)]
 
 
-def _win_lo(mb, Ff, s, z, w, hh, lit, lite=False):
+WIN_KINDS = ("2x2", "3x2", "koshi")              # M6b item 19: 3 tipos de janela por casa (sorteio pela semente)
+
+
+def _win_lo(mb, Ff, s, z, w, hh, lit, lite=False, kind=None):
     """janela de papel com moldura (peitoril com pingadeira, verga, ombreiras) e kumiko: papel 0,14 a frente do
-    reboco, kumiko 0,14 a frente do papel"""
+    reboco, kumiko 0,14 a frente do papel. kind (M6b): '2x2' (2 folhas + travessa), '3x2' (3 folhas + travessa) ou
+    'koshi' (grade vertical de ripas a cada ~0,55, sem travessa: a janela gradeada de Wano)"""
     x0, x1 = s - w / 2, s + w / 2
     bb(mb, Ff, x0 - 0.3, x1 + 0.3, -0.3, 0.16, z - 0.28, z, WD)
     bb(mb, Ff, x0 - 0.3, x1 + 0.3, -0.3, 0.06, z + hh, z + hh + 0.3, WD)
     bb(mb, Ff, x0 - 0.3, x0, -0.3, 0.04, z, z + hh, WD)
     bb(mb, Ff, x1, x1 + 0.3, -0.3, 0.04, z, z + hh, WD)
-    bb(mb, Ff, x0, x1, -0.16, -0.08, z, z + hh, LIT if lit else PL)
-    nb = 2 if lite else max(2, int(round(w / 1.05)))
+    bb(mb, Ff, x0, x1, -0.3, -0.08, z, z + hh, LIT if lit else PL)     # M6b: fundo do papel DENTRO do reboco
+    kind = kind or ("2x2" if lite else "3x2")
+    if kind == "koshi":
+        nb = max(3, int(round(w / 0.55)))
+    elif kind == "3x2":
+        nb = 3
+    else:
+        nb = 2 if lite else max(2, int(round(w / 1.05)))
     for i in range(1, nb):
         x = x0 + w * i / nb
         bb(mb, Ff, x - 0.07, x + 0.07, -0.08, 0.06, z, z + hh, WD)
-    bb(mb, Ff, x0, x1, -0.08, 0.06, z + hh * 0.5 - 0.06, z + hh * 0.5 + 0.06, WD)
+    if kind != "koshi":
+        bb(mb, Ff, x0, x1, -0.08, 0.06, z + hh * 0.5 - 0.06, z + hh * 0.5 + 0.06, WD)
 
 
 def _door_lo(mb, Ff, s, w, z0, dh, noren=None, lit=False, lite=False):
     """porta de correr: caixilho, soleira, 2 folhas de tabua com papel em cima (0,14 a frente), montante, noren"""
     x0, x1 = s - w / 2, s + w / 2
-    bb(mb, Ff, x0 - 0.3, x0, -0.9, 0.04, z0 - 0.25, z0 + dh + 0.45, WD)
-    bb(mb, Ff, x1, x1 + 0.3, -0.9, 0.04, z0 - 0.25, z0 + dh + 0.45, WD)
-    bb(mb, Ff, x0, x1, -0.9, 0.04, z0 + dh, z0 + dh + 0.45, WD)
+    bb(mb, Ff, x0 - 0.3, x0, -0.55, 0.04, z0 - 0.25, z0 + dh + 0.45, WD)    # M6b: ombreiras/verga com o fundo
+    bb(mb, Ff, x1, x1 + 0.3, -0.55, 0.04, z0 - 0.25, z0 + dh + 0.45, WD)    # longe (>= 0,23) do fundo da folha
+    bb(mb, Ff, x0, x1, -0.55, 0.04, z0 + dh, z0 + dh + 0.45, WD)            # e do fundo do reboco
     bb(mb, Ff, x0 - 0.3, x1 + 0.3, -0.95, 0.2, z0 - 0.25, z0, WD)
     bb(mb, Ff, x0, x1, -0.78, -0.62, z0, z0 + dh, WM)
     zm = z0 + dh * 0.4
@@ -114,10 +125,11 @@ def _door_lo(mb, Ff, s, w, z0, dh, noren=None, lit=False, lite=False):
         K.noren_cloth(mb, Ff, x0, x1, z0 + dh - 0.12, min(3.0, dh * 0.4), noren)
 
 
-def wall_lo(mb, Ff, L_, h, opens, pl, ground=True, full=True, boards=True, lite=False):
+def wall_lo(mb, Ff, L_, h, opens, pl, ground=True, full=True, boards=True, lite=False, wkind=None):
     """parede leve (mesma construcao do K.facade): soleira (so no terreo), viga de beiral que passa do canto nas
     faces 'full', pilares intermediarios, REBOCO recuado 0,22 entre pilares; no terreo rodape de tabuas + travessa
-    escura. opens = [dict(t='win'|'door', s, w, h, z, lit, noren)]"""
+    escura. opens = [dict(t='win'|'door', s, w, h, z, lit, noren)]. M6b: pilares com o FUNDO dentro do reboco (antes
+    o fundo do pilar ficava 0,10 atras do fundo do reboco, por dentro); wkind = tipo de janela da casa"""
     xi0, xi1 = -L_ / 2 + CP, L_ / 2 - CP
     z0 = 0.7 if ground else 0.0
     zt = h - 1.0
@@ -132,7 +144,7 @@ def wall_lo(mb, Ff, L_, h, opens, pl, ground=True, full=True, boards=True, lite=
             holes.append((o["s"] - o["w"] / 2 - 0.3, o["s"] + o["w"] / 2 + 0.3, z0 - 0.3, z0 + dh + 0.45))
             _door_lo(mb, Ff, o["s"], o["w"], z0, dh, o.get("noren"), o.get("lit", False), lite)
         else:
-            _win_lo(mb, Ff, o["s"], o["z"], o["w"], o["h"], o.get("lit", True), lite)
+            _win_lo(mb, Ff, o["s"], o["z"], o["w"], o["h"], o.get("lit", True), lite, o.get("kind", wkind))
     span = xi1 - xi0
     n = max(1, int(round(span / (6.0 if lite else 5.2))))
     for i in range(1, n):
@@ -141,7 +153,7 @@ def wall_lo(mb, Ff, L_, h, opens, pl, ground=True, full=True, boards=True, lite=
             continue
         if any(abs(x - o["s"]) < o["w"] / 2 + 0.75 for o in opens if o["t"] == "win"):
             continue
-        bb(mb, Ff, x - 0.4, x + 0.4, -0.9, 0.0, z0, zt, WD)
+        bb(mb, Ff, x - 0.4, x + 0.4, -0.7, 0.0, z0, zt, WD)
     if ground and boards:
         K.panel(mb, Ff, xi0, xi1, z0, 2.4, -0.78, -0.2, holes, WM)
         K.panel(mb, Ff, xi0, xi1, 2.4, 2.65, -0.62, 0.02, holes, WD)
@@ -171,12 +183,16 @@ def auto_opens(L_, key, k, h, seed, lit_p=0.5, noren=INDIGO, door=True, lite=Fal
                     w = min(5.2, b - a - 0.8)
                     out.append(dict(t="win", s=(a + b) / 2, w=w, h=3.2, z=3.3, lit=lit(sgn)))
         elif key == "B":
-            n = 1 if (span < 14 or lite) else 2
+            n = 1 if span < 14 else 2                    # M6b: fundos largos com 2 janelas tambem no lite
             for i in range(n):
                 s = -span / 2 + span * (i + 0.5) / n + (_h(seed, "b", i) - 0.5) * 2.0
                 out.append(dict(t="win", s=s, w=3.0, h=2.8, z=4.2, lit=lit(10 + i)))
         else:
-            if span >= 10:
+            if span >= 17:                               # M6b: empena longa = 2 janelas desencontradas
+                for i, f in enumerate((-0.27, 0.25)):
+                    s = span * f + (_h(seed, key, "s", i) - 0.5) * 1.6
+                    out.append(dict(t="win", s=s, w=2.8, h=2.8, z=4.4 - 0.6 * i, lit=lit(20 + i)))
+            elif span >= 10:
                 s = (_h(seed, key, "s") - 0.5) * (span - 6.0) * 0.5
                 out.append(dict(t="win", s=s, w=2.8, h=2.8, z=4.4, lit=lit(20)))
     else:
@@ -185,7 +201,7 @@ def auto_opens(L_, key, k, h, seed, lit_p=0.5, noren=INDIGO, door=True, lite=Fal
             for i in range(n):
                 s = -span / 2 + span * (i + 0.5) / n
                 out.append(dict(t="win", s=s, w=min(3.8, span / n - 1.6), h=min(2.8, h - 3.4), z=1.5, lit=lit(30 + i)))
-        elif span >= (16 if lite else 12):
+        elif span >= 10:                                 # M6b: (era 16 no lite) nenhuma empena > 12 sem abertura
             out.append(dict(t="win", s=0.0, w=2.8, h=min(2.6, h - 3.4), z=1.6, lit=lit(40)))
     return out
 
@@ -295,7 +311,7 @@ def roof_lo(mb, F, W, D, h, kind="irimoya", pitch=0.55, over=2.8, lift=1.0, tv=0
                 poly = [(-y1, zb - 0.05), (y1, zb - 0.05)] + [(y, top(y)) for y in ys]
                 K.ext(mb, Fk, poly, "x", xg - 0.45, xg - 0.25, gable_m)
                 bb(mb, Fk, xg - 0.27, xg - 0.09, -y1 * 0.55, y1 * 0.55, zb + 0.15, zb + 0.55, WD)
-            xh = xg + go - 0.3
+            xh = xg + go - 0.36                           # M6b: tabeira 0,18 atras da borda da agua (era 0,12)
             ye = 0.0
             for i in range(1, 60):
                 y = yb * i / 60
@@ -326,7 +342,7 @@ def gable_lo(mb, F, W, D, h, pitch=0.62, over=2.6, g_over=1.6, lift=0.6, tv=0.5,
                 max(2, int(2 * Xe / (8.0 if lite else 5.5))), [0.0, tw, 1.0], m)
         for x in K.even(-Xe + 0.4, Xe - 0.4, sp):
             K.sweep(mb, Fk, [(px, py, S.zy(px, py)) for px, py in ((x, Ye + 0.12), (x, Yw), (x, 0.45))], RIB3, m)
-        K._fascia(mb, Fk, lambda t: ((-Xe + 0.5) + (2 * Xe - 1.0) * t, Ye - 0.3), 8, (0, 1, 0), S.zy, tv, lod=1)
+        K._fascia(mb, Fk, lambda t: ((-Xe + 0.5) + (2 * Xe - 1.0) * t, Ye - 0.36), 8, (0, 1, 0), S.zy, tv, lod=1)
         top = lambda y: S.zy(Xw, y) - tv - 0.05
         ymax = D / 2
         ys = [ymax, ymax * 0.5, 0.0, -ymax * 0.5, -ymax]
@@ -338,7 +354,7 @@ def gable_lo(mb, F, W, D, h, pitch=0.62, over=2.6, g_over=1.6, lift=0.6, tv=0.5,
                 if t > h + 0.8:
                     bb(mb, Fk, Xw - 0.26, Xw - 0.1, y - 0.09, y + 0.09, h + 0.1, t, WD)
         bb(mb, Fk, Xw - 0.3, Xw - 0.06, -ymax + 0.3, ymax - 0.3, h - 0.25, h + 0.15, WD)
-        xh = Xe - 0.3
+        xh = Xe - 0.4                                     # M6b: tabeira 0,2 atras da borda da agua (era 0,10)
         for sy in (1, -1):
             K._hafu(mb, Fk, xh, [sy * (Ye - 0.05) * u for u in (0.0, Yw / Ye * 0.999, 1.0)], S.zy, tv, 0.9, WD, 0.2)
         K._gegyo(mb, Fk, xh, S.zy(xh, 0.0) - tv - 0.9, 1, WD, 0.9, gold)
@@ -398,6 +414,7 @@ def lo_house(mb, F, spec, seed):
     prev = None
     last = None
     rm = sp["roof"].get("m", RB)
+    wkind = WIN_KINDS[int(_h(seed, "wk") * 3) % 3]          # M6b item 19: tipo de janela da casa
     for k, fl in enumerate(sp["floors"]):
         sf, sbk = fl.get("setback", (0.0, 0.0))
         Wk, Dk = W, D - sf - sbk
@@ -417,7 +434,7 @@ def lo_house(mb, F, spec, seed):
                 continue
             if fs == "auto":
                 fs = auto_opens(Lf, key, k, h, seed, sp["lit_p"], sp["noren"], fl.get("door", True), lite)
-            wall_lo(mb, Ff, Lf, h, fs, pl, ground, full, (key == "F") or not lite, lite)
+            wall_lo(mb, Ff, Lf, h, fs, pl, ground, full, True, lite, wkind)   # M6b: rodape de tabuas em todas as faces
             glow += [Ff.p(o["s"], 0.6, o["z"] + o["h"] / 2) for o in fs if o["t"] == "win" and o.get("lit")]
         if k > 0:                                         # viga do piso + hisashi nas faces recuadas
             Wp, Dp, cyp = prev
@@ -604,6 +621,8 @@ SECTORS = {"Oeste": WEST, "Alem": BEYOND, "Bairro": BAIRRO, "Terraco": TERRACE, 
 
 # ---------------------------------------------------- familia A (kit inteiro)
 C7_SPEC = dict(K.PRESETS["ESQ"], W=16.0, D=22.0, seed=7171, lod=1)
+C7_SPEC["floors"] = [dict(f) for f in C7_SPEC["floors"]]
+C7_SPEC["floors"][0]["back"] = ["shoji", "koshi", "plaster"]     # M6b item 19: fundos para o beco com janelas
 CHA = dict(W=18.0, D=22.0, plinth=("soco", 0.5), plaster=PLS, lod=0, back_lod=1, side_lod=1,
            floors=[dict(h=11.0, front=["lattice", {"t": "open", "w": 7.4}, "koshi"],
                         left=["plaster", "shoji", "plaster"], right=["plaster", "round", "plaster"],
@@ -691,6 +710,7 @@ def pave_streets(mbs):
             out += _minus_convex(ccw(p), PLAZA_CVX)
         mb = mbs[sector[i]]
         for k, p in enumerate(out):
+            PAVED_CUTS.append(ccw(p))                      # M6b: a rua recorta o quintal (so uma superficie)
             if i == 5:                                     # cais oeste (alem do canal): terra batida
                 mb.prism(ccw(p), z - 0.3, z + 0.12, DIRT)
             else:
@@ -701,13 +721,16 @@ def pave_streets(mbs):
 
 def lane(mb, pts, w, z, key, kind="dirt"):
     """beco proprio (fora de L.STREETS: sobre a pele de grama do terreno): terra batida com pedras de passo, ou
-    lajes. Topo +0,12/+0,15 (a pele fica DENTRO do volume)"""
+    lajes. Lajes: topo +0,15 (a pele fica DENTRO do volume). Terra (M6b): no nivel do quintal (+0,30) e as pedras de
+    passo ASSENTADAS nela (topo +0,12 acima da terra, base 0,15 dentro). Beco e lajes recortam o quintal."""
     n = 0
     for k, q in enumerate(_quads(pts, w / 2) if kind != "stones" else []):
+        PAVED_CUTS.append(ccw(q))
         if kind == "dirt":
-            mb.prism(ccw(q), z - 0.3, z + 0.12, DIRT)
+            K.slab_poly(mb, ccw(q), z - 0.3, z + YARD_TOP, 0.0, DIRT)
         else:
             n += pave_region(mb, q, z, "%s%d" % (key, k))
+    zs0, zs1 = (z + YARD_TOP - 0.15, z + YARD_TOP + 0.12) if kind == "dirt" else (z - 0.1, z + 0.26)
     if kind in ("dirt", "stones"):
         tot = L.plen(pts)
         d = 1.4
@@ -724,7 +747,7 @@ def lane(mb, pts, w, z, key, kind="dirt"):
                     r = 0.9 + 0.35 * _h(key, d, "r")
                     poly = [(x + jx * -s + r * math.cos(ang + j * math.pi / 3 + 0.3),
                              y + jx * c + r * math.sin(ang + j * math.pi / 3 + 0.3)) for j in range(6)]
-                    K.slab_poly(mb, ccw(poly), z - 0.1, z + 0.26, 0.06, STP)
+                    K.slab_poly(mb, ccw(poly), zs0, zs1, 0.06, STP)
                     n += 1
                     break
                 acc += sl
@@ -733,34 +756,129 @@ def lane(mb, pts, w, z, key, kind="dirt"):
 
 
 # ------------------------------------------------------------------ CHAO DOS QUARTEIROES
-# Terra batida nos quintais/becos entre as casas (o quarteirao deixa de ser gramado com casas soltas): prisma de topo
-# +0,06 (a pele de grama fica DENTRO dele; as lajes das ruas, de topo +0,15 e chanfro ate +0,08, ficam por cima).
+# Terra batida nos quintais/becos entre as casas (o quarteirao deixa de ser gramado com casas soltas).
+# M6b (finesse, item 17 da AUDITORIA_OP): o quintal tinha topo +0,06 sobre a pele de grama = z-fight em 12,9k studs2
+# (e as lajes das ruas a +0,15, so 0,09 acima da terra). Agora: topo +0,30 (piso sobre piso >= 0,3: a grama fica
+# DENTRO do volume) e o quintal e RECORTADO por todo piso proprio que passa dentro dele (lajes das ruas e becos, beco de
+# terra, cascalho do santuario): em cada ponto existe SO UMA superficie. As lajes (+0,15) ficam 0,15 abaixo da terra
+# (meio-fio de terra). O pe do avatar afunda 0,30 na terra (a colisao continua o plano do op_col, intocado). Prisma sem
+# fundo (enterrado). Retangulos novos/estendidos (*) fecham frestas de pele entre quintal e rua (item 01, lado C).
+YARD_TOP = 0.30
+PAVED_CUTS = []                                  # poligonos convexos (mundo, ccw) que recortam quintal e cascalho
+_YARD_JOBS = []                                  # (mb, setor, z): o quintal sai DEPOIS das ruas (precisa dos recortes)
+
+
 def _clip(poly, rect):
     return L.clip_rect(ccw(poly), rect)
 
 
 YARDS = {
-    "Oeste": [(L.P_BASE, (-159.0, 125.0, -122.6, 154.0), None), (L.P_BASE, (-159.0, 164.0, -122.6, 260.4),
-              (-135.6, 193.0, -122.4, 220.0)), (L.P_BASE, (-159.0, 269.6, -122.6, 299.5), None)],
+    # Oeste: o recanto (antes um furo com terra propria a +0,12) agora e o proprio quintal
+    "Oeste": [(L.P_BASE, (-159.0, 125.0, -122.6, 154.0), None), (L.P_BASE, (-159.0, 164.0, -122.6, 260.4), None),
+              (L.P_BASE, (-159.0, 269.6, -122.6, 291.4), None)],     # * norte 291,4: fora da capa do arrimo do W3
     "Alem": [(L.W2B, (-216.0, 127.0, -190.1, 295.0), None)],
-    "Bairro": [(L.T1_BASE, (-131.0, 38.0, -48.0, 70.5), None), (L.T1_BASE, (-145.0, 40.0, -131.0, 68.6), None),
-               (L.T1_BASE, (-160.0, 44.0, -145.0, 66.6), None), (L.T1_BASE, (-134.0, 83.0, -46.0, 116.5), None),
-               (L.T1_BASE, (-169.5, 80.0, -145.2, 116.5), None)],
-    "Leste": [(L.T1_BASE, (40.0, 40.0, 120.0, 104.6), None)],
+    "Bairro": [(L.T1_BASE, (-131.0, 38.0, -48.0, 73.5), None),            # * ate a viela do canal (era 70,5)
+               (L.T1_BASE, (-145.0, 40.0, -131.0, 72.0), None),           # * (era 68,6)
+               (L.T1_BASE, (-160.0, 44.0, -145.0, 66.6), None),
+               (L.T1_BASE, (-134.0, 83.0, -46.0, 118.0), None),           # * ate o pe do arrimo da praca (era 116,5)
+               (L.T1_BASE, (-169.25, 80.0, -145.2, 118.0), None),         # * (era 116,5; x0 -169,5 invadia a capa do canal)
+               (L.T1_BASE, (-48.5, 62.0, -17.0, 82.0), None)],            # * fundos de C1/C2 ate a viela do canal
+    "Leste": [(L.T1_BASE, (40.0, 42.5, 120.0, 106.0), None),              # * ate a viela leste (era 104,6); sul 42,5:
+                                                                          #   fora da capa do muro da crista (op_terrain)
+              (L.T1_BASE, (17.0, 101.0, 40.0, 106.0), None)],             # * C7 x viela leste (borda dentro do soco)
     "NE": [(L.P_BASE, (118.0, 265.0, 222.0, 339.0), (132.0, 297.0, 170.0, 315.0))],
 }
 
 
 def yards(mb, key, z):
-    for poly, rect, hole in YARDS.get(key, ()):
-        pc = _clip(poly, rect)
-        if len(pc) < 3:
-            continue
-        pieces = L.subtract_rect(pc, hole) if hole else [pc]
-        for q in pieces:
-            mb.prism(ccw(q), z - 0.3, z + 0.06, DIRT)
-        if hole and key == "NE":                         # recinto do santuario: cascalho claro
-            mb.prism(ccw(L.rect_poly(hole)), z - 0.3, z + 0.06, STP)
+    _YARD_JOBS.append((mb, key, z))
+
+
+def _bbox(p):
+    xs = [q[0] for q in p]
+    ys = [q[1] for q in p]
+    return min(xs), min(ys), max(xs), max(ys)
+
+
+def _minus_cuts(pieces):
+    """pieces - PAVED_CUTS (cada corte e convexo): pedacos disjuntos, sem lascas"""
+    cuts = [(c, _bbox(c)) for c in PAVED_CUTS]
+    for c, cb in cuts:
+        nxt = []
+        for p in pieces:
+            pb = _bbox(p)
+            if pb[2] <= cb[0] or cb[2] <= pb[0] or pb[3] <= cb[1] or cb[3] <= pb[1]:
+                nxt.append(p)
+            else:
+                nxt += _minus_convex(p, c)
+        pieces = nxt
+    return [p for p in pieces if L.area(p) > 0.25]
+
+
+def _build_yards():
+    n = 0
+    for mb, key, z in _YARD_JOBS:
+        for poly, rect, hole in YARDS.get(key, ()):
+            pc = _clip(poly, rect)
+            if len(pc) < 3:
+                continue
+            pieces = L.subtract_rect(pc, hole) if hole else [pc]
+            for q in _minus_cuts([ccw(p) for p in pieces]):
+                K.slab_poly(mb, ccw(q), z - 0.3, z + YARD_TOP, 0.0, DIRT)
+                n += 1
+            if hole and key == "NE":                     # recinto do santuario: cascalho claro (mesma cota)
+                for q in _minus_cuts([ccw(L.rect_poly(hole))]):
+                    K.slab_poly(mb, ccw(q), z - 0.3, z + YARD_TOP, 0.0, STP)
+                    n += 1
+    _YARD_JOBS.clear()
+    return n
+
+
+def alem_yard(mb):
+    """M6b item 21: o quintal do Alem (x -216..-190) deixa de ser terra lisa: 2 HORTAS cercadas (canteiros de terra
+    escura em leiras com mudas, cerca baixa de estacas e 2 travessas, portinhola), PILHA DE LENHA coberta encostada na
+    empena de X2 e 2 arvores pequenas (VEG_SPOTS -> op_veg). O varal, o poco e a carga ja sao do op_props."""
+    z = P + YARD_TOP
+    for (cx, cy, wx, wy, rows) in ((-210.4, 186.0, 8.0, 6.0, 4), (-208.6, 157.6, 8.0, 4.6, 3)):
+        F = Frame(cx, cy, z, 0.0)
+        # leiras (ao longo de x), terra escura 0,35 acima do quintal, mudas em tufos baixos
+        for i in range(rows):
+            yy = -wy / 2 + 0.9 + (wy - 1.8) * (i / max(1, rows - 1))
+            bb(mb, F, -wx / 2 + 0.7, wx / 2 - 0.7, yy - 0.45, yy + 0.45, -0.15, 0.35, "Dirt_OP_Dark")
+            for j, xx in enumerate(K.even(-wx / 2 + 1.2, wx / 2 - 1.2, 1.25)):
+                r = 0.32 + 0.12 * _h("horta", cx, i, j)
+                mb.ico(r, (cx + xx, cy + yy, z + 0.35 + r * 0.35), "Leaf_OP", 1, scale=(1.0, 1.0, 0.75))
+        # cerca: estacas a ~1,9 e 2 travessas; portinhola (vao de 1,6) no lado +x (do caminho do cais)
+        X, Y = wx / 2, wy / 2
+        sides = [((-X, -Y), (X, -Y)), ((X, -Y), (X, Y)), ((X, Y), (-X, Y)), ((-X, Y), (-X, -Y))]
+        for k, (a, b) in enumerate(sides):
+            segs = [(a, b)]
+            if k == 1:                                   # portinhola no meio do lado leste
+                segs = [((X, -Y), (X, -0.8)), ((X, 0.8), (X, Y))]
+            for (p, q) in segs:
+                ln = math.dist(p, q)
+                m = max(1, int(round(ln / 1.9)))
+                for t in range(m + 1):
+                    u = t / m
+                    px, py = p[0] + (q[0] - p[0]) * u, p[1] + (q[1] - p[1]) * u
+                    bb(mb, F, px - 0.13, px + 0.13, py - 0.13, py + 0.13, -0.3, 1.45, WD)
+                for zz in (0.55, 1.15):
+                    K.beam(mb, F, (p[0], p[1], zz), (q[0], q[1], zz), 0.12, 0.14, WM)
+    # pilha de lenha encostada na empena sul de X2 (y 193,7): toras deitadas em 3 camadas + telhadinho de tabuas
+    F = Frame(-203.0, 192.2, z, 0.0)
+    bb(mb, F, -3.0, 3.0, -0.7, 0.7, -0.15, 0.25, WD)                 # estrado
+    for layer in range(3):
+        n_ = 6 - layer
+        for k in range(n_):
+            xx = -2.6 + (5.2 / n_) * (k + 0.5) + 0.1 * layer
+            zz = 0.25 + 0.36 + layer * 0.62
+            mb.rod(F.p(xx, -0.75, zz), F.p(xx, 0.75, zz), 0.34 + 0.04 * _h("lenha", layer, k), WM, 6)
+    for s in (-1, 1):
+        bb(mb, F, s * 3.05 - 0.14, s * 3.05 + 0.14, -0.9, -0.62, -0.3, 2.38, WD)
+    K.beam(mb, F, (-3.4, -1.25, 2.16), (3.4, -1.25, 2.16), 0.2, 0.2, WD)
+    mb.box((7.0, 3.1, 0.2), F.p(0.0, -0.05, 2.62), (0.24, 0.0, 0.0), WD, 0.0)   # telhadinho de tabuas em agua (sobe para a empena)
+    VEG_SPOTS.append((-212.8, 169.0, P, "pinheiro", "quintal do alem: fundo entre as 2 hortas"))
+    VEG_SPOTS.append((-213.6, 246.0, P, "arbusto", "quintal do alem: pe do varal"))
 
 
 # ================================================================== PECAS DE LUGAR (torii, santuario, recantos)
@@ -851,11 +969,10 @@ def canal_bridge(mb, yc, key):
 def recanto_oeste(mb):
     """RECANTO do quarteirao oeste (pausa na fileira que encara a praca): patio de terra com pedras de passo,
     pavilhao aberto do kit recuado, banco, toro"""
-    y0, y1 = 193.0, 220.0
-    mb.prism(ccw([(-135.5, y0), (-122.5, y0), (-122.5, y1), (-135.5, y1)]), P - 0.3, P + 0.12, DIRT)
+    # M6b: o patio de terra e o proprio quintal Oeste (+0,30); pedras de passo assentadas nele (topo +0,12)
     for i, yy in enumerate((203.0, 207.5, 212.0)):
         K.slab_poly(mb, ccw([(-131.0 + 2.6 * i, yy - 1.2), (-128.0 + 2.6 * i, yy - 1.2), (-128.0 + 2.6 * i, yy + 1.2),
-                             (-131.0 + 2.6 * i, yy + 1.2)]), P - 0.1, P + 0.26, 0.06, STP)
+                             (-131.0 + 2.6 * i, yy + 1.2)]), P + YARD_TOP - 0.15, P + YARD_TOP + 0.12, 0.06, STP)
     Fp = _F(-141.0, 207.5, P, 0.0)
     pav_lo(mb, Fp, 13.0, 10.0, 7.4, RB, False, 1.1)
     pav_cols("OP_CapPav", Fp, 13.0, 10.0, 1.1)
@@ -1114,6 +1231,8 @@ def build():
         return
     CAM_AREAS.clear()
     VEG_SPOTS.clear()
+    PAVED_CUTS.clear()
+    _YARD_JOBS.clear()
     # trecho M2 (dono: op_m2_trecho) - mesmas funcoes, sem o _blockout_rest()
     TR._street()
     TR._shops()
@@ -1134,8 +1253,12 @@ def build():
         Fs = Frame(foot[0], foot[1], foot[2], math.radians(deg) - math.pi / 2)
         K.stair_stone(mbs["Oeste"], Fs, w, ns, rise=L.stair_rise(nm), tread=tread, z_floor=-0.3, z_off=Z_OFF,
                       cheek_h=1.0, newels=True)
+    ny = _build_yards()                                 # M6b: quintais depois das ruas/becos (recortados por eles)
+    alem_yard(mbs["Alem"])
+    cut = 0
     for mb in {id(m): m for m in mbs.values()}.values():
+        cut += K.cull_hidden(mb)                        # M6b: faces que ninguem ve (paga rodape/janelas/quintal)
         mb.finish()
     _cams()
-    print("op_capital: %d casas leves, ruas %d lajes, CAM_AREAS %d" % (
-        sum(len(v) for v in SECTORS.values()), n, len(CAM_AREAS)))
+    print("op_capital: %d casas leves, ruas %d lajes, quintais %d pecas, %d tris escondidos cortados, CAM_AREAS %d" % (
+        sum(len(v) for v in SECTORS.values()), n, ny, cut, len(CAM_AREAS)))

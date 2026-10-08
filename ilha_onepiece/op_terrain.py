@@ -52,8 +52,11 @@ C = "02_TERRAIN"
 T0, T1, P, CF, CC, W3Z, CL = L.T0, L.T1, L.P, L.CF, L.CC, L.W3, L.CL
 SEA, BASE = L.SEA, L.BASE
 H = 2.5                         # passo da grade da pele
+BERM_D = 0.2                    # M6b (item 01/09): berma a piso - 0,2 (era 0,35: a colisao da borda passava 0,35 acima dela)
 BBOX = (-255.0, -20.0, 370.0, 520.0)
-ROCK, ROCKC, DARK, MOSS, VOID = "Cliff_OP_Warm", "Cliff_OP_Cool", "Cliff_OP_Dark", "Cliff_OP_Moss", "Cliff_OP_Void"
+# M6b (item 51): paleta das falesias puxada para a concept (cinza-azulada media, fendas escuras): Face/Shade/Crevice
+ROCK, ROCKC, DARK, MOSS, VOID = "Cliff_OP_Face", "Cliff_OP_Shade", "Cliff_OP_Dark", "Cliff_OP_Moss", "Cliff_OP_Void"
+CREV = "Cliff_OP_Crevice"
 GDEEP, GRASS, GRASSB = "Grass_OP_Deep", "Grass_OP", "Grass_OP_B"
 DIRT, DIRTD, PATH, STONE = "Dirt_OP", "Dirt_OP_Dark", "Stone_OP_Path", "Stone_OP"
 WALL, JOINT, WOOD, WOODD = "Stone_OP_Wall", "Stone_OP_Dark", "Wood_OP_Mid", "Wood_OP_Dark"
@@ -160,7 +163,7 @@ def assign(mb, faces, m):
     return fl
 
 
-def field_mesh(mb, G, F, zfun, m, skirt=0.0, m_skirt=None, inner=None, inner_thr=0.3, flat=True):
+def field_mesh(mb, G, F, zfun, m, skirt=0.0, m_skirt=None, inner=None, inner_thr=0.3, flat=True, skirt_out=0.0):
     """superficie da regiao F > 0 (marching squares na grade G) em z = zfun(x, y); saia de 'skirt' para baixo SO nas
     bordas de fora (inner = campo da regiao inteira: borda entre pedacos da mesma placa nao ganha saia). Dissolve em
     ORDEM FIXA (determinismo, licao da DS) so com flat=True (pele plana)."""
@@ -250,12 +253,34 @@ def field_mesh(mb, G, F, zfun, m, skirt=0.0, m_skirt=None, inner=None, inner_thr
                         continue
                     bnd.append((a_, b_))
         bnd.sort(key=lambda e: (e[0].index, e[1].index))
+        # M6b (item 12): skirt_out > 0 = a saia sai CHANFRADA para fora (a capa transborda a aresta, nao e uma placa)
+        outn = {}
+        if skirt_out > 0.0:
+            for f in faces:
+                if not f.is_valid:
+                    continue
+                cc = f.calc_center_median()
+                for lp in f.loops:
+                    if len(lp.edge.link_faces) != 1:
+                        continue
+                    a_, b_ = lp.vert, lp.link_loop_next.vert
+                    dx, dy = b_.co.x - a_.co.x, b_.co.y - a_.co.y
+                    ln = math.hypot(dx, dy) or 1.0
+                    nx_, ny_ = dy / ln, -dx / ln
+                    if nx_ * (cc.x - (a_.co.x + b_.co.x) / 2) + ny_ * (cc.y - (a_.co.y + b_.co.y) / 2) > 0:
+                        nx_, ny_ = -nx_, -ny_
+                    for v in (a_, b_):
+                        o_ = outn.get(v, (0.0, 0.0))
+                        outn[v] = (o_[0] + nx_, o_[1] + ny_)
         low = {}
         sk = []
         for a, b in bnd:
             for v in (a, b):
                 if v not in low:
-                    low[v] = bm.verts.new((v.co.x, v.co.y, v.co.z - skirt))
+                    ox, oy = outn.get(v, (0.0, 0.0))
+                    ol = math.hypot(ox, oy)
+                    ox, oy = (ox / ol * skirt_out, oy / ol * skirt_out) if ol > 1e-6 else (0.0, 0.0)
+                    low[v] = bm.verts.new((v.co.x + ox, v.co.y + oy, v.co.z - skirt))
             try:
                 sk.append(bm.faces.new((a, low[a], low[b], b)))
             except ValueError:
@@ -279,6 +304,11 @@ def _stair_z(nm):
 
 def _const(v):
     return lambda x, y: v
+
+
+def _area(pl):
+    """area com sinal (anti-horario > 0)"""
+    return 0.5 * sum(pl[i][0] * pl[(i + 1) % len(pl)][1] - pl[(i + 1) % len(pl)][0] * pl[i][1] for i in range(len(pl)))
 
 
 def _canal_segments():
@@ -369,7 +399,7 @@ def _prepare():
                 x, y = a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t
                 samp.append((x, y, zf(x, y)))
     sa = np.array(samp)
-    bz = np.full(X.shape, P - 0.35)
+    bz = np.full(X.shape, P - BERM_D)
     mask = (S_.union <= 0.0) & (S_.rim > -6.0)
     idx = np.nonzero(mask)
     px, py = X[idx], Y[idx]
@@ -382,8 +412,35 @@ def _prepare():
         mn = zz.min(1)
         near = sa[d.argmin(1), 2]
         res[c0:c0 + 1500] = np.where(mn < 1e8, mn, near)
-    bz[idx] = res - 0.35
+    bz[idx] = res - BERM_D
+    # M6b (item 02): dentro das placas o no guardava P - 0,35 (praca) para QUALQUER placa; a amostra bilinear na borda
+    # da berma misturava esse valor com a cota da berma (cais 42 x 91,85) e levantava triangulos verdes de 30-46 de
+    # altura (os "espinhos verdes"). Agora: no de placa = a propria placa - BERM_D; a berma amostra SO nos de berma.
+    for nm, pl, zf, k in PLATES:
+        js, is_ = np.nonzero((S_.own[nm] > 0) & (S_.union > 0))
+        for j, i in zip(js.tolist(), is_.tolist()):
+            bz[j, i] = zf(float(X[j, i]), float(Y[j, i])) - BERM_D
     S_.bandz = bz
+    S_.bmask = mask.astype(float)
+
+
+def bsample(x, y):
+    """cota da berma em (x, y): bilinear so com os nos de BERMA (sem misturar a cota de placa vizinha)"""
+    G, A, Mk = S_.G, S_.bandz, S_.bmask
+    fi, fj = (x - G.x0) / G.h, (y - G.y0) / G.h
+    i, j = int(math.floor(fi)), int(math.floor(fj))
+    ny, nx = A.shape
+    i = min(max(i, 0), nx - 2)
+    j = min(max(j, 0), ny - 2)
+    tx, ty = min(max(fi - i, 0.0), 1.0), min(max(fj - j, 0.0), 1.0)
+    acc = wsum = 0.0
+    for dj, di, w in ((0, 0, (1 - tx) * (1 - ty)), (0, 1, tx * (1 - ty)), (1, 0, (1 - tx) * ty), (1, 1, tx * ty)):
+        w *= Mk[j + dj, i + di]
+        acc += w * A[j + dj, i + di]
+        wsum += w
+    if wsum < 1e-6:
+        return sample(G, A, x, y)
+    return float(acc / wsum)
 
 
 def ground(x, y):
@@ -392,18 +449,49 @@ def ground(x, y):
         if p[1] == "water":
             return p[2](x, y) - 2.2
         return p[2](x, y)
-    return sample(S_.G, S_.bandz, x, y)
+    return bsample(x, y)
+
+
+# M6b (item 01): no terraco do summon (x 116..206, y 150..264) as lajes sao do op_summon, a +0,3 SOBRE a pele (contrato
+# acima), e mais estreitas que as ruas da planta; a capital nao pavimenta ali. As ruas que caem nesse retangulo deixam de
+# ser BED (era a 'valeta' de 787 studs2 da curva viela -> summon) e viram TERRA BATIDA rente (pele de terra no piso).
+SUMMON_TERRACE = (116.0, 150.0, 206.0, 264.0)
+
+
+def _in_summon(X, Y):
+    r = SUMMON_TERRACE
+    return (X >= r[0]) & (X <= r[2]) & (Y >= r[1]) & (Y <= r[3])
+
+
+def lane_field():
+    """ruas da planta dentro do terraco do summon (terra batida rente, com a pele)"""
+    X, Y = S_.G.X, S_.G.Y
+    f = np.full(X.shape, -1e9)
+    for pts, w, z in L.STREETS:
+        f = np.maximum(f, sdf_line(X, Y, pts, w / 2 - 0.4))
+    return np.where(_in_summon(X, Y), f, -1e9)
 
 
 def bed_field():
     X, Y = S_.G.X, S_.G.Y
     f = sdf_poly(X, Y, ccw(L.PLAZA)) - 0.5
     for pts, w, z in L.STREETS:
-        f = np.maximum(f, sdf_line(X, Y, pts, w / 2 - 0.4))
+        f = np.maximum(f, np.where(_in_summon(X, Y), -1e9, sdf_line(X, Y, pts, w / 2 - 0.4)))
     Ln = L.EXIT_BRIDGE_LEN
     f = np.maximum(f, sdf_line(X, Y, [L.exit_point(Ln), L.exit_point(Ln + L.ANCHOR_OPM_OFF)], 6.0 - 0.4))
     # patio do torii: o op_entry pavimenta o patio inteiro a +0,14 (piso sobre piso < 0,3: aqui fica so o leito)
     f = np.maximum(f, sdf_poly(X, Y, ccw(L.ENTRY_COURT)) - 0.4)
+    # M6b (pedido do grupo B, item 25): o patio do castelo (honmaru) agora tem piso proprio do op_castle (lajes +
+    # cascalho Stone_OP_Court a +0,14): aqui fica so o leito, como no patio do torii
+    f = np.maximum(f, sdf_poly(X, Y, ccw(L.floor_poly("Court"))) - 0.4)
+    # M6b (item 08): a faixa sul e a rua do trecho M2 trazem o PROPRIO piso (op_m2_trecho.paved_footprint, contrato do
+    # M2): sem pele de grama ali (era o coplanar de 0,04 com o arrimo M2 em (110,5; 144) e (69,8; 119,9))
+    try:
+        import op_m2_trecho as M2
+        for pl in M2.paved_footprint():
+            f = np.maximum(f, sdf_poly(X, Y, ccw(pl)) - 0.4)
+    except Exception as e:
+        print("op_terrain: AVISO sem paved_footprint do M2 (%s)" % e)
     return f
 
 
@@ -417,6 +505,7 @@ def build_ground():
     X, Y = G.X, G.Y
     mg = MB("OP_Ter_Ground", C, None, detail="far", floor=BASE)
     bed = bed_field()
+    lane = lane_field()
     wv1, wv2, wv3 = waves(X, Y, 1.7), waves(X, Y, 3.1, 1.6), waves(X, Y, 5.3, 0.7)
     for nm, pl, zf, k in PLATES:
         if k == "stair":
@@ -426,43 +515,58 @@ def build_ground():
         if k == "water":
             field_mesh(mg, G, own, _const(z0 - 2.2), DIRTD)
             continue
+        # M6b (item 01/09): cada regiao da pele e o COMPLEMENTO exato da vizinha (campos f e -f: o contorno sai igual nas
+        # 2), e nenhuma faixa e mais fina que a grade (2,5): faixa fina entre 2 contornos na mesma celula sumia no
+        # marching squares e deixava ver o corpo a -0,5 (valetas e 'papel recortado' na borda da grama)
         if k == "rock":
-            # topo das rochas: verde fundo no meio, musgo na borda (faixa 1..3)
-            band = 1.4 + 1.2 * (0.5 + 0.5 * wv2)
-            field_mesh(mg, G, np.minimum(own, band - own), _const(z0), MOSS, skirt=0.6, inner=own)
-            field_mesh(mg, G, own - band, _const(z0), GDEEP, skirt=0.6, inner=own)
+            # topo das rochas: verde fundo no meio, musgo na borda (faixa 3,6..5,2 > diagonal da celula)
+            band = 3.6 + 1.6 * (0.5 + 0.5 * wv2)
+            field_mesh(mg, G, np.minimum(own, band - own), _const(z0), MOSS, skirt=0.75, inner=own, skirt_out=0.45)
+            field_mesh(mg, G, np.minimum(own, own - band), _const(z0), GDEEP, skirt=0.75, inner=own, skirt_out=0.45)
             continue
         kind = FLOOR_TOP[nm]
         skin = np.minimum(own, -bed)
-        if kind == "path":
-            field_mesh(mg, G, skin, _const(z0), PATH, skirt=0.6, inner=own)
-        elif kind == "quay":
-            field_mesh(mg, G, skin, _const(z0), STONE, skirt=0.6, inner=own)
+        if kind in ("path", "quay"):
+            # LEITO de terra a piso - 0,15 nas faixas BED: onde a laje do dono (topo +0,12..+0,15, fundo -0,3) cobre,
+            # fica dentro dela (folga 0,3); onde ela nao chega, le terra batida quase rente
+            field_mesh(mg, G, np.minimum(own, bed), _const(z0 - 0.15), DIRT, skirt=0.45, inner=own)
+            field_mesh(mg, G, skin, _const(z0), PATH if kind == "path" else STONE, skirt=0.6, inner=skin)
         else:
-            # terra no CONTATO (borda da placa e das ruas), faixa irregular 0,3..2,4; grama em 2 tons
-            band = np.maximum(0.3, 0.9 + 1.5 * wv1)
-            dirt = np.minimum(skin, band - skin)
-            grass = skin - band
+            # grama em 2 tons; TERRA BATIDA a -0,15 na BED + uma margem irregular de 0,6..2,4 em volta dela (a borda
+            # da laje do dono e o verde nunca mais se tocam por uma valeta); terra rente nas ruas do terraco do summon
+            # (lane). A saia da grama e de TERRA (corte de solo de 0,15, nao parede verde)
+            band = np.maximum(0.6, 1.1 + 0.5 * wv1)   # margem mais regular (borda com 2-3 entalhes, nao serrilha)
+            g1 = -bed - band
+            field_mesh(mg, G, np.minimum(own, -g1), _const(z0 - 0.15), DIRT, skirt=0.45, inner=own)
+            up = np.minimum(own, g1)            # tudo que fica no piso (saia na borda da placa e na borda do leito)
+            field_mesh(mg, G, np.minimum(up, lane), _const(z0), DIRT, skirt=0.6, inner=up)
+            grass = np.minimum(up, -lane)
             gb = np.minimum(grass, wv3 - 0.25)
             ga = np.minimum(grass, 0.25 - wv3)
-            field_mesh(mg, G, dirt, _const(z0), DIRT, skirt=0.6, inner=own)
-            field_mesh(mg, G, ga, _const(z0), GRASS, skirt=0.6, inner=own)
-            field_mesh(mg, G, gb, _const(z0), GRASSB, skirt=0.6, inner=own)
+            field_mesh(mg, G, ga, _const(z0), GRASS, skirt=0.6, inner=up, m_skirt=DIRT)
+            field_mesh(mg, G, gb, _const(z0), GRASSB, skirt=0.6, inner=up, m_skirt=DIRT)
     # berma (entre pisos e a falesia, frestas entre pisos): verde fundo, superficie que desce para o piso mais baixo
     band = np.minimum(S_.rim - 0.9, -S_.union)
-    zb = lambda x, y: sample(G, S_.bandz, x, y)
-    field_mesh(mg, G, np.minimum(band, wv2 + 0.35), zb, GDEEP, flat=False)
-    field_mesh(mg, G, np.minimum(band, -wv2 - 0.35), zb, MOSS, flat=False)
-    # corpos: prisma de cada placa ate piso - 0,5 (leito escuro; nas faixas BED aparece so pela fresta da peca de cima)
-    # (no MESMO objeto da pele: menos MeshParts estimadas, nada muda no visual)
+    zb = bsample
+    fb = field_mesh(mg, G, np.minimum(band, wv2 + 0.35), zb, GDEEP, flat=False)
+    fb += field_mesh(mg, G, np.minimum(band, -wv2 - 0.35), zb, MOSS, flat=False)
+    # M6b (item 02): onde a berma ainda troca de patamar (rocha 104 -> promontorio 88, cais -> T1) a face e quase
+    # vertical: e ROCHA (sombra), nao capa verde em pe
+    steep = [f for f in fb if f.is_valid and max(v.co.z for v in f.verts) - min(v.co.z for v in f.verts) > 1.5]
+    assign(mg, steep, ROCKC)
+    # corpos: prisma de cada placa (no MESMO objeto da pele: menos MeshParts estimadas, nada muda no visual).
+    # M6b (item 01): o topo do corpo era piso - 0,5 em Dirt_OP_Dark e aparecia como valeta escura em toda fresta da
+    # pele. Agora e a SUBCAMADA de seguranca: piso - 0,3 (folga >= 0,3 da pele e das lajes dos outros modulos, cujo fundo
+    # ja e -0,3) em TERRA clara nos pisos e verde fundo nas rochas; o leito da BED fica acima dela, a -0,15.
+    # (item 04/08): o corpo RECUA 0,3 da borda da placa (as faces de rocha, arrimos e as pecas dos outros modulos
+    # encostadas na borda ficavam a 0,0..0,12 da lateral do corpo: z-fight)
     mbd = mg
     for nm, pl, zf, k in PLATES:
         if k == "stair":
             continue
         z0 = zf(0.0, 0.0)
-        top = z0 - 2.2 - 0.3 if k == "water" else z0 - 0.5
-        if nm in ("Plaza",):
-            pass
+        top = z0 - 2.2 - 0.3 if k == "water" else z0 - 0.3
+        m_top = DIRTD if k == "water" else (GDEEP if k == "rock" else DIRT)
         pieces = L.floor_pieces(nm) if k == "floor" and nm != "Harbor" else [pl]
         if nm == "Court":
             # proa do castelo: o corpo recua para y >= 358,5 em |x| <= 25,5 (a face da proa e as lajes ficam na frente)
@@ -471,16 +575,26 @@ def build_ground():
             pc = ccw(pc)
             if len(pc) < 3:
                 continue
+            if k != "water":
+                pin = DL.offset_poly(pc, -0.3)
+                if _area(pin) > 0.5 * _area(pc) > 0.0:
+                    pc = pin
             vb = [mbd.bm.verts.new((x, y, BASE)) for x, y in pc]
             vt = [mbd.bm.verts.new((x, y, top)) for x, y in pc]
             n = len(pc)
-            fs = [mbd.bm.faces.new(vt)]
+            try:
+                fs = [mbd.bm.faces.new(vt)]
+            except ValueError:
+                fs = []
             for i in range(n):
                 j = (i + 1) % n
-                fs.append(mbd.bm.faces.new((vb[i], vb[j], vt[j], vt[i])))
-            assign(mbd, fs[:1], DIRTD)
+                try:
+                    fs.append(mbd.bm.faces.new((vb[i], vb[j], vt[j], vt[i])))
+                except ValueError:
+                    pass
+            assign(mbd, fs[:1], m_top)
             assign(mbd, fs[1:], ROCKC)
-    mg.finish()
+    mg.finish(recalc=False)
 
 
 # ------------------------------------------------------------------ geometria de faixa (loft de linhas)
@@ -593,6 +707,16 @@ def ring_nodes(poly, key, step=2.0, kind_fn=None, lo=22.0, hi=64.0, amp=(1.0, 7.
     nrm = normals([(x, y) for x, y, d in dense], True, 3)
     ms = massas(tot, key, lo, hi)
     nodes = []
+    nd_ = len(dense)
+
+    def at(d):
+        """ponto INTERPOLADO no contorno a distancia d (M6b: as fendas pedem nos a < 1 um do outro)"""
+        fi = (d % tot) / tot * nd_
+        i2 = int(math.floor(fi)) % nd_
+        i3 = (i2 + 1) % nd_
+        t_ = fi - math.floor(fi)
+        return (dense[i2][0] + (dense[i3][0] - dense[i2][0]) * t_, dense[i2][1] + (dense[i3][1] - dense[i2][1]) * t_,
+                i2 if t_ < 0.5 else i3)
     for k, (a, b) in enumerate(ms):
         ln = b - a
         A = amp[0] + (amp[1] - amp[0]) * hh(key, k, "A")
@@ -603,14 +727,22 @@ def ring_nodes(poly, key, step=2.0, kind_fn=None, lo=22.0, hi=64.0, amp=(1.0, 7.
         q = 0
         while u < ln - 0.5:
             dd = a + u
-            i = int(round(dd / tot * len(dense))) % len(dense)
-            x, y, _ = dense[i]
+            x, y, i = at(dd)
             uu = u / ln
             bump = math.sin(math.pi * uu) ** sharp
             off = 0.4 + A * bump + (hh(key, k, q, "j") - 0.5) * 2.8 * bump
             if q == 0:
-                off = -0.4 - 1.2 * hh(key, k, "cr")      # vinco entre massas: recua (sombra vertical funda)
-            nodes.append(dict(x=x, y=y, nx=nrm[i][0], ny=nrm[i][1], o=off, m=k, u=uu, d=dd, crease=(q == 0)))
+                # M6b (item 51/05): vinco entre massas = FENDA escura (Cliff_OP_Crevice) de 1,2..1,8 de largura, funda
+                # 1,8..3: no do labio, no do fundo da fenda, e a massa comeca depois dela
+                cw = 0.6 + 0.3 * hh(key, k, "cw")
+                for s_, o_, cv in ((0.0, -0.3, True), (cw, -1.8 - 1.2 * hh(key, k, "cr"), True)):
+                    x2, y2, i2 = at(dd + s_)
+                    nodes.append(dict(x=x2, y=y2, nx=nrm[i2][0], ny=nrm[i2][1], o=o_, m=k, u=(u + s_) / ln, d=dd + s_,
+                                      crease=True, crev=cv))
+                u += 2.0 * cw
+                q += 1
+                continue
+            nodes.append(dict(x=x, y=y, nx=nrm[i][0], ny=nrm[i][1], o=off, m=k, u=uu, d=dd, crease=False))
             u += 5.0 + 7.0 * hh(key, k, q, "fs")
             q += 1
     return nodes, ms
@@ -621,8 +753,8 @@ def build_ring():
     key = "rim"
     nodes, ms = ring_nodes(RIM, key)
     cx, cy = DL.centroid(RIM)
-    rows = [[] for _ in range(13)]
-    mats = [[] for _ in range(12)]
+    rows = [[] for _ in range(12)]
+    mats = [[] for _ in range(11)]
     for nd in nodes:
         x, y, nx, ny, o, k, u = nd["x"], nd["y"], nd["nx"], nd["ny"], nd["o"], nd["m"], nd["u"]
         kind = _kind(x, y)
@@ -649,12 +781,19 @@ def build_ring():
             mm = [STONE, PATH, PATH, WALL, WALL, WALL, WALL, DARK, DARK, DARK, DARK, DARK]
         else:
             h = max(zt - SEA, 2.0)
-            drape = min(h * 0.35, 1.4 + 6.0 * hh(key, k, round(u, 2), "dr") ** 2.2 * (0.4 + bump))
-            # estrato: altura, inclinacao e largura proprias por massa (prateleira verde quando larga)
+            # M6b (item 02/51): capa verde PENDURADA da crista em linguas de ponta para baixo: 1 no em ~3 desce 28..50%
+            # da face (nunca a face inteira; para acima da prateleira do estrato), os outros 1,4..4 (labio)
+            hv = hh(key, k, round(u, 2), "dr")
             f = 0.30 + 0.45 * hh(key, k, "lf")
             dip = (hh(key, k, "dip") - 0.5) * 11.0
-            zl = SEA + h * f + dip * (u - 0.5)
-            zl = min(zl, zt - drape - 2.0)
+            zl0 = SEA + h * f + dip * (u - 0.5)
+            if hv > 0.6 and not nd["crease"]:
+                drape = h * (0.28 + 0.22 * hh(key, k, round(u, 2), "dl"))
+            else:
+                drape = 1.4 + 2.6 * hv
+            drape = max(1.2, min(drape, zt - zl0 - 2.7))
+            # estrato: altura, inclinacao e largura proprias por massa (prateleira verde quando larga)
+            zl = min(zl0, zt - drape - 2.0)
             wl = (0.4 + 3.4 * hh(key, k, "lw")) * (bump ** 0.6)
             if hh(key, k, "noledge") < 0.36:        # massa lisa: sem prateleira (o estrato nao e uma linha continua)
                 wl = 0.05
@@ -674,14 +813,28 @@ def build_ring():
             mm = [GDEEP, GDEEP, MOSS, ROCK, mid, MOSS if wl > 1.2 else low, low, low, DARK, DARK, DARK, DARK]
             if math.hypot(x - L.SKULL_C[0], y - L.SKULL_C[1]) < 44.0:
                 mm = [GDEEP, MOSS, MOSS, ROCKC, ROCKC if wl <= 1.2 else MOSS, DARK, DARK, DARK, DARK, DARK, DARK, DARK]
+            if nd.get("crev"):                       # fenda entre massas (M6b): a face inteira em tom de fenda
+                mm = mm[:3] + [CREV, CREV, mm[5] if mm[5] == MOSS else CREV, CREV, CREV] + mm[8:]
             if notch and notch[0] > 0.3:
                 mm = [DIRTD, DARK, DARK, DARK, DARK, DARK, DARK, DARK, DARK, DARK, DARK, DARK]
         # ultima linha: para dentro da ilha (a quilha afina ate a ponta)
         r.append((cx + (x - cx) * 0.35, cy + (y - cy) * 0.35, -4.0))
-        for i_ in range(13):
-            rows[i_].append(r[i_])
+        # M6b (orcamento): a quilha (abaixo do mar local, so vista de longe da DS) perde a linha intermediaria de z 14..16
+        del r[10]
+        del mm[10]
         for i_ in range(12):
+            rows[i_].append(r[i_])
+        for i_ in range(11):
             mats[i_].append(mm[i_])
+    # M6b (item 02): onde o anel troca de patamar entre 2 nos (cais 42 -> T1 88), o quadro das linhas de cima fica em
+    # pe: e rocha de sombra, nao capa verde (eram as listras verdes verticais na quina do porto)
+    nn = len(rows[0])
+    for i_ in range(nn):
+        j_ = (i_ + 1) % nn
+        if abs(rows[1][i_][2] - rows[1][j_][2]) > 3.0:
+            for r_ in range(4):
+                if mats[r_][i_] in (GDEEP, MOSS, DIRTD):
+                    mats[r_][i_] = ROCKC
     loft_rows(mb, rows, mats, True)
     # tampa de baixo: leque para o apice
     bm = mb.bm
@@ -695,7 +848,7 @@ def build_ring():
         except ValueError:
             pass
     assign(mb, fs, DARK)
-    mb.finish()
+    mb.finish(recalc=False)
     return nodes
 
 
@@ -733,7 +886,7 @@ def edge_runs():
                     zt = zf(x, y)
                     nb = plate_at(qx, qy)
                     if nb is None:
-                        zn, walk = sample(S_.G, S_.bandz, qx, qy), False
+                        zn, walk = bsample(qx, qy), False
                     elif nb[1] == "water":
                         zn, walk = nb[2](qx, qy) - (0.0 if zt - nb[2](qx, qy) < 2.6 else 1.0), False
                     else:
@@ -741,12 +894,19 @@ def edge_runs():
                     drop = zt - zn
                     if nb is not None and nb[0] in ("Stair_CasteloA", "Stair_CasteloB") and                             nm in ("Court", "CastleLanding", "Rock_ButtressL", "Rock_CastleFootW"):
                         drop = 0.0                  # lado leste da subida: e a MURALHA do castelo (build_castle_rock)
+                    if nb is not None and nb[0] == "CastleLanding" and nm == "Court" and x < -58.0:
+                        drop = 0.0                  # M6b: patamar da subida -> patio: tambem MURALHA (build_castle_rock)
+                    side_wall = nb is not None and nb[0] in ("Stair_CasteloA", "Stair_CasteloB")
                     if nb is not None and nb[1] == "stair":
                         walk = "stair"
                     if nb is not None and nb[1] == "water" and drop < 2.6:
                         drop = 0.0
                     if drop >= 0.9:
                         if k == "floor" and nm in ("HarborMid",) or (nm == "T1" and nb and nb[0] == "HarborMid"):
+                            kind = "bigwall"
+                        elif side_wall:
+                            # M6b (item 03, pedido do grupo B): lado OESTE das subidas do castelo (x -78,6): era painel
+                            # de rocha liso de ate 13 de altura; agora muralha de blocos grandes, como a do lado leste
                             kind = "bigwall"
                         elif k == "floor" and drop <= 12.5:
                             kind = "wall"
@@ -795,20 +955,29 @@ def wall_run(mb, smp, big=False, key="w"):
     # pedacos de ate 6 com o pe proprio (pe inclinado junto das escadas)
     seg = max(1, int(math.ceil(ln / 6.0)))
     cap_h = 0.55
-    ch_seq = (1.5, 2.1, 1.8, 2.4) if big else (1.05, 1.35, 0.9, 1.2, 1.5)
+    ch_seq = (1.1, 2.2, 1.6, 1.3, 2.0) if big else (1.05, 1.35, 0.9, 1.2, 1.5)
     bl_lo, bl_hi = (3.0, 5.4) if big else (1.6, 3.6)
     for g in range(seg):
         s0, s1 = ln * g / seg, ln * (g + 1) / seg
         zb = min(zb_at(s0), zb_at(s1)) - 0.4
         # fundo escuro (a junta) a 0,12 da borda
         quad(jf, Pt(s0, 0.12, zb), Pt(s1, 0.12, zb), Pt(s1, 0.12, zt - cap_h + 0.05), Pt(s0, 0.12, zt - cap_h + 0.05))
+        # fiadas do pedaco (z de baixo, z de cima)
         z = zb + 0.4 - 0.05
         row = 0
+        courses = []
         while z < zt - cap_h - 0.35:
             chh = ch_seq[int(hh(key, g, row, "c") * len(ch_seq)) % len(ch_seq)] * (0.85 + 0.3 * hh(key, g, row, "c2"))
             z1 = min(z + chh, zt - cap_h)
             if zt - cap_h - z1 < 0.5:
                 z1 = zt - cap_h
+            courses.append((z, z1))
+            z = z1
+            row += 1
+        # M6b (item 06): no muro grande (cais, muralha do castelo) 30% das pedras ocupam 2 fiadas e o recuo varia
+        # +-0,08: deixa de ler 'parede de blocos' em fiadas continuas
+        busy = {}
+        for row, (z, z1) in enumerate(courses):
             s = s0 + (0.0 if row % 2 == 0 else -0.6 * hh(key, g, row))
             q = 0
             while s < s1 - 0.05:
@@ -817,9 +986,27 @@ def wall_run(mb, smp, big=False, key="w"):
                 if s1 - e < bl_lo * 0.5:
                     e = s1
                 sa, sb = max(s, s0) + 0.07, e - 0.07
-                if sb - sa > 0.3:
+                pieces = [(sa, sb)]
+                for oa, ob_ in busy.get(row, ()):
+                    nxt = []
+                    for pa, pb in pieces:
+                        if ob_ <= pa or oa >= pb:
+                            nxt.append((pa, pb))
+                            continue
+                        if oa > pa:
+                            nxt.append((pa, oa - 0.14))
+                        if ob_ < pb:
+                            nxt.append((ob_ + 0.14, pb))
+                    pieces = nxt
+                dbl = big and row + 1 < len(courses) and len(pieces) == 1 and hh(key, g, row, q, "dbl") > 0.7
+                for sa, sb in pieces:
+                    if sb - sa <= 0.3:
+                        continue
                     za, zz = (z if z > zb + 0.4 else zb) + 0.07, z1 - 0.07
-                    o = 0.26 + 0.12 * hh(key, g, row, q, "o")
+                    if dbl:
+                        zz = courses[row + 1][1] - 0.07
+                        busy.setdefault(row + 1, []).append((sa, sb))
+                    o = (0.26 + 0.16 * hh(key, g, row, q, "o")) if big else (0.26 + 0.12 * hh(key, g, row, q, "o"))
                     # frente, topo, laterais (o fundo e a junta): 4 quads
                     quad(bf, Pt(sa, o, za), Pt(sb, o, za), Pt(sb, o, zz), Pt(sa, o, zz))
                     quad(bf, Pt(sa, o, zz), Pt(sb, o, zz), Pt(sb, 0.12, zz), Pt(sa, 0.12, zz))
@@ -827,8 +1014,6 @@ def wall_run(mb, smp, big=False, key="w"):
                     quad(bf, Pt(sa, 0.12, za), Pt(sa, o, za), Pt(sa, o, zz), Pt(sa, 0.12, zz))
                 s = e
                 q += 1
-            z = z1
-            row += 1
         # soco escuro no pe (so onde o vizinho de baixo anda)
         if smp[0][6] or smp[-1][6]:
             zf_ = min(zb_at(s0), zb_at(s1))
@@ -906,6 +1091,9 @@ def rock_run(mb, smp, key):
     mats = [[] for _ in range(R - 1)]
     zl0 = 0.45 + 0.25 * hh(key, "zl")
     cool = hh(key, "cool") > 0.62
+    # topo da face sob a pele: -0,3 (a colisao da borda passa rente); junto do patio do castelo -0,45 (as pedras do
+    # patio do op_castle assentam a -0,3: era coplanar 0,025)
+    td = 0.45 if key.startswith(("Court", "Rock_Buttress", "CastleLanding")) else 0.3
     for i, (x, y, _nx, _ny, zt, zb, walk, q) in enumerate(nodes):
         nx, ny = nrm[i]
         h = max(zt - zb, 1.2)
@@ -915,16 +1103,20 @@ def rock_run(mb, smp, key):
             o_up = min(o_up, 1.2)               # ao lado de escada: a face nao avanca sobre quem sobe
         o_lo = min(o_up, 0.7) if walk else o_up * 1.15
         drape = min(h * 0.4, 0.8 + 3.2 * hh(key, q, "dr") ** 1.8)
+        if h > 8.0 and endf and hh(key, q, "dr") > 0.6:
+            # M6b (item 02/03): lingua verde longa pendurada da crista (28..45% da face, ponta para baixo)
+            drape = h * (0.28 + 0.17 * hh(key, q, "dl"))
         P_ = lambda off, z: (x + nx * off, y + ny * off, z)
         zlo = zb + min(6.5, h * 0.6) if walk else zb + h * 0.3
         low = ROCKC if cool else ROCK
         if tall:
             # prateleira de estrato no meio da face alta (musgo em cima, lingua que cai), altura com mergulho
             zl = zb + h * zl0 + (hh(key, q, "zj") - 0.5) * 3.0
+            drape = max(0.8, min(drape, zt - max(zlo + 2.0, zl) - 2.5))
             zl = max(zlo + 2.0, min(zl, zt - drape - 2.5))
             wl = (0.8 + 2.6 * hh(key, q, "wl")) * endf
             o_mid = o_up * 0.6 + (0.4 if not walk else 0.0)
-            r = [P_(-1.4, zt - 0.3), P_(0.18 + o_up * 0.3, zt - 0.12), P_(o_up * 0.85 + 0.12, zt - drape),
+            r = [P_(-1.4, zt - td), P_(0.18 + o_up * 0.3, zt - 0.12), P_(o_up * 0.85 + 0.12, zt - drape),
                  P_(o_up, zl + 0.7), P_(o_up + wl, zl), P_(o_up + wl * 0.85, zl - 0.8 - 1.6 * hh(key, q, "ld")),
                  P_(max(o_lo, min(o_mid, o_up)), zlo), P_(o_lo * 0.9 + 0.1, zb + 0.2), P_(o_lo * 0.6 + 0.1, zb - 0.7)]
             up = ROCK if hh(key, q, "tone") > 0.3 else ROCKC     # tom POR FACETA na metade de cima (contraste na sombra)
@@ -932,7 +1124,8 @@ def rock_run(mb, smp, key):
                   DIRTD if walk else ROCKC]
         else:
             zl = zb + h * (0.45 + 0.2 * hh(key, "zl"))
-            r = [P_(-1.4, zt - 0.3), P_(0.18 + o_up * 0.3, zt - 0.12), P_(o_up * 0.85 + 0.12, zt - drape),
+            drape = max(0.8, min(drape, zt - max(zl, zlo + 0.5) - 0.6))
+            r = [P_(-1.4, zt - td), P_(0.18 + o_up * 0.3, zt - 0.12), P_(o_up * 0.85 + 0.12, zt - drape),
                  P_(o_up, max(zl, zlo + 0.5)), P_(o_lo, zlo), P_(o_lo * 0.9 + 0.1, zb + 0.2), P_(o_lo * 0.6 + 0.1, zb - 0.7)]
             mm = [GDEEP, MOSS, ROCK, low, low, DIRTD if walk else ROCKC]
         for k_ in range(1, R):
@@ -961,9 +1154,11 @@ def build_edges():
 
 # ------------------------------------------------------------------ massas soltas: rochedos, agulhas, crista
 def crag(mb, cx, cy, r, z0, z1, key, n=None, steps=2, lean=(0.0, 0.0), cap=GDEEP, m=ROCK, mlow=ROCKC, sx=1.0,
-         ang=0.0, top_tilt=0.0, drape=1.0, taper=None):
+         ang=0.0, top_tilt=0.0, drape=1.0, taper=None, cone=False, crev=None):
     """MASSA de rocha facetada (5..8 faces de raio dirigido), em 'steps' estratos que recuam para cima, topo inclinado
-    com capa verde que escorre pela face; inclinacao 'lean' (dx, dy por stud de altura)"""
+    com capa verde que escorre pela face; inclinacao 'lean' (dx, dy por stud de altura). M6b (opcionais, padrao = como
+    antes): cone=True afina DENTRO de cada estrato (agulha que afina, nao pilha de prismas); crev=k pinta a coluna de
+    faces k de fenda escura (Cliff_OP_Crevice)"""
     bm = mb.bm
     if n is None:
         n = (5, 6, 7, 6, 8)[int(hh(key, "n") * 5) % 5]
@@ -996,9 +1191,12 @@ def crag(mb, cx, cy, r, z0, z1, key, n=None, steps=2, lean=(0.0, 0.0), cap=GDEEP
         mats.append(mlow if s == 0 and steps > 1 else m)
         sc2 = sc * ((0.8 + 0.1 * hh(key, s, "st")) if taper is None else taper * (0.94 + 0.12 * hh(key, s, "st")))
         if s < steps - 1:
-            rings.append(ring(sc, zb_ - 0.5))
+            rings.append(ring(sc2 * 1.06 if cone else sc, zb_ - 0.5))
             mats.append(MOSS if hh(key, s, "ledge") > 0.5 else m)       # prateleira verde no recuo
             rings.append(ring(sc2, zb_))
+            mats.append(m)
+        elif cone:
+            rings.append(ring(sc2 * 1.03, zb_ - 1.0 - 2.6 * drape))
             mats.append(m)
         sc = sc2
     dz = [-(0.6 + 2.6 * drape * hh(key, k, "d") ** 1.5) for k in range(n)]
@@ -1016,7 +1214,10 @@ def crag(mb, cx, cy, r, z0, z1, key, n=None, steps=2, lean=(0.0, 0.0), cap=GDEEP
                 f = bm.faces.new((vs[r_][k], vs[r_][j], vs[r_ + 1][j], vs[r_ + 1][k]))
             except ValueError:
                 continue
-            fs_by.setdefault(mats[r_], []).append(f)
+            mr = mats[r_]
+            if crev is not None and k == crev % n and mr in (m, mlow) and r_ > 0:
+                mr = CREV
+            fs_by.setdefault(mr, []).append(f)
     try:
         top = bm.faces.new(vs[-1])
         fs_by.setdefault(cap, []).append(top)
@@ -1026,9 +1227,13 @@ def crag(mb, cx, cy, r, z0, z1, key, n=None, steps=2, lean=(0.0, 0.0), cap=GDEEP
         for f in fl:
             f.normal_update()
             c = f.calc_center_median()
-            if f.normal.dot(Vector((c.x - cx, c.y - cy, 0.0))) < -1e-4 and abs(f.normal.z) < 0.99:
-                f.normal_flip()
-            if abs(f.normal.z) >= 0.99 and f.normal.z < 0:
+            # M6b: referencia 3D (eixo inclinado na altura da face; topo para cima): antes so a horizontal decidia e
+            # as faces quase deitadas (topo inclinado, recuos) podiam sair para baixo (invisiveis no Roblox sem o recalc)
+            ax, ay = cx + lean[0] * (c.z - z0), cy + lean[1] * (c.z - z0)
+            ref = Vector((c.x - ax, c.y - ay, 0.0))
+            if abs(f.normal.z) > 0.5:          # massa que afina para cima: toda face deitada (recuo, topo) olha para cima
+                ref = Vector((0.0, 0.0, 1.0))
+            if f.normal.dot(ref) < -1e-4:
                 f.normal_flip()
         assign(mb, fl, mm)
 
@@ -1041,7 +1246,10 @@ def build_masses():
             (-122.0, 458.0, 17.0, 162.0, (0.03, 0.04), 3, 0.74), (-66.0, 488.0, 20.0, 178.0, (-0.01, 0.03), 4, 0.76),
             (112.0, 486.0, 18.0, 170.0, (-0.04, 0.03), 4, 0.72), (178.0, 452.0, 15.0, 150.0, (0.05, 0.01), 3, 0.7),
             (230.0, 358.0, 11.0, 132.0, (0.03, -0.01), 2, 0.72))):
-        crag(mb, x, y, r, 60.0, zt, "needle%d" % i, steps=st, lean=lean, top_tilt=0.16, drape=1.8, taper=tp)
+        # M6b (item 05): agulha de 7..9 faces que AFINA dentro do estrato (topo ~0,6 da base)
+        tp = 0.6 ** (1.0 / st) * (0.97 + 0.06 * hh("needle%d" % i, "tp"))
+        crag(mb, x, y, r, 60.0, zt, "needle%d" % i, n=7 + i % 3, steps=st, lean=lean, top_tilt=0.16, drape=1.8,
+             taper=tp, cone=True)
     # ombros/rochedos sobre as rochas da planta (quebram o topo chato): (x, y, r, z0, z1)
     for i, (x, y, r, z0, z1) in enumerate((
             (-38.0, 14.0, 6.0, 89.0, 96.0), (44.0, 18.0, 7.0, 85.0, 93.0), (92.0, 26.0, 8.0, 85.0, 92.0),
@@ -1051,12 +1259,32 @@ def build_masses():
             (276.0, 336.0, 9.0, 103.0, 112.0), (230.0, 322.0, 7.0, 99.0, 106.0), (130.0, 372.0, 8.0, 103.0, 109.0),
             (-48.0, 354.0, 7.0, 123.0, 130.0), (46.0, 351.0, 7.0, 127.0, 133.0))):
         crag(mb, x, y, r, z0, z1, "crag%d" % i, steps=1 if z1 - z0 < 9 else 2, top_tilt=0.1)
+    # M6b (item 03): FLANCOS do castelo: o topo reto de cada massa (contrafortes 124/128, BackW 118, BackE 120) quebra em
+    # 2-3 niveis com massas proprias (fora das escadas CasteloA/B, x < -79, e das raizes da arvore em BackE 78..84)
+    for i, (x, y, r, z0, z1) in enumerate((
+            (-34.5, 347.8, 4.2, 123.2, 127.6), (-58.5, 353.5, 4.6, 123.2, 128.8), (36.5, 347.6, 4.4, 127.2, 131.4),
+            (-91.0, 372.0, 6.0, 117.2, 123.5), (-89.0, 412.0, 6.5, 117.2, 125.0),
+            (-101.0, 452.0, 6.0, 117.2, 122.5), (95.0, 392.0, 7.0, 119.2, 126.0), (118.0, 434.0, 6.5, 119.2, 124.5))):
+        crag(mb, x, y, r, z0, z1, "flank%d" % i, steps=1 if z1 - z0 < 6 else 2, top_tilt=0.14, drape=1.4)
     # CONTRAFORTES do fundo: massas largas que saem do mar contra o paredao de tras (profundidade e sombra)
     for i, (x, y, r, zt) in enumerate(((142.0, 503.0, 22.0, 106.0), (56.0, 511.0, 26.0, 124.0), (-14.0, 509.0, 19.0, 104.0),
                                         (-92.0, 494.0, 24.0, 118.0), (-168.0, 455.0, 20.0, 90.0), (-229.0, 404.0, 17.0, 86.0),
                                         (-240.0, 300.0, 15.0, 78.0), (-224.0, 150.0, 16.0, 80.0))):
-        crag(mb, x, y, r, 26.0, zt, "backbut%d" % i, steps=3, top_tilt=0.18, drape=1.7, sx=1.3, taper=0.8,
-             lean=(0.0, -0.02 if y > 300 else 0.0))
+        # M6b (item 05): o aro nao e mais uma fila de colunas iguais: raio 0,6..1,6x, altura +-35%, 1 em 3 inclinada
+        # ~6 graus, e metade ganha uma massa irma colada (grupos de 2)
+        kk = "backbut%d" % i
+        r2 = r * (0.6 + 1.0 * hh(kk, "rf"))
+        zt2 = 26.0 + (zt - 26.0) * (0.65 + 0.7 * hh(kk, "zf"))
+        ln_ = (0.0, -0.02 if y > 300 else 0.0)
+        if i % 3 == 1:
+            ln_ = (0.1 * (1 if hh(kk, "ls") > 0.5 else -1), ln_[1] - 0.04)
+        crag(mb, x, y, r2, 26.0, zt2, kk, steps=3, top_tilt=0.18, drape=1.7, sx=1.3, taper=0.8, lean=ln_,
+             crev=int(hh(kk, "cv") * 8))
+        if i % 2 == 0:
+            a_ = math.atan2(y - 260.0, x - 0.0) + (math.pi / 2) * (1 if hh(kk, "ss") > 0.5 else -1)
+            crag(mb, x + math.cos(a_) * r2 * 0.85, y + math.sin(a_) * r2 * 0.85, r2 * 0.55,
+                 26.0, 26.0 + (zt2 - 26.0) * (0.62 + 0.25 * hh(kk, "z2")), kk + "b", steps=2, top_tilt=0.2, drape=1.5,
+                 taper=0.82)
     # ASSENTO DA CAVEIRA: a nuca se funde numa massa escura atras (leste) do cranio; queixo apoiado num ressalto
     sx_, sy_ = L.SKULL_C
     a = math.radians(L.SKULL_FACE_DEG)
@@ -1078,7 +1306,7 @@ def build_masses():
              drape=1.5, sx=1.25, ang=math.atan2(wy - 478.0, wx - 190.0), taper=0.78)
     crag(mb, wx, wy, 15.0, 26.0, L.SWORD_ROCK_Z - 18.0, "spurpin0", steps=2, top_tilt=0.0)
     crag(mb, wx, wy, 10.0, L.SWORD_ROCK_Z - 19.0, L.SWORD_ROCK_Z, "spurpin1", steps=1, top_tilt=0.0, n=7, drape=0.6)
-    mb.finish()
+    mb.finish(recalc=False)
 
 
 # ------------------------------------------------------------------ 4. ROCHEDO DO CASTELO (proa + canal da cachoeira)
@@ -1104,23 +1332,90 @@ def build_castle_rock():
         for k in range(4):
             a, b = p[k], p[(k + 1) % 4]
             poly([(a[0], a[1], z0), (b[0], b[1], z0), (b[0], b[1], z1), (a[0], a[1], z1)], m)
-    # face da proa: lajes verticais largas (x -25..-6 e 6..25), paineis dos estandartes planos; estrato a 117
+    # M6b (item 03): a proa era um biombo de 8 lajes claras num plano so. Agora: COLUNAS facetadas (chanfro vertical nas
+    # 2 arestas + aresta central saliente), cada uma com recuo proprio, prateleira de estrato na sua altura, pe em talude
+    # e LINGUAS de musgo da crista (25..40% da face na aresta central); FENDAS escuras (Cliff_OP_Crevice) de 0,8..0,9
+    # entre colunas; os 2 PAINEIS dos estandartes (op_castle: x -19,5..-12,8 e 13,4..19,5, face 351,75, mesma lingua
+    # 'cf' 1/6) e o CANAL da cachoeira ficam exatamente onde estavam.
     ZL = 117.0
-    slabs = [(-25.0, -19.5, 0.75, 0.3), (-19.5, -12.8, 0.25, 0.0), (-12.8, -7.2, 0.3, 0.15), (-7.2, -5.6, 0.6, 0.2),
-             (5.6, 7.2, 0.65, 0.2), (7.2, 13.4, 0.3, 0.1), (13.4, 19.5, 0.25, 0.0), (19.5, 25.0, 0.85, 0.4)]
-    for i, (xa, xb, oa, ob) in enumerate(slabs):
-        # (y da face em cima, y em baixo do estrato): painel a 352,0 / 351,7 (estandartes a 351,2 na frente)
+    YB = YF + 1.0
+    panels = {1: (-19.5, -12.8, 0.25, 0.0), 6: (13.4, 19.5, 0.25, 0.0)}
+    for i, (xa, xb, oa, ob) in panels.items():
         ya_up, ya_lo = YF - oa, YF - 0.3 - ob - 0.3
         top = [(xa, YF + 1.2, zt - 0.3), (xb, YF + 1.2, zt - 0.3), (xb, ya_up - 0.15, zt - 0.15), (xa, ya_up - 0.15, zt - 0.15)]
         poly(top, GDEEP)
         dr = 1.4 + 4.2 * hh("cf", i, "dr") ** 1.5
         poly([(xa, ya_up - 0.15, zt - 0.15), (xb, ya_up - 0.15, zt - 0.15), (xb, ya_up, zt - dr), (xa, ya_up, zt - dr)], MOSS)
-        poly([(xa, ya_up, zt - dr), (xb, ya_up, zt - dr), (xb, ya_up, ZL + 0.6), (xa, ya_up, ZL + 0.6)], ROCK)
-        poly([(xa, ya_up, ZL + 0.6), (xb, ya_up, ZL + 0.6), (xb, ya_lo, ZL), (xa, ya_lo, ZL)], MOSS if oa == 0 else ROCK)
-        poly([(xa, ya_lo, ZL), (xb, ya_lo, ZL), (xb, ya_lo, zb), (xa, ya_lo, zb)], ROCK if i % 3 else ROCKC)
-        # laterais das lajes (entre a laje e a vizinha recuada)
-        for x_, sg in ((xa, -1), (xb, 1)):
-            poly([(x_, ya_up, zt - dr), (x_, YF + 1.0, zt - dr), (x_, YF + 1.0, zb), (x_, ya_lo, zb)], ROCKC)
+        poly([(xa, ya_up, zt - dr), (xb, ya_up, zt - dr), (xb, ya_up, ZL + 0.6), (xa, ya_up, ZL + 0.6)], ROCKC)
+        poly([(xa, ya_up, ZL + 0.6), (xb, ya_up, ZL + 0.6), (xb, ya_lo, ZL), (xa, ya_lo, ZL)], MOSS)
+        poly([(xa, ya_lo, ZL), (xb, ya_lo, ZL), (xb, ya_lo, zb), (xa, ya_lo, zb)], ROCKC)
+        for x_ in (xa, xb):
+            poly([(x_, ya_up, zt - dr), (x_, YB, zt - dr), (x_, YB, zb), (x_, ya_lo, zb)], CREV)
+            poly([(x_, ya_up - 0.15, zt - 0.15), (x_, YB, zt - 0.3), (x_, YB, zt - dr), (x_, ya_up, zt - dr)], MOSS)
+    # colunas: (x0, x1, recuo do topo, tom, lado do canal)
+    cols = [(-25.0, -20.4, 1.9, ROCK, None), (-12.0, -5.6, 1.1, ROCK, "R"), (5.6, 12.6, 1.4, ROCKC, "L"),
+            (20.3, 25.0, 2.1, ROCK, None)]
+    colf = {}
+    for ci, (xa, xb, oa, tone, canal) in enumerate(cols):
+        key = "proa%d" % ci
+        w = xb - xa
+        c = min(1.1, w * 0.2)
+        xm = (xa + xb) / 2 + (hh(key, "xm") - 0.5) * w * 0.25
+        yf = YF - oa
+        zl = ZL + (hh(key, "zl") - 0.5) * 6.0
+        ledge = hh(key, "ledge") > 0.35
+        # perfil em planta da frente (5 pontos) + 2 de tras (lateral ate a fenda); lado do canal: so ate 352 (a parede
+        # escura do canal comeca ali)
+        yb_l = YF if canal == "L" else YB
+        yb_r = YF if canal == "R" else YB
+        fx = [xa, xa, xa + c, xm, xb - c, xb, xb]
+        base = [yb_l, yf + c, yf, yf - 0.7 - 0.5 * hh(key, "ar"), yf, yf + c, yb_r]
+        # z por linha e por ponto; dy da frente por linha (os 2 pontos de tras nao andam)
+        dr_mid = (zt - zb) * (0.25 + 0.15 * hh(key, "dm"))
+        drs = [1.4 + 1.6 * hh(key, j, "d") for j in range(7)]
+        drs[3] = dr_mid
+        drs[2] = drs[4] = max(drs[2], dr_mid * (0.35 + 0.3 * hh(key, "d2")))
+        drs[0], drs[6] = drs[1], drs[5]
+        rows_z = [[zt - 0.15] * 7, [zt - 0.9] * 7, [zt - min(d, zt - zl - 2.0) for d in drs], [zl + 0.7] * 7, [zl] * 7,
+                  [zl - 1.0] * 7, [zb + 4.0] * 7, [zb - 0.6] * 7]
+        rows_dy = [0.7, 0.0, 0.0, 0.3, -1.0 if ledge else -0.2, -1.0 if ledge else -0.2, -1.4, -1.6]
+        mats_r = [MOSS, MOSS, tone, MOSS if ledge else tone, tone, ROCKC, DARK]
+        V = []
+        for zr, dy in zip(rows_z, rows_dy):
+            row = []
+            for k in range(7):
+                y = base[k] + (dy if 0 < k < 6 else 0.0)
+                if abs(fx[k]) < 20.6:
+                    y = max(y, 350.3)               # o pe nao entra na bacia (borda norte em y 350)
+                row.append(bm.verts.new((fx[k], y, zr[k])))
+            V.append(row)
+        for r in range(len(V) - 1):
+            for k in range(6):
+                q = (V[r][k], V[r][k + 1], V[r + 1][k + 1], V[r + 1][k])
+                try:
+                    f = bm.faces.new(q)
+                except ValueError:
+                    continue
+                side = k == 0 or k == 5
+                m = mats_r[r]
+                if side and r >= 1:
+                    m = DARK if ((k == 0 and canal == "L") or (k == 5 and canal == "R")) else CREV
+                colf.setdefault(m, []).append((f, (xm, YB + 0.5)))
+        try:
+            f = bm.faces.new([bm.verts.new((fx[k], V[0][k].co.y, zt - 0.15)) for k in range(7)] +
+                             [bm.verts.new((xb, YF + 1.2, zt - 0.3)), bm.verts.new((xa, YF + 1.2, zt - 0.3))])
+            colf.setdefault(GDEEP, []).append((f, None))
+        except ValueError:
+            pass
+    # fundo das fendas (entre coluna e painel) e a tampa verde delas
+    for xa, xb in ((-20.4, -19.5), (-12.8, -12.0), (12.6, 13.4), (19.5, 20.3)):
+        poly([(xa, YB, zb), (xb, YB, zb), (xb, YB, zt - 0.3), (xa, YB, zt - 0.3)], CREV)
+        poly([(xa, YB, zt - 0.3), (xb, YB, zt - 0.3), (xb, YF + 1.2, zt - 0.3), (xa, YF + 1.2, zt - 0.3)], GDEEP)
+    # blocos caidos no pe (junto da bacia): 2 nos pes de rocha, 1 no canto da bacia
+    for i, (x_, y_, r_, z0_, z1_) in enumerate(((-22.6, 348.4, 2.3, 100.6, 104.2), (22.8, 349.4, 2.1, 103.6, 106.9),
+                                                 (-11.8, 348.6, 1.7, 95.6, 99.1))):
+        crag(mb, x_, y_, r_, z0_, z1_, "proafall%d" % i, steps=1, top_tilt=0.25, cap=MOSS if i < 2 else ROCKC,
+             m=ROCKC, mlow=DARK, drape=0.6)
     # CANAL CENTRAL: fundo molhado escuro recuado (y 355), boca da nascente (vazio) sob a varanda, labio de pedra
     poly([(-5.6, 355.0, zb), (5.6, 355.0, zb), (5.6, 355.0, 128.4), (-5.6, 355.0, 128.4)], DARK)
     for x_ in (-5.6, 5.6):
@@ -1156,13 +1451,26 @@ def build_castle_rock():
                     if f.normal.x * c.x > 0:
                         f.normal_flip()
         assign(mb, fl, mm)
-    mb.finish()
+    for mm, fl in sorted(colf.items()):
+        fs = []
+        for f, ref in fl:
+            f.normal_update()
+            if ref is None:
+                if f.normal.z < 0:
+                    f.normal_flip()
+            else:
+                cc = f.calc_center_median()
+                if f.normal.dot(Vector((cc.x - ref[0], cc.y - ref[1], 0.0))) < 0:
+                    f.normal_flip()
+            fs.append(f)
+        assign(mb, fs, mm)
+    mb.finish(recalc=False)
     # MURALHA DO CASTELO ao longo da subida (escadas CasteloA/B, x = -64): pedra aparelhada de blocos grandes, do degrau
     # da escada ate o topo do que esta atras (CastleFootW 101 / ButtressL 124 / patio 136,2)
     mw = MB("OP_Ter_CastleWall", C, None, detail="far", floor=-999)
     za = _stair_z("CasteloA")
     zb2 = _stair_z("CasteloB")
-    for (y0, y1) in ((337.0, 350.0), (350.0, 366.0), (366.0, 380.0), (396.0, 437.0)):
+    for (y0, y1) in ((337.0, 350.0), (350.0, 366.0), (366.0, 380.0), (380.0, 396.0), (396.0, 437.0)):
         smp = []
         for k in range(int((y1 - y0) / 2.0) + 1):
             y = y0 + (y1 - y0) * k / int((y1 - y0) / 2.0)

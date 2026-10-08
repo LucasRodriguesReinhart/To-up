@@ -70,6 +70,10 @@ OPMATS = {
     "Grass_OP_Deep":      (S(72, 120, 56), 0.9, 0.0, 0, None, 0.08),     # M4 op_terrain: berma verde e capa que cai na falesia
     "Stone_OP_Wall":      (S(182, 174, 158), 0.85, 0.0, 0, None, 0.06),  # M4 op_terrain: pedra aparelhada dos arrimos
     "Dirt_OP_Dark":       (S(112, 92, 70), 0.95, 0.0, 0, None, 0.06),    # M4 op_terrain: leito, saia da pele, fundo dos canais
+    "Cliff_OP_Face":      (S(121, 121, 129), 0.9, 0.0, 0, None, 0.08),   # M6b op_terrain (item 51): face das falesias (era Warm)
+    "Cliff_OP_Shade":     (S(97, 103, 121), 0.9, 0.0, 0, None, 0.08),   # M6b op_terrain (item 51): massas de sombra (era Cool)
+    "Cliff_OP_Crevice":   (S(66, 72, 90), 0.9, 0.0, 0, None, 0.06),      # M6b op_terrain (item 51): fendas entre colunas
+    "Stone_OP_Court":     (S(182, 174, 156), 0.85, 0.0, 0, None, 0.05),  # M6b (item 25): cascalho do patio do castelo (op_castle)
     "Grass_OP":           (S(108, 156, 74), 0.9, 0.0, 0, None, 0.10),    # grama diurna
     "Dirt_OP":            (S(168, 140, 104), 0.95, 0.0, 0, None, 0.08),
     "Leaf_OP":            (S(66, 122, 62), 0.85, 0.0, 0, None, 0.06),

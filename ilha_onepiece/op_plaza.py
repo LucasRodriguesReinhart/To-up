@@ -429,7 +429,8 @@ def build_floor():
 
 
 # ------------------------------------------------------------------ borda
-EAST_X = 116.0 - 0.95                          # linha da mureta leste (mesmo recuo da faixa sul)
+EAST_X = 116.0 - 0.95 - 0.2                    # linha da mureta leste (recuo da faixa sul + 0,2: M6b item 23, a
+                                               # mureta encravava 0,2 no arrimo/capa do op_terrain em x 115,3)
 WEST_X = -116.0 + 1.0
 EAST_SECT = [(169.23, 205.0), (227.0, 262.0)]   # 1o setor comeca no pilarete final da mureta do trecho (115,0; 169,7)
 WEST_SECT = [(185.0, 203.0), (221.0, 239.0)]    # vaos: viela/W2 (y < 185), pavilhao W3 (203..221), W4 (239..)
@@ -461,6 +462,7 @@ def build_border():
         _mureta(mw, EAST_X, a, b, 2.3, 1.3, "plzE%d" % i)
     for i, (a, b) in enumerate(WEST_SECT):
         _mureta(mw, WEST_X, a, b, 1.5, 1.1, "plzW%d" % i)
+    K.cull_hidden(mw)                                        # M6b: faces que ninguem ve (orcamento)
     mw.finish()
     mp = MB("OP_Prop_Plz_Borda", "09_PROPS", random.Random(403), detail="hero")
     F0 = Frame(0.0, 0.0, 0.0, 0.0)
@@ -474,6 +476,7 @@ def build_border():
     for i, (x, y, ln, ang) in enumerate(BENCHES):
         K.bench(mp, F0, x, y, ln, 1.8, 1.7, ang, ZT - 0.05)
         col_box("OP_PropBench", (ln, 1.8, 1.7), (x, y, P + 0.85), (0.0, 0.0, ang))
+    K.cull_hidden(mp)                                        # M6b
     mp.finish()
 
 

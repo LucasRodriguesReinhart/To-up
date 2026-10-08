@@ -48,6 +48,7 @@ FLOOR = 0.45                            # piso do salao acima do patio (degrau n
 PLINTH = 4.5                            # base de cantaria da torre
 DOOR_W, DOOR_H = L.KEEP_DOOR[2], L.KEEP_DOOR[3]
 PITCH = 0.42
+ZG = 0.14                               # M6b: folga anti z-fight (> 0,12) entre faces paralelas de materiais diferentes
 RIB_TRI = [(-0.3, -0.12), (0.0, 0.24), (0.3, -0.12)]    # canal de telha triangular (le igual de longe; 2/3 dos tris)
 # telhados-saia entre os andares: (indice do andar de baixo, profundidade, z_top no pe da parede de cima)
 SKIRTS = [(0, (T[0][1] - T[1][1]) + T[0][4], T[1][2] + 0.6),
@@ -154,10 +155,10 @@ def skirt(mb, F, Xi, Yi, depth, z_top, pitch=PITCH, tv=0.5, lift=1.0, m=RB, chid
             if oni:
                 K.onigawara(mb, sub(Fk, pts[0][0], pts[0][1], 0.0, math.atan2(sy * 1.0, 1.0)), -0.1, pts[0][2] - 0.05,
                             1, 0.42, False)
-        fascia(mb, Fk, -Xe + 0.4, Xe - 0.4, Ye - 0.3, zfy, tv, dense=((-kara[fy][0] / 2, kara[fy][0] / 2) if kd else None),
+        fascia(mb, Fk, -Xe + 0.4, Xe - 0.4, Ye - 0.35, zfy, tv, dense=((-kara[fy][0] / 2, kara[fy][0] / 2) if kd else None),
                second=second)
         Fs = sub(Fk, ang=-math.pi / 2)                          # a agua lateral (+x de Fk) vista como "frente"
-        fascia(mb, Fs, -Ye + 0.4, Ye - 0.4, Xe - 0.3, lambda u, v: base_x(v, -u), tv, second=second)
+        fascia(mb, Fs, -Ye + 0.4, Ye - 0.4, Xe - 0.35, lambda u, v: base_x(v, -u), tv, second=second)   # M6b: testeira 0,17 atras da borda da telha
         for sy in (1, -1):                                      # rincao (sumigi) sob o espigao
             beam(mb, Fk, (Xi + 0.4, sy * (Yi + 0.4), z_top - tv - 0.6),
                  (Xe + 0.2, sy * (Ye + 0.2), base_y(Xe, Ye) - tv - 0.3), 0.6, 0.62, WD)
@@ -235,10 +236,11 @@ def cwin(mb, Ff, s, z, w, h, t=1.0, kind="dark", lod=0):
     escuro ('dark', cenografica) ou papel aceso com kumiko visto de dentro ('hall', parede de espessura t)"""
     x0, x1 = s - w / 2, s + w / 2
     j = 0.32
-    bb(mb, Ff, x0 - j, x0, -0.5, 0.15, z - 0.1, z + h + 0.1, WD)
-    bb(mb, Ff, x1, x1 + j, -0.5, 0.15, z - 0.1, z + h + 0.1, WD)
-    bb(mb, Ff, x0 - j, x1 + j, -0.5, 0.15, z + h, z + h + 0.34, WD)
-    bb(mb, Ff, x0 - j - 0.15, x1 + j + 0.15, -0.5, 0.32, z - 0.34, z, WD)               # peitoril com pingadeira
+    g = ZG                                                  # M6b (item 26): moldura entra 0,14 no vao (sem reveal coplanar)
+    bb(mb, Ff, x0 - j, x0 + g, -0.5, 0.15, z - 0.1, z + h + 0.1, WD)
+    bb(mb, Ff, x1 - g, x1 + j, -0.5, 0.15, z - 0.1, z + h + 0.1, WD)
+    bb(mb, Ff, x0 - j, x1 + j, -0.5, 0.15, z + h - g, z + h + 0.34, WD)
+    bb(mb, Ff, x0 - j - 0.15, x1 + j + 0.15, -0.5, 0.32, z - 0.34, z + g, WD)           # peitoril com pingadeira
     nb = max(3, int(round(w / (0.55 if lod == 0 else 0.8))))
     for i in range(1, nb):
         xx = x0 + w * i / nb
@@ -249,8 +251,8 @@ def cwin(mb, Ff, s, z, w, h, t=1.0, kind="dark", lod=0):
         bb(mb, Ff, x0, x1, -t * 0.55 - 0.03, -t * 0.55 + 0.03, z, z + h, LIT)          # papel no meio da parede
         bb(mb, Ff, s - 0.06, s + 0.06, -t * 0.55 - 0.18, -t * 0.55 - 0.05, z, z + h, WD)          # kumiko em cruz
         bb(mb, Ff, x0, x1, -t * 0.55 - 0.18, -t * 0.55 - 0.05, z + h / 2 - 0.06, z + h / 2 + 0.06, WD)
-        bb(mb, Ff, x0 - 0.3, x1 + 0.3, -t - 0.12, -t + 0.05, z - 0.3, z, WD)            # peitoril interno
-        bb(mb, Ff, x0 - 0.3, x1 + 0.3, -t - 0.12, -t + 0.05, z + h, z + h + 0.3, WD)
+        bb(mb, Ff, x0 - 0.3, x1 + 0.3, -t - 0.16, -t + 0.18, z - 0.3, z + g, WD)        # peitoril interno
+        bb(mb, Ff, x0 - 0.3, x1 + 0.3, -t - 0.16, -t + 0.18, z + h - g, z + h + 0.3, WD)
 
 
 def misulas(mb, Ff, ln, z, step):
@@ -293,6 +295,95 @@ def corner_stack(mb, F, cx, cy, sx, sy, z_top, h, batter, key):
             return [(X, Y, z), (X - sx * (lx + o), Y, z), (X - sx * (lx + o), Y - sy * (ly + o), z),
                     (X, Y - sy * (ly + o), z)]
         loft(mb, F, [ring(za + 0.04, 0.0), ring(zb_ - 0.04, 0.0)], ST if K._h01(key, c) > 0.3 else STD)
+
+
+def _courses(key, z0, z1, hmin, hmax):
+    """cotas das fiadas de z0 (pe) a z1 (topo das pedras): alturas hmin..hmax sorteadas, a ultima ajustada"""
+    zs = [z0]
+    c = 0
+    while zs[-1] < z1 - 1e-6:
+        z2 = min(z1, zs[-1] + hmin + (hmax - hmin) * K._h01(key, "fiada", c))
+        if z1 - z2 < hmin * 0.6:
+            z2 = z1
+        zs.append(z2)
+        c += 1
+    return zs
+
+
+def sangi_corners(mb, F, hx, hy, z_top, zs, batter, key, proud=0.15, lift=0.2):
+    """M6b: cantos travados (sangi-zumi) por FIADA: 1 pedra por canto, comprida numa face e curta na outra, alternando
+    a cada fiada; 0,15 saliente das faces (talude 'batter' a partir de z_top) e com a banda deslocada 0,2 para cima
+    (tampas a 0,2 das tampas das fiadas: nada paralelo a < 0,12); a ultima termina rente sob a capa"""
+    tb = math.tan(math.radians(batter))
+    nc = len(zs) - 1
+    for c in range(nc):
+        za = zs[c] + lift + 0.03
+        zb_ = zs[c + 1] - 0.03 if c == nc - 1 else zs[c + 1] + lift - 0.03
+        if zb_ - za < 0.3:
+            continue
+        lx, ly = (2.6, 1.5) if c % 2 == 0 else (1.5, 2.6)
+        for sx in (-1, 1):
+            for sy in (-1, 1):
+                def ring(z):
+                    o = (z_top - z) * tb + proud
+                    X, Y = sx * (hx + o), sy * (hy + o)
+                    return [(X, Y, z), (sx * (hx - lx), Y, z), (sx * (hx - lx), sy * (hy - ly), z), (X, sy * (hy - ly), z)]
+                loft(mb, F, [ring(za), ring(zb_)], STD if K._h01(key, sx, sy, c, "d") < 0.17 else ST)
+    return lx, ly
+
+
+def ishigaki_keep(mb, F, hx, hy, z_top, z_bot, batter, key, gap=None):
+    """M6b (item 29): base da torre em cantaria APARELHADA por fiadas (alturas 0,9-1,6; pedras 2,4-4,2 com juntas
+    desencontradas, chanfro na face, miolo escuro atras das juntas), 1 pedra em 6 ESCURA e nunca 2 escuras vizinhas
+    (nem na mesma fiada nem sobre/sob), cantos em sangi-zumi, capa de lajes. Substitui o ishigaki_box ("colcha")."""
+    tb = math.tan(math.radians(batter))
+    zc = z_top - 0.4
+    zs = _courses(key, z_bot, zc, 0.9, 1.6)
+    sangi_corners(mb, F, hx, hy, zc, zs, batter, key)
+    for k, Ff, ln, d in faces(F, hx, hy):
+        half = ln / 2
+        for a, b in ([(-half + 0.6, gap[0] - 0.3), (gap[1] + 0.3, half - 0.6)] if (gap and k == "F") else
+                     [(-half + 0.6, half - 0.6)]):
+            bb(mb, Ff, a, b, -1.9, -0.4, z_bot + 0.4, zc - 0.05, STD)                        # miolo escuro (juntas)
+        below = []
+        for c in range(len(zs) - 1):
+            za, zb_ = zs[c], zs[c + 1]
+            lc = ((2.6 if c % 2 == 0 else 1.5) if k in "FB" else (1.5 if c % 2 == 0 else 2.6)) + 0.06
+            x, xend = -half + lc, half - lc
+            x -= 1.2 * K._h01(key, k, c, "o") if c % 2 else 0.0
+            x = max(x, -half + lc)
+            row, prev, n = [], False, 0
+            while x < xend - 0.3:
+                x2 = min(xend, x + 2.4 + 1.8 * K._h01(key, k, c, n))
+                if xend - x2 < 1.2:
+                    x2 = xend
+                spans = [(x, x2)]
+                if gap and k == "F":
+                    spans = [(a, b) for a, b in ((x, min(x2, gap[0])), (max(x, gap[1]), x2)) if b - a > 0.5]
+                for a, b in spans:
+                    dark = (K._h01(key, k, c, n, "d") < 1.0 / 6.0 and not prev and
+                            not any(a < q1 and b > q0 for q0, q1 in below))
+                    df = 0.04 * (K._h01(key, k, c, n, "f") - 0.5)
+                    K.stone(mb, Ff, a + 0.03, b - 0.03, za + 0.03, zb_ - 0.03, -1.2, (zc - za) * tb + df,
+                          (zc - zb_) * tb + df, 0.1, STD if dark else WALL)
+                    prev = dark
+                    if dark:
+                        row.append((a, b))
+                x = x2
+                n += 1
+            below = row
+        # capa em lajes (F/B por inteiro com os cantos; R/L entre elas)
+        a0, a1 = (-half - 0.25, half + 0.25) if k in "FB" else (-half + 1.35, half - 1.35)
+        x, n = a0, 0
+        while x < a1 - 0.3:
+            x2 = min(a1, x + 2.6 + 1.4 * K._h01(key, k, "cap", n))
+            if a1 - x2 < 1.0:
+                x2 = a1
+            for a, b in ([(x, x2)] if not (gap and k == "F") else
+                         [(p, q) for p, q in ((x, min(x2, gap[0])), (max(x, gap[1]), x2)) if q - p > 0.5]):
+                K.stone(mb, Ff, a + 0.03, b - 0.03, zc, z_top, -1.6, 0.25, 0.25, 0.08, STP)
+            x = x2
+            n += 1
 
 
 def ishigaki_box(mb, F, hx, hy, z_top, h, batter, key, gap=None):
@@ -362,7 +453,7 @@ def keep(mb):
     hx0, hy0 = T[0][0], T[0][1]
     # ---- base de cantaria (talude) com a passagem da porta
     gap = (-DOOR_W / 2 - 1.1, DOOR_W / 2 + 1.1)
-    ishigaki_box(mb, F, hx0 + 0.8, hy0 + 0.8, PLINTH, PLINTH, 20.0, "kp", gap)
+    ishigaki_keep(mb, F, hx0 + 0.8, hy0 + 0.8, PLINTH, -0.6, 20.0, "kp", gap)          # M6b (item 29)
     Ff = faces(F, hx0, hy0)[0][1]
     for s in (-1, 1):                                       # bochechas da passagem (pedra escura aparelhada)
         x = s * (DOOR_W / 2 + 0.55)
@@ -410,10 +501,10 @@ def keep(mb):
     bb(mb, Fp, -6.2, 6.2, yp - 0.4, yp + 0.4, 10.15, 10.85, WD)                    # viga da frente
     bb(mb, Fp, -1.4, 1.4, yp + 0.38, yp + 0.52, 10.25, 10.75, GOLD)               # placa dourada (lisa, sem texto)
     # porta: caixilho, verga, folhas ABERTAS para dentro (madeira escura, cintas de ferro, cravos dourados)
-    for s in (-1, 1):
+    for s in (-1, 1):                                       # M6b (item 26): caixilho entra 0,14 no vao
         x = s * (DOOR_W / 2 + 0.3)
-        bb(mb, Fp, x - 0.3, x + 0.3, -2.1, 0.2, FLOOR - 0.3, FLOOR + DOOR_H + 0.5, WD)
-    bb(mb, Fp, -DOOR_W / 2 - 0.6, DOOR_W / 2 + 0.6, -2.1, 0.2, FLOOR + DOOR_H, FLOOR + DOOR_H + 0.7, WD)
+        bb(mb, Fp, x - 0.3 - (ZG if s > 0 else 0.0), x + 0.3 + (ZG if s < 0 else 0.0), -2.25, 0.2, FLOOR - 0.3, FLOOR + DOOR_H + 0.5, WD)
+    bb(mb, Fp, -DOOR_W / 2 - 0.6, DOOR_W / 2 + 0.6, -2.25, 0.2, FLOOR + DOOR_H - ZG, FLOOR + DOOR_H + 0.7, WD)
     bb(mb, Fp, -DOOR_W / 2, DOOR_W / 2, -2.1, 0.0, -0.3, FLOOR, WD)                 # soleira (piso do vao)
     for s in (-1, 1):
         x = s * (DOOR_W / 2 - 0.2)
@@ -487,6 +578,27 @@ def keep(mb):
     return F
 
 
+# M6b (item 34, opcional da auditoria): estiramento vertical dos andares ACIMA do 1o telhado (z > CC+25). Testado com
+#   1,108 (cumeeira 221,5 -> 228,0): a composicao melhora, MAS o gate do op_qa "visada castelo (torre)" mira um ponto
+#   fixo (L.KEEP_TOP_Z + 2 = 217,2) que fica DENTRO do telhado esticado e reprova 3 visadas (o raio bate na propria
+#   torre). DESLIGADO (fator 1,0) ate a integracao decidir (aceitar acerto na OP_Cas_Keep, como ja aceita na arvore, ou
+#   subir o alvo). Para religar: KEEP_STRETCH = (25.0, 1.108).
+KEEP_STRETCH = (25.0, 1.0)
+
+
+def kz(z):
+    """cota local (acima do patio) depois do estiramento dos andares de cima"""
+    z0, f = KEEP_STRETCH
+    return z if z <= z0 else z0 + (z - z0) * f
+
+
+def stretch_keep(mb):
+    for v in mb.bm.verts:
+        z = v.co.z - CC
+        if z > KEEP_STRETCH[0]:
+            v.co.z = CC + kz(z)
+
+
 def keep_cols():
     F = keep_frame()
     hx0, hy0 = T[0][0], T[0][1]
@@ -514,7 +626,8 @@ def keep_cols():
     col_box("OP_CasKeepUpper", (2 * hx0, 2 * hy0, 10.0), F.p(0, 0, 13.25 + 5.0), F.r())
     for i in (1, 2, 3):
         hx, hy, z0, hw, over = T[i]
-        col_box("OP_CasKeepUpper", (2 * hx, 2 * hy, hw + 4.0), F.p(0, 0, z0 - 1.0 + (hw + 4.0) / 2), F.r())
+        za, zb_ = kz(z0 - 1.0), kz(z0 + hw + 3.0)
+        col_box("OP_CasKeepUpper", (2 * hx, 2 * hy, zb_ - za), F.p(0, 0, (za + zb_) / 2), F.r())
     # alpendre: pilares
     Fp = faces(F, hx0, hy0)[0][1]
     for s in (-1, 1):
@@ -552,7 +665,7 @@ def hall(mb):
     yd0, yd1 = -Y, -Y + 7.0
     zd = FLOOR + 0.75
     bb(mb, F, -13.0, 13.0, yd0, yd1, FLOOR - 0.1, zd - 0.12, WM)
-    bb(mb, F, -13.4, 13.4, yd1 - 0.55, yd1 + 0.05, FLOOR - 0.1, zd + 0.02, WD)
+    bb(mb, F, -13.4, 13.4, yd1 - 0.45, yd1 + 0.15, FLOOR - 0.1, zd + 0.02, WD)       # M6b: 0,15 a frente do tablado
     for x in K.even(-12.6, 12.6, 1.4):
         bb(mb, F, x - 0.66, x + 0.66, yd0 + 0.05, yd1 - 0.6, zd - 0.12, zd - 0.02, WM)
     for s in (-1, 1):                                       # biombos de 6 folhas em zigue-zague
@@ -577,10 +690,10 @@ def hall(mb):
         bb(mb, Fi, s * 2.6 - 0.35, s * 2.6 + 0.35, 0.0, 0.8, zd, 10.5, WD)
     bb(mb, Fi, -2.95, 2.95, 0.0, 0.8, 9.9, 10.6, WD)
     bb(mb, Fi, -2.25, 2.25, 0.0, 0.25, zd, 9.9, "Plaster_OP_Warm")
-    bb(mb, Fi, -1.1, 1.1, 0.25, 0.37, 3.1, 8.9, CWHITE)
-    bb(mb, Fi, -1.25, 1.25, 0.2, 0.45, 8.9, 9.2, WD)
-    bb(mb, Fi, -1.25, 1.25, 0.2, 0.45, 2.85, 3.1, WD)
-    crest(mb, sub(Fi, 0.0, 0.33, 0.0), 0.0, 6.6, 0.8, INDIGO, 0.14)
+    bb(mb, Fi, -1.1, 1.1, 0.2, 0.42, 3.1, 8.9, CWHITE)                    # M6b: rolo 0,17 a frente do reboco
+    bb(mb, Fi, -1.25, 1.25, 0.2, 0.6, 8.9, 9.2, WD)
+    bb(mb, Fi, -1.25, 1.25, 0.2, 0.6, 2.85, 3.1, WD)
+    crest(mb, sub(Fi, 0.0, 0.43, 0.0), 0.0, 6.6, 0.8, INDIGO, 0.14)
     # pilares (com pedra-base, consolo em cima) e vigas-mestras sob o teto
     for x, y in HALL_COLS:
         K.rock_base(mb, F, x, y, FLOOR - 0.1, 1.1, 0.35)
@@ -600,9 +713,11 @@ def hall(mb):
     for k, Fw, ln, d in faces(F, X, Y):
         Fi = sub(Fw, 0.0, 0.0, 0.0, math.pi)                # +y para dentro
         spans = [(-ln / 2, -DOOR_W / 2 - 0.3), (DOOR_W / 2 + 0.3, ln / 2)] if k == "F" else [(-ln / 2, ln / 2)]
+        if k == "B":                                        # M6b: rodape interrompido no tokonoma (sem coplanar)
+            spans = [(-ln / 2, -2.95), (2.95, ln / 2)]
         for a, b in spans:                                  # rodape de tabuas (aberto na porta)
-            bb(mb, Fi, a, b, 0.0, 0.25, FLOOR, FLOOR + 1.6, WM)
-            bb(mb, Fi, a, b, 0.0, 0.35, FLOOR + 1.6, FLOOR + 1.85, WD)
+            bb(mb, Fi, a, b, -0.15, 0.25, FLOOR, FLOOR + 1.6, WM)          # M6b: costas 0,15 dentro da parede
+            bb(mb, Fi, a, b, -0.15, 0.35, FLOOR + 1.6, FLOOR + 1.85, WD)
         bb(mb, Fi, -ln / 2, ln / 2, 0.0, 0.32, 9.6, 10.15, WD)
         bb(mb, Fi, -ln / 2, ln / 2, 0.0, 0.3, zc - 0.7, zc, WD)
         ws = HALL_WINS[k]
@@ -668,7 +783,7 @@ def dobei(mb, pts, z, h=4.6, key="db", sama=True):
         if ln < 0.5:
             continue
         Fs = Frame(a[0], a[1], z, math.atan2(dy, dx))
-        bb(mb, Fs, -0.3, ln + 0.3, -0.95, 0.95, -0.4, 1.0, ST)
+        bb(mb, Fs, -0.3, ln + 0.3, -0.95, 0.95, -0.6, 0.9, ST)        # M6b: soco ate a capa (sem faixa 0,1 coplanar)
         bb(mb, Fs, -0.3, ln + 0.3, -1.05, 1.05, 0.9, 1.15, STP)
         holes = []
         if sama and ln > 4.0:
@@ -682,27 +797,26 @@ def dobei(mb, pts, z, h=4.6, key="db", sama=True):
                     [(ln + 0.4, sy * 1.55), (-0.4, sy * 1.55), (-0.4, 0.0), (ln + 0.4, 0.0)], zf, 0.28,
                     max(1, int(ln / 6)), [0.0, 1.0], RB)
             K.ribs(mb, Fs, [[(x, sy * 1.66), (x, sy * 0.2)] for x in K.even(-0.2, ln + 0.2, 2.8)], zf, 1, RB, RIB_TRI)
-            K.strip(mb, Fs, [(x, sy * 1.4, zf(x, 1.4) - 0.28) for x in (-0.4, ln + 0.4)], (0, sy, 0), -0.14, 0.14, -0.4,
-                    0.02, WD)
+            K.strip(mb, Fs, [(x, sy * 1.25, zf(x, 1.25) - 0.28) for x in (-0.4, ln + 0.4)], (0, sy, 0), -0.14, 0.14, -0.4,
+                    0.02, WD)                           # M6b (item 28): testeira 0,16 atras da borda da capa
         bb(mb, Fs, -0.4, ln + 0.4, -0.32, 0.32, h + 0.85, h + 1.35, RR)
         mb.rod(Fs.p(-0.4, 0.0, h + 1.45), Fs.p(ln + 0.4, 0.0, h + 1.45), 0.22, RR, 6)
 
 
 def simple_base(mb, F, hb, z_top, z_bot, batter, key):
-    """base de cantaria barata (torreoes, longe do jogador): talude em 3 fiadas com junta recuada 0,12 + capa +
-    cantos travados"""
+    """M6b (itens 27/30): base de cantaria dos torreoes (desce pela rocha): fiadas em ANEL com talude e chanfro no topo
+    de cada fiada (junta em V; sem o anel de junta que ficava 0,08 sob a tampa = z-fight), cantos travados salientes
+    por fiada e capa com pingadeira 0,35"""
     tb = math.tan(math.radians(batter))
-    zs = [z_top - 0.4, z_top - 0.4 - (z_top - z_bot) * 0.36, z_top - 0.4 - (z_top - z_bot) * 0.7, z_bot]
+    zc = z_top - 0.4
+    zs = _courses(key, z_bot, zc, 1.2, 2.0)
     ring = lambda o, z: [(sx * (hb + o), sy * (hb + o), z) for sx, sy in ((-1, -1), (1, -1), (1, 1), (-1, 1))]
-    for c in range(3):
-        za, zb_ = zs[c + 1] + 0.06, zs[c] - 0.06
-        o0, o1 = (z_top - za) * tb - 0.12, (z_top - zb_) * tb - 0.12
-        loft(mb, F, [ring(o0, za), ring(o1, zb_)], WALL if c % 2 == 0 else ST)
-        loft(mb, F, [ring(o0 - 0.12, za - 0.08), ring(o0 - 0.12, za + 0.08)], STD) if c < 2 else None
-    bb(mb, F, -hb - 0.1, hb + 0.1, -hb - 0.1, hb + 0.1, z_top - 0.4, z_top, STP)
-    for sx in (-1, 1):
-        for sy in (-1, 1):
-            corner_stack(mb, F, sx * hb, sy * hb, sx, sy, z_top - 0.4, z_top - 0.4 - z_bot, batter, (key, sx, sy))
+    for c in range(len(zs) - 1):
+        za, zb_ = zs[c], zs[c + 1]
+        oa, ob = (zc - za) * tb, (zc - zb_) * tb
+        loft(mb, F, [ring(oa, za), ring(ob, zb_ - 0.1), ring(ob - 0.1, zb_)], WALL if K._h01(key, c, "m") > 0.3 else ST)
+    sangi_corners(mb, F, hb, hb, zc, zs, batter, key)
+    bb(mb, F, -hb - 0.35, hb + 0.35, -hb - 0.35, hb + 0.35, zc, z_top, STP)
 
 
 def mini_roof(mb, F, hl, hd, z, pitch=0.6, tv=0.3):
@@ -710,9 +824,29 @@ def mini_roof(mb, F, hl, hd, z, pitch=0.6, tv=0.3):
     zf = lambda x, y: z + pitch * (hd - abs(y))
     for sy in (1, -1):
         K.sheet(mb, F, [(-hl, sy * hd), (hl, sy * hd), (hl, 0.0), (-hl, 0.0)], zf, tv, 2, [0.0, 1.0], RB)
-        K.strip(mb, F, [(x, sy * (hd - 0.2), zf(x, hd - 0.2) - tv) for x in (-hl, hl)], (0, sy, 0), -0.12, 0.12, -0.35,
-                0.02, WD)
+        K.strip(mb, F, [(x, sy * (hd - 0.34), zf(x, hd - 0.34) - tv) for x in (-hl, hl)], (0, sy, 0), -0.12, 0.12, -0.35,
+                0.02, WD)                               # M6b: testeira 0,22 atras da borda
     bb(mb, F, -hl - 0.1, hl + 0.1, -0.3, 0.3, zf(0, 0) - 0.1, zf(0, 0) + 0.4, RR)
+
+
+def turret_dress(mb, F, s, big):
+    """M6b (item 30): o torreao deixa de ser caixa branca: RODAPE de tabuas escuras com mata-juntas (koshi-ita, 0,16
+    a frente do reboco) e ISHI-OTOSHI na face de fora (bojo de reboco 0,6 saliente sobre misulas, fundo escuro,
+    capelo de telha por cima)"""
+    for k, Ff, ln, d in faces(F, s / 2, s / 2):
+        bb(mb, Ff, -ln / 2 - 0.16, ln / 2 + 0.16, -0.2, 0.16, 1.0, 2.8, WD)                   # rodape
+        bb(mb, Ff, -ln / 2 - 0.3, ln / 2 + 0.3, -0.2, 0.34, 2.8, 3.05, WD)                    # cinta do rodape
+        for x in K.even(-ln / 2 + 0.6, ln / 2 - 0.6, 2.2):
+            bb(mb, Ff, x - 0.08, x + 0.08, 0.1, 0.3, 1.0, 2.8, WD)                           # mata-juntas
+        if k != "F":
+            continue
+        w, y1 = ln * 0.62, 0.62
+        zb_ = 3.6 if big else 3.2
+        bb(mb, Ff, -w / 2, w / 2, -0.3, y1, 1.0, zb_, PL)                                     # bojo (ishi-otoshi)
+        bb(mb, Ff, -w / 2 - 0.16, w / 2 + 0.16, y1 - 0.2, y1 + 0.16, 1.0, 2.6, WD)            # rodape do bojo
+        for x in K.even(-w / 2 + 0.4, w / 2 - 0.4, 2.2):
+            bb(mb, Ff, x - 0.08, x + 0.08, y1 + 0.1, y1 + 0.3, 1.0, 2.6, WD)
+        K.roof_pent(mb, Ff, w + 0.9, 1.25, zb_ + 0.65, 0.42, 0.3, 0.3, 1, "none", RB, False, 0.35)
 
 
 def turret(mb, cx, cy, ang, s, z_bot, key, big=True):
@@ -722,13 +856,13 @@ def turret(mb, cx, cy, ang, s, z_bot, key, big=True):
     simple_base(mb, F, hb, 1.0, z_bot, 18.0, key)
     h1 = 8.0
     zt1 = 1.0 + h1
+    w2 = {"F": [-2.5, 2.5], "B": [-2.5, 2.5], "R": [-2.5, 2.5], "L": [-2.5, 2.5]}     # M6b (item 30): 2 janelas/face
     if big:
         s2 = s - 4.0
         skz = zt1 + 0.5 + 2.0 + 0.6
         dep = (s - s2) / 2 + 2.6
         ftop = skz - PITCH * (s / 2 - s2 / 2) - 0.5 + 0.25
-        tier_walls(mb, F, s / 2, s / 2, 0.5, {k: ftop for k in "FBRL"}, 1.0,
-                   {k: [0.0] for k in "FBRL"}, 4.4, 3.6, 2.0, brackets=False, lod=1)
+        tier_walls(mb, F, s / 2, s / 2, 0.5, {k: ftop for k in "FBRL"}, 1.0, w2, 6.0, 2.4, 2.0, brackets=False, lod=1)
         skirt(mb, F, s2 / 2, s2 / 2, dep, skz, chid={"F": [(0.0, 6.0, s / 2)]}, sp=3.0, oni=False, second=False)
         h2 = skz + 5.2
         tier_walls(mb, F, s2 / 2, s2 / 2, skz - 0.6, {k: h2 for k in "FBRL"}, 1.0, {k: [0.0] for k in "FBRL"},
@@ -736,19 +870,20 @@ def turret(mb, cx, cy, ang, s, z_bot, key, big=True):
         K.roof_hip(mb, F, s2, s2 + 0.01, h2, "irimoya", 0.6, 2.8, 0.6, 1.2, 1.2, 0.5, 1, PL, "timber", False, RB)
     else:
         h2 = zt1 + 1.2
-        tier_walls(mb, F, s / 2, s / 2, 0.5, {k: h2 for k in "FBRL"}, 1.0, {k: [0.0] for k in "FBRL"}, 4.4, 3.2,
-                   2.0, brackets=False, lod=1)
+        tier_walls(mb, F, s / 2, s / 2, 0.5, {k: h2 for k in "FBRL"}, 1.0, {k: [-2.1, 2.1] for k in "FBRL"}, 5.6, 2.2,
+                   2.6, brackets=False, lod=1)
         dep = s / 2 + 2.4 - 0.6
         zt = h2 + 0.5 + 0.62 * dep
         skirt(mb, F, 0.6, 0.6, dep, zt, 0.62, 0.45, 0.9, sp=2.6, oni=False, second=False)
         lathe(mb, F, (0.0, 0.0, zt - 0.3), [(1.0, 0.0), (1.0, 0.5), (0.55, 0.8), (0.62, 1.3), (0.3, 1.9), (0.06, 2.5)], 8,
               RR)
         h2 = zt
+    turret_dress(mb, F, s, big)
     col_box("OP_CasTurret", (s, s, h2 + 2.0), F.p(0, 0, (h2 + 2.0) / 2), F.r())
     return F
 
 
-def koraimon(mb, cx, cy, ang, span, h, red=False, z=CC, key="kg", plaque=False, hikae=True):
+def koraimon(mb, cx, cy, ang, span, h, red=False, z=CC, key="kg", plaque=False, hikae=True, nuki_drop=3.0):
     """portao com 2 pilares principais, 2 pilares de apoio atras com telhadinhos (koraimon), viga (kabuki) que passa
     dos pilares, travessa (nuki), telhado de 2 aguas com onigawara; pilares sobre pedra com cinta de ferro"""
     F = Frame(cx, cy, z, ang)                               # +y = frente (de onde se chega)
@@ -760,9 +895,9 @@ def koraimon(mb, cx, cy, ang, span, h, red=False, z=CC, key="kg", plaque=False, 
         x = s * xs
         K.rock_base(mb, F, x, 0.0, 0.0, cw * 0.95, 0.6)
         bb(mb, F, x - cw / 2, x + cw / 2, -cw / 2, cw / 2, 0.4, h, pm, 0.06)
-        bb(mb, F, x - cw / 2 - 0.08, x + cw / 2 + 0.08, -cw / 2 - 0.08, cw / 2 + 0.08, 0.4, 1.4, IRON)
+        bb(mb, F, x - cw / 2 - 0.14, x + cw / 2 + 0.14, -cw / 2 - 0.14, cw / 2 + 0.14, 0.4, 1.4, IRON)
         if red:
-            bb(mb, F, x - cw / 2 - 0.08, x + cw / 2 + 0.08, -cw / 2 - 0.08, cw / 2 + 0.08, h - 2.6, h - 2.2, GOLD)
+            bb(mb, F, x - cw / 2 - 0.14, x + cw / 2 + 0.14, -cw / 2 - 0.14, cw / 2 + 0.14, h - 2.6, h - 2.2, GOLD)
         if not hikae:
             continue
         # pilar de apoio + travessas + telhadinho perpendicular
@@ -776,19 +911,156 @@ def koraimon(mb, cx, cy, ang, span, h, red=False, z=CC, key="kg", plaque=False, 
     # kabuki (viga de cabeca) e nuki
     zk = h - 1.8
     bb(mb, F, -xs - cw * 1.2, xs + cw * 1.2, -0.75, 0.75, zk, zk + 1.6, pm)
-    bb(mb, F, -xs, xs, -0.4, 0.4, zk - 3.0, zk - 2.3, pm)
+    bb(mb, F, -xs, xs, -0.4, 0.4, zk - nuki_drop, zk - nuki_drop + 0.7, pm)
     for x in (-span * 0.22, span * 0.22):
-        bb(mb, F, x - 0.35, x + 0.35, -0.3, 0.3, zk - 2.3, zk, pm)
+        bb(mb, F, x - 0.35, x + 0.35, -0.3, 0.3, zk - nuki_drop + 0.7, zk, pm)
     if red:
         for s in (-1, 1):                                   # remates dourados nas pontas da viga
-            bb(mb, F, s * (xs + cw * 1.2) - 0.25 * s - 0.25, s * (xs + cw * 1.2) - 0.25 * s + 0.25, -0.8, 0.8, zk - 0.05,
-               zk + 1.65, GOLD)
+            e = s * (xs + cw * 1.2)                         # M6b: remate 0,14 alem da ponta da viga
+            bb(mb, F, min(e - s * 0.5, e + s * 0.14), max(e - s * 0.5, e + s * 0.14), -0.89, 0.89, zk - 0.14,
+               zk + 1.74, GOLD)
     if plaque:
         crest(mb, sub(F, 0.0, 0.75, 0.0), 0.0, zk + 0.8, 1.0, GOLD, 0.12)
     # telhado principal (kirizuma) sobre a viga
     K.roof_gable(mb, F, 2 * (xs + cw * 1.2) + 1.0, 3.6 if red else 2.6, h, 0.62, 2.6 if red else 1.8,
                  1.6 if red else 1.0, 0.8, 0.5, 1, WD, "board", False, RB, 0.6, 1.6, 1.0, None, red)
     return F, xs, cw, back
+
+
+COURT_TOP = 0.14          # piso VISUAL do patio sobre a colisao (como o patio do torii do op_entry: +0,14)
+BAND = 8.0                # faixa de lajes em volta da torre
+CURB = 0.25               # meia largura da borda de pedra entre lajes e cascalho
+
+
+def _pave_rect(mb, court, r, slab, along, key, mats, z0, z1):
+    """lajes (slab x slab, juntas desencontradas meia peca a cada fiada) no retangulo r recortado no patio; SEM faces
+    laterais (cada laje encosta em laje, borda, cascalho ou base da torre): so chanfro + topo = 10 tris por laje"""
+    x0, y0, x1, y1 = r
+    u0, u1, v0, v1 = (x0, x1, y0, y1) if along == "x" else (y0, y1, x0, x1)
+    n, row, v = 0, 0, v0
+    while v < v1 - 0.3:
+        vb = min(v1, v + slab)
+        if v1 - vb < 1.0:
+            vb = v1
+        u = u0 - (slab * 0.5 if row % 2 else 0.0)
+        while u < u1 - 0.3:
+            ub = min(u1, u + slab)
+            if u1 - ub < 1.0:
+                ub = u1
+            ua = max(u, u0)
+            rect = (ua, v, ub, vb) if along == "x" else (v, ua, vb, ub)
+            piece = L.clip_rect(court, rect)
+            if len(piece) >= 3:
+                tot = sum(w for _, w in mats)
+                h = K._h01(key, row, round(ua, 1)) * tot
+                m = mats[-1][0]
+                for mm, w in mats:
+                    h -= w
+                    if h <= 0:
+                        m = mm
+                        break
+                K.slab_poly(mb, ccw(piece), z0, z1, 0.07, m, sides=False)
+                n += 1
+            u = ub
+        v, row = vb, row + 1
+    return n
+
+
+def _curb_line(mb, a, b, z0, z1, key, m=ST, hw=CURB):
+    """borda de pedra ao longo de a-b (mundo): pecas de 3,0-4,0 com junta de 0,05, topo 0,06 acima do piso"""
+    dx, dy = b[0] - a[0], b[1] - a[1]
+    ln = math.hypot(dx, dy)
+    if ln < 0.5:
+        return
+    Fs = Frame(a[0], a[1], 0.0, math.atan2(dy, dx))
+    x, k = 0.0, 0
+    while x < ln - 0.2:
+        x2 = min(ln, x + 3.6 + 1.2 * K._h01(key, k))
+        if ln - x2 < 1.0:
+            x2 = ln
+        bb(mb, Fs, x + 0.025, x2 - 0.025, -hw, hw, z0, z1, m)
+        x, k = x2, k + 1
+
+
+def court_floor(mb):
+    """M6b (item 25): o patio do castelo deixa de ser um plano bege unico (~11k studs2):
+      - LAJES 4 x 4 com junta rebaixada (o pave da praca) numa faixa de 8 em volta da torre, no EIXO porta -> mirante
+        e no CAMINHO do portao do patio (3 x 3) ate a faixa;
+      - o resto em CASCALHO (Stone_OP_Court, tom ~10% abaixo) recuado 0,3 da borda do patio;
+      - BORDA de pedra escura (0,5) entre lajes e cascalho (topo 0,06 acima) e uma soleira de pedra sob o guarda-corpo
+        vermelho do mirante (o pe do guarda-corpo pousa nela; pingadeira 0,2 alem da borda da proa).
+    Tudo a +0,14 da colisao (a pele do terreno fica 0,14 abaixo, coberta)."""
+    z1 = CC + COURT_TOP
+    z0 = CC - 0.3
+    tb = math.tan(math.radians(20.0))
+    hx, hy = T[0][0] + 0.8 + 4.7 * tb, T[0][1] + 0.8 + 4.7 * tb          # pe da base da torre (talude)
+    kx0, kx1, ky0, ky1 = KX - hx, KX + hx, KY - hy, KY + hy
+    bx0, bx1, by0, by1 = kx0 - BAND, kx1 + BAND, ky0 - BAND, ky1 + BAND
+    court = ccw(L.COURT)
+    c2 = 2 * CURB
+    ya = 353.45                                            # inicio do eixo (borda de dentro da soleira do mirante)
+    xc = bx0 + 6.0                                         # caminho do portao: liga na faixa pelo canto NO
+    # ---- lajes (as bordas ficam POR FORA da faixa: nada sobreposto)
+    strips = [(bx0, by0, bx1, ky0), (bx0, ky1, bx1, by1), (bx0, ky0, kx0, ky1), (kx1, ky0, bx1, ky1)]
+    axis = [(-4.0, ya, 4.0, by0)]
+    appr = [(bx0, by1, xc, 441.8), (-73.0, 441.8, xc, 447.8)]
+    mats = [(STP, 6), ("Stone_OP_Plaza", 2)]
+    n = 0
+    for i, r in enumerate(strips + axis + appr):
+        n += _pave_rect(mb, court, r, 4.0 if i != 6 else 3.0, "y" if i in (2, 3, 4, 5) else "x", ("pt", i), mats, z0, z1)
+    # ---- bordas de pedra escura entre lajes e cascalho
+    zc0, zc1 = z0, z1 + 0.06
+    _curb_line(mb, (bx0 - c2, by0 - CURB), (-4.0 - c2, by0 - CURB), zc0, zc1, "cb1")
+    _curb_line(mb, (4.0 + c2, by0 - CURB), (bx1 + c2, by0 - CURB), zc0, zc1, "cb2")
+    _curb_line(mb, (bx1 + CURB, by0), (bx1 + CURB, by1 + c2), zc0, zc1, "cb3")
+    _curb_line(mb, (bx1, by1 + CURB), (xc, by1 + CURB), zc0, zc1, "cb4")
+    _curb_line(mb, (bx0 - CURB, by1 + c2), (bx0 - CURB, by0), zc0, zc1, "cb5")
+    _curb_line(mb, (-4.0 - CURB, by0), (-4.0 - CURB, ya - 0.05), zc0, zc1, "cb6")
+    _curb_line(mb, (4.0 + CURB, ya - 0.05), (4.0 + CURB, by0), zc0, zc1, "cb7")
+    # ---- cascalho: o patio menos (faixa + bordas, eixo, caminho, escada B), recuado 0,3 da beira
+    cuts = [(bx0 - c2, by0 - c2, bx1 + c2, by1 + c2), (-4.0 - c2, 352.0, 4.0 + c2, by0), (bx0, by1, xc, 441.8),
+            (-73.0, 441.8, xc, 447.8), (-79.5, 380.0, -62.2, 439.3)]
+    pieces = [ccw(DL.offset_poly(court, -0.3))]
+    for r in cuts:
+        pieces = [q for pc in pieces for q in L.subtract_rect(pc, r)]
+    for pc in pieces:
+        K.slab_poly(mb, ccw(pc), z0, z1, 0.0, "Stone_OP_Court")
+    # ---- soleira de pedra do guarda-corpo do mirante (o pe do guarda-corpo pousa nela)
+    rail = [RAIL_W, (-49.4, 358.8), (-24.0, 352.8), (24.0, 352.8), (49.4, 358.8), RAIL_E]
+    for i, (a, b) in enumerate(zip(rail, rail[1:])):
+        dx, dy = b[0] - a[0], b[1] - a[1]
+        ln = math.hypot(dx, dy)
+        Fs = Frame(a[0], a[1], 0.0, math.atan2(dy, dx))     # +y local = para DENTRO do patio (rail anti-horario)
+        x, k = -0.4 if i == 0 else 0.0, 0
+        x_end = ln + (0.4 if i == len(rail) - 2 else 0.0)
+        while x < x_end - 0.2:
+            x2 = min(x_end, x + 3.0 + 1.0 * K._h01("sr", i, k))
+            if x_end - x2 < 1.0:
+                x2 = x_end
+            bb(mb, Fs, x + 0.025, x2 - 0.025, -1.0, 0.6, z0, CC + 0.33, ST)
+            x, k = x2, k + 1
+    return n
+
+
+WALLS = []                 # polilinhas dos muros dobei (para a borda de pedra ao pe, item 25)
+
+
+def wall_curbs(mb):
+    """M6b (item 25): BORDA de pedra (0,8) ao pe dos muros, do lado do patio (topo 0,2 acima do cascalho): o cascalho
+    ganha moldura e o muro deixa de nascer direto do plano"""
+    for wi, pts in enumerate(WALLS):
+        for i, (a, b) in enumerate(zip(pts, pts[1:])):
+            dx, dy = b[0] - a[0], b[1] - a[1]
+            ln = math.hypot(dx, dy)
+            if ln < 2.0:
+                continue
+            nx, ny = -dy / ln, dx / ln
+            mx, my = (a[0] + b[0]) / 2, (a[1] + b[1]) / 2
+            sd = 1.0 if L.point_in_poly(mx + nx * 2.0, my + ny * 2.0, L.COURT) else -1.0
+            off = sd * (0.95 + 0.42)
+            a2 = (a[0] + nx * off + dx / ln * 1.4, a[1] + ny * off + dy / ln * 1.4)
+            b2 = (b[0] + nx * off - dx / ln * 1.4, b[1] + ny * off - dy / ln * 1.4)
+            _curb_line(mb, a2, b2, CC - 0.3, CC + COURT_TOP + 0.2, ("wc", wi, i), ST, 0.4)
 
 
 def court(mb):
@@ -798,15 +1070,19 @@ def court(mb):
     xs = gw / 2 + 0.75
     wl = [(-63.4, COURT_GATE_Y), (-63.4, 381.5)]
     dobei(mb, wl, CC, 4.6, "dbW")
-    wn = [(gx - xs, COURT_GATE_Y), (gx - xs, 437.0), (-89.3, 437.0), (-89.3, 469.2), (-40.0, 473.3), (20.0, 475.3), WALL_N_END]
+    WALLS.clear()
+    WALLS.extend([wl])
+    wn = [(gx - xs, COURT_GATE_Y), (gx - xs, 437.3), (-89.3, 437.3), (-89.3, 469.2), (-40.0, 473.3), (20.0, 475.3), WALL_N_END]
     dobei(mb, wn, CC, 4.6, "dbN", sama=False)
+    WALLS.append(wn)
     we = [(63.6, 370.6), (65.6, 373.6), (WALL_E_END[0], WALL_E_END[1])]
     dobei(mb, we, CC, 4.6, "dbE", sama=False)
+    WALLS.append(we)
     for p in (wn[2], wn[3], wn[4], wn[5], we[1], wl[1]):           # pilares de canto (cobrem as juntas)
-        bb(mb, Frame(p[0], p[1], CC, 0.0), -1.0, 1.0, -1.0, 1.0, -0.3, 5.0, PL)
-        bb(mb, Frame(p[0], p[1], CC, 0.0), -1.2, 1.2, -1.2, 1.2, -0.3, 1.2, ST)
+        bb(mb, Frame(p[0], p[1], CC, 0.0), -1.15, 1.15, -1.15, 1.15, -0.3, 5.0, PL)     # M6b: 0,2 fora do soco
+        bb(mb, Frame(p[0], p[1], CC, 0.0), -1.35, 1.35, -1.35, 1.35, -0.3, 1.3, ST)
     for p in (wn[-1], we[-1]):                              # terminal junto da base da arvore: pilar de pedra
-        bb(mb, Frame(p[0], p[1], CC, 0.0), -1.0, 1.0, -1.0, 1.0, -0.3, 3.4, ST)
+        bb(mb, Frame(p[0], p[1], CC, 0.0), -1.25, 1.25, -1.25, 1.25, -0.3, 3.4, ST)
     # portao do patio (koraimon escuro) no topo da CasteloB, voltado para a escada (sul)
     F, xs_, cw, back = koraimon(mb, gx, COURT_GATE_Y, math.pi, gw, 11.0, False, CC, "kgP")
     for s in (-1, 1):
@@ -824,6 +1100,8 @@ def court(mb):
     for i, x in enumerate((-12.0, 12.0)):
         K.toro(mb, Frame(x, 375.0, CC, 0.0), 1.05, "L_OPProp_Lamp_Cas_Toro_%d" % i, 35.0)
         col_box("OP_CasLamp", (3.0, 3.0, 8.0), (x, 375.0, CC + 4.0))
+    court_floor(mb)                                         # M6b (itens 25 e 31)
+    wall_curbs(mb)
 
 
 WALL_N_END = (60.0, 468.0)   # muro do fundo: termina ENCOSTADO na raiz NNE da arvore (medido: raiz em x 62..74)
@@ -902,18 +1180,139 @@ def adro(mb):
         Fp = Frame((a[0] + b[0]) / 2, (a[1] + b[1]) / 2, CF, math.atan2(dy, dx))
         bb(mb, Fp, -ln / 2 - 0.55, ln / 2 + 0.55, -0.6, 0.6, -0.3, 1.15, WALL)              # mureta: corpo
         bb(mb, Fp, -ln / 2 - 0.65, ln / 2 + 0.65, -0.75, 0.75, 1.15, 1.5, STP)              # capa com pingadeira
-        bb(mb, Fp, -ln / 2 - 0.5, ln / 2 + 0.5, -0.75, 0.75, -0.3, 0.25, STD)              # soco escuro
+        bb(mb, Fp, -ln / 2 - 0.5, ln / 2 + 0.5, -0.75, 0.75, -0.45, 0.25, STD)             # soco escuro
     # portao de madeira (kabukimon) no pe da subida
-    F2, xs2, cw2, back2 = koraimon(mb, -71.0, 334.6, math.pi, 12.0, 9.5, False, CF, "kgS", hikae=False)
+    # M6b (item 33): portao mais alto e nuki logo abaixo da viga (nuki a 9,0 do piso, viga a 10,2): a camera de 3a
+    # pessoa (12 atras + 4 acima) passa livre (antes: viga a 7,7 e nuki a 4,7)
+    F2, xs2, cw2, back2 = koraimon(mb, -71.0, 334.6, math.pi, 12.0, SUB_GATE_H, False, CF, "kgS", hikae=False,
+                                   nuki_drop=1.2)
     for s in (-1, 1):
-        col_box("OP_CasGate", (cw2 + 0.4, cw2 + 0.4, 9.5), F2.p(s * xs2, 0.0, 4.75), F2.r())
+        col_box("OP_CasGate", (cw2 + 0.4, cw2 + 0.4, SUB_GATE_H), F2.p(s * xs2, 0.0, SUB_GATE_H / 2), F2.r())
+
+
+SUB_GATE_H = 12.0          # portao de madeira no pe da subida (item 33)
+GUARD_T = 1.3              # guarda das subidas: espessura no topo
+GUARD_H = 1.1              # topo da capa acima da linha dos focinhos (item 24: <= 1,1 visivel acima do degrau)
+GUARD_BATTER = 10.0
+
+
+def stair_guard(mb, nm, ground):
+    """M6b (item 24): GUARDA DE PEDRA das subidas A/B (antes: banzo com capa continua = 'caixa crua' 1,5 x 42,8 x 18,4
+    e face de fora lisa). Agora, dos 2 lados:
+      - fiada de cima INCLINADA (acompanha a escada) em pedras de 2,4-3,6 com junta de 0,06 e chanfro na aresta;
+      - capa em pecas de 2,2-2,8 com pingadeira 0,12 para os 2 lados e chanfro no topo;
+      - por fora, onde o chao de fora e mais baixo (raio na geometria ja montada: terreno/rocha), muro de ishigaki em
+        FIADAS horizontais de 1,2-1,8 com talude de 10 graus (o mesmo plano de face da fiada de cima) ate o chao;
+      - miolo escuro atras das juntas; pilaretes de arranque/chegada com tampa piramidal.
+    F no pe do 1o espelho (centro), sobe para +y (o mesmo referencial do K.stair_stone)."""
+    foot, deg, w, n, tread, g = L.stair_frame(nm)
+    F = Frame(foot[0], foot[1], foot[2], math.radians(deg) - math.pi / 2)
+    rise = L.stair_rise(nm)
+    tb = math.tan(math.radians(GUARD_BATTER))
+    line = lambda y: rise * (y / tread + 1.0)
+    top = lambda y: line(y) + GUARD_H
+    zu = lambda y: top(y) - 0.3                         # base da capa = topo da fiada de cima
+    zl = lambda y: line(y) - 0.9                        # base da fiada de cima (abaixo de todas as pisadas)
+    Y1 = tread * n
+    W = w / 2
+    key = ("sg", nm)
+    for s in (-1, 1):
+        xo = lambda y, z: s * (W + GUARD_T + (zu(y) - z) * tb)       # face de fora: um PLANO em talude
+        X = lambda v: s * v
+        # chao do lado de fora (cota local), amostrado a cada 1,5
+        ys = [min(Y1, 1.5 * i) for i in range(int(Y1 / 1.5) + 2)]
+        gz = []
+        for y in ys:
+            hz = -99.0
+            for dd in (0.7, 2.0, 3.6):
+                p = F.p(s * (W + GUARD_T + dd), y, 0.0)
+                z = ground.z(p.x, p.y, top=foot[2] + 60.0, floor=foot[2] - 60.0) - foot[2]   # raio de CIMA
+                hz = max(hz, z)
+            gz.append(max(-0.3, hz - 0.4))
+        gat = lambda y: gz[min(len(gz) - 1, max(0, int(round(y / 1.5))))]
+
+        def sec(y, z0, z1, xin):
+            """secao (x, y, z) de bloco do guarda no y: de xin (dentro) ate a face de fora em talude, chanfro no topo"""
+            pts = [(xin, y, z0), (xo(y, z0), y, z0), (xo(y, z1 - 0.1), y, z1 - 0.1), (xo(y, z1) - s * 0.1, y, z1),
+                   (xin + s * 0.1, y, z1), (xin, y, z1 - 0.1)]
+            return pts if s > 0 else list(reversed(pts))
+
+        def core(y, z0, z1, xin):
+            pts = [(xin, y, z0), (xo(y, z0) - s * 0.25, y, z0), (xo(y, z1) - s * 0.25, y, z1), (xin, y, z1)]
+            return pts if s > 0 else list(reversed(pts))
+        # miolo escuro (fiada de cima)
+        loft(mb, F, [core(y, zl(y) + 0.3, zu(y) - 0.15, X(W + 0.25)) for y in (0.3, Y1 - 0.3)], STD)
+        # fiada de cima (inclinada)
+        y, k, prev = 0.0, 0, False
+        while y < Y1 - 0.3:
+            y2 = min(Y1, y + 2.4 + 1.2 * K._h01(key, s, "u", k))
+            if Y1 - y2 < 1.4:
+                y2 = Y1
+            dark = K._h01(key, s, "ud", k) < 0.16 and not prev
+            loft(mb, F, [sec(yy, zl(yy), zu(yy), X(W)) for yy in (y + 0.03, y2 - 0.03)], STD if dark else WALL)
+            prev = dark
+            y, k = y2, k + 1
+        # capa em pecas com pingadeira
+
+        def csec(yy):
+            xa, xb = X(W - 0.12), X(W + GUARD_T + 0.12)
+            pts = [(xa, yy, zu(yy)), (xb, yy, zu(yy)), (xb, yy, top(yy) - 0.08), (xb - s * 0.08, yy, top(yy)),
+                   (xa + s * 0.08, yy, top(yy)), (xa, yy, top(yy) - 0.08)]
+            return pts if s > 0 else list(reversed(pts))
+        y, k = 0.0, 0
+        while y < Y1 - 0.3:
+            y2 = min(Y1, y + 2.2 + 0.6 * K._h01(key, s, "c", k))
+            if Y1 - y2 < 1.2:
+                y2 = Y1
+            loft(mb, F, [csec(y + 0.03), csec(y2 - 0.03)], STP)
+            y, k = y2, k + 1
+        # muro de fora em fiadas horizontais, so onde o chao de fora e mais baixo que a fiada de cima
+        zmin = min(gz)
+        if zmin < zl(Y1) - 0.5:
+            zs = _courses((key, s), zmin, zl(Y1), 1.5, 2.1)
+            used = []
+            for c in range(len(zs) - 1):
+                za, zb_ = zs[c], zs[c + 1]
+                ystart = max(0.0, tread * ((za + 0.25 + 0.9) / rise - 1.0))
+                ycross = tread * ((zb_ + 0.9) / rise - 1.0)          # onde a fiada de cima cruza o topo da fiada
+                y, k, prev = ystart, 0, False
+                while y < Y1 - 0.3:
+                    y2 = min(Y1, y + 2.8 + 1.4 * K._h01(key, s, c, k))
+                    if Y1 - y2 < 1.0:
+                        y2 = Y1
+                    if y < ycross < y2 and ycross - y > 0.6 and y2 - ycross > 0.6:
+                        y2 = ycross
+                    gmin = min(gat(y), gat(y2), gat((y + y2) / 2))
+                    zb0 = max(za, gmin) + 0.03
+                    t0, t1 = min(zb_, zl(y)) - 0.03, min(zb_, zl(y2)) - 0.03
+                    if min(t0, t1) - zb0 > 0.35:
+                        dark = K._h01(key, s, c, k, "d") < 0.16 and not prev
+                        loft(mb, F, [sec(y + 0.03, zb0, t0, X(W)), sec(y2 - 0.03, zb0, t1, X(W))],
+                             STD if dark else WALL)
+                        prev = dark
+                        used.append((y, y2))
+                    y, k = y2, k + 1
+            if used:                                        # miolo escuro atras das juntas do muro de fora
+                ya, yb_ = min(a for a, b in used), max(b for a, b in used)
+                loft(mb, F, [core(yy, zmin + 0.35, zl(yy) + 0.1, X(W + 0.2)) for yy in (ya + 0.1, yb_ - 0.1)], STD)
+        # pilaretes de arranque e chegada
+        for y0, y1 in ((0.0, 1.3), (Y1 - 1.3, Y1)):
+            zt = top(y1) + 0.35
+            bb(mb, F, X(W - 0.2), X(W + GUARD_T + 0.2), y0, y1, -0.3, zt, ST)
+            lathe(mb, F, (X(W + GUARD_T / 2), (y0 + y1) / 2, zt), [(1.05, 0.0), (1.05, 0.16), (0.3, 0.45), (0.1, 0.52)],
+                  4, STP, math.pi / 4)
 
 
 def stairs(mb):
+    import op_tree
+    ground = op_tree.Ground(-100.0, 330.0, -55.0, 445.0)
     for nm in ("Adro", "CasteloA", "CasteloB"):
         foot, deg, w, n, tread, g = L.stair_frame(nm)
+        guard = nm in ("CasteloA", "CasteloB")
         K.stair_stone(mb, Frame(foot[0], foot[1], foot[2], math.radians(deg) - math.pi / 2), w, n,
-                      rise=L.stair_rise(nm), tread=tread, z_floor=-0.3, cheek_h=1.0, newels=(nm == "CasteloB"))
+                      rise=L.stair_rise(nm), tread=tread, z_floor=-0.3, cheek_h=1.0, newels=False, cheeks=not guard)
+        if guard:
+            stair_guard(mb, nm, ground)
     # lanterna de pedra no patamar da subida
     K.toro(mb, Frame(-77.0, 388.0, CL, 0.0), 0.9, "L_OPProp_Lamp_Cas_Patamar", 30.0)
     col_box("OP_CasLamp", (2.6, 2.6, 7.0), (-77.0, 388.0, CL + 3.5))
@@ -945,6 +1344,7 @@ def build():
     rng = random.Random(4600)
     mk = MB("OP_Cas_Keep", C, rng, detail="near", floor=-999)
     keep(mk)
+    stretch_keep(mk)                                        # M6b (item 34, opcional)
     hall(mk)
     mk.finish()
     keep_cols()

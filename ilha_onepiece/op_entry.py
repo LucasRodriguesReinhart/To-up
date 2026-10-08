@@ -294,6 +294,11 @@ def bridge_deck():
     # longarinas (4) e travessas sob o tabuado (a cada 5,5): aparecem entre os arcos, vistas de baixo
     for x in (-6.4, -2.2, 2.2, 6.4):
         mb.beam((x, y_a, zf(y_a) - PLANK_T - 0.45), (x, y_b, zf(y_b) - PLANK_T - 0.45), 0.8, 0.9, WD, 0.0)
+    # M6b (item 10): CONTRATABUADO continuo sob as tabuas (tabua de 0,06 entre o tabuado e as longarinas, de testeira a
+    # testeira): as tabuas da cabeceira (y -120..-113) assentam nele e a junta de 0,12 mostra madeira escura, nao o
+    # viaduto claro la embaixo
+    mb.beam((0.0, y_a, zf(y_a) + 0.06 - PLANK_T - 0.03), (0.0, y_b, zf(y_b) + 0.06 - PLANK_T - 0.03), 2 * FAS[0] + 0.3,
+            0.06, WD, 0.0)
     # testeira vermelha continua (le como a borda vermelha da concept): meio-fio 0,35 acima do tabuado
     for s in (-1, 1):
         xc = s * (FAS[0] + FAS[1]) / 2
@@ -379,10 +384,11 @@ def viaduct():
                 dep = 1.6 if key else 1.3            # 0,2 abaixo do intradorso: sem fresta clara na junta
                 mb.box((0.62, ln, dep), (s * (FACE_X + 0.2), ym, zm + (0.2 if key else 0.0)),
                        (am - math.pi / 2, 0, 0), STD, 0.06)
-    # --- cornija continua sob a testeira (pedra escura, 0,3 para fora da face)
+    # --- cornija continua sob a testeira (pedra escura, 0,5 para fora da face). M6b (item 11): o lado de dentro dela
+    # ficava 0,07 dentro do timpano (coplanar visto por dentro do vao); agora encosta por fora (0,02)
     for s in (-1, 1):
-        mb.beam((s * (FACE_X + 0.18), Y0 + 3.0, zf(Y0 + 3.0) - 1.85),
-                (s * (FACE_X + 0.18), ABUT_Y[0] + 0.6, zf(ABUT_Y[0] + 0.6) - 1.85), 0.5, 0.6, STD, 0.0)
+        mb.beam((s * (FACE_X + 0.27), Y0 + 3.0, zf(Y0 + 3.0) - 1.85),
+                (s * (FACE_X + 0.27), ABUT_Y[0] + 0.6, zf(ABUT_Y[0] + 0.6) - 1.85), 0.5, 0.6, STD, 0.0)
     # --- pilares: talhamar nas 2 pontas (x), talude, fiadas (faixas alternadas recuadas), imposta e soco na agua
     for k, py in enumerate(PIERS):
         zi = spans[k][2] if k == 0 else min(spans[k - 1][3], spans[k][2])
@@ -424,8 +430,9 @@ def viaduct():
                       [(p[0], p[1], z) for p in plan(1.0, grow_t + g0)]], ST if hard else STD, caps=(True, True))
             z = zb_
             j += 1
-        # soco na linha d'agua (pedra escura, mais largo)
-        mb.prism(ccw(plan(1.0, 1.6)), SEA_BOT, 37.4, STD)
+        # soco na linha d'agua (pedra escura, mais largo). M6b (item 11): fundo 0,2 abaixo do pe do fuste (era o mesmo
+        # plano z 26, visto da DS por baixo)
+        mb.prism(ccw(plan(1.0, 1.6)), SEA_BOT - 0.2, 37.4, STD)
     # --- encontro de pedra na falesia (o patamar): bloco + 2 alas abertas a 35 graus, fiadas e capa
     y0, y1 = ABUT_Y
     zt = zf(y0) - top_off
@@ -452,7 +459,18 @@ def viaduct():
         mb.box((9.4, 2.6, 0.6), (mid.x, mid.y, zt + 0.3), (0, 0, ang), STD, 0.0)
     # capa do encontro sob a ponta da ponte (berco das longarinas)
     mb.box((2 * hx + 0.6, y1 + 3.0 - y0 + 0.4, 0.6), (0.0, (y0 + y1 + 3.0) / 2, zt + 0.3), (0, 0, 0), STD, 0.0)
-    mb.finish()
+    ob = mb.finish()
+    # M6b (item 11): o recalc do finish virava para DENTRO ~26 quadros dos timpanos (cascas abertas): no Roblox (face
+    # unica) eles sumiam vistos de fora. Timpano = face no plano x = +-FACE_X: normal sempre para fora
+    if ob is not None:
+        n = 0
+        for p in ob.data.polygons:
+            c = p.center
+            if abs(p.normal.x) > 0.9 and abs(abs(c.x) - FACE_X) < 0.03 and p.normal.x * c.x < 0:
+                p.flip()
+                n += 1
+        ob.data.update()
+        print("op_entry: timpanos virados para fora: %d" % n)
 
 
 def bridge_banners():

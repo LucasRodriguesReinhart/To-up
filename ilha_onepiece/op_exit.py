@@ -180,7 +180,10 @@ def west_head(mb):
     def plan(g):
         return ccw([(x0, y0 - g), (x1 + g, y0 - g), (x1 + g, y1 + g), (x0, y1 + g)])
     coursed(mb, plan, L.HARBOR - 0.4, TR_B, "absW", grow=0.9)
-    mb.box((x1 - x0 + 0.6, y1 - y0 + 0.6, 0.7), ((x0 + x1) / 2 + 0.3, (y0 + y1) / 2, TR_B - 0.35), (0, 0, 0), STD, 0.0)
+    # coxim escuro sob o tabuleiro (M6b item 15: comeca 0,25 dentro da face x0 das fiadas, antes coplanar a ela; topo
+    # 0,14 acima do fundo das transversinas/vigas, antes coplanar ao topo das vigas vermelhas)
+    mb.box((x1 - x0 + 0.35, y1 - y0 + 0.6, 0.8), ((x0 + 0.25 + x1 + 0.6) / 2, (y0 + y1) / 2, TR_B - 0.26), (0, 0, 0),
+           STD, 0.0)
     col_box("OP_ExitAbut", (x1 - x0 + 1.8, y1 - y0 + 1.8, T1 - L.HARBOR), ((x0 + x1) / 2 + 0.9, (y0 + y1) / 2,
                                                                            (L.HARBOR + T1) / 2 - 1.0))
 
@@ -191,7 +194,9 @@ def east_head(mb):
         return ccw([tuple(P(78.5 - g, -10.6 - g, 0)[:2]), tuple(P(D1 + 2.0, -10.6 - g, 0)[:2]),
                     tuple(P(D1 + 2.0, 10.6 + g, 0)[:2]), tuple(P(78.5 - g, 10.6 + g, 0)[:2])])
     coursed(mb, plan, 52.0, TR_B, "absE", grow=1.6)
-    mb.box((D1 + 2.0 - 78.5 + 0.8, 22.6, 0.7), P((78.5 + D1 + 2.0) / 2 - 0.4, 0.0, TR_B - 0.35), BF.r(), STD, 0.0)
+    # coxim (M6b item 15): d 78,1..87,7 (antes ia ate 88,0 = coplanar a face de ponta das fiadas) e topo TR_B + 0,14
+    # (0,16 acima do leito de grama do entalhe do op_terrain, antes 0,068)
+    mb.box((87.7 - 78.1, 22.6, 0.8), P((78.1 + 87.7) / 2, 0.0, TR_B - 0.26), BF.r(), STD, 0.0)
 
 
 # ================================================================== pilares + arco
@@ -251,7 +256,7 @@ def arch(mb):
     # contraventamento entre as costelas (vigas escuras atravessadas) a cada 2 pontos do arco
     for i in range(2, len(pts) - 2, 2):
         d, z, a = pts[i]
-        mb.box((0.7, 2 * RIB_V - RIB_W, 0.8), P(d, 0.0, z), BF.r(0, -a, 0), WD, 0.0)
+        mb.box((0.7, 2 * RIB_V - RIB_W + 0.2, 0.8), P(d, 0.0, z), BF.r(0, -a, 0), WD, 0.0)   # M6b item 13: entra 0,1 em cada costela
     # montantes vermelhos: da costela ate a transversina (onde a folga passa de 0,8)
     for d in stations():
         if not (PIERS[0] + PIER_HD < d < PIERS[1] - PIER_HD):
@@ -396,6 +401,8 @@ def build():
     west_head(st)
     east_head(st)
     headland(st, br)
+    K.cull_hidden(st)                                       # M6b: faces que ninguem ve (orcamento)
+    K.cull_hidden(br)
     st.finish()
     br.finish()
     for i, c in enumerate(lamps):

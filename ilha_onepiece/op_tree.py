@@ -2,7 +2,8 @@
 # PROMPT_USUARIO secao 9 + PLANO_OP secoes 0.6 e 9. Substitui tree_monument() do op_blockout.
 #   SILHUETA: tronco nasce de uma base com raizes no fundo-leste do patio do castelo (136,2), sobe a DIREITA da torre
 #     quase reto (leve inclinacao para fora), dobra num OMBRO mais fechado no alto da direita, passa por cima da torre
-#     num topo LONGO e baixo (~274) e desce a ESQUERDA com a ponta caida (nao e aro perfeito: curvatura assimetrica).
+#     num topo LONGO e baixo e desce a ESQUERDA com a ponta caida (nao e aro perfeito: curvatura assimetrica).
+#     M6b: arco mais BAIXO e mais LARGO (apice do tronco ~259, copa ~287, vao x -80..115): abraca o castelo (concept).
 #   ESPESSURA: progressiva, base monumental com alargamento e lobos que viram raizes (~1/3 da largura da torre no meio
 #     do tronco, como na ref_02), afinando ate a ponta; secao achatada (mais funda no plano do arco); caneluras largas
 #     com TORCAO DIRIGIDA (meia volta no comprimento todo) = fibra do tronco, nao torcao sem direcao.
@@ -26,14 +27,19 @@ TIER_A_TOP = CC + 26.0          # casca detalhada so ate aqui (patio 136,2 + ~20
 
 # ------------------------------------------------------------------ CONTRATO / ENVOLTORIA (ler antes de mexer)
 BASE_C = (54.0, 449.0)          # eixo do tronco no chao do patio (canto fundo-leste, colado ao muro)
-# tronco (x, y, z, raio): sobe a direita da torre, ombro alto a direita, topo longo e baixo, desce a esquerda
+# M6b (item 34, auditoria M6a): ARCO MAIS BAIXO E MAIS LARGO, como na concept (o arco ABRACA o castelo). Antes: apice do
+#   tronco 292,2 / copa 322,8 / vao x -66..104 (C alto e estreito, de lado lia poste em S). Agora: apice ~258, copa
+#   ~287, vao x ~-79..110 (+15%); base, raizes e lobos da base INTACTOS (os 3 primeiros pontos e BASE_C/ROOTS).
+#   O tronco sobe quase reto a direita da torre, abre para FORA da torre (ombro baixo e largo a direita), passa por cima
+#   da torre num topo longo e baixo e desce a esquerda com a ponta caida mais cedo. Raios ja FINAIS (sem escala depois).
+# tronco (x, y, z, raio)
 TRUNK = [(54.0, 449.0, CC - 5.0, 14.6), (55.0, 448.0, CC + 4.0, 13.8), (58.0, 447.0, CC + 16.0, 12.9),
-         (64.0, 445.0, CC + 32.0, 12.2), (71.0, 442.0, CC + 50.0, 11.6), (76.0, 439.0, CC + 70.0, 11.0),
-         (77.0, 435.0, CC + 90.0, 10.4), (73.0, 430.0, CC + 110.0, 9.8), (62.0, 424.0, CC + 126.0, 9.2),
-         (44.0, 417.0, CC + 138.0, 9.2), (22.0, 412.0, CC + 145.0, 8.8), (-2.0, 409.0, CC + 147.0, 8.2),
-         (-24.0, 409.0, CC + 143.0, 7.4), (-42.0, 411.0, CC + 134.0, 6.5), (-54.0, 414.0, CC + 121.0, 5.6),
-         (-60.0, 416.0, CC + 106.0, 4.6), (-61.0, 417.0, CC + 92.0, 3.7), (-58.0, 416.0, CC + 82.0, 2.6),
-         (-52.0, 414.0, CC + 76.0, 1.8)]
+         (63.0, 445.0, CC + 30.0, 13.0), (71.0, 442.0, CC + 46.0, 12.4), (80.0, 439.0, CC + 62.0, 11.9),
+         (89.0, 435.0, CC + 78.0, 11.4), (96.0, 430.0, CC + 93.0, 10.9), (94.0, 424.0, CC + 104.0, 10.4),
+         (81.0, 418.0, CC + 110.5, 10.0), (58.0, 413.0, CC + 113.0, 9.6), (32.0, 410.0, CC + 113.5, 9.2),
+         (7.0, 409.0, CC + 112.0, 8.8), (-17.0, 409.0, CC + 108.0, 8.2), (-39.0, 410.0, CC + 101.0, 7.4),
+         (-57.0, 413.0, CC + 91.0, 6.6), (-69.0, 415.0, CC + 79.0, 5.6), (-75.0, 416.0, CC + 66.0, 4.6),
+         (-75.0, 417.0, CC + 55.0, 3.6), (-71.0, 416.0, CC + 47.0, 2.6), (-65.0, 414.0, CC + 42.0, 1.8)]
 FLAT = 0.84                     # secao: raio no plano do arco = r; de lado = r * FLAT
 # raizes-contraforte: (angulo no chao em graus, comprimento, raio na saida, achatamento, garfo, peso do lobo na base)
 #   direcoes LONGE da torre; as do patio sao rentes (pisaveis), as de fora agarram o muro e a rocha
@@ -44,28 +50,27 @@ ROOTS = [(-10.0, 30.0, 6.4, 0.52, True, 1.0),     # leste: por cima do muro, esc
          (172.0, 17.0, 6.0, 0.5, True, 0.9),      # oeste: patio, atras da torre (y > 446), rente no fim
          (250.0, 12.0, 5.6, 0.5, False, 0.8),     # sul-sudoeste: patio (curta; longe do canto da torre)
          (284.0, 20.0, 5.6, 0.52, False, 0.9)]    # sul: ao longo do muro leste, para o yagura
-# copa: massas (centro, raio, achatamento, n_conjuntos, papel) - so por cima/fora do arco (miolo aberto)
-MASSES = [((-6.0, 412.0, CC + 160.0), 34.0, 0.74, 6, "principal: topo"),
-          ((54.0, 424.0, CC + 150.0), 28.0, 0.76, 5, "principal: ombro da direita"),
-          ((-46.0, 413.0, CC + 154.0), 25.0, 0.78, 5, "principal: esquerda (emissor de petalas)"),
-          ((-58.0, 414.0, CC + 78.0), 21.0, 0.86, 4, "principal: ponta caida da esquerda (gancho)"),
-          ((92.0, 438.0, CC + 102.0), 19.0, 0.82, 3, "secundaria: galho da direita"),
-          ((86.0, 432.0, CC + 132.0), 16.0, 0.8, 2, "secundaria: fora do ombro"),
-          ((84.0, 460.0, CC + 64.0), 13.0, 0.8, 2, "secundaria: atras, vista do patio"),
-          ((16.0, 440.0, CC + 166.0), 21.0, 0.74, 3, "secundaria: topo atras (profundidade)"),
-          ((-28.0, 437.0, CC + 156.0), 17.0, 0.74, 2, "secundaria: esquerda atras"),
-          ((24.0, 392.0, CC + 156.0), 14.0, 0.76, 2, "secundaria: topo na frente")]
+# copa (M6b, item 35: era um "colar" de ~10 almofadas iguais ao longo do arco). Agora 2 MASSAS PRINCIPAIS (topo, sobre o
+#   meio do arco, e esquerda, onde o arco comeca a cair) + 6 SECUNDARIAS de tamanhos bem diferentes, com VAOS de ceu
+#   entre elas; cada massa e uma "nuvem-prato" (largura > altura, alongada ao longo do arco, satelites caindo nas
+#   pontas). Raios FINAIS. (centro, raio, achatamento, n_conjuntos, alongamento ao longo de x, papel)
+MASSES = [((12.0, 412.0, CC + 132.0), 25.0, 0.8, 6, 1.4, "principal: topo (sobre o meio do arco)"),
+          ((-52.0, 413.0, CC + 116.0), 25.0, 0.8, 5, 1.3, "principal: esquerda (emissor de petalas)"),
+          ((96.0, 427.0, CC + 114.0), 18.0, 0.78, 3, 1.25, "secundaria: ombro da direita"),
+          ((108.0, 437.0, CC + 84.0), 13.0, 0.8, 2, 1.2, "secundaria: galho da direita (baixo)"),
+          ((84.0, 460.0, CC + 64.0), 9.5, 0.8, 2, 1.1, "secundaria: atras, vista do patio"),
+          ((44.0, 436.0, CC + 124.0), 13.0, 0.76, 2, 1.3, "secundaria: topo atras (profundidade)"),
+          ((-20.0, 392.0, CC + 119.0), 11.0, 0.78, 2, 1.2, "secundaria: topo na frente"),
+          ((-70.0, 416.0, CC + 46.0), 11.0, 0.86, 2, 1.0, "secundaria: ponta caida (gancho)")]
 # galhos: (ponto aproximado de saida no tronco, pontos (x, y, z, r)) - curtos e grossos; terminam DENTRO de uma massa
-BRANCHES = [((76.0, 438.0, CC + 80.0), [(86.0, 438.0, CC + 92.0, 4.8), (92.0, 438.0, CC + 100.0, 3.0)]),
-            ((64.0, 445.0, CC + 38.0), [(76.0, 456.0, CC + 52.0, 3.4), (84.0, 460.0, CC + 62.0, 2.0)]),
-            ((66.0, 426.0, CC + 122.0), [(61.0, 424.0, CC + 138.0, 4.4), (54.0, 424.0, CC + 148.0, 2.8)]),
-            ((75.0, 431.0, CC + 106.0), [(82.0, 432.0, CC + 122.0, 3.2), (86.0, 432.0, CC + 130.0, 1.8)]),
-            ((30.0, 413.0, CC + 143.0), [(23.0, 428.0, CC + 156.0, 3.6), (16.0, 439.0, CC + 163.0, 2.2)]),
-            ((36.0, 414.0, CC + 141.0), [(30.0, 400.0, CC + 150.0, 2.8), (24.0, 393.0, CC + 155.0, 1.6)]),
-            ((4.0, 409.0, CC + 147.0), [(-1.0, 411.0, CC + 154.0, 4.4), (-6.0, 412.0, CC + 159.0, 3.0)]),
-            ((-30.0, 410.0, CC + 141.0), [(-38.0, 412.0, CC + 149.0, 3.6), (-46.0, 413.0, CC + 153.0, 2.2)]),
-            ((-20.0, 409.0, CC + 144.0), [(-24.0, 425.0, CC + 151.0, 3.0), (-28.0, 436.0, CC + 155.0, 1.8)]),
-            ((-60.0, 416.0, CC + 100.0), [(-64.0, 418.0, CC + 90.0, 2.2), (-64.0, 416.0, CC + 84.0, 1.4)])]
+BRANCHES = [((89.0, 435.0, CC + 78.0), [(100.0, 437.0, CC + 81.0, 4.4), (107.0, 437.0, CC + 83.0, 2.6)]),
+            ((63.0, 445.0, CC + 36.0), [(76.0, 456.0, CC + 52.0, 3.4), (84.0, 460.0, CC + 62.0, 2.0)]),
+            ((95.0, 427.0, CC + 100.0), [(96.0, 427.0, CC + 109.0, 3.8), (93.0, 427.0, CC + 115.0, 2.2)]),
+            ((58.0, 413.0, CC + 113.0), [(52.0, 424.0, CC + 120.0, 3.6), (45.0, 434.0, CC + 124.0, 2.2)]),
+            ((22.0, 410.0, CC + 113.0), [(17.0, 411.0, CC + 121.0, 4.2), (12.0, 412.0, CC + 127.0, 2.8)]),
+            ((-6.0, 409.0, CC + 110.0), [(-12.0, 400.0, CC + 116.0, 3.0), (-19.0, 393.0, CC + 120.0, 1.8)]),
+            ((-36.0, 410.0, CC + 102.0), [(-43.0, 412.0, CC + 107.0, 3.6), (-50.0, 413.0, CC + 111.0, 2.2)]),
+            ((-24.0, 409.0, CC + 106.0), [(-30.0, 421.0, CC + 113.0, 3.0), (-38.0, 430.0, CC + 117.0, 1.8)])]
 # o castelo NAO pode entrar aqui (poligono no nivel do patio, z de CC a CC+30): o muro do fundo-leste deve TERMINAR
 # encostado na base/raizes (as raizes passam por cima do muro do blockout ate o op_castle refazer o encontro)
 TREE_KEEPOUT = [(30.0, 452.0), (34.0, 436.0), (48.0, 426.0), (58.0, 410.0), (78.0, 410.0), (84.0, 432.0),
@@ -77,8 +82,12 @@ def castle_envelope():
     """volumes do castelo que a arvore respeita (lidos do op_layout): caixas (x0, y0, z0, x1, y1, z1)"""
     kx, ky = L.KEEP_C
     out = []
+    try:
+        from op_castle import kz                     # M6b: andares de cima da torre esticados (op_castle.KEEP_STRETCH)
+    except Exception:
+        kz = lambda z: z
     for i, (hx, hy, z0, hw, over) in enumerate(L.KEEP_TIERS):
-        top = (CC + z0 + hw + (10.0 if i == len(L.KEEP_TIERS) - 1 else 3.6))
+        top = CC + kz(z0 + hw + (10.0 if i == len(L.KEEP_TIERS) - 1 else 3.6))
         out.append(("torre_andar_%d" % i, (kx - hx - over, ky - hy - over, CC, kx + hx + over, ky + hy + over, top)))
     out.append(("torre_base_talude", (kx - L.KEEP_TIERS[0][0] - 3.0, ky - L.KEEP_TIERS[0][1] - 3.0, CC,
                                       kx + L.KEEP_TIERS[0][0] + 3.0, ky + L.KEEP_TIERS[0][1] + 3.0, CC + 5.0)))
@@ -87,8 +96,7 @@ def castle_envelope():
     return out
 
 
-MASSES = [(c, r * 1.12, f, n, papel) for c, r, f, n, papel in MASSES]       # +12% (volta 6: presenca na Ref_01)
-TRUNK = [(x, y, z, r * (1.0 if i < 3 else 1.08)) for i, (x, y, z, r) in enumerate(TRUNK)]   # meio do tronco +8%
+# (M6b: as escalas da volta 6 - copa +12%, meio do tronco +8% - ja estao embutidas nos raios FINAIS acima)
 
 
 def tree_envelope():
@@ -104,7 +112,7 @@ def tree_envelope():
         for p in pts:
             caps.append((prev[:3], p[:3], max(prev[3] * 0.55, p[3])))
             prev = p
-    blobs = [(c, (r * 1.25, r * 1.15, r * f * 1.3)) for c, r, f, n, _ in MASSES]
+    blobs = [(c, (r * 1.25 * ax, r * 1.15, r * f * 1.3)) for c, r, f, n, ax, _ in MASSES]
     return {"capsules": caps, "blobs": blobs, "keepout": list(TREE_KEEPOUT), "keepout_z": (CC - 20.0, CC + 30.0)}
 
 
@@ -578,16 +586,21 @@ def blossom_set(mb, c, r, flat, tmpl, rot):
 
 
 def canopy(mb, rng):
+    """cada massa = conjunto central + satelites que se alternam para os 2 lados AO LONGO DE X (prato alongado 'ax'),
+    cada vez menores e mais baixos nas pontas (silhueta de nuvem-prato com a borda caindo, nao bola); entre as massas
+    ficam vaos de ceu (centros afastados mais que a soma dos alcances)"""
     k = 0
-    for mi, (c, r, flat, nsets, _) in enumerate(MASSES):
-        # conjunto central grande + satelites (silhueta recortada, sem nuvem uniforme)
-        blossom_set(mb, c, r * 0.8, flat, TEMPLATES[k % 3], rng.uniform(0, 6.28))
+    for mi, (c, r, flat, nsets, ax, _) in enumerate(MASSES):
+        blossom_set(mb, c, r * 0.78, flat, TEMPLATES[k % 3], rng.uniform(0, 6.28))
         k += 1
         for j in range(1, nsets):
-            a = rng.uniform(0, 6.28) + j * 2.1
-            d = r * rng.uniform(0.5, 0.7)
-            cc = (c[0] + math.cos(a) * d, c[1] + math.sin(a) * d * 0.7, c[2] + rng.uniform(-0.25, 0.2) * r * flat)
-            blossom_set(mb, cc, r * rng.uniform(0.48, 0.6), flat, TEMPLATES[k % 3], rng.uniform(0, 6.28))
+            side = 1 if j % 2 else -1
+            rank = (j + 1) // 2
+            u = side * r * ax * (0.55 + 0.32 * (rank - 1)) * rng.uniform(0.9, 1.1)
+            v = r * rng.uniform(-0.55, 0.55)            # profundidade (de lado o arco nao le poste)
+            dz = -r * flat * (0.12 + 0.2 * (rank - 1)) + rng.uniform(-0.08, 0.1) * r * flat
+            sr = r * (0.62 - 0.1 * (rank - 1)) * rng.uniform(0.9, 1.05)
+            blossom_set(mb, (c[0] + u, c[1] + v, c[2] + dz), sr, flat, TEMPLATES[k % 3], rng.uniform(0, 6.28))
             k += 1
     return k
 
@@ -700,12 +713,14 @@ def check_castle(verbose=True):
         return (BVHTree.FromPolygons(vs, fs), vs, fs) if fs else (None, vs, fs)
     tb, tv, tf = bvh_of("OP_Tree_")
     cb, cv, cf = bvh_of("OP_Cas_")
-    hard, wall = 0, 0
+    hard, wall, floor = 0, 0, 0
     where = []
     if tb and cb:
         for i, j in tb.overlap(cb):
             c = sum((tv[k] for k in tf[i]), Vector()) / len(tf[i])          # onde a ARVORE encosta
-            if L.point_in_poly(c.x, c.y, TREE_KEEPOUT) and c.z < CC + 30.0:
+            if max(cv[k].z for k in cf[j]) <= CC + 0.45:
+                floor += 1          # M6b: raiz meio enterrada no PISO do patio (lajes/cascalho do op_castle) = esperado
+            elif L.point_in_poly(c.x, c.y, TREE_KEEPOUT) and c.z < CC + 30.0:
                 wall += 1
             else:
                 hard += 1
@@ -731,8 +746,8 @@ def check_castle(verbose=True):
     ok = hard == 0 and worst[0] >= CLEAR_CASTLE
     if verbose:
         print(("OK   " if ok else "FAIL ") + "OP_TREE castelo: %d interseccoes fora da base %s | %d encontros base x muro "
-              "(no TREE_KEEPOUT: o op_castle termina o muro ali) | folga minima tronco/galho/copa -> castelo %.1f (%s)" % (
-                  hard, " ".join(where), wall, worst[0], worst[1]))
+              "(no TREE_KEEPOUT: o op_castle termina o muro ali) | %d raizes assentadas no piso do patio | folga minima "
+              "tronco/galho/copa -> castelo %.1f (%s)" % (hard, " ".join(where), wall, floor, worst[0], worst[1]))
     return ok, hard, wall, worst
 
 

@@ -52,9 +52,18 @@ def shop_frame(nm):
     return Frame(x, y, z, math.radians(deg) - math.pi / 2)
 
 
+# M6b item 19: fundos que dao para o beco do bloco leste (C6) com janelas, nao reboco liso
+BACKS = {"C6": ["plaster", "shoji", "koshi", "plaster"]}
+
+
 def shop_spec(nm):
     nm_, fam, x, y, w, d, deg, z, fl, roof, rm = _spec(nm)
-    return dict(K.PRESETS[nm], W=w, D=d, roof_m=rm, seed=1000 + TRECHO.index(nm) * 37)
+    sp = dict(K.PRESETS[nm], W=w, D=d, roof_m=rm, seed=1000 + TRECHO.index(nm) * 37)
+    if nm in BACKS:
+        floors = [dict(f) for f in sp["floors"]]
+        floors[0]["back"] = BACKS[nm]
+        sp["floors"] = floors
+    return sp
 
 
 def paved_footprint():
@@ -91,6 +100,7 @@ def _shops():
         sp = shop_spec(nm)
         out[nm] = K.house(mb, F, sp, "L_OPCap_Win_M2%s" % nm, 70.0)
         K.house_cols("OP_CapHouse" + nm, F, sp)
+    K.cull_hidden(mb)                                        # M6b: faces que ninguem ve (orcamento)
     mb.finish()
     return out
 
@@ -113,6 +123,7 @@ def _lamps_and_stair():
         col_box("OP_PropLamp", (0.9, 0.9, 9.0), (x, y, T1 + 4.5))
     K.bench(ml, Frame(0.0, 0.0, 0.0, 0.0), -27.0, 91.6, 6.0, 1.8, 1.7, 0.0, T1)     # recanto da viela do canal
     col_box("OP_CapBench", (6.0, 1.8, 1.7), (-27.0, 91.6, T1 + 0.85))
+    K.cull_hidden(mb)                                        # M6b
     mb.finish()
 
 
@@ -296,9 +307,10 @@ def _praca_props(mb):
             paved = not (side == "W" and i == 0)               # oeste alem de x -64: grama da praca (sem lajes)
             if paved:                                          # sob as lajes da faixa: topo escondido, face 0,14 a frente
                 K.retaining_wall(ma, Frame(mx, my, zt, ang), ln + 1.2, h, 6.0, key="rw%s%d" % (side, i), cap=False,
-                                 top=-0.16, face_off=0.14)
+                                 top=-0.16, face_off=0.14, core_lift=0.15)
             else:                                              # capa propria 0,15 acima da pele de grama
-                K.retaining_wall(ma, Frame(mx, my, zt, ang), ln + 1.2, h, 6.0, key="rw%s%d" % (side, i))
+                K.retaining_wall(ma, Frame(mx, my, zt, ang), ln + 1.2, h, 6.0, key="rw%s%d" % (side, i),
+                                 core_lift=0.15)              # M6b item 22: fundo do miolo 0,27 acima do das pedras
     ma.finish()
     for side, pts in (("E", [(15.6, 118.0)] + EDGE_E[1:]), ("W", [(-118.0, 118.0), (-15.6, 118.0)])):
         for i, ((mx, my), ang, ln, nrm) in enumerate(_seg_frames(pts, 0.95)):
@@ -341,6 +353,7 @@ def build_praca():
     mb.finish()
     mp = MB("OP_Plz_M2_Borda", "03_PLAZA", random.Random(304), detail="hero")
     _praca_props(mp)
+    K.cull_hidden(mp)                                        # M6b
     mp.finish()
     _fallback_north()
     print("op_m2_praca: faixa sul %d lajes + emblema + borda" % n)
