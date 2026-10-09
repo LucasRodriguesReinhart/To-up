@@ -34,3 +34,18 @@ ou o place que o usuario liberar), MCP conectado.
    portais 1..6 (Disco toca -> Main); ponte a pe ate a Ilha 1 (z 222, cota 6); FPS; luzes/VFX; sem buracos.
    `screen_capture` derruba o Play: capturas so no Edit.
 9. Nunca salvar o place. Relatorio + capturas para o usuario; so depois do OK dele levar ao place oficial.
+
+## Feito em 2026-10-09 (export c4718331, com a ilha dos portais)
+- Backup: ServerStorage.Antes_Santuario_20261009 (lobby Vila Medieval 6c3d0295 inteiro, VFX_MOVING, copias de
+  SpawnLobby/MailBox/LojaMochilas, LobbyLayout antigo, estado do Lighting). GlobalTop100 e CircularUI foram levados ao
+  lobby novo (o montar faz o PivotTo do ranking; o bloco PINTURA posiciona as placas MUNDOS/MOCHILAS/IGNIS).
+- Import: File > Import (17,33)->(42,182) + filedlg2 + Import Preview -> Import (1275,856), 1 FBX por vez
+  (scratchpad imp1.ps1 = import_preview_one.ps1 checando o Preview). 251/251 malhas.
+- Montar via http.server 8774 + GetAsync + loadstring em task.spawn. ATENCAO: o bloco de materiais do montar
+  compartilhado limpa o TextureID das familias de detalhe (RICO = false); o bloco PINTURA (export_sn) reaplica o atlas
+  SNB_* pelo TEX lido na mesma passada. Se o montar rodar de novo, os ids ja estao fixados no TEX deste .lua
+  (e export/aplicar_atlas_c4718331.lua reaplica por nome de malha).
+- LobbyLayout: Spawn (0,13.3,64), Shop (71.146,11.7,-33.175), ShopFacing (76.583,11.7,-35.711), Ignis (-0.9,10.5,-46),
+  PortalIsland (-222,10.5,12). IslandTravel.lobbyAt ja cobre a ilha dos portais (x -430..-100, z -160..120).
+- Play testado: nasce em (0,12.8,64) olhando a forja; a pe ate o patio da ilha 18,3 s sem recuperacao; Portal1 -> area 1;
+  volta ao lobby; PadLoja tocado; Ignis a 15 do belly (alcance 18); ponte sul ate a Ilha 1 (area 1 em z ~190). Place NAO salvo.

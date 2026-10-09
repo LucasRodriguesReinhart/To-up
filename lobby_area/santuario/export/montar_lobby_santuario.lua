@@ -37,12 +37,12 @@ pcall(function() PS:CollisionGroupSetCollidable('SoVisual', 'Personagens', false
 -- ids das texturas (rbxassetid://...). Vazio = usa o que o 3D Importer subiu (lido das MeshParts).
 -- Alternativa: suba as PNG de textures/ pelo Asset Manager e cole os ids aqui.
 local TEX = {
-  ['P_DB_Swirl'] = '',  -- textures/T_swirl_db_v6.png (espiral, UV do disco)
-  ['P_DS_Swirl'] = '',  -- textures/T_swirl_ds_v5.png (espiral, UV do disco)
-  ['P_Naruto_Swirl'] = '',  -- textures/T_swirl_naruto_v5.png (espiral, UV do disco)
-  ['P_OPM_Swirl'] = '',  -- textures/T_swirl_opm_v6.png (espiral, UV do disco)
-  ['P_OP_Swirl'] = '',  -- textures/T_swirl_op_v4.png (espiral, UV do disco)
-  ['P_Shadow_Swirl'] = '',  -- textures/T_swirl_shadow_v4.png (espiral, UV do disco)
+  ['P_DB_Swirl'] = 'rbxassetid://91221951942873',  -- textures/T_swirl_db_v6.png (espiral, UV do disco)
+  ['P_DS_Swirl'] = 'rbxassetid://139634673018690',  -- textures/T_swirl_ds_v5.png (espiral, UV do disco)
+  ['P_Naruto_Swirl'] = 'rbxassetid://95232761781980',  -- textures/T_swirl_naruto_v5.png (espiral, UV do disco)
+  ['P_OPM_Swirl'] = 'rbxassetid://93706298716947',  -- textures/T_swirl_opm_v6.png (espiral, UV do disco)
+  ['P_OP_Swirl'] = 'rbxassetid://102024173033816',  -- textures/T_swirl_op_v4.png (espiral, UV do disco)
+  ['P_Shadow_Swirl'] = 'rbxassetid://114361126513660',  -- textures/T_swirl_shadow_v4.png (espiral, UV do disco)
   ['dirt'] = '',  -- textures/T_dirt_v3.png (10.0 studs por repeticao)
   ['grass'] = '',  -- textures/T_grass_v3.png (14.0 studs por repeticao)
   ['plaster'] = '',  -- textures/T_plaster_v3.png (8.0 studs por repeticao)
@@ -54,56 +54,56 @@ local TEX = {
   ['sn_basalt'] = '',  -- textures/SN_basalt_v1.png (14.0 studs por repeticao)
   ['sn_bronze'] = '',  -- textures/SN_bronze_v1.png (5.0 studs por repeticao)
   ['sn_carved'] = '',  -- textures/SN_carved_v1.png (8.0 studs por repeticao)
-  ['sn_hills'] = '',  -- textures/SN_hills_v1.png (1.0 studs por repeticao)
+  ['sn_hills'] = 'rbxassetid://128801099251280',  -- textures/SN_hills_v1.png (1.0 studs por repeticao)
   ['sn_moss'] = '',  -- textures/SN_moss_v1.png (8.0 studs por repeticao)
-  ['sn_mountain'] = '',  -- textures/SN_mountain_v1.png (1.0 studs por repeticao)
+  ['sn_mountain'] = 'rbxassetid://83219449112195',  -- textures/SN_mountain_v1.png (1.0 studs por repeticao)
   ['sn_plaza'] = '',  -- textures/SN_plaza_v1.png (10.0 studs por repeticao)
   ['sn_rock_far'] = '',  -- textures/SN_rock_far_v1.png (90.0 studs por repeticao)
   ['sn_rubble'] = '',  -- textures/SN_rubble_v1.png (6.0 studs por repeticao)
   ['sn_snow_far'] = '',  -- textures/SN_snow_far_v1.png (120.0 studs por repeticao)
   ['sn_wood_aged'] = '',  -- textures/SN_wood_aged_v1.png (6.0 studs por repeticao)
-  ['snb_anvil_1'] = '',  -- textures/SNB_Anvil_1.png (1.0 studs por repeticao)
-  ['snb_anvil_2'] = '',  -- textures/SNB_Anvil_2.png (1.0 studs por repeticao)
-  ['snb_anvil_3'] = '',  -- textures/SNB_Anvil_3.png (1.0 studs por repeticao)
-  ['snb_anvil_4'] = '',  -- textures/SNB_Anvil_4.png (1.0 studs por repeticao)
-  ['snb_anvil_5'] = '',  -- textures/SNB_Anvil_5.png (1.0 studs por repeticao)
-  ['snb_anvil_6'] = '',  -- textures/SNB_Anvil_6.png (1.0 studs por repeticao)
-  ['snb_anvil_7'] = '',  -- textures/SNB_Anvil_7.png (1.0 studs por repeticao)
-  ['snb_anvil_8'] = '',  -- textures/SNB_Anvil_8.png (1.0 studs por repeticao)
-  ['snb_avenue'] = '',  -- textures/SNB_Avenue.png (1.0 studs por repeticao)
-  ['snb_bridge'] = '',  -- textures/SNB_Bridge.png (1.0 studs por repeticao)
-  ['snb_dais_1'] = '',  -- textures/SNB_Dais_1.png (1.0 studs por repeticao)
-  ['snb_dais_2'] = '',  -- textures/SNB_Dais_2.png (1.0 studs por repeticao)
-  ['snb_gate'] = '',  -- textures/SNB_Gate.png (1.0 studs por repeticao)
-  ['snb_ground_1'] = '',  -- textures/SNB_Ground_1.png (1.0 studs por repeticao)
-  ['snb_ground_2'] = '',  -- textures/SNB_Ground_2.png (1.0 studs por repeticao)
-  ['snb_ground_3'] = '',  -- textures/SNB_Ground_3.png (1.0 studs por repeticao)
-  ['snb_hall'] = '',  -- textures/SNB_Hall.png (1.0 studs por repeticao)
-  ['snb_hammer_1'] = '',  -- textures/SNB_Hammer_1.png (1.0 studs por repeticao)
-  ['snb_hammer_2'] = '',  -- textures/SNB_Hammer_2.png (1.0 studs por repeticao)
-  ['snb_isle'] = '',  -- textures/SNB_Isle.png (1.0 studs por repeticao)
-  ['snb_islebridge'] = '',  -- textures/SNB_IsleBridge.png (1.0 studs por repeticao)
-  ['snb_plaza_1'] = '',  -- textures/SNB_Plaza_1.png (1.0 studs por repeticao)
-  ['snb_plaza_2'] = '',  -- textures/SNB_Plaza_2.png (1.0 studs por repeticao)
-  ['snb_rank_1'] = '',  -- textures/SNB_Rank_1.png (1.0 studs por repeticao)
-  ['snb_rank_2'] = '',  -- textures/SNB_Rank_2.png (1.0 studs por repeticao)
-  ['snb_ruins'] = '',  -- textures/SNB_Ruins.png (1.0 studs por repeticao)
-  ['snb_shop_1'] = '',  -- textures/SNB_Shop_1.png (1.0 studs por repeticao)
-  ['snb_shop_2'] = '',  -- textures/SNB_Shop_2.png (1.0 studs por repeticao)
-  ['snb_shopin'] = '',  -- textures/SNB_ShopIn.png (1.0 studs por repeticao)
-  ['snb_shore'] = '',  -- textures/SNB_Shore.png (1.0 studs por repeticao)
-  ['snb_spawn'] = '',  -- textures/SNB_Spawn.png (1.0 studs por repeticao)
-  ['snb_tufts'] = '',  -- textures/SNB_Tufts.png (1.0 studs por repeticao)
-  ['snb_veg_ancient'] = '',  -- textures/SNB_Veg_ancient.png (1.0 studs por repeticao)
-  ['snb_veg_bush1'] = '',  -- textures/SNB_Veg_bush1.png (1.0 studs por repeticao)
-  ['snb_veg_bushf'] = '',  -- textures/SNB_Veg_bushF.png (1.0 studs por repeticao)
-  ['snb_veg_oak1'] = '',  -- textures/SNB_Veg_oak1.png (1.0 studs por repeticao)
-  ['snb_veg_oak2'] = '',  -- textures/SNB_Veg_oak2.png (1.0 studs por repeticao)
-  ['snb_veg_oak3'] = '',  -- textures/SNB_Veg_oak3.png (1.0 studs por repeticao)
-  ['snb_veg_oakg'] = '',  -- textures/SNB_Veg_oakG.png (1.0 studs por repeticao)
-  ['snb_veg_pine1'] = '',  -- textures/SNB_Veg_pine1.png (1.0 studs por repeticao)
-  ['snb_veg_pine2'] = '',  -- textures/SNB_Veg_pine2.png (1.0 studs por repeticao)
-  ['stone'] = '',  -- textures/T_stone_v3.png (6.0 studs por repeticao)
+  ['snb_anvil_1'] = 'rbxassetid://72096055454712',  -- textures/SNB_Anvil_1.png (1.0 studs por repeticao)
+  ['snb_anvil_2'] = 'rbxassetid://96906161085307',  -- textures/SNB_Anvil_2.png (1.0 studs por repeticao)
+  ['snb_anvil_3'] = 'rbxassetid://98241033311540',  -- textures/SNB_Anvil_3.png (1.0 studs por repeticao)
+  ['snb_anvil_4'] = 'rbxassetid://85989397545717',  -- textures/SNB_Anvil_4.png (1.0 studs por repeticao)
+  ['snb_anvil_5'] = 'rbxassetid://86107608872522',  -- textures/SNB_Anvil_5.png (1.0 studs por repeticao)
+  ['snb_anvil_6'] = 'rbxassetid://112714795509692',  -- textures/SNB_Anvil_6.png (1.0 studs por repeticao)
+  ['snb_anvil_7'] = 'rbxassetid://125074694425220',  -- textures/SNB_Anvil_7.png (1.0 studs por repeticao)
+  ['snb_anvil_8'] = 'rbxassetid://106203822557673',  -- textures/SNB_Anvil_8.png (1.0 studs por repeticao)
+  ['snb_avenue'] = 'rbxassetid://82949378159758',  -- textures/SNB_Avenue.png (1.0 studs por repeticao)
+  ['snb_bridge'] = 'rbxassetid://98133617995163',  -- textures/SNB_Bridge.png (1.0 studs por repeticao)
+  ['snb_dais_1'] = 'rbxassetid://114424453178069',  -- textures/SNB_Dais_1.png (1.0 studs por repeticao)
+  ['snb_dais_2'] = 'rbxassetid://96080021594660',  -- textures/SNB_Dais_2.png (1.0 studs por repeticao)
+  ['snb_gate'] = 'rbxassetid://119238678301443',  -- textures/SNB_Gate.png (1.0 studs por repeticao)
+  ['snb_ground_1'] = 'rbxassetid://94633508539044',  -- textures/SNB_Ground_1.png (1.0 studs por repeticao)
+  ['snb_ground_2'] = 'rbxassetid://91054907765870',  -- textures/SNB_Ground_2.png (1.0 studs por repeticao)
+  ['snb_ground_3'] = 'rbxassetid://126084596765771',  -- textures/SNB_Ground_3.png (1.0 studs por repeticao)
+  ['snb_hall'] = 'rbxassetid://84961434919540',  -- textures/SNB_Hall.png (1.0 studs por repeticao)
+  ['snb_hammer_1'] = 'rbxassetid://95277181868090',  -- textures/SNB_Hammer_1.png (1.0 studs por repeticao)
+  ['snb_hammer_2'] = 'rbxassetid://77805205377418',  -- textures/SNB_Hammer_2.png (1.0 studs por repeticao)
+  ['snb_isle'] = 'rbxassetid://92173774844617',  -- textures/SNB_Isle.png (1.0 studs por repeticao)
+  ['snb_islebridge'] = 'rbxassetid://109898016706199',  -- textures/SNB_IsleBridge.png (1.0 studs por repeticao)
+  ['snb_plaza_1'] = 'rbxassetid://100720295906740',  -- textures/SNB_Plaza_1.png (1.0 studs por repeticao)
+  ['snb_plaza_2'] = 'rbxassetid://104622437061959',  -- textures/SNB_Plaza_2.png (1.0 studs por repeticao)
+  ['snb_rank_1'] = 'rbxassetid://124208267700034',  -- textures/SNB_Rank_1.png (1.0 studs por repeticao)
+  ['snb_rank_2'] = 'rbxassetid://117490541462057',  -- textures/SNB_Rank_2.png (1.0 studs por repeticao)
+  ['snb_ruins'] = 'rbxassetid://78895678507987',  -- textures/SNB_Ruins.png (1.0 studs por repeticao)
+  ['snb_shop_1'] = 'rbxassetid://82417566489351',  -- textures/SNB_Shop_1.png (1.0 studs por repeticao)
+  ['snb_shop_2'] = 'rbxassetid://72872630891076',  -- textures/SNB_Shop_2.png (1.0 studs por repeticao)
+  ['snb_shopin'] = 'rbxassetid://86673522854488',  -- textures/SNB_ShopIn.png (1.0 studs por repeticao)
+  ['snb_shore'] = 'rbxassetid://115389120914756',  -- textures/SNB_Shore.png (1.0 studs por repeticao)
+  ['snb_spawn'] = 'rbxassetid://123085191264244',  -- textures/SNB_Spawn.png (1.0 studs por repeticao)
+  ['snb_tufts'] = 'rbxassetid://81652944144577',  -- textures/SNB_Tufts.png (1.0 studs por repeticao)
+  ['snb_veg_ancient'] = 'rbxassetid://119809666882793',  -- textures/SNB_Veg_ancient.png (1.0 studs por repeticao)
+  ['snb_veg_bush1'] = 'rbxassetid://127610091240189',  -- textures/SNB_Veg_bush1.png (1.0 studs por repeticao)
+  ['snb_veg_bushf'] = 'rbxassetid://136585202463734',  -- textures/SNB_Veg_bushF.png (1.0 studs por repeticao)
+  ['snb_veg_oak1'] = 'rbxassetid://136968397237068',  -- textures/SNB_Veg_oak1.png (1.0 studs por repeticao)
+  ['snb_veg_oak2'] = 'rbxassetid://111384509293422',  -- textures/SNB_Veg_oak2.png (1.0 studs por repeticao)
+  ['snb_veg_oak3'] = 'rbxassetid://133905859048838',  -- textures/SNB_Veg_oak3.png (1.0 studs por repeticao)
+  ['snb_veg_oakg'] = 'rbxassetid://115575580998490',  -- textures/SNB_Veg_oakG.png (1.0 studs por repeticao)
+  ['snb_veg_pine1'] = 'rbxassetid://122102863532000',  -- textures/SNB_Veg_pine1.png (1.0 studs por repeticao)
+  ['snb_veg_pine2'] = 'rbxassetid://106301525755668',  -- textures/SNB_Veg_pine2.png (1.0 studs por repeticao)
+  ['stone'] = 'rbxassetid://78825948043203',  -- textures/T_stone_v3.png (6.0 studs por repeticao)
   ['wb_bark'] = '',  -- textures/WB_bark_v2.png (4.0 studs por repeticao)
   ['wb_canvas_blue'] = '',  -- textures/WB_canvas_blue_v2.png (4.0 studs por repeticao)
   ['wb_canvas_green'] = '',  -- textures/WB_canvas_green_v2.png (4.0 studs por repeticao)
@@ -131,9 +131,9 @@ local TEX = {
   ['wb_stone'] = '',  -- textures/WB_stone_v2.png (5.6 studs por repeticao)
   ['wb_stone_dark'] = '',  -- textures/WB_stone_dark_v2.png (5.6 studs por repeticao)
   ['wb_timber'] = '',  -- textures/WB_timber_v2.png (5.0 studs por repeticao)
-  ['wb_water'] = '',  -- textures/WB_water_v2.png (20.0 studs por repeticao)
+  ['wb_water'] = 'rbxassetid://133102280206650',  -- textures/WB_water_v2.png (20.0 studs por repeticao)
   ['wb_window'] = '',  -- textures/WB_window_v2.png (2.4 studs por repeticao)
-  ['wood'] = '',  -- textures/T_wood_v3.png (5.0 studs por repeticao)
+  ['wood'] = 'rbxassetid://83867986170949',  -- textures/T_wood_v3.png (5.0 studs por repeticao)
 }
 -- material/variante -> c = cor calibrada no Studio, m = Enum.Material (hibrido), t = transparencia,
 --   s = CastShadow da familia, x = textura de detalhe, w = espiral
@@ -1788,6 +1788,43 @@ do
     end
   end
   print(string.format('Letreiros das estacoes: %d', n))
+end
+
+
+-- ================= PINTURA ASSADA: os atlas SNB_* (e a serra/colinas pintadas) sao ColorMap COMPLETOS =================
+-- o bloco de materiais acima so poe textura de detalhe com RICO = true; aqui o atlas entra SEMPRE como TextureID (a cor
+-- da MeshPart e branca, entao o TextureID mostra a pintura como foi assada).
+do
+  local n, falta = 0, {}
+  for _, d in ipairs(root:GetDescendants()) do
+    if d:IsA('MeshPart') then
+      local m = entrada(d)
+      local key = m and m.x
+      if key and (string.sub(key, 1, 4) == 'snb_' or key == 'sn_mountain' or key == 'sn_hills') then
+        local id = TEX[key]
+        if id and id ~= '' then
+          local sa = d:FindFirstChildOfClass('SurfaceAppearance'); if sa then sa:Destroy() end
+          d.TextureID = id; d.Color = Color3.new(1, 1, 1); n += 1
+        else falta[key] = true end
+      end
+    end
+  end
+  local fl = {} for k in pairs(falta) do table.insert(fl, k) end
+  print(string.format('PINTURA ASSADA: %d MeshParts com o atlas; sem id: %s', n, #fl > 0 and table.concat(fl, ', ') or 'nenhum'))
+end
+-- placas oficiais do jogo (CircularUI: MUNDOS / MOCHILAS / IGNIS) nas estacoes novas; sem letreiro duplicado
+do
+  local cu = root:FindFirstChild('CircularUI')
+  if cu then
+    local function at(n, p) local a = cu:FindFirstChild(n); if a and a:IsA('BasePart') then a.CFrame = CFrame.new(p + ROOT_OFFSET) end end
+    at('Mundos', Vector3.new(-236.000, 39, 12.000))
+    at('Mochilas', Vector3.new(61.629, 35, -28.738))
+    at('Ignis', Vector3.new(-0.9, 24, -52))
+    for _, nm in ipairs({'LETREIRO_Ilha', 'LETREIRO_Loja', 'LETREIRO_Ignis'}) do
+      local mk = MKF:FindFirstChild(nm); local bg = mk and mk:FindFirstChildOfClass('BillboardGui'); if bg then bg:Destroy() end
+    end
+    print('CircularUI: placas MUNDOS/MOCHILAS/IGNIS posicionadas')
+  end
 end
 
 

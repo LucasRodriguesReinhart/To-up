@@ -215,6 +215,7 @@ def contract_lua():
     A("print(string.format('CONTRATO: Santuario com %d portais, LobbyRevision %s', #PORTAIS, EXPORT_ID))")
     A(sn_lights.vfx_lua())
     A(LETREIRO_LUA)
+    A(PINTURA_LUA)
     return "\n".join(s) + "\n"
 
 
@@ -242,6 +243,46 @@ do
   print(string.format('Letreiros das estacoes: %d', n))
 end
 """
+
+
+PINTURA_LUA = r"""
+-- ================= PINTURA ASSADA: os atlas SNB_* (e a serra/colinas pintadas) sao ColorMap COMPLETOS =================
+-- o bloco de materiais acima so poe textura de detalhe com RICO = true; aqui o atlas entra SEMPRE como TextureID (a cor
+-- da MeshPart e branca, entao o TextureID mostra a pintura como foi assada).
+do
+  local n, falta = 0, {}
+  for _, d in ipairs(root:GetDescendants()) do
+    if d:IsA('MeshPart') then
+      local m = entrada(d)
+      local key = m and m.x
+      if key and (string.sub(key, 1, 4) == 'snb_' or key == 'sn_mountain' or key == 'sn_hills') then
+        local id = TEX[key]
+        if id and id ~= '' then
+          local sa = d:FindFirstChildOfClass('SurfaceAppearance'); if sa then sa:Destroy() end
+          d.TextureID = id; d.Color = Color3.new(1, 1, 1); n += 1
+        else falta[key] = true end
+      end
+    end
+  end
+  local fl = {} for k in pairs(falta) do table.insert(fl, k) end
+  print(string.format('PINTURA ASSADA: %d MeshParts com o atlas; sem id: %s', n, #fl > 0 and table.concat(fl, ', ') or 'nenhum'))
+end
+-- placas oficiais do jogo (CircularUI: MUNDOS / MOCHILAS / IGNIS) nas estacoes novas; sem letreiro duplicado
+do
+  local cu = root:FindFirstChild('CircularUI')
+  if cu then
+    local function at(n, p) local a = cu:FindFirstChild(n); if a and a:IsA('BasePart') then a.CFrame = CFrame.new(p + ROOT_OFFSET) end end
+    at('Mundos', Vector3.new(MX_, 39, MZ_))
+    at('Mochilas', Vector3.new(SX_, 35, SZ_))
+    at('Ignis', Vector3.new(-0.9, 24, -52))
+    for _, nm in ipairs({'LETREIRO_Ilha', 'LETREIRO_Loja', 'LETREIRO_Ignis'}) do
+      local mk = MKF:FindFirstChild(nm); local bg = mk and mk:FindFirstChildOfClass('BillboardGui'); if bg then bg:Destroy() end
+    end
+    print('CircularUI: placas MUNDOS/MOCHILAS/IGNIS posicionadas')
+  end
+end
+""".replace("MX_", "%.3f" % L.PORTAL_ISLE_C[0]).replace("MZ_", "%.3f" % L.PORTAL_ISLE_C[1]).replace(
+    "SX_", "%.3f" % (L.SHOP_C[0] + L.SHOP_FACE[0] * 12.0)).replace("SZ_", "%.3f" % (L.SHOP_C[1] + L.SHOP_FACE[1] * 12.0))
 
 
 def main():

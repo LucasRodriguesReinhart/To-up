@@ -1,4 +1,49 @@
-00:02.734  blend            | Read blend: "C:\Users\lucas\OneDrive\Desktop\To up\lobby_area\santuario\renders\build\build.blend"
+00:02.969  blend            | Read blend: "C:\Users\lucas\OneDrive\Desktop\To up\lobby_area\santuario\renders\build\build.blend"
+Traceback (most recent call last):
+  File "C:\Program Files\Blender Foundation\Blender 5.2\5.2\scripts\addons_core\io_scene_fbx\__init__.py", line 622, in execute
+    return export_fbx_bin.save(self, context, **keywords)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Blender Foundation\Blender 5.2\5.2\scripts\addons_core\io_scene_fbx\export_fbx_bin.py", line 3754, in save
+    ret = save_single(operator, context.scene, depsgraph, filepath, **kwargs_mod)
+  File "C:\Program Files\Blender Foundation\Blender 5.2\5.2\scripts\addons_core\io_scene_fbx\export_fbx_bin.py", line 3635, in save_single
+    encode_bin.write(filepath, root, FBX_VERSION)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Blender Foundation\Blender 5.2\5.2\scripts\addons_core\io_scene_fbx\encode_bin.py", line 402, in write
+    with open(fn, 'wb') as f:
+         ~~~~^^^^^^^^^^
+OSError: [Errno 22] Invalid argument: 'C:\\Users\\lucas\\OneDrive\\Desktop\\To up\\lobby_area\\santuario\\export\\LOBBY_SN_03_TOWN_c47183.fbx'
+00:12.454  bpy.rna          | ERROR Python script error in EXPORT_SCENE_OT_fbx.execute
+Traceback (most recent call last):
+  File "C:\Users\lucas\OneDrive\Desktop\To up\lobby_area\santuario\export_sn.py", line 315, in <module>
+    main()
+    ~~~~^^
+  File "C:\Users\lucas\OneDrive\Desktop\To up\lobby_area\santuario\export_sn.py", line 305, in main
+    ER.main()
+    ~~~~~~~^^
+  File "C:\Users\lucas\OneDrive\Desktop\To up\lobby_area\forja_mineradora\export_roblox.py", line 1112, in main
+    bpy.ops.export_scene.fbx(filepath=path, use_selection=True, axis_forward="-Z", axis_up="Y",
+    ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                             apply_scale_options="FBX_SCALE_ALL", mesh_smooth_type="FACE", path_mode="COPY",
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                             embed_textures=True, add_leaf_bones=False, bake_anim=False,
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                             use_mesh_modifiers=True, object_types={"MESH"})
+                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+RuntimeError: Erro: Python: Traceback (most recent call last):
+  File "C:\Program Files\Blender Foundation\Blender 5.2\5.2\scripts\addons_core\io_scene_fbx\__init__.py", line 622, in execute
+    return export_fbx_bin.save(self, context, **keywords)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Blender Foundation\Blender 5.2\5.2\scripts\addons_core\io_scene_fbx\export_fbx_bin.py", line 3754, in save
+    ret = save_single(operator, context.scene, depsgraph, filepath, **kwargs_mod)
+  File "C:\Program Files\Blender Foundation\Blender 5.2\5.2\scripts\addons_core\io_scene_fbx\export_fbx_bin.py", line 3635, in save_single
+    encode_bin.write(filepath, root, FBX_VERSION)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Blender Foundation\Blender 5.2\5.2\scripts\addons_core\io_scene_fbx\encode_bin.py", line 402, in write
+    with open(fn, 'wb') as f:
+         ~~~~^^^^^^^^^^
+OSError: [Errno 22] Invalid argument: 'C:\\Users\\lucas\\OneDrive\\Desktop\\To up\\lobby_area\\santuario\\export\\LOBBY_SN_03_TOWN_c47183.fbx'
+Location: C:\Users\lucas\OneDrive\Desktop\To up\lobby_area\forja_mineradora\export_roblox.py:1112
+
 BlenderMCP: cannot start server in background mode (blender -b) - commands would never execute
 BlenderMCP: run Blender with a GUI, or use a virtual display: xvfb-run -a blender
 BlenderMCP addon registered
@@ -27,50 +72,23 @@ METAS GLOBAIS
   COL                                        518 / 1100   
 
 FBX export starting... 'C:\\Users\\lucas\\OneDrive\\Desktop\\To up\\lobby_area\\santuario\\export\\LOBBY_SN_02_TERRAIN_c47183.fbx'
-export finished in 0.1263 sec.
+export finished in 0.2226 sec.
 FBX LOBBY_SN_02_TERRAIN_c47183.fbx 32 malhas 82811 tris 6873 KB
 
 FBX export starting... 'C:\\Users\\lucas\\OneDrive\\Desktop\\To up\\lobby_area\\santuario\\export\\LOBBY_SN_03_TOWN_c47183.fbx'
-export finished in 0.0649 sec.
-FBX LOBBY_SN_03_TOWN_c47183.fbx 13 malhas 41202 tris 4069 KB
-
-FBX export starting... 'C:\\Users\\lucas\\OneDrive\\Desktop\\To up\\lobby_area\\santuario\\export\\LOBBY_SN_04_FORGE_c47183.fbx'
-export finished in 0.1012 sec.
-FBX LOBBY_SN_04_FORGE_c47183.fbx 29 malhas 49582 tris 10287 KB
-
-FBX export starting... 'C:\\Users\\lucas\\OneDrive\\Desktop\\To up\\lobby_area\\santuario\\export\\LOBBY_SN_05_SERVICES_c47183.fbx'
-export finished in 0.1167 sec.
-FBX LOBBY_SN_05_SERVICES_c47183.fbx 13 malhas 80461 tris 7467 KB
-
-FBX export starting... 'C:\\Users\\lucas\\OneDrive\\Desktop\\To up\\lobby_area\\santuario\\export\\LOBBY_SN_06_PORTALS_c47183.fbx'
-export finished in 0.1792 sec.
-FBX LOBBY_SN_06_PORTALS_c47183.fbx 85 malhas 84979 tris 10422 KB
-
-FBX export starting... 'C:\\Users\\lucas\\OneDrive\\Desktop\\To up\\lobby_area\\santuario\\export\\LOBBY_SN_07_EXIT_c47183.fbx'
-export finished in 0.0830 sec.
-FBX LOBBY_SN_07_EXIT_c47183.fbx 18 malhas 50630 tris 5938 KB
-
-FBX export starting... 'C:\\Users\\lucas\\OneDrive\\Desktop\\To up\\lobby_area\\santuario\\export\\LOBBY_SN_09_VEGETATION_c47183.fbx'
-export finished in 0.2820 sec.
-FBX LOBBY_SN_09_VEGETATION_c47183.fbx 61 malhas 195994 tris 11507 KB
-VARIANTES pouco usadas (< 1500 tris) -> base: {'Stone_Dark_C': 'Stone_Dark', 'Stone_Light_C': 'Stone_Light', 'Wood_Dark_B': 'Wood_Dark', 'Wood_Plank_C': 'Wood_Plank'}
-FOLD: 4 materiais pequenos fundidos no vizinho dominante
-   PORTAL_DragonBall_Frame: P_DB_Shine (12.1 studs2) -> P_DB_White
-   PORTAL_OnePiece_Pier: Metal_Brass (30.3 studs2) -> Metal_Dark
-   PORTAL_OnePiece_Pier: Bark (41.5 studs2) -> Wood_Plank
-   PORTAL_OnePiece_Pier: P_OP_Sail (63.9 studs2) -> Rope
-TETO DE MATERIAIS (150): nao precisou
-TETO DE SOMBRA (380): 0 MeshParts perderam a sombra []
-COL: 0 contidas descartadas, 4 cobertas pela uniao de outras, 60 unidas a vizinhas; 46 com tag CamOccluder
-   cobertas: COL_Forge_011, COL_Court_004, COL_Court_036, COL_Court_044
-CAMERA: 0 cascas visuais ocluem a camera (grupo SoVisual)
-MARCADORES assentados na COL: [('NPC_Ignis', 7.0, 7.02), ('PLAYER_INTERACT_Ignis', 7.0, 7.02)]
-LUZES: 71 exportadas, 29 ativas de dia, 42 NightOnly (0 rebaixadas pelo cluster [])
-SOL: ClockTime 8.562  GeographicLatitude -7.973  -> GetSunDirection esperado [0.6681, 0.5301, -0.5221] (erro do modelo 0.0e+00)
-SEGURANCA: 20 pontos seguros para o VOID_CATCH
-EXPORT OK id=c4718331 malhas=251 tris=585659 materiais=125 col=518 marcadores=108 luzes=71 (dia 29) sombra=104 -> C:\Users\lucas\OneDrive\Desktop\To up\lobby_area\santuario\export
-EXPORT_SN: 251 malhas, 585659 tris, 518 COL, 108 marcadores, 71 luzes; id c4718331
-BlenderMCP server stopped
+Erro: Python: Traceback (most recent call last):
+  File "C:\Program Files\Blender Foundation\Blender 5.2\5.2\scripts\addons_core\io_scene_fbx\__init__.py", line 622, in execute
+    return export_fbx_bin.save(self, context, **keywords)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Blender Foundation\Blender 5.2\5.2\scripts\addons_core\io_scene_fbx\export_fbx_bin.py", line 3754, in save
+    ret = save_single(operator, context.scene, depsgraph, filepath, **kwargs_mod)
+  File "C:\Program Files\Blender Foundation\Blender 5.2\5.2\scripts\addons_core\io_scene_fbx\export_fbx_bin.py", line 3635, in save_single
+    encode_bin.write(filepath, root, FBX_VERSION)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Program Files\Blender Foundation\Blender 5.2\5.2\scripts\addons_core\io_scene_fbx\encode_bin.py", line 402, in write
+    with open(fn, 'wb') as f:
+         ~~~~^^^^^^^^^^
+OSError: [Errno 22] Invalid argument: 'C:\\Users\\lucas\\OneDrive\\Deskt... truncatedBlenderMCP server stopped
 BlenderMCP addon unregistered
 Blender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 02:38:20)
 
