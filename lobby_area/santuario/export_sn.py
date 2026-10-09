@@ -210,7 +210,9 @@ def contract_lua():
     # vendedor de mochilas (NPC do usuario, workspace["Vebdedor suspeito"] / atributo VendedorMochilas): atras do balcao,
     # pes no piso da loja, olhando a porta; a loja abre pelo ProximityPrompt (ServerScriptService.LojaMochilasPrompt)
     fn_ = math.hypot(sfx, sfz) or 1.0
-    A(VENDEDOR_LUA.replace("NX_", "%.3f" % nx).replace("NZ_", "%.3f" % nz).replace("PISO_", "%.2f" % L.Y_SHOP)
+    # 1,5 stud para tras do marcador: a pose do emote (Lil Wayne Idle Pose) inclina o corpo e os bracos entravam no balcao
+    nxv, nzv = nx - sfx / fn_ * 1.5, nz - sfz / fn_ * 1.5
+    A(VENDEDOR_LUA.replace("NX_", "%.3f" % nxv).replace("NZ_", "%.3f" % nzv).replace("PISO_", "%.2f" % L.Y_SHOP)
       .replace("FX_", "%.4f" % (sfx / fn_)).replace("FZ_", "%.4f" % (sfz / fn_)))
     A("end")
     A("print(string.format('CONTRATO: Santuario com %d portais, LobbyRevision %s', #PORTAIS, EXPORT_ID))")

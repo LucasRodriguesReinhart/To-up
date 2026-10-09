@@ -80,3 +80,10 @@ ou o place que o usuario liberar), MCP conectado.
   prompt para 'npc vendedor ', que nao existe mais). O montar (VENDEDOR_LUA) repete a posicao e o CanTouch. Play: E no
   balcao abre a janela do Ignis na aba Mochilas. Backups: Antes_SantuarioFB_20261009.{Vebdedor suspeito_antes_loja,
   PadLoja_antes_prompt}. Place NAO salvo.
+- Danca do vendedor (pedido do usuario): emote "Lil Wayne Idle Pose" (catalogo 108439329967345, criador UGC
+  LongLiveAstr0; animacao 123346248406109, 10 s, Loop) em loop infinito pelo LocalScript
+  StarterPlayer.StarterPlayerScripts.VendedorDanca (copia em roblox/VendedorDanca.client.lua). Por que no cliente: tocada
+  no servidor a faixa chegava ao cliente com Length 0 (nao carregava); Humanoid:PlayEmote so serve para o LocalPlayer.
+  O rig do NPC usa AnimationConstraint (nao Motor6D). A pose inclina o corpo: NPC recuado 1,5 stud do marcador
+  (77.942, piso 8.2, -36.345) para os bracos nao entrarem no balcao (folga 0,4; prateleira com folga 0,9). Prompt E a
+  7,5 studs testado; ida e volta com streaming reinicia a danca (1 faixa so). Atributos no NPC: DancaAnim, DancaEmote.

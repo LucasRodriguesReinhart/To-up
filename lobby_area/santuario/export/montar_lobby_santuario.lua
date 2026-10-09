@@ -1554,7 +1554,7 @@ if POSICIONAR_JOGO then
     local pes = math.huge
     for _, d in ipairs(vend:GetDescendants()) do if d:IsA('BasePart') and (d.Name == 'LeftFoot' or d.Name == 'RightFoot') then pes = math.min(pes, d.Position.Y - d.Size.Y / 2) end end
     local alt = pes < math.huge and (vh.Position.Y - pes) or 3.0
-    local p = Vector3.new(76.583, 8.20 + alt, -35.711) + ROOT_OFFSET
+    local p = Vector3.new(77.942, 8.20 + alt, -36.345) + ROOT_OFFSET   -- 1,5 atras do marcador (pose do emote)
     local alvo = CFrame.lookAt(p, p + Vector3.new(-0.9063, 0, 0.4226))
     vend:PivotTo((alvo * vh.CFrame:Inverse()) * vend:GetPivot()); vend:SetAttribute('VendedorMochilas', true)
     print('posicionado vendedor de mochilas', vend.Name)
