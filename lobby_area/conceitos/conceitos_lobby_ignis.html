@@ -1,0 +1,923 @@
+<title>Conceitos do Lobby Ignis</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Antique&family=Zen+Kaku+Gothic+New:wght@400;500;700&family=Martian+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: dossie de forja em coluna unica; cada conceito = arte de clima larga + ficha em 2 colunas (texto | planta). */
+:root {
+  --bg: #15100d;          /* carvao quente */
+  --panel: #1f1814;
+  --panel-2: #29201a;
+  --ink: #f3e7d9;
+  --muted: #b9a895;
+  --line: #3b2e26;
+  --ember: #ff7a2f;
+  --lava: #ffb347;
+  --steel: #93a7ba;
+  --good: #8fcf7a;
+  --bad: #ef8a7a;
+  --f-display: "Zen Antique", "Shippori Mincho", Georgia, "Times New Roman", serif;
+  --f-body: "Zen Kaku Gothic New", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --f-mono: "Martian Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 15px; line-height: 1.6; }
+.wrap { max-width: 1120px; margin: 0 auto; padding-inline: clamp(16px, 4vw, 40px); padding-block: 32px 72px; }
+a { color: var(--lava); text-underline-offset: 3px; }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--lava); outline-offset: 3px; }
+h1, h2, h3 { font-family: var(--f-display); font-weight: 400; text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(30px, 5vw, 52px); line-height: 1.08; letter-spacing: .01em; }
+h2 { font-size: clamp(24px, 3.2vw, 34px); line-height: 1.15; }
+h3 { font-size: 19px; line-height: 1.3; }
+p { margin: 0; max-width: 68ch; }
+.eyebrow { font-family: var(--f-mono); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--ember); }
+.muted { color: var(--muted); }
+
+/* cabecalho */
+.head { display: grid; gap: 18px; padding-block: 8px 28px; border-bottom: 1px solid var(--line); }
+.head .lede { font-size: 17px; color: var(--muted); }
+.fixed { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px; margin-top: 6px; }
+.fixed div { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 12px 14px; min-width: 0; }
+.fixed b { display: block; font-family: var(--f-mono); font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--lava); margin-bottom: 4px; font-weight: 600; }
+.jump { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+.jump a { font-family: var(--f-mono); font-size: 12px; text-decoration: none; color: var(--ink); border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px; background: var(--panel); }
+.jump a:hover { border-color: var(--ember); }
+
+section { padding-block: 40px 8px; }
+.sec-head { display: grid; gap: 8px; margin-bottom: 18px; }
+
+/* licoes */
+.lessons { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; }
+.lessons div { border-left: 2px solid var(--ember); padding: 4px 0 4px 14px; min-width: 0; }
+.lessons b { display: block; margin-bottom: 2px; }
+
+/* matriz */
+.tablebox { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); }
+table { border-collapse: collapse; width: 100%; min-width: 940px; font-size: 14px; }
+th, td { padding: 10px 12px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: middle; }
+thead th { font-family: var(--f-mono); font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+thead th span { display: block; font-family: var(--f-display); font-size: 15px; letter-spacing: 0; text-transform: none; color: var(--ink); font-weight: 400; }
+tbody th { font-weight: 500; color: var(--ink); white-space: nowrap; }
+tbody tr:last-child td, tbody tr:last-child th { border-bottom: 0; }
+.dots { font-family: var(--f-mono); font-variant-numeric: tabular-nums; white-space: nowrap; color: var(--lava); letter-spacing: 1px; }
+.dots i { font-style: normal; color: #4a3b31; }
+tr.total th, tr.total td { background: var(--panel-2); font-weight: 700; }
+tr.total td { font-family: var(--f-mono); color: var(--ink); }
+.note { font-size: 13px; color: var(--muted); margin-top: 10px; }
+
+/* conceitos */
+.concept { margin-top: 34px; border: 1px solid var(--line); border-radius: 10px; background: var(--panel); overflow: hidden; }
+.art { display: block; width: 100%; aspect-ratio: 2 / 1; max-width: 100%; background: #000; }
+.art svg { display: block; width: 100%; height: 100%; }
+.c-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px 18px; padding: 20px 22px 6px; }
+.c-head .letter { font-family: var(--f-display); font-size: 40px; line-height: 1; color: var(--ember); }
+.c-head h2 { flex: 1 1 320px; }
+.tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.tag { font-family: var(--f-mono); font-size: 11px; padding: 3px 9px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted); white-space: nowrap; }
+.tag.e-low { color: var(--good); border-color: #3e5a35; }
+.tag.e-mid { color: var(--lava); border-color: #6a4a22; }
+.tag.e-high { color: var(--bad); border-color: #6a3a32; }
+.pitch { padding: 0 22px 16px; font-size: 16.5px; }
+.body { display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(0, 1fr); gap: 24px; padding: 6px 22px 24px; }
+@media (max-width: 860px) { .body { grid-template-columns: 1fr; } }
+.col { display: grid; gap: 18px; align-content: start; min-width: 0; }
+.blk h3 { margin-bottom: 6px; }
+.blk .eyebrow { display: block; margin-bottom: 6px; }
+ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; }
+li { max-width: 66ch; }
+.map dl { display: grid; grid-template-columns: max-content 1fr; gap: 6px 12px; margin: 0; }
+.map dt { font-family: var(--f-mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--lava); padding-top: 3px; white-space: nowrap; }
+.map dd { margin: 0; min-width: 0; }
+.proscons { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 560px) { .proscons { grid-template-columns: 1fr; } }
+.pros li::marker { color: var(--good); }
+.cons li::marker { color: var(--bad); }
+.pros h3 { color: var(--good); }
+.cons h3 { color: var(--bad); }
+.refs { display: grid; gap: 10px; }
+.ref { display: grid; gap: 2px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel-2); }
+.ref .t { font-weight: 700; }
+.ref .s { font-family: var(--f-mono); font-size: 11px; color: var(--muted); }
+.ref .w { font-size: 14px; color: var(--muted); }
+.plan { border: 1px solid var(--line); border-radius: 8px; background: #120d0b; padding: 8px; }
+.plan svg { display: block; width: 100%; height: auto; max-width: 100%; }
+.palette { display: flex; gap: 0; height: 30px; border-radius: 6px; overflow: hidden; border: 1px solid var(--line); }
+.palette span { flex: 1; }
+.legend { display: flex; flex-wrap: wrap; gap: 8px 16px; font-family: var(--f-mono); font-size: 11px; color: var(--muted); margin-top: 8px; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend i { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+
+/* recomendacao e plano */
+.reco { border: 1px solid #6a3a22; background: linear-gradient(180deg, #2a1a12, var(--panel)); border-radius: 10px; padding: 22px; display: grid; gap: 12px; }
+.reco h2 { color: var(--lava); }
+.steps { display: grid; gap: 10px; counter-reset: s; }
+.step { display: grid; grid-template-columns: 44px 1fr; gap: 12px; align-items: start; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; }
+.step::before { counter-increment: s; content: counter(s); font-family: var(--f-display); font-size: 30px; color: var(--ember); line-height: 1; }
+.step b { display: block; margin-bottom: 2px; }
+.step .ok { font-family: var(--f-mono); font-size: 11px; color: var(--good); letter-spacing: .06em; text-transform: uppercase; margin-top: 4px; display: block; }
+.ask { margin-top: 18px; padding: 16px 18px; border: 1px dashed var(--ember); border-radius: 8px; }
+footer { margin-top: 40px; color: var(--muted); font-size: 13px; }
+.research { display: grid; gap: 26px; }
+.r-group h3 { font-size: 21px; margin-bottom: 4px; }
+.r-group > p { margin-bottom: 12px; }
+.r-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
+.rc { display: grid; gap: 6px; align-content: start; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; min-width: 0; }
+.rc .t { font-family: var(--f-display); font-size: 17px; line-height: 1.25; }
+.rc .s { font-family: var(--f-mono); font-size: 11px; color: var(--muted); }
+.rc .k { font-family: var(--f-mono); font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: var(--lava); margin-top: 2px; }
+.rc .use { color: var(--ink); }
+.rc .seen { color: var(--muted); font-size: 14px; }
+.rc .links { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 13px; margin-top: 2px; }
+.findings { display: grid; gap: 10px; counter-reset: f; }
+.finding { display: grid; grid-template-columns: 34px 1fr; gap: 10px; align-items: start; }
+.finding::before { counter-increment: f; content: counter(f); font-family: var(--f-display); font-size: 24px; color: var(--ember); line-height: 1.1; }
+.finding b { display: block; }
+.new-badge { font-family: var(--f-mono); font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: #15100d; background: var(--lava); border-radius: 4px; padding: 2px 7px; }
+@media (prefers-reduced-motion: no-preference) {
+  .glow { animation: flick 2.8s ease-in-out infinite; }
+  @keyframes flick { 0%, 100% { opacity: .85 } 50% { opacity: 1 } }
+}
+</style>
+
+<div class="wrap">
+
+<header class="head">
+  <span class="eyebrow">Anime Mining Simulator · lobby · pesquisa + 8 conceitos para avaliar</span>
+  <h1>Conceitos do Lobby Ignis</h1>
+  <p class="lede">Primeiro a pesquisa: o que os lobbies de jogos anime do Roblox fazem, e que lugares de forja, golens e cidades aparecem nos animes, com o que eu vi em cada imagem. Depois, oito caminhos para um lobby de forja que nasça do Ignis, dois deles saídos direto da pesquisa. Cada conceito traz a arte de clima, a planta, as referências, como cada função vira cenário e os pontos fortes e fracos. No fim estão a recomendação e o plano com aprovação em cada etapa.</p>
+  <div class="fixed">
+    <div><b>Fica igual em todos</b>O Ignis no mesmo ponto, olhando para quem chega, com o prompt, as animações e a bigorna dele.</div>
+    <div><b>Funções que precisam caber</b>Spawn, forja (picaretas), loja de mochilas, ranking Top 100, 6 portais, correio e a saída a pé para a Ilha 1.</div>
+    <div><b>Regra de distância</b>Toda função a no máximo cerca de 12 segundos a pé do spawn.</div>
+  </div>
+  <nav class="jump" aria-label="Ir para um conceito">
+    <a href="#pesquisa">Pesquisa</a><a href="#licoes">Lições</a><a href="#matriz">Comparação</a>
+    <a href="#A">A · Termas dos Ferreiros</a><a href="#B">B · Cratera da Forja</a><a href="#C">C · Bigorna Celeste</a>
+    <a href="#D">D · Fundição a Vapor</a><a href="#E">E · Santuário do Deus-Ferreiro</a><a href="#F">F · Reino Anão</a><a href="#G">G · Torre-Forja</a><a href="#H">H · Jardim dos Golens</a>
+    <a href="#reco">Recomendação</a><a href="#plano">Plano</a>
+  </nav>
+</header>
+
+
+<section id="pesquisa">
+  <div class="sec-head"><span class="eyebrow">Pesquisa · 9 de outubro de 2026</span><h2>O que eu pesquisei</h2>
+    <p class="muted">Abri as imagens de cada obra e anotei o que aparece de fato nelas e o que dá para levar para o lobby. Os links abrem a página de referência e uma busca de imagens.</p></div>
+  <div class="research">
+
+    <div class="r-group">
+      <h3>Lobbies de jogos anime e de forja no Roblox</h3>
+      <p class="muted">A concorrência direta mostra o que o jogador já conhece e onde ainda há espaço.</p>
+      <div class="r-grid">
+        <div class="rc"><span class="t">Anime Vanguards</span><span class="s">Kitawari · tower defense</span>
+          <span class="k">O que vi</span><span class="seen">Lobby noturno de cidade com neon rosa e azul, estações com placas luminosas e muita luz colorida.</span>
+          <span class="k">Para o nosso</span><span class="use">Estações reconhecíveis de longe. O neon não combina com forja medieval, então não copiar o visual.</span>
+          <span class="links"><a href="https://www.roblox.com/games/16146832113" target="_blank" rel="noopener">Página no Roblox</a><a href="https://www.youtube.com/watch?v=yyu93FD1Apo" target="_blank" rel="noopener">Vídeo do lobby</a></span></div>
+        <div class="rc"><span class="t">Anime Defenders</span><span class="s">tower defense · guias de jogadores</span>
+          <span class="k">O que vi</span><span class="seen">Os guias descrevem o portal de troca, a entrada dos raids, um prédio só para o ranking e uma fonte no centro do mapa. Setas brilhantes no chão aceleram quem passa por cima.</span>
+          <span class="k">Para o nosso</span><span class="use">Prédio próprio para o ranking, um centro marcante e trilhas no chão que aceleram até cada estação.</span>
+          <span class="links"><a href="https://www.roblox.com/games/17017769292" target="_blank" rel="noopener">Página no Roblox</a><a href="https://progameguides.com/roblox/all-10-christmas-present-locations-in-anime-defenders/" target="_blank" rel="noopener">Guia com os locais do lobby</a></span></div>
+        <div class="rc"><span class="t">The Forge</span><span class="s">mineração + forja · concorrente direto</span>
+          <span class="k">O que vi</span><span class="seen">Arte escura com roxo e laranja. A cidade inicial tem a forja perto da praça central, loja de picaretas, vendedores e a entrada da caverna. O minigame de forja tem fole, molde e caldeirão de lava.</span>
+          <span class="k">Para o nosso</span><span class="use">Eles já ocupam o visual de forja escura. O nosso deve ser claro e quente, com o fogo como destaque e não como fundo.</span>
+          <span class="links"><a href="https://www.roblox.com/games/76558904092080" target="_blank" rel="noopener">Página no Roblox</a><a href="https://nerdschalk.com/locations-in-the-forge-guide/" target="_blank" rel="noopener">Guia dos locais</a></span></div>
+        <div class="rc"><span class="t">Mapas de lobby anime à venda</span><span class="s">pacotes prontos de lobby</span>
+          <span class="k">O que vi</span><span class="seen">Quase todos usam a mesma receita: noite azul, cerejeiras, lanternas, portais japoneses e cachoeiras.</span>
+          <span class="k">Para o nosso</span><span class="use">Fugir dessa receita é o que vai fazer o lobby parecer nosso e não um pacote.</span>
+          <span class="links"><a href="https://www.bing.com/images/search?q=roblox+anime+game+lobby+map+hub" target="_blank" rel="noopener">Ver imagens</a></span></div>
+      </div>
+    </div>
+
+    <div class="r-group">
+      <h3>Lugares de forja e ofício nos animes</h3>
+      <div class="r-grid">
+        <div class="rc"><span class="t">Demon Slayer · Vila dos Ferreiros</span><span class="s">ufotable · arco de 2023</span>
+          <span class="k">O que vi</span><span class="seen">Rua de terra entre sobrados de madeira escura com telhado cinza-esverdeado, encostas de rocha com musgo dourado ao entardecer, termas com lanternas no meio da mata. A vila é escondida e só se chega guiado.</span>
+          <span class="k">Para o nosso</span><span class="use">Luz de fim de tarde batendo na rocha e vapor saindo do chão.</span>
+          <span class="links"><a href="https://kimetsu-no-yaiba.fandom.com/wiki/Swordsmith_Village" target="_blank" rel="noopener">Wiki</a><a href="https://www.bing.com/images/search?q=demon+slayer+swordsmith+village+anime+scenery" target="_blank" rel="noopener">Imagens</a></span></div>
+        <div class="rc"><span class="t">Princesa Mononoke · Cidade do Ferro</span><span class="s">Studio Ghibli · 1997</span>
+          <span class="k">O que vi</span><span class="seen">Fortaleza de paliçada no alto de um penhasco à beira d'água, com fumaça branca subindo dos fornos. Dentro, uma fileira de mulheres pisa um fole gigante em ritmo, com a fornalha ao fundo.</span>
+          <span class="k">Para o nosso</span><span class="use">O fole pisado em ritmo é animação barata e cheia de vida para a forja do Ignis.</span>
+          <span class="links"><a href="https://ghibli.fandom.com/wiki/Irontown" target="_blank" rel="noopener">Wiki</a><a href="https://www.bing.com/images/search?q=princess+mononoke+irontown+furnace+bellows" target="_blank" rel="noopener">Imagens</a></span></div>
+        <div class="rc"><span class="t">Slime · Reino Anão de Dwargon</span><span class="s">8bit · desde 2018</span>
+          <span class="k">O que vi</span><span class="seen">Montanha dourada com a entrada da cidade escavada e uma placa grande na porta. Dentro, ruas estreitas com lanternas quentes e névoa entre os prédios.</span>
+          <span class="k">Para o nosso</span><span class="use">Placa grande na entrada e luz quente de lanterna como cor-guia.</span>
+          <span class="links"><a href="https://tensura.fandom.com/wiki/Armed_Nation_of_Dwargon" target="_blank" rel="noopener">Wiki</a><a href="https://www.bing.com/images/search?q=tensura+dwargon+city+anime" target="_blank" rel="noopener">Imagens</a></span></div>
+        <div class="rc"><span class="t">O Castelo Animado · Calcifer</span><span class="s">Studio Ghibli · 2004</span>
+          <span class="k">O que vi</span><span class="seen">Um demônio de fogo com rosto que mora numa lareira de pedra simples e cozinha com uma frigideira de ferro. Ele é o coração da casa.</span>
+          <span class="k">Para o nosso</span><span class="use">O Ignis pode ser tratado assim: um ser de fogo com personalidade no coração do lobby.</span>
+          <span class="links"><a href="https://ghibli.fandom.com/wiki/Calcifer" target="_blank" rel="noopener">Wiki</a><a href="https://www.bing.com/images/search?q=howls+moving+castle+calcifer+hearth" target="_blank" rel="noopener">Imagens</a></span></div>
+        <div class="rc"><span class="t">A Viagem de Chihiro · sala do Kamaji</span><span class="s">Studio Ghibli · 2001</span>
+          <span class="k">O que vi</span><span class="seen">Sala de caldeira escura com a fornalha acesa, gavetas de ervas até o teto e pequenos ajudantes carregando carvão.</span>
+          <span class="k">Para o nosso</span><span class="use">Ajudantes pequenos animados em volta do Ignis dão vida sem custo de prédio.</span>
+          <span class="links"><a href="https://ghibli.fandom.com/wiki/Kamaj%C4%AB" target="_blank" rel="noopener">Wiki</a></span></div>
+      </div>
+    </div>
+
+    <div class="r-group">
+      <h3>Golens e guardiões que combinam com o Ignis</h3>
+      <div class="r-grid">
+        <div class="rc"><span class="t">O Castelo no Céu · robô jardineiro</span><span class="s">Studio Ghibli · 1986</span>
+          <span class="k">O que vi</span><span class="seen">Um robô gigante coberto de musgo e flores cuidando do jardim das ruínas de Laputa. Assusta pelo tamanho, mas é gentil.</span>
+          <span class="k">Para o nosso</span><span class="use">Golens antigos cobertos de musgo, adormecidos pelo lobby, irmãos do Ignis.</span>
+          <span class="links"><a href="https://ghibli.fandom.com/wiki/Laputa" target="_blank" rel="noopener">Wiki</a><a href="https://www.bing.com/images/search?q=castle+in+the+sky+laputa+robot+garden+moss" target="_blank" rel="noopener">Imagens</a></span></div>
+        <div class="rc"><span class="t">Somali e o Espírito da Floresta · Golem</span><span class="s">Satelight · 2020</span>
+          <span class="k">O que vi</span><span class="seen">Um golem de manto e máscara, guardião antigo da floresta, que protege a menina sem demonstrar emoção. Silhueta alta e calma.</span>
+          <span class="k">Para o nosso</span><span class="use">O Ignis como guardião protetor dos jogadores, com pose calma e presença forte.</span>
+          <span class="links"><a href="https://somali-to-mori-no-kamisama.fandom.com/wiki/Golem" target="_blank" rel="noopener">Wiki</a><a href="https://www.bing.com/images/search?q=somali+and+the+forest+spirit+golem+anime" target="_blank" rel="noopener">Imagens</a></span></div>
+        <div class="rc"><span class="t">Dungeon Meshi · horta de golens</span><span class="s">Trigger · episódio 4, 2024</span>
+          <span class="k">O que vi</span><span class="seen">Golens usados como hortas vivas: legumes crescem nas costas deles e o Senshi tira e põe o núcleo de cada um.</span>
+          <span class="k">Para o nosso</span><span class="use">Golens de pedra com plantas nas costas fazem o lugar parecer vivo e engraçado.</span>
+          <span class="links"><a href="https://www.animenewsnetwork.com/review/delicious-in-dungeon/episode-4/.206936" target="_blank" rel="noopener">Crítica do episódio</a><a href="https://www.bing.com/images/search?q=dungeon+meshi+golem+farm+anime" target="_blank" rel="noopener">Imagens</a></span></div>
+        <div class="rc"><span class="t">Overlord · Gargantua</span><span class="s">Madhouse · 2018</span>
+          <span class="k">O que vi</span><span class="seen">Golem de pedra com mais de 30 metros, guardião de um andar inteiro, visto como uma silhueta enorme na neblina.</span>
+          <span class="k">Para o nosso</span><span class="use">Escala: um golem gigante no horizonte se lê de qualquer ponto do lobby.</span>
+          <span class="links"><a href="https://overlordmaruyama.fandom.com/wiki/Gargantua" target="_blank" rel="noopener">Wiki</a></span></div>
+      </div>
+    </div>
+
+    <div class="r-group">
+      <h3>Cidades-hub e paisagens de anime</h3>
+      <div class="r-grid">
+        <div class="rc"><span class="t">DanMachi · Orario e a torre Babel</span><span class="s">J.C.Staff · desde 2015</span>
+          <span class="k">O que vi</span><span class="seen">Uma torre branca altíssima no centro da cidade, com a praça central em volta e as ruas saindo dela. A Família Hephaestus, a dos ferreiros, tem lojas dentro da torre.</span>
+          <span class="k">Para o nosso</span><span class="use">Um único marco central visível de todo o mapa organiza o lobby inteiro.</span>
+          <span class="links"><a href="https://danmachi.fandom.com/wiki/Babel" target="_blank" rel="noopener">Wiki</a><a href="https://www.bing.com/images/search?q=danmachi+orario+babel+tower+anime" target="_blank" rel="noopener">Imagens</a></span></div>
+        <div class="rc"><span class="t">Made in Abyss · Orth</span><span class="s">Kinema Citrus · 2017</span>
+          <span class="k">O que vi</span><span class="seen">Cidade em anel em volta de um abismo, com moinhos de pedra, cais suspensos e um portão no meio. Tudo aponta para o centro.</span>
+          <span class="k">Para o nosso</span><span class="use">Organização em anel: as funções em volta e o mistério no centro.</span>
+          <span class="links"><a href="https://madeinabyss.fandom.com/wiki/Orth" target="_blank" rel="noopener">Wiki</a></span></div>
+        <div class="rc"><span class="t">Frieren · ruínas</span><span class="s">Madhouse · 2023</span>
+          <span class="k">O que vi</span><span class="seen">Colunas e arcos de pedra quebrados com hera, flores azuis no chão, luz dourada e céu limpo.</span>
+          <span class="k">Para o nosso</span><span class="use">Ruínas claras e calmas, longe da forja escura.</span>
+          <span class="links"><a href="https://www.bing.com/images/search?q=frieren+anime+ruins+background+scenery" target="_blank" rel="noopener">Imagens</a></span></div>
+        <div class="rc"><span class="t">O Castelo no Céu · Laputa</span><span class="s">Studio Ghibli · 1986</span>
+          <span class="k">O que vi</span><span class="seen">Ilha flutuante com uma árvore gigante no topo, raízes descendo pelas ruínas e nuvens enormes em volta.</span>
+          <span class="k">Para o nosso</span><span class="use">Natureza tomando a pedra antiga como sinal de lugar mágico e antigo.</span>
+          <span class="links"><a href="https://ghibli.fandom.com/wiki/Laputa" target="_blank" rel="noopener">Wiki</a></span></div>
+      </div>
+    </div>
+
+    <div class="r-group">
+      <h3>O que a pesquisa mostrou</h3>
+      <div class="findings">
+        <div class="finding"><div><b>Um marco central organiza tudo.</b><span class="muted">Babel em Orario, o abismo em Orth, a árvore em Laputa. O jogador sabe onde está olhando para o marco.</span></div></div>
+        <div class="finding"><div><b>Cada função num prédio inconfundível.</b><span class="muted">No Anime Defenders o ranking tem prédio próprio e há uma fonte no centro. Nada de ranking dentro de casa.</span></div></div>
+        <div class="finding"><div><b>Trilhas no chão que aceleram.</b><span class="muted">As setas do Anime Defenders viram, no nosso tema, veios de lava ou bronze no piso que levam rápido até cada estação.</span></div></div>
+        <div class="finding"><div><b>Forja escura já tem dono.</b><span class="muted">The Forge usa roxo e laranja no escuro, e os pacotes de lobby anime usam noite azul com cerejeiras. Clareza e calor diferenciam o nosso.</span></div></div>
+        <div class="finding"><div><b>O Ignis pode ser o coração do lugar.</b><span class="muted">Calcifer, o robô de Laputa e o Golem de Somali mostram como anime trata um ser de fogo ou pedra: gentil, protetor e no centro da história.</span></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="licoes">
+  <div class="sec-head"><span class="eyebrow">Antes dos conceitos</span><h2>O que aprendi com os lobbies reprovados</h2></div>
+  <div class="lessons">
+    <div><b>Poucos marcos grandes</b><span class="muted">Vila de muitas casinhas parecidas fica com cara de preguiça. Um lobby bom tem 3 ou 4 peças enormes e muito bem feitas que se leem de longe.</span></div>
+    <div><b>Peça-modelo antes de tudo</b><span class="muted">Vou modelar primeiro a forja do Ignis de perto, com acabamento final, e só sigo depois do seu OK.</span></div>
+    <div><b>Organização que se entende sozinha</b><span class="muted">Do spawn você precisa ver para onde ir: forja à frente, as outras funções nas laterais, os portais num lugar só.</span></div>
+    <div><b>Clima único</b><span class="muted">Como no vídeo que você mandou: uma atmosfera forte e coerente vale mais que muitos enfeites.</span></div>
+  </div>
+</section>
+
+<section id="matriz">
+  <div class="sec-head"><span class="eyebrow">Visão geral</span><h2>Comparação lado a lado</h2>
+    <p class="muted">Notas de 1 a 5. Em custo e leveza, 5 significa mais barato de construir e mais leve no celular.</p></div>
+  <div class="tablebox">
+    <table>
+      <thead><tr><th>Critério</th>
+        <th>A<span>Termas</span></th><th>B<span>Cratera</span></th><th>C<span>Bigorna Celeste</span></th>
+        <th>D<span>Vapor</span></th><th>E<span>Santuário</span></th><th>F<span>Reino Anão</span></th>
+        <th>G<span>Torre-Forja</span></th><th>H<span>Jardim dos Golens</span></th></tr></thead>
+      <tbody>
+        <tr><th>Combina com o Ignis</th><td class="dots">●●●●<i>●</i></td><td class="dots">●●●●●</td><td class="dots">●●●●<i>●</i></td><td class="dots">●●●<i>●●</i></td><td class="dots">●●●●●</td><td class="dots">●●●●<i>●</i></td><td class="dots">●●●●<i>●</i></td><td class="dots">●●●●●</td></tr>
+        <tr><th>Cara de anime</th><td class="dots">●●●●●</td><td class="dots">●●●●<i>●</i></td><td class="dots">●●●●●</td><td class="dots">●●●●<i>●</i></td><td class="dots">●●●●<i>●</i></td><td class="dots">●●●<i>●●</i></td><td class="dots">●●●●<i>●</i></td><td class="dots">●●●●●</td></tr>
+        <tr><th>Primeira impressão e clareza</th><td class="dots">●●●●<i>●</i></td><td class="dots">●●●<i>●●</i></td><td class="dots">●●●●●</td><td class="dots">●●●<i>●●</i></td><td class="dots">●●●●●</td><td class="dots">●●●<i>●●</i></td><td class="dots">●●●●●</td><td class="dots">●●●●<i>●</i></td></tr>
+        <tr><th>Diferente das ilhas</th><td class="dots">●●<i>●●●</i></td><td class="dots">●●●●●</td><td class="dots">●●●●<i>●</i></td><td class="dots">●●●●●</td><td class="dots">●●●●<i>●</i></td><td class="dots">●●●●<i>●</i></td><td class="dots">●●●●●</td><td class="dots">●●●●●</td></tr>
+        <tr><th>Custo de construção</th><td class="dots">●●●<i>●●</i></td><td class="dots">●●●●<i>●</i></td><td class="dots">●●●<i>●●</i></td><td class="dots">●●<i>●●●</i></td><td class="dots">●●●●<i>●</i></td><td class="dots">●●●<i>●●</i></td><td class="dots">●●●<i>●●</i></td><td class="dots">●●<i>●●●</i></td></tr>
+        <tr><th>Leveza no celular</th><td class="dots">●●●<i>●●</i></td><td class="dots">●●<i>●●●</i></td><td class="dots">●●●<i>●●</i></td><td class="dots">●●<i>●●●</i></td><td class="dots">●●●●<i>●</i></td><td class="dots">●●●<i>●●</i></td><td class="dots">●●●<i>●●</i></td><td class="dots">●●●<i>●●</i></td></tr>
+        <tr class="total"><th>Total (de 30)</th><td>21</td><td>23</td><td>24</td><td>20</td><td>27</td><td>21</td><td>24</td><td>24</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="note">As notas são a minha leitura técnica. O que pesa de verdade é o seu gosto: a nota baixa de um conceito pode não importar se ele for o que você quer ver no jogo.</p>
+</section>
+
+<p class="legend" aria-label="Legenda das plantas">
+  <span><i style="background:#ff7a2f"></i>Forja do Ignis</span><span><i style="background:#f3e7d9"></i>Spawn</span>
+  <span><i style="background:#8fcf7a"></i>Loja de mochilas</span><span><i style="background:#ffd166"></i>Ranking Top 100</span>
+  <span><i style="background:#b48cff"></i>Portais (6)</span><span><i style="background:#93a7ba"></i>Correio</span>
+  <span><i style="background:#6fb6d9"></i>Saída para a Ilha 1</span>
+</p>
+
+<!-- ============================== A ============================== -->
+<article class="concept" id="A">
+  <div class="art" role="img" aria-label="Arte de clima: vila de ferreiros na encosta com termas, vapor, ponte vermelha e lanternas ao entardecer">
+    <svg viewBox="0 0 640 320" preserveAspectRatio="xMidYMid slice">
+      <defs>
+        <linearGradient id="skyA" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2d3f66"/><stop offset=".55" stop-color="#c98066"/><stop offset="1" stop-color="#f4c38d"/></linearGradient>
+        <filter id="blurA"><feGaussianBlur stdDeviation="7"/></filter>
+        <radialGradient id="lampA"><stop offset="0" stop-color="#ffe2a0"/><stop offset="1" stop-color="#ffb347" stop-opacity="0"/></radialGradient>
+      </defs>
+      <rect width="640" height="320" fill="url(#skyA)"/>
+      <polygon points="0,190 70,118 130,160 200,86 270,148 330,98 400,140 470,76 540,138 640,104 640,320 0,320" fill="#5c6c8c" opacity=".75"/>
+      <polygon points="470,76 484,92 462,96" fill="#eef2f6" opacity=".8"/><polygon points="200,86 214,104 190,104" fill="#eef2f6" opacity=".8"/>
+      <polygon points="0,232 90,168 160,206 250,158 330,198 420,166 520,206 640,176 640,320 0,320" fill="#2f4a45"/>
+      <g fill="#c8553d"><circle cx="70" cy="214" r="16"/><circle cx="92" cy="206" r="13"/><circle cx="560" cy="212" r="15"/><circle cx="584" cy="204" r="12"/><circle cx="140" cy="232" r="11"/></g>
+      <path d="M296,320 C320,286 254,266 296,246 C330,230 300,214 322,204 L340,204 C330,218 352,232 322,248 C290,264 352,290 344,320 Z" fill="#7fb7c9"/>
+      <g fill="#ffffff" opacity=".55" filter="url(#blurA)"><ellipse cx="200" cy="250" rx="60" ry="18"/><ellipse cx="250" cy="226" rx="40" ry="16"/><ellipse cx="460" cy="252" rx="70" ry="20"/><ellipse cx="420" cy="122" rx="26" ry="38"/></g>
+      <g>
+        <rect x="352" y="180" width="164" height="64" fill="#6b4a35"/>
+        <path d="M338,186 Q434,128 530,186 L522,192 Q434,140 346,192 Z" fill="#3a2e3a"/>
+        <path d="M352,180 L434,138 L516,180 Z" fill="#4a3a44"/>
+        <rect x="414" y="104" width="16" height="40" fill="#544038"/>
+        <rect class="glow" x="408" y="204" width="44" height="40" fill="#ffb347"/>
+        <g transform="translate(424,214)"><rect x="0" y="6" width="12" height="20" rx="4" fill="#5a5552"/><circle cx="6" cy="4" r="5" fill="#6a6460"/><path d="M2,12 L10,16 M3,20 L9,18" stroke="#ff8a3d" stroke-width="1.5"/></g>
+        <rect x="364" y="196" width="14" height="14" fill="#ffd27a" opacity=".85"/><rect x="490" y="196" width="14" height="14" fill="#ffd27a" opacity=".85"/>
+      </g>
+      <g><rect x="150" y="214" width="70" height="40" fill="#7b5a42"/><path d="M140,218 Q185,190 230,218 Z" fill="#3a2e3a"/><rect x="176" y="232" width="16" height="22" fill="#ffd27a" opacity=".8"/></g>
+      <path d="M236,262 Q312,222 388,262" fill="none" stroke="#c0392b" stroke-width="7"/>
+      <g stroke="#9b2d22" stroke-width="3"><line x1="256" y1="252" x2="256" y2="268"/><line x1="312" y1="240" x2="312" y2="262"/><line x1="368" y1="252" x2="368" y2="268"/></g>
+      <g><circle cx="256" cy="246" r="9" fill="url(#lampA)"/><circle cx="368" cy="246" r="9" fill="url(#lampA)"/><circle cx="352" cy="176" r="8" fill="url(#lampA)"/><circle cx="516" cy="176" r="8" fill="url(#lampA)"/></g>
+      <g fill="#c94a3a"><rect x="253" y="242" width="6" height="8" rx="2"/><rect x="365" y="242" width="6" height="8" rx="2"/></g>
+    </svg>
+  </div>
+  <div class="c-head"><span class="letter">A</span><h2>Termas dos Ferreiros</h2>
+    <div class="tags"><span class="tag">Japão feudal na montanha</span><span class="tag e-mid">Esforço médio</span><span class="tag">Fim de tarde</span></div></div>
+  <p class="pitch">Uma vila de ferreiros encravada na encosta, com águas termais soltando vapor entre as casas de madeira. O Ignis trabalha no grande salão de fornos tatara no alto da vila, e o caminho até ele sobe em degraus de pedra ao lado do rio.</p>
+  <div class="body">
+    <div class="col">
+      <div class="blk map"><span class="eyebrow">Como cada função vira cenário</span>
+        <dl>
+          <dt>Spawn</dt><dd>Terraço da casa de banho, com o vapor subindo e a vila inteira à frente.</dd>
+          <dt>Forja</dt><dd>Salão de fornos tatara no topo, foles enormes e chamas pelas janelas de papel.</dd>
+          <dt>Loja</dt><dd>Casa de tecelões com mochilas penduradas em varais de bambu.</dd>
+          <dt>Ranking</dt><dd>Dois grandes painéis de madeira entalhada no santuário da vila.</dd>
+          <dt>Portais</dt><dd>Seis lanternas de pedra gigantes ao longo do rio, cada uma com a chama de um mundo.</dd>
+          <dt>Saída</dt><dd>Ponte vermelha em arco sobre o vale até a Ilha 1.</dd>
+        </dl></div>
+      <div class="proscons">
+        <div class="pros"><h3>Pontos fortes</h3><ul><li>A cara de anime mais imediata das seis.</li><li>Vapor, lanternas e água rendem clima forte com pouco efeito.</li><li>A subida até o Ignis dá sensação de chegada.</li></ul></div>
+        <div class="cons"><h3>Pontos fracos</h3><ul><li>Fica parecido com as ilhas Demon Slayer e Wano, que já são japonesas.</li><li>Terreno em degraus pede mais cuidado com colisão e câmera.</li><li>Puxa o jogo para um anime só, quando o jogo mistura vários.</li></ul></div>
+      </div>
+      <div class="blk"><span class="eyebrow">Referências de anime</span>
+        <div class="refs">
+          <div class="ref"><span class="t">Demon Slayer · Vila dos Ferreiros</span><span class="s">ufotable · 2023</span><span class="w">Termas, vapor entre casas de madeira, luz quente de fim de tarde.</span><a href="https://www.google.com/search?tbm=isch&q=demon+slayer+swordsmith+village+background+art" target="_blank" rel="noopener">Ver imagens</a></div>
+          <div class="ref"><span class="t">Princesa Mononoke · Cidade do Ferro</span><span class="s">Studio Ghibli · 1997</span><span class="w">Fornos tatara, foles, paliçada de madeira e fumaça de trabalho.</span><a href="https://www.google.com/search?tbm=isch&q=princess+mononoke+irontown+tatara+background" target="_blank" rel="noopener">Ver imagens</a></div>
+          <div class="ref"><span class="t">A Viagem de Chihiro · casa de banhos</span><span class="s">Studio Ghibli · 2001</span><span class="w">Lanternas, telhados curvos e a sala de caldeiras do Kamaji.</span><a href="https://www.google.com/search?tbm=isch&q=spirited+away+bathhouse+background+art" target="_blank" rel="noopener">Ver imagens</a></div>
+        </div></div>
+    </div>
+    <div class="col">
+      <div class="plan"><svg viewBox="0 0 240 260" role="img" aria-label="Planta do conceito A">
+        <rect width="240" height="260" fill="#120d0b"/>
+        <path d="M120,256 C140,220 92,200 118,170 C140,146 112,120 128,90" fill="none" stroke="#3d6f80" stroke-width="10"/>
+        <g fill="#2a211c" stroke="#3b2e26"><rect x="40" y="40" width="160" height="40" rx="4"/><rect x="30" y="96" width="180" height="46" rx="4"/><rect x="24" y="158" width="192" height="50" rx="4"/></g>
+        <text x="206" y="62" fill="#b9a895" font-size="8" font-family="monospace">+12</text><text x="214" y="120" fill="#b9a895" font-size="8" font-family="monospace">+6</text>
+        <rect x="88" y="44" width="64" height="30" rx="3" fill="#ff7a2f"/><text x="120" y="63" text-anchor="middle" font-size="9" fill="#15100d" font-family="monospace">FORJA</text>
+        <rect x="40" y="104" width="38" height="28" rx="3" fill="#8fcf7a"/><text x="59" y="121" text-anchor="middle" font-size="8" fill="#15100d" font-family="monospace">LOJA</text>
+        <rect x="162" y="104" width="40" height="28" rx="3" fill="#ffd166"/><text x="182" y="121" text-anchor="middle" font-size="8" fill="#15100d" font-family="monospace">TOP</text>
+        <g fill="#b48cff"><circle cx="150" cy="172" r="5"/><circle cx="160" cy="186" r="5"/><circle cx="170" cy="198" r="5"/><circle cx="74" cy="172" r="5"/><circle cx="66" cy="186" r="5"/><circle cx="58" cy="198" r="5"/></g>
+        <circle cx="120" cy="218" r="8" fill="#f3e7d9"/><text x="134" y="221" font-size="8" fill="#f3e7d9" font-family="monospace">SPAWN</text>
+        <rect x="96" y="214" width="6" height="6" fill="#93a7ba"/>
+        <path d="M120,226 L120,256" stroke="#6fb6d9" stroke-width="5"/><text x="128" y="252" font-size="8" fill="#6fb6d9" font-family="monospace">ILHA 1</text>
+        <path d="M120,210 L120,80" stroke="#f3e7d9" stroke-width="1" stroke-dasharray="3 3"/>
+      </svg></div>
+      <div><span class="eyebrow">Paleta</span><div class="palette"><span style="background:#2d3f66"></span><span style="background:#c98066"></span><span style="background:#f4c38d"></span><span style="background:#6b4a35"></span><span style="background:#c0392b"></span><span style="background:#7fb7c9"></span></div></div>
+      <p class="muted">Clima: entardecer, vapor nas termas, lanternas acesas, folhas de bordo vermelhas caindo.</p>
+    </div>
+  </div>
+</article>
+
+<!-- ============================== B ============================== -->
+<article class="concept" id="B">
+  <div class="art" role="img" aria-label="Arte de clima: cidade-forja dentro de uma cratera de vulcão, com rio de lava, colunas de basalto e forja escavada na parede">
+    <svg viewBox="0 0 640 320" preserveAspectRatio="xMidYMid slice">
+      <defs>
+        <linearGradient id="skyB" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2a1e3f"/><stop offset=".6" stop-color="#a2432d"/><stop offset="1" stop-color="#f08a3c"/></linearGradient>
+        <linearGradient id="lavaB" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#ff5a1f"/><stop offset=".5" stop-color="#ffd166"/><stop offset="1" stop-color="#ff5a1f"/></linearGradient>
+        <filter id="blurB"><feGaussianBlur stdDeviation="9"/></filter>
+      </defs>
+      <rect width="640" height="320" fill="url(#skyB)"/>
+      <g fill="#3a3030" opacity=".8" filter="url(#blurB)"><ellipse cx="470" cy="60" rx="50" ry="38"/><ellipse cx="500" cy="20" rx="60" ry="30"/><ellipse cx="200" cy="70" rx="40" ry="30"/></g>
+      <polygon points="200,170 260,96 320,82 380,96 440,170" fill="#3a2b29"/>
+      <path d="M296,120 Q320,104 344,120 L344,170 L296,170 Z" fill="#160e0c"/>
+      <path class="glow" d="M302,170 L302,126 Q320,112 338,126 L338,170 Z" fill="#ff8a3d" opacity=".9"/>
+      <g transform="translate(313,148)"><rect x="0" y="6" width="14" height="18" rx="4" fill="#4c4644"/><circle cx="7" cy="4" r="6" fill="#5a5452"/><path d="M3,12 L11,16" stroke="#ffd166" stroke-width="2"/></g>
+      <path d="M318,82 L322,82 L330,170 L310,170 Z" fill="#ff7a2f" opacity=".7"/>
+      <polygon points="0,320 0,118 60,98 110,160 150,148 190,222 222,320" fill="#2b2220"/>
+      <polygon points="640,320 640,108 580,88 530,150 490,140 450,222 418,320" fill="#2b2220"/>
+      <g fill="#3c3330" stroke="#574842" stroke-width="1.5">
+        <polygon points="40,320 40,210 56,202 72,210 72,320"/><polygon points="76,320 76,226 92,218 108,226 108,320"/><polygon points="112,320 112,244 128,236 144,244 144,320"/>
+        <polygon points="600,320 600,206 584,198 568,206 568,320"/><polygon points="564,320 564,224 548,216 532,224 532,320"/><polygon points="528,320 528,242 512,234 496,242 496,320"/>
+      </g>
+      <ellipse cx="320" cy="280" rx="176" ry="30" fill="url(#lavaB)"/>
+      <path d="M320,170 C300,200 340,230 318,252" fill="none" stroke="#ff9a3c" stroke-width="10" opacity=".85"/>
+      <g stroke="#1b1311" stroke-width="5"><line x1="200" y1="276" x2="270" y2="268"/><line x1="370" y1="268" x2="440" y2="276"/></g>
+      <g fill="#ffcf70"><circle cx="230" cy="220" r="1.8"/><circle cx="260" cy="200" r="1.4"/><circle cx="380" cy="214" r="1.8"/><circle cx="410" cy="190" r="1.4"/><circle cx="350" cy="236" r="1.6"/><circle cx="290" cy="240" r="1.2"/><circle cx="330" cy="200" r="1.4"/></g>
+    </svg>
+  </div>
+  <div class="c-head"><span class="letter">B</span><h2>Cratera da Forja</h2>
+    <div class="tags"><span class="tag">Vulcão adormecido</span><span class="tag e-low">Esforço baixo a médio</span><span class="tag">Crepúsculo de brasa</span></div></div>
+  <p class="pitch">Uma cidade de ferreiros construída dentro da cratera de onde o Ignis nasceu. Canais de lava descem pelas paredes de basalto e alimentam as fornalhas. A forja do Ignis é escavada na parede norte, com uma cascata de lava atrás dele.</p>
+  <div class="body">
+    <div class="col">
+      <div class="blk map"><span class="eyebrow">Como cada função vira cenário</span>
+        <dl>
+          <dt>Spawn</dt><dd>Mirante na borda sul da cratera, olhando a cidade e o lago de lava lá embaixo.</dd>
+          <dt>Forja</dt><dd>Boca gigante na rocha, com a cascata de lava e o Ignis na bigorna.</dd>
+          <dt>Loja</dt><dd>Mercado em terraços de basalto, mochilas de couro e ferro.</dd>
+          <dt>Ranking</dt><dd>Duas lápides de obsidiana com os nomes gravados em brasa.</dd>
+          <dt>Portais</dt><dd>Seis arcos de basalto em volta do lago de lava, ligados por pontes.</dd>
+          <dt>Saída</dt><dd>Túnel na borda sul que vira ponte de pedra até a Ilha 1.</dd>
+        </dl></div>
+      <div class="proscons">
+        <div class="pros"><h3>Pontos fortes</h3><ul><li>É a casa natural do Ignis: pedra e lava em tudo.</li><li>Organização circular, fácil de entender do spawn.</li><li>Construção em formas grandes de rocha, rápida de fazer bem.</li></ul></div>
+        <div class="cons"><h3>Pontos fracos</h3><ul><li>Escuro e vermelho demais pode cansar como primeira tela.</li><li>Muito brilho e partícula pesa no celular.</li><li>Contraste forte com as ilhas ensolaradas logo depois da ponte.</li></ul></div>
+      </div>
+      <div class="blk"><span class="eyebrow">Referências de anime</span>
+        <div class="refs">
+          <div class="ref"><span class="t">Fire Force</span><span class="s">David Production · 2019</span><span class="w">Luz de fogo dura, brasas no ar, silhuetas contra o laranja.</span><a href="https://www.google.com/search?tbm=isch&q=fire+force+anime+background+city+flames" target="_blank" rel="noopener">Ver imagens</a></div>
+          <div class="ref"><span class="t">Slime · Reino Anão de Dwargon</span><span class="s">8bit · 2018</span><span class="w">Ofícios dos anões, ferraria do Kaijin, pedra trabalhada.</span><a href="https://www.google.com/search?tbm=isch&q=tensura+dwargon+dwarf+kingdom+anime" target="_blank" rel="noopener">Ver imagens</a></div>
+          <div class="ref"><span class="t">Dungeon Meshi · reino anão</span><span class="s">Trigger · 2024</span><span class="w">Salões de pedra, forjas antigas, cor rica mesmo no escuro.</span><a href="https://www.google.com/search?tbm=isch&q=dungeon+meshi+dwarf+kingdom+background" target="_blank" rel="noopener">Ver imagens</a></div>
+        </div></div>
+    </div>
+    <div class="col">
+      <div class="plan"><svg viewBox="0 0 240 260" role="img" aria-label="Planta do conceito B">
+        <rect width="240" height="260" fill="#120d0b"/>
+        <circle cx="120" cy="120" r="104" fill="#2a211c" stroke="#3b2e26" stroke-width="10"/>
+        <ellipse cx="120" cy="124" rx="44" ry="34" fill="#ff7a2f" opacity=".35"/>
+        <rect x="90" y="22" width="60" height="28" rx="3" fill="#ff7a2f"/><text x="120" y="40" text-anchor="middle" font-size="9" fill="#15100d" font-family="monospace">FORJA</text>
+        <rect x="182" y="96" width="34" height="26" rx="3" fill="#8fcf7a"/><text x="199" y="112" text-anchor="middle" font-size="8" fill="#15100d" font-family="monospace">LOJA</text>
+        <rect x="24" y="96" width="34" height="26" rx="3" fill="#ffd166"/><text x="41" y="112" text-anchor="middle" font-size="8" fill="#15100d" font-family="monospace">TOP</text>
+        <g fill="#b48cff"><circle cx="80" cy="96" r="5"/><circle cx="70" cy="124" r="5"/><circle cx="80" cy="152" r="5"/><circle cx="160" cy="96" r="5"/><circle cx="170" cy="124" r="5"/><circle cx="160" cy="152" r="5"/></g>
+        <circle cx="120" cy="196" r="8" fill="#f3e7d9"/><text x="134" y="199" font-size="8" fill="#f3e7d9" font-family="monospace">SPAWN</text>
+        <rect x="96" y="192" width="6" height="6" fill="#93a7ba"/>
+        <path d="M120,206 L120,258" stroke="#6fb6d9" stroke-width="5"/><text x="128" y="252" font-size="8" fill="#6fb6d9" font-family="monospace">ILHA 1</text>
+        <path d="M120,188 L120,52" stroke="#f3e7d9" stroke-width="1" stroke-dasharray="3 3"/>
+      </svg></div>
+      <div><span class="eyebrow">Paleta</span><div class="palette"><span style="background:#2a1e3f"></span><span style="background:#2b2220"></span><span style="background:#574842"></span><span style="background:#a2432d"></span><span style="background:#ff7a2f"></span><span style="background:#ffd166"></span></div></div>
+      <p class="muted">Clima: céu de crepúsculo, fumaça saindo da borda, brasas subindo, lava pulsando devagar.</p>
+    </div>
+  </div>
+</article>
+
+<!-- ============================== C ============================== -->
+<article class="concept" id="C">
+  <div class="art" role="img" aria-label="Arte de clima: ilha flutuante com uma rocha em forma de bigorna e núcleo de lava, cachoeiras e ilhotas com portais">
+    <svg viewBox="0 0 640 320" preserveAspectRatio="xMidYMid slice">
+      <defs>
+        <linearGradient id="skyC" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3f8fd1"/><stop offset="1" stop-color="#cdeaff"/></linearGradient>
+        <linearGradient id="fallC" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#ffffff" stop-opacity="0"/></linearGradient>
+        <filter id="blurC"><feGaussianBlur stdDeviation="6"/></filter>
+      </defs>
+      <rect width="640" height="320" fill="url(#skyC)"/>
+      <g fill="#ffffff" filter="url(#blurC)" opacity=".95"><ellipse cx="90" cy="300" rx="140" ry="40"/><ellipse cx="540" cy="296" rx="160" ry="44"/><ellipse cx="320" cy="316" rx="200" ry="30"/><ellipse cx="560" cy="80" rx="70" ry="18"/><ellipse cx="110" cy="70" rx="60" ry="14"/></g>
+      <polygon points="180,176 460,176 420,214 380,240 340,272 300,256 260,232 220,208" fill="#6d5a4d"/>
+      <g stroke="#4d3f36" stroke-width="2" fill="none"><path d="M300,256 L296,292"/><path d="M340,272 L344,304"/><path d="M380,240 L388,270"/></g>
+      <ellipse cx="320" cy="176" rx="142" ry="20" fill="#7cbf5a"/>
+      <path d="M248,170 L262,118 L238,112 L240,96 L400,96 L402,112 L378,118 L392,170 Z" fill="#5a5150"/>
+      <path class="glow" d="M300,170 L312,126 L330,140 L340,104 L346,170 Z" fill="#ff8a3d"/>
+      <g transform="translate(312,150)"><rect x="0" y="6" width="12" height="16" rx="4" fill="#4c4644"/><circle cx="6" cy="4" r="5" fill="#5a5452"/></g>
+      <rect x="196" y="184" width="10" height="70" fill="url(#fallC)"/><rect x="440" y="184" width="12" height="80" fill="url(#fallC)"/>
+      <g><polygon points="60,150 130,150 112,174 82,178" fill="#6d5a4d"/><ellipse cx="95" cy="150" rx="36" ry="7" fill="#7cbf5a"/><circle cx="95" cy="128" r="16" fill="none" stroke="#b48cff" stroke-width="5"/>
+         <polygon points="520,140 590,140 572,164 540,168" fill="#6d5a4d"/><ellipse cx="555" cy="140" rx="36" ry="7" fill="#7cbf5a"/><circle cx="555" cy="118" r="16" fill="none" stroke="#ffd166" stroke-width="5"/>
+         <polygon points="20,222 76,222 62,240 36,242" fill="#6d5a4d"/><circle cx="48" cy="206" r="12" fill="none" stroke="#ff7a8a" stroke-width="4"/>
+         <polygon points="570,214 626,214 612,232 586,234" fill="#6d5a4d"/><circle cx="598" cy="198" r="12" fill="none" stroke="#6fd3a0" stroke-width="4"/></g>
+      <g stroke="#5a4c44" stroke-width="2" stroke-dasharray="4 3"><line x1="130" y1="152" x2="190" y2="172"/><line x1="450" y1="172" x2="520" y2="144"/></g>
+      <g transform="translate(470,60)"><ellipse cx="0" cy="0" rx="34" ry="10" fill="#c0392b"/><rect x="-10" y="8" width="20" height="8" fill="#6b4a35"/></g>
+    </svg>
+  </div>
+  <div class="c-head"><span class="letter">C</span><h2>Bigorna Celeste</h2>
+    <div class="tags"><span class="tag">Ilha flutuante</span><span class="tag e-mid">Esforço médio</span><span class="tag">Dia claro</span></div></div>
+  <p class="pitch">Uma ilha que flutua acima das nuvens, coroada por uma rocha gigante em forma de bigorna com um núcleo de lava aceso. Cachoeiras caem pelas bordas e os portais ficam em ilhotas presas por correntes, uma para cada mundo.</p>
+  <div class="body">
+    <div class="col">
+      <div class="blk map"><span class="eyebrow">Como cada função vira cenário</span>
+        <dl>
+          <dt>Spawn</dt><dd>Praça de pedra no centro da ilha, com a bigorna-montanha à frente.</dd>
+          <dt>Forja</dt><dd>Oficina aberta no pé da rocha-bigorna, com a lava escorrendo por uma fenda.</dd>
+          <dt>Loja</dt><dd>Barco aéreo atracado servindo de loja de mochilas.</dd>
+          <dt>Ranking</dt><dd>Dois estandartes enormes pendurados entre torres, voltados para a praça.</dd>
+          <dt>Portais</dt><dd>Seis ilhotas em arco, ligadas por pontes de corda, cada uma com um anel de portal.</dd>
+          <dt>Saída</dt><dd>Ponte longa de pedra e corda descendo até a Ilha 1.</dd>
+        </dl></div>
+      <div class="proscons">
+        <div class="pros"><h3>Pontos fortes</h3><ul><li>A primeira tela mais bonita e mais fácil de ler.</li><li>Céu, nuvens e cachoeiras fazem o clima quase sozinhos.</li><li>Portais em ilhotas separadas ficam claríssimos.</li></ul></div>
+        <div class="cons"><h3>Pontos fracos</h3><ul><li>Jogador cai das bordas: precisa de grades e rede de queda bem feitas.</li><li>As ilhas do jogo estão no chão; a ponte até a Ilha 1 fica longa.</li><li>A ligação com mineração é menor que em B, E e F.</li></ul></div>
+      </div>
+      <div class="blk"><span class="eyebrow">Referências de anime</span>
+        <div class="refs">
+          <div class="ref"><span class="t">O Castelo no Céu (Laputa)</span><span class="s">Studio Ghibli · 1986</span><span class="w">Ilha flutuante com raízes, ruínas cobertas de verde, nuvens enormes.</span><a href="https://www.google.com/search?tbm=isch&q=castle+in+the+sky+laputa+background+art" target="_blank" rel="noopener">Ver imagens</a></div>
+          <div class="ref"><span class="t">Granblue Fantasy The Animation</span><span class="s">A-1 Pictures · 2017</span><span class="w">Ilhas no céu, barcos voadores, cores saturadas.</span><a href="https://www.google.com/search?tbm=isch&q=granblue+fantasy+the+animation+sky+island+background" target="_blank" rel="noopener">Ver imagens</a></div>
+          <div class="ref"><span class="t">Tower of God · andares</span><span class="s">Telecom Animation Film · 2020</span><span class="w">Plataformas suspensas e escala vertical.</span><a href="https://www.google.com/search?tbm=isch&q=tower+of+god+anime+background+floor" target="_blank" rel="noopener">Ver imagens</a></div>
+        </div></div>
+    </div>
+    <div class="col">
+      <div class="plan"><svg viewBox="0 0 240 260" role="img" aria-label="Planta do conceito C">
+        <rect width="240" height="260" fill="#0f1417"/>
+        <ellipse cx="128" cy="110" rx="78" ry="70" fill="#2a3a2a" stroke="#3b4a3a" stroke-width="2"/>
+        <rect x="98" y="46" width="60" height="28" rx="3" fill="#ff7a2f"/><text x="128" y="64" text-anchor="middle" font-size="9" fill="#15100d" font-family="monospace">FORJA</text>
+        <rect x="170" y="100" width="34" height="24" rx="3" fill="#8fcf7a"/><text x="187" y="115" text-anchor="middle" font-size="8" fill="#15100d" font-family="monospace">LOJA</text>
+        <rect x="128" y="132" width="40" height="18" rx="3" fill="#ffd166"/><text x="148" y="144" text-anchor="middle" font-size="8" fill="#15100d" font-family="monospace">TOP</text>
+        <g fill="#2a3a2a" stroke="#3b4a3a"><circle cx="34" cy="40" r="11"/><circle cx="22" cy="78" r="11"/><circle cx="20" cy="118" r="11"/><circle cx="24" cy="158" r="11"/><circle cx="36" cy="196" r="11"/><circle cx="60" cy="226" r="11"/></g>
+        <g fill="#b48cff"><circle cx="34" cy="40" r="4"/><circle cx="22" cy="78" r="4"/><circle cx="20" cy="118" r="4"/><circle cx="24" cy="158" r="4"/><circle cx="36" cy="196" r="4"/><circle cx="60" cy="226" r="4"/></g>
+        <g stroke="#5a4c44" stroke-dasharray="2 2"><line x1="56" y1="110" x2="31" y2="118"/><line x1="58" y1="140" x2="35" y2="158"/><line x1="60" y1="80" x2="33" y2="78"/></g>
+        <circle cx="120" cy="114" r="8" fill="#f3e7d9"/><text x="80" y="102" font-size="8" fill="#f3e7d9" font-family="monospace">SPAWN</text>
+        <rect x="96" y="120" width="6" height="6" fill="#93a7ba"/>
+        <path d="M128,180 L150,258" stroke="#6fb6d9" stroke-width="5"/><text x="156" y="250" font-size="8" fill="#6fb6d9" font-family="monospace">ILHA 1</text>
+      </svg></div>
+      <div><span class="eyebrow">Paleta</span><div class="palette"><span style="background:#3f8fd1"></span><span style="background:#cdeaff"></span><span style="background:#7cbf5a"></span><span style="background:#6d5a4d"></span><span style="background:#5a5150"></span><span style="background:#ff8a3d"></span></div></div>
+      <p class="muted">Clima: manhã clara, nuvens passando embaixo, névoa das cachoeiras, pássaros.</p>
+    </div>
+  </div>
+</article>
+
+<!-- ============================== D ============================== -->
+<article class="concept" id="D">
+  <div class="art" role="img" aria-label="Arte de clima: cidade industrial a vapor com fundição de tijolos, chaminés, engrenagens, canos de cobre e um dirigível">
+    <svg viewBox="0 0 640 320" preserveAspectRatio="xMidYMid slice">
+      <defs>
+        <linearGradient id="skyD" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e9c59b"/><stop offset="1" stop-color="#a86b4a"/></linearGradient>
+        <filter id="blurD"><feGaussianBlur stdDeviation="8"/></filter>
+      </defs>
+      <rect width="640" height="320" fill="url(#skyD)"/>
+      <g fill="#8a6a58" opacity=".8" filter="url(#blurD)"><ellipse cx="150" cy="70" rx="40" ry="30"/><ellipse cx="190" cy="40" rx="50" ry="26"/><ellipse cx="470" cy="50" rx="50" ry="30"/></g>
+      <g fill="#7a4e3a"><rect x="20" y="170" width="90" height="150"/><rect x="40" y="110" width="14" height="60"/><rect x="520" y="160" width="110" height="160"/><rect x="590" y="100" width="16" height="60"/><rect x="150" y="90" width="16" height="120"/><rect x="460" y="80" width="16" height="120"/></g>
+      <rect x="190" y="140" width="260" height="180" fill="#8c4a32"/>
+      <polygon points="180,144 320,92 460,144" fill="#5b3326"/>
+      <g class="glow" fill="#ffb347"><path d="M220,200 Q238,176 256,200 L256,250 L220,250 Z"/><path d="M302,190 Q320,160 338,190 L338,250 L302,250 Z"/><path d="M384,200 Q402,176 420,200 L420,250 L384,250 Z"/></g>
+      <g transform="translate(314,226)"><rect x="0" y="6" width="12" height="18" rx="4" fill="#4c4644"/><circle cx="6" cy="4" r="5" fill="#5a5452"/></g>
+      <rect x="306" y="40" width="28" height="60" fill="#6e3a2a"/><circle cx="320" cy="60" r="10" fill="#f3e7d9"/><line x1="320" y1="60" x2="320" y2="53" stroke="#2a1a12" stroke-width="2"/><line x1="320" y1="60" x2="325" y2="62" stroke="#2a1a12" stroke-width="2"/>
+      <g fill="none" stroke="#b87333" stroke-width="7"><path d="M110,230 L190,230"/><path d="M450,216 L520,216 L520,190"/><path d="M60,320 L60,260 L120,260"/></g>
+      <g fill="none" stroke="#4a3328"><circle cx="150" cy="256" r="22" stroke-width="8" stroke-dasharray="6 4"/><circle cx="490" cy="262" r="28" stroke-width="9" stroke-dasharray="7 5"/><circle cx="150" cy="256" r="6" fill="#4a3328"/></g>
+      <g stroke="#3b2a22" stroke-width="3"><line x1="0" y1="300" x2="640" y2="300"/><line x1="0" y1="308" x2="640" y2="308"/></g>
+      <g fill="#5a4a40"><rect x="230" y="286" width="26" height="14"/><rect x="262" y="286" width="26" height="14"/></g><g fill="#8fa6c7"><rect x="234" y="282" width="18" height="6"/><rect x="266" y="282" width="18" height="6"/></g>
+      <g transform="translate(110,110)"><ellipse cx="0" cy="0" rx="50" ry="16" fill="#c9a36f"/><rect x="-14" y="14" width="28" height="10" fill="#6b4a35"/></g>
+    </svg>
+  </div>
+  <div class="c-head"><span class="letter">D</span><h2>Fundição a Vapor</h2>
+    <div class="tags"><span class="tag">Cidade industrial fantasia</span><span class="tag e-high">Esforço alto</span><span class="tag">Tarde dourada</span></div></div>
+  <p class="pitch">Uma cidade de tijolo e cobre girando em volta de uma grande fundição. Esteiras e vagonetes levam minério da mina até o forno, onde o Ignis é o coração da caldeira. Engrenagens giram, canos soltam vapor e um dirigível passa no céu.</p>
+  <div class="body">
+    <div class="col">
+      <div class="blk map"><span class="eyebrow">Como cada função vira cenário</span>
+        <dl>
+          <dt>Spawn</dt><dd>Praça da estação, com a avenida levando direto à fundição.</dd>
+          <dt>Forja</dt><dd>Fundição com três fornos em arco; o Ignis no central, vagonetes chegando com minério.</dd>
+          <dt>Loja</dt><dd>Galeria coberta de ferro e vidro com mochilas na vitrine.</dd>
+          <dt>Ranking</dt><dd>Painéis mecânicos na torre do relógio, com placas que giram.</dd>
+          <dt>Portais</dt><dd>Estação de trem com seis plataformas, uma para cada mundo.</dd>
+          <dt>Saída</dt><dd>Ponte de treliça de ferro até a Ilha 1.</dd>
+        </dl></div>
+      <div class="proscons">
+        <div class="pros"><h3>Pontos fortes</h3><ul><li>Liga mineração, forja e loja numa história só: o minério vira ferramenta.</li><li>Portais como estação de trem é muito claro e original.</li><li>Muito movimento para animar: engrenagens, esteiras, vapor.</li></ul></div>
+        <div class="cons"><h3>Pontos fracos</h3><ul><li>O mais caro de modelar: muitas máquinas e peças pequenas.</li><li>Muitos objetos animados pesam no celular.</li><li>Industrial pode parecer menos fantasia e menos anime.</li></ul></div>
+      </div>
+      <div class="blk"><span class="eyebrow">Referências de anime</span>
+        <div class="refs">
+          <div class="ref"><span class="t">Fullmetal Alchemist: Brotherhood · Rush Valley</span><span class="s">Bones · 2009</span><span class="w">Cidade de oficinas de metal, vitrines de próteses, céu quente.</span><a href="https://www.google.com/search?tbm=isch&q=fullmetal+alchemist+brotherhood+rush+valley+background" target="_blank" rel="noopener">Ver imagens</a></div>
+          <div class="ref"><span class="t">O Castelo Animado</span><span class="s">Studio Ghibli · 2004</span><span class="w">Cidade com chaminés, máquinas a vapor e cores douradas.</span><a href="https://www.google.com/search?tbm=isch&q=howls+moving+castle+town+background+art" target="_blank" rel="noopener">Ver imagens</a></div>
+          <div class="ref"><span class="t">One Piece · Water 7</span><span class="s">Toei Animation · 2005</span><span class="w">Estaleiros, carpinteiros, canais e muito movimento de trabalho.</span><a href="https://www.google.com/search?tbm=isch&q=one+piece+water+7+background+galley+la" target="_blank" rel="noopener">Ver imagens</a></div>
+        </div></div>
+    </div>
+    <div class="col">
+      <div class="plan"><svg viewBox="0 0 240 260" role="img" aria-label="Planta do conceito D">
+        <rect width="240" height="260" fill="#120d0b"/>
+        <rect x="104" y="40" width="32" height="176" fill="#2a211c"/>
+        <g fill="#2a211c" stroke="#3b2e26"><rect x="20" y="70" width="70" height="60"/><rect x="150" y="70" width="70" height="60"/><rect x="20" y="146" width="70" height="56"/><rect x="150" y="146" width="70" height="56"/></g>
+        <rect x="76" y="14" width="88" height="34" rx="3" fill="#ff7a2f"/><text x="120" y="35" text-anchor="middle" font-size="9" fill="#15100d" font-family="monospace">FUNDIÇÃO</text>
+        <rect x="160" y="84" width="50" height="30" rx="3" fill="#8fcf7a"/><text x="185" y="102" text-anchor="middle" font-size="8" fill="#15100d" font-family="monospace">LOJA</text>
+        <rect x="30" y="84" width="50" height="30" rx="3" fill="#ffd166"/><text x="55" y="102" text-anchor="middle" font-size="8" fill="#15100d" font-family="monospace">TORRE</text>
+        <g fill="#b48cff"><rect x="26" y="152" width="8" height="44"/><rect x="40" y="152" width="8" height="44"/><rect x="54" y="152" width="8" height="44"/><rect x="68" y="152" width="8" height="44"/><rect x="82" y="152" width="6" height="44"/></g>
+        <rect x="160" y="152" width="50" height="44" fill="#3b2e26"/><text x="185" y="178" text-anchor="middle" font-size="7" fill="#b9a895" font-family="monospace">MINA</text>
+        <path d="M185,152 L185,140 L136,140 L136,48" stroke="#b87333" stroke-width="2"/>
+        <circle cx="120" cy="214" r="8" fill="#f3e7d9"/><text x="134" y="217" font-size="8" fill="#f3e7d9" font-family="monospace">SPAWN</text>
+        <rect x="96" y="210" width="6" height="6" fill="#93a7ba"/>
+        <path d="M120,224 L120,258" stroke="#6fb6d9" stroke-width="5"/><text x="128" y="252" font-size="8" fill="#6fb6d9" font-family="monospace">ILHA 1</text>
+      </svg></div>
+      <div><span class="eyebrow">Paleta</span><div class="palette"><span style="background:#e9c59b"></span><span style="background:#a86b4a"></span><span style="background:#8c4a32"></span><span style="background:#5b3326"></span><span style="background:#b87333"></span><span style="background:#ffb347"></span></div></div>
+      <p class="muted">Clima: tarde dourada, vapor saindo dos canos, apito de trem, faíscas da fundição.</p>
+    </div>
+  </div>
+</article>
+
+<!-- ============================== E ============================== -->
+<article class="concept" id="E">
+  <div class="art" role="img" aria-label="Arte de clima: ruínas de um deus ferreiro com martelo gigante quebrado, bigorna colossal com lava, arcos de portal e círculo de runas sob raios de sol">
+    <svg viewBox="0 0 640 320" preserveAspectRatio="xMidYMid slice">
+      <defs>
+        <linearGradient id="skyE" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8fbfe4"/><stop offset=".7" stop-color="#f3dcb6"/><stop offset="1" stop-color="#f6e8cf"/></linearGradient>
+        <linearGradient id="rayE" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff" stop-opacity=".55"/><stop offset="1" stop-color="#ffffff" stop-opacity="0"/></linearGradient>
+        <linearGradient id="groundE" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8aa86a"/><stop offset="1" stop-color="#5f7d4c"/></linearGradient>
+      </defs>
+      <rect width="640" height="320" fill="url(#skyE)"/>
+      <polygon points="0,200 80,150 150,180 230,130 300,170 380,120 470,170 560,140 640,170 640,320 0,320" fill="#a9b9c8" opacity=".7"/>
+      <g fill="url(#rayE)"><polygon points="360,0 420,0 300,240 250,240"/><polygon points="460,0 500,0 390,240 350,240"/><polygon points="250,0 280,0 210,240 180,240"/></g>
+      <rect x="0" y="236" width="640" height="84" fill="url(#groundE)"/>
+      <polygon points="232,236 252,170 238,160 252,120 388,120 402,160 388,170 408,236" fill="#8a8178"/>
+      <path class="glow" d="M300,236 L306,180 L318,196 L326,150 L334,190 L344,236 Z" fill="#ff8a3d"/>
+      <rect x="250" y="112" width="140" height="14" fill="#9b9188"/>
+      <g transform="translate(316,212)"><rect x="0" y="6" width="12" height="18" rx="4" fill="#5a5552"/><circle cx="6" cy="4" r="5" fill="#6a6460"/><path d="M2,12 L10,16" stroke="#ff8a3d" stroke-width="1.5"/></g>
+      <g transform="rotate(-24 120 210)"><rect x="104" y="60" width="22" height="170" fill="#7a6a5c"/><rect x="66" y="38" width="98" height="46" rx="4" fill="#8f857c"/><rect x="66" y="70" width="98" height="10" fill="#6fa25a" opacity=".8"/></g>
+      <path d="M470,236 L470,150 Q500,120 530,150 L530,236 L518,236 L518,156 Q500,136 482,156 L482,236 Z" fill="#9b9188"/><path d="M482,236 L482,156 Q500,136 518,156 L518,236 Z" fill="#b48cff" opacity=".55"/>
+      <path d="M560,236 L560,170 Q584,146 608,170 L608,236 L598,236 L598,176 Q584,160 570,176 L570,236 Z" fill="#9b9188"/><path d="M570,236 L570,176 Q584,160 598,176 L598,236 Z" fill="#ffd166" opacity=".55"/>
+      <path d="M20,236 L20,174 Q44,150 68,174 L68,236 L58,236 L58,180 Q44,164 30,180 L30,236 Z" fill="#9b9188"/><path d="M30,236 L30,180 Q44,164 58,180 L58,236 Z" fill="#6fd3a0" opacity=".55"/>
+      <ellipse cx="320" cy="282" rx="150" ry="22" fill="none" stroke="#ffd27a" stroke-width="3" stroke-dasharray="10 6"/>
+      <ellipse cx="320" cy="282" rx="104" ry="14" fill="none" stroke="#ffd27a" stroke-width="2" stroke-dasharray="4 6" opacity=".8"/>
+      <g fill="#5e8f4a"><circle cx="200" cy="232" r="14"/><circle cx="436" cy="230" r="16"/><circle cx="452" cy="222" r="12"/></g>
+      <g><polygon points="410,250 418,226 426,250" fill="#7fd6ff"/><polygon points="424,252 430,234 436,252" fill="#ffb347"/><polygon points="214,252 220,232 226,252" fill="#7fd6ff"/></g>
+    </svg>
+  </div>
+  <div class="c-head"><span class="letter">E</span><h2>Santuário do Deus-Ferreiro</h2>
+    <div class="tags"><span class="tag">Ruínas ancestrais</span><span class="tag e-low">Esforço médio</span><span class="tag">Manhã com raios de sol</span></div></div>
+  <p class="pitch">As ruínas do templo de um deus-ferreiro gigante, tomadas pela natureza. O martelo colossal dele está cravado no chão e a bigorna do tamanho de um prédio ainda arde por dentro. O Ignis é o último guardião e trabalha ao pé dessa bigorna. É o clima do vídeo que você mandou, com o tema da forja.</p>
+  <div class="body">
+    <div class="col">
+      <div class="blk map"><span class="eyebrow">Como cada função vira cenário</span>
+        <dl>
+          <dt>Spawn</dt><dd>Escadaria sul, com a bigorna colossal e o martelo cravado no horizonte.</dd>
+          <dt>Forja</dt><dd>Oficina do Ignis aos pés da bigorna-titã, com a lava correndo pelas rachaduras dela.</dd>
+          <dt>Loja</dt><dd>Templo menor restaurado por mercadores, com mochilas nas colunas.</dd>
+          <dt>Ranking</dt><dd>Duas tábuas de pedra gigantes, as Tábuas dos Campeões, com os nomes brilhando.</dd>
+          <dt>Portais</dt><dd>Seis arcos de pedra antigos em anel, cada um aceso com a cor do seu mundo.</dd>
+          <dt>Saída</dt><dd>Ponte de pedra antiga até a Ilha 1.</dd>
+        </dl></div>
+      <div class="proscons">
+        <div class="pros"><h3>Pontos fortes</h3><ul><li>A história mais forte: o lobby existe por causa do Ignis.</li><li>Poucas peças enormes e marcantes, que dá para fazer com muito acabamento.</li><li>Clima claro e calmo na primeira tela, com a lava só como destaque.</li><li>As Tábuas dos Campeões e os arcos de portal são fáceis de entender.</li></ul></div>
+        <div class="cons"><h3>Pontos fracos</h3><ul><li>Depende de duas esculturas-herói muito bem feitas: o martelo e a bigorna.</li><li>Pode parecer vazio se faltarem vida e detalhes de chão.</li><li>Menos vida de cidade: os NPCs e as barracas precisam ser pensados.</li></ul></div>
+      </div>
+      <div class="blk"><span class="eyebrow">Referências de anime</span>
+        <div class="refs">
+          <div class="ref"><span class="t">Frieren · ruínas e paisagens</span><span class="s">Madhouse · 2023</span><span class="w">Ruínas pintadas com luz suave, verde e céu amplo.</span><a href="https://www.google.com/search?tbm=isch&q=frieren+anime+ruins+background+art" target="_blank" rel="noopener">Ver imagens</a></div>
+          <div class="ref"><span class="t">Made in Abyss · relíquias gigantes</span><span class="s">Kinema Citrus · 2017</span><span class="w">Escala colossal, estruturas antigas, sensação de descoberta.</span><a href="https://www.google.com/search?tbm=isch&q=made+in+abyss+background+art+relics" target="_blank" rel="noopener">Ver imagens</a></div>
+          <div class="ref"><span class="t">O vídeo que você mandou</span><span class="s">lobby de referência · 2026</span><span class="w">Ruínas, atmosfera única, estações com placa e piso que guia.</span><span class="muted">Já salvo nos seus vídeos do Roblox.</span></div>
+        </div></div>
+    </div>
+    <div class="col">
+      <div class="plan"><svg viewBox="0 0 240 260" role="img" aria-label="Planta do conceito E">
+        <rect width="240" height="260" fill="#121410"/>
+        <circle cx="120" cy="124" r="70" fill="#2a2a20" stroke="#3b3a2e" stroke-width="2"/>
+        <circle cx="120" cy="124" r="30" fill="none" stroke="#ffd27a" stroke-width="1.5" stroke-dasharray="4 3"/>
+        <rect x="84" y="14" width="72" height="36" rx="3" fill="#8a8178"/><text x="120" y="30" text-anchor="middle" font-size="7" fill="#15100d" font-family="monospace">BIGORNA-TITÃ</text>
+        <rect x="98" y="42" width="44" height="18" rx="3" fill="#ff7a2f"/><text x="120" y="55" text-anchor="middle" font-size="8" fill="#15100d" font-family="monospace">FORJA</text>
+        <rect x="186" y="104" width="38" height="28" rx="3" fill="#8fcf7a"/><text x="205" y="121" text-anchor="middle" font-size="8" fill="#15100d" font-family="monospace">LOJA</text>
+        <g fill="#ffd166"><rect x="18" y="98" width="12" height="18"/><rect x="18" y="122" width="12" height="18"/></g><text x="36" y="122" font-size="7" fill="#ffd166" font-family="monospace">TOP</text>
+        <g fill="#b48cff"><circle cx="70" cy="80" r="5"/><circle cx="58" cy="110" r="5"/><circle cx="60" cy="142" r="5"/><circle cx="170" cy="80" r="5"/><circle cx="182" cy="150" r="5"/><circle cx="74" cy="172" r="5"/></g>
+        <circle cx="120" cy="208" r="8" fill="#f3e7d9"/><text x="134" y="211" font-size="8" fill="#f3e7d9" font-family="monospace">SPAWN</text>
+        <rect x="96" y="204" width="6" height="6" fill="#93a7ba"/>
+        <path d="M120,218 L120,258" stroke="#6fb6d9" stroke-width="5"/><text x="128" y="252" font-size="8" fill="#6fb6d9" font-family="monospace">ILHA 1</text>
+        <path d="M120,200 L120,62" stroke="#f3e7d9" stroke-width="1" stroke-dasharray="3 3"/>
+        <g transform="rotate(-30 196 52)"><rect x="190" y="30" width="8" height="44" fill="#7a6a5c"/><rect x="178" y="22" width="32" height="14" fill="#8f857c"/></g>
+      </svg></div>
+      <div><span class="eyebrow">Paleta</span><div class="palette"><span style="background:#8fbfe4"></span><span style="background:#f3dcb6"></span><span style="background:#8aa86a"></span><span style="background:#8a8178"></span><span style="background:#ffd27a"></span><span style="background:#ff8a3d"></span></div></div>
+      <p class="muted">Clima: manhã com raios de sol entre as ruínas, poeira dourada no ar, faíscas só na forja.</p>
+    </div>
+  </div>
+</article>
+
+<!-- ============================== F ============================== -->
+<article class="concept" id="F">
+  <div class="art" role="img" aria-label="Arte de clima: portão gigante esculpido num paredão de montanha, estátuas de anões, trilhos de mina e cristais brilhando">
+    <svg viewBox="0 0 640 320" preserveAspectRatio="xMidYMid slice">
+      <defs>
+        <linearGradient id="skyF" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7fb0d8"/><stop offset="1" stop-color="#d9e7ef"/></linearGradient>
+        <linearGradient id="cliffF" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6e645d"/><stop offset="1" stop-color="#4b433e"/></linearGradient>
+      </defs>
+      <rect width="640" height="320" fill="url(#skyF)"/>
+      <polygon points="0,320 0,40 90,20 180,46 260,10 380,14 470,40 560,18 640,44 640,320" fill="url(#cliffF)"/>
+      <path d="M250,250 L250,140 Q320,70 390,140 L390,250 Z" fill="#2a2320"/>
+      <path class="glow" d="M270,250 L270,150 Q320,96 370,150 L370,250 Z" fill="#ff9a4a" opacity=".75"/>
+      <g transform="translate(314,220)"><rect x="0" y="6" width="12" height="18" rx="4" fill="#4c4644"/><circle cx="6" cy="4" r="5" fill="#5a5452"/></g>
+      <g fill="#5a514b"><rect x="180" y="120" width="44" height="130"/><circle cx="202" cy="108" r="20"/><polygon points="186,116 218,116 202,160"/><rect x="416" y="120" width="44" height="130"/><circle cx="438" cy="108" r="20"/><polygon points="422,116 454,116 438,160"/></g>
+      <g fill="#8a7f78"><rect x="176" y="250" width="52" height="10"/><rect x="412" y="250" width="52" height="10"/></g>
+      <rect x="0" y="258" width="640" height="62" fill="#5d5650"/>
+      <g fill="#1e1816"><path d="M30,290 L30,276 Q44,262 58,276 L58,290 Z"/><path d="M92,290 L92,276 Q106,262 120,276 L120,290 Z"/><path d="M520,290 L520,276 Q534,262 548,276 L548,290 Z"/><path d="M582,290 L582,276 Q596,262 610,276 L610,290 Z"/></g>
+      <g stroke="#2e2622" stroke-width="2"><line x1="44" y1="290" x2="250" y2="306"/><line x1="106" y1="290" x2="260" y2="300"/><line x1="534" y1="290" x2="390" y2="306"/></g>
+      <g><polygon points="140,258 150,226 160,258" fill="#7fd6ff"/><polygon points="160,258 166,238 172,258" fill="#b48cff"/><polygon points="480,258 490,230 500,258" fill="#ffb347"/><polygon points="500,258 506,240 512,258" fill="#7fd6ff"/></g>
+      <rect x="586" y="44" width="10" height="214" fill="#e6f3fb" opacity=".8"/>
+      <g fill="#7a8a5a"><rect x="60" y="150" width="70" height="8"/><rect x="510" y="160" width="70" height="8"/></g>
+      <g fill="#8f6f55"><rect x="70" y="128" width="22" height="22"/><rect x="98" y="134" width="18" height="16"/><rect x="520" y="140" width="20" height="20"/></g>
+    </svg>
+  </div>
+  <div class="c-head"><span class="letter">F</span><h2>Reino Anão sob a Montanha</h2>
+    <div class="tags"><span class="tag">Cidade escavada na rocha</span><span class="tag e-mid">Esforço médio</span><span class="tag">Pátio a céu aberto</span></div></div>
+  <p class="pitch">Um paredão de montanha com um portão gigante esculpido, guardado por estátuas de anões ferreiros. A forja do Ignis fica logo atrás do portão, os trilhos de mina saem de túneis em volta e cristais de minério brilham nas paredes. O pátio central fica a céu aberto para não escurecer.</p>
+  <div class="body">
+    <div class="col">
+      <div class="blk map"><span class="eyebrow">Como cada função vira cenário</span>
+        <dl>
+          <dt>Spawn</dt><dd>Pátio ensolarado de frente para o portão esculpido.</dd>
+          <dt>Forja</dt><dd>Salão logo atrás do portão aberto, com o Ignis na bigorna e o brilho saindo pela porta.</dd>
+          <dt>Loja</dt><dd>Arcada escavada na rocha, com mochilas de mineiro penduradas.</dd>
+          <dt>Ranking</dt><dd>Duas placas de bronze gigantes cravadas no paredão.</dd>
+          <dt>Portais</dt><dd>Seis bocas de túnel com trilhos e vagonetes, cada uma com a marca de um mundo.</dd>
+          <dt>Saída</dt><dd>Ponte pênsil de madeira até a Ilha 1.</dd>
+        </dl></div>
+      <div class="proscons">
+        <div class="pros"><h3>Pontos fortes</h3><ul><li>O mais ligado a mineração: trilhos, vagonetes e cristais.</li><li>Portais como túneis de mina fazem sentido no tema do jogo.</li><li>O paredão esconde o horizonte e economiza no fundo distante.</li></ul></div>
+        <div class="cons"><h3>Pontos fracos</h3><ul><li>Fica perto do antigo lobby da mina, a Vila-Forja noturna, que já foi trocado.</li><li>Paredão grande pode dar sensação de lugar fechado.</li><li>Visual de anões é mais fantasia ocidental que anime.</li></ul></div>
+      </div>
+      <div class="blk"><span class="eyebrow">Referências de anime</span>
+        <div class="refs">
+          <div class="ref"><span class="t">Slime · Dwargon por dentro</span><span class="s">8bit · 2018</span><span class="w">Cidade dentro da montanha, iluminação de cristais.</span><a href="https://www.google.com/search?tbm=isch&q=tensura+dwargon+city+inside+mountain" target="_blank" rel="noopener">Ver imagens</a></div>
+          <div class="ref"><span class="t">Dungeon Meshi · reino anão</span><span class="s">Trigger · 2024</span><span class="w">Arquitetura anã, portões esculpidos, estátuas.</span><a href="https://www.google.com/search?tbm=isch&q=dungeon+meshi+dwarven+city+gate" target="_blank" rel="noopener">Ver imagens</a></div>
+          <div class="ref"><span class="t">Made in Abyss · Orth</span><span class="s">Kinema Citrus · 2017</span><span class="w">Cidade agarrada à rocha, passarelas e elevadores.</span><a href="https://www.google.com/search?tbm=isch&q=made+in+abyss+orth+town+background" target="_blank" rel="noopener">Ver imagens</a></div>
+        </div></div>
+    </div>
+    <div class="col">
+      <div class="plan"><svg viewBox="0 0 240 260" role="img" aria-label="Planta do conceito F">
+        <rect width="240" height="260" fill="#120d0b"/>
+        <path d="M0,0 L240,0 L240,70 Q120,40 0,70 Z" fill="#3b332e"/>
+        <rect x="92" y="30" width="56" height="30" rx="3" fill="#ff7a2f"/><text x="120" y="49" text-anchor="middle" font-size="9" fill="#15100d" font-family="monospace">FORJA</text>
+        <g fill="#ffd166"><rect x="44" y="40" width="22" height="10"/><rect x="174" y="40" width="22" height="10"/></g><text x="55" y="62" text-anchor="middle" font-size="7" fill="#ffd166" font-family="monospace">TOP</text>
+        <ellipse cx="120" cy="138" rx="96" ry="66" fill="#2a211c" stroke="#3b2e26"/>
+        <rect x="178" y="112" width="40" height="26" rx="3" fill="#8fcf7a"/><text x="198" y="128" text-anchor="middle" font-size="8" fill="#15100d" font-family="monospace">LOJA</text>
+        <g fill="#b48cff"><circle cx="34" cy="96" r="5"/><circle cx="26" cy="126" r="5"/><circle cx="30" cy="156" r="5"/><circle cx="44" cy="184" r="5"/><circle cx="196" cy="160" r="5"/><circle cx="182" cy="186" r="5"/></g>
+        <g stroke="#5a4c44" stroke-width="1.5"><line x1="34" y1="96" x2="80" y2="120"/><line x1="26" y1="126" x2="80" y2="132"/><line x1="30" y1="156" x2="80" y2="146"/></g>
+        <circle cx="120" cy="168" r="8" fill="#f3e7d9"/><text x="134" y="171" font-size="8" fill="#f3e7d9" font-family="monospace">SPAWN</text>
+        <rect x="96" y="164" width="6" height="6" fill="#93a7ba"/>
+        <path d="M120,204 L120,258" stroke="#6fb6d9" stroke-width="5"/><text x="128" y="252" font-size="8" fill="#6fb6d9" font-family="monospace">ILHA 1</text>
+        <path d="M120,160 L120,62" stroke="#f3e7d9" stroke-width="1" stroke-dasharray="3 3"/>
+      </svg></div>
+      <div><span class="eyebrow">Paleta</span><div class="palette"><span style="background:#7fb0d8"></span><span style="background:#6e645d"></span><span style="background:#4b433e"></span><span style="background:#8f6f55"></span><span style="background:#7fd6ff"></span><span style="background:#ff9a4a"></span></div></div>
+      <p class="muted">Clima: luz do dia entrando no pátio, brilho quente saindo do portão, cristais azuis nas sombras.</p>
+    </div>
+  </div>
+</article>
+
+
+<!-- ============================== G ============================== -->
+<article class="concept" id="G">
+  <div class="art" role="img" aria-label="Arte de clima: uma torre-forja altíssima no centro de uma cidade em anel, com núcleo de lava aceso e faíscas saindo do topo">
+    <svg viewBox="0 0 640 320" preserveAspectRatio="xMidYMid slice">
+      <defs>
+        <linearGradient id="skyG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6aa6d8"/><stop offset=".7" stop-color="#f1d9b2"/><stop offset="1" stop-color="#f5e6cc"/></linearGradient>
+        <linearGradient id="coreG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd166"/><stop offset="1" stop-color="#ff5a1f"/></linearGradient>
+      </defs>
+      <rect width="640" height="320" fill="url(#skyG)"/>
+      <polygon points="0,210 90,170 170,196 260,160 340,190 430,158 520,190 640,170 640,320 0,320" fill="#a8b4c0" opacity=".7"/>
+      <polygon points="296,300 304,40 316,18 324,18 336,40 344,300" fill="#cfc4b6"/>
+      <polygon points="306,290 312,60 320,46 328,60 334,290" fill="#b9ad9e"/>
+      <rect class="glow" x="315" y="70" width="10" height="200" fill="url(#coreG)"/>
+      <g fill="#a4998c"><rect x="290" y="120" width="60" height="8"/><rect x="286" y="180" width="68" height="8"/><rect x="282" y="240" width="76" height="8"/></g>
+      <g fill="#ffcf70"><circle cx="318" cy="12" r="2"/><circle cx="326" cy="6" r="1.6"/><circle cx="312" cy="4" r="1.4"/><circle cx="330" cy="16" r="1.2"/></g>
+      <ellipse cx="320" cy="300" rx="250" ry="28" fill="#8aa86a"/>
+      <ellipse cx="320" cy="298" rx="150" ry="16" fill="#c9b99c"/>
+      <g fill="#7b5a42"><rect x="120" y="262" width="40" height="30"/><rect x="180" y="270" width="34" height="24"/><rect x="430" y="270" width="34" height="24"/><rect x="480" y="262" width="40" height="30"/></g>
+      <g fill="#7a2e2a"><polygon points="114,264 140,246 166,264"/><polygon points="176,272 197,256 218,272"/><polygon points="426,272 447,256 468,272"/><polygon points="474,264 500,246 526,264"/></g>
+      <g transform="translate(313,278)"><rect x="0" y="6" width="12" height="16" rx="4" fill="#4c4644"/><circle cx="6" cy="4" r="5" fill="#5a5452"/><path d="M2,12 L10,15" stroke="#ff8a3d" stroke-width="1.5"/></g>
+    </svg>
+  </div>
+  <div class="c-head"><span class="letter">G</span><h2>Torre-Forja</h2>
+    <div class="tags"><span class="new-badge">Saiu da pesquisa</span><span class="tag">Cidade em anel</span><span class="tag e-mid">Esforço médio</span><span class="tag">Dia claro</span></div></div>
+  <p class="pitch">Uma torre altíssima de pedra clara com um núcleo de lava aceso por dentro, inspirada na Babel de Orario, onde ficam as lojas dos ferreiros. A torre é vista de qualquer ponto e a cidade gira em volta dela. O Ignis trabalha na base da torre, de frente para a praça.</p>
+  <div class="body">
+    <div class="col">
+      <div class="blk map"><span class="eyebrow">Como cada função vira cenário</span>
+        <dl>
+          <dt>Spawn</dt><dd>Avenida sul, com a torre inteira à frente e a praça redonda no meio do caminho.</dd>
+          <dt>Forja</dt><dd>Grande arco na base da torre, com a lava descendo pelo núcleo até a bigorna do Ignis.</dd>
+          <dt>Loja</dt><dd>Prédio no anel da praça, com mochilas penduradas na fachada.</dd>
+          <dt>Ranking</dt><dd>Dois painéis presos na própria torre, voltados para a praça.</dd>
+          <dt>Portais</dt><dd>Seis portões no fim de seis ruas que saem da praça, como raios de uma roda.</dd>
+          <dt>Saída</dt><dd>A avenida sul continua como ponte até a Ilha 1.</dd>
+        </dl></div>
+      <div class="proscons">
+        <div class="pros"><h3>Pontos fortes</h3><ul><li>A orientação mais fácil de todas: a torre está sempre à vista.</li><li>Planta radial muito organizada, cada função na ponta de uma rua.</li><li>A torre pode ganhar andares no futuro como sinal de progresso.</li></ul></div>
+        <div class="cons"><h3>Pontos fracos</h3><ul><li>Se a torre não for muito marcante, o resto fica genérico.</li><li>Uma torre muito alta pesa em polígonos e precisa de silhueta simples.</li><li>As casas do anel voltam a ser várias e precisam do mesmo capricho.</li></ul></div>
+      </div>
+      <div class="blk"><span class="eyebrow">Referências</span>
+        <div class="refs">
+          <div class="ref"><span class="t">DanMachi · Orario e Babel</span><span class="s">J.C.Staff</span><span class="w">Torre no centro, praça redonda, lojas de ferreiros dentro da torre.</span><a href="https://danmachi.fandom.com/wiki/Babel" target="_blank" rel="noopener">Wiki</a></div>
+          <div class="ref"><span class="t">Made in Abyss · Orth</span><span class="s">Kinema Citrus</span><span class="w">Cidade em anel apontando para o centro.</span><a href="https://madeinabyss.fandom.com/wiki/Orth" target="_blank" rel="noopener">Wiki</a></div>
+          <div class="ref"><span class="t">Anime Defenders · centro do mapa</span><span class="s">Roblox</span><span class="w">Marco central e trilhas no chão que aceleram.</span><a href="https://progameguides.com/roblox/all-10-christmas-present-locations-in-anime-defenders/" target="_blank" rel="noopener">Guia</a></div>
+        </div></div>
+    </div>
+    <div class="col">
+      <div class="plan"><svg viewBox="0 0 240 260" role="img" aria-label="Planta do conceito G">
+        <rect width="240" height="260" fill="#120d0b"/>
+        <circle cx="120" cy="110" r="84" fill="#2a211c" stroke="#3b2e26" stroke-width="2"/>
+        <circle cx="120" cy="110" r="40" fill="#3a2e26"/>
+        <g stroke="#3b2e26" stroke-width="8"><line x1="120" y1="110" x2="30" y2="60"/><line x1="120" y1="110" x2="20" y2="110"/><line x1="120" y1="110" x2="30" y2="160"/><line x1="120" y1="110" x2="210" y2="60"/><line x1="120" y1="110" x2="220" y2="110"/><line x1="120" y1="110" x2="210" y2="160"/></g>
+        <circle cx="120" cy="74" r="14" fill="#cfc4b6"/><text x="120" y="77" text-anchor="middle" font-size="7" fill="#15100d" font-family="monospace">TORRE</text>
+        <rect x="102" y="88" width="36" height="14" rx="3" fill="#ff7a2f"/><text x="120" y="98" text-anchor="middle" font-size="7" fill="#15100d" font-family="monospace">FORJA</text>
+        <rect x="160" y="120" width="34" height="22" rx="3" fill="#8fcf7a"/><text x="177" y="134" text-anchor="middle" font-size="8" fill="#15100d" font-family="monospace">LOJA</text>
+        <g fill="#ffd166"><rect x="96" y="58" width="8" height="12"/><rect x="136" y="58" width="8" height="12"/></g>
+        <g fill="#b48cff"><circle cx="30" cy="60" r="6"/><circle cx="20" cy="110" r="6"/><circle cx="30" cy="160" r="6"/><circle cx="210" cy="60" r="6"/><circle cx="220" cy="110" r="6"/><circle cx="210" cy="160" r="6"/></g>
+        <circle cx="120" cy="172" r="8" fill="#f3e7d9"/><text x="134" y="175" font-size="8" fill="#f3e7d9" font-family="monospace">SPAWN</text>
+        <rect x="96" y="168" width="6" height="6" fill="#93a7ba"/>
+        <path d="M120,182 L120,258" stroke="#6fb6d9" stroke-width="5"/><text x="128" y="252" font-size="8" fill="#6fb6d9" font-family="monospace">ILHA 1</text>
+      </svg></div>
+      <div><span class="eyebrow">Paleta</span><div class="palette"><span style="background:#6aa6d8"></span><span style="background:#f1d9b2"></span><span style="background:#cfc4b6"></span><span style="background:#7a2e2a"></span><span style="background:#8aa86a"></span><span style="background:#ff5a1f"></span></div></div>
+      <p class="muted">Clima: manhã clara, faíscas saindo do topo da torre, o núcleo de lava pulsando devagar.</p>
+    </div>
+  </div>
+</article>
+
+<!-- ============================== H ============================== -->
+<article class="concept" id="H">
+  <div class="art" role="img" aria-label="Arte de clima: vale-jardim com golens de pedra gigantes adormecidos cobertos de musgo e flores, e o Ignis aceso trabalhando no peito aberto do maior deles">
+    <svg viewBox="0 0 640 320" preserveAspectRatio="xMidYMid slice">
+      <defs>
+        <linearGradient id="skyH" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#86c2e8"/><stop offset="1" stop-color="#e9f3e0"/></linearGradient>
+        <radialGradient id="glowH"><stop offset="0" stop-color="#ffd166"/><stop offset="1" stop-color="#ff7a2f" stop-opacity="0"/></radialGradient>
+      </defs>
+      <rect width="640" height="320" fill="url(#skyH)"/>
+      <polygon points="0,190 100,140 180,170 260,128 360,166 450,132 540,168 640,140 640,320 0,320" fill="#9fb7a4" opacity=".8"/>
+      <rect x="0" y="230" width="640" height="90" fill="#7fae5c"/>
+      <g>
+        <ellipse cx="320" cy="214" rx="150" ry="58" fill="#8d877f"/>
+        <circle cx="200" cy="170" r="42" fill="#958f86"/>
+        <rect x="186" y="160" width="30" height="8" rx="3" fill="#5c5650"/>
+        <path d="M250,170 Q320,120 400,168 L400,200 Q320,180 250,200 Z" fill="#6fa25a"/>
+        <g fill="#e46a8a"><circle cx="270" cy="160" r="4"/><circle cx="300" cy="148" r="4"/><circle cx="350" cy="150" r="4"/><circle cx="380" cy="160" r="4"/></g>
+        <g fill="#f0d36a"><circle cx="286" cy="154" r="3"/><circle cx="330" cy="146" r="3"/><circle cx="366" cy="154" r="3"/></g>
+        <path d="M300,214 Q320,190 340,214 L340,250 L300,250 Z" fill="#2a2320"/>
+        <circle class="glow" cx="320" cy="232" r="30" fill="url(#glowH)"/>
+        <g transform="translate(314,226)"><rect x="0" y="6" width="12" height="16" rx="4" fill="#4c4644"/><circle cx="6" cy="4" r="5" fill="#5a5452"/><path d="M2,12 L10,15" stroke="#ff8a3d" stroke-width="1.5"/></g>
+        <rect x="430" y="232" width="120" height="26" rx="12" fill="#8d877f"/><path d="M440,232 Q490,210 540,232 Z" fill="#6fa25a"/>
+        <rect x="90" y="236" width="90" height="22" rx="10" fill="#8d877f"/><path d="M96,236 Q135,218 176,236 Z" fill="#6fa25a"/>
+      </g>
+      <g fill="none" stroke-width="4"><circle cx="490" cy="206" r="16" stroke="#b48cff"/><circle cx="134" cy="212" r="14" stroke="#ffd166"/></g>
+      <g fill="#4f8a44"><circle cx="40" cy="232" r="18"/><circle cx="600" cy="230" r="20"/><circle cx="580" cy="220" r="14"/></g>
+    </svg>
+  </div>
+  <div class="c-head"><span class="letter">H</span><h2>Jardim dos Golens Adormecidos</h2>
+    <div class="tags"><span class="new-badge">Saiu da pesquisa</span><span class="tag">Vale-jardim</span><span class="tag e-high">Esforço médio a alto</span><span class="tag">Manhã fresca</span></div></div>
+  <p class="pitch">Um vale verde onde dormem golens de pedra gigantes, irmãos antigos do Ignis, cobertos de musgo e flores, com hortas crescendo nas costas deles. O Ignis é o único acordado: trabalha dentro do peito aberto do maior golem, onde a lava ainda brilha como um coração.</p>
+  <div class="body">
+    <div class="col">
+      <div class="blk map"><span class="eyebrow">Como cada função vira cenário</span>
+        <dl>
+          <dt>Spawn</dt><dd>Ponte de pedra entrando no vale, com o golem gigante deitado à frente.</dd>
+          <dt>Forja</dt><dd>O peito aberto do maior golem, com o coração de lava e o Ignis na bigorna.</dd>
+          <dt>Loja</dt><dd>Carroça de mochilas apoiada na mão aberta de um golem.</dd>
+          <dt>Ranking</dt><dd>Duas tábuas de pedra que um golem segura de pé.</dd>
+          <dt>Portais</dt><dd>Seis golens sentados em roda, cada um segurando um anel de portal com a cor de um mundo.</dd>
+          <dt>Saída</dt><dd>Ponte de pedra até a Ilha 1, saindo pelo outro lado do vale.</dd>
+        </dl></div>
+      <div class="proscons">
+        <div class="pros"><h3>Pontos fortes</h3><ul><li>Uma ideia que nenhum jogo de anime do Roblox tem.</li><li>Tudo conta a história do Ignis, e ele vira o coração do lugar.</li><li>Clima claro, gentil e muito de anime, no estilo Ghibli.</li></ul></div>
+        <div class="cons"><h3>Pontos fracos</h3><ul><li>Os golens gigantes são esculturas difíceis e precisam ficar ótimos.</li><li>Se os golens parecerem montes de pedra, o conceito se perde.</li><li>Funções dentro de esculturas exigem cuidado com colisão e câmera.</li></ul></div>
+      </div>
+      <div class="blk"><span class="eyebrow">Referências</span>
+        <div class="refs">
+          <div class="ref"><span class="t">O Castelo no Céu · robô jardineiro</span><span class="s">Studio Ghibli</span><span class="w">Gigante coberto de musgo, gentil, cuidando do jardim.</span><a href="https://ghibli.fandom.com/wiki/Laputa" target="_blank" rel="noopener">Wiki</a></div>
+          <div class="ref"><span class="t">Dungeon Meshi · horta de golens</span><span class="s">Trigger</span><span class="w">Plantas crescendo nas costas dos golens.</span><a href="https://www.animenewsnetwork.com/review/delicious-in-dungeon/episode-4/.206936" target="_blank" rel="noopener">Crítica do episódio</a></div>
+          <div class="ref"><span class="t">Somali · Golem guardião</span><span class="s">Satelight</span><span class="w">Guardião calmo e protetor da floresta.</span><a href="https://somali-to-mori-no-kamisama.fandom.com/wiki/Golem" target="_blank" rel="noopener">Wiki</a></div>
+        </div></div>
+    </div>
+    <div class="col">
+      <div class="plan"><svg viewBox="0 0 240 260" role="img" aria-label="Planta do conceito H">
+        <rect width="240" height="260" fill="#10140f"/>
+        <ellipse cx="120" cy="120" rx="104" ry="92" fill="#1f2a1c" stroke="#2f3d2a" stroke-width="2"/>
+        <ellipse cx="120" cy="46" rx="70" ry="22" fill="#5a5650"/><text x="120" y="38" text-anchor="middle" font-size="7" fill="#d9d2c6" font-family="monospace">GOLEM GIGANTE</text>
+        <rect x="100" y="48" width="40" height="16" rx="3" fill="#ff7a2f"/><text x="120" y="59" text-anchor="middle" font-size="8" fill="#15100d" font-family="monospace">FORJA</text>
+        <rect x="176" y="98" width="38" height="24" rx="3" fill="#8fcf7a"/><text x="195" y="113" text-anchor="middle" font-size="8" fill="#15100d" font-family="monospace">LOJA</text>
+        <rect x="26" y="98" width="38" height="24" rx="3" fill="#ffd166"/><text x="45" y="113" text-anchor="middle" font-size="8" fill="#15100d" font-family="monospace">TOP</text>
+        <g fill="#5a5650"><circle cx="78" cy="136" r="9"/><circle cx="92" cy="160" r="9"/><circle cx="120" cy="168" r="9"/><circle cx="148" cy="160" r="9"/><circle cx="162" cy="136" r="9"/><circle cx="120" cy="134" r="9"/></g>
+        <g fill="#b48cff"><circle cx="78" cy="136" r="4"/><circle cx="92" cy="160" r="4"/><circle cx="120" cy="168" r="4"/><circle cx="148" cy="160" r="4"/><circle cx="162" cy="136" r="4"/><circle cx="120" cy="134" r="4"/></g>
+        <circle cx="120" cy="200" r="8" fill="#f3e7d9"/><text x="134" y="203" font-size="8" fill="#f3e7d9" font-family="monospace">SPAWN</text>
+        <rect x="96" y="196" width="6" height="6" fill="#93a7ba"/>
+        <path d="M120,210 L120,258" stroke="#6fb6d9" stroke-width="5"/><text x="128" y="252" font-size="8" fill="#6fb6d9" font-family="monospace">ILHA 1</text>
+        <path d="M120,192 L120,66" stroke="#f3e7d9" stroke-width="1" stroke-dasharray="3 3"/>
+      </svg></div>
+      <div><span class="eyebrow">Paleta</span><div class="palette"><span style="background:#86c2e8"></span><span style="background:#e9f3e0"></span><span style="background:#7fae5c"></span><span style="background:#8d877f"></span><span style="background:#e46a8a"></span><span style="background:#ff7a2f"></span></div></div>
+      <p class="muted">Clima: manhã fresca, névoa baixa no vale, pétalas caindo, o brilho da lava pulsando no peito do golem.</p>
+    </div>
+  </div>
+</article>
+
+<section id="reco">
+  <div class="reco">
+    <span class="eyebrow">Minha recomendação</span>
+    <h2>E, com os golens do H</h2>
+    <p>O Santuário do Deus-Ferreiro, com os golens adormecidos do H no lugar das estátuas comuns. Ruínas claras com musgo e flores dão a primeira tela calma e bonita. A bigorna-titã é o marco central visível de todo o mapa, como a Babel de Orario. Seis golens sentados em roda guardam os portais, e o Ignis é o único acordado, trabalhando aos pés da bigorna com a lava como coração.</p>
+    <ul>
+      <li>A pesquisa mostrou que um marco central organiza o lobby, e a bigorna-titã cumpre esse papel.</li>
+      <li>O lobby existe por causa do Ignis, como Calcifer na casa do Howl, o que dá história ao jogador desde o spawn.</li>
+      <li>Funciona com poucas peças enormes, e é aí que dá para caprichar no acabamento em vez de repetir casinhas.</li>
+      <li>Foge da forja escura do The Forge e da noite azul dos lobbies anime prontos, e não repete nenhuma ilha.</li>
+      <li>O risco principal é a escultura da bigorna e do martelo. Por isso ela é a primeira coisa que eu te mostro pronta.</li>
+    </ul>
+    <p class="muted">Se você preferir outro, os mais fortes depois desse são o G, pela organização, o H inteiro, pela originalidade, e o C, pela primeira impressão.</p>
+  </div>
+</section>
+
+<section id="plano">
+  <div class="sec-head"><span class="eyebrow">Como eu produzo, com sua aprovação em cada etapa</span><h2>Plano de produção</h2>
+    <p class="muted">Cada etapa termina com imagens para você aprovar. Só sigo para a próxima com o seu OK.</p></div>
+  <div class="steps">
+    <div class="step"><div><b>Escolha do conceito</b>Você escolhe um conceito ou uma mistura, por exemplo "E com a lava do B". Eu devolvo a prancha de estilo: paleta final, as referências escolhidas e as regras de forma.<span class="ok">Aprovação: direção de arte</span></div></div>
+    <div class="step"><div><b>Peça-modelo de perto</b>A forja do Ignis com o marco principal do conceito, modelados e texturizados no Blender com acabamento final. Vários renders, inclusive da altura do jogador, ao lado da referência.<span class="ok">Aprovação: qualidade de construção</span></div></div>
+    <div class="step"><div><b>Planta e blockout</b>O lobby em volumes simples, com as rotas medidas do spawn até cada função, visto de cima e da altura do jogador.<span class="ok">Aprovação: organização</span></div></div>
+    <div class="step"><div><b>Trecho final</b>Um pedaço do lobby, do spawn até a forja, com acabamento, luz e efeitos, renderizado e também testado no Roblox.<span class="ok">Aprovação: clima e luz no jogo</span></div></div>
+    <div class="step"><div><b>Lobby completo e paisagem</b>Todas as funções, os portais, a ponte para a Ilha 1 e o fundo.<span class="ok">Aprovação: lobby inteiro</span></div></div>
+    <div class="step"><div><b>Integração no jogo</b>Importação na cópia de teste, Ignis, loja, ranking, portais e ponte testados no Play, capturas e vídeo. Você salva o place quando aprovar.<span class="ok">Aprovação: entrar no jogo</span></div></div>
+  </div>
+  <div class="ask"><b>O que eu preciso de você agora:</b> a letra do conceito que mais gostou, ou a mistura que quer. Se algum detalhe de outro conceito te chamou atenção, como os portais em ilhotas do C, a estação de trem do D ou a torre do G, me diga que eu incluo.</div>
+</section>
+
+<footer>As artes dos conceitos são esboços de clima feitos para esta prancha, não imagens finais. As imagens das obras não estão copiadas aqui: os links abrem a página de referência ou a busca de imagens em outra aba.</footer>
+</div>
