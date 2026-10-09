@@ -49,3 +49,26 @@ ou o place que o usuario liberar), MCP conectado.
   PortalIsland (-222,10.5,12). IslandTravel.lobbyAt ja cobre a ilha dos portais (x -430..-100, z -160..120).
 - Play testado: nasce em (0,12.8,64) olhando a forja; a pe ate o patio da ilha 18,3 s sem recuperacao; Portal1 -> area 1;
   volta ao lobby; PadLoja tocado; Ignis a 15 do belly (alcance 18); ponte sul ate a Ilha 1 (area 1 em z ~190). Place NAO salvo.
+
+## Feito em 2026-10-09 (tarde, feedback do usuario jogando; export d9f901f2)
+- Blender: sem serra/lago flutuante (mar do jogo = Terrain Water -13; barrancos e pilares das pontes ate o mar), arvores
+  58 -> 40 e arbustos 42 -> 30, ilha dos portais compacta (C (-226,12), R 54, portais x0,72), martelo com cabo para ENE
+  (yaw -70), sem setas na avenida, sem placas de texto 3D (SANTUARIO/FORCA/MOEDAS/portais), emblemas novos (anvil_model,
+  hammer_model, coin_emblem), forja na paleta da bigorna (basalto/ferro/bronze/lava), vitrines largas com PICK_SLOT_1..8,
+  loja = PREDIO-MOCHILA (corpo de lona, tampa abaulada de couro, bolso vermelho = entrada, bolsos laterais, saco de
+  dormir, picareta e corda; interior igual).
+- Textura tremendo: `sn_fixz.py` (sn_build chama antes de assar) empurra a peca menor de cada par coplanar sobreposto
+  OFF 0,06 x nivel (grafo menor -> maior; o teto antigo de 4 camadas empatava). `sn_zfight.py` agora mede a area REAL
+  (recorte de poligonos): a caixa 2D na base girada do orthogonal() dava falso positivo de 79k na bigorna. Resultado:
+  maior par restante 13,5 studs2. Pilares duplicados entre vaos de ponte (stone_arch built=PIERS) removidos.
+- Studio: LOBBY_FORJA c4718331 inteiro em ServerStorage.Antes_SantuarioFB_20261009 (+ copias de GlobalTop100,
+  CircularUI, AreaAtmosphere e LobbyLayout). Import 7 FBX (206/206). ATENCAO: o 3D Importer pos os modelos soltos no
+  workspace; o montar procura dentro de LOBBY_FORJA -> mover os LOBBY_SN_* para dentro antes de rodar (senao "0 / N
+  FALTANDO"). Montar: 84 atlas, 9 letreiros estilo "Lovely Egg" (ROTULO_FOFO), CircularUI no mesmo estilo (MUNDOS em
+  y 44), GlobalTop100 encaixado quadro a quadro pelos marcadores QUADRO_Strength/QUADRO_Coins (Forca na tabua do
+  martelo, Moedas na da moeda), 8 picaretas de ServerStorage.PicaretasBlender em LOBBY_FORJA.PicaretasExpostas
+  (ordem facil -> dificil da esquerda p/ direita de quem olha a forja). ids das texturas fixados no TEX do .lua.
+- LobbyLayout.PortalIsland = (-212, 10.5, 12). AreaAtmosphere: perfil [0] (lobby) = POR DO SOL (ClockTime 17,6,
+  Atmosphere Color 255,168,72 / Decay 252,108,36 / Haze 2,5 / Offset 0 - Offset > 0 deixa o skybox azul padrao aparecer).
+- Play: nasce em (0,12.8,64); Portal1 -> area 1; ilha dos portais = area 0 no chao; luz do lobby = por do sol. Place NAO salvo.
+- NPC "Vebdedor suspeito" (workspace, atributo ChampionsAligned, nao e do lobby) ficou na frente do quadro de Moedas.

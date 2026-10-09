@@ -179,7 +179,7 @@ def contract_lua():
     A("  for _, p in ipairs(PORTAIS) do")
     A("    local m = Instance.new('Model'); m.Name = 'Portal' .. p[1]; m:SetAttribute('Tema', p[2])")
     A("    local d = Instance.new('Part'); d.Name = 'Disco'; d.Anchored = true; d.CanCollide = false; d.CanQuery = false")
-    A("    d.CanTouch = true; d.CastShadow = false; d.Transparency = 1; d.Size = Vector3.new(14, 15, 1.2)")
+    A("    d.CanTouch = true; d.CastShadow = false; d.Transparency = 1; d.Size = Vector3.new(%.2f, %.2f, 1.2)" % (14.0 * getattr(L, "PORTAL_SCALE", 1.0), 15.0 * getattr(L, "PORTAL_SCALE", 1.0)))
     A("    local pos = p[4] + ROOT_OFFSET; d.CFrame = CFrame.lookAt(pos, pos + p[5]); d:SetAttribute('AreaId', p[3])")
     A("    d.Parent = m; m.PrimaryPart = d; m.Parent = san")
     A("  end")
@@ -191,9 +191,7 @@ def contract_lua():
     A("local TOP100_CF = CFrame.lookAt(Vector3.new(%.3f, %.3f, %.3f), Vector3.new(%.3f, %.3f, %.3f)) * CFrame.Angles(0, math.pi, 0)"
       % (ox, L.Y_RANK, oz, ox + fx, L.Y_RANK, oz + fz))
     A("root:SetAttribute('Top100Origin', TOP100_CF + ROOT_OFFSET)")
-    A("do local t = root:FindFirstChild('GlobalTop100')")
-    A("  if t and t:IsA('Model') then t:PivotTo(TOP100_CF + ROOT_OFFSET); print('GlobalTop100 levado as Tabuas dos Campeoes')")
-    A("  else print('GlobalTop100 ausente: construa com Top100Builder.Build(root, {OriginCF = root:GetAttribute(\"Top100Origin\")})') end end")
+    A(TOP100_LUA)
     A("-- POSICOES DO JOGO (POSICIONAR_JOGO = true move os objetos soltos; o Core.LobbyLayout e trocado a mao/MCP):")
     for k in ("Spawn", "Shop", "ShopFacing", "Ignis", "PortalIsland"):
         A("--   LobbyLayout.%-12s = Vector3.new(%s, %s, %s)" % ((k,) + tuple(lay[k])))
@@ -216,31 +214,98 @@ def contract_lua():
     A(sn_lights.vfx_lua())
     A(LETREIRO_LUA)
     A(PINTURA_LUA)
+    A(PICK_LUA)
     return "\n".join(s) + "\n"
 
 
+TOP100_LUA = r"""
+-- GlobalTop100: o modelo veio do lobby antigo com cada quadro num lugar (Forca 12 studs na frente das Tabuas, Moedas
+-- atras do muro). Cada quadro (pe + moldura + painel + frisos + podios + ancoras dos podios) e encaixado na SUA tabua
+-- pelo marcador QUADRO_<metrica>; moldura e pe ganham o tom de basalto da forja (sem a 'placa cinza' solta).
+do local t = root:FindFirstChild('GlobalTop100')
+  if t and t:IsA('Model') then
+    local gp = t:FindFirstChild('GroundPivot'); if gp then gp.CFrame = TOP100_CF + ROOT_OFFSET end
+    local rot = TOP100_CF - TOP100_CF.Position
+    local n = 0
+    for _, met in ipairs({'Strength', 'Coins'}) do
+      local foot = t:FindFirstChild(met .. 'Foot'); local mk = MKF:FindFirstChild('QUADRO_' .. met)
+      if foot and mk then
+        local base = foot.CFrame * CFrame.new(0, -0.2, 0)
+        local delta = (CFrame.new(mk.Position) * rot) * base:Inverse()
+        for _, d in ipairs(t:GetDescendants()) do
+          if d:IsA('BasePart') and string.sub(d.Name, 1, #met) == met then d.CFrame = delta * d.CFrame; n += 1 end
+        end
+        for _, nm in ipairs({met .. 'Frame', met .. 'Foot'}) do
+          local q = t:FindFirstChild(nm); if q then q.Color = Color3.fromRGB(58, 50, 47); q.Material = Enum.Material.Slate end
+        end
+        for _, d in ipairs(t:GetChildren()) do
+          if d:IsA('BasePart') and string.match(d.Name, '^' .. met .. 'Podium%d$') then d.Color = Color3.fromRGB(64, 56, 52); d.Material = Enum.Material.Slate end
+        end
+      else warn('GlobalTop100: faltou ' .. met .. 'Foot ou o marcador QUADRO_' .. met) end
+    end
+    print(string.format('GlobalTop100: %d pecas encaixadas nas Tabuas dos Campeoes', n))
+  else print('GlobalTop100 ausente: construa com Top100Builder.Build(root, {OriginCF = root:GetAttribute(\"Top100Origin\")})') end
+end
+"""
+
+
 LETREIRO_LUA = r"""
--- ================= placas flutuantes das estacoes (marcadores LETREIRO_* com atributo 'texto') =================
+-- ================= LETREIROS no estilo dos simuladores (ref. 'Lovely Egg'): sem placa/fundo; texto branco gordo
+-- (FredokaOne) com contorno grosso na cor da estacao, sombra deslocada e icone dos dois lados; tamanho em studs ======
+do
+ICONES = {trofeu = '\u{1F3C6}', brilho = '\u{2728}', mochila = '\u{1F392}', fogo = '\u{1F525}', mundo = '\u{1F30D}',
+  martelo = '\u{1F528}', picareta = '\u{26CF}\u{FE0F}', coracao = '\u{2764}\u{FE0F}'}
+function RGB_FOFO(s, def)
+  local r, g, b = string.match(s or '', '(%d+)%s*,%s*(%d+)%s*,%s*(%d+)')
+  if r then return Color3.fromRGB(tonumber(r), tonumber(g), tonumber(b)) end
+  return def
+end
+local function _esc(c, k) return Color3.new(c.R * k, c.G * k, c.B * k) end
+function ROTULO_FOFO(adornee, nome, txt, cor, icone, h, alcance, sub)
+  local old = adornee:FindFirstChild(nome); if old then old:Destroy() end
+  local n = utf8.len(txt) or #txt
+  local ic = ICONES[icone or '']
+  local w = h * (0.64 * n + (ic and 2.3 or 0.5))
+  local hs = sub and 1.5 or 1.0
+  local bg = Instance.new('BillboardGui'); bg.Name = nome; bg.Adornee = adornee; bg.Size = UDim2.fromScale(w, h * hs)
+  bg.LightInfluence = 0; bg.AlwaysOnTop = false; bg.MaxDistance = alcance or 220; bg.ClipsDescendants = false
+  local function lbl(t, x, y, sw, sh, col, st, th, z)
+    local l = Instance.new('TextLabel'); l.BackgroundTransparency = 1; l.Text = t; l.Font = Enum.Font.FredokaOne
+    l.TextScaled = true; l.TextColor3 = col; l.Position = UDim2.fromScale(x, y); l.Size = UDim2.fromScale(sw, sh)
+    l.ZIndex = z or 2
+    if st then local k = Instance.new('UIStroke'); k.Color = st; k.Thickness = th or 3; k.LineJoinMode = Enum.LineJoinMode.Round; k.Parent = l end
+    l.Parent = bg; return l
+  end
+  local fy = 1 / hs
+  local fi = ic and math.min(0.3, 1.05 * h / w) or 0
+  local x0 = ic and fi or 0.03
+  local tw = 1 - 2 * x0
+  lbl(txt, x0 + 0.004, 0.09 * fy, tw, 0.9 * fy, _esc(cor, 0.42), _esc(cor, 0.42), 3.5, 1)     -- sombra
+  lbl(txt, x0, 0.0, tw, 0.9 * fy, Color3.new(1, 1, 1), cor, 3, 2)                               -- texto
+  if ic then
+    lbl(ic, 0.0, 0.06 * fy, fi, 0.82 * fy, Color3.new(1, 1, 1), nil, nil, 3)
+    lbl(ic, 1 - fi, 0.06 * fy, fi, 0.82 * fy, Color3.new(1, 1, 1), nil, nil, 3)
+  end
+  if sub then
+    lbl(sub, 0.12, 0.93 * fy, 0.76, 1 - 0.95 * fy, Color3.fromRGB(255, 240, 190), _esc(cor, 0.55), 2.2, 2)
+  end
+  bg.Parent = adornee
+  return bg
+end
+end
 do
   local n = 0
   for _, mk in ipairs(MKF:GetChildren()) do
     local txt = mk:GetAttribute('texto')
     if txt and string.sub(mk.Name, 1, 9) == 'LETREIRO_' then
-      local old = mk:FindFirstChildOfClass('BillboardGui'); if old then old:Destroy() end
-      local bg = Instance.new('BillboardGui'); bg.Name = 'Letreiro'; bg.Size = UDim2.new(0, 18 + 11 * #txt, 0, 44)
-      bg.MaxDistance = mk:GetAttribute('alcance') or 170; bg.AlwaysOnTop = false; bg.LightInfluence = 0.3
-      local fr = Instance.new('Frame'); fr.Size = UDim2.fromScale(1, 1); fr.BackgroundColor3 = Color3.fromRGB(46, 40, 52)
-      fr.BackgroundTransparency = 0.12; fr.BorderSizePixel = 0; fr.Parent = bg
-      local uc = Instance.new('UICorner'); uc.CornerRadius = UDim.new(0, 10); uc.Parent = fr
-      local st = Instance.new('UIStroke'); st.Color = Color3.fromRGB(244, 196, 98); st.Thickness = 2.5; st.Parent = fr
-      local tl = Instance.new('TextLabel'); tl.Size = UDim2.new(1, -16, 1, -8); tl.Position = UDim2.new(0, 8, 0, 4)
-      tl.BackgroundTransparency = 1; tl.Text = txt; tl.TextColor3 = Color3.fromRGB(255, 232, 170); tl.TextScaled = true
-      tl.Font = Enum.Font.FredokaOne; tl.TextStrokeTransparency = 0.4; tl.TextStrokeColor3 = Color3.fromRGB(30, 18, 10)
-      tl.Parent = fr
-      bg.Parent = mk; n += 1
+      local old = mk:FindFirstChild('Letreiro'); if old then old:Destroy() end
+      local cor = RGB_FOFO(mk:GetAttribute('cor'), Color3.fromRGB(255, 120, 60))
+      local h = string.sub(mk.Name, 1, 15) == 'LETREIRO_Portal' and 3.0 or 4.0
+      ROTULO_FOFO(mk, 'Letreiro', txt, cor, mk:GetAttribute('icone'), h, mk:GetAttribute('alcance') or 170)
+      n += 1
     end
   end
-  print(string.format('Letreiros das estacoes: %d', n))
+  print(string.format('Letreiros das estacoes (estilo fofo): %d', n))
 end
 """
 
@@ -267,14 +332,18 @@ do
   local fl = {} for k in pairs(falta) do table.insert(fl, k) end
   print(string.format('PINTURA ASSADA: %d MeshParts com o atlas; sem id: %s', n, #fl > 0 and table.concat(fl, ', ') or 'nenhum'))
 end
--- placas oficiais do jogo (CircularUI: MUNDOS / MOCHILAS / IGNIS) nas estacoes novas; sem letreiro duplicado
+-- placas oficiais do jogo (CircularUI: MUNDOS / MOCHILAS / IGNIS) nas estacoes novas, no MESMO estilo fofo dos
+-- letreiros (o Layout.BuildServiceLabels do CircularGlobalLeaderboard so roda se alguem chamar; se rodar, refazer aqui)
 do
   local cu = root:FindFirstChild('CircularUI')
   if cu then
-    local function at(n, p) local a = cu:FindFirstChild(n); if a and a:IsA('BasePart') then a.CFrame = CFrame.new(p + ROOT_OFFSET) end end
-    at('Mundos', Vector3.new(MX_, 39, MZ_))
-    at('Mochilas', Vector3.new(SX_, 35, SZ_))
-    at('Ignis', Vector3.new(-0.9, 24, -52))
+    local function at(n, p) local a = cu:FindFirstChild(n); if a and a:IsA('BasePart') then a.CFrame = CFrame.new(p + ROOT_OFFSET) end return a end
+    local mu = at('Mundos', Vector3.new(MX_, 44, MZ_))
+    local mo = at('Mochilas', Vector3.new(SX_, SY_, SZ_))
+    local ig = at('Ignis', Vector3.new(-0.9, 24, -52))
+    if mu then ROTULO_FOFO(mu, 'ServiceLabel', 'MUNDOS', Color3.fromRGB(96, 120, 255), 'mundo', 5.2, 420) end
+    if mo then ROTULO_FOFO(mo, 'ServiceLabel', 'MOCHILAS', Color3.fromRGB(236, 120, 40), 'mochila', 4.4, 400) end
+    if ig then ROTULO_FOFO(ig, 'ServiceLabel', 'IGNIS', Color3.fromRGB(255, 84, 40), 'fogo', 4.8, 400, 'Vender \u{2022} Picaretas') end
     for _, nm in ipairs({'LETREIRO_Ilha', 'LETREIRO_Loja', 'LETREIRO_Ignis'}) do
       local mk = MKF:FindFirstChild(nm); local bg = mk and mk:FindFirstChildOfClass('BillboardGui'); if bg then bg:Destroy() end
     end
@@ -282,7 +351,51 @@ do
   end
 end
 """.replace("MX_", "%.3f" % L.PORTAL_ISLE_C[0]).replace("MZ_", "%.3f" % L.PORTAL_ISLE_C[1]).replace(
-    "SX_", "%.3f" % (L.SHOP_C[0] + L.SHOP_FACE[0] * 12.0)).replace("SZ_", "%.3f" % (L.SHOP_C[1] + L.SHOP_FACE[1] * 12.0))
+    "SX_", "%.3f" % (L.SHOP_C[0] + L.SHOP_FACE[0] * 5.0)).replace("SZ_", "%.3f" % (L.SHOP_C[1] + L.SHOP_FACE[1] * 5.0)).replace(
+    "SY_", "%.2f" % (L.Y_PLAZA + 27.5))
+
+
+PICK_LUA = r"""
+-- ================= PICARETAS DO JOGO nas vitrines da forja (marcadores PICK_SLOT_*: picareta, caixa_w/h, face) =====
+do
+  local src = game:GetService('ServerStorage'):FindFirstChild('PicaretasBlender')
+  local old = root:FindFirstChild('PicaretasExpostas'); if old then old:Destroy() end
+  local pasta = Instance.new('Folder'); pasta.Name = 'PicaretasExpostas'
+  local n, falta = 0, {}
+  -- ordem do jogo da ESQUERDA para a DIREITA de quem olha a forja (olhando -Z, esquerda = -X)
+  local ORDEM = {'enferrujada', 'ferro', 'aco', 'rubi', 'obsidiana', 'runica', 'estelar', 'ignis'}
+  local slots = {}
+  for _, mk in ipairs(MKF:GetChildren()) do
+    if mk:GetAttribute('picareta') and string.sub(mk.Name, 1, 10) == 'PICK_SLOT_' then table.insert(slots, mk) end
+  end
+  table.sort(slots, function(a, b) return a.Position.X < b.Position.X end)
+  if #slots == #ORDEM then for i, mk in ipairs(slots) do mk:SetAttribute('picareta', ORDEM[i]) end end
+  for _, mk in ipairs(slots) do
+    local nome = mk:GetAttribute('picareta')
+    do
+      local m0 = src and src:FindFirstChild(nome)
+      if m0 and m0:IsA('Model') then
+        local m = m0:Clone(); m.Name = 'Picareta_' .. nome
+        for _, d in ipairs(m:GetDescendants()) do
+          if d:IsA('LuaSourceContainer') then d:Destroy()
+          elseif d:IsA('BasePart') then d.Anchored = true; d.CanCollide = false; d.CanQuery = false; d.CanTouch = false end
+        end
+        local _, sz = m:GetBoundingBox()
+        local k = math.min((mk:GetAttribute('caixa_w') or 3.4) / sz.X, (mk:GetAttribute('caixa_h') or 5.2) / sz.Y)
+        m:ScaleTo(m:GetScale() * k)
+        local bcf = m:GetBoundingBox()
+        local off = m:GetPivot():ToObjectSpace(bcf)
+        local face = Vector3.new(mk:GetAttribute('face_x') or 0, 0, mk:GetAttribute('face_z') or 1)
+        m:PivotTo(CFrame.lookAt(mk.Position, mk.Position + face) * off:Inverse())
+        m:SetAttribute('Vitrine', mk.Name)
+        m.Parent = pasta; n += 1
+      else table.insert(falta, tostring(nome)) end
+    end
+  end
+  pasta.Parent = root
+  print(string.format('Picaretas do jogo nas vitrines: %d (faltou: %s)', n, #falta > 0 and table.concat(falta, ', ') or 'nenhuma'))
+end
+"""
 
 
 def main():

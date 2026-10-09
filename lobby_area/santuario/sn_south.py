@@ -174,11 +174,6 @@ def avenue(b):
     for s in (-1, 1):
         bb(b, F, s * x1 - 0.5 * (1 if s > 0 else -1) * 0 - 0.5, s * x1 + 0.5, -hz, hz, -0.5, 0.18, "SN_Carved", bevel=0.08) \
             if s > 0 else bb(b, F, s * x1 - 0.5, s * x1 + 0.5, -hz, hz, -0.5, 0.18, "SN_Carved", bevel=0.08)
-    for k in range(int(2 * hz / 6.0)):
-        y = -hz + 3.0 + k * 6.0
-        # chevrons acesos apontando para o portao (sul = -y local)
-        beam(b, F, (-1.3, y + 0.9, 0.04), (0.0, y - 0.4, 0.04), 0.28, 0.1, "SN_Rune")
-        beam(b, F, (1.3, y + 0.9, 0.04), (0.0, y - 0.4, 0.04), 0.28, 0.1, "SN_Rune")
     # colunatas dos dois lados (x +-14): colunas a cada 9, algumas partidas, lintel em alguns vaos, uma caida
     cols_y = [-hz + 4.0 + 9.0 * k for k in range(int((2 * hz - 6.0) / 9.0) + 1)]
     for s in (-1, 1):
@@ -231,13 +226,6 @@ def gate(b):
                    chips=3, turn=r.uniform(0, 180), tilt=(r.uniform(-20, 20), r.uniform(-20, 20)))
     rubble(b, F, 7.0, -4.0, 0.0, 4.0, 10, "SN_Ashlar", seed="gaterub2")
     ivy(b, Fr(F.p(0, 2.6, 0), (F.f.x, F.f.y)), -w / 2 - 2.5, 0.0, h_spring - 0.5, 9.0, 3.5, seed="giv")
-    # letreiro (na face SUL, lido por quem chega pela ponte) e na face norte (quem sai)
-    for (fy, txt) in ((-1, "SANTUARIO DO DEUS-FERREIRO"), (1, "ILHA 1 - NARUTO")):
-        Ft = Fr(F.p(0, fy * 2.62, 0), (fy * F.f.x, fy * F.f.y))
-        bb(b, Ft, -8.6, 8.6, -0.4, 0.05, h_spring + 3.6, h_spring + 5.4, "SN_WoodAged", bevel=0.08)
-        text(b, Ft, txt, 0.62 if fy < 0 else 0.7, "SN_Gold", 0.0, 0.08, h_spring + 4.5, thick=0.12, bold=True)
-        for sx in (-6.5, 6.5):
-            beam(b, Ft, (sx, -0.18, h_spring + 5.4), (sx * 0.8, -0.18, h_spring + 9.6), 0.08, 0.08, "SN_Chain")
 
 
 # ------------------------------------------------------------------ ponte antiga
@@ -247,6 +235,7 @@ def bridge(b):
     n_span = 6
     span = (z1 - z0) / n_span
     y_a, y_b = L.Y_PLAZA, L.Y_ISLE
+    PIERS = set()                      # pilares ja feitos (vaos vizinhos dividem o pilar)
     for k in range(n_span):
         za, zb = z0 + k * span, z0 + (k + 1) * span
         ya = y_a + (y_b - y_a) * k / n_span
@@ -270,9 +259,10 @@ def bridge(b):
             ruin_wall(b, Fd.sub(s * (w / 2 - 0.45), 0.0, 0.0, 90), -span / 2, span / 2, 0.0, 2.6 if (k + s) % 3 else 1.4,
                       0.9, "SN_Ashlar", seed=("bp", k, s), ruin=0.25 if (k + s) % 3 else 0.6, course=0.9)
         # arco por baixo (pilares na agua) - plano do arco = plano x-z do frame Fa (ao longo da ponte)
-        Fs = Fr(RB(bx, zm, 0.0), (1.0, 0.0))   # f = +X Blender (leste); t = (0,-1) -> Blender -y = Roblox +Z
-        stone_arch(b, Fs, 0.0, span - 4.4, max(0.6, ym - 1.6 - 2.2 - (span - 4.4) / 2), depth=w - 0.8, ring=1.4,
-                   mat="SN_Ashlar", pier=4.4, pier_mat="SN_Ashlar_Dark", seed=("ba", k), n=9, moss=False)
+        y_base = L.Y_WATER - 2.0                 # pilares nascem no mar (viaduto)
+        Fs = Fr(RB(bx, zm, y_base), (1.0, 0.0))   # f = +X Blender (leste); t = (0,-1) -> Blender -y = Roblox +Z
+        stone_arch(b, Fs, 0.0, span - 4.4, ym - 1.6 - 1.4 - (span - 4.4) / 2 - y_base, depth=w - 0.8, ring=1.4,
+                   mat="SN_Ashlar", pier=4.4, pier_mat="SN_Ashlar_Dark", seed=("ba", k), n=9, moss=False, built=PIERS)
         col(w, span, 1.6, RB(bx, zm, ym - 0.8))
         for s in (-1, 1):
             col(0.9, span, 2.6, RB(bx + s * (w / 2 - 0.45), zm, ym + 1.3))

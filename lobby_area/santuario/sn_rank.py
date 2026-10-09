@@ -65,19 +65,13 @@ def back_wall(b, F):
     bb(b, F, -HX + 1.0, HX - 1.0, -5.0, -2.4, 33.4, 37.2, "SN_Carved", bevel=0.15)
     bb(b, F, -HX + 0.6, HX - 0.6, -5.2, -2.0, 37.2, 37.8, "SN_Ashlar_Dark", bevel=0.1)
     bb(b, F, -HX + 0.6, HX - 0.6, -5.2, -2.0, 32.8, 33.4, "SN_Ashlar_Dark", bevel=0.1)
+    # friso da verga: medalhoes de bronze com runas acesas (sem letreiro 3D: o nome e o letreiro flutuante)
     Ft = Fr(F.p(0, -2.38, 0), (F.f.x, F.f.y))
-    text(b, Ft, "TABUAS DOS CAMPEOES", 1.9, "SN_Gold", 0.0, 0.0, 35.3, thick=0.3, bold=True)
-    anv = [(-4.4, 1.0), (-2.2, 1.6), (3.4, 1.6), (3.9, 1.0), (3.0, 0.7), (1.5, 0.05), (1.3, -1.1), (2.6, -1.9),
-           (-2.6, -1.9), (-1.3, -1.1), (-1.5, 0.05), (-2.4, 0.7)]
-    bm = bmesh.new()
-    a = [bm.verts.new(F.p(x, -2.0, 40.6 + z)) for (x, z) in anv]
-    c = [bm.verts.new(F.p(x, -1.4, 40.6 + z)) for (x, z) in anv]
-    bm.faces.new(list(reversed(a)))
-    bm.faces.new(c)
-    for i in range(len(anv)):
-        bm.faces.new((a[i], a[(i + 1) % len(anv)], c[(i + 1) % len(anv)], c[i]))
-    bmesh.ops.recalc_face_normals(bm, faces=bm.faces[:])
-    b.mesh(bm, "SN_Gold")
+    for xx in (-22.0, -11.0, 0.0, 11.0, 22.0):
+        cyl(b, Ft, (xx, -0.05, 35.3), (xx, 0.3, 35.3), 1.35, "SN_Bronze", seg=16)
+        rune_glyphs(b, Fr(Ft.p(0, 0.32, 0), (Ft.f.x, Ft.f.y)), xx - 0.7, xx + 0.7, 34.6, h=1.4, n=1, seed=("vr", xx), depth=0.12)
+    from sn_kit import anvil_model
+    anvil_model(b, Fr(F.p(0, -3.6, 0), (F.f.x, F.f.y)), 0.0, 0.0, 38.6, 1.45, "SN_Gold", "SN_Bronze")
     bb(b, F, -6.0, 6.0, -5.2, -1.8, 37.8, 38.6, "SN_Carved", bevel=0.1)
     # verso: contrafortes escalonados, cornija e hera (o verso e visto da avenida e do ar)
     Fb = F.sub(0, -7.8, 0, 180)
@@ -134,17 +128,12 @@ def tablet(b, F, xc, label, emblem):
         beam(b, F, (p0[0], 0.35, p0[1]), (p1[0], 0.35, p1[1]), 0.5, 0.6, "SN_Bronze")
     ez = zb + 2.9
     cyl(b, F, (xc, 0.2, ez), (xc, 0.55, ez), 2.4, "SN_Bronze", seg=20)
+    from sn_kit import hammer_model, coin_emblem
     if emblem == "hammer":
-        beam(b, F, (xc - 1.2, 0.6, ez - 1.6), (xc + 1.0, 0.6, ez + 1.4), 0.4, 0.5, "SN_WoodAged")
-        b_ = 0.0
-        beam(b, F, (xc + 0.2, 0.62, ez + 1.9), (xc + 1.9, 0.62, ez + 0.65), 0.6, 1.1, "SN_Gold")
+        hammer_model(b, F.p(xc - 1.3, 1.0, ez - 1.5), F.p(xc + 0.9, 1.0, ez + 1.2), F.p(1, 0, 1) - F.p(0, 0, 0), s=1.05,
+                     head="SN_Iron", handle="SN_WoodAged", trim="SN_Gold")
     else:
-        cyl(b, F, (xc, 0.55, ez), (xc, 0.9, ez), 1.5, "SN_Gold", seg=20)
-        cyl(b, F, (xc, 0.9, ez), (xc, 1.0, ez), 1.1, "SN_Gold", seg=20)
-        bb(b, F, xc - 0.25, xc + 0.25, 0.95, 1.05, ez - 0.8, ez + 0.8, "SN_Bronze")
-    # nome na trave de cima da moldura
-    Fl = Fr(F.p(0, 1.92, 0), (F.f.x, F.f.y))
-    text(b, Fl, label, 0.75, "SN_Gold", xc, 0.0, QH + 0.85, thick=0.12, bold=True)
+        coin_emblem(b, F, xc, 0.5, ez, r=1.9)
 
 
 def obelisk(b, F):
@@ -198,9 +187,14 @@ def build():
     fm_lib.col_box(AREA, (2 * HX, 3.2, 40.0), F.p(0, -6.2, 20.0), (0, 0, F.yaw()))
     for xc in QX:
         fm_lib.col_box(AREA, (QW + 3.2, 2.6, QH + 1.6), F.p(xc, -1.1, (QH + 1.6) / 2), (0, 0, F.yaw()))
+    # centro da base de cada quadro do jogo (o montar encaixa StrengthFoot/CoinsFoot aqui, quadro por quadro)
+    fm_lib.marker("QUADRO_Strength", F.p(QX[0], 0, 0), (0, 0, 0), 1.0, "PLAIN_AXES", "15_GAMEPLAY_MARKERS",
+                  {"metrica": "Strength", "tabua": "FORCA (martelo)"})
+    fm_lib.marker("QUADRO_Coins", F.p(QX[1], 0, 0), (0, 0, 0), 1.0, "PLAIN_AXES", "15_GAMEPLAY_MARKERS",
+                  {"metrica": "Coins", "tabua": "MOEDAS (moeda)"})
     fm_lib.marker("TOP100_Origin", F.p(0, 0, 0), (0, 0, 0), 2.0, "PLAIN_AXES", "15_GAMEPLAY_MARKERS",
                   {"alvo": "LOBBY_FORJA.GlobalTop100 (OriginCF)", "nota": "quadros em z 0 e podios em z 9,5 do local",
                    "face_x": fx, "face_z": fz})
     fm_lib.marker("LETREIRO_Ranking", F.p(0, 6.0, 38.0), (0, 0, 0), 1.0, "PLAIN_AXES", "15_GAMEPLAY_MARKERS",
-                  {"texto": "TABUAS DOS CAMPEOES", "alcance": 190})
+                  {"texto": "CAMPEOES", "alcance": 190, "cor": "236,170,40", "icone": "trofeu"})
     return objs

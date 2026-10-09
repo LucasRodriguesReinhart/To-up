@@ -48,6 +48,8 @@ PD = {
     "tecido_ocre": ("CC963C", "6A4614", "F6D088", .05, .25, .80, .12, .00, .00, .00, .10),
     "tecido_creme": ("E2D4B4", "8A7A5E", "FFF6E2", .05, .25, .80, .12, .00, .00, .00, .10),
     "tecido_violeta": ("7A46AA", "2E1446", "C8A0F0", .05, .25, .80, .12, .00, .00, .00, .10),
+    "tecido_tan": ("D09A55", "6A4420", "F6D3A0", .04, .28, .85, .14, .00, .00, .00, .12),
+    "corda":     ("C4A068", "6A5030", "EED8A8", .06, .25, .80, .12, .00, .00, .00, .08),
     "couro_claro": ("8A5634", "36200E", "C69468", .08, .30, .85, .10, .05, .00, .00, .08),
     "papel": ("EEE4C8", "9C8E6E", "FFFFFF", .04, .15, .60, .10, .00, .00, .00, .05),
     "telha": ("C4643C", "5E2412", "F2A27A", .12, .40, .90, .12, .00, .10, .00, .14),
@@ -99,7 +101,7 @@ MAT2PAINT = {
     "SN_CanvasRed": "tecido_verm", "SN_CanvasBlue": "tecido_azul", "SN_CanvasGreen": "tecido_verde",
     "SN_CanvasOchre": "tecido_ocre", "SN_CanvasCream": "tecido_creme", "SN_CanvasViolet": "tecido_violeta",
     "SN_Leather": "couro_claro", "SN_Paper": "papel", "SN_RoofTile": "telha", "SN_RoofTileDark": "telha_esc",
-    "SN_Terracotta": "terracota", "SN_Slate": "ferro",
+    "SN_Terracotta": "terracota", "SN_CanvasTan": "tecido_tan", "SN_LeatherDark": "couro", "SN_Rope": "corda", "SN_Slate": "ferro",
     "WB_Rock": "basalto", "WB_Stone": "pedra", "WB_Hay": "palha", "WB_Wood": "madeira", "WB_Rope": "palha",
 }
 
@@ -353,7 +355,7 @@ def _seed_parts(me, seed):
     return part, k
 
 
-WATER_Z = 2.2
+WATER_Z = -13.0
 
 
 def _on_plateau(x, z, margin=1.0):

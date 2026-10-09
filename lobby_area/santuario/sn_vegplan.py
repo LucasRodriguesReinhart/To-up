@@ -128,7 +128,7 @@ def spots(seed=11):
     pts = []
     # amostragem com distancia minima (bosques: 9..13 studs entre troncos)
     tries = 0
-    while tries < 14000 and len(pts) < 124:
+    while tries < 14000 and len(pts) < 40:
         tries += 1
         x, z = r.uniform(-310, 150), r.uniform(-164, 150)
         if not free(x, z, 1.5):
@@ -150,7 +150,7 @@ def spots(seed=11):
     # arbustos: beira das trilhas e dos estrados, em grupinhos
     bushes = []
     tries = 0
-    while tries < 6000 and len(bushes) < 90:
+    while tries < 6000 and len(bushes) < 30:
         tries += 1
         x, z = r.uniform(-305, 140), r.uniform(-150, 140)
         if not free(x, z, -3.5) or free(x, z, 0.5):

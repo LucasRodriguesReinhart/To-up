@@ -373,8 +373,15 @@ def forge(coll="04_FORGE"):
 
     # piso: disco de lajes escuras + soleira ate a praca
     pts = [polar(r_out + 1.0, a) for a in range(0, 360, 10)]
-    poly_prism(b, F, pts, -0.6, 0.02, "SN_Ashlar_Dark")
-    bb(b, F, -14.0, 14.0, 14.0, 22.4, -0.6, 0.02, "SN_Ashlar_Dark")
+    poly_prism(b, F, pts, -0.6, 0.02, "SN_Basalt")
+    bb(b, F, -14.0, 14.0, 14.0, 22.4, -0.6, 0.02, "SN_Basalt")
+    # veios de lava no piso (raios da lareira para a boca) e anel de bronze na borda
+    for k in range(9):
+        aa = math.radians(200 + k * 17.5)
+        p0 = (math.cos(aa) * 6.0, -12.0 + math.sin(aa) * 6.0)
+        p1 = (math.cos(aa) * (r_in - 1.0), -12.0 * 0 + math.sin(aa) * (r_in - 1.0))
+        if k % 2 == 0:
+            beam(b, F, (p0[0], p0[1], 0.03), (p1[0] * 0.8, p1[1] * 0.8, 0.03), 0.28, 0.08, "SN_Lava")
     Rf = r_out + 1.0
     zz = -Rf
     while zz < Rf - 1e-6:
@@ -397,14 +404,27 @@ def forge(coll="04_FORGE"):
         Fw = Fr(F.p(mx, my, 0), (math.cos(math.radians(ang + 90)) * F.t.x + math.sin(math.radians(ang + 90)) * F.f.x,
                                    math.cos(math.radians(ang + 90)) * F.t.y + math.sin(math.radians(ang + 90)) * F.f.y))
         hgt = 11.0 if 240 < (a % 360) < 300 else 8.5
-        ruin_wall(b, Fw, -ln / 2, ln / 2, 0.0, hgt, t, "SN_Ashlar", seed=("apse", seg), ruin=0.4, course=1.5)
+        ruin_wall(b, Fw, -ln / 2, ln / 2, 0.0, hgt, t, "SN_Basalt", seed=("apse", seg), ruin=0.4, course=1.5,
+                  top_mat="SN_Iron", moss=False)
+        # chapa de ferro rebitada na base + veio de lava no rodape
+        bb(b, Fw, -ln / 2, ln / 2, t / 2 - 0.05, t / 2 + 0.25, 0.0, 1.6, "SN_Iron")
+        beam(b, Fw, (-ln / 2 + 0.3, t / 2 + 0.3, 1.75), (ln / 2 - 0.3, t / 2 + 0.3, 1.75), 0.18, 0.22, "SN_Lava")
+        for kk in range(3):
+            cyl(b, Fw, (-ln / 2 + 1.0 + kk * (ln - 2.0) / 2, t / 2 + 0.25, 0.8), (-ln / 2 + 1.0 + kk * (ln - 2.0) / 2,
+                t / 2 + 0.5, 0.8), 0.28, "SN_Bronze", seg=8)
         a = a2
         seg += 1
     # colunas: duas na boca (155/25) e duas no fundo (210/330), altas, com capitel
     col_top = 26.0
     for ang in (a_open1, a_open0, 212.0, 328.0):
         px, py = polar(rm, ang)
-        column(b, F, px, py, 0.0, col_top, r0=1.7, seed=("fc", ang))
+        column(b, F, px, py, 0.0, col_top, r0=1.7, mat="SN_Iron", base_mat="SN_Basalt", seed=("fc", ang), moss=False)
+        for zz in (6.0, 13.0, 20.0):
+            cyl(b, F, (px, py, zz), (px, py, zz + 0.7), 1.95, "SN_Bronze", seg=16)
+        # runa acesa no fuste, voltada para a praca
+        Fcl = Fr(F.p(px, py + 1.66, 0), (F.f.x, F.f.y))
+        rune_glyphs(b, Fcl, -0.6, 0.6, 9.0, h=2.4, n=1, seed=("fcr", ang), depth=0.14)
+        rune_glyphs(b, Fcl, -0.6, 0.6, 16.0, h=2.4, n=1, seed=("fcr2", ang), depth=0.14)
     # arco-costela quebrado ligando as colunas do fundo (atras do Ignis, fora da envoltoria)
     p210, p330 = polar(rm, 212.0), polar(rm, 328.0)
     span = abs(p210[0] - p330[0])
@@ -415,14 +435,13 @@ def forge(coll="04_FORGE"):
     # lintel com a placa na boca da abside (acima da envoltoria: Y >= 33)
     pa, pb = polar(rm, a_open1), polar(rm, a_open0)
     Fl = Fr(F.p(0.0, pa[1], 0), (F.f.x, F.f.y))
-    bb(b, Fl, pa[0] - 1.8, pb[0] + 1.8, -1.3, 1.3, col_top + 1.85, col_top + 4.0, "SN_Ashlar_Dark") if pa[0] > pb[0] else \
-        bb(b, Fl, pb[0] - 1.8, pa[0] + 1.8, -1.3, 1.3, col_top + 1.85, col_top + 4.0, "SN_Ashlar_Dark")
-    bb(b, Fl, -9.0, 9.0, 1.3, 1.7, col_top + 4.2, col_top + 7.4, "SN_WoodAged")
-    for zz in (col_top + 4.2, col_top + 7.1):
-        bb(b, Fl, -9.3, 9.3, 1.2, 1.85, zz - 0.15, zz + 0.3, "SN_Bronze")
-    text(b, Fl, "FORJA DO IGNIS", 1.25, "SN_Gold", 0.0, 1.72, col_top + 5.8, 0.15, bold=True)
-    for s in (-1, 1):
-        beam(b, Fl, (s * 6.0, 1.5, col_top + 4.0), (s * 6.0, 1.5, col_top + 4.25), 0.2, 0.2, "SN_Chain")
+    x_a, x_b = sorted((pa[0], pb[0]))
+    bb(b, Fl, x_a - 1.8, x_b + 1.8, -1.3, 1.3, col_top + 1.85, col_top + 4.0, "SN_Iron")
+    for xx in [x_a - 1.0 + k * (x_b - x_a + 2.0) / 8 for k in range(9)]:
+        cyl(b, Fl, (xx, 1.3, col_top + 2.9), (xx, 1.65, col_top + 2.9), 0.32, "SN_Bronze", seg=8)
+    beam(b, Fl, (x_a - 1.6, 1.42, col_top + 2.1), (x_b + 1.6, 1.42, col_top + 2.1), 0.2, 0.18, "SN_Lava")
+    from sn_kit import anvil_model
+    anvil_model(b, Fl, 0.0, 0.0, col_top + 4.0, 1.25, "SN_Bronze", "SN_Iron")
     # estandartes nas colunas da boca
     for ang, col in ((a_open1, "WB_Cloth_Red"), (a_open0, "WB_Cloth_Red")):
         px, py = polar(rm, ang)
@@ -430,7 +449,8 @@ def forge(coll="04_FORGE"):
         banner(b, Fb, 0.0, 0.0, 22.0, col, 3.0, 9.0)
     # LAREIRA no fundo: bacia de pedra com brasa e fogo, alimentada pelo canal de lava que vem da bigorna
     hy = -12.0                                               # y local da lareira (norte = -y)
-    lathe(b, F, 0.0, hy, [(4.2, 0.0), (4.4, 1.0), (4.0, 1.6), (3.3, 1.6), (3.3, 0.9), (0.0, 0.9)], "SN_Ashlar_Dark", 18)
+    lathe(b, F, 0.0, hy, [(4.2, 0.0), (4.4, 1.0), (4.0, 1.6), (3.3, 1.6), (3.3, 0.9), (0.0, 0.9)], "SN_Iron", 18)
+    cyl(b, F, (0, hy, 1.0), (0, hy, 1.3), 4.45, "SN_Bronze", seg=18)
     cyl(b, F, (0, hy, 0.9), (0, hy, 1.25), 3.3, "SN_Lava", seg=18)
     cyl(b, F, (0, hy, 1.25), (0, hy, 1.45), 2.2, "SN_LavaHot", seg=14)
     import wb_forge2 as WF
@@ -452,15 +472,15 @@ def forge(coll="04_FORGE"):
         bb(Fc and b, Fc, -ln / 2, ln / 2, -1.2, 1.2, -0.5, -0.12, "SN_Lava")
         bb(b, Fc, -ln / 2, ln / 2, -0.5, 0.5, -0.14, -0.05, "SN_LavaHot")
         for s in (-1, 1):
-            bb(b, Fc, -ln / 2, ln / 2, s * 1.7 - 0.5, s * 1.7 + 0.5, -0.3, 0.35, "SN_Ashlar_Dark")
+            bb(b, Fc, -ln / 2, ln / 2, s * 1.7 - 0.5, s * 1.7 + 0.5, -0.3, 0.35, "SN_Iron")
     # boca em arco no muro do fundo (por onde a lava entra)
     Fm = Fr(F.p(0.0, -rm, 0), (F.f.x, F.f.y))
-    stone_arch(b, Fm, 0.0, 3.4, 1.2, depth=t + 0.6, ring=0.9, mat="SN_Ashlar_Dark", pier=0.9, seed="culv", moss=False, n=7)
+    stone_arch(b, Fm, 0.0, 3.4, 1.2, depth=t + 0.6, ring=0.9, mat="SN_Iron", pier=0.9, seed="culv", moss=False, n=7)
     # FOLES gigantes dos dois lados da lareira (tabuas + couro em pregas + bico ate a lareira)
     for s in (-1, 1):
         bx0 = s * 7.5
         Fbw = F.sub(bx0, hy + 1.0, 0, -s * 30)
-        bb(b, Fbw, -1.6, 1.6, -3.2, 3.2, 0.0, 1.2, "SN_Ashlar_Dark")
+        bb(b, Fbw, -1.6, 1.6, -3.2, 3.2, 0.0, 1.2, "SN_Basalt")
         extrude_xz(b, Fbw, [(-1.8, 1.2), (1.8, 1.2), (0.6, 4.4), (-0.6, 4.4)], -3.6, 3.6, "WB_Plank")
         for k in range(4):
             zz = 1.6 + k * 0.75
@@ -483,9 +503,29 @@ def forge(coll="04_FORGE"):
     barrel(b, F, -14.6, 7.8, 1.1, 2.6)
     crate(b, F, 14.8, 8.2, 2.2, turn=14)
     # picaretas a venda na entrada (fora da envoltoria do Ignis) e braseiros
+    # VITRINES das picaretas do jogo (as malhas reais entram no Studio pelos marcadores PICK_SLOT_*): base de basalto,
+    # moldura de ferro com bronze e calha de lava na base; 4 picaretas por vitrine, facil -> dificil da esquerda p/ a direita
+    ordem = ["enferrujada", "ferro", "aco", "rubi", "obsidiana", "runica", "estelar", "ignis"]
     for s in (-1, 1):
-        pickaxe_rack(b, F.sub(s * 12.5, 17.5, 0, 0), 0, 0, n=4, seed=s)
-        brazier(b, F, s * 17.5, 21.0, 0.0, 3.4, "L_SN_Brazier_Forge%s" % ("W" if s > 0 else "E"))
+        cx_ = s * 12.6
+        Fv = F.sub(cx_, 17.8, 0, 0)
+        HW = 8.0                                  # meia largura: 4 vagas de 3,8 (picaretas do jogo ate 4,1 de largura)
+        bb(b, Fv, -HW, HW, -1.3, 1.3, 0.0, 1.0, "SN_Basalt", bevel=0.1)
+        beam(b, Fv, (-HW + 0.2, 1.32, 0.55), (HW - 0.2, 1.32, 0.55), 0.16, 0.24, "SN_Lava")
+        for xx in (-HW + 0.2, HW - 0.2):
+            bb(b, Fv, xx - 0.35, xx + 0.35, -0.35, 0.35, 1.0, 7.4, "SN_Iron", bevel=0.06)
+        bb(b, Fv, -HW - 0.2, HW + 0.2, -0.45, 0.45, 7.4, 8.0, "SN_Iron", bevel=0.06)
+        bb(b, Fv, -HW - 0.3, HW + 0.3, -0.55, 0.55, 8.0, 8.25, "SN_Bronze")
+        for xx in (-HW / 2, 0.0, HW / 2):              # divisorias finas de ferro entre as vagas
+            bb(b, Fv, xx - 0.12, xx + 0.12, -0.5, -0.26, 1.0, 7.4, "SN_Iron")
+        for k in range(4):
+            xx = -HW * 0.75 + k * HW / 2
+            beam(b, Fv, (xx, -0.25, 7.4), (xx, -0.25, 6.9), 0.1, 0.1, "SN_Bronze")
+            idx = (0 if s > 0 else 4) + (3 - k)      # s = +1 e o lado OESTE; k cresce para o centro -> 3-k = esq. p/ dir.
+            fm_lib.marker("PICK_SLOT_%d" % (idx + 1), Fv.p(xx, -0.2, 4.15), (0, 0, Fv.yaw()), 1.0, "PLAIN_AXES",
+                          "15_GAMEPLAY_MARKERS", {"picareta": ordem[idx], "caixa_w": 3.4, "caixa_h": 5.2,
+                                                  "face_x": 0.0, "face_z": 1.0})
+        brazier(b, F, s * 23.0, 21.0, 0.0, 3.4, "L_SN_Brazier_Forge%s" % ("W" if s > 0 else "E"))
     # hera e musgo nas colunas/muros
     objs = b.finish()
     # colisao: muro (segmentos), colunas, lareira, foles, bancadas
@@ -505,7 +545,7 @@ def forge(coll="04_FORGE"):
     fm_lib.col_box("Forge", (9.0, 9.0, 1.8), F.p(0, hy, 0.9), (0, 0, F.yaw()))
     for s in (-1, 1):
         fm_lib.col_box("Forge", (4.0, 7.6, 4.6), F.p(s * 7.5, hy + 1.0, 2.3), (0, 0, F.yaw() - s * RAD(30)))
-        fm_lib.col_box("Forge", (3.4, 5.0, 4.2), F.p(s * 12.5, 17.5, 2.1), (0, 0, F.yaw()))
+        fm_lib.col_box("Forge", (16.4, 2.8, 8.2), F.p(s * 12.6, 17.8, 4.1), (0, 0, F.yaw()))
     contract_markers()
     return objs
 

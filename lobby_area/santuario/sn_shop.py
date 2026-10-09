@@ -405,6 +405,230 @@ def collisions(F):
     box(31.0, 26.0, 2.0, 0.0, -0.5, EAVE + 2.0)                  # telhado (camera)
 
 
+# ------------------------------------------------------------------ LOJA-MOCHILA (v2, feedback 09/10: o templo parecia
+# um banco dos anos 70). O predio E uma mochila de aventureiro gigante: corpo de lona com cantos arredondados, aba de
+# couro com fivelas de ouro descendo pela frente, o BOLSO DA FRENTE e a entrada, bolsos laterais, saco de dormir enrolado
+# no topo, alcas nas costas, uma picareta gigante amarrada na lateral, lampiao e corda. O interior (balcao, prateleiras,
+# vitrine) e o mesmo de antes, dentro do corpo (x +-14, y -11.2..4.6).
+R_ = 1.8                                       # raio dos cantos/bordas arredondados do corpo
+POCKET = (9.0, 6.0, 10.3)                      # meia largura, profundidade, altura do bolso da frente (entrada)
+
+
+def _round_box(b, F, x0, x1, y0, y1, z0, z1, r, mat, seg=16):
+    """caixa com cantos verticais e bordas de cima arredondadas (lona estufada)"""
+    bb(b, F, x0 + r, x1 - r, y0, y1, z0, z1 - r, mat)
+    bb(b, F, x0, x1, y0 + r, y1 - r, z0, z1 - r, mat)
+    bb(b, F, x0 + r, x1 - r, y0 + r, y1 - r, z1 - r, z1, mat)
+    for (cx, cy) in ((x0 + r, y0 + r), (x1 - r, y0 + r), (x0 + r, y1 - r), (x1 - r, y1 - r)):
+        cyl(b, F, (cx, cy, z0), (cx, cy, z1 - r), r, mat, seg=seg)
+        b.sphere(F.p(cx, cy, z1 - r), r, mat, seg=seg)
+    for (ya, yb_, xx) in ((y0 + r, y1 - r, x0 + r), (y0 + r, y1 - r, x1 - r)):
+        cyl(b, F, (xx, ya, z1 - r), (xx, yb_, z1 - r), r, mat, seg=seg)
+    for (xa, xb_, yy) in ((x0 + r, x1 - r, y0 + r), (x0 + r, x1 - r, y1 - r)):
+        cyl(b, F, (xa, yy, z1 - r), (xb_, yy, z1 - r), r, mat, seg=seg)
+
+
+def half_dome(b, F, cx, cy, z0, rx, ry, rz, mat, seg=28, rings=8):
+    """meia elipsoide (so a metade de cima, base plana em z0) - a de baixo furaria o forro do interior"""
+    bm = bmesh.new()
+    rows = []
+    for i in range(rings):
+        ph = (math.pi / 2) * i / rings
+        rows.append([bm.verts.new(F.p(cx + rx * math.cos(ph) * math.cos(2 * math.pi * j / seg),
+                                      cy + ry * math.cos(ph) * math.sin(2 * math.pi * j / seg), z0 + rz * math.sin(ph)))
+                     for j in range(seg)])
+    top = bm.verts.new(F.p(cx, cy, z0 + rz))
+    for i in range(rings - 1):
+        a_, c_ = rows[i], rows[i + 1]
+        for j in range(seg):
+            bm.faces.new((a_[j], a_[(j + 1) % seg], c_[(j + 1) % seg], c_[j]))
+    for j in range(seg):
+        bm.faces.new((rows[-1][j], rows[-1][(j + 1) % seg], top))
+    bm.faces.new(list(reversed(rows[0])))
+    bmesh.ops.recalc_face_normals(bm, faces=bm.faces[:])
+    b.mesh(bm, mat)
+
+
+def backpack_house(b, F):
+    from wb_house import arch_holes, wall_holes
+    from sn_kit import pickaxe
+    # base de pedra em 2 degraus
+    bb(b, F, -17.0, 17.0, -14.0, 13.6, -0.8, 0.6, "SN_Ashlar_Dark", bevel=0.12)
+    bb(b, F, -16.0, 16.0, -13.0, 11.8, 0.6, FL, "SN_Ashlar", bevel=0.12)
+    TOPB = TOP + R_                            # topo do corpo (o forro interno fica em TOP)
+    # CORPO: paredes de lona (miolo oco para o interior) + casca arredondada por fora
+    door = arch_holes(0.0, 7.0, FL, 9.0)
+    Ff = F.sub(0, YF - WALL_T / 2, 0, 0)
+    wall_holes(b, Ff, -CX + R_, CX - R_, FL, TOP, -WALL_T / 2, WALL_T / 2, door, "SN_CanvasTan")
+    bb(b, F, -CX + R_, CX - R_, YB, YB + WALL_T, FL, TOP, "SN_CanvasTan")
+    for sx in (-1, 1):
+        bb(b, F, sx * (CX - WALL_T), sx * CX, YB + R_, YF - R_, FL, TOP, "SN_CanvasTan")
+    for (cx, cy) in ((-CX + R_, YB + R_), (CX - R_, YB + R_), (-CX + R_, YF - R_), (CX - R_, YF - R_)):
+        cyl(b, F, (cx, cy, FL), (cx, cy, TOP), R_, "SN_CanvasTan", seg=16)
+    bb(b, F, -CX + R_, CX - R_, YB + R_, YF - R_, TOP, TOPB, "SN_CanvasTan")
+    for (ya, yb_, xx) in ((YB + R_, YF - R_, -CX + R_), (YB + R_, YF - R_, CX - R_)):
+        cyl(b, F, (xx, ya, TOP), (xx, yb_, TOP), R_, "SN_CanvasTan", seg=16)
+    for (xa, xb_, yy) in ((-CX + R_, CX - R_, YB + R_), (-CX + R_, CX - R_, YF - R_)):
+        cyl(b, F, (xa, yy, TOP), (xb_, yy, TOP), R_, "SN_CanvasTan", seg=16)
+    for (cx, cy) in ((-CX + R_, YB + R_), (CX - R_, YB + R_), (-CX + R_, YF - R_), (CX - R_, YF - R_)):
+        b.sphere(F.p(cx, cy, TOP), R_, "SN_CanvasTan", seg=16)
+    # costuras (pespontos claros) nas quinas verticais da frente
+    for sx in (-1, 1):
+        for k in range(9):
+            zz = FL + 0.8 + k * 1.5
+            beam(b, F, (sx * (CX - 0.25), YF - 0.3, zz), (sx * (CX - 0.25), YF - 0.3, zz + 0.8), 0.14, 0.14, "SN_CanvasCream")
+    # ABA de couro: tampa por cima + caimento na frente ate acima do bolso, borda arredondada, fivelas
+    # tampa ABAULADA (meia elipsoide de couro): da a silhueta redonda de mochila vista da praca
+    half_dome(b, F, 0.0, (YB + YF) / 2 + 0.25, TOPB - 0.25, CX + 0.6, (YF - YB) / 2 + 0.55, 4.6, "SN_Leather")
+    bb(b, F, -CX - 0.3, CX + 0.3, YB + 0.3, YF + 0.5, TOPB - 0.45, TOPB - 0.05, "SN_LeatherDark", bevel=0.1)
+    fz0 = FL + POCKET[2] + 0.6
+    bb(b, F, -CX + 1.0, CX - 1.0, YF + 0.05, YF + 0.75, fz0, TOPB + 0.6, "SN_Leather", bevel=0.25)
+    cyl(b, F, (-CX + 1.0, YF + 0.4, fz0), (CX - 1.0, YF + 0.4, fz0), 0.45, "SN_Leather", seg=10)
+    for sx in (-1, 1):
+        x = sx * 6.0
+        # tira da aba descendo pela frente do bolso ate a base, fivela de ouro
+        beam(b, F, (x, YF + 0.85, TOPB - 0.5), (x, YF + 0.85, fz0 - 0.1), 1.3, 0.25, "SN_Leather")
+        beam(b, F, (x, YF + POCKET[1] + 0.15, FL + POCKET[2] - 0.2), (x, YF + POCKET[1] + 0.15, FL + 0.6), 1.3, 0.25,
+             "SN_Leather")
+        bb(b, F, x - 1.0, x + 1.0, YF + POCKET[1] + 0.2, YF + POCKET[1] + 0.55, FL + 4.6, FL + 6.0, "SN_Gold", bevel=0.08)
+        bb(b, F, x - 0.55, x + 0.55, YF + POCKET[1] + 0.5, YF + POCKET[1] + 0.65, FL + 4.95, FL + 5.65, "SN_Leather")
+    # BOLSO DA FRENTE (entrada): paredes de lona vermelha com porta em arco, tampa arredondada e aba
+    px, pd, ph = POCKET
+    pdoor = arch_holes(0.0, 7.2, FL, 8.4)
+    Fp = F.sub(0, YF + pd - 0.5, 0, 0)
+    wall_holes(b, Fp, -px + 1.0, px - 1.0, FL, FL + ph - 1.0, -0.5, 0.5, pdoor, "SN_CanvasRed")
+    for sx in (-1, 1):
+        bb(b, F, sx * (px - 1.0), sx * px, YF, YF + pd - 1.0, FL, FL + ph - 1.0, "SN_CanvasRed")
+        cyl(b, F, (sx * (px - 1.0), YF + pd - 1.0, FL), (sx * (px - 1.0), YF + pd - 1.0, FL + ph - 1.0), 1.0, "SN_CanvasRed",
+            seg=12)
+    bb(b, F, -px + 1.0, px - 1.0, YF, YF + pd - 1.0, FL + ph - 1.0, FL + ph, "SN_CanvasRed")
+    cyl(b, F, (-px + 1.0, YF + pd - 1.0, FL + ph - 1.0), (px - 1.0, YF + pd - 1.0, FL + ph - 1.0), 1.0, "SN_CanvasRed", seg=12)
+    for sx in (-1, 1):
+        b.sphere(F.p(sx * (px - 1.0), YF + pd - 1.0, FL + ph - 1.0), 1.0, "SN_CanvasRed", seg=12)
+        cyl(b, F, (sx * (px - 1.0), YF, FL + ph - 1.0), (sx * (px - 1.0), YF + pd - 1.0, FL + ph - 1.0), 1.0, "SN_CanvasRed",
+            seg=12)
+    bb(b, F, -px + 0.8, px - 0.8, YF + pd - 0.3, YF + pd + 0.35, FL + ph - 2.0, FL + ph + 0.3, "SN_Leather", bevel=0.2)
+    b.sphere(F.p(0.0, YF + pd + 0.45, FL + ph - 1.6), 0.45, "SN_Gold", seg=10)
+    # moldura do vao da porta do bolso (couro) e capacho
+    for sx in (-1, 1):
+        beam(b, F, (sx * 3.85, YF + pd + 0.05, FL), (sx * 3.85, YF + pd + 0.05, FL + 4.8), 0.5, 0.35, "SN_Leather")
+    cyl(b, F, (0.0, YF + pd + 1.6, FL - 0.02), (0.0, YF + pd + 1.6, FL + 0.08), 2.2, "SN_CanvasOchre", seg=20)
+    # BOLSOS LATERAIS (cilindros de lona com tampa de couro e botao)
+    for sx in (-1, 1):
+        xx = sx * (CX + 1.9)
+        cyl(b, F, (xx, -3.0, FL + 0.6), (xx, -3.0, FL + 9.0), 2.6, "SN_CanvasRed", seg=16)
+        b.sphere(F.p(xx, -3.0, FL + 0.6), 2.6, "SN_CanvasRed", seg=16, scale=(1, 1, 0.35))
+        cyl(b, F, (xx, -3.0, FL + 8.6), (xx, -3.0, FL + 9.6), 2.75, "SN_Leather", seg=16)
+        b.sphere(F.p(xx + sx * 2.7, -3.0, FL + 8.9), 0.35, "SN_Gold", seg=8)
+        for zz in (FL + 3.0, FL + 6.4):
+            cyl(b, F, (xx, -3.0, zz), (xx, -3.0, zz + 0.5), 2.68, "SN_Leather", seg=16)
+    # SACO DE DORMIR enrolado no topo, com tiras e listras
+    RR, XR = 2.7, 9.6                               # raio e meia largura do saco (cabe no alto da tampa)
+    yr = (YB + YF) / 2 + 0.25
+    zr = TOPB - 0.25 + 4.6 + RR - 0.75
+    cyl(b, F, (-XR, yr, zr), (XR, yr, zr), RR, "SN_CanvasCream", seg=20)
+    for xx in (-XR, XR):
+        sg = 1 if xx > 0 else -1
+        cyl(b, F, (xx, yr, zr), (xx + 0.3 * sg, yr, zr), RR - 0.6, "SN_CanvasBlue", seg=20)
+    for xx in (-7.2, 7.2):
+        cyl(b, F, (xx - 0.35, yr, zr), (xx + 0.35, yr, zr), RR + 0.08, "SN_CanvasRed", seg=20)
+    for xx in (-4.2, 4.2):
+        cyl(b, F, (xx - 0.45, yr, zr), (xx + 0.45, yr, zr), RR + 0.2, "SN_Leather", seg=20)
+        bb(b, F, xx - 0.6, xx + 0.6, yr + RR, yr + RR + 0.5, zr - 0.6, zr + 0.6, "SN_Gold")
+        # tiras descendo pela tampa ate a borda da frente
+        beam(b, F, (xx, yr + RR * 0.7, zr - RR * 0.7), (xx, YF + 0.55, TOPB + 0.2), 0.9, 0.2, "SN_Leather")
+    # ALCAS nas costas (curvas acolchoadas) e argolas de bronze
+    for sx in (-1, 1):
+        x = sx * 6.5
+        pts = [(x, YB - 0.3, TOPB - 1.0), (x, YB - 2.2, TOP - 4.0), (x, YB - 2.6, FL + 6.0), (x, YB - 1.6, FL + 2.6),
+               (x, YB - 0.3, FL + 1.4)]
+        for p0, p1 in zip(pts, pts[1:]):
+            beam(b, F, p0, p1, 2.2, 0.9, "SN_Leather")
+        cyl(b, F, (x, YB - 0.4, FL + 1.4), (x, YB - 1.2, FL + 1.4), 0.9, "SN_Bronze", seg=10)
+    # PICARETA gigante amarrada na lateral oeste (tema do jogo) e corda enrolada na leste
+    pickaxe(b, F, -CX - 0.9, 3.0, FL + 2.0, turn=90.0, lean=-20.0, s=2.4, head="WB_Steel", handle="SN_WoodAged",
+            gem="SN_CrystalAmber")
+    for zz in (FL + 4.0, FL + 8.0):
+        cyl(b, F, (-CX - 0.2, 1.2, zz), (-CX - 0.2, 5.0, zz), 0.25, "SN_Leather", seg=8)
+    n = 14
+    for ring_ in range(3):
+        rr_ = 1.5 - ring_ * 0.25
+        for k in range(n):
+            a0, a1 = 2 * math.pi * k / n, 2 * math.pi * (k + 1) / n
+            beam(b, F, (CX + 0.35 + ring_ * 0.22, -7.5 + rr_ * math.cos(a0), FL + 8.0 + rr_ * math.sin(a0)),
+                 (CX + 0.35 + ring_ * 0.22, -7.5 + rr_ * math.cos(a1), FL + 8.0 + rr_ * math.sin(a1)), 0.3, 0.3, "SN_Rope")
+    # lampiao pendurado no canto da frente (leste) e janelinhas redondas nas laterais
+    beam(b, F, (CX - 0.5, YF + 0.5, TOP - 1.0), (CX + 2.0, YF + 0.5, TOP - 1.0), 0.25, 0.25, "SN_Iron")
+    lantern(b, F, CX + 2.0, YF + 0.5, TOP - 1.2, "L_SN_ShopLantern", s=1.1)
+    for sx in (-1, 1):
+        Fw = Fr(F.p(sx * (CX + 0.02), 0, 0), (sx * F.t.x, sx * F.t.y))
+        for yy in (-8.0, 1.0):
+            cyl(b, Fw, (yy * -sx, -0.05, FL + 7.5), (yy * -sx, 0.3, FL + 7.5), 1.3, "SN_Bronze", seg=16)
+            cyl(b, Fw, (yy * -sx, 0.0, FL + 7.5), (yy * -sx, 0.36, FL + 7.5), 0.95, "WB_Window", seg=16)
+
+
+def backpack_dressing(b, F):
+    """frente da loja: cavaletes com mochilas, caixas, barris, sacos, vasos com flores e a banca de feira com toldo"""
+    for s in (-1, 1):
+        x0 = s * 12.4
+        y0 = 9.0
+        for k in range(2):
+            beam(b, F, (x0 - 1.6, y0, FL + 0.1), (x0, y0, FL + 4.2), 0.18, 0.18, "SN_WoodAged")
+            beam(b, F, (x0 + 1.6, y0, FL + 0.1), (x0, y0, FL + 4.2), 0.18, 0.18, "SN_WoodAged")
+        for k, zz in enumerate((FL + 0.9, FL + 2.6)):
+            beam(b, F, (x0 - 1.4, y0 + 0.25, zz), (x0 + 1.4, y0 + 0.25, zz), 0.12, 0.2, "SN_WoodAged")
+            backpack(b, F, x0 + (k - 0.5) * 0.9, y0 + 0.6, zz, 0.55, CANVAS[(k + (1 if s > 0 else 2)) % 4], ("cv", s, k))
+    for (xx, yy, sd) in ((-15.0, 3.0, 1), (15.0, 6.0, 2)):
+        bb(b, F, xx - 1.0, xx + 1.0, yy - 1.0, yy + 1.0, FL + 0.02, FL + 2.0, "SN_WoodAged", bevel=0.08)
+        bb(b, F, xx - 0.5, xx + 0.9, yy - 0.7, yy + 0.7, FL + 2.0, FL + 3.4, "SN_WoodAged", bevel=0.08)
+        worn_block(b, F, xx, yy + 2.0, FL + 0.6, (1.3, 1.1, 1.2), "SN_CanvasCream", seed=("sk", sd), chips=0, bevel=0.4)
+    for s in (-1, 1):
+        lathe(b, F, s * 15.4, 12.6, [(0.7, 0.0), (0.95, 0.3), (1.0, 1.0), (0.85, 1.4), (0.95, 1.55)], "SN_Terracotta", 12,
+              z0=0.6)
+        flower_bed(b, F, s * 15.4, 12.6, 2.15, 1.4, 1.4, 9, seed=("vf", s))
+    # banca de feira com toldo listrado no lado sul externo
+    Fk = F.sub(CX + 8.0, -1.0, 0.0, 0.0)
+    for (px_, py_) in ((-2.2, -3.0), (2.2, -3.0), (-2.2, 3.0), (2.2, 3.0)):
+        cyl(b, Fk, (px_, py_, 0.0), (px_, py_, 7.4), 0.16, "SN_WoodAged", seg=6)
+    bb(b, Fk, -2.5, 2.5, -3.3, 3.3, 2.6, 2.9, "SN_WoodAged", bevel=0.04)
+    for k in range(6):
+        y0 = -3.6 + k * 1.2
+        bm = bmesh.new()
+        q = [(-2.9, y0, 7.6), (2.9, y0, 6.4), (2.9, y0 + 1.2, 6.4), (-2.9, y0 + 1.2, 7.6)]
+        vs = [bm.verts.new(Fk.p(*v)) for v in q]
+        vs2 = [bm.verts.new(Fk.p(v[0], v[1], v[2] - 0.08)) for v in q]
+        bm.faces.new(vs)
+        bm.faces.new(list(reversed(vs2)))
+        for i in range(4):
+            bm.faces.new((vs[i], vs2[i], vs2[(i + 1) % 4], vs[(i + 1) % 4]))
+        bmesh.ops.recalc_face_normals(bm, faces=bm.faces[:])
+        b.mesh(bm, "SN_CanvasRed" if k % 2 == 0 else "SN_CanvasCream")
+    for k in range(3):
+        backpack(b, Fk, 0.0, -2.2 + k * 2.2, 2.9, 0.62, CANVAS[k], ("st", k), turn=90.0)
+
+
+def collisions2(F):
+    def box(dx, dy, dz, cx, cy, cz):
+        fm_lib.col_box(AREA, (dx, dy, dz), F.p(cx, cy, cz), (0, 0, F.yaw()))
+    box(34.0, 27.6, 1.4, 0.0, -0.2, -0.1)
+    box(32.0, 24.8, 0.6, 0.0, -0.6, 0.9)
+    box(2 * CX, WALL_T, TOP - FL, 0.0, YB + WALL_T / 2, (TOP + FL) / 2)
+    for s_ in (-1, 1):
+        box(WALL_T, YF - YB, TOP - FL, s_ * (CX - WALL_T / 2), (YB + YF) / 2, (TOP + FL) / 2)
+        box(CX - 3.5, WALL_T, TOP - FL, s_ * (3.5 + (CX - 3.5) / 2), YF - WALL_T / 2, (TOP + FL) / 2)
+        # bolso: laterais e frente (ao lado da porta)
+        box(1.0, POCKET[1], POCKET[2], s_ * (POCKET[0] - 0.5), YF + POCKET[1] / 2, FL + POCKET[2] / 2)
+        box(POCKET[0] - 3.6, 1.0, POCKET[2], s_ * (3.6 + (POCKET[0] - 3.6) / 2), YF + POCKET[1] - 0.5, FL + POCKET[2] / 2)
+        box(5.4, 5.4, 9.0, s_ * (CX + 1.9), -3.0, FL + 4.6)
+    box(7.0, WALL_T, TOP - FL - 9.0, 0.0, YF - WALL_T / 2, (TOP + FL + 9.0) / 2)
+    box(2 * POCKET[0], POCKET[1], 1.2, 0.0, YF + POCKET[1] / 2, FL + POCKET[2] - 0.4)
+    box(7.2, 1.0, POCKET[2] - 8.4, 0.0, YF + POCKET[1] - 0.5, FL + 8.4 + (POCKET[2] - 8.4) / 2)
+    box(12.6, 2.2, 3.4, -1.0, -2.6, FL + 1.7)
+    box(23.0, 1.6, 10.0, 0.0, YB + WALL_T + 0.8, FL + 5.0)
+    box(3.4, 3.4, 3.6, CX - WALL_T - 3.2, -6.0, FL + 1.8)
+    box(2 * CX + 1.0, YF - YB + 1.0, 8.0, 0.0, (YB + YF) / 2, TOP + 4.0)
+
+
 def build():
     SL.register()
     extra = {"SN_CanvasRed": (178, 52, 40), "SN_CanvasBlue": (58, 92, 160), "SN_CanvasGreen": (70, 120, 70),
@@ -418,13 +642,13 @@ def build():
     fx, fz = L.SHOP_FACE
     F = Fr.rbx(sx, sz, L.Y_PLAZA, fx, fz)
     b = SL.Build("WB_Shop_Temple", COLL)
-    temple(b, F)
-    exterior_dressing(b, F)
+    backpack_house(b, F)
+    backpack_dressing(b, F)
     objs = b.finish()
     bi = SL.Build("WB_Shop_Inside", COLL)
     interior(bi, F)
     objs += bi.finish()
-    collisions(F)
+    collisions2(F)
     fm_lib.marker("LETREIRO_Loja", F.p(0, 12.0, EAVE + 9.0), (0, 0, 0), 1.0, "PLAIN_AXES", "15_GAMEPLAY_MARKERS",
                   {"texto": "LOJA DE MOCHILAS", "alcance": 170})
     fm_lib.marker("NPC_Vendedor", F.p(0, -4.5, FL), (0, 0, F.yaw()), 1.0, "PLAIN_AXES", "15_GAMEPLAY_MARKERS",

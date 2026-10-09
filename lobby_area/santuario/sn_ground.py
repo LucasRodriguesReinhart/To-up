@@ -106,12 +106,15 @@ def bank(b, bnd, center=(0.0, -7.0), seed="bank"):
         dl = math.hypot(dx, dz) or 1.0
         dx, dz = dx / dl, dz / dl
         w = 5.0 + 3.0 * _noise(x, z, 0.06, 3)
-        ring = [(x, z, L.Y_GRASS), (x + dx * w * 0.45, z + dz * w * 0.45, L.Y_GRASS - 1.6 - 0.8 * _noise(x, z, 0.1, 4)),
-                (x + dx * w, z + dz * w, L.Y_WATER - 1.8)]
+        n1, n2 = _noise(x, z, 0.1, 4), _noise(x, z, 0.07, 5)
+        ring = [(x, z, L.Y_GRASS), (x + dx * w * 0.25, z + dz * w * 0.25, L.Y_GRASS - 1.4 - 0.8 * n1),
+                (x + dx * w * (0.45 + 0.2 * n2), z + dz * w * (0.45 + 0.2 * n2), L.Y_GRASS - 9.0 - 2.0 * n1),
+                (x + dx * w * (0.75 + 0.2 * n1), z + dz * w * (0.75 + 0.2 * n1), L.Y_WATER + 1.5),
+                (x + dx * w * 1.15, z + dz * w * 1.15, L.Y_WATER - 3.0)]
         rings.append([bm.verts.new(RB(*p)) for p in ring])
     for i in range(n):
         a, c = rings[i], rings[(i + 1) % n]
-        for j in range(2):
+        for j in range(len(a) - 1):
             bm.faces.new((a[j], c[j], c[j + 1], a[j + 1]))
     bmesh.ops.recalc_face_normals(bm, faces=bm.faces[:])
     for f in bm.faces:
@@ -262,9 +265,10 @@ def build():
     for (bnd, c, nm) in bnds:
         bank(b, bnd, c, seed="bank_" + nm)
     objs += b.finish(smooth_angle=40.0)
-    w = SL.Build("WB_Ter_Water", COLL)
-    w.cyl((0, 0, L.Y_WATER - 1.0), (0, 0, L.Y_WATER), L.LAKE_R, "WB_Water", seg=64)
-    objs += w.finish()
+    # mar SO DE PREVIA (o jogo ja tem Terrain Water na cota -13; PREVIEW_ nao vai para o export)
+    w = SL.Build("PREVIEW_Sea", "00_REFERENCE")
+    w.cyl((0, 0, L.Y_WATER - 1.0), (0, 0, L.Y_WATER), 1400.0, "WB_Water", seg=64)
+    w.finish()
     t = SL.Build("WB_Veg_Tufts", "09_VEGETATION")
     n = tufts(t)
     objs += t.finish(smooth_angle=179.0)

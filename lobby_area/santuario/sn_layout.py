@@ -15,7 +15,7 @@ Y_SPAWN = 10.0          # terraco do spawn (5 degraus de 0,6 acima da praca)
 Y_PORTAL = 8.2          # estrado dos portais (2 degraus de 0,6)
 Y_SHOP = 8.2            # estilobato do templo dos mercadores (2 degraus)
 Y_RANK = 7.6            # palco das Tabuas dos Campeoes (1 degrau)
-Y_WATER = 2.2
+Y_WATER = -13.0          # superficie do mar do jogo (Terrain Water); o lobby fica em plato acima dele
 Y_ISLE = 6.0
 WALK = 16.0
 
@@ -41,7 +41,7 @@ ANVIL_C = (0.0, -118.0)         # centro da bigorna-tita
 ANVIL_L = 120.0                 # comprimento (x), chifre para o leste
 ANVIL_H = 62.0                  # altura acima do plinto
 ANVIL_PLINTH = (-74.0, 74.0, -142.0, -92.0, 6.0)    # x0, x1, z0, z1, altura do plinto escalonado
-HAMMER = dict(head=(106.0, -66.0), tilt=58.0, yaw=34.0, head_size=(34.0, 20.0, 20.0), handle_len=96.0, handle_r=3.4)
+HAMMER = dict(head=(106.0, -66.0), tilt=58.0, yaw=-70.0, head_size=(34.0, 20.0, 20.0), handle_len=96.0, handle_r=3.4)
 HAMMER_ANG = (math.degrees(math.atan2(HAMMER["head"][1], HAMMER["head"][0])) + 360.0) % 360.0   # ~328 (nordeste)
 
 # ------------------------------------------------------------------ ILHA DOS PORTAIS (oeste, separada pelo lago)
@@ -49,10 +49,11 @@ HAMMER_ANG = (math.degrees(math.atan2(HAMMER["head"][1], HAMMER["head"][0])) + 3
 # do plato, ligada por uma ponte de pedra: patio circular com a PEDRA DOS MUNDOS no centro e os portais em FERRADURA
 # em volta, cada um num estrado antigo, todos olhando o centro. A ferradura abre para o leste (ponte). Ordem facil ->
 # dificil da ESQUERDA para a DIREITA de quem chega (sul -> oeste -> norte). Lote de cada portal: +-13,9 x 9,6.
-PORTAL_ISLE_C = (-236.0, 12.0)          # centro do patio da ilha
-PORTAL_ISLE_R = 64.0                    # raio medio da ilha
-ISLE_COURT_R = 24.0                     # patio de lajes
-PORTAL_R = 42.0                         # raio dos centros dos portais (em volta do centro da ilha)
+PORTAL_ISLE_C = (-226.0, 12.0)          # centro do patio da ilha
+PORTAL_ISLE_R = 54.0                    # raio medio da ilha
+ISLE_COURT_R = 19.0                     # patio de lajes
+PORTAL_R = 34.0
+PORTAL_SCALE = 0.72                     # portais aprovados em escala menor (pedido do usuario 09/10)                         # raio dos centros dos portais (em volta do centro da ilha)
 PORTAL_ANG = [70.0, 114.0, 158.0, 202.0, 246.0, 290.0]
 
 
@@ -148,16 +149,16 @@ def cams():
         "CAM_SN_Forge": ((7.0, Y_PLAZA + 6.5, -36.0), (-1.0, 16.0, -70.0), 22), # chegando no Ignis
         "CAM_SN_ForgeClose": ((14.0, Y_PLAZA + 8.0, -44.0), (-4.0, 12.0, -66.0), 26),
         "CAM_SN_Anvil": ((70.0, 40.0, -40.0), (0.0, 40.0, -118.0), 26),
-        "CAM_SN_Hammer": ((62.0, 20.0, -80.0), (106.0, 30.0, -64.0), 18),
+        "CAM_SN_Hammer": ((152.0, 26.0, -8.0), (110.0, 30.0, -76.0), 20),          # de sudeste: cabo para NE
         "CAM_SN_Plaza": ((0.0, 60.0, 44.0), (0.0, 7.0, -4.0), 26),
         "CAM_SN_Air": ((150.0, 190.0, 230.0), (-50.0, 10.0, -20.0), 24),
         "CAM_SN_Top": ((-60.0, 520.0, 1.0), (-60.0, 0.0, 0.0), 30),
-        "CAM_SN_Portals": ((-214.0, 16.0, 12.0), (-262.0, 14.0, 12.0), 20),
-        "CAM_SN_PortalClose": ((-236.0, 12.5, 4.0), (-253.0, 15.0, -29.0), 24),
-        "CAM_SN_Isle": ((-150.0, 120.0, 110.0), (-236.0, 6.0, 12.0), 24),
-        "CAM_SN_IsleBridge": ((-128.0, 15.0, 14.0), (-205.0, 15.0, 10.0), 22),
-        "CAM_SN_IsleCourt": ((-262.0, 18.0, 34.0), (-226.0, 12.0, 4.0), 20),
-        "CAM_SN_Shop": ((30.0, 14.0, -6.0), (72.0, 14.0, -34.0), 24),
+        "CAM_SN_Portals": ((-206.0, 15.0, 12.0), (-252.0, 13.0, 12.0), 22),
+        "CAM_SN_PortalClose": ((-226.0, 11.5, 4.0), (-238.0, 13.0, -20.0), 24),
+        "CAM_SN_Isle": ((-140.0, 110.0, 100.0), (-226.0, 6.0, 12.0), 24),
+        "CAM_SN_IsleBridge": ((-128.0, 15.0, 14.0), (-200.0, 14.0, 10.0), 22),
+        "CAM_SN_IsleCourt": ((-248.0, 16.0, 30.0), (-218.0, 11.0, 4.0), 20),
+        "CAM_SN_Shop": ((44.0, 17.0, -4.0), (71.0, 14.0, -33.0), 22),              # 3/4 da praca: silhueta da mochila
         "CAM_SN_ShopIn": ((63.0, 14.5, -30.5), (84.0, 11.5, -39.0), 16),
         "CAM_SN_Rank": ((26.0, 15.0, 22.0), (67.0, 24.0, 57.0), 22),
         "CAM_SN_South": ((0.0, 15.0, 70.0), (0.0, 10.0, 150.0), 24),

@@ -125,9 +125,6 @@ def gate_isle(b):
     h_spring, w = 11.0, 12.0
     stone_arch(b, F, 0.0, w, h_spring, depth=3.0, ring=1.6, mat="SN_Ashlar", pier=3.2, pier_mat="SN_Carved",
                seed="isgate", missing=(), key_mat="SN_Carved", n=11)
-    Ft = Fr(F.p(0, 1.62, 0), (F.f.x, F.f.y))
-    bb(b, Ft, -8.6, 8.6, -0.3, 0.05, h_spring + w / 2 + 1.8, h_spring + w / 2 + 3.6, "SN_Carved", bevel=0.08)
-    text(b, Ft, "CAMINHO DOS MUNDOS", 0.78, "SN_Gold", 0.0, 0.08, h_spring + w / 2 + 2.7, thick=0.14, bold=True)
     for s in (-1, 1):
         px = s * (w / 2 + 1.6)
         bb(b, F, px - 2.2, px + 2.2, -2.2, 2.2, -0.8, 0.9, "SN_Ashlar_Dark", bevel=0.12)
@@ -148,10 +145,8 @@ def gate_main(b):
         brazier(b, F, px, 0.0, top, 3.0, "L_SN_Brazier_IsleMain_%d" % s)
         col(3.2, 3.2, 14.0, F.p(px, 0, 7.0), F.yaw())
     worn_block(b, F, 0.0, 0.0, 15.6, (21.0, 2.0, 1.8), "SN_Carved", seed="igml", chips=2, bevel=0.15)
-    Ft = Fr(F.p(0, 1.02, 0), (F.f.x, F.f.y))
-    text(b, Ft, "PORTAIS", 0.95, "SN_Gold", 0.0, 0.0, 15.6, thick=0.16, bold=True)
-    Ft2 = Fr(F.p(0, -1.02, 0), (-F.f.x, -F.f.y))
-    text(b, Ft2, "SANTUARIO", 0.8, "SN_Gold", 0.0, 0.0, 15.6, thick=0.14, bold=True)
+    from sn_kit import anvil_model
+    anvil_model(b, F, 0.0, 0.0, 16.5, 0.9, "SN_Bronze", "SN_Iron")
 
 
 def bridge(b):
@@ -160,6 +155,7 @@ def bridge(b):
     xa, xb, w = L.ISLE_BRIDGE["x_main"], L.ISLE_BRIDGE["x_isle"], L.ISLE_BRIDGE["w"]
     n_span = 3
     span = (xa - xb) / n_span
+    PIERS = set()                      # pilares ja feitos (vaos vizinhos dividem o pilar)
     for k in range(n_span):
         xm = xa - (k + 0.5) * span
         Fd = Fr.rbx(xm, z, L.Y_PLAZA, 0.0, -1.0)        # +y local = norte; x local = leste
@@ -177,9 +173,11 @@ def bridge(b):
                       ruin=0.25 if (k + s) % 3 else 0.55, course=0.9)
             col(span, 0.9, 2.6, Fd.p(0, s * (w / 2 - 0.45), 1.3), Fd.yaw())
         # arco por baixo (plano do arco ao longo da ponte)
-        Fs = Fr(RB(xm, z, 0.0), (0.0, 1.0))           # f = Blender +y (norte); t = +x (leste): arco ao longo de x
-        stone_arch(b, Fs, 0.0, span - 4.0, 0.6, depth=w - 0.8, ring=1.2, mat="SN_Ashlar", pier=4.0,
-                   pier_mat="SN_Ashlar_Dark", seed=("iba", k), n=9, moss=False)
+        y_base = L.Y_WATER - 2.0
+        Fs = Fr(RB(xm, z, y_base), (0.0, 1.0))        # f = Blender +y (norte); t = +x (leste): arco ao longo de x
+        stone_arch(b, Fs, 0.0, span - 4.0, L.Y_PLAZA - 1.6 - 1.2 - (span - 4.0) / 2 - y_base, depth=w - 0.8, ring=1.2,
+                   mat="SN_Ashlar", pier=4.0,
+                   pier_mat="SN_Ashlar_Dark", seed=("iba", k), n=9, moss=False, built=PIERS)
         col(span, w, 1.6, RB(xm, z, L.Y_PLAZA - 0.8))
     for x in (xa, xb):
         for s in (-1, 1):

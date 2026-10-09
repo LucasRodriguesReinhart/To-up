@@ -152,7 +152,7 @@ def column(b, F, x, y, z0, h, r0=1.4, mat="SN_Ashlar", base_mat="SN_Ashlar_Dark"
 
 # ------------------------------------------------------------------ arco de aduelas
 def stone_arch(b, F, cx, w, h_spring, depth=2.4, ring=1.5, mat="SN_Ashlar", pier=2.4, pier_mat=None, seed=0,
-               missing=(), key_mat=None, moss=True, n=11):
+               missing=(), key_mat=None, moss=True, n=11, built=None):
     """arco de meio ponto: 2 pilares (pier x depth) ate a nascenca h_spring + anel de n aduelas; missing = indices
     das aduelas que caiu (ruina). Plano do arco = plano xz do frame, espessura ao longo de y."""
     r = rng("arch", seed, cx)
@@ -160,6 +160,12 @@ def stone_arch(b, F, cx, w, h_spring, depth=2.4, ring=1.5, mat="SN_Ashlar", pier
     pm = pier_mat or mat
     for s in (-1, 1):
         px = cx + s * (rr + pier / 2)
+        if built is not None:             # vaos vizinhos de ponte dividem o pilar: nao duplicar (z-fighting)
+            wp = F.p(px, 0.0, 0.0)
+            key = (round(wp.x * 2), round(wp.y * 2))
+            if key in built:
+                continue
+            built.add(key)
         for k in range(int(h_spring / 1.8) + 1):
             za = k * 1.8
             zc = min(h_spring, za + 1.8)
@@ -338,7 +344,7 @@ def pickaxe(b, F, x, y, z, turn=0.0, lean=0.0, s=1.0, head="WB_Steel", handle="W
         b.sphere(top + R @ V((0, 0.28 * s, 0)), 0.18 * s, gem, seg=6)
 
 
-def pickaxe_rack(b, F, x, y, n=4, seed=0):
+def pickaxe_rack(b, F, x, y, n=4, seed=0, show=True):
     """cavalete de madeira com picaretas expostas (com tipos diferentes de cabeca)"""
     Fr_ = F.sub(x, y, 0, 0)
     w = n * 1.6 + 0.8
@@ -348,7 +354,7 @@ def pickaxe_rack(b, F, x, y, n=4, seed=0):
     bb(b, Fr_, -w / 2, w / 2, -0.6, 0.6, 0.0, 0.35, "WB_Plank")
     heads = ["WB_Steel", "WB_Iron", "SN_Gold", "WB_Steel", "SN_Bronze"]
     gems = [None, "SN_CrystalBlue", None, "SN_CrystalAmber", None]
-    for k in range(n):
+    for k in range(n if show else 0):
         xx = -w / 2 + 0.8 + k * 1.6 + 0.4
         pickaxe(b, Fr_, xx, 0.35, 0.35, turn=0, lean=-12, s=0.85, head=heads[k % 5], gem=gems[k % 5])
 
@@ -370,3 +376,74 @@ def brazier(b, F, x, y, z0=0.0, h=3.4, name=None, fire_r=0.9):
         fm_lib.marker("VFX_" + name[len("L_SN_"):] if name.startswith("L_SN_") else "VFX_" + name, F.p(x, y, z0 + h + 0.4),
                       (0, 0, 0), 1.0, "PLAIN_AXES",
                       "15_GAMEPLAY_MARKERS", {"particle": "fire", "rate": 8, "size": 1.6})
+
+
+# ------------------------------------------------------------------ bigorna / martelo / moeda (emblemas e estatuas)
+def anvil_model(b, F, x, y, z, s=1.0, mat="SN_Gold", trim="SN_Bronze", turn=0.0):
+    """bigorna 3D de verdade (pes, cintura concava, corpo, mesa, chifre conico e calcanhar), eixo longo em x local"""
+    Fa = F.sub(x, y, z, turn)
+    def prof(pts, y0, y1, m):
+        bm = bmesh.new()
+        a = [bm.verts.new(Fa.p(px * s, y0 * s, pz * s)) for (px, pz) in pts]
+        c = [bm.verts.new(Fa.p(px * s, y1 * s, pz * s)) for (px, pz) in pts]
+        bm.faces.new(a)
+        bm.faces.new(list(reversed(c)))
+        n = len(pts)
+        for i in range(n):
+            bm.faces.new((a[i], c[i], c[(i + 1) % n], a[(i + 1) % n]))
+        bmesh.ops.recalc_face_normals(bm, faces=bm.faces[:])
+        bmesh.ops.bevel(bm, geom=bm.edges[:], offset=0.06 * s, offset_type="OFFSET", segments=1, affect="EDGES",
+                        clamp_overlap=True)
+        b.mesh(bm, m)
+    prof([(-2.3, 0.0), (2.5, 0.0), (2.1, 0.55), (-1.9, 0.55)], -1.25, 1.25, trim)
+    waist = [(-1.7, 0.55), (1.9, 0.55), (1.35, 1.0), (1.15, 1.5), (1.35, 1.95), (-1.15, 1.95), (-0.95, 1.5), (-1.15, 1.0)]
+    prof(waist, -0.85, 0.85, mat)
+    prof([(-1.9, 1.95), (2.7, 1.95), (2.95, 2.25), (2.95, 2.75), (-1.9, 2.75), (-2.1, 2.35)], -1.05, 1.05, mat)
+    bb(b, Fa, -1.7 * s, 2.7 * s, -0.95 * s, 0.95 * s, 2.75 * s, 2.92 * s, trim)
+    # chifre: cone que sai da frente do corpo, levemente para cima
+    b.cyl(Fa.p(-1.9 * s, 0, 2.38 * s), Fa.p(-4.4 * s, 0, 2.62 * s), 0.62 * s, mat, seg=12, r1=0.06 * s)
+    # furo do calcanhar
+    bb(b, Fa, 2.05 * s, 2.45 * s, -0.2 * s, 0.2 * s, 2.92 * s, 2.96 * s, "SN_Iron")
+
+
+def hammer_model(b, a, c, side, s=1.0, head="SN_Iron", handle="SN_WoodAged", trim="SN_Bronze"):
+    """martelo 3D: cabo de a ate c (pontos do mundo), cabeca chanfrada em c ao longo de 'side', cintas de bronze"""
+    a, c = V(a), V(c)
+    ax = (c - a).normalized()
+    sd = V(side).normalized()
+    dp = ax.cross(sd).normalized()
+    sd = dp.cross(ax).normalized()
+    b.cyl(a - ax * 0.2 * s, c + ax * 0.35 * s, 0.22 * s, handle, seg=10)
+    b.cyl(a - ax * 0.25 * s, a + ax * 0.45 * s, 0.3 * s, trim, seg=10)
+    R = Matrix((sd, dp, ax)).transposed()
+    b.box(c + ax * 0.45 * s, (2.4 * s, 1.0 * s, 1.0 * s), head, rot=R, bevel=0.12 * s)
+    for k in (-1, 1):
+        b.box(c + ax * 0.45 * s + sd * (k * 0.75 * s), (0.22 * s, 1.08 * s, 1.08 * s), trim, rot=R, bevel=0.03 * s)
+        b.box(c + ax * 0.45 * s + sd * (k * 1.28 * s), (0.18 * s, 0.9 * s, 0.9 * s), "WB_Steel", rot=R, bevel=0.05 * s)
+
+
+def coin_emblem(b, F, x, y, z, r=2.0, mat="SN_Gold", trim="SN_Bronze"):
+    """moeda 3D de frente (+y do frame): disco grosso com borda, estrela em relevo e anel de pontos"""
+    cyl(b, F, (x, y, z), (x, y + 0.55, z), r, mat, seg=28)
+    n = 28
+    for k in range(n):
+        a0, a1 = 2 * math.pi * k / n, 2 * math.pi * (k + 1) / n
+        beam(b, F, (x + (r - 0.12) * math.cos(a0), y + 0.62, z + (r - 0.12) * math.sin(a0)),
+             (x + (r - 0.12) * math.cos(a1), y + 0.62, z + (r - 0.12) * math.sin(a1)), 0.2, 0.26, trim)
+    for k in range(12):
+        a = 2 * math.pi * k / 12
+        b.sphere(F.p(x + (r - 0.55) * math.cos(a), y + 0.6, z + (r - 0.55) * math.sin(a)), 0.1, mat, seg=6)
+    pts = []
+    for k in range(10):
+        a = math.pi / 2 + math.pi * k / 5
+        rr = (r * 0.55) if k % 2 == 0 else (r * 0.23)
+        pts.append((x + rr * math.cos(a), z + rr * math.sin(a)))
+    bm = bmesh.new()
+    va = [bm.verts.new(F.p(px, y + 0.5, pz)) for (px, pz) in pts]
+    vc = [bm.verts.new(F.p(px, y + 0.85, pz)) for (px, pz) in pts]
+    bm.faces.new(list(reversed(va)))
+    bm.faces.new(vc)
+    for i in range(10):
+        bm.faces.new((va[i], va[(i + 1) % 10], vc[(i + 1) % 10], vc[i]))
+    bmesh.ops.recalc_face_normals(bm, faces=bm.faces[:])
+    b.mesh(bm, "SN_Gold")

@@ -21,7 +21,7 @@ from wb_lib import RB, V
 
 COLL = "06_PORTALS"
 AREA = "Court"
-DAIS_R = (15.0, 13.4)            # raio do degrau de baixo / de cima (12 lados)
+DAIS_R = (11.6, 10.3)            # raio do degrau de baixo / de cima (12 lados)
 WORLD = {
     "Naruto":       ("NARUTO", "SN_CrystalAmber", (255, 170, 60)),
     "DragonBall":   ("DRAGON BALL", "SN_CrystalAmber", (255, 150, 40)),
@@ -44,6 +44,20 @@ def portals():
     before = set(bpy.data.objects)
     report = vm_portals.build()
     new = [o for o in bpy.data.objects if o not in before]
+    # ESCALA dos portais aprovados em volta da base de cada um (malhas, COL_, marcadores, luzes): pedido do usuario
+    k_ = getattr(L, "PORTAL_SCALE", 1.0)
+    if abs(k_ - 1.0) > 1e-6:
+        from mathutils import Matrix, Vector
+        bpy.context.view_layer.update()
+        for i, (key, aid) in enumerate(L.PORTALS):
+            (nx, nz), _f = L.portal_pos(i)
+            piv = Vector((nx, -nz, L.Y_PORTAL))
+            M = Matrix.Translation(piv) @ Matrix.Diagonal(Vector((k_, k_, k_, 1.0))) @ Matrix.Translation(-piv)
+            for o in new:
+                if o.get("vm_portal") == key and o.parent is None:
+                    o.matrix_world = M @ o.matrix_world
+        bpy.context.view_layer.update()
+        print("PORTAIS em escala %.2f" % k_)
     return new, report
 
 
@@ -80,10 +94,6 @@ def dais(b, i):
         for s in (-1, 1):
             beam(b, F, (gx + tx * s * 0.9, gy + ty * s * 0.9, zt - 0.35), (gx + tx * s * 0.3, gy + ty * s * 0.3, zt - 0.15),
                  0.12, 0.14, "SN_Rune")
-    # placa com o nome do mundo no degrau da frente
-    Fp = Fr(F.p(0, r0 - 0.4, 0), (F.f.x, F.f.y))
-    bb(b, Fp, -len(label) * 0.62 - 1.2, len(label) * 0.62 + 1.2, -0.6, 0.15, y0 - L.Y_PLAZA, 1.15, "SN_Carved")
-    text(b, Fp, label, 0.78, "SN_Gold", 0.0, 0.2, 0.62, thick=0.18, bold=True)
     # braseiros nos cantos da frente
     for s in (-1, 1):
         a = math.pi / 2 + s * 0.62
@@ -110,8 +120,10 @@ def dais(b, i):
                            (0, 0, F.yaw() + k * math.pi / 3))
     for s in (-1, 1):
         fm_lib.col_box(AREA, (2.8, 2.8, 18.0), F.p(s * 11.5, bk, zt + 9.0), (0, 0, F.yaw()))
-    fm_lib.marker("LETREIRO_Portal%d" % (i + 1), F.p(0, 4.0, 26.0), (0, 0, 0), 1.0, "PLAIN_AXES", "15_GAMEPLAY_MARKERS",
-                  {"texto": label, "alcance": 150})
+    k_ = getattr(L, "PORTAL_SCALE", 1.0)
+    fm_lib.marker("LETREIRO_Portal%d" % (i + 1), F.p(0, 4.0 * k_, 6.0 + 20.0 * k_), (0, 0, 0), 1.0, "PLAIN_AXES",
+                  "15_GAMEPLAY_MARKERS", {"texto": label, "alcance": 150, "cor": "%d,%d,%d" % WORLD[key][2],
+                                          "icone": "brilho"})
 
 
 def build():

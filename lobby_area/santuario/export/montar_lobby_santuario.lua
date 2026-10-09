@@ -1,5 +1,5 @@
--- montar_lobby_santuario.lua  (gerado por export_roblox.py - nao editar a mao)  EXPORT_ID c4718331
--- 1) Importe os FBX LOBBY_SN_*_c47183.fbx (3D Importer) para dentro de workspace.LOBBY_FORJA. Deixe o importador
+-- montar_lobby_santuario.lua  (gerado por export_roblox.py - nao editar a mao)  EXPORT_ID d9f901f2
+-- 1) Importe os FBX LOBBY_SN_*_d9f901.fbx (3D Importer) para dentro de workspace.LOBBY_FORJA. Deixe o importador
 --    subir as TEXTURAS embutidas. ESPERE as texturas processarem (as MeshParts ficam BRANCAS por alguns
 --    minutos) antes de 'corrigir' cor: o branco some sozinho.
 -- 2) Rode este script na Command Bar. Ele:
@@ -14,7 +14,7 @@
 --      chao distante, VOID_CATCH (rede de seguranca de quedas) e, opcional, o Lighting do lobby.
 -- Recomendado no Workspace: StreamingEnabled = true, StreamingTargetRadius = 1024, StreamingMinRadius = 128.
 -- Rodar de novo e seguro (idempotente). Ids de textura encontrados sao impressos: cole em TEX para fixar.
-local EXPORT_ID = 'c4718331'
+local EXPORT_ID = 'd9f901f2'
 local ROOT_OFFSET = Vector3.new(0, 0, 0)  -- desloca o lobby Santuario do Deus-Ferreiro INTEIRO (malhas alinhadas + colisoes + marcadores + luzes)
 local ALINHAR = true      -- reposiciona as MeshParts pelos centros exportados (corrige o importador)
 local RICO = false        -- true = texturas de detalhe (SurfaceAppearance Overlay) nas familias pedra/madeira/telha/rocha/grama/reboco/terra
@@ -37,12 +37,12 @@ pcall(function() PS:CollisionGroupSetCollidable('SoVisual', 'Personagens', false
 -- ids das texturas (rbxassetid://...). Vazio = usa o que o 3D Importer subiu (lido das MeshParts).
 -- Alternativa: suba as PNG de textures/ pelo Asset Manager e cole os ids aqui.
 local TEX = {
-  ['P_DB_Swirl'] = 'rbxassetid://91221951942873',  -- textures/T_swirl_db_v6.png (espiral, UV do disco)
-  ['P_DS_Swirl'] = 'rbxassetid://139634673018690',  -- textures/T_swirl_ds_v5.png (espiral, UV do disco)
-  ['P_Naruto_Swirl'] = 'rbxassetid://95232761781980',  -- textures/T_swirl_naruto_v5.png (espiral, UV do disco)
-  ['P_OPM_Swirl'] = 'rbxassetid://93706298716947',  -- textures/T_swirl_opm_v6.png (espiral, UV do disco)
-  ['P_OP_Swirl'] = 'rbxassetid://102024173033816',  -- textures/T_swirl_op_v4.png (espiral, UV do disco)
-  ['P_Shadow_Swirl'] = 'rbxassetid://114361126513660',  -- textures/T_swirl_shadow_v4.png (espiral, UV do disco)
+  ['P_DB_Swirl'] = 'rbxassetid://88043972333635',  -- textures/T_swirl_db_v6.png (espiral, UV do disco)
+  ['P_DS_Swirl'] = 'rbxassetid://103760430353568',  -- textures/T_swirl_ds_v5.png (espiral, UV do disco)
+  ['P_Naruto_Swirl'] = 'rbxassetid://130296231803004',  -- textures/T_swirl_naruto_v5.png (espiral, UV do disco)
+  ['P_OPM_Swirl'] = 'rbxassetid://114530148175372',  -- textures/T_swirl_opm_v6.png (espiral, UV do disco)
+  ['P_OP_Swirl'] = 'rbxassetid://114350792676911',  -- textures/T_swirl_op_v4.png (espiral, UV do disco)
+  ['P_Shadow_Swirl'] = 'rbxassetid://82596023817609',  -- textures/T_swirl_shadow_v4.png (espiral, UV do disco)
   ['dirt'] = '',  -- textures/T_dirt_v3.png (10.0 studs por repeticao)
   ['grass'] = '',  -- textures/T_grass_v3.png (14.0 studs por repeticao)
   ['plaster'] = '',  -- textures/T_plaster_v3.png (8.0 studs por repeticao)
@@ -54,56 +54,57 @@ local TEX = {
   ['sn_basalt'] = '',  -- textures/SN_basalt_v1.png (14.0 studs por repeticao)
   ['sn_bronze'] = '',  -- textures/SN_bronze_v1.png (5.0 studs por repeticao)
   ['sn_carved'] = '',  -- textures/SN_carved_v1.png (8.0 studs por repeticao)
-  ['sn_hills'] = 'rbxassetid://128801099251280',  -- textures/SN_hills_v1.png (1.0 studs por repeticao)
+  ['sn_hills'] = '',  -- textures/SN_hills_v1.png (1.0 studs por repeticao)
   ['sn_moss'] = '',  -- textures/SN_moss_v1.png (8.0 studs por repeticao)
-  ['sn_mountain'] = 'rbxassetid://83219449112195',  -- textures/SN_mountain_v1.png (1.0 studs por repeticao)
+  ['sn_mountain'] = '',  -- textures/SN_mountain_v1.png (1.0 studs por repeticao)
   ['sn_plaza'] = '',  -- textures/SN_plaza_v1.png (10.0 studs por repeticao)
   ['sn_rock_far'] = '',  -- textures/SN_rock_far_v1.png (90.0 studs por repeticao)
   ['sn_rubble'] = '',  -- textures/SN_rubble_v1.png (6.0 studs por repeticao)
   ['sn_snow_far'] = '',  -- textures/SN_snow_far_v1.png (120.0 studs por repeticao)
   ['sn_wood_aged'] = '',  -- textures/SN_wood_aged_v1.png (6.0 studs por repeticao)
-  ['snb_anvil_1'] = 'rbxassetid://72096055454712',  -- textures/SNB_Anvil_1.png (1.0 studs por repeticao)
-  ['snb_anvil_2'] = 'rbxassetid://96906161085307',  -- textures/SNB_Anvil_2.png (1.0 studs por repeticao)
-  ['snb_anvil_3'] = 'rbxassetid://98241033311540',  -- textures/SNB_Anvil_3.png (1.0 studs por repeticao)
-  ['snb_anvil_4'] = 'rbxassetid://85989397545717',  -- textures/SNB_Anvil_4.png (1.0 studs por repeticao)
-  ['snb_anvil_5'] = 'rbxassetid://86107608872522',  -- textures/SNB_Anvil_5.png (1.0 studs por repeticao)
-  ['snb_anvil_6'] = 'rbxassetid://112714795509692',  -- textures/SNB_Anvil_6.png (1.0 studs por repeticao)
-  ['snb_anvil_7'] = 'rbxassetid://125074694425220',  -- textures/SNB_Anvil_7.png (1.0 studs por repeticao)
-  ['snb_anvil_8'] = 'rbxassetid://106203822557673',  -- textures/SNB_Anvil_8.png (1.0 studs por repeticao)
-  ['snb_avenue'] = 'rbxassetid://82949378159758',  -- textures/SNB_Avenue.png (1.0 studs por repeticao)
-  ['snb_bridge'] = 'rbxassetid://98133617995163',  -- textures/SNB_Bridge.png (1.0 studs por repeticao)
-  ['snb_dais_1'] = 'rbxassetid://114424453178069',  -- textures/SNB_Dais_1.png (1.0 studs por repeticao)
-  ['snb_dais_2'] = 'rbxassetid://96080021594660',  -- textures/SNB_Dais_2.png (1.0 studs por repeticao)
-  ['snb_gate'] = 'rbxassetid://119238678301443',  -- textures/SNB_Gate.png (1.0 studs por repeticao)
-  ['snb_ground_1'] = 'rbxassetid://94633508539044',  -- textures/SNB_Ground_1.png (1.0 studs por repeticao)
-  ['snb_ground_2'] = 'rbxassetid://91054907765870',  -- textures/SNB_Ground_2.png (1.0 studs por repeticao)
-  ['snb_ground_3'] = 'rbxassetid://126084596765771',  -- textures/SNB_Ground_3.png (1.0 studs por repeticao)
-  ['snb_hall'] = 'rbxassetid://84961434919540',  -- textures/SNB_Hall.png (1.0 studs por repeticao)
-  ['snb_hammer_1'] = 'rbxassetid://95277181868090',  -- textures/SNB_Hammer_1.png (1.0 studs por repeticao)
-  ['snb_hammer_2'] = 'rbxassetid://77805205377418',  -- textures/SNB_Hammer_2.png (1.0 studs por repeticao)
-  ['snb_isle'] = 'rbxassetid://92173774844617',  -- textures/SNB_Isle.png (1.0 studs por repeticao)
-  ['snb_islebridge'] = 'rbxassetid://109898016706199',  -- textures/SNB_IsleBridge.png (1.0 studs por repeticao)
-  ['snb_plaza_1'] = 'rbxassetid://100720295906740',  -- textures/SNB_Plaza_1.png (1.0 studs por repeticao)
-  ['snb_plaza_2'] = 'rbxassetid://104622437061959',  -- textures/SNB_Plaza_2.png (1.0 studs por repeticao)
-  ['snb_rank_1'] = 'rbxassetid://124208267700034',  -- textures/SNB_Rank_1.png (1.0 studs por repeticao)
-  ['snb_rank_2'] = 'rbxassetid://117490541462057',  -- textures/SNB_Rank_2.png (1.0 studs por repeticao)
-  ['snb_ruins'] = 'rbxassetid://78895678507987',  -- textures/SNB_Ruins.png (1.0 studs por repeticao)
-  ['snb_shop_1'] = 'rbxassetid://82417566489351',  -- textures/SNB_Shop_1.png (1.0 studs por repeticao)
-  ['snb_shop_2'] = 'rbxassetid://72872630891076',  -- textures/SNB_Shop_2.png (1.0 studs por repeticao)
-  ['snb_shopin'] = 'rbxassetid://86673522854488',  -- textures/SNB_ShopIn.png (1.0 studs por repeticao)
-  ['snb_shore'] = 'rbxassetid://115389120914756',  -- textures/SNB_Shore.png (1.0 studs por repeticao)
-  ['snb_spawn'] = 'rbxassetid://123085191264244',  -- textures/SNB_Spawn.png (1.0 studs por repeticao)
-  ['snb_tufts'] = 'rbxassetid://81652944144577',  -- textures/SNB_Tufts.png (1.0 studs por repeticao)
-  ['snb_veg_ancient'] = 'rbxassetid://119809666882793',  -- textures/SNB_Veg_ancient.png (1.0 studs por repeticao)
-  ['snb_veg_bush1'] = 'rbxassetid://127610091240189',  -- textures/SNB_Veg_bush1.png (1.0 studs por repeticao)
-  ['snb_veg_bushf'] = 'rbxassetid://136585202463734',  -- textures/SNB_Veg_bushF.png (1.0 studs por repeticao)
-  ['snb_veg_oak1'] = 'rbxassetid://136968397237068',  -- textures/SNB_Veg_oak1.png (1.0 studs por repeticao)
-  ['snb_veg_oak2'] = 'rbxassetid://111384509293422',  -- textures/SNB_Veg_oak2.png (1.0 studs por repeticao)
-  ['snb_veg_oak3'] = 'rbxassetid://133905859048838',  -- textures/SNB_Veg_oak3.png (1.0 studs por repeticao)
-  ['snb_veg_oakg'] = 'rbxassetid://115575580998490',  -- textures/SNB_Veg_oakG.png (1.0 studs por repeticao)
-  ['snb_veg_pine1'] = 'rbxassetid://122102863532000',  -- textures/SNB_Veg_pine1.png (1.0 studs por repeticao)
-  ['snb_veg_pine2'] = 'rbxassetid://106301525755668',  -- textures/SNB_Veg_pine2.png (1.0 studs por repeticao)
-  ['stone'] = 'rbxassetid://78825948043203',  -- textures/T_stone_v3.png (6.0 studs por repeticao)
+  ['snb_anvil_1'] = 'rbxassetid://84601895885458',  -- textures/SNB_Anvil_1.png (1.0 studs por repeticao)
+  ['snb_anvil_2'] = 'rbxassetid://127033870800530',  -- textures/SNB_Anvil_2.png (1.0 studs por repeticao)
+  ['snb_anvil_3'] = 'rbxassetid://80228695499599',  -- textures/SNB_Anvil_3.png (1.0 studs por repeticao)
+  ['snb_anvil_4'] = 'rbxassetid://109256148628133',  -- textures/SNB_Anvil_4.png (1.0 studs por repeticao)
+  ['snb_anvil_5'] = 'rbxassetid://95373876436942',  -- textures/SNB_Anvil_5.png (1.0 studs por repeticao)
+  ['snb_anvil_6'] = 'rbxassetid://118596911413577',  -- textures/SNB_Anvil_6.png (1.0 studs por repeticao)
+  ['snb_anvil_7'] = 'rbxassetid://82538457932340',  -- textures/SNB_Anvil_7.png (1.0 studs por repeticao)
+  ['snb_anvil_8'] = 'rbxassetid://118055237099115',  -- textures/SNB_Anvil_8.png (1.0 studs por repeticao)
+  ['snb_avenue'] = 'rbxassetid://70720474494449',  -- textures/SNB_Avenue.png (1.0 studs por repeticao)
+  ['snb_bridge_1'] = 'rbxassetid://111715411583279',  -- textures/SNB_Bridge_1.png (1.0 studs por repeticao)
+  ['snb_bridge_2'] = 'rbxassetid://82926581980307',  -- textures/SNB_Bridge_2.png (1.0 studs por repeticao)
+  ['snb_dais'] = 'rbxassetid://113306458187994',  -- textures/SNB_Dais.png (1.0 studs por repeticao)
+  ['snb_gate'] = 'rbxassetid://96620215199058',  -- textures/SNB_Gate.png (1.0 studs por repeticao)
+  ['snb_ground_1'] = 'rbxassetid://76198799651228',  -- textures/SNB_Ground_1.png (1.0 studs por repeticao)
+  ['snb_ground_2'] = 'rbxassetid://87833932055932',  -- textures/SNB_Ground_2.png (1.0 studs por repeticao)
+  ['snb_ground_3'] = 'rbxassetid://105952539261633',  -- textures/SNB_Ground_3.png (1.0 studs por repeticao)
+  ['snb_hall_1'] = 'rbxassetid://112329069365420',  -- textures/SNB_Hall_1.png (1.0 studs por repeticao)
+  ['snb_hall_2'] = 'rbxassetid://111047594753469',  -- textures/SNB_Hall_2.png (1.0 studs por repeticao)
+  ['snb_hammer_1'] = 'rbxassetid://139394458991535',  -- textures/SNB_Hammer_1.png (1.0 studs por repeticao)
+  ['snb_hammer_2'] = 'rbxassetid://94932824579467',  -- textures/SNB_Hammer_2.png (1.0 studs por repeticao)
+  ['snb_isle'] = 'rbxassetid://96793844729151',  -- textures/SNB_Isle.png (1.0 studs por repeticao)
+  ['snb_islebridge'] = 'rbxassetid://91719712721855',  -- textures/SNB_IsleBridge.png (1.0 studs por repeticao)
+  ['snb_plaza_1'] = 'rbxassetid://89372750609893',  -- textures/SNB_Plaza_1.png (1.0 studs por repeticao)
+  ['snb_plaza_2'] = 'rbxassetid://106578643234905',  -- textures/SNB_Plaza_2.png (1.0 studs por repeticao)
+  ['snb_rank_1'] = 'rbxassetid://123051482628029',  -- textures/SNB_Rank_1.png (1.0 studs por repeticao)
+  ['snb_rank_2'] = 'rbxassetid://80707222440030',  -- textures/SNB_Rank_2.png (1.0 studs por repeticao)
+  ['snb_ruins'] = 'rbxassetid://123781776033146',  -- textures/SNB_Ruins.png (1.0 studs por repeticao)
+  ['snb_shop_1'] = 'rbxassetid://81206903593299',  -- textures/SNB_Shop_1.png (1.0 studs por repeticao)
+  ['snb_shop_2'] = 'rbxassetid://82842270852407',  -- textures/SNB_Shop_2.png (1.0 studs por repeticao)
+  ['snb_shopin'] = 'rbxassetid://131203240240500',  -- textures/SNB_ShopIn.png (1.0 studs por repeticao)
+  ['snb_shore'] = 'rbxassetid://74428199556704',  -- textures/SNB_Shore.png (1.0 studs por repeticao)
+  ['snb_spawn'] = 'rbxassetid://81511138149942',  -- textures/SNB_Spawn.png (1.0 studs por repeticao)
+  ['snb_tufts'] = 'rbxassetid://103966444933182',  -- textures/SNB_Tufts.png (1.0 studs por repeticao)
+  ['snb_veg_ancient'] = 'rbxassetid://101744868627935',  -- textures/SNB_Veg_ancient.png (1.0 studs por repeticao)
+  ['snb_veg_bush1'] = 'rbxassetid://115952741162244',  -- textures/SNB_Veg_bush1.png (1.0 studs por repeticao)
+  ['snb_veg_bushf'] = 'rbxassetid://76559025415368',  -- textures/SNB_Veg_bushF.png (1.0 studs por repeticao)
+  ['snb_veg_oak1'] = 'rbxassetid://125064883914035',  -- textures/SNB_Veg_oak1.png (1.0 studs por repeticao)
+  ['snb_veg_oak2'] = 'rbxassetid://93212471047107',  -- textures/SNB_Veg_oak2.png (1.0 studs por repeticao)
+  ['snb_veg_oak3'] = 'rbxassetid://83958039033080',  -- textures/SNB_Veg_oak3.png (1.0 studs por repeticao)
+  ['snb_veg_oakg'] = 'rbxassetid://101270400093925',  -- textures/SNB_Veg_oakG.png (1.0 studs por repeticao)
+  ['snb_veg_pine1'] = 'rbxassetid://104941548852522',  -- textures/SNB_Veg_pine1.png (1.0 studs por repeticao)
+  ['snb_veg_pine2'] = 'rbxassetid://75483774030830',  -- textures/SNB_Veg_pine2.png (1.0 studs por repeticao)
+  ['stone'] = 'rbxassetid://88967435457544',  -- textures/T_stone_v3.png (6.0 studs por repeticao)
   ['wb_bark'] = '',  -- textures/WB_bark_v2.png (4.0 studs por repeticao)
   ['wb_canvas_blue'] = '',  -- textures/WB_canvas_blue_v2.png (4.0 studs por repeticao)
   ['wb_canvas_green'] = '',  -- textures/WB_canvas_green_v2.png (4.0 studs por repeticao)
@@ -131,9 +132,9 @@ local TEX = {
   ['wb_stone'] = '',  -- textures/WB_stone_v2.png (5.6 studs por repeticao)
   ['wb_stone_dark'] = '',  -- textures/WB_stone_dark_v2.png (5.6 studs por repeticao)
   ['wb_timber'] = '',  -- textures/WB_timber_v2.png (5.0 studs por repeticao)
-  ['wb_water'] = 'rbxassetid://133102280206650',  -- textures/WB_water_v2.png (20.0 studs por repeticao)
-  ['wb_window'] = '',  -- textures/WB_window_v2.png (2.4 studs por repeticao)
-  ['wood'] = 'rbxassetid://83867986170949',  -- textures/T_wood_v3.png (5.0 studs por repeticao)
+  ['wb_water'] = 'rbxassetid://90298974250965',  -- textures/WB_water_v2.png (20.0 studs por repeticao)
+  ['wb_window'] = 'rbxassetid://102213621140219',  -- textures/WB_window_v2.png (2.4 studs por repeticao)
+  ['wood'] = 'rbxassetid://72759716465697',  -- textures/T_wood_v3.png (5.0 studs por repeticao)
 }
 -- material/variante -> c = cor calibrada no Studio, m = Enum.Material (hibrido), t = transparencia,
 --   s = CastShadow da familia, x = textura de detalhe, w = espiral
@@ -163,7 +164,6 @@ local MAT = {
   ['P_DS_Swirl'] = {c = Color3.fromRGB(185,12,22), m = Enum.Material.Neon, t = 0.0, s = false, x = nil, w = 'P_DS_Swirl'},
   ['P_Naruto_Cloth'] = {c = Color3.fromRGB(31,50,105), m = Enum.Material.Fabric, t = 0.0, s = true, x = nil, w = nil},
   ['P_Naruto_Lacquer'] = {c = Color3.fromRGB(158,39,48), m = Enum.Material.SmoothPlastic, t = 0.0, s = true, x = nil, w = nil},
-  ['P_Naruto_Paper'] = {c = Color3.fromRGB(212,188,144), m = Enum.Material.SmoothPlastic, t = 0.0, s = true, x = nil, w = nil},
   ['P_Naruto_Rim_Glow'] = {c = Color3.fromRGB(255,100,12), m = Enum.Material.Neon, t = 0.0, s = false, x = nil, w = nil},
   ['P_Naruto_Steel'] = {c = Color3.fromRGB(206,212,221), m = Enum.Material.Metal, t = 0.0, s = true, x = nil, w = nil},
   ['P_Naruto_Stone'] = {c = Color3.fromRGB(190,136,86), m = Enum.Material.SmoothPlastic, t = 0.0, s = true, x = nil, w = nil},
@@ -202,14 +202,15 @@ local MAT = {
   ['SNB_Anvil_7'] = {c = Color3.fromRGB(255,255,255), m = Enum.Material.SmoothPlastic, t = 0.0, s = true, x = 'snb_anvil_7', w = nil},
   ['SNB_Anvil_8'] = {c = Color3.fromRGB(255,255,255), m = Enum.Material.SmoothPlastic, t = 0.0, s = true, x = 'snb_anvil_8', w = nil},
   ['SNB_Avenue'] = {c = Color3.fromRGB(255,255,255), m = Enum.Material.SmoothPlastic, t = 0.0, s = true, x = 'snb_avenue', w = nil},
-  ['SNB_Bridge'] = {c = Color3.fromRGB(255,255,255), m = Enum.Material.SmoothPlastic, t = 0.0, s = true, x = 'snb_bridge', w = nil},
-  ['SNB_Dais_1'] = {c = Color3.fromRGB(255,255,255), m = Enum.Material.SmoothPlastic, t = 0.0, s = true, x = 'snb_dais_1', w = nil},
-  ['SNB_Dais_2'] = {c = Color3.fromRGB(255,255,255), m = Enum.Material.SmoothPlastic, t = 0.0, s = true, x = 'snb_dais_2', w = nil},
+  ['SNB_Bridge_1'] = {c = Color3.fromRGB(255,255,255), m = Enum.Material.SmoothPlastic, t = 0.0, s = true, x = 'snb_bridge_1', w = nil},
+  ['SNB_Bridge_2'] = {c = Color3.fromRGB(255,255,255), m = Enum.Material.SmoothPlastic, t = 0.0, s = true, x = 'snb_bridge_2', w = nil},
+  ['SNB_Dais'] = {c = Color3.fromRGB(255,255,255), m = Enum.Material.SmoothPlastic, t = 0.0, s = true, x = 'snb_dais', w = nil},
   ['SNB_Gate'] = {c = Color3.fromRGB(255,255,255), m = Enum.Material.SmoothPlastic, t = 0.0, s = true, x = 'snb_gate', w = nil},
   ['SNB_Ground_1'] = {c = Color3.fromRGB(255,255,255), m = Enum.Material.SmoothPlastic, t = 0.0, s = true, x = 'snb_ground_1', w = nil},
   ['SNB_Ground_2'] = {c = Color3.fromRGB(255,255,255), m = Enum.Material.SmoothPlastic, t = 0.0, s = true, x = 'snb_ground_2', w = nil},
   ['SNB_Ground_3'] = {c = Color3.fromRGB(255,255,255), m = Enum.Material.SmoothPlastic, t = 0.0, s = true, x = 'snb_ground_3', w = nil},
-  ['SNB_Hall'] = {c = Color3.fromRGB(255,255,255), m = Enum.Material.SmoothPlastic, t = 0.0, s = true, x = 'snb_hall', w = nil},
+  ['SNB_Hall_1'] = {c = Color3.fromRGB(255,255,255), m = Enum.Material.SmoothPlastic, t = 0.0, s = true, x = 'snb_hall_1', w = nil},
+  ['SNB_Hall_2'] = {c = Color3.fromRGB(255,255,255), m = Enum.Material.SmoothPlastic, t = 0.0, s = true, x = 'snb_hall_2', w = nil},
   ['SNB_Hammer_1'] = {c = Color3.fromRGB(255,255,255), m = Enum.Material.SmoothPlastic, t = 0.0, s = true, x = 'snb_hammer_1', w = nil},
   ['SNB_Hammer_2'] = {c = Color3.fromRGB(255,255,255), m = Enum.Material.SmoothPlastic, t = 0.0, s = true, x = 'snb_hammer_2', w = nil},
   ['SNB_Isle'] = {c = Color3.fromRGB(255,255,255), m = Enum.Material.SmoothPlastic, t = 0.0, s = true, x = 'snb_isle', w = nil},
@@ -238,13 +239,8 @@ local MAT = {
   ['SN_CrystalBlue'] = {c = Color3.fromRGB(120,210,255), m = Enum.Material.Neon, t = 0.0, s = false, x = nil, w = nil},
   ['SN_CrystalRed'] = {c = Color3.fromRGB(255,80,70), m = Enum.Material.Neon, t = 0.0, s = false, x = nil, w = nil},
   ['SN_CrystalViolet'] = {c = Color3.fromRGB(186,120,255), m = Enum.Material.Neon, t = 0.0, s = false, x = nil, w = nil},
-  ['SN_Hills'] = {c = Color3.fromRGB(112,164,72), m = Enum.Material.SmoothPlastic, t = 0.0, s = true, x = 'sn_hills', w = nil},
   ['SN_Lava'] = {c = Color3.fromRGB(255,110,30), m = Enum.Material.Neon, t = 0.0, s = false, x = nil, w = nil},
   ['SN_LavaHot'] = {c = Color3.fromRGB(255,214,110), m = Enum.Material.Neon, t = 0.0, s = false, x = nil, w = nil},
-  ['SN_Mountain'] = {c = Color3.fromRGB(140,150,168), m = Enum.Material.SmoothPlastic, t = 0.0, s = true, x = 'sn_mountain', w = nil},
-  ['SN_PineFar'] = {c = Color3.fromRGB(58,108,66), m = Enum.Material.SmoothPlastic, t = 0.0, s = true, x = nil, w = nil},
-  ['SN_PineFarDark'] = {c = Color3.fromRGB(44,86,58), m = Enum.Material.SmoothPlastic, t = 0.0, s = true, x = nil, w = nil},
-  ['SN_PineFarLight'] = {c = Color3.fromRGB(86,136,78), m = Enum.Material.SmoothPlastic, t = 0.0, s = true, x = nil, w = nil},
   ['SN_Rune'] = {c = Color3.fromRGB(255,214,128), m = Enum.Material.Neon, t = 0.0, s = false, x = nil, w = nil},
   ['SN_RuneAmber'] = {c = Color3.fromRGB(255,176,70), m = Enum.Material.Neon, t = 0.0, s = false, x = nil, w = nil},
   ['SN_RuneBlue'] = {c = Color3.fromRGB(90,170,255), m = Enum.Material.Neon, t = 0.0, s = false, x = nil, w = nil},
@@ -260,6 +256,7 @@ local MAT = {
   ['WB_Ingot'] = {c = Color3.fromRGB(255,120,40), m = Enum.Material.Neon, t = 0.0, s = false, x = nil, w = nil},
   ['WB_LampGlow'] = {c = Color3.fromRGB(255,214,130), m = Enum.Material.Neon, t = 0.0, s = false, x = nil, w = nil},
   ['WB_Water'] = {c = Color3.fromRGB(76,144,180), m = Enum.Material.SmoothPlastic, t = 0.15, s = false, x = 'wb_water', w = nil},
+  ['WB_Window'] = {c = Color3.fromRGB(236,176,86), m = Enum.Material.SmoothPlastic, t = 0.0, s = false, x = 'wb_window', w = nil},
   ['Wood_Dark'] = {c = Color3.fromRGB(92,64,47), m = Enum.Material.Wood, t = 0.0, s = true, x = 'wood', w = nil},
   ['Wood_Light'] = {c = Color3.fromRGB(148,110,80), m = Enum.Material.Wood, t = 0.0, s = true, x = 'wood', w = nil},
   ['Wood_Plank'] = {c = Color3.fromRGB(126,92,66), m = Enum.Material.Wood, t = 0.0, s = true, x = 'wood', w = nil},
@@ -276,43 +273,24 @@ local function matOf(name)
   return best, s
 end
 -- FBX: indice -> arquivo
-local FBX = {[1]='LOBBY_SN_02_TERRAIN_c47183.fbx', [2]='LOBBY_SN_03_TOWN_c47183.fbx', [3]='LOBBY_SN_04_FORGE_c47183.fbx', [4]='LOBBY_SN_05_SERVICES_c47183.fbx', [5]='LOBBY_SN_06_PORTALS_c47183.fbx', [6]='LOBBY_SN_07_EXIT_c47183.fbx', [7]='LOBBY_SN_09_VEGETATION_c47183.fbx'}
+local FBX = {[1]='LOBBY_SN_02_TERRAIN_d9f901.fbx', [2]='LOBBY_SN_03_TOWN_d9f901.fbx', [3]='LOBBY_SN_04_FORGE_d9f901.fbx', [4]='LOBBY_SN_05_SERVICES_d9f901.fbx', [5]='LOBBY_SN_06_PORTALS_d9f901.fbx', [6]='LOBBY_SN_07_EXIT_d9f901.fbx', [7]='LOBBY_SN_09_VEGETATION_d9f901.fbx'}
 -- malhas exportadas: nome = {centro X,Y,Z, tamanho X,Y,Z, FBX, sombra, material, flags, modelo}
 --   flags: o = casca que oclui a camera, k = SKYLINE (persistente, RenderFidelity Performance)
 --   modelo: Model Atomic (streaming sem pecas pela metade)
 local MESH = {
-  ['WB_Bg_Forest__SN_PineFar']={505.936,65.895,316.882,802.355,128.235,655.164,1,false,'SN_PineFar','k',''},
-  ['WB_Bg_Forest_01__SN_PineFarDark']={505.962,59.305,316.836,805.927,124.964,657.698,1,false,'SN_PineFarDark','k',''},
-  ['WB_Bg_Forest_02__SN_PineFarLight']={505.907,71.009,316.934,798.187,129.971,652.207,1,false,'SN_PineFarLight','k',''},
-  ['WB_Bg_Relief_0__SN_Hills']={651.643,54.259,300.718,721.51,116.118,609.997,1,false,'SN_Hills','k',''},
-  ['WB_Bg_Relief_0_01__SN_Mountain']={1021.198,136.993,527.514,958.53,206.037,1065.523,1,false,'SN_Mountain','k',''},
-  ['WB_Bg_Relief_1__SN_Hills']={302.588,52.655,618.202,610.148,112.91,658.39,1,false,'SN_Hills','k',''},
-  ['WB_Bg_Relief_1_01__SN_Mountain']={527.101,146.213,1053.435,1062.813,201.392,895.439,1,false,'SN_Mountain','k',''},
-  ['WB_Bg_Relief_2__SN_Hills']={-309.841,53.061,606.393,627.594,113.722,635.763,1,false,'SN_Hills','k',''},
-  ['WB_Bg_Relief_2_01__SN_Mountain']={-526.862,144.274,1007.146,1062.549,218.847,983.434,1,false,'SN_Mountain','k',''},
-  ['WB_Bg_Relief_3__SN_Hills']={-866.908,53.163,310.856,1153.147,113.927,624.708,1,false,'SN_Hills','k',''},
-  ['WB_Bg_Relief_3_01__SN_Mountain']={-1008.42,142.758,526.762,980.381,217.988,1063.027,1,false,'SN_Mountain','k',''},
-  ['WB_Bg_Relief_4__SN_Hills']={-527.439,38.952,-255.926,478.276,85.504,518.199,1,false,'SN_Hills','k',''},
-  ['WB_Bg_Relief_4_01__SN_Mountain']={-1008.139,208.022,-530.489,985.438,339.272,1072.125,1,false,'SN_Mountain','k',''},
-  ['WB_Bg_Relief_5__SN_Hills']={-256.391,27.837,-510.121,518.058,63.274,440.131,1,false,'SN_Hills','k',''},
-  ['WB_Bg_Relief_5_01__SN_Mountain']={-529.722,262.733,-1006.825,1067.165,445.124,983.598,1,false,'SN_Mountain','k',''},
-  ['WB_Bg_Relief_6__SN_Hills']={258.795,44.211,-510.034,520.033,96.022,440.599,1,false,'SN_Hills','k',''},
-  ['WB_Bg_Relief_6_01__SN_Mountain']={528.256,259.906,-1007.829,1069.732,450.777,986.244,1,false,'SN_Mountain','k',''},
-  ['WB_Bg_Relief_7__SN_Hills']={650.827,51.44,-255.952,720.761,110.481,517.509,1,false,'SN_Hills','k',''},
-  ['WB_Bg_Relief_7_01__SN_Mountain']={1008.366,225.969,-528.024,979.109,385.916,1065.159,1,false,'SN_Mountain','k',''},
-  ['WB_Ter_Ground__SNB_Ground_1']={-167.466,6.961,8.7,258.468,0.343,128.0,1,true,'SNB_Ground_1','',''},
+  ['WB_Ter_Ground__SNB_Ground_1']={-157.591,6.886,8.755,238.718,0.173,108.11,1,true,'SNB_Ground_1','',''},
   ['WB_Ter_Ground_01__SNB_Ground_2_g15_15']={-65.0,6.871,64.2,130.0,0.653,132.24,1,true,'SNB_Ground_2','',''},
   ['WB_Ter_Ground_01__SNB_Ground_2_g15_16']={-15.786,6.968,-41.467,268.429,0.486,245.067,1,true,'SNB_Ground_2','',''},
   ['WB_Ter_Ground_01__SNB_Ground_2_g16_15']={22.816,7.013,74.04,214.102,0.776,151.92,1,true,'SNB_Ground_2','',''},
   ['WB_Ter_Ground_01__SNB_Ground_2_g16_16']={74.0,6.98,-23.324,152.0,0.481,208.781,1,true,'SNB_Ground_2','',''},
-  ['WB_Ter_Ground_02__SNB_Ground_3']={54.247,6.891,-3.441,60.833,0.061,102.068,1,true,'SNB_Ground_3','',''},
-  ['WB_Ter_Shore__SNB_Shore_g14_15']={-191.392,3.6,48.783,129.539,6.4,104.117,1,true,'SNB_Shore','',''},
-  ['WB_Ter_Shore__SNB_Shore_g14_16']={-195.352,3.6,0.013,216.116,6.4,258.746,1,true,'SNB_Shore','',''},
-  ['WB_Ter_Shore__SNB_Shore_g15_14']={0.427,3.6,142.232,189.194,6.4,31.1,1,true,'SNB_Shore','',''},
-  ['WB_Ter_Shore__SNB_Shore_g15_17']={-62.888,3.6,-149.377,125.776,6.4,43.895,1,true,'SNB_Shore','',''},
-  ['WB_Ter_Shore__SNB_Shore_g16_17']={65.07,3.6,-142.85,130.14,6.4,57.699,1,true,'SNB_Shore','',''},
-  ['WB_Ter_Shore__SNB_Shore_g17_16']={121.74,3.6,3.769,68.892,6.4,251.739,1,true,'SNB_Shore','',''},
-  ['WB_Ter_Water__WB_Water']={0.0,1.7,0.0,840.0,1.0,840.0,1,false,'WB_Water','',''},
+  ['WB_Ter_Ground_02__SNB_Ground_3']={54.247,6.917,-3.441,60.833,0.114,102.068,1,true,'SNB_Ground_3','',''},
+  ['WB_Ter_Shore__SNB_Shore_g14_15']={-185.807,-4.6,-0.03,197.025,22.8,258.919,1,true,'SNB_Shore','',''},
+  ['WB_Ter_Shore__SNB_Shore_g14_16']={-192.893,-4.6,-59.353,131.786,22.8,124.672,1,true,'SNB_Shore','',''},
+  ['WB_Ter_Shore__SNB_Shore_g15_14']={-0.197,-4.6,142.696,195.409,22.8,32.508,1,true,'SNB_Shore','',''},
+  ['WB_Ter_Shore__SNB_Shore_g15_17']={-62.888,-4.6,-149.321,125.776,22.8,46.204,1,true,'SNB_Shore','',''},
+  ['WB_Ter_Shore__SNB_Shore_g16_17']={64.804,-4.6,-143.427,129.608,22.8,58.854,1,true,'SNB_Shore','',''},
+  ['WB_Ter_Shore__SNB_Shore_g17_15']={141.053,-4.6,49.683,29.185,22.8,101.719,1,true,'SNB_Shore','',''},
+  ['WB_Ter_Shore__SNB_Shore_g17_16']={121.762,-4.6,1.526,68.936,22.8,255.621,1,true,'SNB_Shore','',''},
   ['WB_Prop_Ruins__SNB_Ruins_g14_16']={-134.002,10.95,-53.0,15.192,9.1,34.313,2,true,'SNB_Ruins','',''},
   ['WB_Prop_Ruins__SNB_Ruins_g15_15']={-75.724,15.034,69.342,102.598,17.632,118.859,2,true,'SNB_Ruins','',''},
   ['WB_Prop_Ruins__SNB_Ruins_g15_16']={-77.843,15.034,-39.886,120.82,17.633,229.447,2,true,'SNB_Ruins','',''},
@@ -324,214 +302,188 @@ local MESH = {
   ['WB_Prop_Ruins_02__SN_CrystalBlue']={-4.068,9.236,-78.676,269.341,6.133,147.074,2,false,'SN_CrystalBlue','',''},
   ['WB_Prop_Ruins_03__SN_Rune']={107.137,8.055,16.23,2.791,3.889,6.885,2,false,'SN_Rune','',''},
   ['WB_Town_Plaza__SNB_Plaza_1']={0.0,6.843,0.0,80.0,0.955,80.0,2,true,'SNB_Plaza_1','',''},
-  ['WB_Town_Plaza_01__SNB_Plaza_2']={0.0,6.735,0.0,82.8,1.07,82.8,2,true,'SNB_Plaza_2','',''},
-  ['WB_Town_Plaza_02__SN_Rune']={-1.706,7.08,0.0,73.954,0.18,77.6,2,false,'SN_Rune','',''},
+  ['WB_Town_Plaza_01__SNB_Plaza_2']={0.0,6.72,0.0,82.8,1.16,82.8,2,true,'SNB_Plaza_2','',''},
+  ['WB_Town_Plaza_02__SN_Rune']={-1.706,7.1,0.0,73.954,0.38,77.6,2,false,'SN_Rune','',''},
   ['WB_Frg_Anvil__SNB_Anvil_1']={-42.809,38.604,-111.784,79.613,63.933,58.496,3,true,'SNB_Anvil_1','','SN_Forja'},
   ['WB_Frg_Anvil_01__SNB_Anvil_2']={0.0,45.123,-118.0,69.399,49.245,39.8,3,true,'SNB_Anvil_2','','SN_Forja'},
-  ['WB_Frg_Anvil_02__SNB_Anvil_3']={0.0,24.361,-112.05,148.0,34.723,59.9,3,true,'SNB_Anvil_3','','SN_Forja'},
-  ['WB_Frg_Anvil_03__SNB_Anvil_4']={0.0,9.025,-117.0,148.6,0.35,50.6,3,true,'SNB_Anvil_4','','SN_Forja'},
-  ['WB_Frg_Anvil_04__SNB_Anvil_5']={0.0,11.025,-117.0,142.6,0.35,44.6,3,true,'SNB_Anvil_5','','SN_Forja'},
-  ['WB_Frg_Anvil_05__SNB_Anvil_6']={0.0,14.1,-110.0,142.0,14.2,58.0,3,true,'SNB_Anvil_6','','SN_Forja'},
-  ['WB_Frg_Anvil_06__SNB_Anvil_7']={3.0,45.962,-117.752,98.0,48.475,38.496,3,true,'SNB_Anvil_7','','SN_Forja'},
+  ['WB_Frg_Anvil_02__SNB_Anvil_3']={0.0,24.361,-112.2,148.6,34.723,60.2,3,true,'SNB_Anvil_3','','SN_Forja'},
+  ['WB_Frg_Anvil_03__SNB_Anvil_4']={0.0,11.055,-117.0,142.6,0.41,44.6,3,true,'SNB_Anvil_4','','SN_Forja'},
+  ['WB_Frg_Anvil_04__SNB_Anvil_5']={0.0,12.855,-117.0,136.6,0.41,38.6,3,true,'SNB_Anvil_5','','SN_Forja'},
+  ['WB_Frg_Anvil_05__SNB_Anvil_6']={0.0,38.22,-110.0,142.0,62.56,58.0,3,true,'SNB_Anvil_6','','SN_Forja'},
+  ['WB_Frg_Anvil_06__SNB_Anvil_7']={1.0,67.413,-116.502,84.0,5.574,35.996,3,true,'SNB_Anvil_7','','SN_Forja'},
   ['WB_Frg_Anvil_07__SNB_Anvil_8']={37.771,38.754,-113.225,84.571,64.079,55.547,3,true,'SNB_Anvil_8','','SN_Forja'},
   ['WB_Frg_Anvil_08__SN_CrystalAmber']={-63.326,14.979,-93.142,4.282,4.586,2.902,3,false,'SN_CrystalAmber','','SN_Forja'},
   ['WB_Frg_Anvil_09__SN_CrystalBlue']={57.837,15.399,-116.748,20.358,5.42,52.025,3,false,'SN_CrystalBlue','','SN_Forja'},
   ['WB_Frg_Anvil_10__SN_Lava']={-2.743,33.9,-113.247,29.67,53.2,43.845,3,false,'SN_Lava','','SN_Forja'},
-  ['WB_Frg_Anvil_11__SN_LavaHot']={19.503,38.6,-113.291,53.794,62.6,44.097,3,false,'SN_LavaHot','','SN_Forja'},
-  ['WB_Frg_Anvil_12__SN_Rune']={0.025,39.891,-118.0,70.17,27.318,34.6,3,false,'SN_Rune','','SN_Forja'},
-  ['WB_Frg_Anvil_13__WB_Fire']={0.0,17.45,-95.0,141.653,2.1,1.509,3,false,'WB_Fire','','SN_Forja'},
+  ['WB_Frg_Anvil_11__SN_LavaHot']={19.503,38.57,-113.291,53.794,62.66,44.097,3,false,'SN_LavaHot','','SN_Forja'},
+  ['WB_Frg_Anvil_12__SN_Rune']={0.025,39.891,-118.0,70.17,27.318,34.76,3,false,'SN_Rune','','SN_Forja'},
+  ['WB_Frg_Anvil_13__WB_Fire']={0.0,17.36,-95.0,141.653,2.28,1.509,3,false,'WB_Fire','','SN_Forja'},
   ['WB_Frg_Anvil_14__WB_FireCore']={0.0,17.1,-95.0,140.9,1.3,0.779,3,false,'WB_FireCore','','SN_Forja'},
-  ['WB_Frg_Hall__SNB_Hall']={0.0,27.705,-65.979,39.0,42.611,53.159,3,true,'SNB_Hall','','SN_Forja'},
-  ['WB_Frg_Hall_01__SN_CrystalAmber']={-2.4,10.793,-43.175,25.265,0.306,0.306,3,false,'SN_CrystalAmber','','SN_Forja'},
-  ['WB_Frg_Hall_02__SN_CrystalBlue']={0.8,10.793,-43.175,25.265,0.306,0.306,3,false,'SN_CrystalBlue','','SN_Forja'},
-  ['WB_Frg_Hall_03__SN_Lava']={1.958,7.375,-81.572,10.517,1.75,21.644,3,false,'SN_Lava','','SN_Forja'},
-  ['WB_Frg_Hall_04__SN_LavaHot']={2.163,7.655,-82.067,8.726,1.59,20.424,3,false,'SN_LavaHot','','SN_Forja'},
-  ['WB_Frg_Hall_05__WB_Fire']={0.0,10.3,-57.464,36.653,4.0,34.437,3,false,'WB_Fire','','SN_Forja'},
-  ['WB_Frg_Hall_06__WB_FireCore']={0.0,9.95,-57.353,35.9,3.2,33.485,3,false,'WB_FireCore','','SN_Forja'},
-  ['WB_Frg_Hall_07__WB_Ingot']={13.65,8.885,-60.4,1.9,3.73,7.6,3,false,'WB_Ingot','','SN_Forja'},
+  ['WB_Frg_Hall__SNB_Hall_1']={0.0,23.543,-60.45,49.2,34.406,42.1,3,true,'SNB_Hall_1','','SN_Forja'},
+  ['WB_Frg_Hall_01__SNB_Hall_2']={0.136,27.765,-78.863,36.688,42.491,27.393,3,true,'SNB_Hall_2','','SN_Forja'},
+  ['WB_Frg_Hall_02__SN_Lava']={0.0,20.755,-67.597,40.8,28.87,49.595,3,false,'SN_Lava','','SN_Forja'},
+  ['WB_Frg_Hall_03__SN_LavaHot']={2.163,7.565,-82.067,8.726,1.77,20.424,3,false,'SN_LavaHot','','SN_Forja'},
+  ['WB_Frg_Hall_04__SN_Rune']={-0.021,20.692,-61.169,31.258,9.456,16.175,3,false,'SN_Rune','','SN_Forja'},
+  ['WB_Frg_Hall_05__WB_Fire']={0.0,10.24,-57.464,47.653,4.12,34.437,3,false,'WB_Fire','','SN_Forja'},
+  ['WB_Frg_Hall_06__WB_FireCore']={0.0,9.92,-57.353,46.9,3.26,33.485,3,false,'WB_FireCore','','SN_Forja'},
+  ['WB_Frg_Hall_07__WB_Ingot']={13.65,8.735,-60.4,1.9,4.03,7.6,3,false,'WB_Ingot','','SN_Forja'},
   ['WB_Frg_Hall_08__WB_Water']={-12.6,9.175,-58.4,2.36,0.15,2.36,3,false,'WB_Water','','SN_Forja'},
   ['WB_Frg_Hammer__SNB_Hammer_1']={107.517,11.733,-65.69,49.905,28.121,49.395,3,true,'SNB_Hammer_1','','SN_Forja'},
-  ['WB_Frg_Hammer_01__SNB_Hammer_2']={94.72,57.103,-80.93,37.128,97.011,65.852,3,true,'SNB_Hammer_2','','SN_Forja'},
-  ['WB_Frg_Hammer_02__SN_CrystalAmber']={79.225,104.867,-111.221,3.557,3.74,3.74,3,false,'SN_CrystalAmber','','SN_Forja'},
-  ['WB_Frg_Hammer_03__SN_Lava']={104.597,7.06,-63.974,74.151,0.16,78.577,3,false,'SN_Lava','','SN_Forja'},
-  ['WB_Frg_Hammer_04__SN_Rune']={100.303,11.216,-74.461,13.031,4.268,8.889,3,false,'SN_Rune','','SN_Forja'},
-  ['WB_Rank_Tablets__SNB_Rank_1']={64.152,27.115,60.596,62.182,41.33,54.238,4,true,'SNB_Rank_1','','SN_Tabuas'},
-  ['WB_Rank_Tablets_01__SNB_Rank_2']={63.639,28.0,53.365,65.047,43.6,70.061,4,true,'SNB_Rank_2','','SN_Tabuas'},
+  ['WB_Frg_Hammer_01__SNB_Hammer_2']={125.037,57.103,-72.878,67.529,97.011,29.199,3,true,'SNB_Hammer_2','','SN_Forja'},
+  ['WB_Frg_Hammer_02__SN_CrystalAmber']={156.355,104.867,-81.039,3.557,3.74,3.74,3,false,'SN_CrystalAmber','','SN_Forja'},
+  ['WB_Frg_Hammer_03__SN_Lava']={104.597,7.06,-63.974,74.151,0.52,78.577,3,false,'SN_Lava','','SN_Forja'},
+  ['WB_Frg_Hammer_04__SN_Rune']={115.585,11.216,-69.489,5.639,4.268,14.731,3,false,'SN_Rune','','SN_Forja'},
+  ['WB_Rank_Tablets__SNB_Rank_1']={64.152,28.498,60.596,62.182,44.096,54.238,4,true,'SNB_Rank_1','','SN_Tabuas'},
+  ['WB_Rank_Tablets_01__SNB_Rank_2']={63.639,28.346,53.365,65.047,44.292,70.061,4,true,'SNB_Rank_2','','SN_Tabuas'},
   ['WB_Rank_Tablets_02__SN_CrystalBlue']={57.83,9.243,49.348,44.103,3.877,53.989,4,false,'SN_CrystalBlue','','SN_Tabuas'},
-  ['WB_Rank_Tablets_03__SN_Rune']={68.79,20.05,55.331,41.199,16.989,42.284,4,false,'SN_Rune','','SN_Tabuas'},
-  ['WB_Rank_Tablets_04__WB_Fire']={65.727,12.65,55.151,41.826,2.1,49.399,4,false,'WB_Fire','','SN_Tabuas'},
+  ['WB_Rank_Tablets_03__SN_Rune']={68.79,27.608,55.331,41.199,32.104,42.284,4,false,'SN_Rune','','SN_Tabuas'},
+  ['WB_Rank_Tablets_04__WB_Fire']={65.727,12.56,55.151,41.826,2.28,49.399,4,false,'WB_Fire','','SN_Tabuas'},
   ['WB_Rank_Tablets_05__WB_FireCore']={65.727,12.3,55.151,41.036,1.3,48.621,4,false,'WB_FireCore','','SN_Tabuas'},
-  ['WB_Shop_Inside__SNB_ShopIn']={75.164,14.975,-35.054,22.563,13.55,28.101,4,true,'SNB_ShopIn','','SN_Loja'},
+  ['WB_Shop_Inside__SNB_ShopIn']={75.164,14.915,-35.054,22.563,13.67,28.101,4,true,'SNB_ShopIn','','SN_Loja'},
   ['WB_Shop_Inside_01__SN_CrystalBlue']={72.913,12.605,-45.115,1.587,1.974,1.57,4,false,'SN_CrystalBlue','','SN_Loja'},
   ['WB_Shop_Inside_02__WB_LampGlow']={72.958,15.625,-34.02,5.023,7.35,9.86,4,false,'WB_LampGlow','','SN_Loja'},
-  ['WB_Shop_Temple__SNB_Shop_1']={71.961,19.411,-32.884,38.074,26.181,41.738,4,true,'SNB_Shop_1','','SN_Loja'},
-  ['WB_Shop_Temple_01__SNB_Shop_2']={71.5,19.751,-35.286,36.7,25.502,40.692,4,true,'SNB_Shop_2','','SN_Loja'},
-  ['WB_Shop_Temple_02__WB_Fire']={58.548,11.45,-27.301,9.127,2.1,17.737,4,false,'WB_Fire','','SN_Loja'},
-  ['WB_Shop_Temple_03__WB_FireCore']={58.548,11.1,-27.301,8.503,1.3,17.129,4,false,'WB_FireCore','','SN_Loja'},
-  ['PORTAL_DemonSlayer_Swirl__P_DS_Swirl']={-274.962,19.4,-3.733,5.66,15.0,13.908,5,false,'P_DS_Swirl','','PORTAL_DemonSlayer'},
-  ['PORTAL_DemonSlayer_Tsuba__Emblem_Cream']={-275.342,21.044,-4.101,15.711,25.028,22.886,5,false,'Emblem_Cream','','PORTAL_DemonSlayer'},
-  ['PORTAL_DemonSlayer_Tsuba__P_DS_Glow']={-274.107,19.4,-3.396,6.27,15.5,14.558,5,false,'P_DS_Glow','','PORTAL_DemonSlayer'},
-  ['PORTAL_DemonSlayer_Tsuba__P_DS_Gravel']={-273.064,9.316,-2.975,29.607,2.833,32.475,5,false,'P_DS_Gravel','','PORTAL_DemonSlayer'},
-  ['PORTAL_DemonSlayer_Tsuba__P_DS_Iron']={-273.758,21.533,-4.831,19.154,25.865,22.739,5,false,'P_DS_Iron','','PORTAL_DemonSlayer'},
-  ['PORTAL_DemonSlayer_Tsuba__P_DS_Lacquer']={-276.737,21.49,-4.794,13.195,25.78,22.667,5,false,'P_DS_Lacquer','','PORTAL_DemonSlayer'},
-  ['PORTAL_DemonSlayer_Tsuba__P_DS_Red']={-273.197,19.368,-5.012,17.281,19.463,20.846,5,false,'P_DS_Red','','PORTAL_DemonSlayer'},
-  ['PORTAL_DemonSlayer_Tsuba__Stone_DS_Rock']={-273.342,10.175,-3.087,30.676,4.65,33.908,5,false,'Stone_DS_Rock','','PORTAL_DemonSlayer'},
-  ['PORTAL_DemonSlayer_Wisteria__Bark_Dark']={-276.052,16.814,8.872,3.529,18.217,3.308,5,false,'Bark_Dark','','PORTAL_DemonSlayer'},
-  ['PORTAL_DemonSlayer_Wisteria__P_DS_GlicMid']={-277.256,24.64,8.443,11.243,6.72,6.09,5,false,'P_DS_GlicMid','','PORTAL_DemonSlayer'},
-  ['PORTAL_DemonSlayer_Wisteria__P_DS_GlicTip']={-276.657,21.688,9.173,9.595,4.771,4.302,5,false,'P_DS_GlicTip','','PORTAL_DemonSlayer'},
-  ['PORTAL_DemonSlayer_Wisteria__P_DS_Glicinia']={-276.704,25.157,8.522,10.283,5.986,6.522,5,false,'P_DS_Glicinia','','PORTAL_DemonSlayer'},
-  ['PORTAL_DragonBall_Frame__P_DB_Amber']={-250.94,19.042,51.113,24.278,20.277,12.619,5,false,'P_DB_Amber','','PORTAL_DragonBall'},
-  ['PORTAL_DragonBall_Frame__P_DB_Ball_Amber']={-254.491,22.915,45.048,9.415,24.77,17.182,5,false,'P_DB_Ball_Amber','','PORTAL_DragonBall'},
-  ['PORTAL_DragonBall_Frame__P_DB_Blue']={-252.039,11.402,47.451,23.948,8.905,22.223,5,false,'P_DB_Blue','','PORTAL_DragonBall'},
-  ['PORTAL_DragonBall_Frame__P_DB_Floor']={-252.229,8.94,48.45,29.019,0.32,26.282,5,false,'P_DB_Floor','','PORTAL_DragonBall'},
-  ['PORTAL_DragonBall_Frame__P_DB_Gold_Bright']={-253.083,19.41,46.192,20.557,22.221,18.839,5,false,'P_DB_Gold_Bright','','PORTAL_DragonBall'},
-  ['PORTAL_DragonBall_Frame__P_DB_Rim_Glow']={-252.88,19.4,49.912,14.459,15.566,7.122,5,false,'P_DB_Rim_Glow','','PORTAL_DragonBall'},
-  ['PORTAL_DragonBall_Frame__P_DB_Star_Red']={-254.32,21.826,45.725,8.47,23.722,18.613,5,false,'P_DB_Star_Red','','PORTAL_DragonBall'},
-  ['PORTAL_DragonBall_Frame__P_DB_White']={-252.229,20.817,48.45,28.818,27.734,26.081,5,false,'P_DB_White','','PORTAL_DragonBall'},
-  ['PORTAL_DragonBall_Swirl__P_DB_Swirl']={-253.083,19.4,50.369,13.703,15.0,6.102,5,false,'P_DB_Swirl','','PORTAL_DragonBall'},
-  ['PORTAL_Naruto_Bandana__Leaf_Pine']={-220.631,8.814,53.18,26.789,2.572,17.238,5,false,'Leaf_Pine','','PORTAL_Naruto'},
-  ['PORTAL_Naruto_Bandana__Metal_Dark']={-221.379,23.057,49.21,24.974,26.687,16.793,5,false,'Metal_Dark','','PORTAL_Naruto'},
-  ['PORTAL_Naruto_Bandana__P_Naruto_Cloth']={-221.837,23.517,49.145,26.069,21.005,16.764,5,false,'P_Naruto_Cloth','','PORTAL_Naruto'},
-  ['PORTAL_Naruto_Bandana__P_Naruto_Lacquer']={-221.836,22.08,49.338,25.453,26.84,16.139,5,false,'P_Naruto_Lacquer','','PORTAL_Naruto'},
-  ['PORTAL_Naruto_Bandana__P_Naruto_Paper']={-232.21,10.2,50.638,6.31,3.2,7.193,5,false,'P_Naruto_Paper','','PORTAL_Naruto'},
-  ['PORTAL_Naruto_Bandana__P_Naruto_Rim_Glow']={-221.959,19.4,50.574,14.735,15.5,5.771,5,false,'P_Naruto_Rim_Glow','','PORTAL_Naruto'},
-  ['PORTAL_Naruto_Bandana__P_Naruto_Steel']={-219.425,20.654,45.918,14.094,26.793,11.574,5,false,'P_Naruto_Steel','','PORTAL_Naruto'},
-  ['PORTAL_Naruto_Bandana__P_Naruto_Stone']={-221.379,19.475,52.172,18.687,22.15,9.559,5,false,'P_Naruto_Stone','','PORTAL_Naruto'},
-  ['PORTAL_Naruto_Bandana__Stone_Dark']={-222.182,17.45,49.964,33.221,19.5,30.352,5,false,'Stone_Dark','','PORTAL_Naruto'},
-  ['PORTAL_Naruto_Bandana__Stone_Light']={-222.182,8.641,49.964,33.016,0.761,30.147,5,false,'Stone_Light','','PORTAL_Naruto'},
-  ['PORTAL_Naruto_Swirl__P_Naruto_Swirl']={-221.635,19.4,51.508,14.095,15.0,5.212,5,false,'P_Naruto_Swirl','','PORTAL_Naruto'},
-  ['PORTAL_OnePiece_Pier__Emblem_Cream']={-250.211,25.174,-29.806,11.978,22.253,12.17,5,false,'Emblem_Cream','','PORTAL_OnePiece'},
-  ['PORTAL_OnePiece_Pier__Leaf_Palm']={-264.504,19.24,-29.827,8.162,1.955,8.214,5,false,'Leaf_Palm','','PORTAL_OnePiece'},
-  ['PORTAL_OnePiece_Pier__Metal_Dark']={-252.388,21.444,-24.809,30.404,26.208,25.186,5,false,'Metal_Dark','','PORTAL_OnePiece'},
-  ['PORTAL_OnePiece_Pier__P_OP_Glow']={-252.758,19.4,-25.638,14.362,15.5,6.761,5,false,'P_OP_Glow','','PORTAL_OnePiece'},
-  ['PORTAL_OnePiece_Pier__P_OP_Red']={-245.395,15.2,-35.156,2.666,2.7,1.553,5,false,'P_OP_Red','','PORTAL_OnePiece'},
-  ['PORTAL_OnePiece_Pier__Rope']={-252.391,19.578,-24.816,31.676,22.056,30.144,5,false,'Rope','','PORTAL_OnePiece'},
-  ['PORTAL_OnePiece_Pier__Wood_Dark']={-252.392,19.2,-24.826,31.561,24.0,30.122,5,false,'Wood_Dark','','PORTAL_OnePiece'},
-  ['PORTAL_OnePiece_Pier__Wood_Light']={-253.084,20.779,-26.369,24.01,23.444,11.342,5,false,'Wood_Light','','PORTAL_OnePiece'},
-  ['PORTAL_OnePiece_Pier__Wood_Plank']={-252.363,13.844,-24.46,29.66,11.912,28.739,5,false,'Wood_Plank','','PORTAL_OnePiece'},
-  ['PORTAL_OnePiece_Swirl__P_OP_Swirl']={-253.083,19.4,-26.369,13.703,15.0,6.102,5,false,'P_OP_Swirl','','PORTAL_OnePiece'},
-  ['PORTAL_OnePunchMan_Decal__P_OPM_ConcreteDark']={-221.362,19.669,-28.23,18.997,19.281,9.619,5,false,'P_OPM_ConcreteDark','','PORTAL_OnePunchMan'},
-  ['PORTAL_OnePunchMan_Decal__P_OPM_Glow']={-221.362,31.02,-28.219,19.273,0.46,9.95,5,false,'P_OPM_Glow','','PORTAL_OnePunchMan'},
-  ['PORTAL_OnePunchMan_Decal__P_OPM_Yellow']={-221.401,9.35,-28.261,21.252,0.8,11.027,5,false,'P_OPM_Yellow','','PORTAL_OnePunchMan'},
-  ['PORTAL_OnePunchMan_Swirl__P_OPM_Swirl']={-221.635,19.4,-27.508,14.095,15.0,5.212,5,false,'P_OPM_Swirl','','PORTAL_OnePunchMan'},
-  ['PORTAL_OnePunchMan_SwirlBack__P_OPM_Swirl']={-220.848,19.4,-29.628,14.095,15.0,5.13,5,false,'P_OPM_Swirl','','PORTAL_OnePunchMan'},
-  ['PORTAL_OnePunchMan_Wall__P_OPM_ConcreteDark']={-222.182,21.225,-25.964,33.469,26.85,30.361,5,false,'P_OPM_ConcreteDark','','PORTAL_OnePunchMan'},
-  ['PORTAL_OnePunchMan_Wall__P_OPM_ConcreteLight']={-222.182,19.975,-25.964,32.995,24.15,28.931,5,false,'P_OPM_ConcreteLight','','PORTAL_OnePunchMan'},
-  ['PORTAL_OnePunchMan_Wall__P_OPM_ConcreteMid']={-220.563,19.975,-27.529,18.126,22.95,16.031,5,false,'P_OPM_ConcreteMid','','PORTAL_OnePunchMan'},
-  ['PORTAL_OnePunchMan_Wall__P_OPM_Crater']={-221.256,19.539,-28.307,18.191,18.618,9.23,5,false,'P_OPM_Crater','','PORTAL_OnePunchMan'},
-  ['PORTAL_OnePunchMan_Wall__P_OPM_DarkGlassT']={-221.362,30.8,-28.219,19.205,1.3,9.762,5,false,'P_OPM_DarkGlassT','','PORTAL_OnePunchMan'},
-  ['PORTAL_OnePunchMan_Wall__P_OPM_Glow']={-221.189,19.4,-28.335,15.996,16.24,8.292,5,false,'P_OPM_Glow','','PORTAL_OnePunchMan'},
-  ['PORTAL_OnePunchMan_Wall__P_OPM_RebarSteel']={-220.624,18.7,-28.27,19.43,18.916,13.087,5,false,'P_OPM_RebarSteel','','PORTAL_OnePunchMan'},
-  ['PORTAL_OnePunchMan_Wall__P_OPM_Red']={-222.248,31.676,-25.806,3.603,3.872,1.884,5,false,'P_OPM_Red','','PORTAL_OnePunchMan'},
-  ['PORTAL_OnePunchMan_Wall__P_OPM_Yellow']={-222.182,21.125,-25.964,33.528,26.45,30.42,5,false,'P_OPM_Yellow','','PORTAL_OnePunchMan'},
-  ['PORTAL_ShadowGarden_Glow__P_SG_Core_Glow']={-270.587,23.695,26.283,12.019,21.506,24.037,5,false,'P_SG_Core_Glow','','PORTAL_ShadowGarden'},
-  ['PORTAL_ShadowGarden_Glow__P_SG_Lilac_Glow']={-273.653,23.275,27.213,7.078,26.631,17.057,5,false,'P_SG_Lilac_Glow','','PORTAL_ShadowGarden'},
-  ['PORTAL_ShadowGarden_Glow__P_SG_Moon_Glow']={-271.043,23.278,28.457,12.835,26.737,19.608,5,false,'P_SG_Moon_Glow','','PORTAL_ShadowGarden'},
-  ['PORTAL_ShadowGarden_MoonArch__P_SG_Deadwood']={-276.331,12.508,14.95,2.221,8.559,2.356,5,false,'P_SG_Deadwood','','PORTAL_ShadowGarden'},
-  ['PORTAL_ShadowGarden_MoonArch__P_SG_Marble']={-272.105,8.8,26.61,23.85,1.9,29.265,5,false,'P_SG_Marble','','PORTAL_ShadowGarden'},
-  ['PORTAL_ShadowGarden_MoonArch__P_SG_Obsidian']={-275.127,23.38,27.846,13.407,29.46,25.232,5,false,'P_SG_Obsidian','','PORTAL_ShadowGarden'},
-  ['PORTAL_ShadowGarden_MoonArch__P_SG_Rose']={-275.593,15.108,15.025,2.559,5.16,2.839,5,false,'P_SG_Rose','','PORTAL_ShadowGarden'},
-  ['PORTAL_ShadowGarden_MoonArch__P_SG_Silver']={-272.105,23.85,26.61,24.108,30.58,29.523,5,false,'P_SG_Silver','','PORTAL_ShadowGarden'},
-  ['PORTAL_ShadowGarden_MoonArch__P_SG_Violet']={-272.962,18.03,27.846,16.545,17.86,23.706,5,false,'P_SG_Violet','','PORTAL_ShadowGarden'},
-  ['PORTAL_ShadowGarden_MoonArch__P_Shadow_Glow']={-274.385,19.4,27.509,6.27,15.5,14.558,5,false,'P_Shadow_Glow','','PORTAL_ShadowGarden'},
-  ['PORTAL_ShadowGarden_Swirl__P_Shadow_Swirl']={-274.962,19.4,27.733,5.66,15.0,13.908,5,false,'P_Shadow_Swirl','','PORTAL_ShadowGarden'},
-  ['WB_Court_Dais__SNB_Dais_1']={-246.536,17.105,37.803,90.795,21.81,61.173,5,false,'SNB_Dais_1','',''},
-  ['WB_Court_Dais_01__SNB_Dais_2']={-248.305,17.105,-17.874,87.376,21.81,58.554,5,false,'SNB_Dais_2','',''},
-  ['WB_Court_Dais_02__SN_CrystalAmber']={-237.287,10.238,12.148,57.733,4.895,109.573,5,false,'SN_CrystalAmber','',''},
-  ['WB_Court_Dais_03__SN_CrystalBlue']={-257.873,10.159,-37.149,16.436,4.384,10.133,5,false,'SN_CrystalBlue','',''},
-  ['WB_Court_Dais_04__SN_CrystalRed']={-286.457,10.17,-7.871,7.297,4.693,17.728,5,false,'SN_CrystalRed','',''},
-  ['WB_Court_Dais_05__SN_CrystalViolet']={-286.449,10.177,32.457,9.517,4.621,18.29,5,false,'SN_CrystalViolet','',''},
-  ['WB_Court_Dais_06__SN_Rune']={-248.309,7.91,12.0,80.219,0.333,105.805,5,false,'SN_Rune','',''},
-  ['WB_Court_Dais_07__WB_Fire']={-243.555,12.61,11.97,51.769,2.1,67.177,5,false,'WB_Fire','',''},
-  ['WB_Court_Dais_08__WB_FireCore']={-243.553,12.26,12.0,50.997,1.3,66.461,5,false,'WB_FireCore','',''},
-  ['WB_Court_Isle__SNB_Isle']={-234.413,16.827,12.246,109.735,21.546,106.03,5,false,'SNB_Isle','',''},
-  ['WB_Court_Isle_01__SN_CrystalAmber']={-257.525,18.125,32.654,46.824,23.68,45.078,5,false,'SN_CrystalAmber','',''},
-  ['WB_Court_Isle_02__SN_CrystalBlue']={-275.037,9.431,9.77,13.209,6.452,79.241,5,false,'SN_CrystalBlue','',''},
-  ['WB_Court_Isle_03__SN_RuneAmber']={-232.02,14.395,23.35,8.289,14.81,20.713,5,false,'SN_RuneAmber','',''},
-  ['WB_Court_Isle_04__SN_RuneBlue']={-240.771,14.395,0.979,9.67,14.81,20.205,5,false,'SN_RuneBlue','',''},
-  ['WB_Court_Isle_05__SN_RuneOrange']={-240.771,14.395,23.021,9.67,14.81,20.205,5,false,'SN_RuneOrange','',''},
-  ['WB_Court_Isle_06__SN_RuneRed']={-247.192,14.395,7.621,20.471,14.81,8.985,5,false,'SN_RuneRed','',''},
-  ['WB_Court_Isle_07__SN_RuneViolet']={-247.192,14.395,16.379,20.471,14.81,8.985,5,false,'SN_RuneViolet','',''},
-  ['WB_Court_Isle_08__SN_RuneYellow']={-232.02,14.395,0.65,8.289,14.81,20.713,5,false,'SN_RuneYellow','',''},
-  ['WB_Exit_Avenue__SNB_Avenue_0']={-0.093,15.675,117.25,41.522,18.95,57.5,6,true,'SNB_Avenue','',''},
-  ['WB_Exit_Avenue__SNB_Avenue_1']={2.445,15.675,117.25,36.455,18.95,57.5,6,true,'SNB_Avenue','',''},
-  ['WB_Exit_Avenue_01__SN_Rune']={0.0,7.04,118.75,2.798,0.1,49.498,6,false,'SN_Rune','',''},
-  ['WB_Exit_Avenue_02__WB_Fire']={0.0,11.25,119.5,26.053,2.1,19.509,6,false,'WB_Fire','',''},
-  ['WB_Exit_Avenue_03__WB_FireCore']={0.0,10.9,119.5,25.3,1.3,18.779,6,false,'WB_FireCore','',''},
-  ['WB_Exit_Bridge__SNB_Bridge']={0.0,4.635,185.3,18.4,10.63,78.6,6,true,'SNB_Bridge','',''},
-  ['WB_Exit_Bridge_01__WB_Fire']={0.0,10.467,187.0,14.453,2.767,48.175,6,false,'WB_Fire','',''},
-  ['WB_Exit_Bridge_02__WB_FireCore']={0.0,10.117,187.0,13.7,1.967,47.446,6,false,'WB_FireCore','',''},
-  ['WB_Exit_Gate__SNB_Gate']={0.0,20.85,148.563,31.4,29.3,16.726,6,true,'SNB_Gate','','SN_Portao'},
-  ['WB_Exit_Gate_01__WB_Fire']={0.0,11.65,141.8,26.653,2.1,1.509,6,false,'WB_Fire','','SN_Portao'},
+  ['WB_Shop_Temple__SNB_Shop_1']={72.686,19.46,-33.894,39.281,26.28,42.377,4,true,'SNB_Shop_1','','SN_Loja'},
+  ['WB_Shop_Temple_01__SNB_Shop_2']={70.696,19.8,-39.129,34.23,25.6,38.383,4,true,'SNB_Shop_2','','SN_Loja'},
+  ['WB_Shop_Temple_02__SN_CrystalAmber']={77.807,19.442,-15.34,0.748,0.864,0.864,4,false,'SN_CrystalAmber','','SN_Loja'},
+  ['WB_Shop_Temple_03__WB_LampGlow']={61.121,19.52,-46.155,0.877,1.54,0.877,4,false,'WB_LampGlow','','SN_Loja'},
+  ['WB_Shop_Temple_04__WB_Window']={75.677,15.7,-35.288,22.033,1.9,30.672,4,false,'WB_Window','','SN_Loja'},
+  ['PORTAL_DemonSlayer_Swirl__P_DS_Swirl']={-257.539,16.264,-0.737,4.075,10.8,10.014,5,false,'P_DS_Swirl','','PORTAL_DemonSlayer'},
+  ['PORTAL_DemonSlayer_Tsuba__Emblem_Cream']={-257.812,17.448,-1.001,11.312,18.02,16.478,5,false,'Emblem_Cream','','PORTAL_DemonSlayer'},
+  ['PORTAL_DemonSlayer_Tsuba__P_DS_Glow']={-256.924,16.264,-0.493,4.514,11.16,10.481,5,false,'P_DS_Glow','','PORTAL_DemonSlayer'},
+  ['PORTAL_DemonSlayer_Tsuba__P_DS_Gravel']={-256.172,9.004,-0.19,21.317,2.039,23.382,5,false,'P_DS_Gravel','','PORTAL_DemonSlayer'},
+  ['PORTAL_DemonSlayer_Tsuba__P_DS_Iron']={-256.672,17.799,-1.526,13.791,18.623,16.372,5,false,'P_DS_Iron','','PORTAL_DemonSlayer'},
+  ['PORTAL_DemonSlayer_Tsuba__P_DS_Lacquer']={-258.817,17.769,-1.5,9.5,18.561,16.32,5,false,'P_DS_Lacquer','','PORTAL_DemonSlayer'},
+  ['PORTAL_DemonSlayer_Tsuba__P_DS_Red']={-256.268,16.241,-1.658,12.442,14.014,15.009,5,false,'P_DS_Red','','PORTAL_DemonSlayer'},
+  ['PORTAL_DemonSlayer_Tsuba__Stone_DS_Rock']={-256.373,9.622,-0.271,22.087,3.348,24.414,5,false,'Stone_DS_Rock','','PORTAL_DemonSlayer'},
+  ['PORTAL_DemonSlayer_Wisteria__Bark_Dark']={-258.324,14.402,8.339,2.541,13.116,2.382,5,false,'Bark_Dark','','PORTAL_DemonSlayer'},
+  ['PORTAL_DemonSlayer_Wisteria__P_DS_GlicMid']={-259.191,20.037,8.031,8.095,4.838,4.385,5,false,'P_DS_GlicMid','','PORTAL_DemonSlayer'},
+  ['PORTAL_DemonSlayer_Wisteria__P_DS_GlicTip']={-258.759,17.911,8.556,6.908,3.435,3.098,5,false,'P_DS_GlicTip','','PORTAL_DemonSlayer'},
+  ['PORTAL_DemonSlayer_Wisteria__P_DS_Glicinia']={-258.793,20.409,8.087,7.404,4.31,4.696,5,false,'P_DS_Glicinia','','PORTAL_DemonSlayer'},
+  ['PORTAL_DragonBall_Frame__P_DB_Amber']={-238.286,16.006,43.597,17.48,14.599,9.086,5,false,'P_DB_Amber','','PORTAL_DragonBall'},
+  ['PORTAL_DragonBall_Frame__P_DB_Ball_Amber']={-240.843,18.795,39.23,6.779,17.834,12.371,5,false,'P_DB_Ball_Amber','','PORTAL_DragonBall'},
+  ['PORTAL_DragonBall_Frame__P_DB_Blue']={-239.078,10.506,40.96,17.243,6.411,16.001,5,false,'P_DB_Blue','','PORTAL_DragonBall'},
+  ['PORTAL_DragonBall_Frame__P_DB_Floor']={-239.214,8.733,41.679,20.894,0.23,18.923,5,false,'P_DB_Floor','','PORTAL_DragonBall'},
+  ['PORTAL_DragonBall_Frame__P_DB_Gold_Bright']={-239.829,16.271,40.053,14.801,15.999,13.564,5,false,'P_DB_Gold_Bright','','PORTAL_DragonBall'},
+  ['PORTAL_DragonBall_Frame__P_DB_Rim_Glow']={-239.683,16.264,42.732,10.41,11.208,5.128,5,false,'P_DB_Rim_Glow','','PORTAL_DragonBall'},
+  ['PORTAL_DragonBall_Frame__P_DB_Star_Red']={-240.72,18.011,39.717,6.098,17.08,13.402,5,false,'P_DB_Star_Red','','PORTAL_DragonBall'},
+  ['PORTAL_DragonBall_Frame__P_DB_White']={-239.214,17.284,41.679,20.749,19.969,18.779,5,false,'P_DB_White','','PORTAL_DragonBall'},
+  ['PORTAL_DragonBall_Swirl__P_DB_Swirl']={-239.829,16.264,43.061,9.866,10.8,4.394,5,false,'P_DB_Swirl','','PORTAL_DragonBall'},
+  ['PORTAL_Naruto_Bandana__Leaf_Pine']={-213.648,8.642,45.183,19.288,1.852,12.411,5,false,'Leaf_Pine','','PORTAL_Naruto'},
+  ['PORTAL_Naruto_Bandana__Metal_Dark']={-214.187,18.897,42.324,17.981,19.214,12.091,5,true,'Metal_Dark','','PORTAL_Naruto'},
+  ['PORTAL_Naruto_Bandana__P_Naruto_Cloth']={-214.517,19.228,42.277,18.769,15.124,12.07,5,true,'P_Naruto_Cloth','','PORTAL_Naruto'},
+  ['PORTAL_Naruto_Bandana__P_Naruto_Lacquer']={-214.516,18.164,42.416,18.326,19.385,11.62,5,true,'P_Naruto_Lacquer','','PORTAL_Naruto'},
+  ['PORTAL_Naruto_Bandana__P_Naruto_Rim_Glow']={-214.605,16.264,43.307,10.609,11.16,4.155,5,false,'P_Naruto_Rim_Glow','','PORTAL_Naruto'},
+  ['PORTAL_Naruto_Bandana__P_Naruto_Steel']={-212.78,17.167,39.954,10.148,19.291,8.333,5,true,'P_Naruto_Steel','','PORTAL_Naruto'},
+  ['PORTAL_Naruto_Bandana__P_Naruto_Stone']={-214.187,16.288,44.457,13.455,16.008,6.883,5,true,'P_Naruto_Stone','','PORTAL_Naruto'},
+  ['PORTAL_Naruto_Bandana__Stone_Dark']={-214.765,14.86,42.867,23.919,14.04,21.853,5,true,'Stone_Dark','','PORTAL_Naruto'},
+  ['PORTAL_Naruto_Bandana__Stone_Light']={-214.765,9.518,42.867,23.771,2.549,21.706,5,true,'Stone_Light','','PORTAL_Naruto'},
+  ['PORTAL_Naruto_Swirl__P_Naruto_Swirl']={-214.371,16.264,43.979,10.149,10.8,3.752,5,false,'P_Naruto_Swirl','','PORTAL_Naruto'},
+  ['PORTAL_OnePiece_Pier__Emblem_Cream']={-237.761,20.421,-21.535,8.624,16.022,8.762,5,false,'Emblem_Cream','','PORTAL_OnePiece'},
+  ['PORTAL_OnePiece_Pier__Leaf_Palm']={-248.052,16.148,-21.551,5.877,1.408,5.914,5,false,'Leaf_Palm','','PORTAL_OnePiece'},
+  ['PORTAL_OnePiece_Pier__Metal_Dark']={-239.329,17.736,-17.937,21.891,18.87,18.134,5,false,'Metal_Dark','','PORTAL_OnePiece'},
+  ['PORTAL_OnePiece_Pier__P_OP_Glow']={-239.595,16.264,-18.534,10.341,11.16,4.868,5,false,'P_OP_Glow','','PORTAL_OnePiece'},
+  ['PORTAL_OnePiece_Pier__P_OP_Red']={-234.293,13.24,-25.387,1.919,1.944,1.118,5,false,'P_OP_Red','','PORTAL_OnePiece'},
+  ['PORTAL_OnePiece_Pier__Rope']={-239.331,16.392,-17.942,22.807,15.881,21.703,5,false,'Rope','','PORTAL_OnePiece'},
+  ['PORTAL_OnePiece_Pier__Wood_Dark']={-239.331,16.12,-17.95,22.724,17.28,21.688,5,false,'Wood_Dark','','PORTAL_OnePiece'},
+  ['PORTAL_OnePiece_Pier__Wood_Light']={-239.83,17.257,-19.061,17.287,16.88,8.166,5,false,'Wood_Light','','PORTAL_OnePiece'},
+  ['PORTAL_OnePiece_Pier__Wood_Plank']={-239.31,12.264,-17.686,21.355,8.577,20.692,5,false,'Wood_Plank','','PORTAL_OnePiece'},
+  ['PORTAL_OnePiece_Swirl__P_OP_Swirl']={-239.829,16.264,-19.061,9.866,10.8,4.394,5,false,'P_OP_Swirl','','PORTAL_OnePiece'},
+  ['PORTAL_OnePunchMan_Decal__P_OPM_ConcreteDark']={-214.174,16.457,-20.499,13.678,13.882,6.926,5,true,'P_OPM_ConcreteDark','','PORTAL_OnePunchMan'},
+  ['PORTAL_OnePunchMan_Decal__P_OPM_Glow']={-214.174,24.63,-20.491,13.877,0.331,7.164,5,false,'P_OPM_Glow','','PORTAL_OnePunchMan'},
+  ['PORTAL_OnePunchMan_Decal__P_OPM_Yellow']={-214.203,9.028,-20.521,15.301,0.576,7.939,5,false,'P_OPM_Yellow','','PORTAL_OnePunchMan'},
+  ['PORTAL_OnePunchMan_Swirl__P_OPM_Swirl']={-214.371,16.264,-19.979,10.149,10.8,3.752,5,false,'P_OPM_Swirl','','PORTAL_OnePunchMan'},
+  ['PORTAL_OnePunchMan_SwirlBack__P_OPM_Swirl']={-213.805,16.264,-21.506,10.149,10.8,3.694,5,false,'P_OPM_Swirl','','PORTAL_OnePunchMan'},
+  ['PORTAL_OnePunchMan_Wall__P_OPM_ConcreteDark']={-214.765,17.578,-18.867,24.097,19.332,21.86,5,true,'P_OPM_ConcreteDark','','PORTAL_OnePunchMan'},
+  ['PORTAL_OnePunchMan_Wall__P_OPM_ConcreteLight']={-214.765,16.678,-18.867,23.869,17.388,20.83,5,true,'P_OPM_ConcreteLight','','PORTAL_OnePunchMan'},
+  ['PORTAL_OnePunchMan_Wall__P_OPM_ConcreteMid']={-213.6,16.648,-19.994,13.051,16.584,11.542,5,true,'P_OPM_ConcreteMid','','PORTAL_OnePunchMan'},
+  ['PORTAL_OnePunchMan_Wall__P_OPM_Crater']={-214.098,16.364,-20.554,13.097,13.405,6.645,5,true,'P_OPM_Crater','','PORTAL_OnePunchMan'},
+  ['PORTAL_OnePunchMan_Wall__P_OPM_DarkGlassT']={-214.174,24.502,-20.491,13.828,0.996,7.028,5,false,'P_OPM_DarkGlassT','','PORTAL_OnePunchMan'},
+  ['PORTAL_OnePunchMan_Wall__P_OPM_Glow']={-214.05,16.264,-20.574,11.517,11.693,5.97,5,false,'P_OPM_Glow','','PORTAL_OnePunchMan'},
+  ['PORTAL_OnePunchMan_Wall__P_OPM_RebarSteel']={-213.643,15.76,-20.528,13.989,13.62,9.423,5,true,'P_OPM_RebarSteel','','PORTAL_OnePunchMan'},
+  ['PORTAL_OnePunchMan_Wall__P_OPM_Red']={-214.813,25.102,-18.753,2.594,2.788,1.357,5,false,'P_OPM_Red','','PORTAL_OnePunchMan'},
+  ['PORTAL_OnePunchMan_Wall__P_OPM_Yellow']={-214.765,17.506,-18.867,24.14,19.044,21.903,5,true,'P_OPM_Yellow','','PORTAL_OnePunchMan'},
+  ['PORTAL_ShadowGarden_Glow__P_SG_Core_Glow']={-254.389,19.356,23.692,8.654,15.484,17.307,5,false,'P_SG_Core_Glow','','PORTAL_ShadowGarden'},
+  ['PORTAL_ShadowGarden_Glow__P_SG_Lilac_Glow']={-256.596,19.054,24.362,5.096,19.174,12.281,5,false,'P_SG_Lilac_Glow','','PORTAL_ShadowGarden'},
+  ['PORTAL_ShadowGarden_Glow__P_SG_Moon_Glow']={-254.717,19.057,25.257,9.241,19.251,14.118,5,false,'P_SG_Moon_Glow','','PORTAL_ShadowGarden'},
+  ['PORTAL_ShadowGarden_MoonArch__P_SG_Deadwood']={-258.525,11.302,15.532,1.599,6.162,1.696,5,false,'P_SG_Deadwood','','PORTAL_ShadowGarden'},
+  ['PORTAL_ShadowGarden_MoonArch__P_SG_Marble']={-255.482,8.632,23.927,17.172,1.368,21.071,5,false,'P_SG_Marble','','PORTAL_ShadowGarden'},
+  ['PORTAL_ShadowGarden_MoonArch__P_SG_Obsidian']={-257.658,19.13,24.818,9.653,21.212,18.167,5,false,'P_SG_Obsidian','','PORTAL_ShadowGarden'},
+  ['PORTAL_ShadowGarden_MoonArch__P_SG_Rose']={-257.993,13.174,15.586,1.843,3.715,2.044,5,false,'P_SG_Rose','','PORTAL_ShadowGarden'},
+  ['PORTAL_ShadowGarden_MoonArch__P_SG_Silver']={-255.482,19.468,23.927,17.358,22.018,21.257,5,false,'P_SG_Silver','','PORTAL_ShadowGarden'},
+  ['PORTAL_ShadowGarden_MoonArch__P_SG_Violet']={-256.099,15.278,24.818,11.912,12.859,17.069,5,false,'P_SG_Violet','','PORTAL_ShadowGarden'},
+  ['PORTAL_ShadowGarden_MoonArch__P_Shadow_Glow']={-257.124,16.264,24.575,4.514,11.16,10.481,5,false,'P_Shadow_Glow','','PORTAL_ShadowGarden'},
+  ['PORTAL_ShadowGarden_Swirl__P_Shadow_Swirl']={-257.539,16.264,24.737,4.075,10.8,10.014,5,false,'P_Shadow_Swirl','','PORTAL_ShadowGarden'},
+  ['WB_Court_Dais__SNB_Dais']={-234.577,17.105,12.011,79.285,21.81,97.521,5,false,'SNB_Dais','',''},
+  ['WB_Court_Dais_01__SN_CrystalAmber']={-227.325,10.308,12.976,49.376,5.137,87.927,5,false,'SN_CrystalAmber','',''},
+  ['WB_Court_Dais_02__SN_CrystalBlue']={-244.113,9.948,-27.123,15.911,4.284,10.227,5,false,'SN_CrystalBlue','',''},
+  ['WB_Court_Dais_03__SN_CrystalRed']={-265.935,10.459,-4.201,8.318,5.082,17.871,5,false,'SN_CrystalRed','',''},
+  ['WB_Court_Dais_04__SN_CrystalViolet']={-265.31,10.287,28.021,9.622,4.83,16.312,5,false,'SN_CrystalViolet','',''},
+  ['WB_Court_Dais_05__SN_Rune']={-235.96,7.91,12.0,63.943,0.333,84.664,5,false,'SN_Rune','',''},
+  ['WB_Court_Dais_06__WB_Fire']={-232.461,12.52,11.97,42.451,2.28,55.652,5,false,'WB_Fire','',''},
+  ['WB_Court_Dais_07__WB_FireCore']={-232.459,12.26,12.0,41.678,1.3,54.936,5,false,'WB_FireCore','',''},
+  ['WB_Court_Isle__SNB_Isle']={-225.413,16.202,12.246,91.735,20.296,90.039,5,false,'SNB_Isle','',''},
+  ['WB_Court_Isle_01__SN_CrystalAmber']={-244.647,18.125,29.875,41.069,23.68,39.521,5,false,'SN_CrystalAmber','',''},
+  ['WB_Court_Isle_02__SN_CrystalBlue']={-259.282,9.431,9.77,13.209,6.452,68.127,5,false,'SN_CrystalBlue','',''},
+  ['WB_Court_Isle_03__SN_RuneAmber']={-222.875,14.395,21.001,6.579,14.81,16.015,5,false,'SN_RuneAmber','',''},
+  ['WB_Court_Isle_04__SN_RuneBlue']={-229.754,14.395,3.263,7.636,14.81,15.637,5,false,'SN_RuneBlue','',''},
+  ['WB_Court_Isle_05__SN_RuneOrange']={-229.754,14.395,20.737,7.636,14.81,15.637,5,false,'SN_RuneOrange','',''},
+  ['WB_Court_Isle_06__SN_RuneRed']={-234.875,14.395,8.558,15.836,14.81,7.112,5,false,'SN_RuneRed','',''},
+  ['WB_Court_Isle_07__SN_RuneViolet']={-234.875,14.395,15.442,15.836,14.81,7.112,5,false,'SN_RuneViolet','',''},
+  ['WB_Court_Isle_08__SN_RuneYellow']={-222.875,14.395,2.999,6.579,14.81,16.015,5,false,'SN_RuneYellow','',''},
+  ['WB_Exit_Avenue__SNB_Avenue_0']={-0.093,15.726,117.28,41.522,19.052,57.56,6,true,'SNB_Avenue','',''},
+  ['WB_Exit_Avenue__SNB_Avenue_1']={2.445,15.726,117.22,36.455,19.052,57.56,6,true,'SNB_Avenue','',''},
+  ['WB_Exit_Avenue_01__WB_Fire']={0.0,11.16,119.5,26.053,2.28,19.509,6,false,'WB_Fire','',''},
+  ['WB_Exit_Avenue_02__WB_FireCore']={0.0,10.9,119.5,25.3,1.3,18.779,6,false,'WB_FireCore','',''},
+  ['WB_Exit_Bridge__SNB_Bridge_1']={0.0,-3.132,204.5,17.2,25.497,40.2,6,true,'SNB_Bridge_1','',''},
+  ['WB_Exit_Bridge_01__SNB_Bridge_2']={0.0,-2.965,166.5,18.4,25.83,41.0,6,true,'SNB_Bridge_2','',''},
+  ['WB_Exit_Bridge_02__WB_Fire']={0.0,10.377,187.0,14.453,2.947,48.175,6,false,'WB_Fire','',''},
+  ['WB_Exit_Bridge_03__WB_FireCore']={0.0,10.117,187.0,13.7,1.967,47.446,6,false,'WB_FireCore','',''},
+  ['WB_Exit_Gate__SNB_Gate']={0.0,20.82,148.563,31.4,29.36,16.726,6,true,'SNB_Gate','','SN_Portao'},
+  ['WB_Exit_Gate_01__WB_Fire']={0.0,11.56,141.8,26.653,2.28,1.509,6,false,'WB_Fire','','SN_Portao'},
   ['WB_Exit_Gate_02__WB_FireCore']={0.0,11.3,141.8,25.9,1.3,0.779,6,false,'WB_FireCore','','SN_Portao'},
-  ['WB_Exit_IsleBridge__SNB_IsleBridge']={-159.0,12.275,12.0,52.0,23.95,21.385,6,true,'SNB_IsleBridge','',''},
-  ['WB_Exit_IsleBridge_01__WB_Fire']={-156.036,18.075,12.0,41.581,16.15,18.853,6,false,'WB_Fire','',''},
+  ['WB_Exit_IsleBridge__SNB_IsleBridge']={-159.0,5.649,12.0,52.0,41.097,21.385,6,true,'SNB_IsleBridge','',''},
+  ['WB_Exit_IsleBridge_01__WB_Fire']={-156.036,17.985,12.0,41.581,16.33,18.853,6,false,'WB_Fire','',''},
   ['WB_Exit_IsleBridge_02__WB_FireCore']={-156.03,17.725,12.0,40.84,15.35,18.1,6,false,'WB_FireCore','',''},
   ['WB_Exit_Spawn__SNB_Spawn']={0.0,13.03,66.0,46.078,13.66,45.04,6,true,'SNB_Spawn','',''},
   ['WB_Exit_Spawn_01__SN_Rune']={-0.019,14.658,60.891,38.886,9.215,15.096,6,false,'SN_Rune','',''},
-  ['WB_Exit_Spawn_02__WB_Fire']={0.0,14.75,66.0,31.453,2.1,29.509,6,false,'WB_Fire','',''},
+  ['WB_Exit_Spawn_02__WB_Fire']={0.0,14.66,66.0,31.453,2.28,29.509,6,false,'WB_Fire','',''},
   ['WB_Exit_Spawn_03__WB_FireCore']={0.0,14.4,66.0,30.7,1.3,28.779,6,false,'WB_FireCore','',''},
-  ['WB_Veg_Tufts__SNB_Tufts_g14_15']={-211.136,7.822,13.146,164.981,2.151,96.375,7,true,'SNB_Tufts','',''},
-  ['WB_Veg_Tufts__SNB_Tufts_g14_16']={-180.798,7.878,-48.982,104.071,2.4,98.345,7,true,'SNB_Tufts','',''},
-  ['WB_Veg_Tufts__SNB_Tufts_g15_15']={-30.276,7.883,72.845,194.139,2.687,146.1,7,true,'SNB_Tufts','',''},
-  ['WB_Veg_Tufts__SNB_Tufts_g15_16']={-75.227,7.964,-63.917,101.974,2.457,128.242,7,true,'SNB_Tufts','',''},
-  ['WB_Veg_Tufts__SNB_Tufts_g15_17']={-44.119,7.876,-144.358,88.437,2.257,33.118,7,true,'SNB_Tufts','',''},
-  ['WB_Veg_Tufts__SNB_Tufts_g16_15']={71.093,7.937,63.064,113.854,2.53,126.565,7,true,'SNB_Tufts','',''},
-  ['WB_Veg_Tufts__SNB_Tufts_g16_16']={76.084,7.884,-63.526,103.99,2.394,127.464,7,true,'SNB_Tufts','',''},
-  ['WB_Veg_Tufts__SNB_Tufts_g16_17']={50.939,7.829,-146.827,102.063,2.17,28.842,7,true,'SNB_Tufts','',''},
-  ['WB_Veg_Tufts__SNB_Tufts_g17_15']={135.55,7.92,35.644,14.909,2.341,69.755,7,true,'SNB_Tufts','',''},
-  ['WB_Veg_Tufts__SNB_Tufts_g17_16']={137.238,7.902,-49.189,18.33,2.304,97.53,7,true,'SNB_Tufts','',''},
+  ['WB_Veg_Tufts__SNB_Tufts_g14_15']={-166.303,7.824,30.605,75.315,2.148,61.457,7,true,'SNB_Tufts','',''},
+  ['WB_Veg_Tufts__SNB_Tufts_g14_16']={-198.796,7.878,-23.606,140.067,2.4,149.097,7,true,'SNB_Tufts','',''},
+  ['WB_Veg_Tufts__SNB_Tufts_g15_15']={-24.742,7.82,72.895,190.204,2.593,146.001,7,true,'SNB_Tufts','',''},
+  ['WB_Veg_Tufts__SNB_Tufts_g15_16']={-12.11,7.957,-80.525,228.161,2.442,161.445,7,true,'SNB_Tufts','',''},
+  ['WB_Veg_Tufts__SNB_Tufts_g15_17']={-45.468,7.87,-144.013,91.064,2.267,32.427,7,true,'SNB_Tufts','',''},
+  ['WB_Veg_Tufts__SNB_Tufts_g16_15']={71.638,7.941,63.064,112.334,2.521,126.565,7,true,'SNB_Tufts','',''},
+  ['WB_Veg_Tufts__SNB_Tufts_g16_16']={76.084,7.871,-63.526,103.99,2.367,127.464,7,true,'SNB_Tufts','',''},
+  ['WB_Veg_Tufts__SNB_Tufts_g17_15']={135.953,7.841,35.644,14.101,2.182,69.755,7,true,'SNB_Tufts','',''},
+  ['WB_Veg_Tufts__SNB_Tufts_g17_16']={137.238,7.836,-49.189,18.33,2.172,97.53,7,true,'SNB_Tufts','',''},
   ['WB_Veg_ancient__SNB_Veg_ancient']={-96.197,31.253,-113.286,43.481,51.292,41.429,7,true,'SNB_Veg_ancient','',''},
-  ['WB_Veg_bush1__SNB_Veg_bush1_g14_16']={-135.327,8.653,-52.239,15.633,3.258,23.01,7,true,'SNB_Veg_bush1','',''},
-  ['WB_Veg_bush1__SNB_Veg_bush1_g15_15']={-75.282,8.646,35.92,106.396,3.281,73.445,7,true,'SNB_Veg_bush1','',''},
-  ['WB_Veg_bush1__SNB_Veg_bush1_g15_16']={-57.864,8.715,-32.901,293.38,3.447,210.194,7,true,'SNB_Veg_bush1','',''},
-  ['WB_Veg_bush1__SNB_Veg_bush1_g16_15']={48.642,8.638,88.006,50.969,3.254,104.892,7,true,'SNB_Veg_bush1','',''},
-  ['WB_Veg_bush1__SNB_Veg_bush1_g16_16']={79.265,8.599,-34.081,106.138,3.206,53.064,7,true,'SNB_Veg_bush1','',''},
-  ['WB_Veg_bushF__SNB_Veg_bushF_g14_15']={-191.5,8.472,10.737,15.161,2.663,19.818,7,true,'SNB_Veg_bushF','',''},
-  ['WB_Veg_bushF__SNB_Veg_bushF_g15_15']={-52.19,8.918,61.4,105.555,3.655,116.776,7,true,'SNB_Veg_bushF','',''},
-  ['WB_Veg_bushF__SNB_Veg_bushF_g15_16']={-70.776,8.959,-53.948,85.547,3.675,99.184,7,true,'SNB_Veg_bushF','',''},
-  ['WB_Veg_bushF__SNB_Veg_bushF_g15_17']={-59.462,8.977,-146.727,24.57,3.639,9.045,7,true,'SNB_Veg_bushF','',''},
-  ['WB_Veg_bushF__SNB_Veg_bushF_g16_14']={32.441,9.025,133.483,48.825,3.681,12.812,7,true,'SNB_Veg_bushF','',''},
-  ['WB_Veg_bushF__SNB_Veg_bushF_g16_15']={56.011,8.975,76.812,142.372,3.781,120.763,7,true,'SNB_Veg_bushF','',''},
-  ['WB_Veg_bushF__SNB_Veg_bushF_g16_16']={72.265,8.878,-69.395,112.759,3.591,118.331,7,true,'SNB_Veg_bushF','',''},
-  ['WB_Veg_bushF__SNB_Veg_bushF_g16_17']={57.131,8.869,-138.923,88.661,3.576,22.667,7,true,'SNB_Veg_bushF','',''},
-  ['WB_Veg_bushF__SNB_Veg_bushF_g17_16']={130.658,8.729,-29.156,6.387,3.21,53.547,7,true,'SNB_Veg_bushF','',''},
-  ['WB_Veg_oak1__SNB_Veg_oak1_g14_15']={-199.192,17.591,24.559,17.641,22.84,18.529,7,true,'SNB_Veg_oak1','',''},
-  ['WB_Veg_oak1__SNB_Veg_oak1_g14_16']={-168.979,18.753,-11.857,84.266,25.299,20.468,7,true,'SNB_Veg_oak1','',''},
-  ['WB_Veg_oak1__SNB_Veg_oak1_g15_14']={-54.368,19.781,134.505,23.872,27.09,18.06,7,true,'SNB_Veg_oak1','',''},
-  ['WB_Veg_oak1__SNB_Veg_oak1_g15_15']={-61.186,19.954,72.755,108.407,27.842,115.23,7,true,'SNB_Veg_oak1','',''},
-  ['WB_Veg_oak1__SNB_Veg_oak1_g15_16']={-90.455,19.951,-47.818,77.951,27.834,85.802,7,true,'SNB_Veg_oak1','',''},
-  ['WB_Veg_oak1__SNB_Veg_oak1_g16_15']={75.373,19.613,62.909,108.533,27.119,128.207,7,true,'SNB_Veg_oak1','',''},
-  ['WB_Veg_oak1__SNB_Veg_oak1_g16_16']={73.47,17.662,-55.333,112.144,22.99,113.562,7,true,'SNB_Veg_oak1','',''},
-  ['WB_Veg_oak1__SNB_Veg_oak1_g16_17']={18.529,19.831,-153.748,35.505,27.581,25.428,7,true,'SNB_Veg_oak1','',''},
-  ['WB_Veg_oak1__SNB_Veg_oak1_g17_15']={135.684,19.334,42.35,18.826,26.528,89.035,7,true,'SNB_Veg_oak1','',''},
-  ['WB_Veg_oak1__SNB_Veg_oak1_g17_16']={137.36,19.334,-55.159,22.676,26.528,113.539,7,true,'SNB_Veg_oak1','',''},
-  ['WB_Veg_oak2__SNB_Veg_oak2_g15_15']={-74.685,17.225,70.298,108.861,22.346,117.625,7,true,'SNB_Veg_oak2','',''},
-  ['WB_Veg_oak2__SNB_Veg_oak2_g15_16']={-80.013,15.505,-14.158,32.772,18.661,19.258,7,true,'SNB_Veg_oak2','',''},
-  ['WB_Veg_oak2__SNB_Veg_oak2_g16_15']={50.554,17.4,51.432,165.85,22.722,160.5,7,true,'SNB_Veg_oak2','',''},
-  ['WB_Veg_oak2__SNB_Veg_oak2_g16_16']={82.893,17.273,-33.567,93.344,22.448,71.625,7,true,'SNB_Veg_oak2','',''},
-  ['WB_Veg_oak3__SNB_Veg_oak3_g15_15']={-60.705,20.712,67.087,54.801,29.265,81.017,7,true,'SNB_Veg_oak3','',''},
-  ['WB_Veg_oak3__SNB_Veg_oak3_g15_16']={-68.62,20.624,-52.692,22.888,29.08,20.829,7,true,'SNB_Veg_oak3','',''},
-  ['WB_Veg_oak3__SNB_Veg_oak3_g16_15']={57.879,20.036,100.114,20.693,27.843,20.485,7,true,'SNB_Veg_oak3','',''},
-  ['WB_Veg_oak3__SNB_Veg_oak3_g16_16']={43.864,20.972,-66.929,50.493,29.812,24.047,7,true,'SNB_Veg_oak3','',''},
-  ['WB_Veg_oakG__SNB_Veg_oakG_g15_15']={-63.89,18.301,99.961,82.218,24.433,61.611,7,true,'SNB_Veg_oakG','',''},
-  ['WB_Veg_oakG__SNB_Veg_oakG_g15_16']={-71.193,15.815,-37.208,54.877,19.152,69.693,7,true,'SNB_Veg_oakG','',''},
-  ['WB_Veg_oakG__SNB_Veg_oakG_g16_15']={94.927,15.527,86.651,13.584,18.541,13.61,7,true,'SNB_Veg_oakG','',''},
-  ['WB_Veg_oakG__SNB_Veg_oakG_g16_16']={97.946,17.755,-18.295,17.686,23.274,18.3,7,true,'SNB_Veg_oakG','',''},
-  ['WB_Veg_pine1__SNB_Veg_pine1_g14_15']={-113.508,22.906,69.814,188.862,33.501,147.847,7,true,'SNB_Veg_pine1','',''},
-  ['WB_Veg_pine1__SNB_Veg_pine1_g14_16']={-158.149,22.153,-47.116,63.201,31.934,99.812,7,true,'SNB_Veg_pine1','',''},
-  ['WB_Veg_pine1__SNB_Veg_pine1_g15_15']={-116.141,20.849,57.494,28.165,29.222,51.401,7,true,'SNB_Veg_pine1','',''},
-  ['WB_Veg_pine1__SNB_Veg_pine1_g15_16']={-110.028,21.581,-81.708,38.022,30.745,27.376,7,true,'SNB_Veg_pine1','',''},
-  ['WB_Veg_pine1__SNB_Veg_pine1_g15_17']={-39.423,23.218,-151.87,67.871,34.15,18.982,7,true,'SNB_Veg_pine1','',''},
-  ['WB_Veg_pine1__SNB_Veg_pine1_g16_14']={22.493,24.177,134.557,30.607,36.145,19.837,7,true,'SNB_Veg_pine1','',''},
-  ['WB_Veg_pine1__SNB_Veg_pine1_g16_17']={73.86,23.046,-147.759,69.141,33.791,36.575,7,true,'SNB_Veg_pine1','',''},
-  ['WB_Veg_pine1__SNB_Veg_pine1_g17_15']={81.339,23.234,15.585,137.825,34.182,231.404,7,true,'SNB_Veg_pine1','',''},
-  ['WB_Veg_pine2__SNB_Veg_pine2_g14_15']={-169.704,19.22,39.777,89.965,26.087,32.91,7,true,'SNB_Veg_pine2','',''},
-  ['WB_Veg_pine2__SNB_Veg_pine2_g14_16']={-141.287,19.671,-36.615,16.368,27.035,42.069,7,true,'SNB_Veg_pine2','',''},
-  ['WB_Veg_pine2__SNB_Veg_pine2_g15_15']={-37.661,20.174,86.66,186.525,28.093,85.9,7,true,'SNB_Veg_pine2','',''},
-  ['WB_Veg_pine2__SNB_Veg_pine2_g15_16']={-74.324,20.203,-52.57,111.066,28.154,70.619,7,true,'SNB_Veg_pine2','',''},
-  ['WB_Veg_pine2__SNB_Veg_pine2_g16_15']={86.819,18.266,80.963,76.668,24.084,97.295,7,true,'SNB_Veg_pine2','',''},
-  ['WB_Veg_pine2__SNB_Veg_pine2_g16_16']={85.777,20.619,-75.791,91.691,29.027,101.034,7,true,'SNB_Veg_pine2','',''},
+  ['WB_Veg_bush1__SNB_Veg_bush1_g16_15']={-6.018,8.546,64.802,116.767,3.064,131.623,7,true,'SNB_Veg_bush1','',''},
+  ['WB_Veg_bush1__SNB_Veg_bush1_g16_16']={-15.786,8.629,1.143,244.329,3.24,255.507,7,true,'SNB_Veg_bush1','',''},
+  ['WB_Veg_bushF__SNB_Veg_bushF_g14_15']={-186.54,8.674,12.213,5.442,3.132,20.542,7,true,'SNB_Veg_bushF','',''},
+  ['WB_Veg_bushF__SNB_Veg_bushF_g15_15']={-30.343,8.951,71.978,115.412,3.716,136.842,7,true,'SNB_Veg_bushF','',''},
+  ['WB_Veg_bushF__SNB_Veg_bushF_g15_16']={-84.594,8.912,-61.59,94.024,3.567,52.092,7,true,'SNB_Veg_bushF','',''},
+  ['WB_Veg_bushF__SNB_Veg_bushF_g16_15']={69.781,8.639,33.63,109.514,2.984,24.099,7,true,'SNB_Veg_bushF','',''},
+  ['WB_Veg_bushF__SNB_Veg_bushF_g16_16']={69.879,8.916,-80.326,53.273,3.636,134.754,7,true,'SNB_Veg_bushF','',''},
+  ['WB_Veg_oak1__SNB_Veg_oak1_g14_16']={-139.271,19.029,-22.281,19.448,25.883,20.732,7,true,'SNB_Veg_oak1','',''},
+  ['WB_Veg_oak1__SNB_Veg_oak1_g15_15']={-81.489,19.171,65.126,91.528,26.184,107.433,7,true,'SNB_Veg_oak1','',''},
+  ['WB_Veg_oak1__SNB_Veg_oak1_g15_16']={-44.998,17.609,-47.97,33.766,22.879,65.671,7,true,'SNB_Veg_oak1','',''},
+  ['WB_Veg_oak1__SNB_Veg_oak1_g16_15']={81.033,18.901,71.607,48.739,25.612,110.547,7,true,'SNB_Veg_oak1','',''},
+  ['WB_Veg_oak1__SNB_Veg_oak1_g16_16']={84.362,19.458,-90.531,20.262,26.791,21.235,7,true,'SNB_Veg_oak1','',''},
+  ['WB_Veg_oak1__SNB_Veg_oak1_g16_17']={29.104,16.982,-153.357,55.78,21.551,22.618,7,true,'SNB_Veg_oak1','',''},
+  ['WB_Veg_oak2__SNB_Veg_oak2_g15_15']={-72.176,16.379,50.381,15.213,20.533,40.344,7,true,'SNB_Veg_oak2','',''},
+  ['WB_Veg_oak2__SNB_Veg_oak2_g15_16']={-76.309,17.519,-48.727,44.754,22.976,47.474,7,true,'SNB_Veg_oak2','',''},
+  ['WB_Veg_oak2__SNB_Veg_oak2_g16_15']={57.563,16.459,90.044,85.889,20.705,20.815,7,true,'SNB_Veg_oak2','',''},
+  ['WB_Veg_oak2__SNB_Veg_oak2_g16_16']={81.122,15.979,-38.555,83.311,19.675,56.147,7,true,'SNB_Veg_oak2','',''},
+  ['WB_Veg_oak3__SNB_Veg_oak3_g15_15']={-69.117,19.67,31.068,39.103,27.073,62.436,7,true,'SNB_Veg_oak3','',''},
+  ['WB_Veg_oak3__SNB_Veg_oak3_g15_16']={-51.211,19.305,-9.775,18.381,26.305,21.047,7,true,'SNB_Veg_oak3','',''},
+  ['WB_Veg_oak3__SNB_Veg_oak3_g16_15']={89.441,20.906,74.257,50.58,29.674,80.512,7,true,'SNB_Veg_oak3','',''},
+  ['WB_Veg_oakG__SNB_Veg_oakG_g14_15']={-197.719,16.035,24.511,14.802,19.621,15.087,7,true,'SNB_Veg_oakG','',''},
+  ['WB_Veg_oakG__SNB_Veg_oakG_g15_15']={-44.569,18.022,105.306,52.384,23.841,57.974,7,true,'SNB_Veg_oakG','',''},
+  ['WB_Veg_oakG__SNB_Veg_oakG_g16_15']={77.764,16.845,11.455,15.763,21.341,15.976,7,true,'SNB_Veg_oakG','',''},
+  ['WB_Veg_pine1__SNB_Veg_pine1_g16_14']={5.008,24.226,71.571,277.063,36.246,145.698,7,true,'SNB_Veg_pine1','',''},
+  ['WB_Veg_pine1__SNB_Veg_pine1_g17_16']={95.104,22.921,-43.201,110.593,33.531,88.07,7,true,'SNB_Veg_pine1','',''},
+  ['WB_Veg_pine2__SNB_Veg_pine2']={21.797,19.687,12.231,255.094,27.068,237.635,7,true,'SNB_Veg_pine2','',''},
 }
 
 -- CONFERENCIA DA IMPORTACAO: nomes normalizados, achadas/esperadas por FBX, faltando, eixo > 2048, duplicadas
@@ -727,51 +679,51 @@ local COL = {
   {'COL_Anvil_004','Block',{0.0,17.0,-118.0},{-1.0,0.0,-0.0},{-0.0,0.0,1.0},{94.0,44.0,8.0},false},
   {'COL_Anvil_005','Block',{0.0,32.0,-118.0},{-1.0,0.0,-0.0},{-0.0,0.0,1.0},{60.0,28.0,23.0},false},
   {'COL_Anvil_006','Block',{3.0,56.25,-118.0},{-1.0,0.0,-0.0},{-0.0,0.0,1.0},{98.0,38.0,26.5},false},
-  {'COL_Court_001','Block',{-221.635,6.9,51.467},{0.94,0.0,-0.342},{-0.342,0.0,-0.94},{26.1,15.0,1.4},false},
-  {'COL_Court_002','Block',{-221.635,6.9,51.467},{0.174,0.0,-0.985},{-0.985,0.0,-0.174},{26.1,15.0,1.4},false},
-  {'COL_Court_003','Block',{-221.635,6.9,51.467},{-0.766,0.0,-0.643},{-0.643,0.0,0.766},{26.1,15.0,1.4},false},
-  {'COL_Court_005','Block',{-221.635,7.2,51.467},{0.174,0.0,-0.985},{-0.985,0.0,-0.174},{23.316,13.4,2.0},false},
-  {'COL_Court_006','Block',{-221.635,7.2,51.467},{-0.766,0.0,-0.643},{-0.643,0.0,0.766},{23.316,13.4,2.0},false},
-  {'COL_Court_007','Block',{-228.679,17.16,65.737},{0.94,0.0,-0.342},{-0.342,0.0,-0.94},{2.8,2.8,18.0},true},
-  {'COL_Court_008','Block',{-207.066,17.16,57.87},{0.94,0.0,-0.342},{-0.342,0.0,-0.94},{2.8,2.8,18.0},true},
-  {'COL_Court_009','Block',{-253.083,6.9,50.369},{0.914,0.0,0.407},{0.407,0.0,-0.914},{26.1,15.0,1.4},false},
-  {'COL_Court_010','Block',{-253.083,6.9,50.369},{0.809,0.0,-0.588},{-0.588,0.0,-0.809},{26.1,15.0,1.4},false},
-  {'COL_Court_011','Block',{-253.083,6.9,50.369},{-0.105,0.0,-0.995},{-0.995,0.0,0.105},{26.1,15.0,1.4},false},
-  {'COL_Court_012','Block',{-253.083,7.2,50.369},{0.914,0.0,0.407},{0.407,0.0,-0.914},{23.316,13.4,2.0},false},
-  {'COL_Court_013','Block',{-253.083,7.2,50.369},{0.809,0.0,-0.588},{-0.588,0.0,-0.809},{23.316,13.4,2.0},false},
-  {'COL_Court_014','Block',{-253.083,7.2,50.369},{-0.105,0.0,-0.995},{-0.995,0.0,0.105},{23.316,13.4,2.0},false},
-  {'COL_Court_015','Block',{-268.063,17.16,55.74},{0.914,0.0,0.407},{0.407,0.0,-0.914},{2.8,2.8,18.0},true},
-  {'COL_Court_016','Block',{-247.051,17.16,65.095},{0.914,0.0,0.407},{0.407,0.0,-0.914},{2.8,2.8,18.0},true},
-  {'COL_Court_017','Block',{-274.942,6.9,27.733},{0.375,0.0,0.927},{0.927,0.0,-0.375},{26.1,15.0,1.4},false},
-  {'COL_Court_018','Block',{-274.942,6.9,27.733},{0.99,0.0,0.139},{0.139,0.0,-0.99},{26.1,15.0,1.4},false},
-  {'COL_Court_019','Block',{-274.942,6.9,27.733},{0.616,0.0,-0.788},{-0.788,0.0,-0.616},{26.1,15.0,1.4},false},
-  {'COL_Court_020','Block',{-274.942,7.2,27.733},{0.375,0.0,0.927},{0.927,0.0,-0.375},{23.316,13.4,2.0},false},
-  {'COL_Court_021','Block',{-274.942,7.2,27.733},{0.99,0.0,0.139},{0.139,0.0,-0.99},{23.316,13.4,2.0},false},
-  {'COL_Court_022','Block',{-274.942,7.2,27.733},{0.616,0.0,-0.788},{-0.788,0.0,-0.616},{23.316,13.4,2.0},false},
-  {'COL_Court_023','Block',{-289.449,17.16,21.192},{0.375,0.0,0.927},{0.927,0.0,-0.375},{2.8,2.8,18.0},true},
-  {'COL_Court_024','Block',{-280.833,17.16,42.517},{0.375,0.0,0.927},{0.927,0.0,-0.375},{2.8,2.8,18.0},true},
-  {'COL_Court_025','Block',{-274.942,6.9,-3.733},{-0.375,0.0,0.927},{0.927,0.0,0.375},{26.1,15.0,1.4},false},
-  {'COL_Court_026','Block',{-274.942,6.9,-3.733},{0.616,0.0,0.788},{0.788,0.0,-0.616},{26.1,15.0,1.4},false},
-  {'COL_Court_027','Block',{-274.942,6.9,-3.733},{0.99,0.0,-0.139},{-0.139,0.0,-0.99},{26.1,15.0,1.4},false},
-  {'COL_Court_028','Block',{-274.942,7.2,-3.733},{-0.375,0.0,0.927},{0.927,0.0,0.375},{23.316,13.4,2.0},false},
-  {'COL_Court_029','Block',{-274.942,7.2,-3.733},{0.616,0.0,0.788},{0.788,0.0,-0.616},{23.316,13.4,2.0},false},
-  {'COL_Court_030','Block',{-274.942,7.2,-3.733},{0.99,0.0,-0.139},{-0.139,0.0,-0.99},{23.316,13.4,2.0},false},
-  {'COL_Court_031','Block',{-280.833,17.16,-18.517},{-0.375,0.0,0.927},{0.927,0.0,0.375},{2.8,2.8,18.0},true},
-  {'COL_Court_032','Block',{-289.449,17.16,2.808},{-0.375,0.0,0.927},{0.927,0.0,0.375},{2.8,2.8,18.0},true},
-  {'COL_Court_033','Block',{-253.083,6.9,-26.369},{-0.914,0.0,0.407},{0.407,0.0,0.914},{26.1,15.0,1.4},false},
-  {'COL_Court_034','Block',{-253.083,6.9,-26.369},{-0.105,0.0,0.995},{0.995,0.0,0.105},{26.1,15.0,1.4},false},
-  {'COL_Court_035','Block',{-253.083,6.9,-26.369},{0.809,0.0,0.588},{0.588,0.0,-0.809},{26.1,15.0,1.4},false},
-  {'COL_Court_037','Block',{-253.083,7.2,-26.369},{-0.105,0.0,0.995},{0.995,0.0,0.105},{23.316,13.4,2.0},false},
-  {'COL_Court_038','Block',{-253.083,7.2,-26.369},{0.809,0.0,0.588},{0.588,0.0,-0.809},{23.316,13.4,2.0},false},
-  {'COL_Court_039','Block',{-247.051,17.16,-41.095},{-0.914,0.0,0.407},{0.407,0.0,0.914},{2.8,2.8,18.0},true},
-  {'COL_Court_040','Block',{-268.063,17.16,-31.74},{-0.914,0.0,0.407},{0.407,0.0,0.914},{2.8,2.8,18.0},true},
-  {'COL_Court_041','Block',{-221.635,6.9,-27.467},{-0.94,0.0,-0.342},{-0.342,0.0,0.94},{26.1,15.0,1.4},false},
-  {'COL_Court_042','Block',{-221.635,6.9,-27.467},{-0.766,0.0,0.643},{0.643,0.0,0.766},{26.1,15.0,1.4},false},
-  {'COL_Court_043','Block',{-221.635,6.9,-27.467},{0.174,0.0,0.985},{0.985,0.0,-0.174},{26.1,15.0,1.4},false},
-  {'COL_Court_045','Block',{-221.635,7.2,-27.467},{-0.766,0.0,0.643},{0.643,0.0,0.766},{23.316,13.4,2.0},false},
-  {'COL_Court_046','Block',{-221.635,7.2,-27.467},{0.174,0.0,0.985},{0.985,0.0,-0.174},{23.316,13.4,2.0},false},
-  {'COL_Court_047','Block',{-207.066,17.16,-33.87},{-0.94,0.0,-0.342},{-0.342,0.0,0.94},{2.8,2.8,18.0},true},
-  {'COL_Court_048','Block',{-228.679,17.16,-41.737},{-0.94,0.0,-0.342},{-0.342,0.0,0.94},{2.8,2.8,18.0},true},
+  {'COL_Court_001','Block',{-214.371,6.9,43.95},{0.94,0.0,-0.342},{-0.342,0.0,-0.94},{20.184,11.6,1.4},false},
+  {'COL_Court_002','Block',{-214.371,6.9,43.95},{0.174,0.0,-0.985},{-0.985,0.0,-0.174},{20.184,11.6,1.4},false},
+  {'COL_Court_003','Block',{-214.371,6.9,43.95},{-0.766,0.0,-0.643},{-0.643,0.0,0.766},{20.184,11.6,1.4},false},
+  {'COL_Court_005','Block',{-214.371,7.2,43.95},{0.174,0.0,-0.985},{-0.985,0.0,-0.174},{17.922,10.3,2.0},false},
+  {'COL_Court_006','Block',{-214.371,7.2,43.95},{-0.766,0.0,-0.643},{-0.643,0.0,0.766},{17.922,10.3,2.0},false},
+  {'COL_Court_007','Block',{-222.476,17.16,55.306},{0.94,0.0,-0.342},{-0.342,0.0,-0.94},{2.8,2.8,18.0},true},
+  {'COL_Court_008','Block',{-200.863,17.16,47.44},{0.94,0.0,-0.342},{-0.342,0.0,-0.94},{2.8,2.8,18.0},true},
+  {'COL_Court_009','Block',{-239.829,6.9,43.061},{0.914,0.0,0.407},{0.407,0.0,-0.914},{20.184,11.6,1.4},false},
+  {'COL_Court_010','Block',{-239.829,6.9,43.061},{0.809,0.0,-0.588},{-0.588,0.0,-0.809},{20.184,11.6,1.4},false},
+  {'COL_Court_011','Block',{-239.829,6.9,43.061},{-0.105,0.0,-0.995},{-0.995,0.0,0.105},{20.184,11.6,1.4},false},
+  {'COL_Court_012','Block',{-239.829,7.2,43.061},{0.914,0.0,0.407},{0.407,0.0,-0.914},{17.922,10.3,2.0},false},
+  {'COL_Court_013','Block',{-239.829,7.2,43.061},{0.809,0.0,-0.588},{-0.588,0.0,-0.809},{17.922,10.3,2.0},false},
+  {'COL_Court_014','Block',{-239.829,7.2,43.061},{-0.105,0.0,-0.995},{-0.995,0.0,0.105},{17.922,10.3,2.0},false},
+  {'COL_Court_015','Block',{-253.548,17.16,45.6},{0.914,0.0,0.407},{0.407,0.0,-0.914},{2.8,2.8,18.0},true},
+  {'COL_Court_016','Block',{-232.536,17.16,54.955},{0.914,0.0,0.407},{0.407,0.0,-0.914},{2.8,2.8,18.0},true},
+  {'COL_Court_017','Block',{-257.524,6.9,24.737},{0.375,0.0,0.927},{0.927,0.0,-0.375},{20.184,11.6,1.4},false},
+  {'COL_Court_018','Block',{-257.524,6.9,24.737},{0.99,0.0,0.139},{0.139,0.0,-0.99},{20.184,11.6,1.4},false},
+  {'COL_Court_019','Block',{-257.524,6.9,24.737},{0.616,0.0,-0.788},{-0.788,0.0,-0.616},{20.184,11.6,1.4},false},
+  {'COL_Court_020','Block',{-257.524,7.2,24.737},{0.375,0.0,0.927},{0.927,0.0,-0.375},{17.922,10.3,2.0},false},
+  {'COL_Court_021','Block',{-257.524,7.2,24.737},{0.99,0.0,0.139},{0.139,0.0,-0.99},{17.922,10.3,2.0},false},
+  {'COL_Court_022','Block',{-257.524,7.2,24.737},{0.616,0.0,-0.788},{-0.788,0.0,-0.616},{17.922,10.3,2.0},false},
+  {'COL_Court_023','Block',{-269.157,17.16,17.033},{0.375,0.0,0.927},{0.927,0.0,-0.375},{2.8,2.8,18.0},true},
+  {'COL_Court_024','Block',{-260.541,17.16,38.359},{0.375,0.0,0.927},{0.927,0.0,-0.375},{2.8,2.8,18.0},true},
+  {'COL_Court_025','Block',{-257.524,6.9,-0.737},{-0.375,0.0,0.927},{0.927,0.0,0.375},{20.184,11.6,1.4},false},
+  {'COL_Court_026','Block',{-257.524,6.9,-0.737},{0.616,0.0,0.788},{0.788,0.0,-0.616},{20.184,11.6,1.4},false},
+  {'COL_Court_027','Block',{-257.524,6.9,-0.737},{0.99,0.0,-0.139},{-0.139,0.0,-0.99},{20.184,11.6,1.4},false},
+  {'COL_Court_028','Block',{-257.524,7.2,-0.737},{-0.375,0.0,0.927},{0.927,0.0,0.375},{17.922,10.3,2.0},false},
+  {'COL_Court_029','Block',{-257.524,7.2,-0.737},{0.616,0.0,0.788},{0.788,0.0,-0.616},{17.922,10.3,2.0},false},
+  {'COL_Court_030','Block',{-257.524,7.2,-0.737},{0.99,0.0,-0.139},{-0.139,0.0,-0.99},{17.922,10.3,2.0},false},
+  {'COL_Court_031','Block',{-260.541,17.16,-14.359},{-0.375,0.0,0.927},{0.927,0.0,0.375},{2.8,2.8,18.0},true},
+  {'COL_Court_032','Block',{-269.157,17.16,6.967},{-0.375,0.0,0.927},{0.927,0.0,0.375},{2.8,2.8,18.0},true},
+  {'COL_Court_033','Block',{-239.829,6.9,-19.061},{-0.914,0.0,0.407},{0.407,0.0,0.914},{20.184,11.6,1.4},false},
+  {'COL_Court_034','Block',{-239.829,6.9,-19.061},{-0.105,0.0,0.995},{0.995,0.0,0.105},{20.184,11.6,1.4},false},
+  {'COL_Court_035','Block',{-239.829,6.9,-19.061},{0.809,0.0,0.588},{0.588,0.0,-0.809},{20.184,11.6,1.4},false},
+  {'COL_Court_037','Block',{-239.829,7.2,-19.061},{-0.105,0.0,0.995},{0.995,0.0,0.105},{17.922,10.3,2.0},false},
+  {'COL_Court_038','Block',{-239.829,7.2,-19.061},{0.809,0.0,0.588},{0.588,0.0,-0.809},{17.922,10.3,2.0},false},
+  {'COL_Court_039','Block',{-232.536,17.16,-30.955},{-0.914,0.0,0.407},{0.407,0.0,0.914},{2.8,2.8,18.0},true},
+  {'COL_Court_040','Block',{-253.548,17.16,-21.6},{-0.914,0.0,0.407},{0.407,0.0,0.914},{2.8,2.8,18.0},true},
+  {'COL_Court_041','Block',{-214.371,6.9,-19.95},{-0.94,0.0,-0.342},{-0.342,0.0,0.94},{20.184,11.6,1.4},false},
+  {'COL_Court_042','Block',{-214.371,6.9,-19.95},{-0.766,0.0,0.643},{0.643,0.0,0.766},{20.184,11.6,1.4},false},
+  {'COL_Court_043','Block',{-214.371,6.9,-19.95},{0.174,0.0,0.985},{0.985,0.0,-0.174},{20.184,11.6,1.4},false},
+  {'COL_Court_045','Block',{-214.371,7.2,-19.95},{-0.766,0.0,0.643},{0.643,0.0,0.766},{17.922,10.3,2.0},false},
+  {'COL_Court_046','Block',{-214.371,7.2,-19.95},{0.174,0.0,0.985},{0.985,0.0,-0.174},{17.922,10.3,2.0},false},
+  {'COL_Court_047','Block',{-200.863,17.16,-23.44},{-0.94,0.0,-0.342},{-0.342,0.0,0.94},{2.8,2.8,18.0},true},
+  {'COL_Court_048','Block',{-222.476,17.16,-31.306},{-0.94,0.0,-0.342},{-0.342,0.0,0.94},{2.8,2.8,18.0},true},
   {'COL_Exit_001','Block',{0.0,8.13,51.15},{1.0,0.0,0.0},{0.0,0.0,-1.0},{28.0,1.7,3.86},false},
   {'COL_Exit_002','Block',{0.0,7.83,49.45},{1.0,0.0,0.0},{0.0,0.0,-1.0},{28.0,1.7,3.26},false},
   {'COL_Exit_003','Block',{0.0,7.53,47.75},{1.0,0.0,0.0},{0.0,0.0,-1.0},{28.0,1.7,2.66},false},
@@ -854,35 +806,34 @@ local COL = {
   {'COL_Forge_034','Block',{14.205,20.0,-70.876},{-1.0,0.0,-0.0},{-0.0,0.0,1.0},{4.2,4.2,26.0},false},
   {'COL_Forge_035','Block',{0.0,7.9,-74.0},{-1.0,0.0,-0.0},{-0.0,0.0,1.0},{9.0,9.0,1.8},false},
   {'COL_Forge_036','Block',{7.5,9.3,-73.0},{-0.866,0.0,0.5},{0.5,0.0,0.866},{4.0,7.6,4.6},false},
-  {'COL_Forge_037','Block',{12.5,9.1,-44.5},{-1.0,0.0,-0.0},{-0.0,0.0,1.0},{3.4,5.0,4.2},false},
+  {'COL_Forge_037','Block',{12.6,11.1,-44.2},{-1.0,0.0,-0.0},{-0.0,0.0,1.0},{16.4,2.8,8.2},false},
   {'COL_Forge_038','Block',{-7.5,9.3,-73.0},{-0.866,0.0,-0.5},{-0.5,0.0,0.866},{4.0,7.6,4.6},false},
-  {'COL_Forge_039','Block',{-12.5,9.1,-44.5},{-1.0,0.0,-0.0},{-0.0,0.0,1.0},{3.4,5.0,4.2},false},
-  {'COL_Hammer_001','Block',{106.0,14.0,-66.0},{-0.829,0.0,0.559},{0.559,0.0,0.829},{30.6,18.0,14.0},false},
-  {'COL_Isle_001','Block',{-236.0,7.9,12.0},{1.0,0.0,0.0},{0.0,0.0,-1.0},{8.4,8.4,2.0},false},
-  {'COL_Isle_002','Block',{-236.0,18.25,12.0},{1.0,0.0,0.0},{0.0,0.0,-1.0},{4.0,4.0,19.0},false},
-  {'COL_Isle_003','Block',{-236.0,6.5,-6.0},{1.0,0.0,0.0},{0.0,0.0,-1.0},{26.533,4.0,1.0},false},
-  {'COL_Isle_004','Block',{-236.0,6.5,-2.0},{1.0,0.0,0.0},{0.0,0.0,-1.0},{35.777,4.0,1.0},false},
-  {'COL_Isle_005','Block',{-236.0,6.5,2.0},{1.0,0.0,0.0},{0.0,0.0,-1.0},{41.569,4.0,1.0},false},
-  {'COL_Isle_006','Block',{-236.0,6.5,6.0},{1.0,0.0,0.0},{0.0,0.0,-1.0},{45.255,4.0,1.0},false},
-  {'COL_Isle_007','Block',{-236.0,6.5,12.0},{1.0,0.0,0.0},{0.0,0.0,-1.0},{48.0,8.0,1.0},false},
-  {'COL_Isle_009','Block',{-236.0,6.5,18.0},{1.0,0.0,0.0},{0.0,0.0,-1.0},{45.255,4.0,1.0},false},
-  {'COL_Isle_010','Block',{-236.0,6.5,22.0},{1.0,0.0,0.0},{0.0,0.0,-1.0},{41.569,4.0,1.0},false},
-  {'COL_Isle_011','Block',{-236.0,6.5,26.0},{1.0,0.0,0.0},{0.0,0.0,-1.0},{35.777,4.0,1.0},false},
-  {'COL_Isle_012','Block',{-236.0,6.5,30.0},{1.0,0.0,0.0},{0.0,0.0,-1.0},{26.533,4.0,1.0},false},
-  {'COL_Isle_013','Block',{-182.0,13.0,4.4},{-0.0,0.0,1.0},{1.0,0.0,0.0},{3.4,3.4,12.0},false},
-  {'COL_Isle_014','Block',{-182.0,13.0,19.6},{-0.0,0.0,1.0},{1.0,0.0,0.0},{3.4,3.4,12.0},false},
-  {'COL_Isle_015','Block',{-237.675,14.8,59.971},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.0,3.0,17.0},false},
-  {'COL_Isle_016','Block',{-270.528,14.8,45.344},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.0,3.0,17.0},false},
-  {'COL_Isle_017','Block',{-284.0,14.8,12.0},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.0,3.0,17.0},false},
-  {'COL_Isle_018','Block',{-270.528,14.8,-21.344},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.0,3.0,17.0},false},
-  {'COL_Isle_019','Block',{-237.675,14.8,-35.971},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.0,3.0,17.0},false},
-  {'COL_Isle_020','Block',{-159.0,8.3,18.55},{1.0,0.0,0.0},{0.0,0.0,-1.0},{34.0,0.9,2.6},false},
-  {'COL_Isle_021','Block',{-159.0,8.3,5.45},{1.0,0.0,0.0},{0.0,0.0,-1.0},{34.0,0.9,2.6},false},
-  {'COL_Isle_022','Block',{-159.0,6.2,12.0},{1.0,0.0,0.0},{0.0,0.0,-1.0},{34.0,14.0,1.6},false},
-  {'COL_Isle_029','Block',{-138.0,6.5,12.0},{1.0,0.0,0.0},{0.0,0.0,-1.0},{10.0,15.2,1.0},false},
-  {'COL_Isle_030','Block',{-180.0,6.5,12.0},{1.0,0.0,0.0},{0.0,0.0,-1.0},{10.0,15.2,1.0},false},
-  {'COL_Isle_031','Block',{-136.0,14.0,3.4},{-0.0,0.0,1.0},{1.0,0.0,0.0},{3.2,3.2,14.0},false},
-  {'COL_Isle_032','Block',{-136.0,14.0,20.6},{-0.0,0.0,1.0},{1.0,0.0,0.0},{3.2,3.2,14.0},false},
+  {'COL_Forge_039','Block',{-12.6,11.1,-44.2},{-1.0,0.0,-0.0},{-0.0,0.0,1.0},{16.4,2.8,8.2},false},
+  {'COL_Hammer_001','Block',{106.0,14.0,-66.0},{-0.342,0.0,-0.94},{-0.94,0.0,0.342},{30.6,18.0,14.0},false},
+  {'COL_Isle_001','Block',{-226.0,7.9,12.0},{1.0,0.0,0.0},{0.0,0.0,-1.0},{8.4,8.4,2.0},false},
+  {'COL_Isle_002','Block',{-226.0,18.25,12.0},{1.0,0.0,0.0},{0.0,0.0,-1.0},{4.0,4.0,19.0},false},
+  {'COL_Isle_003','Block',{-226.0,6.5,-1.0},{1.0,0.0,0.0},{0.0,0.0,-1.0},{23.324,4.0,1.0},false},
+  {'COL_Isle_004','Block',{-226.0,6.5,3.0},{1.0,0.0,0.0},{0.0,0.0,-1.0},{30.984,4.0,1.0},false},
+  {'COL_Isle_005','Block',{-226.0,6.5,7.0},{1.0,0.0,0.0},{0.0,0.0,-1.0},{35.327,4.0,1.0},false},
+  {'COL_Isle_006','Block',{-226.0,6.5,11.0},{1.0,0.0,0.0},{0.0,0.0,-1.0},{38.0,4.0,1.0},false},
+  {'COL_Isle_007','Block',{-226.0,6.5,15.0},{1.0,0.0,0.0},{0.0,0.0,-1.0},{36.661,4.0,1.0},false},
+  {'COL_Isle_008','Block',{-226.0,6.5,19.0},{1.0,0.0,0.0},{0.0,0.0,-1.0},{33.466,4.0,1.0},false},
+  {'COL_Isle_009','Block',{-226.0,6.5,23.0},{1.0,0.0,0.0},{0.0,0.0,-1.0},{27.713,4.0,1.0},false},
+  {'COL_Isle_010','Block',{-226.0,6.5,27.0},{1.0,0.0,0.0},{0.0,0.0,-1.0},{16.971,4.0,1.0},false},
+  {'COL_Isle_011','Block',{-182.0,13.0,4.4},{-0.0,0.0,1.0},{1.0,0.0,0.0},{3.4,3.4,12.0},false},
+  {'COL_Isle_012','Block',{-182.0,13.0,19.6},{-0.0,0.0,1.0},{1.0,0.0,0.0},{3.4,3.4,12.0},false},
+  {'COL_Isle_013','Block',{-227.396,14.8,51.976},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.0,3.0,17.0},false},
+  {'COL_Isle_014','Block',{-254.774,14.8,39.786},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.0,3.0,17.0},false},
+  {'COL_Isle_015','Block',{-266.0,14.8,12.0},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.0,3.0,17.0},false},
+  {'COL_Isle_016','Block',{-254.774,14.8,-15.786},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.0,3.0,17.0},false},
+  {'COL_Isle_017','Block',{-227.396,14.8,-27.976},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.0,3.0,17.0},false},
+  {'COL_Isle_018','Block',{-159.0,8.3,18.55},{1.0,0.0,0.0},{0.0,0.0,-1.0},{34.0,0.9,2.6},false},
+  {'COL_Isle_019','Block',{-159.0,8.3,5.45},{1.0,0.0,0.0},{0.0,0.0,-1.0},{34.0,0.9,2.6},false},
+  {'COL_Isle_020','Block',{-159.0,6.2,12.0},{1.0,0.0,0.0},{0.0,0.0,-1.0},{34.0,14.0,1.6},false},
+  {'COL_Isle_027','Block',{-138.0,6.5,12.0},{1.0,0.0,0.0},{0.0,0.0,-1.0},{10.0,15.2,1.0},false},
+  {'COL_Isle_028','Block',{-180.0,6.5,12.0},{1.0,0.0,0.0},{0.0,0.0,-1.0},{10.0,15.2,1.0},false},
+  {'COL_Isle_029','Block',{-136.0,14.0,3.4},{-0.0,0.0,1.0},{1.0,0.0,0.0},{3.2,3.2,14.0},false},
+  {'COL_Isle_030','Block',{-136.0,14.0,20.6},{-0.0,0.0,1.0},{1.0,0.0,0.0},{3.2,3.2,14.0},false},
   {'COL_Plaza_001','Block',{0.0,6.5,-35.0},{1.0,0.0,0.0},{0.0,0.0,-1.0},{35.327,4.0,1.0},false},
   {'COL_Plaza_002','Block',{0.0,6.5,-31.0},{1.0,0.0,0.0},{0.0,0.0,-1.0},{48.662,4.0,1.0},false},
   {'COL_Plaza_003','Block',{0.0,6.5,-27.0},{1.0,0.0,0.0},{0.0,0.0,-1.0},{57.966,4.0,1.0},false},
@@ -902,132 +853,132 @@ local COL = {
   {'COL_Plaza_017','Block',{0.0,6.5,29.0},{1.0,0.0,0.0},{0.0,0.0,-1.0},{53.666,4.0,1.0},false},
   {'COL_Plaza_018','Block',{0.0,6.5,33.0},{1.0,0.0,0.0},{0.0,0.0,-1.0},{42.708,4.0,1.0},false},
   {'COL_Plaza_019','Block',{0.0,6.5,37.0},{1.0,0.0,0.0},{0.0,0.0,-1.0},{25.298,4.0,1.0},false},
-  {'COL_Portal_001','Block',{-222.182,7.9,49.964},{-0.94,0.0,0.342},{0.342,0.0,0.94},{27.2,22.4,1.4},false},
-  {'COL_Portal_002','Block',{-221.379,8.41,52.172},{-0.94,0.0,0.342},{0.342,0.0,0.94},{10.746,10.746,2.42},false},
-  {'COL_Portal_003','Block',{-221.379,8.41,52.172},{-0.94,0.0,0.342},{0.342,0.0,0.94},{13.984,5.776,2.42},false},
-  {'COL_Portal_004','Block',{-221.379,8.41,52.172},{-0.94,0.0,0.342},{0.342,0.0,0.94},{5.776,13.984,2.42},false},
-  {'COL_Portal_005','Block',{-221.379,8.925,52.172},{-0.94,0.0,0.342},{0.342,0.0,0.94},{9.191,9.191,3.45},false},
-  {'COL_Portal_006','Block',{-221.379,8.925,52.172},{-0.94,0.0,0.342},{0.342,0.0,0.94},{11.96,4.94,3.45},false},
-  {'COL_Portal_007','Block',{-221.379,8.925,52.172},{-0.94,0.0,0.342},{0.342,0.0,0.94},{4.94,11.96,3.45},false},
-  {'COL_Portal_008','Block',{-221.379,9.425,52.172},{-0.94,0.0,0.342},{0.342,0.0,0.94},{11.2,5.2,4.45},false},
-  {'COL_Portal_009','Block',{-218.013,11.719,50.947},{0.852,0.423,-0.31},{0.342,0.0,0.94},{4.429,3.5,1.85},false},
-  {'COL_Portal_010','Block',{-215.19,14.067,49.919},{0.591,0.777,-0.215},{0.342,0.0,0.94},{4.429,3.5,1.85},false},
-  {'COL_Portal_011','Block',{-213.619,17.494,49.348},{0.211,0.974,-0.077},{0.342,0.0,0.94},{4.429,3.5,1.85},false},
-  {'COL_Portal_012','Block',{-213.619,21.306,49.348},{-0.211,0.974,0.077},{0.342,-0.0,0.94},{4.429,3.5,1.85},false},
-  {'COL_Portal_013','Block',{-224.744,11.719,53.397},{0.852,-0.423,-0.31},{0.342,-0.0,0.94},{4.429,3.5,1.85},false},
-  {'COL_Portal_014','Block',{-227.568,14.067,54.425},{0.591,-0.777,-0.215},{0.342,-0.0,0.94},{4.429,3.5,1.85},false},
-  {'COL_Portal_015','Block',{-229.138,17.494,54.996},{0.211,-0.974,-0.077},{0.342,-0.0,0.94},{4.429,3.5,1.85},false},
-  {'COL_Portal_016','Block',{-229.138,21.306,54.996},{-0.211,-0.974,0.077},{0.342,0.0,0.94},{4.429,3.5,1.85},false},
-  {'COL_Portal_017','Block',{-210.29,22.55,48.136},{-0.94,0.0,0.342},{0.342,0.0,0.94},{2.8,2.8,27.9},false},
-  {'COL_Portal_018','Block',{-232.467,22.55,56.208},{-0.94,0.0,0.342},{0.342,0.0,0.94},{2.8,2.8,27.9},false},
-  {'COL_Portal_019','Block',{-213.041,12.182,41.052},{0.479,-0.0,-0.878},{-0.827,0.334,-0.452},{1.8,1.8,9.0},false},
-  {'COL_Portal_020','Block',{-231.614,10.2,51.534},{-0.883,0.0,0.469},{0.469,0.0,0.883},{5.6,3.6,3.2},false},
-  {'COL_Portal_021','Block',{-252.229,8.15,48.45},{-0.914,0.0,-0.407},{-0.407,0.0,0.914},{26.2,12.2,1.9},false},
-  {'COL_Portal_022','Block',{-252.229,8.15,48.45},{-0.914,0.0,-0.407},{-0.407,0.0,0.914},{14.8,21.4,1.9},false},
-  {'COL_Portal_023','Block',{-253.083,9.3,50.369},{-0.914,0.0,-0.407},{-0.407,0.0,0.914},{21.6,5.2,1.4},false},
-  {'COL_Portal_024','Block',{-253.083,9.3,50.369},{-0.914,0.0,-0.407},{-0.407,0.0,0.914},{17.2,9.4,1.4},false},
-  {'COL_Portal_025','Block',{-253.083,9.3,50.369},{-0.914,0.0,-0.407},{-0.407,0.0,0.914},{10.8,12.0,1.4},false},
-  {'COL_Portal_026','Block',{-252.229,8.15,48.45},{-0.914,0.0,-0.407},{-0.407,0.0,0.914},{22.0,17.4,1.9},false},
-  {'COL_Portal_027','Block',{-253.083,9.3,50.369},{-0.914,0.0,-0.407},{-0.407,0.0,0.914},{18.4,8.4,1.4},false},
-  {'COL_Portal_028','Block',{-245.812,12.878,54.563},{0.72,-0.616,0.321},{-0.407,0.0,0.914},{2.588,5.451,5.066},false},
-  {'COL_Portal_029','Block',{-249.112,9.722,53.054},{0.4,-0.899,0.178},{-0.407,-0.0,0.914},{2.934,5.525,5.144},false},
-  {'COL_Portal_030','Block',{-249.678,11.873,51.748},{0.4,-0.899,0.178},{-0.407,-0.0,0.914},{1.85,2.25,4.068},false},
-  {'COL_Portal_031','Block',{-261.065,12.878,47.772},{-0.72,-0.616,-0.321},{-0.407,0.0,0.914},{2.588,5.451,5.066},false},
-  {'COL_Portal_032','Block',{-257.736,9.722,49.214},{-0.4,-0.899,-0.178},{-0.407,-0.0,0.914},{2.934,5.525,5.144},false},
-  {'COL_Portal_033','Block',{-256.386,11.873,48.761},{-0.4,-0.899,-0.178},{-0.407,-0.0,0.914},{1.85,2.25,4.068},false},
-  {'COL_Portal_034','Block',{-245.897,13.818,53.541},{0.858,-0.342,0.382},{-0.407,-0.0,0.914},{3.58,2.45,9.829},false},
-  {'COL_Portal_035','Block',{-244.653,20.382,54.122},{0.905,0.139,0.403},{-0.407,0.0,0.914},{3.55,2.3,6.133},false},
-  {'COL_Portal_036','Block',{-260.248,13.818,47.151},{-0.858,-0.342,-0.382},{-0.407,-0.0,0.914},{3.58,2.45,9.829},false},
-  {'COL_Portal_037','Block',{-261.513,20.382,46.615},{-0.905,0.139,-0.403},{-0.407,0.0,0.914},{3.55,2.3,6.133},false},
-  {'COL_Portal_038','Block',{-241.078,10.2,45.534},{0.777,0.0,0.629},{0.629,0.0,-0.777},{4.9,2.0,2.2},false},
-  {'COL_Portal_039','Block',{-256.649,10.815,38.71},{-0.777,0.0,-0.629},{-0.629,0.0,0.777},{6.0,2.0,3.53},false},
-  {'COL_Portal_040','Block',{-253.052,10.825,50.3},{-0.914,0.0,-0.407},{-0.407,0.0,0.914},{13.6,2.35,2.05},false},
-  {'COL_Portal_041','Block',{-253.998,12.15,52.424},{-0.914,0.0,-0.407},{-0.407,0.0,0.914},{16.0,2.7,4.7},false},
-  {'COL_Portal_042','Block',{-253.88,19.4,52.159},{-0.914,0.0,-0.407},{-0.407,0.0,0.914},{7.2,2.52,7.2},false},
-  {'COL_Portal_043','Block',{-248.69,16.483,54.034},{-0.996,-0.074,-0.057},{0.083,-0.979,-0.187},{5.253,4.687,1.6},false},
-  {'COL_Portal_044','Block',{-248.888,20.667,54.213},{-0.998,0.032,-0.058},{-0.036,-0.996,0.081},{5.026,5.279,1.6},false},
-  {'COL_Portal_045','Block',{-258.746,16.483,49.557},{-0.709,0.074,-0.702},{0.083,-0.979,-0.187},{5.253,4.687,1.6},false},
-  {'COL_Portal_046','Block',{-258.746,20.667,49.824},{-0.711,-0.032,-0.703},{-0.036,-0.996,0.081},{5.026,5.279,1.6},false},
-  {'COL_Portal_047','Block',{-272.114,7.925,26.591},{-0.375,0.0,-0.927},{-0.927,0.0,0.375},{27.2,14.3,1.45},false},
-  {'COL_Portal_048','Block',{-272.067,7.925,26.572},{-0.375,0.0,-0.927},{-0.927,0.0,0.375},{23.36,17.4,1.45},false},
-  {'COL_Portal_049','Block',{-271.882,8.2,26.497},{-0.375,0.0,-0.927},{-0.927,0.0,0.375},{17.2,9.4,2.0},false},
-  {'COL_Portal_050','Block',{-271.326,8.2,26.273},{-0.375,0.0,-0.927},{-0.927,0.0,0.375},{14.32,10.6,2.0},false},
-  {'COL_Portal_051','Block',{-272.531,8.475,26.76},{-0.375,0.0,-0.927},{-0.927,0.0,0.375},{14.0,6.0,2.55},false},
-  {'COL_Portal_052','Block',{-272.067,8.475,26.572},{-0.375,0.0,-0.927},{-0.927,0.0,0.375},{11.6,7.0,2.55},false},
-  {'COL_Portal_053','Block',{-271.053,14.95,38.026},{-0.375,0.0,-0.927},{-0.927,0.0,0.375},{3.8,4.3,13.5},false},
-  {'COL_Portal_054','Block',{-279.294,14.95,17.628},{-0.375,0.0,-0.927},{-0.927,0.0,0.375},{3.8,4.3,13.5},false},
-  {'COL_Portal_055','Block',{-272.72,10.775,33.9},{-0.375,0.0,-0.927},{-0.927,0.0,0.375},{5.1,2.0,4.25},false},
-  {'COL_Portal_056','Block',{-272.008,17.3,35.662},{-0.375,0.0,-0.927},{-0.927,0.0,0.375},{1.3,2.0,8.8},false},
-  {'COL_Portal_057','Block',{-277.627,10.775,21.754},{-0.375,0.0,-0.927},{-0.927,0.0,0.375},{5.1,2.0,4.25},false},
-  {'COL_Portal_058','Block',{-278.339,17.3,19.992},{-0.375,0.0,-0.927},{-0.927,0.0,0.375},{1.3,2.0,8.8},false},
-  {'COL_Portal_059','Block',{-276.101,19.4,28.202},{-0.375,0.0,-0.927},{-0.927,0.0,0.375},{10.7,2.1,10.7},false},
-  {'COL_Portal_060','Block',{-276.101,19.4,28.202},{-0.375,0.0,-0.927},{-0.927,0.0,0.375},{13.9,2.1,5.74},false},
-  {'COL_Portal_061','Block',{-276.101,19.4,28.202},{-0.375,0.0,-0.927},{-0.927,0.0,0.375},{5.74,2.1,13.9},false},
-  {'COL_Portal_062','Block',{-266.106,8.65,37.322},{-0.375,0.0,-0.927},{-0.927,0.0,0.375},{2.1,2.1,1.9},false},
-  {'COL_Portal_063','Block',{-266.106,11.625,37.322},{-0.375,0.0,-0.927},{-0.927,0.0,0.375},{1.0,1.0,4.05},false},
-  {'COL_Portal_064','Block',{-276.602,9.775,14.815},{-0.375,0.0,-0.927},{-0.927,0.0,0.375},{1.6,1.6,4.15},false},
-  {'COL_Portal_065','Block',{-275.216,12.8,15.441},{-0.375,0.0,-0.927},{-0.927,0.0,0.375},{1.8,1.7,1.9},false},
-  {'COL_Portal_066','Block',{-265.902,7.925,-0.081},{0.375,0.0,-0.927},{-0.927,0.0,-0.375},{6.0,5.7,1.45},false},
-  {'COL_Portal_067','Block',{-269.1,8.2,-1.373},{0.375,0.0,-0.927},{-0.927,0.0,-0.375},{5.2,1.2,2.0},false},
-  {'COL_Portal_068','Block',{-270.074,8.7,-1.767},{0.375,0.0,-0.927},{-0.927,0.0,-0.375},{4.6,1.1,3.0},false},
-  {'COL_Portal_069','Block',{-268.582,10.775,4.552},{0.375,0.0,-0.927},{-0.927,0.0,-0.375},{1.1,1.1,5.15},false},
-  {'COL_Portal_070','Block',{-264.612,10.775,-5.276},{0.375,0.0,-0.927},{-0.927,0.0,-0.375},{1.1,1.1,5.15},false},
-  {'COL_Portal_071','Block',{-276.807,13.7,9.426},{0.375,0.0,-0.927},{-0.927,0.0,-0.375},{1.7,1.7,11.0},false},
-  {'COL_Portal_072','Block',{-275.637,9.2,-4.014},{0.375,0.0,-0.927},{-0.927,0.0,-0.375},{10.0,8.3,4.0},false},
-  {'COL_Portal_073','Block',{-278.511,9.0,2.698},{0.375,0.0,-0.927},{-0.927,0.0,-0.375},{4.6,8.0,3.6},false},
-  {'COL_Portal_074','Block',{-279.736,9.35,5.33},{0.375,0.0,-0.927},{-0.927,0.0,-0.375},{1.2,7.7,4.3},false},
-  {'COL_Portal_075','Block',{-280.213,9.8,6.378},{0.375,0.0,-0.927},{-0.927,0.0,-0.375},{1.1,7.0,5.2},false},
-  {'COL_Portal_076','Block',{-280.505,8.975,7.5},{0.375,0.0,-0.927},{-0.927,0.0,-0.375},{1.2,10.1,3.55},false},
-  {'COL_Portal_077','Block',{-278.051,14.9,3.962},{0.375,0.0,-0.927},{-0.927,0.0,-0.375},{2.2,1.9,3.0},false},
-  {'COL_Portal_078','Block',{-278.463,20.05,4.982},{0.375,0.0,-0.927},{-0.927,0.0,-0.375},{2.8,1.9,7.3},false},
-  {'COL_Portal_079','Block',{-281.27,12.8,3.255},{0.375,0.0,-0.927},{-0.927,0.0,-0.375},{3.5,2.1,4.0},false},
-  {'COL_Portal_080','Block',{-273.042,9.0,-10.839},{0.375,0.0,-0.927},{-0.927,0.0,-0.375},{4.6,8.0,3.6},false},
-  {'COL_Portal_081','Block',{-272.094,9.35,-13.584},{0.375,0.0,-0.927},{-0.927,0.0,-0.375},{1.2,7.7,4.3},false},
-  {'COL_Portal_082','Block',{-271.71,9.8,-14.669},{0.375,0.0,-0.927},{-0.927,0.0,-0.375},{1.1,7.0,5.2},false},
-  {'COL_Portal_083','Block',{-271.14,8.975,-15.679},{0.375,0.0,-0.927},{-0.927,0.0,-0.375},{1.2,10.1,3.55},false},
-  {'COL_Portal_084','Block',{-271.832,14.9,-11.429},{0.375,0.0,-0.927},{-0.927,0.0,-0.375},{2.2,1.9,3.0},false},
-  {'COL_Portal_085','Block',{-271.42,20.05,-12.449},{0.375,0.0,-0.927},{-0.927,0.0,-0.375},{2.8,1.9,7.3},false},
-  {'COL_Portal_086','Block',{-274.64,12.8,-13.157},{0.375,0.0,-0.927},{-0.927,0.0,-0.375},{3.5,2.1,4.0},false},
-  {'COL_Portal_087','Block',{-271.279,8.95,-2.254},{0.375,0.0,-0.927},{-0.927,0.0,-0.375},{23.8,1.7,3.5},false},
-  {'COL_Portal_088','Block',{-280.18,8.975,-5.85},{0.375,0.0,-0.927},{-0.927,0.0,-0.375},{23.8,2.1,3.55},false},
-  {'COL_Portal_089','Block',{-277.121,19.2,-4.614},{0.375,0.0,-0.927},{-0.927,0.0,-0.375},{15.2,3.9,16.0},false},
-  {'COL_Portal_090','Block',{-252.229,8.0,-24.45},{0.914,0.0,-0.407},{-0.407,0.0,-0.914},{22.8,21.4,1.6},false},
-  {'COL_Portal_091','Block',{-263.1,9.6,-19.61},{0.914,0.0,-0.407},{-0.407,0.0,-0.914},{1.4,21.4,2.8},false},
-  {'COL_Portal_092','Block',{-241.358,9.6,-29.291},{0.914,0.0,-0.407},{-0.407,0.0,-0.914},{1.4,21.4,2.8},false},
-  {'COL_Portal_093','Block',{-253.083,8.55,-26.369},{0.914,0.0,-0.407},{-0.407,0.0,-0.914},{12.16,12.16,2.5},false},
-  {'COL_Portal_094','Block',{-253.083,8.55,-26.369},{0.914,0.0,-0.407},{-0.407,0.0,-0.914},{15.824,6.536,2.5},false},
-  {'COL_Portal_095','Block',{-253.083,8.55,-26.369},{0.914,0.0,-0.407},{-0.407,0.0,-0.914},{6.536,15.824,2.5},false},
-  {'COL_Portal_096','Block',{-253.083,8.95,-26.369},{0.914,0.0,-0.407},{-0.407,0.0,-0.914},{9.332,9.332,3.3},false},
-  {'COL_Portal_097','Block',{-253.083,8.95,-26.369},{0.914,0.0,-0.407},{-0.407,0.0,-0.914},{12.144,5.016,3.3},false},
-  {'COL_Portal_098','Block',{-253.083,8.95,-26.369},{0.914,0.0,-0.407},{-0.407,0.0,-0.914},{5.016,12.144,3.3},false},
-  {'COL_Portal_099','Block',{-257.99,14.0,-14.77},{0.914,0.0,-0.407},{-0.407,0.0,-0.914},{5.0,1.4,10.5},false},
-  {'COL_Portal_100','Block',{-245.677,19.7,-35.796},{0.914,0.0,-0.407},{-0.407,0.0,-0.914},{1.4,1.4,23.0},false},
-  {'COL_Portal_101','Block',{-241.139,10.3,-21.178},{0.914,0.0,-0.407},{-0.407,0.0,-0.914},{3.6,2.8,3.0},false},
-  {'COL_Portal_102','Block',{-261.939,10.1,-30.526},{0.914,0.0,-0.407},{-0.407,0.0,-0.914},{2.4,2.4,2.6},false},
-  {'COL_Portal_103','Block',{-242.563,10.1,-25.36},{0.914,0.0,-0.407},{-0.407,0.0,-0.914},{2.4,2.4,2.6},false},
-  {'COL_Portal_104','Block',{-265.046,12.2,-29.143},{0.914,0.0,-0.407},{-0.407,0.0,-0.914},{1.6,1.6,8.0},false},
-  {'COL_Portal_110','Block',{-253.917,18.8,-28.242},{0.914,0.0,-0.407},{-0.407,0.0,-0.914},{15.2,0.4,16.4},false},
-  {'COL_Portal_111','Block',{-222.182,7.95,-25.964},{0.94,0.0,0.342},{0.342,0.0,-0.94},{27.6,22.4,1.5},false},
-  {'COL_Portal_112','Block',{-222.695,8.925,-24.554},{0.94,0.0,0.342},{0.342,0.0,-0.94},{11.6,5.8,1.45},false},
-  {'COL_Portal_113','Block',{-222.251,9.4,-25.776},{0.94,0.0,0.342},{0.342,0.0,-0.94},{10.0,3.2,2.4},false},
-  {'COL_Portal_114','Block',{-229.654,20.275,-31.237},{0.94,0.0,0.342},{0.342,0.0,-0.94},{3.65,4.2,24.15},false},
-  {'COL_Portal_115','Block',{-213.069,20.275,-25.201},{0.94,0.0,0.342},{0.342,0.0,-0.94},{3.65,4.2,24.15},false},
-  {'COL_Portal_116','Block',{-221.362,28.775,-28.219},{0.94,0.0,0.342},{0.342,0.0,-0.94},{14.0,3.2,7.15},false},
-  {'COL_Portal_117','Block',{-221.259,9.9,-28.501},{0.94,0.0,0.342},{0.342,0.0,-0.94},{7.2,2.6,3.4},false},
-  {'COL_Portal_118','Block',{-226.239,10.5,-30.313},{0.94,0.0,0.342},{0.342,0.0,-0.94},{3.4,2.6,4.6},false},
-  {'COL_Portal_119','Block',{-216.279,10.5,-26.688},{0.94,0.0,0.342},{0.342,0.0,-0.94},{3.4,2.6,4.6},false},
-  {'COL_Portal_120','Block',{-220.968,18.4,-29.299},{0.94,0.0,0.342},{0.342,0.0,-0.94},{12.0,0.9,13.6},false},
-  {'COL_Portal_121','Ramp',{-217.585,9.298,-30.115},{-0.277,0.588,0.76},{0.94,0.0,0.342},{2.08,3.4,0.8},false},
-  {'COL_Portal_122','Block',{-213.779,9.119,-30.843},{0.94,0.0,0.342},{0.342,0.0,-0.94},{3.214,3.004,1.839},false},
-  {'COL_Portal_123','Block',{-213.861,10.392,-31.384},{0.94,0.0,0.342},{0.342,0.0,-0.94},{1.212,1.948,0.768},false},
-  {'COL_Portal_124','Block',{-216.749,8.912,-33.875},{0.94,0.0,0.342},{0.342,0.0,-0.94},{2.478,2.247,1.425},false},
-  {'COL_Portal_125','Ramp',{-214.605,9.181,-23.099},{0.238,0.719,-0.653},{-0.94,-0.0,-0.342},{1.56,2.2,0.8},false},
-  {'COL_Portal_126','Block',{-213.73,8.916,-20.473},{0.94,0.0,0.342},{0.342,0.0,-0.94},{1.515,1.426,1.433},false},
-  {'COL_Portal_127','Block',{-214.1,9.824,-20.952},{0.94,0.0,0.342},{0.342,0.0,-0.94},{0.559,0.477,0.698},false},
-  {'COL_Portal_128','Block',{-216.627,8.715,-20.159},{0.94,0.0,0.342},{0.342,0.0,-0.94},{0.898,0.966,1.03},false},
-  {'COL_Portal_129','Block',{-233.068,9.675,-22.37},{0.998,0.0,-0.07},{-0.07,0.0,-0.998},{4.4,1.2,2.95},false},
-  {'COL_Portal_130','Block',{-230.376,9.425,-25.966},{0.94,0.0,0.342},{0.342,0.0,-0.94},{0.8,0.8,2.45},false},
-  {'COL_Portal_131','Block',{-230.93,9.279,-27.658},{0.94,0.0,0.342},{0.342,0.0,-0.94},{0.68,0.68,2.158},false},
+  {'COL_Portal_001','Block',{-214.765,7.984,42.867},{-0.94,0.0,0.342},{0.342,0.0,0.94},{19.584,16.128,1.008},false},
+  {'COL_Portal_002','Block',{-214.187,8.351,44.457},{-0.94,0.0,0.342},{0.342,0.0,0.94},{7.737,7.737,1.742},false},
+  {'COL_Portal_003','Block',{-214.187,8.351,44.457},{-0.94,0.0,0.342},{0.342,0.0,0.94},{10.068,4.159,1.742},false},
+  {'COL_Portal_004','Block',{-214.187,8.351,44.457},{-0.94,0.0,0.342},{0.342,0.0,0.94},{4.159,10.068,1.742},false},
+  {'COL_Portal_005','Block',{-214.187,8.722,44.457},{-0.94,0.0,0.342},{0.342,0.0,0.94},{6.618,6.618,2.484},false},
+  {'COL_Portal_006','Block',{-214.187,8.722,44.457},{-0.94,0.0,0.342},{0.342,0.0,0.94},{8.611,3.557,2.484},false},
+  {'COL_Portal_007','Block',{-214.187,8.722,44.457},{-0.94,0.0,0.342},{0.342,0.0,0.94},{3.557,8.611,2.484},false},
+  {'COL_Portal_008','Block',{-214.187,9.082,44.457},{-0.94,0.0,0.342},{0.342,0.0,0.94},{8.064,3.744,3.204},false},
+  {'COL_Portal_009','Block',{-211.763,10.734,43.575},{0.852,0.423,-0.31},{0.342,0.0,0.94},{3.189,2.52,1.332},false},
+  {'COL_Portal_010','Block',{-209.73,12.424,42.835},{0.591,0.777,-0.215},{0.342,0.0,0.94},{3.189,2.52,1.332},false},
+  {'COL_Portal_011','Block',{-208.6,14.891,42.423},{0.211,0.974,-0.077},{0.342,0.0,0.94},{3.189,2.52,1.332},false},
+  {'COL_Portal_012','Block',{-208.6,17.637,42.423},{-0.211,0.974,0.077},{0.342,0.0,0.94},{3.189,2.52,1.332},false},
+  {'COL_Portal_013','Block',{-216.61,10.734,45.339},{0.852,-0.423,-0.31},{0.342,-0.0,0.94},{3.189,2.52,1.332},false},
+  {'COL_Portal_014','Block',{-218.643,12.424,46.079},{0.591,-0.777,-0.215},{0.342,-0.0,0.94},{3.189,2.52,1.332},false},
+  {'COL_Portal_015','Block',{-219.774,14.891,46.491},{0.211,-0.974,-0.077},{0.342,-0.0,0.94},{3.189,2.52,1.332},false},
+  {'COL_Portal_016','Block',{-219.774,17.637,46.491},{-0.211,-0.974,0.077},{0.342,-0.0,0.94},{3.189,2.52,1.332},false},
+  {'COL_Portal_017','Block',{-206.203,18.532,41.551},{-0.94,0.0,0.342},{0.342,0.0,0.94},{2.016,2.016,20.088},false},
+  {'COL_Portal_018','Block',{-222.17,18.532,47.363},{-0.94,0.0,0.342},{0.342,0.0,0.94},{2.016,2.016,20.088},false},
+  {'COL_Portal_019','Block',{-208.183,11.067,36.451},{0.479,-0.0,-0.878},{-0.827,0.334,-0.452},{1.296,1.296,6.48},false},
+  {'COL_Portal_020','Block',{-221.556,9.64,43.998},{-0.883,0.0,0.469},{0.469,0.0,0.883},{4.032,2.592,2.304},false},
+  {'COL_Portal_021','Block',{-239.214,8.164,41.679},{-0.914,0.0,-0.407},{-0.407,0.0,0.914},{18.864,8.784,1.368},false},
+  {'COL_Portal_022','Block',{-239.214,8.164,41.679},{-0.914,0.0,-0.407},{-0.407,0.0,0.914},{10.656,15.408,1.368},false},
+  {'COL_Portal_023','Block',{-239.829,8.992,43.061},{-0.914,0.0,-0.407},{-0.407,0.0,0.914},{15.552,3.744,1.008},false},
+  {'COL_Portal_024','Block',{-239.829,8.992,43.061},{-0.914,0.0,-0.407},{-0.407,0.0,0.914},{12.384,6.768,1.008},false},
+  {'COL_Portal_025','Block',{-239.829,8.992,43.061},{-0.914,0.0,-0.407},{-0.407,0.0,0.914},{7.776,8.64,1.008},false},
+  {'COL_Portal_026','Block',{-239.214,8.164,41.679},{-0.914,0.0,-0.407},{-0.407,0.0,0.914},{15.84,12.528,1.368},false},
+  {'COL_Portal_027','Block',{-239.829,8.992,43.061},{-0.914,0.0,-0.407},{-0.407,0.0,0.914},{13.248,6.048,1.008},false},
+  {'COL_Portal_028','Block',{-234.594,11.568,46.081},{0.72,-0.616,0.321},{-0.407,0.0,0.914},{1.863,3.925,3.648},false},
+  {'COL_Portal_029','Block',{-236.97,9.296,44.994},{0.4,-0.899,0.178},{-0.407,-0.0,0.914},{2.113,3.978,3.704},false},
+  {'COL_Portal_030','Block',{-237.378,10.844,44.053},{0.4,-0.899,0.178},{-0.407,-0.0,0.914},{1.332,1.62,2.929},false},
+  {'COL_Portal_031','Block',{-245.576,11.568,41.191},{-0.72,-0.616,-0.321},{-0.407,-0.0,0.914},{1.863,3.925,3.648},false},
+  {'COL_Portal_032','Block',{-243.179,9.296,42.229},{-0.4,-0.899,-0.178},{-0.407,-0.0,0.914},{2.113,3.978,3.704},false},
+  {'COL_Portal_033','Block',{-242.207,10.844,41.903},{-0.4,-0.899,-0.178},{-0.407,-0.0,0.914},{1.332,1.62,2.929},false},
+  {'COL_Portal_034','Block',{-234.655,12.245,45.344},{0.858,-0.342,0.382},{-0.407,-0.0,0.914},{2.578,1.764,7.077},false},
+  {'COL_Portal_035','Block',{-233.759,16.971,45.763},{0.905,0.139,0.403},{-0.407,0.0,0.914},{2.556,1.656,4.416},false},
+  {'COL_Portal_036','Block',{-244.988,12.245,40.744},{-0.858,-0.342,-0.382},{-0.407,0.0,0.914},{2.578,1.764,7.077},false},
+  {'COL_Portal_037','Block',{-245.899,16.971,40.358},{-0.905,0.139,-0.403},{-0.407,0.0,0.914},{2.556,1.656,4.416},false},
+  {'COL_Portal_038','Block',{-231.186,9.64,39.579},{0.777,0.0,0.629},{0.629,0.0,-0.777},{3.528,1.44,1.584},false},
+  {'COL_Portal_039','Block',{-242.397,10.083,34.666},{-0.777,0.0,-0.629},{-0.629,0.0,0.777},{4.32,1.44,2.542},false},
+  {'COL_Portal_040','Block',{-239.807,10.09,43.011},{-0.914,0.0,-0.407},{-0.407,0.0,0.914},{9.792,1.692,1.476},false},
+  {'COL_Portal_041','Block',{-240.488,11.044,44.54},{-0.914,0.0,-0.407},{-0.407,0.0,0.914},{11.52,1.944,3.384},false},
+  {'COL_Portal_042','Block',{-240.403,16.264,44.35},{-0.914,0.0,-0.407},{-0.407,0.0,0.914},{5.184,1.814,5.184},false},
+  {'COL_Portal_043','Block',{-236.666,14.164,45.699},{-0.996,-0.074,-0.057},{0.083,-0.979,-0.187},{3.782,3.375,1.152},false},
+  {'COL_Portal_044','Block',{-236.809,17.176,45.828},{-0.998,0.032,-0.058},{-0.036,-0.996,0.081},{3.619,3.801,1.152},false},
+  {'COL_Portal_045','Block',{-243.907,14.164,42.476},{-0.709,0.074,-0.702},{0.083,-0.979,-0.187},{3.782,3.375,1.152},false},
+  {'COL_Portal_046','Block',{-243.907,17.176,42.668},{-0.711,-0.032,-0.703},{-0.036,-0.996,0.081},{3.619,3.801,1.152},false},
+  {'COL_Portal_047','Block',{-255.488,8.002,23.914},{-0.375,0.0,-0.927},{-0.927,0.0,0.375},{19.584,10.296,1.044},false},
+  {'COL_Portal_048','Block',{-255.455,8.002,23.901},{-0.375,0.0,-0.927},{-0.927,0.0,0.375},{16.819,12.528,1.044},false},
+  {'COL_Portal_049','Block',{-255.321,8.2,23.847},{-0.375,0.0,-0.927},{-0.927,0.0,0.375},{12.384,6.768,1.44},false},
+  {'COL_Portal_050','Block',{-254.921,8.2,23.685},{-0.375,0.0,-0.927},{-0.927,0.0,0.375},{10.31,7.632,1.44},false},
+  {'COL_Portal_051','Block',{-255.789,8.398,24.035},{-0.375,0.0,-0.927},{-0.927,0.0,0.375},{10.08,4.32,1.836},false},
+  {'COL_Portal_052','Block',{-255.455,8.398,23.901},{-0.375,0.0,-0.927},{-0.927,0.0,0.375},{8.352,5.04,1.836},false},
+  {'COL_Portal_053','Block',{-254.724,13.06,32.147},{-0.375,0.0,-0.927},{-0.927,0.0,0.375},{2.736,3.096,9.72},false},
+  {'COL_Portal_054','Block',{-260.658,13.06,17.461},{-0.375,0.0,-0.927},{-0.927,0.0,0.375},{2.736,3.096,9.72},false},
+  {'COL_Portal_055','Block',{-255.925,10.054,29.177},{-0.375,0.0,-0.927},{-0.927,0.0,0.375},{3.672,1.44,3.06},false},
+  {'COL_Portal_056','Block',{-255.412,14.752,30.445},{-0.375,0.0,-0.927},{-0.927,0.0,0.375},{0.936,1.44,6.336},false},
+  {'COL_Portal_057','Block',{-259.458,10.054,20.431},{-0.375,0.0,-0.927},{-0.927,0.0,0.375},{3.672,1.44,3.06},false},
+  {'COL_Portal_058','Block',{-259.97,14.752,19.163},{-0.375,0.0,-0.927},{-0.927,0.0,0.375},{0.936,1.44,6.336},false},
+  {'COL_Portal_059','Block',{-258.359,16.264,25.074},{-0.375,0.0,-0.927},{-0.927,0.0,0.375},{7.704,1.512,7.704},false},
+  {'COL_Portal_060','Block',{-258.359,16.264,25.074},{-0.375,0.0,-0.927},{-0.927,0.0,0.375},{10.008,1.512,4.133},false},
+  {'COL_Portal_061','Block',{-258.359,16.264,25.074},{-0.375,0.0,-0.927},{-0.927,0.0,0.375},{4.133,1.512,10.008},false},
+  {'COL_Portal_062','Block',{-251.163,8.524,31.64},{-0.375,0.0,-0.927},{-0.927,0.0,0.375},{1.512,1.512,1.368},false},
+  {'COL_Portal_063','Block',{-251.163,10.666,31.64},{-0.375,0.0,-0.927},{-0.927,0.0,0.375},{0.72,0.72,2.916},false},
+  {'COL_Portal_064','Block',{-258.72,9.334,15.435},{-0.375,0.0,-0.927},{-0.927,0.0,0.375},{1.152,1.152,2.988},false},
+  {'COL_Portal_065','Block',{-257.722,11.512,15.886},{-0.375,0.0,-0.927},{-0.927,0.0,0.375},{1.296,1.224,1.368},false},
+  {'COL_Portal_066','Block',{-251.015,8.002,1.893},{0.375,0.0,-0.927},{-0.927,0.0,-0.375},{4.32,4.104,1.044},false},
+  {'COL_Portal_067','Block',{-253.319,8.2,0.963},{0.375,0.0,-0.927},{-0.927,0.0,-0.375},{3.744,0.864,1.44},false},
+  {'COL_Portal_068','Block',{-254.02,8.56,0.679},{0.375,0.0,-0.927},{-0.927,0.0,-0.375},{3.312,0.792,2.16},false},
+  {'COL_Portal_069','Block',{-252.946,10.054,5.229},{0.375,0.0,-0.927},{-0.927,0.0,-0.375},{0.792,0.792,3.708},false},
+  {'COL_Portal_070','Block',{-250.087,10.054,-1.847},{0.375,0.0,-0.927},{-0.927,0.0,-0.375},{0.792,0.792,3.708},false},
+  {'COL_Portal_071','Block',{-258.867,12.16,8.738},{0.375,0.0,-0.927},{-0.927,0.0,-0.375},{1.224,1.224,7.92},false},
+  {'COL_Portal_072','Block',{-258.025,8.92,-0.939},{0.375,0.0,-0.927},{-0.927,0.0,-0.375},{7.2,5.976,2.88},false},
+  {'COL_Portal_073','Block',{-260.094,8.776,3.894},{0.375,0.0,-0.927},{-0.927,0.0,-0.375},{3.312,5.76,2.592},false},
+  {'COL_Portal_074','Block',{-260.976,9.028,5.789},{0.375,0.0,-0.927},{-0.927,0.0,-0.375},{0.864,5.544,3.096},false},
+  {'COL_Portal_075','Block',{-261.32,9.352,6.544},{0.375,0.0,-0.927},{-0.927,0.0,-0.375},{0.792,5.04,3.744},false},
+  {'COL_Portal_076','Block',{-261.53,8.758,7.352},{0.375,0.0,-0.927},{-0.927,0.0,-0.375},{0.864,7.272,2.556},false},
+  {'COL_Portal_077','Block',{-259.763,13.024,4.804},{0.375,0.0,-0.927},{-0.927,0.0,-0.375},{1.584,1.368,2.16},false},
+  {'COL_Portal_078','Block',{-260.06,16.732,5.539},{0.375,0.0,-0.927},{-0.927,0.0,-0.375},{2.016,1.368,5.256},false},
+  {'COL_Portal_079','Block',{-262.081,11.512,4.295},{0.375,0.0,-0.927},{-0.927,0.0,-0.375},{2.52,1.512,2.88},false},
+  {'COL_Portal_080','Block',{-256.156,8.776,-5.853},{0.375,0.0,-0.927},{-0.927,0.0,-0.375},{3.312,5.76,2.592},false},
+  {'COL_Portal_081','Block',{-255.474,9.028,-7.829},{0.375,0.0,-0.927},{-0.927,0.0,-0.375},{0.864,5.544,3.096},false},
+  {'COL_Portal_082','Block',{-255.197,9.352,-8.61},{0.375,0.0,-0.927},{-0.927,0.0,-0.375},{0.792,5.04,3.744},false},
+  {'COL_Portal_083','Block',{-254.787,8.758,-9.338},{0.375,0.0,-0.927},{-0.927,0.0,-0.375},{0.864,7.272,2.556},false},
+  {'COL_Portal_084','Block',{-255.286,13.024,-6.277},{0.375,0.0,-0.927},{-0.927,0.0,-0.375},{1.584,1.368,2.16},false},
+  {'COL_Portal_085','Block',{-254.989,16.732,-7.012},{0.375,0.0,-0.927},{-0.927,0.0,-0.375},{2.016,1.368,5.256},false},
+  {'COL_Portal_086','Block',{-257.307,11.512,-7.521},{0.375,0.0,-0.927},{-0.927,0.0,-0.375},{2.52,1.512,2.88},false},
+  {'COL_Portal_087','Block',{-254.887,8.74,0.329},{0.375,0.0,-0.927},{-0.927,0.0,-0.375},{17.136,1.224,2.52},false},
+  {'COL_Portal_088','Block',{-261.296,8.758,-2.261},{0.375,0.0,-0.927},{-0.927,0.0,-0.375},{17.136,1.512,2.556},false},
+  {'COL_Portal_089','Block',{-259.093,16.12,-1.37},{0.375,0.0,-0.927},{-0.927,0.0,-0.375},{10.944,2.808,11.52},false},
+  {'COL_Portal_090','Block',{-239.214,8.056,-17.679},{0.914,0.0,-0.407},{-0.407,0.0,-0.914},{16.416,15.408,1.152},false},
+  {'COL_Portal_091','Block',{-247.041,9.208,-14.194},{0.914,0.0,-0.407},{-0.407,0.0,-0.914},{1.008,15.408,2.016},false},
+  {'COL_Portal_092','Block',{-231.387,9.208,-21.164},{0.914,0.0,-0.407},{-0.407,0.0,-0.914},{1.008,15.408,2.016},false},
+  {'COL_Portal_093','Block',{-239.829,8.452,-19.061},{0.914,0.0,-0.407},{-0.407,0.0,-0.914},{8.755,8.755,1.8},false},
+  {'COL_Portal_094','Block',{-239.829,8.452,-19.061},{0.914,0.0,-0.407},{-0.407,0.0,-0.914},{11.393,4.706,1.8},false},
+  {'COL_Portal_095','Block',{-239.829,8.452,-19.061},{0.914,0.0,-0.407},{-0.407,0.0,-0.914},{4.706,11.393,1.8},false},
+  {'COL_Portal_096','Block',{-239.829,8.74,-19.061},{0.914,0.0,-0.407},{-0.407,0.0,-0.914},{6.719,6.719,2.376},false},
+  {'COL_Portal_097','Block',{-239.829,8.74,-19.061},{0.914,0.0,-0.407},{-0.407,0.0,-0.914},{8.744,3.612,2.376},false},
+  {'COL_Portal_098','Block',{-239.829,8.74,-19.061},{0.914,0.0,-0.407},{-0.407,0.0,-0.914},{3.612,8.744,2.376},false},
+  {'COL_Portal_099','Block',{-243.362,12.376,-10.71},{0.914,0.0,-0.407},{-0.407,0.0,-0.914},{3.6,1.008,7.56},false},
+  {'COL_Portal_100','Block',{-234.497,16.48,-25.848},{0.914,0.0,-0.407},{-0.407,0.0,-0.914},{1.008,1.008,16.56},false},
+  {'COL_Portal_101','Block',{-231.229,9.712,-15.323},{0.914,0.0,-0.407},{-0.407,0.0,-0.914},{2.592,2.016,2.16},false},
+  {'COL_Portal_102','Block',{-246.206,9.568,-22.054},{0.914,0.0,-0.407},{-0.407,0.0,-0.914},{1.728,1.728,1.872},false},
+  {'COL_Portal_103','Block',{-232.255,9.568,-18.334},{0.914,0.0,-0.407},{-0.407,0.0,-0.914},{1.728,1.728,1.872},false},
+  {'COL_Portal_104','Block',{-248.442,11.08,-21.058},{0.914,0.0,-0.407},{-0.407,0.0,-0.914},{1.152,1.152,5.76},false},
+  {'COL_Portal_110','Block',{-240.429,15.832,-20.409},{0.914,0.0,-0.407},{-0.407,0.0,-0.914},{10.944,0.288,11.808},false},
+  {'COL_Portal_111','Block',{-214.765,8.02,-18.867},{0.94,0.0,0.342},{0.342,0.0,-0.94},{19.872,16.128,1.08},false},
+  {'COL_Portal_112','Block',{-215.135,8.722,-17.852},{0.94,0.0,0.342},{0.342,0.0,-0.94},{8.352,4.176,1.044},false},
+  {'COL_Portal_113','Block',{-214.815,9.064,-18.732},{0.94,0.0,0.342},{0.342,0.0,-0.94},{7.2,2.304,1.728},false},
+  {'COL_Portal_114','Block',{-220.145,16.894,-22.664},{0.94,0.0,0.342},{0.342,0.0,-0.94},{2.628,3.024,17.388},false},
+  {'COL_Portal_115','Block',{-208.204,16.894,-18.318},{0.94,0.0,0.342},{0.342,0.0,-0.94},{2.628,3.024,17.388},false},
+  {'COL_Portal_116','Block',{-214.174,23.014,-20.491},{0.94,0.0,0.342},{0.342,0.0,-0.94},{10.08,2.304,5.148},false},
+  {'COL_Portal_117','Block',{-214.1,9.424,-20.694},{0.94,0.0,0.342},{0.342,0.0,-0.94},{5.184,1.872,2.448},false},
+  {'COL_Portal_118','Block',{-217.686,9.856,-21.999},{0.94,0.0,0.342},{0.342,0.0,-0.94},{2.448,1.872,3.312},false},
+  {'COL_Portal_119','Block',{-210.515,9.856,-19.389},{0.94,0.0,0.342},{0.342,0.0,-0.94},{2.448,1.872,3.312},false},
+  {'COL_Portal_120','Block',{-213.891,15.544,-21.269},{0.94,0.0,0.342},{0.342,0.0,-0.94},{8.64,0.648,9.792},false},
+  {'COL_Portal_121','Ramp',{-211.455,8.99,-21.856},{-0.277,0.588,0.76},{0.94,0.0,0.342},{1.498,2.448,0.576},false},
+  {'COL_Portal_122','Block',{-208.715,8.862,-22.38},{0.94,0.0,0.342},{0.342,0.0,-0.94},{2.314,2.163,1.324},false},
+  {'COL_Portal_123','Block',{-208.774,9.778,-22.77},{0.94,0.0,0.342},{0.342,0.0,-0.94},{0.873,1.402,0.553},false},
+  {'COL_Portal_124','Block',{-210.853,8.713,-24.563},{0.94,0.0,0.342},{0.342,0.0,-0.94},{1.784,1.618,1.026},false},
+  {'COL_Portal_125','Ramp',{-209.31,8.906,-16.804},{0.238,0.719,-0.653},{-0.94,0.0,-0.342},{1.123,1.584,0.576},false},
+  {'COL_Portal_126','Block',{-208.68,8.716,-14.914},{0.94,0.0,0.342},{0.342,0.0,-0.94},{1.091,1.027,1.031},false},
+  {'COL_Portal_127','Block',{-208.946,9.369,-15.259},{0.94,0.0,0.342},{0.342,0.0,-0.94},{0.403,0.343,0.503},false},
+  {'COL_Portal_128','Block',{-210.766,8.571,-14.688},{0.94,0.0,0.342},{0.342,0.0,-0.94},{0.647,0.695,0.741},false},
+  {'COL_Portal_129','Block',{-222.603,9.262,-16.28},{0.998,0.0,-0.07},{-0.07,0.0,-0.998},{3.168,0.864,2.124},false},
+  {'COL_Portal_130','Block',{-220.664,9.082,-18.869},{0.94,0.0,0.342},{0.342,0.0,-0.94},{0.576,0.576,1.764},false},
+  {'COL_Portal_131','Block',{-221.064,8.977,-20.087},{0.94,0.0,0.342},{0.342,0.0,-0.94},{0.49,0.49,1.553},false},
   {'COL_Rank_001','Block',{64.348,7.0,53.994},{0.643,0.0,-0.766},{-0.766,0.0,-0.643},{68.0,26.0,1.2},false},
   {'COL_Rank_002','Block',{53.777,6.7,45.123},{0.643,0.0,-0.766},{-0.766,0.0,-0.643},{68.6,1.6,0.6},false},
   {'COL_Rank_003','Block',{50.242,18.6,82.626},{0.643,0.0,-0.766},{-0.766,0.0,-0.643},{3.4,3.4,22.0},true},
@@ -1056,22 +1007,26 @@ local COL = {
   {'COL_Ruins_058','Block',{113.95,11.5,-122.644},{0.342,0.0,0.94},{0.94,0.0,-0.342},{2.6,2.6,10.0},false},
   {'COL_Ruins_059','Block',{-61.01,11.5,112.387},{-0.174,0.0,0.985},{0.985,0.0,0.174},{2.6,2.6,10.0},false},
   {'COL_Ruins_060','Block',{-62.99,11.5,123.613},{-0.174,0.0,0.985},{0.985,0.0,0.174},{2.6,2.6,10.0},false},
-  {'COL_Shop_001','Block',{71.961,6.9,-33.555},{-0.423,0.0,-0.906},{-0.906,0.0,0.423},{32.0,27.2,1.4},false},
-  {'COL_Shop_002','Block',{72.233,7.9,-33.682},{-0.423,0.0,-0.906},{-0.906,0.0,0.423},{30.0,25.0,0.6},true},
+  {'COL_Shop_001','Block',{72.686,6.9,-33.894},{-0.423,0.0,-0.906},{-0.906,0.0,0.423},{34.0,27.6,1.4},false},
+  {'COL_Shop_002','Block',{73.049,7.9,-34.063},{-0.423,0.0,-0.906},{-0.906,0.0,0.423},{32.0,24.8,0.6},true},
   {'COL_Shop_003','Block',{81.931,14.9,-38.204},{-0.423,0.0,-0.906},{-0.906,0.0,0.423},{28.0,1.6,13.4},true},
   {'COL_Shop_004','Block',{81.074,14.9,-23.24},{-0.423,0.0,-0.906},{-0.906,0.0,0.423},{1.6,15.8,13.4},true},
   {'COL_Shop_005','Block',{72.759,14.9,-24.273},{-0.423,0.0,-0.906},{-0.906,0.0,0.423},{10.5,1.6,13.4},true},
-  {'COL_Shop_006','Block',{69.917,14.9,-47.167},{-0.423,0.0,-0.906},{-0.906,0.0,0.423},{1.6,15.8,13.4},true},
-  {'COL_Shop_007','Block',{65.363,14.9,-40.133},{-0.423,0.0,-0.906},{-0.906,0.0,0.423},{10.5,1.6,13.4},true},
-  {'COL_Shop_008','Block',{69.061,19.4,-32.203},{-0.423,0.0,-0.906},{-0.906,0.0,0.423},{7.0,1.6,4.4},true},
-  {'COL_Shop_009','Block',{75.284,9.9,-34.001},{-0.423,0.0,-0.906},{-0.906,0.0,0.423},{12.6,2.2,3.4},true},
-  {'COL_Shop_010','Block',{80.481,13.2,-37.528},{-0.423,0.0,-0.906},{-0.906,0.0,0.423},{23.0,1.6,10.0},true},
-  {'COL_Shop_011','Block',{67.619,14.9,-18.732},{-0.423,0.0,-0.906},{-0.906,0.0,0.423},{2.4,2.4,13.4},true},
-  {'COL_Shop_012','Block',{64.576,14.9,-25.257},{-0.423,0.0,-0.906},{-0.906,0.0,0.423},{2.4,2.4,13.4},true},
-  {'COL_Shop_013','Block',{60.857,14.9,-33.233},{-0.423,0.0,-0.906},{-0.906,0.0,0.423},{2.4,2.4,13.4},true},
-  {'COL_Shop_014','Block',{57.815,14.9,-39.758},{-0.423,0.0,-0.906},{-0.906,0.0,0.423},{2.4,2.4,13.4},true},
-  {'COL_Shop_015','Block',{74.055,10.0,-44.683},{-0.423,0.0,-0.906},{-0.906,0.0,0.423},{3.4,3.4,3.6},false},
-  {'COL_Shop_016','Block',{72.958,27.1,-34.02},{-0.423,0.0,-0.906},{-0.906,0.0,0.423},{31.0,26.0,2.0},true},
+  {'COL_Shop_006','Block',{69.209,13.35,-22.894},{-0.423,0.0,-0.906},{-0.906,0.0,0.423},{1.0,6.0,10.3},true},
+  {'COL_Shop_007','Block',{66.014,13.35,-23.831},{-0.423,0.0,-0.906},{-0.906,0.0,0.423},{5.4,1.0,10.3},true},
+  {'COL_Shop_008','Block',{81.943,12.8,-20.666},{-0.423,0.0,-0.906},{-0.906,0.0,0.423},{5.4,5.4,9.0},true},
+  {'COL_Shop_009','Block',{69.917,14.9,-47.167},{-0.423,0.0,-0.906},{-0.906,0.0,0.423},{1.6,15.8,13.4},true},
+  {'COL_Shop_010','Block',{65.363,14.9,-40.133},{-0.423,0.0,-0.906},{-0.906,0.0,0.423},{10.5,1.6,13.4},true},
+  {'COL_Shop_011','Block',{62.025,13.35,-38.301},{-0.423,0.0,-0.906},{-0.906,0.0,0.423},{1.0,6.0,10.3},true},
+  {'COL_Shop_012','Block',{60.689,13.35,-35.25},{-0.423,0.0,-0.906},{-0.906,0.0,0.423},{5.4,1.0,10.3},true},
+  {'COL_Shop_013','Block',{68.505,12.8,-49.487},{-0.423,0.0,-0.906},{-0.906,0.0,0.423},{5.4,5.4,9.0},true},
+  {'COL_Shop_014','Block',{69.061,19.4,-32.203},{-0.423,0.0,-0.906},{-0.906,0.0,0.423},{7.0,1.6,4.4},true},
+  {'COL_Shop_015','Block',{65.617,18.1,-30.597},{-0.423,0.0,-0.906},{-0.906,0.0,0.423},{18.0,6.0,1.2},true},
+  {'COL_Shop_016','Block',{63.351,17.55,-29.541},{-0.423,0.0,-0.906},{-0.906,0.0,0.423},{7.2,1.0,1.9},true},
+  {'COL_Shop_017','Block',{75.284,9.9,-34.001},{-0.423,0.0,-0.906},{-0.906,0.0,0.423},{12.6,2.2,3.4},true},
+  {'COL_Shop_018','Block',{80.481,13.2,-37.528},{-0.423,0.0,-0.906},{-0.906,0.0,0.423},{23.0,1.6,10.0},true},
+  {'COL_Shop_019','Block',{74.055,10.0,-44.683},{-0.423,0.0,-0.906},{-0.906,0.0,0.423},{3.4,3.4,3.6},false},
+  {'COL_Shop_020','Block',{75.496,25.6,-35.204},{-0.423,0.0,-0.906},{-0.906,0.0,0.423},{29.0,16.8,8.0},true},
   {'COL_Terrain_001','Block',{0.0,4.8,-160.0},{1.0,0.0,0.0},{0.0,0.0,-1.0},{150.0,8.0,4.0},false},
   {'COL_Terrain_002','Block',{0.0,4.8,-152.0},{1.0,0.0,0.0},{0.0,0.0,-1.0},{182.0,8.0,4.0},false},
   {'COL_Terrain_003','Block',{0.0,4.8,-144.0},{1.0,0.0,0.0},{0.0,0.0,-1.0},{214.0,8.0,4.0},false},
@@ -1100,145 +1055,59 @@ local COL = {
   {'COL_Terrain_038','Block',{0.0,4.8,136.0},{1.0,0.0,0.0},{0.0,0.0,-1.0},{162.0,8.0,4.0},false},
   {'COL_Terrain_039','Block',{0.0,4.8,144.0},{1.0,0.0,0.0},{0.0,0.0,-1.0},{138.0,8.0,4.0},false},
   {'COL_Terrain_040','Block',{0.0,4.8,149.0},{1.0,0.0,0.0},{0.0,0.0,-1.0},{54.0,2.0,4.0},false},
-  {'COL_Terrain_041','Block',{-237.0,4.8,-51.3},{1.0,0.0,0.0},{0.0,0.0,-1.0},{48.0,8.0,4.0},false},
-  {'COL_Terrain_042','Block',{-238.0,4.8,-43.3},{1.0,0.0,0.0},{0.0,0.0,-1.0},{70.0,8.0,4.0},false},
-  {'COL_Terrain_043','Block',{-239.0,4.8,-35.3},{1.0,0.0,0.0},{0.0,0.0,-1.0},{88.0,8.0,4.0},false},
-  {'COL_Terrain_044','Block',{-239.0,4.8,-27.3},{1.0,0.0,0.0},{0.0,0.0,-1.0},{100.0,8.0,4.0},false},
-  {'COL_Terrain_045','Block',{-237.0,4.8,-19.3},{1.0,0.0,0.0},{0.0,0.0,-1.0},{112.0,8.0,4.0},false},
-  {'COL_Terrain_046','Block',{-235.0,4.8,-11.3},{1.0,0.0,0.0},{0.0,0.0,-1.0},{120.0,8.0,4.0},false},
-  {'COL_Terrain_047','Block',{-233.0,4.8,-3.3},{1.0,0.0,0.0},{0.0,0.0,-1.0},{124.0,8.0,4.0},false},
-  {'COL_Terrain_048','Block',{-233.0,4.8,12.7},{1.0,0.0,0.0},{0.0,0.0,-1.0},{128.0,24.0,4.0},false},
-  {'COL_Terrain_051','Block',{-234.0,4.8,28.7},{1.0,0.0,0.0},{0.0,0.0,-1.0},{126.0,8.0,4.0},false},
-  {'COL_Terrain_052','Block',{-236.0,4.8,36.7},{1.0,0.0,0.0},{0.0,0.0,-1.0},{122.0,8.0,4.0},false},
-  {'COL_Terrain_053','Block',{-237.0,4.8,44.7},{1.0,0.0,0.0},{0.0,0.0,-1.0},{116.0,8.0,4.0},false},
-  {'COL_Terrain_054','Block',{-239.0,4.8,52.7},{1.0,0.0,0.0},{0.0,0.0,-1.0},{108.0,8.0,4.0},false},
-  {'COL_Terrain_055','Block',{-239.0,4.8,60.7},{1.0,0.0,0.0},{0.0,0.0,-1.0},{96.0,8.0,4.0},false},
-  {'COL_Terrain_056','Block',{-240.0,4.8,68.7},{1.0,0.0,0.0},{0.0,0.0,-1.0},{78.0,8.0,4.0},false},
-  {'COL_Veg_001','Block',{115.137,11.926,-17.786},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.199,3.199,10.253},false},
-  {'COL_Veg_002','Block',{8.982,12.284,-150.85},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.422,3.422,10.968},false},
-  {'COL_Veg_003','Block',{140.965,11.717,-39.209},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.068,3.068,9.833},false},
-  {'COL_Veg_004','Block',{-198.214,12.109,24.803},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.313,3.313,10.619},false},
-  {'COL_Veg_005','Block',{-45.697,13.272,108.089},{1.0,0.0,0.0},{0.0,0.0,-1.0},{4.039,4.039,12.945},false},
-  {'COL_Veg_006','Block',{95.807,13.104,25.51},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.934,3.934,12.608},false},
-  {'COL_Veg_007','Block',{-88.172,12.112,65.376},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.315,3.315,10.625},false},
-  {'COL_Veg_008','Block',{106.632,13.002,43.237},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.87,3.87,12.403},false},
-  {'COL_Veg_009','Block',{-72.399,12.636,63.2},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.641,3.641,11.671},false},
-  {'COL_Veg_010','Block',{78.067,12.162,11.831},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.346,3.346,10.725},false},
-  {'COL_Veg_011','Block',{78.82,11.847,118.765},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.15,3.15,10.095},false},
-  {'COL_Veg_012','Block',{135.483,12.967,0.607},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.848,3.848,12.334},false},
-  {'COL_Veg_013','Block',{-62.191,12.991,-34.075},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.863,3.863,12.382},false},
-  {'COL_Veg_014','Block',{32.44,12.942,80.288},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.832,3.832,12.283},false},
-  {'COL_Veg_015','Block',{134.883,11.502,14.345},{1.0,0.0,0.0},{0.0,0.0,-1.0},{2.934,2.934,9.403},false},
-  {'COL_Veg_016','Block',{-112.423,12.063,-14.031},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.284,3.284,10.525},false},
-  {'COL_Veg_017','Block',{-106.283,12.552,45.718},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.589,3.589,11.504},false},
-  {'COL_Veg_018','Block',{-56.711,12.481,34.167},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.545,3.545,11.362},false},
-  {'COL_Veg_019','Block',{-58.219,11.558,136.504},{1.0,0.0,0.0},{0.0,0.0,-1.0},{2.969,2.969,9.516},false},
-  {'COL_Veg_020','Block',{-70.906,11.992,-81.211},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.24,3.24,10.383},false},
-  {'COL_Veg_021','Block',{-93.841,13.271,-34.813},{1.0,0.0,0.0},{0.0,0.0,-1.0},{4.038,4.038,12.941},false},
-  {'COL_Veg_022','Block',{-78.788,12.572,-39.429},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.602,3.602,11.545},false},
-  {'COL_Veg_023','Block',{-77.41,12.024,101.455},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.26,3.26,10.448},false},
-  {'COL_Veg_024','Block',{-201.468,12.681,-10.417},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.67,3.67,11.763},false},
-  {'COL_Veg_025','Block',{138.777,12.374,-70.399},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.478,3.478,11.148},false},
-  {'COL_Veg_026','Block',{-124.873,11.546,-14.78},{1.0,0.0,0.0},{0.0,0.0,-1.0},{2.961,2.961,9.492},false},
-  {'COL_Veg_027','Block',{123.496,12.875,78.242},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.791,3.791,12.151},false},
-  {'COL_Veg_028','Block',{90.245,12.839,59.454},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.768,3.768,12.078},false},
-  {'COL_Veg_029','Block',{87.831,11.771,97.838},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.102,3.102,9.943},false},
-  {'COL_Veg_030','Block',{28.678,12.081,-50.858},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.296,3.296,10.563},false},
-  {'COL_Veg_031','Block',{-94.173,12.012,-50.413},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.252,3.252,10.425},false},
-  {'COL_Veg_032','Block',{-52.307,13.201,125.592},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.994,3.994,12.803},false},
-  {'COL_Veg_033','Block',{24.364,11.529,-80.878},{1.0,0.0,0.0},{0.0,0.0,-1.0},{2.951,2.951,9.457},false},
-  {'COL_Veg_034','Block',{-91.107,13.151,92.958},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.963,3.963,12.702},false},
-  {'COL_Veg_035','Block',{124.977,12.144,-103.503},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.335,3.335,10.689},false},
-  {'COL_Veg_036','Block',{-98.514,13.14,25.375},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.956,3.956,12.68},false},
-  {'COL_Veg_037','Block',{111.817,12.736,98.328},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.704,3.704,11.871},false},
-  {'COL_Veg_038','Block',{-80.138,12.099,76.469},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.307,3.307,10.598},false},
-  {'COL_Veg_039','Block',{96.639,11.904,9.989},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.185,3.185,10.208},false},
-  {'COL_Veg_040','Block',{-30.806,13.184,50.16},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.984,3.984,12.769},false},
-  {'COL_Veg_041','Block',{-114.712,12.933,-76.642},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.827,3.827,12.267},false},
-  {'COL_Veg_042','Block',{25.388,13.212,-154.521},{1.0,0.0,0.0},{0.0,0.0,-1.0},{4.001,4.001,12.824},false},
-  {'COL_Veg_043','Block',{-16.157,11.718,88.005},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.069,3.069,9.835},false},
-  {'COL_Veg_044','Block',{-76.393,11.94,20.439},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.207,3.207,10.279},false},
-  {'COL_Veg_045','Block',{45.437,11.981,-60.708},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.233,3.233,10.362},false},
-  {'COL_Veg_046','Block',{29.023,12.044,118.662},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.272,3.272,10.489},false},
-  {'COL_Veg_047','Block',{-27.328,10.797,125.026},{1.0,0.0,0.0},{0.0,0.0,-1.0},{2.494,2.494,7.994},false},
-  {'COL_Veg_048','Block',{22.09,11.289,92.961},{1.0,0.0,0.0},{0.0,0.0,-1.0},{2.801,2.801,8.977},false},
-  {'COL_Veg_049','Block',{-35.133,10.877,74.404},{1.0,0.0,0.0},{0.0,0.0,-1.0},{2.544,2.544,8.155},false},
-  {'COL_Veg_050','Block',{-37.829,11.957,34.794},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.218,3.218,10.315},false},
-  {'COL_Veg_051','Block',{89.853,10.916,-1.937},{1.0,0.0,0.0},{0.0,0.0,-1.0},{2.568,2.568,8.231},false},
-  {'COL_Veg_052','Block',{-89.153,11.107,-16.84},{1.0,0.0,0.0},{0.0,0.0,-1.0},{2.687,2.687,8.614},false},
-  {'COL_Veg_053','Block',{42.756,11.955,93.828},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.217,3.217,10.31},false},
-  {'COL_Veg_054','Block',{72.226,11.945,83.025},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.211,3.211,10.29},false},
-  {'COL_Veg_055','Block',{-123.036,10.652,28.232},{1.0,0.0,0.0},{0.0,0.0,-1.0},{2.404,2.404,7.704},false},
-  {'COL_Veg_056','Block',{126.661,11.064,-21.522},{1.0,0.0,0.0},{0.0,0.0,-1.0},{2.66,2.66,8.527},false},
-  {'COL_Veg_057','Block',{-88.376,10.98,37.367},{1.0,0.0,0.0},{0.0,0.0,-1.0},{2.608,2.608,8.359},false},
-  {'COL_Veg_058','Block',{-69.627,10.811,-10.815},{1.0,0.0,0.0},{0.0,0.0,-1.0},{2.503,2.503,8.022},false},
-  {'COL_Veg_059','Block',{98.059,10.983,72.77},{1.0,0.0,0.0},{0.0,0.0,-1.0},{2.61,2.61,8.366},false},
-  {'COL_Veg_060','Block',{120.015,11.97,1.74},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.226,3.226,10.341},false},
-  {'COL_Veg_061','Block',{-71.203,12.893,37.052},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.802,3.802,12.185},false},
-  {'COL_Veg_062','Block',{-78.719,12.007,51.304},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.249,3.249,10.414},false},
-  {'COL_Veg_063','Block',{59.403,13.028,-68.304},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.886,3.886,12.457},false},
-  {'COL_Veg_064','Block',{-44.816,13.592,54.89},{1.0,0.0,0.0},{0.0,0.0,-1.0},{4.238,4.238,13.585},false},
-  {'COL_Veg_065','Block',{58.22,13.263,99.348},{1.0,0.0,0.0},{0.0,0.0,-1.0},{4.033,4.033,12.925},false},
-  {'COL_Veg_066','Block',{29.477,13.719,-65.729},{1.0,0.0,0.0},{0.0,0.0,-1.0},{4.318,4.318,13.839},false},
-  {'COL_Veg_067','Block',{-63.289,12.273,99.527},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.415,3.415,10.947},false},
-  {'COL_Veg_068','Block',{-67.716,13.549,-52.771},{1.0,0.0,0.0},{0.0,0.0,-1.0},{4.212,4.212,13.499},false},
-  {'COL_Veg_069','Block',{-99.628,14.191,-76.657},{1.0,0.0,0.0},{0.0,0.0,-1.0},{2.838,2.838,14.781},false},
-  {'COL_Veg_070','Block',{30.135,13.422,131.287},{1.0,0.0,0.0},{0.0,0.0,-1.0},{2.543,2.543,13.244},false},
-  {'COL_Veg_071','Block',{17.16,15.489,134.3},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.336,3.336,17.377},false},
-  {'COL_Veg_072','Block',{141.737,13.327,-21.922},{1.0,0.0,0.0},{0.0,0.0,-1.0},{2.506,2.506,13.053},false},
-  {'COL_Veg_073','Block',{65.23,14.204,118.774},{1.0,0.0,0.0},{0.0,0.0,-1.0},{2.843,2.843,14.808},false},
-  {'COL_Veg_074','Block',{48.473,14.923,-156.845},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.119,3.119,16.246},false},
-  {'COL_Veg_075','Block',{84.112,14.694,-90.945},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.031,3.031,15.788},false},
-  {'COL_Veg_076','Block',{134.551,15.017,40.478},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.155,3.155,16.434},false},
-  {'COL_Veg_077','Block',{-14.815,15.009,-152.111},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.152,3.152,16.418},false},
-  {'COL_Veg_078','Block',{131.292,13.788,24.429},{1.0,0.0,0.0},{0.0,0.0,-1.0},{2.683,2.683,13.977},false},
-  {'COL_Veg_079','Block',{-138.643,13.948,43.871},{1.0,0.0,0.0},{0.0,0.0,-1.0},{2.745,2.745,14.297},false},
-  {'COL_Veg_080','Block',{-65.826,13.231,-149.763},{1.0,0.0,0.0},{0.0,0.0,-1.0},{2.47,2.47,12.863},false},
-  {'COL_Veg_081','Block',{141.375,14.444,27.821},{1.0,0.0,0.0},{0.0,0.0,-1.0},{2.935,2.935,15.287},false},
-  {'COL_Veg_082','Block',{-128.773,13.5,-89.174},{1.0,0.0,0.0},{0.0,0.0,-1.0},{2.573,2.573,13.4},false},
-  {'COL_Veg_083','Block',{-189.527,14.853,45.77},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.092,3.092,16.106},false},
-  {'COL_Veg_084','Block',{-26.981,13.611,135.762},{1.0,0.0,0.0},{0.0,0.0,-1.0},{2.616,2.616,13.623},false},
-  {'COL_Veg_085','Block',{-138.222,14.476,-66.911},{1.0,0.0,0.0},{0.0,0.0,-1.0},{2.948,2.948,15.353},false},
-  {'COL_Veg_086','Block',{-141.807,14.613,23.79},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.0,3.0,15.625},false},
-  {'COL_Veg_087','Block',{-182.31,13.486,-4.109},{1.0,0.0,0.0},{0.0,0.0,-1.0},{2.568,2.568,13.372},false},
-  {'COL_Veg_088','Block',{-200.405,13.561,41.466},{1.0,0.0,0.0},{0.0,0.0,-1.0},{2.596,2.596,13.522},false},
-  {'COL_Veg_089','Block',{-124.61,13.825,39.99},{1.0,0.0,0.0},{0.0,0.0,-1.0},{2.697,2.697,14.049},false},
-  {'COL_Veg_090','Block',{-109.665,13.484,75.38},{1.0,0.0,0.0},{0.0,0.0,-1.0},{2.567,2.567,13.368},false},
-  {'COL_Veg_091','Block',{100.332,13.775,-137.636},{1.0,0.0,0.0},{0.0,0.0,-1.0},{2.678,2.678,13.949},false},
-  {'COL_Veg_092','Block',{48.115,13.744,-79.29},{1.0,0.0,0.0},{0.0,0.0,-1.0},{2.667,2.667,13.889},false},
-  {'COL_Veg_093','Block',{-52.724,12.352,-23.509},{1.0,0.0,0.0},{0.0,0.0,-1.0},{2.132,2.132,11.104},false},
-  {'COL_Veg_094','Block',{-139.016,11.938,-21.693},{1.0,0.0,0.0},{0.0,0.0,-1.0},{1.973,1.973,10.277},false},
-  {'COL_Veg_095','Block',{-35.625,12.78,-71.861},{1.0,0.0,0.0},{0.0,0.0,-1.0},{2.296,2.296,11.96},false},
-  {'COL_Veg_096','Block',{111.986,13.319,-99.951},{1.0,0.0,0.0},{0.0,0.0,-1.0},{2.503,2.503,13.038},false},
-  {'COL_Veg_097','Block',{54.903,12.17,123.311},{1.0,0.0,0.0},{0.0,0.0,-1.0},{2.062,2.062,10.74},false},
-  {'COL_Veg_098','Block',{-118.11,12.319,84.227},{1.0,0.0,0.0},{0.0,0.0,-1.0},{2.119,2.119,11.037},false},
-  {'COL_Veg_099','Block',{75.064,12.562,102.498},{1.0,0.0,0.0},{0.0,0.0,-1.0},{2.213,2.213,11.524},false},
-  {'COL_Veg_100','Block',{-124.722,13.166,51.157},{1.0,0.0,0.0},{0.0,0.0,-1.0},{2.444,2.444,12.732},false},
-  {'COL_Veg_101','Block',{124.826,12.619,-31.899},{1.0,0.0,0.0},{0.0,0.0,-1.0},{2.235,2.235,11.639},false},
-  {'COL_Veg_102','Block',{-42.171,13.088,-32.267},{1.0,0.0,0.0},{0.0,0.0,-1.0},{2.415,2.415,12.576},false},
-  {'COL_Veg_103','Block',{-141.84,13.268,-49.92},{1.0,0.0,0.0},{0.0,0.0,-1.0},{2.484,2.484,12.935},false},
-  {'COL_Veg_104','Block',{-52.24,12.608,-80.988},{1.0,0.0,0.0},{0.0,0.0,-1.0},{2.23,2.23,11.617},false},
-  {'COL_Veg_105','Block',{-48.704,13.49,-59.721},{1.0,0.0,0.0},{0.0,0.0,-1.0},{2.569,2.569,13.38},false},
-  {'COL_Veg_106','Block',{-121.851,13.535,-27.738},{1.0,0.0,0.0},{0.0,0.0,-1.0},{2.586,2.586,13.471},false},
-  {'COL_Veg_107','Block',{-182.656,12.772,36.938},{1.0,0.0,0.0},{0.0,0.0,-1.0},{2.293,2.293,11.944},false},
-  {'COL_Veg_108','Block',{99.44,12.608,-119.554},{1.0,0.0,0.0},{0.0,0.0,-1.0},{2.23,2.23,11.616},false},
-  {'COL_Veg_109','Block',{-49.668,13.521,89.953},{1.0,0.0,0.0},{0.0,0.0,-1.0},{2.581,2.581,13.441},false},
-  {'COL_Veg_110','Block',{-106.128,13.427,97.788},{1.0,0.0,0.0},{0.0,0.0,-1.0},{2.545,2.545,13.254},false},
-  {'COL_Veg_111','Block',{-25.371,12.605,-48.016},{1.0,0.0,0.0},{0.0,0.0,-1.0},{2.229,2.229,11.61},false},
-  {'COL_Veg_112','Block',{118.951,12.091,38.303},{1.0,0.0,0.0},{0.0,0.0,-1.0},{2.032,2.032,10.582},false},
-  {'COL_Veg_113','Block',{-207.545,13.041,30.584},{1.0,0.0,0.0},{0.0,0.0,-1.0},{2.397,2.397,12.482},false},
-  {'COL_Veg_114','Block',{-74.582,11.907,-66.068},{1.0,0.0,0.0},{0.0,0.0,-1.0},{1.961,1.961,10.214},false},
-  {'COL_Veg_115','Block',{-50.939,12.995,-43.785},{1.0,0.0,0.0},{0.0,0.0,-1.0},{2.379,2.379,12.391},false},
-  {'COL_Veg_116','Block',{-116.366,12.139,-64.236},{1.0,0.0,0.0},{0.0,0.0,-1.0},{2.05,2.05,10.678},false},
-  {'COL_Veg_117','Block',{94.488,11.128,86.185},{1.0,0.0,0.0},{0.0,0.0,-1.0},{2.701,2.701,8.657},false},
-  {'COL_Veg_118','Block',{-63.0,11.573,84.307},{1.0,0.0,0.0},{0.0,0.0,-1.0},{2.979,2.979,9.547},false},
-  {'COL_Veg_119','Block',{-51.081,11.056,-9.813},{1.0,0.0,0.0},{0.0,0.0,-1.0},{2.656,2.656,8.512},false},
-  {'COL_Veg_120','Block',{-90.795,11.271,-64.395},{1.0,0.0,0.0},{0.0,0.0,-1.0},{2.79,2.79,8.942},false},
-  {'COL_Veg_121','Block',{-97.447,11.137,76.122},{1.0,0.0,0.0},{0.0,0.0,-1.0},{2.706,2.706,8.674},false},
-  {'COL_Veg_122','Block',{-41.329,12.037,121.519},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.268,3.268,10.473},false},
-  {'COL_Veg_123','Block',{97.732,12.233,-18.745},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.39,3.39,10.867},false},
-  {'COL_Veg_124','Block',{-32.425,12.504,94.792},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.559,3.559,11.408},false},
-  {'COL_Veg_125','Block',{-96.0,18.3,-112.0},{1.0,0.0,0.0},{0.0,0.0,-1.0},{9.384,9.384,23.0},false},
+  {'COL_Terrain_041','Block',{-227.0,4.8,-41.3},{1.0,0.0,0.0},{0.0,0.0,-1.0},{44.0,8.0,4.0},false},
+  {'COL_Terrain_042','Block',{-229.0,4.8,-33.3},{1.0,0.0,0.0},{0.0,0.0,-1.0},{64.0,8.0,4.0},false},
+  {'COL_Terrain_043','Block',{-230.0,4.8,-25.3},{1.0,0.0,0.0},{0.0,0.0,-1.0},{78.0,8.0,4.0},false},
+  {'COL_Terrain_044','Block',{-228.0,4.8,-17.3},{1.0,0.0,0.0},{0.0,0.0,-1.0},{90.0,8.0,4.0},false},
+  {'COL_Terrain_045','Block',{-225.0,4.8,-9.3},{1.0,0.0,0.0},{0.0,0.0,-1.0},{100.0,8.0,4.0},false},
+  {'COL_Terrain_046','Block',{-223.0,4.8,-1.3},{1.0,0.0,0.0},{0.0,0.0,-1.0},{104.0,8.0,4.0},false},
+  {'COL_Terrain_047','Block',{-223.0,4.8,14.7},{1.0,0.0,0.0},{0.0,0.0,-1.0},{108.0,24.0,4.0},false},
+  {'COL_Terrain_050','Block',{-225.0,4.8,30.7},{1.0,0.0,0.0},{0.0,0.0,-1.0},{104.0,8.0,4.0},false},
+  {'COL_Terrain_051','Block',{-227.0,4.8,38.7},{1.0,0.0,0.0},{0.0,0.0,-1.0},{100.0,8.0,4.0},false},
+  {'COL_Terrain_052','Block',{-229.0,4.8,46.7},{1.0,0.0,0.0},{0.0,0.0,-1.0},{92.0,8.0,4.0},false},
+  {'COL_Terrain_053','Block',{-229.0,4.8,54.7},{1.0,0.0,0.0},{0.0,0.0,-1.0},{80.0,8.0,4.0},false},
+  {'COL_Terrain_054','Block',{-229.0,4.8,60.755},{1.0,0.0,0.0},{0.0,0.0,-1.0},{56.0,4.11,4.0},false},
+  {'COL_Veg_001','Block',{115.137,11.341,-17.786},{1.0,0.0,0.0},{0.0,0.0,-1.0},{2.834,2.834,9.082},false},
+  {'COL_Veg_002','Block',{-71.203,10.86,37.052},{1.0,0.0,0.0},{0.0,0.0,-1.0},{2.533,2.533,8.119},false},
+  {'COL_Veg_003','Block',{45.437,10.645,-60.708},{1.0,0.0,0.0},{0.0,0.0,-1.0},{2.399,2.399,7.689},false},
+  {'COL_Veg_004','Block',{94.488,10.739,86.185},{1.0,0.0,0.0},{0.0,0.0,-1.0},{2.458,2.458,7.878},false},
+  {'COL_Veg_005','Block',{22.09,11.579,92.961},{1.0,0.0,0.0},{0.0,0.0,-1.0},{2.982,2.982,9.558},false},
+  {'COL_Veg_006','Block',{-72.399,11.539,63.2},{1.0,0.0,0.0},{0.0,0.0,-1.0},{2.957,2.957,9.478},false},
+  {'COL_Veg_007','Block',{-62.191,12.103,-34.075},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.309,3.309,10.605},false},
+  {'COL_Veg_008','Block',{-90.795,12.044,-64.395},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.272,3.272,10.487},false},
+  {'COL_Veg_009','Block',{-76.393,12.476,20.439},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.542,3.542,11.353},false},
+  {'COL_Veg_010','Block',{8.982,11.81,-150.85},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.126,3.126,10.02},false},
+  {'COL_Veg_011','Block',{-52.724,12.119,-23.509},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.319,3.319,10.637},false},
+  {'COL_Veg_012','Block',{-139.016,12.817,-21.693},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.755,3.755,12.034},false},
+  {'COL_Veg_013','Block',{-45.697,12.573,108.089},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.602,3.602,11.546},false},
+  {'COL_Veg_014','Block',{95.807,12.754,25.51},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.715,3.715,11.908},false},
+  {'COL_Veg_015','Block',{-35.625,11.822,-71.861},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.133,3.133,10.043},false},
+  {'COL_Veg_016','Block',{-88.172,12.887,65.376},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.798,3.798,12.174},false},
+  {'COL_Veg_017','Block',{-118.11,12.211,84.227},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.377,3.377,10.823},false},
+  {'COL_Veg_018','Block',{65.23,11.613,118.774},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.003,3.003,9.627},false},
+  {'COL_Veg_019','Block',{48.473,11.765,-156.845},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.098,3.098,9.931},false},
+  {'COL_Veg_020','Block',{84.112,13.028,-90.945},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.886,3.886,12.456},false},
+  {'COL_Veg_021','Block',{-99.628,12.089,-76.657},{1.0,0.0,0.0},{0.0,0.0,-1.0},{2.031,2.031,10.577},false},
+  {'COL_Veg_022','Block',{111.986,12.411,-99.951},{1.0,0.0,0.0},{0.0,0.0,-1.0},{2.155,2.155,11.223},false},
+  {'COL_Veg_023','Block',{29.023,12.164,118.662},{1.0,0.0,0.0},{0.0,0.0,-1.0},{2.06,2.06,10.728},false},
+  {'COL_Veg_024','Block',{54.903,13.276,123.311},{1.0,0.0,0.0},{0.0,0.0,-1.0},{2.487,2.487,12.951},false},
+  {'COL_Veg_025','Block',{141.737,13.206,-21.922},{1.0,0.0,0.0},{0.0,0.0,-1.0},{2.46,2.46,12.813},false},
+  {'COL_Veg_026','Block',{140.965,14.86,-39.209},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.095,3.095,16.121},false},
+  {'COL_Veg_027','Block',{48.115,13.984,-79.29},{1.0,0.0,0.0},{0.0,0.0,-1.0},{2.759,2.759,14.368},false},
+  {'COL_Veg_028','Block',{30.135,13.213,131.287},{1.0,0.0,0.0},{0.0,0.0,-1.0},{2.463,2.463,12.826},false},
+  {'COL_Veg_029','Block',{17.16,15.513,134.3},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.346,3.346,17.426},false},
+  {'COL_Veg_030','Block',{78.82,14.779,118.765},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.064,3.064,15.958},false},
+  {'COL_Veg_031','Block',{135.483,13.796,0.607},{1.0,0.0,0.0},{0.0,0.0,-1.0},{2.686,2.686,13.992},false},
+  {'COL_Veg_032','Block',{-124.722,14.399,51.157},{1.0,0.0,0.0},{0.0,0.0,-1.0},{2.918,2.918,15.198},false},
+  {'COL_Veg_033','Block',{-198.214,11.38,24.803},{1.0,0.0,0.0},{0.0,0.0,-1.0},{2.858,2.858,9.161},false},
+  {'COL_Veg_034','Block',{-27.328,12.366,125.026},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.473,3.473,11.131},false},
+  {'COL_Veg_035','Block',{-63.0,11.702,84.307},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.059,3.059,9.805},false},
+  {'COL_Veg_036','Block',{78.067,11.782,11.831},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.109,3.109,9.964},false},
+  {'COL_Veg_037','Block',{106.632,11.921,43.237},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.195,3.195,10.242},false},
+  {'COL_Veg_038','Block',{75.064,13.687,102.498},{1.0,0.0,0.0},{0.0,0.0,-1.0},{4.298,4.298,13.775},false},
+  {'COL_Veg_039','Block',{-51.081,12.905,-9.813},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.81,3.81,12.211},false},
+  {'COL_Veg_040','Block',{-78.719,13.084,51.304},{1.0,0.0,0.0},{0.0,0.0,-1.0},{3.921,3.921,12.567},false},
+  {'COL_Veg_041','Block',{-96.0,18.3,-112.0},{1.0,0.0,0.0},{0.0,0.0,-1.0},{9.384,9.384,23.0},false},
 }
 COLF:ClearAllChildren()
 for _, c in ipairs(COL) do
@@ -1253,25 +1122,35 @@ local MK = {
   {'INTERACT_Ignis',{-0.9,13.79,-60.2},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['prompt_range']=18,['server_range']=22,['alvo']='belly (prompt do Main)'}},
   {'ISLE_Link',{0.0,6.0,222.0},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['kind']='ilha1'}},
   {'LETREIRO_Ignis',{-0.9,20.0,-60.7},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['alvo']='LetreiroIgnis'}},
-  {'LETREIRO_Ilha',{-236.0,33.0,12.0},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['texto']='ILHA DOS PORTAIS',['alcance']=240}},
+  {'LETREIRO_Ilha',{-226.0,33.0,12.0},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['texto']='ILHA DOS PORTAIS',['alcance']=240}},
   {'LETREIRO_Loja',{61.629,34.1,-28.738},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['texto']='LOJA DE MOCHILAS',['alcance']=170}},
-  {'LETREIRO_Portal1',{-223.003,33.0,47.708},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['texto']='NARUTO',['alcance']=150}},
-  {'LETREIRO_Portal2',{-251.456,33.0,46.715},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['texto']='DRAGON BALL',['alcance']=150}},
-  {'LETREIRO_Portal3',{-271.233,33.0,26.235},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['texto']='SHADOW GARDEN',['alcance']=150}},
-  {'LETREIRO_Portal4',{-271.233,33.0,-2.235},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['texto']='DEMON SLAYER',['alcance']=150}},
-  {'LETREIRO_Portal5',{-251.456,33.0,-22.715},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['texto']='ONE PIECE',['alcance']=150}},
-  {'LETREIRO_Portal6',{-223.003,33.0,-23.708},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['texto']='ONE PUNCH MAN',['alcance']=150}},
-  {'LETREIRO_Ranking',{62.816,45.6,52.708},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['texto']='TABUAS DOS CAMPEOES',['alcance']=190}},
+  {'LETREIRO_Portal1',{-215.356,27.4,41.243},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['texto']='NARUTO',['alcance']=150,['cor']='255,170,60',['icone']='brilho'}},
+  {'LETREIRO_Portal2',{-238.658,27.4,40.43},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['texto']='DRAGON BALL',['alcance']=150,['cor']='255,150,40',['icone']='brilho'}},
+  {'LETREIRO_Portal3',{-254.854,27.4,23.658},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['texto']='SHADOW GARDEN',['alcance']=150,['cor']='186,120,255',['icone']='brilho'}},
+  {'LETREIRO_Portal4',{-254.854,27.4,0.342},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['texto']='DEMON SLAYER',['alcance']=150,['cor']='255,80,70',['icone']='brilho'}},
+  {'LETREIRO_Portal5',{-238.658,27.4,-16.43},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['texto']='ONE PIECE',['alcance']=150,['cor']='90,170,255',['icone']='brilho'}},
+  {'LETREIRO_Portal6',{-215.356,27.4,-17.243},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['texto']='ONE PUNCH MAN',['alcance']=150,['cor']='255,210,90',['icone']='brilho'}},
+  {'LETREIRO_Ranking',{62.816,45.6,52.708},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['texto']='CAMPEOES',['alcance']=190,['cor']='236,170,40',['icone']='trofeu'}},
   {'NPC_Ignis',{-0.9,7.02,-60.7},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['npc']='Ignis',['alvo']='workspace.NPCs.Ignis (Root)',['face_x']=0.0,['face_z']=1.0,['yaw_deg']=180.0}},
   {'NPC_Vendedor',{76.583,8.2,-35.711},{-0.423,0.0,-0.906},{-0.906,0.0,0.423},{['kind']='npc',['olha']='porta'}},
+  {'PICK_SLOT_1',{-6.6,11.15,-44.4},{-1.0,0.0,-0.0},{-0.0,0.0,1.0},{['picareta']='enferrujada',['caixa_w']=3.4,['caixa_h']=5.2,['face_x']=0.0,['face_z']=1.0}},
+  {'PICK_SLOT_2',{-10.6,11.15,-44.4},{-1.0,0.0,-0.0},{-0.0,0.0,1.0},{['picareta']='ferro',['caixa_w']=3.4,['caixa_h']=5.2,['face_x']=0.0,['face_z']=1.0}},
+  {'PICK_SLOT_3',{-14.6,11.15,-44.4},{-1.0,0.0,-0.0},{-0.0,0.0,1.0},{['picareta']='aco',['caixa_w']=3.4,['caixa_h']=5.2,['face_x']=0.0,['face_z']=1.0}},
+  {'PICK_SLOT_4',{-18.6,11.15,-44.4},{-1.0,0.0,-0.0},{-0.0,0.0,1.0},{['picareta']='rubi',['caixa_w']=3.4,['caixa_h']=5.2,['face_x']=0.0,['face_z']=1.0}},
+  {'PICK_SLOT_5',{18.6,11.15,-44.4},{-1.0,0.0,-0.0},{-0.0,0.0,1.0},{['picareta']='obsidiana',['caixa_w']=3.4,['caixa_h']=5.2,['face_x']=0.0,['face_z']=1.0}},
+  {'PICK_SLOT_6',{14.6,11.15,-44.4},{-1.0,0.0,-0.0},{-0.0,0.0,1.0},{['picareta']='runica',['caixa_w']=3.4,['caixa_h']=5.2,['face_x']=0.0,['face_z']=1.0}},
+  {'PICK_SLOT_7',{10.6,11.15,-44.4},{-1.0,0.0,-0.0},{-0.0,0.0,1.0},{['picareta']='estelar',['caixa_w']=3.4,['caixa_h']=5.2,['face_x']=0.0,['face_z']=1.0}},
+  {'PICK_SLOT_8',{6.6,11.15,-44.4},{-1.0,0.0,-0.0},{-0.0,0.0,1.0},{['picareta']='ignis',['caixa_w']=3.4,['caixa_h']=5.2,['face_x']=0.0,['face_z']=1.0}},
   {'PLAYER_INTERACT_Ignis',{-0.9,7.02,-46.0},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['face_x']=0.0,['face_z']=-1.0,['yaw_deg']=0.0}},
   {'PLAYER_Loja',{71.146,8.2,-33.175},{-0.423,0.0,-0.906},{-0.906,0.0,0.423},{['kind']='padloja'}},
-  {'PORTAL_DemonSlayer',{-274.385,19.4,-3.509},{0.375,0.0,-0.927},{-0.927,0.0,-0.375},{['destino']='DemonSlayer',['raio']=7.5,['touch']=true,['vm_portal']='DemonSlayer'}},
-  {'PORTAL_DragonBall',{-252.839,19.4,49.821},{-0.914,0.0,-0.407},{-0.407,0.0,0.914},{['destino']='DragonBall',['raio']=7.5,['touch']=true,['vm_portal']='DragonBall'}},
-  {'PORTAL_Naruto',{-221.84,19.4,50.903},{-0.94,0.0,0.342},{0.342,0.0,0.94},{['destino']='Naruto',['raio']=7.5,['touch']=true,['vm_portal']='Naruto'}},
-  {'PORTAL_OnePiece',{-252.839,19.4,-25.821},{0.914,0.0,-0.407},{-0.407,0.0,-0.914},{['destino']='OnePiece',['raio']=7.5,['touch']=true,['vm_portal']='OnePiece'}},
-  {'PORTAL_OnePunchMan',{-221.84,19.4,-26.903},{0.94,0.0,0.342},{0.342,0.0,-0.94},{['destino']='OnePunchMan',['raio']=7.5,['touch']=true,['vm_portal']='OnePunchMan'}},
-  {'PORTAL_ShadowGarden',{-274.385,19.4,27.509},{-0.375,0.0,-0.927},{-0.927,0.0,0.375},{['destino']='ShadowGarden',['raio']=7.5,['touch']=true,['vm_portal']='ShadowGarden'}},
+  {'PORTAL_DemonSlayer',{-257.124,16.264,-0.575},{0.375,0.0,-0.927},{-0.927,0.0,-0.375},{['destino']='DemonSlayer',['raio']=7.5,['touch']=true,['vm_portal']='DemonSlayer'}},
+  {'PORTAL_DragonBall',{-239.653,16.264,42.666},{-0.914,0.0,-0.407},{-0.407,0.0,0.914},{['destino']='DragonBall',['raio']=7.5,['touch']=true,['vm_portal']='DragonBall'}},
+  {'PORTAL_Naruto',{-214.519,16.264,43.544},{-0.94,0.0,0.342},{0.342,0.0,0.94},{['destino']='Naruto',['raio']=7.5,['touch']=true,['vm_portal']='Naruto'}},
+  {'PORTAL_OnePiece',{-239.653,16.264,-18.666},{0.914,0.0,-0.407},{-0.407,0.0,-0.914},{['destino']='OnePiece',['raio']=7.5,['touch']=true,['vm_portal']='OnePiece'}},
+  {'PORTAL_OnePunchMan',{-214.519,16.264,-19.544},{0.94,0.0,0.342},{0.342,0.0,-0.94},{['destino']='OnePunchMan',['raio']=7.5,['touch']=true,['vm_portal']='OnePunchMan'}},
+  {'PORTAL_ShadowGarden',{-257.124,16.264,24.575},{-0.375,0.0,-0.927},{-0.927,0.0,0.375},{['destino']='ShadowGarden',['raio']=7.5,['touch']=true,['vm_portal']='ShadowGarden'}},
+  {'QUADRO_Coins',{76.026,7.6,46.3},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['metrica']='Coins',['tabua']='MOEDAS (moeda)'}},
+  {'QUADRO_Strength',{58.798,7.6,66.83},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['metrica']='Strength',['tabua']='FORCA (martelo)'}},
   {'SAFE_IlhaPonte',{-159.0,7.2,12.0},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['kind']='safe'}},
   {'SPAWN_Lobby',{0.0,10.1,64.0},{-1.0,0.0,0.0},{0.0,0.0,1.0},{['kind']='spawn',['olha']='norte (forja)'}},
   {'TOP100_Origin',{67.412,7.6,56.565},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['alvo']='LOBBY_FORJA.GlobalTop100 (OriginCF)',['nota']='quadros em z 0 e podios em z 9,5 do local',['face_x']=-0.766,['face_z']=-0.6428}},
@@ -1289,8 +1168,8 @@ local MK = {
   {'VFX_Brazier_Br_3_1',{6.4,10.017,187.0},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='fire',['rate']=8,['size']=1.6}},
   {'VFX_Brazier_Br_5_-1',{-6.4,9.683,210.333},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='fire',['rate']=8,['size']=1.6}},
   {'VFX_Brazier_Br_5_1',{6.4,9.683,210.333},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='fire',['rate']=8,['size']=1.6}},
-  {'VFX_Brazier_ForgeE',{17.5,10.8,-41.0},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='fire',['rate']=8,['size']=1.6}},
-  {'VFX_Brazier_ForgeW',{-17.5,10.8,-41.0},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='fire',['rate']=8,['size']=1.6}},
+  {'VFX_Brazier_ForgeE',{23.0,10.8,-41.0},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='fire',['rate']=8,['size']=1.6}},
+  {'VFX_Brazier_ForgeW',{-23.0,10.8,-41.0},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='fire',['rate']=8,['size']=1.6}},
   {'VFX_Brazier_Gate_-1',{-12.5,11.2,141.8},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='fire',['rate']=8,['size']=1.6}},
   {'VFX_Brazier_Gate_1',{12.5,11.2,141.8},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='fire',['rate']=8,['size']=1.6}},
   {'VFX_Brazier_IsleBr_142_-1',{-142.0,10.6,6.4},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='fire',['rate']=8,['size']=1.6}},
@@ -1299,56 +1178,45 @@ local MK = {
   {'VFX_Brazier_IsleBr_176_1',{-176.0,10.6,17.6},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='fire',['rate']=8,['size']=1.6}},
   {'VFX_Brazier_IsleMain_-1',{-136.0,24.65,3.4},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='fire',['rate']=8,['size']=1.6}},
   {'VFX_Brazier_IsleMain_1',{-136.0,24.65,20.6},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='fire',['rate']=8,['size']=1.6}},
-  {'VFX_Brazier_P1_-1',{-218.477,12.16,40.098},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='fire',['rate']=8,['size']=1.6}},
-  {'VFX_Brazier_P1_1',{-231.363,12.16,44.787},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='fire',['rate']=8,['size']=1.6}},
-  {'VFX_Brazier_P2_-1',{-242.913,12.16,44.384},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='fire',['rate']=8,['size']=1.6}},
-  {'VFX_Brazier_P2_1',{-255.44,12.16,38.807},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='fire',['rate']=8,['size']=1.6}},
-  {'VFX_Brazier_P3_-1',{-263.469,12.16,30.493},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='fire',['rate']=8,['size']=1.6}},
-  {'VFX_Brazier_P3_1',{-268.606,12.16,17.779},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='fire',['rate']=8,['size']=1.6}},
-  {'VFX_Brazier_P4_-1',{-268.606,12.16,6.221},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='fire',['rate']=8,['size']=1.6}},
-  {'VFX_Brazier_P4_1',{-263.469,12.16,-6.493},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='fire',['rate']=8,['size']=1.6}},
-  {'VFX_Brazier_P5_-1',{-255.44,12.16,-14.807},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='fire',['rate']=8,['size']=1.6}},
-  {'VFX_Brazier_P5_1',{-242.913,12.16,-20.384},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='fire',['rate']=8,['size']=1.6}},
-  {'VFX_Brazier_P6_-1',{-231.363,12.16,-20.787},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='fire',['rate']=8,['size']=1.6}},
-  {'VFX_Brazier_P6_1',{-218.477,12.16,-16.098},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='fire',['rate']=8,['size']=1.6}},
+  {'VFX_Brazier_P1_-1',{-212.043,12.16,35.567},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='fire',['rate']=8,['size']=1.6}},
+  {'VFX_Brazier_P1_1',{-221.543,12.16,39.025},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='fire',['rate']=8,['size']=1.6}},
+  {'VFX_Brazier_P2_-1',{-232.331,12.16,38.648},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='fire',['rate']=8,['size']=1.6}},
+  {'VFX_Brazier_P2_1',{-241.567,12.16,34.536},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='fire',['rate']=8,['size']=1.6}},
+  {'VFX_Brazier_P3_-1',{-249.065,12.16,26.771},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='fire',['rate']=8,['size']=1.6}},
+  {'VFX_Brazier_P3_1',{-252.853,12.16,17.397},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='fire',['rate']=8,['size']=1.6}},
+  {'VFX_Brazier_P4_-1',{-252.853,12.16,6.603},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='fire',['rate']=8,['size']=1.6}},
+  {'VFX_Brazier_P4_1',{-249.065,12.16,-2.771},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='fire',['rate']=8,['size']=1.6}},
+  {'VFX_Brazier_P5_-1',{-241.567,12.16,-10.536},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='fire',['rate']=8,['size']=1.6}},
+  {'VFX_Brazier_P5_1',{-232.331,12.16,-14.648},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='fire',['rate']=8,['size']=1.6}},
+  {'VFX_Brazier_P6_-1',{-221.543,12.16,-15.025},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='fire',['rate']=8,['size']=1.6}},
+  {'VFX_Brazier_P6_1',{-212.043,12.16,-11.567},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='fire',['rate']=8,['size']=1.6}},
   {'VFX_Brazier_Rank_-1',{45.799,12.2,78.897},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='fire',['rate']=8,['size']=1.6}},
   {'VFX_Brazier_Rank_1',{85.654,12.2,31.404},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='fire',['rate']=8,['size']=1.6}},
-  {'VFX_Brazier_Shop_-1',{62.351,11.0,-19.144},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='fire',['rate']=8,['size']=1.6}},
-  {'VFX_Brazier_Shop_1',{54.744,11.0,-35.458},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='fire',['rate']=8,['size']=1.6}},
   {'VFX_Brazier_Stair_-1_-1',{-14.9,14.3,80.0},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='fire',['rate']=8,['size']=1.6}},
   {'VFX_Brazier_Stair_-1_1',{14.9,14.3,80.0},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='fire',['rate']=8,['size']=1.6}},
   {'VFX_Brazier_Stair_1_-1',{-14.9,14.3,52.0},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='fire',['rate']=8,['size']=1.6}},
   {'VFX_Brazier_Stair_1_1',{14.9,14.3,52.0},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='fire',['rate']=8,['size']=1.6}},
   {'VFX_Dust_Forge',{0.0,15.0,-50.0},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='dust',['rate']=3}},
-  {'VFX_Dust_Isle',{-236.0,15.0,12.0},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='dust',['rate']=4}},
+  {'VFX_Dust_Isle',{-226.0,15.0,12.0},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='dust',['rate']=4}},
   {'VFX_Dust_Plaza',{0.0,14.0,0.0},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='dust',['rate']=6}},
   {'VFX_Hammer_Embers',{112.0,7.4,-62.0},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='ember',['rate']=3}},
   {'VFX_Hammer_Smoke',{106.0,7.8,-66.0},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='smoke_thin',['rate']=2}},
   {'VFX_Hearth_Ember_C',{0.0,10.2,-74.0},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='ember',['rate']=8}},
   {'VFX_Hearth_Fire_C',{0.0,8.6,-74.0},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='fire',['rate']=16,['size']=3.4}},
-  {'VFX_Leaves_ancient_15',{-96.0,35.32,-112.0},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='leaves',['rate']=0.6,['radius']=16.56}},
-  {'VFX_Leaves_oak1_0',{115.137,18.358,-17.786},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='leaves',['rate']=0.6,['radius']=6.710870774116368}},
-  {'VFX_Leaves_oak1_1',{-88.172,18.777,65.376},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='leaves',['rate']=0.6,['radius']=6.954459638709261}},
-  {'VFX_Leaves_oak1_2',{-62.191,20.758,-34.075},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='leaves',['rate']=0.6,['radius']=8.104887975355677}},
-  {'VFX_Leaves_oak1_3',{-58.219,17.527,136.504},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='leaves',['rate']=0.6,['radius']=6.228643267859351}},
-  {'VFX_Leaves_oak1_4',{138.777,19.367,-70.399},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='leaves',['rate']=0.6,['radius']=7.296960565702595}},
-  {'VFX_Leaves_oak1_5',{-94.173,18.551,-50.413},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='leaves',['rate']=0.6,['radius']=6.823376383583922}},
-  {'VFX_Leaves_oak1_6',{111.817,20.182,98.328},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='leaves',['rate']=0.6,['radius']=7.770129900290916}},
-  {'VFX_Leaves_oak1_7',{-16.157,17.887,88.005},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='leaves',['rate']=0.6,['radius']=6.437563706228608}},
-  {'VFX_Leaves_oak2_10',{126.661,18.548,-21.522},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='leaves',['rate']=0.6,['radius']=6.82162558804363}},
-  {'VFX_Leaves_oak2_8',{-76.393,20.963,20.439},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='leaves',['rate']=0.6,['radius']=8.223567416448105}},
-  {'VFX_Leaves_oak2_9',{-37.829,21.011,34.794},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='leaves',['rate']=0.6,['radius']=8.251737340945796}},
-  {'VFX_Leaves_oak3_11',{-71.203,19.391,37.052},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='leaves',['rate']=0.6,['radius']=7.311065734661212}},
-  {'VFX_Leaves_oak3_12',{-63.289,18.111,99.527},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='leaves',['rate']=0.6,['radius']=6.567958844610393}},
-  {'VFX_Leaves_oakG_13',{94.488,17.534,86.185},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='leaves',['rate']=0.6,['radius']=6.232821263457283}},
-  {'VFX_Leaves_oakG_14',{97.732,20.275,-18.745},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='leaves',['rate']=0.6,['radius']=7.824062140607545}},
-  {'VFX_Rune_IsleStone',{-236.0,10.0,12.0},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='rune',['rate']=4}},
-  {'VFX_Rune_Portal1',{-224.713,8.6,43.01},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='rune',['rate']=2}},
-  {'VFX_Rune_Portal2',{-249.422,8.6,42.147},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='rune',['rate']=2}},
-  {'VFX_Rune_Portal3',{-266.597,8.6,24.362},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='rune',['rate']=2}},
-  {'VFX_Rune_Portal4',{-266.597,8.6,-0.362},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='rune',['rate']=2}},
-  {'VFX_Rune_Portal5',{-249.422,8.6,-18.147},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='rune',['rate']=2}},
-  {'VFX_Rune_Portal6',{-224.713,8.6,-19.01},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='rune',['rate']=2}},
+  {'VFX_Leaves_ancient_6',{-96.0,35.32,-112.0},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='leaves',['rate']=0.6,['radius']=16.56}},
+  {'VFX_Leaves_oak1_2',{-76.393,19.597,20.439},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='leaves',['rate']=0.6,['radius']=7.430771488974627}},
+  {'VFX_Leaves_oak1_3',{-35.625,18.121,-71.861},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='leaves',['rate']=0.6,['radius']=6.573692072318419}},
+  {'VFX_Leaves_oak2_0',{115.137,19.313,-17.786},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='leaves',['rate']=0.6,['radius']=7.265406852098314}},
+  {'VFX_Leaves_oak2_1',{-62.191,21.412,-34.075},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='leaves',['rate']=0.6,['radius']=8.48436984959799}},
+  {'VFX_Leaves_oak3_5',{106.632,17.383,43.237},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='leaves',['rate']=0.6,['radius']=6.145172782823461}},
+  {'VFX_Leaves_oakG_4',{-198.214,18.16,24.803},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='leaves',['rate']=0.6,['radius']=6.595843817701157}},
+  {'VFX_Rune_IsleStone',{-226.0,10.0,12.0},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='rune',['rate']=4}},
+  {'VFX_Rune_Portal1',{-217.449,8.6,35.492},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='rune',['rate']=2}},
+  {'VFX_Rune_Portal2',{-236.168,8.6,34.839},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='rune',['rate']=2}},
+  {'VFX_Rune_Portal3',{-249.18,8.6,21.365},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='rune',['rate']=2}},
+  {'VFX_Rune_Portal4',{-249.18,8.6,2.635},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='rune',['rate']=2}},
+  {'VFX_Rune_Portal5',{-236.168,8.6,-10.839},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='rune',['rate']=2}},
+  {'VFX_Rune_Portal6',{-217.449,8.6,-11.492},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='rune',['rate']=2}},
   {'VFX_Rune_Spawn',{0.0,10.6,64.0},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='rune',['rate']=3}},
   {'VFX_Sparkle_Crystal_0',{66.0,10.8,-96.0},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='sparkle',['rate']=3}},
   {'VFX_Sparkle_Crystal_1',{-70.0,10.4,-96.0},{1.0,0.0,0.0},{0.0,0.0,-1.0},{['particle']='sparkle',['rate']=3}},
@@ -1367,22 +1235,22 @@ end
 -- luzes: {nome, tipo, pos, cor, alcance, brilho, sombra, noturna, direcao(spot), angulo(spot)}
 -- noturna = Enabled false + atributo NightOnly (o ciclo dia/noite liga: for _, l in LIGHTS:GetDescendants() ...)
 local LT = {
-  {'L_P_DemonSlayer_Lamp_1','POINT',{-267.28,11.44,3.73},{255,137,97},4.5,0.31,false,false},
-  {'L_P_DemonSlayer_Lamp_2','POINT',{-264.245,11.44,-3.78},{255,137,97},4.5,0.31,false,false},
-  {'L_P_DemonSlayer_Pad','POINT',{-268.451,12.7,-1.111},{255,129,129},12.6,0.71,false,false},
-  {'L_P_DragonBall_Pad','POINT',{-250.236,12.7,43.974},{97,179,255},12.6,0.71,false,false},
-  {'L_P_Naruto_Pad','POINT',{-224.029,12.7,44.889},{255,196,118},12.6,0.71,false,false},
-  {'L_P_OnePiece_Pad','POINT',{-250.236,12.7,-19.974},{137,196,255},12.6,0.71,false,false},
-  {'L_P_OnePunchMan_Pad','POINT',{-224.029,12.7,-20.889},{255,229,144},12.6,0.71,false,false},
-  {'L_P_ShadowGarden_Candles','POINT',{-265.088,18.41,36.371},{203,137,255},9.5,0.49,false,false},
-  {'L_P_ShadowGarden_Moon','POINT',{-272.087,31.02,26.257},{196,129,255},10.7,0.56,false,false},
-  {'L_P_ShadowGarden_Pad','POINT',{-268.451,12.7,25.111},{206,137,255},12.6,0.71,false,false},
-  {'L_Portal_DemonSlayer','POINT',{-272.16,19.4,-2.61},{255,129,129},14.0,1.0,false,false},
-  {'L_Portal_DragonBall','POINT',{-251.863,19.4,47.628},{97,179,255},14.0,1.0,false,false},
-  {'L_Portal_Naruto','POINT',{-222.661,19.4,48.648},{255,196,118},14.0,1.0,false,false},
-  {'L_Portal_OnePiece','POINT',{-251.863,19.4,-23.628},{137,196,255},14.0,1.0,false,false},
-  {'L_Portal_OnePunchMan','POINT',{-222.661,19.4,-24.648},{255,229,144},14.0,1.0,false,false},
-  {'L_Portal_ShadowGarden','POINT',{-272.16,19.4,26.61},{206,137,255},14.0,1.0,false,false},
+  {'L_P_DemonSlayer_Lamp_1','POINT',{-252.008,10.533,4.637},{255,137,97},4.5,0.31,false,false},
+  {'L_P_DemonSlayer_Lamp_2','POINT',{-249.823,10.533,-0.77},{255,137,97},4.5,0.31,false,false},
+  {'L_P_DemonSlayer_Pad','POINT',{-252.851,11.44,1.151},{255,129,129},12.6,0.71,false,false},
+  {'L_P_DragonBall_Pad','POINT',{-237.779,11.44,38.456},{97,179,255},12.6,0.71,false,false},
+  {'L_P_Naruto_Pad','POINT',{-216.095,11.44,39.214},{255,196,118},12.6,0.71,false,false},
+  {'L_P_OnePiece_Pad','POINT',{-237.779,11.44,-14.456},{137,196,255},12.6,0.71,false,false},
+  {'L_P_OnePunchMan_Pad','POINT',{-216.095,11.44,-15.213},{255,229,144},12.6,0.71,false,false},
+  {'L_P_ShadowGarden_Candles','POINT',{-250.43,15.551,30.956},{203,137,255},9.5,0.49,false,false},
+  {'L_P_ShadowGarden_Moon','POINT',{-255.469,24.63,23.673},{196,129,255},10.7,0.56,false,false},
+  {'L_P_ShadowGarden_Pad','POINT',{-252.851,11.44,22.849},{206,137,255},12.6,0.71,false,false},
+  {'L_Portal_DemonSlayer','POINT',{-255.522,16.264,0.073},{255,129,129},14.0,1.0,false,false},
+  {'L_Portal_DragonBall','POINT',{-238.951,16.264,41.087},{97,179,255},14.0,1.0,false,false},
+  {'L_Portal_Naruto','POINT',{-215.11,16.264,41.92},{255,196,118},14.0,1.0,false,false},
+  {'L_Portal_OnePiece','POINT',{-238.95,16.264,-17.087},{137,196,255},14.0,1.0,false,false},
+  {'L_Portal_OnePunchMan','POINT',{-215.11,16.264,-17.92},{255,229,144},14.0,1.0,false,false},
+  {'L_Portal_ShadowGarden','POINT',{-255.522,16.264,23.927},{206,137,255},14.0,1.0,false,false},
   {'L_SN_AnvilCrack','POINT',{-3.5,51.0,-99.0},{255,120,40},40.0,2.2,false,false},
   {'L_SN_Brazier_AnvilE','POINT',{-70.0,17.6,-95.0},{255,140,60},16.0,1.2,false,true},
   {'L_SN_Brazier_AnvilW','POINT',{70.0,17.6,-95.0},{255,140,60},16.0,1.2,false,true},
@@ -1396,8 +1264,8 @@ local LT = {
   {'L_SN_Brazier_Br_3_1','POINT',{6.4,10.617,187.0},{255,140,60},16.0,1.2,false,true},
   {'L_SN_Brazier_Br_5_-1','POINT',{-6.4,10.283,210.333},{255,140,60},16.0,1.2,false,true},
   {'L_SN_Brazier_Br_5_1','POINT',{6.4,10.283,210.333},{255,140,60},16.0,1.2,false,true},
-  {'L_SN_Brazier_ForgeE','POINT',{17.5,11.4,-41.0},{255,140,60},16.0,1.2,false,true},
-  {'L_SN_Brazier_ForgeW','POINT',{-17.5,11.4,-41.0},{255,140,60},16.0,1.2,false,true},
+  {'L_SN_Brazier_ForgeE','POINT',{23.0,11.4,-41.0},{255,140,60},16.0,1.2,false,true},
+  {'L_SN_Brazier_ForgeW','POINT',{-23.0,11.4,-41.0},{255,140,60},16.0,1.2,false,true},
   {'L_SN_Brazier_Gate_-1','POINT',{-12.5,11.8,141.8},{255,140,60},16.0,1.2,false,true},
   {'L_SN_Brazier_Gate_1','POINT',{12.5,11.8,141.8},{255,140,60},16.0,1.2,false,true},
   {'L_SN_Brazier_IsleBr_142_-1','POINT',{-142.0,11.2,6.4},{255,140,60},16.0,1.2,false,true},
@@ -1406,22 +1274,20 @@ local LT = {
   {'L_SN_Brazier_IsleBr_176_1','POINT',{-176.0,11.2,17.6},{255,140,60},16.0,1.2,false,true},
   {'L_SN_Brazier_IsleMain_-1','POINT',{-136.0,25.25,3.4},{255,140,60},16.0,1.2,false,true},
   {'L_SN_Brazier_IsleMain_1','POINT',{-136.0,25.25,20.6},{255,140,60},16.0,1.2,false,true},
-  {'L_SN_Brazier_P1_-1','POINT',{-218.477,12.76,40.098},{255,140,60},16.0,1.2,false,true},
-  {'L_SN_Brazier_P1_1','POINT',{-231.363,12.76,44.787},{255,140,60},16.0,1.2,false,true},
-  {'L_SN_Brazier_P2_-1','POINT',{-242.913,12.76,44.384},{255,140,60},16.0,1.2,false,true},
-  {'L_SN_Brazier_P2_1','POINT',{-255.44,12.76,38.807},{255,140,60},16.0,1.2,false,true},
-  {'L_SN_Brazier_P3_-1','POINT',{-263.469,12.76,30.493},{255,140,60},16.0,1.2,false,true},
-  {'L_SN_Brazier_P3_1','POINT',{-268.606,12.76,17.779},{255,140,60},16.0,1.2,false,true},
-  {'L_SN_Brazier_P4_-1','POINT',{-268.606,12.76,6.221},{255,140,60},16.0,1.2,false,true},
-  {'L_SN_Brazier_P4_1','POINT',{-263.469,12.76,-6.493},{255,140,60},16.0,1.2,false,true},
-  {'L_SN_Brazier_P5_-1','POINT',{-255.44,12.76,-14.807},{255,140,60},16.0,1.2,false,true},
-  {'L_SN_Brazier_P5_1','POINT',{-242.913,12.76,-20.384},{255,140,60},16.0,1.2,false,true},
-  {'L_SN_Brazier_P6_-1','POINT',{-231.363,12.76,-20.787},{255,140,60},16.0,1.2,false,true},
-  {'L_SN_Brazier_P6_1','POINT',{-218.477,12.76,-16.098},{255,140,60},16.0,1.2,false,true},
+  {'L_SN_Brazier_P1_-1','POINT',{-212.043,12.76,35.567},{255,140,60},16.0,1.2,false,true},
+  {'L_SN_Brazier_P1_1','POINT',{-221.543,12.76,39.025},{255,140,60},16.0,1.2,false,true},
+  {'L_SN_Brazier_P2_-1','POINT',{-232.331,12.76,38.648},{255,140,60},16.0,1.2,false,true},
+  {'L_SN_Brazier_P2_1','POINT',{-241.567,12.76,34.536},{255,140,60},16.0,1.2,false,true},
+  {'L_SN_Brazier_P3_-1','POINT',{-249.065,12.76,26.771},{255,140,60},16.0,1.2,false,true},
+  {'L_SN_Brazier_P3_1','POINT',{-252.853,12.76,17.397},{255,140,60},16.0,1.2,false,true},
+  {'L_SN_Brazier_P4_-1','POINT',{-252.853,12.76,6.603},{255,140,60},16.0,1.2,false,true},
+  {'L_SN_Brazier_P4_1','POINT',{-249.065,12.76,-2.771},{255,140,60},16.0,1.2,false,true},
+  {'L_SN_Brazier_P5_-1','POINT',{-241.567,12.76,-10.536},{255,140,60},16.0,1.2,false,true},
+  {'L_SN_Brazier_P5_1','POINT',{-232.331,12.76,-14.648},{255,140,60},16.0,1.2,false,true},
+  {'L_SN_Brazier_P6_-1','POINT',{-221.543,12.76,-15.025},{255,140,60},16.0,1.2,false,true},
+  {'L_SN_Brazier_P6_1','POINT',{-212.043,12.76,-11.567},{255,140,60},16.0,1.2,false,true},
   {'L_SN_Brazier_Rank_-1','POINT',{45.799,12.8,78.897},{255,140,60},16.0,1.2,false,true},
   {'L_SN_Brazier_Rank_1','POINT',{85.654,12.8,31.404},{255,140,60},16.0,1.2,false,true},
-  {'L_SN_Brazier_Shop_-1','POINT',{62.351,11.6,-19.144},{255,140,60},16.0,1.2,false,true},
-  {'L_SN_Brazier_Shop_1','POINT',{54.744,11.6,-35.458},{255,140,60},16.0,1.2,false,true},
   {'L_SN_Brazier_Stair_-1_-1','POINT',{-14.9,14.9,80.0},{255,140,60},16.0,1.2,false,true},
   {'L_SN_Brazier_Stair_-1_1','POINT',{14.9,14.9,80.0},{255,140,60},16.0,1.2,false,true},
   {'L_SN_Brazier_Stair_1_-1','POINT',{-14.9,14.9,52.0},{255,140,60},16.0,1.2,false,true},
@@ -1433,10 +1299,11 @@ local LT = {
   {'L_SN_Crystal_4','POINT',{96.0,10.8,110.0},{255,170,80},14.0,1.0,false,false},
   {'L_SN_Crystal_5','POINT',{-40.0,12.0,-150.0},{255,170,80},14.0,1.0,false,false},
   {'L_SN_Hearth','POINT',{0.0,12.0,-72.0},{255,128,46},28.0,2.4,true,false},
-  {'L_SN_IsleStone','POINT',{-236.0,27.75,12.0},{255,218,160},14.3,0.86,false,false},
+  {'L_SN_IsleStone','POINT',{-226.0,27.75,12.0},{255,218,160},14.3,0.86,false,false},
   {'L_SN_ShopCounter','POINT',{73.612,12.55,-38.297},{255,200,130},16.0,0.9,false,false},
   {'L_SN_ShopLamp_-5','POINT',{75.071,18.65,-29.489},{255,200,130},16.0,0.9,false,false},
   {'L_SN_ShopLamp_5','POINT',{70.845,18.65,-38.552},{255,200,130},16.0,0.9,false,false},
+  {'L_SN_ShopLantern','POINT',{61.121,19.575,-46.155},{255,200,130},16.0,0.9,false,false},
   {'L_SN_ShopLegend','POINT',{74.055,15.2,-44.683},{140,190,255},12.0,1.2,false,false},
 }
 LTF:ClearAllChildren()
@@ -1466,14 +1333,14 @@ local SAFE = {
   {'SAFE_Portao',{0.0,7.0,150.0}},
   {'SAFE_Ponte1',{0.0,6.583,185.0}},
   {'SAFE_Ponte2',{0.0,6.083,215.0}},
-  {'SAFE_IlhaPatio',{-222.0,7.0,12.0}},
+  {'SAFE_IlhaPatio',{-212.0,7.0,12.0}},
   {'SAFE_TrilhaOeste',{-100.0,6.8,10.0}},
-  {'SAFE_Portal1',{-225.739,8.6,40.191}},
-  {'SAFE_Portal2',{-248.202,9.1,39.406}},
-  {'SAFE_Portal3',{-263.816,8.2,23.238}},
-  {'SAFE_Portal4',{-263.816,8.65,0.762}},
-  {'SAFE_Portal5',{-248.202,8.8,-15.406}},
-  {'SAFE_Portal6',{-225.739,8.7,-16.191}},
+  {'SAFE_Portal1',{-218.476,6.8,32.673}},
+  {'SAFE_Portal2',{-234.948,6.8,32.098}},
+  {'SAFE_Portal3',{-246.398,6.8,20.241}},
+  {'SAFE_Portal4',{-246.398,6.8,3.759}},
+  {'SAFE_Portal5',{-234.948,6.8,-8.098}},
+  {'SAFE_Portal6',{-218.476,6.8,-8.673}},
 }
 do local v = root:FindFirstChild('VOID_CATCH') or Instance.new('Part'); v.Name = 'VOID_CATCH'
   v.Anchored = true; v.CanCollide = false; v.CanTouch = true; v.CanQuery = false; v.Transparency = 1; v.CastShadow = false
@@ -1612,12 +1479,12 @@ end
 -- Santuario.Portal1..6: Model com Disco (gameplay, invisivel, sem colisao, CanTouch) e atributo AreaId; o Core.Main
 -- liga o Touched (Santuario precisa ser filho DIRETO de LOBBY_FORJA). O AudioWorld reconhece Portal%d em Santuario.
 local PORTAIS = {
-  {1, 'Naruto', 1, Vector3.new(-222.285, 19.400, 49.682), Vector3.new(-0.3420, 0, -0.9397)},
-  {2, 'DragonBall', 2, Vector3.new(-252.310, 19.400, 48.633), Vector3.new(0.4067, 0, -0.9135)},
-  {3, 'ShadowGarden', 3, Vector3.new(-273.180, 19.400, 27.022), Vector3.new(0.9272, 0, -0.3746)},
-  {4, 'DemonSlayer', 4, Vector3.new(-273.180, 19.400, -3.022), Vector3.new(0.9272, 0, 0.3746)},
-  {5, 'OnePiece', 5, Vector3.new(-252.310, 19.400, -24.633), Vector3.new(0.4067, 0, 0.9135)},
-  {6, 'OnePunchMan', 6, Vector3.new(-222.285, 19.400, -25.682), Vector3.new(-0.3420, 0, 0.9397)},
+  {1, 'Naruto', 1, Vector3.new(-214.964, 16.264, 42.322), Vector3.new(-0.3420, 0, -0.9397)},
+  {2, 'DragonBall', 2, Vector3.new(-239.125, 16.264, 41.478), Vector3.new(0.4067, 0, -0.9135)},
+  {3, 'ShadowGarden', 3, Vector3.new(-255.918, 16.264, 24.088), Vector3.new(0.9272, 0, -0.3746)},
+  {4, 'DemonSlayer', 4, Vector3.new(-255.918, 16.264, -0.088), Vector3.new(0.9272, 0, 0.3746)},
+  {5, 'OnePiece', 5, Vector3.new(-239.125, 16.264, -17.478), Vector3.new(0.4067, 0, 0.9135)},
+  {6, 'OnePunchMan', 6, Vector3.new(-214.964, 16.264, -18.322), Vector3.new(-0.3420, 0, 0.9397)},
 }
 do
   local san = root:FindFirstChild('Santuario') or Instance.new('Folder'); san.Name = 'Santuario'; san.Parent = root
@@ -1625,7 +1492,7 @@ do
   for _, p in ipairs(PORTAIS) do
     local m = Instance.new('Model'); m.Name = 'Portal' .. p[1]; m:SetAttribute('Tema', p[2])
     local d = Instance.new('Part'); d.Name = 'Disco'; d.Anchored = true; d.CanCollide = false; d.CanQuery = false
-    d.CanTouch = true; d.CastShadow = false; d.Transparency = 1; d.Size = Vector3.new(14, 15, 1.2)
+    d.CanTouch = true; d.CastShadow = false; d.Transparency = 1; d.Size = Vector3.new(10.08, 10.80, 1.2)
     local pos = p[4] + ROOT_OFFSET; d.CFrame = CFrame.lookAt(pos, pos + p[5]); d:SetAttribute('AreaId', p[3])
     d.Parent = m; m.PrimaryPart = d; m.Parent = san
   end
@@ -1636,15 +1503,41 @@ do local r = root:FindFirstChild('LobbyRevision') or Instance.new('Folder'); r.N
 -- dos Campeoes, sudeste da praca). Se o modelo ja existe dentro do LOBBY_FORJA, e levado inteiro para la (PivotTo).
 local TOP100_CF = CFrame.lookAt(Vector3.new(67.412, 7.600, 56.565), Vector3.new(66.646, 7.600, 55.922)) * CFrame.Angles(0, math.pi, 0)
 root:SetAttribute('Top100Origin', TOP100_CF + ROOT_OFFSET)
+
+-- GlobalTop100: o modelo veio do lobby antigo com cada quadro num lugar (Forca 12 studs na frente das Tabuas, Moedas
+-- atras do muro). Cada quadro (pe + moldura + painel + frisos + podios + ancoras dos podios) e encaixado na SUA tabua
+-- pelo marcador QUADRO_<metrica>; moldura e pe ganham o tom de basalto da forja (sem a 'placa cinza' solta).
 do local t = root:FindFirstChild('GlobalTop100')
-  if t and t:IsA('Model') then t:PivotTo(TOP100_CF + ROOT_OFFSET); print('GlobalTop100 levado as Tabuas dos Campeoes')
-  else print('GlobalTop100 ausente: construa com Top100Builder.Build(root, {OriginCF = root:GetAttribute("Top100Origin")})') end end
+  if t and t:IsA('Model') then
+    local gp = t:FindFirstChild('GroundPivot'); if gp then gp.CFrame = TOP100_CF + ROOT_OFFSET end
+    local rot = TOP100_CF - TOP100_CF.Position
+    local n = 0
+    for _, met in ipairs({'Strength', 'Coins'}) do
+      local foot = t:FindFirstChild(met .. 'Foot'); local mk = MKF:FindFirstChild('QUADRO_' .. met)
+      if foot and mk then
+        local base = foot.CFrame * CFrame.new(0, -0.2, 0)
+        local delta = (CFrame.new(mk.Position) * rot) * base:Inverse()
+        for _, d in ipairs(t:GetDescendants()) do
+          if d:IsA('BasePart') and string.sub(d.Name, 1, #met) == met then d.CFrame = delta * d.CFrame; n += 1 end
+        end
+        for _, nm in ipairs({met .. 'Frame', met .. 'Foot'}) do
+          local q = t:FindFirstChild(nm); if q then q.Color = Color3.fromRGB(58, 50, 47); q.Material = Enum.Material.Slate end
+        end
+        for _, d in ipairs(t:GetChildren()) do
+          if d:IsA('BasePart') and string.match(d.Name, '^' .. met .. 'Podium%d$') then d.Color = Color3.fromRGB(64, 56, 52); d.Material = Enum.Material.Slate end
+        end
+      else warn('GlobalTop100: faltou ' .. met .. 'Foot ou o marcador QUADRO_' .. met) end
+    end
+    print(string.format('GlobalTop100: %d pecas encaixadas nas Tabuas dos Campeoes', n))
+  else print('GlobalTop100 ausente: construa com Top100Builder.Build(root, {OriginCF = root:GetAttribute(\"Top100Origin\")})') end
+end
+
 -- POSICOES DO JOGO (POSICIONAR_JOGO = true move os objetos soltos; o Core.LobbyLayout e trocado a mao/MCP):
 --   LobbyLayout.Spawn        = Vector3.new(0.0, 13.3, 64.0)
 --   LobbyLayout.Shop         = Vector3.new(71.146, 11.7, -33.175)
 --   LobbyLayout.ShopFacing   = Vector3.new(76.583, 11.7, -35.711)
 --   LobbyLayout.Ignis        = Vector3.new(-0.9, 10.5, -46.0)
---   LobbyLayout.PortalIsland = Vector3.new(-222.0, 10.5, 12.0)
+--   LobbyLayout.PortalIsland = Vector3.new(-212.0, 10.5, 12.0)
 local POSICIONAR_JOGO = true
 if POSICIONAR_JOGO then
   local function mv(inst, cf, what) if inst then pcall(function() if inst:IsA('Model') then inst:PivotTo(cf) else inst.CFrame = cf end end); print('posicionado', what) else print('NAO achei', what) end end
@@ -1767,27 +1660,62 @@ end)
 end
 
 
--- ================= placas flutuantes das estacoes (marcadores LETREIRO_* com atributo 'texto') =================
+-- ================= LETREIROS no estilo dos simuladores (ref. 'Lovely Egg'): sem placa/fundo; texto branco gordo
+-- (FredokaOne) com contorno grosso na cor da estacao, sombra deslocada e icone dos dois lados; tamanho em studs ======
+do
+ICONES = {trofeu = '\u{1F3C6}', brilho = '\u{2728}', mochila = '\u{1F392}', fogo = '\u{1F525}', mundo = '\u{1F30D}',
+  martelo = '\u{1F528}', picareta = '\u{26CF}\u{FE0F}', coracao = '\u{2764}\u{FE0F}'}
+function RGB_FOFO(s, def)
+  local r, g, b = string.match(s or '', '(%d+)%s*,%s*(%d+)%s*,%s*(%d+)')
+  if r then return Color3.fromRGB(tonumber(r), tonumber(g), tonumber(b)) end
+  return def
+end
+local function _esc(c, k) return Color3.new(c.R * k, c.G * k, c.B * k) end
+function ROTULO_FOFO(adornee, nome, txt, cor, icone, h, alcance, sub)
+  local old = adornee:FindFirstChild(nome); if old then old:Destroy() end
+  local n = utf8.len(txt) or #txt
+  local ic = ICONES[icone or '']
+  local w = h * (0.64 * n + (ic and 2.3 or 0.5))
+  local hs = sub and 1.5 or 1.0
+  local bg = Instance.new('BillboardGui'); bg.Name = nome; bg.Adornee = adornee; bg.Size = UDim2.fromScale(w, h * hs)
+  bg.LightInfluence = 0; bg.AlwaysOnTop = false; bg.MaxDistance = alcance or 220; bg.ClipsDescendants = false
+  local function lbl(t, x, y, sw, sh, col, st, th, z)
+    local l = Instance.new('TextLabel'); l.BackgroundTransparency = 1; l.Text = t; l.Font = Enum.Font.FredokaOne
+    l.TextScaled = true; l.TextColor3 = col; l.Position = UDim2.fromScale(x, y); l.Size = UDim2.fromScale(sw, sh)
+    l.ZIndex = z or 2
+    if st then local k = Instance.new('UIStroke'); k.Color = st; k.Thickness = th or 3; k.LineJoinMode = Enum.LineJoinMode.Round; k.Parent = l end
+    l.Parent = bg; return l
+  end
+  local fy = 1 / hs
+  local fi = ic and math.min(0.3, 1.05 * h / w) or 0
+  local x0 = ic and fi or 0.03
+  local tw = 1 - 2 * x0
+  lbl(txt, x0 + 0.004, 0.09 * fy, tw, 0.9 * fy, _esc(cor, 0.42), _esc(cor, 0.42), 3.5, 1)     -- sombra
+  lbl(txt, x0, 0.0, tw, 0.9 * fy, Color3.new(1, 1, 1), cor, 3, 2)                               -- texto
+  if ic then
+    lbl(ic, 0.0, 0.06 * fy, fi, 0.82 * fy, Color3.new(1, 1, 1), nil, nil, 3)
+    lbl(ic, 1 - fi, 0.06 * fy, fi, 0.82 * fy, Color3.new(1, 1, 1), nil, nil, 3)
+  end
+  if sub then
+    lbl(sub, 0.12, 0.93 * fy, 0.76, 1 - 0.95 * fy, Color3.fromRGB(255, 240, 190), _esc(cor, 0.55), 2.2, 2)
+  end
+  bg.Parent = adornee
+  return bg
+end
+end
 do
   local n = 0
   for _, mk in ipairs(MKF:GetChildren()) do
     local txt = mk:GetAttribute('texto')
     if txt and string.sub(mk.Name, 1, 9) == 'LETREIRO_' then
-      local old = mk:FindFirstChildOfClass('BillboardGui'); if old then old:Destroy() end
-      local bg = Instance.new('BillboardGui'); bg.Name = 'Letreiro'; bg.Size = UDim2.new(0, 18 + 11 * #txt, 0, 44)
-      bg.MaxDistance = mk:GetAttribute('alcance') or 170; bg.AlwaysOnTop = false; bg.LightInfluence = 0.3
-      local fr = Instance.new('Frame'); fr.Size = UDim2.fromScale(1, 1); fr.BackgroundColor3 = Color3.fromRGB(46, 40, 52)
-      fr.BackgroundTransparency = 0.12; fr.BorderSizePixel = 0; fr.Parent = bg
-      local uc = Instance.new('UICorner'); uc.CornerRadius = UDim.new(0, 10); uc.Parent = fr
-      local st = Instance.new('UIStroke'); st.Color = Color3.fromRGB(244, 196, 98); st.Thickness = 2.5; st.Parent = fr
-      local tl = Instance.new('TextLabel'); tl.Size = UDim2.new(1, -16, 1, -8); tl.Position = UDim2.new(0, 8, 0, 4)
-      tl.BackgroundTransparency = 1; tl.Text = txt; tl.TextColor3 = Color3.fromRGB(255, 232, 170); tl.TextScaled = true
-      tl.Font = Enum.Font.FredokaOne; tl.TextStrokeTransparency = 0.4; tl.TextStrokeColor3 = Color3.fromRGB(30, 18, 10)
-      tl.Parent = fr
-      bg.Parent = mk; n += 1
+      local old = mk:FindFirstChild('Letreiro'); if old then old:Destroy() end
+      local cor = RGB_FOFO(mk:GetAttribute('cor'), Color3.fromRGB(255, 120, 60))
+      local h = string.sub(mk.Name, 1, 15) == 'LETREIRO_Portal' and 3.0 or 4.0
+      ROTULO_FOFO(mk, 'Letreiro', txt, cor, mk:GetAttribute('icone'), h, mk:GetAttribute('alcance') or 170)
+      n += 1
     end
   end
-  print(string.format('Letreiros das estacoes: %d', n))
+  print(string.format('Letreiros das estacoes (estilo fofo): %d', n))
 end
 
 
@@ -1812,19 +1740,64 @@ do
   local fl = {} for k in pairs(falta) do table.insert(fl, k) end
   print(string.format('PINTURA ASSADA: %d MeshParts com o atlas; sem id: %s', n, #fl > 0 and table.concat(fl, ', ') or 'nenhum'))
 end
--- placas oficiais do jogo (CircularUI: MUNDOS / MOCHILAS / IGNIS) nas estacoes novas; sem letreiro duplicado
+-- placas oficiais do jogo (CircularUI: MUNDOS / MOCHILAS / IGNIS) nas estacoes novas, no MESMO estilo fofo dos
+-- letreiros (o Layout.BuildServiceLabels do CircularGlobalLeaderboard so roda se alguem chamar; se rodar, refazer aqui)
 do
   local cu = root:FindFirstChild('CircularUI')
   if cu then
-    local function at(n, p) local a = cu:FindFirstChild(n); if a and a:IsA('BasePart') then a.CFrame = CFrame.new(p + ROOT_OFFSET) end end
-    at('Mundos', Vector3.new(-236.000, 39, 12.000))
-    at('Mochilas', Vector3.new(61.629, 35, -28.738))
-    at('Ignis', Vector3.new(-0.9, 24, -52))
+    local function at(n, p) local a = cu:FindFirstChild(n); if a and a:IsA('BasePart') then a.CFrame = CFrame.new(p + ROOT_OFFSET) end return a end
+    local mu = at('Mundos', Vector3.new(-226.000, 44, 12.000))
+    local mo = at('Mochilas', Vector3.new(67.974, 34.50, -31.696))
+    local ig = at('Ignis', Vector3.new(-0.9, 24, -52))
+    if mu then ROTULO_FOFO(mu, 'ServiceLabel', 'MUNDOS', Color3.fromRGB(96, 120, 255), 'mundo', 5.2, 420) end
+    if mo then ROTULO_FOFO(mo, 'ServiceLabel', 'MOCHILAS', Color3.fromRGB(236, 120, 40), 'mochila', 4.4, 400) end
+    if ig then ROTULO_FOFO(ig, 'ServiceLabel', 'IGNIS', Color3.fromRGB(255, 84, 40), 'fogo', 4.8, 400, 'Vender \u{2022} Picaretas') end
     for _, nm in ipairs({'LETREIRO_Ilha', 'LETREIRO_Loja', 'LETREIRO_Ignis'}) do
       local mk = MKF:FindFirstChild(nm); local bg = mk and mk:FindFirstChildOfClass('BillboardGui'); if bg then bg:Destroy() end
     end
     print('CircularUI: placas MUNDOS/MOCHILAS/IGNIS posicionadas')
   end
+end
+
+
+-- ================= PICARETAS DO JOGO nas vitrines da forja (marcadores PICK_SLOT_*: picareta, caixa_w/h, face) =====
+do
+  local src = game:GetService('ServerStorage'):FindFirstChild('PicaretasBlender')
+  local old = root:FindFirstChild('PicaretasExpostas'); if old then old:Destroy() end
+  local pasta = Instance.new('Folder'); pasta.Name = 'PicaretasExpostas'
+  local n, falta = 0, {}
+  -- ordem do jogo da ESQUERDA para a DIREITA de quem olha a forja (olhando -Z, esquerda = -X)
+  local ORDEM = {'enferrujada', 'ferro', 'aco', 'rubi', 'obsidiana', 'runica', 'estelar', 'ignis'}
+  local slots = {}
+  for _, mk in ipairs(MKF:GetChildren()) do
+    if mk:GetAttribute('picareta') and string.sub(mk.Name, 1, 10) == 'PICK_SLOT_' then table.insert(slots, mk) end
+  end
+  table.sort(slots, function(a, b) return a.Position.X < b.Position.X end)
+  if #slots == #ORDEM then for i, mk in ipairs(slots) do mk:SetAttribute('picareta', ORDEM[i]) end end
+  for _, mk in ipairs(slots) do
+    local nome = mk:GetAttribute('picareta')
+    do
+      local m0 = src and src:FindFirstChild(nome)
+      if m0 and m0:IsA('Model') then
+        local m = m0:Clone(); m.Name = 'Picareta_' .. nome
+        for _, d in ipairs(m:GetDescendants()) do
+          if d:IsA('LuaSourceContainer') then d:Destroy()
+          elseif d:IsA('BasePart') then d.Anchored = true; d.CanCollide = false; d.CanQuery = false; d.CanTouch = false end
+        end
+        local _, sz = m:GetBoundingBox()
+        local k = math.min((mk:GetAttribute('caixa_w') or 3.4) / sz.X, (mk:GetAttribute('caixa_h') or 5.2) / sz.Y)
+        m:ScaleTo(m:GetScale() * k)
+        local bcf = m:GetBoundingBox()
+        local off = m:GetPivot():ToObjectSpace(bcf)
+        local face = Vector3.new(mk:GetAttribute('face_x') or 0, 0, mk:GetAttribute('face_z') or 1)
+        m:PivotTo(CFrame.lookAt(mk.Position, mk.Position + face) * off:Inverse())
+        m:SetAttribute('Vitrine', mk.Name)
+        m.Parent = pasta; n += 1
+      else table.insert(falta, tostring(nome)) end
+    end
+  end
+  pasta.Parent = root
+  print(string.format('Picaretas do jogo nas vitrines: %d (faltou: %s)', n, #falta > 0 and table.concat(falta, ', ') or 'nenhuma'))
 end
 
 

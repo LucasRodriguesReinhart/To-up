@@ -14,7 +14,7 @@ import sn_lib as SL
 import fm_lib
 
 argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
-OUT = argv[0] if argv and not argv[0].startswith("--") else os.path.join(HERE, "renders", "build")
+OUT = os.path.abspath(argv[0]) if argv and not argv[0].startswith("--") else os.path.join(HERE, "renders", "build")
 
 
 def opt(name, default=None):
@@ -24,7 +24,7 @@ def opt(name, default=None):
     return default
 
 
-ALL = ["terrain", "relief", "veg", "hero", "portals", "isle", "shop", "rank", "south", "ruins"]
+ALL = ["terrain", "veg", "hero", "portals", "isle", "shop", "rank", "south", "ruins"]   # "relief" (serra) saiu: cobria as ilhas
 MODS = (opt("--mods") or ",".join(ALL)).split(",")
 REBAKE = (opt("--rebake") or "").split(",")
 os.makedirs(OUT, exist_ok=True)
@@ -96,6 +96,10 @@ if has("veg"):
     import sn_fx
     sn_fx.build(spots)
 print("MONTADO %.0fs" % (time.time() - t0))
+if "--no-fixz" not in argv:
+    import sn_fixz                      # z-fighting (textura tremendo no Roblox) antes da pintura assada
+    sn_fixz.fix()
+    print("FIXZ %.0fs" % (time.time() - t0))
 if "--no-bake" not in argv:
     for pre, at, pps in BAKE:
         if any(o.name.startswith(pre + "__") for o in bpy.data.objects):
