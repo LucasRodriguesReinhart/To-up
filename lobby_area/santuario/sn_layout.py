@@ -41,11 +41,15 @@ ANVIL_C = (0.0, -118.0)         # centro da bigorna-tita
 ANVIL_L = 120.0                 # comprimento (x), chifre para o leste
 ANVIL_H = 62.0                  # altura acima do plinto
 ANVIL_PLINTH = (-74.0, 74.0, -142.0, -92.0, 6.0)    # x0, x1, z0, z1, altura do plinto escalonado
-HAMMER = dict(head=(-86.0, -78.0), tilt=58.0, yaw=-38.0, head_size=(34.0, 20.0, 20.0), handle_len=96.0, handle_r=3.4)
+HAMMER = dict(head=(106.0, -66.0), tilt=58.0, yaw=34.0, head_size=(34.0, 20.0, 20.0), handle_len=96.0, handle_r=3.4)
+HAMMER_ANG = (math.degrees(math.atan2(HAMMER["head"][1], HAMMER["head"][0])) + 360.0) % 360.0   # ~328 (nordeste)
 
-# ------------------------------------------------------------------ colunata dos portais
-PORTAL_R = 55.0
-PORTAL_ANG = [192.0, 214.0, 236.0, 304.0, 326.0, 348.0]
+# ------------------------------------------------------------------ semicirculo dos portais (OESTE)
+# Os 6 portais APROVADOS (fm_pv3_* + fm_portals.onepiece, via vila_medieval/vm_portals) ficam num semicirculo a oeste
+# da praca, cada um sobre um ESTRADO de pedra antiga do santuario. Lote de cada portal: +-13,9 tangente x 9,6 atras.
+# r 74 e passo de 24 graus -> 31 studs entre centros. Ordem facil -> dificil do SW (perto do spawn) ao NW (perto da forja).
+PORTAL_R = 80.0
+PORTAL_ANG = [119.0, 143.5, 168.0, 192.5, 217.0, 241.5]
 PORTALS = [("Naruto", 1), ("DragonBall", 2), ("ShadowGarden", 3), ("DemonSlayer", 4), ("OnePiece", 5),
            ("OnePunchMan", 6)]
 PORTAL_W, PORTAL_H = 15.0, 21.0          # vao do arco
@@ -57,12 +61,16 @@ def portal_pos(i):
     return (x, z), (-math.cos(a), -math.sin(a))      # posicao, direcao para onde a espiral olha (o centro)
 
 
-# ------------------------------------------------------------------ servicos
-SHOP_C = (68.0, 18.0)            # templo dos mercadores (centro), olhando para a praca
-SHOP_FACE = (-0.96, -0.28)
+# ------------------------------------------------------------------ servicos (LESTE)
+def _ring(r, deg):
+    a = math.radians(deg)
+    return (round(C[0] + r * math.cos(a), 3), round(C[1] + r * math.sin(a), 3)), \
+        (round(-math.cos(a), 4), round(-math.sin(a), 4))
+
+
+(SHOP_C, SHOP_FACE) = _ring(80.0, 335.0)      # templo dos mercadores (centro do estilobato), olhando para a praca
 SHOP_SIZE = (28.0, 22.0)         # frente x fundo
-RANK_O = (-64.0, 18.0)           # origem do GlobalTop100 (quadros no plano local z = 0)
-RANK_FACE = (0.96, -0.28)        # olha para a praca (leste-nordeste)
+(RANK_O, RANK_FACE) = _ring(88.0, 40.0)       # origem do GlobalTop100 (quadros no plano local z = 0), olhando a praca
 TOP100_HALF_W = 27.0
 TOP100_DEPTH = (-1.2, 13.2)
 TOP100_H = 26.5
@@ -83,10 +91,33 @@ PLATEAU = [(-60, -164), (60, -164), (112, -138), (142, -90), (150, -30), (146, 4
 PLATEAU_BOTTOM = -40.0
 LAKE_R = 420.0
 
+def _off(c, f, d):
+    return (round(c[0] + f[0] * d, 3), round(c[1] + f[1] * d, 3))
+
+
+SHOP_NPC = _off(SHOP_C, SHOP_FACE, -4.5)        # 'npc vendedor ' atras do balcao, olhando para a porta
+SHOP_PLAYER = _off(SHOP_C, SHOP_FACE, 1.5)      # jogador / PadLoja (na frente do balcao)
+PORTAL_HUB = _ring(52.0, 182.0)[0]              # ponto de chegada "portais" (lado oeste da praca)
+# ------------------------------------------------------------------ ruinas espalhadas (sn_ruins; o sn_vegplan as evita)
+RUIN_HEAD = (112.0, 18.0, 200.0)                       # x, z, yaw
+RUIN_WALLS = [(-128.0, -60.0, -100.0, -110.0), (88.0, -136.0, 116.0, -118.0), (128.0, 52.0, 104.0, 92.0),
+              (-110.0, 104.0, -70.0, 128.0), (-140.0, 20.0, -138.0, -24.0), (60.0, 128.0, 30.0, 138.0)]
+RUIN_ARCHES = [(-122.0, -48.0, 60.0), (112.0, -128.0, -20.0), (-62.0, 118.0, 10.0)]
+RUIN_CRYSTALS = [(66.0, -96.0, "SN_CrystalAmber", 2.0), (-70.0, -96.0, "SN_CrystalBlue", 1.8),
+                 (128.0, -8.0, "SN_CrystalBlue", 1.6), (-132.0, 70.0, "SN_CrystalAmber", 1.6),
+                 (96.0, 110.0, "SN_CrystalAmber", 1.4), (-40.0, -150.0, "SN_CrystalBlue", 1.8)]
+
 LOBBY_LAYOUT = {
     "Spawn": (SPAWN[0], round(Y_SPAWN + 3.3, 2), SPAWN[1]),
+    "Shop": (SHOP_PLAYER[0], round(Y_SHOP + 3.5, 2), SHOP_PLAYER[1]),
+    "ShopFacing": (SHOP_NPC[0], round(Y_SHOP + 3.5, 2), SHOP_NPC[1]),
     "Ignis": (PLAYER_IGNIS[0], round(Y_PLAZA + 3.5, 2), PLAYER_IGNIS[1]),
+    "PortalIsland": (PORTAL_HUB[0], round(Y_PLAZA + 3.5, 2), PORTAL_HUB[1]),
 }
+SPAWN_LOBBY_PART = (SPAWN[0], round(Y_SPAWN + 0.1, 2), SPAWN[1])
+MAILBOX_POS = (MAILBOX[0], Y_SPAWN, MAILBOX[1])
+Y_PAVE = Y_PLAZA
+COURT_C = C                      # vm_portals/wb_court usam o centro do patio
 
 
 def cams():
@@ -97,7 +128,16 @@ def cams():
         "CAM_SN_Forge": ((7.0, Y_PLAZA + 6.5, -36.0), (-1.0, 16.0, -70.0), 22), # chegando no Ignis
         "CAM_SN_ForgeClose": ((14.0, Y_PLAZA + 8.0, -44.0), (-4.0, 12.0, -66.0), 26),
         "CAM_SN_Anvil": ((70.0, 40.0, -40.0), (0.0, 40.0, -118.0), 26),
-        "CAM_SN_Hammer": ((-40.0, 18.0, -20.0), (-86.0, 30.0, -80.0), 26),
+        "CAM_SN_Hammer": ((62.0, 20.0, -80.0), (106.0, 30.0, -64.0), 18),
         "CAM_SN_Plaza": ((0.0, 60.0, 44.0), (0.0, 7.0, -4.0), 26),
         "CAM_SN_Air": ((140.0, 170.0, 210.0), (0.0, 10.0, -30.0), 26),
+        "CAM_SN_Top": ((0.0, 420.0, 1.0), (0.0, 0.0, 0.0), 30),
+        "CAM_SN_Portals": ((22.0, 16.0, 6.0), (-60.0, 14.0, 0.0), 22),
+        "CAM_SN_PortalClose": ((-40.0, 12.0, 6.0), (-72.0, 15.0, 13.0), 24),
+        "CAM_SN_Shop": ((30.0, 14.0, -6.0), (72.0, 14.0, -34.0), 24),
+        "CAM_SN_ShopIn": ((63.0, 14.5, -30.5), (84.0, 11.5, -39.0), 16),
+        "CAM_SN_Rank": ((26.0, 15.0, 22.0), (67.0, 24.0, 57.0), 22),
+        "CAM_SN_South": ((0.0, 15.0, 70.0), (0.0, 10.0, 150.0), 24),
+        "CAM_SN_Bridge": ((24.0, 20.0, 240.0), (0.0, 10.0, 150.0), 24),
+        "CAM_SN_SpawnBack": ((0.0, 26.0, 132.0), (0.0, 14.0, 30.0), 22),
     }

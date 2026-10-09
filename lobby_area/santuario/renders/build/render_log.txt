@@ -1,0 +1,12 @@
+00:02.359  blend            | Read blend: "C:\Users\lucas\OneDrive\Desktop\To up\lobby_area\santuario\renders\build\build.blend"
+00:07.641  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\lobby_area\santuario\renders\review\CAM_SN_Hammer.png'
+BlenderMCP: cannot start server in background mode (blender -b) - commands would never execute
+BlenderMCP: run Blender with a GUI, or use a virtual display: xvfb-run -a blender
+BlenderMCP addon registered
+RENDER CAM_SN_Hammer.png
+RENDER CAM_SN_Hammer
+BlenderMCP server stopped
+BlenderMCP addon unregistered
+Blender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 02:38:20)
+
+Blender quit

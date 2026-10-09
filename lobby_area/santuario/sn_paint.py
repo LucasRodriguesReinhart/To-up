@@ -43,6 +43,16 @@ PD = {
     "couro":     ("6E4632", "2A160C", "A87A5C", .10, .30, .85, .10, .05, .00, .00, .10),
     "tecido_verm": ("A8261A", "4E0B06", "E9603F", .05, .25, .80, .12, .00, .00, .00, .10),
     "tecido_ouro": ("C8962E", "6A4410", "F4D27E", .05, .25, .80, .12, .00, .00, .00, .10),
+    "tecido_azul": ("3E5FA6", "17244A", "8EB0F0", .05, .25, .80, .12, .00, .00, .00, .10),
+    "tecido_verde": ("4A7E4A", "1A3A1E", "9AD08A", .05, .25, .80, .12, .00, .00, .00, .10),
+    "tecido_ocre": ("CC963C", "6A4614", "F6D088", .05, .25, .80, .12, .00, .00, .00, .10),
+    "tecido_creme": ("E2D4B4", "8A7A5E", "FFF6E2", .05, .25, .80, .12, .00, .00, .00, .10),
+    "tecido_violeta": ("7A46AA", "2E1446", "C8A0F0", .05, .25, .80, .12, .00, .00, .00, .10),
+    "couro_claro": ("8A5634", "36200E", "C69468", .08, .30, .85, .10, .05, .00, .00, .08),
+    "papel": ("EEE4C8", "9C8E6E", "FFFFFF", .04, .15, .60, .10, .00, .00, .00, .05),
+    "telha": ("C4643C", "5E2412", "F2A27A", .12, .40, .90, .12, .00, .10, .00, .14),
+    "telha_esc": ("96462E", "3E160A", "D27E5E", .10, .40, .90, .12, .00, .05, .00, .14),
+    "terracota": ("BA6440", "5A2614", "EAA07A", .08, .40, .85, .10, .00, .00, .00, .10),
     "musgo":     ("6E9C40", "2A4A1A", "BCDC7C", .16, .22, .80, .30, .00, .00, .00, .12),
     "hera":      ("528636", "1C3A16", "A2D06A", .16, .22, .80, .30, .00, .00, .00, .10),
     "flor_azul": ("7896EC", "34449A", "D2DEFF", .10, .20, .60, .25, .00, .00, .00, .08),
@@ -56,6 +66,11 @@ PD = {
     "folha_clara": ("8AB84C", "2E5A2A", "E6F29A", .10, .10, .90, .10, .00, .00, .00, .25),
     "folha_ouro": ("D6A23A", "7A3E1C", "FFE08A", .10, .10, .90, .10, .00, .00, .00, .25),
     "pinho":     ("3F7A4E", "12302A", "A8D27A", .10, .12, .90, .10, .00, .00, .00, .20),
+    "grama":     ("78AC48", "2C5622", "C4DE7A", .00, .04, .92, .10, .00, .00, .00, .20),
+    "terra":     ("A88A64", "5A4630", "D6BC92", .00, .10, .90, .08, .00, .00, .00, .20),
+    "barranco":  ("8C7458", "3E3022", "BEA688", .00, .20, .90, .14, .00, .25, .00, .25),
+    "junco":     ("86A452", "34501E", "C8DC86", .10, .10, .80, .20, .00, .00, .00, .08),
+    "flor_amarela": ("F2D25A", "9A7414", "FFF4C0", .10, .20, .60, .25, .00, .00, .00, .08),
 }
 # efeitos extras por tinta: mancha de forja (mottle), escorrido de ferrugem (rust), patina verde do bronze (verdigris)
 EXTRA = {
@@ -66,6 +81,7 @@ EXTRA = {
     "basalto": {"mottle": .06},
     "folha": {"toon": 1.0}, "folha_clara": {"toon": 1.0}, "folha_ouro": {"toon": 1.0}, "pinho": {"toon": 1.0},
     "casca": {"toon": .5},
+    "grama": {"patch": 1.0}, "terra": {"patch": .5}, "junco": {"toon": .8},
 }
 # material do pipeline -> tinta
 MAT2PAINT = {
@@ -78,6 +94,12 @@ MAT2PAINT = {
     "WB_Cloth_Red": "tecido_verm", "WB_Cloth_Gold": "tecido_ouro", "WB_Coal": "carvao", "WB_FlowerWhite": "flor_branca",
     "SN_Leaf": "folha", "SN_LeafLight": "folha_clara", "SN_LeafGold": "folha_ouro", "SN_PineLeaf": "pinho",
     "SN_Bark": "casca",
+    "SN_Grass": "grama", "SN_Path": "terra", "SN_Bank": "barranco", "SN_ShoreRock": "pedra_esc", "SN_Reed": "junco",
+    "SN_Tuft": "folha", "SN_TuftLight": "folha_clara", "SN_FlowerYellow": "flor_amarela",
+    "SN_CanvasRed": "tecido_verm", "SN_CanvasBlue": "tecido_azul", "SN_CanvasGreen": "tecido_verde",
+    "SN_CanvasOchre": "tecido_ocre", "SN_CanvasCream": "tecido_creme", "SN_CanvasViolet": "tecido_violeta",
+    "SN_Leather": "couro_claro", "SN_Paper": "papel", "SN_RoofTile": "telha", "SN_RoofTileDark": "telha_esc",
+    "SN_Terracotta": "terracota", "SN_Slate": "ferro",
     "WB_Rock": "basalto", "WB_Stone": "pedra", "WB_Hay": "palha", "WB_Wood": "madeira", "WB_Rope": "palha",
 }
 
@@ -187,6 +209,14 @@ def build_paint(key):
         lite = mixc("MULTIPLY", 1.0, col, (1.22, 1.16, 0.90, 1))
         tc_ = mixc("MIX", tl, dark, lite)
         col = mixc("MIX", ex["toon"], col, tc_)
+    if ex.get("patch"):
+        # gramado: manchas largas amareladas e touceiras escuras (quebra o verde chapado)
+        pa = math_("MULTIPLY", ramp(noise(.018, 2.0), .5, .72), .55 * ex["patch"])
+        col = mixc("MIX", pa, col, mixc("MULTIPLY", 1.0, (*hex_lin("B4C860"), 1), mval))
+        pd = math_("MULTIPLY", ramp(noise(.075, 3.0, .6), .56, .7), .45 * ex["patch"])
+        col = mixc("MIX", pd, col, mixc("MULTIPLY", 1.0, (*hex_lin("4E8434"), 1), mval))
+        pf = math_("MULTIPLY", ramp(noise(.9, 2.0), .62, .7), .35 * ex["patch"])
+        col = mixc("MIX", pf, col, mixc("MULTIPLY", 1.0, (*hex_lin("9CCC5C"), 1), mval))
     if ex.get("mottle"):
         mt = math_("ADD", math_("MULTIPLY", math_("SUBTRACT", noise(1.15, 2.0, .6), .5), ex["mottle"] * 2.0), 1.0)
         col = mixc("MULTIPLY", 1.0, col, _gray(nt, L, mt))
@@ -323,6 +353,15 @@ def _seed_parts(me, seed):
     return part, k
 
 
+WATER_Z = 2.2
+
+
+def _on_plateau(x, z, margin=1.0):
+    import sn_layout as L_
+    import sn_vegplan as VP
+    return VP._in_poly(x, z, L_.PLATEAU) and VP._edge_dist(x, z, L_.PLATEAU) > margin
+
+
 def cull_hidden(ob, dmax=2.5, eps=0.004, frac=0.94, ground=GROUND_Z - 0.2):
     """apaga faces que ninguem ve (adaptado do op_kit.cull_hidden da Ilha 5): (a) face encostada numa face voltada para
     ela, (b) face dentro de outro volume do mesmo objeto, (c) fundo apoiado no chao e faces inteiras abaixo do chao.
@@ -355,8 +394,12 @@ def cull_hidden(ob, dmax=2.5, eps=0.004, frac=0.94, ground=GROUND_Z - 0.2):
         if n.length < 0.5:
             continue
         zs = [v.co.z for v in f.verts]
-        if max(zs) < ground - 0.3 or (n.z < -0.9 and max(zs) < ground + 0.45):
-            kill.append(f)
+        cc = f.calc_center_median()
+        if max(zs) < WATER_Z - 0.3:
+            kill.append(f)                                 # inteira debaixo d'agua
+            continue
+        if _on_plateau(cc.x, -cc.y) and (max(zs) < ground - 0.3 or (n.z < -0.9 and max(zs) < ground + 0.45)):
+            kill.append(f)                                 # enterrada / apoiada no chao do plato
             continue
         c = f.calc_center_median()
         vs_ = [v.co for v in f.verts]
@@ -454,8 +497,10 @@ def _split_by_area(ob, area_max):
 
 
 def _unwrap(ob, margin=0.004):
-    for o in bpy.context.view_layer.objects:
-        o.select_set(False)
+    bpy.context.view_layer.update()
+    for o in list(bpy.context.view_layer.objects):
+        if o is not None:
+            o.select_set(False)
     ob.select_set(True)
     bpy.context.view_layer.objects.active = ob
     me = ob.data
@@ -485,8 +530,10 @@ def _bake(ob, atlas, samples=16, size=SIZE):
     sc.cycles.device = "CPU"
     sc.cycles.samples = samples
     sc.cycles.use_denoising = False
-    for o in bpy.context.view_layer.objects:
-        o.select_set(False)
+    bpy.context.view_layer.update()
+    for o in list(bpy.context.view_layer.objects):
+        if o is not None:
+            o.select_set(False)
     ob.select_set(True)
     bpy.context.view_layer.objects.active = ob
     try:
@@ -628,6 +675,43 @@ def heat_maps(prefix, ob, ppst=4.0, glow=1.1, scorch=4.5, pad=16.0):
     return ims
 
 
+def _geo_hash(me):
+    """impressao digital da malha (posicoes arredondadas + topologia dos loops) para saber se a UV guardada serve"""
+    import hashlib
+    import numpy as np
+    co = np.zeros(len(me.vertices) * 3, dtype=np.float64)
+    me.vertices.foreach_get("co", co)
+    lv = np.zeros(len(me.loops), dtype=np.int64)
+    me.loops.foreach_get("vertex_index", lv)
+    h = hashlib.sha1()
+    h.update(np.round(co, 3).astype(np.float32).tobytes())
+    h.update(lv.tobytes())
+    return h.hexdigest()
+
+
+def _uv_save(me, path, gh):
+    import numpy as np
+    uv = np.zeros(len(me.loops) * 2, dtype=np.float32)
+    me.uv_layers["UVMap"].data.foreach_get("uv", uv)
+    np.savez_compressed(path, uv=uv, gh=np.array([gh]))
+
+
+def _uv_load(me, path, gh):
+    """devolve True se a UV guardada e desta mesma malha (e a aplica)"""
+    import numpy as np
+    import os
+    if not os.path.exists(path):
+        return False
+    d = np.load(path)
+    if str(d["gh"][0]) != gh or len(d["uv"]) != len(me.loops) * 2:
+        return False
+    while me.uv_layers:
+        me.uv_layers.remove(me.uv_layers[0])
+    me.uv_layers.new(name="UVMap")
+    me.uv_layers["UVMap"].data.foreach_set("uv", d["uv"])
+    return True
+
+
 def final_material(atlas, path):
     m = bpy.data.materials.get(atlas) or bpy.data.materials.new(atlas)
     m.use_nodes = True
@@ -654,8 +738,10 @@ def bake_group(prefix, atlas_base, pps=8.0, samples=16, reuse=False, size=SIZE):
             and o.data.materials and o.data.materials[0] and not keep_separate(o.data.materials[0].name)]
     if not objs:
         return []
-    for o in bpy.data.objects:
-        o.select_set(False)
+    bpy.context.view_layer.update()
+    for o in list(bpy.context.view_layer.objects):
+        if o is not None:
+            o.select_set(False)
     for o in objs:
         o.select_set(True)
     bpy.context.view_layer.objects.active = objs[0]
@@ -675,9 +761,15 @@ def bake_group(prefix, atlas_base, pps=8.0, samples=16, reuse=False, size=SIZE):
         o.name = "%s__%s" % (prefix, atlas)
         _seed_parts(o.data, atlas)
         path = os.path.join(TEX, atlas + ".png")
-        _unwrap(o)
-        if not (reuse and os.path.exists(path)):
+        uvp = os.path.join(TEX, atlas + ".uv.npz")
+        gh = _geo_hash(o.data)
+        ok = reuse and os.path.exists(path) and _uv_load(o.data, uvp, gh)
+        if not ok:
+            if reuse:
+                print("  %s: malha mudou (ou sem UV guardada) -> reassando" % atlas)
+            _unwrap(o)
             path, cheio = _bake(o, atlas, samples, size)
+            _uv_save(o.data, uvp, gh)
         m = final_material(atlas, path)
         o.data.materials.clear()
         o.data.materials.append(m)

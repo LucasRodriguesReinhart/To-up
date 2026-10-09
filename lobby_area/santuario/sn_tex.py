@@ -18,7 +18,7 @@ TEX_DIR = os.path.join(HERE, "textures")
 VERSION = 1
 _T = {"sn_ashlar": 8.0, "sn_ashlar_dark": 8.0, "sn_ashlar_moss": 8.0, "sn_carved": 8.0, "sn_basalt": 14.0,
       "sn_bronze": 5.0, "sn_moss": 8.0, "sn_wood_aged": 6.0, "sn_plaza": 10.0, "sn_rubble": 6.0,
-      "sn_rock_far": 90.0, "sn_snow_far": 120.0, "sn_mountain": 1.0}
+      "sn_rock_far": 90.0, "sn_snow_far": 120.0, "sn_mountain": 1.0, "sn_hills": 1.0}
 TEXTURES = {k: ("SN_%s_v%d.png" % (k[3:], VERSION), t) for k, t in _T.items()}
 
 
@@ -251,6 +251,11 @@ def tex_mountain(rng):
     # pe da serra puxando para o verde-azulado do bosque distante
     img = mix(img, rgb((84, 112, 100)), smoothstep(0.24, 0.10, h) * 0.7)
     return rgba(img)
+
+
+def tex_hills(rng):
+    import sn_hills_tex
+    return sn_hills_tex.tex_hills()
 
 
 GEN = {k: globals()["tex_" + k[3:]] for k in _T}

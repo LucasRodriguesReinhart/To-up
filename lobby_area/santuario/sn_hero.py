@@ -225,8 +225,8 @@ def anvil(coll="04_FORGE"):
     for s_ in (-1, 1):
         bb(b, F, s_ * 47.4, s_ * 43.0, -22.4, 22.4, Z, Z + 2.2, "SN_Bronze")
     # musgo na mesa e nos pes, hera descendo pela frente
-    moss_patch(b, F, -12.0, 2.0, zc1 + 9.72, 40.0, 26.0, seed="mesa", thick=0.5)
-    moss_patch(b, F, 28.0, -6.0, zc1 + 9.72, 16.0, 14.0, seed="mesa2", thick=0.45)
+    moss_patch(b, F, -30.0, 9.0, zc1 + 9.72, 14.0, 9.0, seed="mesa", thick=0.4)
+    moss_patch(b, F, 30.0, -9.0, zc1 + 9.72, 9.0, 7.0, seed="mesa2", thick=0.35)
     for s in (-1, 1):
         moss_patch(b, F, s * 35.0, 0.0, Z + 8.0, 18.0, 36.0, seed=("pe", s), thick=0.4)
     Fiv = Fr(F.p(0, 19.0, 0), (F.f.x, F.f.y))
@@ -375,6 +375,16 @@ def forge(coll="04_FORGE"):
     pts = [polar(r_out + 1.0, a) for a in range(0, 360, 10)]
     poly_prism(b, F, pts, -0.6, 0.02, "SN_Ashlar_Dark")
     bb(b, F, -14.0, 14.0, 14.0, 22.4, -0.6, 0.02, "SN_Ashlar_Dark")
+    Rf = r_out + 1.0
+    zz = -Rf
+    while zz < Rf - 1e-6:
+        z1 = min(Rf, zz + 3.0)
+        zm = max(abs(zz), abs(z1)) if zz * z1 > 0 else 0.0
+        hw = math.sqrt(max(0.0, Rf * Rf - zm * zm))
+        if hw > 0.5:
+            fm_lib.col_box("Forge", (2 * hw, z1 - zz, 1.0), F.p(0.0, (zz + z1) / 2, -0.48), (0, 0, F.yaw()))
+        zz = z1
+    fm_lib.col_box("Forge", (28.0, 8.4, 1.0), F.p(0.0, 18.2, -0.48), (0, 0, F.yaw()))
     # muro da abside em segmentos retos ao longo do arco fechado (155 -> 385 graus), topo arruinado
     a = a_open1
     seg = 0
@@ -660,7 +670,8 @@ def plaza(coll="03_TOWN"):
     beam(b, F, (hc[0] - tx * 2.4, hc[1] - ty * 2.4, 0.22), (hc[0] + tx * 2.4, hc[1] + ty * 2.4, 0.22), 1.6, 0.2, "SN_Bronze")
     # trilhas acesas no piso ate cada estacao (estilo das setas que guiam do Anime Defenders)
     import sn_layout as LL
-    for ang in (90.0, 270.0, 14.0, 166.0, 214.0, 326.0):
+    for ang in [90.0, 270.0] + [(360.0 + math.degrees(math.atan2(LL.SHOP_C[1], LL.SHOP_C[0]))) % 360,
+                                 math.degrees(math.atan2(LL.RANK_O[1], LL.RANK_O[0]))] + list(LL.PORTAL_ANG):
         a = math.radians(ang)
         X, Zr = math.cos(a), math.sin(a)
         p0 = (-(r1 + 1.2) * X, (r1 + 1.2) * Zr, 0.05)
@@ -670,4 +681,13 @@ def plaza(coll="03_TOWN"):
             off = (s * 0.9 * Zr, s * 0.9 * X)
             beam(b, F, (p0[0] + off[0], p0[1] + off[1], 0.04), (p1[0] + off[0], p1[1] + off[1], 0.04), 0.22, 0.1, "SN_Bronze")
     objs = b.finish()
+    R = L.PLAZA_R + 1.0
+    z = -R
+    while z < R - 1e-6:
+        z1 = min(R, z + 4.0)
+        zm = max(abs(z), abs(z1)) if z * z1 > 0 else 0.0
+        hw = math.sqrt(max(0.0, R * R - zm * zm))
+        if hw > 0.5:
+            fm_lib.col_box("Plaza", (2 * hw, z1 - z, 1.0), RB(L.C[0], L.C[1] + (z + z1) / 2, Y0 - 0.5), (0, 0, 0))
+        z = z1
     return objs

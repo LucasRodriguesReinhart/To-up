@@ -367,5 +367,6 @@ def brazier(b, F, x, y, z0=0.0, h=3.4, name=None, fire_r=0.9):
     if name:
         import fm_lib
         fm_lib.light(name, "POINT", F.p(x, y, z0 + h + 1.0), 700.0, (1.0, 0.6, 0.28), 0.7)
-        fm_lib.marker("VFX_Brazier_" + name.split("_")[-1], F.p(x, y, z0 + h + 0.4), (0, 0, 0), 1.0, "PLAIN_AXES",
+        fm_lib.marker("VFX_" + name[len("L_SN_"):] if name.startswith("L_SN_") else "VFX_" + name, F.p(x, y, z0 + h + 0.4),
+                      (0, 0, 0), 1.0, "PLAIN_AXES",
                       "15_GAMEPLAY_MARKERS", {"particle": "fire", "rate": 8, "size": 1.6})

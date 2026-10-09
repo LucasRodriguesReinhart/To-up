@@ -1,0 +1,140 @@
+CHAO: gramado + trilhas + barranco + lago + 520 tufos
+RELEVO: 19 objetos, 964 bosques
+PORTAL Naruto       area 1:  25 objetos,   8784 tris, cortadas 0 faces + 0 COL da escada antiga -> (-38.8, 70.0)
+PORTAL DragonBall   area 2:  31 objetos,   8518 tris, cortadas 0 faces + 0 COL da escada antiga -> (-64.3, 47.6)
+LUA ShadowGarden: z 20.32..26.63 (ponta int 28.33 ext 30.00) folga ao filete min 1.33, ao anel 0.97, RI 16.642
+TRIS ShadowGarden: base=436 pilares=1464 ogiva=1000 filete=424 timpano+oculo=784 lua=760 candelabro=1128 roseira=1806 costas+espiral=766 total=8568
+LOTE ShadowGarden: x 30.18..57.66 (px-13.82..+13.66) y 101.15..118.65 z -0.35..30.94
+PORTAL ShadowGarden area 3:  27 objetos,   8732 tris, cortadas 0 faces + 0 COL da escada antiga -> (-78.3, 16.6)
+GLICINIA: 12 cascatas (visiveis 2.6, 0.9, 4.3, 2.5, 3.7, 1.5, 1.8, 1.1, 1.8, 0.8, 0.6, 0.5) | descartadas [(-13.21, 108.46, 'tronco')]
+PORTAL DemonSlayer  area 4:  32 objetos,   8816 tris, cortadas 0 faces + 0 COL da escada antiga -> (-78.1, -17.3)
+PORTAL OnePiece     area 5:  21 objetos,   7096 tris, cortadas 406 faces + 5 COL da escada antiga -> (-63.9, -48.1)
+PORTAL OnePunchMan  area 6:  28 objetos,   8260 tris, cortadas 0 faces + 0 COL da escada antiga -> (-38.2, -70.3)
+RUINAS: 3 pilares, 6 muros, 3 arcos, 6 cristais + cabeca tombada
+CULL WB_VegK_oak1: 108 faces / 144 studs2 escondidas
+  SNB_Veg_oak1: malha mudou (ou sem UV guardada) -> reassando
+Info: Baking map saved to internal image, save it externally or pack it
+BAKE WB_VegK_oak1: 1944 studs2 -> 1 atlas ['SNB_Veg_oak1'] em 3s
+CULL WB_VegK_oak2: 95 faces / 93 studs2 escondidas
+  SNB_Veg_oak2: malha mudou (ou sem UV guardada) -> reassando
+Info: Baking map saved to internal image, save it externally or pack it
+BAKE WB_VegK_oak2: 1263 studs2 -> 1 atlas ['SNB_Veg_oak2'] em 3s
+CULL WB_VegK_oak3: 89 faces / 125 studs2 escondidas
+  SNB_Veg_oak3: malha mudou (ou sem UV guardada) -> reassando
+Info: Baking map saved to internal image, save it externally or pack it
+BAKE WB_VegK_oak3: 2244 studs2 -> 1 atlas ['SNB_Veg_oak3'] em 3s
+CULL WB_VegK_oakG: 80 faces / 90 studs2 escondidas
+  SNB_Veg_oakG: malha mudou (ou sem UV guardada) -> reassando
+Info: Baking map saved to internal image, save it externally or pack it
+BAKE WB_VegK_oakG: 1411 studs2 -> 1 atlas ['SNB_Veg_oakG'] em 3s
+CULL WB_VegK_pine1: 0 faces / 0 studs2 escondidas
+BAKE WB_VegK_pine1: 1327 studs2 -> 1 atlas ['SNB_Veg_pine1'] em 0s
+CULL WB_VegK_pine2: 0 faces / 0 studs2 escondidas
+BAKE WB_VegK_pine2: 870 studs2 -> 1 atlas ['SNB_Veg_pine2'] em 0s
+CULL WB_VegK_bush1: 32 faces / 21 studs2 escondidas
+  SNB_Veg_bush1: malha mudou (ou sem UV guardada) -> reassando
+Info: Baking map saved to internal image, save it externally or pack it
+BAKE WB_VegK_bush1: 92 studs2 -> 1 atlas ['SNB_Veg_bush1'] em 3s
+CULL WB_VegK_bushF: 23 faces / 8 studs2 escondidas
+  SNB_Veg_bushF: malha mudou (ou sem UV guardada) -> reassando
+Info: Baking map saved to internal image, save it externally or pack it
+BAKE WB_VegK_bushF: 72 studs2 -> 1 atlas ['SNB_Veg_bushF'] em 3s
+CULL WB_VegK_ancient: 32 faces / 205 studs2 escondidas
+  SNB_Veg_ancient: malha mudou (ou sem UV guardada) -> reassando
+Info: Baking map saved to internal image, save it externally or pack it
+BAKE WB_VegK_ancient: 13303 studs2 -> 1 atlas ['SNB_Veg_ancient'] em 9s
+MONTADO 70s
+CULL WB_Frg_Anvil: 1655 faces / 32418 studs2 escondidas
+  SNB_Anvil_1: malha mudou (ou sem UV guardada) -> reassando
+Info: Baking map saved to internal image, save it externally or pack it
+  SNB_Anvil_2: malha mudou (ou sem UV guardada) -> reassando
+Info: Baking map saved to internal image, save it externally or pack it
+  SNB_Anvil_7: malha mudou (ou sem UV guardada) -> reassando
+Info: Baking map saved to internal image, save it externally or pack it
+  SNB_Anvil_8: malha mudou (ou sem UV guardada) -> reassando
+Info: Baking map saved to internal image, save it externally or pack it
+BAKE WB_Frg_Anvil: 103263 studs2 -> 8 atlas ['SNB_Anvil_1', 'SNB_Anvil_2', 'SNB_Anvil_3', 'SNB_Anvil_4', 'SNB_Anvil_5', 'SNB_Anvil_6', 'SNB_Anvil_7', 'SNB_Anvil_8'] em 38s
+CULL WB_Frg_Hammer: 622 faces / 791 studs2 escondidas
+  SNB_Hammer_1: malha mudou (ou sem UV guardada) -> reassando
+Info: Baking map saved to internal image, save it externally or pack it
+  SNB_Hammer_2: malha mudou (ou sem UV guardada) -> reassando
+Info: Baking map saved to internal image, save it externally or pack it
+BAKE WB_Frg_Hammer: 11295 studs2 -> 2 atlas ['SNB_Hammer_1', 'SNB_Hammer_2'] em 27s
+CULL WB_Frg_Hall: 619 faces / 2172 studs2 escondidas
+  SNB_Hall: malha mudou (ou sem UV guardada) -> reassando
+Info: Baking map saved to internal image, save it externally or pack it
+BAKE WB_Frg_Hall: 9397 studs2 -> 1 atlas ['SNB_Hall'] em 5s
+CULL WB_Town_Plaza: 932 faces / 10542 studs2 escondidas
+BAKE WB_Town_Plaza: 13077 studs2 -> 2 atlas ['SNB_Plaza_1', 'SNB_Plaza_2'] em 0s
+CULL WB_Court_Dais: 772 faces / 12758 studs2 escondidas
+  SNB_Dais_1: malha mudou (ou sem UV guardada) -> reassando
+Info: Baking map saved to internal image, save it externally or pack it
+  SNB_Dais_2: malha mudou (ou sem UV guardada) -> reassando
+Info: Baking map saved to internal image, save it externally or pack it
+BAKE WB_Court_Dais: 19548 studs2 -> 2 atlas ['SNB_Dais_1', 'SNB_Dais_2'] em 20s
+CULL WB_Shop_Temple: 1848 faces / 3067 studs2 escondidas
+  SNB_Shop_1: malha mudou (ou sem UV guardada) -> reassando
+Info: Baking map saved to internal image, save it externally or pack it
+  SNB_Shop_2: malha mudou (ou sem UV guardada) -> reassando
+Info: Baking map saved to internal image, save it externally or pack it
+BAKE WB_Shop_Temple: 18532 studs2 -> 2 atlas ['SNB_Shop_1', 'SNB_Shop_2'] em 13s
+CULL WB_Shop_Inside: 274 faces / 186 studs2 escondidas
+BAKE WB_Shop_Inside: 3007 studs2 -> 1 atlas ['SNB_ShopIn'] em 1s
+CULL WB_Rank_Tablets: 1635 faces / 4326 studs2 escondidas
+  SNB_Rank_1: malha mudou (ou sem UV guardada) -> reassando
+Info: Baking map saved to internal image, save it externally or pack it
+  SNB_Rank_2: malha mudou (ou sem UV guardada) -> reassando
+Info: Baking map saved to internal image, save it externally or pack it
+BAKE WB_Rank_Tablets: 23497 studs2 -> 2 atlas ['SNB_Rank_1', 'SNB_Rank_2'] em 14s
+CULL WB_Exit_Spawn: 1018 faces / 3298 studs2 escondidas
+  SNB_Spawn: malha mudou (ou sem UV guardada) -> reassando
+Info: Baking map saved to internal image, save it externally or pack it
+BAKE WB_Exit_Spawn: 11079 studs2 -> 1 atlas ['SNB_Spawn'] em 6s
+CULL WB_Exit_Avenue: 2082 faces / 4206 studs2 escondidas
+  SNB_Avenue: malha mudou (ou sem UV guardada) -> reassando
+Info: Baking map saved to internal image, save it externally or pack it
+BAKE WB_Exit_Avenue: 5238 studs2 -> 1 atlas ['SNB_Avenue'] em 4s
+CULL WB_Exit_Gate: 849 faces / 220 studs2 escondidas
+  SNB_Gate: malha mudou (ou sem UV guardada) -> reassando
+Info: Baking map saved to internal image, save it externally or pack it
+BAKE WB_Exit_Gate: 2969 studs2 -> 1 atlas ['SNB_Gate'] em 9s
+CULL WB_Exit_Bridge: 917 faces / 4334 studs2 escondidas
+  SNB_Bridge: malha mudou (ou sem UV guardada) -> reassando
+Info: Baking map saved to internal image, save it externally or pack it
+BAKE WB_Exit_Bridge: 12224 studs2 -> 1 atlas ['SNB_Bridge'] em 8s
+CULL WB_Prop_Ruins: 1352 faces / 1044 studs2 escondidas
+  SNB_Ruins: malha mudou (ou sem UV guardada) -> reassando
+Info: Baking map saved to internal image, save it externally or pack it
+BAKE WB_Prop_Ruins: 8266 studs2 -> 1 atlas ['SNB_Ruins'] em 4s
+CULL WB_Ter_Ground: 112 faces / 780 studs2 escondidas
+  SNB_Ground_2: malha mudou (ou sem UV guardada) -> reassando
+Info: Baking map saved to internal image, save it externally or pack it
+  SNB_Ground_3: malha mudou (ou sem UV guardada) -> reassando
+Info: Baking map saved to internal image, save it externally or pack it
+  SNB_Ground_4: malha mudou (ou sem UV guardada) -> reassando
+Info: Baking map saved to internal image, save it externally or pack it
+BAKE WB_Ter_Ground: 81054 studs2 -> 4 atlas ['SNB_Ground_1', 'SNB_Ground_2', 'SNB_Ground_3', 'SNB_Ground_4'] em 35s
+CULL WB_Ter_Shore: 667 faces / 470 studs2 escondidas04:27.594  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\lobby_area\santuario\renders\build\CAM_SN_Spawn.png'
+04:29.454  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\lobby_area\santuario\renders\build\CAM_SN_Hero.png'
+04:30.985  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\lobby_area\santuario\renders\build\CAM_SN_Hammer.png'
+04:32.875  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\lobby_area\santuario\renders\build\CAM_SN_Air.png'
+
+  SNB_Shore: malha mudou (ou sem UV guardada) -> reassando
+Info: Baking map saved to internal image, save it externally or pack it
+BAKE WB_Ter_Shore: 12209 studs2 -> 1 atlas ['SNB_Shore'] em 3s
+CULL WB_Veg_Tufts: 323 faces / 12 studs2 escondidas
+  SNB_Tufts: malha mudou (ou sem UV guardada) -> reassando
+Info: Baking map saved to internal image, save it externally or pack it
+BAKE WB_Veg_Tufts: 1156 studs2 -> 1 atlas ['SNB_Tufts'] em 3s
+ASSADO 259s
+FBX version: 7400
+TRIS 484166 [('WB_Veg_oak1', 38808), ('WB_Bg_Forest', 36780), ('WB_Veg_bushF', 35217), ('WB_Rank_Tablets', 34896), ('WB_Shop_Temple', 29096), ('WB_Frg_Anvil', 28567), ('WB_Prop_Ruins', 25765), ('WB_Court_Dais', 21949), ('WB_Veg_Tufts', 21457), ('WB_Exit_Avenue', 20612), ('WB_Veg_oak2', 19600), ('WB_Shop_Inside', 16469), ('WB_Veg_pine1', 15312), ('WB_Veg_oakG', 14212), ('WB_Exit_Spawn', 13287), ('WB_Frg_Hall', 12403), ('WB_Town_Plaza', 11590), ('WB_Ter_Ground', 11552), ('WB_Frg_Hammer', 8612), ('WB_Veg_oak3', 8436), ('WB_Veg_pine2', 8352), ('WB_Veg_bush1', 7020), ('WB_Ter_Shore', 6069), ('WB_Exit_Gate', 6007), ('WB_Exit_Bridge', 5182)]
+Info: Saved as "build.blend"
+RENDER CAM_SN_Spawn.png
+RENDER CAM_SN_Hero.png
+RENDER CAM_SN_Hammer.png
+RENDER CAM_SN_Air.png
+FIM 270s
+Blender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 02:38:20)
+
+Blender quit

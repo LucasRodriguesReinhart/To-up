@@ -42,7 +42,7 @@ def _vnoise(p, s):
     return acc
 
 
-def puff(b, c, r, mat, seed, squash=0.82, lumps=0.16, seg=14):
+def puff(b, c, r, mat, seed, squash=0.82, lumps=0.16, seg=11):
     """tufo de folhagem: esfera deformada por ruido (bolhas), achatada embaixo"""
     bm = bmesh.new()
     bmesh.ops.create_uvsphere(bm, u_segments=seg, v_segments=max(6, seg * 2 // 3), radius=1.0)
@@ -153,12 +153,12 @@ def bush(b, o, s, seed, leaf="SN_Leaf", flower=None):
         a = 2 * math.pi * k / 4 + rr.uniform(-0.4, 0.4)
         d = s * rr.uniform(0.2, 0.45)
         puff(b, base + V((d * math.cos(a), d * math.sin(a), s * 0.35)), s * rr.uniform(0.45, 0.62), leaf, seed * 5 + k,
-             squash=0.75, seg=10)
+             squash=0.75, seg=8)
     if flower:
         for k in range(7):
             a = rr.uniform(0, 2 * math.pi)
             d = s * rr.uniform(0.2, 0.7)
-            b.sphere(base + V((d * math.cos(a), d * math.sin(a), s * rr.uniform(0.6, 0.95))), s * 0.11, flower, seg=6)
+            b.sphere(base + V((d * math.cos(a), d * math.sin(a), s * rr.uniform(0.6, 0.95))), s * 0.11, flower, seg=4)
     return s
 
 

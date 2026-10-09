@@ -17,39 +17,7 @@ NR, NA = 58, 216                  # aneis radiais x passos angulares
 SECTORS = 8
 
 
-class Noise:
-    def __init__(self, seed):
-        r = np.random.default_rng(seed)
-        self.g = r.random((257, 257))
-
-    def v(self, x, y):
-        """value noise 2D (x, y em unidades de celula)"""
-        xi = np.floor(x).astype(int) % 256
-        yi = np.floor(y).astype(int) % 256
-        fx = x - np.floor(x)
-        fy = y - np.floor(y)
-        fx = fx * fx * (3 - 2 * fx)
-        fy = fy * fy * (3 - 2 * fy)
-        a, b = self.g[yi, xi], self.g[yi, xi + 1]
-        c, d = self.g[yi + 1, xi], self.g[yi + 1, xi + 1]
-        return (a * (1 - fx) + b * fx) * (1 - fy) + (c * (1 - fx) + d * fx) * fy
-
-    def fbm(self, x, y, oct=4):
-        s, amp, tot = 0.0, 1.0, 0.0
-        for k in range(oct):
-            s = s + amp * self.v(x * (2 ** k) + 17 * k, y * (2 ** k) + 31 * k)
-            tot += amp
-            amp *= 0.5
-        return s / tot
-
-    def ridged(self, x, y, oct=5):
-        s, amp, tot = 0.0, 1.0, 0.0
-        for k in range(oct):
-            n = self.v(x * (2 ** k) + 7 * k, y * (2 ** k) + 13 * k)
-            s = s + amp * (1.0 - np.abs(2 * n - 1)) ** 2
-            tot += amp
-            amp *= 0.5
-        return s / tot
+from sn_hills_tex import Noise, HILL_SPAN  # noqa: E402
 
 
 def height(xs, zs, N):
@@ -77,12 +45,7 @@ MTN_U = 5.0            # repeticoes da rampa numa volta
 def _mat_of(xm, zm, ym, slope, rm, f1, f2):
     if rm > 640 and (ym > 105 or slope > 27):
         return "SN_Mountain"
-    if rm < 470:
-        return "SN_HillA"
-    if f2 > 0.6:
-        return "SN_HillForest"
-    q = int(f1 * 5)
-    return ["SN_HillA", "SN_HillB", "SN_HillA", "SN_HillC", "SN_HillB"][min(4, q)]
+    return "SN_Hills"
 
 
 def build(coll="02_TERRAIN"):
@@ -130,7 +93,7 @@ def build(coll="02_TERRAIN"):
                 zm = sum(q[1] for q in p) / 4
                 rm = math.hypot(xm, zm)
                 mat = _mat_of(xm, zm, ym, slope, rm, (fld[j, i] + fld[j + 1, i2]) / 2, fld2[j, i])
-                if mat == "SN_HillForest" and rm < 1050 and r_.random() < 0.8:
+                if mat == "SN_Hills" and fld2[j, i] > 0.6 and rm < 1050 and r_.random() < 0.6:
                     trees.append((xm, zm, ym))
                 groups.setdefault(mat, []).append((p, vs))
         for mat, faces in groups.items():
@@ -150,6 +113,10 @@ def build(coll="02_TERRAIN"):
                     continue
                 if f.normal.z < 0:
                     f.normal_flip()
+                if mat == "SN_Hills":
+                    for lp in f.loops:
+                        co = lp.vert.co
+                        lp[uvl].uv = (0.5 + co.x / HILL_SPAN, 0.5 + (-co.y) / HILL_SPAN)
                 if mat == "SN_Mountain":
                     angs = [math.atan2(-lp.vert.co.y, lp.vert.co.x) % (2 * math.pi) for lp in f.loops]
                     if max(angs) - min(angs) > math.pi:
@@ -160,8 +127,8 @@ def build(coll="02_TERRAIN"):
         objs += b.finish(smooth_angle=75.0)
     # bosques: pinheiros estilizados (3 cones empilhados, copa escura embaixo e clara em cima)
     bt = W.Build("WB_Bg_Forest", coll)
-    for (x, z, y) in trees[:380]:
-        for k in range(r_.randint(2, 4)):
+    for (x, z, y) in trees[:240]:
+        for k in range(r_.randint(2, 3)):
             px, pz = x + r_.uniform(-14, 14), z + r_.uniform(-14, 14)
             hh = r_.uniform(20, 34) * (math.hypot(px, pz) / 600.0) ** 0.35
             b0 = RB(px, pz, y - 1.5)
