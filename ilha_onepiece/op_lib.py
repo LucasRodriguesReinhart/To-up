@@ -56,8 +56,8 @@ OPMATS = {
     "Metal_OP_Iron":      (S(70, 70, 74), 0.5, 0.5, 0, None, 0.04),
     "Metal_OP_Steel":     (S(176, 184, 196), 0.3, 0.8, 0, None, 0.0),    # lamina da espada monumental
     "Stone_OP":           (S(160, 154, 142), 0.85, 0.0, 0, None, 0.08),  # ishigaki, socos, escadas, muros
-    "Stone_OP_Path":      (S(206, 196, 172), 0.85, 0.0, 0, None, 0.06),  # caminhos, degraus (claro quente)
-    "Stone_OP_Plaza":     (S(196, 186, 162), 0.85, 0.0, 0, None, 0.05),  # pavimento da praca (minerios leem por cima)
+    "Stone_OP_Path":      (S(172, 164, 148), 0.85, 0.0, 0, None, 0.06),  # caminhos, degraus (claro quente)
+    "Stone_OP_Plaza":     (S(164, 156, 140), 0.85, 0.0, 0, None, 0.05),  # pavimento da praca (minerios leem por cima)
     "Stone_OP_Inlay":     (S(150, 128, 98), 0.85, 0.0, 0, None, 0.03),   # emblema RENTE do chao (tom abaixo, sem relevo)
     "Stone_OP_Dark":      (S(100, 98, 96), 0.85, 0.0, 0, None, 0.06),
     "Cliff_OP":           (S(132, 134, 140), 0.9, 0.0, 0, None, 0.10),   # falesia cinza clara (concept)
@@ -68,12 +68,12 @@ OPMATS = {
     "Cliff_OP_Warm":      (S(178, 170, 156), 0.9, 0.0, 0, None, 0.08),   # M4 op_terrain: face clara-quente das falesias
     "Cliff_OP_Cool":      (S(136, 138, 146), 0.9, 0.0, 0, None, 0.08),   # M4 op_terrain: estrato de baixo / massas de sombra
     "Grass_OP_Deep":      (S(72, 120, 56), 0.9, 0.0, 0, None, 0.08),     # M4 op_terrain: berma verde e capa que cai na falesia
-    "Stone_OP_Wall":      (S(182, 174, 158), 0.85, 0.0, 0, None, 0.06),  # M4 op_terrain: pedra aparelhada dos arrimos
+    "Stone_OP_Wall":      (S(160, 154, 144), 0.85, 0.0, 0, None, 0.06),  # M4 op_terrain: pedra aparelhada dos arrimos
     "Dirt_OP_Dark":       (S(112, 92, 70), 0.95, 0.0, 0, None, 0.06),    # M4 op_terrain: leito, saia da pele, fundo dos canais
     "Cliff_OP_Face":      (S(121, 121, 129), 0.9, 0.0, 0, None, 0.08),   # M6b op_terrain (item 51): face das falesias (era Warm)
     "Cliff_OP_Shade":     (S(97, 103, 121), 0.9, 0.0, 0, None, 0.08),   # M6b op_terrain (item 51): massas de sombra (era Cool)
     "Cliff_OP_Crevice":   (S(66, 72, 90), 0.9, 0.0, 0, None, 0.06),      # M6b op_terrain (item 51): fendas entre colunas
-    "Stone_OP_Court":     (S(182, 174, 156), 0.85, 0.0, 0, None, 0.05),  # M6b (item 25): cascalho do patio do castelo (op_castle)
+    "Stone_OP_Court":     (S(158, 150, 136), 0.85, 0.0, 0, None, 0.05),  # M6b (item 25): cascalho do patio do castelo (op_castle)
     "Grass_OP":           (S(108, 156, 74), 0.9, 0.0, 0, None, 0.10),    # grama diurna
     "Dirt_OP":            (S(168, 140, 104), 0.95, 0.0, 0, None, 0.08),
     "Leaf_OP":            (S(66, 122, 62), 0.85, 0.0, 0, None, 0.06),
