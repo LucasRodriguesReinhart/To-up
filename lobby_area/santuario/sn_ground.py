@@ -54,24 +54,24 @@ def _zone_dist(x, z):
 
 def height(x, z):
     d = _zone_dist(x, z)
-    e = VP._edge_dist(x, z, L.PLATEAU)
+    e = VP.edge_dist(x, z)
     a = 0.55 * max(0.0, min(1.0, (d - 2.0) / 14.0)) * max(0.0, min(1.0, (e - 3.0) / 10.0))
     return L.Y_GRASS + a * (_noise(x, z, 0.035, 1) - 0.35) * 2.0
 
 
-def lawn():
-    """malha do gramado: CDT com o contorno do plato como restricao e uma grade interna"""
-    bnd = _resample(L.PLATEAU, CELL)
+def lawn(poly):
+    """malha do gramado: CDT com o contorno da terra como restricao e uma grade interna"""
+    bnd = _resample(poly, CELL)
     pts = [V((x, z)) for (x, z) in bnd]
     nb = len(pts)
-    xs = [p[0] for p in L.PLATEAU]
-    zs = [p[1] for p in L.PLATEAU]
+    xs = [p[0] for p in poly]
+    zs = [p[1] for p in poly]
     z = min(zs) + CELL / 2
     k = 0
     while z < max(zs):
         x = min(xs) + CELL / 2 + (CELL / 2 if k % 2 else 0.0)
         while x < max(xs):
-            if VP._in_poly(x, z, L.PLATEAU) and VP._edge_dist(x, z, L.PLATEAU) > CELL * 0.6:
+            if VP._in_poly(x, z, poly) and VP._edge_dist(x, z, poly) > CELL * 0.6:
                 pts.append(V((x, z)))
             x += CELL
         z += CELL * 0.87
@@ -93,15 +93,15 @@ def lawn():
     return bm, bnd
 
 
-def bank(b, bnd):
+def bank(b, bnd, center=(0.0, -7.0), seed="bank"):
     """barranco do contorno ate abaixo da agua, com ruido, + pedras na beira e juncos"""
     n = len(bnd)
-    r = rng("bank")
+    r = rng(seed)
     bm = bmesh.new()
     rings = []
     for (x, z) in bnd:
-        # normal para fora (centro aproximado do plato)
-        cx, cz = 0.0, -7.0
+        # normal para fora (centro aproximado da terra)
+        cx, cz = center
         dx, dz = x - cx, z - cz
         dl = math.hypot(dx, dz) or 1.0
         dx, dz = dx / dl, dz / dl
@@ -123,7 +123,7 @@ def bank(b, bnd):
         x, z = bnd[i]
         if r.random() < 0.45:
             continue
-        cx, cz = 0.0, -7.0
+        cx, cz = center
         dx, dz = x - cx, z - cz
         dl = math.hypot(dx, dz) or 1.0
         dx, dz = dx / dl, dz / dl
@@ -131,7 +131,7 @@ def bank(b, bnd):
         s = r.uniform(1.2, 3.2)
         from wb_kit import Fr
         F = Fr(RB(x + dx * t, z + dz * t, L.Y_WATER - 0.6), (dx, -dz))
-        worn_block(b, F, 0.0, 0.0, s * 0.35, (s * 1.6, s * 1.2, s * 1.1), "SN_ShoreRock", seed=("sr", i), chips=3,
+        worn_block(b, F, 0.0, 0.0, s * 0.35, (s * 1.6, s * 1.2, s * 1.1), "SN_ShoreRock", seed=("sr", seed, i), chips=3,
                    bevel=0.35 * s, turn=r.uniform(0, 90), tilt=(r.uniform(-12, 12), r.uniform(-12, 12)))
         if r.random() < 0.5:
             for k in range(r.randint(4, 8)):
@@ -179,32 +179,37 @@ def paths(b):
         a = math.radians(deg)
         return (rr * math.cos(a), rr * math.sin(a))
     k = 0
-    for i in range(len(L.PORTALS)):
-        (x, z), (fx, fz) = L.portal_pos(i)
-        a = L.PORTAL_ANG[i]
-        path_strip(b, [ring(L.PLAZA_R - 1.0, a), ring(L.PLAZA_R + 8.0, a), (x + fx * 15.0, z + fz * 15.0)], 6.5, k)
-        k += 1
+    # trilha oeste: praca -> cabeceira da ponte da ilha dos portais (larga, a principal)
+    bz = L.ISLE_BRIDGE["z"]
+    path_strip(b, [ring(L.PLAZA_R - 1.0, L.WEST_ANG), ring(L.PLAZA_R + 14.0, L.WEST_ANG - 1.0),
+                   (L.ISLE_BRIDGE["x_main"] + 6.0, bz)], 8.0, k)
+    k += 1
+    # ilha: da ponte ao patio e anel de terra em volta do patio (diante dos estrados)
+    ix, iz = L.PORTAL_ISLE_C
+    path_strip(b, [(L.ISLE_BRIDGE["x_isle"] - 3.0, bz), (ix + L.ISLE_COURT_R - 1.0, iz)], 8.0, k)
+    k += 1
+    pts = [(ix + (L.ISLE_COURT_R + 1.6) * math.cos(math.radians(a)), iz + (L.ISLE_COURT_R + 1.6) * math.sin(math.radians(a)))
+           for a in range(0, 366, 8)]
+    path_strip(b, pts, 4.0, k)
+    k += 1
     for (tx, tz), dist in ((L.SHOP_C, 15.0), (L.RANK_O, 18.0)):
         a = math.degrees(math.atan2(tz, tx))
         d = math.hypot(tx, tz)
         path_strip(b, [ring(L.PLAZA_R - 1.0, a), ring(d - dist, a)], 7.0, k)
         k += 1
-    # trilhas secundarias: anel de terra ligando os estrados por tras da praca e o martelo
-    pts = [ring(L.PLAZA_R + 9.0, a) for a in range(110, 252, 6)]
-    path_strip(b, pts, 4.0, 90)
     hx, hz = L.HAMMER["head"]
     hd = math.hypot(hx, hz)
     path_strip(b, [ring(L.PLAZA_R - 1.0, 310.0), ring(L.PLAZA_R + 10.0, 314.0), (hx - hx / hd * 26.0, hz - hz / hd * 26.0)], 4.5, 91)
 
 
-def tufts(b, n=520, seed=5):
+def tufts(b, n=640, seed=5):
     r = random.Random(seed)
     placed = 0
     tries = 0
     while placed < n and tries < n * 12:
         tries += 1
-        x, z = r.uniform(-148, 148), r.uniform(-162, 148)
-        if not VP._in_poly(x, z, L.PLATEAU) or VP._edge_dist(x, z, L.PLATEAU) < 2.0:
+        x, z = r.uniform(-306, 148), r.uniform(-162, 148)
+        if VP.land_of(x, z) is None or VP.edge_dist(x, z) < 2.0:
             continue
         d = _zone_dist(x, z)
         if d < 0.5 or (d > 12 and r.random() < 0.55):
@@ -246,12 +251,16 @@ def build():
         fm_lib.MATS.setdefault(k, (fm_lib.S(*c), 0.9, 0.0, 0, None, 0.0))
     fm_lib.make_materials()
     b = SL.Build("WB_Ter_Ground", COLL)
-    bm, bnd = lawn()
-    b.mesh(bm, "SN_Grass")
+    bnds = []
+    for (nm, poly, c) in L.LANDS:
+        bm, bnd = lawn(poly)
+        b.mesh(bm, "SN_Grass")
+        bnds.append((bnd, c, nm))
     paths(b)
     objs = b.finish(smooth_angle=60.0)
     b = SL.Build("WB_Ter_Shore", COLL)
-    bank(b, bnd)
+    for (bnd, c, nm) in bnds:
+        bank(b, bnd, c, seed="bank_" + nm)
     objs += b.finish(smooth_angle=40.0)
     w = SL.Build("WB_Ter_Water", COLL)
     w.cyl((0, 0, L.Y_WATER - 1.0), (0, 0, L.Y_WATER), L.LAKE_R, "WB_Water", seg=64)
@@ -259,21 +268,23 @@ def build():
     t = SL.Build("WB_Veg_Tufts", "09_VEGETATION")
     n = tufts(t)
     objs += t.finish(smooth_angle=179.0)
-    # colisao do gramado: faixas horizontais cobrindo o plato (topo na cota da grama)
-    zs = [p[1] for p in L.PLATEAU]
-    z = min(zs)
-    while z < max(zs):
-        z1 = min(max(zs), z + 8.0)
-        xs = []
-        for zz in (z + 0.5, (z + z1) / 2, z1 - 0.5):
-            xx = [x for x in range(-160, 161, 2) if VP._in_poly(x, zz, L.PLATEAU)]
-            if xx:
-                xs.append((min(xx), max(xx)))
-        if xs:
-            x0 = min(a for a, _ in xs)
-            x1 = max(c for _, c in xs)
-            fm_lib.col_box("Terrain", (x1 - x0 + 2.0, z1 - z, 4.0), RB((x0 + x1) / 2, (z + z1) / 2, L.Y_GRASS - 2.0),
-                           (0, 0, 0))
-        z = z1
+    # colisao do gramado: faixas horizontais cobrindo cada terra (topo na cota da grama)
+    for (nm, poly, c) in L.LANDS:
+        zs = [p[1] for p in poly]
+        xs_all = [p[0] for p in poly]
+        z = min(zs)
+        while z < max(zs):
+            z1 = min(max(zs), z + 8.0)
+            xs = []
+            for zz in (z + 0.5, (z + z1) / 2, z1 - 0.5):
+                xx = [x for x in range(int(min(xs_all)) - 2, int(max(xs_all)) + 3, 2) if VP._in_poly(x, zz, poly)]
+                if xx:
+                    xs.append((min(xx), max(xx)))
+            if xs:
+                x0 = min(a for a, _ in xs)
+                x1 = max(c_ for _, c_ in xs)
+                fm_lib.col_box("Terrain", (x1 - x0 + 2.0, z1 - z, 4.0), RB((x0 + x1) / 2, (z + z1) / 2, L.Y_GRASS - 2.0),
+                               (0, 0, 0))
+            z = z1
     print("CHAO: gramado + trilhas + barranco + lago + %d tufos" % n)
     return objs

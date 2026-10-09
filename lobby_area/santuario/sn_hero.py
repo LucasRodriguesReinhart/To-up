@@ -671,7 +671,7 @@ def plaza(coll="03_TOWN"):
     # trilhas acesas no piso ate cada estacao (estilo das setas que guiam do Anime Defenders)
     import sn_layout as LL
     for ang in [90.0, 270.0] + [(360.0 + math.degrees(math.atan2(LL.SHOP_C[1], LL.SHOP_C[0]))) % 360,
-                                 math.degrees(math.atan2(LL.RANK_O[1], LL.RANK_O[0]))] + list(LL.PORTAL_ANG):
+                                 math.degrees(math.atan2(LL.RANK_O[1], LL.RANK_O[0])), LL.WEST_ANG, LL.HAMMER_ANG]:
         a = math.radians(ang)
         X, Zr = math.cos(a), math.sin(a)
         p0 = (-(r1 + 1.2) * X, (r1 + 1.2) * Zr, 0.05)

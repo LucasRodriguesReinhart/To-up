@@ -1,15 +1,15 @@
-00:02.282  blend            | Read blend: "C:\Users\lucas\OneDrive\Desktop\To up\lobby_area\santuario\renders\build\build.blend"
+00:02.500  blend            | Read blend: "C:\Users\lucas\OneDrive\Desktop\To up\lobby_area\santuario\renders\build\build.blend"
 BlenderMCP: cannot start server in background mode (blender -b) - commands would never execute
 BlenderMCP: run Blender with a GUI, or use a virtual display: xvfb-run -a blender
 BlenderMCP addon registered
 ================================================================================
 ROTA SPAWN->IGNIS                 OK    110.0 studs   6.9 s  cota final 7.02  
-ROTA SPAWN->PORTAL1 Naruto        OK     83.5 studs   5.2 s  cota final 8.60  
-ROTA SPAWN->PORTAL2 DragonBall    OK     96.2 studs   6.0 s  cota final 9.10  
-ROTA SPAWN->PORTAL3 ShadowGarden  OK    107.8 studs   6.7 s  cota final 8.20  
-ROTA SPAWN->PORTAL4 DemonSlayer   OK    117.6 studs   7.4 s  cota final 8.65  
-ROTA SPAWN->PORTAL5 OnePiece      OK    125.1 studs   7.8 s  cota final 8.80  
-ROTA SPAWN->PORTAL6 OnePunchMan   OK    130.0 studs   8.1 s  cota final 8.70  
+ROTA SPAWN->PORTAL1 Naruto        OK    299.2 studs  18.7 s  cota final 8.60  
+ROTA SPAWN->PORTAL2 DragonBall    OK    309.2 studs  19.3 s  cota final 9.10  
+ROTA SPAWN->PORTAL3 ShadowGarden  OK    319.1 studs  19.9 s  cota final 8.20  
+ROTA SPAWN->PORTAL4 DemonSlayer   OK    319.1 studs  19.9 s  cota final 8.65  
+ROTA SPAWN->PORTAL5 OnePiece      OK    309.2 studs  19.3 s  cota final 8.80  
+ROTA SPAWN->PORTAL6 OnePunchMan   OK    299.2 studs  18.7 s  cota final 8.70  
 ROTA SPAWN->LOJA                  OK    132.3 studs   8.3 s  cota final 8.20  
 ROTA SPAWN->TABUAS                OK     98.4 studs   6.2 s  cota final 7.60  
 ROTA SPAWN->ILHA1                 OK    157.5 studs   9.8 s  cota final 6.08  

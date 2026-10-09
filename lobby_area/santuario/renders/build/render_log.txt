@@ -1,12 +1,309 @@
-00:02.359  blend            | Read blend: "C:\Users\lucas\OneDrive\Desktop\To up\lobby_area\santuario\renders\build\build.blend"
-00:07.641  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\lobby_area\santuario\renders\review\CAM_SN_Hammer.png'
+00:02.812  blend            | Read blend: "C:\Users\lucas\OneDrive\Desktop\To up\lobby_area\santuario\renders\build\build.blend"
+00:08.828  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\lobby_area\santuario\renders\review\CAM_SN_Air.png'
+00:10.641  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\lobby_area\santuario\renders\review\CAM_SN_Anvil.png'
+00:12.672  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\lobby_area\santuario\renders\review\CAM_SN_Bridge.png'
+00:14.594  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\lobby_area\santuario\renders\review\CAM_SN_Forge.png'
+00:16.562  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\lobby_area\santuario\renders\review\CAM_SN_ForgeClose.png'
+00:18.062  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\lobby_area\santuario\renders\review\CAM_SN_Hammer.png'
+00:19.984  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\lobby_area\santuario\renders\review\CAM_SN_Hero.png'
+00:22.031  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\lobby_area\santuario\renders\review\CAM_SN_Isle.png'
+Blender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 02:38:20)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2567 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2581 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2593 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2587 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2585 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2587 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2583 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2578 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2588 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2584 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2585 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2591 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2583 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2593 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2582 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2584 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2588 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2579 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2588 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2589 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2580 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2587 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2578 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2584 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2587 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2592 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2589 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2585 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2577 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2589 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2583 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2584 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2585 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2590 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2580 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2587 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2586 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2584 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2590 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2585 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2576 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2592 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (25800:24.187  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\lobby_area\santuario\renders\review\CAM_SN_IsleBridge.png'
+7 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2580 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2585 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2588 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2580 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2592 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2583 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2584 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2585 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2590 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2581 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2590 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2589 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2580 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2590 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2588 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2582 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2585 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2586 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2647 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2649 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2641 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2653 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2644 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2648 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2653 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2649 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2637 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2645 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2643 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2646 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2643 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2651 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2640 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2643 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2645 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2651 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2641 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2647 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2643 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2649 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2641 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2642 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2646 / 2048)
+Error: Shadow buffer full, may result in mis00:26.703  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\lobby_area\santuario\renders\review\CAM_SN_IsleCourt.png'
+00:28.578  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\lobby_area\santuario\renders\review\CAM_SN_Plaza.png'
+00:30.937  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\lobby_area\santuario\renders\review\CAM_SN_PortalClose.png'
+sing shadows and lower performance. (2645 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2640 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2646 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2651 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2643 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2652 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2636 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2647 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2639 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2641 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2640 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2653 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2643 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2646 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2647 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2643 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2641 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2645 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2650 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2646 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2643 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2648 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2653 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2641 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2640 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2643 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2650 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2641 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2648 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2649 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2637 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2639 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2648 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2572 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2570 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2580 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2570 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2580 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2573 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2568 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2578 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2579 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2567 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2577 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2578 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2573 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2579 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2568 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2569 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2576 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2580 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2573 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2570 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2579 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2573 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2575 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2569 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2574 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2581 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2574 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2568 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2576 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2579 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2572 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2571 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2576 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2568 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2578 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2577 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2573 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2576 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2573 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2569 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2579 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2572 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2569 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2576 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2580 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2571 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2575 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2572 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2571 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2580 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2568 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2577 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2581 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2582 / 2048)
+Error: Shadow buffer full, may result in missing shadows a00:33.437  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\lobby_area\santuario\renders\review\CAM_SN_Portals.png'
+00:35.000  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\lobby_area\santuario\renders\review\CAM_SN_Rank.png'
+00:36.797  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\lobby_area\santuario\renders\review\CAM_SN_Shop.png'
+00:38.594  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\lobby_area\santuario\renders\review\CAM_SN_ShopIn.png'
+nd lower performance. (2567 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2572 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2579 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2566 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2569 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2572 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2571 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2582 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2575 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2569 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2347 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2376 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2371 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2372 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2375 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2378 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2376 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2375 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2372 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2374 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2377 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2375 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2374 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2378 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2376 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2372 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2375 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2373 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2375 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2370 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2372 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2377 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2372 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2375 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2374 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2370 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2376 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2377 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2379 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2369 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2373 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2374 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2375 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2378 / 2048)
+Error: Shadow buff00:40.609  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\lobby_area\santuario\renders\review\CAM_SN_South.png'
+00:42.453  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\lobby_area\santuario\renders\review\CAM_SN_Spawn.png'
+00:44.391  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\lobby_area\santuario\renders\review\CAM_SN_SpawnBack.png'
+00:46.422  render           | Saved: 'C:\Users\lucas\OneDrive\Desktop\To up\lobby_area\santuario\renders\review\CAM_SN_Top.png'
 BlenderMCP: cannot start server in background mode (blender -b) - commands would never execute
 BlenderMCP: run Blender with a GUI, or use a virtual display: xvfb-run -a blender
 BlenderMCP addon registered
+RENDER CAM_SN_Air.png
+RENDER CAM_SN_Air
+RENDER CAM_SN_Anvil.png
+RENDER CAM_SN_Anvil
+RENDER CAM_SN_Bridge.png
+RENDER CAM_SN_Bridge
+RENDER CAM_SN_Forge.png
+RENDER CAM_SN_Forge
+RENDER CAM_SN_ForgeClose.png
+RENDER CAM_SN_ForgeClose
 RENDER CAM_SN_Hammer.png
 RENDER CAM_SN_Hammer
+RENDER CAM_SN_Hero.png
+RENDER CAM_SN_Hero
+RENDER CAM_SN_Isle.png
+RENDER CAM_SN_Isle
+RENDER CAM_SN_IsleBridge.png
+RENDER CAM_SN_IsleBridge
+RENDER CAM_SN_IsleCourt.png
+RENDER CAM_SN_IsleCourt
+RENDER CAM_SN_Plaza.png
+RENDER CAM_SN_Plaza
+RENDER CAM_SN_PortalClose.png
+RENDER CAM_SN_PortalClose
+RENDER CAM_SN_Portals.png
+RENDER CAM_SN_Portals
+RENDER CAM_SN_Rank.png
+RENDER CAM_SN_Rank
+RENDER CAM_SN_Shop.png
+RENDER CAM_SN_Shop
+RENDER CAM_SN_ShopIn.png
+RENDER CAM_SN_ShopIn
+RENDER CAM_SN_South.png
+RENDER CAM_SN_South
+RENDER CAM_SN_Spawn.png
+RENDER CAM_SN_Spawn
+RENDER CAM_SN_SpawnBack.png
+RENDER CAM_SN_SpawnBack
+RENDER CAM_SN_Top.png
+RENDER CAM_SN_Top
 BlenderMCP server stopped
 BlenderMCP addon unregistered
-Blender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 02:38:20)
+er full, may result in missing shadows and lower performance. (2373 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2371 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2377 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2379 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2371 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2375 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2371 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2375 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2374 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2376 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2380 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2377 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2375 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2376 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2378 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2376 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2373 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2376 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2379 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2368 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2374 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2373 / 2048)
+Error: Shadow buffer full, may result in missing shadows and lower performance. (2381 / 2048)
 
 Blender quit

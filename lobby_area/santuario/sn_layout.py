@@ -44,12 +44,30 @@ ANVIL_PLINTH = (-74.0, 74.0, -142.0, -92.0, 6.0)    # x0, x1, z0, z1, altura do 
 HAMMER = dict(head=(106.0, -66.0), tilt=58.0, yaw=34.0, head_size=(34.0, 20.0, 20.0), handle_len=96.0, handle_r=3.4)
 HAMMER_ANG = (math.degrees(math.atan2(HAMMER["head"][1], HAMMER["head"][0])) + 360.0) % 360.0   # ~328 (nordeste)
 
-# ------------------------------------------------------------------ semicirculo dos portais (OESTE)
-# Os 6 portais APROVADOS (fm_pv3_* + fm_portals.onepiece, via vila_medieval/vm_portals) ficam num semicirculo a oeste
-# da praca, cada um sobre um ESTRADO de pedra antiga do santuario. Lote de cada portal: +-13,9 tangente x 9,6 atras.
-# r 74 e passo de 24 graus -> 31 studs entre centros. Ordem facil -> dificil do SW (perto do spawn) ao NW (perto da forja).
-PORTAL_R = 80.0
-PORTAL_ANG = [119.0, 143.5, 168.0, 192.5, 217.0, 241.5]
+# ------------------------------------------------------------------ ILHA DOS PORTAIS (oeste, separada pelo lago)
+# Os 6 portais APROVADOS (fm_pv3_* + fm_portals.onepiece, via vila_medieval/vm_portals) ficam numa ilha propria a oeste
+# do plato, ligada por uma ponte de pedra: patio circular com a PEDRA DOS MUNDOS no centro e os portais em FERRADURA
+# em volta, cada um num estrado antigo, todos olhando o centro. A ferradura abre para o leste (ponte). Ordem facil ->
+# dificil da ESQUERDA para a DIREITA de quem chega (sul -> oeste -> norte). Lote de cada portal: +-13,9 x 9,6.
+PORTAL_ISLE_C = (-236.0, 12.0)          # centro do patio da ilha
+PORTAL_ISLE_R = 64.0                    # raio medio da ilha
+ISLE_COURT_R = 24.0                     # patio de lajes
+PORTAL_R = 42.0                         # raio dos centros dos portais (em volta do centro da ilha)
+PORTAL_ANG = [70.0, 114.0, 158.0, 202.0, 246.0, 290.0]
+
+
+def _isle_poly(n=28):
+    cx, cz = PORTAL_ISLE_C
+    pts = []
+    for k in range(n):
+        a = 2 * math.pi * k / n
+        r = PORTAL_ISLE_R + 3.0 * math.sin(3 * a + 0.7) + 2.0 * math.sin(5 * a + 2.1)
+        pts.append((round(cx + r * math.cos(a), 2), round(cz + r * math.sin(a), 2)))
+    return pts
+
+
+PORTAL_ISLE = _isle_poly()
+ISLE_BRIDGE = dict(z=12.0, x_main=-142.0, x_isle=PORTAL_ISLE_C[0] + PORTAL_ISLE_R - 4.0, w=14.0)   # x -142 .. -176
 PORTALS = [("Naruto", 1), ("DragonBall", 2), ("ShadowGarden", 3), ("DemonSlayer", 4), ("OnePiece", 5),
            ("OnePunchMan", 6)]
 PORTAL_W, PORTAL_H = 15.0, 21.0          # vao do arco
@@ -57,7 +75,7 @@ PORTAL_W, PORTAL_H = 15.0, 21.0          # vao do arco
 
 def portal_pos(i):
     a = math.radians(PORTAL_ANG[i])
-    x, z = C[0] + PORTAL_R * math.cos(a), C[1] + PORTAL_R * math.sin(a)
+    x, z = PORTAL_ISLE_C[0] + PORTAL_R * math.cos(a), PORTAL_ISLE_C[1] + PORTAL_R * math.sin(a)
     return (x, z), (-math.cos(a), -math.sin(a))      # posicao, direcao para onde a espiral olha (o centro)
 
 
@@ -97,11 +115,13 @@ def _off(c, f, d):
 
 SHOP_NPC = _off(SHOP_C, SHOP_FACE, -4.5)        # 'npc vendedor ' atras do balcao, olhando para a porta
 SHOP_PLAYER = _off(SHOP_C, SHOP_FACE, 1.5)      # jogador / PadLoja (na frente do balcao)
-PORTAL_HUB = _ring(52.0, 182.0)[0]              # ponto de chegada "portais" (lado oeste da praca)
+PORTAL_HUB = (PORTAL_ISLE_C[0] + 14.0, PORTAL_ISLE_C[1])   # chegada "portais": patio da ilha, de frente p/ a pedra
+WEST_ANG = (math.degrees(math.atan2(ISLE_BRIDGE["z"], ISLE_BRIDGE["x_main"])) + 360.0) % 360.0   # ~175: trilha oeste
+LANDS = [("plato", PLATEAU, (0.0, -7.0)), ("ilha", PORTAL_ISLE, PORTAL_ISLE_C)]
 # ------------------------------------------------------------------ ruinas espalhadas (sn_ruins; o sn_vegplan as evita)
 RUIN_HEAD = (112.0, 18.0, 200.0)                       # x, z, yaw
 RUIN_WALLS = [(-128.0, -60.0, -100.0, -110.0), (88.0, -136.0, 116.0, -118.0), (128.0, 52.0, 104.0, 92.0),
-              (-110.0, 104.0, -70.0, 128.0), (-140.0, 20.0, -138.0, -24.0), (60.0, 128.0, 30.0, 138.0)]
+              (-110.0, 104.0, -70.0, 128.0), (-138.0, -36.0, -132.0, -70.0), (60.0, 128.0, 30.0, 138.0)]
 RUIN_ARCHES = [(-122.0, -48.0, 60.0), (112.0, -128.0, -20.0), (-62.0, 118.0, 10.0)]
 RUIN_CRYSTALS = [(66.0, -96.0, "SN_CrystalAmber", 2.0), (-70.0, -96.0, "SN_CrystalBlue", 1.8),
                  (128.0, -8.0, "SN_CrystalBlue", 1.6), (-132.0, 70.0, "SN_CrystalAmber", 1.6),
@@ -130,10 +150,13 @@ def cams():
         "CAM_SN_Anvil": ((70.0, 40.0, -40.0), (0.0, 40.0, -118.0), 26),
         "CAM_SN_Hammer": ((62.0, 20.0, -80.0), (106.0, 30.0, -64.0), 18),
         "CAM_SN_Plaza": ((0.0, 60.0, 44.0), (0.0, 7.0, -4.0), 26),
-        "CAM_SN_Air": ((140.0, 170.0, 210.0), (0.0, 10.0, -30.0), 26),
-        "CAM_SN_Top": ((0.0, 420.0, 1.0), (0.0, 0.0, 0.0), 30),
-        "CAM_SN_Portals": ((22.0, 16.0, 6.0), (-60.0, 14.0, 0.0), 22),
-        "CAM_SN_PortalClose": ((-40.0, 12.0, 6.0), (-72.0, 15.0, 13.0), 24),
+        "CAM_SN_Air": ((150.0, 190.0, 230.0), (-50.0, 10.0, -20.0), 24),
+        "CAM_SN_Top": ((-60.0, 520.0, 1.0), (-60.0, 0.0, 0.0), 30),
+        "CAM_SN_Portals": ((-214.0, 16.0, 12.0), (-262.0, 14.0, 12.0), 20),
+        "CAM_SN_PortalClose": ((-236.0, 12.5, 4.0), (-253.0, 15.0, -29.0), 24),
+        "CAM_SN_Isle": ((-150.0, 120.0, 110.0), (-236.0, 6.0, 12.0), 24),
+        "CAM_SN_IsleBridge": ((-128.0, 15.0, 14.0), (-205.0, 15.0, 10.0), 22),
+        "CAM_SN_IsleCourt": ((-262.0, 18.0, 34.0), (-226.0, 12.0, 4.0), 20),
         "CAM_SN_Shop": ((30.0, 14.0, -6.0), (72.0, 14.0, -34.0), 24),
         "CAM_SN_ShopIn": ((63.0, 14.5, -30.5), (84.0, 11.5, -39.0), 16),
         "CAM_SN_Rank": ((26.0, 15.0, 22.0), (67.0, 24.0, 57.0), 22),

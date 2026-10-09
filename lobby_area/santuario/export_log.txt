@@ -1,57 +1,58 @@
-00:02.469  blend            | Read blend: "C:\Users\lucas\OneDrive\Desktop\To up\lobby_area\santuario\renders\build\build.blend"
+00:02.734  blend            | Read blend: "C:\Users\lucas\OneDrive\Desktop\To up\lobby_area\santuario\renders\build\build.blend"
 BlenderMCP: cannot start server in background mode (blender -b) - commands would never execute
 BlenderMCP: run Blender with a GUI, or use a virtual display: xvfb-run -a blender
 BlenderMCP addon registered
-ATLAS ASSADOS registrados: 40
-EXPORT_SN: 151 volumes de QA / previas / cameras fora do export
+ATLAS ASSADOS registrados: 41
+EXPORT_SN: 154 volumes de QA / previas / cameras fora do export
+EXPORT_SN: 37 familias de objetos renomeadas (nomes curtos)
 ORCAMENTO por dono (tris / MeshParts; limite entre parenteses)
   backdrop          61404 (70000)    19 (40)
-  exit              45088 (70000)    15 (90)
+  exit              50630 (70000)    18 (90)
   forge             49582 (90000)    29 (90)
-  portals           72155 (110000)    77 (170)
-  props             25765 (45000)    11 (60)
+  portals           84979 (110000)    85 (170)
+  props             29742 (45000)    10 (60)
   services          80461 (95000)    13 (110)
-  terrain           17873 (40000)    12 (60)
-  town              11590 (30000)     3 (40)
-  vegetation       170454 (230000)    56 (200)
+  terrain           21407 (40000)    13 (60)
+  town              11460 (30000)     3 (40)
+  vegetation       195994 (230000)    61 (200)
   water                 0 (6000)     0 (8)
 METAS GLOBAIS
-  tris estaticos                          534372 / 760000 
-  MeshParts estaticas                        235 / 950    
-  tris total (+ reserva VFX 12000)        546372 / 772000 
-  MeshParts total (+ reserva VFX 24)         259 / 974    
-  materiais                                  118 / 150    
-  MeshParts com sombra                       135 / 380    
-  luzes ativas de dia                         28 / 30     
-  COL                                        459 / 1100   
+  tris estaticos                          585659 / 760000 
+  MeshParts estaticas                        251 / 950    
+  tris total (+ reserva VFX 12000)        597659 / 772000 
+  MeshParts total (+ reserva VFX 24)         275 / 974    
+  materiais                                  125 / 150    
+  MeshParts com sombra                       104 / 380    
+  luzes ativas de dia                         29 / 30     
+  COL                                        518 / 1100   
 
-FBX export starting... 'C:\\Users\\lucas\\OneDrive\\Desktop\\To up\\lobby_area\\santuario\\export\\LOBBY_SN_02_TERRAIN_06bf56.fbx'
-export finished in 0.1240 sec.
-FBX LOBBY_SN_02_TERRAIN_06bf56.fbx 31 malhas 79277 tris 6628 KB
+FBX export starting... 'C:\\Users\\lucas\\OneDrive\\Desktop\\To up\\lobby_area\\santuario\\export\\LOBBY_SN_02_TERRAIN_c47183.fbx'
+export finished in 0.1263 sec.
+FBX LOBBY_SN_02_TERRAIN_c47183.fbx 32 malhas 82811 tris 6873 KB
 
-FBX export starting... 'C:\\Users\\lucas\\OneDrive\\Desktop\\To up\\lobby_area\\santuario\\export\\LOBBY_SN_03_TOWN_06bf56.fbx'
-export finished in 0.0620 sec.
-FBX LOBBY_SN_03_TOWN_06bf56.fbx 14 malhas 37355 tris 3855 KB
+FBX export starting... 'C:\\Users\\lucas\\OneDrive\\Desktop\\To up\\lobby_area\\santuario\\export\\LOBBY_SN_03_TOWN_c47183.fbx'
+export finished in 0.0649 sec.
+FBX LOBBY_SN_03_TOWN_c47183.fbx 13 malhas 41202 tris 4069 KB
 
-FBX export starting... 'C:\\Users\\lucas\\OneDrive\\Desktop\\To up\\lobby_area\\santuario\\export\\LOBBY_SN_04_FORGE_06bf56.fbx'
-export finished in 0.0962 sec.
-FBX LOBBY_SN_04_FORGE_06bf56.fbx 29 malhas 49582 tris 10286 KB
+FBX export starting... 'C:\\Users\\lucas\\OneDrive\\Desktop\\To up\\lobby_area\\santuario\\export\\LOBBY_SN_04_FORGE_c47183.fbx'
+export finished in 0.1012 sec.
+FBX LOBBY_SN_04_FORGE_c47183.fbx 29 malhas 49582 tris 10287 KB
 
-FBX export starting... 'C:\\Users\\lucas\\OneDrive\\Desktop\\To up\\lobby_area\\santuario\\export\\LOBBY_SN_05_SERVICES_06bf56.fbx'
-export finished in 0.0989 sec.
-FBX LOBBY_SN_05_SERVICES_06bf56.fbx 13 malhas 80461 tris 7505 KB
+FBX export starting... 'C:\\Users\\lucas\\OneDrive\\Desktop\\To up\\lobby_area\\santuario\\export\\LOBBY_SN_05_SERVICES_c47183.fbx'
+export finished in 0.1167 sec.
+FBX LOBBY_SN_05_SERVICES_c47183.fbx 13 malhas 80461 tris 7467 KB
 
-FBX export starting... 'C:\\Users\\lucas\\OneDrive\\Desktop\\To up\\lobby_area\\santuario\\export\\LOBBY_SN_06_PORTALS_06bf56.fbx'
-export finished in 0.1563 sec.
-FBX LOBBY_SN_06_PORTALS_06bf56.fbx 77 malhas 72155 tris 8943 KB
+FBX export starting... 'C:\\Users\\lucas\\OneDrive\\Desktop\\To up\\lobby_area\\santuario\\export\\LOBBY_SN_06_PORTALS_c47183.fbx'
+export finished in 0.1792 sec.
+FBX LOBBY_SN_06_PORTALS_c47183.fbx 85 malhas 84979 tris 10422 KB
 
-FBX export starting... 'C:\\Users\\lucas\\OneDrive\\Desktop\\To up\\lobby_area\\santuario\\export\\LOBBY_SN_07_EXIT_06bf56.fbx'
-export finished in 0.0709 sec.
-FBX LOBBY_SN_07_EXIT_06bf56.fbx 15 malhas 45088 tris 4898 KB
+FBX export starting... 'C:\\Users\\lucas\\OneDrive\\Desktop\\To up\\lobby_area\\santuario\\export\\LOBBY_SN_07_EXIT_c47183.fbx'
+export finished in 0.0830 sec.
+FBX LOBBY_SN_07_EXIT_c47183.fbx 18 malhas 50630 tris 5938 KB
 
-FBX export starting... 'C:\\Users\\lucas\\OneDrive\\Desktop\\To up\\lobby_area\\santuario\\export\\LOBBY_SN_09_VEGETATION_06bf56.fbx'
-export finished in 0.2252 sec.
-FBX LOBBY_SN_09_VEGETATION_06bf56.fbx 56 malhas 170454 tris 10507 KB
+FBX export starting... 'C:\\Users\\lucas\\OneDrive\\Desktop\\To up\\lobby_area\\santuario\\export\\LOBBY_SN_09_VEGETATION_c47183.fbx'
+export finished in 0.2820 sec.
+FBX LOBBY_SN_09_VEGETATION_c47183.fbx 61 malhas 195994 tris 11507 KB
 VARIANTES pouco usadas (< 1500 tris) -> base: {'Stone_Dark_C': 'Stone_Dark', 'Stone_Light_C': 'Stone_Light', 'Wood_Dark_B': 'Wood_Dark', 'Wood_Plank_C': 'Wood_Plank'}
 FOLD: 4 materiais pequenos fundidos no vizinho dominante
    PORTAL_DragonBall_Frame: P_DB_Shine (12.1 studs2) -> P_DB_White
@@ -60,15 +61,15 @@ FOLD: 4 materiais pequenos fundidos no vizinho dominante
    PORTAL_OnePiece_Pier: P_OP_Sail (63.9 studs2) -> Rope
 TETO DE MATERIAIS (150): nao precisou
 TETO DE SOMBRA (380): 0 MeshParts perderam a sombra []
-COL: 0 contidas descartadas, 4 cobertas pela uniao de outras, 53 unidas a vizinhas; 46 com tag CamOccluder
+COL: 0 contidas descartadas, 4 cobertas pela uniao de outras, 60 unidas a vizinhas; 46 com tag CamOccluder
    cobertas: COL_Forge_011, COL_Court_004, COL_Court_036, COL_Court_044
 CAMERA: 0 cascas visuais ocluem a camera (grupo SoVisual)
 MARCADORES assentados na COL: [('NPC_Ignis', 7.0, 7.02), ('PLAYER_INTERACT_Ignis', 7.0, 7.02)]
-LUZES: 64 exportadas, 28 ativas de dia, 36 NightOnly (0 rebaixadas pelo cluster [])
+LUZES: 71 exportadas, 29 ativas de dia, 42 NightOnly (0 rebaixadas pelo cluster [])
 SOL: ClockTime 8.562  GeographicLatitude -7.973  -> GetSunDirection esperado [0.6681, 0.5301, -0.5221] (erro do modelo 0.0e+00)
-SEGURANCA: 17 pontos seguros para o VOID_CATCH
-EXPORT OK id=06bf5662 malhas=235 tris=534372 materiais=118 col=459 marcadores=94 luzes=64 (dia 28) sombra=135 -> C:\Users\lucas\OneDrive\Desktop\To up\lobby_area\santuario\export
-EXPORT_SN: 235 malhas, 534372 tris, 459 COL, 94 marcadores, 64 luzes; id 06bf5662
+SEGURANCA: 20 pontos seguros para o VOID_CATCH
+EXPORT OK id=c4718331 malhas=251 tris=585659 materiais=125 col=518 marcadores=108 luzes=71 (dia 29) sombra=104 -> C:\Users\lucas\OneDrive\Desktop\To up\lobby_area\santuario\export
+EXPORT_SN: 251 malhas, 585659 tris, 518 COL, 108 marcadores, 71 luzes; id c4718331
 BlenderMCP server stopped
 BlenderMCP addon unregistered
 Blender 5.2.1 LTS (hash 9e2066aef7ef built 2026-08-25 02:38:20)

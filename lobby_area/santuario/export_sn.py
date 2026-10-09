@@ -89,8 +89,8 @@ ER.BUDGET_OWNER = {"terrain": (40000, 60), "backdrop": (70000, 40), "town": (300
 ER.BUDGET = {"static_tris": 760000, "static_meshes": 950, "vfx_tris": 12000, "vfx_meshes": 24, "total_tris": 772000,
              "total_meshes": 974, "materials": 150, "shadow_meshes": 380, "day_lights": 30, "col": 1100}
 ER.FAR_GROUND = None
-# rede de quedas: plato (x -150..150, z -164..150) + ponte ate z 222; topo em -23
-ER.VOID_CATCH = {"size": [360, 4, 420], "y": -25.0, "center": (0.0, -29.0)}      # center = (x, y) Blender
+# rede de quedas: ilha dos portais (x -306..) + plato (..150, z -164..150) + ponte ate z 222; topo em -23
+ER.VOID_CATCH = {"size": [480, 4, 420], "y": -25.0, "center": (-80.0, -29.0)}    # center = (x, y) Blender
 ER.SKYLINE_WHOLE = ("WB_Bg_",)
 ER.SKYLINE_MODEL = ("WB_Bg_",)
 ER.BACKGROUND = ("WB_Bg_",)
@@ -118,7 +118,8 @@ def safe_candidates():
            ("SAFE_Forja", (-0.9, -44.0), L.Y_PLAZA), ("SAFE_Loja", L.SHOP_PLAYER, L.Y_SHOP),
            ("SAFE_Tabuas", (L.RANK_O[0] + L.RANK_FACE[0] * 15.0, L.RANK_O[1] + L.RANK_FACE[1] * 15.0), L.Y_RANK),
            ("SAFE_Avenida", (0, 110), L.Y_PLAZA), ("SAFE_Portao", (0, 150), L.Y_PLAZA),
-           ("SAFE_Ponte1", (0, 185), L.Y_PLAZA - 0.5), ("SAFE_Ponte2", (0, 215), L.Y_ISLE + 0.2)]
+           ("SAFE_Ponte1", (0, 185), L.Y_PLAZA - 0.5), ("SAFE_Ponte2", (0, 215), L.Y_ISLE + 0.2),
+           ("SAFE_IlhaPatio", L.PORTAL_HUB, L.Y_PLAZA), ("SAFE_TrilhaOeste", (-100.0, 10.0), L.Y_GRASS)]
     for i in range(6):
         (x, z), (fx, fz) = L.portal_pos(i)
         pts.append(("SAFE_Portal%d" % (i + 1), (x + fx * 12.0, z + fz * 12.0), L.Y_PORTAL))
@@ -248,6 +249,16 @@ def main():
     for o in gone:
         bpy.data.objects.remove(o, do_unlink=True)
     print("EXPORT_SN: %d volumes de QA / previas / cameras fora do export" % len(gone))
+    # nomes curtos: o export nomeia "objeto__material" e os objetos do Build ja terminam em "__material" (nome dobrado,
+    # ate 50 caracteres - o 3D Importer corta nomes longos com "..."): "A__B" -> "A" / "A_01" ...
+    fam = {}
+    for o in bpy.data.objects:
+        if o.type == "MESH" and "__" in o.name and o.users_collection and not o.name.startswith(ER.SKIP_PREFIX):
+            fam.setdefault(o.name.split("__")[0], []).append(o)
+    for a_, obs in fam.items():
+        for i, o in enumerate(sorted(obs, key=lambda o: o.name)):
+            o.name = "%s_%02d" % (a_, i) if i else a_
+    print("EXPORT_SN: %d familias de objetos renomeadas (nomes curtos)" % len(fam))
     ER.EXTRA_LUA = contract_lua()
     os.makedirs(OUT, exist_ok=True)
     ER.main()

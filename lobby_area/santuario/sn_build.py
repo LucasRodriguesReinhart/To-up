@@ -24,7 +24,7 @@ def opt(name, default=None):
     return default
 
 
-ALL = ["terrain", "relief", "veg", "hero", "portals", "shop", "rank", "south", "ruins"]
+ALL = ["terrain", "relief", "veg", "hero", "portals", "isle", "shop", "rank", "south", "ruins"]
 MODS = (opt("--mods") or ",".join(ALL)).split(",")
 REBAKE = (opt("--rebake") or "").split(",")
 os.makedirs(OUT, exist_ok=True)
@@ -42,7 +42,7 @@ BAKE = [("WB_Frg_Anvil", "Anvil", 6.0), ("WB_Frg_Hammer", "Hammer", 8.0), ("WB_F
         ("WB_Shop_Inside", "ShopIn", 9.0), ("WB_Rank_Tablets", "Rank", 7.0), ("WB_Exit_Spawn", "Spawn", 7.0),
         ("WB_Exit_Avenue", "Avenue", 6.0), ("WB_Exit_Gate", "Gate", 7.0), ("WB_Exit_Bridge", "Bridge", 6.0),
         ("WB_Prop_Ruins", "Ruins", 6.0), ("WB_Ter_Ground", "Ground", 3.0), ("WB_Ter_Shore", "Shore", 3.0),
-        ("WB_Veg_Tufts", "Tufts", 5.0)]
+        ("WB_Veg_Tufts", "Tufts", 5.0), ("WB_Court_Isle", "Isle", 7.0), ("WB_Exit_IsleBridge", "IsleBridge", 6.0)]
 
 
 def has(m):
@@ -80,7 +80,7 @@ if has("hero"):
 if has("portals"):
     import sn_portals
     sn_portals.build()
-for nm in ("shop", "rank", "south", "ruins"):
+for nm in ("isle", "shop", "rank", "south", "ruins"):
     if has(nm):
         m = mod("sn_" + nm)
         if m:

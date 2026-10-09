@@ -22,7 +22,7 @@ PILLAR_R = 47.0
 
 def _station_angles():
     a = [90.0, 270.0, (math.degrees(math.atan2(L.SHOP_C[1], L.SHOP_C[0])) + 360) % 360,
-         (math.degrees(math.atan2(L.RANK_O[1], L.RANK_O[0])) + 360) % 360] + list(L.PORTAL_ANG) + [310.0]
+         (math.degrees(math.atan2(L.RANK_O[1], L.RANK_O[0])) + 360) % 360] + [L.WEST_ANG, 310.0]
     return a
 
 
@@ -41,7 +41,7 @@ def pillar_ring(b):
             continue
         if 255.0 < a < 287.0:                       # frente da forja: livre
             continue
-        if a < 185.0:                               # metade sul livre (vista do spawn para portais/loja/tabuas)
+        if a < 120.0:                               # sul livre (vista do spawn para loja/tabuas)
             continue
         if i % 2:
             continue

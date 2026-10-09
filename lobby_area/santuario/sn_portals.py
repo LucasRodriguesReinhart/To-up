@@ -21,7 +21,7 @@ from wb_lib import RB, V
 
 COLL = "06_PORTALS"
 AREA = "Court"
-DAIS_R = (15.6, 13.9)            # raio do degrau de baixo / de cima (12 lados)
+DAIS_R = (15.0, 13.4)            # raio do degrau de baixo / de cima (12 lados)
 WORLD = {
     "Naruto":       ("NARUTO", "SN_CrystalAmber", (255, 170, 60)),
     "DragonBall":   ("DRAGON BALL", "SN_CrystalAmber", (255, 150, 40)),

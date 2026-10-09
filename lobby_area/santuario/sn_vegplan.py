@@ -49,6 +49,12 @@ def keepout():
     circ.append((rx + fx * 12, rz + fz * 12, 12.0))
     circ.append((L.HAMMER["head"][0], L.HAMMER["head"][1], 30.0))
     circ.append((L.FORGE_C[0], L.FORGE_C[1], 26.0))
+    # ilha dos portais: patio + anel interno livres; corredor da ponte nas duas cabeceiras; trilha oeste do plato
+    ix, iz = L.PORTAL_ISLE_C
+    circ.append((ix, iz, L.PORTAL_R - 12.0))
+    bz = L.ISLE_BRIDGE["z"]
+    for t in (0.2, 0.4, 0.6, 0.8):
+        circ.append((L.ISLE_BRIDGE["x_main"] * t + (-L.PLAZA_R) * (1 - t), bz * t, 7.0))
     circ.append((L.RUIN_HEAD[0], L.RUIN_HEAD[1], 14.0))
     for (x, z, yaw) in L.RUIN_ARCHES:
         circ.append((x, z, 10.0))
@@ -64,6 +70,7 @@ def keepout():
             (-14.0, 14.0, 80.0, 152.0),                     # avenida + portao
             (L.ANVIL_PLINTH[0] - 6, L.ANVIL_PLINTH[1] + 6, L.ANVIL_PLINTH[2] - 6, L.ANVIL_PLINTH[3] + 8),
             (-20.0, 20.0, -92.0, -36.0)]                    # canal de lava / forja
+    rect.append((L.ISLE_BRIDGE["x_isle"] - 30.0, L.ISLE_BRIDGE["x_main"] + 22.0, bz - 10.0, bz + 10.0))
     # trilhas da praca ate a loja e as tabuas
     for (tx, tz) in (L.SHOP_C, L.RANK_O):
         for t in (0.55, 0.7, 0.85):
@@ -71,8 +78,21 @@ def keepout():
     return circ, rect
 
 
+def land_of(x, z):
+    for (nm, poly, c) in L.LANDS:
+        if _in_poly(x, z, poly):
+            return poly
+    return None
+
+
+def edge_dist(x, z):
+    p = land_of(x, z)
+    return _edge_dist(x, z, p) if p else -1.0
+
+
 def free(x, z, margin=0.0):
-    if not _in_poly(x, z, L.PLATEAU) or _edge_dist(x, z, L.PLATEAU) < 5.0:
+    p = land_of(x, z)
+    if p is None or _edge_dist(x, z, p) < 5.0:
         return False
     circ, rect = keepout()
     for (cx, cz, r) in circ:
@@ -91,7 +111,7 @@ def open_lawn(x, z):
     """gramados que ficam LIVRES de arvores (linhas de visada da praca/spawn para portais, loja e tabuas)"""
     r = math.hypot(x - L.C[0], z - L.C[1])
     a = math.degrees(math.atan2(z - L.C[1], x - L.C[0])) % 360
-    if 40.0 < r < 93.0 and 100.0 < a < 262.0:
+    if 40.0 < r < 70.0 and 160.0 < a < 190.0:        # vista da praca para a ponte da ilha dos portais
         return True
     if 40.0 < r < 66.0 and (a > 312.0 or a < 72.0):
         return True
@@ -108,19 +128,19 @@ def spots(seed=11):
     pts = []
     # amostragem com distancia minima (bosques: 9..13 studs entre troncos)
     tries = 0
-    while tries < 9000 and len(pts) < 110:
+    while tries < 14000 and len(pts) < 124:
         tries += 1
-        x, z = r.uniform(-150, 150), r.uniform(-164, 150)
+        x, z = r.uniform(-310, 150), r.uniform(-164, 150)
         if not free(x, z, 1.5):
             continue
-        dmin = 10.5 if _edge_dist(x, z, L.PLATEAU) < 30 else 13.0
+        dmin = 10.5 if edge_dist(x, z) < 30 else 13.0
         if any(math.hypot(x - a, z - b) < dmin for (a, b) in pts):
             continue
         if math.hypot(x - ANCIENT[0], z - ANCIENT[1]) < 30 or open_lawn(x, z):
             continue
         pts.append((x, z))
     for (x, z) in pts:
-        e = _edge_dist(x, z, L.PLATEAU)
+        e = edge_dist(x, z)
         north = z < -70
         if e < 22 or north:
             nm = r.choice(["pine1", "pine1", "pine2", "oak1"])
@@ -132,7 +152,7 @@ def spots(seed=11):
     tries = 0
     while tries < 6000 and len(bushes) < 90:
         tries += 1
-        x, z = r.uniform(-140, 140), r.uniform(-150, 140)
+        x, z = r.uniform(-305, 140), r.uniform(-150, 140)
         if not free(x, z, -3.5) or free(x, z, 0.5):
             continue                                    # so na faixa de 0..3,5 studs em volta das zonas
         if any(math.hypot(x - a, z - b) < 4.5 for (a, b) in bushes):
