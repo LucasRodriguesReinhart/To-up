@@ -1544,8 +1544,23 @@ if POSICIONAR_JOGO then
   local msp = workspace:FindFirstChild('Mystical Spawn Point'); mv(msp and msp:FindFirstChild('SpawnLobby'), CFrame.new(0.0, 10.1, 64.0) * CFrame.Angles(0, 0, 0) + ROOT_OFFSET, 'SpawnLobby')
   mv(workspace:FindFirstChild('MailBox'), CFrame.new(-13.0, 10.4, 62.0) * CFrame.Angles(0, -math.pi / 2, 0) + ROOT_OFFSET, 'MailBox')
   local lm = workspace:FindFirstChild('LojaMochilas'); mv(lm and lm:FindFirstChild('PadLoja'), CFrame.new(71.146, 8.299999999999999, -33.175) + ROOT_OFFSET, 'PadLoja')
-  local npcs = workspace:FindFirstChild('NPCs'); local v = npcs and npcs:FindFirstChild('npc vendedor ')
-  mv(v, CFrame.new(76.583, 11.2, -35.711) * CFrame.Angles(0, 2.0071, 0) + ROOT_OFFSET, 'npc vendedor ')
+  local function acharVendedor()
+    for _, c in ipairs(workspace:GetChildren()) do if c:IsA('Model') and c:GetAttribute('VendedorMochilas') then return c end end
+    for _, n in ipairs({'Vebdedor suspeito', 'npc vendedor ', 'npc vendedor'}) do local c = workspace:FindFirstChild(n); if c then return c end end
+    local npcs = workspace:FindFirstChild('NPCs'); return npcs and (npcs:FindFirstChild('npc vendedor ') or npcs:FindFirstChild('npc vendedor'))
+  end
+  local vend = acharVendedor(); local vh = vend and vend:FindFirstChild('HumanoidRootPart')
+  if vend and vh then
+    local pes = math.huge
+    for _, d in ipairs(vend:GetDescendants()) do if d:IsA('BasePart') and (d.Name == 'LeftFoot' or d.Name == 'RightFoot') then pes = math.min(pes, d.Position.Y - d.Size.Y / 2) end end
+    local alt = pes < math.huge and (vh.Position.Y - pes) or 3.0
+    local p = Vector3.new(76.583, 8.20 + alt, -35.711) + ROOT_OFFSET
+    local alvo = CFrame.lookAt(p, p + Vector3.new(-0.9063, 0, 0.4226))
+    vend:PivotTo((alvo * vh.CFrame:Inverse()) * vend:GetPivot()); vend:SetAttribute('VendedorMochilas', true)
+    print('posicionado vendedor de mochilas', vend.Name)
+  else print('NAO achei o vendedor de mochilas') end
+  local padL = workspace:FindFirstChild('LojaMochilas') and workspace.LojaMochilas:FindFirstChild('PadLoja')
+  if padL then padL.CanTouch = false end   -- a loja abre pelo ProximityPrompt do vendedor, nao pelo toque
 end
 print(string.format('CONTRATO: Santuario com %d portais, LobbyRevision %s', #PORTAIS, EXPORT_ID))
 

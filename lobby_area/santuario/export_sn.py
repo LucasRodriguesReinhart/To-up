@@ -207,8 +207,11 @@ def contract_lua():
     nx, nz = L.SHOP_NPC
     sfx, sfz = L.SHOP_FACE
     yaw = math.atan2(-sfx, -sfz)
-    A("  local npcs = workspace:FindFirstChild('NPCs'); local v = npcs and npcs:FindFirstChild('npc vendedor ')")
-    A("  mv(v, CFrame.new(%s, %s, %s) * CFrame.Angles(0, %.4f, 0) + ROOT_OFFSET, 'npc vendedor ')" % (nx, L.Y_SHOP + 3.0, nz, yaw))
+    # vendedor de mochilas (NPC do usuario, workspace["Vebdedor suspeito"] / atributo VendedorMochilas): atras do balcao,
+    # pes no piso da loja, olhando a porta; a loja abre pelo ProximityPrompt (ServerScriptService.LojaMochilasPrompt)
+    fn_ = math.hypot(sfx, sfz) or 1.0
+    A(VENDEDOR_LUA.replace("NX_", "%.3f" % nx).replace("NZ_", "%.3f" % nz).replace("PISO_", "%.2f" % L.Y_SHOP)
+      .replace("FX_", "%.4f" % (sfx / fn_)).replace("FZ_", "%.4f" % (sfz / fn_)))
     A("end")
     A("print(string.format('CONTRATO: Santuario com %d portais, LobbyRevision %s', #PORTAIS, EXPORT_ID))")
     A(sn_lights.vfx_lua())
@@ -216,6 +219,27 @@ def contract_lua():
     A(PINTURA_LUA)
     A(PICK_LUA)
     return "\n".join(s) + "\n"
+
+
+VENDEDOR_LUA = r"""
+  local function acharVendedor()
+    for _, c in ipairs(workspace:GetChildren()) do if c:IsA('Model') and c:GetAttribute('VendedorMochilas') then return c end end
+    for _, n in ipairs({'Vebdedor suspeito', 'npc vendedor ', 'npc vendedor'}) do local c = workspace:FindFirstChild(n); if c then return c end end
+    local npcs = workspace:FindFirstChild('NPCs'); return npcs and (npcs:FindFirstChild('npc vendedor ') or npcs:FindFirstChild('npc vendedor'))
+  end
+  local vend = acharVendedor(); local vh = vend and vend:FindFirstChild('HumanoidRootPart')
+  if vend and vh then
+    local pes = math.huge
+    for _, d in ipairs(vend:GetDescendants()) do if d:IsA('BasePart') and (d.Name == 'LeftFoot' or d.Name == 'RightFoot') then pes = math.min(pes, d.Position.Y - d.Size.Y / 2) end end
+    local alt = pes < math.huge and (vh.Position.Y - pes) or 3.0
+    local p = Vector3.new(NX_, PISO_ + alt, NZ_) + ROOT_OFFSET
+    local alvo = CFrame.lookAt(p, p + Vector3.new(FX_, 0, FZ_))
+    vend:PivotTo((alvo * vh.CFrame:Inverse()) * vend:GetPivot()); vend:SetAttribute('VendedorMochilas', true)
+    print('posicionado vendedor de mochilas', vend.Name)
+  else print('NAO achei o vendedor de mochilas') end
+  local padL = workspace:FindFirstChild('LojaMochilas') and workspace.LojaMochilas:FindFirstChild('PadLoja')
+  if padL then padL.CanTouch = false end   -- a loja abre pelo ProximityPrompt do vendedor, nao pelo toque
+"""
 
 
 TOP100_LUA = r"""

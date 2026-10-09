@@ -72,3 +72,11 @@ ou o place que o usuario liberar), MCP conectado.
   Atmosphere Color 255,168,72 / Decay 252,108,36 / Haze 2,5 / Offset 0 - Offset > 0 deixa o skybox azul padrao aparecer).
 - Play: nasce em (0,12.8,64); Portal1 -> area 1; ilha dos portais = area 0 no chao; luz do lobby = por do sol. Place NAO salvo.
 - NPC "Vebdedor suspeito" (workspace, atributo ChampionsAligned, nao e do lobby) ficou na frente do quadro de Moedas.
+- Vendedor de mochilas (2026-10-09 noite, pedido do usuario): o NPC dele e workspace["Vebdedor suspeito"] (flutuava na
+  frente do quadro de Moedas). Foi para atras do balcao da loja-mochila (marcador NPC_Vendedor, pes no piso 8,2, olhando
+  a porta), atributo VendedorMochilas. A loja abre por ProximityPrompt (E) no NPC: Script novo
+  ServerScriptService.LojaMochilasPrompt (copia em roblox/LojaMochilasPrompt.server.lua) dispara Remotes.AbrirLoja;
+  LojaMochilas.PadLoja com CanTouch = false (nao abre mais ao pisar). Core.Main nao foi editado (tem o codigo antigo do
+  prompt para 'npc vendedor ', que nao existe mais). O montar (VENDEDOR_LUA) repete a posicao e o CanTouch. Play: E no
+  balcao abre a janela do Ignis na aba Mochilas. Backups: Antes_SantuarioFB_20261009.{Vebdedor suspeito_antes_loja,
+  PadLoja_antes_prompt}. Place NAO salvo.
