@@ -9,11 +9,16 @@
 # Cada zona cria: massas visuais (detail="far"), a colisao dos PROPRIOS volumes (casas, castelo, torii, mastros...) e
 # as luzes basicas. Chao, escadas, pontes, guardas e TODOS os marcadores sao do op_core/op_col (sempre).
 # O modulo de detalhe de uma zona SUBSTITUI a funcao dela aqui (build(skip={...})).
+# V2-0 (PLANO_V2, integracao): blockout da PLANTA V2 - capital em QUADRAS (L.block_lots: fileiras geminadas com telhado
+# por quadra, colisao do op_col.lot_cols), avenida com leito/calcada/meio-fio/sarjeta, NE refeito (5 lojas, sando com 6
+# toro, haiden aberto, honden, lago, mirante), canais rebaixados com leito e capa, pontes EM ARCO, sem pagode, sem H3,
+# sem estandartes dos cantos, poste em T trocado por ANDON baixo. Todo visual alcancavel do blockout tem colisao
+# (gate 'visual' do op_qa): soco dentro da caixa do lote, arrimo com o topo dentro do piso, guarda-corpos com caixa.
 import math, random
 import bmesh
 from mathutils import Vector, Matrix
 import op_lib as DL
-from op_lib import MB, col_box, col_box2, yaw_to, Frame, light, ccw
+from op_lib import MB, col_box, col_box2, col_ramp, yaw_to, Frame, light, ccw
 import fm_lib
 import op_layout as L
 import op_col
@@ -220,7 +225,7 @@ def cherry(mb, x, y, z, h=11.0, r=6.5, col=True):
                                                 z + h * (0.78 + 0.06 * k)),
                "Flower_OP_Blossom" if k != 1 else "Flower_OP_Light", 1, scale=(1.0, 1.0, 0.58))
     if col:
-        col_box("OP_VegTrunk", (2.0, 2.0, 8.0), (x, y, z + 4.0))
+        col_box("OP_VegTrunk", (3.4, 3.4, 8.0), (x + lean, y + lean * 0.5, z + 4.0))   # V2-0: tronco inclinado inteiro
 
 
 def pine(mb, x, y, z, h, col=False):
@@ -237,17 +242,29 @@ def pine(mb, x, y, z, h, col=False):
 
 
 def lantern_post(mb, x, y, z, h=7.0, name_light=None, energy=150.0):
-    """lanterna de poste (PROXY): pilar, braco, caixa com armacao escura e papel aceso DENTRO, chapeu"""
-    mb.box((0.7, 0.7, h), (x, y, z + h / 2), (0, 0, 0), "Wood_OP_Dark", 0.0)
-    mb.box((1.9, 1.9, 0.35), (x, y, z + h + 0.15), (0, 0, 0), "Wood_OP_Dark", 0.0)
-    mb.box((1.3, 1.3, 1.6), (x, y, z + h + 1.15), (0, 0, 0), "Glass_OP_Lantern", 0.0)
+    """V2-0 (U15): ANDON de poste baixo (PROXY; o modelo e do op_kit2.lamp_andon): base de pedra, haste, caixa de papel
+    aceso em armacao escura e chapeu - 4,5 de altura; a colisao cobre a peca inteira (o topo e alcancavel). 'h' e
+    ignorado (o poste em T de 7 saiu)."""
+    mb.box((1.3, 1.3, 0.5), (x, y, z + 0.25), (0, 0, 0), "Stone_OP", 0.0)
+    mb.box((0.45, 0.45, 2.4), (x, y, z + 1.7), (0, 0, 0), "Wood_OP_Dark", 0.0)
+    mb.box((1.05, 1.05, 1.2), (x, y, z + 3.5), (0, 0, 0), "Glass_OP_Lantern", 0.0)
     for sx in (-1, 1):
         for sy in (-1, 1):
-            mb.box((0.22, 0.22, 1.7), (x + sx * 0.7, y + sy * 0.7, z + h + 1.15), (0, 0, 0), "Wood_OP_Dark", 0.0)
-    mb.cyl(1.5, 0.7, (x, y, z + h + 2.3), m="Roof_OP_Ridge", n=4, r2=0.2, bevel=0.0, rot=(0, 0, math.pi / 4))
-    col_box("OP_PropLamp", (0.8, 0.8, h), (x, y, z + h / 2))
+            mb.box((0.16, 0.16, 1.3), (x + sx * 0.56, y + sy * 0.56, z + 3.5), (0, 0, 0), "Wood_OP_Dark", 0.0)
+    mb.cyl(1.0, 0.45, (x, y, z + 4.32), m="Roof_OP_Ridge", n=4, r2=0.15, bevel=0.0, rot=(0, 0, math.pi / 4))
+    col_box("OP_PropLamp", (2.0, 2.0, 4.5), (x, y, z + 2.25))
     if name_light:
-        light(name_light, "POINT", (x, y, z + h + 1.0), energy, WARM, 0.4)
+        light(name_light, "POINT", (x, y, z + 3.5), energy, WARM, 0.4)
+
+
+def fence_col(pts, h, area="OP_PropFence", th=0.6):
+    """colisao de guarda-corpo/cerca visual (o corrimao e alcancavel): 1 caixa por trecho"""
+    for a, b in zip(pts, pts[1:]):
+        dx, dy = b[0] - a[0], b[1] - a[1]
+        ln = math.hypot(dx, dy)
+        if ln < 0.3:
+            continue
+        col_box(area, (ln + th, th, h), ((a[0] + b[0]) / 2, (a[1] + b[1]) / 2, a[2] + h / 2), (0, 0, math.atan2(dy, dx)))
 
 
 def toro(mb, x, y, z, s=1.0, name_light=None):
@@ -259,7 +276,7 @@ def toro(mb, x, y, z, s=1.0, name_light=None):
     mb.box((1.0 * s, 1.76 * s, 0.9 * s), (x, y, z + 4.35 * s), (0, 0, 0), "Glass_OP_Lantern", 0.0)
     mb.cyl(1.9 * s, 1.0 * s, (x, y, z + 5.6 * s), m="Stone_OP", n=6, r2=0.4 * s, bevel=0.0)
     mb.ico(0.4 * s, (x, y, z + 6.4 * s), "Stone_OP", 1)
-    col_box("OP_PropToro", (2.6 * s, 2.6 * s, 6.0 * s), (x, y, z + 3.0 * s))
+    col_box("OP_PropToro", (3.8 * s, 3.8 * s, 6.0 * s), (x, y, z + 3.0 * s))     # V2-0: cobre o chapeu (r 1,9)
     if name_light:
         light(name_light, "POINT", (x, y, z + 4.35 * s), 140.0, WARM, 0.3)
 
@@ -317,19 +334,26 @@ def _edge_walls(mb, nm, poly, z, mat="Stone_OP", cap="Stone_OP_Path"):
             if len(run) < 2:
                 return
             p0, p1 = run[0], run[-1]
+            ext = 0.5                                   # V2-0: a capa encosta no banzo da escada/ponte vizinha
+            p0 = (p0[0] - dx / ln * ext, p0[1] - dy / ln * ext)
+            p1 = (p1[0] + dx / ln * ext, p1[1] + dy / ln * ext)
             zt = max(zf(*p0), zf(*p1))
             zb = min(min(L.zone_of(p[0] + nx * 1.6, p[1] + ny * 1.6) or zt for p in run), zt) - 0.6
             sl = math.hypot(p1[0] - p0[0], p1[1] - p0[1])
-            cx, cy = (p0[0] + p1[0]) / 2 + nx * 0.55, (p0[1] + p1[1]) / 2 + ny * 0.55
+            # V2-0: o muro fica DENTRO do piso de cima (face 0,12 fora da borda, sem z-fight com o prisma) e a capa e
+            # rente (+0,25): o topo e coberto pela colisao do piso (a V1 punha 1,1 de muro + capa FORA do piso)
+            cx, cy = (p0[0] + p1[0]) / 2 - nx * 0.43, (p0[1] + p1[1]) / 2 - ny * 0.43
             ang = math.atan2(dy, dx)
-            mb.box((sl + 1.2, 1.1, zt - zb), (cx, cy, (zb + zt) / 2), (0, 0, ang), mat, 0.0)
-            mb.box((sl + 1.3, 1.5, 0.45), (cx - nx * 0.2, cy - ny * 0.2, zt + 0.2), (0, 0, ang), cap, 0.0)
+            mb.box((sl, 1.1, zt - zb), (cx, cy, (zb + zt) / 2), (0, 0, ang), mat, 0.0)
+            mb.box((sl, 1.3, 0.37), (cx - nx * 0.1, cy - ny * 0.1, zt + 0.065), (0, 0, ang), cap, 0.0)
         for s in range(k + 1):
             t = s / k
             x, y = a[0] + dx * t, a[1] + dy * t
             ok = L.floor_name(x - nx * 0.6, y - ny * 0.6) == nm
             zo = L.zone_of(x + nx * 1.6, y + ny * 1.6)
             ok = ok and zo is not None and zf(x, y) - zo > 1.0 and not op_col.opening(x + nx * 1.6, y + ny * 1.6)
+            ok = ok and not any(r[0] - 0.6 <= x <= r[2] + 0.6 and r[1] - 0.6 <= y <= r[3] + 0.6
+                                for _, up_, r, _, _ in L.stair_notches())
             if ok:
                 run.append((x, y))
             else:
@@ -339,7 +363,8 @@ def _edge_walls(mb, nm, poly, z, mat="Stone_OP", cap="Stone_OP_Path"):
 
 
 TOPS = {"Court": "Stone_OP_Path", "CastleLanding": "Stone_OP_Path", "W3": "Grass_OP", "Forecourt": "Stone_OP_Path",
-        "Plaza": "Grass_OP", "W2b": "Grass_OP", "ExitLand": "Grass_OP", "T1": "Grass_OP",
+        "Plaza": "Stone_OP_Court", "W2b": "Stone_OP_Court", "ExitLand": "Grass_OP", "T1": "Stone_OP_Court",
+        "NEMirante": "Grass_OP",
         "Entry": "Stone_OP_Path", "HarborMid": "Stone_OP_Path", "Harbor": "Wood_OP_Mid"}
 
 
@@ -349,8 +374,8 @@ def terrain():
     c = DL.centroid(rim)
     # quilha em ESTRATOS (Tier C): some sob o mar local na area 5; vista da Demon Slayer, ilha flutuante
     mk = MB("OP_Ter_Keel", "02_TERRAIN", rng, detail="far", floor=-999)
-    mk.prism(rim, 22.0, L.SHOULDER - 0.4, "Cliff_OP")
-    mk.prism(rim, L.SHOULDER - 0.4, L.SHOULDER, "Cliff_OP_Dark")
+    mk.prism(rim, 22.0, L.SEA - 0.8, "Cliff_OP")
+    mk.prism(rim, L.SEA - 0.8, L.SEA - 0.4, "Cliff_OP_Dark")         # V2-0: topo da quilha SOB o mar local (era 37)
     sw = lambda k, ph, amp, base: (lambda i, a: base + amp * math.sin(k * a + ph) + 0.5 * amp * math.sin((k + 3) * a + 2 * ph))
     mk.prism(ccw(DL.offset_poly_var(rim, sw(3, 0.4, 2.4, -2.6))), 14.0, 22.0, "Cliff_OP_Dark")
     mk.prism(ccw(DL.scale_poly(DL.offset_poly_var(rim, sw(4, 1.7, 3.0, -2.0)), 0.88, c)), 6.0, 14.0, "Cliff_OP")
@@ -382,7 +407,7 @@ def terrain():
         DL.prism(mr, pts, L.BASE, z, "Cliff_OP", top_m="Cliff_OP_Moss")
     # agulhas de rocha no fundo (moldura do castelo, Tier C), sem ilhotas soltas
     for x, y, r, h in ((-118.0, 462.0, 12.0, 150.0), (-60.0, 486.0, 14.0, 162.0), (110.0, 486.0, 13.0, 156.0),
-                       (176.0, 452.0, 12.0, 142.0), (232.0, 352.0, 11.0, 128.0)):
+                       (176.0, 452.0, 12.0, 142.0), (238.0, 372.0, 10.0, 128.0)):   # V2-0: a de (232, 352) saiu do canal
         DL.prism(mr, DL.blob_poly(x, y, r, 9, rng, 0.2), 60.0, h - 6.0, "Cliff_OP")
         DL.prism(mr, DL.blob_poly(x, y, r * 0.75, 8, rng, 0.2), h - 6.0, h, "Cliff_OP_Moss")
     mr.finish()
@@ -416,7 +441,7 @@ def entry():
         zz = L.DECK + (L.T0 - L.DECK) * 0.5
         lantern_post(mb, s * (L.DECK_W / 2 + 0.4), L.PREV_Y + 60.0, zz, 6.0,
                      "L_OPProp_Lamp_Bridge_%s" % ("L" if s < 0 else "R"), 140.0)
-    mb.box((L.DECK_W + 3.0, 10.0, 1.6), (0.0, L.PREV_Y + 5.0, L.DECK - 0.75), (pitch, 0, 0), "Stone_OP_Dark", 0.0)
+    mb.box((L.DECK_W + 0.6, 10.0, 1.6), (0.0, L.PREV_Y + 5.0, L.DECK - 0.75), (pitch, 0, 0), "Stone_OP_Dark", 0.0)
     tx, ty = L.TORII_IN
     torii(mb, tx, ty, T0, math.pi / 2, L.TORII_W, L.TORII_H, "OP_EntTorii", 1.2)
     toro(mb, -15.0, 24.0, T0, 1.1, "L_OPProp_Toro_In_L")
@@ -497,26 +522,145 @@ def house(mb, spec, area="OP_CapHouse"):
     light("L_OPCap_Win_%s" % nm, "POINT", F.p(0, D0 / 2 + 2.0, z0 + 3.0), 60.0, WARM, 0.4) if fam in ("loja", "esquina") else None
 
 
+def roof_env(mb, F, W, D, z_eave, z_ridge, m, tsuma=False, ov=None, g_over=0.6, th=0.5, gable_m="Plaster_OP",
+             ridge_m="Roof_OP_Ridge"):
+    """telhado de 2 aguas no ENVELOPE do lote (o mesmo plano da colisao do op_col.roof_col): face de cima = plano que
+    passa pelo beiral (linha da parede) e pela cumeeira, balanco 'ov' na frente/fundo e 'g_over' nas empenas; placa
+    fechada de espessura 'th'; capa de cumeeira rente (0,25: o pe nao afunda mais que 0,3); empenas no reboco.
+    F: centro da planta no piso, +y = frente. z_eave/z_ridge ABSOLUTOS."""
+    ov = L.ROOF_OV if ov is None else ov
+    z0 = F.p(0, 0, 0).z
+    ze, zr = z_eave - z0, z_ridge - z0
+    if tsuma:                                          # cumeeira ao longo de y: troca os eixos
+        F = Frame(F.o.x, F.o.y, F.o.z, F.a + math.pi / 2)
+        W, D = D, W
+    k = (zr - ze) / (D / 2)
+    hx, hy = W / 2 + g_over, D / 2 + ov
+    zl = ze - k * ov
+    co = [F.p(-hx, -hy, zl), F.p(hx, -hy, zl), F.p(hx, 0, zr), F.p(-hx, 0, zr), F.p(hx, hy, zl), F.p(-hx, hy, zl),
+          F.p(-hx, -hy, zl - th), F.p(hx, -hy, zl - th), F.p(hx, 0, zr - th), F.p(-hx, 0, zr - th),
+          F.p(hx, hy, zl - th), F.p(-hx, hy, zl - th)]
+    fs = [[0, 1, 2, 3], [3, 2, 4, 5], [7, 6, 9, 8], [8, 9, 11, 10], [6, 7, 1, 0], [10, 11, 5, 4],
+          [1, 7, 8, 2], [2, 8, 10, 4], [6, 0, 3, 9], [9, 3, 5, 11]]
+    faces_solid(mb, co, fs, m)
+    mb.box((2 * hx + 0.2, 0.7, 0.25), F.p(0, 0, zr + 0.125 - 0.02), F.r(), ridge_m, 0.0)
+    for s in (-1, 1):                                  # empena (triangulo de reboco) sob o telhado
+        x = s * (W / 2 - 0.25)
+        co = [F.p(x, -D / 2, ze - 0.05), F.p(x, D / 2, ze - 0.05), F.p(x, 0, zr - th - 0.05),
+              F.p(x - s * 0.4, -D / 2, ze - 0.05), F.p(x - s * 0.4, D / 2, ze - 0.05), F.p(x - s * 0.4, 0, zr - th - 0.05)]
+        faces_solid(mb, co, [[0, 1, 2], [5, 4, 3], [0, 3, 4, 1], [1, 4, 5, 2], [2, 5, 3, 0]], gable_m)
+
+
+WALL_BY_BLOCK = {"AvO": "Plaster_OP", "AvL": "Plaster_OP", "BairroN": "Plaster_OP_Warm", "BairroS": "Plaster_OP_Warm",
+                 "OesteS": "Plaster_OP", "OesteM": "Plaster_OP", "OesteN": "Plaster_OP", "AlemCanal": "Plaster_OP_Warm",
+                 "PortoAlto1": "Plaster_OP_Shop", "PortoAlto2": "Plaster_OP_Shop", "NE": "Plaster_OP", "W3": "Plaster_OP"}
+
+
+def lot_visual(mb, lt):
+    """lote V2 em blockout: soco DENTRO da caixa de colisao, corpo com faixas de piso e frente por tipo (loja: trelica +
+    noren; armazem/kura: porta escura; santuario/chaya: alpendre aberto), hisashi e telhado no envelope"""
+    F = Frame(lt["x"], lt["y"], lt["z"], lt["yaw"] - math.pi / 2)
+    W, D, z = lt["W"], lt["D"], lt["z"]
+    h = lt["eave"] - z
+    wall = WALL_BY_BLOCK.get(lt["block"], "Plaster_OP")
+    dark = "Wood_OP_Dark"
+    kind = lt["kind"]
+    mb.box((W, D, 0.3), F.p(0, 0, 0.15), F.r(), "Stone_OP_Dark", 0.0)                       # soco (rente: 0,3)
+    if kind == "portal":                                # passagem coberta: vigas e telhado, vao livre de 7
+        for v in (D / 2 - 0.5, -D / 2 + 0.5):
+            mb.box((W + 0.4, 1.0, h - 7.0), F.p(0, v, 7.0 + (h - 7.0) / 2), F.r(), dark, 0.0)
+        mb.box((W, D, 0.6), F.p(0, 0, h - 0.3), F.r(), dark, 0.0)
+        roof_env(mb, F, W, D, lt["eave"], lt["ridge"], lt["roof"], lt["tsuma"], gable_m=dark)
+        return
+    if lt["open"]:                                      # alpendre aberto (haiden, casa de cha): piso + pilares
+        dz = D * 0.45
+        mb.box((W - 0.2, D - dz - 0.2, h), F.p(0, -dz / 2, h / 2), F.r(), wall, 0.0)
+        mb.box((W, dz, 0.8), F.p(0, (D - dz) / 2, 0.4), F.r(), "Wood_OP_Mid", 0.0)
+        for sx in (-1, 0, 1):
+            if sx == 0 and W < 14:
+                continue
+            mb.box((1.0, 1.0, h - 0.8), F.p(sx * (W / 2 - 0.6), D / 2 - 0.6, 0.8 + (h - 0.8) / 2), F.r(),
+                   "Wood_OP_Lacquer" if kind == "santuario" else dark, 0.0)
+        mb.box((W, 1.0, 1.0), F.p(0, D / 2 - 0.6, h - 0.5), F.r(), dark, 0.0)
+        mb.box((W - 3.0, 0.3, h - 3.2), F.p(0, D / 2 - dz - 0.2, 0.8 + (h - 3.2) / 2), F.r(),
+               "Wood_OP_Lacquer" if kind == "santuario" else "Window_OP_Warm", 0.0)
+        roof_env(mb, F, W, D, lt["eave"], lt["ridge"], lt["roof"], lt["tsuma"], gable_m=wall)
+        if kind == "santuario":
+            for sx in (-1, 1):
+                mb.box((0.6, 1.0, 1.2), F.p(sx * (W / 2 + 0.2), 0, lt["ridge"] - z + 0.3), F.r(), "Metal_OP_Gold", 0.0)
+        return
+    mb.box((W - 0.4, D - 0.4, h - 0.3), F.p(0, 0, 0.3 + (h - 0.3) / 2), F.r(), wall, 0.0)
+    levels = {1: [], 2: [9.8], 3: [9.4, 16.4]}.get(lt["floors"], [])
+    for zz in levels:                                    # faixa de madeira em cada piso (le os pavimentos)
+        mb.box((W - 0.1, D - 0.1, 0.6), F.p(0, 0, zz), F.r(), dark, 0.0)
+    mb.box((W - 0.1, D - 0.1, 0.7), F.p(0, 0, h - 0.35), F.r(), dark, 0.0)                  # frechal
+    yf = D / 2 - 0.2                                    # face da parede; vitrines a +0,06..+0,18 (dentro do lote)
+    if kind in ("loja", "sobrado", "esquina"):          # vao de loja: trelica escura + noren
+        mb.box((W - 2.0, 0.3, 6.0), F.p(0, yf + 0.06, 3.6), F.r(), dark, 0.0)
+        for k in range(max(1, int((W - 2.0) / 3.2))):
+            u = -(W - 2.0) / 2 + 1.6 + k * 3.2
+            mb.box((2.6, 0.2, 1.8), F.p(u, yf + 0.3, 5.6), F.r(), "Cloth_OP_Indigo", 0.0)
+    elif kind in ("armazem", "kura", "moinho"):
+        mb.box((4.6, 0.3, 6.6), F.p(0, yf + 0.06, 3.6), F.r(), dark, 0.0)
+    else:
+        mb.box((2.8, 0.3, 5.4), F.p(-W / 4, yf + 0.06, 3.0), F.r(), dark, 0.0)
+        mb.box((3.0, 0.25, 1.8), F.p(W / 4, yf + 0.06, 4.6), F.r(), "Window_OP_Warm", 0.0)
+    for zz in levels:                                   # janelas dos pisos de cima
+        for u in (-W / 4, W / 4):
+            mb.box((min(3.0, W / 3), 0.25, 2.0), F.p(u, yf + 0.06, zz + 3.0), F.r(), "Window_OP_Warm", 0.0)
+    if lt["hisashi"]:                                   # hisashi continuo no terreo (borda baixa a 7,9: fora do pulo)
+        dep, zlow = L.HISASHI
+        zt = zlow + dep * L.ROOF_PITCH
+        a = F.p(0, D / 2 + dep, zlow)
+        b = F.p(0, D / 2 - 0.2, zt)
+        ln = math.hypot(dep + 0.2, zt - zlow)
+        pitch = math.atan2(zt - zlow, dep + 0.2)
+        c = (a + b) / 2
+        mb.box((W + 0.2, ln, 0.35), (c.x, c.y, c.z - 0.17), (pitch, 0, F.a), lt["roof"], 0.0)
+    roof_env(mb, F, W, D, lt["eave"], lt["ridge"], lt["roof"], lt["tsuma"], gable_m=wall)
+    if lt["corner"]:                                    # esquina-marco: mirante (yagura) com telhado de 4 aguas
+        tw = min(W, D) * 0.5
+        zr = lt["ridge"] - z
+        mb.box((tw, tw, 4.0), F.p(0, 0, zr + 1.6), F.r(), wall, 0.0)
+        hip_roof(mb, F, tw, tw, zr + 3.6, 2.6, 1.4, ridge_len=0.0, m=lt["roof"])
+
+
 def capital():
+    """V2-0: a capital em QUADRAS (L.block_lots) + ruas V2 (avenida com leito/calcada/meio-fio/sarjeta), santuario NE
+    (torii do sando, 6 toro, lago) e escadas da planta. Colisao dos lotes: op_col.lot_cols (corpo + telhado alcancavel)."""
     rng = random.Random(55)
+    lots = L.block_lots()
     mb = MB("OP_Cap_Blockout", "05_CAPITAL", rng, detail="far", floor=None)
-    for spec in L.BUILDINGS:
-        if spec[0].startswith("H"):
-            continue
-        house(mb, spec)
-    for nm in ("Praca", "Sudoeste", "OesteAlta"):
+    for lt in lots:
+        lot_visual(mb, lt)
+    for nm in ("Praca", "Sudoeste", "OesteAlta", "Mirante"):
         DL.plan_stair(mb, nm)
-    # santuario NE: torii pequeno vermelho
+    # santuario NE: torii na entrada do sando + 6 toro (luz so a noite)
     torii(mb, L.SHRINE_TORII[0], L.SHRINE_TORII[1], P, 0.0, 8.0, 9.0, "OP_CapTorii", 0.6)
-    # recanto de descanso da rua de chegada (banco + lanterna) e lanternas de rua
-    mb.box((6.0, 1.6, 1.4), (-27.0, 91.6, T1 + 0.7), (0, 0, 0), "Wood_OP_Mid", 0.0)
-    col_box("OP_CapBench", (6.0, 1.6, 1.4), (-27.0, 91.6, T1 + 0.7))
-    for i, (x, y, z) in enumerate(((-14.0, 50.0, T1), (14.0, 66.0, T1), (-14.0, 96.0, T1), (14.0, 80.0, T1))):
-        lantern_post(mb, x, y, z, 6.5, "L_OPProp_Lamp_Rua_%d" % i, 120.0)
+    for i, (x, y) in enumerate(L.NE_TORO):
+        toro(mb, x, y, P, 0.8, "L_OPProp_Toro_Sando_%d" % i if i % 2 == 0 else None)
+    # andon baixos na avenida (a cada ~20, nas calcadas)
+    for i, y in enumerate((54.0, 74.0, 94.0)):
+        for s in (-1, 1):
+            lantern_post(mb, s * 12.2, y, T1 + 0.28, 4.5, "L_OPProp_Lamp_Av_%d%s" % (i, "O" if s < 0 else "L"), 110.0)
     mb.finish()
-    # pisos visuais das ruas (lajes claras rente: o tampo do patamar ja e Stone_OP_Path; aqui so meio-fio do canal)
+    op_col.lot_cols(lots)
+    # ruas V2: leito de pedra assentada (+0,12), avenida com sarjeta, meio-fio e calcada (+0,28/+0,30)
     mp = MB("OP_Cap_Streets", "05_CAPITAL", rng, detail="far", floor=-999)
-    for pts, w, z in L.STREETS:
+    av = L.AVENUE
+    y0, y1 = av["y"]
+    x0, x1 = av["x"]
+    mp.prism(ccw(L.rect_poly((x0, y0, x1, y1))), T1 - 0.2, T1 + 0.12, "Stone_OP_Path")
+    for s in (-1, 1):
+        xg = (x1 - 0.8, x1) if s > 0 else (x0, x0 + 0.8)
+        mp.prism(ccw(L.rect_poly((xg[0], y0, xg[1], y1))), T1 - 0.2, T1 + 0.14, "Stone_OP_Gutter")
+        xc = (x1, x1 + 0.3) if s > 0 else (x0 - 0.3, x0)
+        mp.prism(ccw(L.rect_poly((xc[0], y0, xc[1], y1))), T1 - 0.2, T1 + 0.30, "Stone_OP_Curb")
+        xw = (x1 + 0.3, av["front"]) if s > 0 else (-av["front"], x0 - 0.3)
+        mp.prism(ccw(L.rect_poly((xw[0], y0, xw[1], y1))), T1 - 0.2, T1 + 0.28, "Stone_OP_Plaza")
+    for k, (pts, w, z) in enumerate(L.STREETS_V2):
+        if k == 0:
+            continue
         mp.prism(ccw(L.ribbon(pts, w / 2)), z - 0.2, z + 0.12, "Stone_OP_Path")
     mp.finish()
 
@@ -525,7 +669,14 @@ def capital():
 def plaza(ore_proxies=False):
     rng = random.Random(66)
     mb = MB("OP_Plz_Paving", "03_PLAZA", rng, detail="far", floor=-999)
-    mb.prism(ccw(L.PLAZA), P - 0.3, P + 0.12, "Stone_OP_Plaza")
+    # V2-0 (PLANO_V2 3.2 'Eixo'): a avenida continua pela faixa central da praca (x +-15) RENTE, em outro tom
+    xs_ = [q[0] for q in L.PLAZA]
+    ys_ = [q[1] for q in L.PLAZA]
+    for (rx0, rx1), mat in (((min(xs_) - 1, -15.0), "Stone_OP_Plaza"), ((15.0, max(xs_) + 1), "Stone_OP_Plaza"),
+                            ((-15.0, 15.0), "Stone_OP_Path")):
+        piece = L.clip_rect(ccw(L.PLAZA), (rx0, min(ys_) - 1, rx1, max(ys_) + 1))
+        if len(piece) >= 3:
+            mb.prism(ccw(piece), P - 0.3, P + 0.12, mat)
     # emblema RENTE (0,12 acima do piso: le como incrustacao; sem colisao, sem pedestal): anel + 8 petalas + miolo
     ex, ey = L.EMBLEM_C
     R = L.EMBLEM_R
@@ -555,9 +706,9 @@ def plaza(ore_proxies=False):
         me.box((ln + 0.6, 1.4, 0.5), ((a[0] + b[0]) / 2, (a[1] + b[1]) / 2, P - 0.05), (0, 0, math.atan2(dy, dx)), "Stone_OP", 0.0)
     for i, (x, y) in enumerate(L.BANNERS):
         banner_pole(me, x, y, P, 18.0, math.atan2(L.MINE_C[1] - y, L.MINE_C[0] - x) - math.pi / 2)
-    for i, x in enumerate((-17.0, 17.0)):
-        lantern_post(me, x, 123.0, P, 7.0, "L_OPProp_Lamp_PracaS_%d" % i, 140.0)
-        lantern_post(me, x * 1.25, 306.0, P, 7.0, "L_OPProp_Lamp_PracaN_%d" % i, 140.0)
+    for i, x in enumerate((-19.0, 19.0)):                # V2-0 (U15): toro de pedra no lugar do poste em T
+        toro(me, x, 124.5, P, 0.9, "L_OPProp_Lamp_PracaS_%d" % i)
+        toro(me, x * 1.25, 306.0, P, 0.9, "L_OPProp_Lamp_PracaN_%d" % i)
     me.finish()
     if ore_proxies:
         mo = MB("OP_Plz_OreProxy", "03_PLAZA", rng, detail="far", floor=-999)
@@ -585,6 +736,9 @@ def keep(mb):
             co = [Fs.p(a0, o, z) for o, z in sec] + [Fs.p(a1, o, z) for o, z in sec]
             faces_solid(mb, co, [[0, 1, 2, 3], [7, 6, 5, 4], [0, 4, 5, 1], [1, 5, 6, 2], [2, 6, 7, 3], [3, 7, 4, 0]],
                         "Stone_OP")
+            # V2-0: colisao do talude (o corpo entrava na pedra inclinada): caixa ate o meio da rampa + rampa
+            pa, pb = Fs.p((a0 + a1) / 2, 3.0, 0.0), Fs.p((a0 + a1) / 2, 0.4, 5.0)
+            col_ramp("OP_CasTalude", (pa.x, pa.y, pa.z), (pb.x, pb.y, pb.z), a1 - a0, thick=3.0)
     for i, (hx, hy, z0, hw_, over) in enumerate(L.KEEP_TIERS):
         w, d = 2 * hx, 2 * hy
         if i == 0:
@@ -685,6 +839,7 @@ def castle():
     rail = [(-63.4, 376.0, CC), (-49.6, 358.6, CC), (-24.0, 352.6, CC), (24.0, 352.6, CC), (49.6, 358.6, CC),
             (65.4, 372.4, CC)]
     DL.vis_fence(mb, rail, h=3.4, post_step=4.0, m="Wood_OP_Lacquer", rail_m="Wood_OP_Lacquer")
+    fence_col(rail, 3.4, "OP_CasRail")
     # muros brancos (dobei) com cobertura de telha no fundo e no flanco leste do patio
     for pts in ([(74.0, 380.0), (74.0, 440.0), (62.0, 467.0), (20.0, 475.0), (-40.0, 473.0), (-88.0, 459.0)],):
         DL.wall_ribbon(mb, pts, CC, CC + 5.0, 1.2, "Plaster_OP", cap_m="Roof_OP_Blue", cap_h=0.7, side=1.0)
@@ -692,7 +847,7 @@ def castle():
             dx, dy = b[0] - a[0], b[1] - a[1]
             ln = math.hypot(dx, dy)
             nx, ny = -dy / ln, dx / ln
-            col_box("OP_CasWall", (ln + 1.0, 1.4, 5.0), ((a[0] + b[0]) / 2 + nx * 0.6, (a[1] + b[1]) / 2 + ny * 0.6, CC + 2.5),
+            col_box("OP_CasWall", (ln + 1.4, 1.8, 5.5), ((a[0] + b[0]) / 2 + nx * 0.6, (a[1] + b[1]) / 2 + ny * 0.6, CC + 2.75),
                     (0, 0, math.atan2(dy, dx)))
     # yagura (torreao de 2 andares) no canto SE do patio
     tx, ty, ts = L.TURRET
@@ -704,12 +859,14 @@ def castle():
     irimoya(mb, Ft, ts - 3.0, ts - 3.0, 15.8, 4.0, 1.8)
     window(mb, Ft, 0.0, ts / 2, 6.0, 2.4, 1.6)
     col_box("OP_CasTurret", (ts + 1.0, ts + 1.0, 16.0), Ft.p(0, 0, 8.0), Ft.r())
+    col_box("OP_CasTurret", (ts + 4.4, ts + 4.4, 2.6), Ft.p(0, 0, 10.4), Ft.r())     # V2-0: saia do telhado
     # estandartes gigantes na face da rocha, um de cada lado da cachoeira (concept)
     for s in (-1, 1):
         x = s * 15.0
         mb.box((7.0, 0.5, 20.0), (x, 351.2, CC - 15.0), (0, 0, 0), "Cloth_OP_White", 0.0)
         mb.cyl(2.4, 0.4, (x, 350.8, CC - 11.0), (math.pi / 2, 0, 0), m="Cloth_OP_Indigo", n=14, bevel=0.0)
         mb.box((8.4, 0.8, 0.8), (x, 351.4, CC - 4.6), (0, 0, 0), "Wood_OP_Dark", 0.0)
+        col_box("OP_CasBanner", (8.6, 1.2, 21.0), (x, 351.3, CC - 14.5))      # V2-0: a barra fica a 4 do patio
     keep(mb)
     lantern_post(mb, -56.0, 386.0, CC, 6.0, "L_OPProp_Lamp_Patio_0", 120.0)
     lantern_post(mb, 46.0, 386.0, CC, 6.0, "L_OPProp_Lamp_Patio_1", 120.0)
@@ -722,7 +879,9 @@ def castle():
             (68.0, 368.0, 6.0, CC + 2.0), (76.0, 392.0, 7.0, CC - 6.0), (78.0, 420.0, 6.0, CC + 4.0),
             (-86.0, 446.0, 6.0, CC - 6.0)]
     for x, y, r, zt in cols:
-        DL.prism(mr, DL.blob_poly(x, y, r, 8, rng, 0.16), CF - 2.0, zt, "Cliff_OP", top_m="Cliff_OP_Moss")
+        bp = DL.blob_poly(x, y, r, 8, rng, 0.16)
+        DL.prism(mr, bp, CF - 2.0, zt, "Cliff_OP", top_m="Cliff_OP_Moss")
+        op_col.poly_cover("OP_CasCliffCol", bp, CF - 2.0, zt, 14.0)       # V2-0: coluna de rocha colide
     mr.finish()
 
 
@@ -740,9 +899,7 @@ def tree_monument():
     for idx, pts in L.TREE_BRANCHES:
         p0 = L.TREE_TRUNK[idx]
         loft(mb, catmull([(p0[0], p0[1], p0[2], p0[3] * 0.55)] + pts, 3), "Bark_OP", n=8, flat=0.85)
-    for rx, ry, rz, rr in L.TREE_ROOTS:
-        mid = ((bx + rx) / 2, (by + ry) / 2, CC + 2.0, rr * 1.2)
-        loft(mb, [(bx, by, CC + 6.0, rr * 1.8), mid, (rx, ry, rz, rr * 0.5)], "Bark_OP", n=7, flat=0.7)
+    # V2-0: sem raizes no blockout (as caixas delas viravam escada ate o BackN; a arvore e refeita na V2-2)
     # copa florida: massas principais e secundarias (2 tons de rosa + um pouco de verde por baixo)
     for k, (c, r, fl) in enumerate(L.TREE_CANOPY):
         mat = "Flower_OP_Blossom" if k % 3 != 2 else "Flower_OP_Light"
@@ -752,7 +909,9 @@ def tree_monument():
             mb.ico(r * 0.5, (c[0] + r * 0.72 * math.cos(a), c[1] + r * 0.4 * math.sin(a), c[2] + r * fl * (0.25 - 0.2 * j)),
                    "Flower_OP_Light" if j == 1 else mat, 2, scale=(1.0, 0.9, 0.7))
         mb.ico(r * 0.72, (c[0], c[1], c[2] - r * fl * 0.5), "Leaf_OP", 1, scale=(1.0, 0.8, fl * 0.7))
-    col_box("OP_TreeTrunk", (16.0, 16.0, 26.0), (bx, by, CC + 13.0))
+    op_col.poly_cover("OP_TreeTrunk", L.circle_poly((bx, by), 12.6, 30.0), CC - 4.0, CC + 26.0, 14.0)  # V2-0: raio 12
+    # V2-0: monte da base e raizes colidem (o corpo entrava nelas); a copa fica liberada
+    op_col.poly_cover("OP_TreeBase", DL.blob_poly(bx, by, 14.0, 11, random.Random(91), 0.15), CC - 4.0, CC + 1.6, 6.0)
     mb.finish()
 
 
@@ -849,10 +1008,9 @@ def summon():
     # pavimento do terraco em volta da torre (laje clara) + guarda-corpo vermelho baixo nas bordas que dao para o porto
     tx, ty = L.SUMMON_TOWER
     mb.prism(ccw(L.circle_poly((tx - 4.0, ty), 30.0, 15.0)), T1 - 0.2, T1 + 0.12, "Stone_OP_Path")
-    DL.vis_fence(mb, [(204.5, 172.0, T1), (204.5, 226.0, T1)], h=3.0, post_step=4.0, m="Wood_OP_Lacquer",
-                 rail_m="Wood_OP_Lacquer")
-    DL.vis_fence(mb, [(150.0, 150.6, T1), (203.0, 150.6, T1)], h=3.0, post_step=4.0, m="Wood_OP_Lacquer",
-                 rail_m="Wood_OP_Lacquer")
+    for fpts in ([(204.5, 172.0, T1), (204.5, 226.0, T1)], [(150.0, 150.6, T1), (203.0, 150.6, T1)]):
+        DL.vis_fence(mb, fpts, h=3.0, post_step=4.0, m="Wood_OP_Lacquer", rail_m="Wood_OP_Lacquer")
+        fence_col(fpts, 3.0, "OP_SumRail")
     for i, (x, y) in enumerate(((132.0, 196.0), (132.0, 236.0))):
         toro(mb, x, y, T1, 0.9, "L_OPSum_Toro_%d" % i)
     mb.finish()
@@ -866,8 +1024,8 @@ def harbor():
     rng = random.Random(81)
     mb = MB("OP_Port_Blockout", "16_HARBOR", rng, detail="far", floor=None)
     # muro de cais (pedra) na borda da agua + defensas e cabecos; pier e palafita em estacas de madeira
-    DL.wall_ribbon(mb, [(222.5, 76.0), (222.5, 110.0)], L.SEA - 2.0, L.HARBOR, 1.2, "Stone_OP", side=-1.0)
-    DL.wall_ribbon(mb, [(222.5, 200.0), (222.5, 262.0)], L.SEA - 2.0, L.HARBOR, 1.2, "Stone_OP", side=-1.0)
+    DL.wall_ribbon(mb, [(222.12, 76.4), (222.12, 109.6)], L.SEA - 2.0, L.HARBOR - 0.02, 1.2, "Stone_OP", side=1.0)
+    DL.wall_ribbon(mb, [(222.12, 200.4), (222.12, 261.6)], L.SEA - 2.0, L.HARBOR - 0.02, 1.2, "Stone_OP", side=1.0)
     for x0, y0, x1, y1 in ((222.0, 110.0, 234.0, 200.0), (222.0, 40.0, 246.0, 76.0)):
         x = x0 + 1.5
         while x < x1:
@@ -879,19 +1037,46 @@ def harbor():
             x += 9.0 if x1 - x0 > 14 else (x1 - x0 - 3.0)
     for y in range(116, 200, 14):
         mb.cyl(0.8, 1.6, (233.0, float(y), L.HARBOR + 0.8), m="Metal_OP_Iron", n=8, bevel=0.0)       # cabecos
+        col_box("OP_PortBollard", (1.6, 1.6, 1.6), (233.0, float(y), L.HARBOR + 0.8))
         mb.box((0.6, 3.0, 2.0), (234.4, float(y) + 7.0, L.HARBOR - 1.0), (0, 0, 0), "Wood_OP_Mid", 0.0)  # defensas
     DL.vis_fence(mb, [(246.0, 40.6, L.HARBOR), (246.0, 75.4, L.HARBOR)], h=3.0, m="Wood_OP_Lacquer", rail_m="Wood_OP_Lacquer")
+    fence_col([(246.0, 40.6, L.HARBOR), (246.0, 75.4, L.HARBOR)], 3.0, "OP_PortRail")
     for nm in ("PortoA", "PortoB"):
         DL.plan_stair(mb, nm)
-    for spec in L.BUILDINGS:
+    for spec in L.BUILDINGS:                     # V2-0: H1, H2, H4 (o H3 do topo da muralha saiu - U13)
         if spec[0].startswith("H"):
-            house(mb, spec, area="OP_PortHouse")
+            port_house(mb, spec)
     # barcos pequenos atracados (silhueta)
     for x, y, a in ((262.0, 70.0, 0.3), (270.0, 210.0, -0.2)):
         mb.box((4.0, 12.0, 1.6), (x, y, L.SEA + 0.6), (0, 0, a), "Wood_OP_Hull", 0.0)
     for i, (x, y, z) in enumerate(((214.0, 34.0, L.HARBOR), (204.0, 104.0, L.HMID), (226.0, 196.0, L.HARBOR))):
-        lantern_post(mb, x, y, z, 6.5, "L_OPProp_Lamp_Porto_%d" % i, 120.0)
+        lantern_post(mb, x, y, z, 4.5, "L_OPProp_Lamp_Porto_%d" % i, 120.0)
     mb.finish()
+
+
+def port_house(mb, spec):
+    """armazem/pavilhao do cais no blockout V2-0: corpo + telhado de 2 aguas no envelope de colisao (op_col.roof_col):
+    o porto e visto e alcancado de cima (escadas PortoA/B, rua alta)"""
+    nm, fam, x, y, w, d, deg, z, fl, roof, rm = spec
+    F = Frame(x, y, z, math.radians(deg) - math.pi / 2)
+    h = 7.0 + 5.0 * (fl - 1)
+    ridge = z + h + L.ROOF_PITCH * d / 2
+    area = "OP_PortHouse" + nm
+    mb.box((w, d, 0.3), F.p(0, 0, 0.15), F.r(), "Stone_OP_Dark", 0.0)
+    if fam == "pavilhao":
+        for sx in (-1, 1):
+            for sy in (-1, 1):
+                mb.box((0.9, 0.9, h), F.p(sx * (w / 2 - 0.7), sy * (d / 2 - 0.7), h / 2), F.r(), "Wood_OP_Lacquer", 0.0)
+                col_box(area, (1.0, 1.0, h), F.p(sx * (w / 2 - 0.7), sy * (d / 2 - 0.7), h / 2), F.r())
+        mb.box((w, d, 0.8), F.p(0, 0, h - 0.4), F.r(), "Wood_OP_Dark", 0.0)
+        col_box(area, (w, d, 0.8), F.p(0, 0, h - 0.4), F.r())
+    else:
+        mb.box((w - 0.2, d - 0.2, h - 0.3), F.p(0, 0, 0.3 + (h - 0.3) / 2), F.r(), "Plaster_OP", 0.0)
+        mb.box((w + 0.1, d + 0.1, 2.0), F.p(0, 0, 1.0), F.r(), "Stone_OP_Dark", 0.0)
+        mb.box((5.0, 0.4, 6.0), F.p(0, d / 2 + 0.05, 3.0), F.r(), "Wood_OP_Dark", 0.0)
+        col_box(area, (w + 0.1, d + 0.1, h + 0.5), F.p(0, 0, (h - 0.5) / 2), F.r())
+    roof_env(mb, F, w, d, z + h, ridge, rm if rm != "Roof_OP_Blue" else "Roof_OP_Shingle")
+    op_col.roof_col(area, F, w, d, z + h, ridge)
 
 
 # ------------------------------------------------------------------ navio (marco cenografico, convés acessivel)
@@ -931,9 +1116,13 @@ def ship():
     for s in (-1, 1):
         mb.box((0.4, L.SHIP_LEN * 0.8, 0.9), (sx + s * (L.SHIP_BEAM / 2 + 0.2), sy + 4.0, deck + 1.0), (0, 0, 0),
                "Wood_OP_Lacquer", 0.0)
+        y0r, y1r = sy + 4.0 - L.SHIP_LEN * 0.4, sy + 4.0 + L.SHIP_LEN * 0.4
+        for ya, yb in (((y0r, 148.0), (156.0, y1r)) if s < 0 else ((y0r, y1r),)):   # vao da prancha (y 152)
+            col_box("OP_ShipRail", (1.2, yb - ya, 3.2), (sx + s * (L.SHIP_BEAM / 2 + 0.2), (ya + yb) / 2, deck + 1.6))
     # castelo de popa (cabine com janelas) e proa com gurupes
     mb.box((L.SHIP_BEAM - 2.0, 10.0, 6.0), (sx, y_stern - 6.0, deck + 3.0), (0, 0, 0), "Wood_OP_Hull", 0.0)
     mb.box((L.SHIP_BEAM - 1.0, 11.0, 0.6), (sx, y_stern - 6.0, deck + 6.3), (0, 0, 0), "Wood_OP_Mid", 0.0)
+    col_box("OP_ShipCabinRoof", (L.SHIP_BEAM - 1.0, 11.0, 0.6), (sx, y_stern - 6.0, deck + 6.3))
     for u in (-4.0, 0.0, 4.0):
         mb.box((2.0, 0.3, 1.6), (sx + u, y_stern - 11.1, deck + 3.4), (0, 0, 0), "Window_OP_Warm", 0.0)
     col_box("OP_ShipCabin", (L.SHIP_BEAM - 2.0, 10.0, 6.0), (sx, y_stern - 6.0, deck + 3.0))
@@ -961,19 +1150,82 @@ def ship():
 
 
 # ------------------------------------------------------------------ agua: SO a pedra estanque (a agua e do Roblox)
+def arch_bridge_visual(mb, nm, a, b, w, rise):
+    """ponte EM ARCO laqueada (V2-0, U6) no envelope do op_col.arch_bridge: encontros de pedra nas margens (fora do
+    vao), 2 degraus de 0,7 em cada ponta, tabuleiro a P + rise, arco por baixo vencendo o vao, guarda-corpo vermelho"""
+    rs, tr = L.BRIDGE_ARCH_STEP
+    ns = max(1, int(round(rise / rs)))
+    run = ns * tr
+    ux, uy = b[0] - a[0], b[1] - a[1]
+    ln = math.hypot(ux, uy)
+    ux, uy = ux / ln, uy / ln
+    ang = math.atan2(uy, ux)
+    z0 = a[2]
+    F = Frame(a[0], a[1], z0, ang - math.pi / 2)        # +y local = ao longo da ponte (de a para b)
+    for s, base in ((1, 0.0), (-1, ln)):                 # degraus de pedra de cada ponta
+        for i in range(ns):
+            y0 = base + s * (i * tr)
+            y1 = base + s * ((i + 1) * tr)
+            zt = rs * (i + 1)
+            mb.box((w, abs(y1 - y0) + 0.02, zt), F.p(0, (y0 + y1) / 2, zt / 2), F.r(), "Stone_OP", 0.0)
+    top0, top1 = run, ln - run
+    mb.box((w, top1 - top0 + 0.02, 0.5), F.p(0, (top0 + top1) / 2, rise - 0.25), F.r(), "Wood_OP_Mid", 0.0)
+    # encontros de pedra (do leito ate o tabuleiro) logo FORA do vao do canal
+    cx0, cx1 = L.CANAL_W_X
+    for xb in (cx1 + 0.9, cx0 - 0.9):
+        d = abs(xb - a[0])
+        mb.box((w + 0.6, 1.8, rise + L.CANAL_DROP + L.CANAL_BED), F.p(0, d, rise - (rise + L.CANAL_DROP + L.CANAL_BED) / 2),
+               F.r(), "Stone_OP_Dark", 0.0)
+    # arco laqueado sob o tabuleiro (le "vence o vao")
+    arc = []
+    da, db = abs(cx1 - a[0]) + 0.2, abs(cx0 - a[0]) - 0.2
+    for i in range(9):
+        t = i / 8
+        d = da + (db - da) * t
+        arc.append(F.p(0, d, rise - 0.6 - 1.4 * (1 - math.sin(math.pi * t))))
+    for sx in (-1, 1):
+        sh = [Vector((p.x + math.cos(ang + math.pi / 2) * sx * (w / 2 - 0.4), p.y + math.sin(ang + math.pi / 2) * sx * (w / 2 - 0.4), p.z))
+              for p in arc]
+        mb.sweep([tuple(v) for v in sh], [(-0.35, -0.35), (0.35, -0.35), (0.35, 0.35), (-0.35, 0.35)], m="Wood_OP_Lacquer")
+    for sx in (-1, 1):                                   # guarda-corpo (1,0) no tabuleiro
+        mb.box((0.3, top1 - top0, 0.3), F.p(sx * (w / 2 + 0.3), (top0 + top1) / 2, rise + 1.05), F.r(), "Wood_OP_Lacquer", 0.0)
+        for k in range(5):
+            yy = top0 + (top1 - top0) * k / 4
+            mb.box((0.4, 0.4, 1.2), F.p(sx * (w / 2 + 0.3), yy, rise + 0.6), F.r(), "Wood_OP_Lacquer", 0.0)
+
+
 def water():
+    """V2-0: canais REBAIXADOS (agua 2,6 abaixo da margem) com leito visivel e colidivel (op_col.water_beds), capa de
+    0,9 nas margens fora das pontes (op_col.copings), pontes EM ARCO, bacia do adro e lago do NE; roda d'agua na cota
+    nova com caixa de colisao envolvente (peca movel: ninguem sobe nela)"""
     rng = random.Random(88)
     mb = MB("OP_Water_Stone", "07_WATER", rng, detail="far", floor=-999)
-    B = ccw(L.BASIN)
-    DL.wall_ribbon(mb, B + [B[0]], L.BASIN_Z - 1.6, CF + 0.5, 1.0, "Stone_OP", side=-1.0)
-    for pts, w in ((L.CANAL_E, 6.0), (L.CANAL_W, 8.0)):
-        xy = [(p[0], p[1]) for p in pts]
-        off = L.ribbon(xy, w / 2)
-        n = len(xy)
-        for s, side in ((1.0, off[:n]), (-1.0, list(reversed(off[n:])))):
-            for (a, za), (b, zb) in zip(zip(side, [p[2] for p in pts]), zip(side[1:], [p[2] for p in pts[1:]])):
-                zt = max(za, zb) + 1.1
-                DL.wall_ribbon(mb, [a, b], min(za, zb) - 1.8, zt, 0.8, "Stone_OP", side=s)
+    # leito (terra escura) de cada segmento; muro de cantaria 0,12 para DENTRO do vao, so onde ha capa (a capa avanca
+    # 0,2 sobre o canal e cobre o topo do muro: nada de faixa de chao sem colisao); nas margens de rocha a face e a rocha
+    for nm, pts, zbed in op_col.water_polys():
+        mb.prism(ccw(pts), zbed - 1.0, zbed, "Dirt_OP_Dark")
+    for a, b, zb, (nx, ny) in op_col.coping_runs():
+        if zb is None:
+            continue
+        ln = math.hypot(b[0] - a[0], b[1] - a[1])
+        ang = math.atan2(b[1] - a[1], b[0] - a[0])
+        mx, my = (a[0] + b[0]) / 2, (a[1] + b[1]) / 2
+        mb.box((ln, L.CANAL_COPE_W, L.CANAL_COPE_H + 0.3), (mx, my, zb + (L.CANAL_COPE_H - 0.3) / 2), (0, 0, ang),
+               "Stone_OP_Curb", 0.0)
+        o = L.CANAL_COPE_W / 2 - 0.2 - 0.5 + 0.12          # face do muro 0,12 para dentro do vao
+        zbed = zb - L.CANAL_DROP - L.CANAL_BED
+        mb.box((ln, 1.0, zb - 0.3 - (zbed - 1.0)), (mx + nx * o, my + ny * o, (zb - 0.3 + zbed - 1.0) / 2), (0, 0, ang),
+               "Stone_OP", 0.0)
+    # lago do NE: borda de pedra rente (+0,3) no piso em volta do retangulo
+    (x0, y0, x1, y1), pz = L.NE_POND
+    for (bx0, by0, bx1, by1) in ((x0 - 1.0, y0 - 1.0, x1 + 1.0, y0), (x0 - 1.0, y1, L.NE_POND_LINK[0], y1 + 1.0),
+                                 (L.NE_POND_LINK[2], y1, x1 + 1.0, y1 + 1.0), (x0 - 1.0, y0, x0, y1), (x1, y0, x1 + 1.0, y1),
+                                 (L.NE_POND_LINK[0] - 1.0, y1, L.NE_POND_LINK[0], L.NE_POND_LINK[3] - 0.6),
+                                 (L.NE_POND_LINK[2], y1, L.NE_POND_LINK[2] + 1.0, L.NE_POND_LINK[3] - 0.6)):
+        mb.prism(ccw(L.rect_poly((bx0, by0, bx1, by1))), P - 0.2, P + 0.3, "Stone_OP_Curb")
+    for nm, a, b, w in L.bridge_list():
+        if nm in L.BRIDGE_ARCH:
+            arch_bridge_visual(mb, nm, a, b, w - 2.0, L.BRIDGE_ARCH[nm])
     # roda d'agua (peca movel VFX_OP_Wheel): aros, raios e pas; eixo leste-oeste entrando no moinho
     wx, wy, wd, ww = L.WHEEL
     zc = L.WHEEL_AXLE_Z
@@ -998,15 +1250,14 @@ def water():
     ob["axis"] = (1.0, 0.0, 0.0)
     ob["rpm"] = 3.0
     ob["vfx_zone"] = "canal"
-    mb.cyl(0.5, 10.0, (wx + 6.0, wy, zc), (0, math.pi / 2, 0), m="Metal_OP_Iron", n=8, bevel=0.0)
+    col_box("OP_WheelEnvelope", (ww + 0.4, wd + 1.2, wd + 1.2), (wx, wy, zc))
+    mb.cyl(0.5, 6.0, (wx + 5.0, wy, zc), (0, math.pi / 2, 0), m="Metal_OP_Iron", n=8, bevel=0.0)
     mb.finish()
     # PREVIA da agua (00_REFERENCE: fora do export) para ler a composicao nos renders do blockout
     pw = MB("PREVIEW_Water", "00_REFERENCE", rng, detail="far", floor=-999)
-    pw.prism(B, L.BASIN_Z - 0.8, L.BASIN_Z, "PREVIEW_Sea")
-    for pts, w in ((L.CANAL_E, 5.0), (L.CANAL_W, 7.0)):
-        for a, b in zip(pts, pts[1:]):
-            pw.prism(ccw(L.ribbon([a[:2], b[:2]], w / 2)), min(a[2], b[2]) - 0.6, min(a[2], b[2]), "PREVIEW_Sea")
-    for (x, y, zt, zb), dirv, wd in ((L.CASTLE_FALL, (0.0, -1.0), 7.0), (L.FALL_E, (0.55, 0.0), 6.0),
+    for nm, pts, zbed in op_col.water_polys():
+        pw.prism(ccw(pts), zbed + 0.2, zbed + L.CANAL_BED, "PREVIEW_Sea")
+    for (x, y, zt, zb), dirv, wd in ((L.CASTLE_FALL, (0.0, -1.0), 7.0), (L.FALL_E, (0.0, -1.0), 6.0),
                                      (L.FALL_W, (0.0, -1.0), 7.0)):
         pw.box((wd if dirv[0] == 0 else 1.0, 1.0 if dirv[0] == 0 else wd, zt - zb), (x + dirv[0] * 1.2, y + dirv[1] * 1.2,
                (zt + zb) / 2), (0, 0, 0), "PREVIEW_Falls", 0.0)
@@ -1023,7 +1274,9 @@ def exit_():
     ang = math.atan2(uy, ux)
     Ln = L.EXIT_BRIDGE_LEN
     c = L.exit_point(Ln / 2)
-    mb.box((Ln + 1.0, L.EXIT_W, 1.2), (c[0], c[1], T1 - 0.6), (0, 0, ang), "Wood_OP_Dark", 0.0)
+    c = L.exit_point(Ln / 2 - 1.25)                       # V2-0: o tabuleiro entra 3 no terraco (fresta da cabeca)
+    mb.box((Ln + 3.5, L.EXIT_W, 1.2), (c[0], c[1], T1 - 0.6), (0, 0, ang), "Wood_OP_Dark", 0.0)
+    c = L.exit_point(Ln / 2)
     for s in (-1, 1):
         q = L.exit_point(Ln / 2, s * (L.EXIT_W / 2 + 0.4))
         mb.box((Ln + 1.0, 1.0, 1.6), (q[0], q[1], T1 - 0.5), (0, 0, ang), "Wood_OP_Lacquer", 0.0)
@@ -1050,16 +1303,16 @@ def exit_():
     mb.prism(ccw(L.ribbon([L.exit_point(Ln), L.exit_point(Ln + L.ANCHOR_OPM_OFF)], 6.0)), T1 - 0.2, T1 + 0.12, "Stone_OP_Path")
     for i, v in enumerate((-12.0, 12.0)):
         p = L.exit_point(Ln + 6.0, v)
-        lantern_post(mb, p[0], p[1], T1, 6.5, "L_OPProp_Lamp_Saida_%d" % i, 120.0)
+        lantern_post(mb, p[0], p[1], T1, 4.5, "L_OPProp_Lamp_Saida_%d" % i, 120.0)
     del hp
     mb.finish()
     mg = MB("OP_Exit_AnchorGuard", "08_NEXT_ISLAND", rng, detail="far", floor=-999)
     ap = L.anchor_opm_pos()
     for s in (-1, 1):
-        p = (ap[0] - ux * 1.0 - uy * s * (L.EXIT_W / 2 + 0.6), ap[1] - uy * 1.0 + ux * s * (L.EXIT_W / 2 + 0.6))
-        mg.box((1.2, 1.2, 3.4), (p[0], p[1], T1 + 1.7), (0, 0, ang), "Stone_OP_Dark", 0.0)
-    q = (ap[0] - ux * 1.0, ap[1] - uy * 1.0)
-    mg.box((0.3, L.EXIT_W + 1.2, 0.3), (q[0], q[1], T1 + 2.6), (0, 0, ang), "Wood_OP_Mid", 0.0)
+        p = (ap[0] + ux * 0.6 - uy * s * (L.EXIT_W / 2 + 0.3), ap[1] + uy * 0.6 + ux * s * (L.EXIT_W / 2 + 0.3))
+        mg.box((1.1, 1.1, 3.4), (p[0], p[1], T1 + 1.7), (0, 0, ang), "Stone_OP_Dark", 0.0)
+    q = (ap[0] + ux * 0.6, ap[1] + uy * 0.6)        # V2-0: dentro da COL_OPAnchorGuard (1,2 x 20 x 9)
+    mg.box((0.3, L.EXIT_W + 0.6, 0.3), (q[0], q[1], T1 + 2.6), (0, 0, ang), "Wood_OP_Mid", 0.0)
     ob = mg.finish()
     ob["next_island_guard"] = True
 
@@ -1074,6 +1327,8 @@ def landmarks():
     DL.prism(mb, L.SKULL_ROCK, L.BASE, 80.0, "Cliff_OP_Dark")
     cpx, cpy = DL.centroid(L.SKULL_ROCK)
     DL.prism(mb, DL.scale_poly(L.SKULL_ROCK, 0.86, (cpx, cpy)), 80.0, 92.0, "Cliff_OP_Dark", top_m="Cliff_OP_Moss")
+    op_col.poly_cover("OP_LmkSkull", L.SKULL_ROCK, L.BASE, 80.0, 10.0)        # V2-0: pedestal da caveira colide
+    op_col.poly_cover("OP_LmkSkull", DL.scale_poly(L.SKULL_ROCK, 0.86, (cpx, cpy)), 80.0, 92.0, 10.0)
     for k, (du, dv, r, zt) in enumerate(((-20.0, -6.0, 9.0, 104.0), (20.0, -6.0, 9.0, 102.0), (0.0, -16.0, 14.0, 118.0),
                                           (-14.0, -18.0, 8.0, 110.0), (16.0, -16.0, 8.0, 108.0))):
         a_ = math.radians(L.SKULL_FACE_DEG)
@@ -1114,18 +1369,11 @@ def landmarks():
     mb.box((34.0, 4.4, 4.6), ax(88.3), Fs.r(tilt, 0, 0), "Metal_OP_Gold", 0.0)                        # guarda
     mb.cyl(2.6, 26.0, ax(103.6), (tilt, 0, Fs.a), m="Cloth_OP_Red", n=8, bevel=0.0)                   # cabo
     mb.ico(4.2, ax(118.4), "Metal_OP_Gold", 1)                                                       # pomo
-    # PAGODE de 5 andares no pinaculo oeste (cenografico)
+    # V2-0 (U13): o PAGODE saiu; o pinaculo oeste e uma agulha de rocha (topo 130) com pinheiro no topo
     px, py, pr, ptop = L.WEST_SPIRE
-    DL.prism(mb, DL.blob_poly(px, py, pr, 10, rng, 0.14), 30.0, ptop - 26.0, "Cliff_OP")
-    DL.prism(mb, DL.blob_poly(px, py, pr * 0.8, 9, rng, 0.14), ptop - 26.0, ptop, "Cliff_OP", top_m="Cliff_OP_Moss")
-    Fp = Frame(px, py, ptop, 0.0)
-    z = 0.0
-    for k in range(5):
-        w = 12.0 - k * 1.6
-        mb.box((w, w, 4.2), Fp.p(0, 0, z + 2.1), Fp.r(), "Wood_OP_Lacquer", 0.0)
-        frustum(mb, Fp, w + 6.0, w + 6.0, z + 4.4, w - 1.0, w - 1.0, z + 6.0, "Roof_OP_Blue", 0.5)
-        z += 6.2
-    mb.cyl(0.4, 8.0, Fp.p(0, 0, z + 4.0), m="Metal_OP_Gold", n=6, bevel=0.0)
+    DL.prism(mb, DL.blob_poly(px, py, pr, 10, rng, 0.14), 30.0, ptop - 22.0, "Cliff_OP")
+    DL.prism(mb, DL.blob_poly(px, py, pr * 0.72, 9, rng, 0.14), ptop - 22.0, ptop, "Cliff_OP", top_m="Cliff_OP_Moss")
+    pine(mb, px + 2.0, py - 1.0, ptop, 14.0)
     mb.finish()
 
 
@@ -1135,21 +1383,23 @@ def dressing():
     mv = MB("OP_Veg_Blockout", "10_VEGETATION", rng, detail="far", floor=-999)
     # cerejeiras = ACENTO e enquadramento (nao enchimento): entrada, recanto da rua, terraco alto, santuario, summon,
     # porto, promontorio, bairro do canal
-    for x, y, z in ((-36.0, 14.0, 90.0), (38.0, 16.0, 90.0), (-36.0, 91.0, T1), (-180.0, 380.0, L.W3),
-                    (-150.0, 420.0, L.W3), (126.0, 318.0, P), (196.0, 182.0, T1), (300.0, 290.0, T1),
-                    (-138.0, 50.0, T1), (60.0, 30.0, 86.0)):
-        cherry(mv, x, y, z, 11.0, 6.5, col=L.zone_of(x, y) is not None)
+    for x, y, z in ([(-36.0, 14.0, 90.0), (38.0, 16.0, 90.0), (-180.0, 380.0, L.W3), (-150.0, 420.0, L.W3),
+                     (196.0, 182.0, T1), (300.0, 290.0, T1), (60.0, 30.0, 86.0), (-38.5, 74.0, T1), (-38.5, 98.0, T1)]
+                    + [(cx, cy, L.zone_of(cx, cy) or P) for cx, cy in L.NE_CHERRY]):
+        cherry(mv, x, y, z, 11.0, 6.5, col=op_col.solid_top(x, y) is not None)
     # pinheiros nas bordas de falesia e no fundo (verde que segura a silhueta)
     for x, y, z, h in ((-44.0, 20.0, 90.0, 12.0), (48.0, 26.0, 90.0, 11.0), (100.0, 28.0, 86.0, 12.0),
                        (-196.0, 96.0, 90.0, 12.0), (-90.0, 440.0, 134.0, 14.0), (-20.0, 486.0, 134.0, 16.0),
                        (40.0, 484.0, 134.0, 15.0), (150.0, 440.0, 120.0, 16.0), (196.0, 400.0, 120.0, 14.0),
-                       (246.0, 340.0, 104.0, 13.0), (276.0, 330.0, 104.0, 12.0), (-60.0, 340.0, 101.0, 10.0),
-                       (130.0, 356.0, 104.0, 11.0), (-208.0, 320.0, 100.2, 12.0), (-214.0, 181.0, P, 11.0)):
-        pine(mv, x, y, z, h, col=L.zone_of(x, y) is not None)
+                       (276.0, 330.0, 104.0, 12.0), (-60.0, 340.0, 101.0, 10.0), (130.0, 356.0, 110.0, 11.0),
+                       (170.0, 358.0, 110.0, 12.0), (230.0, 356.0, 110.0, 11.0), (226.0, 334.0, L.NEM, 10.0),
+                       (-208.0, 320.0, 100.2, 12.0), (-216.0, 181.0, P, 11.0)):
+        pine(mv, x, y, z, h, col=op_col.solid_top(x, y) is not None)
     # arbustos baixos nos ombros e pes de muro (manchas, nada no meio de caminho)
     for x, y, z, r in ((-30.0, 30.0, 90.0, 3.0), (30.0, 30.0, 90.0, 3.0), (80.0, 30.0, 86.0, 3.6), (-60.0, 344.0, 101.0, 3.0),
-                       (160.0, 356.0, 104.0, 3.4), (-192.0, 110.0, 90.0, 3.0), (110.0, 26.0, 86.0, 3.0)):
+                       (160.0, 356.0, 110.0, 3.4), (-192.0, 110.0, 90.0, 3.0), (110.0, 26.0, 86.0, 3.0)):
         mv.ico(r, (x, y, z + r * 0.4), "Leaf_OP", 1, scale=(1.3, 1.1, 0.7))
+        col_box("OP_VegBush", (2.4 * r, 2.0 * r, 1.0 * r), (x, y, z + 0.5 * r))           # V2-0: arbusto macico
     mv.finish()
 
 

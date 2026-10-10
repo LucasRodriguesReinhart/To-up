@@ -1,5 +1,7 @@
 # build_op.py - reconstroi a Ilha 5 (ONE PIECE / WANO) do zero e salva o .blend
-# uso: blender -b --factory-startup --python build_op.py -- [blockout] [proxies] [sem=<zona,zona>]
+# uso: blender -b --factory-startup --python build_op.py -- [blockout] [proxies] [sem=<zona,zona>] [com=<zona,zona>]
+#      com=<zonas>: V2-0 - liga o modulo de detalhe da V1 (ZONE_MODULES_V1) so nessas zonas (teste dos agentes de zona;
+#      o modulo tem de ler a planta V2)
 #      OP_OUT=<caminho.blend> muda a saida (padrao ilha_onepiece.blend)
 #   op_core (colisao andavel + TODOS os marcadores + portao One Punch Man da galeria) roda sempre. Cada zona usa o
 #   modulo de detalhe quando ele existe (ZONE_MODULES) e o blockout quando nao existe (ou com o argumento 'blockout').
@@ -18,7 +20,11 @@ import op_core
 import op_blockout
 
 # zona -> modulos de detalhe (na ordem); lista vazia = BLOCKOUT
-ZONE_MODULES = {
+# V2-0 (PLANO_V2 secao 11, integracao): a planta V2 (quadras, NE, canais rebaixados, pontes em arco, sem pagode/H3/
+# estandartes) so existe no BLOCKOUT por enquanto. Ficam em blockout (ZONE_MODULES_V2_0) as zonas cujo modulo V1 depende
+# da planta antiga ou foi reprovado e reprova o gate 'visual'; cada onda V2 religa a sua zona aqui quando o modulo novo
+# passar no gate. (ZONE_MODULES abaixo = mapa V1, mantido para referencia; o build usa ZONE_MODULES_V2_0.)
+ZONE_MODULES_V1 = {
     "terrain": ["op_terrain"],  # M4 op_terrain (agente do terreno: falesias em massas, rochedo do castelo, arrimos, pele)
     "entry": ["op_entry"],      # M2 op_entry (agente entrada+summon: ponte 120 em arcos, grande torii, patio, escada)
     "capital": ["op_capital"],  # M4 op_capital (agente da capital): chama o trecho M2 (op_m2_trecho, intacto) + capital inteira
@@ -41,10 +47,34 @@ ZONE_MODULES = {
                              # M4 op_props (acrescimo pontual do agente de props): PRIMEIRO do dressing - assenta cada
                              # peca por raio no chao ja construido; a vegetacao desvia das pecas e colisoes dele
 }
+ZONE_MODULES_V2_0 = {
+    "terrain": [],     # op_terrain V1: pele/borda reprovadas (U5/U8: 6.000+ studs2 sem colisao), NE antigo, canais na
+                       #   cota velha -> V2-3 (bordas que fecham as frestas, socalcos NE, pinaculo sem pagode)
+    "entry": [],       # op_entry V1: nobori da ponte e poste em T (U15/U16) -> V2-3
+    "capital": [],     # op_capital/op_m2_trecho V1: casas soltas (U1/U2/U11), le L.BUILDINGS/STREETS da V1 -> V2-3 (kit V2)
+    "plaza": [],       # op_m2_praca/op_plaza V1: estandartes, borda do trecho M2 (frestas U5) -> V2-3 (faixa do eixo)
+    "castle": [],      # op_castle V1: reprovado (U3) -> V2-2
+    "tree": [],        # op_tree: em refacao paralela (V2-1/V2-2); arvore-esfera reprovada (U4)
+    "summon": [],      # op_summon V1: terraco generico (U10) -> V2-2 (conves pirata; a TORRE continua a aprovada)
+    "harbor": [],      # op_harbor V1: H3 no topo da muralha (U13) e porto parado (U9) -> V2-2
+    "ship": [],        # op_ship V1: navio sem colisao na amurada (U8) -> V2-2
+    "water": [],       # op_water V1: canais na cota antiga (U6) -> V2-3 (canais rebaixados, capa fora das pontes)
+    "exit": [],        # op_exit V1: frestas entre as tabuas (U5) -> V2-3
+    "landmarks": [],   # op_landmarks V1: pagode (U13) -> V2-3
+    "dressing": [],    # op_props/op_veg/op_vfx/op_lights V1: postes em T, estandartes, arvores-esfera -> V2-1/V2-3
+}
+ZONE_MODULES = ZONE_MODULES_V2_0
+
+
+FORCE_DETAIL = set()      # com=<zonas> (V2-0)
+
+
+def zone_mods(zone):
+    return ZONE_MODULES_V1[zone] if zone in FORCE_DETAIL else ZONE_MODULES[zone]
 
 
 def zone_ready(zone):
-    ms = ZONE_MODULES[zone]
+    ms = zone_mods(zone)
     return bool(ms) and all(os.path.exists(os.path.join(HERE, m + ".py")) for m in ms)
 
 
@@ -61,19 +91,23 @@ def build(blockout=False, skip_zones=(), studio_zone=None, res=(1600, 900), samp
     DL.reset_scene()
     fm_lib.make_materials()
     op_scene.setup(res=res, samples=samples)
-    op_core.build()
     use = {}
     for zone in ZONE_MODULES:
         if zone in skip_zones:
             continue
         use[zone] = (zone == studio_zone and zone_ready(zone)) if studio_zone else (not blockout and zone_ready(zone))
     detailed = [z for z, u in use.items() if u]
+    op_core.WATER_MEASURED = "water" in detailed        # V2-0: sem op_water, os FX_/WATER_ saem da planta (canais novos)
+    op_core.build()
     op_blockout.build(skip=set(detailed) | set(skip_zones), ore_proxies=ore_proxies)
+    print("BUILD V2-0 zonas em blockout: %s" % (",".join(z for z in ZONE_MODULES if z not in detailed) or "-"))
     for zone in detailed:
-        for m in ZONE_MODULES[zone]:
+        for m in zone_mods(zone):
             t = time.time()
             run_module(m)
             print("%s %.1fs" % (m, time.time() - t))
+    import op_col
+    print("BUILD guardas erguidas acima de muros/props vizinhos: %d" % op_col.raise_guards())   # V2-0 (9.4)
     fm_lib.make_materials()
     op_scene.tone_emissives()
     op_scene.sea()
@@ -90,6 +124,8 @@ if __name__ == "__main__":
     for a in argv:
         if a.startswith("sem="):
             skip = tuple(a[4:].split(","))
+        if a.startswith("com="):
+            FORCE_DETAIL.update(a[4:].split(","))
     OUT = os.environ.get("OP_OUT") or os.path.join(HERE, "ilha_onepiece.blend")
     detailed, dt = build(blockout="blockout" in argv, skip_zones=skip, ore_proxies="proxies" in argv)
     bpy.ops.wm.save_as_mainfile(filepath=OUT, compress=True)

@@ -40,6 +40,9 @@ LEVELS = (HARBOR, SHIP, HMID, DECK, T0, T1, P, CF, W3, CL, CC)
 DECK_W = 18.0
 EYE = 5.5
 CLEAR_H = 12.0       # nada colidivel na MiningZone ate piso + 12
+NEM = 100.2          # V2-0: MIRANTE do santuario NE (patamar 1 dos socalcos; jardim alcancavel com colisao)
+JUMP = 7.2           # V2-0: pulo padrao do Roblox (CharacterJumpHeight; conferir no Studio na V2-4)
+GUARD_V2 = 8.5       # V2-0: guarda invisivel = pulo + 1,3 (PLANO_V2 secao 9 item 4)
 
 
 # ------------------------------------------------------------------ transformacoes
@@ -231,12 +234,16 @@ ISLAND_RIM = smooth_closed(RIM_CTRL, 2)
 ENTRY_COURT = [(-26.0, 0.0), (26.0, 0.0), (28.0, 16.0), (26.0, 34.0), (-26.0, 34.0), (-28.0, 16.0)]   # T0
 T1_BASE = [(-168.0, 52.0), (-150.0, 42.0), (-110.0, 36.0), (-70.0, 34.0), (-30.0, 34.0), (30.0, 34.0), (44.0, 36.0),
            (70.0, 36.0), (100.0, 38.0), (120.0, 44.0), (122.0, 100.0), (130.0, 118.0), (148.0, 126.0),
-           (148.0, 150.0), (204.0, 150.0), (206.0, 170.0), (206.0, 256.0), (200.0, 264.0), (116.0, 264.0),
+           (148.0, 147.4), (204.0, 147.4), (206.0, 170.0), (206.0, 256.0), (200.0, 264.0), (116.0, 264.0),
            (116.0, 140.0), (112.0, 126.0), (96.0, 120.0), (64.0, 117.0), (-64.0, 117.0), (-110.0, 117.0),
            (-170.0, 117.0), (-170.0, 60.0)]                                                                 # T1
+# V2-0 (PLANO_V2 3.4): o NE deixa de ser 'vilarejo solto + rocha NERocksW'; a praca NE vai ate x 236 (lojas, sando,
+# haiden, honden, lago) e o canto NE vira o MIRANTE (100,2) atras do santuario. A montanha de tras = socalcos:
+# mirante 100,2 (alcancavel) -> CastleFootE 110 (>= 8,5 acima do alcancavel) -> BackE 120.
 P_BASE = [(-170.0, 118.0), (-110.0, 118.0), (-64.0, 118.0), (64.0, 118.0), (96.0, 124.0), (112.0, 140.0),
-          (116.0, 170.0), (116.0, 262.0), (222.0, 262.0), (226.0, 290.0), (206.0, 316.0), (190.0, 336.0),
-          (100.0, 336.0), (96.0, 314.0), (-96.0, 314.0), (-110.0, 300.0), (-170.0, 300.0)]                # P
+          (116.0, 170.0), (116.0, 262.0), (222.0, 262.0), (234.0, 286.0), (236.0, 316.0), (236.0, 338.0),
+          (100.0, 338.0), (96.0, 314.0), (-96.0, 314.0), (-110.0, 300.0), (-170.0, 300.0)]                # P
+NE_MIRANTE = [(172.0, 316.0), (236.0, 316.0), (236.0, 338.0), (172.0, 338.0)]                         # NEM (V2-0)
 PLAZA = [(-64.0, 120.0), (64.0, 120.0), (92.0, 126.0), (110.0, 142.0), (116.0, 172.0), (116.0, 262.0),
          (108.0, 292.0), (86.0, 310.0), (40.0, 314.0), (-40.0, 314.0), (-86.0, 310.0), (-108.0, 292.0),
          (-116.0, 262.0), (-116.0, 172.0), (-110.0, 142.0), (-92.0, 126.0)]                              # praca (visual)
@@ -262,9 +269,9 @@ ROCKS = [
     ("FrontR", [(44.0, 34.0), (60.0, 18.0), (100.0, 22.0), (126.0, 18.0), (122.0, 44.0), (100.0, 37.0), (70.0, 35.0)], 86.0),
     ("SWBank", [(-200.0, 100.0), (-192.0, 78.0), (-182.0, 60.0), (-178.0, 60.0), (-178.0, 118.0), (-208.0, 118.0)], 90.0),
     ("CastleFootW", [(-64.0, 338.0), (-20.0, 338.0), (-20.0, 350.0), (-64.0, 350.0)], 101.0),
-    ("CastleFootE", [(18.0, 348.0), (254.0, 348.0), (254.0, 364.0), (228.0, 370.0), (212.0, 382.0), (186.0, 352.0),
-                     (72.0, 372.0), (62.0, 352.0), (18.0, 350.0)], 104.0),
-    ("NERocksW", [(206.0, 316.0), (226.0, 290.0), (241.0, 298.0), (242.0, 338.5), (190.0, 338.5), (190.0, 336.0)], 100.0),
+    ("CastleFootE", [(18.0, 344.5), (254.0, 344.5), (254.0, 364.0), (228.0, 370.0), (212.0, 382.0), (186.0, 352.0),
+                     (72.0, 372.0), (62.0, 352.0), (18.0, 350.0)], 110.0),     # V2-0: socalco 2 (era 104: 5,8 sobre o adro)
+    ("NESocalco", [(234.0, 286.0), (241.0, 298.0), (245.4, 304.0), (245.4, 339.4), (236.0, 339.4), (236.0, 316.0)], 110.0),  # V2-0 (era NERocksW)
     ("NERocksE", [(255.0, 301.0), (262.0, 306.0), (282.0, 300.0), (290.0, 312.0), (300.0, 334.0), (280.0, 350.0),
                   (256.0, 364.0), (255.0, 349.0)], 104.0),
     ("BackE", [(72.0, 372.0), (186.0, 352.0), (210.0, 380.0), (200.0, 440.0), (180.0, 470.0), (130.0, 494.0),
@@ -276,6 +283,13 @@ ROCKS = [
     ("BackW", [(-100.0, 360.0), (-94.0, 346.0), (-79.0, 346.0), (-80.0, 380.0), (-80.0, 396.0), (-79.0, 436.0),
                (-92.0, 436.0), (-94.0, 469.0), (-106.0, 471.0), (-126.0, 452.0), (-130.0, 430.0), (-104.0, 410.0)], 118.0),
 ]
+# V2-0 (PLANO_V2 secao 9 item 3): TODA massa de ROCKS ganha colisao macica ate o topo visual (op_col.rock_cols). A flag
+# diz o papel do topo: 'walk' = topo alcancavel (vira piso: entra na logica das guardas, guarda de 8,5 no labio de
+# fora); 'tall' = topo >= 8,5 acima de tudo o que e alcancavel (a guarda fica na borda do piso vizinho).
+# (lista separada para nao mudar a forma (nome, poligono, cota) que op_terrain/op_veg/op_map desempacotam)
+ROCK_COL = {"EntryL": "walk", "EntryR": "walk", "FrontR": "walk", "SWBank": "walk", "CastleFootW": "walk",
+            "CastleFootE": "tall", "NESocalco": "tall", "NERocksE": "tall", "BackE": "tall", "BackN": "tall",
+            "ButtressL": "tall", "ButtressR": "tall", "BackW": "walk"}   # BackW: 0,8 acima do patamar CL
 HEADLAND = _HL                                  # T1 (promontorio da saida)
 SKULL_C, SKULL_FACE_DEG = (322.0, 190.0), 195.0  # caveira com chifres (formacao na ponta sul do promontorio)
 SKULL_ROCK = [(296.0, 228.0), (294.0, 168.0), (306.0, 152.0), (326.0, 147.0), (344.0, 158.0), (351.0, 182.0),
@@ -283,7 +297,8 @@ SKULL_ROCK = [(296.0, 228.0), (294.0, 168.0), (306.0, 152.0), (326.0, 147.0), (3
 SWORD_SPUR = [(176.0, 488.0), (200.0, 462.0), (238.0, 506.0), (286.0, 560.0), (312.0, 590.0), (306.0, 616.0),
               (282.0, 622.0), (262.0, 590.0), (226.0, 546.0), (194.0, 512.0)]
 SWORD_POS, SWORD_ROCK_Z = (292.0, 600.0), 100.0  # espada monumental cravada no pinaculo do esporao (silhueta distante)
-WEST_SPIRE = (-246.0, 372.0, 20.0, 158.0)       # pinaculo oeste com o pagode (x, y, raio, topo) - cenografico
+WEST_SPIRE = (-246.0, 372.0, 20.0, 130.0)       # pinaculo oeste (x, y, raio, topo) - V2-0 (U13): SEM pagode, agulha de
+                                                # rocha com pinheiro no topo, mais baixa (158 -> 130)
 
 
 def floors():
@@ -293,6 +308,7 @@ def floors():
         ("CastleLanding", CASTLE_LAND, CL, 68),
         ("W3", W3_POLY, W3, 66),
         ("Forecourt", FORECOURT, CF, 64),
+        ("NEMirante", NE_MIRANTE, NEM, 52),
         ("Plaza", P_BASE, P, 50),
         ("W2b", W2B, P, 49),
         ("ExitLand", HEADLAND, T1, 46),
@@ -311,10 +327,14 @@ def _zval(z, x, y):
     return z(x, y) if callable(z) else z
 
 
+def in_hole(nm, x, y):
+    return any(r[0] <= x <= r[2] and r[1] <= y <= r[3] for r in FLOOR_HOLES.get(nm, ()))
+
+
 def zone_of(x, y):
     for nm, poly, z, pr in _FLOORS:
         if point_in_poly(x, y, poly):
-            return _zval(z, x, y)
+            return None if in_hole(nm, x, y) else _zval(z, x, y)
     return None
 
 
@@ -345,9 +365,10 @@ STAIRS = [
     ("CasteloB", (-71.0, 394.0, CL), 90.0, 12.0, 25, 1.8, True),      # patamar -> patio do castelo
     ("PortoA", (200.8, 140.0, HMID), 180.0, 12.0, 30, 1.8, True),     # rua alta do porto -> mirante do porto (T1)
     ("PortoB", (160.0, 46.0, HARBOR), 90.0, 12.0, 30, 1.8, True),     # cais -> rua alta do porto
+    ("Mirante", (180.0, 304.0, P), 90.0, 10.0, 10, 1.8, True),        # V2-0: sando NE -> mirante do santuario (100,2)
 ]
 STAIR_TOP_Z = {"Chegada": T1, "Praca": P, "Summon": P, "Sudoeste": P, "OesteAlta": W3, "Adro": CF, "CasteloA": CL,
-               "CasteloB": CC, "PortoA": T1, "PortoB": HMID}
+               "CasteloB": CC, "PortoA": T1, "PortoB": HMID, "Mirante": NEM}
 
 
 def stair_frame(name):
@@ -426,6 +447,11 @@ def stair_notches():
 
 def floor_pieces(name):
     pieces = [floor_poly(name)]
+    for rect in FLOOR_HOLES.get(name, ()):             # V2-0: lago/rego do NE
+        nxt = []
+        for p in pieces:
+            nxt += subtract_rect(p, rect)
+        pieces = nxt
     for nm, up, rect, zf, zt in stair_notches():
         if up != name:
             continue
@@ -442,6 +468,15 @@ TORII_W, TORII_H = 18.0, 22.0
 SPAWN = (0.0, 24.0)                            # WORLD_ENTRY_OnePiece
 
 
+# V2-0 (PLANO_V2 secao 8, U6): as 2 pontes do canal oeste viram ARCO que vence o vao entre as margens: encontros de
+# pedra FORA do vao, 2 degraus de 0,7 por lado, tabuleiro a P + 1,4 (acima da capa de 0,9 do canal); colisao em 2 rampas
+# + topo (op_col.arch_bridge). Canal rebaixado embaixo: agua 89,6, leito colidivel 88,6.
+BRIDGE_ARCH = {"CanalS": 1.4, "CanalN": 1.4}      # subida no meio (2 degraus de 0,7)
+BRIDGE_ARCH_STEP = (0.7, 1.4)                     # (espelho, pisada) dos degraus de cada ponta
+BRIDGE_ARCH_X = (-165.4, -182.6)                  # pe leste (praca) -> pe oeste (W2b): 17,2 = 2 x 2,8 de degraus + 11,6
+                                                  # de tabuleiro (vao 8 + encontros de 1,8 nas 2 margens)
+
+
 def bridge_list():
     """(nome, inicio (x, y, z), fim (x, y, z), largura): ponte de chegada (rampa 80,2 -> 84,2), ponte vermelha de
     saida (T1), 2 pontes vermelhas do canal oeste, prancha do navio"""
@@ -449,8 +484,8 @@ def bridge_list():
     e1 = exit_point(EXIT_BRIDGE_LEN)
     return [("Arrival", (PREV_X, PREV_Y, DECK), (0.0, 0.0, T0), DECK_W),
             ("ExitBridge", (e0[0], e0[1], T1), (e1[0], e1[1], T1), EXIT_W),
-            ("CanalS", (-168.0, 182.0, P), (-180.0, 182.0, P), 10.0),
-            ("CanalN", (-168.0, 252.0, P), (-180.0, 252.0, P), 10.0),
+            ("CanalS", (BRIDGE_ARCH_X[0], 182.0, P), (BRIDGE_ARCH_X[1], 182.0, P), 10.0),
+            ("CanalN", (BRIDGE_ARCH_X[0], 252.0, P), (BRIDGE_ARCH_X[1], 252.0, P), 10.0),
             ("Gangway", (230.0, 152.0, HARBOR), (241.6, 152.0, SHIP), 5.0)]
 
 
@@ -460,7 +495,7 @@ MINE_C = ((MINE_RECT[0] + MINE_RECT[2]) / 2, (MINE_RECT[1] + MINE_RECT[3]) / 2)
 ORE_PLAN = [("SUPERLEGENDARY", 2), ("EPIC", 10), ("UNCOMMON", 22), ("COMMON", 38)]   # 72 marcadores (como a DS)
 ORE_RADIUS = {"COMMON": 2.6, "UNCOMMON": 3.0, "EPIC": 3.4, "SUPERLEGENDARY": 4.4}
 EMBLEM_C, EMBLEM_R = (0.0, 216.0), 13.0        # emblema de chao RENTE (sem colisao, sem relevo)
-BANNERS = [(-98.0, 136.0), (98.0, 136.0), (-88.0, 300.0), (100.0, 296.0)]   # mastros de estandarte (fora da zona + 8)
+BANNERS = []                                   # V2-0 (U16): os 4 estandartes dos cantos da praca SAIRAM
 
 
 def ore_points():
@@ -556,17 +591,29 @@ TREE_TOP_Z = CC + 165.0
 CASTLE_FALL = (0.0, 351.0, CC - 4.0, CF - 0.6)    # (x, y labio, z labio, z base) - nasce sob a varanda vermelha
 BASIN = [(-18.0, 335.0), (18.0, 335.0), (20.0, 343.0), (14.0, 350.0), (-14.0, 350.0), (-20.0, 343.0)]
 BASIN_Z = CF - 0.6
-CANAL_E = [(18.0, 342.0, CF - 0.6), (92.0, 342.0, CF - 0.6), (100.0, 342.0, P - 0.6), (188.0, 343.0, P - 0.6),
-           (248.0, 343.0, P - 0.6), (248.5, 304.0, P - 0.6)]
-FALL_E = (248.5, 301.0, P - 0.6, SEA)             # queda leste: canal (garganta na rocha NE) -> enseada
-CANAL_W = [(-174.0, 299.0, P - 0.6), (-174.0, 250.0, P - 0.6), (-174.0, 182.0, P - 0.6), (-174.0, 120.0, P - 0.6),
-           (-174.0, 114.0, T1 - 0.6), (-174.0, 92.0, T1 - 0.6), (-174.0, 58.0, T1 - 0.6)]
+# V2-0 (PLANO_V2 secao 8/9, U6/U8): canais REBAIXADOS - agua 2,6 abaixo da margem (89,6 na praca, 85,6 no bairro),
+# LEITO COLIDIVEL 1,0 abaixo da agua (op_col.water_beds), capa de 0,9 acima do piso SO fora das pontes (com colisao);
+# a bacia do adro fica na cota (97,6) e ganha leito colidivel a 96,6. Sem buraco ate o vazio: guarda de 8,5 so na boca
+# das quedas (FALL_E/FALL_W).
+CANAL_DROP = 2.6                                  # agua abaixo da margem
+CANAL_BED = 1.0                                   # leito colidivel abaixo da agua
+CANAL_COPE_H, CANAL_COPE_W = 0.9, 1.0             # capa (mureta) das margens, fora das pontes
+CANAL_E = [(18.0, 342.0, CF - 0.6), (92.0, 342.0, CF - 0.6), (100.0, 342.0, P - CANAL_DROP),
+           (188.0, 342.5, P - CANAL_DROP), (248.5, 342.5, P - CANAL_DROP), (248.5, 304.0, P - CANAL_DROP)]
+CANAL_E_W = 6.0
+FALL_E = (248.5, 301.0, P - CANAL_DROP, SEA)      # queda leste: canal (garganta na rocha NE) -> enseada
+CANAL_W = [(-174.0, 299.0, P - CANAL_DROP), (-174.0, 250.0, P - CANAL_DROP), (-174.0, 182.0, P - CANAL_DROP),
+           (-174.0, 120.0, P - CANAL_DROP), (-174.0, 114.0, T1 - CANAL_DROP), (-174.0, 92.0, T1 - CANAL_DROP),
+           (-174.0, 58.0, T1 - CANAL_DROP)]
 CANAL_W_X = (-178.0, -170.0)
 SPRING_W = (-174.0, 300.0, W3 - 3.0)              # bica no arrimo do terraco alto
 WHEEL = (-174.0, 90.0, 13.0, 4.0)                 # roda d'agua no canal (x, y, diametro, largura); eixo leste-oeste
-WHEEL_AXLE_Z = T1 + 3.4
-FALL_W = (-174.0, 54.0, T1 - 0.6, SEA)            # queda oeste: canal -> mar
-WEIRS = [("Weir_E", (96.0, 342.0, CF - 0.6, P - 0.6)), ("Weir_W", (-174.0, 117.0, P - 0.6, T1 - 0.6))]
+WHEEL_AXLE_Z = T1 + 1.9                           # V2-0: desce com a agua (pa mergulha ~2,0)
+FALL_W = (-174.0, 54.0, T1 - CANAL_DROP, SEA)     # queda oeste: canal -> mar
+WEIRS = [("Weir_E", (96.0, 342.0, CF - 0.6, P - CANAL_DROP)), ("Weir_W", (-174.0, 117.0, P - CANAL_DROP, T1 - CANAL_DROP))]
+NE_POND = ((141.0, 317.0, 155.0, 327.0), P - 0.8)  # V2-0: lago do santuario NE (retangulo, agua); leito a -1,0
+NE_POND_LINK = (145.7, 326.5, 150.3, 338.6)        # rego do lago ate o canal leste (4,6 de largura: nao le como fresta)
+FLOOR_HOLES = {"Plaza": [NE_POND[0], NE_POND_LINK]}  # buracos retangulares nos pisos (visual e colisao)
 SEA_C, SEA_SIZE = (60.0, 260.0), 2200.0           # mar local (quadrado no cliente, so na area 5)
 
 # ------------------------------------------------------------------ SUMMON (terraco lateral, transicao para o porto)
@@ -575,76 +622,183 @@ SUMMON_FACE_DEG = 180.0
 SUMMON_C, SUMMON_R = (166.0, 214.0), 26.0
 SUMMON_INTERACT_D, SUMMON_PLAYER_D = 7.0, 16.0
 
-# ------------------------------------------------------------------ CAPITAL: construcoes (blockout) por conjunto
-# (nome, familia, x, y, w (ao longo da frente), d (fundo), rumo da FRENTE (graus), cota, pisos, telhado, cor do telhado)
-# familias: loja (machiya comercial cenografica), casa (minka), esquina (2-3 pisos), pavilhao (aberto), mansao,
-# santuario, armazem (portuario), moinho. A cor do telhado e POR CONJUNTO: rua de chegada azul; oeste azul com
-# esquinas verdes; terraco alto verde; NE (santuario) avermelhado; porto madeira/azul.
+# ------------------------------------------------------------------ CAPITAL V2 (PLANO_V2 secao 3): QUADRAS, nao casas
+# A V1 (BUILDINGS: ~40 casas soltas) foi reprovada (U1/U2/U11). A cidade V2 e feita de FILEIRAS de lotes GEMINADOS
+# (parede-meia, sem fresta) que formam quadras com fachada continua; cor do telhado por quadra (ref_03).
+# ROWS: (quadra, fileira, a (x, y), b (x, y), lado da rua, cota, fundo D, telhado, lotes)
+#   a -> b = linha da FACHADA (frente dos lotes); lado +1 = a rua fica a ESQUERDA de a -> b, -1 = a direita;
+#   lotes em ordem de a para b: (largura da frente, tipo, pisos, flags)
+#   tipos (os do op_kit2): loja, sobrado, esquina, kura, chaya, fundo + santuario, honden, mansao, armazem, moinho,
+#   portal (passagem coberta: vao livre no terreo, telhado continuo por cima)
+#   flags: h = hisashi continuo no terreo; t = tsumairi (empena para a rua, cumeeira perpendicular); e = esquina-marco;
+#          i = INTERIOR vivo (PLANO_V2 3.5: no maximo 5); o = frente aberta (alpendre/varanda com piso, santuario);
+#          c<Mat> = troca a cor do telhado do lote (ex.: "cRoof_OP_RedV2")
+# O ENVELOPE (beiral/cumeeira) e o contrato do lote: o kit V2 pode variar detalhe, mas a superficie de cima do telhado
+# tem de ficar a <= 0,5 deste envelope - ou o op_capital troca a colisao pelo op_col.roof_col() com o info do kit.
+ROOF_PITCH = 0.58          # caimento do telhado (normal 0,86 > 0,7: andavel -> colide quando alcancavel)
+ROOF_OV = 1.6              # beiral alem da parede
+HISASHI = (2.4, 7.9)       # hisashi: profundidade, cota da borda baixa acima do piso (> 7,2: nao se alcanca da rua)
+EAVE_H = {("fundo", 1): 8.8, ("loja", 2): 16.8, ("sobrado", 3): 22.8, ("esquina", 3): 22.8, ("kura", 2): 13.3,
+          ("chaya", 1): 10.0, ("santuario", 1): 11.0, ("honden", 1): 9.0, ("mansao", 2): 15.0, ("armazem", 2): 15.0,
+          ("moinho", 1): 10.0, ("portal", 1): 9.6, ("loja", 1): 9.6}
+R_COB, R_TEAL, R_VIO, R_RED, R_GRN = "Roof_OP_Cobalt", "Roof_OP_Teal", "Roof_OP_Violet", "Roof_OP_RedV2", "Roof_OP_Green"
+ROWS = [
+    # ---- AVENIDA DE CHEGADA (T1, leito x -9..9, calcadas ate a fachada em x +-15) - quadras AvO / AvL
+    ("AvO", "F1", (-15.0, 40.0), (-15.0, 83.0), -1, T1, 20.0, R_COB,
+     [(11.0, "loja", 2, "h"), (9.0, "loja", 2, ""), (12.0, "sobrado", 3, "t"), (11.0, "loja", 2, "hi")]),
+    ("AvO", "PV", (-15.0, 83.0), (-15.0, 89.0), -1, T1, 20.0, R_COB, [(6.0, "portal", 1, "")]),   # viela do canal:
+    ("AvO", "PV2", (-62.0, 83.0), (-62.0, 89.0), 1, T1, 20.0, R_COB, [(6.0, "portal", 1, "")]),   # portal nas 2 fileiras
+    ("AvO", "F2", (-15.0, 89.0), (-15.0, 105.0), -1, T1, 20.0, R_COB, [(16.0, "esquina", 3, "e")]),
+    ("AvO", "B1", (-62.0, 40.0), (-62.0, 83.0), 1, T1, 20.0, R_COB,
+     [(10.0, "fundo", 1, ""), (13.0, "loja", 2, ""), (10.0, "fundo", 1, ""), (10.0, "loja", 2, "h")]),
+    ("AvO", "B2", (-62.0, 89.0), (-62.0, 105.0), 1, T1, 20.0, R_COB, [(16.0, "loja", 2, "t")]),
+    ("AvL", "F1", (15.0, 40.0), (15.0, 101.0), 1, T1, 20.0, R_COB,      # termina em y 101: folga ate o pe da escada
+     [(11.0, "loja", 2, "h"), (9.0, "loja", 2, ""), (12.0, "sobrado", 3, "t"), (9.0, "loja", 2, "h"),  # Praca (viela leste)
+      (10.0, "loja", 2, "i"), (10.0, "esquina", 3, "ec" + R_RED)]),
+    ("AvL", "B1", (58.0, 40.0), (58.0, 105.0), -1, T1, 18.0, R_COB,
+     [(14.0, "fundo", 1, ""), (12.0, "loja", 2, ""), (13.0, "fundo", 1, "h"), (14.0, "loja", 2, ""), (12.0, "fundo", 1, "")]),
+    # ---- BAIRRO DO CANAL (T1 SO): 2 quadras na viela do canal (y 82..90); moinho com a roda d'agua
+    ("BairroN", "F1", (-70.0, 90.0), (-134.0, 90.0), 1, T1, 14.0, R_VIO,
+     [(12.0, "loja", 2, ""), (10.0, "fundo", 1, "h"), (14.0, "sobrado", 3, "t"), (10.0, "fundo", 1, ""),
+      (8.0, "fundo", 1, ""), (10.0, "loja", 2, "")]),
+    ("BairroN", "M", (-146.0, 90.0), (-168.0, 90.0), 1, T1, 14.0, R_VIO, [(22.0, "moinho", 1, "")]),
+    ("BairroS", "F1", (-166.0, 82.0), (-70.0, 82.0), 1, T1, 18.0, R_COB,
+     [(12.0, "loja", 2, ""), (10.0, "fundo", 1, ""), (14.0, "sobrado", 3, "t"), (10.0, "loja", 2, "h"),
+      (12.0, "fundo", 1, ""), (13.0, "loja", 2, ""), (12.0, "fundo", 1, "h"), (13.0, "loja", 2, "")]),
+    ("BairroS", "B1", (-70.0, 50.0), (-150.0, 50.0), 1, T1, 14.0, R_VIO,
+     [(12.0, "fundo", 1, ""), (10.0, "fundo", 1, ""), (14.0, "loja", 2, ""), (10.0, "fundo", 1, "h"),
+      (12.0, "fundo", 1, ""), (10.0, "fundo", 1, ""), (12.0, "loja", 2, "")]),
+    # ---- FACHADA OESTE DA PRACA (P): 3 quadras continuas (vielas y 159 e y 265 + viela y 212 da casa de cha)
+    ("OesteS", "F", (-121.0, 124.0), (-121.0, 154.0), -1, P, 20.0, R_TEAL,
+     [(12.0, "esquina", 3, "e"), (9.0, "loja", 2, "h"), (9.0, "loja", 2, "")]),
+    ("OesteS", "B", (-159.0, 124.0), (-159.0, 154.0), 1, P, 18.0, R_TEAL, [(14.0, "fundo", 1, ""), (16.0, "loja", 2, "h")]),
+    ("OesteM", "F1", (-121.0, 164.0), (-121.0, 207.0), -1, P, 20.0, R_TEAL,
+     [(11.0, "loja", 2, "h"), (10.0, "loja", 2, ""), (12.0, "sobrado", 3, "t"), (10.0, "loja", 2, "")]),
+    ("OesteM", "B1", (-159.0, 164.0), (-159.0, 207.0), 1, P, 18.0, R_TEAL,
+     [(10.0, "fundo", 1, ""), (12.0, "loja", 2, ""), (11.0, "fundo", 1, "h"), (10.0, "loja", 2, "")]),
+    ("OesteM", "F2", (-121.0, 217.0), (-121.0, 260.0), -1, P, 20.0, R_TEAL,
+     [(16.0, "chaya", 1, "io"), (10.0, "loja", 2, "h"), (9.0, "loja", 2, ""), (8.0, "fundo", 1, "")]),
+    ("OesteM", "B2", (-159.0, 217.0), (-159.0, 260.0), 1, P, 18.0, R_TEAL,
+     [(12.0, "loja", 2, ""), (10.0, "fundo", 1, ""), (11.0, "fundo", 1, "h"), (10.0, "loja", 2, "")]),
+    ("OesteN", "F", (-121.0, 270.0), (-121.0, 298.0), -1, P, 20.0, R_TEAL, [(10.0, "loja", 2, ""), (18.0, "esquina", 3, "e")]),
+    ("OesteN", "B", (-159.0, 270.0), (-159.0, 298.0), 1, P, 18.0, R_TEAL, [(14.0, "loja", 2, ""), (14.0, "fundo", 1, "")]),
+    # ---- ALEM DO CANAL (W2b, P): 1 fileira continua de frente para o canal (2 trechos)
+    ("AlemCanal", "F1", (-190.0, 128.0), (-190.0, 206.0), -1, P, 18.0, R_TEAL,
+     [(12.0, "loja", 2, ""), (10.0, "fundo", 1, ""), (14.0, "sobrado", 3, "tc" + R_COB), (10.0, "fundo", 1, "h"),
+      (12.0, "loja", 2, ""), (10.0, "fundo", 1, ""), (10.0, "loja", 2, "")]),
+    ("AlemCanal", "F2", (-190.0, 214.0), (-190.0, 294.0), -1, P, 18.0, R_TEAL,
+     [(10.0, "fundo", 1, ""), (12.0, "loja", 2, "h"), (14.0, "sobrado", 3, "t"), (10.0, "fundo", 1, ""),
+      (12.0, "loja", 2, ""), (10.0, "fundo", 1, ""), (12.0, "loja", 2, "")]),
+    # ---- RUA ALTA DO PORTO (T1 leste): 2 quadras de lojas de carga e armazens, fachada para a viela leste
+    ("PortoAlto1", "F", (66.0, 105.0), (90.0, 105.0), 1, T1, 20.0, R_RED, [(12.0, "armazem", 2, ""), (12.0, "loja", 2, "h")]),
+    ("PortoAlto1", "B", (90.0, 67.0), (66.0, 67.0), 1, T1, 18.0, R_RED, [(12.0, "fundo", 1, ""), (12.0, "kura", 2, "")]),
+    ("PortoAlto2", "F", (96.0, 105.0), (120.0, 105.0), 1, T1, 20.0, R_RED, [(12.0, "kura", 2, "t"), (12.0, "armazem", 2, "")]),
+    ("PortoAlto2", "B", (120.0, 67.0), (96.0, 67.0), 1, T1, 18.0, R_RED, [(12.0, "fundo", 1, "h"), (12.0, "armazem", 2, "")]),
+    # ---- NE (PLANO_V2 3.4): fileira continua de 5 lojas no sando + haiden (interior) + honden; o resto e jardim
+    ("NE", "Lojas", (122.0, 286.0), (202.0, 286.0), 1, P, 18.0, R_VIO,
+     [(16.0, "loja", 2, "h"), (16.0, "loja", 2, ""), (16.0, "sobrado", 3, "t"), (16.0, "loja", 2, "h"), (16.0, "loja", 2, "")]),
+    ("NE", "Haiden", (194.0, 291.0), (194.0, 309.0), 1, P, 20.0, R_RED, [(18.0, "santuario", 1, "io")]),
+    ("NE", "Honden", (219.0, 295.0), (219.0, 305.0), 1, P, 10.0, R_RED, [(10.0, "honden", 1, "")]),
+    # ---- TERRACO ALTO (W3): 2 mansoes com jardim (as casas soltas sairam)
+    ("W3", "M1", (-128.0, 326.0), (-128.0, 356.0), -1, W3, 24.0, R_GRN, [(30.0, "mansao", 2, "")]),
+    ("W3", "M2", (-186.0, 372.0), (-150.0, 372.0), -1, W3, 22.0, R_GRN, [(36.0, "mansao", 2, "")]),
+]
+
+
+def _h01(key):
+    """hash murmur-like (finalizador fmix32) -> [0, 1): variacao determinista sem a correlacao do crc32 (Ilha 4)"""
+    h = 2166136261
+    for ch in key:
+        h = ((h ^ ord(ch)) * 16777619) & 0xffffffff
+    h ^= h >> 16
+    h = (h * 0x85ebca6b) & 0xffffffff
+    h ^= h >> 13
+    h = (h * 0xc2b2ae35) & 0xffffffff
+    h ^= h >> 16
+    return h / 4294967296.0
+
+
+def block_lots():
+    """lista de lotes (dict) das ROWS: nome, quadra, centro (x, y), yaw da FRENTE (rad), W (frente), D (fundo), cota z,
+    tipo, pisos, beiral (cota absoluta da linha da parede), cumeeira (absoluta), tsuma, hisashi, interior, aberto,
+    esquina, telhado (material), trecho de fachada (a, b). A altura varia -1,5..+2 de lote para lote (hash do nome)."""
+    out = []
+    for blk, row, a, b, side, z, D, roof, lots in ROWS:
+        ux, uy = b[0] - a[0], b[1] - a[1]
+        ln = math.hypot(ux, uy)
+        ux, uy = ux / ln, uy / ln
+        nx, ny = -uy * side, ux * side                      # normal para a RUA
+        s0 = 0.0
+        for k, (w, kind, fl, flags) in enumerate(lots):
+            nm = "%s_%s%d" % (blk, row, k + 1)
+            cx = a[0] + ux * (s0 + w / 2) - nx * D / 2
+            cy = a[1] + uy * (s0 + w / 2) - ny * D / 2
+            eave = EAVE_H.get((kind, fl), 8.8 + 6.0 * (fl - 1))
+            dh = 0.0 if kind in ("portal", "santuario", "honden", "mansao") else round(-1.5 + 3.5 * _h01(nm), 1)
+            if kind == "fundo":                      # casa de 1 piso: beiral nunca abaixo de 8,8 (borda baixa do
+                dh = round(2.5 * _h01(nm), 1)        # telhado a 7,87 da rua > pulo 7,2: nao se sobe nos telhados)
+            rm = flags[flags.index("c") + 1:] if "c" in flags else roof
+            flags = flags.split("c")[0]
+            tsuma = "t" in flags
+            span = (w if tsuma else D) / 2.0
+            out.append(dict(name=nm, block=blk, row=row, x=round(cx, 3), y=round(cy, 3), yaw=math.atan2(ny, nx), W=w, D=D,
+                            z=z, kind=kind, floors=fl, eave=round(z + eave + dh, 2),
+                            ridge=round(z + eave + dh + ROOF_PITCH * span, 2), tsuma=tsuma, hisashi="h" in flags,
+                            interior="i" in flags, open="o" in flags, corner="e" in flags, roof=rm,
+                            front=((a[0] + ux * s0, a[1] + uy * s0), (a[0] + ux * (s0 + w), a[1] + uy * (s0 + w)))))
+            s0 += w
+    return out
+
+
+def lot_poly(lot, pad=0.0):
+    """planta do lote (retangulo W x D) + pad"""
+    c, sn = math.cos(lot["yaw"]), math.sin(lot["yaw"])          # frente
+    ux, uy = -sn, c                                              # ao longo da fachada
+    hw, hd = lot["W"] / 2 + pad, lot["D"] / 2 + pad
+    return [(lot["x"] + ux * su * hw + c * sv * hd, lot["y"] + uy * su * hw + sn * sv * hd)
+            for su, sv in ((-1, -1), (1, -1), (1, 1), (-1, 1))]
+
+
+# V2-0: os ARMAZENS DO CAIS continuam como na V1 (op_harbor e refeito na V2-2); o H3 do topo da muralha SAIU (U13)
+# (nome, familia, x, y, w, d, rumo da FRENTE, cota, pisos, telhado, cor)
 BUILDINGS = [
-    # rua de chegada (T1): fachadas comerciais dos 2 lados, ritmo de alturas e recuos; 1 esquina-marco de 3 pisos
-    ("C1", "loja", -27.0, 55.0, 16.0, 22.0, 0.0, T1, 2, "irimoya", "Roof_OP_Blue"),
-    ("C2", "loja", -30.0, 73.0, 14.0, 26.0, 0.0, T1, 1, "kirizuma", "Roof_OP_Blue"),
-    ("C4", "esquina", -28.0, 101.0, 16.0, 24.0, 0.0, T1, 2, "irimoya", "Roof_OP_Green"),
-    ("C5", "loja", 26.0, 53.0, 14.0, 20.0, 180.0, T1, 2, "kirizuma", "Roof_OP_Blue"),
-    ("C6", "loja", 30.0, 72.0, 18.0, 28.0, 180.0, T1, 1, "irimoya", "Roof_OP_Blue"),
-    ("C7", "esquina", 28.0, 93.0, 16.0, 22.0, 180.0, T1, 3, "irimoya", "Roof_OP_Red"),
-    ("B1", "casa", -54.0, 62.0, 18.0, 16.0, 0.0, T1, 1, "irimoya", "Roof_OP_Blue"),
-    ("B2", "casa", -58.0, 97.0, 18.0, 18.0, 0.0, T1, 2, "kirizuma", "Roof_OP_Blue"),
-    ("B3", "casa", 56.0, 60.0, 18.0, 18.0, 180.0, T1, 1, "irimoya", "Roof_OP_Blue"),
-    ("B4", "casa", 62.0, 92.0, 22.0, 16.0, 180.0, T1, 2, "irimoya", "Roof_OP_Blue"),
-    ("B5", "casa", 82.0, 60.0, 18.0, 16.0, 180.0, T1, 1, "irimoya", "Roof_OP_Blue"),
-    ("B6", "casa", 88.0, 88.0, 20.0, 18.0, 180.0, T1, 2, "kirizuma", "Roof_OP_Green"),
-    ("B7", "casa", 106.0, 70.0, 16.0, 14.0, 180.0, T1, 1, "irimoya", "Roof_OP_Blue"),
-    # bairro do canal (T1, sudoeste): casas baixas, moinho da roda d'agua
-    ("S1", "casa", -86.0, 58.0, 22.0, 16.0, 90.0, T1, 1, "irimoya", "Roof_OP_Blue"),
-    ("S2", "casa", -120.0, 56.0, 20.0, 16.0, 90.0, T1, 1, "kirizuma", "Roof_OP_Blue"),
-    ("S3", "casa", -98.0, 98.0, 24.0, 16.0, -90.0, T1, 2, "irimoya", "Roof_OP_Green"),
-    ("S4", "moinho", -156.0, 90.0, 14.0, 18.0, 180.0, T1, 1, "kirizuma", "Roof_OP_Blue"),
-    ("S5", "casa", -121.0, 100.0, 16.0, 14.0, -90.0, T1, 1, "kirizuma", "Roof_OP_Blue"),
-    # quarteirao oeste (P): fileira que encara a praca (comercio) + fileira do outro lado do canal (casas)
-    ("W1", "esquina", -140.0, 140.0, 26.0, 30.0, 0.0, P, 2, "irimoya", "Roof_OP_Green"),
-    ("W2", "loja", -140.0, 177.0, 24.0, 32.0, 0.0, P, 1, "irimoya", "Roof_OP_Blue"),
-    ("W3", "pavilhao", -134.0, 212.0, 22.0, 20.0, 0.0, P, 1, "hip", "Roof_OP_Blue"),
-    ("W4", "esquina", -140.0, 248.0, 24.0, 32.0, 0.0, P, 3, "irimoya", "Roof_OP_Blue"),
-    ("W5", "casa", -140.0, 283.0, 26.0, 28.0, 0.0, P, 2, "irimoya", "Roof_OP_Green"),
-    ("X1", "casa", -203.0, 152.0, 22.0, 22.0, 0.0, P, 1, "irimoya", "Roof_OP_Blue"),
-    ("X2", "casa", -204.0, 212.0, 26.0, 24.0, 0.0, P, 2, "kirizuma", "Roof_OP_Blue"),
-    ("X3", "casa", -203.0, 268.0, 22.0, 22.0, 0.0, P, 1, "irimoya", "Roof_OP_Green"),
-    # terraco alto oeste (W3): mansoes de telhado verde
-    ("U1", "mansao", -150.0, 332.0, 34.0, 22.0, -90.0, W3, 2, "irimoya", "Roof_OP_Green"),
-    ("U2", "mansao", -128.0, 386.0, 26.0, 22.0, 0.0, W3, 2, "irimoya", "Roof_OP_Green"),
-    ("U3", "casa", -176.0, 398.0, 24.0, 20.0, 0.0, W3, 1, "irimoya", "Roof_OP_Blue"),
-    ("U4", "casa", -198.0, 344.0, 18.0, 22.0, 0.0, W3, 1, "kirizuma", "Roof_OP_Green"),
-    ("U5", "pavilhao", -202.0, 380.0, 14.0, 12.0, 0.0, W3, 1, "hip", "Roof_OP_Green"),
-    # quarteirao NE (P): santuario de telhado avermelhado + casas
-    ("N1", "santuario", 150.0, 306.0, 24.0, 22.0, 180.0, P, 1, "irimoya", "Roof_OP_Red"),
-    ("N2", "casa", 190.0, 280.0, 20.0, 16.0, -90.0, P, 2, "irimoya", "Roof_OP_Red"),
-    ("N3", "casa", 176.0, 326.0, 18.0, 14.0, -90.0, P, 1, "kirizuma", "Roof_OP_Blue"),
-    ("N4", "casa", 210.0, 276.0, 14.0, 12.0, -90.0, P, 1, "irimoya", "Roof_OP_Red"),
-    ("N5", "esquina", 110.0, 324.0, 18.0, 14.0, -90.0, P, 2, "irimoya", "Roof_OP_Red"),
-    # porto (cais 52,2 e rua alta 70,2): armazens e pavilhao sobre palafitas
     ("H1", "armazem", 136.0, 44.0, 22.0, 16.0, 90.0, HARBOR, 2, "kirizuma", "Roof_OP_Blue"),
     ("H2", "armazem", 192.0, 42.0, 20.0, 14.0, 90.0, HARBOR, 1, "kirizuma", "Roof_OP_Blue"),
-    ("H3", "armazem", 176.0, 120.0, 24.0, 14.0, -90.0, HMID, 2, "irimoya", "Roof_OP_Blue"),
     ("H4", "pavilhao", 236.0, 58.0, 18.0, 14.0, 180.0, HARBOR, 1, "hip", "Roof_OP_Red"),
 ]
-# ruas e vielas (laje clara rente sobre o tampo de grama): (pontos, largura, cota)
-STREETS = [
-    ([(0.0, 44.0), (0.0, 112.0)], 24.0, T1),                                                    # rua de chegada
-    ([(10.0, 111.0), (60.0, 111.0), (122.0, 111.0), (126.0, 140.0), (132.0, 158.0)], 12.0, T1),  # viela leste (summon)
-    ([(-12.0, 86.0), (-44.0, 86.0), (-48.0, 78.0), (-120.0, 77.0), (-160.0, 72.0)], 10.0, T1),   # viela do canal
-    ([(-140.0, 76.0), (-140.0, 108.0)], 10.0, T1),
-    ([(-164.0, 120.0), (-164.0, 298.0)], 10.0, P),                                              # cais do canal (leste)
-    ([(-186.0, 126.0), (-186.0, 296.0)], 8.0, P),                                               # cais do canal (oeste)
-    ([(-118.0, 159.0), (-160.0, 159.0)], 10.0, P), ([(-118.0, 265.0), (-160.0, 265.0)], 9.0, P),
-    ([(-119.0, 120.0), (-119.0, 300.0)], 7.0, P),                                               # frente do quarteirao
-    ([(-110.0, 312.0), (-120.0, 330.0), (-120.0, 365.0), (-170.0, 366.0)], 10.0, W3),           # terraco alto
-    ([(100.0, 282.0), (170.0, 290.0), (204.0, 296.0)], 10.0, P), ([(118.0, 286.0), (126.0, 306.0), (138.0, 306.0)], 8.0, P),
-    ([(127.0, 216.0), (152.0, 216.0)], 14.0, T1), ([(146.0, 242.0), (206.0, 237.0)], 12.0, T1),   # terraco do summon
-    ([(132.0, 150.0), (140.0, 196.0)], 12.0, T1),
+# RUAS V2 (PLANO_V2 3.3): (pontos, largura, cota). Pedra assentada; a avenida tem leito de 18 + calcadas com meio-fio e
+# sarjeta (AVENUE); praca e vielas sem meio-fio. Nada de laje solta sobre grama: o que nao e rua e patio de pedra,
+# jardim emoldurado ou lote.
+AVENUE = dict(x=(-9.0, 9.0), walk=4.0, front=15.0, y=(44.8, 108.1), curb=(0.3, 0.3), gutter=(0.8, -0.15))
+STREETS_V2 = [
+    ([(0.0, 44.0), (0.0, 108.0)], 30.0, T1),                                                    # 0 avenida (leito+calcadas)
+    ([(10.0, 111.0), (60.0, 111.0), (122.0, 111.0), (126.0, 140.0), (132.0, 158.0)], 12.0, T1),  # 1 viela leste (summon)
+    ([(-15.0, 86.0), (-62.0, 86.0)], 6.0, T1),                                                  # 2 viela do canal: portal
+    ([(-62.0, 86.0), (-168.0, 86.0)], 8.0, T1),                                                 #   ... ate o canal
+    ([(-140.0, 86.0), (-140.0, 108.0)], 12.0, T1),                                              # 3 travessa -> Sudoeste
+    ([(-15.0, 111.0), (-160.0, 111.0)], 12.0, T1),                                              # 4 rua do arrimo (T1)
+    ([(-66.0, 40.0), (-66.0, 108.0)], 8.0, T1),                                                 # 5 travessa AvO/bairro
+    ([(62.0, 40.0), (62.0, 108.0)], 8.0, T1),                                                   # 6 travessa AvL/porto
+    ([(-146.0, 47.0), (-66.0, 42.0)], 5.0, T1),                                                 # 7 caminho do penhasco sul
+    ([(-164.0, 120.0), (-164.0, 298.0)], 10.0, P),                                              # 8 cais do canal (leste)
+    ([(-186.0, 126.0), (-186.0, 296.0)], 8.0, P),                                               # 9 cais do canal (oeste)
+    ([(-118.0, 159.0), (-162.0, 159.0)], 10.0, P),                                              # 10 viela y 159
+    ([(-118.0, 212.0), (-162.0, 212.0)], 10.0, P),                                              # 11 viela da casa de cha
+    ([(-118.0, 265.0), (-162.0, 265.0)], 10.0, P),                                              # 12 viela y 265
+    ([(-118.5, 120.0), (-118.5, 300.0)], 5.0, P),                                               # 13 frente da fachada oeste
+    ([(-110.0, 312.0), (-120.0, 330.0), (-120.0, 365.0), (-170.0, 366.0)], 10.0, W3),           # 14 terraco alto
+    ([(108.0, 296.0), (192.0, 296.0)], 10.0, P),                                                # 15 SANDO do santuario NE
+    ([(127.0, 216.0), (152.0, 216.0)], 14.0, T1), ([(146.0, 242.0), (206.0, 237.0)], 12.0, T1),   # 16-17 terraco do summon
+    ([(132.0, 150.0), (140.0, 196.0)], 12.0, T1),                                               # 18
+    ([(93.0, 67.0), (93.0, 105.0)], 6.0, T1),                                                   # 19 travessa da rua alta
 ]
-PAGODA = (WEST_SPIRE[0], WEST_SPIRE[1], WEST_SPIRE[3])   # pagode de 5 andares no pinaculo oeste (cenografico)
-SHRINE_TORII = (128.0, 306.0)                            # torii pequeno do santuario NE (vao 8 x 9)
+STREETS = STREETS_V2               # compatibilidade: quem le L.STREETS (op_veg, op_terrain) ja ve a malha V2
+PAGODA = None                      # V2-0 (U13): o pagode do pinaculo oeste SAIU
+SHRINE_TORII = (110.0, 296.0)      # torii do sando NE (entrada do santuario, no canto da praca)
+NE_TORO = [(124.0, 290.0), (124.0, 302.0), (148.0, 290.0), (148.0, 302.0), (172.0, 290.0), (172.0, 302.0)]  # 6 toro
+NE_CHERRY = [(130.0, 312.0), (138.0, 330.0), (160.0, 310.0), (166.0, 330.0),                               # grupo 1
+             (214.0, 322.0), (226.0, 331.0), (205.0, 335.0), (190.0, 335.0)]                               # 2 (mirante)
+
 
 # ------------------------------------------------------------------ rotas de navegacao (andador do QA)
 def _exit_tail():
@@ -668,7 +822,8 @@ def routes():
         "DS_GATE->ENTRY": ([(0.0, -148.0), (0.0, -120.0), (0.0, -60.0), (0.0, 0.0), (0.0, 22.0)], DECK),
         "ENTRY->PLAZA": ([(0.0, 22.0), (0.0, 33.0), (0.0, 46.0), (0.0, 100.0), (0.0, 108.0), (0.0, 122.0),
                           (0.0, 150.0), plaza_c], T0),
-        "ENTRY->SUMMON (viela, sem praca)": ([(0.0, 22.0), (0.0, 33.0), (0.0, 46.0), (6.0, 104.0), (60.0, 110.0),
+        "ENTRY->SUMMON (viela, sem praca)": ([(0.0, 22.0), (0.0, 33.0), (0.0, 46.0), (4.0, 100.0), (18.0, 106.0),
+                                               (60.0, 110.0),
                                                (120.0, 112.0), (126.0, 130.0), (128.0, 160.0), (140.0, 200.0),
                                                (152.0, 214.0)], T0),
         "PLAZA->SUMMON": ([plaza_c, (96.0, 216.0), (114.0, 216.0), (128.0, 216.0), (152.0, 214.0)], P),
@@ -683,12 +838,14 @@ def routes():
                                             (-162.0, 252.0), (-162.0, 265.0), (-118.0, 265.0)], P),
         "PLAZA->TERRACO_ALTO": ([plaza_c, (-96.0, 270.0), (-110.0, 280.0), (-110.0, 287.0), (-110.0, 310.0),
                                  (-120.0, 330.0), (-120.0, 362.0), (-150.0, 364.0)], P),
-        "ENTRY->BAIRRO_CANAL": ([(0.0, 46.0), (-4.0, 84.0), (-40.0, 86.0), (-46.0, 83.0), (-72.0, 78.0),
-                                 (-120.0, 78.0), (-146.0, 74.0), (-160.0, 66.0)], T1),
-        "BAIRRO_CANAL->OESTE": ([(-146.0, 74.0), (-140.0, 100.0), (-140.0, 108.0), (-140.0, 121.0),
+        # V2-0: viela do canal reta (y 86) pela passagem coberta da quadra AvO; NE = sando -> haiden e sando -> mirante
+        "ENTRY->BAIRRO_CANAL": ([(0.0, 46.0), (-4.0, 84.0), (-20.0, 86.0), (-66.0, 86.0), (-120.0, 86.0),
+                                 (-146.0, 86.0), (-162.0, 86.0)], T1),
+        "BAIRRO_CANAL->OESTE": ([(-146.0, 86.0), (-140.0, 88.0), (-140.0, 108.0), (-140.0, 121.0),
                                  (-116.0, 123.0), (-104.0, 160.0)], T1),
-        "PLAZA->NE (santuario)": ([plaza_c, (100.0, 282.0), (170.0, 290.0), (204.0, 296.0)], P),
-        "NE->SANTUARIO (frente)": ([(100.0, 282.0), (124.0, 296.0), (126.0, 306.0), (134.0, 306.0)], P),
+        "PLAZA->NE (santuario)": ([plaza_c, (90.0, 270.0), (102.0, 296.0), (150.0, 296.0), (176.0, 296.0),
+                                   (180.0, 301.0), (180.0, 323.0), (200.0, 327.0)], P),
+        "NE->SANTUARIO (frente)": ([(102.0, 296.0), (150.0, 296.0), (186.0, 296.0), (192.0, 300.0), (199.0, 300.0)], P),
     }
 
 
@@ -728,6 +885,16 @@ def cams():
         "CAM_OP_PlayerHeight_Harbor": ((214.0, 70.0, HARBOR + EYE), (248.0, 160.0, HARBOR + 16.0), 22),
         "CAM_OP_PlayerHeight_Summon": ((100.0, 214.0, P + EYE), (170.0, 214.0, T1 + 22.0), 22),
         "CAM_OP_PlayerHeight_Exit": ((e[0], e[1], T1 + EYE), (g[0], g[1], T1 + 10.0), 22),
+        # V2-0: planta nova (avenida, quadras, NE, canal, porto) - de cima e na altura do jogador
+        "CAM_OP_V2_TopCidade": ((-30.0, -90.0, 420.0), (-30.0, 190.0, 90.0), 24),
+        "CAM_OP_V2_AereaAvenida": ((0.0, -6.0, 150.0), (0.0, 110.0, 96.0), 24),
+        "CAM_OP_V2_AereaOeste": ((-70.0, 120.0, 170.0), (-160.0, 215.0, 95.0), 22),
+        "CAM_OP_V2_AereaNE": ((110.0, 210.0, 165.0), (190.0, 306.0, 100.0), 22),
+        "CAM_OP_V2_AereaPorto": ((100.0, 40.0, 150.0), (190.0, 120.0, 60.0), 22),
+        "CAM_OP_PlayerHeight_Oeste": ((-106.0, 128.0, P + EYE), (-124.0, 250.0, P + 10.0), 22),
+        "CAM_OP_PlayerHeight_Bairro": ((-68.0, 86.0, T1 + EYE), (-170.0, 88.0, T1 + 9.0), 22),
+        "CAM_OP_PlayerHeight_NE": ((110.0, 296.0, P + EYE), (200.0, 302.0, P + 9.0), 22),
+        "CAM_OP_PlayerHeight_Canal": ((-164.0, 168.0, P + EYE), (-176.0, 262.0, P + 4.0), 22),
     }
 
 

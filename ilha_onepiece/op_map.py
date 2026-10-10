@@ -2,6 +2,8 @@
 # e Shadow Garden no Roblox) + confere encaixe, pisos dentro da borda, escadas (pe/topo no piso certo), forma, minerios,
 # construcoes sobre piso/fora da praca e das escadas, e as rotas (comprimento/tempo).
 # uso: python op_map.py [saida_planta.png] [saida_mundo.png]
+# V2-0: a planta desenhada e a V2 (plano/planta_v2.png): quadras/lotes (L.block_lots), ruas V2, NE, canais rebaixados,
+#       pontes em arco, rochas com flag de colisao; a conferencia de construcoes passa a ser por LOTE.
 import sys, os, math, importlib.util
 sys.dont_write_bytecode = True
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -41,26 +43,71 @@ def house_poly(b):
             for sx, sy in ((-1, -1), (1, -1), (1, 1), (-1, 1))]
 
 
+ROOF_RGB = {"Roof_OP_Cobalt": (60, 90, 168), "Roof_OP_Teal": (62, 148, 138), "Roof_OP_Violet": (104, 84, 152),
+            "Roof_OP_RedV2": (172, 62, 52), "Roof_OP_Green": (58, 104, 84), "Roof_OP_Blue": (46, 58, 92),
+            "Roof_OP_Red": (150, 62, 46), "Roof_OP_Shingle": (92, 70, 52)}
+
+
+def _water_polys():
+    """os mesmos leitos do op_col.water_polys (sem Blender): segmentos dos canais, bacia, lago e rego"""
+    out = []
+    for cn, pts, w in (("CanalE", L.CANAL_E, L.CANAL_E_W), ("CanalW", L.CANAL_W, L.CANAL_W_X[1] - L.CANAL_W_X[0])):
+        P_ = list(pts) + [((L.FALL_W if cn == "CanalW" else L.FALL_E)[0], (L.FALL_W if cn == "CanalW" else L.FALL_E)[1],
+                           pts[-1][2])]
+        for k, (a, b) in enumerate(zip(P_, P_[1:])):
+            if math.hypot(b[0] - a[0], b[1] - a[1]) < 0.5:
+                continue
+            ux, uy = b[0] - a[0], b[1] - a[1]
+            ln = math.hypot(ux, uy)
+            ux, uy = ux / ln, uy / ln
+            a2 = (a[0] - ux * w / 2, a[1] - uy * w / 2) if k else (a[0], a[1])
+            b2 = (b[0] + ux * w / 2, b[1] + uy * w / 2) if k < len(P_) - 2 else (b[0], b[1])
+            out.append(L.ribbon([a2, b2], w / 2))
+    out.append(list(L.BASIN))
+    out.append(L.rect_poly(L.NE_POND[0]))
+    out.append(L.rect_poly(L.NE_POND_LINK))
+    return out
+
+
 def main(out):
+    """PLANTA V2 (V2-0): quadras em fileiras geminadas com a cor do telhado por quadra, ruas V2 (avenida com calcadas),
+    NE refeito (lojas, sando, haiden, honden, lago, mirante), canais rebaixados com pontes em arco, rochas com a flag
+    de colisao ('walk' = topo alcancavel, contorno amarelo; 'tall' = >= 8,5 acima do alcancavel), sem pagode, sem H3"""
     im = Image.new("RGB", (W, H), (24, 120, 150))
     d = ImageDraw.Draw(im)
     f = _font(13)
-    poly(d, L.ISLAND_RIM, fill=(96, 98, 104), outline=(230, 236, 220), width=2)
+    fs = _font(11)
+    poly(d, L.ISLAND_RIM, fill=(86, 88, 96), outline=(230, 236, 220), width=2)
     poly(d, L.SWORD_SPUR, fill=(86, 88, 96))
     for nm, pts, z in L.ROCKS:
-        poly(d, pts, fill=(110, 112, 118))
+        walk = L.ROCK_COL.get(nm) == "walk"
+        poly(d, pts, fill=(132, 128, 118) if walk else (104, 106, 114), outline=(240, 210, 60) if walk else (60, 60, 66),
+             width=2 if walk else 1)
+        if fs:
+            c = (sum(p[0] for p in pts) / len(pts), sum(p[1] for p in pts) / len(pts))
+            d.text(P(c[0] - 6, c[1] + 2), "%s %.0f%s" % (nm, z, "" if walk else " (alta)"), fill=(235, 235, 235), font=fs)
     poly(d, L.SKULL_ROCK, fill=(70, 70, 78), outline=(20, 20, 20))
     col = {"Court": (222, 210, 190), "CastleLanding": (200, 190, 170), "W3": (150, 180, 120), "Forecourt": (210, 196, 170),
-           "Plaza": (198, 186, 160), "W2b": (170, 170, 140), "ExitLand": (170, 150, 120), "T1": (176, 160, 128),
-           "Entry": (190, 180, 160), "HarborMid": (150, 120, 90), "Harbor": (140, 110, 80), "ShipDeck": (120, 80, 50)}
+           "Plaza": (190, 180, 160), "W2b": (184, 176, 156), "ExitLand": (170, 150, 120), "T1": (180, 168, 142),
+           "Entry": (190, 180, 160), "HarborMid": (150, 120, 90), "Harbor": (140, 110, 80), "ShipDeck": (120, 80, 50),
+           "NEMirante": (132, 170, 104)}
     for nm, pts, z, pr in sorted(L.floors(), key=lambda t: t[3]):
         poly(d, pts, fill=col[nm], outline=(40, 40, 50), width=1)
-    poly(d, L.PLAZA, fill=(214, 204, 178), outline=(120, 100, 70), width=2)
-    poly(d, L.BASIN, fill=(60, 180, 200))
-    for pts in (L.CANAL_E, L.CANAL_W):
-        d.line([P(p[0], p[1]) for p in pts], fill=(50, 170, 210), width=10)
+    poly(d, L.PLAZA, fill=(206, 196, 172), outline=(120, 100, 70), width=2)
+    eixo = [(-15.0, 120.0), (15.0, 120.0), (15.0, 314.0), (-15.0, 314.0)]
+    poly(d, eixo, fill=(222, 214, 192))
+    for k, (pts, w, z) in enumerate(L.STREETS_V2):
+        poly(d, L.ribbon(pts, w / 2), fill=(214, 206, 186) if k else (200, 194, 178))
+    av = L.AVENUE
+    d.rectangle([P(av["x"][0], av["y"][1]), P(av["x"][1], av["y"][0])], fill=(226, 220, 204), outline=(120, 116, 106))
+    for wp in _water_polys():
+        poly(d, wp, fill=(46, 160, 205), outline=(30, 90, 120))
     for nm, a, b, w in L.bridge_list():
-        poly(d, L.ribbon([a[:2], b[:2]], w / 2), fill=(196, 50, 40), outline=(60, 10, 10))
+        arch = nm in L.BRIDGE_ARCH
+        poly(d, L.ribbon([a[:2], b[:2]], w / 2), fill=(196, 50, 40), outline=(255, 240, 160) if arch else (60, 10, 10),
+             width=2 if arch else 1)
+        if arch and fs:
+            d.text(P(b[0] - 4, b[1] + 9), "arco +%.1f" % L.BRIDGE_ARCH[nm], fill=(255, 240, 160), font=fs)
     for nm, foot, deg, w, n, tread, g in L.STAIRS:
         t = L.stair_top(nm)
         poly(d, L.ribbon([foot[:2], t[:2]], w / 2), fill=(245, 245, 245), outline=(60, 60, 60))
@@ -73,21 +120,42 @@ def main(out):
     cols = {"COMMON": (240, 240, 240), "UNCOMMON": (90, 160, 255), "EPIC": (170, 90, 230), "SUPERLEGENDARY": (255, 120, 200)}
     for kind, i, x, y, r in L.ore_points():
         d.ellipse([P(x - r, y + r), P(x + r, y - r)], fill=cols[kind])
-    for b in L.BUILDINGS:
-        rc = {"Roof_OP_Blue": (52, 66, 104), "Roof_OP_Green": (70, 120, 96), "Roof_OP_Red": (160, 70, 54)}[b[10]]
-        poly(d, house_poly(b), fill=rc, outline=(20, 20, 20), width=1)
+    # lotes V2
+    for lt in L.block_lots():
+        pl = L.lot_poly(lt)
+        poly(d, pl, fill=ROOF_RGB.get(lt["roof"], (90, 90, 90)), outline=(18, 18, 22), width=1)
+        c, sn = math.cos(lt["yaw"]), math.sin(lt["yaw"])
+        if lt["hisashi"]:
+            fr = lt["front"]
+            d.line([P(*fr[0]), P(*fr[1])], fill=(250, 250, 250), width=3)
+        if lt["tsuma"]:                              # cumeeira perpendicular a rua
+            d.line([P(lt["x"] - c * lt["D"] * 0.4, lt["y"] - sn * lt["D"] * 0.4),
+                    P(lt["x"] + c * lt["D"] * 0.4, lt["y"] + sn * lt["D"] * 0.4)], fill=(20, 20, 20), width=2)
+        else:
+            d.line([P(lt["x"] + sn * lt["W"] * 0.4, lt["y"] - c * lt["W"] * 0.4),
+                    P(lt["x"] - sn * lt["W"] * 0.4, lt["y"] + c * lt["W"] * 0.4)], fill=(20, 20, 20), width=1)
+        if lt["interior"]:
+            d.ellipse([P(lt["x"] - 2.2, lt["y"] + 2.2), P(lt["x"] + 2.2, lt["y"] - 2.2)], fill=(255, 230, 120),
+                      outline=(0, 0, 0))
+        if lt["corner"]:
+            d.rectangle([P(lt["x"] - 2.5, lt["y"] + 2.5), P(lt["x"] + 2.5, lt["y"] - 2.5)], outline=(255, 255, 255), width=2)
+    for spec in L.BUILDINGS:                           # armazens do cais (V1, sem o H3)
+        poly(d, house_poly(spec), fill=ROOF_RGB.get(spec[10], (90, 90, 90)), outline=(20, 20, 20), width=1)
         if f:
-            d.text(P(b[2] - 6, b[3] + 5), b[0], fill=(255, 255, 255), font=f)
+            d.text(P(spec[2] - 6, spec[3] + 5), spec[0], fill=(255, 255, 255), font=f)
+    # santuario NE: torii, toro, cerejeiras
+    tx, ty = L.SHRINE_TORII
+    d.rectangle([P(tx - 1.2, ty + 5.5), P(tx + 1.2, ty - 5.5)], fill=(220, 30, 20))
+    for x, y in L.NE_TORO:
+        d.ellipse([P(x - 1.6, y + 1.6), P(x + 1.6, y - 1.6)], fill=(235, 235, 220), outline=(40, 40, 40))
+    for x, y in L.NE_CHERRY:
+        d.ellipse([P(x - 4.5, y + 4.5), P(x + 4.5, y - 4.5)], outline=(250, 140, 200), width=2)
     kx, ky = L.KEEP_C
     hw, hd = L.KEEP_TIERS[0][:2]
     d.rectangle([P(kx - hw, ky + hd), P(kx + hw, ky - hd)], fill=(240, 240, 236), outline=(30, 30, 30), width=2)
-    pts = [(p[0], p[1]) for p in L.TREE_TRUNK]
-    d.line([P(*p) for p in pts], fill=(110, 70, 40), width=8)
-    for (c, r, fl) in L.TREE_CANOPY:
-        d.ellipse([P(c[0] - r, c[1] + r), P(c[0] + r, c[1] - r)], outline=(250, 140, 200), width=2)
-    tx, ty = L.SUMMON_TOWER
-    d.rectangle([P(tx - 12, ty + 20.6), P(tx + 8.6, ty - 20.6)], outline=(250, 210, 60), width=2)
-    d.ellipse([P(tx - 5, ty + 5), P(tx + 5, ty - 5)], fill=(250, 210, 60))
+    d.line([P(p[0], p[1]) for p in L.TREE_TRUNK], fill=(110, 70, 40), width=8)
+    sx_, sy_ = L.SUMMON_TOWER
+    d.ellipse([P(sx_ - 9, sy_ + 9), P(sx_ + 9, sy_ - 9)], outline=(250, 210, 60), width=3)
     d.rectangle([P(L.TORII_IN[0] - 11, L.TORII_IN[1] + 1.5), P(L.TORII_IN[0] + 11, L.TORII_IN[1] - 1.5)], fill=(220, 30, 20))
     g = L.gate_opm_pos()
     d.ellipse([P(g[0] - 5, g[1] + 5), P(g[0] + 5, g[1] - 5)], fill=(255, 60, 60))
@@ -96,18 +164,31 @@ def main(out):
     sx, sy = L.SHIP_C
     d.rectangle([P(sx - 8, sy + 40), P(sx + 8, sy - 40)], outline=(60, 30, 10), width=3)
     d.ellipse([P(L.SKULL_C[0] - 8, L.SKULL_C[1] + 8), P(L.SKULL_C[0] + 8, L.SKULL_C[1] - 8)], fill=(30, 30, 30))
-    d.ellipse([P(L.SWORD_POS[0] - 4, L.SWORD_POS[1] + 4), P(L.SWORD_POS[0] + 4, L.SWORD_POS[1] - 4)], fill=(200, 210, 230))
+    px, py, pr, ptop = L.WEST_SPIRE
+    d.ellipse([P(px - pr, py + pr), P(px + pr, py - pr)], fill=(104, 106, 114), outline=(60, 60, 66))
+    if fs:
+        d.text(P(px - 16, py + 3), "agulha %.0f (sem pagode)" % ptop, fill=(235, 235, 235), font=fs)
     pal = [(255, 200, 80), (255, 140, 60), (180, 230, 80), (255, 80, 80), (170, 140, 255), (100, 200, 255),
            (100, 220, 255), (200, 170, 255), (255, 160, 200), (120, 255, 200), (255, 255, 140), (255, 255, 255)]
     for i, (k, (pts, z)) in enumerate(L.routes().items()):
-        d.line([P(*p) for p in pts], fill=pal[i % len(pal)], width=2)
+        d.line([P(*p) for p in pts], fill=pal[i % len(pal)], width=1)
     for gx in range(-250, 401, 50):
         d.line([P(gx, Y0), P(gx, Y1)], fill=(40, 100, 130) if gx else (255, 80, 80), width=1)
     for gy in range(-150, 651, 50):
         d.line([P(X0, gy), P(X1, gy)], fill=(40, 100, 130) if gy else (255, 80, 80), width=1)
     if f:
-        d.text((8, 8), "Wano (local; +Y = eixo ponte->praca->castelo; +X = porto/saida; 1 quadrado = 50 studs)",
-               fill=(255, 255, 255), font=_font(16))
+        f16 = _font(16)
+        d.text((8, 8), "Wano PLANTA V2 (V2-0, local; +Y = ponte->avenida->praca->castelo; 1 quadrado = 50 studs)",
+               fill=(255, 255, 255), font=f16)
+        leg = [((60, 90, 168), "cobalto: avenida / bairro S"), ((62, 148, 138), "verde-agua: fachada oeste, alem do canal"),
+               ((104, 84, 152), "roxo: bairro N, lojas NE"), ((172, 62, 52), "vermelho: rua alta do porto, santuario"),
+               ((58, 104, 84), "verde: mansoes W3"), ((250, 250, 250), "faixa branca = hisashi; traco = cumeeira"),
+               ((255, 230, 120), "ponto = interior vivo (5)"), ((240, 210, 60), "contorno amarelo = rocha 'walk'"),
+               ((46, 160, 205), "canal rebaixado (agua 89,6 / leito 88,6)"), ((255, 240, 160), "ponte em arco")]
+        for k, (c, t) in enumerate(leg):
+            yy = 34 + k * 18
+            d.rectangle([10, yy, 24, yy + 12], fill=c, outline=(0, 0, 0))
+            d.text((30, yy - 1), t, fill=(255, 255, 255), font=f)
     im.save(out)
     print("MAPA", out, im.size)
 
@@ -231,29 +312,41 @@ def check():
     for nm, a, b, w in L.bridge_list():
         rects.append(("ponte " + nm, L.ribbon([a[:2], b[:2]], w / 2 + 1.0)))
     zone8 = L.rect_poly((x0 - 8, y0 - 8, x1 + 8, y1 + 8))
-    for bdef in L.BUILDINGS:
-        hp = house_poly(bdef)
-        zs = {L.zone_of(x, y) for x, y in hp + [(bdef[2], bdef[3])]}
+    streets = [("rua %d" % k, L.ribbon(p_, w / 2 - 0.3)) for k, (p_, w, z) in enumerate(L.STREETS_V2)]
+    lots = L.block_lots()
+    nprob = 0
+    for lt in lots:                                    # V2-0: lotes das quadras (piso, MiningZone, escadas, pontes, ruas)
+        hp = L.lot_poly(lt, -0.3)
+        zs = {L.zone_of(x, y) for x, y in hp + [(lt["x"], lt["y"])]}
         probs = []
-        if zs != {bdef[7]}:
-            probs.append("pisos %s (quer %.1f)" % (sorted(z for z in zs if z) + ([None] if None in zs else []), bdef[7]))
+        if zs != {lt["z"]}:
+            probs.append("pisos %s (quer %.1f)" % (sorted(z for z in zs if z) + ([None] if None in zs else []), lt["z"]))
         if any(L.point_in_poly(x, y, zone8) for x, y in hp):
             probs.append("dentro da MiningZone+8")
-        for lab, rp in rects:
+        for lab, rp in rects + streets:
+            if lt["kind"] == "portal" and lab.startswith("rua"):
+                continue
             if any(L.point_in_poly(x, y, rp) for x, y in hp) or any(L.point_in_poly(x, y, hp) for x, y in rp):
                 probs.append("encosta em " + lab)
-        print("predio %-3s %-9s %s" % (bdef[0], bdef[1], "OK" if not probs else "PROBLEMA " + "; ".join(probs)))
-    for a_, b_ in itertools.combinations(L.BUILDINGS, 2):
-        pa, pb = house_poly(a_), house_poly(b_)
+        nprob += bool(probs)
+        if probs:
+            print("lote %-14s %-9s PROBLEMA %s" % (lt["name"], lt["kind"], "; ".join(probs)))
+    for a_, b_ in itertools.combinations(lots, 2):
+        pa, pb = L.lot_poly(a_, -0.3), L.lot_poly(b_, -0.3)
         if any(L.point_in_poly(x, y, pb) for x, y in pa) or any(L.point_in_poly(x, y, pa) for x, y in pb):
-            print("predio SOBREPOSTO %s x %s" % (a_[0], b_[0]))
+            print("lote SOBREPOSTO %s x %s" % (a_["name"], b_["name"]))
+            nprob += 1
+    from collections import Counter
+    print("LOTES %d em %d quadras (%s) | interiores %d | hisashi %d | tsumairi %d | problemas %d" % (
+        len(lots), len({l_["block"] for l_ in lots}), dict(Counter(l_["roof"].replace("Roof_OP_", "") for l_ in lots)),
+        sum(l_["interior"] for l_ in lots), sum(l_["hisashi"] for l_ in lots), sum(l_["tsuma"] for l_ in lots), nprob))
     for k, (pts_, z) in L.routes().items():
         print("rota %-40s %5.0f studs  %4.1f s" % (k, L.plen(pts_), L.plen(pts_) / 16.0))
     return bad
 
 
 if __name__ == "__main__":
-    out = sys.argv[1] if len(sys.argv) > 1 else os.path.join(HERE, "plano", "planta_op.png")
+    out = sys.argv[1] if len(sys.argv) > 1 else os.path.join(HERE, "plano", "planta_v2.png")   # V2-0
     out2 = sys.argv[2] if len(sys.argv) > 2 else os.path.join(HERE, "plano", "mundo_op.png")
     os.makedirs(os.path.dirname(out), exist_ok=True)
     check()

@@ -19,6 +19,8 @@ import op_layout as L
 import op_col
 
 T0, T1, P, CF, CC = L.T0, L.T1, L.P, L.CF, L.CC
+WATER_MEASURED = True   # V2-0 (acrescimo pontual): o build_op desliga quando a zona 'water' esta em blockout (o op_water
+                        # V1 mede a pedra da cota antiga; com os canais rebaixados os FX_/WATER_ vem da planta)
 
 
 def world_markers():
@@ -122,7 +124,7 @@ def safe_markers():
            ("SAFE_Bairro_Canal", (-130.0, 80.0), T1), ("SAFE_Oeste_Alem", (-190.0, 230.0), P),
            ("SAFE_Terraco_Alto", (-120.0, 350.0), L.W3), ("SAFE_Adro", (40.0, 324.0), CF),
            ("SAFE_Castelo", (-30.0, 440.0), CC), ("SAFE_Porto_Alto", (170.0, 104.0), L.HMID),
-           ("SAFE_Cais", (190.0, 70.0), L.HARBOR), ("SAFE_NE", (150.0, 274.0), P),
+           ("SAFE_Cais", (190.0, 70.0), L.HARBOR), ("SAFE_NE", (150.0, 296.0), P),   # V2-0: no sando (era lote)
            ("SAFE_Promontorio", L.exit_point(L.EXIT_BRIDGE_LEN + 8.0), T1)]
     for nm, (x, y), z in pts:
         mk(nm, (x, y, z), (0, 0, 0), 2.0, "SPHERE", props={"note": "ponto seguro da rede de quedas"})
@@ -197,6 +199,8 @@ def _water_measured():
     FX_Mist_CastleFall/WATER_* passam a ser os da PEDRA do op_water (op_water.water_markers(): as mesmas constantes que
     desenham a pedra; o op_water.build() ainda confere por raios). Posicao, rumo e props sao SUBSTITUIDOS; o que nao
     existe e criado (FX_Fall_Castle_Step). Sem o modulo ficam as estimativas do M1 acima."""
+    if not WATER_MEASURED:
+        return
     try:
         import op_water
     except ImportError:
@@ -229,6 +233,24 @@ def opm_gate():
         bpy.data.objects.remove(o, do_unlink=True)
     for o in [o for o in bpy.data.objects if o.name.startswith("SCALE_Gate")]:
         o.hide_render = True
+    # V2-0 (acrescimo pontual, gate 'visual'): o asset da galeria tem molduras/estrelas alcancaveis sem colisao acima do
+    # vao; uma caixa invisivel do topo do vao (T1 + 7) ao topo da moldura as envolve (o vao livre e o sistema nao mudam)
+    bpy.context.view_layer.update()
+    pts = []
+    for o in bpy.data.objects:
+        if o.type == "MESH" and o.name.startswith(("GATE_OnePunchMan_Frame", "VFX_GATE_OnePunchMan_Star")):
+            pts += [o.matrix_world @ v.co for v in o.data.vertices]
+    if pts:
+        ux, uy = L.exit_dir()
+        ang = math.atan2(uy, ux)
+        loc = [((p.x - g[0]) * ux + (p.y - g[1]) * uy, -(p.x - g[0]) * uy + (p.y - g[1]) * ux, p.z) for p in pts]
+        u0, u1 = min(q[0] for q in loc), max(q[0] for q in loc)
+        v0, v1 = min(q[1] for q in loc), max(q[1] for q in loc)
+        z1 = max(q[2] for q in loc)
+        z0 = T1 + 7.2
+        cu, cv = (u0 + u1) / 2, (v0 + v1) / 2
+        DL.col_box("OP_GateOPMCap", (u1 - u0 + 0.4, v1 - v0 + 0.4, z1 - z0 + 0.3),
+                   (g[0] + ux * cu - uy * cv, g[1] + uy * cu + ux * cv, (z0 + z1) / 2 + 0.15), (0, 0, ang))
 
 
 def build():
