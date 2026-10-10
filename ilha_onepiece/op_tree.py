@@ -798,6 +798,7 @@ def root_claws(mb, base, r0, n, gz, rng, m=BARK, reach=3.4, a0=None, ns=4, sub=1
         limb(mb, pts, [rr * 1.25, rr, rr * 0.6, rr * 0.25], m, n=ns, sub=sub, caps=False, flat=0.7)
 
 
+PAD_DEPTH_K = 1.45               # V4 (G6 'folhas da arvore grande'): festao 45% mais fundo em toda almofada de pinheiro
 PAD3 = ((0.0, -0.10), (0.55, -0.14), (0.86, -0.08), (1.0, 0.08), (0.94, 0.36), (0.74, 0.64), (0.44, 0.86), (0.0, 0.96))
 PAD3_LO = ((0.0, -0.10), (0.7, -0.10), (1.0, 0.08), (0.8, 0.52), (0.0, 0.9))
 
@@ -819,8 +820,10 @@ def pine_pad(mb, c, R, H, rot=0.0, ax=1.0, ry=None, lobes=7, depth=0.18, seed=0,
              rng.uniform(0.3, 0.45) * R) for _ in range(lumps)]
     tilt = tilt or Vector((0.0, 0.0, 0.0))
 
+    depth = depth * PAD_DEPTH_K                    # V4: festao mais fundo (borda de NUVEM, nao disco)
+
     def lobe(th):
-        return abs(math.cos(lobes * th / 2 + ph)) ** 0.6
+        return abs(math.cos(lobes * th / 2 + ph)) ** 0.45      # V4: lobo mais redondo (era ** 0,6)
 
     def rho(th):
         return (1.0 - depth + depth * lobe(th)) * (1.0 + 0.06 * math.sin(2 * th + ph2))
@@ -843,7 +846,7 @@ def pine_pad(mb, c, R, H, rot=0.0, ax=1.0, ry=None, lobes=7, depth=0.18, seed=0,
             th = TAU * j / nt
             r_ = rho(th)
             x, y = math.cos(th) * R * ax * t * r_, math.sin(th) * ry * t * r_
-            z = zf * H + lz(x, y, zf) + (0.08 * H * lobe(th) * t if zf > 0.2 else 0.0)
+            z = zf * H + lz(x, y, zf) + (0.16 * H * lobe(th) * t if zf > 0.2 else 0.0)   # V4: cada lobo e um calombo
             ring.append(bm.verts.new(W(x, y, z)))
         rings.append(ring)
         rz_.append(zf)
@@ -877,19 +880,25 @@ def pine_pad(mb, c, R, H, rot=0.0, ax=1.0, ry=None, lobes=7, depth=0.18, seed=0,
         ntt = max(5, int(round(nt * 1.5 * teeth)))
         tf = []
         for j in range(ntt):
-            th = TAU * (j + rng.uniform(-0.2, 0.2)) / ntt
+            # V4: FRANJA EM 2 FIADAS desencontradas de tufos FINOS (0,42 do passo: o ceu passa entre eles) que abrem
+            # para fora (agulha que espalha) - fiada de baixo longa, de cima curta e mais para dentro (camadas)
+            row = j % 2
+            th = TAU * (j + rng.uniform(-0.25, 0.25)) / ntt
             lb = lobe(th)
-            ln = tl * (0.5 + 0.65 * lb) * (1.15 if j % 2 else 0.8) * rng.uniform(0.85, 1.12)
-            dth = TAU / ntt * 0.5
+            ln = tl * (0.55 + 0.6 * lb) * (1.12 if row == 0 else 0.7) * rng.uniform(0.85, 1.12)
+            dth = TAU / ntt * 0.42
+            zb_ = zf_rim * H - 0.05 * H + (0.14 * H if row else 0.0)
+            kk = 0.97 if row == 0 else 0.9
             pts = []
-            for a, zz, k in ((th - dth, zf_rim * H - 0.05 * H, 0.97), (th + dth, zf_rim * H - 0.05 * H, 0.97),
-                             (th, zf_rim * H + 0.22 * H, 0.9)):
+            for a, zz, k in ((th - dth, zb_, kk), (th + dth, zb_, kk), (th, zb_ + 0.24 * H, kk - 0.07)):
                 r_ = rho(a) * k
                 pts.append(W(math.cos(a) * R * ax * r_, math.sin(a) * ry * r_, zz))
-            r_ = rho(th)
+            r_ = rho(th) * kk
             ox, oy = math.cos(th) * R * ax * r_, math.sin(th) * ry * r_
             o = Vector((ox, oy, 0.0)).normalized()
-            tip = W(ox + o.x * ln * 0.42, oy + o.y * ln * 0.42, zf_rim * H - ln * 1.0)
+            sw = rng.uniform(-0.3, 0.3) * dth                       # a ponta torce de lado (tufo vivo)
+            o = Vector((o.x * math.cos(sw) - o.y * math.sin(sw), o.x * math.sin(sw) + o.y * math.cos(sw), 0.0))
+            tip = W(ox + o.x * ln * 0.68, oy + o.y * ln * 0.68, zb_ - ln * 0.78)
             vs = [bm.verts.new(p) for p in pts] + [bm.verts.new(tip)]
             for a_, b_ in ((0, 1), (1, 2), (2, 0)):
                 tf.append(bm.faces.new((vs[a_], vs[b_], vs[3])))
@@ -915,36 +924,58 @@ def pine_cloud(mb, c, R, flat=0.42, rot=0.0, ax=1.25, seed=0, lod=1,
     rng = random.Random(seed)
     c = Vector(c)
     H = R * flat
-    nt = {0: 10, 1: 14, 2: 20, 3: 30}[lod]
+    nt = {0: 10, 1: 12, 2: 20, 3: 30}[lod]
     if nsub is None:
         nsub = {0: 1, 1: 2, 2: 2, 3: 3}[lod] + (1 if R > 8.0 else 0)
     if teeth is None:
-        teeth = {0: 0.5, 1: 1.0, 2: 1.0, 3: 1.0}[lod]
-    prof = PAD3 if lod >= 2 else PAD3_LO
+        teeth = {0: 0.5, 1: 0.85, 2: 1.0, 3: 1.0}[lod]
+    prof = PAD3_LO                                   # V4: base BAIXA (fundo chato + borda); o volume vem dos pufes
     ex = Vector((math.cos(rot), math.sin(rot), 0.0))
     tilt = Vector((ex.x, ex.y, 0.0)) * (-droop)
-    fs = pine_pad(mb, c, R, H, rot, ax, None, lobes=7 if R > 6 else 6, depth=0.2, seed=rng.randrange(1 << 30), nt=nt,
+    fs = pine_pad(mb, c, R, H * 0.9, rot, ax, None, lobes=7 if R > 6 else 6, depth=0.2, seed=rng.randrange(1 << 30), nt=nt,
                   prof=prof, mats=(mats[1], mats[1], mats[3]), teeth=teeth, tooth_m=mats[2],
                   lumps=3 if lod >= 2 else 1, tilt=tilt)
-    # sub-almofadas: em volta do topo, deslocadas (nunca concentricas), alternando os lados
+    # V4 (G6 'as folhas da arvore grande precisam melhorar'): o topo da nuvem deixa de ser sub-almofadas LISAS (lia
+    # como bolo/pires empilhado, 'lump') e vira um BROCOLIS de pufes achatados (ref_02: cada nuvem do pinheiro e um
+    # monte de calombos redondos claros em cima, fundo chato escuro com a franja de agulhas): anel de pufes sobre a
+    # borda (contorno festonado de verdade) + pufes de dentro mais altos (cupula). Faixas: topo Sun, corpo Leaf, pe
+    # Pine; luz inclinada para fora. Faces escondidas entre pufes saem (cull_inside).
+    n_rim = {0: 3, 1: 4, 2: 7, 3: 9}[lod] + (2 if R > 15.0 else 0) + (1 if nsub and nsub >= 4 else 0)
+    n_in = max(1, {0: 1, 1: 1, 2: 3, 3: 4}[lod] + (1 if R > 25.0 else 0))
+    pres = {0: (5, 3), 1: (6, 4), 2: (9, 4), 3: (10, 5)}[lod]
+    recs = []
     a0 = rng.uniform(0, TAU)
-    for k in range(nsub):
-        a = a0 + TAU * k / max(1, nsub) + rng.uniform(-0.5, 0.5)
-        d = Vector((math.cos(a) * ax, math.sin(a), 0.0))
-        rr = R * rng.uniform(0.56, 0.7)
-        off = R * rng.uniform(0.2, 0.32)
-        q = c + Vector(_rz(d.x * off, d.y * off, rot) + (0.0,)) + ZZ * H * rng.uniform(0.5, 0.7)
+
+    def put(q, rr, rz, mt, bands, out):
         q.z += (q.x - c.x) * tilt.x + (q.y - c.y) * tilt.y           # acompanha a base inclinada
-        fs += pine_pad(mb, q, rr, rr * flat * 1.08, rot + rng.uniform(-0.6, 0.6), 1.1, None, lobes=6, depth=0.2,
-                       seed=rng.randrange(1 << 30), nt=max(10, nt - 2), prof=prof,
-                       mats=(mats[0], mats[1], mats[2]), teeth=teeth * 0.5 if lod >= 2 else 0.0, tooth_m=mats[2],
-                       tooth_len=rr * flat * 0.3, lumps=2 if lod >= 2 else 1)
-    # capuz: pequeno, no alto, deslocado para o lado do galho (assimetria)
-    if lod >= 2 or nsub == 0:
-        q = c + ex * R * 0.08 + ZZ * H * (0.95 if nsub else 0.5)
-        fs += pine_pad(mb, q, R * 0.36, R * 0.36 * flat * 1.25, rot + 0.7, 1.05, None, lobes=5, depth=0.16,
-                       seed=rng.randrange(1 << 30), nt=max(8, nt // 2 + 2), prof=PAD3_LO, mats=(mats[0], mats[0], mats[1]),
-                       teeth=0.0, lumps=1)
+        tl = Vector((out.x, out.y, 0.0)) * 0.3 if out.length > 1e-6 else None
+        recs.append(blob(mb, q, rr, rr * rng.uniform(0.88, 1.0), rz, pres[0], pres[1], mt, bands, fb=0.5,
+                         rot=rng.uniform(0, TAU), wob=0.06, seed=rng.randrange(1 << 30), top_tilt=tl))
+    k_r = 1.0 if n_rim >= 6 else (1.18 if n_rim >= 4 else 1.3)
+    for k in range(n_rim):
+        a = a0 + TAU * k / n_rim + rng.uniform(-0.18, 0.18)
+        d = Vector((math.cos(a) * ax, math.sin(a), 0.0))
+        rad = R * rng.uniform(0.64, 0.74)                        # sobre a BORDA (cobre a testa lisa da base)
+        q = c + Vector(_rz(d.x * rad, d.y * rad, rot) + (0.0,)) + ZZ * H * rng.uniform(0.2, 0.32)
+        rr = R * rng.uniform(0.27, 0.34) * k_r
+        put(q, rr, rr * 0.62, (mats[0], mats[1], mats[2]), (0.62, -0.3), Vector(_rz(d.x, d.y, rot) + (0.0,)))
+    for k in range(n_in):
+        a = a0 + 0.6 + TAU * k / n_in + rng.uniform(-0.3, 0.3)
+        d = Vector((math.cos(a) * ax, math.sin(a), 0.0))
+        rad = R * (0.2 if n_in > 1 else 0.05) * rng.uniform(0.8, 1.2)
+        q = c + Vector(_rz(d.x * rad, d.y * rad, rot) + (0.0,)) + ZZ * H * rng.uniform(0.68, 0.84)
+        rr = R * rng.uniform(0.3, 0.38)
+        put(q, rr, rr * 0.58, (mats[0], mats[1], mats[2]), (0.42, -0.35), Vector(_rz(d.x, d.y, rot) + (0.0,)))
+    if R > 25.0:                                      # nuvem grande (coroa): anel do meio (sem miolo liso entre os aneis)
+        for k in range(6):
+            a = a0 + 0.3 + TAU * k / 6 + rng.uniform(-0.2, 0.2)
+            d = Vector((math.cos(a) * ax, math.sin(a), 0.0))
+            rad = R * rng.uniform(0.36, 0.44)
+            q = c + Vector(_rz(d.x * rad, d.y * rad, rot) + (0.0,)) + ZZ * H * rng.uniform(0.5, 0.62)
+            rr = R * rng.uniform(0.22, 0.27)
+            put(q, rr, rr * 0.6, (mats[0], mats[1], mats[2]), (0.5, -0.3), Vector(_rz(d.x, d.y, rot) + (0.0,)))
+    cull_inside(mb, recs)
+    fs += [f for rc in recs for f in rc.faces if f.is_valid]
     return fs
 
 

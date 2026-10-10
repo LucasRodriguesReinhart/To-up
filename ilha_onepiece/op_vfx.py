@@ -11,7 +11,7 @@
 #        1 emissor por GRUPO de cerejeiras (op_veg.cherry_groups(): cerejeiras plantadas a <= 40 uma da outra), nunca
 #        por arvore: caixa = copas do grupo (do meio da copa ao topo), petala cai devagar e deriva com o vento ate o
 #        chao. Os MAX_PETAL_GROUPS grupos mais pesados (soma das copas) + FX_Petals_Plaza (deriva sobre a praca) =
-#        <= 14 emissores. O grupo mais perto do castelo grava o nome obrigatorio FX_Petals_Tree (QA/studio_op).
+#        <= 14 emissores. V3: FX_Petals_Tree fica MUDO (fx='nenhum'; a arvore monumental e pinheiro) - so contrato.
 #        A arvore monumental V2 e PINHEIRO (copas verdes em nuvem): nao solta petala (antes: 2 caixas sob a copa rosa).
 #        rate moderado (2,5 + 1,2 por arvore, teto 8), Dist 180.
 #        tex 'petala': reserva do Core.OnePieceIsland (ver roblox/AreaAtmosphere_area5.md).
@@ -105,12 +105,18 @@ def petals():
     except Exception as e:
         print("AVISO op_vfx: sem grupos de cerejeiras (%s)" % e)
         groups = []
-    kx, ky = L.KEEP_C
-    tree_g = min(groups, key=lambda g: math.hypot((g["box"][0] + g["box"][1]) / 2 - kx,
-                                                  (g["box"][2] + g["box"][3]) / 2 - ky)) if groups else None
+    # V3 fix: a arvore monumental e PINHEIRO -> o emissor FX_Petals_Tree SAI (nenhum grupo herda o nome). O marcador
+    # continua na cena (contrato: op_core.REQUIRED do op_qa, studio_op, pos_montagem), mas MUDO: fx='nenhum' (fora do
+    # PADRAO do OnePieceIsland.vfx) e sem vfx='emissor' -> o montar nao cria ParticleEmitter nele
+    tm = bpy.data.objects.get("FX_Petals_Tree")
+    if tm is not None:
+        for k in [k for k in tm.keys() if k not in ("_RNA_UI",)]:
+            del tm[k]
+        tm["fx"] = "nenhum"
+        tm["note"] = "V3: arvore monumental = pinheiro, SEM petalas (marcador mudo, mantido pelo contrato)"
     for g in groups:
         x0, x1, y0, y1, zf, zt = g["box"]
-        name = "FX_Petals_Tree" if g is tree_g else "FX_Petals_" + g["name"]
+        name = "FX_Petals_" + g["name"]
         rate = min(8.0, 2.5 + 1.2 * g["n"])
         h = zt - zf
         o = _box_marker(name, x0 + 1.0, x1 - 1.0, y0 + 1.0, y1 - 1.0, zf + h * 0.45, zt - 0.5, rate, 9.0, PETAL_DIST,

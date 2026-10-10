@@ -761,7 +761,8 @@ def anchor(mb):
         mb.box((0.18, 0.9, 1.0), (xa, y + sy * 1.95, zt - 4.0), (0.0, 0.0, 0.0), IRON, 0.0)   # unha
     K.lathe_y(mb, F0, (xa, y, zt + 0.3), [(0.42, -0.08), (0.42, 0.08)], 8, IRON)
     rope(mb, (xa, y, zt + 0.1), (xw + s * 0.2, y + 1.5, DECK + 0.6), 0.12)
-    col_box("OP_ShipProp", (2.0, 4.6, 7.4), (xa - 0.4, y, zt - 2.9))     # V2 (gate): ancora ao alcance do convés
+    # V2 (gate): ancora ao alcance do convés; V3 fix (gate U8 (255; 117,6)): a caixa encosta no costado (cobre o turco)
+    col_box("OP_ShipProp", (2.95, 4.6, 7.4), (xa - 0.875, y, zt - 2.9))
 
 
 # ================================================================== MASTROS, VERGAS, VELAS, CORDAME
@@ -1012,6 +1013,10 @@ def rigging(mb, M):
             yc = y - 0.5
             xw = SX + s * wid(yc, DECK + 1.3)
             mb.box((1.0, 8.6, 0.32), (xw + s * 0.5, yc, DECK + 1.0), (0, -s * 0.95, 0), WD, 0.0)   # V2: inclinada
+            if s > 0 and nm == "fore":
+                # V3 fix (gate visual U8, (256,5; 135,6..138,6)): a quina da mesa (face de 0,32, normal 0,81) fica a
+                # < 6 do topo da carga empilhada do lado do MAR (OP_ShipProp, 48,6): caixa rente a mesa e as bigotas
+                col_box("OP_ShipProp", (1.7, 9.0, 1.4), (xw + s * 0.75, yc, DECK + 1.05))
             feet = []
             for dy in (-3.6, -0.9, 1.8):
                 p = Vector((xw + s * 0.85, y + dy, DECK + 1.6))

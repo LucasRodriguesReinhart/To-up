@@ -1436,6 +1436,13 @@ def terrace(st, pv, rl, gr):
         d = Vector((b_[0] - a_[0], b_[1] - a_[1]))
         col_box("OPSumRail", (d.length + 1.2, 1.2, 4.6), ((a_[0] + b_[0]) / 2, (a_[1] + b_[1]) / 2, T1 + 1.8),
                 (0, 0, math.atan2(d.y, d.x)))
+    # V3 fix (gate visual U5_B, fresta (204; 259,9)): no canto NE do terraco a pele T1 termina na diagonal do guarda-
+    # corpo e sobra uma FENDA (0,5..2,5) ate o muro do terraco de cima (y 261,5) e a borda da falesia (x 206): SOLEIRA
+    # de pedra (topo T1 + 0,4, 1,0 de espessura) do lado de dentro do guarda-corpo ate o muro/borda, fechando a fenda.
+    # Sob a guarda do op_col (COL_OP_Guard_*) e o corrimao (COL_OPSumRail): ja coberta; 1 caixa propria rente ao topo.
+    sill = [(204.75, 255.0), (206.2, 255.0), (206.2, 262.4), (199.9, 262.4)]
+    st.prism(ccw(sill), T1 - 0.6, T1 + 0.4, STD)
+    col_box("OPSumRail", (1.4, 7.6, 1.0), (205.5, 258.7, T1 - 0.1))
     # (V2: os 2 canteiros com pinheiro sairam - o orcamento foi para o navio; 'PINES' vazio)
     for i, (px, py, h) in enumerate(PINES):
         bed = DL.blob_poly(px, py, 6.2, 10, random.Random(950 + i), 0.12, sx=1.25)
