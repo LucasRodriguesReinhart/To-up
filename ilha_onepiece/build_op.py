@@ -55,7 +55,7 @@ ZONE_MODULES_V2_0 = {
     "plaza": [],       # op_m2_praca/op_plaza V1: estandartes, borda do trecho M2 (frestas U5) -> V2-3 (faixa do eixo)
     "castle": [],      # op_castle V1: reprovado (U3) -> V2-2
     "tree": [],        # op_tree: em refacao paralela (V2-1/V2-2); arvore-esfera reprovada (U4)
-    "summon": [],      # op_summon V1: terraco generico (U10) -> V2-2 (conves pirata; a TORRE continua a aprovada)
+    "summon": ["op_summon"],  # V2-2 conves pirata (proa+carranca de leao, mastros com Jolly Roger, timao, baus; torre AMS intacta) - passou no gate visual (commit V2-2)
     "harbor": [],      # op_harbor V1: H3 no topo da muralha (U13) e porto parado (U9) -> V2-2
     "ship": [],        # op_ship V1: navio sem colisao na amurada (U8) -> V2-2
     "water": [],       # op_water V1: canais na cota antiga (U6) -> V2-3 (canais rebaixados, capa fora das pontes)

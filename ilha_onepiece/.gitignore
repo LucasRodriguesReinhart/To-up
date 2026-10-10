@@ -1,0 +1,6 @@
+__pycache__/
+export/*.fbx
+export/*.fbm/
+export_m2/*.fbx
+export_m2/*.fbm/
+*.blend1
