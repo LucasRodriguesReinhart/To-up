@@ -8,14 +8,14 @@
 #   trocadas as FAMILIAS (primitivas suaves do op_tree: puff/blob_crown, cloud_pad, limb) e a distribuicao (mais rosa).
 #
 # FAMILIAS V2 (reutilizaveis; nada de espalhar ao acaso):
-#   - CEREJEIRA (sakura) XS/S/M/L: tronco ESCURO em S com pe alargado, bracos que abrem; copa = blob_crown: nucleos
-#     (tom fundo = sombra de baixo) cobertos de CACHOS lisos de tamanhos variados, 1 tom por cacho pela altura (topo
-#     Flower_OP_Light, meio _Blossom, baixo _Deep) -> leitura fofa e densa sem remendo triangular; faces escondidas
-#     entre cachos cortadas. Light so nos setores da cidade/entrada/castelo (MeshParts). LOD 2/1/0 = cacho 12x6/9x5/7x4.
+#   - CEREJEIRA (sakura) XS/S/M/L: tronco ESCURO em S com pe alargado, bracos que abrem; copa FOFA (V2b,
+#     op_tree.fluffy_crown): por parte da copa um nucleo escuro + cachos medios + sub-cachos na borda/pendentes, todos
+#     esferas PEQUENAS de baixa resolucao com sombreado suave, 1 tom por esfera pela altura (topo Flower_OP_Light,
+#     meio _Blossom, baixo/miolo _Deep). Light so nos setores da cidade/entrada/castelo (MeshParts).
 #   - KUROMATSU: tronco escuro em S que se debruca, galhos quase horizontais e ALMOFADAS EM NUVEM (cloud_pad: disco
 #     de borda lobada, topo Leaf_OP, lado/baixo Leaf_OP_Pine) - a linguagem da arvore monumental em pequeno.
 #   - ARVORE VERDE LARGA: copa de cachos verdes (blob_crown verde: cachos Leaf_OP, nucleo/baixo verde-pinho).
-#   - MOITA PODADA (karikomi): 1-3 montes arredondados achatados embaixo (puff com calombos suaves).
+#   - MOITA PODADA (karikomi): 1-3 montes arredondados achatados embaixo (copa fofa verde, V2b).
 #   - VERDE DE FALESIA: as almofadas (cushion) agora sao cloud_pad suaves de borda lobada (nao poliedros).
 #   - Bambu: nao entrou (sem lugar na planta que pedisse; seria familia sem funcao).
 # PETALAS: cherry_groups() agrupa as cerejeiras plantadas (<= 40 entre si, grupo compacto) e o op_vfx grava 1
@@ -297,7 +297,10 @@ GREEN = (LEAF, LEAF, PINE)                       # copa verde: cachos Leaf_OP, n
 PINE_PAD = (LEAF, PINE, PINE)                    # almofada de kuromatsu: topo Leaf_OP, lado/baixo verde-pinho
 # resolucao de cada CACHO por LOD (nu, nv) e cachos por parte da copa (principal, anel) por tamanho
 PUFF_LOD = {2: (12, 6), 1: (9, 5), 0: (7, 4)}
-CHERRY_BLOBS = {"XS": (3, 1), "S": (4, 1), "M": (5, 2), "L": (6, 2)}
+CHERRY_BLOBS = {"XS": (3, 1), "S": (4, 1), "M": (5, 2), "L": (6, 2)}       # (V2, antigo blob_crown: arvore larga)
+# V2b (2a volta do lead: a copa V2 lia como 5-6 bolhas grandes de face dura): COPA FOFA = op_tree.fluffy_crown, cachos
+# medios (B) e sub-cachos (C) por parte: (principal B, principal C), (anel B, anel C) por tamanho
+CHERRY_FLUFF = {"XS": ((4, 3), (2, 1)), "S": ((5, 4), (2, 2)), "M": ((6, 5), (3, 2)), "L": ((7, 6), (3, 2))}
 
 
 def _pink(mb):
@@ -355,12 +358,11 @@ def cherry(mb, pl, rng, lod=1):
         mid = F + Vector((v.x, v.y, 0.0)) * 0.5 + ZZ * v.z * 0.35
         tube(mb, [F - vdir(a) * r0 * 0.3, mid, c - ZZ * rr[2] * 0.2], [r0 * 0.62, r0 * 0.44, r0 * 0.28],
              n=5 if lod == 2 else 4)
-    res = PUFF_LOD[lod]
+    (mb_, mc_), (rb_, rc_) = CHERRY_FLUFF[pl["size"]]
     c, rr = pl["main"]
-    parts = [(c, rr, CHERRY_BLOBS[pl["size"]][0])]
-    parts += [(c2, rr2, CHERRY_BLOBS[pl["size"]][1]) for a, c2, rr2 in pl["ring"]]
-    parts += [(c2, rr2, 0) for a, c2, rr2 in pl["small"]]
-    TR.blob_crown(mb, parts, _seed(rng), res, _pink(mb), core_res=(9, 4) if lod == 2 else (7, 4))
+    parts = [(c, rr, mb_, mc_)]
+    parts += [(c2, rr2, rb_, rc_) for a, c2, rr2 in pl["ring"]]
+    TR.fluffy_crown(mb, parts, _seed(rng), lod, _pink(mb))
 
 
 def pine_plan(x, y, z, h, lean_az, rng, lod=1):
@@ -427,15 +429,15 @@ def broad(mb, pl, rng, lod=0):
 
 
 def bush(mb, x, y, z, r, rng, lumps=2, m=LEAF, n=6):
-    """MOITA PODADA (karikomi): 1-3 montes arredondados, achatados embaixo, calombos suaves; verde com vinco pinho"""
+    """MOITA PODADA (karikomi) V2b: 1-3 montes arredondados achatados embaixo, cada um uma COPA FOFA pequena
+    (op_tree.fluffy_crown: nucleo verde-pinho + cachos lisos de baixa resolucao, sombreado suave)"""
     a0 = rng.uniform(0, TAU)
-    recs = []
+    parts = []
     for k in range(lumps):
         q = Vector((x, y, z)) + (vdir(a0 + 2.3 * k) * r * rng.uniform(0.6, 0.85) if k else Vector())
         rr = r * (1.0 if k == 0 else rng.uniform(0.6, 0.78))
-        recs.append(TR.puff(mb, q + ZZ * rr * 0.32, rr * 1.12, rr, rr * 0.72, _seed(rng), 10, 5, nb=3, amp=0.2,
-                            wdeg=50.0, mats=(m, m, PINE) if m != PINE else (PINE, PINE, PINE), fb=0.75))
-    TR.cull_inside(mb, recs)
+        parts.append((q + ZZ * rr * 0.42, (rr * 1.1, rr, rr * 0.62), 5 if k == 0 else 3, 0))
+    TR.fluffy_crown(mb, parts, _seed(rng), 0, (m, m, PINE) if m != PINE else (PINE, PINE, PINE))
 
 
 def tris_of(mb):
@@ -1332,13 +1334,13 @@ def build():
         place_pine(pc, x, y, h, note, lean=lean, lod=1 if any(w in note for w in ("entrada", "contraforte")) else 0)
     out["patio"] = court_pines(pc)                                   # M6b: 2 kuromatsu no cascalho do patio
     out["t_hero"] = pc.tris
-    out["quintais"] = city_yards(pc, BUDGET_TRIS * 0.76)
+    out["quintais"] = city_yards(pc, BUDGET_TRIS * 0.80)
     out["t_quintais"] = pc.tris
-    out["bosque"] = forest(pc, BUDGET_TRIS * 0.81)
+    out["bosque"] = forest(pc, BUDGET_TRIS * 0.845)
     out["t_bosque"] = pc.tris
-    out["borda"] = rim_band(pc, BUDGET_TRIS * 0.88)
+    out["borda"] = rim_band(pc, BUDGET_TRIS * 0.90)
     out["t_borda"] = pc.tris
-    out["crista"] = cliff_greens(pc, BUDGET_TRIS * 0.94)
+    out["crista"] = cliff_greens(pc, BUDGET_TRIS * 0.95)
     out["t_crista"] = pc.tris
     out["face"] = face_clumps(pc, BUDGET_TRIS * 0.96)
     out["prateleiras"] = ledges(pc, BUDGET_TRIS * 0.98)
@@ -1347,6 +1349,9 @@ def build():
     for nm in sorted(_SEC):
         o = _SEC[nm].finish()
         if o:
+            # previa = Roblox: Leaf_/Flower_ saem com CastShadow=false (fm_lib.RBX_RULES) -> no Blender a folhagem
+            # tambem nao projeta sombra (senao a sombra dura da malha baixa desenha facetas que o jogo nao mostra)
+            o.visible_shadow = False
             objs.append(o)
     cams()
     try:

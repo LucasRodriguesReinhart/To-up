@@ -531,6 +531,80 @@ def cull_inside(mb, recs):
     return len(dead)
 
 
+# resolucao (nu, nv) por LOD: corpo / cacho (nivel B) / sub-cacho (nivel C)
+FLUFFY_RES = {2: ((11, 5), (9, 5), (7, 4)), 1: ((9, 4), (8, 4), (6, 3)), 0: ((7, 3), (6, 3), (5, 3))}
+
+
+def ico(mb, c, rx, ry, rz, sub, m, rot=0.0):
+    """esfera-cacho: icosfera (sub 0 = 20 tris, sub 1 = 80) achatada embaixo, 1 material, SOMBREADO SUAVE"""
+    c = Vector(c)
+    M = Matrix.LocRotScale(c, Euler((0.0, 0.0, rot)), Vector((rx, ry, rz)))
+    res = bmesh.ops.create_icosphere(mb.bm, subdivisions=sub, radius=1.0, matrix=M)
+    vs = res["verts"]
+    for v in vs:
+        if v.co.z < c.z:
+            v.co.z = c.z - (c.z - v.co.z) * 0.8
+    fs = list({f for v in vs for f in v.link_faces})
+    _orient_out(fs, c)
+    post_faces(mb, fs, m, smooth=True)
+    rec = PuffRec()
+    rec.c, rec.rx, rec.ry, rec.rz, rec.bumps, rec.amp, rec.fb, rec.faces = c, rx, ry, rz, [], 0.0, 0.2, fs
+    return rec
+
+
+def fluffy_crown(mb, parts, seed, lod, mats, hang=0.35):
+    """COPA FOFA (cerejeira V2b, moita): massa CHEIA + borda de cachos, tudo esfera de baixa resolucao com SOMBREADO
+    SUAVE (f.smooth; o export_roblox fatia por material num bmesh que mantem o smooth da face e o FBX sai com as
+    normais de vertice, que o Roblox usa; Leaf_/Flower_ saem com CastShadow=false). 3 NIVEIS por parte
+    (centro, (rx, ry, rz), nB, nC):
+      A CORPO (0,86 da parte, tom fundo): a massa densa sem buraco; e o miolo escuro entre os cachos e o baixo;
+      B nB CACHOS (0,32..0,45 da parte) na metade de cima/fora da casca: o volume fofo e a silhueta lobada;
+      C nC SUB-CACHOS (0,16..0,24) na borda de baixo, parte deles PENDENDO: a borda recortada / 'chorao'.
+    TOM POR ESFERA (1 material por esfera: sem remendo triangular nem quebra de normal dentro dela), pela altura
+    relativa na copa + jitter: cachos do alto claros (mats[0]), do meio (mats[1]); corpo e sub-cachos baixos no
+    fundo (mats[2]) -> de cima a copa e clara com o miolo mais escuro. Faces escondidas cortadas (cull_inside)."""
+    rng = random.Random(seed)
+    rA, rB, rC = FLUFFY_RES[lod]
+    zb = min(c[2] - r[2] for c, r, nb, nc in parts)
+    zt = max(c[2] + r[2] for c, r, nb, nc in parts)
+    hz = max(1e-3, zt - zb)
+    recs, bodies = [], []
+
+    def tone(z, bias=0.0):
+        zr = (z - zb) / hz + rng.uniform(-0.1, 0.1) + bias
+        return mats[0] if zr > 0.58 else (mats[2] if zr < 0.3 else mats[1])
+
+    for c, (rx, ry, rz), nb, nc in parts:
+        r = puff(mb, c, rx * 0.86, ry * 0.86, rz * 0.84, rng.randrange(1 << 30), rA[0], rA[1], nb=0, amp=0.0,
+                 mats=(mats[2], mats[2], mats[2]), fb=0.35)
+        recs.append(r)
+        bodies.append(r)
+    for pi, (c, (rx, ry, rz), nb, nc) in enumerate(parts):
+        c = Vector(c)
+        rm = (rx + ry + rz) / 3.0
+        a0 = rng.uniform(0, TAU)
+        if lod == 2:
+            nb, nc = int(round(nb * 1.3)), int(round(nc * 1.3))
+        for lvl, n, (z0, z1), shell, (k0, k1), res, bias in (("B", nb, (-0.15, 0.95), 0.8, (0.32, 0.45), rB, 0.08),
+                                                               ("C", nc, (-0.7, 0.05), 0.9, (0.16, 0.24), rC, -0.05)):
+            for i in range(n):
+                z = z1 - (z1 - z0) * (i + 0.5) / max(1, n) + rng.uniform(-0.08, 0.08)
+                a = a0 + i * 2.39996 + rng.uniform(-0.3, 0.3) + (0.7 if lvl == "C" else 0.0)
+                sz = math.sqrt(max(0.0, 1.0 - z * z))
+                d = Vector((sz * math.cos(a), sz * math.sin(a), z))
+                q = c + Vector((d.x * rx, d.y * ry, d.z * rz)) * shell
+                if lvl == "C" and rng.random() < hang:
+                    q.z -= rz * rng.uniform(0.08, 0.18)                    # sub-cacho PENDENTE
+                if any(j != pi and _inside(bodies[j], q, 0.8) for j in range(len(bodies))):
+                    continue
+                br = rm * rng.uniform(k0, k1)
+                recs.append(puff(mb, q, br, br * rng.uniform(0.9, 1.06), br * rng.uniform(0.84, 0.96),
+                                 rng.randrange(1 << 30), res[0], res[1], nb=0, amp=0.0,
+                                 mats=(tone(q.z, bias),) * 3, fb=0.2))
+    cull_inside(mb, recs)
+    return recs
+
+
 def blob_crown(mb, parts, seed, res, mats, core_res=(8, 4), core_k=0.8, blob_k=(0.42, 0.55)):
     """COPA DE CACHOS (cerejeira / arvore verde): cada PARTE (centro, (rx, ry, rz), n_cachos) vira um NUCLEO suave
     (core_k do tamanho, tom fundo: o miolo e a sombra de baixo) coberto por n CACHOS suaves (elipsoides lisas de
@@ -1018,7 +1092,9 @@ def build():
     mc = MB("OP_Tree_Pads", "04_CASTLE", rng, detail="far", floor=-999)
     canopy(mc, mb_b, rng)
     mb_b.finish()
-    mc.finish()
+    op = mc.finish()
+    if op is not None:
+        op.visible_shadow = False      # previa = Roblox (Leaf_ CastShadow=false no fm_lib.RBX_RULES)
     collision(segs)
     stats()
     check_castle()
