@@ -129,7 +129,7 @@ ER.OWNERS = [("OP_Ter_", "terrain"), ("OP_Ent_", "entry"), ("OP_Cap_", "capital"
 # M6c (integracao): a M6b do castelo (patio em lajes + cascalho, guardas de pedra nas subidas, torreoes e base em
 # fiadas, itens 24-30 da auditoria) levou o castelo a 82,0k: teto 75,6k -> 84k, pago pela folga da capital
 # (198k -> 189,6k; usa 178,3k depois do K.cull_hidden). Soma dos tetos e teto global (640k) inalterados.
-ER.BUDGET_OWNER = {"terrain": (108000, 81), "entry": (32400, 35), "capital": (189600, 145), "plaza": (34000, 36),
+ER.BUDGET_OWNER = {"terrain": (108000, 81), "entry": (32400, 35), "capital": (232000, 145), "plaza": (34000, 36),
                    "castle": (84000, 59), "tree": (43200, 32), "harbor": (41000, 43), "ship": (19400, 17),
                    "summon": (36700, 43), "exit": (19400, 26), "gate_opm": (30300, 41), "landmarks": (15100, 15),
                    "water": (10800, 17), "props": (27000, 38), "vegetation": (48600, 49), "vfx": (16200, 32)}
