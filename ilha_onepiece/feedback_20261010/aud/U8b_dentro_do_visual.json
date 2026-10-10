@@ -1,0 +1,3372 @@
+[
+ {
+  "zona": "sobre_piso_W3",
+  "fam": "copa",
+  "tipo": "cabeca_dentro",
+  "area": 1181.2,
+  "c": [
+   -170.0,
+   345.1
+  ],
+  "bbox": [
+   -209,
+   301,
+   -101,
+   422
+  ],
+  "h": [
+   100.2,
+   107.2
+  ],
+  "dist_med": 3.73,
+  "objs": [
+   [
+    "OP_Veg_TerracoAlto",
+    525
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_Court",
+  "fam": "construcao/prop",
+  "tipo": "cabeca_dentro",
+  "area": 810.0,
+  "c": [
+   -9.2,
+   434.8
+  ],
+  "bbox": [
+   -89,
+   353,
+   73,
+   475
+  ],
+  "h": [
+   135.8,
+   137.4
+  ],
+  "dist_med": 0.9,
+  "objs": [
+   [
+    "OP_Cas_Court",
+    271
+   ],
+   [
+    "OP_Tree_Trunk",
+    49
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_T1",
+  "fam": "construcao/prop",
+  "tipo": "cabeca_dentro",
+  "area": 459.0,
+  "c": [
+   79.8,
+   141.4
+  ],
+  "bbox": [
+   -152,
+   35,
+   205,
+   259
+  ],
+  "h": [
+   84.9,
+   99.7
+  ],
+  "dist_med": 1.67,
+  "objs": [
+   [
+    "OP_Sum_Rail",
+    89
+   ],
+   [
+    "OP_Cap_Bairro",
+    31
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_Court",
+  "fam": "construcao/prop",
+  "tipo": "pe_afunda",
+  "area": 364.5,
+  "c": [
+   11.0,
+   426.6
+  ],
+  "bbox": [
+   -89,
+   353,
+   72,
+   475
+  ],
+  "h": [
+   136.2,
+   146.7
+  ],
+  "dist_med": 0.9,
+  "objs": [
+   [
+    "OP_Cas_Court",
+    92
+   ],
+   [
+    "OP_Cas_Keep",
+    37
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_T1",
+  "fam": "copa",
+  "tipo": "cabeca_dentro",
+  "area": 333.0,
+  "c": [
+   30.4,
+   110.7
+  ],
+  "bbox": [
+   -161,
+   35,
+   198,
+   260
+  ],
+  "h": [
+   88.2,
+   95.2
+  ],
+  "dist_med": 3.69,
+  "objs": [
+   [
+    "OP_Veg_Entrada",
+    60
+   ],
+   [
+    "OP_Veg_Sudoeste",
+    44
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_Court",
+  "fam": "construcao/prop",
+  "tipo": "corpo_dentro",
+  "area": 315.0,
+  "c": [
+   16.7,
+   427.6
+  ],
+  "bbox": [
+   -27,
+   379,
+   73,
+   467
+  ],
+  "h": [
+   136.2,
+   146.7
+  ],
+  "dist_med": 3.61,
+  "objs": [
+   [
+    "OP_Cas_Keep",
+    76
+   ],
+   [
+    "OP_Tree_Trunk",
+    62
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_Plaza",
+  "fam": "construcao/prop",
+  "tipo": "cabeca_dentro",
+  "area": 297.0,
+  "c": [
+   -103.3,
+   227.5
+  ],
+  "bbox": [
+   -158,
+   167,
+   178,
+   320
+  ],
+  "h": [
+   92.2,
+   102.1
+  ],
+  "dist_med": 2.52,
+  "objs": [
+   [
+    "OP_Cap_Oeste",
+    110
+   ],
+   [
+    "OP_Cap_NE",
+    14
+   ]
+  ]
+ },
+ {
+  "zona": "borda_castelo",
+  "fam": "construcao/prop",
+  "tipo": "cabeca_dentro",
+  "area": 292.5,
+  "c": [
+   -47.3,
+   414.2
+  ],
+  "bbox": [
+   -90,
+   337,
+   73,
+   473
+  ],
+  "h": [
+   98.2,
+   139.4
+  ],
+  "dist_med": 1.08,
+  "objs": [
+   [
+    "OP_Cas_Adro",
+    72
+   ],
+   [
+    "OP_Cas_Court",
+    58
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_T1",
+  "fam": "construcao/prop",
+  "tipo": "pe_afunda",
+  "area": 243.0,
+  "c": [
+   9.6,
+   121.6
+  ],
+  "bbox": [
+   -168,
+   38,
+   202,
+   260
+  ],
+  "h": [
+   88.2,
+   91.3
+  ],
+  "dist_med": 0.44,
+  "objs": [
+   [
+    "OP_Sum_Stone",
+    27
+   ],
+   [
+    "OP_Cap_M2_Escadaria",
+    23
+   ]
+  ]
+ },
+ {
+  "zona": "canal_oeste",
+  "fam": "construcao/prop",
+  "tipo": "pe_afunda",
+  "area": 234.0,
+  "c": [
+   -174.2,
+   207.6
+  ],
+  "bbox": [
+   -179,
+   92,
+   -170,
+   260
+  ],
+  "h": [
+   88.2,
+   92.2
+  ],
+  "dist_med": 0.64,
+  "objs": [
+   [
+    "OP_Cap_Oeste",
+    91
+   ],
+   [
+    "OP_Water_Stone",
+    13
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_Plaza",
+  "fam": "construcao/prop",
+  "tipo": "pe_afunda",
+  "area": 211.5,
+  "c": [
+   -92.4,
+   229.1
+  ],
+  "bbox": [
+   -168,
+   119,
+   120,
+   335
+  ],
+  "h": [
+   92.2,
+   102.1
+  ],
+  "dist_med": 0.51,
+  "objs": [
+   [
+    "OP_Cap_Oeste",
+    69
+   ],
+   [
+    "OP_Plz_M2_Borda",
+    12
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_Harbor",
+  "fam": "construcao/prop",
+  "tipo": "cabeca_dentro",
+  "area": 209.2,
+  "c": [
+   180.7,
+   70.9
+  ],
+  "bbox": [
+   154,
+   47,
+   243,
+   116
+  ],
+  "h": [
+   42.2,
+   64.8
+  ],
+  "dist_med": 1.28,
+  "objs": [
+   [
+    "OP_Port_Built",
+    36
+   ],
+   [
+    "OP_Port_Muralha",
+    30
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_Plaza",
+  "fam": "copa",
+  "tipo": "cabeca_dentro",
+  "area": 175.5,
+  "c": [
+   108.4,
+   263.6
+  ],
+  "bbox": [
+   -131,
+   130,
+   225,
+   310
+  ],
+  "h": [
+   92.2,
+   103.4
+  ],
+  "dist_med": 3.61,
+  "objs": [
+   [
+    "OP_Veg_Leste",
+    58
+   ],
+   [
+    "OP_Veg_Oeste",
+    9
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_Harbor",
+  "fam": "construcao/prop",
+  "tipo": "pe_afunda",
+  "area": 168.8,
+  "c": [
+   212.8,
+   125.9
+  ],
+  "bbox": [
+   148,
+   37,
+   243,
+   206
+  ],
+  "h": [
+   42.2,
+   65.2
+  ],
+  "dist_med": 0.45,
+  "objs": [
+   [
+    "OP_Port_Piers",
+    50
+   ],
+   [
+    "OP_Port_Muralha",
+    14
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_Harbor",
+  "fam": "rocha/terreno",
+  "tipo": "cabeca_dentro",
+  "area": 150.8,
+  "c": [
+   174.7,
+   150.4
+  ],
+  "bbox": [
+   123,
+   50,
+   219,
+   262
+  ],
+  "h": [
+   42.2,
+   42.2
+  ],
+  "dist_med": 2.85,
+  "objs": [
+   [
+    "OP_Ter_Walls",
+    67
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_Harbor",
+  "fam": "construcao/prop",
+  "tipo": "corpo_dentro",
+  "area": 137.2,
+  "c": [
+   212.9,
+   72.5
+  ],
+  "bbox": [
+   151,
+   41,
+   246,
+   253
+  ],
+  "h": [
+   42.2,
+   42.2
+  ],
+  "dist_med": 3.4,
+  "objs": [
+   [
+    "OP_Port_Piers",
+    38
+   ],
+   [
+    "OP_Port_Muralha",
+    21
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_ExitLand",
+  "fam": "copa",
+  "tipo": "cabeca_dentro",
+  "area": 114.8,
+  "c": [
+   294.3,
+   278.3
+  ],
+  "bbox": [
+   285,
+   239,
+   328,
+   290
+  ],
+  "h": [
+   88.2,
+   88.2
+  ],
+  "dist_med": 4.4,
+  "objs": [
+   [
+    "OP_Veg_Promontorio",
+    51
+   ]
+  ]
+ },
+ {
+  "zona": "rochedo_castelo(BackN)",
+  "fam": "construcao/prop",
+  "tipo": "cabeca_dentro",
+  "area": 112.5,
+  "c": [
+   6.7,
+   474.2
+  ],
+  "bbox": [
+   -60,
+   469,
+   60,
+   476
+  ],
+  "h": [
+   136.2,
+   139.4
+  ],
+  "dist_med": 1.36,
+  "objs": [
+   [
+    "OP_Cas_Court",
+    50
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_W2b",
+  "fam": "copa",
+  "tipo": "cabeca_dentro",
+  "area": 85.5,
+  "c": [
+   -210.1,
+   175.1
+  ],
+  "bbox": [
+   -218,
+   127,
+   -201,
+   188
+  ],
+  "h": [
+   92.2,
+   92.2
+  ],
+  "dist_med": 4.18,
+  "objs": [
+   [
+    "OP_Veg_Oeste",
+    34
+   ],
+   [
+    "OP_Cap_OesteFundo",
+    3
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_W3",
+  "fam": "rocha/terreno",
+  "tipo": "cabeca_dentro",
+  "area": 78.8,
+  "c": [
+   -106.9,
+   391.2
+  ],
+  "bbox": [
+   -126,
+   361,
+   -101,
+   427
+  ],
+  "h": [
+   100.2,
+   100.2
+  ],
+  "dist_med": 3.26,
+  "objs": [
+   [
+    "OP_Ter_Walls",
+    35
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_HarborMid",
+  "fam": "construcao/prop",
+  "tipo": "cabeca_dentro",
+  "area": 74.2,
+  "c": [
+   172.8,
+   134.1
+  ],
+  "bbox": [
+   148,
+   134,
+   198,
+   134
+  ],
+  "h": [
+   67.0,
+   88.1
+  ],
+  "dist_med": 1.28,
+  "objs": [
+   [
+    "OP_Port_Muralha",
+    33
+   ]
+  ]
+ },
+ {
+  "zona": "montanha_NE(NERocksW)",
+  "fam": "rocha/terreno",
+  "tipo": "corpo_dentro",
+  "area": 60.8,
+  "c": [
+   208.8,
+   313.0
+  ],
+  "bbox": [
+   190,
+   290,
+   226,
+   337
+  ],
+  "h": [
+   95.4,
+   95.4
+  ],
+  "dist_med": 4.28,
+  "objs": [
+   [
+    "OP_Ter_Walls",
+    26
+   ],
+   [
+    "OP_Ter_Ground",
+    1
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_Entry",
+  "fam": "construcao/prop",
+  "tipo": "cabeca_dentro",
+  "area": 58.5,
+  "c": [
+   -0.0,
+   2.5
+  ],
+  "bbox": [
+   -24,
+   1,
+   25,
+   11
+  ],
+  "h": [
+   84.2,
+   84.2
+  ],
+  "dist_med": 1.19,
+  "objs": [
+   [
+    "OP_Ent_Court",
+    20
+   ],
+   [
+    "OP_Ent_Torii",
+    6
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_Court",
+  "fam": "copa",
+  "tipo": "cabeca_dentro",
+  "area": 58.5,
+  "c": [
+   -1.5,
+   363.4
+  ],
+  "bbox": [
+   -26,
+   359,
+   25,
+   368
+  ],
+  "h": [
+   136.2,
+   143.3
+  ],
+  "dist_med": 4.67,
+  "objs": [
+   [
+    "OP_Veg_Castelo",
+    26
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_Entry",
+  "fam": "construcao/prop",
+  "tipo": "pe_afunda",
+  "area": 56.2,
+  "c": [
+   1.3,
+   16.3
+  ],
+  "bbox": [
+   -20,
+   4,
+   21,
+   31
+  ],
+  "h": [
+   84.2,
+   84.2
+  ],
+  "dist_med": 0.46,
+  "objs": [
+   [
+    "OP_Ent_Court",
+    15
+   ],
+   [
+    "OP_Ent_Torii",
+    10
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_T1",
+  "fam": "telhado",
+  "tipo": "cabeca_dentro",
+  "area": 54.0,
+  "c": [
+   -76.3,
+   91.7
+  ],
+  "bbox": [
+   -126,
+   67,
+   205,
+   247
+  ],
+  "h": [
+   88.2,
+   92.2
+  ],
+  "dist_med": 3.24,
+  "objs": [
+   [
+    "OP_Prop_Cidade",
+    22
+   ],
+   [
+    "OP_Exit_Bridge",
+    2
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_T1",
+  "fam": "copa",
+  "tipo": "pe_afunda",
+  "area": 54.0,
+  "c": [
+   -32.3,
+   121.6
+  ],
+  "bbox": [
+   -114,
+   115,
+   138,
+   181
+  ],
+  "h": [
+   88.2,
+   95.4
+  ],
+  "dist_med": 1.11,
+  "objs": [
+   [
+    "OP_Veg_Sudoeste",
+    13
+   ],
+   [
+    "OP_Veg_Entrada",
+    7
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_Forecourt",
+  "fam": "rocha/terreno",
+  "tipo": "cabeca_dentro",
+  "area": 54.0,
+  "c": [
+   -47.9,
+   337.7
+  ],
+  "bbox": [
+   -90,
+   335,
+   -27,
+   346
+  ],
+  "h": [
+   98.2,
+   98.2
+  ],
+  "dist_med": 1.87,
+  "objs": [
+   [
+    "OP_Ter_Walls",
+    24
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_W2b",
+  "fam": "construcao/prop",
+  "tipo": "cabeca_dentro",
+  "area": 49.5,
+  "c": [
+   -202.8,
+   199.0
+  ],
+  "bbox": [
+   -210,
+   184,
+   -194,
+   239
+  ],
+  "h": [
+   92.2,
+   92.2
+  ],
+  "dist_med": 0.9,
+  "objs": [
+   [
+    "OP_Cap_OesteFundo",
+    18
+   ],
+   [
+    "OP_Prop_Cidade",
+    3
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_Entry",
+  "fam": "rocha/terreno",
+  "tipo": "cabeca_dentro",
+  "area": 47.2,
+  "c": [
+   6.0,
+   14.0
+  ],
+  "bbox": [
+   -27,
+   2,
+   27,
+   28
+  ],
+  "h": [
+   84.2,
+   84.2
+  ],
+  "dist_med": 3.82,
+  "objs": [
+   [
+    "OP_Ter_Walls",
+    21
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_W2b",
+  "fam": "construcao/prop",
+  "tipo": "pe_afunda",
+  "area": 47.2,
+  "c": [
+   -199.5,
+   207.2
+  ],
+  "bbox": [
+   -212,
+   158,
+   -180,
+   257
+  ],
+  "h": [
+   92.2,
+   92.2
+  ],
+  "dist_med": 0.9,
+  "objs": [
+   [
+    "OP_Cap_OesteFundo",
+    16
+   ],
+   [
+    "OP_Cap_Oeste",
+    3
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_W2b",
+  "fam": "rocha/terreno",
+  "tipo": "pe_afunda",
+  "area": 47.2,
+  "c": [
+   -210.0,
+   180.1
+  ],
+  "bbox": [
+   -213,
+   157,
+   -206,
+   188
+  ],
+  "h": [
+   92.2,
+   92.2
+  ],
+  "dist_med": 0.65,
+  "objs": [
+   [
+    "OP_Cap_OesteFundo",
+    21
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_T1",
+  "fam": "copa",
+  "tipo": "corpo_dentro",
+  "area": 45.0,
+  "c": [
+   0.4,
+   125.8
+  ],
+  "bbox": [
+   -116,
+   35,
+   198,
+   256
+  ],
+  "h": [
+   88.2,
+   95.2
+  ],
+  "dist_med": 1.81,
+  "objs": [
+   [
+    "OP_Veg_Sudoeste",
+    11
+   ],
+   [
+    "OP_Veg_Entrada",
+    5
+   ]
+  ]
+ },
+ {
+  "zona": "borda_sul(entrada/frente)",
+  "fam": "copa",
+  "tipo": "cabeca_dentro",
+  "area": 45.0,
+  "c": [
+   74.2,
+   30.7
+  ],
+  "bbox": [
+   -78,
+   25,
+   211,
+   37
+  ],
+  "h": [
+   42.2,
+   91.4
+  ],
+  "dist_med": 3.39,
+  "objs": [
+   [
+    "OP_Veg_Leste",
+    8
+   ],
+   [
+    "OP_Veg_Entrada",
+    6
+   ]
+  ]
+ },
+ {
+  "zona": "borda_castelo",
+  "fam": "construcao/prop",
+  "tipo": "pe_afunda",
+  "area": 42.8,
+  "c": [
+   -63.4,
+   364.5
+  ],
+  "bbox": [
+   -77,
+   349,
+   69,
+   394
+  ],
+  "h": [
+   103.9,
+   136.2
+  ],
+  "dist_med": 0.4,
+  "objs": [
+   [
+    "OP_Cas_Adro",
+    16
+   ],
+   [
+    "OP_Cas_Court",
+    3
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_HarborMid",
+  "fam": "construcao/prop",
+  "tipo": "pe_afunda",
+  "area": 40.5,
+  "c": [
+   175.7,
+   135.5
+  ],
+  "bbox": [
+   150,
+   131,
+   199,
+   145
+  ],
+  "h": [
+   65.2,
+   77.8
+  ],
+  "dist_med": 0.4,
+  "objs": [
+   [
+    "OP_Port_Built",
+    10
+   ],
+   [
+    "OP_Port_Muralha",
+    8
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_Entry",
+  "fam": "copa",
+  "tipo": "cabeca_dentro",
+  "area": 38.2,
+  "c": [
+   3.3,
+   17.1
+  ],
+  "bbox": [
+   -24,
+   2,
+   25,
+   34
+  ],
+  "h": [
+   84.2,
+   91.4
+  ],
+  "dist_med": 1.11,
+  "objs": [
+   [
+    "OP_Ent_Lamps",
+    15
+   ],
+   [
+    "OP_Veg_Entrada",
+    2
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_Plaza",
+  "fam": "rocha/terreno",
+  "tipo": "cabeca_dentro",
+  "area": 36.0,
+  "c": [
+   206.4,
+   313.0
+  ],
+  "bbox": [
+   193,
+   290,
+   225,
+   331
+  ],
+  "h": [
+   92.2,
+   92.2
+  ],
+  "dist_med": 4.83,
+  "objs": [
+   [
+    "OP_Ter_Walls",
+    16
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_Forecourt",
+  "fam": "construcao/prop",
+  "tipo": "pe_afunda",
+  "area": 36.0,
+  "c": [
+   -48.8,
+   334.1
+  ],
+  "bbox": [
+   -78,
+   325,
+   19,
+   346
+  ],
+  "h": [
+   98.2,
+   98.2
+  ],
+  "dist_med": 0.6,
+  "objs": [
+   [
+    "OP_Cas_Adro",
+    16
+   ]
+  ]
+ },
+ {
+  "zona": "rocha_EntryR",
+  "fam": "rocha/terreno",
+  "tipo": "corpo_dentro",
+  "area": 33.8,
+  "c": [
+   27.5,
+   16.1
+  ],
+  "bbox": [
+   27,
+   1,
+   28,
+   32
+  ],
+  "h": [
+   87.4,
+   87.4
+  ],
+  "dist_med": 2.28,
+  "objs": [
+   [
+    "OP_Ter_Walls",
+    14
+   ],
+   [
+    "OP_Ter_Ground",
+    1
+   ]
+  ]
+ },
+ {
+  "zona": "borda_oeste(lobo SO/W2b/W3)",
+  "fam": "copa",
+  "tipo": "cabeca_dentro",
+  "area": 29.2,
+  "c": [
+   -204.8,
+   246.9
+  ],
+  "bbox": [
+   -216,
+   125,
+   -194,
+   316
+  ],
+  "h": [
+   92.2,
+   103.4
+  ],
+  "dist_med": 1.82,
+  "objs": [
+   [
+    "OP_Veg_TerracoAlto",
+    9
+   ],
+   [
+    "OP_Veg_Sudoeste",
+    4
+   ]
+  ]
+ },
+ {
+  "zona": "borda_NE(promontorio/caveira)",
+  "fam": "copa",
+  "tipo": "cabeca_dentro",
+  "area": 29.2,
+  "c": [
+   292.3,
+   287.9
+  ],
+  "bbox": [
+   283,
+   281,
+   307,
+   293
+  ],
+  "h": [
+   91.4,
+   91.4
+  ],
+  "dist_med": 2.06,
+  "objs": [
+   [
+    "OP_Veg_Promontorio",
+    13
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_W3",
+  "fam": "construcao/prop",
+  "tipo": "pe_afunda",
+  "area": 27.0,
+  "c": [
+   -162.0,
+   328.9
+  ],
+  "bbox": [
+   -209,
+   301,
+   -111,
+   416
+  ],
+  "h": [
+   97.6,
+   100.2
+  ],
+  "dist_med": 0.62,
+  "objs": [
+   [
+    "OP_Cap_Oeste",
+    4
+   ],
+   [
+    "OP_Cap_OesteFundo",
+    4
+   ]
+  ]
+ },
+ {
+  "zona": "rocha_EntryL",
+  "fam": "rocha/terreno",
+  "tipo": "corpo_dentro",
+  "area": 24.8,
+  "c": [
+   -27.5,
+   17.5
+  ],
+  "bbox": [
+   -27,
+   5,
+   -27,
+   29
+  ],
+  "h": [
+   87.4,
+   87.4
+  ],
+  "dist_med": 2.28,
+  "objs": [
+   [
+    "OP_Ter_Walls",
+    11
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_ExitLand",
+  "fam": "construcao/prop",
+  "tipo": "cabeca_dentro",
+  "area": 24.8,
+  "c": [
+   319.4,
+   268.0
+  ],
+  "bbox": [
+   301,
+   251,
+   336,
+   280
+  ],
+  "h": [
+   88.2,
+   103.0
+  ],
+  "dist_med": 1.33,
+  "objs": [
+   [
+    "GATE_OnePunchMan_Frame",
+    5
+   ],
+   [
+    "OP_Exit_AnchorGuard",
+    4
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_CastleLanding",
+  "fam": "rocha/terreno",
+  "tipo": "pe_afunda",
+  "area": 24.8,
+  "c": [
+   -80.0,
+   387.6
+  ],
+  "bbox": [
+   -80,
+   380,
+   -80,
+   395
+  ],
+  "h": [
+   117.2,
+   117.2
+  ],
+  "dist_med": 0.6,
+  "objs": [
+   [
+    "OP_Ter_Ground",
+    11
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_Entry",
+  "fam": "copa",
+  "tipo": "corpo_dentro",
+  "area": 22.5,
+  "c": [
+   1.9,
+   19.8
+  ],
+  "bbox": [
+   -24,
+   4,
+   24,
+   34
+  ],
+  "h": [
+   84.2,
+   91.4
+  ],
+  "dist_med": 2.0,
+  "objs": [
+   [
+    "OP_Ent_Lamps",
+    7
+   ],
+   [
+    "OP_Veg_Entrada",
+    3
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_HarborMid",
+  "fam": "construcao/prop",
+  "tipo": "corpo_dentro",
+  "area": 22.5,
+  "c": [
+   179.4,
+   132.3
+  ],
+  "bbox": [
+   148,
+   131,
+   193,
+   133
+  ],
+  "h": [
+   65.2,
+   65.2
+  ],
+  "dist_med": 2.66,
+  "objs": [
+   [
+    "OP_Port_Muralha",
+    10
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_Plaza",
+  "fam": "telhado",
+  "tipo": "cabeca_dentro",
+  "area": 22.5,
+  "c": [
+   153.6,
+   307.2
+  ],
+  "bbox": [
+   151,
+   298,
+   156,
+   320
+  ],
+  "h": [
+   92.2,
+   95.5
+  ],
+  "dist_med": 4.16,
+  "objs": [
+   [
+    "OP_Prop_Cidade",
+    10
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_W3",
+  "fam": "construcao/prop",
+  "tipo": "cabeca_dentro",
+  "area": 22.5,
+  "c": [
+   -145.2,
+   326.7
+  ],
+  "bbox": [
+   -201,
+   302,
+   -105,
+   395
+  ],
+  "h": [
+   98.2,
+   100.2
+  ],
+  "dist_med": 2.48,
+  "objs": [
+   [
+    "OP_Veg_TerracoAlto",
+    6
+   ],
+   [
+    "OP_Cap_Oeste",
+    3
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_ShipDeck",
+  "fam": "construcao/prop",
+  "tipo": "cabeca_dentro",
+  "area": 20.2,
+  "c": [
+   248.5,
+   177.6
+  ],
+  "bbox": [
+   243,
+   178,
+   255,
+   178
+  ],
+  "h": [
+   53.8,
+   53.8
+  ],
+  "dist_med": 2.12,
+  "objs": [
+   [
+    "OP_Ship_Navio",
+    9
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_Plaza",
+  "fam": "copa",
+  "tipo": "pe_afunda",
+  "area": 20.2,
+  "c": [
+   83.5,
+   296.9
+  ],
+  "bbox": [
+   -93,
+   284,
+   225,
+   313
+  ],
+  "h": [
+   92.2,
+   92.2
+  ],
+  "dist_med": 0.95,
+  "objs": [
+   [
+    "OP_Veg_Leste",
+    5
+   ],
+   [
+    "OP_Veg_TerracoAlto",
+    4
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_Forecourt",
+  "fam": "construcao/prop",
+  "tipo": "cabeca_dentro",
+  "area": 20.2,
+  "c": [
+   -66.5,
+   339.9
+  ],
+  "bbox": [
+   -78,
+   334,
+   19,
+   346
+  ],
+  "h": [
+   98.2,
+   102.6
+  ],
+  "dist_med": 1.18,
+  "objs": [
+   [
+    "OP_Cas_Adro",
+    9
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_Plaza",
+  "fam": "construcao/prop",
+  "tipo": "corpo_dentro",
+  "area": 18.0,
+  "c": [
+   -101.5,
+   199.5
+  ],
+  "bbox": [
+   -156,
+   119,
+   85,
+   287
+  ],
+  "h": [
+   92.2,
+   102.1
+  ],
+  "dist_med": 2.36,
+  "objs": [
+   [
+    "OP_Cap_Oeste",
+    6
+   ],
+   [
+    "OP_Cap_M2_Escadaria",
+    1
+   ]
+  ]
+ },
+ {
+  "zona": "navio",
+  "fam": "construcao/prop",
+  "tipo": "pe_afunda",
+  "area": 18.0,
+  "c": [
+   248.0,
+   176.2
+  ],
+  "bbox": [
+   241,
+   113,
+   255,
+   191
+  ],
+  "h": [
+   46.2,
+   53.8
+  ],
+  "dist_med": 0.63,
+  "objs": [
+   [
+    "OP_Ship_Navio",
+    8
+   ]
+  ]
+ },
+ {
+  "zona": "borda_leste(porto/summon)",
+  "fam": "copa",
+  "tipo": "cabeca_dentro",
+  "area": 18.0,
+  "c": [
+   293.3,
+   262.3
+  ],
+  "bbox": [
+   225,
+   238,
+   328,
+   280
+  ],
+  "h": [
+   88.2,
+   95.4
+  ],
+  "dist_med": 1.52,
+  "objs": [
+   [
+    "OP_Veg_Promontorio",
+    7
+   ],
+   [
+    "OP_Veg_Leste",
+    1
+   ]
+  ]
+ },
+ {
+  "zona": "montanha_NE(BackE)",
+  "fam": "construcao/prop",
+  "tipo": "cabeca_dentro",
+  "area": 18.0,
+  "c": [
+   71.0,
+   450.4
+  ],
+  "bbox": [
+   67,
+   439,
+   75,
+   463
+  ],
+  "h": [
+   136.2,
+   139.4
+  ],
+  "dist_med": 1.02,
+  "objs": [
+   [
+    "OP_Tree_Trunk",
+    7
+   ],
+   [
+    "OP_Cas_Court",
+    1
+   ]
+  ]
+ },
+ {
+  "zona": "navio",
+  "fam": "construcao/prop",
+  "tipo": "cabeca_dentro",
+  "area": 15.8,
+  "c": [
+   246.6,
+   129.8
+  ],
+  "bbox": [
+   241,
+   113,
+   255,
+   173
+  ],
+  "h": [
+   46.2,
+   49.4
+  ],
+  "dist_med": 2.81,
+  "objs": [
+   [
+    "OP_Ship_Navio",
+    7
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_ShipDeck",
+  "fam": "construcao/prop",
+  "tipo": "pe_afunda",
+  "area": 15.8,
+  "c": [
+   250.7,
+   182.7
+  ],
+  "bbox": [
+   241,
+   179,
+   255,
+   185
+  ],
+  "h": [
+   53.8,
+   53.8
+  ],
+  "dist_med": 0.63,
+  "objs": [
+   [
+    "OP_Ship_Navio",
+    7
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_ExitLand",
+  "fam": "copa",
+  "tipo": "pe_afunda",
+  "area": 15.8,
+  "c": [
+   313.7,
+   289.2
+  ],
+  "bbox": [
+   285,
+   281,
+   328,
+   293
+  ],
+  "h": [
+   88.2,
+   95.2
+  ],
+  "dist_med": 0.7,
+  "objs": [
+   [
+    "OP_Veg_Promontorio",
+    6
+   ],
+   [
+    "OP_Veg_Leste",
+    1
+   ]
+  ]
+ },
+ {
+  "zona": "borda_castelo",
+  "fam": "rocha/terreno",
+  "tipo": "cabeca_dentro",
+  "area": 15.8,
+  "c": [
+   -104.6,
+   362.5
+  ],
+  "bbox": [
+   -135,
+   347,
+   -99,
+   431
+  ],
+  "h": [
+   103.4,
+   103.4
+  ],
+  "dist_med": 3.46,
+  "objs": [
+   [
+    "OP_Ter_Walls",
+    7
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_Court",
+  "fam": "telhado",
+  "tipo": "cabeca_dentro",
+  "area": 15.8,
+  "c": [
+   6.6,
+   456.8
+  ],
+  "bbox": [
+   -77,
+   400,
+   72,
+   473
+  ],
+  "h": [
+   136.2,
+   136.2
+  ],
+  "dist_med": 4.66,
+  "objs": [
+   [
+    "OP_Cas_Court",
+    7
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_T1",
+  "fam": "rocha/terreno",
+  "tipo": "cabeca_dentro",
+  "area": 13.5,
+  "c": [
+   33.3,
+   35.1
+  ],
+  "bbox": [
+   30,
+   35,
+   37,
+   35
+  ],
+  "h": [
+   88.2,
+   88.2
+  ],
+  "dist_med": 0.91,
+  "objs": [
+   [
+    "OP_Ter_Walls",
+    6
+   ]
+  ]
+ },
+ {
+  "zona": "borda_sul(entrada/frente)",
+  "fam": "construcao/prop",
+  "tipo": "cabeca_dentro",
+  "area": 13.5,
+  "c": [
+   0.3,
+   -79.4
+  ],
+  "bbox": [
+   -9,
+   -119,
+   10,
+   -26
+  ],
+  "h": [
+   84.2,
+   87.3
+  ],
+  "dist_med": 0.54,
+  "objs": [
+   [
+    "OP_Ent_Bridge",
+    6
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_Harbor",
+  "fam": "rocha/terreno",
+  "tipo": "pe_afunda",
+  "area": 13.5,
+  "c": [
+   212.3,
+   234.6
+  ],
+  "bbox": [
+   208,
+   223,
+   222,
+   254
+  ],
+  "h": [
+   42.2,
+   86.4
+  ],
+  "dist_med": 1.06,
+  "objs": [
+   [
+    "OP_Ter_Walls",
+    4
+   ],
+   [
+    "OP_Ter_Cliff",
+    2
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_W2b",
+  "fam": "telhado",
+  "tipo": "cabeca_dentro",
+  "area": 13.5,
+  "c": [
+   -205.2,
+   164.1
+  ],
+  "bbox": [
+   -206,
+   163,
+   -204,
+   166
+  ],
+  "h": [
+   94.9,
+   94.9
+  ],
+  "dist_med": 3.79,
+  "objs": [
+   [
+    "OP_Prop_Cidade",
+    6
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_W3",
+  "fam": "copa",
+  "tipo": "corpo_dentro",
+  "area": 13.5,
+  "c": [
+   -137.5,
+   354.1
+  ],
+  "bbox": [
+   -170,
+   313,
+   -104,
+   377
+  ],
+  "h": [
+   107.2,
+   107.2
+  ],
+  "dist_med": 2.17,
+  "objs": [
+   [
+    "OP_Veg_TerracoAlto",
+    6
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_ExitLand",
+  "fam": "copa",
+  "tipo": "corpo_dentro",
+  "area": 13.5,
+  "c": [
+   326.0,
+   293.8
+  ],
+  "bbox": [
+   324,
+   290,
+   328,
+   298
+  ],
+  "h": [
+   88.2,
+   88.2
+  ],
+  "dist_med": 1.64,
+  "objs": [
+   [
+    "OP_Veg_Promontorio",
+    3
+   ],
+   [
+    "OP_Veg_Leste",
+    3
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_W3",
+  "fam": "copa",
+  "tipo": "pe_afunda",
+  "area": 11.2,
+  "c": [
+   -156.8,
+   335.1
+  ],
+  "bbox": [
+   -177,
+   302,
+   -126,
+   385
+  ],
+  "h": [
+   107.2,
+   107.2
+  ],
+  "dist_med": 0.96,
+  "objs": [
+   [
+    "OP_Veg_TerracoAlto",
+    5
+   ]
+  ]
+ },
+ {
+  "zona": "borda_castelo",
+  "fam": "copa",
+  "tipo": "cabeca_dentro",
+  "area": 11.2,
+  "c": [
+   -99.5,
+   342.0
+  ],
+  "bbox": [
+   -99,
+   337,
+   -99,
+   355
+  ],
+  "h": [
+   103.4,
+   103.4
+  ],
+  "dist_med": 4.03,
+  "objs": [
+   [
+    "OP_Veg_TerracoAlto",
+    5
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_ExitLand",
+  "fam": "construcao/prop",
+  "tipo": "pe_afunda",
+  "area": 11.2,
+  "c": [
+   332.5,
+   267.6
+  ],
+  "bbox": [
+   325,
+   256,
+   337,
+   283
+  ],
+  "h": [
+   88.2,
+   94.7
+  ],
+  "dist_med": 0.5,
+  "objs": [
+   [
+    "OP_Exit_Stone",
+    3
+   ],
+   [
+    "OP_Exit_Bridge",
+    2
+   ]
+  ]
+ },
+ {
+  "zona": "borda_castelo",
+  "fam": "rocha/terreno",
+  "tipo": "corpo_dentro",
+  "area": 11.2,
+  "c": [
+   -132.5,
+   435.6
+  ],
+  "bbox": [
+   -135,
+   436,
+   -129,
+   436
+  ],
+  "h": [
+   100.2,
+   100.2
+  ],
+  "dist_med": 3.8,
+  "objs": [
+   [
+    "OP_Ter_Ground",
+    4
+   ],
+   [
+    "OP_Ter_Walls",
+    1
+   ]
+  ]
+ },
+ {
+  "zona": "rocha_FrontR",
+  "fam": "copa",
+  "tipo": "cabeca_dentro",
+  "area": 9.0,
+  "c": [
+   75.3,
+   35.1
+  ],
+  "bbox": [
+   73,
+   35,
+   78,
+   35
+  ],
+  "h": [
+   88.2,
+   88.2
+  ],
+  "dist_med": 3.83,
+  "objs": [
+   [
+    "OP_Veg_Entrada",
+    4
+   ]
+  ]
+ },
+ {
+  "zona": "borda_oeste(lobo SO/W2b/W3)",
+  "fam": "copa",
+  "tipo": "pe_afunda",
+  "area": 9.0,
+  "c": [
+   -213.1,
+   123.2
+  ],
+  "bbox": [
+   -215,
+   122,
+   -212,
+   124
+  ],
+  "h": [
+   92.2,
+   92.2
+  ],
+  "dist_med": 1.17,
+  "objs": [
+   [
+    "OP_Veg_Sudoeste",
+    4
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_Plaza",
+  "fam": "copa",
+  "tipo": "corpo_dentro",
+  "area": 9.0,
+  "c": [
+   -21.5,
+   299.4
+  ],
+  "bbox": [
+   -126,
+   277,
+   223,
+   311
+  ],
+  "h": [
+   92.2,
+   103.4
+  ],
+  "dist_med": 3.07,
+  "objs": [
+   [
+    "OP_Veg_TerracoAlto",
+    3
+   ],
+   [
+    "OP_Veg_Leste",
+    1
+   ]
+  ]
+ },
+ {
+  "zona": "borda_leste(porto/summon)",
+  "fam": "copa",
+  "tipo": "corpo_dentro",
+  "area": 9.0,
+  "c": [
+   250.0,
+   266.1
+  ],
+  "bbox": [
+   225,
+   239,
+   327,
+   277
+  ],
+  "h": [
+   91.4,
+   98.9
+  ],
+  "dist_med": 3.5,
+  "objs": [
+   [
+    "OP_Veg_Leste",
+    3
+   ],
+   [
+    "OP_Veg_Promontorio",
+    1
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_W3",
+  "fam": "construcao/prop",
+  "tipo": "corpo_dentro",
+  "area": 9.0,
+  "c": [
+   -139.6,
+   369.9
+  ],
+  "bbox": [
+   -155,
+   307,
+   -122,
+   419
+  ],
+  "h": [
+   100.2,
+   100.2
+  ],
+  "dist_med": 1.8,
+  "objs": [
+   [
+    "OP_Veg_TerracoAlto",
+    2
+   ],
+   [
+    "OP_Cap_OesteFundo",
+    2
+   ]
+  ]
+ },
+ {
+  "zona": "borda_leste(porto/summon)",
+  "fam": "construcao/prop",
+  "tipo": "pe_afunda",
+  "area": 6.8,
+  "c": [
+   245.5,
+   225.1
+  ],
+  "bbox": [
+   205,
+   151,
+   286,
+   268
+  ],
+  "h": [
+   91.4,
+   92.2
+  ],
+  "dist_med": 0.72,
+  "objs": [
+   [
+    "OP_Exit_Bridge",
+    2
+   ],
+   [
+    "OP_Sum_Rail",
+    1
+   ]
+  ]
+ },
+ {
+  "zona": "borda_oeste(lobo SO/W2b/W3)",
+  "fam": "copa",
+  "tipo": "corpo_dentro",
+  "area": 6.8,
+  "c": [
+   -214.0,
+   123.1
+  ],
+  "bbox": [
+   -215,
+   122,
+   -213,
+   125
+  ],
+  "h": [
+   92.2,
+   95.4
+  ],
+  "dist_med": 1.87,
+  "objs": [
+   [
+    "OP_Veg_Sudoeste",
+    3
+   ]
+  ]
+ },
+ {
+  "zona": "borda_castelo",
+  "fam": "telhado",
+  "tipo": "cabeca_dentro",
+  "area": 6.8,
+  "c": [
+   -70.0,
+   445.6
+  ],
+  "bbox": [
+   -80,
+   431,
+   -65,
+   472
+  ],
+  "h": [
+   137.2,
+   139.4
+  ],
+  "dist_med": 2.36,
+  "objs": [
+   [
+    "OP_Cas_Court",
+    3
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_Court",
+  "fam": "rocha/terreno",
+  "tipo": "cabeca_dentro",
+  "area": 6.8,
+  "c": [
+   -67.0,
+   471.6
+  ],
+  "bbox": [
+   -89,
+   470,
+   -42,
+   473
+  ],
+  "h": [
+   136.2,
+   136.2
+  ],
+  "dist_med": 0.52,
+  "objs": [
+   [
+    "OP_Ter_Walls",
+    3
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_Entry",
+  "fam": "copa",
+  "tipo": "pe_afunda",
+  "area": 4.5,
+  "c": [
+   -0.5,
+   17.1
+  ],
+  "bbox": [
+   -24,
+   17,
+   24,
+   17
+  ],
+  "h": [
+   84.2,
+   84.2
+  ],
+  "dist_med": 1.22,
+  "objs": [
+   [
+    "OP_Ent_Lamps",
+    2
+   ]
+  ]
+ },
+ {
+  "zona": "borda_sul(entrada/frente)",
+  "fam": "construcao/prop",
+  "tipo": "corpo_dentro",
+  "area": 4.5,
+  "c": [
+   0.3,
+   -0.9
+  ],
+  "bbox": [
+   -9,
+   -1,
+   10,
+   -1
+  ],
+  "h": [
+   88.2,
+   88.2
+  ],
+  "dist_med": 1.5,
+  "objs": [
+   [
+    "OP_Ent_Bridge",
+    2
+   ]
+  ]
+ },
+ {
+  "zona": "borda_sul(entrada/frente)",
+  "fam": "copa",
+  "tipo": "pe_afunda",
+  "area": 4.5,
+  "c": [
+   58.8,
+   35.1
+  ],
+  "bbox": [
+   57,
+   35,
+   61,
+   35
+  ],
+  "h": [
+   91.4,
+   91.4
+  ],
+  "dist_med": 0.8,
+  "objs": [
+   [
+    "OP_Veg_Entrada",
+    2
+   ]
+  ]
+ },
+ {
+  "zona": "borda_sul(entrada/frente)",
+  "fam": "construcao/prop",
+  "tipo": "pe_afunda",
+  "area": 4.5,
+  "c": [
+   0.3,
+   -69.9
+  ],
+  "bbox": [
+   -9,
+   -70,
+   10,
+   -70
+  ],
+  "h": [
+   85.9,
+   85.9
+  ],
+  "dist_med": 1.45,
+  "objs": [
+   [
+    "OP_Ent_Bridge",
+    2
+   ]
+  ]
+ },
+ {
+  "zona": "borda_sul(entrada/frente)",
+  "fam": "telhado",
+  "tipo": "cabeca_dentro",
+  "area": 4.5,
+  "c": [
+   0.3,
+   -71.4
+  ],
+  "bbox": [
+   -9,
+   -71,
+   10,
+   -71
+  ],
+  "h": [
+   85.8,
+   85.8
+  ],
+  "dist_med": 1.75,
+  "objs": [
+   [
+    "OP_Ent_Bridge",
+    2
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_HarborMid",
+  "fam": "rocha/terreno",
+  "tipo": "corpo_dentro",
+  "area": 4.5,
+  "c": [
+   131.5,
+   118.3
+  ],
+  "bbox": [
+   130,
+   118,
+   133,
+   119
+  ],
+  "h": [
+   65.2,
+   65.2
+  ],
+  "dist_med": 2.86,
+  "objs": [
+   [
+    "OP_Ter_Walls",
+    2
+   ]
+  ]
+ },
+ {
+  "zona": "borda_leste(porto/summon)",
+  "fam": "construcao/prop",
+  "tipo": "cabeca_dentro",
+  "area": 4.5,
+  "c": [
+   248.5,
+   247.3
+  ],
+  "bbox": [
+   225,
+   244,
+   273,
+   251
+  ],
+  "h": [
+   92.2,
+   92.2
+  ],
+  "dist_med": 0.55,
+  "objs": [
+   [
+    "OP_Exit_Bridge",
+    2
+   ]
+  ]
+ },
+ {
+  "zona": "outro_sem_piso",
+  "fam": "rocha/terreno",
+  "tipo": "pe_afunda",
+  "area": 4.5,
+  "c": [
+   97.0,
+   323.8
+  ],
+  "bbox": [
+   97,
+   323,
+   97,
+   325
+  ],
+  "h": [
+   92.2,
+   92.2
+  ],
+  "dist_med": 1.17,
+  "objs": [
+   [
+    "OP_Ter_Walls",
+    2
+   ]
+  ]
+ },
+ {
+  "zona": "borda_leste(porto/summon)",
+  "fam": "telhado",
+  "tipo": "cabeca_dentro",
+  "area": 4.5,
+  "c": [
+   292.0,
+   248.8
+  ],
+  "bbox": [
+   292,
+   248,
+   292,
+   250
+  ],
+  "h": [
+   88.2,
+   92.2
+  ],
+  "dist_med": 2.83,
+  "objs": [
+   [
+    "OP_Exit_Bridge",
+    2
+   ]
+  ]
+ },
+ {
+  "zona": "borda_NE(promontorio/caveira)",
+  "fam": "copa",
+  "tipo": "pe_afunda",
+  "area": 4.5,
+  "c": [
+   322.8,
+   297.6
+  ],
+  "bbox": [
+   322,
+   298,
+   324,
+   298
+  ],
+  "h": [
+   88.2,
+   88.2
+  ],
+  "dist_med": 0.72,
+  "objs": [
+   [
+    "OP_Veg_Promontorio",
+    2
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_CastleLanding",
+  "fam": "construcao/prop",
+  "tipo": "cabeca_dentro",
+  "area": 4.5,
+  "c": [
+   -77.0,
+   387.6
+  ],
+  "bbox": [
+   -77,
+   380,
+   -77,
+   395
+  ],
+  "h": [
+   117.2,
+   118.0
+  ],
+  "dist_med": 1.18,
+  "objs": [
+   [
+    "OP_Cas_Adro",
+    2
+   ]
+  ]
+ },
+ {
+  "zona": "rochedo_castelo(BackN)",
+  "fam": "telhado",
+  "tipo": "cabeca_dentro",
+  "area": 4.5,
+  "c": [
+   -53.7,
+   473.8
+  ],
+  "bbox": [
+   -63,
+   473,
+   -44,
+   475
+  ],
+  "h": [
+   139.4,
+   139.4
+  ],
+  "dist_med": 1.53,
+  "objs": [
+   [
+    "OP_Cas_Court",
+    2
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_Entry",
+  "fam": "rocha/terreno",
+  "tipo": "corpo_dentro",
+  "area": 2.2,
+  "c": [
+   -26.0,
+   0.6
+  ],
+  "bbox": [
+   -26,
+   1,
+   -26,
+   1
+  ],
+  "h": [
+   84.2,
+   84.2
+  ],
+  "dist_med": 1.58,
+  "objs": [
+   [
+    "OP_Ter_Walls",
+    1
+   ]
+  ]
+ },
+ {
+  "zona": "rocha_EntryR",
+  "fam": "copa",
+  "tipo": "cabeca_dentro",
+  "area": 2.2,
+  "c": [
+   32.5,
+   33.6
+  ],
+  "bbox": [
+   33,
+   34,
+   33,
+   34
+  ],
+  "h": [
+   91.4,
+   91.4
+  ],
+  "dist_med": 2.99,
+  "objs": [
+   [
+    "OP_Veg_Entrada",
+    1
+   ]
+  ]
+ },
+ {
+  "zona": "outro_sem_piso",
+  "fam": "construcao/prop",
+  "tipo": "cabeca_dentro",
+  "area": 2.2,
+  "c": [
+   -14.0,
+   117.6
+  ],
+  "bbox": [
+   -14,
+   118,
+   -14,
+   118
+  ],
+  "h": [
+   91.7,
+   91.7
+  ],
+  "dist_med": 1.39,
+  "objs": [
+   [
+    "OP_Cap_M2_Escadaria",
+    1
+   ]
+  ]
+ },
+ {
+  "zona": "outro_sem_piso",
+  "fam": "rocha/terreno",
+  "tipo": "cabeca_dentro",
+  "area": 2.2,
+  "c": [
+   121.0,
+   47.1
+  ],
+  "bbox": [
+   121,
+   47,
+   121,
+   47
+  ],
+  "h": [
+   42.2,
+   42.2
+  ],
+  "dist_med": 4.58,
+  "objs": [
+   [
+    "OP_Ter_Walls",
+    1
+   ]
+  ]
+ },
+ {
+  "zona": "outro_sem_piso",
+  "fam": "rocha/terreno",
+  "tipo": "corpo_dentro",
+  "area": 2.2,
+  "c": [
+   106.0,
+   129.6
+  ],
+  "bbox": [
+   106,
+   130,
+   106,
+   130
+  ],
+  "h": [
+   88.2,
+   88.2
+  ],
+  "dist_med": 1.53,
+  "objs": [
+   [
+    "OP_Ter_Ground",
+    1
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_HarborMid",
+  "fam": "rocha/terreno",
+  "tipo": "cabeca_dentro",
+  "area": 2.2,
+  "c": [
+   133.0,
+   101.1
+  ],
+  "bbox": [
+   133,
+   101,
+   133,
+   101
+  ],
+  "h": [
+   65.2,
+   65.2
+  ],
+  "dist_med": 0.66,
+  "objs": [
+   [
+    "OP_Ter_Walls",
+    1
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_T1",
+  "fam": "construcao/prop",
+  "tipo": "corpo_dentro",
+  "area": 2.2,
+  "c": [
+   -144.5,
+   47.1
+  ],
+  "bbox": [
+   -144,
+   47,
+   -144,
+   47
+  ],
+  "h": [
+   88.2,
+   88.2
+  ],
+  "dist_med": 2.62,
+  "objs": [
+   [
+    "OP_Cap_Bairro",
+    1
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_HarborMid",
+  "fam": "rocha/terreno",
+  "tipo": "pe_afunda",
+  "area": 2.2,
+  "c": [
+   146.5,
+   125.1
+  ],
+  "bbox": [
+   147,
+   125,
+   147,
+   125
+  ],
+  "h": [
+   65.2,
+   65.2
+  ],
+  "dist_med": 1.35,
+  "objs": [
+   [
+    "OP_Ter_Walls",
+    1
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_Harbor",
+  "fam": "telhado",
+  "tipo": "cabeca_dentro",
+  "area": 2.2,
+  "c": [
+   206.5,
+   225.6
+  ],
+  "bbox": [
+   207,
+   226,
+   207,
+   226
+  ],
+  "h": [
+   91.4,
+   91.4
+  ],
+  "dist_med": 2.52,
+  "objs": [
+   [
+    "OP_Exit_Bridge",
+    1
+   ]
+  ]
+ },
+ {
+  "zona": "outro_sem_piso",
+  "fam": "construcao/prop",
+  "tipo": "pe_afunda",
+  "area": 2.2,
+  "c": [
+   -110.0,
+   300.6
+  ],
+  "bbox": [
+   -110,
+   301,
+   -110,
+   301
+  ],
+  "h": [
+   97.6,
+   97.6
+  ],
+  "dist_med": 0.53,
+  "objs": [
+   [
+    "OP_Cap_Oeste",
+    1
+   ]
+  ]
+ },
+ {
+  "zona": "navio",
+  "fam": "construcao/prop",
+  "tipo": "corpo_dentro",
+  "area": 2.2,
+  "c": [
+   242.5,
+   114.6
+  ],
+  "bbox": [
+   243,
+   115,
+   243,
+   115
+  ],
+  "h": [
+   46.2,
+   46.2
+  ],
+  "dist_med": 3.01,
+  "objs": [
+   [
+    "OP_Ship_Navio",
+    1
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_Plaza",
+  "fam": "rocha/terreno",
+  "tipo": "corpo_dentro",
+  "area": 2.2,
+  "c": [
+   217.0,
+   300.6
+  ],
+  "bbox": [
+   217,
+   301,
+   217,
+   301
+  ],
+  "h": [
+   92.2,
+   92.2
+  ],
+  "dist_med": 1.75,
+  "objs": [
+   [
+    "OP_Ter_Walls",
+    1
+   ]
+  ]
+ },
+ {
+  "zona": "canal_leste+bacia",
+  "fam": "construcao/prop",
+  "tipo": "cabeca_dentro",
+  "area": 2.2,
+  "c": [
+   20.5,
+   338.1
+  ],
+  "bbox": [
+   21,
+   338,
+   21,
+   338
+  ],
+  "h": [
+   98.2,
+   98.2
+  ],
+  "dist_med": 1.75,
+  "objs": [
+   [
+    "OP_Water_Stone",
+    1
+   ]
+  ]
+ },
+ {
+  "zona": "rochedo_castelo(CastleFootW)",
+  "fam": "construcao/prop",
+  "tipo": "pe_afunda",
+  "area": 2.2,
+  "c": [
+   -63.5,
+   344.1
+  ],
+  "bbox": [
+   -63,
+   344,
+   -63,
+   344
+  ],
+  "h": [
+   101.4,
+   101.4
+  ],
+  "dist_med": 0.42,
+  "objs": [
+   [
+    "OP_Cas_Adro",
+    1
+   ]
+  ]
+ },
+ {
+  "zona": "borda_NE(promontorio/caveira)",
+  "fam": "construcao/prop",
+  "tipo": "pe_afunda",
+  "area": 2.2,
+  "c": [
+   298.0,
+   291.6
+  ],
+  "bbox": [
+   298,
+   292,
+   298,
+   292
+  ],
+  "h": [
+   88.2,
+   88.2
+  ],
+  "dist_med": 0.8,
+  "objs": [
+   [
+    "OP_Veg_Promontorio",
+    1
+   ]
+  ]
+ },
+ {
+  "zona": "borda_NE(promontorio/caveira)",
+  "fam": "construcao/prop",
+  "tipo": "cabeca_dentro",
+  "area": 2.2,
+  "c": [
+   298.0,
+   293.1
+  ],
+  "bbox": [
+   298,
+   293,
+   298,
+   293
+  ],
+  "h": [
+   88.2,
+   88.2
+  ],
+  "dist_med": 1.74,
+  "objs": [
+   [
+    "OP_Veg_Promontorio",
+    1
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_CastleLanding",
+  "fam": "construcao/prop",
+  "tipo": "corpo_dentro",
+  "area": 2.2,
+  "c": [
+   -78.5,
+   380.1
+  ],
+  "bbox": [
+   -78,
+   380,
+   -78,
+   380
+  ],
+  "h": [
+   117.2,
+   117.2
+  ],
+  "dist_med": 2.21,
+  "objs": [
+   [
+    "OP_Cas_Adro",
+    1
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_CastleLanding",
+  "fam": "telhado",
+  "tipo": "cabeca_dentro",
+  "area": 2.2,
+  "c": [
+   -65.0,
+   390.6
+  ],
+  "bbox": [
+   -65,
+   391,
+   -65,
+   391
+  ],
+  "h": [
+   139.4,
+   139.4
+  ],
+  "dist_med": 1.45,
+  "objs": [
+   [
+    "OP_Cas_Court",
+    1
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_CastleLanding",
+  "fam": "construcao/prop",
+  "tipo": "pe_afunda",
+  "area": 2.2,
+  "c": [
+   -78.5,
+   395.1
+  ],
+  "bbox": [
+   -78,
+   395,
+   -78,
+   395
+  ],
+  "h": [
+   117.2,
+   117.2
+  ],
+  "dist_med": 1.08,
+  "objs": [
+   [
+    "OP_Cas_Adro",
+    1
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_W3",
+  "fam": "rocha/terreno",
+  "tipo": "corpo_dentro",
+  "area": 2.2,
+  "c": [
+   -128.0,
+   428.1
+  ],
+  "bbox": [
+   -128,
+   428,
+   -128,
+   428
+  ],
+  "h": [
+   100.2,
+   100.2
+  ],
+  "dist_med": 3.45,
+  "objs": [
+   [
+    "OP_Ter_Walls",
+    1
+   ]
+  ]
+ },
+ {
+  "zona": "rochedo_castelo(ButtressL)",
+  "fam": "construcao/prop",
+  "tipo": "pe_afunda",
+  "area": 2.2,
+  "c": [
+   -56.0,
+   360.6
+  ],
+  "bbox": [
+   -56,
+   361,
+   -56,
+   361
+  ],
+  "h": [
+   136.2,
+   136.2
+  ],
+  "dist_med": 0.58,
+  "objs": [
+   [
+    "OP_Cas_Court",
+    1
+   ]
+  ]
+ },
+ {
+  "zona": "rochedo_castelo(BackN)",
+  "fam": "construcao/prop",
+  "tipo": "pe_afunda",
+  "area": 2.2,
+  "c": [
+   -39.5,
+   474.6
+  ],
+  "bbox": [
+   -39,
+   475,
+   -39,
+   475
+  ],
+  "h": [
+   136.2,
+   136.2
+  ],
+  "dist_med": 1.3,
+  "objs": [
+   [
+    "OP_Cas_Court",
+    1
+   ]
+  ]
+ },
+ {
+  "zona": "rochedo_castelo(ButtressR)",
+  "fam": "construcao/prop",
+  "tipo": "pe_afunda",
+  "area": 2.2,
+  "c": [
+   64.0,
+   368.1
+  ],
+  "bbox": [
+   64,
+   368,
+   64,
+   368
+  ],
+  "h": [
+   136.2,
+   136.2
+  ],
+  "dist_med": 0.6,
+  "objs": [
+   [
+    "OP_Cas_Court",
+    1
+   ]
+  ]
+ },
+ {
+  "zona": "rochedo_castelo(ButtressR)",
+  "fam": "construcao/prop",
+  "tipo": "cabeca_dentro",
+  "area": 2.2,
+  "c": [
+   65.5,
+   371.1
+  ],
+  "bbox": [
+   66,
+   371,
+   66,
+   371
+  ],
+  "h": [
+   139.4,
+   139.4
+  ],
+  "dist_med": 1.08,
+  "objs": [
+   [
+    "OP_Cas_Court",
+    1
+   ]
+  ]
+ },
+ {
+  "zona": "montanha_NE(BackE)",
+  "fam": "construcao/prop",
+  "tipo": "corpo_dentro",
+  "area": 2.2,
+  "c": [
+   65.5,
+   462.6
+  ],
+  "bbox": [
+   66,
+   463,
+   66,
+   463
+  ],
+  "h": [
+   136.2,
+   136.2
+  ],
+  "dist_med": 1.63,
+  "objs": [
+   [
+    "OP_Tree_Trunk",
+    1
+   ]
+  ]
+ }
+]

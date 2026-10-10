@@ -1,0 +1,2684 @@
+[
+ {
+  "zona": "borda_oeste(lobo SO/W2b/W3)",
+  "cat": "chao",
+  "area": 1665.0,
+  "c": [
+   -217.1,
+   292.6
+  ],
+  "bbox": [
+   -229.9629,
+   117.56129999999999,
+   -178.9629,
+   441.56129999999996
+  ],
+  "z": [
+   81.4,
+   100.0
+  ],
+  "queda_mediana": 59.8,
+  "pct_ate_vazio": 97,
+  "objs": [
+   [
+    "OP_Ter_Ground",
+    663
+   ],
+   [
+    "OP_Ter_Cliff",
+    72
+   ],
+   [
+    "OP_Ter_Rocks",
+    5
+   ]
+  ],
+  "mats": [
+   [
+    "Grass_OP_Deep",
+    602
+   ],
+   [
+    "Cliff_OP_Moss",
+    133
+   ]
+  ]
+ },
+ {
+  "zona": "canal_oeste",
+  "cat": "chao",
+  "area": 1620.0,
+  "c": [
+   -174.2,
+   179.3
+  ],
+  "bbox": [
+   -178.9629,
+   50.06129999999999,
+   -169.9629,
+   299.06129999999996
+  ],
+  "z": [
+   85.1,
+   97.3
+  ],
+  "queda_mediana": 58.5,
+  "pct_ate_vazio": 100,
+  "objs": [
+   [
+    "OP_Ter_Ground",
+    673
+   ],
+   [
+    "OP_Water_Stone",
+    39
+   ],
+   [
+    "VFX_OP_Wheel",
+    8
+   ]
+  ],
+  "mats": [
+   [
+    "Dirt_OP_Dark",
+    671
+   ],
+   [
+    "Stone_OP_Dark",
+    19
+   ]
+  ]
+ },
+ {
+  "zona": "canal_leste+bacia",
+  "cat": "chao",
+  "area": 1422.0,
+  "c": [
+   82.5,
+   340.7
+  ],
+  "bbox": [
+   -18.46289999999999,
+   335.06129999999996,
+   197.5371,
+   347.06129999999996
+  ],
+  "z": [
+   89.1,
+   133.1
+  ],
+  "queda_mediana": 2.0,
+  "pct_ate_vazio": 96,
+  "objs": [
+   [
+    "OP_Ter_Ground",
+    436
+   ],
+   [
+    "OP_Water_Stone",
+    151
+   ],
+   [
+    "OP_Cas_Adro",
+    25
+   ]
+  ],
+  "mats": [
+   [
+    "Dirt_OP_Dark",
+    428
+   ],
+   [
+    "Stone_OP_Path",
+    166
+   ]
+  ]
+ },
+ {
+  "zona": "borda_sul(entrada/frente)",
+  "cat": "chao",
+  "area": 1248.8,
+  "c": [
+   23.3,
+   21.3
+  ],
+  "bbox": [
+   -169.9629,
+   -114.93870000000001,
+   223.0371,
+   44.06129999999999
+  ],
+  "z": [
+   17.4,
+   89.7
+  ],
+  "queda_mediana": 55.8,
+  "pct_ate_vazio": 97,
+  "objs": [
+   [
+    "OP_Ter_Ground",
+    366
+   ],
+   [
+    "OP_Ter_Cliff",
+    175
+   ],
+   [
+    "OP_Ter_Walls",
+    6
+   ]
+  ],
+  "mats": [
+   [
+    "Grass_OP_Deep",
+    474
+   ],
+   [
+    "Cliff_OP_Moss",
+    43
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_Harbor",
+  "cat": "chao",
+  "area": 603.0,
+  "c": [
+   181.1,
+   133.0
+  ],
+  "bbox": [
+   122.53710000000001,
+   41.06129999999999,
+   245.5371,
+   260.06129999999996
+  ],
+  "z": [
+   44.7,
+   91.9
+  ],
+  "queda_mediana": 30.0,
+  "pct_ate_vazio": 0,
+  "objs": [
+   [
+    "OP_Ter_Walls",
+    162
+   ],
+   [
+    "OP_Port_Muralha",
+    70
+   ],
+   [
+    "OP_Port_Piers",
+    21
+   ]
+  ],
+  "mats": [
+   [
+    "Cliff_OP_Moss",
+    111
+   ],
+   [
+    "Stone_OP_Path",
+    71
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_T1",
+  "cat": "chao",
+  "area": 486.0,
+  "c": [
+   121.2,
+   167.7
+  ],
+  "bbox": [
+   -145.9629,
+   35.06129999999999,
+   205.0371,
+   260.06129999999996
+  ],
+  "z": [
+   86.5,
+   96.3
+  ],
+  "queda_mediana": 2.5,
+  "pct_ate_vazio": 0,
+  "objs": [
+   [
+    "OP_Sum_Rail",
+    87
+   ],
+   [
+    "OP_Sum_Stone",
+    76
+   ],
+   [
+    "OP_Prop_Cidade",
+    18
+   ]
+  ],
+  "mats": [
+   [
+    "Wood_OP_Lacquer",
+    84
+   ],
+   [
+    "Stone_OP_Path",
+    50
+   ]
+  ]
+ },
+ {
+  "zona": "borda_castelo",
+  "cat": "chao",
+  "area": 434.2,
+  "c": [
+   -105.8,
+   413.9
+  ],
+  "bbox": [
+   -177.4629,
+   330.56129999999996,
+   98.53710000000001,
+   470.06129999999996
+  ],
+  "z": [
+   92.5,
+   136.6
+  ],
+  "queda_mediana": 3.5,
+  "pct_ate_vazio": 89,
+  "objs": [
+   [
+    "OP_Ter_Ground",
+    120
+   ],
+   [
+    "OP_Ter_Walls",
+    39
+   ],
+   [
+    "OP_Cas_Adro",
+    22
+   ]
+  ],
+  "mats": [
+   [
+    "Grass_OP_Deep",
+    100
+   ],
+   [
+    "Cliff_OP_Moss",
+    52
+   ]
+  ]
+ },
+ {
+  "zona": "borda_leste(porto/summon)",
+  "cat": "chao",
+  "area": 400.5,
+  "c": [
+   290.0,
+   225.5
+  ],
+  "bbox": [
+   205.0371,
+   51.56129999999999,
+   344.5371,
+   272.06129999999996
+  ],
+  "z": [
+   35.3,
+   92.1
+  ],
+  "queda_mediana": 12.0,
+  "pct_ate_vazio": 99,
+  "objs": [
+   [
+    "OP_Ter_Cliff",
+    76
+   ],
+   [
+    "OP_Ter_Ground",
+    38
+   ],
+   [
+    "OP_Exit_Stone",
+    31
+   ]
+  ],
+  "mats": [
+   [
+    "Grass_OP_Deep",
+    100
+   ],
+   [
+    "Stone_OP_Dark",
+    31
+   ]
+  ]
+ },
+ {
+  "zona": "rocha_FrontR",
+  "cat": "chao",
+  "area": 382.5,
+  "c": [
+   94.4,
+   34.5
+  ],
+  "bbox": [
+   44.53710000000001,
+   29.06129999999999,
+   122.53710000000001,
+   42.56129999999999
+  ],
+  "z": [
+   85.7,
+   92.4
+  ],
+  "queda_mediana": 56.0,
+  "pct_ate_vazio": 68,
+  "objs": [
+   [
+    "OP_Ter_Ground",
+    165
+   ],
+   [
+    "OP_Ter_Rocks",
+    3
+   ],
+   [
+    "OP_Ter_Walls",
+    2
+   ]
+  ],
+  "mats": [
+   [
+    "Cliff_OP_Moss",
+    116
+   ],
+   [
+    "Grass_OP_Deep",
+    54
+   ]
+  ]
+ },
+ {
+  "zona": "montanha_NE(NERocksW)",
+  "cat": "chao",
+  "area": 369.0,
+  "c": [
+   211.2,
+   314.3
+  ],
+  "bbox": [
+   191.5371,
+   290.06129999999996,
+   230.5371,
+   336.56129999999996
+  ],
+  "z": [
+   99.7,
+   100.0
+  ],
+  "queda_mediana": 7.8,
+  "pct_ate_vazio": 65,
+  "objs": [
+   [
+    "OP_Ter_Ground",
+    163
+   ],
+   [
+    "OP_Ter_Walls",
+    1
+   ]
+  ],
+  "mats": [
+   [
+    "Cliff_OP_Moss",
+    115
+   ],
+   [
+    "Grass_OP_Deep",
+    49
+   ]
+  ]
+ },
+ {
+  "zona": "rocha_EntryR",
+  "cat": "chao",
+  "area": 285.8,
+  "c": [
+   32.2,
+   20.0
+  ],
+  "bbox": [
+   26.53710000000001,
+   0.5612999999999886,
+   47.53710000000001,
+   33.56129999999999
+  ],
+  "z": [
+   89.7,
+   90.0
+  ],
+  "queda_mediana": 2.6,
+  "pct_ate_vazio": 87,
+  "objs": [
+   [
+    "OP_Ter_Ground",
+    127
+   ]
+  ],
+  "mats": [
+   [
+    "Cliff_OP_Moss",
+    101
+   ],
+   [
+    "Grass_OP_Deep",
+    26
+   ]
+  ]
+ },
+ {
+  "zona": "rochedo_castelo(BackW)",
+  "cat": "chao",
+  "area": 238.5,
+  "c": [
+   -87.6,
+   416.8
+  ],
+  "bbox": [
+   -96.46289999999999,
+   362.06129999999996,
+   -79.96289999999999,
+   468.56129999999996
+  ],
+  "z": [
+   118.0,
+   131.9
+  ],
+  "queda_mediana": null,
+  "pct_ate_vazio": 100,
+  "objs": [
+   [
+    "OP_Ter_Ground",
+    74
+   ],
+   [
+    "OP_Ter_Walls",
+    25
+   ],
+   [
+    "OP_Ter_Rocks",
+    7
+   ]
+  ],
+  "mats": [
+   [
+    "Cliff_OP_Moss",
+    84
+   ],
+   [
+    "Grass_OP_Deep",
+    16
+   ]
+  ]
+ },
+ {
+  "zona": "navio",
+  "cat": "chao",
+  "area": 222.8,
+  "c": [
+   248.9,
+   141.9
+  ],
+  "bbox": [
+   239.5371,
+   107.06129999999999,
+   256.0371,
+   188.0613
+  ],
+  "z": [
+   43.0,
+   56.3
+  ],
+  "queda_mediana": 2.5,
+  "pct_ate_vazio": 89,
+  "objs": [
+   [
+    "OP_Ship_Navio",
+    99
+   ]
+  ],
+  "mats": [
+   [
+    "Wood_OP_Dark",
+    52
+   ],
+   [
+    "Wood_OP_Lacquer",
+    35
+   ]
+  ]
+ },
+ {
+  "zona": "outro_sem_piso",
+  "cat": "chao",
+  "area": 216.0,
+  "c": [
+   -3.3,
+   143.6
+  ],
+  "bbox": [
+   -172.9629,
+   45.56129999999999,
+   127.03710000000001,
+   329.06129999999996
+  ],
+  "z": [
+   86.7,
+   98.4
+  ],
+  "queda_mediana": 42.5,
+  "pct_ate_vazio": 68,
+  "objs": [
+   [
+    "OP_Ter_Ground",
+    61
+   ],
+   [
+    "OP_Ter_Walls",
+    16
+   ],
+   [
+    "OP_Water_Stone",
+    8
+   ]
+  ],
+  "mats": [
+   [
+    "Grass_OP_Deep",
+    64
+   ],
+   [
+    "Stone_OP_Path",
+    10
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_HarborMid",
+  "cat": "chao",
+  "area": 202.5,
+  "c": [
+   167.6,
+   137.3
+  ],
+  "bbox": [
+   127.03710000000001,
+   101.06129999999999,
+   200.5371,
+   149.0613
+  ],
+  "z": [
+   64.9,
+   89.7
+  ],
+  "queda_mediana": 3.6,
+  "pct_ate_vazio": 0,
+  "objs": [
+   [
+    "OP_Port_Muralha",
+    69
+   ],
+   [
+    "OP_Ter_Ground",
+    12
+   ],
+   [
+    "OP_Ter_Walls",
+    9
+   ]
+  ],
+  "mats": [
+   [
+    "Stone_OP_Path",
+    80
+   ],
+   [
+    "Cliff_OP_Moss",
+    8
+   ]
+  ]
+ },
+ {
+  "zona": "rochedo_castelo(CastleFootW)",
+  "cat": "chao",
+  "area": 193.5,
+  "c": [
+   -40.7,
+   343.4
+  ],
+  "bbox": [
+   -61.96289999999999,
+   339.56129999999996,
+   -21.46289999999999,
+   348.56129999999996
+  ],
+  "z": [
+   101.0,
+   129.0
+  ],
+  "queda_mediana": null,
+  "pct_ate_vazio": 100,
+  "objs": [
+   [
+    "OP_Ter_Ground",
+    78
+   ],
+   [
+    "OP_Ter_Rocks",
+    8
+   ]
+  ],
+  "mats": [
+   [
+    "Cliff_OP_Moss",
+    69
+   ],
+   [
+    "Grass_OP_Deep",
+    17
+   ]
+  ]
+ },
+ {
+  "zona": "borda_NE(promontorio/caveira)",
+  "cat": "chao",
+  "area": 186.8,
+  "c": [
+   292.3,
+   295.6
+  ],
+  "bbox": [
+   226.0371,
+   282.56129999999996,
+   328.0371,
+   303.56129999999996
+  ],
+  "z": [
+   87.2,
+   95.5
+  ],
+  "queda_mediana": null,
+  "pct_ate_vazio": 100,
+  "objs": [
+   [
+    "OP_Ter_Ground",
+    68
+   ],
+   [
+    "OP_Ter_Cliff",
+    15
+   ]
+  ],
+  "mats": [
+   [
+    "Grass_OP_Deep",
+    65
+   ],
+   [
+    "Cliff_OP_Shade",
+    10
+   ]
+  ]
+ },
+ {
+  "zona": "caveira/promontorio",
+  "cat": "chao",
+  "area": 177.8,
+  "c": [
+   315.0,
+   229.0
+  ],
+  "bbox": [
+   296.5371,
+   225.5613,
+   331.0371,
+   231.5613
+  ],
+  "z": [
+   87.5,
+   88.0
+  ],
+  "queda_mediana": null,
+  "pct_ate_vazio": 100,
+  "objs": [
+   [
+    "OP_Ter_Ground",
+    77
+   ],
+   [
+    "OP_Ter_Cliff",
+    2
+   ]
+  ],
+  "mats": [
+   [
+    "Grass_OP_Deep",
+    63
+   ],
+   [
+    "Cliff_OP_Moss",
+    16
+   ]
+  ]
+ },
+ {
+  "zona": "rocha_EntryL",
+  "cat": "chao",
+  "area": 159.8,
+  "c": [
+   -30.5,
+   18.1
+  ],
+  "bbox": [
+   -37.96289999999999,
+   0.5612999999999886,
+   -27.46289999999999,
+   32.06129999999999
+  ],
+  "z": [
+   90.0,
+   90.0
+  ],
+  "queda_mediana": 2.6,
+  "pct_ate_vazio": 85,
+  "objs": [
+   [
+    "OP_Ter_Ground",
+    71
+   ]
+  ],
+  "mats": [
+   [
+    "Cliff_OP_Moss",
+    61
+   ],
+   [
+    "Grass_OP_Deep",
+    10
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_Court",
+  "cat": "chao",
+  "area": 146.2,
+  "c": [
+   -24.7,
+   441.9
+  ],
+  "bbox": [
+   -85.96289999999999,
+   353.06129999999996,
+   49.03710000000001,
+   471.56129999999996
+  ],
+  "z": [
+   137.2,
+   145.4
+  ],
+  "queda_mediana": 8.6,
+  "pct_ate_vazio": 0,
+  "objs": [
+   [
+    "OP_Ter_Walls",
+    34
+   ],
+   [
+    "OP_Cas_Court",
+    15
+   ],
+   [
+    "OP_Tree_Trunk",
+    15
+   ]
+  ],
+  "mats": [
+   [
+    "Cliff_OP_Moss",
+    30
+   ],
+   [
+    "Bark_OP",
+    15
+   ]
+  ]
+ },
+ {
+  "zona": "rochedo_castelo(ButtressL)",
+  "cat": "chao",
+  "area": 135.0,
+  "c": [
+   -42.8,
+   352.9
+  ],
+  "bbox": [
+   -57.46289999999999,
+   350.06129999999996,
+   -24.46289999999999,
+   357.56129999999996
+  ],
+  "z": [
+   124.0,
+   136.1
+  ],
+  "queda_mediana": 100.6,
+  "pct_ate_vazio": 53,
+  "objs": [
+   [
+    "OP_Ter_Rocks",
+    33
+   ],
+   [
+    "OP_Ter_Ground",
+    25
+   ],
+   [
+    "OP_Ter_CastleRock",
+    1
+   ]
+  ],
+  "mats": [
+   [
+    "Grass_OP_Deep",
+    39
+   ],
+   [
+    "Cliff_OP_Moss",
+    20
+   ]
+  ]
+ },
+ {
+  "zona": "montanha_NE(BackE)",
+  "cat": "chao",
+  "area": 128.2,
+  "c": [
+   72.3,
+   416.4
+  ],
+  "bbox": [
+   67.03710000000001,
+   372.56129999999996,
+   76.03710000000001,
+   471.56129999999996
+  ],
+  "z": [
+   120.0,
+   143.0
+  ],
+  "queda_mediana": 6.6,
+  "pct_ate_vazio": 96,
+  "objs": [
+   [
+    "OP_Ter_Walls",
+    26
+   ],
+   [
+    "OP_Ter_Ground",
+    16
+   ],
+   [
+    "OP_Tree_Trunk",
+    15
+   ]
+  ],
+  "mats": [
+   [
+    "Cliff_OP_Moss",
+    36
+   ],
+   [
+    "Bark_OP",
+    12
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_Plaza",
+  "cat": "chao",
+  "area": 114.8,
+  "c": [
+   70.3,
+   293.0
+  ],
+  "bbox": [
+   -115.96289999999999,
+   119.06129999999999,
+   224.5371,
+   333.56129999999996
+  ],
+  "z": [
+   94.0,
+   101.2
+  ],
+  "queda_mediana": 6.2,
+  "pct_ate_vazio": 0,
+  "objs": [
+   [
+    "OP_Ter_Walls",
+    25
+   ],
+   [
+    "OP_Cap_Oeste",
+    19
+   ],
+   [
+    "OP_Plz_M2_Borda",
+    3
+   ]
+  ],
+  "mats": [
+   [
+    "Stone_OP_Path",
+    20
+   ],
+   [
+    "Grass_OP_Deep",
+    13
+   ]
+  ]
+ },
+ {
+  "zona": "rochedo_castelo(ButtressR)",
+  "cat": "chao",
+  "area": 94.5,
+  "c": [
+   42.0,
+   353.0
+  ],
+  "bbox": [
+   25.03710000000001,
+   351.56129999999996,
+   55.03710000000001,
+   357.56129999999996
+  ],
+  "z": [
+   127.7,
+   134.5
+  ],
+  "queda_mediana": 98.0,
+  "pct_ate_vazio": 48,
+  "objs": [
+   [
+    "OP_Ter_Ground",
+    26
+   ],
+   [
+    "OP_Ter_Rocks",
+    16
+   ]
+  ],
+  "mats": [
+   [
+    "Cliff_OP_Moss",
+    22
+   ],
+   [
+    "Grass_OP_Deep",
+    20
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_Entry",
+  "cat": "chao",
+  "area": 90.0,
+  "c": [
+   5.6,
+   13.1
+  ],
+  "bbox": [
+   -25.96289999999999,
+   0.5612999999999886,
+   26.53710000000001,
+   30.56129999999999
+  ],
+  "z": [
+   86.2,
+   91.3
+  ],
+  "queda_mediana": 5.5,
+  "pct_ate_vazio": 0,
+  "objs": [
+   [
+    "OP_Ter_Walls",
+    18
+   ],
+   [
+    "OP_Ent_Lamps",
+    15
+   ],
+   [
+    "OP_Ent_Court",
+    5
+   ]
+  ],
+  "mats": [
+   [
+    "Stone_OP",
+    13
+   ],
+   [
+    "Grass_OP_Deep",
+    9
+   ]
+  ]
+ },
+ {
+  "zona": "montanha_NE(CastleFootE)",
+  "cat": "chao",
+  "area": 87.8,
+  "c": [
+   41.3,
+   349.5
+  ],
+  "bbox": [
+   22.03710000000001,
+   348.56129999999996,
+   56.53710000000001,
+   351.56129999999996
+  ],
+  "z": [
+   115.3,
+   136.1
+  ],
+  "queda_mediana": null,
+  "pct_ate_vazio": 100,
+  "objs": [
+   [
+    "OP_Ter_Ground",
+    20
+   ],
+   [
+    "OP_Ter_Rocks",
+    17
+   ],
+   [
+    "OP_Ter_CastleRock",
+    2
+   ]
+  ],
+  "mats": [
+   [
+    "Grass_OP_Deep",
+    20
+   ],
+   [
+    "Cliff_OP_Moss",
+    19
+   ]
+  ]
+ },
+ {
+  "zona": "rocha_SWBank",
+  "cat": "chao",
+  "area": 81.0,
+  "c": [
+   -193.2,
+   116.8
+  ],
+  "bbox": [
+   -205.9629,
+   116.06129999999999,
+   -180.4629,
+   117.56129999999999
+  ],
+  "z": [
+   90.0,
+   90.0
+  ],
+  "queda_mediana": null,
+  "pct_ate_vazio": 100,
+  "objs": [
+   [
+    "OP_Ter_Ground",
+    36
+   ]
+  ],
+  "mats": [
+   [
+    "Cliff_OP_Moss",
+    36
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_W3",
+  "cat": "chao",
+  "area": 78.8,
+  "c": [
+   -112.8,
+   390.8
+  ],
+  "bbox": [
+   -127.96289999999999,
+   300.56129999999996,
+   -105.46289999999999,
+   425.06129999999996
+  ],
+  "z": [
+   99.4,
+   110.5
+  ],
+  "queda_mediana": 9.2,
+  "pct_ate_vazio": 0,
+  "objs": [
+   [
+    "OP_Ter_Walls",
+    31
+   ],
+   [
+    "OP_Cap_Oeste",
+    4
+   ]
+  ],
+  "mats": [
+   [
+    "Cliff_OP_Moss",
+    25
+   ],
+   [
+    "Stone_OP_Path",
+    4
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_Forecourt",
+  "cat": "chao",
+  "area": 74.2,
+  "c": [
+   -32.0,
+   332.2
+  ],
+  "bbox": [
+   -64.96289999999999,
+   314.06129999999996,
+   19.03710000000001,
+   345.56129999999996
+  ],
+  "z": [
+   94.8,
+   104.1
+  ],
+  "queda_mediana": 2.3,
+  "pct_ate_vazio": 0,
+  "objs": [
+   [
+    "OP_Ter_Walls",
+    19
+   ],
+   [
+    "OP_Cas_Adro",
+    14
+   ]
+  ],
+  "mats": [
+   [
+    "Stone_OP_Path",
+    14
+   ],
+   [
+    "Cliff_OP_Moss",
+    14
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_ExitLand",
+  "cat": "chao",
+  "area": 69.8,
+  "c": [
+   317.2,
+   268.3
+  ],
+  "bbox": [
+   299.5371,
+   248.0613,
+   337.0371,
+   284.06129999999996
+  ],
+  "z": [
+   90.4,
+   106.5
+  ],
+  "queda_mediana": 5.0,
+  "pct_ate_vazio": 0,
+  "objs": [
+   [
+    "GATE_OnePunchMan_Frame",
+    16
+   ],
+   [
+    "OP_Exit_Bridge",
+    7
+   ],
+   [
+    "OP_Exit_AnchorGuard",
+    4
+   ]
+  ],
+  "mats": [
+   [
+    "Stone_Dark",
+    7
+   ],
+   [
+    "Stone_OP_Wall",
+    6
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_ShipDeck",
+  "cat": "chao",
+  "area": 24.8,
+  "c": [
+   249.6,
+   179.2
+  ],
+  "bbox": [
+   242.5371,
+   177.5613,
+   254.5371,
+   185.0613
+  ],
+  "z": [
+   56.2,
+   56.3
+  ],
+  "queda_mediana": 2.4,
+  "pct_ate_vazio": 0,
+  "objs": [
+   [
+    "OP_Ship_Navio",
+    11
+   ]
+  ],
+  "mats": [
+   [
+    "Wood_OP_Lacquer",
+    11
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_W2b",
+  "cat": "chao",
+  "area": 20.2,
+  "c": [
+   -209.0,
+   217.9
+  ],
+  "bbox": [
+   -219.4629,
+   143.0613,
+   -201.4629,
+   239.0613
+  ],
+  "z": [
+   84.0,
+   98.2
+  ],
+  "queda_mediana": 6.0,
+  "pct_ate_vazio": 0,
+  "objs": [
+   [
+    "OP_Prop_Cidade",
+    7
+   ],
+   [
+    "OP_Ter_Rocks",
+    2
+   ]
+  ],
+  "mats": [
+   [
+    "Wood_OP_Mid",
+    7
+   ],
+   [
+    "Grass_OP_Deep",
+    2
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_CastleLanding",
+  "cat": "chao",
+  "area": 11.2,
+  "c": [
+   -77.6,
+   387.9
+  ],
+  "bbox": [
+   -78.46289999999999,
+   380.06129999999996,
+   -76.96289999999999,
+   395.06129999999996
+  ],
+  "z": [
+   119.4,
+   122.6
+  ],
+  "queda_mediana": 2.4,
+  "pct_ate_vazio": 0,
+  "objs": [
+   [
+    "OP_Cas_Adro",
+    5
+   ]
+  ],
+  "mats": [
+   [
+    "Stone_OP_Path",
+    2
+   ],
+   [
+    "Stone_OP",
+    2
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_Plaza",
+  "cat": "telhado",
+  "area": 873.0,
+  "c": [
+   -7.9,
+   253.3
+  ],
+  "bbox": [
+   -160.9629,
+   180.5613,
+   203.5371,
+   335.06129999999996
+  ],
+  "z": [
+   96.5,
+   112.4
+  ],
+  "queda_mediana": 9.2,
+  "pct_ate_vazio": 0,
+  "objs": [
+   [
+    "OP_Cap_Oeste",
+    195
+   ],
+   [
+    "OP_Cap_NE",
+    163
+   ],
+   [
+    "OP_Prop_Plz_Borda",
+    18
+   ]
+  ],
+  "mats": [
+   [
+    "Roof_OP_Blue",
+    168
+   ],
+   [
+    "Roof_OP_Red",
+    142
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_W3",
+  "cat": "copa",
+  "area": 677.2,
+  "c": [
+   -163.7,
+   344.9
+  ],
+  "bbox": [
+   -216.4629,
+   300.56129999999996,
+   -100.96289999999999,
+   417.56129999999996
+  ],
+  "z": [
+   104.6,
+   114.3
+  ],
+  "queda_mediana": 8.3,
+  "pct_ate_vazio": 0,
+  "objs": [
+   [
+    "OP_Veg_TerracoAlto",
+    301
+   ]
+  ],
+  "mats": [
+   [
+    "Leaf_OP",
+    142
+   ],
+   [
+    "Flower_OP_Light",
+    89
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_T1",
+  "cat": "copa",
+  "area": 517.5,
+  "c": [
+   82.1,
+   116.7
+  ],
+  "bbox": [
+   -160.9629,
+   35.06129999999999,
+   197.5371,
+   260.06129999999996
+  ],
+  "z": [
+   89.9,
+   100.0
+  ],
+  "queda_mediana": 8.1,
+  "pct_ate_vazio": 0,
+  "objs": [
+   [
+    "OP_Veg_Entrada",
+    97
+   ],
+   [
+    "OP_Sum_Garden",
+    65
+   ],
+   [
+    "OP_Veg_Sudoeste",
+    25
+   ]
+  ],
+  "mats": [
+   [
+    "Flower_OP_Light",
+    92
+   ],
+   [
+    "Leaf_OP",
+    80
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_Harbor",
+  "cat": "telhado",
+  "area": 479.2,
+  "c": [
+   195.1,
+   73.4
+  ],
+  "bbox": [
+   124.03710000000001,
+   41.06129999999999,
+   245.5371,
+   225.5613
+  ],
+  "z": [
+   51.0,
+   94.1
+  ],
+  "queda_mediana": 9.5,
+  "pct_ate_vazio": 0,
+  "objs": [
+   [
+    "OP_Port_Piers",
+    121
+   ],
+   [
+    "OP_Port_Built",
+    91
+   ],
+   [
+    "OP_Exit_Bridge",
+    1
+   ]
+  ],
+  "mats": [
+   [
+    "Roof_OP_Red",
+    113
+   ],
+   [
+    "Roof_OP_Shingle",
+    83
+   ]
+  ]
+ },
+ {
+  "zona": "borda_oeste(lobo SO/W2b/W3)",
+  "cat": "copa",
+  "area": 371.2,
+  "c": [
+   -220.4,
+   224.5
+  ],
+  "bbox": [
+   -229.9629,
+   116.06129999999999,
+   -180.4629,
+   440.06129999999996
+  ],
+  "z": [
+   89.4,
+   108.5
+  ],
+  "queda_mediana": 8.7,
+  "pct_ate_vazio": 93,
+  "objs": [
+   [
+    "OP_Veg_Oeste",
+    109
+   ],
+   [
+    "OP_Veg_Sudoeste",
+    38
+   ],
+   [
+    "OP_Veg_TerracoAlto",
+    18
+   ]
+  ],
+  "mats": [
+   [
+    "Leaf_OP_Pine",
+    71
+   ],
+   [
+    "Leaf_OP",
+    67
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_T1",
+  "cat": "telhado",
+  "area": 254.2,
+  "c": [
+   -84.8,
+   92.7
+  ],
+  "bbox": [
+   -156.4629,
+   41.06129999999999,
+   205.0371,
+   246.5613
+  ],
+  "z": [
+   94.0,
+   102.0
+  ],
+  "queda_mediana": 7.2,
+  "pct_ate_vazio": 0,
+  "objs": [
+   [
+    "OP_Prop_Cidade",
+    57
+   ],
+   [
+    "OP_Cap_Bairro",
+    41
+   ],
+   [
+    "OP_Cap_Leste",
+    12
+   ]
+  ],
+  "mats": [
+   [
+    "Roof_OP_Shingle",
+    56
+   ],
+   [
+    "Roof_OP_Blue",
+    41
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_Plaza",
+  "cat": "copa",
+  "area": 211.5,
+  "c": [
+   19.1,
+   222.2
+  ],
+  "bbox": [
+   -130.9629,
+   120.56129999999999,
+   224.5371,
+   311.06129999999996
+  ],
+  "z": [
+   93.8,
+   107.8
+  ],
+  "queda_mediana": 10.0,
+  "pct_ate_vazio": 0,
+  "objs": [
+   [
+    "OP_Veg_Leste",
+    44
+   ],
+   [
+    "OP_Veg_Sudoeste",
+    34
+   ],
+   [
+    "OP_Veg_Oeste",
+    12
+   ]
+  ],
+  "mats": [
+   [
+    "Flower_OP_Light",
+    64
+   ],
+   [
+    "Leaf_OP",
+    28
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_Court",
+  "cat": "copa",
+  "area": 202.5,
+  "c": [
+   -3.7,
+   362.6
+  ],
+  "bbox": [
+   -34.96289999999999,
+   357.56129999999996,
+   35.53710000000001,
+   368.06129999999996
+  ],
+  "z": [
+   141.5,
+   149.1
+  ],
+  "queda_mediana": 8.2,
+  "pct_ate_vazio": 0,
+  "objs": [
+   [
+    "OP_Veg_Castelo",
+    90
+   ]
+  ],
+  "mats": [
+   [
+    "Leaf_OP_Pine",
+    65
+   ],
+   [
+    "Leaf_OP",
+    25
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_Court",
+  "cat": "telhado",
+  "area": 195.8,
+  "c": [
+   -3.0,
+   422.2
+  ],
+  "bbox": [
+   -88.96289999999999,
+   360.56129999999996,
+   71.53710000000001,
+   474.56129999999996
+  ],
+  "z": [
+   141.0,
+   146.5
+  ],
+  "queda_mediana": 5.5,
+  "pct_ate_vazio": 0,
+  "objs": [
+   [
+    "OP_Cas_Court",
+    87
+   ]
+  ],
+  "mats": [
+   [
+    "Roof_OP_Blue",
+    65
+   ],
+   [
+    "Roof_OP_Ridge",
+    22
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_W2b",
+  "cat": "copa",
+  "area": 153.0,
+  "c": [
+   -211.4,
+   178.2
+  ],
+  "bbox": [
+   -222.4629,
+   165.5613,
+   -199.9629,
+   249.5613
+  ],
+  "z": [
+   96.8,
+   100.9
+  ],
+  "queda_mediana": 5.9,
+  "pct_ate_vazio": 0,
+  "objs": [
+   [
+    "OP_Veg_Oeste",
+    68
+   ]
+  ],
+  "mats": [
+   [
+    "Leaf_OP_Pine",
+    51
+   ],
+   [
+    "Leaf_OP",
+    16
+   ]
+  ]
+ },
+ {
+  "zona": "borda_sul(entrada/frente)",
+  "cat": "copa",
+  "area": 141.8,
+  "c": [
+   7.0,
+   27.7
+  ],
+  "bbox": [
+   -154.9629,
+   -3.9387000000000114,
+   212.5371,
+   36.56129999999999
+  ],
+  "z": [
+   46.8,
+   98.4
+  ],
+  "queda_mediana": 4.7,
+  "pct_ate_vazio": 86,
+  "objs": [
+   [
+    "OP_Veg_Sudoeste",
+    23
+   ],
+   [
+    "OP_Veg_Entrada",
+    21
+   ],
+   [
+    "OP_Veg_Leste",
+    19
+   ]
+  ],
+  "mats": [
+   [
+    "Leaf_OP_Pine",
+    30
+   ],
+   [
+    "Leaf_OP",
+    24
+   ]
+  ]
+ },
+ {
+  "zona": "borda_leste(porto/summon)",
+  "cat": "copa",
+  "area": 103.5,
+  "c": [
+   285.6,
+   255.7
+  ],
+  "bbox": [
+   224.5371,
+   233.0613,
+   337.0371,
+   279.56129999999996
+  ],
+  "z": [
+   92.4,
+   103.2
+  ],
+  "queda_mediana": 7.4,
+  "pct_ate_vazio": 72,
+  "objs": [
+   [
+    "OP_Veg_Promontorio",
+    29
+   ],
+   [
+    "OP_Veg_Leste",
+    17
+   ]
+  ],
+  "mats": [
+   [
+    "Leaf_OP_Pine",
+    24
+   ],
+   [
+    "Leaf_OP",
+    22
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_W2b",
+  "cat": "telhado",
+  "area": 101.2,
+  "c": [
+   -201.6,
+   271.2
+  ],
+  "bbox": [
+   -210.4629,
+   162.5613,
+   -189.4629,
+   297.56129999999996
+  ],
+  "z": [
+   98.7,
+   104.1
+  ],
+  "queda_mediana": 10.3,
+  "pct_ate_vazio": 0,
+  "objs": [
+   [
+    "OP_Cap_OesteFundo",
+    37
+   ],
+   [
+    "OP_Prop_Cidade",
+    8
+   ]
+  ],
+  "mats": [
+   [
+    "Roof_OP_Green",
+    34
+   ],
+   [
+    "Roof_OP_Shingle",
+    8
+   ]
+  ]
+ },
+ {
+  "zona": "borda_castelo",
+  "cat": "telhado",
+  "area": 96.8,
+  "c": [
+   22.6,
+   408.2
+  ],
+  "bbox": [
+   -90.46289999999999,
+   336.56129999999996,
+   163.0371,
+   468.56129999999996
+  ],
+  "z": [
+   102.1,
+   141.5
+  ],
+  "queda_mediana": 1.8,
+  "pct_ate_vazio": 0,
+  "objs": [
+   [
+    "OP_Cas_Court",
+    35
+   ],
+   [
+    "OP_Cap_NE",
+    8
+   ]
+  ],
+  "mats": [
+   [
+    "Roof_OP_Blue",
+    35
+   ],
+   [
+    "Roof_OP_Red",
+    8
+   ]
+  ]
+ },
+ {
+  "zona": "rocha_FrontR",
+  "cat": "copa",
+  "area": 87.8,
+  "c": [
+   66.7,
+   31.6
+  ],
+  "bbox": [
+   49.03710000000001,
+   29.06129999999999,
+   115.03710000000001,
+   35.06129999999999
+  ],
+  "z": [
+   90.4,
+   96.9
+  ],
+  "queda_mediana": 5.0,
+  "pct_ate_vazio": 90,
+  "objs": [
+   [
+    "OP_Veg_Entrada",
+    36
+   ],
+   [
+    "OP_Veg_Leste",
+    3
+   ]
+  ],
+  "mats": [
+   [
+    "Leaf_OP_Pine",
+    28
+   ],
+   [
+    "Leaf_OP",
+    11
+   ]
+  ]
+ },
+ {
+  "zona": "borda_NE(promontorio/caveira)",
+  "cat": "copa",
+  "area": 83.2,
+  "c": [
+   304.1,
+   293.4
+  ],
+  "bbox": [
+   226.0371,
+   281.06129999999996,
+   334.0371,
+   300.56129999999996
+  ],
+  "z": [
+   85.6,
+   102.2
+  ],
+  "queda_mediana": 9.9,
+  "pct_ate_vazio": 76,
+  "objs": [
+   [
+    "OP_Veg_Leste",
+    19
+   ],
+   [
+    "OP_Veg_Promontorio",
+    18
+   ]
+  ],
+  "mats": [
+   [
+    "Leaf_OP_Pine",
+    19
+   ],
+   [
+    "Leaf_OP",
+    11
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_Entry",
+  "cat": "copa",
+  "area": 49.5,
+  "c": [
+   3.2,
+   17.5
+  ],
+  "bbox": [
+   -24.46289999999999,
+   2.0612999999999886,
+   25.03710000000001,
+   33.56129999999999
+  ],
+  "z": [
+   85.8,
+   96.3
+  ],
+  "queda_mediana": 1.9,
+  "pct_ate_vazio": 0,
+  "objs": [
+   [
+    "OP_Ent_Lamps",
+    19
+   ],
+   [
+    "OP_Veg_Entrada",
+    3
+   ]
+  ],
+  "mats": [
+   [
+    "Leaf_OP",
+    15
+   ],
+   [
+    "Leaf_OP_Pine",
+    7
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_HarborMid",
+  "cat": "telhado",
+  "area": 49.5,
+  "c": [
+   169.1,
+   128.9
+  ],
+  "bbox": [
+   161.5371,
+   128.0613,
+   178.0371,
+   129.5613
+  ],
+  "z": [
+   83.1,
+   84.6
+  ],
+  "queda_mediana": 18.4,
+  "pct_ate_vazio": 0,
+  "objs": [
+   [
+    "OP_Port_Built",
+    22
+   ]
+  ],
+  "mats": [
+   [
+    "Roof_OP_Blue",
+    20
+   ],
+   [
+    "Roof_OP_Ridge",
+    2
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_ExitLand",
+  "cat": "copa",
+  "area": 36.0,
+  "c": [
+   316.2,
+   273.8
+  ],
+  "bbox": [
+   287.5371,
+   239.0613,
+   328.0371,
+   297.56129999999996
+  ],
+  "z": [
+   89.7,
+   102.3
+  ],
+  "queda_mediana": 4.5,
+  "pct_ate_vazio": 0,
+  "objs": [
+   [
+    "OP_Veg_Promontorio",
+    13
+   ],
+   [
+    "OP_Veg_Leste",
+    3
+   ]
+  ],
+  "mats": [
+   [
+    "Leaf_OP_Pine",
+    8
+   ],
+   [
+    "Leaf_OP",
+    6
+   ]
+  ]
+ },
+ {
+  "zona": "rochedo_castelo(BackW)",
+  "cat": "copa",
+  "area": 33.8,
+  "c": [
+   -91.9,
+   427.1
+  ],
+  "bbox": [
+   -96.46289999999999,
+   384.56129999999996,
+   -81.46289999999999,
+   440.06129999999996
+  ],
+  "z": [
+   123.5,
+   131.0
+  ],
+  "queda_mediana": null,
+  "pct_ate_vazio": 100,
+  "objs": [
+   [
+    "OP_Veg_Castelo",
+    15
+   ]
+  ],
+  "mats": [
+   [
+    "Leaf_OP_Pine",
+    12
+   ],
+   [
+    "Flower_OP_Light",
+    3
+   ]
+  ]
+ },
+ {
+  "zona": "rochedo_castelo(ButtressL)",
+  "cat": "copa",
+  "area": 29.2,
+  "c": [
+   -55.7,
+   353.1
+  ],
+  "bbox": [
+   -60.46289999999999,
+   350.06129999999996,
+   -52.96289999999999,
+   357.56129999999996
+  ],
+  "z": [
+   134.1,
+   137.4
+  ],
+  "queda_mediana": null,
+  "pct_ate_vazio": 100,
+  "objs": [
+   [
+    "OP_Veg_Castelo",
+    13
+   ]
+  ],
+  "mats": [
+   [
+    "Leaf_OP_Pine",
+    7
+   ],
+   [
+    "Leaf_OP",
+    6
+   ]
+  ]
+ },
+ {
+  "zona": "borda_leste(porto/summon)",
+  "cat": "telhado",
+  "area": 20.2,
+  "c": [
+   255.9,
+   229.2
+  ],
+  "bbox": [
+   227.5371,
+   210.5613,
+   292.0371,
+   249.5613
+  ],
+  "z": [
+   41.7,
+   94.3
+  ],
+  "queda_mediana": 5.9,
+  "pct_ate_vazio": 67,
+  "objs": [
+   [
+    "OP_Port_Piers",
+    5
+   ],
+   [
+    "OP_Exit_Bridge",
+    4
+   ]
+  ],
+  "mats": [
+   [
+    "Roof_OP_Blue",
+    5
+   ],
+   [
+    "Roof_OP_Ridge",
+    4
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_Forecourt",
+  "cat": "telhado",
+  "area": 18.0,
+  "c": [
+   -65.9,
+   335.8
+  ],
+  "bbox": [
+   -70.96289999999999,
+   332.06129999999996,
+   -61.96289999999999,
+   338.06129999999996
+  ],
+  "z": [
+   110.4,
+   111.0
+  ],
+  "queda_mediana": 12.1,
+  "pct_ate_vazio": 0,
+  "objs": [
+   [
+    "OP_Cas_Adro",
+    8
+   ]
+  ],
+  "mats": [
+   [
+    "Roof_OP_Blue",
+    8
+   ]
+  ]
+ },
+ {
+  "zona": "borda_oeste(lobo SO/W2b/W3)",
+  "cat": "telhado",
+  "area": 15.8,
+  "c": [
+   -204.5,
+   297.6
+  ],
+  "bbox": [
+   -208.9629,
+   297.56129999999996,
+   -199.9629,
+   297.56129999999996
+  ],
+  "z": [
+   102.0,
+   102.8
+  ],
+  "queda_mediana": 7.0,
+  "pct_ate_vazio": 0,
+  "objs": [
+   [
+    "OP_Cap_OesteFundo",
+    7
+   ]
+  ],
+  "mats": [
+   [
+    "Roof_OP_Green",
+    7
+   ]
+  ]
+ },
+ {
+  "zona": "borda_sul(entrada/frente)",
+  "cat": "telhado",
+  "area": 13.5,
+  "c": [
+   0.3,
+   -47.4
+  ],
+  "bbox": [
+   -9.46289999999999,
+   -71.43870000000001,
+   10.03710000000001,
+   -0.9387000000000114
+  ],
+  "z": [
+   87.7,
+   90.6
+  ],
+  "queda_mediana": 2.3,
+  "pct_ate_vazio": 0,
+  "objs": [
+   [
+    "OP_Ent_Bridge",
+    6
+   ]
+  ],
+  "mats": [
+   [
+    "Roof_OP_Ridge",
+    6
+   ]
+  ]
+ },
+ {
+  "zona": "outro_sem_piso",
+  "cat": "copa",
+  "area": 13.5,
+  "c": [
+   -33.7,
+   250.8
+  ],
+  "bbox": [
+   -97.96289999999999,
+   120.56129999999999,
+   92.53710000000001,
+   317.06129999999996
+  ],
+  "z": [
+   89.7,
+   93.7
+  ],
+  "queda_mediana": 1.6,
+  "pct_ate_vazio": 67,
+  "objs": [
+   [
+    "OP_Veg_TerracoAlto",
+    4
+   ],
+   [
+    "OP_Veg_Leste",
+    2
+   ]
+  ],
+  "mats": [
+   [
+    "Leaf_OP",
+    5
+   ],
+   [
+    "Leaf_OP_Pine",
+    1
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_W3",
+  "cat": "telhado",
+  "area": 13.5,
+  "c": [
+   -167.0,
+   389.1
+  ],
+  "bbox": [
+   -169.9629,
+   387.56129999999996,
+   -163.9629,
+   390.56129999999996
+  ],
+  "z": [
+   111.2,
+   112.4
+  ],
+  "queda_mediana": 11.5,
+  "pct_ate_vazio": 0,
+  "objs": [
+   [
+    "OP_Cap_OesteFundo",
+    6
+   ]
+  ],
+  "mats": [
+   [
+    "Roof_OP_Ridge",
+    3
+   ],
+   [
+    "Roof_OP_Blue",
+    3
+   ]
+  ]
+ },
+ {
+  "zona": "borda_castelo",
+  "cat": "copa",
+  "area": 11.2,
+  "c": [
+   -97.1,
+   357.9
+  ],
+  "bbox": [
+   -99.46289999999999,
+   336.56129999999996,
+   -91.96289999999999,
+   437.06129999999996
+  ],
+  "z": [
+   110.2,
+   127.3
+  ],
+  "queda_mediana": 7.0,
+  "pct_ate_vazio": 80,
+  "objs": [
+   [
+    "OP_Veg_TerracoAlto",
+    4
+   ],
+   [
+    "OP_Veg_Castelo",
+    1
+   ]
+  ],
+  "mats": [
+   [
+    "Flower_OP_Light",
+    4
+   ],
+   [
+    "Leaf_OP_Pine",
+    1
+   ]
+  ]
+ },
+ {
+  "zona": "borda_castelo",
+  "cat": "outro",
+  "area": 9.0,
+  "c": [
+   1.0,
+   351.6
+  ],
+  "bbox": [
+   -18.46289999999999,
+   351.56129999999996,
+   19.03710000000001,
+   351.56129999999996
+  ],
+  "z": [
+   133.0,
+   133.5
+  ],
+  "queda_mediana": null,
+  "pct_ate_vazio": 100,
+  "objs": [
+   [
+    "OP_Cas_Adro",
+    4
+   ]
+  ],
+  "mats": [
+   [
+    "Cloth_OP_White",
+    4
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_Harbor",
+  "cat": "copa",
+  "area": 6.8,
+  "c": [
+   173.5,
+   27.1
+  ],
+  "bbox": [
+   172.0371,
+   26.06129999999999,
+   175.0371,
+   27.56129999999999
+  ],
+  "z": [
+   51.0,
+   51.1
+  ],
+  "queda_mediana": 8.9,
+  "pct_ate_vazio": 0,
+  "objs": [
+   [
+    "OP_Veg_Leste",
+    3
+   ]
+  ],
+  "mats": [
+   [
+    "Flower_OP_Light",
+    3
+   ]
+  ]
+ },
+ {
+  "zona": "navio",
+  "cat": "outro",
+  "area": 6.8,
+  "c": [
+   249.5,
+   133.6
+  ],
+  "bbox": [
+   239.5371,
+   128.0613,
+   254.5371,
+   137.0613
+  ],
+  "z": [
+   44.6,
+   54.8
+  ],
+  "queda_mediana": 5.4,
+  "pct_ate_vazio": 33,
+  "objs": [
+   [
+    "OP_Ship_Navio",
+    3
+   ]
+  ],
+  "mats": [
+   [
+    "Rope",
+    3
+   ]
+  ]
+ },
+ {
+  "zona": "rochedo_castelo(ButtressR)",
+  "cat": "telhado",
+  "area": 6.8,
+  "c": [
+   57.0,
+   362.6
+  ],
+  "bbox": [
+   52.03710000000001,
+   357.56129999999996,
+   65.53710000000001,
+   371.06129999999996
+  ],
+  "z": [
+   141.1,
+   146.6
+  ],
+  "queda_mediana": 4.4,
+  "pct_ate_vazio": 33,
+  "objs": [
+   [
+    "OP_Cas_Court",
+    3
+   ]
+  ],
+  "mats": [
+   [
+    "Roof_OP_Blue",
+    3
+   ]
+  ]
+ },
+ {
+  "zona": "sobre_piso_CastleLanding",
+  "cat": "copa",
+  "area": 4.5,
+  "c": [
+   -80.0,
+   383.8
+  ],
+  "bbox": [
+   -79.96289999999999,
+   383.06129999999996,
+   -79.96289999999999,
+   384.56129999999996
+  ],
+  "z": [
+   128.2,
+   128.2
+  ],
+  "queda_mediana": 11.0,
+  "pct_ate_vazio": 0,
+  "objs": [
+   [
+    "OP_Veg_Castelo",
+    2
+   ]
+  ],
+  "mats": [
+   [
+    "Flower_OP_Light",
+    2
+   ]
+  ]
+ }
+]

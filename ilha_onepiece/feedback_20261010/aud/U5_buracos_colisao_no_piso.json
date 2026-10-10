@@ -1,0 +1,194 @@
+[
+ {
+  "piso": "HarborMid",
+  "z": 65.52,
+  "bbox": [
+   149.2,
+   148.1,
+   167.2,
+   149.5
+  ],
+  "amostras": 139,
+  "ate_o_vazio": 0,
+  "objs": [
+   [
+    "OP_Ter_Ground",
+    133
+   ],
+   [
+    "OP_Ter_Walls",
+    6
+   ]
+  ]
+ },
+ {
+  "piso": "Plaza",
+  "z": 92.5,
+  "bbox": [
+   -170.0,
+   283.7,
+   -170.0,
+   299.5
+  ],
+  "amostras": 86,
+  "ate_o_vazio": 86,
+  "objs": [
+   [
+    "OP_Water_Stone",
+    86
+   ]
+  ]
+ },
+ {
+  "piso": "T1",
+  "z": 89.33,
+  "bbox": [
+   -9.2,
+   36.5,
+   -8.0,
+   44.1
+  ],
+  "amostras": 47,
+  "ate_o_vazio": 0,
+  "objs": [
+   [
+    "OP_Ent_Court",
+    46
+   ],
+   [
+    "OP_Ter_Ground",
+    1
+   ]
+  ]
+ },
+ {
+  "piso": "W3",
+  "z": 101.39,
+  "bbox": [
+   -117.2,
+   300.1,
+   -116.0,
+   305.5
+  ],
+  "amostras": 42,
+  "ate_o_vazio": 0,
+  "objs": [
+   [
+    "OP_Cap_Oeste",
+    42
+   ]
+  ]
+ },
+ {
+  "piso": "T1",
+  "z": 88.35,
+  "bbox": [
+   8.0,
+   38.1,
+   9.2,
+   47.1
+  ],
+  "amostras": 16,
+  "ate_o_vazio": 1,
+  "objs": [
+   [
+    "OP_Ent_Court",
+    14
+   ],
+   [
+    "OP_Ter_Ground",
+    1
+   ]
+  ]
+ },
+ {
+  "piso": "Plaza",
+  "z": 92.34,
+  "bbox": [
+   15.2,
+   122.1,
+   15.2,
+   164.1
+  ],
+  "amostras": 15,
+  "ate_o_vazio": 15,
+  "objs": [
+   [
+    "OP_Plz_M2_Faixa",
+    15
+   ]
+  ]
+ },
+ {
+  "piso": "W3",
+  "z": 100.2,
+  "bbox": [
+   -102.8,
+   311.1,
+   -102.8,
+   320.1
+  ],
+  "amostras": 4,
+  "ate_o_vazio": 4,
+  "objs": [
+   [
+    "OP_Ter_Ground",
+    4
+   ]
+  ]
+ },
+ {
+  "piso": "Court",
+  "z": 136.2,
+  "bbox": [
+   -64.0,
+   377.1,
+   -63.8,
+   380.1
+  ],
+  "amostras": 4,
+  "ate_o_vazio": 2,
+  "objs": [
+   [
+    "OP_Ter_CastleWall",
+    4
+   ]
+  ]
+ },
+ {
+  "piso": "Court",
+  "z": 137.24,
+  "bbox": [
+   -65.0,
+   436.1,
+   -65.0,
+   437.1
+  ],
+  "amostras": 4,
+  "ate_o_vazio": 0,
+  "objs": [
+   [
+    "OP_Cas_Adro",
+    4
+   ]
+  ]
+ },
+ {
+  "piso": "Forecourt",
+  "z": 97.15,
+  "bbox": [
+   16.0,
+   319.5,
+   16.0,
+   319.7
+  ],
+  "amostras": 2,
+  "ate_o_vazio": 0,
+  "objs": [
+   [
+    "OP_Cas_Adro",
+    2
+   ]
+  ]
+ }
+]

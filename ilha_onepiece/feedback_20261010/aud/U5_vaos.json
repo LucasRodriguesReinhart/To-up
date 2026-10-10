@@ -1,0 +1,4038 @@
+{
+ "A": [
+  {
+   "tipo": "A_colisao",
+   "x": 18.3,
+   "y": 335.8,
+   "n": 3,
+   "z": 99.7,
+   "largura_max": 1.4,
+   "objs": [
+    [
+     "OP_Cas_Adro",
+     3
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Cas_Adro",
+     3
+    ]
+   ],
+   "piso": null,
+   "queda_max": 1.5
+  },
+  {
+   "tipo": "A_colisao",
+   "x": 134.8,
+   "y": 83.1,
+   "n": 2,
+   "z": 51.7,
+   "largura_max": 5.6,
+   "objs": [
+    [
+     "OP_Port_Built",
+     2
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Port_Built",
+     2
+    ]
+   ],
+   "piso": "Harbor",
+   "queda_max": 9.5
+  },
+  {
+   "tipo": "A_colisao",
+   "x": -200.0,
+   "y": 280.7,
+   "n": 2,
+   "z": 103.24,
+   "largura_max": 2.4,
+   "objs": [
+    [
+     "OP_Cap_OesteFundo",
+     2
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Cap_OesteFundo",
+     2
+    ]
+   ],
+   "piso": "W2b",
+   "queda_max": 11.0
+  },
+  {
+   "tipo": "A_colisao",
+   "x": 58.8,
+   "y": 35.1,
+   "n": 1,
+   "z": 92.88,
+   "largura_max": 0.6,
+   "objs": [
+    [
+     "OP_Veg_Entrada",
+     1
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Veg_Entrada",
+     1
+    ]
+   ],
+   "piso": null,
+   "queda_max": 1.5
+  },
+  {
+   "tipo": "A_colisao",
+   "x": 144.4,
+   "y": 83.1,
+   "n": 1,
+   "z": 51.7,
+   "largura_max": 5.2,
+   "objs": [
+    [
+     "OP_Port_Built",
+     1
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Port_Built",
+     1
+    ]
+   ],
+   "piso": "Harbor",
+   "queda_max": 9.5
+  },
+  {
+   "tipo": "A_colisao",
+   "x": 207.8,
+   "y": 227.1,
+   "n": 1,
+   "z": 88.5,
+   "largura_max": 1.0,
+   "objs": [
+    [
+     "OP_Exit_Stone",
+     1
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Exit_Stone",
+     1
+    ]
+   ],
+   "piso": "Harbor",
+   "queda_max": 2.1
+  },
+  {
+   "tipo": "A_colisao",
+   "x": -18.4,
+   "y": 335.1,
+   "n": 1,
+   "z": 99.7,
+   "largura_max": 1.2,
+   "objs": [
+    [
+     "OP_Cas_Adro",
+     1
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Cas_Adro",
+     1
+    ]
+   ],
+   "piso": null,
+   "queda_max": 1.5
+  },
+  {
+   "tipo": "A_colisao",
+   "x": -194.0,
+   "y": 280.7,
+   "n": 1,
+   "z": 103.39,
+   "largura_max": 2.4,
+   "objs": [
+    [
+     "OP_Cap_OesteFundo",
+     1
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Cap_OesteFundo",
+     1
+    ]
+   ],
+   "piso": "W2b",
+   "queda_max": 11.1
+  },
+  {
+   "tipo": "A_colisao",
+   "x": -68.0,
+   "y": 115.7,
+   "n": 1,
+   "z": 89.7,
+   "largura_max": 0.8,
+   "objs": [
+    [
+     "OP_Veg_Sudoeste",
+     1
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Veg_Sudoeste",
+     1
+    ]
+   ],
+   "piso": "T1",
+   "queda_max": 1.6
+  },
+  {
+   "tipo": "A_colisao",
+   "x": -41.0,
+   "y": 115.3,
+   "n": 1,
+   "z": 89.63,
+   "largura_max": 0.6,
+   "objs": [
+    [
+     "OP_Veg_Entrada",
+     1
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Veg_Entrada",
+     1
+    ]
+   ],
+   "piso": "T1",
+   "queda_max": 1.6
+  }
+ ],
+ "B": [
+  {
+   "tipo": "B_fresta",
+   "x": 213.2,
+   "y": 241.8,
+   "n": 21,
+   "z": 88.26,
+   "largura_max": 0.6,
+   "objs": [
+    [
+     "OP_Ter_Ground",
+     14
+    ],
+    [
+     "OP_Exit_Bridge",
+     4
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Exit_Bridge",
+     21
+    ]
+   ],
+   "piso": "Harbor",
+   "fundo_max": 45.9,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": 213.9,
+   "y": 232.9,
+   "n": 14,
+   "z": 88.26,
+   "largura_max": 0.2,
+   "objs": [
+    [
+     "OP_Exit_Bridge",
+     6
+    ],
+    [
+     "OP_Ter_Walls",
+     4
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Exit_Bridge",
+     14
+    ]
+   ],
+   "piso": "Harbor",
+   "fundo_max": 46.0,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": 220.3,
+   "y": 242.3,
+   "n": 11,
+   "z": 88.26,
+   "largura_max": 0.6,
+   "objs": [
+    [
+     "OP_Ter_Ground",
+     6
+    ],
+    [
+     "OP_Exit_Bridge",
+     5
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Exit_Bridge",
+     11
+    ]
+   ],
+   "piso": "Harbor",
+   "fundo_max": 45.9,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -156.3,
+   "y": 45.2,
+   "n": 8,
+   "z": 88.0,
+   "largura_max": 2.4,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     5
+    ],
+    [
+     "OP_Water_Stone",
+     3
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ter_Ground",
+     8
+    ]
+   ],
+   "piso": null,
+   "fundo_max": 70.4,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -112.0,
+   "y": 36.0,
+   "n": 7,
+   "z": 88.0,
+   "largura_max": 1.6,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     7
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ter_Ground",
+     7
+    ]
+   ],
+   "piso": null,
+   "fundo_max": 70.9,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -90.5,
+   "y": 35.0,
+   "n": 7,
+   "z": 88.0,
+   "largura_max": 1.2,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     7
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ter_Ground",
+     7
+    ]
+   ],
+   "piso": null,
+   "fundo_max": 75.3,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": 103.7,
+   "y": 123.0,
+   "n": 7,
+   "z": 88.0,
+   "largura_max": 1.0,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     7
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ter_Ground",
+     7
+    ]
+   ],
+   "piso": null,
+   "fundo_max": 89.7,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -136.4,
+   "y": 40.0,
+   "n": 6,
+   "z": 88.0,
+   "largura_max": 1.6,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     5
+    ],
+    [
+     "OP_Cap_Bairro",
+     1
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ter_Ground",
+     5
+    ],
+    [
+     "OP_Cap_Bairro",
+     1
+    ]
+   ],
+   "piso": "T1",
+   "fundo_max": 70.4,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -183.3,
+   "y": 429.4,
+   "n": 6,
+   "z": 100.0,
+   "largura_max": 2.4,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     6
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ter_Ground",
+     6
+    ]
+   ],
+   "piso": null,
+   "fundo_max": 86.0,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -171.6,
+   "y": 435.4,
+   "n": 6,
+   "z": 100.0,
+   "largura_max": 3.4,
+   "objs": [
+    [
+     "OP_Ter_Rocks",
+     5
+    ],
+    [
+     "OP_Ter_Cliff",
+     1
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ter_Ground",
+     6
+    ]
+   ],
+   "piso": null,
+   "fundo_max": 85.0,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -96.1,
+   "y": 119.1,
+   "n": 5,
+   "z": 94.63,
+   "largura_max": 0.8,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     3
+    ],
+    [
+     "OP_Ter_M2_Arrimo",
+     1
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Cap_Bairro",
+     3
+    ],
+    [
+     "OP_Plz_M2_Borda",
+     1
+    ]
+   ],
+   "piso": "Plaza",
+   "fundo_max": 87.3,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -19.1,
+   "y": 117.7,
+   "n": 5,
+   "z": 94.63,
+   "largura_max": 0.6,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     3
+    ],
+    [
+     "OP_Plz_M2_Faixa",
+     1
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ter_Ground",
+     3
+    ],
+    [
+     "OP_Plz_M2_Borda",
+     1
+    ]
+   ],
+   "piso": null,
+   "fundo_max": 88.4,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": 87.3,
+   "y": 119.1,
+   "n": 5,
+   "z": 88.0,
+   "largura_max": 3.2,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     5
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ter_Ground",
+     5
+    ]
+   ],
+   "piso": "T1",
+   "fundo_max": 88.9,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": 113.4,
+   "y": 131.4,
+   "n": 5,
+   "z": 88.0,
+   "largura_max": 1.0,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     5
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ter_Ground",
+     5
+    ]
+   ],
+   "piso": null,
+   "fundo_max": 91.0,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": 127.2,
+   "y": 215.3,
+   "n": 5,
+   "z": 88.87,
+   "largura_max": 0.4,
+   "objs": [
+    [
+     "OP_Ter_Ground",
+     5
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Sum_Stone",
+     5
+    ]
+   ],
+   "piso": "T1",
+   "fundo_max": 1.0,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": 335.8,
+   "y": 241.7,
+   "n": 5,
+   "z": 88.2,
+   "largura_max": 1.8,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     5
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ter_Ground",
+     5
+    ]
+   ],
+   "piso": null,
+   "fundo_max": 72.9,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -113.6,
+   "y": 308.4,
+   "n": 5,
+   "z": 100.2,
+   "largura_max": 3.6,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     4
+    ],
+    [
+     "OP_Cap_Oeste",
+     1
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Cap_Oeste",
+     3
+    ],
+    [
+     "OP_Ter_Ground",
+     2
+    ]
+   ],
+   "piso": "W3",
+   "fundo_max": 99.9,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -94.6,
+   "y": 329.5,
+   "n": 5,
+   "z": 98.0,
+   "largura_max": 0.8,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     5
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ter_Ground",
+     5
+    ]
+   ],
+   "piso": null,
+   "fundo_max": 98.0,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -214.9,
+   "y": 389.3,
+   "n": 5,
+   "z": 100.0,
+   "largura_max": 1.6,
+   "objs": [
+    [
+     "OP_Ter_Rocks",
+     4
+    ],
+    [
+     "OP_Ter_Cliff",
+     1
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ter_Ground",
+     5
+    ]
+   ],
+   "piso": null,
+   "fundo_max": 85.2,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -210.5,
+   "y": 398.3,
+   "n": 5,
+   "z": 100.0,
+   "largura_max": 3.8,
+   "objs": [
+    [
+     "OP_Ter_Rocks",
+     5
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ter_Ground",
+     5
+    ]
+   ],
+   "piso": null,
+   "fundo_max": 57.4,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -201.8,
+   "y": 416.5,
+   "n": 5,
+   "z": 100.0,
+   "largura_max": 1.0,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     5
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ter_Ground",
+     5
+    ]
+   ],
+   "piso": null,
+   "fundo_max": 84.9,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -193.8,
+   "y": 423.7,
+   "n": 5,
+   "z": 100.0,
+   "largura_max": 2.0,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     5
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ter_Ground",
+     5
+    ]
+   ],
+   "piso": null,
+   "fundo_max": 83.4,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": 179.8,
+   "y": 23.9,
+   "n": 4,
+   "z": 42.0,
+   "largura_max": 1.6,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     4
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ter_Ground",
+     4
+    ]
+   ],
+   "piso": null,
+   "fundo_max": 25.8,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -110.5,
+   "y": 118.2,
+   "n": 4,
+   "z": 94.63,
+   "largura_max": 0.4,
+   "objs": [
+    [
+     "OP_Ter_M2_Arrimo",
+     2
+    ],
+    [
+     "OP_Ter_Cliff",
+     2
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Plz_M2_Borda",
+     2
+    ],
+    [
+     "OP_Cap_Bairro",
+     2
+    ]
+   ],
+   "piso": "Plaza",
+   "fundo_max": 86.2,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": 22.1,
+   "y": 117.6,
+   "n": 4,
+   "z": 94.63,
+   "largura_max": 0.2,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     3
+    ],
+    [
+     "OP_Plz_M2_Faixa",
+     1
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Cap_Leste",
+     3
+    ],
+    [
+     "OP_Plz_M2_Borda",
+     1
+    ]
+   ],
+   "piso": null,
+   "fundo_max": 89.7,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -217.2,
+   "y": 134.9,
+   "n": 4,
+   "z": 92.0,
+   "largura_max": 1.4,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     2
+    ],
+    [
+     "OP_Ter_Rocks",
+     2
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ter_Ground",
+     4
+    ]
+   ],
+   "piso": null,
+   "fundo_max": 72.8,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -224.4,
+   "y": 169.3,
+   "n": 4,
+   "z": 91.7,
+   "largura_max": 1.8,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     4
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ter_Ground",
+     3
+    ],
+    [
+     "OP_Ter_Cliff",
+     1
+    ]
+   ],
+   "piso": null,
+   "fundo_max": 73.6,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": 219.1,
+   "y": 248.4,
+   "n": 4,
+   "z": 88.26,
+   "largura_max": 0.4,
+   "objs": [
+    [
+     "OP_Exit_Bridge",
+     2
+    ],
+    [
+     "OP_Ter_Ground",
+     2
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Exit_Bridge",
+     4
+    ]
+   ],
+   "piso": "Harbor",
+   "fundo_max": 45.9,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -217.7,
+   "y": 280.8,
+   "n": 4,
+   "z": 92.0,
+   "largura_max": 2.8,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     4
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ter_Ground",
+     4
+    ]
+   ],
+   "piso": null,
+   "fundo_max": 80.1,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -215.6,
+   "y": 290.7,
+   "n": 4,
+   "z": 92.0,
+   "largura_max": 1.6,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     4
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ter_Ground",
+     3
+    ],
+    [
+     "OP_Cap_OesteFundo",
+     1
+    ]
+   ],
+   "piso": null,
+   "fundo_max": 83.0,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -214.3,
+   "y": 308.9,
+   "n": 4,
+   "z": 100.0,
+   "largura_max": 0.4,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     4
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ter_Ground",
+     4
+    ]
+   ],
+   "piso": "W3",
+   "fundo_max": 91.1,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -218.8,
+   "y": 325.2,
+   "n": 4,
+   "z": 100.0,
+   "largura_max": 2.2,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     4
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ter_Ground",
+     4
+    ]
+   ],
+   "piso": null,
+   "fundo_max": 89.1,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -217.6,
+   "y": 370.2,
+   "n": 4,
+   "z": 100.0,
+   "largura_max": 3.8,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     4
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ter_Ground",
+     4
+    ]
+   ],
+   "piso": null,
+   "fundo_max": 87.7,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -206.2,
+   "y": 407.4,
+   "n": 4,
+   "z": 100.0,
+   "largura_max": 1.2,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     3
+    ],
+    [
+     "OP_Ter_Rocks",
+     1
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ter_Ground",
+     4
+    ]
+   ],
+   "piso": null,
+   "fundo_max": 85.5,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": 114.5,
+   "y": 140.2,
+   "n": 3,
+   "z": 88.0,
+   "largura_max": 0.4,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     2
+    ],
+    [
+     "OP_Plz_M2_Faixa",
+     1
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ter_Ground",
+     2
+    ],
+    [
+     "OP_Plz_M2_Borda",
+     1
+    ]
+   ],
+   "piso": null,
+   "fundo_max": 91.3,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": 146.6,
+   "y": 140.1,
+   "n": 3,
+   "z": 87.9,
+   "largura_max": 0.2,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     3
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ter_Ground",
+     3
+    ]
+   ],
+   "piso": "T1",
+   "fundo_max": 90.0,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -219.5,
+   "y": 143.1,
+   "n": 3,
+   "z": 92.0,
+   "largura_max": 0.8,
+   "objs": [
+    [
+     "OP_Ter_Rocks",
+     3
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ter_Ground",
+     3
+    ]
+   ],
+   "piso": null,
+   "fundo_max": 17.7,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -222.4,
+   "y": 161.1,
+   "n": 3,
+   "z": 92.0,
+   "largura_max": 1.0,
+   "objs": [
+    [
+     "OP_Ter_Rocks",
+     3
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ter_Ground",
+     3
+    ]
+   ],
+   "piso": null,
+   "fundo_max": 56.2,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -223.9,
+   "y": 179.1,
+   "n": 3,
+   "z": 92.0,
+   "largura_max": 0.6,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     3
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ter_Ground",
+     3
+    ]
+   ],
+   "piso": "W2b",
+   "fundo_max": 72.6,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -224.1,
+   "y": 188.1,
+   "n": 3,
+   "z": 92.0,
+   "largura_max": 1.2,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     3
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ter_Ground",
+     3
+    ]
+   ],
+   "piso": null,
+   "fundo_max": 72.9,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -224.2,
+   "y": 197.1,
+   "n": 3,
+   "z": 92.0,
+   "largura_max": 1.2,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     3
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ter_Ground",
+     3
+    ]
+   ],
+   "piso": null,
+   "fundo_max": 73.8,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -224.0,
+   "y": 206.1,
+   "n": 3,
+   "z": 92.0,
+   "largura_max": 1.2,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     3
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ter_Ground",
+     3
+    ]
+   ],
+   "piso": "W2b",
+   "fundo_max": 73.7,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": 116.0,
+   "y": 212.1,
+   "n": 3,
+   "z": 92.35,
+   "largura_max": 0.2,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     3
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Plz_Piso",
+     3
+    ]
+   ],
+   "piso": "T1",
+   "fundo_max": 98.4,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -223.9,
+   "y": 218.1,
+   "n": 3,
+   "z": 92.0,
+   "largura_max": 1.0,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     3
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ter_Ground",
+     3
+    ]
+   ],
+   "piso": null,
+   "fundo_max": 73.2,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -223.8,
+   "y": 227.1,
+   "n": 3,
+   "z": 92.0,
+   "largura_max": 1.0,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     3
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ter_Ground",
+     2
+    ],
+    [
+     "OP_Veg_Oeste",
+     1
+    ]
+   ],
+   "piso": null,
+   "fundo_max": 72.6,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": 220.4,
+   "y": 234.4,
+   "n": 3,
+   "z": 88.26,
+   "largura_max": 0.2,
+   "objs": [
+    [
+     "OP_Ter_Ground",
+     2
+    ],
+    [
+     "OP_Exit_Bridge",
+     1
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Exit_Bridge",
+     3
+    ]
+   ],
+   "piso": "Harbor",
+   "fundo_max": 45.9,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -223.4,
+   "y": 244.4,
+   "n": 3,
+   "z": 92.0,
+   "largura_max": 2.2,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     3
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ter_Ground",
+     3
+    ]
+   ],
+   "piso": null,
+   "fundo_max": 73.3,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -222.1,
+   "y": 254.1,
+   "n": 3,
+   "z": 92.0,
+   "largura_max": 0.4,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     3
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ter_Ground",
+     3
+    ]
+   ],
+   "piso": "W2b",
+   "fundo_max": 75.6,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -221.7,
+   "y": 263.1,
+   "n": 3,
+   "z": 92.0,
+   "largura_max": 1.6,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     3
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ter_Ground",
+     3
+    ]
+   ],
+   "piso": "W2b",
+   "fundo_max": 76.1,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -219.6,
+   "y": 272.1,
+   "n": 3,
+   "z": 92.0,
+   "largura_max": 1.2,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     3
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ter_Ground",
+     3
+    ]
+   ],
+   "piso": "W2b",
+   "fundo_max": 75.7,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -221.0,
+   "y": 335.1,
+   "n": 3,
+   "z": 100.0,
+   "largura_max": 1.6,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     3
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ter_Ground",
+     3
+    ]
+   ],
+   "piso": null,
+   "fundo_max": 87.9,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -95.7,
+   "y": 337.6,
+   "n": 3,
+   "z": 98.0,
+   "largura_max": 1.4,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     2
+    ],
+    [
+     "OP_Ter_Ground",
+     1
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ter_Ground",
+     2
+    ],
+    [
+     "OP_Veg_TerracoAlto",
+     1
+    ]
+   ],
+   "piso": null,
+   "fundo_max": 97.9,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -73.9,
+   "y": 340.8,
+   "n": 3,
+   "z": 110.5,
+   "largura_max": 2.4,
+   "objs": [
+    [
+     "OP_Cas_Adro",
+     3
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Cas_Adro",
+     3
+    ]
+   ],
+   "piso": "Forecourt",
+   "fundo_max": 10.8,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -220.2,
+   "y": 344.1,
+   "n": 3,
+   "z": 100.0,
+   "largura_max": 1.4,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     3
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ter_Ground",
+     3
+    ]
+   ],
+   "piso": null,
+   "fundo_max": 87.7,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -97.1,
+   "y": 343.9,
+   "n": 3,
+   "z": 110.5,
+   "largura_max": 1.8,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     2
+    ],
+    [
+     "OP_Ter_Ground",
+     1
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ter_Ground",
+     2
+    ],
+    [
+     "OP_Veg_TerracoAlto",
+     1
+    ]
+   ],
+   "piso": null,
+   "fundo_max": 97.6,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -219.1,
+   "y": 353.1,
+   "n": 3,
+   "z": 100.0,
+   "largura_max": 0.6,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     3
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ter_Ground",
+     3
+    ]
+   ],
+   "piso": "W3",
+   "fundo_max": 87.4,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -218.6,
+   "y": 362.1,
+   "n": 3,
+   "z": 100.0,
+   "largura_max": 1.2,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     3
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ter_Ground",
+     3
+    ]
+   ],
+   "piso": null,
+   "fundo_max": 87.2,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -216.4,
+   "y": 380.1,
+   "n": 3,
+   "z": 100.0,
+   "largura_max": 0.4,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     3
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ter_Ground",
+     3
+    ]
+   ],
+   "piso": "W3",
+   "fundo_max": 87.1,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -167.0,
+   "y": 118.2,
+   "n": 3,
+   "z": 92.42,
+   "largura_max": 1.8,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     2
+    ],
+    [
+     "OP_Water_Stone",
+     1
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Cap_Bairro",
+     2
+    ],
+    [
+     "OP_Ter_Walls",
+     1
+    ]
+   ],
+   "piso": "Plaza",
+   "fundo_max": 83.7,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -161.0,
+   "y": 434.8,
+   "n": 3,
+   "z": 100.2,
+   "largura_max": 0.4,
+   "objs": [
+    [
+     "OP_Ter_Rocks",
+     3
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ter_Ground",
+     3
+    ]
+   ],
+   "piso": null,
+   "fundo_max": 74.9,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -152.0,
+   "y": 433.8,
+   "n": 3,
+   "z": 99.9,
+   "largura_max": 1.6,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     3
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ter_Ground",
+     3
+    ]
+   ],
+   "piso": null,
+   "fundo_max": 94.4,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -143.0,
+   "y": 432.0,
+   "n": 3,
+   "z": 99.9,
+   "largura_max": 0.8,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     3
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ter_Ground",
+     3
+    ]
+   ],
+   "piso": null,
+   "fundo_max": 94.3,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -77.0,
+   "y": 361.4,
+   "n": 3,
+   "z": 109.63,
+   "largura_max": 0.2,
+   "objs": [
+    [
+     "OP_Cas_Adro",
+     3
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Cas_Adro",
+     3
+    ]
+   ],
+   "piso": null,
+   "fundo_max": 1.5,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -5.0,
+   "y": 0.3,
+   "n": 3,
+   "z": 84.26,
+   "largura_max": 0.4,
+   "objs": [
+    [
+     "OP_Ent_Viaduct",
+     3
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ent_Bridge",
+     3
+    ]
+   ],
+   "piso": "Entry",
+   "fundo_max": 1.0,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": 4.0,
+   "y": 0.3,
+   "n": 3,
+   "z": 84.26,
+   "largura_max": 0.4,
+   "objs": [
+    [
+     "OP_Ent_Viaduct",
+     3
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ent_Bridge",
+     3
+    ]
+   ],
+   "piso": "Entry",
+   "fundo_max": 1.0,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": 130.0,
+   "y": 28.4,
+   "n": 3,
+   "z": 42.0,
+   "largura_max": 0.8,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     3
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ter_Ground",
+     3
+    ]
+   ],
+   "piso": null,
+   "fundo_max": 29.0,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": 145.0,
+   "y": 26.2,
+   "n": 3,
+   "z": 42.0,
+   "largura_max": 1.2,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     3
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ter_Ground",
+     3
+    ]
+   ],
+   "piso": null,
+   "fundo_max": 26.7,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": 157.0,
+   "y": 99.4,
+   "n": 3,
+   "z": 66.23,
+   "largura_max": 0.2,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     2
+    ],
+    [
+     "OP_Port_Built",
+     1
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Port_Built",
+     2
+    ],
+    [
+     "OP_Port_Muralha",
+     1
+    ]
+   ],
+   "piso": "Harbor",
+   "fundo_max": 65.0,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": 190.0,
+   "y": 23.9,
+   "n": 3,
+   "z": 42.0,
+   "largura_max": 0.8,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     3
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ter_Ground",
+     3
+    ]
+   ],
+   "piso": null,
+   "fundo_max": 25.6,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": 304.0,
+   "y": 233.2,
+   "n": 3,
+   "z": 88.0,
+   "largura_max": 1.6,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     3
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ter_Ground",
+     3
+    ]
+   ],
+   "piso": null,
+   "fundo_max": 73.3,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": 313.0,
+   "y": 235.6,
+   "n": 3,
+   "z": 88.0,
+   "largura_max": 1.0,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     3
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ter_Ground",
+     3
+    ]
+   ],
+   "piso": null,
+   "fundo_max": 79.9,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": 313.0,
+   "y": 294.2,
+   "n": 3,
+   "z": 88.2,
+   "largura_max": 2.0,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     3
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ter_Ground",
+     3
+    ]
+   ],
+   "piso": null,
+   "fundo_max": 77.0,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -32.0,
+   "y": 37.6,
+   "n": 2,
+   "z": 96.14,
+   "largura_max": 1.0,
+   "objs": [
+    [
+     "OP_Ter_Ground",
+     1
+    ],
+    [
+     "OP_Ter_Cliff",
+     1
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Veg_Entrada",
+     1
+    ],
+    [
+     "OP_Ter_Ground",
+     1
+    ]
+   ],
+   "piso": "T1",
+   "fundo_max": 82.2,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -52.9,
+   "y": 118.1,
+   "n": 2,
+   "z": 94.63,
+   "largura_max": 0.2,
+   "objs": [
+    [
+     "OP_Plz_M2_Faixa",
+     1
+    ],
+    [
+     "OP_Ter_Cliff",
+     1
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Plz_M2_Borda",
+     1
+    ],
+    [
+     "OP_Cap_Bairro",
+     1
+    ]
+   ],
+   "piso": "Plaza",
+   "fundo_max": 88.4,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": 64.8,
+   "y": 118.1,
+   "n": 2,
+   "z": 94.63,
+   "largura_max": 0.2,
+   "objs": [
+    [
+     "OP_Plz_M2_Faixa",
+     1
+    ],
+    [
+     "OP_Ter_Cliff",
+     1
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Plz_M2_Borda",
+     1
+    ],
+    [
+     "OP_Cap_Leste",
+     1
+    ]
+   ],
+   "piso": null,
+   "fundo_max": 89.6,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": 115.5,
+   "y": 147.7,
+   "n": 2,
+   "z": 88.0,
+   "largura_max": 0.6,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     2
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ter_Ground",
+     2
+    ]
+   ],
+   "piso": null,
+   "fundo_max": 91.8,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": 187.7,
+   "y": 146.1,
+   "n": 2,
+   "z": 73.86,
+   "largura_max": 0.2,
+   "objs": [
+    [
+     "OP_Ter_Ground",
+     2
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Port_Muralha",
+     2
+    ]
+   ],
+   "piso": "HarborMid",
+   "fundo_max": 9.0,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": 116.0,
+   "y": 219.6,
+   "n": 2,
+   "z": 92.35,
+   "largura_max": 0.2,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     2
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Plz_Piso",
+     2
+    ]
+   ],
+   "piso": "T1",
+   "fundo_max": 98.4,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": 177.0,
+   "y": 282.6,
+   "n": 2,
+   "z": 102.67,
+   "largura_max": 0.2,
+   "objs": [
+    [
+     "OP_Cap_NE",
+     2
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Cap_NE",
+     2
+    ]
+   ],
+   "piso": "Plaza",
+   "fundo_max": 10.5,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -212.5,
+   "y": 296.4,
+   "n": 2,
+   "z": 92.0,
+   "largura_max": 0.8,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     2
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ter_Ground",
+     2
+    ]
+   ],
+   "piso": null,
+   "fundo_max": 84.9,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -216.5,
+   "y": 317.1,
+   "n": 2,
+   "z": 100.0,
+   "largura_max": 0.6,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     2
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ter_Ground",
+     2
+    ]
+   ],
+   "piso": "W3",
+   "fundo_max": 89.5,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -66.6,
+   "y": 437.1,
+   "n": 2,
+   "z": 147.38,
+   "largura_max": 2.6,
+   "objs": [
+    [
+     "OP_Cas_Adro",
+     2
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Cas_Court",
+     2
+    ]
+   ],
+   "piso": "Court",
+   "fundo_max": 11.2,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -186.5,
+   "y": 299.2,
+   "n": 2,
+   "z": 92.05,
+   "largura_max": 0.6,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     2
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ter_Ground",
+     2
+    ]
+   ],
+   "piso": null,
+   "fundo_max": 87.4,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -156.5,
+   "y": 117.3,
+   "n": 2,
+   "z": 88.5,
+   "largura_max": 0.4,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     2
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Cap_Bairro",
+     2
+    ]
+   ],
+   "piso": null,
+   "fundo_max": 84.2,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -129.5,
+   "y": 117.2,
+   "n": 2,
+   "z": 88.5,
+   "largura_max": 0.4,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     2
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Cap_Bairro",
+     2
+    ]
+   ],
+   "piso": null,
+   "fundo_max": 85.4,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -125.0,
+   "y": 38.2,
+   "n": 2,
+   "z": 88.0,
+   "largura_max": 0.6,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     2
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ter_Ground",
+     2
+    ]
+   ],
+   "piso": null,
+   "fundo_max": 69.2,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -120.5,
+   "y": 117.2,
+   "n": 2,
+   "z": 88.5,
+   "largura_max": 0.4,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     2
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Cap_Bairro",
+     2
+    ]
+   ],
+   "piso": null,
+   "fundo_max": 85.9,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -102.5,
+   "y": 35.7,
+   "n": 2,
+   "z": 88.0,
+   "largura_max": 0.8,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     2
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ter_Ground",
+     2
+    ]
+   ],
+   "piso": "T1",
+   "fundo_max": 69.4,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -99.5,
+   "y": 311.3,
+   "n": 2,
+   "z": 92.2,
+   "largura_max": 1.6,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     2
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ter_Ground",
+     2
+    ]
+   ],
+   "piso": null,
+   "fundo_max": 92.2,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -78.5,
+   "y": 377.6,
+   "n": 2,
+   "z": 128.8,
+   "largura_max": 2.4,
+   "objs": [
+    [
+     "OP_Ter_Ground",
+     1
+    ],
+    [
+     "OP_Cas_Adro",
+     1
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Veg_Castelo",
+     1
+    ],
+    [
+     "OP_Cas_Adro",
+     1
+    ]
+   ],
+   "piso": null,
+   "fundo_max": 11.0,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -57.5,
+   "y": 34.1,
+   "n": 2,
+   "z": 88.0,
+   "largura_max": 0.8,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     2
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ter_Ground",
+     2
+    ]
+   ],
+   "piso": "T1",
+   "fundo_max": 80.4,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -41.0,
+   "y": 117.0,
+   "n": 2,
+   "z": 87.9,
+   "largura_max": 0.4,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     2
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ter_Ground",
+     2
+    ]
+   ],
+   "piso": null,
+   "fundo_max": 87.9,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -39.5,
+   "y": 33.8,
+   "n": 2,
+   "z": 88.0,
+   "largura_max": 1.6,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     2
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ter_Ground",
+     2
+    ]
+   ],
+   "piso": null,
+   "fundo_max": 82.1,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -32.0,
+   "y": 117.0,
+   "n": 2,
+   "z": 87.9,
+   "largura_max": 0.4,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     2
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ter_Ground",
+     2
+    ]
+   ],
+   "piso": null,
+   "fundo_max": 88.0,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": 106.0,
+   "y": 312.9,
+   "n": 2,
+   "z": 100.86,
+   "largura_max": 2.4,
+   "objs": [
+    [
+     "OP_Veg_Leste",
+     1
+    ],
+    [
+     "OP_Ter_Ground",
+     1
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Veg_Leste",
+     2
+    ]
+   ],
+   "piso": "Plaza",
+   "fundo_max": 8.1,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": 154.0,
+   "y": 148.5,
+   "n": 2,
+   "z": 90.74,
+   "largura_max": 3.6,
+   "objs": [
+    [
+     "OP_Ter_Ground",
+     2
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Port_Built",
+     2
+    ]
+   ],
+   "piso": "HarborMid",
+   "fundo_max": 25.5,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": 164.5,
+   "y": 88.8,
+   "n": 2,
+   "z": 60.6,
+   "largura_max": 0.2,
+   "objs": [
+    [
+     "OP_Ter_Ground",
+     2
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Port_Built",
+     1
+    ],
+    [
+     "OP_Port_Muralha",
+     1
+    ]
+   ],
+   "piso": "Harbor",
+   "fundo_max": 20.2,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": 164.5,
+   "y": 98.9,
+   "n": 2,
+   "z": 65.2,
+   "largura_max": 0.2,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     1
+    ],
+    [
+     "OP_Ter_Ground",
+     1
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Port_Built",
+     1
+    ],
+    [
+     "OP_Port_Muralha",
+     1
+    ]
+   ],
+   "piso": "Harbor",
+   "fundo_max": 64.9,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": 166.0,
+   "y": 131.6,
+   "n": 2,
+   "z": 83.85,
+   "largura_max": 3.0,
+   "objs": [
+    [
+     "OP_Port_Muralha",
+     1
+    ],
+    [
+     "OP_Ter_Ground",
+     1
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Port_Built",
+     2
+    ]
+   ],
+   "piso": "HarborMid",
+   "fundo_max": 18.7,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": 173.5,
+   "y": 204.0,
+   "n": 2,
+   "z": 134.87,
+   "largura_max": 1.4,
+   "objs": [
+    [
+     "OP_Sum_Metal",
+     1
+    ],
+    [
+     "OP_Sum_Stone",
+     1
+    ]
+   ],
+   "lado": [
+    [
+     "VFX_OPSUM_Ring_1",
+     2
+    ]
+   ],
+   "piso": "T1",
+   "fundo_max": 42.5,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": 173.5,
+   "y": 224.2,
+   "n": 2,
+   "z": 134.52,
+   "largura_max": 1.6,
+   "objs": [
+    [
+     "OP_Sum_Metal",
+     1
+    ],
+    [
+     "OP_Sum_Stone",
+     1
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Sum_Sphere_Frame",
+     2
+    ]
+   ],
+   "piso": "T1",
+   "fundo_max": 43.0,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": 320.5,
+   "y": 237.2,
+   "n": 2,
+   "z": 88.0,
+   "largura_max": 2.2,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     2
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ter_Ground",
+     2
+    ]
+   ],
+   "piso": null,
+   "fundo_max": 80.4,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": 215.2,
+   "y": 29.1,
+   "n": 1,
+   "z": 42.29,
+   "largura_max": 0.4,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     1
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ter_Ground",
+     1
+    ]
+   ],
+   "piso": null,
+   "fundo_max": 22.6,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -70.0,
+   "y": 32.1,
+   "n": 1,
+   "z": 101.9,
+   "largura_max": 0.8,
+   "objs": [
+    [
+     "OP_Veg_Sudoeste",
+     1
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Veg_Sudoeste",
+     1
+    ]
+   ],
+   "piso": null,
+   "fundo_max": 13.9,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -71.4,
+   "y": 44.1,
+   "n": 1,
+   "z": 99.18,
+   "largura_max": 1.0,
+   "objs": [
+    [
+     "OP_Cap_Bairro",
+     1
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Cap_Bairro",
+     1
+    ]
+   ],
+   "piso": "T1",
+   "fundo_max": 10.7,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": 123.2,
+   "y": 44.1,
+   "n": 1,
+   "z": 67.18,
+   "largura_max": 0.2,
+   "objs": [
+    [
+     "OP_Port_Built",
+     1
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Port_Built",
+     1
+    ]
+   ],
+   "piso": "Harbor",
+   "fundo_max": 1.0,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -165.2,
+   "y": 50.1,
+   "n": 1,
+   "z": 88.5,
+   "largura_max": 1.8,
+   "objs": [
+    [
+     "OP_Ter_Ground",
+     1
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Water_Stone",
+     1
+    ]
+   ],
+   "piso": null,
+   "fundo_max": 66.8,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": 98.8,
+   "y": 92.1,
+   "n": 1,
+   "z": 107.43,
+   "largura_max": 1.4,
+   "objs": [
+    [
+     "OP_Cap_Leste",
+     1
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Cap_Leste",
+     1
+    ]
+   ],
+   "piso": "T1",
+   "fundo_max": 7.6,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -75.6,
+   "y": 119.1,
+   "n": 1,
+   "z": 94.63,
+   "largura_max": 0.2,
+   "objs": [
+    [
+     "OP_Ter_M2_Arrimo",
+     1
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Plz_M2_Borda",
+     1
+    ]
+   ],
+   "piso": "Plaza",
+   "fundo_max": 2.3,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": 189.4,
+   "y": 134.1,
+   "n": 1,
+   "z": 72.15,
+   "largura_max": 0.2,
+   "objs": [
+    [
+     "OP_Port_Built",
+     1
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Port_Muralha",
+     1
+    ]
+   ],
+   "piso": "HarborMid",
+   "fundo_max": 1.6,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": 195.6,
+   "y": 146.1,
+   "n": 1,
+   "z": 69.51,
+   "largura_max": 0.2,
+   "objs": [
+    [
+     "OP_Ter_Ground",
+     1
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Port_Muralha",
+     1
+    ]
+   ],
+   "piso": "HarborMid",
+   "fundo_max": 4.6,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -220.4,
+   "y": 149.1,
+   "n": 1,
+   "z": 92.0,
+   "largura_max": 0.8,
+   "objs": [
+    [
+     "OP_Ter_Rocks",
+     1
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ter_Ground",
+     1
+    ]
+   ],
+   "piso": "W2b",
+   "fundo_max": 7.6,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -114.0,
+   "y": 194.1,
+   "n": 1,
+   "z": 94.42,
+   "largura_max": 0.4,
+   "objs": [
+    [
+     "OP_Plz_Piso",
+     1
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Plz_Mureta",
+     1
+    ]
+   ],
+   "piso": "Plaza",
+   "fundo_max": 2.1,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": 146.8,
+   "y": 209.1,
+   "n": 1,
+   "z": 87.9,
+   "largura_max": 0.6,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     1
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ter_Ground",
+     1
+    ]
+   ],
+   "piso": "T1",
+   "fundo_max": 89.9,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": 158.0,
+   "y": 215.1,
+   "n": 1,
+   "z": 89.0,
+   "largura_max": 0.2,
+   "objs": [
+    [
+     "OP_Ter_Ground",
+     1
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Sum_Stone",
+     1
+    ]
+   ],
+   "piso": "T1",
+   "fundo_max": 0.8,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": 127.4,
+   "y": 221.1,
+   "n": 1,
+   "z": 88.87,
+   "largura_max": 0.4,
+   "objs": [
+    [
+     "OP_Ter_Ground",
+     1
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Sum_Stone",
+     1
+    ]
+   ],
+   "piso": "T1",
+   "fundo_max": 1.0,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -114.0,
+   "y": 230.1,
+   "n": 1,
+   "z": 94.42,
+   "largura_max": 0.4,
+   "objs": [
+    [
+     "OP_Plz_Piso",
+     1
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Plz_Mureta",
+     1
+    ]
+   ],
+   "piso": "Plaza",
+   "fundo_max": 2.1,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -223.4,
+   "y": 233.1,
+   "n": 1,
+   "z": 92.0,
+   "largura_max": 1.2,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     1
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ter_Ground",
+     1
+    ]
+   ],
+   "piso": null,
+   "fundo_max": 72.3,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": 116.2,
+   "y": 266.1,
+   "n": 1,
+   "z": 91.9,
+   "largura_max": 0.4,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     1
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ter_Ground",
+     1
+    ]
+   ],
+   "piso": "Plaza",
+   "fundo_max": 97.7,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": 116.2,
+   "y": 278.1,
+   "n": 1,
+   "z": 91.9,
+   "largura_max": 0.6,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     1
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ter_Ground",
+     1
+    ]
+   ],
+   "piso": "Plaza",
+   "fundo_max": 97.3,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": 116.2,
+   "y": 296.1,
+   "n": 1,
+   "z": 91.9,
+   "largura_max": 0.6,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     1
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ter_Ground",
+     1
+    ]
+   ],
+   "piso": "Plaza",
+   "fundo_max": 96.8,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -8.8,
+   "y": 329.1,
+   "n": 1,
+   "z": 114.74,
+   "largura_max": 2.4,
+   "objs": [
+    [
+     "OP_Ter_Ground",
+     1
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Cas_Adro",
+     1
+    ]
+   ],
+   "piso": "Forecourt",
+   "fundo_max": 16.5,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": 3.0,
+   "y": 329.1,
+   "n": 1,
+   "z": 114.68,
+   "largura_max": 2.4,
+   "objs": [
+    [
+     "OP_Ter_Ground",
+     1
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Cas_Adro",
+     1
+    ]
+   ],
+   "piso": "Forecourt",
+   "fundo_max": 16.5,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": 17.8,
+   "y": 329.1,
+   "n": 1,
+   "z": 114.91,
+   "largura_max": 2.4,
+   "objs": [
+    [
+     "OP_Cas_Adro",
+     1
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Cas_Adro",
+     1
+    ]
+   ],
+   "piso": "Forecourt",
+   "fundo_max": 16.7,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -66.8,
+   "y": 338.1,
+   "n": 1,
+   "z": 110.38,
+   "largura_max": 2.4,
+   "objs": [
+    [
+     "OP_Cas_Adro",
+     1
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Cas_Adro",
+     1
+    ]
+   ],
+   "piso": "Forecourt",
+   "fundo_max": 10.7,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -62.6,
+   "y": 374.1,
+   "n": 1,
+   "z": 136.2,
+   "largura_max": 1.0,
+   "objs": [
+    [
+     "OP_Cas_Court",
+     1
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ter_CastleWall",
+     1
+    ]
+   ],
+   "piso": null,
+   "fundo_max": 10.0,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -67.6,
+   "y": 470.1,
+   "n": 1,
+   "z": 144.71,
+   "largura_max": 4.0,
+   "objs": [
+    [
+     "OP_Cas_Court",
+     1
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ter_Walls",
+     1
+    ]
+   ],
+   "piso": "Court",
+   "fundo_max": 3.4,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -188.0,
+   "y": 317.1,
+   "n": 1,
+   "z": 105.53,
+   "largura_max": 2.2,
+   "objs": [
+    [
+     "OP_Ter_Ground",
+     1
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Veg_TerracoAlto",
+     1
+    ]
+   ],
+   "piso": "W3",
+   "fundo_max": 5.3,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -146.0,
+   "y": 41.5,
+   "n": 1,
+   "z": 88.0,
+   "largura_max": 0.6,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     1
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ter_Ground",
+     1
+    ]
+   ],
+   "piso": "T1",
+   "fundo_max": 70.3,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -146.0,
+   "y": 196.7,
+   "n": 1,
+   "z": 102.44,
+   "largura_max": 3.6,
+   "objs": [
+    [
+     "OP_Cap_Oeste",
+     1
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Cap_Oeste",
+     1
+    ]
+   ],
+   "piso": "Plaza",
+   "fundo_max": 9.9,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -143.0,
+   "y": 119.9,
+   "n": 1,
+   "z": 92.35,
+   "largura_max": 0.2,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     1
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Cap_Oeste",
+     1
+    ]
+   ],
+   "piso": "Plaza",
+   "fundo_max": 88.7,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -137.0,
+   "y": 64.3,
+   "n": 1,
+   "z": 94.39,
+   "largura_max": 0.2,
+   "objs": [
+    [
+     "OP_Cap_Bairro",
+     1
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Veg_Sudoeste",
+     1
+    ]
+   ],
+   "piso": "T1",
+   "fundo_max": 5.9,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -113.0,
+   "y": 297.1,
+   "n": 1,
+   "z": 95.99,
+   "largura_max": 0.2,
+   "objs": [
+    [
+     "OP_Ter_Ground",
+     1
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Cap_Oeste",
+     1
+    ]
+   ],
+   "piso": "Plaza",
+   "fundo_max": 4.1,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -101.0,
+   "y": 130.1,
+   "n": 1,
+   "z": 105.84,
+   "largura_max": 1.2,
+   "objs": [
+    [
+     "OP_Veg_Sudoeste",
+     1
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Veg_Sudoeste",
+     1
+    ]
+   ],
+   "piso": "Plaza",
+   "fundo_max": 2.5,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -80.0,
+   "y": 34.1,
+   "n": 1,
+   "z": 88.0,
+   "largura_max": 1.2,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     1
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ter_Ground",
+     1
+    ]
+   ],
+   "piso": null,
+   "fundo_max": 75.3,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -77.0,
+   "y": 371.1,
+   "n": 1,
+   "z": 114.78,
+   "largura_max": 0.2,
+   "objs": [
+    [
+     "OP_Cas_Adro",
+     1
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Cas_Adro",
+     1
+    ]
+   ],
+   "piso": null,
+   "fundo_max": 1.4,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -77.0,
+   "y": 403.9,
+   "n": 1,
+   "z": 123.14,
+   "largura_max": 0.2,
+   "objs": [
+    [
+     "OP_Cas_Adro",
+     1
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Cas_Adro",
+     1
+    ]
+   ],
+   "piso": null,
+   "fundo_max": 1.4,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -71.0,
+   "y": 379.3,
+   "n": 1,
+   "z": 116.44,
+   "largura_max": 0.2,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     1
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Cas_Adro",
+     1
+    ]
+   ],
+   "piso": null,
+   "fundo_max": 114.8,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -68.0,
+   "y": 359.5,
+   "n": 1,
+   "z": 108.08,
+   "largura_max": 0.2,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     1
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Cas_Adro",
+     1
+    ]
+   ],
+   "piso": null,
+   "fundo_max": 107.7,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -50.0,
+   "y": 33.9,
+   "n": 1,
+   "z": 88.0,
+   "largura_max": 1.0,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     1
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ter_Ground",
+     1
+    ]
+   ],
+   "piso": null,
+   "fundo_max": 81.1,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": -8.0,
+   "y": 318.1,
+   "n": 1,
+   "z": 94.45,
+   "largura_max": 0.2,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     1
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Cas_Adro",
+     1
+    ]
+   ],
+   "piso": "Forecourt",
+   "fundo_max": 97.5,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": 22.0,
+   "y": 1.7,
+   "n": 1,
+   "z": 85.68,
+   "largura_max": 0.2,
+   "objs": [
+    [
+     "OP_Ent_Court",
+     1
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ent_Court",
+     1
+    ]
+   ],
+   "piso": "Entry",
+   "fundo_max": 1.3,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": 40.0,
+   "y": 35.9,
+   "n": 1,
+   "z": 88.78,
+   "largura_max": 1.4,
+   "objs": [
+    [
+     "OP_Ter_Ground",
+     1
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ter_Walls",
+     1
+    ]
+   ],
+   "piso": "T1",
+   "fundo_max": 83.4,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": 73.0,
+   "y": 33.1,
+   "n": 1,
+   "z": 92.61,
+   "largura_max": 1.6,
+   "objs": [
+    [
+     "OP_Ter_Ground",
+     1
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Veg_Entrada",
+     1
+    ]
+   ],
+   "piso": null,
+   "fundo_max": 6.6,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": 79.0,
+   "y": 118.7,
+   "n": 1,
+   "z": 87.9,
+   "largura_max": 0.8,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     1
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ter_Ground",
+     1
+    ]
+   ],
+   "piso": null,
+   "fundo_max": 88.8,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": 97.0,
+   "y": 319.1,
+   "n": 1,
+   "z": 92.2,
+   "largura_max": 0.4,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     1
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ter_Ground",
+     1
+    ]
+   ],
+   "piso": "Plaza",
+   "fundo_max": 96.4,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": 112.0,
+   "y": 73.3,
+   "n": 1,
+   "z": 94.46,
+   "largura_max": 0.8,
+   "objs": [
+    [
+     "OP_Cap_Leste",
+     1
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Veg_Entrada",
+     1
+    ]
+   ],
+   "piso": "T1",
+   "fundo_max": 6.1,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": 115.0,
+   "y": 171.3,
+   "n": 1,
+   "z": 94.63,
+   "largura_max": 0.2,
+   "objs": [
+    [
+     "OP_Plz_Piso",
+     1
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Plz_Mureta",
+     1
+    ]
+   ],
+   "piso": "Plaza",
+   "fundo_max": 2.3,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": 115.0,
+   "y": 187.1,
+   "n": 1,
+   "z": 94.63,
+   "largura_max": 0.2,
+   "objs": [
+    [
+     "OP_Plz_Piso",
+     1
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Plz_Mureta",
+     1
+    ]
+   ],
+   "piso": "Plaza",
+   "fundo_max": 2.3,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": 151.0,
+   "y": 25.5,
+   "n": 1,
+   "z": 42.0,
+   "largura_max": 0.6,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     1
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ter_Ground",
+     1
+    ]
+   ],
+   "piso": null,
+   "fundo_max": 26.2,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": 163.0,
+   "y": 224.3,
+   "n": 1,
+   "z": 92.99,
+   "largura_max": 2.4,
+   "objs": [
+    [
+     "OP_Sum_Stone",
+     1
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Sum_Rail",
+     1
+    ]
+   ],
+   "piso": "T1",
+   "fundo_max": 1.5,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": 166.0,
+   "y": 52.1,
+   "n": 1,
+   "z": 46.72,
+   "largura_max": 0.2,
+   "objs": [
+    [
+     "OP_Ter_Ground",
+     1
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Port_Muralha",
+     1
+    ]
+   ],
+   "piso": "Harbor",
+   "fundo_max": 4.8,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": 166.0,
+   "y": 62.9,
+   "n": 1,
+   "z": 51.32,
+   "largura_max": 0.2,
+   "objs": [
+    [
+     "OP_Ter_Ground",
+     1
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Port_Muralha",
+     1
+    ]
+   ],
+   "piso": "Harbor",
+   "fundo_max": 9.4,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": 205.0,
+   "y": 26.1,
+   "n": 1,
+   "z": 42.0,
+   "largura_max": 0.6,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     1
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ter_Ground",
+     1
+    ]
+   ],
+   "piso": null,
+   "fundo_max": 25.5,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": 298.0,
+   "y": 289.5,
+   "n": 1,
+   "z": 88.2,
+   "largura_max": 0.2,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     1
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ter_Ground",
+     1
+    ]
+   ],
+   "piso": "ExitLand",
+   "fundo_max": 79.5,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": 313.0,
+   "y": 253.1,
+   "n": 1,
+   "z": 112.1,
+   "largura_max": 0.2,
+   "objs": [
+    [
+     "GATE_OnePunchMan_Frame",
+     1
+    ]
+   ],
+   "lado": [
+    [
+     "GATE_OnePunchMan_Frame",
+     1
+    ]
+   ],
+   "piso": "ExitLand",
+   "fundo_max": 1.6,
+   "ve_vazio": false
+  },
+  {
+   "tipo": "B_fresta",
+   "x": 319.0,
+   "y": 295.5,
+   "n": 1,
+   "z": 88.2,
+   "largura_max": 0.4,
+   "objs": [
+    [
+     "OP_Ter_Cliff",
+     1
+    ]
+   ],
+   "lado": [
+    [
+     "OP_Ter_Ground",
+     1
+    ]
+   ],
+   "piso": null,
+   "fundo_max": 71.8,
+   "ve_vazio": false
+  }
+ ],
+ "brutos": 444
+}
