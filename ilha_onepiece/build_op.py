@@ -56,8 +56,9 @@ ZONE_MODULES_V2_0 = {
     "castle": [],      # op_castle V1: reprovado (U3) -> V2-2
     "tree": [],        # op_tree: em refacao paralela (V2-1/V2-2); arvore-esfera reprovada (U4)
     "summon": ["op_summon"],  # V2-2 conves pirata (proa+carranca de leao, mastros com Jolly Roger, timao, baus; torre AMS intacta) - passou no gate visual (commit V2-2)
-    "harbor": [],      # op_harbor V1: H3 no topo da muralha (U13) e porto parado (U9) -> V2-2
-    "ship": [],        # op_ship V1: navio sem colisao na amurada (U8) -> V2-2
+    "harbor": ["op_harbor"],  # V2-2 porto vivo (H3 fora; guindaste com tambor/lingada moveis, 3 grupos de barcos
+                              #   balancando, lonja, redes, armazem aberto) - passou no gate visual (agente do porto V2)
+    "ship": ["op_ship"],      # V2-2 navio atracado (velas ferradas, lingada) + junco fundeado VFX_OP_Junk - gate verde
     "water": [],       # op_water V1: canais na cota antiga (U6) -> V2-3 (canais rebaixados, capa fora das pontes)
     "exit": [],        # op_exit V1: frestas entre as tabuas (U5) -> V2-3
     "landmarks": [],   # op_landmarks V1: pagode (U13) -> V2-3

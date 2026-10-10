@@ -1,38 +1,48 @@
-# op_harbor - ZONA HARBOR da Ilha 5 (ONE PIECE / WANO), M3 (PLANO_OP secoes 0.8, 4.2, 4.3 e 9; PROMPT_USUARIO 11, 15-17).
-# Substitui op_blockout.harbor. Prefixo OP_Port_ (dono "harbor" no export_op/studio_op/op_lib), colecao 16_HARBOR.
-# Luzes so NightOnly (L_OPProp_Lamp_Porto_*). Colisoes simples com prefixo de area OP_Port* (COL_OP_Port...).
+# op_harbor - ZONA HARBOR da Ilha 5 (ONE PIECE / WANO). M3 (PLANO_OP 0.8, 4.2, 4.3, 9) + V2-2 PORTO (PLANO_V2 secao 5).
+# Prefixo OP_Port_ (dono "harbor" no export_op/studio_op/op_lib), colecao 16_HARBOR. Pecas moveis VFX_OP_* em
+# 12_VFX_HELPERS (dono "vfx"). Luzes de rua so NightOnly (L_OPProp_Lamp_Porto_*); 1 luz de dia no interior do armazem
+# aberto (L_OPPort_Int_Armazem, interior 4 do PLANO_V2 3.5). Colisoes simples COL_OP_Port*.
 #
-# O QUE E DESTE MODULO (o cais de PEDRA, as muralhas e a face oeste do porto sao do op_terrain; o terraco do summon e o
-# lajeado dele, x 116..206 / y 150..264, sao do op_summon; o navio e a prancha sao do op_ship):
-#   PIER do navio (x 222..234, y 110..200) e PALAFITA (x 222..246, y 40..76) a 42,2 = topo da colisao do op_col:
-#     tabuas soltas com fresta (as frestas mostram as longarinas 0,3 abaixo), longarinas, travessas (cabecotes) sobre
-#     ESTACAS de madeira com mancha d'agua (musgo) na linha do mar, contraventamento em X na face externa, testeira,
-#     meio-fio de madeira na borda de atracacao, CABECOS de ferro, DEFENSAS (estacas de defensa + defensas de cabo
-#     penduradas), guarda-corpo vermelho nas pontas do pier e em toda a borda d'agua da palafita (concept), estacas da
-#     palafita em laca vermelha no perimetro (concept), PAVILHAO VERMELHO (H4, kit pavilion) com estrado e 2 bancos.
-#     O op_terrain ainda cria OP_Ter_Piers (tampo liso do pier/palafita): este modulo REMOVE esse objeto (mesmo
-#     procedimento do op_terrain com o OP_Cas_Cliff do blockout) - pedido registrado ao dono do terreno para tirar o
-#     build_piers().
-#   ESCADAS PortoA (rua alta 65,2 -> T1) e PortoB (cais -> rua alta): os 2 lances de 30 da planta em pedra do kit
-#     (stair_stone: pedras desencontradas, espelho escuro, banzos inclinados, pilaretes com ANDON no arranque) + corrimao
-#     inclinado de laca vermelha sobre os banzos (a guarda invisivel do op_col tem 4 de altura: o corrimao da a leitura).
-#   4 ARMAZENS do kit (house, sem textura): H1 (kura de 2 pisos, kirizuma), H2 (galpao de 1 piso com alpendre de carga
-#     e 2 portas), H3 (rua alta, 2 pisos, irimoya), H5 (ACRESCIMO deste modulo, documentado: kura de empena para o patio
-#     de carga, no bolso livre do cais entre o arrimo da rua alta e o H1; nao toca rota, escada, SAFE_Cais nem pisos).
-#     Portas FECHADAS (fachadas cenograficas: sem interior falso). Carga apoiada no chao junto as portas: barris,
-#     caixas, fardos de arroz (tawara: palha + 3 cintas de cabo), jarros e um carrinho de mao (daihachi).
-#   BARCOS pequenos (silhueta + acabamento simples, sem sistema): bote a remo na palafita, barco coberto (yakatabune)
-#     no cais norte e bote fundeado na enseada; amarras com catenaria ate os cabecos. Amarras do NAVIO (proa, popa,
-#     2 espringues) do costado ate os cabecos do pier.
-#   POSTES de rua de Wano (kit) no pier e na palafita.
-# AGUA: o mar local (36) e do Roblox (WATER_Sea do op_core). Nenhum marcador novo.
+# V2-2 (feedback 10/10, U9: "area de navegacao fraca, so os barcos porem sem dinamica, sem a sensacao de estar num
+# ambiente de embarcacao de verdade"; U13: "estrutura numa montanha sem necessidade e feia"; U16 bandeiras):
+#   * SAIU o H3 (armazem de 2 pisos no topo da muralha / rua alta) e a carga dele: a muralha fica limpa com a PortoA.
+#     O "escritorio do porto" desceu para o cais, dentro do armazem aberto.
+#   * PECAS MOVEIS (sistema que o jogo JA tem: tag IlhaMovel do montar -> LocalScript ILHA_NARUTO_Movel; atributos
+#     pivot/axis/rpm = giro, bob(+rate) = sobe/desce). Sem colisao (cenario sobre a agua):
+#       VFX_OP_Boat_1  2 sampans AMARRADOS de contrabordo na doca entre a palafita e o pier, presos as argolas do cais;
+#                      o de dentro esta sendo CARREGADO pelo guindaste (bob 0,30)
+#       VFX_OP_Boat_2  barco de pesca com a rede amontoada, cestos e o farol de pesca (isaribi) na palafita (bob 0,40)
+#       VFX_OP_Boat_3  yakatabune (barco coberto) no cais norte (bob 0,35)
+#       VFX_OP_Crane_Drum  tambor do guindaste com as barras de manobra, GIRANDO (rpm 5, eixo x: enrola o cabo)
+#       VFX_OP_Crane_Load  lingada de fardos SUBINDO devagar do sampan ate a altura do cais e descendo (bob 3,8 /
+#                      rate 0,06 = ciclo de 16,7 s: sobe 11,7 s a ~0,33/s = a velocidade de aro do tambor, desce 5 s)
+#     + VFX_OP_Junk (op_ship). Cabos que mudam de comprimento: cabo FIXO da ponta da lanca ate o ponto mais alto da
+#     lingada + cabo MOVEL (mais fino, dentro do fixo) na propria lingada -> nunca abre fresta.
+#   * CAIS COM VIDA: GUINDASTE de madeira (mastro com escoras sobre sapata de pedra, lanca, moitoes, estai, tambor em
+#     cavaletes), fardos esperando a lingada, ESCADA DE MARINHEIRO na muralha da doca, cestos de peixe, REDES DE PESCA
+#     secando em varais junto a muralha (malha de cabo + boias), BARCO EM REPARO em cavaletes (sapateiro com piche),
+#     carrinho de carga, pilhas de carga (kit V2 goods_pile), carga esperando embarque no pier.
+#   * ARMAZEM ABERTO (no lugar do H2; interior 4 do PLANO_V2): soco de pedra, piso de tabuas a 0,9 com RAMPA DE CARGA,
+#     estrutura de madeira aparente (pilares, frechal, tesouras com pendural), paredes de tabuas, frente ABERTA com os
+#     portoes de correr empurrados para as pontas, telhado V2 (op_kit2.roof2), carga empilhada dentro, BALANCA de
+#     mercador pendurada na tesoura, ESCRITORIO DO PORTO no canto (estrado de tatami, escrivaninha, livros, cofre,
+#     biombo, andon). H1 virou uma fileira de 2 KURA do kit V2 (op_kit2.kura). H4 (pavilhao vermelho da palafita) e H5
+#     (telheiro de carga) continuam.
+#   * Postes: lamp_post do kit V2 (o poste antigo do op_kit saiu).
+# Coordenadas dos armazens/pavilhao sao DESTE modulo (a V2-0 tirou o H3 do L.BUILDINGS e vai trocar a lista): nao
+# dependem mais do L.BUILDINGS.
+#
+# O QUE CONTINUA (M3/M6b): PIER do navio e PALAFITA (estacas, longarinas, cabecos, defensas, guarda-corpos), ESCADAS
+#   PortoA/PortoB com a muralha de cantaria, amarras do navio, argolas do cais. AGUA: o mar local (36) e do Roblox
+#   (WATER_Sea do op_core); nenhum marcador novo.
 import math, random
 import bpy, bmesh
 from mathutils import Vector, geometry
 import op_lib as DL
-from op_lib import MB, Frame, col_box, camera
+from op_lib import MB, Frame, col_box, col_ramp, camera
 import op_layout as L
 import op_kit as K
+import op_kit2 as K2
 import op_ship as SH
 
 COLL = "16_HARBOR"
@@ -41,22 +51,48 @@ HM = L.HMID                     # 65,2
 SEA = L.SEA                     # 36
 WD, WM, LAC, GOLD, IRON = "Wood_OP_Dark", "Wood_OP_Mid", "Wood_OP_Lacquer", "Metal_OP_Gold", "Metal_OP_Iron"
 HULL, ROPE, MOSS, STRAW = "Wood_OP_Hull", "Rope", "Cliff_OP_Moss", "Cloth_OP_Straw"
+ST, STP, STD, STEEL = "Stone_OP", "Stone_OP_Path", "Stone_OP_Dark", "Metal_OP_Steel"
 F0 = Frame(0.0, 0.0, 0.0, 0.0)
 PIER_A = (222.0, 110.0, 234.0, 200.0)          # pier do navio (HARBOR_POLY)
 PIER_B = (222.0, 40.0, 246.0, 76.0)            # palafita
 X_ROOT = 223.0                                  # as tabuas comecam depois da capa de pedra do cais (op_terrain)
 BOLLARDS_A = [116.0, 130.0, 145.0, 160.0, 178.0, 194.0]
-WAREHOUSES = ("H1", "H2", "H3")                 # + H5 (telheiro aberto, shed())
-H5 = ("H5", "armazem", 138.0, 90.0, 20.0, 14.0, -90.0, H, 2, "kirizuma", "Roof_OP_Blue")   # acrescimo (ver cabecalho)
+# (nome, familia, x, y, w, d, rumo da FRENTE, cota, pisos, telhado, cor) - proprios deste modulo (V2)
+SPECS = {
+    "H4": ("H4", "pavilhao", 236.0, 58.0, 18.0, 14.0, 180.0, H, 1, "hip", "Roof_OP_Red"),
+    "H5": ("H5", "armazem", 138.0, 90.0, 20.0, 14.0, -90.0, H, 2, "kirizuma", "Roof_OP_Blue"),
+}
+KURAS = [(129.4, 44.2, 11.0, 15.0, 12.5, "Roof_OP_Blue", 11), (141.6, 44.2, 11.0, 15.0, 10.6, "Roof_OP_Cobalt", 23)]
+ARM_C, ARM_W, ARM_D, ARM_FZ, ARM_H = (192.0, 42.0), 22.0, 14.0, 0.9, 7.6   # armazem aberto (frente para o norte)
+CRANE_M = (219.6, 80.6)                         # mastro do guindaste (canto da doca)
+LOAD_C = (230.0, 88.9)                          # lingada (sobre o sampan de dentro)
+LOAD_LOW = SEA + 1.3                            # fundo da lingada na posicao BAIXA (modelada assim: bob vai de 0 a +A)
+LOAD_A, LOAD_RATE, DRUM_RPM = 3.8, 0.06, 5.0
+DRUM_C, DRUM_R = (219.6, 77.0, H + 2.45), 0.65   # tambor + RODA de manobra (r 2,2) no cavalete leste
+WHEEL_R = 2.2
+CRANE_TOP, JIB_HEEL_Z, JIB_TIP_Z = H + 14.0, H + 3.6, H + 11.6
+# barcos a >= 6 da borda alcancavel (o gate 'visual' conta todo piso a <= 6 de um piso alcancado; a guarda nao conta)
+SAMPANS = [(230.0, 92.6, 11.0, 3.4), (233.9, 91.7, 10.6, 3.3)]   # contrabordo no meio da doca (proa para o norte)
+FISHER = (234.0, 31.0, 12.0, 3.6)              # barco de pesca ao sul da palafita (proa para +x)
+ROWBOAT = (234.6, 26.8, 9.6, 3.0)               # bote de contrabordo por fora do barco de pesca
+SKIFF = (229.8, 237.0, 8.4, 2.7)                # bote junto do yakatabune (cais norte)
+LONJA_C, LONJA_W, LONJA_D, LONJA_H = (178.0, 76.0), 14.0, 9.0, 6.8   # lonja (mercado de peixe coberto)
+YAKATA = (230.6, 214.0, 14.0, 4.4)             # barco coberto no cais norte
+HAULED = (199.0, 88.4)                          # barco em reparo nos cavaletes (ao longo de x)
+NET_RACKS = [(170.6, 178.4), (180.6, 188.4)]    # varais de rede junto a muralha (y ~96,6)
+NET_Y = 96.6
+BOAT_BOB = {"VFX_OP_Boat_1": 0.30, "VFX_OP_Boat_2": 0.40, "VFX_OP_Boat_3": 0.35}
+BOAT_KEEP = {HULL: HULL, WM: HULL}              # pecas moveis: 2 materiais (casco/tabuado claro + madeira escura)
+# materiais de POUCO uso (pecas do kit) trocados por vizinhos de cor proxima: cada material = 1 MeshPart no export
+REMAP_BUILT = {"Cloth_OP_Tatami": STRAW, "Cloth_OP_Black": WD, "Window_OP_Warm": "Glass_OP_Lantern",
+               "Plaster_OP_Warm": "Plaster_OP", "Roof_OP_Shingle": WD, "Stone_OP_Wall": ST, "Cloth_OP_Red": LAC,
+               "Cloth_OP_White": "Plaster_OP"}
+REMAP_PIERS = {"Cloth_OP_Red": LAC, "Wood_OP_Hull": WM, "Stone_OP_Path": ST, "Stone_OP_Dark": ST,
+               "Window_OP_Warm": "Glass_OP_Lantern"}
 
 
 def _spec(nm):
-    if nm == "H5":
-        return H5
-    for b in L.BUILDINGS:
-        if b[0] == nm:
-            return b
-    raise KeyError(nm)
+    return SPECS[nm]
 
 
 def bframe(nm):
@@ -147,6 +183,10 @@ def rail(mb, pts, base=H, h=3.4, step=3.4, gold_at=()):
     """guarda-corpo vermelho do porto (mesma linguagem do kit, versao leve: pilaretes, corrimao que passa das pontas,
     travessa media; giboshi dourado so nos cantos pedidos)"""
     SH.lite_rail(mb, pts, base, h, step, gold=False)
+    for a, b in zip(pts, pts[1:]):        # V2 (gate): o corrimao e chao alcancavel -> colisao da altura dele
+        ln = math.hypot(b[0] - a[0], b[1] - a[1])
+        col_box("OP_PortRail", (ln + 0.4, 0.6, h), ((a[0] + b[0]) / 2, (a[1] + b[1]) / 2, base + h / 2),
+                (0.0, 0.0, math.atan2(b[1] - a[1], b[0] - a[0])))
     for i in gold_at:
         K.giboshi(mb, F0, pts[i][0], pts[i][1], base + h, 0.9)
 
@@ -206,9 +246,47 @@ def palafita(mb):
         col_box(area, (D, 0.5, 3.2), Fp.p(sy * (W / 2 - 0.5), 0.0, 1.2 + 1.6), Fp.r(0, 0, math.pi / 2))
     col_box(area, (W, 0.5, 3.2), Fp.p(0.0, -D / 2 + 0.5, 1.2 + 1.6), Fp.r())
     for sx in (-1, 1):
-        c = Fp.p(sx * (W / 4 + 1.3), D / 2 - 0.5, 1.2 + 1.6)
-        col_box(area, (W / 2 - 2.6, 0.5, 3.2), c, Fp.r())
+        c = Fp.p(sx * (W / 4 + 1.1), D / 2 - 0.5, 1.2 + 1.6)
+        col_box(area, (W / 2 - 2.2, 0.6, 3.2), c, Fp.r())
+    roof_cols_measured(mb, Fp, area, W, D, 3.0)
     return Fp
+
+
+def roof_cols_measured(mb, F, area, W, D, ov):
+    """V2 (gate 'visual'): colisao do telhado de 4 aguas do pavilhao (alcancavel do topo do guarda-corpo). As cotas
+    sao MEDIDAS na malha ja montada (raio de cima no bmesh): beira e cumeeira; 2 aguas compridas + 2 tacaniças"""
+    from mathutils.bvhtree import BVHTree
+    bvh = BVHTree.FromBMesh(mb.bm)
+
+    def zt(x, y):
+        p = F.p(x, y, 0.0)
+        h = bvh.ray_cast(Vector((p.x, p.y, H + 60.0)), Vector((0, 0, -1)), 80.0)
+        return h[0].z if h[0] is not None else None
+    Ye, Xe = D / 2 + ov - 0.4, W / 2 + ov - 0.4
+    x0 = (W - D) / 2                                     # ponta da cumeeira
+    run = Xe - x0
+    z1, z2 = zt(-x0 * 0.5, Ye), zt(-x0 * 0.5, Ye * 0.45)
+    z3, z4 = zt(Xe, 0.0), zt(x0 + run * 0.45, 0.0)
+    if None in (z1, z2, z3, z4):
+        print("AVISO op_harbor: telhado do pavilhao nao medido")
+        return
+    k1 = (z2 - z1) / (Ye * 0.55)                         # caimento medido na agua (fora da cumeeira)
+    k2 = (z4 - z3) / (run * 0.55)
+    zr1, zr2 = z1 + k1 * Ye, z3 + k2 * run
+    a1, a2 = math.atan(k1), math.atan(k2)
+    for sy in (-1, 1):
+        c = F.p(0.0, sy * Ye / 2, 0.0)
+        col_box(area, (W + 2 * ov - 1.0, math.hypot(Ye, zr1 - z1), 0.8), (c.x, c.y, (zr1 + z1) / 2 - 0.45),
+                F.r(-sy * a1, 0.0, 0.0))
+    for sx in (-1, 1):
+        c = F.p(sx * (x0 + run / 2), 0.0, 0.0)
+        col_box(area, (math.hypot(run, zr2 - z3), D + 2 * ov - 1.0, 0.8), (c.x, c.y, (zr2 + z3) / 2 - 0.45),
+                F.r(0.0, sx * a2, 0.0))
+    zc = zt(0.0, 0.0)                                    # cumeeira (topo da peca de remate)
+    if zc is not None:
+        c = F.p(0.0, 0.0, 0.0)
+        col_box(area, (W - D + 2.4, 2.4, max(1.0, zc - zr1 + 1.0)), (c.x, c.y, (zc + zr1) / 2 - 0.3), F.r())
+    print("op_harbor: telhado do pavilhao medido: beira %.1f / %.1f, cumeeira %.1f / %.1f" % (z1, z3, zr1, zr2))
 
 
 # ================================================================== ESCADAS PortoA / PortoB (pedra do kit)
@@ -221,7 +299,7 @@ def stair_rail(mb, F, x, n, rise, tread, cheek_h, h=2.3, step=4.6):
     for y in ys:
         mb.box((0.38, 0.38, h), F.p(x, y, ztl(y) + h / 2), F.r(), LAC, 0.0)
     a, b = F.p(x, y0 - 0.2, ztl(y0 - 0.2) + h - 0.12), F.p(x, y1 + 0.2, ztl(y1 + 0.2) + h - 0.12)
-    mb.beam(a, b, 0.36, 0.26, LAC, 0.0)
+    mb.beam(a, b, 0.34, 0.34, LAC, 0.0, math.pi / 4)     # V2: secao em losango (o topo nao vira 'chao' no gate)
     a, b = F.p(x, y0, ztl(y0) + h * 0.5), F.p(x, y1, ztl(y1) + h * 0.5)
     mb.beam(a, b, 0.16, 0.2, LAC, 0.0)
     K.giboshi(mb, F, x, ys[-1], ztl(ys[-1]) + h, 0.85)
@@ -233,6 +311,9 @@ SWALL_M, SWALL_D, SWALL_CAP = "Stone_OP_Wall", "Stone_OP_Dark", "Stone_OP_Path" 
 # talude (graus) da face de fora por lado (s = -1, +1 no referencial da escada). PortoA +1 = norte, encostado no arrimo
 # do T1 (y 150): sem talude (nao invade o arrimo)
 SWALL_BATTER = {"PortoA": (5.0, 0.0), "PortoB": (5.0, 5.0)}
+# V2: a muralha NORTE da PortoA engrossa ate o arrimo do T1 (y 150): fecha a fenda de 2,8 x 23 entre a escada e o
+# arrimo (fresta medida pelo gate 'visual' / auditoria V2: 'rua alta do porto, ate 3,8')
+SWALL_TW = {"PortoA": (SWALL_T, 4.0), "PortoB": (SWALL_T, SWALL_T)}
 
 
 def _q4(mb, Fs, pts, m, want):
@@ -244,7 +325,7 @@ def _q4(mb, Fs, pts, m, want):
     mb.quad(*W, m)
 
 
-def stair_wall(mb, Fs, s, w, n, rise, tread, cheek_h, zf, batter, key):
+def stair_wall(mb, Fs, s, w, n, rise, tread, cheek_h, zf, batter, key, tw=None):
     """M6b (item 37): MURALHA lateral da escada (no lugar dos banzos do kit, que nas escadas de 23 viravam paineis lisos
     de 3,6 x 23): fiadas horizontais de 1,4..2,3 em pedras de 3,6..6,4 com juntas desencontradas (0,06) sobre miolo
     escuro rebaixado 0,22, 1 pedra em 6 em outro tom, face com recuo +-0,05 por pedra e TALUDE (face sai para baixo),
@@ -258,7 +339,8 @@ def stair_wall(mb, Fs, s, w, n, rise, tread, cheek_h, zf, batter, key):
     yat = lambda z: (z + 0.1 - cheek_h) / rise * tread - tread  # y em que zt(y) = z
     Y0, Y1 = 0.03, tread * n - 0.03
     u_in = w / 2 - 0.1                                          # costas dentro dos blocos dos espelhos (escondidas)
-    face = lambda y, z: w / 2 + SWALL_T + t * max(0.0, zt(y) - z)
+    tw = SWALL_T if tw is None else tw
+    face = lambda y, z: w / 2 + tw + t * max(0.0, zt(y) - z)
     P = lambda u, y, z: (s * u, y, z)
     OUT, UP, BK, FW = (s, 0.0, 0.0), (0.0, 0.0, 1.0), (0.0, -1.0, 0.0), (0.0, 1.0, 0.0)
     # miolo escuro (aparece so nas juntas), 0,22 atras da face: so a face
@@ -305,7 +387,7 @@ def stair_wall(mb, Fs, s, w, n, rise, tread, cheek_h, zf, batter, key):
         z = z2
         c += 1
     # capa clara inclinada em lajes (junta 0,06), pingadeira 0,15 dos 2 lados
-    xa, xb = w / 2 - 0.15, w / 2 + SWALL_T + 0.15
+    xa, xb = w / 2 - 0.15, w / 2 + tw + 0.15
     cp = lambda y: [P(xa, y, ztl(y) - 0.1), P(xb, y, ztl(y) - 0.1), P(xb, y, ztl(y) + 0.26), P(xa, y, ztl(y) + 0.26)]
     y, k = 0.05, 0
     while y < Y1 - 0.2:
@@ -317,10 +399,11 @@ def stair_wall(mb, Fs, s, w, n, rise, tread, cheek_h, zf, batter, key):
     return n_st
 
 
-def newels(mb, Fs, s, w, n, rise, tread, cheek_h, zf, lamp):
+def newels(mb, Fs, s, w, n, rise, tread, cheek_h, zf, lamp, tw=None):
     """pilaretes de arranque/chegada sobre a muralha (os do kit vinham junto com os banzos): o de arranque com ANDON
     quando 'lamp' (mesma luz L_OPProp_Lamp_PortoEscB_0/1 do kit), o de chegada com tampa piramidal"""
-    xa, xb = (w / 2, w / 2 + SWALL_T) if s > 0 else (-w / 2 - SWALL_T, -w / 2)
+    tw = SWALL_T if tw is None else tw
+    xa, xb = (w / 2, w / 2 + tw) if s > 0 else (-w / 2 - tw, -w / 2)
     for yc, ztp in ((-0.55, cheek_h + 0.75), (tread * n - 0.45, rise * n + cheek_h + 0.75)):
         K.bb(mb, Fs, xa - 0.2, xb + 0.2, yc - 0.65, yc + 0.65, zf, ztp - 0.3, SWALL_M)
         if lamp and yc < 0:
@@ -332,6 +415,25 @@ def newels(mb, Fs, s, w, n, rise, tread, cheek_h, zf, lamp):
         else:
             K.lathe(mb, Fs, ((xa + xb) / 2, yc, ztp - 0.3), [(0.95, 0.0), (0.95, 0.16), (0.3, 0.42), (0.1, 0.5)], 4,
                     SWALL_CAP, math.pi / 4)
+
+
+def stair_wall_col(Fs, nm, s, w, n, rise, tread, cheek_h, tw, batter):
+    """V2 (gate 'visual'): a CAPA da muralha e uma faixa andavel ao lado da escada e o TALUDE da face de fora engorda
+    a pedra ate ~2 no pe. Colisao: 3 caixas RETAS por lado (tercos da escada), da capa ate a pedra do talude, com o
+    topo 8,5 acima da capa no fim de cada terco (cerca invisivel como a guarda da escada do op_col). Caixas retas e
+    encostadas, sem sobreposicao: o gate conta o topo de toda colisao como piso e o teste 'dentro da caixa' dele erra
+    onde caixas se sobrepoem (pontas inclinadas de rampa deixavam o pilarete de arranque descoberto)."""
+    area = "OP_PortStairWall" + nm
+    ztl = lambda y: rise * (y / tread + 1.0) + cheek_h + 0.26
+    L_ = tread * n
+    t = math.tan(math.radians(batter))
+    xin = w / 2 - 0.15
+    for k in range(3):
+        y0, y1 = L_ * k / 3 - (1.4 if k == 0 else 0.0), L_ * (k + 1) / 3
+        xout = w / 2 + tw + 0.15 + t * (ztl(y1) - 0.36)
+        top = ztl(y1) + 8.5
+        col_box(area, (xout - xin, y1 - y0, top + 0.3), Fs.p(s * (xin + xout) / 2, (y0 + y1) / 2, top / 2 - 0.15),
+                Fs.r())
 
 
 _WMB = [None]          # MB proprio da muralha das escadas (pedras com so as faces visiveis: fecha com recalc=False)
@@ -346,36 +448,194 @@ def stairs(mb):
         # M6b: degraus do kit SEM banzos (cheeks=False): as laterais sao a muralha de cantaria (stair_wall)
         K.stair_stone(mb, Fs, w, n, rise=rise, tread=tread, z_floor=-0.3, cheek_h=1.0, cheeks=False)
         for i, s in enumerate((-1, 1)):
-            stair_wall(wm, Fs, s, w, n, rise, tread, 1.0, -0.3, SWALL_BATTER[nm][i], "sw" + nm)
-            newels(mb, Fs, s, w, n, rise, tread, 1.0, -0.3, lamp)
+            tw = SWALL_TW[nm][i]
+            stair_wall(wm, Fs, s, w, n, rise, tread, 1.0, -0.3, SWALL_BATTER[nm][i], "sw" + nm, tw)
+            newels(mb, Fs, s, w, n, rise, tread, 1.0, -0.3, lamp, tw)
             stair_rail(mb, Fs, s * (w / 2 + 0.6), n, rise, tread, 1.0)
             c = Fs.p(s * (w / 2 + 0.6), -0.55, 0.0)
             col_box("OP_PortProp", (2.0, 1.7, 4.4), (c.x, c.y, foot[2] + 2.2), Fs.r())
+            stair_wall_col(Fs, nm, s, w, n, rise, tread, 1.0, tw, SWALL_BATTER[nm][i])
 
 
-# ================================================================== ARMAZENS (kit)
-def wh_spec(nm):
-    s = _spec(nm)
-    base = dict(W=s[4], D=s[5], plinth=("ishigaki", 1.3), plaster="Plaster_OP", plaster_up="Plaster_OP", roof_m=s[10],
-                lit=False, noren=None, lod=1, back_lod=1, side_lod=1, seed=4100 + WAREHOUSES.index(nm) * 53)
-    if nm == "H1":        # kura de 2 pisos: saia de tabuas + reboco, porta de correr pesada, janela de barras no 2o piso
-        base.update(floors=[dict(h=9.5, front=["plain", {"t": "door", "w": 5.8}, "plain"], left=["plaster"],
-                                 right=["plaster"]),
-                            dict(h=7.0, front=["plaster", "mushiko", "plaster"], pent=False, left=["plaster"],
-                                 right=["plaster"])],
-                    roof=dict(kind="kirizuma", ridge="x", pitch=0.6, over=2.6, g_over=1.8))
-    elif nm == "H2":      # galpao de carga: 1 piso alto, 2 portas, alpendre corrido (hisashi) na frente
-        base.update(plinth=("soco", 0.9), plaster="Plaster_OP_Warm",
-                    floors=[dict(h=10.5, front=["plain", {"t": "door", "w": 5.6}, {"t": "door", "w": 5.6}, "plain"],
-                                 left=["plaster"], right=["plaster"], front_pent=dict(z=8.8, depth=3.4))],
-                    roof=dict(kind="kirizuma", ridge="x", pitch=0.55, over=2.8, g_over=1.6))
-    else:                 # H3: armazem da rua alta, 2 pisos, irimoya (o unico de 4 aguas: marca a rua alta)
-        base.update(floors=[dict(h=9.5, front=["plain", {"t": "door", "w": 5.8}, "plain"], left=["plaster"],
-                                 right=["plaster"]),
-                            dict(h=7.2, front=["plaster", "mushiko", "plaster"], pent=False, left=["plaster"],
-                                 right=["plaster"])],
-                    roof=dict(kind="irimoya", ridge="x", pitch=0.55, over=3.0, courses=2))
-    return base
+
+# ================================================================== ARMAZENS V2
+def kura_row(mb):
+    """H1 V2: 2 KURA do kit V2 lado a lado (empena para o cais, porta-cofre, namako, telhado pesado), viela de 1,2"""
+    for i, (x, y, W, D, h, roof, seed) in enumerate(KURAS):
+        F = Frame(x, y, H, 0.0)
+        info = K2.kura(mb, F, W, D, roof, tsuma=True, lod=1, seed=seed, h=h)
+        col_box("OP_PortHouseH1", (W + 1.0, D + 1.0, 1.4 + h), F.p(0.0, 0.0, (1.4 + h) / 2))
+        # V2 (gate 'visual'): o telhado se alcanca descendo do T1 -> 2 aguas com colisao (topo ~0,4 sob a telha)
+        Ye = W / 2 + 0.12 + 1.9
+        ze, zr = info["eave_z"] + 0.7 + 0.62, info["ridge_z"]
+        ang = math.atan2(zr - ze, Ye)
+        for sx in (-1, 1):
+            c = F.p(sx * Ye / 2, 0.0, 0.0)
+            col_box("OP_PortHouseH1", (math.hypot(Ye, zr - ze), D + 2 * 1.7 + 0.3, 0.8),
+                    (c.x, c.y, (ze + zr) / 2 - 0.45), (0.0, sx * ang, 0.0))
+        col_box("OP_PortHouseH1", (3.0, D + 2 * 1.7 + 0.6, 1.9), F.p(0.0, 0.0, zr - F.o.z + 0.4))   # cumeeira
+        col_box("OP_PortHouseH1", (6.8, 1.6, 0.8), F.p(0.0, D / 2 + 1.05, 1.15))     # soleira da porta-cofre
+
+
+def armazem(mb):
+    """ARMAZEM ABERTO (H2 V2, interior 4 do PLANO_V2): ver cabecalho. Frente (+y) para o cais."""
+    W, D, fz, h = ARM_W, ARM_D, ARM_FZ, ARM_H
+    Fa = Frame(ARM_C[0], ARM_C[1], H, 0.0)
+    area = "OP_PortHouseH2"
+    # soco de pedra + capa, piso de tabuas (frestas mostram a capa escura 0,12 abaixo)
+    K.bb(mb, Fa, -W / 2 - 0.45, W / 2 + 0.45, -D / 2 - 0.45, D / 2 + 0.45, -0.3, fz - 0.24, ST)
+    K.bb(mb, Fa, -W / 2 - 0.35, W / 2 + 0.35, -D / 2 - 0.35, D / 2 + 0.35, fz - 0.24, fz - 0.12, STP)
+    for x in K.even(-W / 2 + 0.2, W / 2 - 0.2, 1.6):
+        K.bb(mb, Fa, x - 0.76, x + 0.76, -D / 2 + 0.2, D / 2 + 0.25, fz - 0.12, fz, WM)
+    # RAMPA DE CARGA no meio da frente (6 de largura, 0,9 -> 0 em 3,75) sobre 2 longarinas
+    y0, y1 = D / 2 + 0.45, D / 2 + 4.2
+    ln = math.hypot(y1 - y0, fz)
+    pit = math.atan2(fz, y1 - y0)
+    for k in range(6):
+        s = (k + 0.5) / 6
+        c = Fa.p(0.0, y0 + (y1 - y0) * s, fz * (1 - s) - 0.08)
+        mb.box((6.0, ln / 6 - 0.06, 0.16), c, Fa.r(pit, 0.0, 0.0), WM, 0.0)
+    for x in (-2.5, 2.5):
+        K.beam(mb, Fa, (x, y1 - 0.1, 0.0), (x, y0, fz - 0.3), 0.4, 0.3, WD)
+    col_ramp(area, Fa.p(0.0, y1, 0.0), Fa.p(0.0, y0 - 0.2, fz), 6.0, 1.0)
+    # PAREDES (estrutura aparente + tabuado) e FRENTE ABERTA (so pilares e frechal nos 4 vaos do meio)
+    K2._body(mb, Fa, W, D, fz, h,
+             {"F": ["board", "open", "open", "open", "open", "board"], "B": ["board"] * 5,
+              "R": ["board", "lattice", "board"], "L": ["board"] * 3}, lod=1, lit=False)
+    # portoes de correr (itado) empurrados para as pontas, na frente dos vaos fechados
+    for s in (-1, 1):
+        xa, xb = s * (W / 2 - 0.55), s * (W / 2 - 4.25)
+        K.bb(mb, Fa, xa, xb, D / 2 + 0.2, D / 2 + 0.42, fz, fz + 6.7, WM)
+        for zz in (fz + 0.5, fz + 3.3, fz + 6.2):
+            K.bb(mb, Fa, xa, xb, D / 2 + 0.42, D / 2 + 0.56, zz - 0.14, zz + 0.14, WD)
+        K.bb(mb, Fa, xa - s * 0.1, xb + s * 0.1, D / 2 + 0.15, D / 2 + 0.6, fz + 6.75, fz + 7.0, IRON)   # trilho
+    # TELHADO V2 (kirizuma, cumeeira ao longo de x) + TESOURAS aparentes por dentro
+    Fr = K.sub(Fa, 0.0, 0.0, fz)
+    r = K2.roof2(mb, Fr, W, D, h, "kirizuma", "Roof_OP_Blue", ov=2.6, g_over=1.6, s0=0.42, s1=0.95, lift=0.5, tv=0.5,
+                 lod=1, back_lod=1, ends=("timber", "timber"), courses=2, rafters=True)
+    zr = r["zr"]
+    for x in (-6.97, 0.0, 6.97):
+        K.bb(mb, Fr, x - 0.3, x + 0.3, -D / 2 + 0.45, D / 2 - 0.45, h - 0.1, h + 0.45, WD)          # tirante
+        zk = r["Hf"](x, 0.0) - 0.5 - 0.45
+        K.bb(mb, Fr, x - 0.24, x + 0.24, -0.24, 0.24, h + 0.45, zk, WD)                        # pendural
+        for sy in (-1, 1):
+            K.beam(mb, Fr, (x, sy * (D / 2 - 1.4), h + 0.45), (x, sy * 0.3, zk - 0.6), 0.3, 0.3, WD)
+    zk0 = r["Hf"](0.0, 0.0) - 0.5 - 0.45
+    K.bb(mb, Fr, -W / 2 + 0.3, W / 2 - 0.3, -0.22, 0.22, zk0 - 0.05, zk0 + 0.3, WD)          # terca da cumeeira
+    # placa (kanban) sobre a abertura + 2 chochin no frechal da frente
+    K.bb(mb, Fa, -2.6, 2.6, D / 2 + 0.06, D / 2 + 0.3, fz + h - 2.1, fz + h - 0.7, WD)
+    K.bb(mb, Fa, -2.2, 2.2, D / 2 + 0.3, D / 2 + 0.44, fz + h - 1.85, fz + h - 0.95, "Plaster_OP_Warm")
+    K.lathe_y(mb, Fa, (0.0, D / 2 + 0.44, fz + h - 1.4), [(0.34, 0.0), (0.34, 0.12)], 10, LAC)
+    Ff = K.sub(Fa, 0.0, D / 2, fz)
+    for i, s in enumerate((-1, 1)):
+        K2.eave_lantern(mb, Ff, s * (W / 2 - 2.4), h - 0.9, "L_OPProp_Lamp_PortoArm_%d" % i, 20.0)
+    # ---------------------------------------------------------------- INTERIOR (a carga e o escritorio do porto)
+    # caixas em 2 alturas no fundo (lado oeste)
+    for k, x in enumerate((-9.6, -8.0, -6.4, -4.8)):
+        K.crate(mb, Fa, x, -5.8, fz, 1.5, 1.2, 1.0, 0.04 * ((k % 3) - 1))
+        if k < 3:
+            K.crate(mb, Fa, x + 0.2, -5.8, fz + 1.0, 1.3, 1.1, 0.9, 0.06 * (k - 1))
+    col_box(area, (6.6, 1.6, 1.9), Fa.p(-7.2, -5.8, fz + 0.95))
+    # piramide de fardos de arroz
+    for (y, z) in ((-2.4, 0.0), (-1.3, 0.0), (-0.2, 0.0), (-1.85, 0.95), (-0.75, 0.95), (-1.3, 1.9)):
+        K2.tawara(mb, Fa, -8.4, y, fz + z, 0.0, 0.55, 1.7)
+        K2.tawara(mb, Fa, -6.6, y, fz + z, 0.0, 0.55, 1.7)
+    col_box(area, (3.8, 3.4, 2.4), Fa.p(-7.5, -1.3, fz + 1.2))
+    # barris e jarros no fundo (lado leste do meio)
+    K2.goods_pile(mb, K.sub(Fa, 1.6, -5.3, fz), "barrels")
+    col_box(area, (5.0, 3.0, 1.6), Fa.p(2.4, -5.4, fz + 0.8))
+    # BALANCA de mercador pendurada na tesoura oeste: fardo sendo pesado
+    xs_, ys_ = -6.97, 2.4
+    zb_ = fz + h                                       # face de baixo do tirante
+    mb.rod(Fa.p(xs_, ys_, zb_), Fa.p(xs_, ys_, fz + 4.7), 0.06, ROPE, 4)
+    K.bb(mb, Fa, xs_ - 0.12, xs_ + 0.12, ys_ - 1.7, ys_ + 1.5, fz + 4.55, fz + 4.75, WD)      # travessao
+    K.lathe(mb, Fa, (xs_, ys_ + 1.35, fz + 3.6), [(0.0, 0.0), (0.32, 0.12), (0.34, 0.5), (0.15, 0.62)], 6, IRON)
+    mb.rod(Fa.p(xs_, ys_ + 1.35, fz + 4.55), Fa.p(xs_, ys_ + 1.35, fz + 4.22), 0.04, IRON, 4)
+    mb.rod(Fa.p(xs_, ys_ - 1.4, fz + 4.55), Fa.p(xs_, ys_ - 1.4, fz + 2.75), 0.06, ROPE, 4)
+    K2.tawara(mb, Fa, xs_, ys_ - 1.4, fz + 1.75, math.pi / 2, 0.5, 1.5)
+    K.crate(mb, Fa, xs_ + 0.1, ys_ + 0.2, fz, 1.6, 1.4, 0.9, 0.0)
+    col_box(area, (2.0, 3.6, 2.8), Fa.p(xs_, ys_ - 0.4, fz + 1.4))
+    # ESCRITORIO DO PORTO (canto leste do fundo): estrado com tatami, escrivaninha, livros, cofre, biombo, andon
+    x0, x1, y0_, y1_ = 4.4, 10.3, -6.4, -1.4
+    zt = fz + 0.6
+    K.bb(mb, Fa, x0, x1, y0_, y1_, fz, zt - 0.12, WD)
+    K.bb(mb, Fa, x0 + 0.16, x1 - 0.16, y0_ + 0.16, y1_ - 0.16, zt - 0.12, zt, "Cloth_OP_Tatami")
+    K.bb(mb, Fa, x0 + 1.0, x0 + 3.0, y1_ + 0.05, y1_ + 0.7, fz, fz + 0.3, ST)                 # pedra de descalcar
+    K.bb(mb, Fa, 6.2, 8.8, -4.3, -3.1, zt + 0.72, zt + 0.86, WD)                               # tampo da escrivaninha
+    for xx in (6.35, 8.65):
+        K.bb(mb, Fa, xx - 0.1, xx + 0.1, -4.2, -3.2, zt, zt + 0.72, WD)
+    for k, (dx, z0b, hh) in enumerate(((6.7, 0.0, 0.16), (6.72, 0.16, 0.14), (7.35, 0.0, 0.2))):    # livros de conta
+        K.bb(mb, Fa, dx - 0.32, dx + 0.32, -3.95, -3.45, zt + 0.86 + z0b, zt + 0.86 + z0b + hh,
+             "Plaster_OP_Warm" if k != 1 else LAC)
+    K.bb(mb, Fa, 7.7, 8.5, -4.0, -3.4, zt + 0.86, zt + 0.98, WD)                              # abaco (soroban)
+    K.bb(mb, Fa, 6.9, 8.1, -2.6, -1.8, zt, zt + 0.12, LAC)                         # almofada
+    K.bb(mb, Fa, 9.0, 10.0, -6.0, -5.2, zt, zt + 0.7, WD)                                     # cofre (senryo-bako)
+    for zz in (zt + 0.18, zt + 0.52):
+        K.bb(mb, Fa, 8.96, 10.04, -6.04, -5.16, zz - 0.06, zz + 0.06, IRON)
+    for k in range(4):                                                                         # biombo de 4 folhas
+        xa_ = 4.9 + k * 1.15
+        yo = -6.05 + (0.22 if k % 2 else 0.0)
+        K.bb(mb, Fa, xa_, xa_ + 1.12, yo, yo + 0.1, zt, zt + 2.2, WD)
+        K.bb(mb, Fa, xa_ + 0.12, xa_ + 1.0, yo + 0.1, yo + 0.16, zt + 0.15, zt + 2.05, "Plaster_OP_Warm")
+    K2.andon_floor(mb, Fa, 5.0, -2.2, zt, 0.9)
+    col_box(area, (x1 - x0, y1_ - y0_, 0.6), Fa.p((x0 + x1) / 2, (y0_ + y1_) / 2, fz + 0.3))
+    DL.light("L_OPPort_Int_Armazem", "POINT", Fa.p(0.0, -2.0, fz + 5.2), 220.0, K.WARM, 0.5)
+    # ---------------------------------------------------------------- COLISAO (paredes, piso, telhado)
+    col_box(area, (W + 0.9, D + 0.9, 1.1), Fa.p(0.0, 0.0, fz - 0.55))
+    col_box(area, (W + 0.4, 1.0, h), Fa.p(0.0, -D / 2 + 0.4, fz + h / 2))
+    for s in (-1, 1):
+        col_box(area, (1.0, D, h), Fa.p(s * (W / 2 - 0.4), 0.0, fz + h / 2))
+        col_box(area, (3.9, 1.4, h), Fa.p(s * (W / 2 - 2.1), D / 2 - 0.2, fz + h / 2))
+    Ye = r["Ye"]
+    for sy in (-1, 1):                     # as 2 aguas (a beira fica ~7,5 acima do cais: alcancavel de cima da carga)
+        za, zb2 = r["Hf"](0.0, sy * Ye), r["Hf"](0.0, 0.0)
+        ang = math.atan2(zb2 - za, Ye)
+        c = Fr.p(0.0, sy * Ye / 2, (za + zb2) / 2 - 0.45)
+        col_box(area, (W + 2 * 1.6, math.hypot(Ye, zb2 - za), 0.8), c, Fa.r(-sy * ang, 0.0, 0.0))
+    return r
+
+
+def lonja(mb):
+    """LONJA (mercado de peixe coberto) no meio do cais: 8 pilares sobre pedras, frechais, telhado V2 de 2 aguas,
+    2 bancadas compridas com tabuleiros de peixe, cestos e tinas no chao. Aberta dos 4 lados (o vento do mar)."""
+    W, D, h = LONJA_W, LONJA_D, LONJA_H
+    F = Frame(LONJA_C[0], LONJA_C[1], H, 0.0)
+    xs = [-W / 2 + 0.4, -W / 6, W / 6, W / 2 - 0.4]
+    for x in xs:
+        for y in (-D / 2 + 0.4, D / 2 - 0.4):
+            K.rock_base(mb, F, x, y, 0.0, 0.7, 0.4)
+            K.bb(mb, F, x - 0.36, x + 0.36, y - 0.36, y + 0.36, 0.3, h - 0.6, WD)
+    for y in (-D / 2 + 0.4, D / 2 - 0.4):
+        K.bb(mb, F, -W / 2 - 0.2, W / 2 + 0.2, y - 0.42, y + 0.42, h - 0.6, h, WD)
+    for x in xs:
+        K.bb(mb, F, x - 0.3, x + 0.3, -D / 2 + 0.2, D / 2 - 0.2, h - 0.5, h - 0.05, WD)
+    r = K2.roof2(mb, F, W - 0.8, D - 0.8, h, "kirizuma", "Roof_OP_Blue", ov=2.0, g_over=1.4, s0=0.42, s1=0.95,
+                 lift=0.5, tv=0.45, lod=1, back_lod=1, ends=("board", "board"), courses=2, rafters=False)
+    # bancadas com tabuleiros de peixe
+    for y in (-1.5, 1.5):
+        K.bb(mb, F, -W / 2 + 1.4, W / 2 - 1.4, y - 0.8, y + 0.8, 0.95, 1.15, WM)
+        for x in (-W / 2 + 1.7, 0.0, W / 2 - 1.7):
+            K.bb(mb, F, x - 0.13, x + 0.13, y - 0.65, y + 0.65, 0.0, 0.95, WD)
+        for k, x in enumerate((-4.4, -1.5, 1.5, 4.4)):
+            K.bb(mb, F, x - 1.15, x + 1.15, y - 0.62, y + 0.62, 1.15, 1.3, WD)
+            for j in range(2):
+                a = 0.3 + 0.9 * j + k
+                Ff = K.sub(F, x - 0.4 + 0.8 * j, y + 0.18 * math.sin(a), 1.42, 0.25 * math.cos(a))
+                K.lathe_y(mb, Ff, (0.0, 0.0, 0.0), [(0.03, -0.5), (0.16, -0.18), (0.08, 0.32), (0.14, 0.45)], 4, STEEL)
+    for (x, y) in ((-5.6, 3.7), (-4.4, 3.9), (5.2, -3.7), (3.9, -3.9)):                             # cestos e tinas
+        K.lathe(mb, F, (x, y, 0.0), [(0.4, 0.0), (0.58, 0.5), (0.62, 0.58)], 7, STRAW)
+    K2.barrel2(mb, F, 6.0, 3.6, 0.0, 0.62, 1.0)
+    col_box("OP_PortLonja", (W - 2.6, 4.8, 1.3), F.p(0.0, 0.0, 0.65))
+    for sx in (-1, 1):
+        for sy in (-1, 1):
+            col_box("OP_PortLonja", (0.8, 0.8, h), F.p(sx * (W / 2 - 0.4), sy * (D / 2 - 0.4), h / 2))
+    Ye = r["Ye"]
+    for sy in (-1, 1):                         # as 2 aguas: a beira fica a ~5,5 do cais (alcancavel de cima da bancada)
+        za, zb2 = r["Hf"](0.0, sy * Ye), r["Hf"](0.0, 0.0)
+        ang = math.atan2(zb2 - za, Ye)
+        c = F.p(0.0, sy * Ye / 2, (za + zb2) / 2 - 0.4)
+        col_box("OP_PortLonja", (W + 4.6, math.hypot(Ye, zb2 - za), 1.0), c, F.r(-sy * ang, 0.0, 0.0))
+    col_box("OP_PortLonja", (W + 5.2, 2.2, 1.8), F.p(0.0, 0.0, r["zr"] + 0.5))         # cumeeira + onigawara
 
 
 def shed(mb, nm="H5"):
@@ -409,6 +669,9 @@ def shed(mb, nm="H5"):
             c = F.p(sx * (W / 2 + 1.55), sy * Dh / 2, 8.6 + rise / 2 + 0.05)
             mb.box((0.25, ln + 0.3, 0.6), c, F.r(-sy * ang, 0, 0), WD, 0.0)
     K.bb(mb, F, -W / 2 - 1.7, W / 2 + 1.7, -0.45, 0.45, 8.6 + rise, 8.6 + rise + 0.55, "Roof_OP_Ridge")
+    for sy in (-1, 1):                    # V2 (gate): a cobertura se alcanca da muralha da PortoB -> 2 aguas com colisao
+        col_box("OP_PortHouse" + nm, (W + 3.0, ln, 0.6), F.p(0.0, sy * Dh / 2, 8.6 + rise / 2 - 0.2),
+                F.r(-sy * ang, 0, 0))
     for x in xs:                                             # pendurais da tesoura
         K.bb(mb, F, x - 0.25, x + 0.25, -0.25, 0.25, 8.6, 8.6 + rise, WD)
     for i, (x, y) in enumerate(((-5.4, -2.4), (-5.4, 1.6))):
@@ -425,14 +688,15 @@ def shed(mb, nm="H5"):
 
 
 def warehouses(mb):
-    out = {}
-    for nm in WAREHOUSES:
-        F = bframe(nm)
-        sp = wh_spec(nm)
-        out[nm] = K.house(mb, F, sp)
-        K.house_cols("OP_PortHouse" + nm, F, sp)
+    tri = lambda: sum(len(f.verts) - 2 for f in mb.bm.faces)
+    t0 = tri()
+    kura_row(mb)
+    t1 = tri()
+    r = armazem(mb)
+    t2 = tri()
     shed(mb, "H5")
-    return out
+    print("op_harbor: armazens: kura %d, armazem aberto %d, telheiro %d" % (t1 - t0, t2 - t1, tri() - t2))
+    return r
 
 
 # ------------------------------------------------------------------ carga do cais
@@ -466,126 +730,387 @@ def cart(mb, F, x, y, ang=0.0):
 
 
 def cargo(mb):
-    """carga encostada nas fachadas (fora das portas e das rotas)"""
-    # H1 (frente para o norte, y 52): fardos empilhados e barris ao lado da porta
-    F = F0
-    for i, (x, y, z) in enumerate(((128.6, 54.0, H), (128.6, 55.9, H), (128.6, 54.95, H + 1.15))):
-        tawara(mb, F, x, y, z, 0.0)
-    K.barrel(mb, F, 131.2, 54.2, H, 0.75, 1.6)
-    K.barrel(mb, F, 132.9, 54.5, H, 0.75, 1.6)
-    col_box("OP_PortProp", (6.4, 3.4, 2.4), (130.6, 55.0, H + 1.2))
-    # H2 (frente para o norte, y 49): carrinho e jarros sob o alpendre
-    cart(mb, F, 185.5, 54.6, math.radians(80))
-    col_box("OP_PortProp", (7.2, 3.0, 2.6), (184.6, 54.8, H + 1.3))
-    for (x, y) in ((198.6, 51.8), (199.9, 52.9)):
-        K.jar(mb, F, x, y, H, 0.6, 1.5, "Stone_OP_Dark", True)
-    col_box("OP_PortProp", (2.8, 2.8, 1.6), (199.3, 52.4, H + 0.8))
-    # H3 (rua alta, frente para o sul, y 113): barris e fardos ao lado da porta
-    for (x, y) in ((168.2, 110.6), (169.9, 110.4)):
-        K.barrel(mb, F, x, y, HM, 0.75, 1.6)
-    for (x, y, z, a) in ((184.0, 110.8, HM, 0.1), (184.0, 110.8, HM + 0.9, 0.5)):
-        K.crate(mb, F, x, y, z, 1.6, 1.3, 0.9, a)
-    col_box("OP_PortProp", (3.6, 2.0, 1.7), (169.0, 110.5, HM + 0.85))
-    col_box("OP_PortProp", (2.2, 2.0, 1.9), (184.0, 110.8, HM + 0.95))
+    """carga do cais V2 (fora das portas, das rotas e do SAFE_Cais): na frente das kura, ao lado do armazem aberto,
+    no pier esperando o embarque e os fardos esperando a lingada do guindaste"""
+    K2.goods_pile(mb, Frame(125.6, 56.6, H, 0.0), "crates")
+    col_box("OP_PortProp", (6.0, 2.0, 1.9), (127.0, 56.6, H + 0.95))
+    K2.goods_pile(mb, Frame(206.4, 40.6, H, math.pi / 2), "barrels")
+    col_box("OP_PortProp", (2.8, 5.2, 1.6), (206.3, 41.0, H + 0.8))
+    cart(mb, Frame(0.0, 0.0, H, 0.0), 208.2, 49.6, -math.pi / 2)
+    col_box("OP_PortProp", (7.4, 3.2, 2.7), (209.2, 49.6, H + 1.35))
+    # meio do cais: caixas e barris a caminho do armazem (fora da rota e a 8 do SAFE_Cais)
+    K2.goods_pile(mb, Frame(203.6, 66.0, H, 0.3), "crates")
+    col_box("OP_PortProp", (5.8, 2.6, 1.9), (204.6, 66.3, H + 0.95), (0.0, 0.0, 0.3))
+    # pier: carga esperando o embarque (lado oeste, o corredor do meio fica livre)
+    for y in (126.0,):
+        K2.goods_pile(mb, Frame(224.4, y, H, math.pi / 2), "crates")
+        col_box("OP_PortProp", (2.4, 5.4, 1.9), (224.4, y + 1.2, H + 0.95))
+    # fardos esperando a lingada (ao sul do tambor do guindaste)
+    Fp = Frame(219.8, 73.6, H, 0.0)
+    for (y, z) in ((-0.55, 0.0), (0.55, 0.0), (0.0, 0.95)):
+        K2.tawara(mb, Fp, 0.0, y, z, 0.0, 0.55, 1.7)
+    col_box("OP_PortProp", (2.0, 2.4, 1.9), (219.8, 73.6, H + 0.95))
 
 
-# ================================================================== BARCOS
-def boat(mb, cx, cy, ang, Lb=11.0, Bb=3.4, roof=False, z_g=None):
-    """barco de madeira (bote/sampan): casco de estacoes com casca interna, banco(s), tabuado do fundo; roof=True -> barco
-    coberto (yakatabune) com 4 esteios e telhado de 2 aguas. +y local = proa"""
-    F = Frame(cx, cy, 0.0, ang)
-    zg0 = SEA + 1.5 if z_g is None else z_g
-    keel = SEA - 0.7
+# ================================================================== GUINDASTE (parte fixa + 2 pecas moveis)
+def _jib():
+    m = Vector((CRANE_M[0], CRANE_M[1], 0.0))
+    t = Vector((LOAD_C[0], LOAD_C[1], 0.0))
+    d = (t - m).normalized()
+    heel = Vector((m.x + d.x * 0.6, m.y + d.y * 0.6, JIB_HEEL_Z))
+    tip = Vector((t.x, t.y, JIB_TIP_Z))
+    return d, heel, tip
+
+
+def load_top_low():
+    return LOAD_LOW + 3.2                  # topo do gato da lingada na posicao baixa
+
+
+def crane(mb, mbs):
+    """GUINDASTE de madeira do canto da doca (14 de altura: le da camera do jogo): mastro escorado sobre sapata de
+    pedra (mbs), lanca inclinada sobre a doca com escora, estai, moitoes, cavaletes do tambor e o cabo FIXO (tambor ->
+    roldana do topo -> ao longo da lanca -> desce da ponta ate o ponto mais alto da lingada)"""
+    mx, my = CRANE_M
+    d, heel, tip = _jib()
+    K.bb(mbs, F0, mx - 1.7, mx + 1.7, my - 1.7, my + 1.7, H - 0.2, H + 0.45, ST)
+    K.bb(mbs, F0, mx - 1.55, mx + 1.55, my - 1.55, my + 1.55, H + 0.45, H + 0.57, STP)
+    zt = CRANE_TOP
+    K.bb(mb, F0, mx - 0.5, mx + 0.5, my - 0.5, my + 0.5, H + 0.57, zt, WD)
+    K.lathe(mb, F0, (mx, my, zt), [(0.62, 0.0), (0.66, 0.22), (0.28, 0.62)], 4, WD, math.pi / 4)
+    for zz in (H + 3.3, H + 7.0, zt - 1.2):
+        K.bb(mb, F0, mx - 0.6, mx + 0.6, my - 0.6, my + 0.6, zz - 0.16, zz + 0.16, IRON)
+    for dx, dy in ((1, 1), (1, -1), (-1, 1), (-1, -1)):                        # escoras
+        mb.beam(Vector((mx + dx * 1.3, my + dy * 1.3, H + 0.57)), Vector((mx + dx * 0.32, my + dy * 0.32, H + 4.0)),
+                0.36, 0.36, WD, 0.0)
+    # lanca + escora da lanca + pino de articulacao + estai do topo do mastro ate a ponta
+    mb.beam(heel, tip, 0.6, 0.7, WD, 0.0)
+    q = heel.lerp(tip, 0.42)
+    mb.beam(Vector((mx + d.x * 0.45, my + d.y * 0.45, H + 7.6)), q, 0.34, 0.34, WD, 0.0)
+    for k in (0.15, 0.7):
+        p = heel.lerp(tip, k)
+        K.bb(mb, F0, p.x - 0.42, p.x + 0.42, p.y - 0.42, p.y + 0.42, p.z - 0.12, p.z + 0.12, IRON)
+    K.lathe_y(mb, Frame(heel.x, heel.y, 0.0, math.atan2(-d.x, d.y) + math.pi / 2), (0.0, 0.0, heel.z),
+              [(0.3, -0.8), (0.3, 0.8)], 6, IRON)
+    SH.rope(mb, (mx + d.x * 0.3, my + d.y * 0.3, zt - 0.5), tip + Vector((0, 0, 0.45)), 0.12)
+    SH.rope(mb, (mx - d.x * 0.3, my - d.y * 0.3, zt - 0.5), (mx - d.x * 2.6, my - d.y * 2.6, H + 0.5), 0.1)  # contra
+    # moitao da ponta e roldana do topo
+    K.lathe(mb, F0, (tip.x, tip.y, tip.z - 1.35), [(0.0, 0.0), (0.38, 0.15), (0.4, 0.95), (0.2, 1.1)], 6, WD)
+    hb = Vector((mx + d.x * 0.66, my + d.y * 0.66, zt - 0.8))
+    K.lathe(mb, F0, (hb.x, hb.y, hb.z - 0.45), [(0.0, 0.0), (0.34, 0.1), (0.34, 0.8), (0.0, 0.9)], 6, WD)
+    # cavaletes do tambor (2 cavaletes em A, mancal de ferro) e travessas no chao
+    cx, cy, cz = DRUM_C
+    for x in (cx - 1.42, cx + 1.42):
+        for sy in (-1, 1):
+            mb.beam(Vector((x, cy + sy * 1.5, H)), Vector((x, cy + sy * 0.2, cz + 0.3)), 0.3, 0.3, WD, 0.0)
+        K.bb(mb, F0, x - 0.17, x + 0.17, cy - 1.75, cy + 1.75, H, H + 0.32, WD)
+        K.bb(mb, F0, x - 0.17, x + 0.17, cy - 0.85, cy + 0.85, cz - 1.0, cz - 0.78, WD)
+        K.bb(mb, F0, x - 0.22, x + 0.22, cy - 0.34, cy + 0.34, cz - 0.32, cz + 0.45, IRON)
+    for y in (cy - 1.55, cy + 1.55):
+        K.bb(mb, F0, cx - 1.6, cx + 1.6, y - 0.16, y + 0.16, H, H + 0.28, WD)
+    # cabo fixo: do alto do tambor ate a roldana do topo, ao longo da lanca e descendo da ponta
+    a0 = Vector((cx, cy + 0.15, cz + DRUM_R + 0.05))
+    SH.rope(mb, a0, hb + Vector((0, 0, -0.1)), 0.1)
+    SH.rope(mb, hb + Vector((0, 0, 0.35)), tip + Vector((0, 0, -0.25)), 0.1)
+    SH.rope(mb, Vector((tip.x, tip.y, tip.z - 1.35)), Vector((tip.x, tip.y, load_top_low() + LOAD_A)), 0.11)
+    col_box("OP_PortProp", (3.4, 3.4, 0.6), (mx, my, H + 0.3))
+    col_box("OP_PortProp", (2.6, 2.6, 13.4), (mx, my, H + 7.2))
+    col_box("OP_PortProp", (4.4, 3.6, 4.7), (cx + 0.3, cy, H + 2.35))
+
+
+def crane_vfx():
+    """VFX_OP_Crane_Drum: tambor + RODA DE MANOBRA (raios e cavilhas) + manivela de 4 barras, girando a 5 rpm no
+    eixo x (enrola o cabo: a face de cima anda para longe do mastro). VFX_OP_Crane_Load: lingada subindo em rampa
+    lenta e descendo (bob + rate)"""
+    cx, cy, cz = DRUM_C
+    md = SH.VMB("VFX_OP_Crane_Drum", {}, WM)
+    rot = (0.0, math.pi / 2, 0.0)
+    md.cyl(DRUM_R, 2.3, (cx, cy, cz), rot, WM, n=10, bevel=0.0)
+    for x in (cx - 1.18, cx + 1.18):                                             # flanges
+        md.cyl(DRUM_R + 0.34, 0.14, (x, cy, cz), rot, WM, n=10, bevel=0.0)
+    for x in (cx - 0.62, cx, cx + 0.62):                                         # voltas de cabo enroladas
+        md.cyl(DRUM_R + 0.1, 0.42, (x, cy, cz), rot, ROPE, n=10, bevel=0.0)
+    md.cyl(0.17, 4.6, (cx + 0.3, cy, cz), rot, IRON, n=6, bevel=0.0)             # eixo
+    xw = cx + 1.95                                                               # RODA (fora do cavalete leste)
+    md.cyl(0.42, 0.5, (xw, cy, cz), rot, WD, n=8, bevel=0.0)
+    ring = [Vector((xw, cy + WHEEL_R * math.cos(2 * math.pi * k / 16), cz + WHEEL_R * math.sin(2 * math.pi * k / 16)))
+            for k in range(17)]
+    md.tube(ring, 0.16, WD, n=4)
+    for k in range(8):
+        a = 2 * math.pi * k / 8 + 0.2
+        u = Vector((0.0, math.cos(a), math.sin(a)))
+        c = Vector((xw, cy, cz))
+        md.beam(c + u * 0.3, c + u * (WHEEL_R - 0.08), 0.16, 0.16, WD, 0.0)
+        md.rod(c + u * WHEEL_R, c + u * (WHEEL_R + 0.55), 0.09, WD, 4)           # cavilha (pega)
+    xh = cx - 1.85                                                               # manivela de 4 barras (oeste)
+    md.cyl(0.3, 0.42, (xh, cy, cz), rot, WD, n=8, bevel=0.0)
+    for k in range(2):
+        a = k * math.pi / 2 + 0.4
+        p = Vector((0.0, math.cos(a), math.sin(a))) * 1.25
+        md.beam(Vector((xh, cy, cz)) - p, Vector((xh, cy, cz)) + p, 0.17, 0.17, WD, 0.0)
+    obd = SH.finish_mixed(md)
+    SH.mover(obd, (cx, cy, cz), (1.0, 0.0, 0.0), rpm=DRUM_RPM, zone="porto", dist=220.0)
+    # lingada: 3 fardos em piramide numa rede, gato, e o cabo MOVEL (fino, por dentro do fixo)
+    ml = SH.VMB("VFX_OP_Crane_Load", {}, STRAW)
+    lx, ly = LOAD_C
+    Fl = Frame(lx, ly, LOAD_LOW, 0.0)
+    for (y, z) in ((-0.55, 0.0), (0.55, 0.0), (0.0, 0.92)):
+        K2.tawara(ml, Fl, 0.0, y, z, 0.0, 0.5, 1.5)
+    hook = Vector((lx, ly, LOAD_LOW + 2.75))
+    for dx, dy in ((0.85, 1.05), (-0.85, 1.05), (0.85, -1.05), (-0.85, -1.05)):
+        ml.tube([hook, Vector((lx + dx, ly + dy, LOAD_LOW + 0.9)), Vector((lx + dx * 0.4, ly + dy * 0.5, LOAD_LOW - 0.05))],
+                0.06, ROPE, n=3)
+    ml.tube([Vector((lx + 0.86 * math.cos(2 * math.pi * j / 8), ly + 1.08 * math.sin(2 * math.pi * j / 8),
+                     LOAD_LOW + 0.85)) for j in range(9)], 0.06, ROPE, n=3)
+    K.lathe(ml, F0, (lx, ly, hook.z), [(0.0, 0.0), (0.2, 0.1), (0.22, 0.32), (0.1, 0.45)], 6, IRON)
+    mrope_top = load_top_low() + LOAD_A
+    ml.rod(Vector((lx, ly, hook.z + 0.4)), Vector((lx, ly, mrope_top - 0.02)), 0.07, ROPE, 4, caps=False)
+    obl = SH.finish_mixed(ml)
+    SH.mover(obl, (lx, ly, LOAD_LOW + 1.0), (0.0, 0.0, 1.0), bob=LOAD_A, rate=LOAD_RATE, zone="porto", dist=220.0)
+    return obd, obl
+
+
+# ================================================================== BARCOS (casco de estacoes, casca orientada)
+def boat2(mb, F, Lb, Bb, kind="sampan"):
+    """barco de madeira: F no centro do casco NA LINHA D'AGUA (+y = proa). Casco de 13 estacoes com casca interna
+    (borda com espessura), alcatrate, tabuado do fundo, bancos. kind: 'sampan' | 'pesca' | 'yakata'. Devolve dict
+    com hb(y), zg(y) e pontos de amarracao (proa/popa, local)"""
     n = 12
-    bm = mb.bm
-    rings = []
-    meta = []
-    for i in range(n + 1):
-        t = i / n                                        # 0 = popa (espelho), 1 = proa
-        yl = -Lb / 2 + Lb * t
+
+    def t_(y):
+        return (y + Lb / 2) / Lb
+
+    def hb(y):
+        t = t_(y)
         e = abs(2 * t - 1)
-        hb = Bb / 2 * max(0.04, (1 - e ** 3.2) ** 0.5) if t > 0.5 else Bb / 2 * max(0.62, (1 - e ** 3.2) ** 0.5)
-        zg = zg0 + 0.9 * max(0.0, 2 * t - 1) ** 2 + 0.35 * max(0.0, 1 - 2 * t) ** 2
-        kz_ = keel + (zg - 0.4 - keel) * max(0.0, (t - 0.8) / 0.2) ** 1.6
-        hi = max(0.03, hb - 0.16)
-        zf = SEA + 0.3
-        prof = [(hi, min(zf, zg - 0.3)), (hi, zg), (hb, zg), (hb * 0.97, zg - 0.55), (hb * 0.78, SEA - 0.1)]
-        R = [(-u, yl, z) for u, z in prof] + [(0.0, yl, kz_)] + [(u, yl, z) for u, z in reversed(prof)]
-        rings.append([bm.verts.new(F.p(*p)) for p in R])
-        meta.append((yl, hb, hi, zg))
-    fs = []
-    for A, Bv in zip(rings, rings[1:]):
-        for j in range(len(A) - 1):
-            fs.append(bm.faces.new((A[j], Bv[j], Bv[j + 1], A[j + 1])))
-    last = rings[0]                                      # espelho de popa: normal para -y local
-    co2 = [Vector((v.co.x * math.cos(-ang) - v.co.y * math.sin(-ang), v.co.z, 0.0)) for v in last]
-    for a, b, c in geometry.tessellate_polygon([co2]):
-        f = bm.faces.new((last[a], last[b], last[c]))
-        f.normal_update()
-        d = F.p(0, -1, 0) - F.p(0, 0, 0)
-        if f.normal.dot(d) < 0:
-            f.normal_flip()
-        fs.append(f)
-    mb._post([v for r in rings for v in r], HULL, None, 0, 1)
-    for f in fs:
-        f.normal_update()
-        if f.calc_center_median().z < SEA + 0.2:
-            f.material_index = mb._mi_for(WD)
-    # fundo (tabuado), bancos, borda (alcatrate) e remos
-    pts = [(meta[i][2] - 0.05, meta[i][0]) for i in range(1, n)] + [(-(meta[i][2] - 0.05), meta[i][0]) for i in range(n - 1, 0, -1)]
+        return Bb / 2 * (max(0.05, (1 - e ** 3.2) ** 0.5) if t > 0.5 else max(0.62, (1 - e ** 3.2) ** 0.5))
+
+    def zg(y):
+        t = t_(y)
+        return 1.5 + 0.9 * max(0.0, 2 * t - 1) ** 2 + 0.35 * max(0.0, 1 - 2 * t) ** 2
+
+    def ring(y):
+        t = t_(y)
+        h, g = hb(y), zg(y)
+        kz = -0.7 + (g - 0.4 + 0.7) * max(0.0, (t - 0.8) / 0.2) ** 1.6
+        hi = max(0.03, h - 0.16)
+        zin = min(0.3, g - 0.3)
+        side = [(hi, zin, "in"), (hi, g, "top"), (h, g, "out"), (h * 0.97, g - 0.55, "out"), (h * 0.78, -0.1, "out")]
+        port = [(-u, z, k) for u, z, k in side]
+        stb = [(h * 0.78, -0.1, "out"), (h * 0.97, g - 0.55, "out"), (h, g, "top"), (hi, g, "in"), (hi, zin, "in")]
+        return port + [(0.0, kz, "out")] + stb
+    ys = [-Lb / 2 + Lb * i / n for i in range(n + 1)]
+    SH.shell_hull(mb, F, ys, ring, lambda j, nn, zc, kd: (WM if kd == "in" else (WD if kd == "top" or zc < 0.1 else HULL)),
+                  0.4)
+    # fundo (tabuado), bancos, alcatrate
+    pts = [(hb(y) - 0.2, y) for y in ys[1:-1]] + [(-(hb(y) - 0.2), y) for y in reversed(ys[1:-1])]
     poly = [tuple(F.p(x, y, 0))[:2] for x, y in pts]
-    mb.prism(DL.ccw(poly), SEA + 0.05, SEA + 0.32, WM)
-    for t in ((0.3, 0.55, 0.8) if not roof else (0.18, 0.86)):
-        yl = -Lb / 2 + Lb * t
-        i = min(n, max(0, int(round(t * n))))
-        hb, zg = meta[i][1], meta[i][3]
-        K.bb(mb, F, -hb + 0.1, hb - 0.1, yl - 0.45, yl + 0.45, zg - 0.55, zg - 0.3, WM)
+    mb.prism(DL.ccw(poly), F.o.z + 0.05, F.o.z + 0.32, WM)
+    for t in ((0.3, 0.55, 0.8) if kind != "yakata" else (0.18, 0.86)):
+        y = -Lb / 2 + Lb * t
+        K.bb(mb, F, -hb(y) + 0.12, hb(y) - 0.12, y - 0.42, y + 0.42, zg(y) - 0.55, zg(y) - 0.3, WM)
     for s in (-1, 1):
-        cap = [F.p(s * (meta[i][1] - 0.05), meta[i][0], meta[i][3] + 0.08) for i in range(0, n + 1)]
-        mb.tube(cap, 0.12, WD, n=4)
-    if roof:                                             # yakata: esteios, cobertura de 2 aguas, cumeeira
+        mb.tube([F.p(s * (hb(y) - 0.05), y, zg(y) + 0.08) for y in ys], 0.12, WD, n=4)
+    bow = (0.0, Lb / 2 - 0.4, zg(Lb / 2 - 0.4) + 0.1)
+    stern = (0.0, -Lb / 2 + 0.3, zg(-Lb / 2 + 0.3) + 0.1)
+    if kind == "sampan":                                 # ro (remo de popa) apoiado e 2 remos nos bancos
+        K.beam(mb, F, (0.25, -Lb / 2 + 0.4, zg(-Lb / 2) + 0.7), (0.5, -Lb / 2 - 2.8, 0.3), 0.18, 0.12, WD)
+        for s in (-1, 1):
+            K.beam(mb, F, (s * 0.55, -Lb * 0.3, zg(0) - 0.1), (s * 0.8, Lb * 0.3, zg(0) - 0.08), 0.12, 0.08, WM)
+    elif kind == "yakata":                               # esteios, cobertura de 2 aguas, cumeeira, noren de bambu
         y0, y1 = -Lb * 0.22, Lb * 0.24
-        hb = Bb / 2 - 0.35
+        h_ = Bb / 2 - 0.35
+        zg0 = zg(0.0)
         zt = zg0 + 3.6
         for sx in (-1, 1):
             for yy in (y0, y1):
-                K.bb(mb, F, sx * hb - 0.15, sx * hb + 0.15, yy - 0.15, yy + 0.15, zg0 - 0.3, zt, WD)
-            K.bb(mb, F, sx * hb - 0.12, sx * hb + 0.12, y0, y1, zt - 0.3, zt, WD)
+                K.bb(mb, F, sx * h_ - 0.15, sx * h_ + 0.15, yy - 0.15, yy + 0.15, zg0 - 0.3, zt, WD)
+            K.bb(mb, F, sx * h_ - 0.12, sx * h_ + 0.12, y0, y1, zt - 0.3, zt, WD)
+        a = math.atan2(1.0, h_ + 0.6)
         for sx in (-1, 1):
-            a = math.atan2(1.0, hb + 0.6)
-            c = F.p(sx * (hb + 0.6) / 2, (y0 + y1) / 2, zt + 0.55)
-            mb.box((math.hypot(hb + 0.6, 1.0) + 0.2, y1 - y0 + 1.6, 0.22), c, (0, sx * a, ang), "Roof_OP_Blue", 0.0)
+            c = F.p(sx * (h_ + 0.6) / 2, (y0 + y1) / 2, zt + 0.55)
+            mb.box((math.hypot(h_ + 0.6, 1.0) + 0.2, y1 - y0 + 1.6, 0.22), c, F.r(0.0, sx * a, 0.0), "Roof_OP_Blue", 0.0)
         K.bb(mb, F, -0.3, 0.3, y0 - 0.85, y1 + 0.85, zt + 1.0, zt + 1.35, "Roof_OP_Ridge")
-        K.bb(mb, F, -hb, hb, y0 - 0.1, y1 + 0.1, zg0 - 0.35, zg0 - 0.1, WM)          # estrado
-        for yy in (y0 + 0.4, y1 - 0.4):                                              # noren/sudare de bambu nas pontas
-            K.bb(mb, F, -hb + 0.2, hb - 0.2, yy - 0.06, yy + 0.06, zt - 1.6, zt - 0.35, "Cloth_OP_Indigo")
-            # M6b (item 40): verga de onde o noren pende (antes ele flutuava entre os esteios, sem apoio)
-            K.bb(mb, F, -hb - 0.1, hb + 0.1, yy - 0.14, yy + 0.14, zt - 0.35, zt - 0.08, WD)
-        # ro (remo de popa)
-        mb.beam(F.p(0.2, -Lb / 2 + 0.3, zg0 + 0.9), F.p(0.4, -Lb / 2 - 3.6, SEA + 0.2), 0.18, 0.12, WD, 0.0)
-    else:                                                # 2 remos atravessados nos bancos
+        K.bb(mb, F, -h_, h_, y0 - 0.1, y1 + 0.1, zg0 - 0.35, zg0 - 0.1, WM)
+        for yy in (y0 + 0.4, y1 - 0.4):
+            K.bb(mb, F, -h_ + 0.2, h_ - 0.2, yy - 0.06, yy + 0.06, zt - 1.6, zt - 0.35, "Cloth_OP_Indigo")
+            K.bb(mb, F, -h_ - 0.1, h_ + 0.1, yy - 0.14, yy + 0.14, zt - 0.35, zt - 0.08, WD)
+        K.beam(mb, F, (0.2, -Lb / 2 + 0.3, zg0 + 0.9), (0.4, -Lb / 2 - 3.6, 0.2), 0.18, 0.12, WD)
+    return dict(hb=hb, zg=zg, bow=bow, stern=stern)
+
+
+def _moor(mb, F, local, world, sag=0.6):
+    SH.rope_sag(mb, F.p(*local), Vector(world), sag, 0.09, 6)
+
+
+def quay_bollards(mb):
+    """cabecos da borda do cais norte (amarras do yakatabune e do bote; ficam dentro da guarda do op_col)"""
+    for y in (206.0, 222.0, 242.0):
+        bollard(mb, 220.6, y, col=True)
+
+
+def argola_pt(y):
+    return (221.15 - 0.42, y, H + 0.12)
+
+
+def boats_vfx():
+    out = []
+    # VFX_OP_Boat_1: 2 sampans de contrabordo na doca, presos as argolas; o de dentro recebe a lingada
+    mb = SH.VMB("VFX_OP_Boat_1", BOAT_KEEP, WD)
+    infos = []
+    for i, (x, y, Lb, Bb) in enumerate(SAMPANS):
+        F = Frame(x, y, SEA, 0.0)
+        infos.append((F, boat2(mb, F, Lb, Bb, "sampan"), Lb, Bb))
+    (FA, A, LA, BA), (FB, B, LB, BB) = infos
+    _moor(mb, FA, (-A["hb"](LA / 2 - 2.2) + 0.05, LA / 2 - 2.2, A["zg"](LA / 2 - 2.2) + 0.1), argola_pt(ARGOLAS[1]), 0.5)
+    _moor(mb, FA, (-A["hb"](-LA / 2 + 1.6) + 0.05, -LA / 2 + 1.6, A["zg"](-LA / 2 + 1.6) + 0.1), argola_pt(ARGOLAS[0]),
+          0.5)
+    for yy in (-2.5, 2.5):                                           # amarras de contrabordo
+        a = FA.p(A["hb"](yy) - 0.05, yy, A["zg"](yy) + 0.12)
+        b = FB.p(-B["hb"](yy + FA.o.y - FB.o.y) + 0.05, yy + FA.o.y - FB.o.y, B["zg"](yy + FA.o.y - FB.o.y) + 0.12)
+        SH.rope_sag(mb, a, b, 0.25, 0.08, 4)
+    for s in (-1, 1):                                                # defensas de palha entre os 2 cascos
+        K.lathe(mb, F0, (FA.o.x + (FB.o.x - FA.o.x) / 2, FA.o.y + s * 2.0, SEA + 0.6),
+                [(0.25, 0.0), (0.38, 0.2), (0.38, 0.9), (0.25, 1.1)], 6, ROPE)
+    # o de dentro ja tem 2 fardos na proa; o de fora carrega caixas e uma pilha sob esteira
+    K2.tawara(mb, K.sub(FA, 0.0, LA / 2 - 3.2, 0.32), -0.3, 0.0, 0.0, math.pi / 2, 0.5, 1.5)
+    K2.tawara(mb, K.sub(FA, 0.0, LA / 2 - 3.2, 0.32), 0.45, 0.6, 0.0, math.pi / 2 + 0.2, 0.5, 1.5)
+    K.crate(mb, FB, 0.0, 1.0, 0.32, 1.6, 1.3, 1.0, 0.1)
+    K.crate(mb, FB, 0.1, 1.0, 1.32, 1.3, 1.1, 0.8, -0.15)
+    K.lathe_y(mb, K.sub(FB, 0.0, -2.0, 0.32 + 0.55, math.pi / 2), (0.0, 0.0, 0.0),
+              [(0.3, -1.1), (0.75, -0.9), (0.8, 0.0), (0.75, 0.9), (0.3, 1.1)], 6, STRAW)
+    ob = SH.finish_mixed(mb)
+    out.append(SH.mover(ob, (FA.o.x, FA.o.y, SEA), bob=BOAT_BOB["VFX_OP_Boat_1"]))
+    # VFX_OP_Boat_2: barco de pesca no lado SUL da palafita (rede amontoada, cestos, farol de pesca, toldo de esteira)
+    # + bote de contrabordo por fora (mesma peca: amarrados juntos sobem e descem juntos)
+    mb = SH.VMB("VFX_OP_Boat_2", BOAT_KEEP, WD)
+    x, y, Lb, Bb = FISHER
+    F = Frame(x, y, SEA, -math.pi / 2)
+    P = boat2(mb, F, Lb, Bb, "pesca")
+    for (dx, dy, r, hh) in ((0.0, 0.6, 1.1, 0.55), (0.35, 1.6, 0.8, 0.45), (-0.3, -0.4, 0.85, 0.4)):   # rede
+        K.lathe(mb, F, (dx, dy, 0.32), [(r, 0.0), (r * 0.9, hh * 0.6), (r * 0.5, hh), (0.0, hh * 1.1)], 7, ROPE)
+    for (dx, dy) in ((-0.75, 3.0), (0.7, 3.4)):                                                       # cestos
+        K.lathe(mb, F, (dx, dy, 0.32), [(0.32, 0.0), (0.45, 0.5), (0.48, 0.58)], 6, STRAW)
+    yb = Lb / 2 - 1.5                                                                                 # isaribi
+    K.bb(mb, F, -0.1, 0.1, yb - 0.1, yb + 0.1, 0.32, P["zg"](yb) + 3.2, WD)
+    K.beam(mb, F, (0.0, yb, P["zg"](yb) + 3.0), (0.0, yb + 1.4, P["zg"](yb) + 3.4), 0.12, 0.12, WD)
+    K.lathe(mb, F, (0.0, yb + 1.4, P["zg"](yb) + 2.75), [(0.12, 0.0), (0.42, 0.45), (0.5, 0.7)], 6, IRON,
+            caps=(True, False))
+    ya, yz = -Lb / 2 + 0.6, -Lb / 2 + 3.4                                                             # toldo
+    arc = [(math.cos(math.pi * k / 5) * (Bb / 2 - 0.25), math.sin(math.pi * k / 5) * 1.6) for k in range(6)]
+    for yy in (ya, yz):
+        mb.tube([F.p(u, yy, P["zg"](yy) + v) for u, v in arc], 0.07, WD, n=3)
+    G = [[F.p(u, yy, P["zg"](yy) + v + 0.05) for yy in (ya, yz)] for u, v in arc]
+    cen = F.p(0.0, (ya + yz) / 2, P["zg"](ya))
+    for i in range(5):
+        for side, off in ((1, 0.0), (-1, -0.12)):
+            q = [G[i][0], G[i][1], G[i + 1][1], G[i + 1][0]]
+            vs = [mb.bm.verts.new(p + Vector((0, 0, off))) for p in q]
+            f = mb.bm.faces.new(vs)
+            f.normal_update()
+            if f.normal.dot(((q[0] + q[2]) / 2 - cen) * side) < 0:
+                f.normal_flip()
+            mb.shell.add(f)
+            mb._post(vs, STRAW, None, 0, 1)
+    for yy, xw in ((Lb / 2 - 2.4, x + Lb / 2 - 3.0), (-Lb / 2 + 1.8, x - Lb / 2 + 2.6)):            # amarras
+        _moor(mb, F, (-P["hb"](yy) + 0.05, yy, P["zg"](yy) + 0.1), (xw, 40.3, H + 1.0), 0.7)
+    x2, y2, L2, B2 = ROWBOAT
+    F2 = Frame(x2, y2, SEA, -math.pi / 2)
+    R2 = boat2(mb, F2, L2, B2, "sampan")
+    for yy in (-2.0, 2.0):
+        SH.rope_sag(mb, F2.p(-R2["hb"](yy) + 0.05, yy, R2["zg"](yy) + 0.1),
+                    F.p(P["hb"](yy + (x2 - x)) - 0.05, yy + (x2 - x), P["zg"](yy) + 0.1), 0.25, 0.08, 4)
+    ob = SH.finish_mixed(mb)
+    out.append(SH.mover(ob, (x, y, SEA), bob=BOAT_BOB["VFX_OP_Boat_2"]))
+    # VFX_OP_Boat_3: yakatabune no cais norte, amarrado aos cabecos, e um bote preso a um cabeco mais ao norte
+    mb = SH.VMB("VFX_OP_Boat_3", BOAT_KEEP, WD)
+    x, y, Lb, Bb = YAKATA
+    F = Frame(x, y, SEA, 0.0)
+    P = boat2(mb, F, Lb, Bb, "yakata")
+    _moor(mb, F, P["bow"], (220.6, 222.0, H + 1.1), 0.9)
+    _moor(mb, F, P["stern"], (220.6, 206.0, H + 1.1), 0.9)
+    x3, y3, L3, B3 = SKIFF
+    F3 = Frame(x3, y3, SEA, 0.0)
+    R3 = boat2(mb, F3, L3, B3, "sampan")
+    _moor(mb, F3, R3["bow"], (220.6, 242.0, H + 1.1), 0.8)
+    ob = SH.finish_mixed(mb)
+    out.append(SH.mover(ob, (x, y, SEA), bob=BOAT_BOB["VFX_OP_Boat_3"]))
+    return out
+
+
+def hauled_boat(mb):
+    """BARCO EM REPARO: sampan puxado para o cais em 3 cavaletes com calcos, tabuas novas encostadas, panela de
+    piche e malho (static: tem colisao)"""
+    x, y = HAULED
+    zw = H + 1.95                                          # 'linha d'agua' do casco erguido (quilha a H + 1,25)
+    F = Frame(x, y, zw, -math.pi / 2)                      # proa para +x
+    P = boat2(mb, F, 11.0, 3.4, "sampan")
+    for yy in (-3.4, 0.0, 3.2):
         for s in (-1, 1):
-            mb.beam(F.p(s * 0.6, -Lb * 0.32, meta[n // 2][3] - 0.15), F.p(s * 0.9, Lb * 0.32, meta[n // 2][3] - 0.12),
-                    0.12, 0.08, WM, 0.0)
-            K.bb(mb, F, s * 0.9 - 0.06, s * 0.9 + 0.06, Lb * 0.24, Lb * 0.4, meta[n // 2][3] - 0.25,
-                 meta[n // 2][3] - 0.05, WM)
-    return F.p(0.0, Lb / 2 - 0.3, zg0 + 0.9), F.p(0.0, -Lb / 2 + 0.3, zg0 + 0.4)
+            K.bb(mb, F, s * 1.35 - 0.14, s * 1.35 + 0.14, yy - 0.14, yy + 0.14, -1.95, -0.7, WD)
+        K.bb(mb, F, -1.7, 1.7, yy - 0.22, yy + 0.22, -0.95, -0.7, WD)
+        for s in (-1, 1):
+            K.bb(mb, F, s * 0.9 - 0.18, s * 0.9 + 0.18, yy - 0.2, yy + 0.2, -0.7, -0.32, WM)
+    for k in range(3):                                     # tabuas novas encostadas no cavalete
+        K.beam(mb, F, (2.6 + 0.3 * k, -2.0 + 0.5 * k, -1.95), (2.0 + 0.3 * k, 1.8 + 0.5 * k, -0.5), 0.5, 0.1, WM)
+    K.jar(mb, F, -2.4, -4.6, -1.95, 0.45, 0.8, STD)
+    K.beam(mb, F, (-2.0, -3.4, -1.85), (-1.2, -3.0, -1.85), 0.12, 0.12, WD)
+    K.bb(mb, F, -1.35, -1.0, -3.25, -2.75, -1.95, -1.5, WD)
+    col_box("OP_PortProp", (12.0, 6.6, 2.9), (x, y - 0.25, H + 1.45))      # casco + tabuas encostadas + panela
 
 
-def boats(mb):
-    # bote a remo na palafita (lado leste), amarrado ao pe do guarda-corpo
-    bow, stern = boat(mb, 251.0, 57.0, 0.0, 11.0, 3.4)
-    SH.rope_sag(mb, bow, (245.7, 62.0, H + 1.0), 0.8, 0.09, 6)
-    SH.rope_sag(mb, stern, (245.7, 52.0, H + 1.0), 0.8, 0.09, 6)
-    # barco coberto no cais norte (faixa x 206..222), amarrado nos cabecos do cais
-    bow, stern = boat(mb, 229.0, 213.0, 0.0, 14.0, 4.4, roof=True)
-    b1 = bollard(mb, 220.6, 222.0, col=False)          # na borda do cais, dentro da guarda do op_col
-    b2 = bollard(mb, 220.6, 206.0, col=False)
-    SH.rope_sag(mb, bow, b1, 0.9, 0.1, 6)
-    SH.rope_sag(mb, stern, b2, 0.9, 0.1, 6)
+# ================================================================== REDES SECANDO, CESTOS, ESCADA DA DOCA
+def nets(mb):
+    """2 varais de rede junto a muralha: esteios sobre pedra, vara, a rede jogada por cima da vara (malha de cabo:
+    cordas verticais com barriga + 3 fiadas) com boias de cortica na barra"""
+    for xa, xb in NET_RACKS:
+        for x in (xa, xb):
+            K.rock_base(mb, F0, x, NET_Y, H, 0.55, 0.35)
+            K.bb(mb, F0, x - 0.18, x + 0.18, NET_Y - 0.18, NET_Y + 0.18, H + 0.2, H + 6.4, WD)
+            mb.beam(Vector((x, NET_Y - 0.1, H + 4.6)), Vector((x, NET_Y + 1.6, H + 0.3)), 0.14, 0.14, WD, 0.0)
+        mb.rod(Vector((xa - 0.4, NET_Y, H + 6.25)), Vector((xb + 0.4, NET_Y, H + 6.25)), 0.14, WD, 6)
+        for s in (-1, 1):
+            xs = [xa + 0.45 + (xb - xa - 0.9) * i / 8 for i in range(9)]
+
+            def P(x, v, s=s, xa=xa, xb=xb):
+                drop = 4.9 + 0.5 * math.sin(1.7 * x) + (0.3 if s < 0 else 0.0)
+                bul = 0.55 * math.sin(math.pi * v) * (0.8 + 0.3 * math.sin(0.9 * x))
+                return Vector((x, NET_Y + s * (0.12 + 0.35 * v + bul), H + 6.15 - v * drop))
+            for x in xs:
+                mb.tube([P(x, v) for v in (0.0, 0.33, 0.66, 1.0)], 0.05, ROPE, n=3)
+            for v in (0.33, 0.66, 1.0):
+                mb.tube([P(xx, v) for xx in [xa + 0.45 + (xb - xa - 0.9) * i / 5 for i in range(6)]], 0.05, ROPE, n=3)
+            for x in xs[::2]:
+                p = P(x, 1.0)
+                K.bb(mb, F0, p.x - 0.22, p.x + 0.22, p.y - 0.14, p.y + 0.14, p.z - 0.12, p.z + 0.12, WM)
+        col_box("OP_PortProp", (xb - xa + 1.0, 2.8, 6.4), ((xa + xb) / 2, NET_Y, H + 3.2))
 
 
-# ================================================================== AMARRAS DO NAVIO e postes
+def baskets(mb):
+    """cestos de peixe junto a doca (entre as argolas): palha, boca cheia de peixe (fuso escuro)"""
+    for i, (x, y) in enumerate(((219.5, 89.9), (219.7, 91.5), (219.2, 98.0), (219.9, 99.4))):
+        F = Frame(x, y, H, 0.6 * i)
+        K.lathe(mb, F, (0.0, 0.0, 0.0), [(0.42, 0.0), (0.62, 0.55), (0.66, 0.62)], 8, STRAW)
+        for k in range(3):
+            a = 2.1 * k + i
+            Ff = K.sub(F, 0.18 * math.cos(a), 0.18 * math.sin(a), 0.7, a + 0.8)
+            K.lathe_y(mb, Ff, (0.0, 0.0, 0.0), [(0.02, -0.45), (0.13, -0.22), (0.15, 0.06), (0.06, 0.3), (0.12, 0.42)],
+                      4, STEEL)
+    col_box("OP_PortProp", (1.8, 3.0, 0.9), (219.6, 90.7, H + 0.45))
+    col_box("OP_PortProp", (1.8, 2.8, 0.9), (219.6, 98.7, H + 0.45))
+
+
+def ladder(mb, y=101.6):
+    """escada de marinheiro na muralha da doca (do cais ate a agua), longarinas com a ponta curvada sobre a borda"""
+    for yy in (y - 0.55, y + 0.55):
+        mb.beam(Vector((222.42, yy, SEA - 0.8)), Vector((222.42, yy, H - 0.05)), 0.2, 0.22, WD, 0.0)
+        mb.beam(Vector((222.42, yy, H - 0.05)), Vector((221.7, yy, H + 0.95)), 0.2, 0.22, WD, 0.0)
+    z = SEA - 0.4
+    while z < H - 0.3:
+        mb.rod(Vector((222.42, y - 0.5, z)), Vector((222.42, y + 0.5, z)), 0.07, WD, 4)
+        z += 0.85
+
+
+# ================================================================== AMARRAS DO NAVIO, argolas e postes
 def ship_lines(mb):
     pts = {y: Vector((PIER_A[2] - 1.4, y, H + 1.1)) for y in BOLLARDS_A}
     for ys, yb in ((116.0, 116.0), (190.0, 194.0), (136.0, 130.0), (172.0, 178.0)):
@@ -594,11 +1119,13 @@ def ship_lines(mb):
         SH.rope_sag(mb, a, pts[yb], 1.3, 0.13, 8)
 
 
-ARGOLAS = [80.0, 88.0, 96.0, 104.0]           # M6b (item 38): argolas de amarracao na beira do cais (x 222)
+
+ARGOLAS = [86.0, 94.0, 102.0]       # argolas de amarracao na beira da doca (x 222): os sampans amarram nas 2 primeiras
+#                                     (V2: a de y 80 saiu - la fica a sapata do guindaste)
 
 
 def argolas(mb):
-    """argola de ferro deitada no lajeado, presa numa chapa com olhal, junto a beira d'agua do cais (x 222, y 76..110)"""
+    """argola de ferro deitada no lajeado, presa numa chapa com olhal, junto a beira d'agua da doca (x 222)"""
     for y in ARGOLAS:
         x = 221.15
         mb.box((0.9, 0.7, 0.1), (x, y, H + 0.05), (0, 0, 0), IRON, 0.0)                     # chapa
@@ -609,16 +1136,14 @@ def argolas(mb):
         mb.tube(ring, 0.07, IRON, n=3)
 
 
-LAMPS = [(225.0, 113.0), (225.0, 73.0)]
+LAMPS = [(224.0, 113.6, 0.0), (223.7, 72.4, 0.0)]
 
 
 def lamps(mb):
-    for i, (x, y) in enumerate(LAMPS):
-        if i == 0:
-            K.lantern_post(mb, Frame(x, y, H, 0.0), 8.6, 1.6, "L_OPProp_Lamp_Porto_%d" % i, 40.0)
-        else:
-            K.lantern_box_post(mb, Frame(x, y, H, 0.0), 7.6, "L_OPProp_Lamp_Porto_%d" % i, 35.0)
-        col_box("OP_PortProp", (1.4, 1.4, 8.6), (x, y, H + 4.3))
+    """postes do kit V2 (poste de madeira com chochin sob telhadinho) na raiz do pier e na palafita"""
+    for i, (x, y, a) in enumerate(LAMPS):
+        K2.lamp_post(mb, Frame(x, y, H, a), "L_OPProp_Lamp_Porto_%d" % i, 35.0)
+        col_box("OP_PortProp", (3.4, 1.6, 8.2), (x + 0.9, y, H + 4.1))          # poste + braco do chochin
 
 
 # ================================================================== cameras de revisao
@@ -626,15 +1151,23 @@ EYE = L.EYE
 CAMS = {
     "CAM_OPPort_PH_DescidaA": ((174.0, 140.0, L.T1 - 15.6 * 0.767 + EYE), (232.0, 152.0, 52.0), 22),
     "CAM_OPPort_PH_DescidaB": ((160.0, 82.0, H + 20.0 * 0.767 + EYE), (234.0, 56.0, 46.0), 22),
-    "CAM_OPPort_PH_Cais": ((215.5, 100.0, H + EYE), (238.0, 160.0, 54.0), 22),
-    "CAM_OPPort_PH_Pier": ((226.5, 118.0, H + EYE), (246.0, 152.0, 54.0), 22),
-    "CAM_OPPort_PH_Palafita": ((224.0, 47.0, H + EYE), (238.0, 60.0, H + 5.0), 22),
-    "CAM_OPPort_Pier": ((262.0, 100.0, SEA + 9.0), (228.0, 150.0, SEA + 3.0), 24),
-    "CAM_OPPort_Palafita": ((210.0, 14.0, 60.0), (238.0, 58.0, 45.0), 26),
-    "CAM_OPPort_Armazens": ((152.0, 60.0, H + 6.5), (134.0, 86.0, H + 4.5), 24),
-    "CAM_OPPort_ArmazemH3": ((206.0, 104.0, HM + 7.0), (176.0, 120.0, HM + 6.0), 24),
+    "CAM_OPPort_PH_Cais": ((168.0, 50.0, H + EYE), (214.0, 92.0, H + 6.0), 20),
+    "CAM_OPPort_PH_Lonja": ((176.0, 64.0, H + EYE), (180.0, 80.0, H + 2.5), 22),
+    "CAM_OPPort_PH_Doca": ((214.0, 60.0, H + EYE), (228.0, 96.0, H + 3.0), 20),
+    "CAM_OPPort_PH_Pier": ((228.0, 114.0, H + EYE), (272.0, 92.0, H + 6.0), 20),
+    "CAM_OPPort_PH_Palafita": ((226.0, 44.0, H + EYE), (262.0, 70.0, H + 3.0), 20),
+    "CAM_OPPort_PH_Armazem": ((190.0, 60.0, H + EYE), (192.0, 40.0, H + 4.0), 22),
+    "CAM_OPPort_Armazem_Int": ((186.0, 47.0, H + 0.9 + EYE), (198.0, 37.0, H + 2.5), 20),
+    "CAM_OPPort_Guindaste": ((204.0, 70.0, H + 9.0), (226.0, 86.0, H + 5.0), 22),
+    "CAM_OPPort_Doca": ((244.0, 78.0, H + 7.0), (229.0, 93.0, SEA + 1.0), 22),
+    "CAM_OPPort_Junco": ((236.0, -14.0, H + 6.0), (272.0, 27.0, SEA + 10.0), 22),
+    "CAM_OPPort_Redes": ((190.0, 86.0, H + EYE), (178.0, 98.0, H + 3.5), 22),
     "CAM_OPPort_Barcos": ((250.0, 226.0, 49.0), (229.0, 210.0, SEA + 1.5), 26),
     "CAM_OPPort_Escadas": ((112.0, 12.0, 96.0), (176.0, 100.0, 58.0), 24),
+    "CAM_OPPort_Jogo": ((110.0, -10.0, 125.0), (205.0, 95.0, 45.0), 20),
+    "CAM_OPPort_Pesca": ((218.0, 14.0, H + 3.0), (234.0, 30.0, SEA + 1.5), 24),
+    "CAM_OPPort_PH_Lingada": ((227.5, 124.0, H + EYE), (237.0, 135.0, 52.0), 22),
+    "CAM_OPPort_ArmazemFora": ((210.0, 62.0, H + 9.0), (192.0, 42.0, H + 4.0), 22),
 }
 
 
@@ -654,24 +1187,36 @@ def remove_terrain_piers():
 def build():
     removed = remove_terrain_piers()
     rnd = random.Random(8201)
-    mp = MB("OP_Port_Piers", COLL, rnd, detail="far", floor=None)        # madeira: pier, palafita, barcos, amarras
-    mbd = MB("OP_Port_Built", COLL, random.Random(8202), detail="far", floor=None)   # pedra/reboco: escadas, armazens
+    # madeira: pier, palafita, guindaste, redes, barco em reparo (casca orientada: SH.finish_mixed)
+    mp = SH.MapMB("OP_Port_Piers", COLL, rnd, REMAP_PIERS, detail="far", floor=None)
+    mbd = SH.MapMB("OP_Port_Built", COLL, random.Random(8202), REMAP_BUILT, detail="far", floor=None)   # pedra/reboco
     _WMB[0] = MB("OP_Port_Muralha", COLL, random.Random(8203), detail="far", floor=None)  # M6b: muralha das escadas
     parts = []
 
     def tri(m):
         return sum(len(f.verts) - 2 for f in m.bm.faces)
-    for fn, m in ((pier_a, mp), (palafita, mp), (boats, mp), (ship_lines, mp), (lamps, mbd), (stairs, mbd),
-                  (warehouses, mbd), (cargo, mbd), (argolas, mbd)):
-        t0 = tri(m) + (tri(_WMB[0]) if fn is stairs else 0)
-        fn(m)
-        parts.append("%s %d" % (fn.__name__, tri(m) + (tri(_WMB[0]) if fn is stairs else 0) - t0))
+    tot = lambda: tri(mp) + tri(mbd) + tri(_WMB[0])
+    for nm, fn in (("pier_a", lambda: pier_a(mp)), ("palafita", lambda: palafita(mp)),
+                   ("ship_lines", lambda: ship_lines(mp)), ("argolas", lambda: argolas(mbd)),
+                   ("lamps", lambda: lamps(mbd)), ("stairs", lambda: stairs(mbd)),
+                   ("warehouses", lambda: warehouses(mbd)), ("cargo", lambda: cargo(mbd)),
+                   ("crane", lambda: crane(mp, mbd)), ("hauled_boat", lambda: hauled_boat(mp)),
+                   ("nets", lambda: nets(mp)), ("baskets", lambda: baskets(mp)), ("ladder", lambda: ladder(mp)),
+                   ("lonja", lambda: lonja(mbd)), ("quay_bollards", lambda: quay_bollards(mp))):
+        t0 = tot()
+        fn()
+        parts.append("%s %d" % (nm, tot() - t0))
     print("op_harbor: tris por parte: " + ", ".join(parts))
-    o1 = mp.finish()
+    o1 = SH.finish_mixed(mp)
     o2 = mbd.finish()
     o3 = _WMB[0].finish(recalc=False)      # orientacao das faces calculada uma a uma (_q4): sem recalc
     _WMB[0] = None
+    mv = boats_vfx() + list(crane_vfx())
     cams()
     tris = sum(sum(len(p.vertices) - 2 for p in o.data.polygons) for o in (o1, o2, o3) if o)
-    print("op_harbor: %d tris (pier+palafita+barcos %d mat, construido %d mat); OP_Ter_Piers removido=%s" % (
-        tris, len(o1.data.materials), len(o2.data.materials), removed))
+    print("op_harbor: %d tris (pier/madeira %d mat, construido %d mat, muralha %d mat); OP_Ter_Piers removido=%s" % (
+        tris, len(o1.data.materials), len(o2.data.materials), len(o3.data.materials), removed))
+    for o in mv:
+        print("op_harbor: %-20s %5d tris %d mat  bob %.2f rate %.2f rpm %.1f eixo %s pivo (%.1f, %.1f, %.1f)" % (
+            o.name, sum(len(p.vertices) - 2 for p in o.data.polygons), len(o.data.materials), o["bob"], o["rate"],
+            o["rpm"], tuple(round(v, 2) for v in o["axis"]), *o["pivot"]))

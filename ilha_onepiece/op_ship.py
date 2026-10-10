@@ -33,9 +33,21 @@
 #   amurada sao do op_col (congelado). Nada prende o jogador: o convés fica livre de y 128 a 170 entre as amuradas.
 # NORMAIS: o casco, as velas e os emblemas sao faces abertas com ORIENTACAO CALCULADA (o MB fecha com recalc=False; o
 #   check normals() no build confere e acusa qualquer face virada para dentro).
-import math, os, random
+#
+# V2-2 (PLANO_V2 secao 5, U9 "porto sem dinamica" / U16 "bandeiras demais") - agente do PORTO V2:
+#   * NAVIO ATRACADO de verdade: so o PANO GRANDE (com o Jolly Roger) fica largado; traquete e as 2 gaveas vao
+#     FERRADAS nas vergas (rolo de pano com bichas de cabo) - navio no cais nao anda de pano solto. Sai a flamula
+#     vermelha do traquete (U16: fica so a bandeira preta no topo do grande).
+#   * CARGA SENDO EMBARCADA: lingada (rede com fardos e caixas) pendurada no lais de bombordo da verga do traquete,
+#     sobre o vao entre o pier e o costado, com o teque ate o lais; fardos e caixas esperando junto a escotilha de proa.
+#   * JUNCO DE WANO (bezaisen) FUNDEADO na enseada, ~55 do cais: VFX_OP_Junk (tag IlhaMovel: bob 0,35 - so cenario,
+#     sem colisao). Casco de tabuado com borda alta, roda de proa lancada (misaki), cabecas de vau (funabari) em fila
+#     no costado, casario de popa (tomoya) com telhado de 2 aguas, leme grande, mastro unico com verga e VELA
+#     QUADRADA BRANCA de panos verticais (faixas), amantilhos, estai e o cabo da ancora entrando na agua.
+#     Pecas moveis feitas com VMB: cada material vira 1 MeshPart -> 2 materiais (casco + vela).
+import math, os, random, zlib
 import bpy, bmesh
-from mathutils import Vector, geometry
+from mathutils import Vector, Matrix, geometry
 import op_lib as DL
 from op_lib import MB, Frame, col_box, camera
 import op_layout as L
@@ -75,6 +87,120 @@ GAP = (GW_A[1] - GW_W / 2.0, GW_A[1] + GW_W / 2.0)   # portinhola (lado do pier 
 def ss(t):
     t = min(1.0, max(0.0, t))
     return t * t * (3.0 - 2.0 * t)
+
+
+# ================================================================== PECAS MOVEIS (VFX_*, tag IlhaMovel no export)
+VFX_COLL = "12_VFX_HELPERS"
+
+
+class VMB(MB):
+    """MB de PECA MOVEL: o export faz 1 MeshPart por material e a ilha tem teto de 30 MeshParts VFX -> todo material
+    fora de 'keep' vira 'default'. O modelo continua escrito com os materiais logicos (madeira escura, cabo...)."""
+
+    def __init__(self, name, keep, default, seed=None):
+        MB.__init__(self, name, VFX_COLL, random.Random(seed if seed is not None else zlib.crc32(name.encode())),
+                    detail="far", floor=-999)
+        self.keep = dict(keep)
+        self.default = default
+        self.shell = set()             # faces de casca aberta com orientacao calculada (nao recalcular)
+
+    def _rm(self, m):
+        if isinstance(m, tuple):
+            return m
+        return self.keep.get(m, self.default)
+
+    def _mi(self, m):
+        return MB._mi(self, self._rm(m))
+
+    def _mi_for(self, m):
+        return MB._mi_for(self, self._rm(m))
+
+
+class MapMB(MB):
+    """MB estatico com REMAPEAMENTO de materiais (cada material a mais = 1 MeshPart no export): 'remap' troca os
+    materiais de pouco uso (de pecas do kit) por um vizinho de cor proxima"""
+
+    def __init__(self, name, collection, rng=None, remap=None, **kw):
+        MB.__init__(self, name, collection, rng, **kw)
+        self.remap = dict(remap or {})
+        self.shell = set()
+
+    def _mi(self, m):
+        return MB._mi(self, m if isinstance(m, tuple) else self.remap.get(m, m))
+
+    def _mi_for(self, m):
+        return MB._mi_for(self, m if isinstance(m, tuple) else self.remap.get(m, m))
+
+
+def finish_mixed(mb):
+    """recalcula as normais so das primitivas FECHADAS (as cascas abertas de casco e vela ja sairam orientadas)"""
+    sh = getattr(mb, "shell", set())
+    others = [f for f in mb.bm.faces if f.is_valid and f not in sh]
+    if others:
+        bmesh.ops.recalc_face_normals(mb.bm, faces=others)
+    return mb.finish(recalc=False)
+
+
+def mover(ob, pivot, axis=(0.0, 0.0, 1.0), rpm=0.0, bob=0.0, rate=0.0, zone="porto", dist=260.0):
+    """atributos lidos pelo export (vfx_list -> tabela VFX do montar -> LocalScript ILHA_NARUTO_Movel)"""
+    ob["pivot"] = tuple(float(v) for v in pivot)
+    ob["axis"] = tuple(float(v) for v in axis)
+    ob["rpm"] = float(rpm)
+    ob["bob"] = float(bob)
+    ob["rate"] = float(rate)
+    ob["vfx_zone"] = zone
+    ob["Dist"] = dist
+    return ob
+
+
+def shell_hull(mb, F, ys, ring, mat_of, z_ref, transom=True):
+    """CASCA de casco de estacoes: ring(y) -> [(u, z, tipo)] de bombordo (u<0) a boreste; 'tipo' e o do SEGMENTO
+    que comeca naquele ponto: 'in' (face interna da borda), 'top' (alcatrate), 'out' (costado/fundo). Orientacao calculada face a face (para dentro da borda, para
+    cima no alcatrate, para fora no costado em relacao a (0, y, z_ref)); espelho de popa fechado no 1o anel.
+    mat_of(j, n, zc, t) -> material. Devolve as faces (ficam em mb.shell)."""
+    bm = mb.bm
+    ca, sa = math.cos(F.a), math.sin(F.a)
+    loc = lambda p: Vector(((p.x - F.o.x) * ca + (p.y - F.o.y) * sa, -(p.x - F.o.x) * sa + (p.y - F.o.y) * ca, p.z - F.o.z))
+    rings, kinds = [], None
+    for y in ys:
+        R = ring(y)
+        kinds = [k for _, _, k in R]
+        rings.append([bm.verts.new(F.p(u, y, z)) for u, z, _ in R])
+    n = len(rings[0])
+    fs = []
+    for i, (A, B) in enumerate(zip(rings, rings[1:])):
+        for j in range(n - 1):
+            f = bm.faces.new((A[j], B[j], B[j + 1], A[j + 1]))
+            kd = kinds[j]                       # tipo do SEGMENTO que comeca no ponto j
+            fs.append((f, kd, j, ys[i]))
+    if transom:
+        last = rings[0]
+        co2 = [Vector((loc(v.co).x, loc(v.co).z, 0.0)) for v in last]
+        for a, b, c in geometry.tessellate_polygon([co2]):
+            if geometry.area_tri(last[a].co, last[b].co, last[c].co) < 1e-4:
+                continue
+            fs.append((bm.faces.new((last[a], last[b], last[c])), "stern", 0, ys[0]))
+    mb._post([v for r in rings for v in r], HULL, None, 0, 1)
+    out = []
+    for f, kd, j, y in fs:
+        f.normal_update()
+        c = loc(f.calc_center_median())
+        nw = f.normal
+        nl = Vector((nw.x * ca + nw.y * sa, -nw.x * sa + nw.y * ca, nw.z))
+        if kd == "in":
+            d = Vector((-c.x, 0.0, 0.0))
+        elif kd == "top":
+            d = Vector((0.0, 0.0, 1.0))
+        elif kd == "stern":
+            d = Vector((0.0, -1.0, 0.0))
+        else:
+            d = Vector((c.x, 0.0, c.z - z_ref)) if abs(c.x) > 0.05 else Vector((0.0, 0.0, -1.0))
+        if nl.dot(d) < 0:
+            f.normal_flip()
+        f.material_index = mb._mi_for(mat_of(j, n, c.z, kd))
+        mb.shell.add(f)
+        out.append(f)
+    return out
 
 
 # ================================================================== FORMA DO CASCO
@@ -371,8 +497,9 @@ def bulwark_trim(mb):
             for p in marks:
                 mb.box((0.36, 0.36, 1.62), (p.x, p.y, p.z + 0.81), (0, 0, 0), LAC, 0.0)
         # cintas (wales): vermelha na base da amurada, escura 4 abaixo do convés
+        # V2 (gate 'visual'): a cinta escura tem o topo CHANFRADO a 50 graus - nao vira 'chao' ao alcance do convés
         for zw, m, prof in ((DECK + 0.15, LAC, rect_prof(0.42, 0.6, 0.12, 0.0)),
-                            (DECK - 3.6, WD, rect_prof(0.5, 0.75, 0.16, 0.0))):
+                            (DECK - 3.6, WD, [(-0.09, -0.375), (0.41, -0.375), (0.41, -0.225), (-0.09, 0.375)])):
             ys = [y for y in sweep_ys() if kz(y) < zw - 0.3 and y >= Y_STEM + 0.5]
             pts = [Vector((SX + s * wid(y, zw), y, zw)) for y in ys]
             if s < 0:
@@ -458,6 +585,14 @@ def planks(mb, poly, z, y0, y1, cut_gap=False):
 def deck(mb):
     y_first = next(y for y in stations() if wid(y, DECK) - BW_T > 0.4)
     planks(mb, inner_poly(DECK, y_first, Y_CAB + 0.1), DECK, y_first - 1.0, Y_CAB + 0.1, cut_gap=True)
+    # V2 (gate 'visual'): o convés da proa passa do poligono SHIP_DECK do op_col (bico em y 112): faixas de colisao
+    # por dentro da amurada ate y 122 (cada faixa na largura da ponta mais estreita)
+    # bloco de proa: do convés ate 8,5 acima (a guarda diagonal do op_col ja barra a passagem; o bloco 'cobre' as
+    # tabuas e a borda alta da proa, que o gate conta como alcancaveis por estarem a < 6 do convés)
+    ys = [y_first - 1.2, 110.0, 113.0, 116.0]
+    for ya, yb in zip(ys, ys[1:]):
+        hw = wid(yb, DECK + 1.0) + 0.2
+        col_box("OP_ShipDeckBow", (2 * hw, yb - ya, 9.3), (SX, (ya + yb) / 2, DECK + 4.25))
     # tombadilho (castelo de popa) com beiral de 0,6 sobre a frente da camara
     planks(mb, inner_poly(POOP, Y_CAB - 0.6, Y_STERN - 0.1), POOP, Y_CAB - 0.6, Y_STERN - 0.1)
 
@@ -612,11 +747,11 @@ def anchor(mb):
     y = 118.0
     s = 1
     xw = SX + s * wid(y, DECK + 1.0)
-    mb.box((2.6, 0.7, 0.7), (xw + s * 0.9, y, DECK + 1.9), (0, 0, 0), WD, 0.0)            # turco
+    mb.box((2.6, 0.7, 0.7), (xw + s * 0.9, y, DECK + 1.9), (math.pi / 4, 0, 0), WD, 0.0)   # turco (losango)
     xa = xw + s * 1.9
     zt = DECK + 0.2
     spar(mb, (xa, y, zt), (xa, y, zt - 6.0), 0.24, 0.2, IRON, 6)
-    mb.box((0.35, 3.4, 0.35), (xa, y, zt - 0.4), (0, 0, 0), WD, 0.0)                       # cepo
+    mb.box((0.35, 3.4, 0.35), (xa, y, zt - 0.4), (0, math.pi / 4, 0), WD, 0.0)            # cepo (losango)
     for sy in (-1, 1):
         p0 = Vector((xa, y, zt - 6.0))
         p1 = Vector((xa, y + sy * 1.3, zt - 5.4))
@@ -626,6 +761,7 @@ def anchor(mb):
         mb.box((0.18, 0.9, 1.0), (xa, y + sy * 1.95, zt - 4.0), (0.0, 0.0, 0.0), IRON, 0.0)   # unha
     K.lathe_y(mb, F0, (xa, y, zt + 0.3), [(0.42, -0.08), (0.42, 0.08)], 8, IRON)
     rope(mb, (xa, y, zt + 0.1), (xw + s * 0.2, y + 1.5, DECK + 0.6), 0.12)
+    col_box("OP_ShipProp", (2.0, 4.6, 7.4), (xa - 0.4, y, zt - 2.9))     # V2 (gate): ancora ao alcance do convés
 
 
 # ================================================================== MASTROS, VERGAS, VELAS, CORDAME
@@ -875,11 +1011,11 @@ def rigging(mb, M):
             # mesa de enxarcia (prancha fora do casco na altura da amurada)
             yc = y - 0.5
             xw = SX + s * wid(yc, DECK + 1.3)
-            mb.box((1.0, 8.6, 0.32), (xw + s * 0.5, yc, DECK + 1.1), (0, 0, 0), WD, 0.0)
+            mb.box((1.0, 8.6, 0.32), (xw + s * 0.5, yc, DECK + 1.0), (0, -s * 0.95, 0), WD, 0.0)   # V2: inclinada
             feet = []
             for dy in (-3.6, -0.9, 1.8):
                 p = Vector((xw + s * 0.85, y + dy, DECK + 1.6))
-                K.lathe_y(mb, F0, (p.x, p.y, p.z), [(0.32, -0.12), (0.32, 0.12)], 6, WD)   # bigota
+                K.lathe_y(mb, F0, (p.x, p.y, p.z), [(0.32, -0.12), (0.32, 0.12)], 6, WD, math.pi / 6)   # bigota
                 rope(mb, (p.x, p.y, p.z - 0.3), (p.x - s * 0.1, p.y, DECK - 1.2), 0.07, IRON)   # chapa
                 feet.append(p)
             head = Vector((SX + s * 0.75, y, zl - 1.4))
@@ -894,7 +1030,7 @@ def rigging(mb, M):
                     q.append(p.lerp(head, t))
                 for a, b in zip(q, q[1:]):
                     rope(mb, a, b, 0.06)
-                z += 2.6
+                z += 3.9              # V2: enfrechates a cada 3,9 (eram 2,6: orcamento do porto V2)
             # brandal (para a popa) do topo do mastareu
             yb = y + 12.0
             pb = Vector((SX + s * (wid(yb, zb(yb, s)) - 0.3), yb, zb(yb, s) + 0.2))
@@ -931,25 +1067,81 @@ def build_rig(mb):
         for s in (-1, 1):
             rope(mb, (SX + s * 0.6, y - 0.6, m["zl"] + 0.4), (SX + s * (ll / 2 - 0.6), ly_y, lz + 0.3), 0.08)
             rope(mb, (SX + s * 0.4, m["ym"], m["zt"] - 0.3), (SX + s * (ul / 2 - 0.5), uy_y, uz + 0.25), 0.07)
-        # pano redondo (curso) e gavea; a gavea passa por cima do cesto
+        # V2: no cais so o PANO GRANDE (com o Jolly Roger) fica largado; o resto vai FERRADO na verga
         zc_top = lz - 0.38
         foot = DECK + 12.0
-        S1, cl1 = sail(mb, SX, ly_y - 0.15, zc_top, zc_top - foot, ll - 2.0, ll + 0.4, emblem=(nm == "main"))
-        zt_top = uz - 0.32
-        foot2 = m["top_z"] + 0.9
-        S2, cl2 = sail(mb, SX, uy_y - 0.12, zt_top, zt_top - foot2, ul - 1.6, ll - 4.0, belly_k=0.1, roach=0.35)
-        # escotas: gavea -> lais da verga baixa; curso -> amurada atras do mastro
-        for c, s in zip(cl2, (-1, 1)):
-            rope(mb, c, (SX + s * (ll / 2 - 1.6), ly_y, lz + 0.2), 0.09)
-        for c, s in zip(cl1, (-1, 1)):
-            yr = y + 6.5
-            rope(mb, c, (SX + s * (wid(yr, zb(yr, s)) - 0.3), yr, zb(yr, s) + 0.3), 0.1)
-    # bandeiras: Jolly Roger preta no topo do grande, flamula vermelha no traquete
+        if nm == "main":
+            S1, cl1 = sail(mb, SX, ly_y - 0.15, zc_top, zc_top - foot, ll - 2.0, ll + 0.4, emblem=True)
+            for c, s in zip(cl1, (-1, 1)):                     # escotas: curso -> amurada atras do mastro
+                yr = y + 6.5
+                rope(mb, c, (SX + s * (wid(yr, zb(yr, s)) - 0.3), yr, zb(yr, s) + 0.3), 0.1)
+        else:
+            furled(mb, SX - ll / 2 + 1.3, SX + ll / 2 - 1.3, ly_y, lz, 0.62)
+        furled(mb, SX - ul / 2 + 1.1, SX + ul / 2 - 1.1, uy_y, uz, 0.5)
+    # bandeira: so a Jolly Roger preta no topo do grande (U16: saiu a flamula vermelha do traquete)
     flag(mb, SX, mn["ym"], mn["zt"] + 0.4, 4.6, 3.0, CB, emblem=EMBLEM)
     mb.rod(Vector((SX, mn["ym"], mn["zt"])), Vector((SX, mn["ym"], mn["zt"] + 1.2)), 0.12, WD, 6)
-    flag(mb, SX, f["ym"], f["zt"] + 0.3, 7.0, 1.3, CR, waves=2, amp=0.6, pennant=True)
-    mb.rod(Vector((SX, f["ym"], f["zt"])), Vector((SX, f["ym"], f["zt"] + 0.9)), 0.1, WD, 6)
+    K.lathe(mb, F0, (SX, f["ym"], f["zt"]), [(0.22, 0.0), (0.3, 0.2), (0.12, 0.5)], 6, WD)     # topo do traquete
+    cargo_sling(mb, M)
     return M
+
+
+def furled(mb, x0, x1, y, z, r=0.6):
+    """VELA FERRADA: o pano enrolado em cima/a vante da verga (rolo abaulado que afina nos lais) preso por bichas
+    (cabos) a cada ~2,3"""
+    n, k = 6, max(4, int((x1 - x0) / 1.6))
+    rings = []
+    for i in range(k + 1):
+        t = i / k
+        x = x0 + (x1 - x0) * t
+        rr = r * (0.55 + 0.45 * math.sin(math.pi * t) ** 0.5) * (1.0 + 0.08 * math.sin(i * 2.3))
+        yc, zc = y - 0.35, z + 0.15 + 0.15 * math.sin(math.pi * t)
+        rings.append([(x, yc + rr * 1.15 * math.cos(2 * math.pi * j / n), zc + rr * 0.85 * math.sin(2 * math.pi * j / n))
+                      for j in range(n)])
+    K.loft(mb, F0, rings, SAIL)
+    x = x0 + 1.2
+    while x < x1 - 1.0:
+        t = (x - x0) / (x1 - x0)
+        rr = r * (0.55 + 0.45 * math.sin(math.pi * t) ** 0.5) + 0.06
+        zc = z + 0.15 + 0.15 * math.sin(math.pi * t)
+        ring = [Vector((x, y - 0.35 + rr * 1.15 * math.cos(2 * math.pi * j / 6),
+                        zc + rr * 0.85 * math.sin(2 * math.pi * j / 6))) for j in range(7)]
+        mb.tube(ring, 0.07, ROPE, n=3)
+        x += 2.3
+
+
+def cargo_sling(mb, M):
+    """LINGADA sendo embarcada: teque do lais de bombordo da verga do traquete ate uma rede com 3 fardos de arroz e
+    2 caixas, pendurada sobre o vao entre o pier (x 234) e o costado (x ~240), 9 acima do pier"""
+    d = MASTS["fore"]
+    f = M["fore"]
+    ly_y, lz = f["y"] - 1.15, DECK + d["ly"][0]
+    xa = SX - d["ly"][1] / 2 + 1.2                     # teque perto do lais de bombordo
+    c = Vector((237.0, ly_y, 51.6))                     # centro da lingada
+    K.lathe(mb, F0, (xa, ly_y, lz - 1.6), [(0.0, 0.0), (0.32, 0.25), (0.32, 1.1), (0.0, 1.35)], 6, WD)   # moitao
+    rope(mb, (xa, ly_y, lz - 0.2), (xa, ly_y, lz - 1.6), 0.09)
+    rope(mb, (xa, ly_y, lz - 1.6), (c.x, c.y, c.z + 3.2), 0.1)
+    K.lathe(mb, F0, (c.x, c.y, c.z + 2.6), [(0.0, 0.0), (0.22, 0.12), (0.22, 0.5), (0.12, 0.62)], 6, IRON)  # gato
+    # carga: 3 fardos em piramide + 2 caixas
+    Fc = Frame(c.x, c.y, c.z - 1.25, 0.0)
+    for (x, y, z) in ((-0.62, 0.45, 0.0), (0.62, 0.45, 0.0), (0.0, 0.45, 0.95)):
+        K.lathe_y(mb, Fc, (x, y - 0.8, z + 0.55), [(0.38, 0.0), (0.55, 0.15), (0.55, 1.45), (0.38, 1.6)], 6, CST)
+    K.crate(mb, Fc, 0.0, -0.75, 0.0, 1.6, 1.0, 0.9, 0.0)
+    K.crate(mb, Fc, 0.1, -0.75, 0.9, 1.3, 0.9, 0.75, 0.15)
+    # rede: 6 pernadas do gato ate o fundo + 2 cintas em volta
+    top = Vector((c.x, c.y, c.z + 2.6))
+    R = 1.35
+    for k in range(6):
+        a = 2 * math.pi * k / 6 + 0.3
+        p1 = Vector((c.x + R * math.cos(a), c.y + R * math.sin(a), c.z - 0.2))
+        p2 = Vector((c.x + 0.6 * math.cos(a), c.y + 0.6 * math.sin(a), c.z - 1.45))
+        mb.tube([top, p1, p2], 0.06, ROPE, n=3)
+    for zz, rr in ((c.z - 0.2, R + 0.02), (c.z - 1.0, R * 0.9)):
+        mb.tube([Vector((c.x + rr * math.cos(2 * math.pi * j / 10), c.y + rr * math.sin(2 * math.pi * j / 10), zz))
+                 for j in range(11)], 0.06, ROPE, n=3)
+    col_box("OP_ShipProp", (2.9, 2.9, 4.0), (c.x, c.y, c.z + 0.3))     # (alcancavel pulando do convés)
+    # cabo-guia (retenida) da lingada ate o pier: o estivador segura de baixo
+    rope_sag(mb, (c.x - 0.4, c.y + 0.6, c.z - 1.4), (233.2, c.y + 2.5, L.HARBOR + 1.2), 0.5, 0.06, 5)
 
 
 # ================================================================== CONVÉS: escotilha, cabrestante, carga, malaguetas
@@ -1006,6 +1198,190 @@ def deck_gear(mb):
         x = SX - wid(y, DECK - 1.6) - 0.5
         K.lathe(mb, F0, (x, y, DECK - 3.6), [(0.3, 0.0), (0.5, 0.25), (0.5, 1.75), (0.3, 2.0)], 8, ROPE)
         rope(mb, (x, y, DECK - 1.6), (SX - wid(y, zb(y, -1)) + 0.1, y, zb(y, -1) + 0.2), 0.06)
+    # V2: carga ESPERANDO A ESTIVA junto a escotilha de proa (lado do mar, fora do caminho prancha -> meio do convés)
+    Fd = Frame(252.9, 128.2, DECK, 0.0)
+    for (x, y, z) in ((-0.62, 0.0, 0.0), (0.62, 0.0, 0.0), (0.0, 0.0, 1.0)):
+        bale(mb, Fd, x, y, z)
+    K.crate(mb, Fd, 0.0, 2.0, 0.0, 1.7, 1.3, 1.0, 0.12)
+    rope(mb, (Fd.o.x - 1.4, Fd.o.y - 1.0, DECK + 0.1), (Fd.o.x - 0.9, Fd.o.y + 1.4, DECK + 0.1), 0.07)
+    col_box("OP_ShipProp", (2.8, 4.4, 1.9), (Fd.o.x, Fd.o.y + 0.9, DECK + 0.95))
+
+
+def bale(mb, F, x, y, z, ang=0.0, r=0.55, ln=1.6):
+    """fardo de arroz (tawara) deitado ao longo de x local: palha abaulada + 2 cintas"""
+    Fb = K.sub(F, x, y, z + r, ang + math.pi / 2)
+    K.lathe_y(mb, Fb, (0.0, 0.0, 0.0), [(r * 0.7, -ln / 2), (r, -ln / 2 + 0.18), (r, ln / 2 - 0.18), (r * 0.7, ln / 2)],
+              6, CST)
+    for yy in (-ln * 0.22, ln * 0.22):
+        K.lathe_y(mb, Fb, (0.0, 0.0, 0.0), [(r + 0.05, yy - 0.06), (r + 0.05, yy + 0.06)], 6, ROPE, caps=(False, False))
+
+
+# ================================================================== JUNCO DE WANO (bezaisen) fundeado - VFX_OP_Junk
+JUNK_C = (272.0, 27.0)                  # fundeado ao largo da palafita (~26 da quina SE dela, ~50 da borda do cais)
+JUNK_BOW = (0.45, -0.89)                # proa para SSE (mar aberto): costado + vela bracejada leem da camera do jogo
+JUNK_BOB = 0.35
+JUNK_BRACE = 30.0                       # verga bracejada 30 graus (a vela nao fica de cutelo para a camera)
+JUNK_SCALE = 1.3                        # casco de 39 (o navio tem 86)
+JL, JB = 30.0, 8.6                      # casco: y -15..+15 (a roda passa para +19,5), boca 8,6
+
+
+def _j_t(y):
+    return (y + JL / 2) / JL
+
+
+def j_hb(y):
+    t = _j_t(y)
+    if t < 0.45:
+        return JB / 2 * (0.8 + 0.2 * math.sin(0.5 * math.pi * t / 0.45))
+    return JB / 2 * max(0.05, 1.0 - ((t - 0.45) / 0.55) ** 2.4)
+
+
+def j_zg(y):
+    t = _j_t(y)
+    return 3.3 + 3.2 * max(0.0, (t - 0.72) / 0.28) ** 1.7 + 2.0 * max(0.0, (0.18 - t) / 0.18) ** 1.4
+
+
+def j_zb(y):
+    t = _j_t(y)
+    return -1.5 + 3.8 * max(0.0, (t - 0.62) / 0.38) ** 1.7
+
+
+J_DECK, J_POOP = 1.9, 3.5
+
+
+def sweep_local(mb, F, pts, w, h, m):
+    """barrote de secao w (x local) x h ao longo de pts no plano y-z local (roda de proa, leme)"""
+    P = [Vector(p) for p in pts]
+    rings = []
+    for i, p in enumerate(P):
+        t = (P[min(i + 1, len(P) - 1)] - P[max(i - 1, 0)]).normalized()
+        up = Vector((0.0, -t.z, t.y)).normalized()
+        rings.append([tuple(p + Vector((sx * w / 2, 0, 0)) + up * (sy * h / 2)) for sx, sy in
+                      ((-1, -1), (1, -1), (1, 1), (-1, 1))])
+    K.loft(mb, F, rings, m)
+
+
+def junk():
+    """bezaisen fundeado (peca movel, sem colisao: e cenario no meio da enseada)"""
+    mb = VMB("VFX_OP_Junk", {SAIL: SAIL, CW: SAIL, CST: SAIL}, HULL)
+    a = math.atan2(-JUNK_BOW[0], JUNK_BOW[1])
+    F = Frame(JUNK_C[0], JUNK_C[1], SEA, a)
+
+    def ring(y):
+        hb_, zg, zb_ = j_hb(y), j_zg(y), j_zb(y)
+        hi = max(0.03, hb_ - 0.35)
+        zin = min(zg - 0.4, max(J_DECK if y > -8.0 else J_POOP, zb_ + 0.35))
+        side = [(hi, zin, "in"), (hi, zg, "top"), (hb_, zg, "out"), (hb_ * 0.985, zg - 1.0, "out"),
+                (hb_ * 0.94, (zg + zb_) * 0.5, "out"), (hb_ * 0.8, zb_ + 0.6, "out"), (hb_ * 0.55, zb_, "out")]
+        port = [(-u, z, k) for u, z, k in side]
+        stb = [(u, z, "x") for u, z, _ in reversed(side)]
+        # kinds por SEGMENTO (do ponto para o seguinte): boreste espelhado
+        kinds_stb = ["out", "out", "out", "out", "out", "top", "in", "in"]
+        R = port + [(0.0, zb_, "out")] + [(u, z, k) for (u, z, _), k in zip(stb, kinds_stb[1:] + ["in"])]
+        return R
+    ys = [-15.0, -14.0, -12.0, -9.0, -6.0, -3.0, 0.0, 3.0, 6.0, 8.5, 10.5, 12.2, 13.5, 14.4, 15.0]
+    shell_hull(mb, F, ys, ring, lambda j, n, zc, kd: WD if zc < 0.2 and kd == "out" else HULL, 1.0)
+    # convés da cintura e tombadilho de popa (tabuado), so por dentro da borda
+    for y0, y1, z in ((-8.0, 12.0, J_DECK), (-15.0, -8.0, J_POOP)):
+        ys2 = [y for y in [y0] + ys + [y1] if y0 <= y <= y1]
+        ys2 = sorted(set(ys2))
+        pts = [F.p(max(0.05, j_hb(y) - 0.4), y, 0.0) for y in ys2] + \
+              [F.p(-max(0.05, j_hb(y) - 0.4), y, 0.0) for y in reversed(ys2)]
+        mb.prism(DL.ccw([(p.x, p.y) for p in pts]), SEA + z - 0.3, SEA + z, WM)
+    K.bb(mb, F, -j_hb(-8.0) + 0.4, j_hb(-8.0) - 0.4, -8.15, -7.85, J_DECK, J_POOP, WD)          # espelho do tombadilho
+    # alcatrate (capa da borda) e cinta (wale) dos 2 bordos; cabecas de vau (funabari) em fila no costado
+    yy = [y for y in ys if y < 14.6]
+    for s in (-1, 1):
+        mb.tube([F.p(s * (j_hb(y) - 0.17), y, j_zg(y) + 0.12) for y in yy], 0.22, WD, n=4)
+        mb.tube([F.p(s * (j_hb(y) * 0.985 + 0.12), y, j_zg(y) - 1.0) for y in yy], 0.2, WD, n=4)
+        for y in (-11.0, -8.5, -6.0, -3.5, -1.0, 1.5, 4.0, 6.5, 9.0):
+            u = j_hb(y) * 0.98
+            K.bb(mb, F, s * (u - 0.2), s * (u + 0.5), y - 0.26, y + 0.26, j_zg(y) - 1.95, j_zg(y) - 1.45, WD)
+    # roda de proa lancada (misaki) com remate escuro
+    stem = [(0.0, 13.6, -0.2), (0.0, 15.0, 2.2), (0.0, 16.6, 4.6), (0.0, 18.0, 6.8), (0.0, 19.3, 8.6)]
+    sweep_local(mb, F, stem, 0.7, 1.0, WD)
+    K.bb(mb, F, -0.45, 0.45, 18.9, 20.1, 8.3, 9.0, WD)
+    # TOMOYA: casario de popa (paredes de tabuas, paineis de papel claro, telhado de 2 aguas de tabuas)
+    x0, x1, y0, y1, z0, z1 = -2.9, 2.9, -14.0, -8.8, J_POOP, J_POOP + 2.9
+    K.bb(mb, F, x0, x1, y0, y1, z0, z1, HULL)
+    for s in (-1, 1):                                                       # janelas de papel nos lados
+        for yc in (-12.6, -10.2):
+            K.bb(mb, F, s * 2.8, s * 3.04, yc - 0.85, yc + 0.85, z0 + 0.9, z1 - 0.5, CW)
+    K.bb(mb, F, -1.6, 1.6, y1 - 0.1, y1 + 0.14, z0 + 0.2, z1 - 0.4, CW)                        # frente de papel
+    for xx in (-1.6, -0.55, 0.55, 1.6):
+        K.bb(mb, F, xx - 0.09, xx + 0.09, y1, y1 + 0.32, z0 + 0.2, z1 - 0.4, WD)
+    rise = 1.5
+    ang = math.atan2(rise, 3.6)
+    for s in (-1, 1):
+        c = F.p(s * 1.8, (y0 + y1) / 2, z1 + rise / 2 + 0.1)
+        mb.box((math.hypot(3.6, rise) + 0.3, y1 - y0 + 1.6, 0.25), c, F.r(0.0, s * ang, 0.0), WD, 0.0)
+    K.bb(mb, F, -0.3, 0.3, y0 - 0.9, y1 + 0.9, z1 + rise - 0.05, z1 + rise + 0.35, WD)
+    # LEME grande pendurado no espelho de popa + cana entrando no casario
+    rud = [(0.0, -15.6, -2.6), (0.0, -15.5, 1.0), (0.0, -15.4, 4.4)]
+    sweep_local(mb, F, rud, 0.45, 0.9, WD)
+    blade = [[(-0.25, -15.9, z), (0.25, -15.9, z), (0.25, -15.9 - ln, z), (-0.25, -15.9 - ln, z)]
+             for z, ln in ((-2.6, 3.0), (-0.6, 2.6), (1.2, 1.0))]
+    K.loft(mb, F, blade, WD)
+    K.bb(mb, F, -0.2, 0.2, -15.6, -13.6, 4.1, 4.45, WD)
+    # MASTRO, verga (bracejada) e VELA quadrada de panos verticais
+    ym, zt = 1.5, 27.0
+    K.lathe(mb, F, (0.0, ym, J_DECK - 0.2), [(1.1, 0.0), (1.1, 0.5), (0.62, 0.7)], 8, WD)         # carlinga
+    spar(mb, F.p(0.0, ym, J_DECK), F.p(0.0, ym, zt), 0.6, 0.36, HULL, 8)
+    zy = zt - 1.5
+    Fs = K.sub(F, 0.0, ym, 0.0, -math.radians(JUNK_BRACE))          # referencial da verga (gira no mastro)
+    for s in (-1, 1):
+        spar(mb, Fs.p(0.0, 0.55, zy), Fs.p(s * 9.2, 0.55, zy), 0.34, 0.2, HULL, 6)
+    sv = junk_sail(mb, Fs, 0.95, zy - 0.4, 15.6, 16.2, 16.6)
+    # cordame: amantilhos, estai ate a roda, 2 brandais, escotas
+    rope(mb, F.p(0.0, ym, zt - 0.3), Fs.p(-8.6, 0.55, zy + 0.2), 0.08)
+    rope(mb, F.p(0.0, ym, zt - 0.3), Fs.p(8.6, 0.55, zy + 0.2), 0.08)
+    rope(mb, F.p(0.0, ym + 0.3, zt - 0.6), F.p(0.0, 19.0, 8.8), 0.11)
+    for s in (-1, 1):
+        rope(mb, F.p(s * 0.3, ym - 0.3, zt - 0.8), F.p(s * (j_hb(-6.0) - 0.2), -6.0, j_zg(-6.0) + 0.3), 0.09)
+    for c, s in zip(sv, (-1, 1)):
+        rope(mb, c, F.p(s * (j_hb(-4.0) - 0.3), -4.0, j_zg(-4.0) + 0.3), 0.08)
+    # carga na cintura (fardos sob esteira) e o CABO DA ANCORA saindo da proa para dentro d'agua
+    Fw = K.sub(F, 0.0, 6.0, J_DECK)
+    for (x, y, z) in ((-0.65, 0.0, 0.0), (0.65, 0.0, 0.0), (0.0, 0.0, 1.0), (-0.65, 1.9, 0.0), (0.65, 1.9, 0.0)):
+        bale(mb, Fw, x, y, z)
+    rope_sag(mb, F.p(0.0, 15.2, 4.6), F.p(0.0, 24.0, -1.2), 0.6, 0.13, 6)
+    piv = F.p(0.0, 0.0, 0.0)
+    bmesh.ops.scale(mb.bm, vec=(JUNK_SCALE, JUNK_SCALE, JUNK_SCALE), space=Matrix.Translation(-piv),
+                    verts=list(mb.bm.verts))
+    ob = finish_mixed(mb)
+    mover(ob, F.p(0.0, 0.0, 0.0), bob=JUNK_BOB, zone="porto", dist=420.0)
+    return ob
+
+
+def junk_sail(mb, F, y_top, z_top, Wt, Wb, H, npan=10):
+    """vela quadrada do junco: 2 faces (frente para a proa +y, verso), panos verticais em ziguezague raso (as
+    'faixas' de pano costuradas), bojo leve; tralha de cabo nas bordas. Devolve os punhos de baixo (mundo)"""
+    nu, nv = 2 * npan, 5
+    th = 0.16
+
+    def S(u, v):
+        W = Wt + (Wb - Wt) * v
+        g = math.sin(0.85 * math.pi * v)
+        pleat = 0.09 * (1 if (int(round((u + 1) * npan)) % 2) else -1)
+        return Vector((u * W / 2, y_top + 0.7 * g * (1 - 0.5 * u * u) + pleat, z_top - v * H))
+    bm = mb.bm
+    ca, sa = math.cos(F.a), math.sin(F.a)
+    for side in (1, -1):
+        G = [[bm.verts.new(F.p(*(S(-1 + 2 * i / nu, j / nv) + Vector((0, side * th / 2, 0))))) for j in range(nv + 1)]
+             for i in range(nu + 1)]
+        want = Vector((-sa * side, ca * side, 0.0))                          # +y local (frente) ou -y (verso)
+        for i in range(nu):
+            for j in range(nv):
+                f = bm.faces.new((G[i][j], G[i + 1][j], G[i + 1][j + 1], G[i][j + 1]))
+                f.normal_update()
+                if f.normal.dot(want) < 0:
+                    f.normal_flip()
+                mb.shell.add(f)
+        mb._post([v for c in G for v in c], SAIL, None, 0, 1)
+    for e in ([S(-1 + 2 * i / nu, 1.0) for i in range(0, nu + 1, 2)], [S(-1.0, j / nv) for j in range(nv + 1)],
+              [S(1.0, j / nv) for j in range(nv + 1)]):
+        mb.tube([F.p(*p) for p in e], 0.12, ROPE, n=4)
+    return F.p(*S(-1.0, 1.0)), F.p(*S(1.0, 1.0))
 
 
 # ================================================================== PRANCHA (pier -> convés)
@@ -1089,4 +1465,7 @@ def build():
     tris = sum(len(p.vertices) - 2 for p in ob.data.polygons)
     print("op_ship: navio %d tris, %d materiais, emblema=%s, normais suspeitas no costado=%d" % (
         tris, len(ob.data.materials), EMBLEM, bad))
+    jk = junk()
+    print("op_ship: VFX_OP_Junk %d tris, %d materiais, bob %.2f" % (
+        sum(len(p.vertices) - 2 for p in jk.data.polygons), len(jk.data.materials), jk["bob"]))
     return ob
