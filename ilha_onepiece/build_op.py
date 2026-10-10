@@ -53,11 +53,14 @@ ZONE_MODULES_V2_0 = {
                                 #   arrimos em talude nas frestas + tampas sob as guardas, socalcos NE de ishigaki, picos
                                 #   (pinaculo oeste sem pagode, agulhas, contrafortes) - 0 studs2/0 corpo/0 fresta do terreno
                                 #   no gate visual (o que sobra e de outros donos)
-    "entry": [],       # op_entry V1: nobori da ponte e poste em T (U15/U16) -> V2-3
+    "entry": ["op_entry"],  # V2-3 ponte/torii mantidos, sem nobori da ponte, postes do kit2 nas misulas e na cabeca,
+                            #   patio no assentamento do street2 (toro2/nobori2) - gate visual verde
     "capital": ["op_capital"],  # V2-3 capital inteira no kit V2 (101 lotes/12 quadras, parede-meia: 0 interpenetracao
                                 #   no teste malha x malha do proprio modulo; ruas V2, NE, 4 interiores) - gate visual
                                 #   verde; o trecho M2 (op_m2_trecho.build) foi absorvido
-    "plaza": [],       # op_m2_praca/op_plaza V1: estandartes, borda do trecho M2 (frestas U5) -> V2-3 (faixa do eixo)
+    "plaza": ["op_plaza"],  # V2-3 praca no assentamento do street2 (eixo rente ate o adro, transversal, medalhao +
+                            #   emblema rebaixado, paineis), meio-fio + guarda vermelha nas quedas (junta rua x praca),
+                            #   muretas/andon/toro2/bancos, ZERO estandarte; op_m2_praca NAO roda mais - gate verde
     "castle": ["op_castle"],  # V2-2 castelo de Wano no kit V2 (5 andares/telhados em telha ondulada, chidori/karahafu,
                               #   salao com vida, muros/cerca/portoes com colisao) - gate visual verde junto com a arvore
     "tree": ["op_tree"],      # V2 arvore (pinheiro monumental de almofadas) religada com o castelo V2-2 (op_castle antes:
@@ -69,8 +72,9 @@ ZONE_MODULES_V2_0 = {
     "water": ["op_water"],      # V2-3 agua: canais rebaixados (leito/capa = colisao do op_col), pontes em arco do kit2 no
                                 #   envelope do op_col.arch_bridge (+ caixa alta nos guarda-corpos), soleiras, bicas, bacia,
                                 #   roda d'agua; water_markers() da planta V2 - gate visual sem falha da agua
-    "exit": [],        # op_exit V1: frestas entre as tabuas (U5) -> V2-3
-    "landmarks": [],   # op_landmarks V1: pagode (U13) -> V2-3
+    "exit": ["op_exit"],    # V2-3 tabuas sem fresta, andon/toro2 do kit2, portao OPM intocado - gate visual verde
+    "landmarks": ["op_landmarks"],  # V2-3 sem pagode/pinaculo (U13; pinaculo = op_terrain), caveira + pedestal com
+                                    #   colisao + espada - gate visual verde
     "dressing": ["op_veg", "op_vfx", "op_lights"],  # V3 arvores (op_veg, cerejeira/kuromatsu/larga/karikomi em grupos) + petalas por grupo (op_vfx) + passe de luz; op_props V1 fora (reprovado)
 }
 ZONE_MODULES = ZONE_MODULES_V2_0

@@ -1,262 +1,83 @@
-# op_plaza.py - M4 da Ilha 5 (ONE PIECE / WANO): PRACA DE MINERACAO (PLANO_OP secoes 5 e 14; PROMPT_USUARIO secao 6).
-# Roda DEPOIS do op_m2_praca (build_op.ZONE_MODULES["plaza"] = ["op_m2_praca", "op_plaza"]): a FAIXA SUL (y 118..170:
-# borda, eixo de chegada, campos 7,2, arrimo, mureta, toro e estandartes da chegada) e o EMBLEMA rebaixado em (0, 216)
-# ficam INTACTOS; aqui so sai o piso PROVISORIO liso (OP_Plz_M2_PisoProvisorio) e entra o resto.
+# op_plaza.py - V2-3 da Ilha 5 (ONE PIECE / WANO): PRACA DE MINERACAO (PLANO_V2 secoes 2, 3.2 'Eixo', 3.3, 8 U16, 9;
+# feedback 10/10 U5/U16 + rodada 2 G3 "pontes, lanternas e caminho aprovados"). Zona "plaza" do build_op
+# (ZONE_MODULES_V2_0["plaza"] = ["op_plaza"]: o op_m2_praca/op_m2_trecho.build_praca da V1 NAO roda mais - borda do
+# trecho M2 com frestas e estandartes). Prefixo OP_Plz_, colecao 03_PLAZA. Le SO a planta V2 (op_layout) e o kit V2
+# (op_kit2: lamp_andon, toro2, rail2 = a linguagem aprovada); do op_kit V1 so as primitivas (bb/lathe/bench/cull).
 #
-# CRITICA DO LEAD: "a praca e um grande vazio bege". O centro continua LIVRE (mineracao: 72 ORE_, unidades/pets), entao
-# o acabamento e DESENHO NO CHAO + BORDA COM INTENCAO, nunca objeto no meio:
-#   PISO (OP_Plz_Piso, tudo a piso + 0,15 = topo das lajes do trecho; corpo ate piso - 0,3; JUNTA REBAIXADA = chanfro
-#   0,07 de cada laje, sem fresta; nada acima de +0,15 dentro da MiningZone):
-#     - MEDALHAO: lajes radiais do quadro 30 x 30 do emblema ate o circulo r 24 + ANEL de pedra 24..25,2.
-#     - ARENA de ANEIS concentricos em volta do emblema ate r 85,6 (como a concept): fiadas de ~4 de largura em lajes de
-#       arco ~7,5 com juntas desencontradas (todas as fiadas usam a MESMA grade angular de 144: aneis vizinhos emendam
-#       vertice a vertice), 2 fiadas mais claras (ritmo de tom), anel de pedra media em 46..47,2 e BORDA DUPLA da arena
-#       (pedra 80..81,2 + fiada clara 81,2..84,4 + pedra 84,4..85,6). Cortada em reta pela SOLEIRA de pedra y 170..171,2
-#       (o fim da faixa sul vira limiar desenhado, nao corte).
-#     - EIXO norte-sul (lajes claras |x| <= 8 + guias de pedra 8..9,2, continuacao exata do eixo do trecho) do fim da
-#       faixa sul ate o medalhao e do medalhao ate o pe da escada Adro (sob o portao vermelho do castelo): atravessa os
-#       aneis.
-#     - MARGEM (fora da arena): campos de lajes 7,2 alinhados com os campos do trecho (x a partir de +-9,2).
-#     - BORDA de lajes claras 3,4 ao longo de todo o contorno da praca (chanfros inclusive), recortada nas escadas.
-#   BORDA (fora da MiningZone + 8; nada no centro; nenhum pedestal/fonte/estatua/arvore):
-#     - LESTE (queda de 4 para o terraco do summon; arrimo e capa do op_terrain): MURETA de cantaria h 2,3 (mesma da
-#       faixa sul, continua a partir do pilarete final dela) em 2 setores com o VAO da escada Summon (y 205..227),
-#       2 ESTANDARTES brancos com o brasao flanqueando a entrada (como na concept), bancos e postes de andon.
-#     - OESTE (mesmo nivel da rua do quarteirao): MURETA BAIXA de assento (h 1,5) em 2 setores com vaos nas portas das
-#       casas W2/W3/W4, banco encostado em cada setor, postes de andon nos vaos.
-#     - NORTE (arrimo do adro): bancos encostados ao muro (vista para a praca e o castelo).
-#     - CANTOS NO/NE (entradas para o terraco alto e o quarteirao NE): poste de andon marcando cada entrada (os
-#       estandartes de canto do trecho ja estao la).
-# DONOS / PREFIXOS: OP_Plz_Piso*, OP_Plz_Mureta (dono plaza; teto do lead 34k), OP_Prop_Plz_* (estandartes, postes, bancos:
-#   dono props, ver relatorio). Luzes so NightOnly (L_OPProp_Lamp_Plz_*). Colisoes: mureta (OP_PlzMureta), postes
-#   (OP_PropLamp), estandartes (OP_PropBanner), bancos (OP_PropBench) - todas fora da MiningZone e das rotas do QA.
-# CAMERAS: CAM_OP_Plz_* (criadas no build, fora do export).
-import math, random
+# DIAGNOSTICO: "a praca le como um grande vazio cinza" (prisma liso + emblema colado + borda sem desenho). O centro
+# continua LIVRE (70 minerios: PRACA_LIVRE, piso PLANO 92,2 na colisao do op_col), entao a resposta e DESENHO DE PISO +
+# BORDA VIVA, nada no meio:
+#   PISO = a linguagem do street2 aprovado (lajes ~3,4 x 1,7 assentadas em fiadas com junta de 0,08 sobre BERCO
+#     escuro; cada laje e SO a face de cima, como as ruas da capital: topo P + 0,2 = o mesmo das ruas -> a praca emenda
+#     RENTE na rua da fachada oeste e no sando), em 4 desenhos:
+#     - EIXO (PLANO_V2 3.2): faixa de x +-15 (a largura da avenida + calcadas) em pedra clara assentada no sentido N-S,
+#       com guias de pedra, da escadaria Praca ate o pe da escada Adro (sob o portao vermelho): "a avenida continua ate
+#       o castelo" sem relevo nenhum (rente);
+#     - EIXO TRANSVERSAL (y 209..223) do mesmo assentamento: liga a escada do Summon (leste) a viela da casa de cha
+#       (oeste) passando pelo emblema;
+#     - MEDALHAO r 27,2 em volta do EMBLEMA REBAIXADO (o do M2, mantido: incrustacao 0,07 abaixo do piso, miolo + 8
+#       petalas + anel, quadro circulo -> quadrado 30 x 30 = a largura do eixo) com lajes radiais e anel de incrustacao;
+#     - CAMPOS: paineis de ~24 x 24 entre linhas de pedra (guias de 0,9 em Stone_OP_Curb), lajes E-O em tons
+#       misturados (praca / pedra / 1 clara em 10) - de cima (camera do jogo) le como um piso desenhado, na altura do
+#       jogador como pedra assentada;
+#     - BORDA de 3 em lajes ao longo do contorno (soleira da praca).
+#   BORDA (tudo fora da MiningZone + 8; NENHUM estandarte - U16):
+#     - quedas de 4 para a rua do arrimo (sul), viela leste e terraco do Summon (leste): MEIO-FIO DE PEDRA no labio
+#       (1,2 x 0,95, capa de lajes) com o GUARDA-CORPO VERMELHO do kit2 (rail2) por cima - a mesma linguagem das pontes
+#       aprovadas; a capa encosta no labio do arrimo (y 118 = borda da colisao): a junta rua x praca (fresta de 0,2..0,8
+#       medida em y 117..119) fica sob o meio-fio; aberturas na escadaria Praca e na escada do Summon, com 2 toro2;
+#     - oeste (mesmo nivel da rua da fachada oeste): MURETAS BAIXAS de assento (1,35) em trechos de ~12 com vao de 5
+#       (passagem para as lojas), tampo de tabuas em trecho alternado, andon do kit2 nas bocas das vielas;
+#     - norte (arrimo do adro): bancos encostados ao muro, andon entre eles, 2 toro2 no pe da escada Adro.
+# COLISAO (op_col faz o piso): meio-fio + guarda-corpo (1 caixa por trecho), muretas, bancos, andon/toro (caixa ate a
+#   guarda de 8,5: nao viram degrau). ~45 caixas, todas fora da MiningZone. LUZES so NightOnly (L_OPProp_Lamp_Plz_*).
+# ORCAMENTO: plaza <= 34k tris (teto do export 34k / 36 MeshParts). CAMERAS CAM_OP_V23Plz_* (folhas; fora do export).
+# REUSO: pave_poly/face_poly/clip_convex (assentamento de lajes por fiadas recortado num poligono convexo) servem ao
+#   op_entry (patio do torii) e ao op_exit (promontorio).
+import math
 import bpy
 import op_lib as DL
-from op_lib import MB, Frame, ccw, col_box
+from op_lib import MB, Frame, ccw, col_box, light
 import op_layout as L
 import op_kit as K
-import op_m2_trecho as T
+import op_kit2 as K2
+import op_col
 
+C = "03_PLAZA"
 P = L.P
-ZT, ZB = P + T.Z_OFF, P - 0.3                  # topo das lajes (= trecho) / fundo
-EYE = P + 5.65
+ZT = P + 0.2                      # topo das lajes (= ruas da capital: STREET_DZ 0,2)
+ZB = P + 0.12                     # berco escuro (0,12 acima do topo do terreno: sem z-fight)
+GAP = 0.04                        # meia junta (junta de 0,08 como o street2)
+EYE = L.EYE
 CX, CY = L.EMBLEM_C
-NG = 48                                        # grade angular unica (7,5 graus): aneis emendam vertice a vertice
-XA = 9.2                                       # borda externa das guias do eixo
-Y0 = T.STRIP_Y1                                # 170: fim da faixa sul
-YS = Y0 + 1.2                                  # 171,2: topo da soleira de pedra
-R_MED, R_MEDB = 24.0, 25.2                     # medalhao e anel de pedra dele
-R_ARENA = 85.6
-EDGE_W = 3.4                                   # borda de lajes do contorno
-SENT = "OP_Plz_Piso"
+AX = 15.0                         # meia largura do eixo (avenida 18 + calcadas)
+AXB = 0.9                         # guia de pedra do eixo / do transversal / linhas dos paineis
+XB = (209.0, 223.0)               # eixo transversal (Summon <-> viela da casa de cha)
+R_MED, R_RING = 26.0, 27.2        # medalhao (lajes radiais ate 26) + anel de incrustacao ate 27,2
+EDGE_W = 3.0                      # borda de lajes do contorno
+XLINES = (39.0, 63.0, 87.0)       # linhas dos paineis (|x|)
+YLINES = (142.0, 166.0, 190.0, 242.0, 266.0, 290.0)
+# regiao pavimentada (CONVEXA, ccw): o piso P da praca (P_BASE) de x -116 a 116 e de y 118 (labio do arrimo) a 314
+# (o canto NO (-110, 300) da planta fica sob a escada OesteAlta: a diagonal (-96, 314) -> (-116, 294) passa por ele)
+REG = [(-116.0, 118.0), (64.0, 118.0), (96.0, 124.0), (112.0, 140.0), (116.0, 170.0), (116.0, 314.0), (-96.0, 314.0),
+       (-116.0, 294.0)]
+SANDO = (107.6, 290.6, 130.0, 301.4)          # sando NE (rua 15 da capital, a partir de x 108)
+STR, STZ, STP, STD, STI, CURB = "Stone_OP", "Stone_OP_Plaza", "Stone_OP_Path", "Stone_OP_Dark", "Stone_OP_Inlay", \
+    "Stone_OP_Curb"
+WALL, WM, WD = "Stone_OP_Wall", "Wood_OP_Mid", "Wood_OP_Dark"
+FIELD = [(STZ, 7), (STR, 3), (STP, 1)]
+SX_F, SY_F = 4.0, 2.0              # lajes dos campos (a escala da praca de 232: o street2 da rua e 3 x 1,5)
+LANE = [(STP, 6), (STZ, 1)]
+STATS = {}
 
 
-def _h01(*a):
-    return K._h01("plz", *a)
+def h01(*k):
+    return K._h01("plz2", *k)
 
 
-# ------------------------------------------------------------------ geometria 2D
-def gp(r, i):
-    a = 2.0 * math.pi * i / NG
-    return (CX + r * math.cos(a), CY + r * math.sin(a))
-
-
-def _clean(poly, eps=1e-4):
-    out = []
-    for p in poly:
-        if not out or abs(p[0] - out[-1][0]) > eps or abs(p[1] - out[-1][1]) > eps:
-            out.append(p)
-    while len(out) > 1 and abs(out[0][0] - out[-1][0]) <= eps and abs(out[0][1] - out[-1][1]) <= eps:
-        out.pop()
-    return out
-
-
-def _seg_x(p, q, a, b):
-    """intersecao dos segmentos p-q e a-b: (t em p-q, u em a-b) ou None (t e u em [0, 1))"""
-    rx, ry = q[0] - p[0], q[1] - p[1]
-    sx, sy = b[0] - a[0], b[1] - a[1]
-    den = rx * sy - ry * sx
-    if abs(den) < 1e-12:
-        return None
-    qx, qy = a[0] - p[0], a[1] - p[1]
-    t = (qx * sy - qy * sx) / den
-    u = (qx * ry - qy * rx) / den
-    if 0.0 <= t < 1.0 and 0.0 <= u < 1.0:
-        return t, u
-    return None
-
-
-def minus_disc(S, R):
-    """poligono S (convexo, ccw) MENOS o disco de raio R (o 144-gono da grade, centro no emblema): lista de poligonos
-    (Weiler-Atherton simplificado). O contorno do disco usa os MESMOS vertices dos aneis (emenda exata)."""
-    S = ccw(_clean(S))
-    D = [gp(R, i) for i in range(NG)]
-    n = len(S)
-    xs = []                                     # (pos em S, ponto, pos em D, entra?)
-    for k in range(n):
-        p, q = S[k], S[(k + 1) % n]
-        for j in range(NG):
-            a, b = D[j], D[(j + 1) % NG]
-            r = _seg_x(p, q, a, b)
-            if r is None:
-                continue
-            t, u = r
-            # entra no disco se a direcao de S aponta contra a normal externa da aresta j do disco (ccw)
-            ex, ey = b[0] - a[0], b[1] - a[1]
-            dx, dy = q[0] - p[0], q[1] - p[1]
-            enter = (dx * ey - dy * ex) < 0.0
-            xs.append((k + t, (p[0] + dx * t, p[1] + dy * t), j + u, enter))
-    if not xs:
-        c = (sum(p[0] for p in S) / n, sum(p[1] for p in S) / n)
-        return [] if L.point_in_poly(c[0], c[1], D) else [S]
-    xs.sort(key=lambda x: x[0])
-    leaves = [x for x in xs if not x[3]]
-    out, used = [], set()
-    for start in leaves:
-        if id(start) in used:
-            continue
-        poly, cur, guard = [], start, 0
-        while guard < 50:
-            guard += 1
-            used.add(id(cur))
-            poly.append(cur[1])
-            # anda em S ate o proximo cruzamento (deve ser uma entrada)
-            i0 = xs.index(cur)
-            nxt = xs[(i0 + 1) % len(xs)]
-            s0, s1 = cur[0], nxt[0] if nxt[0] > cur[0] else nxt[0] + n
-            v = math.floor(s0) + 1
-            while v <= s1 - 1e-9:
-                poly.append(S[int(v) % n])
-                v += 1
-            A = nxt
-            poly.append(A[1])
-            # anda no disco em sentido horario ate a saida mais proxima
-            sA = A[2]
-            best, bd = None, 1e9
-            for x in leaves:
-                d_ = (sA - x[2]) % NG
-                if 1e-9 < d_ < bd:
-                    best, bd = x, d_
-            m = math.floor(sA)
-            if sA - m < 1e-9:
-                m -= 1
-            while (sA - m) % NG < bd - 1e-9:
-                poly.append(D[m % NG])
-                m -= 1
-            cur = best
-            if cur is start:
-                break
-        poly = _clean(poly)
-        if len(poly) >= 3 and L.area(poly) > 0.3:
-            out.append(ccw(poly))
-    return out
-
-
-def ring_piece(r0, r1, i0, i1):
-    return [gp(r0, i) for i in range(i0, i1 + 1)] + [gp(r1, i) for i in range(i1, i0 - 1, -1)]
-
-
-def sq(i):
-    a = 2.0 * math.pi * i / NG
-    e = T.EMBLEM_SQ / max(abs(math.cos(a)), abs(math.sin(a)))
-    return (CX + e * math.cos(a), CY + e * math.sin(a))
-
-
-def stair_rects():
-    """retangulos das escadas que encostam na praca (pisada + banzos + 0,3): o piso nao entra nelas"""
-    out = []
-    for nm in ("Adro", "OesteAlta", "Summon"):
-        foot, deg, w, n, tread, g = L.stair_frame(nm)
-        a = math.radians(deg)
-        ux, uy = round(math.cos(a)), round(math.sin(a))
-        hw = w / 2 + 1.5
-        x0, y0 = foot[0] - ux * (tread / 2 + 0.2), foot[1] - uy * (tread / 2 + 0.2)
-        x1, y1 = foot[0] + ux * tread * n, foot[1] + uy * tread * n
-        if ux:
-            out.append((min(x0, x1), foot[1] - hw, max(x0, x1), foot[1] + hw))
-        else:
-            out.append((foot[0] - hw, min(y0, y1), foot[0] + hw, max(y0, y1)))
-    return out
-
-
-STAIR_R = stair_rects()
-
-
-def cut_stairs(polys):
-    for r in STAIR_R:
-        nxt = []
-        for p in polys:
-            xs_ = [q[0] for q in p]
-            ys_ = [q[1] for q in p]
-            if max(xs_) <= r[0] or min(xs_) >= r[2] or max(ys_) <= r[1] or min(ys_) >= r[3]:
-                nxt.append(p)
-            else:
-                nxt += [ccw(q) for q in L.subtract_rect(p, r) if len(q) >= 3]
-        polys = nxt
-    return polys
-
-
-def clip_halves(poly, side):
-    """lado leste (side +1: x >= 9,2) ou oeste (-1: x <= -9,2) e acima da soleira (y >= 171,2)"""
-    p = DL.clip_half(poly, side, 0.0, -XA)
-    if len(p) < 3:
-        return []
-    p = DL.clip_half(p, 0.0, 1.0, -YS)
-    return p if len(p) >= 3 else []
-
-
-# ------------------------------------------------------------------ piso
-class Paver:
-    def __init__(self, mb):
-        self.mb = mb
-        self.n = 0
-
-    def slab(self, poly, m, sides=False):
-        poly = _clean(poly)
-        if len(poly) < 3 or L.area(poly) < 0.2:
-            return
-        for p in cut_stairs([ccw(poly)]):
-            p = _clean(p)
-            if len(p) >= 3 and L.area(p) > 0.2:
-                K.slab_poly(self.mb, ccw(p), ZB, ZT, 0.07, m, sides)
-                self.n += 1
-
-    def pave(self, regions, x0, x1, y0, y1, rows, m, along="x", key="pv", mats=None, bond=0.5, sides=False):
-        """lajes em fiadas (mesma regra do op_kit.pave: profundidade, comprimento sorteado em [L0, L1], juntas
-        desencontradas) recortadas nas regioes. sides=False: a praca e um tapete continuo (toda laje tem vizinha:
-        so chanfro + topo, a junta em V fecha sem fresta); a borda externa usa sides=True."""
-        prof, L0, L1 = rows
-        regs = [r for r in cut_stairs([ccw(r) for r in regions]) if len(r) >= 3 and L.area(r) > 0.3]
-        u0, u1, v0, v1 = (x0, x1, y0, y1) if along == "x" else (y0, y1, x0, x1)
-        v, r = v0, 0
-        while v < v1 - 1e-3:
-            dv = prof[r % len(prof)]
-            vb = min(v1, v + dv)
-            if v1 - vb < 0.6:
-                vb = v1
-            u, k = u0 - (L0 * bond * K._h01(key, r, "o")), 0
-            while u < u1 - 1e-3:
-                ub = min(u1, u + L0 + (L1 - L0) * K._h01(key, r, k))
-                if u1 - ub < 0.6:
-                    ub = u1
-                ua = max(u, u0)
-                if ub - ua > 0.05:
-                    rect = (ua, v, ub, vb) if along == "x" else (v, ua, vb, ub)
-                    mm = _pick(mats, key, r, k) if mats else m
-                    for reg in regs:
-                        piece = _clean(L.clip_rect(reg, rect))
-                        if len(piece) >= 3 and L.area(piece) > 0.25:
-                            K.slab_poly(self.mb, ccw(piece), ZB, ZT, 0.07, mm, sides)
-                            self.n += 1
-                u, k = ub, k + 1
-            v, r = vb, r + 1
-
-
-def _pick(mats, *key):
+def pick(mats, *key):
     tot = sum(w for _, w in mats)
-    x = _h01(*key) * tot
+    x = h01(*key) * tot
     for m, w in mats:
         x -= w
         if x <= 0:
@@ -264,268 +85,473 @@ def _pick(mats, *key):
     return mats[-1][0]
 
 
-# fiadas da arena: (r0, r1, arco alvo, materiais) - de dentro para fora
-MIX = [(K.STZ, 14), (K.STP, 1)]                 # fiada corrente: tom da praca (1 laje clara em ~15)
-LIGHT = [(K.STP, 1)]                            # fiada clara (ritmo dos aneis)
-FIELD = [(K.STZ, 7), (K.STP, 1)]                # campos da margem (variacao pequena de tom)
-BAND = [(K.ST, 1)]
-WALLB = [(K.ST, 1)]
-
-
-def courses():
-    out = [(R_MED, R_MEDB, 6.0, BAND)]
-    r = R_MEDB
-    inner = [(5.2, MIX), (5.2, LIGHT), (5.2, MIX), (5.2, MIX)]
-    for w, mt in inner:
-        out.append((r, r + w, 8.5, mt))
-        r += w
-    out.append((r, r + 1.2, 8.0, WALLB))          # 46..47,2
-    r += 1.2
-    outer = [(32.8 / 7, mt) for mt in (MIX, MIX, LIGHT, MIX, MIX, LIGHT, MIX)]
-    for w, mt in outer:
-        out.append((r, r + w, 8.8, mt))
-        r += w
-    out.append((r, r + 1.2, 9.5, BAND))           # 80..81,2
-    out.append((r + 1.2, r + 4.4, 9.0, LIGHT))     # fiada clara da borda da arena
-    out.append((r + 4.4, r + 5.6, 9.5, BAND))     # 84,4..85,6
+# ================================================================== geometria 2D (convexo)
+def clip_convex(poly, clip):
+    """poly (qualquer) recortado pelo convexo ccw 'clip' (Sutherland-Hodgman)"""
+    out = list(poly)
+    n = len(clip)
+    for i in range(n):
+        a, b = clip[i], clip[(i + 1) % n]
+        ex, ey = b[0] - a[0], b[1] - a[1]
+        out = DL.clip_half(out, -ey, ex, ey * a[0] - ex * a[1])       # lado esquerdo da aresta (dentro de um ccw)
+        if len(out) < 3:
+            return []
     return out
 
 
-def _divide(lo, hi, k, key):
-    """divide [lo, hi] (indices da grade) em pedacos de ~k passos com junta desencontrada (minimo k/2)"""
-    k = max(1, k)
-    mn = max(1, k // 2)
-    cuts = [lo]
-    i = lo + max(mn, int(round(k * (0.25 + 0.75 * _h01(key, "off")))))
-    j = 0
-    while hi - i >= mn:
-        cuts.append(i)
-        h = _h01(key, j)
-        i += k + (1 if h > 0.7 else (-1 if h < 0.25 and k > 3 else 0))
-        j += 1
-    cuts.append(hi)
-    return list(zip(cuts, cuts[1:]))
+def cut_disc(poly, c, r):
+    """tira do poligono o disco (c, r) por um corte TANGENTE (semiplano fora da tangente na direcao do centroide):
+    o pedaco que fica esta inteiro fora do disco; a sobra (<= 0,1) cai no berco escuro = le como junta"""
+    n_ = len(poly)
+    if all(L.seg_dist(c[0], c[1], poly[i][0], poly[i][1], poly[(i + 1) % n_][0], poly[(i + 1) % n_][1])[0] >= r
+           for i in range(n_)) and not L.point_in_poly(c[0], c[1], poly):
+        return poly
+    mx = sum(p[0] for p in poly) / len(poly)
+    my = sum(p[1] for p in poly) / len(poly)
+    dx, dy = mx - c[0], my - c[1]
+    d = math.hypot(dx, dy) or 1.0
+    nx, ny = dx / d, dy / d
+    out = DL.clip_half(poly, nx, ny, -(nx * c[0] + ny * c[1] + r))
+    return out if len(out) >= 3 else []
 
 
-def build_arena(pv):
-    # medalhao: lajes radiais do quadro 30 x 30 ate o circulo r 24 (16 setores; os cantos do quadro caem na grade)
-    q = NG // 8                                                         # 45 graus: cantos do quadro na grade
-    for s in range(8):
-        i0, i1 = s * q, (s + 1) * q
-        poly = [sq(i0), sq(i1)] + [gp(R_MED, i) for i in range(i1, i0 - 1, -1)]   # lado do quadro e reto
-        pv.slab(poly, _pick(MIX, "med", s))
-    for ci, (r0, r1, arc, mats) in enumerate(courses()):
-        rm = (r0 + r1) / 2
-        k = int(round(arc / (rm * 2 * math.pi / NG)))
-        full = r1 <= R_MEDB + 1e-6                                      # anel do medalhao: volta inteira
-        halves = [(0, NG, 0)] if full else [(-NG // 4, NG // 4, 1), (NG // 4, 3 * NG // 4, -1)]
-        for lo, hi, side in halves:
-            for i0, i1 in _divide(lo, hi, k, "c%d_%d" % (ci, side)):
-                poly = ring_piece(r0, r1, i0, i1)
-                if not full:
-                    poly = clip_halves(poly, side)
-                    if not poly:
-                        continue
-                pv.slab(poly, _pick(mats, "m", ci, i0))
+def area(p):
+    return abs(L.area(p)) if len(p) >= 3 else 0.0
 
 
-def build_axis(pv):
-    for (ya, yb) in ((Y0, CY), (CY, 314.0)):
-        regs = minus_disc([(-XA, ya), (XA, ya), (XA, yb), (-XA, yb)], R_MEDB)
-        regs = [r for r in regs]
-        pv.pave(regs, -8.0, 8.0, Y0 + 0.0, 314.0, ((3.6,), 4.4, 6.0), K.STP, key="eixo",
-                mats=[(K.STP, 5), (K.STZ, 1)])
-        for s in (-1, 1):
-            xa, xb = (8.0, XA) if s > 0 else (-XA, -8.0)
-            pv.pave(regs, xa, xb, Y0, 314.0, ((1.2,), 4.4, 6.4), K.ST, along="y", key="guia%d" % s)
+def face_poly(mb, pts, z, m):
+    """face plana (so o topo, virada para cima) - poligono convexo"""
+    pts = ccw(pts)
+    vs = [mb.bm.verts.new((p[0], p[1], z)) for p in pts]
+    mb.bm.faces.new(vs)
+    mb._post(vs, m, None, 0, 1)
 
 
-def plaza_in():
-    Pp = ccw(L.PLAZA)
-    return Pp, DL.offset_poly(Pp, -EDGE_W)
+def _rot(p, o, a):
+    c, s = math.cos(a), math.sin(a)
+    x, y = p[0] - o[0], p[1] - o[1]
+    return (x * c + y * s, -x * s + y * c)
 
 
-def build_sill(pv):
-    """soleira de pedra y 170..171,2 de lado a lado (fim da faixa sul -> arena/margem)"""
-    Pp = ccw(L.PLAZA)
-    for s in (-1, 1):
-        x0, x1 = (XA, 130.0) if s > 0 else (-130.0, -XA)
-        reg = L.clip_rect(Pp, (x0, Y0, x1, YS))
-        if len(reg) >= 3:
-            pv.pave([reg], x0, x1, Y0, YS, ((1.2,), 4.0, 6.0), K.ST, along="x", key="sol%d" % s,
-                    mats=None)
+def _unrot(p, o, a):
+    c, s = math.cos(a), math.sin(a)
+    return (o[0] + p[0] * c - p[1] * s, o[1] + p[0] * s + p[1] * c)
 
 
-def build_margin(pv):
-    Pp, Pin = plaza_in()
-    QS = T.QS
-    for s in (-1, 1):
-        reg = clip_halves(Pin, s)
-        regs = minus_disc(reg, R_ARENA)
-        # campos alinhados com os do trecho: colunas a partir de +-9,2 a cada 7,2; fiadas a partir da soleira
-        if s > 0:
-            pv.pave(regs, XA, 130.0, YS, 320.0, ((QS,), QS, QS), K.STZ, key="mg1", mats=FIELD, bond=0.0)
-        else:
-            # espelho: lajes contadas a partir do eixo para fora (mesma grade do lado leste)
-            m = int((130.0 - XA) // QS)
-            edges = [-XA - QS * j for j in range(m + 1)]
-            for u0, u1 in zip(edges[1:], edges[:-1]):
-                pv.pave(regs, u0, u1, YS, 320.0, ((QS,), 30.0, 30.0), K.STZ, key="mg0_%d" % int(u0), mats=FIELD,
-                        bond=0.0)
-
-
-def build_edge(pv):
-    """borda de lajes claras ao longo do contorno da praca (acima da soleira), mitrada nos cantos"""
-    Pp, Pin = plaza_in()
-    n = len(Pp)
-    for i in range(n):
-        a, b = Pp[i], Pp[(i + 1) % n]
-        ai, bi = Pin[i], Pin[(i + 1) % n]
-        ln = math.hypot(b[0] - a[0], b[1] - a[1])
-        if max(a[1], b[1]) < YS:
-            continue
-        m = max(1, int(round(ln / 4.3)))
-        ts = [0.0]
-        for j in range(1, m):
-            ts.append((j + 0.35 * (_h01("eb", i, j) - 0.5)) / m)
-        ts.append(1.0)
-        lerp = lambda p, q, t: (p[0] + (q[0] - p[0]) * t, p[1] + (q[1] - p[1]) * t)
-        for j, (t0, t1) in enumerate(zip(ts, ts[1:])):
-            poly = [lerp(a, b, t0), lerp(a, b, t1), lerp(ai, bi, t1), lerp(ai, bi, t0)]
-            poly = DL.clip_half(poly, 0.0, 1.0, -YS)
-            if len(poly) < 3:
+def pave_poly(mb, poly, z, mats, key, ang=0.0, sx=3.4, sy=1.7, holes=(), disc=None, origin=(0.0, 0.0), gap=GAP,
+              bond=0.5, min_area=0.12):
+    """LAJES EM FIADAS (street2): fiadas de 'sy' ao longo do rumo 'ang' (comprimento sorteado 0,8..1,2 x sx, juntas
+    desencontradas de fiada a fiada), recortadas no convexo 'poly', menos os retangulos 'holes' (mundo, eixo) e o
+    disco 'disc' (c, r). Cada laje = face de cima a z com a junta 'gap' de cada lado. Devolve o numero de lajes."""
+    if len(poly) < 3:
+        return 0
+    lp = ccw([_rot(p, origin, ang) for p in poly])
+    u0, u1 = min(p[0] for p in lp), max(p[0] for p in lp)
+    v0, v1 = min(p[1] for p in lp), max(p[1] for p in lp)
+    r = math.floor((v0 - 0.0) / sy)
+    n = 0
+    while r * sy < v1:
+        va, vb = r * sy + gap, (r + 1) * sy - gap
+        off = (bond * sx if r % 2 else 0.0) + 0.23 * sx * h01(key, r, "o")
+        u = math.floor((u0 + off) / sx) * sx - off - sx
+        k = 0
+        while u < u1:
+            w = sx * (0.8 + 0.4 * h01(key, r, k))
+            ua, ub = u + gap, u + w - gap
+            u += w
+            k += 1
+            if ub < u0 or ua > u1:
                 continue
-            pieces = [poly]
-            if a[1] > 300.0 and b[1] > 300.0:                             # o eixo segue ate a escada
-                pieces = [q for p in pieces for q in L.subtract_rect(ccw(p), (-XA, 300.0, XA, 320.0))]
+            q = clip_convex([(ua, va), (ub, va), (ub, vb), (ua, vb)], lp)
+            if len(q) < 3:
+                continue
+            pieces = [[_unrot(p, origin, ang) for p in q]]
+            if disc:
+                pieces = [cut_disc(p, disc[0], disc[1]) for p in pieces]
+                pieces = [p for p in pieces if len(p) >= 3]
+            for hr in holes:
+                nxt = []
+                for p in pieces:
+                    xs_ = [t[0] for t in p]
+                    ys_ = [t[1] for t in p]
+                    if max(xs_) <= hr[0] or min(xs_) >= hr[2] or max(ys_) <= hr[1] or min(ys_) >= hr[3]:
+                        nxt.append(p)
+                    else:
+                        nxt += [s for s in L.subtract_rect(ccw(p), hr) if len(s) >= 3]
+                pieces = nxt
             for p in pieces:
-                pv.slab(p, _pick([(K.STP, 4), (K.ST, 1)], "eb", i, j), sides=True)
+                if area(p) >= min_area:
+                    face_poly(mb, p, z, pick(mats, key, r, k))
+                    n += 1
+        r += 1
+    return n
 
 
-def remove_fallback():
-    ob = bpy.data.objects.get("OP_Plz_M2_PisoProvisorio")
-    if ob:
-        me = ob.data
-        bpy.data.objects.remove(ob, do_unlink=True)
-        if me and me.users == 0:
-            bpy.data.meshes.remove(me)
-        return True
-    return False
+def berco(mb, poly, z, holes=()):
+    """berco escuro (aparece nas juntas): o convexo menos os retangulos"""
+    pieces = [ccw(poly)]
+    for hr in holes:
+        nxt = []
+        for p in pieces:
+            nxt += [s for s in L.subtract_rect(ccw(p), hr) if len(s) >= 3] if _hits(p, hr) else [p]
+        pieces = nxt
+    for p in pieces:
+        face_poly(mb, p, z, STD)
 
 
-def build_floor():
-    mb = MB(SENT, "03_PLAZA", random.Random(401), detail="hero", floor=-999)
-    pv = Paver(mb)
-    tri = lambda: sum(len(f.verts) - 2 for f in mb.bm.faces)
-    rep = []
-    for nm, fn in (("arena", build_arena), ("eixo", build_axis), ("soleira", build_sill), ("margem", build_margin),
-                   ("borda", build_edge)):
-        t0, n0 = tri(), pv.n
-        fn(pv)
-        rep.append("%s %d lajes %d tris" % (nm, pv.n - n0, tri() - t0))
-    print("op_plaza piso: " + " | ".join(rep))
-    # M6c: laje sem fundo (e sem lados no miolo) e casca ABERTA: o recalc do finish virava lajes inteiras para baixo
-    # (o Roblox nao desenha: buraco no piso visto de cima). Topo e chanfro sempre para cima; lados como o loft fez.
-    nf = 0
-    for f_ in mb.bm.faces:
-        f_.normal_update()
-        if f_.normal.z < -0.05:
-            f_.normal_flip()
-            nf += 1
+def _hits(p, hr):
+    xs_ = [t[0] for t in p]
+    ys_ = [t[1] for t in p]
+    return not (max(xs_) <= hr[0] or min(xs_) >= hr[2] or max(ys_) <= hr[1] or min(ys_) >= hr[3])
+
+
+def _bbox(poly):
+    xs_ = [p[0] for p in poly]
+    ys_ = [p[1] for p in poly]
+    return (min(xs_), min(ys_), max(xs_), max(ys_))
+
+
+# ================================================================== piso
+def stair_holes(pad=0.35):
+    out = []
+    for nm in ("Praca", "Adro", "OesteAlta", "Summon", "Mirante"):
+        out.append(_bbox(op_col.stair_footprint(nm, pad)))
+    out.append(SANDO)
+    return out
+
+
+def rin():
+    return ccw(DL.offset_poly(ccw(REG), -EDGE_W))
+
+
+def floor():
+    mb = MB("OP_Plz_Piso", C, detail="far", floor=-999)
+    mb2 = MB("OP_Plz_Piso_Eixo", C, detail="far", floor=-999)
+    HO = stair_holes()
+    disc = ((CX, CY), R_RING)
+    RI = rin()
+    n = {}
+    # --- berco (toda a regiao, menos as escadas, o sando e o MEDALHAO: o emblema e o medalhao sao lajes com chanfro
+    # cujas juntas em V fecham sem berco; o berco sob a incrustacao rebaixada seria quase coplanar a ela)
+    sqd = (CX - R_RING, CY - R_RING, CX + R_RING, CY + R_RING)
+    berco(mb, REG, ZB, list(HO) + [sqd])
+    NW = 64
+    for i in range(NW):
+        a0, a1 = 2 * math.pi * i / NW, 2 * math.pi * (i + 1) / NW
+        sqp = lambda a: (CX + R_RING / max(abs(math.cos(a)), abs(math.sin(a))) * math.cos(a),
+                         CY + R_RING / max(abs(math.cos(a)), abs(math.sin(a))) * math.sin(a))
+        w = [(CX + R_RING * math.cos(a0), CY + R_RING * math.sin(a0)), sqp(a0), sqp(a1),
+             (CX + R_RING * math.cos(a1), CY + R_RING * math.sin(a1))]
+        if area(w) > 0.05:
+            berco(mb, w, ZB, HO)
+    # --- eixo N-S (lajes ao longo de y) + guias
+    ax_in = clip_convex([(-AX + AXB, 100.0), (AX - AXB, 100.0), (AX - AXB, 330.0), (-AX + AXB, 330.0)], RI)
+    n["eixo"] = pave_poly(mb2, ax_in, ZT, LANE, "eixo", ang=math.pi / 2, sx=3.4, sy=1.7, holes=HO, disc=disc)
+    for s in (-1, 1):
+        g = clip_convex([(s * (AX - AXB), 100.0), (s * AX, 100.0), (s * AX, 330.0), (s * (AX - AXB), 330.0)], RI)
+        n["guias"] = n.get("guias", 0) + pave_poly(mb2, g, ZT, [(CURB, 1)], "gx%d" % s, ang=math.pi / 2, sx=2.6, sy=AXB,
+                                                     holes=HO, disc=disc, origin=(s * (AX - AXB), 0.0))
+    # --- eixo transversal (lajes no sentido N-S, como o eixo) + guias
+    for s in (-1, 1):
+        xa, xb = sorted((s * AX, s * 140.0))
+        band = clip_convex([(xa, XB[0] + AXB), (xb, XB[0] + AXB), (xb, XB[1] - AXB), (xa, XB[1] - AXB)], RI)
+        n["transv"] = n.get("transv", 0) + pave_poly(mb2, band, ZT, LANE, "tr%d" % s, ang=math.pi / 2, holes=HO,
+                                                      disc=disc)
+        for yg in ((XB[0], XB[0] + AXB), (XB[1] - AXB, XB[1])):
+            g = clip_convex([(xa, yg[0]), (xb, yg[0]), (xb, yg[1]), (xa, yg[1])], RI)
+            n["guias"] += pave_poly(mb2, g, ZT, [(CURB, 1)], "gt%d_%d" % (s, int(yg[0])), sx=2.6, sy=AXB, holes=HO,
+                                    disc=disc, origin=(0.0, yg[0]))
+    # --- paineis (lajes E-O) entre as linhas
+    cols = [AX] + list(XLINES) + [140.0]
+    rows_s = [100.0] + [y for y in YLINES if y < XB[0]] + [XB[0]]
+    rows_n = [XB[1]] + [y for y in YLINES if y > XB[1]] + [330.0]
+    nl = 0
+    npn = 0
+    for s in (-1, 1):
+        for ci, (ca, cb) in enumerate(zip(cols, cols[1:])):
+            xa = ca + (AXB / 2 if ci > 0 else 0.0)
+            xb = cb - (AXB / 2 if ci < len(cols) - 2 else 0.0)
+            for rows in (rows_s, rows_n):
+                for ri_, (ra, rb) in enumerate(zip(rows, rows[1:])):
+                    ya = ra + (AXB / 2 if ri_ > 0 else 0.0)
+                    yb = rb - (AXB / 2 if ri_ < len(rows) - 2 else 0.0)
+                    x0, x1 = sorted((s * xa, s * xb))
+                    pnl = clip_convex([(x0, ya), (x1, ya), (x1, yb), (x0, yb)], RI)
+                    npn += pave_poly(mb, pnl, ZT, FIELD, "p%d_%d_%d" % (s, ci, int(ya)), sx=SX_F, sy=SY_F, holes=HO,
+                                     disc=disc)
+                    # linha horizontal no topo do painel (menos a ultima)
+                    if ri_ < len(rows) - 2:
+                        g = clip_convex([(x0, rb - AXB / 2), (x1, rb - AXB / 2), (x1, rb + AXB / 2), (x0, rb + AXB / 2)], RI)
+                        nl += pave_poly(mb2, g, ZT, [(CURB, 1)], "ly%d_%d_%d" % (s, ci, int(rb)), sx=2.6, sy=AXB,
+                                        holes=HO, disc=disc, origin=(0.0, rb - AXB / 2))
+            # linha vertical a direita da coluna (menos a ultima)
+            if ci < len(cols) - 2:
+                x0, x1 = sorted((s * (cb - AXB / 2), s * (cb + AXB / 2)))
+                for ya, yb in ((100.0, XB[0]), (XB[1], 330.0)):
+                    g = clip_convex([(x0, ya), (x1, ya), (x1, yb), (x0, yb)], RI)
+                    nl += pave_poly(mb2, g, ZT, [(CURB, 1)], "lx%d_%d_%d" % (s, ci, int(ya)), ang=math.pi / 2, sx=2.6,
+                                    sy=AXB, holes=HO, disc=disc, origin=(x0, 0.0))
+    n["paineis"], n["linhas"] = npn, nl
+    # --- borda de lajes no contorno (fiadas ao longo de cada aresta, cantos em meia-esquadria)
+    Rg = ccw(REG)
+    nb = 0
+    for i in range(len(Rg)):
+        a, b = Rg[i], Rg[(i + 1) % len(Rg)]
+        ai, bi = RI[i], RI[(i + 1) % len(RI)]
+        quad = ccw([a, b, bi, ai])
+        ang = math.atan2(b[1] - a[1], b[0] - a[0])
+        nb += pave_poly(mb, quad, ZT, [(STP, 3), (STR, 2)], "bd%d" % i, ang=ang, sx=3.0, sy=EDGE_W / 2, holes=HO,
+                        origin=a)
+    # faixa NE fora da regiao convexa (x 116..117,6, y 262..314): ate a frente das lojas NE
+    ne = [(116.0, 262.0), (117.6, 262.0), (117.6, 314.0), (116.0, 314.0)]
+    berco(mb, ne, ZB, HO)
+    nb += pave_poly(mb, ne, ZT, [(STP, 3), (STR, 2)], "bdne", ang=math.pi / 2, sx=3.0, sy=1.6, holes=HO,
+                    origin=(116.0, 262.0))
+    n["borda"] = nb
     mb.finish(recalc=False)
-    print("op_plaza piso: %d faces viradas para cima" % nf)
-    return pv.n
+    mb2.finish(recalc=False)
+    return n
 
 
-# ------------------------------------------------------------------ borda
-EAST_X = 116.0 - 0.95 - 0.2                    # linha da mureta leste (recuo da faixa sul + 0,2: M6b item 23, a
-                                               # mureta encravava 0,2 no arrimo/capa do op_terrain em x 115,3)
-WEST_X = -116.0 + 1.0
-EAST_SECT = [(169.23, 205.0), (227.0, 262.0)]   # 1o setor comeca no pilarete final da mureta do trecho (115,0; 169,7)
-WEST_SECT = [(185.0, 203.0), (221.0, 239.0)]    # vaos: viela/W2 (y < 185), pavilhao W3 (203..221), W4 (239..)
+# ------------------------------------------------------------------ medalhao + emblema rebaixado (o do M2)
+EMB_SQ = 15.0
 
 
-def _mureta(mb, x, ya, yb, h, th, key, col=True):
-    ln = yb - ya
-    F = Frame(x, (ya + yb) / 2, ZT, -math.pi / 2 if x > 0 else math.pi / 2)   # +y local = para FORA da praca
-    K.parapet(mb, F, ln + 0.6, h, th, key=key, post_every=12.0)
-    if col:
-        col_box("OP_PlzMureta", (th + 0.3, ln + 0.6, h + 0.6), (x, (ya + yb) / 2, P + (h + 0.6) / 2))
+def emblem():
+    """EMBLEMA REBAIXADO (desenho do M2 mantido): miolo + 8 petalas + anel de incrustacao 0,07 abaixo do piso,
+    fundos e anel de pedra rentes, quadro circulo r 13 -> quadrado 30 x 30; em volta, o MEDALHAO: lajes radiais do
+    quadrado ate r 26 (2 aneis, juntas desencontradas) e anel de incrustacao 26..27,2"""
+    mb = MB("OP_Plz_Emblema", C, detail="far", floor=-999)
+    zt, zi, zb = ZT, ZT - 0.07, P - 0.05
+    cx, cy = CX, CY
+    G = [2 * math.pi * k / 32 for k in range(32)]
+    pol = lambda r, a: (cx + r * math.cos(a), cy + r * math.sin(a))
+    R0, R1, R2, R3 = 2.2, 9.4, 11.2, 13.0
+    slab = lambda poly, z1, m, c=0.05: K.slab_poly(mb, ccw(poly), zb, z1, c, m, False)   # so chanfro + topo
+    slab([pol(R0, a) for a in G], zi, STI)
+    rs = [2.2, 3.4, 4.6, 5.8, 7.0, 8.2, 9.4]
+    wfun = lambda r: 0.3 * math.sin(math.pi * (r - R0) / (R1 - R0)) ** 0.8
+    for k in range(8):
+        th = k * math.pi / 4
+        petal = [pol(r, th - wfun(r)) for r in rs] + [pol(r, th + wfun(r)) for r in reversed(rs[1:-1])]
+        slab(petal, zi, STI)
+        arc_in = [pol(R0, G[4 * k + j]) for j in range(5)] if k < 7 else [pol(R0, G[28 + j]) for j in range(4)] + [pol(R0, 0.0)]
+        nxt = th + math.pi / 4
+        arc_out = [pol(R1, a) for a in ([G[4 * k + j] for j in range(5)] if k < 7 else [G[28 + j] for j in range(4)] + [0.0])]
+        bg = arc_in + [pol(r, nxt - wfun(r)) for r in rs[1:-1]] + list(reversed(arc_out)) + \
+            [pol(r, th + wfun(r)) for r in reversed(rs[1:-1])]
+        slab(bg, zt, STZ)
+    for j in range(16):
+        a3 = [G[(2 * j + i) % 32] + (2 * math.pi if (2 * j + i) >= 32 else 0.0) for i in range(3)]
+        slab([pol(R1, a) for a in a3] + [pol(R2, a) for a in reversed(a3)], zt, STR)
+        b3 = [G[(2 * j + 1 + i) % 32] + (2 * math.pi if 2 * j + 1 + i >= 32 else 0.0) for i in range(3)]
+        slab([pol(R2, a) for a in b3] + [pol(R3, a) for a in reversed(b3)], zi, STI)
+    sq = lambda a: (cx + EMB_SQ / max(abs(math.cos(a)), abs(math.sin(a))) * math.cos(a),
+                    cy + EMB_SQ / max(abs(math.cos(a)), abs(math.sin(a))) * math.sin(a))
+    for k in range(8):
+        a5 = [G[(4 * k + j) % 32] + (2 * math.pi if 4 * k + j >= 32 else 0.0) for j in range(5)]
+        slab([pol(R3, a) for a in a5] + [sq(a5[-1]), sq(a5[0])], zt, STP, 0.07)
+    # medalhao: 2 aneis de lajes radiais (quadrado -> r 19,4 -> r 24) com juntas desencontradas + anel de incrustacao
+    NGm = 64
+    Gm = [2 * math.pi * k / NGm for k in range(NGm + 1)]
+    RM = 22.6                                     # > canto do quadrado (15 x raiz 2 = 21,2)
+
+    def sqr(a, r):                                # ponto no 'raio' r do quadrado/circulo misto (quadrado em r <= 15)
+        return pol(r, a)
+    for ring, (step, off) in enumerate(((4, 0), (2, 1))):            # anel de fora em lajes menores (32): junta viva
+        for i in range(off, NGm + off, step):
+            aa = [Gm[(i + j) % NGm] + (2 * math.pi if i + j >= NGm else 0.0) for j in range(step + 1)]
+            if ring == 0:
+                inner = [sq(a) for a in aa]
+                poly = inner + [pol(RM, a) for a in reversed(aa)]
+            else:
+                poly = [pol(RM, a) for a in aa] + [pol(R_MED, a) for a in reversed(aa)]
+            # o quadrado tem cantos em 45 graus: os 4 pontos 'sq' de cada arco ficam no mesmo lado (step 4 = 22,5
+            # graus, cantos na grade): o lado de dentro e reto
+            slab(poly, zt, pick([(STP, 2), (STZ, 3), (STR, 2)], "med", ring, i), 0.06)
+    for i in range(0, NGm, 2):
+        aa = [Gm[i], Gm[i + 1], Gm[i + 2]]
+        slab([pol(R_MED, a) for a in aa] + [pol(R_RING, a) for a in reversed(aa)], zi, STI, 0.04)
+    mb.finish()
 
 
-# estandartes no EIXO TRANSVERSAL do emblema (y ~216): entrada do summon (leste) <-> vao do pavilhao W3 (oeste)
-BANNERS_E = [(110.6, 201.4), (110.6, 230.6), (-112.6, 200.8), (-112.6, 223.2)]
-LAMPS = [(111.6, 186.0), (111.6, 246.0),       # leste: meio dos setores (encostados na mureta)
-         (-112.4, 181.0), (-112.4, 243.0),     # oeste: nos vaos da viela/W2 e de W4
-         (108.0, 270.0), (-106.0, 258.0),      # cantos NE / NO (entradas do quarteirao NE e do terraco alto)
-         (-48.0, 311.2), (48.0, 311.2)]        # norte: ritmo banco - poste - banco ao pe do arrimo do adro
-BENCHES = [(-112.9, 194.0, 9.0, math.pi / 2), (-112.9, 230.0, 9.0, math.pi / 2),       # oeste, encostados na mureta
-           (112.3, 177.0, 7.0, math.pi / 2), (112.3, 255.0, 7.0, math.pi / 2),         # leste
-           (-36.0, 311.4, 7.0, 0.0), (-60.0, 309.4, 7.0, 0.0), (36.0, 311.4, 7.0, 0.0), (60.0, 309.4, 7.0, 0.0),  # norte
-           (-94.2, 297.5, 7.0, math.atan2(18.0, 22.0)), (94.2, 297.5, 7.0, -math.atan2(18.0, 22.0))]   # chanfros NO/NE
+# ================================================================== borda
+def _edge_pts():
+    return ccw(REG)
 
 
-def build_border():
-    mw = MB("OP_Plz_Mureta", "03_PLAZA", random.Random(402), detail="hero")
-    for i, (a, b) in enumerate(EAST_SECT):
-        _mureta(mw, EAST_X, a, b, 2.3, 1.3, "plzE%d" % i)
-    for i, (a, b) in enumerate(WEST_SECT):
-        _mureta(mw, WEST_X, a, b, 1.5, 1.1, "plzW%d" % i)
-    K.cull_hidden(mw)                                        # M6b: faces que ninguem ve (orcamento)
-    mw.finish(recalc=False)                                  # M6c: sem recalc depois do corte (casca aberta virava)
-    mp = MB("OP_Prop_Plz_Borda", "09_PROPS", random.Random(403), detail="hero")
+DROP_EDGES = [  # (a, b, [aberturas (t0, t1) em distancia ao longo]) - quedas para T1
+    ((-116.0, 118.0), (-15.9, 118.0)),
+    ((15.9, 118.0), (64.0, 118.0)),
+    ((64.0, 118.0), (96.0, 124.0)),
+    ((96.0, 124.0), (112.0, 140.0)),
+    ((112.0, 140.0), (116.0, 170.0)),
+    ((116.0, 170.0), (116.0, 207.4)),
+    ((116.0, 224.6), (116.0, 262.0)),
+]
+KERB_W, KERB_H = 1.2, 0.75
+COL_TALL = 11.0                   # caixas de guarda/toro/andon: topo P + 10,5 (> 1,55 do assento + pulo 7,2 + folga)
+
+
+def kerb_rail(mb, mr):
+    """meio-fio de pedra no labio + guarda-corpo vermelho (rail2) por cima; 1 caixa de colisao por trecho"""
+    n = 0
+    for a, b in DROP_EDGES:
+        dx, dy = b[0] - a[0], b[1] - a[1]
+        ln = math.hypot(dx, dy)
+        ux, uy = dx / ln, dy / ln
+        nx, ny = -uy, ux                                    # para DENTRO da praca (regiao ccw)
+        ang = math.atan2(dy, dx)
+        F = Frame(a[0], a[1], P, ang)                       # +x ao longo, +y para dentro
+        # corpo em blocos de 2,2..3,6 (juntas de 0,06) + capa de lajes com pingadeira para dentro
+        x = 0.0
+        k = 0
+        while x < ln - 0.2:
+            x2 = min(ln, x + 3.0 + 1.6 * h01("kb", a[0], a[1], k))
+            if ln - x2 < 0.9:
+                x2 = ln
+            K.bb(mb, F, x + 0.03, x2 - 0.03, 0.02, KERB_W - 0.02, -0.25, KERB_H - 0.2,
+                 WALL if h01("kbm", a[0], k) > 0.18 else STR)
+            x, k = x2, k + 1
+        x = -0.1
+        k = 0
+        while x < ln + 0.1 - 0.2:
+            x2 = min(ln + 0.1, x + 3.4 + 1.4 * h01("kc", a[0], a[1], k))
+            if ln + 0.1 - x2 < 0.9:
+                x2 = ln + 0.1
+            K.bb(mb, F, x + 0.03, x2 - 0.03, -0.06, KERB_W + 0.12, KERB_H - 0.2, KERB_H, STP, 0.04)
+            x, k = x2, k + 1
+        K2.rail2(mr, F, [(0.25, KERB_W / 2), (ln - 0.25, KERB_W / 2)], h=2.55, base=KERB_H, step=3.2)
+        cx, cy = a[0] + ux * ln / 2 + nx * KERB_W / 2, a[1] + uy * ln / 2 + ny * KERB_W / 2
+        # guarda ALTA (como as do op_col): o corrimao nao vira degrau para toro/andon/telhados vizinhos
+        col_box("OP_PlzRail", (ln + 0.4, KERB_W + 0.3, COL_TALL), (cx, cy, P - 0.5 + COL_TALL / 2), (0.0, 0.0, ang))
+        n += 1
+    return n
+
+
+WEST_X = -116.0
+WEST_FREE = [(140.0, 151.0), (167.0, 204.0), (220.0, 257.0), (273.0, 284.0)]   # entre as bocas das vielas (y 159/212/265)
+# (o canto SO, y 118..140, fica ABERTO: e a entrada da rota Bairro do canal -> quarteirao oeste pela escada Sudoeste)
+
+
+def west_walls(mb):
+    """muretas baixas de assento (1,35) em trechos de ~12 com vao de 5; tampo de tabuas no trecho alternado"""
+    n = 0
+    segs = []
+    for a, b in WEST_FREE:
+        ln = b - a
+        k = max(1, int(round((ln + 5.0) / 17.0)))
+        w = (ln - 5.0 * (k - 1)) / k
+        for i in range(k):
+            y0 = a + i * (w + 5.0)
+            segs.append((y0, y0 + w))
+    x0, x1 = WEST_X + 0.5, WEST_X + 1.6
+    h = 1.35
+    for i, (y0, y1) in enumerate(segs):
+        F = Frame((x0 + x1) / 2, (y0 + y1) / 2, P, math.pi / 2)     # +x = ao longo (y do mundo)
+        L_ = y1 - y0
+        x = -L_ / 2
+        k = 0
+        while x < L_ / 2 - 0.2:                                         # blocos de cantaria (2 fiadas desencontradas)
+            x2 = min(L_ / 2, x + 1.8 + 1.2 * h01("ww", i, k))
+            if L_ / 2 - x2 < 0.8:
+                x2 = L_ / 2
+            K.bb(mb, F, x + 0.03, x2 - 0.03, -0.55, 0.55, -0.25, 0.55, STD if h01("wwm", i, k) > 0.55 else WALL)
+            x, k = x2, k + 1
+        x = -L_ / 2
+        k = 0
+        while x < L_ / 2 - 0.2:
+            x2 = min(L_ / 2, x + 1.2 + 1.4 * h01("wx", i, k))
+            if L_ / 2 - x2 < 0.8:
+                x2 = L_ / 2
+            K.bb(mb, F, x + 0.03, x2 - 0.03, -0.55, 0.55, 0.55, h - 0.22, WALL if h01("wxm", i, k) > 0.3 else STD)
+            x, k = x2, k + 1
+        K.bb(mb, F, -L_ / 2 - 0.1, L_ / 2 + 0.1, -0.68, 0.68, h - 0.22, h, STP, 0.05)          # capa
+        if i % 2 == 0:                                                    # tampo de tabuas (assento)
+            for j in range(3):
+                K.bb(mb, F, -L_ / 2 + 0.5, L_ / 2 - 0.5, -0.6 + j * 0.4 + 0.02, -0.6 + (j + 1) * 0.4 - 0.02, h, h + 0.14,
+                     WM)
+            for xx in (-L_ / 2 + 0.9, 0.0, L_ / 2 - 0.9):
+                K.bb(mb, F, xx - 0.12, xx + 0.12, -0.66, 0.66, h + 0.02, h + 0.2, WD)
+        hc = h + (0.2 if i % 2 == 0 else 0.0)                         # colisao = topo visual (sem degrau extra)
+        col_box("OP_PlzMureta", (1.5, L_ + 0.3, hc + 0.3), ((x0 + x1) / 2, (y0 + y1) / 2, P - 0.3 + (hc + 0.3) / 2))
+        n += 1
+    return n, segs
+
+
+# andon (kit2) e toro2 (kit2) da borda; bancos encostados ao muro norte
+ANDON = [(-40.0, 121.4, 0.0), (40.0, 121.4, 0.0), (-88.0, 121.4, 0.0), (88.0, 125.4, 0.0),
+         (112.6, 204.6, 0.0), (112.6, 227.4, 0.0),
+         (-113.0, 152.6, 0.0), (-113.0, 205.6, 0.0), (-113.0, 258.6, 0.0),
+         (-42.0, 311.6, 0.0), (42.0, 311.6, 0.0)]
+TORO = [(-19.0, 122.8, 0.95), (19.0, 122.8, 0.95), (-21.5, 308.6, 0.95), (21.5, 308.6, 0.95)]
+BENCHES = [(-30.0, 312.0), (30.0, 312.0), (-54.0, 312.0), (54.0, 312.0), (-78.0, 312.0), (78.0, 312.0)]
+
+
+def props(mp):
+    n = 0
+    nl = 0
+    for i, (x, y, a) in enumerate(ANDON):
+        nm = "L_OPProp_Lamp_Plz_%d" % i if i % 2 == 0 else None
+        nl += 1 if nm else 0
+        K2.lamp_andon(mp, Frame(x, y, ZT, a), nm)
+        col_box("OP_PlzLamp", (2.3, 2.3, COL_TALL), (x, y, P - 0.5 + COL_TALL / 2))
+        n += 1
+    for i, (x, y, s) in enumerate(TORO):
+        K2.toro2(mp, Frame(x, y, ZT, 0.0), "L_OPProp_Toro_Plz_%d" % i if i % 2 == 0 else None, s)
+        col_box("OP_PlzToro", (3.7 * s, 3.7 * s, COL_TALL), (x, y, P - 0.5 + COL_TALL / 2))
+        n += 1
     F0 = Frame(0.0, 0.0, 0.0, 0.0)
-    for i, (x, y) in enumerate(BANNERS_E):
-        ang = -math.pi / 2 if y < 216 else math.pi / 2   # pano para FORA do vao, face para a praca
-        K.banner(mp, Frame(x, y, ZT - 0.05, ang), 16.0, K.CWHITE, K.INDIGO, 2.6, 1)
-        col_box("OP_PropBanner", (1.9, 1.9, 16.0), (x, y, P + 8.0))
-    for i, (x, y) in enumerate(LAMPS):
-        K.lantern_box_post(mp, Frame(x, y, ZT - 0.05, 0.0), 7.6, "L_OPProp_Lamp_Plz_%d" % i, 35.0)
-        col_box("OP_PropLamp", (1.1, 1.1, 7.6), (x, y, P + 3.8))
-    for i, (x, y, ln, ang) in enumerate(BENCHES):
-        K.bench(mp, F0, x, y, ln, 1.8, 1.7, ang, ZT - 0.05)
-        col_box("OP_PropBench", (ln, 1.8, 1.7), (x, y, P + 0.85), (0.0, 0.0, ang))
-    K.cull_hidden(mp)                                        # M6b
-    mp.finish(recalc=False)                                  # M6c
+    for x, y in BENCHES:
+        K.bench(mp, F0, x, y, 7.0, 1.8, 1.7, 0.0, ZT)
+        col_box("OP_PlzBench", (7.0, 1.8, 1.9), (x, y, P + 0.95))
+        n += 1
+    return n
 
 
-# ------------------------------------------------------------------ cameras
+# ================================================================== cameras (folhas; fora do export)
 CAMS = {
-    # geral
-    "CAM_OP_Plz_Aerea": ((0.0, 40.0, 250.0), (0.0, 222.0, P), 24),
-    "CAM_OP_Plz_Zenite": ((0.0, 214.0, 470.0), (0.0, 216.0, P), 32),
-    "CAM_OP_Plz_Aerea_NE": ((175.0, 345.0, 190.0), (-10.0, 205.0, P), 24),
-    # altura do jogador no centro olhando cada borda
-    "CAM_OP_Plz_Centro_N": ((0.0, 226.0, EYE), (0.0, 330.0, P + 9.0), 22),
-    "CAM_OP_Plz_Centro_S": ((0.0, 206.0, EYE), (0.0, 100.0, P + 3.0), 22),
-    "CAM_OP_Plz_Centro_L": ((10.0, 216.0, EYE), (130.0, 216.0, P + 4.0), 22),
-    "CAM_OP_Plz_Centro_O": ((-10.0, 216.0, EYE), (-130.0, 216.0, P + 4.0), 22),
-    # bordas na altura do jogador
-    "CAM_OP_Plz_Borda_L": ((84.0, 186.0, EYE), (118.0, 236.0, P + 2.0), 22),
-    "CAM_OP_Plz_Borda_O": ((-84.0, 244.0, EYE), (-118.0, 196.0, P + 2.0), 22),
-    "CAM_OP_Plz_Canto_NO": ((-60.0, 268.0, EYE), (-104.0, 304.0, P + 4.0), 22),
-    "CAM_OP_Plz_Canto_NE": ((60.0, 268.0, EYE), (104.0, 300.0, P + 4.0), 22),
-    # closes
-    "CAM_OP_Plz_Close_Piso": ((30.0, 262.0, P + 3.2), (44.0, 280.0, P), 24),
-    "CAM_OP_Plz_Close_Emblema": ((0.0, 186.0, P + 14.0), (0.0, 214.0, P), 26),
-    "CAM_OP_Plz_Close_Eixo": ((4.0, 236.0, P + 4.0), (0.0, 262.0, P), 24),
-    "CAM_OP_Plz_Close_Mureta": ((96.0, 254.0, P + 4.0), (112.0, 266.0, P + 1.5), 24),
-    "CAM_OP_Plz_Close_Estandarte": ((96.0, 188.0, P + 4.0), (111.0, 203.0, P + 9.5), 24),
+    "CAM_OP_V23Plz_Cima_Jogo": ((-30.0, 170.0, P + 42.0), (10.0, 232.0, P), 24),
+    "CAM_OP_V23Plz_Cima_Sul": ((0.0, 92.0, P + 74.0), (0.0, 205.0, P), 22),
+    "CAM_OP_V23Plz_Zenite": ((0.0, 216.0, 420.0), (0.0, 216.5, P), 30),
+    "CAM_OP_V23Plz_PH_Norte": ((6.0, 190.0, P + EYE), (0.0, 320.0, P + 8.0), 22),
+    "CAM_OP_V23Plz_PH_Leste": ((60.0, 230.0, P + EYE), (118.0, 216.0, P + 3.0), 22),
+    "CAM_OP_V23Plz_PH_Oeste": ((-60.0, 205.0, P + EYE), (-118.0, 226.0, P + 3.0), 22),
+    "CAM_OP_V23Plz_PH_Sul": ((-20.0, 160.0, P + EYE), (-40.0, 118.0, P + 1.0), 22),
+    "CAM_OP_V23Plz_Junta_Rua": ((-36.0, 100.0, L.T1 + EYE), (-48.0, 122.0, P + 0.5), 24),
+    "CAM_OP_V23Plz_Close_Emblema": ((0.0, 190.0, P + 13.0), (0.0, 216.0, P), 28),
 }
 
 
 def cams():
-    for n, (loc, tgt, lens) in CAMS.items():
-        if bpy.data.objects.get(n) is None:
-            DL.camera(n, loc, tgt, lens)
+    for n_, (loc, tgt, lens) in CAMS.items():
+        if bpy.data.objects.get(n_) is None:
+            DL.camera(n_, loc, tgt, lens)
+
+
+def _tris(name):
+    ob = bpy.data.objects.get(name)
+    return sum(len(p.vertices) - 2 for p in ob.data.polygons) if ob else 0
 
 
 def build():
-    if bpy.data.objects.get(SENT):
+    if bpy.data.objects.get("OP_Plz_Piso"):
         return
-    gone = remove_fallback()
-    n = build_floor()
-    build_border()
+    n = floor()
+    emblem()
+    mb = MB("OP_Plz_Borda", C, detail="hero")
+    mr = MB("OP_Plz_Guarda", C, detail="near")
+    nc = kerb_rail(mb, mr)
+    nw, segs = west_walls(mb)
+    mp = MB("OP_Plz_Props", C, detail="near")
+    npr = props(mp)
+    for m_ in (mb, mr, mp):
+        K.cull_hidden(m_)
+        m_.finish(recalc=False)
     cams()
-    print("op_plaza: %d lajes (piso provisorio removido=%s), mureta %d+%d setores, %d postes, %d bancos, %d estandartes"
-          % (n, gone, len(EAST_SECT), len(WEST_SECT), len(LAMPS), len(BENCHES), len(BANNERS_E)))
+    tot = sum(_tris(o.name) for o in bpy.data.objects if o.name.startswith("OP_Plz_") and o.type == "MESH")
+    print("op_plaza V2: lajes %s | guarda %d trechos, muretas %d, props %d (col %d) | tris %d (piso %d, eixo %d, "
+          "emblema %d, borda %d, guarda %d, props %d)" % (n, nc, nw, npr, nc + nw + npr, tot, _tris("OP_Plz_Piso"),
+                                                          _tris("OP_Plz_Piso_Eixo"), _tris("OP_Plz_Emblema"),
+                                                          _tris("OP_Plz_Borda"), _tris("OP_Plz_Guarda"),
+                                                          _tris("OP_Plz_Props")))

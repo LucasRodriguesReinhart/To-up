@@ -1,6 +1,6 @@
 # op_landmarks - MARCOS SECUNDARIOS da Ilha 5 (ONE PIECE / WANO), M4 (PLANO_OP secoes 2, 4.3, 9 e 15.5; PROMPT_USUARIO
-# secoes 2 e 12). Substitui op_blockout.landmarks. Prefixo OP_Lmk_, colecao 17_LANDMARKS. Sem colisao (nenhum dos 3 e
-# alcancavel: o assento da caveira fica fora do piso do promontorio, a espada e o pagode em pinaculos). Sem luz de dia.
+# secoes 2 e 12). Substitui op_blockout.landmarks. Prefixo OP_Lmk_, colecao 17_LANDMARKS. Colisao SO no pedestal da
+# caveira (OP_LmkSkull: o topo verde fica ao alcance do promontorio); a espada nao se alcanca. Sem luz de dia.
 # Custo proporcional a distancia; o castelo + arvore continuam o marco principal (topos < 216).
 #
 # CAVEIRA COM CHIFRES = FORMACAO DE ROCHA, nao mascara colada: UM corpo esculpido (icosfera deformada por campos
@@ -19,10 +19,10 @@
 #   (gume, chanfro e plano central -> 2 tons de luz), afinando para a ponta ENTERRADA na rocha, guarda de quillons com
 #   pontas caidas e bloco central, cabo octogonal com 4 cintas de ouro, pomo; lascas de rocha levantadas em volta da
 #   lamina (a fixacao). Leve inclinacao para fora da ilha; face larga virada para a ilha (silhueta legivel). ~0,7k tris.
-# PAGODE de 5 andares no pinaculo oeste (cenografico): pinaculo de rocha (crag, preso a falesia do terraco alto),
-#   embasamento de pedra, 5 corpos laqueados que encolhem, faixa escura de consolos, TELHADOS de 4 aguas com beiral
-#   grosso, cantos levantados (sori), espigoes; hogyo no topo e SORIN de ouro (9 aneis + chama). Topo ~197.
-# Orcamento (PLANO_OP secao 9): landmarks 14k tris / 14 MeshParts (materiais: caveira 4, espada 4, pagode 6).
+# V2-3 (U13 "estrutura numa montanha sem necessidade e feia"): o PAGODE e o pinaculo dele SAIRAM deste modulo (o
+#   pinaculo oeste, agora agulha de rocha com topo 130, e do op_terrain). Fica o PEDESTAL DA CAVEIRA com colisao (o da
+#   V2-0) e, so com o terreno em blockout, o esporao provisorio da espada.
+# Orcamento: V2-3 landmarks <= 10k tris (medido ~7,8k: caveira + pedestal + espada).
 import math, random
 import bmesh
 from mathutils import Vector, noise
@@ -30,6 +30,8 @@ import op_lib as DL
 from op_lib import MB, Frame, ccw
 import op_layout as L
 import op_kit as K
+import op_col
+import bpy
 import fm_portal_kit as PK
 from op_terrain import crag, assign
 
@@ -415,123 +417,32 @@ def build_sword():
     mb.finish()
 
 
-# ------------------------------------------------------------------ pagode
-PG_TIERS = [(5.6, 5.4), (4.85, 4.6), (4.1, 4.3), (3.35, 4.1), (2.6, 3.9)]   # (meia largura do corpo, altura)
-
-
-def pagoda_roof(mb, c, hw_lo, hw_hi, z_eave, over, rise, top=None):
-    """telhado de 4 aguas do pagode: beiral grosso (testeira escura), cantos levantados (sori), agua azul ate o corpo
-    de cima (hw_hi) ou ate o topo (hogyo, top = z do vertice)"""
-    cx, cy = c
-    E = hw_lo + over
-    lift = 0.9 + 0.12 * over
-
-    def edge(hw, z, lf):
-        out = []
-        for side in range(4):
-            a = side * math.pi / 2
-            ca, sa = math.cos(a), math.sin(a)
-            for t in (-1.0, -0.5, 0.0, 0.5):
-                u, v = t * hw, hw
-                x = cx + u * ca - v * sa
-                y = cy + u * sa + v * ca
-                zl = z + lf * (abs(t) ** 2.2)
-                out.append((x, y, zl))
-        return out
-    outer_top = edge(E, z_eave, lift)
-    outer_bot = edge(E - 0.15, z_eave - 0.75, lift)
-    soffit_in = edge(hw_lo + 0.3, z_eave - 0.2 + 0.0, 0.0)
-    # M6c: lado visivel de cada folha (agua e testeira para fora/cima, forro para baixo)
-    out_ = lambda p: Vector((p.x - cx, p.y - cy, 0.0)).normalized()
-    up_ = lambda p: out_(p) * 0.3 + Vector((0.0, 0.0, 1.0))
-    dn_ = lambda p: Vector((0.0, 0.0, -1.0))
-    if top is None:
-        inner = edge(hw_hi + 0.25, z_eave + rise, 0.0)
-        _skin(mb, [outer_top, inner], RB, caps=False, ref=up_)
-        # rufo escuro contra o corpo de cima
-        _skin(mb, [edge(hw_hi + 0.3, z_eave + rise - 0.05, 0.0), edge(hw_hi + 0.3, z_eave + rise + 0.35, 0.0)], WD, caps=False,
-              ref=out_)
-    else:
-        _skin(mb, [outer_top, edge(0.6, top, 0.0)], RB, caps=False, ref=up_)
-    _skin(mb, [outer_bot, outer_top], WD, caps=False, ref=out_)    # testeira
-    _skin(mb, [soffit_in, outer_bot], WD, caps=False, ref=dn_)     # forro do beiral
-    # espigoes (capas nas 4 diagonais)
-    zt = (z_eave + rise) if top is None else top
-    hi = (hw_hi + 0.25) if top is None else 0.6
-    for k in range(4):
-        a = k * math.pi / 2 + math.pi / 4
-        d0, d1 = E * math.sqrt(2) + 0.5, hi * math.sqrt(2)
-        p0 = Vector((cx + math.cos(a) * d0, cy + math.sin(a) * d0, z_eave + lift + 0.35))
-        p1 = Vector((cx + math.cos(a) * d1, cy + math.sin(a) * d1, zt + 0.25))
-        mb.beam(p0, p1, 0.6, 0.55, RB, 0.0)
-
-
-def pagoda(mb):
-    px, py, pr, ptop = L.WEST_SPIRE
-    # pinaculo de rocha (mesma familia das agulhas do op_terrain), preso a falesia do terraco alto
-    crag(mb, px, py, 22.0, 26.0, ptop - 2.0, "pagspire", n=7, steps=4, top_tilt=0.0, drape=1.2, cap=MOSS, m=ROCK,
-         mlow=ROCKS, taper=0.88, lean=(0.02, 0.0))
-    crag(mb, px + 9.0, py - 16.0, 11.0, 26.0, 104.0, "pagspire_b", steps=3, top_tilt=0.15, drape=1.5, cap=MOSS, m=ROCK,
-         mlow=ROCKS, taper=0.84)
-    # embasamento (kidan) de pedra em 2 degraus
-    z = ptop - 1.2
-    for hw, h in ((8.6, 1.4), (7.4, 1.1)):
-        mb.box((2 * hw, 2 * hw, h + 0.6), (px, py, z + (h - 0.6) / 2), (0, 0, 0), ROCK, 0.0)
-        z += h
-    for i, (hw, h) in enumerate(PG_TIERS):
-        # corpo: parede laqueada, pilares de canto escuros, faixa escura de consolos (tokyo) no alto
-        # M6b item 45: corpo e pilares de canto morrem 0,3 DENTRO da faixa escura do alto (os topos eram coplanares
-        # ao topo da faixa: 365 studs2 de z-fight laca x madeira)
-        mb.box((2 * hw, 2 * hw, h - 0.3), (px, py, z + (h - 0.3) / 2), (0, 0, 0), LAC, 0.0)
-        for sx in (-1, 1):
-            for sy in (-1, 1):
-                mb.box((0.55, 0.55, h - 0.3), (px + sx * (hw - 0.12), py + sy * (hw - 0.12), z + (h - 0.3) / 2),
-                       (0, 0, 0), WD, 0.0)
-        mb.box((2 * hw + 0.7, 2 * hw + 0.7, 0.9), (px, py, z + h - 0.45), (0, 0, 0), WD, 0.0)
-        if i == 0:                                         # portas (painel escuro 0,15 a frente da parede)
-            for k in range(4):
-                a = k * math.pi / 2
-                mb.box((2.8, 0.3, 3.6), (px + math.cos(a) * (hw + 0.1), py + math.sin(a) * (hw + 0.1), z + 1.9),
-                       (0, 0, a + math.pi / 2), WD, 0.0)
-        over = 3.4 - 0.25 * i
-        ze = z + h + 0.1
-        if i < len(PG_TIERS) - 1:
-            pagoda_roof(mb, (px, py), hw, PG_TIERS[i + 1][0], ze, over, 1.9)
-            z = ze + 1.9
-        else:
-            pagoda_roof(mb, (px, py), hw, 0.0, ze, over, 0.0, top=ze + 4.4)
-            z = ze + 4.4
-    # SORIN de ouro: roban, haste, 9 aneis, chama (suien) e joia
-    mb.box((1.8, 1.8, 0.9), (px, py, z + 0.3), (0, 0, 0), GOLD, 0.0)
-    mb.cyl(0.32, 11.0, (px, py, z + 5.8), m=GOLD, n=8, bevel=0.0)
-    for k in range(9):
-        r = 1.15 - 0.04 * k
-        mb.cyl(r, 0.28, (px, py, z + 2.0 + k * 0.82), m=GOLD, n=8, bevel=0.0)
-    mb.ico(0.75, (px, py, z + 10.6), GOLD, 1, scale=(1.0, 1.0, 1.3))
-    mb.ico(0.42, (px, py, z + 11.8), GOLD, 1)
-
-
-def build_pagoda():
-    mb = MB("OP_Lmk_Pagoda", C, random.Random(1303), detail="far", floor=-999)
-    _ORIENT.clear()
-    pagoda(mb)
-    ob = mb.finish()
-    # M6c: as aguas, testeiras e forros sao folhas abertas: o recalc do finish virava parte delas (vistas de cima
-    # sumiam no Roblox). Confere cada uma pelo lado registrado no _skin
-    if ob is not None and _ORIENT:
-        from mathutils.kdtree import KDTree
-        kd = KDTree(len(ob.data.polygons))
-        for p in ob.data.polygons:
-            kd.insert(p.center, p.index)
-        kd.balance()
-        nf = 0
-        for c_, r_ in _ORIENT:
-            co, i_, d_ = kd.find(c_)
-            if i_ is not None and d_ < 1e-3 and ob.data.polygons[i_].normal.dot(r_) < 0:
-                ob.data.polygons[i_].flip()
-                nf += 1
-        ob.data.update()
-        print("op_landmarks: folhas do pagode viradas para o lado visivel: %d" % nf)
+# ------------------------------------------------------------------ pedestal da caveira + esporao (fallback)
+def build_base():
+    """PEDESTAL DA CAVEIRA (o da V2-0, que ja passou no gate 'visual'): rocha da planta (SKULL_ROCK) do mar ate 80 e o
+    degrau verde ate 92, COM COLISAO (o topo fica ao alcance do promontorio). Massas de rocha em camadas que estreitam
+    para cima (crag, mesma familia das falesias) por fora do poligono, sem prateleira andavel fora da colisao.
+    ESPORAO DA ESPADA: e do TERRENO (op_terrain V2-3); so se o terreno detalhado nao estiver na cena (OP_Ter_Cliff
+    ausente) entra a cadeia de rochedos do blockout para a espada nao flutuar."""
+    rng = random.Random(1304)
+    mb = MB("OP_Lmk_Base", C, rng, detail="far", floor=-999)
+    cpx, cpy = DL.centroid(L.SKULL_ROCK)
+    inner = DL.scale_poly(L.SKULL_ROCK, 0.86, (cpx, cpy))
+    DL.prism(mb, ccw(L.SKULL_ROCK), L.BASE, 80.0, DARK)
+    DL.prism(mb, ccw(inner), 80.0, 92.0, DARK, top_m=MOSS)
+    op_col.poly_cover("OP_LmkSkull", L.SKULL_ROCK, L.BASE, 80.0, 10.0)
+    op_col.poly_cover("OP_LmkSkull", inner, 80.0, 92.0, 10.0)
+    if bpy.data.objects.get("OP_Ter_Cliff") is None:
+        wx, wy = L.SWORD_POS
+        for t, r, zt in ((0.0, 20.0, 96.0), (0.18, 15.0, 74.0), (0.34, 13.0, 58.0), (0.5, 12.0, 66.0), (0.66, 11.0, 54.0),
+                         (0.82, 13.0, 70.0)):
+            x_, y_ = 190.0 + (wx - 190.0) * t, 478.0 + (wy - 478.0) * t
+            DL.prism(mb, DL.blob_poly(x_, y_, r, 9, rng, 0.2), 30.0, zt - 5.0, ROCK)
+            DL.prism(mb, DL.blob_poly(x_, y_, r * 0.72, 8, rng, 0.2), zt - 5.0, zt, ROCK, top_m=MOSS)
+        DL.prism(mb, DL.blob_poly(wx, wy, 16.0, 9, rng, 0.15), 30.0, L.SWORD_ROCK_Z - 30.0, ROCK)
+        DL.prism(mb, DL.blob_poly(wx, wy, 11.0, 8, rng, 0.15), L.SWORD_ROCK_Z - 30.0, L.SWORD_ROCK_Z, DARK)
+        print("op_landmarks: terreno em blockout -> esporao da espada provisorio")
+    mb.finish()
 
 
 # ------------------------------------------------------------------ cameras de revisao
@@ -549,9 +460,7 @@ def cams():
         "CAM_OPLmk_SwordHilt": ((wx + 36.0, wy - 36.0, 196.0), (wx, wy, 190.0), 26),
         "CAM_OPLmk_SwordBase": ((wx + 24.0, wy - 26.0, 112.0), (wx, wy, 104.0), 24),
         "CAM_OPLmk_SwordPlaza": ((96.0, 236.0, L.P + EYE), (wx, wy, 165.0), 24),
-        "CAM_OPLmk_Pagoda": ((px - 62.0, py - 40.0, ptop + 26.0), (px, py, ptop + 16.0), 26),
-        "CAM_OPLmk_PagodaW3": ((-158.0, 360.0, L.W3 + EYE), (px, py, ptop + 14.0), 22),
-        "CAM_OPLmk_PagodaSea": ((px - 150.0, py - 80.0, 70.0), (px, py, 110.0), 24),
+        "CAM_OPLmk_PinaculoW3": ((-158.0, 360.0, L.W3 + EYE), (px, py, ptop - 10.0), 22),   # V2-3: sem pagode
     }
     for n, (loc, tgt, lens) in cs.items():
         DL.camera(n, loc, tgt, lens)
@@ -559,8 +468,8 @@ def cams():
 
 def build():
     noise.seed_set(5531)
+    build_base()
     build_skull()
     build_sword()
-    build_pagoda()
     cams()
     print("OP_LANDMARKS ok")

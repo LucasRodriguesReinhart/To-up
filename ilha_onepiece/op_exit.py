@@ -27,12 +27,18 @@
 # M4 (agente da vegetacao, dono temporario do terreno): SAIU a terrain_notch() (entalhe PROVISORIO que baixava em runtime
 #   31 vertices do OP_Ter_Cliff/OP_Ter_Ground na pegada do encontro leste). O entalhe agora e do proprio terreno
 #   (op_terrain.EXIT_NOTCH / exit_head_notch: mesma pegada d 77..88,4, |v| <= 10,5, mesma cota TR_B - 0,1).
+# V2-3 (PLANO_V2 8/11; U5 vaos, U15 postes): TABUAS SEM FRESTA (junta 0,04 + contratabuado escuro continuo), guarda-
+#   corpo so com giboshi (sai a lanterna de caixa do corrimao), ANDON do kit2 na cabeca leste, toro2 na ancora; o portao
+#   OPM NAO foi tocado (Neon amarelo = decisao pendente do usuario); termino seguro mantido (barreira dentro da
+#   COL_OPAnchorGuard_001). Gate 'visual': soco dos pilares em chanfro, encontro leste sob a testeira, colisao nos bicos
+#   dos pilares, no pilar que pisa no cais, nos pilares-mestre e nas pontas do guarda-corpo.
 import math, random
 from mathutils import Vector
 import op_lib as DL
 from op_lib import MB, col_box, light, Frame, ccw
 import op_layout as L
 import op_kit as K
+import op_kit2 as K2
 import op_entry as E
 
 C = "08_NEXT_ISLAND"
@@ -49,7 +55,7 @@ STW, STD, STP = "Stone_OP_Wall", "Stone_OP_Dark", "Stone_OP_Path"
 
 # tabuleiro (as mesmas medidas da ponte de chegada: guarda invisivel do op_col em |v| 9,0..10,2)
 FAS = (9.45, 10.2)                 # testeira vermelha
-RAIL_V = 9.82                      # eixo do guarda-corpo
+RAIL_V = 9.65                      # eixo do guarda-corpo (V2-3: cintas dos nos DENTRO da guarda 9,0..10,2)
 PLANK_T = 0.3
 TOP = T1 + 0.06                    # topo das tabuas (0,06 acima da colisao)
 STR_B = TOP - PLANK_T - 0.9        # fundo das longarinas
@@ -123,12 +129,16 @@ def coursed(mb, plan, z0, z1, key, m=STW, joint=STD, grow=0.0, course=(1.9, 0.8)
 
 # ================================================================== tabuleiro + guarda-corpo
 def deck(mb):
-    # tabuas atravessadas 0,9 + junta 0,12 (topo 0,06 acima da colisao), entram 0,15 na testeira
+    # V2-3 (U5 "vaos"): tabuas atravessadas de 0,9 com junta de SO 0,04 (era 0,12: com o cais 46 abaixo a junta lia
+    # como fresta) + CONTRATABUADO continuo escuro logo abaixo, da borda do terraco ate a soleira leste: por qualquer
+    # junta so se ve madeira escura, nunca o mar. Topo 0,06 acima da colisao; entram 0,15 na testeira.
     d = D0
     while d < D1 - 0.3:
         w = min(0.9, D1 - d)
         mb.box((w, 2 * FAS[0] + 0.3, PLANK_T), P(d + w / 2, 0.0, TOP - PLANK_T / 2), BF.r(), WD, 0.0)
-        d += w + 0.12
+        d += w + 0.04
+    mb.box((D1 + 0.4 - (d_edge(0.0) - 2.0), 2 * FAS[0] + 0.3, 0.06),
+           P((D1 + 0.4 + d_edge(0.0) - 2.0) / 2, 0.0, TOP - PLANK_T - 0.04), BF.r(), "Wood_OP_Sumi", 0.0)
     # longarinas (4) e testeira vermelha continua (comeca na borda do terraco, de cada lado)
     for v in (-6.4, -2.2, 2.2, 6.4):
         a = max(d_edge(v) + 0.3, -3.0)
@@ -137,8 +147,7 @@ def deck(mb):
         vc = s * (FAS[0] + FAS[1]) / 2
         a = d_edge(vc) + 0.1
         mb.beam(P(a, vc, T1 + 0.35 - 0.8), P(D1 + 1.0, vc, T1 + 0.35 - 0.8), FAS[1] - FAS[0], 1.6, LAC, 0.0)
-        a = d_edge(s * (FAS[1] + 0.07)) + 0.1
-        mb.beam(P(a, s * (FAS[1] + 0.07), T1 - 1.1), P(D1 + 1.0, s * (FAS[1] + 0.07), T1 - 1.1), 0.14, 0.16, GOLD, 0.0)
+        # V2-3: sai o friso de ouro do pe da testeira (0,14 para fora da guarda = 'chao' sem colisao no gate)
     # transversinas sob as longarinas (a cada ~4,4; nos montantes do arco elas caem sobre os montantes)
     for d in stations():
         mb.box((0.7, 2 * 9.3, 0.8), P(d, 0.0, TR_B + 0.4), BF.r(), WD, 0.0)
@@ -161,8 +170,11 @@ def rails(mb):
         v = s * RAIL_V
         da, db = d_edge(v) + 0.05, D1 - 0.4
         nodes = [(PIERS[0] - da) / (db - da), (44.0 - da) / (db - da), (PIERS[1] - da) / (db - da)]
-        lamps += E.rail_run(mb, P(da, v, T1 + 0.35), P(db, v, T1 + 0.35), h=3.35, step=4.0, nodes=nodes,
-                            lamps=[0.0, 1.0], lamp_s=0.95)
+        # V2-3: so postes-mestre com giboshi (como a ponte de chegada); a luz e dos andon do kit2 nas cabeceiras
+        E.rail_run(mb, P(da, v, T1 + 0.35), P(db, v, T1 + 0.35), h=3.35, step=4.0, nodes=[0.0] + nodes + [1.0],
+                   lamps=(), lamp_s=0.95)
+        for d_ in (da, db):                                    # pontas: postes-mestre fora da guarda do op_col
+            col_box("OP_ExitRailEnd", (1.6, 1.4, L.GUARD_V2 + 0.5), P(d_, v, T1 - 0.5 + (L.GUARD_V2 + 0.5) / 2), BF.r())
     return lamps
 
 
@@ -194,12 +206,13 @@ def west_head(mb):
 def east_head(mb):
     """encontro leste na falesia do promontorio (sob a cabeca da ponte; o pe some na rocha)"""
     def plan(g):
-        return ccw([tuple(P(78.5 - g, -10.6 - g, 0)[:2]), tuple(P(D1 + 2.0, -10.6 - g, 0)[:2]),
-                    tuple(P(D1 + 2.0, 10.6 + g, 0)[:2]), tuple(P(78.5 - g, 10.6 + g, 0)[:2])])
+        # V2-3: topo SOB a testeira (|v| <= 10,1): a quina do encontro nao fica como degrau fora do tabuleiro
+        return ccw([tuple(P(78.5 - g, -10.1 - g, 0)[:2]), tuple(P(D1 + 2.0, -10.1 - g, 0)[:2]),
+                    tuple(P(D1 + 2.0, 10.1 + g, 0)[:2]), tuple(P(78.5 - g, 10.1 + g, 0)[:2])])
     coursed(mb, plan, 52.0, TR_B, "absE", grow=1.6)
     # coxim (M6b item 15): d 78,1..87,7 (antes ia ate 88,0 = coplanar a face de ponta das fiadas) e topo TR_B + 0,14
     # (0,16 acima do leito de grama do entalhe do op_terrain, antes 0,068)
-    mb.box((87.7 - 78.1, 22.6, 0.8), P((78.1 + 87.7) / 2, 0.0, TR_B - 0.26), BF.r(), STD, 0.0)
+    mb.box((87.7 - 78.1, 20.0, 0.8), P((78.1 + 87.7) / 2, 0.0, TR_B - 0.26), BF.r(), STD, 0.0)
 
 
 # ================================================================== pilares + arco
@@ -213,12 +226,26 @@ def pier_plan(dc, g):
 def piers(mb, br):
     for k, dc in enumerate(PIERS):
         # soco na linha d'agua + fuste em fiadas com talude + imposta escura + berco vermelho do arco
-        quad_faces(mb, [[(x, y, SEA_BOT) for x, y in pier_plan(dc, 2.2)], [(x, y, SEA + 1.4) for x, y in
-                                                                          pier_plan(dc, 2.2)]], STD, caps=True)
+        # soco na linha d'agua: V2-3 topo em CHANFRO (g 2,2 -> 1,4 em 1,4 de altura: normal <= 0,65, nao e chao) - o topo
+        # plano a 37,4 ficava 4,8 abaixo do cais (chao alcancavel sem colisao no gate 'visual')
+        quad_faces(mb, [[(x, y, SEA_BOT) for x, y in pier_plan(dc, 2.2)], [(x, y, SEA) for x, y in pier_plan(dc, 2.2)],
+                        [(x, y, SEA + 1.4) for x, y in pier_plan(dc, 1.4)]], STD, caps=True)
         coursed(mb, lambda g, dc=dc: pier_plan(dc, g), SEA + 1.4, CAP_Z - 0.8, "pier%d" % k, grow=1.4)
         quad_faces(mb, [[(x, y, CAP_Z - 0.8) for x, y in pier_plan(dc, 0.35)],
                         [(x, y, CAP_Z) for x, y in pier_plan(dc, 0.35)]], STD, caps=True)
         # berco (daiwa) vermelho sob cada costela + bloco escuro de apoio das vigas laterais
+        # V2-3: a imposta (19 abaixo do tabuleiro) e chao para o gate 'visual' (alcance sem guardas): colisao no topo
+        # pilar 1 pisa no CAIS (42,2): o fuste em talude invadia o lajeado (corpo dentro da pedra) -> o pilar inteiro
+        # colide do mar ate a imposta (o topo nao se alcanca: o tabuleiro esta 19 acima, o cais 26 abaixo)
+        if k == 0:
+            col_box("OP_ExitPier", (2 * (PIER_HD + 2.4), 2 * (PIER_HV + 2.4), CAP_Z - 0.8 - SEA),
+                    P(dc, 0.0, (CAP_Z - 0.8 + SEA) / 2), BF.r())
+            for s in (-1, 1):
+                col_box("OP_ExitPier", (2 * 2.4, 2 * 2.4, CAP_Z - 0.8 - SEA), P(dc, s * (PIER_HV + 2.0), (CAP_Z - 0.8 + SEA) / 2),
+                        BF.r(0.0, 0.0, math.pi / 4))
+        # (so nos bicos, |v| 9,3..12,8, fora das costelas: em cima do berco o corpo entraria no arco)
+        for s in (-1, 1):
+            col_box("OP_ExitPierCap", (2 * PIER_HD + 1.6, 3.5, 1.0), P(dc, s * 11.05, CAP_Z - 0.4), BF.r())
         for s in (-1, 1):
             br.box((2 * PIER_HD - 0.4, RIB_W + 0.8, 1.2), P(dc, s * RIB_V, CAP_Z + 0.6), BF.r(), LAC, 0.0)
             br.box((2 * PIER_HD - 1.6, RIB_W + 1.2, 0.35), P(dc, s * RIB_V, CAP_Z + 1.37), BF.r(), GOLD, 0.0)
@@ -347,25 +374,31 @@ def headland(mb, br):
         K.bb(mb, F, -0.75, 0.75, -0.75, 0.75, 0.5, 4.6, "Stone_OP_Wall")
         K.bb(mb, F, -0.92, 0.92, -0.92, 0.92, 4.6, 5.0, STD)
         K.giboshi(br, F, 0.0, 0.0, 5.0, 1.7)
-    # 2 toro de pedra flanqueando a cabeca de ponte (fora do vao de 18)
+        col_box("OP_ExitPost", (2.2, 2.2, L.GUARD_V2 + 0.5), (F.o.x, F.o.y, T1 - 0.5 + (L.GUARD_V2 + 0.5) / 2))
+    # 2 toro2 (kit2) flanqueando a cabeca de ponte da ancora (fora do vao de 18)
     for i, s in enumerate((-1, 1)):
         p = P(HEAD - 7.0, s * 14.0, T1)
-        c = K.toro(br, Frame(p.x, p.y, T1 - 0.1, ANG), 1.05, m=STW)
-        light("L_OPProp_Lamp_Saida_Toro_%d" % i, "POINT", tuple(c), 30.0, WARM, 0.2)
-        col_box("OP_ExitToro", (2.6, 2.6, 6.6), (p.x, p.y, T1 + 3.2))
+        K2.toro2(br, Frame(p.x, p.y, T1 + 0.05, ANG), "L_OPProp_Lamp_Saida_Toro_%d" % i, 1.0, 30.0)
+        col_box("OP_ExitToro", (3.7, 3.7, L.GUARD_V2 + 0.5), (p.x, p.y, T1 - 0.5 + (L.GUARD_V2 + 0.5) / 2))
+    # V2-3 (U15): ANDON do kit2 nas 2 pontas da ponte (na soleira leste e no lajeado do terraco do summon), no lugar
+    # das lanternas de caixa presas ao corrimao
+    for i, (d, s) in enumerate(((LN + 2.6, -1), (LN + 2.6, 1))):
+        p = P(d, s * 8.4, T1)
+        K2.lamp_andon(br, Frame(p.x, p.y, T1 + 0.3, ANG), "L_OPProp_Lamp_Saida_%d" % i)
+        col_box("OP_ExitLamp", (1.7, 1.7, L.GUARD_V2 + 0.5), (p.x, p.y, T1 - 0.5 + (L.GUARD_V2 + 0.5) / 2))
 
 
 def anchor_guard():
     """barreira PROVISORIA (next_island_guard): 2 cavaletes em X de madeira + 3 travessas entre os pilares-mestre"""
     mg = MB("OP_Exit_AnchorGuard", C, random.Random(9101), detail="near")
-    d = HEAD - 1.4
+    d = HEAD + 0.2                                             # V2-3: dentro da COL_OPAnchorGuard_001 (d 134..135,2)
     for v in (-6.0, 6.0):
         F = Frame(*P(d, v, 0)[:2], T1, ANG)
         for s in (-1, 1):                                      # pernas em X (vistas de frente)
             K.beam(mg, F, (0.0, s * -1.5, 0.0), (0.0, s * 1.5, 3.2), 0.28, 0.28, WD)
         K.bb(mg, F, -0.25, 0.25, -1.7, 1.7, 0.0, 0.18, WD)     # sapata
     for z, h in ((T1 + 3.2, 0.36), (T1 + 2.0, 0.3), (T1 + 0.9, 0.3)):
-        mg.box((0.3, 2 * (FAS[1] + 0.5), h), P(d + (0.0 if z > T1 + 3 else 0.18), 0.0, z), BF.r(), WM, 0.0)
+        mg.box((0.3, 19.6, h), P(d + (0.0 if z > T1 + 3 else 0.18), 0.0, z), BF.r(), WM, 0.0)   # V2-3: dentro da colisao (20)
     ob = mg.finish()
     ob["next_island_guard"] = True
     ob["note"] = "PROVISORIO: termino seguro da ancora One Punch Man (area 6 ainda nao existe); a integracao da area 6 apaga"
@@ -408,8 +441,6 @@ def build():
     K.cull_hidden(br)
     st.finish(recalc=False)                                 # M6c: sem recalc depois do corte (casca aberta virava)
     br.finish(recalc=False)
-    for i, c in enumerate(lamps):
-        light("L_OPProp_Lamp_Saida_%d" % i, "POINT", tuple(c), 130.0, WARM, 0.35)
     anchor_guard()
     cams()
     print("OP_EXIT ok")

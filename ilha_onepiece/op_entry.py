@@ -20,6 +20,12 @@
 # KIT: toro, nobori do patio e a escada Chegada sao do op_kit (M2). Ficam LOCAIS so as pecas proprias de ponte/torii
 # que o kit nao tem: guarda-corpo INCLINADO com postes-mestre/andon (rail_run), chochin de papel do torii, nobori
 # preso ao pilar do viaduto. TODO(op_kit): se o kit ganhar guarda-corpo inclinado, trocar rail_run por ele.
+# V2-3 (PLANO_V2 8/11; feedback 10/10 U15 postes feios, U16 bandeiras demais; G3 pontes/lanternas aprovadas): ponte de
+#   chegada, viaduto e GRANDE TORII mantidos. SAIRAM os 2 nobori da partida e os andon de caixa presos ao corrimao; a luz
+#   e dos POSTES DO KIT2 (op_kit2.lamp_post) em misulas de pedra nos pilares 1 e 3 e na cabeca da ponte. Patio do torii
+#   no assentamento do street2 (op_plaza.pave_poly: sando claro N-S com guias, campo E-O, berco escuro), toro2 e nobori2
+#   do kit2 (os 2 do patio ficam - U16). Gate 'visual': capa continua do encontro + alas com colisao, muro do patio,
+#   bases do torii e arbustos com colisao.
 import math, random
 from mathutils import Vector
 import op_lib as DL
@@ -27,6 +33,8 @@ from op_lib import MB, col_box, light, Frame, ccw
 import op_layout as L
 import fm_portal_kit as PK
 import op_kit as K
+import op_kit2 as K2
+import op_plaza as PZ
 
 C = "18_ENTRY"
 T0, T1, DECK = L.T0, L.T1, L.DECK
@@ -41,6 +49,7 @@ WD, WM = "Wood_OP_Dark", "Wood_OP_Mid"
 ST, STD, STP = "Stone_OP", "Stone_OP_Dark", "Stone_OP_Path"
 TILE, PAPER, IRON = "Roof_OP_Blue", "Glass_OP_Lantern", "Metal_OP_Iron"
 RED, WHITE = "Cloth_OP_Red", "Cloth_OP_White"
+CRED = RED
 LEAF = "Leaf_OP"
 
 # ponte
@@ -307,20 +316,15 @@ def bridge_deck():
         # friso de ouro no pe da testeira (0,13 para fora) - a linha fina que a concept marca sob o vermelho
         mb.beam((s * (FAS[1] + 0.07), y_a, zf(y_a) - 1.1), (s * (FAS[1] + 0.07), y_b, zf(y_b) - 1.1), 0.14, 0.16, GOLD, 0.0)
     # guarda-corpo: nos nas linhas dos pilares do viaduto, postes-lanterna no meio (pilar central) e na cabeca
-    lamps_out = {}
+    # V2-3: o guarda-corpo so leva postes-mestre com giboshi (nos nos pilares e nas pontas); as luzes sao os POSTES DO
+    # KIT2 nas misulas dos pilares (bridge_lamps) e na cabeca da ponte (court) - sai o andon de caixa preso ao corrimao
     ra, rb = y_a + 0.5, y_b - 0.6
-    tn = [(py - ra) / (rb - ra) for py in PIERS if abs(py - PIERS[2]) > 1.0]
-    tl = [(PIERS[2] - ra) / (rb - ra), 1.0]
+    tn = [(py - ra) / (rb - ra) for py in PIERS]
     for s in (-1, 1):
         a = (s * RAIL_X, ra, zf(ra) + 0.35)
         b = (s * RAIL_X, rb, zf(rb) + 0.35)
-        lamps_out[s] = rail_run(mb, a, b, h=3.35, step=4.0, nodes=[0.0] + tn, lamps=tl, lamp_s=0.95)
+        rail_run(mb, a, b, h=3.35, step=4.0, nodes=[0.0] + tn + [1.0], lamps=(), lamp_s=0.95)
     mb.finish()
-    names = {-1: ("L_OPProp_Lamp_Bridge_L", "L_OPProp_Lamp_BridgeHead_L"),
-             1: ("L_OPProp_Lamp_Bridge_R", "L_OPProp_Lamp_BridgeHead_R")}
-    for s in (-1, 1):
-        for nm, c in zip(names[s], lamps_out[s]):
-            light(nm, "POINT", tuple(c), 140.0, WARM, 0.4)
 
 
 # ================================================================== ponte: viaduto de pedra em arcos
@@ -456,9 +460,15 @@ def viaduct():
         mid = (a + b) / 2
         ang = math.atan2(dirv.y, dirv.x)
         mb.box((9.0, 2.2, zt - (SEA_BOT + 8.0)), (mid.x, mid.y, (zt + SEA_BOT + 8.0) / 2), (0, 0, ang), ST, 0.0)
-        mb.box((9.4, 2.6, 0.6), (mid.x, mid.y, zt + 0.3), (0, 0, ang), STD, 0.0)
-    # capa do encontro sob a ponta da ponte (berco das longarinas)
-    mb.box((2 * hx + 0.6, y1 + 3.0 - y0 + 0.4, 0.6), (0.0, (y0 + y1 + 3.0) / 2, zt + 0.3), (0, 0, 0), STD, 0.0)
+        # V2-3 (gate 'visual': capa do encontro + capas das alas eram chao ao alcance da cabeca da ponte, com uma fresta
+        # de 2,4 entre elas): UMA capa continua por lado, do tabuleiro ate a ponta da ala, com colisao
+        K.slab_poly(mb, ccw([(s * 10.2, -7.75), (s * 13.27, -7.75), (s * 18.43, -0.37), (s * 18.2, 0.4), (s * 10.2, 0.4)]),
+                    zt, zt + 0.6, 0.06, STD)
+        col_box("OP_EntAbut", (4.3, 8.2, 1.0), (s * 11.15, -3.68, zt + 0.1))
+        col_box("OP_EntAbut", (9.4, 5.0, 1.0), (s * (15.85 - 0.819 * 2.5), -4.06 + 0.574 * 2.5, zt + 0.1),
+                (0.0, 0.0, math.atan2(0.819, s * 0.574)))
+    # capa do encontro sob a ponta da ponte (berco das longarinas), entre as capas laterais
+    mb.box((2 * 10.2, y1 + 3.0 - y0 + 0.4, 0.6), (0.0, (y0 + y1 + 3.0) / 2, zt + 0.3), (0, 0, 0), STD, 0.0)
     ob = mb.finish()
     # M6b (item 11): o recalc do finish virava para DENTRO ~26 quadros dos timpanos (cascas abertas): no Roblox (face
     # unica) eles sumiam vistos de fora. Timpano = face no plano x = +-FACE_X: normal sempre para fora
@@ -473,17 +483,19 @@ def viaduct():
         print("op_entry: timpanos virados para fora: %d" % n)
 
 
-def bridge_banners():
-    """2 nobori vermelhos na PARTIDA da ponte (concept: bandeiras vermelhas na cabeceira de baixo), presos por fora da
-    testeira no primeiro pilar (o mastro nasce da imposta do pilar, fora do piso)"""
+def bridge_lamps():
+    """V2-3 (U15/U16): os 2 nobori da partida SAIRAM; no lugar, POSTES DO KIT2 (lamp_post: chochin sob telhadinho, a
+    luminaria aprovada) em misulas de pedra por fora da testeira, no 1o pilar (partida) e no pilar do meio. O braco
+    aponta para dentro da ponte e o chochin fica ACIMA do corrimao (sem tocar os giboshi)."""
     mb = MB_LAMPS
-    for s in (-1, 1):
-        py = PIERS[0]
-        x = s * (FAS[1] + 0.9)
-        zb = zf(py) - 1.3
-        # console de pedra para o mastro (sai da face do pilar)
-        mb.box((1.9, 2.0, 1.0), (s * (FACE_X + 0.9), py, zb - 0.5), (0, 0, 0), STD, 0.0)
-        nobori(mb, x, py, zb, -math.pi / 2, h=13.5, w=2.4, flip=(s > 0))
+    for k, (py, tag) in enumerate(((PIERS[0], "BridgeIn"), (PIERS[2], "Bridge"))):
+        for s in (-1, 1):
+            zb = zf(py) - 1.3
+            mb.box((1.9, 2.0, 1.0), (s * (FACE_X + 0.9), py, zb - 0.5), (0, 0, 0), STD, 0.0)   # misula
+            mb.box((1.3, 1.5, 0.7), (s * (FACE_X + 0.65), py, zb - 1.35), (0, 0, 0), STD, 0.0)
+            F = Frame(s * (FAS[1] + 0.95), py, zb, 0.0 if s < 0 else math.pi)                 # braco para dentro
+            K2.lamp_post(mb, F, "L_OPProp_Lamp_%s_%s" % (tag, "L" if s < 0 else "R"), 35.0, h=10.4, arm=1.55)
+            col_box("OP_EntLampConsole", (2.3, 2.4, 1.4), (s * (FACE_X + 0.95), py, zb - 0.6))   # misula: pe coberto
 
 
 # ================================================================== grande torii
@@ -529,6 +541,7 @@ def grand_torii():
         loft(mb, [ring_at(F, s * xe, 0, TOR_HP - 1.22, re_ + 0.3, 16), ring_at(F, s * xd, 0, TOR_HP - 0.86, rd + 0.3, 16)],
              GOLD)
         col_box(area, (3.7, 3.7, TOR_HP + 1.0), F.p(s * TOR_PX0, 0, (TOR_HP + 1.0) / 2), F.r())
+        col_box(area, (5.4, 5.4, 4.0), F.p(s * TOR_PX0, 0, 1.7), F.r())          # V2-3: dai-ishi + nemaki (gate)
     # nuki passante (sai 3,1 de cada lado) com cunhas (kusabi) e ponteira de ouro
     xn, rn = pcx(TOR_NUKI + 0.75)
     half = xn + rn + 3.1
@@ -627,54 +640,28 @@ NOBORI_AT = [(-19.8, 7.0), (19.8, 7.0)]
 
 
 def _paving(mb):
-    """lajes do patio: SANDO claro (Stone_OP_Path, lajes grandes) da ponte a escada, lajes de pedra media (Stone_OP) no
-    resto, em fiadas desencontradas; berco escuro por baixo (as juntas leem escuras). Topo T0 + 0,32 (berco T0 + 0,14:
-    0,14 acima do tampo do terreno -> sem z-fight)."""
-    court = DL.offset_poly(ccw(L.ENTRY_COURT), -0.35)
-    mb.prism(ccw(DL.offset_poly(court, -0.05)), T0 - 0.1, T0 + 0.14, STD)
-    holes = [(L.TORII_IN[0] + s * TOR_PX0, L.TORII_IN[1], 3.1) for s in (-1, 1)]
-    holes += [(x, y, 1.9 * s) for x, y, s in TORO_COURT]
-    holes += [(x, y, 1.25) for x, y in NOBORI_AT]
-    stair = (-9.4, 33.6, 9.4, 40.0)
-    z = T0 + 0.32
-    y = 0.25
-    row = 0
-    while y < 34.0:
-        h = (2.1, 1.7, 1.9, 2.3)[row % 4]
-        if y + h > 33.75:
-            h = 33.75 - y
-        if h < 0.6:
-            break
-        # sando: 3 lajes largas (x -5..5) com junta desencontrada; lados: lajes de 1,8..3,2
-        cuts = [-5.0, -1.6 + 1.1 * (hsh(row, 1) - 0.5), 1.8 + 1.1 * (hsh(row, 2) - 0.5), 5.0]
-        for xa, xb in zip(cuts, cuts[1:]):
-            cx, cy = (xa + xb) / 2, y + h / 2
-            mb.box((xb - xa - 0.16, h - 0.16, 0.42), (cx, cy, z - 0.21), (0, 0, 0), STP, 0.06)
-        for sgn in (-1, 1):
-            x = 5.0
-            j = 0
-            while x < 28.0:
-                w = 1.8 + 1.4 * hsh(row, j, sgn)
-                if row % 2:
-                    w *= 0.8 if j == 0 else 1.0
-                xa, xb = x, x + w
-                cx, cy = sgn * (xa + xb) / 2, y + h / 2
-                corners = [(sgn * (xa + 0.1), y + 0.1), (sgn * (xb - 0.1), y + 0.1), (sgn * (xa + 0.1), y + h - 0.1),
-                           (sgn * (xb - 0.1), y + h - 0.1)]
-                inside = all(L.point_in_poly(px, py_, court) for px, py_ in corners)
-                hole = any(math.hypot(cx - hx, cy - hy) < hr + max(w, h) * 0.42 for hx, hy, hr in holes)
-                st = stair[0] <= cx <= stair[2] and cy >= stair[1]
-                par = abs(cx) > 10.4 and y < 1.45
-                if inside and not hole and not st and not par:
-                    mb.box((w - 0.16, h - 0.16, 0.42), (cx, cy, z - 0.21), (0, 0, (hsh(row, j, sgn, 3) - 0.5) * 0.02),
-                           ST, 0.06)
-                x = xb
-                j += 1
-        y += h
-        row += 1
-    # rodelas de pedra escura em volta das bases (pilares do torii, toro, nobori): o furo do lajeado vira desenho
-    for hx, hy, hr in holes[2:]:
-        lathe(mb, (hx, hy, T0 + 0.1), [(hr + 0.1, 0.0), (hr + 0.1, 0.32), (hr - 0.25, 0.38)], STD, 12)
+    """V2-3: PATIO DO TORII na linguagem do street2 aprovado (as mesmas lajes/juntas da praca e das ruas, op_plaza
+    .pave_poly): SANDO claro (x +-5,6, lajes no sentido N-S com guias de pedra) da cabeca da ponte ate a escada, campo em
+    fiadas E-O de tons misturados; berco escuro nas juntas. Topo T0 + 0,2 (as ruas), berco T0 + 0,12. Furos quadrados
+    sob as bases (dai-ishi do torii, toro, nobori) - a propria base cobre o furo."""
+    zt, zb = T0 + 0.2, T0 + 0.12
+    court = ccw(DL.offset_poly(ccw(L.ENTRY_COURT), -0.35))
+    tx, ty = L.TORII_IN
+    holes = [(tx + s * TOR_PX0 - 1.85, ty - 1.85, tx + s * TOR_PX0 + 1.85, ty + 1.85) for s in (-1, 1)]
+    holes += [(x - 0.75 * s, y - 0.75 * s, x + 0.75 * s, y + 0.75 * s) for x, y, s in TORO_COURT]
+    holes += [(x - 0.62, y - 0.62, x + 0.62, y + 0.62) for x, y in NOBORI_AT]
+    holes.append((-9.6, 33.4, 9.6, 40.0))                                    # pe da escada Chegada
+    PZ.berco(mb, court, zb, [(-9.6, 33.4, 9.6, 40.0)])
+    SW, GW = 5.6, 0.9
+    lane = PZ.clip_convex([(-SW + GW, -2.0), (SW - GW, -2.0), (SW - GW, 40.0), (-SW + GW, 40.0)], court)
+    PZ.pave_poly(mb, lane, zt, PZ.LANE, "ent_sando", ang=math.pi / 2, sx=3.4, sy=1.7, holes=holes)
+    for s in (-1, 1):
+        g = PZ.clip_convex([(s * (SW - GW), -2.0), (s * SW, -2.0), (s * SW, 40.0), (s * (SW - GW), 40.0)], court)
+        PZ.pave_poly(mb, ccw(g), zt, [(PZ.CURB, 1)], "ent_g%d" % s, ang=math.pi / 2, sx=2.6, sy=GW, holes=holes,
+                     origin=(s * (SW - GW), 0.0))
+        x0, x1 = sorted((s * SW, s * 40.0))
+        side = PZ.clip_convex([(x0, -2.0), (x1, -2.0), (x1, 40.0), (x0, 40.0)], court)
+        PZ.pave_poly(mb, ccw(side), zt, PZ.FIELD, "ent_c%d" % s, sx=3.4, sy=1.7, holes=holes)
 
 
 def court():
@@ -687,6 +674,7 @@ def court():
         ln = abs(xb - xa)
         mb.box((ln, 1.1, 1.39), (cx, 0.75, T0 + 0.495), (0, 0, 0), ST, 0.06)
         mb.box((ln + 0.3, 1.5, 0.3), (cx, 0.75, T0 + 1.34), (0, 0, 0), STD, 0.05)
+        col_box("OP_EntWall", (ln + 1.6, 1.6, 2.6), (cx, 0.75, T0 + 1.2))          # V2-3: topo do muro/pilaretes
         for x in (xa, xa + (xb - xa) * 0.5, xb):
             mb.box((1.5, 1.5, 2.04), (x, 0.75, T0 + 0.82), (0, 0, 0), STD, 0.06)
             lathe(mb, (x, 0.75, T0 + 1.84), [(1.0, 0.0), (1.02, 0.12), (0.55, 0.42), (0.0, 0.6)], ST, 4, math.pi / 4)
@@ -700,16 +688,24 @@ def court():
     # toro de pedra do kit: 2 na cabeca da ponte (concept) e 2 no pe da escada; nobori do kit (vermelho, brasao branco)
     mt = MB_LAMPS
     names = ("L_OPProp_Toro_In_L", "L_OPProp_Toro_In_R", None, None)
-    for (x, y, s), nm in zip(TORO_COURT, names):
-        K.toro(mt, Frame(x, y, T0 + 0.1, 0.0), s, nm, 60.0)
-        col_box("OP_EntToro", (2.8 * s, 2.8 * s, 7.6 * s), (x, y, T0 + 3.8 * s))
-    for x, y in NOBORI_AT:
-        K.banner(mt, Frame(x, y, T0 + 0.1, 0.0), h=14.0, cloth=RED, crest=WHITE, cw=2.6, side=(1 if x > 0 else -1))
-        col_box("OP_EntBanner", (1.9, 1.9, 14.0), (x, y, T0 + 7.0))
+    for (x, y, s), nm in zip(TORO_COURT, names):                     # V2-3: toro2 (kasuga do kit2)
+        K2.toro2(mt, Frame(x, y, T0 + 0.2, 0.0), nm, s, 45.0)
+        col_box("OP_EntToro", (3.7 * s, 3.7 * s, L.GUARD_V2 + 0.5), (x, y, T0 - 0.5 + (L.GUARD_V2 + 0.5) / 2))
+    for x, y in NOBORI_AT:                                            # os 2 nobori do patio (U16: ficam) - kit2
+        K2.nobori2(mt, Frame(x, y, T0 + 0.2, 0.0 if x < 0 else math.pi), 12.0, CRED, WHITE, 2.2)
+        col_box("OP_EntBanner", (1.6, 1.6, L.GUARD_V2 + 0.5), (x, y, T0 - 0.5 + (L.GUARD_V2 + 0.5) / 2))
+    # postes do kit2 na cabeca da ponte (a luz da chegada), braco sobre o sando
+    for s in (-1, 1):
+        x, y = s * 12.4, 2.6
+        K2.lamp_post(mt, Frame(x, y, T0 + 0.2, 0.0 if s < 0 else math.pi),
+                     "L_OPProp_Lamp_BridgeHead_%s" % ("L" if s < 0 else "R"), 35.0, h=8.0, arm=1.6)
+        # caixa do poste + braco + telhadinho (o muro baixo ao lado vira degrau: topo 11 acima do patio)
+        col_box("OP_EntLamp", (3.4, 1.8, 11.0), (x - s * 0.75, y, T0 - 0.5 + 5.5))
     # arbustos podados (karikomi) nos cantos do patio, junto das rochas dos ombros: massas arredondadas em 2 tons
     for x, y, r in ((-23.2, 4.0, 1.7), (-21.6, 2.4, 1.2), (23.0, 4.4, 1.8), (21.4, 2.6, 1.15), (-23.0, 30.4, 1.6),
                     (23.4, 30.0, 1.6), (-24.6, 18.0, 1.3), (24.8, 17.0, 1.3)):
         mt.ico(r, (x, y, T0 + 0.14 + r * 0.55), LEAF, 1, scale=(1.25, 1.1, 0.8))
+        col_box("OP_EntBush", (2.4 * r, 2.2 * r, 1.6 * r + 0.3), (x, y, T0 + 0.8 * r + 0.15))   # V2-3: macico (gate)
         mt.ico(r * 0.62, (x + r * 0.4, y - r * 0.2, T0 + 0.14 + r * 1.05), "Leaf_OP_Pine", 1, scale=(1.2, 1.1, 0.75))
 
 
@@ -743,7 +739,7 @@ def build():
     MB_LAMPS = MB("OP_Ent_Lamps", C, random.Random(5502), detail="near")   # toro + nobori + arbustos (1 objeto)
     bridge_deck()
     viaduct()
-    bridge_banners()
+    bridge_lamps()
     lamps = grand_torii()
     court()
     MB_LAMPS.finish()
