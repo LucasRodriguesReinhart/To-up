@@ -15,6 +15,7 @@
 --      este item (le o CurrentIslandMood = 'GrandLine', que ja existe); e so a chave explicita.
 -- Bloom (0,35 / 24 / limiar 1,6), SunRays (0,04 / 0,12), nuvens, mar local turquesa (36) e a garantia de ceu de dia
 -- ficam no CeuWano (este script nao toca em Sky/Bloom).
+-- V2 (2026-10-10): so a linha [5] mudou (perfil rosa-lilas da ref_03, PLANO_V2 secao 7.1).
 -- SE o AreaAtmosphere do Studio tiver mudado depois de 2026-10-07, NAO cole o arquivo inteiro: aplique so as linhas [OP].
 local Players=game:GetService('Players')
 local Lighting=game:GetService('Lighting')
@@ -33,7 +34,7 @@ local profiles={
  [2]={name='Namekusei',time=13.5,ambient=C(125,154,137),out=C(151,181,157),air=C(157,214,176),decay=C(92,143,130),density=.28,haze=1,tint=C(235,255,240),contrast=-.035,saturation=-.12,exposure=-.12},
  [4]={name='Natagumo',time=20.5,brightness=1.6,ambient=C(118,128,156),out=C(138,152,184),air=C(150,170,205),decay=C(60,72,105),density=.30,haze=1.8,glare=0,cst=C(176,192,232),tint=C(232,236,255),contrast=0,saturation=-.05,exposure=.2}, -- [DS] Ilha 4 (PLANO_DS secao 10): noite legivel, lua fria a ~37 graus em +X (ClockTime 20,5, ajustar no Play); Sky/bloom/mar de nuvens: CeuNatagumo
  [3]={name='ShadowGarden',time=3.5,ambient=C(112,118,162),out=C(122,132,186),air=C(28,82,240),decay=C(8,10,32),density=.22,haze=1.05,glare=.15,offset=.4,cst=C(178,198,255),csb=C(40,60,140),tint=C(228,236,255),contrast=.1,saturation=.1,exposure=.25}, -- efeitos 2026-10-06 (referencia do usuario): noite azul profunda; zenite preto descendo para a faixa azul eletrico do horizonte (Atmosphere Color saturado + Haze ~1 + Offset), Decay navy, luar branco-azulado (ColorShift_Top) e lua grande a 37 graus em -X (ClockTime 3,5: sobre o castelo para quem cruza a ponte); contraste/saturacao positivos. Lua/estrelas/skybox/bloom: CeuSombras
- [5]={name='GrandLine',time=9.05,lat=10,brightness=2.4,ambient=C(138,146,164),out=C(150,162,182),eds=.5,ess=.3,air=C(190,216,246),decay=C(104,150,206),density=.24,offset=.12,haze=.8,glare=.12,cst=C(255,242,224),tint=C(255,250,244),contrast=.08,saturation=.10,cbright=0,exposure=-.05}, -- [OP] Ilha 5 Wano (PLANO_OP sec. 10 + op_lights): DIA, sol de tras-esquerda de quem chega (ClockTime 9,05 / lat 10 = o SUN_Key das folhas; GetSunDirection ~ (0,68; 0,70; -0,23)); bloom/sunrays/nuvens/mar local: CeuWano
+ [5]={name='GrandLine',time=9.05,lat=10,brightness=2.2,ambient=C(150,136,168),out=C(178,156,196),eds=.5,ess=.25,air=C(238,198,228),decay=C(168,136,204),density=.30,offset=.20,haze=1.7,glare=.30,cst=C(255,222,234),tint=C(255,238,246),contrast=.05,saturation=.14,cbright=0,exposure=0}, -- [OP] Ilha 5 Wano V2 (PLANO_V2 sec. 7.1, U14 = ref_03): DIA rosa-lilas (Atmosphere rosa + Haze alto + ColorShift/tint rosados); ClockTime 9,05 / lat 10 FICAM (sol validado no Play); bloom/sunrays/nuvens rosadas/mar local: CeuWano
  [6]={name='CidadeZ',time=16.6,ambient=C(140,145,154),out=C(160,168,177),air=C(199,208,218),decay=C(109,131,154),density=.29,haze=1,tint=C(251,244,233),contrast=-.03,saturation=-.16,exposure=-.08},
 }
 local Som=require(RS:WaitForChild('SomJogo'))

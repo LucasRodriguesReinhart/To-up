@@ -7,7 +7,7 @@
 --     (sincrono, no CurrentIslandMood); na SG -> ... o CeuSombras devolve no ShadowGardenMood. Ao ligar, este script
 --     espera os 2 soltarem e, se o Sky AINDA estiver com o skybox noturno / lua grande, volta ao ceu de dia guardado no
 --     inicio (rede de seguranca; nao briga com eles: so age com os 2 desligados).
---   * NUVENS brancas: Clouds do Terrain neste cliente (cria se nao houver; se houver, ajusta e devolve ao sair).
+--   * NUVENS rosadas (V2, ref_03): Clouds do Terrain neste cliente (cria se nao houver; se houver, ajusta e devolve ao sair).
 --   * Bloom e SunRays proprios, fracos (PLANO_OP secao 10: Bloom 0,35 / 24 / limiar 1,6 - o reboco branco nao estoura;
 --     SunRays 0,04 / 0,12).
 --   * MAR LOCAL turquesa no nivel 36 (WATER_Sea: quadrado de 2200 em volta de Wano; dados nos atributos MarLocal* que o
@@ -35,9 +35,9 @@ local player = Players.LocalPlayer
 local V, C = Vector3.new, Color3.fromRGB
 local MOOD = 'GrandLine'                -- profiles[5].name no AreaAtmosphere
 local ILHA = 'ILHA_ONEPIECE'            -- Model clonado pelo Core.OnePieceIsland
-local BLOOM = { Intensity = 0.35, Size = 24, Threshold = 1.6 }
-local RAIOS = { Intensity = 0.04, Spread = 0.12 }
-local NUVENS = { Cover = 0.5, Density = 0.65, Color = C(255, 255, 255) }   -- nil = nao mexe nas nuvens
+local BLOOM = { Intensity = 0.40, Size = 24, Threshold = 1.5 }   -- V2 (PLANO_V2 7.2)
+local RAIOS = { Intensity = 0.06, Spread = 0.14 }   -- V2
+local NUVENS = { Cover = 0.55, Density = 0.6, Color = C(255, 226, 240) }   -- V2: nuvens rosadas da ref_03; nil = nao mexe nas nuvens
 local SKYBOX_NOITE = 'rbxasset://textures/sky/sky512_'   -- o skybox noturno que CeuNatagumo/CeuSombras aplicam
 local FACES = { 'Bk', 'Dn', 'Ft', 'Lf', 'Rt', 'Up' }
 local MAR = { nivel = 36, tamanho = 2200, cor = C(48, 176, 196) }   -- reserva (WATER_Sea do op_water)
