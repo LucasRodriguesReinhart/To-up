@@ -53,8 +53,10 @@ ZONE_MODULES_V2_0 = {
     "entry": [],       # op_entry V1: nobori da ponte e poste em T (U15/U16) -> V2-3
     "capital": [],     # op_capital/op_m2_trecho V1: casas soltas (U1/U2/U11), le L.BUILDINGS/STREETS da V1 -> V2-3 (kit V2)
     "plaza": [],       # op_m2_praca/op_plaza V1: estandartes, borda do trecho M2 (frestas U5) -> V2-3 (faixa do eixo)
-    "castle": [],      # op_castle V1: reprovado (U3) -> V2-2
-    "tree": [],        # op_tree: em refacao paralela (V2-1/V2-2); arvore-esfera reprovada (U4)
+    "castle": ["op_castle"],  # V2-2 castelo de Wano no kit V2 (5 andares/telhados em telha ondulada, chidori/karahafu,
+                              #   salao com vida, muros/cerca/portoes com colisao) - gate visual verde junto com a arvore
+    "tree": ["op_tree"],      # V2 arvore (pinheiro monumental de almofadas) religada com o castelo V2-2 (op_castle antes:
+                              #   o check_castle do op_tree le as malhas OP_Cas_*) - gate visual verde
     "summon": ["op_summon"],  # V2-2 conves pirata (proa+carranca de leao, mastros com Jolly Roger, timao, baus; torre AMS intacta) - passou no gate visual (commit V2-2)
     "harbor": ["op_harbor"],  # V2-2 porto vivo (H3 fora; guindaste com tambor/lingada moveis, 3 grupos de barcos
                               #   balancando, lonja, redes, armazem aberto) - passou no gate visual (agente do porto V2)
