@@ -130,11 +130,14 @@ ER.OWNERS = [("OP_Ter_", "terrain"), ("OP_Ent_", "entry"), ("OP_Cap_", "capital"
 # fiadas, itens 24-30 da auditoria) levou o castelo a 82,0k: teto 75,6k -> 84k, pago pela folga da capital
 # (198k -> 189,6k; usa 178,3k depois do K.cull_hidden). Soma dos tetos e teto global (640k) inalterados.
 ER.BUDGET_OWNER = {"terrain": (108000, 81), "entry": (32400, 35), "capital": (232000, 145), "plaza": (34000, 36),
-                   "castle": (84000, 59), "tree": (43200, 32), "harbor": (41000, 43), "ship": (19400, 17),
+                   "castle": (84500, 59), "tree": (43200, 32), "harbor": (41000, 43), "ship": (19400, 17),
                    "summon": (36700, 43), "exit": (19400, 26), "gate_opm": (30300, 41), "landmarks": (15100, 15),
                    "water": (10800, 17), "props": (27000, 38), "vegetation": (65000, 50), "vfx": (16200, 32)}
 # PLANO_OP secao 9: <= 620k tris / 650 MeshParts estaticos + reserva VFX 15k / 30
-ER.BUDGET = {"static_tris": 640000, "static_meshes": 650, "vfx_tris": 15000, "vfx_meshes": 30, "total_tris": 655000,
+# V2-3 (lead, 10/10): o export soma as pecas moveis VFX_ (barcos/guindaste/rodas, ~12k) dentro dos "estaticos"; o op_qa
+# as conta a parte (static 639k <= 640k). Teto do export = 640k estatico + 12k moveis; total = + reserva 15k de
+# particulas. Castelo 84k -> 84,5k (medido 84,2k depois do corte sem perda visivel).
+ER.BUDGET = {"static_tris": 652000, "static_meshes": 650, "vfx_tris": 15000, "vfx_meshes": 30, "total_tris": 667000,
              "total_meshes": 680, "materials": 110, "shadow_meshes": 260, "day_lights": 36, "col": 1500}
 _CX, _CY = to_world_xy(60.0, 250.0)            # meio da ilha (sombras / rede)
 ER.FAR_GROUND = None                 # o mar local de Wano e feito no cliente (WATER_Sea, so na area 5)

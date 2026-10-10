@@ -209,7 +209,7 @@
    "area": 5,
    "color": "48,176,196",
    "falls": "FX_Fall_W_Base;FX_Fall_E_Base",
-   "note": "mar LOCAL turquesa de Wano: so no cliente e so com o jogador na area 5 (como o mar de nuvens da DS); esconde a quilha; vista de Wano, a DS aparece como ilha saindo do mar (topo da quilha DS 53,6 > 46). Conferido no op_water: as 2 quedas da borda terminam em 36 (pedras de base)",
+   "note": "mar LOCAL turquesa de Wano: so no cliente e so na area 5; espuma clara no pe das falesias (op_terrain)",
    "fwd_x": -0.5736,
    "fwd_z": 0.8192
   }
