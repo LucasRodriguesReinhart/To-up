@@ -66,7 +66,7 @@ ZONE_MODULES_V2_0 = {
     "water": [],       # op_water V1: canais na cota antiga (U6) -> V2-3 (canais rebaixados, capa fora das pontes)
     "exit": [],        # op_exit V1: frestas entre as tabuas (U5) -> V2-3
     "landmarks": [],   # op_landmarks V1: pagode (U13) -> V2-3
-    "dressing": [],    # op_props/op_veg/op_vfx/op_lights V1: postes em T, estandartes, arvores-esfera -> V2-1/V2-3
+    "dressing": ["op_veg", "op_vfx", "op_lights"],  # V3 arvores (op_veg, cerejeira/kuromatsu/larga/karikomi em grupos) + petalas por grupo (op_vfx) + passe de luz; op_props V1 fora (reprovado)
 }
 ZONE_MODULES = ZONE_MODULES_V2_0
 

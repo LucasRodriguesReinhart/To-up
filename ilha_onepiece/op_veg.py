@@ -7,6 +7,14 @@
 #   Regras de posicionamento, setores, testes malha x malha e API (place_*, Placer, add_item, TRUNKS) MANTIDOS;
 #   trocadas as FAMILIAS (primitivas suaves do op_tree: puff/blob_crown, cloud_pad, limb) e a distribuicao (mais rosa).
 #
+# V3 (rodada 2 do usuario: 'arvores de decoracao fracas, faltam amor na composicao'): FAMILIAS com FORMAS desenhadas
+#   (cerejeira 5 formas x 4 tamanhos x LOD -1..2: tronco em S com cordoes torcidos e raizes, bracos em leque, cachos
+#   festonados com cor em faixas e gradiente vertical Light/Blossom/Deep; kuromatsu 5 formas com niveis em degraus e
+#   nuvens de pinheiro com franja de agulhas; larga 4 formas; karikomi tama/nami/tsutsuji/cerca) e COMPOSICAO por
+#   GRUPOS dirigidos com dominante (GROUPS), cerejeiras que espiam sobre os telhados nos quintais da cidade V2
+#   (courtyard_cherries, copa levantada pelo construido), pinheiros de borda em grupos (rim_pines). Gate visual:
+#   todo tronco e moita colidem (9,5 de altura), nenhuma copa abaixo de pe + 5,6 de chao vizinho (body_clear).
+#   Setores ROSA (PINK_SECTORS, 7 materiais) x VERDES (4): MeshParts <= 50.
 # FAMILIAS V2 (reutilizaveis; nada de espalhar ao acaso):
 #   - CEREJEIRA (sakura) XS/S/M/L: tronco ESCURO em S com pe alargado, bracos que abrem; copa FOFA (V2b,
 #     op_tree.fluffy_crown): por parte da copa um nucleo escuro + cachos medios + sub-cachos na borda/pendentes, todos
@@ -66,7 +74,7 @@ ZZ = Vector((0.0, 0.0, 1.0))
 TAU = math.tau
 T0, T1, P, CF, CC, W3Z = L.T0, L.T1, L.P, L.CF, L.CC, L.W3
 MINE_PAD = 10.0
-BUDGET_TRIS = 54000             # V2: teto do lead 55k (familias suaves custam mais por planta: menos plantas, melhores)
+BUDGET_TRIS = 58000             # V3: teto do lead 60k (familias com galhos e camadas: menos plantas, compostas em grupos)
 TRUNKS = []                      # (x, y, z, r_tronco, R_copa, familia) - exposto
 STATS = {}
 
@@ -134,9 +142,15 @@ class Probe:
             return None
         return h[0].z, self.own[h[2]], self.mat[h[2]], abs(h[1].z)
 
+    PAVED_OWNER = ("OP_Ter_", "OP_Cap_", "OP_Plz_", "OP_Cas_", "OP_Lmk_")
+    PAVED_MAT = ("Stone_OP_Court", "Stone_OP_Path", "Grass_OP", "Dirt_OP", "Cliff_OP_Moss")
+
     def natural(self, t, rock=False):
         """chao onde a planta nasce. A normal vem do enrolamento da face (parte da pele do terreno tem a face
-        invertida): vale |nz|"""
+        invertida): vale |nz|. rock='paved' (V3, so nas listas DIRIGIDAS e nos patios internos das quadras): vale
+        tambem patio de pedra / adro / jardim da cidade (a cidade V2 nao tem quintal de terra), nunca telhado"""
+        if rock == "paved" and t is not None and t[1].startswith(self.PAVED_OWNER) and                 t[2].startswith(self.PAVED_MAT) and t[3] > 0.9:
+            return True
         if t is None or not t[1].startswith(self.NAT_OWNER):
             return False
         if t[1].startswith("OP_Cap_") and not t[2].startswith(("Dirt_OP", "Grass_OP")):
@@ -292,7 +306,7 @@ def tube(mb, pts, radii, m=BARK, n=6, caps=True):
 
 # cerejeiras: 3 tons (Light no topo dos cachos, Blossom no corpo, Deep no vinco/baixo); o Light so nos setores da
 # cidade/entrada/castelo (1 material a menos por setor nos outros = MeshParts)
-LIGHT_SECTORS = ("Entrada", "Sudoeste", "Oeste", "Leste", "Castelo")
+LIGHT_SECTORS = ("Entrada", "TerracoAlto", "NE", "Oeste")         # V3: os 3 setores ROSA (so eles recebem cerejeira)
 GREEN = (LEAF, LEAF, PINE)                       # copa verde: cachos Leaf_OP, nucleo/baixo verde-pinho
 PINE_PAD = (LEAF, PINE, PINE)                    # almofada de kuromatsu: topo Leaf_OP, lado/baixo verde-pinho
 # resolucao de cada CACHO por LOD (nu, nv) e cachos por parte da copa (principal, anel) por tamanho
@@ -312,132 +326,397 @@ def _seed(rng):
     return int(rng.random() * 1e7)
 
 
-# ================================================================== FAMILIAS V2
-# cada familia: PLANO (esferas da copa para as regras, ANTES de gerar) + GERADOR
-CHERRY_SIZES = {"XS": (8.5, 4.8, 2, 0.45), "S": (11.0, 7.0, 3, 0.55), "M": (14.0, 9.5, 3, 0.7), "L": (18.0, 12.0, 4, 0.9)}   # h, R, cachos do anel, r0
+# ================================================================== FAMILIAS V3 (rodada 2 do usuario: "falta amor")
+# cada familia: PLANO (esferas da copa para as regras, ANTES de gerar) + GERADOR. FORMAS = arquetipos desenhados por
+# especie (nao 1 forma girada): o plano sorteia a forma pelo hash do lugar, ou a lista dirigida escolhe.
+SUN = "Leaf_OP_Sun"
+CHERRY_SIZES = {"XS": (7.5, 5.6, 3, 0.42), "S": (9.5, 7.4, 3, 0.52), "M": (12.0, 9.4, 4, 0.64), "L": (15.0, 12.0, 4, 0.8)}   # h, R (meia largura da copa), bracos, r0
+# SAKURA: tronco escuro que abre em BRACOS EM LEQUE; cachos nas pontas com galhos visiveis entre eles; copa larga e
+# baixa (mais larga que alta), assimetrica (o lado da inclinacao vai mais longe), borda que cai em VEU.
+#   arms: bracos; fork: altura da forquilha (x h); fan: abertura do leque (rad; >= 4,7 = em volta); rise: subida dos
+#   bracos (x h); wide/tall: escala da copa; lean: deslocamento da copa para o lado da inclinacao (x R); veil: chance de
+#   veu por braco; weep: bracos que arqueiam e caem (shidare); top: cachos de cima; sec: cachos secundarios entre bracos
+CHERRY_FORMS = [
+    dict(nm="leque", arms=4, fork=0.34, fan=2.6, rise=0.30, wide=1.0, tall=1.0, lean=0.16, veil=0.5, weep=False, top=1, sec=2),
+    dict(nm="inclinada", arms=3, fork=0.30, fan=2.1, rise=0.26, wide=1.08, tall=0.92, lean=0.34, veil=0.8, weep=False, top=1, sec=2),
+    dict(nm="alta", arms=4, fork=0.40, fan=5.0, rise=0.36, wide=0.86, tall=1.18, lean=0.08, veil=0.35, weep=False, top=2, sec=1),
+    dict(nm="chorona", arms=5, fork=0.44, fan=5.2, rise=0.20, wide=0.94, tall=1.0, lean=0.06, veil=1.0, weep=True, top=1, sec=0),
+    dict(nm="baixa", arms=5, fork=0.26, fan=5.3, rise=0.16, wide=1.18, tall=0.78, lean=0.12, veil=0.5, weep=False, top=1, sec=2),
+]
+# resolucao (nu, nv) dos cachos por LOD: principal / sub-cacho e veu
+CHERRY_RES = {2: ((8, 4), (9, 5)), 1: ((7, 3), (7, 4)), 0: ((6, 3), (6, 4)), -1: ((5, 3), (6, 3))}   # -1 = cidade (sobre os telhados)
 
 
-def cherry_plan(x, y, z, size, lean_az, rng):
-    """SAKURA de Wano (ref_03): tronco escuro baixo que abre em bracos; copa LARGA e FOFA = cacho principal no alto +
-    anel de cachos nas pontas dos bracos + 1-2 cachos pequenos caidos na borda (o 'chorao' da cerejeira)"""
-    h, R, nl, r0 = CHERRY_SIZES[size]
+
+
+def cherry_plan(x, y, z, size, lean_az, rng, var=None, lod=1, lift=0.0):
+    """SAKURA de Wano (ref_03): planta dos bracos e dos cachos (esferas para as regras ANTES de gerar)"""
+    h, R, na, r0 = CHERRY_SIZES[size]
+    var = rng.randrange(len(CHERRY_FORMS)) if var is None else var
+    A = CHERRY_FORMS[var]
+    if size == "XS" and A["arms"] > 4:
+        A = dict(A, arms=4)
     d = vdir(lean_az)
     base = Vector((x, y, z))
-    F = base + d * R * 0.15 + ZZ * h * 0.4
-    a0 = lean_az + rng.uniform(-0.6, 0.6)
-    main = (F + d * R * 0.06 + ZZ * h * 0.34, (R * 0.66, R * 0.62, R * 0.5))
-    ring = []
-    for k in range(nl):
-        a = a0 + TAU * k / nl + rng.uniform(-0.3, 0.3)
-        f = rng.uniform(0.86, 1.08)
-        ring.append((a, F + vdir(a) * R * rng.uniform(0.5, 0.6) + ZZ * h * rng.uniform(0.17, 0.28),
-                     (R * 0.5 * f, R * 0.47 * f, R * 0.4 * f)))
-    small = []
-    ns = 2 if size in ("M", "L") else 1
-    for k in range(ns):
-        a = a0 + TAU * (k + 0.5) / nl + rng.uniform(-0.25, 0.25)
-        small.append((a, F + vdir(a) * R * 0.8 + ZZ * h * rng.uniform(-0.02, 0.08), (R * 0.32, R * 0.3, R * 0.27)))
-    sph = [(main[0], max(main[1]))] + [(c, max(rr)) for a, c, rr in ring + small]
-    return dict(h=h, R=R, r0=r0, base=base, F=F, main=main, ring=ring, small=small, d=d, spheres=sph, nl=nl, size=size,
-                tips=[(a, c, max(rr)) for a, c, rr in ring])
+    Rw = R * A["wide"]
+    F = base + d * Rw * A["lean"] * 0.6 + ZZ * (h * A["fork"] + lift)
+    n = A["arms"]
+    fan = A["fan"]
+    arms, clusters = [], []
+    for k in range(n):
+        if fan >= 4.7:
+            a = lean_az + TAU * k / n + rng.uniform(-0.25, 0.25) + 0.4
+        else:
+            a = lean_az + (k / max(1, n - 1) - 0.5) * fan + rng.uniform(-0.18, 0.18)
+        bias = 1.0 + 0.28 * math.cos(a - lean_az)               # o lado da inclinacao vai mais longe
+        reach = Rw * rng.uniform(0.6, 0.78) * bias
+        rise = h * A["rise"] * A["tall"] * rng.uniform(0.82, 1.18)
+        if A["weep"]:
+            rise *= 1.25
+        tip = F + vdir(a) * reach + ZZ * rise
+        cr = R * rng.uniform(0.40, 0.5) * (0.92 if n >= 5 else 1.0)
+        arms.append(dict(a=a, tip=tip, reach=reach, rise=rise, cr=cr))
+        clusters.append(dict(c=tip + ZZ * cr * 0.22, cr=cr, a=a, kind="main", arm=k))
+    # cachos secundarios ENTRE bracos (mais baixos e menores; galho proprio saindo do meio do braco)
+    order = sorted(range(n), key=lambda k: arms[k]["a"])
+    for j in range(A["sec"] if lod > 0 else (min(1, A["sec"]) if lod == 0 else 0)):
+        k = order[(j * 2 + 1) % n]
+        k2 = order[((j * 2 + 1) % n + 1) % n]
+        a1, a2 = arms[k]["a"], arms[k2]["a"]
+        da = math.atan2(math.sin(a2 - a1), math.cos(a2 - a1))
+        if abs(da) > 2.4:                                         # leque aberto: o secundario vai para o lado de fora
+            da = 0.9 * (1 if da > 0 else -1)
+        a = a1 + da * 0.5 + rng.uniform(-0.15, 0.15)
+        cr = arms[k]["cr"] * rng.uniform(0.66, 0.78)
+        c = F + vdir(a) * Rw * rng.uniform(0.42, 0.55) + ZZ * (arms[k]["rise"] * rng.uniform(0.5, 0.68))
+        clusters.append(dict(c=c, cr=cr, a=a, kind="sec", arm=k))
+    # cacho(s) de cima: fecham a cupula sem virar bola (achatados, deslocados para a inclinacao)
+    for t in range(A["top"]):
+        cr = R * (0.5 if t == 0 else 0.34)
+        c = F + d * Rw * (0.08 + 0.1 * t) + ZZ * (h * A["rise"] * A["tall"] * (1.05 + 0.45 * t) + cr * 0.35)
+        clusters.append(dict(c=c, cr=cr, a=lean_az + t * 2.2, kind="top", arm=-1))
+    # VEU: cachos que pendem da borda de baixo dos cachos de fora
+    veils = []
+    for cl in list(clusters):
+        if cl["kind"] == "top":
+            continue
+        out = Vector((cl["c"].x - F.x, cl["c"].y - F.y, 0.0))
+        if out.length < Rw * 0.35 or rng.random() > A["veil"]:
+            continue
+        out.normalize()
+        nch = 2 if A["weep"] and rng.random() < 0.6 else 1
+        for sgn in ((0.0,) if nch == 1 else (-0.5, 0.5)):
+            side = Vector((-out.y, out.x, 0.0)) * sgn * cl["cr"] * 0.7
+            p = cl["c"] + out * cl["cr"] * 0.5 + side - ZZ * cl["cr"] * rng.uniform(0.28, 0.5 if not A["weep"] else 0.7)
+            r = cl["cr"] * (0.44 if A["weep"] else 0.4)
+            veils.append(dict(c=p.copy(), cr=r, a=cl["a"], kind="veil", arm=cl["arm"]))
+    clusters += veils
+    # o jogador (5,2) passa embaixo: nada da copa abaixo de pe + 5,8 (corpo dentro do modelo = gate visual U8b)
+    zlow = min(cl["c"].z - cl["cr"] * (0.95 if cl["kind"] == "veil" else 0.7) for cl in clusters)
+    dz = max(0.0, base.z + 5.8 - zlow)
+    if dz > 0.0:
+        F = F + ZZ * dz
+        for ar in arms:
+            ar["tip"] = ar["tip"] + ZZ * dz
+        for cl in clusters:
+            cl["c"] = cl["c"] + ZZ * dz
+    sph = [(cl["c"], cl["cr"] * 1.15) for cl in clusters]
+    low = [(cl["c"], cl["cr"] * 0.95, cl["c"].z - cl["cr"] * (0.95 if cl["kind"] == "veil" else 0.7)) for cl in clusters]
+    if lift > 0.0:
+        r0 *= 1.0 + min(0.5, lift / (h * 2.0))                 # tronco alto (patio interno): mais grosso
+    return dict(h=h, R=Rw, r0=r0, base=base, F=F, d=d, arms=arms, clusters=clusters, spheres=sph, size=size, var=var,
+                form=A, lean_az=lean_az, lift=lift, low=low)
 
 
 def cherry(mb, pl, rng, lod=1):
-    """CEREJEIRA V2: tronco escuro em S com pe alargado, bracos que abrem; copa de CACHOS (op_tree.puff: casca com
-    calombos = sub-cachos, vinco escuro entre eles) de tamanhos variados; faces escondidas entre cachos cortadas"""
+    """CEREJEIRA V3: tronco escuro em S com cordoes torcidos e pe que agarra o chao; BRACOS em leque (galhos visiveis
+    entre os cachos), cada cacho = cacho principal achatado + sub-cachos no alto e para fora + veu pendente; cor em
+    FAIXAS por cacho (topo claro, barriga funda) e GRADIENTE pela altura na copa (alto Light, meio Blossom, baixo Deep)"""
     base, F, d, r0, h = pl["base"], pl["F"], pl["d"], pl["r0"], pl["h"]
+    A = pl["form"]
     perp = Vector((-d.y, d.x, 0.0))
     s = 1.0 if rng.random() < 0.5 else -1.0
     lean = F - base
-    n = 7 if lod == 2 else (6 if lod else 5)
-    tube(mb, [base - ZZ * 0.5, base + lean * 0.3 + perp * 0.35 * s + ZZ * 0.3, base + lean * 0.68 - perp * 0.4 * s, F],
-         [r0 * 1.3, r0 * 1.04, r0 * 0.9, r0 * 0.76], n=n)
-    tube(mb, [base - ZZ * 0.6, base + ZZ * 0.25, base + ZZ * 1.1], [r0 * 2.0, r0 * 1.55, r0 * 1.18], n=n, caps=False)
-    for a, c, rr in pl["ring"]:
-        v = c - F
-        mid = F + Vector((v.x, v.y, 0.0)) * 0.5 + ZZ * v.z * 0.35
-        tube(mb, [F - vdir(a) * r0 * 0.3, mid, c - ZZ * rr[2] * 0.2], [r0 * 0.62, r0 * 0.44, r0 * 0.28],
-             n=5 if lod == 2 else 4)
-    (mb_, mc_), (rb_, rc_) = CHERRY_FLUFF[pl["size"]]
-    c, rr = pl["main"]
-    parts = [(c, rr, mb_, mc_)]
-    parts += [(c2, rr2, rb_, rc_) for a, c2, rr2 in pl["ring"]]
-    TR.fluffy_crown(mb, parts, _seed(rng), lod, _pink(mb))
+    n = {2: 8, 1: 7, 0: 6, -1: 5}[lod]
+    TR.bark_limb(mb, [base - ZZ * 0.6, base + Vector((lean.x, lean.y, 0)) * 0.25 + perp * r0 * 0.5 * s + ZZ * lean.z * 0.38,
+                      base + Vector((lean.x, lean.y, 0)) * 0.7 - perp * r0 * 0.4 * s + ZZ * lean.z * 0.75, F + ZZ * r0 * 0.4],
+                 [r0 * 1.5, r0 * 1.12, r0 * 1.0, r0 * 0.9], BARK, n=n, sub=max(1, lod + 1), ridges=3, ridge_amp=0.12,
+                 twist=0.45)
+    tube(mb, [base - ZZ * 0.6, base + ZZ * 0.3, base + ZZ * r0 * 2.6], [r0 * 2.1, r0 * 1.55, r0 * 1.12], n=n, caps=False)
+    TR.root_claws(mb, base, r0 * 1.4, 3 if lod > 0 else (2 if lod == 0 else 0), base.z, rng, BARK, gfun=_gfun, reach=2.6,
+                  a0=pl["lean_az"] + math.pi)
+    # BRACOS: sobem ingremes e abrem para fora (o leque da sakura); o galho entra no cacho
+    nb = {2: 6, 1: 5, 0: 4, -1: 4}[lod]
+    sb = 2 if lod > 0 else 1
+    for k, arm in enumerate(pl["arms"]):
+        a, tip = arm["a"], arm["tip"]
+        o = vdir(a)
+        p1 = F + o * arm["reach"] * 0.22 + ZZ * arm["rise"] * 0.5
+        p2 = F + o * arm["reach"] * 0.62 + ZZ * arm["rise"] * (0.95 if A["weep"] else 0.86)
+        TR.limb(mb, [F - o * r0 * 0.3, p1, p2, tip], [r0 * 0.72, r0 * 0.56, r0 * 0.38, r0 * 0.22], BARK, n=nb, sub=sb,
+                caps=False)
+    for cl in pl["clusters"]:
+        if cl["kind"] == "sec":
+            arm = pl["arms"][cl["arm"]]
+            o = vdir(arm["a"])
+            p = F + o * arm["reach"] * 0.4 + ZZ * arm["rise"] * 0.68
+            mid = p.lerp(cl["c"], 0.5) + ZZ * 0.4
+            TR.limb(mb, [p, mid, cl["c"] - ZZ * cl["cr"] * 0.2], [r0 * 0.34, r0 * 0.25, r0 * 0.14], BARK, n=4, sub=1,
+                    caps=False)
+        elif cl["kind"] == "top":
+            TR.limb(mb, [F, F.lerp(cl["c"], 0.5) + Vector((d.x, d.y, 0)) * r0, cl["c"] - ZZ * cl["cr"] * 0.3],
+                    [r0 * 0.62, r0 * 0.42, r0 * 0.2], BARK, n=nb - 1, sub=sb, caps=False)
+    # COPA: tom por altura relativa (alto claro, meio corpo, baixo fundo) + faixas por cacho
+    L_, B_, D_ = _pink(mb)
+    cls = pl["clusters"]
+    zb = min(cl["c"].z - cl["cr"] * 0.6 for cl in cls)
+    zt = max(cl["c"].z + cl["cr"] * 0.6 for cl in cls)
+    hz = max(1e-3, zt - zb)
+    resA, resB = CHERRY_RES[lod]
+    recs = []
+
+    def tone(z):
+        zr = (z - zb) / hz
+        if zr > 0.62:
+            return (L_, L_, B_), (0.0, -0.5)
+        if zr > 0.34:
+            return (L_, B_, D_), (0.6, -0.35)
+        return (B_, D_, D_), (0.35, -0.1)
+    for cl in cls:
+        c, cr, a = cl["c"], cl["cr"], cl["a"]
+        out = Vector((c.x - F.x, c.y - F.y, 0.0))
+        tilt = out.normalized() * 0.35 if out.length > 0.5 else None
+        if cl["kind"] == "veil":
+            m, b = tone(c.z)
+            recs.append(TR.blob(mb, c, cr * 0.95, cr * 0.88, cr * (0.9 if A["weep"] else 0.7), resB[0], resB[1], m, b,
+                                fb=0.1, rot=a,
+                                seed=_seed(rng)))
+            continue
+        # CACHO = NUCLEO achatado (corpo, quase todo escondido) + CONCHAS (sub-cachos menores na metade de cima e
+        # para fora): o contorno vira festonado (nuvem de anime), facetas pequenas, o miolo escuro entre as conchas
+        m, b = tone(c.z)
+        flat = 0.66 if cl["kind"] != "top" else 0.6
+        recs.append(TR.blob(mb, c, cr * 0.98, cr * 0.9, cr * flat, resA[0], resA[1], m, b, fb=0.4, rot=a,
+                            wob=0.04, seed=_seed(rng), top_tilt=tilt))
+        nsc = {2: 5, 1: 3, 0: 2, -1: 2}[lod] - (1 if cl["kind"] == "sec" else 0)
+        a0 = a + rng.uniform(-0.4, 0.4)
+        for j in range(nsc):
+            az = a0 + TAU * j / nsc + rng.uniform(-0.3, 0.3)
+            el = rng.uniform(0.12, 0.7)
+            dv = Vector((math.cos(az) * math.cos(el), math.sin(az) * math.cos(el), math.sin(el)))
+            q = c + Vector((dv.x * cr * 0.78, dv.y * cr * 0.72, dv.z * cr * flat * 0.85))
+            rr = cr * rng.uniform(0.4, 0.52)
+            m2, b2 = tone(q.z + rr * 0.3)
+            recs.append(TR.blob(mb, q, rr, rr * 0.94, rr * 0.84, resB[0], resB[1], m2, b2, fb=0.3,
+                                rot=az, seed=_seed(rng), top_tilt=tilt))
+        if cl["kind"] != "sec" and lod >= 0:                      # concha do alto (o 'topete' do cacho)
+            q = c + vdir(a) * cr * 0.12 + ZZ * cr * flat * 0.7
+            rr = cr * 0.5
+            m2, b2 = tone(q.z + rr * 0.3)
+            recs.append(TR.blob(mb, q, rr, rr * 0.94, rr * 0.8, resB[0], resB[1], m2, b2, fb=0.3, rot=a + 1.0,
+                                seed=_seed(rng), top_tilt=tilt))
+    TR.cull_inside(mb, recs)
 
 
-def pine_plan(x, y, z, h, lean_az, rng, lod=1):
+# KUROMATSU: tronco inclinado e torcido, galhos em DEGRAUS quase horizontais alternando os lados, cada um com a sua
+# NUVEM (op_tree.pine_cloud: base larga escura com franja de agulhas + sub-almofadas claras + capuz) e CEU entre os
+# niveis. FORMAS: (nome, inclinacao (x h), niveis [(t no tronco, lado, comprimento x h, raio da almofada x h, droop)],
+#   altura do apice (x h), raio do apice (x h), S lateral)
+PINE_FORMS = [
+    ("sentinela", 0.24, [(0.34, 1, 0.42, 0.27, 0.10), (0.52, -1, 0.36, 0.24, 0.06), (0.68, 1, 0.28, 0.2, 0.04),
+                         (0.82, -1, 0.2, 0.16, 0.0)], 1.0, 0.2, 0.08),
+    ("debrucado", 0.62, [(0.3, -1, 0.3, 0.24, 0.16), (0.5, 1, 0.42, 0.27, 0.12), (0.72, -1, 0.3, 0.22, 0.08)],
+     0.78, 0.2, 0.05),
+    ("jardim", 0.18, [(0.3, 1, 0.62, 0.3, 0.04), (0.48, -1, 0.54, 0.28, 0.02), (0.66, 1, 0.38, 0.22, 0.0)],
+     0.84, 0.21, 0.1),
+    ("gemeo", 0.2, [(0.4, 1, 0.38, 0.24, 0.08), (0.62, -1, 0.3, 0.2, 0.04), (0.8, 1, 0.22, 0.16, 0.0)], 1.0, 0.18,
+     0.06),
+    ("jovem", 0.1, [(0.42, 1, 0.3, 0.2, 0.04), (0.6, -1, 0.26, 0.18, 0.02), (0.76, 1, 0.2, 0.15, 0.0)], 0.98, 0.17,
+     0.05),
+]
+PINE_MATS = (SUN, LEAF, PINE, PINE)              # topo amarelado / topo da base / borda+franja / fundo
+
+
+def _pine_trunk_pts(b0, h, d, sv, lean, sbend, top_f):
+    return [b0 - ZZ * 0.6, b0 + d * lean * h * 0.08 + sv * sbend * h * 0.6 + ZZ * h * 0.24 * top_f,
+            b0 + d * lean * h * 0.42 - sv * sbend * h * 0.5 + ZZ * h * 0.5 * top_f,
+            b0 + d * lean * h * 0.78 + sv * sbend * h * 0.4 + ZZ * h * 0.76 * top_f,
+            b0 + d * lean * h * 0.92 + ZZ * h * top_f]
+
+
+def pine_plan(x, y, z, h, lean_az, rng, lod=1, var=None):
+    var = rng.randrange(len(PINE_FORMS)) if var is None else var
+    nm, lean, tiers, top_f, apex_r, sbend = PINE_FORMS[var]
     d = vdir(lean_az)
     sv = Vector((-d.y, d.x, 0.0))
     b0 = Vector((x, y, z))
     s = h / 12.0
-    pts = [b0 - ZZ * 0.5, b0 + d * 0.6 * s + ZZ * h * 0.22, b0 + d * 2.3 * s + sv * 0.8 * s + ZZ * h * 0.45,
-           b0 + d * 3.2 * s - sv * 0.4 * s + ZZ * h * 0.68, b0 + d * 2.5 * s + ZZ * h * 0.88]
+    pts = _pine_trunk_pts(b0, h, d, sv, lean, sbend * (1 if rng.random() < 0.5 else -1), top_f)
+    cv = TR.Curve([tuple(p) + (0.0,) for p in pts], 6)
     pads = []
-    tiers = ((0.36, 2.9, 5.0, 2.9), (0.52, 0.5, 4.6, 2.7), (0.66, 4.2, 4.1, 2.4), (0.8, 1.8, 3.3, 2.0))
-    for k, (t, ang, ln, rr) in enumerate(tiers if lod else tiers[:3]):
-        a = lean_az + ang + rng.uniform(-0.3, 0.3)
-        seg = min(3, int(t * 4))
-        bp = pts[seg].lerp(pts[seg + 1], t * 4 - seg)
-        tip = bp + vdir(a) * ln * s + ZZ * 0.5 * s
-        pads.append((bp, tip, rr * s, a))
-    sph = [(tip + ZZ * 0.5 * s, rr * 1.55) for bp, tip, rr, a in pads] + [(pts[-1] + ZZ * 0.7 * s, 2.5 * s)]
-    return dict(pts=pts, pads=pads, s=s, d=d, spheres=sph, base=b0, R=4.8 * s)
+    side0 = rng.uniform(1.5, 2.2)
+    for k, (t, sd, ln, pr, droop) in enumerate(tiers if lod == 2 or len(tiers) <= 3 else tiers[:3]):
+        bp = cv.at(t * cv.len)[0]
+        a = lean_az + sd * side0 + rng.uniform(-0.35, 0.35)
+        if nm == "debrucado" and sd < 0:
+            a = lean_az + sd * 0.9                                 # no penhasco os niveis vao para fora
+        L_ = ln * h * rng.uniform(0.88, 1.12)
+        tip = bp + vdir(a) * L_ + ZZ * L_ * 0.12
+        R = pr * h * rng.uniform(0.9, 1.08)
+        zmin = z + 6.0 + R * 0.62 * 0.25 + R * 0.62 * 0.3 * 1.15      # fundo + franja acima de pe + 6
+        if tip.z < zmin:
+            tip = Vector((tip.x, tip.y, zmin))
+        pads.append(dict(bp=bp, tip=tip, R=R, a=a, droop=droop * 0.5 if tip.z == zmin else droop, flat=0.62))
+    top = pts[-1]
+    apex = dict(bp=top, tip=top + d * apex_r * h * 0.2, R=apex_r * h, a=lean_az + rng.uniform(-0.5, 0.5), droop=0.0,
+                flat=0.72)
+    twin = None
+    if nm == "gemeo":                                         # segundo tronco mais fino, do pe, para o outro lado
+        d2 = vdir(lean_az + 2.4 + rng.uniform(-0.3, 0.3))
+        sv2 = Vector((-d2.y, d2.x, 0.0))
+        pts2 = _pine_trunk_pts(b0 + d2 * 0.4 * s, h * 0.66, d2, sv2, 0.34, 0.06, 1.0)
+        cv2 = TR.Curve([tuple(p) + (0.0,) for p in pts2], 6)
+        for t, sd, ln, pr in ((0.55, 1, 0.24, 0.17), (0.8, -1, 0.18, 0.14)):
+            bp = cv2.at(t * cv2.len)[0]
+            a = math.atan2(d2.y, d2.x) + sd * 1.7
+            pads.append(dict(bp=bp, tip=bp + vdir(a) * ln * h, R=pr * h, a=a, droop=0.04, flat=0.4))
+        pads.append(dict(bp=pts2[-1], tip=pts2[-1], R=0.15 * h, a=math.atan2(d2.y, d2.x), droop=0.0, flat=0.5))
+        twin = pts2
+    sph = [(p["tip"] + ZZ * p["R"] * p["flat"] * 0.5, p["R"] * 1.35) for p in pads + [apex]]
+    low = [(p["tip"], p["R"] * 1.2, p["tip"].z - p["R"] * p["flat"] * 0.6) for p in pads + [apex]]
+    Rmax = max((Vector((p["tip"].x - x, p["tip"].y - y, 0)).length + p["R"]) for p in pads + [apex])
+    return dict(pts=pts, pads=pads, apex=apex, s=s, d=d, spheres=sph, base=b0, R=Rmax, h=h, var=var, twin=twin,
+                lean_az=lean_az, low=low)
 
 
 def pine(mb, pl, rng, lod=1):
-    """KUROMATSU V2: tronco escuro em S que se debruca, galhos quase horizontais e ALMOFADAS EM NUVEM (disco lobado
-    suave, topo verde claro, lado/baixo verde-pinho) - a mesma linguagem da arvore monumental, em pequeno"""
-    pts, s = pl["pts"], pl["s"]
-    n = 6 if lod else 5
-    tube(mb, pts, [0.85 * s, 0.68 * s, 0.52 * s, 0.38 * s, 0.26 * s], n=n)
-    tube(mb, [pts[0], pts[0] + ZZ * 0.5 * s, pts[0] + ZZ * 1.3 * s], [1.5 * s, 1.15 * s, 0.86 * s], n=n, caps=False)
-    nt, prof = (22, TR.PAD_MID) if lod else (16, TR.PAD_LO)
-    for i, (bp, tip, rr, a) in enumerate(pl["pads"]):
-        mid = bp.lerp(tip, 0.55) + ZZ * 0.25 * s
-        tube(mb, [bp, mid, tip], [0.32 * s, 0.24 * s, 0.16 * s], n=4)
-        TR.cloud_pad(mb, tip - ZZ * 0.15 * s, rr * 1.5, rr * 0.62, a, 1.2, lobes=7, seed=_seed(rng), nt=nt, prof=prof,
-                     mats=PINE_PAD, depth=0.16, lumps=2)
-    t = pts[-1]
-    TR.cloud_pad(mb, t - ZZ * 0.1 * s, 2.5 * s, 1.5 * s, math.atan2(pl["d"].y, pl["d"].x), 1.15, lobes=7,
-                 seed=_seed(rng), nt=nt, prof=prof, mats=PINE_PAD, depth=0.16, lumps=2)
+    """KUROMATSU V3: tronco escuro inclinado com cordoes torcidos e raizes que agarram; galhos em degraus que saem
+    quase na horizontal e terminam em NUVENS de pinheiro (camadas + franja de agulhas), ceu entre os niveis"""
+    pts, s, h = pl["pts"], pl["s"], pl["h"]
+    n = {2: 8, 1: 7, 0: 6}[lod]
+    r0 = 0.07 * h
+    TR.bark_limb(mb, pts, [r0 * 1.5, r0 * 1.05, r0 * 0.82, r0 * 0.6, r0 * 0.36], BARK, n=n, sub=lod + 1,
+                 ridges=3, ridge_amp=0.14, twist=1.1)
+    tube(mb, [pts[0], pts[0] + ZZ * 0.7, pts[0] + ZZ * r0 * 3.2], [r0 * 2.0, r0 * 1.55, r0 * 1.08], n=n, caps=False)
+    TR.root_claws(mb, pl["base"], r0 * 1.3, 3 if lod else 2, pl["base"].z, rng, BARK, gfun=_gfun, reach=2.8,
+                  a0=pl["lean_az"] + math.pi)
+    if pl["twin"]:
+        p2 = pl["twin"]
+        TR.bark_limb(mb, p2, [r0 * 0.95, r0 * 0.7, r0 * 0.55, r0 * 0.4, r0 * 0.25], BARK, n=n - 1, sub=2, ridges=3,
+                     ridge_amp=0.12, twist=0.9)
+    lodc = {2: 2, 1: 1, 0: 0}[lod]
+    for p in pl["pads"] + [pl["apex"]]:
+        bp, tip, R = p["bp"], p["tip"], p["R"]
+        if (tip - bp).length > 0.5:
+            o = (tip - bp)
+            mid = bp + o * 0.5 - ZZ * o.length * 0.06
+            TR.limb(mb, [bp, mid, tip - ZZ * R * 0.1], [r0 * 0.5, r0 * 0.34, r0 * 0.2], BARK, n=5 if lod else 4,
+                    sub=2 if lod == 2 else 1, caps=False)
+        TR.pine_cloud(mb, tip - ZZ * R * p["flat"] * 0.25, R, p["flat"], p["a"], 1.28, seed=_seed(rng), lod=lodc,
+                      mats=PINE_MATS, droop=p["droop"])
 
 
-def broad_plan(x, y, z, h, R, rng, lod=0):
+# ARVORE LARGA (kusunoki): tronco curto que se divide em 2-3 pernadas; copa de 3-5 MASSAS (cacho principal achatado +
+# sub-cachos no alto) com REENTRANCIAS entre elas; faixas: topo Leaf_OP_Sun, corpo Leaf_OP, barriga verde-pinho
+GREEN3 = (SUN, LEAF, PINE)
+BROAD_FORMS = [("cupula", 3, 0.5), ("larga", 4, 0.42), ("dupla", 2, 0.56), ("alta", 3, 0.66)]   # (nome, massas, altura relativa da copa)
+
+
+def broad_plan(x, y, z, h, R, rng, lod=0, var=None):
+    var = rng.randrange(len(BROAD_FORMS)) if var is None else var
+    nm, nmass, hf = BROAD_FORMS[var]
     b0 = Vector((x, y, z))
-    lean = vdir(rng.uniform(0, TAU)) * rng.uniform(0.2, 0.8)
-    C0 = b0 + lean + ZZ * h * 0.62
-    sats = []
+    lean = vdir(rng.uniform(0, TAU)) * rng.uniform(0.2, 0.7)
+    F = b0 + lean * 0.5 + ZZ * h * (0.26 if nm != "alta" else 0.36)
+    masses = []
     a0 = rng.uniform(0, TAU)
-    ns = 3 if lod else 2
-    for k in range(ns):
-        a = a0 + TAU * k / ns + rng.uniform(-0.4, 0.4)
-        sats.append((C0 + vdir(a) * R * rng.uniform(0.55, 0.68) - ZZ * h * rng.uniform(0.06, 0.16),
-                     R * rng.uniform(0.5, 0.6), a))
-    sph = [(C0, R * 0.95)] + [(c, r) for c, r, a in sats]
-    return dict(base=b0, C0=C0, h=h, R=R, sats=sats, spheres=sph, lean=lean)
+    for k in range(nmass):
+        a = a0 + TAU * k / nmass + rng.uniform(-0.35, 0.35)
+        rr = R * rng.uniform(0.56, 0.66) * (1.1 if k == 0 else 1.0)
+        c = F + vdir(a) * R * rng.uniform(0.5, 0.62) + ZZ * R * hf * rng.uniform(0.35, 0.7)
+        masses.append((c, rr, a))
+    masses.append((F + lean * 0.4 + ZZ * R * (hf * 0.7 + 0.4), R * 0.62, a0 + 1.0))   # copa larga e baixa (cupula)
+    dz = max(0.0, z + 5.9 - min(c.z - r * 0.55 for c, r, a in masses))      # copa acima da cabeca (gate U8b)
+    if dz > 0.0:
+        F = F + ZZ * dz
+        masses = [(c + ZZ * dz, r, a) for c, r, a in masses]
+    sph = [(c, r * 1.1) for c, r, a in masses]
+    low = [(c, r, c.z - r * 0.55) for c, r, a in masses]
+    return dict(base=b0, F=F, h=h, R=R, masses=masses, spheres=sph, lean=lean, var=var, low=low)
 
 
 def broad(mb, pl, rng, lod=0):
-    """ARVORE VERDE LARGA V2: tronco curto; copa = cacho principal + 2-3 cachos menores (sub-volumes com vinco
-    verde-pinho entre eles), nao esfera"""
-    b0, C0, h, R = pl["base"], pl["C0"], pl["h"], pl["R"]
-    r0 = 0.3 + R * 0.075
-    tube(mb, [b0 - ZZ * 0.5, b0 + pl["lean"] * 0.3 + ZZ * h * 0.3, C0 - ZZ * R * 0.3], [r0 * 1.3, r0, r0 * 0.6], n=5)
-    parts = [(C0, (R * 0.92, R * 0.86, R * 0.74), 6 if lod else 5)]
-    parts += [(c, (r * 0.9, r * 0.84, r * 0.72), 2) for c, r, a in pl["sats"]]
-    TR.blob_crown(mb, parts, _seed(rng), PUFF_LOD[1 if lod else 0], GREEN)
+    """ARVORE VERDE LARGA V3: pernadas visiveis ate cada massa; massas com sub-cachos no alto e vinco (reentrancia)
+    entre elas; luz no topo, sombra na barriga"""
+    b0, F, h, R = pl["base"], pl["F"], pl["h"], pl["R"]
+    r0 = 0.3 + R * 0.07
+    n = 6 if lod else 5
+    TR.bark_limb(mb, [b0 - ZZ * 0.6, b0 + pl["lean"] * 0.2 + ZZ * h * 0.18, F], [r0 * 1.35, r0 * 1.05, r0 * 0.9], BARK,
+                 n=n, sub=lod + 1, ridges=3, ridge_amp=0.12, twist=0.5)
+    tube(mb, [b0 - ZZ * 0.6, b0 + ZZ * 0.3, b0 + ZZ * r0 * 2.4], [r0 * 1.9, r0 * 1.4, r0 * 1.05], n=n, caps=False)
+    TR.root_claws(mb, b0, r0 * 1.3, 3 if lod else 2, b0.z, rng, BARK, gfun=_gfun, reach=2.4)
+    recs = []
+    resA, resB = ((8, 5), (7, 4)) if lod else ((7, 4), (6, 4))
+    zb = min(c.z - r * 0.6 for c, r, a in pl["masses"])
+    zt = max(c.z + r * 0.6 for c, r, a in pl["masses"])
+    for c, r, a in pl["masses"]:
+        TR.limb(mb, [F, F.lerp(c, 0.55) + ZZ * 0.4, c - ZZ * r * 0.25], [r0 * 0.7, r0 * 0.48, r0 * 0.25], BARK,
+                n=5 if lod else 4, sub=1, caps=False)
+        zr = (c.z - zb) / max(1e-3, zt - zb)
+        bands = (0.4, -0.3) if zr > 0.5 else (0.6, -0.15)
+        recs.append(TR.blob(mb, c, r * 1.05, r * 0.95, r * 0.78, resA[0], resA[1], GREEN3, bands, fb=0.35, rot=a,
+                            wob=0.1, seed=_seed(rng)))
+        o = vdir(a)
+        for j in range(2 if lod else 1):
+            q = c + vdir(a + (0.9 if j else -0.5)) * r * 0.5 + ZZ * r * 0.36
+            rr = r * rng.uniform(0.5, 0.6)
+            recs.append(TR.blob(mb, q, rr, rr * 0.92, rr * 0.82, resB[0], resB[1], GREEN3, (0.3, -0.3), fb=0.3,
+                                rot=a + j, seed=_seed(rng)))
+    TR.cull_inside(mb, recs)
 
 
-def bush(mb, x, y, z, r, rng, lumps=2, m=LEAF, n=6):
-    """MOITA PODADA (karikomi) V2b: 1-3 montes arredondados achatados embaixo, cada um uma COPA FOFA pequena
-    (op_tree.fluffy_crown: nucleo verde-pinho + cachos lisos de baixa resolucao, sombreado suave)"""
+# MOITA PODADA (karikomi): FORMA CLARA de tesoura - 'tama' (cupula arredondada-quadrada), 'nami' (2-4 cupulas em
+# degraus, nuvem podada), 'tsutsuji' (azaleia florida: cupula rosa com o verde por baixo), 'cerca' (sebe baixa de
+# pontas redondas). Superelipsoide (sq) = poda; faixas topo claro / corpo / pe escuro
+BUSH_KINDS = ("tama", "nami", "nami", "tama", "cerca")     # tsutsuji (rosa) so quando a lista pede
+
+
+def bush(mb, x, y, z, r, rng, lumps=2, m=LEAF, n=6, kind=None):
+    """MOITA PODADA V3 (karikomi). r = raio do monte principal. kind None = sorteio pelo hash do lugar"""
+    kind = kind or BUSH_KINDS[int(rng.random() * len(BUSH_KINDS))]
     a0 = rng.uniform(0, TAU)
-    parts = []
-    for k in range(lumps):
-        q = Vector((x, y, z)) + (vdir(a0 + 2.3 * k) * r * rng.uniform(0.6, 0.85) if k else Vector())
-        rr = r * (1.0 if k == 0 else rng.uniform(0.6, 0.78))
-        parts.append((q + ZZ * rr * 0.42, (rr * 1.1, rr, rr * 0.62), 5 if k == 0 else 3, 0))
-    TR.fluffy_crown(mb, parts, _seed(rng), 0, (m, m, PINE) if m != PINE else (PINE, PINE, PINE))
+    nu, nv = (11, 6) if r > 2.6 else (10, 5)
+    base = Vector((x, y, z))
+    if kind == "tsutsuji":
+        mats, bands = ("Flower_OP_Light", "Flower_OP_Blossom", PINE), (0.3, -0.42)
+    else:
+        mats, bands = (SUN, LEAF, PINE), (0.74, -0.3)
+    recs = []
+    if kind == "tama":
+        recs.append(TR.blob(mb, base + ZZ * r * 0.5, r * 1.08, r, r * 0.86, nu, nv, mats, bands, fb=0.6, rot=a0,
+                            seed=_seed(rng), sq=2.2))
+    elif kind == "cerca":
+        recs.append(TR.blob(mb, base + ZZ * r * 0.55, r * 2.1, r * 0.8, r * 0.98, nu + 3, nv, mats, bands, fb=0.7,
+                            rot=a0, seed=_seed(rng), sq=2.6))
+    else:
+        k = max(2, min(4, lumps + 1))
+        o = vdir(a0)
+        for j in range(k):
+            rr = r * (1.0 - 0.18 * j) * rng.uniform(0.92, 1.05)
+            q = base + o * (j * r * 0.95) + vdir(a0 + 1.57) * r * rng.uniform(-0.25, 0.25) + ZZ * rr * 0.5
+            recs.append(TR.blob(mb, q, rr * 1.05, rr * 0.98, rr * (0.9 - 0.08 * j), nu, nv, mats, bands, fb=0.6,
+                                rot=a0 + j, seed=_seed(rng), sq=2.2))
+    TR.cull_inside(mb, recs)
+    return [(rc.c, rc.rx, rc.ry, rc.rz, rc.rot) for rc in recs]
+
+
+def _gfun(x, y):
+    """chao real (Probe) para as raizes: raiz que passaria por cima de um degrau/borda nao nasce"""
+    P_ = _PROBE[0]
+    if P_ is None:
+        return None
+    t = P_.top(x, y)
+    return t[0] if t is not None else None
 
 
 def tris_of(mb):
@@ -450,16 +729,21 @@ def tris_of(mb):
 # se a planta estoura o CAP do setor dela, vai para o setor vizinho com folga (mais perto primeiro).
 # Teto: 9 setores x 5 materiais (Flower_OP_Deep so nas cerejeiras-heroi da entrada) = 46 <= 49.
 SECTORS = [  # (nome, x0, y0, x1, y1) - o primeiro que contem o pe manda
-    ("Entrada", -60.0, -40.0, 100.0, 72.0),
-    ("Sudoeste", -270.0, -40.0, -60.0, 140.0),
-    ("Oeste", -270.0, 140.0, -96.0, 300.0),
-    ("TerracoAlto", -270.0, 300.0, -96.0, 520.0),
-    ("Castelo", -96.0, 300.0, 70.0, 520.0),
-    ("Fundo", 70.0, 330.0, 240.0, 455.0),
-    ("FundoNorte", 70.0, 455.0, 340.0, 640.0),
-    ("Leste", 60.0, -40.0, 252.0, 330.0),
-    ("Promontorio", 252.0, 130.0, 380.0, 400.0),
+    # V3 (MeshParts): 3 setores ROSA compactos (cerejeiras + o verde dos grupos: 7 materiais) e os outros so VERDES
+    # (madeira + 3 verdes = 4 materiais). Cerejeira/azaleia so entra em setor rosa (PINK_SECTORS, o mais perto)
+    ("Entrada", -70.0, -40.0, 105.0, 112.0),
+    ("TerracoAlto", -232.0, 290.0, -78.0, 440.0),
+    ("NE", 70.0, 290.0, 230.0, 400.0),
+    ("Oeste", -234.0, 128.0, -78.0, 288.0),
+    ("Sudoeste", -270.0, -40.0, -70.0, 128.0),
+    ("OesteBorda", -290.0, 128.0, -234.0, 290.0),
+    ("Castelo", -78.0, 290.0, 70.0, 520.0),
+    ("Fundo", 70.0, 400.0, 250.0, 520.0),
+    ("FundoNorte", -270.0, 440.0, 340.0, 640.0),
+    ("Leste", 105.0, -40.0, 252.0, 290.0),
+    ("Promontorio", 230.0, 130.0, 380.0, 440.0),
 ]
+PINK_SECTORS = ("Entrada", "TerracoAlto", "NE", "Oeste")
 CAP = 1450
 COMPACT = 158.0
 _SEC = {}
@@ -501,6 +785,11 @@ def home_sector(x, y):
 _PROBE = [None]
 
 
+def _rect_dist(nm, x, y):
+    x0, y0, x1, y1 = [r[1:] for r in SECTORS if r[0] == nm][0]
+    return math.hypot(max(x0 - x, 0.0, x - x1), max(y0 - y, 0.0, y - y1))
+
+
 def _hits_built(nv, nf, zroot):
     """a geometria nova atravessa o construido? (BVH malha contra malha) O enraizamento - face nova abaixo de
     zroot + 1,2 contra face de CHAO horizontal - nao conta"""
@@ -518,13 +807,17 @@ def _hits_built(nv, nf, zroot):
     return False
 
 
-def add_item(x, y, ext, gen, zroot=None):
+def add_item(x, y, ext, gen, zroot=None, pink=False):
     """gera a planta (gen(mb), com rng proprio: repetivel) no setor dela; se ATRAVESSA o construido (teste exato,
     malha contra malha; o pe enraizado no chao vale), desfaz e nao nasce; se estoura o CAP de um material num setor
     largo, desfaz e tenta o vizinho. Devolve os tris ou None"""
     home = home_sector(x, y)
-    order = [home] + sorted((r[0] for r in SECTORS if r[0] != home),
-                            key=lambda n: math.hypot(x - (_sec(n).c[0]), y - (_sec(n).c[1])))[:3]
+    # rosa so em setor rosa; o transbordo do verde vai so para setor VERDE (o setor rosa fica compacto)
+    pool = [r[0] for r in SECTORS if (r[0] in PINK_SECTORS) == bool(pink)]
+    if pink and home not in pool:
+        home = min(pool, key=lambda n: _rect_dist(n, x, y))
+    order = [home] + sorted((n for n in pool if n != home and (not pink or _rect_dist(n, x, y) < 30.0)),
+                            key=lambda n: _rect_dist(n, x, y))[:2]
     for nm in order:
         sc = _sec(nm)
         bm = sc.mb.bm
@@ -572,6 +865,7 @@ class Placer:
         self.ncol = 0
         self.rej = {}
         self.last = {}
+        self.zwin = None
 
     def _rej(self, why):
         self.rej[why] = self.rej.get(why, 0) + 1
@@ -587,9 +881,25 @@ class Placer:
         for k in range(6):
             a = TAU * k / 6
             q = self.P.top(x + math.cos(a) * flat_r, y + math.sin(a) * flat_r)
+            if rock == "paved" and q is not None and q[0] > t[0] + 3.0:
+                continue                 # beiral/telhado POR CIMA (patio interno): nao e borda de chao
             if q is None or abs(q[0] - t[0]) > 1.6:
                 return self._rej("beira")
         return t[0]
+
+    def body_clear(self, pl, clear=5.6):
+        """nenhuma massa da copa desce a menos de 'clear' de um chao ABAIXO dela (o corpo do jogador passa): o gate
+        visual U8b mede corpo dentro do modelo em todo chao alcancavel. pl['low'] = [(centro, raio no plano, fundo)]"""
+        low = pl.get("low") or [(c, r * 0.8, c.z - r * 0.72) for c, r in pl["spheres"]]
+        for c, r, zb in low:
+            for dx, dy in ((0.0, 0.0), (0.6, 0.0), (-0.6, 0.0), (0.0, 0.6), (0.0, -0.6)):
+                t = self.P.top(c.x + dx * r, c.y + dy * r, c.z)
+                if t is None or t[2].startswith("Roof") or (t[1].startswith("OP_Cap_") and
+                                                            not t[2].startswith(self.P.PAVED_MAT)):
+                    continue                     # telhado / corpo de casa: nao e chao de andar
+                if t[3] > 0.6 and zb < t[0] + clear and t[0] < c.z:
+                    return False
+        return True
 
     def spacing_ok(self, x, y, R, fam):
         k = SPACING[fam]
@@ -639,21 +949,29 @@ class Placer:
             z = self.ground(xx, yy, r, flat_r if flat_r is not None else r + 1.2, rock)
             if z is None:
                 continue
-            if not self.P.clear_of_built((xx, yy, z + r + 2.0), r + 1.5):
+            if self.zwin is not None and not (self.zwin[0] <= z <= self.zwin[1]):
+                self._rej("cota")           # V3: membro de grupo nao escorrega para outra cota (quilha, patamar)
+                continue
+            if not self.P.clear_of_built((xx, yy, z + r + 2.0), r + (0.6 if rock == "paved" else 1.5)):
                 self._rej("construido")
                 continue
             pl = plan_fn(xx, yy, z)
+            if not self.body_clear(pl):
+                self._rej("copa x corpo")
+                continue
             if self.crown_ok(pl["spheres"], strict_built) is None:
                 continue
             return pl, xx, yy, z
         return None
 
-    def commit(self, fam, x, y, z, r, R, collide=True):
+    def commit(self, fam, x, y, z, r, R, collide=True, col_r=None):
         self.placed.append((x, y, R, fam))
         TRUNKS.append((x, y, z, r, R, fam))
-        zf = L.zone_of(x, y)
-        if collide and zf is not None and abs(zf - z) < 1.5 and self.P.route_dist(x, y) < 40.0:
-            col_box("OP_VegTrunk", (2.0 * r + 0.4, 2.0 * r + 0.4, 7.0), (x, y, z + 3.5))
+        # V3: todo tronco colide (o gate visual U8b mede o corpo DENTRO do tronco em qualquer chao alcancavel)
+        if collide:
+            # V3: 9,5 de altura (topo fora do pulo de 7,2: ninguem sobe no tronco para alcancar galho/telhado)
+            cr = max(r, col_r or 0.0) + 0.2                   # cobre o pe alargado (V3: flare 2x o raio do tronco)
+            col_box("OP_VegTrunk", (2.0 * cr, 2.0 * cr, 9.5), (x, y, z + 4.75))
             self.ncol += 1
 
 
@@ -661,37 +979,63 @@ def _fail(pc, fam, x, y, note):
     STATS.setdefault("falhou", []).append((fam, x, y, note, dict(sorted(pc.last.items(), key=lambda a: -a[1])[:3])))
 
 
-def place_cherry(pc, x, y, size, note, lean=None, lod=1, nudge=True, rock=False, quiet=False):
+def _roof_lift(pc, pl):
+    """quanto a copa tem de subir para passar por cima do construido em volta (telhados do patio interno): o topo
+    do construido sob a pegada da copa + 1,2 - o fundo da copa"""
+    zb = min(c.z - r * 0.75 for c, r in pl["spheres"])
+    top = -1e9
+    for c, r in pl["spheres"]:
+        for k in range(7):
+            a = TAU * k / 7
+            for f in (0.0, 0.8):
+                t = pc.P.top(c.x + math.cos(a) * r * f, c.y + math.sin(a) * r * f)
+                if t is not None and not t[1].startswith(("OP_Ter_", "OP_Plz_")):
+                    top = max(top, t[0])
+    return max(0.0, top + 1.2 - zb)
+
+
+def place_cherry(pc, x, y, size, note, lean=None, lod=1, nudge=True, rock=False, quiet=False, var=None, lift=0.0,
+                 strict_built=True):
     h, R, nl, r0 = CHERRY_SIZES[size]
     rng = rng_at("cherry", x, y)
     la = math.radians(lean) if lean is not None else rng.uniform(0, TAU)
 
     def fn(xx, yy, z):
-        return cherry_plan(xx, yy, z, size, la, rng_at("cplan", x, y))
-    r = pc.try_site("cherry", x, y, r0 * 1.6, R, fn, nudge=nudge, rock=rock)
+        pl = cherry_plan(xx, yy, z, size, la, rng_at("cplan", x, y), var=var, lod=lod)
+        if lift == "auto":
+            lf = _roof_lift(pc, pl)
+            if lf > 0.0:
+                pl = cherry_plan(xx, yy, z, size, la, rng_at("cplan", x, y), var=var, lod=lod, lift=lf)
+        return pl
+    r = pc.try_site("cherry", x, y, r0 * 1.6, R, fn, nudge=nudge, rock=rock, strict_built=strict_built)
     if r is None:
         if not quiet:
             _fail(pc, "cerejeira", x, y, note)
         return False
     pl, xx, yy, z = r
-    t = add_item(xx, yy, R + 2.0, lambda mb: cherry(mb, pl, rng_at("cgen", x, y), lod), zroot=z)
+    if pl.get("lift", 0.0) > 30.0:
+        pc._rej("telhado alto demais")
+        return False
+    t = add_item(xx, yy, R * 1.25 + 3.0, lambda mb: cherry(mb, pl, rng_at("cgen", x, y), lod), zroot=z, pink=True)
     if t is None:
         if not quiet:
             pc.last = {"atravessaria o construido / setor cheio": 1}
             _fail(pc, "cerejeira", x, y, note)
         return False
     pc.tris += t
-    pc.commit("cherry", xx, yy, z, r0 * 1.3, R)
+    pc.commit("cherry", xx, yy, z, pl["r0"] * 1.3, R, col_r=pl["r0"] * 2.15)
     STATS["cherry"] = STATS.get("cherry", 0) + 1
+    STATS.setdefault("cherry_lod", {}).setdefault(lod, 0)
+    STATS["cherry_lod"][lod] += 1
     return True
 
 
-def place_pine(pc, x, y, h, note, lean=None, lod=1, nudge=True, rock=True, quiet=False):
+def place_pine(pc, x, y, h, note, lean=None, lod=1, nudge=True, rock=True, quiet=False, var=None):
     rng = rng_at("pine", x, y)
     la = math.radians(lean) if lean is not None else rng.uniform(0, TAU)
 
     def fn(xx, yy, z):
-        return pine_plan(xx, yy, z, h, la, rng_at("pplan", x, y), lod)
+        return pine_plan(xx, yy, z, h, la, rng_at("pplan", x, y), lod, var=var)
     s = h / 12.0
     r = pc.try_site("pine", x, y, 0.85 * s, 4.6 * s, fn, nudge=nudge, rock=rock)
     if r is None:
@@ -706,15 +1050,15 @@ def place_pine(pc, x, y, h, note, lean=None, lod=1, nudge=True, rock=True, quiet
             _fail(pc, "pinheiro", x, y, note)
         return False
     pc.tris += t
-    pc.commit("pine", xx, yy, z, 0.85 * s, 4.6 * s)
+    pc.commit("pine", xx, yy, z, 0.85 * s, 4.6 * s, col_r=0.07 * h * 2.05)
     STATS["pine"] = STATS.get("pine", 0) + 1
     return True
 
 
-def place_broad(pc, x, y, h, R, lod=0, nudge=True):
+def place_broad(pc, x, y, h, R, lod=0, nudge=True, var=None, rock=False):
     def fn(xx, yy, z):
-        return broad_plan(xx, yy, z, h, R, rng_at("bplan", x, y), lod)
-    r = pc.try_site("broad", x, y, 0.3 + R * 0.1, R, fn, nudge=nudge)
+        return broad_plan(xx, yy, z, h, R, rng_at("bplan", x, y), lod, var=var)
+    r = pc.try_site("broad", x, y, 0.3 + R * 0.1, R, fn, nudge=nudge, rock=rock)
     if r is None:
         return False
     pl, xx, yy, z = r
@@ -722,12 +1066,12 @@ def place_broad(pc, x, y, h, R, lod=0, nudge=True):
     if t is None:
         return False
     pc.tris += t
-    pc.commit("broad", xx, yy, z, 0.3 + R * 0.075, R)
+    pc.commit("broad", xx, yy, z, 0.3 + R * 0.075, R, col_r=(0.3 + R * 0.07) * 1.95)
     STATS["broad"] = STATS.get("broad", 0) + 1
     return True
 
 
-def place_bush(pc, x, y, r, nudge=False, lumps=2, route_gap=2.5, rock=False):
+def place_bush(pc, x, y, r, nudge=False, lumps=2, route_gap=2.5, rock=False, kind=None):
     rng = rng_at("bush", x, y)
     for dx, dy in (NUDGE[:9] if nudge else NUDGE[:1]):
         xx, yy = x + dx, y + dy
@@ -746,11 +1090,27 @@ def place_bush(pc, x, y, r, nudge=False, lumps=2, route_gap=2.5, rock=False):
         sph = [(Vector((xx, yy, z + r * 0.5)), r * 1.1)]
         if blocks_view(pc.V, sph):
             continue
-        t = add_item(xx, yy, r * 2.0, lambda mb: bush(mb, xx, yy, z, r, rng_at("bush", x, y), lumps=lumps), zroot=z)
+        boxes = []
+        t = add_item(xx, yy, r * 2.0, lambda mb: boxes.__setitem__(slice(None), bush(mb, xx, yy, z, r, rng_at("bush", x, y),
+                                                                                    lumps=lumps, kind=kind) or []),
+                     zroot=z, pink=kind == "tsutsuji")
         if t is None:
             return False
         pc.tris += t
         pc.placed.append((xx, yy, r, "bush"))
+        if boxes:                                     # 1 caixa por moita (no referencial do 1o monte)
+            rot = boxes[0][4]
+            ux, uy = math.cos(rot), math.sin(rot)
+            us, vs, hb = [], [], 1.2
+            for c, rx, ry, rz, _ in boxes:
+                du, dv = (c.x - xx) * ux + (c.y - yy) * uy, -(c.x - xx) * uy + (c.y - yy) * ux
+                rr = max(rx, ry) * 1.08
+                us += [du - rr, du + rr]
+                vs += [dv - rr, dv + rr]
+                hb = max(hb, c.z + rz * 1.02 - z)
+            cu, cv = (min(us) + max(us)) / 2.0, (min(vs) + max(vs)) / 2.0
+            col_box("OP_VegBush", (max(us) - min(us), max(vs) - min(vs), hb),
+                    (xx + cu * ux - cv * uy, yy + cu * uy + cv * ux, z + hb / 2.0), (0.0, 0.0, rot))
         STATS["bush"] = STATS.get("bush", 0) + 1
         return True
     return False
@@ -856,7 +1216,7 @@ def court_pines(pc):
             if tt is None:
                 continue
             pc.tris += tt
-            pc.commit("pine", xx, yy, z, r, 4.6 * s_)
+            pc.commit("pine", xx, yy, z, r, 4.6 * s_, col_r=0.07 * h * 2.05)
             STATS["pine"] = STATS.get("pine", 0) + 1
             STATS.setdefault("patio_xy", []).append((round(xx, 1), round(yy, 1), round(z, 2)))
             n += 1
@@ -1041,8 +1401,8 @@ def wall_feet(pc, budget, step=9.0):
                     return n
                 t = (j + 0.5) / k
                 x, y = a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t
-                if hh("wf", nm, i, j) > 0.45:
-                    continue
+                if hh("wf", nm, i, j) > 0.3 or math.sin(i * 1.7 + j * 0.9 + len(nm)) < 0.2:
+                    continue                 # V3: manchas, nunca fileira de moitas igualmente espacadas
                 g = pc.P.top(x, y)
                 if g is None or zt - g[0] < 2.5 or zt - g[0] > 20.0:
                     continue
@@ -1128,7 +1488,7 @@ def cliff_greens(pc, budget, step=8.5):
         tree = hh("cgt", key) < 0.3 and zt - L.SEA > 24.0
         if tree:
             R = 4.6 + 2.4 * hh("cgr", key)
-            base = lip - o * 1.2
+            base = lip + o * 0.25 - ZZ * 0.4             # V3: o pe na quina (fora do chao andavel)
             top = base + o * (2.8 + R * 0.5) + ZZ * (4.2 + R * 0.6)
             sph = [(top + ZZ * R * 0.25, R * 1.05)]
             if not pc.crown_ok(sph):
@@ -1145,7 +1505,7 @@ def cliff_greens(pc, budget, step=8.5):
             t = add_item(x, y, R + 4.0, gen, zroot=zt)
         else:
             r = 3.4 + 2.6 * hh("cgb", key)
-            c1 = lip + o * r * 0.25 - ZZ * r * 0.55
+            c1 = lip + o * r * 1.3 - ZZ * r * 0.55          # V3: a almofada cai PARA FORA do labio (corpo nao entra)
             drop = 2.0 + 3.0 * hh("cgd", key)
             c2 = Vector((fp.x, fp.y, zt - drop - r * 0.8)) + o * r * 0.3
             c2 = _anchor(pc, c2, o, r * 0.6 * 1.15, r * 1.1, 0.5)          # M6b (item 46)
@@ -1272,13 +1632,200 @@ def capital_spots(pc):
             # o maior tamanho que cabe no recanto (copa sem tocar beiral/fachada): M -> S -> XS
             chain = ("M", "S", "XS") if any(w in note for w in ("jardim", "santuario", "mirante do porto")) else ("S", "XS")
             for i, sz in enumerate(chain):
-                if place_cherry(pc, x, y, sz, "capital: " + note, lod=1, quiet=i < len(chain) - 1):
+                if place_cherry(pc, x, y, sz, "capital: " + note, lod=0, quiet=i < len(chain) - 1, rock="paved",
+                                lift="auto", var=int(hh("cvs", x, y) * 5) % 5, strict_built=False):
                     n += 1
                     break
         elif kind == "pinheiro":
-            n += place_pine(pc, x, y, 11.0, "capital: " + note, lod=1)
+            n += place_pine(pc, x, y, 11.0, "capital: " + note, lod=0, rock="paved", var=int(hh("cvp", x, y) * 5) % 5)
         else:
-            n += place_bush(pc, x, y, 2.0, nudge=True, lumps=3)
+            n += place_bush(pc, x, y, 2.0, nudge=True, lumps=3, rock="paved")
+    return n
+
+
+# ================================================================== COMPOSICAO V3 (rodada 2: "falta amor na composicao")
+# GRUPOS DIRIGIDOS de 3-5 plantas com 1 DOMINANTE (a 1a da lista: maior, lod mais alto), formas diferentes dentro do
+# grupo, nada em fila igualmente espacada. Cerejeiras EMOLDURAM a chegada (ombros do torii), os cantos da praca, o
+# sando do santuario NE (os 2 bosques do PLANO_V2 3.4), o rochedo do castelo e o porto; pinheiros nas bordas de
+# falesia, nas rochas do fundo e no jardim do terraco alto; moitas podadas ao pe dos grupos.
+#   membro: (familia, x, y, tamanho/altura, forma, inclinacao graus ou None, lod)
+#     familia c = cerejeira (tamanho XS/S/M/L, forma 0 leque 1 inclinada 2 alta 3 chorona 4 baixa)
+#             p = kuromatsu (altura, forma 0 sentinela 1 debrucado 2 jardim 3 gemeo 4 jovem)
+#             b = larga (altura, forma 0..3; raio = 0,62 x altura)
+#             k = moita (raio, tipo tama / nami / tsutsuji / cerca)
+#   paved: o grupo pode nascer em patio de pedra / adro / jardim da cidade (Probe.natural com rock="paved")
+GROUPS = [
+    ("Torii O", True, "ombro oeste do grande torii: moldura da chegada (ref_03)", [
+        ("c", -38.0, 16.0, "L", 0, 200.0, 2), ("p", -50.0, 30.0, 11.0, 1, 170.0, 1),
+        ("k", -25.0, 14.0, 2.2, "tsutsuji", None, 1), ("k", -46.0, 10.0, 2.0, "nami", None, 1)]),
+    ("Torii L", True, "ombro leste do grande torii", [
+        ("c", 42.0, 20.0, "M", 1, -20.0, 2), ("p", 58.0, 27.0, 12.0, 2, 10.0, 1), ("c", 29.0, 32.0, "XS", 4, 40.0, 1),
+        ("k", 28.0, 13.0, 2.0, "tama", None, 1), ("k", 51.0, 12.0, 2.2, "tsutsuji", None, 1)]),
+    ("Porto alto", True, "patio sul da rua alta do porto: cerejeiras sobre o porto (concept)", [
+        ("c", 80.0, 49.0, "M", 1, -40.0, 1), ("k", 72.0, 42.0, 2.0, "tsutsuji", None, 1)]),
+    ("Praca NO", True, "canto NO da praca, pe do terraco alto", [
+        ("c", -104.0, 334.0, "M", 2, 150.0, 1), ("p", -94.0, 346.0, 11.0, 4, 120.0, 1),
+        ("k", -96.0, 326.0, 2.0, "nami", None, 1)]),
+    ("Santuario lago", True, "sando NE, bosque 1 (PLANO_V2 3.4): chorona debrucada sobre o lago", [
+        ("c", 131.0, 334.0, "L", 3, 300.0, 1), ("c", 130.0, 312.0, "M", 0, 200.0, 1), ("c", 160.0, 310.0, "S", 1, 20.0, 1),
+        ("c", 166.0, 330.0, "M", 0, 60.0, 1), ("k", 152.0, 313.0, 1.8, "tsutsuji", None, 1)]),
+    ("Santuario mirante", True, "sando NE, bosque 2 (mirante): emoldura o haiden", [
+        ("c", 214.0, 322.0, "L", 0, 30.0, 1), ("c", 221.0, 338.0, "S", 2, 60.0, 1), ("c", 196.0, 336.0, "M", 1, 120.0, 1),
+        ("p", 230.0, 318.0, 12.0, 0, -10.0, 1), ("k", 204.0, 326.0, 2.0, "tama", None, 1)]),
+    ("Castelo O", False, "rocha oeste do castelo: moldura do rochedo vista da praca", [
+        ("c", -88.0, 374.0, "M", 1, 180.0, 1), ("k", -80.0, 382.0, 2.0, "nami", None, 1)]),
+    ("Castelo L", False, "rocha leste do castelo, perto da base da arvore (eco da copa monumental)", [
+        ("c", 96.0, 378.0, "M", 0, 0.0, 1), ("p", 70.0, 360.0, 11.0, 1, -20.0, 1), ("c", 104.0, 384.0, "S", 4, 30.0, 0)]),
+    ("Terraco alto", True, "jardim das mansoes do terraco alto (PLANO_V2: jardim de pinheiros)", [
+        ("p", -198.0, 334.0, 15.0, 2, 200.0, 1), ("c", -176.0, 316.0, "M", 3, 250.0, 0), ("p", -207.0, 354.0, 11.0, 4, 160.0, 0),
+        ("k", -168.0, 345.0, 2.2, "cerca", None, 1), ("k", -186.0, 324.0, 2.0, "tsutsuji", None, 1),
+        ("k", -138.0, 318.0, 2.0, "tama", None, 1)]),
+    ("Terraco alto N", True, "terraco alto, jardim do fundo das mansoes", [
+        ("c", -150.0, 410.0, "M", 0, 120.0, 1), ("p", -178.0, 414.0, 14.0, 0, 150.0, 0), ("c", -200.0, 420.0, "S", 1, 160.0, 0),
+        ("k", -162.0, 398.0, 2.0, "nami", None, 1)]),
+    ("Fundo", False, "silhueta atras do castelo: pinheiros nas rochas altas", [
+        ("p", -20.0, 486.0, 17.0, 0, 100.0, 0), ("p", 44.0, 492.0, 15.0, 1, 80.0, 0), ("p", 205.0, 498.0, 13.0, 1, 60.0, 0)]),
+    ("Rochas NE", False, "rochas NE sobre a queda leste", [
+        ("p", 262.0, 350.0, 14.0, 1, 30.0, 0), ("p", 282.0, 330.0, 12.0, 0, 60.0, 0), ("b", 270.0, 368.0, 12.0, 1, None, 0)]),
+]
+
+
+def place_groups(pc):
+    n = 0
+    for gname, paved, note, mem in GROUPS:
+        t0 = pc.tris
+        rock_c = "paved" if paved else False
+        for i, (fam, x, y, sz, var, lean, lod) in enumerate(mem):
+            if i > 0:                    # o DOMINANTE leva o detalhe; o resto do grupo e mais leve (orcamento)
+                lod = min(lod, 0 if fam in ("c", "p") else 1)
+            t = pc.P.top(x, y)
+            pc.zwin = (t[0] - 4.0, t[0] + 4.0) if t is not None and t[0] > L.SEA + 20.0 else None
+            tag = "%s #%d (%s)" % (gname, i + 1, note if i == 0 else "grupo")
+            if fam == "c":
+                ok = place_cherry(pc, x, y, sz, tag, lean=lean, lod=lod, var=var, rock=rock_c)
+                if not ok and sz in ("L", "M"):
+                    ok = place_cherry(pc, x, y, "S" if sz == "M" else "M", tag, lean=lean, lod=lod, var=var, rock=rock_c,
+                                      quiet=True)
+            elif fam == "p":
+                ok = place_pine(pc, x, y, sz, tag, lean=lean, lod=lod, var=var, rock="paved" if paved else True)
+            elif fam == "b":
+                ok = place_broad(pc, x, y, sz, sz * 0.62, lod=lod, var=var, rock=rock_c)
+            else:
+                ok = place_bush(pc, x, y, sz, nudge=True, lumps=2, rock=rock_c or True, kind=var)
+            n += bool(ok)
+        pc.zwin = None
+        STATS.setdefault("grupo_tris", []).append((gname, pc.tris - t0))
+    return n
+
+
+def _courtyards(step=7.0):
+    """pontos de PATIO INTERNO das quadras V2 (entre a fileira da frente e a de tras de cada quadra): fora de lote,
+    com lote a <= 12 dos 2 lados -> cerejeiras que ESPIAM POR CIMA DOS TELHADOS (o tapete rosa entre os telhados da
+    ref_03)"""
+    lots = L.block_lots()
+    blocks = {}
+    for lt in lots:
+        blocks.setdefault(lt["block"], []).append(L.lot_poly(lt))
+    out = []
+    for b, pps in sorted(blocks.items()):
+        xs = [p[0] for pp in pps for p in pp]
+        ys = [p[1] for pp in pps for p in pp]
+        y = min(ys) + step / 2
+        while y < max(ys):
+            x = min(xs) + step / 2
+            while x < max(xs):
+                if not any(L.point_in_poly(x, y, pp) for pp in pps):
+                    near = [pp for pp in pps if L.poly_edge_dist(x, y, pp) < 12.0]
+                    if len(near) >= 2:
+                        cs = [(sum(p[0] for p in pp) / 4, sum(p[1] for p in pp) / 4) for pp in near]
+                        # lotes dos 2 LADOS do ponto (frente e fundo da quadra), nao 2 vizinhos do mesmo lado
+                        if any((a[0] - x) * (b2[0] - x) + (a[1] - y) * (b2[1] - y) < 0 for a in cs for b2 in cs):
+                            out.append((b, x, y))
+                x += step
+            y += step
+    return out
+
+
+def _city_gaps(pc, step=4.0):
+    """V3 (cidade V2 real): pontos de PATIO/QUINTAL de pedra ou jardim ENTRE as quadras, achados no construido (raio
+    para baixo): chao horizontal 'paved', fora de rua/praca/agua, com TELHADO a <= 12 (dentro do tecido da cidade) e
+    sem beiral a < 2,2 (o tronco cabe)"""
+    out = []
+    lots = [lt for lt in L.block_lots() if lt["block"] not in ("NE", "W3")]   # NE e terraco ja tem os grupos
+    polys = [L.lot_poly(lt, 14.0) for lt in lots]
+    xs = [lt["x"] for lt in lots]
+    ys = [lt["y"] for lt in lots]
+    y = min(ys) - 20.0
+    while y < max(ys) + 20.0:
+        x = min(xs) - 20.0
+        while x < max(xs) + 20.0:
+            t = pc.P.top(x, y)
+            if t is not None and t[3] > 0.95 and pc.P.natural(t, "paved") and not t[1].startswith("OP_Plz_")                     and t[0] > L.SEA + 20.0 and plan_reject(x, y, 0.8, 6.0) is None                     and any(L.point_in_poly(x, y, pp) for pp in polys):
+                near = [pc.P.top(x + math.cos(a) * d, y + math.sin(a) * d) for d in (2.2, 12.0)
+                        for a in (0.0, 1.57, 3.14, 4.71)]
+                roof_close = any(q is not None and q[2].startswith("Roof") for q in near[:4])
+                roof_far = any(q is not None and q[2].startswith("Roof") for q in near[4:])
+                if roof_far and not roof_close:
+                    out.append(("cidade", x, y))
+            x += step
+        y += step
+    return out
+
+
+def courtyard_cherries(pc, budget, gap=34.0):
+    """cerejeiras dos patios internos / quintais entre as quadras (lod -1, copa levantada sobre os telhados: lift
+    automatico pelo construido): o tapete rosa entre os telhados da ref_03"""
+    n = 0
+    taken = [(t_[0], t_[1]) for t_ in TRUNKS if t_[5] == "cherry"]
+    cand = _city_gaps(pc) or _courtyards()
+    cand.sort(key=lambda c: hh("pi", c[0], round(c[1]), round(c[2])))
+    for b, x, y in cand:
+        if pc.tris > budget:
+            break
+        if any(math.hypot(x - a, y - c) < gap for a, c in taken):
+            continue
+        k = hh("pik", b, round(x), round(y))
+        sz = "M" if k < 0.55 else ("L" if k < 0.7 else "S")
+        var = int(hh("piv", b, round(x), round(y)) * 5) % 5
+        if place_cherry(pc, x, y, sz, "patio interno " + b, lod=-1, nudge=True, rock="paved", quiet=True, var=var,
+                        lift="auto", strict_built=False):
+            taken.append((x, y))
+            n += 1
+            # PAR: as vezes uma cerejeira menor colada (9-14), nunca fileira de iguais espacadas
+            if hh("pip", round(x), round(y)) < 0.55:
+                near = [c for c in cand if 9.0 <= math.hypot(c[1] - x, c[2] - y) <= 14.0]
+                near.sort(key=lambda c: hh("pin", round(c[1]), round(c[2])))
+                for b2, x2, y2 in near[:4]:
+                    if place_cherry(pc, x2, y2, "S" if sz != "S" else "XS", "patio interno (par) " + b2, lod=-1,
+                                    nudge=False, rock="paved", quiet=True, var=(var + 2) % 5, lift="auto",
+                                    strict_built=False):
+                        taken.append((x2, y2))
+                        n += 1
+                        break
+    STATS["patios_cand"] = len(cand)
+    return n
+
+
+def rim_pines(pc, budget, step=9.0):
+    """KUROMATSU nas bordas de falesia EM GRUPOS (ruido dirigido: 2-4 juntos, depois vazio), debrucados para fora
+    (forma 'debrucado' ou 'sentinela'), alturas variadas; 1 moita no pe de alguns"""
+    n = 0
+    for x, y, ang, d in rim_samples(step, 6.0):
+        if pc.tris > budget:
+            break
+        if rim_skip(x, y) or harbor_corner(x, y):
+            continue
+        g = 0.5 + 0.5 * math.sin(d / 37.0 + 0.9) * math.cos(d / 13.0 + 0.3)
+        if g < 0.62 or hh("rp", round(d, 1)) > 0.75:
+            continue
+        lean = math.degrees(ang) + (hh("rpl", round(d, 1)) - 0.5) * 40.0
+        var = 1 if hh("rpv", round(d, 1)) < 0.6 else (0 if hh("rpv2", round(d, 1)) < 0.6 else 4)
+        h = 10.0 + 6.0 * hh("rph", round(d, 1))
+        ok = place_pine(pc, x, y, h, "borda", lean=lean, lod=0, nudge=True, quiet=True, var=var)
+        if ok and hh("rpk", round(d, 1)) < 0.35:
+            o = vdir(ang)
+            place_bush(pc, x - o.x * 4.5, y - o.y * 4.5, 1.8, nudge=True, lumps=2, rock=True)
+        n += bool(ok)
     return n
 
 
@@ -1326,24 +1873,24 @@ def build():
     _PROBE[0] = probe
     pc = Placer(probe, protected_views())
     out = {}
-    for x, y, s, lean, lod, note in HERO_CHERRIES:
-        place_cherry(pc, x, y, s, note, lean=lean, lod=lod)
-    out["capital"] = capital_spots(pc)
-    out["t_cerejeiras"] = pc.tris
-    for x, y, h, lean, note in HERO_PINES:
-        place_pine(pc, x, y, h, note, lean=lean, lod=1 if any(w in note for w in ("entrada", "contraforte")) else 0)
+    out["grupos"] = place_groups(pc)                                 # V3: grupos dirigidos com dominante
     out["patio"] = court_pines(pc)                                   # M6b: 2 kuromatsu no cascalho do patio
-    out["t_hero"] = pc.tris
-    out["quintais"] = city_yards(pc, BUDGET_TRIS * 0.80)
-    out["t_quintais"] = pc.tris
-    out["bosque"] = forest(pc, BUDGET_TRIS * 0.845)
-    out["t_bosque"] = pc.tris
-    out["borda"] = rim_band(pc, BUDGET_TRIS * 0.90)
+    out["t_grupos"] = pc.tris
+    out["capital"] = capital_spots(pc)                               # recantos do op_capital (quando a capital roda)
+    # o resto em FATIAS fixas a partir do que os grupos gastaram (a cidade rosa da ref_03 vem antes do verde de borda)
+    t = pc.tris
+    out["patios_internos"] = courtyard_cherries(pc, min(BUDGET_TRIS, t + 5200))
+    out["t_patios"] = pc.tris
+    t = pc.tris
+    out["borda_pinheiros"] = rim_pines(pc, min(BUDGET_TRIS, t + 4200))
     out["t_borda"] = pc.tris
-    out["crista"] = cliff_greens(pc, BUDGET_TRIS * 0.95)
+    t = pc.tris
+    out["bosque"] = forest(pc, min(BUDGET_TRIS, t + 3200))
+    out["t_bosque"] = pc.tris
+    out["crista"] = cliff_greens(pc, BUDGET_TRIS - 2600)
     out["t_crista"] = pc.tris
-    out["face"] = face_clumps(pc, BUDGET_TRIS * 0.96)
-    out["prateleiras"] = ledges(pc, BUDGET_TRIS * 0.98)
+    out["face"] = face_clumps(pc, BUDGET_TRIS - 1200)
+    out["prateleiras"] = ledges(pc, BUDGET_TRIS - 800)
     out["pe_muro"] = wall_feet(pc, BUDGET_TRIS)
     objs = []
     for nm in sorted(_SEC):
@@ -1367,6 +1914,7 @@ def build():
     print("op_veg: rejeicoes %s | sem espaco no setor %d | atravessaria o construido %d | ancora: desceu %d encostou %d" % (
         sorted(pc.rej.items(), key=lambda a: -a[1]), STATS.get("sem_espaco", 0), STATS.get("intersecao", 0),
         STATS.get("ancora_desceu", 0), STATS.get("ancora_encostou", 0)))
+    print("op_veg: grupos (tris) %s | patios internos: %d candidatos" % (STATS.get("grupo_tris"), STATS.get("patios_cand", 0)))
     print("op_veg: setores %s" % ", ".join("%s %s" % (nm, sorted(sc.cnt.items())) for nm, sc in sorted(_SEC.items())))
     print("op_veg: cerejeiras %s" % " ".join("(%.0f,%.0f,%.1f R%.1f)" % (t[0], t[1], t[2], t[4]) for t in TRUNKS
                                              if t[5] == "cherry"))

@@ -132,7 +132,7 @@ ER.OWNERS = [("OP_Ter_", "terrain"), ("OP_Ent_", "entry"), ("OP_Cap_", "capital"
 ER.BUDGET_OWNER = {"terrain": (108000, 81), "entry": (32400, 35), "capital": (232000, 145), "plaza": (34000, 36),
                    "castle": (84000, 59), "tree": (43200, 32), "harbor": (41000, 43), "ship": (19400, 17),
                    "summon": (36700, 43), "exit": (19400, 26), "gate_opm": (30300, 41), "landmarks": (15100, 15),
-                   "water": (10800, 17), "props": (27000, 38), "vegetation": (48600, 49), "vfx": (16200, 32)}
+                   "water": (10800, 17), "props": (27000, 38), "vegetation": (65000, 50), "vfx": (16200, 32)}
 # PLANO_OP secao 9: <= 620k tris / 650 MeshParts estaticos + reserva VFX 15k / 30
 ER.BUDGET = {"static_tris": 640000, "static_meshes": 650, "vfx_tris": 15000, "vfx_meshes": 30, "total_tris": 655000,
              "total_meshes": 680, "materials": 110, "shadow_meshes": 260, "day_lights": 36, "col": 1500}
