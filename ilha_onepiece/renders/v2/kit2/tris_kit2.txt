@@ -1,0 +1,10 @@
+KIT2 A_loja                     tris=  5646 materiais=17 
+KIT2 A2_loja_tsuma              tris=  7180 materiais=17 
+KIT2 B_sobrado                  tris=  9178 materiais=13 
+KIT2 C_esquina                  tris=  7972 materiais=19 
+KIT2 D_kura                     tris=  3844 materiais=10 
+KIT2 E_chaya                    tris=  8062 materiais=23 
+KIT2 F_fundo                    tris=  4032 materiais=10 
+KIT2 G_pecas                    tris=  3896 materiais=18 
+KIT2 H_ponte                    tris=  1500 materiais=12 
+KIT2 Q_rua_modelo               tris= 65846 materiais=30 loja 12 | sobrado 16 | loja 12 | loja 14 | kura 10 | chaya 22 | loja 14 | esquina 16

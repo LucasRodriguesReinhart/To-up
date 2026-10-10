@@ -82,12 +82,23 @@ OPMATS = {
     "Flower_OP_Light":    (S(250, 196, 224), 0.8, 0.0, 0, None, 0.03),
     "Flower_OP_Deep":     (S(206, 108, 164), 0.85, 0.0, 0, None, 0.03),  # M3 op_tree: face de baixo das massas da copa
     "Bark_OP":            (S(98, 74, 56), 0.9, 0.0, 0, None, 0.08),      # casca (arvore monumental e cerejeiras)
+    "Bark_OP_Groove":     (S(46, 34, 28), 0.9, 0.0, 0, None, 0.06),      # V2 op_tree: fundo dos sulcos da casca (fibra le sem textura)
+    "Leaf_OP_Sun":        (S(118, 164, 80), 0.85, 0.0, 0, None, 0.05),   # V2 op_tree/op_veg: topo ensolarado das almofadas de pinheiro
     "Cloth_OP_White":     (S(236, 232, 222), 0.85, 0.0, 0, None, 0.03),  # estandartes, velas
     "Cloth_OP_Indigo":    (S(44, 52, 96), 0.85, 0.0, 0, None, 0.03),     # noren, faixa dos estandartes
     "Cloth_OP_Red":       (S(176, 40, 34), 0.85, 0.0, 0, None, 0.03),
     "Cloth_OP_Sail":      (S(236, 226, 200), 0.85, 0.0, 0, None, 0.03),
     "Cloth_OP_Black":     (S(34, 32, 38), 0.85, 0.0, 0, None, 0.02),     # M3 op_ship: contorno/olhos do Jolly Roger, bandeira
     "Cloth_OP_Straw":     (S(226, 184, 86), 0.85, 0.0, 0, None, 0.04),   # M3 op_ship/op_harbor: chapeu de palha, fardos de arroz
+    "Roof_OP_Teal":       (S(62, 148, 138), 0.7, 0.0, 0, None, 0.05),    # PLANO_V2 (V2-0) / op_kit2: telhado verde-agua (ref_03)
+    "Roof_OP_Cobalt":     (S(60, 90, 168), 0.7, 0.0, 0, None, 0.05),    # PLANO_V2 (V2-0): telha azul-cobalto (avenida, ref_03)
+    "Roof_OP_Violet":     (S(104, 84, 152), 0.7, 0.0, 0, None, 0.05),   # PLANO_V2 (V2-0): telha roxa (bairro do canal, lojas NE)
+    "Roof_OP_RedV2":      (S(172, 62, 52), 0.7, 0.0, 0, None, 0.05),    # PLANO_V2 (V2-0): telha vermelha (rua alta do porto, esquinas)
+    "Stone_OP_Curb":      (S(150, 144, 134), 0.85, 0.0, 0, None, 0.05),  # PLANO_V2 (V2-0): meio-fio de pedra (0,3) das vias com calcada
+    "Stone_OP_Gutter":    (S(112, 108, 102), 0.9, 0.0, 0, None, 0.04),   # PLANO_V2 (V2-0): sarjeta (0,8, -0,15) entre leito e meio-fio
+    "Leaf_OP_PinePad":    (S(52, 108, 66), 0.85, 0.0, 0, None, 0.05),    # PLANO_V2 (V2-0): almofada do pinheiro em nuvem (face de cima)
+    "Leaf_OP_PineUnder":  (S(30, 68, 46), 0.85, 0.0, 0, None, 0.04),     # PLANO_V2 (V2-0): face de baixo da almofada (mais escura)
+    "Cloth_OP_Tatami":    (S(192, 180, 124), 0.9, 0.0, 0, None, 0.04),   # KIT2 op_kit2: tatami dos interiores
     "Glass_OP_Lantern":   (S(232, 160, 96), 0.4, 0.0, 1.0, S(240, 170, 110), 0.0),   # papel aceso DENTRO da armacao
     "Window_OP_Warm":     (S(250, 212, 160), 0.5, 0.0, 0.5, S(255, 190, 120), 0.0),  # shoji aceso, recuado
     "Water_OP_Basin":     (S(36, 120, 130), 0.15, 0.0, 0, None, 0.0),    # so previa (a agua e do Roblox)
