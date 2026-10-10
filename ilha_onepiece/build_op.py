@@ -48,8 +48,11 @@ ZONE_MODULES_V1 = {
                              # peca por raio no chao ja construido; a vegetacao desvia das pecas e colisoes dele
 }
 ZONE_MODULES_V2_0 = {
-    "terrain": [],     # op_terrain V1: pele/borda reprovadas (U5/U8: 6.000+ studs2 sem colisao), NE antigo, canais na
-                       #   cota velha -> V2-3 (bordas que fecham as frestas, socalcos NE, pinaculo sem pagode)
+    "terrain": ["op_terrain"],  # V2-3 terreno refeito: pele EXATA dos poligonos na cota da colisao, contorno exato
+                                #   (CDT) com falesia de Wano (massas, fendas, linguas verdes, estratos, espuma, blocos),
+                                #   arrimos em talude nas frestas + tampas sob as guardas, socalcos NE de ishigaki, picos
+                                #   (pinaculo oeste sem pagode, agulhas, contrafortes) - 0 studs2/0 corpo/0 fresta do terreno
+                                #   no gate visual (o que sobra e de outros donos)
     "entry": [],       # op_entry V1: nobori da ponte e poste em T (U15/U16) -> V2-3
     "capital": ["op_capital"],  # V2-3 capital inteira no kit V2 (101 lotes/12 quadras, parede-meia: 0 interpenetracao
                                 #   no teste malha x malha do proprio modulo; ruas V2, NE, 4 interiores) - gate visual
@@ -63,7 +66,9 @@ ZONE_MODULES_V2_0 = {
     "harbor": ["op_harbor"],  # V2-2 porto vivo (H3 fora; guindaste com tambor/lingada moveis, 3 grupos de barcos
                               #   balancando, lonja, redes, armazem aberto) - passou no gate visual (agente do porto V2)
     "ship": ["op_ship"],      # V2-2 navio atracado (velas ferradas, lingada) + junco fundeado VFX_OP_Junk - gate verde
-    "water": [],       # op_water V1: canais na cota antiga (U6) -> V2-3 (canais rebaixados, capa fora das pontes)
+    "water": ["op_water"],      # V2-3 agua: canais rebaixados (leito/capa = colisao do op_col), pontes em arco do kit2 no
+                                #   envelope do op_col.arch_bridge (+ caixa alta nos guarda-corpos), soleiras, bicas, bacia,
+                                #   roda d'agua; water_markers() da planta V2 - gate visual sem falha da agua
     "exit": [],        # op_exit V1: frestas entre as tabuas (U5) -> V2-3
     "landmarks": [],   # op_landmarks V1: pagode (U13) -> V2-3
     "dressing": ["op_veg", "op_vfx", "op_lights"],  # V3 arvores (op_veg, cerejeira/kuromatsu/larga/karikomi em grupos) + petalas por grupo (op_vfx) + passe de luz; op_props V1 fora (reprovado)
