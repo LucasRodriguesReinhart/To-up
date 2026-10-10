@@ -548,6 +548,8 @@ def build():
     for m_ in (mb, mr, mp):
         K.cull_hidden(m_)
         m_.finish(recalc=False)
+    K2.cull_pockets([o for o in bpy.data.objects if o.type == "MESH" and o.name.startswith("OP_Plz_")],
+                    ("OP_Ter_", "OP_Cap_"), tag="op_plaza", under=True)              # V3-cut: faces em bolso/enterradas
     cams()
     tot = sum(_tris(o.name) for o in bpy.data.objects if o.name.startswith("OP_Plz_") and o.type == "MESH")
     print("op_plaza V2: lajes %s | guarda %d trechos, muretas %d, props %d (col %d) | tris %d (piso %d, eixo %d, "

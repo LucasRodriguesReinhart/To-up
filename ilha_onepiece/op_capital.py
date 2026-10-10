@@ -52,6 +52,9 @@ BACK_ROWS = {("AvO", "B1"), ("AvO", "B2"), ("AvL", "B1"), ("BairroS", "B1"), ("O
              ("OesteM", "B2"), ("OesteN", "B"), ("PortoAlto1", "B"), ("PortoAlto2", "B"), ("W3", "M1"), ("W3", "M2"),
              ("AlemCanal", "F1"), ("AlemCanal", "F2"), ("BairroN", "F1"), ("BairroN", "M"), ("BairroS", "F1"),
              ("PortoAlto1", "F"), ("PortoAlto2", "F")}
+FAR_D = 15.0              # V3-cut: frente a mais disto de TODA rota do jogo (op_layout.routes) = lod 3 (op_kit2: casa
+#                           longe - mesma silhueta/cores, onda de telha 1,3x, detalhe de fachada mais aberto)
+FAR_KINDS = ("loja", "fundo", "sobrado", "kura", "armazem", "moinho")
 SECOND = {L.R_COB: L.R_TEAL, L.R_TEAL: L.R_COB, L.R_VIO: L.R_COB, L.R_RED: L.R_VIO, L.R_GRN: L.R_TEAL}
 INTERIOR_LIGHT = {"AvO_F14": "L_OPCap_Int_LojaTecidos", "AvL_F15": "L_OPCap_Int_Izakaya",
                   "OesteM_F21": "L_OPCap_Int_Cha", "NE_Haiden1": "L_OPCap_Int_Haiden"}
@@ -165,6 +168,19 @@ def _dh(lt):
     return lt["eave"] - lt["z"] - L.EAVE_H.get((lt["kind"], lt["floors"]), 8.8 + 6.0 * (lt["floors"] - 1))
 
 
+def _seg_d(p, a, b):
+    dx, dy = b[0] - a[0], b[1] - a[1]
+    t = max(0.0, min(1.0, ((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / max(1e-9, dx * dx + dy * dy)))
+    return math.hypot(p[0] - a[0] - t * dx, p[1] - a[1] - t * dy)
+
+
+def route_dist(lt):
+    """V3-cut: distancia do meio da FACHADA do lote ate a rota do jogo mais proxima (op_layout.routes)"""
+    c, s = math.cos(lt["yaw"]), math.sin(lt["yaw"])
+    p = (lt["x"] + c * lt["D"] / 2, lt["y"] + s * lt["D"] / 2)
+    return min(_seg_d(p, a, b) for pts, z in L.routes().values() for a, b in zip(pts, pts[1:]))
+
+
 def plan(lots):
     nbs = neighbors(lots)
     specs = []
@@ -189,6 +205,10 @@ def plan(lots):
         lod = 0 if (lt["block"], lt["row"]) in HERO_ROWS else (2 if (lt["block"], lt["row"]) in BACK_ROWS else 1)
         if kind == "esquina" or lt["interior"]:
             lod = 1 if kind == "esquina" else 0             # interiores vivos sempre lod 0; esquinas lod 1
+        far = (lod == 2 or kind in ("fundo", "moinho")) and kind in FAR_KINDS and not lt["interior"] and \
+            route_dist(lt) > FAR_D                          # V3-cut: casa de tras (lod 2) longe de toda rota = lod 3
+        if far:
+            lod = 3
         hide_back = nb["back_gap"] is not None and nb["back_gap"] < 1.0
         lname = INTERIOR_LIGHT.get(lt["name"]) if lt["interior"] else None
         kw = dict(W=Wb, D=Db, roof_m=roof, lod=lod, seed=seed, back=back, lim=lim)
@@ -230,7 +250,7 @@ def plan(lots):
         elif kind in ("fundo", "moinho"):
             kw.update(sides=sides, tsuma=(lt["tsuma"] or h01(lt["name"], "ts") < 0.35 or kind == "moinho"),
                       h0=(9.0 if kind == "moinho" else 8.0) + max(0.0, dh), hisashi=lt["hisashi"])
-            kw["lod"] = 2                      # fundos = Tier B (PLANO_V2 3.2): sempre lod 2 (telha ondulada mantida)
+            kw["lod"] = max(2, lod)            # fundos = Tier B (PLANO_V2 3.2): sempre lod 2 (telha ondulada mantida)
             fn, zw = K2.fundo, 0.6 + kw["h0"]
         elif kind == "portal":
             kw.update(sides=sides, h=lt["eave"] - lt["z"])
@@ -243,8 +263,10 @@ def plan(lots):
             fn, zw = K2.honden2, 7.0
         else:
             raise RuntimeError("op_capital: tipo sem kit: %s" % kind)
+        # V3-cut: agua de TRAS dando para o fundo de outra fileira (patio) = onda no modulo do lod 3 (so se ve de cima)
+        back_coarse = kw["lod"] >= 1 and nb["back"] is not None and not kw.get("tsuma") and kind != "esquina"
         specs.append(dict(lot=lt, fn=fn, kw=kw, F=_lot_frame(lt, setback), zw=zw, sides=sides, nb=nb,
-                          region=REGION[lt["block"]], setback=setback))
+                          region=REGION[lt["block"]], setback=setback, back_coarse=back_coarse))
     _variety(specs)
     return specs
 
@@ -357,17 +379,23 @@ def _merge(dst, src):
     src.bm.free()
 
 
-CULL_IN = {K2.loja: 4.0, K2.sobrado: 4.0, K2.fundo: 0.7, K2.kura: 0.7}   # recuo da frente do terreo (vitrine)
+CULL_IN = {K2.loja: 4.0, K2.sobrado: 4.0, K2.fundo: 0.7, K2.kura: 0.7, K2.mansao2: 4.0}   # recuo da frente do terreo
+#                                                    (vitrine); V3-cut: + mansao (o sobrado fechado no fundo do lote)
 
 
-def cull_inside(mb, s):
+def cull_inside(mb, s, info=None):
     """apaga as faces DENTRO do volume fechado da casa (frente/fundos/laterais + forro do frechal): paredes,
     pilares e soleiras vistos por dentro. So nas casas fechadas (sem interior vivo; a vitrine da loja fica: o terreo
-    so e cortado atras dela). -> tris cortados"""
+    so e cortado atras dela). V3-cut: + o SOTAO dos telhados kirizuma (face com TODOS os vertices dentro da planta e
+    abaixo do forro da telha: fundo da placa sobre a casa, empena vista por dentro). -> tris cortados"""
     if s["lot"]["interior"] or s["fn"] not in CULL_IN:
         return 0
     F, kw = s["F"], s["kw"]
     W, D = kw["W"], kw["D"]
+    if s["fn"] is K2.mansao2:                         # V3-cut: o volume fechado e o sobrado (jardim/muro na frente)
+        gd = kw.get("gd", 7.0)
+        F = K2.sub(F, 0.0, -gd / 2)
+        W, D = min(W - 2.0, 16.0), D - gd
     ins = 0.7
     z0, zw = F.o.z + 0.3, F.o.z + s["zw"] - 0.05
     zg = F.o.z + 0.8 + kw.get("h0", 8.0)              # topo do terreo
@@ -382,6 +410,28 @@ def cull_inside(mb, s):
         u, v = dx * ca - dy * sa, dx * sa + dy * ca
         if abs(u) < W / 2 - ins and -D / 2 + ins < v < ((yfg if c.z < zg else D / 2 - ins)):
             kill.append(f)
+    r = (info or {}).get("roof")
+    if r and r.get("kind") == "kirizuma" and s["fn"] is not K2.mansao2:
+        Fr, Hf, tv = r["F"], r["Hf"], r["tv"]
+        cr, sr = math.cos(-Fr.a), math.sin(-Fr.a)
+        ia = 0.5
+        done = set(kill)
+        for f in mb.bm.faces:
+            if f in done or f.calc_center_median().z < zw:
+                continue
+            ok = True
+            for vv in f.verts:
+                p = vv.co
+                dx, dy = p.x - F.o.x, p.y - F.o.y
+                if abs(dx * ca - dy * sa) > W / 2 - ia or abs(dx * sa + dy * ca) > D / 2 - ia:
+                    ok = False
+                    break
+                rx, ry = p.x - Fr.o.x, p.y - Fr.o.y
+                if p.z > Fr.o.z + Hf(rx * cr - ry * sr, rx * sr + ry * cr) - tv + 0.03:
+                    ok = False
+                    break
+            if ok:
+                kill.append(f)
     n = sum(len(f.verts) - 2 for f in kill)
     bmesh.ops.delete(mb.bm, geom=kill, context="FACES")
     return n
@@ -394,8 +444,10 @@ def build_lots(specs):
     for s in specs:
         lt = s["lot"]
         mb = MB("OP_Cap_tmp_" + lt["name"], COLL)
+        K2.BACK_P = K2.LOD3_P if s["back_coarse"] else 1.0
         info = s["fn"](mb, s["F"], **s["kw"])
-        STATS["cull_in"] = STATS.get("cull_in", 0) + cull_inside(mb, s)
+        K2.BACK_P = 1.0
+        STATS["cull_in"] = STATS.get("cull_in", 0) + cull_inside(mb, s, info)
         infos[lt["name"]] = info
         geos[lt["name"]] = _geo(mb)
         tris[lt["name"]] = sum(len(f.verts) - 2 for f in mb.bm.faces)
@@ -934,6 +986,12 @@ def build():
     streets(lots)
     ncol += props(lots)
     stairs()
+    inner = [L.lot_poly(lt, 1.5) for lt in lots if lt["interior"]]
+
+    def g_at(p):                                      # interiores vivos: bolso de 0,5 (o jogador entra)
+        return 0.5 if any(L.point_in_poly(p.x, p.y, q) for q in inner) else 99.0
+    STATS["bolsos"] = K2.cull_pockets([o for o in bpy.data.objects if o.type == "MESH" and o.name.startswith("OP_Cap_")],
+                                      ("OP_Ter_",), tag="op_capital", g_at=g_at, under=True)   # V3-cut: faces em bolso/enterradas
     cams()
     interior_cams(specs)
     jc = junction_cams(specs)

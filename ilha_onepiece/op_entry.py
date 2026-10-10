@@ -744,4 +744,5 @@ def build():
     court()
     MB_LAMPS.finish()
     MB_LAMPS = None
+    K2.cull_pockets("OP_Ent_", ("OP_Ter_",), tag="op_entry")                        # V3-cut: faces em bolso/enterradas
     return lamps

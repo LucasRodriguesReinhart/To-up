@@ -250,10 +250,67 @@ def rot_clip(c):
     return (c[2], c[3], c[1], c[0])
 
 
+# V3-cut (orcamento 625k): pontos das TESTEIRAS (faixas sob a borda do beiral) - lod 0 como era; lod >= 1 com menos
+# trechos (o sori so levanta perto dos cantos: erro < 0,06 na curva, sempre dentro da placa de telha de 0,5)
+STRIP_T0 = (0.0, 0.06, 0.2, 0.4, 0.6, 0.8, 0.94, 1.0)
+STRIP_T1 = (0.0, 0.15, 0.35, 0.65, 0.85, 1.0)
+STRIP_T2 = (0.0, 0.15, 0.5, 0.85, 1.0)
+GABLE_BOARD_STEP = {0: 0.8, 1: 0.8, 2: 1.1, 3: 1.5}   # V3-cut: tabuas da empena (kitsure) nas casas lod 2/3
+# V3-cut LOD 3 = casa LONGE das rotas (frente a > 25 de qualquer rota do jogo; op_capital decide): a mesma casa do lod 2
+# com a telha ondulada no modulo 1,3x (mesma onda, menos colunas), hisashi numa faixa so, tabeiras com 5 pontos,
+# kumiko/trelica/mushiko mais abertos e tabuas da empena a 1,5 - silhueta, cores e camadas iguais
+LOD3_P = 1.3
+BACK_P = 1.0      # V3-cut: o op_capital poe LOD3_P aqui enquanto monta uma casa cuja agua de TRAS da para o fundo de
+#                   outra fileira (patio entre fileiras: so se ve de cima/de longe) e volta a 1.0 depois
+
+
+def _gable_wood(mb, F, x_in, x_out, zb, top, ymax, style, lod):
+    """madeiramento da empena: 'timber' = op_kit._gable_timber; 'board' = tabuas verticais com o passo do lod
+    (V3-cut: lod 2 = passo 1,1 em vez de 0,8 - mesma leitura de tabuado, 30% menos pecas)"""
+    if style != "board":
+        return _gable_timber(mb, F, x_in, x_out, zb, top, ymax, style)
+    zt0 = zb + 0.25
+    for y in even(-ymax + 0.2, ymax - 0.2, GABLE_BOARD_STEP.get(min(3, lod), 0.8)):
+        t = top(y) - 0.04
+        if t > zt0 + 0.4:
+            bb(mb, F, x_in, x_out, y - 0.09, y + 0.09, zt0, t, WD)
+
+
+def _ridge2(mb, F, x0, x1, zr, pitch, w=2.2, oni=True, s=1.0, gold=False, courses=3, oni_ends=(True, True), lod=0):
+    """cumeeira: lod 0 = op_kit.ridge; V3-cut lod >= 1 = a mesma cumeeira (tenda + fiadas + capa) com a capa redonda
+    de 6 lados e onigawara com o disco de 6 lados (de 4 a 30 studs de altura a diferenca nao aparece)"""
+    if lod == 0:
+        return ridge(mb, F, x0, x1, zr, pitch, w, oni, s, gold, courses, oni_ends)
+    hw = w / 2
+    poly = [(-hw, zr - pitch * hw - 0.05), (0.0, zr - 0.05), (hw, zr - pitch * hw - 0.05), (hw, zr + 0.32 * s),
+            (-hw, zr + 0.32 * s)]
+    ext(mb, F, poly, "x", x0, x1, RR)
+    z = zr + 0.28 * s
+    for k in range(courses):
+        f = 0.84 - 0.14 * k
+        bb(mb, F, x0 + 0.12 + 0.1 * k, x1 - 0.12 - 0.1 * k, -f * hw, f * hw, z, z + 0.36 * s, RR)
+        z += 0.32 * s
+    mb.rod(F.p(x0 + 0.3, 0, z + 0.14 * s), F.p(x1 - 0.3, 0, z + 0.14 * s), 0.36 * hw, RR, 6)
+    if oni:
+        so = s * 0.74
+        for x, sx, on in ((x0, -1, oni_ends[0]), (x1, 1, oni_ends[1])):
+            if not on:
+                continue
+            opoly = [(-1.3, -0.8), (1.3, -0.8), (1.38, 0.5), (1.1, 1.42), (0.66, 2.02), (0.0, 2.3), (-0.66, 2.02),
+                     (-1.1, 1.42), (-1.38, 0.5)]
+            ext(mb, F, [(u * so, zr + v * so) for u, v in opoly], "x", x - 0.12 * sx, x + 0.44 * sx * so, RR)
+            mb.rod(F.p(x + 0.3 * sx * so, 0, zr + 0.78 * so), F.p(x + 0.6 * sx * so, 0, zr + 0.78 * so), 0.52 * so,
+                   GOLD if gold else RR, 6)
+            for k in (-1, 1):
+                bx(mb, F, x + 0.1 * sx * so, k * 1.1 * so, zr + 2.12 * so, 0.42 * so, 0.34 * so, 1.0 * so, RR, 0.0,
+                   rx=-k * 0.5)
+    return z + 0.5 * s
+
+
 def roof2(mb, F, W, D, zw, kind="irimoya", m=RAZ, ov=2.8, g_over=1.4, s0=0.4, s1=1.05, lift=1.0, tv=0.5,
           dg=0.5, lod=0, back_lod=1, chidori=None, gable_m=PLW, gable_style="timber", gold=False, courses=2,
           rafters=True, brackets=None, amp=0.3, P=2.0, ends=(True, True), oni=True, hafu_m=WD, ridge_w=2.2,
-          end_lod=None, clip=None):
+          end_lod=None, clip=None, back_p=None):
     """TELHADO V2 (cumeeira ao longo de x). W x D = planta nas faces dos pilares, zw = topo do frechal.
     kind: 'kirizuma' 2 aguas (empenas em x=+-W/2, aba lateral g_over) | 'irimoya' 4 aguas embaixo + empena em cima
     (dg = fracao do caimento ate a base da empena) | 'yosemune' 4 aguas | 'hogyo' piramide (W=D) com remate.
@@ -266,8 +323,11 @@ def roof2(mb, F, W, D, zw, kind="irimoya", m=RAZ, ov=2.8, g_over=1.4, s0=0.4, s1
     if kind in ("irimoya", "yosemune") and W < D - 1e-6:
         return roof2(mb, sub(F, ang=math.pi / 2), D, W, zw, kind, m, ov, g_over, s0, s1, lift, tv, dg, lod, back_lod,
                      None, gable_m, gable_style, gold, courses, rafters, None, amp, P, ends, oni, hafu_m, ridge_w,
-                     end_lod, rot_clip(clip))
+                     end_lod, rot_clip(clip), back_p=1.0)
     end_lod = lod if end_lod is None else end_lod
+    bp = BACK_P if back_p is None else back_p   # V3-cut: modulo da onda na agua de TRAS (ik 1)
+    if lod >= 3:
+        P = P * LOD3_P                    # V3-cut lod 3: mesma onda, modulo 1,3x
     cxn, cxp, cyn, cyp = clip or (BIG, BIG, BIG, BIG)
     Xw, Yw = W / 2 + 0.12, D / 2 + 0.12
     Ye = Yw + ov
@@ -310,8 +370,10 @@ def roof2(mb, F, W, D, zw, kind="irimoya", m=RAZ, ov=2.8, g_over=1.4, s0=0.4, s1
             return (a, b)
         lim = Xe - (Ye - ye) - 0.05            # |x| < lim
         return rng(a, b, -lim, lim)
+    P0 = P
     for ik, Fk in enumerate(Fs):
         lk = min(1, lod if ik == 0 else max(lod, back_lod))      # V2-3: telha SEMPRE ondulada (lod 2 so nas paredes)
+        P = P0 * (bp if ik == 1 else 1.0)
         xa, xb, cye = lim_s[ik]
         ye = min(Ye, cye)
         cut_e = ye < Ye - 1e-6
@@ -347,7 +409,7 @@ def roof2(mb, F, W, D, zw, kind="irimoya", m=RAZ, ov=2.8, g_over=1.4, s0=0.4, s1
         xm = Xe - (0.35 if hipish else 0.2)
         r_ = rng(-xm, xm, xa + 0.05, xb - 0.05)
         if r_:
-            P_ = [(r_[0] + (r_[1] - r_[0]) * t, Ye - 0.32) for t in (0.0, 0.06, 0.2, 0.4, 0.6, 0.8, 0.94, 1.0)]
+            P_ = [(r_[0] + (r_[1] - r_[0]) * t, Ye - 0.32) for t in (STRIP_T0 if lk == 0 else STRIP_T1)]
             strip(mb, Fk, [(x, y, Hf(x, y) - tv) for x, y in P_], (0, 1, 0), -0.17, 0.17, -0.62, 0.04, WD)
         if rafters and lk == 0:
             for x in even(-Xw + 0.5, Xw - 0.5, 1.25):
@@ -373,6 +435,7 @@ def roof2(mb, F, W, D, zw, kind="irimoya", m=RAZ, ov=2.8, g_over=1.4, s0=0.4, s1
                     continue
                 beam(mb, Fk, (sy * (Xw - 0.7), Yw - 0.7, zw - 0.25),
                      (sy * (Xe + 0.12), Ye + 0.12, Hf(Xe, Ye) - tv - 0.3), 0.55, 0.6, WD)
+    P = P0
     # planos de topo (4 aguas)
     if hipish:
         for ie, Fk in enumerate(Fe):
@@ -396,7 +459,7 @@ def roof2(mb, F, W, D, zw, kind="irimoya", m=RAZ, ov=2.8, g_over=1.4, s0=0.4, s1
             um = Ye - 0.35
             r_ = rng(-um, um, ua + 0.05, ub - 0.05)
             if r_:
-                P_ = [(r_[0] + (r_[1] - r_[0]) * t, Xe - 0.32) for t in (0.0, 0.1, 0.35, 0.65, 0.9, 1.0)]
+                P_ = [(r_[0] + (r_[1] - r_[0]) * t, Xe - 0.32) for t in ((0.0, 0.1, 0.35, 0.65, 0.9, 1.0) if lod == 0 else STRIP_T2)]
                 strip(mb, Fk, [(u, v, He(u, v) - tv) for u, v in P_], (0, 1, 0), -0.17, 0.17, -0.62, 0.04, WD)
         # capas de espigao (da ponta levantada ate a cumeeira / base da empena), recortadas pela divisa
         tend = dgv if kind == "irimoya" else Ye
@@ -408,7 +471,7 @@ def roof2(mb, F, W, D, zw, kind="irimoya", m=RAZ, ov=2.8, g_over=1.4, s0=0.4, s1
                 if t0 >= tend - 0.3:
                     continue
                 pts = [] if t0 > 0 else [(sx * (Xe + 0.55), sy * (Ye + 0.55), Hf(Xe, Ye) + 0.78)]
-                for f in (0.0, 0.12, 0.35, 0.65, 1.0):
+                for f in ((0.0, 0.12, 0.35, 0.65, 1.0) if lod == 0 else (0.0, 0.2, 0.5, 1.0)):   # V3-cut: lod >= 1 = 3 trechos
                     t = t0 + (tend - t0) * f
                     x, y = sx * (Xe - t), sy * (Ye - t)
                     pts.append((x, y, Hf(x, y) + 0.3))
@@ -434,11 +497,12 @@ def roof2(mb, F, W, D, zw, kind="irimoya", m=RAZ, ov=2.8, g_over=1.4, s0=0.4, s1
             poly = [(-ymax, zw - 0.1), (ymax, zw - 0.1)] + [(y, top(y)) for y in (ymax, ymax * 0.5, 0.0, -ymax * 0.5, -ymax)]
             ext(mb, Fx, poly, "x", Xw - 0.75, Xw - 0.3, gable_m)
             if st in ("timber", "board"):
-                _gable_timber(mb, Fx, Xw - 0.32, Xw - 0.14, zw - 0.25, top, ymax, st if end_lod == 0 else "board")
+                _gable_wood(mb, Fx, Xw - 0.32, Xw - 0.14, zw - 0.25, top, ymax, st if end_lod == 0 else "board", end_lod)
             xh = Xe + 0.04
             ylo_, yhi_ = (-min(Ye, cyp), min(Ye, cyn)) if ie == 0 else (-min(Ye, cyn), min(Ye, cyp))
             hys = sorted(set(round(min(max(y, ylo_ + 0.05), yhi_ - 0.05), 4) for y in
-                             (Ye - 0.05, Ye * 0.6, Yw * 0.5, 0.0, -Yw * 0.5, -Ye * 0.6, -Ye + 0.05)), reverse=True)
+                             ((Ye - 0.05, Ye * 0.6, Yw * 0.5, 0.0, -Yw * 0.5, -Ye * 0.6, -Ye + 0.05) if end_lod < 3
+                              else (Ye - 0.05, Ye * 0.5, 0.0, -Ye * 0.5, -Ye + 0.05))), reverse=True)
             _hafu(mb, Fx, xh, hys, Hf, tv, 0.95, hafu_m, 0.22)
             if end_lod == 0:
                 _gegyo(mb, Fx, xh, Hf(xh, 0.0) - tv - 0.95, 1, hafu_m, 1.0, gold)
@@ -458,7 +522,7 @@ def roof2(mb, F, W, D, zw, kind="irimoya", m=RAZ, ov=2.8, g_over=1.4, s0=0.4, s1
             ys = [y1, y1 * 0.5, 0.0, -y1 * 0.5, -y1]
             poly = [(-y1, zb + 0.2), (y1, zb + 0.2)] + [(y, top(y)) for y in ys]
             ext(mb, Fx, poly, "x", Xg - 0.75, Xg - 0.5, gable_m)
-            _gable_timber(mb, Fx, Xg - 0.52, Xg - 0.34, zb + 0.1, top, y1, gable_style if end_lod == 0 else "board")
+            _gable_wood(mb, Fx, Xg - 0.52, Xg - 0.34, zb + 0.1, top, y1, gable_style if end_lod == 0 else "board", end_lod)
             xh = Xg + go + 0.04
             if xh + 0.5 > c_:
                 continue
@@ -480,13 +544,13 @@ def roof2(mb, F, W, D, zw, kind="irimoya", m=RAZ, ov=2.8, g_over=1.4, s0=0.4, s1
         return a, b, (x0 >= -cxn + 0.05 + pad, x1 <= cxp - 0.05 - pad)
     if kind == "kirizuma":
         a, b, oe = rlim(-(Xe + 0.2), Xe + 0.2, 0.9)
-        rtop = ridge(mb, F, a, b, zr + 0.14, s1, ridge_w, oni, 1.0, gold, courses if lod == 0 else 1, oe)
+        rtop = _ridge2(mb, F, a, b, zr + 0.14, s1, ridge_w, oni, 1.0, gold, courses if lod == 0 else 1, oe, lod)
     elif kind == "irimoya":
         a, b, oe = rlim(-(Xg + go + 0.2), Xg + go + 0.2, 0.9)
-        rtop = ridge(mb, F, a, b, zr + 0.14, s1, ridge_w, oni, 1.0, gold, courses if lod == 0 else 1, oe)
+        rtop = _ridge2(mb, F, a, b, zr + 0.14, s1, ridge_w, oni, 1.0, gold, courses if lod == 0 else 1, oe, lod)
     elif Xe - Ye > 0.6:
         a, b, oe = rlim(-(Xe - Ye + 0.3), Xe - Ye + 0.3, 0.9)
-        rtop = ridge(mb, F, a, b, zr + 0.14, s1, ridge_w, oni, 1.0, gold, courses, oe)
+        rtop = _ridge2(mb, F, a, b, zr + 0.14, s1, ridge_w, oni, 1.0, gold, courses, oe, lod)
     else:
         lathe(mb, F, (0, 0, zr - 0.3), [(1.0, 0.0), (1.05, 0.45), (0.55, 0.8), (0.7, 1.2), (0.5, 1.45), (0.62, 1.85),
                                         (0.3, 2.5), (0.05, 3.2)], 8, GOLD if gold else RR)
@@ -547,11 +611,14 @@ def pent2(mb, Ff, L, depth, z_top, m=RAZ, s=0.42, tv=0.38, lift=0.45, lod=0, xs=
 
     def H(x, y):
         return z_top - s * y + lift * min(1.0, abs(x) / X) ** 3 * min(1.0, max(0.0, y) / depth) ** 3
-    tiles(mb, Ff, _wave(xa, xb, P, amp, min(1, lod)), ylo or (lambda x: -embed), depth, H, m, tv, rows=(0.0, 0.4, 1.0))
+    tiles(mb, Ff, _wave(xa, xb, P * (LOD3_P if lod >= 3 else 1.0), amp, min(1, lod)), ylo or (lambda x: -embed), depth,
+          H, m, tv, rows=(0.0, 0.4, 1.0) if lod == 0 else (0.0, 1.0))   # V3-cut: lod >= 1 = 1 faixa (agua reta;
+    #                                                                 o sori dos cantos fica linear: < 0,17 de diferenca)
     ia, ib = xa + (0.15 if xa <= -X + 1e-6 else 0.02), xb - (0.15 if xb >= X - 1e-6 else 0.02)
+    nst = 6 if lod == 0 else 4                   # V3-cut: lod >= 1 = testeira em 4 trechos (a curva so sobe nas pontas)
     bb(mb, Ff, ia, ib, -0.2, 0.32, z_top - 0.12, z_top + 0.36, WD)              # rufo (mizukiri)
     fa, fb = xa + (0.25 if ends[0] or xa <= -X + 1e-6 else 0.05), xb - (0.25 if xb >= X - 1e-6 else 0.05)
-    strip(mb, Ff, [(x, depth - 0.25, H(x, depth - 0.25) - tv) for x in [fa + (fb - fa) * i / 6 for i in range(7)]],
+    strip(mb, Ff, [(x, depth - 0.25, H(x, depth - 0.25) - tv) for x in [fa + (fb - fa) * i / nst for i in range(nst + 1)]],
           (0, 1, 0), -0.15, 0.15, -0.52, 0.04, WD)
     for sx, on in ((-1, ends[0]), (1, ends[1])):
         if on:
@@ -586,6 +653,8 @@ def skirt2(mb, F, Wi, Di, dep, z_top, m=RAZ, s=0.45, tv=0.4, lift=0.55, lod=0, P
     V2-3 clip = (x-, x+[, y-, y+]): a saia e CORTADA na divisa do lote (lados e fundo encostados no vizinho)."""
     Xi, Yi = Wi / 2, Di / 2
     Xe, Ye = Xi + dep, Yi + dep
+    if lod >= 3:
+        P = P * LOD3_P                    # V3-cut lod 3
     c4 = tuple(clip or ()) + (BIG,) * (4 - len(clip or ()))
     cn, cp, cyn, cyp = c4
 
@@ -602,11 +671,12 @@ def skirt2(mb, F, Wi, Di, dep, z_top, m=RAZ, s=0.45, tv=0.4, lift=0.55, lod=0, P
         xa, xb = max(xa, -lim), min(xb, lim)
         tiles(mb, Fk, _wave(xa, xb, P, amp, 1 if (k or lod) else 0),
               lambda x: (Yi - 0.35) if abs(x) <= Xi else min(Ye - 0.05, Yi + abs(x) - Xi), ye, Hy, m, tv,
-              rows=(0.0, 0.45, 1.0))
+              rows=(0.0, 0.45, 1.0) if lod == 0 else (0.0, 1.0))
         if k == 0 and ye >= Ye - 1e-6:
             fa, fb = max(-Xe + 0.4, xa + 0.05), min(Xe - 0.4, xb - 0.05)
             strip(mb, Fk, [(x, Ye - 0.3, Hy(x, Ye - 0.3) - tv) for x in [fa + (fb - fa) * t for t in
-                                                                          (0, .1, .3, .5, .7, .9, 1)]],
+                                                                          ((0, .1, .3, .5, .7, .9, 1) if lod == 0
+                                                                           else STRIP_T2)]],
                   (0, 1, 0), -0.15, 0.15, -0.5, 0.04, WD)
         bb(mb, Fk, -Xi - 0.1, Xi + 0.1, Yi - 0.15, Yi + 0.3, z_top - 0.12, z_top + 0.36, WD)
     for Fk, c, (ua0, ub0) in ((sub(F, ang=-math.pi / 2), cp, (-cyp, cyn)), (sub(F, ang=math.pi / 2), cn, (-cyn, cyp))):
@@ -619,7 +689,7 @@ def skirt2(mb, F, Wi, Di, dep, z_top, m=RAZ, s=0.45, tv=0.4, lift=0.55, lod=0, P
             continue
         tiles(mb, Fk, _wave(ua, ub, P, amp, max(lod, 1)),
               lambda u: (Xi - 0.35) if abs(u) <= Yi else min(Xe - 0.05, Xi + abs(u) - Yi), xe_, Hx, m, tv,
-              rows=(0.0, 0.45, 1.0))
+              rows=(0.0, 0.45, 1.0) if lod == 0 else (0.0, 1.0))
         if xe_ >= Xe - 1e-6:
             fa, fb = max(-Ye + 0.4, ua + 0.05), min(Ye - 0.4, ub - 0.05)
             strip(mb, Fk, [(u, Xe - 0.3, Hx(u, Xe - 0.3) - tv) for u in [fa + (fb - fa) * t for t in
@@ -712,7 +782,7 @@ def _lattice(mb, Ff, a, b, z0, z1, lit, step=0.46, w=0.17, rails=True, lod=0):
     """trelica koshi densa: ripas verticais 0,16 a cada 0,42 na frente, papel 0,24 atras (aceso ou nao). V2-3 lod 2:
     ripas a cada ~0,9 (fileiras de tras)"""
     bb(mb, Ff, a, b, -0.86, -0.64, z0, z1, _paper(lit))
-    step = step * (1.0, 1.25, 1.9)[min(2, lod)]
+    step = step * (1.0, 1.25, 1.9, 2.5)[min(3, lod)]
     for x in even(a, b, step):
         bb(mb, Ff, x - w / 2, x + w / 2, -0.4, -0.16, z0, z1, WD)
     if rails:
@@ -722,7 +792,7 @@ def _lattice(mb, Ff, a, b, z0, z1, lit, step=0.46, w=0.17, rails=True, lod=0):
 def _kumiko(mb, Ff, a, b, z0, z1, lit, dx=0.8, dz=1.0, lod=0):
     """janela/porta de shoji: papel recuado + grade fina de kumiko 0,2 a frente (lod 1: grade 1,7x mais aberta)"""
     if lod:
-        dx, dz = dx * 1.7, dz * 1.7
+        dx, dz = dx * (1.7 if lod < 3 else 2.4), dz * (1.7 if lod < 3 else 2.4)
     bb(mb, Ff, a, b, -0.9, -0.7, z0, z1, _paper(lit))
     xs = even(a, b, dx)
     for x in xs[:-1]:
@@ -824,7 +894,7 @@ def wall2(mb, Ff, L, h, bays, plaster=PLW, lod=0, lit=True, head=None, noren=IND
             _plaster(mb, Ff, a, b, z0, zw0 - 0.3, plaster)
             _plaster(mb, Ff, a, b, zw1 + 0.3, zt, plaster)
             bb(mb, Ff, a, b, -1.1, -0.9, zw0, zw1, LIT if bl else CBLACK)
-            for x in even(a + 0.15, b - 0.15, 0.78 * (1.0, 1.25, 1.7)[min(2, lod)]):
+            for x in even(a + 0.15, b - 0.15, 0.78 * (1.0, 1.25, 1.7, 2.2)[min(3, lod)]):
                 bb(mb, Ff, x - 0.19, x + 0.19, -0.78, -0.3, zw0, zw1, plaster)
             for zz0, zz1 in ((zw0 - 0.3, zw0), (zw1, zw1 + 0.3)):
                 bb(mb, Ff, a, b, -0.78, -0.12, zz0, zz1, plaster)
@@ -2346,6 +2416,272 @@ def street2(mb, F, L, road_w=18.0, walk_w=4.0, slab=(3.0, 1.5), walk_slab=(2.0, 
             w0, w1 = sorted((s * (hw + 0.3), s * (hw + 0.3 + walk_w)))
             course(w0, w1, walk_slab[0], walk_slab[1], zw, ST, "wk%d" % s)
     return zw
+
+
+# ================================================================== V3-cut: faces que NINGUEM ve (orcamento 625k)
+OCC_SKIP = ("COL_", "PREVIEW_", "SCALE_", "VFX_", "CAM_", "OP_Plz_OreProxy", "OP_Ter_Piers", "OP_Water_", "OP_Veg_Blockout")
+OCC_SKIP_MATS = ("P_OPM_Glass",)          # transparentes nao tampam nada
+
+
+def _pocket_dirs(n, tilts=(45.0, 75.0), naz=8):
+    t1 = n.orthogonal().normalized()
+    t2 = n.cross(t1)
+    out = [(n, 1.0)]
+    for a in tilts:
+        ca, sa = math.cos(math.radians(a)), math.sin(math.radians(a))
+        for k in range(naz):
+            b = 2.0 * math.pi * k / naz + 0.3
+            out.append(((n * ca + (t1 * math.cos(b) + t2 * math.sin(b)) * sa).normalized(), ca))
+    return out
+
+
+POCKET_G, POCKET_TILT = 3.0, 62.0         # bolso: tampa a <= G em todo o hemisferio ate POCKET_TILT graus da normal
+POCKET_G_DOWN = 0.5                        # faces viradas para baixo (fundo de banco/beiral baixo): so bolso estreito
+
+
+def cull_pockets(objs, occ_prefixes=(), G=None, inside_d=6.0, verbose=True, tag="kit2", g_at=None, under=False):
+    """V3-cut (orcamento 625k, nada que apareca muda): apaga, nos objetos 'objs' JA FINALIZADOS, as faces que nenhuma
+    camera alcanca, testando contra a cena estatica (objs + objetos com prefixo em occ_prefixes, sem colisao/previa/
+    VFX/transparentes):
+      (a) DENTRO: a normal e 8 direcoes a 45 graus batem no AVESSO de alguma malha a <= inside_d (face enterrada num
+          volume fechado: pe de pilar dentro da soleira, ponta de viga dentro da parede, fundo enterrado no terreno);
+      (b) BOLSO: de TODOS os pontos de amostra (centro, cantos e meios das arestas puxados 6% para dentro), a normal e
+          16 direcoes inclinadas 45 e 75 graus batem em ALGUMA malha a <= G/cos (face tampada por outra a <= G em todo
+          o hemisferio: costas de ripa/kumiko contra o papel, topo de caibro sob o forro, parede-meia contra a do
+          vizinho, fundo de peca pousada no piso, lados de pecas encostadas com fresta).
+    g_at(ponto) -> G local (opcional): interiores vivos usam um bolso menor (o jogador entra e olha de perto).
+      (c) under=True: face virada para BAIXO com todos os vertices 0,05..1,0 abaixo do piso andavel da planta
+          (op_layout.zone_of): so se veria de dentro da terra (fundo do soco, base enterrada). Nao use onde a camera passa por baixo
+          do piso (cais sobre a agua, ponte).
+    Uma face que TAMPA outra apagada nunca e apagada (pares mutuos: so um sai), ordem geometrica (deterministico). Os
+    raios saem com um desvio fixo e minusculo no plano da face (nunca exatamente numa aresta). Devolve tris cortados."""
+    from mathutils.bvhtree import BVHTree
+    from op_layout import zone_of
+    G = POCKET_G if G is None else G
+    if isinstance(objs, str):                     # prefixo do dono
+        objs = [o for o in bpy.data.objects if o.name.startswith(objs)]
+    objs = [o for o in objs if o is not None and o.type == "MESH" and len(o.data.polygons)]
+    if not objs:
+        return 0
+    occ = list(objs)
+    names = set(o.name for o in objs)
+    for o in bpy.data.objects:
+        if o.type != "MESH" or o.name in names or not o.name.startswith(tuple(occ_prefixes)) or \
+                o.name.startswith(OCC_SKIP):
+            continue
+        if o.users_collection and o.users_collection[0].name in ("00_REFERENCE", "_SCALE_REFERENCE"):
+            continue
+        occ.append(o)
+    V, P, own = [], [], []
+    PK = []
+    for oi, o in enumerate(occ):
+        me, mw = o.data, o.matrix_world
+        skip = set(i for i, m in enumerate(me.materials) if m and m.name.startswith(OCC_SKIP_MATS))
+        b = len(V)
+        V.extend(mw @ v.co for v in me.vertices)
+        for p in me.polygons:
+            if p.material_index in skip:
+                continue
+            c_, n_ = mw @ p.center, p.normal
+            # determinismo (licao do cull_hidden M6c): a ORDEM das faces muda entre builds e a BVH desempata faces
+            # coincidentes pela ordem -> arvore montada em ordem GEOMETRICA
+            PK.append(((round(c_.x, 4), round(c_.y, 4), round(c_.z, 4), round(n_.x, 3), round(n_.y, 3),
+                        round(n_.z, 3), len(p.vertices), o.name), [b + i for i in p.vertices], (oi, p.index)))
+    PK.sort(key=lambda t: t[0])
+    for k_, vs_, ow_ in PK:
+        P.append(vs_)
+        own.append(ow_)
+    tree = BVHTree.FromPolygons(V, P)
+    isl = {}                                      # ilha (peca conexa) de cada poligono (objs + ocluidores)
+    for oi, o in enumerate(occ):
+        me = o.data
+        par = list(range(len(me.vertices)))
+
+        def root(a):
+            while par[a] != a:
+                par[a] = par[par[a]]
+                a = par[a]
+            return a
+        for p in me.polygons:
+            vs_ = p.vertices
+            r0 = root(vs_[0])
+            for v in vs_[1:]:
+                r1 = root(v)
+                if r1 != r0:
+                    par[r1] = r0
+        for p in me.polygons:
+            isl[(oi, p.index)] = (oi, root(p.vertices[0]))
+    cand = []                                     # (chave geometrica, obj, poligono, tris, bloqueadores)
+    for oi, o in enumerate(objs):
+        me, mw = o.data, o.matrix_world
+        m3 = mw.to_3x3()
+        for p in me.polygons:
+            n = m3 @ p.normal
+            if n.length < 0.5:
+                continue
+            n = n.normalized()
+            vs = [mw @ me.vertices[i].co for i in p.vertices]
+            k0 = min(range(len(vs)), key=lambda i: (round(vs[i].x, 4), round(vs[i].y, 4), round(vs[i].z, 4)))
+            vs = vs[k0:] + vs[:k0]                       # determinismo: amostras a partir do menor vertice
+            c = sum(vs, Vector()) / len(vs)
+            if max(abs((v - c).dot(n)) for v in vs) > 0.004:
+                continue                  # face TORCIDA (telha ondulada): fica - o raio cruzaria a propria malha
+            pts = [c] + [c + (v - c) * 0.94 for v in vs] + \
+                [c + ((vs[i] + vs[(i + 1) % len(vs)]) / 2 - c) * 0.94 for i in range(len(vs))]
+            for i in range(1, len(vs) - 1):              # + grade de ~0,45 na face (a ponta que fura uma onda de
+                a_, b_, c_ = vs[0], vs[i], vs[i + 1]      # telha entre 2 amostras nao escapa)
+                k = min(10, max(1, int(math.ceil(max((b_ - a_).length, (c_ - a_).length, (c_ - b_).length) / 0.45))))
+                if k > 1:
+                    pts += [a_ + (b_ - a_) * ((u + 1.0 / 3.0) / k) + (c_ - a_) * ((w + 1.0 / 3.0) / k)
+                            for u in range(k) for w in range(k - u)]
+            t1 = vs[1] - vs[0]
+            if t1.length > 1e-6:
+                t1 = t1.normalized()
+                dj = t1 * 0.00131 + n.cross(t1) * 0.00217
+                pts = [q + dj for q in pts]
+            if under and n.z < -0.7:
+                below = True
+                for v in vs:
+                    zf_ = zone_of(v.x, v.y)
+                    if zf_ is None or v.z > zf_ - 0.05 or v.z < zf_ - 1.0:     # so logo abaixo do piso (soco)
+                        below = False
+                        break
+                if below:
+                    key = (round(c.x, 3), round(c.y, 3), round(c.z, 3), round(n.x, 3), round(n.y, 3), round(n.z, 3),
+                           len(vs), o.name)
+                    cand.append((key, oi, p.index, len(vs) - 2, set()))
+                    continue
+            ds = _pocket_dirs(n, (45.0, POCKET_TILT))
+            blk = set()
+            hid = True                                   # (a) dentro de um volume fechado
+            me_ = (oi, p.index)
+
+            def cast(q, d, dist):
+                """raio que ignora a PROPRIA face (quads torcidos da telha se cruzam com o raio da normal)"""
+                o_ = q + n * 0.004
+                for _ in range(4):
+                    h = tree.ray_cast(o_, d, dist)
+                    if h[0] is None or own[h[2]] != me_:
+                        return h
+                    dist -= h[3] + 1e-3
+                    if dist <= 0.0:
+                        return (None, None, None, None)
+                    o_ = h[0] + d * 1e-3
+                return (None, None, None, None)
+
+            def joint(pts_, nis, dist):
+                """entre 2 pontos vizinhos (<= 0,7) tampados por pecas DIFERENTES, raios na normal a cada 0,02: se
+                algum escapa (ou passa de 'dist') ha uma junta/fresta entre as pecas (passo 0,02: junta >= 0,04)"""
+                ks = list(nis)
+                prs = set()
+                for ia_ in ks:                           # so o vizinho MAIS PROXIMO de outra peca (a fronteira)
+                    best_ = None
+                    for ib_ in ks:
+                        if nis[ib_] == nis[ia_]:
+                            continue
+                        ln_ = (pts_[ib_] - pts_[ia_]).length
+                        if ln_ <= 0.7 and (best_ is None or ln_ < best_[0]):
+                            best_ = (ln_, ib_)
+                    if best_:
+                        prs.add((min(ia_, best_[1]), max(ia_, best_[1])))
+                for ia_, ib_ in sorted(prs):
+                    pa, pb = pts_[ia_], pts_[ib_]
+                    m_ = max(2, int((pb - pa).length / 0.02))
+                    for t_ in range(1, m_):
+                        if cast(pa + (pb - pa) * (t_ / m_), n, dist + 0.02)[0] is None:
+                            return True
+                return False
+            nisl = {}                                    # ponto -> peca que tampa na direcao da NORMAL
+            for qi, q in enumerate(pts):
+                for d, ca in ds[:9]:
+                    h = cast(q, d, inside_d)
+                    if h[0] is None or h[1].dot(d) <= 0.0:
+                        hid = False
+                        break
+                    blk.add(h[2])
+                    if ca == 1.0:
+                        nisl[qi] = isl.get(own[h[2]])
+                if not hid:
+                    break
+            if hid and len(set(nisl.values())) > 1 and joint(pts, nisl, inside_d):
+                hid = False                              # tampada por 2+ pecas com JUNTA entre elas
+            if not hid:
+                blk = set()
+                hid = True                               # (b) bolso
+                Gf = G if g_at is None else min(G, g_at(c))
+                if n.z < -0.3:
+                    Gf = min(Gf, POCKET_G_DOWN)          # face virada para baixo: a camera baixa (olhando para cima) a ve
+                nisl = {}
+                for qi, q in enumerate(pts):
+                    for d, ca in ds:
+                        h = cast(q, d, Gf / ca + 0.02)
+                        if h[0] is None:
+                            hid = False
+                            break
+                        blk.add(h[2])
+                        if ca == 1.0:
+                            nisl[qi] = isl.get(own[h[2]])
+                    if not hid:
+                        break
+                if hid and len(set(nisl.values())) > 1 and joint(pts, nisl, Gf):
+                    hid = False                          # tampada por 2+ pecas (lajes, pedras, tabuas) com JUNTA entre
+                    #                                      elas (0,04..0,08): pelo vao se veria o buraco - fica
+            if hid:
+                # so face de SOLIDO bem orientado: o raio para TRAS (para dentro da propria peca) tem de sair dela por
+                # uma face voltada para fora (normal no sentido do raio). Face invertida (normal para dentro: o Roblox
+                # nao a desenha e mostra o que esta atras) ou chapa aberta ficam - apaga-las abriria um buraco
+                mi = isl[me_]
+                for q in (pts[0], pts[1], pts[2]):       # (so conta a PROPRIA peca: pecas que se cruzam nao contam)
+                    o_, dist, ok = q - n * 0.004, 40.0, False
+                    for _ in range(24):
+                        h = tree.ray_cast(o_, -n, dist)
+                        if h[0] is None:
+                            break
+                        k_ = own[h[2]]
+                        if k_ != me_ and isl.get(k_) == mi:
+                            ok = h[1].dot(-n) > 0.0
+                            break
+                        dist -= h[3] + 1e-3
+                        if dist <= 0.0:
+                            break
+                        o_ = h[0] - n * 1e-3
+                    if not ok:
+                        hid = False
+                        break
+            if hid:
+                key = (round(c.x, 3), round(c.y, 3), round(c.z, 3), round(n.x, 3), round(n.y, 3), round(n.z, 3),
+                       len(vs), o.name)
+                cand.append((key, oi, p.index, len(vs) - 2, set(own[k] for k in blk)))
+    cand.sort(key=lambda t: t[0])
+    removed, protected = set(), set()
+    kill = {}
+    for key, oi, pi, nt, blk in cand:
+        me_ = (oi, pi)
+        if me_ in protected or (blk & removed):
+            continue
+        removed.add(me_)
+        protected |= blk
+        kill.setdefault(oi, []).append(pi)
+    cut = 0
+    for oi, pis in kill.items():
+        o = objs[oi]
+        bm = bmesh.new()
+        bm.from_mesh(o.data)
+        bm.faces.ensure_lookup_table()
+        fs = [bm.faces[i] for i in pis]
+        cut += sum(len(f.verts) - 2 for f in fs)
+        bmesh.ops.delete(bm, geom=fs, context="FACES_ONLY")
+        loose = [e for e in bm.edges if not e.link_faces]
+        bmesh.ops.delete(bm, geom=loose, context="EDGES")
+        lv = [v for v in bm.verts if not v.link_edges]
+        bmesh.ops.delete(bm, geom=lv, context="VERTS")
+        bm.to_mesh(o.data)
+        bm.free()
+        o.data.update()
+    if verbose:
+        print("%s cull_pockets: -%d tris em %d objetos (candidatas %d, ocluidores %d objs)" % (
+            tag, cut, len(kill), len(cand), len(occ)))
+    return cut
 # ================================================================== ESTUDIO (folhas de gate; fora do jogo)
 def _tris(ob):
     return sum(len(p.vertices) - 2 for p in ob.data.polygons) if ob and ob.type == "MESH" else 0

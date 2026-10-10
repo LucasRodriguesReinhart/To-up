@@ -1211,6 +1211,9 @@ def build():
     o2 = mbd.finish()
     o3 = _WMB[0].finish(recalc=False)      # orientacao das faces calculada uma a uma (_q4): sem recalc
     _WMB[0] = None
+    K2.cull_pockets([o for o in (o1, o2, o3) if o], ("OP_Ter_",), tag="op_harbor",       # V3-cut: faces em bolso/
+                    g_at=lambda p: 0.5 if (abs(p.x - ARM_C[0]) < ARM_W / 2 + 6.0 and        # enterradas; armazem aberto
+                                           abs(p.y - ARM_C[1]) < ARM_D / 2 + 6.0) else 99.0)  # (interior): bolso 0,5
     mv = boats_vfx() + list(crane_vfx())
     cams()
     tris = sum(sum(len(p.vertices) - 2 for p in o.data.polygons) for o in (o1, o2, o3) if o)

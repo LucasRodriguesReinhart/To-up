@@ -626,7 +626,7 @@ def chidori3(mb, F, Hf, tv, xc, w, yd, zr, lod=0, P=1.8, amp=0.27, crest_on=True
     if crest_on and hgt > 4.2:
         R = min(1.15, (hgt - 1.0) * 0.17)
         zc = zt1 + 0.45 + R * 1.28
-        mon(mb, F, xc, zc, R, yo0)
+        mon(mb, F, xc, zc, R, yo0, 8)                      # V3-cut: disco de 8 lados (frontoes altos)
         zl = zc + R * 1.28 + 0.5
     if top(xc) - zl > 1.0 and lod == 0:
         step = 0.95
@@ -710,6 +710,7 @@ PORCH_X, PORCH_Y = 6.6, 3.85            # pilares do portico (x, distancia da pa
 ENG_D, ENG_Z, ENG_H = 3.0, PLINTH + 0.5, 2.3    # ENGAWA vermelha do terreo: fundura, piso, altura do guarda-corpo
 ENG_X0 = PORCH_X + 1.5                  # a engawa da frente para antes do portico
 TOP_RINFO = {}
+UP_RAF = 1.0                            # V3-cut testado 1,25 nas faces LATERAIS: a franja muda vista do patio -> fica 1,0
 
 
 def engawa(mb, F):
@@ -792,10 +793,11 @@ def keep(mb):
     rafters(mb, F, s0, "F", 1.6, {"F": KARA0[0] / 2 + 0.6})
     rafters(mb, F, s0, "RL", 1.9)
     rafters(mb, F, s1, "F", 1.65)
-    rafters(mb, F, s1, "RL", 1.75)
+    rafters(mb, F, s1, "RL", 1.75 * UP_RAF)          # V3-cut: lados dos andares de cima (so vistos de longe/de baixo)
     rafters(mb, F, s2, "F", 1.6)
-    rafters(mb, F, s2, "RL", 1.7)
-    rafters(mb, F, s3, "FRL", 1.4, {"F": KARA3[0] / 2 + 0.6})
+    rafters(mb, F, s2, "RL", 1.7 * UP_RAF)
+    rafters(mb, F, s3, "F", 1.4, {"F": KARA3[0] / 2 + 0.6})
+    rafters(mb, F, s3, "RL", 1.4 * UP_RAF)
     top = lambda sk, hx, hy: {"F": wall_top(sk, "F", hy), "B": wall_top(sk, "B", hy), "R": wall_top(sk, "R", hx),
                               "L": wall_top(sk, "L", hx)}
     # ---- andar 1 (salao): reboco de 2 com as janelas de papel; shitami ate 9,6; friso com janelinhas e pilares
@@ -1842,7 +1844,13 @@ def build():
     banners(mc)
     cut2 = K.cull_hidden(mc)
     mc.finish()
-    print("OP_CAS faces escondidas cortadas: torre %d | patio/adro %d" % (cut, cut2))
+    hx0, hy0 = T[0][0] + ENG_D + 1.0, T[0][1] + ENG_D + 1.0
+
+    def g_at(p):                                      # salao (terreo acessivel): bolso de 0,5 (o jogador entra)
+        return 0.5 if (abs(p.x - KX) < hx0 and abs(p.y - KY) < hy0 and p.z < CC + 16.0) else 99.0
+    cut3 = K2.cull_pockets([o for o in bpy.data.objects if o.type == "MESH" and o.name.startswith("OP_Cas_")],
+                           ("OP_Ter_",), tag="op_castle", g_at=g_at, under=True)    # V3-cut: faces em bolso/enterradas
+    print("OP_CAS faces escondidas cortadas: torre %d | patio/adro %d | bolsos/enterradas %d" % (cut, cut2, cut3))
     if os.environ.get("OP_CAS_DUMMIES"):
         dummies()
     stats()
