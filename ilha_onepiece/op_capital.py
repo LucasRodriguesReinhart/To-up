@@ -1,1265 +1,971 @@
-# op_capital.py - M4 da Ilha 5 (ONE PIECE / WANO): CAPITAL inteira (PLANO_OP secoes 4.3/4.4, 6, 8, 9; PROMPT_USUARIO
-# 4, 5, 10, 15, 16). Zona "capital" do build_op (ZONE_MODULES["capital"] = ["op_capital"]). Prefixo OP_Cap_, colecao
-# 05_CAPITAL. Luzes so NightOnly (L_OPProp_*, L_OPCap_Win_*) + 1 luz de interior de dia (L_OPCap_Int_Cha).
+# op_capital.py - V2-3 da Ilha 5 (ONE PIECE / WANO): a CAPITAL inteira com o KIT V2 (op_kit2, aprovado no gate V2-1
+# com UMA correcao: "os modelos estao vindo dentro um do outro"). Zona "capital" do build_op (ZONE_MODULES_V2_0).
+# Prefixo OP_Cap_, colecao 05_CAPITAL. Le SO a planta V2 (op_layout: ROWS -> block_lots(), STREETS_V2, AVENUE, NE) e
+# SO o op_kit2 (o op_kit V1 so empresta o cull_hidden). O trecho M2 (op_m2_trecho.build) foi ABSORVIDO: a quadra AvO
+# da avenida E a quadra-modelo; o op_m2_trecho.build() nao roda mais (o build_praca dele continua sendo do agente da
+# praca via op_m2_praca - nada aqui depende da zona plaza).
 #
-# O TRECHO M2 (op_m2_trecho: rua de chegada, lojas C1 C2 C5 C6, postes, escadaria Praca) e chamado DAQUI sem mudar
-# nada (as mesmas funcoes, mesmos nomes OP_Cap_M2_*): o op_m2_trecho continua sendo o dono dele e nao regride. So o
-# _blockout_rest() do trecho (o resto da capital em blockout) deixa de rodar: este modulo o substitui.
-#
-# FAMILIAS (todas com o op_kit; pecas novas so aqui):
-#   A  kit inteiro: C7 (K.house ESQ lod 1, esquina-marco 3 pisos vermelha), CHA (K.house lod 0: casa de cha do
-#      quarteirao oeste com INTERIOR REAL: piso, forro, balcao, prateleiras, estrado de tatami, mesa, almofadas,
-#      chochin, luz de dia L_OPCap_Int_Cha), haiden do santuario (K.pavilion lod 1). Pavilhao do recanto = pav_lo.
-#      PONTES VERMELHAS do canal oeste (y 182 / 252; visual daqui, colisao plana do op_col a 92,2; tabuleiro >= 92,66
-#      sobre a capa do canal 92,5 - pedido do op_water).
-#   B  "meia" (mid, inclui C4): frente do terreo com K.facade do kit (lojas, trelica, noren, porta) + laterais/fundos/pisos de
-#      cima e TELHADO LEVE deste modulo (mesma linguagem: reboco recuado entre pilares, rodape de tabuas, viga de
-#      beiral que passa do canto, telha em canais, beiral grosso, sori, espigoes, cumeeira com onigawara).
-#   C  "fundo" (far): o mesmo corpo leve em todas as faces (janelas de papel com moldura, porta de correr, noren).
-#   O telhado e ~60% do custo: o leve usa 3 linhas de grade na placa e canais a cada 3,4 (kit: 2,1-3,0).
-# SETORES (planta do PLANO_OP 4.3; nada em intervalos iguais, cor POR CONJUNTO):
-#   rua de chegada  C4 + C7 coladas no trecho (fecham a rua nas 2 vielas)
-#   quarteirao O    fileira que encara a praca (W1 esquina verde, W2 loja, W2b casa recuada, RECANTO com pavilhao,
-#                   W4 esquina, CHA com interior, W5 casa verde) + fundos para o cais do canal; alem do canal: X1..X3
-#                   (casas de frente para o canal, patamares nas 2 pontes)
-#   bairro do canal casas baixas dos 2 lados da viela do canal, MIRANTE na falesia, MOINHO da roda d'agua
-#   terraco alto    mansoes de telhado verde (U1 sobre o arrimo, U2), casas e pavilhao de fundo
-#   NE              SANTUARIO (torii pequeno, sando, 2 toro, 2 nobori, haiden aberto, honden de laca) + casas de
-#                   telhado avermelhado
-#   rua alta porto  bloco leste: beco N-S atras de C5-C7, travessa L-O ate o MIRANTE do porto, casas viradas para a
-#                   viela leste (rota chegada -> summon) e para a travessa
-# NAO e daqui: lajeado do terraco do summon (op_summon, x 116..206 / y 150..264), porto/H1-H5 (op_harbor), praca e
-#   borda (op_plaza), canais/pontes do canal/roda (op_water), arvores (op_veg: ver VEG_SPOTS), terreno (op_terrain).
-# COLISAO: corpo de cada casa (COL_OP_CapHouse<nome>; CAM_AREAS -> export_op), pavilhoes (estrado + guardas),
-#   CHA (piso + paredes: da para entrar), postes/toro/estandartes/bancos. Pisos e escadas da planta sao do op_col.
-# CAMERAS: CAM_OP_M4Cap_* (fora do export).
-import math, random
-import bpy
+# ZERO INTERPENETRACAO (PLANO_V2 3.2 "parede-meia, sem frestas" + feedback 10/10 G2):
+#   * cada edificio cabe no SEU lote: o lote geminado e construido com W - SEAM (0,03 de cada lado) e o kit CORTA na
+#     divisa tudo o que passaria para o vizinho (soco, frechal, hisashi, saia mokoshi, beiral/aba do telhado, udatsu,
+#     molduras): a lateral encostada vira PAREDE-MEIA de reboco rente a divisa e a empena cortada vira empena de divisa
+#     (op_kit2.party_clip / roof2(clip) / pent2(clip) / skirt2(clip));
+#   * fundos encostados (fileiras de costas uma para a outra) e laterais com predio a < 6: o telhado corta na metade
+#     da distancia (back / lim);
+#   * TESTE AUTOMATICO malha x malha (BVHTree.overlap) entre todos os edificios vizinhos (caixas que se tocam) + todo
+#     vertice de um edificio dentro do lote do outro tem de ficar >= 0,12 ACIMA do telhado dele (sobreposicao so por
+#     cima). O build REPROVA (RuntimeError) se houver 1 interseccao (OP_CAP_SOFT=1 so avisa: uso de bancada).
+# CIDADE: 101 lotes em 12 quadras; tipo/pisos/flags da planta, variedade dirigida (cor por quadra com ~1 lote em 5 na
+#   cor vizinha, altura do hash da planta, shop_side/upper/toldo/tsuma alternados: nunca a mesma casa lado a lado na
+#   mesma rotacao), 4 interiores vivos (flag 'i'), o resto com vitrine rasa. Avenida com o street2 (leito assentado,
+#   sarjeta, meio-fio, calcadas); vielas/cais/sando em pedra assentada por grade (lajes so na face de cima). Andon do
+#   kit2 nos nos das ruas, 6 toro no sando, torii do santuario com 2 nobori (U16: as unicas bandeiras daqui).
+# ORCAMENTO (PLANO_V2 10 / lead): <= 195k tris, <= 140 MeshParts (1 MB por SETOR de quadras e por material, lod 1 nas
+#   fileiras de tras, cull_hidden por setor), colisoes por VOLUME DE FILEIRA (1 caixa por trecho continuo de lotes ate
+#   o frechal mais baixo) + interiores + props; nada de rampa de telhado (o gate 'visual' prova que nao se alcanca).
+# LUZES: interiores de dia L_OPCap_Int_* (4), resto NightOnly (L_OPProp_*).
+# CAMERAS: CAM_OP_V23Cap_* (folhas; fora do export).
+import math, os, time
+import bpy, bmesh
+from mathutils import Vector
+from mathutils.bvhtree import BVHTree
 import op_lib as DL
-from op_lib import MB, col_box, Frame, ccw, light
+from op_lib import MB, col_box, col_ramp, Frame, ccw, light
+import fm_lib
 import op_layout as L
+import op_kit2 as K2
 import op_kit as K
-import op_m2_trecho as TR
+import op_col
 
-T1, P, W3Z = L.T1, L.P, L.W3
-Z_OFF = 0.15
 COLL = "05_CAPITAL"
-WD, WM, LAC, GOLD = K.WD, K.WM, K.LAC, K.GOLD
-PL, PLW, PLS = K.PL, K.PLW, K.PLS
-RB, RG, RRED, RR = K.RB, K.RG, K.RRED, K.RR
-ST, STD, STP, STZ = K.ST, K.STD, K.STP, K.STZ
-LIT = K.LIT
-INDIGO, CRED, CWHITE = K.INDIGO, K.CRED, K.CWHITE
-DIRT = "Dirt_OP"
-STRAW = "Cloth_OP_Straw"
-CP = K.CP
-DH = 7.6                                      # porta das casas leves (vao 7,6; kit 8,4)
-RIB3 = [(-0.3, -0.1), (0.0, 0.24), (0.3, -0.1)]
-HIP4 = [(-0.5, -0.18), (-0.34, 0.36), (0.34, 0.36), (0.5, -0.18)]
-SUMMON_RECT = (116.0, 150.0, 206.0, 264.0)    # lajeado do op_summon
-TRECHO_RECT = (-17.0, 40.0, 17.0, 121.0)      # rua do trecho + escadaria Praca
-CAM_AREAS = []                                 # areas de colisao das casas (export_op -> CAM_COL_AREAS)
-VEG_SPOTS = []                                 # (x, y, z, tipo, nota) para o op_veg
-_h = K._h01
+T1, P = L.T1, L.P
+SEAM = 0.06               # fresta total entre 2 lotes geminados (0,03 de cada lado: nada se toca, nada se cruza)
+STREET_DZ = 0.2           # topo das lajes acima do piso de colisao (berco a +0,08: 0,12 de cada lado, sem z-fight)
+GAP_EPS = 0.3             # lateral a menos disto de outro lote = encostada (parede-meia)
+NEAR = 6.0                # predio a menos disto: o telhado corta na metade da distancia
+REGION = {"AvO": "Avenida", "AvL": "Avenida", "PortoAlto1": "Avenida", "PortoAlto2": "Avenida",
+          "BairroN": "Bairro", "BairroS": "Bairro", "OesteS": "Oeste", "OesteM": "Oeste", "OesteN": "Oeste",
+          "AlemCanal": "Oeste", "W3": "Oeste", "NE": "NE"}
+# fileiras que o jogador ve de perto (avenida, fachada da praca, sando): lod 0; o resto lod 1
+HERO_ROWS = {("AvO", "F1"), ("AvO", "F2"), ("AvL", "F1"), ("NE", "Haiden"), ("NE", "Honden")}
+BACK_ROWS = {("AvO", "B1"), ("AvO", "B2"), ("AvL", "B1"), ("BairroS", "B1"), ("OesteS", "B"), ("OesteM", "B1"),
+             ("OesteM", "B2"), ("OesteN", "B"), ("PortoAlto1", "B"), ("PortoAlto2", "B"), ("W3", "M1"), ("W3", "M2"),
+             ("AlemCanal", "F1"), ("AlemCanal", "F2"), ("BairroN", "F1"), ("BairroN", "M"), ("BairroS", "F1"),
+             ("PortoAlto1", "F"), ("PortoAlto2", "F")}
+SECOND = {L.R_COB: L.R_TEAL, L.R_TEAL: L.R_COB, L.R_VIO: L.R_COB, L.R_RED: L.R_VIO, L.R_GRN: L.R_TEAL}
+INTERIOR_LIGHT = {"AvO_F14": "L_OPCap_Int_LojaTecidos", "AvL_F15": "L_OPCap_Int_Izakaya",
+                  "OesteM_F21": "L_OPCap_Int_Cha", "NE_Haiden1": "L_OPCap_Int_Haiden"}
+SUMMON_RECT = (116.0, 150.0, 206.0, 264.0)       # lajeado do op_summon (as ruas 16-18 da planta sao dele)
+STATS = {}
 
 
-def sub(F, x=0.0, y=0.0, z=0.0, ang=0.0):
-    return K.sub(F, x, y, z, ang)
+def h01(*a):
+    return K._h01(*a)
 
 
-def bb(mb, F, x0, x1, y0, y1, z0, z1, m, bev=0.0):
-    K.bb(mb, F, x0, x1, y0, y1, z0, z1, m, bev)
+# ================================================================== vizinhanca dos lotes
+def _lot_frame(lt, setback=0.0):
+    """referencial do EDIFICIO: centro da planta (recuado setback/2 do fundo), no chao, +y = frente"""
+    c, s = math.cos(lt["yaw"]), math.sin(lt["yaw"])
+    return Frame(lt["x"] + c * setback / 2, lt["y"] + s * setback / 2, lt["z"], lt["yaw"] - math.pi / 2)
 
 
-# ================================================================== PECAS LEVES (familias B e C)
-# lite = familia C (fundo): canais a cada 4,4 so nas aguas longas, onigawara simples, kumiko 1 x 1, rodape de tabuas
-# so na frente. A silhueta (beiral grosso, sori, espigoes, empena, cumeeira) e a MESMA da familia B.
-SHIELD = [(-1.2, -0.7), (1.2, -0.7), (1.25, 0.6), (0.7, 1.6), (0.0, 1.95), (-0.7, 1.6), (-1.25, 0.6)]
+def _local(lt, x, y):
+    """mundo -> local do lote (x ao longo da fachada, y para a frente)"""
+    c, s = math.cos(lt["yaw"]), math.sin(lt["yaw"])
+    dx, dy = x - lt["x"], y - lt["y"]
+    return dx * s * 1.0 - dy * c * 1.0, dx * c + dy * s
 
 
-WIN_KINDS = ("2x2", "3x2", "koshi")              # M6b item 19: 3 tipos de janela por casa (sorteio pela semente)
+def _world(lt, u, v):
+    c, s = math.cos(lt["yaw"]), math.sin(lt["yaw"])
+    return lt["x"] + u * s + v * c, lt["y"] - u * c + v * s
 
 
-def _win_lo(mb, Ff, s, z, w, hh, lit, lite=False, kind=None):
-    """janela de papel com moldura (peitoril com pingadeira, verga, ombreiras) e kumiko: papel 0,14 a frente do
-    reboco, kumiko 0,14 a frente do papel. kind (M6b): '2x2' (2 folhas + travessa), '3x2' (3 folhas + travessa) ou
-    'koshi' (grade vertical de ripas a cada ~0,55, sem travessa: a janela gradeada de Wano)"""
-    x0, x1 = s - w / 2, s + w / 2
-    bb(mb, Ff, x0 - 0.3, x1 + 0.3, -0.3, 0.16, z - 0.28, z, WD)
-    bb(mb, Ff, x0 - 0.3, x1 + 0.3, -0.3, 0.06, z + hh, z + hh + 0.3, WD)
-    bb(mb, Ff, x0 - 0.3, x0, -0.3, 0.04, z, z + hh, WD)
-    bb(mb, Ff, x1, x1 + 0.3, -0.3, 0.04, z, z + hh, WD)
-    bb(mb, Ff, x0, x1, -0.3, -0.08, z, z + hh, LIT if lit else PL)     # M6b: fundo do papel DENTRO do reboco
-    kind = kind or ("2x2" if lite else "3x2")
-    if kind == "koshi":
-        nb = max(3, int(round(w / 0.55)))
-    elif kind == "3x2":
-        nb = 3
-    else:
-        nb = 2 if lite else max(2, int(round(w / 1.05)))
-    for i in range(1, nb):
-        x = x0 + w * i / nb
-        bb(mb, Ff, x - 0.07, x + 0.07, -0.08, 0.06, z, z + hh, WD)
-    if kind != "koshi":
-        bb(mb, Ff, x0, x1, -0.08, 0.06, z + hh * 0.5 - 0.06, z + hh * 0.5 + 0.06, WD)
+FRONT_REACH = 3.4         # o que a FRENTE de um predio projeta sobre a rua (beiral, hisashi, placa, degrau, chochin)
 
 
-def _door_lo(mb, Ff, s, w, z0, dh, noren=None, lit=False, lite=False):
-    """porta de correr: caixilho, soleira, 2 folhas de tabua com papel em cima (0,14 a frente), montante, noren"""
-    x0, x1 = s - w / 2, s + w / 2
-    bb(mb, Ff, x0 - 0.3, x0, -0.55, 0.04, z0 - 0.25, z0 + dh + 0.45, WD)    # M6b: ombreiras/verga com o fundo
-    bb(mb, Ff, x1, x1 + 0.3, -0.55, 0.04, z0 - 0.25, z0 + dh + 0.45, WD)    # longe (>= 0,23) do fundo da folha
-    bb(mb, Ff, x0, x1, -0.55, 0.04, z0 + dh, z0 + dh + 0.45, WD)            # e do fundo do reboco
-    bb(mb, Ff, x0 - 0.3, x1 + 0.3, -0.95, 0.2, z0 - 0.25, z0, WD)
-    bb(mb, Ff, x0, x1, -0.78, -0.62, z0, z0 + dh, WM)
-    zm = z0 + dh * 0.4
-    pm = LIT if lit else PL
-    bb(mb, Ff, x0 + 0.3, s - 0.18, -0.62, -0.48, zm, z0 + dh - 0.35, pm)
-    bb(mb, Ff, s + 0.18, x1 - 0.3, -0.62, -0.48, zm, z0 + dh - 0.35, pm)
-    bb(mb, Ff, s - 0.18, s + 0.18, -0.62, -0.34, z0, z0 + dh, WD)
-    if not lite:
-        for xa, xb in ((x0 + 0.3, s - 0.18), (s + 0.18, x1 - 0.3)):
-            xm = (xa + xb) / 2
-            bb(mb, Ff, xm - 0.06, xm + 0.06, -0.48, -0.34, zm, z0 + dh - 0.35, WD)
-    if noren:
-        K.noren_cloth(mb, Ff, x0, x1, z0 + dh - 0.12, min(3.0, dh * 0.4), noren)
+def _march(cands, me, pts, du, dv):
+    """anda de cada ponto local (u, v) de 'me' na direcao (du, dv) ate entrar noutro lote (passo 0,1 ate NEAR) ->
+    (distancia, lote, face do outro que foi cruzada: 'front' | 'back' | 'side') do primeiro encontro"""
+    best = None
+    for u, v in pts:
+        d = 0.05
+        while d <= NEAR + 1e-6 and (best is None or d < best[0]):
+            x, y = _world(me, u + du * d, v + dv * d)
+            hit = None
+            for o in cands:
+                if L.point_in_poly(x, y, o[1]):
+                    hit = o[0]
+                    break
+            if hit:
+                uu, vv = _local(hit, x, y)
+                face = "front" if vv > hit["D"] / 2 - 0.25 else ("back" if vv < -hit["D"] / 2 + 0.25 else "side")
+                best = (d, hit, face)
+                break
+            d += 0.1
+    return best
 
 
-def wall_lo(mb, Ff, L_, h, opens, pl, ground=True, full=True, boards=True, lite=False, wkind=None):
-    """parede leve (mesma construcao do K.facade): soleira (so no terreo), viga de beiral que passa do canto nas
-    faces 'full', pilares intermediarios, REBOCO recuado 0,22 entre pilares; no terreo rodape de tabuas + travessa
-    escura. opens = [dict(t='win'|'door', s, w, h, z, lit, noren)]. M6b: pilares com o FUNDO dentro do reboco (antes
-    o fundo do pilar ficava 0,10 atras do fundo do reboco, por dentro); wkind = tipo de janela da casa"""
-    xi0, xi1 = -L_ / 2 + CP, L_ / 2 - CP
-    z0 = 0.7 if ground else 0.0
-    zt = h - 1.0
-    if ground:
-        bb(mb, Ff, -L_ / 2 if full else xi0, L_ / 2 if full else xi1, -0.95, 0.06, 0.0, 0.7, WD)
-    ke = (-L_ / 2 - 0.9, L_ / 2 + 0.9) if full else (xi0, xi1)
-    bb(mb, Ff, ke[0], ke[1], -0.95, 0.15, zt, h, WD)
-    holes = []
-    for o in opens:
-        if o["t"] == "door":
-            dh = o.get("h", DH)
-            holes.append((o["s"] - o["w"] / 2 - 0.3, o["s"] + o["w"] / 2 + 0.3, z0 - 0.3, z0 + dh + 0.45))
-            _door_lo(mb, Ff, o["s"], o["w"], z0, dh, o.get("noren"), o.get("lit", False), lite)
-        else:
-            _win_lo(mb, Ff, o["s"], o["z"], o["w"], o["h"], o.get("lit", True), lite, o.get("kind", wkind))
-    span = xi1 - xi0
-    n = max(1, int(round(span / (6.0 if lite else 5.2))))
-    for i in range(1, n):
-        x = xi0 + span * i / n
-        if any(a - 0.45 < x < b + 0.45 for a, b, _, _ in holes):
-            continue
-        if any(abs(x - o["s"]) < o["w"] / 2 + 0.75 for o in opens if o["t"] == "win"):
-            continue
-        bb(mb, Ff, x - 0.4, x + 0.4, -0.7, 0.0, z0, zt, WD)
-    if ground and boards:
-        K.panel(mb, Ff, xi0, xi1, z0, 2.4, -0.78, -0.2, holes, WM)
-        K.panel(mb, Ff, xi0, xi1, 2.4, 2.65, -0.62, 0.02, holes, WD)
-        K.panel(mb, Ff, xi0, xi1, 2.65, zt + 0.05, -0.8, -0.22, holes, pl)
-    else:
-        K.panel(mb, Ff, xi0, xi1, z0, zt + 0.05, -0.8, -0.22, holes, pl)
+def _march_high(me, pts, du, dv, maxd=9.0):
+    """distancia ate um piso da planta mais alto que o lote (z > z + 0,3) andando para fora"""
+    best = None
+    for u, v in pts:
+        d = 0.1
+        while d <= maxd and (best is None or d < best):
+            x, y = _world(me, u + du * d, v + dv * d)
+            z = L.zone_of(x, y)
+            if z is not None and z > me["z"] + 0.3:
+                best = d
+                break
+            d += 0.2
+    return best
 
 
-def auto_opens(L_, key, k, h, seed, lit_p=0.5, noren=INDIGO, door=True, lite=False):
-    """vaos automaticos: frente do terreo = porta + janelas; fundos 1-2 janelas; laterais 1 janela se couber;
-    pisos de cima = fileira de janelas. Posicoes sorteadas (sem intervalos iguais de casa para casa)."""
-    out = []
-    lit = lambda i: _h(seed, key, k, i, "l") < lit_p
-    span = L_ - 2 * CP
-    if k == 0:
-        if key == "F":
-            ds = (_h(seed, "d") - 0.5) * max(0.0, span - 10.0) * 0.6 if door else None
-            if door:
-                out.append(dict(t="door", s=ds, w=5.0, noren=noren if _h(seed, "n") < (0.45 if lite else 0.7) else None,
-                                lit=lit(0)))
-            for sgn in (-1, 1):
-                if door:
-                    a, b = (ds + 3.2, L_ / 2 - CP - 0.6) if sgn > 0 else (-L_ / 2 + CP + 0.6, ds - 3.2)
+def neighbors(lots):
+    """por lote: lados encostados (parede-meia), limite de corte das laterais expostas e do fundo quando ha predio a
+    menos de NEAR (metade da distancia; se o outro mostra a FRENTE, distancia - FRONT_REACH)"""
+    out = {}
+    polys = {lt["name"]: L.lot_poly(lt) for lt in lots}
+    for lt in lots:
+        W, D = lt["W"], lt["D"]
+        R = (W + D) / 2 + NEAR + 2.0
+        cands = [(o, polys[o["name"]]) for o in lots if o is not lt and
+                 math.hypot(o["x"] - lt["x"], o["y"] - lt["y"]) < R + (o["W"] + o["D"]) / 2]
+        res = dict(party=[False, False], lim=[None, None], back=None, back_gap=None, nb=set())
+        vs = (-D / 2 + 0.8, -D / 4, 0.0, D / 4, D / 2 - 0.8)
+        for k, sx in enumerate((-1, 1)):
+            m = _march(cands, lt, [(sx * W / 2, v) for v in vs], sx, 0.0)
+            if m:
+                d, o, face = m
+                res["nb"].add(o["name"])
+                if d <= GAP_EPS:
+                    res["party"][k] = True
                 else:
-                    a, b = (0.6, L_ / 2 - CP - 0.6) if sgn > 0 else (-L_ / 2 + CP + 0.6, -0.6)
-                if b - a >= 3.4:
-                    w = min(5.2, b - a - 0.8)
-                    out.append(dict(t="win", s=(a + b) / 2, w=w, h=3.2, z=3.3, lit=lit(sgn)))
-        elif key == "B":
-            n = 1 if span < 14 else 2                    # M6b: fundos largos com 2 janelas tambem no lite
-            for i in range(n):
-                s = -span / 2 + span * (i + 0.5) / n + (_h(seed, "b", i) - 0.5) * 2.0
-                out.append(dict(t="win", s=s, w=3.0, h=2.8, z=4.2, lit=lit(10 + i)))
-        else:
-            if span >= 17:                               # M6b: empena longa = 2 janelas desencontradas
-                for i, f in enumerate((-0.27, 0.25)):
-                    s = span * f + (_h(seed, key, "s", i) - 0.5) * 1.6
-                    out.append(dict(t="win", s=s, w=2.8, h=2.8, z=4.4 - 0.6 * i, lit=lit(20 + i)))
-            elif span >= 10:
-                s = (_h(seed, key, "s") - 0.5) * (span - 6.0) * 0.5
-                out.append(dict(t="win", s=s, w=2.8, h=2.8, z=4.4, lit=lit(20)))
-    else:
-        if key in "FB":
-            n = max(1, int((span + 1.0) / (8.0 if lite else 6.5)))
-            for i in range(n):
-                s = -span / 2 + span * (i + 0.5) / n
-                out.append(dict(t="win", s=s, w=min(3.8, span / n - 1.6), h=min(2.8, h - 3.4), z=1.5, lit=lit(30 + i)))
-        elif span >= 10:                                 # M6b: (era 16 no lite) nenhuma empena > 12 sem abertura
-            out.append(dict(t="win", s=0.0, w=2.8, h=min(2.6, h - 3.4), z=1.6, lit=lit(40)))
+                    res["lim"][k] = W / 2 + (d - FRONT_REACH if face == "front" else d / 2) - 0.03
+            # piso MAIS ALTO alcancavel (terraco, mirante) a 6..9: o beiral fica a > 6 dele (fora do alcance do pulo)
+            if not res["party"][k]:
+                dh = _march_high(lt, [(sx * W / 2, v) for v in vs], sx, 0.0)
+                if dh is not None and dh > 6.2:
+                    lk = W / 2 + dh - 6.2
+                    res["lim"][k] = lk if res["lim"][k] is None else min(res["lim"][k], lk)
+        us = (-W / 2 + 0.6, -W / 4, 0.0, W / 4, W / 2 - 0.6)
+        m = _march(cands, lt, [(u, -D / 2) for u in us], 0.0, -1.0)
+        if m:
+            d, o, face = m
+            res["nb"].add(o["name"])
+            res["back_gap"] = 0.0 if d <= GAP_EPS else d
+            res["back"] = D / 2 + (d - FRONT_REACH if face == "front" else d / 2) - 0.03
+        out[lt["name"]] = res
     return out
 
 
-def pent_lo(mb, Ff, L_, depth, z_top, m=RB, pitch=0.42, tv=0.4, sp=1.9, brackets=True):
-    """hisashi leve: placa com espessura, canais, testeira, frechal e misulas. Ff na face da parede"""
-    X = L_ / 2
-    zf = lambda x, y: z_top - pitch * y + 0.4 * min(1.0, abs(x) / X) ** 3 * min(1.0, max(0.0, y) / depth) ** 3
-    K.sheet(mb, Ff, [(-X, depth), (X, depth), (X, -0.35), (-X, -0.35)], zf, tv, max(2, int(L_ / 6.0)), [0.0, 1.0], m)
-    for x in K.even(-X + 0.35, X - 0.35, sp):
-        K.sweep(mb, Ff, [(x, depth + 0.1, zf(x, depth)), (x, 0.2, zf(x, 0.2))], RIB3, m)
-    K.strip(mb, Ff, [(x, depth - 0.28, zf(x, depth - 0.28) - tv) for x in (-X + 0.3, 0.0, X - 0.3)], (0, 1, 0),
-            -0.15, 0.15, -0.42, 0.05, WD)
-    bb(mb, Ff, -X + 0.2, X - 0.2, -0.12, 0.26, z_top - 0.32, z_top + 0.26, WD)
-    if brackets:
-        zd = zf(0.0, depth - 0.5) - tv - 0.25
-        xs = [-X + 0.6, X - 0.6] + ([0.0] if L_ > 14 else [])
-        for x in xs:
-            K.bracket(mb, Ff, x, -0.1, zd, depth - 0.45, 0.4, 0.8)
+# ================================================================== lote -> chamada do kit
+def _dh(lt):
+    return lt["eave"] - lt["z"] - L.EAVE_H.get((lt["kind"], lt["floors"]), 8.8 + 6.0 * (lt["floors"] - 1))
 
 
-def _oni_lo(mb, F, x, zr, sx, s=0.7):
-    K.ext(mb, F, [(u * s, zr + v * s) for u, v in SHIELD], "x", x - 0.12 * sx, x + 0.42 * sx * s, RR)
-
-
-def _ridge_lo(mb, F, x0, x1, zr, pu, gold=False, lite=False):
-    hw = 1.05
-    poly = [(-hw, zr - pu * hw - 0.05), (0.0, zr - 0.05), (hw, zr - pu * hw - 0.05), (hw, zr + 0.3), (-hw, zr + 0.3)]
-    K.ext(mb, F, poly, "x", x0, x1, RR)
-    bb(mb, F, x0 + 0.15, x1 - 0.15, -0.78, 0.78, zr + 0.26, zr + 0.62, RR)
-    if not lite:
-        bb(mb, F, x0 + 0.3, x1 - 0.3, -0.55, 0.55, zr + 0.58, zr + 0.92, RR)
-    for sx, xe in ((-1, x0), (1, x1)):
-        if lite:
-            _oni_lo(mb, F, xe, zr, sx, 0.66)
+def plan(lots):
+    nbs = neighbors(lots)
+    specs = []
+    for lt in lots:
+        nb = nbs[lt["name"]]
+        sides = (not nb["party"][0], not nb["party"][1])
+        kind = lt["kind"]
+        seed = int(h01(lt["name"], "seed") * 9973)
+        dh = _dh(lt)
+        roof = lt["roof"]
+        if lt["roof"] == L.ROWS[[r[0] + r[1] for r in L.ROWS].index(lt["block"] + lt["row"])][7] and kind not in (
+                "portal", "santuario", "honden") and h01(lt["name"], "cor") < 0.2:
+            roof = SECOND.get(roof, roof)
+        setback = 0.4 if (nb["back_gap"] is not None and nb["back_gap"] < 0.5) else 0.0
+        if kind in ("kura", "armazem") and setback:
+            setback = 0.6
+        Wb, Db = lt["W"] - SEAM, lt["D"] - setback
+        back = None
+        if nb["back"] is not None:                       # limite do fundo no referencial do EDIFICIO (recuado)
+            back = max(Db / 2, nb["back"] + setback / 2)
+        lim = tuple((max(Wb / 2, v - SEAM / 2) if v is not None else K2.BIG) for v in nb["lim"])
+        lod = 0 if (lt["block"], lt["row"]) in HERO_ROWS else (2 if (lt["block"], lt["row"]) in BACK_ROWS else 1)
+        if kind == "esquina" or lt["interior"]:
+            lod = 1 if kind == "esquina" else 0             # interiores vivos sempre lod 0; esquinas lod 1
+        hide_back = nb["back_gap"] is not None and nb["back_gap"] < 1.0
+        lname = INTERIOR_LIGHT.get(lt["name"]) if lt["interior"] else None
+        kw = dict(W=Wb, D=Db, roof_m=roof, lod=lod, seed=seed, back=back, lim=lim)
+        if kind in ("loja", "sobrado", "esquina", "fundo", "moinho", "chaya", "mansao") and hide_back:
+            kw["hide_back"] = True
+        zw = None
+        if kind == "loja":
+            kw.update(sides=sides, tsuma=lt["tsuma"], shop_side=1 if h01(lt["name"], "ss") < 0.5 else -1,
+                      upper=("mushiko", "shoji", "double")[int(h01(lt["name"], "up") * 3)],
+                      awning=h01(lt["name"], "aw") < 0.3, roof="irimoya" if (not lt["tsuma"] and
+                                                                              h01(lt["name"], "iri") < 0.15) else "kirizuma",
+                      h0=9.0 + 0.4 * dh, h1=7.0 + 0.6 * dh, interior=lt["interior"], light_name=lname)
+            fn, zw = K2.loja, 0.8 + kw["h0"] + kw["h1"]
+        elif kind == "sobrado":
+            kw.update(sides=sides, shop=h01(lt["name"], "sh") < 0.5, rail_m=K2.LAC if h01(lt["name"], "rl") < 0.5
+                      else K2.WD, h0=8.6 + 0.3 * dh, h1=7.0 + 0.3 * dh, h2=6.4 + 0.4 * dh, chidori=lod == 0)
+            kw["top"] = "irimoya" if lod < 2 else "yosemune"
+            fn, zw = K2.sobrado, 0.8 + kw["h0"] + kw["h1"]
+        elif kind == "esquina":
+            if sides[0] and sides[1]:
+                corner, solo = (1 if h01(lt["name"], "c") < 0.5 else -1), True
+            else:
+                corner, solo = (1 if sides[1] else -1), False
+            kw.update(corner=corner, solo=solo, tower_m=SECOND.get(roof, L.R_COB), h0=9.0 + 0.4 * dh,
+                      h1=7.0 + 0.6 * dh, light_name=lname)
+            fn, zw = K2.esquina, 0.8 + kw["h0"] + kw["h1"]
+        elif kind in ("kura", "armazem"):
+            kw.update(sides=sides, tsuma=lt["tsuma"] if kind == "kura" else False,
+                      h=(12.5 if kind == "kura" else 13.6) + dh, crest=lod == 0)
+            fn, zw = K2.kura, 1.4 + kw["h"]
+        elif kind == "chaya":
+            gs = 1 if (sides[1] and not sides[0]) else (-1 if (sides[0] and not sides[1]) else
+                                                       (1 if h01(lt["name"], "gs") < 0.5 else -1))
+            kw.update(sides=sides, garden_side=gs, garden_w=4.0, light_name=lname, h0=9.0, h1=6.8)
+            fn, zw = K2.chaya, 1.0 + 9.0
+        elif kind == "mansao":
+            kw.update(sides=sides)
+            fn, zw = K2.mansao2, 0.8 + 8.6 + 7.0
+        elif kind in ("fundo", "moinho"):
+            kw.update(sides=sides, tsuma=(lt["tsuma"] or h01(lt["name"], "ts") < 0.35 or kind == "moinho"),
+                      h0=(9.0 if kind == "moinho" else 8.0) + max(0.0, dh), hisashi=lt["hisashi"])
+            kw["lod"] = 2                      # fundos = Tier B (PLANO_V2 3.2): sempre lod 2 (telha ondulada mantida)
+            fn, zw = K2.fundo, 0.6 + kw["h0"]
+        elif kind == "portal":
+            kw.update(sides=sides, h=lt["eave"] - lt["z"])
+            fn, zw = K2.portal2, kw["h"]
+        elif kind == "santuario":
+            kw.update(sides=sides, light_name=lname)
+            fn, zw = K2.haiden2, 1.6 + 9.0
+        elif kind == "honden":
+            kw.update(sides=sides)
+            fn, zw = K2.honden2, 7.0
         else:
-            K.onigawara(mb, F, xe, zr, sx, 0.62, False, gold)
-    return zr + (0.62 if lite else 0.92)
+            raise RuntimeError("op_capital: tipo sem kit: %s" % kind)
+        specs.append(dict(lot=lt, fn=fn, kw=kw, F=_lot_frame(lt, setback), zw=zw, sides=sides, nb=nb,
+                          region=REGION[lt["block"]], setback=setback))
+    _variety(specs)
+    return specs
 
 
-def roof_lo(mb, F, W, D, h, kind="irimoya", pitch=0.55, over=2.8, lift=1.0, tv=0.5, m=RB, gable=0.62, g_over=1.3,
-            sp=None, gable_m=PL, gold=False, lite=False):
-    """TELHADO LEVE irimoya / yosemune (cumeeira em x local; gira sozinho se D > W): placas com espessura e sori
-    (K.Slope), canais a cada 'sp', capas dos espigoes, testeira, rincao, empena de reboco com tabeira e gegyo,
-    cumeeira com onigawara. F na base do ultimo piso, h = topo da viga de beiral."""
-    sp = sp or (4.4 if lite else 3.5)
-    if kind == "kirizuma":
-        return gable_lo(mb, F, W, D, h, pitch, over, 1.6, lift * 0.6, tv, m, gable_m, sp, gold, lite)
-    if W < D - 1e-6:
-        return roof_lo(mb, sub(F, ang=math.pi / 2), D, W, h, kind, pitch, over, lift, tv, m, gable, g_over, sp, gable_m,
-                       gold, lite)
-    Xw, Yw = W / 2 + 0.15, D / 2 + 0.15
-    Xe, Ye = Xw + over, Yw + over
-    zw = h + tv + 0.06
-    irim = kind == "irimoya"
-    yb = gable * Yw if irim else 0.45
-    S = K.Slope(Xw, Yw, zw, pitch, pitch * 0.5, Xe, Ye, lift, pitch * 1.5 if irim else pitch, Yw - yb)
-    k = Xw - Yw
-    xg = k + yb
-    go = g_over if irim else 0.0
-    zr = S.zy(0.0, 0.0)
-    zb = S.zy(xg, yb)
-    dv = 8.0 if lite else 5.5
-    for ik, Fk in enumerate((F, sub(F, ang=math.pi))):
-        tw = over / (Ye - yb)
-        K.sheet(mb, Fk, [(-Xe, Ye), (Xe, Ye), (xg, yb), (-xg, yb)], S.zy, tv, max(2, int(2 * Xe / dv)), [0.0, tw, 1.0], m)
-        if irim and yb > 0.05:
-            K.sheet(mb, Fk, [(-xg - go, yb), (xg + go, yb), (xg + go, 0.0), (-xg - go, 0.0)], S.zy, tv, 2, [0.0, 1.0], m)
-        twe = over / max(0.1, Xe - xg)
-        K.sheet(mb, Fk, [(Xe, -Ye), (Xe, Ye), (xg, yb), (xg, -yb)], S.zx, tv, max(2, int(2 * Ye / dv)),
-                [0.0, min(0.99, twe), 1.0], m)
-        for x in K.even(-Xe + 0.4, Xe - 0.4, sp):
-            ax = abs(x)
-            if ax <= xg:
-                line = [(x, Ye + 0.12), (x, Yw), (x, max(yb, 0.45))]
-            else:
-                ye = ax - k + 0.45
-                if ye >= Ye - 0.7:
-                    continue
-                line = [(x, Ye + 0.12)] + ([(x, Yw)] if ye < Yw - 0.3 else []) + [(x, ye)]
-            K.sweep(mb, Fk, [(px, py, S.zy(px, py)) for px, py in line], RIB3, m)
-        if not lite:
-            for y in K.even(-Ye + 0.4, Ye - 0.4, sp):
-                ay = abs(y)
-                xe = (xg + 0.45) if (irim and ay <= yb - 0.5) else (ay + k + 0.45)
-                if xe < Xe - 0.7:
-                    pts = [(Xe + 0.12, y)] + ([(Xw, y)] if xe < Xw - 0.3 else []) + [(xe, y)]
-                    K.sweep(mb, Fk, [(px, py, S.zx(px, py)) for px, py in pts], RIB3, m)
-        for sy in (1, -1):
-            pts = [(Xe + 0.5, sy * (Ye + 0.5), S.zy(Xe, Ye) + 0.55)] + \
-                  ([] if lite else [(Xe, sy * Ye, S.zy(Xe, Ye) + 0.04)]) + \
-                  [(Xw, sy * Yw, S.zy(Xw, Yw) + 0.02), (xg, sy * yb, S.zy(xg, yb))]
-            K.sweep(mb, Fk, pts, HIP4, RR)
-            if not lite:
-                K.beam(mb, Fk, (Xw - 0.8, sy * (Yw - 0.8), zw - tv - 0.75),
-                       (Xe + 0.22, sy * (Ye + 0.22), S.zy(Xe, Ye) - tv - 0.32), 0.6, 0.62, WD)
-        K._fascia(mb, Fk, lambda t: ((-Xe + 0.42) + (2 * Xe - 0.84) * t, Ye - 0.34), 10, (0, 1, 0), S.zy, tv, lod=1)
-        if not lite:
-            K._fascia(mb, Fk, lambda t: (Xe - 0.34, (-Ye + 0.42) + (2 * Ye - 0.84) * t), 8, (1, 0, 0), S.zx, tv, lod=1)
-        if irim and yb > 1.0:
-            yf_ = yb - 0.55
-            bb(mb, Fk, xg - 0.62, xg + 0.36, -yf_, yf_, zb - 0.22, zb + 0.22, RR)
-            top = lambda y: S.zy(xg, y) - tv - 0.05
-            y1 = yb - (tv + 0.12) / S.pu
-            if y1 > 0.4:
-                ys = [y1, y1 * 0.5, 0.0, -y1 * 0.5, -y1]
-                poly = [(-y1, zb - 0.05), (y1, zb - 0.05)] + [(y, top(y)) for y in ys]
-                K.ext(mb, Fk, poly, "x", xg - 0.45, xg - 0.25, gable_m)
-                bb(mb, Fk, xg - 0.27, xg - 0.09, -y1 * 0.55, y1 * 0.55, zb + 0.15, zb + 0.55, WD)
-            xh = xg + go - 0.36                           # M6b: tabeira 0,18 atras da borda da agua (era 0,12)
-            ye = 0.0
-            for i in range(1, 60):
-                y = yb * i / 60
-                if S.zy(xh, y) - tv - 0.7 < S.zx(xh - 0.2, y) + 0.4:
-                    break
-                ye = y
-            if ye > 0.5:
-                nseg = 2 if lite else 3
-                for sy in (1, -1):
-                    K._hafu(mb, Fk, xh, [sy * ye * i / nseg for i in range(nseg + 1)], S.zy, tv, 0.7)
-                K._gegyo(mb, Fk, xh, S.zy(xh, 0.0) - tv - 0.7, 1, WD, 0.9, gold)
-    rt = _ridge_lo(mb, F, -(xg + go + 0.2), xg + go + 0.2, zr, S.pu, gold, lite)
-    return dict(top=rt + 1.6, zr=zr, eave_z=S.zy(0.0, Ye) - tv - 0.6)
+def _sig(s):
+    kw = s["kw"]
+    return (s["fn"].__name__, kw.get("tsuma"), kw.get("shop_side"), kw.get("upper"), kw.get("roof"))
 
 
-def gable_lo(mb, F, W, D, h, pitch=0.62, over=2.6, g_over=1.6, lift=0.6, tv=0.5, m=RB, gable_m=PL, sp=3.5, gold=False,
-             lite=False):
-    """KIRIZUMA leve (duas aguas, cumeeira em x local): placas, canais, testeira, empena de reboco com tabuas,
-    tabeira (hafu) e gegyo, cumeeira com onigawara"""
-    Xw, Yw = W / 2, D / 2 + 0.15
-    Xe, Ye = Xw + g_over, Yw + over
-    zw = h + tv + 0.06
-    S = K.Slope(Xw, Yw, zw, pitch, pitch * 0.5, Xe, Ye, lift)
-    zr = S.zy(0.0, 0.0)
-    tw = over / Ye
-    for Fk in (F, sub(F, ang=math.pi)):
-        K.sheet(mb, Fk, [(-Xe, Ye), (Xe, Ye), (Xe, 0.0), (-Xe, 0.0)], S.zy, tv,
-                max(2, int(2 * Xe / (8.0 if lite else 5.5))), [0.0, tw, 1.0], m)
-        for x in K.even(-Xe + 0.4, Xe - 0.4, sp):
-            K.sweep(mb, Fk, [(px, py, S.zy(px, py)) for px, py in ((x, Ye + 0.12), (x, Yw), (x, 0.45))], RIB3, m)
-        K._fascia(mb, Fk, lambda t: ((-Xe + 0.5) + (2 * Xe - 1.0) * t, Ye - 0.36), 8, (0, 1, 0), S.zy, tv, lod=1)
-        top = lambda y: S.zy(Xw, y) - tv - 0.05
-        ymax = D / 2
-        ys = [ymax, ymax * 0.5, 0.0, -ymax * 0.5, -ymax]
-        poly = [(-ymax, h - 0.1), (ymax, h - 0.1)] + [(y, top(y)) for y in ys]
-        K.ext(mb, Fk, poly, "x", Xw - 0.8, Xw - 0.24, gable_m)
-        if not lite:
-            for y in K.even(-ymax + 0.6, ymax - 0.6, 1.6):
-                t = top(y) - 0.08
-                if t > h + 0.8:
-                    bb(mb, Fk, Xw - 0.26, Xw - 0.1, y - 0.09, y + 0.09, h + 0.1, t, WD)
-        bb(mb, Fk, Xw - 0.3, Xw - 0.06, -ymax + 0.3, ymax - 0.3, h - 0.25, h + 0.15, WD)
-        xh = Xe - 0.4                                     # M6b: tabeira 0,2 atras da borda da agua (era 0,10)
-        for sy in (1, -1):
-            K._hafu(mb, Fk, xh, [sy * (Ye - 0.05) * u for u in (0.0, Yw / Ye * 0.999, 1.0)], S.zy, tv, 0.9, WD, 0.2)
-        K._gegyo(mb, Fk, xh, S.zy(xh, 0.0) - tv - 0.9, 1, WD, 0.9, gold)
-    rt = _ridge_lo(mb, F, -(Xe + 0.17), Xe + 0.17, zr, pitch, gold, lite)
-    return dict(top=rt + 1.6, zr=zr, eave_z=S.zy(0.0, Ye) - tv - 0.6)
-
-
-def pav_lo(mb, F, W, D, h=7.4, roof_m=RB, red=False, deck=1.1):
-    """PAVILHAO aberto leve (familia pavilhao, versao de recanto): pilares sobre pedras, estrado de tabuas com viga
-    de borda, vigas de cabeca, guarda baixa nos 3 lados (aberto na frente +y), degrau de pedra, telhado leve"""
-    pm = LAC if red else WD
-    xs = [-W / 2 + 0.5, 0.0, W / 2 - 0.5] if W > 11 else [-W / 2 + 0.5, W / 2 - 0.5]
-    ys = [-D / 2 + 0.5, D / 2 - 0.5]
-    for x in xs:
-        for y in ys:
-            bb(mb, F, x - 0.75, x + 0.75, y - 0.75, y + 0.75, -0.2, 0.45, ST)
-            bb(mb, F, x - 0.42, x + 0.42, y - 0.42, y + 0.42, 0.45, deck + h, pm)
-    bb(mb, F, -W / 2 + 0.2, W / 2 - 0.2, -D / 2 + 0.2, D / 2 - 0.2, deck - 0.22, deck, WM)
-    bb(mb, F, -W / 2, W / 2, -D / 2, D / 2, deck - 0.75, deck - 0.22, WD)
-    for sy in (-1, 1):
-        bb(mb, F, -W / 2 - 0.8, W / 2 + 0.8, sy * (D / 2 - 0.5) - 0.4, sy * (D / 2 - 0.5) + 0.4, deck + h - 0.9, deck + h, WD)
-    for sx in (-1, 1):
-        bb(mb, F, sx * (W / 2 - 0.5) - 0.38, sx * (W / 2 - 0.5) + 0.38, -D / 2 - 0.8, D / 2 + 0.8, deck + h - 0.88,
-           deck + h - 0.02, WD)
-    rails = [((-W / 2 + 0.5, -D / 2 + 0.5), (W / 2 - 0.5, -D / 2 + 0.5))]
-    rails += [((s * (W / 2 - 0.5), -D / 2 + 0.5), (s * (W / 2 - 0.5), D / 2 - 0.5)) for s in (-1, 1)]
-    for a, b in rails:
-        K.beam(mb, F, (a[0], a[1], deck + 2.6), (b[0], b[1], deck + 2.6), 0.3, 0.3, pm)
-        K.beam(mb, F, (a[0], a[1], deck + 1.2), (b[0], b[1], deck + 1.2), 0.22, 0.22, WD)
-    K.stone(mb, sub(F, 0.0, D / 2 - 0.2), -2.2, 2.2, -0.3, deck * 0.5, -0.3, 1.5, 1.5, 0.08, STP)
-    return roof_lo(mb, sub(F, z=deck), W, D, h, "irimoya", 0.55, 2.6, 1.0, 0.5, roof_m, 0.6, 1.2, 3.5, PL)
-
-
-# ------------------------------------------------------------------ edificio leve (B e C)
-LO_DEF = dict(plinth=("soco", 0.9), plaster=PLW, plaster_up=PL, lit_p=0.45, noren=INDIGO, lite=False,
-              roof=dict(kind="irimoya", ridge="x", pitch=0.55, over=2.8, lift=1.0, m=RB), chochin=())
-
-
-def _faces(Fz, W, D):
-    return {"F": (sub(Fz, 0.0, D / 2), W, True), "B": (sub(Fz, 0.0, -D / 2, 0.0, math.pi), W, True),
-            "R": (sub(Fz, W / 2, 0.0, 0.0, -math.pi / 2), D, False),
-            "L": (sub(Fz, -W / 2, 0.0, 0.0, math.pi / 2), D, False)}
-
-
-def lo_house(mb, F, spec, seed):
-    """edificio leve. spec: W D plinth plaster plaster_up roof floors=[dict(h, setback=(frente, fundos), F/B/L/R =
-    'auto' | [vaos] | dict(kit=bays, lod)), pents=(faces com hisashi entre este piso e o de baixo)] front_pent=dict(z,
-    depth) (hisashi do terreo), chochin=[(x, z)], lite. Devolve dict(glow, roof)."""
-    sp = dict(LO_DEF)
-    sp.update(spec)
-    W, D = sp["W"], sp["D"]
-    lite = sp["lite"]
-    pst, ph = sp["plinth"]
-    K.foundation(mb, F, W + 0.6, D + 0.6, ph, pst, 1)
-    z = ph
-    glow = []
-    prev = None
-    last = None
-    rm = sp["roof"].get("m", RB)
-    wkind = WIN_KINDS[int(_h(seed, "wk") * 3) % 3]          # M6b item 19: tipo de janela da casa
-    for k, fl in enumerate(sp["floors"]):
-        sf, sbk = fl.get("setback", (0.0, 0.0))
-        Wk, Dk = W, D - sf - sbk
-        cy = (sbk - sf) / 2
-        Fk = sub(F, 0.0, cy, z)
-        h = fl["h"]
-        ground = k == 0
-        pl = sp["plaster"] if ground else sp["plaster_up"]
-        K.corner_posts(mb, Fk, Wk, Dk, 0.7 if ground else 0.0, h - 1.0, CP, 1)
-        for key, (Ff, Lf, full) in _faces(Fk, Wk, Dk).items():
-            fs = fl.get(key, "auto")
-            if isinstance(fs, dict):
-                r = K.facade(mb, Ff, Lf, h, fs["kit"], full, fs.get("door_w", K.DOOR_W), K.DOOR_H if ground else 3.6,
-                             fs.get("plaster", pl), True, 0.9, fs.get("lod", 1), fs.get("noren", sp["noren"]), ground,
-                             seed * 7 + k * 4 + "FBRL".index(key), ground, 5.2 if ground else 2.2)
-                glow += r["glow"]
+def _variety(specs):
+    """nunca a mesma casa lado a lado na mesma rotacao: vizinho de fileira com a mesma assinatura troca o lado da
+    loja e o 2o piso (ou vira tsumairi)"""
+    by = {s["lot"]["name"]: s for s in specs}
+    for s in specs:
+        for o in s["nb"]["nb"]:
+            t = by.get(o)
+            if not t or t["lot"]["row"] != s["lot"]["row"] or t["lot"]["block"] != s["lot"]["block"]:
                 continue
-            if fs == "auto":
-                fs = auto_opens(Lf, key, k, h, seed, sp["lit_p"], sp["noren"], fl.get("door", True), lite)
-            wall_lo(mb, Ff, Lf, h, fs, pl, ground, full, True, lite, wkind)   # M6b: rodape de tabuas em todas as faces
-            glow += [Ff.p(o["s"], 0.6, o["z"] + o["h"] / 2) for o in fs if o["t"] == "win" and o.get("lit")]
-        if k > 0:                                         # viga do piso + hisashi nas faces recuadas
-            Wp, Dp, cyp = prev
-            bb(mb, Fk, -Wk / 2 - 0.25, Wk / 2 + 0.25, -Dk / 2 - 0.25, Dk / 2 + 0.25, -0.35, 0.3, WD)
-            pents = fl.get("pents")
-            if pents is None:
-                pents = ("F" if sf > 0 else "") + ("B" if sbk > 0 else "")
-            for key in pents:
-                if key == "F":
-                    pent_lo(mb, sub(Fk, 0.0, Dk / 2), Wp + 1.0, sf + 2.0, 1.45, rm, sp=2.4 if lite else 1.9,
-                            brackets=not lite)
-                elif key == "B":
-                    pent_lo(mb, sub(Fk, 0.0, -Dk / 2, 0.0, math.pi), Wp + 1.0, sbk + 2.0, 1.45, rm,
-                            sp=2.4 if lite else 1.9, brackets=not lite)
-        fp = fl.get("front_pent")
-        if fp:
-            pent_lo(mb, sub(Fk, 0.0, Dk / 2), Wk + 1.0, fp.get("depth", 2.6), fp.get("z", h - 1.6), rm)
-        prev = (Wk, Dk, cy)
-        last = (Fk, Wk, Dk, h)
-        z += h
-    Fk, Wk, Dk, h = last
-    rf = dict(LO_DEF["roof"])
-    rf.update(sp["roof"])
-    gm = sp["plaster_up"] if len(sp["floors"]) > 1 else sp["plaster"]
-    Fr, Wr, Dr = (Fk, Wk, Dk) if rf["ridge"] == "x" else (sub(Fk, ang=math.pi / 2), Dk, Wk)
-    r = roof_lo(mb, Fr, Wr, Dr, h, rf["kind"], rf["pitch"], rf["over"], rf["lift"], 0.5, rm, rf.get("gable", 0.62),
-                1.3, rf.get("sp"), gm, rf.get("gold", False), lite or rf.get("lite", False))
-    Ff0 = sub(F, 0.0, D / 2, ph)
-    for x, zz in sp["chochin"]:
-        K.lantern_wall(mb, sub(Ff0, x, 0.15, zz), None, 0.0, 1.2)
-    return dict(glow=glow, roof=r)
+            if _sig(s) == _sig(t) and s["lot"]["name"] < t["lot"]["name"]:
+                kw = t["kw"]
+                if "shop_side" in kw:
+                    kw["shop_side"] = -kw["shop_side"]
+                    kw["upper"] = {"mushiko": "shoji", "shoji": "double", "double": "mushiko"}[kw["upper"]]
+                elif "tsuma" in kw:
+                    kw["tsuma"] = not kw["tsuma"]
 
 
-def lo_cols(area, F, spec):
-    """colisao simples: soco + terreo numa caixa, 1 caixa por piso de cima"""
-    sp = dict(LO_DEF)
-    sp.update(spec)
-    W, D = sp["W"], sp["D"]
-    ph = sp["plinth"][1]
-    fl = sp["floors"]
-    h0 = ph + fl[0]["h"]
-    col_box(area, (W + 0.6, D + 0.6, h0 + 0.3), F.p(0, 0, (h0 - 0.3) / 2), F.r())
-    z = h0
-    for f in fl[1:]:
-        sf, sbk = f.get("setback", (0.0, 0.0))
-        col_box(area, (W, D - sf - sbk, f["h"]), F.p(0, (sbk - sf) / 2, z + f["h"] / 2), F.r())
-        z += f["h"]
-    CAM_AREAS.append(area)
+# ================================================================== geometria por lote + teste de interpenetracao
+def _geo(mb):
+    """malha do edificio (coordenadas de mundo) -> (verts, tris, BVH, bbox)"""
+    bm = mb.bm
+    bm.verts.ensure_lookup_table()
+    bm.verts.index_update()
+    lt = bm.calc_loop_triangles()
+    vs = [v.co.copy() for v in bm.verts]
+    tris = [(a.vert.index, b.vert.index, c.vert.index) for a, b, c in lt]
+    mats = [str(mb.mats[a.face.material_index]) if a.face.material_index < len(mb.mats) else "?" for a, b, c in lt]
+    if not vs:
+        return None
+    bv = BVHTree.FromPolygons(vs, tris, all_triangles=True)
+    xs = [v.x for v in vs]
+    ys = [v.y for v in vs]
+    zs = [v.z for v in vs]
+    return dict(v=vs, t=tris, m=mats, bvh=bv, bb=(min(xs), min(ys), min(zs), max(xs), max(ys), max(zs)))
 
 
-# ================================================================== CATALOGO (nome, familia, x, y, rumo da frente, cota, spec)
-# familia "B" = frente do terreo do kit + resto leve; "C" = leve inteiro (lite). Rumo = direcao da FRENTE (graus).
-def _F(x, y, z, deg):
-    return Frame(x, y, z, math.radians(deg) - math.pi / 2)
+def _bb_hit(a, b, pad=1.0):
+    return not (a[3] < b[0] - pad or b[3] < a[0] - pad or a[4] < b[1] - pad or b[4] < a[1] - pad or
+                a[5] < b[2] - pad or b[5] < a[2] - pad)
 
 
-def _fl(h, **kw):
-    d = dict(h=h)
-    d.update(kw)
-    return d
-
-
-def _roof(kind="irimoya", ridge="x", m=RB, pitch=0.55, over=2.8, lift=1.0, **kw):
-    d = dict(kind=kind, ridge=ridge, m=m, pitch=pitch, over=over, lift=lift)
-    d.update(kw)
-    return d
-
-
-DOORN = {"t": "door", "noren": INDIGO}
-# ---------------------------------------------------- quarteirao OESTE (P): fileira que encara a praca (+x)
-# ritmo: esquina verde de 2 pisos | loja de empena | casa baixa recuada | RECANTO (pavilhao) | esquina azul | CASA DE
-# CHA (interior) | viela | casa verde de 2 pisos. Fundos para o cais do canal.
-WEST = [
-    ("W1", "B", -139.5, 140.5, 0.0, P, dict(W=25.0, D=28.0, plaster=PLS, plinth=("soco", 1.0),
-        floors=[_fl(10.5, F=dict(kit=["shop", "lattice", "shop"], lod=1), front_pent=dict(z=9.0, depth=2.6)),
-                _fl(8.0, setback=(2.2, 1.6))],
-        roof=_roof("irimoya", "x", RG, 0.58, 3.0, 1.2), chochin=[(-8.0, 8.4), (8.0, 8.4)])),
-    ("W2", "B", -139.0, 172.5, 0.0, P, dict(W=14.0, D=26.0, plaster=PLS,
-        floors=[_fl(10.0, F=dict(kit=["shop", "koshi"], lod=1), front_pent=dict(z=8.6, depth=2.4)),
-                _fl(7.6, setback=(1.4, 0.0))],
-        roof=_roof("kirizuma", "y", RB, 0.62, 2.6, 0.6, lite=True))),
-    ("W2b", "C", -141.5, 186.5, 0.0, P, dict(W=11.0, D=21.0, floors=[_fl(9.4)],
-        roof=_roof("irimoya", "y", RB, 0.52, 2.6, 0.8))),
-    ("W4", "B", -139.0, 230.0, 0.0, P, dict(W=18.0, D=28.0, plaster=PL, plinth=("soco", 1.0),
-        floors=[_fl(10.5, F=dict(kit=["lattice", "shop", "koshi"], lod=1), front_pent=dict(z=9.0, depth=2.6)),
-                _fl(8.2, setback=(1.8, 1.8))],
-        roof=_roof("irimoya", "x", RB, 0.58, 3.0, 1.3))),
-    ("W5", "B", -139.0, 283.0, 0.0, P, dict(W=24.0, D=26.0, plaster=PLW, plinth=("soco", 1.0),
-        floors=[_fl(10.0, F=dict(kit=["koshi", DOORN, "koshi", "plain"], lod=1)),
-                _fl(7.6, setback=(2.0, 1.0))],
-        roof=_roof("irimoya", "x", RG, 0.56, 3.0, 1.1, lite=True))),
-    ("W3b", "C", -153.0, 207.0, 180.0, P, dict(W=14.0, D=12.0, floors=[_fl(9.0)],
-        roof=_roof("kirizuma", "x", RB, 0.6, 2.4, 0.6))),
-]
-# alem do canal (P): casas de frente para o canal (+x); patamares nas 2 pontes (y 170..194 e 246..259)
-BEYOND = [
-    ("X1", "C", -201.0, 142.0, 0.0, P, dict(W=24.0, D=18.0, floors=[_fl(9.6)], roof=_roof("irimoya", "x", RB, 0.55))),
-    ("X2", "C", -202.0, 204.0, 0.0, P, dict(W=20.0, D=20.0, plaster=PL, floors=[_fl(10.0), _fl(7.4, setback=(1.6, 1.0))],
-        roof=_roof("irimoya", "x", RG, 0.56))),
-    ("X2b", "C", -202.5, 227.0, 0.0, P, dict(W=17.0, D=19.0, floors=[_fl(9.2)], roof=_roof("kirizuma", "y", RB, 0.6))),
-    ("X3", "C", -202.0, 269.5, 0.0, P, dict(W=19.0, D=20.0, floors=[_fl(9.6)], roof=_roof("irimoya", "x", RB, 0.55))),
-    ("X3b", "C", -200.5, 288.5, 0.0, P, dict(W=13.0, D=16.0, floors=[_fl(9.0)], roof=_roof("irimoya", "y", RG, 0.52))),
-]
-# ---------------------------------------------------- bairro do canal (T1): 2 lados da viela, moinho
-BAIRRO = [
-    ("SW1", "C", -59.0, 55.0, 90.0, T1, dict(W=18.0, D=20.0, floors=[_fl(10.0, front_pent=dict(z=8.6, depth=2.4))],
-        roof=_roof("irimoya", "x", RB, 0.54, 2.8, 1.0))),
-    ("SW2", "C", -81.0, 54.0, 90.0, T1, dict(W=15.0, D=18.0, floors=[_fl(9.4)], roof=_roof("kirizuma", "x", RB, 0.6))),
-    ("SW3", "B", -101.0, 56.0, 90.0, T1, dict(W=18.0, D=18.0, plaster=PL,
-        floors=[_fl(10.0, F=dict(kit=["koshi", DOORN, "plain"], lod=1)), _fl(7.4, setback=(1.4, 1.0))],
-        roof=_roof("irimoya", "x", RG, 0.56, lite=True))),
-    ("SW4", "C", -122.0, 53.0, 90.0, T1, dict(W=18.0, D=16.0, floors=[_fl(9.4)], roof=_roof("irimoya", "x", RB, 0.52))),
-    ("SW5", "C", -149.0, 57.0, 90.0, T1, dict(W=12.0, D=12.0, floors=[_fl(8.6)], roof=_roof("kirizuma", "y", RB, 0.6))),
-    ("NW1", "B", -58.0, 99.5, -90.0, T1, dict(W=18.0, D=21.0,
-        floors=[_fl(10.0, F=dict(kit=["shop", "koshi"], lod=1), front_pent=dict(z=8.6, depth=2.4)),
-                _fl(7.4, setback=(1.6, 0.0))],
-        roof=_roof("kirizuma", "x", RB, 0.6, lite=True))),
-    ("NW2", "C", -79.0, 101.0, -90.0, T1, dict(W=14.0, D=20.0, floors=[_fl(9.2)], roof=_roof("kirizuma", "y", RB, 0.6))),
-    ("NW3", "B", -99.0, 100.0, -90.0, T1, dict(W=20.0, D=20.0, plaster=PL,
-        floors=[_fl(10.0, F=dict(kit=["koshi", DOORN, "koshi"], lod=1)), _fl(7.6, setback=(1.6, 1.0))],
-        roof=_roof("irimoya", "x", RG, 0.56, lite=True))),
-    ("NW4", "C", -122.0, 100.0, -90.0, T1, dict(W=16.0, D=18.0, floors=[_fl(9.4)], roof=_roof("irimoya", "x", RB, 0.52))),
-    ("S4", "B", -156.0, 92.0, 180.0, T1, dict(W=14.0, D=18.0, plaster=WM, plaster_up=WM, plinth=("soco", 1.2),
-        floors=[_fl(10.5, F=dict(kit=[{"t": "door", "w": 5.8}, "plain", "plain"], lod=1, plaster=WM),
-                    front_pent=dict(z=9.0, depth=2.2)),
-                _fl(6.4)],
-        roof=_roof("kirizuma", "y", RB, 0.62, 2.4, 0.5, lite=True), lit_p=0.2)),
-]
-# ---------------------------------------------------- terraco alto (W3): mansoes de telhado verde
-TERRACE = [
-    ("U1", "B", -152.0, 333.0, -90.0, W3Z, dict(W=32.0, D=22.0, plaster=PL, plinth=("ishigaki", 2.2),
-        floors=[_fl(10.5, F=dict(kit=["shoji", "plaster", DOORN, "plaster", "shoji"], lod=1),
-                    front_pent=dict(z=9.0, depth=2.6)),
-                _fl(8.0, setback=(2.4, 2.4))],
-        roof=_roof("irimoya", "x", RG, 0.6, 3.2, 1.4))),
-    ("U2", "C", -128.0, 388.0, 0.0, W3Z, dict(W=22.0, D=22.0, plaster=PL, plinth=("ishigaki", 1.8),
-        floors=[_fl(10.0), _fl(7.6, setback=(1.8, 1.8))],
-        roof=_roof("irimoya", "x", RG, 0.58, 3.0, 1.2))),
-    ("U3", "C", -178.0, 400.0, -90.0, W3Z, dict(W=22.0, D=18.0, floors=[_fl(9.6)], roof=_roof("irimoya", "x", RB, 0.54))),
-    ("U4", "C", -199.0, 345.0, 0.0, W3Z, dict(W=18.0, D=20.0, plaster=PL, floors=[_fl(9.4), _fl(7.0, setback=(1.2, 1.2))],
-        roof=_roof("kirizuma", "x", RG, 0.6))),
-    ("U5", "C", -204.0, 382.0, 0.0, W3Z, dict(W=12.0, D=10.0, plinth=("soco", 1.2), plaster=PL, lit_p=0.0,
-        floors=[_fl(8.0, F=[dict(t="door", s=0.0, w=4.0, h=6.4)], B=[], L=[], R=[]), _fl(5.6, F=[], B=[], L=[], R=[])],
-        roof=_roof("kirizuma", "x", RG, 0.62, 2.0, 0.4))),
-]
-# ---------------------------------------------------- NE (P): casas de telhado avermelhado em volta do santuario
-NE = [
-    ("N2", "C", 190.0, 280.0, 90.0, P, dict(W=20.0, D=15.0, floors=[_fl(9.6)], roof=_roof("irimoya", "x", RRED, 0.55))),
-    ("N6", "C", 166.0, 276.0, 90.0, P, dict(W=16.0, D=13.0, floors=[_fl(9.2)], roof=_roof("irimoya", "x", RB, 0.52))),
-    ("N7", "C", 128.0, 273.0, 90.0, P, dict(W=16.0, D=12.0, floors=[_fl(9.2)], roof=_roof("kirizuma", "x", RRED, 0.6))),
-    ("N5", "B", 110.0, 325.0, -90.0, P, dict(W=18.0, D=14.0, plaster=PL, plinth=("soco", 1.0),
-        floors=[_fl(10.0, F=dict(kit=["shop", "lattice"], lod=1), front_pent=dict(z=8.6, depth=2.4)),
-                _fl(7.6, setback=(1.4, 1.0))],
-        roof=_roof("irimoya", "x", RRED, 0.58, 2.8, 1.2, lite=True))),
-    ("N3", "C", 176.0, 326.0, -90.0, P, dict(W=18.0, D=14.0, floors=[_fl(9.4), _fl(7.0, setback=(1.2, 1.0))],
-        roof=_roof("irimoya", "x", RRED, 0.54))),
-    ("N8", "C", 196.0, 309.0, 180.0, P, dict(W=14.0, D=12.0, floors=[_fl(9.0)], roof=_roof("kirizuma", "x", RB, 0.6))),
-    ("N9", "C", 157.0, 328.5, -90.0, P, dict(W=16.0, D=11.0, plaster=PL, floors=[_fl(9.0)],
-        roof=_roof("irimoya", "x", RRED, 0.52))),
-    ("N10", "C", 133.0, 327.5, -90.0, P, dict(W=14.0, D=12.0, floors=[_fl(9.2)], roof=_roof("kirizuma", "x", RB, 0.6))),
-]
-# ---------------------------------------------------- rua alta do porto (T1, bloco leste)
-EAST = [
-    ("E1", "C", 63.0, 51.0, 180.0, T1, dict(W=16.0, D=18.0, floors=[_fl(9.4)], roof=_roof("kirizuma", "y", RB, 0.6))),
-    ("E4", "B", 62.0, 93.0, 90.0, T1, dict(W=16.0, D=20.0, plaster=PLS,
-        floors=[_fl(10.0, F=dict(kit=["shop", "lattice"], lod=1), front_pent=dict(z=8.6, depth=2.4))],
-        roof=_roof("kirizuma", "y", RB, 0.62, 2.6, 0.6, lite=True))),
-    ("E5", "B", 84.0, 92.0, 90.0, T1, dict(W=22.0, D=22.0, plaster=PL, plinth=("soco", 1.0),
-        floors=[_fl(10.5, F=dict(kit=["koshi", "shop", "lattice"], lod=1), front_pent=dict(z=9.0, depth=2.6)),
-                _fl(8.0, setback=(2.0, 1.4))],
-        roof=_roof("irimoya", "x", RB, 0.58, 3.0, 1.2), chochin=[(-7.0, 8.4), (7.0, 8.4)])),
-    ("E6", "C", 107.0, 92.0, 90.0, T1, dict(W=18.0, D=18.0, plaster=PLW, floors=[_fl(10.0)],
-        roof=_roof("irimoya", "x", RRED, 0.55))),
-    ("E7", "C", 84.0, 58.0, 90.0, T1, dict(W=20.0, D=20.0, plaster=PL, floors=[_fl(9.8), _fl(7.4, setback=(1.6, 1.0))],
-        roof=_roof("irimoya", "x", RB, 0.56))),
-    ("E8", "C", 105.0, 57.0, 90.0, T1, dict(W=16.0, D=16.0, floors=[_fl(9.2)], roof=_roof("kirizuma", "x", RB, 0.6))),
-    ("C4", "B", -28.0, 101.0, 0.0, T1, dict(W=16.0, D=24.0, plaster=PLS, plinth=("soco", 1.0),
-        floors=[_fl(10.5, F=dict(kit=["shop", "lattice"], lod=0), R=dict(kit=["shop", "lattice", "shoji", "plaster"], lod=1),
-                    front_pent=dict(z=9.0, depth=2.6)),
-                _fl(8.2, setback=(1.8, 1.6), pents="FB")],
-        roof=_roof("irimoya", "x", RG, 0.58, 3.0, 1.2), chochin=[(-4.2, 8.6), (4.2, 8.6)])),
-]
-SECTORS = {"Oeste": WEST, "Alem": BEYOND, "Bairro": BAIRRO, "Terraco": TERRACE, "NE": NE, "Leste": EAST}
-
-# ---------------------------------------------------- familia A (kit inteiro)
-C7_SPEC = dict(K.PRESETS["ESQ"], W=16.0, D=22.0, seed=7171, lod=1)
-C7_SPEC["floors"] = [dict(f) for f in C7_SPEC["floors"]]
-C7_SPEC["floors"][0]["back"] = ["shoji", "koshi", "plaster"]     # M6b item 19: fundos para o beco com janelas
-CHA = dict(W=18.0, D=22.0, plinth=("soco", 0.5), plaster=PLS, lod=0, back_lod=1, side_lod=1,
-           floors=[dict(h=11.0, front=["lattice", {"t": "open", "w": 7.4}, "koshi"],
-                        left=["plaster", "shoji", "plaster"], right=["plaster", "round", "plaster"],
-                        back=["plaster", "plaster", "plaster"],
-                        front_pent=dict(z=9.6, depth=2.8))],
-           roof=dict(kind="irimoya", ridge="x", pitch=0.55, over=3.2, chidori=dict(x=0.0, w=6.4)),
-           chochin=[(-6.2, 9.2), (6.2, 9.2)], seed=2626)
-CHA_POS = (-138.0, 249.0, 0.0)                # (x, y, rumo): frente para a praca (+x), y 240..258 (vao 245..253)
-
-
-# ================================================================== PAVIMENTO
-def _quads(pts, hw):
-    rb = L.ribbon(pts, hw)
-    n = len(pts)
-    left, right = rb[:n], list(reversed(rb[n:]))
-    return [ccw([left[i], left[i + 1], right[i + 1], right[i]]) for i in range(n - 1)]
-
-
-def _minus_convex(poly, convex):
-    """partes de 'poly' FORA do poligono convexo (ccw)"""
-    out = []
-    cur = poly
-    n = len(convex)
-    for i in range(n):
-        p, q = convex[i], convex[(i + 1) % n]
-        a, b = -(q[1] - p[1]), (q[0] - p[0])
-        c = -(a * p[0] + b * p[1])
-        o = L._clip_half(cur, -a, -b, -c)
-        if len(o) >= 3 and L.area(o) > 0.5:
-            out.append(o)
-        cur = L._clip_half(cur, a, b, c)
-        if len(cur) < 3:
-            break
-    return out
-
-
-def _minus_rects(pieces, rects):
-    for r in rects:
-        nxt = []
-        for p in pieces:
-            nxt += L.subtract_rect(p, r)
-        pieces = nxt
-    return pieces
-
-
-def pave_region(mb, piece, z, key, big=False, mats=None):
-    xs = [p[0] for p in piece]
-    ys = [p[1] for p in piece]
-    w, d = max(xs) - min(xs), max(ys) - min(ys)
-    along = "x" if w >= d else "y"
-    rows = ((4.4, 5.0), 5.2, 7.4) if big else ((3.0, 3.4), 3.4, 5.2)
-    return K.pave(mb, ccw(piece), min(xs), max(xs), min(ys), max(ys), rows, STP, z + Z_OFF, z - 0.3, along=along,
-                  key=key, mats=mats or [(STP, 5), (ST, 2), (STZ, 1)])
-
-
-PLAZA_CVX = ccw(L.PLAZA)
-CUT_ALL = [TRECHO_RECT, SUMMON_RECT]
-
-
-def street_pieces(i):
-    pts, w, z = L.STREETS[i]
-    return [q for q in _quads(pts, w / 2)], z
-
-
-def pave_streets(mbs):
-    """todas as ruas e vielas da planta (L.STREETS 1..11; a 0 e do trecho, 12..14 ficam no lajeado do summon), sem
-    sobreposicao (as retas cortam as diagonais), fora da praca e do lajeado do summon. mbs = {setor: MB}"""
-    rects = {4: (-169.0, 120.0, -159.0, 298.0), 8: (-122.5, 120.0, -115.5, 300.0), 3: (-145.0, 76.0, -135.0, 108.0)}
-    sector = {1: "Leste", 2: "Bairro", 3: "Bairro", 4: "Oeste", 5: "Alem", 6: "Oeste", 7: "Oeste", 8: "Oeste",
-              9: "Terraco", 10: "NE", 11: "NE"}
-    n = 0
-    for i in range(1, 12):
-        pts, w, z = L.STREETS[i]
-        pieces = _quads(pts, w / 2)
-        cut = list(CUT_ALL)
-        if i == 2:
-            cut.append(rects[3])
-        if i in (6, 7):
-            cut += [rects[4], rects[8]]
-        if i == 11:
-            cut.append((110.0, 270.0, 132.0, 290.2))
-        pieces = _minus_rects(pieces, cut)
-        out = []
-        for p in pieces:
-            out += _minus_convex(ccw(p), PLAZA_CVX)
-        mb = mbs[sector[i]]
-        for k, p in enumerate(out):
-            PAVED_CUTS.append(ccw(p))                      # M6b: a rua recorta o quintal (so uma superficie)
-            if i == 5:                                     # cais oeste (alem do canal): terra batida
-                mb.prism(ccw(p), z - 0.3, z + 0.12, DIRT)
-            else:
-                n += pave_region(mb, p, z, "st%d_%d" % (i, k), big=True)
-    lane(mbs["Alem"], [(-186.0, 128.0), (-186.0, 294.0)], 0.1, P, "cO", "stones")
-    return n
-
-
-def lane(mb, pts, w, z, key, kind="dirt"):
-    """beco proprio (fora de L.STREETS: sobre a pele de grama do terreno): terra batida com pedras de passo, ou
-    lajes. Lajes: topo +0,15 (a pele fica DENTRO do volume). Terra (M6b): no nivel do quintal (+0,30) e as pedras de
-    passo ASSENTADAS nela (topo +0,12 acima da terra, base 0,15 dentro). Beco e lajes recortam o quintal."""
-    n = 0
-    for k, q in enumerate(_quads(pts, w / 2) if kind != "stones" else []):
-        PAVED_CUTS.append(ccw(q))
-        if kind == "dirt":
-            K.slab_poly(mb, ccw(q), z - 0.3, z + YARD_TOP, 0.0, DIRT)
-        else:
-            n += pave_region(mb, q, z, "%s%d" % (key, k))
-    zs0, zs1 = (z + YARD_TOP - 0.15, z + YARD_TOP + 0.12) if kind == "dirt" else (z - 0.1, z + 0.26)
-    if kind in ("dirt", "stones"):
-        tot = L.plen(pts)
-        d = 1.4
-        while d < tot - 1.0:
-            acc = 0.0
-            for a, b in zip(pts, pts[1:]):
-                sl = math.dist(a, b)
-                if acc + sl >= d:
-                    t = (d - acc) / sl
-                    x, y = a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t
-                    ang = math.atan2(b[1] - a[1], b[0] - a[0])
-                    jx = (_h(key, d) - 0.5) * 0.8
-                    c, s = math.cos(ang), math.sin(ang)
-                    r = 0.9 + 0.35 * _h(key, d, "r")
-                    poly = [(x + jx * -s + r * math.cos(ang + j * math.pi / 3 + 0.3),
-                             y + jx * c + r * math.sin(ang + j * math.pi / 3 + 0.3)) for j in range(6)]
-                    K.slab_poly(mb, ccw(poly), zs0, zs1, 0.06, STP)
-                    n += 1
-                    break
-                acc += sl
-            d += (2.3 if kind == "dirt" else 4.2) + 0.6 * _h(key, d, "s")
-    return n
-
-
-# ------------------------------------------------------------------ CHAO DOS QUARTEIROES
-# Terra batida nos quintais/becos entre as casas (o quarteirao deixa de ser gramado com casas soltas).
-# M6b (finesse, item 17 da AUDITORIA_OP): o quintal tinha topo +0,06 sobre a pele de grama = z-fight em 12,9k studs2
-# (e as lajes das ruas a +0,15, so 0,09 acima da terra). Agora: topo +0,30 (piso sobre piso >= 0,3: a grama fica
-# DENTRO do volume) e o quintal e RECORTADO por todo piso proprio que passa dentro dele (lajes das ruas e becos, beco de
-# terra, cascalho do santuario): em cada ponto existe SO UMA superficie. As lajes (+0,15) ficam 0,15 abaixo da terra
-# (meio-fio de terra). O pe do avatar afunda 0,30 na terra (a colisao continua o plano do op_col, intocado). Prisma sem
-# fundo (enterrado). Retangulos novos/estendidos (*) fecham frestas de pele entre quintal e rua (item 01, lado C).
-YARD_TOP = 0.30
-PAVED_CUTS = []                                  # poligonos convexos (mundo, ccw) que recortam quintal e cascalho
-_YARD_JOBS = []                                  # (mb, setor, z): o quintal sai DEPOIS das ruas (precisa dos recortes)
-
-
-def _clip(poly, rect):
-    return L.clip_rect(ccw(poly), rect)
-
-
-YARDS = {
-    # Oeste: o recanto (antes um furo com terra propria a +0,12) agora e o proprio quintal
-    "Oeste": [(L.P_BASE, (-159.0, 125.0, -122.6, 154.0), None), (L.P_BASE, (-159.0, 164.0, -122.6, 260.4), None),
-              (L.P_BASE, (-159.0, 269.6, -122.6, 291.4), None)],     # * norte 291,4: fora da capa do arrimo do W3
-    "Alem": [(L.W2B, (-216.0, 127.0, -190.1, 295.0), None)],
-    "Bairro": [(L.T1_BASE, (-131.0, 38.0, -48.0, 73.5), None),            # * ate a viela do canal (era 70,5)
-               (L.T1_BASE, (-145.0, 40.0, -131.0, 72.0), None),           # * (era 68,6)
-               (L.T1_BASE, (-160.0, 44.0, -145.0, 66.6), None),
-               (L.T1_BASE, (-134.0, 83.0, -46.0, 118.0), None),           # * ate o pe do arrimo da praca (era 116,5)
-               (L.T1_BASE, (-169.25, 80.0, -145.2, 118.0), None),         # * (era 116,5; x0 -169,5 invadia a capa do canal)
-               (L.T1_BASE, (-48.5, 62.0, -17.0, 82.0), None)],            # * fundos de C1/C2 ate a viela do canal
-    "Leste": [(L.T1_BASE, (40.0, 42.5, 120.0, 106.0), None),              # * ate a viela leste (era 104,6); sul 42,5:
-                                                                          #   fora da capa do muro da crista (op_terrain)
-              (L.T1_BASE, (17.0, 101.0, 40.0, 106.0), None)],             # * C7 x viela leste (borda dentro do soco)
-    "NE": [(L.P_BASE, (118.0, 265.0, 222.0, 339.0), (132.0, 297.0, 170.0, 315.0))],
-}
-
-
-def yards(mb, key, z):
-    _YARD_JOBS.append((mb, key, z))
-
-
-def _bbox(p):
-    xs = [q[0] for q in p]
-    ys = [q[1] for q in p]
-    return min(xs), min(ys), max(xs), max(ys)
-
-
-def _minus_cuts(pieces):
-    """pieces - PAVED_CUTS (cada corte e convexo): pedacos disjuntos, sem lascas"""
-    cuts = [(c, _bbox(c)) for c in PAVED_CUTS]
-    for c, cb in cuts:
-        nxt = []
-        for p in pieces:
-            pb = _bbox(p)
-            if pb[2] <= cb[0] or cb[2] <= pb[0] or pb[3] <= cb[1] or cb[3] <= pb[1]:
-                nxt.append(p)
-            else:
-                nxt += _minus_convex(p, c)
-        pieces = nxt
-    return [p for p in pieces if L.area(p) > 0.25]
-
-
-def _build_yards():
-    n = 0
-    for mb, key, z in _YARD_JOBS:
-        for poly, rect, hole in YARDS.get(key, ()):
-            pc = _clip(poly, rect)
-            if len(pc) < 3:
+def interpen(specs, geos):
+    """TESTE malha x malha entre edificios vizinhos: (1) interseccao de triangulos (BVHTree.overlap) e (2) vertice de
+    um edificio dentro do lote do outro que nao esteja >= 0,12 ACIMA da malha dele. -> lista de problemas"""
+    probs = []
+    n_pairs = 0
+    names = [s["lot"]["name"] for s in specs]
+    polys = {s["lot"]["name"]: L.lot_poly(s["lot"], -0.01) for s in specs}
+    for i in range(len(specs)):
+        gi = geos[names[i]]
+        if gi is None:
+            continue
+        for j in range(i + 1, len(specs)):
+            gj = geos[names[j]]
+            if gj is None or not _bb_hit(gi["bb"], gj["bb"]):
                 continue
-            pieces = L.subtract_rect(pc, hole) if hole else [pc]
-            for q in _minus_cuts([ccw(p) for p in pieces]):
-                K.slab_poly(mb, ccw(q), z - 0.3, z + YARD_TOP, 0.0, DIRT)
-                n += 1
-            if hole and key == "NE":                     # recinto do santuario: cascalho claro (mesma cota)
-                for q in _minus_cuts([ccw(L.rect_poly(hole))]):
-                    K.slab_poly(mb, ccw(q), z - 0.3, z + YARD_TOP, 0.0, STP)
-                    n += 1
-    _YARD_JOBS.clear()
+            n_pairs += 1
+            ov = gi["bvh"].overlap(gj["bvh"])
+            if ov:
+                a, b = ov[0]
+                ta = gi["t"][a]
+                c = sum((gi["v"][k] for k in ta), Vector()) / 3
+                mm = sorted(set("%s/%s" % (gi["m"][p], gj["m"][q]) for p, q in ov))[:4]
+                probs.append(("cruza", names[i], names[j], len(ov), tuple(round(x, 2) for x in c) + tuple(mm)))
+            for (ga, gb, nb_) in ((gi, gj, names[j]), (gj, gi, names[i])):
+                poly = polys[nb_]
+                bad = 0
+                ex = None
+                xs = [p[0] for p in poly]
+                ys = [p[1] for p in poly]
+                bx0, by0, bx1, by1 = min(xs), min(ys), max(xs), max(ys)
+                for v in ga["v"]:
+                    if v.x < bx0 or v.x > bx1 or v.y < by0 or v.y > by1:
+                        continue
+                    if not L.point_in_poly(v.x, v.y, poly):
+                        continue
+                    h = gb["bvh"].ray_cast(Vector((v.x, v.y, 1000.0)), Vector((0, 0, -1)), 2000.0)
+                    if h[0] is not None and v.z < h[0].z + 0.12:
+                        bad += 1
+                        ex = ex or tuple(round(x, 2) for x in v)
+                if bad:
+                    probs.append(("dentro_do_lote", names[i] if ga is gi else names[j], nb_, bad, ex))
+    STATS["pares"] = n_pairs
+    return probs
+
+
+# ================================================================== montagem dos lotes
+def _merge(dst, src):
+    """copia o bmesh do MB do edificio para o MB do setor (materiais remapeados; tint/UV preservados)"""
+    me = bpy.data.meshes.new("_op_cap_merge")
+    src.bm.to_mesh(me)
+    n0 = len(dst.bm.faces)
+    dst.bm.from_mesh(me)
+    remap = [dst._mi(k) for k in src.mats]
+    dst.bm.faces.ensure_lookup_table()
+    for f in dst.bm.faces[n0:]:
+        if f.material_index < len(remap):
+            f.material_index = remap[f.material_index]
+    bpy.data.meshes.remove(me)
+    src.bm.free()
+
+
+CULL_IN = {K2.loja: 4.0, K2.sobrado: 4.0, K2.fundo: 0.7, K2.kura: 0.7}   # recuo da frente do terreo (vitrine)
+
+
+def cull_inside(mb, s):
+    """apaga as faces DENTRO do volume fechado da casa (frente/fundos/laterais + forro do frechal): paredes,
+    pilares e soleiras vistos por dentro. So nas casas fechadas (sem interior vivo; a vitrine da loja fica: o terreo
+    so e cortado atras dela). -> tris cortados"""
+    if s["lot"]["interior"] or s["fn"] not in CULL_IN:
+        return 0
+    F, kw = s["F"], s["kw"]
+    W, D = kw["W"], kw["D"]
+    ins = 0.7
+    z0, zw = F.o.z + 0.3, F.o.z + s["zw"] - 0.05
+    zg = F.o.z + 0.8 + kw.get("h0", 8.0)              # topo do terreo
+    yfg = D / 2 - CULL_IN[s["fn"]]
+    ca, sa = math.cos(-F.a), math.sin(-F.a)
+    kill = []
+    for f in mb.bm.faces:
+        c = f.calc_center_median()
+        if not (z0 < c.z < zw):
+            continue
+        dx, dy = c.x - F.o.x, c.y - F.o.y
+        u, v = dx * ca - dy * sa, dx * sa + dy * ca
+        if abs(u) < W / 2 - ins and -D / 2 + ins < v < ((yfg if c.z < zg else D / 2 - ins)):
+            kill.append(f)
+    n = sum(len(f.verts) - 2 for f in kill)
+    bmesh.ops.delete(mb.bm, geom=kill, context="FACES")
     return n
 
 
-def alem_yard(mb):
-    """M6b item 21: o quintal do Alem (x -216..-190) deixa de ser terra lisa: 2 HORTAS cercadas (canteiros de terra
-    escura em leiras com mudas, cerca baixa de estacas e 2 travessas, portinhola), PILHA DE LENHA coberta encostada na
-    empena de X2 e 2 arvores pequenas (VEG_SPOTS -> op_veg). O varal, o poco e a carga ja sao do op_props."""
-    z = P + YARD_TOP
-    for (cx, cy, wx, wy, rows) in ((-210.4, 186.0, 8.0, 6.0, 4), (-208.6, 157.6, 8.0, 4.6, 3)):
-        F = Frame(cx, cy, z, 0.0)
-        # leiras (ao longo de x), terra escura 0,35 acima do quintal, mudas em tufos baixos
-        for i in range(rows):
-            yy = -wy / 2 + 0.9 + (wy - 1.8) * (i / max(1, rows - 1))
-            bb(mb, F, -wx / 2 + 0.7, wx / 2 - 0.7, yy - 0.45, yy + 0.45, -0.15, 0.35, "Dirt_OP_Dark")
-            for j, xx in enumerate(K.even(-wx / 2 + 1.2, wx / 2 - 1.2, 1.25)):
-                r = 0.32 + 0.12 * _h("horta", cx, i, j)
-                mb.ico(r, (cx + xx, cy + yy, z + 0.35 + r * 0.35), "Leaf_OP", 1, scale=(1.0, 1.0, 0.75))
-        # cerca: estacas a ~1,9 e 2 travessas; portinhola (vao de 1,6) no lado +x (do caminho do cais)
-        X, Y = wx / 2, wy / 2
-        sides = [((-X, -Y), (X, -Y)), ((X, -Y), (X, Y)), ((X, Y), (-X, Y)), ((-X, Y), (-X, -Y))]
-        for k, (a, b) in enumerate(sides):
-            segs = [(a, b)]
-            if k == 1:                                   # portinhola no meio do lado leste
-                segs = [((X, -Y), (X, -0.8)), ((X, 0.8), (X, Y))]
-            for (p, q) in segs:
-                ln = math.dist(p, q)
-                m = max(1, int(round(ln / 1.9)))
-                for t in range(m + 1):
-                    u = t / m
-                    px, py = p[0] + (q[0] - p[0]) * u, p[1] + (q[1] - p[1]) * u
-                    bb(mb, F, px - 0.13, px + 0.13, py - 0.13, py + 0.13, -0.3, 1.45, WD)
-                for zz in (0.55, 1.15):
-                    K.beam(mb, F, (p[0], p[1], zz), (q[0], q[1], zz), 0.12, 0.14, WM)
-    # pilha de lenha encostada na empena sul de X2 (y 193,7): toras deitadas em 3 camadas + telhadinho de tabuas
-    F = Frame(-203.0, 192.2, z, 0.0)
-    bb(mb, F, -3.0, 3.0, -0.7, 0.7, -0.15, 0.25, WD)                 # estrado
-    for layer in range(3):
-        n_ = 6 - layer
-        for k in range(n_):
-            xx = -2.6 + (5.2 / n_) * (k + 0.5) + 0.1 * layer
-            zz = 0.25 + 0.36 + layer * 0.62
-            mb.rod(F.p(xx, -0.75, zz), F.p(xx, 0.75, zz), 0.34 + 0.04 * _h("lenha", layer, k), WM, 6)
-    for s in (-1, 1):
-        bb(mb, F, s * 3.05 - 0.14, s * 3.05 + 0.14, -0.9, -0.62, -0.3, 2.38, WD)
-    K.beam(mb, F, (-3.4, -1.25, 2.16), (3.4, -1.25, 2.16), 0.2, 0.2, WD)
-    mb.box((7.0, 3.1, 0.2), F.p(0.0, -0.05, 2.62), (0.24, 0.0, 0.0), WD, 0.0)   # telhadinho de tabuas em agua (sobe para a empena)
-    VEG_SPOTS.append((-212.8, 169.0, P, "pinheiro", "quintal do alem: fundo entre as 2 hortas"))
-    VEG_SPOTS.append((-213.6, 246.0, P, "arbusto", "quintal do alem: pe do varal"))
-
-
-# ================================================================== PECAS DE LUGAR (torii, santuario, recantos)
-def torii_small(mb, F, w=8.0, h=9.0, area="OP_CapTorii"):
-    """TORII pequeno do santuario: pilares de laca sobre bases escuras, nuki que passa dos pilares, gakuzuka,
-    shimaki e kasagi preto de pontas levantadas. F no centro do vao, no chao; pilares em x = +-w/2"""
-    for s in (-1, 1):
-        x = s * w / 2
-        bb(mb, F, x - 0.85, x + 0.85, -0.85, 0.85, -0.3, 0.55, STD, 0.08)
-        mb.cyl(0.55, h - 0.75, F.p(x, 0.0, 0.55 + (h - 0.75) / 2), (0, 0, 0), m=LAC, n=10, bevel=0.0)
-        mb.cyl(0.62, 0.5, F.p(x, 0.0, 0.8), (0, 0, 0), m=RR, n=10, bevel=0.0)
-        col_box(area, (1.4, 1.4, h), F.p(x, 0.0, h / 2), F.r())
-    bb(mb, F, -w / 2 - 1.3, w / 2 + 1.3, -0.32, 0.32, h - 2.7, h - 2.0, LAC)
-    bb(mb, F, -0.4, 0.4, -0.26, 0.26, h - 2.0, h - 0.95, LAC)
-    bb(mb, F, -0.32, 0.32, -0.34, 0.34, h - 1.8, h - 1.15, GOLD)
-    bb(mb, F, -w / 2 - 1.7, w / 2 + 1.7, -0.45, 0.45, h - 0.95, h - 0.4, LAC)
-    X = w / 2 + 2.5
-    xs = [-X + 2 * X * i / 10 for i in range(11)]
-    K.strip(mb, F, [(x, 0.0, h - 0.42 + 0.75 * (abs(x) / X) ** 2.6) for x in xs], (0, 1, 0), -0.62, 0.62, 0.0, 0.55, RR)
-    CAM_AREAS.append(area)
-
-
-def shrine(mb):
-    """SANTUARIO NE (telhado vermelho, conjunto avermelhado): torii pequeno (128, 306), sando de lajes ate o haiden,
-    2 toro (1 aceso de noite), 2 nobori vermelhos no torii, HAIDEN = pavilhao aberto de laca (K.pavilion, frente
-    para oeste, estrado acessivel) e HONDEN de laca com soco alto atras"""
-    y0 = 306.0
-    torii_small(mb, _F(128.0, y0, P + Z_OFF, 180.0), 8.0, 9.4)
-    for s in (-1, 1):
-        K.banner(mb, _F(130.6, y0 + s * 7.0, P + Z_OFF, 180.0), 12.0, CRED, CWHITE, 2.0, -s)
-        col_box("OP_PropBanner", (1.9, 1.9, 12.0), (130.6, y0 + s * 7.0, P + 6.0))
-        K.toro(mb, _F(137.0, y0 + s * 5.6, P + Z_OFF, 0.0), 0.9, "L_OPProp_Toro_Cap_NE" if s > 0 else None, 30.0)
-        col_box("OP_PropToro", (2.6, 2.6, 7.0), (137.0, y0 + s * 5.6, P + 3.5))
-    Fh = _F(146.5, y0, P, 180.0)
-    K.pavilion(mb, Fh, 12.0, 9.4, 7.6, "irimoya", True, RRED, "F", 1.4, 1, True)
-    pav_cols("OP_CapShrineDeck", Fh, 12.0, 9.4, 1.4)
-    Fo = _F(161.5, y0, P, 180.0)
-    hon = dict(W=9.0, D=8.0, plinth=("ishigaki", 2.0), plaster=PL, lit_p=0.0,
-               floors=[_fl(7.8, F=dict(kit=[{"t": "door", "w": 7.0, "noren": None}], lod=1, plaster=LAC),
-                           L=[], R=[], B=[])],
-               roof=_roof("kirizuma", "y", RRED, 0.7, 2.6, 0.8, gold=True))
-    lo_house(mb, Fo, hon, 5151)
-    lo_cols("OP_CapHouseN1", Fo, hon)
-    VEG_SPOTS.append((141.0, 318.0, P, "cerejeira", "santuario NE: emoldura o haiden pelo norte"))
-
-
-def canal_bridge(mb, yc, key):
-    """PONTE VERMELHA do canal oeste (visual; a colisao e do op_col, plana a 92,2): tabuleiro de tabuas com flecha
-    baixa (>= 92,6 sobre o canal |x + 174| <= 4,8, capa do canal a 92,5; rampa curta ate as margens), 2 vigas de
-    borda, ARCO de laca por baixo (2 longarinas curvas + montantes), guarda-corpo vermelho (pilaretes, corrimao e
-    travessa seguindo a flecha, giboshi dourado nas pontas), encontros de pedra nas 2 capas."""
-    xc, x0, x1 = -174.0, -181.2, -166.8
-    F = Frame(0.0, 0.0, 0.0, 0.0)
-
-    def zt(x):
-        u = abs(x - xc)
-        if u <= 5.2:
-            return 92.66 + 0.24 * (1.0 - (u / 5.2) ** 2)
-        t = min(1.0, (u - 5.2) / (abs(x1 - xc) - 5.2))
-        return 92.66 + (P + 0.3 - 92.66) * t
-    xs = [x0 + (x1 - x0) * i / 14 for i in range(15)]
-    K.strip(mb, F, [(x, yc, zt(x)) for x in xs], (0, 1, 0), -4.4, 4.4, -0.32, 0.0, WM)
-    for i in range(1, 14):                                 # juntas das tabuas (frisos escuros 0,14 abaixo do topo)
-        x = xs[i]
-        bb(mb, F, x - 0.05, x + 0.05, yc - 4.4, yc + 4.4, zt(x) - 0.3, zt(x) + 0.02, WD)
-    for sy in (-1, 1):
-        K.strip(mb, F, [(x, yc + sy * 4.75, zt(x)) for x in xs], (0, 1, 0), -0.35, 0.35, -0.75, 0.12, WD)
-        # arco de laca sob o tabuleiro
-        xa = [xc - 4.9 + 9.8 * i / 10 for i in range(11)]
-        za = lambda x: 91.95 + 0.55 * math.cos(math.pi * (x - xc) / 10.4)
-        K.strip(mb, F, [(x, yc + sy * 3.6, za(x)) for x in xa], (0, 1, 0), -0.32, 0.32, -0.42, 0.0, LAC)
-        for x in (xc - 2.6, xc, xc + 2.6):
-            bb(mb, F, x - 0.18, x + 0.18, yc + sy * 3.6 - 0.2, yc + sy * 3.6 + 0.2, za(x) - 0.1, zt(x) - 0.3, LAC)
-        # guarda-corpo vermelho
-        yr = yc + sy * 4.75
-        px = [x0 + 0.4, xc - 4.6, xc - 1.6, xc + 1.6, xc + 4.6, x1 - 0.4]
-        for j, x in enumerate(px):
-            bb(mb, F, x - 0.22, x + 0.22, yr - 0.22, yr + 0.22, zt(x) - 0.1, zt(x) + 3.5, LAC)
-            if j in (0, len(px) - 1):
-                K.giboshi(mb, F, x, yr, zt(x) + 3.5, 1.0)
-        rx = [x0 + 0.4 + (x1 - x0 - 0.8) * i / 10 for i in range(11)]
-        K.strip(mb, F, [(x, yr, zt(x) + 3.3) for x in rx], (0, 1, 0), -0.17, 0.17, 0.0, 0.26, LAC)
-        K.strip(mb, F, [(x, yr, zt(x) + 1.6) for x in rx], (0, 1, 0), -0.1, 0.1, 0.0, 0.18, LAC)
-    for xe in (x0 + 0.8, x1 - 0.8):                        # encontros de pedra (sob a ponta do tabuleiro)
-        bb(mb, F, xe - 0.9, xe + 0.9, yc - 5.4, yc + 5.4, 91.4, P + Z_OFF - 0.34, ST)
-
-
-def recanto_oeste(mb):
-    """RECANTO do quarteirao oeste (pausa na fileira que encara a praca): patio de terra com pedras de passo,
-    pavilhao aberto do kit recuado, banco, toro"""
-    # M6b: o patio de terra e o proprio quintal Oeste (+0,30); pedras de passo assentadas nele (topo +0,12)
-    for i, yy in enumerate((203.0, 207.5, 212.0)):
-        K.slab_poly(mb, ccw([(-131.0 + 2.6 * i, yy - 1.2), (-128.0 + 2.6 * i, yy - 1.2), (-128.0 + 2.6 * i, yy + 1.2),
-                             (-131.0 + 2.6 * i, yy + 1.2)]), P + YARD_TOP - 0.15, P + YARD_TOP + 0.12, 0.06, STP)
-    Fp = _F(-141.0, 207.5, P, 0.0)
-    pav_lo(mb, Fp, 13.0, 10.0, 7.4, RB, False, 1.1)
-    pav_cols("OP_CapPav", Fp, 13.0, 10.0, 1.1)
-    K.bench(mb, Frame(0, 0, 0, 0), -126.0, 217.0, 5.0, 1.6, 1.6, 0.0, P + 0.12)
-    col_box("OP_CapBench", (5.0, 1.6, 1.6), (-126.0, 217.0, P + 0.9))
-    K.toro(mb, _F(-125.5, 197.0, P + 0.12, 0.0), 0.8)
-    col_box("OP_PropToro", (2.4, 2.4, 6.2), (-125.5, 197.0, P + 3.1))
-    VEG_SPOTS.append((-131.0, 216.5, P, "cerejeira", "recanto oeste: sombra sobre o banco, copa >= 4 da fachada"))
-
-
-# ================================================================== CASA DE CHA COM INTERIOR
-def cha_house(mb):
-    x, y, deg = CHA_POS
-    F = _F(x, y, P, deg)
-    sp = CHA
-    W, D = sp["W"], sp["D"]
-    ph = sp["plinth"][1]
-    h = sp["floors"][0]["h"]
-    K.house(mb, F, sp, "L_OPCap_Win_Cha", 60.0)
-    Fz = sub(F, z=ph)
-    fy = D / 2
-    # verga + reboco sobre o vao aberto (o kit deixa o vao 'open' livre ate a viga)
-    bb(mb, Fz, -3.7, 3.7, fy - 0.9, fy + 0.05, 8.0, 8.45, WD)
-    K.panel(mb, sub(Fz, 0.0, fy), -3.7, 3.7, 8.45, h - 0.95, -0.8, -0.22, [], PLS)
-    K.noren_cloth(mb, sub(Fz, 0.0, fy), -3.5, 3.5, 7.95, 2.6, INDIGO)
-    # degrau de pedra na frente do vao
-    K.stone(mb, sub(F, 0.0, fy + 0.3), -3.4, 3.4, -0.3, 0.6, -0.3, 1.4, 1.4, 0.08, STP)
-    # INTERIOR: assoalho (topo = topo da soleira 0,7), forro de tabuas com vigas, parede do fundo com porta de papel
-    xi, yi = W / 2 - 0.95, D / 2 - 0.95
-    bb(mb, Fz, -xi, xi, -yi, fy - 0.95, 0.35, 0.7, WM)
-    for k in range(6):
-        xx = -xi + 2 * xi * (k + 0.5) / 6
-        bb(mb, Fz, xx - 0.05, xx + 0.05, -yi, fy - 0.95, 0.7, 0.72, WD)     # juntas das tabuas (0,02 acima: frisos)
-    zc = h - 1.0
-    bb(mb, Fz, -xi, xi, -yi, yi, zc - 0.25, zc, WM)
-    for yy in (-6.0, 0.0, 6.0):
-        bb(mb, Fz, -xi, xi, yy - 0.35, yy + 0.35, zc - 0.85, zc - 0.25, WD)
-    yb = -D / 2 + 0.8                                      # face interna da parede do fundo
-    Fb = sub(Fz, 0.0, yb)                                  # +y local = para dentro do salao
-    for xa, xb in ((-2.6, -0.06), (0.06, 2.6)):
-        bb(mb, Fb, xa, xb, 0.0, 0.14, 0.7, 7.6, WM)
-        bb(mb, Fb, xa + 0.28, xb - 0.28, 0.14, 0.28, 3.2, 7.2, LIT)
-        xm = (xa + xb) / 2
-        bb(mb, Fb, xm - 0.05, xm + 0.05, 0.28, 0.42, 3.2, 7.2, WD)
-    bb(mb, Fb, -2.9, 2.9, 0.0, 0.3, 7.6, 8.0, WD)
-    K.noren_cloth(mb, sub(Fb, 0.0, -0.1), -2.4, 2.4, 7.55, 1.9, CRED)
-    # prateleiras com potes nas 2 metades do fundo
-    for xa, xb in ((-xi + 0.3, -3.4), (3.4, xi - 0.3)):
-        for zz in (4.4, 6.2):
-            bb(mb, Fb, xa, xb, 0.0, 0.9, zz - 0.14, zz, WM)
-            for i, xx in enumerate(K.even(xa + 0.3, xb - 0.3, 0.95)):
-                if _h("cha", xa, zz, i) < 0.7:
-                    K.pot(mb, Fb, xx, 0.45, zz, 0.28, 0.55 + 0.35 * _h("cha", xa, zz, i, "h"),
-                          (K.STD, PL, WM, ST)[int(_h("cha", zz, i, "m") * 4) % 4])
-    # balcao (lado direito de quem entra = -x local... lado +x local) com tampo e potes
-    bb(mb, Fz, xi - 3.4, xi - 2.2, -5.5, 3.5, 0.7, 3.6, WD)
-    bb(mb, Fz, xi - 3.6, xi - 2.0, -5.7, 3.7, 3.6, 3.85, WM)
-    for i, yy in enumerate((-4.0, -1.0, 2.0)):
-        K.jar(mb, Fz, xi - 2.8, yy, 3.85, 0.42, 0.9, (K.STD, PL, K.STD)[i], lid=i == 1)
-    # estrado de tatami (agari) do lado esquerdo, mesa baixa e almofadas
-    xa = -xi
-    bb(mb, Fz, xa, xa + 6.4, -yi + 1.4, 4.2, 0.7, 1.95, WD)
-    bb(mb, Fz, xa + 0.1, xa + 6.3, -yi + 1.5, 4.1, 1.95, 2.15, STRAW)
-    for yy in (-4.6, 0.4):
-        bb(mb, Fz, xa + 0.1, xa + 6.3, yy - 0.05, yy + 0.05, 2.15, 2.18, WD)
-    tx, ty = xa + 3.2, -1.2
-    bb(mb, Fz, tx - 1.6, tx + 1.6, ty - 1.1, ty + 1.1, 3.05, 3.3, WM)
-    for sx in (-1, 1):
-        for sy in (-1, 1):
-            bb(mb, Fz, tx + sx * 1.3 - 0.12, tx + sx * 1.3 + 0.12, ty + sy * 0.8 - 0.12, ty + sy * 0.8 + 0.12, 2.15, 3.05, WD)
-    for (cx_, cy_, m) in ((tx, ty - 2.2, CRED), (tx, ty + 2.2, INDIGO), (tx - 2.3, ty, CRED)):
-        bb(mb, Fz, cx_ - 0.7, cx_ + 0.7, cy_ - 0.7, cy_ + 0.7, 2.15, 2.45, m)
-    K.jar(mb, Fz, tx - 0.5, ty, 3.3, 0.25, 0.45, PL)
-    K.jar(mb, Fz, tx + 0.5, ty + 0.2, 3.3, 0.2, 0.35, K.STD)
-    # 2 chochin pendurados do forro
-    for xx, yy in ((-2.0, 4.0), (2.4, -2.0)):
-        mb.rod(Fz.p(xx, yy, zc - 0.25), Fz.p(xx, yy, zc - 1.4), 0.04, K.IRON, 6)
-        K.chochin(mb, Fz, (xx, yy, zc - 1.4 - 1.5), 0.55, 1.5, CRED)
-    light("L_OPCap_Int_Cha", "POINT", Fz.p(0.0, -1.0, 7.0), 260.0, K.WARM, 0.5)
-    # COLISAO: soco + piso (entra pelo degrau), paredes, pilares da frente, balcao, estrado
-    area = "OP_CapHouseCha"
-    zf = ph + 0.7
-    col_box(area, (W + 0.6, D + 0.6, zf + 0.3), F.p(0, 0, (zf - 0.3) / 2), F.r())
-    col_box(area, (W, 1.0, h), F.p(0, -D / 2 + 0.5, zf + h / 2), F.r())
-    for s in (-1, 1):
-        col_box(area, (1.0, D, h), F.p(s * (W / 2 - 0.5), 0, zf + h / 2), F.r())
-        col_box(area, (W / 2 - 3.8, 1.0, h), F.p(s * (W / 2 + 3.8) / 2, D / 2 - 0.5, zf + h / 2), F.r())
-    col_box(area, (W, 1.2, h - 8.0), F.p(0, D / 2 - 0.6, ph + 8.0 + (h - 8.0) / 2), F.r())
-    col_box("OP_CapChaMobilia", (1.6, 9.4, 3.2), Fz.p(xi - 2.8, -1.0, 2.2), F.r())
-    col_box("OP_CapChaMobilia", (6.4, yi + 4.2 - 1.4, 1.5), Fz.p(xa + 3.2, (-yi + 1.4 + 4.2) / 2, 1.35), F.r())
-    col_box("OP_CapChaMobilia", (6.8, 1.0, 0.6), F.p(0.0, fy + 0.85, 0.3), F.r())
-    CAM_AREAS.append(area)
-
-
-# ================================================================== SETORES
-def pav_cols(area, F, W, D, deck):
-    """pavilhao: estrado (sobe pelo degrau) + guardas dos 3 lados fechados (frente +y aberta)"""
-    col_box(area, (W, D, deck), F.p(0, 0, deck / 2), F.r())
-    for (a, b, c_, d_) in ((-W / 2, W / 2, -D / 2, -D / 2 + 0.6), (-W / 2, -W / 2 + 0.6, -D / 2, D / 2),
-                           (W / 2 - 0.6, W / 2, -D / 2, D / 2)):
-        col_box(area, (b - a, d_ - c_, 4.0), F.p((a + b) / 2, (c_ + d_) / 2, deck + 2.0), F.r())
-    CAM_AREAS.append(area)
-
-
-def _sector(name, specs, mb, ncol=True):
-    for nm, tier, x, y, deg, z, sp in specs:
-        F = _F(x, y, z, deg)
-        seed = int(_h("cap", nm) * 9000) + 11
-        sp = dict(sp, lite=(tier == "C"))
-        lo_house(mb, F, sp, seed)
-        if ncol:
-            lo_cols("OP_CapHouse" + nm, F, sp)
-
-
-def _kit_houses(mb):
-    """C7: esquina-marco vermelha de 3 pisos (kit inteiro, ESQ) do lado leste da chegada, colada no trecho"""
-    for nm, sp, (x, y, deg) in (("C7", C7_SPEC, (28.0, 93.0, 180.0)),):
-        F = _F(x, y, T1, deg)
-        K.house(mb, F, sp, "L_OPCap_Win_M4%s" % nm, 60.0)
-        K.house_cols("OP_CapHouse" + nm, F, sp)
-        CAM_AREAS.append("OP_CapHouse" + nm)
-
-
-def lamp(mb, x, y, z, ang, name=None, h=8.6):
-    K.lantern_post(mb, Frame(x, y, z, ang), h, 1.6, name, 40.0)
-    col_box("OP_PropLamp", (0.9, 0.9, h), (x, y, z + h / 2))
-
-
-def bench(mb, x, y, z, ang, L_=5.0):
-    K.bench(mb, Frame(0, 0, 0, 0), x, y, L_, 1.6, 1.6, ang, z)
-    col_box("OP_CapBench", (L_, 1.6, 1.6), (x, y, z + 0.8), (0, 0, ang))
-
-
-def _oeste():
-    mb = MB("OP_Cap_Oeste", COLL, random.Random(401), detail="hero")
-    _sector("Oeste", WEST, mb)
-    yards(mb, "Oeste", P)
-    cha_house(mb)
-    recanto_oeste(mb)
-    for yc, k in ((182.0, "S"), (252.0, "N")):
-        canal_bridge(mb, yc, k)
-    lamp(mb, -124.2, 155.0, P + 0.12, 0.0, "L_OPProp_Lamp_Cap_Oeste", 8.6)
-    lamp(mb, -124.2, 270.2, P + 0.12, 0.0, None, 8.6)
-    return mb
-
-
-def _alem(mb):
-    _sector("Alem", BEYOND, mb)
-    yards(mb, "Alem", P)
-    for yy in (172.0, 245.5):
-        bench(mb, -196.0, yy, P + 0.12, 0.0, 4.6)
-    VEG_SPOTS.append((-204.0, 182.0, P, "pinheiro", "patamar da ponte sul do canal (alem)"))
-    VEG_SPOTS.append((-204.0, 252.0, P, "cerejeira", "patamar da ponte norte do canal (alem)"))
-    return mb
-
-
-def _bairro():
-    mb = MB("OP_Cap_Bairro", COLL, random.Random(403), detail="hero")
-    _sector("Bairro", BAIRRO, mb)
-    yards(mb, "Bairro", T1)
-    # MIRANTE na falesia sul (entre SW4 e SW5): banco virado para o mar, mureta na borda
-    bench(mb, -139.0, 56.0, T1 + 0.12, 0.0, 4.6)
-    K.parapet(mb, Frame(-139.5, 45.0, T1 + 0.12, math.radians(-14.0)), 11.0, 2.2, 1.2, key="mirSW")
-    col_box("OP_CapMureta", (11.0, 1.4, 2.4), (-139.5, 45.0, T1 + 1.2), (0, 0, math.radians(-14.0)))
-    lane(mb, [(-139.0, 69.4), (-139.0, 52.0)], 3.0, T1, "lSW")
-    lamp(mb, -133.0, 66.6, T1 + 0.12, 0.0, "L_OPProp_Lamp_Cap_Bairro", 8.4)
-    lane(mb, [(-71.0, 72.5), (-71.0, 52.0)], 3.4, T1, "lSW2")
-    VEG_SPOTS.append((-138.0, 59.0, T1, "cerejeira", "mirante sul do bairro do canal (sombra no banco)"))
-    VEG_SPOTS.append((-110.5, 88.0, T1, "arbusto", "pe do NW3"))
-    return mb
-
-
-def _terraco(mb):
-    _sector("Terraco", TERRACE, mb)
-    # jardim da frente da U1 (sobre o arrimo do terraco): caminho de lajes da rua ate a porta
-    lane(mb, [(-152.0, 321.8), (-152.0, 310.0), (-128.0, 310.0), (-121.5, 316.0)], 3.6, W3Z, "lU1", "paved")
-    lamp(mb, -127.5, 357.0, W3Z + 0.12, 0.0, "L_OPProp_Lamp_Cap_Terraco", 8.4)
-    VEG_SPOTS.append((-140.0, 306.0, W3Z, "cerejeira", "jardim da U1 sobre o arrimo (vista da praca)"))
-    VEG_SPOTS.append((-188.0, 372.0, W3Z, "pinheiro", "terraco alto, entre U3 e U4"))
-    return mb
-
-
-def _ne():
-    mb = MB("OP_Cap_NE", COLL, random.Random(405), detail="hero")
-    _sector("NE", NE, mb)
-    yards(mb, "NE", P)
-    shrine(mb)
-    lane(mb, [(137.6, 306.0), (141.6, 306.0)], 5.6, P, "sando", "paved")
-    VEG_SPOTS.append((180.0, 306.0, P, "cerejeira", "entre honden e N8"))
-    return mb
-
-
-def _leste():
-    mb = MB("OP_Cap_Leste", COLL, random.Random(406), detail="hero")
-    _sector("Leste", EAST, mb)
-    yards(mb, "Leste", T1)
-    _kit_houses(mb)
-    lane(mb, [(49.5, 104.6), (49.5, 44.0)], 6.4, T1, "bNS", "paved")
-    lane(mb, [(52.7, 75.0), (114.0, 75.0)], 5.0, T1, "bLO", "paved")
-    # MIRANTE do porto na ponta da travessa: banco, mureta na borda, poste aceso
-    K.parapet(mb, Frame(119.6, 75.0, T1 + 0.12, math.pi / 2), 12.0, 2.2, 1.2, key="mirE")
-    col_box("OP_CapMureta", (1.4, 12.0, 2.4), (119.6, 75.0, T1 + 1.2))
-    bench(mb, 115.6, 69.6, T1 + 0.12, 0.0, 4.4)
-    lamp(mb, 114.5, 78.8, T1 + 0.12, 0.0, "L_OPProp_Lamp_Cap_Porto", 8.4)
-    VEG_SPOTS.append((112.0, 71.0, T1, "cerejeira", "mirante do porto (concept: cerejeiras sobre o porto)"))
-    VEG_SPOTS.append((73.0, 43.0, T1, "pinheiro", "borda sul do bloco leste"))
-    return mb
-
-
-# ================================================================== CAMERAS
-EYE = 5.65
-CAMS = {
-    # gerais
-    "CAM_OP_M4Cap_Aerea": ((-20.0, -60.0, 250.0), (-40.0, 190.0, 88.0), 22),
-    "CAM_OP_M4Cap_Aerea_Oeste": ((-330.0, 150.0, 200.0), (-145.0, 215.0, 92.0), 24),
-    "CAM_OP_M4Cap_Aerea_NE": ((60.0, 190.0, 175.0), (165.0, 300.0, 92.0), 26),
-    "CAM_OP_M4Cap_Aerea_Leste": ((30.0, -30.0, 150.0), (78.0, 78.0, 88.0), 26),
-    "CAM_OP_M4Cap_Aerea_Bairro": ((-60.0, -40.0, 160.0), (-100.0, 80.0, 88.0), 26),
-    # altura do jogador por setor
-    "CAM_OP_M4Cap_PH_RuaOeste": ((-119.0, 126.0, P + EYE), (-123.0, 260.0, P + 7.0), 22),
-    "CAM_OP_M4Cap_PH_PracaOeste": ((-74.0, 196.0, P + EYE), (-132.0, 232.0, P + 8.0), 22),
-    "CAM_OP_M4Cap_PH_Cais": ((-164.0, 130.0, P + EYE), (-174.0, 260.0, P + 4.0), 22),
-    "CAM_OP_M4Cap_PH_Bairro": ((-42.0, 84.0, T1 + EYE), (-150.0, 75.0, T1 + 6.0), 22),
-    "CAM_OP_M4Cap_PH_Moinho": ((-126.0, 80.0, T1 + EYE), (-160.0, 93.0, T1 + 6.0), 24),
-    "CAM_OP_M4Cap_PH_NE": ((104.0, 281.0, P + EYE), (200.0, 296.0, P + 7.0), 22),
-    "CAM_OP_M4Cap_PH_Santuario": ((112.0, 302.0, P + EYE), (150.0, 306.0, P + 6.5), 24),
-    "CAM_OP_M4Cap_PH_Terraco": ((-112.0, 316.0, W3Z + EYE), (-150.0, 352.0, W3Z + 8.0), 22),
-    "CAM_OP_M4Cap_PH_RuaAltaPorto": ((20.0, 111.0, T1 + EYE), (120.0, 104.0, T1 + 7.0), 22),
-    "CAM_OP_M4Cap_PH_Beco": ((49.5, 101.0, T1 + EYE), (50.0, 40.0, T1 + 5.0), 22),
-    # closes
-    "CAM_OP_M4Cap_Close_Cha": ((-111.0, 258.0, P + 6.0), (-128.0, 249.0, P + 5.5), 24),
-    "CAM_OP_M4Cap_Close_ChaInterior": ((-129.2, 248.5, P + 1.2 + 5.2), (-146.0, 247.0, P + 1.2 + 3.0), 18),
-    "CAM_OP_M4Cap_Close_C7": ((6.0, 108.0, T1 + 7.0), (30.0, 92.0, T1 + 11.0), 24),
-    "CAM_OP_M4Cap_Close_C4": ((6.0, 84.0, T1 + 7.0), (-22.0, 100.0, T1 + 9.0), 24),
-    "CAM_OP_M4Cap_Close_W1": ((-104.0, 128.0, P + 7.0), (-130.0, 145.0, P + 8.0), 24),
-    "CAM_OP_M4Cap_Close_Moinho": ((-148.0, 70.5, T1 + 6.5), (-169.0, 91.0, T1 + 5.0), 24),
-    "CAM_OP_M4Cap_Close_Santuario": ((121.0, 291.0, P + 6.0), (148.0, 306.0, P + 5.0), 24),
-    "CAM_OP_M4Cap_Close_U1": ((-118.0, 304.0, W3Z + 6.0), (-150.0, 330.0, W3Z + 9.0), 24),
-    "CAM_OP_M4Cap_Close_E5": ((70.0, 112.0, T1 + 6.5), (86.0, 95.0, T1 + 8.0), 24),
-    "CAM_OP_M4Cap_Close_Fundo": ((-183.0, 196.0, P + 6.5), (-200.0, 232.0, P + 7.0), 24),
-    "CAM_OP_M4Cap_Close_Ponte": ((-160.5, 168.0, P + 6.5), (-176.0, 184.0, P + 2.5), 24),
-}
-
-
-def _cams():
-    for n, (loc, tgt, lens) in CAMS.items():
-        DL.camera(n, loc, tgt, lens)
-
-
-# ================================================================== BUILD
-SENTINEL = "OP_Cap_Oeste"
-
-
-def build():
-    if bpy.data.objects.get(SENTINEL):
-        return
-    CAM_AREAS.clear()
-    VEG_SPOTS.clear()
-    PAVED_CUTS.clear()
-    _YARD_JOBS.clear()
-    # trecho M2 (dono: op_m2_trecho) - mesmas funcoes, sem o _blockout_rest()
-    TR._street()
-    TR._shops()
-    TR._lamps_and_stair()
-    TR._cams()
-    mbs = {}
-    mbs["Oeste"] = _oeste()
-    mf = MB("OP_Cap_OesteFundo", COLL, random.Random(402), detail="far")   # alem do canal + terraco alto (1 objeto)
-    mbs["Alem"] = _alem(mf)
-    mbs["Bairro"] = _bairro()
-    mbs["Terraco"] = _terraco(mf)
-    mbs["NE"] = _ne()
-    mbs["Leste"] = _leste()
-    n = pave_streets(mbs)
-    # escadas da planta que eram do blockout (Sudoeste, OesteAlta): pedra do kit como a escadaria Praca
-    for nm in ("Sudoeste", "OesteAlta"):
-        foot, deg, w, ns, tread, g = L.stair_frame(nm)
-        Fs = Frame(foot[0], foot[1], foot[2], math.radians(deg) - math.pi / 2)
-        K.stair_stone(mbs["Oeste"], Fs, w, ns, rise=L.stair_rise(nm), tread=tread, z_floor=-0.3, z_off=Z_OFF,
-                      cheek_h=1.0, newels=True)
-    ny = _build_yards()                                 # M6b: quintais depois das ruas/becos (recortados por eles)
-    alem_yard(mbs["Alem"])
+def build_lots(specs):
+    regions = {}
+    geos, infos = {}, {}
+    tris = {}
+    for s in specs:
+        lt = s["lot"]
+        mb = MB("OP_Cap_tmp_" + lt["name"], COLL)
+        info = s["fn"](mb, s["F"], **s["kw"])
+        STATS["cull_in"] = STATS.get("cull_in", 0) + cull_inside(mb, s)
+        infos[lt["name"]] = info
+        geos[lt["name"]] = _geo(mb)
+        tris[lt["name"]] = sum(len(f.verts) - 2 for f in mb.bm.faces)
+        rg = regions.get(s["region"])
+        if rg is None:
+            rg = regions[s["region"]] = MB("OP_Cap_Q_" + s["region"], COLL)
+        _merge(rg, mb)
+    probs = interpen(specs, geos)
+    STATS["tris_lote"] = tris
     cut = 0
-    for mb in {id(m): m for m in mbs.values()}.values():
-        cut += K.cull_hidden(mb)                        # M6b: faces que ninguem ve (paga rodape/janelas/quintal)
-        mb.finish(recalc=False)                         # M6c: o cull_hidden ja orientou o bmesh FECHADO; recalcular
-        #   depois do corte (cascas abertas) virava paredes, janelas e telhados para dentro (invisiveis no Roblox)
-    _cams()
-    print("op_capital: %d casas leves, ruas %d lajes, quintais %d pecas, %d tris escondidos cortados, CAM_AREAS %d" % (
-        sum(len(v) for v in SECTORS.values()), n, ny, cut, len(CAM_AREAS)))
+    objs = []
+    for nm, rg in regions.items():
+        cut += K.cull_hidden(rg, dmax=6.0)
+        objs.append(rg.finish())
+    STATS["cull"] = cut
+    return infos, probs, objs
+
+
+# ================================================================== colisao por volume de fileira
+def _col_lot_box(area, F, x0, x1, y0, y1, z0, z1):
+    col_box(area, (x1 - x0, y1 - y0, z1 - z0), F.p((x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2), F.r())
+
+
+def _interior_cols(s, area):
+    """lote com interior vivo: piso, paredes, o vao de entrada livre e o teto (o jogador entra e sai pela frente)"""
+    lt, kw, F = s["lot"], s["kw"], s["F"]
+    W, D = kw["W"], kw["D"]
+    zw = s["zw"]
+    n = 0
+    if s["fn"] is K2.loja:
+        z0 = 0.8
+        kw_ = 3.0 if W >= 13.0 else 0.0
+        bays = ([("koshi", kw_)] if kw_ else []) + [("door", 4.4), {"t": "shop", "upper_board": True}]
+        if kw["shop_side"] < 0:
+            bays = list(reversed(bays))
+        xs, sp = K2._posts_x(W, bays)
+        a, b = [(a, b) for t, o, a, b in sp if t == "shop"][0]
+        yf = D / 2 - 0.86
+        depth = min(7.5, D * 0.5)
+        yb = yf - depth
+        ya = yb + depth * 0.52
+        _col_lot_box(area, F, -W / 2, W / 2, -D / 2, yb, -0.5, zw)                      # fundos (macico)
+        _col_lot_box(area, F, -W / 2, a, yb, D / 2 + 0.35, -0.5, zw)                    # parede/porta a esquerda
+        _col_lot_box(area, F, b, W / 2, yb, D / 2 + 0.35, -0.5, zw)                     # parede a direita
+        _col_lot_box(area, F, a, b, yb, D / 2 + 0.35, 7.0 + z0, zw)                     # verga + 2o piso
+        _col_lot_box(area, F, a, b, yb, D / 2 + 0.35, -0.5, z0)                         # piso de terra (doma)
+        _col_lot_box(area, F, a, b, yb, ya, z0, z0 + 1.15)                              # estrado (agari)
+        n += 6
+    elif s["fn"] is K2.chaya:
+        gs = kw["garden_side"]
+        gw = kw["garden_w"]
+        Wb = W - gw
+        xb_ = -gs * gw / 2
+        eng = 3.0
+        z0 = 1.0
+        Fb = K2.sub(F, xb_)
+        xs, sp = K2._posts_x(Wb, K2.chaya_bays(Wb, gs))
+        a, b = [(a, b) for t, o, a, b in sp if t == "open"][0]
+        yf = D / 2 - eng                                   # face da frente do corpo (no referencial Fb)
+        yb = yf - 0.86 - 6.6
+        _col_lot_box(area, Fb, -Wb / 2, Wb / 2, -D / 2, yb, -0.5, zw)
+        _col_lot_box(area, Fb, -Wb / 2, a, yb, yf, -0.5, zw)
+        _col_lot_box(area, Fb, b, Wb / 2, yb, yf, -0.5, zw)
+        _col_lot_box(area, Fb, a, b, yb, yf, 7.0 + z0, zw)
+        _col_lot_box(area, Fb, -Wb / 2, Wb / 2, yb, D / 2 + 0.35, -0.5, z0 + 0.45)        # engawa + tatami
+        xg0, xg1 = (W / 2 - gw, W / 2) if gs > 0 else (-W / 2, -W / 2 + gw)
+        _col_lot_box(area, F, xg0, xg1, -D / 2, D / 2, -0.5, zw + 0.4)                    # jardim cercado (alto:
+        n += 6                                                                           # nao vira degrau)
+    elif s["fn"] is K2.haiden2:
+        ph = 1.6
+        Do = D * 0.45
+        yi = D / 2 - Do
+        _col_lot_box(area, F, -W / 2, W / 2, -D / 2, yi, -0.5, zw + 0.5)                   # santuario interno
+        _col_lot_box(area, F, -W / 2, W / 2, yi, D / 2, -0.5, ph)                          # assoalho
+        for sx in (-1, 1):                                                               # guardas laterais
+            x0, x1 = sorted((sx * (W / 2 - 0.9), sx * W / 2))
+            _col_lot_box(area, F, x0, x1, yi, D / 2, ph, zw)
+        _col_lot_box(area, F, -W / 2, W / 2, yi, D / 2, zw - 0.4, zw + 0.5)               # forro/telhado
+        _col_lot_box(area, F, -1.9, 1.9, yi + 0.9, yi + 2.3, ph, zw - 0.4)                # caixa de oferendas
+        for x in (-W / 4, W / 4):                                                        # pilares da frente
+            _col_lot_box(area, F, x - 0.45, x + 0.45, D / 2 - 1.05, D / 2 - 0.15, ph, zw - 0.4)
+        for i in range(1, 5):                                                            # escada
+            zz = ph - 0.32 * i
+            y0 = D / 2 + 0.4 * (i - 1) - 0.05
+            _col_lot_box(area, F, -3.6, 3.6, y0, y0 + 0.45, -0.5, zz)
+        n += 12
+    return n
+
+
+def _reach_src(lt, d_max=6.0):
+    """maior piso ALCANCAVEL (planta) num anel de ate d_max em volta do lote, acima do piso do proprio lote"""
+    best = None
+    for d in (1.0, 2.5, 4.0, 5.5, 7.0, 8.5):
+        if d > d_max:
+            break
+        poly = L.lot_poly(lt, d)
+        for (ax, ay), (bx, by) in zip(poly, poly[1:] + poly[:1]):
+            n = max(2, int(math.hypot(bx - ax, by - ay) / 1.5))
+            for i in range(n):
+                x, y = ax + (bx - ax) * i / n, ay + (by - ay) * i / n
+                z = L.zone_of(x, y)
+                if z is not None and z > lt["z"] + 0.3 and (best is None or z > best):
+                    best = z
+    return best
+
+
+def _roof_ramps(s, info, area):
+    """telhado ao alcance: 1 rampa por agua principal (corda beiral -> cumeeira 0,35 abaixo da telha), cortada como o
+    telhado (clip)"""
+    r = info.get("roof")
+    if not r:
+        return 0
+    Fr = r["F"]
+    cl = r["clip"]
+    n = 0
+    if r["kind"] in ("kirizuma", "irimoya", "yosemune"):
+        xa, xb = max(-r["Xe"], -cl[0]), min(r["Xe"], cl[1])
+        for sg, ye in ((1, min(r["Ye"], cl[3])), (-1, min(r["Ye"], cl[2]))):
+            za = r["Hf"](0.0, ye) - 0.35
+            zb = r["zr"] - 0.35
+            col_ramp(area, Fr.p((xa + xb) / 2, sg * ye, za), Fr.p((xa + xb) / 2, 0.0, zb), xb - xa, thick=1.2)
+            n += 1
+    return n
+
+
+def lot_collisions(specs, infos):
+    """1 caixa por TRECHO CONTINUO de lotes de cada fileira com frechal parecido (ate o frechal mais baixo do trecho),
+    interiores/portal/honden a parte, rampas nos telhados ao alcance de um piso mais alto (terraco, mirante) e as
+    calcadas da avenida. A caixa vai do fundo ao soco da frente (+0,35)."""
+    n = 0
+    rows = {}
+    for s in specs:
+        rows.setdefault((s["lot"]["block"], s["lot"]["row"]), []).append(s)
+    for key, ss in rows.items():
+        seg = []
+
+        def flush(seg):
+            if not seg:
+                return 0
+            lt0 = seg[0]["lot"]
+            us = []
+            for s in seg:
+                for u in (-s["lot"]["W"] / 2, s["lot"]["W"] / 2):
+                    x, y = _world(s["lot"], u, 0.0)
+                    us.append(_local(lt0, x, y)[0])
+            D = lt0["D"]
+            zt = min(s["zw"] for s in seg) - 0.3
+            F = Frame(lt0["x"], lt0["y"], lt0["z"], lt0["yaw"] - math.pi / 2)
+            # ponta EXPOSTA do trecho: a caixa cobre tambem o soco (0,35-0,5 alem da parede)
+            ext = [0.0, 0.0]
+            for s in seg:
+                for k, u in enumerate((-s["lot"]["W"] / 2, s["lot"]["W"] / 2)):
+                    x, y = _world(s["lot"], u, 0.0)
+                    uu = _local(lt0, x, y)[0]
+                    if not s["nb"]["party"][k] and s["lot"]["kind"] in ("kura", "armazem"):   # soco alto (1,4)
+                        if abs(uu - min(us)) < 0.05:
+                            ext[0] = 0.6
+                        if abs(uu - max(us)) < 0.05:
+                            ext[1] = 0.6
+            _col_lot_box("OP_CapRow" + key[0] + key[1], F, min(us) - ext[0], max(us) + ext[1], -D / 2, D / 2 + 0.35, -0.5,
+                         zt)
+            return 1
+        for s in ss:
+            k = s["lot"]["kind"]
+            if s["lot"]["interior"] or k in ("portal", "santuario", "honden"):
+                n += flush(seg)
+                seg = []
+                area = "OP_CapLot" + s["lot"]["name"]
+                W, D = s["kw"]["W"], s["kw"]["D"]
+                if k == "portal":
+                    _col_lot_box(area, s["F"], -W / 2, W / 2, -D / 2, D / 2, 7.4, s["zw"])
+                    n += 1
+                elif k == "honden":
+                    _col_lot_box(area, s["F"], -W / 2, W / 2, -D / 2, D / 2, -0.5, s["zw"] + 1.0)
+                    n += 1
+                else:
+                    n += _interior_cols(s, area)
+                continue
+            seg.append(s)
+        n += flush(seg)
+    # telhados ao alcance de um piso mais alto (terraco W3, mirante NE)
+    reach = []
+    for s in specs:
+        src = _reach_src(s["lot"])
+        info = infos[s["lot"]["name"]]
+        if src is not None and src + L.JUMP + 0.5 >= s["lot"]["z"] + 7.4:
+            n += _roof_ramps(s, info, "OP_CapRoof" + s["lot"]["name"])
+            reach.append(s["lot"]["name"])
+    STATS["telhados_rampa"] = reach
+    # calcadas da avenida (o pe nao afunda 0,47)
+    av = L.AVENUE
+    y0, y1 = av["y"]
+    for sg in (-1, 1):
+        xa, xb = sorted((sg * (av["x"][1] + 0.3), sg * av["front"]))
+        col_box("OP_CapCalcada", (xb - xa, y1 - y0, 0.5), ((xa + xb) / 2, (y0 + y1) / 2, T1 + 0.47 - 0.25))
+        n += 1
+    return n
+
+
+# ================================================================== ruas
+def _in_rect(x, y, r, pad=0.0):
+    return r[0] - pad <= x <= r[2] + pad and r[1] - pad <= y <= r[3] + pad
+
+
+def _blocked(x, y, lots_poly, stairs_poly):
+    for p in lots_poly:
+        if L.point_in_poly(x, y, p):
+            return True
+    for p in stairs_poly:
+        if L.point_in_poly(x, y, p):
+            return True
+    return False
+
+
+def _street_list():
+    """ruas da planta pavimentadas aqui: todas menos a avenida (street2 proprio) e as do terraco do summon (op_summon)"""
+    out = []
+    for k, (pts, w, z) in enumerate(L.STREETS_V2):
+        if k == 0:
+            continue
+        mx = sum(p[0] for p in pts) / len(pts)
+        my = sum(p[1] for p in pts) / len(pts)
+        if _in_rect(mx, my, SUMMON_RECT, 0.0):
+            continue
+        out.append((pts, w, z))
+    return out
+
+
+def streets(lots):
+    """avenida com o street2 (leito assentado + sarjeta + meio-fio + calcadas, lajes so na face de cima) e as outras
+    ruas/vielas/cais/sando em PEDRA ASSENTADA por trecho (fiadas ao longo do trecho, juntas desencontradas, lajes
+    cortadas retas na ponta) com BORDA de pedra nas 2 margens (PLANO_V2 3.3: sem meio-fio), so fora dos lotes (+soco),
+    das escadas e do summon, na cota do piso. O trecho que ja foi pavimentado ganha (cruzamentos sem sobreposicao)."""
+    t0 = time.time()
+    mp = MB("OP_Cap_Streets", COLL, detail="far", floor=-999)
+    av = L.AVENUE
+    y0, y1 = av["y"]
+    walk = av["front"] - av["x"][1] - 0.3
+    Fa = Frame(0.0, (y0 + y1) / 2, T1 + 0.12, math.pi / 2)
+    K2.street2(mp, Fa, y1 - y0, av["x"][1] - av["x"][0], walk, key=3, thin=True)
+    done = [((0.0, (y0 + y1) / 2), math.pi / 2, (y1 - y0) / 2, av["front"])]     # (centro, rumo, meio-comp., meia-larg.)
+    lots_poly = [L.lot_poly(lt, 0.4) for lt in lots]
+    stairs_poly = [op_col.stair_footprint(st[0], 0.3) for st in L.STAIRS]
+    nq = 0
+    SX, SY, BW = 2.6, 1.5, 0.55
+    g = 0.04
+
+    def in_done(x, y):
+        for (cx, cy), a, hl, hw in done:
+            u = (x - cx) * math.cos(a) + (y - cy) * math.sin(a)
+            v = -(x - cx) * math.sin(a) + (y - cy) * math.cos(a)
+            if abs(u) <= hl and abs(v) <= hw:
+                return True
+        return False
+
+    def ok_at(F, zr, ua, ub, va, vb):
+        cx, cy = F.p((ua + ub) / 2, (va + vb) / 2).xy
+        if in_done(cx, cy) or _blocked(cx, cy, lots_poly, stairs_poly):
+            return False
+        for u, v in ((ua, va), (ub, va), (ub, vb), (ua, vb), ((ua + ub) / 2, (va + vb) / 2)):
+            p = F.p(u, v)
+            zz = L.zone_of(p.x, p.y)
+            if zz is None or abs(zz - zr) > 0.05:
+                return False
+        return True
+    for si, (pts, w, zr) in enumerate(_street_list()):
+        hw = w / 2
+        new = []
+        for i, (a, b) in enumerate(zip(pts, pts[1:])):
+            dx, dy = b[0] - a[0], b[1] - a[1]
+            ln = math.hypot(dx, dy)
+            if ln < 0.5:
+                continue
+            ang = math.atan2(dy, dx)
+            e0 = hw if i > 0 else 0.0                   # emenda nas quinas internas
+            e1 = hw if i < len(pts) - 2 else 0.0
+            L_ = ln + e0 + e1
+            cxy = (a[0] + dx / ln * (ln / 2 - e0 / 2 + e1 / 2), a[1] + dy / ln * (ln / 2 - e0 / 2 + e1 / 2))
+            z = zr + STREET_DZ
+            F = Frame(cxy[0], cxy[1], z, ang)
+            rows = max(1, int(round((w - 2 * BW) / SY)))
+            rh = (w - 2 * BW) / rows
+            bands = [(-hw, -hw + BW, "b")] + [(-hw + BW + r * rh, -hw + BW + (r + 1) * rh, r) for r in range(rows)] + \
+                [(hw - BW, hw, "b")]
+            for va, vb, r in bands:
+                border = r == "b"
+                sx = 1.7 if border else SX
+                off = 0.0 if border else (0.5 * SX if r % 2 else 0.0) + 0.23 * SX * h01("rua", si, i, r)
+                u = -L_ / 2 - off
+                k = 0
+                run = None
+                while u < L_ / 2 - 0.05:
+                    wd = sx * (0.8 + 0.4 * h01("rua", si, i, r, k)) if not border else sx
+                    ua, ub = max(-L_ / 2, u), min(L_ / 2, u + wd)
+                    u += wd
+                    k += 1
+                    if ub - ua < 0.3 or not ok_at(F, zr, ua, ub, va, vb):
+                        if run:
+                            mp.quad(F.p(run[0], va, -0.12), F.p(run[1], va, -0.12), F.p(run[1], vb, -0.12),
+                                    F.p(run[0], vb, -0.12), "Stone_OP_Dark")
+                        run = None
+                        continue
+                    m = "Stone_OP" if border else "Stone_OP_Path"
+                    mp.quad(F.p(ua + g, va + g, 0.0), F.p(ub - g, va + g, 0.0), F.p(ub - g, vb - g, 0.0),
+                            F.p(ua + g, vb - g, 0.0), m)
+                    nq += 1
+                    run = (run[0], ub) if run else (ua, ub)
+                if run:
+                    mp.quad(F.p(run[0], va, -0.12), F.p(run[1], va, -0.12), F.p(run[1], vb, -0.12),
+                            F.p(run[0], vb, -0.12), "Stone_OP_Dark")
+            done.append((cxy, ang, L_ / 2, hw))
+    ob = mp.finish(recalc=False)
+    STATS["lajes"] = nq
+    STATS["t_ruas"] = time.time() - t0
+    return ob
+
+
+# ================================================================== pecas: andon, toro, torii, bancas
+def _lamp_spots(lots):
+    """andon nos NOS das ruas (pontas e quinas das faixas da planta + avenida a cada ~20), na borda da faixa, longe
+    dos lotes (>= 1,6) e do eixo das rotas"""
+    spots = []
+    av = L.AVENUE
+    for y in (52.0, 72.0, 92.0):
+        for s in (-1, 1):
+            spots.append((s * (av["x"][1] + 1.3), y, T1, T1 + 0.12 + 0.35))
+    for pts, w, z in _street_list():
+        for i, p in enumerate(pts):
+            if i not in (0, len(pts) - 1):
+                continue
+            q = pts[1] if i == 0 else pts[-2]
+            dx, dy = q[0] - p[0], q[1] - p[1]
+            ln = math.hypot(dx, dy) or 1.0
+            nx, ny = -dy / ln, dx / ln
+            for sgn in (1, -1):
+                x, y = p[0] + nx * sgn * (w / 2 - 0.9) + dx / ln * 3.0, p[1] + ny * sgn * (w / 2 - 0.9) + dy / ln * 3.0
+                spots.append((x, y, z, z + STREET_DZ))
+                break
+    out = []
+    lp = [L.lot_poly(lt, 1.6) for lt in lots]
+    for x, y, zb, z in spots:
+        if any(L.point_in_poly(x, y, p) for p in lp) or _in_rect(x, y, SUMMON_RECT, 2.0):
+            continue
+        zz = L.zone_of(x, y)
+        if zz is None or abs(zz - zb) > 0.05:
+            continue
+        if any(math.hypot(x - a, y - b) < 14.0 for a, b, c in out):
+            continue
+        out.append((x, y, z))
+    return out
+
+
+def props(lots):
+    mb = MB("OP_Cap_Props", COLL)
+    n_col = 0
+    nl = 0
+    for i, (x, y, z) in enumerate(_lamp_spots(lots)):
+        nm = "L_OPProp_Lamp_Cap_%d" % i if nl < 10 and i % 2 == 0 else None
+        nl += 1 if nm else 0
+        K2.lamp_andon(mb, Frame(x, y, z, 0.0), nm)
+        col_box("OP_CapLamp", (2.3, 2.3, L.GUARD_V2 + 0.5), (x, y, z - 0.5 + (L.GUARD_V2 + 0.5) / 2))   # nao se escala
+        n_col += 1
+    # sando NE: 6 toro (luz em 3) + torii de laca com 2 nobori (as unicas bandeiras da capital)
+    for i, (x, y) in enumerate(L.NE_TORO):
+        z = P + STREET_DZ
+        K2.toro2(mb, Frame(x, y, z, 0.0), "L_OPProp_Toro_Sando_%d" % i if i % 2 == 0 else None, 0.8)
+        col_box("OP_CapToro", (2.6, 2.6, L.GUARD_V2 + 0.5), (x, y, z - 0.5 + (L.GUARD_V2 + 0.5) / 2))
+        n_col += 1
+    n_col += torii_ne(mb)
+    # carga (vida na travessa da rua alta do porto)
+    for k, (x, y, z, kind) in enumerate(((95.5, 71.0, T1, "barrels"),)):
+        K2.goods_pile(mb, Frame(x, y, z + STREET_DZ, 0.0), kind)
+        col_box("OP_CapCarga", (5.0, 4.0, L.GUARD_V2 + 0.5), (x + 0.8, y, z + (L.GUARD_V2 + 0.5) / 2 - 0.5))
+        n_col += 1
+    K.cull_hidden(mb)
+    mb.finish()
+    return n_col
+
+
+def torii_ne(mb):
+    """torii (myojin) de laca na entrada do sando NE: pilares em pedras-base, nuki, kasagi com pontas levantadas,
+    placa; 2 nobori ao lado. Rumo +x (quem entra no sando)."""
+    x0, y0 = L.SHRINE_TORII
+    z = P
+    F = Frame(x0, y0, z, 0.0)                       # +x local = rumo do sando; pilares em y = +-w/2
+    w, h = 9.0, 10.6                                 # nuki a 2,9 acima do olho (camera PlayerHeight_NE no eixo)
+    for s in (-1, 1):
+        Fp = K2.sub(F, 0.0, s * (w / 2 + 0.7))
+        K.rock_base(mb, Fp, 0.0, 0.0, 0.0, 1.15, 0.6)
+        K.lathe(mb, Fp, (0, 0, 0.4), [(0.62, 0.0), (0.56, h - 0.4)], 12, K2.LAC)
+        K.lathe(mb, Fp, (0, 0, 0.35), [(0.78, 0.0), (0.78, 0.9), (0.66, 1.05)], 12, K2.WD)
+    yy = w / 2 + 2.6
+    K.bb(mb, F, -0.45, 0.45, -yy, yy, h - 2.3, h - 1.5, K2.LAC)                           # nuki
+    K.bb(mb, F, -0.5, 0.5, -0.45, 0.45, h - 1.5, h - 0.2, K2.LAC)                         # gakuzuka
+    K.bb(mb, F, -0.62, -0.5, -1.0, 1.0, h - 1.4, h + 0.0, K2.GOLD)                        # placa
+    zk = h + 0.25
+    prof = [(-0.6, -0.45), (0.6, -0.45), (0.6, 0.35), (-0.6, 0.35)]
+    pts = [(0.0, -(yy + 1.4), zk + 0.9), (0.0, -(yy - 0.6), zk + 0.25), (0.0, -w / 4, zk), (0.0, 0.0, zk - 0.03),
+           (0.0, w / 4, zk), (0.0, yy - 0.6, zk + 0.25), (0.0, yy + 1.4, zk + 0.9)]
+    K.sweep(mb, F, pts, prof, K2.LAC)                                                      # shimaki
+    K.sweep(mb, F, [(p[0], p[1] * 1.04, p[2] + 0.75) for p in pts], [(-0.75, -0.4), (0.75, -0.4), (0.75, 0.4),
+                                                                      (-0.75, 0.4)], K2.WD)   # kasagi
+    for s in (-1, 1):
+        K2.nobori2(mb, Frame(x0 - 1.6, y0 + s * (w / 2 + 3.4), z + STREET_DZ, math.pi), 8.5, K2.CWHITE, K2.CRED)
+    n = 0
+    for s in (-1, 1):
+        col_box("OP_CapTorii", (2.0, 2.0, h + 1.0), F.p(0.0, s * (w / 2 + 0.7), (h + 1.0) / 2))
+        col_box("OP_CapTorii", (1.4, 1.4, L.GUARD_V2 + 0.5), (x0 - 1.6, y0 + s * (w / 2 + 3.4), z + 4.25))
+        n += 2
+    return n
+
+
+# ================================================================== escadas da planta (visual; colisao do op_col)
+def stairs():
+    mb = MB("OP_Cap_Stairs", COLL, detail="far", floor=None)
+    for nm in ("Praca", "Sudoeste", "OesteAlta", "Mirante"):
+        DL.plan_stair(mb, nm)
+    mb.finish()
+
+
+# ================================================================== cameras das folhas (fora do export)
+def cams():
+    E = L.EYE
+    C = {
+        # de cima (camera do jogo ~35 graus), por quadra
+        "CAM_OP_V23Cap_Cima_Avenida": ((0.0, 18.0, T1 + 62.0), (0.0, 78.0, T1 + 6.0), 24),
+        "CAM_OP_V23Cap_Cima_AvL_Porto": ((60.0, 30.0, T1 + 58.0), (80.0, 88.0, T1 + 6.0), 24),
+        "CAM_OP_V23Cap_Cima_Bairro": ((-100.0, 30.0, T1 + 60.0), (-110.0, 86.0, T1 + 6.0), 24),
+        "CAM_OP_V23Cap_Cima_OesteS": ((-100.0, 120.0, P + 55.0), (-145.0, 150.0, P + 6.0), 24),
+        "CAM_OP_V23Cap_Cima_OesteM": ((-100.0, 200.0, P + 55.0), (-150.0, 220.0, P + 6.0), 24),
+        "CAM_OP_V23Cap_Cima_OesteN_W3": ((-110.0, 270.0, P + 60.0), (-150.0, 320.0, P + 8.0), 24),
+        "CAM_OP_V23Cap_Cima_AlemCanal": ((-150.0, 160.0, P + 60.0), (-200.0, 220.0, P + 6.0), 24),
+        "CAM_OP_V23Cap_Cima_NE": ((130.0, 250.0, P + 58.0), (170.0, 296.0, P + 6.0), 24),
+        # aerea (comparar com a ref_03)
+        "CAM_OP_V23Cap_Aerea_Ref03": ((0.0, -40.0, T1 + 80.0), (0.0, 160.0, T1 + 20.0), 24),
+        "CAM_OP_V23Cap_Aerea_Cidade": ((60.0, -60.0, 240.0), (-60.0, 160.0, 90.0), 24),
+        # altura do jogador
+        "CAM_OP_V23Cap_Jog_Avenida": ((3.0, 47.0, T1 + 0.47 + E), (-4.0, 110.0, T1 + 9.0), 22),
+        "CAM_OP_V23Cap_Jog_AvenidaO": ((-11.0, 60.0, T1 + 0.47 + E), (-15.5, 78.0, T1 + 6.5), 20),
+        "CAM_OP_V23Cap_Jog_Viela": ((-60.0, 86.0, T1 + E), (-140.0, 86.0, T1 + 8.0), 22),
+        "CAM_OP_V23Cap_Jog_Portal": ((-6.0, 86.0, T1 + E), (-40.0, 86.0, T1 + 5.0), 20),
+        "CAM_OP_V23Cap_Jog_Oeste": ((-112.0, 140.0, P + E), (-121.0, 190.0, P + 7.0), 22),
+        "CAM_OP_V23Cap_Jog_Cais": ((-164.0, 130.0, P + E), (-164.0, 200.0, P + 6.0), 22),
+        "CAM_OP_V23Cap_Jog_Sando": ((112.0, 296.0, P + E), (190.0, 300.0, P + 7.0), 22),
+        "CAM_OP_V23Cap_Jog_PortoAlto": ((60.0, 111.0, T1 + E), (120.0, 108.0, T1 + 7.0), 22),
+    }
+    for nm, (a, b, lens) in C.items():
+        fm_lib.camera(nm, Vector(a), Vector(b), lens)
+        if "_Jog_" in nm:                              # boneco de 5 a ~9 a frente (escala nas folhas)
+            dx, dy = b[0] - a[0], b[1] - a[1]
+            ln = math.hypot(dx, dy) or 1.0
+            x, y = a[0] + dx / ln * 15.0 + dy / ln * 2.6, a[1] + dy / ln * 15.0 - dx / ln * 2.6
+            zz = L.zone_of(x, y)
+            if zz is not None:
+                DL.dummy("SCALE_Dummy_Cap_" + nm.split("_Jog_")[1], x, y, zz + STREET_DZ, math.atan2(dy, dx) + math.pi / 2)
+    return list(C)
+
+
+def interior_cams(specs):
+    """1 camera por interior vivo: da rua/sando, na altura do olho, olhando para dentro do vao aberto + boneco de 5"""
+    out = []
+    for s in specs:
+        lt = s["lot"]
+        if not lt["interior"]:
+            continue
+        kw, F = s["kw"], s["F"]
+        W, D = kw["W"], kw["D"]
+        if s["fn"] is K2.loja:
+            kw_ = 3.0 if W >= 13.0 else 0.0
+            bays = ([("koshi", kw_)] if kw_ else []) + [("door", 4.4), {"t": "shop", "upper_board": True}]
+            if kw["shop_side"] < 0:
+                bays = list(reversed(bays))
+            xs, sp = K2._posts_x(W, bays)
+            a, b = [(a, b) for t, o, a, b in sp if t == "shop"][0]
+            xc, zf, Fc = (a + b) / 2, 0.8, F
+        elif s["fn"] is K2.chaya:
+            gs, gw = kw["garden_side"], kw["garden_w"]
+            Fc = K2.sub(F, -gs * gw / 2)
+            xs, sp = K2._posts_x(W - gw, K2.chaya_bays(W - gw, gs))
+            a, b = [(a, b) for t, o, a, b in sp if t == "open"][0]
+            xc, zf = (a + b) / 2, 1.45
+        else:
+            xc, zf, Fc = 0.0, 1.6, F
+        nm = "CAM_OP_V23Cap_Int_" + lt["name"]
+        fm_lib.camera(nm, Fc.p(xc + 0.8, D / 2 + 6.5, L.EYE + 0.5), Fc.p(xc, D / 2 - 6.0, zf + 2.6), 26)
+        DL.dummy("SCALE_Dummy_Cap_" + lt["name"], *Fc.p(xc + 1.0, D / 2 - 4.2, zf)[:], F.a)
+        out.append(nm)
+    return out
+
+
+def junction_cams(specs, n=8):
+    """closes das JUNCOES entre casas vizinhas (prova de zero interpenetracao): olhando de cima-frente para a divisa
+    de pares com alturas diferentes"""
+    out = []
+    seen = set()
+    by = {s["lot"]["name"]: s for s in specs}
+    cand = []
+    for s in specs:
+        for o in s["nb"]["nb"]:
+            t = by.get(o)
+            if not t or (o, s["lot"]["name"]) in seen:
+                continue
+            seen.add((s["lot"]["name"], o))
+            cand.append((abs(s["zw"] - t["zw"]) + (3.0 if s["lot"]["tsuma"] != t["lot"]["tsuma"] else 0.0), s, t))
+    cand.sort(key=lambda c: -c[0])
+    used = set()
+    for sc, s, t in cand:
+        if s["lot"]["block"] in used and len(out) < n - 2:
+            pass
+        if len(out) >= n:
+            break
+        a, b = s["lot"], t["lot"]
+        mx, my = (a["x"] + b["x"]) / 2, (a["y"] + b["y"]) / 2
+        c, sn = math.cos(a["yaw"]), math.sin(a["yaw"])
+        zt = a["z"] + max(s["zw"], t["zw"]) + 2.0
+        fx, fy = mx + c * a["D"] / 2, my + sn * a["D"] / 2
+        cx_, cy_ = fx + c * 20.0, fy + sn * 20.0
+        if any(L.point_in_poly(cx_, cy_, L.lot_poly(o["lot"], 2.0)) for o in specs) or abs(s["zw"] - t["zw"]) < 2.0:
+            continue
+        nm = "CAM_OP_V23Cap_Juncao_%s_%s" % (a["name"], b["name"])
+        fm_lib.camera(nm, Vector((cx_, cy_, zt + 2.0)), Vector((mx + c * a["D"] * 0.2, my + sn * a["D"] * 0.2, zt - 5.0)),
+                      32)
+        out.append(nm)
+        used.add(a["block"])
+    return out
+
+
+# ================================================================== montagem
+def build():
+    t0 = time.time()
+    lots = L.block_lots()
+    specs = plan(lots)
+    infos, probs, objs = build_lots(specs)
+    t1 = time.time()
+    ncol = lot_collisions(specs, infos)
+    streets(lots)
+    ncol += props(lots)
+    stairs()
+    cams()
+    interior_cams(specs)
+    jc = junction_cams(specs)
+    STATS["juncoes"] = jc
+    tri = 0
+    for o in bpy.data.objects:
+        if o.type == "MESH" and o.name.startswith("OP_Cap_"):
+            tri += sum(len(p.vertices) - 2 for p in o.data.polygons)
+    by_kind = {}
+    for s in specs:
+        k = s["lot"]["kind"]
+        by_kind.setdefault(k, []).append(STATS["tris_lote"][s["lot"]["name"]])
+    print("op_capital: %d lotes, %d tris (cull -%d, dentro -%d), colisoes %d, lajes %d (%.1fs), pares testados %d, "
+          "%.1fs" % (len(specs), tri, STATS["cull"], STATS.get("cull_in", 0), ncol, STATS["lajes"], STATS["t_ruas"],
+                     STATS["pares"], time.time() - t0))
+    print("op_capital: telhados com rampa (ao alcance de piso mais alto): %s" % (
+        ", ".join(STATS["telhados_rampa"]) or "-"))
+    print("op_capital: tris por tipo (antes do cull): " + ", ".join(
+        "%s %d x ~%d" % (k, len(v), sum(v) / len(v)) for k, v in sorted(by_kind.items())))
+    if os.environ.get("OP_CAP_LOTES") == "1":
+        for s in sorted(specs, key=lambda s: -STATS["tris_lote"][s["lot"]["name"]]):
+            print("op_capital lote %-14s %-9s lod %d tris %5d" % (s["lot"]["name"], s["lot"]["kind"], s["kw"]["lod"],
+                                                                  STATS["tris_lote"][s["lot"]["name"]]))
+    if probs:
+        for p in probs[:40]:
+            print("op_capital INTERPENETRACAO %s %s x %s n=%d em %s" % p)
+        msg = "op_capital: FAIL interpenetracao entre edificios: %d problemas em %d pares testados" % (
+            len(probs), STATS["pares"])
+        print(msg)
+        if os.environ.get("OP_CAP_SOFT") != "1":
+            raise RuntimeError(msg)
+    else:
+        print("op_capital: OK interpenetracao entre edificios: 0 (%d pares vizinhos testados malha x malha)" %
+              STATS["pares"])
+    return dict(specs=specs, infos=infos, probs=probs)

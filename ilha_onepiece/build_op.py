@@ -51,7 +51,9 @@ ZONE_MODULES_V2_0 = {
     "terrain": [],     # op_terrain V1: pele/borda reprovadas (U5/U8: 6.000+ studs2 sem colisao), NE antigo, canais na
                        #   cota velha -> V2-3 (bordas que fecham as frestas, socalcos NE, pinaculo sem pagode)
     "entry": [],       # op_entry V1: nobori da ponte e poste em T (U15/U16) -> V2-3
-    "capital": [],     # op_capital/op_m2_trecho V1: casas soltas (U1/U2/U11), le L.BUILDINGS/STREETS da V1 -> V2-3 (kit V2)
+    "capital": ["op_capital"],  # V2-3 capital inteira no kit V2 (101 lotes/12 quadras, parede-meia: 0 interpenetracao
+                                #   no teste malha x malha do proprio modulo; ruas V2, NE, 4 interiores) - gate visual
+                                #   verde; o trecho M2 (op_m2_trecho.build) foi absorvido
     "plaza": [],       # op_m2_praca/op_plaza V1: estandartes, borda do trecho M2 (frestas U5) -> V2-3 (faixa do eixo)
     "castle": ["op_castle"],  # V2-2 castelo de Wano no kit V2 (5 andares/telhados em telha ondulada, chidori/karahafu,
                               #   salao com vida, muros/cerca/portoes com colisao) - gate visual verde junto com a arvore

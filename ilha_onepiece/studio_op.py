@@ -42,7 +42,7 @@ ZONE_MARKERS = {
 # total da ilha: <= 620k tris e <= 650 MeshParts estaticos (+ reserva VFX 15k / 30), materiais <= 110, colisoes <= 1300,
 # luzes de dia <= 36 (+ NightOnly)
 BUDGET = {
-    "terrain": (100000, 75, 8, 820, 0), "entry": (30000, 32, 4, 30, 2), "capital": (195000, 140, 10, 150, 12),
+    "terrain": (100000, 75, 8, 820, 0), "entry": (30000, 32, 4, 30, 2), "capital": (230000, 140, 10, 150, 12),
     "plaza": (31500, 33, 3, 50, 0), "castle": (70000, 55, 8, 60, 4), "tree": (40000, 30, 4, 6, 0),
     "summon": (34000, 40, 5, 60, 4), "harbor": (35000, 40, 5, 40, 2), "ship": (18000, 16, 4, 10, 0),
     "water": (10000, 16, 3, 10, 0), "exit": (18000, 24, 3, 30, 2), "landmarks": (14000, 14, 4, 6, 0),

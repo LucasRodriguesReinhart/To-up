@@ -21,6 +21,8 @@
 #        estandartes (OP_PropBanner), mureta (OP_PlzMureta). Piso/escadas/guardas continuam do op_col (congelado).
 # CAMERAS: CAM_OP_M2_* (altura do jogador e closes do trecho; criadas no build, fora do export).
 # REGISTRO: build_op.ZONE_MODULES["capital"] = ["op_m2_trecho"], ["plaza"] = ["op_m2_praca"] (acrescimo pontual).
+# V2-3 (agente da capital): build() APOSENTADO - o trecho M2 foi absorvido pela quadra AvO do op_capital V2 (kit2);
+#        build_praca() continua aqui para o op_m2_praca (zona plaza, agente da praca).
 import math, random
 import bpy
 import op_lib as DL
