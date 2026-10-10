@@ -34,3 +34,16 @@ Material de apoio nesta pasta:
 - **Causa da reprovação:** o resultado ainda lê como "procedural de blocos". As casas são caixas com telhado aplicado e as árvores são esferas facetadas. Os caminhos são retângulos de laje sobre grama, com quintais de terra recortados.
 - **Ref_03 (Flower Capital do anime):** uma avenida larga e reta leva ao castelo sobre o rochedo-árvore, com quarteirões densos de telhados escalonados coloridos (azul, verde-água, vermelho, roxo). Os telhados se sobrepõem em camadas e o céu é rosa-lilás com pétalas no ar.
 - **O que preservar:** os sistemas e contratos que funcionaram no Play — âncora, encaixe, praça de mineração, 70 minérios, Summon (núcleo AMS), portão OPM, scripts `OnePieceIsland`/`CeuWano`, 60 fps.
+
+## Rodada 2: resposta do usuário ao gate V2-1 (10/10)
+> modelos das arvores de decoraçao bem fracas faltam amor em sua composiçao precis amelhorar elas, as cas melhoraram, porem os modelos estao vindo dentro um do outro, as pontes e laternam mehloram, e o caminho esta bom, porem o predio principal seu conceito ainda esta pouco fraco, paredes lisas sem presença, suas montanhanhas trabem precisamde um acabamento melhor, a arvbore grande melhorou abstante porem suas folhas precisam melhorar e voce nao chegou a mexer no porto ainda
+
+| # | Item | Estado |
+|---|---|---|
+| G1 | Árvores de decoração fracas, sem cuidado na composição | refazer (cerejeira, pinheiro, larga, moita) |
+| G2 | Casas melhoraram, mas os modelos entram um dentro do outro | APROVADAS com correção de interpenetração |
+| G3 | Pontes e lanternas melhoraram; caminho está bom | APROVADO |
+| G4 | Castelo: conceito ainda fraco, paredes lisas sem presença | refazer as paredes e a presença do castelo |
+| G5 | Montanhas precisam de acabamento melhor | terreno V2-3 |
+| G6 | Árvore grande melhorou bastante, mas as folhas precisam melhorar | refazer as almofadas de folhagem |
+| G7 | "não chegou a mexer no porto" | o porto V2 existia, mas as imagens não tinham sido enviadas; agora foram |
