@@ -7,16 +7,14 @@
 #      pela distancia 'Dist' no cliente). As chaves sao as do emissor() das ilhas: tex, cor (cor_ini / cor_fim), rate,
 #      vida, vel, tam, fim, transp, luz, infl, spread, area ("lado,altura,frente" nos eixos do marcador), forma, Dist
 #      + acc_up (aceleracao vertical) e drift (deriva ao longo da frente do marcador = o VENTO).
-#      PETALAS (4 emissores GRANDES por zona, nenhum por arvore):
-#        FX_Petals_Tree      (op_core; aqui REPOSTO) caixa sob o LOBO OESTE da copa (o fim do arco, que enquadra o
-#                            castelo pela esquerda): cai sobre a subida CasteloA/B e o lado oeste do patio. Medida na
-#                            copa (faces Flower_OP do OP_Tree_Bloom), fora da torre (x <= beiral oeste).
-#        FX_Petals_TreeRoots NOVO: caixa sob o LOBO LESTE (sobre as raizes/base da arvore no patio).
-#        FX_Petals_Plaza     NOVO: deriva sobre a metade NORTE da praca (vem do adro com o vento), 5..22 acima do piso.
-#        FX_Petals_Street    NOVO: rua de chegada + patio do torii (cerejeiras dos ombros e do recanto).
-#        tex 'petala': o TEX das ilhas nao tem petala -> cai em 'fumaca' (po rosa macio, aceitavel). Proposta para o
-#        M5 (1 linha de dado, nao sistema): TEX.petala = 'rbxassetid://120563379296122' (leaf_particle, ja usado pelo
-#        OreVFX do jogo) no Core.OnePieceIsland. Ver roblox/AreaAtmosphere_area5.md.
+#      PETALAS V2 (agente das ARVORES V2, 10/10: so esta parte do op_vfx foi mexida - petals(), PETAL, FLOOR, MAX_*):
+#        1 emissor por GRUPO de cerejeiras (op_veg.cherry_groups(): cerejeiras plantadas a <= 40 uma da outra), nunca
+#        por arvore: caixa = copas do grupo (do meio da copa ao topo), petala cai devagar e deriva com o vento ate o
+#        chao. Os MAX_PETAL_GROUPS grupos mais pesados (soma das copas) + FX_Petals_Plaza (deriva sobre a praca) =
+#        <= 14 emissores. O grupo mais perto do castelo grava o nome obrigatorio FX_Petals_Tree (QA/studio_op).
+#        A arvore monumental V2 e PINHEIRO (copas verdes em nuvem): nao solta petala (antes: 2 caixas sob a copa rosa).
+#        rate moderado (2,5 + 1,2 por arvore, teto 8), Dist 180.
+#        tex 'petala': reserva do Core.OnePieceIsland (ver roblox/AreaAtmosphere_area5.md).
 #      AGUA (posicao/props sao do op_water, medidos na pedra; aqui so ENTRAM as chaves do emissor, como no ds_vfx):
 #        FX_Fall_Castle_Lip/Step/Base + FX_Mist_CastleFall (cachoeira do castelo e bacia do adro),
 #        FX_Fall_E_Lip/Base (queda leste -> enseada), FX_Fall_W_Lip/Base (queda oeste -> mar). DIA: branco-azulado
@@ -49,41 +47,11 @@ PETAL = dict(tex="petala", cor="255,172,198", cor_fim="248,140,170", vel=1.0, ta
              luz=0.0, infl=1.0, spread="180,180", acc_up=-1.1, drift=0.5, rotv=60.0, forma="Box")
 PREVIEW_K = 1.6               # previa: petala 1,6x maior so para LER na folha de 960 (o marcador grava o tamanho real)
 BOX = {}
-FLOOR = {"FX_Petals_Tree": L.CL, "FX_Petals_TreeRoots": CC, "FX_Petals_Plaza": P, "FX_Petals_Street": T0}   # previa
+FLOOR = {"FX_Petals_Plaza": P}   # previa: chao de cada caixa de petalas (os grupos gravam o seu em petals())
 WATER = dict(cor="236,242,248", vida=2.6, vel=2.5, transp=0.6, infl=1.0, luz=0.05, tex="nevoa", forma="Box")
 
 
 # ------------------------------------------------------------------ medidas na geometria
-def canopy_lobes():
-    """faces Flower_OP do OP_Tree_*: lobo OESTE (x < beiral oeste da torre) e lobo LESTE (x > beiral leste). Volta
-    {"W": (x0, x1, y0, y1, z_baixo), "E": ...} com z_baixo = percentil 5 das faces de baixo do lobo"""
-    pts = []
-    for o in bpy.data.objects:
-        if o.type != "MESH" or not o.name.startswith("OP_Tree_"):
-            continue
-        me, mw = o.data, o.matrix_world
-        idx = {i for i, m in enumerate(me.materials) if m and m.name.startswith("Flower_OP")}
-        for p in me.polygons:
-            if p.material_index in idx:
-                pts.append(mw @ p.center)
-    if not pts:
-        print("AVISO op_vfx: copa sem faces Flower_OP (op_tree ausente?)")
-        return {}
-    eave = L.KEEP_TIERS[0][0] + 7.0           # meia largura da torre + beiral (a caixa nao entra na torre)
-    out = {}
-    for k, sel in (("W", lambda q: q.x < -eave), ("E", lambda q: q.x > eave)):
-        q = [p for p in pts if sel(p)]
-        if len(q) < 50:
-            continue
-        zs = sorted(p.z for p in q)
-        xs = sorted(p.x for p in q)
-        ys = sorted(p.y for p in q)
-        n = len(q)
-        out[k] = (xs[n // 20], xs[-n // 20 - 1], ys[n // 20], ys[-n // 20 - 1], zs[n // 20])
-        print("VFX medida copa lobo %s: x %.1f..%.1f y %.1f..%.1f, baixo da copa %.1f (%d faces)" % ((k,) + out[k] + (n,)))
-    return out
-
-
 def _ground_bvh():
     verts, polys = [], []
     for o in bpy.data.objects:
@@ -124,31 +92,39 @@ def _box_marker(name, x0, x1, y0, y1, z0, z1, rate, vida, dist, note):
     return o                                     #   no SetAttribute do montar e quebraria a montagem)
 
 
+MAX_PETAL_GROUPS = 13          # + FX_Petals_Plaza = 14 emissores de petalas no maximo
+PETAL_DIST = 180.0
+
+
 def petals():
+    """V2: 1 FX_Petals_* por GRUPO de cerejeiras (op_veg.cherry_groups) + a deriva da praca"""
     out = []
-    lobes = canopy_lobes()
-    if "W" in lobes:
-        x0, x1, y0, y1, zb = lobes["W"]
-        z1 = zb - 3.0
-        z0 = max(CC + 14.0, z1 - 62.0)
-        out.append(_box_marker("FX_Petals_Tree", x0, x1, y0, y1, z0, z1, 10.0, 11.0, 320.0,
-                               "REPOSTO pelo op_vfx (era 1 esfera no meio da copa a 284): caixa sob o lobo OESTE medido "
-                               "da copa, 3 abaixo das flores ate %.0f (patio + 14); cai sobre a subida do castelo e o "
-                               "lado oeste do patio; fora da torre" % z0))
-    if "E" in lobes:
-        x0, x1, y0, y1, zb = lobes["E"]
-        z1 = zb - 3.0
-        z0 = max(CC + 8.0, z1 - 50.0)
-        out.append(_box_marker("FX_Petals_TreeRoots", x0, x1, y0, y1, z0, z1, 8.0, 11.0, 260.0,
-                               "NOVO (op_vfx): caixa sob o lobo LESTE medido (sobre as raizes e a base da arvore)"))
+    try:
+        import op_veg
+        groups = list(op_veg.cherry_groups())[:MAX_PETAL_GROUPS]
+    except Exception as e:
+        print("AVISO op_vfx: sem grupos de cerejeiras (%s)" % e)
+        groups = []
+    kx, ky = L.KEEP_C
+    tree_g = min(groups, key=lambda g: math.hypot((g["box"][0] + g["box"][1]) / 2 - kx,
+                                                  (g["box"][2] + g["box"][3]) / 2 - ky)) if groups else None
+    for g in groups:
+        x0, x1, y0, y1, zf, zt = g["box"]
+        name = "FX_Petals_Tree" if g is tree_g else "FX_Petals_" + g["name"]
+        rate = min(8.0, 2.5 + 1.2 * g["n"])
+        h = zt - zf
+        o = _box_marker(name, x0 + 1.0, x1 - 1.0, y0 + 1.0, y1 - 1.0, zf + h * 0.45, zt - 0.5, rate, 9.0, PETAL_DIST,
+                        "V2 (agente das arvores): grupo de %d cerejeira(s) '%s' - caixa nas copas, petala cai e deriva "
+                        "com o vento ate o chao" % (g["n"], g["name"]))
+        FLOOR[name] = g["zmin"]
+        out.append(o)
     pz = [p[0] for p in L.PLAZA]
     py = [p[1] for p in L.PLAZA]
     out.append(_box_marker("FX_Petals_Plaza", min(pz) + 16.0, max(pz) - 16.0, 196.0, max(py) - 8.0, P + 5.0,
-                           P + 22.0, 16.0, 8.0, 260.0,
-                           "NOVO (op_vfx): deriva sobre a METADE NORTE da praca (5..22 acima do piso): as petalas vem "
-                           "do adro/arvore com o vento para a ponte; particula sem colisao, nao atrapalha a mineracao"))
-    out.append(_box_marker("FX_Petals_Street", -14.0, 14.0, 14.0, 112.0, T1 + 5.0, T1 + 20.0, 5.0, 8.0, 160.0,
-                           "NOVO (op_vfx): rua de chegada + patio do torii (cerejeiras dos ombros de rocha e do recanto)"))
+                           P + 22.0, 10.0, 8.0, PETAL_DIST,
+                           "deriva sobre a METADE NORTE da praca (5..22 acima do piso): as petalas das cerejeiras do "
+                           "adro/cantos com o vento para a ponte; particula sem colisao, nao atrapalha a mineracao"))
+    print("op_vfx petalas: %d emissores (%d grupos de cerejeiras + praca)" % (len(out), len(groups)))
     return [o.name for o in out]
 
 
@@ -416,6 +392,8 @@ if not any(getattr(f, "__name__", "") == "roblox_hide" for f in bpy.app.handlers
 def build():
     bpy.context.view_layer.update()
     BOX.clear()
+    for k in [k for k in FLOOR if k != "FX_Petals_Plaza"]:
+        del FLOOR[k]
     em = petals() + water()
     ok = movers()
     if os.environ.get("OP_VFX_PREVIEW", "1") != "0":

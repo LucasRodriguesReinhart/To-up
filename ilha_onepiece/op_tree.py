@@ -1,18 +1,23 @@
-# op_tree.py - ARVORE MONUMENTAL ARQUEADA (marco heroi da Ilha 5 ONE PIECE / WANO, M3; dono "tree", prefixo OP_Tree_)
-# PROMPT_USUARIO secao 9 + PLANO_OP secoes 0.6 e 9. Substitui tree_monument() do op_blockout.
-#   SILHUETA: tronco nasce de uma base com raizes no fundo-leste do patio do castelo (136,2), sobe a DIREITA da torre
-#     quase reto (leve inclinacao para fora), dobra num OMBRO mais fechado no alto da direita, passa por cima da torre
-#     num topo LONGO e baixo e desce a ESQUERDA com a ponta caida (nao e aro perfeito: curvatura assimetrica).
-#     M6b: arco mais BAIXO e mais LARGO (apice do tronco ~259, copa ~287, vao x -80..115): abraca o castelo (concept).
-#   ESPESSURA: progressiva, base monumental com alargamento e lobos que viram raizes (~1/3 da largura da torre no meio
-#     do tronco, como na ref_02), afinando ate a ponta; secao achatada (mais funda no plano do arco); caneluras largas
-#     com TORCAO DIRIGIDA (meia volta no comprimento todo) = fibra do tronco, nao torcao sem direcao.
-#   RAIZES: seguem o chao REAL (raio para baixo na geometria que ja existe: piso do patio, muro, rocha do fundo) -
-#     passam POR CIMA do muro e escorrem pela face da rocha (agarram a rocha do castelo); achatadas e meio enterradas.
-#   CASCA: Tier A (ate CC+26, onde a camera do jogador alcanca) com 36 lados, nervuras finas, nos; Tier B (resto) 18 lados.
-#   COPA: massas principais e secundarias feitas de 3 CONJUNTOS de flor reutilizaveis (almofada com lobos; topo claro,
-#     corpo rosa, baixo rosa fundo), SO por cima/fora do arco: o miolo do arco fica aberto (castelo e ceu aparecem).
+# op_tree.py - ARVORE MONUMENTAL ARQUEADA (marco heroi da Ilha 5 ONE PIECE / WANO; dono "tree", prefixo OP_Tree_)
+# V2 (feedback do usuario 10/10, item U4: "tubo marrom liso com nuvenzinhas rosas" REPROVADO). Refs: ref_02 (arvore do
+#   castelo do anime) e ref_03 (atmosfera de Wano). A arvore do anime e um PINHEIRO monumental: tronco grosso e
+#   retorcido, casca em fibras, galhos laterais que terminam em COPAS DE PINHEIRO EM NUVEM (almofadas achatadas em
+#   camadas, borda lobada, verde profundo com o topo claro). Nada de rosa no arco (o rosa e das cerejeiras da cidade).
+#   SILHUETA (mantida do M6b: contrato com o castelo): nasce no fundo-leste do patio (136,2), sobe a DIREITA da torre,
+#     ombro baixo e largo, topo longo por cima da torre e desce a ESQUERDA terminando num gancho.
+#   TRONCO V2: raios ~15% maiores (base 16, meio 12,6, apice 10); secao IRREGULAR com 3 cordoes largos + 8 SULCOS
+#     longitudinais fundos (ate 18% do raio) e NOS/burls. Os vertices do anel GIRAM com a fibra (TWIST voltas no
+#     comprimento): cordoes e sulcos viram ESPIRAIS continuas (tronco torcido de zimbro/bonsai), sem serrilhado.
+#     Fundo dos sulcos com material proprio escuro (Bark_OP_Groove): a fibra le sem textura, no sol e na sombra.
+#   GALHOS: 10 galhos grossos que NASCEM do tronco (dentro dele) e saem para fora/cima, cada um terminando num
+#     CONJUNTO DE ALMOFADAS (MASSES): almofada principal + almofada de cima + 1-2 laterais mais baixas, com raminhos.
+#   COPA: cloud_pad() = disco achatado com borda em lobos (vincos), fundo quase plano, topo em domo com calombos;
+#     material pela normal: topo Leaf_OP_Sun (claro), lado Leaf_OP, baixo Leaf_OP_Pine (profundo). Sombreado suave.
+#   RAIZES: seguem o chao REAL (raio para baixo): passam por cima do muro e escorrem pela rocha (intactas do M6b).
 #   COLISAO: so o tronco e as raizes dentro do patio (alcance do jogador). Copa e arco: sem colisao.
+# PRIMITIVAS COMPARTILHADAS com o op_veg (familias V2): cloud_pad (pinheiro/karikomi), puff (cacho de cerejeira e copa
+#   larga: casca unica com calombos = cachos e sub-cachos, vinco escuro entre eles), limb (galho/tronco suave),
+#   cull_inside (apaga as faces de um cacho escondidas dentro de outro: tris so onde se ve).
 # Contrato com o castelo (op_castle): tree_envelope() / TREE_KEEPOUT (abaixo) e castle_envelope() (lido do op_layout).
 import math, random
 import bmesh, bpy
@@ -23,26 +28,32 @@ from op_lib import MB, col_box
 import op_layout as L
 
 CC = L.CC
+TAU = math.tau
+ZZ = Vector((0.0, 0.0, 1.0))
 TIER_A_TOP = CC + 26.0          # casca detalhada so ate aqui (patio 136,2 + ~20 de alcance da camera do jogador)
+BARK, GROOVE = "Bark_OP", "Bark_OP_Groove"
+PAD_MATS = ("Leaf_OP_Sun", "Leaf_OP", "Leaf_OP_Pine")      # topo / lado / baixo das almofadas da arvore monumental
 
 # ------------------------------------------------------------------ CONTRATO / ENVOLTORIA (ler antes de mexer)
 BASE_C = (54.0, 449.0)          # eixo do tronco no chao do patio (canto fundo-leste, colado ao muro)
-# M6b (item 34, auditoria M6a): ARCO MAIS BAIXO E MAIS LARGO, como na concept (o arco ABRACA o castelo). Antes: apice do
-#   tronco 292,2 / copa 322,8 / vao x -66..104 (C alto e estreito, de lado lia poste em S). Agora: apice ~258, copa
-#   ~287, vao x ~-79..110 (+15%); base, raizes e lobos da base INTACTOS (os 3 primeiros pontos e BASE_C/ROOTS).
-#   O tronco sobe quase reto a direita da torre, abre para FORA da torre (ombro baixo e largo a direita), passa por cima
-#   da torre num topo longo e baixo e desce a esquerda com a ponta caida mais cedo. Raios ja FINAIS (sem escala depois).
-# tronco (x, y, z, raio)
-TRUNK = [(54.0, 449.0, CC - 5.0, 14.6), (55.0, 448.0, CC + 4.0, 13.8), (58.0, 447.0, CC + 16.0, 12.9),
-         (63.0, 445.0, CC + 30.0, 13.0), (71.0, 442.0, CC + 46.0, 12.4), (80.0, 439.0, CC + 62.0, 11.9),
-         (89.0, 435.0, CC + 78.0, 11.4), (96.0, 430.0, CC + 93.0, 10.9), (94.0, 424.0, CC + 104.0, 10.4),
-         (81.0, 418.0, CC + 110.5, 10.0), (58.0, 413.0, CC + 113.0, 9.6), (32.0, 410.0, CC + 113.5, 9.2),
-         (7.0, 409.0, CC + 112.0, 8.8), (-17.0, 409.0, CC + 108.0, 8.2), (-39.0, 410.0, CC + 101.0, 7.4),
-         (-57.0, 413.0, CC + 91.0, 6.6), (-69.0, 415.0, CC + 79.0, 5.6), (-75.0, 416.0, CC + 66.0, 4.6),
-         (-75.0, 417.0, CC + 55.0, 3.6), (-71.0, 416.0, CC + 47.0, 2.6), (-65.0, 414.0, CC + 42.0, 1.8)]
-FLAT = 0.84                     # secao: raio no plano do arco = r; de lado = r * FLAT
+# tronco (x, y, z, raio) - caminho do M6b (o castelo conta com ele); V2: raios FINAIS mais grossos (monumental)
+TRUNK = [(54.0, 449.0, CC - 5.0, 16.0), (55.0, 448.0, CC + 4.0, 15.4), (58.0, 447.0, CC + 16.0, 14.8),
+         (63.0, 445.0, CC + 30.0, 14.4), (71.0, 442.0, CC + 46.0, 14.0), (80.0, 439.0, CC + 62.0, 13.6),
+         (89.0, 435.0, CC + 78.0, 13.2), (96.0, 430.0, CC + 93.0, 12.8), (94.0, 424.0, CC + 104.0, 12.4),
+         (81.0, 418.0, CC + 110.5, 12.0), (58.0, 413.0, CC + 113.0, 11.6), (32.0, 410.0, CC + 113.5, 11.2),
+         (7.0, 409.0, CC + 112.0, 10.6), (-17.0, 409.0, CC + 108.0, 9.8), (-39.0, 410.0, CC + 101.0, 8.8),
+         (-57.0, 413.0, CC + 91.0, 7.8), (-69.0, 415.0, CC + 79.0, 6.6), (-75.0, 416.0, CC + 66.0, 5.4),
+         (-75.0, 417.0, CC + 55.0, 4.3), (-71.0, 416.0, CC + 47.0, 3.2), (-65.0, 414.0, CC + 42.0, 2.0)]
+FLAT = 0.88                     # secao: raio no plano do arco = r; de lado = r * FLAT
+NSIDE = 44                      # lados do tronco (cordoes e sulcos amarrados aos indices: giram com a fibra)
+TWIST = 1.15                    # voltas da fibra no comprimento todo (espiral visivel, nao parafuso)
+# sulcos: (indice do lado, profundidade relativa ao raio) - espacamento irregular (casca, nao engrenagem)
+FURROWS = [(0, 0.21), (6, 0.12), (11, 0.19), (17, 0.11), (22, 0.22), (28, 0.13), (33, 0.18), (39, 0.11)]
+GROOVE_T = 0.065                # fundo de sulco mais fundo que isso = Bark_OP_Groove (escuro)
+# nos / burls: (fracao do comprimento, fracao da volta, forca, comprimento)
+KNOTS = [(0.035, 0.12, 0.10, 4.5), (0.07, 0.58, 0.12, 5.0), (0.16, 0.86, 0.10, 7.0), (0.30, 0.30, 0.09, 8.0),
+         (0.47, 0.70, 0.08, 9.0), (0.63, 0.20, 0.08, 8.0), (0.78, 0.50, 0.07, 6.0)]
 # raizes-contraforte: (angulo no chao em graus, comprimento, raio na saida, achatamento, garfo, peso do lobo na base)
-#   direcoes LONGE da torre; as do patio sao rentes (pisaveis), as de fora agarram o muro e a rocha
 ROOTS = [(-10.0, 30.0, 6.4, 0.52, True, 1.0),     # leste: por cima do muro, escorre pela face da rocha (BackE 120)
          (34.0, 24.0, 6.0, 0.52, False, 1.0),     # nordeste: canto do muro -> rocha do fundo
          (64.0, 20.0, 5.6, 0.52, True, 0.9),      # norte-nordeste: canto do muro -> escorre na rocha do fundo-leste
@@ -50,27 +61,35 @@ ROOTS = [(-10.0, 30.0, 6.4, 0.52, True, 1.0),     # leste: por cima do muro, esc
          (172.0, 17.0, 6.0, 0.5, True, 0.9),      # oeste: patio, atras da torre (y > 446), rente no fim
          (250.0, 12.0, 5.6, 0.5, False, 0.8),     # sul-sudoeste: patio (curta; longe do canto da torre)
          (284.0, 20.0, 5.6, 0.52, False, 0.9)]    # sul: ao longo do muro leste, para o yagura
-# copa (M6b, item 35: era um "colar" de ~10 almofadas iguais ao longo do arco). Agora 2 MASSAS PRINCIPAIS (topo, sobre o
-#   meio do arco, e esquerda, onde o arco comeca a cair) + 6 SECUNDARIAS de tamanhos bem diferentes, com VAOS de ceu
-#   entre elas; cada massa e uma "nuvem-prato" (largura > altura, alongada ao longo do arco, satelites caindo nas
-#   pontas). Raios FINAIS. (centro, raio, achatamento, n_conjuntos, alongamento ao longo de x, papel)
-MASSES = [((12.0, 412.0, CC + 132.0), 25.0, 0.8, 6, 1.4, "principal: topo (sobre o meio do arco)"),
-          ((-52.0, 413.0, CC + 116.0), 25.0, 0.8, 5, 1.3, "principal: esquerda (emissor de petalas)"),
-          ((96.0, 427.0, CC + 114.0), 18.0, 0.78, 3, 1.25, "secundaria: ombro da direita"),
-          ((108.0, 437.0, CC + 84.0), 13.0, 0.8, 2, 1.2, "secundaria: galho da direita (baixo)"),
-          ((84.0, 460.0, CC + 64.0), 9.5, 0.8, 2, 1.1, "secundaria: atras, vista do patio"),
-          ((44.0, 436.0, CC + 124.0), 13.0, 0.76, 2, 1.3, "secundaria: topo atras (profundidade)"),
-          ((-20.0, 392.0, CC + 119.0), 11.0, 0.78, 2, 1.2, "secundaria: topo na frente"),
-          ((-70.0, 416.0, CC + 46.0), 11.0, 0.86, 2, 1.0, "secundaria: ponta caida (gancho)")]
-# galhos: (ponto aproximado de saida no tronco, pontos (x, y, z, r)) - curtos e grossos; terminam DENTRO de uma massa
-BRANCHES = [((89.0, 435.0, CC + 78.0), [(100.0, 437.0, CC + 81.0, 4.4), (107.0, 437.0, CC + 83.0, 2.6)]),
-            ((63.0, 445.0, CC + 36.0), [(76.0, 456.0, CC + 52.0, 3.4), (84.0, 460.0, CC + 62.0, 2.0)]),
-            ((95.0, 427.0, CC + 100.0), [(96.0, 427.0, CC + 109.0, 3.8), (93.0, 427.0, CC + 115.0, 2.2)]),
-            ((58.0, 413.0, CC + 113.0), [(52.0, 424.0, CC + 120.0, 3.6), (45.0, 434.0, CC + 124.0, 2.2)]),
-            ((22.0, 410.0, CC + 113.0), [(17.0, 411.0, CC + 121.0, 4.2), (12.0, 412.0, CC + 127.0, 2.8)]),
-            ((-6.0, 409.0, CC + 110.0), [(-12.0, 400.0, CC + 116.0, 3.0), (-19.0, 393.0, CC + 120.0, 1.8)]),
-            ((-36.0, 410.0, CC + 102.0), [(-43.0, 412.0, CC + 107.0, 3.6), (-50.0, 413.0, CC + 111.0, 2.2)]),
-            ((-24.0, 409.0, CC + 106.0), [(-30.0, 421.0, CC + 113.0, 3.0), (-38.0, 430.0, CC + 117.0, 1.8)])]
+# COPA V2 = CONJUNTOS DE ALMOFADAS DE PINHEIRO na ponta de cada galho (ref_02: coroa grande sobre o arco, galho longo
+#   para a esquerda, almofadas em alturas diferentes na direita, gancho com almofada pequena). Vaos de ceu entre eles.
+#   (centro da base da almofada principal, raio, H/R, almofadas no conjunto, alongamento, papel)
+MASSES = [((22.0, 412.0, CC + 129.0), 33.0, 0.46, 6, 1.4, "coroa: sobre o topo do arco"),
+          ((-34.0, 404.0, CC + 121.0), 19.0, 0.5, 3, 1.3, "topo esquerda"),
+          ((-106.0, 406.0, CC + 104.0), 20.0, 0.48, 4, 1.4, "galho longo da esquerda (ref_02)"),
+          ((-60.0, 409.0, CC + 47.0), 12.0, 0.5, 2, 1.2, "ponta do gancho"),
+          ((128.0, 428.0, CC + 106.0), 19.0, 0.48, 3, 1.35, "ombro direito"),
+          ((118.0, 446.0, CC + 77.0), 16.0, 0.5, 3, 1.25, "direita, meio"),
+          ((96.0, 465.0, CC + 48.0), 13.0, 0.5, 2, 1.2, "direita baixa, atras (vista do patio)"),
+          ((58.0, 447.0, CC + 125.0), 17.0, 0.5, 3, 1.3, "atras do topo (profundidade de lado)"),
+          ((-2.0, 385.0, CC + 123.0), 14.0, 0.5, 2, 1.25, "frente do topo"),
+          ((-94.0, 431.0, CC + 79.0), 13.0, 0.5, 2, 1.2, "esquerda baixa, atras")]
+# galhos: (ponto de saida no tronco, pontos (x, y, z, r)) - grossos; o ultimo fica DENTRO da almofada principal
+BRANCHES = [((32.0, 410.0, CC + 113.5), [(28.0, 411.0, CC + 120.0, 5.6), (24.0, 412.0, CC + 127.0, 2.8)]),
+            ((-17.0, 409.0, CC + 108.0), [(-24.0, 406.0, CC + 114.0, 3.8), (-29.0, 404.0, CC + 119.0, 2.4)]),
+            ((-52.0, 412.0, CC + 94.0), [(-70.0, 409.0, CC + 97.0, 5.6), (-88.0, 407.0, CC + 100.5, 4.0),
+                                         (-104.0, 406.0, CC + 104.0, 2.4)]),
+            ((-69.0, 415.0, CC + 47.0), [(-65.0, 412.0, CC + 45.5, 1.8), (-62.0, 410.0, CC + 46.0, 1.3)]),
+            ((95.0, 428.0, CC + 98.0), [(108.0, 428.0, CC + 101.0, 5.6), (118.0, 428.0, CC + 104.0, 3.8),
+                                        (127.0, 428.0, CC + 106.0, 2.2)]),
+            ((86.0, 436.0, CC + 72.0), [(100.0, 441.0, CC + 74.0, 4.8), (110.0, 444.0, CC + 76.0, 2.6),
+                                        (116.0, 446.0, CC + 76.5, 1.6)]),
+            ((66.0, 444.0, CC + 36.0), [(78.0, 454.0, CC + 41.0, 3.4), (88.0, 461.0, CC + 46.0, 2.4),
+                                        (94.0, 464.0, CC + 47.5, 1.5)]),
+            ((60.0, 413.0, CC + 113.0), [(59.0, 426.0, CC + 117.0, 3.6), (58.0, 438.0, CC + 122.0, 2.4),
+                                         (58.0, 445.0, CC + 124.0, 1.5)]),
+            ((4.0, 409.0, CC + 112.0), [(2.0, 398.0, CC + 117.0, 3.4), (-1.0, 389.0, CC + 122.0, 2.2)]),
+            ((-69.0, 415.0, CC + 79.0), [(-80.0, 423.0, CC + 79.5, 3.2), (-91.0, 430.0, CC + 79.0, 2.0)])]
 # o castelo NAO pode entrar aqui (poligono no nivel do patio, z de CC a CC+30): o muro do fundo-leste deve TERMINAR
 # encostado na base/raizes (as raizes passam por cima do muro do blockout ate o op_castle refazer o encontro)
 TREE_KEEPOUT = [(30.0, 452.0), (34.0, 436.0), (48.0, 426.0), (58.0, 410.0), (78.0, 410.0), (84.0, 432.0),
@@ -96,23 +115,20 @@ def castle_envelope():
     return out
 
 
-# (M6b: as escalas da volta 6 - copa +12%, meio do tronco +8% - ja estao embutidas nos raios FINAIS acima)
-
-
 def tree_envelope():
     """o que o castelo (e qualquer outro dono) deve deixar livre: capsulas do tronco/galhos, elipsoides da copa e o
     poligono da base. {"capsules": [((x,y,z), (x,y,z), r)], "blobs": [((x,y,z), (rx, ry, rz))], "keepout": [...],
     "keepout_z": (z0, z1)}"""
     caps = []
     for a, b in zip(TRUNK, TRUNK[1:]):
-        caps.append((a[:3], b[:3], max(a[3], b[3]) * 1.15))
+        caps.append((a[:3], b[:3], max(a[3], b[3]) * 1.22))       # V2: sulcos/cordoes/nos ate +22% do raio
     for att, pts in BRANCHES:
         c = trunk_nearest(att)
         prev = (c[0].x, c[0].y, c[0].z, c[1])
         for p in pts:
             caps.append((prev[:3], p[:3], max(prev[3] * 0.55, p[3])))
             prev = p
-    blobs = [(c, (r * 1.25 * ax, r * 1.15, r * f * 1.3)) for c, r, f, n, ax, _ in MASSES]
+    blobs = [((c[0], c[1], c[2] + r * f * 0.35), (r * 1.25 * ax, r * 1.15, r * f * 1.3)) for c, r, f, n, ax, _ in MASSES]
     return {"capsules": caps, "blobs": blobs, "keepout": list(TREE_KEEPOUT), "keepout_z": (CC - 20.0, CC + 30.0)}
 
 
@@ -199,12 +215,16 @@ def post_faces(mb, faces, m, smooth=True, uv=True):
     return faces
 
 
-def skin(mb, rings, m, cap0=True, cap1=True, smooth=True, mat_of=None, s_of=None):
-    """aneis (listas de Vector com o mesmo n) -> tubo fechado; mat_of(face, i_anel) escolhe material por face.
-    UV CILINDRICA: u = comprimento de arco (s_of[i] ou acumulado; o veio da madeira segue u), v = volta x circunf.
-    -> o veio da textura (Wood no Roblox) corre ao longo do tronco/raiz, sem costura entre Tier A e B"""
+def skin(mb, rings, m, cap0=True, cap1=True, smooth=True, mat_of=None, s_of=None, vval=None):
+    """aneis (listas de Vector com o mesmo n) -> tubo fechado; mat_of(face, i_anel[, valores dos vertices]) escolhe o
+    material por face (vval = valor por vertice, paralelo a rings). UV CILINDRICA: u = comprimento de arco, v = volta"""
     bm = mb.bm
     vr = [[bm.verts.new(p) for p in ring] for ring in rings]
+    vmap = {}
+    if vval is not None:
+        for ring, vals in zip(vr, vval):
+            for v, x in zip(ring, vals):
+                vmap[v] = x
     faces = []
     n = len(rings[0])
     for i, (r0, r1) in enumerate(zip(vr, vr[1:])):
@@ -241,13 +261,14 @@ def skin(mb, rings, m, cap0=True, cap1=True, smooth=True, mat_of=None, s_of=None
     tk = fm_lib.tex_key(m)
     inv = 1.0 / fm_lib.tex_tile(tk) if tk else 1.0 / 8.0
     uvl = mb.uvl
+    idx = [{v: k for k, v in enumerate(ring)} for ring in vr]
     for f, i in faces:
         cc = (circ[i] + circ[min(i + 1, len(circ) - 1)]) / 2.0
         ks = []
         for lp in f.loops:
             v = lp.vert
-            j = i if v in vr[i] else i + 1
-            ks.append((lp, j, vr[j].index(v)))
+            j = i if v in idx[i] else i + 1
+            ks.append((lp, j, idx[j][v]))
         wrap = max(k for _, _, k in ks) == n - 1 and min(k for _, _, k in ks) == 0
         for lp, j, k in ks:
             if wrap and k == 0:
@@ -259,7 +280,8 @@ def skin(mb, rings, m, cap0=True, cap1=True, smooth=True, mat_of=None, s_of=None
     else:
         groups = {}
         for f, i in faces:
-            groups.setdefault(mat_of(f, i), []).append(f)
+            mm = mat_of(f, i, [vmap.get(v, 0.0) for v in f.verts]) if vval is not None else mat_of(f, i)
+            groups.setdefault(mm, []).append(f)
         for mm, fs in groups.items():
             post_faces(mb, fs, mm, smooth, uv=False)
         post_faces(mb, caps, m, smooth)
@@ -303,6 +325,253 @@ def _hash01(*k):
     return h / 4294967296.0
 
 
+def _orient_out(fs, c):
+    cv = Vector(c)
+    for f in fs:
+        f.normal_update()
+        if f.normal.dot(f.calc_center_median() - cv) < 0:      # normal para FORA (o material sai da normal)
+            f.normal_flip()
+
+
+# ================================================================== PRIMITIVAS DE FOLHAGEM V2 (tambem do op_veg)
+def limb(mb, pts, radii, m=BARK, n=8, sub=3, caps=True, flat=1.0):
+    """galho/tronco SUAVE: catmull pelos pontos, anel com referencial transportado (sem torcer), sombreado suave"""
+    chain = [tuple(p)[:3] + (r,) for p, r in zip(pts, radii)]
+    cv = Curve(chain, sub)
+    rings = []
+    side = None
+    P = cv.P
+    for i, (p, r) in enumerate(zip(P, cv.R)):
+        tg = (P[min(i + 1, len(P) - 1)] - P[max(i - 1, 0)])
+        if tg.length < 1e-6:
+            tg = ZZ.copy()
+        tg.normalize()
+        if side is None:
+            side = tg.cross(ZZ)
+            if side.length < 0.2:
+                side = tg.cross(Vector((1.0, 0.0, 0.0)))
+        side = side - tg * side.dot(tg)
+        if side.length < 1e-6:
+            side = tg.orthogonal()
+        side.normalize()
+        up = tg.cross(side).normalized()
+        rings.append([p + (side * math.cos(TAU * k / n) + up * math.sin(TAU * k / n) * flat) * max(r, 0.05)
+                      for k in range(n)])
+    skin(mb, rings, m, cap0=caps, cap1=caps)
+
+
+PAD_HI = ((0.0, -0.20), (0.5, -0.18), (0.82, -0.10), (1.0, 0.10), (0.94, 0.40), (0.76, 0.68), (0.46, 0.88), (0.0, 1.0))
+PAD_MID = ((0.0, -0.18), (0.66, -0.14), (1.0, 0.10), (0.9, 0.45), (0.62, 0.78), (0.0, 1.0))
+PAD_LO = ((0.0, -0.16), (0.72, -0.12), (1.0, 0.12), (0.72, 0.66), (0.0, 1.0))
+
+
+def cloud_pad(mb, c, R, H, rot=0.0, ax=1.0, lobes=9, seed=0, nt=36, prof=PAD_HI, mats=PAD_MATS, depth=0.16,
+              lumps=3, ntop=0.42, nbot=-0.3, ry=None):
+    """ALMOFADA DE PINHEIRO EM NUVEM: disco achatado (c = centro da base), borda em LOBOS com vinco entre eles, fundo
+    quase plano, topo em domo com calombos. mats = (topo, lado, baixo) pela normal. Tris = 2*nt*(aneis-1) + 2*nt"""
+    rng = random.Random(seed)
+    ph, ph2 = rng.uniform(0, TAU), rng.uniform(0, TAU)
+    cr, sr = math.cos(rot), math.sin(rot)
+    ry = R if ry is None else ry
+    lump = [(rng.uniform(-0.45, 0.45) * R * ax, rng.uniform(-0.4, 0.4) * ry, rng.uniform(0.12, 0.26) * H,
+             rng.uniform(0.28, 0.42) * R) for _ in range(lumps)]
+    c = Vector(c)
+    bm = mb.bm
+
+    def W(x, y, z):
+        return bm.verts.new((c.x + x * cr - y * sr, c.y + x * sr + y * cr, c.z + z))
+
+    def lz(x, y, zf):
+        if zf <= 0.3:
+            return 0.0
+        return zf * sum(a * math.exp(-((x - lx) ** 2 + (y - ly) ** 2) / (w * w)) for lx, ly, a, w in lump)
+    poles, rings = [], []
+    for t, zf in prof:
+        if t <= 0.0:
+            poles.append(W(0.0, 0.0, zf * H + lz(0.0, 0.0, zf)))
+            continue
+        ring = []
+        for j in range(nt):
+            th = TAU * j / nt
+            sc = abs(math.cos(lobes * th / 2 + ph)) ** 0.5
+            rho = (1.0 - depth + depth * sc) * (1.0 + 0.07 * math.sin(2 * th + ph2))
+            x, y = math.cos(th) * R * ax * t * rho, math.sin(th) * ry * t * rho
+            z = zf * H + lz(x, y, zf) + (0.10 * H * sc * t if zf > 0.2 else 0.0)
+            ring.append(W(x, y, z))
+        rings.append(ring)
+    fs = []
+    bot, top = poles[0], poles[-1]
+    for j in range(nt):
+        j2 = (j + 1) % nt
+        fs.append(bm.faces.new((rings[0][j2], rings[0][j], bot)))
+        fs.append(bm.faces.new((rings[-1][j], rings[-1][j2], top)))
+    for r0, r1 in zip(rings, rings[1:]):
+        for j in range(nt):
+            j2 = (j + 1) % nt
+            fs.append(bm.faces.new((r0[j], r0[j2], r1[j2], r1[j])))
+    _orient_out(fs, c + ZZ * H * 0.35)
+    g = {}
+    for f in fs:
+        nz = f.normal.z
+        m = mats[0] if nz > ntop else (mats[2] if nz < nbot else mats[1])
+        g.setdefault(m, []).append(f)
+    for m, ff in g.items():
+        post_faces(mb, ff, m, smooth=True)
+    return fs
+
+
+class PuffRec:
+    __slots__ = ("c", "rx", "ry", "rz", "bumps", "amp", "fb", "faces")
+
+
+def _puff_r(d, bumps, amp, fb):
+    m = 0.0
+    for b, cw in bumps:
+        f = (d.dot(b) - cw) / (1.0 - cw)
+        if f > m:
+            m = f
+    r = 1.0 + amp * (m ** 0.6 if m > 0.0 else 0.0)
+    if d.z < 0.0:
+        r *= 1.0 - fb * (-d.z) ** 1.5
+    return r, m
+
+
+def puff(mb, c, rx, ry, rz, seed=0, nu=16, nv=8, nb=8, amp=0.30, wdeg=40.0, mats=None, fb=0.35, crease=0.14,
+         top_bias=0.0):
+    """CACHO: casca unica (esfera parametrica nu x nv) com nb CALOMBOS arredondados (sub-cachos) e VINCO entre eles
+    (o maximo dos calombos, nao a soma); fundo achatado. mats = (luz, corpo, fundo/vinco): topo de calombo claro,
+    vinco e baixo no tom fundo. Devolve PuffRec (para cull_inside). Tris = 2*nu*(nv-1)"""
+    rng = random.Random(seed)
+    k = 1.0 / (1.0 + amp * 0.55)
+    bumps = [(Vector((0.0, 0.0, 1.0)), math.cos(math.radians(wdeg * 1.1)))]
+    a0 = rng.uniform(0, TAU)
+    for i in range(nb):
+        z = rng.uniform(-0.3 + top_bias, 0.92)
+        a = a0 + i * 2.39996 + rng.uniform(-0.3, 0.3)
+        s = math.sqrt(max(0.0, 1.0 - z * z))
+        bumps.append((Vector((s * math.cos(a), s * math.sin(a), z)),
+                      math.cos(math.radians(wdeg * rng.uniform(0.8, 1.25)))))
+    c = Vector(c)
+    bm = mb.bm
+    rot0 = rng.uniform(0, TAU)
+    mval = {}
+
+    def V(d):
+        r, m = _puff_r(d, bumps, amp, fb)
+        v = bm.verts.new(c + Vector((d.x * rx, d.y * ry, d.z * rz)) * (r * k))
+        mval[v] = m
+        return v
+    top = V(Vector((0.0, 0.0, 1.0)))
+    bot = V(Vector((0.0, 0.0, -1.0)))
+    rows = []
+    for j in range(1, nv):
+        phi = math.pi * j / nv
+        s, z = math.sin(phi), math.cos(phi)
+        off = (j % 2) * math.pi / nu
+        rows.append([V(Vector((s * math.cos(rot0 + off + TAU * i / nu), s * math.sin(rot0 + off + TAU * i / nu), z)))
+                     for i in range(nu)])
+    fs = []
+    for i in range(nu):
+        i2 = (i + 1) % nu
+        fs.append(bm.faces.new((top, rows[0][i], rows[0][i2])))
+        fs.append(bm.faces.new((bot, rows[-1][i2], rows[-1][i])))
+    for r0, r1 in zip(rows, rows[1:]):
+        for i in range(nu):
+            i2 = (i + 1) % nu
+            fs.append(bm.faces.new((r0[i], r1[i], r1[i2])))
+            fs.append(bm.faces.new((r0[i], r1[i2], r0[i2])))
+    _orient_out(fs, c)
+    mats = mats or ("Flower_OP_Light", "Flower_OP_Blossom", "Flower_OP_Deep")
+    g = {}
+    for f in fs:
+        nz = f.normal.z
+        am = sum(mval[v] for v in f.verts) / len(f.verts)
+        if nz < -0.42 or (am < crease and nz < 0.8):
+            m = mats[2]
+        elif nz > 0.45 and am > 0.3:
+            m = mats[0]
+        else:
+            m = mats[1]
+        g.setdefault(m, []).append(f)
+    for m, ff in g.items():
+        post_faces(mb, ff, m, smooth=True)
+    rec = PuffRec()
+    rec.c, rec.rx, rec.ry, rec.rz, rec.bumps, rec.amp, rec.fb, rec.faces = c, rx * k, ry * k, rz * k, bumps, amp, fb, fs
+    return rec
+
+
+def _inside(rec, q, shrink=0.95):
+    d = q - rec.c
+    d = Vector((d.x / rec.rx, d.y / rec.ry, d.z / rec.rz))
+    ln = d.length
+    if ln < 1e-6:
+        return True
+    if ln > 1.0 + rec.amp + 0.05:
+        return False
+    r, _ = _puff_r(d / ln, rec.bumps, rec.amp, rec.fb)
+    return ln < r * shrink
+
+
+def cull_inside(mb, recs):
+    """apaga as faces de um cacho que ficam INTEIRAS dentro de outro cacho da mesma planta (nunca vistas)"""
+    dead = []
+    for i, rec in enumerate(recs):
+        others = [o for j, o in enumerate(recs) if j != i]
+        if not others:
+            continue
+        for f in rec.faces:
+            if f.is_valid and all(any(_inside(o, v.co) for o in others) for v in f.verts):
+                dead.append(f)
+    if dead:
+        vs = {v for f in dead for v in f.verts}
+        bmesh.ops.delete(mb.bm, geom=dead, context="FACES_ONLY")
+        loose = [v for v in vs if v.is_valid and not v.link_faces]
+        if loose:
+            bmesh.ops.delete(mb.bm, geom=loose, context="VERTS")
+    return len(dead)
+
+
+def blob_crown(mb, parts, seed, res, mats, core_res=(8, 4), core_k=0.8, blob_k=(0.42, 0.55)):
+    """COPA DE CACHOS (cerejeira / arvore verde): cada PARTE (centro, (rx, ry, rz), n_cachos) vira um NUCLEO suave
+    (core_k do tamanho, tom fundo: o miolo e a sombra de baixo) coberto por n CACHOS suaves (elipsoides lisas de
+    1 material cada) na metade de cima/fora: contorno em calombos de tamanhos variados, vinco natural entre eles.
+    TOM POR CACHO (nao por face: nada de remendo triangular) pela altura relativa na copa: alto = luz, meio = corpo,
+    baixo = fundo. mats = (luz, corpo, fundo). Faces escondidas entre cachos/nucleos sao cortadas (cull_inside)"""
+    rng = random.Random(seed)
+    zb = min(c[2] - r[2] for c, r, n in parts)
+    zt = max(c[2] + r[2] for c, r, n in parts)
+    hz = max(1e-3, zt - zb)
+    recs = []
+    for c, (rx, ry, rz), nb in parts:
+        if nb <= 0:                    # parte pequena = 1 cacho so, do tamanho da parte (tom pela altura)
+            zr = (c[2] - zb) / hz
+            m = mats[0] if zr > 0.66 else (mats[2] if zr < 0.3 else mats[1])
+            recs.append(puff(mb, c, rx, ry, rz, rng.randrange(1 << 30), res[0], res[1], nb=0, amp=0.0,
+                             mats=(m, m, m), fb=0.25))
+            continue
+        recs.append(puff(mb, c, rx * core_k, ry * core_k, rz * core_k, rng.randrange(1 << 30), core_res[0],
+                         core_res[1], nb=0, amp=0.0, mats=(mats[2], mats[2], mats[2]), fb=0.3))
+    for pi, (c, (rx, ry, rz), nb) in enumerate(parts):
+        c = Vector(c)
+        a0 = rng.uniform(0, TAU)
+        rm = (rx + ry + rz) / 3.0
+        for i in range(nb):
+            z = 0.92 - 1.15 * (i + 0.5) / nb + rng.uniform(-0.12, 0.12)
+            a = a0 + i * 2.39996 + rng.uniform(-0.35, 0.35)
+            sz = math.sqrt(max(0.0, 1.0 - z * z))
+            d = Vector((sz * math.cos(a), sz * math.sin(a), z))
+            q = c + Vector((d.x * rx, d.y * ry, d.z * rz)) * 0.68
+            if any(j != pi and _inside(recs[j], q, 0.85) for j in range(len(parts))):
+                continue
+            br = rm * rng.uniform(*blob_k)
+            zr = (q.z - zb) / hz + rng.uniform(-0.1, 0.1)
+            m = mats[0] if zr > 0.66 else (mats[2] if zr < 0.3 else mats[1])
+            recs.append(puff(mb, q, br, br * rng.uniform(0.9, 1.05), br * rng.uniform(0.8, 0.92),
+                             rng.randrange(1 << 30), res[0], res[1], nb=0, amp=0.0, mats=(m, m, m), fb=0.2))
+    cull_inside(mb, recs)
+    return recs
+
+
 # ------------------------------------------------------------------ chao real (raio para baixo)
 class Ground:
     def __init__(self, x0, y0, x1, y1):
@@ -335,26 +604,36 @@ class Ground:
 
 
 # ------------------------------------------------------------------ tronco
-def _trunk_rings(s0, s1, ds, n, fine):
+def _cdist(a, b, n):
+    d = abs(a - b) % n
+    return min(d, n - d)
+
+
+def _trunk_rings(s0, s1, ds, fine):
     c = trunk_curve()
+    n = NSIDE
     root_ang = [math.radians(a) for a, *_ in ROOTS]
     root_w = [lw for *_, lw in ROOTS]
-    knots = [(0.4, CC + 9.0, 1.0), (2.6, CC + 15.0, 0.8), (4.4, CC + 5.0, 0.7)]     # (angulo, z, forca) - nos
-    rings = []
-    svals = []
+    base_knots = [(0.4, CC + 9.0, 1.0), (2.6, CC + 15.0, 0.8), (4.4, CC + 5.0, 0.7)]     # (angulo, z, forca)
+    rings, vals, svals = [], [], []
     steps = max(2, int(math.ceil((s1 - s0) / ds)))
     for i in range(steps + 1):
         s = s0 + (s1 - s0) * i / steps
         svals.append(s)
         p, r, tg = c.at(s)
         nv, bv = frame_y(tg)
+        u = s / c.len
         h = max(0.0, p.z - CC)
         flare = 1.0 + 0.22 * math.exp(-h / 6.0)
+        flare *= 1.0 + 0.07 * noise.noise(Vector((s / 26.0, 3.3, 1.1)))       # inchacos ao longo do tronco
         lob_f = 0.40 * math.exp(-h / 7.0)
-        tw = math.pi * s / c.len                                          # meia volta no comprimento (fibra)
-        ring = []
+        tw = TAU * TWIST * u                                             # a FIBRA: o anel inteiro gira com ela
+        fade = 1.0 - 0.5 * u                                             # sulcos mais rasos para a ponta
+        fz = [dep * (0.75 + 0.4 * max(-0.55, min(0.55, noise.noise(Vector((u * 7.0, fi * 3.7, 0.5))))))
+              for fi, (kf, dep) in enumerate(FURROWS)]
+        ring, rv = [], []
         for k in range(n):
-            th = 2 * math.pi * k / n
+            th = TAU * k / n + tw
             d = nv * math.cos(th) + bv * math.sin(th) * FLAT
             wa = math.atan2(d.y, d.x)
             m = flare
@@ -362,32 +641,57 @@ def _trunk_rings(s0, s1, ds, n, fine):
                 cs = math.cos(wa - a)
                 if cs > 0:
                     m += lob_f * w * cs ** 10
-            m += 0.08 * math.sin(5 * th + tw * 2.0)                      # caneluras largas, torcao dirigida
+            m += 0.11 * (1.0 - 0.4 * u) * math.cos(3 * TAU * k / n + 0.7)           # 3 cordoes torcidos
+            g, core = 0.0, 0.0
+            for (kf, dep), dz in zip(FURROWS, fz):
+                dk = min(_cdist(k, kf, n), _cdist(k, kf + 1, n))           # sulco de FUNDO CHATO: 2 lados (kf, kf+1)
+                if dk == 0:
+                    g = max(g, dz)
+                    core = max(core, dz)
+                elif dk == 1:
+                    g = max(g, dz * 0.35)
+            m -= g * fade
+            m += 0.03 * fade * (1.0 if any(_cdist(k, kf, n) == 3 for kf, _ in FURROWS) else 0.0)  # crista entre sulcos
+            for ku, kk, ks, kl in KNOTS:
+                dk = _cdist(k, kk * n, n) / (n * 0.07)
+                dsn = (s - ku * c.len) / kl
+                if abs(dsn) < 3.0:
+                    m += ks * math.exp(-dk * dk - dsn * dsn)
             if fine:
-                fade = max(0.0, min(1.0, (TIER_A_TOP - 2.0 - p.z) / 6.0))
-                # casca em PLACAS: 9 sulcos em V estreitos e fundos (4 amostras por placa nos 36 lados: le sem
-                # textura, no sol e na sombra) que giram devagar com a fibra, + ondulacao fina
-                grv = 1.0 - abs(math.sin(4.5 * th + 0.05 * p.z + tw * 0.5))
-                m += fade * (-0.12 * grv ** 1.5 + 0.015 * math.sin(23 * th - 0.07 * p.z))
-                for ka, kz, kf in knots:
+                fa = max(0.0, min(1.0, (TIER_A_TOP - 2.0 - p.z) / 6.0))
+                m += fa * 0.014 * math.sin(29 * TAU * k / n - 0.07 * p.z)
+                # CASCA EM PLACAS (kuromatsu): cada faixa entre 2 sulcos e cortada por fendas horizontais a cada
+                # 4-6 aneis (deslocadas por faixa) -> placas que leem sem textura onde o jogador chega perto
+                if fa > 0.3:
+                    j = k // 3                                      # placa = 3 lados; fendas DESENCONTRADAS
+                    per = 4 + int(_hash01(j, 11) * 3)
+                    ph = i + int(_hash01(j, 12) * per)
+                    if ph % per in (0, 1) and _hash01(j, ph // per, 13) < 0.7:
+                        m -= 0.045 * fa
+                        core = max(core, GROOVE_T + 0.01)
+                for ka, kz, kf in base_knots:
                     da = math.atan2(math.sin(th - ka), math.cos(th - ka))
-                    m += fade * kf * 0.09 * math.exp(-(da / 0.32) ** 2 - ((p.z - kz) / 2.2) ** 2)
+                    m += fa * kf * 0.09 * math.exp(-(da / 0.32) ** 2 - ((p.z - kz) / 2.2) ** 2)
             ring.append(p + d * (r * m))
+            rv.append(core * fade)
         rings.append(ring)
-    return rings, svals
+        vals.append(rv)
+    return rings, vals, svals
+
+
+def _groove_mat(f, i, vals):
+    """so a face ENTRE os 2 lados do fundo do sulco (4 vertices no fundo) e escura: listra de 1 face, nitida"""
+    return GROOVE if len(vals) == 4 and min(vals) > GROOVE_T else BARK
 
 
 def trunk(mb_a, mb_b):
     c = trunk_curve()
-    # s em que o centro passa de TIER_A_TOP
     sA = 0.0
     while sA < c.len and c.at(sA)[0].z < TIER_A_TOP:
         sA += 0.25
-    ra, sa = _trunk_rings(0.0, sA, 1.1, 36, True)
-    # UMA malha so (sem emenda visivel): Tier A = aneis a cada 1,1 com nervuras finas e nos; Tier B = aneis a cada
-    # 3,2 e so as caneluras largas (o detalhe acaba onde a camera do jogador deixa de alcancar)
-    rb, sb = _trunk_rings(sA, c.len, 3.2, 36, False)
-    skin(mb_a, ra + rb[1:], "Bark_OP", cap0=True, cap1=True, s_of=sa + sb[1:])
+    ra, va, sa = _trunk_rings(0.0, sA, 1.1, True)
+    rb, vb, sb = _trunk_rings(sA, c.len, 2.9, False)
+    skin(mb_a, ra + rb[1:], BARK, cap0=True, cap1=True, s_of=sa + sb[1:], mat_of=_groove_mat, vval=va + vb[1:])
     return sA
 
 
@@ -424,7 +728,7 @@ def _root_profile(ground, xy_r, flat, d_list=None, r_g=15.0, length=20.0, top0=C
 def roots(mb, ground, rng):
     bx, by = BASE_C
     col_segs = []
-    r_g = 18.0                                                           # raio do tronco no chao (com alargamento)
+    r_g = 19.0                                                           # raio do tronco no chao (com alargamento)
     for ri, (ang, length, r0, flat, fork, lw) in enumerate(ROOTS):
         a = math.radians(ang)
         dx, dy = math.cos(a), math.sin(a)
@@ -440,7 +744,6 @@ def roots(mb, ground, rng):
             rw = r0 * (1.0 - 0.95 * t ** 0.9) + 0.18          # ponta fina (nao toco cortado)
             pts.append((x, y, rw))
             ds.append(d)
-        # raiz NAO escala parede: corta onde o chao SOBE e fica alto (rocha do fundo; muro fino ela atravessa por cima)
         g0 = ground.z(bx, by)
         for i, (x, y, rw) in enumerate(pts):
             if i > 3 and i + 2 < len(pts) and ground.z(x, y) > g0 + 3.0 and ground.z(*pts[i + 2][:2]) > g0 + 3.0:
@@ -471,7 +774,8 @@ def roots(mb, ground, rng):
 
 
 def _root_skin(mb, cpts, rad, hh, n):
-    """secao eliptica: largura rad (lado horizontal), altura hh (contraforte alto perto do tronco, achatada longe)"""
+    """secao eliptica: largura rad (lado horizontal), altura hh (contraforte alto perto do tronco, achatada longe);
+    2 sulcos rasos no dorso (a fibra do tronco continua na raiz)"""
     rings = []
     prev = None
     for i, p in enumerate(cpts):
@@ -481,155 +785,78 @@ def _root_skin(mb, cpts, rad, hh, n):
         ring = []
         for k in range(n):
             th = 2 * math.pi * k / n
-            w = 1.0 + 0.06 * math.sin(3 * th + i * 0.4)
-            # lamina: o lado de cima afina (secao em gota) quando a raiz e contraforte
+            w = 1.0 + 0.06 * math.sin(3 * th + i * 0.4) - 0.08 * max(0.0, math.cos(4 * th - 0.4)) ** 6
             sq = 1.0 - 0.35 * max(0.0, math.sin(th)) * min(1.0, hh[i] / max(rad[i], 0.1) - 0.6)
             ring.append(p + side * (math.cos(th) * rad[i] * w * max(0.45, sq)) + up * (math.sin(th) * hh[i] * w))
         rings.append(ring)
-    skin(mb, rings, "Bark_OP", cap0=True, cap1=True)
+    skin(mb, rings, BARK, cap0=True, cap1=True)
 
 
-# ------------------------------------------------------------------ galhos
+# ------------------------------------------------------------------ galhos + almofadas
 def branches(mb):
+    """galhos GROSSOS que nascem DENTRO do tronco, com leve sulco escuro no dorso; devolve as pontas"""
     out = []
     for bi, (att, pts) in enumerate(BRANCHES):
         p, r, tg = trunk_nearest(att)
-        chain = [(p.x, p.y, p.z, r * 0.52)] + list(pts)
-        d = Curve(chain, 8)
-        n = 10
-        rings = []
-        steps = max(3, int(d.len / 2.2))
-        for i in range(steps + 1):
-            q, rr, t2 = d.at(d.len * i / steps)
-            nv, bv = frame_y(t2)
-            rings.append([q + (nv * math.cos(2 * math.pi * k / n) + bv * math.sin(2 * math.pi * k / n) * 0.9) * rr
-                          for k in range(n)])
-        skin(mb, rings, "Bark_OP", cap0=True, cap1=True)
+        r0 = min(r * 0.5, pts[0][3] * 1.3)
+        chain = [(p.x, p.y, p.z, r0)] + list(pts)
+        limb(mb, [q[:3] for q in chain], [q[3] for q in chain], BARK, n=12, sub=5)
         out.append(Vector(pts[-1][:3]))
     return out
 
 
-# ------------------------------------------------------------------ copa (conjuntos reutilizaveis)
-def _blob_template(seed):
-    """CONJUNTO de flor: almofada (topo redondo, baixo achatado) + 5 lobos na borda/topo. Retorna lista de partes
-    [(centro, raio, achat_topo, achat_baixo)] em unidades do raio 1."""
-    rng = random.Random(seed)
-    parts = [((0.0, 0.0, 0.0), 1.0, 0.78, 0.46)]
-    a0 = rng.uniform(0, 6.28)
-    for k in range(5):
-        a = a0 + 2 * math.pi * k / 5 + rng.uniform(-0.35, 0.35)
-        d = rng.uniform(0.62, 0.84) if k < 4 else rng.uniform(0.15, 0.35)
-        z = rng.uniform(0.05, 0.32) if k < 4 else rng.uniform(0.42, 0.58)
-        parts.append(((math.cos(a) * d, math.sin(a) * d, z), rng.uniform(0.42, 0.56), 0.82, 0.5))
-    return parts
+def _cluster_rot(ci):
+    c = Vector(MASSES[ci][0])
+    best = min(BRANCHES, key=lambda b: (Vector(b[1][-1][:3]) - c).length)
+    a = Vector(best[0])
+    d = Vector((c.x - a.x, c.y - a.y, 0.0))
+    return math.atan2(d.y, d.x) if d.length > 3.0 else 0.0
 
 
-TEMPLATES = [_blob_template(s) for s in (11, 23, 37)]
-
-
-def _ellipsoid(mb, c, rx, ry, rz_top, rz_bot, nu, nv, rot):
-    bm = mb.bm
-    cz, sz = math.cos(rot), math.sin(rot)
-    top = bm.verts.new((c[0], c[1], c[2] + rz_top))
-    bot = bm.verts.new((c[0], c[1], c[2] - rz_bot))
-    rows = []
-    for j in range(1, nv):
-        ph = math.pi * j / nv
-        z = math.cos(ph)
-        s = math.sin(ph)
-        row = []
-        for i in range(nu):
-            a = 2 * math.pi * i / nu
-            x, y = math.cos(a) * s * rx, math.sin(a) * s * ry
-            row.append(bm.verts.new((c[0] + x * cz - y * sz, c[1] + x * sz + y * cz,
-                                     c[2] + z * (rz_top if z > 0 else rz_bot))))
-        rows.append(row)
-    fs = []
-    for i in range(nu):
-        i2 = (i + 1) % nu
-        fs.append(bm.faces.new((top, rows[0][i], rows[0][i2])))
-        fs.append(bm.faces.new((bot, rows[-1][i2], rows[-1][i])))
-    for r0, r1 in zip(rows, rows[1:]):
-        for i in range(nu):
-            i2 = (i + 1) % nu
-            fs.append(bm.faces.new((r0[i], r1[i], r1[i2], r0[i2])))
-    cv = Vector(c)
-    for f in fs:
-        f.normal_update()
-        if f.normal.dot(f.calc_center_median() - cv) < 0:      # normal para FORA (o material sai da normal)
-            f.normal_flip()
-    return fs
-
-
-def blossom_set(mb, c, r, flat, tmpl, rot):
-    """carimba um CONJUNTO (template) em c, raio r, achatamento flat; material por orientacao da face:
-    topo claro, corpo rosa, baixo rosa fundo (leitura de volume sem textura)"""
-    groups = {"Flower_OP_Light": [], "Flower_OP_Blossom": [], "Flower_OP_Deep": []}
-    cz, sz = math.cos(rot), math.sin(rot)
-    for (ox, oy, oz), pr, ft, fb in tmpl:
-        x, y = ox * r * cz - oy * r * sz, ox * r * sz + oy * r * cz
-        pc = (c[0] + x, c[1] + y, c[2] + oz * r * flat * 1.4)
-        rr = pr * r
-        big = pr > 0.9
-        fs = _ellipsoid(mb, pc, rr, rr * 0.94, rr * ft * flat * 1.25, rr * fb * flat * 1.25,
-                        16 if big else 9, 8 if big else 5, rot + ox)
-        for f in fs:
-            nz = f.normal.z
-            if nz < -0.3:
-                groups["Flower_OP_Deep"].append(f)
-            elif nz > 0.62:
-                groups["Flower_OP_Light"].append(f)
-            else:
-                groups["Flower_OP_Blossom"].append(f)
-    for m, fs in groups.items():
-        post_faces(mb, fs, m, smooth=True)
-
-
-def canopy(mb, rng):
-    """cada massa = conjunto central + satelites que se alternam para os 2 lados AO LONGO DE X (prato alongado 'ax'),
-    cada vez menores e mais baixos nas pontas (silhueta de nuvem-prato com a borda caindo, nao bola); entre as massas
-    ficam vaos de ceu (centros afastados mais que a soma dos alcances)"""
+def canopy(mb_pads, mb_twig, rng):
+    """cada MASSA = NUVEM DE ALMOFADAS: almofada principal + n satelites que se sobrepoem a ela (alternando os 2
+    lados ao longo do galho, um pouco abaixo/acima: contorno composto em lobos grandes e pequenos) + almofada de cima
+    recuada; raminhos curtos por baixo (a copa de baixo mostra a estrutura, como no anime)"""
     k = 0
-    for mi, (c, r, flat, nsets, ax, _) in enumerate(MASSES):
-        blossom_set(mb, c, r * 0.78, flat, TEMPLATES[k % 3], rng.uniform(0, 6.28))
-        k += 1
-        for j in range(1, nsets):
-            side = 1 if j % 2 else -1
-            rank = (j + 1) // 2
-            u = side * r * ax * (0.55 + 0.32 * (rank - 1)) * rng.uniform(0.9, 1.1)
-            v = r * rng.uniform(-0.55, 0.55)            # profundidade (de lado o arco nao le poste)
-            dz = -r * flat * (0.12 + 0.2 * (rank - 1)) + rng.uniform(-0.08, 0.1) * r * flat
-            sr = r * (0.62 - 0.1 * (rank - 1)) * rng.uniform(0.9, 1.05)
-            blossom_set(mb, (c[0] + u, c[1] + v, c[2] + dz), sr, flat, TEMPLATES[k % 3], rng.uniform(0, 6.28))
+    for ci, (c, R, flat, n, ax, note) in enumerate(MASSES):
+        c = Vector(c)
+        H = R * flat
+        rot = _cluster_rot(ci)
+        ex = Vector((math.cos(rot), math.sin(rot), 0.0))
+        ey = Vector((-ex.y, ex.x, 0.0))
+        big = R >= 15.0
+        pads = [(c, R, H, ax, 10 if big else 8, 40 if big else 32, PAD_HI)]
+        s0 = 1.0 if _hash01(ci, 5) > 0.5 else -1.0
+        for j in range(n):
+            side = s0 if j % 2 == 0 else -s0
+            rank = j // 2
+            a = side * (0.0 if rank == 0 else 0.0) + (0.0 if side > 0 else math.pi)
+            a += (_hash01(ci, j, 1) - 0.5) * 1.2 + (0.9 * rank * side)
+            d = Vector((math.cos(a), math.sin(a), 0.0))
+            off = ex * d.x * R * ax * (0.72 + 0.1 * rank) + ey * d.y * R * (0.75 + 0.1 * rank)
+            rr = R * (0.62 - 0.08 * rank) * (0.9 + 0.2 * _hash01(ci, j, 2))
+            dz = -H * (0.18 + 0.22 * rank) + H * 0.25 * (_hash01(ci, j, 3) - 0.5)
+            pads.append((c + off + ZZ * dz, rr, rr * flat * 1.05, 1.2, 8 if rr > 9 else 7, 30 if rr > 9 else 24,
+                         PAD_MID))
+        pads.append((c - ex * R * 0.2 * s0 + ey * R * 0.12 + ZZ * H * 0.62, R * 0.56, R * 0.56 * flat * 1.1, 1.2, 8,
+                     30 if big else 24, PAD_MID))
+        for j, (pc, pr, ph, pax, lob, nt, prof) in enumerate(pads):
+            cloud_pad(mb_pads, pc, pr, ph, rot + j * 0.9, pax, lob, seed=ci * 31 + j, nt=nt, prof=prof, depth=0.17,
+                      lumps=3 if pr > 9.0 else 2, ntop=0.22, nbot=-0.5)   # vista de baixo: borda clara, so o fundo escuro
             k += 1
+            if 0 < j < len(pads) - 1:
+                a = c + (pc - c) * 0.2 - ZZ * H * 0.1
+                b = pc + ZZ * ph * 0.05
+                mid = a.lerp(b, 0.5) - ZZ * 1.2
+                limb(mb_twig, [a, mid, b], [max(0.9, R * 0.07), max(0.7, R * 0.05), max(0.45, R * 0.035)], BARK,
+                     n=6, sub=2)
     return k
-
-
-def twigs(mb, ends, rng):
-    """raminhos do fim de cada galho ate a borda de baixo da massa (a copa de baixo mostra a estrutura)"""
-    for e in ends:
-        best = min(MASSES, key=lambda m: (Vector(m[0]) - e).length)
-        c, r, flat = Vector(best[0]), best[1], best[2]
-        for j in range(3):
-            a = rng.uniform(0, 6.28)
-            tgt = c + Vector((math.cos(a) * r * 0.62, math.sin(a) * r * 0.45, -r * flat * 0.25))
-            mid = e.lerp(tgt, 0.5) + Vector((0, 0, -1.2))
-            d = Curve([(e.x, e.y, e.z, 0.95), (mid.x, mid.y, mid.z, 0.65), (tgt.x, tgt.y, tgt.z, 0.35)], 4)
-            rings = []
-            steps = 4
-            for i in range(steps + 1):
-                q, rr, t2 = d.at(d.len * i / steps)
-                nv, bv = frame_y(t2)
-                rings.append([q + (nv * math.cos(2 * math.pi * k / 6) + bv * math.sin(2 * math.pi * k / 6)) * rr
-                              for k in range(6)])
-            skin(mb, rings, "Bark_OP", cap0=True, cap1=True)
 
 
 # ------------------------------------------------------------------ rocha da base
 def base_rocks(mb, ground, rng):
     """rocha do castelo onde a base pega: blocos facetados (pedra, nao inflavel) fora do muro, no degrau entre o
     patio (136,2) e a rocha do fundo (120 / 150), e 2 lajes baixas dentro do patio sob as raizes"""
-    bx, by = BASE_C
     spots = [(76.0, 438.0, 9.5, 1.2), (80.0, 456.0, 10.5, 1.3), (70.0, 472.0, 8.0, 1.0)]
     for i, (x, y, r, hz) in enumerate(spots):
         g = ground.z(x, y)
@@ -640,8 +867,8 @@ def base_rocks(mb, ground, rng):
                                                                    Vector((1.0, 0.82, hz * 0.62))))
         vs = res["verts"]
         for v in vs:
-            n = noise.noise_vector(v.co * 0.18 + Vector((i * 3.1, i * 1.7, 0.0)))
-            v.co += n * r * 0.16
+            nn = noise.noise_vector(v.co * 0.18 + Vector((i * 3.1, i * 1.7, 0.0)))
+            v.co += nn * r * 0.16
         fs = list({f for v in vs for f in v.link_faces})
         for f in fs:
             f.normal_update()
@@ -656,11 +883,9 @@ def _in_court(x, y):
 
 def collision(col_segs):
     bx, by = BASE_C
-    p, r, tg = trunk_point(0.0)
     for k, ang in enumerate((0.0, math.pi / 4)):
-        col_box("OP_TreeTrunk", (22.0, 22.0, 28.0), (bx, by, CC + 14.0), (0, 0, ang))
-    col_box("OP_TreeTrunk", (19.0, 19.0, 16.0), (bx + 3.0, by - 1.5, CC + 34.0), (0, 0, math.pi / 8))
-    # raizes dentro do patio: caixas rentes por trecho (so onde a raiz sobe > 0,9 do piso); fora do patio nada
+        col_box("OP_TreeTrunk", (23.0, 23.0, 28.0), (bx, by, CC + 14.0), (0, 0, ang))
+    col_box("OP_TreeTrunk", (20.0, 20.0, 16.0), (bx + 3.0, by - 1.5, CC + 34.0), (0, 0, math.pi / 8))
     n = 0
     run = []
 
@@ -740,9 +965,17 @@ def check_castle(verbose=True):
                     worst = (d, nm)
     for c, (rx, ry, rz) in tree_envelope()["blobs"]:
         for nm, (x0, y0, z0, x1, y1, z1) in env:
-            dz = (c[2] - rz) - z1
-            if dz < worst[0] and abs(c[0]) - rx < x1 and abs(c[1] - L.KEEP_C[1]) - ry < (y1 - y0) / 2:
-                worst = (dz, nm + " (copa)")
+            # elipsoide da copa x caixa: distancia da caixa ao centro, descontado o raio da elipsoide nessa direcao
+            dx = max(x0 - c[0], 0.0, c[0] - x1)
+            dy = max(y0 - c[1], 0.0, c[1] - y1)
+            dz = max(z0 - c[2], 0.0, c[2] - z1)
+            dd = math.sqrt(dx * dx + dy * dy + dz * dz)
+            if dd < 1e-6:
+                worst = min(worst, (-1.0, nm + " (copa)"))
+                continue
+            re = 1.0 / math.sqrt((dx / dd / rx) ** 2 + (dy / dd / ry) ** 2 + (dz / dd / rz) ** 2)
+            if dd - re < worst[0]:
+                worst = (dd - re, nm + " (copa)")
     ok = hard == 0 and worst[0] >= CLEAR_CASTLE
     if verbose:
         print(("OK   " if ok else "FAIL ") + "OP_TREE castelo: %d interseccoes fora da base %s | %d encontros base x muro "
@@ -770,21 +1003,21 @@ def stats(verbose=True):
 
 # ------------------------------------------------------------------ build
 def build():
+    global _TRUNK_C
+    _TRUNK_C = None
     noise.seed_set(5505)
     rng = random.Random(4105)
     ground = Ground(10.0, 405.0, 110.0, 500.0)
-    # Tier A: base (tronco ate CC+26, raizes, rocha) - perto do jogador
     mb_a = MB("OP_Tree_Trunk", "04_CASTLE", rng, detail="hero", floor=-999)
     mb_b = MB("OP_Tree_Branches", "04_CASTLE", rng, detail="far", floor=-999)
     trunk(mb_a, mb_b)
     segs = roots(mb_a, ground, rng)
     base_rocks(mb_a, ground, rng)
     mb_a.finish()
-    ends = branches(mb_b)
-    twigs(mb_b, ends, rng)
+    branches(mb_b)
+    mc = MB("OP_Tree_Pads", "04_CASTLE", rng, detail="far", floor=-999)
+    canopy(mc, mb_b, rng)
     mb_b.finish()
-    mc = MB("OP_Tree_Bloom", "04_CASTLE", rng, detail="far", floor=-999)
-    canopy(mc, rng)
     mc.finish()
     collision(segs)
     stats()

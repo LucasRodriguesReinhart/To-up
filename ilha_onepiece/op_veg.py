@@ -2,29 +2,33 @@
 # Substitui op_blockout.dressing (OP_Veg_Blockout). Prefixo OP_Veg_, colecao 10_VEGETATION, sem luz. Colisao SO nos
 # troncos que o jogador alcanca (COL_OP_VegTrunk_*: pe dentro de um piso andavel e a <= 40 de uma rota).
 #
-# LEITURA DAS REFS: a ref_01 e MUITO mais verde que a ilha do M4 - copas verdes densas nas bordas e falesias,
-# cerejeiras rosas pontuando ruas/praca/portoes, pinheiros nas pontas de rocha, moitas no pe dos muros e verde
-# escorrendo pelas falesias. Prompt 17: "flores rosas como ENQUADRAMENTO e hierarquia; a arvore monumental tem a maior
-# presenca; ruas e patios com respiro; nao esconder fachadas, pontes e entrada".
+# V2 (feedback do usuario 10/10, item U4: "arvores menores como esferas/poliedros facetados verdes; cerejeiras em
+#   blocos rosas" REPROVADO; pedido: atmosfera da ref_03 = cerejeiras rosas densas pela cidade + petalas no ar).
+#   Regras de posicionamento, setores, testes malha x malha e API (place_*, Placer, add_item, TRUNKS) MANTIDOS;
+#   trocadas as FAMILIAS (primitivas suaves do op_tree: puff/blob_crown, cloud_pad, limb) e a distribuicao (mais rosa).
 #
-# FAMILIAS (reutilizaveis; nada de espalhar ao acaso):
-#   - CEREJEIRA (sakura) XS/S/M/L: tronco ESCURO curvo (base alargada, S inclinado, forquilha baixa em 2-3 bracos que
-#     abrem), copa de CONJUNTOS DE FLOR = os 3 templates da arvore monumental (op_tree.TEMPLATES + op_tree._ellipsoid +
-#     op_tree.post_faces: almofada com lobos, material por orientacao da face) em LOD (BLOOM_LOD). Nenhuma petala
-#     modelada. 3 tons (Light/Blossom/Deep) nas 2 cerejeiras-heroi do grande torii; 2 tons (Light/Blossom) nas demais
-#     (1 material a menos por objeto = MeshParts).
-#   - PINHEIRO DE WANO (kuromatsu): tronco escuro em S que se debruca, galhos quase horizontais e NUVENS achatadas
-#     (verde-pinho embaixo; nas maiores, nuvem clara em cima) - a leitura do pinheiro do summon.
-#   - ARVORE VERDE LARGA: copa redonda em almofadas (a "brocolis" das bordas da concept) + satelite verde-pinho escuro.
-#   - MOITA: 2-3 almofadas baixas (pe de muro, borda, prateleira de falesia).
-#   - VERDE DE FALESIA: moita de beira (no labio, meio para fora + 1 almofada que desce colada na face), arvorezinha
-#     AGARRADA que se debruca para o vazio, tufo colado na face alta.
+# FAMILIAS V2 (reutilizaveis; nada de espalhar ao acaso):
+#   - CEREJEIRA (sakura) XS/S/M/L: tronco ESCURO em S com pe alargado, bracos que abrem; copa = blob_crown: nucleos
+#     (tom fundo = sombra de baixo) cobertos de CACHOS lisos de tamanhos variados, 1 tom por cacho pela altura (topo
+#     Flower_OP_Light, meio _Blossom, baixo _Deep) -> leitura fofa e densa sem remendo triangular; faces escondidas
+#     entre cachos cortadas. Light so nos setores da cidade/entrada/castelo (MeshParts). LOD 2/1/0 = cacho 12x6/9x5/7x4.
+#   - KUROMATSU: tronco escuro em S que se debruca, galhos quase horizontais e ALMOFADAS EM NUVEM (cloud_pad: disco
+#     de borda lobada, topo Leaf_OP, lado/baixo Leaf_OP_Pine) - a linguagem da arvore monumental em pequeno.
+#   - ARVORE VERDE LARGA: copa de cachos verdes (blob_crown verde: cachos Leaf_OP, nucleo/baixo verde-pinho).
+#   - MOITA PODADA (karikomi): 1-3 montes arredondados achatados embaixo (puff com calombos suaves).
+#   - VERDE DE FALESIA: as almofadas (cushion) agora sao cloud_pad suaves de borda lobada (nao poliedros).
+#   - Bambu: nao entrou (sem lugar na planta que pedisse; seria familia sem funcao).
+# PETALAS: cherry_groups() agrupa as cerejeiras plantadas (<= 40 entre si, grupo compacto) e o op_vfx grava 1
+#   FX_Petals_* por grupo (os 13 mais pesados + a deriva da praca = 14 emissores).
+# DISTRIBUICAO V2: quintais da cidade 85% cerejeira (M -> S -> XS, o maior que cabe), faixa da borda com 28%
+#   cerejeira; heroi/capital como antes. Orcamento 54k (lead: <= 55k) e 9 setores x materiais <= 50 MeshParts.
+#
 # INTENCAO (densidade DIRIGIDA, cresce para as BORDAS; ordem = prioridade de orcamento):
 #   1. HERO_CHERRIES (lista com nota): ombros do grande torii, cantos da praca POR FORA do piso, rochas dos 2 lados do
 #      castelo (moldura do rochedo vista da praca), promontorio da saida, frente leste/oeste, terraco alto, summon...
 #   2. op_capital.VEG_SPOTS (recantos, patamares das pontes do canal, mirantes): o maior tamanho que cabe (M -> S -> XS).
 #   3. HERO_PINES: pontas de rocha (narizes da entrada, contrafortes do castelo, rochas NE, fundo, esporao da espada).
-#   4. QUINTAIS (city_yards): copas pequenas entre os telhados, longe da borda (cerejeira S 45% / verde 55%); fora do
+#   4. QUINTAIS (city_yards): copas entre os telhados, longe da borda (V2: cerejeira 85% / verde 15%); fora do
 #      terraco do summon (jardim do op_summon).
 #   5. BOSQUE das rochas do fundo/NE/promontorio e jardins do terraco alto e de alem do canal (FOREST).
 #   6. FAIXA DA BORDA: 3 fileiras para dentro da crista, densidade por setor (ruido dirigido de baixa frequencia).
@@ -40,10 +44,10 @@
 #   sobre a MiningZone abaixo de piso + 12; e depois de GERADA a planta passa por um teste EXATO malha x malha contra
 #   todo o construido (casas, castelo, props...): se atravessa, e desfeita (o pe enraizado no chao horizontal vale).
 #   Espacamento entre copas por familia; NUDGE ate 7; senao a planta nao nasce (o log lista as que faltaram e por que).
-# ORCAMENTO (PLANO_OP secao 9, dono vegetation; teto do export 48,6k tris / 49 MeshParts): BUDGET_TRIS proprio.
+# ORCAMENTO (V2: teto do lead 55k tris / 50 MeshParts): BUDGET_TRIS proprio.
 #   9 objetos por SETOR; a peca (objeto, material) de um setor que passa de 158 studs fica abaixo de CAP tris (o export
 #   so fatia peca >= 1500 tris E > 160 studs), senao a planta vai para o setor vizinho com folga. 5-6 materiais por
-#   setor (Wood_OP_Dark, Leaf_OP, Leaf_OP_Pine, Flower_OP_Blossom/_Light; _Deep so na entrada).
+#   setor (Wood_OP_Dark, Leaf_OP, Leaf_OP_Pine, Flower_OP_Blossom/_Deep; _Light so em LIGHT_SECTORS).
 # ORDEM no build_op: props -> VEG -> vfx -> lights (a vegetacao enxerga os props e desvia deles). after_props() e o
 #   gancho que o op_lights chama: auditoria final tronco x props. TRUNKS (x, y, z, r_tronco, R_copa, familia) exposto.
 # Deterministico: hash com finalizador murmur (hh), rng por planta (rng_at), objetos da cena percorridos por nome.
@@ -54,7 +58,6 @@ from mathutils.bvhtree import BVHTree
 import op_lib as DL
 from op_lib import MB, col_box
 import op_layout as L
-import fm_portal_kit as PK
 import op_tree as TR
 
 C = "10_VEGETATION"
@@ -63,7 +66,7 @@ ZZ = Vector((0.0, 0.0, 1.0))
 TAU = math.tau
 T0, T1, P, CF, CC, W3Z = L.T0, L.T1, L.P, L.CF, L.CC, L.W3
 MINE_PAD = 10.0
-BUDGET_TRIS = 47600             # teto proprio (export: 48,6k)
+BUDGET_TRIS = 54000             # V2: teto do lead 55k (familias suaves custam mais por planta: menos plantas, melhores)
 TRUNKS = []                      # (x, y, z, r_tronco, R_copa, familia) - exposto
 STATS = {}
 
@@ -273,119 +276,91 @@ def blocks_view(views, spheres):
     return False
 
 
-# ================================================================== primitivas organicas
-def cushion(mb, c, rx, ry, h, m, rng, n=7, rot=0.0, jit=0.12, prof=((0.0, 0.7), (0.38, 1.0), (0.78, 0.64))):
-    """ALMOFADA de folhagem facetada: fundo quase plano, cintura larga a 1/3, ombro estreito, topo deslocado.
-    c = centro do FUNDO. Tris = 2n + 2n(len(prof)-1)"""
-    bm = mb.bm
-    rings = []
-    for k, (fz, fr) in enumerate(prof):
-        ring = []
-        for j in range(n):
-            a = rot + TAU * (j + rng.uniform(-0.2, 0.2)) / n
-            s = fr * rng.uniform(1.0 - jit, 1.0 + jit)
-            ring.append(bm.verts.new((c.x + math.cos(a) * rx * s, c.y + math.sin(a) * ry * s,
-                                      c.z + h * (fz + (rng.uniform(-0.06, 0.06) if k else rng.uniform(-0.03, 0.03))))))
-        rings.append(ring)
-    bot = bm.verts.new((c.x, c.y, c.z - h * 0.06))
-    top = bm.verts.new((c.x + rng.uniform(-0.16, 0.16) * rx, c.y + rng.uniform(-0.16, 0.16) * ry, c.z + h))
-    for j in range(n):
-        j2 = (j + 1) % n
-        bm.faces.new((rings[0][j2], rings[0][j], bot))
-        bm.faces.new((rings[-1][j], rings[-1][j2], top))
-    for r0, r1 in zip(rings, rings[1:]):
-        for j in range(n):
-            j2 = (j + 1) % n
-            bm.faces.new((r0[j], r0[j2], r1[j2], r1[j]))
-    mb._post([v for r in rings for v in r] + [bot, top], m, None, 0, 1)
+# ================================================================== primitivas organicas (V2: SUAVES, das do op_tree)
+def cushion(mb, c, rx, ry, h, m, rng, n=7, rot=0.0, jit=0.12, prof=None):
+    """V2: almofada SUAVE de borda lobada (op_tree.cloud_pad, perfil baixo), 1 material; c = centro do FUNDO.
+    (V1 era um poliedro facetado de n lados: reprovado como 'esferas facetadas'). Tris = 12 n"""
+    c = Vector(c)
+    TR.cloud_pad(mb, c + ZZ * h * 0.14, rx, h * 0.86, rot, 1.0, lobes=max(5, n - 1), seed=int(rng.random() * 1e6),
+                 nt=2 * n, prof=TR.PAD_LO, mats=(m, m, m), depth=0.14, lumps=1, ry=ry)
 
 
 def tube(mb, pts, radii, m=BARK, n=6, caps=True):
-    PK.taper_tube(mb, [Vector(p) for p in pts], radii, m, n=n, caps=caps)
+    """galho/tronco SUAVE (op_tree.limb, sem subdividir): sombreado continuo, sem faceta de prisma"""
+    TR.limb(mb, [Vector(p) for p in pts], radii, m, n=n, sub=1, caps=caps)
 
 
+# cerejeiras: 3 tons (Light no topo dos cachos, Blossom no corpo, Deep no vinco/baixo); o Light so nos setores da
+# cidade/entrada/castelo (1 material a menos por setor nos outros = MeshParts)
+LIGHT_SECTORS = ("Entrada", "Sudoeste", "Oeste", "Leste", "Castelo")
+GREEN = (LEAF, LEAF, PINE)                       # copa verde: cachos Leaf_OP, nucleo/baixo verde-pinho
+PINE_PAD = (LEAF, PINE, PINE)                    # almofada de kuromatsu: topo Leaf_OP, lado/baixo verde-pinho
+# resolucao de cada CACHO por LOD (nu, nv) e cachos por parte da copa (principal, anel) por tamanho
+PUFF_LOD = {2: (12, 6), 1: (9, 5), 0: (7, 4)}
+CHERRY_BLOBS = {"XS": (3, 1), "S": (4, 1), "M": (5, 2), "L": (6, 2)}
 
 
-# LOD do conjunto de flor: (lados/aneis do corpo, lados/aneis dos lobos, quantos lobos) - mesmos TEMPLATES do op_tree
-BLOOM_LOD = {2: ((10, 5), (6, 4), 5), 1: ((7, 4), (5, 3), 4), 0: ((7, 4), (5, 3), 3)}
+def _pink(mb):
+    nm = mb.name[len("OP_Veg_"):]
+    return ("Flower_OP_Light" if nm in LIGHT_SECTORS else "Flower_OP_Blossom", "Flower_OP_Blossom", "Flower_OP_Deep")
 
 
-def bloom(mb, c, r, flat, tmpl, rot, lod=1):
-    """CONJUNTO DE FLOR da arvore monumental (op_tree.TEMPLATES: almofada + 5 lobos; material por orientacao da face:
-    topo Flower_OP_Light, corpo _Blossom, baixo _Deep) em LOD - a mesma familia, so com menos lados"""
-    groups = {"Flower_OP_Light": [], "Flower_OP_Blossom": [], "Flower_OP_Deep": []}
-    cz, sz = math.cos(rot), math.sin(rot)
-    big_n, lobe_n, nlobes = BLOOM_LOD[lod]
-    for i, ((ox, oy, oz), pr, ft, fb) in enumerate(tmpl):
-        if i > nlobes:
-            break
-        x, y = ox * r * cz - oy * r * sz, ox * r * sz + oy * r * cz
-        pc = (c[0] + x, c[1] + y, c[2] + oz * r * flat * 1.4)
-        rr = pr * r
-        nu, nv = big_n if pr > 0.9 else lobe_n
-        fs = TR._ellipsoid(mb, pc, rr, rr * 0.94, rr * ft * flat * 1.25, rr * fb * flat * 1.25, nu, nv, rot + ox)
-        for f in fs:
-            nz = f.normal.z
-            if nz < -0.3:
-                groups["Flower_OP_Deep"].append(f)
-            elif nz > 0.62:
-                groups["Flower_OP_Light"].append(f)
-            else:
-                groups["Flower_OP_Blossom"].append(f)
-    if lod < 2:                     # 2 tons fora das cerejeiras-heroi (1 material a menos por objeto: MeshParts)
-        groups["Flower_OP_Blossom"] += groups.pop("Flower_OP_Deep")
-    for m, fs in groups.items():
-        TR.post_faces(mb, fs, m, smooth=True)
+def _seed(rng):
+    return int(rng.random() * 1e7)
 
 
-# ================================================================== FAMILIAS
+# ================================================================== FAMILIAS V2
 # cada familia: PLANO (esferas da copa para as regras, ANTES de gerar) + GERADOR
-CHERRY_SIZES = {"XS": (8.5, 4.8, 2, 0.45), "S": (11.0, 7.0, 2, 0.55), "M": (14.0, 9.5, 3, 0.7), "L": (18.0, 12.0, 3, 0.9)}   # h, R, bracos, r0
+CHERRY_SIZES = {"XS": (8.5, 4.8, 2, 0.45), "S": (11.0, 7.0, 3, 0.55), "M": (14.0, 9.5, 3, 0.7), "L": (18.0, 12.0, 4, 0.9)}   # h, R, cachos do anel, r0
 
 
 def cherry_plan(x, y, z, size, lean_az, rng):
+    """SAKURA de Wano (ref_03): tronco escuro baixo que abre em bracos; copa LARGA e FOFA = cacho principal no alto +
+    anel de cachos nas pontas dos bracos + 1-2 cachos pequenos caidos na borda (o 'chorao' da cerejeira)"""
     h, R, nl, r0 = CHERRY_SIZES[size]
     d = vdir(lean_az)
     base = Vector((x, y, z))
-    F = base + d * R * 0.2 + ZZ * h * 0.38                      # forquilha baixa (copa larga, guarda-chuva)
-    a0 = lean_az + rng.uniform(-0.5, 0.5)
-    tips = []
+    F = base + d * R * 0.15 + ZZ * h * 0.4
+    a0 = lean_az + rng.uniform(-0.6, 0.6)
+    main = (F + d * R * 0.06 + ZZ * h * 0.34, (R * 0.66, R * 0.62, R * 0.5))
+    ring = []
     for k in range(nl):
-        a = a0 + TAU * k / nl + rng.uniform(-0.3, 0.3) + (0.6 if nl == 2 else 0.0)
-        out = R * rng.uniform(0.54, 0.62)
-        tips.append((a, F + vdir(a) * out + ZZ * h * rng.uniform(0.2, 0.28), R * rng.uniform(0.47, 0.53)))
-    top = (F + d * R * 0.1 + vdir(a0 + 2.0) * R * 0.08 + ZZ * h * 0.48, R * 0.5)
-    drop = (F + vdir(a0 + math.pi * 0.85) * R * 0.78 + ZZ * h * 0.1, R * 0.32)   # massa baixa caida (lod 2)
-    sph = [(t[1] + ZZ * t[2] * 0.2, t[2] * 1.12) for t in tips] + [(top[0] + ZZ * top[1] * 0.2, top[1] * 1.12)]
-    return dict(h=h, R=R, r0=r0, base=base, F=F, tips=tips, top=top, drop=drop, d=d, spheres=sph, nl=nl)
+        a = a0 + TAU * k / nl + rng.uniform(-0.3, 0.3)
+        f = rng.uniform(0.86, 1.08)
+        ring.append((a, F + vdir(a) * R * rng.uniform(0.5, 0.6) + ZZ * h * rng.uniform(0.17, 0.28),
+                     (R * 0.5 * f, R * 0.47 * f, R * 0.4 * f)))
+    small = []
+    ns = 2 if size in ("M", "L") else 1
+    for k in range(ns):
+        a = a0 + TAU * (k + 0.5) / nl + rng.uniform(-0.25, 0.25)
+        small.append((a, F + vdir(a) * R * 0.8 + ZZ * h * rng.uniform(-0.02, 0.08), (R * 0.32, R * 0.3, R * 0.27)))
+    sph = [(main[0], max(main[1]))] + [(c, max(rr)) for a, c, rr in ring + small]
+    return dict(h=h, R=R, r0=r0, base=base, F=F, main=main, ring=ring, small=small, d=d, spheres=sph, nl=nl, size=size,
+                tips=[(a, c, max(rr)) for a, c, rr in ring])
 
 
 def cherry(mb, pl, rng, lod=1):
-    """CEREJEIRA: tronco escuro curvo (base alargada, S inclinado), forquilha baixa em bracos que abrem quase na
-    horizontal e sobem na ponta; conjuntos de flor nas pontas + 1 no alto (ceu entre eles); lod 2: + massa caida"""
+    """CEREJEIRA V2: tronco escuro em S com pe alargado, bracos que abrem; copa de CACHOS (op_tree.puff: casca com
+    calombos = sub-cachos, vinco escuro entre eles) de tamanhos variados; faces escondidas entre cachos cortadas"""
     base, F, d, r0, h = pl["base"], pl["F"], pl["d"], pl["r0"], pl["h"]
     perp = Vector((-d.y, d.x, 0.0))
     s = 1.0 if rng.random() < 0.5 else -1.0
     lean = F - base
-    pts = [base - ZZ * 0.5, base + lean * 0.22 + perp * 0.35 * s + ZZ * 0.4,
-           base + lean * 0.55 - perp * 0.55 * s, base + lean * 0.86 + perp * 0.2 * s, F]
-    n = 6 if lod == 2 else (5 if lod else 4)
-    tube(mb, pts, [r0 * 1.3, r0 * 1.08, r0 * 0.94, r0 * 0.84, r0 * 0.74], n=n)
-    PK.cone(mb, base - ZZ * 0.5, base + ZZ * 1.0, r0 * 2.1, r0 * 1.15, BARK, n=n)
-    for a, tip, rr in pl["tips"]:
-        v = tip - F
-        mid = F + Vector((v.x, v.y, 0.0)) * 0.5 + ZZ * v.z * 0.32
-        tube(mb, [F - vdir(a) * r0 * 0.3, mid, tip - ZZ * rr * 0.15], [r0 * 0.68, r0 * 0.5, r0 * 0.3],
+    n = 7 if lod == 2 else (6 if lod else 5)
+    tube(mb, [base - ZZ * 0.5, base + lean * 0.3 + perp * 0.35 * s + ZZ * 0.3, base + lean * 0.68 - perp * 0.4 * s, F],
+         [r0 * 1.3, r0 * 1.04, r0 * 0.9, r0 * 0.76], n=n)
+    tube(mb, [base - ZZ * 0.6, base + ZZ * 0.25, base + ZZ * 1.1], [r0 * 2.0, r0 * 1.55, r0 * 1.18], n=n, caps=False)
+    for a, c, rr in pl["ring"]:
+        v = c - F
+        mid = F + Vector((v.x, v.y, 0.0)) * 0.5 + ZZ * v.z * 0.35
+        tube(mb, [F - vdir(a) * r0 * 0.3, mid, c - ZZ * rr[2] * 0.2], [r0 * 0.62, r0 * 0.44, r0 * 0.28],
              n=5 if lod == 2 else 4)
-    k0 = int(rng.random() * 3)
-    for i, (a, tip, rr) in enumerate(pl["tips"]):
-        bloom(mb, tip, rr, 0.78, TR.TEMPLATES[(i + k0) % 3], rng.uniform(0, TAU), lod)
-    c, r = pl["top"]
-    bloom(mb, c, r, 0.72, TR.TEMPLATES[(k0 + 2) % 3], rng.uniform(0, TAU), lod)
-    if lod == 2:
-        c, r = pl["drop"]
-        tube(mb, [F, F.lerp(c, 0.5) + ZZ * 0.4, c], [r0 * 0.5, r0 * 0.36, r0 * 0.22], n=4)
-        bloom(mb, c, r, 0.8, TR.TEMPLATES[(k0 + 1) % 3], rng.uniform(0, TAU), 1)
+    res = PUFF_LOD[lod]
+    c, rr = pl["main"]
+    parts = [(c, rr, CHERRY_BLOBS[pl["size"]][0])]
+    parts += [(c2, rr2, CHERRY_BLOBS[pl["size"]][1]) for a, c2, rr2 in pl["ring"]]
+    parts += [(c2, rr2, 0) for a, c2, rr2 in pl["small"]]
+    TR.blob_crown(mb, parts, _seed(rng), res, _pink(mb), core_res=(9, 4) if lod == 2 else (7, 4))
 
 
 def pine_plan(x, y, z, h, lean_az, rng, lod=1):
@@ -396,71 +371,71 @@ def pine_plan(x, y, z, h, lean_az, rng, lod=1):
     pts = [b0 - ZZ * 0.5, b0 + d * 0.6 * s + ZZ * h * 0.22, b0 + d * 2.3 * s + sv * 0.8 * s + ZZ * h * 0.45,
            b0 + d * 3.2 * s - sv * 0.4 * s + ZZ * h * 0.68, b0 + d * 2.5 * s + ZZ * h * 0.88]
     pads = []
-    tiers = ((0.36, 2.9, 4.8, 2.7), (0.52, 0.5, 4.4, 2.5), (0.66, 4.2, 3.9, 2.2), (0.8, 1.8, 3.2, 1.9))
+    tiers = ((0.36, 2.9, 5.0, 2.9), (0.52, 0.5, 4.6, 2.7), (0.66, 4.2, 4.1, 2.4), (0.8, 1.8, 3.3, 2.0))
     for k, (t, ang, ln, rr) in enumerate(tiers if lod else tiers[:3]):
         a = lean_az + ang + rng.uniform(-0.3, 0.3)
         seg = min(3, int(t * 4))
         bp = pts[seg].lerp(pts[seg + 1], t * 4 - seg)
-        tip = bp + vdir(a) * ln * s + ZZ * 0.6 * s
+        tip = bp + vdir(a) * ln * s + ZZ * 0.5 * s
         pads.append((bp, tip, rr * s, a))
-    sph = [(tip + ZZ * 0.4 * s, rr * 1.45) for bp, tip, rr, a in pads] + [(pts[-1] + ZZ * 0.6 * s, 2.2 * s)]
-    return dict(pts=pts, pads=pads, s=s, d=d, spheres=sph, base=b0, R=4.6 * s)
+    sph = [(tip + ZZ * 0.5 * s, rr * 1.55) for bp, tip, rr, a in pads] + [(pts[-1] + ZZ * 0.7 * s, 2.5 * s)]
+    return dict(pts=pts, pads=pads, s=s, d=d, spheres=sph, base=b0, R=4.8 * s)
 
 
 def pine(mb, pl, rng, lod=1):
-    """PINHEIRO DE WANO (kuromatsu): tronco escuro em S que se debruca, galhos quase horizontais, nuvens achatadas
-    (verde-pinho embaixo; nas 2 maiores uma nuvem clara em cima)"""
+    """KUROMATSU V2: tronco escuro em S que se debruca, galhos quase horizontais e ALMOFADAS EM NUVEM (disco lobado
+    suave, topo verde claro, lado/baixo verde-pinho) - a mesma linguagem da arvore monumental, em pequeno"""
     pts, s = pl["pts"], pl["s"]
-    tube(mb, pts, [0.85 * s, 0.66 * s, 0.5 * s, 0.36 * s, 0.24 * s], n=5 if lod else 4)
-    PK.cone(mb, pts[0], pts[0] + ZZ * 1.4 * s, 1.5 * s, 0.8 * s, BARK, n=5 if lod else 4)
+    n = 6 if lod else 5
+    tube(mb, pts, [0.85 * s, 0.68 * s, 0.52 * s, 0.38 * s, 0.26 * s], n=n)
+    tube(mb, [pts[0], pts[0] + ZZ * 0.5 * s, pts[0] + ZZ * 1.3 * s], [1.5 * s, 1.15 * s, 0.86 * s], n=n, caps=False)
+    nt, prof = (22, TR.PAD_MID) if lod else (16, TR.PAD_LO)
     for i, (bp, tip, rr, a) in enumerate(pl["pads"]):
-        mid = bp.lerp(tip, 0.55) + ZZ * 0.2 * s
-        tube(mb, [bp, mid, tip], [0.3 * s, 0.22 * s, 0.15 * s], n=4 if lod else 3)
-        cushion(mb, tip - ZZ * 0.25 * s, rr * 1.45, rr * 1.1, rr * 0.5, PINE, rng, n=7 if lod else 6, rot=a)
-        if lod and i < 2:
-            cushion(mb, tip + ZZ * 0.45 * s + vdir(a) * 0.3 * s, rr * 0.95, rr * 0.75, rr * 0.36, LEAF, rng, n=6,
-                    rot=a + 0.5)
+        mid = bp.lerp(tip, 0.55) + ZZ * 0.25 * s
+        tube(mb, [bp, mid, tip], [0.32 * s, 0.24 * s, 0.16 * s], n=4)
+        TR.cloud_pad(mb, tip - ZZ * 0.15 * s, rr * 1.5, rr * 0.62, a, 1.2, lobes=7, seed=_seed(rng), nt=nt, prof=prof,
+                     mats=PINE_PAD, depth=0.16, lumps=2)
     t = pts[-1]
-    cushion(mb, t - ZZ * 0.2 * s, 2.3 * s, 1.9 * s, 1.15 * s, PINE, rng, n=7 if lod else 6,
-            rot=math.atan2(pl["d"].y, pl["d"].x))
-    if lod:
-        cushion(mb, t + ZZ * 0.6 * s, 1.5 * s, 1.25 * s, 0.75 * s, LEAF, rng, n=6)
+    TR.cloud_pad(mb, t - ZZ * 0.1 * s, 2.5 * s, 1.5 * s, math.atan2(pl["d"].y, pl["d"].x), 1.15, lobes=7,
+                 seed=_seed(rng), nt=nt, prof=prof, mats=PINE_PAD, depth=0.16, lumps=2)
 
 
 def broad_plan(x, y, z, h, R, rng, lod=0):
     b0 = Vector((x, y, z))
     lean = vdir(rng.uniform(0, TAU)) * rng.uniform(0.2, 0.8)
-    C0 = b0 + lean + ZZ * h * 0.6
+    C0 = b0 + lean + ZZ * h * 0.62
     sats = []
     a0 = rng.uniform(0, TAU)
     ns = 3 if lod else 2
     for k in range(ns):
         a = a0 + TAU * k / ns + rng.uniform(-0.4, 0.4)
-        sats.append((C0 + vdir(a) * R * rng.uniform(0.55, 0.7) - ZZ * h * rng.uniform(0.04, 0.14),
-                     R * rng.uniform(0.56, 0.66), a))
-    sph = [(C0 + ZZ * R * 0.3, R * 0.95)] + [(c + ZZ * r * 0.3, r) for c, r, a in sats]
+        sats.append((C0 + vdir(a) * R * rng.uniform(0.55, 0.68) - ZZ * h * rng.uniform(0.06, 0.16),
+                     R * rng.uniform(0.5, 0.6), a))
+    sph = [(C0, R * 0.95)] + [(c, r) for c, r, a in sats]
     return dict(base=b0, C0=C0, h=h, R=R, sats=sats, spheres=sph, lean=lean)
 
 
 def broad(mb, pl, rng, lod=0):
-    """ARVORE VERDE LARGA: tronco curto, copa redonda em almofadas (central + 2-3 satelites, 1 delas verde-pinho
-    escuro = profundidade)"""
+    """ARVORE VERDE LARGA V2: tronco curto; copa = cacho principal + 2-3 cachos menores (sub-volumes com vinco
+    verde-pinho entre eles), nao esfera"""
     b0, C0, h, R = pl["base"], pl["C0"], pl["h"], pl["R"]
     r0 = 0.3 + R * 0.075
-    tube(mb, [b0 - ZZ * 0.5, b0 + pl["lean"] * 0.3 + ZZ * h * 0.3, C0 - ZZ * R * 0.3], [r0 * 1.3, r0, r0 * 0.6],
-         n=4)
-    cushion(mb, C0 - ZZ * R * 0.45, R, R * rng.uniform(0.86, 0.96), R * 1.15, LEAF, rng, n=9 if lod else 8)
-    for i, (c, r, a) in enumerate(pl["sats"]):
-        cushion(mb, c - ZZ * r * 0.4, r, r * 0.88, r * 1.05, PINE if i == 1 else LEAF, rng, n=7 if lod else 6, rot=a)
+    tube(mb, [b0 - ZZ * 0.5, b0 + pl["lean"] * 0.3 + ZZ * h * 0.3, C0 - ZZ * R * 0.3], [r0 * 1.3, r0, r0 * 0.6], n=5)
+    parts = [(C0, (R * 0.92, R * 0.86, R * 0.74), 6 if lod else 5)]
+    parts += [(c, (r * 0.9, r * 0.84, r * 0.72), 2) for c, r, a in pl["sats"]]
+    TR.blob_crown(mb, parts, _seed(rng), PUFF_LOD[1 if lod else 0], GREEN)
 
 
 def bush(mb, x, y, z, r, rng, lumps=2, m=LEAF, n=6):
+    """MOITA PODADA (karikomi): 1-3 montes arredondados, achatados embaixo, calombos suaves; verde com vinco pinho"""
     a0 = rng.uniform(0, TAU)
+    recs = []
     for k in range(lumps):
-        q = Vector((x, y, z - 0.3)) + (vdir(a0 + 2.3 * k) * r * rng.uniform(0.55, 0.85) if k else Vector())
-        rr = r * (1.0 if k == 0 else rng.uniform(0.55, 0.75))
-        cushion(mb, q, rr * 1.1, rr * 0.95, rr * rng.uniform(0.95, 1.2), m if k != 1 else PINE, rng, n=n, rot=a0 + k,
-                jit=0.15)
+        q = Vector((x, y, z)) + (vdir(a0 + 2.3 * k) * r * rng.uniform(0.6, 0.85) if k else Vector())
+        rr = r * (1.0 if k == 0 else rng.uniform(0.6, 0.78))
+        recs.append(TR.puff(mb, q + ZZ * rr * 0.32, rr * 1.12, rr, rr * 0.72, _seed(rng), 10, 5, nb=3, amp=0.2,
+                            wdeg=50.0, mats=(m, m, PINE) if m != PINE else (PINE, PINE, PINE), fb=0.75))
+    TR.cull_inside(mb, recs)
 
 
 def tris_of(mb):
@@ -784,18 +759,18 @@ def place_bush(pc, x, y, r, nudge=False, lumps=2, route_gap=2.5, rock=False):
 HERO_CHERRIES = [
     (-38.0, 16.0, "L", 200.0, 2, "ombro oeste do grande torii (moldura da chegada)"),
     (40.0, 18.0, "L", -20.0, 2, "ombro leste do grande torii"),
-    (-106.0, 130.0, "M", 210.0, 1, "canto SO da praca, por fora do piso (moldura de quem sobe a escadaria)"),
+    (-106.0, 130.0, "M", 210.0, 2, "canto SO da praca, por fora do piso (moldura de quem sobe a escadaria)"),
     (-88.0, 374.0, "M", 180.0, 1, "rocha oeste do castelo: moldura do rochedo vista da praca"),
     (88.0, 370.0, "L", 0.0, 1, "rocha leste do castelo, perto da base da arvore (eco da copa monumental)"),
     (298.0, 292.0, "M", 60.0, 1, "promontorio da saida (laje, lanternas, cerejeira)"),
-    (100.0, 26.0, "M", None, 1, "rocha da frente leste, sobre a enseada (concept: rosa na borda direita)"),
-    (-70.0, 30.0, "M", None, 1, "borda sul do bairro do canal (concept: rosa na frente esquerda)"),
-    (-104.0, 334.0, "M", 150.0, 1, "canto NO da praca, pe do terraco alto"),
+    (100.0, 26.0, "M", None, 0, "rocha da frente leste, sobre a enseada (concept: rosa na borda direita)"),
+    (-70.0, 30.0, "M", None, 0, "borda sul do bairro do canal (concept: rosa na frente esquerda)"),
+    (-104.0, 334.0, "M", 150.0, 2, "canto NO da praca, pe do terraco alto"),
     (108.0, 306.0, "S", 30.0, 1, "canto NE da praca, entrada do santuario"),
-    (126.0, 178.0, "S", None, 1, "gramado sul do terraco do summon"),
+    (126.0, 178.0, "S", None, 0, "gramado sul do terraco do summon"),
     (128.0, 420.0, "M", None, 0, "bosque do fundo leste"),
     (-176.0, 420.0, "M", None, 0, "terraco alto, jardim do fundo das mansoes"),
-    (-178.0, 350.0, "S", None, 1, "terraco alto, jardim entre a U1 e a U4"),
+    (-178.0, 350.0, "S", None, 0, "terraco alto, jardim entre a U1 e a U4"),
     (-212.0, 120.0, "S", None, 0, "canto SO alem do canal"),
     (170.0, 22.0, "S", None, 0, "borda sul do porto alto"),
     (-226.0, 392.0, "S", None, 0, "pe do pinaculo do pagode"),
@@ -819,8 +794,6 @@ HERO_PINES = [
     (325.0, 236.0, 11.0, -40.0, "promontorio, borda sul (sobre a caveira)"),
     (210.0, 19.0, 12.0, -60.0, "ponta SE do cais (M6b item 48: o canto do cais respira, so 1 pinheiro na ponta)"),
     (215.0, 505.0, 12.0, 60.0, "raiz do esporao"),
-    (226.0, 528.0, 11.0, 40.0, "esporao"),
-    (262.0, 572.0, 11.0, 40.0, "esporao, perto da espada"),
     (280.0, 588.0, 10.0, 30.0, "esporao, pe da espada"),
 ]
 # bosque: (nome, poligono, passo, chance, h, R, chance de pinheiro)
@@ -892,7 +865,7 @@ def court_pines(pc):
     return n
 
 
-def city_yards(pc, budget, step=10.0):
+def city_yards(pc, budget, step=8.5):
     """QUINTAIS e gramados DENTRO da cidade (longe da borda): a concept pontua a capital com copas entre os telhados -
     cerejeira pequena (rosa, 45%) ou arvore verde pequena; so onde a copa cabe sem tocar beiral/fachada nem cobrir rua
     (as mesmas regras de tudo) - quintal apertado fica sem arvore"""
@@ -914,8 +887,8 @@ def city_yards(pc, budget, step=10.0):
                 sx0, sy0, sx1, sy1 = SUMMON_KO
                 if L.point_in_poly(xx, yy, poly) and L.poly_edge_dist(xx, yy, rim) > 24.0 \
                         and not (sx0 < xx < sx1 and sy0 < yy < sy1) and hh("cy", nm, x, y, "p") < 0.6:
-                    if hh("cy", nm, x, y, "k") < 0.45:
-                        ok = place_cherry(pc, xx, yy, "S", "quintal", lod=0, nudge=False, quiet=True)
+                    if hh("cy", nm, x, y, "k") < 0.85:          # V2: a cidade da ref_03 e ROSA entre os telhados
+                        ok = place_cherry(pc, xx, yy, "M", "quintal", lod=0, nudge=False, quiet=True) or                             place_cherry(pc, xx, yy, "S", "quintal", lod=0, nudge=False, quiet=True) or                             place_cherry(pc, xx, yy, "XS", "quintal", lod=0, nudge=False, quiet=True)
                     else:
                         s_ = 0.8 + 0.35 * hh("cy", nm, x, y, "s")
                         ok = place_broad(pc, xx, yy, 10.0 * s_, 5.2 * s_, lod=0, nudge=False)
@@ -1037,9 +1010,12 @@ def rim_band(pc, budget):
             k = hh("rimk", *key)
             s = 0.8 + 0.5 * hh("rims", *key) - 0.1 * row
             lean = math.degrees(ang) + (hh("riml", *key) - 0.5) * 50.0
-            if k < 0.2:
+            if k < 0.18:
                 ok = place_pine(pc, x, y, 12.0 * s, "borda", lean=lean, lod=0, nudge=True, quiet=True)
-            elif k < 0.78:
+            elif k < 0.46:                                   # V2: rosa tambem na borda (ref_03; concept: frente)
+                ok = place_cherry(pc, x, y, "S" if s > 0.95 else "XS", "borda", lean=lean, lod=0, nudge=True,
+                                  quiet=True)
+            elif k < 0.82:
                 ok = place_broad(pc, x, y, 13.0 * s, 8.5 * s, lod=0, nudge=True)
             else:
                 ok = place_bush(pc, x, y, 2.4 * s, nudge=True, lumps=3)
@@ -1340,6 +1316,7 @@ def drop_blockout_veg():
 def build():
     TRUNKS.clear()
     STATS.clear()
+    CHERRY_GROUPS.clear()
     _SEC.clear()
     drop_blockout_veg()
     PH_EYES.clear()
@@ -1355,16 +1332,16 @@ def build():
         place_pine(pc, x, y, h, note, lean=lean, lod=1 if any(w in note for w in ("entrada", "contraforte")) else 0)
     out["patio"] = court_pines(pc)                                   # M6b: 2 kuromatsu no cascalho do patio
     out["t_hero"] = pc.tris
-    out["quintais"] = city_yards(pc, BUDGET_TRIS * 0.53)
+    out["quintais"] = city_yards(pc, BUDGET_TRIS * 0.76)
     out["t_quintais"] = pc.tris
-    out["bosque"] = forest(pc, BUDGET_TRIS * 0.61)
+    out["bosque"] = forest(pc, BUDGET_TRIS * 0.81)
     out["t_bosque"] = pc.tris
-    out["borda"] = rim_band(pc, BUDGET_TRIS * 0.77)
+    out["borda"] = rim_band(pc, BUDGET_TRIS * 0.88)
     out["t_borda"] = pc.tris
-    out["crista"] = cliff_greens(pc, BUDGET_TRIS * 0.91)
+    out["crista"] = cliff_greens(pc, BUDGET_TRIS * 0.94)
     out["t_crista"] = pc.tris
-    out["face"] = face_clumps(pc, BUDGET_TRIS * 0.94)
-    out["prateleiras"] = ledges(pc, BUDGET_TRIS * 0.97)
+    out["face"] = face_clumps(pc, BUDGET_TRIS * 0.96)
+    out["prateleiras"] = ledges(pc, BUDGET_TRIS * 0.98)
     out["pe_muro"] = wall_feet(pc, BUDGET_TRIS)
     objs = []
     for nm in sorted(_SEC):
@@ -1391,11 +1368,56 @@ def build():
     print("op_veg: pinheiros-marco %s" % " ".join("(%.0f,%.0f,%.1f)" % (t[0], t[1], t[2]) for t in TRUNKS
                                                   if t[5] == "pine")[:600])
     print("op_veg: moitas de pe de muro %s" % STATS.get("pe_muro_xy", [])[:20])
+    print("op_veg: largas %s" % " ".join("(%.0f,%.0f,%.1f R%.1f)" % (t[0], t[1], t[2], t[4]) for t in TRUNKS
+                                         if t[5] == "broad")[:400])
     print("op_veg: pinheiros do patio do castelo %s" % STATS.get("patio_xy", []))
     print("op_veg: altas (pe > 140) %s" % " ".join("%s(%.0f,%.0f,%.1f)" % (t[5], t[0], t[1], t[2]) for t in TRUNKS
                                                    if t[2] > 140.0))
     for f in STATS.get("falhou", []):
         print("op_veg: AVISO nao nasceu %s (%.0f, %.0f) %s %s" % f)
+    gs = cherry_groups()
+    print("op_veg: grupos de cerejeiras (petalas) %d: %s" % (len(gs), " ".join(
+        "%s[%d](%.0f,%.0f)" % (g["name"], g["n"], (g["box"][0] + g["box"][1]) / 2, (g["box"][2] + g["box"][3]) / 2)
+        for g in gs)))
+
+
+# ================================================================== GRUPOS DE CEREJEIRAS (petalas: 1 emissor por GRUPO)
+CHERRY_GROUPS = []
+LINK = 40.0                      # cerejeiras a menos disso (pe a pe) sao o mesmo grupo
+
+
+def cherry_groups(link=LINK):
+    """agrupa as cerejeiras plantadas (ligacao simples <= link) -> [{name, n, box (x0, x1, y0, y1, z_pe, z_topo),
+    peso}], do mais pesado (soma das copas) para o mais leve. O op_vfx grava 1 FX_Petals_* por grupo (<= 13)"""
+    if CHERRY_GROUPS:
+        return CHERRY_GROUPS
+    pts = sorted([(x, y, z, R) for x, y, z, r, R, f in TRUNKS if f == "cherry"], key=lambda p: (-p[3], p[0], p[1]))
+    left = list(pts)
+    while left:
+        # semente = a maior copa que sobrou; o grupo pega as que estao a <= link dela OU de um membro, sem passar de
+        # 1,6 x link da semente (grupo compacto: 1 caixa de petalas densa, nao uma faixa de 150 studs)
+        sd = left[0]
+        g = [sd]
+        left = left[1:]
+        grow = True
+        while grow:
+            grow = False
+            for p in list(left):
+                if math.hypot(p[0] - sd[0], p[1] - sd[1]) <= link * 1.6 and                         any(math.hypot(p[0] - q[0], p[1] - q[1]) <= link for q in g):
+                    g.append(p)
+                    left.remove(p)
+                    grow = True
+        box = (min(p[0] - p[3] for p in g), max(p[0] + p[3] for p in g), min(p[1] - p[3] for p in g),
+               max(p[1] + p[3] for p in g), min(p[2] for p in g), max(p[2] + 1.55 * p[3] for p in g))
+        cx, cy = (box[0] + box[1]) / 2, (box[2] + box[3]) / 2
+        CHERRY_GROUPS.append(dict(n=len(g), box=box, peso=sum(p[3] ** 2 for p in g), sec=home_sector(cx, cy),
+                                  zmin=min(p[2] for p in g)))
+    CHERRY_GROUPS.sort(key=lambda g: -g["peso"])
+    cnt = {}
+    for g in CHERRY_GROUPS:
+        cnt[g["sec"]] = cnt.get(g["sec"], 0) + 1
+        g["name"] = "%s%d" % (g["sec"], cnt[g["sec"]])
+    return CHERRY_GROUPS
 
 
 def after_props():
