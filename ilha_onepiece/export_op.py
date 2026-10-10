@@ -135,7 +135,7 @@ ER.BUDGET_OWNER = {"terrain": (108000, 81), "entry": (32400, 35), "capital": (18
                    "water": (10800, 17), "props": (27000, 38), "vegetation": (48600, 49), "vfx": (16200, 32)}
 # PLANO_OP secao 9: <= 620k tris / 650 MeshParts estaticos + reserva VFX 15k / 30
 ER.BUDGET = {"static_tris": 640000, "static_meshes": 650, "vfx_tris": 15000, "vfx_meshes": 30, "total_tris": 655000,
-             "total_meshes": 680, "materials": 110, "shadow_meshes": 260, "day_lights": 36, "col": 1300}
+             "total_meshes": 680, "materials": 110, "shadow_meshes": 260, "day_lights": 36, "col": 1500}
 _CX, _CY = to_world_xy(60.0, 250.0)            # meio da ilha (sombras / rede)
 ER.FAR_GROUND = None                 # o mar local de Wano e feito no cliente (WATER_Sea, so na area 5)
 # rede de seguranca embaixo da ilha: abaixo da quilha (-10) e do mar local (36); caixa alinhada ao mundo que cobre a

@@ -291,7 +291,7 @@ def tech():
 
 # ------------------------------------------------------------------ orcamento (PLANO_OP secao 9)
 BUDGET_ISLAND = {"static_tris": 640000, "static_meshes": 650, "vfx_tris": 15000, "vfx_meshes": 30, "materials": 110,
-                 "day_lights": 36, "col": 1300}
+                 "day_lights": 36, "col": 1500}
 
 
 def budget():

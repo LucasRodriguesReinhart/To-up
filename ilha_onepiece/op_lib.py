@@ -99,6 +99,9 @@ OPMATS = {
     "Leaf_OP_PinePad":    (S(52, 108, 66), 0.85, 0.0, 0, None, 0.05),    # PLANO_V2 (V2-0): almofada do pinheiro em nuvem (face de cima)
     "Leaf_OP_PineUnder":  (S(30, 68, 46), 0.85, 0.0, 0, None, 0.04),     # PLANO_V2 (V2-0): face de baixo da almofada (mais escura)
     "Cloth_OP_Tatami":    (S(192, 180, 124), 0.9, 0.0, 0, None, 0.04),   # KIT2 op_kit2: tatami dos interiores
+    "Roof_OP_Castle":     (S(36, 42, 86), 0.7, 0.0, 0, None, 0.04),     # V3 op_castle: telha do castelo (azul-marinho profundo do anime)
+    "Plaster_OP_Castle":  (S(228, 228, 236), 0.85, 0.0, 0, None, 0.03),  # V3 op_castle: reboco frio (branco-lilas do castelo do anime)
+    "Wood_OP_Sumi":       (S(42, 42, 56), 0.75, 0.0, 0, None, 0.06),     # V3 op_castle: tabuas shitami/pilares/caixilhos (preto-azulado)
     "Glass_OP_Lantern":   (S(232, 160, 96), 0.4, 0.0, 1.0, S(240, 170, 110), 0.0),   # papel aceso DENTRO da armacao
     "Window_OP_Warm":     (S(250, 212, 160), 0.5, 0.0, 0.5, S(255, 190, 120), 0.0),  # shoji aceso, recuado
     "Water_OP_Basin":     (S(36, 120, 130), 0.15, 0.0, 0, None, 0.0),    # so previa (a agua e do Roblox)
