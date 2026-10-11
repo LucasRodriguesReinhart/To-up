@@ -23,6 +23,9 @@
 #   (bojo para a proa, maximo a 60% da altura, panos verticais marcados, esteira arqueada), casca de 0,18 (2 faces) com
 #   tralha de cabo nas bordas; escotas ate a verga de baixo/amurada. CORDAME: ovéns com enfrechates e bigotas nas mesas
 #   de enxarcia, estais (traquete -> gurupes, grande -> traquete), brandais, amantilhos.
+# R3 (rota PLAZA->HARBOR, colisao V3): PRANCHA de 6,8 (vao livre 6,5 entre balaustres) com tampo CONTINUO e travessas
+#   no material do tampo (a colv3 fecha a rampa sem cobrir o caminho; antes o fecho das pecas escuras virava bloco
+#   sobre a prancha/conves) e PORTINHOLA de 8,0 (GAP_HW 4,0; o cais do op_harbor abre junto: SH.GAP +- 1).
 # V3 R5 (copyright, rodada 3 do usuario): SEM ICONOGRAFIA DO ANIME - vela grande creme lisa, flamula vermelha lisa no
 #   topo do grande (EMBLEM = False fixo; o codigo do emblema abaixo ficou so como historico e nao roda).
 # (V1) ICONOGRAFIA: a vela grande leva o Jolly Roger dos Chapeus de Palha (iconografia APROVADA da concept ref_01: caveira +
@@ -83,7 +86,12 @@ def _gangway():
 
 
 GW_A, GW_B, GW_W = _gangway()                     # (230,152,42.2) -> (241.6,152,46.2), largura 5
-GAP = (GW_A[1] - GW_W / 2.0, GW_A[1] + GW_W / 2.0)   # portinhola (lado do pier = oeste, x < SX)
+# R3 (rota PLAZA->HARBOR, colisao V3 = o visual colide): a portinhola tinha a largura da prancha (5): o fecho convexo
+# do costado/amurada fechava o vao na altura do corpo. Agora a PRANCHA VISIVEL tem 6,8 (vao livre entre os balaustres
+# 6,5, tampo continuo) e a portinhola 8,0 (pilares a 8,5 de eixo): 1,5 de folga de cada lado da prancha.
+GW_VIS = 6.8                                      # largura visivel da prancha (a colisao de chao do op_col tem 5)
+GAP_HW = 4.0
+GAP = (GW_A[1] - GAP_HW, GW_A[1] + GAP_HW)        # portinhola (lado do pier = oeste, x < SX)
 
 
 def ss(t):
@@ -1393,29 +1401,29 @@ def junk_sail(mb, F, y_top, z_top, Wt, Wb, H, npan=10):
 
 # ================================================================== PRANCHA (pier -> convés)
 def gangway(mb):
+    """R3: PRANCHA de tampo CONTINUO (uma rampa so, sem frestas entre tabuas) de GW_VIS de largura, com travessas
+    antiderrapantes escuras (os 'degraus' da rampa), longarinas, sapata no pier e balaustres com cabo (vao livre 6,5)"""
     a, b = Vector(GW_A), Vector(GW_B)
     d = b - a
     ln = d.length
     u = d.normalized()
     pitch = math.atan2(d.z, d.x)
     n = Vector((-u.z, 0.0, u.x))                          # normal do tampo (para cima)
-    half = GW_W / 2.0 - 0.15
-    # tampo de tabuas transversais (topo = a reta da colisao a -> b)
-    k = int(ln / 0.6)
-    for i in range(k):
-        t0, t1 = i / k, (i + 1) / k
-        c = a + d * ((t0 + t1) / 2) - n * 0.15
-        mb.box((ln / k - 0.06, 2 * half, 0.3), tuple(c), (0, -pitch, 0), WM, 0.0)
-    # longarinas e travessas antiderrapantes
+    half = GW_VIS / 2.0 - 0.15
+    # tampo continuo (topo = a reta a -> b, a reta da colisao de chao do op_col)
+    c = a + d * 0.5 - n * 0.15
+    mb.box((ln, 2 * half, 0.3), tuple(c), (0, -pitch, 0), WM, 0.0)
+    # longarinas e travessas antiderrapantes. As travessas sao do MATERIAL DO TAMPO (WM): na colv3 o fecho do tampo
+    # vira a rampa com os ressaltos; longarinas/balaustres/sapata (WD) ficam nas bordas (fecho partido em 2 lados)
     for s in (-1, 1):
-        c = a + d * 0.5 - n * 0.45 + Vector((0, s * (half - 0.2), 0))
-        mb.box((ln + 0.6, 0.4, 0.6), tuple(c), (0, -pitch, 0), WD, 0.0)
+        c = a + d * 0.5 - n * 0.45 + Vector((0, s * (half + 0.15), 0))     # sob a linha dos balaustres: o fecho
+        mb.box((ln + 0.6, 0.4, 0.6), tuple(c), (0, -pitch, 0), WD, 0.0)      # escuro de cada lado fica a prumo
     for i in range(1, int(ln / 1.1)):
         c = a + d * (i * 1.1 / ln) + n * 0.06
-        mb.box((0.22, 2 * half - 0.8, 0.12), tuple(c), (0, -pitch, 0), WD, 0.0)
+        mb.box((0.26, 2 * half - 0.4, 0.12), tuple(c), (0, -pitch, 0), WM, 0.0)
     # sapata no pier
     mb.box((0.8, 2 * half + 0.4, 0.35), (a.x - 0.2, a.y, a.z + 0.05), (0, 0, 0), WD, 0.0)
-    # corrimao: balaustres + cabo (dentro da guarda invisivel do op_col)
+    # corrimao: balaustres + cabo
     for s in (-1, 1):
         posts = []
         for i in range(4):

@@ -1,4 +1,14 @@
 # op_castle.py - CASTELO DE WANO (marco heroi da Ilha 5 ONE PIECE / WANO; dono "castle", prefixo OP_Cas_)
+# R3 (rodada 3, colisao V3 = o visual colide; capturas 11/12: jogadores em pe no muro e nos telhados do castelo):
+#   * telhado/capa INALCANCAVEL por geometria visivel: muros do patio com corpo de 9,4 (10,4 junto da escada CasteloB),
+#     viga de cima no material/largura do corpo (fecho a prumo); yagura SE com o 1o andar +2,6 e SO com corpo 13,4 (beiral
+#     >= 12 do patio, folga >= 7,7 do corrimao do mirante); portao do patio sem os telhadinhos de apoio e com 13,4;
+#     toro a 15 da fachada; caibros tambem nos fundos de R0 (o beiral vira laje solida sobre o corrimao da engawa)
+#   * cerca da arvore = TAMAGAKI-BEI (itabei de 2,3 de espessura, 9,4 de altura, capa de telha, pilares oitavados,
+#     shimenawa): a base da arvore fica fora do alcance (antes: subir pela raiz e ficar dentro do tronco/no ar)
+#   * porta da torre: a soleira (mizukiri) para no caixilho (cruzava o vao a 4,5 do patio)
+#   * orcamento: pecas longas em trechos <= 23,5 (o corte de faces > 24 da colv3 somava +6,7k), lados/fundos dos
+#     andares de cima em lod 1, cantoneiras douradas so na frente, lajes do patio so com tampo: 90,9k -> ~83,9k medidos
 # V3 (rodada 2 do usuario, G4: "o predio principal, seu conceito ainda esta pouco fraco, paredes lisas sem presenca"):
 #   PAREDES COM PRESENCA (face3): shitami-itabari preto-azulado na base de cada andar + reboco frio so em cima, faixas
 #   salientes (koshi-nageshi, nageshi, viga de beiral) com cantoneiras douradas, pilares aparentes por baia, janelas com
@@ -50,8 +60,75 @@ from op_lib import MB, Frame, light, col_box, col_ramp, ccw
 import op_layout as L
 import op_kit as K
 import op_kit2 as K2
-from op_kit import (WD, WM, LAC, GOLD, IRON, PL, RB, RR, ST, STD, STP, LIT, LGLOW, INDIGO, CWHITE, CRED, bb, bx, sub,
+from op_kit import (WD, WM, LAC, GOLD, IRON, PL, RB, RR, ST, STD, STP, LIT, LGLOW, INDIGO, CWHITE, CRED, sub,
                     loft, lathe, lathe_y, ext, beam, even)
+
+# ================================================================== R3 (orcamento): pecas longas em trechos <= SEG
+# A colv3 corta (coplanar, nos planos x/y = k*12 do mundo) TODA face solida com aresta > 24 para poder partir o fecho
+# convexo: no castelo isso somava +6,7k tris (84,2k -> 90,9k medidos no QA). Peca longa (faixa, viga, soco, piso da
+# engawa, painel de reboco, cascalho) agora nasce em trechos <= SEG encostados (as tampas encostadas saem no
+# K.cull_hidden): o corte da colv3 nao tem mais o que cortar e cada trecho custa 8 tris em vez de ~20.
+SEG = 23.5
+
+
+def bb(mb, F, x0, x1, y0, y1, z0, z1, m, bev=0.0):
+    x0, x1 = min(x0, x1), max(x0, x1)
+    y0, y1 = min(y0, y1), max(y0, y1)
+    if bev == 0.0 and max(x1 - x0, y1 - y0) > SEG:
+        if x1 - x0 >= y1 - y0:
+            n = int(math.ceil((x1 - x0) / SEG))
+            for i in range(n):
+                K.bb(mb, F, x0 + (x1 - x0) * i / n, x0 + (x1 - x0) * (i + 1) / n, y0, y1, z0, z1, m)
+        else:
+            n = int(math.ceil((y1 - y0) / SEG))
+            for i in range(n):
+                K.bb(mb, F, x0, x1, y0 + (y1 - y0) * i / n, y0 + (y1 - y0) * (i + 1) / n, z0, z1, m)
+        return
+    K.bb(mb, F, x0, x1, y0, y1, z0, z1, m, bev)
+
+
+def bx(mb, F, x, y, z, sx, sy, sz, m, bev=0.0, rx=0.0, ry=0.0, rz=0.0):
+    if sx > SEG and bev == 0.0 and rx == 0.0 and ry == 0.0:
+        n = int(math.ceil(sx / SEG))
+        c, s = math.cos(rz), math.sin(rz)
+        for i in range(n):
+            t = -sx / 2 + sx * (i + 0.5) / n
+            K.bx(mb, F, x + c * t, y + s * t, z, sx / n, sy, sz, m, 0.0, 0.0, 0.0, rz)
+        return
+    K.bx(mb, F, x, y, z, sx, sy, sz, m, bev, rx, ry, rz)
+
+
+def panel(mb, F, x0, x1, z0, z1, y0, y1, holes, m):
+    """K.panel com quebras (vaos de largura zero) a cada <= SEG fora dos vaos de verdade"""
+    a, b = min(x0, x1), max(x0, x1)
+    n = int(math.ceil((b - a) / SEG))
+    cuts = []
+    for i in range(1, n):
+        c = a + (b - a) * i / n
+        for ha, hb, za, zb in holes:
+            if ha - 0.05 < c < hb + 0.05:
+                c = hb + 0.06 if c - ha > hb - c else ha - 0.06
+        cuts.append(c)
+    zm = (z0 + z1) / 2
+    K.panel(mb, F, x0, x1, z0, z1, y0, y1, list(holes) + [(c, c, zm, zm) for c in cuts], m)
+
+
+def slab_grid(mb, poly, z0, z1, c, m, sides=True):
+    """K.slab_poly recortado numa grade de SEG (mundo): cascalho/base escura sem aresta > 24"""
+    xs = [p[0] for p in poly]
+    ys = [p[1] for p in poly]
+    if max(xs) - min(xs) <= SEG and max(ys) - min(ys) <= SEG:
+        K.slab_poly(mb, poly, z0, z1, c, m, sides=sides)
+        return
+    nx = int(math.ceil((max(xs) - min(xs)) / SEG))
+    ny = int(math.ceil((max(ys) - min(ys)) / SEG))
+    gx = [min(xs) + (max(xs) - min(xs)) * i / nx for i in range(nx + 1)]
+    gy = [min(ys) + (max(ys) - min(ys)) * j / ny for j in range(ny + 1)]
+    for i in range(nx):
+        for j in range(ny):
+            pc = L.clip_rect(poly, (gx[i], gy[j], gx[i + 1], gy[j + 1]))
+            if len(pc) >= 3 and abs(L.area(pc)) > 0.05:
+                K.slab_poly(mb, ccw(pc), z0, z1, c, m, sides=sides)
 
 C = "04_CASTLE"
 CC, CF, CL, P = L.CC, L.CF, L.CL, L.P
@@ -77,6 +154,16 @@ COURT_GATE_Y = 440.5                    # portao do patio: logo depois do topo d
 SE_TURRET = (58.0, 365.0, 12.0)         # yagura SE (centro na borda da proa, girada com ela)
 SW_TURRET = (-57.0, 367.0, 10.0)        # sumi-yagura SO (menor; equilibra a frente da proa)
 COL_TALL = 8.8                          # colisao alta (muros/cerca): topo acima do pulo (7,2) a partir do patio
+# R3 (colisao V3 = o visual colide): alturas que deixam telhado/capa de muro FORA do alcance (pulo 7,2; a colv3 so faz o
+# telhado colidir quando ha chao alcancado a <= 6 na horizontal e <= 7,7 abaixo do pedaco)
+WALL_H = 9.4                            # muro dobei (corpo) do patio: capa a >= 9,5 do patio (o soco +1,15 e a base
+                                        # de pedra dos pilares +1,3 ficam a > 7,7 abaixo da capa)
+WALL_H_STAIR = 10.4                     # muros colados na escada CasteloB (guarda +1,9 / pilarete +2,7 ao lado)
+SE_SKIRT_Z = 16.0                       # yagura SE: saia do 1o andar (era 13,4: beiral a 9,4 do patio, 5,7 do corrimao)
+SW_BODY_H = 13.4                        # yagura SO: corpo (era 9,6: beiral a 8,3 do patio, 4,6 do corrimao)
+COURT_GATE_H = 13.4                     # portao do patio: sem os telhadinhos dos pilares de apoio (degrau p/ o telhado)
+TORO_Y = 363.0                          # toro do patio: a 18 da fachada (o topo do toro nao alcanca o beiral de R0)
+                                        # e a 5,5 da rota PLAZA->CASTLE (largura >= 3,4)
 
 
 # ================================================================== utilidades
@@ -258,7 +345,7 @@ def story(mb, F, hx, hy, z0, ztop, t, wins, wz, ww, wh, kind="dark", door=False,
         holes = [(s - ww / 2, s + ww / 2, wz, wz + wh) for s in wins.get(key, ())] if (kind != "dark" or lod == 0) else []
         if door and key == "F":
             holes.append((-DOOR_W / 2, DOOR_W / 2, -1.0, FLOOR + DOOR_H))
-        K.panel(mb, Ff, a, b, z0, zt, -t, 0.0, holes, PL)
+        panel(mb, Ff, a, b, z0, zt, -t, 0.0, holes, PL)
         for s in wins.get(key, ()):
             cwin(mb, Ff, s, wz, ww, wh, t, kind, lod)
         if band:
@@ -330,7 +417,7 @@ def ishigaki_keep(mb, F, hx, hy, z_top, z_bot, batter, key, gap=None):
             x = max(x, -half + lc)
             row, prev, n = [], False, 0
             while x < xend - 0.3:
-                x2 = min(xend, x + {"F": 3.4, "B": 4.6}.get(k, 3.8) + 2.0 * K._h01(key, k, c, n))   # V3: fundos/lados com pedras maiores
+                x2 = min(xend, x + {"F": 3.4, "B": 5.6}.get(k, 4.4) + 2.0 * K._h01(key, k, c, n))   # V3/R3: fundos/lados com pedras maiores
                 if xend - x2 < 1.2:
                     x2 = xend
                 spans = [(x, x2)]
@@ -427,10 +514,13 @@ def boards(mb, Ff, spans, z0, z1, lod=0, step=0.78, proud=0.36):
         z = z0 + h * i
         poly += [(proud - 0.17, z), (proud, z + 0.001)]
     poly += [(proud - 0.17, z1), (0.0, z1)]
-    for a, b in spans:
-        if b - a < 0.4:
+    for a0, b0 in spans:
+        if b0 - a0 < 0.4:
             continue
-        ext(mb, Ff, poly, "x", a, b, SUMI)
+        nseg = int(math.ceil((b0 - a0) / SEG))              # R3: trechos <= SEG (sem o corte da colv3)
+        for q in range(nseg):
+            ext(mb, Ff, poly, "x", a0 + (b0 - a0) * q / nseg, a0 + (b0 - a0) * (q + 1) / nseg, SUMI)
+        a, b = a0, b0
         if lod == 0:
             for x in K.even(a + 0.3, b - 0.3, 2.3)[1:-1] if b - a > 3.0 else []:
                 bb(mb, Ff, x - 0.11, x + 0.11, proud - 0.2, proud + 0.14, z0 + 0.05, z1, SUMI)
@@ -516,13 +606,13 @@ def ishiotoshi(mb, Ff, x, z0, z1, w=3.0, d=1.6):
 
 
 def face3(mb, Ff, ln, zb, zt, side, t=1.0, lod=0, kosh=None, rows=(), posts=(), bands=(), holes=(), ishi=(),
-          ishi_z=None, head=True, board_gap=(), pz0=None, ishi_w=2.6):
+          ishi_z=None, head=True, board_gap=(), pz0=None, ishi_w=2.6, caps=True):
     """UMA FACE de um andar V3 (referencial na face: y=0 no reboco, +y fora). Reboco de zb ate zt (com vaos 'holes'),
     shitami de zb ate zb+kosh (aberto nas janelas que descem ate ele e em board_gap), koshi-nageshi, pilares 'posts'
     entre as janelas, fileiras de janelas rows = [(z, h, w, [(s, tipo)])], faixas 'bands' (z0, z1), ishi-otoshi nos x
     de 'ishi', viga de beiral (zt-1 .. zt) e pilar de canto saliente."""
     a, b = (-ln / 2 + t, ln / 2 - t) if side else (-ln / 2, ln / 2)
-    K.panel(mb, Ff, a, b, zb if pz0 is None else pz0, zt, -t, 0.0, list(holes), PL)
+    panel(mb, Ff, a, b, zb if pz0 is None else pz0, zt, -t, 0.0, list(holes), PL)
     zk = zb
     if kosh:
         zk = zb + kosh
@@ -534,20 +624,20 @@ def face3(mb, Ff, ln, zb, zt, side, t=1.0, lod=0, kosh=None, rows=(), posts=(), 
         for p, q in board_gap:
             spans = _cut(spans, p, q)
         boards(mb, Ff, spans, zb, zk, lod if not side else 1)        # mata-juntas so na frente (paga o orcamento)
-        band(mb, Ff, -ln / 2 - 0.3, ln / 2 + 0.3, zk - 0.08, zk + 0.42, 0.52)
+        band(mb, Ff, -ln / 2 - 0.3, ln / 2 + 0.3, zk - 0.08, zk + 0.42, 0.52, caps)
         zk += 0.42
     zh = zt - 1.0 if head else zt
     for x in posts:
         bb(mb, Ff, x - 0.3, x + 0.3, -0.1, 0.32, zk, zh, SUMI)
     for z0, z1 in bands:
-        band(mb, Ff, -ln / 2 - 0.3, ln / 2 + 0.3, z0, z1, 0.4)
+        band(mb, Ff, -ln / 2 - 0.3, ln / 2 + 0.3, z0, z1, 0.4, caps)
     for z, h, w, ws in rows:
         for s, kd in ws:
             win3(mb, Ff, s, z, w, h, kd, lod)
     for x in ishi:
         ishiotoshi(mb, Ff, x, ishi_z[0], ishi_z[1], ishi_w)
     if head:
-        band(mb, Ff, -ln / 2 - 0.3, ln / 2 + 0.3, zt - 1.0, zt, 0.5)
+        band(mb, Ff, -ln / 2 - 0.3, ln / 2 + 0.3, zt - 1.0, zt, 0.5, caps)
     bb(mb, Ff, ln / 2 - 0.75, ln / 2 + 0.5, -0.75, 0.5, zb, zt, SUMI)                    # pilar de canto
 
 
@@ -733,7 +823,7 @@ def engawa(mb, F):
                 K2.bracket2(mb, Ff, x, 1.0, ENG_D - 1.45, ENG_Z - 0.32, 0.42, 1.2, SUMI, False)
     Y, Xr = hy0 + ENG_D - 0.3, hx0 + ENG_D - 0.3
     ring = [(ENG_X0, hy0 + 0.4), (ENG_X0, Y), (Xr, Y), (Xr, -Y), (-Xr, -Y), (-Xr, Y), (-ENG_X0, Y), (-ENG_X0, hy0 + 0.4)]
-    rail3(mb, sub(F, 0.0, 0.0, ENG_Z), ring, ENG_H, 3.1, 3, 0.0)
+    rail3(mb, sub(F, 0.0, 0.0, ENG_Z), ring, ENG_H, 3.1, 6, 0.0)     # R3 (orcamento): giboshi a cada 6 + cantos
     return ring
 
 
@@ -766,7 +856,12 @@ def keep(mb):
         bb(mb, Ff, x - 0.7, x + 0.7, -0.2, 2.7, PLINTH + 0.2, PLINTH + 0.55, STP)
     bb(mb, Ff, -DOOR_W / 2 - 0.2, DOOR_W / 2 + 0.2, 0.0, 2.6, -0.3, 0.22, STP)            # degrau de pedra
     for k, Fw, ln, d in faces(F, hx0, hy0):                 # soleira escura sobre a cantaria (mizukiri)
-        bb(mb, Fw, -ln / 2 - 0.2, ln / 2 + 0.2, -0.3, 0.3, PLINTH, PLINTH + 0.5, SUMI)
+        # R3: na frente a soleira PARA no caixilho da porta (antes cruzava o vao a 4,5-5,0 do patio: viga na altura da
+        # cabeca na rota PLAZA->CASTLE); o vao livre da porta vai do piso do salao a verga (DOOR_H)
+        spans = [(-ln / 2 - 0.2, -DOOR_W / 2 - 0.6), (DOOR_W / 2 + 0.6, ln / 2 + 0.2)] if k == "F" else \
+            [(-ln / 2 - 0.2, ln / 2 + 0.2)]
+        for a, b in spans:
+            bb(mb, Fw, a, b, -0.3, 0.3, PLINTH, PLINTH + 0.5, SUMI)
     engawa(mb, F)
     # ---- telhados (de cima para baixo: cada saia define o topo das paredes de baixo)
     rw = (0.0, 0.18, 0.45, 1.0)                         # V3: 4 fileiras (paga caibros/frontoes)
@@ -791,13 +886,16 @@ def keep(mb):
                 chidori3(mb, Fk, H, 0.6 * 0.85, xc, w, Bi + (Bo - Bi) * 0.55, z_top + up, 0 if key == "F" else 1,
                          1.8, 0.27, key != "B")
     rafters(mb, F, s0, "F", 1.6, {"F": KARA0[0] / 2 + 0.6})
-    rafters(mb, F, s0, "RL", 1.9)
+    rafters(mb, F, s0, "RL", 2.1)
+    # R3: caibros tambem nos FUNDOS de R0: o beiral de R0 vira uma laje solida (caibros + testeira) sobre o guarda-corpo
+    # da engawa - sem 'cabeca livre' em cima do corrimao (+7,3) nao ha degrau para o telhado R0 (o fundo nao tinha caibros)
+    rafters(mb, F, s0, "B", 2.2)
     rafters(mb, F, s1, "F", 1.65)
-    rafters(mb, F, s1, "RL", 1.75 * UP_RAF)          # V3-cut: lados dos andares de cima (so vistos de longe/de baixo)
+    rafters(mb, F, s1, "RL", 2.0 * UP_RAF)          # V3-cut: lados dos andares de cima (so vistos de longe/de baixo)
     rafters(mb, F, s2, "F", 1.6)
-    rafters(mb, F, s2, "RL", 1.7 * UP_RAF)
+    rafters(mb, F, s2, "RL", 2.2 * UP_RAF)                  # R3 (orcamento): lados de cima mais ralos
     rafters(mb, F, s3, "F", 1.4, {"F": KARA3[0] / 2 + 0.6})
-    rafters(mb, F, s3, "RL", 1.4 * UP_RAF)
+    rafters(mb, F, s3, "RL", 1.8 * UP_RAF)
     top = lambda sk, hx, hy: {"F": wall_top(sk, "F", hy), "B": wall_top(sk, "B", hy), "R": wall_top(sk, "R", hx),
                               "L": wall_top(sk, "L", hx)}
     # ---- andar 1 (salao): reboco de 2 com as janelas de papel; shitami ate 9,6; friso com janelinhas e pilares
@@ -813,7 +911,7 @@ def keep(mb):
         up_row = [(s, "renji" if k == "F" else "small") for s in HALL_WINS[k]] if not lod else []
         gaps = [(s - 1.86, s + 1.86) for s in HALL_WINS[k]] + ([(-ENG_X0 + 0.3, ENG_X0 - 0.3)] if k == "F" else [])
         face3(mb, Fw, ln, ENG_Z, zt0, side, 2.0, lod, kosh=9.6 - ENG_Z, rows=[(11.3, 1.7, 2.4, up_row)],
-              posts=hall_posts[k], holes=holes, board_gap=gaps, pz0=0.0)
+              posts=hall_posts[k], holes=holes, board_gap=gaps, pz0=0.0, caps=(k == "F"))
         for s in HALL_WINS[k]:
             cwin(mb, Fw, s, 5.8, 3.0, 3.0, 2.0, "hall", 0)
     # ---- andar 2 (mezanino do 1o volume): galeria de janelas entre pilares, de R0 ate sob R1
@@ -826,13 +924,13 @@ def keep(mb):
         lod = 1                                             # mezanino: quase todo na sombra entre R0 e R1
         face3(mb, Fw, ln, R0[4] - 0.3, t1[k], k in "RL", 1.0, lod,
               rows=[(16.95, 1.8, 2.3, [(s, "renji") for s in wm[k]])], posts=pm[k], head=False,
-              bands=[(t1[k] - 0.55, t1[k])])
+              bands=[(t1[k] - 0.55, t1[k])], caps=(k == "F"))
     # ---- andar 3 (volume 1): shitami alto, 2 fileiras de janelas, ishi-otoshi nos cantos
     hx1, hy1 = VT[1][0], VT[1][1]
     t2 = top(s2, hx1, hy1)
     z1b = R1[4] - 0.2
     for k, Fw, ln, d in faces(F, hx1, hy1):
-        lod = 1 if k == "B" else 0
+        lod = 0 if k == "F" else 1                         # R3 (orcamento): lados do 3o andar em lod 1
         nb = 6 if k in "FB" else 5
         bay = (ln - 2 * 3.6) / nb if k in "FB" else (ln - 2.0) / nb
         x0 = -bay * nb / 2
@@ -845,22 +943,22 @@ def keep(mb):
               rows=[(ra, 2.5, 2.3, [(s, "renji") for s in ws]),
                     (rb, 1.4, 1.6, [(s, "small") for s in (ws if k == "F" else ws[1::2])])],
               posts=ps, bands=[(ra + 2.5 + 0.55, ra + 2.5 + 0.95)],
-              ishi=[-ln / 2 + 2.0, ln / 2 - 2.0] if k == "F" else (), ishi_z=(ra + 0.4, rb + 0.8))
+              ishi=[-ln / 2 + 2.0, ln / 2 - 2.0] if k == "F" else (), ishi_z=(ra + 0.4, rb + 0.8), caps=(k == "F"))
     # ---- andar 4 (volume 2): shitami, fileira de janelas com KATOMADO alternado, friso com pilares
     hx2, hy2 = VT[2][0], VT[2][1]
     t3 = top(s3, hx2, hy2)
     z2b = R2[4] - 0.2
     for k, Fw, ln, d in faces(F, hx2, hy2):
-        lod = 1 if k == "B" else 0
-        nb = 5 if k in "FB" else 4
+        lod = 0 if k == "F" else 1                         # R3 (orcamento): lados do 4o andar em lod 1 (grade mais rala,
+        nb = 5 if k in "FB" else 4                         # tabuas sem mata-junta); o katomado continua nos lados
         bay = (ln - 2.4) / nb
         x0 = -bay * nb / 2
         ws = [x0 + bay * (i + 0.5) for i in range(nb)]
         ps = [x0 + bay * i for i in range(nb + 1)]
-        kinds = [("kato" if (0.4 < abs(i - (nb - 1) / 2.0) < 1.2 and lod == 0) else "renji") for i in range(nb)]
+        kinds = [("kato" if (0.4 < abs(i - (nb - 1) / 2.0) < 1.2 and k != "B") else "renji") for i in range(nb)]
         face3(mb, Fw, ln, z2b, t3[k], k in "RL", 1.0, lod, kosh=44.9 - z2b,
               rows=[(46.8, 2.8, 2.3, [(s, kd) for s, kd in zip(ws, kinds)])], posts=ps,
-              bands=[(50.6, 51.0)])
+              bands=[(50.6, 51.0)], caps=(k == "F"))
     # ---- portico do karahafu dourado (pilares, viga, timpano com o brasao)
     H0 = s0["F"][0]
     Fp = Ff
@@ -887,8 +985,8 @@ def keep(mb):
     # porta: caixilho, verga, folhas ABERTAS para dentro (madeira escura, cintas de ferro, cravos dourados)
     for s in (-1, 1):
         x = s * (DOOR_W / 2 + 0.3)
-        bb(mb, Fp, x - 0.3 - (ZG if s > 0 else 0.0), x + 0.3 + (ZG if s < 0 else 0.0), -2.25, 0.2, FLOOR - 0.3,
-           FLOOR + DOOR_H + 0.5, WD)
+        bb(mb, Fp, x - 0.3 - (ZG if s > 0 else 0.0), x + 0.3 + (ZG if s < 0 else 0.0), -2.25, 0.3, FLOOR - 0.3,
+           FLOOR + DOOR_H + 0.5, WD)                       # R3: ate a face da soleira (a soleira para nele)
     bb(mb, Fp, -DOOR_W / 2 - 0.6, DOOR_W / 2 + 0.6, -2.25, 0.2, FLOOR + DOOR_H - ZG, FLOOR + DOOR_H + 0.7, WD)
     bb(mb, Fp, -DOOR_W / 2, DOOR_W / 2, -2.1, 0.0, -0.3, FLOOR, WD)
     for s in (-1, 1):
@@ -907,19 +1005,19 @@ def keep(mb):
     doors = {"F": [-3.9, 3.9], "B": [-3.9, 3.9]}
     for k, Fw, ln, d in faces(F, hx3, hy3):
         side = k in "RL"
-        lod = 1 if k == "B" else 0
+        lod = 0 if k == "F" else 1                         # R3 (orcamento): lados do 5o andar em lod 1
         dz = zb + 0.05
         holes = [(s - 1.9, s + 1.9, dz - 0.15, dz + 5.5) for s in doors.get(k, ())]
         if k in "FB":
-            rows = [(dz + 7.3, 2.6, 2.0, [(-3.9, "kato" if not lod else "renji"), (3.9, "kato" if not lod else "renji")]),
+            rows = [(dz + 7.3, 2.6, 2.0, [(-3.9, "kato" if k == "F" else "renji"), (3.9, "kato" if k == "F" else "renji")]),
                     (dz + 7.6, 2.0, 1.2, [(0.0, "small")])]
             ps = [-6.6, -1.4, 1.4, 6.6]
         else:
-            rows = [(dz + 1.6, 2.8, 2.3, [(-4.6, "renji"), (0.0, "kato" if not lod else "renji"), (4.6, "renji")]),
+            rows = [(dz + 1.6, 2.8, 2.3, [(-4.6, "renji"), (0.0, "kato"), (4.6, "renji")]),
                     (dz + 7.6, 2.0, 1.6, [(-4.6, "small"), (0.0, "small"), (4.6, "small")])]
             ps = [-6.9, -2.3, 2.3, 6.9]
         face3(mb, Fw, ln, z03 - 0.6, h3, side, 1.0, lod, rows=rows, posts=ps, bands=[(dz + 5.9, dz + 6.4)],
-              holes=holes)
+              holes=holes, caps=(k == "F"))
         for s in doors.get(k, ()):
             z0d = dz
             bb(mb, Fw, s - 2.0, s - 1.7, -0.9, 0.3, z0d, z0d + 5.4, SUMI)
@@ -936,12 +1034,12 @@ def keep(mb):
         bb(mb, Fw, -ln / 2 - dep, ln / 2 + dep, dep - 0.5, dep + 0.06, zb - 0.95, zb - 0.3, LAC)       # testeira
         for e in (-ln / 2 - dep, ln / 2 + dep):
             bb(mb, Fw, e - 0.42, e + 0.42, dep - 0.56, dep + 0.12, zb - 1.0, zb - 0.26, GOLD)
-        for x in K.even(-ln / 2 + 0.6, ln / 2 - 0.6, 2.6):
+        for x in K.even(-ln / 2 + 0.6, ln / 2 - 0.6, 2.6 if k == "F" else 3.4):   # R3 (orcamento): lados/fundos 3,4
             K2.bracket2(mb, Fw, x, -0.2, dep - 0.35, zb - 0.32, 0.4, 1.5, SUMI, k == "F")
     Fz = sub(F, 0.0, 0.0, zb)
     ring = [(-Xb + 0.25, -Yb + 0.25), (Xb - 0.25, -Yb + 0.25), (Xb - 0.25, Yb - 0.25), (-Xb + 0.25, Yb - 0.25),
             (-Xb + 0.25, -Yb + 0.25)]
-    rail3(mb, Fz, ring, 3.0, 2.4, 2, 2.0)
+    rail3(mb, Fz, ring, 3.0, 2.4, 4, 3.0)                   # R3 (orcamento): giboshi a cada 4, balaustres a 3,0
     with plastered():
         rinfo = K2.roof2(mb, F, 2 * hx3, 2 * hy3, h3, "irimoya", ROOF, ov=4.2, g_over=1.7, s0=0.44, s1=1.05,
                          lift=1.8, tv=0.6, dg=0.45, lod=0, back_lod=1, gable_m=PL, gable_style="timber", gold=True,
@@ -1086,7 +1184,7 @@ def hall(mb):
     for i in range(n):
         x0 = -X + 0.6 + i * w
         poly = [F.p(x0, -Y + 0.6), F.p(x0 + w, -Y + 0.6), F.p(x0 + w, Y), F.p(x0, Y)]
-        K.slab_poly(mb, ccw([(p.x, p.y) for p in poly]), CC + FLOOR - 0.35, CC + FLOOR, 0.05, WM, sides=False)
+        slab_grid(mb, ccw([(p.x, p.y) for p in poly]), CC + FLOOR - 0.35, CC + FLOOR, 0.05, WM, sides=False)
     bb(mb, F, -X, X, -Y, -Y + 0.6, FLOOR - 0.35, FLOOR + 0.05, WD)
     for s in (-1, 1):
         bb(mb, F, s * X - (0.6 if s > 0 else 0.0), s * X + (0.6 if s < 0 else 0.0), -Y, Y, FLOOR - 0.35, FLOOR + 0.05, WD)
@@ -1229,16 +1327,17 @@ def crest(mb, Ff, x, z, R, m=INDIGO, th=0.1):
         a = 2 * math.pi * k / 8 + math.pi / 8
         cx, cz = x + R * 0.5 * math.cos(a), z + R * 0.5 * math.sin(a)
         poly = []
-        for j in range(6):
-            t = 2 * math.pi * j / 6
-            u, v = R * 0.2 * math.cos(t), R * 0.12 * math.sin(t)
+        for j in range(4):                                  # R3 (orcamento): petala em losango
+            t = 2 * math.pi * j / 4
+            u, v = R * 0.22 * math.cos(t), R * 0.13 * math.sin(t)
             poly.append((cx + u * math.cos(a) - v * math.sin(a), cz + u * math.sin(a) + v * math.cos(a)))
         ext(mb, Ff, poly, "y", -th, th, m)
     lathe_y(mb, Ff, (x, 0.0, z), [(R * 0.16, -th), (R * 0.16, th)], 10, m)
 
 
 # ================================================================== PATIO
-def dobei(mb, pts, z, h=4.6, key="db", sama=True, col=True, tile_lod=None):
+def dobei(mb, pts, z, h=4.6, key="db", sama=True, col=True, tile_lod=None, body=None, battens=False, soco=(0.95, 1.05),
+          t=0.6, cw=1.6):
     """muro de reboco (dobei) sobre soco de pedra, CAPA DE TELHA ONDULADA de 2 aguas (kit V2) com cumeeira, seteiras
     quadradas VAZADAS; COLISAO ALTA (ate CC+8,8: o topo do muro nao vira degrau - FAIL da V2-0). pts = polilinha"""
     for i, (a, b) in enumerate(zip(pts, pts[1:])):
@@ -1247,14 +1346,20 @@ def dobei(mb, pts, z, h=4.6, key="db", sama=True, col=True, tile_lod=None):
         if ln < 0.5:
             continue
         Fs = Frame(a[0], a[1], z, math.atan2(dy, dx))
-        bb(mb, Fs, -0.3, ln + 0.3, -0.95, 0.95, -0.6, 0.9, ST)
-        bb(mb, Fs, -0.3, ln + 0.3, -1.05, 1.05, 0.9, 1.15, STP)
+        bb(mb, Fs, -0.3, ln + 0.3, -soco[0], soco[0], -0.6, 0.9, ST)
+        bb(mb, Fs, -0.3, ln + 0.3, -soco[1], soco[1], 0.9, 1.15, STP)
         holes = []
         if sama and ln > 4.0:
+            zs = h * 0.6                                        # R3: seteiras a 60% da altura (muro mais alto)
             for x in K.even(1.6, ln - 1.6, 3.6):
-                holes.append((x - 0.34, x + 0.34, 2.7, 3.38))
-        K.panel(mb, Fs, 0.0, ln, 1.15, h, -0.6, 0.6, holes, PL)
-        bb(mb, Fs, -0.2, ln + 0.2, -0.75, 0.75, h - 0.5, h, WD)
+                holes.append((x - 0.34, x + 0.34, zs - 0.34, zs + 0.34))
+        panel(mb, Fs, 0.0, ln, 1.15, h, -t, t, holes, body or PL)
+        if battens:                                         # ITABEI: mata-juntas verticais (face -y = lado do patio)
+            for x in K.even(1.4, ln - 1.4, 2.8):
+                bb(mb, Fs, x - 0.12, x + 0.12, -t - 0.14, -t, 1.15, h - 0.5, WD)
+        # R3: viga de cima (sob a capa) no MATERIAL e na LARGURA do corpo: o fecho do corpo e uma laje a prumo (+-0,6);
+        # viga escura propria virava um fecho a parte que se juntava ao do portao vizinho (cunha invisivel sobre a escada)
+        bb(mb, Fs, -0.2, ln + 0.2, -t, t, h - 0.5, h, body or PL)
         Fm = sub(Fs, ln / 2, 0.0, 0.0)
         Hc = lambda x, y: h + 1.05 - 0.6 * abs(y)
         mx_, my_ = (a[0] + b[0]) / 2, (a[1] + b[1]) / 2
@@ -1262,14 +1367,20 @@ def dobei(mb, pts, z, h=4.6, key="db", sama=True, col=True, tile_lod=None):
         inner = L.point_in_poly(mx_ + nx_ * 3.0, my_ + ny_ * 3.0, L.COURT)
         for si, Fk in enumerate((Fm, sub(Fm, ang=math.pi))):
             wl = tile_lod or (1 if (si == 0) == inner else 2)  # V3: agua de FORA do patio lisa (lod 2: nao se ve de perto)
-            K2.tiles(mb, Fk, K2._wave(-ln / 2 - 0.4, ln / 2 + 0.4, 2.1, 0.22, wl), lambda x: -0.1, 1.6, Hc, ROOF, 0.28,
+            K2.tiles(mb, Fk, K2._wave(-ln / 2 - 0.4, ln / 2 + 0.4, 2.1, 0.22, wl), lambda x: -0.1, cw, Hc, ROOF, 0.28,
                      soffit=SOFFIT, rows=(0.0, 0.5, 1.0), coarse=6.0)
-            K.strip(mb, Fk, [(x, 1.3, Hc(x, 1.3) - 0.28) for x in (-ln / 2 - 0.4, ln / 2 + 0.4)], (0, 1, 0), -0.14,
-                    0.14, -0.4, 0.0, FAS)
+            ns = int(math.ceil((ln + 0.8) / SEG))
+            K.strip(mb, Fk, [(-ln / 2 - 0.4 + (ln + 0.8) * q / ns, cw - 0.3, Hc(0.0, cw - 0.3) - 0.28) for q in range(ns + 1)],
+                    (0, 1, 0), -0.14, 0.14, -0.4, 0.0, body or FAS)
+            # (R3: testeira no material do CORPO - testeira de outro material vira 'portador' proprio na colv3 e o
+            # corpo, a <= 1 do soco e da testeira, ficava 'coberto' = SEM colisao: o andador passava por baixo da capa)
         bb(mb, Fs, -0.4, ln + 0.4, -0.32, 0.32, h + 0.85, h + 1.35, RR)
-        mb.rod(Fs.p(-0.4, 0.0, h + 1.45), Fs.p(ln + 0.4, 0.0, h + 1.45), 0.22, RR, 6)
+        nr = int(math.ceil((ln + 0.8) / SEG))                   # cumeeira roliça em trechos <= SEG
+        for k in range(nr):
+            xa, xb = -0.4 + (ln + 0.8) * k / nr, -0.4 + (ln + 0.8) * (k + 1) / nr
+            mb.rod(Fs.p(xa, 0.0, h + 1.45), Fs.p(xb, 0.0, h + 1.45), 0.22, RR, 6)
         if col:
-            col_box("OP_CasWall", (ln + 0.8, 3.8, COL_TALL + 0.6), Fs.p(ln / 2, 0.0, (COL_TALL - 0.6) / 2), Fs.r())
+            col_box("OP_CasWall", (ln + 0.8, 3.8, h + 1.0), Fs.p(ln / 2, 0.0, (h - 0.6 + 1.0) / 2 - 0.3), Fs.r())
 
 
 def simple_base(mb, F, hb, z_top, z_bot, batter, key):
@@ -1288,7 +1399,10 @@ def simple_base(mb, F, hb, z_top, z_bot, batter, key):
 
 def turret(mb, cx, cy, ang, s, z_bot, key, big=True):
     """yagura de canto no kit V2 (2 andares no SE, 1 no SO) sobre base de cantaria que desce pela rocha: rodape de
-    tabuas escuras, janelas com caixilho, saia ondulada com beiral rebocado e chidori, irimoya no topo"""
+    tabuas escuras, janelas com caixilho, saia ondulada com beiral rebocado e chidori, irimoya no topo.
+    R3: o guarda-corpo do mirante (topo +3,7) encosta nos 2 yagura -> o beiral mais baixo de cada um sobe para >= 12
+    acima do patio (folga >= 7,7 do corrimao: a colv3 nao faz o telhado colidir e o pulo de 7,2 nao chega). SE: 1o andar
+    +2,6 (saia a 16); SO: corpo de 9,6 -> 13,4 com faixa intermediaria (2 registros de janela como o SE)."""
     F = Frame(cx, cy, CC, ang)
     hb = s / 2 + 0.8
     simple_base(mb, F, hb, 1.0, z_bot, 18.0, key)
@@ -1303,19 +1417,24 @@ def turret(mb, cx, cy, ang, s, z_bot, key, big=True):
             bb(mb, Ff, x - 0.08, x + 0.08, 0.1, 0.3, 1.0, 2.8, WD)
     if big:
         s2 = s - 4.0
-        sk = cskirt(mb, F, s2 / 2, s2 / 2, s / 2 + 2.6, s / 2 + 2.6, 13.4, 3.4, chid={"F": [(0.0, 5.6, 0.62)]},
+        z1 = SE_SKIRT_Z
+        sk = cskirt(mb, F, s2 / 2, s2 / 2, s / 2 + 2.6, s / 2 + 2.6, z1, 3.4, chid={"F": [(0.0, 5.6, 0.62)]},
                     lod=1, P=2.2, amp=0.26, fas=0.6, lift=0.9, up=2.6, oni=False)
-        story(mb, F, s / 2, s / 2, 0.5, {k: wall_top(sk, k, s / 2) for k in "FBRL"}, 1.0, w2, 5.6, 2.4, 2.0, lod=1)
-        h2 = 13.4 + 5.0
-        story(mb, F, s2 / 2, s2 / 2, 13.4 - 0.6, {k: h2 for k in "FBRL"}, 1.0, {k: [0.0] for k in "FBRL"}, 14.9, 2.0,
+        story(mb, F, s / 2, s / 2, 0.5, {k: wall_top(sk, k, s / 2) for k in "FBRL"}, 1.0, w2, z1 - 7.8, 2.4, 2.0, lod=1)
+        for k, Ff, ln, d in faces(F, s / 2, s / 2):        # faixa (koshi-nageshi) no meio do 1o andar mais alto
+            bb(mb, Ff, -ln / 2 - 0.2, ln / 2 + 0.2, -0.3, 0.2, 4.6, 4.95, SUMI)
+        h2 = z1 + 5.0
+        story(mb, F, s2 / 2, s2 / 2, z1 - 0.6, {k: h2 for k in "FBRL"}, 1.0, {k: [0.0] for k in "FBRL"}, z1 + 1.5, 2.0,
               1.8, lod=1, sill_band=False)
         with plastered():
             r = K2.roof2(mb, F, s2, s2 + 0.01, h2, "irimoya", ROOF, ov=2.8, g_over=1.2, s0=0.42, s1=1.0, lift=1.0,
                          tv=0.5, lod=1, back_lod=1, gable_m=PL, rafters=False, hafu_m=FAS, P=2.4, courses=1)
     else:
-        h2 = 9.6
-        story(mb, F, s / 2, s / 2, 0.5, {k: h2 for k in "FBRL"}, 1.0, {k: ([-2.1, 2.1] if k == "F" else [0.0]) for k in "FBRL"}, 5.4, 2.2, 2.4,
-              lod=1)
+        h2 = SW_BODY_H
+        story(mb, F, s / 2, s / 2, 0.5, {k: h2 for k in "FBRL"}, 1.0, {k: ([-2.1, 2.1] if k == "F" else [0.0]) for k in "FBRL"},
+              h2 - 5.0, 2.2, 2.4, lod=1)
+        for k, Ff, ln, d in faces(F, s / 2, s / 2):
+            bb(mb, Ff, -ln / 2 - 0.2, ln / 2 + 0.2, -0.3, 0.2, 4.6, 4.95, SUMI)
         with plastered():
             r = K2.roof2(mb, F, s, s + 0.01, h2, "irimoya", ROOF, ov=3.0, g_over=1.2, s0=0.42, s1=1.0, lift=1.1,
                          tv=0.5, lod=1, back_lod=1, gable_m=PL, rafters=False, hafu_m=FAS, P=2.4, courses=1,
@@ -1411,7 +1530,9 @@ def _pave_rect(mb, court, r, slab, along, key, mats, z0, z1):
                         break
                 pc = DL.offset_poly(ccw(piece), -0.06)          # junta de 0,12 sobre a base escura (2 tris/laje)
                 if len(pc) >= 3 and abs(L.area(pc)) > 0.5:
-                    K.slab_poly(mb, ccw(pc), z1 - 0.3, z1, 0.0, m, sides=False)
+                    # R3 (orcamento): so o TAMPO (2 tris) - a junta de 0,12 mostra a base escura 0,08 abaixo; as 4
+                    # faces de lado (8 tris por laje) nao apareciam (pele de piso, sem colisao)
+                    loft(mb, Frame(0.0, 0.0, 0.0, 0.0), [[(x, y, z1) for x, y in ccw(pc)]], m, caps=(False, True))
                 n += 1
             u = ub
         v, row = vb, row + 1
@@ -1456,7 +1577,7 @@ def court_floor(mb):
     for i, r in enumerate(strips + axis + appr):
         under = L.clip_rect(court, r)                       # base escura sob as lajes (le como junta)
         if len(under) >= 3:
-            K.slab_poly(mb, ccw(under), z0, z1 - 0.08, 0.0, STD, sides=False)
+            slab_grid(mb, ccw(under), z0, z1 - 0.08, 0.0, STD, sides=False)
         n += _pave_rect(mb, court, r, 4.0 if i != 6 else 3.0, "y" if i in (2, 3, 4, 5) else "x", ("pt", i), mats, z0, z1)
     zc0, zc1 = z0, z1 + 0.06
     _curb_line(mb, (bx0 - c2, by0 - CURB), (-4.0 - c2, by0 - CURB), zc0, zc1, "cb1")
@@ -1472,7 +1593,7 @@ def court_floor(mb):
     for r in cuts:
         pieces = [q for pc in pieces for q in L.subtract_rect(pc, r)]
     for pc in pieces:
-        K.slab_poly(mb, ccw(pc), z0, z1, 0.0, "Stone_OP_Court")
+        slab_grid(mb, ccw(pc), z0, z1, 0.0, "Stone_OP_Court")
     rail = [RAIL_W, (-49.4, 358.8), (-24.0, 352.8), (24.0, 352.8), (49.4, 358.8), RAIL_E]
     for i, (a, b) in enumerate(zip(rail, rail[1:])):
         dx, dy = b[0] - a[0], b[1] - a[1]
@@ -1515,78 +1636,88 @@ SHIMENAWA_SEG = 3                       # segmento da cerca que leva a corda sag
 
 
 def tamagaki(mb):
-    """CERCA SAGRADA da arvore: soco de pedra, mouroes de madeira escura com cabeca chanfrada, 2 travessas e ripas
-    verticais (mizugaki), corda SHIMENAWA de palha com shide brancos no trecho de frente para a torre; colisao ALTA
-    (CC+8,8): o jogador nao entra nas raizes (corpo dentro medido pelo gate)"""
-    h = 3.4
-    for i, (a, b) in enumerate(zip(FENCE, FENCE[1:])):
-        dx, dy = b[0] - a[0], b[1] - a[1]
-        ln = math.hypot(dx, dy)
-        Fs = Frame(a[0], a[1], CC, math.atan2(dy, dx))
-        bb(mb, Fs, -0.5, ln + 0.5, -0.65, 0.65, -0.3, 0.55, ST)
-        bb(mb, Fs, -0.6, ln + 0.6, -0.75, 0.75, 0.55, 0.75, STP)
-        nseg = max(1, int(math.ceil(ln / 2.6)))
-        xs = [ln * k / nseg for k in range(nseg + 1)]
-        for x in xs:
-            bb(mb, Fs, x - 0.24, x + 0.24, -0.24, 0.24, 0.75, h + 0.3, WD)
-        for zz in (1.5, h - 0.5):
-            bb(mb, Fs, -0.1, ln + 0.1, 0.24, 0.42, zz - 0.14, zz + 0.14, WD)
-        for x in K.even(0.3, ln - 0.3, 1.9):
-            bb(mb, Fs, x - 0.14, x + 0.14, 0.42, 0.56, 0.9, h - 0.2, WM)
-        col_box("OP_CasFence", (ln + 2.4, 3.2, COL_TALL + 0.6), Fs.p(ln / 2, 0.3, (COL_TALL - 0.6) / 2), Fs.r())
-        if i == SHIMENAWA_SEG:
-            pts = []
-            for k in range(13):
-                u = k / 12.0
-                pts.append((ln * u, -0.5, h - 0.4 - 0.9 * math.sin(math.pi * u)))     # lado da torre (-y)
-            for p0, p1 in zip(pts, pts[1:]):
-                beam(mb, Fs, p0, p1, 0.5, 0.5, STRAW)
-            for k in range(1, 12, 2):
-                x, y, z = pts[k]
-                ext(mb, Fs, [(x - 0.25, z - 0.2), (x + 0.25, z - 0.2), (x + 0.25, z - 0.8), (x - 0.05, z - 0.8),
-                             (x - 0.05, z - 1.4), (x + 0.25, z - 1.4), (x + 0.25, z - 2.0), (x - 0.25, z - 2.0)],
-                    "y", y - 0.36, y - 0.3, CWHITE)
+    """R3: CERCA SAGRADA da arvore = ITABEI alto (muro de tabuas escuras com mata-juntas, soco de pedra e capa de telha
+    ondulada, como os dobei): a cerca de 3,7 era pulada e o jogador subia pelas raizes ate ficar DENTRO do tronco
+    (gate U8b) e em pe no ar sobre o fecho das raizes. Altura WALL_H (capa a >= 9,5 do patio, face a prumo): a base da
+    arvore fica fora do alcance; as raizes continuam visiveis por cima (camera do jogo) e por fora dos muros. SHIMENAWA
+    de palha com shide no trecho de frente para a torre."""
+    h = WALL_H
+    # GROSSO (+-1,15: 2,3 de parede a prumo, soco rente) - o andador do QA (grade 1,5) atravessava na diagonal o corpo
+    # de 1,2 e o degrau de pedra dos pilares; agora nenhum passo de 1,5/2,1 pula a parede
+    dobei(mb, FENCE, CC, h, "dbT", sama=False, tile_lod=1, body=WM, battens=True, soco=(1.2, 1.25), t=1.15, cw=1.95)
+    WALLS.append(FENCE)
+    for p in FENCE[1:-1]:                                    # pilares de canto OITAVADOS (fecham a quina das 2 paredes)
+        lathe(mb, Frame(p[0], p[1], CC, 0.0), (0.0, 0.0, 0.0), [(1.42, -0.3), (1.42, h + 0.3), (0.01, h + 0.3)], 8, WD,
+              math.pi / 8)
+        col_box("OP_CasFence", (3.0, 3.0, h + 1.0), (p[0], p[1], CC + (h + 0.4) / 2))
+    a, b = FENCE[SHIMENAWA_SEG], FENCE[SHIMENAWA_SEG + 1]
+    dx, dy = b[0] - a[0], b[1] - a[1]
+    ln = math.hypot(dx, dy)
+    Fs = Frame(a[0], a[1], CC, math.atan2(dy, dx))
+    pts = []
+    for k in range(13):
+        u = k / 12.0
+        pts.append((ln * (0.06 + 0.88 * u), -1.55, 5.2 - 1.1 * math.sin(math.pi * u)))    # lado da torre (-y)
+    for p0, p1 in zip(pts, pts[1:]):
+        beam(mb, Fs, p0, p1, 0.55, 0.55, STRAW)
+    for x in (pts[0][0], pts[-1][0]):                         # ganchos de ferro na tabua
+        bb(mb, Fs, x - 0.12, x + 0.12, -1.55, -1.15, 5.05, 5.35, IRON)
+    for k in range(1, 12, 2):
+        x, y, z = pts[k]
+        ext(mb, Fs, [(x - 0.25, z - 0.2), (x + 0.25, z - 0.2), (x + 0.25, z - 0.8), (x - 0.05, z - 0.8),
+                     (x - 0.05, z - 1.4), (x + 0.25, z - 1.4), (x + 0.25, z - 2.0), (x - 0.25, z - 2.0)],
+            "y", y - 0.36, y - 0.3, CWHITE)
 
 
 def court(mb):
+    """R3: muros do patio ALTOS (corpo WALL_H, capa a >= 9,5 do patio; WALL_H_STAIR onde a escada CasteloB encosta) com o
+    fecho de face a prumo (viga de cima na largura do soco); pilares de canto ate a capa; portao do patio sem os
+    telhadinhos dos pilares de apoio (eram degrau do patio para o telhado) e mais alto (verga a > 7,5 do pilarete da
+    escada); cerca da arvore = muro sagrado alto (tamagaki-bei) com shimenawa"""
     gx, gw = L.COURT_GATE[0], L.COURT_GATE[2]
     xs = gw / 2 + 0.75
     wl = [(-63.4, COURT_GATE_Y), (-63.4, 381.5)]
-    dobei(mb, wl, CC, 4.6, "dbW")
+    dobei(mb, wl, CC, WALL_H_STAIR, "dbW")
     WALLS.clear()
     WALLS.extend([wl])
     wn = [(gx - xs, COURT_GATE_Y), (gx - xs, 437.3), (-89.3, 437.3), (-89.3, 469.2), (-40.0, 473.3), (20.0, 475.3), WALL_N_END]
-    dobei(mb, wn, CC, 4.6, "dbN", sama=False, tile_lod=2)       # V3: muro do fundo (atras da torre) liso
+    dobei(mb, wn[:3], CC, WALL_H_STAIR, "dbNs", sama=False, tile_lod=2)     # flanco do portao (pilarete da escada)
+    dobei(mb, wn[2:], CC, WALL_H, "dbN", sama=False, tile_lod=2)            # V3: muro do fundo (atras da torre) liso
     WALLS.append(wn)
     we = [(63.6, 370.6), (65.6, 373.6), (WALL_E_END[0], WALL_E_END[1])]
-    dobei(mb, we, CC, 4.6, "dbE", sama=False, tile_lod=2)
+    dobei(mb, we, CC, WALL_H, "dbE", sama=False, tile_lod=2)
     WALLS.append(we)
-    for p in (wn[2], wn[3], wn[4], wn[5], we[1], wl[1]):           # pilares de canto (cobrem as juntas)
-        bb(mb, Frame(p[0], p[1], CC, 0.0), -1.15, 1.15, -1.15, 1.15, -0.3, 5.0, PL)
-        col_box("OP_CasWall", (3.4, 3.4, COL_TALL + 0.6), (p[0], p[1], CC + (COL_TALL - 0.6) / 2))
+    for p, hh in ((wn[2], WALL_H_STAIR), (wn[3], WALL_H), (wn[4], WALL_H), (wn[5], WALL_H), (we[1], WALL_H),
+                  (wl[1], WALL_H_STAIR)):                    # pilares de canto (cobrem as juntas) ate sob a capa
+        bb(mb, Frame(p[0], p[1], CC, 0.0), -1.15, 1.15, -1.15, 1.15, -0.3, hh + 0.3, PL)
+        col_box("OP_CasWall", (3.4, 3.4, hh + 1.0), (p[0], p[1], CC + (hh + 0.4) / 2))
         bb(mb, Frame(p[0], p[1], CC, 0.0), -1.35, 1.35, -1.35, 1.35, -0.3, 1.3, ST)
-    for p in (wn[-1], we[-1]):
-        bb(mb, Frame(p[0], p[1], CC, 0.0), -1.25, 1.25, -1.25, 1.25, -0.3, 3.4, ST)
-    # portao do patio (koraimon escuro) no topo da CasteloB, voltado para a escada (sul)
-    F, xs_, cw, back = koraimon(mb, gx, COURT_GATE_Y, math.pi, gw, 11.0, False, CC, "kgP", nuki_drop=1.2, roof_lod=1,
-                                col_name="OP_CasCourtGate")
+    for p in (wn[-1], we[-1]):                              # R3: pedra de arremate baixa (era 3,4: degrau p/ a capa)
+        bb(mb, Frame(p[0], p[1], CC, 0.0), -1.25, 1.25, -1.25, 1.25, -0.3, 1.3, ST)
+    # portao do patio (escuro) no topo da CasteloB, voltado para a escada (sul). R3: sem pilares de apoio (os telhadinhos
+    # deles a +6,7 do patio eram o degrau para o telhado do portao) e mais alto (nuki a > 7,5 do pilarete da escada)
+    F, xs_, cw, back = koraimon(mb, gx, COURT_GATE_Y, math.pi, gw, COURT_GATE_H, False, CC, "kgP", hikae=False,
+                                nuki_drop=1.2, roof_lod=1, col_name="OP_CasCourtGate")
     for s in (-1, 1):
-        col_box("OP_CasCourtGate", (cw + 0.4, cw + 0.4, 11.0), F.p(s * xs_, 0.0, 5.5), F.r())
-        col_box("OP_CasCourtGate", (1.4, 1.4, 7.3), F.p(s * (xs_ + 0.4), -back, 3.6), F.r())
+        col_box("OP_CasCourtGate", (cw + 0.4, cw + 0.4, COURT_GATE_H), F.p(s * xs_, 0.0, COURT_GATE_H / 2), F.r())
     ang_e = math.atan2(372.0 - 358.0, 66.0 - 50.0)
     turret(mb, SE_TURRET[0], SE_TURRET[1], ang_e - math.pi, SE_TURRET[2], -9.4, "ySE", True)
     ang_w = math.atan2(358.0 - 376.0, -50.0 - (-64.0))
     turret(mb, SW_TURRET[0], SW_TURRET[1], ang_w + math.pi, SW_TURRET[2], -13.0, "ySW", False)
     rail = [RAIL_W, (-49.4, 358.8), (-24.0, 352.8), (24.0, 352.8), (49.4, 358.8), RAIL_E]
-    K2.rail2(mb, Frame(0.0, 0.0, CC + 0.33, 0.0), rail, 3.4, 0.0, 3.4, LAC, True)
+    rail_d = [rail[0]]                                      # R3: trechos <= SEG (o corte da colv3 nao divide o corrimao)
+    for a, b in zip(rail, rail[1:]):
+        nseg = int(math.ceil(math.hypot(b[0] - a[0], b[1] - a[1]) / SEG))
+        rail_d += [(a[0] + (b[0] - a[0]) * q / nseg, a[1] + (b[1] - a[1]) * q / nseg) for q in range(1, nseg + 1)]
+    K2.rail2(mb, Frame(0.0, 0.0, CC + 0.33, 0.0), rail_d, 3.4, 0.0, 3.4, LAC, True)
     for a, b in zip(rail, rail[1:]):                        # colisao ALTA do guarda-corpo (o corrimao nao e degrau)
         dx, dy = b[0] - a[0], b[1] - a[1]
         ln = math.hypot(dx, dy)
         col_box("OP_CasRail", (ln + 0.8, 1.0, COL_TALL + 0.6), ((a[0] + b[0]) / 2, (a[1] + b[1]) / 2,
                 CC + (COL_TALL - 0.6) / 2), (0.0, 0.0, math.atan2(dy, dx)))
-    for i, x in enumerate((-12.0, 12.0)):
-        K2.toro2(mb, Frame(x, 375.0, CC + COURT_TOP, 0.0), "L_OPProp_Lamp_Cas_Toro_%d" % i, 1.0, 35.0)
-        col_box("OP_CasLamp", (3.0, 3.0, 8.0), (x, 375.0, CC + 4.0))
+    for i, x in enumerate((-12.0, 12.0)):                   # R3: toro a 18 da fachada (era 6): o topo (+6,9) nao
+        K2.toro2(mb, Frame(x, TORO_Y, CC + COURT_TOP, 0.0), "L_OPProp_Lamp_Cas_Toro_%d" % i, 1.0, 35.0)  # e degrau
+        col_box("OP_CasLamp", (3.0, 3.0, 8.0), (x, TORO_Y, CC + 4.0))                                       # p/ beiral R0
     tamagaki(mb)
     court_floor(mb)
 
@@ -1717,7 +1848,7 @@ def stair_guard(mb, nm, ground):
         loft(mb, F, [core(y, zl(y) + 0.3, zu(y) - 0.15, X(W + 0.25)) for y in (0.3, Y1 - 0.3)], STD)
         y, k, prev = 0.0, 0, False
         while y < Y1 - 0.3:
-            y2 = min(Y1, y + 3.4 + 1.6 * K._h01(key, s, "u", k))
+            y2 = min(Y1, y + 4.2 + 1.8 * K._h01(key, s, "u", k))     # R3 (orcamento): pedras 20% mais longas
             if Y1 - y2 < 1.4:
                 y2 = Y1
             dark = K._h01(key, s, "ud", k) < 0.16 and not prev
@@ -1732,7 +1863,7 @@ def stair_guard(mb, nm, ground):
             return pts if s > 0 else list(reversed(pts))
         y, k = 0.0, 0
         while y < Y1 - 0.3:
-            y2 = min(Y1, y + 3.0 + 0.8 * K._h01(key, s, "c", k))
+            y2 = min(Y1, y + 3.6 + 1.0 * K._h01(key, s, "c", k))
             if Y1 - y2 < 1.2:
                 y2 = Y1
             loft(mb, F, [csec(y + 0.03), csec(y2 - 0.03)], STP)
@@ -1747,7 +1878,7 @@ def stair_guard(mb, nm, ground):
                 ycross = tread * ((zb_ + 0.9) / rise - 1.0)
                 y, k, prev = ystart, 0, False
                 while y < Y1 - 0.3:
-                    y2 = min(Y1, y + 2.8 + 1.4 * K._h01(key, s, c, k))
+                    y2 = min(Y1, y + 3.6 + 1.8 * K._h01(key, s, c, k))
                     if Y1 - y2 < 1.0:
                         y2 = Y1
                     if y < ycross < y2 and ycross - y > 0.6 and y2 - ycross > 0.6:
