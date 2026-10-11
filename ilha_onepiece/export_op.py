@@ -31,6 +31,8 @@ OUT = os.path.abspath(_argv[0]) if _argv else os.path.join(HERE, "export")
 os.environ["FM_EXPORT_DIR"] = OUT
 os.environ["FM_BUDGET"] = os.environ.get("OP_BUDGET", "strict")
 import export_roblox as ER
+import op_tree                     # R3 (vegetacao): normais suaves das pecas de folhagem/tronco (inclusive
+op_tree.patch_export(ER)           # as pecas '<obj>_k*' da colv3) - o export_roblox chapava tudo
 ER.OUT = OUT
 ER.BUDGET_MODE = os.environ["FM_BUDGET"].lower()
 
@@ -129,16 +131,21 @@ ER.OWNERS = [("OP_Ter_", "terrain"), ("OP_Ent_", "entry"), ("OP_Cap_", "capital"
 # M6c (integracao): a M6b do castelo (patio em lajes + cascalho, guardas de pedra nas subidas, torreoes e base em
 # fiadas, itens 24-30 da auditoria) levou o castelo a 82,0k: teto 75,6k -> 84k, pago pela folga da capital
 # (198k -> 189,6k; usa 178,3k depois do K.cull_hidden). Soma dos tetos e teto global (640k) inalterados.
-ER.BUDGET_OWNER = {"terrain": (108000, 81), "entry": (32400, 35), "capital": (232000, 145), "plaza": (34000, 36),
-                   "castle": (84500, 59), "tree": (43200, 32), "harbor": (41000, 43), "ship": (19400, 17),
-                   "summon": (36700, 43), "exit": (19400, 26), "gate_opm": (30300, 41), "landmarks": (15100, 15),
-                   "water": (10800, 17), "props": (27000, 38), "vegetation": (65000, 50), "vfx": (16200, 32)}
+# V3 (rodada 3, colisao pela forma): as MeshParts por dono subiram porque cada estrutura solida vira MeshPart propria
+# (fecho convexo justo); os TRIS nao mudam (so +~5,5k de cortes coplanares de faces longas). Tetos de MeshParts = medido
+# no export de teste 3113739e + ~10%; tetos de tris inalterados.
+ER.BUDGET_OWNER = {"terrain": (108000, 75), "entry": (32400, 58), "capital": (232000, 680), "plaza": (34000, 80),
+                   "castle": (84500, 335), "tree": (43200, 62), "harbor": (41000, 205), "ship": (19400, 26),
+                   "summon": (36700, 135), "exit": (19400, 140), "gate_opm": (30300, 41), "landmarks": (15100, 15),
+                   "water": (10800, 65), "props": (27000, 38), "vegetation": (65000, 50), "vfx": (16200, 32)}
 # PLANO_OP secao 9: <= 620k tris / 650 MeshParts estaticos + reserva VFX 15k / 30
 # V2-3 (lead, 10/10): o export soma as pecas moveis VFX_ (barcos/guindaste/rodas, ~12k) dentro dos "estaticos"; o op_qa
 # as conta a parte (static 639k <= 640k). Teto do export = 640k estatico + 12k moveis; total = + reserva 15k de
 # particulas. Castelo 84k -> 84,5k (medido 84,2k depois do corte sem perda visivel).
-ER.BUDGET = {"static_tris": 652000, "static_meshes": 650, "vfx_tris": 15000, "vfx_meshes": 30, "total_tris": 667000,
-             "total_meshes": 680, "materials": 110, "shadow_meshes": 260, "day_lights": 36, "col": 1500}
+# V3: static_meshes 650 -> 1950 / total 1980 (colisao pela forma: ~1300 MeshParts colidiveis Hull/Precise + ~480 so
+# visuais); col 1500 -> 900 (so ficam as COL_ de chao/jogo/tronco: ~520 no export depois da uniao)
+ER.BUDGET = {"static_tris": 652000, "static_meshes": 1950, "vfx_tris": 15000, "vfx_meshes": 30, "total_tris": 667000,
+             "total_meshes": 1980, "materials": 110, "shadow_meshes": 260, "day_lights": 36, "col": 900}
 _CX, _CY = to_world_xy(60.0, 250.0)            # meio da ilha (sombras / rede)
 ER.FAR_GROUND = None                 # o mar local de Wano e feito no cliente (WATER_Sea, so na area 5)
 # rede de seguranca embaixo da ilha: abaixo da quilha (-10) e do mar local (36); caixa alinhada ao mundo que cobre a
@@ -150,14 +157,9 @@ ER.BACKGROUND = ("__nenhum__",)
 ER.CARVED = ("__nenhum__",)
 ER.NO_FOLD_OBJ = ("VFX_",)
 ER.SHELL_OBJ = ()
-ER.CAM_COL_AREAS = {"OP_CasKeep": 5.0, "OP_CasKeepUpper": 5.0, "OP_CasTurret": 5.0, "OP_CasGate": 5.0,
-                    "OP_TreeTrunk": 5.0, "OPSumTower": 5.0, "OP_ShipCabin": 5.0}
-for _b in L.BUILDINGS:
-    ER.CAM_COL_AREAS[("OP_PortHouse" if _b[0].startswith("H") else "OP_CapHouse") + _b[0]] = 5.0
-# M4 op_capital (acrescimo pontual): casas novas da capital (fora do L.BUILDINGS), casa de cha e pavilhoes -> camera
-for _o in bpy.data.objects:
-    if _o.name.startswith(("COL_OP_CapHouse", "COL_OP_CapPav", "COL_OP_CapShrineDeck")):
-        ER.CAM_COL_AREAS.setdefault(re.sub(r"^COL_(.*)_\d+$", r"\1", _o.name), 5.0)
+# V3 (rodada 3): NENHUMA caixa CamOccluder (a camera batia em parede invisivel). A camera para so em geometria VISIVEL:
+# as MeshParts colidiveis da colv3 (CanCollide/CanQuery, opacas -> o Popper padrao as respeita).
+ER.CAM_COL_AREAS = {}
 ER.NIGHT_ONLY = ("L_OPProp_", "L_OPCap_Win_")
 ER.LIGHT_KEEP = ("L_OPCas", "L_OPSum", "GateOnePunchMan", "L_Gate_OnePunchMan")
 ER.FOLD_PROTECT = ER.FOLD_PROTECT + ("Glass_OP_Lantern", "Window_OP", "Flower_OP", "Metal_OP_Gold", "Wood_OP_Lacquer",
@@ -208,7 +210,11 @@ _PF = ER.piece_flags
 
 
 def _piece_flags(obname, mname, c, sz, tris):
-    return _PF(obname, mname, c - Vector((_CX, _CY, 0.0)), sz, tris)
+    shadow, flags = _PF(obname, mname, c - Vector((_CX, _CY, 0.0)), sz, tris)
+    o = bpy.data.objects.get(obname)
+    if o is not None and o.get("colv3"):              # V3: letra da colisao (H Hull / P Precise) -> bloco colv3.LUA
+        flags += str(o["colv3"])
+    return shadow, flags
 
 
 ER.piece_flags = _piece_flags
@@ -260,7 +266,8 @@ import export_ilha_lua as XL
 
 
 def extra_lua(vfx):
-    s = XL.extra_lua(ER, vfx)
+    import colv3
+    s = XL.extra_lua(ER, vfx) + "\n" + colv3.ref_table() + "\n" + colv3.LUA
     s = s.replace("'^EXIT_AnchorGuard'", "'^OP_Exit_AnchorGuard'").replace(
         "string.match(d.Name, '^COL_ExitAnchorGuard_')", "string.match(d.Name, '^COL_OPAnchorGuard_')")
     s = s.replace("integracao da Ilha 2 (ponte seguinte encosta em ISLAND_NEXT_ANCHOR)",
@@ -303,6 +310,21 @@ def main():
         for o in gone:
             bpy.data.objects.remove(o, do_unlink=True)
         print("EXPORT_OP: OP_EXPORT_ONLY=%s -> %d malhas/luzes fora do trecho removidas" % (",".join(_ONLY), len(gone)))
+    # V3 (rodada 3): lista branca das COL_ + colisao pela forma do visual (colv3.split), ANTES de levar ao mundo (o
+    # alcance e o keepout da MiningZone usam o referencial de projeto)
+    import op_col
+    rep, _cfg = op_col.v3_prepare(log=print)
+    nh = sum(1 for o in bpy.data.objects if o.get("colv3") == "H")
+    npr = sum(1 for o in bpy.data.objects if o.get("colv3") == "P")
+    print("COL: V3 %d agrupamentos -> %d MeshParts colidiveis (Hull %d, Precise %d), %d props pequenos sem colisao, "
+          "%d pecas de pele sobre o chao; COL_ apagadas %d, mantidas %d (lajes de modulo %d); tempo %s" % (
+              rep["agrupamentos"], rep["portadores"], nh, npr, rep["pequenos"], rep["pecas_pele"],
+              sum(rep["col_apagadas"].values()), sum(rep["col_mantidas"].values()), len(op_col.V3_SLABS), rep["tempo"]))
+    for a in rep["avisos"][:20]:
+        print("COL: V3 aviso %s %s %s" % a)
+    longos = [o.name for o in bpy.data.objects if o.get("colv3") and len(o.name) + 2 + max(
+        (len(m.name) for m in o.data.materials if m), default=0) > 48]
+    print("COL: V3 nomes de MeshPart > 48: %s" % (longos[:10] or "nenhum"))
     n_w = to_world()
     vfx = XL.vfx_list(ER)
     ER.EXTRA_LUA = extra_lua(vfx)

@@ -15,6 +15,8 @@
 --     topo -, perfil [5]/WanoMood no AreaAtmosphere, CeuWano, FONTE_PROXIMA da DS) - le o Source quando a Command Bar
 --     permite
 --  6) a versao anterior de ServerStorage.IlhaOnePiece vai para ServerStorage.IlhaOnePiece_anterior (rollback)
+--  7) COLISAO V3 (rodada 3, roda antes do 6): reaplica CanCollide/CanQuery/CollisionFidelity das MeshParts pelo atributo
+--     colv3, tira CamOccluder, conta as COL_ invisiveis por categoria. Depois rode roblox/auditoria_colisao.lua.
 local SS = game:GetService('ServerStorage')
 local SSS = game:GetService('ServerScriptService')
 local CS = game:GetService('CollectionService')
@@ -68,9 +70,21 @@ if cont.GP_Block_ ~= 76 then aviso(('GP_Block_* = %d (plano: 76 = 48 borda + 28 
 if cont.SAFE_ ~= 17 then aviso(('SAFE_* = %d (plano: 17)'):format(cont.SAFE_)) end
 if cont.AUDIO_ ~= 9 then aviso(('AUDIO_* = %d (plano: 9)'):format(cont.AUDIO_)) end
 if cont.PATH_ENTRY_CENTER_ ~= 11 then aviso(('PATH_ENTRY_CENTER_* = %d (plano: 11)'):format(cont.PATH_ENTRY_CENTER_)) end
--- sem receita e o esperado ate existir o op_vfx: o OnePieceIsland usa as reservas (petalas, nevoa) e a agua(); so informa
-if #semReceita > 0 then
-	print('[pos_montagem_onepiece] FX_* sem receita de emissor (reservas do OnePieceIsland): ' .. table.concat(semReceita, ', '))
+-- sem receita e o esperado ate existir o op_vfx: o OnePieceIsland usa as reservas (petalas, nevoa) e a agua(); so informa.
+-- R3: as cachoeiras/vertedouros/nascente (FX_Fall_*, FX_Weir_*, FX_Spring_W) sao do sistema de cachoeira em camadas do
+-- OnePieceIsland.lua - sem receita no marcador e o ESPERADO (nao e erro)
+do
+	local cach, outros = {}, {}
+	for _, n in ipairs(semReceita) do
+		if string.match(n, '^FX_Fall_') or string.match(n, '^FX_Weir_') or n == 'FX_Spring_W' then table.insert(cach, n)
+		else table.insert(outros, n) end
+	end
+	if #cach > 0 then
+		print(('[pos_montagem_onepiece] %d marcadores de cachoeira sem receita (esperado: o OnePieceIsland monta a cachoeira em camadas)'):format(#cach))
+	end
+	if #outros > 0 then
+		print('[pos_montagem_onepiece] FX_* sem receita de emissor (reservas do OnePieceIsland): ' .. table.concat(outros, ', '))
+	end
 end
 local zona = mk:FindFirstChild('MiningZone_OnePiece')
 if zona then
@@ -201,6 +215,68 @@ local rs = game:GetService('ReplicatedStorage')
 confere('PortoesCompra', rs:FindFirstChild('PortoesCompra'))
 local gachas = workspace:FindFirstChild('Gachas')
 if not (gachas and gachas:FindFirstChild('Gacha_mare')) then aviso('workspace.Gachas.Gacha_mare nao encontrado (motor da torre)') end
+
+-- 7) COLISAO V3 (rodada 3): o que se ve e o que colide. O montar (bloco colv3.LUA) marca cada MeshPart colidivel com o
+--    atributo colv3 (H Hull, B Box, D Default, P PreciseConvexDecomposition) pela tabela MESH; aqui REAPLICA (idempotente,
+--    corrige quem foi mexido a mao), tira toda tag CamOccluder e confere as COL_ invisiveis por categoria. A
+--    CollisionFidelity so muda no modo de edicao: este script roda na Command Bar ANTES do Play (como o montar).
+--    Categorias de COL_ (op_col.py, secao V3): PISO_PLANTA (solido sob o chao visivel), PISO_MODULO (laje sob piso
+--    visivel), JOGO (portao/trava, guarda da ancora, roda), QUEDA (guarda documentada). OUTRA = sobra de export antigo.
+local colv3 = { H = 0, B = 0, D = 0, P = 0, vis = 0, corrigidas = 0, recusadas = 0 }
+do
+	local FID = { H = Enum.CollisionFidelity.Hull, B = Enum.CollisionFidelity.Box, D = Enum.CollisionFidelity.Default,
+		P = Enum.CollisionFidelity.PreciseConvexDecomposition }
+	for _, d in ipairs(root:GetDescendants()) do
+		if d:IsA('MeshPart') then
+			local c = d:GetAttribute('colv3')
+			if c and FID[c] then
+				if not (d.CanCollide and d.CanQuery and d.CollisionFidelity == FID[c]) then colv3.corrigidas += 1 end
+				d.CanCollide = true; d.CanQuery = true; d.CanTouch = false; d.CollisionGroup = 'Default'
+				if d.CollisionFidelity ~= FID[c] then
+					if not pcall(function() d.CollisionFidelity = FID[c] end) then colv3.recusadas += 1 end
+				end
+				colv3[c] += 1
+			else
+				if d.CanCollide or d.CanQuery then colv3.corrigidas += 1 end
+				d.CanCollide = false; d.CanQuery = false; d.CanTouch = false
+				colv3.vis += 1
+			end
+		end
+	end
+	if colv3.H + colv3.B + colv3.D + colv3.P == 0 then
+		aviso('COLISAO V3: nenhuma MeshPart com atributo colv3 - o montar e de um export ANTIGO (sem colv3.LUA)?')
+	end
+	if colv3.recusadas > 0 then
+		aviso(('COLISAO V3: %d MeshParts recusaram a CollisionFidelity (rode no modo de EDICAO, nao no Play)'):format(colv3.recusadas))
+	end
+end
+local cols = { PISO_PLANTA = 0, PISO_MODULO = 0, TRONCO = 0, JOGO = 0, QUEDA = 0, OUTRA = 0 }
+local outras, camTags = {}, 0
+do
+	local PISO = { '^COL_OP_Terrain_', '^COL_OP_Rock', '^COL_OP_Bed', '^COL_OP_Stair', '^COL_OP_Arrival_',
+		'^COL_OP_ExitBridge_', '^COL_OP_CanalS_', '^COL_OP_CanalN_', '^COL_OP_Gangway_', '^COL_OPSumStair_' }
+	local JOGO = { '^COL_OPAnchorGuard_', '^COL_GateOnePunchMan', '^COL_OP_WheelEnvelope_' }
+	local function casa(n, lista) for _, p in ipairs(lista) do if string.match(n, p) then return true end end return false end
+	local colf = root:FindFirstChild('COLLISION')
+	for _, p in ipairs(colf and colf:GetChildren() or {}) do
+		if CS:HasTag(p, 'CamOccluder') then camTags += 1; CS:RemoveTag(p, 'CamOccluder') end
+		local n = p.Name
+		if casa(n, PISO) then cols.PISO_PLANTA += 1
+		elseif string.match(n, '^COL_OP_V3Slab') then cols.PISO_MODULO += 1
+		elseif string.match(n, '^COL_OP_VegTrunk_') then cols.TRONCO += 1
+		elseif casa(n, JOGO) then cols.JOGO += 1
+		elseif string.match(n, '^COL_OP_Fall') then cols.QUEDA += 1
+		else cols.OUTRA += 1; table.insert(outras, n) end
+	end
+	if cols.OUTRA > 0 then
+		aviso(('COLISAO V3: %d COL_ fora das categorias (export antigo?): %s'):format(cols.OUTRA, table.concat(outras, ', ', 1, math.min(8, #outras))))
+	end
+	if cols.JOGO + cols.QUEDA + cols.TRONCO >= 150 then aviso(('COLISAO V3: %d barreiras invisiveis (meta < 150)'):format(cols.JOGO + cols.QUEDA + cols.TRONCO)) end
+	if camTags > 0 then print(('[pos_montagem_onepiece] COLISAO V3: %d tags CamOccluder removidas'):format(camTags)) end
+end
+print(('[pos_montagem_onepiece] COLISAO V3: MeshParts colidiveis %d (Hull %d, Box %d, Default %d, Precise %d), so visuais %d, %d corrigidas; COL_ invisiveis: piso da planta %d, laje de modulo %d, tronco %d, jogo %d, queda %d, outra %d')
+	:format(colv3.H + colv3.B + colv3.D + colv3.P, colv3.H, colv3.B, colv3.D, colv3.P, colv3.vis, colv3.corrigidas,
+		cols.PISO_PLANTA, cols.PISO_MODULO, cols.TRONCO, cols.JOGO, cols.QUEDA, cols.OUTRA))
 
 -- 6) vira a fonte
 local velho = SS:FindFirstChild('IlhaOnePiece')

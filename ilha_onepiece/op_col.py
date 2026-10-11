@@ -23,6 +23,7 @@ from op_lib import col_box, col_box2, col_ramp, ccw
 import op_layout as L
 
 A = "OP_Terrain"
+V3 = True              # rodada 3: colisao V3 (o que se ve e o que colide - colv3.py + secao V3 no fim deste arquivo)
 GUARD_H = L.GUARD_V2   # guarda invisivel (acima do piso): pulo 7,2 + 1,3 (era 3,2 na V1: R2 da auditoria)
 DROP = 2.3             # degrau maximo do andador (rotas)
 JUMP = L.JUMP
@@ -39,7 +40,9 @@ def stair_col(area, base, ang, width, n, rise, tread, guards=True, guard_h=None)
     col_ramp(area, bot, top, width)
     q = F.p(tread * n - tread / 4 + 0.15, 0, rise * n - 0.5)
     col_box(area, (tread / 2 + 0.3, width, 1.0), (q.x, q.y, q.z), F.r())
-    if guards and guard_h >= GUARD_H - 1e-6:
+    if V3:
+        pass                                    # V3: sem banzo invisivel (a parede/guarda-corpo VISIVEL da escada colide)
+    elif guards and guard_h >= GUARD_H - 1e-6:
         # V2-0: caixa VERTICAL com topo plano 8,5 acima do patamar de cima (a rampa de 4 tinha topo e testa inclinados
         # alcancaveis do patamar de cima: degrau para a guarda da borda e dali para telhados/rochas)
         x0, x1 = -tread / 2 - 0.3, tread * n - tread / 2 + 0.9
@@ -128,7 +131,7 @@ def arch_bridge(nm, a, b, w, rise):
     c = ((a[0] + b[0]) / 2, (a[1] + b[1]) / 2)
     top_len = ln - 2 * run + 0.4
     col_box(area, (top_len, w, 1.6), (c[0], c[1], z0 + rise - 0.8), (0, 0, math.atan2(uy, ux)))
-    for s in (-1, 1):                                  # guarda-corpo (visual 1,0 + corrimao): colisao de 1,2
+    for s in (() if V3 else (-1, 1)):                  # guarda-corpo (visual 1,0 + corrimao): V3 = o VISIVEL colide
         o = s * (w / 2 + 0.3)
         col_box(area + "Rail", (top_len, 0.6, 1.2), (c[0] + vx * o, c[1] + vy * o, z0 + rise + 0.6),
                 (0, 0, math.atan2(uy, ux)))
@@ -151,7 +154,7 @@ def bridges():
         gh = GUARD_H + (2.0 if nm == "Gangway" else 0.0)   # sobre o vazio/mar: 8,5 (+2 na prancha: cabecos do cais)
         zt = max(a[2], b[2]) + gh + 0.8                    # V2-0: caixa VERTICAL (topo plano; a rampa de testa
         zb = min(a[2], b[2]) - 0.5                         # inclinada tinha pontos alcancaveis nas cabeceiras)
-        for s in (-1, 1):
+        for s in (() if V3 else (-1, 1)):            # V3: o parapeito VISIVEL da ponte colide (sem guarda de 8,5)
             o = s * (w / 2 + 0.6)
             c = ((a[0] + b[0]) / 2 + vx * o, (a[1] + b[1]) / 2 + vy * o, (zt + zb) / 2)
             col_box("OP_" + nm + "Guard", (ln + 2.0, 1.2, zt - zb), c, (0, 0, math.atan2(uy, ux)))
@@ -409,7 +412,12 @@ def _owner(nm, poly, z, x, y):
 
 def edge_guards():
     """borda de superficie alcancavel cuja queda para fora leva ao VAZIO/mar ou passa do pulo (7,2: nao se volta)
-    ganha parede invisivel de 8,5 no labio. Topo/pe de escada, cabeca de ponte e o vao da ancora ficam abertos."""
+    ganha parede invisivel de 8,5 no labio. Topo/pe de escada, cabeca de ponte e o vao da ancora ficam abertos.
+    V3: NAO roda (parede invisivel no labio era o 'em pe no ar' da rodada 3). Onde a queda nao pode acontecer, o dono
+    da zona poe guarda-corpo/muro VISIVEL (colide pela forma); o labio aberto leva ao mar e o resgate (VOID_CATCH /
+    IslandTravel) devolve ao SAFE_* mais perto. Guarda invisivel so as documentadas em V3_FALL_GUARDS."""
+    if V3:
+        return fall_guards()
     n_runs = 0
     for nm, poly, z in guard_surfaces():
         pts = ccw(poly)
@@ -533,6 +541,8 @@ def _bank_z(a, ux, uy, t, nx, ny, off):
 
 
 def copings():
+    if V3:
+        return 0                                    # V3: a capa VISIVEL (op_water) colide pela forma
     n = 0
     for a, b, zb, nrm in coping_runs():
         if zb is None:
@@ -672,7 +682,10 @@ def raise_guards(margin=4.0):
     """POS-PASSE (build_op, depois de todas as zonas): a guarda tem de ficar 8,5 acima de TUDO o que se alcanca perto
     dela, nao so do piso - muro, toro, banco ou caixa a <= 7,2 do piso viram degrau para o topo da guarda (cadeia
     medida pelo gate 'visual': muro do patio do castelo -> guarda -> BackN). Sobe cada COL_OP_Guard_* que tem, a menos
-    de 'margin', uma colisao de outra area com topo entre o piso da guarda e o topo dela."""
+    de 'margin', uma colisao de outra area com topo entre o piso da guarda e o topo dela.
+    V3: REMOVIDO (guarda erguida acima do visual = jogador/pet em pe no ar). Fica so a assinatura (devolve 0)."""
+    if V3:
+        return 0
     import bpy
     bpy.context.view_layer.update()                    # matrix_world das caixas recem-criadas
     guards, others = [], []
@@ -713,3 +726,174 @@ def terrain_col():
     water_beds()
     copings()
     edge_guards()
+
+
+# ================================================================== COLISAO V3 (rodada 3, 10/10): o que se ve e o que colide
+# Motor generico em colv3.py; aqui so a CONFIGURACAO da Ilha 5 e os passes que o build/export/QA chamam.
+# Categorias de colisao invisivel que FICAM (todas com o topo na cota do visual, nunca acima dele, sem CamOccluder):
+#   PISO_PLANTA  solido sob o chao visivel, tirado da planta (a pele do op_terrain casa com estes poligonos - REGRA 1):
+#                COL_OP_Terrain_ (pisos), COL_OP_Rock* (rochas da planta), COL_OP_Bed* (leito sob a agua),
+#                COL_OP_Stair* (rampa pelos bocéis), tabuleiro das pontes (COL_OP_Arrival_/ExitBridge_/CanalS_/CanalN_/
+#                Gangway_), COL_OPSumStair_
+#   PISO_MODULO  laje de piso de um modulo cujo TOPO coincide com piso visivel (calcada, engawa, piso de interior...):
+#                regra geometrica em v3_floor_slabs (altura <= 2,5, topo plano >= 6 studs2, >= 60% do topo com piso
+#                visivel a <= 0,3)
+#   JOGO         trava do portao One Punch Man + caixas do asset do portao (PortaoCompra), guarda provisoria da ancora
+#                (GuardaProximaIlha), envelope da roda d'agua (peca movel nao colide pela forma)
+#   QUEDA        guardas de queda documentadas (V3_FALL_GUARDS; hoje nenhuma: o labio aberto leva ao resgate)
+# Todo o resto do que e SOLIDO e se ve (casas, castelo, muros, guarda-corpos, pontes, postes, toro, troncos, navios,
+# rochas esculpidas, caveira, pier) colide pela PROPRIA forma (MeshPart Hull, colv3.split).
+V3_FLOOR_COL = ("COL_OP_Terrain_", "COL_OP_Rock", "COL_OP_Bed", "COL_OP_Stair", "COL_OP_Arrival_", "COL_OP_ExitBridge_",
+                "COL_OP_CanalS_", "COL_OP_CanalN_", "COL_OP_Gangway_", "COL_OPSumStair_")
+V3_GAME_COL = ("COL_OPAnchorGuard_", "COL_GateOnePunchMan", "COL_OP_WheelEnvelope_", "COL_OP_Fall")
+V3_TRUNK_COL = ("COL_OP_VegTrunk_",)   # TRONCO: 1 caixa JUSTA por tronco de arvore pequena (op_veg.TRUNK_COL_BOX),
+                                       # inclinada com ele, dentro do tronco visivel, topo a 9,5 (fora do pulo)
+V3_FALL_GUARDS = []      # (nome, (x0, y0), (x1, y1), cota do piso, altura <= 1 acima do visual, motivo) - documentadas
+V3_SKIP_OBJ = ("OP_Ter_Ground", "OP_Ter_Slabs", "OP_Ter_Walls", "OP_Ter_Cliff", "OP_Ter_CastleRock",   # pele/arrimo/
+               "OP_Plz_Piso", "OP_Plz_Emblema", "OP_Cap_Streets", "OP_Cap_Stairs", "OP_Sum_Paving",     # falesia/lajes:
+               "OP_Ent_Court", "OP_Ent_Viaduct", "OP_Ter_Rocks",                                       # PISO_PLANTA
+                                                                     # (rochas: o prisma da planta COL_OP_Rock* segura)
+               "OP_Tree_Pads", "OP_Sum_Sails", "OP_Sum_Glow", "OP_Sum_Sphere_Frame",                   # copa/pano/brilho
+               "VFX_", "GATE_", "OP_Exit_AnchorGuard",                                                 # movel/asset c/ COL
+               "OP_Veg_")                                          # arvores pequenas: caixa justa do tronco (TRONCO)
+V3_SLABS = []            # nomes das COL_ mantidas pela regra de laje (relatorio)
+
+
+def fall_guards():
+    n = 0
+    for nm, a, b, z, h, why in V3_FALL_GUARDS:
+        ln = math.hypot(b[0] - a[0], b[1] - a[1])
+        col_box("OP_Fall" + nm, (ln, 0.6, h + 0.5), ((a[0] + b[0]) / 2, (a[1] + b[1]) / 2, z - 0.5 + (h + 0.5) / 2),
+                (0, 0, math.atan2(b[1] - a[1], b[0] - a[0])))
+        n += 1
+    return n
+
+
+def v3_config():
+    import colv3
+    cfg = colv3.Config()
+    cfg.skip_obj = V3_SKIP_OBJ
+    cfg.floor_col = V3_FLOOR_COL + ("COL_OP_V3Slab",)
+    cfg.keep_col = V3_FLOOR_COL + V3_GAME_COL + V3_TRUNK_COL + ("COL_OP_V3Slab",)
+    cfg.world = L.world_matrix()
+    # as 15 rotas do op_qa (+ portao aberto) sao contrato de jogo: corredor livre de fecho convexo
+    cfg.corridors = [(pts, z0) for nm, (pts, z0) in L.routes().items()] + [(L.gate_open_route(), L.T1)]
+    g = L.gate_opm_pos()
+    ux, uy = L.exit_dir()
+    cfg.seeds = [(L.SPAWN[0], L.SPAWN[1], L.T0), (g[0] + ux * 8.0, g[1] + uy * 8.0, L.T1)]   # chegada + alem do portao
+    # interiores vivos (4) e salao do castelo: semente DENTRO (luz do interior, ~6 acima do piso) - o fecho convexo nunca
+    # enche um comodo que o jogo diz ser acessivel, mesmo que o corredor entre balcoes seja apertado para o BFS
+    import bpy
+    lots = L.block_lots()
+    for o in bpy.data.objects:
+        if o.type == "LIGHT" and o.name.startswith(("L_OPCap_Int_", "L_OPCas_Hall_")):
+            lx, ly, lz = o.location
+            cfg.seeds.append((lx, ly, lz - 5.5))
+            # interior da capital: corredor da RUA ate o meio do comodo, pela frente do lote (o vao de entrada modelado)
+            for lt in lots:
+                if lt["interior"] and L.point_in_poly(lx, ly, L.lot_poly(lt)):
+                    (ax, ay), (bx, by) = lt["front"]
+                    fx, fy = math.cos(lt["yaw"]), math.sin(lt["yaw"])        # frente do lote (para a rua)
+                    mx, my = (ax + bx) / 2, (ay + by) / 2
+                    cfg.corridors.append(([(mx + fx * 3.0, my + fy * 3.0), (mx - fx * 2.0, my - fy * 2.0),
+                                           (lx, ly)], lt["z"]))
+                    break
+    cfg.jump = L.JUMP
+    # SpawnMinerio/OnePieceIsland: GetPartBoundsInBox(ponto + 5, 7 x 8 x 7) ALINHADA AO MUNDO em cada ponto da MiningZone
+    # -> nenhuma peca colidivel pode ter a AABB de mundo dentro da zona (+ 5 de folga: caixa de mundo 7x7 girada 145)
+    # entre piso + 1 e piso + 9 (a ilha e girada 145 graus: uma peca reta de 40 tem AABB de ~33 x 23)
+    x0, y0, x1, y1 = L.MINE_RECT
+    cfg.keepout = [([(x0 - 5, y0 - 5), (x1 + 5, y0 - 5), (x1 + 5, y1 + 5), (x0 - 5, y1 + 5)], L.P + 0.9, L.P + 9.2,
+                    "MiningZone")]
+    # PRACA_LIVRE: nada colidivel dentro da MiningZone ate piso + 12 (o emblema/aneis de pedra sao so visuais)
+    cfg.nocol_zones = [([(x0, y0), (x1, y0), (x1, y1), (x0, y1)], L.P - 1.0, L.P + L.CLEAR_H)]
+    # arvores: so o TRONCO baixo colide (ninguem escala galho/copa; a arvore monumental arqueada nao vira rampa ate a
+    # copa); galhos da monumental nao colidem
+    # (arvore monumental: o arco do tronco passa por cima do castelo - inteiro colidivel ele vira RAMPA ate os telhados
+    # do castelo, a queixa da rodada 3. Colide so a base (10 acima do chao: raizes e o pe do tronco))
+    cfg.trunk = [("OP_Tree_Trunk", "", 10.0), ("OP_Tree_Branches", "", 0.0)]
+    return cfg
+
+
+def _vis_bvh():
+    from mathutils.bvhtree import BVHTree
+    import bpy
+    verts, polys = [], []
+    for o in bpy.data.objects:
+        if o.type != "MESH" or o.name.startswith(("COL_", "PREVIEW_", "SCALE_", "OP_Plz_OreProxy")) or o.hide_render:
+            continue
+        mw = o.matrix_world
+        b = len(verts)
+        verts += [mw @ v.co for v in o.data.vertices]
+        polys += [[b + i for i in p.vertices] for p in o.data.polygons]
+    return BVHTree.FromPolygons(verts, polys) if polys else None
+
+
+def v3_floor_slabs(names=None):
+    """COL_ de modulo que e LAJE DE PISO (topo = piso visivel): altura <= 2,5, topo plano (inclinacao <= 0,1) com area
+    >= 6 e >= 60% das amostras do topo com piso visivel (normal >= 0,7) a <= 0,3 do topo. Devolve os nomes."""
+    import bpy
+    B = _vis_bvh()
+    if B is None:
+        return []
+    out = []
+    for o in bpy.data.objects:
+        if o.type != "MESH" or not o.name.startswith("COL_") or o.name.startswith(V3_FLOOR_COL + V3_GAME_COL +
+                                                                                  V3_TRUNK_COL):
+            continue
+        if names is not None and o.name not in names:
+            continue
+        ws = [o.matrix_world @ v.co for v in o.data.vertices]
+        if len(ws) != 8:
+            continue
+        zs = sorted(v.z for v in ws)
+        if zs[-1] - zs[0] > 2.5 or zs[-1] - zs[4] > 0.1:
+            continue
+        sx = (ws[0] - ws[1]).length
+        dims = sorted({round((a - b).length, 3) for a in ws for b in ws if abs(a.z - b.z) < 0.05 and (a - b).length > 0})
+        if not dims or dims[0] < 3.0:                  # laje de PISO: as 2 dimensoes horizontais >= 3 (banco, mureta,
+            continue                                    # capa e tampa de pilar ficam de fora: colidem pelo visual)
+        top = sorted(ws, key=lambda v: -v.z)[:4]
+        c = sum(top, Vector()) / 4
+        top.sort(key=lambda v: math.atan2(v.y - c.y, v.x - c.x))
+        area = abs(sum(top[i].x * top[(i + 1) % 4].y - top[(i + 1) % 4].x * top[i].y for i in range(4))) / 2
+        if area < 12.0:
+            continue
+        ok = n = 0
+        for u in (0.15, 0.5, 0.85):
+            for v in (0.15, 0.5, 0.85):
+                p = top[0].lerp(top[1], u).lerp(top[3].lerp(top[2], u), v)
+                h = B.ray_cast(Vector((p.x, p.y, p.z + 0.3)), Vector((0, 0, -1)), 0.65)
+                n += 1
+                ok += h[0] is not None and h[1].z >= 0.7
+        if ok >= 0.6 * n:
+            out.append(o.name)
+    return out
+
+
+def v3_finalize():
+    """build_op (POS-PASSE, depois de todas as zonas): fica so a colisao invisivel das categorias da lista branca + lajes
+    de piso de modulo (renomeadas COL_OP_V3Slab_*). Devolve o relatorio (apagadas/mantidas por prefixo)."""
+    import bpy
+    import colv3
+    slabs = set(v3_floor_slabs())
+    for nm in sorted(slabs):
+        o = bpy.data.objects.get(nm)
+        if o is not None:
+            o["v3_from"] = nm
+            o.name = "COL_OP_V3Slab_" + nm[len("COL_"):]
+    V3_SLABS[:] = sorted(slabs)
+    gone, kept = colv3.purge(v3_config())
+    return gone, kept
+
+
+def v3_prepare(log=print, verbose=False):
+    """export/QA (sem salvar): lista branca das COL_ + a colisao pela forma do visual (colv3.split). Devolve o relatorio"""
+    import colv3
+    gone, kept = v3_finalize()
+    cfg = v3_config()
+    cfg.verbose = verbose
+    rep = colv3.split(cfg, log=log)
+    rep["col_apagadas"] = gone
+    rep["col_mantidas"] = kept
+    return rep, cfg

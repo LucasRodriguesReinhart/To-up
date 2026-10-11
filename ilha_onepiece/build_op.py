@@ -94,6 +94,10 @@ def zone_ready(zone):
 
 def run_module(m):
     mod = importlib.import_module(m)
+    if m == "op_veg":
+        # R3 colisao V3 (pedido do lead + agente da vegetacao): tronco de arvore pequena = 1 caixa JUSTA por tronco,
+        # inclinada com ele, topo a 9,5 (fora do pulo) - nao o fecho do tronco ate a forquilha (ficava 'no ar')
+        mod.TRUNK_COL_BOX = True
     mod.build()
     return mod
 
@@ -121,7 +125,12 @@ def build(blockout=False, skip_zones=(), studio_zone=None, res=(1600, 900), samp
             run_module(m)
             print("%s %.1fs" % (m, time.time() - t))
     import op_col
-    print("BUILD guardas erguidas acima de muros/props vizinhos: %d" % op_col.raise_guards())   # V2-0 (9.4)
+    # V3 (rodada 3): o raise_guards (guardas erguidas acima do visual = em pe no ar) SAIU. Pos-passe da colisao: so fica a
+    # colisao invisivel da lista branca (chao da planta, lajes de piso de modulo, jogabilidade); o resto do que e solido
+    # colide pela forma do visual no export/QA (colv3.split, sem mexer no .blend).
+    gone, kept = op_col.v3_finalize()
+    print("BUILD colisao V3: %d COL_ apagadas (guardas/props/casas: o visual colide), %d mantidas (%d lajes de modulo)" % (
+        sum(gone.values()), sum(kept.values()), len(op_col.V3_SLABS)))
     fm_lib.make_materials()
     op_scene.tone_emissives()
     op_scene.sea()
