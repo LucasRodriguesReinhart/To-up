@@ -11,8 +11,12 @@
 --    sempre) + placa de preco; estado da barreira por jogador no cliente (ILHAS_Cliente, GATES.OnePunchMan = 6).
 --  * guarda da ancora OPM (OP_Exit_AnchorGuard + COL_OPAnchorGuard_*) sai quando existir ServerStorage.IlhaOnePunchMan
 --    (NOME SUPOSTO da fonte da area 6, que ainda nao existe: a integracao da area 6 usa este nome ou muda a constante).
+--  * V3 R8 (rodada 3): CACHOEIRAS EM CAMADAS (tutorial oficial "Create waterfalls with VFX"): cada queda (castelo,
+--    oeste, leste), cada degrau dos canais (FX_Weir_*) e a bica da nascente viram cascata() = 2 Beams curvos com
+--    textura rolando + pe com 5 ParticleEmitters (splash, white water, espuma, nevoa, nevoa que sobe) + saida deitada;
+--    ver o bloco CACHOEIRAS V3 (contrato dos atributos dos marcadores la). Saiu a cortina de paineis chapados.
 --  * agua feita no Roblox a partir dos marcadores da pedra (op_water.water_markers): cachoeira do castelo (bica do
---    labio -> cortina -> 2 degraus de espuma -> bacia), bacia do adro em POLIGONO (sem camada ForceField: ela desenhava
+--    labio -> cascata -> bacia), bacia do adro em POLIGONO (sem camada ForceField: ela desenhava
 --    emendas brancas no Play da DS), canal leste com degrau 3 x 2 ate a queda leste (enseada), bica da nascente oeste ->
 --    canal oeste com degrau 2 x 2 -> espuma da roda d'agua -> queda oeste (mar). O MAR LOCAL (WATER_Sea, nivel 36) NAO
 --    e feito aqui: e do cliente (CeuWano), so com o jogador na area 5; aqui so os atributos MarLocal* da area.
@@ -264,9 +268,11 @@ local function vfx(model, mk)
 	for nome, m in pairs(mk) do
 		if string.match(nome, '^FX_') and m:IsA('BasePart') then
 			local fx = m:GetAttribute('fx')
-			local queda = string.match(nome, '^FX_Fall_') ~= nil
-			-- quedas sem receita ficam com a nevoa da agua(); degraus e bica sem receita, com os respingos da agua()
-			if m:GetAttribute('vfx') == 'emissor' or (not queda and PADRAO[fx or '']) then
+			-- V3 R8: TODA a agua (quedas, degraus, bica, nevoa do pe do castelo) e da cascata() da agua(): receita de
+			-- emissor nesses marcadores (export antigo) e ignorada para nao dobrar as particulas
+			local daAgua = string.match(nome, '^FX_Fall_') or string.match(nome, '^FX_Weir_') or
+				string.match(nome, '^FX_Spring_') or nome == 'FX_Mist_CastleFall'
+			if not daAgua and (m:GetAttribute('vfx') == 'emissor' or PADRAO[fx or '']) then
 				receita(pasta, m)
 				n += 1
 			end
@@ -349,31 +355,18 @@ local function fita(pai, nome, pts, ws, vel, sem0)
 	local feitos = 0
 	for k = 1, n - 1 do
 		local a, b = pts[k], pts[k + 1]
-		local w0, w1 = ws[k] or ws[#ws] or 3, ws[k + 1] or ws[#ws] or 3
-		local e0 = (k == 1) and (sem0 and 0 or 0.05) or junta(pts[k - 1], a, b, w0)
-		local e1 = (k == n - 1) and 0.05 or junta(a, b, pts[k + 2], w1)
-		if lamina(pai, nome .. '_' .. k, a, b, w0, w1, cima, 0, e0, e1, vel, -0.04, 8) then feitos += 1 end
-		lamina(pai, nome .. '_Brilho_' .. k, a, b, w0 * 0.7, w1 * 0.7, cima, 1, e0, e1, vel * 1.5, -0.04, 5)
+		local d = b - a
+		-- V3 R8: trecho quase VERTICAL (degrau do canal: par de pontos com cota diferente) NAO vira lamina em pe (era a
+		-- 'faixa azul' da captura 09); a queda curta e a cascata() do FX_Weir_* correspondente
+		if not (math.abs(d.Y) > 0.6 and V(d.X, 0, d.Z).Magnitude < 0.5 * math.abs(d.Y)) then
+			local w0, w1 = ws[k] or ws[#ws] or 3, ws[k + 1] or ws[#ws] or 3
+			local e0 = (k == 1) and (sem0 and 0 or 0.05) or junta(pts[k - 1], a, b, w0)
+			local e1 = (k == n - 1) and 0.05 or junta(a, b, pts[k + 2], w1)
+			if lamina(pai, nome .. '_' .. k, a, b, w0, w1, cima, 0, e0, e1, vel, -0.04, 8) then feitos += 1 end
+			lamina(pai, nome .. '_Brilho_' .. k, a, b, w0 * 0.7, w1 * 0.7, cima, 1, e0, e1, vel * 1.5, -0.04, 5)
+		end
 	end
 	return feitos
-end
-
-local function nevoa(pai, nome, pos, tam, rate, cor)
-	local a = peca('VFX_' .. nome, V(tam, 1, tam), CFrame.new(pos), pai)
-	local e = Instance.new('ParticleEmitter')
-	e.Name = nome; e.Texture = TEX.nevoa; e.Rate = rate
-	e.Lifetime = NumberRange.new(1.6, 2.6); e.Speed = NumberRange.new(1.5, 4)
-	e.SpreadAngle = Vector2.new(70, 70); e.Acceleration = V(0, 1.2, 0)
-	e.Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, tam * 0.35), NumberSequenceKeypoint.new(1, tam * 0.9) })
-	e.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 1), NumberSequenceKeypoint.new(0.25, 0.55),
-		NumberSequenceKeypoint.new(1, 1) })
-	e.Color = ColorSequence.new(cor or C(232, 242, 250)); e.LightInfluence = 0.9; e.LightEmission = 0.1
-	e.Rotation = NumberRange.new(0, 360); e.RotSpeed = NumberRange.new(-20, 20)
-	e.Shape = Enum.ParticleEmitterShape.Box; e.ShapeStyle = Enum.ParticleEmitterShapeStyle.Volume
-	e:SetAttribute('Dist', 260); e:SetAttribute('Rate0', rate)
-	CS:AddTag(e, 'IlhaVFX')
-	e.Parent = a
-	return e
 end
 
 -- respingo de gotas (o mesmo da fonte da Ilha 3 / roda da DS)
@@ -492,41 +485,303 @@ local function espelhoPoligono(pai, nome, pts, nivel)
 	return #tris, np
 end
 
--- cortina de queda por uma lista de pontos (cachoeira, quedas para o mar, bica): os paineis da Ilha 3, face para fora
-local function cortinaPts(pai, pts, ws, fora, velA, velB)
-	for k = 1, #pts - 1 do
-		local w0, w1 = ws[k] or ws[#ws] or 3, ws[k + 1] or ws[#ws] or 3
-		lamina(pai, 'Agua_' .. k, pts[k], pts[k + 1], w0, w1, fora, 0, 0.075, 0.075, velA, 0.12)
-		lamina(pai, 'Brilho_' .. k, pts[k], pts[k + 1], w0 * 0.7, w1 * 0.7, fora, 1, 0.075, 0.075, velB, 0.12)
-	end
+-- ------------------------------------------------------------------ CACHOEIRAS V3 (rodada 3, R8)
+-- Pesquisa (FEEDBACK_R3.md): tutorial oficial do Roblox "Create waterfalls with VFX" - a queda e feita de CAMADAS, nao
+-- de uma placa com textura:
+--   1. CASCATA = 2 Beams com textura rolando, curvos (CurveSize) ao longo do eixo medido na pedra:
+--      'Lenta' (lamina larga, ZOffset 0) + 'Rapida' (miolo estreito, mais rapido, ZOffset 1), FaceCamera.
+--   2. PE da queda = 1 Part invisivel com 5 ParticleEmitters: Splash (respingo denso), Branca (white water que salta e
+--      cai), Espuma (aneis deitados na agua: Orientation VelocityPerpendicular), Nevoa (rajada que sai do pe) e Sobe
+--      (nevoa lenta que sobe, so nas quedas altas).
+--   3. SAIDA = Beam deitado sobre a agua (anexos com o eixo para CIMA, como no tutorial) levando a espuma embora.
+-- Texturas = assets do proprio Roblox publicados no tutorial. ORCAMENTO: <= ~21 particulas/s por queda com flow 1
+-- (o tutorial gasta ~110/s): Splash 8, Branca 5, Espuma 2, Nevoa 5, Sobe 0,8 - tudo vezes 'flow' do marcador; cada
+-- emissor e cada Beam com tag IlhaVFX + atributo Dist (o ILHAS_Cliente liga/desliga pela distancia da camera ao Part
+-- pai, a cada 0,5 s): particulas a 150..240 studs, Beams a 900 (a cascata e o que se ve de longe).
+-- CONTRATO DOS MARCADORES (op_water.water_markers, export: listas '*waypoints' e trios '*_pos' ja no mundo):
+--   FX_Fall_<k>_Lip / FX_Weir_<k> / FX_Spring_W:
+--     waypoints        eixo da agua do labio ao pe (o 1o trecho sai para FORA: a agua salta do labio)
+--     widths           largura da agua em cada ponto (a lamina abre embaixo)
+--     fwd_x/fwd_z      'fora' = para onde a queda olha (lado oposto a rocha)
+--     flow (0..1)      intensidade (taxas das particulas e opacidade); sem atributo: largura/8
+--     impact_pos       ponto do pe na agua (sem atributo: o FX_Fall_<k>_Base ou o ultimo waypoint)
+--     pool_level       cota da agua do pe (espuma/saida 0,08 acima)
+--     face_off         afastamento do eixo da cascata em relacao a pedra (studs, para fora)
+--     outflow_waypoints + outflow_w0/outflow_w1   saida deitada (sem atributo: 'fora' por 3x a largura, ate 30)
+--     cascade_dist / spray_dist   distancias de LOD (Beams / particulas)
+local CASCATA = {
+	queda = 'rbxassetid://16808804567',     -- FastDrop/SlowDrop do tutorial
+	saida = 'rbxassetid://4787437624',      -- Outflow
+	splash = 'rbxassetid://16829556885',    -- SplashDense
+	branca = 'rbxassetid://16808075391',    -- GentleWW
+	espuma = 'rbxassetid://16811365086',    -- FoamRipples
+	nevoa = 'rbxassetid://16830667309',     -- BaseMist / RiseMist
+}
+
+local function csq(pts)
+	local k = {}
+	for _, p in ipairs(pts) do table.insert(k, ColorSequenceKeypoint.new(p[1], C(p[2], p[3], p[4]))) end
+	return ColorSequence.new(k)
 end
 
--- uma queda FX_Fall_<k>_*: cortina medida + (sem receita no marcador) a nevoa da crista, do(s) degrau(s) e do pe
-local function cortina(pai, lip, mk, k)
-	local fora = fwdDe(lip)
-	local pts, ws = pontos(lip:GetAttribute('waypoints')), larguras(lip:GetAttribute('widths'))
-	local base = mk['FX_Fall_' .. k .. '_Base']
+local function nsq(pts)
+	local k = {}
+	for _, p in ipairs(pts) do table.insert(k, NumberSequenceKeypoint.new(p[1], p[2], p[3] or 0)) end
+	return NumberSequence.new(k)
+end
+
+local COR_QUEDA = csq({ { 0, 208, 247, 255 }, { 0.135, 210, 246, 255 }, { 0.25, 255, 255, 255 }, { 0.384, 163, 187, 202 },
+	{ 0.757, 214, 229, 248 }, { 1, 255, 255, 255 } })
+local COR_SAIDA = csq({ { 0, 208, 247, 255 }, { 0.135, 146, 235, 255 }, { 0.248, 255, 255, 255 }, { 0.384, 128, 183, 202 },
+	{ 0.757, 166, 213, 248 }, { 1, 255, 255, 255 } })
+local COR_RESPINGO = csq({ { 0, 189, 246, 255 }, { 1, 255, 255, 255 } })
+local COR_NEVOA = csq({ { 0, 171, 244, 255 }, { 0.339, 251, 254, 255 }, { 1, 255, 255, 255 } })
+
+local function vfxTag(inst, dist, rate)
+	inst:SetAttribute('Dist', dist)
+	if rate then inst:SetAttribute('Rate0', rate) end
+	CS:AddTag(inst, 'IlhaVFX')
+end
+
+-- anexo no Part 'p' na posicao do mundo 'pos' com o EIXO (X, a seta amarela: e por ele que o CurveSize puxa a curva)
+local function anexo(p, nome, pos, eixo)
+	local x = eixo.Unit
+	local ref = math.abs(x.Y) < 0.95 and V(0, 1, 0) or V(1, 0, 0)
+	local z = x:Cross(ref).Unit
+	local y = z:Cross(x).Unit
+	local a = Instance.new('Attachment')
+	a.Name = nome
+	a.CFrame = p.CFrame:ToObjectSpace(CFrame.fromMatrix(pos, x, y, z))
+	a.Parent = p
+	return a
+end
+
+local function feixe(p, nome, a0, a1, s)
+	local b = Instance.new('Beam')
+	b.Name = nome
+	b.Attachment0, b.Attachment1 = a0, a1
+	b.Texture = s.tex
+	b.TextureMode = Enum.TextureMode.Wrap
+	b.TextureLength = s.tlen
+	b.TextureSpeed = s.tvel
+	b.Width0, b.Width1 = s.w0, s.w1
+	b.CurveSize0, b.CurveSize1 = s.c0 or 0, s.c1 or 0
+	b.FaceCamera = s.face ~= false
+	b.ZOffset = s.z or 0
+	b.Segments = s.seg or 10
+	b.Color = s.cor
+	b.Transparency = s.transp
+	b.LightEmission = s.luz or 0.2
+	b.LightInfluence = s.infl or 0.4
+	b.Brightness = s.brilho or 1
+	b.Parent = p
+	vfxTag(b, s.dist or 900)
+	return b
+end
+
+local function emissorAgua(p, nome, s)
+	local e = Instance.new('ParticleEmitter')
+	e.Name = nome
+	e.Texture = s.tex
+	e.Color = s.cor or COR_RESPINGO
+	e.Size = s.tam
+	e.Transparency = s.transp
+	e.Lifetime = s.vida
+	e.Rate = s.rate
+	e.Speed = s.vel
+	e.SpreadAngle = s.spread or Vector2.new(0, 0)
+	e.Acceleration = s.acc or V(0, 0, 0)
+	e.Drag = s.drag or 0
+	e.Rotation = s.rot or NumberRange.new(0, 360)
+	e.RotSpeed = s.rotv or NumberRange.new(0, 0)
+	e.LightEmission = s.luz or 0
+	e.LightInfluence = s.infl or 1
+	e.ZOffset = s.z or 0
+	e.EmissionDirection = Enum.NormalId.Top
+	e.Shape = Enum.ParticleEmitterShape.Box
+	e.ShapeStyle = Enum.ParticleEmitterShapeStyle.Volume
+	if s.orient then e.Orientation = s.orient end
+	e.Parent = p
+	vfxTag(e, s.dist or 180, s.rate)
+	return e
+end
+
+-- Part invisivel do emissor com o TOPO (EmissionDirection) virado para 'dir'
+local function pecaDir(pai, nome, pos, tam, dir)
+	local up = dir.Unit
+	local ref = math.abs(up.Y) < 0.95 and V(0, 1, 0) or V(1, 0, 0)
+	local r = ref:Cross(up)
+	if r.Magnitude < 1e-3 then r = V(1, 0, 0) end
+	r = r.Unit
+	local b = r:Cross(up).Unit
+	return peca(nome, tam, CFrame.fromMatrix(pos, r, up, b), pai)
+end
+
+-- quebra a lista de pontos nas QUINAS (> 35 graus): cada pedaco vira 1 curva de Bezier (1 Beam por camada)
+local function pedacos(pts)
+	local cortes = { 1 }
+	for i = 2, #pts - 1 do
+		local d1, d2 = pts[i] - pts[i - 1], pts[i + 1] - pts[i]
+		if d1.Magnitude > 1e-3 and d2.Magnitude > 1e-3 and d1.Unit:Dot(d2.Unit) < math.cos(math.rad(35)) then
+			table.insert(cortes, i)
+		end
+	end
+	table.insert(cortes, #pts)
+	return cortes
+end
+
+-- 1+3: cascata (2 camadas de Beam por pedaco) do labio ao pe
+local function cascataFeixes(pai, nome, pts, ws, fora, flow, s)
+	local off = s.off or 0
+	local q = {}
+	for i, p in ipairs(pts) do q[i] = p + fora * off end
+	local ancora = peca('VFX_' .. nome .. '_Cascata', V(1, 1, 1), CFrame.new(q[1]), pai)
+	local cortes = pedacos(q)
+	local total = 0
+	for i = 1, #q - 1 do total += (q[i + 1] - q[i]).Magnitude end
+	local acum, nb = 0, 0
+	local alfa = math.clamp(0.35 - 0.3 * flow, 0, 0.35)     -- queda fraca (bica) fica mais transparente
+	for c = 1, #cortes - 1 do
+		local i0, i1 = cortes[c], cortes[c + 1]
+		local P0, P3 = q[i0], q[i1]
+		local t0 = (q[i0 + 1] - q[i0]).Unit
+		local t1 = (q[i1] - q[i1 - 1]).Unit
+		local len = 0
+		for i = i0, i1 - 1 do len += (q[i + 1] - q[i]).Magnitude end
+		local cs = len / 3
+		local a0 = anexo(ancora, ('A%d_0'):format(c), P0, t0)
+		local a1 = anexo(ancora, ('A%d_1'):format(c), P3, t1)
+		local w0, w1 = ws[i0] or ws[#ws] or 4, ws[i1] or ws[#ws] or 4
+		-- transparencia ao longo do pedaco: entra no labio (1o pedaco) e some no pe (ultimo), opaca no meio
+		local u0, u1 = acum / total, (acum + len) / total
+		local function tr(u)
+			local t = alfa
+			if u < 0.05 then t = 1 - (1 - alfa) * (u / 0.05) end
+			if u > 0.93 then t = alfa + (1 - alfa) * ((u - 0.93) / 0.07) end
+			return math.clamp(t, 0, 1)
+		end
+		local ts = {}
+		for j = 0, 4 do
+			local f = j / 4
+			table.insert(ts, { f, tr(u0 + (u1 - u0) * f) })
+		end
+		local seg = math.clamp(math.floor(len / 2), 8, 30)
+		feixe(ancora, ('Lenta_%d'):format(c), a0, a1, { tex = CASCATA.queda, tlen = 18, tvel = 1.0, w0 = w0 * 1.0,
+			w1 = w1 * 1.25, c0 = cs, c1 = cs, z = 0, seg = seg, cor = COR_QUEDA, transp = nsq(ts), luz = 0.25, infl = 0.45,
+			dist = s.dist })
+		local tf = {}
+		for j, t in ipairs(ts) do tf[j] = { t[1], math.min(1, t[2] + 0.1) } end
+		feixe(ancora, ('Rapida_%d'):format(c), a0, a1, { tex = CASCATA.queda, tlen = 12, tvel = 1.6, w0 = w0 * 0.6,
+			w1 = w1 * 0.8, c0 = cs, c1 = cs, z = 1, seg = seg, cor = COR_QUEDA, transp = nsq(tf), luz = 0.35, infl = 0.35,
+			dist = s.dist })
+		nb += 2
+		acum += len
+	end
+	return nb, total
+end
+
+-- 2: pe da queda (5 emissores num Part so)
+local function cascataPe(pai, nome, pos, fora, w, queda, flow, dist)
+	local k = math.clamp(w / 8, 0.35, 1.5)
+	local sv = math.clamp(math.sqrt(math.max(queda, 1) / 30), 0.35, 1.3)   -- queda baixa = respingo mais baixo
+	local n = 0
+	local pe = pecaDir(pai, 'VFX_' .. nome .. '_Pe', pos + V(0, 0.3, 0), V(w * 0.6, 0.6, math.max(1.5, w * 0.25)), V(0, 1, 0))
+	emissorAgua(pe, 'Splash', { tex = CASCATA.splash, rate = 8 * flow, vida = NumberRange.new(0.25, 0.35),
+		vel = NumberRange.new(14 * sv, 24 * sv), spread = Vector2.new(50, 50), acc = V(0, -40, 0),
+		tam = nsq({ { 0, 1.81 * k, 0.56 * k }, { 1, 5.75 * k, 1.31 * k } }),
+		transp = nsq({ { 0, 1 }, { 0.5, 0.18, 0.18 }, { 1, 1 } }), rot = NumberRange.new(-45, 45),
+		rotv = NumberRange.new(-40, 40), luz = 0.5, infl = 0.1, dist = dist })
+	emissorAgua(pe, 'Espuma', { tex = CASCATA.espuma, rate = 2 * flow, vida = NumberRange.new(1.2, 1.6),
+		vel = NumberRange.new(0, 0.01), orient = Enum.ParticleOrientation.VelocityPerpendicular,
+		tam = nsq({ { 0, 5 * k, 0 }, { 1, 20 * k, 5 * k } }), transp = nsq({ { 0, 1 }, { 0.143, 0.12, 0.1 }, { 0.664, 0.13, 0.11 },
+		{ 1, 1 } }), luz = 0.25, infl = 0, dist = dist })
+	n += 2
+	-- white water: salta para fora e para cima e cai de volta
+	local pb = pecaDir(pai, 'VFX_' .. nome .. '_Branca', pos + V(0, 0.4, 0), V(w * 0.5, 0.4, 1.2), (V(0, 1, 0) + fora * 0.5))
+	emissorAgua(pb, 'Branca', { tex = CASCATA.branca, rate = 5 * flow, vida = NumberRange.new(1.0, 1.3),
+		vel = NumberRange.new(10 * sv, 14 * sv), spread = Vector2.new(12, 5), acc = V(0, -35, 0), drag = 0.25,
+		tam = nsq({ { 0, 1.13 * k, 0.56 * k }, { 1, 5.56 * k, 0.56 * k } }),
+		transp = nsq({ { 0, 1 }, { 0.143, 0.46, 0.06 }, { 0.336, 0.46, 0.06 }, { 0.622, 0.79, 0.05 }, { 1, 1 } }),
+		rot = NumberRange.new(-45, 45), rotv = NumberRange.new(-40, 40), luz = 0.6, infl = 0.1, z = 1, dist = dist })
+	n += 1
+	-- nevoa: rajada que sai do pe para fora (Drag freia) + nevoa que sobe devagar nas quedas altas
+	local pn = pecaDir(pai, 'VFX_' .. nome .. '_Nevoa', pos + V(0, 1.0, 0), V(w * 0.7, 1, 1.5), (fora + V(0, 0.4, 0)))
+	emissorAgua(pn, 'Nevoa', { tex = CASCATA.nevoa, cor = COR_NEVOA, rate = 5 * flow, vida = NumberRange.new(0.6, 1.1),
+		vel = NumberRange.new(22 * sv, 34 * sv), spread = Vector2.new(25, 25), acc = V(0, -8, 0), drag = 1.5,
+		tam = nsq({ { 0, 8 * k }, { 1, 10 * k } }), transp = nsq({ { 0, 1 }, { 0.097, 0.8, 0.06 }, { 1, 1 } }),
+		rot = NumberRange.new(-360, 360), rotv = NumberRange.new(-50, 50), luz = 0.1, infl = 0.6, z = 1,
+		dist = dist + 60 })
+	n += 1
+	if queda > 20 then
+		emissorAgua(pe, 'Sobe', { tex = CASCATA.nevoa, cor = COR_NEVOA, rate = 0.8 * flow, vida = NumberRange.new(4, 4),
+			vel = NumberRange.new(6, 6), spread = Vector2.new(20, 20), drag = 1,
+			tam = nsq({ { 0, 20 * k, 1 }, { 1, 25 * k, 5 } }), transp = nsq({ { 0, 1 }, { 0.097, 0.82, 0.06 }, { 1, 1 } }),
+			rot = NumberRange.new(-360, 360), rotv = NumberRange.new(-10, 10), luz = 0.1, infl = 0.6, z = 1,
+			dist = dist + 60 })
+		n += 1
+	end
+	return n
+end
+
+-- 3: saida deitada na agua (anexos com o eixo para CIMA, como OutflowStart/OutflowStop do tutorial)
+local function cascataSaida(pai, nome, pts, w0, w1, dist)
+	if #pts < 2 then return 0 end
+	local p = peca('VFX_' .. nome .. '_Saida', V(1, 1, 1), CFrame.new(pts[1]), pai)
+	local n = 0
+	local total = 0
+	for i = 1, #pts - 1 do total += (pts[i + 1] - pts[i]).Magnitude end
+	local acum = 0
+	for i = 1, #pts - 1 do
+		local len = (pts[i + 1] - pts[i]).Magnitude
+		local u0, u1 = acum / total, (acum + len) / total
+		local wa, wb = w0 + (w1 - w0) * u0, w0 + (w1 - w0) * u1
+		local function tr(u) return math.clamp(0.2 + 0.8 * u ^ 1.5, 0, 1) end
+		local a0 = anexo(p, ('S%d_0'):format(i), pts[i], V(0, 1, 0))
+		local a1 = anexo(p, ('S%d_1'):format(i), pts[i + 1], V(0, 1, 0))
+		feixe(p, ('Saida_%d'):format(i), a0, a1, { tex = CASCATA.saida, tlen = 24, tvel = 0.4, w0 = wa, w1 = wb,
+			face = false, seg = 4, cor = COR_SAIDA, transp = nsq({ { 0, tr(u0) }, { 1, tr(u1) } }), luz = 0.2, infl = 0.5,
+			dist = dist })
+		acum += len
+		n += 1
+	end
+	return n
+end
+
+-- uma queda inteira a partir do marcador (FX_Fall_<k>_Lip, FX_Weir_<k>, FX_Spring_W); base = marcador do pe (opcional)
+local function cascata(pai, m, nome, base, padraoFlow)
+	local fora = fwdDe(m)
+	local pts, ws = pontos(m:GetAttribute('waypoints')), larguras(m:GetAttribute('widths'))
 	if #pts < 2 then
-		pts = { lip.Position, base and base.Position or (lip.Position - V(0, 20, 0)) }
-		ws = { lip:GetAttribute('width') or 3, (base and base:GetAttribute('width')) or 4 }
+		local w = m:GetAttribute('width') or 3
+		pts = { m.Position, base and base.Position or (m.Position - V(0, 10, 0)) }
+		ws = { w, (base and base:GetAttribute('width')) or w * 1.3 }
 	end
-	local q = Instance.new('Folder'); q.Name = 'Queda_' .. k; q.Parent = pai
-	cortinaPts(q, pts, ws, fora, 14, 22)
-	if lip:GetAttribute('vfx') ~= 'emissor' then
-		local w = lip:GetAttribute('width') or 3
-		nevoa(q, 'Crista_' .. k, lip.Position + fora * 0.8 - V(0, 1, 0), w * 0.5, 3)
-		local st = mk['FX_Fall_' .. k .. '_Step']
-		if st and st:GetAttribute('vfx') ~= 'emissor' then
-			local sw = st:GetAttribute('width') or w
-			nevoa(q, 'Degrau_' .. k, st.Position + fora * 1.5, sw * 0.8, 8)
-			local s2 = trio(st, 'step2_pos')          -- degrau de espuma de baixo (so a cachoeira do castelo)
-			if s2 then nevoa(q, 'Degrau2_' .. k, s2 + fora * 1.2, sw * 0.9, 8) end
-		end
-		if base and base:GetAttribute('vfx') ~= 'emissor' then
-			nevoa(q, 'Pe_' .. k, base.Position + V(0, 4, 0), (base:GetAttribute('width') or w) * 1.6, 14)
-		end
+	local f = Instance.new('Folder'); f.Name = 'Cascata_' .. nome; f.Parent = pai
+	local wtop = ws[1] or m:GetAttribute('width') or 4
+	local wpe = ws[#ws] or wtop
+	local flow = m:GetAttribute('flow') or padraoFlow or math.clamp(wtop / 8, 0.15, 1)
+	local cdist = m:GetAttribute('cascade_dist') or 900
+	local sdist = m:GetAttribute('spray_dist') or 180
+	local nb, total = cascataFeixes(f, nome, pts, ws, fora, flow, { off = m:GetAttribute('face_off') or wtop * 0.12,
+		dist = cdist })
+	local imp = trio(m, 'impact_pos') or (base and base.Position) or pts[#pts]
+	local nivel = m:GetAttribute('pool_level') or imp.Y
+	imp = V(imp.X, nivel, imp.Z)
+	local queda = math.max(0, pts[1].Y - nivel)
+	local ne = cascataPe(f, nome, imp, fora, wpe, queda, flow, sdist)
+	local sp = pontos(m:GetAttribute('outflow_waypoints_world'))
+	if #sp < 2 then sp = pontos(m:GetAttribute('outflow_waypoints')) end
+	if #sp < 2 and queda > 6 then
+		local hz = V(fora.X, 0, fora.Z)
+		hz = hz.Magnitude > 1e-3 and hz.Unit or V(0, 0, 1)
+		local L_ = math.clamp(wpe * 3, 12, 30)
+		sp = { imp + hz * (wpe * 0.3), imp + hz * (L_ * 0.5), imp + hz * L_ }
 	end
-	return q, #pts
+	for i, p in ipairs(sp) do sp[i] = V(p.X, nivel + 0.08, p.Z) end
+	local ns = cascataSaida(f, nome, sp, m:GetAttribute('outflow_w0') or wpe * 1.3, m:GetAttribute('outflow_w1') or wpe * 2.2,
+		cdist)
+	return f, ('%s: %d feixes (%.0f studs), %d emissores (flow %.2f, %.1f p/s), saida %d'):format(nome, nb, total, ne, flow,
+		flow * (queda > 20 and 20.8 or 20), ns)
 end
 
 local function agua(model, mk, L2W)
@@ -541,7 +796,10 @@ local function agua(model, mk, L2W)
 	table.sort(chaves)
 	for _, k in ipairs(chaves) do
 		local lip = mk['FX_Fall_' .. k .. '_Lip']
-		local q, n = cortina(pasta, lip, mk, k)
+		-- V3 R8: cascata em camadas (Beams + pe com 5 emissores + saida) no lugar dos paineis chapados
+		local q, rq = cascata(pasta, lip, 'Queda_' .. k, mk['FX_Fall_' .. k .. '_Base'], nil)
+		table.insert(rel, rq)
+		local n = #pontos(lip:GetAttribute('waypoints'))
 		-- bica do labio (so a cachoeira do castelo): lamina DEITADA da boca escura da nascente ate a frente do labio.
 		-- M6c: 'spout_waypoints_world' (export novo) ja vem no mundo; 'spout_waypoints' (local) so num export antigo
 		local spw = pontos(lip:GetAttribute('spout_waypoints_world'))
@@ -566,12 +824,10 @@ local function agua(model, mk, L2W)
 	-- bica da nascente do canal oeste (FX_Spring_W): cortina pequena + respingo na cabeceira do canal
 	local bica = mk.FX_Spring_W
 	if bica then
-		local pts, ws = pontos(bica:GetAttribute('waypoints')), larguras(bica:GetAttribute('widths'))
+		local pts = pontos(bica:GetAttribute('waypoints'))
 		if #pts >= 2 then
-			local f = Instance.new('Folder'); f.Name = 'Nascente_W'; f.Parent = pasta
-			cortinaPts(f, pts, ws, fwdDe(bica), 10, 16)
-			if bica:GetAttribute('vfx') ~= 'emissor' then gotas(f, 'Respingo_Nascente', pts[#pts] + V(0, 0.3, 0), V(1.6, 0.2, 1.6), 8, 120) end
-			table.insert(rel, ('nascente W: %d pontos'):format(#pts))
+			local _, rq = cascata(pasta, bica, 'Nascente_W', nil, 0.15)   -- V3 R8: bica pequena no mesmo sistema
+			table.insert(rel, rq)
 		end
 	end
 	-- bacia do adro: contorno desenhado (nao retangulo); a boca do canal leste e a borda leste do poligono
@@ -621,9 +877,14 @@ local function agua(model, mk, L2W)
 		end
 	end
 	-- degraus dos canais (sem receita): respingo na borda da soleira, correnteza = frente do marcador
+	-- V3 R8: os degraus dos canais sao QUEDAS CURTAS do mesmo sistema (a lamina em pe saiu do fita()); marcador antigo
+	-- sem waypoints: so o respingo de antes
 	for _, nome in ipairs({ 'FX_Weir_E', 'FX_Weir_W' }) do
 		local m = mk[nome]
-		if m and m:GetAttribute('vfx') ~= 'emissor' then
+		if m and #pontos(m:GetAttribute('waypoints')) >= 2 then
+			local _, rq = cascata(pasta, m, string.gsub(nome, '^FX_', ''), nil, 0.4)
+			table.insert(rel, rq)
+		elseif m then
 			local w = m:GetAttribute('width') or 5
 			gotas(pasta, 'Respingo_' .. string.gsub(nome, '^FX_', ''), m.Position + fwdDe(m) * 1.2 - V(0, 0.8, 0),
 				V(w * 0.8, 0.2, 2), 10, 120)

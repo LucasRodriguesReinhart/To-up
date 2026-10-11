@@ -102,6 +102,9 @@ OPMATS = {
     "Roof_OP_Castle":     (S(36, 42, 86), 0.7, 0.0, 0, None, 0.04),     # V3 op_castle: telha do castelo (azul-marinho profundo do anime)
     "Plaster_OP_Castle":  (S(228, 228, 236), 0.85, 0.0, 0, None, 0.03),  # V3 op_castle: reboco frio (branco-lilas do castelo do anime)
     "Wood_OP_Sumi":       (S(42, 42, 56), 0.75, 0.0, 0, None, 0.06),     # V3 op_castle: tabuas shitami/pilares/caixilhos (preto-azulado)
+    "Stone_OP_WallDk":    (S(134, 128, 120), 0.85, 0.0, 0, None, 0.05),  # V3 R7 op_terrain/op_harbor: pedra escura das fiadas (1 em 4)
+    "Stone_OP_Wet":       (S(88, 90, 96), 0.9, 0.0, 0, None, 0.04),      # V3 R7: base molhada dos muros (linha d'agua/pe)
+    "Cliff_OP_Wet":       (S(66, 74, 90), 0.9, 0.0, 0, None, 0.04),      # V3 R8 op_terrain/op_water: rocha molhada das cachoeiras
     "Glass_OP_Lantern":   (S(232, 160, 96), 0.4, 0.0, 1.0, S(240, 170, 110), 0.0),   # papel aceso DENTRO da armacao
     "Window_OP_Warm":     (S(250, 212, 160), 0.5, 0.0, 0.5, S(255, 190, 120), 0.0),  # shoji aceso, recuado
     "Water_OP_Basin":     (S(36, 120, 130), 0.15, 0.0, 0, None, 0.0),    # so previa (a agua e do Roblox)

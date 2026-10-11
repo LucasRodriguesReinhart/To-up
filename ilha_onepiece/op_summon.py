@@ -24,6 +24,8 @@
 #   - CASA DO MASTRO = o antigo podio com AS MESMAS medidas/colisao: degrau e costado de tabuas em trincado, cinta
 #     vermelha, vigias de latao acesas, tabuado, escada da torre em madeira (medida da Ilha 1), 2 lanternas de navio
 #     (L_OPSum_Lamp_L/R) e guarda-corpo vermelho de navio.
+#   - V3 R5 (COPYRIGHT, rodada 3): SEM marca do anime - velas creme LISAS (emblem=False), bandeiras vermelhas LISAS,
+#     e a carranca de leao virou VOLUTA de madeira entalhada (remate generico de proa). O texto abaixo e historico.
 #   - 2 MASTROS LATERAIS (x 176, y 214 +- 21, ladeando a torre) com cesto, verga, VELA REDONDA com a JOLLY ROGER dos
 #     Chapeus de Palha virada para a praca (desenho aprovado do op_ship), bandeira preta com a caveira no mastareu e
 #     cordame (ovens com enfrechates, estai ate a roda, brandal). Sao as 2 bandeiras do conves do PLANO_V2 secao 8.
@@ -354,9 +356,7 @@ WD, WM, HULL, LACQ = "Wood_OP_Dark", "Wood_OP_Mid", "Wood_OP_Hull", "Wood_OP_Lac
 IRON, BGOLD = "Metal_OP_Iron", "Metal_OP_Gold"
 SAIL, CW, CB, CST, CR, ROPE = "Cloth_OP_Sail", "Cloth_OP_White", "Cloth_OP_Black", "Cloth_OP_Straw", "Cloth_OP_Red", "Rope"
 LIT, LGLOW = "Window_OP_Warm", "Glass_OP_Lantern"
-MANE, LFACE = "Emblem_OP_LionMane", "Emblem_OP_LionFace"        # 2 materiais novos (Emblem_ -> SmoothPlastic)
-fm_lib.MATS.setdefault(MANE, (_S(226, 126, 44), 0.7, 0.0, 0, None, 0.0))
-fm_lib.MATS.setdefault(LFACE, (_S(248, 208, 108), 0.7, 0.0, 0, None, 0.0))
+# V3 R5: os materiais Emblem_OP_LionMane / Emblem_OP_LionFace (carranca do Sunny) SAIRAM com a carranca
 
 CY = TY                                   # linha de centro do navio = eixo da torre
 X_ST, X_F0, X_F1, X_TIP = 128.0, 142.0, 170.0, 215.0     # painel de popa, inicio/fim do trecho reto, ponta da roda
@@ -722,47 +722,34 @@ def bow(sh):
 
 
 def lion(sh):
-    """CARRANCA de leao (estilo Thousand Sunny, sem texto): juba-sol de 16 raios em 2 comprimentos, cabeca redonda
-    amarela, focinho, nariz e olhos escuros, sorriso, orelhas. Olha para o MAR (+x) e levanta 18 graus (le de cima e
-    das pontes); de tras (do conves) a juba le como um sol."""
-    C = Vector((216.6, CY, T1 + 5.4))
-    tl = math.radians(18.0)
-    A = Vector((math.cos(tl), 0.0, math.sin(tl)))             # frente
-    B = Vector((-math.sin(tl), 0.0, math.cos(tl)))            # cima
-    S_ = Vector((0.0, 1.0, 0.0))                               # lado
-
-    def W(a, b, s):
-        return C + A * a + B * b + S_ * s
-    nr = 16
-    for i in range(nr):
-        ph = 2 * math.pi * i / nr + math.pi / nr
-        r0, r1 = 2.6, (5.9 if i % 2 == 0 else 4.9)
-        hw = math.pi / nr * 0.98
-        pts = []
-        for da, rr, dph in ((-0.9, r0, -hw), (-0.9, r0, hw), (-0.9, r1, 0.0), (0.5, r0 - 0.1, -hw * 0.9),
-                            (0.5, r0 - 0.1, hw * 0.9), (0.5, r1 - 0.7, 0.0)):
-            pts.append(W(da, rr * math.cos(ph + dph), rr * math.sin(ph + dph)))
-        b0, b1, b2, f0, f1, f2 = pts
-        cen = W(-0.2, 0.0, 0.0)
-        for q in ((b0, b2, b1), (f0, f1, f2), (b0, b1, f1, f0), (b1, b2, f2, f1), (b2, b0, f0, f2)):
-            c = sum((Vector(p) for p in q), Vector()) / len(q)
-            hint = (c - cen) if len(q) == 4 else (A if q[0] is f0 else -A)
-            qf(sh, q, MANE, hint)
-    # disco da juba por tras da cabeca (fecha o miolo dos raios)
-    K.loft(sh, F0, [[tuple(W(-0.95, 2.75 * math.cos(-2 * math.pi * j / 16), 2.75 * math.sin(-2 * math.pi * j / 16)))
-                     for j in range(16)],
-                    [tuple(W(0.45, 2.75 * math.cos(-2 * math.pi * j / 16), 2.75 * math.sin(-2 * math.pi * j / 16)))
-                     for j in range(16)]], MANE)
-    rot = (0.0, -tl, 0.0)
-    sh.ico(2.75, tuple(W(1.0, 0.0, 0.0)), LFACE, 2, scale=(0.82, 1.0, 0.94), rot=rot)            # cabeca
-    sh.ico(1.4, tuple(W(2.55, -0.8, 0.0)), LFACE, 1, scale=(0.6, 1.3, 0.8), rot=rot)             # focinho
-    sh.ico(0.6, tuple(W(3.3, -0.2, 0.0)), WD, 1, scale=(0.8, 1.2, 0.75), rot=rot)                 # nariz
-    for sg in (-1, 1):
-        sh.ico(0.46, tuple(W(2.62, 0.95, sg * 1.2)), WD, 1, scale=(0.6, 1.0, 1.25), rot=rot)      # olhos
-        sh.beam(tuple(W(2.55, 1.75, sg * 0.55)), tuple(W(2.3, 1.95, sg * 1.75)), 0.26, 0.26, MANE, 0.0)  # sobrancelhas
-        sh.ico(0.85, tuple(W(1.2, 2.25, sg * 1.95)), MANE, 1, scale=(0.6, 1.0, 1.0), rot=rot)      # orelhas
-    sm = [W(3.3 - 0.45 * (k / 3.0) ** 2, -1.8 + 0.42 * (k / 3.0) ** 2, 1.35 * k / 3.0) for k in range(-3, 4)]
-    tube(sh, sm, 0.13, WD, n=4)                                                                     # sorriso
+    """V3 R5 (copyright): a CARRANCA DE LEAO (estilo Thousand Sunny) SAIU. No lugar, o remate generico de proa dos
+    juncos/bezaisen: VOLUTA de madeira entalhada (espiral que nasce da roda de proa e enrola para tras) com friso de ouro
+    velho por dentro e um colar de ouro na emenda com a roda. Sem bicho, sem personagem, sem texto."""
+    x0, z0 = 215.9, T1 + 3.4                                  # topo da roda de proa (stem do bow())
+    cx, cz = 216.9, T1 + 5.6                                  # centro da espiral (a frente e acima da roda)
+    pts, gold = [], []
+    n = 22
+    for k in range(n + 1):
+        t = k / n
+        a = math.radians(-160.0 + 470.0 * t)                  # nasce embaixo-atras e enrola por cima para tras
+        r = 2.3 * (1.0 - 0.72 * t)
+        pts.append(Vector((cx + r * math.cos(a), CY, cz + r * math.sin(a))))
+    pts[0] = Vector((x0, CY, z0))
+    # tubo afinando em 3 trechos (0,62 -> 0,46 -> 0,32): le como entalhe, nao como cano
+    for i0, i1, r in ((0, 9, 0.62), (8, 16, 0.46), (15, n, 0.32)):
+        tube(sh, pts[i0:i1 + 1], r, WM, n=6)
+    for k in range(2, n - 1):                                 # friso de ouro por DENTRO da voluta (face interna)
+        p = pts[k]
+        d = Vector((cx, CY, cz)) - p
+        if d.length > 1e-3:
+            gold.append(p + d.normalized() * (0.62 if k < 9 else (0.46 if k < 16 else 0.32)) * 0.7)
+    tube(sh, gold, 0.12, GOLD, n=4)
+    K.lathe(sh, F0, (x0, CY, z0 - 0.3), [(0.74, 0.0), (0.74, 0.5)], 8, GOLD)                          # colar na emenda
+    for sg in (-1, 1):                                        # 2 bochechas (tabuas de beque) com borda de ouro
+        y = CY + sg * 0.5
+        q = [(213.6, y, T1 + 0.2), (215.8, y, T1 + 2.9), (215.8, y, T1 + 4.2), (213.6, y, T1 + 1.6)]
+        qf(sh, q, WD, (0.0, sg, 0.0))
+        tube(sh, [Vector((213.6, y + sg * 0.05, T1 + 1.6)), Vector((215.8, y + sg * 0.05, T1 + 4.2))], 0.09, GOLD, n=4)
 
 
 # ------------------------------------------------------------------ mastros laterais, velas e Jolly Roger
@@ -871,7 +858,7 @@ def fan(mb, pts, m, hint, center=None):
     mb._post([vc] + vs, m, None, 0, 1)
 
 
-def sail(mb, Fm, z_top, H, Wt, Wb, y0=1.35, belly_k=0.1, roach=0.6, emblem=True):
+def sail(mb, Fm, z_top, H, Wt, Wb, y0=1.35, belly_k=0.1, roach=0.6, emblem=False):
     """VELA REDONDA presa na verga (linguagem do op_ship), no referencial Fm do mastro: x local = ao longo da verga,
     +y local = lado de quem chega da praca (oeste: o bojo e o desenho viram para a praca). Casca de 2 faces 0,18,
     panos verticais, esteira arqueada, tralha de cabo; Jolly Roger recortada nas 2 faces."""
@@ -940,7 +927,7 @@ def sail(mb, Fm, z_top, H, Wt, Wb, y0=1.35, belly_k=0.1, roach=0.6, emblem=True)
     return [Wp(S(-1.0, 1.0)), Wp(S(1.0, 1.0))]
 
 
-def flag(mb, Ff, z, w, h, cloth=CB, waves=3, amp=0.45):
+def flag(mb, Ff, z, w, h, cloth=CB, waves=3, amp=0.45, emblem=False):
     """bandeira ondulada (casca de 2 faces) presa ao mastro (canto de cima em z), voando para +x local, com a Jolly
     Roger em miniatura nas 2 faces (linguagem do op_ship.flag)"""
     nu, nv, t = 6, 2, 0.1
@@ -962,6 +949,8 @@ def flag(mb, Ff, z, w, h, cloth=CB, waves=3, amp=0.45):
                 if f.normal.dot(-wy * side) < 0:
                     f.normal_flip()
         mb._post([v for c in G for v in c], cloth, None, 0, 1)
+    if not emblem:                                     # V3 R5: bandeira LISA (sem caveira/chapeu de palha)
+        return
     for side in (1, -1):
         for layer, m, poly in ((1, CW, _bar((-0.9, -0.75), (0.9, 0.25), 0.13)),
                                (1, CW, _bar((-0.9, 0.25), (0.9, -0.75), 0.13)),
@@ -1027,7 +1016,7 @@ def rig(sh, sl):
         xb = 152.0
         rope(sh, (mx, my, MAST_TOP + 3.2), (xb, CY + s * (hb(xb) - BW_T / 2), CAP_Z + 0.1), 0.1)      # brandal
         Ff = Frame(mx, my, 0.0, math.pi)                  # bandeira voando para OESTE (vento do mar)
-        flag(sl, Ff, MAST_TOP + 4.6, 4.4, 2.9)
+        flag(sl, Ff, MAST_TOP + 4.6, 4.4, 2.9, cloth=CR)  # V3 R5: flamula vermelha LISA (sem Jolly Roger)
 
 
 # ------------------------------------------------------------------ timao, rosa-dos-ventos, escotilhas, cabrestante

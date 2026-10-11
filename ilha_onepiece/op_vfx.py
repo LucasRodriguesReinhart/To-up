@@ -15,6 +15,9 @@
 #        A arvore monumental V2 e PINHEIRO (copas verdes em nuvem): nao solta petala (antes: 2 caixas sob a copa rosa).
 #        rate moderado (2,5 + 1,2 por arvore, teto 8), Dist 180.
 #        tex 'petala': reserva do Core.OnePieceIsland (ver roblox/AreaAtmosphere_area5.md).
+#      AGUA V3 R8: SEM receita de emissor - as quedas/degraus/bica sao a cascata() em camadas do OnePieceIsland.lua
+#        (Beams + pe com 5 emissores + saida) lida dos atributos do op_water; water() so marca vfx='cascata' e confere o
+#        orcamento (<= ~21 particulas/s por queda). Historico (V1/V2):
 #      AGUA (posicao/props sao do op_water, medidos na pedra; aqui so ENTRAM as chaves do emissor, como no ds_vfx):
 #        FX_Fall_Castle_Lip/Step/Base + FX_Mist_CastleFall (cachoeira do castelo e bacia do adro),
 #        FX_Fall_E_Lip/Base (queda leste -> enseada), FX_Fall_W_Lip/Base (queda oeste -> mar). DIA: branco-azulado
@@ -135,38 +138,32 @@ def petals():
 
 
 def water():
-    """so as chaves do emissor nos marcadores do op_water (posicao/props medidos na pedra ficam como estao). Nomes com
-    letra (Castle/E/W): o Core.OnePieceIsland do M5 usa '^FX_Fall_%w+_Lip$' (a DS usa %d+) para o deslocamento de
-    nascimento da crista/degrau/pe"""
-    spec = {
-        "FX_Fall_Castle_Lip": dict(rate=2.0, tam=3.0, Dist=260.0, area="%s,1,1.2"),
-        "FX_Fall_Castle_Step": dict(rate=6.0, tam=5.0, Dist=240.0, area="%s,1.2,2"),
-        "FX_Fall_Castle_Base": dict(rate=10.0, tam=7.5, Dist=260.0, area="%s,2,5"),
-        "FX_Fall_E_Lip": dict(rate=1.5, tam=2.5, Dist=300.0, area="%s,1,1.2"),
-        "FX_Fall_E_Base": dict(rate=6.0, tam=9.0, Dist=420.0, area="%s,2,6"),
-        "FX_Fall_W_Lip": dict(rate=1.5, tam=2.8, Dist=300.0, area="%s,1,1.2"),
-        "FX_Fall_W_Base": dict(rate=6.0, tam=10.0, Dist=420.0, area="%s,2,6"),
-    }
+    """V3 R8 (rodada 3): as quedas, os degraus, a bica e a nevoa do pe do castelo NAO levam mais receita de emissor
+    (vfx='emissor'): a agua inteira e a cascata() do roblox/OnePieceIsland.lua (Beams + pe com 5 emissores + saida),
+    lida dos atributos que o op_water grava (waypoints, widths, flow, impact_pos, pool_level, outflow_*). Aqui so
+    marca vfx='cascata' (documenta o dono) e confere o ORCAMENTO: <= ~21 particulas/s por queda com flow 1."""
     out = []
-    for nm, kw in spec.items():
+    tot = 0.0
+    for nm in ("FX_Fall_Castle_Lip", "FX_Fall_E_Lip", "FX_Fall_W_Lip", "FX_Weir_E", "FX_Weir_W", "FX_Spring_W"):
         o = bpy.data.objects.get(nm)
         if o is None:
             print("AVISO op_vfx: %s nao existe (op_water)" % nm)
             continue
-        w = float(o.get("width", 4.0))
-        kw = dict(kw)
-        kw["area"] = kw["area"] % ("%.1f" % w)
-        d = dict(WATER)
-        d.update(kw)
-        _emit(o, **d)
+        o["vfx"] = "cascata"
+        fl = float(o.get("flow", 0.5))
+        top = [float(c) for c in str(o.get("waypoints", "0,0,0")).split(";")[0].split(",")]
+        drop = top[2] - float(o.get("pool_level", top[2]))
+        rate = fl * (8 + 5 + 2 + 5 + (0.8 if drop > 20 else 0.0))
+        tot += rate
+        ok = rate <= 25.0
+        print(("OK   " if ok else "FAIL ") + "VFX cascata %-20s flow %.2f queda %5.1f -> %4.1f particulas/s (<= 25)" % (
+            nm, fl, drop, rate))
         out.append(nm)
-    o = bpy.data.objects.get("FX_Mist_CastleFall")
-    if o is not None:
-        r = float(o.get("radius", 11.0))
-        _emit(o, tex="nevoa", cor="232,238,246", rate=1.0, vida=10.0, vel=0.4, tam=9.0, fim=1.3, transp=0.9, luz=0.0,
-              infl=1.0, spread="90,10", acc_up=0.05, drift=0.2, area="%.0f,1.5,%.0f" % (2 * r, r), forma="Box",
-              Dist=220.0)
-        out.append(o.name)
+    for nm in ("FX_Fall_Castle_Step", "FX_Fall_Castle_Base", "FX_Fall_E_Base", "FX_Fall_W_Base", "FX_Mist_CastleFall"):
+        o = bpy.data.objects.get(nm)
+        if o is not None:
+            o["vfx"] = "cascata"
+    print("op_vfx agua V3: %d cascatas, %.0f particulas/s no total (cada uma so liga perto: spray_dist)" % (len(out), tot))
     return out
 
 

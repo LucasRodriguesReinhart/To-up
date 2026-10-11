@@ -44,6 +44,7 @@ H = 2.5                         # celula da pele
 BBOX = (-262.0, -24.0, 372.0, 530.0)
 ROCK, ROCKC, DARK, MOSS, VOID = "Cliff_OP_Face", "Cliff_OP_Shade", "Cliff_OP_Dark", "Cliff_OP_Moss", "Cliff_OP_Void"
 CREV, LITE = "Cliff_OP_Crevice", "Cliff_OP"
+WETC = "Cliff_OP_Wet"           # V3 R8 (op_lib): rocha molhada atras/ao lado das cachoeiras
 GDEEP, GRASS, GRASSB = "Grass_OP_Deep", "Grass_OP", "Grass_OP_B"
 DIRT, DIRTD, PATH, STONE = "Dirt_OP", "Dirt_OP_Dark", "Stone_OP_Path", "Stone_OP"
 WALL, JOINT, WOOD, WOODD = "Stone_OP_Wall", "Stone_OP_Dark", "Wood_OP_Mid", "Wood_OP_Dark"
@@ -741,6 +742,9 @@ def _kind(p, q, zt, zn, d, x, y):
         return "ishi"
     if p.kind == "floor" and drop <= 12.5:
         return "ishi"
+    if p.kind == "floor" and q.kind in ("floor", "stair"):
+        return "big"                       # V3 R7: arrimo ALTO entre 2 pisos da cidade = ishigaki (antes: face de rocha
+                                           #   com linguas verdes = as 'listras' da borda da praca na captura 01)
     return "rock"
 
 
@@ -783,18 +787,27 @@ def edge_runs(step=1.0):
                         mode = "" if g is None else ("L" if g > zn + 1.0 else "G")
                         key = (kd, q.name, mode)
                         smp = (x, y, nx, ny, zt, zn, d, q.kind in ("floor", "stair"), g)
+                mid = None
                 if key != key_c and cur:
+                    if key and key_c:
+                        # V3 R7: troca de tipo/vizinha NO MEIO da aresta -> as 2 corridas se encontram no MEIO das 2
+                        # amostras (antes: buraco de 1 stud entre elas = o 'risco azul' das capturas 01/02/03/09)
+                        pv = cur[-1]
+                        mid = ((pv[0] + smp[0]) / 2, (pv[1] + smp[1]) / 2)
+                        cur.append(mid + pv[2:])
                     runs.append((key_c[0], p.name, key_c[1], cur))
                     cur = []
                 key_c = key
                 if key:
+                    if mid is not None:
+                        cur.append(mid + smp[2:])
                     cur.append(smp)
             if cur and key_c:
                 runs.append((key_c[0], p.name, key_c[1], cur))
     out = []
     for kind, pn, qn, smp in runs:
-        if len(smp) < 2 or math.hypot(smp[-1][0] - smp[0][0], smp[-1][1] - smp[0][1]) < 1.5:
-            continue
+        if len(smp) < 2 or math.hypot(smp[-1][0] - smp[0][0], smp[-1][1] - smp[0][1]) < 0.3:
+            continue                     # V3 R7: era < 1,5 -> aresta curta de canto ficava SEM muro (fresta vazada)
         # erosao do d (fresta): a amostra da quina mede a vizinha la longe (6+) e o talude passaria por cima do piso
         ds = [s_[6] for s_ in smp]
         er = [min(ds[max(0, i - 2):i + 3]) for i in range(len(ds))]
@@ -828,19 +841,49 @@ def _lerp_smp(smp, s, ln, k):
     return smp[i][k] * (1 - f) + smp[i + 1][k] * f
 
 
-def wall_run(fb, smp, big=False, key="w", cap=True):
-    """ISHIGAKI EM TALUDE: o pe nasce na borda da placa de baixo (d - 0,35), o topo na borda desta placa; pedras
-    aparelhadas em fiadas desencontradas (30% das pedras grandes ocupam 2 fiadas), topo de cada pedra CHANFRADO (normal <
-    0,7: nao e piso sem colisao), junta escura no plano do talude, capa clara DENTRO do piso (+0,12)"""
+WALLD, WETS = "Stone_OP_WallDk", "Stone_OP_Wet"        # V3 R7 (op_lib): pedra escura das fiadas / base molhada
+WALL_ENDS = []                                          # V3 R7: pontas das corridas de muro (cunhais nos cantos)
+
+
+def pillow(fb, P_, sa, sb, za, zz, pr, m, NV, ux, uy, nx, ny, bottom=True):
+    """PEDRA APARELHADA em almofada: frente saliente 'pr' sobre o plano da junta + 4 chanfros (cima ingreme: normal
+    < 0,62 -> nunca vira 'piso'; baixo, lados). P_(s, o, z) = ponto 'o' para fora do plano da junta (talude) na cota z.
+    So faces que se veem (o fundo e o plano escuro da junta)."""
+    ct, cb, cs = 1.6 * pr, 0.45 * pr, 0.4 * pr          # cima: normal ~0,53 (+ talude ate ~0,6): nunca 'piso'
+    if zz - za < ct + cb + 0.15:
+        k = max(0.0, (zz - za - 0.15) / (ct + cb))
+        ct, cb, pr = ct * k, cb * k, pr * k
+    if sb - sa < 2 * cs + 0.3:
+        cs = max(0.0, (sb - sa - 0.3) / 2)
+    fA, fB = P_(sa + cs, pr, za + cb), P_(sb - cs, pr, za + cb)
+    fC, fD = P_(sb - cs, pr, zz - ct), P_(sa + cs, pr, zz - ct)
+    bA, bB, bC, bD = P_(sa, 0.0, za), P_(sb, 0.0, za), P_(sb, 0.0, zz), P_(sa, 0.0, zz)
+    fb.face([fA, fB, fC, fD], m, NV)
+    fb.face([fD, fC, bC, bD], m, (nx, ny, 0.8))
+    fb.face([bB, fB, fC, bC], m, (ux + nx * 0.5, uy + ny * 0.5, 0.0))
+    fb.face([bA, bD, fD, fA], m, (-ux + nx * 0.5, -uy + ny * 0.5, 0.0))
+    if bottom:
+        fb.face([bA, fA, fB, bB], m, (nx, ny, -0.8))
+
+
+def wall_run(fb, smp, big=False, key="w", cap=True, flare=True):
+    """V3 R7 ISHIGAKI de verdade (capturas 01/02/03: 'muralha lisa com manchas de tijolo'):
+    * TALUDE em leque (ogi-no-kobai): o pe sai ate 0,8 para fora (so muro alto e fora de escada) e o topo RECUA ate 1,0
+      sob a capa -> a face deita embaixo e fica a prumo em cima; mais a fresta medida (fo) como antes.
+    * PEDRAS EM ALMOFADA (pillow): frente saliente 0,22..0,48 com chanfro nos 4 lados -> cada pedra pega luz em cima e
+      sombra embaixo mesmo no Roblox sem textura; fiadas desencontradas, pedras maiores (menos tris por m2).
+    * TOM por pedra (1 em 4 mais escura, Stone_OP_WallDk), fiada de BASE molhada (Stone_OP_Wet) e junta com MUSGO no pe.
+    * CAPA em blocos (kasa-ishi) com junta, a frente no labio e a barriga cobrindo o recuo do talude.
+    Pe na borda da placa de baixo (d - 0,38), topo na borda desta placa; registra as pontas em WALL_ENDS (cunhais)."""
     a, b = smp[0], smp[-1]
     nx, ny = a[2], a[3]
     ux, uy = b[0] - a[0], b[1] - a[1]
     ln = math.hypot(ux, uy)
-    if ln < 0.6:
+    if ln < 0.3:
         return 0
     ux, uy = ux / ln, uy / ln
     zt = max(s_[4] for s_ in smp)
-    cap_h = 0.5
+    cap_h = 0.62
     ztop = zt - cap_h
 
     def foot(s):
@@ -851,46 +894,58 @@ def wall_run(fb, smp, big=False, key="w", cap=True):
 
     def base(s):
         return min(0.0, _lerp_smp(smp, s, ln, 6) - 0.38)       # sem fresta: plano recuado (a pedra nao passa da borda)
+    hmax = ztop - min(foot(0.0), foot(ln))
+    FO = min(0.8, 0.035 * hmax) if (flare and big and hmax > 8.0) else 0.0
+    BI = min(1.0, 0.045 * hmax) if hmax > 3.0 else 0.0
 
     def op(s, z):
         zb = foot(s)
         h = max(0.1, ztop - zb)
-        return fo(s) * max(0.0, min(1.0, (ztop - z) / h)) + base(s)
+        t = max(0.0, min(1.0, (z - zb) / h))
+        return fo(s) * (1.0 - t) + base(s) + FO * (1.0 - t) ** 2 - BI * t
 
     def Pt(s, o, z):
         return (a[0] + ux * s + nx * o, a[1] + uy * s + ny * o, z)
-    NV, UV = (nx, ny, 0.0), (ux, uy, 0.0)
-    seg = max(1, int(math.ceil(ln / 6.0)))
-    ch_seq = (1.5, 2.4, 1.9, 1.6, 2.2) if big else (1.1, 1.5, 1.0, 1.3, 1.6)
-    bl_lo, bl_hi = (3.6, 6.2) if big else (2.0, 3.8)
+
+    def Pw(s, o, z):                                    # o relativo ao plano da junta (talude) naquela cota
+        return Pt(s, op(s, z) + o, z)
+    NV = (nx, ny, 0.0)
+    seg = max(1, int(math.ceil(ln / 7.0)))
+    ch_seq = (1.6, 2.4, 1.9, 1.7, 2.2) if big else (1.4, 1.9, 1.3, 1.6, 2.0)
+    bl_lo, bl_hi = (3.8, 6.6) if big else (3.0, 5.0)
     nst = 0
+    zfoot_min = min(foot(0.0), foot(ln))
     for g in range(seg):
         s0, s1 = ln * g / seg, ln * (g + 1) / seg
         zb = min(foot(s0), foot(s1))
-        # junta: plano do talude (escuro) do pe ate a capa
-        fb.face([Pt(s0, op(s0, zb), zb), Pt(s1, op(s1, zb), zb), Pt(s1, 0.0, ztop + 0.05), Pt(s0, 0.0, ztop + 0.05)],
-                JOINT, NV)
+        # junta: plano do talude (escuro) do pe ate a capa, em 3 faixas (o talude curva); a de baixo com MUSGO
+        zs = [zb, zb + 0.9, zb + (ztop - zb) * 0.45, ztop + 0.05]
+        for k in range(3):
+            if zs[k + 1] <= zs[k] + 0.02:
+                continue
+            fb.face([Pw(s0, 0.0, zs[k]), Pw(s1, 0.0, zs[k]), Pw(s1, 0.0, zs[k + 1]), Pw(s0, 0.0, zs[k + 1])],
+                    MOSS if k == 0 else JOINT, NV)
         z = zb + 0.3
         row = 0
         courses = []
         while z < ztop - 0.3:
             chh = ch_seq[int(hh(key, g, row, "c") * len(ch_seq)) % len(ch_seq)] * (0.85 + 0.3 * hh(key, g, row, "c2"))
             z1 = min(z + chh, ztop)
-            if ztop - z1 < 0.45:
+            if ztop - z1 < 0.6:
                 z1 = ztop
             courses.append((z, z1))
             z = z1
             row += 1
         busy = {}
         for row, (z, z1) in enumerate(courses):
-            s = s0 + (0.0 if row % 2 == 0 else -0.6 * hh(key, g, row))
+            s = s0 + (0.0 if row % 2 == 0 else -0.45 * bl_lo * hh(key, g, row))
             q = 0
             while s < s1 - 0.05:
                 w = bl_lo + (bl_hi - bl_lo) * hh(key, g, row, q, "w")
                 e = min(s + w, s1)
                 if s1 - e < bl_lo * 0.5:
                     e = s1
-                pieces = [(max(s, s0) + 0.07, e - 0.07)]
+                pieces = [(max(s, s0) + 0.08, e - 0.08)]
                 for oa, ob_ in busy.get(row, ()):
                     nxt = []
                     for pa, pb in pieces:
@@ -898,51 +953,196 @@ def wall_run(fb, smp, big=False, key="w", cap=True):
                             nxt.append((pa, pb))
                             continue
                         if oa > pa:
-                            nxt.append((pa, oa - 0.14))
+                            nxt.append((pa, oa - 0.16))
                         if ob_ < pb:
-                            nxt.append((ob_ + 0.14, pb))
+                            nxt.append((ob_ + 0.16, pb))
                     pieces = nxt
-                dbl = big and row + 1 < len(courses) and len(pieces) == 1 and hh(key, g, row, q, "dbl") > 0.7
+                dbl = big and row + 1 < len(courses) and len(pieces) == 1 and hh(key, g, row, q, "dbl") > 0.72
                 for sa, sb in pieces:
-                    if sb - sa <= 0.3:
+                    if sb - sa <= 0.5:
                         continue
-                    za, zz = z + 0.06, z1 - 0.06
+                    za, zz = z + 0.08, z1 - 0.08
                     if dbl:
-                        zz = courses[row + 1][1] - 0.06
+                        zz = courses[row + 1][1] - 0.08
                         busy.setdefault(row + 1, []).append((sa, sb))
-                    pr = (0.2 + 0.12 * hh(key, g, row, q, "o")) if big else (0.14 + 0.1 * hh(key, g, row, q, "o"))
-                    hw_ = max(0.1, ztop - foot(sa))
-                    kk_ = 1.25 / max(0.3, 1.0 - 1.3 * max(fo(sa), fo(sb)) / hw_)
-                    c = min(pr * kk_, (zz - za) * 0.6)             # chanfro ingreme (o talude deita a pedra)
-                    pr = c / kk_
-
-                    zf = zz - c
-                    # frente, chanfro de cima, laterais (o plano da junta e o fundo)
-                    fA, fB = Pt(sa, op(sa, za) + pr, za), Pt(sb, op(sb, za) + pr, za)
-                    fC, fD = Pt(sb, op(sb, zf) + pr, zf), Pt(sa, op(sa, zf) + pr, zf)
-                    bA, bB = Pt(sa, op(sa, za), za), Pt(sb, op(sb, za), za)
-                    bC, bD = Pt(sb, op(sb, zz), zz), Pt(sa, op(sa, zz), zz)
-                    fb.face([fA, fB, fC, fD], WALL, NV)
-                    fb.face([fD, fC, bC, bD], WALL, (nx, ny, 1.0))
-                    fb.face([fB, bB, bC, fC], WALL, UV)
-                    fb.face([bA, fA, fD, bD], WALL, (-ux, -uy, 0.0))
-                    if za < zb + 6.0:                                     # fundo so ate a cabeca (visto de baixo)
-                        fb.face([bA, bB, fB, fA], WALL, (0.0, 0.0, -1.0))
+                    pr = (0.32 + 0.16 * hh(key, g, row, q, "o")) if big else (0.22 + 0.12 * hh(key, g, row, q, "o"))
+                    tone = hh(key, g, row, q, "tn")
+                    m = WETS if (za < zfoot_min + 1.4 and row == 0) else (WALLD if tone < 0.24 else WALL)
+                    # chanfro de BAIXO so onde o olho do jogador (pe + 5,5) o ve por baixo: acima de 5 e ate 14 do pe
+                    pillow(fb, Pw, sa, sb, za, zz, pr, m, NV, ux, uy, nx, ny, bottom=zb + 5.0 < za < zb + 14.0)
                     nst += 1
                 s = e
                 q += 1
-    # capa clara (dentro do piso: topo +0,12, frente no labio, sem balanco); sem capa onde o lajeado cobre (so a testa)
+    # CAPA em blocos (kasa-ishi): frente no labio (offset 0), topo +0,12 dentro do piso, barriga cobrindo o recuo
     e0, e1 = -0.05, ln + 0.05
     z0, z1 = ztop, zt + 0.12
-    fb.face([Pt(e0, 0.0, z0), Pt(e1, 0.0, z0), Pt(e1, 0.0, z1), Pt(e0, 0.0, z1)], PATH, NV)
+    fb.face([Pt(e0, -0.06, z0 - 0.02), Pt(e1, -0.06, z0 - 0.02), Pt(e1, -0.06, z1 - 0.04), Pt(e0, -0.06, z1 - 0.04)],
+            JOINT, NV)                                  # fundo escuro atras das juntas da capa (sem fresta vazada)
     gutter(fb, smp, a, ux, uy, nx, ny, ln)
-    b0, b1 = base(0.0), base(ln)
-    if not cap:
-        return nst
-    fb.face([Pt(e0, 0.0, z1), Pt(e1, 0.0, z1), Pt(e1, -0.9, z1), Pt(e0, -0.9, z1)], PATH, (0, 0, 1))
-    for s_, sg in ((e0, -1), (e1, 1)):
-        fb.face([Pt(s_, 0.0, z0), Pt(s_, 0.0, z1), Pt(s_, -0.9, z1), Pt(s_, -0.9, z0)], PATH, (ux * sg, uy * sg, 0))
+    if cap:
+        s, k = e0, 0
+        while s < e1 - 0.05:
+            e = min(e1, s + 2.4 + 1.2 * hh(key, "cp", k))
+            if e1 - e < 1.0:
+                e = e1
+            sa, sb = s + (0.05 if k else 0.0), e - (0.05 if e < e1 else 0.0)
+            m = PATH if hh(key, "cpm", k) > 0.2 else STONE
+            fb.face([Pt(sa, 0.0, z0), Pt(sb, 0.0, z0), Pt(sb, 0.0, z1), Pt(sa, 0.0, z1)], m, NV)
+            fb.face([Pt(sa, 0.0, z1), Pt(sb, 0.0, z1), Pt(sb, -0.9, z1), Pt(sa, -0.9, z1)], m, (0, 0, 1))
+            fb.face([Pt(sa, 0.0, z0), Pt(sb, 0.0, z0), Pt(sb, -BI - 0.1, z0), Pt(sa, -BI - 0.1, z0)], m, (0, 0, -1))
+            for s_, sg in ((sa, -1), (sb, 1)):
+                fb.face([Pt(s_, 0.0, z0), Pt(s_, 0.0, z1), Pt(s_, -0.9, z1), Pt(s_, -0.9, z0)], m, (ux * sg, uy * sg, 0))
+            s, k = e, k + 1
+    else:
+        fb.face([Pt(e0, 0.0, z0), Pt(e1, 0.0, z0), Pt(e1, 0.0, z1), Pt(e0, 0.0, z1)], PATH, NV)
+        fb.face([Pt(e0, 0.0, z0), Pt(e1, 0.0, z0), Pt(e1, -BI - 0.1, z0), Pt(e0, -BI - 0.1, z0)], PATH, (0, 0, -1))
+    # TAMPA DE PONTA (escura, do plano da junta para dentro): a fresta que sobra entre 2 corridas (canto suave, troca
+    # de vizinha, talude diferente) mostra junta escura, nunca o ceu
+    for s_, sg in ((0.0, -1), (ln, 1)):
+        zb_ = foot(s_) - 0.3
+        zm_ = (zb_ + ztop) / 2
+        for za_, zz_ in ((zb_, zm_), (zm_, z1 - 0.04)):
+            for d_ in (1, -1):                          # 2 faces: tapa a fresta vista de qualquer lado
+                fb.face([Pt(s_, op(s_, za_), za_), Pt(s_, op(s_, min(zz_, ztop)), zz_), Pt(s_, -BI - 1.4, zz_),
+                         Pt(s_, -BI - 1.4, za_)], JOINT, (ux * sg * d_, uy * sg * d_, 0.0))
+    # pontas para os CUNHAIS (build_walls): ponto, normal, rumo e o perfil op(z) na ponta
+    for s_, sg in ((0.0, -1), (ln, 1)):
+        WALL_ENDS.append(dict(p=(a[0] + ux * s_, a[1] + uy * s_), n=(nx, ny), t=(ux * sg, uy * sg), end=sg > 0,
+                              zb=foot(s_), ztop=ztop, op=(lambda z, s_=s_: op(s_, z)), big=big, key=key))
     return nst
+
+
+def corners(fb):
+    """V3 R7 CUNHAIS (sumi-ishi em sangi-zumi) nos cantos CONVEXOS entre 2 corridas de muro: o talude das 2 faces abre
+    uma cunha vazada no canto (o 'risco azul' vertical das capturas); o cunhal fecha com blocos longos alternando o
+    lado (2,8 / 1,3), salientes 0,5, chanfro de cima ingreme. Cantos concavos: as faces se cruzam (sem fresta)."""
+    fins = [e for e in WALL_ENDS if e["end"]]
+    sts = [e for e in WALL_ENDS if not e["end"]]
+    n = 0
+    used = set()
+    for A in fins:
+        best = None
+        for j, B in enumerate(sts):
+            if j in used or B["key"] == A["key"]:
+                continue
+            d = math.hypot(A["p"][0] - B["p"][0], A["p"][1] - B["p"][1])
+            if d < 2.6 and (best is None or d < best[0]):
+                best = (d, j, B)
+        if best is None:
+            continue
+        _, j, B = best
+        tA, tB = A["t"], (-B["t"][0], -B["t"][1])          # tA: rumo de A chegando; tB: rumo de B saindo
+        cr = tA[0] * tB[1] - tA[1] * tB[0]
+        if cr < -0.1 and best[0] < 1.8:
+            # CANTO CONCAVO: com o talude recuado, os 2 planos de junta acabam antes de se cruzar -> buraco quadrado no
+            # canto; cada plano segue 'e' alem da ponta (fica atras da outra parede, nao aparece)
+            for E, t_, nn in ((A, tA, A["n"]), (B, (-tB[0], -tB[1]), B["n"])):
+                e = 1.6
+                zz = [E["zb"] + (E["ztop"] + 0.74 - E["zb"]) * k_ / 4 for k_ in range(5)]
+                for z0, z1 in zip(zz, zz[1:]):
+                    o0, o1 = min(E["op"](min(z0, E["ztop"])), -0.04), min(E["op"](min(z1, E["ztop"])), -0.04)
+                    q = [(E["p"][0] + nn[0] * o0, E["p"][1] + nn[1] * o0, z0),
+                         (E["p"][0] + t_[0] * e + nn[0] * o0, E["p"][1] + t_[1] * e + nn[1] * o0, z0),
+                         (E["p"][0] + t_[0] * e + nn[0] * o1, E["p"][1] + t_[1] * e + nn[1] * o1, z1),
+                         (E["p"][0] + nn[0] * o1, E["p"][1] + nn[1] * o1, z1)]
+                    for sg in (1, -1):
+                        fb.face(q, JOINT, (sg * nn[0], sg * nn[1], 0.0))
+            continue
+        if cr < 0.25 or not (A.get("big") is not None and B.get("big") is not None) or best[0] > 1.8:
+            continue                                         # quase reto, longe ou rocha: so a PONTE (bridges)
+        used.add(j)
+        V = ((A["p"][0] + B["p"][0]) / 2, (A["p"][1] + B["p"][1]) / 2)
+        nA, nB = A["n"], B["n"]
+        zb = min(A["zb"], B["zb"])
+        ztop = min(A["ztop"], B["ztop"])
+        z = zb + 0.1
+        k = 0
+        while z < ztop - 0.4:
+            z1 = min(ztop, z + (2.0 if A["big"] else 1.5) * (0.85 + 0.3 * hh(A["key"], "q", k)))
+            if ztop - z1 < 0.5:
+                z1 = ztop
+            zm = (z + z1) / 2
+            oA, oB = A["op"](zm) + 0.5, B["op"](zm) + 0.5
+            # canto de fora = cruzamento das 2 retas da face (0,5 para fora de cada plano de junta)
+            pA = (V[0] + nA[0] * oA, V[1] + nA[1] * oA)
+            pB = (V[0] + nB[0] * oB, V[1] + nB[1] * oB)
+            wx, wy = pB[0] - pA[0], pB[1] - pA[1]
+            ta = (wx * tB[1] - wy * tB[0]) / cr
+            C = (pA[0] + tA[0] * ta, pA[1] + tA[1] * ta)
+            la, lb = (2.8, 1.3) if k % 2 == 0 else (1.3, 2.8)
+            dep = 1.4
+            Ae = (C[0] - tA[0] * la, C[1] - tA[1] * la)
+            Ab = (Ae[0] - nA[0] * dep, Ae[1] - nA[1] * dep)
+            Be = (C[0] + tB[0] * lb, C[1] + tB[1] * lb)
+            Bb = (Be[0] - nB[0] * dep, Be[1] - nB[1] * dep)
+            zc = z1 - 0.7                                   # chanfro de cima: recua 0,5 (normal ~0,58: ingreme)
+
+            def inA(q, o):
+                return (q[0] - nA[0] * o, q[1] - nA[1] * o)
+
+            def inB(q, o):
+                return (q[0] - nB[0] * o, q[1] - nB[1] * o)
+            Ct = (C[0] - (nA[0] + nB[0]) * 0.5, C[1] - (nA[1] + nB[1]) * 0.5)
+            m = WALLD if hh(A["key"], "qm", k) < 0.3 else WALL
+            z0_ = z + 0.06
+            for (p0, p1), (q0, q1), nrm in (((Ae, C), (inA(Ae, 0.5), Ct), nA), ((C, Be), (Ct, inB(Be, 0.5)), nB),
+                                            ((Ab, Ae), (inA(Ab, 0.5), inA(Ae, 0.5)), (-tA[0], -tA[1])),
+                                            ((Be, Bb), (inB(Be, 0.5), inB(Bb, 0.5)), tB)):
+                fb.face([(p0[0], p0[1], z0_), (p1[0], p1[1], z0_), (p1[0], p1[1], zc), (p0[0], p0[1], zc)], m,
+                        (nrm[0], nrm[1], 0.0))
+                fb.face([(p0[0], p0[1], zc), (p1[0], p1[1], zc), (q1[0], q1[1], z1 - 0.06), (q0[0], q0[1], z1 - 0.06)], m,
+                        (nrm[0], nrm[1], 0.9))
+            if k == 0 or z0_ < zb + 7.0:                      # barriga (vista de baixo/perto do pe)
+                fb.face([(C[0], C[1], z0_), (Ae[0], Ae[1], z0_), (Ab[0], Ab[1], z0_), (Bb[0], Bb[1], z0_),
+                         (Be[0], Be[1], z0_)], m, (0, 0, -1))
+            z, k = z1, k + 1
+            n += 1
+        # CAPA DE CANTO: o talude recua o topo e as 2 capas nao se encontram por fora -> bloco de capa no cunhal
+        z0c, z1c = ztop, ztop + 0.74
+        pa, pc, pb = (V[0] - tA[0] * 1.2, V[1] - tA[1] * 1.2), V, (V[0] + tB[0] * 1.2, V[1] + tB[1] * 1.2)
+        ib = (pb[0] - nB[0] * 0.9, pb[1] - nB[1] * 0.9)
+        ia = (pa[0] - nA[0] * 0.9, pa[1] - nA[1] * 0.9)
+        ic = (V[0] - (nA[0] + nB[0]) * 0.9, V[1] - (nA[1] + nB[1]) * 0.9)
+        ring = [pa, pc, pb, ib, ic, ia]
+        fb.face([(q[0], q[1], z1c) for q in ring], PATH, (0, 0, 1))
+        fb.face([(q[0], q[1], z0c - 0.3) for q in ring], PATH, (0, 0, -1))
+        for (q0, q1), nrm in (((pa, pc), nA), ((pc, pb), nB)):
+            fb.face([(q0[0], q0[1], z0c - 0.3), (q1[0], q1[1], z0c - 0.3), (q1[0], q1[1], z1c), (q0[0], q0[1], z1c)], PATH,
+                    (nrm[0], nrm[1], 0.0))
+    return n
+
+
+def bridges(fb):
+    """V3 R7 PONTE escura entre pontas de corridas VIZINHAS (<= 2,6) que nao fecham sozinhas (troca de guarda 'L' que
+    desloca a corrida, rocha x muro, canto suave): faixa dupla (2 faces) do plano da junta de uma ate o da outra, na
+    faixa de cota comum - a fresta mostra pedra escura, nunca o ceu (capturas 01/02/03/09)"""
+    fins = [e for e in WALL_ENDS if e["end"]]
+    sts = [e for e in WALL_ENDS if not e["end"]]
+    n = 0
+    for A in fins:
+        for B in sts:
+            if B["key"] == A["key"]:
+                continue
+            d = math.hypot(A["p"][0] - B["p"][0], A["p"][1] - B["p"][1])
+            if d < 0.05 or d > 2.6:
+                continue
+            zlo, zhi = max(A["zb"], B["zb"]), min(A["ztop"], B["ztop"]) + 0.5
+            if zhi < zlo + 0.3:
+                continue
+            nA, nB = A["n"], B["n"]
+            zz = [zlo + (zhi - zlo) * k / 3 for k in range(4)]
+            P = lambda E, nn, z: (E["p"][0] + nn[0] * (E["op"](z) - 0.05), E["p"][1] + nn[1] * (E["op"](z) - 0.05), z)
+            for z0, z1 in zip(zz, zz[1:]):
+                q = [P(A, nA, z0), P(B, nB, z0), P(B, nB, z1), P(A, nA, z1)]
+                for sg in (1, -1):
+                    fb.face(q, JOINT, (sg * (nA[0] + nB[0]), sg * (nA[1] + nB[1]), 0.0))
+            zc0, zc1 = zhi - 0.5, min(A["ztop"], B["ztop"]) + 0.7     # faixa da CAPA (frente no labio)
+            q = [(A["p"][0] - nA[0] * 0.08, A["p"][1] - nA[1] * 0.08, zc0), (B["p"][0] - nB[0] * 0.08, B["p"][1] - nB[1] * 0.08, zc0),
+                 (B["p"][0] - nB[0] * 0.08, B["p"][1] - nB[1] * 0.08, zc1), (A["p"][0] - nA[0] * 0.08, A["p"][1] - nA[1] * 0.08, zc1)]
+            for sg in (1, -1):
+                fb.face(q, JOINT, (sg * (nA[0] + nB[0]), sg * (nA[1] + nB[1]), 0.0))
+            n += 1
+    return n
 
 
 def gutter(fb, smp, a, ux, uy, nx, ny, ln):
@@ -996,7 +1196,7 @@ def rock_run(fb, smp, key, tall_rock=False):
     for i in range(1, len(pts)):
         acc.append(acc[-1] + math.dist(pts[i - 1], pts[i]))
     tot = acc[-1]
-    if tot < 1.0:
+    if tot < 0.3:
         return 0
     ds = [0.0]
     q = 0
@@ -1017,6 +1217,10 @@ def rock_run(fb, smp, key, tall_rock=False):
         nodes.append((lr(0), lr(1), s0[2], s0[3], lr(4), lr(5), lr(6), s0[7] or s1[7], qi))
     gutter(fb, smp, smp[0], (smp[-1][0] - smp[0][0]) / max(tot, 1e-6), (smp[-1][1] - smp[0][1]) / max(tot, 1e-6),
            smp[0][2], smp[0][3], tot)
+    for e_, sg in ((smp[0], -1), (smp[-1], 1)):       # V3 R7: pontas da rocha tambem entram nas pontes (bridges)
+        tx_, ty_ = (smp[-1][0] - smp[0][0]) / max(tot, 1e-6), (smp[-1][1] - smp[0][1]) / max(tot, 1e-6)
+        WALL_ENDS.append(dict(p=(e_[0], e_[1]), n=(e_[2], e_[3]), t=(tx_ * sg, ty_ * sg), end=sg > 0, zb=e_[5] - 0.6,
+                              ztop=e_[4] - 0.3, op=(lambda z: 0.0), big=None, key=key + "r"))
     n = len(nodes)
     cool = hh(key, "cool") > 0.6
     low = ROCKC if cool else ROCK
@@ -1152,6 +1356,7 @@ def slit_lids(fb):
 
 def build_walls():
     guards_load()
+    WALL_ENDS.clear()
     fw = FB("OP_Ter_Walls")
     print("op_terrain: tampas de fresta com guarda %d" % slit_lids(fw))
     cnt = {}
@@ -1160,18 +1365,24 @@ def build_walls():
         f0 = len(fw.mb.bm.faces)
         key = "%s_%s_%d" % (pn, qn, i)
         cap = pn not in SLABBED
+        fl = not qn.startswith("Stair_")
         if kind == "ishi":
-            wall_run(fw, smp, False, key, cap)
+            wall_run(fw, smp, False, key, cap, fl)
         elif kind == "big":
-            wall_run(fw, smp, True, key, cap)
+            wall_run(fw, smp, True, key, cap, fl)
         elif kind == "rock":
             rock_run(fw, smp, key)
         elif kind == "spine":
             spine_run(fw, smp, key)
         cnt[kind] = cnt.get(kind, 0) + 1
         tri[kind] = tri.get(kind, 0) + 2 * (len(fw.mb.bm.faces) - f0)
+    f0 = len(fw.mb.bm.faces)
+    nq = corners(fw)
+    nbq = bridges(fw)
+    print("op_terrain: pontes de fresta entre corridas %d" % nbq)
+    tri["cunhal"] = 2 * (len(fw.mb.bm.faces) - f0)
     ob = fw.finish()
-    print("op_terrain: bordas internas %s tris~%s | %d tris" % (cnt, tri, tris_of(ob)))
+    print("op_terrain: bordas internas %s tris~%s | %d tris | cunhais %d blocos" % (cnt, tri, tris_of(ob), nq))
     return ob
 
 
@@ -1298,8 +1509,10 @@ def node_profile(nd, key, keelc):
         k = NR - len(tail)
         rows = [(o_top + (o_bot - o_top) * i / (k - 1), z_top + (z_bot - z_top) * i / (k - 1)) for i in range(k)] + tail
         return rows, (mats + [mats[-1]] * NR)[:NR - 1]
-    if kind == "water":                                   # boca das quedas da borda: rocha molhada lisa
-        return even(0.0, zt, 0.6, SEA + 2.0, [(1.0, SEA - 2.0), (-6.0, 22.0), (-10.0, 14.0)], [DARK])
+    if kind == "water":
+        # V3 R8: boca das quedas da borda = CANAL ESCAVADO na falesia: logo abaixo da soleira (op_water.lips) a rocha
+        # recua 1,4 (a agua cai solta do labio, sem raspar), molhada e escura (Cliff_OP_Wet) ate o mar
+        return even(-0.6, zt - 1.2, -1.4, SEA + 2.0, [(-0.4, SEA - 2.0), (-6.0, 22.0), (-10.0, 14.0)], [WETC])
     if pname in QUAY or zt < 60.0:                        # cais: muralha de pedra (as pedras vem do wall_run)
         return even(-0.12, zt - 0.5, -0.12, SEA + 0.4, [(0.2, SEA - 1.5), (-4.0, 26.0), (-12.0, 14.0)], [JOINT] * 9 + [DARK])
     A = 1.5 + 7.5 * hh(key, k, "A")
@@ -1310,8 +1523,9 @@ def node_profile(nd, key, keelc):
     jit = (hh(key, k, di, "j") - 0.5) * 2.4 * bump
     tp = nd.get("taper", 1.0)
     if tp < 0.3:                                          # vizinho do cais/queda: face lisa ingreme (transicao sem torcer)
+        wet = nd.get("wetd", 99.0) < 7.0                  # V3 R8: vizinho da cachoeira = rocha molhada
         return even(0.0, zt, 0.3, SEA + 0.4, [(0.6, SEA - 1.5), (-4.0, 26.0), (-12.0, 14.0)],
-                    [GDEEP, MOSS] + [ROCKC] * 8 + [DARK])
+                    [GDEEP, MOSS] + [WETC if wet else ROCKC] * 8 + [DARK])
     bulge = (0.5 + A * bump + jit) * tp
     zr = min(zt, nd.get("zreach", zt)) - REACH_DROP
     # lingua verde da crista: 1 no em ~3 desce longe (6..16), os outros 1..3,5
@@ -1353,6 +1567,8 @@ def node_profile(nd, key, keelc):
         rows = _steep(rows[:14], 0.6) + rows[14:]
     mm = [GDEEP, MOSS, tone, tone, tone, MOSS if green else tone, MOSS if drip else low, low, MOSS if g2 else low,
           MOSS if (g2 and drip) else low, low, ROCKC, DARK, DARK, DARK, DARK]
+    if nd.get("wetd", 99.0) < 7.0:                        # V3 R8: flancos da cachoeira molhados (escuros), sem verde
+        mm = [GDEEP, MOSS] + [WETC if m_ in (tone, low, ROCK, ROCKC, LITE, MOSS) else m_ for m_ in mm[2:]]
     nd["foot"] = o4 + foot + 0.8
     nd["ledge"] = (o4 + wl * 0.5, zl, wl, zr) if green else None
     if nd["crev"] in (1, 2):
@@ -1393,12 +1609,15 @@ def build_cliff():
         smooth = lambda i: (nodes[i]["pl"] is None or nodes[i]["pl"].kind == "water" or nodes[i]["pl"].name in QUAY
                             or nodes[i]["z"] < 60.0)
         hard = [d_["d"] for i, d_ in enumerate(nodes) if smooth(i)]
+        wets = [d_["d"] for d_ in nodes if d_["pl"] is not None and d_["pl"].kind == "water"]   # V3 R8: bocas das quedas
         tot_ = sum(math.hypot(lp[(i + 1) % len(lp)][0] - lp[i][0], lp[(i + 1) % len(lp)][1] - lp[i][1]) for i in range(len(lp)))
         for i, nd in enumerate(nodes):
             nd["zreach"] = min(zrs[(i + k_) % nn_] for k_ in range(-3, 4)) - 1.0
             if hard:
                 dd = min(min(abs(nd["d"] - h_), tot_ - abs(nd["d"] - h_)) for h_ in hard)
                 nd["taper"] = max(0.0, min(1.0, (dd - 2.0) / 14.0))
+            if wets:
+                nd["wetd"] = min(min(abs(nd["d"] - h_), tot_ - abs(nd["d"] - h_)) for h_ in wets)
         for nd in nodes:
             rows, mm = node_profile(nd, key, keelc)
             tx_, ty_ = -nd["ny"], nd["nx"]

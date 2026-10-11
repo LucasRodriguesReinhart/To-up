@@ -348,7 +348,7 @@ def stair_wall(mb, Fs, s, w, n, rise, tread, cheek_h, zf, batter, key, tw=None):
                  P(face(Y0, zt(Y0)) - 0.22, Y0, zt(Y0))], SWALL_D, OUT)
     z, c, n_st = zf, 0, 0
     while True:
-        hc = 1.4 + 0.9 * K._h01(key, s, "c", c)
+        hc = 1.6 + 0.9 * K._h01(key, s, "c", c)
         z2 = z + hc
         y_lo = max(Y0, yat(z + 0.3))
         if y_lo > Y1 - 0.6:
@@ -369,14 +369,35 @@ def stair_wall(mb, Fs, s, w, n, rise, tread, cheek_h, zf, batter, key, tw=None):
         for j, (ya, yb) in enumerate(zip(cuts, cuts[1:])):
             if yb - ya < 0.3:
                 continue
-            ya2, yb2 = ya + (0.03 if ya > Y0 + 1e-3 else 0.0), yb - (0.03 if yb < Y1 - 1e-3 else 0.0)
+            ya2, yb2 = ya + (0.07 if ya > Y0 + 1e-3 else 0.0), yb - (0.07 if yb < Y1 - 1e-3 else 0.0)
             ta = (zt(ya2) if ya2 <= y_t + 1e-6 else z2) - 0.03
             tb = (zt(yb2) if yb2 <= y_t + 1e-6 else z2) - 0.03
-            za = z + (0.03 if c else 0.0)
-            df = 0.1 * (K._h01(key, s, c, j, "d") - 0.5)
-            m = SWALL_M if K._h01(key, s, c, j, "m") > 0.16 else "Stone_OP"
+            za = z + (0.07 if c else 0.0)
+            df = 0.06 * (K._h01(key, s, c, j, "d") - 0.5) - 0.12
+            hm = K._h01(key, s, c, j, "m")
+            # V3 R7: tons da cantaria do op_terrain (1 em 4 escura) e fiada de baixo molhada
+            m = "Stone_OP_Wet" if c == 0 else (SWALL_M if hm > 0.24 else "Stone_OP_WallDk")
             fa0, fa1, fb0, fb1 = face(ya2, za) + df, face(ya2, ta) + df, face(yb2, za) + df, face(yb2, tb) + df
-            _q4(mb, Fs, [P(fa0, ya2, za), P(fb0, yb2, za), P(fb1, yb2, tb), P(fa1, ya2, ta)], m, OUT)
+            # V3 R7 PEDRA EM ALMOFADA (mesma linguagem do ishigaki do op_terrain): frente saliente pr com chanfro nos
+            # 4 lados (o de cima ingreme), so as faces que se veem
+            pr = 0.26 + 0.12 * K._h01(key, s, c, j, "pr")
+            ct, cb, cs = 1.6 * pr, 0.45 * pr, 0.4 * pr
+            hmin = min(ta, tb) - za
+            if hmin < ct + cb + 0.15:
+                kk = max(0.0, (hmin - 0.15) / (ct + cb))
+                ct, cb, pr = ct * kk, cb * kk, pr * kk
+            cs = min(cs, max(0.0, (yb2 - ya2 - 0.3) / 2))
+            fA = P(face(ya2 + cs, za + cb) + df + pr, ya2 + cs, za + cb)
+            fB = P(face(yb2 - cs, za + cb) + df + pr, yb2 - cs, za + cb)
+            fC = P(face(yb2 - cs, tb - ct) + df + pr, yb2 - cs, tb - ct)
+            fD = P(face(ya2 + cs, ta - ct) + df + pr, ya2 + cs, ta - ct)
+            bA, bB, bC, bD = P(fa0, ya2, za), P(fb0, yb2, za), P(fb1, yb2, tb), P(fa1, ya2, ta)
+            _q4(mb, Fs, [fA, fB, fC, fD], m, OUT)
+            _q4(mb, Fs, [fD, fC, bC, bD], m, (s, 0.0, 0.8))
+            _q4(mb, Fs, [bB, fB, fC, bC], m, (s * 0.5, 1.0, 0.0))
+            _q4(mb, Fs, [bA, bD, fD, fA], m, (s * 0.5, -1.0, 0.0))
+            if zf + 5.0 < za < zf + 14.0:                 # so onde o olho ve por baixo
+                _q4(mb, Fs, [bA, fA, fB, bB], m, (s, 0.0, -0.8))
             # (sem topo: sob a capa nao aparece e nas juntas a fresta mostra o miolo escuro, que e a leitura da junta)
             # pontas so nas 2 extremidades da muralha; entre pedras a junta de 0,06 mostra o miolo escuro (a junta)
             if ya2 <= Y0 + 1e-3:
@@ -638,51 +659,56 @@ def lonja(mb):
     col_box("OP_PortLonja", (W + 5.2, 2.2, 1.8), F.p(0.0, 0.0, r["zr"] + 0.5))         # cumeeira + onigawara
 
 
-def shed(mb, nm="H5"):
-    """H5: TELHEIRO DE CARGA aberto (4o armazem do porto): pilares sobre pedras, frechais, kirizuma do kit, fardos e
+def shed(mb, nm="H5", roof=False):
+    """V3 R4 (captura 02: 'telheiro flutuando sobre a escada'): o TELHADO do H5 SAIU - no fundo estreito entre o
+    arrimo do T1 e a muralha da PortoB os pilares ficavam escondidos e a cobertura lia como peca solta no ar. Fica o
+    PATIO DE CARGA (fardos e caixas no chao, com as mesmas colisoes). roof=True volta o telheiro.
+    (V2) H5: TELHEIRO DE CARGA aberto (4o armazem do porto): pilares sobre pedras, frechais, kirizuma do kit, fardos e
     caixas empilhados por dentro (sem paredes: nada de interior falso)"""
     F = bframe(nm)
     s = _spec(nm)
     W, D = s[4], s[5]
     xs = [-W / 2 + 0.5, -W / 6, W / 6, W / 2 - 0.5]
-    for x in xs:
+    if roof:
+        for x in xs:
+            for y in (-D / 2 + 0.5, D / 2 - 0.5):
+                K.rock_base(mb, F, x, y, 0.0, 0.8, 0.4)
+                K.bb(mb, F, x - 0.42, x + 0.42, y - 0.42, y + 0.42, 0.3, 8.0, WD)
         for y in (-D / 2 + 0.5, D / 2 - 0.5):
-            K.rock_base(mb, F, x, y, 0.0, 0.8, 0.4)
-            K.bb(mb, F, x - 0.42, x + 0.42, y - 0.42, y + 0.42, 0.3, 8.0, WD)
-    for y in (-D / 2 + 0.5, D / 2 - 0.5):
-        K.bb(mb, F, -W / 2 - 0.4, W / 2 + 0.4, y - 0.45, y + 0.45, 7.2, 8.0, WD)
-    for x in xs:
-        K.bb(mb, F, x - 0.4, x + 0.4, -D / 2 - 0.3, D / 2 + 0.3, 8.0, 8.6, WD)
-    # cobertura de tabuas (telhado de madeira do porto): 2 aguas em fiadas sobrepostas, cumeeira e tabeiras
-    Dh, rise = D / 2 + 1.6, 3.4
-    ang = math.atan2(rise, Dh)
-    ln = math.hypot(Dh, rise)
-    nb = 6
-    for sy in (-1, 1):
-        for k in range(nb):
-            t0 = k / nb
-            yy = sy * Dh * (1 - t0 - 0.5 / nb)
-            zz = 8.6 + rise * (t0 + 0.5 / nb) + 0.12 * (k % 2)
-            c = F.p(0.0, yy, zz)
-            mb.box((W + 3.0, ln / nb + 0.35, 0.22), c, F.r(-sy * ang, 0, 0), "Roof_OP_Shingle", 0.0)
-        for sx in (-1, 1):                                    # tabeira (barge board)
-            c = F.p(sx * (W / 2 + 1.55), sy * Dh / 2, 8.6 + rise / 2 + 0.05)
-            mb.box((0.25, ln + 0.3, 0.6), c, F.r(-sy * ang, 0, 0), WD, 0.0)
-    K.bb(mb, F, -W / 2 - 1.7, W / 2 + 1.7, -0.45, 0.45, 8.6 + rise, 8.6 + rise + 0.55, "Roof_OP_Ridge")
-    for sy in (-1, 1):                    # V2 (gate): a cobertura se alcanca da muralha da PortoB -> 2 aguas com colisao
-        col_box("OP_PortHouse" + nm, (W + 3.0, ln, 0.6), F.p(0.0, sy * Dh / 2, 8.6 + rise / 2 - 0.2),
-                F.r(-sy * ang, 0, 0))
-    for x in xs:                                             # pendurais da tesoura
-        K.bb(mb, F, x - 0.25, x + 0.25, -0.25, 0.25, 8.6, 8.6 + rise, WD)
+            K.bb(mb, F, -W / 2 - 0.4, W / 2 + 0.4, y - 0.45, y + 0.45, 7.2, 8.0, WD)
+        for x in xs:
+            K.bb(mb, F, x - 0.4, x + 0.4, -D / 2 - 0.3, D / 2 + 0.3, 8.0, 8.6, WD)
+        # cobertura de tabuas (telhado de madeira do porto): 2 aguas em fiadas sobrepostas, cumeeira e tabeiras
+        Dh, rise = D / 2 + 1.6, 3.4
+        ang = math.atan2(rise, Dh)
+        ln = math.hypot(Dh, rise)
+        nb = 6
+        for sy in (-1, 1):
+            for k in range(nb):
+                t0 = k / nb
+                yy = sy * Dh * (1 - t0 - 0.5 / nb)
+                zz = 8.6 + rise * (t0 + 0.5 / nb) + 0.12 * (k % 2)
+                c = F.p(0.0, yy, zz)
+                mb.box((W + 3.0, ln / nb + 0.35, 0.22), c, F.r(-sy * ang, 0, 0), "Roof_OP_Shingle", 0.0)
+            for sx in (-1, 1):                                    # tabeira (barge board)
+                c = F.p(sx * (W / 2 + 1.55), sy * Dh / 2, 8.6 + rise / 2 + 0.05)
+                mb.box((0.25, ln + 0.3, 0.6), c, F.r(-sy * ang, 0, 0), WD, 0.0)
+        K.bb(mb, F, -W / 2 - 1.7, W / 2 + 1.7, -0.45, 0.45, 8.6 + rise, 8.6 + rise + 0.55, "Roof_OP_Ridge")
+        for sy in (-1, 1):                    # V2 (gate): a cobertura se alcanca da muralha da PortoB -> 2 aguas com colisao
+            col_box("OP_PortHouse" + nm, (W + 3.0, ln, 0.6), F.p(0.0, sy * Dh / 2, 8.6 + rise / 2 - 0.2),
+                    F.r(-sy * ang, 0, 0))
+        for x in xs:                                             # pendurais da tesoura
+            K.bb(mb, F, x - 0.25, x + 0.25, -0.25, 0.25, 8.6, 8.6 + rise, WD)
     for i, (x, y) in enumerate(((-5.4, -2.4), (-5.4, 1.6))):
         for k in range(2):
             tawara(mb, F, x - 0.65 + 1.3 * k, y, 0.0, 0.0)
         tawara(mb, F, x, y, 1.15, 0.0)
     for (x, y, z, a) in ((4.0, -2.0, 0.0, 0.0), (5.8, -2.2, 0.0, 0.2), (4.8, -2.0, 0.9, -0.1)):
         K.crate(mb, F, x, y, z, 1.6, 1.3, 0.9, a)
-    for x in xs:                                         # pilares da frente (o fundo, junto ao arrimo, e 1 caixa)
-        col_box("OP_PortHouse" + nm, (1.0, 1.0, 8.0), F.p(x, D / 2 - 0.5, 4.0), F.r())
-    col_box("OP_PortHouse" + nm, (W, 1.0, 8.0), F.p(0.0, -D / 2 + 0.5, 4.0), F.r())
+    if roof:
+        for x in xs:                                         # pilares da frente (o fundo, junto ao arrimo, e 1 caixa)
+            col_box("OP_PortHouse" + nm, (1.0, 1.0, 8.0), F.p(x, D / 2 - 0.5, 4.0), F.r())
+        col_box("OP_PortHouse" + nm, (W, 1.0, 8.0), F.p(0.0, -D / 2 + 0.5, 4.0), F.r())
     col_box("OP_PortHouse" + nm, (3.8, 6.6, 2.4), F.p(-5.4, -0.4, 1.2), F.r())
     col_box("OP_PortHouse" + nm, (3.4, 6.4, 1.9), F.p(4.9, 0.0, 0.95), F.r())
 

@@ -18,6 +18,13 @@
 #   5. RODA D'AGUA (VFX_OP_Wheel, eixo T1 + 1,9, pas mergulham ~2 na agua 85,6) com cavaletes nas capas e envelope
 #      de colisao (peca movel: ninguem sobe nela); poco no leito sob a roda.
 #   6. LAGO do santuario NE: borda de pedra rente e leito.
+# V3 R8 (rodada 3: "cachoeiras estao ruins, procure como fazer melhor"): a agua das quedas passa a ser o sistema EM
+#   CAMADAS do tutorial oficial do Roblox (roblox/OnePieceIsland.lua, bloco CACHOEIRAS V3): Beams curvos + pe com 5
+#   emissores + saida deitada. Aqui so a PEDRA (soleira com borda chanfrada, pedras do pe agrupadas encostadas na
+#   falesia e meio enterradas no mar, nada solto no meio da queda; o canal escavado/molhado da falesia e do op_terrain)
+#   e os ATRIBUTOS dos marcadores: waypoints (eixo, 1o trecho saltando do labio), widths, flow, impact_pos, pool_level,
+#   face_off, outflow_waypoints/outflow_w0/outflow_w1, cascade_dist/spray_dist. Os degraus dos canais (FX_Weir_*) e a
+#   bica da nascente (FX_Spring_W) entram no mesmo sistema (a lamina em pe do degrau saiu).
 import math, zlib
 import bmesh
 import bpy
@@ -227,10 +234,18 @@ def chutes(fb):
 
 
 def lips(fb):
-    """bicas das quedas da borda: soleira de pedra molhada em balanco 0,8 alem do fim do leito + 2 bochechas"""
+    """V3 R8: SOLEIRA das quedas da borda em balanco 0,8 alem do fim do leito, borda de cima CHANFRADA e gasta
+    (a agua escorre por cima e salta), barriga a 1,6 (sob ela o canal escavado da falesia, op_terrain)"""
     for (x, y, zt, zb), hw in ((L.FALL_W, 4.0), (L.FALL_E, 3.0)):
         zbed = zt - BED
-        fb.box(x - hw, x + hw, y - 0.8, y + 1.5, zbed - 1.2, zbed + 0.05, WET, bottom=True)
+        y0, y1 = y - 0.8, y + 1.5
+        za, zc, zf = zbed - 1.6, zbed - 0.35, zbed + 0.05
+        sec = [(y1, zf), (y0 + 0.45, zf), (y0, zc), (y0, za + 0.25), (y0 + 0.3, za), (y1, za)]
+        for (ya, za_), (yb, zb_) in zip(sec, sec[1:]):
+            fb.face([(x - hw, ya, za_), (x + hw, ya, za_), (x + hw, yb, zb_), (x - hw, yb, zb_)], WET,
+                    (0, zb_ - za_, -(yb - ya)))
+        for sx in (-1, 1):
+            fb.face([(x + sx * hw, yy, zz) for yy, zz in sec], WET, (sx, 0, 0))
 
 
 def basin(fb):
@@ -296,10 +311,15 @@ def rock(fb, x, y, rx, ry, z0, z1, m, key, k=7):
     fb.by.setdefault(m, []).extend(fl)
 
 
+SEA_ROCKS = [   # V3 R8 (x, y, rx, ry, topo acima do mar): 2 matacoes nos FLANCOS da queda (a lamina passa entre eles,
+    #             encostados no pe da falesia e meio enterrados) + 2 pequenas rio abaixo; nada no meio da queda
+    (-182.6, 49.2, 3.6, 3.2, 4.2), (-165.6, 48.8, 3.4, 3.0, 3.6), (-179.4, 41.6, 2.0, 1.7, 1.1), (-167.6, 40.4, 1.6, 1.3, 0.8),
+    (240.0, 296.4, 3.2, 2.8, 3.8), (257.0, 296.2, 3.4, 3.0, 4.2), (244.0, 288.6, 1.8, 1.5, 0.9), (253.4, 287.4, 1.5, 1.2, 0.7)]
+
+
 def sea_rocks(fb):
-    for i, (x, y, rx, ry) in enumerate(((-181.0, 47.0, 4.2, 3.4), (-167.0, 46.0, 3.8, 3.0), (-174.0, 43.0, 2.4, 1.9),
-                                        (241.6, 295.0, 3.4, 2.8), (255.6, 294.6, 3.6, 2.9), (248.5, 292.0, 2.2, 1.7))):
-        rock(fb, x, y, rx, ry, SEA - 4.0, SEA + 2.5 + 2.5 * hh("sr", i), RDARK if i % 2 else RCOOL, "sr%d" % i)
+    for i, (x, y, rx, ry, top) in enumerate(SEA_ROCKS):
+        rock(fb, x, y, rx, ry, SEA - 5.0, SEA + top, "Cliff_OP_Wet" if top > 2.0 else RDARK, "sr%d" % i)
 
 
 def pond(fb):
@@ -426,17 +446,19 @@ def _castle():
     import op_terrain as TR
     x = 0.0
     lip = [(x, TR.LIP_BACK - 0.2, TR.LIP_TOP + 0.14), (x, 352.0, TR.LIP_TOP + 0.14), (x, TR.LIP_FRONT, TR.LIP_SPOUT + 0.14)]
-    pts = [(x, TR.LIP_FRONT - 0.15, TR.LIP_SPOUT + 0.1), (x, 350.0, 125.0), (x, 349.7, 112.0), (x, 349.5, LV_CF + 1.0),
-           (x, 349.2, LV_CF)]
-    return lip, pts, [6.0, 6.6, 7.2, 8.0, 9.0]
+    # V3 R8: o 1o trecho SALTA do labio (para fora e para baixo) e a lamina desce rente a proa ate a bacia
+    pts = [(x, TR.LIP_FRONT - 0.15, TR.LIP_SPOUT + 0.1), (x, TR.LIP_FRONT - 1.1, TR.LIP_SPOUT - 1.7), (x, 349.6, 118.0),
+           (x, 349.3, LV_CF + 2.0), (x, 349.2, LV_CF)]
+    return lip, pts, [5.4, 6.0, 7.2, 8.4, 9.0]
 
 
 def _sea(nm):
     x, y, zt, zs = L.FALL_W if nm == "W" else L.FALL_E
     lv = zt
     yl = (LIP_W_Y if nm == "W" else LIP_E_Y)
-    pts = [(x, yl - 0.05, lv + 0.1), (x, yl - 0.3, lv - 2.5), (x, yl - 0.8, 75.0), (x, yl - 1.4, 60.0), (x, yl - 1.9, 45.0),
-           (x, yl - 2.2, SEA)]
+    # V3 R8: salta da soleira (1,1 para fora em 1,8 de queda) e cai solta na frente do canal escavado da falesia
+    pts = [(x, yl - 0.05, lv + 0.1), (x, yl - 1.15, lv - 1.7), (x, yl - 2.0, 75.0), (x, yl - 2.6, 58.0), (x, yl - 3.0, 44.0),
+           (x, yl - 3.1, SEA)]
     ws = ([7.4, 7.8, 8.4, 9.0, 9.6, 10.4] if nm == "W" else [5.4, 5.8, 6.4, 7.0, 7.6, 8.2])
     return pts, ws, yl, lv
 
@@ -452,6 +474,15 @@ def _canal_w():
            (-174.0, 115.8, LV_T1), (-174.0, 92.0, LV_T1), (-174.0, 58.0, LV_T1), (-174.0, L.FALL_W[1], LV_T1),
            (-174.0, LIP_W_Y, LV_T1 - 0.15)]
     return pts, [7.3] * (len(pts) - 1) + [7.4]
+
+
+def _casc(pts_out, w0, w1, flow, impact, pool, off, cdist=900.0, sdist=180.0):
+    """V3 R8: atributos da cascata em camadas (contrato no bloco CACHOEIRAS V3 do roblox/OnePieceIsland.lua)"""
+    d = {"cascade": 3, "flow": flow, "impact_pos": impact, "pool_level": round(pool, 2), "face_off": off,
+         "cascade_dist": cdist, "spray_dist": sdist}
+    if pts_out:
+        d.update({"outflow_waypoints": _wp(pts_out), "outflow_w0": w0, "outflow_w1": w1})
+    return d
 
 
 def water_markers():
@@ -473,6 +504,8 @@ def water_markers():
             "fx": "nevoa_borda", "kind": "cachoeira", "width": 6.0, "drop": round(lip[-1][2] - LV_CF, 2),
             "water_level_up": round(lip[-1][2], 2), "waypoints": _wp(cpts), "widths": ",".join("%.1f" % w for w in cws),
             "spout_waypoints": _wp(lip), "spout_width": 5.0, "source_pos": (0.0, 357.6, 131.2),
+            **_casc([(0.0, 347.6, LV_CF), (7.0, 345.2, LV_CF), (16.6, 342.2, LV_CF)], 8.0, 5.0, 1.0, (0.0, 348.9, LV_CF),
+                    LV_CF, 0.6),
             "note": "V2-3: ponta da bica de pedra do rochedo (op_terrain: topo 132,05 dentro do patio, ponta em rampa "
                     "ate 130,3 em y 350,6); a lamina sai da boca escura (y 357,6) e cai na bacia (97,6) rente a proa"}),
         "FX_Fall_Castle_Step": ((0.0, 349.4, LV_CF + 0.2), south, {
@@ -482,7 +515,8 @@ def water_markers():
             "fx": "nevoa_base", "width": 10.0, "level": LV_CF,
             "note": "pe da cachoeira na bacia, entre as pedras molhadas"}),
         "FX_Mist_CastleFall": ((0.0, 347.6, LV_CF + 1.2), 0.0, {
-            "fx": "nevoa_baixa", "radius": 11.0, "note": "nevoa do pe da cachoeira"}),
+            "fx": "nevoa_baixa", "radius": 11.0,
+            "note": "V3 R8: MUDO no jogo - a nevoa do pe e da cascata() do FX_Fall_Castle_Lip (marcador mantido: contrato)"}),
         "WATER_Basin": ((round(sum(xs) / len(xs), 2), round(sum(ys) / len(ys), 2), LV_CF), yaw_to(0, 1), {
             "shape": "poligono", "level": LV_CF, "floor": bed_b, "depth": round(LV_CF - bed_b, 2), "rim_min": CF,
             "sx": round(max(xs) - min(xs), 2), "sy": round(max(ys) - min(ys), 2),
@@ -502,23 +536,37 @@ def water_markers():
                     "soleira y 116 (FX_Weir_W) -> 85,6 -> roda d'agua -> bica da queda oeste"}),
         "FX_Weir_E": ((95.0, 342.0, LV_CF), east, {
             "fx": "degrau_agua", "drop": round(LV_CF - LV_P, 2), "steps": 1, "width": 5.3, "tops": "%.2f" % (LV_CF - BED),
+            "waypoints": _wp([(95.0, 342.0, LV_CF + 0.05), (95.8, 342.0, LV_CF - 1.3), (96.4, 342.0, LV_P + 0.8),
+                              (96.6, 342.0, LV_P)]), "widths": "5.0,5.1,5.3,5.5",
+            **_casc([(97.6, 342.0, LV_P), (103.0, 342.0, LV_P), (108.0, 342.0, LV_P)], 4.8, 3.4, 0.45, (96.9, 342.0, LV_P),
+                    LV_P, 0.2, cdist=600.0, sdist=140.0),
             "note": "V2-3: borda da soleira (x 95) do canal leste: queda de 8 sobre a parede; correnteza +X"}),
         "FX_Weir_W": ((-174.0, 116.0, LV_P), south, {
             "fx": "degrau_agua", "drop": round(LV_P - LV_T1, 2), "steps": 1, "width": 7.3, "tops": "%.2f" % (LV_P - BED),
+            "waypoints": _wp([(-174.0, 116.0, LV_P + 0.05), (-174.0, 115.3, LV_P - 1.0), (-174.0, 114.8, LV_T1 + 0.5),
+                              (-174.0, 114.6, LV_T1)]), "widths": "7.0,7.1,7.3,7.4",
+            **_casc([(-174.0, 113.4, LV_T1), (-174.0, 108.0, LV_T1), (-174.0, 103.0, LV_T1)], 6.6, 5.0, 0.4,
+                    (-174.0, 114.3, LV_T1), LV_T1, 0.2, cdist=600.0, sdist=140.0),
             "note": "V2-3: borda da soleira (y 116) do canal oeste: queda de 4; correnteza -Y"}),
         "FX_Spring_W": ((sx, sy, sz), south, {
             "fx": "bica", "kind": "bica", "width": 1.0, "drop": round(sz - LV_P, 2),
             "waypoints": _wp([(sx, sy - 0.02, sz - 0.1), (sx, sy - 0.3, sz - 1.6), (sx, sy - 0.45, LV_P + 1.0), (sx, sy - 0.5, LV_P)]),
-            "widths": "1.0,1.1,1.3,1.5", "note": "calha de madeira saindo do nicho no arrimo do terraco alto"}),
+            "widths": "1.0,1.1,1.3,1.5", "note": "calha de madeira saindo do nicho no arrimo do terraco alto",
+            **_casc([(sx, sy - 1.2, LV_P), (sx, sy - 6.0, LV_P), (sx, sy - 11.0, LV_P)], 2.0, 3.2, 0.15, (sx, sy - 0.5, LV_P),
+                    LV_P, 0.1, cdist=500.0, sdist=120.0)}),
         "FX_Fall_W_Lip": ((-174.0, wy, wlv), south, {
             "fx": "nevoa_borda", "kind": "bica", "width": 7.4, "drop": round(wlv - SEA, 2), "water_level_up": wlv,
             "waypoints": _wp(wpts), "widths": ",".join("%.1f" % w for w in wws), "face_y_local": L.FALL_W[1],
+            **_casc([(-174.0, wy - 4.6, SEA), (-174.0, wy - 16.0, SEA), (-174.0, wy - 30.0, SEA)], 11.0, 24.0, 0.9,
+                    (-174.0, wy - 3.1, SEA), SEA, 1.0, sdist=200.0),
             "note": "V2-3: ponta da soleira (85,6) alem do fim do leito do canal oeste; cortina ate o mar (36)"}),
         "FX_Fall_W_Base": ((wpts[-1][0], wpts[-1][1], SEA), south, {
             "fx": "espuma_mar", "width": 10.0, "level": SEA, "note": "pe da queda oeste no mar, entre as pedras"}),
         "FX_Fall_E_Lip": ((248.5, ey, elv), south, {
             "fx": "nevoa_borda", "kind": "bica", "width": 5.4, "drop": round(elv - SEA, 2), "water_level_up": elv,
             "waypoints": _wp(epts), "widths": ",".join("%.1f" % w for w in ews), "face_y_local": L.FALL_E[1],
+            **_casc([(248.5, ey - 4.4, SEA), (248.5, ey - 14.0, SEA), (248.5, ey - 26.0, SEA)], 9.0, 20.0, 0.8,
+                    (248.5, ey - 3.1, SEA), SEA, 0.9, sdist=200.0),
             "note": "V2-3: ponta da soleira (89,6) na garganta NE; cai na enseada do porto"}),
         "FX_Fall_E_Base": ((epts[-1][0], epts[-1][1], SEA), south, {
             "fx": "espuma_mar", "width": 8.2, "level": SEA, "note": "pe da queda leste na enseada"}),
@@ -541,17 +589,51 @@ def preview():
         for (a, b), w0, w1 in zip(zip(pts, pts[1:]), ws, ws[1:]):
             dx, dy = b[0] - a[0], b[1] - a[1]
             ln = math.hypot(dx, dy)
-            if ln < 0.05:
-                continue
+            if ln < 0.05 or (abs(b[2] - a[2]) > 0.6 and ln < 0.5 * abs(b[2] - a[2])):
+                continue                          # V3 R8: degrau = cascata (como o fita() do Lua), sem lamina em pe
             nx, ny = -dy / ln, dx / ln
             pw.face([(a[0] + nx * w0 / 2, a[1] + ny * w0 / 2, a[2] - 0.04), (a[0] - nx * w0 / 2, a[1] - ny * w0 / 2, a[2] - 0.04),
                      (b[0] - nx * w1 / 2, b[1] - ny * w1 / 2, b[2] - 0.04), (b[0] + nx * w1 / 2, b[1] + ny * w1 / 2, b[2] - 0.04)],
                     "PREVIEW_Sea", (0, 0, 1))
 
-    def curtain(pts, ws):
-        for (a, b), w0, w1 in zip(zip(pts, pts[1:]), ws, ws[1:]):
-            pw.face([(a[0] + w0 / 2, a[1], a[2]), (a[0] - w0 / 2, a[1], a[2]), (b[0] - w1 / 2, b[1], b[2]), (b[0] + w1 / 2, b[1], b[2])],
-                    "PREVIEW_Falls", (0, -1, 0.3))
+    def curtain(pts, ws, fwd, off, k_w=1.0, k_w1=1.25):
+        """V3 R8: a MESMA curva da cascataFeixes() do Lua (pedacos nas quinas > 35 graus, Bezier com tangentes dos
+        trechos das pontas e CurveSize = comprimento/3, afastada 'off' para fora), lamina de frente para 'fora'"""
+        P = [Vector(p) + Vector((fwd[0], fwd[1], 0.0)) * off for p in pts]
+        cut = [0]
+        for i in range(1, len(P) - 1):
+            d1, d2 = P[i] - P[i - 1], P[i + 1] - P[i]
+            if d1.length > 1e-3 and d2.length > 1e-3 and d1.normalized().dot(d2.normalized()) < math.cos(math.radians(35)):
+                cut.append(i)
+        cut.append(len(P) - 1)
+        side = Vector((fwd[1], -fwd[0], 0.0))
+        for i0, i1 in zip(cut, cut[1:]):
+            ln = sum((P[i + 1] - P[i]).length for i in range(i0, i1))
+            t0, t1 = (P[i0 + 1] - P[i0]).normalized(), (P[i1] - P[i1 - 1]).normalized()
+            B = [P[i0], P[i0] + t0 * ln / 3, P[i1] - t1 * ln / 3, P[i1]]
+            w0, w1 = ws[i0] * k_w, ws[i1] * k_w1
+            prev = None
+            for j in range(13):
+                u = j / 12
+                q = (B[0] * (1 - u) ** 3 + B[1] * 3 * u * (1 - u) ** 2 + B[2] * 3 * u * u * (1 - u) + B[3] * u ** 3)
+                w = w0 + (w1 - w0) * u
+                cur = (q + side * w / 2, q - side * w / 2)
+                if prev:
+                    pw.face([prev[0], prev[1], cur[1], cur[0]], "PREVIEW_Falls", (fwd[0], fwd[1], 0.2))
+                prev = cur
+
+    def outflow(pts, w0, w1):
+        tot = sum(math.dist(a, b) for a, b in zip(pts, pts[1:]))
+        acc = 0.0
+        for a, b in zip(pts, pts[1:]):
+            ln = math.dist(a, b)
+            wa, wb = w0 + (w1 - w0) * acc / tot, w0 + (w1 - w0) * (acc + ln) / tot
+            dx, dy = (b[0] - a[0]) / ln, (b[1] - a[1]) / ln
+            nx, ny = -dy, dx
+            pw.face([(a[0] + nx * wa / 2, a[1] + ny * wa / 2, a[2] + 0.1), (a[0] - nx * wa / 2, a[1] - ny * wa / 2, a[2] + 0.1),
+                     (b[0] - nx * wb / 2, b[1] - ny * wb / 2, b[2] + 0.1), (b[0] + nx * wb / 2, b[1] + ny * wb / 2, b[2] + 0.1)],
+                    "PREVIEW_Falls", (0, 0, 1))
+            acc += ln
     for nm in ("WATER_CanalE", "WATER_CanalW"):
         p = M[nm][2]
         ribbon(parse(p["waypoints"]), [float(w) for w in p["widths"].split(",")])
@@ -559,9 +641,13 @@ def preview():
     pw.face([(x, y, z - 0.04) for x, y, z in bp], "PREVIEW_Sea", (0, 0, 1))
     (x0, y0, x1, y1), pz = L.NE_POND
     pw.face([(x0, y0, pz), (x1, y0, pz), (x1, y1, pz), (x0, y1, pz)], "PREVIEW_Sea", (0, 0, 1))
-    for nm in ("FX_Fall_Castle_Lip", "FX_Fall_W_Lip", "FX_Fall_E_Lip", "FX_Spring_W"):
-        p = M[nm][2]
-        curtain(parse(p["waypoints"]), [float(w) for w in p["widths"].split(",")])
+    for nm in ("FX_Fall_Castle_Lip", "FX_Fall_W_Lip", "FX_Fall_E_Lip", "FX_Spring_W", "FX_Weir_E", "FX_Weir_W"):
+        loc, yaw, p = M[nm]
+        fwd = (-math.sin(yaw), math.cos(yaw))
+        ws = [float(w) for w in p["widths"].split(",")]
+        curtain(parse(p["waypoints"]), ws, fwd, p.get("face_off", 0.5))
+        if p.get("outflow_waypoints"):
+            outflow(parse(p["outflow_waypoints"]), p["outflow_w0"], p["outflow_w1"])
     return pw.finish()
 
 

@@ -23,7 +23,9 @@
 #   (bojo para a proa, maximo a 60% da altura, panos verticais marcados, esteira arqueada), casca de 0,18 (2 faces) com
 #   tralha de cabo nas bordas; escotas ate a verga de baixo/amurada. CORDAME: ovéns com enfrechates e bigotas nas mesas
 #   de enxarcia, estais (traquete -> gurupes, grande -> traquete), brandais, amantilhos.
-# ICONOGRAFIA: a vela grande leva o Jolly Roger dos Chapeus de Palha (iconografia APROVADA da concept ref_01: caveira +
+# V3 R5 (copyright, rodada 3 do usuario): SEM ICONOGRAFIA DO ANIME - vela grande creme lisa, flamula vermelha lisa no
+#   topo do grande (EMBLEM = False fixo; o codigo do emblema abaixo ficou so como historico e nao roda).
+# (V1) ICONOGRAFIA: a vela grande leva o Jolly Roger dos Chapeus de Palha (iconografia APROVADA da concept ref_01: caveira +
 #   ossos cruzados + chapeu de palha) em PECAS PLANAS RECORTADAS sobre a vela, nas 2 faces (sem textura): contorno preto,
 #   ossos e caveira brancos, olhos/nariz/dentes pretos, chapeu de palha com fita vermelha; camadas 0,12 entre si
 #   (regra do z-fight). Bandeira preta pequena no topo do grande; flamula vermelha no traquete. OP_SAIL_EMBLEM=0 -> vela
@@ -69,7 +71,7 @@ HULL, WD, WM, LAC, GOLD, IRON = "Wood_OP_Hull", "Wood_OP_Dark", "Wood_OP_Mid", "
     "Metal_OP_Iron"
 SAIL, CW, CB, CST, CR, ROPE = "Cloth_OP_Sail", "Cloth_OP_White", "Cloth_OP_Black", "Cloth_OP_Straw", "Cloth_OP_Red", "Rope"
 LIT, GLOW = "Window_OP_Warm", "Glass_OP_Lantern"
-EMBLEM = os.environ.get("OP_SAIL_EMBLEM", "1") != "0"
+EMBLEM = False      # V3 R5 (copyright): SEM o Jolly Roger dos Chapeus de Palha na vela e na bandeira (vela creme lisa)
 F0 = Frame(0.0, 0.0, 0.0, 0.0)
 
 
@@ -1083,8 +1085,8 @@ def build_rig(mb):
         else:
             furled(mb, SX - ll / 2 + 1.3, SX + ll / 2 - 1.3, ly_y, lz, 0.62)
         furled(mb, SX - ul / 2 + 1.1, SX + ul / 2 - 1.1, uy_y, uz, 0.5)
-    # bandeira: so a Jolly Roger preta no topo do grande (U16: saiu a flamula vermelha do traquete)
-    flag(mb, SX, mn["ym"], mn["zt"] + 0.4, 4.6, 3.0, CB, emblem=EMBLEM)
+    # bandeira: V3 R5 - flamula VERMELHA LISA no topo do grande (sem caveira/chapeu: nada de marca do anime)
+    flag(mb, SX, mn["ym"], mn["zt"] + 0.4, 4.6, 3.0, CR, emblem=False, pennant=True)
     mb.rod(Vector((SX, mn["ym"], mn["zt"])), Vector((SX, mn["ym"], mn["zt"] + 1.2)), 0.12, WD, 6)
     K.lathe(mb, F0, (SX, f["ym"], f["zt"]), [(0.22, 0.0), (0.3, 0.2), (0.12, 0.5)], 6, WD)     # topo do traquete
     cargo_sling(mb, M)
