@@ -642,7 +642,81 @@ EAVE_H = {("fundo", 1): 8.8, ("loja", 2): 16.8, ("sobrado", 3): 22.8, ("esquina"
           ("chaya", 1): 10.0, ("santuario", 1): 11.0, ("honden", 1): 9.0, ("mansao", 2): 15.0, ("armazem", 2): 15.0,
           ("moinho", 1): 10.0, ("portal", 1): 9.6, ("loja", 1): 9.6}
 R_COB, R_TEAL, R_VIO, R_RED, R_GRN = "Roof_OP_Cobalt", "Roof_OP_Teal", "Roof_OP_Violet", "Roof_OP_RedV2", "Roof_OP_Green"
+# ---- R3 (rodada 3, 10/10: "casas horriveis, grudadas uma na outra"): a capital V3 e de CASAS SOLTAS. Cada fileira
+# continua sendo uma linha de FACHADA (as mesmas ruas/rotas da V2), mas os lotes viram casas isoladas com VAO de verdade
+# entre os corpos: vao = beiral lateral da casa A + beiral da casa B + EAVE_CLEAR (>= WALL_GAP_MIN), recuos variados
+# (setback) e casas viradas para a outra rua (flag f). Menos casas (101 -> ~74), mais bem postas.
+# Formato (o mesmo da V2 + extras): (quadra, fileira, a, b, lado, cota, FAIXA D (fundo maximo), telhado, lotes);
+#   lote = (largura, tipo, pisos, flags[, extras]) ou ("gap", g) = jardim/recanto extra de g entre 2 casas.
+#   flags novas: f = casa virada para o OUTRO lado da faixa (frente na linha de tras); r = loja com irimoya;
+#                a = toldo; (h, t, e, i, o, c<Mat> como na V2). extras: {"d": fundo da casa, "s": recuo da frente}.
+#   O fundo de cada casa vem de DEPTH_V3 (<= faixa D); o recuo, do hash (0 nas fileiras da AVENIDA).
+# ROWS_V2 (a cidade geminada reprovada) fica abaixo so para consulta/rollback (block_lots_v2).
+EAVE_CLEAR = 2.0           # vao livre minimo entre as BORDAS DOS BEIRAIS de 2 casas vizinhas
+WALL_GAP_MIN = 4.5         # vao minimo entre as PAREDES (o jogador passa e a camera nao fica presa)
+SIDE_OV = {"loja": 2.0, "loja_r": 3.75, "sobrado": 2.5, "esquina": 3.75, "kura": 2.5, "armazem": 2.5, "fundo": 1.8,
+           "moinho": 1.8, "chaya": 3.95, "kura_t": 2.1, "fundo_t": 1.7, "mansao": 3.0, "santuario": 3.0, "honden": 2.5, "portal": 1.8}
+DEPTH_V3 = {"loja": 14.0, "sobrado": 15.0, "esquina": 15.0, "kura": 13.0, "armazem": 14.0, "fundo": 11.0,
+            "moinho": 14.0, "chaya": 15.0}
+FLAT_FRONT = {("AvO", "F1"), ("AvO", "F2"), ("AvL", "F1"), ("NE", "Haiden"), ("NE", "Honden"), ("W3", "M1"),
+              ("W3", "M2")}                      # fileiras sem recuo (avenida: a calcada encosta na fachada)
 ROWS = [
+    # ---- AVENIDA (T1): fachada x +-15, 3 casas + esquina por lado, muro tsuiji nos vaos (op_capital)
+    ("AvO", "F1", (-15.0, 36.0), (-15.0, 82.0), -1, T1, 15.0, R_COB,
+     [(10.0, "loja", 2, "h"), (11.0, "sobrado", 3, ""), (12.0, "loja", 2, "hi")]),
+    ("AvO", "F2", (-15.0, 90.0), (-15.0, 105.0), -1, T1, 15.0, R_COB, [(15.0, "esquina", 3, "e")]),
+    ("AvO", "B1", (-62.0, 37.0), (-62.0, 82.0), 1, T1, 14.0, R_COB,
+     [(10.0, "fundo", 1, ""), (12.0, "loja", 2, "t"), (10.0, "fundo", 1, "h")]),
+    ("AvO", "B2", (-62.0, 90.0), (-62.0, 105.0), 1, T1, 14.0, R_COB, [(13.0, "loja", 2, "t")]),
+    ("AvL", "F1", (15.0, 34.25), (15.0, 101.0), 1, T1, 15.0, R_COB,      # termina em y 101: folga da rota do summon
+     [(10.0, "loja", 2, "h"), (12.0, "sobrado", 3, ""), (12.0, "loja", 2, "i"), (12.0, "esquina", 3, "ec" + R_RED)]),
+    ("AvL", "B1", (58.0, 37.0), (58.0, 105.0), -1, T1, 14.0, R_COB,
+     [(11.0, "fundo", 1, ""), (12.0, "loja", 2, "t"), ("gap", 2.0), (10.0, "fundo", 1, "h"), (12.0, "loja", 2, "")]),
+    # ---- BAIRRO DO CANAL (T1 SO): casas alternando a frente (viela y 86 / rua do arrimo y 111); moinho na roda
+    ("BairroN", "F1", (-70.0, 90.0), (-134.0, 90.0), 1, T1, 15.0, R_VIO,
+     [(12.0, "loja", 2, ""), (10.0, "fundo", 1, "f"), (12.0, "sobrado", 3, ""), (11.0, "loja", 2, "fh")]),
+    ("BairroN", "M", (-146.0, 90.0), (-168.0, 90.0), 1, T1, 14.0, R_VIO, [(20.0, "moinho", 1, "", {"s": 0.5})]),
+    ("BairroS", "F1", (-166.0, 82.0), (-70.0, 82.0), 1, T1, 13.0, R_COB,
+     [("gap", 2.0), (12.0, "loja", 2, ""), (10.0, "fundo", 1, "h"), ("gap", 4.0), (13.0, "sobrado", 3, ""),
+      (12.0, "loja", 2, "h"), (11.0, "fundo", 1, "")]),
+    ("BairroS", "B1", (-70.0, 50.0), (-150.0, 50.0), 1, T1, 11.0, R_VIO,
+     [(11.0, "fundo", 1, ""), (12.0, "loja", 2, "t"), ("gap", 8.0), (12.0, "loja", 2, ""),
+      (10.0, "fundo", 1, "")]),
+    # ---- FACHADA OESTE DA PRACA (P): quadras S / M / N entre as vielas y 159, 212, 265; patio de 12 no meio
+    ("OesteS", "F", (-121.0, 129.0), (-121.0, 154.0), -1, P, 14.0, R_TEAL,   # comeca em 129: folga da rota que
+     [(9.0, "loja", 2, "h"), (9.5, "sobrado", 3, "")]),                       # sobe da escada Sudoeste (y 121..123)
+    ("OesteS", "B", (-159.0, 124.0), (-159.0, 154.0), 1, P, 12.0, R_TEAL, [("gap", 12.0), (12.0, "loja", 2, "h")]),
+    ("OesteM", "F1", (-121.0, 164.0), (-121.0, 207.0), -1, P, 14.0, R_TEAL,
+     [(10.0, "loja", 2, "h"), (12.0, "sobrado", 3, ""), (8.0, "fundo", 1, "t")]),
+    ("OesteM", "B1", (-159.0, 164.0), (-159.0, 207.0), 1, P, 12.0, R_TEAL,
+     [(10.0, "fundo", 1, ""), ("gap", 6.0), (12.0, "loja", 2, "t")]),
+    ("OesteM", "F2", (-121.0, 217.0), (-121.0, 260.0), -1, P, 15.0, R_TEAL,
+     [(16.0, "chaya", 1, "io"), ("gap", 4.0), (11.0, "loja", 2, "h")]),
+    ("OesteM", "B2", (-159.0, 217.0), (-159.0, 260.0), 1, P, 12.0, R_TEAL,
+     [(12.0, "loja", 2, ""), ("gap", 8.0), (10.0, "loja", 2, "h")]),
+    ("OesteN", "F", (-121.0, 270.0), (-121.0, 299.0), -1, P, 14.0, R_TEAL, [(9.0, "fundo", 1, "h"), (12.0, "esquina", 3, "e")]),
+    ("OesteN", "B", (-159.0, 270.0), (-159.0, 298.0), 1, P, 12.0, R_TEAL, [(12.0, "loja", 2, "")]),
+    # ---- ALEM DO CANAL (W2b, P): casas soltas de frente para o cais, jardim no meio de cada trecho
+    ("AlemCanal", "F1", (-190.0, 128.0), (-190.0, 206.0), -1, P, 14.0, R_TEAL,
+     [(12.0, "loja", 2, ""), (14.0, "sobrado", 3, "c" + R_COB), ("gap", 14.0), (12.0, "loja", 2, "")]),
+    ("AlemCanal", "F2", (-190.0, 214.0), (-190.0, 294.0), -1, P, 14.0, R_TEAL,
+     [("gap", 6.0), (12.0, "loja", 2, "h"), ("gap", 8.0), (14.0, "sobrado", 3, ""), (12.0, "loja", 2, "")]),
+    # ---- RUA ALTA DO PORTO (T1 leste): 2 casas por trecho (frente para a viela leste / para o sul)
+    ("PortoAlto1", "F", (66.0, 105.0), (90.0, 105.0), 1, T1, 14.0, R_RED, [(9.0, "kura", 2, "t"), (8.8, "loja", 2, "h")]),
+    ("PortoAlto1", "B", (90.0, 67.0), (66.0, 67.0), 1, T1, 13.0, R_RED, [("gap", 8.0), (12.0, "kura", 2, "t")]),
+    ("PortoAlto2", "F", (96.0, 105.0), (120.0, 105.0), 1, T1, 14.0, R_RED, [(8.8, "loja", 2, ""), (9.0, "kura", 2, "t")]),
+    ("PortoAlto2", "B", (120.0, 67.0), (96.0, 67.0), 1, T1, 13.0, R_RED, [("gap", 4.0), (12.0, "fundo", 1, "h")]),
+    # ---- NE (PLANO_V2 3.4): 4 lojas soltas no sando + haiden (interior) + honden
+    ("NE", "Lojas", (122.0, 286.0), (202.0, 286.0), 1, P, 16.0, R_VIO,
+     [(14.0, "loja", 2, "h"), (13.0, "loja", 2, ""), (14.0, "loja", 2, "t"), (13.0, "loja", 2, "h", {"d": 13.0, "s": 3.0})]),
+    ("NE", "Haiden", (194.0, 291.0), (194.0, 309.0), 1, P, 20.0, R_RED, [(18.0, "santuario", 1, "io")]),
+    ("NE", "Honden", (219.0, 295.0), (219.0, 305.0), 1, P, 10.0, R_RED, [(10.0, "honden", 1, "")]),
+    # ---- TERRACO ALTO (W3): 2 mansoes com jardim
+    ("W3", "M1", (-128.0, 326.0), (-128.0, 356.0), -1, W3, 24.0, R_GRN, [(30.0, "mansao", 2, "o")]),
+    ("W3", "M2", (-186.0, 372.0), (-150.0, 372.0), -1, W3, 22.0, R_GRN, [(36.0, "mansao", 2, "o")]),
+]
+
+ROWS_V2 = [
     # ---- AVENIDA DE CHEGADA (T1, leito x -9..9, calcadas ate a fachada em x +-15) - quadras AvO / AvL
     ("AvO", "F1", (-15.0, 40.0), (-15.0, 83.0), -1, T1, 20.0, R_COB,
      [(11.0, "loja", 2, "h"), (9.0, "loja", 2, ""), (12.0, "sobrado", 3, "t"), (11.0, "loja", 2, "hi")]),
@@ -718,12 +792,86 @@ def _h01(key):
     return h / 4294967296.0
 
 
+def _side_ov(kind, flags):
+    if kind == "loja" and "r" in flags:
+        return SIDE_OV["loja_r"]
+    if kind in ("kura", "fundo") and "t" in flags:
+        return SIDE_OV[kind + "_t"]
+    return SIDE_OV.get(kind, 2.5)
+
+
 def block_lots():
+    """R3: lista de lotes (dict) das ROWS - CASAS SOLTAS: nome, quadra, centro (x, y) DA CASA, yaw da FRENTE (rad),
+    W (frente), D (fundo da casa), cota z, tipo, pisos, beiral (cota absoluta da linha da parede), cumeeira (absoluta),
+    tsuma, hisashi, interior, aberto, esquina, telhado (material), front = trecho da FACHADA da casa (a, b), mais:
+    setback (recuo da frente), flip (virada para a outra rua), irimoya, awning, ov (beiral lateral previsto), rowD.
+    Entre 2 casas da fileira: vao = max(WALL_GAP_MIN, ov_a + ov_b + EAVE_CLEAR) + ("gap", g) extras.
+    A altura varia -1,5..+2 de lote para lote (hash do nome)."""
+    out = []
+    for blk, row, a, b, side, z, Drow, roof, lots in ROWS:
+        ux, uy = b[0] - a[0], b[1] - a[1]
+        ln = math.hypot(ux, uy)
+        ux, uy = ux / ln, uy / ln
+        nx, ny = -uy * side, ux * side                      # normal para a RUA (frente da faixa)
+        s0 = 0.0
+        prev = None
+        k = 0
+        for it in lots:
+            if it[0] == "gap":
+                s0 += it[1]
+                continue
+            w, kind, fl, flags = it[:4]
+            ex = it[4] if len(it) > 4 else {}
+            rm = flags[flags.index("c") + 1:] if "c" in flags else roof
+            flags = flags.split("c")[0]
+            ov = _side_ov(kind, flags)
+            if prev is not None:
+                s0 += max(WALL_GAP_MIN, prev + ov + EAVE_CLEAR)
+            prev = ov
+            k += 1
+            nm = "%s_%s%d" % (blk, row, k)
+            D = min(Drow, ex.get("d", DEPTH_V3.get(kind, Drow)))
+            if (blk, row) in FLAT_FRONT:
+                sb = 0.0
+            elif kind in ("fundo", "kura", "moinho"):
+                sb = round(0.8 + 1.8 * _h01(nm + "sb"), 2)
+            elif kind in ("loja", "sobrado", "esquina", "armazem", "chaya"):
+                sb = round(0.2 + 1.4 * _h01(nm + "sb"), 2)
+            else:
+                sb = 0.0
+            sb = min(ex.get("s", sb), max(0.0, Drow - D))
+            flip = "f" in flags
+            dn = (Drow - sb - D / 2) if flip else (sb + D / 2)  # distancia do centro da casa a linha da fachada
+            cx = a[0] + ux * (s0 + w / 2) - nx * dn
+            cy = a[1] + uy * (s0 + w / 2) - ny * dn
+            fx, fy = (-nx, -ny) if flip else (nx, ny)
+            eave = EAVE_H.get((kind, fl), 8.8 + 6.0 * (fl - 1))
+            dh = 0.0 if kind in ("portal", "santuario", "honden", "mansao") else round(-1.5 + 3.5 * _h01(nm), 1)
+            if kind == "fundo":                      # casa de 1 piso: beiral nunca abaixo de 8,8 (borda baixa do
+                dh = round(2.5 * _h01(nm), 1)        # telhado a 7,87 da rua > pulo 7,2: nao se sobe nos telhados)
+            tsuma = "t" in flags
+            span = (w if tsuma else D) / 2.0
+            hx, hy = cx + fx * D / 2, cy + fy * D / 2                # meio da fachada da casa
+            px, py = -fy, fx                                        # ao longo da fachada
+            out.append(dict(name=nm, block=blk, row=row, x=round(cx, 3), y=round(cy, 3), yaw=math.atan2(fy, fx), W=w,
+                            D=D, z=z, kind=kind, floors=fl, eave=round(z + eave + dh, 2),
+                            ridge=round(z + eave + dh + ROOF_PITCH * span, 2), tsuma=tsuma, hisashi="h" in flags,
+                            interior="i" in flags, open="o" in flags, corner="e" in flags, roof=rm,
+                            front=((hx - px * w / 2, hy - py * w / 2), (hx + px * w / 2, hy + py * w / 2)),
+                            setback=sb, flip=flip, irimoya="r" in flags, awning="a" in flags, ov=ov, rowD=Drow,
+                            s0=s0, row_len=ln, row_side=side, row_a=a, row_b=b))
+            s0 += w
+        if s0 > ln + 0.05:
+            print("AVISO op_layout: fileira %s_%s passa do trecho (%.1f > %.1f)" % (blk, row, s0, ln))
+    return out
+
+
+def block_lots_v2():
     """lista de lotes (dict) das ROWS: nome, quadra, centro (x, y), yaw da FRENTE (rad), W (frente), D (fundo), cota z,
     tipo, pisos, beiral (cota absoluta da linha da parede), cumeeira (absoluta), tsuma, hisashi, interior, aberto,
     esquina, telhado (material), trecho de fachada (a, b). A altura varia -1,5..+2 de lote para lote (hash do nome)."""
     out = []
-    for blk, row, a, b, side, z, D, roof, lots in ROWS:
+    for blk, row, a, b, side, z, D, roof, lots in ROWS_V2:
         ux, uy = b[0] - a[0], b[1] - a[1]
         ln = math.hypot(ux, uy)
         ux, uy = ux / ln, uy / ln

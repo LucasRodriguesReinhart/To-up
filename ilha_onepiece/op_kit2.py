@@ -126,6 +126,7 @@ LEAF, BARK = "Leaf_OP_Pine", "Bark_OP"
 WARM = (1.0, 0.64, 0.36)
 ROOF_SETS = {"cobalto": RCOB, "verde-agua": RTEAL, "vermelho": RREDV, "roxo": RVIO, "marinho": RB, "verde": RG}
 HB = ("B",)                     # V2-3: fachada de tras escondida (fundos encostados)
+DETACHED = False                # R3: o op_capital liga enquanto monta as casas SOLTAS (fundos/laterais com 3 panos)
 POST, CPOST = 0.7, 0.9          # pilar intermediario / de canto
 SILL_H, PLATE_H = 0.45, 0.65    # soleira (dodai) e frechal (keta)
 
@@ -966,6 +967,13 @@ def _body(mb, F, W, D, z, h, faces, plaster=PLW, lod=0, lit=True, head=None, upp
             continue
         if (key == "B" and max(lod, back_lod) >= 1) or (side and lod >= 2):
             bays = ["plain"]                       # V2-3: fundos (e laterais no lod 2) so em reboco emoldurado
+            if DETACHED:
+                # R3 (casas soltas: fundos e laterais aparecem nos vaos e patios): reboco emoldurado em 3 panos com
+                # tapume (amado) no terreo e janela gradeada (mushiko) no andar de cima (lod <= 1) - nada de pano liso
+                if upper:
+                    bays = ["plain", "mushiko", "plain"] if (lod == 0 and L >= 7.0) else ["plain", "plain"]
+                else:
+                    bays = ["plain", "amado", "plain"] if L >= 6.0 else ["plain"]
         lk = lod if key != "B" else max(lod, back_lod)
         pl_ = (party[0], party[1]) if key == "F" else (party[1], party[0])
         r = wall2(mb, Ff, L, h, bays, plaster, lk, lit, head if key != "B" else None, noren,
@@ -1091,11 +1099,15 @@ def _interior_shop(mb, F, x0, x1, yf, depth, z0, h, seed=0, light_name=None, ene
         bb(mb, F, xx - 0.05, xx + 0.05, ya - 0.3, ya - 0.2, z0 + 2.28, z0 + 3.0, WD)
     box_goods(mb, F, xc - 0.7, ya - 1.0, z0 + 2.28, 0.7, 0.5, 0.35, CRED, WD)
     yd = yf - 1.6
-    bb(mb, F, x0 + 0.4, x1 - 0.4, yd - 0.9, yd + 0.9, z0 + 1.2, z0 + 1.42, WM)
-    for xx in (x0 + 0.6, x1 - 0.6):
+    if x1 - x0 >= 5.5:              # R3: banca so de UM lado (a entrada fica livre: o jogador entra sem pular)
+        tx0, tx1 = ((x0 + x1) / 2 + 0.9, x1 - 0.4) if left else (x0 + 0.4, (x0 + x1) / 2 - 0.9)
+    else:
+        tx0, tx1 = x0 + 0.4, x1 - 0.4
+    bb(mb, F, tx0, tx1, yd - 0.9, yd + 0.9, z0 + 1.2, z0 + 1.42, WM)
+    for xx in (tx0 + 0.2, tx1 - 0.2):
         for yy in (yd - 0.7, yd + 0.7):
             bb(mb, F, xx - 0.12, xx + 0.12, yy - 0.12, yy + 0.12, z0, z0 + 1.2, WD)
-    for j, xx in enumerate(even(x0 + 0.8, x1 - 0.8, 1.3)):
+    for j, xx in enumerate(even(tx0 + 0.4, tx1 - 0.4, 1.3)):
         if j % 3 == 0:
             pot6(mb, F, xx, yd, z0 + 1.42, 0.42, 0.9, (STD, WM)[j % 2])
         elif j % 3 == 1:
@@ -1236,9 +1248,20 @@ def _karahafu2(mb, Ff, L, depth, z_top, m, rise=1.6, gold=True, lod=0, post_z=No
     return dict(top=zf(0.0, depth) + 0.3)
 
 
+def loja_bays(W, shop_side=1, interior=False):
+    """vaos da frente da loja. R3: loja com INTERIOR = frente INTEIRA aberta (mise de vao unico, como as lojas de
+    tecido de Kyoto): o jogador entra por um vao largo e o salao tem a largura da casa (sem porta fechada ao lado)"""
+    if interior:
+        return [{"t": "shop", "upper_board": True}]
+    kw = 3.0 if W >= 13.0 else 0.0
+    bays = ([("koshi", kw)] if kw else []) + [("door", 4.4), {"t": "shop", "upper_board": True}]
+    return list(reversed(bays)) if shop_side < 0 else bays
+
+
 def loja(mb, F, W=14.0, D=16.0, roof_m=RAZ, shop_side=1, tsuma=False, roof="kirizuma", awning=False, udatsu=True,
          sides=(False, False), lod=0, seed=0, light_name=None, plaster=PLW, noren="auto", h0=9.0, h1=7.0,
-         g_over=1.2, upper="mushiko", sign=True, pent_m=None, interior=True, back=None, lim=None, hide_back=False):
+         g_over=1.2, upper="mushiko", sign=True, pent_m=None, interior=True, back=None, lim=None, hide_back=False,
+         idepth=None):
     """(a) MACHIYA-LOJA de 2 pisos: terreo com LOJA ABERTA (interior real) + porta com noren + trelica koshi,
     HISASHI ondulado com misulas, 2o piso baixo com mushiko-mado (ou shoji com corrimao), UDATSU nas divisas,
     placa sode-kanban, telhado kirizuma paralelo a rua (ou tsuma=True: empena para a rua). sides = (lateral -x,
@@ -1249,13 +1272,10 @@ def loja(mb, F, W=14.0, D=16.0, roof_m=RAZ, shop_side=1, tsuma=False, roof="kiri
     z0, z1 = ph, ph + h0
     party = (not sides[0], not sides[1])
     clip = party_clip(W, sides, D, back, lim)
-    kw = 3.0 if W >= 13.0 else 0.0
-    bays = ([("koshi", kw)] if kw else []) + [("door", 4.4), {"t": "shop", "upper_board": True}]
-    if shop_side < 0:
-        bays = list(reversed(bays))
+    bays = loja_bays(W, shop_side, interior)
     xs, sp = _posts_x(W, bays)
     shop = [(a, b) for t, o, a, b in sp if t == "shop"][0]
-    door = [(a, b) for t, o, a, b in sp if t == "door"][0]
+    door = ([(a, b) for t, o, a, b in sp if t == "door"] or [shop])[0]
     dx = (door[0] + door[1]) / 2
     plinth(mb, F, W, D, ph, [(dx, 5.0)], party)
     side_bays = ["board", "koshi", "plaster", "board"] if lod == 0 else ["board", "plaster"]
@@ -1288,8 +1308,8 @@ def loja(mb, F, W=14.0, D=16.0, roof_m=RAZ, shop_side=1, tsuma=False, roof="kiri
     if sign and lod == 0:
         _sign(mb, Ff, shop_side * (W / 2 - 0.45), z0 + 6.6, 1.0)
     if interior:
-        pts = _interior_shop(mb, F, shop[0], shop[1], D / 2 - 0.86, min(7.5, D * 0.5), z0, h0, seed, light_name,
-                             lim=W / 2 - 0.05)
+        pts = _interior_shop(mb, F, shop[0], shop[1], D / 2 - 0.86, idepth or min(7.5, D * 0.5), z0, h0, seed,
+                             light_name, lim=W / 2 - 0.05)
     else:
         pts = _vitrine(mb, F, shop[0], shop[1], D / 2 - 0.86, z0, h0, 2.6, seed, lod)
     if lod == 0:
@@ -1654,7 +1674,10 @@ def _pine(mb, F, x, y, z, s=1.0):
 
 def chaya_bays(Wb, gs):
     """vaos da frente da casa de cha: trelica + FRENTE ABERTA + porta; predio estreito (< 16) perde a trelica para o
-    vao aberto (interior de tatami) continuar largo (>= 5)"""
+    vao aberto (interior de tatami) continuar largo (>= 5). R3: predio < 14 = frente INTEIRA aberta (a entrada e o
+    proprio vao: com os 2 shoji corridos de 2 nas pontas sobram >= 5 livres para entrar)"""
+    if Wb < 14.0:
+        return [{"t": "open", "head": 7.0}]
     bays = ([("koshi", 3.0)] if Wb >= 16.0 else []) + [{"t": "open", "head": 7.0}, ("door", 4.4)]
     return list(reversed(bays)) if gs < 0 else bays
 
@@ -1681,7 +1704,7 @@ def chaya(mb, F, W=22.0, D=16.0, roof_m=RPUR, garden_side=1, lod=0, seed=0, ligh
     bays = chaya_bays(Wb, gs)
     xs, sp = _posts_x(Wb, bays)
     op = [(a, b) for t, o, a, b in sp if t == "open"][0]
-    door = [(a, b) for t, o, a, b in sp if t == "door"][0]
+    door = ([(a, b) for t, o, a, b in sp if t == "door"] or [op])[0]
     dx = (door[0] + door[1]) / 2
     # soco + engawa
     pa_ = 0.0 if (pside and gs > 0) else 0.35
@@ -1854,11 +1877,11 @@ def haiden2(mb, F, W=18.0, D=20.0, roof_m=RREDV, lod=0, seed=0, light_name=None,
     bb(mb, F, -W / 2 + 0.08, W / 2 - 0.08, -D / 2 + 0.08, D / 2 - 0.08, ph - 0.3, ph - 0.12, STP)
     bb(mb, F, -W / 2 + 0.3, W / 2 - 0.3, -D / 2 + 0.3, D / 2 - 0.2, ph - 0.12, ph, WM)                  # assoalho
     for i in range(1, 5):                                                                                # escada
-        zz = ph - 0.32 * i
-        bb(mb, F, -3.6, 3.6, D / 2 + 0.4 * (i - 1) - 0.05, D / 2 + 0.4 * i, -0.3, zz, STP)
+        zz = ph - 0.32 * i                       # R3: 0,25 do soco e dos espelhos (peca propria: a colisao V3 vira
+        bb(mb, F, -3.2, 3.2, D / 2 + 0.25 + 0.4 * (i - 1), D / 2 + 0.25 + 0.4 * i, -0.3, zz, STP)   # rampa, nao bloco)
     for sx in (-1, 1):
-        x0 = sx * 3.6
-        bb(mb, F, x0 - 0.3, x0 + 0.3, D / 2, D / 2 + 1.7, -0.3, ph + 0.25, ST)
+        x0 = sx * 3.75
+        bb(mb, F, x0 - 0.3, x0 + 0.3, D / 2, D / 2 + 1.95, -0.3, ph + 0.25, ST)
     zt = ph + 9.0
     xs = [-W / 2 + 0.6, -W / 4, 0.0, W / 4, W / 2 - 0.6]
     for y in (D / 2 - 0.6, yi):                       # pilares de laca: frente e linha do santuario interno
@@ -1908,9 +1931,10 @@ def haiden2(mb, F, W=18.0, D=20.0, roof_m=RREDV, lod=0, seed=0, light_name=None,
         bb(mb, F, x - 0.08, x + 0.08, ys - 0.72, ys + 0.72, ph + 1.5, ph + 1.62, WM)
     bb(mb, F, -1.9, 1.9, ys - 0.8, ys + 0.8, ph + 1.35, ph + 1.45, GOLD)
     zs = zt - 2.4
-    lathe(mb, F, (0.0, D / 2 - 0.6, zs - 1.3), [(0.1, 0.0), (0.55, 0.15), (0.62, 0.55), (0.4, 0.95), (0.08, 1.1)], 8, GOLD)
-    mb.rod(F.p(0.0, D / 2 - 0.6, zs - 1.3), F.p(0.0, D / 2 - 0.6, ph + 1.8), 0.13, CRED, 6)
-    mb.rod(F.p(0.12, D / 2 - 0.6, zs - 1.3), F.p(0.2, D / 2 - 0.6, ph + 2.2), 0.1, CWHITE, 6)
+    xb_ = -2.4                                         # R3: sino (suzu) ao lado da escada - o eixo da entrada fica livre
+    lathe(mb, F, (xb_, D / 2 - 0.6, zs - 1.3), [(0.1, 0.0), (0.55, 0.15), (0.62, 0.55), (0.4, 0.95), (0.08, 1.1)], 8, GOLD)
+    mb.rod(F.p(xb_, D / 2 - 0.6, zs - 1.3), F.p(xb_, D / 2 - 0.6, ph + 1.8), 0.13, CRED, 6)
+    mb.rod(F.p(xb_ + 0.12, D / 2 - 0.6, zs - 1.3), F.p(xb_ + 0.2, D / 2 - 0.6, ph + 2.2), 0.1, CWHITE, 6)
     rope = [(x, D / 2 - 0.15, zs - 0.35 - 0.9 * (1.0 - (2.0 * x / (W - 2.0)) ** 2)) for x in
             [-(W / 2 - 1.0) + (W - 2.0) * i / 8 for i in range(9)]]
     sweep(mb, F, rope, [(-0.42, -0.42), (0.42, -0.42), (0.42, 0.42), (-0.42, 0.42)], STRAW)
