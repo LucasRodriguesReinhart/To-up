@@ -24,6 +24,9 @@
 #   escuro, sub-almofadas claras e capuz amarelado, 4 tons Leaf_OP_Sun/Leaf_OP/Leaf_OP_Pine/Leaf_OP_PineUnder) e os
 #   satelites tambem sao nuvens em camadas. Primitivas V3 compartilhadas com o op_veg: blob (cor em faixas),
 #   bark_limb (cordoes torcidos), root_claws (raizes que agarram o chao), pine_pad / pine_cloud.
+# R3 (rodada 3 do usuario: 'arvores parecendo pedras' - capturas 13/17): tronco/galhos/raizes/MASSES INTACTOS; as
+#   nuvens (pine_cloud) viraram ALMOFADAS LOBADAS suaves (puff com calombos + tufos claros, fundo escuro), sem a franja
+#   de agulhas; NORMAIS SUAVES ate o Roblox (soft_normals / soft_object / patch_export - ver o bloco 'NORMAIS SUAVES').
 import math, random
 import bmesh, bpy
 from mathutils import Vector, Matrix, Euler, noise
@@ -338,6 +341,184 @@ def _orient_out(fs, c):
             f.normal_flip()
 
 
+# ================================================================== NORMAIS SUAVES ATE O ROBLOX (rodada 3 do usuario)
+# R3 ('arvores parecendo pedras'): PROVA (FBX do export 20f29090 reimportado: 44 malhas da vegetacao, 0 com normal
+# suave) - o export_roblox.split_object refaz cada peca num bmesh NOVO com bm.faces.new() sem copiar f.smooth: TODA
+# malha sai FLAT no FBX, por mais que a folhagem seja f.smooth=True no Blender (a previa do Blender mentia). Correcao:
+#   1. as primitivas de folhagem gravam no vertice a NORMAL DE FOLHAGEM (camada 'rbx_n', no referencial do objeto):
+#      'foliage normal transfer' das arvores estilizadas - a normal do cacho misturada com a normal da COPA INTEIRA
+#      (elipsoide em volta dela) -> a copa sombreia como UMA nuvem macia (luz em cima, barriga escura) e o contorno
+#      em cachos faz a folhagem; sem faceta, sem quina de 'pedra';
+#   2. soft_object(ob): marca o objeto (ob['rbx_soft']) e poe as normais no proprio Blender (previa = jogo);
+#   3. patch_export(ER): envolve o ER.split_object (o export_op chama 1 linha) - cada peca de objeto marcado sai com
+#      as faces suaves e as normais custom do vertice-fonte (achado pela posicao no mundo) -> o FBX grava as normais
+#      e o Roblox (MeshPart) usa as normais importadas. Peca de material chapado na fonte (rocha) fica chapada.
+NRM = "rbx_n"
+
+
+def nlayer(mb):
+    lay = mb.bm.verts.layers.float_vector.get(NRM)
+    return lay if lay is not None else mb.bm.verts.layers.float_vector.new(NRM)
+
+
+def _ell_n(p, c, r, rot=0.0):
+    """normal da elipsoide (centro c, raios r, giro rot em Z) no ponto p (gradiente)"""
+    d = p - c
+    if rot:
+        cr, sr = math.cos(rot), math.sin(rot)
+        d = Vector((d.x * cr + d.y * sr, -d.x * sr + d.y * cr, d.z))
+    g = Vector((d.x / (r[0] * r[0]), d.y / (r[1] * r[1]), d.z / (r[2] * r[2])))
+    if rot:
+        g = Vector((g.x * cr - g.y * sr, g.x * sr + g.y * cr, g.z))
+    return g.normalized() if g.length > 1e-9 else ZZ.copy()
+
+
+def soft_normals(mb, parts, crown=None, k=0.6, up=0.18):
+    """NORMAL DE FOLHAGEM: parts = [(faces, centro, (rx, ry, rz), giro)] (o cacho de cada vertice); crown = (centro,
+    (rx, ry, rz)) da copa inteira ou None. n = (1 - k) n_cacho + k n_copa + up Z. Grava na camada rbx_n"""
+    lay = nlayer(mb)
+    seen = set()
+    if crown is not None:
+        cc, cr_ = Vector(crown[0]), crown[1]
+    for faces, c, r, rot in parts:
+        c = Vector(c)
+        if r is not None:
+            r = (max(r[0], 1e-3), max(r[1], 1e-3), max(r[2], 1e-3))
+        for f in faces:
+            if f is None or not f.is_valid:
+                continue
+            for v in f.verts:
+                if v in seen:
+                    continue
+                if r is None:                    # normal da PROPRIA malha (os calombos do cacho sombreiam)
+                    n = Vector()
+                    for lf in v.link_faces:
+                        n += lf.normal * lf.calc_area()
+                    n = n.normalized() if n.length > 1e-9 else _ell_n(v.co, c, (1.0, 1.0, 1.0))
+                else:
+                    n = _ell_n(v.co, c, r, rot)
+                if crown is not None:
+                    n = n * (1.0 - k) + _ell_n(v.co, cc, cr_) * k
+                n = n + ZZ * up
+                v[lay] = n.normalized()
+                seen.add(v)
+
+
+def rec_parts(recs, mesh_n=False):
+    return [(rc.faces, rc.c, None if mesh_n else (rc.rx, rc.ry, rc.rz), getattr(rc, "rot", 0.0)) for rc in recs]
+
+
+def crown_of(recs, low=0.18, grow=1.08):
+    """elipsoide da copa que envolve os cachos (centro um pouco abaixo do meio: a barriga escurece mais cedo)"""
+    lo = Vector((min(rc.c.x - rc.rx for rc in recs), min(rc.c.y - rc.ry for rc in recs), min(rc.c.z - rc.rz for rc in recs)))
+    hi = Vector((max(rc.c.x + rc.rx for rc in recs), max(rc.c.y + rc.ry for rc in recs), max(rc.c.z + rc.rz for rc in recs)))
+    c = (lo + hi) / 2.0
+    h = (hi - lo) / 2.0
+    return (c - ZZ * h.z * low, (max(h.x, 0.5) * grow, max(h.y, 0.5) * grow, max(h.z, 0.5) * grow * (1.0 + low)))
+
+
+def soft_object(ob):
+    """marca o objeto para o patch_export e poe as normais de folhagem no proprio Blender (previa = jogo): faces
+    suaves usam rbx_n (ou a normal suave do vertice); faces chapadas ficam chapadas"""
+    if ob is None or ob.type != "MESH":
+        return 0
+    me = ob.data
+    ob["rbx_soft"] = 1
+    at = me.attributes.get(NRM)
+    vn = [v.vector.copy() for v in me.vertex_normals]
+    if at is not None:
+        for i, d in enumerate(at.data):
+            if d.vector.length > 0.5:
+                vn[i] = d.vector.copy()
+    ln = []
+    for p in me.polygons:
+        for li in p.loop_indices:
+            ln.append(vn[me.loops[li].vertex_index] if p.use_smooth else p.normal.copy())
+    me.normals_split_custom_set(ln)
+    return len(vn)
+
+
+SOFT_FLAT_MIN = 0.5           # peca cujo material tem < 50% de faces suaves na fonte sai chapada (rocha, franja)
+# a colisao V3 (colv3.split, no export) tira a CASCA dos objetos para portadores '<objeto>_k<n>_<j>' (faces chapadas,
+# sem atributos): pelo prefixo eles tambem saem suaves (normal suave da propria peca), salvo material de pedra
+SOFT_PREFIX = ("OP_Veg_", "OP_Tree_")
+SOFT_FLAT_MATS = ("Cliff_", "Rock", "Stone")
+
+
+def _soft_pieces(ob, res):
+    from mathutils.kdtree import KDTree
+    me = ob.data
+    if not res or not me.vertices:
+        return 0
+    import fm_lib
+    mw = ob.matrix_world
+    NR = mw.to_3x3().inverted_safe().transposed()
+    at = me.attributes.get(NRM)
+    vn = [v.vector.copy() for v in me.vertex_normals]
+    if at is not None:
+        for i, d in enumerate(at.data):
+            if d.vector.length > 0.5:
+                vn[i] = d.vector.copy()
+    wn = [(NR @ n).normalized() for n in vn]
+    kd = KDTree(len(me.vertices))
+    for i, v in enumerate(me.vertices):
+        kd.insert(mw @ v.co, i)
+    kd.balance()
+    sm = {}
+    mats = me.materials
+    flagged = bool(ob.get("rbx_soft"))
+    for p in me.polygons:
+        mi = p.material_index
+        nm_ = fm_lib.alias(mats[mi].name) if mi < len(mats) and mats[mi] else "Default"
+        a, b = sm.get(nm_, (0, 0))
+        sm[nm_] = (a + (1 if p.use_smooth else 0), b + 1)
+    n = 0
+    for name, pm, mname in res:
+        if flagged:
+            a, b = sm.get(mname, (1, 1))
+            if b and a / b < SOFT_FLAT_MIN:
+                continue
+        elif mname.startswith(SOFT_FLAT_MATS):
+            continue
+        if not pm.vertices:
+            continue
+        pm.polygons.foreach_set("use_smooth", [True] * len(pm.polygons))
+        out = []
+        for v in pm.vertices:
+            hits = kd.find_range(v.co, 2e-3)
+            if not hits:
+                hits = [kd.find(v.co)]
+            s = Vector()
+            for co, i, d in hits:
+                s += wn[i]
+            out.append(s.normalized() if s.length > 1e-9 else Vector((0.0, 0.0, 1.0)))
+        pm.normals_split_custom_set_from_vertices(out)
+        pm.update()
+        n += 1
+    return n
+
+
+def patch_export(ER):
+    """1 linha no export_op (depois do 'import export_roblox as ER'): op_tree.patch_export(ER). Envolve o
+    ER.split_object: as pecas de objetos com ob['rbx_soft'] saem SUAVES com as normais de folhagem"""
+    if getattr(ER, "_rbx_soft", False):
+        return
+    orig = ER.split_object
+
+    def split_object(ob, *a, **kw):
+        res = orig(ob, *a, **kw)
+        if ob.get("rbx_soft") or ob.name.startswith(SOFT_PREFIX):
+            try:
+                k = _soft_pieces(ob, res)
+                ER._rbx_soft_n = getattr(ER, "_rbx_soft_n", 0) + k
+            except Exception as e:                       # nunca derruba o export: no pior caso a peca sai chapada
+                print("AVISO rbx_soft %s: %s" % (ob.name, e))
+        return res
+    ER.split_object = split_object
+    ER._rbx_soft = True
+    print("EXPORT op_tree.patch_export: normais suaves de folhagem ligadas (ob['rbx_soft'])")
+
+
 # ================================================================== PRIMITIVAS DE FOLHAGEM V2 (tambem do op_veg)
 def limb(mb, pts, radii, m=BARK, n=8, sub=3, caps=True, flat=1.0):
     """galho/tronco SUAVE: catmull pelos pontos, anel com referencial transportado (sem torcer), sombreado suave"""
@@ -422,6 +603,8 @@ def cloud_pad(mb, c, R, H, rot=0.0, ax=1.0, lobes=9, seed=0, nt=36, prof=PAD_HI,
         g.setdefault(m, []).append(f)
     for m, ff in g.items():
         post_faces(mb, ff, m, smooth=True)
+    ryy = ry if ry is not None else R
+    soft_normals(mb, [(fs, c + ZZ * H * 0.3, (R * ax, ryy, H * 0.62), rot)], k=0.0, up=0.12)   # R3: almofada macia
     return fs
 
 
@@ -445,16 +628,18 @@ def _puff_r(d, bumps, amp, fb):
 
 
 def puff(mb, c, rx, ry, rz, seed=0, nu=16, nv=8, nb=8, amp=0.30, wdeg=40.0, mats=None, fb=0.35, crease=0.14,
-         top_bias=0.0):
-    """CACHO: casca unica (esfera parametrica nu x nv) com nb CALOMBOS arredondados (sub-cachos) e VINCO entre eles
+         top_bias=0.0, rot=0.0, bump_out=0.0, bands=None, top_bump=True):
+    """R3: bands=(zt, zb) -> cor em FAIXAS pela latitude da casca (aneis alinhados, quads: fronteira de cor = linha
+    limpa entre aneis; topo mats[0] acima de zt, barriga mats[2] abaixo de zb). Sem bands: cor por face (vinco).
+    CACHO: casca unica (esfera parametrica nu x nv) com nb CALOMBOS arredondados (sub-cachos) e VINCO entre eles
     (o maximo dos calombos, nao a soma); fundo achatado. mats = (luz, corpo, fundo/vinco): topo de calombo claro,
     vinco e baixo no tom fundo. Devolve PuffRec (para cull_inside). Tris = 2*nu*(nv-1)"""
     rng = random.Random(seed)
     k = 1.0 / (1.0 + amp * 0.55)
-    bumps = [(Vector((0.0, 0.0, 1.0)), math.cos(math.radians(wdeg * 1.1)))]
+    bumps = [(Vector((0.0, 0.0, 1.0)), math.cos(math.radians(wdeg * 1.1)))] if top_bump else []
     a0 = rng.uniform(0, TAU)
     for i in range(nb):
-        z = rng.uniform(-0.3 + top_bias, 0.92)
+        z = rng.uniform(-0.3 + top_bias, 0.92 - bump_out)
         a = a0 + i * 2.39996 + rng.uniform(-0.3, 0.3)
         s = math.sqrt(max(0.0, 1.0 - z * z))
         bumps.append((Vector((s * math.cos(a), s * math.sin(a), z)),
@@ -463,10 +648,12 @@ def puff(mb, c, rx, ry, rz, seed=0, nu=16, nv=8, nb=8, amp=0.30, wdeg=40.0, mats
     bm = mb.bm
     rot0 = rng.uniform(0, TAU)
     mval = {}
+    cr_, sr_ = math.cos(rot), math.sin(rot)
 
     def V(d):
         r, m = _puff_r(d, bumps, amp, fb)
-        v = bm.verts.new(c + Vector((d.x * rx, d.y * ry, d.z * rz)) * (r * k))
+        x, y = d.x * rx * r * k, d.y * ry * r * k
+        v = bm.verts.new(c + Vector((x * cr_ - y * sr_, x * sr_ + y * cr_, d.z * rz * r * k)))
         mval[v] = m
         return v
     top = V(Vector((0.0, 0.0, 1.0)))
@@ -475,7 +662,7 @@ def puff(mb, c, rx, ry, rz, seed=0, nu=16, nv=8, nb=8, amp=0.30, wdeg=40.0, mats
     for j in range(1, nv):
         phi = math.pi * j / nv
         s, z = math.sin(phi), math.cos(phi)
-        off = (j % 2) * math.pi / nu
+        off = (j % 2) * math.pi / nu if bands is None else 0.0
         rows.append([V(Vector((s * math.cos(rot0 + off + TAU * i / nu), s * math.sin(rot0 + off + TAU * i / nu), z)))
                      for i in range(nu)])
     fs = []
@@ -483,15 +670,32 @@ def puff(mb, c, rx, ry, rz, seed=0, nu=16, nv=8, nb=8, amp=0.30, wdeg=40.0, mats
         i2 = (i + 1) % nu
         fs.append(bm.faces.new((top, rows[0][i], rows[0][i2])))
         fs.append(bm.faces.new((bot, rows[-1][i2], rows[-1][i])))
-    for r0, r1 in zip(rows, rows[1:]):
+    lat = []
+    for j, (r0, r1) in enumerate(zip(rows, rows[1:])):
         for i in range(nu):
             i2 = (i + 1) % nu
-            fs.append(bm.faces.new((r0[i], r1[i], r1[i2])))
-            fs.append(bm.faces.new((r0[i], r1[i2], r0[i2])))
+            if bands is None:
+                fs.append(bm.faces.new((r0[i], r1[i], r1[i2])))
+                fs.append(bm.faces.new((r0[i], r1[i2], r0[i2])))
+            else:
+                fs.append(bm.faces.new((r0[i], r1[i], r1[i2], r0[i2])))
+                lat.append(math.cos(math.pi * (j + 1.5) / nv))
     _orient_out(fs, c)
     mats = mats or ("Flower_OP_Light", "Flower_OP_Blossom", "Flower_OP_Deep")
     g = {}
-    for f in fs:
+    if bands is not None:
+        zt_, zb_ = bands
+        lat = [1.0] * nu + [-1.0] * nu + lat               # leque do polo de cima, do polo de baixo, aneis
+        lat2 = []
+        for i in range(nu):                                # a ordem do fs: (topo, baixo) alternados por i, depois aneis
+            lat2 += [1.0, -1.0]
+        lat = lat2 + lat[2 * nu:]
+        for f, z in zip(fs, lat):
+            g.setdefault(mats[0] if z > zt_ else (mats[2] if z < zb_ else mats[1]), []).append(f)
+        fs_iter = []
+    else:
+        fs_iter = fs
+    for f in fs_iter:
         nz = f.normal.z
         am = sum(mval[v] for v in f.verts) / len(f.verts)
         if nz < -0.42 or (am < crease and nz < 0.8):
@@ -505,6 +709,7 @@ def puff(mb, c, rx, ry, rz, seed=0, nu=16, nv=8, nb=8, amp=0.30, wdeg=40.0, mats
         post_faces(mb, ff, m, smooth=True)
     rec = PuffRec()
     rec.c, rec.rx, rec.ry, rec.rz, rec.bumps, rec.amp, rec.fb, rec.faces = c, rx * k, ry * k, rz * k, bumps, amp, fb, fs
+    rec.rot = rot
     return rec
 
 
@@ -916,67 +1121,58 @@ def pine_pad(mb, c, R, H, rot=0.0, ax=1.0, ry=None, lobes=7, depth=0.18, seed=0,
 def pine_cloud(mb, c, R, flat=0.42, rot=0.0, ax=1.25, seed=0, lod=1,
                mats=("Leaf_OP_Sun", "Leaf_OP", "Leaf_OP_Pine", "Leaf_OP_PineUnder"), nsub=None, droop=0.0,
                teeth=None):
-    """NUVEM DE PINHEIRO na ponta de um galho (c = centro da base da camada de baixo): CAMADA DE BASE larga (fundo
-    escuro mats[3], borda mats[2], topo mats[1], franja de agulhas mats[2]) + nsub SUB-ALMOFADAS sobre ela, recuadas
-    para dentro e para cima (topo mats[0] amarelado, borda mats[1], fundo mats[2], franja curta) + CAPUZ claro no
-    alto. Contorno composto (lobos grandes e pequenos), luz em cima, sombra embaixo - nunca disco liso.
-    droop inclina a base para fora/baixo (ponta de galho que pesa). lod 0/1/2 = resolucao e franja"""
+    """NUVEM DE PINHEIRO na ponta de um galho (c = centro da base). R3 ('arvores parecendo pedras'): a nuvem V4 era
+    um PRATO (disco de fundo chato e quina viva + franja de piramides) coberto de bolhas - no jogo, sem normal suave,
+    lia como laje de pedra. Agora e UMA ALMOFADA LOBADA (puff: corpo achatado com calombos e vincos, fundo levemente
+    convexo e escuro mats[3], borda festonada mats[2], topo mats[1]) + nsub SUB-ALMOFADAS claras no alto (couve-flor
+    da ref_02: topo mats[0]) + anel do meio nas nuvens grandes. Tudo SUAVE com a normal de folhagem da nuvem inteira
+    (luz em cima, barriga escura, contorno em calombos). droop inclina a nuvem para fora/baixo (ponta que pesa).
+    teeth: ignorado (a franja de agulhas saiu)"""
     rng = random.Random(seed)
     c = Vector(c)
     H = R * flat
-    nt = {0: 10, 1: 12, 2: 20, 3: 30}[lod]
+    res = {0: (10, 5), 1: (12, 6), 2: (16, 7), 3: (20, 8)}[lod]
+    nb = {0: 6, 1: 7, 2: 9, 3: 11}[lod] + (2 if R > 15.0 else 0)
     if nsub is None:
-        nsub = {0: 1, 1: 2, 2: 2, 3: 3}[lod] + (1 if R > 8.0 else 0)
-    if teeth is None:
-        teeth = {0: 0.5, 1: 0.85, 2: 1.0, 3: 1.0}[lod]
-    prof = PAD3_LO                                   # V4: base BAIXA (fundo chato + borda); o volume vem dos pufes
-    ex = Vector((math.cos(rot), math.sin(rot), 0.0))
-    tilt = Vector((ex.x, ex.y, 0.0)) * (-droop)
-    fs = pine_pad(mb, c, R, H * 0.9, rot, ax, None, lobes=7 if R > 6 else 6, depth=0.2, seed=rng.randrange(1 << 30), nt=nt,
-                  prof=prof, mats=(mats[1], mats[1], mats[3]), teeth=teeth, tooth_m=mats[2],
-                  lumps=3 if lod >= 2 else 1, tilt=tilt)
-    # V4 (G6 'as folhas da arvore grande precisam melhorar'): o topo da nuvem deixa de ser sub-almofadas LISAS (lia
-    # como bolo/pires empilhado, 'lump') e vira um BROCOLIS de pufes achatados (ref_02: cada nuvem do pinheiro e um
-    # monte de calombos redondos claros em cima, fundo chato escuro com a franja de agulhas): anel de pufes sobre a
-    # borda (contorno festonado de verdade) + pufes de dentro mais altos (cupula). Faixas: topo Sun, corpo Leaf, pe
-    # Pine; luz inclinada para fora. Faces escondidas entre pufes saem (cull_inside).
-    n_rim = {0: 3, 1: 4, 2: 7, 3: 9}[lod] + (2 if R > 15.0 else 0) + (1 if nsub and nsub >= 4 else 0)
-    n_in = max(1, {0: 1, 1: 1, 2: 3, 3: 4}[lod] + (1 if R > 25.0 else 0))
-    pres = {0: (5, 3), 1: (6, 4), 2: (9, 4), 3: (10, 5)}[lod]
+        nsub = {0: 1, 1: 2, 2: 3, 3: 4}[lod] + (1 if R > 8.0 else 0)
+    pres = {0: (7, 5), 1: (8, 5), 2: (10, 6), 3: (12, 6)}[lod]      # 5+ aneis: o topo nao vira 'mesa' chata
     recs = []
+    recs.append(puff(mb, c + ZZ * H * 0.26, R * ax, R, H * 0.8, rng.randrange(1 << 30), res[0], res[1], nb=nb,
+                     amp=0.32, wdeg=34.0, mats=(mats[1], mats[2], mats[3]), fb=0.45, crease=0.12, top_bias=0.2,
+                     rot=rot, bump_out=0.2, bands=(0.3, -0.3)))
     a0 = rng.uniform(0, TAU)
 
-    def put(q, rr, rz, mt, bands, out):
-        q.z += (q.x - c.x) * tilt.x + (q.y - c.y) * tilt.y           # acompanha a base inclinada
-        tl = Vector((out.x, out.y, 0.0)) * 0.3 if out.length > 1e-6 else None
-        recs.append(blob(mb, q, rr, rr * rng.uniform(0.88, 1.0), rz, pres[0], pres[1], mt, bands, fb=0.5,
-                         rot=rng.uniform(0, TAU), wob=0.06, seed=rng.randrange(1 << 30), top_tilt=tl))
-    k_r = 1.0 if n_rim >= 6 else (1.18 if n_rim >= 4 else 1.3)
-    for k in range(n_rim):
-        a = a0 + TAU * k / n_rim + rng.uniform(-0.18, 0.18)
-        d = Vector((math.cos(a) * ax, math.sin(a), 0.0))
-        rad = R * rng.uniform(0.64, 0.74)                        # sobre a BORDA (cobre a testa lisa da base)
-        q = c + Vector(_rz(d.x * rad, d.y * rad, rot) + (0.0,)) + ZZ * H * rng.uniform(0.2, 0.32)
-        rr = R * rng.uniform(0.27, 0.34) * k_r
-        put(q, rr, rr * 0.62, (mats[0], mats[1], mats[2]), (0.62, -0.3), Vector(_rz(d.x, d.y, rot) + (0.0,)))
-    for k in range(n_in):
-        a = a0 + 0.6 + TAU * k / n_in + rng.uniform(-0.3, 0.3)
-        d = Vector((math.cos(a) * ax, math.sin(a), 0.0))
-        rad = R * (0.2 if n_in > 1 else 0.05) * rng.uniform(0.8, 1.2)
-        q = c + Vector(_rz(d.x * rad, d.y * rad, rot) + (0.0,)) + ZZ * H * rng.uniform(0.68, 0.84)
-        rr = R * rng.uniform(0.3, 0.38)
-        put(q, rr, rr * 0.58, (mats[0], mats[1], mats[2]), (0.42, -0.35), Vector(_rz(d.x, d.y, rot) + (0.0,)))
-    if R > 25.0:                                      # nuvem grande (coroa): anel do meio (sem miolo liso entre os aneis)
-        for k in range(6):
-            a = a0 + 0.3 + TAU * k / 6 + rng.uniform(-0.2, 0.2)
-            d = Vector((math.cos(a) * ax, math.sin(a), 0.0))
-            rad = R * rng.uniform(0.36, 0.44)
-            q = c + Vector(_rz(d.x * rad, d.y * rad, rot) + (0.0,)) + ZZ * H * rng.uniform(0.5, 0.62)
-            rr = R * rng.uniform(0.22, 0.27)
-            put(q, rr, rr * 0.6, (mats[0], mats[1], mats[2]), (0.5, -0.3), Vector(_rz(d.x, d.y, rot) + (0.0,)))
+    def sub(q, rr, rz, a, mt):
+        recs.append(puff(mb, q, rr * 1.06, rr, rz, rng.randrange(1 << 30), pres[0], pres[1], nb=5, amp=0.24,
+                         wdeg=42.0, mats=mt, fb=0.5, crease=0.1, top_bias=0.3, rot=a, bands=(0.45, -0.15),
+                         top_bump=False))                 # sem o calombo do polo: o topo nao vira 'mesa' chata
+    for k in range(nsub):
+        a = a0 + TAU * k / max(1, nsub) + rng.uniform(-0.3, 0.3)
+        rad = R * (0.34 if nsub > 1 else 0.06) * rng.uniform(0.8, 1.15)
+        x, y = _rz(math.cos(a) * ax * rad, math.sin(a) * rad, rot)
+        rr = R * rng.uniform(0.34, 0.44)
+        sub(c + Vector((x, y, H * rng.uniform(0.92, 1.04))), rr, rr * 0.6, a, (mats[0], mats[1], mats[2]))
+    if R > 15.0:                                      # nuvem grande: anel do meio (sem planicie entre os calombos)
+        nm_ = 6 if R > 25.0 else 4
+        for k in range(nm_):
+            a = a0 + 0.4 + TAU * k / nm_ + rng.uniform(-0.2, 0.2)
+            rad = R * rng.uniform(0.6, 0.7)
+            x, y = _rz(math.cos(a) * ax * rad, math.sin(a) * rad, rot)
+            rr = R * rng.uniform(0.24, 0.3)
+            sub(c + Vector((x, y, H * rng.uniform(0.66, 0.78))), rr, rr * 0.6, a, (mats[0], mats[1], mats[2]))
     cull_inside(mb, recs)
-    fs += [f for rc in recs for f in rc.faces if f.is_valid]
-    return fs
+    if droop:                                         # a nuvem pesa para fora: cisalha o z pela distancia na direcao rot
+        ex = Vector((math.cos(rot), math.sin(rot), 0.0))
+        vs = {v for rc in recs for f in rc.faces if f.is_valid for v in f.verts}
+        for v in vs:
+            v.co.z -= max(0.0, (v.co - c).dot(ex)) * droop
+        for rc in recs:
+            for f in rc.faces:
+                if f.is_valid:
+                    f.normal_update()
+    soft_normals(mb, rec_parts(recs, mesh_n=True),
+                 crown=(c + ZZ * H * 0.3, (R * ax * 1.05, R * 1.05, H * 0.9)), k=0.65, up=0.1)
+    return [f for rc in recs for f in rc.faces if f.is_valid]
 
 
 # ------------------------------------------------------------------ chao real (raio para baixo)
@@ -1422,12 +1618,13 @@ def build():
     trunk(mb_a, mb_b)
     segs = roots(mb_a, ground, rng)
     base_rocks(mb_a, ground, rng)
-    mb_a.finish()
+    soft_object(mb_a.finish())                # R3: normais suaves ate o Roblox (rocha da base continua chapada)
     branches(mb_b)
     mc = MB("OP_Tree_Pads", "04_CASTLE", rng, detail="far", floor=-999)
     canopy(mc, mb_b, rng)
-    mb_b.finish()
+    soft_object(mb_b.finish())
     op = mc.finish()
+    soft_object(op)
     if op is not None:
         op.visible_shadow = False      # previa = Roblox (Leaf_ CastShadow=false no fm_lib.RBX_RULES)
     collision(segs)

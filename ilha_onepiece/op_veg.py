@@ -15,6 +15,19 @@
 #   (courtyard_cherries, copa levantada pelo construido), pinheiros de borda em grupos (rim_pines). Gate visual:
 #   todo tronco e moita colidem (9,5 de altura), nenhuma copa abaixo de pe + 5,6 de chao vizinho (body_clear).
 #   Setores ROSA (PINK_SECTORS, 7 materiais) x VERDES (4): MeshParts <= 50.
+# R3 (rodada 3 do usuario 10/10, jogando a V2: 'modelos de arvores parecendo pedras', 'modelos flutuando'):
+#   CAUSA: o export_roblox.split_object refaz as pecas sem f.smooth -> TODA folhagem ia CHAPADA ao Roblox (FBX
+#   20f29090 reimportado: 0 de 44 malhas da vegetacao com normal suave); a previa do Blender mostrava suave.
+#   1. NORMAL DE FOLHAGEM (op_tree.soft_normals/soft_object/patch_export): cada copa sombreia como 1 nuvem macia
+#      (normal do cacho misturada com a da copa inteira); o export leva as normais ao FBX (1 linha no export_op).
+#   2. FORMAS para sombreado suave: cacho de cerejeira = almofada LOBADA (op_tree.puff com calombos, cor em faixas
+#      pela latitude) + sub-cachos; kuromatsu = nuvem lobada com fundo escuro e tufos claros, SEM a franja de agulhas
+#      (piramides chapadas = pedra); larga = massas lobadas; moita = MONTE DE TUFOS (nao cupula lisa).
+#   3. NADA FLUTUA: cada tufo do pe da moita assenta no chao real sob ele (_lump_floor, 0,14 r enterrado); toda planta
+#      nova passa por _floating_parts (peca solta sem contato com chao/rocha/construido sai; planta no ar nao nasce);
+#      arvorezinha de crista nasce dentro da quina e a almofada de beira morde o labio (_anchor).
+#   4. COLISAO V3: a vegetacao NAO cria caixa COL_ (moita/copa nao colidem; o tronco colide pela propria casca via
+#      colv3.split no export). TRUNK_COL_BOX = True volta a caixa do tronco (justa e inclinada com o tronco).
 # FAMILIAS V2 (reutilizaveis; nada de espalhar ao acaso):
 #   - CEREJEIRA (sakura) XS/S/M/L: tronco ESCURO em S com pe alargado, bracos que abrem; copa FOFA (V2b,
 #     op_tree.fluffy_crown): por parte da copa um nucleo escuro + cachos medios + sub-cachos na borda/pendentes, todos
@@ -74,7 +87,8 @@ ZZ = Vector((0.0, 0.0, 1.0))
 TAU = math.tau
 T0, T1, P, CF, CC, W3Z = L.T0, L.T1, L.P, L.CF, L.CC, L.W3
 MINE_PAD = 10.0
-BUDGET_TRIS = 57500             # V3: teto 60k; V4 (lead 10/10: ilha em 683k > 640k, arvores NAO crescem): cachos de pufes
+BUDGET_TRIS = 59000             # R3: copas suaves (a arvore monumental caiu 37,2k -> 32,6k: a vegetacao usa 1,5k disso; veg+arvore -3k)
+#                                 V3: teto 60k; V4 (lead 10/10: ilha em 683k > 640k, arvores NAO crescem): cachos de pufes
 #                                 pagos com tronco -1 lado, raizes, verdes de falesia -1 lado (vistos de longe), copa da monumental e teto 58k -> 57,5k
 TRUNKS = []                      # (x, y, z, r_tronco, R_copa, familia) - exposto
 STATS = {}
@@ -116,6 +130,8 @@ class Probe:
             if o.type != "MESH" or o.hide_render or o.name.startswith(("COL_", "PREVIEW_", "SCALE_", "OP_Veg_",
                                                                            "OP_Plz_OreProxy")):
                 continue
+            if o.users_collection and o.users_collection[0].name in ("00_REFERENCE", "_SCALE_REFERENCE"):
+                continue                     # R3: referencia/previa nao vai ao jogo: nao e chao nem apoio
             mw = o.matrix_world
             me = o.data
             vs = [mw @ v.co for v in me.vertices]
@@ -448,56 +464,45 @@ def cherry_plan(x, y, z, size, lean_az, rng, var=None, lod=1, lift=0.0):
                 form=A, lean_az=lean_az, lift=lift, low=low)
 
 
-# V4 (polimento G1, 'cerejeira facetada de perto'): CACHO = NUCLEO REDONDO + PUFES. O cacho V3 era 1 nucleo de 3 aneis
-# + conchas de 3..4 aneis: de perto, na altura do jogador (e DE BAIXO, que e como se ve a copa), lia como poliedro.
-# Agora o nucleo tem 5..6 aneis e 10..12 lados (a barriga vista de baixo fica redonda), e 3..6 PUFES de 4..5 aneis em
-# espiral aurea do equador ao alto, com jitter radial -> contorno festonado (nuvem de anime), o ceu vazando entre os
-# cachos; tom por altura (topo Light, meio Blossom, barriga Deep). Faces escondidas saem (cull_inside).
-PUFF_RES = {2: (8, 5), 1: (7, 4), 0: (7, 4), -1: (6, 4)}      # (nu, nv) de cada pufe por LOD
-CORE_RES = {2: (10, 5), 1: (8, 5), 0: (8, 4), -1: (7, 4)}    # nucleo: e o que se ve DE BAIXO (mais aneis)
-NPUFF = {2: 5, 1: 3, 0: 2, -1: 2}                            # pufes por cacho (sec -1; veu: 2 pufes, sem nucleo)
+# R3 ('arvores parecendo pedras'): CACHO = 1 ALMOFADA LOBADA (op_tree.puff: casca com 6-8 calombos e vinco escuro
+# entre eles, barriga achatada) + 1-3 SUB-CACHOS que quebram o contorno no alto/fora + VEU que pende. Resolucao
+# maior (o contorno e de calombo desenhado, nao de poligono de 7 lados) e TUDO suave com a normal de folhagem da copa.
+# Cor por cacho pela altura na copa (topo Light, meio Blossom, barriga Deep) e, no cacho, calombo de cima claro /
+# vinco e barriga no tom de baixo.
+LOBE_RES = {2: (15, 7), 1: (12, 6), 0: (11, 6), -1: (10, 5)}       # (nu, nv) do cacho por LOD
+SUB_RES = {2: (9, 6), 1: (8, 5), 0: (7, 5), -1: (7, 4)}           # sub-cacho e veu
+NSUB = {2: 2, 1: 2, 0: 1, -1: 1}                                  # sub-cachos: o ceu vaza entre eles
 GOLDEN = 2.399963
 
 
 def _puff_cluster(mb, cl, A, lod, rng, tone, tilt, pinks, recs):
     c, cr, a, kind = cl["c"], cl["cr"], cl["a"], cl["kind"]
-    L_, B_, D_ = pinks
     weep = A["weep"]
-    nu, nv = PUFF_RES[lod]
     if kind == "veil":
         if lod <= 0:
             return                                             # longe/cidade: sem veu (orcamento)
-        # veu: 2 pufes que pendem da borda de fora do cacho (o de baixo menor), sem nucleo
-        m, b = tone(c.z)
-        recs.append(TR.blob(mb, c, cr * 0.95, cr * 0.88, cr * (0.86 if weep else 0.7), nu, nv, m, b, fb=0.15,
-                            rot=a, wob=0.05, seed=_seed(rng), top_tilt=tilt))
-        if lod < 2:
-            return                                             # veu de 1 pufe (lod 1); o 2o so nas heroi (lod 2)
-        out = Vector((math.cos(a), math.sin(a), 0.0))
-        q = c + out * cr * 0.35 - ZZ * cr * (0.45 if weep else 0.32)
-        m2, b2 = tone(q.z)
-        recs.append(TR.blob(mb, q, cr * 0.6, cr * 0.56, cr * 0.5, nu, nv, m2, b2, fb=0.1, rot=a + 1.3,
-                            seed=_seed(rng), top_tilt=tilt))
+        nu, nv = SUB_RES[lod]
+        recs.append(TR.puff(mb, c, cr * 0.98, cr * 0.9, cr * (0.82 if weep else 0.68), _seed(rng), nu + 2, nv, nb=4,
+                            amp=0.22, wdeg=44.0, mats=tone(c.z)[0], fb=0.12, crease=0.12, rot=a, bands=(0.3, -0.3)))
         return
-    flat = 0.6 if kind == "top" else 0.66
-    # nucleo: corpo do cacho (fundo escuro Deep, faixa media Blossom; os pufes cobrem o alto)
-    m, b = tone(c.z - cr * 0.25)
-    recs.append(TR.blob(mb, c, cr * 0.82, cr * 0.77, cr * flat * 0.9, CORE_RES[lod][0], CORE_RES[lod][1],
-                        m, (b[0], b[1] + 0.1), fb=0.3, rot=a, wob=0.06, seed=_seed(rng), top_tilt=tilt))
-    n = NPUFF[lod] - (1 if kind == "sec" else 0)
+    flat = 0.62 if kind == "top" else 0.7
+    nu, nv = LOBE_RES[lod]
+    if kind == "sec":
+        nu, nv = max(9, nu - 3), max(5, nv - 1)
+    recs.append(TR.puff(mb, c, cr * 0.98, cr * 0.92, cr * flat, _seed(rng), nu, nv, nb=6 + (lod > 0) + (lod > 1),
+                        amp=0.34, wdeg=38.0, mats=tone(c.z)[0], fb=0.3, crease=0.13, rot=a, bands=(0.4, -0.35)))
+    n = NSUB[lod] - (1 if kind == "sec" else 0)
     a0 = a + rng.uniform(0.0, TAU)
+    su, sv = SUB_RES[lod]
     for j in range(n):
-        t = (j + 0.5) / n
-        sz = max(-0.9, min(0.95, -0.45 + 1.3 * t))             # da barriga (contorno de baixo festonado) ao alto
+        t = (j + 0.5) / max(1, n)
+        sz = 0.15 + 0.6 * t                                   # do equador (contorno) ao alto
         ce = math.sqrt(max(0.0, 1.0 - sz * sz))
-        az = a0 + j * GOLDEN + rng.uniform(-0.25, 0.25)
-        k = rng.uniform(0.92, 1.08)                            # jitter radial: contorno irregular
-        q = c + Vector((math.cos(az) * ce * cr * 0.72 * k, math.sin(az) * ce * cr * 0.68 * k,
-                        sz * cr * flat * 0.86 * k))
-        rr = cr * rng.uniform(0.42, 0.52) * (1.1 if sz > 0.3 else 1.0)
-        m2, b2 = tone(q.z + rr * 0.3)
-        recs.append(TR.blob(mb, q, rr, rr * 0.95, rr * 0.84, nu, nv, m2, b2, fb=0.25, rot=az, wob=0.05,
-                            seed=_seed(rng), top_tilt=tilt))
+        az = a0 + j * GOLDEN + rng.uniform(-0.3, 0.3)
+        q = c + Vector((math.cos(az) * ce * cr * 0.78, math.sin(az) * ce * cr * 0.72, sz * cr * flat * 0.92))
+        rr = cr * rng.uniform(0.38, 0.48)
+        recs.append(TR.puff(mb, q, rr, rr * 0.94, rr * 0.8, _seed(rng), su, sv, nb=4, amp=0.22, wdeg=44.0,
+                            mats=tone(q.z + rr * 0.3)[0], fb=0.25, crease=0.1, rot=az, bands=(0.3, -0.3)))
 
 
 def cherry(mb, pl, rng, lod=1):
@@ -560,6 +565,8 @@ def cherry(mb, pl, rng, lod=1):
         tilt = out.normalized() * 0.35 if out.length > 0.5 else None
         _puff_cluster(mb, cl, A, lod, rng, tone, tilt, (L_, B_, D_), recs)
     TR.cull_inside(mb, recs)
+    if recs:                                   # R3: a copa sombreia como 1 nuvem rosa (normal de folhagem)
+        TR.soft_normals(mb, TR.rec_parts(recs, mesh_n=True), crown=TR.crown_of(recs), k=0.55, up=0.1)
 
 
 # KUROMATSU: tronco inclinado e torcido, galhos em DEGRAUS quase horizontais alternando os lados, cada um com a sua
@@ -607,7 +614,7 @@ def pine_plan(x, y, z, h, lean_az, rng, lod=1, var=None):
         L_ = ln * h * rng.uniform(0.88, 1.12)
         tip = bp + vdir(a) * L_ + ZZ * L_ * 0.12
         R = pr * h * rng.uniform(0.9, 1.08)
-        zmin = z + 6.0 + R * 0.62 * 0.25 + R * 0.62 * 0.3 * 1.15      # fundo + franja acima de pe + 6
+        zmin = z + 6.6 + R * 0.62 * 0.25 + R * 0.62 * 0.3 * 1.15      # R3: fundo da nuvem lobada (calombo + droop) acima de pe + 6,4
         if tip.z < zmin:
             tip = Vector((tip.x, tip.y, zmin))
         pads.append(dict(bp=bp, tip=tip, R=R, a=a, droop=droop * 0.5 if tip.z == zmin else droop, flat=0.62))
@@ -700,23 +707,26 @@ def broad(mb, pl, rng, lod=0):
     tube(mb, [b0 - ZZ * 0.6, b0 + ZZ * 0.3, b0 + ZZ * r0 * 2.4], [r0 * 1.9, r0 * 1.4, r0 * 1.05], n=n, caps=False)
     TR.root_claws(mb, b0, r0 * 1.3, 3 if lod else 2, b0.z, rng, BARK, gfun=_gfun, reach=2.4)
     recs = []
-    resA, resB = ((8, 5), (7, 4)) if lod else ((7, 4), (6, 4))
+    # R3: cada MASSA = almofada lobada (puff com calombos e vinco) + 1-2 sub-cachos no alto; suave (normal da copa)
+    resA, resB = ((14, 7), (9, 5)) if lod else ((12, 6), (8, 4))
     zb = min(c.z - r * 0.6 for c, r, a in pl["masses"])
     zt = max(c.z + r * 0.6 for c, r, a in pl["masses"])
     for c, r, a in pl["masses"]:
         TR.limb(mb, [F, F.lerp(c, 0.55) + ZZ * 0.4, c - ZZ * r * 0.25], [r0 * 0.7, r0 * 0.48, r0 * 0.25], BARK,
                 n=5 if lod else 4, sub=1, caps=False)
         zr = (c.z - zb) / max(1e-3, zt - zb)
-        bands = (0.4, -0.3) if zr > 0.5 else (0.6, -0.15)
-        recs.append(TR.blob(mb, c, r * 1.05, r * 0.95, r * 0.78, resA[0], resA[1], GREEN3, bands, fb=0.35, rot=a,
-                            wob=0.1, seed=_seed(rng)))
-        o = vdir(a)
+        mt = (LEAF, LEAF, PINE)                        # R3: o claro (Sun) fica nos tufos de cima (sem 'tampa' chata)
+        recs.append(TR.puff(mb, c, r * 1.05, r * 0.95, r * 0.78, _seed(rng), resA[0], resA[1], nb=8, amp=0.3,
+                            wdeg=36.0, mats=mt, fb=0.35, crease=0.13, rot=a, bands=(0.5, -0.3), top_bump=False))
         for j in range(2 if lod else 1):
-            q = c + vdir(a + (0.9 if j else -0.5)) * r * 0.5 + ZZ * r * 0.36
-            rr = r * rng.uniform(0.5, 0.6)
-            recs.append(TR.blob(mb, q, rr, rr * 0.92, rr * 0.82, resB[0], resB[1], GREEN3, (0.3, -0.3), fb=0.3,
-                                rot=a + j, seed=_seed(rng)))
+            q = c + vdir(a + (0.9 if j else -0.5)) * r * 0.5 + ZZ * r * 0.42
+            rr = r * rng.uniform(0.46, 0.56)
+            recs.append(TR.puff(mb, q, rr, rr * 0.92, rr * 0.78, _seed(rng), resB[0], resB[1], nb=5, amp=0.22,
+                                wdeg=40.0, mats=(SUN, LEAF, PINE), fb=0.3, crease=0.1, rot=a + j, bands=(0.45, -0.2),
+                                top_bump=False))
     TR.cull_inside(mb, recs)
+    if recs:
+        TR.soft_normals(mb, TR.rec_parts(recs, mesh_n=True), crown=TR.crown_of(recs), k=0.6, up=0.1)
 
 
 # MOITA PODADA (karikomi): FORMA CLARA de tesoura - 'tama' (cupula arredondada-quadrada), 'nami' (2-4 cupulas em
@@ -725,32 +735,88 @@ def broad(mb, pl, rng, lod=0):
 BUSH_KINDS = ("tama", "nami", "nami", "tama", "cerca")     # tsutsuji (rosa) so quando a lista pede
 
 
-def bush(mb, x, y, z, r, rng, lumps=2, m=LEAF, n=6, kind=None):
-    """MOITA PODADA V3 (karikomi). r = raio do monte principal. kind None = sorteio pelo hash do lugar"""
+def _lump_floor(x, y, rr, z0, rock=False):
+    """R3 (moita flutuando, captura 15; tufo rosa, captura 07): chao REAL sob um monte - centro + 6 pontos a 0,75 do
+    raio, raio para baixo a partir de z0 + 3 (nao pega beiral/telhado acima). (zmin, zmax) ou None se algum ponto nao
+    e chao natural/plano (borda de meio-fio, degrau, muro: o monte nao nasce ali)"""
+    P_ = _PROBE[0]
+    if P_ is None:
+        return (z0, z0)
+    zs = []
+    for k in range(7):
+        dx, dy = (0.0, 0.0) if k == 0 else (math.cos(TAU * k / 6) * rr * 0.75, math.sin(TAU * k / 6) * rr * 0.75)
+        t = P_.top(x + dx, y + dy, z0 + 3.0)
+        if t is None or t[3] < 0.6 or not P_.natural(t, rock or True):
+            return None
+        zs.append(t[0])
+    return min(zs), max(zs)
+
+
+BUSH_SINK = 0.14                 # o pe do monte entra 0,14 r (min 0,2) no chao: nunca fresta embaixo
+
+
+def bush(mb, x, y, z, r, rng, lumps=2, m=LEAF, n=6, kind=None, rock=False):
+    """MOITA (karikomi). r = raio do monte principal. kind None = sorteio pelo hash do lugar.
+    R3 ('moita flutuando' captura 15; 'parece pedra'): cada monte e um MONTE DE TUFOS - miolo + anel de 4-5 tufos no
+    pe + 2 tufos no alto (couve-flor de folhagem: contorno em calombos em volta toda, nunca cupula lisa de seixo) - e
+    CADA tufo do pe assenta no chao real sob ele (_lump_floor: fundo 0,14 r abaixo do chao mais baixo da pegada; tufo
+    sobre degrau/meio-fio/borda nao nasce). Suave, com a normal de folhagem do monte; topo claro, pe escuro"""
     kind = kind or BUSH_KINDS[int(rng.random() * len(BUSH_KINDS))]
     a0 = rng.uniform(0, TAU)
-    nu, nv = (11, 6) if r > 2.6 else (10, 5)
-    base = Vector((x, y, z))
     if kind == "tsutsuji":
-        mats, bands = ("Flower_OP_Light", "Flower_OP_Blossom", PINE), (0.3, -0.42)
+        mats_lo, mats_hi = ("Flower_OP_Blossom", "Flower_OP_Blossom", PINE), ("Flower_OP_Light", "Flower_OP_Blossom", "Flower_OP_Blossom")
     else:
-        mats, bands = (SUN, LEAF, PINE), (0.74, -0.3)
+        mats_lo, mats_hi = (LEAF, LEAF, PINE), (SUN, LEAF, LEAF)
     recs = []
+
+    def sit(q, rx, ry, rz, fb, j):
+        """centro do tufo com o fundo 0,14 r DENTRO do chao real sob ele (None = sem chao plano ali)"""
+        fl = _lump_floor(q.x, q.y, max(rx, ry) * 0.8, z, rock)
+        if fl is None or fl[1] - fl[0] > 0.6:
+            if j > 0:
+                return None
+            fl = (z, z)
+        return fl[0] - max(0.15, BUSH_SINK * rz) + rz * (1.0 - fb)
+
+    def tuft(q, rr, rz, mt, nu_, nv_, fb, rot, bands):
+        recs.append(TR.puff(mb, q, rr * 1.09, rr * 1.02, rz * 1.09, _seed(rng), nu_, nv_, nb=4, amp=0.16, wdeg=44.0,
+                            mats=mt, fb=fb, crease=0.1, rot=rot, bands=bands))
+
+    def mound(q0, rr, j, stretch=1.0):
+        cz = sit(q0, rr * stretch, rr, rr * 0.78, 0.45, j)
+        if cz is None:
+            return
+        tuft(Vector((q0.x, q0.y, cz)), rr * 0.86 * stretch, rr * 0.78, mats_hi, 12, 6, 0.45, a0 + j, (0.35, -0.3))
+        ring = (5 if rr > 2.0 else 4) + (3 if stretch > 1.0 else 0)       # a sebe (cerca) ganha tufos ao longo
+        b0 = rng.uniform(0, TAU)
+        for k in range(ring):                       # anel de tufos no PE (cada um assenta no chao dele)
+            a = b0 + TAU * k / ring + rng.uniform(-0.25, 0.25)
+            rk = rr * rng.uniform(0.44, 0.52)
+            q = q0 + Vector((math.cos(a) * rr * 0.62 * stretch, math.sin(a) * rr * 0.62, 0.0))
+            cz2 = sit(q, rk, rk, rk * 0.8, 0.4, 1)
+            if cz2 is None:
+                continue
+            tuft(Vector((q.x, q.y, cz2)), rk, rk * 0.8, mats_lo, 8, 5, 0.4, a, (0.2, -0.2))
+        ntop = 3 if stretch > 1.0 else 2
+        for k in range(ntop):                       # 2-3 tufos no ALTO (claros)
+            a = b0 + 0.6 + TAU * k / ntop + rng.uniform(-0.3, 0.3)
+            rk = rr * rng.uniform(0.4, 0.48)
+            q = Vector((q0.x + math.cos(a) * rr * 0.28 * stretch, q0.y + math.sin(a) * rr * 0.28, cz + rr * 0.5))
+            tuft(q, rk, rk * 0.78, mats_hi, 8, 5, 0.3, a, (0.1, -0.5))
+    base = Vector((x, y, z))
     if kind == "tama":
-        recs.append(TR.blob(mb, base + ZZ * r * 0.5, r * 1.08, r, r * 0.86, nu, nv, mats, bands, fb=0.6, rot=a0,
-                            seed=_seed(rng), sq=2.2))
+        mound(base, r, 0)
     elif kind == "cerca":
-        recs.append(TR.blob(mb, base + ZZ * r * 0.55, r * 2.1, r * 0.8, r * 0.98, nu + 3, nv, mats, bands, fb=0.7,
-                            rot=a0, seed=_seed(rng), sq=2.6))
+        mound(base, r * 0.9, 0, stretch=2.0)
     else:
-        k = max(2, min(4, lumps + 1))
+        k = max(2, min(3, lumps + 1))
         o = vdir(a0)
         for j in range(k):
-            rr = r * (1.0 - 0.18 * j) * rng.uniform(0.92, 1.05)
-            q = base + o * (j * r * 0.95) + vdir(a0 + 1.57) * r * rng.uniform(-0.25, 0.25) + ZZ * rr * 0.5
-            recs.append(TR.blob(mb, q, rr * 1.05, rr * 0.98, rr * (0.9 - 0.08 * j), nu, nv, mats, bands, fb=0.6,
-                                rot=a0 + j, seed=_seed(rng), sq=2.2))
+            rr = r * (1.0 - 0.2 * j) * rng.uniform(0.92, 1.05)
+            mound(base + o * (j * r * 1.05) + vdir(a0 + 1.57) * r * rng.uniform(-0.2, 0.2), rr, j)
     TR.cull_inside(mb, recs)
+    if recs:
+        TR.soft_normals(mb, TR.rec_parts(recs, mesh_n=True), crown=TR.crown_of(recs, low=0.05), k=0.55, up=0.08)
     return [(rc.c, rc.rx, rc.ry, rc.rz, rc.rot) for rc in recs]
 
 
@@ -799,6 +865,7 @@ class Sec:
         self.rect = rect
         self.c = ((rect[0] + rect[2]) / 2, (rect[1] + rect[3]) / 2)
         self.mb = MB("OP_Veg_" + nm, C, random.Random(int(hh("sec", nm) * 1e6)), detail="far", floor=-999)
+        TR.nlayer(self.mb)                     # R3: normal de folhagem (camada criada antes das marcas)
         # marca de elemento ja aceito (o bmesh reaproveita a memoria do que foi desfeito: a ordem nao separa o novo)
         self.lv = self.mb.bm.verts.layers.int.new("veg_ok")
         self.lf = self.mb.bm.faces.layers.int.new("veg_ok")
@@ -809,7 +876,9 @@ class Sec:
         bm = self.mb.bm
         bm.verts.layers.int.remove(self.lv)
         bm.faces.layers.int.remove(self.lf)
-        return self.mb.finish()
+        ob = self.mb.finish()
+        TR.soft_object(ob)                     # R3: normais suaves ate o Roblox (op_tree.patch_export no export)
+        return ob
 
 
 def _sec(nm):
@@ -851,6 +920,38 @@ def _hits_built(nv, nf, zroot):
     return False
 
 
+def _floating_parts(nv, nf):
+    """R3 ('modelos flutuando'): pecas soltas da planta nova (componentes por vertice, ligadas entre si por
+    interseccao/contato <= 0,05) que NAO chegam ao chao/rocha/construido. Devolve (faces flutuando, total de grupos).
+    O tronco enterra 0,6 e a moita assenta 0,14 r: so tufo/almofada solta no ar aparece aqui"""
+    P_ = _PROBE[0]
+    if P_ is None or not nf:
+        return [], 0
+    idx = {v: i for i, v in enumerate(nv)}
+    par = list(range(len(nv)))
+
+    def fd(a):
+        while par[a] != a:
+            par[a] = par[par[a]]
+            a = par[a]
+        return a
+    F = [[idx[v] for v in f.verts] for f in nf]
+    for f in F:
+        r0 = fd(f[0])
+        for k in f[1:]:
+            r = fd(k)
+            if r != r0:
+                par[r] = r0
+    t = BVHTree.FromPolygons([v.co.copy() for v in nv], F, epsilon=0.05)
+    for a, b in t.overlap(t):
+        ra, rb = fd(F[a][0]), fd(F[b][0])
+        if ra != rb:
+            par[ra] = rb
+    grounded = {fd(F[a][0]) for a, b in t.overlap(P_.bvh)}
+    roots = {fd(f[0]) for f in F}
+    return [nf[k] for k, f in enumerate(F) if fd(f[0]) not in grounded], len(roots)
+
+
 def add_item(x, y, ext, gen, zroot=None, pink=False):
     """gera a planta (gen(mb), com rng proprio: repetivel) no setor dela; se ATRAVESSA o construido (teste exato,
     malha contra malha; o pe enraizado no chao vale), desfaz e nao nasce; se estoura o CAP de um material num setor
@@ -872,6 +973,18 @@ def add_item(x, y, ext, gen, zroot=None, pink=False):
             bmesh.ops.delete(bm, geom=nv, context="VERTS")
             STATS["intersecao"] = STATS.get("intersecao", 0) + 1
             return None
+        fl, ng = _floating_parts(nv, nf)
+        if fl:
+            if len(fl) * 2 > len(nf):                 # a planta quase toda no ar: nao nasce
+                bmesh.ops.delete(bm, geom=nv, context="VERTS")
+                STATS["sem_apoio"] = STATS.get("sem_apoio", 0) + 1
+                return None
+            vs = {v for f in fl for v in f.verts}     # so a peca solta sai (tufo de baixo da almofada de beira)
+            bmesh.ops.delete(bm, geom=fl, context="FACES_ONLY")
+            bmesh.ops.delete(bm, geom=[v for v in vs if v.is_valid and not v.link_faces], context="VERTS")
+            STATS["peca_solta"] = STATS.get("peca_solta", 0) + 1
+            nv = [v for v in nv if v.is_valid]
+            nf = [f for f in nf if f.is_valid]
         add = {}
         for f in nf:
             k = sc.mb.mats[f.material_index]
@@ -1030,15 +1143,49 @@ class Placer:
             return pl, xx, yy, z
         return None
 
-    def commit(self, fam, x, y, z, r, R, collide=True, col_r=None):
+    def commit(self, fam, x, y, z, r, R, collide=None, col_r=None, axis=None):
         self.placed.append((x, y, R, fam))
         TRUNKS.append((x, y, z, r, R, fam))
         # V3: todo tronco colide (o gate visual U8b mede o corpo DENTRO do tronco em qualquer chao alcancavel)
+        # R3 (colisao V3 do lead: 'o que se ve e o que colide'): o tronco colide pela PROPRIA casca (colv3.split faz a
+        # MeshPart Hull da Wood_OP_Dark no export) e a v3_finalize apaga as COL_ fora da lista branca -> a caixa do
+        # tronco nao e mais criada (TRUNK_COL_BOX = True volta a caixa, inclinada com o tronco)
+        if collide is None:
+            collide = TRUNK_COL_BOX
         if collide:
             # V3: 9,5 de altura (topo fora do pulo de 7,2: ninguem sobe no tronco para alcancar galho/telhado)
-            cr = max(r, col_r or 0.0) + 0.2                   # cobre o pe alargado (V3: flare 2x o raio do tronco)
-            col_box("OP_VegTrunk", (2.0 * cr, 2.0 * cr, 9.5), (x, y, z + 4.75))
+            # R3 (colisao V3 'o que se ve e o que colide'): a caixa (a MESMA de antes, nao uma nova) segue o TRONCO
+            # VISIVEL - largura do tronco a 2-4 de altura (nao a do pe alargado) e INCLINADA com ele (o kuromatsu que
+            # se debruca nao deixa mais parede invisivel onde o tronco ja nao esta)
+            cr = max(r, col_r or 0.0) + 0.2
+            p0 = Vector((x, y, z - 0.3))
+            d = None
+            if axis:
+                q = _trunk_at(axis, z + 6.0)
+                d = q - Vector((x, y, z))
+                if d.length < 1.0 or d.normalized().z < 0.45:
+                    d = None
+            if d is None:
+                col_box("OP_VegTrunk", (2.0 * cr, 2.0 * cr, 9.5), (x, y, z + 4.75))
+            else:
+                d.normalize()
+                ln = 9.8 / d.z
+                p1 = p0 + d * ln
+                col_box("OP_VegTrunk", (2.0 * cr, 2.0 * cr, ln), tuple((p0 + p1) / 2.0),
+                        tuple(d.to_track_quat("Z", "Y").to_euler()))
             self.ncol += 1
+
+
+TRUNK_COL_BOX = False
+
+
+def _trunk_at(pts, z):
+    """ponto do eixo do tronco (polilinha de controle) na cota z (o ultimo se o tronco nao chega la)"""
+    pts = [Vector(p) for p in pts]
+    for a, b in zip(pts, pts[1:]):
+        if a.z <= z <= b.z and b.z - a.z > 1e-6:
+            return a.lerp(b, (z - a.z) / (b.z - a.z))
+    return pts[-1]
 
 
 def _fail(pc, fam, x, y, note):
@@ -1089,7 +1236,7 @@ def place_cherry(pc, x, y, size, note, lean=None, lod=1, nudge=True, rock=False,
             _fail(pc, "cerejeira", x, y, note)
         return False
     pc.tris += t
-    pc.commit("cherry", xx, yy, z, pl["r0"] * 1.3, R, col_r=pl["r0"] * 2.15)
+    pc.commit("cherry", xx, yy, z, pl["r0"] * 1.3, R, col_r=pl["r0"] * 1.3, axis=[pl["base"], pl["F"]])
     STATS["cherry"] = STATS.get("cherry", 0) + 1
     STATS.setdefault("cherry_lod", {}).setdefault(lod, 0)
     STATS["cherry_lod"][lod] += 1
@@ -1116,7 +1263,7 @@ def place_pine(pc, x, y, h, note, lean=None, lod=1, nudge=True, rock=True, quiet
             _fail(pc, "pinheiro", x, y, note)
         return False
     pc.tris += t
-    pc.commit("pine", xx, yy, z, 0.85 * s, 4.6 * s, col_r=0.07 * h * 2.05)
+    pc.commit("pine", xx, yy, z, 0.85 * s, 4.6 * s, col_r=0.07 * h * 1.3, axis=pl["pts"])
     STATS["pine"] = STATS.get("pine", 0) + 1
     return True
 
@@ -1132,7 +1279,7 @@ def place_broad(pc, x, y, h, R, lod=0, nudge=True, var=None, rock=False):
     if t is None:
         return False
     pc.tris += t
-    pc.commit("broad", xx, yy, z, 0.3 + R * 0.075, R, col_r=(0.3 + R * 0.07) * 1.95)
+    pc.commit("broad", xx, yy, z, 0.3 + R * 0.075, R, col_r=(0.3 + R * 0.07) * 1.3, axis=[pl["base"], pl["F"]])
     STATS["broad"] = STATS.get("broad", 0) + 1
     return True
 
@@ -1156,27 +1303,15 @@ def place_bush(pc, x, y, r, nudge=False, lumps=2, route_gap=2.5, rock=False, kin
         sph = [(Vector((xx, yy, z + r * 0.5)), r * 1.1)]
         if blocks_view(pc.V, sph):
             continue
-        boxes = []
-        t = add_item(xx, yy, r * 2.0, lambda mb: boxes.__setitem__(slice(None), bush(mb, xx, yy, z, r, rng_at("bush", x, y),
-                                                                                    lumps=lumps, kind=kind) or []),
+        # R3 (colisao V3: folhagem nao colide e nao segura a camera; nenhuma caixa invisivel do dono da vegetacao):
+        # a moita NAO ganha mais caixa COL_OP_VegBush - o jogador passa rente a ela como numa moita de verdade
+        t = add_item(xx, yy, r * 2.0, lambda mb: bush(mb, xx, yy, z, r, rng_at("bush", x, y), lumps=lumps, kind=kind,
+                                                      rock=rock),
                      zroot=z, pink=kind == "tsutsuji")
         if t is None:
             return False
         pc.tris += t
         pc.placed.append((xx, yy, r, "bush"))
-        if boxes:                                     # 1 caixa por moita (no referencial do 1o monte)
-            rot = boxes[0][4]
-            ux, uy = math.cos(rot), math.sin(rot)
-            us, vs, hb = [], [], 1.2
-            for c, rx, ry, rz, _ in boxes:
-                du, dv = (c.x - xx) * ux + (c.y - yy) * uy, -(c.x - xx) * uy + (c.y - yy) * ux
-                rr = max(rx, ry) * 1.08
-                us += [du - rr, du + rr]
-                vs += [dv - rr, dv + rr]
-                hb = max(hb, c.z + rz * 1.02 - z)
-            cu, cv = (min(us) + max(us)) / 2.0, (min(vs) + max(vs)) / 2.0
-            col_box("OP_VegBush", (max(us) - min(us), max(vs) - min(vs), hb),
-                    (xx + cu * ux - cv * uy, yy + cu * uy + cv * ux, z + hb / 2.0), (0.0, 0.0, rot))
         STATS["bush"] = STATS.get("bush", 0) + 1
         return True
     return False
@@ -1282,7 +1417,7 @@ def court_pines(pc):
             if tt is None:
                 continue
             pc.tris += tt
-            pc.commit("pine", xx, yy, z, r, 4.6 * s_, col_r=0.07 * h * 2.05)
+            pc.commit("pine", xx, yy, z, r, 4.6 * s_, col_r=0.07 * h * 1.3, axis=pl["pts"])
             STATS["pine"] = STATS.get("pine", 0) + 1
             STATS.setdefault("patio_xy", []).append((round(xx, 1), round(yy, 1), round(z, 2)))
             n += 1
@@ -1554,7 +1689,10 @@ def cliff_greens(pc, budget, step=8.5):
         tree = hh("cgt", key) < 0.3 and zt - L.SEA > 24.0
         if tree:
             R = 4.6 + 2.4 * hh("cgr", key)
-            base = lip + o * 0.25 - ZZ * 0.4             # V3: o pe na quina (fora do chao andavel)
+            # R3 (flutuando): o pe ficava 0,25 PARA FORA do labio (no ar quando a falesia cai a prumo): agora nasce
+            # 0,3 para DENTRO da quina, enterrado 0,5 no chao real, e o tronco sai por cima dela
+            gi = pc.P.top(x - o.x * 0.3, y - o.y * 0.3)
+            base = Vector((x - o.x * 0.3, y - o.y * 0.3, (gi[0] if gi else zt) - 0.5))
             top = base + o * (2.8 + R * 0.5) + ZZ * (4.2 + R * 0.6)
             # V3 fix (gate U8b 'corpo' (232,5; 285,6) OP_Veg_Promontorio): o tronco sai em 45 graus por cima do labio;
             # onde ainda ha PISO COLIDIVEL (sem guarda alta) para fora da crista o jogador anda dentro do tronco -> a
@@ -1578,7 +1716,10 @@ def cliff_greens(pc, budget, step=8.5):
             t = add_item(x, y, R + 4.0, gen, zroot=zt)
         else:
             r = 3.4 + 2.6 * hh("cgb", key)
-            c1 = lip + o * r * 1.3 - ZZ * r * 0.55          # V3: a almofada cai PARA FORA do labio (corpo nao entra)
+            # R3 (flutuando): a almofada de beira ficava r*1,3 para fora do labio, solta da face -> agora r*0,7 para
+            # fora (a borda de dentro morde o labio) e ancorada na face como a de baixo
+            c1 = lip + o * r * 0.7 - ZZ * r * 0.55
+            c1 = _anchor(pc, c1, o, r * 0.95 * 1.15, r * 1.0, 0.5)
             drop = 2.0 + 3.0 * hh("cgd", key)
             c2 = Vector((fp.x, fp.y, zt - drop - r * 0.8)) + o * r * 0.3
             c2 = _anchor(pc, c2, o, r * 0.6 * 1.15, r * 1.1, 0.5)          # M6b (item 46)
@@ -1985,9 +2126,11 @@ def build():
     print("op_veg: %d tris, MeshParts~ %d, %d objetos, colisao %d | cerejeiras %d pinheiros %d largas %d moitas %d | %s"
           % (tris, mp, len(objs), pc.ncol, STATS.get("cherry", 0), STATS.get("pine", 0), STATS.get("broad", 0),
              STATS.get("bush", 0), out))
-    print("op_veg: rejeicoes %s | sem espaco no setor %d | atravessaria o construido %d | ancora: desceu %d encostou %d" % (
+    print("op_veg: rejeicoes %s | sem espaco no setor %d | atravessaria o construido %d | sem apoio (flutuaria) %d | "
+          "ancora: desceu %d encostou %d" % (
         sorted(pc.rej.items(), key=lambda a: -a[1]), STATS.get("sem_espaco", 0), STATS.get("intersecao", 0),
-        STATS.get("ancora_desceu", 0), STATS.get("ancora_encostou", 0)))
+        STATS.get("sem_apoio", 0), STATS.get("ancora_desceu", 0), STATS.get("ancora_encostou", 0)))
+    print("op_veg: pecas soltas removidas (tufo que ficaria no ar) %d" % STATS.get("peca_solta", 0))
     print("op_veg: grupos (tris) %s | patios internos: %d candidatos" % (STATS.get("grupo_tris"), STATS.get("patios_cand", 0)))
     print("op_veg: setores %s" % ", ".join("%s %s" % (nm, sorted(sc.cnt.items())) for nm, sc in sorted(_SEC.items())))
     print("op_veg: cerejeiras %s" % " ".join("(%.0f,%.0f,%.1f R%.1f)" % (t[0], t[1], t[2], t[4]) for t in TRUNKS
